@@ -4,10 +4,13 @@ import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { TrendingUp, Calendar, Brain, Target } from 'lucide-react';
-import MoodChart from '../components/progress/MoodChart';
+import EnhancedMoodChart from '../components/progress/EnhancedMoodChart';
 import InsightsPanel from '../components/progress/InsightsPanel';
 import StatsOverview from '../components/progress/StatsOverview';
 import AIInsights from '../components/progress/AIInsights';
+import ExerciseTracker from '../components/progress/ExerciseTracker';
+import JournalTracker from '../components/progress/JournalTracker';
+import CorrelationInsights from '../components/progress/CorrelationInsights';
 
 export default function Progress() {
   const [timeRange, setTimeRange] = useState('7');
@@ -36,7 +39,7 @@ export default function Progress() {
     initialData: []
   });
 
-  const { data: exercises } = useQuery({
+  const { data: exercises, isLoading: loadingExercises } = useQuery({
     queryKey: ['exercises'],
     queryFn: () => base44.entities.Exercise.list(),
     initialData: []
@@ -99,7 +102,7 @@ export default function Progress() {
                   </div>
                 </div>
               ) : (
-                <MoodChart data={filteredMoodEntries} />
+                <EnhancedMoodChart data={filteredMoodEntries} />
               )}
             </CardContent>
           </Card>
@@ -112,6 +115,21 @@ export default function Progress() {
             journalEntries={journalEntries}
           />
         </div>
+      </div>
+
+      {/* Exercise & Journal Trackers */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <ExerciseTracker exercises={exercises} />
+        <JournalTracker journalEntries={journalEntries} />
+      </div>
+
+      {/* Correlation Insights */}
+      <div className="mt-6">
+        <CorrelationInsights
+          moodEntries={moodEntries}
+          journalEntries={journalEntries}
+          exercises={exercises}
+        />
       </div>
 
       {/* AI-Powered Insights */}
