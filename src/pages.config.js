@@ -6,6 +6,7 @@ import Exercises from './pages/Exercises';
 import Goals from './pages/Goals';
 import Settings from './pages/Settings';
 import Coach from './pages/Coach';
+import Resources from './pages/Resources';
 import __Layout from './Layout.jsx';
 
 
@@ -18,6 +19,7 @@ export const PAGES = {
     "Goals": Goals,
     "Settings": Settings,
     "Coach": Coach,
+    "Resources": Resources,
 }
 
 export const pagesConfig = {

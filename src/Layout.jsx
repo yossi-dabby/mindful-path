@@ -12,6 +12,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Journal', icon: BookOpen, path: 'Journal' },
     { name: 'Progress', icon: Activity, path: 'Progress' },
     { name: 'Exercises', icon: Dumbbell, path: 'Exercises' },
+    { name: 'Resources', icon: BookOpen, path: 'Resources' },
     { name: 'Settings', icon: Settings, path: 'Settings' }
   ];
 
