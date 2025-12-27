@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp, Edit, TrendingDown } from 'lucide-react';
+import { ChevronDown, ChevronUp, Edit, TrendingDown, Image as ImageIcon, Mic, Tag } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -28,20 +28,26 @@ export default function ThoughtRecordCard({ entry, onEdit }) {
         </div>
 
         <div className="flex flex-wrap gap-2 mb-4">
-          {entry.emotions.slice(0, 3).map((emotion) => (
+          {entry.emotions?.slice(0, 3).map((emotion) => (
             <Badge key={emotion} variant="secondary" className="bg-purple-100 text-purple-700">
               {emotion}
             </Badge>
           ))}
-          {entry.emotions.length > 3 && (
+          {entry.emotions?.length > 3 && (
             <Badge variant="secondary" className="bg-gray-100 text-gray-600">
               +{entry.emotions.length - 3} more
             </Badge>
           )}
+          {entry.tags?.map((tag) => (
+            <Badge key={tag} variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+              <Tag className="w-3 h-3 mr-1" />
+              {tag}
+            </Badge>
+          ))}
         </div>
 
-        {entry.outcome_emotion_intensity && (
-          <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center gap-2 mb-4 flex-wrap">
+          {entry.outcome_emotion_intensity && (
             <div className={cn(
               "px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1",
               improvement ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
@@ -50,8 +56,20 @@ export default function ThoughtRecordCard({ entry, onEdit }) {
               Intensity: {entry.emotion_intensity} → {entry.outcome_emotion_intensity}
               {improvement && ` (-${intensityChange})`}
             </div>
-          </div>
-        )}
+          )}
+          {entry.images?.length > 0 && (
+            <Badge variant="outline" className="flex items-center gap-1">
+              <ImageIcon className="w-3 h-3" />
+              {entry.images.length} {entry.images.length === 1 ? 'image' : 'images'}
+            </Badge>
+          )}
+          {entry.audio_notes?.length > 0 && (
+            <Badge variant="outline" className="flex items-center gap-1">
+              <Mic className="w-3 h-3" />
+              {entry.audio_notes.length} {entry.audio_notes.length === 1 ? 'audio' : 'audios'}
+            </Badge>
+          )}
+        </div>
 
         <Button
           variant="ghost"
@@ -109,6 +127,29 @@ export default function ThoughtRecordCard({ entry, onEdit }) {
               <div className="bg-purple-50 p-4 rounded-xl">
                 <p className="text-sm font-medium text-purple-900 mb-1">Balanced Thought:</p>
                 <p className="text-purple-800 text-sm">{entry.balanced_thought}</p>
+              </div>
+            )}
+
+            {/* Attached Media */}
+            {entry.images?.length > 0 && (
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-2">Attached Images:</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {entry.images.map((url, index) => (
+                    <img key={index} src={url} alt="" className="w-full h-24 object-cover rounded-lg cursor-pointer" onClick={() => window.open(url, '_blank')} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {entry.audio_notes?.length > 0 && (
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-2">Audio Notes:</p>
+                <div className="space-y-2">
+                  {entry.audio_notes.map((url, index) => (
+                    <audio key={index} src={url} controls className="w-full h-10" />
+                  ))}
+                </div>
               </div>
             )}
           </div>

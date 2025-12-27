@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { X } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { X, Image as ImageIcon, Mic, Upload, Trash2, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const commonEmotions = [
@@ -27,9 +28,13 @@ const cognitiveDistortions = [
   'Personalization'
 ];
 
-export default function ThoughtRecordForm({ entry, onClose }) {
+export default function ThoughtRecordForm({ entry, template, templates, onClose }) {
   const [step, setStep] = useState(1);
+  const [selectedTemplate, setSelectedTemplate] = useState(template || (entry?.template_id ? templates.find(t => t.id === entry.template_id) : null));
   const [formData, setFormData] = useState(entry || {
+    entry_type: template?.entry_type || 'cbt_standard',
+    template_id: template?.id || null,
+    template_name: template?.name || null,
     situation: '',
     automatic_thoughts: '',
     emotions: [],
@@ -38,8 +43,15 @@ export default function ThoughtRecordForm({ entry, onClose }) {
     evidence_for: '',
     evidence_against: '',
     balanced_thought: '',
-    outcome_emotion_intensity: 5
+    outcome_emotion_intensity: 5,
+    custom_fields: {},
+    tags: [],
+    images: [],
+    audio_notes: []
   });
+
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [newTag, setNewTag] = useState('');
 
   const saveMutation = useMutation({
     mutationFn: (data) => 
@@ -48,6 +60,59 @@ export default function ThoughtRecordForm({ entry, onClose }) {
         : base44.entities.ThoughtJournal.create(data),
     onSuccess: () => onClose()
   });
+
+  const handleFileUpload = async (file, type) => {
+    setUploadingFile(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      if (type === 'image') {
+        setFormData(prev => ({
+          ...prev,
+          images: [...(prev.images || []), file_url]
+        }));
+      } else if (type === 'audio') {
+        setFormData(prev => ({
+          ...prev,
+          audio_notes: [...(prev.audio_notes || []), file_url]
+        }));
+      }
+    } catch (error) {
+      console.error('Upload failed:', error);
+    } finally {
+      setUploadingFile(false);
+    }
+  };
+
+  const removeFile = (index, type) => {
+    if (type === 'image') {
+      setFormData(prev => ({
+        ...prev,
+        images: prev.images.filter((_, i) => i !== index)
+      }));
+    } else if (type === 'audio') {
+      setFormData(prev => ({
+        ...prev,
+        audio_notes: prev.audio_notes.filter((_, i) => i !== index)
+      }));
+    }
+  };
+
+  const addTag = () => {
+    if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        tags: [...prev.tags, newTag.trim()]
+      }));
+      setNewTag('');
+    }
+  };
+
+  const removeTag = (tag) => {
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags.filter(t => t !== tag)
+    }));
+  };
 
   const toggleItem = (field, item) => {
     setFormData(prev => ({
@@ -63,7 +128,14 @@ export default function ThoughtRecordForm({ entry, onClose }) {
       <Card className="w-full max-w-2xl border-0 shadow-2xl my-8">
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">
-            <CardTitle>Thought Record - Step {step} of 4</CardTitle>
+            <div>
+              <CardTitle>
+                {selectedTemplate ? selectedTemplate.name : 'Journal Entry'} - Step {step} of 5
+              </CardTitle>
+              {selectedTemplate && (
+                <p className="text-sm text-gray-500 mt-1">{selectedTemplate.description}</p>
+              )}
+            </div>
             <Button variant="ghost" size="icon" onClick={onClose}>
               <X className="w-5 h-5" />
             </Button>
@@ -72,6 +144,42 @@ export default function ThoughtRecordForm({ entry, onClose }) {
         <CardContent className="p-6">
           {step === 1 && (
             <div className="space-y-6">
+              {/* Template Selection */}
+              {!entry && !template && templates.length > 0 && (
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Choose a Template (Optional)
+                  </label>
+                  <Select
+                    value={selectedTemplate?.id || 'none'}
+                    onValueChange={(value) => {
+                      const tmpl = templates.find(t => t.id === value);
+                      setSelectedTemplate(tmpl);
+                      if (tmpl) {
+                        setFormData({
+                          ...formData,
+                          entry_type: tmpl.entry_type,
+                          template_id: tmpl.id,
+                          template_name: tmpl.name
+                        });
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="rounded-xl">
+                      <SelectValue placeholder="Standard CBT Format" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Standard CBT Format</SelectItem>
+                      {templates.map((tmpl) => (
+                        <SelectItem key={tmpl.id} value={tmpl.id}>
+                          {tmpl.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
                   What happened? (The Situation)
