@@ -56,9 +56,15 @@ export default function SessionSummary({ conversation }) {
                       <CardContent className="p-4">
                         <h4 className="font-semibold text-gray-800 mb-1">{exercise.title}</h4>
                         <p className="text-xs text-gray-600 mb-2">{exercise.description}</p>
-                        <Badge variant="outline" className="text-xs">
-                          {exercise.duration_minutes} min
-                        </Badge>
+                        {exercise.duration_options?.length > 0 ? (
+                          <Badge variant="outline" className="text-xs">
+                            {exercise.duration_options.join(', ')} min
+                          </Badge>
+                        ) : exercise.duration_minutes ? (
+                          <Badge variant="outline" className="text-xs">
+                            {exercise.duration_minutes} min
+                          </Badge>
+                        ) : null}
                       </CardContent>
                     </Card>
                   </Link>
