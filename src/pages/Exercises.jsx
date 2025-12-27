@@ -133,12 +133,24 @@ export default function Exercises() {
                 <CardContent>
                   <p className="text-sm text-gray-600 mb-4 line-clamp-2">{exercise.description}</p>
                   <div className="flex items-center justify-between text-xs text-gray-500">
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {exercise.duration_minutes} min
-                    </div>
+                    {exercise.duration_options?.length > 0 ? (
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {exercise.duration_options.join(', ')} min
+                      </div>
+                    ) : exercise.duration_minutes ? (
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {exercise.duration_minutes} min
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        Flexible
+                      </div>
+                    )}
                     <Badge variant="outline" className="text-xs capitalize">
-                      {exercise.difficulty}
+                      {exercise.difficulty || 'beginner'}
                     </Badge>
                   </div>
                 </CardContent>
