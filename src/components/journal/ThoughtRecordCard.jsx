@@ -1,0 +1,119 @@
+import React, { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { ChevronDown, ChevronUp, Edit, TrendingDown } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+
+export default function ThoughtRecordCard({ entry, onEdit }) {
+  const [expanded, setExpanded] = useState(false);
+
+  const intensityChange = entry.emotion_intensity - entry.outcome_emotion_intensity;
+  const improvement = intensityChange > 0;
+
+  return (
+    <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
+      <CardContent className="p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1">
+            <p className="text-sm text-gray-500 mb-1">
+              {format(new Date(entry.created_date), 'MMM d, yyyy • h:mm a')}
+            </p>
+            <p className="text-gray-800 font-medium line-clamp-2">{entry.situation}</p>
+          </div>
+          <Button variant="ghost" size="icon" onClick={() => onEdit(entry)}>
+            <Edit className="w-4 h-4 text-gray-400" />
+          </Button>
+        </div>
+
+        <div className="flex flex-wrap gap-2 mb-4">
+          {entry.emotions.slice(0, 3).map((emotion) => (
+            <Badge key={emotion} variant="secondary" className="bg-purple-100 text-purple-700">
+              {emotion}
+            </Badge>
+          ))}
+          {entry.emotions.length > 3 && (
+            <Badge variant="secondary" className="bg-gray-100 text-gray-600">
+              +{entry.emotions.length - 3} more
+            </Badge>
+          )}
+        </div>
+
+        {entry.outcome_emotion_intensity && (
+          <div className="flex items-center gap-2 mb-4">
+            <div className={cn(
+              "px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1",
+              improvement ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
+            )}>
+              {improvement && <TrendingDown className="w-4 h-4" />}
+              Intensity: {entry.emotion_intensity} → {entry.outcome_emotion_intensity}
+              {improvement && ` (-${intensityChange})`}
+            </div>
+          </div>
+        )}
+
+        <Button
+          variant="ghost"
+          onClick={() => setExpanded(!expanded)}
+          className="w-full text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+        >
+          {expanded ? (
+            <>
+              <ChevronUp className="w-4 h-4 mr-2" />
+              Show less
+            </>
+          ) : (
+            <>
+              <ChevronDown className="w-4 h-4 mr-2" />
+              Show full record
+            </>
+          )}
+        </Button>
+
+        {expanded && (
+          <div className="mt-4 pt-4 border-t border-gray-200 space-y-4">
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-1">Automatic Thoughts:</p>
+              <p className="text-gray-600 text-sm">{entry.automatic_thoughts}</p>
+            </div>
+
+            {entry.cognitive_distortions?.length > 0 && (
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-2">Thinking Patterns:</p>
+                <div className="flex flex-wrap gap-2">
+                  {entry.cognitive_distortions.map((distortion) => (
+                    <Badge key={distortion} variant="outline" className="text-xs">
+                      {distortion}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {entry.evidence_for && (
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-1">Evidence For:</p>
+                <p className="text-gray-600 text-sm">{entry.evidence_for}</p>
+              </div>
+            )}
+
+            {entry.evidence_against && (
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-1">Evidence Against:</p>
+                <p className="text-gray-600 text-sm">{entry.evidence_against}</p>
+              </div>
+            )}
+
+            {entry.balanced_thought && (
+              <div className="bg-purple-50 p-4 rounded-xl">
+                <p className="text-sm font-medium text-purple-900 mb-1">Balanced Thought:</p>
+                <p className="text-purple-800 text-sm">{entry.balanced_thought}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
