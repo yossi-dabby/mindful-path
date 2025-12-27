@@ -179,7 +179,7 @@ export default function Coach() {
             </div>
           ) : (
             <>
-              {messages.map((message, index) => (
+              {messages.filter(m => m && m.content).map((message, index) => (
                 <MessageBubble key={index} message={message} />
               ))}
               {isLoading && (
