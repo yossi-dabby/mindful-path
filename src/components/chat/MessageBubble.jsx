@@ -36,7 +36,7 @@ export default function MessageBubble({ message }) {
                     }
                     return (
                       <pre className="bg-gray-100 rounded-lg p-3 my-2 overflow-x-auto">
-                        <code className={className} {...props}>{children}</code>
+                        <code className={className || ''} {...props}>{children}</code>
                       </pre>
                     );
                   },
@@ -61,7 +61,7 @@ export default function MessageBubble({ message }) {
                   )
                 }}
               >
-                {message.content}
+                {message.content || ''}
               </ReactMarkdown>
             )}
           </div>
