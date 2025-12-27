@@ -7,6 +7,7 @@ import { TrendingUp, Calendar, Brain, Target } from 'lucide-react';
 import MoodChart from '../components/progress/MoodChart';
 import InsightsPanel from '../components/progress/InsightsPanel';
 import StatsOverview from '../components/progress/StatsOverview';
+import AIInsights from '../components/progress/AIInsights';
 
 export default function Progress() {
   const [timeRange, setTimeRange] = useState('7');
@@ -32,6 +33,12 @@ export default function Progress() {
   const { data: conversations } = useQuery({
     queryKey: ['progressConversations'],
     queryFn: () => base44.agents.listConversations({ agent_name: 'cbt_therapist' }),
+    initialData: []
+  });
+
+  const { data: exercises } = useQuery({
+    queryKey: ['exercises'],
+    queryFn: () => base44.entities.Exercise.list(),
     initialData: []
   });
 
@@ -105,6 +112,15 @@ export default function Progress() {
             journalEntries={journalEntries}
           />
         </div>
+      </div>
+
+      {/* AI-Powered Insights */}
+      <div className="mt-6">
+        <AIInsights 
+          moodEntries={moodEntries}
+          journalEntries={journalEntries}
+          exercises={exercises}
+        />
       </div>
 
       {/* Activity Timeline */}
