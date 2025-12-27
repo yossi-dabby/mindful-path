@@ -15,6 +15,17 @@ export default function ExerciseDetail({ exercise, onClose, onComplete }) {
     }, 2000);
   };
 
+  if (showBreathingVisual && exercise.category === 'breathing') {
+    return (
+      <BreathingVisual
+        exercise={exercise}
+        duration={selectedDuration}
+        onClose={() => setShowBreathingVisual(false)}
+        onComplete={handleBreathingComplete}
+      />
+    );
+  }
+
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
       <Card className="w-full max-w-2xl border-0 shadow-2xl my-8">
