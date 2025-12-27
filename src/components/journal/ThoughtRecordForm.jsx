@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { X, Image as ImageIcon, Mic, Upload, Trash2, Plus } from 'lucide-react';
+import { X, Image as ImageIcon, Mic, Upload, Trash2, Plus, Sparkles, Brain, Lightbulb, Target, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const commonEmotions = [
@@ -52,6 +52,8 @@ export default function ThoughtRecordForm({ entry, template, templates, onClose 
 
   const [uploadingFile, setUploadingFile] = useState(false);
   const [newTag, setNewTag] = useState('');
+  const [aiAnalysis, setAiAnalysis] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const saveMutation = useMutation({
     mutationFn: (data) => 
@@ -60,6 +62,72 @@ export default function ThoughtRecordForm({ entry, template, templates, onClose 
         : base44.entities.ThoughtJournal.create(data),
     onSuccess: () => onClose()
   });
+
+  const analyzeEntry = async () => {
+    setIsAnalyzing(true);
+    try {
+      const prompt = `Analyze this CBT journal entry and provide insights:
+
+**Situation:** ${formData.situation}
+**Automatic Thoughts:** ${formData.automatic_thoughts}
+**Emotions:** ${formData.emotions.join(', ')}
+**Intensity:** ${formData.emotion_intensity}/10
+**Cognitive Distortions:** ${formData.cognitive_distortions.join(', ')}
+**Evidence For:** ${formData.evidence_for}
+**Evidence Against:** ${formData.evidence_against}
+**Balanced Thought:** ${formData.balanced_thought}
+
+Provide:
+1. **Sentiment Analysis**: Overall emotional tone and patterns
+2. **Suggested Tags**: 3-5 relevant tags based on themes (e.g., "work stress", "relationships", "self-worth")
+3. **Recommended Exercises**: Suggest 2-3 specific CBT exercise categories that would help
+4. **Key Insight**: One encouraging insight about their thought process`;
+
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            sentiment: {
+              type: "object",
+              properties: {
+                overall_tone: { type: "string" },
+                emotional_shift: { type: "string" },
+                patterns_noticed: { type: "array", items: { type: "string" } }
+              }
+            },
+            suggested_tags: {
+              type: "array",
+              items: { type: "string" }
+            },
+            recommended_exercises: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  category: { type: "string" },
+                  reason: { type: "string" }
+                }
+              }
+            },
+            key_insight: { type: "string" }
+          }
+        }
+      });
+
+      setAiAnalysis(response);
+      
+      // Auto-apply suggested tags
+      setFormData(prev => ({
+        ...prev,
+        tags: [...new Set([...prev.tags, ...response.suggested_tags])]
+      }));
+    } catch (error) {
+      console.error('Analysis failed:', error);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   const handleFileUpload = async (file, type) => {
     setUploadingFile(true);
@@ -130,7 +198,7 @@ export default function ThoughtRecordForm({ entry, template, templates, onClose 
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>
-                {selectedTemplate ? selectedTemplate.name : 'Journal Entry'} - Step {step} of 5
+                {selectedTemplate ? selectedTemplate.name : 'Journal Entry'} - Step {step} of 6
               </CardTitle>
               {selectedTemplate && (
                 <p className="text-sm text-gray-500 mt-1">{selectedTemplate.description}</p>
@@ -368,6 +436,207 @@ export default function ThoughtRecordForm({ entry, template, templates, onClose 
 
               <div className="flex gap-3">
                 <Button onClick={() => setStep(3)} variant="outline" className="flex-1">
+                  Back
+                </Button>
+                <Button
+                  onClick={() => setStep(5)}
+                  className="flex-1 bg-purple-600 hover:bg-purple-700"
+                >
+                  Continue
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {step === 5 && (
+            <div className="space-y-6">
+              {/* AI Analysis Section */}
+              {!aiAnalysis && !isAnalyzing && (
+                <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-xl border-2 border-purple-200">
+                  <div className="text-center">
+                    <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-3">
+                      <Sparkles className="w-8 h-8 text-purple-600" />
+                    </div>
+                    <h3 className="font-semibold text-gray-800 mb-2">Get AI Insights</h3>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Analyze your entry for sentiment, themes, and get personalized exercise recommendations
+                    </p>
+                    <Button
+                      onClick={analyzeEntry}
+                      className="bg-purple-600 hover:bg-purple-700"
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Analyze Entry
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {isAnalyzing && (
+                <div className="bg-white p-8 rounded-xl border text-center">
+                  <Loader2 className="w-8 h-8 text-purple-600 animate-spin mx-auto mb-3" />
+                  <p className="text-sm text-gray-600">Analyzing your journal entry...</p>
+                </div>
+              )}
+
+              {aiAnalysis && (
+                <div className="space-y-4">
+                  {/* Sentiment Analysis */}
+                  <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-4 rounded-xl border border-blue-200">
+                    <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                      <Brain className="w-4 h-4 text-blue-600" />
+                      Sentiment Analysis
+                    </h4>
+                    <div className="space-y-2 text-sm">
+                      <p className="text-gray-700">
+                        <span className="font-medium">Overall Tone:</span> {aiAnalysis.sentiment.overall_tone}
+                      </p>
+                      <p className="text-gray-700">
+                        <span className="font-medium">Emotional Shift:</span> {aiAnalysis.sentiment.emotional_shift}
+                      </p>
+                      {aiAnalysis.sentiment.patterns_noticed?.length > 0 && (
+                        <div>
+                          <p className="font-medium text-gray-700 mb-1">Patterns:</p>
+                          <ul className="space-y-1">
+                            {aiAnalysis.sentiment.patterns_noticed.map((pattern, i) => (
+                              <li key={i} className="text-gray-600 text-xs flex items-start gap-1">
+                                <span className="text-blue-600 mt-0.5">•</span>
+                                {pattern}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Key Insight */}
+                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl border border-green-200">
+                    <h4 className="font-semibold text-green-800 mb-2 flex items-center gap-2">
+                      <Lightbulb className="w-4 h-4" />
+                      Key Insight
+                    </h4>
+                    <p className="text-sm text-green-700">{aiAnalysis.key_insight}</p>
+                  </div>
+
+                  {/* Recommended Exercises */}
+                  {aiAnalysis.recommended_exercises?.length > 0 && (
+                    <div className="bg-gradient-to-br from-orange-50 to-yellow-50 p-4 rounded-xl border border-orange-200">
+                      <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                        <Target className="w-4 h-4 text-orange-600" />
+                        Recommended Practices
+                      </h4>
+                      <div className="space-y-2">
+                        {aiAnalysis.recommended_exercises.map((rec, i) => (
+                          <div key={i} className="bg-white/70 p-3 rounded-lg">
+                            <p className="font-medium text-gray-800 text-sm capitalize">{rec.category}</p>
+                            <p className="text-xs text-gray-600 mt-1">{rec.reason}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Tags Section */}
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Tags {aiAnalysis && <span className="text-purple-600">(AI-suggested tags applied)</span>}
+                </label>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {formData.tags.map((tag) => (
+                    <Badge
+                      key={tag}
+                      className="bg-purple-100 text-purple-700 pr-1 pl-3 py-1 flex items-center gap-1"
+                    >
+                      {tag}
+                      <button
+                        onClick={() => removeTag(tag)}
+                        className="hover:bg-purple-200 rounded-full p-0.5"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <Input
+                    value={newTag}
+                    onChange={(e) => setNewTag(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                    placeholder="Add a custom tag..."
+                    className="rounded-xl"
+                  />
+                  <Button onClick={addTag} variant="outline" size="icon">
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Media Attachments */}
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Attachments (Optional)
+                </label>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => document.getElementById('image-upload').click()}
+                    disabled={uploadingFile}
+                    className="flex-1"
+                  >
+                    <ImageIcon className="w-4 h-4 mr-2" />
+                    Add Image
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => document.getElementById('audio-upload').click()}
+                    disabled={uploadingFile}
+                    className="flex-1"
+                  >
+                    <Mic className="w-4 h-4 mr-2" />
+                    Add Audio
+                  </Button>
+                  <input
+                    id="image-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => e.target.files[0] && handleFileUpload(e.target.files[0], 'image')}
+                  />
+                  <input
+                    id="audio-upload"
+                    type="file"
+                    accept="audio/*"
+                    className="hidden"
+                    onChange={(e) => e.target.files[0] && handleFileUpload(e.target.files[0], 'audio')}
+                  />
+                </div>
+
+                {/* Display attached files */}
+                {formData.images?.length > 0 && (
+                  <div className="mt-3">
+                    <p className="text-xs text-gray-600 mb-2">Images:</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {formData.images.map((url, i) => (
+                        <div key={i} className="relative group">
+                          <img src={url} alt="" className="w-full h-20 object-cover rounded-lg" />
+                          <button
+                            onClick={() => removeFile(i, 'image')}
+                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-3">
+                <Button onClick={() => setStep(4)} variant="outline" className="flex-1">
                   Back
                 </Button>
                 <Button
