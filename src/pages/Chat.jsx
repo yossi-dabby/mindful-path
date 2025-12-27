@@ -4,9 +4,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Plus, Loader2, Menu } from 'lucide-react';
+import { Send, Plus, Loader2, Menu, Sparkles } from 'lucide-react';
 import MessageBubble from '../components/chat/MessageBubble';
 import ConversationsList from '../components/chat/ConversationsList';
+import SessionSummary from '../components/chat/SessionSummary';
+import ProactiveCheckIn from '../components/chat/ProactiveCheckIn';
 
 export default function Chat() {
   const [currentConversationId, setCurrentConversationId] = useState(null);
@@ -14,6 +16,7 @@ export default function Chat() {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
+  const [showSummaryPrompt, setShowSummaryPrompt] = useState(false);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -45,6 +48,19 @@ export default function Chat() {
     queryFn: () => base44.agents.listConversations({ agent_name: 'cbt_therapist' }),
     initialData: []
   });
+
+  const { data: currentConversationData } = useQuery({
+    queryKey: ['currentConversation', currentConversationId],
+    queryFn: () => currentConversationId ? base44.agents.getConversation(currentConversationId) : null,
+    enabled: !!currentConversationId
+  });
+
+  // Check if we should show summary prompt (after 5+ messages)
+  useEffect(() => {
+    if (messages.length >= 6 && !isLoading && messages[messages.length - 1]?.role === 'assistant') {
+      setShowSummaryPrompt(true);
+    }
+  }, [messages, isLoading]);
 
   const startNewConversation = async () => {
     const conversation = await base44.agents.createConversation({
@@ -78,10 +94,24 @@ export default function Chat() {
     
     setIsLoading(true);
     setInputMessage('');
+    setShowSummaryPrompt(false);
 
     await base44.agents.addMessage(conversation, {
       role: 'user',
       content: inputMessage
+    });
+  };
+
+  const requestSummary = async () => {
+    if (!currentConversationId) return;
+    
+    const conversation = await base44.agents.getConversation(currentConversationId);
+    setIsLoading(true);
+    setShowSummaryPrompt(false);
+
+    await base44.agents.addMessage(conversation, {
+      role: 'user',
+      content: 'Can you provide a session summary with key takeaways, any exercises you recommend, and helpful resources for what we discussed today?'
     });
   };
 
@@ -144,9 +174,26 @@ export default function Chat() {
                   Start Your First Session
                 </Button>
               </Card>
+
+              {/* Proactive Check-ins */}
+              <div className="absolute bottom-24 left-0 right-0 px-4">
+                <div className="max-w-2xl mx-auto">
+                  <ProactiveCheckIn onSendMessage={async (prompt) => {
+                    await startNewConversation();
+                    setTimeout(() => {
+                      setInputMessage(prompt);
+                    }, 500);
+                  }} />
+                </div>
+              </div>
             </div>
           ) : (
             <>
+              {/* Proactive Check-ins at start of conversation */}
+              {messages.length === 0 && (
+                <ProactiveCheckIn onSendMessage={(prompt) => setInputMessage(prompt)} />
+              )}
+
               {messages.map((message, index) => (
                 <MessageBubble key={index} message={message} />
               ))}
@@ -161,9 +208,49 @@ export default function Chat() {
                 </div>
               )}
               <div ref={messagesEndRef} />
+
+              {/* Summary Prompt */}
+              {showSummaryPrompt && !isLoading && (
+                <Card className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                      <Sparkles className="w-5 h-5 text-purple-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-800 mb-1">
+                        Would you like a session summary?
+                      </p>
+                      <p className="text-xs text-gray-600 mb-3">
+                        Get key takeaways, recommended exercises, and helpful resources
+                      </p>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={requestSummary}
+                          size="sm"
+                          className="bg-purple-600 hover:bg-purple-700"
+                        >
+                          Yes, create summary
+                        </Button>
+                        <Button
+                          onClick={() => setShowSummaryPrompt(false)}
+                          size="sm"
+                          variant="outline"
+                        >
+                          Not now
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              )}
             </>
           )}
         </div>
+
+        {/* Session Summary Display */}
+        {currentConversationData?.session_summary && (
+          <SessionSummary conversation={currentConversationData} />
+        )}
 
         {/* Input Area */}
         {currentConversationId && (
