@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
 
 export default function MessageBubble({ message }) {
-  if (!message) return null;
+  if (!message || !message.content) return null;
   
   const isUser = message.role === 'user';
   
