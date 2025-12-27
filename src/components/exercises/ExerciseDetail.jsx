@@ -3,9 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { X, Play, CheckCircle, Clock } from 'lucide-react';
+import BreathingVisual from './BreathingVisual';
 
 export default function ExerciseDetail({ exercise, onClose, onComplete }) {
   const [completed, setCompleted] = useState(false);
+  const [showBreathingVisual, setShowBreathingVisual] = useState(false);
+  const [selectedDuration, setSelectedDuration] = useState(null);
 
   const handleComplete = () => {
     setCompleted(true);
@@ -13,6 +16,15 @@ export default function ExerciseDetail({ exercise, onClose, onComplete }) {
     setTimeout(() => {
       onClose();
     }, 2000);
+  };
+
+  const handleStartBreathing = (duration) => {
+    setSelectedDuration(duration);
+    setShowBreathingVisual(true);
+  };
+
+  const handleBreathingComplete = () => {
+    handleComplete();
   };
 
   if (showBreathingVisual && exercise.category === 'breathing') {
@@ -37,10 +49,17 @@ export default function ExerciseDetail({ exercise, onClose, onComplete }) {
                 <Badge variant="outline" className="capitalize">
                   {exercise.difficulty}
                 </Badge>
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {exercise.duration_minutes} minutes
-                </Badge>
+                {exercise.duration_options?.length > 0 ? (
+                  <Badge variant="secondary" className="flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {exercise.duration_options.join(', ')} min options
+                  </Badge>
+                ) : exercise.duration_minutes && (
+                  <Badge variant="secondary" className="flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {exercise.duration_minutes} minutes
+                  </Badge>
+                )}
               </div>
             </div>
             <Button variant="ghost" size="icon" onClick={onClose}>
@@ -66,6 +85,24 @@ export default function ExerciseDetail({ exercise, onClose, onComplete }) {
               </div>
             </div>
 
+            {/* Duration Options for Breathing Exercises */}
+            {exercise.category === 'breathing' && exercise.duration_options?.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">Choose Duration</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {exercise.duration_options.map((duration) => (
+                    <Button
+                      key={duration}
+                      onClick={() => handleStartBreathing(duration)}
+                      className="bg-gradient-to-br from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 py-6 text-lg font-semibold"
+                    >
+                      {duration} min
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Completion Stats */}
             {exercise.completed_count > 0 && (
               <div className="bg-green-50 rounded-xl p-4 border border-green-200">
@@ -81,24 +118,26 @@ export default function ExerciseDetail({ exercise, onClose, onComplete }) {
             )}
 
             {/* Action Buttons */}
-            <div className="flex gap-3">
-              {completed ? (
-                <div className="flex-1 bg-green-100 border border-green-300 rounded-xl p-4 flex items-center justify-center gap-2 text-green-700 font-medium">
-                  <CheckCircle className="w-5 h-5" />
-                  Exercise Completed!
-                </div>
-              ) : (
-                <>
-                  <Button variant="outline" onClick={onClose} className="flex-1">
-                    Close
-                  </Button>
-                  <Button onClick={handleComplete} className="flex-1 bg-green-600 hover:bg-green-700">
-                    <Play className="w-4 h-4 mr-2" />
-                    Mark as Complete
-                  </Button>
-                </>
-              )}
-            </div>
+            {exercise.category !== 'breathing' && (
+              <div className="flex gap-3">
+                {completed ? (
+                  <div className="flex-1 bg-green-100 border border-green-300 rounded-xl p-4 flex items-center justify-center gap-2 text-green-700 font-medium">
+                    <CheckCircle className="w-5 h-5" />
+                    Exercise Completed!
+                  </div>
+                ) : (
+                  <>
+                    <Button variant="outline" onClick={onClose} className="flex-1">
+                      Close
+                    </Button>
+                    <Button onClick={handleComplete} className="flex-1 bg-green-600 hover:bg-green-700">
+                      <Play className="w-4 h-4 mr-2" />
+                      Mark as Complete
+                    </Button>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
