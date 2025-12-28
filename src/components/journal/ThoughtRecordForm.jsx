@@ -64,13 +64,16 @@ export default function ThoughtRecordForm({ entry, template, templates, onClose 
     initialData: []
   });
 
+  const queryClient = useQueryClient();
+
   const saveMutation = useMutation({
     mutationFn: (data) => 
       entry 
         ? base44.entities.ThoughtJournal.update(entry.id, data)
         : base44.entities.ThoughtJournal.create(data),
     onSuccess: () => {
-      setTimeout(() => onClose(), 0);
+      queryClient.invalidateQueries(['thoughtJournals']);
+      onClose();
     }
   });
 
