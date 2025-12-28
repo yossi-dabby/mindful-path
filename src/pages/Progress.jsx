@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { TrendingUp, Calendar, Brain, Target } from 'lucide-react';
+import { TrendingUp, Calendar, Brain, Target, Activity } from 'lucide-react';
 import EnhancedMoodChart from '../components/progress/EnhancedMoodChart';
 import InsightsPanel from '../components/progress/InsightsPanel';
 import StatsOverview from '../components/progress/StatsOverview';
@@ -11,6 +11,8 @@ import AIInsights from '../components/progress/AIInsights';
 import ExerciseTracker from '../components/progress/ExerciseTracker';
 import JournalTracker from '../components/progress/JournalTracker';
 import CorrelationInsights from '../components/progress/CorrelationInsights';
+import HealthDashboard from '../components/health/HealthDashboard';
+import HealthInsights from '../components/health/HealthInsights';
 
 export default function Progress() {
   const [timeRange, setTimeRange] = useState('7');
@@ -117,10 +119,40 @@ export default function Progress() {
         </div>
       </div>
 
+      {/* Health Dashboard */}
+      <div className="mt-6">
+        <Card className="border-0 shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="w-5 h-5 text-blue-600" />
+              Health & Wellness Tracking
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <HealthDashboard />
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Exercise & Journal Trackers */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         <ExerciseTracker exercises={exercises} />
         <JournalTracker journalEntries={journalEntries} />
+      </div>
+
+      {/* Holistic Health Insights */}
+      <div className="mt-6">
+        <Card className="border-0 shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Brain className="w-5 h-5 text-purple-600" />
+              Holistic Health Insights
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <HealthInsights />
+          </CardContent>
+        </Card>
       </div>
 
       {/* Correlation Insights */}
