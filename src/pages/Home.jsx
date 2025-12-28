@@ -10,14 +10,21 @@ import { MessageCircle, Sparkles, Heart, TrendingUp, BookOpen, Target } from 'lu
 import MoodCheckIn from '../components/home/MoodCheckIn';
 import QuickActions from '../components/home/QuickActions';
 import RecentProgress from '../components/home/RecentProgress';
+import OnboardingTour from '../components/onboarding/OnboardingTour';
 
 export default function Home() {
   const [user, setUser] = useState(null);
   const [showMoodCheckIn, setShowMoodCheckIn] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => {});
+    base44.auth.me().then(userData => {
+      setUser(userData);
+      if (!userData.onboarding_completed) {
+        setShowOnboarding(true);
+      }
+    }).catch(() => {});
   }, []);
 
   const { data: todayMood } = useQuery({
@@ -166,6 +173,14 @@ export default function Home() {
           setShowMoodCheckIn(false);
           queryClient.invalidateQueries(['todayMood']);
         }} />
+      )}
+
+      {/* Onboarding Tour */}
+      {showOnboarding && (
+        <OnboardingTour
+          onComplete={() => setShowOnboarding(false)}
+          onSkip={() => setShowOnboarding(false)}
+        />
       )}
     </div>
   );
