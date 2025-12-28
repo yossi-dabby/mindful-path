@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Palette, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 const themes = [
   {
@@ -87,8 +88,8 @@ export default function ThemeSelector({ currentTheme, onThemeChange }) {
           Choose a visual theme that feels comfortable for you
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {themes.map((theme) => (
-            <button
+          {themes.map((theme, index) => (
+            <motion.button
               key={theme.id}
               onClick={() => onThemeChange(theme)}
               className={cn(
@@ -97,6 +98,11 @@ export default function ThemeSelector({ currentTheme, onThemeChange }) {
                   ? 'border-blue-500 shadow-lg'
                   : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
               )}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.05 }}
             >
               <div className={cn('h-20 rounded-lg mb-3', theme.preview)} />
               <div className="flex items-start justify-between">
@@ -105,12 +111,17 @@ export default function ThemeSelector({ currentTheme, onThemeChange }) {
                   <p className="text-xs text-gray-500">{theme.description}</p>
                 </div>
                 {currentTheme === theme.id && (
-                  <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+                  <motion.div 
+                    className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
                     <Check className="w-4 h-4 text-white" />
-                  </div>
+                  </motion.div>
                 )}
               </div>
-            </button>
+            </motion.button>
           ))}
         </div>
       </CardContent>
