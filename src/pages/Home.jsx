@@ -256,10 +256,7 @@ export default function Home() {
 
       {/* Mood Check-in Modal */}
       {showMoodCheckIn && (
-        <MoodCheckIn onClose={() => {
-          setShowMoodCheckIn(false);
-          queryClient.invalidateQueries(['todayMood']);
-        }} />
+        <MoodCheckIn onClose={() => setShowMoodCheckIn(false)} />
       )}
 
       {/* Onboarding Tour */}
