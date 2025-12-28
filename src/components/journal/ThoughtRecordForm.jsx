@@ -31,14 +31,14 @@ const cognitiveDistortions = [
   'Personalization'
 ];
 
-export default function ThoughtRecordForm({ entry, template, templates, onClose }) {
+export default function ThoughtRecordForm({ entry, template, templates, onClose, initialSituation = '' }) {
   const [step, setStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState(template || (entry?.template_id ? templates.find(t => t.id === entry.template_id) : null));
   const [formData, setFormData] = useState(entry || {
     entry_type: template?.entry_type || 'cbt_standard',
     template_id: template?.id || null,
     template_name: template?.name || null,
-    situation: '',
+    situation: initialSituation || '',
     automatic_thoughts: '',
     emotions: [],
     emotion_intensity: 5,

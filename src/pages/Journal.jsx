@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Plus, BookOpen, Search, Filter, Settings, Bell } from 'lucide-react';
+import { Plus, BookOpen, Search, Filter, Settings, Bell, Sparkles } from 'lucide-react';
 import ThoughtRecordForm from '../components/journal/ThoughtRecordForm';
 import ThoughtRecordCard from '../components/journal/ThoughtRecordCard';
 import JournalFilters from '../components/journal/JournalFilters';
@@ -18,9 +18,11 @@ export default function Journal() {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [showTemplateManager, setShowTemplateManager] = useState(false);
   const [showReminderManager, setShowReminderManager] = useState(false);
+  const [showAiPrompts, setShowAiPrompts] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState([]);
   const [selectedType, setSelectedType] = useState('all');
+  const [promptedSituation, setPromptedSituation] = useState('');
   const queryClient = useQueryClient();
 
   const { data: entries, isLoading } = useQuery({
@@ -64,8 +66,9 @@ export default function Journal() {
     setSelectedTemplate(null);
   };
 
-  const handleNewEntry = (template = null) => {
+  const handleNewEntry = (template = null, initialSituation = '') => {
     setSelectedTemplate(template);
+    setPromptedSituation(initialSituation);
     setShowForm(true);
   };
 
@@ -78,6 +81,14 @@ export default function Journal() {
           <p className="text-gray-500">Challenge and reframe unhelpful thinking patterns</p>
         </div>
         <div className="flex gap-2">
+          <Button
+            onClick={() => setShowAiPrompts(true)}
+            variant="outline"
+            className="rounded-xl"
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            AI Prompts
+          </Button>
           <Button
             onClick={() => setShowReminderManager(true)}
             variant="outline"
@@ -195,6 +206,7 @@ export default function Journal() {
           template={selectedTemplate}
           templates={templates}
           onClose={handleClose}
+          initialSituation={promptedSituation}
         />
       )}
 
@@ -214,6 +226,17 @@ export default function Journal() {
       {showReminderManager && (
         <ReminderManager
           onClose={() => setShowReminderManager(false)}
+        />
+      )}
+
+      {/* AI Prompts */}
+      {showAiPrompts && (
+        <AiJournalPrompts
+          onSelectPrompt={(prompt) => {
+            setShowAiPrompts(false);
+            handleNewEntry(null, prompt);
+          }}
+          onClose={() => setShowAiPrompts(false)}
         />
       )}
     </div>
