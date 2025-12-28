@@ -37,6 +37,7 @@ export default function Layout({ children, currentPageName }) {
   const navItems = [
     { name: 'Home', icon: Home, path: 'Home', description: 'Dashboard & overview' },
     { name: 'Chat', icon: MessageCircle, path: 'Chat', description: 'AI Therapist' },
+    { name: 'Coach', icon: Heart, path: 'Coach', description: 'AI Wellness Coach' },
     { name: 'Journal', icon: BookOpen, path: 'Journal', description: 'Thought records' },
     { name: 'Progress', icon: Activity, path: 'Progress', description: 'Track your journey' },
     { name: 'Exercises', icon: Dumbbell, path: 'Exercises', description: 'CBT techniques' }

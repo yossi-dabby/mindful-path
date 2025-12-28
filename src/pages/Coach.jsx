@@ -4,8 +4,10 @@ import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Sparkles, Calendar, ExternalLink, Loader2, Heart } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Send, Sparkles, Calendar, ExternalLink, Loader2, Heart, Dumbbell, Target, TrendingUp } from 'lucide-react';
 import MessageBubble from '../components/chat/MessageBubble';
+import { motion } from 'framer-motion';
 
 export default function Coach() {
   const [conversationId, setConversationId] = useState(null);
@@ -17,6 +19,20 @@ export default function Coach() {
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me()
+  });
+
+  const { data: activeGoals } = useQuery({
+    queryKey: ['activeGoals'],
+    queryFn: () => base44.entities.Goal.filter({ status: 'active' }, '-created_date', 3),
+    initialData: []
+  });
+
+  const { data: recentMood } = useQuery({
+    queryKey: ['recentMood'],
+    queryFn: async () => {
+      const moods = await base44.entities.MoodEntry.list('-date', 1);
+      return moods[0] || null;
+    }
   });
 
   useEffect(() => {
@@ -65,26 +81,58 @@ export default function Coach() {
   };
 
   const quickActions = [
-    { label: '💪 Guide me through an exercise', prompt: 'Can you guide me through a CBT exercise right now?' },
-    { label: '🎯 Check my progress', prompt: 'How am I doing with my goals and mood lately?' },
-    { label: '❓ Explain a CBT concept', prompt: 'Can you explain cognitive distortions to me?' },
-    { label: '🏥 Find a therapist', prompt: 'I want to connect with a professional therapist' }
+    { 
+      label: 'Guide me through an exercise', 
+      prompt: 'Can you guide me through a CBT exercise right now? Walk me through it step by step.',
+      icon: Dumbbell,
+      color: 'from-blue-400 to-blue-600'
+    },
+    { 
+      label: 'Check my progress', 
+      prompt: 'How am I doing with my goals and mood lately? Give me an encouraging update.',
+      icon: TrendingUp,
+      color: 'from-green-400 to-green-600'
+    },
+    { 
+      label: 'Explain a CBT concept', 
+      prompt: 'Can you explain cognitive distortions to me in simple terms?',
+      icon: Sparkles,
+      color: 'from-purple-400 to-purple-600'
+    },
+    { 
+      label: 'Find a therapist', 
+      prompt: 'I want to connect with a professional therapist. Can you help me with that?',
+      icon: Calendar,
+      color: 'from-pink-400 to-pink-600'
+    }
   ];
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-xl border-b border-gray-200/50 p-4 shadow-sm">
-        <div className="max-w-4xl mx-auto flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-lg">
-            <Heart className="w-6 h-6 text-white" />
+      <motion.div 
+        className="bg-white/80 backdrop-blur-xl border-b border-gray-200/50 p-4 shadow-sm"
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <motion.div 
+              className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-lg"
+              whileHover={{ rotate: 360 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Heart className="w-6 h-6 text-white" />
+            </motion.div>
+            <div>
+              <h1 className="text-xl font-semibold text-gray-800">AI Wellness Coach</h1>
+              <p className="text-sm text-gray-500">Your on-demand support companion</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl font-semibold text-gray-800">AI Wellness Coach</h1>
-            <p className="text-sm text-gray-500">Your on-demand support companion</p>
-          </div>
+          <Badge className="bg-green-100 text-green-700 border-0">Online 24/7</Badge>
         </div>
-      </div>
+      </motion.div>
 
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-4 pb-32">
@@ -92,92 +140,167 @@ export default function Coach() {
           {!conversationId ? (
             <div className="space-y-6">
               {/* Welcome Card */}
-              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-blue-50">
-                <CardContent className="p-8 text-center">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <Heart className="w-10 h-10 text-white" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-gray-800 mb-3">
-                    Hi {user?.full_name?.split(' ')[0] || 'there'}! 👋
-                  </h2>
-                  <p className="text-gray-600 mb-6 max-w-lg mx-auto">
-                    I'm your AI wellness coach, here to provide on-demand support whenever you need it. 
-                    I can guide you through exercises, answer questions, celebrate your progress, and help you find professional support.
-                  </p>
-                  <Button
-                    onClick={startConversation}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-6 text-lg rounded-2xl shadow-lg"
-                  >
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    Start Chatting
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Quick Actions */}
-              <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-3 text-center">What can I help you with?</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {quickActions.map((action, i) => (
-                    <Card
-                      key={i}
-                      className="border-2 border-purple-200 hover:border-purple-400 transition-all cursor-pointer bg-white hover:shadow-lg"
-                      onClick={() => {
-                        startConversation();
-                        setTimeout(() => handleSendMessage(action.prompt), 500);
-                      }}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-blue-50">
+                  <CardContent className="p-8 text-center">
+                    <motion.div 
+                      className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center mx-auto mb-4 shadow-lg"
+                      animate={{ scale: [1, 1.05, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
                     >
+                      <Heart className="w-10 h-10 text-white" />
+                    </motion.div>
+                    <h2 className="text-2xl font-bold text-gray-800 mb-3">
+                      Hi {user?.full_name?.split(' ')[0] || 'there'}! 👋
+                    </h2>
+                    <p className="text-gray-600 mb-6 max-w-lg mx-auto">
+                      I'm your AI wellness coach, here to provide on-demand support whenever you need it. 
+                      I can guide you through exercises, answer questions, celebrate your progress, and help you find professional support.
+                    </p>
+                    <Button
+                      onClick={startConversation}
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-6 text-lg rounded-2xl shadow-lg"
+                    >
+                      <Sparkles className="w-5 h-5 mr-2" />
+                      Start Chatting
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* User Context Cards */}
+              {(activeGoals.length > 0 || recentMood) && (
+                <motion.div 
+                  className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                  {activeGoals.length > 0 && (
+                    <Card className="border-0 shadow-md bg-white">
                       <CardContent className="p-4">
-                        <p className="text-sm font-medium text-gray-800">{action.label}</p>
+                        <div className="flex items-center gap-2 mb-2">
+                          <Target className="w-4 h-4 text-purple-600" />
+                          <p className="text-xs font-semibold text-gray-700">Active Goals</p>
+                        </div>
+                        <p className="text-lg font-bold text-gray-800">{activeGoals.length}</p>
+                        <p className="text-xs text-gray-500">Keep up the great work!</p>
                       </CardContent>
                     </Card>
-                  ))}
+                  )}
+                  {recentMood && (
+                    <Card className="border-0 shadow-md bg-white">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Heart className="w-4 h-4 text-pink-600" />
+                          <p className="text-xs font-semibold text-gray-700">Recent Mood</p>
+                        </div>
+                        <p className="text-lg font-bold text-gray-800 capitalize">{recentMood.mood.replace('_', ' ')}</p>
+                        <p className="text-xs text-gray-500">Let's keep tracking together</p>
+                      </CardContent>
+                    </Card>
+                  )}
+                </motion.div>
+              )}
+
+              {/* Quick Actions */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                <h3 className="text-sm font-semibold text-gray-700 mb-3 text-center">What can I help you with?</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {quickActions.map((action, i) => {
+                    const Icon = action.icon;
+                    return (
+                      <motion.div
+                        key={i}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <Card
+                          className="border-0 hover:shadow-xl transition-all cursor-pointer bg-white overflow-hidden"
+                          onClick={() => {
+                            startConversation();
+                            setTimeout(() => handleSendMessage(action.prompt), 500);
+                          }}
+                        >
+                          <CardContent className="p-4">
+                            <div className="flex items-center gap-3">
+                              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center shadow-md`}>
+                                <Icon className="w-5 h-5 text-white" />
+                              </div>
+                              <p className="text-sm font-medium text-gray-800 flex-1">{action.label}</p>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    );
+                  })}
                 </div>
-              </div>
+              </motion.div>
 
               {/* Resources Card */}
-              <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-3">
-                    <Calendar className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
-                    <div>
-                      <h3 className="font-semibold text-gray-800 mb-2">Need Professional Support?</h3>
-                      <p className="text-sm text-gray-600 mb-3">
-                        Connect with licensed therapists for personalized care:
-                      </p>
-                      <div className="space-y-2">
-                        <a
-                          href="https://www.psychologytoday.com/us/therapists"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-sm text-green-700 hover:text-green-800"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                          Psychology Today Directory
-                        </a>
-                        <a
-                          href="https://www.betterhelp.com"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-sm text-green-700 hover:text-green-800"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                          BetterHelp (Online Therapy)
-                        </a>
-                        <a
-                          href="https://www.talkspace.com"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-sm text-green-700 hover:text-green-800"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                          Talkspace (Online Therapy)
-                        </a>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-3">
+                      <Calendar className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
+                      <div>
+                        <h3 className="font-semibold text-gray-800 mb-2">Need Professional Support?</h3>
+                        <p className="text-sm text-gray-600 mb-3">
+                          Connect with licensed therapists for personalized care:
+                        </p>
+                        <div className="space-y-2">
+                          <a
+                            href="https://www.psychologytoday.com/us/therapists"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-sm text-green-700 hover:text-green-800 transition-colors"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            Psychology Today Directory
+                          </a>
+                          <a
+                            href="https://www.betterhelp.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-sm text-green-700 hover:text-green-800 transition-colors"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            BetterHelp (Online Therapy)
+                          </a>
+                          <a
+                            href="https://www.talkspace.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-sm text-green-700 hover:text-green-800 transition-colors"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            Talkspace (Online Therapy)
+                          </a>
+                          <a
+                            href="tel:988"
+                            className="flex items-center gap-2 text-sm text-red-700 hover:text-red-800 font-semibold mt-3 transition-colors"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            Crisis Support: Call/Text 988
+                          </a>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </motion.div>
             </div>
           ) : (
             <>
