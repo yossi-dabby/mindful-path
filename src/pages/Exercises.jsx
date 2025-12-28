@@ -66,7 +66,7 @@ export default function Exercises() {
     const matchesSearch = !searchQuery || 
       exercise.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       exercise.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      exercise.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+      exercise.tags?.some(tag => tag && typeof tag === 'string' && tag.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesFavorite = !showFavoritesOnly || exercise.favorite;
     
     return matchesCategory && matchesSearch && matchesFavorite;
