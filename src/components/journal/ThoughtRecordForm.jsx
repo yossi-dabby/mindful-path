@@ -273,7 +273,7 @@ Provide:
                 </label>
                 <div className="border rounded-xl overflow-hidden">
                   <ReactQuill
-                    value={formData.situation}
+                    value={formData.situation || ''}
                     onChange={(value) => setFormData({ ...formData, situation: value })}
                     placeholder="Describe the situation that triggered these thoughts..."
                     modules={{
@@ -294,7 +294,7 @@ Provide:
                 </label>
                 <div className="border rounded-xl overflow-hidden">
                   <ReactQuill
-                    value={formData.automatic_thoughts}
+                    value={formData.automatic_thoughts || ''}
                     onChange={(value) => setFormData({ ...formData, automatic_thoughts: value })}
                     placeholder="What thoughts automatically came up? Write them exactly as they appeared..."
                     modules={{
@@ -409,7 +409,7 @@ Provide:
                 </label>
                 <div className="border rounded-xl overflow-hidden">
                   <ReactQuill
-                    value={formData.evidence_for}
+                    value={formData.evidence_for || ''}
                     onChange={(value) => setFormData({ ...formData, evidence_for: value })}
                     placeholder="What facts support this thought?"
                     modules={{
@@ -430,7 +430,7 @@ Provide:
                 </label>
                 <div className="border rounded-xl overflow-hidden">
                   <ReactQuill
-                    value={formData.evidence_against}
+                    value={formData.evidence_against || ''}
                     onChange={(value) => setFormData({ ...formData, evidence_against: value })}
                     placeholder="What facts contradict this thought?"
                     modules={{
@@ -464,7 +464,7 @@ Provide:
                 </label>
                 <div className="border rounded-xl overflow-hidden">
                   <ReactQuill
-                    value={formData.balanced_thought}
+                    value={formData.balanced_thought || ''}
                     onChange={(value) => setFormData({ ...formData, balanced_thought: value })}
                     placeholder="Based on the evidence, what's a more balanced way to view this situation?"
                     modules={{
