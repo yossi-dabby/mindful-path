@@ -33,33 +33,34 @@ export default function MessageBubble({ message }) {
                 className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
                 components={{
                   code: ({ inline, className, children, ...props }) => {
-                    const match = /language-(\w+)/.exec(className || '');
+                    const safeClassName = String(className || '');
+                    const safeChildren = children || '';
                     if (inline) {
-                      return <code className="px-1 py-0.5 rounded bg-gray-100 text-gray-800 text-sm" {...props}>{children}</code>;
+                      return <code className="px-1 py-0.5 rounded bg-gray-100 text-gray-800 text-sm" {...props}>{safeChildren}</code>;
                     }
                     return (
                       <pre className="bg-gray-100 rounded-lg p-3 my-2 overflow-x-auto">
-                        <code className={className || ''} {...props}>{children}</code>
+                        <code className={safeClassName} {...props}>{safeChildren}</code>
                       </pre>
                     );
                   },
                   p: ({ children }) => (
-                    <p className="my-2 leading-relaxed text-[15px]">{children}</p>
+                    <p className="my-2 leading-relaxed text-[15px]">{children || ''}</p>
                   ),
                   ul: ({ children }) => (
-                    <ul className="my-2 ml-4 list-disc space-y-1">{children}</ul>
+                    <ul className="my-2 ml-4 list-disc space-y-1">{children || ''}</ul>
                   ),
                   ol: ({ children }) => (
-                    <ol className="my-2 ml-4 list-decimal space-y-1">{children}</ol>
+                    <ol className="my-2 ml-4 list-decimal space-y-1">{children || ''}</ol>
                   ),
-                  li: ({ children }) => <li className="my-1">{children}</li>,
+                  li: ({ children }) => <li className="my-1">{children || ''}</li>,
                   strong: ({ children }) => (
-                    <strong className="font-semibold text-gray-900">{children}</strong>
+                    <strong className="font-semibold text-gray-900">{children || ''}</strong>
                   ),
-                  em: ({ children }) => <em className="italic">{children}</em>,
+                  em: ({ children }) => <em className="italic">{children || ''}</em>,
                   blockquote: ({ children }) => (
                     <blockquote className="border-l-4 border-green-300 pl-4 my-3 italic text-gray-600">
-                      {children}
+                      {children || ''}
                     </blockquote>
                   )
                   }}
