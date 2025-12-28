@@ -742,27 +742,25 @@ Provide:
               </div>
             </div>
           )}
-        </div>
-        )}
 
-        {step === 6 && showSuggestions && savedEntry && (
-        <div>
-          <div className="text-center mb-6">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-blue-400 flex items-center justify-center mx-auto mb-3">
-              <Sparkles className="w-8 h-8 text-white" />
+          {step === 6 && showSuggestions && savedEntry && (
+            <div>
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-blue-400 flex items-center justify-center mx-auto mb-3">
+                  <Sparkles className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">Entry Saved!</h3>
+                <p className="text-sm text-gray-600">Here are some AI-powered insights based on your entry</p>
+              </div>
+
+              <AiJournalSuggestions 
+                entry={savedEntry}
+                onClose={onClose}
+              />
             </div>
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">Entry Saved!</h3>
-            <p className="text-sm text-gray-600">Here are some AI-powered insights based on your entry</p>
-          </div>
-
-          <AiJournalSuggestions 
-            entry={savedEntry}
-            onClose={onClose}
-          />
-        </div>
-        )}
+          )}
         </CardContent>
-        </Card>
-        </div>
-        );
-        }
+      </Card>
+    </div>
+  );
+}
