@@ -61,7 +61,6 @@ export default function Journal() {
     setShowForm(false);
     setEditingEntry(null);
     setSelectedTemplate(null);
-    queryClient.invalidateQueries(['thoughtJournals']);
   };
 
   const handleNewEntry = (template = null) => {

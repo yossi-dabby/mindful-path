@@ -4,10 +4,10 @@ import Exercises from './pages/Exercises';
 import Goals from './pages/Goals';
 import Home from './pages/Home';
 import Journal from './pages/Journal';
+import MoodTracker from './pages/MoodTracker';
 import Progress from './pages/Progress';
 import Resources from './pages/Resources';
 import Settings from './pages/Settings';
-import MoodTracker from './pages/MoodTracker';
 import __Layout from './Layout.jsx';
 
 
@@ -18,10 +18,10 @@ export const PAGES = {
     "Goals": Goals,
     "Home": Home,
     "Journal": Journal,
+    "MoodTracker": MoodTracker,
     "Progress": Progress,
     "Resources": Resources,
     "Settings": Settings,
-    "MoodTracker": MoodTracker,
 }
 
 export const pagesConfig = {
