@@ -32,14 +32,14 @@ export default function MessageBubble({ message }) {
               <ReactMarkdown
                 className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
                 components={{
-                  code: ({ node, inline, className, children, ...props }) => {
-                    const codeClassName = className || '';
+                  code: ({ inline, className, children, ...props }) => {
+                    const match = /language-(\w+)/.exec(className || '');
                     if (inline) {
-                      return <code className="px-1 py-0.5 rounded bg-gray-100 text-gray-800 text-sm" {...props}>{children || ''}</code>;
+                      return <code className="px-1 py-0.5 rounded bg-gray-100 text-gray-800 text-sm" {...props}>{children}</code>;
                     }
                     return (
                       <pre className="bg-gray-100 rounded-lg p-3 my-2 overflow-x-auto">
-                        <code className={codeClassName} {...props}>{children || ''}</code>
+                        <code className={className || ''} {...props}>{children}</code>
                       </pre>
                     );
                   },
