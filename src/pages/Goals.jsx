@@ -3,15 +3,21 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Target, Calendar as CalendarIcon } from 'lucide-react';
+import { Plus, Target, Calendar as CalendarIcon, Sparkles, Lightbulb } from 'lucide-react';
 import GoalForm from '../components/goals/GoalForm';
 import GoalCard from '../components/goals/GoalCard';
 import GoalCalendar from '../components/goals/GoalCalendar';
+import AiGoalSuggestions from '../components/goals/AiGoalSuggestions';
+import AiGoalBreakdown from '../components/goals/AiGoalBreakdown';
+import GoalMotivation from '../components/goals/GoalMotivation';
 
 export default function Goals() {
   const [showForm, setShowForm] = useState(false);
   const [editingGoal, setEditingGoal] = useState(null);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [showAiSuggestions, setShowAiSuggestions] = useState(false);
+  const [showBreakdown, setShowBreakdown] = useState(null);
+  const [prefilledGoal, setPrefilledGoal] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: goals, isLoading } = useQuery({
@@ -31,7 +37,29 @@ export default function Goals() {
   const handleClose = () => {
     setShowForm(false);
     setEditingGoal(null);
+    setPrefilledGoal(null);
     queryClient.invalidateQueries(['allGoals']);
+  };
+
+  const handleSelectAiGoal = (goalData) => {
+    setPrefilledGoal(goalData);
+    setShowAiSuggestions(false);
+    setShowForm(true);
+  };
+
+  const handleApplyBreakdown = (breakdown) => {
+    // Apply the breakdown to the goal
+    if (showBreakdown && breakdown.milestones) {
+      base44.entities.Goal.update(showBreakdown.id, {
+        milestones: breakdown.milestones.map(m => ({ 
+          title: m.title, 
+          completed: false 
+        }))
+      }).then(() => {
+        queryClient.invalidateQueries(['allGoals']);
+        setShowBreakdown(null);
+      });
+    }
   };
 
   return (
@@ -49,7 +77,15 @@ export default function Goals() {
             className="rounded-xl"
           >
             <CalendarIcon className="w-5 h-5 mr-2" />
-            {showCalendar ? 'Hide' : 'View'} Calendar
+            Calendar
+          </Button>
+          <Button
+            onClick={() => setShowAiSuggestions(true)}
+            variant="outline"
+            className="rounded-xl"
+          >
+            <Sparkles className="w-5 h-5 mr-2" />
+            AI Suggestions
           </Button>
           <Button
             onClick={() => setShowForm(true)}
@@ -76,16 +112,29 @@ export default function Goals() {
             <p className="text-gray-600 mb-6 max-w-md mx-auto">
               Goals give you direction and motivation. Break them into small steps and celebrate each milestone.
             </p>
-            <Button
-              onClick={() => setShowForm(true)}
-              className="bg-blue-600 hover:bg-blue-700 px-8 py-6 text-lg rounded-xl"
-            >
-              Create Your First Goal
-            </Button>
+            <div className="flex gap-3 justify-center">
+              <Button
+                onClick={() => setShowAiSuggestions(true)}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-6 text-lg rounded-xl"
+              >
+                <Sparkles className="w-5 h-5 mr-2" />
+                Get AI Goal Suggestions
+              </Button>
+              <Button
+                onClick={() => setShowForm(true)}
+                variant="outline"
+                className="px-8 py-6 text-lg rounded-xl"
+              >
+                Create Manually
+              </Button>
+            </div>
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-8">
+          {/* Motivation */}
+          <GoalMotivation goals={activeGoals} />
+
           {/* Calendar View */}
           {showCalendar && (
             <GoalCalendar goals={goals} />
@@ -94,10 +143,34 @@ export default function Goals() {
           {/* Active Goals */}
           {activeGoals.length > 0 && (
             <div>
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Active Goals</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-800">Active Goals</h2>
+                {activeGoals.length > 0 && (
+                  <Button
+                    onClick={() => setShowAiSuggestions(true)}
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Get More Suggestions
+                  </Button>
+                )}
+              </div>
               <div className="space-y-4">
                 {activeGoals.map((goal) => (
-                  <GoalCard key={goal.id} goal={goal} onEdit={handleEdit} />
+                  <div key={goal.id} className="relative group">
+                    <GoalCard goal={goal} onEdit={handleEdit} />
+                    <Button
+                      onClick={() => setShowBreakdown(goal)}
+                      variant="outline"
+                      size="sm"
+                      className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity gap-2"
+                    >
+                      <Lightbulb className="w-4 h-4" />
+                      Break It Down
+                    </Button>
+                  </div>
                 ))}
               </div>
             </div>
@@ -118,7 +191,24 @@ export default function Goals() {
       )}
 
       {/* Goal Form Modal */}
-      {showForm && <GoalForm goal={editingGoal} onClose={handleClose} />}
+      {showForm && <GoalForm goal={editingGoal} prefilledData={prefilledGoal} onClose={handleClose} />}
+
+      {/* AI Goal Suggestions */}
+      {showAiSuggestions && (
+        <AiGoalSuggestions
+          onSelectGoal={handleSelectAiGoal}
+          onClose={() => setShowAiSuggestions(false)}
+        />
+      )}
+
+      {/* AI Goal Breakdown */}
+      {showBreakdown && (
+        <AiGoalBreakdown
+          goal={showBreakdown}
+          onApplySteps={handleApplyBreakdown}
+          onClose={() => setShowBreakdown(null)}
+        />
+      )}
     </div>
   );
 }
