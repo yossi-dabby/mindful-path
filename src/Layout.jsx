@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from './utils';
-import { Home, MessageCircle, BookOpen, Activity, Dumbbell, Settings, Heart } from 'lucide-react';
+import { Home, MessageCircle, BookOpen, Activity, Dumbbell, Settings, Heart, Users } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -45,6 +45,7 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   const secondaryItems = [
+    { name: 'Community', icon: Users, path: 'Community' },
     { name: 'Resources', icon: BookOpen, path: 'Resources' },
     { name: 'Settings', icon: Settings, path: 'Settings' }
   ];
