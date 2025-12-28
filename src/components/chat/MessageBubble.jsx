@@ -3,10 +3,10 @@ import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
 
 export default function MessageBubble({ message }) {
-  if (!message) return null;
+  if (!message || !message.content) return null;
   
   const isUser = message.role === 'user';
-  const content = message.content ? String(message.content) : '';
+  const content = String(message.content).trim();
   
   if (!content) return null;
   
@@ -34,13 +34,11 @@ export default function MessageBubble({ message }) {
                 components={{
                   code: ({ node, inline, className, children, ...props }) => {
                     if (inline) {
-                      return <code className="px-1 py-0.5 rounded bg-gray-100 text-gray-800 text-sm" {...props}>{children}</code>;
+                      return <code className="px-1 py-0.5 rounded bg-gray-100 text-gray-800 text-sm" {...props}>{children || ''}</code>;
                     }
-                    const safeClassName = className || '';
-                    const match = typeof safeClassName === 'string' && safeClassName ? /language-(\w+)/.exec(safeClassName) : null;
                     return (
                       <pre className="bg-gray-100 rounded-lg p-3 my-2 overflow-x-auto">
-                        <code className={safeClassName} {...props}>{children}</code>
+                        <code className={className || ''} {...props}>{children || ''}</code>
                       </pre>
                     );
                   },
