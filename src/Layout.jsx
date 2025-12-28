@@ -34,12 +34,14 @@ export default function Layout({ children, currentPageName }) {
   }, []);
 
   const navItems = [
-    { name: 'Home', icon: Home, path: 'Home' },
-    { name: 'Chat', icon: MessageCircle, path: 'Chat' },
-    { name: 'Coach', icon: Heart, path: 'Coach' },
-    { name: 'Journal', icon: BookOpen, path: 'Journal' },
-    { name: 'Progress', icon: Activity, path: 'Progress' },
-    { name: 'Exercises', icon: Dumbbell, path: 'Exercises' },
+    { name: 'Home', icon: Home, path: 'Home', description: 'Dashboard & overview' },
+    { name: 'Chat', icon: MessageCircle, path: 'Chat', description: 'AI Therapist' },
+    { name: 'Journal', icon: BookOpen, path: 'Journal', description: 'Thought records' },
+    { name: 'Progress', icon: Activity, path: 'Progress', description: 'Track your journey' },
+    { name: 'Exercises', icon: Dumbbell, path: 'Exercises', description: 'CBT techniques' }
+  ];
+
+  const secondaryItems = [
     { name: 'Resources', icon: BookOpen, path: 'Resources' },
     { name: 'Settings', icon: Settings, path: 'Settings' }
   ];
@@ -65,14 +67,14 @@ export default function Layout({ children, currentPageName }) {
         }
       `}</style>
       
-      <div className="pb-20 md:pb-0 md:pl-20">
+      <div className="pb-20 md:pb-0 md:pl-72">
         {children}
       </div>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-gray-200/50 z-50">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-gray-200 shadow-lg z-50">
         <div className="flex justify-around items-center h-16 px-2">
-          {navItems.slice(0, 5).map((item) => {
+          {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentPageName === item.path;
             return (
@@ -80,14 +82,14 @@ export default function Layout({ children, currentPageName }) {
                 key={item.path}
                 to={createPageUrl(item.path)}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-0.5 px-3 py-2 rounded-xl transition-all",
+                  "flex flex-col items-center justify-center gap-1 px-2 py-1.5 rounded-xl transition-all",
                   isActive 
-                    ? "text-green-700" 
-                    : "text-gray-500 hover:text-gray-700"
+                    ? "text-green-600 bg-green-50" 
+                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                 )}
               >
-                <Icon className={cn("w-5 h-5", isActive && "scale-110")} />
-                <span className="text-[10px] font-medium">{item.name}</span>
+                <Icon className={cn("w-5 h-5", isActive && "scale-110")} strokeWidth={isActive ? 2.5 : 2} />
+                <span className={cn("text-[10px] font-medium", isActive && "font-semibold")}>{item.name}</span>
               </Link>
             );
           })}
@@ -95,37 +97,77 @@ export default function Layout({ children, currentPageName }) {
       </nav>
 
       {/* Desktop Side Navigation */}
-      <nav className="hidden md:flex fixed left-0 top-0 bottom-0 w-20 bg-white/80 backdrop-blur-xl border-r border-gray-200/50 flex-col items-center py-8 gap-6 z-50">
-        <div className="mb-4">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-green-400 to-purple-400 flex items-center justify-center">
-            <span className="text-white font-bold text-lg">M</span>
+      <nav className="hidden md:flex fixed left-0 top-0 bottom-0 w-72 bg-white/95 backdrop-blur-xl border-r border-gray-200 shadow-sm flex-col py-6 z-50">
+        {/* Logo */}
+        <div className="px-6 mb-8">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-green-400 to-purple-400 flex items-center justify-center shadow-md">
+              <span className="text-white font-bold text-lg">M</span>
+            </div>
+            <div>
+              <h1 className="text-lg font-semibold text-gray-800">MindWell</h1>
+              <p className="text-xs text-gray-500">Mental Wellness App</p>
+            </div>
           </div>
         </div>
-        
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = currentPageName === item.path;
-          return (
-            <Link
-              key={item.path}
-              to={createPageUrl(item.path)}
-              className={cn(
-                "flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-xl transition-all group relative",
-                isActive 
-                  ? "text-green-700" 
-                  : "text-gray-500 hover:text-gray-700"
-              )}
-            >
-              <Icon className={cn("w-6 h-6", isActive && "scale-110")} />
-              <span className="text-[9px] font-medium">{item.name}</span>
-              
-              {/* Tooltip on hover */}
-              <div className="absolute left-full ml-2 px-3 py-1.5 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">
-                {item.name}
-              </div>
-            </Link>
-          );
-        })}
+
+        {/* Main Navigation */}
+        <div className="flex-1 px-3">
+          <div className="space-y-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = currentPageName === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={createPageUrl(item.path)}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-3 rounded-xl transition-all group",
+                    isActive 
+                      ? "bg-green-50 text-green-700 shadow-sm" 
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
+                  )}
+                >
+                  <Icon className={cn("w-5 h-5", isActive && "scale-110")} strokeWidth={isActive ? 2.5 : 2} />
+                  <div className="flex-1">
+                    <p className={cn("text-sm font-medium", isActive && "font-semibold")}>{item.name}</p>
+                    {item.description && (
+                      <p className="text-xs text-gray-500 mt-0.5">{item.description}</p>
+                    )}
+                  </div>
+                  {isActive && (
+                    <div className="w-1 h-6 bg-green-600 rounded-full" />
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Secondary Items */}
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <div className="space-y-1">
+              {secondaryItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = currentPageName === item.path;
+                return (
+                  <Link
+                    key={item.path}
+                    to={createPageUrl(item.path)}
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all",
+                      isActive 
+                        ? "bg-green-50 text-green-700" 
+                        : "text-gray-600 hover:bg-gray-50"
+                    )}
+                  >
+                    <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
+                    <span className={cn("text-sm", isActive && "font-semibold")}>{item.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       </nav>
     </div>
   );
