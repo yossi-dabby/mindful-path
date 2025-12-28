@@ -34,24 +34,24 @@ const cognitiveDistortions = [
 export default function ThoughtRecordForm({ entry, template, templates, onClose, initialSituation = '' }) {
   const [step, setStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState(template || (entry?.template_id ? templates.find(t => t.id === entry.template_id) : null));
-  const [formData, setFormData] = useState(entry || {
-    entry_type: template?.entry_type || 'cbt_standard',
-    template_id: template?.id || null,
-    template_name: template?.name || null,
-    situation: initialSituation || '',
-    automatic_thoughts: '',
-    emotions: [],
-    emotion_intensity: 5,
-    cognitive_distortions: [],
-    evidence_for: '',
-    evidence_against: '',
-    balanced_thought: '',
-    outcome_emotion_intensity: 5,
-    custom_fields: {},
-    tags: [],
-    images: [],
-    audio_notes: [],
-    linked_goal_id: null
+  const [formData, setFormData] = useState({
+    entry_type: entry?.entry_type || template?.entry_type || 'cbt_standard',
+    template_id: entry?.template_id || template?.id || null,
+    template_name: entry?.template_name || template?.name || null,
+    situation: entry?.situation || initialSituation || '',
+    automatic_thoughts: entry?.automatic_thoughts || '',
+    emotions: entry?.emotions || [],
+    emotion_intensity: entry?.emotion_intensity || 5,
+    cognitive_distortions: entry?.cognitive_distortions || [],
+    evidence_for: entry?.evidence_for || '',
+    evidence_against: entry?.evidence_against || '',
+    balanced_thought: entry?.balanced_thought || '',
+    outcome_emotion_intensity: entry?.outcome_emotion_intensity || 5,
+    custom_fields: entry?.custom_fields || {},
+    tags: entry?.tags || [],
+    images: entry?.images || [],
+    audio_notes: entry?.audio_notes || [],
+    linked_goal_id: entry?.linked_goal_id || null
   });
 
   const [uploadingFile, setUploadingFile] = useState(false);
