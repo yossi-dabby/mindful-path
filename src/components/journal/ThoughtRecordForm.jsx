@@ -7,8 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { X, Image as ImageIcon, Mic, Upload, Trash2, Plus, Sparkles, Brain, Lightbulb, Target, Loader2 } from 'lucide-react';
+import { X, Image as ImageIcon, Mic, Upload, Trash2, Plus, Sparkles, Brain, Lightbulb, Target, Loader2, Bold, Italic, List, ListOrdered, Heading } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const commonEmotions = [
   'Anxious', 'Sad', 'Angry', 'Frustrated', 'Overwhelmed', 'Guilty', 
@@ -252,24 +254,42 @@ Provide:
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
                   What happened? (The Situation)
                 </label>
-                <Textarea
-                  value={formData.situation}
-                  onChange={(e) => setFormData({ ...formData, situation: e.target.value })}
-                  placeholder="Describe the situation that triggered these thoughts..."
-                  className="h-32 rounded-xl"
-                />
+                <div className="border rounded-xl overflow-hidden">
+                  <ReactQuill
+                    value={formData.situation}
+                    onChange={(value) => setFormData({ ...formData, situation: value })}
+                    placeholder="Describe the situation that triggered these thoughts..."
+                    modules={{
+                      toolbar: [
+                        ['bold', 'italic', 'underline'],
+                        [{ list: 'ordered' }, { list: 'bullet' }],
+                        ['clean']
+                      ]
+                    }}
+                    className="h-32"
+                  />
+                </div>
               </div>
 
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
                   What went through your mind? (Automatic Thoughts)
                 </label>
-                <Textarea
-                  value={formData.automatic_thoughts}
-                  onChange={(e) => setFormData({ ...formData, automatic_thoughts: e.target.value })}
-                  placeholder="What thoughts automatically came up? Write them exactly as they appeared..."
-                  className="h-32 rounded-xl"
-                />
+                <div className="border rounded-xl overflow-hidden">
+                  <ReactQuill
+                    value={formData.automatic_thoughts}
+                    onChange={(value) => setFormData({ ...formData, automatic_thoughts: value })}
+                    placeholder="What thoughts automatically came up? Write them exactly as they appeared..."
+                    modules={{
+                      toolbar: [
+                        ['bold', 'italic', 'underline'],
+                        [{ list: 'ordered' }, { list: 'bullet' }],
+                        ['clean']
+                      ]
+                    }}
+                    className="h-32"
+                  />
+                </div>
               </div>
 
               <Button
@@ -370,24 +390,42 @@ Provide:
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
                   Evidence FOR the thought
                 </label>
-                <Textarea
-                  value={formData.evidence_for}
-                  onChange={(e) => setFormData({ ...formData, evidence_for: e.target.value })}
-                  placeholder="What facts support this thought?"
-                  className="h-24 rounded-xl"
-                />
+                <div className="border rounded-xl overflow-hidden">
+                  <ReactQuill
+                    value={formData.evidence_for}
+                    onChange={(value) => setFormData({ ...formData, evidence_for: value })}
+                    placeholder="What facts support this thought?"
+                    modules={{
+                      toolbar: [
+                        ['bold', 'italic'],
+                        [{ list: 'bullet' }],
+                        ['clean']
+                      ]
+                    }}
+                    className="h-24"
+                  />
+                </div>
               </div>
 
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
                   Evidence AGAINST the thought
                 </label>
-                <Textarea
-                  value={formData.evidence_against}
-                  onChange={(e) => setFormData({ ...formData, evidence_against: e.target.value })}
-                  placeholder="What facts contradict this thought?"
-                  className="h-24 rounded-xl"
-                />
+                <div className="border rounded-xl overflow-hidden">
+                  <ReactQuill
+                    value={formData.evidence_against}
+                    onChange={(value) => setFormData({ ...formData, evidence_against: value })}
+                    placeholder="What facts contradict this thought?"
+                    modules={{
+                      toolbar: [
+                        ['bold', 'italic'],
+                        [{ list: 'bullet' }],
+                        ['clean']
+                      ]
+                    }}
+                    className="h-24"
+                  />
+                </div>
               </div>
 
               <div className="flex gap-3">
@@ -407,12 +445,21 @@ Provide:
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
                   Balanced, realistic thought
                 </label>
-                <Textarea
-                  value={formData.balanced_thought}
-                  onChange={(e) => setFormData({ ...formData, balanced_thought: e.target.value })}
-                  placeholder="Based on the evidence, what's a more balanced way to view this situation?"
-                  className="h-32 rounded-xl"
-                />
+                <div className="border rounded-xl overflow-hidden">
+                  <ReactQuill
+                    value={formData.balanced_thought}
+                    onChange={(value) => setFormData({ ...formData, balanced_thought: value })}
+                    placeholder="Based on the evidence, what's a more balanced way to view this situation?"
+                    modules={{
+                      toolbar: [
+                        ['bold', 'italic', 'underline'],
+                        [{ list: 'ordered' }, { list: 'bullet' }],
+                        ['clean']
+                      ]
+                    }}
+                    className="h-32"
+                  />
+                </div>
               </div>
 
               <div>

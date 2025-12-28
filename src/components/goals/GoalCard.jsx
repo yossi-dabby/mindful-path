@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Edit, Calendar, CheckCircle2 } from 'lucide-react';
+import { Edit, Calendar, CheckCircle2, ChevronDown, ChevronUp, TrendingUp } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import GoalProgressChart from './GoalProgressChart';
 
 const categoryColors = {
   behavioral: 'bg-blue-100 text-blue-700',
@@ -19,6 +20,7 @@ const categoryColors = {
 };
 
 export default function GoalCard({ goal, onEdit }) {
+  const [showChart, setShowChart] = useState(false);
   const queryClient = useQueryClient();
 
   const toggleMilestoneMutation = useMutation({
@@ -108,6 +110,24 @@ export default function GoalCard({ goal, onEdit }) {
                 </span>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Toggle Chart Button */}
+        <Button
+          variant="outline"
+          onClick={() => setShowChart(!showChart)}
+          className="w-full mt-4 flex items-center justify-center gap-2"
+        >
+          <TrendingUp className="w-4 h-4" />
+          {showChart ? 'Hide' : 'View'} Progress Chart
+          {showChart ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        </Button>
+
+        {/* Progress Chart */}
+        {showChart && (
+          <div className="mt-4 pt-4 border-t">
+            <GoalProgressChart goal={goal} />
           </div>
         )}
       </CardContent>
