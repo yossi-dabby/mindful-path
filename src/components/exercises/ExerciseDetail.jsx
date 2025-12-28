@@ -9,6 +9,7 @@ import { base44 } from '@/api/base44Client';
 import BreathingVisual from './BreathingVisual';
 import AudioPlayer from '../audio/AudioPlayer';
 import { motion } from 'framer-motion';
+import PremiumBadge from '../subscription/PremiumBadge';
 
 export default function ExerciseDetail({ exercise, onClose, onComplete, onToggleFavorite }) {
   const [completed, setCompleted] = useState(false);
@@ -77,6 +78,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                   <Badge variant="outline" className="capitalize">
                     {exercise.difficulty}
                   </Badge>
+                  {exercise.difficulty === 'advanced' && <PremiumBadge />}
                   {exercise.duration_options?.length > 0 ? (
                     <Badge variant="secondary" className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />

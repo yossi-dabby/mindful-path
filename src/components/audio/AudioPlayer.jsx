@@ -6,6 +6,8 @@ import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Download, Heart }
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import { useMutation } from '@tanstack/react-query';
+import PremiumBadge from '../subscription/PremiumBadge';
+import { Badge } from '@/components/ui/badge';
 
 export default function AudioPlayer({ audioContent, onComplete, compact = false }) {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -154,6 +156,7 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
                   {audioContent.narrator}
                 </span>
               )}
+              {audioContent.duration_minutes > 30 && <PremiumBadge compact />}
             </div>
           </div>
           <div className="flex gap-2">
