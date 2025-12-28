@@ -6,6 +6,7 @@ export default function MessageBubble({ message }) {
   if (!message || !message.content) return null;
   
   const isUser = message.role === 'user';
+  const content = String(message.content || '');
   
   return (
     <div className={cn('flex gap-3', isUser ? 'justify-end' : 'justify-start')}>
@@ -25,13 +26,14 @@ export default function MessageBubble({ message }) {
             )}
           >
             {isUser ? (
-              <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{message.content}</p>
+              <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{content}</p>
             ) : (
               <ReactMarkdown
                 className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
                 components={{
                   code: ({ inline, className, children, ...props }) => {
-                    if (inline) {
+                    const match = /language-(\w+)/.exec(className || '');
+                    if (inline || !match) {
                       return <code className="px-1 py-0.5 rounded bg-gray-100 text-gray-800 text-sm" {...props}>{children}</code>;
                     }
                     return (
@@ -59,10 +61,10 @@ export default function MessageBubble({ message }) {
                       {children}
                     </blockquote>
                   )
-                }}
-              >
-                {message.content || ''}
-              </ReactMarkdown>
+                  }}
+                  >
+                  {content}
+                  </ReactMarkdown>
             )}
           </div>
         )}
