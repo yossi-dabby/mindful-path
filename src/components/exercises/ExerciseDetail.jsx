@@ -3,8 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { X, Play, CheckCircle, Clock, BookOpen, Lightbulb, Star, Video, Heart } from 'lucide-react';
+import { X, Play, CheckCircle, Clock, BookOpen, Lightbulb, Star, Video, Heart, Headphones } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 import BreathingVisual from './BreathingVisual';
+import AudioPlayer from '../audio/AudioPlayer';
 import { motion } from 'framer-motion';
 
 export default function ExerciseDetail({ exercise, onClose, onComplete, onToggleFavorite }) {
@@ -12,6 +15,13 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
   const [showBreathingVisual, setShowBreathingVisual] = useState(false);
   const [selectedDuration, setSelectedDuration] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
+
+  // Fetch linked audio content
+  const { data: audioContent } = useQuery({
+    queryKey: ['audioContent', exercise.id],
+    queryFn: () => base44.entities.AudioContent.filter({ linked_exercise_id: exercise.id }),
+    initialData: []
+  });
 
   const handleComplete = () => {
     setCompleted(true);
@@ -93,7 +103,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
           </CardHeader>
           <CardContent className="p-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className={`grid w-full ${audioContent.length > 0 ? 'grid-cols-5' : 'grid-cols-4'}`}>
                 <TabsTrigger value="overview">
                   <BookOpen className="w-4 h-4 mr-2" />
                   Overview
@@ -102,6 +112,12 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                   <Play className="w-4 h-4 mr-2" />
                   Practice
                 </TabsTrigger>
+                {audioContent.length > 0 && (
+                  <TabsTrigger value="audio">
+                    <Headphones className="w-4 h-4 mr-2" />
+                    Audio
+                  </TabsTrigger>
+                )}
                 <TabsTrigger value="benefits">
                   <Star className="w-4 h-4 mr-2" />
                   Benefits
@@ -151,6 +167,26 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                   </div>
                 )}
               </TabsContent>
+
+              {/* Audio Tab */}
+              {audioContent.length > 0 && (
+                <TabsContent value="audio" className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Guided Audio</h3>
+                    <p className="text-gray-600 mb-4">
+                      Follow along with professionally narrated audio guidance for this exercise.
+                    </p>
+                    {audioContent.map((audio) => (
+                      <div key={audio.id} className="mb-4">
+                        <AudioPlayer 
+                          audioContent={audio} 
+                          onComplete={handleComplete}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </TabsContent>
+              )}
 
               {/* Instructions Tab */}
               <TabsContent value="instructions" className="space-y-4">
