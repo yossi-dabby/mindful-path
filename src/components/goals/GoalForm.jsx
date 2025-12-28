@@ -16,9 +16,9 @@ const categories = [
   { value: 'lifestyle', label: 'Lifestyle' }
 ];
 
-export default function GoalForm({ goal, onClose }) {
+export default function GoalForm({ goal, prefilledData, onClose }) {
   const [formData, setFormData] = useState(
-    goal || {
+    goal || prefilledData || {
       title: '',
       description: '',
       category: 'behavioral',
