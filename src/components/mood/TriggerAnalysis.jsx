@@ -15,27 +15,33 @@ export default function TriggerAnalysis({ entries }) {
     entries.forEach(entry => {
       const moodValue = { excellent: 5, good: 4, okay: 3, low: 2, very_low: 1 }[entry.mood];
 
-      entry.triggers?.forEach(trigger => {
-        if (!triggerImpact[trigger]) {
-          triggerImpact[trigger] = { total: 0, count: 0, avgMood: 0 };
-        }
-        triggerImpact[trigger].total += moodValue;
-        triggerImpact[trigger].count += 1;
-        triggerImpact[trigger].avgMood = triggerImpact[trigger].total / triggerImpact[trigger].count;
-      });
+      if (Array.isArray(entry.triggers)) {
+        entry.triggers.forEach(trigger => {
+          if (!triggerImpact[trigger]) {
+            triggerImpact[trigger] = { total: 0, count: 0, avgMood: 0 };
+          }
+          triggerImpact[trigger].total += moodValue;
+          triggerImpact[trigger].count += 1;
+          triggerImpact[trigger].avgMood = triggerImpact[trigger].total / triggerImpact[trigger].count;
+        });
+      }
 
-      entry.activities?.forEach(activity => {
-        if (!activityImpact[activity]) {
-          activityImpact[activity] = { total: 0, count: 0, avgMood: 0 };
-        }
-        activityImpact[activity].total += moodValue;
-        activityImpact[activity].count += 1;
-        activityImpact[activity].avgMood = activityImpact[activity].total / activityImpact[activity].count;
-      });
+      if (Array.isArray(entry.activities)) {
+        entry.activities.forEach(activity => {
+          if (!activityImpact[activity]) {
+            activityImpact[activity] = { total: 0, count: 0, avgMood: 0 };
+          }
+          activityImpact[activity].total += moodValue;
+          activityImpact[activity].count += 1;
+          activityImpact[activity].avgMood = activityImpact[activity].total / activityImpact[activity].count;
+        });
+      }
 
-      entry.emotions?.forEach(emotion => {
-        emotionFrequency[emotion] = (emotionFrequency[emotion] || 0) + 1;
-      });
+      if (Array.isArray(entry.emotions)) {
+        entry.emotions.forEach(emotion => {
+          emotionFrequency[emotion] = (emotionFrequency[emotion] || 0) + 1;
+        });
+      }
     });
 
     const topTriggers = Object.entries(triggerImpact)

@@ -22,6 +22,11 @@ const moodColors = {
 };
 
 export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }) {
+  const energyValue = (level) => {
+    const map = { very_low: 2, low: 4, moderate: 6, high: 8, very_high: 10 };
+    return map[level] || 6;
+  };
+
   const chartData = React.useMemo(() => {
     const today = new Date();
     const data = [];
@@ -41,11 +46,6 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
     
     return data;
   }, [entries, dateRange]);
-
-  const energyValue = (level) => {
-    const map = { very_low: 2, low: 4, moderate: 6, high: 8, very_high: 10 };
-    return map[level] || 6;
-  };
 
   const stats = React.useMemo(() => {
     const validEntries = entries.slice(0, dateRange);
