@@ -22,6 +22,17 @@ const commonEmotions = [
   'Overwhelmed', 'Grateful', 'Lonely', 'Hopeful', 'Frustrated', 'Peaceful'
 ];
 
+const commonTriggers = [
+  'Work stress', 'Relationship issues', 'Financial worries', 'Health concerns',
+  'Social interaction', 'Lack of sleep', 'Physical pain', 'Family conflict',
+  'Time pressure', 'Positive event', 'Achievement', 'Exercise'
+];
+
+const commonActivities = [
+  'Exercise', 'Meditation', 'Socializing', 'Work', 'Hobbies',
+  'Rest', 'Self-care', 'Learning', 'Entertainment', 'Chores'
+];
+
 export default function MoodCheckIn({ onClose }) {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -29,8 +40,12 @@ export default function MoodCheckIn({ onClose }) {
     mood: '',
     emotions: [],
     intensity: 5,
-    notes: '',
-    triggers: ''
+    energy_level: '',
+    sleep_quality: '',
+    stress_level: 5,
+    triggers: [],
+    activities: [],
+    notes: ''
   });
 
   const saveMutation = useMutation({
@@ -46,6 +61,24 @@ export default function MoodCheckIn({ onClose }) {
       emotions: prev.emotions.includes(emotion)
         ? prev.emotions.filter(e => e !== emotion)
         : [...prev.emotions, emotion]
+    }));
+  };
+
+  const toggleTrigger = (trigger) => {
+    setFormData(prev => ({
+      ...prev,
+      triggers: prev.triggers.includes(trigger)
+        ? prev.triggers.filter(t => t !== trigger)
+        : [...prev.triggers, trigger]
+    }));
+  };
+
+  const toggleActivity = (activity) => {
+    setFormData(prev => ({
+      ...prev,
+      activities: prev.activities.includes(activity)
+        ? prev.activities.filter(a => a !== activity)
+        : [...prev.activities, activity]
     }));
   };
 
@@ -164,17 +197,161 @@ export default function MoodCheckIn({ onClose }) {
           {step === 3 && (
             <div className="space-y-6">
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  What triggered these feelings? (optional)
-                </label>
-                <Input
-                  value={formData.triggers}
-                  onChange={(e) => setFormData({ ...formData, triggers: e.target.value })}
-                  placeholder="e.g., Work deadline, conversation with friend..."
-                  className="rounded-xl"
-                />
+                <h3 className="text-lg font-semibold mb-3 text-gray-800">
+                  Energy & Sleep
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      Energy Level
+                    </label>
+                    <div className="grid grid-cols-5 gap-2">
+                      {['very_low', 'low', 'moderate', 'high', 'very_high'].map((level) => (
+                        <button
+                          key={level}
+                          onClick={() => setFormData({ ...formData, energy_level: level })}
+                          className={cn(
+                            "p-3 rounded-xl border-2 text-xs font-medium transition-all",
+                            formData.energy_level === level
+                              ? "border-green-500 bg-green-50"
+                              : "border-gray-200 hover:border-gray-300"
+                          )}
+                        >
+                          {level.replace('_', ' ')}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      Sleep Quality (last night)
+                    </label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {['poor', 'fair', 'good', 'excellent'].map((quality) => (
+                        <button
+                          key={quality}
+                          onClick={() => setFormData({ ...formData, sleep_quality: quality })}
+                          className={cn(
+                            "p-3 rounded-xl border-2 text-xs font-medium capitalize transition-all",
+                            formData.sleep_quality === quality
+                              ? "border-green-500 bg-green-50"
+                              : "border-gray-200 hover:border-gray-300"
+                          )}
+                        >
+                          {quality}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      Stress Level (1-10)
+                    </label>
+                    <div className="flex items-center gap-4">
+                      <input
+                        type="range"
+                        min="1"
+                        max="10"
+                        value={formData.stress_level}
+                        onChange={(e) => setFormData({ ...formData, stress_level: parseInt(e.target.value) })}
+                        className="flex-1"
+                      />
+                      <span className="text-2xl font-bold text-green-600 w-12 text-center">
+                        {formData.stress_level}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => setStep(2)}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Back
+                </Button>
+                <Button
+                  onClick={() => setStep(4)}
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                >
+                  Continue
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {step === 4 && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-gray-800">
+                  What triggered your mood?
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {commonTriggers.map((trigger) => (
+                    <Badge
+                      key={trigger}
+                      variant={formData.triggers.includes(trigger) ? "default" : "outline"}
+                      className={cn(
+                        "cursor-pointer px-3 py-2 text-sm transition-all",
+                        formData.triggers.includes(trigger)
+                          ? "bg-green-600 hover:bg-green-700"
+                          : "hover:bg-gray-100"
+                      )}
+                      onClick={() => toggleTrigger(trigger)}
+                    >
+                      {trigger}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-gray-800">
+                  Activities today
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {commonActivities.map((activity) => (
+                    <Badge
+                      key={activity}
+                      variant={formData.activities.includes(activity) ? "default" : "outline"}
+                      className={cn(
+                        "cursor-pointer px-3 py-2 text-sm transition-all",
+                        formData.activities.includes(activity)
+                          ? "bg-purple-600 hover:bg-purple-700"
+                          : "hover:bg-gray-100"
+                      )}
+                      onClick={() => toggleActivity(activity)}
+                    >
+                      {activity}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => setStep(3)}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Back
+                </Button>
+                <Button
+                  onClick={() => setStep(5)}
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                >
+                  Continue
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {step === 5 && (
+            <div className="space-y-6">
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
                   Additional notes (optional)
@@ -189,7 +366,7 @@ export default function MoodCheckIn({ onClose }) {
 
               <div className="flex gap-3">
                 <Button
-                  onClick={() => setStep(2)}
+                  onClick={() => setStep(4)}
                   variant="outline"
                   className="flex-1"
                 >
