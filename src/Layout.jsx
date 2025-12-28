@@ -4,6 +4,7 @@ import { createPageUrl } from './utils';
 import { Home, MessageCircle, BookOpen, Activity, Dumbbell, Settings, Heart } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { base44 } from '@/api/base44Client';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Layout({ children, currentPageName }) {
   const [theme, setTheme] = React.useState('default');
@@ -67,9 +68,24 @@ export default function Layout({ children, currentPageName }) {
         }
       `}</style>
       
-      <div className="pb-20 md:pb-0 md:pl-72">
-        {children}
-      </div>
+      <motion.div 
+        className="pb-20 md:pb-0 md:pl-72"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentPageName}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
+      </motion.div>
 
       {/* Mobile Bottom Navigation */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-gray-200 shadow-lg z-50">
