@@ -6,6 +6,14 @@ import { ChevronDown, ChevronUp, Edit, TrendingDown, Image as ImageIcon, Mic, Ta
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
+// Helper to strip HTML tags for plain text display
+const stripHtml = (html) => {
+  if (!html) return '';
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || '';
+};
+
 export default function ThoughtRecordCard({ entry, onEdit }) {
   const [expanded, setExpanded] = useState(false);
 
@@ -20,7 +28,7 @@ export default function ThoughtRecordCard({ entry, onEdit }) {
             <p className="text-sm text-gray-500 mb-1">
               {format(new Date(entry.created_date), 'MMM d, yyyy • h:mm a')}
             </p>
-            <p className="text-gray-800 font-medium line-clamp-2">{entry.situation}</p>
+            <p className="text-gray-800 font-medium line-clamp-2">{stripHtml(entry.situation)}</p>
           </div>
           <Button variant="ghost" size="icon" onClick={() => onEdit(entry)}>
             <Edit className="w-4 h-4 text-gray-400" />
@@ -93,7 +101,7 @@ export default function ThoughtRecordCard({ entry, onEdit }) {
           <div className="mt-4 pt-4 border-t border-gray-200 space-y-4">
             <div>
               <p className="text-sm font-medium text-gray-700 mb-1">Automatic Thoughts:</p>
-              <p className="text-gray-600 text-sm">{entry.automatic_thoughts}</p>
+              <div className="text-gray-600 text-sm prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: entry.automatic_thoughts }} />
             </div>
 
             {entry.cognitive_distortions?.length > 0 && (
@@ -112,21 +120,21 @@ export default function ThoughtRecordCard({ entry, onEdit }) {
             {entry.evidence_for && (
               <div>
                 <p className="text-sm font-medium text-gray-700 mb-1">Evidence For:</p>
-                <p className="text-gray-600 text-sm">{entry.evidence_for}</p>
+                <div className="text-gray-600 text-sm prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: entry.evidence_for }} />
               </div>
             )}
 
             {entry.evidence_against && (
               <div>
                 <p className="text-sm font-medium text-gray-700 mb-1">Evidence Against:</p>
-                <p className="text-gray-600 text-sm">{entry.evidence_against}</p>
+                <div className="text-gray-600 text-sm prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: entry.evidence_against }} />
               </div>
             )}
 
             {entry.balanced_thought && (
               <div className="bg-purple-50 p-4 rounded-xl">
                 <p className="text-sm font-medium text-purple-900 mb-1">Balanced Thought:</p>
-                <p className="text-purple-800 text-sm">{entry.balanced_thought}</p>
+                <div className="text-purple-800 text-sm prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: entry.balanced_thought }} />
               </div>
             )}
 
