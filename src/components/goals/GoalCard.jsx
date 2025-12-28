@@ -6,10 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Edit, Calendar, CheckCircle2, ChevronDown, ChevronUp, TrendingUp } from 'lucide-react';
+import { Edit, Calendar, CheckCircle2, ChevronDown, ChevronUp, TrendingUp, BookOpen } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import GoalProgressChart from './GoalProgressChart';
+import LinkedJournalEntries from './LinkedJournalEntries';
 
 const categoryColors = {
   behavioral: 'bg-blue-100 text-blue-700',
@@ -21,6 +22,7 @@ const categoryColors = {
 
 export default function GoalCard({ goal, onEdit }) {
   const [showChart, setShowChart] = useState(false);
+  const [showJournalEntries, setShowJournalEntries] = useState(false);
   const queryClient = useQueryClient();
 
   const toggleMilestoneMutation = useMutation({
@@ -90,44 +92,73 @@ export default function GoalCard({ goal, onEdit }) {
         {/* Milestones */}
         {goal.milestones?.length > 0 && (
           <div className="space-y-2">
-            <p className="text-sm font-medium text-gray-700 mb-2">Milestones:</p>
+            <p className="text-sm font-medium text-gray-700 mb-2">Tasks:</p>
             {goal.milestones.map((milestone, index) => (
-              <div key={index} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50">
+              <div key={index} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 border border-gray-100">
                 <Checkbox
                   checked={milestone.completed}
                   onCheckedChange={() => toggleMilestone(index)}
-                  className="rounded"
+                  className="rounded mt-0.5"
                 />
-                <span
-                  className={cn(
-                    'text-sm flex-1',
-                    milestone.completed
-                      ? 'line-through text-gray-400'
-                      : 'text-gray-700'
+                <div className="flex-1 min-w-0">
+                  <span
+                    className={cn(
+                      'text-sm font-medium block',
+                      milestone.completed
+                        ? 'line-through text-gray-400'
+                        : 'text-gray-700'
+                    )}
+                  >
+                    {milestone.title}
+                  </span>
+                  {milestone.description && (
+                    <p className="text-xs text-gray-500 mt-0.5">{milestone.description}</p>
                   )}
-                >
-                  {milestone.title}
-                </span>
+                  {milestone.due_date && (
+                    <Badge variant="outline" className="mt-1 text-xs">
+                      <Calendar className="w-3 h-3 mr-1" />
+                      {format(new Date(milestone.due_date), 'MMM d')}
+                    </Badge>
+                  )}
+                </div>
               </div>
             ))}
           </div>
         )}
 
-        {/* Toggle Chart Button */}
-        <Button
-          variant="outline"
-          onClick={() => setShowChart(!showChart)}
-          className="w-full mt-4 flex items-center justify-center gap-2"
-        >
-          <TrendingUp className="w-4 h-4" />
-          {showChart ? 'Hide' : 'View'} Progress Chart
-          {showChart ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-        </Button>
+        {/* Action Buttons */}
+        <div className="grid grid-cols-2 gap-2 mt-4">
+          <Button
+            variant="outline"
+            onClick={() => setShowChart(!showChart)}
+            className="flex items-center justify-center gap-2"
+          >
+            <TrendingUp className="w-4 h-4" />
+            {showChart ? 'Hide' : 'Show'} Chart
+            {showChart ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setShowJournalEntries(!showJournalEntries)}
+            className="flex items-center justify-center gap-2"
+          >
+            <BookOpen className="w-4 h-4" />
+            {showJournalEntries ? 'Hide' : 'Show'} Journal
+            {showJournalEntries ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </Button>
+        </div>
 
         {/* Progress Chart */}
         {showChart && (
           <div className="mt-4 pt-4 border-t">
             <GoalProgressChart goal={goal} />
+          </div>
+        )}
+
+        {/* Linked Journal Entries */}
+        {showJournalEntries && (
+          <div className="mt-4 pt-4 border-t">
+            <LinkedJournalEntries goalId={goal.id} />
           </div>
         )}
       </CardContent>

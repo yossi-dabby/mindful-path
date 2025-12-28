@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@anstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Target } from 'lucide-react';
+import { Plus, Target, Calendar as CalendarIcon } from 'lucide-react';
 import GoalForm from '../components/goals/GoalForm';
 import GoalCard from '../components/goals/GoalCard';
+import GoalCalendar from '../components/goals/GoalCalendar';
 
 export default function Goals() {
   const [showForm, setShowForm] = useState(false);
   const [editingGoal, setEditingGoal] = useState(null);
+  const [showCalendar, setShowCalendar] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: goals, isLoading } = useQuery({
@@ -40,13 +42,23 @@ export default function Goals() {
           <h1 className="text-3xl md:text-4xl font-light text-gray-800 mb-2">Your Goals</h1>
           <p className="text-gray-500">Set intentions and track your progress</p>
         </div>
-        <Button
-          onClick={() => setShowForm(true)}
-          className="bg-blue-600 hover:bg-blue-700 rounded-xl px-6"
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          New Goal
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={() => setShowCalendar(!showCalendar)}
+            variant="outline"
+            className="rounded-xl"
+          >
+            <CalendarIcon className="w-5 h-5 mr-2" />
+            {showCalendar ? 'Hide' : 'View'} Calendar
+          </Button>
+          <Button
+            onClick={() => setShowForm(true)}
+            className="bg-blue-600 hover:bg-blue-700 rounded-xl px-6"
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            New Goal
+          </Button>
+        </div>
       </div>
 
       {/* Goals List */}
@@ -74,6 +86,11 @@ export default function Goals() {
         </Card>
       ) : (
         <div className="space-y-8">
+          {/* Calendar View */}
+          {showCalendar && (
+            <GoalCalendar goals={goals} />
+          )}
+
           {/* Active Goals */}
           {activeGoals.length > 0 && (
             <div>

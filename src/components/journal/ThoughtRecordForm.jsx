@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { X, Image as ImageIcon, Mic, Upload, Trash2, Plus, Sparkles, Brain, Lightbulb, Target, Loader2, Bold, Italic, List, ListOrdered, Heading } from 'lucide-react';
+import { X, Image as ImageIcon, Mic, Upload, Trash2, Plus, Sparkles, Brain, Lightbulb, Target, Loader2, Bold, Italic, List, ListOrdered, Heading, Link2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -49,13 +49,20 @@ export default function ThoughtRecordForm({ entry, template, templates, onClose 
     custom_fields: {},
     tags: [],
     images: [],
-    audio_notes: []
+    audio_notes: [],
+    linked_goal_id: null
   });
 
   const [uploadingFile, setUploadingFile] = useState(false);
   const [newTag, setNewTag] = useState('');
   const [aiAnalysis, setAiAnalysis] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  const { data: goals } = useQuery({
+    queryKey: ['activeGoals'],
+    queryFn: () => base44.entities.Goal.filter({ status: 'active' }),
+    initialData: []
+  });
 
   const saveMutation = useMutation({
     mutationFn: (data) => 
@@ -583,6 +590,35 @@ Provide:
                       </div>
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Link to Goal */}
+              {goals.length > 0 && (
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-2">
+                    <Link2 className="w-4 h-4" />
+                    Link to Goal (optional)
+                  </label>
+                  <Select
+                    value={formData.linked_goal_id || 'none'}
+                    onValueChange={(value) => setFormData({ ...formData, linked_goal_id: value === 'none' ? null : value })}
+                  >
+                    <SelectTrigger className="rounded-xl">
+                      <SelectValue placeholder="No goal linked" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No goal linked</SelectItem>
+                      {goals.map((goal) => (
+                        <SelectItem key={goal.id} value={goal.id}>
+                          {goal.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Connect this entry to a goal for context and tracking
+                  </p>
                 </div>
               )}
 

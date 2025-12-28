@@ -40,13 +40,13 @@ export default function GoalForm({ goal, onClose }) {
   const addMilestone = () => {
     setFormData({
       ...formData,
-      milestones: [...formData.milestones, { title: '', completed: false }]
+      milestones: [...formData.milestones, { title: '', completed: false, due_date: '', description: '' }]
     });
   };
 
-  const updateMilestone = (index, title) => {
+  const updateMilestone = (index, field, value) => {
     const newMilestones = [...formData.milestones];
-    newMilestones[index] = { ...newMilestones[index], title };
+    newMilestones[index] = { ...newMilestones[index], [field]: value };
     setFormData({ ...formData, milestones: newMilestones });
   };
 
@@ -140,29 +140,46 @@ export default function GoalForm({ goal, onClose }) {
             {/* Milestones */}
             <div>
               <div className="flex items-center justify-between mb-3">
-                <label className="text-sm font-medium text-gray-700">Milestones (optional)</label>
+                <label className="text-sm font-medium text-gray-700">Sub-goals / Tasks</label>
                 <Button variant="outline" size="sm" onClick={addMilestone} className="rounded-lg">
                   <Plus className="w-4 h-4 mr-1" />
-                  Add
+                  Add Task
                 </Button>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {formData.milestones.map((milestone, index) => (
-                  <div key={index} className="flex gap-2">
-                    <Input
-                      value={milestone.title}
-                      onChange={(e) => updateMilestone(index, e.target.value)}
-                      placeholder={`Step ${index + 1}`}
-                      className="flex-1 rounded-xl"
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeMilestone(index)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                  <div key={index} className="p-3 border rounded-xl bg-gray-50">
+                    <div className="flex gap-2 mb-2">
+                      <Input
+                        value={milestone.title}
+                        onChange={(e) => updateMilestone(index, 'title', e.target.value)}
+                        placeholder={`Task ${index + 1} title`}
+                        className="flex-1 rounded-lg bg-white"
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeMilestone(index)}
+                        className="text-red-500 hover:text-red-700 flex-shrink-0"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        type="date"
+                        value={milestone.due_date || ''}
+                        onChange={(e) => updateMilestone(index, 'due_date', e.target.value)}
+                        placeholder="Due date"
+                        className="rounded-lg bg-white text-sm"
+                      />
+                      <Input
+                        value={milestone.description || ''}
+                        onChange={(e) => updateMilestone(index, 'description', e.target.value)}
+                        placeholder="Notes (optional)"
+                        className="rounded-lg bg-white text-sm"
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
