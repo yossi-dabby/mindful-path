@@ -14,10 +14,7 @@ export default function ActionPlanPanel({ session, onClose, onUpdate }) {
 
   const updateActionsMutation = useMutation({
     mutationFn: (actions) => 
-      base44.entities.CoachingSession.update(session.id, { action_plan: actions }),
-    onSuccess: () => {
-      onUpdate();
-    }
+      base44.entities.CoachingSession.update(session.id, { action_plan: actions })
   });
 
   const toggleAction = (index) => {
