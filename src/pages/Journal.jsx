@@ -10,6 +10,7 @@ import ThoughtRecordCard from '../components/journal/ThoughtRecordCard';
 import JournalFilters from '../components/journal/JournalFilters';
 import TemplateManager from '../components/journal/TemplateManager';
 import ReminderManager from '../components/journal/ReminderManager';
+import AiJournalPrompts from '../components/journal/AiJournalPrompts';
 
 export default function Journal() {
   const [showForm, setShowForm] = useState(false);

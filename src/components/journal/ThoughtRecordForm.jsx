@@ -11,6 +11,7 @@ import { X, Image as ImageIcon, Mic, Upload, Trash2, Plus, Sparkles, Brain, Ligh
 import { cn } from '@/lib/utils';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import AiJournalSuggestions from './AiJournalSuggestions';
 
 const commonEmotions = [
   'Anxious', 'Sad', 'Angry', 'Frustrated', 'Overwhelmed', 'Guilty', 
@@ -57,6 +58,8 @@ export default function ThoughtRecordForm({ entry, template, templates, onClose 
   const [newTag, setNewTag] = useState('');
   const [aiAnalysis, setAiAnalysis] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [savedEntry, setSavedEntry] = useState(null);
 
   const { data: goals } = useQuery({
     queryKey: ['activeGoals'],
@@ -71,9 +74,11 @@ export default function ThoughtRecordForm({ entry, template, templates, onClose 
       entry 
         ? base44.entities.ThoughtJournal.update(entry.id, data)
         : base44.entities.ThoughtJournal.create(data),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries(['thoughtJournals']);
-      onClose();
+      setSavedEntry(data);
+      setShowSuggestions(true);
+      setStep(6);
     }
   });
 
@@ -737,8 +742,27 @@ Provide:
               </div>
             </div>
           )}
+        </div>
+        )}
+
+        {step === 6 && showSuggestions && savedEntry && (
+        <div>
+          <div className="text-center mb-6">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-blue-400 flex items-center justify-center mx-auto mb-3">
+              <Sparkles className="w-8 h-8 text-white" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">Entry Saved!</h3>
+            <p className="text-sm text-gray-600">Here are some AI-powered insights based on your entry</p>
+          </div>
+
+          <AiJournalSuggestions 
+            entry={savedEntry}
+            onClose={onClose}
+          />
+        </div>
+        )}
         </CardContent>
-      </Card>
-    </div>
-  );
-}
+        </Card>
+        </div>
+        );
+        }
