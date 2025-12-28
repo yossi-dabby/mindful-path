@@ -6,7 +6,15 @@ export default function MessageBubble({ message }) {
   if (!message || !message.content) return null;
   
   const isUser = message.role === 'user';
-  const content = String(message.content).trim();
+  
+  // Safely handle content conversion
+  let content = '';
+  try {
+    content = String(message.content || '').trim();
+  } catch (e) {
+    console.error('Error processing message content:', e);
+    return null;
+  }
   
   if (!content) return null;
   
