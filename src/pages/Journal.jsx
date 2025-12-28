@@ -64,6 +64,7 @@ export default function Journal() {
     setShowForm(false);
     setEditingEntry(null);
     setSelectedTemplate(null);
+    setPromptedSituation('');
   };
 
   const handleNewEntry = (template = null, initialSituation = '') => {
