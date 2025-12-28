@@ -6,15 +6,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { User, Bell, CreditCard, LogOut, Crown, Shield } from 'lucide-react';
+import ThemeSelector, { themes } from '../components/settings/ThemeSelector';
 
 export default function Settings() {
   const [user, setUser] = useState(null);
   const [fullName, setFullName] = useState('');
+  const [currentTheme, setCurrentTheme] = useState('default');
 
   useEffect(() => {
     base44.auth.me().then((userData) => {
       setUser(userData);
       setFullName(userData.full_name || '');
+      setCurrentTheme(userData.preferences?.theme || 'default');
     });
   }, []);
 
@@ -24,6 +27,21 @@ export default function Settings() {
       setUser(updatedUser);
     }
   });
+
+  const handleThemeChange = async (theme) => {
+    setCurrentTheme(theme.id);
+    await updateProfileMutation.mutateAsync({
+      preferences: {
+        ...user.preferences,
+        theme: theme.id
+      }
+    });
+    
+    // Apply theme colors to CSS variables
+    document.documentElement.style.setProperty('--color-primary', theme.colors.primary);
+    document.documentElement.style.setProperty('--color-secondary', theme.colors.secondary);
+    document.documentElement.style.setProperty('--color-accent', theme.colors.accent);
+  };
 
   const handleLogout = () => {
     base44.auth.logout();
@@ -140,6 +158,11 @@ export default function Settings() {
           </p>
         </CardContent>
       </Card>
+
+      {/* Theme Section */}
+      <div className="mb-6">
+        <ThemeSelector currentTheme={currentTheme} onThemeChange={handleThemeChange} />
+      </div>
 
       {/* Notifications Section */}
       <Card className="border-0 shadow-md mb-6">

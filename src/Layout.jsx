@@ -3,8 +3,36 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from './utils';
 import { Home, MessageCircle, BookOpen, Activity, Dumbbell, Settings, Heart } from 'lucide-react';
 import { cn } from "@/lib/utils";
+import { base44 } from '@/api/base44Client';
 
 export default function Layout({ children, currentPageName }) {
+  const [theme, setTheme] = React.useState('default');
+
+  React.useEffect(() => {
+    // Load user theme preference
+    base44.auth.me().then((user) => {
+      const userTheme = user?.preferences?.theme || 'default';
+      setTheme(userTheme);
+      
+      // Apply theme colors
+      const themeColors = {
+        default: { primary: '139 178 158', secondary: '185 163 193', accent: '244 146 131' },
+        ocean: { primary: '14 165 233', secondary: '6 182 212', accent: '20 184 166' },
+        sunset: { primary: '249 115 22', secondary: '236 72 153', accent: '251 146 60' },
+        forest: { primary: '16 185 129', secondary: '34 197 94', accent: '132 204 22' },
+        lavender: { primary: '168 85 247', secondary: '139 92 246', accent: '217 70 239' },
+        minimal: { primary: '71 85 105', secondary: '100 116 139', accent: '51 65 85' }
+      };
+      
+      const colors = themeColors[userTheme] || themeColors.default;
+      document.documentElement.style.setProperty('--color-primary', colors.primary);
+      document.documentElement.style.setProperty('--color-secondary', colors.secondary);
+      document.documentElement.style.setProperty('--color-accent', colors.accent);
+    }).catch(() => {
+      // User not logged in, use default theme
+    });
+  }, []);
+
   const navItems = [
     { name: 'Home', icon: Home, path: 'Home' },
     { name: 'Chat', icon: MessageCircle, path: 'Chat' },
@@ -16,8 +44,17 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Settings', icon: Settings, path: 'Settings' }
   ];
 
+  const themeBackgrounds = {
+    default: 'bg-gradient-to-br from-white via-green-50/30 to-purple-50/30',
+    ocean: 'bg-gradient-to-br from-white via-blue-50/30 to-cyan-50/30',
+    sunset: 'bg-gradient-to-br from-white via-orange-50/30 to-pink-50/30',
+    forest: 'bg-gradient-to-br from-white via-emerald-50/30 to-green-50/30',
+    lavender: 'bg-gradient-to-br from-white via-purple-50/30 to-violet-50/30',
+    minimal: 'bg-gradient-to-br from-white via-gray-50/30 to-slate-50/30'
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-green-50/30 to-purple-50/30">
+    <div className={`min-h-screen ${themeBackgrounds[theme] || themeBackgrounds.default}`}>
       <style>{`
         :root {
           --color-primary: 139 178 158;
