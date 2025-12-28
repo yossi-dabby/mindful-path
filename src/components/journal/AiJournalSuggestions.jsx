@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, Loader2, BookOpen, Dumbbell, Target } from 'lucide-react';
+import { Sparkles, Loader2, BookOpen, Dumbbell, Target, TrendingUp, MessageSquare, BarChart3, Lightbulb } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { motion } from 'framer-motion';
@@ -25,6 +25,12 @@ export default function AiJournalSuggestions({ entry, onClose }) {
     initialData: []
   });
 
+  const { data: allEntries } = useQuery({
+    queryKey: ['thoughtJournals'],
+    queryFn: () => base44.entities.ThoughtJournal.list('-created_date', 20),
+    initialData: []
+  });
+
   useEffect(() => {
     generateSuggestions();
   }, [entry]);
@@ -33,24 +39,82 @@ export default function AiJournalSuggestions({ entry, onClose }) {
     try {
       const stripHtml = (html) => html?.replace(/<[^>]*>/g, '') || '';
 
+      // Prepare past entries context
+      const pastEntriesContext = allEntries
+        .filter(e => e.id !== entry.id)
+        .slice(0, 10)
+        .map(e => ({
+          situation: stripHtml(e.situation)?.substring(0, 200),
+          thoughts: stripHtml(e.automatic_thoughts)?.substring(0, 200),
+          emotions: e.emotions?.join(', '),
+          distortions: e.cognitive_distortions?.join(', '),
+          tags: e.tags?.join(', ')
+        }));
+
+      // Prepare goals context
+      const goalsContext = goals.map(g => ({
+        title: g.title,
+        category: g.category,
+        description: g.description
+      }));
+
       const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Based on this CBT journal entry, provide personalized recommendations:
+        prompt: `Analyze this CBT journal entry and provide advanced personalized insights:
 
-**Situation:** ${stripHtml(entry.situation)}
-**Thoughts:** ${stripHtml(entry.automatic_thoughts)}
-**Emotions:** ${entry.emotions?.join(', ')}
-**Intensity:** ${entry.emotion_intensity}/10
-**Cognitive Distortions:** ${entry.cognitive_distortions?.join(', ')}
+**CURRENT ENTRY:**
+- Situation: ${stripHtml(entry.situation)}
+- Automatic Thoughts: ${stripHtml(entry.automatic_thoughts)}
+- Emotions: ${entry.emotions?.join(', ')}
+- Intensity: ${entry.emotion_intensity}/10
+- Cognitive Distortions: ${entry.cognitive_distortions?.join(', ')}
+- Tags: ${entry.tags?.join(', ') || 'none'}
 
-Provide:
-1. **Similar Patterns**: 2-3 brief insights about thought patterns that might be helpful to explore further
-2. **Exercise Recommendations**: Suggest 2-3 CBT exercise categories that would be most helpful (from: breathing, grounding, cognitive_restructuring, behavioral_activation, mindfulness, exposure)
-3. **Journaling Suggestions**: 1-2 follow-up journaling ideas or prompts to deepen this work
-4. **Goal Connection**: If applicable, suggest how this relates to potential personal growth goals`,
+**USER'S PAST ENTRIES (last 10):**
+${JSON.stringify(pastEntriesContext, null, 2)}
+
+**USER'S ACTIVE GOALS:**
+${JSON.stringify(goalsContext, null, 2)}
+
+Provide comprehensive analysis:
+
+1. **Recurring Themes** (2-4 themes): Analyze the current and past entries to identify recurring patterns, triggers, emotional themes, or cognitive distortions. Be specific about what patterns repeat across entries.
+
+2. **Sentiment & Auto-Categorization**: 
+   - Overall sentiment (positive, negative, neutral, mixed)
+   - Primary topic category (work, relationships, self-worth, health, general)
+   - Emotional intensity trend (increasing, stable, decreasing)
+
+3. **Personalized Reflection Questions** (3-4 questions): Based on the entry content, past patterns, and user goals, generate deep, personalized reflection questions that help the user explore their thoughts and emotions further.
+
+4. **Exercise Recommendations** (2-3): Suggest specific CBT exercise categories (breathing, grounding, cognitive_restructuring, behavioral_activation, mindfulness, exposure) with reasons based on the analysis.
+
+5. **Progress Insights**: If patterns show improvement or areas needing attention, mention it.
+
+6. **Goal Alignment**: If this entry relates to any of their active goals, explain the connection and suggest next steps.`,
         response_json_schema: {
           type: "object",
           properties: {
-            patterns: {
+            recurring_themes: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  theme: { type: "string" },
+                  description: { type: "string" },
+                  frequency: { type: "string" }
+                }
+              }
+            },
+            sentiment_analysis: {
+              type: "object",
+              properties: {
+                sentiment: { type: "string" },
+                topic_category: { type: "string" },
+                intensity_trend: { type: "string" },
+                summary: { type: "string" }
+              }
+            },
+            reflection_questions: {
               type: "array",
               items: { type: "string" }
             },
@@ -64,11 +128,15 @@ Provide:
                 }
               }
             },
-            journaling_suggestions: {
-              type: "array",
-              items: { type: "string" }
-            },
-            goal_suggestion: { type: "string" }
+            progress_insights: { type: "string" },
+            goal_alignment: {
+              type: "object",
+              properties: {
+                related_goal: { type: "string" },
+                connection: { type: "string" },
+                suggested_action: { type: "string" }
+              }
+            }
           }
         }
       });
@@ -112,25 +180,87 @@ Provide:
     >
       <div className="flex items-center gap-2 mb-4">
         <Sparkles className="w-5 h-5 text-purple-600" />
-        <h3 className="text-lg font-semibold text-gray-800">AI Insights & Suggestions</h3>
+        <h3 className="text-lg font-semibold text-gray-800">AI-Powered Analysis</h3>
       </div>
 
-      {/* Patterns */}
-      {suggestions.patterns?.length > 0 && (
+      {/* Sentiment & Categorization */}
+      {suggestions.sentiment_analysis && (
+        <Card className="border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-white">
+          <CardContent className="p-4">
+            <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-indigo-600" />
+              Entry Analysis
+            </h4>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Sentiment:</span>
+                <Badge variant="outline" className="capitalize">
+                  {suggestions.sentiment_analysis.sentiment}
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Topic:</span>
+                <Badge variant="outline" className="capitalize">
+                  {suggestions.sentiment_analysis.topic_category}
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Intensity Trend:</span>
+                <Badge variant="outline" className="capitalize">
+                  {suggestions.sentiment_analysis.intensity_trend}
+                </Badge>
+              </div>
+              <p className="text-sm text-gray-700 mt-3 pt-3 border-t">
+                {suggestions.sentiment_analysis.summary}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Recurring Themes */}
+      {suggestions.recurring_themes?.length > 0 && (
         <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white">
           <CardContent className="p-4">
-            <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-blue-600" />
-              Patterns to Explore
+            <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-blue-600" />
+              Recurring Themes in Your Entries
             </h4>
-            <ul className="space-y-2">
-              {suggestions.patterns.map((pattern, i) => (
-                <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
-                  <span className="text-blue-600 mt-1">•</span>
-                  <span>{pattern}</span>
-                </li>
+            <div className="space-y-3">
+              {suggestions.recurring_themes.map((theme, i) => (
+                <div key={i} className="bg-white p-3 rounded-lg border border-blue-200">
+                  <div className="flex items-start justify-between mb-1">
+                    <p className="font-medium text-sm text-gray-800">{theme.theme}</p>
+                    <Badge variant="secondary" className="text-xs">
+                      {theme.frequency}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-gray-600">{theme.description}</p>
+                </div>
               ))}
-            </ul>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Reflection Questions */}
+      {suggestions.reflection_questions?.length > 0 && (
+        <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-white">
+          <CardContent className="p-4">
+            <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+              <Lightbulb className="w-4 h-4 text-purple-600" />
+              Personalized Reflection Questions
+            </h4>
+            <div className="space-y-2">
+              {suggestions.reflection_questions.map((question, i) => (
+                <div key={i} className="bg-white p-3 rounded-lg border border-purple-200">
+                  <p className="text-sm text-gray-700 flex items-start gap-2">
+                    <span className="text-purple-600 font-semibold mt-0.5">{i + 1}.</span>
+                    <span>{question}</span>
+                  </p>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       )}
@@ -166,38 +296,42 @@ Provide:
         </Card>
       )}
 
-      {/* Journaling Suggestions */}
-      {suggestions.journaling_suggestions?.length > 0 && (
-        <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-white">
+      {/* Progress Insights */}
+      {suggestions.progress_insights && (
+        <Card className="border-2 border-teal-200 bg-gradient-to-br from-teal-50 to-white">
           <CardContent className="p-4">
             <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-purple-600" />
-              Continue Exploring
+              <MessageSquare className="w-4 h-4 text-teal-600" />
+              Progress Insights
             </h4>
-            <ul className="space-y-2">
-              {suggestions.journaling_suggestions.map((suggestion, i) => (
-                <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
-                  <span className="text-purple-600 mt-1">•</span>
-                  <span>{suggestion}</span>
-                </li>
-              ))}
-            </ul>
+            <p className="text-sm text-gray-700">{suggestions.progress_insights}</p>
           </CardContent>
         </Card>
       )}
 
-      {/* Goal Suggestion */}
-      {suggestions.goal_suggestion && (
+      {/* Goal Alignment */}
+      {suggestions.goal_alignment?.related_goal && (
         <Card className="border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-white">
           <CardContent className="p-4">
-            <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+            <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
               <Target className="w-4 h-4 text-orange-600" />
-              Growth Opportunity
+              Goal Connection: {suggestions.goal_alignment.related_goal}
             </h4>
-            <p className="text-sm text-gray-700 mb-3">{suggestions.goal_suggestion}</p>
+            <div className="space-y-2">
+              <div>
+                <p className="text-xs text-gray-500 mb-1">How this entry relates:</p>
+                <p className="text-sm text-gray-700">{suggestions.goal_alignment.connection}</p>
+              </div>
+              {suggestions.goal_alignment.suggested_action && (
+                <div>
+                  <p className="text-xs text-gray-500 mb-1">Suggested action:</p>
+                  <p className="text-sm text-gray-700 font-medium">{suggestions.goal_alignment.suggested_action}</p>
+                </div>
+              )}
+            </div>
             <Link to={createPageUrl('Goals')}>
-              <Button variant="outline" size="sm" className="w-full">
-                Create a Goal
+              <Button variant="outline" size="sm" className="w-full mt-3">
+                View Goals
               </Button>
             </Link>
           </CardContent>
