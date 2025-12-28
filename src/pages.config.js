@@ -8,6 +8,7 @@ import MoodTracker from './pages/MoodTracker';
 import Progress from './pages/Progress';
 import Resources from './pages/Resources';
 import Settings from './pages/Settings';
+import CoachingAnalytics from './pages/CoachingAnalytics';
 import __Layout from './Layout.jsx';
 
 
@@ -22,6 +23,7 @@ export const PAGES = {
     "Progress": Progress,
     "Resources": Resources,
     "Settings": Settings,
+    "CoachingAnalytics": CoachingAnalytics,
 }
 
 export const pagesConfig = {
