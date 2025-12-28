@@ -4,13 +4,14 @@ import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Heart, Target, MessageCircle, TrendingUp, BarChart3 } from 'lucide-react';
+import { Heart, Target, MessageCircle, TrendingUp, BarChart3, Brain } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import CoachingSessionList from '../components/coaching/CoachingSessionList';
 import CoachingSessionWizard from '../components/coaching/CoachingSessionWizard';
 import CoachingChat from '../components/coaching/CoachingChat';
+import PersonalizedInsights from '../components/coaching/PersonalizedInsights';
 
 export default function Coach() {
   const [showWizard, setShowWizard] = useState(false);
@@ -126,32 +127,43 @@ export default function Coach() {
               </Card>
             </motion.div>
           ) : (
-            <Tabs defaultValue="active" className="space-y-6">
-              <TabsList className="bg-white/80 backdrop-blur-xl border shadow-sm">
-                <TabsTrigger value="active" className="gap-2">
-                  <TrendingUp className="w-4 h-4" />
-                  Active ({activeSessions.length})
-                </TabsTrigger>
-                <TabsTrigger value="completed" className="gap-2">
-                  <MessageCircle className="w-4 h-4" />
-                  Completed ({completedSessions.length})
-                </TabsTrigger>
-              </TabsList>
+            <div className="space-y-6">
+              {/* Personalized Insights */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <Brain className="w-5 h-5 text-purple-600" />
+                  Your Personalized Insights
+                </h3>
+                <PersonalizedInsights onStartSession={handleStartSession} />
+              </div>
 
-              <TabsContent value="active">
-                <CoachingSessionList 
-                  sessions={activeSessions}
-                  onSelectSession={handleSelectSession}
-                />
-              </TabsContent>
+              <Tabs defaultValue="active">
+                <TabsList className="bg-white/80 backdrop-blur-xl border shadow-sm">
+                  <TabsTrigger value="active" className="gap-2">
+                    <TrendingUp className="w-4 h-4" />
+                    Active ({activeSessions.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="completed" className="gap-2">
+                    <MessageCircle className="w-4 h-4" />
+                    Completed ({completedSessions.length})
+                  </TabsTrigger>
+                </TabsList>
 
-              <TabsContent value="completed">
-                <CoachingSessionList 
-                  sessions={completedSessions}
-                  onSelectSession={handleSelectSession}
-                />
-              </TabsContent>
-            </Tabs>
+                <TabsContent value="active">
+                  <CoachingSessionList 
+                    sessions={activeSessions}
+                    onSelectSession={handleSelectSession}
+                  />
+                </TabsContent>
+
+                <TabsContent value="completed">
+                  <CoachingSessionList 
+                    sessions={completedSessions}
+                    onSelectSession={handleSelectSession}
+                  />
+                </TabsContent>
+              </Tabs>
+            </div>
           )}
         </div>
       )}
