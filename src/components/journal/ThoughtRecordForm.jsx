@@ -69,7 +69,9 @@ export default function ThoughtRecordForm({ entry, template, templates, onClose 
       entry 
         ? base44.entities.ThoughtJournal.update(entry.id, data)
         : base44.entities.ThoughtJournal.create(data),
-    onSuccess: () => onClose()
+    onSuccess: () => {
+      onClose();
+    }
   });
 
   const analyzeEntry = async () => {
