@@ -11,6 +11,7 @@ import MoodCheckIn from '../components/home/MoodCheckIn';
 import QuickActions from '../components/home/QuickActions';
 import RecentProgress from '../components/home/RecentProgress';
 import OnboardingTour from '../components/onboarding/OnboardingTour';
+import ProactiveNudges from '../components/home/ProactiveNudges';
 import { motion } from 'framer-motion';
 
 export default function Home() {
@@ -147,6 +148,9 @@ export default function Home() {
           </Card>
         </motion.div>
       )}
+
+      {/* Proactive Nudges */}
+      <ProactiveNudges />
 
       {/* Quick Actions */}
       <QuickActions />
