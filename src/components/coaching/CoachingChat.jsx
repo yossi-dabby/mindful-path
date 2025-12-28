@@ -207,7 +207,7 @@ export default function CoachingChat({ session, onBack }) {
           <ActionPlanPanel 
             session={currentSession}
             onClose={() => setShowActionPanel(false)}
-            onUpdate={refetchSession}
+            onUpdate={() => {}}
           />
         )}
       </div>
