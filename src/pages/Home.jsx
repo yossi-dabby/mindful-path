@@ -61,19 +61,20 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen p-4 md:p-8 max-w-6xl mx-auto">
-      {/* Header */}
-      <motion.div 
-        className="mb-8 mt-4"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <h1 className="text-3xl md:text-4xl font-light text-gray-800 mb-2">
-          {greeting()}{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
-        </h1>
-        <p className="text-gray-500 text-lg">How are you feeling today?</p>
-      </motion.div>
+    <div className="min-h-screen bg-warm-gradient">
+      <div className="page-container max-w-5xl">
+        {/* Header with increased spacing */}
+        <motion.div 
+          className="mb-12 mt-8"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h1 className="text-4xl md:text-5xl font-light text-gray-800 mb-3">
+            {greeting()}{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
+          </h1>
+          <p className="text-gray-600 text-xl">How are you feeling today?</p>
+        </motion.div>
 
       {/* Daily Check-in Card */}
       {!todayMood ? (
@@ -82,8 +83,8 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <Card className="mb-6 border-0 shadow-lg bg-gradient-to-br from-green-50 to-purple-50 hover:shadow-xl transition-shadow duration-300">
-            <CardContent className="p-8">
+          <Card className="mb-8 border-0 shadow-xl bg-gradient-to-br from-orange-50 via-white to-pink-50 hover:shadow-2xl transition-all duration-300 rounded-3xl">
+            <CardContent className="p-10">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-3">
@@ -100,7 +101,7 @@ export default function Home() {
                   </p>
                   <Button 
                     onClick={() => setShowMoodCheckIn(true)}
-                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-6 text-lg rounded-2xl shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                    className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white px-8 py-7 text-lg rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
                   >
                     Check in now
                     <Sparkles className="w-5 h-5 ml-2" />
@@ -155,8 +156,8 @@ export default function Home() {
       {/* Quick Actions */}
       <QuickActions />
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      {/* Stats Overview with better spacing */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

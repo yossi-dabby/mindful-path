@@ -52,12 +52,12 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   const themeBackgrounds = {
-    default: 'bg-gradient-to-br from-white via-green-50/30 to-purple-50/30',
-    ocean: 'bg-gradient-to-br from-white via-blue-50/30 to-cyan-50/30',
-    sunset: 'bg-gradient-to-br from-white via-orange-50/30 to-pink-50/30',
-    forest: 'bg-gradient-to-br from-white via-emerald-50/30 to-green-50/30',
-    lavender: 'bg-gradient-to-br from-white via-purple-50/30 to-violet-50/30',
-    minimal: 'bg-gradient-to-br from-white via-gray-50/30 to-slate-50/30'
+    default: 'bg-gradient-to-br from-orange-50/50 via-white to-pink-50/30',
+    ocean: 'bg-gradient-to-br from-blue-50/50 via-white to-cyan-50/30',
+    sunset: 'bg-gradient-to-br from-orange-50/50 via-white to-pink-50/50',
+    forest: 'bg-gradient-to-br from-emerald-50/50 via-white to-green-50/30',
+    lavender: 'bg-gradient-to-br from-purple-50/50 via-white to-violet-50/30',
+    minimal: 'bg-gradient-to-br from-gray-50/50 via-white to-slate-50/30'
   };
 
   return (
