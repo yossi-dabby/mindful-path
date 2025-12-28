@@ -70,7 +70,7 @@ export default function ThoughtRecordForm({ entry, template, templates, onClose 
         ? base44.entities.ThoughtJournal.update(entry.id, data)
         : base44.entities.ThoughtJournal.create(data),
     onSuccess: () => {
-      onClose();
+      setTimeout(() => onClose(), 0);
     }
   });
 
