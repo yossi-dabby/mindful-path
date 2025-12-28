@@ -10,6 +10,7 @@ import MoodTracker from './pages/MoodTracker';
 import Progress from './pages/Progress';
 import Resources from './pages/Resources';
 import Settings from './pages/Settings';
+import AdvancedAnalytics from './pages/AdvancedAnalytics';
 import __Layout from './Layout.jsx';
 
 
@@ -26,6 +27,7 @@ export const PAGES = {
     "Progress": Progress,
     "Resources": Resources,
     "Settings": Settings,
+    "AdvancedAnalytics": AdvancedAnalytics,
 }
 
 export const pagesConfig = {
