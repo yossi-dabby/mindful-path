@@ -12,6 +12,10 @@ import QuickActions from '../components/home/QuickActions';
 import RecentProgress from '../components/home/RecentProgress';
 import ProactiveNudges from '../components/home/ProactiveNudges';
 import WelcomeWizard from '../components/onboarding/WelcomeWizard';
+import StreakWidget from '../components/gamification/StreakWidget';
+import BadgeDisplay from '../components/gamification/BadgeDisplay';
+import DailyChallenges from '../components/gamification/DailyChallenges';
+import DailyProgram from '../components/home/DailyProgram';
 import { motion } from 'framer-motion';
 
 export default function Home() {
@@ -152,6 +156,22 @@ export default function Home() {
 
       {/* Proactive Nudges */}
       <ProactiveNudges />
+
+      {/* Gamification Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <StreakWidget />
+        <BadgeDisplay compact />
+      </div>
+
+      {/* Daily Program */}
+      <div className="mb-8">
+        <DailyProgram />
+      </div>
+
+      {/* Daily Challenges */}
+      <div className="mb-8">
+        <DailyChallenges />
+      </div>
 
       {/* Quick Actions */}
       <QuickActions />
