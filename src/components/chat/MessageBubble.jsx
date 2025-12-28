@@ -3,10 +3,12 @@ import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
 
 export default function MessageBubble({ message }) {
-  if (!message || !message.content) return null;
+  if (!message) return null;
   
   const isUser = message.role === 'user';
-  const content = String(message.content || '');
+  const content = message.content ? String(message.content) : '';
+  
+  if (!content) return null;
   
   return (
     <div className={cn('flex gap-3', isUser ? 'justify-end' : 'justify-start')}>
@@ -16,8 +18,7 @@ export default function MessageBubble({ message }) {
         </div>
       )}
       <div className={cn('max-w-[85%] md:max-w-[70%]', isUser && 'flex flex-col items-end')}>
-        {message.content && (
-          <div
+        <div
             className={cn(
               'rounded-2xl px-5 py-3',
               isUser
@@ -65,10 +66,9 @@ export default function MessageBubble({ message }) {
                   >
                   {content}
                   </ReactMarkdown>
-            )}
-          </div>
-        )}
-      </div>
+                  )}
+                  </div>
+                  </div>
       {isUser && (
         <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
           <span className="text-gray-600 text-sm">You</span>
