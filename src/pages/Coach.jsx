@@ -4,8 +4,10 @@ import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Heart, Target, MessageCircle, TrendingUp } from 'lucide-react';
+import { Heart, Target, MessageCircle, TrendingUp, BarChart3 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '../utils';
 import CoachingSessionList from '../components/coaching/CoachingSessionList';
 import CoachingSessionWizard from '../components/coaching/CoachingSessionWizard';
 import CoachingChat from '../components/coaching/CoachingChat';
@@ -64,13 +66,21 @@ export default function Coach() {
               <p className="text-sm text-gray-500">Structured guidance for your goals</p>
             </div>
           </div>
-          <Button
-            onClick={handleStartSession}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg"
-          >
-            <Target className="w-5 h-5 mr-2" />
-            Start New Session
-          </Button>
+          <div className="flex gap-3">
+            <Link to={createPageUrl('CoachingAnalytics')}>
+              <Button variant="outline" className="gap-2 shadow-sm">
+                <BarChart3 className="w-4 h-4" />
+                Analytics
+              </Button>
+            </Link>
+            <Button
+              onClick={handleStartSession}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg"
+            >
+              <Target className="w-5 h-5 mr-2" />
+              Start New Session
+            </Button>
+          </div>
         </div>
       </motion.div>
 
