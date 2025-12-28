@@ -206,7 +206,7 @@ export default function Chat() {
                 <ProactiveCheckIn onSendMessage={(prompt) => setInputMessage(prompt)} />
               )}
 
-              {messages.filter(m => m && m.content && typeof m.content === 'string').map((message, index) => (
+              {messages.filter(m => m && m.content).map((message, index) => (
                 <MessageBubble key={index} message={message} />
               ))}
               {isLoading && (
