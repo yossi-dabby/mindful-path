@@ -5,6 +5,7 @@ import { Home, MessageCircle, BookOpen, Activity, Dumbbell, Settings, Heart, Use
 import { cn } from "@/lib/utils";
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
+import AiCompanion from './components/ai/AiCompanion';
 
 export default function Layout({ children, currentPageName }) {
   const [theme, setTheme] = React.useState('default');
@@ -70,6 +71,9 @@ export default function Layout({ children, currentPageName }) {
           --color-text: 45 55 72;
         }
       `}</style>
+
+      {/* AI Companion Widget */}
+      <AiCompanion />
       
       <motion.div 
         className="pb-20 md:pb-0 md:pl-72"
