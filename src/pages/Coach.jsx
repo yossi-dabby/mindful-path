@@ -42,17 +42,19 @@ export default function Coach() {
       }
     });
     setConversationId(conv.id);
+    return conv.id;
   };
 
   const handleSendMessage = async (customMessage) => {
     const messageToSend = customMessage || inputMessage;
     if (!messageToSend.trim()) return;
 
-    if (!conversationId) {
-      await startConversation();
+    let currentConvId = conversationId;
+    if (!currentConvId) {
+      currentConvId = await startConversation();
     }
 
-    const conversation = await base44.agents.getConversation(conversationId);
+    const conversation = await base44.agents.getConversation(currentConvId);
     setIsLoading(true);
     setInputMessage('');
 
