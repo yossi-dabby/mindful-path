@@ -10,8 +10,8 @@ import { MessageCircle, Sparkles, Heart, TrendingUp, BookOpen, Target } from 'lu
 import MoodCheckIn from '../components/home/MoodCheckIn';
 import QuickActions from '../components/home/QuickActions';
 import RecentProgress from '../components/home/RecentProgress';
-import OnboardingTour from '../components/onboarding/OnboardingTour';
 import ProactiveNudges from '../components/home/ProactiveNudges';
+import WelcomeWizard from '../components/onboarding/WelcomeWizard';
 import { motion } from 'framer-motion';
 
 export default function Home() {
@@ -164,8 +164,8 @@ export default function Home() {
           transition={{ duration: 0.4, delay: 0.2 }}
           whileHover={{ y: -4 }}
         >
-          <Card className="border-0 shadow-md bg-white hover:shadow-lg transition-shadow cursor-pointer">
-            <CardContent className="p-6">
+          <Card className="border-0 shadow-lg bg-white hover:shadow-xl transition-all cursor-pointer rounded-2xl">
+            <CardContent className="p-8">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Active Goals</p>
@@ -196,8 +196,8 @@ export default function Home() {
           transition={{ duration: 0.4, delay: 0.3 }}
           whileHover={{ y: -4 }}
         >
-          <Card className="border-0 shadow-md bg-white hover:shadow-lg transition-shadow cursor-pointer">
-            <CardContent className="p-6">
+          <Card className="border-0 shadow-lg bg-white hover:shadow-xl transition-all cursor-pointer rounded-2xl">
+            <CardContent className="p-8">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Journal Entries</p>
@@ -228,8 +228,8 @@ export default function Home() {
           transition={{ duration: 0.4, delay: 0.4 }}
           whileHover={{ y: -4 }}
         >
-          <Card className="border-0 shadow-md bg-white hover:shadow-lg transition-shadow cursor-pointer">
-            <CardContent className="p-6">
+          <Card className="border-0 shadow-lg bg-white hover:shadow-xl transition-all cursor-pointer rounded-2xl">
+            <CardContent className="p-8">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 mb-1">This Week</p>
@@ -264,13 +264,16 @@ export default function Home() {
         <MoodCheckIn onClose={() => setShowMoodCheckIn(false)} />
       )}
 
-      {/* Onboarding Tour */}
+      {/* Onboarding Wizard */}
       {showOnboarding && (
-        <OnboardingTour
-          onComplete={() => setShowOnboarding(false)}
-          onSkip={() => setShowOnboarding(false)}
+        <WelcomeWizard
+          onComplete={() => {
+            setShowOnboarding(false);
+            queryClient.invalidateQueries(['currentUser']);
+          }}
         />
       )}
+      </div>
     </div>
   );
 }
