@@ -28,40 +28,15 @@ export default function BadgeDisplay({ compact = false }) {
 
   if (compact) {
     return (
-      <Card className="border-0 shadow-lg bg-white rounded-2xl">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Award className="w-5 h-5 text-purple-600" />
-              <h3 className="font-semibold text-gray-800">Achievements</h3>
-            </div>
-            <Badge variant="secondary" className="bg-purple-100 text-purple-700">
-              {earnedBadges.length} earned
-            </Badge>
-          </div>
-
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {earnedBadges.slice(0, 5).map((badge, i) => (
-              <motion.div
-                key={badge.id}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.1 }}
-                whileHover={{ scale: 1.1 }}
-                className={cn(
-                  "flex-shrink-0 w-16 h-16 rounded-2xl bg-gradient-to-br shadow-lg flex items-center justify-center",
-                  rarityColors[badge.rarity]
-                )}
-              >
-                <span className="text-2xl">{badge.icon}</span>
-              </motion.div>
-            ))}
-            {earnedBadges.length > 5 && (
-              <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center">
-                <p className="text-sm font-semibold text-gray-600">+{earnedBadges.length - 5}</p>
-              </div>
-            )}
-          </div>
+      <Card className="border-0 shadow-soft hover:shadow-lg transition-calm" style={{ 
+        borderRadius: 'var(--r-lg)',
+        backgroundColor: 'rgb(var(--surface))',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+      }}>
+        <CardContent className="p-4 text-center">
+          <Award className="w-8 h-8 text-yellow-500 mx-auto mb-2" strokeWidth={2} />
+          <p className="text-2xl font-bold mb-1" style={{ color: 'rgb(var(--text))' }}>{earnedBadges.length}</p>
+          <p className="text-xs" style={{ color: 'rgb(var(--muted))' }}>Badges</p>
         </CardContent>
       </Card>
     );
