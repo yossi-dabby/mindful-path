@@ -47,7 +47,7 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
         borderRadius: 'var(--r-xl)',
         backgroundColor: 'rgb(var(--surface))'
       }}>
-        <CardContent className="p-10 text-center">
+        <CardContent className="p-6 text-center">
           <p style={{ color: 'rgb(var(--muted))' }}>Loading today's focus...</p>
         </CardContent>
       </Card>
@@ -168,7 +168,7 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
         backgroundColor: 'rgb(var(--surface))',
         background: `linear-gradient(135deg, rgb(var(--surface)), ${bgColorMap[currentStep.color]})`
       }}>
-        <CardContent className="p-10">
+        <CardContent className="p-6">
           {/* Progress Indicator */}
           <div className="flex items-center gap-2 mb-6">
             <div className="flex gap-1">
@@ -206,23 +206,23 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
 
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <h2 className="text-2xl font-semibold" style={{ color: 'rgb(var(--text))' }}>
+                <h2 className="text-xl font-semibold truncate" style={{ color: 'rgb(var(--text))' }}>
                   {currentStep.title}
                 </h2>
                 <Sparkles className="w-5 h-5 icon-default" style={{ color: colorMap[currentStep.color] }} strokeWidth={2} />
               </div>
-              <p className="text-lg mb-1" style={{ color: 'rgb(var(--text))' }}>
+              <p className="text-sm mb-1 line-clamp-2" style={{ color: 'rgb(var(--text))' }}>
                 {currentStep.description}
               </p>
               {currentStep.subtitle && (
-                <p className="text-sm mb-6" style={{ color: 'rgb(var(--muted))' }}>
+                <p className="text-xs mb-4 line-clamp-2" style={{ color: 'rgb(var(--muted))' }}>
                   {currentStep.subtitle}
                 </p>
               )}
 
               <Button
                 onClick={currentStep.onAction}
-                className="px-8 py-6 text-lg shadow-soft hover:shadow-lg transition-calm"
+                className="px-6 py-5 text-base shadow-soft hover:shadow-lg transition-calm"
                 style={{ 
                   borderRadius: 'var(--r-lg)',
                   backgroundColor: colorMap[currentStep.color],

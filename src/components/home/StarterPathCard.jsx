@@ -69,13 +69,13 @@ export default function StarterPathCard() {
         backgroundColor: 'rgb(var(--surface))',
         background: 'linear-gradient(135deg, rgb(var(--surface)), rgb(var(--calm) / 0.08))'
       }}>
-        <CardContent className="p-8">
+        <CardContent className="p-5">
           <div className="flex items-start justify-between gap-6">
             <div className="flex-1">
               {/* Header */}
               <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="w-5 h-5 icon-default" style={{ color: 'rgb(var(--calm))' }} strokeWidth={2} />
-                <h3 className="text-xl font-semibold" style={{ color: 'rgb(var(--text))' }}>
+                <Sparkles className="w-4 h-4 icon-default" style={{ color: 'rgb(var(--calm))' }} strokeWidth={2} />
+                <h3 className="text-base font-semibold truncate" style={{ color: 'rgb(var(--text))' }}>
                   7-Day Starter Path
                 </h3>
                 {isStarted && (
@@ -90,7 +90,7 @@ export default function StarterPathCard() {
               </div>
 
               {/* Description */}
-              <p className="mb-4" style={{ color: 'rgb(var(--muted))' }}>
+              <p className="text-sm mb-3 line-clamp-2" style={{ color: 'rgb(var(--muted))' }}>
                 {isStarted 
                   ? dayTheme?.description || "Continue your guided CBT journey"
                   : "Build a strong foundation with guided daily practices"}

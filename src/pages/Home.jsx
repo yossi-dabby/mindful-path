@@ -185,17 +185,19 @@ export default function Home() {
         </motion.div>
 
         {/* Today's Focus - Primary CTA */}
-        <TodaysFocus
-          onStartCheckIn={handleStartCheckIn}
-          onStartExercise={handleStartExercise}
-          onStartReflection={handleStartReflection}
-        />
+        <div className="space-y-4">
+          <TodaysFocus
+            onStartCheckIn={handleStartCheckIn}
+            onStartExercise={handleStartExercise}
+            onStartReflection={handleStartReflection}
+          />
 
-        {/* 7-Day Starter Path */}
-        <StarterPathCard />
+          {/* 7-Day Starter Path */}
+          <StarterPathCard />
+        </div>
 
       {/* Secondary Content - Below the fold */}
-      <div className="mt-12 space-y-6">
+      <div className="mt-8 space-y-4">
         {/* Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="p-4 text-center" style={{ 
