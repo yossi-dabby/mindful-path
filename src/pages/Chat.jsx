@@ -201,29 +201,32 @@ export default function Chat() {
         </div>
 
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-gray-50">
+        <div className="flex-1 overflow-y-auto bg-gray-50">
           {!currentConversationId ? (
-            <div className="h-full flex items-center justify-center">
-              <Card className="p-8 max-w-md text-center border-0 shadow-lg">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-purple-400 flex items-center justify-center mx-auto mb-4">
-                  <span className="text-white text-2xl">👋</span>
-                </div>
-                <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-                  Welcome to Therapy
-                </h2>
-                <p className="text-gray-600 mb-6">
-                  This is a safe, judgment-free space. Share what's on your mind, and let's work through it together.
-                </p>
-                <Button
-                  onClick={startNewConversation}
-                  className="bg-green-600 hover:bg-green-700 px-6 py-6 text-lg rounded-xl"
-                >
-                  Start Your First Session
-                </Button>
-              </Card>
+            <div className="h-full flex flex-col">
+              {/* Welcome Section - Separate container */}
+              <div className="flex-1 flex items-center justify-center p-4 md:p-6 bg-white">
+                <Card className="p-8 max-w-md text-center border-0 shadow-lg">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-purple-400 flex items-center justify-center mx-auto mb-4">
+                    <span className="text-white text-2xl">👋</span>
+                  </div>
+                  <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+                    Welcome to Therapy
+                  </h2>
+                  <p className="text-gray-600 mb-6">
+                    This is a safe, judgment-free space. Share what's on your mind, and let's work through it together.
+                  </p>
+                  <Button
+                    onClick={startNewConversation}
+                    className="bg-green-600 hover:bg-green-700 px-6 py-6 text-lg rounded-xl"
+                  >
+                    Start Your First Session
+                  </Button>
+                </Card>
+              </div>
 
-              {/* Proactive Check-ins */}
-              <div className="absolute bottom-24 left-0 right-0 px-4">
+              {/* Insight Cards Section - Separate container with border */}
+              <div className="border-t-4 border-gray-200 bg-gradient-to-b from-blue-50 to-purple-50 p-4 md:p-6">
                 <div className="max-w-2xl mx-auto">
                   <ProactiveCheckIn onSendMessage={async (prompt) => {
                     await startNewConversation();
@@ -235,66 +238,73 @@ export default function Chat() {
               </div>
             </div>
           ) : (
-            <>
-              {/* Proactive Check-ins at start of conversation */}
+            <div className="flex flex-col">
+              {/* Insight Cards Section - Only show at conversation start */}
               {messages.length === 0 && (
-                <div className="mb-6">
-                  <ProactiveCheckIn onSendMessage={(prompt) => setInputMessage(prompt)} />
-                </div>
-              )}
-
-              {messages.filter(m => m && m.content).map((message, index) => (
-                <MessageBubble key={index} message={message} />
-              ))}
-              {isLoading && (
-                <div className="flex gap-3">
-                  <div className="h-7 w-7 rounded-lg bg-gray-100 flex items-center justify-center">
-                    <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
-                  </div>
-                  <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3">
-                    <p className="text-sm text-gray-500">Thinking...</p>
+                <div className="bg-gradient-to-b from-blue-50 to-purple-50 border-b-4 border-gray-200 p-4 md:p-6">
+                  <div className="max-w-3xl mx-auto">
+                    <ProactiveCheckIn onSendMessage={(prompt) => setInputMessage(prompt)} />
                   </div>
                 </div>
               )}
-              <div ref={messagesEndRef} />
 
-              {/* Summary Prompt */}
+              {/* Active Chat Messages Section - Separate scrollable container */}
+              <div className="flex-1 p-4 md:p-6 space-y-6 bg-gray-50">
+                {messages.filter(m => m && m.content).map((message, index) => (
+                  <MessageBubble key={index} message={message} />
+                ))}
+                {isLoading && (
+                  <div className="flex gap-3">
+                    <div className="h-7 w-7 rounded-lg bg-gray-100 flex items-center justify-center">
+                      <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
+                    </div>
+                    <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3">
+                      <p className="text-sm text-gray-500">Thinking...</p>
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Summary Prompt Section - Separate container with border */}
               {showSummaryPrompt && !isLoading && (
-                <div className="pt-4 border-t-2 border-gray-200">
-                  <Card className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 shadow-md">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                        <Sparkles className="w-5 h-5 text-purple-600" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-800 mb-1">
-                          Would you like a session summary?
-                        </p>
-                        <p className="text-xs text-gray-600 mb-3">
-                          Get key takeaways, recommended exercises, and helpful resources
-                        </p>
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={requestSummary}
-                            size="sm"
-                            className="bg-purple-600 hover:bg-purple-700"
-                          >
-                            Yes, create summary
-                          </Button>
-                          <Button
-                            onClick={() => setShowSummaryPrompt(false)}
-                            size="sm"
-                            variant="outline"
-                          >
-                            Not now
-                          </Button>
+                <div className="border-t-4 border-gray-200 bg-gradient-to-r from-purple-50 to-blue-50 p-4 md:p-6">
+                  <div className="max-w-3xl mx-auto">
+                    <Card className="p-4 bg-white border-purple-200 shadow-md">
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                          <Sparkles className="w-5 h-5 text-purple-600" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-800 mb-1">
+                            Would you like a session summary?
+                          </p>
+                          <p className="text-xs text-gray-600 mb-3">
+                            Get key takeaways, recommended exercises, and helpful resources
+                          </p>
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={requestSummary}
+                              size="sm"
+                              className="bg-purple-600 hover:bg-purple-700"
+                            >
+                              Yes, create summary
+                            </Button>
+                            <Button
+                              onClick={() => setShowSummaryPrompt(false)}
+                              size="sm"
+                              variant="outline"
+                            >
+                              Not now
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </Card>
+                    </Card>
+                  </div>
                 </div>
               )}
-            </>
+            </div>
           )}
         </div>
 
