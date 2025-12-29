@@ -164,7 +164,12 @@ export default function Chat() {
       )}
 
       {/* Sidebar - Conversations List */}
-      <div className={`${showSidebar ? 'block' : 'hidden'} fixed md:relative inset-0 md:inset-auto w-80 bg-white border-r-2 border-gray-200 shadow-2xl md:shadow-none z-40`}>
+      <div className={`
+        ${showSidebar ? 'block' : 'hidden md:block'} 
+        fixed md:relative inset-0 md:inset-auto w-80 
+        bg-white border-r-2 border-gray-200 
+        shadow-2xl md:shadow-none z-40
+      `}>
         <ConversationsList
           conversations={conversations}
           currentConversationId={currentConversationId}
