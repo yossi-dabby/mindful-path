@@ -125,31 +125,28 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="mb-8 border-0 shadow-soft" style={{ 
-          borderRadius: 'var(--r-xl)',
+        <Card className="border-0 shadow-soft" style={{ 
+          borderRadius: 'var(--r-lg)',
           backgroundColor: 'rgb(var(--surface))',
-          background: `linear-gradient(135deg, rgb(var(--surface)), ${bgColorMap[currentStep.color]})`
+          boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
         }}>
-          <CardContent className="p-10 text-center">
+          <CardContent className="p-5 text-center">
             <motion.div
-              animate={{ scale: [1, 1.1, 1] }}
+              animate={{ scale: [1, 1.05, 1] }}
               transition={{ duration: 2, repeat: Infinity, ease: [0.2, 0.8, 0.2, 1] }}
-              className="inline-flex w-20 h-20 items-center justify-center mb-4"
+              className="inline-flex w-12 h-12 items-center justify-center mb-3"
               style={{ 
-                borderRadius: 'var(--r-xl)',
+                borderRadius: 'var(--r-lg)',
                 backgroundColor: bgColorMap[currentStep.color]
               }}
             >
-              <Icon className="w-10 h-10 icon-default" style={{ color: colorMap[currentStep.color] }} strokeWidth={2} />
+              <Icon className="w-6 h-6 icon-default" style={{ color: colorMap[currentStep.color] }} strokeWidth={2} />
             </motion.div>
-            <h2 className="text-3xl font-semibold mb-3" style={{ color: 'rgb(var(--text))' }}>
+            <h2 className="text-base font-semibold mb-1" style={{ color: 'rgb(var(--text))' }}>
               {currentStep.title}
             </h2>
-            <p className="text-lg mb-6" style={{ color: 'rgb(var(--muted))' }}>
-              {currentStep.description}
-            </p>
             <p className="text-sm" style={{ color: 'rgb(var(--muted))' }}>
-              Come back tomorrow for your next daily practice
+              Come back tomorrow for your next practice
             </p>
           </CardContent>
         </Card>
@@ -163,10 +160,10 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Card className="mb-8 border-0 shadow-soft hover:shadow-lg transition-calm" style={{ 
-        borderRadius: 'var(--r-xl)',
+      <Card className="border-0 shadow-soft hover:shadow-lg transition-calm" style={{ 
+        borderRadius: 'var(--r-lg)',
         backgroundColor: 'rgb(var(--surface))',
-        background: `linear-gradient(135deg, rgb(var(--surface)), ${bgColorMap[currentStep.color]})`
+        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
       }}>
         <CardContent className="p-6">
           {/* Progress Indicator */}

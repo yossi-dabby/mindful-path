@@ -170,22 +170,22 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'rgb(var(--bg))' }}>
+    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom, #FFF5EE 0%, #FFE4D6 100%)' }}>
       <div className="page-container max-w-5xl">
         {/* Header */}
         <motion.div 
-          className="mb-8 mt-8"
+          className="mb-4 mt-6"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-3xl md:text-4xl font-light mb-2" style={{ color: 'rgb(var(--text))' }}>
+          <h1 className="text-xl md:text-2xl font-normal mb-2" style={{ color: 'rgb(var(--text))', opacity: 0.85 }}>
             {greeting()}{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
           </h1>
         </motion.div>
 
         {/* Today's Focus - Primary CTA */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           <TodaysFocus
             onStartCheckIn={handleStartCheckIn}
             onStartExercise={handleStartExercise}
@@ -196,33 +196,35 @@ export default function Home() {
           <StarterPathCard />
         </div>
 
-      {/* Secondary Content - Below the fold */}
-      <div className="mt-8 space-y-4">
+        {/* Secondary Content - Below the fold */}
+        <div className="mt-6 space-y-3">
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <div className="p-4 text-center" style={{ 
-            borderRadius: 'var(--r-md)',
+            borderRadius: 'var(--r-lg)',
             backgroundColor: 'rgb(var(--surface))',
-            border: '1px solid rgb(var(--border))'
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
           }}>
-            <p className="text-2xl font-bold" style={{ color: 'rgb(var(--text))' }}>{recentGoals.length}</p>
+            <p className="text-2xl font-bold mb-1" style={{ color: 'rgb(var(--text))' }}>{recentGoals.length}</p>
             <p className="text-xs" style={{ color: 'rgb(var(--muted))' }}>Active Goals</p>
           </div>
           <div className="p-4 text-center" style={{ 
-            borderRadius: 'var(--r-md)',
+            borderRadius: 'var(--r-lg)',
             backgroundColor: 'rgb(var(--surface))',
-            border: '1px solid rgb(var(--border))'
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
           }}>
-            <p className="text-2xl font-bold" style={{ color: 'rgb(var(--text))' }}>{journalCount}</p>
+            <p className="text-2xl font-bold mb-1" style={{ color: 'rgb(var(--text))' }}>{journalCount}</p>
             <p className="text-xs" style={{ color: 'rgb(var(--muted))' }}>Journal Entries</p>
           </div>
           <StreakWidget compact />
           <BadgeDisplay compact />
         </div>
 
-        {/* Quick Actions - Simplified */}
-        <QuickActions />
-      </div>
+        {/* Quick Actions - Moved lower */}
+        <div className="mt-6">
+          <QuickActions />
+        </div>
+        </div>
 
 
 

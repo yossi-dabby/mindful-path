@@ -64,10 +64,11 @@ export default function StarterPathCard() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
     >
-      <Card className="mb-8 border-0 shadow-soft hover:shadow-lg transition-calm" style={{ 
-        borderRadius: 'var(--r-xl)',
+      <Card className="border-0 shadow-soft hover:shadow-lg transition-calm" style={{ 
+        borderRadius: 'var(--r-lg)',
         backgroundColor: 'rgb(var(--surface))',
-        background: 'linear-gradient(135deg, rgb(var(--surface)), rgb(var(--calm) / 0.08))'
+        background: 'linear-gradient(135deg, rgba(185, 163, 193, 0.08), rgba(185, 163, 193, 0.15))',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
       }}>
         <CardContent className="p-5">
           <div className="flex items-start justify-between gap-6">
