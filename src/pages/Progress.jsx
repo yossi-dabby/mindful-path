@@ -11,6 +11,7 @@ import AIInsights from '../components/progress/AIInsights';
 import ExerciseTracker from '../components/progress/ExerciseTracker';
 import JournalTracker from '../components/progress/JournalTracker';
 import CorrelationInsights from '../components/progress/CorrelationInsights';
+import GoalsProgressTracker from '../components/progress/GoalsProgressTracker';
 import HealthDashboard from '../components/health/HealthDashboard';
 import HealthInsights from '../components/health/HealthInsights';
 
@@ -132,6 +133,11 @@ export default function Progress() {
             <HealthDashboard />
           </CardContent>
         </Card>
+      </div>
+
+      {/* Goals Progress Tracker */}
+      <div className="mt-6">
+        <GoalsProgressTracker goals={goals} />
       </div>
 
       {/* Exercise & Journal Trackers */}

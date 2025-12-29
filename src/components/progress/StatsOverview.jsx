@@ -35,9 +35,9 @@ export default function StatsOverview({ moodEntries, journalEntries, goals, conv
       {stats.map((stat) => {
         const Icon = stat.icon;
         return (
-          <Card key={stat.label} className="border-0 shadow-md">
+          <Card key={stat.label} className="border-0 shadow-md hover:shadow-lg transition-all">
             <CardContent className="p-6">
-              <div className={`w-12 h-12 rounded-2xl ${stat.color} flex items-center justify-center mb-3`}>
+              <div className={`w-12 h-12 rounded-2xl ${stat.color} flex items-center justify-center mb-3 transition-transform hover:scale-110`}>
                 <Icon className="w-6 h-6" />
               </div>
               <p className="text-3xl font-bold text-gray-800 mb-1">{stat.value}</p>
