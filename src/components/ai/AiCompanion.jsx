@@ -97,7 +97,7 @@ export default function AiCompanion() {
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
-        className="fixed bottom-6 right-6 z-50"
+        className="fixed bottom-20 md:bottom-6 right-6 z-50"
       >
         <Button
           onClick={() => setIsOpen(true)}
@@ -120,7 +120,7 @@ export default function AiCompanion() {
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="fixed bottom-6 right-6 z-50"
+        className="fixed bottom-20 md:bottom-6 right-6 z-50"
       >
         <Card 
           className="w-64 border-2 border-purple-200 shadow-2xl cursor-pointer hover:shadow-xl transition-shadow"
@@ -159,9 +159,9 @@ export default function AiCompanion() {
       initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       exit={{ y: 20, opacity: 0 }}
-      className="fixed bottom-6 right-6 z-50 w-96 max-h-[600px] flex flex-col"
+      className="fixed bottom-20 md:bottom-6 right-6 z-50 w-[calc(100vw-3rem)] md:w-96 max-h-[70vh] flex flex-col"
     >
-      <Card className="border-2 border-purple-200 shadow-2xl flex flex-col h-full">
+      <Card className="border-2 border-purple-200 shadow-2xl flex flex-col h-full overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-4 rounded-t-xl flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -197,7 +197,7 @@ export default function AiCompanion() {
         </div>
 
         {/* Messages */}
-        <CardContent className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-br from-purple-50/30 to-blue-50/30">
+        <CardContent className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-br from-purple-50/30 to-blue-50/30 min-h-0">
           <AnimatePresence>
             {messages.length === 0 && (
               <motion.div
@@ -294,7 +294,7 @@ export default function AiCompanion() {
         </CardContent>
 
         {/* Input */}
-        <div className="p-4 border-t bg-white rounded-b-xl">
+        <div className="p-4 border-t bg-white rounded-b-xl flex-shrink-0">
           <div className="flex gap-2">
             <Input
               value={message}
