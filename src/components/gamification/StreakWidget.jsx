@@ -7,7 +7,7 @@ import { Flame, TrendingUp, Award } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-export default function StreakWidget() {
+export default function StreakWidget({ compact = false }) {
   const { data: streaks, isLoading } = useQuery({
     queryKey: ['userStreaks'],
     queryFn: () => base44.entities.UserStreak.list(),

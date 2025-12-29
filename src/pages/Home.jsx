@@ -17,12 +17,17 @@ import BadgeDisplay from '../components/gamification/BadgeDisplay';
 import DailyChallenges from '../components/gamification/DailyChallenges';
 import DailyProgram from '../components/home/DailyProgram';
 import PersonalizedFeed from '../components/home/PersonalizedFeed';
+import TodaysFocus from '../components/home/TodaysFocus';
+import DailyReflection from '../components/home/DailyReflection';
+import ExerciseDetail from '../components/exercises/ExerciseDetail';
 import { motion } from 'framer-motion';
 
 export default function Home() {
   const [user, setUser] = useState(null);
   const [showMoodCheckIn, setShowMoodCheckIn] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showReflection, setShowReflection] = useState(false);
+  const [showExercise, setShowExercise] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -58,6 +63,104 @@ export default function Home() {
     initialData: 0
   });
 
+  // Get today's flow
+  const { data: todayFlow } = useQuery({
+    queryKey: ['todayFlow'],
+    queryFn: async () => {
+      const today = new Date().toISOString().split('T')[0];
+      const flows = await base44.entities.DailyFlow.filter({ date: today });
+      return flows[0] || null;
+    }
+  });
+
+  // Get today's exercise
+  const { data: todayExercise } = useQuery({
+    queryKey: ['todayExercise', todayFlow?.exercise_id],
+    queryFn: async () => {
+      if (!todayFlow?.exercise_id) return null;
+      const exercises = await base44.entities.Exercise.filter({ id: todayFlow.exercise_id });
+      return exercises[0] || null;
+    },
+    enabled: !!todayFlow?.exercise_id
+  });
+
+  // Auto-assign exercise when check-in is completed
+  const assignExerciseMutation = useMutation({
+    mutationFn: async () => {
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Get or create today's flow
+      let flow = todayFlow;
+      if (!flow) {
+        const newFlow = await base44.entities.DailyFlow.create({
+          date: today,
+          check_in_completed: true,
+          check_in_time: new Date().toISOString()
+        });
+        flow = newFlow;
+      }
+
+      // Select exercise based on recent mood data
+      const recentMoods = await base44.entities.MoodEntry.list('-created_date', 7);
+      const allExercises = await base44.entities.Exercise.list();
+      
+      // Simple scoring logic
+      const anxietyCount = recentMoods.filter(m => 
+        m.emotions?.some(e => e.toLowerCase().includes('anxi'))
+      ).length;
+      const lowMoodCount = recentMoods.filter(m => 
+        ['low', 'very_low'].includes(m.mood)
+      ).length;
+
+      let targetCategory = 'mindfulness';
+      if (anxietyCount > 2) targetCategory = 'breathing';
+      if (lowMoodCount > 3) targetCategory = 'behavioral_activation';
+
+      const matchingExercises = allExercises.filter(e => e.category === targetCategory);
+      const selectedExercise = matchingExercises[Math.floor(Math.random() * matchingExercises.length)] 
+        || allExercises[0];
+
+      await base44.entities.DailyFlow.update(flow.id, {
+        exercise_id: selectedExercise.id
+      });
+
+      return selectedExercise;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['todayFlow']);
+      queryClient.invalidateQueries(['todayExercise']);
+    }
+  });
+
+  const handleStartCheckIn = () => {
+    setShowMoodCheckIn(true);
+  };
+
+  const handleCheckInComplete = () => {
+    setShowMoodCheckIn(false);
+    assignExerciseMutation.mutate();
+  };
+
+  const handleStartExercise = () => {
+    setShowExercise(true);
+  };
+
+  const handleExerciseComplete = async () => {
+    if (todayFlow) {
+      await base44.entities.DailyFlow.update(todayFlow.id, {
+        exercise_completed: true,
+        exercise_time: new Date().toISOString()
+      });
+      queryClient.invalidateQueries(['todayFlow']);
+    }
+    setShowExercise(false);
+    setShowReflection(true);
+  };
+
+  const handleStartReflection = () => {
+    setShowReflection(true);
+  };
+
   const greeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';
@@ -68,244 +171,76 @@ export default function Home() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'rgb(var(--bg))' }}>
       <div className="page-container max-w-5xl">
-        {/* Header with increased spacing */}
+        {/* Header */}
         <motion.div 
-          className="mb-12 mt-8"
+          className="mb-8 mt-8"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-4xl md:text-5xl font-light mb-3" style={{ color: 'rgb(var(--text))' }}>
+          <h1 className="text-3xl md:text-4xl font-light mb-2" style={{ color: 'rgb(var(--text))' }}>
             {greeting()}{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
           </h1>
-          <p className="text-xl" style={{ color: 'rgb(var(--muted))' }}>How are you feeling today?</p>
         </motion.div>
 
-      {/* Daily Check-in Card */}
-      {!todayMood ? (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <Card className="mb-8 border-0 shadow-soft hover:shadow-lg transition-calm" style={{ 
-            borderRadius: 'var(--r-xl)',
+        {/* Today's Focus - Primary CTA */}
+        <TodaysFocus
+          onStartCheckIn={handleStartCheckIn}
+          onStartExercise={handleStartExercise}
+          onStartReflection={handleStartReflection}
+        />
+
+      {/* Secondary Content - Below the fold */}
+      <div className="mt-12 space-y-6">
+        {/* Quick Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="p-4 text-center" style={{ 
+            borderRadius: 'var(--r-md)',
             backgroundColor: 'rgb(var(--surface))',
-            background: 'linear-gradient(135deg, rgb(var(--surface)), rgb(var(--accent) / 0.05))'
+            border: '1px solid rgb(var(--border))'
           }}>
-            <CardContent className="p-10">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-3">
-                    <motion.div
-                      animate={{ scale: [1, 1.15, 1] }}
-                      transition={{ duration: 3, repeat: Infinity, ease: [0.2, 0.8, 0.2, 1] }}
-                    >
-                      <Heart className="w-6 h-6 icon-default" style={{ color: 'rgb(var(--accent))' }} strokeWidth={2} />
-                    </motion.div>
-                    <h2 className="text-2xl font-semibold" style={{ color: 'rgb(var(--text))' }}>Daily Check-in</h2>
-                  </div>
-                  <p className="mb-6" style={{ color: 'rgb(var(--muted))' }}>
-                    Taking a moment to understand your emotions helps build awareness and track your journey.
-                  </p>
-                  <Button 
-                    onClick={() => setShowMoodCheckIn(true)}
-                    className="px-8 py-7 text-lg shadow-soft hover:shadow-lg transition-calm"
-                    style={{ 
-                      borderRadius: 'var(--r-lg)',
-                      backgroundColor: 'rgb(var(--accent))',
-                      color: 'rgb(var(--accent-contrast))'
-                    }}
-                  >
-                    Check in now
-                    <Sparkles className="w-5 h-5 ml-2 icon-default" strokeWidth={2} />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      ) : (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Card className="mb-6 border-0 shadow-soft" style={{ 
-            borderRadius: 'var(--r-lg)',
-            backgroundColor: 'rgb(var(--surface))'
+            <p className="text-2xl font-bold" style={{ color: 'rgb(var(--text))' }}>{recentGoals.length}</p>
+            <p className="text-xs" style={{ color: 'rgb(var(--muted))' }}>Active Goals</p>
+          </div>
+          <div className="p-4 text-center" style={{ 
+            borderRadius: 'var(--r-md)',
+            backgroundColor: 'rgb(var(--surface))',
+            border: '1px solid rgb(var(--border))'
           }}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <motion.div 
-                    className="w-12 h-12 flex items-center justify-center"
-                    style={{ 
-                      borderRadius: 'var(--r-xl)',
-                      backgroundColor: 'rgb(var(--success) / 0.15)'
-                    }}
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                  >
-                    <Heart className="w-6 h-6 icon-default" style={{ color: 'rgb(var(--success))' }} strokeWidth={2} />
-                  </motion.div>
-                  <div>
-                    <p className="text-sm" style={{ color: 'rgb(var(--muted))' }}>Today's mood</p>
-                    <p className="text-lg font-semibold capitalize" style={{ color: 'rgb(var(--text))' }}>
-                      {todayMood.mood.replace('_', ' ')}
-                    </p>
-                  </div>
-                </div>
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <Badge variant="secondary" className="border-0" style={{ 
-                    borderRadius: 'var(--r-sm)',
-                    backgroundColor: 'rgb(var(--success) / 0.15)',
-                    color: 'rgb(var(--success))'
-                  }}>
-                    Checked in ✓
-                  </Badge>
-                </motion.div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      )}
+            <p className="text-2xl font-bold" style={{ color: 'rgb(var(--text))' }}>{journalCount}</p>
+            <p className="text-xs" style={{ color: 'rgb(var(--muted))' }}>Journal Entries</p>
+          </div>
+          <StreakWidget compact />
+          <BadgeDisplay compact />
+        </div>
 
-      {/* Proactive Nudges */}
-      <ProactiveNudges />
-
-      {/* Personalized Content Feed */}
-      <PersonalizedFeed />
-
-      {/* Gamification Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <StreakWidget />
-        <BadgeDisplay compact />
+        {/* Quick Actions - Simplified */}
+        <QuickActions />
       </div>
 
-      {/* Daily Program */}
-      <div className="mb-8">
-        <DailyProgram />
-      </div>
 
-      {/* Daily Challenges */}
-      <div className="mb-8">
-        <DailyChallenges />
-      </div>
-
-      {/* Quick Actions */}
-      <QuickActions />
-
-      {/* Stats Overview with better spacing */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-          whileHover={{ y: -4 }}
-        >
-          <Card className="border-0 shadow-lg bg-white hover:shadow-xl transition-all cursor-pointer rounded-2xl">
-            <CardContent className="p-8">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Active Goals</p>
-                  <motion.p 
-                    className="text-3xl font-bold text-gray-800"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    {recentGoals.length}
-                  </motion.p>
-                </div>
-                <motion.div 
-                  className="w-12 h-12 rounded-2xl bg-purple-100 flex items-center justify-center"
-                  whileHover={{ rotate: 360 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <Target className="w-6 h-6 text-purple-600" />
-                </motion.div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.3 }}
-          whileHover={{ y: -4 }}
-        >
-          <Card className="border-0 shadow-lg bg-white hover:shadow-xl transition-all cursor-pointer rounded-2xl">
-            <CardContent className="p-8">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Journal Entries</p>
-                  <motion.p 
-                    className="text-3xl font-bold text-gray-800"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.4 }}
-                  >
-                    {journalCount}
-                  </motion.p>
-                </div>
-                <motion.div 
-                  className="w-12 h-12 rounded-2xl bg-green-100 flex items-center justify-center"
-                  whileHover={{ rotate: 360 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <BookOpen className="w-6 h-6 text-green-600" />
-                </motion.div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.4 }}
-          whileHover={{ y: -4 }}
-        >
-          <Card className="border-0 shadow-lg bg-white hover:shadow-xl transition-all cursor-pointer rounded-2xl">
-            <CardContent className="p-8">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">This Week</p>
-                  <motion.p 
-                    className="text-3xl font-bold text-gray-800"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                  >
-                    5
-                  </motion.p>
-                  <p className="text-xs text-green-600 mt-1">+2 from last week</p>
-                </div>
-                <motion.div 
-                  className="w-12 h-12 rounded-2xl bg-coral-100 flex items-center justify-center"
-                  whileHover={{ rotate: 360 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <TrendingUp className="w-6 h-6 text-coral-600" />
-                </motion.div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-
-      {/* Recent Progress */}
-      <RecentProgress goals={recentGoals} />
 
       {/* Mood Check-in Modal */}
       {showMoodCheckIn && (
-        <MoodCheckIn onClose={() => setShowMoodCheckIn(false)} />
+        <MoodCheckIn onClose={handleCheckInComplete} />
+      )}
+
+      {/* Exercise Modal */}
+      {showExercise && todayExercise && (
+        <ExerciseDetail
+          exercise={todayExercise}
+          onClose={() => setShowExercise(false)}
+          onComplete={handleExerciseComplete}
+        />
+      )}
+
+      {/* Reflection Modal */}
+      {showReflection && (
+        <DailyReflection
+          todayFlow={todayFlow}
+          exercise={todayExercise}
+          onClose={() => setShowReflection(false)}
+        />
       )}
 
       {/* Onboarding Wizard */}
