@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, MessageCircle, X } from 'lucide-react';
+import { Plus, MessageCircle, X, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
@@ -9,6 +9,7 @@ export default function ConversationsList({
   currentConversationId,
   onSelectConversation,
   onNewConversation,
+  onDeleteConversation,
   onClose
 }) {
   return (
@@ -46,30 +47,56 @@ export default function ConversationsList({
         ) : (
           <div className="space-y-1">
             {conversations.map((conversation) => (
-              <button
+              <div
                 key={conversation.id}
-                onClick={() => onSelectConversation(conversation.id)}
                 className={cn(
-                  'w-full text-left p-3 rounded-xl transition-all',
+                  'group relative rounded-xl transition-all',
                   currentConversationId === conversation.id
-                    ? 'bg-green-100 border-2 border-green-500'
-                    : 'bg-white hover:bg-gray-50 border-2 border-transparent'
+                    ? 'bg-green-50 ring-2 ring-green-500 shadow-md'
+                    : 'bg-white hover:bg-gray-50'
                 )}
               >
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-purple-400 flex items-center justify-center flex-shrink-0">
-                    <MessageCircle className="w-5 h-5 text-white" />
+                <button
+                  onClick={() => onSelectConversation(conversation.id)}
+                  className="w-full text-left p-3"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-purple-400 flex items-center justify-center flex-shrink-0">
+                      <MessageCircle className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0 pr-8">
+                      <p className={cn(
+                        "font-medium truncate",
+                        currentConversationId === conversation.id
+                          ? "text-green-900"
+                          : "text-gray-800"
+                      )}>
+                        {conversation.metadata?.name || `Session ${conversation.id.slice(0, 8)}`}
+                      </p>
+                      <p className={cn(
+                        "text-xs",
+                        currentConversationId === conversation.id
+                          ? "text-green-700"
+                          : "text-gray-500"
+                      )}>
+                        {format(new Date(conversation.created_date), 'MMM d, h:mm a')}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-800 truncate">
-                      {conversation.metadata?.name || `Session ${conversation.id.slice(0, 8)}`}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {format(new Date(conversation.created_date), 'MMM d, h:mm a')}
-                    </p>
-                  </div>
-                </div>
-              </button>
+                </button>
+                
+                {/* Delete Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteConversation(conversation.id);
+                  }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-red-50 rounded-lg"
+                  title="Delete session"
+                >
+                  <Trash2 className="w-4 h-4 text-red-500" />
+                </button>
+              </div>
             ))}
           </div>
         )}

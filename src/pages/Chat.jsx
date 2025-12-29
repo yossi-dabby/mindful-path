@@ -134,28 +134,56 @@ export default function Chat() {
     }
   };
 
+  const deleteConversationMutation = useMutation({
+    mutationFn: async (conversationId) => {
+      await base44.agents.deleteConversation(conversationId);
+    },
+    onSuccess: () => {
+      refetchConversations();
+      if (currentConversationId === arguments[0]) {
+        setCurrentConversationId(null);
+        setMessages([]);
+      }
+    }
+  });
+
+  const handleDeleteConversation = async (conversationId) => {
+    if (confirm('Delete this session? This action cannot be undone.')) {
+      deleteConversationMutation.mutate(conversationId);
+    }
+  };
+
   return (
-    <div className="h-screen flex">
+    <div className="h-screen flex relative">
+      {/* Backdrop overlay when sidebar is open on mobile */}
+      {showSidebar && (
+        <div 
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-30 md:hidden"
+          onClick={() => setShowSidebar(false)}
+        />
+      )}
+
       {/* Sidebar - Conversations List */}
-      <div className={`${showSidebar ? 'block' : 'hidden'} md:block fixed md:relative inset-0 md:inset-auto w-80 bg-white border-r border-gray-200 z-40`}>
+      <div className={`${showSidebar ? 'block' : 'hidden'} ${currentConversationId ? 'md:hidden' : 'md:block'} fixed md:relative inset-0 md:inset-auto w-80 bg-white border-r border-gray-200 shadow-lg md:shadow-none z-40`}>
         <ConversationsList
           conversations={conversations}
           currentConversationId={currentConversationId}
           onSelectConversation={loadConversation}
           onNewConversation={startNewConversation}
+          onDeleteConversation={handleDeleteConversation}
           onClose={() => setShowSidebar(false)}
         />
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col h-screen">
+      <div className="flex-1 flex flex-col h-screen"
+           style={{ opacity: showSidebar && currentConversationId ? 0.4 : 1 }}>
         {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-4 md:px-6 py-4 flex items-center gap-3">
+        <div className="bg-white border-b-2 border-gray-100 px-4 md:px-6 py-4 flex items-center gap-3 shadow-sm">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setShowSidebar(!showSidebar)}
-            className="md:hidden"
           >
             <Menu className="w-5 h-5" />
           </Button>
@@ -166,7 +194,7 @@ export default function Chat() {
         </div>
 
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 bg-gray-50">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-gray-50">
           {!currentConversationId ? (
             <div className="h-full flex items-center justify-center">
               <Card className="p-8 max-w-md text-center border-0 shadow-lg">
@@ -203,7 +231,9 @@ export default function Chat() {
             <>
               {/* Proactive Check-ins at start of conversation */}
               {messages.length === 0 && (
-                <ProactiveCheckIn onSendMessage={(prompt) => setInputMessage(prompt)} />
+                <div className="mb-6">
+                  <ProactiveCheckIn onSendMessage={(prompt) => setInputMessage(prompt)} />
+                </div>
               )}
 
               {messages.filter(m => m && m.content).map((message, index) => (
@@ -223,37 +253,39 @@ export default function Chat() {
 
               {/* Summary Prompt */}
               {showSummaryPrompt && !isLoading && (
-                <Card className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                      <Sparkles className="w-5 h-5 text-purple-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-800 mb-1">
-                        Would you like a session summary?
-                      </p>
-                      <p className="text-xs text-gray-600 mb-3">
-                        Get key takeaways, recommended exercises, and helpful resources
-                      </p>
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={requestSummary}
-                          size="sm"
-                          className="bg-purple-600 hover:bg-purple-700"
-                        >
-                          Yes, create summary
-                        </Button>
-                        <Button
-                          onClick={() => setShowSummaryPrompt(false)}
-                          size="sm"
-                          variant="outline"
-                        >
-                          Not now
-                        </Button>
+                <div className="pt-4 border-t-2 border-gray-200">
+                  <Card className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 shadow-md">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                        <Sparkles className="w-5 h-5 text-purple-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-800 mb-1">
+                          Would you like a session summary?
+                        </p>
+                        <p className="text-xs text-gray-600 mb-3">
+                          Get key takeaways, recommended exercises, and helpful resources
+                        </p>
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={requestSummary}
+                            size="sm"
+                            className="bg-purple-600 hover:bg-purple-700"
+                          >
+                            Yes, create summary
+                          </Button>
+                          <Button
+                            onClick={() => setShowSummaryPrompt(false)}
+                            size="sm"
+                            variant="outline"
+                          >
+                            Not now
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Card>
+                  </Card>
+                </div>
               )}
             </>
           )}
@@ -261,12 +293,14 @@ export default function Chat() {
 
         {/* Session Summary Display */}
         {currentConversationData?.session_summary && (
-          <SessionSummary conversation={currentConversationData} />
+          <div className="border-t-2 border-gray-200 bg-white">
+            <SessionSummary conversation={currentConversationData} />
+          </div>
         )}
 
         {/* Input Area */}
         {currentConversationId && (
-          <div className="bg-white border-t border-gray-200 p-4 md:p-6">
+          <div className="bg-white border-t-2 border-gray-200 p-4 md:p-6 shadow-lg">
             <div className="max-w-4xl mx-auto flex gap-3">
               <Textarea
                 value={inputMessage}
