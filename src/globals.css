@@ -4,41 +4,91 @@
 
 @layer base {
   :root {
-    /* Headspace-Inspired Color Palette */
-    --color-primary: 248 116 76; /* Warm Orange #F8744C */
-    --color-secondary: 255 180 124; /* Peach #FFB47C */
-    --color-accent: 75 107 140; /* Calm Blue #4B6B8C */
-    --color-background: 255 249 245; /* Warm White #FFF9F5 */
-    --color-text: 45 55 72; /* Soft Black #2D3748 */
-    
-    /* Additional colors */
-    --coral-500: 244 146 131;
-    --coral-600: 234 116 101;
-    --coral-100: 254 226 220;
-    
-    /* Enhanced spacing (larger than default) */
+    /* Neutrals (avoid pure white/black) */
+    --bg: 248 248 246;          /* warm off-white */
+    --surface: 255 255 253;     /* card surface */
+    --surface-2: 244 244 241;   /* subtle alternative */
+    --text: 34 39 46;           /* soft near-black */
+    --muted: 102 112 133;       /* secondary text */
+    --border: 226 228 233;      /* soft separators */
+
+    /* Brand warmth (use sparingly) */
+    --accent: 255 142 66;       /* warm orange */
+    --accent-2: 255 205 102;    /* soft amber highlight */
+    --accent-contrast: 255 255 255;
+
+    /* Calming support tones */
+    --calm: 93 156 236;         /* soft blue */
+    --calm-2: 120 196 164;      /* muted green */
+
+    /* Status (muted, non-alarming) */
+    --success: 84 179 126;
+    --warning: 243 179 74;
+    --danger: 222 92 92;
+
+    /* Focus ring (subtle) */
+    --ring: 255 142 66;
+
+    /* Radius scale (no sharp corners) */
+    --r-xs: 10px;
+    --r-sm: 14px;
+    --r-md: 18px;
+    --r-lg: 24px;
+    --r-xl: 32px;
+
+    /* Spacing scale (white space as a feature) */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-7: 32px;
+    --space-8: 40px;
+    --space-9: 48px;
+    --space-10: 64px;
+
+    /* Motion (slow, nervous-system aware) */
+    --ease-calm: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --dur-fast: 150ms;
+    --dur-med: 240ms;
+    --dur-slow: 420ms;
+
+    /* Legacy compatibility */
+    --color-primary: 255 142 66;
+    --color-secondary: 255 205 102;
+    --color-accent: 93 156 236;
+    --color-background: 248 248 246;
+    --color-text: 34 39 46;
     --spacing-page: 2rem;
     --spacing-card: 2rem;
     --spacing-section: 3rem;
-    
-    /* Typography */
-    --font-size-base: 18px;
-    --font-size-sm: 0.875rem;
-    --font-size-lg: 1.125rem;
-    --font-size-xl: 1.5rem;
-    --font-size-2xl: 2rem;
-    --font-size-3xl: 2.5rem;
-    
-    /* Border radius */
     --radius: 1rem;
     --radius-lg: 1.5rem;
     --radius-xl: 2rem;
-    
-    /* Shadows */
-    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
-    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.12);
-    --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  .dark {
+    /* Dark mode: deep blue-gray, not pure black */
+    --bg: 12 18 28;
+    --surface: 16 24 36;
+    --surface-2: 20 30 44;
+    --text: 235 240 246;
+    --muted: 170 182 198;
+    --border: 34 46 64;
+
+    /* Accents: slightly desaturated and softer in dark */
+    --accent: 255 160 92;
+    --accent-2: 255 212 132;
+
+    --calm: 120 176 246;
+    --calm-2: 136 206 176;
+
+    --danger: 234 116 116;
+    --warning: 246 192 102;
+    --success: 118 206 164;
+
+    --ring: 255 160 92;
   }
 }
 
@@ -48,49 +98,52 @@
   }
   
   body {
-    @apply bg-background text-foreground;
-    font-size: var(--font-size-base);
+    background-color: rgb(var(--bg));
+    color: rgb(var(--text));
+    font-size: 16px;
     font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
   
-  /* Headings with better spacing */
+  /* Headings with better spacing - rounded, friendly */
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold;
     line-height: 1.3;
     letter-spacing: -0.02em;
+    color: rgb(var(--text));
   }
   
   h1 {
-    font-size: var(--font-size-3xl);
+    font-size: 2.5rem;
     margin-bottom: 1rem;
   }
   
   h2 {
-    font-size: var(--font-size-2xl);
+    font-size: 2rem;
     margin-bottom: 0.875rem;
   }
   
   h3 {
-    font-size: var(--font-size-xl);
+    font-size: 1.5rem;
     margin-bottom: 0.75rem;
   }
   
-  /* Paragraph spacing */
+  /* Paragraph spacing - increased line height for calm reading */
   p {
     line-height: 1.7;
     margin-bottom: 1rem;
+    color: rgb(var(--text));
   }
   
-  /* Links with warm colors */
+  /* Links with warm accent */
   a {
-    @apply transition-colors;
-    color: rgb(var(--color-primary));
+    transition: color var(--dur-med) var(--ease-calm);
+    color: rgb(var(--accent));
   }
   
   a:hover {
-    color: rgb(var(--color-accent));
+    color: rgb(var(--accent-2));
   }
 }
 
@@ -100,57 +153,64 @@
     text-wrap: balance;
   }
   
-  /* Gradient backgrounds inspired by Headspace */
+  /* Soft gradient backgrounds - CBT aligned */
   .bg-warm-gradient {
-    background: linear-gradient(135deg, #FFF9F5 0%, #FFE8D9 100%);
+    background: linear-gradient(135deg, rgb(var(--bg)) 0%, rgb(248 244 238) 100%);
   }
   
   .bg-calm-gradient {
-    background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+    background: linear-gradient(135deg, rgb(var(--bg)) 0%, rgb(240 247 255) 100%);
   }
   
   .bg-energy-gradient {
-    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+    background: linear-gradient(135deg, rgb(var(--bg)) 0%, rgb(255 250 235) 100%);
   }
   
   /* Enhanced spacing utilities */
   .page-container {
-    padding: var(--spacing-page);
+    padding: var(--space-6);
     max-width: 1280px;
     margin: 0 auto;
   }
   
   .card-spacing {
-    padding: var(--spacing-card);
+    padding: var(--space-6);
   }
   
   .section-spacing {
-    margin-bottom: var(--spacing-section);
+    margin-bottom: var(--space-7);
   }
   
-  /* Smooth animations */
-  .transition-smooth {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Calm transitions (nervous system aware) */
+  .transition-calm {
+    transition: all var(--dur-med) var(--ease-calm);
   }
   
-  /* Breathing animation */
+  /* Breathing animation - slow, parasympathetic */
   @keyframes breathe {
     0%, 100% {
       transform: scale(1);
       opacity: 0.8;
     }
     50% {
-      transform: scale(1.1);
+      transform: scale(1.08);
       opacity: 1;
     }
   }
   
   .animate-breathe {
-    animation: breathe 4s ease-in-out infinite;
+    animation: breathe 6s var(--ease-calm) infinite;
+  }
+  
+  /* Icon stroke utilities */
+  .icon-default {
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
 }
 
-/* Scrollbar styling */
+/* Scrollbar styling - soft and unobtrusive */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -161,23 +221,23 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(248, 116, 76, 0.3);
-  border-radius: 4px;
+  background: rgb(var(--accent) / 0.25);
+  border-radius: var(--r-xs);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(248, 116, 76, 0.5);
+  background: rgb(var(--accent) / 0.4);
 }
 
-/* Focus styles */
+/* Focus styles - warm ring, no sharp edges */
 *:focus-visible {
-  outline: 2px solid rgb(var(--color-primary));
+  outline: 2px solid rgb(var(--ring));
   outline-offset: 2px;
-  border-radius: 0.25rem;
+  border-radius: var(--r-xs);
 }
 
-/* Selection */
+/* Selection - warm accent */
 ::selection {
-  background-color: rgba(248, 116, 76, 0.2);
-  color: rgb(var(--color-text));
+  background-color: rgb(var(--accent) / 0.2);
+  color: rgb(var(--text));
 }

@@ -65,7 +65,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-warm-gradient">
+    <div className="min-h-screen" style={{ backgroundColor: 'rgb(var(--bg))' }}>
       <div className="page-container max-w-5xl">
         {/* Header with increased spacing */}
         <motion.div 
@@ -74,10 +74,10 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-4xl md:text-5xl font-light text-gray-800 mb-3">
+          <h1 className="text-4xl md:text-5xl font-light mb-3" style={{ color: 'rgb(var(--text))' }}>
             {greeting()}{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
           </h1>
-          <p className="text-gray-600 text-xl">How are you feeling today?</p>
+          <p className="text-xl" style={{ color: 'rgb(var(--muted))' }}>How are you feeling today?</p>
         </motion.div>
 
       {/* Daily Check-in Card */}
@@ -87,28 +87,37 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <Card className="mb-8 border-0 shadow-xl bg-gradient-to-br from-orange-50 via-white to-pink-50 hover:shadow-2xl transition-all duration-300 rounded-3xl">
+          <Card className="mb-8 border-0 shadow-soft hover:shadow-lg transition-calm" style={{ 
+            borderRadius: 'var(--r-xl)',
+            backgroundColor: 'rgb(var(--surface))',
+            background: 'linear-gradient(135deg, rgb(var(--surface)), rgb(var(--accent) / 0.05))'
+          }}>
             <CardContent className="p-10">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-3">
                     <motion.div
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
+                      animate={{ scale: [1, 1.15, 1] }}
+                      transition={{ duration: 3, repeat: Infinity, ease: [0.2, 0.8, 0.2, 1] }}
                     >
-                      <Heart className="w-6 h-6 text-coral-500" />
+                      <Heart className="w-6 h-6 icon-default" style={{ color: 'rgb(var(--accent))' }} strokeWidth={2} />
                     </motion.div>
-                    <h2 className="text-2xl font-semibold text-gray-800">Daily Check-in</h2>
+                    <h2 className="text-2xl font-semibold" style={{ color: 'rgb(var(--text))' }}>Daily Check-in</h2>
                   </div>
-                  <p className="text-gray-600 mb-6">
+                  <p className="mb-6" style={{ color: 'rgb(var(--muted))' }}>
                     Taking a moment to understand your emotions helps build awareness and track your journey.
                   </p>
                   <Button 
                     onClick={() => setShowMoodCheckIn(true)}
-                    className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white px-8 py-7 text-lg rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                    className="px-8 py-7 text-lg shadow-soft hover:shadow-lg transition-calm"
+                    style={{ 
+                      borderRadius: 'var(--r-lg)',
+                      backgroundColor: 'rgb(var(--accent))',
+                      color: 'rgb(var(--accent-contrast))'
+                    }}
                   >
                     Check in now
-                    <Sparkles className="w-5 h-5 ml-2" />
+                    <Sparkles className="w-5 h-5 ml-2 icon-default" strokeWidth={2} />
                   </Button>
                 </div>
               </div>
@@ -121,20 +130,27 @@ export default function Home() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.3 }}
         >
-          <Card className="mb-6 border-0 shadow-md bg-white">
+          <Card className="mb-6 border-0 shadow-soft" style={{ 
+            borderRadius: 'var(--r-lg)',
+            backgroundColor: 'rgb(var(--surface))'
+          }}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <motion.div 
-                    className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center"
+                    className="w-12 h-12 flex items-center justify-center"
+                    style={{ 
+                      borderRadius: 'var(--r-xl)',
+                      backgroundColor: 'rgb(var(--success) / 0.15)'
+                    }}
                     whileHover={{ scale: 1.1 }}
                     transition={{ type: "spring", stiffness: 300 }}
                   >
-                    <Heart className="w-6 h-6 text-green-600" />
+                    <Heart className="w-6 h-6 icon-default" style={{ color: 'rgb(var(--success))' }} strokeWidth={2} />
                   </motion.div>
                   <div>
-                    <p className="text-sm text-gray-500">Today's mood</p>
-                    <p className="text-lg font-semibold text-gray-800 capitalize">
+                    <p className="text-sm" style={{ color: 'rgb(var(--muted))' }}>Today's mood</p>
+                    <p className="text-lg font-semibold capitalize" style={{ color: 'rgb(var(--text))' }}>
                       {todayMood.mood.replace('_', ' ')}
                     </p>
                   </div>
@@ -144,7 +160,11 @@ export default function Home() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.2 }}
                 >
-                  <Badge variant="secondary" className="bg-green-100 text-green-700 border-0">
+                  <Badge variant="secondary" className="border-0" style={{ 
+                    borderRadius: 'var(--r-sm)',
+                    backgroundColor: 'rgb(var(--success) / 0.15)',
+                    color: 'rgb(var(--success))'
+                  }}>
                     Checked in ✓
                   </Badge>
                 </motion.div>

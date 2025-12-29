@@ -52,12 +52,12 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   const themeBackgrounds = {
-    default: 'bg-gradient-to-br from-orange-50/50 via-white to-pink-50/30',
-    ocean: 'bg-gradient-to-br from-blue-50/50 via-white to-cyan-50/30',
-    sunset: 'bg-gradient-to-br from-orange-50/50 via-white to-pink-50/50',
-    forest: 'bg-gradient-to-br from-emerald-50/50 via-white to-green-50/30',
-    lavender: 'bg-gradient-to-br from-purple-50/50 via-white to-violet-50/30',
-    minimal: 'bg-gradient-to-br from-gray-50/50 via-white to-slate-50/30'
+    default: 'bg-warm-gradient',
+    ocean: 'bg-calm-gradient',
+    sunset: 'bg-warm-gradient',
+    forest: 'bg-gradient-to-br from-emerald-50/30 via-white to-green-50/20',
+    lavender: 'bg-gradient-to-br from-purple-50/30 via-white to-violet-50/20',
+    minimal: 'bg-gradient-to-br from-gray-50/30 via-white to-slate-50/20'
   };
 
   return (
@@ -95,7 +95,7 @@ export default function Layout({ children, currentPageName }) {
       </motion.div>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-gray-200 shadow-lg z-50">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t shadow-lg z-50" style={{ borderColor: 'rgb(var(--border))' }}>
         <div className="flex justify-around items-center h-16 px-2">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -105,13 +105,14 @@ export default function Layout({ children, currentPageName }) {
                 key={item.path}
                 to={createPageUrl(item.path)}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1 px-2 py-1.5 rounded-xl transition-all",
+                  "flex flex-col items-center justify-center gap-1 px-2 py-1.5 transition-calm",
                   isActive 
-                    ? "text-green-600 bg-green-50" 
-                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                    ? "text-[rgb(var(--accent))]" 
+                    : "text-[rgb(var(--muted))]"
                 )}
+                style={{ borderRadius: 'var(--r-sm)' }}
               >
-                <Icon className={cn("w-5 h-5", isActive && "scale-110")} strokeWidth={isActive ? 2.5 : 2} />
+                <Icon className={cn("w-5 h-5 icon-default", isActive && "scale-110")} strokeWidth={2} />
                 <span className={cn("text-[10px] font-medium", isActive && "font-semibold")}>{item.name}</span>
               </Link>
             );
@@ -120,16 +121,19 @@ export default function Layout({ children, currentPageName }) {
       </nav>
 
       {/* Desktop Side Navigation */}
-      <nav className="hidden md:flex fixed left-0 top-0 bottom-0 w-72 bg-white/95 backdrop-blur-xl border-r border-gray-200 shadow-sm flex-col py-6 z-50">
+      <nav className="hidden md:flex fixed left-0 top-0 bottom-0 w-72 bg-white/95 backdrop-blur-xl border-r shadow-sm flex-col py-6 z-50" style={{ borderColor: 'rgb(var(--border))' }}>
         {/* Logo */}
         <div className="px-6 mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-green-400 to-purple-400 flex items-center justify-center shadow-md">
+            <div className="w-10 h-10 flex items-center justify-center shadow-md" style={{ 
+              borderRadius: 'var(--r-lg)',
+              background: 'linear-gradient(135deg, rgb(var(--accent)), rgb(var(--calm)))'
+            }}>
               <span className="text-white font-bold text-lg">M</span>
             </div>
             <div>
-              <h1 className="text-lg font-semibold text-gray-800">MindWell</h1>
-              <p className="text-xs text-gray-500">Mental Wellness App</p>
+              <h1 className="text-lg font-semibold" style={{ color: 'rgb(var(--text))' }}>MindWell</h1>
+              <p className="text-xs" style={{ color: 'rgb(var(--muted))' }}>Mental Wellness App</p>
             </div>
           </div>
         </div>
@@ -145,21 +149,26 @@ export default function Layout({ children, currentPageName }) {
                   key={item.path}
                   to={createPageUrl(item.path)}
                   className={cn(
-                    "flex items-center gap-3 px-4 py-3 rounded-xl transition-all group",
+                    "flex items-center gap-3 px-4 py-3 transition-calm group",
                     isActive 
-                      ? "bg-green-50 text-green-700 shadow-sm" 
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
+                      ? "shadow-sm" 
+                      : ""
                   )}
+                  style={{ 
+                    borderRadius: 'var(--r-md)',
+                    backgroundColor: isActive ? 'rgb(var(--accent) / 0.1)' : 'transparent',
+                    color: isActive ? 'rgb(var(--accent))' : 'rgb(var(--muted))'
+                  }}
                 >
-                  <Icon className={cn("w-5 h-5", isActive && "scale-110")} strokeWidth={isActive ? 2.5 : 2} />
+                  <Icon className={cn("w-5 h-5 icon-default", isActive && "scale-110")} strokeWidth={2} />
                   <div className="flex-1">
                     <p className={cn("text-sm font-medium", isActive && "font-semibold")}>{item.name}</p>
                     {item.description && (
-                      <p className="text-xs text-gray-500 mt-0.5">{item.description}</p>
+                      <p className="text-xs mt-0.5" style={{ color: 'rgb(var(--muted))' }}>{item.description}</p>
                     )}
                   </div>
                   {isActive && (
-                    <div className="w-1 h-6 bg-green-600 rounded-full" />
+                    <div className="w-1 h-6 rounded-full" style={{ backgroundColor: 'rgb(var(--accent))' }} />
                   )}
                 </Link>
               );
