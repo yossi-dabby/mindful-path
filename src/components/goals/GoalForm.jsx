@@ -229,6 +229,7 @@ Provide SMART criteria answers and suggestions for milestones.`,
                 )}
 
                 <Button
+                  type="button"
                   onClick={generateSmartSuggestions}
                   disabled={!formData.title || aiSuggesting}
                   variant="outline"
@@ -239,7 +240,7 @@ Provide SMART criteria answers and suggestions for milestones.`,
                   ) : (
                     <>
                       <Sparkles className="w-4 h-4 mr-2" />
-                      Get AI Help to Make This SMART
+                      Generate Goal Suggestions
                     </>
                   )}
                 </Button>

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp, Edit, TrendingDown, Image as ImageIcon, Mic, Tag } from 'lucide-react';
+import { ChevronDown, ChevronUp, Edit, Trash2, TrendingDown, Image as ImageIcon, Mic, Tag } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -16,6 +18,20 @@ const stripHtml = (html) => {
 
 export default function ThoughtRecordCard({ entry, onEdit }) {
   const [expanded, setExpanded] = useState(false);
+  const queryClient = useQueryClient();
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => base44.entities.ThoughtJournal.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['thoughtJournals']);
+    }
+  });
+
+  const handleDelete = () => {
+    if (confirm('Delete this journal entry? This action cannot be undone.')) {
+      deleteMutation.mutate(entry.id);
+    }
+  };
 
   const intensityChange = entry.emotion_intensity - entry.outcome_emotion_intensity;
   const improvement = intensityChange > 0;
@@ -30,9 +46,19 @@ export default function ThoughtRecordCard({ entry, onEdit }) {
             </p>
             <p className="text-gray-800 font-medium line-clamp-2">{stripHtml(entry.situation)}</p>
           </div>
-          <Button variant="ghost" size="icon" onClick={() => onEdit(entry)}>
-            <Edit className="w-4 h-4 text-gray-400" />
-          </Button>
+          <div className="flex gap-1">
+            <Button variant="ghost" size="icon" onClick={() => onEdit(entry)}>
+              <Edit className="w-4 h-4 text-gray-400 hover:text-blue-600" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleDelete}
+              disabled={deleteMutation.isPending}
+            >
+              <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-600" />
+            </Button>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-2 mb-4">

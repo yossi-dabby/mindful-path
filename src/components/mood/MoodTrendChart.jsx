@@ -103,19 +103,19 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
             </div>
             <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
               <p className="text-xs font-medium text-gray-600 mb-1">Trend</p>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center gap-1">
                 {stats.trend > 0.5 ? (
                   <>
-                    <TrendingUp className="w-5 h-5 text-green-600" />
-                    <span className="text-xl font-bold text-green-700">Improving</span>
+                    <TrendingUp className="w-4 h-4 text-green-600 flex-shrink-0" />
+                    <span className="text-lg font-bold text-green-700">Better</span>
                   </>
                 ) : stats.trend < -0.5 ? (
                   <>
-                    <TrendingDown className="w-5 h-5 text-blue-600" />
-                    <span className="text-xl font-bold text-blue-700">Shifting</span>
+                    <TrendingDown className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                    <span className="text-lg font-bold text-blue-700">Shift</span>
                   </>
                 ) : (
-                  <span className="text-xl font-bold text-gray-700">Steady</span>
+                  <span className="text-lg font-bold text-gray-700">Steady</span>
                 )}
               </div>
             </div>
