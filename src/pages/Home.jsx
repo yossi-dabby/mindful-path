@@ -170,7 +170,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom, #FFE8D6 0%, #FFD4B3 100%)' }}>
+    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom, #FFF3E6 0%, #FFD9B3 100%)' }}>
       <div className="page-container max-w-5xl">
         {/* Header */}
         <motion.div 
