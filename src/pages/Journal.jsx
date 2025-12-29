@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -38,10 +38,13 @@ export default function Journal() {
   });
 
   // Get all unique tags from entries
-  const allTags = [...new Set(entries.flatMap(entry => entry.tags || []))];
+  const allTags = useMemo(() => {
+    return [...new Set(entries.flatMap(entry => entry.tags || []))];
+  }, [entries]);
 
   // Filter entries
-  const filteredEntries = entries.filter(entry => {
+  const filteredEntries = useMemo(() => {
+    return entries.filter(entry => {
     const matchesSearch = !searchQuery || 
       entry.situation?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       entry.automatic_thoughts?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -53,7 +56,8 @@ export default function Journal() {
     const matchesType = selectedType === 'all' || entry.entry_type === selectedType;
     
     return matchesSearch && matchesTags && matchesType;
-  });
+    });
+  }, [entries, searchQuery, selectedTags, selectedType]);
 
   const handleEdit = (entry) => {
     setEditingEntry(entry);
