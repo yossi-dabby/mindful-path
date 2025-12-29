@@ -44,7 +44,7 @@ export default function QuickActions() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5, delay: 0.5 }}
     >
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">Quick Actions</h2>
+      <h2 className="text-lg font-semibold mb-3 truncate" style={{ color: 'rgb(var(--text))' }}>Quick Actions</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {actions.map((action, index) => {
           const Icon = action.icon;
@@ -59,16 +59,16 @@ export default function QuickActions() {
             >
               <Link to={createPageUrl(action.page)}>
                 <Card className="border-0 shadow-md hover:shadow-xl transition-all cursor-pointer group h-full">
-                  <CardContent className="p-6">
+                  <CardContent className="p-4">
                     <motion.div 
                       className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${action.gradient} flex items-center justify-center mb-3`}
                       whileHover={{ rotate: 360 }}
                       transition={{ duration: 0.5 }}
                     >
-                      <Icon className="w-6 h-6 text-white" />
+                      <Icon className="w-5 h-5 text-white" />
                     </motion.div>
-                    <h3 className="font-semibold text-gray-800 mb-1">{action.title}</h3>
-                    <p className="text-xs text-gray-500">{action.description}</p>
+                    <h3 className="font-semibold text-sm mb-1 truncate" style={{ color: 'rgb(var(--text))' }}>{action.title}</h3>
+                    <p className="text-xs line-clamp-1" style={{ color: 'rgb(var(--muted))' }}>{action.description}</p>
                   </CardContent>
                 </Card>
               </Link>
