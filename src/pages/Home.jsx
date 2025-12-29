@@ -19,6 +19,7 @@ import DailyProgram from '../components/home/DailyProgram';
 import PersonalizedFeed from '../components/home/PersonalizedFeed';
 import TodaysFocus from '../components/home/TodaysFocus';
 import DailyReflection from '../components/home/DailyReflection';
+import StarterPathCard from '../components/home/StarterPathCard';
 import ExerciseDetail from '../components/exercises/ExerciseDetail';
 import { motion } from 'framer-motion';
 
@@ -189,6 +190,9 @@ export default function Home() {
           onStartExercise={handleStartExercise}
           onStartReflection={handleStartReflection}
         />
+
+        {/* 7-Day Starter Path */}
+        <StarterPathCard onNavigate={handleStartCheckIn} />
 
       {/* Secondary Content - Below the fold */}
       <div className="mt-12 space-y-6">
