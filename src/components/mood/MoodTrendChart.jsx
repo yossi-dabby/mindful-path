@@ -52,7 +52,13 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
     if (validEntries.length === 0) return null;
 
     const avgMood = validEntries.reduce((sum, e) => sum + moodValues[e.mood], 0) / validEntries.length;
-    const avgStress = validEntries.reduce((sum, e) => sum + e.stress_level, 0) / validEntries.length;
+    
+    // Calculate stress average, handling missing data
+    const entriesWithStress = validEntries.filter(e => e.stress_level != null && !isNaN(e.stress_level));
+    const avgStress = entriesWithStress.length > 0
+      ? entriesWithStress.reduce((sum, e) => sum + e.stress_level, 0) / entriesWithStress.length
+      : null;
+    
     const trend = validEntries.length >= 2 
       ? moodValues[validEntries[0].mood] - moodValues[validEntries[validEntries.length - 1].mood]
       : 0;
@@ -86,28 +92,30 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
         {stats && (
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
-              <p className="text-xs text-gray-600 mb-1">Average Mood</p>
+              <p className="text-xs font-medium text-gray-600 mb-1">Average Mood</p>
               <p className="text-2xl font-bold text-blue-700">{stats.avgMood.toFixed(1)}/5</p>
             </div>
-            <div className="p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl">
-              <p className="text-xs text-gray-600 mb-1">Average Stress</p>
-              <p className="text-2xl font-bold text-orange-700">{stats.avgStress.toFixed(1)}/10</p>
+            <div className="p-4 bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl">
+              <p className="text-xs font-medium text-gray-600 mb-1">Average Stress</p>
+              <p className="text-2xl font-bold text-amber-700">
+                {stats.avgStress != null ? `${stats.avgStress.toFixed(1)}/10` : 'No data yet'}
+              </p>
             </div>
             <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
-              <p className="text-xs text-gray-600 mb-1">Trend</p>
+              <p className="text-xs font-medium text-gray-600 mb-1">Trend</p>
               <div className="flex items-center gap-2">
-                {stats.trend > 0 ? (
+                {stats.trend > 0.5 ? (
                   <>
                     <TrendingUp className="w-5 h-5 text-green-600" />
-                    <span className="text-2xl font-bold text-green-700">Improving</span>
+                    <span className="text-xl font-bold text-green-700">Improving</span>
                   </>
-                ) : stats.trend < 0 ? (
+                ) : stats.trend < -0.5 ? (
                   <>
-                    <TrendingDown className="w-5 h-5 text-red-600" />
-                    <span className="text-2xl font-bold text-red-700">Declining</span>
+                    <TrendingDown className="w-5 h-5 text-blue-600" />
+                    <span className="text-xl font-bold text-blue-700">Shifting</span>
                   </>
                 ) : (
-                  <span className="text-2xl font-bold text-gray-700">Stable</span>
+                  <span className="text-xl font-bold text-gray-700">Steady</span>
                 )}
               </div>
             </div>
