@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, CheckCircle2, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '../../utils';
 
 const DAY_THEMES = [
   { title: "Welcome & Breathing", description: "Learn foundational breathing techniques" },
@@ -17,7 +19,7 @@ const DAY_THEMES = [
   { title: "Integration & Next Steps", description: "Review and plan ahead" }
 ];
 
-export default function StarterPathCard({ onNavigate }) {
+export default function StarterPathCard() {
   const queryClient = useQueryClient();
 
   // Get user's starter path progress
@@ -34,13 +36,12 @@ export default function StarterPathCard({ onNavigate }) {
       const today = new Date().toISOString().split('T')[0];
       return await base44.entities.StarterPath.create({
         current_day: 1,
-        started_date: today,
-        last_completed_date: today
+        started_date: today
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['starterPath']);
-      if (onNavigate) onNavigate();
+      // Navigation handled by Link component
     }
   });
 
@@ -119,19 +120,35 @@ export default function StarterPathCard({ onNavigate }) {
               )}
 
               {/* CTA */}
-              <Button
-                onClick={() => isStarted ? onNavigate?.() : startPathMutation.mutate()}
-                disabled={startPathMutation.isPending}
-                className="transition-calm"
-                style={{ 
-                  borderRadius: 'var(--r-md)',
-                  backgroundColor: 'rgb(var(--calm))',
-                  color: 'rgb(var(--accent-contrast))'
-                }}
-              >
-                {startPathMutation.isPending ? 'Starting...' : isStarted ? 'Continue' : 'Start Path'}
-                <ArrowRight className="w-4 h-4 ml-2 icon-default" strokeWidth={2} />
-              </Button>
+              {isStarted ? (
+                <Link to={createPageUrl('StarterPath')}>
+                  <Button
+                    className="transition-calm"
+                    style={{ 
+                      borderRadius: 'var(--r-md)',
+                      backgroundColor: 'rgb(var(--calm))',
+                      color: 'rgb(var(--accent-contrast))'
+                    }}
+                  >
+                    Continue
+                    <ArrowRight className="w-4 h-4 ml-2 icon-default" strokeWidth={2} />
+                  </Button>
+                </Link>
+              ) : (
+                <Button
+                  onClick={() => startPathMutation.mutate()}
+                  disabled={startPathMutation.isPending}
+                  className="transition-calm"
+                  style={{ 
+                    borderRadius: 'var(--r-md)',
+                    backgroundColor: 'rgb(var(--calm))',
+                    color: 'rgb(var(--accent-contrast))'
+                  }}
+                >
+                  {startPathMutation.isPending ? 'Starting...' : 'Start Path'}
+                  <ArrowRight className="w-4 h-4 ml-2 icon-default" strokeWidth={2} />
+                </Button>
+              )}
             </div>
 
             {/* Visual Indicator */}

@@ -192,7 +192,7 @@ export default function Home() {
         />
 
         {/* 7-Day Starter Path */}
-        <StarterPathCard onNavigate={handleStartCheckIn} />
+        <StarterPathCard />
 
       {/* Secondary Content - Below the fold */}
       <div className="mt-12 space-y-6">
