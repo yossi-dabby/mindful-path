@@ -137,13 +137,16 @@ export default function Chat() {
   const deleteConversationMutation = useMutation({
     mutationFn: async (conversationId) => {
       await base44.agents.deleteConversation(conversationId);
+      return conversationId;
     },
-    onSuccess: () => {
-      refetchConversations();
-      if (currentConversationId === arguments[0]) {
+    onSuccess: (deletedId) => {
+      if (currentConversationId === deletedId) {
         setCurrentConversationId(null);
         setMessages([]);
       }
+      refetchConversations();
+      queryClient.invalidateQueries(['conversations']);
+      queryClient.invalidateQueries(['currentConversation', deletedId]);
     }
   });
 
