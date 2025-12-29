@@ -155,16 +155,16 @@ export default function Chat() {
 
   return (
     <div className="h-screen flex relative">
-      {/* Backdrop overlay when sidebar is open on mobile */}
-      {showSidebar && (
+      {/* Backdrop overlay when sidebar is open */}
+      {showSidebar && currentConversationId && (
         <div 
-          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-30 md:hidden"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30"
           onClick={() => setShowSidebar(false)}
         />
       )}
 
       {/* Sidebar - Conversations List */}
-      <div className={`${showSidebar ? 'block' : 'hidden'} ${currentConversationId ? 'md:hidden' : 'md:block'} fixed md:relative inset-0 md:inset-auto w-80 bg-white border-r border-gray-200 shadow-lg md:shadow-none z-40`}>
+      <div className={`${showSidebar ? 'block' : 'hidden'} fixed md:relative inset-0 md:inset-auto w-80 bg-white border-r-2 border-gray-200 shadow-2xl md:shadow-none z-40`}>
         <ConversationsList
           conversations={conversations}
           currentConversationId={currentConversationId}
@@ -176,8 +176,7 @@ export default function Chat() {
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col h-screen"
-           style={{ opacity: showSidebar && currentConversationId ? 0.4 : 1 }}>
+      <div className="flex-1 flex flex-col h-screen">
         {/* Header */}
         <div className="bg-white border-b-2 border-gray-100 px-4 md:px-6 py-4 flex items-center gap-3 shadow-sm">
           <Button
