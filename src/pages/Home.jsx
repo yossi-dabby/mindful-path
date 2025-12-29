@@ -16,6 +16,7 @@ import StreakWidget from '../components/gamification/StreakWidget';
 import BadgeDisplay from '../components/gamification/BadgeDisplay';
 import DailyChallenges from '../components/gamification/DailyChallenges';
 import DailyProgram from '../components/home/DailyProgram';
+import PersonalizedFeed from '../components/home/PersonalizedFeed';
 import { motion } from 'framer-motion';
 
 export default function Home() {
@@ -176,6 +177,9 @@ export default function Home() {
 
       {/* Proactive Nudges */}
       <ProactiveNudges />
+
+      {/* Personalized Content Feed */}
+      <PersonalizedFeed />
 
       {/* Gamification Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
