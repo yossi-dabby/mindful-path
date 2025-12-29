@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -59,23 +59,23 @@ export default function Journal() {
     });
   }, [entries, searchQuery, selectedTags, selectedType]);
 
-  const handleEdit = (entry) => {
+  const handleEdit = useCallback((entry) => {
     setEditingEntry(entry);
     setShowForm(true);
-  };
+  }, []);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setShowForm(false);
     setEditingEntry(null);
     setSelectedTemplate(null);
     setPromptedSituation('');
-  };
+  }, []);
 
-  const handleNewEntry = (template = null, initialSituation = '') => {
+  const handleNewEntry = useCallback((template = null, initialSituation = '') => {
     setSelectedTemplate(template);
     setPromptedSituation(initialSituation);
     setShowForm(true);
-  };
+  }, []);
 
   return (
     <div className="min-h-screen p-4 md:p-8 max-w-5xl mx-auto">
