@@ -27,9 +27,9 @@ export const NumericSafety = {
   },
 
   clamp(value, min, max) {
-    const parsedValue = this.safeParseNumber(value, min);
-    const parsedMin = this.safeParseNumber(min, -Infinity);
-    const parsedMax = this.safeParseNumber(max, Infinity);
+    const parsedValue = this.safeParseNumber(value, 0);
+    const parsedMin = this.safeParseNumber(min, parsedValue);
+    const parsedMax = this.safeParseNumber(max, parsedValue);
 
     const lower = Math.min(parsedMin, parsedMax);
     const upper = Math.max(parsedMin, parsedMax);
