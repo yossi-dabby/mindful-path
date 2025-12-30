@@ -11,10 +11,10 @@
     "typecheck": "tsc -p ./jsconfig.json",
     "preview": "vite preview"
     "test": "vitest run",
-   "test:watch": "vitest",
-   "test:ui": "vitest --ui",
-   "test:coverage": "vitest run --coverage",
-   "test:property": "vitest run test/**/*.test.js"
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:property": "vitest run test/**/*.test.js"
   },
   "dependencies": {
     "@base44/sdk": "^0.8.3",
