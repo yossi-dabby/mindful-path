@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import { NumericSafety } from './numericSafety.js';
+import { NumericSafety } from '../../src/utils/numericSafety.js';
 
 describe('NumericSafety', () => {
   it('safeParseNumber always returns a finite number', () => {

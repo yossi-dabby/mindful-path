@@ -67,3 +67,4 @@ export const NumericSafety = {
     return this.clamp(num, 1, 10);
   }
 };
+
