@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import { format } from 'date-fns';
 
@@ -19,6 +19,22 @@ export default function EnhancedMoodChart({ data }) {
     intensity: entry.intensity || 5,
     fullDate: entry.date
   }));
+
+  // Memoize mood distribution to avoid recalculating on every render
+  const moodDistribution = useMemo(() => {
+    const counts = { very_low: 0, low: 0, okay: 0, good: 0, excellent: 0 };
+    for (const entry of data) {
+      if (counts.hasOwnProperty(entry.mood)) {
+        counts[entry.mood]++;
+      }
+    }
+    const total = data.length;
+    return Object.keys(moodMap).reverse().map(mood => ({
+      mood,
+      count: counts[mood],
+      percentage: total > 0 ? ((counts[mood] / total) * 100).toFixed(0) : '0'
+    }));
+  }, [data]);
 
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
@@ -74,17 +90,13 @@ export default function EnhancedMoodChart({ data }) {
 
       {/* Mood Distribution */}
       <div className="grid grid-cols-5 gap-2">
-        {Object.keys(moodMap).reverse().map((mood) => {
-          const count = data.filter(e => e.mood === mood).length;
-          const percentage = ((count / data.length) * 100).toFixed(0);
-          return (
-            <div key={mood} className="text-center p-2 bg-gray-50 rounded-lg">
-              <p className="text-xs font-medium text-gray-600 capitalize">{mood.replace('_', ' ')}</p>
-              <p className="text-lg font-bold text-purple-600">{percentage}%</p>
-              <p className="text-xs text-gray-500">{count} days</p>
-            </div>
-          );
-        })}
+        {moodDistribution.map(({ mood, count, percentage }) => (
+          <div key={mood} className="text-center p-2 bg-gray-50 rounded-lg">
+            <p className="text-xs font-medium text-gray-600 capitalize">{mood.replace('_', ' ')}</p>
+            <p className="text-lg font-bold text-purple-600">{percentage}%</p>
+            <p className="text-xs text-gray-500">{count} days</p>
+          </div>
+        ))}
       </div>
     </div>
   );

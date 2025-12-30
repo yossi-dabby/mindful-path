@@ -27,12 +27,18 @@ export default function CorrelationInsights({ moodEntries, journalEntries, exerc
         tags: j.tags
       }));
 
-      const exerciseData = exercises.filter(e => e.completed_count > 0).map(e => ({
-        title: e.title,
-        category: e.category,
-        completed_count: e.completed_count,
-        last_completed: e.last_completed
-      }));
+      // Use reduce to combine filter and map into a single pass
+      const exerciseData = exercises.reduce((acc, e) => {
+        if (e.completed_count > 0) {
+          acc.push({
+            title: e.title,
+            category: e.category,
+            completed_count: e.completed_count,
+            last_completed: e.last_completed
+          });
+        }
+        return acc;
+      }, []);
 
       const prompt = `Analyze the correlations between mood, journal entries, and exercises to provide actionable insights.
 

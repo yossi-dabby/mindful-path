@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -87,6 +87,20 @@ export default function Community() {
     post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     post.content.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Memoize filtered groups to avoid repeated filtering
+  const { myGroups, otherGroups } = useMemo(() => {
+    const my = [];
+    const other = [];
+    groups.forEach(group => {
+      if (myGroupIds.includes(group.id)) {
+        my.push(group);
+      } else {
+        other.push(group);
+      }
+    });
+    return { myGroups: my, otherGroups: other };
+  }, [groups, myGroupIds]);
 
   return (
     <div className="min-h-screen p-4 md:p-8 max-w-7xl mx-auto">
@@ -207,7 +221,7 @@ export default function Community() {
               <div>
                 <h3 className="font-semibold text-gray-800 mb-3">Your Groups</h3>
                 <div className="space-y-3 mb-6">
-                  {groups.filter(g => myGroupIds.includes(g.id)).map((group) => (
+                  {myGroups.map((group) => (
                     <GroupCard
                       key={group.id}
                       group={group}
@@ -228,7 +242,7 @@ export default function Community() {
                     <p className="text-gray-500">Loading groups...</p>
                   </CardContent>
                 </Card>
-              ) : groups.filter(g => !myGroupIds.includes(g.id)).length === 0 ? (
+              ) : otherGroups.length === 0 ? (
                 <Card>
                   <CardContent className="p-12 text-center">
                     <Users className="w-16 h-16 text-gray-300 mx-auto mb-3" />
@@ -241,7 +255,7 @@ export default function Community() {
                 </Card>
               ) : (
                 <div className="space-y-3">
-                  {groups.filter(g => !myGroupIds.includes(g.id)).map((group) => (
+                  {otherGroups.map((group) => (
                     <GroupCard
                       key={group.id}
                       group={group}

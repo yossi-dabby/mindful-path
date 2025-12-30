@@ -65,11 +65,14 @@ export default function AdvancedAnalytics() {
     value
   }));
 
-  // Journal insights
+  // Journal insights - optimize nested forEach
   const distortionCounts = journalData.reduce((acc, j) => {
-    (j.cognitive_distortions || []).forEach(d => {
-      acc[d] = (acc[d] || 0) + 1;
-    });
+    const distortions = j.cognitive_distortions;
+    if (distortions) {
+      for (const d of distortions) {
+        acc[d] = (acc[d] || 0) + 1;
+      }
+    }
     return acc;
   }, {});
 

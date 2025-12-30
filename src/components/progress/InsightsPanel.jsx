@@ -13,11 +13,13 @@ export default function InsightsPanel({ moodEntries, journalEntries }) {
 
   const getMostCommonEmotions = () => {
     const emotionCounts = {};
-    moodEntries.forEach(entry => {
-      entry.emotions?.forEach(emotion => {
-        emotionCounts[emotion] = (emotionCounts[emotion] || 0) + 1;
-      });
-    });
+    for (const entry of moodEntries) {
+      if (entry.emotions) {
+        for (const emotion of entry.emotions) {
+          emotionCounts[emotion] = (emotionCounts[emotion] || 0) + 1;
+        }
+      }
+    }
     return Object.entries(emotionCounts)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 4)
@@ -26,11 +28,13 @@ export default function InsightsPanel({ moodEntries, journalEntries }) {
 
   const getTopDistortions = () => {
     const distortionCounts = {};
-    journalEntries.forEach(entry => {
-      entry.cognitive_distortions?.forEach(distortion => {
-        distortionCounts[distortion] = (distortionCounts[distortion] || 0) + 1;
-      });
-    });
+    for (const entry of journalEntries) {
+      if (entry.cognitive_distortions) {
+        for (const distortion of entry.cognitive_distortions) {
+          distortionCounts[distortion] = (distortionCounts[distortion] || 0) + 1;
+        }
+      }
+    }
     return Object.entries(distortionCounts)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 3)

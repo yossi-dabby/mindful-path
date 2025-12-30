@@ -16,11 +16,31 @@ export default function HealthDashboard() {
     initialData: []
   });
 
-  // Calculate averages
+  // Calculate averages - single pass through the data
   const recentMetrics = healthMetrics.slice(0, 7);
-  const avgSleep = recentMetrics.reduce((sum, m) => sum + (m.sleep_hours || 0), 0) / recentMetrics.filter(m => m.sleep_hours).length || 0;
-  const avgSteps = recentMetrics.reduce((sum, m) => sum + (m.steps || 0), 0) / recentMetrics.filter(m => m.steps).length || 0;
-  const avgHeartRate = recentMetrics.reduce((sum, m) => sum + (m.heart_rate_avg || 0), 0) / recentMetrics.filter(m => m.heart_rate_avg).length || 0;
+  const { avgSleep, avgSteps, avgHeartRate } = (() => {
+    const acc = recentMetrics.reduce((acc, m) => {
+      if (m.sleep_hours) {
+        acc.sleepSum += m.sleep_hours;
+        acc.sleepCount++;
+      }
+      if (m.steps) {
+        acc.stepsSum += m.steps;
+        acc.stepsCount++;
+      }
+      if (m.heart_rate_avg) {
+        acc.heartRateSum += m.heart_rate_avg;
+        acc.heartRateCount++;
+      }
+      return acc;
+    }, { sleepSum: 0, sleepCount: 0, stepsSum: 0, stepsCount: 0, heartRateSum: 0, heartRateCount: 0 });
+    
+    return {
+      avgSleep: acc.sleepCount > 0 ? acc.sleepSum / acc.sleepCount : 0,
+      avgSteps: acc.stepsCount > 0 ? acc.stepsSum / acc.stepsCount : 0,
+      avgHeartRate: acc.heartRateCount > 0 ? acc.heartRateSum / acc.heartRateCount : 0
+    };
+  })();
 
   // Prepare chart data
   const chartData = healthMetrics.slice(0, 14).reverse().map(m => ({

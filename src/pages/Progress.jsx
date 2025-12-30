@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -49,12 +49,16 @@ export default function Progress() {
     initialData: []
   });
 
-  const filteredMoodEntries = moodEntries.filter(entry => {
-    const entryDate = new Date(entry.date);
+  const filteredMoodEntries = useMemo(() => {
     const daysAgo = new Date();
     daysAgo.setDate(daysAgo.getDate() - parseInt(timeRange));
-    return entryDate >= daysAgo;
-  });
+    const daysAgoTime = daysAgo.getTime();
+    
+    return moodEntries.filter(entry => {
+      const entryTime = new Date(entry.date).getTime();
+      return entryTime >= daysAgoTime;
+    });
+  }, [moodEntries, timeRange]);
 
   return (
     <div className="min-h-screen p-4 md:p-8 max-w-7xl mx-auto">
