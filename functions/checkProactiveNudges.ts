@@ -1,5 +1,29 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
+// Numeric safety utilities
+const safeDaysDiff = (date1, date2) => {
+  const ms1 = date1 instanceof Date ? date1.getTime() : Date.parse(date1);
+  const ms2 = date2 instanceof Date ? date2.getTime() : Date.parse(date2);
+  
+  if (!Number.isFinite(ms1) || !Number.isFinite(ms2)) {
+    return 0;
+  }
+  
+  const diffMs = ms1 - ms2;
+  if (!Number.isFinite(diffMs)) {
+    return 0;
+  }
+  
+  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  return Number.isSafeInteger(days) ? Math.max(0, days) : 0;
+};
+
+const validateProgress = (progress) => {
+  const num = Number(progress);
+  if (!Number.isFinite(num)) return 0;
+  return Math.max(0, Math.min(100, num));
+};
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -38,7 +62,7 @@ Deno.serve(async (req) => {
           status: 'pending',
           suggested_action: 'Track your mood and reflect on what might be affecting it',
           context: {
-            days_since_last: Math.floor((now - threeDaysAgo) / (1000 * 60 * 60 * 24))
+            days_since_last: safeDaysDiff(now, threeDaysAgo)
           }
         });
       }
@@ -54,7 +78,7 @@ Deno.serve(async (req) => {
 
     if (sortedJournals.length > 0) {
       const lastJournal = sortedJournals[0];
-      const daysSinceJournal = Math.floor((now - new Date(lastJournal.created_date)) / (1000 * 60 * 60 * 24));
+      const daysSinceJournal = safeDaysDiff(now, new Date(lastJournal.created_date));
 
       if (daysSinceJournal >= 5) {
         const existingNudge = await base44.asServiceRole.entities.ProactiveReminder.filter({
@@ -87,7 +111,7 @@ Deno.serve(async (req) => {
     });
 
     for (const goal of activeGoals) {
-      const daysSinceUpdate = Math.floor((now - new Date(goal.updated_date)) / (1000 * 60 * 60 * 24));
+      const daysSinceUpdate = safeDaysDiff(now, new Date(goal.updated_date));
 
       if (daysSinceUpdate >= 7) {
         const existingNudge = await base44.asServiceRole.entities.ProactiveReminder.filter({
@@ -109,7 +133,7 @@ Deno.serve(async (req) => {
             context: {
               goal_title: goal.title,
               days_since_update: daysSinceUpdate,
-              current_progress: goal.progress || 0
+              current_progress: validateProgress(goal.progress || 0)
             }
           });
         }

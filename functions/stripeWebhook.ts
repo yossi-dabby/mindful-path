@@ -5,6 +5,18 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'), {
   apiVersion: '2023-10-16',
 });
 
+// Numeric safety utilities
+const safeTimestampToISO = (timestamp) => {
+  if (!Number.isFinite(timestamp) || timestamp < 0 || !Number.isSafeInteger(timestamp)) {
+    return new Date().toISOString();
+  }
+  const ms = timestamp * 1000;
+  if (!Number.isSafeInteger(ms)) {
+    return new Date().toISOString();
+  }
+  return new Date(ms).toISOString();
+};
+
 Deno.serve(async (req) => {
   const signature = req.headers.get('stripe-signature');
   const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
@@ -63,8 +75,8 @@ Deno.serve(async (req) => {
             subscriptions[0].id,
             {
               status: subscription.status === 'active' ? 'active' : 'cancelled',
-              current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-              current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+              current_period_start: safeTimestampToISO(subscription.current_period_start),
+              current_period_end: safeTimestampToISO(subscription.current_period_end),
             }
           );
         }
