@@ -4,10 +4,11 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    include: ['test/**/*.test.js'],
+    exclude: ['node_modules', 'dist', 'functions'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      exclude: ['node_modules/**', 'dist/**', '**/*.config.js', '**/test/**']
+      reporter: ['text', 'json', 'html']
     }
   }
 });
