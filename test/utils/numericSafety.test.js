@@ -7,7 +7,7 @@ describe('NumericSafety', () => {
     fc.assert(
       fc.property(fc.anything(), (value) => {
         const result = NumericSafety.safeParseNumber(value, 0);
-        return Number.isFinite(result);
+        expect(Number.isFinite(result)).toBe(true);
       })
     );
   });
@@ -22,9 +22,12 @@ describe('NumericSafety', () => {
           const min = Math.min(a, b);
           const max = Math.max(a, b);
           const result = NumericSafety.clamp(value, min, max);
-          return result >= min && result <= max;
+
+          expect(result).toBeGreaterThanOrEqual(min);
+          expect(result).toBeLessThanOrEqual(max);
         }
       )
     );
   });
 });
+
