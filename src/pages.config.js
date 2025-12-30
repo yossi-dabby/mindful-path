@@ -12,6 +12,7 @@ import Progress from './pages/Progress';
 import Resources from './pages/Resources';
 import Settings from './pages/Settings';
 import StarterPath from './pages/StarterPath';
+import TestSetupGuide from './pages/TestSetupGuide';
 import __Layout from './Layout.jsx';
 
 
@@ -30,6 +31,7 @@ export const PAGES = {
     "Resources": Resources,
     "Settings": Settings,
     "StarterPath": StarterPath,
+    "TestSetupGuide": TestSetupGuide,
 }
 
 export const pagesConfig = {
