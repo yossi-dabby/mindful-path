@@ -32,10 +32,13 @@ export const NumericSafety = {
   },
 
   clamp(value, min, max) {
-    if (!Number.isFinite(value)) return min;
-    if (!Number.isFinite(min)) return value;
-    if (!Number.isFinite(max)) return value;
-    return Math.max(min, Math.min(max, value));
+    const lowerBound = Number.isFinite(min) ? min : Number.NEGATIVE_INFINITY;
+    const upperBound = Number.isFinite(max) ? max : Number.POSITIVE_INFINITY;
+    const [lower, upper] =
+      lowerBound <= upperBound ? [lowerBound, upperBound] : [upperBound, lowerBound];
+    const safeValue = Number.isFinite(value) ? value : lower;
+    const clamped = Math.max(lower, Math.min(upper, safeValue));
+    return Number.isFinite(clamped) ? clamped : lower;
   },
 
   safeAdd(a, b) {
