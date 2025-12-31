@@ -14,50 +14,37 @@ import { SIDEBAR_WIDTH } from './Sidebar';
  */
 export default function AppContent({ children, currentPageName }) {
   return (
-    <div
-      className="relative"
+    <main
+      className="overflow-y-auto overflow-x-hidden"
       style={{
-        // Root container uses min-height to allow natural expansion
+        WebkitOverflowScrolling: 'touch',
         minHeight: '100dvh',
-        // Desktop: make room for sidebar
+        // Mobile: padding for bottom nav + safe area
+        paddingTop: 'env(safe-area-inset-top, 0)',
+        paddingBottom: `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0))`,
         paddingLeft: '0',
-        // Mobile: make room for bottom nav
-        paddingBottom: `${BOTTOM_NAV_HEIGHT}px`,
+        paddingRight: '0',
       }}
     >
       <style>{`
         @media (min-width: 768px) {
-          .app-content-root {
-            padding-left: ${SIDEBAR_WIDTH}px;
-            padding-bottom: 0;
+          main {
+            padding-left: ${SIDEBAR_WIDTH}px !important;
+            padding-bottom: env(safe-area-inset-bottom, 0) !important;
           }
         }
       `}</style>
-      <div 
-        className="app-content-root overflow-y-auto overflow-x-hidden"
-        style={{
-          WebkitOverflowScrolling: 'touch',
-          // Single scroll container
-          minHeight: '100dvh',
-          paddingBottom: `${BOTTOM_NAV_HEIGHT}px`,
-        }}
-      >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentPageName}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            style={{
-              // Content should flow naturally, not use fixed heights
-              minHeight: 'auto',
-            }}
-          >
-            {children}
-          </motion.div>
-        </AnimatePresence>
-      </div>
-    </div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentPageName}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.2 }}
+        >
+          {children}
+        </motion.div>
+      </AnimatePresence>
+    </main>
   );
 }
