@@ -111,7 +111,7 @@ export default function Exercises() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 max-w-6xl mx-auto">
+    <div className="p-4 md:p-8 max-w-6xl mx-auto">
       {/* Header */}
       <div className="mb-8 mt-4">
         <div className="flex items-center justify-between mb-2">
