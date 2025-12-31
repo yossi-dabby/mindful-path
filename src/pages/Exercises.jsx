@@ -35,27 +35,46 @@ export default function Exercises() {
 
   const { data: exercises, isLoading } = useQuery({
     queryKey: ['exercises'],
-    queryFn: () => base44.entities.Exercise.list(),
+    queryFn: async () => {
+      try {
+        return await base44.entities.Exercise.list();
+      } catch (error) {
+        console.error('Error fetching exercises:', error);
+        return [];
+      }
+    },
     initialData: []
   });
 
   const completeMutation = useMutation({
-    mutationFn: ({ exercise, duration }) =>
-      base44.entities.Exercise.update(exercise.id, {
-        completed_count: (exercise.completed_count || 0) + 1,
-        last_completed: new Date().toISOString(),
-        total_time_practiced: (exercise.total_time_practiced || 0) + (duration || 0)
-      }),
+    mutationFn: async ({ exercise, duration }) => {
+      try {
+        return await base44.entities.Exercise.update(exercise.id, {
+          completed_count: (exercise.completed_count || 0) + 1,
+          last_completed: new Date().toISOString(),
+          total_time_practiced: (exercise.total_time_practiced || 0) + (duration || 0)
+        });
+      } catch (error) {
+        console.error('Error updating exercise:', error);
+        throw error;
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['exercises']);
     }
   });
 
   const toggleFavoriteMutation = useMutation({
-    mutationFn: (exercise) =>
-      base44.entities.Exercise.update(exercise.id, {
-        favorite: !exercise.favorite
-      }),
+    mutationFn: async (exercise) => {
+      try {
+        return await base44.entities.Exercise.update(exercise.id, {
+          favorite: !exercise.favorite
+        });
+      } catch (error) {
+        console.error('Error toggling favorite:', error);
+        throw error;
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['exercises']);
     }
