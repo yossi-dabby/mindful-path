@@ -38,6 +38,10 @@ export default function CoachingChat({ session, onBack }) {
         (data) => {
           setMessages(data.messages || []);
           setIsLoading(false);
+        },
+        (error) => {
+          console.error('Conversation subscription error:', error);
+          setIsLoading(false);
         }
       );
       return () => unsubscribe();
@@ -60,14 +64,20 @@ export default function CoachingChat({ session, onBack }) {
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || !currentSession.agent_conversation_id) return;
 
-    const conversation = await base44.agents.getConversation(currentSession.agent_conversation_id);
-    setIsLoading(true);
-    setInputMessage('');
+    try {
+      const conversation = await base44.agents.getConversation(currentSession.agent_conversation_id);
+      setIsLoading(true);
+      setInputMessage('');
 
-    await base44.agents.addMessage(conversation, {
-      role: 'user',
-      content: inputMessage
-    });
+      await base44.agents.addMessage(conversation, {
+        role: 'user',
+        content: inputMessage
+      });
+    } catch (error) {
+      console.error('Error sending message:', error);
+      setIsLoading(false);
+      alert('Failed to send message. Please try again.');
+    }
   };
 
   const quickPrompts = {
