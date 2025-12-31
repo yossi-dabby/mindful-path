@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Plus, Loader2, Menu, Sparkles } from 'lucide-react';
+import { Send, Plus, Loader2, Menu, Sparkles, ArrowLeft } from 'lucide-react';
 import MessageBubble from '../components/chat/MessageBubble';
 import ConversationsList from '../components/chat/ConversationsList';
 import SessionSummary from '../components/chat/SessionSummary';
@@ -217,6 +217,13 @@ export default function Chat() {
       <div className="flex-1 flex flex-col h-screen">
         {/* Header */}
         <div className="bg-white border-b-2 border-gray-100 px-4 md:px-6 py-4 flex items-center gap-3 shadow-sm">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => window.location.href = '/'}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
           <Button
             variant="ghost"
             size="icon"
