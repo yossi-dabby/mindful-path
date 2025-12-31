@@ -64,9 +64,14 @@ export default function Chat() {
   const { data: conversations, refetch: refetchConversations } = useQuery({
     queryKey: ['conversations'],
     queryFn: async () => {
-      const allConversations = await base44.agents.listConversations({ agent_name: 'cbt_therapist' });
-      const deletedIds = getDeletedSessions();
-      return allConversations.filter(c => !deletedIds.includes(c.id));
+      try {
+        const allConversations = await base44.agents.listConversations({ agent_name: 'cbt_therapist' });
+        const deletedIds = getDeletedSessions();
+        return allConversations.filter(c => !deletedIds.includes(c.id));
+      } catch (error) {
+        console.error('Error fetching conversations:', error);
+        return [];
+      }
     },
     initialData: []
   });

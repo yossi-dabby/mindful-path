@@ -23,8 +23,20 @@ export default function Coach() {
   });
 
   const { data: sessions } = useQuery({
-    queryKey: ['coachingSessions'],
-    queryFn: () => base44.entities.CoachingSession.list('-created_date'),
+    queryKey: ['coachingSessions', user?.email],
+    queryFn: async () => {
+      if (!user) return [];
+      try {
+        return await base44.entities.CoachingSession.filter(
+          { created_by: user.email },
+          '-created_date'
+        );
+      } catch (error) {
+        console.error('Error fetching coaching sessions:', error);
+        return [];
+      }
+    },
+    enabled: !!user,
     initialData: []
   });
 
