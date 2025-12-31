@@ -13,6 +13,8 @@ import Resources from './pages/Resources';
 import Settings from './pages/Settings';
 import StarterPath from './pages/StarterPath';
 import TestSetupGuide from './pages/TestSetupGuide';
+import Videos from './pages/Videos';
+import VideoPlayer from './pages/VideoPlayer';
 import __Layout from './Layout.jsx';
 
 
@@ -32,6 +34,8 @@ export const PAGES = {
     "Settings": Settings,
     "StarterPath": StarterPath,
     "TestSetupGuide": TestSetupGuide,
+    "Videos": Videos,
+    "VideoPlayer": VideoPlayer,
 }
 
 export const pagesConfig = {
