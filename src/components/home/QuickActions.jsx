@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { Card, CardContent } from '@/components/ui/card';
-import { MessageCircle, BookOpen, Target, Dumbbell } from 'lucide-react';
+import { MessageCircle, BookOpen, Target, Dumbbell, Play } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const actions = [
@@ -33,6 +33,13 @@ const actions = [
     icon: Dumbbell,
     page: 'Exercises',
     gradient: 'from-blue-400 to-blue-600'
+  },
+  {
+    title: 'CBT Video Library',
+    description: 'Watch guided videos',
+    icon: Play,
+    page: 'Videos',
+    gradient: 'from-amber-400 to-orange-600'
   }
 ];
 
