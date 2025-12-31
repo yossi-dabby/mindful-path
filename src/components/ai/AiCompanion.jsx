@@ -17,8 +17,20 @@ export default function AiCompanion() {
   const [conversation, setConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [shouldShow, setShouldShow] = useState(false);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
+
+  // Delay showing the button on Videos page
+  useEffect(() => {
+    const isVideosPage = window.location.pathname.includes('Videos');
+    if (isVideosPage) {
+      const timer = setTimeout(() => setShouldShow(true), 2000);
+      return () => clearTimeout(timer);
+    } else {
+      setShouldShow(true);
+    }
+  }, []);
 
   // Create or get companion conversation
   useEffect(() => {
@@ -92,11 +104,15 @@ export default function AiCompanion() {
     setTimeout(() => sendMessage(), 100);
   };
 
+  if (!isOpen && !shouldShow) {
+    return null;
+  }
+
   if (!isOpen) {
     return (
       <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
         className="fixed bottom-20 md:bottom-6 right-6 z-50"
       >
         <Button
