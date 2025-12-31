@@ -44,7 +44,14 @@ export default function PlaylistDetail() {
 
   const { data: allProgress = [] } = useQuery({
     queryKey: ['allVideoProgress'],
-    queryFn: () => base44.entities.VideoProgress.list(),
+    queryFn: async () => {
+      try {
+        return await base44.entities.VideoProgress.list();
+      } catch (error) {
+        console.error('Error fetching video progress:', error);
+        return [];
+      }
+    },
     initialData: []
   });
 

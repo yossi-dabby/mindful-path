@@ -22,8 +22,13 @@ export default function VideoPlayer() {
     queryKey: ['videoProgress', videoId],
     queryFn: async () => {
       if (!videoId) return null;
-      const progress = await base44.entities.VideoProgress.filter({ video_id: videoId });
-      return progress[0] || null;
+      try {
+        const progress = await base44.entities.VideoProgress.filter({ video_id: videoId });
+        return progress[0] || null;
+      } catch (error) {
+        console.error('Error fetching video progress:', error);
+        return null;
+      }
     },
     enabled: !!videoId
   });
@@ -33,19 +38,23 @@ export default function VideoPlayer() {
     mutationFn: async ({ progress, completed }) => {
       if (!videoId) return;
       
-      if (videoProgress) {
-        await base44.entities.VideoProgress.update(videoProgress.id, {
-          progress,
-          completed,
-          last_watched_at: new Date().toISOString()
-        });
-      } else {
-        await base44.entities.VideoProgress.create({
-          video_id: videoId,
-          progress,
-          completed,
-          last_watched_at: new Date().toISOString()
-        });
+      try {
+        if (videoProgress) {
+          await base44.entities.VideoProgress.update(videoProgress.id, {
+            progress,
+            completed,
+            last_watched_at: new Date().toISOString()
+          });
+        } else {
+          await base44.entities.VideoProgress.create({
+            video_id: videoId,
+            progress,
+            completed,
+            last_watched_at: new Date().toISOString()
+          });
+        }
+      } catch (error) {
+        console.error('Error updating video progress:', error);
       }
     },
     onSuccess: () => {
