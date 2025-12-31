@@ -8,16 +8,14 @@ export const NumericSafety = {
   },
 
   safeParseNumber(value, defaultValue = 0) {
-    try {
-      const parsed = Number(value);
-      return Number.isFinite(parsed) ? parsed : defaultValue;
-    } catch {
-      return defaultValue;
-    }
+    if (typeof value === 'symbol') return defaultValue;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : defaultValue;
   },
 
   safeParseInt(value, defaultValue = 0) {
-    const parsed = parseInt(value, 10);
+    if (typeof value === 'symbol') return defaultValue;
+    const parsed = Number.parseInt(value, 10);
     return Number.isSafeInteger(parsed) ? parsed : defaultValue;
   },
 
@@ -29,41 +27,35 @@ export const NumericSafety = {
       [lower, upper] = [upper, lower];
     }
 
-    const safeValue = Number.isFinite(value)
-      ? value
-      : Number.isFinite(lower)
-        ? lower
-        : Number.isFinite(upper)
-          ? upper
-          : 0;
+    const safeValue = Number.isFinite(value) ? value : 0;
 
     const clamped = Math.max(lower, Math.min(upper, safeValue));
 
     if (Number.isFinite(clamped)) return clamped;
-    if (Number.isFinite(lower)) return lower;
-    if (Number.isFinite(upper)) return upper;
-    return 0;
+    if (!Number.isFinite(lower) && !Number.isFinite(upper)) return 0;
+    if (!Number.isFinite(lower)) return upper;
+    return lower;
   },
 
-  safeAdd(a, b) {
-    const result = a + b;
-    if (!Number.isFinite(result)) {
-      throw new Error('Addition resulted in non-finite number');
-    }
-    return result;
+  safeAdd(a, b, defaultValue = 0) {
+    const first = this.safeParseNumber(a, 0);
+    const second = this.safeParseNumber(b, 0);
+    const result = first + second;
+    return Number.isFinite(result) ? result : defaultValue;
   },
 
-  safeMultiply(a, b) {
-    const result = a * b;
-    if (!Number.isFinite(result)) {
-      throw new Error('Multiplication resulted in non-finite number');
-    }
-    return result;
+  safeMultiply(a, b, defaultValue = 0) {
+    const first = this.safeParseNumber(a, 0);
+    const second = this.safeParseNumber(b, 0);
+    const result = first * second;
+    return Number.isFinite(result) ? result : defaultValue;
   },
 
   safeDivide(a, b, defaultValue = 0) {
-    if (b === 0) return defaultValue;
-    const result = a / b;
+    const numerator = this.safeParseNumber(a, 0);
+    const denominator = this.safeParseNumber(b, 0);
+    if (denominator === 0) return defaultValue;
+    const result = numerator / denominator;
     return Number.isFinite(result) ? result : defaultValue;
   },
 
