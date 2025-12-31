@@ -91,7 +91,7 @@ export default function Videos() {
 
         {/* Video Grid */}
         {!isLoading && videos.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             {videos.map((video, index) => (
               <motion.div
                 key={video.id}
@@ -99,29 +99,29 @@ export default function Videos() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
               >
-                <Card className="border-0 shadow-soft hover:shadow-md transition-calm overflow-hidden group" style={{ 
+                <Card className="border-0 shadow-soft hover:shadow-md transition-calm overflow-hidden group h-full flex flex-col" style={{ 
                   borderRadius: 'var(--r-md)',
                   backgroundColor: 'rgb(var(--surface))'
                 }}>
-                  <CardContent className="p-0">
+                  <CardContent className="p-0 flex flex-col h-full">
                     <Link 
                       to={`${createPageUrl('VideoPlayer')}?videoUrl=${encodeURIComponent(video.videoUrl)}&title=${encodeURIComponent(video.title)}&videoId=${video.id}`}
                     >
                       {/* Thumbnail with Play Overlay */}
-                      <div className="relative aspect-video overflow-hidden">
+                      <div className="relative bg-gray-100" style={{ aspectRatio: '16/10' }}>
                         <img
                           src={video.thumbnailUrl}
                           alt={video.title}
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent group-hover:from-black/50 transition-colors flex items-center justify-center">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent group-hover:from-black/40 transition-colors flex items-center justify-center">
                           <div 
-                            className="w-12 h-12 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform bg-white/20 backdrop-blur-sm"
+                            className="w-10 h-10 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform bg-white/20 backdrop-blur-sm"
                             style={{ 
                               borderRadius: 'var(--r-lg)'
                             }}
                           >
-                            <Play className="w-6 h-6 text-white fill-white ml-0.5" />
+                            <Play className="w-5 h-5 text-white fill-white ml-0.5" />
                           </div>
                         </div>
                         {(() => {
@@ -129,16 +129,15 @@ export default function Videos() {
                           return progress && progress.progress > 0 && (
                             <>
                               {progress.completed && (
-                                <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-0.5 rounded-full text-xs font-medium">
+                                <div className="absolute top-1.5 left-1.5 bg-green-500 text-white px-1.5 py-0.5 rounded-full text-xs font-medium">
                                   ✓
                                 </div>
                               )}
-                              <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/30">
+                              <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
                                 <div 
-                                  className="h-full transition-all duration-300"
+                                  className="h-full transition-all duration-300 bg-green-500"
                                   style={{ 
-                                    width: `${progress.progress}%`,
-                                    backgroundColor: 'rgb(var(--accent))'
+                                    width: `${progress.progress}%`
                                   }}
                                 />
                               </div>
@@ -147,15 +146,15 @@ export default function Videos() {
                         })()}
                         
                         {/* Metadata Badges */}
-                        <div className="absolute bottom-2 right-2 flex gap-1.5">
+                        <div className="absolute bottom-1.5 right-1.5 flex gap-1">
                           {video.duration_minutes && (
-                            <div className="bg-black/60 backdrop-blur-sm text-white px-2 py-0.5 rounded text-xs font-medium">
-                              {video.duration_minutes} min
+                            <div className="bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded text-xs font-medium">
+                              {video.duration_minutes}m
                             </div>
                           )}
                           {video.difficulty && (
-                            <div className="bg-black/60 backdrop-blur-sm text-white px-2 py-0.5 rounded text-xs font-medium capitalize">
-                              {video.difficulty}
+                            <div className="bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded text-xs font-medium capitalize">
+                              {video.difficulty.substring(0, 3)}
                             </div>
                           )}
                         </div>
@@ -163,19 +162,17 @@ export default function Videos() {
                     </Link>
 
                     {/* Video Info */}
-                    <div className="p-3">
-                      <h3 className="text-sm font-semibold mb-0.5 line-clamp-2" style={{ color: 'rgb(var(--text))' }}>
+                    <div className="p-2.5 flex flex-col flex-1">
+                      <h3 className="text-xs font-semibold mb-1 line-clamp-2 leading-tight" style={{ color: 'rgb(var(--text))' }}>
                         {video.title}
                       </h3>
-                      <div className="flex items-center justify-between mb-2">
-                        {video.category && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
-                            {video.category}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs mb-2 opacity-70" style={{ color: 'rgb(var(--muted))' }}>
-                        Watch & reflect with guided prompts
+                      {video.category && (
+                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-600 w-fit mb-1.5">
+                          {video.category}
+                        </span>
+                      )}
+                      <p className="text-xs mb-2 opacity-60 line-clamp-1" style={{ color: 'rgb(var(--muted))' }}>
+                        Guided reflection included
                       </p>
                       <Button
                         variant="ghost"
@@ -184,10 +181,10 @@ export default function Videos() {
                           e.preventDefault();
                           setSelectedVideo(video);
                         }}
-                        className="w-full h-8 text-xs hover:bg-gray-100"
+                        className="w-full h-7 text-xs mt-auto bg-blue-50 hover:bg-blue-100 text-blue-600"
                       >
                         <Plus className="w-3 h-3 mr-1" />
-                        Playlist
+                        Add to List
                       </Button>
                     </div>
                   </CardContent>
