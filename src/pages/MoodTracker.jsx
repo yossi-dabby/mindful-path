@@ -19,7 +19,14 @@ export default function MoodTracker() {
 
   const { data: moodEntries, isLoading } = useQuery({
     queryKey: ['moodEntries', dateRange],
-    queryFn: () => base44.entities.MoodEntry.list('-date', dateRange * 2),
+    queryFn: async () => {
+      try {
+        return await base44.entities.MoodEntry.list('-date', dateRange * 2);
+      } catch (error) {
+        console.error('Error fetching mood entries:', error);
+        return [];
+      }
+    },
     initialData: []
   });
 
