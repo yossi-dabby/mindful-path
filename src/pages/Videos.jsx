@@ -1,13 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { Card, CardContent } from '@/components/ui/card';
-import { Play } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Play, Plus, List } from 'lucide-react';
 import { motion } from 'framer-motion';
+import CreatePlaylistModal from '../components/playlists/CreatePlaylistModal';
+import AddToPlaylistModal from '../components/playlists/AddToPlaylistModal';
 
 export default function Videos() {
+  const [showCreatePlaylist, setShowCreatePlaylist] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState(null);
+
   const { data: videos, isLoading } = useQuery({
     queryKey: ['videos'],
     queryFn: () => base44.entities.Video.list('order', 100),
@@ -18,13 +24,35 @@ export default function Videos() {
     <div className="min-h-screen bg-warm-gradient">
       <div className="page-container max-w-7xl">
         {/* Header */}
-        <div className="mb-8 mt-6">
-          <h1 className="text-3xl font-semibold mb-2" style={{ color: 'rgb(var(--text))' }}>
-            CBT Video Library
-          </h1>
-          <p className="text-base" style={{ color: 'rgb(var(--muted))' }}>
-            Short guided videos to understand and practice CBT step by step
-          </p>
+        <div className="flex items-center justify-between mb-8 mt-6">
+          <div>
+            <h1 className="text-3xl font-semibold mb-2" style={{ color: 'rgb(var(--text))' }}>
+              CBT Video Library
+            </h1>
+            <p className="text-base" style={{ color: 'rgb(var(--muted))' }}>
+              Short guided videos to understand and practice CBT step by step
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowCreatePlaylist(true)}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              New Playlist
+            </Button>
+            <Link to={createPageUrl('Playlists')}>
+              <Button
+                style={{ 
+                  backgroundColor: 'rgb(var(--accent))',
+                  color: 'rgb(var(--accent-contrast))'
+                }}
+              >
+                <List className="w-4 h-4 mr-2" />
+                My Playlists
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Loading State */}
@@ -52,15 +80,14 @@ export default function Videos() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
               >
-                <Link 
-                  to={`${createPageUrl('VideoPlayer')}?videoUrl=${encodeURIComponent(video.videoUrl)}&title=${encodeURIComponent(video.title)}`}
-                  className="block group"
-                >
-                  <Card className="border-0 shadow-soft hover:shadow-lg transition-calm overflow-hidden" style={{ 
-                    borderRadius: 'var(--r-lg)',
-                    backgroundColor: 'rgb(var(--surface))'
-                  }}>
-                    <CardContent className="p-0">
+                <Card className="border-0 shadow-soft hover:shadow-lg transition-calm overflow-hidden group" style={{ 
+                  borderRadius: 'var(--r-lg)',
+                  backgroundColor: 'rgb(var(--surface))'
+                }}>
+                  <CardContent className="p-0">
+                    <Link 
+                      to={`${createPageUrl('VideoPlayer')}?videoUrl=${encodeURIComponent(video.videoUrl)}&title=${encodeURIComponent(video.title)}`}
+                    >
                       {/* Thumbnail with Play Overlay */}
                       <div className="relative aspect-square overflow-hidden">
                         <img
@@ -80,25 +107,48 @@ export default function Videos() {
                           </div>
                         </div>
                       </div>
+                    </Link>
 
-                      {/* Video Info */}
-                      <div className="p-4">
-                        <h3 className="text-base font-semibold mb-1 line-clamp-2" style={{ color: 'rgb(var(--text))' }}>
-                          {video.title}
-                        </h3>
-                        {video.category && (
-                          <p className="text-sm" style={{ color: 'rgb(var(--muted))' }}>
-                            {video.category}
-                          </p>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                    {/* Video Info */}
+                    <div className="p-4">
+                      <h3 className="text-base font-semibold mb-1 line-clamp-2" style={{ color: 'rgb(var(--text))' }}>
+                        {video.title}
+                      </h3>
+                      {video.category && (
+                        <p className="text-sm mb-3" style={{ color: 'rgb(var(--muted))' }}>
+                          {video.category}
+                        </p>
+                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setSelectedVideo(video);
+                        }}
+                        className="w-full"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add to Playlist
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </motion.div>
             ))}
           </div>
         )}
+
+        <CreatePlaylistModal 
+          isOpen={showCreatePlaylist} 
+          onClose={() => setShowCreatePlaylist(false)} 
+        />
+        
+        <AddToPlaylistModal 
+          isOpen={!!selectedVideo} 
+          onClose={() => setSelectedVideo(null)} 
+          video={selectedVideo}
+        />
       </div>
     </div>
   );

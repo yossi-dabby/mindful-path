@@ -15,6 +15,8 @@ import StarterPath from './pages/StarterPath';
 import TestSetupGuide from './pages/TestSetupGuide';
 import Videos from './pages/Videos';
 import VideoPlayer from './pages/VideoPlayer';
+import Playlists from './pages/Playlists';
+import PlaylistDetail from './pages/PlaylistDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -36,6 +38,8 @@ export const PAGES = {
     "TestSetupGuide": TestSetupGuide,
     "Videos": Videos,
     "VideoPlayer": VideoPlayer,
+    "Playlists": Playlists,
+    "PlaylistDetail": PlaylistDetail,
 }
 
 export const pagesConfig = {
