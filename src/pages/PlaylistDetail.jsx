@@ -42,6 +42,16 @@ export default function PlaylistDetail() {
     enabled: playlistVideos.length > 0
   });
 
+  const { data: allProgress = [] } = useQuery({
+    queryKey: ['allVideoProgress'],
+    queryFn: () => base44.entities.VideoProgress.list(),
+    initialData: []
+  });
+
+  const getVideoProgress = (videoId) => {
+    return allProgress.find(p => p.video_id === videoId);
+  };
+
   const removeMutation = useMutation({
     mutationFn: async (videoId) => {
       const link = playlistVideos.find(pv => pv.video_id === videoId);
@@ -134,7 +144,7 @@ export default function PlaylistDetail() {
                   backgroundColor: 'rgb(var(--surface))'
                 }}>
                   <CardContent className="p-0">
-                    <Link to={`${createPageUrl('VideoPlayer')}?videoUrl=${encodeURIComponent(video.videoUrl)}&title=${encodeURIComponent(video.title)}`}>
+                    <Link to={`${createPageUrl('VideoPlayer')}?videoUrl=${encodeURIComponent(video.videoUrl)}&title=${encodeURIComponent(video.title)}&videoId=${video.id}`}>
                       <div className="relative aspect-square overflow-hidden">
                         <img
                           src={video.thumbnailUrl}
@@ -152,6 +162,27 @@ export default function PlaylistDetail() {
                             <Play className="w-8 h-8 text-white fill-white" />
                           </div>
                         </div>
+                        {(() => {
+                          const progress = getVideoProgress(video.id);
+                          return progress && progress.progress > 0 && (
+                            <>
+                              {progress.completed && (
+                                <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                                  ✓ Completed
+                                </div>
+                              )}
+                              <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/30">
+                                <div 
+                                  className="h-full transition-all duration-300"
+                                  style={{ 
+                                    width: `${progress.progress}%`,
+                                    backgroundColor: 'rgb(var(--accent))'
+                                  }}
+                                />
+                              </div>
+                            </>
+                          );
+                        })()}
                         <Button
                           variant="ghost"
                           size="icon"

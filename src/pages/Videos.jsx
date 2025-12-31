@@ -20,6 +20,16 @@ export default function Videos() {
     initialData: []
   });
 
+  const { data: allProgress = [] } = useQuery({
+    queryKey: ['allVideoProgress'],
+    queryFn: () => base44.entities.VideoProgress.list(),
+    initialData: []
+  });
+
+  const getVideoProgress = (videoId) => {
+    return allProgress.find(p => p.video_id === videoId);
+  };
+
   return (
     <div className="min-h-screen bg-warm-gradient">
       <div className="page-container max-w-7xl">
@@ -86,7 +96,7 @@ export default function Videos() {
                 }}>
                   <CardContent className="p-0">
                     <Link 
-                      to={`${createPageUrl('VideoPlayer')}?videoUrl=${encodeURIComponent(video.videoUrl)}&title=${encodeURIComponent(video.title)}`}
+                      to={`${createPageUrl('VideoPlayer')}?videoUrl=${encodeURIComponent(video.videoUrl)}&title=${encodeURIComponent(video.title)}&videoId=${video.id}`}
                     >
                       {/* Thumbnail with Play Overlay */}
                       <div className="relative aspect-square overflow-hidden">
@@ -106,6 +116,27 @@ export default function Videos() {
                             <Play className="w-8 h-8 text-white fill-white" />
                           </div>
                         </div>
+                        {(() => {
+                          const progress = getVideoProgress(video.id);
+                          return progress && progress.progress > 0 && (
+                            <>
+                              {progress.completed && (
+                                <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                                  ✓ Completed
+                                </div>
+                              )}
+                              <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/30">
+                                <div 
+                                  className="h-full transition-all duration-300"
+                                  style={{ 
+                                    width: `${progress.progress}%`,
+                                    backgroundColor: 'rgb(var(--accent))'
+                                  }}
+                                />
+                              </div>
+                            </>
+                          );
+                        })()}
                       </div>
                     </Link>
 

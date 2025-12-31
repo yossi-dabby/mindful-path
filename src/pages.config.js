@@ -8,15 +8,15 @@ import Goals from './pages/Goals';
 import Home from './pages/Home';
 import Journal from './pages/Journal';
 import MoodTracker from './pages/MoodTracker';
+import PlaylistDetail from './pages/PlaylistDetail';
+import Playlists from './pages/Playlists';
 import Progress from './pages/Progress';
 import Resources from './pages/Resources';
 import Settings from './pages/Settings';
 import StarterPath from './pages/StarterPath';
 import TestSetupGuide from './pages/TestSetupGuide';
-import Videos from './pages/Videos';
 import VideoPlayer from './pages/VideoPlayer';
-import Playlists from './pages/Playlists';
-import PlaylistDetail from './pages/PlaylistDetail';
+import Videos from './pages/Videos';
 import __Layout from './Layout.jsx';
 
 
@@ -31,15 +31,15 @@ export const PAGES = {
     "Home": Home,
     "Journal": Journal,
     "MoodTracker": MoodTracker,
+    "PlaylistDetail": PlaylistDetail,
+    "Playlists": Playlists,
     "Progress": Progress,
     "Resources": Resources,
     "Settings": Settings,
     "StarterPath": StarterPath,
     "TestSetupGuide": TestSetupGuide,
-    "Videos": Videos,
     "VideoPlayer": VideoPlayer,
-    "Playlists": Playlists,
-    "PlaylistDetail": PlaylistDetail,
+    "Videos": Videos,
 }
 
 export const pagesConfig = {
