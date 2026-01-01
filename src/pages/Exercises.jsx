@@ -84,9 +84,9 @@ export default function Exercises() {
   const filteredExercises = exercises.filter((exercise) => {
     const matchesCategory = selectedCategory === 'all' || exercise.category === selectedCategory;
     const matchesSearch = !searchQuery || 
-      exercise.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      exercise.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      exercise.tags?.some(tag => tag && typeof tag === 'string' && tag.toLowerCase().includes(searchQuery.toLowerCase()));
+      (exercise.title && exercise.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (exercise.description && exercise.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (exercise.tags && exercise.tags.some(tag => tag && typeof tag === 'string' && tag.toLowerCase().includes(searchQuery.toLowerCase())));
     const matchesFavorite = !showFavoritesOnly || exercise.favorite;
     
     return matchesCategory && matchesSearch && matchesFavorite;

@@ -77,7 +77,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <Badge variant="outline" className="capitalize">
-                    {exercise.difficulty}
+                    {exercise.difficulty || 'beginner'}
                   </Badge>
                   {exercise.difficulty === 'advanced' && <PremiumBadge />}
                   {exercise.duration_options?.length > 0 ? (
