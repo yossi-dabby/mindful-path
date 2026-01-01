@@ -135,7 +135,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               <TabsContent value="overview" className="space-y-4">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-2">About This Exercise</h3>
-                  <p className="text-gray-600 leading-relaxed">{exercise.description}</p>
+                  <p className="text-gray-600 leading-relaxed">{exercise.description || ''}</p>
                   {exercise.detailed_description && (
                     <p className="text-gray-600 leading-relaxed mt-3">{exercise.detailed_description}</p>
                   )}
@@ -161,12 +161,10 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                   <div>
                     <h3 className="text-sm font-medium text-gray-700 mb-2">Helps With</h3>
                     <div className="flex flex-wrap gap-2">
-                      {exercise.tags.map((tag, i) => (
-                        tag && typeof tag === 'string' && (
-                          <Badge key={i} variant="secondary" className="capitalize">
-                            {tag}
-                          </Badge>
-                        )
+                      {exercise.tags.filter(tag => tag && typeof tag === 'string').map((tag, i) => (
+                        <Badge key={i} variant="secondary" className="capitalize">
+                          {tag}
+                        </Badge>
                       ))}
                     </div>
                   </div>
@@ -230,7 +228,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                     <h3 className="text-lg font-semibold text-gray-800 mb-3">Instructions</h3>
                     <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                       <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                        {exercise.instructions}
+                        {exercise.instructions || ''}
                       </p>
                     </div>
                   </div>
@@ -261,19 +259,17 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">Key Benefits</h3>
                   {exercise.benefits?.length > 0 ? (
                     <div className="space-y-3">
-                      {exercise.benefits.map((benefit, i) => (
-                        benefit && typeof benefit === 'string' && (
-                          <motion.div
-                            key={i}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.1 }}
-                            className="flex items-start gap-3 bg-green-50 rounded-lg p-4 border border-green-200"
-                          >
-                            <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                            <p className="text-gray-700">{benefit}</p>
-                          </motion.div>
-                        )
+                      {exercise.benefits.filter(benefit => benefit && typeof benefit === 'string').map((benefit, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.1 }}
+                          className="flex items-start gap-3 bg-green-50 rounded-lg p-4 border border-green-200"
+                        >
+                          <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                          <p className="text-gray-700">{benefit}</p>
+                        </motion.div>
                       ))}
                     </div>
                   ) : (
@@ -290,19 +286,17 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">Helpful Tips</h3>
                   {exercise.tips?.length > 0 ? (
                     <div className="space-y-3">
-                      {exercise.tips.map((tip, i) => (
-                        tip && typeof tip === 'string' && (
-                          <motion.div
-                            key={i}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.1 }}
-                            className="flex items-start gap-3 bg-blue-50 rounded-lg p-4 border border-blue-200"
-                          >
-                            <Lightbulb className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                            <p className="text-gray-700">{tip}</p>
-                          </motion.div>
-                        )
+                      {exercise.tips.filter(tip => tip && typeof tip === 'string').map((tip, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.1 }}
+                          className="flex items-start gap-3 bg-blue-50 rounded-lg p-4 border border-blue-200"
+                        >
+                          <Lightbulb className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                          <p className="text-gray-700">{tip}</p>
+                        </motion.div>
                       ))}
                     </div>
                   ) : (
