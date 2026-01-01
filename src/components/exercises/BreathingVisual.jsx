@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Play, Pause, RotateCcw, X, Volume2, VolumeX } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
 import { motion } from 'framer-motion';
 
 export default function BreathingVisual({ exercise, duration, onClose, onComplete }) {
@@ -9,7 +10,9 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
   const [timeRemaining, setTimeRemaining] = useState(duration * 60);
   const [cycleProgress, setCycleProgress] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(50);
   const audioRef = useRef(null);
+  const videoRef = useRef(null);
 
   const pattern = exercise.breathing_pattern || { inhale: 4, hold1: 0, exhale: 4, hold2: 0 };
   const totalCycleTime = pattern.inhale + pattern.hold1 + pattern.exhale + pattern.hold2;
@@ -100,80 +103,60 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
     }
   };
 
+  const handleVolumeChange = (value) => {
+    const newVolume = value[0];
+    setVolume(newVolume);
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume / 100;
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 z-50 flex items-center justify-center overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0">
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.15, 0.25, 0.15],
-            x: [0, 100, 0],
-            y: [0, -50, 0]
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-400 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.2, 0.3, 0.2],
-            x: [0, -80, 0],
-            y: [0, 60, 0]
-          }}
-          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-          className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-purple-400 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.4, 1],
-            opacity: [0.15, 0.2, 0.15],
-            x: [0, 60, 0],
-            y: [0, -80, 0]
-          }}
-          transition={{ duration: 30, repeat: Infinity, ease: "easeInOut", delay: 4 }}
-          className="absolute top-1/2 right-1/3 w-80 h-80 bg-pink-400 rounded-full blur-3xl"
-        />
-      </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden">
+      {/* Background Video */}
+      <video
+        ref={videoRef}
+        className="absolute inset-0 w-full h-full object-cover"
+        src="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/14657405_1920_1080_30fps.mp4?alt=media&token=953136b7-37e5-4f9e-9940-1fa3807d9819"
+        autoPlay
+        loop
+        muted
+        playsInline
+      />
 
-      {/* Floating Particles */}
-      {[...Array(20)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-2 h-2 bg-white/20 rounded-full"
-          animate={{
-            y: [Math.random() * window.innerHeight, -100],
-            x: [Math.random() * window.innerWidth, Math.random() * window.innerWidth],
-            opacity: [0, 1, 0]
-          }}
-          transition={{
-            duration: Math.random() * 10 + 10,
-            repeat: Infinity,
-            delay: Math.random() * 5
-          }}
-        />
-      ))}
+      {/* Dark Overlay for Readability */}
+      <div className="absolute inset-0 bg-black/50" />
 
-      {/* Background Audio */}
-      <audio ref={audioRef} loop>
-        <source src="https://assets.mixkit.co/music/preview/mixkit-meditation-time-3984.mp3" type="audio/mpeg" />
+      {/* Ambient Audio */}
+      <audio ref={audioRef} loop preload="auto">
+        <source src="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/relaxation-for-relaxing-145469.mp3?alt=media&token=069ea89b-e8d9-4d3b-830f-947a4ab2e22b" type="audio/mpeg" />
       </audio>
 
       {/* Controls - Top Bar */}
       <div className="absolute top-6 left-0 right-0 flex items-center justify-between px-8 z-10">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleMute}
-          className="text-white/80 hover:text-white hover:bg-white/10 backdrop-blur-xl"
-        >
-          {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-        </Button>
+        <div className="flex items-center gap-4 bg-black/30 backdrop-blur-xl rounded-full px-4 py-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleMute}
+            className="text-white/80 hover:text-white hover:bg-white/10 rounded-full"
+          >
+            {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+          </Button>
+          <Slider
+            value={[volume]}
+            onValueChange={handleVolumeChange}
+            max={100}
+            step={1}
+            className="w-24"
+            disabled={isMuted}
+          />
+        </div>
         <Button
           variant="ghost"
           size="icon"
           onClick={onClose}
-          className="text-white/80 hover:text-white hover:bg-white/10 backdrop-blur-xl"
+          className="text-white/80 hover:text-white hover:bg-white/10 backdrop-blur-xl rounded-full"
         >
           <X className="w-6 h-6" />
         </Button>
