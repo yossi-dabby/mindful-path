@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Wind, Anchor, Brain, TrendingUp, Sparkles, Heart, Search, Star } from 'lucide-react';
 import ExerciseDetail from '../components/exercises/ExerciseDetail';
 import ExerciseLibrary from '../components/exercises/ExerciseLibrary';
+import AiExerciseRecommendations from '../components/exercises/AiExerciseRecommendations';
 
 const categoryIcons = {
   breathing: Wind,
@@ -168,6 +169,16 @@ export default function Exercises() {
           ))}
         </TabsList>
       </Tabs>
+
+      {/* AI Recommendations */}
+      {!showFavoritesOnly && !searchQuery && selectedCategory === 'all' && (
+        <div className="mb-6">
+          <AiExerciseRecommendations 
+            exercises={exercises}
+            onSelectExercise={setSelectedExercise}
+          />
+        </div>
+      )}
 
       {/* Exercises Grid */}
       {filteredExercises.length === 0 ? (
