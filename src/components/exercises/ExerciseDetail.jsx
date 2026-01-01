@@ -65,7 +65,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
-                  <CardTitle className="text-2xl">{exercise.title}</CardTitle>
+                  <CardTitle className="text-2xl">{exercise.title || 'Untitled Exercise'}</CardTitle>
                   <button
                     onClick={() => onToggleFavorite?.(exercise)}
                     className="p-2 rounded-full hover:bg-white/50 transition-colors"
@@ -212,7 +212,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                             {step.title && (
                               <h4 className="font-semibold text-gray-800 mb-1">{step.title}</h4>
                             )}
-                            <p className="text-gray-700">{step.description}</p>
+                            <p className="text-gray-700">{step.description || ''}</p>
                             {step.duration_seconds && (
                               <p className="text-sm text-gray-500 mt-1">
                                 Duration: {step.duration_seconds} seconds

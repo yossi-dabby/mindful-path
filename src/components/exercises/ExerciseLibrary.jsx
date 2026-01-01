@@ -66,9 +66,9 @@ export default function ExerciseLibrary({ exercises, categoryIcons, categoryColo
                 </div>
 
                 <h3 className="font-semibold text-gray-800 mb-2 text-lg group-hover:text-green-600 transition-colors">
-                  {exercise.title}
+                  {exercise.title || 'Untitled Exercise'}
                 </h3>
-                <p className="text-sm text-gray-600 mb-4 line-clamp-2">{exercise.description}</p>
+                <p className="text-sm text-gray-600 mb-4 line-clamp-2">{exercise.description || ''}</p>
 
                 {/* Tags */}
                 {exercise.tags?.length > 0 && (
