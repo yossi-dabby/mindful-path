@@ -122,13 +122,14 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
             </p>
             <div className="flex gap-3 justify-center">
               <Button
-                onClick={generateSuggestions}
+                onClick={() => generateSuggestions()}
+                disabled={isLoading}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
               >
                 <Sparkles className="w-4 h-4 mr-2" />
                 Generate Goal Suggestions
               </Button>
-              <Button onClick={onClose} variant="outline">
+              <Button onClick={() => onClose()} variant="outline">
                 Cancel
               </Button>
             </div>

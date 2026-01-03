@@ -163,10 +163,10 @@ export default function Chat() {
 
   const deleteConversationMutation = useMutation({
     mutationFn: async (conversationId) => {
-      // Mark as deleted in localStorage for permanent UI removal
-      addDeletedSession(conversationId);
-      // Also call backend delete (even if it doesn't cascade to messages)
+      // First call backend delete
       await base44.agents.deleteConversation(conversationId);
+      // Then mark as deleted in localStorage as additional safeguard
+      addDeletedSession(conversationId);
       return conversationId;
     },
     onSuccess: (deletedId) => {
@@ -174,9 +174,12 @@ export default function Chat() {
         setCurrentConversationId(null);
         setMessages([]);
       }
-      refetchConversations();
+      // Invalidate and refetch to ensure UI updates
       queryClient.invalidateQueries(['conversations']);
       queryClient.invalidateQueries(['currentConversation', deletedId]);
+      setTimeout(() => {
+        refetchConversations();
+      }, 100);
     }
   });
 

@@ -133,32 +133,40 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
       </audio>
 
       {/* Controls - Top Bar */}
-      <div className="absolute top-6 left-0 right-0 flex items-center justify-between px-8 z-10">
-        <div className="flex items-center gap-4 bg-black/30 backdrop-blur-xl rounded-full px-4 py-2">
+      <div className="absolute top-4 md:top-6 left-0 right-0 flex items-center justify-between px-4 md:px-8 z-50 pointer-events-none">
+        <div className="flex items-center gap-2 md:gap-4 bg-black/30 backdrop-blur-xl rounded-full px-3 md:px-4 py-2 pointer-events-auto">
           <Button
             variant="ghost"
             size="icon"
-            onClick={toggleMute}
-            className="text-white/80 hover:text-white hover:bg-white/10 rounded-full"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleMute();
+            }}
+            className="text-white/80 hover:text-white hover:bg-white/10 rounded-full h-8 w-8 md:h-10 md:w-10"
           >
-            {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+            {isMuted ? <VolumeX className="w-4 h-4 md:w-5 md:h-5" /> : <Volume2 className="w-4 h-4 md:w-5 md:h-5" />}
           </Button>
           <Slider
             value={[volume]}
             onValueChange={handleVolumeChange}
             max={100}
             step={1}
-            className="w-24"
+            className="w-16 md:w-24"
             disabled={isMuted}
           />
         </div>
         <Button
           variant="ghost"
           size="icon"
-          onClick={onClose}
-          className="text-white/80 hover:text-white hover:bg-white/10 backdrop-blur-xl rounded-full"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onClose();
+          }}
+          className="text-white/80 hover:text-white hover:bg-white/10 backdrop-blur-xl rounded-full h-8 w-8 md:h-10 md:w-10 pointer-events-auto"
         >
-          <X className="w-6 h-6" />
+          <X className="w-5 h-5 md:w-6 md:h-6" />
         </Button>
       </div>
 
