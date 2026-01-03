@@ -8,7 +8,7 @@ import { Sparkles, Loader2, BookOpen, Dumbbell, MessageSquare, TrendingUp, Exter
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { motion } from 'framer-motion';
-import { normalizeFeedData, safeJoin } from '../../utils/aiDataNormalizer';
+import { normalizeFeedData, safeJoin } from '../utils/aiDataNormalizer';
 
 export default function PersonalizedContentFeed() {
   const [feed, setFeed] = useState(null);
