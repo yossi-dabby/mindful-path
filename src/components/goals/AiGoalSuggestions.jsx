@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, Loader2, Target, TrendingUp, Calendar, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { normalizeGoalData, safeJoin } from '@/components/utils/aiDataNormalizer';
+import { normalizeGoalData, safeJoin, safeArray, safeText } from '@/components/utils/aiDataNormalizer';
 
 export default function AiGoalSuggestions({ onSelectGoal, onClose }) {
   const [suggestions, setSuggestions] = useState(null);
@@ -176,7 +176,7 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
           </div>
 
           <div className="space-y-6 overflow-y-auto flex-1 pr-2">
-            {suggestions?.goals?.map((goal, index) => (
+            {safeArray(suggestions?.goals).map((goal, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
@@ -236,14 +236,14 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
                     </div>
 
                     {/* Initial Milestones */}
-                    {goal.milestones?.length > 0 && (
+                    {safeArray(goal.milestones).length > 0 && (
                       <div className="bg-white p-4 rounded-lg border mb-4">
                         <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
                           <TrendingUp className="w-4 h-4 text-orange-600" />
                           First Steps
                         </h4>
                         <ul className="space-y-1">
-                          {goal.milestones.map((milestone, i) => (
+                          {safeArray(goal.milestones).map((milestone, i) => (
                             <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
                               <span className="text-orange-600 mt-0.5">•</span>
                               <span>{typeof milestone === 'string' ? milestone : milestone.title || milestone.description || 'Step'}</span>
@@ -255,11 +255,11 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
 
                     <Button
                       onClick={() => onSelectGoal({
-                        title: goal.title,
-                        category: goal.category,
-                        description: goal.description,
-                        milestones: goal.milestones.map(m => ({ 
-                          title: typeof m === 'string' ? m : m.title || m.description || 'Step', 
+                        title: safeText(goal.title, 'New Goal'),
+                        category: safeText(goal.category, 'lifestyle'),
+                        description: safeText(goal.description, ''),
+                        milestones: safeArray(goal.milestones).map((m, idx) => ({ 
+                          title: typeof m === 'string' ? safeText(m, `Step ${idx + 1}`) : safeText(m.title || m.description || m.name, `Step ${idx + 1}`), 
                           completed: false 
                         }))
                       })}

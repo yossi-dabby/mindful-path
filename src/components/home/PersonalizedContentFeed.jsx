@@ -8,7 +8,7 @@ import { Sparkles, Loader2, BookOpen, Dumbbell, MessageSquare, TrendingUp, Exter
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { motion } from 'framer-motion';
-import { normalizeFeedData, safeJoin } from '@/components/utils/aiDataNormalizer';
+import { normalizeFeedData, safeJoin, safeArray, safeText } from '@/components/utils/aiDataNormalizer';
 
 export default function PersonalizedContentFeed({ userInterests = [], contentType = 'all', sortBy = 'relevance' }) {
   const [feed, setFeed] = useState(null);
@@ -320,7 +320,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
       )}
 
       {/* Recommended Exercises */}
-      {showExercises && feed.recommended_exercises?.length > 0 && (
+      {showExercises && safeArray(feed.recommended_exercises).length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -333,7 +333,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
                 Recommended for You
               </h3>
               <div className="space-y-3">
-                {feed.recommended_exercises.map((rec, i) => {
+                {safeArray(feed.recommended_exercises).map((rec, i) => {
                   const exercise = recommendedExercisesList.find(ex => ex.category === rec.category);
                   return (
                     <div key={i} className="bg-green-50 p-3 rounded-lg border border-green-200">
@@ -368,7 +368,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
       )}
 
       {/* Relevant Resources */}
-      {showResources && feed.relevant_resources?.length > 0 && (
+      {showResources && safeArray(feed.relevant_resources).length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -381,7 +381,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
                 Articles & Resources
               </h3>
               <div className="space-y-3">
-                {feed.relevant_resources.map((rec, i) => {
+                {safeArray(feed.relevant_resources).map((rec, i) => {
                   const resource = recommendedResourcesList.find(res => res.category === rec.category);
                   return (
                     <div key={i} className="bg-indigo-50 p-3 rounded-lg border border-indigo-200">
@@ -416,7 +416,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
       )}
 
       {/* Community Highlights */}
-      {showCommunity && feed.community_highlights?.length > 0 && (
+      {showCommunity && safeArray(feed.community_highlights).length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -429,7 +429,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
                 Community Highlights
               </h3>
               <div className="space-y-3">
-                {feed.community_highlights.map((highlight, i) => (
+                {safeArray(feed.community_highlights).map((highlight, i) => (
                   <div key={i} className="bg-teal-50 p-3 rounded-lg border border-teal-200">
                     <p className="font-medium text-sm text-gray-800 mb-1">{highlight.topic}</p>
                     <p className="text-xs text-gray-600">{highlight.description}</p>
