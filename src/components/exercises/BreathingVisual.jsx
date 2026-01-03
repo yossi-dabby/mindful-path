@@ -199,7 +199,7 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
               duration: phase === 'inhale' ? pattern.inhale : phase === 'exhale' ? pattern.exhale : 0.5,
               ease: "easeInOut"
             }}
-            className="relative w-72 h-72 md:w-80 md:h-80 rounded-full flex items-center justify-center"
+            className="relative w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center"
             style={{
               background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(236, 72, 153, 0.3))',
               backdropFilter: 'blur(20px)',
@@ -211,14 +211,14 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
                 key={phase}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-4xl md:text-5xl font-light mb-4 tracking-wide"
+                className="text-base md:text-xl font-light mb-1 tracking-wide"
               >
                 {getPhaseText()}
               </motion.p>
               <motion.p
                 animate={{ scale: [1, 1.1, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
-                className="text-7xl md:text-8xl font-bold tracking-wider"
+                className="text-2xl md:text-3xl font-bold tracking-wider"
               >
                 {formatTime(timeRemaining)}
               </motion.p>
