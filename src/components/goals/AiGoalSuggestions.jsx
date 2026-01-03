@@ -209,34 +209,46 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
                     </div>
 
                     {/* SMART Breakdown */}
-                    <div className="bg-white p-4 rounded-lg border mb-4">
-                      <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-600" />
-                        SMART Breakdown
-                      </h4>
-                      <div className="space-y-2 text-sm">
-                        <div>
-                          <span className="font-semibold text-gray-700">Specific:</span>
-                          <p className="text-gray-600">{goal.smart_breakdown.specific}</p>
-                        </div>
-                        <div>
-                          <span className="font-semibold text-gray-700">Measurable:</span>
-                          <p className="text-gray-600">{goal.smart_breakdown.measurable}</p>
-                        </div>
-                        <div>
-                          <span className="font-semibold text-gray-700">Achievable:</span>
-                          <p className="text-gray-600">{goal.smart_breakdown.achievable}</p>
-                        </div>
-                        <div>
-                          <span className="font-semibold text-gray-700">Relevant:</span>
-                          <p className="text-gray-600">{goal.smart_breakdown.relevant}</p>
-                        </div>
-                        <div>
-                          <span className="font-semibold text-gray-700">Time-bound:</span>
-                          <p className="text-gray-600">{goal.smart_breakdown.time_bound}</p>
+                    {goal.smart_breakdown && (
+                      <div className="bg-white p-4 rounded-lg border mb-4">
+                        <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          SMART Breakdown
+                        </h4>
+                        <div className="space-y-2 text-sm">
+                          {goal.smart_breakdown.specific && (
+                            <div>
+                              <span className="font-semibold text-gray-700">Specific:</span>
+                              <p className="text-gray-600">{goal.smart_breakdown.specific}</p>
+                            </div>
+                          )}
+                          {goal.smart_breakdown.measurable && (
+                            <div>
+                              <span className="font-semibold text-gray-700">Measurable:</span>
+                              <p className="text-gray-600">{goal.smart_breakdown.measurable}</p>
+                            </div>
+                          )}
+                          {goal.smart_breakdown.achievable && (
+                            <div>
+                              <span className="font-semibold text-gray-700">Achievable:</span>
+                              <p className="text-gray-600">{goal.smart_breakdown.achievable}</p>
+                            </div>
+                          )}
+                          {goal.smart_breakdown.relevant && (
+                            <div>
+                              <span className="font-semibold text-gray-700">Relevant:</span>
+                              <p className="text-gray-600">{goal.smart_breakdown.relevant}</p>
+                            </div>
+                          )}
+                          {goal.smart_breakdown.time_bound && (
+                            <div>
+                              <span className="font-semibold text-gray-700">Time-bound:</span>
+                              <p className="text-gray-600">{goal.smart_breakdown.time_bound}</p>
+                            </div>
+                          )}
                         </div>
                       </div>
-                    </div>
+                    )}
 
                     {/* Initial Milestones */}
                     {safeArray(goal.milestones).length > 0 && (

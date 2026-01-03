@@ -222,21 +222,21 @@ export function normalizeGoalData(goal) {
     // Normalize SMART criteria if present
     smart_criteria: goal.smart_criteria && typeof goal.smart_criteria === 'object' 
       ? {
-          specific: safeText(goal.smart_criteria.specific, ''),
-          measurable: safeText(goal.smart_criteria.measurable, ''),
-          achievable: safeText(goal.smart_criteria.achievable, ''),
-          relevant: safeText(goal.smart_criteria.relevant, ''),
-          time_bound: safeText(goal.smart_criteria.time_bound, '')
+          specific: safeText(goal.smart_criteria.specific || goal.smart_criteria.Specific, ''),
+          measurable: safeText(goal.smart_criteria.measurable || goal.smart_criteria.Measurable, ''),
+          achievable: safeText(goal.smart_criteria.achievable || goal.smart_criteria.Achievable, ''),
+          relevant: safeText(goal.smart_criteria.relevant || goal.smart_criteria.Relevant, ''),
+          time_bound: safeText(goal.smart_criteria.time_bound || goal.smart_criteria['Time-bound'] || goal.smart_criteria.TimeBound, '')
         }
       : null,
     // Normalize smart_breakdown if present
     smart_breakdown: goal.smart_breakdown && typeof goal.smart_breakdown === 'object'
       ? {
-          specific: safeText(goal.smart_breakdown.specific, ''),
-          measurable: safeText(goal.smart_breakdown.measurable, ''),
-          achievable: safeText(goal.smart_breakdown.achievable, ''),
-          relevant: safeText(goal.smart_breakdown.relevant, ''),
-          time_bound: safeText(goal.smart_breakdown.time_bound, '')
+          specific: safeText(goal.smart_breakdown.specific || goal.smart_breakdown.Specific, ''),
+          measurable: safeText(goal.smart_breakdown.measurable || goal.smart_breakdown.Measurable, ''),
+          achievable: safeText(goal.smart_breakdown.achievable || goal.smart_breakdown.Achievable, ''),
+          relevant: safeText(goal.smart_breakdown.relevant || goal.smart_breakdown.Relevant, ''),
+          time_bound: safeText(goal.smart_breakdown.time_bound || goal.smart_breakdown['Time-bound'] || goal.smart_breakdown.TimeBound, '')
         }
       : null
   };
