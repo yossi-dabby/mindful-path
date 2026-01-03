@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Target, Calendar, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { Target, Calendar, ChevronRight, CheckCircle2, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 
@@ -24,7 +24,7 @@ const stageLabels = {
   completed: 'Completed'
 };
 
-export default function CoachingSessionList({ sessions, onSelectSession }) {
+export default function CoachingSessionList({ sessions, onSelectSession, onDeleteSession }) {
   if (sessions.length === 0) {
     return (
       <Card className="border-0 shadow-xl">
@@ -50,10 +50,9 @@ export default function CoachingSessionList({ sessions, onSelectSession }) {
             transition={{ delay: index * 0.1 }}
           >
             <Card 
-              className="border-0 shadow-xl hover:shadow-2xl transition-all cursor-pointer group"
-              onClick={() => onSelectSession(session)}
+              className="border-0 shadow-xl hover:shadow-2xl transition-all group"
             >
-              <CardContent className="p-6">
+              <CardContent className="p-6 cursor-pointer" onClick={() => onSelectSession(session)}>
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-start gap-3 flex-1">
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center flex-shrink-0">
@@ -107,6 +106,20 @@ export default function CoachingSessionList({ sessions, onSelectSession }) {
                   )}
                 </div>
               </CardContent>
+              <div className="px-6 pb-4 flex justify-end border-t pt-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-red-500 hover:bg-red-50 hover:text-red-600"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteSession(session.id);
+                  }}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete
+                </Button>
+              </div>
             </Card>
           </motion.div>
         );

@@ -100,9 +100,13 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
         }
       });
 
+      if (!response || !response.goals || response.goals.length === 0) {
+        throw new Error('No goal suggestions were generated. Try adding more journal entries or mood check-ins.');
+      }
       setSuggestions(response);
     } catch (error) {
-      console.error('Failed to generate goal suggestions:', error);
+      console.error('Failed to generate goal suggestions:', error.message, error.stack);
+      alert(error.message || 'Failed to generate goal suggestions. Please try again later.');
     } finally {
       setIsLoading(false);
     }

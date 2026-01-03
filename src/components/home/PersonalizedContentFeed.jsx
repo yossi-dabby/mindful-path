@@ -12,6 +12,7 @@ import { motion } from 'framer-motion';
 export default function PersonalizedContentFeed() {
   const [feed, setFeed] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const { data: goals } = useQuery({
     queryKey: ['goals'],
@@ -55,6 +56,7 @@ export default function PersonalizedContentFeed() {
 
   const generateFeed = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const stripHtml = (html) => html?.replace(/<[^>]*>/g, '') || '';
 
@@ -148,9 +150,13 @@ Make it personal, warm, and encouraging. Reference their specific patterns when 
         }
       });
 
+      if (!response || !response.daily_focus) {
+        throw new Error('Invalid response from AI - missing required fields');
+      }
       setFeed(response);
     } catch (error) {
-      console.error('Failed to generate feed:', error);
+      console.error('Failed to generate feed:', error.message, error.stack);
+      setError(error.message || 'Failed to generate personalized feed');
     } finally {
       setIsLoading(false);
     }
@@ -167,7 +173,53 @@ Make it personal, warm, and encouraging. Reference their specific patterns when 
     );
   }
 
-  if (!feed) return null;
+  if (error) {
+    return (
+      <Card className="border-0 shadow-lg border-2 border-red-200">
+        <CardContent className="p-6 text-center">
+          <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-3">
+            <Sparkles className="w-6 h-6 text-red-600" />
+          </div>
+          <h3 className="font-semibold text-gray-800 mb-2">Unable to Generate Feed</h3>
+          <p className="text-sm text-gray-600 mb-4">{error}</p>
+          <Button
+            onClick={generateFeed}
+            variant="outline"
+            size="sm"
+            className="text-purple-600 border-purple-300 hover:bg-purple-50"
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Try Again
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!feed) {
+    return (
+      <Card className="border-0 shadow-lg">
+        <CardContent className="p-6 text-center">
+          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+            <Sparkles className="w-6 h-6 text-gray-400" />
+          </div>
+          <h3 className="font-semibold text-gray-800 mb-2">No Personalized Feed Yet</h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Complete more journal entries and mood check-ins to get personalized recommendations
+          </p>
+          <Button
+            onClick={generateFeed}
+            variant="outline"
+            size="sm"
+            className="text-purple-600 border-purple-300 hover:bg-purple-50"
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Generate Feed
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const recommendedExercisesList = exercises.filter(ex => 
     feed.recommended_exercises?.some(rec => rec.category === ex.category)

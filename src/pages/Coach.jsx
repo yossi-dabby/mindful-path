@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -16,6 +16,7 @@ import PersonalizedInsights from '../components/coaching/PersonalizedInsights';
 export default function Coach() {
   const [showWizard, setShowWizard] = useState(false);
   const [selectedSession, setSelectedSession] = useState(null);
+  const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -55,6 +56,23 @@ export default function Coach() {
   const handleCloseWizard = () => {
     setShowWizard(false);
     setSelectedSession(null);
+  };
+
+  const deleteSessionMutation = useMutation({
+    mutationFn: (sessionId) => base44.entities.CoachingSession.delete(sessionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['coachingSessions']);
+    },
+    onError: (error) => {
+      console.error('Failed to delete session:', error);
+      alert('Failed to delete session. Please try again.');
+    }
+  });
+
+  const handleDeleteSession = (sessionId) => {
+    if (confirm('Are you sure you want to delete this coaching session? This action cannot be undone.')) {
+      deleteSessionMutation.mutate(sessionId);
+    }
   };
 
   return (
@@ -173,6 +191,7 @@ export default function Coach() {
                   <CoachingSessionList 
                     sessions={activeSessions}
                     onSelectSession={handleSelectSession}
+                    onDeleteSession={handleDeleteSession}
                   />
                 </TabsContent>
 
@@ -180,6 +199,7 @@ export default function Coach() {
                   <CoachingSessionList 
                     sessions={completedSessions}
                     onSelectSession={handleSelectSession}
+                    onDeleteSession={handleDeleteSession}
                   />
                 </TabsContent>
               </Tabs>
