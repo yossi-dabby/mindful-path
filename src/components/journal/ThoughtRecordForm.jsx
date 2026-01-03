@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import AiJournalSuggestions from './AiJournalSuggestions';
+import AiDistortionAnalysis from './AiDistortionAnalysis';
 
 const commonEmotions = [
   'Anxious', 'Sad', 'Angry', 'Frustrated', 'Overwhelmed', 'Guilty', 
@@ -60,6 +61,7 @@ export default function ThoughtRecordForm({ entry, template, templates, onClose,
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [savedEntry, setSavedEntry] = useState(null);
+  const [showDistortionAnalysis, setShowDistortionAnalysis] = useState(false);
 
   const { data: goals } = useQuery({
     queryKey: ['activeGoals'],
@@ -380,6 +382,41 @@ Provide:
 
           {step === 3 && (
             <div className="space-y-6">
+              {/* AI Distortion Analysis */}
+              {formData.situation && formData.automatic_thoughts && !showDistortionAnalysis && (
+                <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-xl border-2 border-amber-200">
+                  <div className="text-center">
+                    <Brain className="w-12 h-12 text-amber-600 mx-auto mb-2" />
+                    <h4 className="font-semibold text-gray-800 mb-1">AI Distortion Detection</h4>
+                    <p className="text-sm text-gray-600 mb-3">
+                      Let AI identify cognitive distortions in your thoughts
+                    </p>
+                    <Button
+                      onClick={() => setShowDistortionAnalysis(true)}
+                      variant="outline"
+                      className="border-amber-300 hover:bg-amber-100"
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Analyze Thoughts
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {showDistortionAnalysis && (
+                <AiDistortionAnalysis 
+                  entry={formData}
+                  onApplyDistortions={(distortions, reframe) => {
+                    setFormData({
+                      ...formData,
+                      cognitive_distortions: distortions,
+                      balanced_thought: reframe || formData.balanced_thought
+                    });
+                    setShowDistortionAnalysis(false);
+                  }}
+                />
+              )}
+
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-3 block">
                   Identify thinking patterns (optional)
