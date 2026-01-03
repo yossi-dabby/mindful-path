@@ -63,7 +63,7 @@ export default function Goals() {
   };
 
   return (
-    <div className="min-h-screen p-4 md:p-8 max-w-5xl mx-auto">
+    <div className="min-h-screen p-4 md:p-8 pb-24 max-w-5xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-8 mt-4">
         <div className="flex items-center gap-3">

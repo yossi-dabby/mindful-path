@@ -8,6 +8,7 @@ import { Sparkles, Loader2, BookOpen, Dumbbell, MessageSquare, TrendingUp, Exter
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { motion } from 'framer-motion';
+import { normalizeFeedData, safeJoin } from '../../utils/aiDataNormalizer';
 
 export default function PersonalizedContentFeed() {
   const [feed, setFeed] = useState(null);
@@ -69,15 +70,15 @@ export default function PersonalizedContentFeed() {
 
       const moodContext = moodEntries.map(m => ({
         mood: m.mood,
-        emotions: Array.isArray(m.emotions) ? m.emotions.join(', ') : '',
-        triggers: Array.isArray(m.triggers) ? m.triggers.join(', ') : '',
-        activities: Array.isArray(m.activities) ? m.activities.join(', ') : ''
+        emotions: safeJoin(m.emotions),
+        triggers: safeJoin(m.triggers),
+        activities: safeJoin(m.activities)
       }));
 
       const journalContext = journalEntries.map(e => ({
-        emotions: Array.isArray(e.emotions) ? e.emotions.join(', ') : '',
-        distortions: Array.isArray(e.cognitive_distortions) ? e.cognitive_distortions.join(', ') : '',
-        tags: Array.isArray(e.tags) ? e.tags.join(', ') : ''
+        emotions: safeJoin(e.emotions),
+        distortions: safeJoin(e.cognitive_distortions),
+        tags: safeJoin(e.tags)
       }));
 
       const exerciseCategories = [...new Set(exercises.map(e => e.category))];
@@ -154,7 +155,10 @@ Make it personal, warm, and encouraging. Reference their specific patterns when 
       if (!response || !response.daily_focus) {
         throw new Error('Invalid response from AI - missing required fields');
       }
-      setFeed(response);
+      
+      // Normalize the feed data to ensure all arrays are valid
+      const normalizedFeed = normalizeFeedData(response);
+      setFeed(normalizedFeed);
     } catch (error) {
       console.error('Failed to generate feed:', error.message, error.stack);
       setError(error.message || 'Failed to generate personalized feed');

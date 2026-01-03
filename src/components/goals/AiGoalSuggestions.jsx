@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, Loader2, Target, TrendingUp, Calendar, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { normalizeGoalData, safeJoin } from '../../utils/aiDataNormalizer';
 
 export default function AiGoalSuggestions({ onSelectGoal, onClose }) {
   const [suggestions, setSuggestions] = useState(null);
@@ -103,7 +104,10 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
       if (!response || !response.goals || response.goals.length === 0) {
         throw new Error('No goal suggestions were generated. Try adding more journal entries or mood check-ins.');
       }
-      setSuggestions(response);
+
+      // Normalize all goal data to ensure arrays are valid
+      const normalizedGoals = response.goals.map(normalizeGoalData).filter(Boolean);
+      setSuggestions({ goals: normalizedGoals });
     } catch (error) {
       console.error('Failed to generate goal suggestions:', error.message, error.stack);
       alert(error.message || 'Failed to generate goal suggestions. Please try again later.');
@@ -157,10 +161,11 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <Card className="w-full max-w-4xl border-0 shadow-2xl my-8">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-6">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-4xl h-full max-h-[90vh] flex flex-col">
+        <Card className="border-0 shadow-2xl flex-1 overflow-hidden flex flex-col">
+        <CardContent className="p-6 flex flex-col h-full overflow-hidden">
+          <div className="flex items-center justify-between mb-6 flex-shrink-0">
             <div className="flex items-center gap-2">
               <Sparkles className="w-6 h-6 text-purple-600" />
               <h2 className="text-2xl font-bold text-gray-800">Suggested SMART Goals</h2>
@@ -170,7 +175,7 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
             </Button>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-6 overflow-y-auto flex-1 pr-2">
             {suggestions?.goals?.map((goal, index) => (
               <motion.div
                 key={index}
@@ -231,27 +236,32 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
                     </div>
 
                     {/* Initial Milestones */}
-                    <div className="bg-white p-4 rounded-lg border mb-4">
-                      <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                        <TrendingUp className="w-4 h-4 text-orange-600" />
-                        First Steps
-                      </h4>
-                      <ul className="space-y-1">
-                        {goal.initial_milestones.map((milestone, i) => (
-                          <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
-                            <span className="text-orange-600 mt-0.5">•</span>
-                            <span>{milestone}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                    {goal.milestones?.length > 0 && (
+                      <div className="bg-white p-4 rounded-lg border mb-4">
+                        <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                          <TrendingUp className="w-4 h-4 text-orange-600" />
+                          First Steps
+                        </h4>
+                        <ul className="space-y-1">
+                          {goal.milestones.map((milestone, i) => (
+                            <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                              <span className="text-orange-600 mt-0.5">•</span>
+                              <span>{typeof milestone === 'string' ? milestone : milestone.title || milestone.description || 'Step'}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
 
                     <Button
                       onClick={() => onSelectGoal({
                         title: goal.title,
                         category: goal.category,
                         description: goal.description,
-                        milestones: goal.initial_milestones.map(m => ({ title: m, completed: false }))
+                        milestones: goal.milestones.map(m => ({ 
+                          title: typeof m === 'string' ? m : m.title || m.description || 'Step', 
+                          completed: false 
+                        }))
                       })}
                       className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                     >
@@ -264,7 +274,8 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
             ))}
           </div>
         </CardContent>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }
