@@ -11,6 +11,7 @@ import JournalFilters from '../components/journal/JournalFilters';
 import TemplateManager from '../components/journal/TemplateManager';
 import ReminderManager from '../components/journal/ReminderManager';
 import AiJournalPrompts from '../components/journal/AiJournalPrompts';
+import AiTrendsSummary from '../components/journal/AiTrendsSummary';
 
 export default function Journal() {
   const [showForm, setShowForm] = useState(false);
@@ -19,6 +20,7 @@ export default function Journal() {
   const [showTemplateManager, setShowTemplateManager] = useState(false);
   const [showReminderManager, setShowReminderManager] = useState(false);
   const [showAiPrompts, setShowAiPrompts] = useState(false);
+  const [showTrendsSummary, setShowTrendsSummary] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState([]);
   const [selectedType, setSelectedType] = useState('all');
@@ -95,7 +97,15 @@ export default function Journal() {
             <p className="text-gray-500">Challenge and reframe unhelpful thinking patterns</p>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <Button
+            onClick={() => setShowTrendsSummary(true)}
+            variant="outline"
+            className="rounded-xl bg-gradient-to-r from-purple-50 to-blue-50 border-purple-300 hover:border-purple-400"
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            AI Insights
+          </Button>
           <Button
             onClick={() => setShowAiPrompts(true)}
             variant="outline"
@@ -252,6 +262,13 @@ export default function Journal() {
             handleNewEntry(null, prompt);
           }}
           onClose={() => setShowAiPrompts(false)}
+        />
+      )}
+
+      {/* AI Trends Summary */}
+      {showTrendsSummary && (
+        <AiTrendsSummary
+          onClose={() => setShowTrendsSummary(false)}
         />
       )}
     </div>

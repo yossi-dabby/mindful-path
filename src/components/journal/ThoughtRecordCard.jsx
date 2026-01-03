@@ -4,9 +4,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp, Edit, Trash2, TrendingDown, Image as ImageIcon, Mic, Tag } from 'lucide-react';
+import { ChevronDown, ChevronUp, Edit, Trash2, TrendingDown, Image as ImageIcon, Mic, Tag, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import AiJournalSuggestions from './AiJournalSuggestions';
 
 // Helper to strip HTML tags for plain text display
 const stripHtml = (html) => {
@@ -18,6 +19,7 @@ const stripHtml = (html) => {
 
 export default function ThoughtRecordCard({ entry, onEdit }) {
   const [expanded, setExpanded] = useState(false);
+  const [showAiSuggestions, setShowAiSuggestions] = useState(false);
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
@@ -105,23 +107,33 @@ export default function ThoughtRecordCard({ entry, onEdit }) {
           )}
         </div>
 
-        <Button
-          variant="ghost"
-          onClick={() => setExpanded(!expanded)}
-          className="w-full text-purple-600 hover:text-purple-700 hover:bg-purple-50"
-        >
-          {expanded ? (
-            <>
-              <ChevronUp className="w-4 h-4 mr-2" />
-              Show less
-            </>
-          ) : (
-            <>
-              <ChevronDown className="w-4 h-4 mr-2" />
-              Show full record
-            </>
-          )}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="ghost"
+            onClick={() => setExpanded(!expanded)}
+            className="flex-1 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+          >
+            {expanded ? (
+              <>
+                <ChevronUp className="w-4 h-4 mr-2" />
+                Show less
+              </>
+            ) : (
+              <>
+                <ChevronDown className="w-4 h-4 mr-2" />
+                Show full record
+              </>
+            )}
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => setShowAiSuggestions(!showAiSuggestions)}
+            className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            AI Analysis
+          </Button>
+        </div>
 
         {expanded && (
           <div className="mt-4 pt-4 border-t border-gray-200 space-y-4">
@@ -186,6 +198,15 @@ export default function ThoughtRecordCard({ entry, onEdit }) {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {showAiSuggestions && (
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <AiJournalSuggestions 
+              entry={entry} 
+              onClose={() => setShowAiSuggestions(false)} 
+            />
           </div>
         )}
       </CardContent>
