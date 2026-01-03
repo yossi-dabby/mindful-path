@@ -59,7 +59,10 @@ export default function PersonalizedContentFeed({ userInterests = [], contentTyp
     setIsLoading(true);
     setError(null);
     try {
-      const stripHtml = (html) => html?.replace(/<[^>]*>/g, '') || '';
+      const stripHtml = (html) => {
+        if (!html || typeof html !== 'string') return '';
+        return html.replace(/<[^>]*>/g, '');
+      };
 
       // Prepare context
       const goalsContext = goals.map(g => ({
@@ -341,7 +344,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
                         <div>
                           <p className="font-medium text-sm text-gray-800">{rec.title}</p>
                           <Badge variant="outline" className="text-xs mt-1 capitalize">
-                            {rec.category.replace('_', ' ')}
+                            {(rec.category || '').replace(/_/g, ' ')}
                           </Badge>
                         </div>
                       </div>

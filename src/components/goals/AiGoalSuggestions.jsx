@@ -27,7 +27,10 @@ export default function AiGoalSuggestions({ onSelectGoal, onClose }) {
   const generateSuggestions = async () => {
     setIsLoading(true);
     try {
-      const stripHtml = (html) => html?.replace(/<[^>]*>/g, '') || '';
+      const stripHtml = (html) => {
+        if (!html || typeof html !== 'string') return '';
+        return html.replace(/<[^>]*>/g, '');
+      };
 
       // Prepare context from journal entries
       const journalContext = journalEntries.slice(0, 10).map(e => ({

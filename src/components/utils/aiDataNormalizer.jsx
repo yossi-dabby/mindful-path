@@ -15,7 +15,7 @@
  * @returns {string} - Always returns a string
  */
 export function safeText(value, fallback = '') {
-  if (value == null) return fallback;
+  if (value == null || value === undefined) return fallback;
   if (typeof value === 'string') return value.trim();
   if (typeof value === 'number' || typeof value === 'boolean') return String(value);
   if (typeof value === 'object') {
@@ -26,6 +26,19 @@ export function safeText(value, fallback = '') {
     }
   }
   return fallback;
+}
+
+/**
+ * Safely replaces text in a string, handling undefined/null values
+ * @param {*} str - String to process
+ * @param {string|RegExp} searchValue - Value to search for
+ * @param {string} replaceValue - Value to replace with
+ * @returns {string} - Processed string
+ */
+export function safeReplace(str, searchValue, replaceValue) {
+  const text = safeText(str);
+  if (!text) return text;
+  return text.replace(searchValue, replaceValue);
 }
 
 /**

@@ -54,7 +54,10 @@ export default function PersonalizedInsights({ onStartSession }) {
   const generateInsights = async () => {
     setIsGenerating(true);
     try {
-      const stripHtml = (html) => html?.replace(/<[^>]*>/g, '') || '';
+      const stripHtml = (html) => {
+        if (!html || typeof html !== 'string') return '';
+        return html.replace(/<[^>]*>/g, '');
+      };
       
       const journalPatterns = journals.slice(0, 10).map(j => ({
         date: j.created_date?.split('T')[0],
@@ -263,7 +266,7 @@ Be specific, encouraging, and reference their actual data.`,
                   {safeArray(insights.cbt_recommendations).map((rec, i) => (
                     <div key={i} className="bg-white p-3 rounded-lg border-l-4 border-indigo-400">
                       <p className="font-medium text-gray-800 text-sm capitalize mb-1">
-                        {rec.exercise_category.replace('_', ' ')}
+                        {(rec.exercise_category || '').replace(/_/g, ' ')}
                       </p>
                       <p className="text-xs text-gray-600 mb-2">{rec.reason}</p>
                       <p className="text-xs text-indigo-700 italic">💡 {rec.expected_benefit}</p>
