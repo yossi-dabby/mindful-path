@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { Card, CardContent } from '@/components/ui/card';
-import { MessageCircle, BookOpen, Target, Dumbbell, Play } from 'lucide-react';
+import { MessageCircle, BookOpen, Target, Dumbbell, Play, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const actions = [
@@ -40,6 +40,13 @@ const actions = [
     icon: Play,
     page: 'Videos',
     gradient: 'from-amber-400 to-orange-600'
+  },
+  {
+    title: 'Personalized Feed',
+    description: 'AI-curated content',
+    icon: Sparkles,
+    page: 'PersonalizedFeed',
+    gradient: 'from-indigo-400 to-purple-600'
   }
 ];
 
