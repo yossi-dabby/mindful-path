@@ -6,7 +6,6 @@ import { createPageUrl } from '../utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { MessageCircle, Sparkles, Heart, TrendingUp, BookOpen, Target, ChevronDown } from 'lucide-react';
 import MoodCheckIn from '../components/home/MoodCheckIn';
 import QuickActions from '../components/home/QuickActions';
@@ -224,24 +223,23 @@ export default function Home() {
         </div>
 
         {/* Personalized Content Feed */}
-        <Collapsible open={feedOpen} onOpenChange={setFeedOpen} className="mt-6">
-          <CollapsibleTrigger asChild>
-            <button
-              className="w-full flex items-center justify-between p-4 rounded-xl bg-white/30 hover:bg-white/50 transition-colors shadow-sm mb-3"
-            >
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-purple-600" />
-                <span className="text-lg font-semibold text-gray-800">Your Personalized Feed</span>
-              </div>
-              <ChevronDown className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${feedOpen ? 'rotate-180' : ''}`} />
-            </button>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="transition-all data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
+        <div className="mt-6">
+          <button
+            onClick={() => setFeedOpen(!feedOpen)}
+            className="w-full flex items-center justify-between p-4 rounded-xl bg-white/30 hover:bg-white/50 transition-colors shadow-sm mb-3"
+          >
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-purple-600" />
+              <span className="text-lg font-semibold text-gray-800">Your Personalized Feed</span>
+            </div>
+            <ChevronDown className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${feedOpen ? 'rotate-180' : ''}`} />
+          </button>
+          {feedOpen && (
             <div className="mt-2">
               <PersonalizedContentFeed />
             </div>
-          </CollapsibleContent>
-        </Collapsible>
+          )}
+        </div>
 
         {/* Quick Actions - Moved lower */}
         <div className="mt-6">
