@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Brain, TrendingUp, Target, Book, Sparkles, Loader2, AlertCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { normalizeCoachingInsights, safeArray, safeText } from '@/components/utils/aiDataNormalizer';
 
 export default function PersonalizedInsights({ onStartSession }) {
   const [insights, setInsights] = useState(null);
@@ -136,7 +137,8 @@ Be specific, encouraging, and reference their actual data.`,
         }
       });
 
-      setInsights(response);
+      const normalized = normalizeCoachingInsights(response);
+      setInsights(normalized);
     } catch (error) {
       console.error('Failed to generate insights:', error);
     } finally {
@@ -144,9 +146,9 @@ Be specific, encouraging, and reference their actual data.`,
     }
   };
 
-  const matchedExercises = insights?.cbt_recommendations?.map(rec => {
+  const matchedExercises = safeArray(insights?.cbt_recommendations).map(rec => {
     return exercises.find(ex => ex.category === rec.exercise_category);
-  }).filter(Boolean) || [];
+  }).filter(Boolean);
 
   return (
     <div className="space-y-4">
@@ -207,7 +209,7 @@ Be specific, encouraging, and reference their actual data.`,
       {insights && (
         <>
           {/* Positive Progress */}
-          {insights.positive_progress?.length > 0 && (
+          {safeArray(insights.positive_progress).length > 0 && (
             <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-white">
               <CardContent className="p-4">
                 <h4 className="font-semibold text-green-900 mb-3 flex items-center gap-2">
@@ -215,7 +217,7 @@ Be specific, encouraging, and reference their actual data.`,
                   Great Progress!
                 </h4>
                 <ul className="space-y-2">
-                  {insights.positive_progress.map((item, i) => (
+                  {safeArray(insights.positive_progress).map((item, i) => (
                     <li key={i} className="text-sm text-green-800 flex items-start gap-2">
                       <span className="text-green-600 mt-0.5">✓</span>
                       <span>{item}</span>
@@ -227,7 +229,7 @@ Be specific, encouraging, and reference their actual data.`,
           )}
 
           {/* Recurring Patterns */}
-          {insights.recurring_patterns?.length > 0 && (
+          {safeArray(insights.recurring_patterns).length > 0 && (
             <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white">
               <CardContent className="p-4">
                 <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
@@ -235,7 +237,7 @@ Be specific, encouraging, and reference their actual data.`,
                   Thought Patterns Identified
                 </h4>
                 <div className="space-y-3">
-                  {insights.recurring_patterns.map((pattern, i) => (
+                  {safeArray(insights.recurring_patterns).map((pattern, i) => (
                     <div key={i} className="bg-white p-3 rounded-lg">
                       <div className="flex items-start justify-between mb-1">
                         <p className="font-medium text-gray-800 text-sm">{pattern.pattern}</p>
@@ -250,7 +252,7 @@ Be specific, encouraging, and reference their actual data.`,
           )}
 
           {/* CBT Recommendations */}
-          {insights.cbt_recommendations?.length > 0 && (
+          {safeArray(insights.cbt_recommendations).length > 0 && (
             <Card className="border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-white">
               <CardContent className="p-4">
                 <h4 className="font-semibold text-indigo-900 mb-3 flex items-center gap-2">
@@ -258,7 +260,7 @@ Be specific, encouraging, and reference their actual data.`,
                   Recommended CBT Techniques
                 </h4>
                 <div className="space-y-3">
-                  {insights.cbt_recommendations.map((rec, i) => (
+                  {safeArray(insights.cbt_recommendations).map((rec, i) => (
                     <div key={i} className="bg-white p-3 rounded-lg border-l-4 border-indigo-400">
                       <p className="font-medium text-gray-800 text-sm capitalize mb-1">
                         {rec.exercise_category.replace('_', ' ')}
@@ -278,7 +280,7 @@ Be specific, encouraging, and reference their actual data.`,
           )}
 
           {/* Goal Insights */}
-          {insights.goal_insights?.length > 0 && (
+          {safeArray(insights.goal_insights).length > 0 && (
             <Card className="border-2 border-teal-200 bg-gradient-to-br from-teal-50 to-white">
               <CardContent className="p-4">
                 <h4 className="font-semibold text-teal-900 mb-3 flex items-center gap-2">
@@ -286,7 +288,7 @@ Be specific, encouraging, and reference their actual data.`,
                   Goal Alignment
                 </h4>
                 <div className="space-y-3">
-                  {insights.goal_insights.map((insight, i) => (
+                  {safeArray(insights.goal_insights).map((insight, i) => (
                     <div key={i} className="bg-white p-3 rounded-lg">
                       <p className="font-medium text-gray-800 text-sm mb-1">{insight.goal_title}</p>
                       <p className="text-xs text-gray-600 mb-2">{insight.connection}</p>
@@ -299,12 +301,12 @@ Be specific, encouraging, and reference their actual data.`,
           )}
 
           {/* Engagement Nudges */}
-          {insights.engagement_nudges?.length > 0 && (
+          {safeArray(insights.engagement_nudges).length > 0 && (
             <Card className="border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-white">
               <CardContent className="p-4">
                 <h4 className="font-semibold text-amber-900 mb-3">Gentle Reminders</h4>
                 <ul className="space-y-2">
-                  {insights.engagement_nudges.map((nudge, i) => (
+                  {safeArray(insights.engagement_nudges).map((nudge, i) => (
                     <li key={i} className="text-sm text-amber-800 flex items-start gap-2">
                       <span className="mt-0.5">💭</span>
                       <span>{nudge}</span>

@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Edit, Calendar, CheckCircle2, ChevronDown, ChevronUp, TrendingUp, BookOpen } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { safeArray, safeText } from '@/components/utils/aiDataNormalizer';
 import GoalProgressChart from './GoalProgressChart';
 import LinkedJournalEntries from './LinkedJournalEntries';
 
@@ -31,12 +32,18 @@ export default function GoalCard({ goal, onEdit }) {
   });
 
   const toggleMilestone = (index) => {
-    const newMilestones = [...goal.milestones];
-    newMilestones[index] = {
-      ...newMilestones[index],
-      completed: !newMilestones[index].completed
+    const milestones = safeArray(goal.milestones).map((m, i) => ({
+      title: safeText(m.title || m, `Step ${i + 1}`),
+      description: safeText(m.description, ''),
+      completed: Boolean(m.completed),
+      due_date: m.due_date || null
+    }));
+    
+    milestones[index] = {
+      ...milestones[index],
+      completed: !milestones[index].completed
     };
-    toggleMilestoneMutation.mutate({ milestones: newMilestones });
+    toggleMilestoneMutation.mutate({ milestones });
   };
 
   const isCompleted = goal.status === 'completed';
@@ -90,10 +97,12 @@ export default function GoalCard({ goal, onEdit }) {
         </div>
 
         {/* Milestones */}
-        {goal.milestones?.length > 0 && (
+        {safeArray(goal.milestones).length > 0 && (
           <div className="space-y-2">
             <p className="text-sm font-medium text-gray-700 mb-2">Tasks:</p>
-            {goal.milestones.map((milestone, index) => (
+            {safeArray(goal.milestones).map((milestoneRaw, index) => {
+              const milestone = typeof milestoneRaw === 'object' ? milestoneRaw : { title: safeText(milestoneRaw, `Step ${index + 1}`), completed: false };
+              return (
               <div key={index} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 border border-gray-100">
                 <Checkbox
                   checked={milestone.completed}
@@ -109,10 +118,10 @@ export default function GoalCard({ goal, onEdit }) {
                         : 'text-gray-700'
                     )}
                   >
-                    {milestone.title}
+                    {safeText(milestone.title, `Step ${index + 1}`)}
                   </span>
                   {milestone.description && (
-                    <p className="text-xs text-gray-500 mt-0.5">{milestone.description}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{safeText(milestone.description)}</p>
                   )}
                   {milestone.due_date && (
                     <Badge variant="outline" className="mt-1 text-xs">
@@ -122,7 +131,8 @@ export default function GoalCard({ goal, onEdit }) {
                   )}
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
         )}
 

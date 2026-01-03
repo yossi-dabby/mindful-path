@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Sparkles, Loader2, RefreshCw, Wind, Anchor, Brain, TrendingUp, Heart, ThumbsUp, ThumbsDown, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { normalizeExerciseRecommendations, safeArray, safeText } from '@/components/utils/aiDataNormalizer';
 
 const categoryIcons = {
   breathing: Wind,
@@ -187,7 +188,8 @@ Provide recommendations with:
         }
       });
 
-      return result.recommendations || [];
+      const normalized = normalizeExerciseRecommendations(result.recommendations || []);
+      return normalized;
     },
     onSuccess: (data) => {
       setRecommendations(data);
@@ -344,9 +346,9 @@ Provide recommendations with:
           </div>
         )}
 
-        {recommendations && recommendations.length > 0 && (
+        {safeArray(recommendations).length > 0 && (
           <div className="space-y-3">
-            {recommendations.map((rec, index) => {
+            {safeArray(recommendations).map((rec, index) => {
               const exercise = getExerciseByTitle(rec.exercise_title);
               const Icon = exercise ? categoryIcons[exercise.category] : Sparkles;
               const priorityColors = {
