@@ -20,6 +20,7 @@ import PersonalizedFeed from '../components/home/PersonalizedFeed';
 import TodaysFocus from '../components/home/TodaysFocus';
 import DailyReflection from '../components/home/DailyReflection';
 import StarterPathCard from '../components/home/StarterPathCard';
+import PersonalizedContentFeed from '../components/home/PersonalizedContentFeed';
 import ExerciseDetail from '../components/exercises/ExerciseDetail';
 import { motion } from 'framer-motion';
 
@@ -218,6 +219,11 @@ export default function Home() {
           </div>
           <StreakWidget compact />
           <BadgeDisplay compact />
+        </div>
+
+        {/* Personalized Content Feed */}
+        <div className="mt-6">
+          <PersonalizedContentFeed />
         </div>
 
         {/* Quick Actions - Moved lower */}
