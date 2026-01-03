@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, Loader2, Target, TrendingUp, Calendar, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { normalizeGoalData, safeJoin } from '../utils/aiDataNormalizer';
+import { normalizeGoalData, safeJoin } from '@/components/utils/aiDataNormalizer';
 
 export default function AiGoalSuggestions({ onSelectGoal, onClose }) {
   const [suggestions, setSuggestions] = useState(null);
