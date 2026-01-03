@@ -323,7 +323,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
       )}
 
       {/* Recommended Exercises */}
-      {showExercises && safeArray(feed.recommended_exercises).length > 0 && (
+      {showExercises && recommendedExercisesList.length > 0 && safeArray(feed.recommended_exercises).length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -371,7 +371,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
       )}
 
       {/* Relevant Resources */}
-      {showResources && safeArray(feed.relevant_resources).length > 0 && (
+      {showResources && recommendedResourcesList.length > 0 && safeArray(feed.relevant_resources).length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -419,7 +419,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
       )}
 
       {/* Community Highlights */}
-      {showCommunity && safeArray(feed.community_highlights).length > 0 && (
+      {showCommunity && (safeArray(feed.community_highlights).length > 0 || highlightedPosts.length > 0) && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
