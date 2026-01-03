@@ -1,15 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import PersonalizedContentFeed from '../components/home/PersonalizedContentFeed';
+import FeedPreferences from '../components/feed/FeedPreferences';
+import FeedFilters from '../components/feed/FeedFilters';
 import { Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function PersonalizedFeed() {
+  const [userInterests, setUserInterests] = useState([]);
+  const [contentType, setContentType] = useState('all');
+  const [sortBy, setSortBy] = useState('relevance');
+
+  const handlePreferencesChange = (interests) => {
+    setUserInterests(interests);
+  };
+
+  const handleClearFilters = () => {
+    setContentType('all');
+    setSortBy('relevance');
+  };
+
+  const hasActiveFilters = contentType !== 'all' || sortBy !== 'relevance';
+
   return (
     <div className="min-h-screen p-4 md:p-8 pb-24 max-w-5xl mx-auto">
       {/* Header */}
       <motion.div 
-        className="flex items-center justify-between mb-8 mt-4"
+        className="flex items-center justify-between mb-6 mt-4"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -28,13 +45,30 @@ export default function PersonalizedFeed() {
               <Sparkles className="w-6 h-6 text-purple-600" />
               <h1 className="text-3xl md:text-4xl font-light text-gray-800">Personalized Feed</h1>
             </div>
-            <p className="text-gray-500 mt-1">AI-curated content just for you</p>
+            <p className="text-gray-500 mt-1">AI-curated content tailored to your interests</p>
           </div>
         </div>
       </motion.div>
 
+      {/* Preferences */}
+      <FeedPreferences onPreferencesChange={handlePreferencesChange} />
+
+      {/* Filters */}
+      <FeedFilters
+        contentType={contentType}
+        setContentType={setContentType}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        hasActiveFilters={hasActiveFilters}
+        onClearFilters={handleClearFilters}
+      />
+
       {/* Feed Content */}
-      <PersonalizedContentFeed />
+      <PersonalizedContentFeed
+        userInterests={userInterests}
+        contentType={contentType}
+        sortBy={sortBy}
+      />
     </div>
   );
 }

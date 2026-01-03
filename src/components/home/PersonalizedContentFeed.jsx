@@ -10,7 +10,7 @@ import { createPageUrl } from '../../utils';
 import { motion } from 'framer-motion';
 import { normalizeFeedData, safeJoin } from '@/components/utils/aiDataNormalizer';
 
-export default function PersonalizedContentFeed() {
+export default function PersonalizedContentFeed({ userInterests = [], contentType = 'all', sortBy = 'relevance' }) {
   const [feed, setFeed] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -53,7 +53,7 @@ export default function PersonalizedContentFeed() {
 
   useEffect(() => {
     generateFeed();
-  }, [goals, moodEntries, journalEntries]);
+  }, [goals, moodEntries, journalEntries, userInterests]);
 
   const generateFeed = async () => {
     setIsLoading(true);
@@ -84,27 +84,31 @@ export default function PersonalizedContentFeed() {
       const exerciseCategories = [...new Set(exercises.map(e => e.category))];
       const resourceCategories = [...new Set(resources.map(r => r.category))];
 
+      const interestsPrompt = userInterests.length > 0 
+        ? `\n\n**USER INTERESTS:**\nThe user has specifically expressed interest in: ${userInterests.map(i => i.replace('_', ' ')).join(', ')}. Prioritize content that aligns with these interests.`
+        : '';
+
       const response = await base44.integrations.Core.InvokeLLM({
         prompt: `You are a mental wellness curator creating a personalized content feed for a user.
 
 **USER CONTEXT:**
 - Active Goals: ${JSON.stringify(goalsContext, null, 2)}
 - Recent Moods (last 10): ${JSON.stringify(moodContext, null, 2)}
-- Recent Journal Patterns: ${JSON.stringify(journalContext, null, 2)}
+- Recent Journal Patterns: ${JSON.stringify(journalContext, null, 2)}${interestsPrompt}
 
 **AVAILABLE CONTENT:**
 - Exercise Categories: ${exerciseCategories.join(', ')}
 - Resource Categories: ${resourceCategories.join(', ')}
 
-Based on the user's current state, goals, mood patterns, and journal themes, curate a personalized content feed with:
+Based on the user's current state, goals, mood patterns, journal themes, and selected interests, curate a personalized content feed with:
 
-1. **Recommended Exercises** (2-3): Suggest specific exercise categories with personalized reasons why they'd help right now
-2. **Relevant Articles/Resources** (2-3): Suggest resource categories (anxiety, depression, stress, mindfulness, relationships, self-esteem, sleep) with topics that would be most helpful
+1. **Recommended Exercises** (3-5): Suggest specific exercise categories with personalized reasons why they'd help right now. Align with user interests when possible.
+2. **Relevant Articles/Resources** (3-5): Suggest resource categories with topics that would be most helpful. Consider user's interests.
 3. **Inspirational Quote**: One motivational, therapy-aligned quote relevant to their current journey
-4. **Community Highlights**: Suggest what community topics they might find valuable (e.g., "success stories", "anxiety management tips", "goal setting support")
+4. **Community Highlights** (2-3): Suggest what community topics they might find valuable
 5. **Daily Focus**: A short, actionable suggestion for today (1-2 sentences)
 
-Make it personal, warm, and encouraging. Reference their specific patterns when possible.`,
+Make it personal, warm, and encouraging. Reference their specific patterns and interests when possible.`,
         response_json_schema: {
           type: "object",
           properties: {
@@ -226,18 +230,41 @@ Make it personal, warm, and encouraging. Reference their specific patterns when 
     );
   }
 
-  const recommendedExercisesList = exercises.filter(ex => 
+  // Filter and sort based on user preferences
+  let filteredExercises = exercises.filter(ex => 
     feed.recommended_exercises?.some(rec => rec.category === ex.category)
-  ).slice(0, 3);
+  );
 
-  const recommendedResourcesList = resources.filter(res =>
+  let filteredResources = resources.filter(res =>
     feed.relevant_resources?.some(rec => rec.category === res.category)
-  ).slice(0, 3);
+  );
 
-  const highlightedPosts = communityPosts
-    .filter(post => post.upvotes > 0)
-    .sort((a, b) => b.upvotes - a.upvotes)
-    .slice(0, 3);
+  let filteredPosts = communityPosts.filter(post => post.upvotes > 0);
+
+  // Apply content type filter
+  const showExercises = contentType === 'all' || contentType === 'exercises';
+  const showResources = contentType === 'all' || contentType === 'resources';
+  const showCommunity = contentType === 'all' || contentType === 'community';
+  const showQuotes = contentType === 'all' || contentType === 'quotes';
+
+  // Apply sorting
+  if (sortBy === 'recent') {
+    filteredExercises = filteredExercises.sort((a, b) => 
+      new Date(b.created_date) - new Date(a.created_date)
+    );
+    filteredResources = filteredResources.sort((a, b) => 
+      new Date(b.created_date) - new Date(a.created_date)
+    );
+  } else if (sortBy === 'popular') {
+    filteredExercises = filteredExercises.sort((a, b) => 
+      (b.completed_count || 0) - (a.completed_count || 0)
+    );
+    filteredPosts = filteredPosts.sort((a, b) => b.upvotes - a.upvotes);
+  }
+
+  const recommendedExercisesList = filteredExercises.slice(0, 5);
+  const recommendedResourcesList = filteredResources.slice(0, 5);
+  const highlightedPosts = filteredPosts.slice(0, 3);
 
   return (
     <div className="space-y-4">
@@ -276,7 +303,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns when 
       )}
 
       {/* Inspirational Quote */}
-      {feed.inspirational_quote && (
+      {showQuotes && feed.inspirational_quote && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -293,7 +320,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns when 
       )}
 
       {/* Recommended Exercises */}
-      {feed.recommended_exercises?.length > 0 && (
+      {showExercises && feed.recommended_exercises?.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -341,7 +368,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns when 
       )}
 
       {/* Relevant Resources */}
-      {feed.relevant_resources?.length > 0 && (
+      {showResources && feed.relevant_resources?.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -389,7 +416,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns when 
       )}
 
       {/* Community Highlights */}
-      {feed.community_highlights?.length > 0 && (
+      {showCommunity && feed.community_highlights?.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
