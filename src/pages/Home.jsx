@@ -6,7 +6,8 @@ import { createPageUrl } from '../utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MessageCircle, Sparkles, Heart, TrendingUp, BookOpen, Target } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { MessageCircle, Sparkles, Heart, TrendingUp, BookOpen, Target, ChevronDown } from 'lucide-react';
 import MoodCheckIn from '../components/home/MoodCheckIn';
 import QuickActions from '../components/home/QuickActions';
 import RecentProgress from '../components/home/RecentProgress';
@@ -30,6 +31,7 @@ export default function Home() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showReflection, setShowReflection] = useState(false);
   const [showExercise, setShowExercise] = useState(false);
+  const [feedOpen, setFeedOpen] = useState(true);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -222,9 +224,23 @@ export default function Home() {
         </div>
 
         {/* Personalized Content Feed */}
-        <div className="mt-6">
-          <PersonalizedContentFeed />
-        </div>
+        <Collapsible open={feedOpen} onOpenChange={setFeedOpen} className="mt-6">
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="ghost"
+              className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-white/50 mb-3"
+            >
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-purple-600" />
+                <span className="text-lg font-semibold text-gray-800">Your Personalized Feed</span>
+              </div>
+              <ChevronDown className={`w-5 h-5 text-gray-600 transition-transform ${feedOpen ? 'rotate-180' : ''}`} />
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <PersonalizedContentFeed />
+          </CollapsibleContent>
+        </Collapsible>
 
         {/* Quick Actions - Moved lower */}
         <div className="mt-6">
