@@ -226,19 +226,20 @@ export default function Home() {
         {/* Personalized Content Feed */}
         <Collapsible open={feedOpen} onOpenChange={setFeedOpen} className="mt-6">
           <CollapsibleTrigger asChild>
-            <Button
-              variant="ghost"
-              className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-white/50 mb-3"
+            <button
+              className="w-full flex items-center justify-between p-4 rounded-xl bg-white/30 hover:bg-white/50 transition-colors shadow-sm mb-3"
             >
               <div className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-purple-600" />
                 <span className="text-lg font-semibold text-gray-800">Your Personalized Feed</span>
               </div>
-              <ChevronDown className={`w-5 h-5 text-gray-600 transition-transform ${feedOpen ? 'rotate-180' : ''}`} />
-            </Button>
+              <ChevronDown className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${feedOpen ? 'rotate-180' : ''}`} />
+            </button>
           </CollapsibleTrigger>
-          <CollapsibleContent>
-            <PersonalizedContentFeed />
+          <CollapsibleContent className="transition-all data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
+            <div className="mt-2">
+              <PersonalizedContentFeed />
+            </div>
           </CollapsibleContent>
         </Collapsible>
 
