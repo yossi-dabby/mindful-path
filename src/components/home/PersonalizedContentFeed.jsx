@@ -75,9 +75,9 @@ export default function PersonalizedContentFeed() {
       }));
 
       const journalContext = journalEntries.map(e => ({
-        emotions: e.emotions?.join(', '),
-        distortions: e.cognitive_distortions?.join(', '),
-        tags: e.tags?.join(', ')
+        emotions: Array.isArray(e.emotions) ? e.emotions.join(', ') : '',
+        distortions: Array.isArray(e.cognitive_distortions) ? e.cognitive_distortions.join(', ') : '',
+        tags: Array.isArray(e.tags) ? e.tags.join(', ') : ''
       }));
 
       const exerciseCategories = [...new Set(exercises.map(e => e.category))];
