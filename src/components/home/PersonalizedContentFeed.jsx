@@ -184,12 +184,8 @@ Make it personal, warm, and encouraging. Reference their specific patterns when 
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-purple-600" />
-          <h2 className="text-xl font-semibold text-gray-800">Your Personalized Feed</h2>
-        </div>
+      {/* Refresh Button */}
+      <div className="flex justify-end mb-2">
         <Button
           onClick={generateFeed}
           variant="ghost"
