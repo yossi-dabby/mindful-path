@@ -31,17 +31,17 @@ export default function AiGoalSuggestions({ onSelectGoal, onClose }) {
       // Prepare context from journal entries
       const journalContext = journalEntries.slice(0, 10).map(e => ({
         situation: stripHtml(e.situation)?.substring(0, 200),
-        emotions: e.emotions?.join(', '),
-        distortions: e.cognitive_distortions?.join(', '),
-        tags: e.tags?.join(', ')
+        emotions: Array.isArray(e.emotions) ? e.emotions.join(', ') : '',
+        distortions: Array.isArray(e.cognitive_distortions) ? e.cognitive_distortions.join(', ') : '',
+        tags: Array.isArray(e.tags) ? e.tags.join(', ') : ''
       }));
 
       // Prepare mood context
       const moodContext = moodEntries.map(m => ({
         mood: m.mood,
-        emotions: m.emotions?.join(', '),
-        triggers: m.triggers?.join(', '),
-        activities: m.activities?.join(', ')
+        emotions: Array.isArray(m.emotions) ? m.emotions.join(', ') : '',
+        triggers: Array.isArray(m.triggers) ? m.triggers.join(', ') : '',
+        activities: Array.isArray(m.activities) ? m.activities.join(', ') : ''
       }));
 
       const response = await base44.integrations.Core.InvokeLLM({

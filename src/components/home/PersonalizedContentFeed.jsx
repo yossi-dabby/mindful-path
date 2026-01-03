@@ -69,8 +69,9 @@ export default function PersonalizedContentFeed() {
 
       const moodContext = moodEntries.map(m => ({
         mood: m.mood,
-        emotions: m.emotions?.join(', '),
-        triggers: m.triggers?.join(', ')
+        emotions: Array.isArray(m.emotions) ? m.emotions.join(', ') : '',
+        triggers: Array.isArray(m.triggers) ? m.triggers.join(', ') : '',
+        activities: Array.isArray(m.activities) ? m.activities.join(', ') : ''
       }));
 
       const journalContext = journalEntries.map(e => ({
