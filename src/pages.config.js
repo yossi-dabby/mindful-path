@@ -17,6 +17,7 @@ import StarterPath from './pages/StarterPath';
 import TestSetupGuide from './pages/TestSetupGuide';
 import VideoPlayer from './pages/VideoPlayer';
 import Videos from './pages/Videos';
+import PersonalizedFeed from './pages/PersonalizedFeed';
 import __Layout from './Layout.jsx';
 
 
@@ -40,6 +41,7 @@ export const PAGES = {
     "TestSetupGuide": TestSetupGuide,
     "VideoPlayer": VideoPlayer,
     "Videos": Videos,
+    "PersonalizedFeed": PersonalizedFeed,
 }
 
 export const pagesConfig = {

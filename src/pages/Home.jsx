@@ -20,7 +20,6 @@ import PersonalizedFeed from '../components/home/PersonalizedFeed';
 import TodaysFocus from '../components/home/TodaysFocus';
 import DailyReflection from '../components/home/DailyReflection';
 import StarterPathCard from '../components/home/StarterPathCard';
-import PersonalizedContentFeed from '../components/home/PersonalizedContentFeed';
 import ExerciseDetail from '../components/exercises/ExerciseDetail';
 import { motion } from 'framer-motion';
 
@@ -30,7 +29,6 @@ export default function Home() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showReflection, setShowReflection] = useState(false);
   const [showExercise, setShowExercise] = useState(false);
-  const [feedOpen, setFeedOpen] = useState(true);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -222,26 +220,7 @@ export default function Home() {
           <BadgeDisplay compact />
         </div>
 
-        {/* Personalized Content Feed */}
-        <div className="mt-6">
-          <button
-            onClick={() => setFeedOpen(!feedOpen)}
-            className="w-full flex items-center justify-between p-4 rounded-xl bg-white/30 hover:bg-white/50 transition-colors shadow-sm mb-3"
-          >
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-purple-600" />
-              <span className="text-lg font-semibold text-gray-800">Your Personalized Feed</span>
-            </div>
-            <ChevronDown className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${feedOpen ? 'rotate-180' : ''}`} />
-          </button>
-          {feedOpen && (
-            <div className="mt-2">
-              <PersonalizedContentFeed />
-            </div>
-          )}
-        </div>
-
-        {/* Quick Actions - Moved lower */}
+        {/* Quick Actions */}
         <div className="mt-6">
           <QuickActions />
         </div>
