@@ -12,12 +12,13 @@ export const NumericSafety = {
   },
 
   safeParseNumber(value, defaultValue = 0) {
-  try {
-    const parsed = Number(value);
-    if (!Number.isFinite(parsed)) return defaultValue;
-    return parsed;
-  } catch {
-    return defaultValue;
+    try {
+      const parsed = Number(value);
+      if (!Number.isFinite(parsed)) return defaultValue;
+      return parsed;
+    } catch {
+      return defaultValue;
+    }
   },
 
   safeParseInt(value, defaultValue = 0) {
