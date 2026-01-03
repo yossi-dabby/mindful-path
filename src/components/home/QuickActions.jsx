@@ -52,7 +52,7 @@ export default function QuickActions() {
       transition={{ duration: 0.5, delay: 0.5 }}
     >
       <h2 className="text-lg font-semibold mb-3 truncate" style={{ color: 'rgb(var(--text))' }}>Quick Actions</h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {actions.map((action, index) => {
           const Icon = action.icon;
           return (
