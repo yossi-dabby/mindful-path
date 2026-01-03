@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Target, CheckCircle, Plus } from 'lucide-react';
+import { safeArray, safeText } from '@/components/utils/aiDataNormalizer';
 
 export default function AiGoalBreakdown({ goal, onApplySteps, onClose }) {
   const [breakdown, setBreakdown] = useState(null);
@@ -122,7 +123,7 @@ Make each step concrete and actionable, not vague.`,
                 Quick Wins (Start Here!)
               </h3>
               <ul className="space-y-2">
-                {breakdown.quick_wins?.map((win, i) => (
+                {safeArray(breakdown.quick_wins).map((win, i) => (
                   <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
                     <span className="text-green-600 mt-0.5">✓</span>
                     <span>{win}</span>
@@ -138,22 +139,25 @@ Make each step concrete and actionable, not vague.`,
                 Detailed Action Plan
               </h3>
               <div className="space-y-3">
-                {breakdown.action_plan?.map((action, i) => (
+                {safeArray(breakdown.action_plan).map((action, i) => {
+                  const act = typeof action === 'object' ? action : { step: safeText(action), description: '', estimated_time: '' };
+                  return (
                   <div key={i} className="bg-white p-4 rounded-lg border-2 border-blue-100">
                     <div className="flex items-start justify-between mb-2">
                       <h4 className="font-medium text-gray-800 flex items-center gap-2">
                         <span className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">
                           {i + 1}
                         </span>
-                        {action.step}
+                        {safeText(act.step, `Step ${i + 1}`)}
                       </h4>
-                      {action.estimated_time && (
-                        <span className="text-xs text-gray-500">{action.estimated_time}</span>
+                      {act.estimated_time && (
+                        <span className="text-xs text-gray-500">{safeText(act.estimated_time)}</span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-600 ml-8">{action.description}</p>
+                    {act.description && <p className="text-sm text-gray-600 ml-8">{safeText(act.description)}</p>}
                   </div>
-                ))}
+                );
+                })}
               </div>
             </div>
 
@@ -161,12 +165,15 @@ Make each step concrete and actionable, not vague.`,
             <div>
               <h3 className="font-semibold text-gray-800 mb-3">Key Milestones</h3>
               <div className="space-y-2">
-                {breakdown.milestones?.map((milestone, i) => (
+                {safeArray(breakdown.milestones).map((milestone, i) => {
+                  const m = typeof milestone === 'object' ? milestone : { title: safeText(milestone), description: '' };
+                  return (
                   <div key={i} className="bg-purple-50 p-3 rounded-lg border border-purple-200">
-                    <p className="font-medium text-gray-800 text-sm">{milestone.title}</p>
-                    <p className="text-xs text-gray-600 mt-1">{milestone.description}</p>
+                    <p className="font-medium text-gray-800 text-sm">{safeText(m.title, `Milestone ${i + 1}`)}</p>
+                    {m.description && <p className="text-xs text-gray-600 mt-1">{safeText(m.description)}</p>}
                   </div>
-                ))}
+                );
+                })}
               </div>
             </div>
 
@@ -174,14 +181,19 @@ Make each step concrete and actionable, not vague.`,
             <div>
               <h3 className="font-semibold text-gray-800 mb-3">Prepare for Challenges</h3>
               <div className="space-y-2">
-                {breakdown.potential_obstacles?.map((item, i) => (
+                {safeArray(breakdown.potential_obstacles).map((item, i) => {
+                  const obs = typeof item === 'object' ? item : { obstacle: safeText(item), solution: '' };
+                  return (
                   <div key={i} className="bg-orange-50 p-3 rounded-lg border border-orange-200">
-                    <p className="font-medium text-gray-800 text-sm">⚠️ {item.obstacle}</p>
-                    <p className="text-xs text-gray-600 mt-1">
-                      <span className="font-semibold">Solution:</span> {item.solution}
-                    </p>
+                    <p className="font-medium text-gray-800 text-sm">⚠️ {safeText(obs.obstacle, `Obstacle ${i + 1}`)}</p>
+                    {obs.solution && (
+                      <p className="text-xs text-gray-600 mt-1">
+                        <span className="font-semibold">Solution:</span> {safeText(obs.solution)}
+                      </p>
+                    )}
                   </div>
-                ))}
+                );
+                })}
               </div>
             </div>
 
@@ -189,7 +201,7 @@ Make each step concrete and actionable, not vague.`,
             <div className="bg-gradient-to-br from-indigo-50 to-white p-4 rounded-xl border-2 border-indigo-200">
               <h3 className="font-semibold text-gray-800 mb-3">Measuring Success</h3>
               <ul className="space-y-1">
-                {breakdown.success_metrics?.map((metric, i) => (
+                {safeArray(breakdown.success_metrics).map((metric, i) => (
                   <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
                     <span className="text-indigo-600 mt-0.5">📊</span>
                     <span>{metric}</span>
