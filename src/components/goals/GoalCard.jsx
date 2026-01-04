@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Edit, Calendar, CheckCircle2, ChevronDown, ChevronUp, TrendingUp, BookOpen } from 'lucide-react';
+import { Edit, Calendar, CheckCircle2, ChevronDown, ChevronUp, TrendingUp, BookOpen, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { safeArray, safeText } from '@/components/utils/aiDataNormalizer';
@@ -21,7 +21,7 @@ const categoryColors = {
   lifestyle: 'bg-pink-100 text-pink-700'
 };
 
-export default function GoalCard({ goal, onEdit }) {
+export default function GoalCard({ goal, onEdit, onDelete }) {
   const [showChart, setShowChart] = useState(false);
   const [showJournalEntries, setShowJournalEntries] = useState(false);
   const queryClient = useQueryClient();
@@ -99,9 +99,22 @@ export default function GoalCard({ goal, onEdit }) {
               )}
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={() => onEdit(goal)}>
-            <Edit className="w-4 h-4 text-gray-400" />
-          </Button>
+          <div className="flex gap-1">
+            <Button variant="ghost" size="icon" onClick={() => onEdit(goal)}>
+              <Edit className="w-4 h-4 text-gray-400" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => {
+                if (confirm(`Are you sure you want to delete "${goal.title}"? This action cannot be undone.`)) {
+                  onDelete(goal.id);
+                }
+              }}
+            >
+              <Trash2 className="w-4 h-4 text-red-400 hover:text-red-600" />
+            </Button>
+          </div>
         </div>
 
         {/* Progress Bar */}

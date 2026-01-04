@@ -26,6 +26,13 @@ export default function Goals() {
     initialData: []
   });
 
+  const deleteGoalMutation = useMutation({
+    mutationFn: (goalId) => base44.entities.Goal.delete(goalId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['allGoals']);
+    }
+  });
+
   const activeGoals = goals.filter((g) => g.status === 'active');
   const completedGoals = goals.filter((g) => g.status === 'completed');
 
@@ -173,7 +180,7 @@ export default function Goals() {
               <div className="space-y-4">
                 {activeGoals.map((goal) => (
                   <div key={goal.id} className="relative group">
-                    <GoalCard goal={goal} onEdit={handleEdit} />
+                    <GoalCard goal={goal} onEdit={handleEdit} onDelete={deleteGoalMutation.mutate} />
                     <Button
                       onClick={() => setShowBreakdown(goal)}
                       variant="outline"
@@ -195,7 +202,7 @@ export default function Goals() {
               <h2 className="text-xl font-semibold text-gray-800 mb-4">Completed Goals</h2>
               <div className="space-y-4">
                 {completedGoals.map((goal) => (
-                  <GoalCard key={goal.id} goal={goal} onEdit={handleEdit} />
+                  <GoalCard key={goal.id} goal={goal} onEdit={handleEdit} onDelete={deleteGoalMutation.mutate} />
                 ))}
               </div>
             </div>
