@@ -78,43 +78,44 @@ export default function PremiumPaywall({ onClose }) {
                 <p className="text-xs text-gray-500">Cancel anytime • 7-day free trial</p>
               </div>
 
-            {/* Features */}
-            <div className="space-y-3 mb-8">
-              {features.map((feature, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  className="flex items-center gap-3"
-                >
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-gray-700">{feature.text}</span>
-                </motion.div>
-              ))}
-            </div>
+              {/* Features */}
+              <div className="space-y-2 md:space-y-3 mb-6 md:mb-8">
+                {features.map((feature, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    className="flex items-center gap-3"
+                  >
+                    <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center flex-shrink-0">
+                      <Check className="w-3 h-3 md:w-4 md:h-4 text-white" />
+                    </div>
+                    <span className="text-sm md:text-base text-gray-700">{feature.text}</span>
+                  </motion.div>
+                ))}
+              </div>
 
-            {/* CTA */}
-            <Button
-              onClick={() => checkoutMutation.mutate('price_premium_monthly')}
-              disabled={checkoutMutation.isPending}
-              className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white py-6 text-lg rounded-2xl shadow-lg"
-            >
-              {checkoutMutation.isPending ? 'Loading...' : (
-                <>
-                  <Sparkles className="w-5 h-5 mr-2" />
-                  Start Free Trial
-                </>
-              )}
-            </Button>
-            <p className="text-xs text-center text-gray-500 mt-3">
-              No credit card required for trial
-            </p>
-          </CardContent>
-        </Card>
-      </motion.div>
+              {/* CTA */}
+              <Button
+                onClick={() => checkoutMutation.mutate('price_premium_monthly')}
+                disabled={checkoutMutation.isPending}
+                className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white py-5 md:py-6 text-base md:text-lg rounded-2xl shadow-lg"
+              >
+                {checkoutMutation.isPending ? 'Loading...' : (
+                  <>
+                    <Sparkles className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                    Start Free Trial
+                  </>
+                )}
+              </Button>
+              <p className="text-xs text-center text-gray-500 mt-3">
+                No credit card required for trial
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
     </div>
   );
 }
