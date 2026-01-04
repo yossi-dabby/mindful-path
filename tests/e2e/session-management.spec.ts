@@ -20,13 +20,12 @@ test('create and delete session', async ({ page }) => {
   const menuButton = page.getByRole('button', { name: /menu|sessions/i });
   if (await menuButton.isVisible()) {
     await menuButton.click();
-    // Wait a bit for the sidebar to open
-    await page.waitForTimeout(500);
+    // Wait for sidebar animation
+    await page.waitForSelector('[data-testid="session-item"]', { state: 'visible', timeout: 5000 }).catch(() => {});
   }
 
   // Get initial count of sessions
   const sessionItemsBeforeCreate = await page.getByTestId('session-item').count();
-  console.log(`Initial session count: ${sessionItemsBeforeCreate}`);
 
   // Find and click the create session button (+ button)
   const createButton = page.getByTestId('session-create');
@@ -34,35 +33,31 @@ test('create and delete session', async ({ page }) => {
   await createButton.click();
 
   // Wait for the new session to be created and appear in the list
-  await page.waitForTimeout(1000);
+  // We expect the count to increase
+  await expect(async () => {
+    const currentCount = await page.getByTestId('session-item').count();
+    expect(currentCount).toBe(sessionItemsBeforeCreate + 1);
+  }).toPass({ timeout: 5000 });
   
   // Verify a new session was created
   const sessionItemsAfterCreate = await page.getByTestId('session-item').count();
-  console.log(`Session count after create: ${sessionItemsAfterCreate}`);
   expect(sessionItemsAfterCreate).toBe(sessionItemsBeforeCreate + 1);
 
-  // Get all session items
+  // Get all session items and find the newly created one
+  // The newly created session should be the one we just clicked on (active/selected)
+  // We'll hover over each session and click delete on the last one (most recent)
   const sessionItems = page.getByTestId('session-item');
-  
-  // Find the newly created session (it should be the first one or the last one)
-  // We'll identify it by hovering to reveal the delete button
   const lastSessionItem = sessionItems.last();
   
   // Hover over the last session to reveal the delete button
   await lastSessionItem.hover();
   
-  // Find the delete button within the hovered session
-  const deleteButtons = page.getByTestId('session-delete');
-  const deleteButtonCount = await deleteButtons.count();
-  console.log(`Delete button count: ${deleteButtonCount}`);
-  
-  // Click the last delete button (the one for the newly created session)
-  const deleteButton = deleteButtons.last();
+  // Wait for delete button to become visible after hover
+  const deleteButton = lastSessionItem.getByTestId('session-delete');
   await expect(deleteButton).toBeVisible({ timeout: 5000 });
   
   // Set up dialog handler to accept the confirmation
   page.on('dialog', async dialog => {
-    console.log(`Dialog message: ${dialog.message()}`);
     expect(dialog.type()).toBe('confirm');
     await dialog.accept();
   });
@@ -70,12 +65,14 @@ test('create and delete session', async ({ page }) => {
   // Click the delete button
   await deleteButton.click();
   
-  // Wait for the session to be deleted
-  await page.waitForTimeout(1000);
+  // Wait for the session to be deleted by checking the count decreases
+  await expect(async () => {
+    const currentCount = await page.getByTestId('session-item').count();
+    expect(currentCount).toBe(sessionItemsBeforeCreate);
+  }).toPass({ timeout: 5000 });
   
   // Verify the session was deleted
   const sessionItemsAfterDelete = await page.getByTestId('session-item').count();
-  console.log(`Session count after delete: ${sessionItemsAfterDelete}`);
   expect(sessionItemsAfterDelete).toBe(sessionItemsBeforeCreate);
 });
 
@@ -118,7 +115,8 @@ test('create session button is accessible', async ({ page }) => {
   const menuButton = page.getByRole('button', { name: /menu|sessions/i });
   if (await menuButton.isVisible()) {
     await menuButton.click();
-    await page.waitForTimeout(500);
+    // Wait for create button to be visible
+    await page.waitForSelector('[data-testid="session-create"]', { state: 'visible', timeout: 5000 });
   }
 
   // Verify the create button is present and has the correct test ID
