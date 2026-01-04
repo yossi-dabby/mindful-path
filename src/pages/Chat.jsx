@@ -163,10 +163,16 @@ export default function Chat() {
 
   const deleteConversationMutation = useMutation({
     mutationFn: async (conversationId) => {
-      // First call backend delete
-      await base44.agents.deleteConversation(conversationId);
-      // Then mark as deleted in localStorage as additional safeguard
+      // Mark as deleted in localStorage
       addDeletedSession(conversationId);
+      
+      // Try backend delete, but don't fail if it errors
+      try {
+        await base44.agents.deleteConversation(conversationId);
+      } catch (error) {
+        console.log('Backend delete not available, using client-side only:', error);
+      }
+      
       return conversationId;
     },
     onSuccess: (deletedId) => {
@@ -174,16 +180,17 @@ export default function Chat() {
         setCurrentConversationId(null);
         setMessages([]);
       }
-      // Invalidate and refetch to ensure UI updates
-      queryClient.invalidateQueries(['conversations']);
-      queryClient.invalidateQueries(['currentConversation', deletedId]);
-      setTimeout(() => {
-        refetchConversations();
-      }, 100);
+      // Force immediate refetch
+      refetchConversations();
+    },
+    onError: (error) => {
+      console.error('Delete error:', error);
+      // Still force refetch to update UI
+      refetchConversations();
     }
   });
 
-  const handleDeleteConversation = async (conversationId) => {
+  const handleDeleteConversation = (conversationId) => {
     if (confirm('Delete this session? This action cannot be undone.')) {
       deleteConversationMutation.mutate(conversationId);
     }
