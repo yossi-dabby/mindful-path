@@ -2,14 +2,13 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { TrendingUp, Brain, Target, Activity, Download, Crown, Lock } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { TrendingUp, Brain, Target, Activity, Download, Crown, Lock, ArrowLeft } from 'lucide-react';
 import PremiumPaywall from '../components/subscription/PremiumPaywall';
 import PremiumBadge from '../components/subscription/PremiumBadge';
+import { createPageUrl } from './utils';
 
 export default function AdvancedAnalytics() {
   const [showPaywall, setShowPaywall] = useState(false);
