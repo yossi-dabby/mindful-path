@@ -27,8 +27,9 @@ test.describe('Chat Sessions Delete', () => {
       await messageBox.press('Enter');
     }
 
-    // Wait a bit for the message to be sent
-    await page.waitForTimeout(2000);
+    // Wait for the assistant response to ensure the conversation is saved
+    await page.waitForSelector('text=/thinking|assistant/i', { timeout: 20000, state: 'visible' })
+      .catch(() => page.waitForTimeout(2000)); // Fallback if selector not found
 
     // Open the sidebar/sessions list (for mobile)
     const menuButton = page.getByRole('button', { name: /menu/i }).first();
@@ -46,11 +47,9 @@ test.describe('Chat Sessions Delete', () => {
     // Hover over the session to reveal the delete button
     await sessionItem.hover();
 
-    // Wait for delete button to appear (it has opacity transition)
-    await page.waitForTimeout(500);
-
     // Find and click the delete button - use aria-label or title
     const deleteButton = sessionItem.getByRole('button', { name: /delete/i });
+    // Wait for the delete button to become visible (opacity transition)
     await expect(deleteButton).toBeVisible({ timeout: 5000 });
     
     // Setup dialog handler before clicking delete
@@ -61,18 +60,14 @@ test.describe('Chat Sessions Delete', () => {
 
     await deleteButton.click();
 
-    // Wait for the session to be removed from the list
-    await page.waitForTimeout(1000);
-
-    // Verify the session is gone - the session item should no longer be visible
-    // Note: This might redirect to empty state, so we check for either state
-    const hasNoSessions = page.getByText(/no sessions yet/i);
-    const sessionStillExists = sessionItem;
-    
-    // Either we see "no sessions" message OR the specific session is gone
-    await expect(
-      hasNoSessions.or(sessionStillExists.filter({ hasNotText: /test message/i }))
-    ).toBeVisible({ timeout: 5000 });
+    // Wait for the session to be removed - either we see "no sessions" message or the session is gone
+    await expect(async () => {
+      const noSessionsText = await page.getByText(/no sessions yet/i).count();
+      const sessionCount = await page.locator('[class*="group"]').filter({ hasText: /session/i }).count();
+      
+      // Either we have no sessions message OR the session count is 0
+      expect(noSessionsText > 0 || sessionCount === 0).toBeTruthy();
+    }).toPass({ timeout: 5000 });
   });
 
   test('should cancel deletion when dismissing confirmation dialog', async ({ page }) => {
@@ -96,7 +91,9 @@ test.describe('Chat Sessions Delete', () => {
       await messageBox.press('Enter');
     }
 
-    await page.waitForTimeout(2000);
+    // Wait for the assistant response to ensure the conversation is saved
+    await page.waitForSelector('text=/thinking|assistant/i', { timeout: 20000, state: 'visible' })
+      .catch(() => page.waitForTimeout(2000)); // Fallback if selector not found
 
     // Open the sidebar/sessions list
     const menuButton = page.getByRole('button', { name: /menu/i }).first();
@@ -110,9 +107,9 @@ test.describe('Chat Sessions Delete', () => {
     await expect(sessionItem).toBeVisible({ timeout: 5000 });
 
     await sessionItem.hover();
-    await page.waitForTimeout(500);
 
     const deleteButton = sessionItem.getByRole('button', { name: /delete/i });
+    // Wait for the delete button to become visible (opacity transition)
     await expect(deleteButton).toBeVisible({ timeout: 5000 });
     
     // Setup dialog handler to dismiss/cancel
@@ -123,9 +120,12 @@ test.describe('Chat Sessions Delete', () => {
 
     await deleteButton.click();
 
-    await page.waitForTimeout(500);
-
-    // Verify the session still exists
+    // Verify the session still exists after dismissal
+    // The session item should remain visible in the list
     await expect(sessionItem).toBeVisible({ timeout: 5000 });
+    
+    // Also verify the session count hasn't decreased
+    const sessionCount = await page.locator('[class*="group"]').filter({ hasText: /session/i }).count();
+    expect(sessionCount).toBeGreaterThanOrEqual(1);
   });
 });
