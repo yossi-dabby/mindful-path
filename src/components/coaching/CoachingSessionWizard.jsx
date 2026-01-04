@@ -113,7 +113,7 @@ Please help me create a structured plan to work through this.`
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4 overflow-y-auto">
       <Card className="w-full max-w-2xl border-0 shadow-2xl my-8">
         <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-purple-50">
           <div className="flex items-center justify-between">

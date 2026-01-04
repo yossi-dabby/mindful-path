@@ -37,8 +37,19 @@ export function safeText(value, fallback = '') {
  */
 export function safeReplace(str, searchValue, replaceValue) {
   const text = safeText(str);
-  if (!text) return text;
+  if (!text) return '';
   return text.replace(searchValue, replaceValue);
+}
+
+/**
+ * Strips HTML tags from content safely
+ * @param {*} html - HTML content to strip
+ * @returns {string} - Plain text
+ */
+export function stripHtml(html) {
+  const text = safeText(html);
+  if (!text) return '';
+  return text.replace(/<[^>]*>/g, '');
 }
 
 /**

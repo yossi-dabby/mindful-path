@@ -114,7 +114,7 @@ export default function Coach() {
             </Link>
             <Button
               onClick={handleStartSession}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hidden md:flex"
             >
               <Target className="w-5 h-5 mr-2" />
               Start New Session
@@ -156,10 +156,19 @@ export default function Coach() {
                   <Button
                     onClick={handleStartSession}
                     size="lg"
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-6 text-lg rounded-2xl shadow-lg"
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-6 text-lg rounded-2xl shadow-lg hover:shadow-xl transition-all"
                   >
                     <Target className="w-5 h-5 mr-2" />
                     Start Your First Session
+                  </Button>
+                  
+                  {/* Mobile FAB */}
+                  <Button
+                    onClick={handleStartSession}
+                    size="lg"
+                    className="md:hidden fixed bottom-20 right-6 z-30 rounded-full w-16 h-16 shadow-2xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 p-0"
+                  >
+                    <Target className="w-6 h-6" />
                   </Button>
                 </CardContent>
               </Card>

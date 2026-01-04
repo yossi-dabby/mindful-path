@@ -107,9 +107,9 @@ export default function CoachingChat({ session, onBack }) {
   const totalActions = currentSession.action_plan?.length || 0;
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-[calc(100vh-4rem)] md:h-screen flex flex-col">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 p-4">
+      <div className="bg-white border-b border-gray-200 p-4 flex-shrink-0">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-3">
             <Button variant="ghost" onClick={onBack} className="gap-2">
