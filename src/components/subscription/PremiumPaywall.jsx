@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useMutation } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Crown, Sparkles, Check, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 
