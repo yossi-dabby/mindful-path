@@ -45,21 +45,21 @@ export default function PremiumPaywall({ onClose }) {
                 <X className="w-6 h-6" />
               </button>
 
-            <div className="text-center mb-8">
-              <motion.div
-                animate={{ rotate: [0, 10, -10, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center mx-auto mb-4 shadow-lg"
-              >
-                <Crown className="w-10 h-10 text-white" />
-              </motion.div>
-              <h2 className="text-3xl font-bold text-gray-800 mb-2">
-                Unlock Premium
-              </h2>
-              <p className="text-gray-600">
-                Get the full experience with unlimited access to all features
-              </p>
-            </div>
+              <div className="text-center mb-6 md:mb-8">
+                <motion.div
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center mx-auto mb-4 shadow-lg"
+                >
+                  <Crown className="w-8 h-8 md:w-10 md:h-10 text-white" />
+                </motion.div>
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
+                  Unlock Premium
+                </h2>
+                <p className="text-sm md:text-base text-gray-600">
+                  Get the full experience with unlimited access to all features
+                </p>
+              </div>
 
             {/* Pricing */}
             <div className="bg-white rounded-2xl p-6 mb-6 border-2 border-orange-200 shadow-lg">
