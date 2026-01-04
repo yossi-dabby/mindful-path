@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { Card, CardContent } from '@/components/ui/card';
-import { MessageCircle, BookOpen, Target, Dumbbell, Play, Sparkles } from 'lucide-react';
+import { MessageCircle, BookOpen, Target, Dumbbell, Play, Sparkles, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const actions = [
@@ -25,7 +25,7 @@ const actions = [
     description: 'Track progress',
     icon: Target,
     page: 'Goals',
-    gradient: 'from-coral-400 to-coral-600'
+    gradient: 'from-red-400 to-red-600'
   },
   {
     title: 'Try an Exercise',
@@ -42,11 +42,11 @@ const actions = [
     gradient: 'from-amber-400 to-orange-600'
   },
   {
-    title: 'Personalized Feed',
-    description: 'AI-curated content',
-    icon: Sparkles,
-    page: 'PersonalizedFeed',
-    gradient: 'from-indigo-400 to-purple-600'
+    title: 'Starter Path',
+    description: '7-day beginner guide',
+    icon: MapPin,
+    page: 'StarterPath',
+    gradient: 'from-teal-400 to-teal-600'
   }
 ];
 

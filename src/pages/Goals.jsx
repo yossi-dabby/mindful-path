@@ -132,10 +132,10 @@ export default function Goals() {
             <p className="text-gray-600 mb-6 max-w-md mx-auto">
               Goals give you direction and motivation. Break them into small steps and celebrate each milestone.
             </p>
-            <div className="flex gap-3 justify-center">
+            <div className="flex flex-col gap-3 items-center max-w-md mx-auto">
               <Button
                 onClick={() => setShowAiSuggestions(true)}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-6 text-lg rounded-xl"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-6 text-lg rounded-xl w-full"
               >
                 <Sparkles className="w-5 h-5 mr-2" />
                 Get AI Goal Suggestions
@@ -143,7 +143,7 @@ export default function Goals() {
               <Button
                 onClick={() => setShowForm(true)}
                 variant="outline"
-                className="px-8 py-6 text-lg rounded-xl"
+                className="px-8 py-6 text-lg rounded-xl w-full"
               >
                 Create Manually
               </Button>

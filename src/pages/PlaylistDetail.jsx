@@ -37,9 +37,15 @@ export default function PlaylistDetail() {
       const videoMap = new Map(allVideos.map(v => [v.id, v]));
       return playlistVideos
         .map(pv => videoMap.get(pv.video_id))
-        .filter(v => v);
+        .filter(v => v)
+        .sort((a, b) => {
+          const posA = playlistVideos.find(pv => pv.video_id === a.id)?.position || 0;
+          const posB = playlistVideos.find(pv => pv.video_id === b.id)?.position || 0;
+          return posA - posB;
+        });
     },
-    enabled: playlistVideos.length > 0
+    enabled: playlistVideos.length > 0,
+    initialData: []
   });
 
   const { data: allProgress = [] } = useQuery({
