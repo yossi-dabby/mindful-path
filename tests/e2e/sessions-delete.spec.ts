@@ -11,8 +11,7 @@ test.describe('Coaching Sessions Delete', () => {
     const hasCards = await page.locator('[data-testid="delete-session-button"]').count() > 0;
     
     if (!hasCards) {
-      test.skip(true, 'No sessions available to test deletion');
-      return;
+      test.skip(); // No sessions available to test deletion
     }
 
     // Find the first delete button
@@ -44,8 +43,7 @@ test.describe('Coaching Sessions Delete', () => {
     const hasCards = await page.locator('[data-testid="delete-session-button"]').count() > 0;
     
     if (!hasCards) {
-      test.skip(true, 'No sessions available to test deletion');
-      return;
+      test.skip(); // No sessions available to test deletion
     }
 
     // Set up dialog handler before clicking
@@ -78,8 +76,7 @@ test.describe('Coaching Sessions Delete', () => {
     const hasCards = await page.locator('[data-testid="delete-session-button"]').count() > 0;
     
     if (!hasCards) {
-      test.skip(true, 'No sessions available to test deletion');
-      return;
+      test.skip(); // No sessions available to test deletion
     }
 
     // Set up dialog handler to dismiss the delete confirmation
@@ -113,8 +110,7 @@ test.describe('Coaching Sessions Delete', () => {
     const initialCount = await page.locator('[data-testid="delete-session-button"]').count();
     
     if (initialCount === 0) {
-      test.skip(true, 'No sessions available to test deletion');
-      return;
+      test.skip(); // No sessions available to test deletion
     }
 
     // Set up dialog handler to accept the deletion
@@ -146,9 +142,13 @@ test.describe('Coaching Sessions Delete', () => {
         { expectedCount: initialCount },
         { timeout: DELETE_WAIT_TIMEOUT }
       );
-    } catch (error) {
-      // Timeout is acceptable here - we check the final state below regardless
+    } catch (error: any) {
+      // Timeout is acceptable here - we verify the final state below regardless
       // This allows the test to pass even if deletion is slower than expected
+      // Only timeouts are expected; log any other errors for debugging
+      if (error?.name !== 'TimeoutError') {
+        console.warn('Unexpected error while waiting for deletion:', error);
+      }
     }
 
     // Verify the session count decreased or we're at the "no sessions" state
