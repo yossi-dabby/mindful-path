@@ -29,20 +29,21 @@ export default function PremiumPaywall({ onClose }) {
   });
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-2xl"
-      >
-        <Card className="border-0 shadow-2xl bg-gradient-to-br from-yellow-50 via-white to-orange-50">
-          <CardContent className="p-8 md:p-12">
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-            >
-              <X className="w-6 h-6" />
-            </button>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="min-h-full flex items-center justify-center py-8">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-2xl"
+        >
+          <Card className="border-0 shadow-2xl bg-gradient-to-br from-yellow-50 via-white to-orange-50 relative">
+            <CardContent className="p-6 md:p-12">
+              <button
+                onClick={onClose}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10"
+              >
+                <X className="w-6 h-6" />
+              </button>
 
             <div className="text-center mb-8">
               <motion.div
