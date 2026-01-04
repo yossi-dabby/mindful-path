@@ -27,9 +27,8 @@ test.describe('Chat Sessions Delete', () => {
       await messageBox.press('Enter');
     }
 
-    // Wait for the assistant response to ensure the conversation is saved
-    await page.waitForSelector('text=/thinking|assistant/i', { timeout: 20000, state: 'visible' })
-      .catch(() => page.waitForTimeout(2000)); // Fallback if selector not found
+    // Wait for network to be idle, indicating the conversation has been saved
+    await page.waitForLoadState('networkidle');
 
     // Open the sidebar/sessions list (for mobile)
     const menuButton = page.getByRole('button', { name: /menu/i }).first();
@@ -91,9 +90,8 @@ test.describe('Chat Sessions Delete', () => {
       await messageBox.press('Enter');
     }
 
-    // Wait for the assistant response to ensure the conversation is saved
-    await page.waitForSelector('text=/thinking|assistant/i', { timeout: 20000, state: 'visible' })
-      .catch(() => page.waitForTimeout(2000)); // Fallback if selector not found
+    // Wait for network to be idle, indicating the conversation has been saved
+    await page.waitForLoadState('networkidle');
 
     // Open the sidebar/sessions list
     const menuButton = page.getByRole('button', { name: /menu/i }).first();
