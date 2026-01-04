@@ -20,8 +20,12 @@ test('create and delete session', async ({ page }) => {
   const menuButton = page.getByRole('button', { name: /menu|sessions/i });
   if (await menuButton.isVisible()) {
     await menuButton.click();
-    // Wait for sidebar animation
-    await page.waitForSelector('[data-testid="session-item"]', { state: 'visible', timeout: 5000 }).catch(() => {});
+    // Wait for sidebar to open - session items may already be visible or will appear
+    try {
+      await page.waitForSelector('[data-testid="session-item"]', { state: 'visible', timeout: 5000 });
+    } catch {
+      // Session items may not exist if this is the first session
+    }
   }
 
   // Get initial count of sessions
@@ -116,7 +120,7 @@ test('create session button is accessible', async ({ page }) => {
   if (await menuButton.isVisible()) {
     await menuButton.click();
     // Wait for create button to be visible
-    await page.waitForSelector('[data-testid="session-create"]', { state: 'visible', timeout: 5000 });
+    await expect(page.getByTestId('session-create')).toBeVisible({ timeout: 5000 });
   }
 
   // Verify the create button is present and has the correct test ID
