@@ -87,12 +87,14 @@ export default function ConversationsList({
                 
                 {/* Delete Button */}
                 <button
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     onDeleteConversation(conversation.id);
                   }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-red-50 rounded-lg"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-red-50 rounded-lg z-10 cursor-pointer"
                   title="Delete session"
+                  aria-label="Delete session"
                 >
                   <Trash2 className="w-4 h-4 text-red-500" />
                 </button>
