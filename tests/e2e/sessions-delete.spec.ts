@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test';
 
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+
 test.describe('Coaching Sessions Delete', () => {
   test('delete button is visible and clickable on session card', async ({ page }) => {
-    const base = process.env.BASE_URL || 'http://localhost:3000/Coach';
-    await page.goto(base, { waitUntil: 'networkidle' });
+    await page.goto(`${BASE_URL}/Coach`, { waitUntil: 'networkidle' });
 
     // Wait for the sessions list to load
     // If no sessions exist, this test will be skipped since we can't test deletion without sessions
@@ -37,8 +38,7 @@ test.describe('Coaching Sessions Delete', () => {
   });
 
   test('clicking delete button triggers confirmation dialog', async ({ page }) => {
-    const base = process.env.BASE_URL || 'http://localhost:3000/Coach';
-    await page.goto(base, { waitUntil: 'networkidle' });
+    await page.goto(`${BASE_URL}/Coach`, { waitUntil: 'networkidle' });
 
     // Check if there are any sessions
     const hasCards = await page.locator('[data-testid="delete-session-button"]').count() > 0;
@@ -72,8 +72,7 @@ test.describe('Coaching Sessions Delete', () => {
   });
 
   test('delete button does not trigger session selection', async ({ page }) => {
-    const base = process.env.BASE_URL || 'http://localhost:3000/Coach';
-    await page.goto(base, { waitUntil: 'networkidle' });
+    await page.goto(`${BASE_URL}/Coach`, { waitUntil: 'networkidle' });
 
     // Check if there are any sessions
     const hasCards = await page.locator('[data-testid="delete-session-button"]').count() > 0;
@@ -108,8 +107,7 @@ test.describe('Coaching Sessions Delete', () => {
   });
 
   test('confirming delete removes the session from the list', async ({ page }) => {
-    const base = process.env.BASE_URL || 'http://localhost:3000/Coach';
-    await page.goto(base, { waitUntil: 'networkidle' });
+    await page.goto(`${BASE_URL}/Coach`, { waitUntil: 'networkidle' });
 
     // Check if there are any sessions
     const initialCount = await page.locator('[data-testid="delete-session-button"]').count();
@@ -137,20 +135,20 @@ test.describe('Coaching Sessions Delete', () => {
     // Wait for dialog to be handled
     await dialogPromise;
 
-    // Wait for the session to be removed from the list by checking that either:
-    // 1. The count decreased, or 
-    // 2. The "No sessions yet" message appears
-    await Promise.race([
-      page.waitForFunction(
-        (expectedCount) => {
+    // Wait for the session to be removed by checking for either count decrease or empty state
+    try {
+      await page.waitForFunction(
+        (data) => {
           const currentCount = document.querySelectorAll('[data-testid="delete-session-button"]').length;
-          return currentCount < expectedCount;
+          const hasEmptyMessage = document.body.textContent?.includes('No sessions yet') || false;
+          return currentCount < data.expectedCount || hasEmptyMessage;
         },
-        initialCount,
+        { expectedCount: initialCount },
         { timeout: 5000 }
-      ).catch(() => {}), // Ignore timeout, check state after
-      page.waitForSelector('text=No sessions yet', { timeout: 5000 }).catch(() => {}) // Ignore timeout
-    ]);
+      );
+    } catch (error) {
+      // If timeout occurs, continue to check final state
+    }
 
     // Verify the session count decreased or we're at the "no sessions" state
     const finalCount = await page.locator('[data-testid="delete-session-button"]').count();
