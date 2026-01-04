@@ -4,11 +4,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Plus, Loader2, Menu, Sparkles, ArrowLeft } from 'lucide-react';
+import { Send, Loader2, Menu, Sparkles, ArrowLeft } from 'lucide-react';
 import MessageBubble from '../components/chat/MessageBubble';
 import ConversationsList from '../components/chat/ConversationsList';
 import SessionSummary from '../components/chat/SessionSummary';
 import ProactiveCheckIn from '../components/chat/ProactiveCheckIn';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function Chat() {
   const [currentConversationId, setCurrentConversationId] = useState(null);
@@ -19,6 +20,7 @@ export default function Chat() {
   const [showSummaryPrompt, setShowSummaryPrompt] = useState(false);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -180,6 +182,21 @@ export default function Chat() {
       setTimeout(() => {
         refetchConversations();
       }, 100);
+      
+      // Show success toast
+      toast({
+        title: "Session deleted",
+        description: "The session has been successfully deleted.",
+        variant: "default",
+      });
+    },
+    onError: (error) => {
+      console.error('Failed to delete session:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete session. Please try again.",
+        variant: "destructive",
+      });
     }
   });
 

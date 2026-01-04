@@ -19,9 +19,11 @@ export default function ConversationsList({
         <h2 className="text-lg font-semibold text-gray-800">Sessions</h2>
         <div className="flex gap-2">
           <Button
+            data-testid="session-create"
             onClick={onNewConversation}
             size="icon"
             className="bg-green-600 hover:bg-green-700 rounded-xl"
+            aria-label="Create new session"
           >
             <Plus className="w-5 h-5" />
           </Button>
@@ -49,6 +51,7 @@ export default function ConversationsList({
             {conversations.map((conversation) => (
               <div
                 key={conversation.id}
+                data-testid="session-item"
                 className={cn(
                   'group relative rounded-xl transition-all',
                   currentConversationId === conversation.id
@@ -58,7 +61,7 @@ export default function ConversationsList({
               >
                 <button
                   onClick={() => onSelectConversation(conversation.id)}
-                  className="w-full text-left p-3"
+                  className="w-full text-left p-3 pr-12"
                 >
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-purple-400 flex items-center justify-center flex-shrink-0">
@@ -87,12 +90,14 @@ export default function ConversationsList({
                 
                 {/* Delete Button */}
                 <button
+                  data-testid="session-delete"
                   onClick={(e) => {
                     e.stopPropagation();
                     onDeleteConversation(conversation.id);
                   }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-red-50 rounded-lg"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-red-50 rounded-lg z-10"
                   title="Delete session"
+                  aria-label="Delete session"
                 >
                   <Trash2 className="w-4 h-4 text-red-500" />
                 </button>
