@@ -22,6 +22,7 @@ export default function ConversationsList({
             onClick={onNewConversation}
             size="icon"
             className="bg-green-600 hover:bg-green-700 rounded-xl"
+            data-testid="session-create"
           >
             <Plus className="w-5 h-5" />
           </Button>
@@ -55,6 +56,7 @@ export default function ConversationsList({
                     ? 'bg-green-50 ring-2 ring-green-500 shadow-md'
                     : 'bg-white hover:bg-gray-50'
                 )}
+                data-testid="session-item"
               >
                 <button
                   onClick={() => onSelectConversation(conversation.id)}
@@ -93,6 +95,7 @@ export default function ConversationsList({
                   }}
                   className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-red-50 rounded-lg"
                   title="Delete session"
+                  data-testid="session-delete"
                 >
                   <Trash2 className="w-4 h-4 text-red-500" />
                 </button>

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Send, Plus, Loader2, Menu, Sparkles, ArrowLeft } from 'lucide-react';
+import { toast } from '@/components/ui/use-toast';
 import MessageBubble from '../components/chat/MessageBubble';
 import ConversationsList from '../components/chat/ConversationsList';
 import SessionSummary from '../components/chat/SessionSummary';
@@ -163,9 +164,7 @@ export default function Chat() {
 
   const deleteConversationMutation = useMutation({
     mutationFn: async (conversationId) => {
-      // First call backend delete
-      await base44.agents.deleteConversation(conversationId);
-      // Then mark as deleted in localStorage as additional safeguard
+      // Mark as deleted in localStorage (SDK doesn't support delete yet)
       addDeletedSession(conversationId);
       return conversationId;
     },
@@ -180,6 +179,19 @@ export default function Chat() {
       setTimeout(() => {
         refetchConversations();
       }, 100);
+      // Show success toast
+      toast({
+        title: "Session deleted",
+        description: "The session has been removed from your list.",
+      });
+    },
+    onError: (error) => {
+      console.error('Failed to delete session:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete session. Please try again.",
+        variant: "destructive",
+      });
     }
   });
 
