@@ -12,12 +12,13 @@ export const NumericSafety = {
   },
 
   safeParseNumber(value, defaultValue = 0) {
-  try {
-    const parsed = Number(value);
-    if (!Number.isFinite(parsed)) return defaultValue;
-    return parsed;
-  } catch {
-    return defaultValue;
+    try {
+      const parsed = Number(value);
+      if (!Number.isFinite(parsed)) return defaultValue;
+      return parsed;
+    } catch {
+      return defaultValue;
+    }
   },
 
   safeParseInt(value, defaultValue = 0) {
@@ -27,9 +28,14 @@ export const NumericSafety = {
   },
 
   clamp(value, min, max) {
-    if (!Number.isFinite(value)) return min;
-    if (!Number.isFinite(min)) return value;
-    if (!Number.isFinite(max)) return value;
+    if (!Number.isFinite(value)) {
+      if (Number.isFinite(min)) return min;
+      if (Number.isFinite(max)) return max;
+      return 0; // Both boundaries non-finite, return safe default
+    }
+    if (!Number.isFinite(min) && !Number.isFinite(max)) return value;
+    if (!Number.isFinite(min)) return Math.min(max, value);
+    if (!Number.isFinite(max)) return Math.max(min, value);
     return Math.max(min, Math.min(max, value));
   },
 
