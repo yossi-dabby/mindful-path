@@ -235,7 +235,7 @@ Be specific, encouraging, and reference their actual data.`,
           )}
 
           {/* Recurring Patterns */}
-          {safeArray(insights.recurring_patterns).length > 0 && (
+          {safeArray(insights.recurring_patterns).filter(p => p && (p.pattern || typeof p === 'string')).length > 0 && (
             <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white">
               <CardContent className="p-4">
                 <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
@@ -243,13 +243,19 @@ Be specific, encouraging, and reference their actual data.`,
                   Thought Patterns Identified
                 </h4>
                 <div className="space-y-3">
-                  {safeArray(insights.recurring_patterns).map((pattern, i) => (
+                  {safeArray(insights.recurring_patterns).filter(p => p && (p.pattern || typeof p === 'string')).map((pattern, i) => (
                     <div key={i} className="bg-white p-3 rounded-lg">
                       <div className="flex items-start justify-between mb-1">
-                        <p className="font-medium text-gray-800 text-sm">{pattern.pattern}</p>
-                        <span className="text-xs text-gray-500">{pattern.frequency}</span>
+                        <p className="font-medium text-gray-800 text-sm">
+                          {typeof pattern === 'string' ? pattern : pattern.pattern}
+                        </p>
+                        {typeof pattern === 'object' && pattern.frequency && (
+                          <span className="text-xs text-gray-500">{pattern.frequency}</span>
+                        )}
                       </div>
-                      <p className="text-xs text-gray-600">{pattern.impact}</p>
+                      {typeof pattern === 'object' && pattern.impact && (
+                        <p className="text-xs text-gray-600">{pattern.impact}</p>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -258,7 +264,7 @@ Be specific, encouraging, and reference their actual data.`,
           )}
 
           {/* CBT Recommendations */}
-          {safeArray(insights.cbt_recommendations).length > 0 && (
+          {safeArray(insights.cbt_recommendations).filter(r => r && (r.exercise_category || typeof r === 'string')).length > 0 && (
             <Card className="border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-white">
               <CardContent className="p-4">
                 <h4 className="font-semibold text-indigo-900 mb-3 flex items-center gap-2">
@@ -266,13 +272,17 @@ Be specific, encouraging, and reference their actual data.`,
                   Recommended CBT Techniques
                 </h4>
                 <div className="space-y-3">
-                  {safeArray(insights.cbt_recommendations).map((rec, i) => (
+                  {safeArray(insights.cbt_recommendations).filter(r => r && (r.exercise_category || typeof r === 'string')).map((rec, i) => (
                     <div key={i} className="bg-white p-3 rounded-lg border-l-4 border-indigo-400">
                       <p className="font-medium text-gray-800 text-sm capitalize mb-1">
-                        {(rec.exercise_category || '').replace(/_/g, ' ')}
+                        {typeof rec === 'string' ? rec : (rec.exercise_category || '').replace(/_/g, ' ')}
                       </p>
-                      <p className="text-xs text-gray-600 mb-2">{rec.reason}</p>
-                      <p className="text-xs text-indigo-700 italic">💡 {rec.expected_benefit}</p>
+                      {typeof rec === 'object' && rec.reason && (
+                        <p className="text-xs text-gray-600 mb-2">{rec.reason}</p>
+                      )}
+                      {typeof rec === 'object' && rec.expected_benefit && (
+                        <p className="text-xs text-indigo-700 italic">💡 {rec.expected_benefit}</p>
+                      )}
                       {matchedExercises[i] && (
                         <p className="text-xs text-gray-500 mt-2">
                           Try: <span className="font-medium">{matchedExercises[i].title}</span>
@@ -286,7 +296,7 @@ Be specific, encouraging, and reference their actual data.`,
           )}
 
           {/* Goal Insights */}
-          {safeArray(insights.goal_insights).length > 0 && (
+          {safeArray(insights.goal_insights).filter(g => g && (g.goal_title || typeof g === 'string')).length > 0 && (
             <Card className="border-2 border-teal-200 bg-gradient-to-br from-teal-50 to-white">
               <CardContent className="p-4">
                 <h4 className="font-semibold text-teal-900 mb-3 flex items-center gap-2">
@@ -294,11 +304,17 @@ Be specific, encouraging, and reference their actual data.`,
                   Goal Alignment
                 </h4>
                 <div className="space-y-3">
-                  {safeArray(insights.goal_insights).map((insight, i) => (
+                  {safeArray(insights.goal_insights).filter(g => g && (g.goal_title || typeof g === 'string')).map((insight, i) => (
                     <div key={i} className="bg-white p-3 rounded-lg">
-                      <p className="font-medium text-gray-800 text-sm mb-1">{insight.goal_title}</p>
-                      <p className="text-xs text-gray-600 mb-2">{insight.connection}</p>
-                      <p className="text-xs text-teal-700">→ {insight.suggestion}</p>
+                      <p className="font-medium text-gray-800 text-sm mb-1">
+                        {typeof insight === 'string' ? insight : insight.goal_title}
+                      </p>
+                      {typeof insight === 'object' && insight.connection && (
+                        <p className="text-xs text-gray-600 mb-2">{insight.connection}</p>
+                      )}
+                      {typeof insight === 'object' && insight.suggestion && (
+                        <p className="text-xs text-teal-700">→ {insight.suggestion}</p>
+                      )}
                     </div>
                   ))}
                 </div>

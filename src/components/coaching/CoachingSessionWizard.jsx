@@ -126,7 +126,20 @@ Please help me create a structured plan to work through this.`
   };
 
   const handleSubmit = () => {
-    createSessionMutation.mutate(formData);
+    // Prevent double submission
+    if (createSessionMutation.isPending) return;
+
+    // Final validation
+    if (!formData.title?.trim() || !formData.focus_area || !formData.current_challenge?.trim() || !formData.desired_outcome?.trim()) {
+      return;
+    }
+
+    createSessionMutation.mutate({
+      ...formData,
+      title: formData.title.trim(),
+      current_challenge: formData.current_challenge.trim(),
+      desired_outcome: formData.desired_outcome.trim()
+    });
   };
 
   return (
