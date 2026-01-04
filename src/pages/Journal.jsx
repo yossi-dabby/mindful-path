@@ -93,31 +93,34 @@ export default function Journal() {
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </Button>
           <div>
-            <h1 className="text-3xl md:text-4xl font-light text-gray-800 mb-2">Thought Journal</h1>
-            <p className="text-gray-500">Challenge and reframe unhelpful thinking patterns</p>
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-light text-gray-800 mb-1 md:mb-2">Thought Journal</h1>
+            <p className="text-sm md:text-base text-gray-500">Challenge and reframe unhelpful thinking patterns</p>
           </div>
         </div>
         <div className="flex gap-2 flex-wrap">
           <Button
             onClick={() => setShowTrendsSummary(true)}
             variant="outline"
-            className="rounded-xl bg-gradient-to-r from-purple-50 to-blue-50 border-purple-300 hover:border-purple-400"
+            className="rounded-xl bg-gradient-to-r from-purple-50 to-blue-50 border-purple-300 hover:border-purple-400 text-sm md:text-base"
+            size="sm"
           >
-            <Sparkles className="w-4 h-4 mr-2" />
-            AI Insights
+            <Sparkles className="w-4 h-4 md:mr-2" />
+            <span className="hidden md:inline">AI Insights</span>
           </Button>
           <Button
             onClick={() => setShowAiPrompts(true)}
             variant="outline"
-            className="rounded-xl"
+            className="rounded-xl text-sm md:text-base"
+            size="sm"
           >
-            <Sparkles className="w-4 h-4 mr-2" />
-            AI Prompts
+            <Sparkles className="w-4 h-4 md:mr-2" />
+            <span className="hidden md:inline">AI Prompts</span>
           </Button>
           <Button
             onClick={() => setShowReminderManager(true)}
             variant="outline"
-            className="rounded-xl"
+            className="rounded-xl hidden md:flex"
+            size="sm"
           >
             <Bell className="w-4 h-4 mr-2" />
             Reminders
@@ -125,16 +128,18 @@ export default function Journal() {
           <Button
             onClick={() => setShowTemplateManager(true)}
             variant="outline"
-            className="rounded-xl"
+            className="rounded-xl hidden md:flex"
+            size="sm"
           >
             <Settings className="w-4 h-4 mr-2" />
             Templates
           </Button>
           <Button
             onClick={() => handleNewEntry()}
-            className="bg-purple-600 hover:bg-purple-700 rounded-xl px-6"
+            className="bg-purple-600 hover:bg-purple-700 rounded-xl text-sm md:text-base"
+            size="sm"
           >
-            <Plus className="w-5 h-5 mr-2" />
+            <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
             New Entry
           </Button>
         </div>

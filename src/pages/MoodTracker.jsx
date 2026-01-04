@@ -62,15 +62,16 @@ export default function MoodTracker() {
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
               </Button>
               <div>
-                <h1 className="text-3xl font-bold text-gray-800 mb-2">Mood Tracker</h1>
-                <p className="text-gray-600">Track your emotional well-being and discover patterns</p>
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-1 md:mb-2">Mood Tracker</h1>
+                <p className="text-sm md:text-base text-gray-600">Track your emotional well-being and discover patterns</p>
               </div>
             </div>
             <Button
               onClick={() => setShowForm(true)}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg text-sm md:text-base"
+              size="sm"
             >
-              <Plus className="w-5 h-5 mr-2" />
+              <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
               {todayEntry ? 'Update Today' : 'Log Mood'}
             </Button>
           </div>

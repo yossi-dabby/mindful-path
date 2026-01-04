@@ -65,7 +65,7 @@ export default function Goals() {
   return (
     <div className="min-h-screen p-4 md:p-8 pb-24 max-w-5xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8 mt-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 mt-4">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
@@ -76,32 +76,35 @@ export default function Goals() {
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </Button>
           <div>
-            <h1 className="text-3xl md:text-4xl font-light text-gray-800 mb-2">Your Goals</h1>
-            <p className="text-gray-500">Set intentions and track your progress</p>
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-light text-gray-800 mb-1 md:mb-2">Your Goals</h1>
+            <p className="text-sm md:text-base text-gray-500">Set intentions and track your progress</p>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button
             onClick={() => setShowCalendar(!showCalendar)}
             variant="outline"
-            className="rounded-xl"
+            className="rounded-xl text-sm md:text-base"
+            size="sm"
           >
-            <CalendarIcon className="w-5 h-5 mr-2" />
-            Calendar
+            <CalendarIcon className="w-4 h-4 md:w-5 md:h-5 md:mr-2" />
+            <span className="hidden md:inline">Calendar</span>
           </Button>
           <Button
             onClick={() => setShowAiSuggestions(true)}
             variant="outline"
-            className="rounded-xl"
+            className="rounded-xl text-sm md:text-base"
+            size="sm"
           >
-            <Sparkles className="w-5 h-5 mr-2" />
-            AI Suggestions
+            <Sparkles className="w-4 h-4 md:w-5 md:h-5 md:mr-2" />
+            <span className="hidden md:inline">AI Suggestions</span>
           </Button>
           <Button
             onClick={() => setShowForm(true)}
-            className="bg-blue-600 hover:bg-blue-700 rounded-xl px-6"
+            className="bg-blue-600 hover:bg-blue-700 rounded-xl text-sm md:text-base"
+            size="sm"
           >
-            <Plus className="w-5 h-5 mr-2" />
+            <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
             New Goal
           </Button>
         </div>

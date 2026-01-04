@@ -69,9 +69,12 @@ export default function Progress() {
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </Button>
-          <h1 className="text-3xl md:text-4xl font-light text-gray-800">Your Progress</h1>
+          <div>
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-light text-gray-800">Your Progress</h1>
+            <p className="text-sm md:text-base text-gray-500 md:hidden">Track your journey</p>
+          </div>
         </div>
-        <p className="text-gray-500 ml-12">Track your journey and celebrate your growth</p>
+        <p className="text-sm md:text-base text-gray-500 ml-0 md:ml-12 hidden md:block">Track your journey and celebrate your growth</p>
       </div>
 
       {/* Stats Overview */}

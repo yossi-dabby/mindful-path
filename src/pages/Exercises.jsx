@@ -115,7 +115,7 @@ export default function Exercises() {
     <div className="p-4 md:p-8 max-w-6xl mx-auto">
       {/* Header */}
       <div className="mb-8 mt-4">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
@@ -125,21 +125,26 @@ export default function Exercises() {
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             </Button>
-            <h1 className="text-3xl md:text-4xl font-light text-gray-800">Exercise Library</h1>
+            <div>
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-light text-gray-800">Exercise Library</h1>
+              <p className="text-sm md:text-base text-gray-500 md:hidden">Practice evidence-based techniques</p>
+            </div>
           </div>
           <button
             onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-            className={`px-4 py-2 rounded-xl transition-all ${
+            className={`px-3 py-2 md:px-4 md:py-2 rounded-xl transition-all text-sm md:text-base ${
               showFavoritesOnly
                 ? 'bg-red-100 text-red-700 border-2 border-red-300'
                 : 'bg-gray-100 text-gray-600 border-2 border-transparent'
             }`}
           >
-            <Star className={`w-4 h-4 inline mr-2 ${showFavoritesOnly ? 'fill-current' : ''}`} />
-            Favorites {showFavoritesOnly && `(${exercises.filter(e => e.favorite).length})`}
+            <Star className={`w-4 h-4 inline mr-1 md:mr-2 ${showFavoritesOnly ? 'fill-current' : ''}`} />
+            <span className="hidden md:inline">Favorites</span>
+            {showFavoritesOnly && <span className="md:hidden">({exercises.filter(e => e.favorite).length})</span>}
+            {showFavoritesOnly && <span className="hidden md:inline"> ({exercises.filter(e => e.favorite).length})</span>}
           </button>
         </div>
-        <p className="text-gray-500 ml-12">Practice evidence-based techniques to manage thoughts and emotions</p>
+        <p className="text-sm md:text-base text-gray-500 ml-0 md:ml-12 hidden md:block">Practice evidence-based techniques to manage thoughts and emotions</p>
       </div>
 
       {/* Search Bar */}
