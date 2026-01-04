@@ -57,43 +57,57 @@ export default function CoachingSessionWizard({ onClose }) {
         throw new Error('Missing required fields');
       }
 
-      // Create session
-      const session = await base44.entities.CoachingSession.create(data);
+      // Create session with proper field mapping
+      const sessionData = {
+        title: data.title,
+        focus_area: data.focus_area,
+        current_challenge: data.current_challenge,
+        desired_outcome: data.desired_outcome,
+        related_goals: data.related_goals || [],
+        status: 'active',
+        current_stage: 'understanding',
+        action_plan: []
+      };
+
+      const session = await base44.entities.CoachingSession.create(sessionData);
       
       if (!session || !session.id) {
         throw new Error('Failed to create coaching session');
       }
 
       // Create AI conversation
-      const conversation = await base44.agents.createConversation({
-        agent_name: 'ai_coach',
-        metadata: {
-          name: `Coaching: ${data.title}`,
-          type: 'coaching_session',
-          session_id: session.id
-        }
-      });
+      try {
+        const conversation = await base44.agents.createConversation({
+          agent_name: 'ai_coach',
+          metadata: {
+            name: `Coaching: ${data.title}`,
+            type: 'coaching_session',
+            session_id: session.id
+          }
+        });
 
-      if (!conversation || !conversation.id) {
-        throw new Error('Failed to create conversation');
-      }
+        if (conversation && conversation.id) {
+          // Update session with conversation ID
+          await base44.entities.CoachingSession.update(session.id, {
+            agent_conversation_id: conversation.id
+          });
 
-      // Update session with conversation ID
-      await base44.entities.CoachingSession.update(session.id, {
-        agent_conversation_id: conversation.id
-      });
-
-      // Send initial coaching message
-      await base44.agents.addMessage(conversation, {
-        role: 'user',
-        content: `I'd like to start a coaching session. My focus is ${data.focus_area}. 
-        
+          // Send initial coaching message
+          await base44.agents.addMessage(conversation, {
+            role: 'user',
+            content: `I'd like to start a coaching session. My focus is ${data.focus_area.replace(/_/g, ' ')}. 
+            
 Current Challenge: ${data.current_challenge}
 
 Desired Outcome: ${data.desired_outcome}
 
 Please help me create a structured plan to work through this.`
-      });
+          });
+        }
+      } catch (convError) {
+        console.error('Conversation creation failed, but session was created:', convError);
+        // Continue anyway - session is created
+      }
 
       return session;
     },
