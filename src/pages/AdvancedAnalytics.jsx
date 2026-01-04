@@ -150,75 +150,75 @@ export default function AdvancedAnalytics() {
             </TabsTrigger>
           </TabsList>
 
-        <TabsContent value="mood" className="space-y-6">
-          <Card className="border-0 shadow-lg rounded-2xl">
-            <CardHeader>
-              <CardTitle>30-Day Mood & Energy Correlation</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isPremium ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={moodTrends}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis domain={[1, 5]} />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="mood" stroke="#F8744C" strokeWidth={2} name="Mood" />
-                    <Line type="monotone" dataKey="energy" stroke="#4B6B8C" strokeWidth={2} name="Energy" />
-                  </LineChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="h-[300px] flex items-center justify-center bg-gray-50 rounded-xl">
-                  <div className="text-center">
-                    <Lock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                    <p className="text-gray-600 mb-4">Unlock detailed mood analytics</p>
-                    <Button onClick={() => setShowPaywall(true)}>
-                      <Crown className="w-4 h-4 mr-2" />
-                      Upgrade to Premium
-                    </Button>
+          <TabsContent value="mood" className="space-y-4 md:space-y-6">
+            <Card className="border-0 shadow-lg rounded-2xl">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg md:text-xl">30-Day Mood & Energy Correlation</CardTitle>
+              </CardHeader>
+              <CardContent className="px-2 md:px-6">
+                {isPremium ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={moodTrends}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+                      <YAxis domain={[1, 5]} tick={{ fontSize: 12 }} />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="mood" stroke="#F8744C" strokeWidth={2} name="Mood" />
+                      <Line type="monotone" dataKey="energy" stroke="#4B6B8C" strokeWidth={2} name="Energy" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="min-h-[300px] flex items-center justify-center">
+                    <div className="text-center max-w-xs px-4">
+                      <Lock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                      <p className="text-sm text-gray-600 mb-4">Unlock detailed mood analytics</p>
+                      <Button onClick={() => setShowPaywall(true)} className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600">
+                        <Crown className="w-4 h-4 mr-2" />
+                        Go Premium
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                )}
+              </CardContent>
+            </Card>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {isPremium ? (
-              <>
-                <Card className="border-0 shadow-lg rounded-2xl">
-                  <CardContent className="p-6">
-                    <p className="text-sm text-gray-600 mb-1">Average Mood</p>
-                    <p className="text-4xl font-bold text-orange-600">
-                      {(moodTrends.reduce((acc, m) => acc + m.mood, 0) / moodTrends.length || 0).toFixed(1)}
-                    </p>
-                    <p className="text-xs text-green-600 mt-1">+0.3 from last month</p>
-                  </CardContent>
-                </Card>
-                <Card className="border-0 shadow-lg rounded-2xl">
-                  <CardContent className="p-6">
-                    <p className="text-sm text-gray-600 mb-1">Best Day</p>
-                    <p className="text-4xl font-bold text-green-600">Mon</p>
-                    <p className="text-xs text-gray-500 mt-1">Highest average mood</p>
-                  </CardContent>
-                </Card>
-                <Card className="border-0 shadow-lg rounded-2xl">
-                  <CardContent className="p-6">
-                    <p className="text-sm text-gray-600 mb-1">Consistency</p>
-                    <p className="text-4xl font-bold text-blue-600">87%</p>
-                    <p className="text-xs text-gray-500 mt-1">Mood variance score</p>
-                  </CardContent>
-                </Card>
-              </>
-            ) : (
-              <>
-                <LockedCard title="Average Mood" description="Track your mood trends" />
-                <LockedCard title="Best Days" description="Identify patterns" />
-                <LockedCard title="Consistency" description="Measure stability" />
-              </>
-            )}
-          </div>
-        </TabsContent>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+              {isPremium ? (
+                <>
+                  <Card className="border-0 shadow-lg rounded-2xl">
+                    <CardContent className="p-4 md:p-6">
+                      <p className="text-xs md:text-sm text-gray-600 mb-1">Average Mood</p>
+                      <p className="text-3xl md:text-4xl font-bold text-orange-600">
+                        {(moodTrends.reduce((acc, m) => acc + m.mood, 0) / moodTrends.length || 0).toFixed(1)}
+                      </p>
+                      <p className="text-xs text-green-600 mt-1">+0.3 from last month</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-0 shadow-lg rounded-2xl">
+                    <CardContent className="p-4 md:p-6">
+                      <p className="text-xs md:text-sm text-gray-600 mb-1">Best Day</p>
+                      <p className="text-3xl md:text-4xl font-bold text-green-600">Mon</p>
+                      <p className="text-xs text-gray-500 mt-1">Highest average mood</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-0 shadow-lg rounded-2xl">
+                    <CardContent className="p-4 md:p-6">
+                      <p className="text-xs md:text-sm text-gray-600 mb-1">Consistency</p>
+                      <p className="text-3xl md:text-4xl font-bold text-blue-600">87%</p>
+                      <p className="text-xs text-gray-500 mt-1">Mood variance score</p>
+                    </CardContent>
+                  </Card>
+                </>
+              ) : (
+                <>
+                  <LockedCard title="Average Mood" description="Track your mood trends" />
+                  <LockedCard title="Best Days" description="Identify patterns" />
+                  <LockedCard title="Consistency" description="Measure stability" />
+                </>
+              )}
+            </div>
+          </TabsContent>
 
         <TabsContent value="patterns" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
