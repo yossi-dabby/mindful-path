@@ -75,6 +75,22 @@ export default function Coach() {
     }
   };
 
+  // If wizard is shown, render it as the main content (not overlay)
+  if (showWizard) {
+    return <CoachingSessionWizard onClose={handleCloseWizard} />;
+  }
+
+  // If session is selected, show chat
+  if (selectedSession) {
+    return (
+      <CoachingChat 
+        session={selectedSession}
+        onBack={() => setSelectedSession(null)}
+      />
+    );
+  }
+
+  // Main coach page
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       {/* Header */}
@@ -124,14 +140,9 @@ export default function Coach() {
       </motion.div>
 
       {/* Content */}
-      {selectedSession ? (
-        <CoachingChat 
-          session={selectedSession}
-          onBack={() => setSelectedSession(null)}
-        />
-      ) : (
-        <div className="max-w-7xl mx-auto p-4 md:p-6">
-          {sessions.length === 0 ? (
+      <div className="max-w-7xl mx-auto p-4 md:p-6 pb-24">{/* Added bottom padding for mobile FAB */}
+        {sessions.length === 0 ? (
+
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -212,15 +223,60 @@ export default function Coach() {
                   />
                 </TabsContent>
               </Tabs>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Personalized Insights */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <Brain className="w-5 h-5 text-purple-600" />
+                Your Personalized Insights
+              </h3>
+              <PersonalizedInsights onStartSession={handleStartSession} />
             </div>
-          )}
-        </div>
-      )}
 
-      {/* Wizard Modal */}
-      {showWizard && (
-        <CoachingSessionWizard onClose={handleCloseWizard} />
-      )}
+            <Tabs defaultValue="active">
+              <TabsList className="bg-white/80 backdrop-blur-xl border shadow-sm">
+                <TabsTrigger value="active" className="gap-2">
+                  <TrendingUp className="w-4 h-4" />
+                  Active ({activeSessions.length})
+                </TabsTrigger>
+                <TabsTrigger value="completed" className="gap-2">
+                  <MessageCircle className="w-4 h-4" />
+                  Completed ({completedSessions.length})
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="active">
+                <CoachingSessionList 
+                  sessions={activeSessions}
+                  onSelectSession={handleSelectSession}
+                  onDeleteSession={handleDeleteSession}
+                />
+              </TabsContent>
+
+              <TabsContent value="completed">
+                <CoachingSessionList 
+                  sessions={completedSessions}
+                  onSelectSession={handleSelectSession}
+                  onDeleteSession={handleDeleteSession}
+                />
+              </TabsContent>
+            </Tabs>
+          </div>
+        )}
+
+        {/* Mobile FAB for Starting Session */}
+        {sessions.length > 0 && (
+          <Button
+            onClick={handleStartSession}
+            size="lg"
+            className="md:hidden fixed bottom-20 right-6 z-30 rounded-full w-16 h-16 shadow-2xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 p-0"
+          >
+            <Target className="w-6 h-6" />
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

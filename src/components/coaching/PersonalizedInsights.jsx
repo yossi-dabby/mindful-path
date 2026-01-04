@@ -220,12 +220,15 @@ Be specific, encouraging, and reference their actual data.`,
                   Great Progress!
                 </h4>
                 <ul className="space-y-2">
-                  {safeArray(insights.positive_progress).map((item, i) => (
-                    <li key={i} className="text-sm text-green-800 flex items-start gap-2">
-                      <span className="text-green-600 mt-0.5">✓</span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
+                  {safeArray(insights.positive_progress).map((item, i) => {
+                    const text = safeText(item);
+                    return text ? (
+                      <li key={i} className="text-sm text-green-800 flex items-start gap-2">
+                        <span className="text-green-600 mt-0.5">✓</span>
+                        <span>{text}</span>
+                      </li>
+                    ) : null;
+                  })}
                 </ul>
               </CardContent>
             </Card>
@@ -309,12 +312,15 @@ Be specific, encouraging, and reference their actual data.`,
               <CardContent className="p-4">
                 <h4 className="font-semibold text-amber-900 mb-3">Gentle Reminders</h4>
                 <ul className="space-y-2">
-                  {safeArray(insights.engagement_nudges).map((nudge, i) => (
-                    <li key={i} className="text-sm text-amber-800 flex items-start gap-2">
-                      <span className="mt-0.5">💭</span>
-                      <span>{nudge}</span>
-                    </li>
-                  ))}
+                  {safeArray(insights.engagement_nudges).map((nudge, i) => {
+                    const text = safeText(nudge);
+                    return text ? (
+                      <li key={i} className="text-sm text-amber-800 flex items-start gap-2">
+                        <span className="mt-0.5">💭</span>
+                        <span>{text}</span>
+                      </li>
+                    ) : null;
+                  })}
                 </ul>
               </CardContent>
             </Card>

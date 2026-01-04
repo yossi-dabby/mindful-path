@@ -52,8 +52,18 @@ export default function CoachingSessionWizard({ onClose }) {
 
   const createSessionMutation = useMutation({
     mutationFn: async (data) => {
+      // Validate data
+      if (!data.title || !data.focus_area || !data.current_challenge || !data.desired_outcome) {
+        throw new Error('Missing required fields');
+      }
+
+      // Create session
       const session = await base44.entities.CoachingSession.create(data);
       
+      if (!session || !session.id) {
+        throw new Error('Failed to create coaching session');
+      }
+
       // Create AI conversation
       const conversation = await base44.agents.createConversation({
         agent_name: 'ai_coach',
@@ -63,6 +73,10 @@ export default function CoachingSessionWizard({ onClose }) {
           session_id: session.id
         }
       });
+
+      if (!conversation || !conversation.id) {
+        throw new Error('Failed to create conversation');
+      }
 
       // Update session with conversation ID
       await base44.entities.CoachingSession.update(session.id, {
@@ -86,6 +100,9 @@ Please help me create a structured plan to work through this.`
     onSuccess: () => {
       queryClient.invalidateQueries(['coachingSessions']);
       onClose();
+    },
+    onError: (error) => {
+      console.error('Session creation error:', error);
     }
   });
 
@@ -113,16 +130,17 @@ Please help me create a structured plan to work through this.`
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4 overflow-y-auto">
-      <Card className="w-full max-w-2xl border-0 shadow-2xl my-8">
-        <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-purple-50">
+    <div className="min-h-[calc(100vh-4rem)] md:min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+      {/* Header - Sticky on mobile */}
+      <div className="bg-white border-b shadow-sm sticky top-0 z-10 flex-shrink-0">
+        <div className="max-w-2xl mx-auto p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
                 <Target className="w-5 h-5 text-white" />
               </div>
               <div>
-                <CardTitle className="text-xl">Start New Coaching Session</CardTitle>
+                <h1 className="text-xl font-semibold text-gray-800">Start New Session</h1>
                 <p className="text-sm text-gray-500">Step {step} of 3</p>
               </div>
             </div>
@@ -130,8 +148,12 @@ Please help me create a structured plan to work through this.`
               <X className="w-5 h-5" />
             </Button>
           </div>
-        </CardHeader>
-        <CardContent className="p-6">
+        </div>
+      </div>
+
+      {/* Content - Scrollable */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-2xl mx-auto p-4 md:p-6 pb-32">
           {/* Step 1: Focus Area */}
           {step === 1 && (
             <div className="space-y-6">
@@ -295,12 +317,18 @@ Please help me create a structured plan to work through this.`
             </div>
           )}
 
-          {/* Navigation */}
-          <div className="flex gap-3 pt-6 mt-6 border-t">
+        </div>
+      </div>
+
+      {/* Navigation - Fixed at bottom above mobile nav */}
+      <div className="bg-white border-t shadow-lg fixed bottom-0 left-0 right-0 mb-16 md:mb-0 z-20 flex-shrink-0">
+        <div className="max-w-2xl mx-auto p-4">
+          <div className="flex gap-3">
             {step > 1 && (
               <Button
                 variant="outline"
                 onClick={() => setStep(step - 1)}
+                disabled={createSessionMutation.isPending}
                 className="flex-1"
               >
                 <ChevronLeft className="w-4 h-4 mr-2" />
@@ -322,12 +350,31 @@ Please help me create a structured plan to work through this.`
                 disabled={!canProceed() || createSessionMutation.isPending}
                 className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
               >
-                {createSessionMutation.isPending ? 'Starting...' : 'Start Session'}
+                {createSessionMutation.isPending ? (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2 animate-spin" />
+                    Starting Session...
+                  </>
+                ) : (
+                  <>
+                    <Target className="w-4 h-4 mr-2" />
+                    Start Session
+                  </>
+                )}
               </Button>
             )}
           </div>
-        </CardContent>
-      </Card>
+          
+          {/* Error Display */}
+          {createSessionMutation.isError && (
+            <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-800">
+                Failed to create session. Please try again.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
