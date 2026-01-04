@@ -148,32 +148,34 @@ export default function Exercises() {
       </div>
 
       {/* Search Bar */}
-      <div className="mb-6">
+      <div className="mb-4">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search exercises by name, description, or tags..."
+            placeholder="Search exercises..."
             className="pl-10 rounded-xl"
           />
         </div>
       </div>
 
       {/* Category Filter */}
-      <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="mb-6">
-        <TabsList className="bg-white border border-gray-200 p-1 flex-wrap h-auto">
-          {categories.map((cat) => (
-            <TabsTrigger
-              key={cat.value}
-              value={cat.value}
-              className="data-[state=active]:bg-green-600 data-[state=active]:text-white"
-            >
-              {cat.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
+      <div className="mb-6 overflow-x-auto">
+        <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
+          <TabsList className="bg-white border border-gray-200 p-1 inline-flex w-auto min-w-full">
+            {categories.map((cat) => (
+              <TabsTrigger
+                key={cat.value}
+                value={cat.value}
+                className="data-[state=active]:bg-green-600 data-[state=active]:text-white whitespace-nowrap text-sm px-3"
+              >
+                {cat.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      </div>
 
       {/* AI Recommendations */}
       {!showFavoritesOnly && !searchQuery && selectedCategory === 'all' && (

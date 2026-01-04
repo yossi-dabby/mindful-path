@@ -234,13 +234,19 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
   }
 
   // Filter and sort based on user preferences
-  let filteredExercises = exercises.filter(ex => 
-    feed.recommended_exercises?.some(rec => rec.category === ex.category)
-  );
+  // Match exercises by category from AI recommendations
+  let filteredExercises = [];
+  if (safeArray(feed.recommended_exercises).length > 0) {
+    const recommendedCategories = safeArray(feed.recommended_exercises).map(rec => rec.category);
+    filteredExercises = exercises.filter(ex => recommendedCategories.includes(ex.category));
+  }
 
-  let filteredResources = resources.filter(res =>
-    feed.relevant_resources?.some(rec => rec.category === res.category)
-  );
+  // Match resources by category from AI recommendations
+  let filteredResources = [];
+  if (safeArray(feed.relevant_resources).length > 0) {
+    const recommendedResourceCategories = safeArray(feed.relevant_resources).map(rec => rec.category);
+    filteredResources = resources.filter(res => recommendedResourceCategories.includes(res.category));
+  }
 
   let filteredPosts = communityPosts.filter(post => post.upvotes > 0);
 
@@ -323,7 +329,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
       )}
 
       {/* Recommended Exercises */}
-      {showExercises && recommendedExercisesList.length > 0 && safeArray(feed.recommended_exercises).length > 0 && (
+      {showExercises && safeArray(feed.recommended_exercises).length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -371,7 +377,7 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
       )}
 
       {/* Relevant Resources */}
-      {showResources && recommendedResourcesList.length > 0 && safeArray(feed.relevant_resources).length > 0 && (
+      {showResources && safeArray(feed.relevant_resources).length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

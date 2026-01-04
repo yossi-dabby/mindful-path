@@ -183,17 +183,17 @@ export default function Journal() {
             <p className="text-gray-600 mb-6 max-w-md mx-auto">
               Thought records help you identify and challenge cognitive distortions, leading to more balanced thinking.
             </p>
-            <div className="flex gap-3 justify-center">
+            <div className="flex flex-col gap-3 items-center max-w-md mx-auto">
               <Button
                 onClick={() => handleNewEntry()}
-                className="bg-purple-600 hover:bg-purple-700 px-8 py-6 text-lg rounded-xl"
+                className="bg-purple-600 hover:bg-purple-700 px-8 py-6 text-lg rounded-xl w-full"
               >
                 Create Entry
               </Button>
               <Button
                 onClick={() => setShowTemplateManager(true)}
                 variant="outline"
-                className="px-8 py-6 text-lg rounded-xl"
+                className="px-8 py-6 text-lg rounded-xl w-full"
               >
                 Browse Templates
               </Button>
