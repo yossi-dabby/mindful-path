@@ -140,90 +140,40 @@ export default function Coach() {
       </motion.div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto p-4 md:p-6 pb-24">{/* Added bottom padding for mobile FAB */}
+      <div className="max-w-7xl mx-auto p-4 md:p-6 pb-24">
         {sessions.length === 0 ? (
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="mt-12"
-            >
-              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-blue-50">
-                <CardContent className="p-12 text-center">
-                  <motion.div 
-                    className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center mx-auto mb-4 shadow-lg"
-                    animate={{ scale: [1, 1.05, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    <Heart className="w-10 h-10 text-white" />
-                  </motion.div>
-                  <h2 className="text-2xl font-bold text-gray-800 mb-3">
-                    Welcome to AI Coaching! 👋
-                  </h2>
-                  <p className="text-gray-600 mb-6 max-w-lg mx-auto">
-                    Work with your AI coach through structured sessions to tackle specific challenges, 
-                    set meaningful goals, and create actionable plans for positive change.
-                  </p>
-                  <Button
-                    onClick={handleStartSession}
-                    size="lg"
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-6 text-lg rounded-2xl shadow-lg hover:shadow-xl transition-all"
-                  >
-                    <Target className="w-5 h-5 mr-2" />
-                    Start Your First Session
-                  </Button>
-                  
-                  {/* Mobile FAB */}
-                  <Button
-                    onClick={handleStartSession}
-                    size="lg"
-                    className="md:hidden fixed bottom-20 right-6 z-30 rounded-full w-16 h-16 shadow-2xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 p-0"
-                  >
-                    <Target className="w-6 h-6" />
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ) : (
-            <div className="space-y-6">
-              {/* Personalized Insights */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                  <Brain className="w-5 h-5 text-purple-600" />
-                  Your Personalized Insights
-                </h3>
-                <PersonalizedInsights onStartSession={handleStartSession} />
-              </div>
-
-              <Tabs defaultValue="active">
-                <TabsList className="bg-white/80 backdrop-blur-xl border shadow-sm">
-                  <TabsTrigger value="active" className="gap-2">
-                    <TrendingUp className="w-4 h-4" />
-                    Active ({activeSessions.length})
-                  </TabsTrigger>
-                  <TabsTrigger value="completed" className="gap-2">
-                    <MessageCircle className="w-4 h-4" />
-                    Completed ({completedSessions.length})
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="active">
-                  <CoachingSessionList 
-                    sessions={activeSessions}
-                    onSelectSession={handleSelectSession}
-                    onDeleteSession={handleDeleteSession}
-                  />
-                </TabsContent>
-
-                <TabsContent value="completed">
-                  <CoachingSessionList 
-                    sessions={completedSessions}
-                    onSelectSession={handleSelectSession}
-                    onDeleteSession={handleDeleteSession}
-                  />
-                </TabsContent>
-              </Tabs>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mt-12"
+          >
+            <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-blue-50">
+              <CardContent className="p-12 text-center">
+                <motion.div 
+                  className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center mx-auto mb-4 shadow-lg"
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <Heart className="w-10 h-10 text-white" />
+                </motion.div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-3">
+                  Welcome to AI Coaching! 👋
+                </h2>
+                <p className="text-gray-600 mb-6 max-w-lg mx-auto">
+                  Work with your AI coach through structured sessions to tackle specific challenges, 
+                  set meaningful goals, and create actionable plans for positive change.
+                </p>
+                <Button
+                  onClick={handleStartSession}
+                  size="lg"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-6 text-lg rounded-2xl shadow-lg hover:shadow-xl transition-all"
+                >
+                  <Target className="w-5 h-5 mr-2" />
+                  Start Your First Session
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
         ) : (
           <div className="space-y-6">
             {/* Personalized Insights */}
