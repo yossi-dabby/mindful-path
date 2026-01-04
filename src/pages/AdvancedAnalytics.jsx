@@ -304,96 +304,98 @@ export default function AdvancedAnalytics() {
             </div>
           </TabsContent>
 
-        <TabsContent value="progress" className="space-y-6">
-          <Card className="border-0 shadow-lg rounded-2xl">
-            <CardHeader>
-              <CardTitle>Exercise Completion by Category</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isPremium ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={exerciseChartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="value" fill="#F8744C" />
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="h-[300px] flex items-center justify-center bg-gray-50 rounded-xl">
-                  <div className="text-center">
-                    <Lock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                    <p className="text-gray-600 mb-4">Track exercise performance</p>
-                    <Button onClick={() => setShowPaywall(true)}>
-                      <Crown className="w-4 h-4 mr-2" />
-                      Unlock Analytics
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="predictions">
-          {isPremium ? (
+          <TabsContent value="progress" className="space-y-4 md:space-y-6">
             <Card className="border-0 shadow-lg rounded-2xl">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Brain className="w-5 h-5 text-purple-600" />
-                  AI-Powered Predictions
-                </CardTitle>
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg md:text-xl">Exercise Completion by Category</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="bg-purple-50 p-6 rounded-xl border border-purple-200">
-                  <h4 className="font-semibold text-gray-800 mb-2">Mood Forecast (Next 7 Days)</h4>
-                  <p className="text-sm text-gray-700 mb-4">
-                    Based on your patterns, you're likely to experience improved mood this week, 
-                    especially on Tuesday and Friday. Consider scheduling important tasks on these days.
-                  </p>
-                  <div className="flex gap-2">
-                    {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, i) => {
-                      const levels = [3, 4, 3, 3, 4, 4, 3];
-                      return (
-                        <div key={day} className="flex-1 text-center">
-                          <div className="text-xs text-gray-600 mb-1">{day}</div>
-                          <div className={`h-16 rounded-lg ${levels[i] >= 4 ? 'bg-green-200' : 'bg-yellow-200'}`} />
-                        </div>
-                      );
-                    })}
+              <CardContent className="px-2 md:px-6">
+                {isPremium ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={exerciseChartData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                      <YAxis tick={{ fontSize: 12 }} />
+                      <Tooltip />
+                      <Bar dataKey="value" fill="#F8744C" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="min-h-[300px] flex items-center justify-center">
+                    <div className="text-center max-w-xs px-4">
+                      <Lock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                      <p className="text-sm text-gray-600 mb-4">Track exercise performance</p>
+                      <Button onClick={() => setShowPaywall(true)} className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600">
+                        <Crown className="w-4 h-4 mr-2" />
+                        Go Premium
+                      </Button>
+                    </div>
                   </div>
-                </div>
-
-                <div className="bg-blue-50 p-6 rounded-xl border border-blue-200">
-                  <h4 className="font-semibold text-gray-800 mb-2">Recommended Actions</h4>
-                  <ul className="space-y-2">
-                    <li className="flex items-start gap-2 text-sm text-gray-700">
-                      <span className="text-blue-600">•</span>
-                      Practice breathing exercises in the morning for better energy
-                    </li>
-                    <li className="flex items-start gap-2 text-sm text-gray-700">
-                      <span className="text-blue-600">•</span>
-                      Journal on days when stress levels are predicted to be high
-                    </li>
-                    <li className="flex items-start gap-2 text-sm text-gray-700">
-                      <span className="text-blue-600">•</span>
-                      Your best time for meditation is 7-8 PM based on completion patterns
-                    </li>
-                  </ul>
-                </div>
+                )}
               </CardContent>
             </Card>
-          ) : (
-            <LockedCard 
-              title="AI Predictions & Insights" 
-              description="Get personalized forecasts and recommendations"
-            />
-          )}
-        </TabsContent>
-      </Tabs>
+          </TabsContent>
 
-      {showPaywall && <PremiumPaywall onClose={() => setShowPaywall(false)} />}
+          <TabsContent value="predictions" className="space-y-4 md:space-y-6">
+            {isPremium ? (
+              <Card className="border-0 shadow-lg rounded-2xl">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+                    <Brain className="w-5 h-5 text-purple-600" />
+                    AI-Powered Predictions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="bg-purple-50 p-4 md:p-6 rounded-xl border border-purple-200">
+                    <h4 className="font-semibold text-gray-800 mb-2 text-sm md:text-base">Mood Forecast (Next 7 Days)</h4>
+                    <p className="text-xs md:text-sm text-gray-700 mb-4">
+                      Based on your patterns, you're likely to experience improved mood this week, 
+                      especially on Tuesday and Friday. Consider scheduling important tasks on these days.
+                    </p>
+                    <div className="flex gap-1 md:gap-2">
+                      {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, i) => {
+                        const levels = [3, 4, 3, 3, 4, 4, 3];
+                        return (
+                          <div key={day} className="flex-1 text-center">
+                            <div className="text-[10px] md:text-xs text-gray-600 mb-1">{day}</div>
+                            <div className={`h-12 md:h-16 rounded-lg ${levels[i] >= 4 ? 'bg-green-200' : 'bg-yellow-200'}`} />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="bg-blue-50 p-4 md:p-6 rounded-xl border border-blue-200">
+                    <h4 className="font-semibold text-gray-800 mb-2 text-sm md:text-base">Recommended Actions</h4>
+                    <ul className="space-y-2">
+                      <li className="flex items-start gap-2 text-xs md:text-sm text-gray-700">
+                        <span className="text-blue-600">•</span>
+                        Practice breathing exercises in the morning for better energy
+                      </li>
+                      <li className="flex items-start gap-2 text-xs md:text-sm text-gray-700">
+                        <span className="text-blue-600">•</span>
+                        Journal on days when stress levels are predicted to be high
+                      </li>
+                      <li className="flex items-start gap-2 text-xs md:text-sm text-gray-700">
+                        <span className="text-blue-600">•</span>
+                        Your best time for meditation is 7-8 PM based on completion patterns
+                      </li>
+                    </ul>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <LockedCard 
+                title="AI Predictions & Insights" 
+                description="Get personalized forecasts and recommendations"
+                height="chart"
+              />
+            )}
+          </TabsContent>
+        </Tabs>
+
+        {showPaywall && <PremiumPaywall onClose={() => setShowPaywall(false)} />}
+      </div>
     </div>
   );
 }
