@@ -7,8 +7,8 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Session Management', () => {
   test.beforeEach(async ({ page }) => {
-    const baseUrl = process.env.BASE_URL || 'http://localhost:5173/Chat';
-    await page.goto(baseUrl, { waitUntil: 'networkidle' });
+    const baseUrl = process.env.BASE_URL || 'http://localhost:5173';
+    await page.goto(`${baseUrl}/Chat`, { waitUntil: 'networkidle' });
   });
 
   test('should create a new session', async ({ page }) => {
@@ -45,8 +45,7 @@ test.describe('Session Management', () => {
     // Create a new session
     await createButton.click();
     
-    // Wait for the new session to appear
-    await page.waitForTimeout(1000); // Give time for the session to be created
+    // Wait for the new session to appear by checking the count increases
     await expect(initialSessionItems).toHaveCount(initialCount + 1, { timeout: 10000 });
 
     // Get the newly created session (should be the last one)
@@ -136,11 +135,9 @@ test.describe('Session Management', () => {
 
     // Create two new sessions
     await createButton.click();
-    await page.waitForTimeout(500);
     await expect(sessionItems).toHaveCount(initialCount + 1, { timeout: 10000 });
     
     await createButton.click();
-    await page.waitForTimeout(500);
     await expect(sessionItems).toHaveCount(initialCount + 2, { timeout: 10000 });
 
     const countAfterCreation = await sessionItems.count();
@@ -164,7 +161,7 @@ test.describe('Session Management', () => {
     await expect(sessionItems).toHaveCount(countAfterCreation - 1, { timeout: 10000 });
   });
 
-  test('should not delete the default session if it exists', async ({ page, isMobile }) => {
+  test('should not delete the default session if it exists', async ({ page }) => {
     // Wait for the page to load
     await page.waitForLoadState('networkidle');
 
@@ -189,7 +186,7 @@ test.describe('Session Management', () => {
     const createButton = page.getByTestId('session-create');
     await expect(createButton).toBeVisible({ timeout: 10000 });
     await createButton.click();
-    await page.waitForTimeout(1000);
+    await expect(sessionItems).toHaveCount(initialCount + 1, { timeout: 10000 });
 
     // Get the new session count
     const newSessionCount = await sessionItems.count();
