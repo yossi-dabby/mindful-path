@@ -8,7 +8,6 @@ import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Cart
 import { TrendingUp, Brain, Target, Activity, Download, Crown, Lock, ArrowLeft } from 'lucide-react';
 import PremiumPaywall from '../components/subscription/PremiumPaywall';
 import PremiumBadge from '../components/subscription/PremiumBadge';
-import { createPageUrl } from './utils';
 
 export default function AdvancedAnalytics() {
   const [showPaywall, setShowPaywall] = useState(false);
