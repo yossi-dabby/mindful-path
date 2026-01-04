@@ -220,88 +220,89 @@ export default function AdvancedAnalytics() {
             </div>
           </TabsContent>
 
-        <TabsContent value="patterns" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="border-0 shadow-lg rounded-2xl">
-              <CardHeader>
-                <CardTitle>Most Common Thought Patterns</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {isPremium ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={distortionData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={(entry) => entry.name.substring(0, 15)}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="value"
-                      >
-                        {distortionData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="h-[300px] flex items-center justify-center bg-gray-50 rounded-xl">
-                    <div className="text-center">
-                      <Lock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                      <p className="text-gray-600 mb-4">Analyze your thought patterns</p>
-                      <Button onClick={() => setShowPaywall(true)}>
-                        <Crown className="w-4 h-4 mr-2" />
-                        Go Premium
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {isPremium ? (
+          <TabsContent value="patterns" className="space-y-4 md:space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
               <Card className="border-0 shadow-lg rounded-2xl">
-                <CardHeader>
-                  <CardTitle>Emotional Shift Analysis</CardTitle>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg md:text-xl">Most Common Thought Patterns</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-sm text-gray-600">Before CBT</span>
-                        <span className="text-sm font-semibold">7.2/10</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-red-400 h-2 rounded-full" style={{ width: '72%' }} />
+                  {isPremium ? (
+                    <ResponsiveContainer width="100%" height={300}>
+                      <PieChart>
+                        <Pie
+                          data={distortionData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={(entry) => entry.name.substring(0, 15)}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {distortionData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="min-h-[300px] flex items-center justify-center">
+                      <div className="text-center max-w-xs px-4">
+                        <Lock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                        <p className="text-sm text-gray-600 mb-4">Analyze your thought patterns</p>
+                        <Button onClick={() => setShowPaywall(true)} className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600">
+                          <Crown className="w-4 h-4 mr-2" />
+                          Go Premium
+                        </Button>
                       </div>
                     </div>
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-sm text-gray-600">After CBT</span>
-                        <span className="text-sm font-semibold">4.1/10</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-green-400 h-2 rounded-full" style={{ width: '41%' }} />
-                      </div>
-                    </div>
-                    <div className="mt-6 p-4 bg-green-50 rounded-xl">
-                      <p className="text-sm text-green-800 font-semibold">43% Average Improvement</p>
-                      <p className="text-xs text-green-600 mt-1">CBT techniques are working well for you</p>
-                    </div>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
-            ) : (
-              <LockedCard 
-                title="Emotional Shift Analysis" 
-                description="See how CBT improves your emotions"
-              />
-            )}
-          </div>
-        </TabsContent>
+
+              {isPremium ? (
+                <Card className="border-0 shadow-lg rounded-2xl">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-lg md:text-xl">Emotional Shift Analysis</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-xs md:text-sm text-gray-600">Before CBT</span>
+                          <span className="text-xs md:text-sm font-semibold">7.2/10</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className="bg-red-400 h-2 rounded-full" style={{ width: '72%' }} />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-xs md:text-sm text-gray-600">After CBT</span>
+                          <span className="text-xs md:text-sm font-semibold">4.1/10</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className="bg-green-400 h-2 rounded-full" style={{ width: '41%' }} />
+                        </div>
+                      </div>
+                      <div className="mt-6 p-3 md:p-4 bg-green-50 rounded-xl">
+                        <p className="text-sm text-green-800 font-semibold">43% Average Improvement</p>
+                        <p className="text-xs text-green-600 mt-1">CBT techniques are working well for you</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <LockedCard 
+                  title="Emotional Shift Analysis" 
+                  description="See how CBT improves your emotions"
+                  height="chart"
+                />
+              )}
+            </div>
+          </TabsContent>
 
         <TabsContent value="progress" className="space-y-6">
           <Card className="border-0 shadow-lg rounded-2xl">
