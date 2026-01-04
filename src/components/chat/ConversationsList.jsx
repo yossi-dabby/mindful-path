@@ -62,6 +62,7 @@ export default function ConversationsList({
                 <button
                   onClick={() => onSelectConversation(conversation.id)}
                   className="w-full text-left p-3 pr-12"
+                  // pr-12 (3rem) provides space for the absolute positioned delete button (right-2 + button width)
                 >
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-purple-400 flex items-center justify-center flex-shrink-0">

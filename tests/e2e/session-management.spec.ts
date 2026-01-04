@@ -114,12 +114,8 @@ test.describe('Session Management', () => {
     // Click the delete button
     await deleteButton.click();
 
-    // Wait a bit to ensure no deletion occurred
-    await page.waitForTimeout(500);
-
-    // Verify the session count hasn't changed
-    const countAfterCancel = await sessionItems.count();
-    expect(countAfterCancel).toBe(countBeforeDelete);
+    // Verify the session count hasn't changed (no deletion occurred)
+    await expect(sessionItems).toHaveCount(countBeforeDelete, { timeout: 5000 });
   });
 
   test('should create multiple sessions and delete a specific one', async ({ page }) => {
