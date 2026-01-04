@@ -8,6 +8,7 @@ import Goals from './pages/Goals';
 import Home from './pages/Home';
 import Journal from './pages/Journal';
 import MoodTracker from './pages/MoodTracker';
+import PersonalizedFeed from './pages/PersonalizedFeed';
 import PlaylistDetail from './pages/PlaylistDetail';
 import Playlists from './pages/Playlists';
 import Progress from './pages/Progress';
@@ -17,7 +18,6 @@ import StarterPath from './pages/StarterPath';
 import TestSetupGuide from './pages/TestSetupGuide';
 import VideoPlayer from './pages/VideoPlayer';
 import Videos from './pages/Videos';
-import PersonalizedFeed from './pages/PersonalizedFeed';
 import __Layout from './Layout.jsx';
 
 
@@ -32,6 +32,7 @@ export const PAGES = {
     "Home": Home,
     "Journal": Journal,
     "MoodTracker": MoodTracker,
+    "PersonalizedFeed": PersonalizedFeed,
     "PlaylistDetail": PlaylistDetail,
     "Playlists": Playlists,
     "Progress": Progress,
@@ -41,7 +42,6 @@ export const PAGES = {
     "TestSetupGuide": TestSetupGuide,
     "VideoPlayer": VideoPlayer,
     "Videos": Videos,
-    "PersonalizedFeed": PersonalizedFeed,
 }
 
 export const pagesConfig = {
