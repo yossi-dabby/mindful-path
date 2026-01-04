@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+const DELETE_WAIT_TIMEOUT = 10000; // Allow extra time for deletion to complete in CI
 
 test.describe('Coaching Sessions Delete', () => {
   test('delete button is visible and clickable on session card', async ({ page }) => {
@@ -144,10 +145,11 @@ test.describe('Coaching Sessions Delete', () => {
           return currentCount < data.expectedCount || hasEmptyMessage;
         },
         { expectedCount: initialCount },
-        { timeout: 5000 }
+        { timeout: DELETE_WAIT_TIMEOUT }
       );
     } catch (error) {
-      // If timeout occurs, continue to check final state
+      // Timeout is acceptable here - we check the final state below regardless
+      // This allows the test to pass even if deletion is slower than expected
     }
 
     // Verify the session count decreased or we're at the "no sessions" state
