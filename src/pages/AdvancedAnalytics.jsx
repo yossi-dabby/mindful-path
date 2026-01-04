@@ -101,23 +101,34 @@ export default function AdvancedAnalytics() {
   );
 
   return (
-    <div className="min-h-screen p-4 md:p-8 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8 mt-4">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-3xl md:text-4xl font-light text-gray-800">Advanced Analytics</h1>
-            <PremiumBadge locked={!isPremium} />
+    <div className="min-h-screen pb-20 md:pb-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 md:py-8">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 md:mb-8">
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => window.history.back()}
+                className="md:hidden"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+              <h1 className="text-2xl md:text-4xl font-light text-gray-800">Advanced Analytics</h1>
+              <PremiumBadge locked={!isPremium} compact />
+            </div>
+            <p className="text-sm md:text-base text-gray-500 ml-12 md:ml-0">
+              Deep insights into your mental wellness journey
+            </p>
           </div>
-          <p className="text-gray-500">Deep insights into your mental wellness journey</p>
+          {isPremium && (
+            <Button variant="outline" className="gap-2 self-start md:self-auto ml-12 md:ml-0">
+              <Download className="w-4 h-4" />
+              <span className="hidden sm:inline">Export Data</span>
+            </Button>
+          )}
         </div>
-        {isPremium && (
-          <Button variant="outline" className="gap-2">
-            <Download className="w-4 h-4" />
-            Export Data
-          </Button>
-        )}
-      </div>
 
       <Tabs defaultValue="mood" className="space-y-6">
         <TabsList className="bg-white border shadow-sm">
