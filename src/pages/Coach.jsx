@@ -93,7 +93,7 @@ export default function Coach() {
   // Main coach page
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-      {/* Mobile Header - Compact with icon-only buttons */}
+      {/* Mobile Header - Matches web structure */}
       <motion.div 
         className="md:hidden bg-white/80 backdrop-blur-xl border-b border-gray-200/50 p-4 shadow-sm"
         initial={{ y: -20, opacity: 0 }}
@@ -109,13 +109,32 @@ export default function Coach() {
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <h1 className="text-base font-semibold text-gray-800">AI Wellness Coach</h1>
+            <motion.div 
+              className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-md"
+              whileHover={{ rotate: 360 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Heart className="w-5 h-5 text-white" />
+            </motion.div>
+            <div>
+              <h1 className="text-sm font-semibold text-gray-800">AI Wellness Coach</h1>
+              <p className="text-xs text-gray-500">Structured guidance for your goals</p>
+            </div>
           </div>
-          <Link to={createPageUrl('CoachingAnalytics')}>
-            <Button variant="ghost" size="icon" className="rounded-full h-9 w-9">
-              <BarChart3 className="w-5 h-5" />
+          <div className="flex gap-2">
+            <Link to={createPageUrl('CoachingAnalytics')}>
+              <Button variant="ghost" size="icon" className="rounded-full h-9 w-9">
+                <BarChart3 className="w-5 h-5" />
+              </Button>
+            </Link>
+            <Button
+              onClick={handleStartSession}
+              size="icon"
+              className="rounded-full h-9 w-9 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md"
+            >
+              <Target className="w-5 h-5" />
             </Button>
-          </Link>
+          </div>
         </div>
       </motion.div>
 
@@ -173,29 +192,23 @@ export default function Coach() {
             animate={{ opacity: 1, scale: 1 }}
             className="mt-4 md:mt-12"
           >
-            <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-blue-50 overflow-hidden max-h-48 md:max-h-none">
-              <CardContent className="p-4 md:p-12 text-center flex flex-col items-center justify-center h-full">
-                {/* Black and white illustration for mobile only */}
-                <img 
-                  src="/assets/coach-mobile-bw.png" 
-                  alt="AI Coach illustration"
-                  className="w-16 h-16 mb-3 md:hidden"
-                />
-                {/* Animated Heart for desktop only */}
+            <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-blue-50 overflow-hidden">
+              <CardContent className="p-6 md:p-12 text-center">
+                {/* Animated Heart icon */}
                 <motion.div 
-                  className="hidden md:flex w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 items-center justify-center mx-auto mb-4 shadow-lg"
+                  className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center mx-auto mb-4 shadow-lg"
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
-                  <Heart className="w-10 h-10 text-white" />
+                  <Heart className="w-8 h-8 md:w-10 md:h-10 text-white" />
                 </motion.div>
-                <h2 className="text-lg md:text-2xl font-bold text-gray-800 mb-2 md:mb-3">
+                <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-3">
                   Welcome to AI Coaching! 👋
                 </h2>
-                <p className="text-sm md:text-base text-gray-600 mb-4 md:mb-6 max-w-lg mx-auto">
+                <p className="text-sm md:text-base text-gray-600 mb-6 max-w-lg mx-auto">
                   Work step-by-step with your AI coach to clarify challenges, set focused goals, and move forward with confidence.
                 </p>
-                <ul className="text-left text-sm md:text-base text-gray-700 mb-4 md:mb-6 max-w-lg space-y-2">
+                <ul className="text-left text-sm md:text-base text-gray-700 mb-6 max-w-lg mx-auto space-y-2">
                   <li>• Break overwhelming thoughts into clear actions</li>
                   <li>• Get structured guidance, not generic advice</li>
                   <li>• Build momentum session by session</li>
@@ -203,12 +216,12 @@ export default function Coach() {
                 <Button
                   onClick={handleStartSession}
                   size="lg"
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all w-full md:w-auto h-10 md:h-auto text-sm md:text-lg px-6 md:px-8 py-2 md:py-6 rounded-xl md:rounded-2xl"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all w-full md:w-auto px-8 py-6 rounded-2xl text-base md:text-lg"
                 >
-                  <Target className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                  <Target className="w-5 h-5 mr-2" />
                   Start Your First Session
                 </Button>
-                <ul className="text-left text-sm md:text-base text-gray-700 mt-4 md:mt-6 max-w-lg space-y-2">
+                <ul className="text-left text-sm md:text-base text-gray-700 mt-6 max-w-lg mx-auto space-y-2">
                   <li>• Identify what matters most right now</li>
                   <li>• Turn stress into an actionable plan</li>
                 </ul>
