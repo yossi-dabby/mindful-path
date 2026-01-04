@@ -27,22 +27,39 @@ export default function GoalCard({ goal, onEdit }) {
   const queryClient = useQueryClient();
 
   const toggleMilestoneMutation = useMutation({
-    mutationFn: ({ milestones }) => base44.entities.Goal.update(goal.id, { milestones }),
-    onSuccess: () => queryClient.invalidateQueries(['allGoals'])
+    mutationFn: async ({ milestones }) => {
+      await base44.entities.Goal.update(goal.id, { milestones });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['allGoals']);
+      queryClient.invalidateQueries(['goals']);
+    },
+    onError: (error) => {
+      console.error('Failed to update milestone:', error);
+    }
   });
 
   const toggleMilestone = (index) => {
-    const milestones = safeArray(goal.milestones).map((m, i) => ({
-      title: safeText(m.title || m, `Step ${i + 1}`),
-      description: safeText(m.description, ''),
-      completed: Boolean(m.completed),
-      due_date: m.due_date || null
-    }));
+    if (toggleMilestoneMutation.isPending) return;
+    
+    const milestones = safeArray(goal.milestones).map((m, i) => {
+      if (typeof m === 'string') {
+        return { title: m, completed: false, description: '', due_date: null };
+      }
+      return {
+        title: safeText(m.title || m, `Step ${i + 1}`),
+        description: safeText(m.description, ''),
+        completed: Boolean(m.completed),
+        due_date: m.due_date || null
+      };
+    });
     
     milestones[index] = {
       ...milestones[index],
-      completed: !milestones[index].completed
+      completed: !milestones[index].completed,
+      completed_date: !milestones[index].completed ? new Date().toISOString() : null
     };
+    
     toggleMilestoneMutation.mutate({ milestones });
   };
 
@@ -107,7 +124,8 @@ export default function GoalCard({ goal, onEdit }) {
                 <Checkbox
                   checked={milestone.completed}
                   onCheckedChange={() => toggleMilestone(index)}
-                  className="rounded mt-0.5"
+                  disabled={toggleMilestoneMutation.isPending}
+                  className="rounded mt-0.5 cursor-pointer"
                 />
                 <div className="flex-1 min-w-0">
                   <span
