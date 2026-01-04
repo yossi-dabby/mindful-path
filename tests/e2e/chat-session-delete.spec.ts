@@ -165,6 +165,13 @@ test('delete button becomes visible on hover and is clickable', async ({ page })
     // Hover to show delete button
     await firstSession.hover();
     await page.waitForTimeout(500);
+    
+    // Take screenshot showing the delete button
+    await page.screenshot({ 
+      path: '/tmp/chat-delete-button-visible.png',
+      fullPage: false
+    });
+    console.log('Screenshot saved to /tmp/chat-delete-button-visible.png');
 
     // Delete button should now be visible
     const isVisible = await deleteButton.isVisible();
