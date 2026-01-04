@@ -59,7 +59,10 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
                       <Target className="w-6 h-6 text-white" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-gray-800 mb-1 group-hover:text-purple-700 transition-colors">
+                      <h3 
+                        className="font-semibold text-gray-800 mb-1 group-hover:text-purple-700 transition-colors"
+                        data-testid="session-title"
+                      >
                         {session.title}
                       </h3>
                       <Badge className={focusAreaColors[session.focus_area]}>

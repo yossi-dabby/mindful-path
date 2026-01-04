@@ -50,17 +50,20 @@ test.describe('Coaching Sessions Delete', () => {
 
     // Set up dialog handler before clicking
     let dialogMessage = '';
-    page.on('dialog', async dialog => {
-      dialogMessage = dialog.message();
-      await dialog.dismiss(); // Dismiss the dialog to prevent actual deletion
+    const dialogPromise = new Promise<void>(resolve => {
+      page.once('dialog', async dialog => {
+        dialogMessage = dialog.message();
+        await dialog.dismiss(); // Dismiss the dialog to prevent actual deletion
+        resolve();
+      });
     });
 
     // Click the delete button
     const deleteButton = page.locator('[data-testid="delete-session-button"]').first();
     await deleteButton.click();
 
-    // Wait a bit for the dialog to appear
-    await page.waitForTimeout(500);
+    // Wait for the dialog to appear and be handled
+    await dialogPromise;
 
     // Verify the confirmation dialog appeared
     expect(dialogMessage).toContain('Are you sure');
@@ -81,8 +84,11 @@ test.describe('Coaching Sessions Delete', () => {
     }
 
     // Set up dialog handler to dismiss the delete confirmation
-    page.on('dialog', async dialog => {
-      await dialog.dismiss();
+    const dialogPromise = new Promise<void>(resolve => {
+      page.once('dialog', async dialog => {
+        await dialog.dismiss();
+        resolve();
+      });
     });
 
     // Get the current URL
@@ -92,8 +98,8 @@ test.describe('Coaching Sessions Delete', () => {
     const deleteButton = page.locator('[data-testid="delete-session-button"]').first();
     await deleteButton.click();
 
-    // Wait a bit
-    await page.waitForTimeout(500);
+    // Wait for dialog to be handled
+    await dialogPromise;
 
     // Verify we're still on the Coach page (not navigated to session detail)
     const currentUrl = page.url();
@@ -114,21 +120,39 @@ test.describe('Coaching Sessions Delete', () => {
     }
 
     // Set up dialog handler to accept the deletion
-    page.on('dialog', async dialog => {
-      await dialog.accept();
+    const dialogPromise = new Promise<void>(resolve => {
+      page.once('dialog', async dialog => {
+        await dialog.accept();
+        resolve();
+      });
     });
 
     // Get the first session title before deletion
-    const firstSessionTitle = await page.locator('.font-semibold.text-gray-800').first().innerText();
+    const firstSessionTitle = await page.locator('[data-testid="session-title"]').first().innerText();
 
     // Click the delete button
     const deleteButton = page.locator('[data-testid="delete-session-button"]').first();
     await deleteButton.click();
 
-    // Wait for the session to be removed from the list
-    await page.waitForTimeout(2000);
+    // Wait for dialog to be handled
+    await dialogPromise;
 
-    // Verify the session count decreased or the specific session is gone
+    // Wait for the session to be removed from the list by checking that either:
+    // 1. The count decreased, or 
+    // 2. The "No sessions yet" message appears
+    await Promise.race([
+      page.waitForFunction(
+        (expectedCount) => {
+          const currentCount = document.querySelectorAll('[data-testid="delete-session-button"]').length;
+          return currentCount < expectedCount;
+        },
+        initialCount,
+        { timeout: 5000 }
+      ).catch(() => {}), // Ignore timeout, check state after
+      page.waitForSelector('text=No sessions yet', { timeout: 5000 }).catch(() => {}) // Ignore timeout
+    ]);
+
+    // Verify the session count decreased or we're at the "no sessions" state
     const finalCount = await page.locator('[data-testid="delete-session-button"]').count();
     
     // Either the count decreased, or we're at the "no sessions" state
@@ -136,7 +160,7 @@ test.describe('Coaching Sessions Delete', () => {
       expect(finalCount).toBeLessThan(initialCount);
       
       // Verify the deleted session is no longer in the list
-      const remainingTitles = await page.locator('.font-semibold.text-gray-800').allInnerTexts();
+      const remainingTitles = await page.locator('[data-testid="session-title"]').allInnerTexts();
       expect(remainingTitles).not.toContain(firstSessionTitle);
     } else {
       // All sessions were deleted, should show empty state
