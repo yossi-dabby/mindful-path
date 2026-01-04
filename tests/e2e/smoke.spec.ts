@@ -23,16 +23,14 @@ test('smoke: open chat, send message, receive reply', async ({ page }) => {
 
   // Wait for a response: prefer a role that represents assistant reply; fall back to first visible article/region
   const assistantReply = page.getByRole('article', { name: /assistant|bot|response/i }).first();
+  let reply = assistantReply;
+  
   // If article role isn't present in the app, fallback to a visible region element
   if ((await assistantReply.count()) === 0) {
-    const altReply = page.locator('main').locator('role=region').first();
-    await expect(altReply).toBeVisible({ timeout: 20000 });
-    const altText = await altReply.innerText();
-    expect(altText.trim().length).toBeGreaterThan(0);
-    return;
+    reply = page.locator('main').getByRole('region').first();
   }
 
-  await expect(assistantReply).toBeVisible({ timeout: 20000 });
-  const text = await assistantReply.innerText();
+  await expect(reply).toBeVisible({ timeout: 20000 });
+  const text = await reply.innerText();
   expect(text.trim().length).toBeGreaterThan(0);
 });
