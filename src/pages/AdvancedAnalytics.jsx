@@ -79,22 +79,21 @@ export default function AdvancedAnalytics() {
 
   const COLORS = ['#F8744C', '#FFB47C', '#4B6B8C', '#B9A3C1', '#F49283'];
 
-  const LockedCard = ({ title, description }) => (
-    <Card className="border-0 shadow-lg bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-hidden rounded-2xl">
-      <div className="absolute inset-0 bg-black/5 backdrop-blur-[2px] z-10" />
-      <CardContent className="p-8 relative">
-        <div className="text-center">
+  const LockedCard = ({ title, description, height = "auto" }) => (
+    <Card className="border-0 shadow-lg bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl">
+      <CardContent className={`p-6 md:p-8 flex items-center justify-center ${height === "chart" ? "min-h-[300px]" : "min-h-[200px]"}`}>
+        <div className="text-center max-w-sm">
           <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center mx-auto mb-4">
             <Lock className="w-8 h-8 text-gray-400" />
           </div>
-          <h3 className="font-semibold text-gray-800 mb-2">{title}</h3>
+          <h3 className="font-semibold text-gray-800 mb-2 text-base md:text-lg">{title}</h3>
           <p className="text-sm text-gray-600 mb-4">{description}</p>
           <Button
             onClick={() => setShowPaywall(true)}
-            className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600"
+            className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white"
           >
             <Crown className="w-4 h-4 mr-2" />
-            Unlock Premium
+            Go Premium
           </Button>
         </div>
       </CardContent>
