@@ -1,11 +1,10 @@
 import { test, expect } from '@playwright/test';
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 const DELETE_WAIT_TIMEOUT = 10000; // Allow extra time for deletion to complete in CI
 
 test.describe('Coaching Sessions Delete', () => {
   test('delete button is visible and clickable on session card', async ({ page }) => {
-    await page.goto(`${BASE_URL}/Coach`, { waitUntil: 'networkidle' });
+    await page.goto('/Coach', { waitUntil: 'networkidle' });
 
     // Wait for the sessions list to load
     // If no sessions exist, this test will be skipped since we can't test deletion without sessions
@@ -39,7 +38,7 @@ test.describe('Coaching Sessions Delete', () => {
   });
 
   test('clicking delete button triggers confirmation dialog', async ({ page }) => {
-    await page.goto(`${BASE_URL}/Coach`, { waitUntil: 'networkidle' });
+    await page.goto('/Coach', { waitUntil: 'networkidle' });
 
     // Check if there are any sessions
     const hasCards = await page.locator('[data-testid="delete-session-button"]').count() > 0;
@@ -73,7 +72,7 @@ test.describe('Coaching Sessions Delete', () => {
   });
 
   test('delete button does not trigger session selection', async ({ page }) => {
-    await page.goto(`${BASE_URL}/Coach`, { waitUntil: 'networkidle' });
+    await page.goto('/Coach', { waitUntil: 'networkidle' });
 
     // Check if there are any sessions
     const hasCards = await page.locator('[data-testid="delete-session-button"]').count() > 0;
@@ -108,7 +107,7 @@ test.describe('Coaching Sessions Delete', () => {
   });
 
   test('confirming delete removes the session from the list', async ({ page }) => {
-    await page.goto(`${BASE_URL}/Coach`, { waitUntil: 'networkidle' });
+    await page.goto('/Coach', { waitUntil: 'networkidle' });
 
     // Check if there are any sessions
     const initialCount = await page.locator('[data-testid="delete-session-button"]').count();
@@ -141,8 +140,8 @@ test.describe('Coaching Sessions Delete', () => {
       await page.waitForFunction(
         (data) => {
           const currentCount = document.querySelectorAll('[data-testid="delete-session-button"]').length;
-          const hasEmptyMessage = document.body.textContent?.includes('No sessions yet') || false;
-          return currentCount < data.expectedCount || hasEmptyMessage;
+          const hasEmptyState = document.querySelector('[data-testid="empty-sessions-state"]') !== null;
+          return currentCount < data.expectedCount || hasEmptyState;
         },
         { expectedCount: initialCount },
         { timeout: DELETE_WAIT_TIMEOUT }
@@ -164,7 +163,7 @@ test.describe('Coaching Sessions Delete', () => {
       expect(remainingTitles).not.toContain(firstSessionTitle);
     } else {
       // All sessions were deleted, should show empty state
-      await expect(page.locator('text=No sessions yet')).toBeVisible();
+      await expect(page.locator('[data-testid="empty-sessions-state"]')).toBeVisible();
     }
   });
 });

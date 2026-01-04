@@ -28,7 +28,7 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
   if (sessions.length === 0) {
     return (
       <Card className="border-0 shadow-xl">
-        <CardContent className="p-12 text-center">
+        <CardContent className="p-12 text-center" data-testid="empty-sessions-state">
           <Target className="w-12 h-12 text-gray-300 mx-auto mb-3" />
           <p className="text-gray-500">No sessions yet</p>
         </CardContent>
