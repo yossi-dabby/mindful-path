@@ -106,8 +106,9 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
                   )}
                 </div>
               </CardContent>
-              <div className="px-6 pb-4 flex justify-end border-t pt-3">
+              <div className="px-6 pb-4 flex justify-end border-t pt-3 relative z-10">
                 <Button
+                  type="button"
                   variant="ghost"
                   size="sm"
                   className="text-red-500 hover:bg-red-50 hover:text-red-600"
@@ -115,6 +116,8 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
                     e.stopPropagation();
                     onDeleteSession(session.id);
                   }}
+                  data-testid="delete-session-button"
+                  aria-label={`Delete session: ${session.title}`}
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
                   Delete
