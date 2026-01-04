@@ -50,16 +50,14 @@ export default function ConversationsList({
               <div
                 key={conversation.id}
                 className={cn(
-                  'group relative rounded-xl transition-all',
+                  'group relative rounded-xl transition-all cursor-pointer',
                   currentConversationId === conversation.id
                     ? 'bg-green-50 ring-2 ring-green-500 shadow-md'
                     : 'bg-white hover:bg-gray-50'
                 )}
+                onClick={() => onSelectConversation(conversation.id)}
               >
-                <button
-                  onClick={() => onSelectConversation(conversation.id)}
-                  className="w-full text-left p-3"
-                >
+                <div className="w-full text-left p-3">
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-purple-400 flex items-center justify-center flex-shrink-0">
                       <MessageCircle className="w-5 h-5 text-white" />
@@ -83,7 +81,7 @@ export default function ConversationsList({
                       </p>
                     </div>
                   </div>
-                </button>
+                </div>
                 
                 {/* Delete Button */}
                 <button
@@ -93,6 +91,7 @@ export default function ConversationsList({
                   }}
                   className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-red-50 rounded-lg"
                   title="Delete session"
+                  aria-label="Delete session"
                 >
                   <Trash2 className="w-4 h-4 text-red-500" />
                 </button>
