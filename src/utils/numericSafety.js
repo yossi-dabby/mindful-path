@@ -28,7 +28,11 @@ export const NumericSafety = {
   },
 
   clamp(value, min, max) {
-    if (!Number.isFinite(value)) return min;
+    if (!Number.isFinite(value)) {
+      if (Number.isFinite(min)) return min;
+      if (Number.isFinite(max)) return max;
+      return 0; // Both boundaries non-finite, return safe default
+    }
     if (!Number.isFinite(min) && !Number.isFinite(max)) return value;
     if (!Number.isFinite(min)) return Math.min(max, value);
     if (!Number.isFinite(max)) return Math.max(min, value);
