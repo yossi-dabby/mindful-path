@@ -61,22 +61,22 @@ export default function PremiumPaywall({ onClose }) {
                 </p>
               </div>
 
-            {/* Pricing */}
-            <div className="bg-white rounded-2xl p-6 mb-6 border-2 border-orange-200 shadow-lg">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <p className="text-sm text-gray-600">Premium Plan</p>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-bold text-gray-800">$9.99</span>
-                    <span className="text-gray-600">/month</span>
+              {/* Pricing */}
+              <div className="bg-white rounded-2xl p-4 md:p-6 mb-4 md:mb-6 border-2 border-orange-200 shadow-lg">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-xs md:text-sm text-gray-600">Premium Plan</p>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-3xl md:text-4xl font-bold text-gray-800">$9.99</span>
+                      <span className="text-sm md:text-base text-gray-600">/month</span>
+                    </div>
                   </div>
+                  <Badge className="bg-green-100 text-green-700 border-green-300 text-xs">
+                    Best Value
+                  </Badge>
                 </div>
-                <Badge className="bg-green-100 text-green-700 border-green-300">
-                  Best Value
-                </Badge>
+                <p className="text-xs text-gray-500">Cancel anytime • 7-day free trial</p>
               </div>
-              <p className="text-xs text-gray-500">Cancel anytime • 7-day free trial</p>
-            </div>
 
             {/* Features */}
             <div className="space-y-3 mb-8">
