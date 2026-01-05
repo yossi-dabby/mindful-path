@@ -51,6 +51,8 @@ export default function Resources() {
     onSuccess: () => queryClient.invalidateQueries(['savedResources'])
   });
 
+  const [selectedType, setSelectedType] = useState('all');
+
   const categories = [
     { value: 'all', label: 'All Topics' },
     { value: 'anxiety', label: 'Anxiety' },
@@ -60,7 +62,22 @@ export default function Resources() {
     { value: 'relationships', label: 'Relationships' },
     { value: 'self-esteem', label: 'Self-Esteem' },
     { value: 'sleep', label: 'Sleep' },
+    { value: 'coping_skills', label: 'Coping Skills' },
+    { value: 'emotional_regulation', label: 'Emotional Regulation' },
+    { value: 'communication', label: 'Communication' },
     { value: 'general', label: 'General Wellness' }
+  ];
+
+  const contentTypes = [
+    { value: 'all', label: 'All Types' },
+    { value: 'article', label: 'Articles' },
+    { value: 'meditation', label: 'Meditations' },
+    { value: 'scenario', label: 'Practice Scenarios' },
+    { value: 'interview', label: 'Expert Interviews' },
+    { value: 'guide', label: 'Guides' },
+    { value: 'video', label: 'Videos' },
+    { value: 'podcast', label: 'Podcasts' },
+    { value: 'book', label: 'Books' }
   ];
 
   const savedResourceIds = savedResources.map(sr => sr.resource_id);
@@ -72,8 +89,9 @@ export default function Resources() {
       resource.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
     
     const matchesCategory = selectedCategory === 'all' || resource.category === selectedCategory;
+    const matchesType = selectedType === 'all' || resource.type === selectedType;
 
-    return matchesSearch && matchesCategory;
+    return matchesSearch && matchesCategory && matchesType;
   });
 
   const displayedResources = activeTab === 'saved' 
@@ -121,18 +139,39 @@ export default function Resources() {
           />
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {categories.map((cat) => (
-            <Button
-              key={cat.value}
-              onClick={() => setSelectedCategory(cat.value)}
-              variant={selectedCategory === cat.value ? 'default' : 'outline'}
-              className={selectedCategory === cat.value ? 'bg-purple-600 hover:bg-purple-700' : ''}
-              size="sm"
-            >
-              {cat.label}
-            </Button>
-          ))}
+        <div className="space-y-3">
+          <div>
+            <p className="text-sm font-medium text-gray-700 mb-2">Category</p>
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {categories.map((cat) => (
+                <Button
+                  key={cat.value}
+                  onClick={() => setSelectedCategory(cat.value)}
+                  variant={selectedCategory === cat.value ? 'default' : 'outline'}
+                  className={selectedCategory === cat.value ? 'bg-purple-600 hover:bg-purple-700' : ''}
+                  size="sm"
+                >
+                  {cat.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-700 mb-2">Content Type</p>
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {contentTypes.map((type) => (
+                <Button
+                  key={type.value}
+                  onClick={() => setSelectedType(type.value)}
+                  variant={selectedType === type.value ? 'default' : 'outline'}
+                  className={selectedType === type.value ? 'bg-blue-600 hover:bg-blue-700' : ''}
+                  size="sm"
+                >
+                  {type.label}
+                </Button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 

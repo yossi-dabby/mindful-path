@@ -101,6 +101,7 @@ export default function PersonalizedContentFeed({ userInterests = [], contentTyp
 
 **AVAILABLE CONTENT:**
 - Exercise Categories: ${exerciseCategories.join(', ')}
+- Resource Types Available: articles, meditations, practice scenarios, expert interviews, guides
 - Resource Categories: ${resourceCategories.join(', ')}
 
 Based on the user's current state, goals, mood patterns, journal themes, and selected interests, curate a personalized content feed with:
