@@ -111,7 +111,12 @@ export default function Settings() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1 }}
       >
-        <Card className="border-0 shadow-md mb-6">
+        <Card className="border-0 mb-6" style={{ 
+          borderRadius: '24px',
+          background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.5) 0%, rgba(255, 255, 255, 0.8) 100%)',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 3px 12px rgba(38, 166, 154, 0.1), 0 1px 3px rgba(0,0,0,0.04)'
+        }}>
         <CardHeader className="border-b">
           <CardTitle className="flex items-center gap-2">
             <User className="w-5 h-5 text-gray-600" />
