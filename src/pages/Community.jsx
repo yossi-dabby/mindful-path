@@ -89,39 +89,51 @@ export default function Community() {
   );
 
   return (
-    <div className="min-h-screen p-4 md:p-8 max-w-7xl mx-auto">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto" style={{ minHeight: '100vh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
       {/* Header */}
       <div className="mb-8 mt-4">
-        <h1 className="text-3xl md:text-4xl font-light text-gray-800 mb-2">Community</h1>
-        <p className="text-gray-500">Connect, share, and support each other's journeys</p>
+        <h1 className="text-3xl md:text-4xl font-light mb-2" style={{ color: '#1A3A34' }}>Community</h1>
+        <p style={{ color: '#5A7A72' }}>Connect, share, and support each other's journeys</p>
       </div>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white">
+        <Card className="border-0" style={{
+          borderRadius: '28px',
+          background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.85) 0%, rgba(180, 220, 210, 0.75) 100%)',
+          boxShadow: '0 8px 32px rgba(38, 166, 154, 0.18), 0 4px 12px rgba(0,0,0,0.05)'
+        }}>
           <CardContent className="p-4 flex items-center gap-3">
-            <MessageSquare className="w-8 h-8 text-blue-600" />
+            <MessageSquare className="w-8 h-8" style={{ color: '#26A69A' }} />
             <div>
-              <p className="text-2xl font-bold text-blue-600">{forumPosts.length}</p>
-              <p className="text-sm text-gray-600">Forum Posts</p>
+              <p className="text-2xl font-bold" style={{ color: '#1A3A34' }}>{forumPosts.length}</p>
+              <p className="text-sm" style={{ color: '#3D5A52' }}>Forum Posts</p>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-white">
+        <Card className="border-0" style={{
+          borderRadius: '28px',
+          background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.85) 0%, rgba(180, 220, 210, 0.75) 100%)',
+          boxShadow: '0 8px 32px rgba(38, 166, 154, 0.18), 0 4px 12px rgba(0,0,0,0.05)'
+        }}>
           <CardContent className="p-4 flex items-center gap-3">
-            <Users className="w-8 h-8 text-purple-600" />
+            <Users className="w-8 h-8" style={{ color: '#26A69A' }} />
             <div>
-              <p className="text-2xl font-bold text-purple-600">{groups.length}</p>
-              <p className="text-sm text-gray-600">Active Groups</p>
+              <p className="text-2xl font-bold" style={{ color: '#1A3A34' }}>{groups.length}</p>
+              <p className="text-sm" style={{ color: '#3D5A52' }}>Active Groups</p>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-white">
+        <Card className="border-0" style={{
+          borderRadius: '28px',
+          background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.85) 0%, rgba(180, 220, 210, 0.75) 100%)',
+          boxShadow: '0 8px 32px rgba(38, 166, 154, 0.18), 0 4px 12px rgba(0,0,0,0.05)'
+        }}>
           <CardContent className="p-4 flex items-center gap-3">
-            <TrendingUp className="w-8 h-8 text-green-600" />
+            <TrendingUp className="w-8 h-8" style={{ color: '#26A69A' }} />
             <div>
-              <p className="text-2xl font-bold text-green-600">{sharedProgress.length}</p>
-              <p className="text-sm text-gray-600">Success Stories</p>
+              <p className="text-2xl font-bold" style={{ color: '#1A3A34' }}>{sharedProgress.length}</p>
+              <p className="text-sm" style={{ color: '#3D5A52' }}>Success Stories</p>
             </div>
           </CardContent>
         </Card>
@@ -130,25 +142,41 @@ export default function Community() {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="flex items-center justify-between mb-6">
-          <TabsList className="bg-white border border-gray-200">
+          <TabsList className="border" style={{
+            background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.7) 0%, rgba(180, 220, 210, 0.6) 100%)',
+            borderColor: 'rgba(38, 166, 154, 0.25)',
+            borderRadius: '28px'
+          }}>
             <TabsTrigger value="forum">Forum</TabsTrigger>
             <TabsTrigger value="groups">Groups</TabsTrigger>
             <TabsTrigger value="progress">Success Stories</TabsTrigger>
           </TabsList>
           {activeTab === 'forum' && (
-            <Button onClick={() => setShowPostForm(true)} className="bg-blue-600 hover:bg-blue-700 gap-2">
+            <Button onClick={() => setShowPostForm(true)} className="text-white gap-2" style={{
+              borderRadius: '24px',
+              backgroundColor: '#26A69A',
+              boxShadow: '0 6px 20px rgba(38, 166, 154, 0.3)'
+            }}>
               <Plus className="w-4 h-4" />
               New Post
             </Button>
           )}
           {activeTab === 'groups' && (
-            <Button onClick={() => setShowGroupForm(true)} className="bg-purple-600 hover:bg-purple-700 gap-2">
+            <Button onClick={() => setShowGroupForm(true)} className="text-white gap-2" style={{
+              borderRadius: '24px',
+              backgroundColor: '#26A69A',
+              boxShadow: '0 6px 20px rgba(38, 166, 154, 0.3)'
+            }}>
               <Plus className="w-4 h-4" />
               Create Group
             </Button>
           )}
           {activeTab === 'progress' && (
-            <Button onClick={() => setShowProgressForm(true)} className="bg-green-600 hover:bg-green-700 gap-2">
+            <Button onClick={() => setShowProgressForm(true)} className="text-white gap-2" style={{
+              borderRadius: '24px',
+              backgroundColor: '#26A69A',
+              boxShadow: '0 6px 20px rgba(38, 166, 154, 0.3)'
+            }}>
               <Plus className="w-4 h-4" />
               Share Progress
             </Button>
@@ -164,7 +192,8 @@ export default function Community() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search posts..."
-                className="pl-10 rounded-xl"
+                className="pl-10"
+                style={{ borderRadius: '28px' }}
               />
             </div>
 
@@ -175,12 +204,20 @@ export default function Community() {
                 </CardContent>
               </Card>
             ) : filteredPosts.length === 0 ? (
-              <Card>
+              <Card className="border-0" style={{
+                borderRadius: '32px',
+                background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
+                boxShadow: '0 12px 40px rgba(38, 166, 154, 0.12), 0 4px 16px rgba(0,0,0,0.04)'
+              }}>
                 <CardContent className="p-12 text-center">
-                  <MessageSquare className="w-16 h-16 text-gray-300 mx-auto mb-3" />
-                  <h3 className="text-xl font-semibold text-gray-800 mb-2">No posts yet</h3>
-                  <p className="text-gray-600 mb-4">Be the first to start a conversation!</p>
-                  <Button onClick={() => setShowPostForm(true)} className="bg-blue-600 hover:bg-blue-700">
+                  <MessageSquare className="w-16 h-16 mx-auto mb-3" style={{ color: '#A8D4CB' }} />
+                  <h3 className="text-xl font-semibold mb-2" style={{ color: '#1A3A34' }}>No posts yet</h3>
+                  <p className="mb-4" style={{ color: '#5A7A72' }}>Be the first to start a conversation!</p>
+                  <Button onClick={() => setShowPostForm(true)} className="text-white" style={{
+                    borderRadius: '28px',
+                    backgroundColor: '#26A69A',
+                    boxShadow: '0 8px 24px rgba(38, 166, 154, 0.35)'
+                  }}>
                     Create First Post
                   </Button>
                 </CardContent>
@@ -229,12 +266,20 @@ export default function Community() {
                   </CardContent>
                 </Card>
               ) : groups.filter(g => !myGroupIds.includes(g.id)).length === 0 ? (
-                <Card>
+                <Card className="border-0" style={{
+                  borderRadius: '32px',
+                  background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
+                  boxShadow: '0 12px 40px rgba(38, 166, 154, 0.12), 0 4px 16px rgba(0,0,0,0.04)'
+                }}>
                   <CardContent className="p-12 text-center">
-                    <Users className="w-16 h-16 text-gray-300 mx-auto mb-3" />
-                    <h3 className="text-xl font-semibold text-gray-800 mb-2">No groups yet</h3>
-                    <p className="text-gray-600 mb-4">Create the first group to bring people together!</p>
-                    <Button onClick={() => setShowGroupForm(true)} className="bg-purple-600 hover:bg-purple-700">
+                    <Users className="w-16 h-16 mx-auto mb-3" style={{ color: '#A8D4CB' }} />
+                    <h3 className="text-xl font-semibold mb-2" style={{ color: '#1A3A34' }}>No groups yet</h3>
+                    <p className="mb-4" style={{ color: '#5A7A72' }}>Create the first group to bring people together!</p>
+                    <Button onClick={() => setShowGroupForm(true)} className="text-white" style={{
+                      borderRadius: '28px',
+                      backgroundColor: '#26A69A',
+                      boxShadow: '0 8px 24px rgba(38, 166, 154, 0.35)'
+                    }}>
                       Create First Group
                     </Button>
                   </CardContent>
@@ -260,12 +305,20 @@ export default function Community() {
         <TabsContent value="progress">
           <div className="space-y-4">
             {sharedProgress.length === 0 ? (
-              <Card>
+              <Card className="border-0" style={{
+                borderRadius: '32px',
+                background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
+                boxShadow: '0 12px 40px rgba(38, 166, 154, 0.12), 0 4px 16px rgba(0,0,0,0.04)'
+              }}>
                 <CardContent className="p-12 text-center">
-                  <TrendingUp className="w-16 h-16 text-gray-300 mx-auto mb-3" />
-                  <h3 className="text-xl font-semibold text-gray-800 mb-2">No stories yet</h3>
-                  <p className="text-gray-600 mb-4">Share your progress and inspire others!</p>
-                  <Button onClick={() => setShowProgressForm(true)} className="bg-green-600 hover:bg-green-700">
+                  <TrendingUp className="w-16 h-16 mx-auto mb-3" style={{ color: '#A8D4CB' }} />
+                  <h3 className="text-xl font-semibold mb-2" style={{ color: '#1A3A34' }}>No stories yet</h3>
+                  <p className="mb-4" style={{ color: '#5A7A72' }}>Share your progress and inspire others!</p>
+                  <Button onClick={() => setShowProgressForm(true)} className="text-white" style={{
+                    borderRadius: '28px',
+                    backgroundColor: '#26A69A',
+                    boxShadow: '0 8px 24px rgba(38, 166, 154, 0.35)'
+                  }}>
                     Share Your Story
                   </Button>
                 </CardContent>
@@ -273,12 +326,16 @@ export default function Community() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {sharedProgress.map((progress) => (
-                  <Card key={progress.id} className="hover:shadow-md transition-shadow">
+                  <Card key={progress.id} className="border-0 hover:shadow-md transition-shadow" style={{
+                    borderRadius: '24px',
+                    background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 249, 247, 0.85) 100%)',
+                    boxShadow: '0 6px 20px rgba(38, 166, 154, 0.1)'
+                  }}>
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-gray-800 mb-1">{progress.title}</h3>
-                          <p className="text-sm text-gray-600 line-clamp-3">{progress.content}</p>
+                          <h3 className="font-semibold mb-1" style={{ color: '#1A3A34' }}>{progress.title}</h3>
+                          <p className="text-sm line-clamp-3" style={{ color: '#5A7A72' }}>{progress.content}</p>
                         </div>
                       </div>
                       <div className="flex items-center justify-between mt-3">
