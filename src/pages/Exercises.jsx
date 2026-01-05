@@ -112,7 +112,7 @@ export default function Exercises() {
   }
 
   return (
-    <div className="p-4 md:p-8 max-w-6xl mx-auto">
+    <div className="p-4 md:p-8 max-w-6xl mx-auto" style={{ minHeight: '100vh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
       {/* Header */}
       <div className="mb-8 mt-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
@@ -121,22 +121,26 @@ export default function Exercises() {
               variant="ghost"
               size="icon"
               onClick={() => window.location.href = '/'}
-              className="rounded-full"
+              style={{ borderRadius: '50%' }}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             </Button>
             <div>
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-light text-gray-800">Exercise Library</h1>
-              <p className="text-sm md:text-base text-gray-500 md:hidden">Practice evidence-based techniques</p>
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-light" style={{ color: '#1A3A34' }}>Exercise Library</h1>
+              <p className="text-sm md:text-base md:hidden" style={{ color: '#5A7A72' }}>Practice evidence-based techniques</p>
             </div>
           </div>
           <button
             onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-            className={`px-3 py-2 md:px-4 md:py-2 rounded-xl transition-all text-sm md:text-base ${
-              showFavoritesOnly
-                ? 'bg-red-100 text-red-700 border-2 border-red-300'
-                : 'bg-gray-100 text-gray-600 border-2 border-transparent'
-            }`}
+            className="px-3 py-2 md:px-4 md:py-2 transition-all text-sm md:text-base"
+            style={{
+              borderRadius: '24px',
+              background: showFavoritesOnly
+                ? 'linear-gradient(145deg, rgba(254, 202, 202, 0.7) 0%, rgba(252, 165, 165, 0.6) 100%)'
+                : 'linear-gradient(145deg, rgba(200, 230, 225, 0.7) 0%, rgba(180, 220, 210, 0.6) 100%)',
+              color: showFavoritesOnly ? '#991B1B' : '#3D5A52',
+              boxShadow: '0 4px 12px rgba(38, 166, 154, 0.08)'
+            }}
           >
             <Star className={`w-4 h-4 inline mr-1 md:mr-2 ${showFavoritesOnly ? 'fill-current' : ''}`} />
             <span className="hidden md:inline">Favorites</span>
@@ -144,7 +148,7 @@ export default function Exercises() {
             {showFavoritesOnly && <span className="hidden md:inline"> ({exercises.filter(e => e.favorite).length})</span>}
           </button>
         </div>
-        <p className="text-sm md:text-base text-gray-500 ml-0 md:ml-12 hidden md:block">Practice evidence-based techniques to manage thoughts and emotions</p>
+        <p className="text-sm md:text-base ml-0 md:ml-12 hidden md:block" style={{ color: '#5A7A72' }}>Practice evidence-based techniques to manage thoughts and emotions</p>
       </div>
 
       {/* Search Bar */}
@@ -155,7 +159,8 @@ export default function Exercises() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search exercises..."
-            className="pl-10 rounded-xl"
+            className="pl-10"
+            style={{ borderRadius: '28px' }}
           />
         </div>
       </div>
@@ -163,12 +168,21 @@ export default function Exercises() {
       {/* Category Filter */}
       <div className="mb-6 overflow-x-auto">
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-          <TabsList className="bg-white border border-gray-200 p-1 inline-flex w-auto min-w-full">
+          <TabsList className="border p-1 inline-flex w-auto min-w-full" style={{
+            background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.7) 0%, rgba(180, 220, 210, 0.6) 100%)',
+            borderColor: 'rgba(38, 166, 154, 0.25)',
+            borderRadius: '28px'
+          }}>
             {categories.map((cat) => (
               <TabsTrigger
                 key={cat.value}
                 value={cat.value}
-                className="data-[state=active]:bg-green-600 data-[state=active]:text-white whitespace-nowrap text-sm px-3"
+                className="whitespace-nowrap text-sm px-3"
+                style={{
+                  borderRadius: '24px',
+                  color: selectedCategory === cat.value ? '#fff' : '#3D5A52',
+                  background: selectedCategory === cat.value ? '#26A69A' : 'transparent'
+                }}
               >
                 {cat.label}
               </TabsTrigger>
@@ -189,15 +203,22 @@ export default function Exercises() {
 
       {/* Exercises Grid */}
       {filteredExercises.length === 0 ? (
-        <Card className="border-0 shadow-lg">
+        <Card className="border-0" style={{
+          borderRadius: '32px',
+          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
+          boxShadow: '0 12px 40px rgba(38, 166, 154, 0.12), 0 4px 16px rgba(0,0,0,0.04)'
+        }}>
           <CardContent className="p-12 text-center">
-            <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-              <Sparkles className="w-10 h-10 text-gray-400" />
+            <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4" style={{
+              borderRadius: '50%',
+              background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.7) 0%, rgba(180, 220, 210, 0.6) 100%)'
+            }}>
+              <Sparkles className="w-10 h-10" style={{ color: '#26A69A' }} />
             </div>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+            <h2 className="text-2xl font-semibold mb-2" style={{ color: '#1A3A34' }}>
               {showFavoritesOnly ? 'No favorite exercises yet' : 'No exercises found'}
             </h2>
-            <p className="text-gray-600">
+            <p style={{ color: '#5A7A72' }}>
               {showFavoritesOnly
                 ? 'Mark exercises as favorites to see them here'
                 : searchQuery

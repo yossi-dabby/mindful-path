@@ -70,7 +70,7 @@ export default function Goals() {
   };
 
   return (
-    <div className="min-h-screen p-4 md:p-8 pb-24 max-w-5xl mx-auto">
+    <div className="p-4 md:p-8 pb-24 max-w-5xl mx-auto" style={{ minHeight: '100vh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 mt-4">
         <div className="flex items-center gap-3">
@@ -78,21 +78,22 @@ export default function Goals() {
             variant="ghost"
             size="icon"
             onClick={() => window.history.back()}
-            className="rounded-full"
+            style={{ borderRadius: '50%' }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </Button>
           <div>
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-light text-gray-800 mb-1 md:mb-2">Your Goals</h1>
-            <p className="text-sm md:text-base text-gray-500">Set intentions and track your progress</p>
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-light mb-1 md:mb-2" style={{ color: '#1A3A34' }}>Your Goals</h1>
+            <p className="text-sm md:text-base" style={{ color: '#5A7A72' }}>Set intentions and track your progress</p>
           </div>
         </div>
         <div className="flex gap-2 flex-wrap">
           <Button
             onClick={() => setShowCalendar(!showCalendar)}
             variant="outline"
-            className="rounded-xl text-sm md:text-base"
+            className="text-sm md:text-base"
             size="sm"
+            style={{ borderRadius: '24px' }}
           >
             <CalendarIcon className="w-4 h-4 md:w-5 md:h-5 md:mr-2" />
             <span className="hidden md:inline">Calendar</span>
@@ -100,16 +101,22 @@ export default function Goals() {
           <Button
             onClick={() => setShowAiSuggestions(true)}
             variant="outline"
-            className="rounded-xl text-sm md:text-base"
+            className="text-sm md:text-base"
             size="sm"
+            style={{ borderRadius: '24px' }}
           >
             <Sparkles className="w-4 h-4 md:w-5 md:h-5 md:mr-2" />
             <span className="hidden md:inline">AI Suggestions</span>
           </Button>
           <Button
             onClick={() => setShowForm(true)}
-            className="bg-blue-600 hover:bg-blue-700 rounded-xl text-sm md:text-base"
+            className="text-white text-sm md:text-base"
             size="sm"
+            style={{
+              borderRadius: '24px',
+              backgroundColor: '#26A69A',
+              boxShadow: '0 6px 20px rgba(38, 166, 154, 0.3)'
+            }}
           >
             <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
             New Goal
@@ -123,19 +130,31 @@ export default function Goals() {
           <p className="text-gray-500">Loading goals...</p>
         </div>
       ) : goals.length === 0 ? (
-        <Card className="border-0 shadow-lg">
+        <Card className="border-0" style={{
+          borderRadius: '32px',
+          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
+          boxShadow: '0 12px 40px rgba(38, 166, 154, 0.12), 0 4px 16px rgba(0,0,0,0.04)'
+        }}>
           <CardContent className="p-12 text-center">
-            <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
-              <Target className="w-10 h-10 text-blue-600" />
+            <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4" style={{
+              borderRadius: '50%',
+              background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.7) 0%, rgba(180, 220, 210, 0.6) 100%)'
+            }}>
+              <Target className="w-10 h-10" style={{ color: '#26A69A' }} />
             </div>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-2">Set Your First Goal</h2>
-            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+            <h2 className="text-2xl font-semibold mb-2" style={{ color: '#1A3A34' }}>Set Your First Goal</h2>
+            <p className="mb-6 max-w-md mx-auto" style={{ color: '#5A7A72' }}>
               Goals give you direction and motivation. Break them into small steps and celebrate each milestone.
             </p>
             <div className="flex flex-col gap-3 items-center max-w-md mx-auto">
               <Button
                 onClick={() => setShowAiSuggestions(true)}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-6 text-lg rounded-xl w-full"
+                className="text-white px-8 py-6 text-lg w-full"
+                style={{
+                  borderRadius: '32px',
+                  background: 'linear-gradient(145deg, #26A69A, #38B2AC)',
+                  boxShadow: '0 8px 24px rgba(38, 166, 154, 0.35)'
+                }}
               >
                 <Sparkles className="w-5 h-5 mr-2" />
                 Get AI Goal Suggestions
@@ -143,7 +162,8 @@ export default function Goals() {
               <Button
                 onClick={() => setShowForm(true)}
                 variant="outline"
-                className="px-8 py-6 text-lg rounded-xl w-full"
+                className="px-8 py-6 text-lg w-full"
+                style={{ borderRadius: '32px' }}
               >
                 Create Manually
               </Button>
