@@ -38,15 +38,15 @@ export default function Videos() {
   };
 
   return (
-    <div className="min-h-screen bg-warm-gradient">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
       <div className="page-container max-w-7xl">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 mt-6">
           <div>
-            <h1 className="text-2xl md:text-3xl font-semibold mb-1" style={{ color: 'rgb(var(--text))' }}>
+            <h1 className="text-2xl md:text-3xl font-semibold mb-1" style={{ color: '#2D3748' }}>
               CBT Video Library
             </h1>
-            <p className="text-sm opacity-70" style={{ color: 'rgb(var(--muted))' }}>
+            <p className="text-sm" style={{ color: '#718096' }}>
               Guided videos to practice CBT
             </p>
           </div>
@@ -54,17 +54,19 @@ export default function Videos() {
             <Button
               variant="outline"
               onClick={() => setShowCreatePlaylist(true)}
-              className="text-sm"
+              className="text-sm px-5 py-5"
+              style={{ borderRadius: '9999px' }}
             >
               <Plus className="w-4 h-4 mr-1" />
               New
             </Button>
             <Link to={createPageUrl('Playlists')}>
               <Button
-                className="text-sm font-medium"
+                className="text-sm font-medium text-white px-6 py-5"
                 style={{ 
-                  backgroundColor: 'rgb(var(--accent))',
-                  color: 'rgb(var(--accent-contrast))'
+                  backgroundColor: '#26A69A',
+                  borderRadius: '9999px',
+                  boxShadow: '0 2px 8px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.06)'
                 }}
               >
                 <List className="w-4 h-4 mr-1" />
@@ -99,9 +101,11 @@ export default function Videos() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
               >
-                <Card className="border-0 shadow-soft hover:shadow-md transition-calm overflow-hidden group h-full flex flex-col" style={{ 
-                  borderRadius: 'var(--r-md)',
-                  backgroundColor: 'rgb(var(--surface))'
+                <Card className="border-0 hover:shadow-md transition-calm overflow-hidden group h-full flex flex-col" style={{ 
+                  borderRadius: '18px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                  backdropFilter: 'blur(10px)',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)'
                 }}>
                   <CardContent className="p-0 flex flex-col h-full">
                     <Link 
@@ -163,7 +167,7 @@ export default function Videos() {
 
                     {/* Video Info */}
                     <div className="p-2.5 flex flex-col flex-1">
-                      <h3 className="text-xs font-semibold mb-1 line-clamp-2 leading-tight" style={{ color: 'rgb(var(--text))' }}>
+                      <h3 className="text-xs font-semibold mb-1 line-clamp-2 leading-tight" style={{ color: '#2D3748' }}>
                         {video.title}
                       </h3>
                       {video.category && (
@@ -171,7 +175,7 @@ export default function Videos() {
                           {video.category}
                         </span>
                       )}
-                      <p className="text-xs mb-2 opacity-60 line-clamp-1" style={{ color: 'rgb(var(--muted))' }}>
+                      <p className="text-xs mb-2 line-clamp-1" style={{ color: '#718096' }}>
                         Guided reflection included
                       </p>
                       <Button

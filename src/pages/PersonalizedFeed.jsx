@@ -23,7 +23,7 @@ export default function PersonalizedFeed() {
   const hasActiveFilters = contentType !== 'all' || sortBy !== 'relevance';
 
   return (
-    <div className="min-h-screen p-4 md:p-8 pb-24 max-w-5xl mx-auto">
+    <div className="min-h-screen p-4 md:p-8 pb-24 max-w-5xl mx-auto" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
       {/* Header */}
       <motion.div 
         className="flex items-center justify-between mb-6 mt-4"
@@ -42,10 +42,10 @@ export default function PersonalizedFeed() {
           </Button>
           <div>
             <div className="flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-purple-600" />
-              <h1 className="text-3xl md:text-4xl font-light text-gray-800">Personalized Feed</h1>
+              <Sparkles className="w-6 h-6" style={{ color: '#26A69A' }} />
+              <h1 className="text-3xl md:text-4xl font-light" style={{ color: '#2D3748' }}>Personalized Feed</h1>
             </div>
-            <p className="text-gray-500 mt-1">AI-curated content tailored to your interests</p>
+            <p className="mt-1" style={{ color: '#718096' }}>AI-curated content tailored to your interests</p>
           </div>
         </div>
       </motion.div>

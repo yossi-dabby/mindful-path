@@ -57,7 +57,7 @@ export default function Progress() {
   });
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto" style={{ minHeight: '100vh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
+    <div className="p-4 md:p-8 max-w-7xl mx-auto" style={{ minHeight: '100vh', background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
       {/* Header */}
       <div className="mb-8 mt-4">
         <div className="flex items-center gap-3 mb-2">
@@ -70,11 +70,11 @@ export default function Progress() {
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </Button>
           <div>
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-light" style={{ color: '#1A3A34' }}>Your Progress</h1>
-            <p className="text-sm md:text-base md:hidden" style={{ color: '#5A7A72' }}>Track your journey</p>
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-light" style={{ color: '#2D3748' }}>Your Progress</h1>
+            <p className="text-sm md:text-base md:hidden" style={{ color: '#718096' }}>Track your journey</p>
           </div>
         </div>
-        <p className="text-sm md:text-base ml-0 md:ml-12 hidden md:block" style={{ color: '#5A7A72' }}>Track your journey and celebrate your growth</p>
+        <p className="text-sm md:text-base ml-0 md:ml-12 hidden md:block" style={{ color: '#718096' }}>Track your journey and celebrate your growth</p>
       </div>
 
       {/* Stats Overview */}
@@ -90,20 +90,23 @@ export default function Progress() {
         {/* Mood Trends */}
         <div className="lg:col-span-2">
           <Card className="border-0" style={{
-            borderRadius: '32px',
-            background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
-            boxShadow: '0 12px 40px rgba(38, 166, 154, 0.12), 0 4px 16px rgba(0,0,0,0.04)'
+            borderRadius: '24px',
+            background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.6) 0%, rgba(255, 255, 255, 0.85) 100%)',
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 4px 16px rgba(38, 166, 154, 0.12), 0 2px 4px rgba(0,0,0,0.04)'
           }}>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2" style={{ color: '#1A3A34' }}>
+                <CardTitle className="flex items-center gap-2" style={{ color: '#2D3748' }}>
                   <TrendingUp className="w-5 h-5" style={{ color: '#26A69A' }} />
                   Mood Trends
                 </CardTitle>
                 <Tabs value={timeRange} onValueChange={setTimeRange}>
                   <TabsList style={{
-                    background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.7) 0%, rgba(180, 220, 210, 0.6) 100%)',
-                    borderRadius: '24px'
+                    background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.6) 0%, rgba(255, 255, 255, 0.8) 100%)',
+                    backdropFilter: 'blur(10px)',
+                    borderRadius: '9999px',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)'
                   }}>
                     <TabsTrigger value="7">7 days</TabsTrigger>
                     <TabsTrigger value="14">14 days</TabsTrigger>
@@ -121,8 +124,8 @@ export default function Progress() {
                 <div className="h-64 flex items-center justify-center">
                   <div className="text-center">
                     <Calendar className="w-12 h-12 mx-auto mb-3" style={{ color: '#A8D4CB' }} />
-                    <p style={{ color: '#5A7A72' }}>No mood data yet</p>
-                    <p className="text-sm mt-1" style={{ color: '#7A9A92' }}>Start checking in daily to see trends</p>
+                    <p style={{ color: '#718096' }}>No mood data yet</p>
+                    <p className="text-sm mt-1" style={{ color: '#718096' }}>Start checking in daily to see trends</p>
                   </div>
                 </div>
               ) : (
@@ -144,12 +147,13 @@ export default function Progress() {
       {/* Health Dashboard */}
       <div className="mt-6">
         <Card className="border-0" style={{
-          borderRadius: '32px',
-          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
-          boxShadow: '0 12px 40px rgba(38, 166, 154, 0.12), 0 4px 16px rgba(0,0,0,0.04)'
+          borderRadius: '24px',
+          background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.6) 0%, rgba(255, 255, 255, 0.85) 100%)',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 4px 16px rgba(38, 166, 154, 0.12), 0 2px 4px rgba(0,0,0,0.04)'
         }}>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2" style={{ color: '#1A3A34' }}>
+            <CardTitle className="flex items-center gap-2" style={{ color: '#2D3748' }}>
               <Activity className="w-5 h-5" style={{ color: '#26A69A' }} />
               Health & Wellness Tracking
             </CardTitle>
@@ -174,12 +178,13 @@ export default function Progress() {
       {/* Holistic Health Insights */}
       <div className="mt-6">
         <Card className="border-0" style={{
-          borderRadius: '32px',
-          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
-          boxShadow: '0 12px 40px rgba(38, 166, 154, 0.12), 0 4px 16px rgba(0,0,0,0.04)'
+          borderRadius: '24px',
+          background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.6) 0%, rgba(255, 255, 255, 0.85) 100%)',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 4px 16px rgba(38, 166, 154, 0.12), 0 2px 4px rgba(0,0,0,0.04)'
         }}>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2" style={{ color: '#1A3A34' }}>
+            <CardTitle className="flex items-center gap-2" style={{ color: '#2D3748' }}>
               <Brain className="w-5 h-5" style={{ color: '#26A69A' }} />
               Holistic Health Insights
             </CardTitle>
@@ -210,12 +215,13 @@ export default function Progress() {
 
       {/* Activity Timeline */}
       <Card className="border-0 mt-6" style={{
-        borderRadius: '32px',
-        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
-        boxShadow: '0 12px 40px rgba(38, 166, 154, 0.12), 0 4px 16px rgba(0,0,0,0.04)'
+        borderRadius: '24px',
+        background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.6) 0%, rgba(255, 255, 255, 0.85) 100%)',
+        backdropFilter: 'blur(10px)',
+        boxShadow: '0 4px 16px rgba(38, 166, 154, 0.12), 0 2px 4px rgba(0,0,0,0.04)'
       }}>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2" style={{ color: '#1A3A34' }}>
+          <CardTitle className="flex items-center gap-2" style={{ color: '#2D3748' }}>
             <Brain className="w-5 h-5" style={{ color: '#26A69A' }} />
             Recent Activity
           </CardTitle>
@@ -224,19 +230,20 @@ export default function Progress() {
           <div className="space-y-3">
             {journalEntries.slice(0, 5).map((entry) => (
               <div key={entry.id} className="flex items-start gap-3 p-3 transition-colors" style={{
-                borderRadius: '18px',
-                background: 'linear-gradient(145deg, rgba(232, 246, 243, 0.5) 0%, rgba(212, 237, 232, 0.4) 100%)'
+                borderRadius: '16px',
+                background: 'rgba(224, 242, 241, 0.4)',
+                backdropFilter: 'blur(10px)'
               }}>
                 <div className="w-10 h-10 flex items-center justify-center flex-shrink-0" style={{
                   borderRadius: '50%',
-                  background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.7) 0%, rgba(180, 220, 210, 0.6) 100%)'
+                  backgroundColor: 'rgba(38, 166, 154, 0.15)'
                 }}>
                   <Brain className="w-5 h-5" style={{ color: '#26A69A' }} />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>Thought Journal Entry</p>
-                  <p className="text-xs line-clamp-1" style={{ color: '#5A7A72' }}>{entry.situation}</p>
-                  <p className="text-xs mt-1" style={{ color: '#7A9A92' }}>
+                  <p className="text-sm font-medium" style={{ color: '#2D3748' }}>Thought Journal Entry</p>
+                  <p className="text-xs line-clamp-1" style={{ color: '#718096' }}>{entry.situation}</p>
+                  <p className="text-xs mt-1" style={{ color: '#718096' }}>
                     {new Date(entry.created_date).toLocaleDateString()}
                   </p>
                 </div>

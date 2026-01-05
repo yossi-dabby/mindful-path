@@ -93,7 +93,7 @@ export default function Settings() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 max-w-4xl mx-auto">
+    <div className="min-h-screen p-4 md:p-8 max-w-4xl mx-auto" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
       {/* Header */}
       <motion.div 
         className="mb-8 mt-4"
@@ -101,8 +101,8 @@ export default function Settings() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-3xl md:text-4xl font-light text-gray-800 mb-2">Settings</h1>
-        <p className="text-gray-500">Manage your account and preferences</p>
+        <h1 className="text-3xl md:text-4xl font-light mb-2" style={{ color: '#2D3748' }}>Settings</h1>
+        <p style={{ color: '#718096' }}>Manage your account and preferences</p>
       </motion.div>
 
       {/* Profile Section */}
@@ -164,7 +164,12 @@ export default function Settings() {
           <Button
             onClick={() => updateProfileMutation.mutate({ full_name: fullName })}
             disabled={updateProfileMutation.isPending || fullName === user.full_name}
-            className="bg-green-600 hover:bg-green-700 rounded-xl"
+            className="text-white px-6 py-5"
+            style={{ 
+              borderRadius: '9999px',
+              backgroundColor: '#26A69A',
+              boxShadow: '0 2px 8px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.06)'
+            }}
           >
             {updateProfileMutation.isPending ? 'Saving...' : 'Save Changes'}
           </Button>
@@ -188,7 +193,12 @@ export default function Settings() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.3 }}
       >
-        <Card className="border-0 shadow-md mb-6">
+        <Card className="border-0 mb-6" style={{ 
+          borderRadius: '24px',
+          background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.5) 0%, rgba(255, 255, 255, 0.8) 100%)',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 3px 12px rgba(38, 166, 154, 0.1), 0 1px 3px rgba(0,0,0,0.04)'
+        }}>
           <CardHeader className="border-b">
             <CardTitle className="flex items-center gap-2">
               <LayoutIcon className="w-5 h-5 text-gray-600" />
@@ -233,7 +243,12 @@ export default function Settings() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.4 }}
       >
-      <Card className="border-0 shadow-md mb-6">
+      <Card className="border-0 mb-6" style={{ 
+        borderRadius: '24px',
+        background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.5) 0%, rgba(255, 255, 255, 0.8) 100%)',
+        backdropFilter: 'blur(10px)',
+        boxShadow: '0 3px 12px rgba(38, 166, 154, 0.1), 0 1px 3px rgba(0,0,0,0.04)'
+      }}>
         <CardHeader className="border-b">
           <CardTitle className="flex items-center gap-2">
             <CreditCard className="w-5 h-5 text-gray-600" />
@@ -274,7 +289,12 @@ export default function Settings() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.5 }}
       >
-        <Card className="border-0 shadow-md mb-6">
+        <Card className="border-0 mb-6" style={{ 
+          borderRadius: '24px',
+          background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.5) 0%, rgba(255, 255, 255, 0.8) 100%)',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 3px 12px rgba(38, 166, 154, 0.1), 0 1px 3px rgba(0,0,0,0.04)'
+        }}>
         <CardHeader className="border-b">
           <CardTitle className="flex items-center gap-2">
             <Bell className="w-5 h-5 text-gray-600" />
@@ -334,7 +354,12 @@ export default function Settings() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.6 }}
       >
-        <Card className="border-0 shadow-md">
+        <Card className="border-0" style={{ 
+          borderRadius: '24px',
+          background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.5) 0%, rgba(255, 255, 255, 0.8) 100%)',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 3px 12px rgba(38, 166, 154, 0.1), 0 1px 3px rgba(0,0,0,0.04)'
+        }}>
         <CardHeader className="border-b">
           <CardTitle>Account</CardTitle>
         </CardHeader>

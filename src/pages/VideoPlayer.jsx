@@ -101,13 +101,17 @@ export default function VideoPlayer() {
 
   if (!videoUrl) {
     return (
-      <div className="min-h-screen bg-warm-gradient">
+      <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
         <div className="page-container max-w-4xl">
           <div className="text-center py-12">
-            <p className="text-lg mb-4" style={{ color: 'rgb(var(--text))' }}>
+            <p className="text-lg mb-4" style={{ color: '#2D3748' }}>
               No video selected
             </p>
-            <Button onClick={handleBack}>Back to Video Library</Button>
+            <Button onClick={handleBack} className="px-6 py-5 text-white" style={{ 
+              borderRadius: '9999px',
+              backgroundColor: '#26A69A',
+              boxShadow: '0 2px 8px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.06)'
+            }}>Back to Video Library</Button>
           </div>
         </div>
       </div>
@@ -115,7 +119,7 @@ export default function VideoPlayer() {
   }
 
   return (
-    <div className="min-h-screen bg-warm-gradient">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
       <div className="page-container max-w-4xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -128,20 +132,22 @@ export default function VideoPlayer() {
               variant="ghost"
               onClick={handleBack}
               className="mb-4 -ml-2"
-              style={{ color: 'rgb(var(--muted))' }}
+              style={{ color: '#718096' }}
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Video Library
             </Button>
-            <h1 className="text-2xl font-semibold" style={{ color: 'rgb(var(--text))' }}>
+            <h1 className="text-2xl font-semibold" style={{ color: '#2D3748' }}>
               {title}
             </h1>
           </div>
 
           {/* Video Player Card */}
-          <Card className="border-0 shadow-lg" style={{ 
-            borderRadius: 'var(--r-lg)',
-            backgroundColor: 'rgb(var(--surface))'
+          <Card className="border-0" style={{ 
+            borderRadius: '24px',
+            background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.6) 0%, rgba(255, 255, 255, 0.85) 100%)',
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 4px 16px rgba(38, 166, 154, 0.12), 0 2px 4px rgba(0,0,0,0.04)'
           }}>
             <CardContent className="p-0">
               <div className="relative" style={{ borderRadius: 'var(--r-lg)', overflow: 'hidden' }}>
@@ -181,11 +187,11 @@ export default function VideoPlayer() {
           <div className="mt-6 text-center">
             <Button
               onClick={handleBack}
-              className="px-6 py-5 shadow-soft"
+              className="px-7 py-6 text-white"
               style={{ 
-                borderRadius: 'var(--r-lg)',
-                backgroundColor: 'rgb(var(--accent))',
-                color: 'rgb(var(--accent-contrast))'
+                borderRadius: '9999px',
+                backgroundColor: '#26A69A',
+                boxShadow: '0 3px 10px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.08)'
               }}
             >
               Back to Video Library

@@ -204,7 +204,7 @@ Generate a concise insight or action the user can apply today.`;
 
   if (!starterPath || step === 'loading' || generateContentMutation.isPending) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'rgb(var(--bg))' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
         <div className="text-center">
           <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin" style={{ color: 'rgb(var(--calm))' }} strokeWidth={2} />
           <p style={{ color: 'rgb(var(--muted))' }}>Preparing your daily exercise...</p>
@@ -215,7 +215,7 @@ Generate a concise insight or action the user can apply today.`;
 
   if (step === 'complete') {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: 'rgb(var(--bg))' }}>
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -260,12 +260,12 @@ Generate a concise insight or action the user can apply today.`;
                   : "Come back tomorrow for Day " + (currentDay + 1)}
               </p>
               <Link to={createPageUrl('Home')}>
-                <Button className="transition-calm" style={{ 
-                  borderRadius: 'var(--r-md)',
-                  backgroundColor: 'rgb(var(--accent))',
-                  color: 'rgb(var(--accent-contrast))'
+                <Button className="transition-calm text-white px-7 py-6" style={{ 
+                  borderRadius: '9999px',
+                  backgroundColor: '#26A69A',
+                  boxShadow: '0 3px 10px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.08)'
                 }}>
-                  Return Home
+                Return Home
                 </Button>
               </Link>
             </CardContent>
@@ -276,7 +276,7 @@ Generate a concise insight or action the user can apply today.`;
   }
 
   return (
-    <div className="min-h-screen p-4" style={{ backgroundColor: 'rgb(var(--bg))' }}>
+    <div className="min-h-screen p-4" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
       <div className="max-w-3xl mx-auto py-8">
         {/* Header */}
         <div className="mb-6">
@@ -352,11 +352,11 @@ Generate a concise insight or action the user can apply today.`;
 
                   <Button
                     onClick={() => setStep('exercise')}
-                    className="w-full transition-calm"
+                    className="w-full transition-calm text-white px-7 py-6"
                     style={{ 
-                      borderRadius: 'var(--r-md)',
-                      backgroundColor: 'rgb(var(--calm))',
-                      color: 'rgb(var(--accent-contrast))'
+                      borderRadius: '9999px',
+                      backgroundColor: '#26A69A',
+                      boxShadow: '0 3px 10px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.08)'
                     }}
                   >
                     Begin Exercise
@@ -419,11 +419,11 @@ Generate a concise insight or action the user can apply today.`;
                     <Button
                       onClick={() => completeDayMutation.mutate()}
                       disabled={!userResponse.trim() || completeDayMutation.isPending}
-                      className="flex-1 transition-calm"
+                      className="flex-1 transition-calm text-white px-6 py-5"
                       style={{ 
-                        borderRadius: 'var(--r-md)',
-                        backgroundColor: 'rgb(var(--calm))',
-                        color: 'rgb(var(--accent-contrast))',
+                        borderRadius: '9999px',
+                        backgroundColor: '#26A69A',
+                        boxShadow: '0 2px 8px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.06)',
                         opacity: !userResponse.trim() ? 0.5 : 1
                       }}
                     >

@@ -43,7 +43,7 @@ export default function MoodTracker() {
   };
 
   return (
-    <div className="p-4 md:p-6" style={{ minHeight: '100vh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
+    <div className="p-4 md:p-6" style={{ minHeight: '100vh', background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div 
@@ -62,18 +62,18 @@ export default function MoodTracker() {
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
               </Button>
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2" style={{ color: '#1A3A34' }}>Mood Tracker</h1>
-                <p className="text-sm md:text-base" style={{ color: '#5A7A72' }}>Track your emotional well-being and discover patterns</p>
+                <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2" style={{ color: '#2D3748' }}>Mood Tracker</h1>
+                <p className="text-sm md:text-base" style={{ color: '#718096' }}>Track your emotional well-being and discover patterns</p>
               </div>
             </div>
             <Button
               onClick={() => setShowForm(true)}
-              className="text-white shadow-lg text-sm md:text-base"
+              className="text-white text-sm md:text-base px-6 py-5"
               size="sm"
               style={{
-                borderRadius: '24px',
+                borderRadius: '9999px',
                 backgroundColor: '#26A69A',
-                boxShadow: '0 6px 20px rgba(38, 166, 154, 0.3)'
+                boxShadow: '0 3px 10px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.08)'
               }}
             >
               <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
@@ -84,10 +84,11 @@ export default function MoodTracker() {
 
         {/* Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="backdrop-blur-xl border shadow-sm" style={{
-            background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.7) 0%, rgba(180, 220, 210, 0.6) 100%)',
-            borderColor: 'rgba(38, 166, 154, 0.25)',
-            borderRadius: '28px'
+          <TabsList className="backdrop-blur-xl border-0" style={{
+            background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.6) 0%, rgba(255, 255, 255, 0.8) 100%)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '9999px',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)'
           }}>
             <TabsTrigger value="overview" className="gap-2">
               <TrendingUp className="w-4 h-4" />
