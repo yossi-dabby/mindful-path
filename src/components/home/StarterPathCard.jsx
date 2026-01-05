@@ -64,24 +64,24 @@ export default function StarterPathCard() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
     >
-      <Card className="border-0 hover:shadow-lg transition-calm" style={{ 
-        borderRadius: '24px',
-        background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.5) 0%, rgba(255, 255, 255, 0.8) 100%)',
-        backdropFilter: 'blur(10px)',
-        boxShadow: '0 3px 12px rgba(38, 166, 154, 0.1), 0 1px 3px rgba(0,0,0,0.04)'
+      <Card className="border-0 hover:shadow-xl transition-calm" style={{ 
+        borderRadius: '32px',
+        background: 'linear-gradient(145deg, rgba(248, 253, 252, 0.95) 0%, rgba(232, 246, 243, 0.85) 100%)',
+        backdropFilter: 'blur(16px)',
+        boxShadow: '0 10px 36px rgba(38, 166, 154, 0.1), 0 4px 14px rgba(0,0,0,0.04), inset 0 2px 0 rgba(255,255,255,0.7)'
       }}>
-        <CardContent className="p-5">
+        <CardContent className="p-6">
           <div className="flex items-start justify-between gap-6">
             <div className="flex-1">
               {/* Header */}
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-3">
                 <Sparkles className="w-4 h-4 icon-default" style={{ color: '#26A69A' }} strokeWidth={2} />
-                <h3 className="text-base font-semibold truncate" style={{ color: '#2D3748' }}>
+                <h3 className="text-base font-semibold truncate" style={{ color: '#1A3A34' }}>
                   7-Day Starter Path
                 </h3>
                 {isStarted && (
                   <Badge variant="secondary" className="border-0" style={{ 
-                    borderRadius: '12px',
+                    borderRadius: '16px',
                     backgroundColor: 'rgba(38, 166, 154, 0.15)',
                     color: '#26A69A'
                   }}>
@@ -91,7 +91,7 @@ export default function StarterPathCard() {
               </div>
 
               {/* Description */}
-              <p className="text-sm mb-3 line-clamp-2" style={{ color: '#718096' }}>
+              <p className="text-sm mb-4 line-clamp-2" style={{ color: '#5A7A72' }}>
                 {isStarted 
                   ? dayTheme?.description || "Continue your guided CBT journey"
                   : "Build a strong foundation with guided daily practices"}
@@ -99,10 +99,10 @@ export default function StarterPathCard() {
 
               {/* Progress Bar */}
               {isStarted && (
-                <div className="mb-4">
-                  <div className="h-2 overflow-hidden" style={{ 
-                    backgroundColor: '#E2E8F0',
-                    borderRadius: '8px'
+                <div className="mb-5">
+                  <div className="h-2.5 overflow-hidden" style={{ 
+                    backgroundColor: 'rgba(200, 220, 215, 0.5)',
+                    borderRadius: '12px'
                   }}>
                     <motion.div
                       initial={{ width: 0 }}
@@ -111,11 +111,12 @@ export default function StarterPathCard() {
                       style={{ 
                         height: '100%',
                         backgroundColor: '#26A69A',
-                        borderRadius: '8px'
+                        borderRadius: '12px',
+                        boxShadow: '0 2px 8px rgba(38, 166, 154, 0.3)'
                       }}
                     />
                   </div>
-                  <p className="text-xs mt-1" style={{ color: '#718096' }}>
+                  <p className="text-xs mt-2" style={{ color: '#5A7A72' }}>
                     {currentDay} of 7 days completed
                   </p>
                 </div>
@@ -125,11 +126,11 @@ export default function StarterPathCard() {
               {isStarted ? (
                 <Link to={createPageUrl('StarterPath')}>
                   <Button
-                    className="px-6 py-5 transition-calm text-white"
+                    className="px-7 py-5 font-medium transition-calm text-white"
                     style={{ 
-                      borderRadius: '16px',
+                      borderRadius: '22px',
                       backgroundColor: '#26A69A',
-                      boxShadow: '0 2px 8px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.06)'
+                      boxShadow: '0 6px 20px rgba(38, 166, 154, 0.3), 0 3px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.2)'
                     }}
                   >
                     Continue
@@ -140,11 +141,11 @@ export default function StarterPathCard() {
                 <Button
                   onClick={() => startPathMutation.mutate()}
                   disabled={startPathMutation.isPending}
-                  className="px-6 py-5 transition-calm text-white"
+                  className="px-7 py-5 font-medium transition-calm text-white"
                   style={{ 
-                    borderRadius: '16px',
+                    borderRadius: '22px',
                     backgroundColor: '#26A69A',
-                    boxShadow: '0 2px 8px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.06)'
+                    boxShadow: '0 6px 20px rgba(38, 166, 154, 0.3), 0 3px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.2)'
                   }}
                 >
                   {startPathMutation.isPending ? 'Starting...' : 'Start Path'}
@@ -158,10 +159,13 @@ export default function StarterPathCard() {
               <motion.div
                 animate={{ scale: [1, 1.05, 1] }}
                 transition={{ duration: 3, repeat: Infinity, ease: [0.2, 0.8, 0.2, 1] }}
-                className="w-16 h-16 flex items-center justify-center"
+                className="w-18 h-18 flex items-center justify-center"
                 style={{ 
-                  borderRadius: '16px',
-                  backgroundColor: 'rgba(38, 166, 154, 0.15)'
+                  width: '72px',
+                  height: '72px',
+                  borderRadius: '24px',
+                  backgroundColor: 'rgba(38, 166, 154, 0.15)',
+                  boxShadow: '0 4px 12px rgba(38, 166, 154, 0.15), inset 0 1px 0 rgba(255,255,255,0.5)'
                 }}
               >
                 {isStarted ? (
