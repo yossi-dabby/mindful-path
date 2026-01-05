@@ -29,9 +29,10 @@ export default function BadgeDisplay({ compact = false }) {
   if (compact) {
     return (
       <Card className="border-0 hover:shadow-lg transition-calm" style={{ 
-        borderRadius: '20px',
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+        borderRadius: '18px',
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        backdropFilter: 'blur(10px)',
+        boxShadow: '0 2px 6px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)'
       }}>
         <CardContent className="p-4 text-center">
           <Award className="w-8 h-8 mx-auto mb-2" style={{ color: '#ECC94B' }} strokeWidth={2} />

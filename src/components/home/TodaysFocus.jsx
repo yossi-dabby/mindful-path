@@ -127,8 +127,9 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
       >
         <Card className="border-0" style={{ 
           borderRadius: '24px',
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.06)'
+          background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.6) 0%, rgba(255, 255, 255, 0.85) 100%)',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 4px 16px rgba(38, 166, 154, 0.12), 0 2px 4px rgba(0,0,0,0.04)'
         }}>
           <CardContent className="p-5 text-center">
             <motion.div
@@ -162,8 +163,9 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
     >
       <Card className="border-0 hover:shadow-lg transition-calm" style={{ 
         borderRadius: '24px',
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.06)'
+        background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.6) 0%, rgba(255, 255, 255, 0.85) 100%)',
+        backdropFilter: 'blur(10px)',
+        boxShadow: '0 4px 16px rgba(38, 166, 154, 0.12), 0 2px 4px rgba(0,0,0,0.04)'
       }}>
         <CardContent className="p-6">
           {/* Progress Indicator */}
@@ -220,11 +222,11 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
 
               <Button
                 onClick={currentStep.onAction}
-                className="px-6 py-5 text-base hover:shadow-lg transition-calm text-white"
+                className="px-7 py-6 text-base hover:shadow-lg transition-calm text-white"
                 style={{ 
                   borderRadius: '16px',
                   backgroundColor: colorMap[currentStep.color],
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+                  boxShadow: '0 3px 10px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.08)'
                 }}
               >
                 {currentStep.action}

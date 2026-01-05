@@ -79,9 +79,10 @@ export default function QuickActions() {
             >
               <Link to={createPageUrl(action.page)}>
                 <Card className="border-0 hover:shadow-lg transition-all cursor-pointer group h-full" style={{
-                  borderRadius: '20px',
+                  borderRadius: '18px',
                   backgroundColor: action.bgColor,
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                  backdropFilter: 'blur(10px)',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)'
                 }}>
                   <CardContent className="p-4">
                     <motion.div 

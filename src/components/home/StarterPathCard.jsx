@@ -66,8 +66,9 @@ export default function StarterPathCard() {
     >
       <Card className="border-0 hover:shadow-lg transition-calm" style={{ 
         borderRadius: '24px',
-        background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.4) 0%, rgba(255, 255, 255, 0.95) 100%)',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.06)'
+        background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.5) 0%, rgba(255, 255, 255, 0.8) 100%)',
+        backdropFilter: 'blur(10px)',
+        boxShadow: '0 3px 12px rgba(38, 166, 154, 0.1), 0 1px 3px rgba(0,0,0,0.04)'
       }}>
         <CardContent className="p-5">
           <div className="flex items-start justify-between gap-6">
@@ -124,10 +125,11 @@ export default function StarterPathCard() {
               {isStarted ? (
                 <Link to={createPageUrl('StarterPath')}>
                   <Button
-                    className="transition-calm text-white"
+                    className="px-6 py-5 transition-calm text-white"
                     style={{ 
                       borderRadius: '16px',
-                      backgroundColor: '#26A69A'
+                      backgroundColor: '#26A69A',
+                      boxShadow: '0 2px 8px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.06)'
                     }}
                   >
                     Continue
@@ -138,10 +140,11 @@ export default function StarterPathCard() {
                 <Button
                   onClick={() => startPathMutation.mutate()}
                   disabled={startPathMutation.isPending}
-                  className="transition-calm text-white"
+                  className="px-6 py-5 transition-calm text-white"
                   style={{ 
                     borderRadius: '16px',
-                    backgroundColor: '#26A69A'
+                    backgroundColor: '#26A69A',
+                    boxShadow: '0 2px 8px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.06)'
                   }}
                 >
                   {startPathMutation.isPending ? 'Starting...' : 'Start Path'}

@@ -170,7 +170,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom, #E0F2F1 0%, #B2DFDB 100%)' }}>
+    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
       <div className="page-container max-w-5xl">
         {/* Header */}
         <motion.div 
@@ -179,7 +179,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-xl md:text-2xl font-normal mb-2" style={{ color: 'rgb(var(--text))', opacity: 0.85 }}>
+          <h1 className="text-xl md:text-2xl font-normal mb-2" style={{ color: '#2D3748' }}>
             {greeting()}{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
           </h1>
         </motion.div>
@@ -201,17 +201,19 @@ export default function Home() {
         {/* Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <div className="p-4 text-center" style={{ 
-            borderRadius: '20px',
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+            borderRadius: '18px',
+            backgroundColor: 'rgba(255, 255, 255, 0.7)',
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)'
           }}>
             <p className="text-2xl font-bold mb-1" style={{ color: '#2D3748' }}>{recentGoals.length}</p>
             <p className="text-xs" style={{ color: '#718096' }}>Active Goals</p>
           </div>
           <div className="p-4 text-center" style={{ 
-            borderRadius: '20px',
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+            borderRadius: '18px',
+            backgroundColor: 'rgba(255, 255, 255, 0.7)',
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)'
           }}>
             <p className="text-2xl font-bold mb-1" style={{ color: '#2D3748' }}>{journalCount}</p>
             <p className="text-xs" style={{ color: '#718096' }}>Journal Entries</p>
