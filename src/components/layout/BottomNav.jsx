@@ -22,9 +22,9 @@ export default function BottomNav({ currentPageName }) {
       className="md:hidden fixed bottom-0 left-0 right-0 backdrop-blur-xl border-t shadow-lg z-50"
       style={{ 
         height: `${BOTTOM_NAV_HEIGHT}px`,
-        background: 'linear-gradient(to top, rgba(240, 249, 247, 0.98) 0%, rgba(232, 246, 243, 0.95) 100%)',
-        borderColor: 'rgba(38, 166, 154, 0.2)',
-        boxShadow: '0 -4px 16px rgba(38, 166, 154, 0.08)'
+        background: 'linear-gradient(to top, rgba(212, 237, 232, 0.95) 0%, rgba(200, 230, 225, 0.92) 100%)',
+        borderColor: 'rgba(38, 166, 154, 0.25)',
+        boxShadow: '0 -6px 20px rgba(38, 166, 154, 0.14)'
       }}
     >
       <div className="flex justify-around items-center h-full px-2">

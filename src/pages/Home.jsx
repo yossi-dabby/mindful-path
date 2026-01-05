@@ -170,7 +170,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(165deg, #E8F6F3 0%, #D4EDE8 35%, #C8E6E0 65%, #BDE0D9 100%)' }}>
+    <div className="min-h-screen" style={{ background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
       <div className="page-container max-w-5xl">
         {/* Header */}
         <motion.div 
@@ -202,21 +202,21 @@ export default function Home() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="p-5 text-center" style={{ 
             borderRadius: '28px',
-            background: 'linear-gradient(145deg, rgba(232, 246, 243, 0.7) 0%, rgba(212, 237, 232, 0.6) 100%)',
+            background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.85) 0%, rgba(180, 220, 210, 0.75) 100%)',
             backdropFilter: 'blur(12px)',
-            boxShadow: '0 8px 32px rgba(38, 166, 154, 0.12), 0 4px 12px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.5)'
+            boxShadow: '0 8px 32px rgba(38, 166, 154, 0.18), 0 4px 12px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.4)'
           }}>
             <p className="text-2xl font-bold mb-1" style={{ color: '#1A3A34' }}>{recentGoals.length}</p>
-            <p className="text-xs" style={{ color: '#5A7A72' }}>Active Goals</p>
+            <p className="text-xs" style={{ color: '#3D5A52' }}>Active Goals</p>
           </div>
           <div className="p-5 text-center" style={{ 
             borderRadius: '28px',
-            background: 'linear-gradient(145deg, rgba(232, 246, 243, 0.7) 0%, rgba(212, 237, 232, 0.6) 100%)',
+            background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.85) 0%, rgba(180, 220, 210, 0.75) 100%)',
             backdropFilter: 'blur(12px)',
-            boxShadow: '0 8px 32px rgba(38, 166, 154, 0.12), 0 4px 12px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.5)'
+            boxShadow: '0 8px 32px rgba(38, 166, 154, 0.18), 0 4px 12px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.4)'
           }}>
             <p className="text-2xl font-bold mb-1" style={{ color: '#1A3A34' }}>{journalCount}</p>
-            <p className="text-xs" style={{ color: '#5A7A72' }}>Journal Entries</p>
+            <p className="text-xs" style={{ color: '#3D5A52' }}>Journal Entries</p>
           </div>
           <StreakWidget compact />
           <BadgeDisplay compact />

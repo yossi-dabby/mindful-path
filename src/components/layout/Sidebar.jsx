@@ -28,9 +28,9 @@ export default function Sidebar({ currentPageName }) {
       className="hidden md:flex fixed left-0 top-0 bottom-0 backdrop-blur-xl border-r shadow-sm flex-col py-6 z-50"
       style={{ 
         width: `${SIDEBAR_WIDTH}px`,
-        background: 'linear-gradient(165deg, rgba(240, 249, 247, 0.98) 0%, rgba(228, 245, 241, 0.95) 100%)',
-        borderColor: 'rgba(38, 166, 154, 0.15)',
-        boxShadow: '2px 0 16px rgba(38, 166, 154, 0.08)'
+        background: 'linear-gradient(170deg, rgba(212, 237, 232, 0.95) 0%, rgba(190, 225, 218, 0.92) 50%, rgba(200, 230, 225, 0.94) 100%)',
+        borderColor: 'rgba(38, 166, 154, 0.25)',
+        boxShadow: '2px 0 20px rgba(38, 166, 154, 0.12)'
       }}
     >
       {/* Logo */}

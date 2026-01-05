@@ -30,14 +30,14 @@ export default function BadgeDisplay({ compact = false }) {
     return (
       <Card className="border-0 hover:shadow-xl transition-calm" style={{ 
         borderRadius: '28px',
-        background: 'linear-gradient(145deg, rgba(232, 246, 243, 0.7) 0%, rgba(212, 237, 232, 0.6) 100%)',
+        background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.85) 0%, rgba(180, 220, 210, 0.75) 100%)',
         backdropFilter: 'blur(12px)',
-        boxShadow: '0 8px 32px rgba(38, 166, 154, 0.12), 0 4px 12px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.5)'
+        boxShadow: '0 8px 32px rgba(38, 166, 154, 0.18), 0 4px 12px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.4)'
       }}>
         <CardContent className="p-5 text-center">
           <Award className="w-8 h-8 mx-auto mb-2" style={{ color: '#ECC94B' }} strokeWidth={2} />
           <p className="text-2xl font-bold mb-1" style={{ color: '#1A3A34' }}>{earnedBadges.length}</p>
-          <p className="text-xs" style={{ color: '#5A7A72' }}>Badges</p>
+          <p className="text-xs" style={{ color: '#3D5A52' }}>Badges</p>
         </CardContent>
       </Card>
     );
