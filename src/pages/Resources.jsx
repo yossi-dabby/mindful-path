@@ -41,6 +41,12 @@ export default function Resources() {
     initialData: []
   });
 
+  const { data: user } = useQuery({
+    queryKey: ['userForResources'],
+    queryFn: () => base44.auth.me(),
+    initialData: null
+  });
+
   const saveResourceMutation = useMutation({
     mutationFn: (resourceId) => base44.entities.SavedResource.create({ resource_id: resourceId }),
     onSuccess: () => queryClient.invalidateQueries(['savedResources'])
@@ -125,6 +131,7 @@ export default function Resources() {
         resources={resources}
         onSaveResource={handleSaveToggle}
         savedResourceIds={savedResourceIds}
+        userInterests={user?.preferences?.interests || []}
       />
 
       {/* Search & Filters */}

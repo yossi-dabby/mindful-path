@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ExternalLink, Bookmark, BookmarkCheck, FileText, Video, Headphones, Smartphone, BookOpen, Globe } from 'lucide-react';
+import { ExternalLink, Bookmark, BookmarkCheck, FileText, Video, Headphones, Smartphone, BookOpen, Globe, Sparkles, Brain, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function ResourceCard({ resource, isSaved, onSaveToggle }) {
@@ -12,7 +12,11 @@ export default function ResourceCard({ resource, isSaved, onSaveToggle }) {
     podcast: Headphones,
     app: Smartphone,
     book: BookOpen,
-    website: Globe
+    website: Globe,
+    meditation: Sparkles,
+    scenario: Brain,
+    interview: Users,
+    guide: BookOpen
   };
 
   const typeColors = {
@@ -21,7 +25,11 @@ export default function ResourceCard({ resource, isSaved, onSaveToggle }) {
     podcast: 'bg-purple-100 text-purple-700',
     app: 'bg-green-100 text-green-700',
     book: 'bg-yellow-100 text-yellow-700',
-    website: 'bg-gray-100 text-gray-700'
+    website: 'bg-gray-100 text-gray-700',
+    meditation: 'bg-teal-100 text-teal-700',
+    scenario: 'bg-orange-100 text-orange-700',
+    interview: 'bg-indigo-100 text-indigo-700',
+    guide: 'bg-emerald-100 text-emerald-700'
   };
 
   const categoryColors = {
@@ -32,7 +40,10 @@ export default function ResourceCard({ resource, isSaved, onSaveToggle }) {
     relationships: 'bg-pink-100 text-pink-700',
     'self-esteem': 'bg-purple-100 text-purple-700',
     sleep: 'bg-blue-100 text-blue-700',
-    general: 'bg-gray-100 text-gray-700'
+    general: 'bg-gray-100 text-gray-700',
+    coping_skills: 'bg-cyan-100 text-cyan-700',
+    emotional_regulation: 'bg-violet-100 text-violet-700',
+    communication: 'bg-rose-100 text-rose-700'
   };
 
   const Icon = typeIcons[resource.type] || FileText;
@@ -100,17 +111,29 @@ export default function ResourceCard({ resource, isSaved, onSaveToggle }) {
           </div>
         )}
 
-        <a
-          href={resource.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block"
-        >
-          <Button className="w-full bg-purple-600 hover:bg-purple-700 group/btn">
-            <span>View Resource</span>
-            <ExternalLink className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+        {resource.url ? (
+          <a
+            href={resource.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block"
+          >
+            <Button className="w-full bg-purple-600 hover:bg-purple-700 group/btn">
+              <span>View Resource</span>
+              <ExternalLink className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+            </Button>
+          </a>
+        ) : resource.content ? (
+          <Button 
+            className="w-full bg-purple-600 hover:bg-purple-700"
+            onClick={() => {
+              // Open content in modal or new view
+              window.open(`/resources/${resource.id}`, '_blank');
+            }}
+          >
+            <span>View Content</span>
           </Button>
-        </a>
+        ) : null}
       </CardContent>
     </Card>
   );

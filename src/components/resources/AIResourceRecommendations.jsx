@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, Loader2, TrendingUp, ExternalLink, Bookmark, BookmarkCheck } from 'lucide-react';
 
-export default function AIResourceRecommendations({ moodEntries, journalEntries, resources, onSaveResource, savedResourceIds }) {
+export default function AIResourceRecommendations({ moodEntries, journalEntries, resources, onSaveResource, savedResourceIds, userInterests = [] }) {
   const [recommendations, setRecommendations] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -35,7 +35,10 @@ export default function AIResourceRecommendations({ moodEntries, journalEntries,
         tags: r.tags
       }));
 
-      const prompt = `Based on this user's mental health data, recommend 3-4 resources from the available library that would be most helpful.
+      const prompt = `Based on this user's mental health data and interests, recommend 3-5 resources from the available library that would be most helpful.
+
+**User Interests:**
+${userInterests.length > 0 ? userInterests.join(', ') : 'Not specified'}
 
 **Recent Mood Patterns:**
 ${JSON.stringify(recentMoods, null, 2)}
@@ -47,12 +50,14 @@ ${JSON.stringify(recentJournals, null, 2)}
 ${JSON.stringify(availableResources, null, 2)}
 
 Select resources that:
-1. Match their current challenges and emotional patterns
-2. Address recurring themes in their journals
-3. Provide practical, actionable guidance
-4. Vary in type (mix of articles, videos, etc.)
+1. Align with their stated interests and preferences
+2. Match their current emotional challenges and mood patterns
+3. Address recurring themes from their journal entries
+4. Provide practical, actionable guidance
+5. Vary in type (mix of articles, videos, podcasts, meditations, etc.)
+6. Consider estimated time - recommend both quick and longer resources
 
-For each recommendation, explain WHY it's relevant to their specific situation.`;
+Prioritize resources that directly relate to their current mental health journey based on recent moods and journal patterns. For each recommendation, explain WHY it's relevant to their specific situation.`;
 
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
