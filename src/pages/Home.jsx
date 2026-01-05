@@ -170,7 +170,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom, #FFE0B2 0%, #FF9800 100%)' }}>
+    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom, #E0F2F1 0%, #B2DFDB 100%)' }}>
       <div className="page-container max-w-5xl">
         {/* Header */}
         <motion.div 
@@ -201,20 +201,20 @@ export default function Home() {
         {/* Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <div className="p-4 text-center" style={{ 
-            borderRadius: 'var(--r-lg)',
-            backgroundColor: 'rgb(var(--surface))',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+            borderRadius: '20px',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
           }}>
-            <p className="text-2xl font-bold mb-1" style={{ color: 'rgb(var(--text))' }}>{recentGoals.length}</p>
-            <p className="text-xs" style={{ color: 'rgb(var(--muted))' }}>Active Goals</p>
+            <p className="text-2xl font-bold mb-1" style={{ color: '#2D3748' }}>{recentGoals.length}</p>
+            <p className="text-xs" style={{ color: '#718096' }}>Active Goals</p>
           </div>
           <div className="p-4 text-center" style={{ 
-            borderRadius: 'var(--r-lg)',
-            backgroundColor: 'rgb(var(--surface))',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+            borderRadius: '20px',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
           }}>
-            <p className="text-2xl font-bold mb-1" style={{ color: 'rgb(var(--text))' }}>{journalCount}</p>
-            <p className="text-xs" style={{ color: 'rgb(var(--muted))' }}>Journal Entries</p>
+            <p className="text-2xl font-bold mb-1" style={{ color: '#2D3748' }}>{journalCount}</p>
+            <p className="text-xs" style={{ color: '#718096' }}>Journal Entries</p>
           </div>
           <StreakWidget compact />
           <BadgeDisplay compact />
