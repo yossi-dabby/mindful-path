@@ -64,8 +64,8 @@ export default function QuickActions() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5, delay: 0.5 }}
     >
-      <h2 className="text-lg font-semibold mb-3 truncate" style={{ color: '#2D3748' }}>Quick Actions</h2>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+      <h2 className="text-lg font-semibold mb-4 truncate" style={{ color: '#1A3A34' }}>Quick Actions</h2>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {actions.map((action, index) => {
           const Icon = action.icon;
           return (
@@ -74,30 +74,31 @@ export default function QuickActions() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3, delay: 0.6 + index * 0.1 }}
-              whileHover={{ scale: 1.05, y: -4 }}
+              whileHover={{ scale: 1.04, y: -6 }}
               whileTap={{ scale: 0.98 }}
             >
               <Link to={createPageUrl(action.page)}>
-                <Card className="border-0 hover:shadow-lg transition-all cursor-pointer group h-full" style={{
-                  borderRadius: '18px',
-                  backgroundColor: action.bgColor,
-                  backdropFilter: 'blur(10px)',
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)'
+                <Card className="border-0 hover:shadow-xl transition-all cursor-pointer group h-full" style={{
+                  borderRadius: '28px',
+                  background: `linear-gradient(145deg, ${action.bgColor} 0%, rgba(255, 255, 255, 0.7) 100%)`,
+                  backdropFilter: 'blur(12px)',
+                  boxShadow: '0 6px 24px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.6)'
                 }}>
-                  <CardContent className="p-4">
+                  <CardContent className="p-5">
                     <motion.div 
-                      className="w-12 h-12 flex items-center justify-center mb-3"
+                      className="w-14 h-14 flex items-center justify-center mb-4"
                       style={{ 
-                        borderRadius: '16px',
-                        backgroundColor: action.color
+                        borderRadius: '20px',
+                        backgroundColor: action.color,
+                        boxShadow: `0 6px 16px ${action.color}40`
                       }}
                       whileHover={{ rotate: 5 }}
                       transition={{ duration: 0.3 }}
                     >
-                      <Icon className="w-6 h-6 text-white" strokeWidth={2.5} />
+                      <Icon className="w-7 h-7 text-white" strokeWidth={2.5} />
                     </motion.div>
-                    <h3 className="font-semibold text-sm mb-1 truncate" style={{ color: '#2D3748' }}>{action.title}</h3>
-                    <p className="text-xs line-clamp-1" style={{ color: '#718096' }}>{action.description}</p>
+                    <h3 className="font-semibold text-sm mb-1 truncate" style={{ color: '#1A3A34' }}>{action.title}</h3>
+                    <p className="text-xs line-clamp-1" style={{ color: '#5A7A72' }}>{action.description}</p>
                   </CardContent>
                 </Card>
               </Link>

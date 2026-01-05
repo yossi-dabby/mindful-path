@@ -170,7 +170,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
+    <div className="min-h-screen" style={{ background: 'linear-gradient(165deg, #E8F6F3 0%, #D4EDE8 35%, #C8E6E0 65%, #BDE0D9 100%)' }}>
       <div className="page-container max-w-5xl">
         {/* Header */}
         <motion.div 
@@ -179,13 +179,13 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-xl md:text-2xl font-normal mb-2" style={{ color: '#2D3748' }}>
+          <h1 className="text-xl md:text-2xl font-normal mb-2" style={{ color: '#1A3A34' }}>
             {greeting()}{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
           </h1>
         </motion.div>
 
         {/* Today's Focus - Primary CTA */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           <TodaysFocus
             onStartCheckIn={handleStartCheckIn}
             onStartExercise={handleStartExercise}
@@ -197,33 +197,33 @@ export default function Home() {
         </div>
 
         {/* Secondary Content - Below the fold */}
-        <div className="mt-6 space-y-3">
+        <div className="mt-8 space-y-4">
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="p-4 text-center" style={{ 
-            borderRadius: '18px',
-            backgroundColor: 'rgba(255, 255, 255, 0.7)',
-            backdropFilter: 'blur(10px)',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)'
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="p-5 text-center" style={{ 
+            borderRadius: '28px',
+            background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 250, 248, 0.9) 100%)',
+            backdropFilter: 'blur(12px)',
+            boxShadow: '0 8px 32px rgba(38, 166, 154, 0.08), 0 4px 12px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.8)'
           }}>
-            <p className="text-2xl font-bold mb-1" style={{ color: '#2D3748' }}>{recentGoals.length}</p>
-            <p className="text-xs" style={{ color: '#718096' }}>Active Goals</p>
+            <p className="text-2xl font-bold mb-1" style={{ color: '#1A3A34' }}>{recentGoals.length}</p>
+            <p className="text-xs" style={{ color: '#5A7A72' }}>Active Goals</p>
           </div>
-          <div className="p-4 text-center" style={{ 
-            borderRadius: '18px',
-            backgroundColor: 'rgba(255, 255, 255, 0.7)',
-            backdropFilter: 'blur(10px)',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)'
+          <div className="p-5 text-center" style={{ 
+            borderRadius: '28px',
+            background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 250, 248, 0.9) 100%)',
+            backdropFilter: 'blur(12px)',
+            boxShadow: '0 8px 32px rgba(38, 166, 154, 0.08), 0 4px 12px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.8)'
           }}>
-            <p className="text-2xl font-bold mb-1" style={{ color: '#2D3748' }}>{journalCount}</p>
-            <p className="text-xs" style={{ color: '#718096' }}>Journal Entries</p>
+            <p className="text-2xl font-bold mb-1" style={{ color: '#1A3A34' }}>{journalCount}</p>
+            <p className="text-xs" style={{ color: '#5A7A72' }}>Journal Entries</p>
           </div>
           <StreakWidget compact />
           <BadgeDisplay compact />
         </div>
 
         {/* Quick Actions */}
-        <div className="mt-6">
+        <div className="mt-8">
           <QuickActions />
         </div>
         </div>

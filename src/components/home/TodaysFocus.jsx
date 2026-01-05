@@ -43,12 +43,13 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
 
   if (isLoading) {
     return (
-      <Card className="mb-8 border-0 shadow-soft" style={{ 
-        borderRadius: 'var(--r-xl)',
-        backgroundColor: 'rgb(var(--surface))'
+      <Card className="mb-8 border-0" style={{ 
+        borderRadius: '32px',
+        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 253, 252, 0.95) 100%)',
+        boxShadow: '0 12px 40px rgba(38, 166, 154, 0.12), 0 4px 16px rgba(0,0,0,0.04), inset 0 2px 0 rgba(255,255,255,0.9)'
       }}>
-        <CardContent className="p-6 text-center">
-          <p style={{ color: 'rgb(var(--muted))' }}>Loading today's focus...</p>
+        <CardContent className="p-8 text-center">
+          <p style={{ color: '#5A7A72' }}>Loading today's focus...</p>
         </CardContent>
       </Card>
     );
@@ -126,27 +127,28 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
         transition={{ duration: 0.5 }}
       >
         <Card className="border-0" style={{ 
-          borderRadius: '24px',
-          background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.6) 0%, rgba(255, 255, 255, 0.85) 100%)',
-          backdropFilter: 'blur(10px)',
-          boxShadow: '0 4px 16px rgba(38, 166, 154, 0.12), 0 2px 4px rgba(0,0,0,0.04)'
+          borderRadius: '36px',
+          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(232, 246, 243, 0.9) 100%)',
+          backdropFilter: 'blur(16px)',
+          boxShadow: '0 16px 48px rgba(38, 166, 154, 0.15), 0 6px 20px rgba(0,0,0,0.05), inset 0 2px 0 rgba(255,255,255,0.95)'
         }}>
-          <CardContent className="p-5 text-center">
+          <CardContent className="p-7 text-center">
             <motion.div
               animate={{ scale: [1, 1.05, 1] }}
               transition={{ duration: 2, repeat: Infinity, ease: [0.2, 0.8, 0.2, 1] }}
-              className="inline-flex w-12 h-12 items-center justify-center mb-3"
+              className="inline-flex w-14 h-14 items-center justify-center mb-4"
               style={{ 
-                borderRadius: '16px',
-                backgroundColor: bgColorMap[currentStep.color]
+                borderRadius: '22px',
+                backgroundColor: bgColorMap[currentStep.color],
+                boxShadow: '0 4px 12px rgba(38, 166, 154, 0.2)'
               }}
             >
-              <Icon className="w-6 h-6 icon-default" style={{ color: colorMap[currentStep.color] }} strokeWidth={2} />
+              <Icon className="w-7 h-7 icon-default" style={{ color: colorMap[currentStep.color] }} strokeWidth={2} />
             </motion.div>
-            <h2 className="text-base font-semibold mb-1" style={{ color: '#2D3748' }}>
+            <h2 className="text-lg font-semibold mb-2" style={{ color: '#1A3A34' }}>
               {currentStep.title}
             </h2>
-            <p className="text-sm" style={{ color: '#718096' }}>
+            <p className="text-sm" style={{ color: '#5A7A72' }}>
               Come back tomorrow for your next practice
             </p>
           </CardContent>
@@ -161,31 +163,34 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Card className="border-0 hover:shadow-lg transition-calm" style={{ 
-        borderRadius: '24px',
-        background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.6) 0%, rgba(255, 255, 255, 0.85) 100%)',
-        backdropFilter: 'blur(10px)',
-        boxShadow: '0 4px 16px rgba(38, 166, 154, 0.12), 0 2px 4px rgba(0,0,0,0.04)'
+      <Card className="border-0 hover:shadow-xl transition-calm" style={{ 
+        borderRadius: '36px',
+        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(232, 246, 243, 0.9) 100%)',
+        backdropFilter: 'blur(16px)',
+        boxShadow: '0 16px 48px rgba(38, 166, 154, 0.15), 0 6px 20px rgba(0,0,0,0.05), inset 0 2px 0 rgba(255,255,255,0.95)'
       }}>
-        <CardContent className="p-6">
+        <CardContent className="p-7">
           {/* Progress Indicator */}
-          <div className="flex items-center gap-2 mb-6">
-            <div className="flex gap-1">
+          <div className="flex items-center gap-3 mb-7">
+            <div className="flex gap-2">
               {[1, 2, 3].map((stepNum) => (
                 <div
                   key={stepNum}
-                  className="h-1.5 transition-calm"
+                  className="h-2 transition-calm"
                   style={{
-                    width: '60px',
-                    borderRadius: '8px',
+                    width: '56px',
+                    borderRadius: '12px',
                     backgroundColor: stepNum <= currentStep.step 
                       ? colorMap[currentStep.color]
-                      : '#E2E8F0'
+                      : 'rgba(200, 220, 215, 0.5)',
+                    boxShadow: stepNum <= currentStep.step 
+                      ? '0 2px 8px rgba(38, 166, 154, 0.3)'
+                      : 'none'
                   }}
                 />
               ))}
             </div>
-            <span className="text-sm font-medium ml-2" style={{ color: '#718096' }}>
+            <span className="text-sm font-medium ml-2" style={{ color: '#5A7A72' }}>
               Step {currentStep.step} of 3
             </span>
           </div>
@@ -193,40 +198,43 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
           {/* Main Content */}
           <div className="flex items-start gap-6">
             <motion.div
-              animate={{ scale: [1, 1.15, 1] }}
+              animate={{ scale: [1, 1.12, 1] }}
               transition={{ duration: 3, repeat: Infinity, ease: [0.2, 0.8, 0.2, 1] }}
-              className="flex-shrink-0 w-16 h-16 flex items-center justify-center"
+              className="flex-shrink-0 w-18 h-18 flex items-center justify-center"
               style={{ 
-                borderRadius: '16px',
-                backgroundColor: bgColorMap[currentStep.color]
+                width: '72px',
+                height: '72px',
+                borderRadius: '24px',
+                backgroundColor: bgColorMap[currentStep.color],
+                boxShadow: '0 6px 20px rgba(38, 166, 154, 0.2), inset 0 1px 0 rgba(255,255,255,0.5)'
               }}
             >
-              <Icon className="w-8 h-8 icon-default" style={{ color: colorMap[currentStep.color] }} strokeWidth={2} />
+              <Icon className="w-9 h-9 icon-default" style={{ color: colorMap[currentStep.color] }} strokeWidth={2} />
             </motion.div>
 
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <h2 className="text-xl font-semibold truncate" style={{ color: '#2D3748' }}>
+              <div className="flex items-center gap-2 mb-3">
+                <h2 className="text-xl font-semibold truncate" style={{ color: '#1A3A34' }}>
                   {currentStep.title}
                 </h2>
                 <Sparkles className="w-5 h-5 icon-default" style={{ color: colorMap[currentStep.color] }} strokeWidth={2} />
               </div>
-              <p className="text-sm mb-1 line-clamp-2" style={{ color: '#4A5568' }}>
+              <p className="text-sm mb-2 line-clamp-2" style={{ color: '#3D5A52' }}>
                 {currentStep.description}
               </p>
               {currentStep.subtitle && (
-                <p className="text-xs mb-4 line-clamp-2" style={{ color: '#718096' }}>
+                <p className="text-xs mb-5 line-clamp-2" style={{ color: '#5A7A72' }}>
                   {currentStep.subtitle}
                 </p>
               )}
 
               <Button
                 onClick={currentStep.onAction}
-                className="px-7 py-6 text-base hover:shadow-lg transition-calm text-white"
+                className="px-8 py-6 text-base font-medium hover:shadow-xl transition-calm text-white"
                 style={{ 
-                  borderRadius: '16px',
+                  borderRadius: '24px',
                   backgroundColor: colorMap[currentStep.color],
-                  boxShadow: '0 3px 10px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.08)'
+                  boxShadow: '0 8px 24px rgba(38, 166, 154, 0.35), 0 4px 10px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.2)'
                 }}
               >
                 {currentStep.action}
