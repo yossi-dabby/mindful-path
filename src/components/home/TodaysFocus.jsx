@@ -107,15 +107,15 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
   const Icon = currentStep.icon;
 
   const colorMap = {
-    accent: 'rgb(var(--accent))',
-    success: 'rgb(var(--success))',
-    calm: 'rgb(var(--calm))'
+    accent: '#26A69A',
+    success: '#26A69A',
+    calm: '#26A69A'
   };
 
   const bgColorMap = {
-    accent: 'rgb(var(--accent) / 0.1)',
-    success: 'rgb(var(--success) / 0.1)',
-    calm: 'rgb(var(--calm) / 0.1)'
+    accent: 'rgba(38, 166, 154, 0.15)',
+    success: 'rgba(38, 166, 154, 0.15)',
+    calm: 'rgba(38, 166, 154, 0.15)'
   };
 
   if (currentStep.step === 'complete') {
@@ -125,10 +125,10 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="border-0 shadow-soft" style={{ 
-          borderRadius: 'var(--r-lg)',
-          backgroundColor: 'rgb(var(--surface))',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+        <Card className="border-0" style={{ 
+          borderRadius: '24px',
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.06)'
         }}>
           <CardContent className="p-5 text-center">
             <motion.div
@@ -136,16 +136,16 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
               transition={{ duration: 2, repeat: Infinity, ease: [0.2, 0.8, 0.2, 1] }}
               className="inline-flex w-12 h-12 items-center justify-center mb-3"
               style={{ 
-                borderRadius: 'var(--r-lg)',
+                borderRadius: '16px',
                 backgroundColor: bgColorMap[currentStep.color]
               }}
             >
               <Icon className="w-6 h-6 icon-default" style={{ color: colorMap[currentStep.color] }} strokeWidth={2} />
             </motion.div>
-            <h2 className="text-base font-semibold mb-1" style={{ color: 'rgb(var(--text))' }}>
+            <h2 className="text-base font-semibold mb-1" style={{ color: '#2D3748' }}>
               {currentStep.title}
             </h2>
-            <p className="text-sm" style={{ color: 'rgb(var(--muted))' }}>
+            <p className="text-sm" style={{ color: '#718096' }}>
               Come back tomorrow for your next practice
             </p>
           </CardContent>
@@ -160,10 +160,10 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Card className="border-0 shadow-soft hover:shadow-lg transition-calm" style={{ 
-        borderRadius: 'var(--r-lg)',
-        backgroundColor: 'rgb(var(--surface))',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+      <Card className="border-0 hover:shadow-lg transition-calm" style={{ 
+        borderRadius: '24px',
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.06)'
       }}>
         <CardContent className="p-6">
           {/* Progress Indicator */}
@@ -172,17 +172,18 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
               {[1, 2, 3].map((stepNum) => (
                 <div
                   key={stepNum}
-                  className="h-1.5 rounded-full transition-calm"
+                  className="h-1.5 transition-calm"
                   style={{
                     width: '60px',
+                    borderRadius: '8px',
                     backgroundColor: stepNum <= currentStep.step 
                       ? colorMap[currentStep.color]
-                      : 'rgb(var(--border))'
+                      : '#E2E8F0'
                   }}
                 />
               ))}
             </div>
-            <span className="text-sm font-medium ml-2" style={{ color: 'rgb(var(--muted))' }}>
+            <span className="text-sm font-medium ml-2" style={{ color: '#718096' }}>
               Step {currentStep.step} of 3
             </span>
           </div>
@@ -194,7 +195,7 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
               transition={{ duration: 3, repeat: Infinity, ease: [0.2, 0.8, 0.2, 1] }}
               className="flex-shrink-0 w-16 h-16 flex items-center justify-center"
               style={{ 
-                borderRadius: 'var(--r-lg)',
+                borderRadius: '16px',
                 backgroundColor: bgColorMap[currentStep.color]
               }}
             >
@@ -203,27 +204,27 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
 
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <h2 className="text-xl font-semibold truncate" style={{ color: 'rgb(var(--text))' }}>
+                <h2 className="text-xl font-semibold truncate" style={{ color: '#2D3748' }}>
                   {currentStep.title}
                 </h2>
                 <Sparkles className="w-5 h-5 icon-default" style={{ color: colorMap[currentStep.color] }} strokeWidth={2} />
               </div>
-              <p className="text-sm mb-1 line-clamp-2" style={{ color: 'rgb(var(--text))' }}>
+              <p className="text-sm mb-1 line-clamp-2" style={{ color: '#4A5568' }}>
                 {currentStep.description}
               </p>
               {currentStep.subtitle && (
-                <p className="text-xs mb-4 line-clamp-2" style={{ color: 'rgb(var(--muted))' }}>
+                <p className="text-xs mb-4 line-clamp-2" style={{ color: '#718096' }}>
                   {currentStep.subtitle}
                 </p>
               )}
 
               <Button
                 onClick={currentStep.onAction}
-                className="px-6 py-5 text-base shadow-soft hover:shadow-lg transition-calm"
+                className="px-6 py-5 text-base hover:shadow-lg transition-calm text-white"
                 style={{ 
-                  borderRadius: 'var(--r-lg)',
+                  borderRadius: '16px',
                   backgroundColor: colorMap[currentStep.color],
-                  color: 'rgb(var(--accent-contrast))'
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
                 }}
               >
                 {currentStep.action}
