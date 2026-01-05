@@ -23,10 +23,10 @@ export default function StreakWidget({ compact = false }) {
   // Compact display for Home grid
   if (compact) {
     return (
-      <Card className="border-0 shadow-soft hover:shadow-lg transition-calm" style={{ 
-        borderRadius: 'var(--r-lg)',
-        backgroundColor: 'rgb(var(--surface))',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+      <Card className="border-0 hover:shadow-lg transition-calm" style={{ 
+        borderRadius: '20px',
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
       }}>
         <CardContent className="p-4 text-center">
           <motion.div
@@ -34,12 +34,12 @@ export default function StreakWidget({ compact = false }) {
             transition={{ duration: 2, repeat: Infinity, ease: [0.2, 0.8, 0.2, 1] }}
             className="inline-flex mb-2"
           >
-            <Flame className="w-8 h-8 text-orange-500" strokeWidth={2} />
+            <Flame className="w-8 h-8" style={{ color: '#F6AD55' }} strokeWidth={2} />
           </motion.div>
-          <p className="text-2xl font-bold mb-1" style={{ color: 'rgb(var(--text))' }}>
+          <p className="text-2xl font-bold mb-1" style={{ color: '#2D3748' }}>
             {currentStreak}
           </p>
-          <p className="text-xs" style={{ color: 'rgb(var(--muted))' }}>day streak</p>
+          <p className="text-xs" style={{ color: '#718096' }}>day streak</p>
         </CardContent>
       </Card>
     );

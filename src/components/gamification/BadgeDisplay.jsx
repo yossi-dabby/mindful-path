@@ -28,15 +28,15 @@ export default function BadgeDisplay({ compact = false }) {
 
   if (compact) {
     return (
-      <Card className="border-0 shadow-soft hover:shadow-lg transition-calm" style={{ 
-        borderRadius: 'var(--r-lg)',
-        backgroundColor: 'rgb(var(--surface))',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+      <Card className="border-0 hover:shadow-lg transition-calm" style={{ 
+        borderRadius: '20px',
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
       }}>
         <CardContent className="p-4 text-center">
-          <Award className="w-8 h-8 text-yellow-500 mx-auto mb-2" strokeWidth={2} />
-          <p className="text-2xl font-bold mb-1" style={{ color: 'rgb(var(--text))' }}>{earnedBadges.length}</p>
-          <p className="text-xs" style={{ color: 'rgb(var(--muted))' }}>Badges</p>
+          <Award className="w-8 h-8 mx-auto mb-2" style={{ color: '#ECC94B' }} strokeWidth={2} />
+          <p className="text-2xl font-bold mb-1" style={{ color: '#2D3748' }}>{earnedBadges.length}</p>
+          <p className="text-xs" style={{ color: '#718096' }}>Badges</p>
         </CardContent>
       </Card>
     );

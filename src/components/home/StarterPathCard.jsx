@@ -64,26 +64,25 @@ export default function StarterPathCard() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
     >
-      <Card className="border-0 shadow-soft hover:shadow-lg transition-calm" style={{ 
-        borderRadius: 'var(--r-lg)',
-        backgroundColor: 'rgb(var(--surface))',
-        background: 'linear-gradient(135deg, rgba(185, 163, 193, 0.08), rgba(185, 163, 193, 0.15))',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+      <Card className="border-0 hover:shadow-lg transition-calm" style={{ 
+        borderRadius: '24px',
+        background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.4) 0%, rgba(255, 255, 255, 0.95) 100%)',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.06)'
       }}>
         <CardContent className="p-5">
           <div className="flex items-start justify-between gap-6">
             <div className="flex-1">
               {/* Header */}
               <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="w-4 h-4 icon-default" style={{ color: 'rgb(var(--calm))' }} strokeWidth={2} />
-                <h3 className="text-base font-semibold truncate" style={{ color: 'rgb(var(--text))' }}>
+                <Sparkles className="w-4 h-4 icon-default" style={{ color: '#26A69A' }} strokeWidth={2} />
+                <h3 className="text-base font-semibold truncate" style={{ color: '#2D3748' }}>
                   7-Day Starter Path
                 </h3>
                 {isStarted && (
                   <Badge variant="secondary" className="border-0" style={{ 
-                    borderRadius: 'var(--r-sm)',
-                    backgroundColor: 'rgb(var(--calm) / 0.15)',
-                    color: 'rgb(var(--calm))'
+                    borderRadius: '12px',
+                    backgroundColor: 'rgba(38, 166, 154, 0.15)',
+                    color: '#26A69A'
                   }}>
                     Day {currentDay} of 7
                   </Badge>
@@ -91,7 +90,7 @@ export default function StarterPathCard() {
               </div>
 
               {/* Description */}
-              <p className="text-sm mb-3 line-clamp-2" style={{ color: 'rgb(var(--muted))' }}>
+              <p className="text-sm mb-3 line-clamp-2" style={{ color: '#718096' }}>
                 {isStarted 
                   ? dayTheme?.description || "Continue your guided CBT journey"
                   : "Build a strong foundation with guided daily practices"}
@@ -100,8 +99,9 @@ export default function StarterPathCard() {
               {/* Progress Bar */}
               {isStarted && (
                 <div className="mb-4">
-                  <div className="h-2 rounded-full overflow-hidden" style={{ 
-                    backgroundColor: 'rgb(var(--border))'
+                  <div className="h-2 overflow-hidden" style={{ 
+                    backgroundColor: '#E2E8F0',
+                    borderRadius: '8px'
                   }}>
                     <motion.div
                       initial={{ width: 0 }}
@@ -109,12 +109,12 @@ export default function StarterPathCard() {
                       transition={{ duration: 0.5 }}
                       style={{ 
                         height: '100%',
-                        backgroundColor: 'rgb(var(--calm))',
-                        borderRadius: 'var(--r-xs)'
+                        backgroundColor: '#26A69A',
+                        borderRadius: '8px'
                       }}
                     />
                   </div>
-                  <p className="text-xs mt-1" style={{ color: 'rgb(var(--muted))' }}>
+                  <p className="text-xs mt-1" style={{ color: '#718096' }}>
                     {currentDay} of 7 days completed
                   </p>
                 </div>
@@ -124,11 +124,10 @@ export default function StarterPathCard() {
               {isStarted ? (
                 <Link to={createPageUrl('StarterPath')}>
                   <Button
-                    className="transition-calm"
+                    className="transition-calm text-white"
                     style={{ 
-                      borderRadius: 'var(--r-md)',
-                      backgroundColor: 'rgb(var(--calm))',
-                      color: 'rgb(var(--accent-contrast))'
+                      borderRadius: '16px',
+                      backgroundColor: '#26A69A'
                     }}
                   >
                     Continue
@@ -139,11 +138,10 @@ export default function StarterPathCard() {
                 <Button
                   onClick={() => startPathMutation.mutate()}
                   disabled={startPathMutation.isPending}
-                  className="transition-calm"
+                  className="transition-calm text-white"
                   style={{ 
-                    borderRadius: 'var(--r-md)',
-                    backgroundColor: 'rgb(var(--calm))',
-                    color: 'rgb(var(--accent-contrast))'
+                    borderRadius: '16px',
+                    backgroundColor: '#26A69A'
                   }}
                 >
                   {startPathMutation.isPending ? 'Starting...' : 'Start Path'}
@@ -159,17 +157,17 @@ export default function StarterPathCard() {
                 transition={{ duration: 3, repeat: Infinity, ease: [0.2, 0.8, 0.2, 1] }}
                 className="w-16 h-16 flex items-center justify-center"
                 style={{ 
-                  borderRadius: 'var(--r-xl)',
-                  backgroundColor: 'rgb(var(--calm) / 0.15)'
+                  borderRadius: '16px',
+                  backgroundColor: 'rgba(38, 166, 154, 0.15)'
                 }}
               >
                 {isStarted ? (
                   <div className="text-center">
-                    <p className="text-2xl font-bold" style={{ color: 'rgb(var(--calm))' }}>{currentDay}</p>
-                    <p className="text-xs" style={{ color: 'rgb(var(--calm))' }}>/ 7</p>
+                    <p className="text-2xl font-bold" style={{ color: '#26A69A' }}>{currentDay}</p>
+                    <p className="text-xs" style={{ color: '#26A69A' }}>/ 7</p>
                   </div>
                 ) : (
-                  <Sparkles className="w-8 h-8 icon-default" style={{ color: 'rgb(var(--calm))' }} strokeWidth={2} />
+                  <Sparkles className="w-8 h-8 icon-default" style={{ color: '#26A69A' }} strokeWidth={2} />
                 )}
               </motion.div>
             </div>
