@@ -114,14 +114,14 @@ export default function Resources() {
   };
 
   return (
-    <div className="min-h-screen p-4 md:p-8 max-w-7xl mx-auto">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto" style={{ minHeight: '100vh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
       {/* Header */}
       <div className="mb-8 mt-4">
-        <h1 className="text-3xl md:text-4xl font-light text-gray-800 mb-2 flex items-center gap-3">
-          <Library className="w-8 h-8 text-purple-600" />
+        <h1 className="text-3xl md:text-4xl font-light mb-2 flex items-center gap-3" style={{ color: '#1A3A34' }}>
+          <Library className="w-8 h-8" style={{ color: '#26A69A' }} />
           Resource Library
         </h1>
-        <p className="text-gray-500">Curated mental health resources for your journey</p>
+        <p style={{ color: '#5A7A72' }}>Curated mental health resources for your journey</p>
       </div>
 
       {/* AI Recommendations */}
@@ -142,21 +142,27 @@ export default function Resources() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search resources, topics, tags..."
-            className="pl-10 rounded-xl border-gray-300 h-12"
+            className="pl-10 h-12"
+            style={{ borderRadius: '28px' }}
           />
         </div>
 
         <div className="space-y-3">
           <div>
-            <p className="text-sm font-medium text-gray-700 mb-2">Category</p>
+            <p className="text-sm font-medium mb-2" style={{ color: '#1A3A34' }}>Category</p>
             <div className="flex gap-2 overflow-x-auto pb-2">
               {categories.map((cat) => (
                 <Button
                   key={cat.value}
                   onClick={() => setSelectedCategory(cat.value)}
                   variant={selectedCategory === cat.value ? 'default' : 'outline'}
-                  className={selectedCategory === cat.value ? 'bg-purple-600 hover:bg-purple-700' : ''}
+                  className="text-white"
                   size="sm"
+                  style={{
+                    borderRadius: '24px',
+                    backgroundColor: selectedCategory === cat.value ? '#26A69A' : 'transparent',
+                    color: selectedCategory === cat.value ? '#fff' : '#3D5A52'
+                  }}
                 >
                   {cat.label}
                 </Button>
@@ -164,15 +170,20 @@ export default function Resources() {
             </div>
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-700 mb-2">Content Type</p>
+            <p className="text-sm font-medium mb-2" style={{ color: '#1A3A34' }}>Content Type</p>
             <div className="flex gap-2 overflow-x-auto pb-2">
               {contentTypes.map((type) => (
                 <Button
                   key={type.value}
                   onClick={() => setSelectedType(type.value)}
                   variant={selectedType === type.value ? 'default' : 'outline'}
-                  className={selectedType === type.value ? 'bg-blue-600 hover:bg-blue-700' : ''}
+                  className="text-white"
                   size="sm"
+                  style={{
+                    borderRadius: '24px',
+                    backgroundColor: selectedType === type.value ? '#26A69A' : 'transparent',
+                    color: selectedType === type.value ? '#fff' : '#3D5A52'
+                  }}
                 >
                   {type.label}
                 </Button>
@@ -184,7 +195,10 @@ export default function Resources() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <TabsList>
+        <TabsList style={{
+          background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.7) 0%, rgba(180, 220, 210, 0.6) 100%)',
+          borderRadius: '28px'
+        }}>
           <TabsTrigger value="all">All Resources</TabsTrigger>
           <TabsTrigger value="saved" className="flex items-center gap-2">
             <Bookmark className="w-4 h-4" />
@@ -200,9 +214,9 @@ export default function Resources() {
         </div>
       ) : displayedResources.length === 0 ? (
         <div className="text-center py-12">
-          <Library className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500 mb-2">No resources found</p>
-          <p className="text-sm text-gray-400">Try adjusting your search or filters</p>
+          <Library className="w-16 h-16 mx-auto mb-4" style={{ color: '#A8D4CB' }} />
+          <p className="mb-2" style={{ color: '#5A7A72' }}>No resources found</p>
+          <p className="text-sm" style={{ color: '#7A9A92' }}>Try adjusting your search or filters</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
