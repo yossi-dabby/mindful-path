@@ -198,11 +198,11 @@ export default function Coach() {
             </Link>
             <Button
               onClick={handleStartSession}
-              className="text-white shadow-lg"
+              className="text-white"
               style={{
-                borderRadius: '24px',
+                borderRadius: '28px',
                 backgroundColor: '#26A69A',
-                boxShadow: '0 6px 20px rgba(38, 166, 154, 0.3)'
+                boxShadow: '0 8px 24px rgba(38, 166, 154, 0.35)'
               }}
             >
               <Target className="w-5 h-5 mr-2" />
@@ -273,15 +273,19 @@ export default function Coach() {
           <div className="space-y-6">
             {/* Personalized Insights */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                <Brain className="w-5 h-5 text-purple-600" />
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: '#1A3A34' }}>
+                <Brain className="w-5 h-5" style={{ color: '#26A69A' }} />
                 Your Personalized Insights
               </h3>
               <PersonalizedInsights onStartSession={handleStartSession} />
             </div>
 
             <Tabs defaultValue="active">
-              <TabsList className="bg-white/80 backdrop-blur-xl border shadow-sm">
+              <TabsList className="backdrop-blur-xl border shadow-sm" style={{
+                background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.7) 0%, rgba(180, 220, 210, 0.6) 100%)',
+                borderColor: 'rgba(38, 166, 154, 0.25)',
+                borderRadius: '28px'
+              }}>
                 <TabsTrigger value="active" className="gap-2">
                   <TrendingUp className="w-4 h-4" />
                   Active ({activeSessions.length})
