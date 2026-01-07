@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Heart, Dumbbell, Lightbulb, Sparkles } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { CheckCircle2, Heart, Dumbbell, Lightbulb, Sparkles, User } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartReflection }) {
   const queryClient = useQueryClient();
+  const [showVideoModal, setShowVideoModal] = useState(false);
 
   // Get today's flow
   const { data: todayFlow, isLoading } = useQuery({
@@ -197,20 +198,50 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
 
           {/* Main Content */}
           <div className="flex items-start gap-6">
-            <motion.div
-              animate={{ scale: [1, 1.12, 1] }}
-              transition={{ duration: 3, repeat: Infinity, ease: [0.2, 0.8, 0.2, 1] }}
-              className="flex-shrink-0 w-18 h-18 flex items-center justify-center"
-              style={{ 
-                width: '72px',
-                height: '72px',
-                borderRadius: '24px',
-                backgroundColor: bgColorMap[currentStep.color],
-                boxShadow: '0 6px 20px rgba(38, 166, 154, 0.2), inset 0 1px 0 rgba(255,255,255,0.5)'
-              }}
-            >
-              <Icon className="w-9 h-9 icon-default" style={{ color: colorMap[currentStep.color] }} strokeWidth={2} />
-            </motion.div>
+            <div className="flex flex-col gap-4 flex-shrink-0">
+              <motion.div
+                animate={{ scale: [1, 1.12, 1] }}
+                transition={{ duration: 3, repeat: Infinity, ease: [0.2, 0.8, 0.2, 1] }}
+                className="flex items-center justify-center"
+                style={{ 
+                  width: '72px',
+                  height: '72px',
+                  borderRadius: '24px',
+                  backgroundColor: bgColorMap[currentStep.color],
+                  boxShadow: '0 6px 20px rgba(38, 166, 154, 0.2), inset 0 1px 0 rgba(255,255,255,0.5)'
+                }}
+              >
+                <Icon className="w-9 h-9 icon-default" style={{ color: colorMap[currentStep.color] }} strokeWidth={2} />
+              </motion.div>
+
+              {currentStep.step === 1 && (
+                <motion.button
+                  animate={{ 
+                    scale: [1, 1.05, 1],
+                    boxShadow: [
+                      '0 6px 20px rgba(38, 166, 154, 0.2), inset 0 1px 0 rgba(255,255,255,0.5)',
+                      '0 8px 24px rgba(38, 166, 154, 0.35), inset 0 1px 0 rgba(255,255,255,0.6)',
+                      '0 6px 20px rgba(38, 166, 154, 0.2), inset 0 1px 0 rgba(255,255,255,0.5)'
+                    ]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity, ease: [0.2, 0.8, 0.2, 1] }}
+                  onClick={() => setShowVideoModal(true)}
+                  className="flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
+                  style={{ 
+                    width: '72px',
+                    height: '72px',
+                    borderRadius: '24px',
+                    backgroundColor: bgColorMap[currentStep.color],
+                    border: 'none',
+                    outline: 'none'
+                  }}
+                  aria-label="Introduction Video"
+                  title="Introduction Video"
+                >
+                  <User className="w-9 h-9 icon-default" style={{ color: colorMap[currentStep.color] }} strokeWidth={2} />
+                </motion.button>
+              )}
+            </div>
 
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-3">
@@ -243,6 +274,59 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
           </div>
         </CardContent>
       </Card>
+
+      {/* Video Modal */}
+      <AnimatePresence>
+        {showVideoModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
+            onClick={() => setShowVideoModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative w-full max-w-4xl"
+              onClick={(e) => e.stopPropagation()}
+              style={{ 
+                borderRadius: '24px',
+                overflow: 'hidden',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.5)'
+              }}
+            >
+              <button
+                onClick={() => setShowVideoModal(false)}
+                className="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+                style={{
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(0,0,0,0.5)',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+                aria-label="Close video"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+              <video
+                autoPlay
+                controls
+                className="w-full"
+                style={{ maxHeight: '80vh', backgroundColor: '#000' }}
+              >
+                <source src="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/1introduction.mp4.mp4?alt=media&token=5b5ef26a-a014-4be8-8f5e-d3df7c4a9c72" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
