@@ -320,7 +320,7 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
                 className="w-full"
                 style={{ maxHeight: '80vh', backgroundColor: '#000' }}
               >
-                <source src="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/1introduction.mp4.mp4?alt=media&token=5b5ef26a-a014-4be8-8f5e-d3df7c4a9c72" type="video/mp4" />
+                <source src="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%201.mp4?alt=media&token=5a32c03e-2031-4c1b-a24f-f82d21409313" type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             </motion.div>
