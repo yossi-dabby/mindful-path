@@ -38,6 +38,12 @@ export default function TherapyStateMachine({ onComplete }) {
   };
 
   const handleConfirmYes = async () => {
+    // Handle option 5 immediately
+    if (selectedOption === 5) {
+      navigate(createPageUrl('Exercises'));
+      return;
+    }
+
     setFlowStep('execute');
     setIsProcessing(true);
 
@@ -75,9 +81,11 @@ export default function TherapyStateMachine({ onComplete }) {
           "I can approach this from a different angle",
           "I'm doing my best given the circumstances"
         ]);
+        setIsProcessing(false);
       } else if (selectedOption === 1) {
         // Not feeling well - grounding
         setAlternatives([]);
+        setIsProcessing(false);
       } else if (selectedOption === 4) {
         // Goal
         const goal = await base44.entities.Goal.create({
@@ -87,19 +95,17 @@ export default function TherapyStateMachine({ onComplete }) {
           progress: 0
         });
         setJournalEntryId(goal.id);
-      } else if (selectedOption === 5) {
-        // Navigate to exercises
-        navigate(createPageUrl('Exercises'));
-        return;
+        setIsProcessing(false);
       }
     } catch (error) {
       console.error('Execute error:', error);
-      setAlternatives([
-        "This thought may not reflect the full picture",
-        "I can approach this from a different angle", 
-        "I'm doing my best given the circumstances"
-      ]);
-    } finally {
+      if (selectedOption === 2 || selectedOption === 3) {
+        setAlternatives([
+          "This thought may not reflect the full picture",
+          "I can approach this from a different angle", 
+          "I'm doing my best given the circumstances"
+        ]);
+      }
       setIsProcessing(false);
     }
   };

@@ -92,18 +92,23 @@ export default function Chat() {
   }, [messages, isLoading]);
 
   const startNewConversation = async () => {
-    const conversation = await base44.agents.createConversation({
-      agent_name: 'cbt_therapist',
-      metadata: {
-        name: `Session ${conversations.length + 1}`,
-        description: 'Therapy session'
-      }
-    });
-    setCurrentConversationId(conversation.id);
-    setMessages([]);
-    setShowTherapyFlow(true);
-    refetchConversations();
-    setShowSidebar(false);
+    try {
+      const conversation = await base44.agents.createConversation({
+        agent_name: 'cbt_therapist',
+        metadata: {
+          name: `Session ${conversations.length + 1}`,
+          description: 'Therapy session'
+        }
+      });
+      setCurrentConversationId(conversation.id);
+      setMessages([]);
+      setShowSidebar(false);
+      refetchConversations();
+      // Set flow after state is settled
+      setTimeout(() => setShowTherapyFlow(true), 0);
+    } catch (error) {
+      console.error('Error creating conversation:', error);
+    }
   };
 
   const loadConversation = async (conversationId) => {
