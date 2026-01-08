@@ -178,6 +178,11 @@ export default function Journal() {
         />
       </div>
 
+      {/* AI Insights Panel - Only show if user has entries */}
+      {!showForm && entries.length > 0 && (
+        <JournalInsightsPanel entriesCount={entries.length} />
+      )}
+
       {/* Entries List */}
       {isLoading ? (
         <div className="text-center py-12">
