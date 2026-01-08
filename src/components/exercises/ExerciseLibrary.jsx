@@ -1,8 +1,9 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Star, Play, Heart } from 'lucide-react';
+import { Clock, Star, Play, Heart, Headphones, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
+import ExerciseMediaBadge from './ExerciseMediaBadge';
 
 export default function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExercise, onToggleFavorite }) {
   return (
@@ -65,9 +66,12 @@ export default function ExerciseLibrary({ exercises, categoryIcons, categoryColo
                   )}
                 </div>
 
-                <h3 className="font-semibold text-gray-800 mb-2 text-lg group-hover:text-green-600 transition-colors">
-                  {exercise.title || 'Untitled Exercise'}
-                </h3>
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <h3 className="font-semibold text-gray-800 text-lg group-hover:text-green-600 transition-colors line-clamp-1">
+                    {exercise.title || 'Untitled Exercise'}
+                  </h3>
+                  <ExerciseMediaBadge mediaType={exercise.media_type} />
+                </div>
                 <p className="text-sm text-gray-600 mb-4 line-clamp-2">{exercise.description || ''}</p>
 
                 {/* Tags */}
