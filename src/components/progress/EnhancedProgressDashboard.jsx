@@ -3,9 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, Target, BookOpen, Dumbbell, Calendar, Award, Sparkles } from 'lucide-react';
+import { TrendingUp, TrendingDown, Target, BookOpen, Dumbbell, Calendar, Award, Sparkles, Flame, Zap } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { format, subDays, startOfDay } from 'date-fns';
+import { motion } from 'framer-motion';
 
 const COLORS = ['#26A69A', '#9F7AEA', '#F6AD55', '#4299E1', '#ED8936', '#38B2AC'];
 
@@ -33,6 +34,29 @@ export default function EnhancedProgressDashboard() {
     queryFn: () => base44.entities.Goal.list(),
     initialData: []
   });
+
+  const { data: streaks = [] } = useQuery({
+    queryKey: ['userStreaks'],
+    queryFn: () => base44.entities.UserStreak.list(),
+    initialData: []
+  });
+
+  const { data: points = [] } = useQuery({
+    queryKey: ['userPoints'],
+    queryFn: () => base44.entities.UserPoints.list(),
+    initialData: []
+  });
+
+  const { data: badges = [] } = useQuery({
+    queryKey: ['userBadges'],
+    queryFn: () => base44.entities.Badge.list('-earned_date'),
+    initialData: []
+  });
+
+  // Get gamification data
+  const overallStreak = streaks.find(s => s.streak_type === 'overall') || { current_streak: 0 };
+  const userPoints = points[0] || { total_points: 0, level: 1 };
+  const earnedBadges = badges.filter(b => b.earned_date);
 
   // Calculate mood trends (last 30 days)
   const moodTrendData = useMemo(() => {
@@ -123,6 +147,60 @@ export default function EnhancedProgressDashboard() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* Gamification Summary Banner */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="p-4 sm:p-5 rounded-2xl"
+        style={{
+          background: 'linear-gradient(145deg, rgba(246, 173, 85, 0.2) 0%, rgba(237, 137, 54, 0.15) 100%)',
+          boxShadow: '0 4px 16px rgba(246, 173, 85, 0.15)'
+        }}
+      >
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <motion.div
+              animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center"
+              style={{ background: 'linear-gradient(145deg, #F6AD55 0%, #ED8936 100%)' }}
+            >
+              <Flame className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+            </motion.div>
+            <div>
+              <p className="text-xs sm:text-sm" style={{ color: '#5A7A72' }}>Current Streak</p>
+              <p className="text-2xl sm:text-3xl font-bold" style={{ color: '#1A3A34' }}>
+                {overallStreak.current_streak} days
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-6">
+            <div className="text-center">
+              <div className="flex items-center gap-1 justify-center">
+                <Zap className="w-4 h-4" style={{ color: '#F6AD55' }} />
+                <span className="text-lg sm:text-xl font-bold" style={{ color: '#1A3A34' }}>{userPoints.total_points}</span>
+              </div>
+              <p className="text-xs" style={{ color: '#5A7A72' }}>Points</p>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center gap-1 justify-center">
+                <Award className="w-4 h-4" style={{ color: '#ECC94B' }} />
+                <span className="text-lg sm:text-xl font-bold" style={{ color: '#1A3A34' }}>{earnedBadges.length}</span>
+              </div>
+              <p className="text-xs" style={{ color: '#5A7A72' }}>Badges</p>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center gap-1 justify-center">
+                <Sparkles className="w-4 h-4" style={{ color: '#9F7AEA' }} />
+                <span className="text-lg sm:text-xl font-bold" style={{ color: '#1A3A34' }}>Lv.{userPoints.level}</span>
+              </div>
+              <p className="text-xs" style={{ color: '#5A7A72' }}>Level</p>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
       {/* Key Metrics Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <Card className="border-0" style={{
