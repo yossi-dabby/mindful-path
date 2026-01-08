@@ -197,7 +197,9 @@ export default function Chat() {
   };
 
   return (
-    <div className="h-screen flex relative">
+    <div className="h-screen flex relative" style={{ 
+      background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)'
+    }}>
       {/* Backdrop overlay when sidebar is open */}
       {showSidebar && currentConversationId && (
         <div 
@@ -210,9 +212,12 @@ export default function Chat() {
       <div className={`
         ${showSidebar ? 'block' : 'hidden md:block'} 
         fixed md:relative inset-0 md:inset-auto w-80 
-        bg-white border-r-2 border-gray-200 
         shadow-2xl md:shadow-none z-40
-      `}>
+      `} style={{
+        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
+        backdropFilter: 'blur(16px)',
+        borderRight: '1px solid rgba(38, 166, 154, 0.2)'
+      }}>
         <ConversationsList
           conversations={conversations}
           currentConversationId={currentConversationId}
@@ -226,7 +231,11 @@ export default function Chat() {
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col h-screen">
         {/* Header */}
-        <div className="bg-white border-b-2 border-gray-100 px-4 md:px-6 py-4 flex items-center gap-3 shadow-sm">
+        <div className="px-4 md:px-6 py-4 flex items-center gap-3" style={{
+          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(232, 246, 243, 0.8) 100%)',
+          backdropFilter: 'blur(12px)',
+          borderBottom: '1px solid rgba(38, 166, 154, 0.2)'
+        }}>
           <Button
             variant="ghost"
             size="icon"
@@ -242,30 +251,44 @@ export default function Chat() {
             <Menu className="w-5 h-5" />
           </Button>
           <div className="flex-1">
-            <h1 className="text-xl font-semibold text-gray-800">Your Therapist</h1>
-            <p className="text-sm text-gray-500">A safe space to talk</p>
+            <h1 className="text-xl font-semibold" style={{ color: '#1A3A34' }}>Your Therapist</h1>
+            <p className="text-sm" style={{ color: '#5A7A72' }}>A safe space to talk</p>
           </div>
         </div>
 
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto bg-gray-50">
+        <div className="flex-1 overflow-y-auto" style={{ backgroundColor: 'transparent' }}>
           {!currentConversationId ? (
             <div className="h-full flex flex-col">
               {/* Welcome Section - Separate container */}
-              <div className="flex-1 flex items-center justify-center p-4 md:p-6 bg-white">
-                <Card className="p-8 max-w-md text-center border-0 shadow-lg">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-purple-400 flex items-center justify-center mx-auto mb-4">
-                    <span className="text-white text-2xl">👋</span>
+              <div className="flex-1 flex items-center justify-center p-4 md:p-6">
+                <Card className="p-8 max-w-md text-center border-0" style={{
+                  borderRadius: '32px',
+                  background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
+                  backdropFilter: 'blur(16px)',
+                  boxShadow: '0 16px 48px rgba(38, 166, 154, 0.15), 0 6px 20px rgba(0,0,0,0.05), inset 0 2px 0 rgba(255,255,255,0.95)'
+                }}>
+                  <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4" style={{
+                    borderRadius: '22px',
+                    background: 'linear-gradient(145deg, rgba(38, 166, 154, 0.15) 0%, rgba(56, 178, 172, 0.15) 100%)',
+                    boxShadow: '0 4px 12px rgba(38, 166, 154, 0.2)'
+                  }}>
+                    <span className="text-2xl">👋</span>
                   </div>
-                  <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+                  <h2 className="text-2xl font-semibold mb-2" style={{ color: '#1A3A34' }}>
                     Welcome to Therapy
                   </h2>
-                  <p className="text-gray-600 mb-6">
+                  <p className="mb-6" style={{ color: '#5A7A72' }}>
                     This is a safe, judgment-free space. Share what's on your mind, and let's work through it together.
                   </p>
                   <Button
                     onClick={startNewConversation}
-                    className="bg-green-600 hover:bg-green-700 px-6 py-6 text-lg rounded-xl"
+                    className="px-6 py-6 text-lg text-white"
+                    style={{
+                      borderRadius: '24px',
+                      backgroundColor: '#26A69A',
+                      boxShadow: '0 8px 24px rgba(38, 166, 154, 0.35), 0 4px 10px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.2)'
+                    }}
                   >
                     Start Your First Session
                   </Button>
@@ -273,7 +296,10 @@ export default function Chat() {
               </div>
 
               {/* Insight Cards Section - Separate container with border */}
-              <div className="border-t-4 border-gray-200 bg-gradient-to-b from-blue-50 to-purple-50 p-4 md:p-6">
+              <div className="p-4 md:p-6" style={{
+                borderTop: '1px solid rgba(38, 166, 154, 0.2)',
+                background: 'linear-gradient(to bottom, rgba(232, 246, 243, 0.5), rgba(212, 237, 232, 0.5))'
+              }}>
                 <div className="max-w-2xl mx-auto">
                   <ProactiveCheckIn onSendMessage={async (prompt) => {
                     await startNewConversation();
@@ -288,7 +314,10 @@ export default function Chat() {
             <div className="flex flex-col">
               {/* Insight Cards Section - Only show at conversation start */}
               {messages.length === 0 && (
-                <div className="bg-gradient-to-b from-blue-50 to-purple-50 border-b-4 border-gray-200 p-4 md:p-6">
+                <div className="p-4 md:p-6" style={{
+                  borderBottom: '1px solid rgba(38, 166, 154, 0.2)',
+                  background: 'linear-gradient(to bottom, rgba(232, 246, 243, 0.5), rgba(212, 237, 232, 0.5))'
+                }}>
                   <div className="max-w-3xl mx-auto">
                     <ProactiveCheckIn onSendMessage={(prompt) => setInputMessage(prompt)} />
                   </div>
@@ -296,17 +325,24 @@ export default function Chat() {
               )}
 
               {/* Active Chat Messages Section - Separate scrollable container */}
-              <div className="flex-1 p-4 md:p-6 space-y-6 bg-gray-50">
+              <div className="flex-1 p-4 md:p-6 space-y-6" style={{ backgroundColor: 'transparent' }}>
                 {messages.filter(m => m && m.content).map((message, index) => (
                   <MessageBubble key={index} message={message} />
                 ))}
                 {isLoading && (
                   <div className="flex gap-3">
-                    <div className="h-7 w-7 rounded-lg bg-gray-100 flex items-center justify-center">
-                      <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
+                    <div className="h-7 w-7 flex items-center justify-center" style={{
+                      borderRadius: '12px',
+                      backgroundColor: 'rgba(38, 166, 154, 0.15)'
+                    }}>
+                      <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#26A69A' }} />
                     </div>
-                    <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3">
-                      <p className="text-sm text-gray-500">Thinking...</p>
+                    <div className="rounded-2xl px-4 py-3" style={{
+                      background: 'rgba(255, 255, 255, 0.9)',
+                      backdropFilter: 'blur(8px)',
+                      border: '1px solid rgba(38, 166, 154, 0.2)'
+                    }}>
+                      <p className="text-sm" style={{ color: '#5A7A72' }}>Thinking...</p>
                     </div>
                   </div>
                 )}
@@ -315,25 +351,41 @@ export default function Chat() {
 
               {/* Summary Prompt Section - Separate container with border */}
               {showSummaryPrompt && !isLoading && (
-                <div className="border-t-4 border-gray-200 bg-gradient-to-r from-purple-50 to-blue-50 p-4 md:p-6">
+                <div className="p-4 md:p-6" style={{
+                  borderTop: '1px solid rgba(38, 166, 154, 0.2)',
+                  background: 'linear-gradient(to right, rgba(232, 246, 243, 0.5), rgba(212, 237, 232, 0.5))'
+                }}>
                   <div className="max-w-3xl mx-auto">
-                    <Card className="p-4 bg-white border-purple-200 shadow-md">
+                    <Card className="p-4 border-0" style={{
+                      borderRadius: '24px',
+                      background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(232, 246, 243, 0.8) 100%)',
+                      backdropFilter: 'blur(12px)',
+                      boxShadow: '0 8px 24px rgba(38, 166, 154, 0.15)'
+                    }}>
                       <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                          <Sparkles className="w-5 h-5 text-purple-600" />
+                        <div className="w-10 h-10 flex items-center justify-center flex-shrink-0" style={{
+                          borderRadius: '16px',
+                          backgroundColor: 'rgba(159, 122, 234, 0.15)'
+                        }}>
+                          <Sparkles className="w-5 h-5" style={{ color: '#9F7AEA' }} />
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-800 mb-1">
+                          <p className="text-sm font-medium mb-1" style={{ color: '#1A3A34' }}>
                             Would you like a session summary?
                           </p>
-                          <p className="text-xs text-gray-600 mb-3">
+                          <p className="text-xs mb-3" style={{ color: '#5A7A72' }}>
                             Get key takeaways, recommended exercises, and helpful resources
                           </p>
                           <div className="flex gap-2">
                             <Button
                               onClick={requestSummary}
                               size="sm"
-                              className="bg-purple-600 hover:bg-purple-700"
+                              className="text-white"
+                              style={{
+                                borderRadius: '16px',
+                                backgroundColor: '#9F7AEA',
+                                boxShadow: '0 4px 12px rgba(159, 122, 234, 0.3)'
+                              }}
                             >
                               Yes, create summary
                             </Button>
@@ -341,6 +393,10 @@ export default function Chat() {
                               onClick={() => setShowSummaryPrompt(false)}
                               size="sm"
                               variant="outline"
+                              style={{
+                                borderRadius: '16px',
+                                borderColor: 'rgba(38, 166, 154, 0.3)'
+                              }}
                             >
                               Not now
                             </Button>
@@ -357,32 +413,51 @@ export default function Chat() {
 
         {/* Session Summary Display */}
         {currentConversationData?.session_summary && (
-          <div className="border-t-2 border-gray-200 bg-white">
+          <div style={{
+            borderTop: '1px solid rgba(38, 166, 154, 0.2)',
+            background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(232, 246, 243, 0.8) 100%)',
+            backdropFilter: 'blur(12px)'
+          }}>
             <SessionSummary conversation={currentConversationData} />
           </div>
         )}
 
         {/* Input Area */}
         {currentConversationId && (
-          <div className="bg-white border-t-2 border-gray-200 p-4 md:p-6 shadow-lg">
+          <div className="p-4 md:p-6" style={{
+            background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(232, 246, 243, 0.8) 100%)',
+            backdropFilter: 'blur(12px)',
+            borderTop: '1px solid rgba(38, 166, 154, 0.2)',
+            boxShadow: '0 -4px 16px rgba(38, 166, 154, 0.1)'
+          }}>
             <div className="max-w-4xl mx-auto flex gap-3">
               <Textarea
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Share what's on your mind..."
-                className="flex-1 min-h-[60px] max-h-[200px] resize-none rounded-2xl border-gray-300 focus:border-green-500"
+                className="flex-1 min-h-[60px] max-h-[200px] resize-none"
+                style={{
+                  borderRadius: '20px',
+                  borderColor: 'rgba(38, 166, 154, 0.3)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)'
+                }}
                 disabled={isLoading}
               />
               <Button
                 onClick={handleSendMessage}
                 disabled={!inputMessage.trim() || isLoading}
-                className="bg-green-600 hover:bg-green-700 h-[60px] px-6 rounded-2xl"
+                className="h-[60px] px-6 text-white"
+                style={{
+                  borderRadius: '20px',
+                  backgroundColor: '#26A69A',
+                  boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
+                }}
               >
                 <Send className="w-5 h-5" />
               </Button>
             </div>
-            <p className="text-xs text-gray-400 text-center mt-3">
+            <p className="text-xs text-center mt-3" style={{ color: '#5A7A72' }}>
               This is AI-assisted support. In crisis, contact emergency services.
             </p>
           </div>

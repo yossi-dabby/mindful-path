@@ -96,57 +96,57 @@ export default function QuickActions() {
                     boxShadow: '0 6px 24px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.6)'
                   }}>
                     <CardContent className="p-5">
-                      <motion.div 
-                        className="w-14 h-14 flex items-center justify-center mb-4"
-                        style={{ 
-                          borderRadius: '20px',
-                          backgroundColor: action.color,
-                          boxShadow: `0 6px 16px ${action.color}40`
-                        }}
-                        whileHover={{ rotate: 5 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <Icon className="w-7 h-7 text-white" strokeWidth={2.5} />
-                      </motion.div>
+                      <div className="flex items-center gap-3 mb-4">
+                        <motion.div 
+                          className="w-14 h-14 flex items-center justify-center"
+                          style={{ 
+                            borderRadius: '20px',
+                            backgroundColor: action.color,
+                            boxShadow: `0 6px 16px ${action.color}40`
+                          }}
+                          whileHover={{ rotate: 5 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <Icon className="w-7 h-7 text-white" strokeWidth={2.5} />
+                        </motion.div>
+                        
+                        {/* Angel Button - next to icon */}
+                        <motion.button
+                          animate={{ 
+                            scale: [1, 1.05, 1],
+                            boxShadow: [
+                              `0 4px 12px ${action.color}40`,
+                              `0 6px 16px ${action.color}60`,
+                              `0 4px 12px ${action.color}40`
+                            ]
+                          }}
+                          transition={{ duration: 2, repeat: Infinity, ease: [0.2, 0.8, 0.2, 1] }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setActiveVideo(action.videoUrl);
+                          }}
+                          className="flex items-center justify-center cursor-pointer hover:scale-110 transition-transform"
+                          style={{ 
+                            width: '56px',
+                            height: '56px',
+                            borderRadius: '20px',
+                            backgroundColor: action.bgColor,
+                            border: 'none',
+                            outline: 'none'
+                          }}
+                          aria-label="Guided introduction video"
+                          title="Guided introduction video"
+                        >
+                          <User className="w-6 h-6 icon-default" style={{ color: action.color }} strokeWidth={2} />
+                        </motion.button>
+                      </div>
                       <h3 className="font-semibold text-sm mb-1 truncate" style={{ color: '#1A3A34' }}>{action.title}</h3>
                       <p className="text-xs line-clamp-1" style={{ color: '#5A7A72' }}>{action.description}</p>
                     </CardContent>
                   </Card>
                 </Link>
               </motion.div>
-
-              {/* Angel Button */}
-              <motion.button
-                animate={{ 
-                  scale: [1, 1.05, 1],
-                  boxShadow: [
-                    `0 4px 12px ${action.color}40`,
-                    `0 6px 16px ${action.color}60`,
-                    `0 4px 12px ${action.color}40`
-                  ]
-                }}
-                transition={{ duration: 2, repeat: Infinity, ease: [0.2, 0.8, 0.2, 1] }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setActiveVideo(action.videoUrl);
-                }}
-                className="absolute -top-2 -right-2 flex items-center justify-center cursor-pointer hover:scale-110 transition-transform z-10"
-                style={{ 
-                  width: '44px',
-                  height: '44px',
-                  minWidth: '44px',
-                  minHeight: '44px',
-                  borderRadius: '16px',
-                  backgroundColor: action.bgColor,
-                  border: 'none',
-                  outline: 'none'
-                }}
-                aria-label="Guided introduction video"
-                title="Guided introduction video"
-              >
-                <User className="w-5 h-5 icon-default" style={{ color: action.color }} strokeWidth={2} />
-              </motion.button>
             </motion.div>
           );
         })}

@@ -170,8 +170,13 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
-      <div className="page-container max-w-5xl">
+    <div className="fixed inset-0" style={{ 
+      background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)',
+      paddingTop: 'env(safe-area-inset-top, 0)',
+      paddingBottom: 'env(safe-area-inset-bottom, 0)'
+    }}>
+      <div className="h-full overflow-y-auto">
+        <div className="page-container max-w-5xl">
         {/* Header */}
         <motion.div 
           className="mb-4 mt-6"
@@ -263,6 +268,7 @@ export default function Home() {
         />
       )}
       </div>
-    </div>
-  );
-}
+      </div>
+      </div>
+      );
+      }

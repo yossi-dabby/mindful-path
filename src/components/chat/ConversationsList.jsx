@@ -15,13 +15,20 @@ export default function ConversationsList({
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-800">Sessions</h2>
+      <div className="p-4 flex items-center justify-between" style={{
+        borderBottom: '1px solid rgba(38, 166, 154, 0.2)'
+      }}>
+        <h2 className="text-lg font-semibold" style={{ color: '#1A3A34' }}>Sessions</h2>
         <div className="flex gap-2">
           <Button
             onClick={onNewConversation}
             size="icon"
-            className="bg-green-600 hover:bg-green-700 rounded-xl"
+            className="text-white"
+            style={{
+              borderRadius: '16px',
+              backgroundColor: '#26A69A',
+              boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
+            }}
           >
             <Plus className="w-5 h-5" />
           </Button>
@@ -40,9 +47,9 @@ export default function ConversationsList({
       <div className="flex-1 overflow-y-auto p-2">
         {conversations.length === 0 ? (
           <div className="text-center py-8 px-4">
-            <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-sm text-gray-500">No sessions yet</p>
-            <p className="text-xs text-gray-400 mt-1">Start a conversation to begin</p>
+            <MessageCircle className="w-12 h-12 mx-auto mb-3" style={{ color: 'rgba(38, 166, 154, 0.3)' }} />
+            <p className="text-sm" style={{ color: '#5A7A72' }}>No sessions yet</p>
+            <p className="text-xs mt-1" style={{ color: '#7A9A92' }}>Start a conversation to begin</p>
           </div>
         ) : (
           <div className="space-y-1">
@@ -50,35 +57,38 @@ export default function ConversationsList({
               <div
                 key={conversation.id}
                 className={cn(
-                  'group relative rounded-xl transition-all',
-                  currentConversationId === conversation.id
-                    ? 'bg-green-50 ring-2 ring-green-500 shadow-md'
-                    : 'bg-white hover:bg-gray-50'
+                  'group relative transition-all'
                 )}
+                style={{
+                  borderRadius: '18px',
+                  ...(currentConversationId === conversation.id ? {
+                    background: 'linear-gradient(145deg, rgba(38, 166, 154, 0.15) 0%, rgba(56, 178, 172, 0.1) 100%)',
+                    boxShadow: '0 4px 12px rgba(38, 166, 154, 0.2), inset 0 0 0 2px rgba(38, 166, 154, 0.3)'
+                  } : {
+                    background: 'rgba(255, 255, 255, 0.6)'
+                  })
+                }}
               >
                 <button
                   onClick={() => onSelectConversation(conversation.id)}
                   className="w-full text-left p-3"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-purple-400 flex items-center justify-center flex-shrink-0">
-                      <MessageCircle className="w-5 h-5 text-white" />
+                    <div className="w-10 h-10 flex items-center justify-center flex-shrink-0" style={{
+                      borderRadius: '16px',
+                      background: 'linear-gradient(145deg, rgba(38, 166, 154, 0.15) 0%, rgba(56, 178, 172, 0.15) 100%)'
+                    }}>
+                      <MessageCircle className="w-5 h-5" style={{ color: '#26A69A' }} />
                     </div>
                     <div className="flex-1 min-w-0 pr-8">
-                      <p className={cn(
-                        "font-medium truncate",
-                        currentConversationId === conversation.id
-                          ? "text-green-900"
-                          : "text-gray-800"
-                      )}>
+                      <p className="font-medium truncate" style={{
+                        color: currentConversationId === conversation.id ? '#1A3A34' : '#3D5A52'
+                      }}>
                         {conversation.metadata?.name || `Session ${conversation.id.slice(0, 8)}`}
                       </p>
-                      <p className={cn(
-                        "text-xs",
-                        currentConversationId === conversation.id
-                          ? "text-green-700"
-                          : "text-gray-500"
-                      )}>
+                      <p className="text-xs" style={{
+                        color: currentConversationId === conversation.id ? '#26A69A' : '#5A7A72'
+                      }}>
                         {format(new Date(conversation.created_date), 'MMM d, h:mm a')}
                       </p>
                     </div>
@@ -91,7 +101,10 @@ export default function ConversationsList({
                     e.stopPropagation();
                     onDeleteConversation(conversation.id);
                   }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-red-50 rounded-lg"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-lg"
+                  style={{
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)'
+                  }}
                   title="Delete session"
                 >
                   <Trash2 className="w-4 h-4 text-red-500" />
