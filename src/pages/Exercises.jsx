@@ -5,10 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Wind, Anchor, Brain, TrendingUp, Sparkles, Heart, Search, Star } from 'lucide-react';
+import { Wind, Anchor, Brain, TrendingUp, Sparkles, Heart, Search, Star, Moon, Users, Zap } from 'lucide-react';
 import ExerciseDetail from '../components/exercises/ExerciseDetail';
 import ExerciseLibrary from '../components/exercises/ExerciseLibrary';
 import AiExerciseRecommendations from '../components/exercises/AiExerciseRecommendations';
+import QuickStartPanel from '../components/exercises/QuickStartPanel';
 
 const categoryIcons = {
   breathing: Wind,
@@ -16,7 +17,10 @@ const categoryIcons = {
   cognitive_restructuring: Brain,
   behavioral_activation: TrendingUp,
   mindfulness: Sparkles,
-  exposure: Heart
+  exposure: Heart,
+  sleep: Moon,
+  relationships: Users,
+  stress_management: Zap
 };
 
 const categoryColors = {
@@ -25,7 +29,10 @@ const categoryColors = {
   cognitive_restructuring: 'bg-purple-100 text-purple-700',
   behavioral_activation: 'bg-orange-100 text-orange-700',
   mindfulness: 'bg-pink-100 text-pink-700',
-  exposure: 'bg-red-100 text-red-700'
+  exposure: 'bg-red-100 text-red-700',
+  sleep: 'bg-indigo-100 text-indigo-700',
+  relationships: 'bg-teal-100 text-teal-700',
+  stress_management: 'bg-amber-100 text-amber-700'
 };
 
 export default function Exercises() {
@@ -94,13 +101,16 @@ export default function Exercises() {
   });
 
   const categories = [
-    { value: 'all', label: 'All Exercises' },
+    { value: 'all', label: 'All' },
     { value: 'breathing', label: 'Breathing' },
     { value: 'grounding', label: 'Grounding' },
     { value: 'cognitive_restructuring', label: 'Cognitive' },
     { value: 'behavioral_activation', label: 'Behavioral' },
     { value: 'mindfulness', label: 'Mindfulness' },
-    { value: 'exposure', label: 'Exposure' }
+    { value: 'exposure', label: 'Exposure' },
+    { value: 'sleep', label: 'Sleep' },
+    { value: 'relationships', label: 'Relationships' },
+    { value: 'stress_management', label: 'Stress' }
   ];
 
   if (isLoading) {
@@ -191,6 +201,14 @@ export default function Exercises() {
           </TabsList>
         </Tabs>
       </div>
+
+      {/* Quick Start Panel */}
+      {!showFavoritesOnly && !searchQuery && selectedCategory === 'all' && (
+        <QuickStartPanel
+          exercises={exercises}
+          onSelectExercise={setSelectedExercise}
+        />
+      )}
 
       {/* AI Recommendations */}
       {!showFavoritesOnly && !searchQuery && selectedCategory === 'all' && (
