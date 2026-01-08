@@ -8,6 +8,7 @@ import { ArrowLeft, Sparkles, CheckCircle2, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
+import PersonalizationSetup from '../components/starterpath/PersonalizationSetup';
 
 const DAY_STRUCTURE = [
   {
@@ -65,6 +66,8 @@ export default function StarterPath() {
   const [step, setStep] = useState('loading'); // loading, intro, exercise, complete
   const [userResponse, setUserResponse] = useState('');
   const [generatedContent, setGeneratedContent] = useState(null);
+  const [showPersonalization, setShowPersonalization] = useState(false);
+  const [userPreferences, setUserPreferences] = useState(null);
   const queryClient = useQueryClient();
 
   // Get starter path progress
@@ -72,6 +75,12 @@ export default function StarterPath() {
     queryKey: ['starterPath'],
     queryFn: async () => {
       const paths = await base44.entities.StarterPath.list();
+      const user = await base44.auth.me();
+      if (user.starter_path_preferences) {
+        setUserPreferences(user.starter_path_preferences);
+      } else if (paths.length === 0) {
+        setShowPersonalization(true);
+      }
       return paths[0] || null;
     }
   });
@@ -89,6 +98,19 @@ export default function StarterPath() {
 
   const currentDay = starterPath?.current_day || 1;
   const dayStructure = DAY_STRUCTURE[currentDay - 1];
+
+  // Handle personalization complete
+  const handlePersonalizationComplete = async (preferences) => {
+    try {
+      await base44.auth.updateMe({
+        starter_path_preferences: preferences
+      });
+      setUserPreferences(preferences);
+      setShowPersonalization(false);
+    } catch (error) {
+      console.error('Error saving preferences:', error);
+    }
+  };
 
   // Generate daily content with AI
   const generateContentMutation = useMutation({
@@ -110,6 +132,14 @@ export default function StarterPath() {
       if (!recentMoods.length && !recentJournals.length) {
         contextStr += "No previous data available - generate general but helpful content.\n";
       }
+      
+      // Add personalization
+      if (userPreferences?.concerns?.length > 0) {
+        contextStr += `Primary concerns: ${userPreferences.concerns.join(', ')}\n`;
+      }
+      if (userPreferences?.goals?.length > 0) {
+        contextStr += `User goals: ${userPreferences.goals.join('; ')}\n`;
+      }
 
       const prompt = `You are a CBT therapist creating a personalized guided exercise for Day ${currentDay} of a 7-day program.
 
@@ -117,6 +147,8 @@ ${contextStr}
 
 Day ${currentDay} Goal: ${dayStructure.goal}
 Exercise Type: ${dayStructure.exerciseType}
+
+${userPreferences?.concerns || userPreferences?.goals ? 'IMPORTANT: Tailor this exercise to address the user\'s specific concerns and goals.' : ''}
 
 Generate a brief, personalized exercise in JSON format:
 {
@@ -276,7 +308,11 @@ Generate a concise insight or action the user can apply today.`;
   }
 
   return (
-    <div className="min-h-screen p-4" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
+    <div className="min-h-screen p-4" style={{ background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
+      {showPersonalization && (
+        <PersonalizationSetup onComplete={handlePersonalizationComplete} />
+      )}
+      
       <div className="max-w-3xl mx-auto py-8">
         {/* Header */}
         <div className="mb-6">
