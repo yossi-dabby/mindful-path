@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { TrendingUp, Calendar, Brain, Target, Activity } from 'lucide-react';
+import { TrendingUp, Calendar, Brain, Target, Activity, Trophy } from 'lucide-react';
 import EnhancedMoodChart from '../components/progress/EnhancedMoodChart';
 import InsightsPanel from '../components/progress/InsightsPanel';
 import StatsOverview from '../components/progress/StatsOverview';
@@ -16,6 +16,7 @@ import GoalsProgressTracker from '../components/progress/GoalsProgressTracker';
 import HealthDashboard from '../components/health/HealthDashboard';
 import HealthInsights from '../components/health/HealthInsights';
 import EnhancedProgressDashboard from '../components/progress/EnhancedProgressDashboard';
+import GamificationHub from '../components/gamification/GamificationHub';
 
 export default function Progress() {
   const [timeRange, setTimeRange] = useState('7');
@@ -82,12 +83,17 @@ export default function Progress() {
 
       {/* Tabs Navigation */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-2 sm:grid-cols-5 w-full mb-4 sm:mb-6" style={{
+        <TabsList className="grid grid-cols-3 sm:grid-cols-6 w-full mb-4 sm:mb-6" style={{
           background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.7) 0%, rgba(180, 220, 210, 0.6) 100%)',
           borderRadius: '20px',
           padding: '4px'
         }}>
           <TabsTrigger value="overview" className="text-xs sm:text-sm" style={{ borderRadius: '16px' }}>Overview</TabsTrigger>
+          <TabsTrigger value="achievements" className="text-xs sm:text-sm" style={{ borderRadius: '16px' }}>
+            <Trophy className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+            <span className="hidden sm:inline">Achievements</span>
+            <span className="sm:hidden">Rewards</span>
+          </TabsTrigger>
           <TabsTrigger value="mood" className="text-xs sm:text-sm" style={{ borderRadius: '16px' }}>Mood</TabsTrigger>
           <TabsTrigger value="goals" className="text-xs sm:text-sm" style={{ borderRadius: '16px' }}>Goals</TabsTrigger>
           <TabsTrigger value="exercises" className="text-xs sm:text-sm" style={{ borderRadius: '16px' }}>Exercises</TabsTrigger>
@@ -96,6 +102,10 @@ export default function Progress() {
 
         <TabsContent value="overview">
           <EnhancedProgressDashboard />
+        </TabsContent>
+
+        <TabsContent value="achievements">
+          <GamificationHub />
         </TabsContent>
 
         <TabsContent value="mood">
