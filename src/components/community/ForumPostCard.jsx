@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, ThumbsUp, Pin, User } from 'lucide-react';
+import { MessageCircle, ThumbsUp, Pin, User, Shield } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function ForumPostCard({ post, onView, onUpvote, onModerate }) {
@@ -66,6 +66,21 @@ export default function ForumPostCard({ post, onView, onUpvote, onModerate }) {
                 <MessageCircle className="w-4 h-4" />
                 {post.comment_count || 0}
               </span>
+              {onModerate && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-auto p-0 hover:bg-transparent"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onModerate(post);
+                  }}
+                  style={{ color: '#F59E0B' }}
+                >
+                  <Shield className="w-4 h-4 mr-1" />
+                  Moderate
+                </Button>
+              )}
             </div>
           </div>
         </div>

@@ -41,6 +41,7 @@ export default function Exercises() {
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [showCoaching, setShowCoaching] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: exercises, isLoading } = useQuery({
@@ -142,8 +143,18 @@ export default function Exercises() {
               <p className="text-sm md:text-base md:hidden" style={{ color: '#5A7A72' }}>Practice evidence-based techniques</p>
             </div>
           </div>
-          <button
-            onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setShowCoaching(true)}
+              variant="outline"
+              className="gap-2 hidden md:flex"
+              style={{ borderRadius: '24px' }}
+            >
+              <Sparkles className="w-4 h-4" />
+              AI Plan
+            </Button>
+            <button
+              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
             className="px-3 py-2 md:px-4 md:py-2 transition-all text-sm md:text-base"
             style={{
               borderRadius: '24px',
@@ -264,6 +275,14 @@ export default function Exercises() {
             onClose={() => setSelectedExercise(null)}
             onComplete={(duration) => completeMutation.mutate({ exercise: selectedExercise, duration })}
             onToggleFavorite={(exercise) => toggleFavoriteMutation.mutate(exercise)}
+          />
+        )}
+
+        {/* AI Exercise Coaching */}
+        {showCoaching && (
+          <AiExerciseCoaching
+            onClose={() => setShowCoaching(false)}
+            onSelectExercise={(exercise) => setSelectedExercise(exercise)}
           />
         )}
       </div>
