@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { MessageCircle, ThumbsUp, Pin, User } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
-export default function ForumPostCard({ post, onView, onUpvote }) {
+export default function ForumPostCard({ post, onView, onUpvote, onModerate }) {
   const categoryColors = {
     general: 'bg-gray-100 text-gray-700',
     goals: 'bg-blue-100 text-blue-700',

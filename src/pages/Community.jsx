@@ -11,6 +11,7 @@ import ForumPostForm from '../components/community/ForumPostForm';
 import GroupCard from '../components/community/GroupCard';
 import GroupForm from '../components/community/GroupForm';
 import ProgressShareForm from '../components/community/ProgressShareForm';
+import ModerationTools from '../components/community/ModerationTools';
 
 export default function Community() {
   const [activeTab, setActiveTab] = useState('forum');
@@ -18,6 +19,7 @@ export default function Community() {
   const [showGroupForm, setShowGroupForm] = useState(false);
   const [showProgressForm, setShowProgressForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [moderatingPost, setModeratingPost] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: forumPosts, isLoading: loadingPosts } = useQuery({
@@ -230,6 +232,7 @@ export default function Community() {
                     post={post}
                     onView={() => {}}
                     onUpvote={(post) => upvotePostMutation.mutate(post)}
+                    onModerate={() => setModeratingPost(post)}
                   />
                 ))}
               </div>
@@ -368,6 +371,7 @@ export default function Community() {
       {showPostForm && <ForumPostForm onClose={() => setShowPostForm(false)} />}
       {showGroupForm && <GroupForm onClose={() => setShowGroupForm(false)} />}
       {showProgressForm && <ProgressShareForm onClose={() => setShowProgressForm(false)} />}
+      {moderatingPost && <ModerationTools post={moderatingPost} onClose={() => setModeratingPost(null)} />}
     </div>
   );
 }

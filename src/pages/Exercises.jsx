@@ -9,6 +9,7 @@ import { Wind, Anchor, Brain, TrendingUp, Sparkles, Heart, Search, Star, Moon, U
 import ExerciseDetail from '../components/exercises/ExerciseDetail';
 import ExerciseLibrary from '../components/exercises/ExerciseLibrary';
 import AiExerciseRecommendations from '../components/exercises/AiExerciseRecommendations';
+import AiExerciseCoaching from '../components/exercises/AiExerciseCoaching';
 import QuickStartPanel from '../components/exercises/QuickStartPanel';
 
 const categoryIcons = {

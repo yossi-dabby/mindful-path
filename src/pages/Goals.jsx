@@ -10,6 +10,7 @@ import GoalCalendar from '../components/goals/GoalCalendar';
 import AiGoalSuggestions from '../components/goals/AiGoalSuggestions';
 import AiGoalBreakdown from '../components/goals/AiGoalBreakdown';
 import GoalMotivation from '../components/goals/GoalMotivation';
+import AiGoalCoaching from '../components/goals/AiGoalCoaching';
 
 export default function Goals() {
   const [showForm, setShowForm] = useState(false);
@@ -17,6 +18,7 @@ export default function Goals() {
   const [showCalendar, setShowCalendar] = useState(false);
   const [showAiSuggestions, setShowAiSuggestions] = useState(false);
   const [showBreakdown, setShowBreakdown] = useState(null);
+  const [showCoaching, setShowCoaching] = useState(null);
   const [prefilledGoal, setPrefilledGoal] = useState(null);
   const queryClient = useQueryClient();
 
@@ -201,15 +203,27 @@ export default function Goals() {
                 {activeGoals.map((goal) => (
                   <div key={goal.id} className="relative group">
                     <GoalCard goal={goal} onEdit={handleEdit} onDelete={deleteGoalMutation.mutate} />
-                    <Button
-                      onClick={() => setShowBreakdown(goal)}
-                      variant="outline"
-                      size="sm"
-                      className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity gap-2"
-                    >
-                      <Lightbulb className="w-4 h-4" />
-                      Break It Down
-                    </Button>
+                    <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button
+                        onClick={() => setShowBreakdown(goal)}
+                        variant="outline"
+                        size="sm"
+                        className="gap-2"
+                      >
+                        <Lightbulb className="w-4 h-4" />
+                        Break Down
+                      </Button>
+                      <Button
+                        onClick={() => setShowCoaching(goal)}
+                        variant="outline"
+                        size="sm"
+                        className="gap-2"
+                        style={{ borderColor: '#26A69A', color: '#26A69A' }}
+                      >
+                        <Sparkles className="w-4 h-4" />
+                        Coach
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -247,6 +261,14 @@ export default function Goals() {
           goal={showBreakdown}
           onApplySteps={handleApplyBreakdown}
           onClose={() => setShowBreakdown(null)}
+        />
+      )}
+
+      {/* AI Goal Coaching */}
+      {showCoaching && (
+        <AiGoalCoaching
+          goal={showCoaching}
+          onClose={() => setShowCoaching(null)}
         />
       )}
     </div>
