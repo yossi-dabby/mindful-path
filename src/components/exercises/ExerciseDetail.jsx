@@ -3,13 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { X, Play, CheckCircle, Clock, BookOpen, Lightbulb, Star, Video, Heart, Headphones } from 'lucide-react';
+import { X, Play, CheckCircle, Clock, BookOpen, Lightbulb, Star, Video, Heart, Headphones, Eye } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import BreathingVisual from './BreathingVisual';
 import AudioPlayer from '../audio/AudioPlayer';
 import { motion } from 'framer-motion';
 import PremiumBadge from '../subscription/PremiumBadge';
+import ExerciseMediaBadge from './ExerciseMediaBadge';
 
 export default function ExerciseDetail({ exercise, onClose, onComplete, onToggleFavorite }) {
   const [completed, setCompleted] = useState(false);
@@ -80,6 +81,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                     {exercise.difficulty || 'beginner'}
                   </Badge>
                   {exercise.difficulty === 'advanced' && <PremiumBadge />}
+                  <ExerciseMediaBadge mediaType={exercise.media_type} size="md" />
                   {exercise.duration_options?.length > 0 ? (
                     <Badge variant="secondary" className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
@@ -141,6 +143,19 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                   )}
                 </div>
 
+                {/* Visualization Script */}
+                {exercise.media_type === 'visualization' && exercise.visualization_script && (
+                  <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Eye className="w-5 h-5 text-indigo-600" />
+                      <h3 className="text-lg font-semibold text-gray-800">Guided Visualization</h3>
+                    </div>
+                    <p className="text-gray-700 leading-relaxed italic">
+                      "{exercise.visualization_script}"
+                    </p>
+                  </div>
+                )}
+
                 {/* Video Preview */}
                 {exercise.video_url && (
                   <div>
@@ -153,6 +168,23 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                         title={exercise.title}
                       />
                     </div>
+                  </div>
+                )}
+
+                {/* Audio URL */}
+                {exercise.audio_url && (
+                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Headphones className="w-5 h-5 text-purple-600" />
+                      <h3 className="text-lg font-semibold text-gray-800">Audio Guide</h3>
+                    </div>
+                    <audio 
+                      controls 
+                      className="w-full" 
+                      src={exercise.audio_url}
+                    >
+                      Your browser does not support the audio element.
+                    </audio>
                   </div>
                 )}
 
