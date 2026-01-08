@@ -112,7 +112,8 @@ export default function Exercises() {
   }
 
   return (
-    <div className="p-4 md:p-8 max-w-6xl mx-auto" style={{ minHeight: '100vh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
+    <div className="min-h-screen" style={{ background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
+      <div className="p-4 md:p-8 max-w-6xl mx-auto">
       {/* Header */}
       <div className="mb-8 mt-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
@@ -237,15 +238,16 @@ export default function Exercises() {
         />
       )}
 
-      {/* Exercise Detail Modal */}
-      {selectedExercise && (
-        <ExerciseDetail
-          exercise={selectedExercise}
-          onClose={() => setSelectedExercise(null)}
-          onComplete={(duration) => completeMutation.mutate({ exercise: selectedExercise, duration })}
-          onToggleFavorite={(exercise) => toggleFavoriteMutation.mutate(exercise)}
-        />
-      )}
+        {/* Exercise Detail Modal */}
+        {selectedExercise && (
+          <ExerciseDetail
+            exercise={selectedExercise}
+            onClose={() => setSelectedExercise(null)}
+            onComplete={(duration) => completeMutation.mutate({ exercise: selectedExercise, duration })}
+            onToggleFavorite={(exercise) => toggleFavoriteMutation.mutate(exercise)}
+          />
+        )}
+      </div>
     </div>
   );
 }

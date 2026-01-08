@@ -216,36 +216,39 @@ Provide recommendations with:
   return (
     <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-blue-50">
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-purple-600" />
             <CardTitle className="text-xl">AI Recommendations</CardTitle>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button
               onClick={() => setShowFilters(!showFilters)}
               disabled={generateMutation.isPending}
               size="sm"
               variant="outline"
+              className="flex-1 sm:flex-none"
             >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Customize
+              <Sparkles className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Customize</span>
             </Button>
             <Button
               onClick={handleGenerate}
               disabled={generateMutation.isPending}
               size="sm"
-              className="bg-purple-600 hover:bg-purple-700"
+              className="bg-purple-600 hover:bg-purple-700 flex-1 sm:flex-none"
             >
               {generateMutation.isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Analyzing...
+                  <span className="hidden sm:inline">Analyzing...</span>
+                  <span className="sm:hidden">...</span>
                 </>
               ) : (
                 <>
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  {recommendations ? 'Refresh' : 'Get Recommendations'}
+                  <RefreshCw className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">{recommendations ? 'Refresh' : 'Get Recommendations'}</span>
+                  <span className="sm:hidden">{recommendations ? 'Refresh' : 'Get'}</span>
                 </>
               )}
             </Button>
@@ -328,9 +331,9 @@ Provide recommendations with:
         </AnimatePresence>
 
         {!recommendations && !generateMutation.isPending && (
-          <div className="text-center py-8">
+          <div className="text-center py-8 px-4">
             <Sparkles className="w-12 h-12 text-purple-300 mx-auto mb-3" />
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 mb-4 text-sm sm:text-base">
               Get personalized exercise recommendations based on your activity, favorites, mood, and goals
             </p>
           </div>
