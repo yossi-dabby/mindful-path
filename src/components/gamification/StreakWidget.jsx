@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Flame, TrendingUp, Award } from 'lucide-react';
+import { Flame, TrendingUp, Award, Heart, BookOpen, Dumbbell } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -15,6 +15,10 @@ export default function StreakWidget({ compact = false }) {
   });
 
   const overallStreak = streaks.find(s => s.streak_type === 'overall');
+  const moodStreak = streaks.find(s => s.streak_type === 'mood_check');
+  const journalStreak = streaks.find(s => s.streak_type === 'journal');
+  const exerciseStreak = streaks.find(s => s.streak_type === 'exercise');
+  
   const currentStreak = overallStreak?.current_streak || 0;
   const longestStreak = overallStreak?.longest_streak || 0;
 
@@ -130,6 +134,25 @@ export default function StreakWidget({ compact = false }) {
               {currentStreak >= 7 && (
                 <p className="text-xs text-orange-600 font-semibold">Week complete! 🎉</p>
               )}
+            </div>
+          </div>
+
+          {/* Individual Activity Streaks */}
+          <div className="mt-4 pt-4 border-t border-orange-200 grid grid-cols-3 gap-2">
+            <div className="text-center p-2 rounded-lg bg-white/50">
+              <Heart className="w-4 h-4 mx-auto mb-1 text-pink-500" />
+              <p className="text-sm font-bold text-gray-800">{moodStreak?.current_streak || 0}</p>
+              <p className="text-xs text-gray-500">Check-ins</p>
+            </div>
+            <div className="text-center p-2 rounded-lg bg-white/50">
+              <BookOpen className="w-4 h-4 mx-auto mb-1 text-purple-500" />
+              <p className="text-sm font-bold text-gray-800">{journalStreak?.current_streak || 0}</p>
+              <p className="text-xs text-gray-500">Journals</p>
+            </div>
+            <div className="text-center p-2 rounded-lg bg-white/50">
+              <Dumbbell className="w-4 h-4 mx-auto mb-1 text-blue-500" />
+              <p className="text-sm font-bold text-gray-800">{exerciseStreak?.current_streak || 0}</p>
+              <p className="text-xs text-gray-500">Exercises</p>
             </div>
           </div>
         </CardContent>
