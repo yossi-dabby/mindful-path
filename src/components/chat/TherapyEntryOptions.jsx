@@ -6,34 +6,39 @@ import { motion } from 'framer-motion';
 
 const OPTIONS = [
   {
-    id: 'help_now',
+    id: 1,
     label: "I'm not feeling well and want help right now",
     icon: Heart,
-    color: '#E57373'
+    color: '#E57373',
+    emoji: '❤️'
   },
   {
-    id: 'bothering_thought',
+    id: 2,
     label: "I have a thought that's bothering me",
     icon: Cloud,
-    color: '#9F7AEA'
+    color: '#9F7AEA',
+    emoji: '💭'
   },
   {
-    id: 'write_reflect',
+    id: 3,
     label: "I want to write or reflect a bit",
     icon: BookOpen,
-    color: '#4FC3F7'
+    color: '#4FC3F7',
+    emoji: '📓'
   },
   {
-    id: 'work_on_goal',
+    id: 4,
     label: "I want to work on a goal",
     icon: Target,
-    color: '#FFB74D'
+    color: '#FFB74D',
+    emoji: '🎯'
   },
   {
-    id: 'something_calming',
+    id: 5,
     label: "I just want something short and calming",
     icon: Leaf,
-    color: '#81C784'
+    color: '#81C784',
+    emoji: '🌿'
   }
 ];
 

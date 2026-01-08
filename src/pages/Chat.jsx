@@ -9,9 +9,7 @@ import MessageBubble from '../components/chat/MessageBubble';
 import ConversationsList from '../components/chat/ConversationsList';
 import SessionSummary from '../components/chat/SessionSummary';
 import ProactiveCheckIn from '../components/chat/ProactiveCheckIn';
-import TherapyEntryOptions from '../components/chat/TherapyEntryOptions';
-import TherapyFlowHandler from '../components/chat/TherapyFlowHandler';
-import JournalAutoRun from '../components/chat/JournalAutoRun';
+import TherapyStateMachine from '../components/chat/TherapyStateMachine';
 
 export default function Chat() {
   const [currentConversationId, setCurrentConversationId] = useState(null);
@@ -20,10 +18,7 @@ export default function Chat() {
   const [isLoading, setIsLoading] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [showSummaryPrompt, setShowSummaryPrompt] = useState(false);
-  const [showEntryOptions, setShowEntryOptions] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [showJournalAutoRun, setShowJournalAutoRun] = useState(false);
-  const [journalThought, setJournalThought] = useState('');
+  const [showTherapyFlow, setShowTherapyFlow] = useState(false);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -106,31 +101,9 @@ export default function Chat() {
     });
     setCurrentConversationId(conversation.id);
     setMessages([]);
-    setShowEntryOptions(true);
+    setShowTherapyFlow(true);
     refetchConversations();
     setShowSidebar(false);
-  };
-
-  const handleOptionSelect = (option) => {
-    setSelectedOption(option);
-    setShowEntryOptions(false);
-  };
-
-  const handleAutoRunJournal = async (thoughtText) => {
-    setJournalThought(thoughtText);
-    setShowJournalAutoRun(true);
-  };
-
-  const handleJournalComplete = () => {
-    setShowJournalAutoRun(false);
-    setSelectedOption(null);
-    const conversation = base44.agents.getConversation(currentConversationId);
-    conversation.then(conv => {
-      base44.agents.addMessage(conv, {
-        role: 'user',
-        content: `I journaled about: ${journalThought}`
-      });
-    });
   };
 
   const loadConversation = async (conversationId) => {
@@ -342,46 +315,17 @@ export default function Chat() {
             </div>
           ) : (
             <div className="flex flex-col">
-              {/* Entry Options */}
-              {showEntryOptions && messages.length === 0 && (
+              {/* Therapy State Machine */}
+              {showTherapyFlow && messages.length === 0 && (
                 <div className="p-4 md:p-6" style={{
-                  borderBottom: '1px solid rgba(38, 166, 154, 0.2)',
-                  background: 'linear-gradient(to bottom, rgba(232, 246, 243, 0.5), rgba(212, 237, 232, 0.5))'
+                  background: 'transparent'
                 }}>
-                  <TherapyEntryOptions onSelectOption={handleOptionSelect} />
+                  <TherapyStateMachine onComplete={() => setShowTherapyFlow(false)} />
                 </div>
               )}
 
-              {/* Therapy Flow Handler */}
-              {selectedOption && !showJournalAutoRun && (
-                <div className="p-4 md:p-6" style={{
-                  borderBottom: '1px solid rgba(38, 166, 154, 0.2)',
-                  background: 'linear-gradient(to bottom, rgba(232, 246, 243, 0.5), rgba(212, 237, 232, 0.5))'
-                }}>
-                  <TherapyFlowHandler
-                    selectedOption={selectedOption}
-                    onSendMessage={handleSendMessage}
-                    onAutoRunJournal={handleAutoRunJournal}
-                    isLoading={isLoading}
-                  />
-                </div>
-              )}
-
-              {/* Journal Auto-Run */}
-              {showJournalAutoRun && (
-                <div className="p-4 md:p-6" style={{
-                  borderBottom: '1px solid rgba(38, 166, 154, 0.2)',
-                  background: 'linear-gradient(to bottom, rgba(232, 246, 243, 0.5), rgba(212, 237, 232, 0.5))'
-                }}>
-                  <JournalAutoRun
-                    thoughtText={journalThought}
-                    onComplete={handleJournalComplete}
-                  />
-                </div>
-              )}
-
-              {/* Insight Cards Section - Only show at conversation start if no flow active */}
-              {messages.length === 0 && !showEntryOptions && !selectedOption && (
+              {/* Insight Cards - Show if no flow active */}
+              {messages.length === 0 && !showTherapyFlow && (
                 <div className="p-4 md:p-6" style={{
                   borderBottom: '1px solid rgba(38, 166, 154, 0.2)',
                   background: 'linear-gradient(to bottom, rgba(232, 246, 243, 0.5), rgba(212, 237, 232, 0.5))'
