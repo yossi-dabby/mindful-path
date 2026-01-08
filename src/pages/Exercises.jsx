@@ -170,6 +170,7 @@ export default function Exercises() {
             {showFavoritesOnly && <span className="md:hidden">({exercises.filter(e => e.favorite).length})</span>}
             {showFavoritesOnly && <span className="hidden md:inline"> ({exercises.filter(e => e.favorite).length})</span>}
           </button>
+          </div>
         </div>
         <p className="text-sm md:text-base ml-0 md:ml-12 hidden md:block" style={{ color: '#5A7A72' }}>Practice evidence-based techniques to manage thoughts and emotions</p>
       </div>
