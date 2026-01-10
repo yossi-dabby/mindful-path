@@ -19,6 +19,7 @@ export default function Chat() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [showSummaryPrompt, setShowSummaryPrompt] = useState(false);
   const [showTherapyFlow, setShowTherapyFlow] = useState(false);
+  const [intent, setIntent] = useState(null);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -29,6 +30,16 @@ export default function Chat() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Handle intent from URL parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const intentParam = urlParams.get('intent');
+    if (intentParam) {
+      setIntent(intentParam);
+      startNewConversationWithIntent(intentParam);
+    }
+  }, []);
 
   // Subscribe to conversation updates
   useEffect(() => {
@@ -91,24 +102,52 @@ export default function Chat() {
     }
   }, [messages, isLoading]);
 
-  const startNewConversation = async () => {
+  const startNewConversationWithIntent = async (intentParam) => {
     try {
+      const intentMessages = {
+        'daily_checkin': 'I want to do my daily check-in',
+        'thought_work': 'I want to journal a thought',
+        'journal': 'I want to journal a thought',
+        'goal_work': 'I want to set a goal',
+        'set_goal': 'I want to set a goal',
+        'grounding': 'I need a grounding exercise',
+        'calming_exercise': 'I need help calming down',
+        'anxiety_help': 'I\'m feeling anxious'
+      };
+      
+      const initialMessage = intentParam ? intentMessages[intentParam] || 'Hello' : undefined;
+      
       const conversation = await base44.agents.createConversation({
         agent_name: 'cbt_therapist',
         metadata: {
-          name: `Session ${conversations.length + 1}`,
-          description: 'Therapy session'
+          name: intentParam ? `${intentParam} session` : `Session ${conversations.length + 1}`,
+          description: 'CBT Therapy Session',
+          intent: intentParam
         }
       });
+      
       setCurrentConversationId(conversation.id);
       setMessages([]);
       setShowSidebar(false);
       refetchConversations();
-      // Set flow after state is settled
-      setTimeout(() => setShowTherapyFlow(true), 0);
+      
+      // If there's an intent and initial message, send it
+      if (initialMessage) {
+        setTimeout(async () => {
+          setIsLoading(true);
+          await base44.agents.addMessage(conversation, {
+            role: 'user',
+            content: initialMessage
+          });
+        }, 100);
+      }
     } catch (error) {
       console.error('Error creating conversation:', error);
     }
+  };
+
+  const startNewConversation = async () => {
+    return startNewConversationWithIntent(null);
   };
 
   const loadConversation = async (conversationId) => {
