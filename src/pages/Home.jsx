@@ -134,7 +134,8 @@ export default function Home() {
   });
 
   const handleStartCheckIn = () => {
-    setShowMoodCheckIn(true);
+    // Route to AI with daily_checkin intent instead of showing form
+    window.location.href = createPageUrl('Chat', 'intent=daily_checkin');
   };
 
   const handleCheckInComplete = () => {

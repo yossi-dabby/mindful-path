@@ -5,62 +5,69 @@ import { Card, CardContent } from '@/components/ui/card';
 import { MessageCircle, BookOpen, Target, Dumbbell, Play, Sparkles, MapPin, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const actions = [
+// THERAPEUTIC ACTIONS - Route to AI Chat with Intent
+const therapeuticActions = [
   {
-    title: 'Talk to Therapist',
-    description: 'Start a session',
+    title: 'Daily Check-in',
+    description: 'Log your mood',
     icon: MessageCircle,
-    page: 'Chat',
+    intent: 'daily_checkin',
     color: '#26A69A',
     bgColor: 'rgba(38, 166, 154, 0.15)',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%202.mp4?alt=media&token=15202381-d3a7-44f4-ade9-cc118256e8c1'
   },
   {
-    title: 'Thought Journal',
-    description: 'Work through thoughts',
+    title: 'Journal a Thought',
+    description: 'Challenge thinking',
     icon: BookOpen,
-    page: 'Journal',
+    intent: 'thought_work',
     color: '#9F7AEA',
     bgColor: 'rgba(159, 122, 234, 0.15)',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%206.mp4?alt=media&token=78391ab6-7f22-4288-a22f-2efa53ad0aac'
   },
   {
     title: 'Set a Goal',
-    description: 'Track progress',
+    description: 'Define objectives',
     icon: Target,
-    page: 'Goals',
+    intent: 'goal_work',
     color: '#F6AD55',
     bgColor: 'rgba(246, 173, 85, 0.15)',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%204.mp4?alt=media&token=389888db-76eb-42e4-ba04-6b62335217cb'
   },
   {
-    title: 'Try an Exercise',
-    description: 'Practice techniques',
-    icon: Dumbbell,
-    page: 'Exercises',
+    title: 'Grounding Exercise',
+    description: 'Calm anxiety',
+    icon: Sparkles,
+    intent: 'grounding',
     color: '#4299E1',
     bgColor: 'rgba(66, 153, 225, 0.15)',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%205.mp4?alt=media&token=905b8eb3-09ba-4f02-ba8e-930b44dd5070'
+  }
+];
+
+// NON-THERAPEUTIC ACTIONS - Direct Navigation
+const selfDirectedActions = [
+  {
+    title: 'Exercises Library',
+    description: 'Browse techniques',
+    icon: Dumbbell,
+    page: 'Exercises',
+    color: '#38B2AC',
+    bgColor: 'rgba(56, 178, 172, 0.15)',
+    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%205.mp4?alt=media&token=905b8eb3-09ba-4f02-ba8e-930b44dd5070'
   },
   {
-    title: 'CBT Video Library',
-    description: 'Watch guided videos',
+    title: 'Video Library',
+    description: 'Watch & learn',
     icon: Play,
     page: 'Videos',
     color: '#ED8936',
     bgColor: 'rgba(237, 137, 54, 0.15)',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%207.mp4?alt=media&token=3cfbbe9d-39eb-4f87-805e-53b4a36395dd'
-  },
-  {
-    title: 'Starter Path',
-    description: '7-day beginner guide',
-    icon: MapPin,
-    page: 'StarterPath',
-    color: '#38B2AC',
-    bgColor: 'rgba(56, 178, 172, 0.15)',
-    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%203.mp4?alt=media&token=7d591673-f152-496d-987f-e8cc393ff58d'
   }
 ];
+
+const actions = [...therapeuticActions, ...selfDirectedActions];
 
 export default function QuickActions() {
   const [activeVideo, setActiveVideo] = useState(null);
@@ -88,7 +95,7 @@ export default function QuickActions() {
                 whileHover={{ scale: 1.04, y: -6 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <Link to={createPageUrl(action.page)}>
+                <Link to={action.intent ? createPageUrl('Chat', `intent=${action.intent}`) : createPageUrl(action.page)}>
                   <Card className="border-0 hover:shadow-xl transition-all cursor-pointer group h-full" style={{
                     borderRadius: '28px',
                     background: `linear-gradient(145deg, ${action.bgColor} 0%, rgba(255, 255, 255, 0.7) 100%)`,
