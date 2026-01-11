@@ -162,31 +162,12 @@ export default function Chat() {
     return () => unsubscribe();
   }, [currentConversationId]);
 
-  // Get deleted sessions from localStorage
-  const getDeletedSessions = () => {
-    try {
-      const deleted = localStorage.getItem('deleted_chat_sessions');
-      return deleted ? JSON.parse(deleted) : [];
-    } catch {
-      return [];
-    }
-  };
-
-  const addDeletedSession = (sessionId) => {
-    const deleted = getDeletedSessions();
-    if (!deleted.includes(sessionId)) {
-      deleted.push(sessionId);
-      localStorage.setItem('deleted_chat_sessions', JSON.stringify(deleted));
-    }
-  };
-
   const { data: conversations, refetch: refetchConversations } = useQuery({
     queryKey: ['conversations'],
     queryFn: async () => {
       try {
         const allConversations = await base44.agents.listConversations({ agent_name: 'cbt_therapist' });
-        const deletedIds = getDeletedSessions();
-        return allConversations.filter(c => !deletedIds.includes(c.id));
+        return allConversations;
       } catch (error) {
         console.error('Error fetching conversations:', error);
         return [];
@@ -316,16 +297,8 @@ export default function Chat() {
 
   const deleteConversationMutation = useMutation({
     mutationFn: async (conversationId) => {
-      // Mark as deleted in localStorage
-      addDeletedSession(conversationId);
-      
-      // Try backend delete, but don't fail if it errors
-      try {
-        await base44.agents.deleteConversation(conversationId);
-      } catch (error) {
-        console.log('Backend delete not available, using client-side only:', error);
-      }
-      
+      // Delete from database using entity API
+      await base44.entities.Conversation.delete(conversationId);
       return conversationId;
     },
     onSuccess: (deletedId) => {
@@ -333,13 +306,13 @@ export default function Chat() {
         setCurrentConversationId(null);
         setMessages([]);
       }
-      // Force immediate refetch
+      // Invalidate and refetch to ensure UI is updated
+      queryClient.invalidateQueries(['conversations']);
       refetchConversations();
     },
     onError: (error) => {
       console.error('Delete error:', error);
-      // Still force refetch to update UI
-      refetchConversations();
+      alert('Failed to delete session. Please try again.');
     }
   });
 
