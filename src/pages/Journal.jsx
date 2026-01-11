@@ -8,6 +8,7 @@ import { Plus, BookOpen, Search, Filter, Settings, Bell, Sparkles } from 'lucide
 import { createPageUrl } from '../utils';
 import ThoughtRecordForm from '../components/journal/ThoughtRecordForm';
 import ThoughtRecordCard from '../components/journal/ThoughtRecordCard';
+import SessionSummaryCard from '../components/journal/SessionSummaryCard';
 import JournalFilters from '../components/journal/JournalFilters';
 import TemplateManager from '../components/journal/TemplateManager';
 import ReminderManager from '../components/journal/ReminderManager';
@@ -27,22 +28,39 @@ export default function Journal() {
   const [selectedType, setSelectedType] = useState('all');
   const [promptedSituation, setPromptedSituation] = useState('');
   const [focusedEntryId, setFocusedEntryId] = useState(null);
+  const [focusedSummaryId, setFocusedSummaryId] = useState(null);
   const queryClient = useQueryClient();
 
-  // Check URL for entry parameter
+  // Check URL for entry or summary parameters
   React.useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const entryId = urlParams.get('entry');
+    const summaryId = urlParams.get('summary');
     if (entryId) {
       setFocusedEntryId(entryId);
+    } else if (summaryId) {
+      setFocusedSummaryId(summaryId);
     }
   }, []);
 
-  const { data: entries, isLoading } = useQuery({
+  const { data: thoughtJournals, isLoading: isLoadingJournals } = useQuery({
     queryKey: ['thoughtJournals'],
     queryFn: () => base44.entities.ThoughtJournal.list('-created_date'),
     initialData: []
   });
+
+  const { data: sessionSummaries, isLoading: isLoadingSummaries } = useQuery({
+    queryKey: ['sessionSummaries'],
+    queryFn: () => base44.entities.SessionSummary.list('-session_date'),
+    initialData: []
+  });
+
+  const entries = [...thoughtJournals, ...sessionSummaries.map(s => ({
+    ...s,
+    entry_type: 'session_summary',
+    situation: `Session Summary: ${new Date(s.session_date).toLocaleDateString()}`,
+    isSummary: true
+  }))];
 
   const { data: templates } = useQuery({
     queryKey: ['journalTemplates'],
@@ -110,17 +128,18 @@ export default function Journal() {
           </Button>
           <div>
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-light mb-1 md:mb-2" style={{ color: '#1A3A34' }}>
-              {focusedEntryId ? 'Your Saved Journal Entry' : 'Thought Journal'}
+              {focusedEntryId ? 'Your Saved Journal Entry' : focusedSummaryId ? 'Your Session Summary' : 'Thought Journal'}
             </h1>
             <p className="text-sm md:text-base" style={{ color: '#5A7A72' }}>
-              {focusedEntryId ? 'Edit or review your entry' : 'Challenge and reframe unhelpful thinking patterns'}
+              {focusedEntryId ? 'Edit or review your entry' : focusedSummaryId ? 'Review your AI-generated session summary' : 'Challenge and reframe unhelpful thinking patterns'}
             </p>
-            {focusedEntryId && (
+            {(focusedEntryId || focusedSummaryId) && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
                   setFocusedEntryId(null);
+                  setFocusedSummaryId(null);
                   window.history.pushState({}, '', createPageUrl('Journal'));
                 }}
                 className="mt-2"
@@ -215,7 +234,7 @@ export default function Journal() {
 
 
       {/* Entries List */}
-      {isLoading ? (
+      {(isLoadingJournals || isLoadingSummaries) ? (
         <div className="text-center py-12">
           <p className="text-gray-500">Loading entries...</p>
         </div>
@@ -281,7 +300,11 @@ export default function Journal() {
           ) : (
             <div className="space-y-4">
               {filteredEntries.map((entry) => (
-                <ThoughtRecordCard key={entry.id} entry={entry} onEdit={handleEdit} />
+                entry.isSummary ? (
+                  <SessionSummaryCard key={entry.id} summary={entry} onDelete={() => queryClient.invalidateQueries(['sessionSummaries', 'journalCount'])} />
+                ) : (
+                  <ThoughtRecordCard key={entry.id} entry={entry} onEdit={handleEdit} />
+                )
               ))}
             </div>
           )}

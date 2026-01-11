@@ -58,13 +58,14 @@ export default function Home() {
   const { data: journalCount } = useQuery({
     queryKey: ['journalCount'],
     queryFn: async () => {
-      const entries = await base44.entities.ThoughtJournal.list();
-      return entries.length;
+      const thoughtJournals = await base44.entities.ThoughtJournal.list();
+      const sessionSummaries = await base44.entities.SessionSummary.list();
+      return thoughtJournals.length + sessionSummaries.length;
     },
     initialData: 0
   });
 
-  // Check for saved journal entries from AI conversations
+  // Check for saved journal entries or session summaries from AI conversations
   const { data: recentConversations } = useQuery({
     queryKey: ['recentConversations'],
     queryFn: async () => {
@@ -78,14 +79,18 @@ export default function Home() {
     initialData: []
   });
 
-  const conversationWithJournal = recentConversations.find(conv => {
+  const conversationWithJournalOrSummary = recentConversations.find(conv => {
     const lastMessage = conv.messages?.[conv.messages.length - 1];
-    return lastMessage?.metadata?.saved_journal_entry_id;
+    return lastMessage?.metadata?.saved_journal_entry_id || lastMessage?.metadata?.saved_session_summary_id;
   });
 
-  const savedJournalEntryId = conversationWithJournal?.messages?.[
-    conversationWithJournal.messages.length - 1
+  const savedEntryId = conversationWithJournalOrSummary?.messages?.[
+    conversationWithJournalOrSummary.messages.length - 1
   ]?.metadata?.saved_journal_entry_id;
+
+  const savedSummaryId = conversationWithJournalOrSummary?.messages?.[
+    conversationWithJournalOrSummary.messages.length - 1
+  ]?.metadata?.saved_session_summary_id;
 
   // Get today's flow
   const { data: todayFlow } = useQuery({
@@ -239,12 +244,12 @@ export default function Home() {
             boxShadow: '0 8px 32px rgba(38, 166, 154, 0.18), 0 4px 12px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.4)'
           }}>
             <div className="flex items-center justify-center gap-2 mb-1">
-              {savedJournalEntryId && (
-                <Link to={createPageUrl('Journal', `entry=${savedJournalEntryId}`)}>
+              {(savedEntryId || savedSummaryId) && (
+                <Link to={createPageUrl('Journal', `${savedSummaryId ? 'summary=' + savedSummaryId : 'entry=' + savedEntryId}`)}>
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="p-0 h-8 w-8 hover:bg-transparent"
+                    className="p-0 h-8 w-8 hover:bg-transparent flex items-center justify-center"
                     style={{
                       borderRadius: '50%',
                       backgroundColor: 'rgba(159, 122, 234, 0.15)',
