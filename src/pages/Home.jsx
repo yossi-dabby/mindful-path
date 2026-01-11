@@ -65,32 +65,28 @@ export default function Home() {
     initialData: 0
   });
 
-  // Check for saved journal entries or session summaries from AI conversations
-  const { data: recentConversations } = useQuery({
-    queryKey: ['recentConversations'],
+  // Check for the most recent session summary or journal entry
+  const { data: latestSummary } = useQuery({
+    queryKey: ['latestSummary'],
     queryFn: async () => {
-      try {
-        const conversations = await base44.agents.listConversations({ agent_name: 'cbt_therapist' });
-        return conversations;
-      } catch {
-        return [];
-      }
+      const summaries = await base44.entities.SessionSummary.list('-created_date', 1);
+      return summaries[0] || null;
     },
-    initialData: []
+    initialData: null
   });
 
-  const conversationWithJournalOrSummary = recentConversations.find(conv => {
-    const lastMessage = conv.messages?.[conv.messages.length - 1];
-    return lastMessage?.metadata?.saved_journal_entry_id || lastMessage?.metadata?.saved_session_summary_id;
+  const { data: latestJournalEntry } = useQuery({
+    queryKey: ['latestJournalEntry'],
+    queryFn: async () => {
+      const entries = await base44.entities.ThoughtJournal.list('-created_date', 1);
+      return entries[0] || null;
+    },
+    initialData: null
   });
 
-  const savedEntryId = conversationWithJournalOrSummary?.messages?.[
-    conversationWithJournalOrSummary.messages.length - 1
-  ]?.metadata?.saved_journal_entry_id;
-
-  const savedSummaryId = conversationWithJournalOrSummary?.messages?.[
-    conversationWithJournalOrSummary.messages.length - 1
-  ]?.metadata?.saved_session_summary_id;
+  // Show icon if we have either a summary or journal entry
+  const savedSummaryId = latestSummary?.id;
+  const savedEntryId = !latestSummary && latestJournalEntry ? latestJournalEntry.id : null;
 
   // Get today's flow
   const { data: todayFlow } = useQuery({
