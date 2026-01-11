@@ -17,7 +17,7 @@ import BadgeDisplay from '../components/gamification/BadgeDisplay';
 import DailyChallenges from '../components/gamification/DailyChallenges';
 import DailyProgram from '../components/home/DailyProgram';
 import PersonalizedFeed from '../components/home/PersonalizedFeed';
-import TodaysFocus from '../components/home/TodaysFocus';
+import StandaloneDailyCheckIn from '../components/home/StandaloneDailyCheckIn';
 import DailyReflection from '../components/home/DailyReflection';
 import StarterPathCard from '../components/home/StarterPathCard';
 import ExerciseDetail from '../components/exercises/ExerciseDetail';
@@ -188,13 +188,9 @@ export default function Home() {
           </h1>
         </motion.div>
 
-        {/* Today's Focus - Primary CTA */}
+        {/* Daily Check-in - Primary CTA */}
         <div className="space-y-4">
-          <TodaysFocus
-            onStartCheckIn={handleStartCheckIn}
-            onStartExercise={handleStartExercise}
-            onStartReflection={handleStartReflection}
-          />
+          <StandaloneDailyCheckIn />
 
           {/* 7-Day Starter Path */}
           <StarterPathCard />

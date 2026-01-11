@@ -8,15 +8,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 // THERAPEUTIC ACTIONS - Route to AI Chat with Intent
 const therapeuticActions = [
   {
-    title: 'Daily Check-in',
-    description: 'Log your mood',
-    icon: MessageCircle,
-    intent: 'daily_checkin',
-    color: '#26A69A',
-    bgColor: 'rgba(38, 166, 154, 0.15)',
-    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%202.mp4?alt=media&token=15202381-d3a7-44f4-ade9-cc118256e8c1'
-  },
-  {
     title: 'Journal a Thought',
     description: 'Challenge thinking',
     icon: BookOpen,
