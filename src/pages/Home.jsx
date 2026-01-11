@@ -55,6 +55,15 @@ export default function Home() {
     initialData: []
   });
 
+  const { data: latestGoal } = useQuery({
+    queryKey: ['latestGoal'],
+    queryFn: async () => {
+      const goals = await base44.entities.Goal.list('-created_date', 1);
+      return goals[0] || null;
+    },
+    initialData: null
+  });
+
   const { data: journalCount } = useQuery({
     queryKey: ['journalCount'],
     queryFn: async () => {
@@ -230,7 +239,25 @@ export default function Home() {
             backdropFilter: 'blur(12px)',
             boxShadow: '0 8px 32px rgba(38, 166, 154, 0.18), 0 4px 12px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.4)'
           }}>
-            <p className="text-2xl font-bold mb-1" style={{ color: '#1A3A34' }}>{recentGoals.length}</p>
+            <div className="flex items-center justify-center gap-2 mb-1">
+              {latestGoal && (
+                <Link to={createPageUrl('Goals', `goal=${latestGoal.id}`)}>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="p-0 h-8 w-8 hover:bg-transparent flex items-center justify-center"
+                    style={{
+                      borderRadius: '50%',
+                      backgroundColor: 'rgba(56, 178, 172, 0.15)',
+                      color: '#38B2AC'
+                    }}
+                  >
+                    <Target className="w-4 h-4" />
+                  </Button>
+                </Link>
+              )}
+              <p className="text-2xl font-bold" style={{ color: '#1A3A34' }}>{recentGoals.length}</p>
+            </div>
             <p className="text-xs" style={{ color: '#3D5A52' }}>Active Goals</p>
           </div>
           <div className="p-5 text-center" style={{ 
