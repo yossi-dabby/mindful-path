@@ -78,22 +78,25 @@ export default function Journal() {
     return entries.filter(entry => {
     // If there's a focused entry ID, only show that entry
     if (focusedEntryId) {
-      return entry.id === focusedEntryId;
+      return entry.id === focusedEntryId && !entry.isSummary;
+    } else if (focusedSummaryId) {
+      return entry.id === focusedSummaryId && entry.isSummary;
     }
 
     const matchesSearch = !searchQuery || 
       entry.situation?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       entry.automatic_thoughts?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.balanced_thought?.toLowerCase().includes(searchQuery.toLowerCase());
+      entry.balanced_thought?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      entry.summary_content?.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesTags = selectedTags.length === 0 || 
       selectedTags.some(tag => entry.tags?.includes(tag));
     
-    const matchesType = selectedType === 'all' || entry.entry_type === selectedType;
+    const matchesType = selectedType === 'all' || entry.entry_type === selectedType || (selectedType === 'session_summary' && entry.isSummary);
     
     return matchesSearch && matchesTags && matchesType;
     });
-  }, [entries, searchQuery, selectedTags, selectedType, focusedEntryId]);
+  }, [entries, searchQuery, selectedTags, selectedType, focusedEntryId, focusedSummaryId]);
 
   const handleEdit = useCallback((entry) => {
     setEditingEntry(entry);
