@@ -26,7 +26,17 @@ export default function Journal() {
   const [selectedTags, setSelectedTags] = useState([]);
   const [selectedType, setSelectedType] = useState('all');
   const [promptedSituation, setPromptedSituation] = useState('');
+  const [focusedEntryId, setFocusedEntryId] = useState(null);
   const queryClient = useQueryClient();
+
+  // Check URL for entry parameter
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const entryId = urlParams.get('entry');
+    if (entryId) {
+      setFocusedEntryId(entryId);
+    }
+  }, []);
 
   const { data: entries, isLoading } = useQuery({
     queryKey: ['thoughtJournals'],
@@ -48,6 +58,11 @@ export default function Journal() {
   // Filter entries
   const filteredEntries = useMemo(() => {
     return entries.filter(entry => {
+    // If there's a focused entry ID, only show that entry
+    if (focusedEntryId) {
+      return entry.id === focusedEntryId;
+    }
+
     const matchesSearch = !searchQuery || 
       entry.situation?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       entry.automatic_thoughts?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -60,7 +75,7 @@ export default function Journal() {
     
     return matchesSearch && matchesTags && matchesType;
     });
-  }, [entries, searchQuery, selectedTags, selectedType]);
+  }, [entries, searchQuery, selectedTags, selectedType, focusedEntryId]);
 
   const handleEdit = useCallback((entry) => {
     setEditingEntry(entry);
@@ -94,8 +109,26 @@ export default function Journal() {
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </Button>
           <div>
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-light mb-1 md:mb-2" style={{ color: '#1A3A34' }}>Thought Journal</h1>
-            <p className="text-sm md:text-base" style={{ color: '#5A7A72' }}>Challenge and reframe unhelpful thinking patterns</p>
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-light mb-1 md:mb-2" style={{ color: '#1A3A34' }}>
+              {focusedEntryId ? 'Your Saved Journal Entry' : 'Thought Journal'}
+            </h1>
+            <p className="text-sm md:text-base" style={{ color: '#5A7A72' }}>
+              {focusedEntryId ? 'Edit or review your entry' : 'Challenge and reframe unhelpful thinking patterns'}
+            </p>
+            {focusedEntryId && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setFocusedEntryId(null);
+                  window.history.pushState({}, '', createPageUrl('Journal'));
+                }}
+                className="mt-2"
+                style={{ borderRadius: '16px' }}
+              >
+                View All Entries
+              </Button>
+            )}
           </div>
         </div>
         <div className="flex gap-2 flex-wrap">
