@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -19,9 +20,9 @@ export default function Chat() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [showSummaryPrompt, setShowSummaryPrompt] = useState(false);
   const [showTherapyFlow, setShowTherapyFlow] = useState(false);
-  const [intent, setIntent] = useState(null);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
+  const location = useLocation();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -31,15 +32,42 @@ export default function Chat() {
     scrollToBottom();
   }, [messages]);
 
-  // Handle intent from URL parameters
+  // Handle intent from URL parameters - re-run on every URL change
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(location.search);
     const intentParam = urlParams.get('intent');
+    
     if (intentParam) {
-      setIntent(intentParam);
-      startNewConversationWithIntent(intentParam);
+      const intentMessages = {
+        'daily_checkin': 'User clicked: Daily Check-in. Start daily_checkin flow.',
+        'thought_work': 'User clicked: Journal a thought. Start thought_work flow.',
+        'journal': 'User clicked: Thought Journal. Start thought_work flow.',
+        'goal_work': 'User clicked: Set a Goal. Start goal_work flow.',
+        'set_goal': 'User clicked: Set a Goal. Start goal_work flow.',
+        'grounding': 'User clicked: Grounding exercise. Start grounding flow.',
+        'calming_exercise': 'User clicked: Calming help. Start grounding flow.',
+        'anxiety_help': 'User clicked: Anxiety help. Start grounding flow.'
+      };
+      
+      const initialMessage = intentMessages[intentParam];
+      
+      if (!currentConversationId) {
+        // No active conversation - start new one with intent
+        startNewConversationWithIntent(intentParam);
+      } else {
+        // Active conversation exists - inject intent message
+        if (initialMessage) {
+          base44.agents.getConversation(currentConversationId).then(conversation => {
+            setIsLoading(true);
+            base44.agents.addMessage(conversation, {
+              role: 'user',
+              content: initialMessage
+            });
+          });
+        }
+      }
     }
-  }, []);
+  }, [location.search]);
 
   // Subscribe to conversation updates
   useEffect(() => {
