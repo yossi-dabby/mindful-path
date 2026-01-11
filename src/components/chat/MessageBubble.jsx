@@ -3,11 +3,6 @@ import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
 
 export default function MessageBubble({ message }) {
-  // Filter out UI control messages
-  if (message?.metadata?.ui_action) {
-    return null;
-  }
-  
   if (!message || !message.content) return null;
   
   const isUser = message.role === 'user';
