@@ -624,6 +624,14 @@ export default function Chat() {
             </p>
           </div>
         )}
+
+      {/* Enhanced Check-in Modal */}
+      {showCheckInModal && (
+        <EnhancedMoodCheckIn
+          onClose={() => setShowCheckInModal(false)}
+          onComplete={handleCheckInComplete}
+        />
+      )}
       </div>
     </div>
   );
