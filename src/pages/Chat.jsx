@@ -27,6 +27,7 @@ export default function Chat() {
   const location = useLocation();
   const processedIntentRef = useRef(null);
   const inFlightIntentRef = useRef(false);
+  const sessionTriggeredRef = useRef(new Set()); // Track which conversations have been triggered
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -79,15 +80,20 @@ export default function Chat() {
             setShowSidebar(false);
             refetchConversations();
             
-            // Trigger AI to send opening message based on intent
-            setTimeout(async () => {
-              setIsLoading(true);
-              await base44.agents.addMessage(conversation, {
-                role: 'user',
-                content: '[START_SESSION]'
-              });
+            // Trigger AI to send opening message based on intent (one-time only)
+            if (!sessionTriggeredRef.current.has(conversation.id)) {
+              sessionTriggeredRef.current.add(conversation.id);
+              setTimeout(async () => {
+                setIsLoading(true);
+                await base44.agents.addMessage(conversation, {
+                  role: 'user',
+                  content: '[START_SESSION]'
+                });
+                inFlightIntentRef.current = false;
+              }, 100);
+            } else {
               inFlightIntentRef.current = false;
-            }, 100);
+            }
           } else {
             // Active conversation exists - create new conversation with intent instead
             const conversation = await base44.agents.createConversation({
@@ -108,15 +114,20 @@ export default function Chat() {
             setShowSidebar(false);
             refetchConversations();
             
-            // Trigger AI to send opening message
-            setTimeout(async () => {
-              setIsLoading(true);
-              await base44.agents.addMessage(conversation, {
-                role: 'user',
-                content: '[START_SESSION]'
-              });
+            // Trigger AI to send opening message (one-time only)
+            if (!sessionTriggeredRef.current.has(conversation.id)) {
+              sessionTriggeredRef.current.add(conversation.id);
+              setTimeout(async () => {
+                setIsLoading(true);
+                await base44.agents.addMessage(conversation, {
+                  role: 'user',
+                  content: '[START_SESSION]'
+                });
+                inFlightIntentRef.current = false;
+              }, 100);
+            } else {
               inFlightIntentRef.current = false;
-            }, 100);
+            }
           }
         } catch (error) {
           console.error('[Intent Error]', error);

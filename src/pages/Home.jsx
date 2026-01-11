@@ -68,22 +68,12 @@ export default function Home() {
     queryKey: ['journalCount'],
     queryFn: async () => {
       const thoughtJournals = await base44.entities.ThoughtJournal.list();
-      const sessionSummaries = await base44.entities.SessionSummary.list();
-      return thoughtJournals.length + sessionSummaries.length;
+      return thoughtJournals.length;
     },
     initialData: 0
   });
 
-  // Check for the most recent session summary or journal entry
-  const { data: latestSummary } = useQuery({
-    queryKey: ['latestSummary'],
-    queryFn: async () => {
-      const summaries = await base44.entities.SessionSummary.list('-created_date', 1);
-      return summaries[0] || null;
-    },
-    initialData: null
-  });
-
+  // Check for the most recent journal entry
   const { data: latestJournalEntry } = useQuery({
     queryKey: ['latestJournalEntry'],
     queryFn: async () => {
@@ -93,9 +83,8 @@ export default function Home() {
     initialData: null
   });
 
-  // Show icon if we have either a summary or journal entry
-  const savedSummaryId = latestSummary?.id;
-  const savedEntryId = !latestSummary && latestJournalEntry ? latestJournalEntry.id : null;
+  // Show icon if we have a journal entry
+  const savedEntryId = latestJournalEntry ? latestJournalEntry.id : null;
 
   // Get today's flow
   const { data: todayFlow } = useQuery({
@@ -267,8 +256,8 @@ export default function Home() {
             boxShadow: '0 8px 32px rgba(38, 166, 154, 0.18), 0 4px 12px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.4)'
           }}>
             <div className="flex items-center justify-center gap-2 mb-1">
-              {(savedEntryId || savedSummaryId) && (
-                <Link to={createPageUrl('Journal', `${savedSummaryId ? 'summary=' + savedSummaryId : 'entry=' + savedEntryId}`)}>
+              {savedEntryId && (
+                <Link to={createPageUrl('Journal', `entry=${savedEntryId}`)}>
                   <Button
                     size="icon"
                     variant="ghost"
