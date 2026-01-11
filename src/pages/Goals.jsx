@@ -73,7 +73,7 @@ export default function Goals() {
   };
 
   return (
-    <div className="p-4 md:p-8 pb-24 max-w-5xl mx-auto" style={{ minHeight: '100vh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
+    <div className="p-4 md:p-8 pb-32 md:pb-24 max-w-5xl mx-auto" style={{ minHeight: '100vh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 mt-4">
         <div className="flex items-center gap-3">
@@ -202,23 +202,24 @@ export default function Goals() {
               </div>
               <div className="space-y-4">
                 {activeGoals.map((goal) => (
-                  <div key={goal.id} className="relative group">
+                  <div key={goal.id} className="flex flex-col md:relative md:group">
                     <GoalCard goal={goal} onEdit={handleEdit} onDelete={deleteGoalMutation.mutate} />
-                    <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex flex-col md:flex-row gap-2 mt-2 md:mt-0 md:absolute md:top-4 md:right-4 md:opacity-0 md:group-hover:opacity-100 md:transition-opacity">
                       <Button
                         onClick={() => setShowBreakdown(goal)}
                         variant="outline"
                         size="sm"
-                        className="gap-2"
+                        className="gap-2 w-full md:w-auto"
                       >
                         <Lightbulb className="w-4 h-4" />
-                        Break Down
+                        <span className="md:hidden">Break Down</span>
+                        <span className="hidden md:inline">Break Down</span>
                       </Button>
                       <Button
                         onClick={() => setShowCoaching(goal)}
                         variant="outline"
                         size="sm"
-                        className="gap-2"
+                        className="gap-2 w-full md:w-auto"
                         style={{ borderColor: '#26A69A', color: '#26A69A' }}
                       >
                         <Sparkles className="w-4 h-4" />

@@ -68,9 +68,9 @@ export default function GoalCard({ goal, onEdit, onDelete }) {
     goal.target_date && new Date(goal.target_date) < new Date() && !isCompleted;
 
   return (
-    <Card className={cn('border-0 shadow-md', isCompleted && 'opacity-75')}>
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between mb-4">
+    <Card className={cn('border-0 shadow-md w-full', isCompleted && 'opacity-75')}>
+      <CardContent className="p-4 md:p-6">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 md:gap-0 mb-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
               <h3 className={cn('text-xl font-semibold text-gray-800', isCompleted && 'line-through')}>
@@ -82,24 +82,24 @@ export default function GoalCard({ goal, onEdit, onDelete }) {
               <p className="text-sm text-gray-600 mb-3">{goal.description}</p>
             )}
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge className={categoryColors[goal.category]} variant="secondary">
-                {goal.category}
-              </Badge>
-              {goal.target_date && (
-                <Badge
-                  variant="outline"
-                  className={cn(
-                    'flex items-center gap-1',
-                    isOverdue && 'border-red-300 text-red-600'
-                  )}
-                >
-                  <Calendar className="w-3 h-3" />
-                  {format(new Date(goal.target_date), 'MMM d, yyyy')}
+                <Badge className={categoryColors[goal.category]} variant="secondary">
+                  {goal.category}
                 </Badge>
-              )}
+                {goal.target_date && (
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      'flex items-center gap-1',
+                      isOverdue && 'border-red-300 text-red-600'
+                    )}
+                  >
+                    <Calendar className="w-3 h-3" />
+                    {format(new Date(goal.target_date), 'MMM d, yyyy')}
+                  </Badge>
+                )}
+              </div>
             </div>
-          </div>
-          <div className="flex gap-1">
+            <div className="flex gap-1 flex-shrink-0">
             <Button variant="ghost" size="icon" onClick={() => onEdit(goal)}>
               <Edit className="w-4 h-4 text-gray-400" />
             </Button>
@@ -168,23 +168,23 @@ export default function GoalCard({ goal, onEdit, onDelete }) {
         )}
 
         {/* Action Buttons */}
-        <div className="grid grid-cols-2 gap-2 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-4">
           <Button
             variant="outline"
             onClick={() => setShowChart(!showChart)}
-            className="flex items-center justify-center gap-2"
+            className="flex items-center justify-center gap-2 w-full"
           >
             <TrendingUp className="w-4 h-4" />
-            {showChart ? 'Hide' : 'Show'} Chart
+            <span className="flex-1 text-left">{showChart ? 'Hide' : 'Show'} Chart</span>
             {showChart ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </Button>
           <Button
             variant="outline"
             onClick={() => setShowJournalEntries(!showJournalEntries)}
-            className="flex items-center justify-center gap-2"
+            className="flex items-center justify-center gap-2 w-full"
           >
             <BookOpen className="w-4 h-4" />
-            {showJournalEntries ? 'Hide' : 'Show'} Journal
+            <span className="flex-1 text-left">{showJournalEntries ? 'Hide' : 'Show'} Journal</span>
             {showJournalEntries ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </Button>
         </div>
