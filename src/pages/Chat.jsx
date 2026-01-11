@@ -499,22 +499,9 @@ export default function Chat() {
 
               {/* Active Chat Messages Section - Separate scrollable container */}
               <div className="flex-1 p-4 md:p-6 space-y-6" style={{ backgroundColor: 'transparent' }}>
-                {messages
-                  .filter(m => m && m.content)
-                  .filter(m => {
-                    // Hide UI control messages (modal triggers)
-                    if (m.role === 'assistant' && m.metadata?.ui_action === 'open_modal') {
-                      return false;
-                    }
-                    // Hide modal submit confirmations (user-side)
-                    if (m.role === 'user' && m.metadata?.ui_action === 'modal_submit') {
-                      return false;
-                    }
-                    return true;
-                  })
-                  .map((message, index) => (
-                    <MessageBubble key={index} message={message} />
-                  ))}
+                {messages.filter(m => m && m.content).map((message, index) => (
+                  <MessageBubble key={index} message={message} />
+                ))}
                 {isLoading && (
                   <div className="flex gap-3">
                     <div className="h-7 w-7 flex items-center justify-center" style={{
