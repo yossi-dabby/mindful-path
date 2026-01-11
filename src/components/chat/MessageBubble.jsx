@@ -3,9 +3,6 @@ import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
 
 export default function MessageBubble({ message }) {
-  // Hide UI control messages (modal triggers and submissions)
-  if (message?.metadata?.ui_action) return null;
-  
   if (!message || !message.content) return null;
   
   const isUser = message.role === 'user';
