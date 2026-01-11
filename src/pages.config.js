@@ -1,4 +1,5 @@
 import AdvancedAnalytics from './pages/AdvancedAnalytics';
+import Chat from './pages/Chat';
 import Coach from './pages/Coach';
 import CoachingAnalytics from './pages/CoachingAnalytics';
 import Community from './pages/Community';
@@ -17,12 +18,12 @@ import StarterPath from './pages/StarterPath';
 import TestSetupGuide from './pages/TestSetupGuide';
 import VideoPlayer from './pages/VideoPlayer';
 import Videos from './pages/Videos';
-import Chat from './pages/Chat';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AdvancedAnalytics": AdvancedAnalytics,
+    "Chat": Chat,
     "Coach": Coach,
     "CoachingAnalytics": CoachingAnalytics,
     "Community": Community,
@@ -41,7 +42,6 @@ export const PAGES = {
     "TestSetupGuide": TestSetupGuide,
     "VideoPlayer": VideoPlayer,
     "Videos": Videos,
-    "Chat": Chat,
 }
 
 export const pagesConfig = {
