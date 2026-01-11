@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle2, Heart, Dumbbell, Lightbulb, Sparkles, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { createPageUrl } from '../../utils';
 
 export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartReflection }) {
   const queryClient = useQueryClient();
@@ -65,7 +66,7 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
         description: "Let's start by understanding how you're feeling today",
         icon: Heart,
         action: "Start Check-in",
-        onAction: onStartCheckIn,
+        onAction: () => window.location.href = createPageUrl('Chat', 'intent=daily_checkin'),
         color: 'accent'
       };
     }
