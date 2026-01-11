@@ -635,6 +635,13 @@ export default function Chat() {
             </p>
           </div>
         )}
+
+        {/* Daily Check-in Modal */}
+        <DailyCheckinModal
+          isOpen={showCheckinModal}
+          onClose={() => setShowCheckinModal(false)}
+          onSubmit={handleCheckinSubmit}
+        />
       </div>
     </div>
   );
