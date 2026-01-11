@@ -4,7 +4,7 @@ import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, ChevronDown, ChevronUp, Edit2, Trash2, Heart } from 'lucide-react';
+import { ChevronLeft, ChevronDown, ChevronUp, Edit2, Trash2, Heart, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -44,6 +44,7 @@ export default function StandaloneDailyCheckIn() {
   const queryClient = useQueryClient();
   const [step, setStep] = useState(1);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [activeVideo, setActiveVideo] = useState(null);
   const [formData, setFormData] = useState({
     mood: '',
     mood_emoji: '',
@@ -320,14 +321,45 @@ export default function StandaloneDailyCheckIn() {
         boxShadow: '0 16px 48px rgba(38, 166, 154, 0.15)'
       }}>
         <CardHeader style={{ padding: '20px 24px' }}>
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 flex items-center justify-center" style={{
-              borderRadius: '18px',
-              backgroundColor: 'rgba(38, 166, 154, 0.15)'
-            }}>
-              <Heart className="w-6 h-6" style={{ color: '#26A69A' }} />
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 flex items-center justify-center" style={{
+                borderRadius: '18px',
+                backgroundColor: 'rgba(38, 166, 154, 0.15)'
+              }}>
+                <Heart className="w-6 h-6" style={{ color: '#26A69A' }} />
+              </div>
+              <CardTitle className="text-xl">Daily Check-in</CardTitle>
             </div>
-            <CardTitle className="text-xl">Daily Check-in</CardTitle>
+            <motion.button
+              animate={{ 
+                scale: [1, 1.05, 1],
+                boxShadow: [
+                  '0 4px 12px rgba(38, 166, 154, 0.4)',
+                  '0 6px 16px rgba(38, 166, 154, 0.6)',
+                  '0 4px 12px rgba(38, 166, 154, 0.4)'
+                ]
+              }}
+              transition={{ duration: 2, repeat: Infinity, ease: [0.2, 0.8, 0.2, 1] }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setActiveVideo('https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%201.mp4?alt=media&token=5a32c03e-2031-4c1b-a24f-f82d21409313');
+              }}
+              className="flex items-center justify-center cursor-pointer hover:scale-110 transition-transform"
+              style={{ 
+                width: '48px',
+                height: '48px',
+                borderRadius: '16px',
+                backgroundColor: 'rgba(38, 166, 154, 0.15)',
+                border: 'none',
+                outline: 'none'
+              }}
+              aria-label="Guided introduction video"
+              title="Guided introduction video"
+            >
+              <User className="w-5 h-5" style={{ color: '#26A69A' }} strokeWidth={2} />
+            </motion.button>
           </div>
           <div className="flex gap-2">
             {[1, 2, 3].map((s) => (
@@ -353,20 +385,32 @@ export default function StandaloneDailyCheckIn() {
               <h3 className="text-base font-semibold text-gray-800">
                 How are you feeling overall?
               </h3>
-              <div className="grid grid-cols-5 gap-3">
+              <div className="grid grid-cols-5 gap-2 md:gap-3">
                 {moodOptions.map((mood) => (
                   <button
                     key={mood.value}
                     onClick={() => handleMoodSelect(mood)}
                     className={cn(
-                      "p-4 rounded-2xl border-2 transition-all hover:scale-105",
+                      "flex flex-col items-center justify-center p-2 md:p-4 transition-all hover:scale-105",
                       formData.mood === mood.value
-                        ? "border-green-500 bg-green-50 shadow-lg"
-                        : "border-gray-200 bg-white hover:border-gray-300"
+                        ? "shadow-lg"
+                        : "hover:opacity-80"
                     )}
                   >
-                    <div className="text-3xl mb-1">{mood.emoji}</div>
-                    <div className="text-xs font-medium text-gray-700">{mood.label}</div>
+                    <div 
+                      className={cn(
+                        "w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-2 border-2 transition-all",
+                        formData.mood === mood.value
+                          ? "border-green-500 shadow-md"
+                          : "border-transparent"
+                      )}
+                      style={{
+                        backgroundColor: 'rgba(189, 224, 217, 0.6)'
+                      }}
+                    >
+                      <span className="text-2xl md:text-3xl">{mood.emoji}</span>
+                    </div>
+                    <div className="text-xs font-medium text-gray-700 text-center leading-tight whitespace-nowrap">{mood.label}</div>
                   </button>
                 ))}
               </div>
@@ -480,6 +524,59 @@ export default function StandaloneDailyCheckIn() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Video Modal */}
+      <AnimatePresence>
+        {activeVideo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
+            onClick={() => setActiveVideo(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative w-full max-w-4xl"
+              onClick={(e) => e.stopPropagation()}
+              style={{ 
+                borderRadius: '24px',
+                overflow: 'hidden',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.5)'
+              }}
+            >
+              <button
+                onClick={() => setActiveVideo(null)}
+                className="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+                style={{
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(0,0,0,0.5)',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+                aria-label="Close video"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+              <video
+                autoPlay
+                controls
+                className="w-full"
+                style={{ maxHeight: '80vh', backgroundColor: '#000' }}
+              >
+                <source src={activeVideo} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
