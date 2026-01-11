@@ -36,7 +36,7 @@ export default function Chat() {
     scrollToBottom();
   }, [messages]);
 
-  // Handle intent from URL parameters - re-run on every URL change
+  // Handle intent from URL parameters - create conversation with intent metadata
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const intentParam = urlParams.get('intent');
@@ -44,19 +44,6 @@ export default function Chat() {
     // Prevent duplicate processing of the same intent
     if (intentParam && processedIntentRef.current !== intentParam) {
       processedIntentRef.current = intentParam;
-      
-      const intentMessages = {
-        'daily_checkin': 'User clicked: Daily Check-in. Start daily_checkin flow.',
-        'thought_work': 'User clicked: Journal a thought. Start thought_work flow.',
-        'journal': 'User clicked: Thought Journal. Start thought_work flow.',
-        'goal_work': 'User clicked: Set a Goal. Start goal_work flow.',
-        'set_goal': 'User clicked: Set a Goal. Start goal_work flow.',
-        'grounding': 'User clicked: Grounding exercise. Start grounding flow.',
-        'calming_exercise': 'User clicked: Calming help. Start grounding flow.',
-        'anxiety_help': 'User clicked: Anxiety help. Start grounding flow.'
-      };
-      
-      const initialMessage = intentMessages[intentParam];
       
       const handleIntent = async () => {
         // Debounce guard - prevent duplicate triggers
@@ -71,11 +58,15 @@ export default function Chat() {
           console.log(`[Intent Detected] ${intentParam}`);
           
           if (!currentConversationId) {
-            // No active conversation - start new one with intent
+            // No active conversation - start new one with intent in metadata
             const conversation = await base44.agents.createConversation({
               agent_name: 'cbt_therapist',
               metadata: {
-                name: intentParam ? `${intentParam} session` : `Session ${conversations.length + 1}`,
+                name: intentParam === 'thought_work' ? 'Thought Journal Session' : 
+                      intentParam === 'goal_work' ? 'Goal Setting Session' : 
+                      intentParam === 'daily_checkin' ? 'Daily Check-in' :
+                      intentParam === 'grounding' ? 'Grounding Exercise' : 
+                      `Session ${conversations.length + 1}`,
                 description: 'CBT Therapy Session',
                 intent: intentParam
               }
@@ -88,31 +79,28 @@ export default function Chat() {
             setShowSidebar(false);
             refetchConversations();
             
-            // Send initial message
-            if (initialMessage) {
-              setTimeout(async () => {
-                setIsLoading(true);
-                console.log(`[Initial Message] Injecting: ${initialMessage}`);
-                await base44.agents.addMessage(conversation, {
-                  role: 'user',
-                  content: initialMessage
-                });
-                inFlightIntentRef.current = false;
-              }, 100);
-            } else {
-              inFlightIntentRef.current = false;
-            }
+            // For thought_work and goal_work, AI should start immediately
+            // No need to inject initial message - AI reads metadata.intent and starts appropriately
+            inFlightIntentRef.current = false;
           } else {
-            // Active conversation exists - inject intent message
-            if (initialMessage) {
-              const conversation = await base44.agents.getConversation(currentConversationId);
-              setIsLoading(true);
-              console.log(`[Intent Switch] Injecting into conversation ${currentConversationId}: ${initialMessage}`);
-              await base44.agents.addMessage(conversation, {
-                role: 'user',
-                content: initialMessage
-              });
-            }
+            // Active conversation exists - create new conversation with intent instead
+            const conversation = await base44.agents.createConversation({
+              agent_name: 'cbt_therapist',
+              metadata: {
+                name: intentParam === 'thought_work' ? 'Thought Journal Session' : 
+                      intentParam === 'goal_work' ? 'Goal Setting Session' : 
+                      intentParam === 'daily_checkin' ? 'Daily Check-in' :
+                      intentParam === 'grounding' ? 'Grounding Exercise' : 
+                      `Session ${conversations.length + 1}`,
+                description: 'CBT Therapy Session',
+                intent: intentParam
+              }
+            });
+            
+            setCurrentConversationId(conversation.id);
+            setMessages([]);
+            setShowSidebar(false);
+            refetchConversations();
             inFlightIntentRef.current = false;
           }
         } catch (error) {
