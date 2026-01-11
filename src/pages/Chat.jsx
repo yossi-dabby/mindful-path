@@ -23,6 +23,7 @@ export default function Chat() {
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
   const location = useLocation();
+  const processedIntentRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -37,7 +38,10 @@ export default function Chat() {
     const urlParams = new URLSearchParams(location.search);
     const intentParam = urlParams.get('intent');
     
-    if (intentParam) {
+    // Prevent duplicate processing of the same intent
+    if (intentParam && processedIntentRef.current !== intentParam) {
+      processedIntentRef.current = intentParam;
+      
       const intentMessages = {
         'daily_checkin': 'User clicked: Daily Check-in. Start daily_checkin flow.',
         'thought_work': 'User clicked: Journal a thought. Start thought_work flow.',
@@ -51,23 +55,54 @@ export default function Chat() {
       
       const initialMessage = intentMessages[intentParam];
       
-      if (!currentConversationId) {
-        // No active conversation - start new one with intent
-        startNewConversationWithIntent(intentParam);
-      } else {
-        // Active conversation exists - inject intent message
-        if (initialMessage) {
-          base44.agents.getConversation(currentConversationId).then(conversation => {
-            setIsLoading(true);
-            base44.agents.addMessage(conversation, {
-              role: 'user',
-              content: initialMessage
+      const handleIntent = async () => {
+        try {
+          if (!currentConversationId) {
+            // No active conversation - start new one with intent
+            const conversation = await base44.agents.createConversation({
+              agent_name: 'cbt_therapist',
+              metadata: {
+                name: intentParam ? `${intentParam} session` : `Session ${conversations.length + 1}`,
+                description: 'CBT Therapy Session',
+                intent: intentParam
+              }
             });
-          });
+            
+            setCurrentConversationId(conversation.id);
+            setMessages([]);
+            setShowSidebar(false);
+            refetchConversations();
+            
+            // Send initial message
+            if (initialMessage) {
+              setTimeout(async () => {
+                setIsLoading(true);
+                await base44.agents.addMessage(conversation, {
+                  role: 'user',
+                  content: initialMessage
+                });
+              }, 100);
+            }
+          } else {
+            // Active conversation exists - inject intent message
+            if (initialMessage) {
+              const conversation = await base44.agents.getConversation(currentConversationId);
+              setIsLoading(true);
+              await base44.agents.addMessage(conversation, {
+                role: 'user',
+                content: initialMessage
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Error handling intent:', error);
+          setIsLoading(false);
         }
-      }
+      };
+      
+      handleIntent();
     }
-  }, [location.search]);
+  }, [location.search, currentConversationId]);
 
   // Subscribe to conversation updates
   useEffect(() => {
