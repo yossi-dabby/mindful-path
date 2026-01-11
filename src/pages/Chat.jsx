@@ -11,7 +11,6 @@ import ConversationsList from '../components/chat/ConversationsList';
 import SessionSummary from '../components/chat/SessionSummary';
 import ProactiveCheckIn from '../components/chat/ProactiveCheckIn';
 import TherapyStateMachine from '../components/chat/TherapyStateMachine';
-import DailyCheckinModal from '../components/chat/DailyCheckinModal';
 
 export default function Chat() {
   const [currentConversationId, setCurrentConversationId] = useState(null);
@@ -21,7 +20,6 @@ export default function Chat() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [showSummaryPrompt, setShowSummaryPrompt] = useState(false);
   const [showTherapyFlow, setShowTherapyFlow] = useState(false);
-  const [showCheckinModal, setShowCheckinModal] = useState(false);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
   const location = useLocation();
@@ -135,17 +133,6 @@ export default function Chat() {
       (data) => {
         setMessages(data.messages || []);
         setIsLoading(false);
-        
-        // Check for UI modal triggers in the latest assistant message
-        const latestMessage = data.messages?.[data.messages.length - 1];
-        if (latestMessage?.role === 'assistant' && latestMessage?.metadata) {
-          const { ui_action, ui_modal } = latestMessage.metadata;
-          
-          if (ui_action === 'open_modal' && ui_modal === 'daily_checkin') {
-            console.log('[UI Trigger] Opening Daily Check-in modal');
-            setShowCheckinModal(true);
-          }
-        }
       }
     );
 
@@ -339,27 +326,6 @@ export default function Chat() {
     }
   };
 
-  const handleCheckinSubmit = async (payload) => {
-    if (!currentConversationId) return;
-    
-    console.log('[Checkin Submit] Payload:', payload);
-    
-    const conversation = await base44.agents.getConversation(currentConversationId);
-    
-    setIsLoading(true);
-    setShowCheckinModal(false);
-    
-    await base44.agents.addMessage(conversation, {
-      role: 'user',
-      content: 'Daily Check-in completed.',
-      metadata: {
-        ui_action: 'modal_submit',
-        ui_modal: 'daily_checkin',
-        ui_payload: payload
-      }
-    });
-  };
-
   return (
     <div className="h-screen flex relative" style={{ 
       background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)'
@@ -499,13 +465,9 @@ export default function Chat() {
 
               {/* Active Chat Messages Section - Separate scrollable container */}
               <div className="flex-1 p-4 md:p-6 space-y-6" style={{ backgroundColor: 'transparent' }}>
-                {messages
-                  .filter(m => m && m.content)
-                  .filter(m => !(m.role === 'assistant' && m.metadata?.ui_action === 'open_modal'))
-                  .filter(m => !(m.role === 'user' && m.metadata?.ui_action === 'modal_submit'))
-                  .map((message, index) => (
-                    <MessageBubble key={index} message={message} />
-                  ))}
+                {messages.filter(m => m && m.content).map((message, index) => (
+                  <MessageBubble key={index} message={message} />
+                ))}
                 {isLoading && (
                   <div className="flex gap-3">
                     <div className="h-7 w-7 flex items-center justify-center" style={{
@@ -639,13 +601,6 @@ export default function Chat() {
             </p>
           </div>
         )}
-
-        {/* Daily Check-in Modal */}
-        <DailyCheckinModal
-          isOpen={showCheckinModal}
-          onClose={() => setShowCheckinModal(false)}
-          onSubmit={handleCheckinSubmit}
-        />
       </div>
     </div>
   );
