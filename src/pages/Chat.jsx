@@ -79,9 +79,15 @@ export default function Chat() {
             setShowSidebar(false);
             refetchConversations();
             
-            // For thought_work and goal_work, AI should start immediately
-            // No need to inject initial message - AI reads metadata.intent and starts appropriately
-            inFlightIntentRef.current = false;
+            // Trigger AI to send opening message based on intent
+            setTimeout(async () => {
+              setIsLoading(true);
+              await base44.agents.addMessage(conversation, {
+                role: 'user',
+                content: '[START_SESSION]'
+              });
+              inFlightIntentRef.current = false;
+            }, 100);
           } else {
             // Active conversation exists - create new conversation with intent instead
             const conversation = await base44.agents.createConversation({
@@ -101,7 +107,16 @@ export default function Chat() {
             setMessages([]);
             setShowSidebar(false);
             refetchConversations();
-            inFlightIntentRef.current = false;
+            
+            // Trigger AI to send opening message
+            setTimeout(async () => {
+              setIsLoading(true);
+              await base44.agents.addMessage(conversation, {
+                role: 'user',
+                content: '[START_SESSION]'
+              });
+              inFlightIntentRef.current = false;
+            }, 100);
           }
         } catch (error) {
           console.error('[Intent Error]', error);
