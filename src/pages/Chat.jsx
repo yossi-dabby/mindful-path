@@ -167,7 +167,9 @@ export default function Chat() {
     queryFn: async () => {
       try {
         const allConversations = await base44.agents.listConversations({ agent_name: 'cbt_therapist' });
-        return allConversations;
+        const deletedConversations = await base44.entities.UserDeletedConversations.list();
+        const deletedIds = deletedConversations.map(d => d.agent_conversation_id);
+        return allConversations.filter(c => !deletedIds.includes(c.id));
       } catch (error) {
         console.error('Error fetching conversations:', error);
         return [];
@@ -297,8 +299,12 @@ export default function Chat() {
 
   const deleteConversationMutation = useMutation({
     mutationFn: async (conversationId) => {
-      // Delete from database using entity API
-      await base44.entities.Conversation.delete(conversationId);
+      // Record deletion in UserDeletedConversations (soft delete)
+      const conversation = conversations.find(c => c.id === conversationId);
+      await base44.entities.UserDeletedConversations.create({
+        agent_conversation_id: conversationId,
+        conversation_title: conversation?.metadata?.name || 'Deleted Session'
+      });
       return conversationId;
     },
     onSuccess: (deletedId) => {
