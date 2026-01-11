@@ -20,6 +20,7 @@ import PersonalizedFeed from '../components/home/PersonalizedFeed';
 import StandaloneDailyCheckIn from '../components/home/StandaloneDailyCheckIn';
 import DailyReflection from '../components/home/DailyReflection';
 import StarterPathCard from '../components/home/StarterPathCard';
+import JournalEntriesWidget from '../components/home/JournalEntriesWidget';
 import ExerciseDetail from '../components/exercises/ExerciseDetail';
 import { motion } from 'framer-motion';
 
@@ -194,6 +195,9 @@ export default function Home() {
 
           {/* 7-Day Starter Path */}
           <StarterPathCard />
+
+          {/* Journal Entries Widget */}
+          <JournalEntriesWidget />
         </div>
 
         {/* Secondary Content - Below the fold */}
