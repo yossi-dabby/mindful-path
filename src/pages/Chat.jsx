@@ -11,6 +11,7 @@ import ConversationsList from '../components/chat/ConversationsList';
 import SessionSummary from '../components/chat/SessionSummary';
 import ProactiveCheckIn from '../components/chat/ProactiveCheckIn';
 import TherapyStateMachine from '../components/chat/TherapyStateMachine';
+import DailyCheckinModal from '../components/chat/DailyCheckinModal';
 
 export default function Chat() {
   const [currentConversationId, setCurrentConversationId] = useState(null);
@@ -20,6 +21,7 @@ export default function Chat() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [showSummaryPrompt, setShowSummaryPrompt] = useState(false);
   const [showTherapyFlow, setShowTherapyFlow] = useState(false);
+  const [showCheckinModal, setShowCheckinModal] = useState(false);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
   const location = useLocation();
@@ -133,6 +135,17 @@ export default function Chat() {
       (data) => {
         setMessages(data.messages || []);
         setIsLoading(false);
+        
+        // Check for UI modal triggers in the latest assistant message
+        const latestMessage = data.messages?.[data.messages.length - 1];
+        if (latestMessage?.role === 'assistant' && latestMessage?.metadata) {
+          const { ui_action, ui_modal } = latestMessage.metadata;
+          
+          if (ui_action === 'open_modal' && ui_modal === 'daily_checkin') {
+            console.log('[UI Trigger] Opening Daily Check-in modal');
+            setShowCheckinModal(true);
+          }
+        }
       }
     );
 
@@ -324,6 +337,27 @@ export default function Chat() {
     if (confirm('Delete this session? This action cannot be undone.')) {
       deleteConversationMutation.mutate(conversationId);
     }
+  };
+
+  const handleCheckinSubmit = async (payload) => {
+    if (!currentConversationId) return;
+    
+    console.log('[Checkin Submit] Payload:', payload);
+    
+    const conversation = await base44.agents.getConversation(currentConversationId);
+    
+    setIsLoading(true);
+    setShowCheckinModal(false);
+    
+    await base44.agents.addMessage(conversation, {
+      role: 'user',
+      content: 'Daily Check-in completed.',
+      metadata: {
+        ui_action: 'modal_submit',
+        ui_modal: 'daily_checkin',
+        ui_payload: payload
+      }
+    });
   };
 
   return (
