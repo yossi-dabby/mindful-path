@@ -19,9 +19,6 @@ export default function MessageBubble({ message }) {
     return null;
   }
   
-  // Filter out messages where AI mistakenly puts metadata JSON in content
-  if (content.includes('"ui_action"') || content.includes('"ui_modal"')) return null;
-  
   if (!content) return null;
   
   return (
