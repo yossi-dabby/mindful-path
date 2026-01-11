@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Plus, Target, Calendar as CalendarIcon, Sparkles, Lightbulb } from 'lucide-react';
+import { createPageUrl } from '../utils';
 import GoalForm from '../components/goals/GoalForm';
 import GoalCard from '../components/goals/GoalCard';
 import GoalCalendar from '../components/goals/GoalCalendar';
@@ -111,7 +112,7 @@ export default function Goals() {
             <span className="hidden md:inline">AI Suggestions</span>
           </Button>
           <Button
-            onClick={() => setShowForm(true)}
+            onClick={() => window.location.href = createPageUrl('Chat', 'intent=goal_work')}
             className="text-white text-sm md:text-base"
             size="sm"
             style={{
@@ -162,12 +163,12 @@ export default function Goals() {
                 Get AI Goal Suggestions
               </Button>
               <Button
-                onClick={() => setShowForm(true)}
+                onClick={() => window.location.href = createPageUrl('Chat', 'intent=goal_work')}
                 variant="outline"
                 className="px-8 py-6 text-lg w-full"
                 style={{ borderRadius: '32px' }}
               >
-                Create Manually
+                Create with AI
               </Button>
             </div>
           </CardContent>

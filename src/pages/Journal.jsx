@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Plus, BookOpen, Search, Filter, Settings, Bell, Sparkles } from 'lucide-react';
+import { createPageUrl } from '../utils';
 import ThoughtRecordForm from '../components/journal/ThoughtRecordForm';
 import ThoughtRecordCard from '../components/journal/ThoughtRecordCard';
 import JournalFilters from '../components/journal/JournalFilters';
@@ -139,7 +140,7 @@ export default function Journal() {
             Templates
           </Button>
           <Button
-            onClick={() => handleNewEntry()}
+            onClick={() => window.location.href = createPageUrl('Chat', 'intent=thought_work')}
             className="text-white text-sm md:text-base"
             size="sm"
             style={{
@@ -204,7 +205,7 @@ export default function Journal() {
             </p>
             <div className="flex flex-col gap-3 items-center max-w-md mx-auto">
               <Button
-                onClick={() => handleNewEntry()}
+                onClick={() => window.location.href = createPageUrl('Chat', 'intent=thought_work')}
                 className="text-white px-8 py-6 text-lg w-full"
                 style={{
                   borderRadius: '32px',
