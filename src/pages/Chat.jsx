@@ -24,6 +24,7 @@ export default function Chat() {
   const queryClient = useQueryClient();
   const location = useLocation();
   const processedIntentRef = useRef(null);
+  const inFlightIntentRef = useRef(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -56,7 +57,17 @@ export default function Chat() {
       const initialMessage = intentMessages[intentParam];
       
       const handleIntent = async () => {
+        // Debounce guard - prevent duplicate triggers
+        if (inFlightIntentRef.current) {
+          console.log('[Intent Guard] Already processing intent, skipping');
+          return;
+        }
+        
+        inFlightIntentRef.current = true;
+        
         try {
+          console.log(`[Intent Detected] ${intentParam}`);
+          
           if (!currentConversationId) {
             // No active conversation - start new one with intent
             const conversation = await base44.agents.createConversation({
@@ -68,6 +79,8 @@ export default function Chat() {
               }
             });
             
+            console.log(`[Conversation Created] ID: ${conversation.id}, Intent: ${intentParam}`);
+            
             setCurrentConversationId(conversation.id);
             setMessages([]);
             setShowSidebar(false);
@@ -77,26 +90,33 @@ export default function Chat() {
             if (initialMessage) {
               setTimeout(async () => {
                 setIsLoading(true);
+                console.log(`[Initial Message] Injecting: ${initialMessage}`);
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
                   content: initialMessage
                 });
+                inFlightIntentRef.current = false;
               }, 100);
+            } else {
+              inFlightIntentRef.current = false;
             }
           } else {
             // Active conversation exists - inject intent message
             if (initialMessage) {
               const conversation = await base44.agents.getConversation(currentConversationId);
               setIsLoading(true);
+              console.log(`[Intent Switch] Injecting into conversation ${currentConversationId}: ${initialMessage}`);
               await base44.agents.addMessage(conversation, {
                 role: 'user',
                 content: initialMessage
               });
             }
+            inFlightIntentRef.current = false;
           }
         } catch (error) {
-          console.error('Error handling intent:', error);
+          console.error('[Intent Error]', error);
           setIsLoading(false);
+          inFlightIntentRef.current = false;
         }
       };
       
