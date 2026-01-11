@@ -20,7 +20,6 @@ import PersonalizedFeed from '../components/home/PersonalizedFeed';
 import StandaloneDailyCheckIn from '../components/home/StandaloneDailyCheckIn';
 import DailyReflection from '../components/home/DailyReflection';
 import StarterPathCard from '../components/home/StarterPathCard';
-import JournalEntriesWidget from '../components/home/JournalEntriesWidget';
 import ExerciseDetail from '../components/exercises/ExerciseDetail';
 import { motion } from 'framer-motion';
 
@@ -64,6 +63,29 @@ export default function Home() {
     },
     initialData: 0
   });
+
+  // Check for saved journal entries from AI conversations
+  const { data: recentConversations } = useQuery({
+    queryKey: ['recentConversations'],
+    queryFn: async () => {
+      try {
+        const conversations = await base44.agents.listConversations({ agent_name: 'cbt_therapist' });
+        return conversations;
+      } catch {
+        return [];
+      }
+    },
+    initialData: []
+  });
+
+  const conversationWithJournal = recentConversations.find(conv => {
+    const lastMessage = conv.messages?.[conv.messages.length - 1];
+    return lastMessage?.metadata?.saved_journal_entry_id;
+  });
+
+  const savedJournalEntryId = conversationWithJournal?.messages?.[
+    conversationWithJournal.messages.length - 1
+  ]?.metadata?.saved_journal_entry_id;
 
   // Get today's flow
   const { data: todayFlow } = useQuery({
@@ -195,9 +217,6 @@ export default function Home() {
 
           {/* 7-Day Starter Path */}
           <StarterPathCard />
-
-          {/* Journal Entries Widget */}
-          <JournalEntriesWidget />
         </div>
 
         {/* Secondary Content - Below the fold */}
@@ -219,7 +238,25 @@ export default function Home() {
             backdropFilter: 'blur(12px)',
             boxShadow: '0 8px 32px rgba(38, 166, 154, 0.18), 0 4px 12px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.4)'
           }}>
-            <p className="text-2xl font-bold mb-1" style={{ color: '#1A3A34' }}>{journalCount}</p>
+            <div className="flex items-center justify-center gap-2 mb-1">
+              {savedJournalEntryId && (
+                <Link to={createPageUrl('Journal', `entry=${savedJournalEntryId}`)}>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="p-0 h-8 w-8 hover:bg-transparent"
+                    style={{
+                      borderRadius: '50%',
+                      backgroundColor: 'rgba(159, 122, 234, 0.15)',
+                      color: '#9F7AEA'
+                    }}
+                  >
+                    <BookOpen className="w-4 h-4" />
+                  </Button>
+                </Link>
+              )}
+              <p className="text-2xl font-bold" style={{ color: '#1A3A34' }}>{journalCount}</p>
+            </div>
             <p className="text-xs" style={{ color: '#3D5A52' }}>Journal Entries</p>
           </div>
           <StreakWidget compact />
