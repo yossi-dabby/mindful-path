@@ -105,14 +105,14 @@ export default function Chat() {
   const startNewConversationWithIntent = async (intentParam) => {
     try {
       const intentMessages = {
-        'daily_checkin': 'I want to do my daily check-in',
-        'thought_work': 'I want to journal a thought',
-        'journal': 'I want to journal a thought',
-        'goal_work': 'I want to set a goal',
-        'set_goal': 'I want to set a goal',
-        'grounding': 'I need a grounding exercise',
-        'calming_exercise': 'I need help calming down',
-        'anxiety_help': 'I\'m feeling anxious'
+        'daily_checkin': 'User clicked: Daily Check-in. Start daily_checkin flow.',
+        'thought_work': 'User clicked: Journal a thought. Start thought_work flow.',
+        'journal': 'User clicked: Thought Journal. Start thought_work flow.',
+        'goal_work': 'User clicked: Set a Goal. Start goal_work flow.',
+        'set_goal': 'User clicked: Set a Goal. Start goal_work flow.',
+        'grounding': 'User clicked: Grounding exercise. Start grounding flow.',
+        'calming_exercise': 'User clicked: Calming help. Start grounding flow.',
+        'anxiety_help': 'User clicked: Anxiety help. Start grounding flow.'
       };
       
       const initialMessage = intentParam ? intentMessages[intentParam] || 'Hello' : undefined;
