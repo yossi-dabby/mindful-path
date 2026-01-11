@@ -346,6 +346,10 @@ export default function Chat() {
       content: "I've completed my Daily Check-in.",
       metadata: { checkin_data: checkinData }
     });
+
+    // Invalidate queries to update Home page
+    queryClient.invalidateQueries(['todayMood']);
+    queryClient.invalidateQueries(['todayFlow']);
     
     setShowCheckInModal(false);
   };
