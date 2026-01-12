@@ -21,6 +21,7 @@ import StandaloneDailyCheckIn from '../components/home/StandaloneDailyCheckIn';
 import DailyReflection from '../components/home/DailyReflection';
 import StarterPathCard from '../components/home/StarterPathCard';
 import ExerciseDetail from '../components/exercises/ExerciseDetail';
+import VideoModal from '../components/home/VideoModal';
 import { motion } from 'framer-motion';
 
 export default function Home() {
@@ -29,6 +30,8 @@ export default function Home() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showReflection, setShowReflection] = useState(false);
   const [showExercise, setShowExercise] = useState(false);
+  const [showGoalsVideo, setShowGoalsVideo] = useState(false);
+  const [showJournalVideo, setShowJournalVideo] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -221,8 +224,14 @@ export default function Home() {
         {/* Secondary Content - Below the fold */}
         <div className="mt-8 space-y-4">
         {/* Quick Stats */}
+        <style>{`
+          @keyframes angelPulse {
+            0%, 100% { opacity: 0.9; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+          }
+        `}</style>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="p-5 text-center" style={{ 
+          <div className="p-5 text-center relative" style={{ 
             borderRadius: '28px',
             background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.85) 0%, rgba(180, 220, 210, 0.75) 100%)',
             backdropFilter: 'blur(12px)',
@@ -247,9 +256,41 @@ export default function Home() {
               )}
               <p className="text-2xl font-bold" style={{ color: '#1A3A34' }}>{recentGoals.length}</p>
             </div>
-            <p className="text-xs" style={{ color: '#3D5A52' }}>Active Goals</p>
+            <div className="flex items-center justify-center gap-2">
+              {/* Help Video Button - MOBILE: LEFT of text */}
+              <Button
+                onClick={() => setShowGoalsVideo(true)}
+                size="icon"
+                variant="ghost"
+                className="md:hidden p-0 h-6 w-6"
+                style={{
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(255, 215, 0, 0.15)',
+                  animation: 'angelPulse 2s ease-in-out infinite'
+                }}
+                title="Watch help video"
+              >
+                <Sparkles className="w-3 h-3" style={{ color: '#FFD700' }} strokeWidth={2} />
+              </Button>
+              <p className="text-xs" style={{ color: '#3D5A52' }}>Active Goals</p>
+            </div>
+            {/* Help Video Button - WEB: Below text */}
+            <Button
+              onClick={() => setShowGoalsVideo(true)}
+              size="icon"
+              variant="ghost"
+              className="hidden md:flex p-0 h-7 w-7 mt-2 mx-auto"
+              style={{
+                borderRadius: '50%',
+                backgroundColor: 'rgba(255, 215, 0, 0.15)',
+                animation: 'angelPulse 2s ease-in-out infinite'
+              }}
+              title="Watch help video"
+            >
+              <Sparkles className="w-4 h-4" style={{ color: '#FFD700' }} strokeWidth={2} />
+            </Button>
           </div>
-          <div className="p-5 text-center" style={{ 
+          <div className="p-5 text-center relative" style={{ 
             borderRadius: '28px',
             background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.85) 0%, rgba(180, 220, 210, 0.75) 100%)',
             backdropFilter: 'blur(12px)',
@@ -274,7 +315,39 @@ export default function Home() {
               )}
               <p className="text-2xl font-bold" style={{ color: '#1A3A34' }}>{journalCount}</p>
             </div>
-            <p className="text-xs" style={{ color: '#3D5A52' }}>Journal Entries</p>
+            <div className="flex items-center justify-center gap-2">
+              {/* Help Video Button - MOBILE: LEFT of text */}
+              <Button
+                onClick={() => setShowJournalVideo(true)}
+                size="icon"
+                variant="ghost"
+                className="md:hidden p-0 h-6 w-6"
+                style={{
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(255, 215, 0, 0.15)',
+                  animation: 'angelPulse 2s ease-in-out infinite'
+                }}
+                title="Watch help video"
+              >
+                <Sparkles className="w-3 h-3" style={{ color: '#FFD700' }} strokeWidth={2} />
+              </Button>
+              <p className="text-xs" style={{ color: '#3D5A52' }}>Journal Entries</p>
+            </div>
+            {/* Help Video Button - WEB: Below text */}
+            <Button
+              onClick={() => setShowJournalVideo(true)}
+              size="icon"
+              variant="ghost"
+              className="hidden md:flex p-0 h-7 w-7 mt-2 mx-auto"
+              style={{
+                borderRadius: '50%',
+                backgroundColor: 'rgba(255, 215, 0, 0.15)',
+                animation: 'angelPulse 2s ease-in-out infinite'
+              }}
+              title="Watch help video"
+            >
+              <Sparkles className="w-4 h-4" style={{ color: '#FFD700' }} strokeWidth={2} />
+            </Button>
           </div>
           <StreakWidget compact />
           <BadgeDisplay compact />
@@ -318,6 +391,20 @@ export default function Home() {
             setShowOnboarding(false);
             queryClient.invalidateQueries(['currentUser']);
           }}
+        />
+      )}
+
+      {/* Video Modals */}
+      {showGoalsVideo && (
+        <VideoModal
+          videoUrl="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%208.mp4?alt=media&token=cc85d70d-251f-41d9-a5a8-44a0b350f40b"
+          onClose={() => setShowGoalsVideo(false)}
+        />
+      )}
+      {showJournalVideo && (
+        <VideoModal
+          videoUrl="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%209.mp4?alt=media&token=4a8ae8b9-e803-4108-bc3e-26c4c25751f8"
+          onClose={() => setShowJournalVideo(false)}
         />
       )}
       </div>

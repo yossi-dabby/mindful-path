@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,6 +8,7 @@ import { Sparkles, CheckCircle2, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
+import VideoModal from './VideoModal';
 
 const DAY_THEMES = [
   { title: "Welcome & Breathing", description: "Learn foundational breathing techniques" },
@@ -21,6 +22,7 @@ const DAY_THEMES = [
 
 export default function StarterPathCard() {
   const queryClient = useQueryClient();
+  const [showVideo, setShowVideo] = useState(false);
 
   // Get user's starter path progress
   const { data: starterPath, isLoading } = useQuery({
@@ -71,7 +73,33 @@ export default function StarterPathCard() {
         boxShadow: '0 10px 36px rgba(38, 166, 154, 0.1), 0 4px 14px rgba(0,0,0,0.04), inset 0 2px 0 rgba(255,255,255,0.7)'
       }}>
         <CardContent className="p-6">
-          <div className="flex items-start justify-between gap-6">
+          <div className="flex items-start justify-between gap-4 md:gap-6">
+            {/* Help Video Button - WEB: LEFT side */}
+            <div className="hidden md:flex items-start">
+              <style>{`
+                @keyframes angelPulse {
+                  0%, 100% { opacity: 0.9; transform: scale(1); }
+                  50% { opacity: 1; transform: scale(1.05); }
+                }
+              `}</style>
+              <Button
+                onClick={() => setShowVideo(true)}
+                size="icon"
+                variant="ghost"
+                className="flex-shrink-0"
+                style={{
+                  width: '56px',
+                  height: '56px',
+                  borderRadius: '20px',
+                  backgroundColor: 'rgba(255, 215, 0, 0.15)',
+                  animation: 'angelPulse 2s ease-in-out infinite'
+                }}
+                title="Watch help video"
+              >
+                <Sparkles className="w-6 h-6" style={{ color: '#FFD700' }} strokeWidth={2} />
+              </Button>
+            </div>
+
             <div className="flex-1">
               {/* Header */}
               <div className="flex items-center gap-2 mb-3">
@@ -155,7 +183,7 @@ export default function StarterPathCard() {
             </div>
 
             {/* Visual Indicator */}
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 flex flex-col items-center gap-2">
               <motion.div
                 animate={{ scale: [1, 1.05, 1] }}
                 transition={{ duration: 3, repeat: Infinity, ease: [0.2, 0.8, 0.2, 1] }}
@@ -177,10 +205,36 @@ export default function StarterPathCard() {
                   <Sparkles className="w-8 h-8 icon-default" style={{ color: '#26A69A' }} strokeWidth={2} />
                 )}
               </motion.div>
+              
+              {/* Help Video Button - MOBILE: UNDER star icon */}
+              <Button
+                onClick={() => setShowVideo(true)}
+                size="icon"
+                variant="ghost"
+                className="md:hidden"
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '16px',
+                  backgroundColor: 'rgba(255, 215, 0, 0.15)',
+                  animation: 'angelPulse 2s ease-in-out infinite'
+                }}
+                title="Watch help video"
+              >
+                <Sparkles className="w-5 h-5" style={{ color: '#FFD700' }} strokeWidth={2} />
+              </Button>
             </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* Video Modal */}
+      {showVideo && (
+        <VideoModal
+          videoUrl="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%203.mp4?alt=media&token=7d591673-f152-496d-987f-e8cc393ff58d"
+          onClose={() => setShowVideo(false)}
+        />
+      )}
     </motion.div>
   );
 }
