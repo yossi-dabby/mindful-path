@@ -31,7 +31,8 @@ const therapeuticActions = [
     title: 'Set a Goal',
     description: 'Define objectives',
     icon: Target,
-    intent: 'goal_work',
+    intent: null,
+    page: 'GoalCoach',
     color: '#F6AD55',
     bgColor: 'rgba(246, 173, 85, 0.15)',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%204.mp4?alt=media&token=389888db-76eb-42e4-ba04-6b62335217cb'

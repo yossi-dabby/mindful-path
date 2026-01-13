@@ -16,9 +16,10 @@ import Resources from './pages/Resources';
 import Settings from './pages/Settings';
 import StarterPath from './pages/StarterPath';
 import TestSetupGuide from './pages/TestSetupGuide';
+import ThoughtCoach from './pages/ThoughtCoach';
 import VideoPlayer from './pages/VideoPlayer';
 import Videos from './pages/Videos';
-import ThoughtCoach from './pages/ThoughtCoach';
+import GoalCoach from './pages/GoalCoach';
 import __Layout from './Layout.jsx';
 
 
@@ -41,9 +42,10 @@ export const PAGES = {
     "Settings": Settings,
     "StarterPath": StarterPath,
     "TestSetupGuide": TestSetupGuide,
+    "ThoughtCoach": ThoughtCoach,
     "VideoPlayer": VideoPlayer,
     "Videos": Videos,
-    "ThoughtCoach": ThoughtCoach,
+    "GoalCoach": GoalCoach,
 }
 
 export const pagesConfig = {
