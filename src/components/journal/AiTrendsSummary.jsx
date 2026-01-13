@@ -153,14 +153,15 @@ Provide a comprehensive analysis:
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 overflow-y-auto">
-      <div className="min-h-full flex items-center justify-center p-4">
+      <div className="min-h-full flex items-center justify-center p-4 pb-24">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           className="w-full max-w-4xl my-8"
+          style={{ maxHeight: 'calc(100vh - 160px)' }}
         >
-          <Card className="border-0 shadow-2xl">
-            <CardContent className="p-6">
+          <Card className="border-0 shadow-2xl flex flex-col overflow-hidden">
+            <CardContent className="p-4 md:p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 240px)' }}>
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                   <BarChart3 className="w-6 h-6 text-purple-600" />

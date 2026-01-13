@@ -80,12 +80,13 @@ Each prompt should be a thoughtful question or scenario to explore.`,
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="w-full max-w-2xl"
+        className="w-full max-w-2xl my-8"
+        style={{ maxHeight: 'calc(100vh - 160px)' }}
       >
         <Card className="border-0 shadow-2xl">
           <CardHeader className="border-b">
@@ -104,7 +105,7 @@ Each prompt should be a thoughtful question or scenario to explore.`,
               Get personalized prompts based on your recent mood and journal entries
             </p>
           </CardHeader>
-          <CardContent className="p-6">
+          <CardContent className="p-4 md:p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 280px)' }}>
             {!prompts && !isLoading && (
               <div className="text-center py-8">
                 <Button
