@@ -33,7 +33,7 @@ const commonActivities = [
   'Rest', 'Self-care', 'Learning', 'Entertainment', 'Chores'
 ];
 
-export default function MoodCheckIn({ onClose }) {
+export default function MoodCheckIn({ onClose, onComplete }) {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],

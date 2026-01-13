@@ -55,11 +55,12 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 overflow-y-auto">
-      <div className="min-h-full flex items-center justify-center p-4">
+      <div className="min-h-full flex items-center justify-center p-4 pb-24">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         className="w-full max-w-4xl my-8"
+        style={{ maxHeight: 'calc(100vh - 160px)' }}
       >
         <Card className="border-0 shadow-2xl">
           <CardHeader className="border-b bg-gradient-to-r from-green-50 to-blue-50">
@@ -106,8 +107,8 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="p-6">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <CardContent className="p-4 md:p-6 flex flex-col overflow-hidden" style={{ maxHeight: 'calc(100vh - 340px)' }}>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 flex flex-col min-h-0 flex-1">
               <TabsList className={`grid w-full ${audioContent.length > 0 ? 'grid-cols-5' : 'grid-cols-4'}`}>
                 <TabsTrigger value="overview">
                   <BookOpen className="w-4 h-4 mr-2" />
@@ -134,7 +135,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               </TabsList>
 
               {/* Overview Tab */}
-              <TabsContent value="overview" className="space-y-4">
+              <TabsContent value="overview" className="space-y-4 overflow-y-auto flex-1">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-2">About This Exercise</h3>
                   <p className="text-gray-600 leading-relaxed">{exercise.description || ''}</p>
@@ -205,7 +206,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
 
               {/* Audio Tab */}
               {audioContent.length > 0 && (
-                <TabsContent value="audio" className="space-y-4">
+                <TabsContent value="audio" className="space-y-4 overflow-y-auto flex-1">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">Guided Audio</h3>
                     <p className="text-gray-600 mb-4">
@@ -224,7 +225,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               )}
 
               {/* Instructions Tab */}
-              <TabsContent value="instructions" className="space-y-4">
+              <TabsContent value="instructions" className="space-y-4 overflow-y-auto flex-1">
                 {exercise.detailed_steps?.length > 0 ? (
                   <div>
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">Step-by-Step Guide</h3>
@@ -286,7 +287,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               </TabsContent>
 
               {/* Benefits Tab */}
-              <TabsContent value="benefits" className="space-y-4">
+              <TabsContent value="benefits" className="space-y-4 overflow-y-auto flex-1">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">Key Benefits</h3>
                   {exercise.benefits?.length > 0 ? (
@@ -313,7 +314,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               </TabsContent>
 
               {/* Tips Tab */}
-              <TabsContent value="tips" className="space-y-4">
+              <TabsContent value="tips" className="space-y-auto overflow-y-auto flex-1">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">Helpful Tips</h3>
                   {exercise.tips?.length > 0 ? (
