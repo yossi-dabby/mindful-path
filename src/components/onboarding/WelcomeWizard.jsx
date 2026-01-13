@@ -68,7 +68,7 @@ export default function WelcomeWizard({ onComplete }) {
 
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-orange-100 via-white to-blue-100 z-50 overflow-y-auto">
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="min-h-screen flex items-center justify-center p-4 pb-24">
         <div className="w-full max-w-2xl">
           <AnimatePresence mode="wait">
             {/* Step 1: Welcome */}
@@ -147,7 +147,7 @@ export default function WelcomeWizard({ onComplete }) {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 mb-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                       {focusAreas.map((area) => (
                         <button
                           key={area.value}
