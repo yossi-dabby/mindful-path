@@ -104,7 +104,8 @@ export default function ThoughtCoachWizard({ onClose }) {
     situation: '',
     automatic_thoughts: '',
     emotions: [],
-    emotion_intensity: 5
+    emotion_intensity: 5,
+    balanced_thought: ''
   });
 
   const createJournalMutation = useMutation({
@@ -123,6 +124,11 @@ export default function ThoughtCoachWizard({ onClose }) {
         emotion_intensity: data.emotion_intensity,
         tags: [data.thought_type]
       };
+
+      // Add balanced_thought only if provided
+      if (data.balanced_thought && data.balanced_thought.trim()) {
+        journalData.balanced_thought = data.balanced_thought.trim();
+      }
 
       const entry = await base44.entities.ThoughtJournal.create(journalData);
       
@@ -151,7 +157,8 @@ export default function ThoughtCoachWizard({ onClose }) {
   const canProceed = () => {
     if (step === 1) return formData.thought_type;
     if (step === 2) return formData.situation && formData.automatic_thoughts && formData.emotions.length > 0;
-    if (step === 3) return true; // All validation already done in step 2
+    if (step === 3) return true; // CBT step - balanced_thought is optional
+    if (step === 4) return true; // Review - all validation done
     return false;
   };
 
@@ -185,7 +192,7 @@ export default function ThoughtCoachWizard({ onClose }) {
               </div>
               <div>
                 <h1 className="text-xl font-semibold text-gray-800">Thought Coach</h1>
-                <p className="text-sm text-gray-500">Step {step} of 3</p>
+                <p className="text-sm text-gray-500">Step {step} of 4</p>
               </div>
             </div>
             <Button variant="ghost" size="icon" onClick={onClose}>
@@ -332,8 +339,78 @@ export default function ThoughtCoachWizard({ onClose }) {
             </div>
           )}
 
-          {/* Step 3: Summary & Confirm */}
+          {/* Step 3: CBT Intervention */}
           {step === 3 && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Let's look at this thought together</h3>
+                <p className="text-sm text-gray-600 mb-4">Examining your thoughts is an important CBT skill</p>
+              </div>
+
+              {selectedThought && (
+                <Card className="border-2 border-purple-200 bg-purple-50">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div 
+                        className="w-10 h-10 rounded-lg flex items-center justify-center"
+                        style={{ backgroundColor: selectedThought.color }}
+                      >
+                        <selectedThought.icon className="w-5 h-5 text-white" strokeWidth={2.5} />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-800">{selectedThought.label}</p>
+                        <p className="text-xs text-gray-600 mt-1 italic">"{formData.automatic_thoughts}"</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                <div className="space-y-3">
+                  <p className="text-sm font-medium text-blue-900 mb-3">Reflect on these questions:</p>
+                  <div className="space-y-2 text-sm text-blue-800">
+                    <div className="flex gap-2">
+                      <span className="text-blue-600">•</span>
+                      <p>What evidence supports this thought?</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <span className="text-blue-600">•</span>
+                      <p>What evidence goes against it?</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <span className="text-blue-600">•</span>
+                      <p>Is there a more balanced way to see this situation?</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3 bg-purple-50 border border-purple-200 rounded-xl">
+                <p className="text-sm text-purple-800 text-center">
+                  💡 Noticing and examining a thought is already an important CBT skill.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Balanced / Helpful Thought (Optional)
+                </label>
+                <Textarea
+                  value={formData.balanced_thought}
+                  onChange={(e) => setFormData({ ...formData, balanced_thought: e.target.value })}
+                  placeholder="Write a more balanced or helpful perspective... (e.g., 'I can prepare and even if I don't succeed perfectly, it doesn't define me.')"
+                  className="h-32 rounded-xl"
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  This is optional - you can always add it later in your journal.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Step 4: Review & Confirm */}
+          {step === 4 && (
             <div className="space-y-6">
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Review your thought entry</h3>
@@ -377,6 +454,12 @@ export default function ThoughtCoachWizard({ onClose }) {
                         <span className="text-gray-600 font-medium">Intensity:</span>
                         <span className="text-gray-800 ml-2">{formData.emotion_intensity}/10</span>
                       </div>
+                      {formData.balanced_thought && formData.balanced_thought.trim() && (
+                        <div>
+                          <span className="text-gray-600 font-medium">Balanced Thought:</span>
+                          <p className="text-gray-800 mt-1">{formData.balanced_thought}</p>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -415,7 +498,7 @@ export default function ThoughtCoachWizard({ onClose }) {
                 Back
               </Button>
             )}
-            {step < 3 ? (
+            {step < 4 ? (
               <Button
                 onClick={() => setStep(step + 1)}
                 disabled={!canProceed()}
