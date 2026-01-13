@@ -12,40 +12,40 @@ import { cn } from '@/lib/utils';
 const goalCategories = [
   {
     value: 'cognitive',
-    label: 'Cognitive',
-    description: 'Change thought patterns, build mental clarity',
+    label: 'Thoughts & Confidence',
+    description: 'Change thinking patterns, build mental clarity',
     icon: Brain,
     color: '#9F7AEA',
     bgColor: 'rgba(159, 122, 234, 0.15)'
   },
   {
     value: 'emotional',
-    label: 'Emotional',
-    description: 'Improve mood, manage feelings',
+    label: 'Emotions & Stress',
+    description: 'Improve mood, manage feelings better',
     icon: Heart,
     color: '#ED8936',
     bgColor: 'rgba(237, 137, 54, 0.15)'
   },
   {
     value: 'behavioral',
-    label: 'Behavioral',
-    description: 'Build habits, change actions',
+    label: 'Routine & Productivity',
+    description: 'Build better habits, change actions',
     icon: Zap,
     color: '#F6AD55',
     bgColor: 'rgba(246, 173, 85, 0.15)'
   },
   {
     value: 'social',
-    label: 'Social',
-    description: 'Improve relationships, communication',
+    label: 'Relationships & Social',
+    description: 'Improve connections, communication',
     icon: Users,
     color: '#4299E1',
     bgColor: 'rgba(66, 153, 225, 0.15)'
   },
   {
     value: 'lifestyle',
-    label: 'Health / Lifestyle',
-    description: 'Exercise, sleep, self-care',
+    label: 'Health & Wellbeing',
+    description: 'Exercise, sleep, self-care habits',
     icon: Dumbbell,
     color: '#38B2AC',
     bgColor: 'rgba(56, 178, 172, 0.15)'
@@ -59,9 +59,16 @@ export default function GoalCoachWizard({ onClose }) {
     category: '',
     title: '',
     motivation: '',
-    challenge: '',
+    description: '',
     target_date: '',
-    actionable_steps: ['']
+    milestones: [{ title: '', description: '', due_date: '' }],
+    smart_criteria: {
+      specific: '',
+      measurable: '',
+      achievable: '',
+      relevant: '',
+      time_bound: ''
+    }
   });
 
   const createGoalMutation = useMutation({
@@ -71,32 +78,52 @@ export default function GoalCoachWizard({ onClose }) {
         throw new Error('Please fill in required fields');
       }
 
-      // Prepare milestones from actionable steps
-      const milestones = data.actionable_steps
-        .filter(step => step.trim())
-        .map(step => ({
-          title: step.trim(),
-          completed: false
+      // Prepare milestones - filter out empty ones
+      const milestones = data.milestones
+        .filter(m => m.title && m.title.trim())
+        .map(m => ({
+          title: m.title.trim(),
+          description: m.description?.trim() || '',
+          due_date: m.due_date || '',
+          completed: false,
+          completed_date: ''
         }));
 
       // Create goal entry
       const goalData = {
         category: data.category,
         title: data.title.trim(),
-        description: data.challenge?.trim() || '',
-        motivation: data.motivation?.trim() || '',
         status: 'active',
         progress: 0
       };
 
-      // Add target date if provided
+      // Add optional fields if provided
+      if (data.motivation?.trim()) {
+        goalData.motivation = data.motivation.trim();
+      }
+
+      if (data.description?.trim()) {
+        goalData.description = data.description.trim();
+      }
+
       if (data.target_date) {
         goalData.target_date = data.target_date;
       }
 
-      // Add milestones if any
       if (milestones.length > 0) {
         goalData.milestones = milestones;
+      }
+
+      // Add SMART criteria if any field is filled
+      const smartCriteria = {};
+      if (data.smart_criteria.specific?.trim()) smartCriteria.specific = data.smart_criteria.specific.trim();
+      if (data.smart_criteria.measurable?.trim()) smartCriteria.measurable = data.smart_criteria.measurable.trim();
+      if (data.smart_criteria.achievable?.trim()) smartCriteria.achievable = data.smart_criteria.achievable.trim();
+      if (data.smart_criteria.relevant?.trim()) smartCriteria.relevant = data.smart_criteria.relevant.trim();
+      if (data.smart_criteria.time_bound?.trim()) smartCriteria.time_bound = data.smart_criteria.time_bound.trim();
+      
+      if (Object.keys(smartCriteria).length > 0) {
+        goalData.smart_criteria = smartCriteria;
       }
 
       const goal = await base44.entities.Goal.create(goalData);
@@ -117,19 +144,22 @@ export default function GoalCoachWizard({ onClose }) {
     }
   });
 
-  const addStep = () => {
-    setFormData({ ...formData, actionable_steps: [...formData.actionable_steps, ''] });
+  const addMilestone = () => {
+    setFormData({ 
+      ...formData, 
+      milestones: [...formData.milestones, { title: '', description: '', due_date: '' }] 
+    });
   };
 
-  const removeStep = (index) => {
-    const updated = formData.actionable_steps.filter((_, i) => i !== index);
-    setFormData({ ...formData, actionable_steps: updated });
+  const removeMilestone = (index) => {
+    const updated = formData.milestones.filter((_, i) => i !== index);
+    setFormData({ ...formData, milestones: updated });
   };
 
-  const updateStep = (index, value) => {
-    const updated = [...formData.actionable_steps];
-    updated[index] = value;
-    setFormData({ ...formData, actionable_steps: updated });
+  const updateMilestone = (index, field, value) => {
+    const updated = [...formData.milestones];
+    updated[index][field] = value;
+    setFormData({ ...formData, milestones: updated });
   };
 
   const canProceed = () => {
@@ -273,12 +303,12 @@ export default function GoalCoachWizard({ onClose }) {
 
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Main challenge or obstacle (Optional)
+                  Additional details (Optional)
                 </label>
                 <Textarea
-                  value={formData.challenge}
-                  onChange={(e) => setFormData({ ...formData, challenge: e.target.value })}
-                  placeholder="What might make this goal difficult?"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Any additional context or details about this goal..."
                   className="h-24 rounded-xl"
                 />
               </div>
@@ -349,40 +379,88 @@ export default function GoalCoachWizard({ onClose }) {
 
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Actionable Steps (Optional)
+                  Milestones (Recommended)
                 </label>
-                <p className="text-xs text-gray-600 mb-3">Break your goal into smaller steps</p>
-                <div className="space-y-3">
-                  {formData.actionable_steps.map((step, index) => (
-                    <div key={index} className="flex gap-2">
-                      <Input
-                        value={step}
-                        onChange={(e) => updateStep(index, e.target.value)}
-                        placeholder={`Step ${index + 1}...`}
-                        className="rounded-xl flex-1"
+                <p className="text-xs text-gray-600 mb-3">Break your goal into 2-3 smaller milestones</p>
+                <div className="space-y-4">
+                  {formData.milestones.map((milestone, index) => (
+                    <div key={index} className="p-3 bg-gray-50 rounded-xl space-y-2">
+                      <div className="flex gap-2">
+                        <Input
+                          value={milestone.title}
+                          onChange={(e) => updateMilestone(index, 'title', e.target.value)}
+                          placeholder={`Milestone ${index + 1} title...`}
+                          className="rounded-xl flex-1"
+                        />
+                        {formData.milestones.length > 1 && (
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => removeMilestone(index)}
+                            className="flex-shrink-0"
+                          >
+                            <Minus className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                      <Textarea
+                        value={milestone.description}
+                        onChange={(e) => updateMilestone(index, 'description', e.target.value)}
+                        placeholder="Details (optional)..."
+                        className="h-16 rounded-xl text-sm"
                       />
-                      {formData.actionable_steps.length > 1 && (
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => removeStep(index)}
-                          className="flex-shrink-0"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </Button>
-                      )}
+                      <Input
+                        type="date"
+                        value={milestone.due_date}
+                        onChange={(e) => updateMilestone(index, 'due_date', e.target.value)}
+                        className="rounded-xl text-sm"
+                        placeholder="Due date (optional)"
+                      />
                     </div>
                   ))}
-                  {formData.actionable_steps.length < 5 && (
+                  {formData.milestones.length < 5 && (
                     <Button
                       variant="outline"
-                      onClick={addStep}
+                      onClick={addMilestone}
                       className="w-full rounded-xl"
                     >
                       <Plus className="w-4 h-4 mr-2" />
-                      Add Another Step
+                      Add Another Milestone
                     </Button>
                   )}
+                </div>
+              </div>
+
+              <div className="p-3 bg-purple-50 border border-purple-200 rounded-xl">
+                <p className="text-xs font-medium text-purple-900 mb-2">Optional: SMART Goal Framework</p>
+                <div className="space-y-2">
+                  <Input
+                    value={formData.smart_criteria.specific}
+                    onChange={(e) => setFormData({ 
+                      ...formData, 
+                      smart_criteria: { ...formData.smart_criteria, specific: e.target.value } 
+                    })}
+                    placeholder="Specific: What exactly will you accomplish?"
+                    className="rounded-lg text-sm"
+                  />
+                  <Input
+                    value={formData.smart_criteria.measurable}
+                    onChange={(e) => setFormData({ 
+                      ...formData, 
+                      smart_criteria: { ...formData.smart_criteria, measurable: e.target.value } 
+                    })}
+                    placeholder="Measurable: How will you measure progress?"
+                    className="rounded-lg text-sm"
+                  />
+                  <Input
+                    value={formData.smart_criteria.achievable}
+                    onChange={(e) => setFormData({ 
+                      ...formData, 
+                      smart_criteria: { ...formData.smart_criteria, achievable: e.target.value } 
+                    })}
+                    placeholder="Achievable: Why is this realistic?"
+                    className="rounded-lg text-sm"
+                  />
                 </div>
               </div>
             </div>
@@ -419,10 +497,10 @@ export default function GoalCoachWizard({ onClose }) {
                         <span className="text-gray-600 font-medium">Why it matters:</span>
                         <p className="text-gray-800 mt-1">{formData.motivation}</p>
                       </div>
-                      {formData.challenge && (
+                      {formData.description && (
                         <div>
-                          <span className="text-gray-600 font-medium">Challenge:</span>
-                          <p className="text-gray-800 mt-1">{formData.challenge}</p>
+                          <span className="text-gray-600 font-medium">Details:</span>
+                          <p className="text-gray-800 mt-1">{formData.description}</p>
                         </div>
                       )}
                       {formData.target_date && (
@@ -433,17 +511,40 @@ export default function GoalCoachWizard({ onClose }) {
                           </span>
                         </div>
                       )}
-                      {formData.actionable_steps.filter(s => s.trim()).length > 0 && (
+                      {formData.milestones.filter(m => m.title.trim()).length > 0 && (
                         <div>
-                          <span className="text-gray-600 font-medium">Steps:</span>
-                          <ul className="mt-1 space-y-1">
-                            {formData.actionable_steps.filter(s => s.trim()).map((step, index) => (
-                              <li key={index} className="text-gray-800 flex gap-2">
-                                <span>•</span>
-                                <span>{step}</span>
+                          <span className="text-gray-600 font-medium">Milestones:</span>
+                          <ul className="mt-1 space-y-2">
+                            {formData.milestones.filter(m => m.title.trim()).map((milestone, index) => (
+                              <li key={index} className="text-gray-800 bg-white p-2 rounded-lg">
+                                <div className="font-medium">• {milestone.title}</div>
+                                {milestone.description && (
+                                  <div className="text-xs text-gray-600 ml-3">{milestone.description}</div>
+                                )}
+                                {milestone.due_date && (
+                                  <div className="text-xs text-gray-500 ml-3">
+                                    Due: {new Date(milestone.due_date).toLocaleDateString()}
+                                  </div>
+                                )}
                               </li>
                             ))}
                           </ul>
+                        </div>
+                      )}
+                      {(formData.smart_criteria.specific || formData.smart_criteria.measurable || formData.smart_criteria.achievable) && (
+                        <div>
+                          <span className="text-gray-600 font-medium">SMART Criteria:</span>
+                          <div className="mt-1 text-xs space-y-1 bg-white p-2 rounded-lg">
+                            {formData.smart_criteria.specific && (
+                              <div><span className="font-medium">Specific:</span> {formData.smart_criteria.specific}</div>
+                            )}
+                            {formData.smart_criteria.measurable && (
+                              <div><span className="font-medium">Measurable:</span> {formData.smart_criteria.measurable}</div>
+                            )}
+                            {formData.smart_criteria.achievable && (
+                              <div><span className="font-medium">Achievable:</span> {formData.smart_criteria.achievable}</div>
+                            )}
+                          </div>
                         </div>
                       )}
                     </div>
