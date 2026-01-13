@@ -213,8 +213,8 @@ Provide:
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <Card className="w-full max-w-2xl border-0 shadow-2xl my-8">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto">
+      <Card className="w-full max-w-2xl border-0 shadow-2xl my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">
             <div>
@@ -230,7 +230,7 @@ Provide:
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="p-6">
+        <CardContent className="p-4 md:p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 260px)' }}>
           {step === 1 && (
             <div className="space-y-6">
               {/* Template Selection */}

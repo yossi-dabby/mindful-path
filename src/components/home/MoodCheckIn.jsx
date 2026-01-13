@@ -87,8 +87,8 @@ export default function MoodCheckIn({ onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-lg border-0 shadow-2xl">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto">
+      <Card className="w-full max-w-lg border-0 shadow-2xl my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">
             <CardTitle>Daily Check-in</CardTitle>

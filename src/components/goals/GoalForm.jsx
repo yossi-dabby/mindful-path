@@ -128,8 +128,8 @@ Provide SMART criteria answers and suggestions for milestones.`,
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <Card className="w-full max-w-3xl border-0 shadow-2xl my-8">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto">
+      <Card className="w-full max-w-3xl border-0 shadow-2xl my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">
             <div>
@@ -141,15 +141,15 @@ Provide SMART criteria answers and suggestions for milestones.`,
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="p-6">
-          <Tabs value={currentTab} onValueChange={setCurrentTab}>
+        <CardContent className="p-4 md:p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 260px)' }}>
+          <Tabs value={currentTab} onValueChange={setCurrentTab} className="flex flex-col min-h-0">
             <TabsList className="grid w-full grid-cols-3 mb-6">
               <TabsTrigger value="basic">Basic Info</TabsTrigger>
               <TabsTrigger value="smart">SMART Criteria</TabsTrigger>
               <TabsTrigger value="milestones">Action Steps</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="basic">
+            <TabsContent value="basic" className="overflow-y-auto flex-1">
               <div className="space-y-6">
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">Goal Title</label>
@@ -247,7 +247,7 @@ Provide SMART criteria answers and suggestions for milestones.`,
               </div>
             </TabsContent>
 
-            <TabsContent value="smart">
+            <TabsContent value="smart" className="overflow-y-auto flex-1">
               <div className="space-y-6">
                 <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
                   <h3 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
@@ -336,7 +336,7 @@ Provide SMART criteria answers and suggestions for milestones.`,
               </div>
             </TabsContent>
 
-            <TabsContent value="milestones">
+            <TabsContent value="milestones" className="overflow-y-auto flex-1">
               <div className="space-y-6">
 
                 <div className="bg-green-50 p-4 rounded-xl border border-green-200 mb-4">
