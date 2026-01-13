@@ -22,8 +22,8 @@ export default function SessionSummary({ conversation }) {
   if (!conversation.session_summary) return null;
 
   return (
-    <div className="bg-gradient-to-br from-purple-50 to-blue-50 border-t border-purple-200 p-4 md:p-6">
-      <Card className="max-w-4xl mx-auto border-0 shadow-lg">
+    <div className="bg-gradient-to-br from-purple-50 to-blue-50 border-t border-purple-200 p-4 md:p-6 overflow-x-hidden">
+      <Card className="max-w-4xl mx-auto border-0 shadow-lg w-full">
         <CardHeader className="border-b bg-white">
           <CardTitle className="flex items-center gap-2 text-purple-900">
             <FileText className="w-5 h-5" />
@@ -49,7 +49,7 @@ export default function SessionSummary({ conversation }) {
                 <Dumbbell className="w-4 h-4 text-purple-600" />
                 Recommended Exercises
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {suggestedExercises.map((exercise) => (
                   <Link key={exercise.id} to={createPageUrl('Exercises')}>
                     <Card className="border-2 border-purple-200 hover:border-purple-400 transition-colors cursor-pointer">
@@ -108,7 +108,7 @@ export default function SessionSummary({ conversation }) {
           )}
 
           {/* Action Buttons */}
-          <div className="pt-4 border-t flex gap-3">
+          <div className="pt-4 border-t flex flex-col sm:flex-row gap-3">
             <Link to={createPageUrl('Journal')} className="flex-1">
               <Button variant="outline" className="w-full">
                 Reflect in Journal

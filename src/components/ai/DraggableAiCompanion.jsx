@@ -309,9 +309,9 @@ export default function DraggableAiCompanion() {
       animate={{ y: 0, opacity: 1 }}
       exit={{ y: 20, opacity: 0 }}
       style={positionStyle}
-      className="w-[calc(100vw-3rem)] md:w-96 max-h-[70vh] flex flex-col"
+      className="w-[calc(100vw-3rem)] md:w-96 flex flex-col"
     >
-      <Card className="border-2 border-purple-200 shadow-2xl flex flex-col h-full overflow-hidden">
+      <Card className="border-2 border-purple-200 shadow-2xl flex flex-col overflow-hidden" style={{ maxHeight: 'calc(100vh - 200px)' }}>
         {/* Draggable Header */}
         <div 
           className="bg-gradient-to-r from-purple-600 to-blue-600 p-4 rounded-t-xl flex items-center justify-between cursor-move"
@@ -352,7 +352,7 @@ export default function DraggableAiCompanion() {
         </div>
 
         {/* Messages */}
-        <CardContent className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-br from-purple-50/30 to-blue-50/30 min-h-0">
+        <CardContent className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-br from-purple-50/30 to-blue-50/30 min-h-0" style={{ maxHeight: 'calc(100vh - 350px)' }}>
           <AnimatePresence>
             {messages.length === 0 && (
               <motion.div

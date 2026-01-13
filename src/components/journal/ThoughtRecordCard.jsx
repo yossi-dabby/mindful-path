@@ -39,8 +39,8 @@ export default function ThoughtRecordCard({ entry, onEdit }) {
   const improvement = intensityChange > 0;
 
   return (
-    <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
-      <CardContent className="p-6">
+    <Card className="border-0 shadow-md hover:shadow-lg transition-shadow w-full overflow-x-hidden">
+      <CardContent className="p-4 md:p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <p className="text-sm text-gray-500 mb-1">
@@ -107,11 +107,11 @@ export default function ThoughtRecordCard({ entry, onEdit }) {
           )}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Button
             variant="ghost"
             onClick={() => setExpanded(!expanded)}
-            className="flex-1 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+            className="flex-1 text-purple-600 hover:text-purple-700 hover:bg-purple-50 w-full"
           >
             {expanded ? (
               <>
@@ -128,7 +128,7 @@ export default function ThoughtRecordCard({ entry, onEdit }) {
           <Button
             variant="ghost"
             onClick={() => setShowAiSuggestions(!showAiSuggestions)}
-            className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+            className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 w-full sm:w-auto"
           >
             <Sparkles className="w-4 h-4 mr-2" />
             AI Analysis
