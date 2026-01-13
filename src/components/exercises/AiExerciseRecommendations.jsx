@@ -255,7 +255,7 @@ Provide recommendations with:
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="overflow-x-hidden">
         {/* Mood/Goal Filters */}
         <AnimatePresence>
           {showFilters && (

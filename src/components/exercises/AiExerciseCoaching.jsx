@@ -124,11 +124,12 @@ Format as JSON:
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         className="w-full max-w-4xl my-8"
+        style={{ maxHeight: 'calc(100vh - 160px)' }}
       >
         <Card className="border-0 shadow-2xl">
           <CardHeader className="border-b" style={{
@@ -147,7 +148,7 @@ Format as JSON:
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="p-6 space-y-6">
+          <CardContent className="p-4 md:p-6 space-y-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 280px)' }}>
             {!plan && !isGenerating && (
               <div className="text-center py-8">
                 <Dumbbell className="w-16 h-16 mx-auto mb-4" style={{ color: '#A8D4CB' }} />
