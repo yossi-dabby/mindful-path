@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, List, Trash2 } from 'lucide-react';
+import { Plus, List, Trash2, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import CreatePlaylistModal from '../components/playlists/CreatePlaylistModal';
 
 export default function Playlists() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: playlists = [], isLoading } = useQuery({
     queryKey: ['playlists'],
@@ -32,28 +33,41 @@ export default function Playlists() {
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
       <div className="page-container max-w-7xl">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8 mt-6">
-          <div>
-            <h1 className="text-3xl font-semibold mb-2" style={{ color: '#2D3748' }}>
-              My Playlists
-            </h1>
-            <p className="text-base" style={{ color: '#718096' }}>
-              Organize your CBT videos into custom playlists
-            </p>
-          </div>
+        {/* Header with Back Button */}
+        <div className="mb-6 mt-6">
           <Button
-            onClick={() => setShowCreateModal(true)}
-            className="text-white px-6 py-5"
-            style={{ 
-              borderRadius: '9999px',
-              backgroundColor: '#26A69A',
-              boxShadow: '0 3px 10px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.08)'
-            }}
+            type="button"
+            variant="ghost"
+            onClick={() => navigate(createPageUrl('Videos'))}
+            className="mb-4 -ml-2 text-sm"
+            style={{ color: '#26A69A' }}
           >
-            <Plus className="w-4 h-4 mr-2" />
-            New Playlist
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Back to Videos
           </Button>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-semibold mb-2" style={{ color: '#2D3748' }}>
+                My Playlists
+              </h1>
+              <p className="text-base" style={{ color: '#718096' }}>
+                Organize your CBT videos into custom playlists
+              </p>
+            </div>
+            <Button
+              type="button"
+              onClick={() => setShowCreateModal(true)}
+              className="text-white px-6 py-5"
+              style={{ 
+                borderRadius: '9999px',
+                backgroundColor: '#26A69A',
+                boxShadow: '0 3px 10px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.08)'
+              }}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              New Playlist
+            </Button>
+          </div>
         </div>
 
         {/* Loading State */}
@@ -86,7 +100,7 @@ export default function Playlists() {
 
         {/* Playlist Grid */}
         {!isLoading && playlists.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {playlists.map((playlist, index) => (
               <motion.div
                 key={playlist.id}
@@ -95,12 +109,12 @@ export default function Playlists() {
                 transition={{ duration: 0.3, delay: index * 0.05 }}
               >
                 <Card className="border-0 hover:shadow-lg transition-calm group" style={{ 
-                  borderRadius: '24px',
+                  borderRadius: '20px',
                   background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.5) 0%, rgba(255, 255, 255, 0.8) 100%)',
                   backdropFilter: 'blur(10px)',
                   boxShadow: '0 3px 12px rgba(38, 166, 154, 0.1), 0 1px 3px rgba(0,0,0,0.04)'
                 }}>
-                  <CardContent className="p-6">
+                  <CardContent className="p-5">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
                         <h3 className="text-lg font-semibold mb-1" style={{ color: '#2D3748' }}>

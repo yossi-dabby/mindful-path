@@ -274,7 +274,7 @@ export default function GoalCoachWizard({ onClose }) {
                 <p className="text-sm text-gray-500">Step {step} of 4</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose}>
+            <Button type="button" variant="ghost" size="icon" onClick={onClose}>
               <X className="w-5 h-5" />
             </Button>
           </div>
@@ -282,7 +282,7 @@ export default function GoalCoachWizard({ onClose }) {
       </div>
 
       {/* Content - Scrollable with padding for footer + bottom nav */}
-      <div className="flex-1 overflow-y-auto" style={{ minHeight: 0, paddingBottom: 'calc(72px + 72px + env(safe-area-inset-bottom, 0px))' }}>
+      <div className="flex-1 overflow-y-auto" style={{ minHeight: 0, paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px) + 80px)' }}>
         <div className="max-w-2xl mx-auto p-4 md:p-6 w-full">
           {/* Step 1: Select Goal Category */}
           {step === 1 && (
@@ -710,8 +710,8 @@ export default function GoalCoachWizard({ onClose }) {
         </div>
       </div>
 
-      {/* Navigation - Fixed above bottom nav */}
-      <div className="fixed left-0 right-0 z-50 bg-white border-t shadow-lg" style={{ bottom: 'calc(72px + env(safe-area-inset-bottom, 0px))' }}>
+      {/* Navigation - Sticky at bottom, above mobile nav */}
+      <div className="sticky bottom-0 z-50 bg-white border-t shadow-lg flex-shrink-0" style={{ marginBottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)' }}>
         <div className="max-w-2xl mx-auto px-3 py-3 w-full">
           <div className="flex gap-2.5">
             {step > 1 && (

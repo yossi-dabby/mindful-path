@@ -93,7 +93,7 @@ export default function Videos() {
 
         {/* Video Grid */}
         {!isLoading && videos.length > 0 && (
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {videos.map((video, index) => (
               <motion.div
                 key={video.id}
@@ -101,13 +101,14 @@ export default function Videos() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
               >
-                <Card className="border-0 hover:shadow-md transition-calm overflow-hidden group h-full flex flex-col" style={{ 
-                  borderRadius: '18px',
+                <Card className="border-0 hover:shadow-md transition-calm overflow-hidden group flex flex-col" style={{ 
+                  borderRadius: '16px',
                   backgroundColor: 'rgba(255, 255, 255, 0.7)',
                   backdropFilter: 'blur(10px)',
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)'
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)',
+                  height: '100%'
                 }}>
-                  <CardContent className="p-0 flex flex-col h-full">
+                  <CardContent className="p-0 flex flex-col" style={{ height: '100%' }}>
                     <Link 
                       to={`${createPageUrl('VideoPlayer')}?videoUrl=${encodeURIComponent(video.videoUrl)}&title=${encodeURIComponent(video.title)}&videoId=${video.id}`}
                     >
@@ -166,28 +167,29 @@ export default function Videos() {
                     </Link>
 
                     {/* Video Info */}
-                    <div className="p-2.5 flex flex-col flex-1">
-                      <h3 className="text-xs font-semibold mb-1 line-clamp-2 leading-tight" style={{ color: '#2D3748' }}>
+                    <div className="p-3 flex flex-col" style={{ minHeight: '120px' }}>
+                      <h3 className="text-sm font-semibold mb-1.5 line-clamp-2 leading-tight" style={{ color: '#2D3748', minHeight: '2.5rem' }}>
                         {video.title}
                       </h3>
                       {video.category && (
-                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-600 w-fit mb-1.5">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 w-fit mb-2">
                           {video.category}
                         </span>
                       )}
-                      <p className="text-xs mb-2 line-clamp-1" style={{ color: '#718096' }}>
-                        Guided reflection included
-                      </p>
+                      <div className="flex-1"></div>
                       <Button
-                        variant="ghost"
-                        size="sm"
+                        type="button"
                         onClick={(e) => {
                           e.preventDefault();
                           setSelectedVideo(video);
                         }}
-                        className="w-full h-7 text-xs mt-auto bg-blue-50 hover:bg-blue-100 text-blue-600"
+                        className="w-full h-8 text-xs font-medium text-white"
+                        style={{ 
+                          backgroundColor: '#26A69A',
+                          borderRadius: '8px'
+                        }}
                       >
-                        <Plus className="w-3 h-3 mr-1" />
+                        <Plus className="w-3.5 h-3.5 mr-1" />
                         Add to List
                       </Button>
                     </div>
