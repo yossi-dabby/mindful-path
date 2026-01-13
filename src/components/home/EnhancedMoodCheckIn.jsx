@@ -216,11 +216,12 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
 
   // Full modal view (steps 1-3)
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-2xl"
+        className="w-full max-w-2xl my-8"
+        style={{ maxHeight: 'calc(100vh - 160px)' }}
       >
         <Card className="border-0 shadow-2xl" style={{ borderRadius: '32px' }}>
           <CardHeader style={{ borderBottom: '1px solid rgba(38, 166, 154, 0.2)', padding: '20px 24px' }}>
@@ -243,7 +244,7 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
             </div>
           </CardHeader>
 
-          <CardContent className="p-6">
+          <CardContent className="p-4 md:p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 300px)' }}>
             {/* Step 1: Mood Selection */}
             {step === 1 && (
               <motion.div
