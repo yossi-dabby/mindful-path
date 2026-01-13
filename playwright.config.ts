@@ -9,12 +9,10 @@ export default defineConfig({
   workers: process.env.CI ? 2 : undefined,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
-    // Use provided BASE_URL, otherwise the webServer below will serve at this URL
     baseURL: process.env.BASE_URL || 'http://127.0.0.1:4173',
     trace: 'on-first-retry',
     headless: true,
   },
-  // Start a local preview server for CI when BASE_URL isn't provided
   webServer: process.env.BASE_URL
     ? undefined
     : {
@@ -24,11 +22,12 @@ export default defineConfig({
       },
   projects: [
     {
-      name: 'Desktop Chrome',
-      use: { browserName: 'chromium', channel: 'chrome', viewport: { width: 1280, height: 720 } },
+      name: 'web-1440x900',
+      use: { browserName: 'chromium', viewport: { width: 1440, height: 900 } },
     },
-    { name: 'Desktop Firefox', use: { browserName: 'firefox', viewport: { width: 1280, height: 720 } } },
-    { name: 'Pixel 5', use: { ...devices['Pixel 5'] } },
-    { name: 'iPhone 13', use: { ...devices['iPhone 13'] } },
+    {
+      name: 'mobile-390x844',
+      use: { browserName: 'chromium', viewport: { width: 390, height: 844 }, isMobile: true },
+    },
   ],
 });

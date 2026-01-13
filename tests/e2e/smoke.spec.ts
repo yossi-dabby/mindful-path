@@ -4,8 +4,7 @@ import { test, expect } from '@playwright/test';
 // Uses role-based selectors where possible and falls back to keyboard submit.
 
 test('smoke: open chat, send message, receive reply', async ({ page }) => {
-  const base = process.env.BASE_URL || 'http://localhost:3000/Chat';
-  await page.goto(base, { waitUntil: 'networkidle' });
+  await page.goto('/Chat', { waitUntil: 'networkidle' });
 
   // Try to find the primary chat input by role. Adjust the name regex to match the app's accessible label.
   const messageBox = page.getByRole('textbox', { name: /message|chat input|type a message/i });
