@@ -200,11 +200,30 @@ export default function GoalCoachWizard({ onClose }) {
   };
 
   const canProceed = () => {
-    if (step === 1) return formData.category;
-    if (step === 2) return formData.title.trim() && formData.motivation.trim();
+    console.log('canProceed check - step:', step, 'formData:', {
+      category: formData.category,
+      title: formData.title,
+      motivation: formData.motivation
+    });
+    
+    if (step === 1) return !!formData.category;
+    if (step === 2) return formData.title?.trim().length > 0 && formData.motivation?.trim().length > 0;
     if (step === 3) return true; // All fields in step 3 are optional
     if (step === 4) return true; // Review - all validation done
     return false;
+  };
+
+  const handleNext = () => {
+    console.log('handleNext called - current step:', step);
+    console.log('canProceed result:', canProceed());
+    
+    if (canProceed()) {
+      const nextStep = step + 1;
+      console.log('Advancing to step:', nextStep);
+      setStep(nextStep);
+    } else {
+      console.log('Validation failed, not advancing');
+    }
   };
 
   const addReward = () => {
@@ -708,7 +727,8 @@ export default function GoalCoachWizard({ onClose }) {
             )}
             {step < 4 ? (
               <Button
-                onClick={() => setStep(step + 1)}
+                type="button"
+                onClick={handleNext}
                 disabled={!canProceed()}
                 className="flex-1 h-10 bg-gradient-to-r from-orange-600 to-yellow-600 hover:from-orange-700 hover:to-yellow-700"
               >
