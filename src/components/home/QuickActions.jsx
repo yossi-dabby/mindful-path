@@ -21,7 +21,8 @@ const therapeuticActions = [
     title: 'Journal a Thought',
     description: 'Challenge thinking',
     icon: BookOpen,
-    intent: 'thought_work',
+    intent: null,
+    page: 'ThoughtCoach',
     color: '#9F7AEA',
     bgColor: 'rgba(159, 122, 234, 0.15)',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%206.mp4?alt=media&token=78391ab6-7f22-4288-a22f-2efa53ad0aac'
