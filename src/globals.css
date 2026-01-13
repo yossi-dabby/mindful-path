@@ -229,7 +229,19 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+
+  /* Safe area utilities for mobile */
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    margin-bottom: 80px; /* Bottom nav height */
   }
+
+  @media (min-width: 768px) {
+    .safe-bottom {
+      margin-bottom: 0; /* No bottom nav on desktop */
+    }
+  }
+}
 
 /* Scrollbar styling - soft and unobtrusive */
 ::-webkit-scrollbar {
