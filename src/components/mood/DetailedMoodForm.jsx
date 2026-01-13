@@ -88,8 +88,8 @@ export default function DetailedMoodForm({ entry, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <Card className="w-full max-w-3xl border-0 shadow-2xl my-8">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto">
+      <Card className="w-full max-w-3xl border-0 shadow-2xl my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
         <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-purple-50">
           <div className="flex items-center justify-between">
             <CardTitle className="text-2xl">How are you feeling today?</CardTitle>
@@ -98,7 +98,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="p-6 space-y-6">
+        <CardContent className="p-4 md:p-6 space-y-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 280px)' }}>
           {/* Date */}
           <div>
             <label className="text-sm font-medium text-gray-700 mb-2 block">Date</label>

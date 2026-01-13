@@ -157,7 +157,7 @@ Please help me create a structured plan to work through this.`
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] md:min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <div className="min-h-[calc(100vh-4rem)] md:min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 w-full overflow-x-hidden">
       {/* Header - Sticky on mobile */}
       <div className="bg-white border-b shadow-sm sticky top-0 z-10 flex-shrink-0">
         <div className="max-w-2xl mx-auto p-4">
@@ -179,8 +179,8 @@ Please help me create a structured plan to work through this.`
       </div>
 
       {/* Content - Scrollable */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-2xl mx-auto p-4 md:p-6 pb-32">
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="max-w-2xl mx-auto p-4 md:p-6 pb-32 w-full">
           {/* Step 1: Focus Area */}
           {step === 1 && (
             <div className="space-y-6">
@@ -348,7 +348,7 @@ Please help me create a structured plan to work through this.`
       </div>
 
       {/* Navigation - Fixed at bottom above mobile nav */}
-      <div className="bg-white border-t shadow-lg fixed bottom-0 left-0 right-0 mb-16 md:mb-0 z-20 flex-shrink-0">
+      <div className="bg-white border-t shadow-lg fixed bottom-0 left-0 right-0 z-20 flex-shrink-0" style={{ marginBottom: 'calc(80px + env(safe-area-inset-bottom, 0))' }}>
         <div className="max-w-2xl mx-auto p-4">
           <div className="flex gap-3">
             {step > 1 && (
