@@ -92,7 +92,7 @@ export default function Coach() {
 
   // Main coach page
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
+    <div className="w-full overflow-x-hidden" style={{ minHeight: '100vh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
       {/* Mobile Header - Matches web structure */}
       <motion.div 
         className="md:hidden backdrop-blur-xl border-b p-4 shadow-sm"
@@ -213,7 +213,7 @@ export default function Coach() {
       </motion.div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto p-4 md:p-6 pb-32 md:pb-24">
+      <div className="max-w-7xl mx-auto p-4 md:p-6 pb-32 md:pb-24 w-full overflow-x-hidden">
         {sessions.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}

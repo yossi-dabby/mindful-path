@@ -43,8 +43,8 @@ export default function MoodTracker() {
   };
 
   return (
-    <div className="p-4 md:p-6" style={{ minHeight: '100vh', background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
-      <div className="max-w-7xl mx-auto">
+    <div className="p-4 md:p-6 pb-32 md:pb-24 w-full overflow-x-hidden" style={{ minHeight: '100vh', background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
+      <div className="max-w-7xl mx-auto w-full">
         {/* Header */}
         <motion.div 
           className="mb-6"
