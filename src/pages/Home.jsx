@@ -196,11 +196,11 @@ export default function Home() {
   };
 
   return (
-    <div style={{ 
+    <div className="w-full overflow-x-hidden" style={{ 
       minHeight: '100vh',
       background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)'
     }}>
-      <div className="page-container max-w-5xl mx-auto">
+      <div className="page-container max-w-5xl mx-auto w-full pb-24">
         {/* Header */}
         <motion.div 
           className="mb-4 mt-6"

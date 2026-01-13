@@ -117,7 +117,7 @@ export default function Journal() {
   }, []);
 
   return (
-    <div className="p-4 md:p-8 max-w-5xl mx-auto" style={{ minHeight: '100vh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
+    <div className="p-4 md:p-8 pb-32 md:pb-24 max-w-5xl mx-auto w-full overflow-x-hidden" style={{ minHeight: '100vh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 mt-4">
         <div className="flex items-center gap-3">

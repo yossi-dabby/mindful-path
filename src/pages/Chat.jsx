@@ -408,7 +408,7 @@ export default function Chat() {
         </div>
 
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto" style={{ backgroundColor: 'transparent' }}>
+        <div className="flex-1 overflow-y-auto min-h-0" style={{ backgroundColor: 'transparent' }}>
           {!currentConversationId ? (
             <div className="h-full flex flex-col">
               {/* Welcome Section - Separate container */}
@@ -485,7 +485,7 @@ export default function Chat() {
               )}
 
               {/* Active Chat Messages Section - Separate scrollable container */}
-              <div className="flex-1 p-4 md:p-6 space-y-6" style={{ backgroundColor: 'transparent' }}>
+              <div className="flex-1 p-4 md:p-6 pb-8 space-y-6 overflow-y-auto min-h-0" style={{ backgroundColor: 'transparent' }}>
                 {messages.filter(m => m && m.content).map((message, index) => (
                   <MessageBubble key={index} message={message} />
                 ))}

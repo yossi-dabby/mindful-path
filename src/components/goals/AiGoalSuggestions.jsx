@@ -121,8 +121,8 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
 
   if (!suggestions && !isLoading) {
     return (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <Card className="w-full max-w-2xl border-0 shadow-2xl">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24">
+        <Card className="w-full max-w-2xl border-0 shadow-2xl my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
           <CardContent className="p-8 text-center">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center mx-auto mb-4">
               <Sparkles className="w-8 h-8 text-white" />
@@ -152,8 +152,8 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <Card className="w-full max-w-2xl border-0 shadow-2xl">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24">
+        <Card className="w-full max-w-2xl border-0 shadow-2xl my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
           <CardContent className="p-12 text-center">
             <Loader2 className="w-12 h-12 text-purple-600 animate-spin mx-auto mb-4" />
             <p className="text-gray-600">Analyzing your patterns and generating personalized goals...</p>
@@ -164,10 +164,10 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl h-full max-h-[90vh] flex flex-col">
-        <Card className="border-0 shadow-2xl flex-1 overflow-hidden flex flex-col">
-        <CardContent className="p-6 flex flex-col h-full overflow-hidden">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto">
+      <div className="w-full max-w-4xl my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
+        <Card className="border-0 shadow-2xl flex flex-col overflow-hidden">
+        <CardContent className="p-4 md:p-6 flex flex-col overflow-hidden">
           <div className="flex items-center justify-between mb-6 flex-shrink-0">
             <div className="flex items-center gap-2">
               <Sparkles className="w-6 h-6 text-purple-600" />
@@ -178,7 +178,7 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
             </Button>
           </div>
 
-          <div className="space-y-6 overflow-y-auto flex-1 pr-2">
+          <div className="space-y-6 overflow-y-auto flex-1 pr-2" style={{ maxHeight: 'calc(100vh - 320px)' }}>
             {safeArray(suggestions?.goals).map((goal, index) => (
               <motion.div
                 key={index}

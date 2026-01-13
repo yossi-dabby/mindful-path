@@ -124,8 +124,8 @@ export default function Exercises() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
-      <div className="p-4 md:p-8 max-w-6xl mx-auto">
+    <div className="min-h-screen w-full overflow-x-hidden" style={{ background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
+      <div className="p-4 md:p-8 pb-32 md:pb-24 max-w-6xl mx-auto w-full">
       {/* Header */}
       <div className="mb-8 mt-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
