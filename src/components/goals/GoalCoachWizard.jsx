@@ -260,9 +260,9 @@ export default function GoalCoachWizard({ onClose }) {
   );
 
   return (
-    <div className="fixed inset-0 z-50 bg-gradient-to-br from-orange-50 via-yellow-50 to-green-50 flex flex-col overflow-hidden">
-      {/* Header - Sticky on mobile */}
-      <div className="bg-white border-b shadow-sm sticky top-0 z-10 flex-shrink-0 overflow-x-hidden">
+    <div className="fixed inset-0 z-50 bg-gradient-to-br from-orange-50 via-yellow-50 to-green-50 flex flex-col h-[100dvh] overflow-hidden">
+      {/* Header - Fixed */}
+      <div className="bg-white border-b shadow-sm flex-shrink-0">
         <div className="max-w-2xl mx-auto p-4 w-full">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -281,8 +281,8 @@ export default function GoalCoachWizard({ onClose }) {
         </div>
       </div>
 
-      {/* Content - Scrollable */}
-      <div className="flex-1 overflow-y-auto min-h-0 pb-24">
+      {/* Content - Scrollable with bottom padding for action bar + mobile nav */}
+      <div className="flex-1 overflow-y-auto min-h-0 pb-[calc(120px+env(safe-area-inset-bottom))] md:pb-[calc(80px+env(safe-area-inset-bottom))]">
         <div className="max-w-2xl mx-auto p-4 md:p-6 w-full">
           {/* Step 1: Select Goal Category */}
           {step === 1 && (
@@ -710,12 +710,13 @@ export default function GoalCoachWizard({ onClose }) {
         </div>
       </div>
 
-      {/* Navigation - Fixed at bottom */}
-      <div className="bg-white border-t shadow-lg flex-shrink-0 safe-bottom">
-        <div className="max-w-2xl mx-auto p-3 w-full">
+      {/* Navigation - Sticky at bottom, always visible */}
+      <div className="sticky bottom-0 z-50 bg-white/95 backdrop-blur-sm border-t shadow-lg flex-shrink-0 pb-[calc(12px+env(safe-area-inset-bottom))] md:pb-3">
+        <div className="max-w-2xl mx-auto px-3 pt-3 w-full">
           <div className="flex gap-2.5">
             {step > 1 && (
               <Button
+                type="button"
                 variant="outline"
                 onClick={() => setStep(step - 1)}
                 disabled={createGoalMutation.isPending}
@@ -737,6 +738,7 @@ export default function GoalCoachWizard({ onClose }) {
               </Button>
             ) : (
               <Button
+                type="button"
                 onClick={handleSubmit}
                 disabled={!canProceed() || createGoalMutation.isPending}
                 className="flex-1 h-10 bg-gradient-to-r from-orange-600 to-yellow-600 hover:from-orange-700 hover:to-yellow-700"

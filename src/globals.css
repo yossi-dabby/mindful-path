@@ -241,6 +241,17 @@
       margin-bottom: 0; /* No bottom nav on desktop */
     }
   }
+
+  /* Wizard action bar utilities */
+  .safe-bottom-nav {
+    padding-bottom: calc(84px + env(safe-area-inset-bottom, 0));
+  }
+
+  @media (min-width: 768px) {
+    .safe-bottom-nav {
+      padding-bottom: calc(12px + env(safe-area-inset-bottom, 0));
+    }
+  }
 }
 
 /* Scrollbar styling - soft and unobtrusive */
