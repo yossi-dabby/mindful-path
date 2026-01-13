@@ -260,7 +260,7 @@ export default function GoalCoachWizard({ onClose }) {
   );
 
   return (
-    <div className="fixed inset-0 z-50 bg-gradient-to-br from-orange-50 via-yellow-50 to-green-50 flex flex-col h-[100dvh] overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-gradient-to-br from-orange-50 via-yellow-50 to-green-50" style={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden' }}>
       {/* Header - Fixed */}
       <div className="bg-white border-b shadow-sm flex-shrink-0">
         <div className="max-w-2xl mx-auto p-4 w-full">
@@ -281,8 +281,8 @@ export default function GoalCoachWizard({ onClose }) {
         </div>
       </div>
 
-      {/* Content - Scrollable with bottom padding for action bar + mobile nav */}
-      <div className="flex-1 overflow-y-auto min-h-0 pb-[calc(120px+env(safe-area-inset-bottom))] md:pb-[calc(80px+env(safe-area-inset-bottom))]">
+      {/* Content - Scrollable with padding for footer + bottom nav */}
+      <div className="flex-1 overflow-y-auto" style={{ minHeight: 0, paddingBottom: 'calc(72px + 72px + env(safe-area-inset-bottom, 0px))' }}>
         <div className="max-w-2xl mx-auto p-4 md:p-6 w-full">
           {/* Step 1: Select Goal Category */}
           {step === 1 && (
@@ -710,9 +710,9 @@ export default function GoalCoachWizard({ onClose }) {
         </div>
       </div>
 
-      {/* Navigation - Sticky at bottom, always visible */}
-      <div className="sticky bottom-0 z-50 bg-white/95 backdrop-blur-sm border-t shadow-lg flex-shrink-0 pb-[calc(12px+env(safe-area-inset-bottom))] md:pb-3">
-        <div className="max-w-2xl mx-auto px-3 pt-3 w-full">
+      {/* Navigation - Fixed above bottom nav */}
+      <div className="fixed left-0 right-0 z-50 bg-white border-t shadow-lg" style={{ bottom: 'calc(72px + env(safe-area-inset-bottom, 0px))' }}>
+        <div className="max-w-2xl mx-auto px-3 py-3 w-full">
           <div className="flex gap-2.5">
             {step > 1 && (
               <Button
