@@ -151,6 +151,7 @@ export default function ThoughtCoachWizard({ onClose }) {
   const canProceed = () => {
     if (step === 1) return formData.thought_type;
     if (step === 2) return formData.situation && formData.automatic_thoughts && formData.emotions.length > 0;
+    if (step === 3) return true; // All validation already done in step 2
     return false;
   };
 
