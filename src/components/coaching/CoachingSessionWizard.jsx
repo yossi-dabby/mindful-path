@@ -159,8 +159,8 @@ Please help me create a structured plan to work through this.`
   return (
     <div className="min-h-[calc(100vh-4rem)] md:min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 w-full overflow-x-hidden">
       {/* Header - Sticky on mobile */}
-      <div className="bg-white border-b shadow-sm sticky top-0 z-10 flex-shrink-0">
-        <div className="max-w-2xl mx-auto p-4">
+      <div className="bg-white border-b shadow-sm sticky top-0 z-10 flex-shrink-0 overflow-x-hidden">
+        <div className="max-w-2xl mx-auto p-4 w-full">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
