@@ -280,11 +280,16 @@ export default function GoalCoachWizard({ onClose }) {
                   return (
                     <button
                       key={`${category.value}-${index}`}
-                      onClick={() => setFormData({ 
-                        ...formData, 
-                        category: category.value,
-                        ui_category_label: category.label 
-                      })}
+                      type="button"
+                      onClick={() => {
+                        setFormData({ 
+                          ...formData, 
+                          category: category.value,
+                          ui_category_label: category.label 
+                        });
+                        // Auto-advance to Step 2 after category selection
+                        setStep(2);
+                      }}
                       className={cn(
                         'p-4 rounded-xl border-2 text-left transition-all hover:shadow-lg',
                         isSelected
