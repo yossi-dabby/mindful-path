@@ -37,7 +37,7 @@ jobs:
         run:  npm run build
       
       - name: Run Playwright tests
-        run: npx playwright test --project=${{ matrix.project }}
+        run: npm run test:e2e -- --project=${{ matrix.project }}
         env:
           CI: true
       
