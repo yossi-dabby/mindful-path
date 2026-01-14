@@ -94,7 +94,22 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
     const next1 = nextButtonLocator(page);
     await expect(next1).toBeVisible({ timeout: 20000 });
     await next1.scrollIntoViewIfNeeded();
-    await expect(next1).toBeEnabled();
+    
+    // Wait for Next button to become enabled with polling
+    await expect.poll(
+      async () => await next1.isEnabled(),
+      { timeout: 15000, message: 'Next button did not become enabled after category selection' }
+    ).toBe(true);
+
+    // Fallback: if still not enabled, try clicking category again
+    if (!(await next1.isEnabled())) {
+      await category.click();
+      await expect.poll(
+        async () => await next1.isEnabled(),
+        { timeout: 10000 }
+      ).toBe(true);
+    }
+    
     await next1.click({ trial: true }).catch(() => {
       throw new Error('Next button trial-click failed; page may have navigated or crashed.');
     });

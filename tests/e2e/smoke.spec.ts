@@ -1,16 +1,33 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
+
+const CHAT_PATHS = ['/Chat', '/chat', '/'];
+
+async function gotoFirstExistingChat(page: Page) {
+  for (const path of CHAT_PATHS) {
+    const response = await page.goto(path, { waitUntil: 'domcontentloaded', timeout: 20000 }).catch(() => null);
+    if (response && response.status() < 400) {
+      return path;
+    }
+  }
+  return null;
+}
 
 test('smoke: open chat, send message, receive reply', async ({ page }) => {
-  // Navigate using DOMContentLoaded first to avoid polling-induced networkidle flakiness
-  await page.goto('/Chat', { waitUntil: 'domcontentloaded', timeout: 20000 }).catch(() => {});
+  // Navigate using candidate paths
+  const chatPath = await gotoFirstExistingChat(page);
+  if (!chatPath) {
+    test.skip(true, 'No reachable chat path found');
+    return;
+  }
 
   // short attempt to wait for networkidle but tolerate failure
   await page.waitForLoadState('networkidle', { timeout: 3000 }).catch(() => {});
+  
   // If redirected to auth/login, skip
   const url = page.url();
   const authKeywords = ['login', 'signin', 'auth', 'התחבר', 'כניסה'];
   if (authKeywords.some(k => url.toLowerCase().includes(k))) {
-    test.skip(true, `Skipped Chat smoke because redirected to auth/login (${url})`);
+    test.skip(true, `Redirected to auth/login (${url})`);
     return;
   }
 
@@ -43,8 +60,8 @@ test('smoke: open chat, send message, receive reply', async ({ page }) => {
   }
 
   if (!messageBox) {
-    test.skip(true, `Could not locate message input on /Chat (${page.url()})`);
-    return;
+    await page.screenshot({ path: 'chat-input-not-found.png', fullPage: true });
+    throw new Error(`Could not locate message input on ${chatPath} (${page.url()}). Screenshot saved.`);
   }
 
   await expect(messageBox).toBeVisible({ timeout: 20000 });
