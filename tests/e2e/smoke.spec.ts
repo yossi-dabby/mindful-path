@@ -1,6 +1,14 @@
 import { test, expect } from '@playwright/test';
 
 test('smoke: open chat, send message, receive reply', async ({ page }) => {
+  // Collect console errors for diagnostics
+  const consoleErrors = [];
+  page.on('console', msg => {
+    if (msg.type() === 'error') {
+      consoleErrors.push(msg.text());
+    }
+  });
+
   // Navigate using DOMContentLoaded first to avoid polling-induced networkidle flakiness
   await page.goto('/Chat', { waitUntil: 'domcontentloaded', timeout: 20000 }).catch(() => {});
 
@@ -15,10 +23,29 @@ test('smoke: open chat, send message, receive reply', async ({ page }) => {
   }
 
   // Wait for a page anchor that proves Chat rendered
-  const chatAnchor = page.getByRole('heading', { name: /chat|ai therapist|מכנה|צ'אט|צאט/i }).first();
-  const chatAnchorAlt = page.getByText(/Chat|AI Therapist|צ'אט|צאט|מטפל/i).first();
-  const anchor = (await chatAnchor.count()) > 0 ? chatAnchor : chatAnchorAlt;
-  await expect(anchor).toBeVisible({ timeout: 20000 });
+  // Try multiple strategies with visible filters
+  let chatAnchor = page.locator('h1:visible, h2:visible, [role="heading"]:visible')
+    .filter({ hasText: /chat|ai therapist|צ'אט|צאט|מטפל/i })
+    .first();
+
+  // Fallback to any visible text
+  if ((await chatAnchor.count()) === 0) {
+    chatAnchor = page.locator('*:visible')
+      .filter({ hasText: /chat|ai therapist|צ'אט|צאט|מטפל/i })
+      .first();
+  }
+
+  try {
+    await expect(chatAnchor).toBeVisible({ timeout: 20000 });
+  } catch (error) {
+    await page.screenshot({ path: `test-results/smoke-chat-anchor-failure-${Date.now()}.png`, fullPage: true });
+    console.error(`Chat anchor not visible. URL: ${page.url()}, Console errors: ${consoleErrors.slice(0, 5).join(', ')}`);
+    throw new Error(
+      `Chat anchor not found on ${page.url()}.\n` +
+      `Console errors: ${consoleErrors.slice(0, 5).join('\n')}\n` +
+      `Screenshot captured for debugging.`
+    );
+  }
 
   // Locate the message input with fallback chain
   const byRole = page.getByRole('textbox', { name: /message|chat input|type a message|הודעה|הקלד/i }).first();
@@ -43,8 +70,13 @@ test('smoke: open chat, send message, receive reply', async ({ page }) => {
   }
 
   if (!messageBox) {
-    test.skip(true, `Could not locate message input on /Chat (${page.url()})`);
-    return;
+    await page.screenshot({ path: `test-results/chat-input-not-found-${Date.now()}.png`, fullPage: true });
+    const errorLog = consoleErrors.slice(0, 5).join('\n');
+    throw new Error(
+      `Could not locate message input on /Chat (${page.url()}).\n` +
+      `Console errors:\n${errorLog}\n` +
+      `Screenshot saved for debugging.`
+    );
   }
 
   await expect(messageBox).toBeVisible({ timeout: 20000 });
