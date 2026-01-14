@@ -13,6 +13,14 @@ async function gotoFirstExistingChat(page: Page) {
 }
 
 test('smoke: open chat, send message, receive reply', async ({ page }) => {
+  // Capture console errors for diagnostics
+  const consoleErrors: string[] = [];
+  page.on('console', msg => {
+    if (msg.type() === 'error') {
+      consoleErrors.push(msg.text());
+    }
+  });
+
   // Navigate using candidate paths
   const chatPath = await gotoFirstExistingChat(page);
   if (!chatPath) {
@@ -43,10 +51,6 @@ test('smoke: open chat, send message, receive reply', async ({ page }) => {
     await expect(anchor).toBeVisible({ timeout: 20000 });
   } catch (error) {
     await page.screenshot({ path: `test-results/smoke-chat-anchor-failure-${Date.now()}.png`, fullPage: true });
-    const consoleErrors = [];
-    page.on('console', msg => {
-      if (msg.type() === 'error') consoleErrors.push(msg.text());
-    });
     console.error(`Chat anchor not visible. URL: ${page.url()}, Console errors: ${consoleErrors.slice(0, 5).join(', ')}`);
     throw error;
   }
@@ -76,10 +80,6 @@ test('smoke: open chat, send message, receive reply', async ({ page }) => {
   if (!messageBox) {
     // Capture diagnostics before throwing error
     await page.screenshot({ path: `test-results/smoke-input-not-found-${Date.now()}.png`, fullPage: true });
-    const consoleErrors = [];
-    page.on('console', msg => {
-      if (msg.type() === 'error') consoleErrors.push(msg.text());
-    });
     console.error(`Could not locate message input on ${chatPath} (${page.url()}). Console errors: ${consoleErrors.slice(0, 5).join(', ')}`);
     throw new Error(`Could not locate message input on ${chatPath} (${page.url()}). Screenshot saved.`);
   }

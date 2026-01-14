@@ -62,6 +62,14 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
       throw new Error('Page closed unexpectedly during test');
     });
 
+    // Capture console errors for diagnostics
+    const consoleErrors: string[] = [];
+    page.on('console', msg => {
+      if (msg.type() === 'error') {
+        consoleErrors.push(msg.text());
+      }
+    });
+
     // Navigate with retries/backoff
     const path = await gotoFirstExisting(page);
     if (!path) {
@@ -107,10 +115,6 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
     } catch (error) {
       // Enhanced failure diagnostics
       await page.screenshot({ path: `test-results/goalcoach-next-button-failure-${Date.now()}.png`, fullPage: true });
-      const consoleErrors = [];
-      page.on('console', msg => {
-        if (msg.type() === 'error') consoleErrors.push(msg.text());
-      });
       console.error(`Next button enable polling failed. URL: ${page.url()}, Console errors: ${consoleErrors.slice(0, 5).join(', ')}`);
       throw error;
     }
@@ -125,7 +129,7 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
         ).toBe(true);
       } catch (error) {
         await page.screenshot({ path: `test-results/goalcoach-next-button-retry-failure-${Date.now()}.png`, fullPage: true });
-        console.error(`Next button retry failed. URL: ${page.url()}`);
+        console.error(`Next button retry failed. URL: ${page.url()}, Console errors: ${consoleErrors.slice(0, 5).join(', ')}`);
         throw error;
       }
     }
