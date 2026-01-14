@@ -32,10 +32,24 @@ test('smoke: open chat, send message, receive reply', async ({ page }) => {
   }
 
   // Wait for a page anchor that proves Chat rendered
-  const chatAnchor = page.getByRole('heading', { name: /chat|ai therapist|מכנה|צ'אט|צאט/i }).first();
-  const chatAnchorAlt = page.getByText(/Chat|AI Therapist|צ'אט|צאט|מטפל/i).first();
-  const anchor = (await chatAnchor.count()) > 0 ? chatAnchor : chatAnchorAlt;
-  await expect(anchor).toBeVisible({ timeout: 20000 });
+  const chatAnchor = page.getByRole('heading', { name: /chat|ai therapist|מכנה|צ'אט|צאט/i }).locator(':visible').first();
+  const chatAnchorAlt = page.getByText(/Chat|AI Therapist|צ'אט|צאט|מטפל/i).locator(':visible').first();
+  let anchor = chatAnchor;
+  if ((await chatAnchor.count()) === 0) {
+    anchor = chatAnchorAlt;
+  }
+  
+  try {
+    await expect(anchor).toBeVisible({ timeout: 20000 });
+  } catch (error) {
+    await page.screenshot({ path: `test-results/smoke-chat-anchor-failure-${Date.now()}.png`, fullPage: true });
+    const consoleErrors = [];
+    page.on('console', msg => {
+      if (msg.type() === 'error') consoleErrors.push(msg.text());
+    });
+    console.error(`Chat anchor not visible. URL: ${page.url()}, Console errors: ${consoleErrors.slice(0, 5).join(', ')}`);
+    throw error;
+  }
 
   // Locate the message input with fallback chain
   const byRole = page.getByRole('textbox', { name: /message|chat input|type a message|הודעה|הקלד/i }).first();
@@ -60,7 +74,13 @@ test('smoke: open chat, send message, receive reply', async ({ page }) => {
   }
 
   if (!messageBox) {
-    await page.screenshot({ path: 'chat-input-not-found.png', fullPage: true });
+    // Capture diagnostics before throwing error
+    await page.screenshot({ path: `test-results/smoke-input-not-found-${Date.now()}.png`, fullPage: true });
+    const consoleErrors = [];
+    page.on('console', msg => {
+      if (msg.type() === 'error') consoleErrors.push(msg.text());
+    });
+    console.error(`Could not locate message input on ${chatPath} (${page.url()}). Console errors: ${consoleErrors.slice(0, 5).join(', ')}`);
     throw new Error(`Could not locate message input on ${chatPath} (${page.url()}). Screenshot saved.`);
   }
 

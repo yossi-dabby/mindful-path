@@ -34,7 +34,7 @@ async function gotoFirstExisting(page: Page, maxAttempts = 3) {
 }
 
 function nextButtonLocator(page: Page) {
-  return page.getByRole('button', { name: /next|הבא/i }).first();
+  return page.getByRole('button', { name: /next|הבא/i }).last();
 }
 
 function saveButtonLocator(page: Page) {
@@ -81,7 +81,10 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
 
     // Step 1: choose a category card
     const categoryLabel = /Routine & Productivity|Routine|רוטינה|התנהגות|Behavioral/i;
-    let category = page.getByRole('button', { name: categoryLabel }).first();
+    let category = page.locator('button:visible').filter({ hasText: categoryLabel }).first();
+    if ((await category.count()) === 0) {
+      category = page.getByRole('button', { name: categoryLabel }).first();
+    }
     if ((await category.count()) === 0) {
       category = page.getByText(categoryLabel).first();
     }
@@ -96,18 +99,35 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
     await next1.scrollIntoViewIfNeeded();
     
     // Wait for Next button to become enabled with polling
-    await expect.poll(
-      async () => await next1.isEnabled(),
-      { timeout: 15000, message: 'Next button did not become enabled after category selection' }
-    ).toBe(true);
+    try {
+      await expect.poll(
+        async () => await next1.isEnabled(),
+        { timeout: 15000, message: 'Next button did not become enabled after category selection' }
+      ).toBe(true);
+    } catch (error) {
+      // Enhanced failure diagnostics
+      await page.screenshot({ path: `test-results/goalcoach-next-button-failure-${Date.now()}.png`, fullPage: true });
+      const consoleErrors = [];
+      page.on('console', msg => {
+        if (msg.type() === 'error') consoleErrors.push(msg.text());
+      });
+      console.error(`Next button enable polling failed. URL: ${page.url()}, Console errors: ${consoleErrors.slice(0, 5).join(', ')}`);
+      throw error;
+    }
 
     // Fallback: if still not enabled, try clicking category again
     if (!(await next1.isEnabled())) {
       await category.click();
-      await expect.poll(
-        async () => await next1.isEnabled(),
-        { timeout: 10000 }
-      ).toBe(true);
+      try {
+        await expect.poll(
+          async () => await next1.isEnabled(),
+          { timeout: 10000, message: 'Next button still not enabled after retry' }
+        ).toBe(true);
+      } catch (error) {
+        await page.screenshot({ path: `test-results/goalcoach-next-button-retry-failure-${Date.now()}.png`, fullPage: true });
+        console.error(`Next button retry failed. URL: ${page.url()}`);
+        throw error;
+      }
     }
     
     await next1.click({ trial: true }).catch(() => {
