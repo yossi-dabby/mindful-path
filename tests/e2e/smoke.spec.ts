@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('smoke: open chat, send message, receive reply', async ({ page }) => {
   // Collect console errors for diagnostics
-  const consoleErrors = [];
+  const consoleErrors: string[] = [];
   page.on('console', msg => {
     if (msg.type() === 'error') {
       consoleErrors.push(msg.text());
@@ -37,7 +37,7 @@ test('smoke: open chat, send message, receive reply', async ({ page }) => {
 
   try {
     await expect(chatAnchor).toBeVisible({ timeout: 20000 });
-  } catch (error) {
+  } catch {
     await page.screenshot({ path: `test-results/smoke-chat-anchor-failure-${Date.now()}.png`, fullPage: true });
     console.error(`Chat anchor not visible. URL: ${page.url()}, Console errors: ${consoleErrors.slice(0, 5).join(', ')}`);
     throw new Error(

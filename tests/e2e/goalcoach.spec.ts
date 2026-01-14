@@ -57,7 +57,7 @@ function isAuthUrl(url: string) {
 test.describe('GoalCoach parity (web + mobile projects)', () => {
   test('GoalCoach steps 1→4', async ({ page }) => {
     // Collect console errors for diagnostics
-    const consoleErrors = [];
+    const consoleErrors: string[] = [];
     page.on('console', msg => {
       if (msg.type() === 'error') {
         consoleErrors.push(msg.text());
@@ -108,9 +108,9 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
     // Check if button is enabled with enhanced diagnostics
     try {
       await expect(next1).toBeEnabled({ timeout: 15000 });
-    } catch (error) {
+    } catch {
       // Capture diagnostics before failing
-      const screenshot = await page.screenshot({ fullPage: true });
+      await page.screenshot({ path: `test-results/goalcoach-next-disabled-${Date.now()}.png`, fullPage: true });
       const url = page.url();
       const errorLog = consoleErrors.slice(0, 5).join('\n');
       
