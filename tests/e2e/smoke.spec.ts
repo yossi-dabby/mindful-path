@@ -1,16 +1,71 @@
 import { test, expect, Page } from '@playwright/test';
 
 const CHAT_PATHS = ['/Chat', '/chat', '/'];
+async function bootSPA(page: Page) {
+  await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 20000 });
+
+  // Wait for React mount if #root exists
+  const root = page.locator('#root');
+  if ((await root.count()) > 0) {
+    await expect
+      .poll(async () => root.evaluate(el => (el as HTMLElement).childElementCount), { timeout: 20000 })
+      .toBeGreaterThan(0);
+  }
+}
+
+async function spaNavigate(page: Page, path: string) {
+  if (!path || path === '/') return;
+
+  // Prefer clicking a real in-app link if it exists
+  const directHref = page.locator(`a[href="${path}"]:visible`).first();
+  if ((await directHref.count()) > 0) {
+    await directHref.click().catch(() => {});
+  } else {
+    // Fallback: client-side navigation without full reload
+    await page.evaluate((p) => {
+      history.pushState({}, '', p);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }, path);
+  }
+
+  // Do not hard-fail if router normalizes case; best-effort wait
+  await expect
+    .poll(() => page.url().includes(path), { timeout: 5000 })
+    .toBeTruthy()
+    .catch(() => {});
+}
+
+function chatAnchorLocators(page: Page) {
+  const a1 = page.getByRole('heading', { name: /chat|ai therapist|מכנה|צ'אט|צאט/i }).first();
+  const a2 = page.getByText(/Chat|AI Therapist|צ'אט|צאט|מטפל/i).first();
+  return { a1, a2 };
+}
 
 async function gotoFirstExistingChat(page: Page) {
+  // Boot SPA from root first to avoid deep-link asset 404s
+  await bootSPA(page);
+
   for (const path of CHAT_PATHS) {
-    const response = await page.goto(path, { waitUntil: 'domcontentloaded', timeout: 20000 }).catch(() => null);
-    if (response && response.status() < 400) {
-      return path;
+    if (path !== '/') {
+      await spaNavigate(page, path);
     }
+
+    const { a1, a2 } = chatAnchorLocators(page);
+
+    // Quick proof Chat rendered
+    try {
+      await a1.waitFor({ state: 'visible', timeout: 4000 });
+      return path;
+    } catch {}
+    try {
+      await a2.waitFor({ state: 'visible', timeout: 2000 });
+      return path;
+    } catch {}
   }
+
   return null;
 }
+
 
 test('smoke: open chat, send message, receive reply', async ({ page }) => {
   // Capture console errors for diagnostics
