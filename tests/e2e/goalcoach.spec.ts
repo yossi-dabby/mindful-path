@@ -34,7 +34,9 @@ async function gotoFirstExisting(page: Page, maxAttempts = 3) {
 }
 
 function nextButtonLocator(page: Page) {
-  return page.getByRole('button', { name: /next|הבא/i }).first();
+  // Multi-step forms often have previous step buttons hidden in DOM
+  // The last visible "Next" button is the active one
+  return page.locator('button:visible').filter({ hasText: /next|הבא/i }).last();
 }
 
 function saveButtonLocator(page: Page) {
@@ -54,6 +56,14 @@ function isAuthUrl(url: string) {
 
 test.describe('GoalCoach parity (web + mobile projects)', () => {
   test('GoalCoach steps 1→4', async ({ page }) => {
+    // Collect console errors for diagnostics
+    const consoleErrors: string[] = [];
+    page.on('console', msg => {
+      if (msg.type() === 'error') {
+        consoleErrors.push(msg.text());
+      }
+    });
+
     // Attach listeners to fail fast on crashes/closes
     page.on('crash', () => {
       throw new Error('Browser page crashed during test');
@@ -81,10 +91,10 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
 
     // Step 1: choose a category card
     const categoryLabel = /Routine & Productivity|Routine|רוטינה|התנהגות|Behavioral/i;
-    let category = page.getByRole('button', { name: categoryLabel }).first();
-    if ((await category.count()) === 0) {
-      category = page.getByText(categoryLabel).first();
-    }
+    // Use locator with visible filter to ensure we click an interactive button
+    const category = page.locator('button:visible')
+      .filter({ hasText: categoryLabel })
+      .first();
     await expect(category).toBeVisible({ timeout: 15000 });
     await category.scrollIntoViewIfNeeded();
     await expect(category).toBeEnabled();
@@ -94,7 +104,25 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
     const next1 = nextButtonLocator(page);
     await expect(next1).toBeVisible({ timeout: 20000 });
     await next1.scrollIntoViewIfNeeded();
-    await expect(next1).toBeEnabled();
+    
+    // Check if button is enabled with enhanced diagnostics
+    try {
+      await expect(next1).toBeEnabled({ timeout: 15000 });
+    } catch {
+      // Capture diagnostics before failing
+      await page.screenshot({ path: `test-results/goalcoach-next-disabled-${Date.now()}.png`, fullPage: true });
+      const url = page.url();
+      const errorLog = consoleErrors.slice(0, 5).join('\n');
+      
+      console.error(`Next button remained disabled after category selection.\nURL: ${url}\nConsole errors:\n${errorLog}`);
+      throw new Error(
+        `Next button remained disabled after category selection.\n` +
+        `URL: ${url}\n` +
+        `Console errors (first 5):\n${errorLog}\n` +
+        `Screenshot captured for debugging.`
+      );
+    }
+    
     await next1.click({ trial: true }).catch(() => {
       throw new Error('Next button trial-click failed; page may have navigated or crashed.');
     });
