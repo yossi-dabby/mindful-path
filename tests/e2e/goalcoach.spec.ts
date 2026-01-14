@@ -2,36 +2,59 @@ import { test, expect, Page } from '@playwright/test';
 
 const CANDIDATE_PATHS = ['/GoalCoach', '/goalcoach', '/goal-coach'];
 const AUTH_URL_KEYWORDS = ['login', 'signin', 'auth', 'התחבר', 'כניסה'];
+async function bootSPA(page: Page) {
+  await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 20000 });
+
+  const root = page.locator('#root');
+  if ((await root.count()) > 0) {
+    await expect
+      .poll(async () => root.evaluate(el => (el as HTMLElement).childElementCount), { timeout: 20000 })
+      .toBeGreaterThan(0);
+  }
+}
+
+async function spaNavigate(page: Page, path: string) {
+  if (!path) return;
+
+  const directHref = page.locator(`a[href="${path}"]:visible`).first();
+  if ((await directHref.count()) > 0) {
+    await directHref.click().catch(() => {});
+  } else {
+    await page.evaluate((p) => {
+      history.pushState({}, '', p);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }, path);
+  }
+
+  await expect
+    .poll(() => page.url().includes(path), { timeout: 5000 })
+    .toBeTruthy()
+    .catch(() => {});
+}
 
 // Try navigating with retries/backoff to avoid transient navigation failures
-async function gotoFirstExisting(page: Page, maxAttempts = 3) {
+async function gotoFirstExisting(page: Page) {
+  await bootSPA(page);
+
   for (const p of CANDIDATE_PATHS) {
-    let attempt = 0;
-    while (attempt < maxAttempts) {
-      attempt += 1;
-      try {
-        // Use DOMContentLoaded first (less affected by background polling), then short networkidle
-        const response = await page.goto(p, { waitUntil: 'domcontentloaded', timeout: 20000 }).catch(() => null);
-        if (response) {
-          // short attempt to wait for network idle but with small timeout to avoid flakiness
-          await page.waitForLoadState('networkidle', { timeout: 3000 }).catch(() => {});
-          await page.waitForLoadState('domcontentloaded', { timeout: 1000 }).catch(() => {});
-        }
-        if (response && response.status && response.status() < 400) {
-          return p;
-        }
-        const url = page.url();
-        if (url && !url.endsWith('about:blank')) {
-          return p;
-        }
-      } catch {
-        // swallow and retry
-      }
-      await new Promise(r => setTimeout(r, 1000 * attempt));
+    await spaNavigate(page, p);
+
+    // Let the test keep its existing skip logic
+    if (isAuthUrl(page.url())) return p;
+
+    // Quick proof Step 1 rendered
+    const step1 = stepAnchorLocator(page, 1);
+    try {
+      await step1.waitFor({ state: 'visible', timeout: 6000 });
+      return p;
+    } catch {
+      // try next candidate
     }
   }
+
   return null;
 }
+
 
 function nextButtonLocator(page: Page) {
   return page.getByRole('button', { name: /next|הבא/i }).last();
