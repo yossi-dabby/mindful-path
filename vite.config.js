@@ -5,6 +5,20 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   appType: "spa",        
   logLevel: "error",
+  export default defineConfig({
+  appType: "spa",
+  logLevel: "error",
+
+  build: {
+    sourcemap: process.env.CI ? true : false,
+    minify: process.env.CI ? false : 'esbuild',
+  },
+
+  plugins: [
+    // ...
+  ],
+})
+
   plugins: [
     base44({
       legacySDKImports: process.env.BASE44_LEGACY_SDK_IMPORTS === "true",
