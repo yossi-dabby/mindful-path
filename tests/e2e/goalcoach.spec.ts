@@ -34,12 +34,14 @@ async function spaNavigate(page: Page, path: string) {
   const directHref = page.locator(`a[href="${path}"]:visible`).first();
   if ((await directHref.count()) > 0) {
     await directHref.click().catch(() => {});
-  } else {
-    await page.evaluate((p) => {
-      history.pushState({}, '', p);
-      window.dispatchEvent(new PopStateEvent('popstate'));
-    }, path);
-  }
+ } else {
+  await page.evaluate((p) => {
+    history.pushState({}, '', p);
+    window.dispatchEvent(new Event('popstate'));
+    window.dispatchEvent(new Event('pushstate'));
+    window.dispatchEvent(new Event('locationchange'));
+  }, path);
+}
 
   await expect
     .poll(() => page.url().includes(path), { timeout: 5000 })
