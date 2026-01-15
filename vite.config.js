@@ -1,23 +1,17 @@
 import base44 from "@base44/vite-plugin"
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
-
 // https://vite.dev/config/
 export default defineConfig({
-  logLevel: 'error', // Suppress warnings, only show errors
+  appType: "spa",        
+  logLevel: "error",
   plugins: [
     base44({
-      legacySDKImports: process.env.BASE44_LEGACY_SDK_IMPORTS === 'true',
+      legacySDKImports: process.env.BASE44_LEGACY_SDK_IMPORTS === "true",
       hmrNotifier: true,
       navigationNotifier: true,
-      visualEditAgent: true
+      visualEditAgent: true,
     }),
     react(),
   ],
-  server: {
-    historyApiFallback: true, // Enable SPA fallback in dev server
-  },
-  preview: {
-    historyApiFallback: true, // Enable SPA fallback in preview/CI
-  }
 });
