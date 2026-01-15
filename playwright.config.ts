@@ -14,12 +14,12 @@ export default defineConfig({
     headless: true,
   },
   webServer: process.env.BASE_URL
-    ? undefined
-    : {
-        command: 'npm run build && npm run preview -- --host 127.0.0.1 --port 4173',
-        url: 'http://127.0.0.1:4173',
-        reuseExistingServer: true,
-      },
+  ? undefined
+  : {
+      command: 'npm run build && npx --yes serve -s dist -l 4173',
+      url: 'http://127.0.0.1:4173',
+      reuseExistingServer: !process.env.CI,
+    },
   projects: [
     {
       name: 'web-1440x900',
