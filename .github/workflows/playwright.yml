@@ -3,7 +3,7 @@ name: Playwright E2E Tests
 on:
   push:
     branches: [ main, master, develop ]
-  pull_request: 
+  pull_request:
     branches: [ main, master, develop ]
 
 jobs:
@@ -11,36 +11,56 @@ jobs:
     name: E2E Tests
     timeout-minutes: 20
     runs-on: ubuntu-latest
-    
-    strategy: 
+
+    strategy:
       fail-fast: false
       matrix:
         project: [web-1440x900, mobile-390x844]
-    
+
     steps:
-      - name:  Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
-        with: 
+        with:
           node-version: '20.x'
           cache: 'npm'
-      
+
       - name: Install dependencies
-        run:  npm ci
-      
+        run: npm ci
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
-      
+
       - name: Build application
-        run:  npm run build
-      
+        run: npm run build
+
+      # --- DEBUG: Inspect build output to catch base path / missing assets issues ---
+      - name: Inspect build output
+        run: |
+          echo "==== DIST LISTING ===="
+          ls -la dist || true
+          echo
+          echo "==== INDEX.HTML (first 80 lines) ===="
+          if [ -f dist/index.html ]; then
+            sed -n '1,80p' dist/index.html
+          else
+            echo "dist/index.html not found"
+          fi
+          echo
+          echo "==== DIST/ASSETS LISTING (first 80 entries) ===="
+          if [ -d dist/assets ]; then
+            ls -la dist/assets | sed -n '1,80p'
+          else
+            echo "dist/assets not found"
+          fi
+
       - name: Run Playwright tests
         run: npm run test:e2e -- --project=${{ matrix.project }}
         env:
           CI: true
-      
+
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
         if: always()
@@ -48,11 +68,12 @@ jobs:
           name: playwright-report-${{ matrix.project }}
           path: playwright-report/
           retention-days: 30
-      
+
       - name: Upload test results
         uses: actions/upload-artifact@v4
-        if:  always()
+        if: always()
         with:
           name: test-results-${{ matrix.project }}
           path: test-results/
           retention-days: 7
+
