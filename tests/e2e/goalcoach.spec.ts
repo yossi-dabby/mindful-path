@@ -3,6 +3,18 @@ import { test, expect, Page } from '@playwright/test';
 const CANDIDATE_PATHS = ['/GoalCoach', '/goalcoach', '/goal-coach'];
 const AUTH_URL_KEYWORDS = ['login', 'signin', 'auth', 'התחבר', 'כניסה'];
 async function bootSPA(page: Page) {
+   // --- DEBUG hooks (CI diagnostics) ---
+  page.on('pageerror', (err) => console.error('PAGEERROR:', err));
+  page.on('console', (msg) => {
+    if (msg.type() === 'error') console.error('CONSOLE:', msg.text());
+  });
+  page.on('requestfailed', (req) => {
+    console.error('REQFAILED:', req.url(), req.failure()?.errorText);
+  });
+  page.on('response', (res) => {
+    if (res.status() >= 400) console.error('HTTP', res.status(), res.url());
+  });
+  // --- end debug hooks ---
   await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 20000 });
 
   const root = page.locator('#root');
