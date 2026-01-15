@@ -13,11 +13,12 @@ export default function StreakWidget({ compact = false }) {
     queryFn: () => base44.entities.UserStreak.list(),
     initialData: []
   });
+  const streaksArr = Array.isArray(streaks) ? streaks : [];
+  const overallStreak = streaksArr.find(s => s.streak_type === 'overall');
+  const moodStreak = streaksArr.find(s => s.streak_type === 'mood_check');
+  const journalStreak = streaksArr.find(s => s.streak_type === 'journal');
+  const exerciseStreak = streaksArr.find(s => s.streak_type === 'exercise');
 
-  const overallStreak = streaks.find(s => s.streak_type === 'overall');
-  const moodStreak = streaks.find(s => s.streak_type === 'mood_check');
-  const journalStreak = streaks.find(s => s.streak_type === 'journal');
-  const exerciseStreak = streaks.find(s => s.streak_type === 'exercise');
   
   const currentStreak = overallStreak?.current_streak || 0;
   const longestStreak = overallStreak?.longest_streak || 0;
