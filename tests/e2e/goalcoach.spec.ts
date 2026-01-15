@@ -4,7 +4,10 @@ const CANDIDATE_PATHS = ['/GoalCoach', '/goalcoach', '/goal-coach'];
 const AUTH_URL_KEYWORDS = ['login', 'signin', 'auth', 'התחבר', 'כניסה'];
 async function bootSPA(page: Page) {
    // --- DEBUG hooks (CI diagnostics) ---
-  page.on('pageerror', (err) => console.error('PAGEERROR:', err));
+ page.on('pageerror', (err) => {
+  console.error('PAGEERROR:', err?.message || err);
+  if (err?.stack) console.error('STACK:', err.stack);
+});
   page.on('console', (msg) => {
     if (msg.type() === 'error') console.error('CONSOLE:', msg.text());
   });
