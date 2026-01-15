@@ -28,9 +28,9 @@ export default function BadgeDisplay({ compact = false }) {
     queryFn: () => base44.entities.Badge.list('-earned_date'),
     initialData: []
   });
-
-  const earnedBadges = badges.filter(b => b.earned_date);
-  const inProgressBadges = badges.filter(b => !b.earned_date && b.progress > 0);
+  const badgesArr = Array.isArray(badges) ? badges : [];
+  const earnedBadges = badgesArr.filter(b => b.earned_date);
+  const inProgressBadges = badgesArr.filter(b => !b.earned_date && b.progress > 0);
 
   if (isLoading) return null;
 
