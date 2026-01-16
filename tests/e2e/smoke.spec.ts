@@ -155,17 +155,22 @@ test('smoke: open chat, send message, receive reply', async ({ page }) => {
   await expect(page.getByText(myText).first()).toBeVisible({ timeout: 15000 });
 
   // CI: don't wait for real AI reply (can be flaky / env-dependent)
-  if (process.env.CI) return;
+  if (process.env.CI) {
+    return;
+  }
 
   // Local/dev only: wait for a response
-  const assistantReply = page.getByRole('article', { name: /assistant|bot|response|הבוט|העוזר/i }).first();
-  let reply = assistantReply;
+  const assistantReply = page
+    .getByRole('article', { name: /assistant|bot|response|התגובה|בוט|עוזר/i })
+    .first();
 
+  let reply = assistantReply;
   if ((await assistantReply.count()) === 0) {
     reply = page.locator('main').getByRole('region').first();
   }
 
   await expect(reply).toBeVisible({ timeout: 20000 });
-}
+});
+});
 
  
