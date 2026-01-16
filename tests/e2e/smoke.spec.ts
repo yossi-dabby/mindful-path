@@ -131,13 +131,13 @@ test('smoke: open chat, send message, receive reply', async ({ page }) => {
     else if ((await textareaVisible.count()) > 0) messageBox = textareaVisible;
     else if ((await inputTextVisible.count()) > 0) messageBox = inputTextVisible;
   }
-
   if (!messageBox) {
     // Capture diagnostics before throwing error
     await page.screenshot({ path: `test-results/smoke-input-not-found-${Date.now()}.png`, fullPage: true });
     console.error(`Could not locate message input on ${chatPath} (${page.url()}). Console errors: ${consoleErrors.slice(0, 5).join(', ')}`);
     throw new Error(`Could not locate message input on ${chatPath} (${page.url()}). Screenshot saved.`);
-    
+  }
+
   await expect(messageBox).toBeVisible({ timeout: 20000 });
 
   // Send a short message
@@ -161,7 +161,7 @@ test('smoke: open chat, send message, receive reply', async ({ page }) => {
 
   // Local/dev only: wait for a response
   const assistantReply = page
-    .getByRole('article', { name: /assistant|bot|response|התגובה|בוט|עוזר/i })
+    .getByRole('article', { name: /assistant|bot|response|העוזר|בוט|תשובה/i })
     .first();
 
   let reply = assistantReply;
@@ -171,6 +171,6 @@ test('smoke: open chat, send message, receive reply', async ({ page }) => {
 
   await expect(reply).toBeVisible({ timeout: 20000 });
 });
-});
+
 
  
