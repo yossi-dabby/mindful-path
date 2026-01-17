@@ -302,6 +302,8 @@ export default function GoalCoachWizard({ onClose }) {
                     <button
                       key={`${category.value}-${index}`}
                       type="button"
+                      role="button"
+                      aria-pressed={isSelected}
                       data-testid={`goalcoach-category-${categoryId}`}
                       onClick={(e) => {
                         e.preventDefault();

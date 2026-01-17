@@ -230,6 +230,8 @@ export default function ThoughtCoachWizard({ onClose }) {
                     <button
                       key={thought.type}
                       type="button"
+                      role="button"
+                      aria-pressed={formData.thought_type === thought.type}
                       data-testid={`thoughtcoach-category-${categoryId}`}
                       onClick={(e) => {
                         e.preventDefault();
