@@ -96,6 +96,11 @@ export default function GoalCoachWizard({ onClose }) {
     rewards: ['']
   });
 
+  // Debug: Log state changes
+  React.useEffect(() => {
+    console.log('GoalCoach formData changed:', formData);
+  }, [formData]);
+
   const createGoalMutation = useMutation({
     mutationFn: async (data) => {
       // Validate required fields
@@ -204,17 +209,25 @@ export default function GoalCoachWizard({ onClose }) {
   };
 
   const canProceed = () => {
-    console.log('canProceed check - step:', step, 'formData:', {
-      category: formData.category,
-      title: formData.title,
-      motivation: formData.motivation
-    });
+    const result = React.useMemo(() => {
+      console.log('[VALIDATION] canProceed check - step:', step, 'formData:', {
+        category: formData.category,
+        title: formData.title,
+        motivation: formData.motivation
+      });
+      
+      if (step === 1) {
+        const canGo = !!formData.category;
+        console.log('[VALIDATION] Step 1 - can proceed:', canGo);
+        return canGo;
+      }
+      if (step === 2) return formData.title?.trim().length > 0 && formData.motivation?.trim().length > 0;
+      if (step === 3) return true;
+      if (step === 4) return true;
+      return false;
+    }, [step, formData.category, formData.title, formData.motivation]);
     
-    if (step === 1) return !!formData.category;
-    if (step === 2) return formData.title?.trim().length > 0 && formData.motivation?.trim().length > 0;
-    if (step === 3) return true; // All fields in step 3 are optional
-    if (step === 4) return true; // Review - all validation done
-    return false;
+    return result;
   };
 
   const handleNext = () => {
@@ -316,16 +329,17 @@ export default function GoalCoachWizard({ onClose }) {
                       role="button"
                       aria-pressed={isSelected}
                       data-testid={`goalcoach-category-${categoryId}`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        console.log('Category clicked:', category.label, category.value);
+                      onClick={() => {
+                        console.log('[CLICK] Category clicked:', category.label, category.value);
                         // Use functional update to ensure we have latest state
-                        setFormData(prev => ({ 
-                          ...prev, 
-                          category: category.value,
-                          ui_category_label: category.label 
-                        }));
+                        setFormData(prev => {
+                          console.log('[STATE UPDATE] Prev:', prev.category, '-> New:', category.value);
+                          return { 
+                            ...prev, 
+                            category: category.value,
+                            ui_category_label: category.label 
+                          };
+                        });
                       }}
                       className={cn(
                         'p-4 rounded-xl border-2 text-left transition-all hover:shadow-lg',
