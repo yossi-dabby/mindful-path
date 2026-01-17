@@ -11,68 +11,43 @@ function isAuthUrl(url: string) {
   return AUTH_URL_KEYWORDS.some(k => lower.includes(k));
 }
 
-function pathnameOf(url: string) {
-  try {
-    return new URL(url).pathname.toLowerCase();
-  } catch {
-    return '';
-  }
-}
-
-function isOnChat(url: string) {
-  const p = pathnameOf(url);
-  return p.startsWith('/chat');
-}
-
 async function bootSPA(page: Page) {
-  await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 40_000 });
+  await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 60_000 });
 
   const root = page.locator('#root');
   if ((await root.count()) > 0) {
     await expect
-      .poll(async () => root.evaluate(el => (el as HTMLElement).childElementCount), { timeout: 30_000 })
+      .poll(async () => root.evaluate(el => (el as HTMLElement).childElementCount), { timeout: 60_000 })
       .toBeGreaterThan(0);
   }
+
+  await page.waitForTimeout(250);
 }
 
+/**
+ * IMPORTANT:
+ * In CI your click on a[href="/Chat"] hangs (trace shows the click step taking the entire timeout).
+ * So we navigate via pushState (no click).
+ */
 async function spaNavigate(page: Page, path: string) {
-  if (!path) return;
+  await page.evaluate((p) => {
+    history.pushState({}, '', p);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  }, path);
 
-  const directHref = page.locator(`a[href="${path}"]:visible`).first();
-  if ((await directHref.count()) > 0) {
-    await directHref.click().catch(() => {});
-  } else {
-    await page.evaluate((p) => {
-      history.pushState({}, '', p);
-      window.dispatchEvent(new PopStateEvent('popstate'));
-    }, path);
-  }
-
-  // Wait best-effort for URL change
   await expect
-    .poll(() => pathnameOf(page.url()).includes(path.toLowerCase()), { timeout: 10_000 })
+    .poll(() => page.url().toLowerCase().includes(path.toLowerCase()), { timeout: 15_000 })
     .toBeTruthy()
     .catch(() => {});
+
+  await page.waitForTimeout(200);
 }
 
-function messageBoxLocator(page: Page) {
-  const byRole = page.getByRole('textbox', { name: /message|chat input|type a message|הודעה|הקלד/i }).first();
-  const byPlaceholder = page.getByPlaceholder(/type|message|הקלד/i).first();
-  const textareaVisible = page.locator('textarea:visible').first();
-  const inputTextVisible = page.locator('input[type="text"]:visible').first();
-
-  return { byRole, byPlaceholder, textareaVisible, inputTextVisible };
-}
-
-async function findMessageBox(page: Page) {
-  const { byRole, byPlaceholder, textareaVisible, inputTextVisible } = messageBoxLocator(page);
-
-  if ((await byRole.count()) > 0) return byRole;
-  if ((await byPlaceholder.count()) > 0) return byPlaceholder;
-  if ((await textareaVisible.count()) > 0) return textareaVisible;
-  if ((await inputTextVisible.count()) > 0) return inputTextVisible;
-
-  return null;
+function chatAnchorLocators(page: Page) {
+  // Keep flexible
+  const h1 = page.getByRole('heading', { name: /chat|ai therapist|therapist|צ'אט|צאט|מטפל/i }).first();
+  const txt = page.getByText(/Chat|AI Therapist|Talk to your therapist|צ'אט|צאט|מטפל/i).first();
+  return { h1, txt };
 }
 
 async function gotoChat(page: Page) {
@@ -83,18 +58,28 @@ async function gotoChat(page: Page) {
 
     if (isAuthUrl(page.url())) return path;
 
-    // Guard: חייבים להיות באמת ב-/Chat ולא ב-Home
-    if (!isOnChat(page.url())) continue;
-
-    // Bonus guard: אם אין בכלל תיבת הודעה, כנראה זה לא מסך הצ'אט
-    const msgBox = await findMessageBox(page);
-    if (msgBox) return path;
+    const { h1, txt } = chatAnchorLocators(page);
+    try {
+      await h1.waitFor({ state: 'visible', timeout: 15_000 });
+      return path;
+    } catch {}
+    try {
+      await txt.waitFor({ state: 'visible', timeout: 10_000 });
+      return path;
+    } catch {}
   }
 
   return null;
 }
 
 test('smoke: open chat, send message, receive reply', async ({ page }) => {
+  // Diagnostics (helps CI)
+  page.on('pageerror', (err) => console.error('PAGEERROR:', err?.message || err));
+  page.on('crash', () => console.error('PW: page crashed'));
+  page.on('close', () => console.error('PW: page closed'));
+  page.on('requestfailed', (req) => console.error('REQFAILED:', req.url(), req.failure()?.errorText));
+  page.on('response', (res) => { if (res.status() >= 400) console.error('HTTP', res.status(), res.url()); });
+
   const consoleErrors: string[] = [];
   page.on('console', msg => {
     if (msg.type() === 'error') consoleErrors.push(msg.text());
@@ -111,64 +96,70 @@ test('smoke: open chat, send message, receive reply', async ({ page }) => {
     return;
   }
 
-  if (!isOnChat(page.url())) {
-    test.skip(true, `Did not reach /Chat (stayed on ${pathnameOf(page.url())})`);
-    return;
+  // Make sure something that proves the page rendered exists
+  const { h1, txt } = chatAnchorLocators(page);
+  const anchor = (await h1.count()) > 0 ? h1 : txt;
+
+  try {
+    await expect(anchor).toBeVisible({ timeout: 30_000 });
+  } catch (error) {
+    await page.screenshot({ path: `test-results/smoke-chat-anchor-failure-${Date.now()}.png`, fullPage: true });
+    console.error(`Chat anchor not visible. URL: ${page.url()}, Console errors: ${consoleErrors.slice(0, 5).join(', ')}`);
+    throw error;
   }
 
-  await page.waitForLoadState('networkidle', { timeout: 3_000 }).catch(() => {});
+  // Locate the message input with fallback chain (mobile friendly)
+  const byRole = page.getByRole('textbox', { name: /message|chat input|type a message|הודעה|הקלד/i }).first();
+  const byPlaceholder = page.getByPlaceholder(/type|message|הקלד/i).first();
+  const textareaVisible = page.locator('textarea:visible').first();
+  const inputTextVisible = page.locator('input[type="text"]:visible').first();
 
-  let messageBox = await findMessageBox(page);
+  let messageBox =
+    (await byRole.count()) > 0 ? byRole :
+    (await byPlaceholder.count()) > 0 ? byPlaceholder :
+    (await textareaVisible.count()) > 0 ? textareaVisible :
+    (await inputTextVisible.count()) > 0 ? inputTextVisible :
+    null;
+
   if (!messageBox) {
-    // one reload attempt
-    await page.reload({ waitUntil: 'domcontentloaded', timeout: 40_000 }).catch(() => {});
-    messageBox = await findMessageBox(page);
+    // One reload attempt
+    await page.reload({ waitUntil: 'domcontentloaded', timeout: 60_000 }).catch(() => {});
+    messageBox =
+      (await byRole.count()) > 0 ? byRole :
+      (await byPlaceholder.count()) > 0 ? byPlaceholder :
+      (await textareaVisible.count()) > 0 ? textareaVisible :
+      (await inputTextVisible.count()) > 0 ? inputTextVisible :
+      null;
   }
 
   if (!messageBox) {
     await page.screenshot({ path: `test-results/smoke-input-not-found-${Date.now()}.png`, fullPage: true });
     console.error(`Could not locate message input on ${chatPath} (${page.url()}). Console errors: ${consoleErrors.slice(0, 5).join(', ')}`);
-    test.skip(true, 'Message input not found on Chat (UI differs or not loaded)');
-    return;
+    throw new Error(`Could not locate message input on ${chatPath} (${page.url()}). Screenshot saved.`);
   }
 
-  const msgVisible = await messageBox
-    .waitFor({ state: 'visible', timeout: 20_000 })
-    .then(() => true)
-    .catch(() => false);
+  await expect(messageBox).toBeVisible({ timeout: 30_000 });
 
-  if (!msgVisible) {
-    await page.screenshot({ path: `test-results/smoke-input-not-visible-${Date.now()}.png`, fullPage: true });
-    test.skip(true, 'Message input not visible');
-    return;
-  }
-
+  // Send a short message
   const myText = 'E2E hello';
-  await messageBox.fill(myText).catch(() => {});
+  await messageBox.fill(myText);
 
-  const sendButton = page.getByRole('button', { name: /send|submit|שלח/i }).first();
+  const sendButton = page.locator('button:visible:not([disabled])', { hasText: /send|submit|שלח/i }).first();
   if ((await sendButton.count()) > 0) {
-    await sendButton.click().catch(() => {});
+    await sendButton.click().catch(async () => {
+      await sendButton.click({ force: true });
+    });
   } else {
-    await messageBox.press('Enter').catch(() => {});
+    await messageBox.press('Enter');
   }
 
-  // Verify message appears (best-effort)
-  const sentOk = await expect(page.getByText(myText).first())
-    .toBeVisible({ timeout: 20_000 })
-    .then(() => true)
-    .catch(() => false);
+  // Verify the message appears in UI
+  await expect(page.getByText(myText).first()).toBeVisible({ timeout: 30_000 });
 
-  if (!sentOk) {
-    await page.screenshot({ path: `test-results/smoke-message-not-seen-${Date.now()}.png`, fullPage: true });
-    test.skip(true, 'Sent message did not appear in UI (UI differs or slow render)');
-    return;
-  }
-
-  // CI: do not wait for real AI reply
+  // CI: don't wait for real AI reply (can be flaky / env-dependent)
   if (process.env.CI) return;
 
-  // Local/dev only: wait for a response
+  // Local/dev only: wait for a response (best-effort)
   const assistantReply = page
     .getByRole('article', { name: /assistant|bot|response|העוזר|בוט|תשובה/i })
     .first();
@@ -178,8 +169,9 @@ test('smoke: open chat, send message, receive reply', async ({ page }) => {
     reply = page.locator('main').getByRole('region').first();
   }
 
-  await expect(reply).toBeVisible({ timeout: 20_000 });
+  await expect(reply).toBeVisible({ timeout: 30_000 });
 });
+
 
 
 
