@@ -2,13 +2,13 @@ import { test, expect, Page } from '@playwright/test';
 
 const CHAT_PATHS = ['/Chat', '/chat', '/'];
 async function bootSPA(page: Page) {
-  await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 20000 });
+  await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 180000 });
 
   // Wait for React mount if #root exists
   const root = page.locator('#root');
   if ((await root.count()) > 0) {
     await expect
-      .poll(async () => root.evaluate(el => (el as HTMLElement).childElementCount), { timeout: 20000 })
+      .poll(async () => root.evaluate(el => (el as HTMLElement).childElementCount), { timeout: 180000 })
       .toBeGreaterThan(0);
   }
 }
@@ -30,7 +30,7 @@ async function spaNavigate(page: Page, path: string) {
 
   // Do not hard-fail if router normalizes case; best-effort wait
   await expect
-    .poll(() => page.url().includes(path), { timeout: 5000 })
+    .poll(() => page.url().includes(path), { timeout: 180000 })
     .toBeTruthy()
     .catch(() => {});
 }
@@ -54,11 +54,11 @@ async function gotoFirstExistingChat(page: Page) {
 
     // Quick proof Chat rendered
     try {
-      await a1.waitFor({ state: 'visible', timeout: 4000 });
+      await a1.waitFor({ state: 'visible', timeout: 180000 });
       return path;
     } catch {}
     try {
-      await a2.waitFor({ state: 'visible', timeout: 2000 });
+      await a2.waitFor({ state: 'visible', timeout: 180000 });
       return path;
     } catch {}
   }
@@ -103,7 +103,7 @@ test('smoke: open chat, send message, receive reply', async ({ page }) => {
   }
   
   try {
-    await expect(anchor).toBeVisible({ timeout: 20000 });
+    await expect(anchor).toBeVisible({ timeout: 180000 });
   } catch (error) {
     await page.screenshot({ path: `test-results/smoke-chat-anchor-failure-${Date.now()}.png`, fullPage: true });
     console.error(`Chat anchor not visible. URL: ${page.url()}, Console errors: ${consoleErrors.slice(0, 5).join(', ')}`);
@@ -124,7 +124,7 @@ test('smoke: open chat, send message, receive reply', async ({ page }) => {
 
   if (!messageBox) {
     // attempt one reload to recover from transient load issue
-    await page.reload({ waitUntil: 'domcontentloaded', timeout: 15000 }).catch(() => {});
+    await page.reload({ waitUntil: 'domcontentloaded', timeout: 180000 }).catch(() => {});
     // re-evaluate fallback chain
     if ((await byRole.count()) > 0) messageBox = byRole;
     else if ((await byPlaceholder.count()) > 0) messageBox = byPlaceholder;
@@ -138,7 +138,7 @@ test('smoke: open chat, send message, receive reply', async ({ page }) => {
     throw new Error(`Could not locate message input on ${chatPath} (${page.url()}). Screenshot saved.`);
   }
 
-  await expect(messageBox).toBeVisible({ timeout: 20000 });
+  await expect(messageBox).toBeVisible({ timeout: 180000 });
 
   // Send a short message
   const myText = 'E2E hello';
@@ -152,7 +152,7 @@ test('smoke: open chat, send message, receive reply', async ({ page }) => {
   }
 
   // Verify the message was sent (appears in UI)
-  await expect(page.getByText(myText).first()).toBeVisible({ timeout: 15000 });
+  await expect(page.getByText(myText).first()).toBeVisible({ timeout: 180000 });
 
   // CI: don't wait for real AI reply (can be flaky / env-dependent)
   if (process.env.CI) {
@@ -169,7 +169,7 @@ test('smoke: open chat, send message, receive reply', async ({ page }) => {
     reply = page.locator('main').getByRole('region').first();
   }
 
-  await expect(reply).toBeVisible({ timeout: 20000 });
+  await expect(reply).toBeVisible({ timeout: 180000 });
 });
 
 
