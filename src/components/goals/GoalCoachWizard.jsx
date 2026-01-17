@@ -286,7 +286,7 @@ export default function GoalCoachWizard({ onClose }) {
         <div className="max-w-2xl mx-auto p-4 md:p-6 w-full">
           {/* Step 1: Select Goal Category */}
           {step === 1 && (
-            <div className="space-y-6">
+            <div className="space-y-6" data-testid="goalcoach-step-1">
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">What type of goal would you like to work on?</h3>
                 <p className="text-sm text-gray-600 mb-4">Choose the category that best fits your goal</p>
@@ -296,18 +296,20 @@ export default function GoalCoachWizard({ onClose }) {
                 {goalCategories.map((category, index) => {
                   const Icon = category.icon;
                   const isSelected = formData.category === category.value && formData.ui_category_label === category.label;
+                  // Create stable test ID from category value and label
+                  const categoryId = `${category.value}-${category.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
                   return (
                     <button
                       key={`${category.value}-${index}`}
                       type="button"
+                      data-testid={`goalcoach-category-${categoryId}`}
                       onClick={() => {
+                        console.log('Category clicked:', category.label, category.value);
                         setFormData({ 
                           ...formData, 
                           category: category.value,
                           ui_category_label: category.label 
                         });
-                        // Auto-advance to Step 2 after category selection
-                        setStep(2);
                       }}
                       className={cn(
                         'p-4 rounded-xl border-2 text-left transition-all hover:shadow-lg',
@@ -337,7 +339,7 @@ export default function GoalCoachWizard({ onClose }) {
 
           {/* Step 2: Goal Definition */}
           {step === 2 && (
-            <div className="space-y-6">
+            <div className="space-y-6" data-testid="goalcoach-step-2">
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Describe your goal</h3>
                 <p className="text-sm text-gray-600 mb-4">What do you want to achieve?</p>
@@ -371,6 +373,7 @@ export default function GoalCoachWizard({ onClose }) {
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="e.g., Practice mindfulness daily"
                   className="rounded-xl"
+                  data-testid="goalcoach-title-input"
                 />
               </div>
 
@@ -383,6 +386,7 @@ export default function GoalCoachWizard({ onClose }) {
                   onChange={(e) => setFormData({ ...formData, motivation: e.target.value })}
                   placeholder="Describe why achieving this goal matters to you..."
                   className="h-28 rounded-xl"
+                  data-testid="goalcoach-motivation-input"
                 />
               </div>
 
@@ -412,7 +416,7 @@ export default function GoalCoachWizard({ onClose }) {
 
           {/* Step 3: Plan Your Next Steps */}
           {step === 3 && (
-            <div className="space-y-5">
+            <div className="space-y-5" data-testid="goalcoach-step-3">
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Plan your next steps</h3>
                 <p className="text-sm text-gray-600 mb-4">Break your goal into actionable pieces</p>
@@ -594,7 +598,7 @@ export default function GoalCoachWizard({ onClose }) {
 
           {/* Step 4: Review & Save */}
           {step === 4 && (
-            <div className="space-y-6">
+            <div className="space-y-6" data-testid="goalcoach-step-4">
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Review your goal</h3>
                 <p className="text-sm text-gray-600 mb-4">Check everything before saving to Active Goals</p>
@@ -731,6 +735,7 @@ export default function GoalCoachWizard({ onClose }) {
                 type="button"
                 onClick={handleNext}
                 disabled={!canProceed()}
+                data-testid="goalcoach-next"
                 className="flex-1 h-10 bg-gradient-to-r from-orange-600 to-yellow-600 hover:from-orange-700 hover:to-yellow-700"
               >
                 Next
@@ -741,6 +746,7 @@ export default function GoalCoachWizard({ onClose }) {
                 type="button"
                 onClick={handleSubmit}
                 disabled={!canProceed() || createGoalMutation.isPending}
+                data-testid="goalcoach-save"
                 className="flex-1 h-10 bg-gradient-to-r from-orange-600 to-yellow-600 hover:from-orange-700 hover:to-yellow-700"
               >
                 {createGoalMutation.isPending ? (

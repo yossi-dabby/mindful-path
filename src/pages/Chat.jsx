@@ -348,7 +348,7 @@ export default function Chat() {
   };
 
   return (
-    <div className="h-screen flex relative" style={{ 
+    <div className="h-screen flex relative" data-testid="chat-root" style={{ 
       background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)'
     }}>
       {/* Backdrop overlay when sidebar is open */}
@@ -597,6 +597,7 @@ export default function Chat() {
                 onKeyPress={handleKeyPress}
                 placeholder="Share what's on your mind..."
                 className="flex-1 min-h-[60px] max-h-[200px] resize-none"
+                data-testid="chat-input"
                 style={{
                   borderRadius: '20px',
                   borderColor: 'rgba(38, 166, 154, 0.3)',
@@ -607,6 +608,7 @@ export default function Chat() {
               <Button
                 onClick={handleSendMessage}
                 disabled={!inputMessage.trim() || isLoading}
+                data-testid="chat-send"
                 className="h-[60px] px-6 text-white"
                 style={{
                   borderRadius: '20px',
