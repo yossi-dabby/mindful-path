@@ -96,11 +96,6 @@ export default function GoalCoachWizard({ onClose }) {
     rewards: ['']
   });
 
-  // Debug: Log state changes
-  React.useEffect(() => {
-    console.log('GoalCoach formData changed:', formData);
-  }, [formData]);
-
   const createGoalMutation = useMutation({
     mutationFn: async (data) => {
       // Validate required fields
@@ -208,38 +203,17 @@ export default function GoalCoachWizard({ onClose }) {
     });
   };
 
-  const canProceed = () => {
-    const result = React.useMemo(() => {
-      console.log('[VALIDATION] canProceed check - step:', step, 'formData:', {
-        category: formData.category,
-        title: formData.title,
-        motivation: formData.motivation
-      });
-      
-      if (step === 1) {
-        const canGo = !!formData.category;
-        console.log('[VALIDATION] Step 1 - can proceed:', canGo);
-        return canGo;
-      }
-      if (step === 2) return formData.title?.trim().length > 0 && formData.motivation?.trim().length > 0;
-      if (step === 3) return true;
-      if (step === 4) return true;
-      return false;
-    }, [step, formData.category, formData.title, formData.motivation]);
-    
-    return result;
-  };
+  const canProceed = React.useMemo(() => {
+    if (step === 1) return !!formData.category;
+    if (step === 2) return formData.title?.trim().length > 0 && formData.motivation?.trim().length > 0;
+    if (step === 3) return true;
+    if (step === 4) return true;
+    return false;
+  }, [step, formData.category, formData.title, formData.motivation]);
 
   const handleNext = () => {
-    console.log('handleNext called - current step:', step);
-    console.log('canProceed result:', canProceed());
-    
-    if (canProceed()) {
-      const nextStep = step + 1;
-      console.log('Advancing to step:', nextStep);
-      setStep(nextStep);
-    } else {
-      console.log('Validation failed, not advancing');
+    if (canProceed) {
+      setStep(step + 1);
     }
   };
 
@@ -330,16 +304,11 @@ export default function GoalCoachWizard({ onClose }) {
                       aria-pressed={isSelected}
                       data-testid={`goalcoach-category-${categoryId}`}
                       onClick={() => {
-                        console.log('[CLICK] Category clicked:', category.label, category.value);
-                        // Use functional update to ensure we have latest state
-                        setFormData(prev => {
-                          console.log('[STATE UPDATE] Prev:', prev.category, '-> New:', category.value);
-                          return { 
-                            ...prev, 
-                            category: category.value,
-                            ui_category_label: category.label 
-                          };
-                        });
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          category: category.value,
+                          ui_category_label: category.label 
+                        }));
                       }}
                       className={cn(
                         'p-4 rounded-xl border-2 text-left transition-all hover:shadow-lg',
@@ -765,7 +734,7 @@ export default function GoalCoachWizard({ onClose }) {
               <Button
                 type="button"
                 onClick={handleNext}
-                disabled={!canProceed()}
+                disabled={!canProceed}
                 data-testid="goalcoach-next"
                 className="flex-1 h-10 bg-gradient-to-r from-orange-600 to-yellow-600 hover:from-orange-700 hover:to-yellow-700"
               >
@@ -776,7 +745,7 @@ export default function GoalCoachWizard({ onClose }) {
               <Button
                 type="button"
                 onClick={handleSubmit}
-                disabled={!canProceed() || createGoalMutation.isPending}
+                disabled={!canProceed || createGoalMutation.isPending}
                 data-testid="goalcoach-save"
                 className="flex-1 h-10 bg-gradient-to-r from-orange-600 to-yellow-600 hover:from-orange-700 hover:to-yellow-700"
               >
