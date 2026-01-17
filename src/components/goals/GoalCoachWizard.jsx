@@ -182,21 +182,25 @@ export default function GoalCoachWizard({ onClose }) {
   });
 
   const addMilestone = () => {
-    setFormData({ 
-      ...formData, 
-      milestones: [...formData.milestones, { title: '', description: '', due_date: '' }] 
-    });
+    setFormData(prev => ({ 
+      ...prev, 
+      milestones: [...prev.milestones, { title: '', description: '', due_date: '' }] 
+    }));
   };
 
   const removeMilestone = (index) => {
-    const updated = formData.milestones.filter((_, i) => i !== index);
-    setFormData({ ...formData, milestones: updated });
+    setFormData(prev => ({
+      ...prev,
+      milestones: prev.milestones.filter((_, i) => i !== index)
+    }));
   };
 
   const updateMilestone = (index, field, value) => {
-    const updated = [...formData.milestones];
-    updated[index][field] = value;
-    setFormData({ ...formData, milestones: updated });
+    setFormData(prev => {
+      const updated = [...prev.milestones];
+      updated[index][field] = value;
+      return { ...prev, milestones: updated };
+    });
   };
 
   const canProceed = () => {
@@ -227,20 +231,27 @@ export default function GoalCoachWizard({ onClose }) {
   };
 
   const addReward = () => {
-    if (formData.rewards.length < 3) {
-      setFormData({ ...formData, rewards: [...formData.rewards, ''] });
-    }
+    setFormData(prev => {
+      if (prev.rewards.length < 3) {
+        return { ...prev, rewards: [...prev.rewards, ''] };
+      }
+      return prev;
+    });
   };
 
   const removeReward = (index) => {
-    const updated = formData.rewards.filter((_, i) => i !== index);
-    setFormData({ ...formData, rewards: updated.length > 0 ? updated : [''] });
+    setFormData(prev => {
+      const updated = prev.rewards.filter((_, i) => i !== index);
+      return { ...prev, rewards: updated.length > 0 ? updated : [''] };
+    });
   };
 
   const updateReward = (index, value) => {
-    const updated = [...formData.rewards];
-    updated[index] = value;
-    setFormData({ ...formData, rewards: updated });
+    setFormData(prev => {
+      const updated = [...prev.rewards];
+      updated[index] = value;
+      return { ...prev, rewards: updated };
+    });
   };
 
   const handleSubmit = () => {
@@ -375,7 +386,7 @@ export default function GoalCoachWizard({ onClose }) {
                 </label>
                 <Input
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="e.g., Practice mindfulness daily"
                   className="rounded-xl"
                   data-testid="goalcoach-title-input"
@@ -388,7 +399,7 @@ export default function GoalCoachWizard({ onClose }) {
                 </label>
                 <Textarea
                   value={formData.motivation}
-                  onChange={(e) => setFormData({ ...formData, motivation: e.target.value })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, motivation: e.target.value }))}
                   placeholder="Describe why achieving this goal matters to you..."
                   className="h-28 rounded-xl"
                   data-testid="goalcoach-motivation-input"
@@ -401,7 +412,7 @@ export default function GoalCoachWizard({ onClose }) {
                   <label className="text-xs text-gray-600 mb-1 block">Description</label>
                   <Textarea
                     value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                     placeholder="Any additional context..."
                     className="h-20 rounded-xl text-sm"
                   />
@@ -411,7 +422,7 @@ export default function GoalCoachWizard({ onClose }) {
                   <Input
                     type="date"
                     value={formData.target_date}
-                    onChange={(e) => setFormData({ ...formData, target_date: e.target.value })}
+                    onChange={(e) => setFormData(prev => ({ ...prev, target_date: e.target.value }))}
                     className="rounded-xl"
                   />
                 </div>
@@ -470,37 +481,37 @@ export default function GoalCoachWizard({ onClose }) {
                 <div className="space-y-2">
                   <Input
                     value={formData.smart_criteria.specific}
-                    onChange={(e) => setFormData({ 
-                      ...formData, 
-                      smart_criteria: { ...formData.smart_criteria, specific: e.target.value } 
-                    })}
+                    onChange={(e) => setFormData(prev => ({ 
+                      ...prev, 
+                      smart_criteria: { ...prev.smart_criteria, specific: e.target.value } 
+                    }))}
                     placeholder="Specific: What exactly will you accomplish?"
                     className="rounded-lg text-xs h-9"
                   />
                   <Input
                     value={formData.smart_criteria.measurable}
-                    onChange={(e) => setFormData({ 
-                      ...formData, 
-                      smart_criteria: { ...formData.smart_criteria, measurable: e.target.value } 
-                    })}
+                    onChange={(e) => setFormData(prev => ({ 
+                      ...prev, 
+                      smart_criteria: { ...prev.smart_criteria, measurable: e.target.value } 
+                    }))}
                     placeholder="Measurable: How will you measure progress?"
                     className="rounded-lg text-xs h-9"
                   />
                   <Input
                     value={formData.smart_criteria.achievable}
-                    onChange={(e) => setFormData({ 
-                      ...formData, 
-                      smart_criteria: { ...formData.smart_criteria, achievable: e.target.value } 
-                    })}
+                    onChange={(e) => setFormData(prev => ({ 
+                      ...prev, 
+                      smart_criteria: { ...prev.smart_criteria, achievable: e.target.value } 
+                    }))}
                     placeholder="Achievable: Why is this realistic?"
                     className="rounded-lg text-xs h-9"
                   />
                   <Input
                     value={formData.smart_criteria.time_bound}
-                    onChange={(e) => setFormData({ 
-                      ...formData, 
-                      smart_criteria: { ...formData.smart_criteria, time_bound: e.target.value } 
-                    })}
+                    onChange={(e) => setFormData(prev => ({ 
+                      ...prev, 
+                      smart_criteria: { ...prev.smart_criteria, time_bound: e.target.value } 
+                    }))}
                     placeholder="Time-Bound: When will you achieve this?"
                     className="rounded-lg text-xs h-9"
                   />

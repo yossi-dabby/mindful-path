@@ -298,7 +298,7 @@ export default function ThoughtCoachWizard({ onClose }) {
                 </label>
                 <Textarea
                   value={formData.situation}
-                  onChange={(e) => setFormData({ ...formData, situation: e.target.value })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, situation: e.target.value }))}
                   placeholder="Describe the situation, event, or moment that triggered this thought..."
                   className="h-32 rounded-xl"
                   data-testid="thoughtcoach-situation-input"
@@ -311,7 +311,7 @@ export default function ThoughtCoachWizard({ onClose }) {
                 </label>
                 <Textarea
                   value={formData.automatic_thoughts}
-                  onChange={(e) => setFormData({ ...formData, automatic_thoughts: e.target.value })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, automatic_thoughts: e.target.value }))}
                   placeholder="Write down the thoughts exactly as they appear in your mind..."
                   className="h-32 rounded-xl"
                   data-testid="thoughtcoach-thoughts-input"
@@ -350,7 +350,7 @@ export default function ThoughtCoachWizard({ onClose }) {
                   min="1"
                   max="10"
                   value={formData.emotion_intensity}
-                  onChange={(e) => setFormData({ ...formData, emotion_intensity: parseInt(e.target.value) })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, emotion_intensity: parseInt(e.target.value) }))}
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                 />
                 <div className="flex justify-between text-xs text-gray-500 mt-1">
@@ -420,7 +420,7 @@ export default function ThoughtCoachWizard({ onClose }) {
                 </label>
                 <Textarea
                   value={formData.balanced_thought}
-                  onChange={(e) => setFormData({ ...formData, balanced_thought: e.target.value })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, balanced_thought: e.target.value }))}
                   placeholder="Write a more balanced or helpful perspective... (e.g., 'I can prepare and even if I don't succeed perfectly, it doesn't define me.')"
                   className="h-32 rounded-xl"
                   data-testid="thoughtcoach-balanced-input"
