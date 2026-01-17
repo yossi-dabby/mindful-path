@@ -727,6 +727,7 @@ export default function GoalCoachWizard({ onClose }) {
                 variant="outline"
                 onClick={() => setStep(step - 1)}
                 disabled={createGoalMutation.isPending}
+                data-testid="goalcoach-back"
                 className="flex-1 h-10"
               >
                 <ChevronLeft className="w-4 h-4 mr-1.5" />
