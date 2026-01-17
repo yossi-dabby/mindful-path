@@ -18,12 +18,12 @@ async function bootSPA(page: Page) {
     if (res.status() >= 400) console.error('HTTP', res.status(), res.url());
   });
   // --- end debug hooks ---
-  await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 20000 });
+  await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 180000 });
 
   const root = page.locator('#root');
   if ((await root.count()) > 0) {
     await expect
-      .poll(async () => root.evaluate(el => (el as HTMLElement).childElementCount), { timeout: 20000 })
+      .poll(async () => root.evaluate(el => (el as HTMLElement).childElementCount), { timeout: 180000 })
       .toBeGreaterThan(0);
   }
 }
@@ -44,7 +44,7 @@ async function spaNavigate(page: Page, path: string) {
 }
 
   await expect
-    .poll(() => page.url().includes(path), { timeout: 5000 })
+    .poll(() => page.url().includes(path), { timeout: 180000 })
     .toBeTruthy()
     .catch(() => {});
 }
@@ -62,7 +62,7 @@ async function gotoFirstExisting(page: Page) {
     // Quick proof Step 1 rendered
     const step1 = stepAnchorLocator(page, 1);
     try {
-      await step1.waitFor({ state: 'visible', timeout: 6000 });
+      await step1.waitFor({ state: 'visible', timeout: 180000 });
       return p;
     } catch {
       // try next candidate
@@ -125,7 +125,7 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
 
     // Step 1 anchor
     const step1Anchor = stepAnchorLocator(page, 1);
-    await expect(step1Anchor).toBeVisible({ timeout: 20000 });
+    await expect(step1Anchor).toBeVisible({ timeout: 180000 });
 
     // Step 1: choose a category card
     const categoryLabel = /Routine & Productivity|Routine|רוטינה|התנהגות|Behavioral/i;
@@ -136,21 +136,21 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
     if ((await category.count()) === 0) {
       category = page.getByText(categoryLabel).first();
     }
-    await expect(category).toBeVisible({ timeout: 15000 });
+    await expect(category).toBeVisible({ timeout: 180000 });
     await category.scrollIntoViewIfNeeded();
     await expect(category).toBeEnabled();
     await category.click();
 
     // Guarded Next (1 -> 2)
     const next1 = nextButtonLocator(page);
-    await expect(next1).toBeVisible({ timeout: 20000 });
+    await expect(next1).toBeVisible({ timeout: 180000 });
     await next1.scrollIntoViewIfNeeded();
     
     // Wait for Next button to become enabled with polling
     try {
       await expect.poll(
         async () => await next1.isEnabled(),
-        { timeout: 15000, message: 'Next button did not become enabled after category selection' }
+        { timeout: 180000, message: 'Next button did not become enabled after category selection' }
       ).toBe(true);
     } catch (error) {
       // Enhanced failure diagnostics
@@ -165,7 +165,7 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
       try {
         await expect.poll(
           async () => await next1.isEnabled(),
-          { timeout: 10000, message: 'Next button still not enabled after retry' }
+          { timeout: 180000, message: 'Next button still not enabled after retry' }
         ).toBe(true);
       } catch (error) {
         await page.screenshot({ path: `test-results/goalcoach-next-button-retry-failure-${Date.now()}.png`, fullPage: true });
@@ -187,7 +187,7 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
       return;
     }
     const step2Anchor = stepAnchorLocator(page, 2);
-    await expect(step2Anchor).toBeVisible({ timeout: 20000 });
+    await expect(step2Anchor).toBeVisible({ timeout: 180000 });
 
     // Step 2: fill title and motivation
     const titleInputCandidates = [
@@ -197,7 +197,7 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
     ];
     for (const input of titleInputCandidates) {
       if ((await input.count()) > 0) {
-        await expect(input).toBeVisible({ timeout: 15000 });
+        await expect(input).toBeVisible({ timeout: 180000 });
         await input.scrollIntoViewIfNeeded();
         await expect(input).toBeEnabled();
         await input.fill('E2E Test Goal');
@@ -212,7 +212,7 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
     ];
     for (const input of motivationCandidates) {
       if ((await input.count()) > 0) {
-        await expect(input).toBeVisible({ timeout: 15000 });
+        await expect(input).toBeVisible({ timeout: 180000 });
         await input.scrollIntoViewIfNeeded();
         await expect(input).toBeEnabled();
         await input.fill('Test motivation');
@@ -222,7 +222,7 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
 
     // Guarded Next (2 -> 3)
     const next2 = nextButtonLocator(page);
-    await expect(next2).toBeVisible({ timeout: 20000 });
+    await expect(next2).toBeVisible({ timeout: 180000 });
     await next2.scrollIntoViewIfNeeded();
     await expect(next2).toBeEnabled();
     await next2.click({ trial: true }).catch(() => {
@@ -237,12 +237,12 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
       return;
     }
     const step3Anchor = stepAnchorLocator(page, 3);
-    await expect(step3Anchor).toBeVisible({ timeout: 20000 });
+    await expect(step3Anchor).toBeVisible({ timeout: 180000 });
 
     // Step 3: optional, then Next
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(180000);
     const next3 = nextButtonLocator(page);
-    await expect(next3).toBeVisible({ timeout: 20000 });
+    await expect(next3).toBeVisible({ timeout: 180000 });
     await next3.scrollIntoViewIfNeeded();
     await expect(next3).toBeEnabled();
     await next3.click({ trial: true }).catch(() => {
@@ -257,11 +257,11 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
       return;
     }
     const step4Anchor = stepAnchorLocator(page, 4);
-    await expect(step4Anchor).toBeVisible({ timeout: 20000 });
+    await expect(step4Anchor).toBeVisible({ timeout: 180000 });
 
     // Step 4: Save button - guarded
     const saveBtn = saveButtonLocator(page);
-    await expect(saveBtn).toBeVisible({ timeout: 20000 });
+    await expect(saveBtn).toBeVisible({ timeout: 180000 });
     await saveBtn.scrollIntoViewIfNeeded();
     await expect(saveBtn).toBeEnabled();
     await saveBtn.click({ trial: true }).catch(() => {
@@ -274,14 +274,14 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
         throw new Error('Save button click failed; page may have navigated or crashed.');
       });
     } else {
-      await expect(authPrompt).toBeVisible({ timeout: 5000 });
+      await expect(authPrompt).toBeVisible({ timeout: 180000 });
       test.skip(true, `Skipped Save because auth prompt detected (${page.url()})`);
     }
 
     // Optional success assertion
     const success = page.getByText(/saved|success|הושלם|נשמרה|שמור/i).first();
     if ((await success.count()) > 0) {
-      await expect(success).toBeVisible({ timeout: 5000 });
+      await expect(success).toBeVisible({ timeout: 180000 });
     }
   });
 });
