@@ -1,7 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
-
 test.setTimeout(180_000);
-
 const CANDIDATE_PATHS = ['/GoalCoach', '/goalcoach', '/goal-coach'];
 const AUTH_URL_KEYWORDS = ['login', 'signin', 'auth', 'התחבר', 'כניסה'];
 async function bootSPA(page: Page) {
@@ -21,7 +19,6 @@ async function bootSPA(page: Page) {
   });
   // --- end debug hooks ---
   await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 180000 });
-
   const root = page.locator('#root');
   if ((await root.count()) > 0) {
     await expect
@@ -29,10 +26,8 @@ async function bootSPA(page: Page) {
       .toBeGreaterThan(0);
   }
 }
-
 async function spaNavigate(page: Page, path: string) {
   if (!path) return;
-
   const directHref = page.locator(`a[href="${path}"]:visible`).first();
   if ((await directHref.count()) > 0) {
     await directHref.click().catch(() => {});
@@ -44,23 +39,18 @@ async function spaNavigate(page: Page, path: string) {
     window.dispatchEvent(new Event('locationchange'));
   }, path);
 }
-
   await expect
     .poll(() => page.url().includes(path), { timeout: 180000 })
     .toBeTruthy()
     .catch(() => {});
 }
-
 // Try navigating with retries/backoff to avoid transient navigation failures
 async function gotoFirstExisting(page: Page) {
   await bootSPA(page);
-
   for (const p of CANDIDATE_PATHS) {
     await spaNavigate(page, p);
-
     // Let the test keep its existing skip logic
     if (isAuthUrl(page.url())) return p;
-
     // Quick proof Step 1 rendered
     const step1 = stepAnchorLocator(page, 1);
     try {
@@ -70,30 +60,23 @@ async function gotoFirstExisting(page: Page) {
       // try next candidate
     }
   }
-
   return null;
 }
-
-
 function nextButtonLocator(page: Page) {
   return page.getByRole('button', { name: /next|הבא/i }).last();
 }
-
 function saveButtonLocator(page: Page) {
   return page.getByRole('button', { name: /save|שמור|finish|סיום/i }).first();
 }
-
 function stepAnchorLocator(page: Page, stepNumber: number) {
   const regex = new RegExp(`Step\\s*${stepNumber}.*of.*4|שלב\\s*${stepNumber}|Step\\s*${stepNumber}`, 'i');
   return page.getByText(regex).first();
 }
-
 function isAuthUrl(url: string) {
   if (!url) return false;
   const lower = url.toLowerCase();
   return AUTH_URL_KEYWORDS.some(k => lower.includes(k));
 }
-
 test.describe('GoalCoach parity (web + mobile projects)', () => {
   test('GoalCoach steps 1→4', async ({ page }) => {
     // Attach listeners to fail fast on crashes/closes
@@ -103,7 +86,6 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
    page.on('close', () => {
       console.error('PW: page closed');
    });
-
     // Capture console errors for diagnostics
     const consoleErrors: string[] = [];
     page.on('console', msg => {
@@ -111,24 +93,20 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
         consoleErrors.push(msg.text());
       }
     });
-
     // Navigate with retries/backoff
     const path = await gotoFirstExisting(page);
     if (!path) {
       test.skip(true, 'No reachable GoalCoach path found (transient or route missing)');
       return;
     }
-
     // If navigation redirected to auth/login, skip test (do not fail)
     if (isAuthUrl(page.url())) {
       test.skip(true, `Redirected to auth/login (${page.url()})`);
       return;
     }
-
     // Step 1 anchor
     const step1Anchor = stepAnchorLocator(page, 1);
     await expect(step1Anchor).toBeVisible({ timeout: 180000 });
-
     // Step 1: choose a category card
     const categoryLabel = /Routine & Productivity|Routine|רוטינה|התנהגות|Behavioral/i;
     let category = page.locator('button:visible').filter({ hasText: categoryLabel }).first();
@@ -142,13 +120,11 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
     await category.scrollIntoViewIfNeeded();
     await expect(category).toBeEnabled();
     await category.click();
-
     // Guarded Next (1 -> 2)
     const next1 = nextButtonLocator(page);
     await expect(next1).toBeVisible({ timeout: 180000 });
     await next1.scrollIntoViewIfNeeded();
-    
-    // Wait for Next button to become enabled with polling
+        // Wait for Next button to become enabled with polling
     try {
       await expect.poll(
         async () => await next1.isEnabled(),
@@ -160,7 +136,6 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
       console.error(`Next button enable polling failed. URL: ${page.url()}, Console errors: ${consoleErrors.slice(0, 5).join(', ')}`);
       throw error;
     }
-
     // Fallback: if still not enabled, try clicking category again
     if (!(await next1.isEnabled())) {
       await category.click();
@@ -175,14 +150,12 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
         throw error;
       }
     }
-    
-    await next1.click({ trial: true }).catch(() => {
+        await next1.click({ trial: true }).catch(() => {
       throw new Error('Next button trial-click failed; page may have navigated or crashed.');
     });
     await next1.click().catch(() => {
       throw new Error('Next button click failed; page may have navigated or crashed.');
     });
-
     // After navigation: check auth redirect and anchor
     if (isAuthUrl(page.url())) {
       test.skip(true, `Redirected to auth/login after clicking Next (${page.url()})`);
@@ -190,7 +163,6 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
     }
     const step2Anchor = stepAnchorLocator(page, 2);
     await expect(step2Anchor).toBeVisible({ timeout: 180000 });
-
     // Step 2: fill title and motivation
     const titleInputCandidates = [
       page.getByLabel(/title|שם/i).first(),
@@ -206,7 +178,6 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
         break;
       }
     }
-
     const motivationCandidates = [
       page.getByLabel(/motivation|reason|מוטיבציה|מטרה/i).first(),
       page.getByRole('textbox', { name: /motivation|reason|מוטיב/i }).first(),
@@ -221,7 +192,6 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
         break;
       }
     }
-
     // Guarded Next (2 -> 3)
     const next2 = nextButtonLocator(page);
     await expect(next2).toBeVisible({ timeout: 180000 });
@@ -233,14 +203,12 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
     await next2.click().catch(() => {
       throw new Error('Next button click failed; page may have navigated or crashed.');
     });
-
     if (isAuthUrl(page.url())) {
       test.skip(true, `Redirected to auth/login after clicking Next (${page.url()})`);
       return;
     }
     const step3Anchor = stepAnchorLocator(page, 3);
     await expect(step3Anchor).toBeVisible({ timeout: 180000 });
-
     // Step 3: optional, then Next
     await page.waitForTimeout(180000);
     const next3 = nextButtonLocator(page);
@@ -253,14 +221,12 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
     await next3.click().catch(() => {
       throw new Error('Next button click failed; page may have navigated or crashed.');
     });
-
     if (isAuthUrl(page.url())) {
       test.skip(true, `Redirected to auth/login after clicking Next (${page.url()})`);
       return;
     }
     const step4Anchor = stepAnchorLocator(page, 4);
     await expect(step4Anchor).toBeVisible({ timeout: 180000 });
-
     // Step 4: Save button - guarded
     const saveBtn = saveButtonLocator(page);
     await expect(saveBtn).toBeVisible({ timeout: 180000 });
@@ -269,7 +235,6 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
     await saveBtn.click({ trial: true }).catch(() => {
       throw new Error('Save button trial-click failed; page may have navigated or crashed.');
     });
-
     const authPrompt = page.locator('text=/sign in|login|התחבר|כניסה|התחברות/i').first();
     if ((await authPrompt.count()) === 0) {
       await saveBtn.click().catch(() => {
@@ -279,7 +244,6 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
       await expect(authPrompt).toBeVisible({ timeout: 180000 });
       test.skip(true, `Skipped Save because auth prompt detected (${page.url()})`);
     }
-
     // Optional success assertion
     const success = page.getByText(/saved|success|הושלם|נשמרה|שמור/i).first();
     if ((await success.count()) > 0) {
