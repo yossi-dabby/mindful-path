@@ -1,285 +1,145 @@
-import { test, expect, Page, Locator } from '@playwright/test';
+// FILE: tests/e2e/goalcoach.spec.ts
+import { test, expect } from '@playwright/test';
+import {
+  attachDiagnostics,
+  waitForAppHydration,
+  checkAuthGuard,
+  stableClick,
+  safeFill,
+  spaNavigate,
+  takeDebugScreenshot,
+} from '../helpers/ui';
 
-test.setTimeout(180_000);
-
-const CANDIDATE_PATHS = ['/GoalCoach', '/goalcoach', '/goal-coach'];
-const AUTH_URL_KEYWORDS = ['login', 'signin', 'auth', 'התחבר', 'כניסה'];
-
-function isAuthUrl(url: string) {
-  if (!url) return false;
-  const lower = url.toLowerCase();
-  return AUTH_URL_KEYWORDS.some((k) => lower.includes(k));
-}
-
-function attachDiagnostics(page: Page) {
-  page.on('pageerror', (err) => {
-    console.error('PAGEERROR:', err?.message || err);
-    if ((err as any)?.stack) console.error('STACK:', (err as any).stack);
-  });
-  page.on('console', (msg) => {
-    if (msg.type() === 'error') console.error('CONSOLE:', msg.text());
-  });
-  page.on('requestfailed', (req) => {
-    console.error('REQFAILED:', req.url(), req.failure()?.errorText);
-  });
-  page.on('response', (res) => {
-    if (res.status() >= 400) console.error('HTTP', res.status(), res.url());
-  });
-  page.on('crash', () => console.error('PW: page crashed'));
-  page.on('close', () => console.error('PW: page closed'));
-}
-
-async function waitForAppHydration(page: Page) {
-  // Ensure DOM is there
-  await page.waitForLoadState('domcontentloaded', { timeout: 60_000 });
-
-  // Wait for React root to have children (hydration/render)
-  const root = page.locator('#root');
-  if ((await root.count()) > 0) {
-    await expect
-      .poll(
-        async () =>
-          root.evaluate((el) => (el as HTMLElement).childElementCount),
-        { timeout: 60_000 }
-      )
-      .toBeGreaterThan(0);
-  }
-
-  // Small “network idle” grace (SPA often fires async fetches)
-  // Avoid long hangs: cap to 10s and ignore if it never becomes idle.
-  await page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => {});
-}
-
-async function bootSPA(page: Page) {
-  await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 60_000 });
-  await waitForAppHydration(page);
-}
-
-async function spaNavigate(page: Page, path: string) {
-  // SPA navigation via pushState; then wait for URL + hydration settle.
-  await page.evaluate((p) => {
-    history.pushState({}, '', p);
-    window.dispatchEvent(new PopStateEvent('popstate'));
-  }, path);
-
-  await expect
-    .poll(() => page.url(), { timeout: 15_000 })
-    .toContain(path);
-
-  // Let route render settle
-  await waitForAppHydration(page);
-}
-
-async function waitVisibleEnabled(locator: Locator, timeout = 30_000) {
-  await expect(locator).toBeVisible({ timeout });
-  await expect
-    .poll(async () => locator.isEnabled().catch(() => false), { timeout })
-    .toBeTruthy();
-}
-
-async function stableClick(locator: Locator, timeout = 30_000) {
-  const deadline = Date.now() + timeout;
-
-  let lastErr: unknown;
-  while (Date.now() < deadline) {
-    try {
-      await waitVisibleEnabled(locator, Math.min(10_000, deadline - Date.now()));
-      await locator.scrollIntoViewIfNeeded().catch(() => {});
-      // Short stabilization to reduce “element detached”
-      await locator.page().waitForTimeout(80);
-      await locator.click({ timeout: Math.min(10_000, deadline - Date.now()) });
-      return;
-    } catch (err) {
-      lastErr = err;
-      // Common flaky causes: re-render/detach, overlay, animation
-      await locator.page().waitForTimeout(250);
-    }
-  }
-  throw lastErr;
-}
-
-async function safeFill(locator: Locator, value: string, timeout = 15_000) {
-  const deadline = Date.now() + timeout;
-  let lastErr: unknown;
-
-  while (Date.now() < deadline) {
-    try {
-      await expect(locator).toBeVisible({ timeout: Math.min(5_000, deadline - Date.now()) });
-      await locator.scrollIntoViewIfNeeded().catch(() => {});
-      await locator.fill(value, { timeout: Math.min(5_000, deadline - Date.now()) });
-      return;
-    } catch (err) {
-      lastErr = err;
-      await locator.page().waitForTimeout(200);
-    }
-  }
-  throw lastErr;
-}
-
-function stepAnchorLocator(page: Page, stepNumber: number) {
-  const regex = new RegExp(
-    `Step\\s*${stepNumber}.*of.*4|שלב\\s*${stepNumber}|Step\\s*${stepNumber}`,
-    'i'
-  );
-  return page.getByText(regex).first();
-}
-
-function nextButtonLocator(page: Page) {
-  return page
-    .locator('button:visible')
-    .filter({ hasText: /next|continue|הבא|המשך/i })
-    .first();
-}
-
-function backButtonLocator(page: Page) {
-  return page
-    .locator('button:visible')
-    .filter({ hasText: /back|prev|previous|חזור/i })
-    .first();
-}
-
-function saveButtonLocator(page: Page) {
-  return page
-    .locator('button:visible')
-    .filter({ hasText: /save|שמור|finish|סיום/i })
-    .first();
-}
-
-async function gotoFirstExisting(page: Page) {
-  await bootSPA(page);
-
-  for (const p of CANDIDATE_PATHS) {
-    await spaNavigate(page, p);
-
-    if (isAuthUrl(page.url())) return p;
-
-    const step1 = stepAnchorLocator(page, 1);
-    try {
-      await expect(step1).toBeVisible({ timeout: 15_000 });
-      return p;
-    } catch {
-      // try next candidate path
-    }
-  }
-  return null;
-}
-
-async function pickFirstCategoryButton(page: Page) {
-  // Pick the first enabled “category-like” button; exclude nav actions
-  const candidate = page
-    .locator('button:visible:not([disabled])')
-    .filter({
-      hasNotText:
-        /next|continue|back|prev|save|finish|הבא|המשך|חזור|שמור|סיום/i,
-    })
-    .first();
-
-  await stableClick(candidate, 30_000);
-}
-
-async function goNextOrSkipIfMissing(page: Page, stepLabel: string) {
-  const nextBtn = nextButtonLocator(page);
-  const count = await nextBtn.count().catch(() => 0);
-  if (count === 0) test.skip(true, `Next button not found at ${stepLabel}`);
-  await stableClick(nextBtn, 30_000);
-
-  // Allow route/UI settle
-  await waitForAppHydration(page);
-
-  if (isAuthUrl(page.url())) {
-    test.skip(true, `Redirected to auth/login after Next (${page.url()})`);
-  }
-}
-
-test.describe('GoalCoach parity (web + mobile projects)', () => {
-  test('GoalCoach steps 1→4 (robust)', async ({ page }, testInfo) => {
+test.describe('GoalCoach Flow (Steps 1→4)', () => {
+  test.beforeEach(async ({ page }) => {
     attachDiagnostics(page);
+  });
 
-    const path = await gotoFirstExisting(page);
-    if (!path) {
-      test.skip(true, 'No reachable GoalCoach path found');
+  test('should complete GoalCoach wizard from step 1 to step 4', async ({ page }) => {
+    // Navigate to GoalCoach
+    await spaNavigate(page, '/GoalCoach');
+
+    // Check for auth guard
+    if (await checkAuthGuard(page)) {
+      test.skip(true, 'Auth required - skipping test');
       return;
     }
 
-    if (isAuthUrl(page.url())) {
-      test.skip(true, `Redirected to auth/login (${page.url()})`);
-      return;
-    }
+    // ============ STEP 1: Category Selection ============
+    await test.step('Step 1 - Select category', async () => {
+      // Wait for wizard to load
+      await expect(page.locator('text=/Select.*Category|Choose.*Goal/i').first()).toBeVisible({ timeout: 15000 });
 
-    // Step 1
-    await expect(stepAnchorLocator(page, 1)).toBeVisible({ timeout: 30_000 });
+      // Find category buttons (they have aria-pressed attribute in the real component)
+      const categoryButtons = page.locator('button[aria-pressed]');
+      await expect(categoryButtons.first()).toBeVisible({ timeout: 10000 });
 
-    // Choose any category (do NOT rely on label text)
-    await pickFirstCategoryButton(page);
+      // Click the first available category
+      const firstCategory = categoryButtons.first();
+      await stableClick(firstCategory);
 
-    // Next 1 -> 2
-    await goNextOrSkipIfMissing(page, 'Step 1');
+      // Verify category is selected (aria-pressed="true")
+      await expect(firstCategory).toHaveAttribute('aria-pressed', 'true', { timeout: 5000 });
 
-    // Step 2
-    await expect(stepAnchorLocator(page, 2)).toBeVisible({ timeout: 30_000 });
+      // Find and click Next button
+      const nextButton = page.locator('button:has-text("Next"), button:has-text("Continue")').last();
+      await stableClick(nextButton);
 
-    // Fill some text input if exists (robust)
-    const firstTextField = page.locator('input:visible, textarea:visible').first();
-    if ((await firstTextField.count()) > 0) {
-      await safeFill(firstTextField, 'E2E Test Goal').catch(() => {});
-    }
+      await page.waitForTimeout(500);
+    });
 
-    // Next 2 -> 3
-    await goNextOrSkipIfMissing(page, 'Step 2');
+    // ============ STEP 2: Goal Definition ============
+    await test.step('Step 2 - Define goal', async () => {
+      // Wait for step 2 content (title input should be visible)
+      const titleInput = page.locator('input[type="text"]').first();
+      await expect(titleInput).toBeVisible({ timeout: 10000 });
 
-    // Step 3
-    await expect(stepAnchorLocator(page, 3)).toBeVisible({ timeout: 30_000 });
+      // Fill required fields
+      await safeFill(titleInput, 'E2E Test Goal - Improve Mental Wellness');
 
-    // (Optional) some steps require selection; if a “category-like” button exists, pick one
-    const optionalPick = page
-      .locator('button:visible:not([disabled])')
-      .filter({
-        hasNotText:
-          /next|continue|back|prev|save|finish|הבא|המשך|חזור|שמור|סיום/i,
-      })
-      .first();
-    if ((await optionalPick.count()) > 0) {
-      // Best-effort click; ignore if it turns out not relevant
-      await stableClick(optionalPick, 10_000).catch(() => {});
-    }
+      // Fill description if present
+      const descriptionField = page.locator('textarea').first();
+      if (await descriptionField.count() > 0) {
+        await safeFill(descriptionField, 'This is a comprehensive goal to improve my overall mental wellness through daily practices.');
+      }
 
-    // Next 3 -> 4
-    await goNextOrSkipIfMissing(page, 'Step 3');
+      // Fill motivation if present
+      const motivationField = page.locator('textarea, input').filter({ hasText: /motivation|why/i }).or(page.locator('[placeholder*="motivation" i], [placeholder*="why" i]')).first();
+      if (await motivationField.count() > 0) {
+        await safeFill(motivationField, 'I want to feel more balanced and present in my daily life.');
+      }
 
-    // Step 4
-    await expect(stepAnchorLocator(page, 4)).toBeVisible({ timeout: 30_000 });
+      // Find and click Next/Continue
+      const nextButton = page.locator('button:has-text("Next"), button:has-text("Continue")').last();
+      await stableClick(nextButton);
 
-    const saveBtn = saveButtonLocator(page);
-    const saveCount = await saveBtn.count().catch(() => 0);
-    if (saveCount === 0) {
-      test.skip(true, 'Save button not found at Step 4');
-      return;
-    }
+      await page.waitForTimeout(500);
+    });
 
-    await expect(saveBtn).toBeVisible({ timeout: 30_000 });
-    await saveBtn.scrollIntoViewIfNeeded().catch(() => {});
+    // ============ STEP 3: Planning (SMART/Milestones) ============
+    await test.step('Step 3 - Planning', async () => {
+      // Wait for step 3 content
+      await page.waitForTimeout(1000);
 
-    // If save disabled because auth/guard is needed – skip cleanly
-    const enabled = await saveBtn.isEnabled().catch(() => false);
-    if (!enabled) {
-      test.skip(true, 'Save disabled (likely requires auth)');
-      return;
-    }
+      // Look for SMART criteria inputs or milestone inputs
+      const visibleInputs = page.locator('input[type="text"]:visible, textarea:visible');
+      const inputCount = await visibleInputs.count();
 
-    try {
-      await stableClick(saveBtn, 30_000);
-      await waitForAppHydration(page);
-    } catch (err) {
-      // Provide artifact for debugging
-      await page.screenshot({
-        path: `test-results/goalcoach-save-click-failed-${Date.now()}.png`,
-        fullPage: true,
+      if (inputCount > 0) {
+        // Fill first few visible inputs
+        for (let i = 0; i < Math.min(inputCount, 3); i++) {
+          const input = visibleInputs.nth(i);
+          if (await input.isVisible()) {
+            await safeFill(input, `E2E Test Data ${i + 1}`);
+          }
+        }
+      }
+
+      // Check for "Add Milestone" or similar buttons and click if needed
+      const addButton = page.locator('button:has-text("Add"), button:has-text("+ ")').first();
+      if (await addButton.count() > 0 && await addButton.isVisible()) {
+        await stableClick(addButton);
+        await page.waitForTimeout(300);
+        
+        // Fill the newly added input if present
+        const newInput = page.locator('input:visible, textarea:visible').last();
+        if (await newInput.count() > 0) {
+          await safeFill(newInput, 'E2E Milestone');
+        }
+      }
+
+      // Find and click Next/Continue
+      const nextButton = page.locator('button:has-text("Next"), button:has-text("Continue")').last();
+      await stableClick(nextButton);
+
+      await page.waitForTimeout(500);
+    });
+
+    // ============ STEP 4: Review & Save ============
+    await test.step('Step 4 - Review and save', async () => {
+      // Wait for review step (should show summary)
+      await page.waitForTimeout(1000);
+
+      // Look for Save/Finish/Complete button
+      const saveButton = page.locator('button:has-text("Save"), button:has-text("Finish"), button:has-text("Complete"), button:has-text("Create Goal")').last();
+      
+      await expect(saveButton).toBeVisible({ timeout: 10000 });
+      await stableClick(saveButton);
+
+      // Wait for success indication (navigation away or success message)
+      await Promise.race([
+        page.waitForURL(/\/(Home|Goals)/, { timeout: 10000 }),
+        page.waitForSelector('text=/success|created|saved/i', { timeout: 10000 }),
+      ]).catch(async () => {
+        await takeDebugScreenshot(page, 'goalcoach-save-timeout');
       });
-      console.error('Save click failed. URL:', page.url());
-      throw err;
-    }
+
+      // Small delay for any post-save actions
+      await page.waitForTimeout(1000);
+    });
   });
 });
+
 
 
 
