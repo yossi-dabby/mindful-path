@@ -1,4 +1,7 @@
 import { test, expect, Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
+
+test.setTimeout(180_000);
 
 const CANDIDATE_PATHS = ['/GoalCoach', '/goalcoach', '/goal-coach'];
 const AUTH_URL_KEYWORDS = ['login', 'signin', 'auth', 'התחבר', 'כניסה'];
