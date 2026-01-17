@@ -1,5 +1,4 @@
 import { test, expect, Page } from '@playwright/test';
-import { test, expect } from '@playwright/test';
 
 test.setTimeout(180_000);
 
