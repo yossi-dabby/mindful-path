@@ -303,13 +303,16 @@ export default function GoalCoachWizard({ onClose }) {
                       key={`${category.value}-${index}`}
                       type="button"
                       data-testid={`goalcoach-category-${categoryId}`}
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         console.log('Category clicked:', category.label, category.value);
-                        setFormData({ 
-                          ...formData, 
+                        // Use functional update to ensure we have latest state
+                        setFormData(prev => ({ 
+                          ...prev, 
                           category: category.value,
                           ui_category_label: category.label 
-                        });
+                        }));
                       }}
                       className={cn(
                         'p-4 rounded-xl border-2 text-left transition-all hover:shadow-lg',
