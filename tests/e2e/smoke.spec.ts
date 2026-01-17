@@ -1,227 +1,96 @@
-import { test, expect, Page, Locator } from '@playwright/test';
+// FILE: tests/e2e/chat.spec.ts
+import { test, expect } from '@playwright/test';
+import {
+  attachDiagnostics,
+  waitForAppHydration,
+  checkAuthGuard,
+  stableClick,
+  safeFill,
+  spaNavigate,
+  takeDebugScreenshot,
+} from '../helpers/ui';
 
-test.setTimeout(180_000);
-
-const CHAT_PATHS = ['/Chat', '/chat'];
-const AUTH_URL_KEYWORDS = ['login', 'signin', 'auth', 'התחבר', 'כניסה'];
-
-function isAuthUrl(url: string) {
-  if (!url) return false;
-  const lower = url.toLowerCase();
-  return AUTH_URL_KEYWORDS.some((k) => lower.includes(k));
-}
-
-function attachDiagnostics(page: Page, consoleErrors: string[]) {
-  page.on('console', (msg) => {
-    if (msg.type() === 'error') consoleErrors.push(msg.text());
+test.describe('Chat Smoke Test', () => {
+  test.beforeEach(async ({ page }) => {
+    attachDiagnostics(page);
   });
-  page.on('pageerror', (err) => {
-    consoleErrors.push(`PAGEERROR: ${err?.message || String(err)}`);
-  });
-  page.on('requestfailed', (req) => {
-    consoleErrors.push(`REQFAILED: ${req.url()} :: ${req.failure()?.errorText}`);
-  });
-  page.on('response', (res) => {
-    if (res.status() >= 400) consoleErrors.push(`HTTP ${res.status()} ${res.url()}`);
-  });
-  page.on('close', () => console.error('PW: page closed'));
-  page.on('crash', () => console.error('PW: page crashed'));
-}
 
-async function waitForAppHydration(page: Page) {
-  await page.waitForLoadState('domcontentloaded', { timeout: 60_000 });
+  test('should send a message and verify it appears', async ({ page }) => {
+    // Navigate to Chat
+    await spaNavigate(page, '/Chat');
 
-  const root = page.locator('#root');
-  if ((await root.count()) > 0) {
-    await expect
-      .poll(
-        async () =>
-          root.evaluate((el) => (el as HTMLElement).childElementCount),
-        { timeout: 60_000 }
-      )
-      .toBeGreaterThan(0);
-  }
-
-  await page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => {});
-}
-
-async function bootSPA(page: Page) {
-  await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 60_000 });
-  await waitForAppHydration(page);
-}
-
-async function spaNavigate(page: Page, path: string) {
-  await page.evaluate((p) => {
-    history.pushState({}, '', p);
-    window.dispatchEvent(new PopStateEvent('popstate'));
-  }, path);
-
-  await expect
-    .poll(() => page.url(), { timeout: 15_000 })
-    .toContain(path);
-
-  await waitForAppHydration(page);
-}
-
-async function waitVisibleEnabled(locator: Locator, timeout = 30_000) {
-  await expect(locator).toBeVisible({ timeout });
-  await expect
-    .poll(async () => locator.isEnabled().catch(() => false), { timeout })
-    .toBeTruthy();
-}
-
-async function stableClick(locator: Locator, timeout = 30_000) {
-  const deadline = Date.now() + timeout;
-  let lastErr: unknown;
-
-  while (Date.now() < deadline) {
-    try {
-      await waitVisibleEnabled(locator, Math.min(10_000, deadline - Date.now()));
-      await locator.scrollIntoViewIfNeeded().catch(() => {});
-      await locator.page().waitForTimeout(80);
-      await locator.click({ timeout: Math.min(10_000, deadline - Date.now()) });
+    // Check for auth guard
+    if (await checkAuthGuard(page)) {
+      test.skip(true, 'Auth required - skipping test');
       return;
-    } catch (err) {
-      lastErr = err;
-      await locator.page().waitForTimeout(250);
     }
-  }
-  throw lastErr;
-}
 
-async function safeFill(locator: Locator, value: string, timeout = 15_000) {
-  const deadline = Date.now() + timeout;
-  let lastErr: unknown;
+    const testMessage = `E2E Test Message - ${Date.now()}`;
 
-  while (Date.now() < deadline) {
-    try {
-      await expect(locator).toBeVisible({ timeout: Math.min(5_000, deadline - Date.now()) });
-      await locator.scrollIntoViewIfNeeded().catch(() => {});
-      await locator.fill(value, { timeout: Math.min(5_000, deadline - Date.now()) });
-      return;
-    } catch (err) {
-      lastErr = err;
-      await locator.page().waitForTimeout(200);
-    }
-  }
-  throw lastErr;
-}
+    await test.step('Find and fill message input', async () => {
+      // Wait for chat interface to load (input should be visible)
+      // The real app has textarea for message input
+      const messageInput = page.locator('textarea').first();
+      await expect(messageInput).toBeVisible({ timeout: 15000 });
 
-function messageBoxLocator(page: Page) {
-  // Prefer semantically named role, then placeholder, then visible textarea/input
-  return page
-    .getByRole('textbox', { name: /message|chat input|type a message|הודעה|הקלד/i })
-    .first()
-    .or(page.getByPlaceholder(/type|message|הקלד/i).first())
-    .or(page.locator('textarea:visible').first())
-    .or(page.locator('input[type="text"]:visible').first());
-}
+      // Fill message
+      await safeFill(messageInput, testMessage);
 
-async function gotoFirstExistingChat(page: Page) {
-  await bootSPA(page);
-
-  for (const path of CHAT_PATHS) {
-    await spaNavigate(page, path);
-
-    if (isAuthUrl(page.url())) return path;
-
-    const msgBox = page.locator('textarea:visible, input[type="text"]:visible').first();
-    try {
-      await expect(msgBox).toBeVisible({ timeout: 15_000 });
-      return path;
-    } catch {
-      // try next
-    }
-  }
-  return null;
-}
-
-test('smoke: open chat, send message, receive reply (robust)', async ({ page }) => {
-  const consoleErrors: string[] = [];
-  attachDiagnostics(page, consoleErrors);
-
-  const chatPath = await gotoFirstExistingChat(page);
-  if (!chatPath) {
-    test.skip(true, 'No reachable chat path found');
-    return;
-  }
-
-  if (isAuthUrl(page.url())) {
-    test.skip(true, `Redirected to auth/login (${page.url()})`);
-    return;
-  }
-
-  const box = messageBoxLocator(page);
-
-  try {
-    await waitVisibleEnabled(box, 30_000);
-  } catch (err) {
-    await page.screenshot({
-      path: `test-results/smoke-input-not-found-${Date.now()}.png`,
-      fullPage: true,
+      // Take screenshot for debugging
+      if (!process.env.CI) {
+        await takeDebugScreenshot(page, 'chat-before-send');
+      }
     });
-    console.error(
-      `No message input. URL: ${page.url()}. Console errors: ${consoleErrors.slice(0, 8).join(' | ')}`
-    );
-    throw err;
-  }
 
-  const myText = `E2E hello ${Date.now()}`;
-  await safeFill(box, myText, 20_000);
+    await test.step('Send message', async () => {
+      // Find send button (look for button with Send or paper plane icon)
+      const sendButton = page.locator('button:has-text("Send"), button[type="submit"]').last();
+      
+      // Alternative: if Enter key is the primary send method
+      if (await sendButton.count() === 0) {
+        await page.keyboard.press('Enter');
+      } else {
+        await stableClick(sendButton);
+      }
 
-  // Prefer click Send if exists, otherwise Enter.
-  // Also wait for enablement/polling before sending.
-  const sendButton = page.getByRole('button', { name: /send|submit|שלח/i }).first();
-
-  const sendCount = await sendButton.count().catch(() => 0);
-  if (sendCount > 0) {
-    try {
-      await stableClick(sendButton, 30_000);
-    } catch {
-      // Fallback to Enter (some UIs block click due to overlays)
-      await box.press('Enter').catch(() => {});
-    }
-  } else {
-    await box.press('Enter').catch(() => {});
-  }
-
-  // Verify message appears (poll, because UI can async-render)
-  await expect
-    .poll(
-      async () => (await page.getByText(myText).first().count().catch(() => 0)) > 0,
-      { timeout: 30_000 }
-    )
-    .toBeTruthy();
-
-  await expect(page.getByText(myText).first()).toBeVisible({ timeout: 30_000 });
-
-  // CI: don't wait for AI reply
-  if (process.env.CI) return;
-
-  // Best-effort: wait for "something else" to appear in main region.
-  // We avoid strict assumptions about assistant markup, but we do wait for UI to be stable.
-  const main = page.locator('main').first();
-  await expect(main).toBeVisible({ timeout: 30_000 });
-
-  // If your app marks assistant messages (recommended), replace this with a precise selector.
-  // For now: wait a bit for additional text nodes to appear after our message is present.
-  const baselineText = await main.innerText().catch(() => '');
-  await expect
-    .poll(async () => {
-      const now = await main.innerText().catch(() => '');
-      return now.length > baselineText.length + 10; // heuristic growth
-    }, { timeout: 45_000 })
-    .toBeTruthy()
-    .catch(async () => {
-      // Don't fail locally on reply timing; provide diagnostics instead
-      await page.screenshot({
-        path: `test-results/smoke-reply-not-detected-${Date.now()}.png`,
-        fullPage: true,
-      });
-      console.warn('Reply not detected within timeout (heuristic). URL:', page.url());
-      console.warn('Console errors (first 10):', consoleErrors.slice(0, 10).join(' | '));
+      await page.waitForTimeout(500);
     });
+
+    await test.step('Verify user message appears', async () => {
+      // Look for the message bubble containing our text
+      // In the real app, messages are in MessageBubble component with role-based styling
+      const userMessage = page.locator(`text="${testMessage}"`).or(page.locator(`p:has-text("${testMessage}")`));
+      
+      await expect(userMessage).toBeVisible({ timeout: 10000 });
+
+      // In CI: stop here, don't wait for AI response
+      if (process.env.CI) {
+        console.log('[CI MODE] User message verified, not waiting for assistant response');
+        return;
+      }
+
+      // In local/non-CI: optionally verify assistant response
+      if (!process.env.CI) {
+        console.log('[LOCAL MODE] Attempting to verify assistant response...');
+        
+        // Wait for assistant message (look for AI avatar or role indicator)
+        // The real app uses different styling for AI vs user messages
+        const assistantMessage = page.locator('[class*="bg-white"]:has(p), [class*="prose"]:has(p)').last();
+        
+        await assistantMessage.waitFor({ state: 'visible', timeout: 30000 }).catch(async (err) => {
+          console.warn('No assistant response detected within timeout:', err.message);
+          await takeDebugScreenshot(page, 'chat-no-response');
+        });
+
+        // If response appeared, log success
+        if (await assistantMessage.count() > 0 && await assistantMessage.isVisible()) {
+          console.log('[LOCAL MODE] Assistant response detected');
+        }
+      }
+    });
+  });
 });
+
 
 
 
