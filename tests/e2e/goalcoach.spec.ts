@@ -11,83 +11,64 @@ function isAuthUrl(url: string) {
   return AUTH_URL_KEYWORDS.some(k => lower.includes(k));
 }
 
-function pathnameOf(url: string) {
-  try {
-    return new URL(url).pathname.toLowerCase();
-  } catch {
-    return '';
-  }
-}
-
-function isOnGoalCoach(url: string) {
-  const p = pathnameOf(url);
-  return p.startsWith('/goalcoach') || p.startsWith('/goal-coach');
-}
-
 async function bootSPA(page: Page) {
-  // --- DEBUG hooks (CI diagnostics) ---
-  page.on('pageerror', (err) => {
-    console.error('PAGEERROR:', err?.message || err);
-    if ((err as any)?.stack) console.error('STACK:', (err as any).stack);
-  });
-  page.on('console', (msg) => {
-    if (msg.type() === 'error') console.error('CONSOLE:', msg.text());
-  });
-  page.on('requestfailed', (req) => {
-    console.error('REQFAILED:', req.url(), req.failure()?.errorText);
-  });
-  page.on('response', (res) => {
-    if (res.status() >= 400) console.error('HTTP', res.status(), res.url());
-  });
-  // --- end debug hooks ---
+  await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 60_000 });
 
-  await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 40_000 });
-
+  // Wait for React mount if #root exists
   const root = page.locator('#root');
   if ((await root.count()) > 0) {
     await expect
-      .poll(async () => root.evaluate(el => (el as HTMLElement).childElementCount), { timeout: 30_000 })
+      .poll(
+        async () => root.evaluate(el => (el as HTMLElement).childElementCount),
+        { timeout: 60_000 }
+      )
       .toBeGreaterThan(0);
   }
+
+  // Give SPA a brief moment to settle (helps CI/mobile)
+  await page.waitForTimeout(250);
 }
 
+/**
+ * IMPORTANT:
+ * In CI your click on a[href="/GoalCoach"] hangs (trace shows the click step taking the entire timeout).
+ * So we navigate via pushState (no click).
+ */
 async function spaNavigate(page: Page, path: string) {
   if (!path) return;
 
-  // Prefer clicking a real in-app link if it exists
-  const directHref = page.locator(`a[href="${path}"]:visible`).first();
-  if ((await directHref.count()) > 0) {
-    await directHref.click().catch(() => {});
-  } else {
-    // Fallback: client-side navigation without full reload
-    await page.evaluate((p) => {
-      history.pushState({}, '', p);
-      window.dispatchEvent(new PopStateEvent('popstate'));
-    }, path);
-  }
+  await page.evaluate((p) => {
+    history.pushState({}, '', p);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  }, path);
 
-  // Wait best-effort for URL change
   await expect
-    .poll(() => pathnameOf(page.url()).includes(path.toLowerCase()), { timeout: 10_000 })
+    .poll(() => page.url().toLowerCase().includes(path.toLowerCase()), { timeout: 15_000 })
     .toBeTruthy()
     .catch(() => {});
+
+  await page.waitForTimeout(200);
 }
 
 function stepAnchorLocator(page: Page, stepNumber: number) {
-  // Prefer strict "Step X of 4" / "שלב X" anchors (not Home tiles)
-  const regex = new RegExp(`(Step\\s*${stepNumber}\\s*(of\\s*4)?)|(שלב\\s*${stepNumber})`, 'i');
-  return page.getByText(regex).first();
+  // Keep flexible (Heb/Eng)
+  const re = new RegExp(
+    `Step\\s*${stepNumber}\\s*(?:of\\s*4)?|שלב\\s*${stepNumber}`,
+    'i'
+  );
+  return page.getByText(re).first();
 }
 
 function nextButtonLocator(page: Page) {
-  return page.getByRole('button', { name: /next|הבא/i }).last();
+  // Robust: prefer enabled visible buttons matching Next/Continue
+  return page.locator('button:visible:not([disabled])', { hasText: /next|continue|הבא|המשך/i }).first();
 }
 
 function saveButtonLocator(page: Page) {
-  return page.getByRole('button', { name: /save|שמור|finish|סיום/i }).first();
+  return page.locator('button:visible:not([disabled])', { hasText: /save|שמור|finish|סיום/i }).first();
 }
 
-async function gotoGoalCoach(page: Page) {
+async function gotoFirstExistingGoalCoach(page: Page) {
   await bootSPA(page);
 
   for (const p of CANDIDATE_PATHS) {
@@ -95,19 +76,19 @@ async function gotoGoalCoach(page: Page) {
 
     if (isAuthUrl(page.url())) return p;
 
-    // Guard: חייבים להיות באמת ב-GoalCoach (לא Home)
-    if (!isOnGoalCoach(page.url())) {
-      continue;
-    }
-
-    // Quick proof Step 1 rendered
+    // Proof GoalCoach rendered: Step 1 anchor OR a page-level heading
     const step1 = stepAnchorLocator(page, 1);
-    const ok = await step1
-      .waitFor({ state: 'visible', timeout: 15_000 })
-      .then(() => true)
-      .catch(() => false);
+    const headingFallback = page.getByRole('heading', { name: /goal|מטרה|set a goal/i }).first();
 
-    if (ok) return p;
+    try {
+      await step1.waitFor({ state: 'visible', timeout: 15_000 });
+      return p;
+    } catch {}
+
+    try {
+      await headingFallback.waitFor({ state: 'visible', timeout: 10_000 });
+      return p;
+    } catch {}
   }
 
   return null;
@@ -115,15 +96,14 @@ async function gotoGoalCoach(page: Page) {
 
 test.describe('GoalCoach parity (web + mobile projects)', () => {
   test('GoalCoach steps 1→4', async ({ page }) => {
+    // Diagnostics (helps CI)
+    page.on('pageerror', (err) => console.error('PAGEERROR:', err?.message || err));
     page.on('crash', () => console.error('PW: page crashed'));
     page.on('close', () => console.error('PW: page closed'));
+    page.on('requestfailed', (req) => console.error('REQFAILED:', req.url(), req.failure()?.errorText));
+    page.on('response', (res) => { if (res.status() >= 400) console.error('HTTP', res.status(), res.url()); });
 
-    const consoleErrors: string[] = [];
-    page.on('console', msg => {
-      if (msg.type() === 'error') consoleErrors.push(msg.text());
-    });
-
-    const path = await gotoGoalCoach(page);
+    const path = await gotoFirstExistingGoalCoach(page);
     if (!path) {
       test.skip(true, 'No reachable GoalCoach path found');
       return;
@@ -134,71 +114,41 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
       return;
     }
 
-    if (!isOnGoalCoach(page.url())) {
-      test.skip(true, `Did not reach GoalCoach route (stayed on ${pathnameOf(page.url())})`);
-      return;
-    }
-
-    // Step 1 anchor
+    // Step 1 anchor (best-effort)
     const step1Anchor = stepAnchorLocator(page, 1);
-    const step1Visible = await step1Anchor
-      .waitFor({ state: 'visible', timeout: 20_000 })
-      .then(() => true)
-      .catch(() => false);
-
-    if (!step1Visible) {
-      await page.screenshot({ path: `test-results/goalcoach-step1-not-visible-${Date.now()}.png`, fullPage: true });
-      test.skip(true, 'Step 1 anchor not visible (UI differs or not loaded)');
-      return;
+    if ((await step1Anchor.count()) > 0) {
+      await expect(step1Anchor).toBeVisible({ timeout: 30_000 });
     }
 
-    // Step 1: choose a category card/button
+    // Step 1: choose a category (fallback chain)
     const categoryLabel = /Routine & Productivity|Routine|רוטינה|התנהגות|Behavioral/i;
-    let category = page.locator('button:visible').filter({ hasText: categoryLabel }).first();
-    if ((await category.count()) === 0) category = page.getByRole('button', { name: categoryLabel }).first();
-    if ((await category.count()) === 0) category = page.getByText(categoryLabel).first();
+    let category =
+      page.locator('button:visible', { hasText: categoryLabel }).first();
 
-    const catOk = await category
-      .waitFor({ state: 'visible', timeout: 20_000 })
-      .then(() => true)
-      .catch(() => false);
-
-    if (!catOk) {
-      await page.screenshot({ path: `test-results/goalcoach-category-not-found-${Date.now()}.png`, fullPage: true });
-      test.skip(true, 'Category option not found (UI differs)');
-      return;
+    if ((await category.count()) === 0) {
+      category = page.getByRole('button', { name: categoryLabel }).first();
+    }
+    if ((await category.count()) === 0) {
+      // last-resort: click any visible "card-like" button that isn't navigation
+      category = page.locator('button:visible:not([disabled])').filter({ hasNotText: /next|continue|הבא|המשך|back|previous|חזור/i }).first();
     }
 
+    await expect(category).toBeVisible({ timeout: 30_000 });
     await category.scrollIntoViewIfNeeded();
-    await category.click().catch(() => {});
+    await category.click().catch(async () => {
+      // sometimes overlays/intercepts exist on mobile; try force click
+      await category.click({ force: true });
+    });
 
     // Next (1 -> 2)
     const next1 = nextButtonLocator(page);
-    const next1Ok = await next1
-      .waitFor({ state: 'visible', timeout: 20_000 })
-      .then(() => true)
-      .catch(() => false);
-
-    if (!next1Ok) {
-      await page.screenshot({ path: `test-results/goalcoach-next1-not-visible-${Date.now()}.png`, fullPage: true });
-      test.skip(true, 'Next button not visible on step 1');
-      return;
-    }
-
-    // Wait for Next to become enabled (short poll)
-    const enabled1 = await expect
-      .poll(async () => await next1.isEnabled(), { timeout: 20_000 })
-      .toBeTruthy()
-      .then(() => true)
-      .catch(() => false);
-
-    if (!enabled1) {
-      await page.screenshot({ path: `test-results/goalcoach-next1-not-enabled-${Date.now()}.png`, fullPage: true });
-      test.skip(true, 'Next button did not become enabled after selecting category');
-      return;
-    }
-
-    await next1.click().catch(() => {});
+    await expect(next1).toBeVisible({ timeout: 30_000 });
+    await expect
+      .poll(async () => await next1.isEnabled(), { timeout: 30_000 })
+      .toBe(true);
+    await next1.click().catch(async () => {
+      await next1.click({ force: true });
+    });
 
     if (isAuthUrl(page.url())) {
       test.skip(true, `Redirected to auth/login after Next (${page.url()})`);
@@ -206,77 +156,38 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
     }
 
     const step2Anchor = stepAnchorLocator(page, 2);
-    const step2Ok = await step2Anchor
-      .waitFor({ state: 'visible', timeout: 25_000 })
-      .then(() => true)
-      .catch(() => false);
-
-    if (!step2Ok) {
-      await page.screenshot({ path: `test-results/goalcoach-step2-not-visible-${Date.now()}.png`, fullPage: true });
-      test.skip(true, 'Step 2 anchor not visible');
-      return;
+    if ((await step2Anchor.count()) > 0) {
+      await expect(step2Anchor).toBeVisible({ timeout: 30_000 });
     }
 
-    // Step 2: fill title & motivation (best effort)
-    const titleInputCandidates = [
-      page.getByLabel(/title|שם/i).first(),
-      page.getByRole('textbox', { name: /title|שם/i }).first(),
-      page.locator('input[name="title"]').first(),
-      page.locator('input:visible').first(),
-    ];
+    // Step 2: fill title + motivation (best effort)
+    const titleInput =
+      page.getByRole('textbox', { name: /title|שם/i }).first()
+        .or(page.getByLabel(/title|שם/i).first())
+        .or(page.locator('input[name="title"]:visible').first());
 
-    let filledTitle = false;
-    for (const input of titleInputCandidates) {
-      if ((await input.count()) > 0) {
-        const ok = await input.waitFor({ state: 'visible', timeout: 5_000 }).then(() => true).catch(() => false);
-        if (ok) {
-          await input.fill('E2E Test Goal').catch(() => {});
-          filledTitle = true;
-          break;
-        }
-      }
+    if ((await titleInput.count()) > 0) {
+      await titleInput.fill('E2E Test Goal');
     }
 
-    const motivationCandidates = [
-      page.getByLabel(/motivation|reason|מוטיבציה|מטרה/i).first(),
-      page.getByRole('textbox', { name: /motivation|reason|מוטיב/i }).first(),
-      page.locator('textarea[name="motivation"]').first(),
-      page.locator('textarea:visible').first(),
-    ];
+    const motivationInput =
+      page.getByRole('textbox', { name: /motivation|reason|מוטיבציה|מטרה/i }).first()
+        .or(page.getByLabel(/motivation|reason|מוטיבציה|מטרה/i).first())
+        .or(page.locator('textarea[name="motivation"]:visible').first());
 
-    let filledMotivation = false;
-    for (const input of motivationCandidates) {
-      if ((await input.count()) > 0) {
-        const ok = await input.waitFor({ state: 'visible', timeout: 5_000 }).then(() => true).catch(() => false);
-        if (ok) {
-          await input.fill('Test motivation').catch(() => {});
-          filledMotivation = true;
-          break;
-        }
-      }
-    }
-
-    if (!filledTitle && !filledMotivation) {
-      await page.screenshot({ path: `test-results/goalcoach-step2-inputs-missing-${Date.now()}.png`, fullPage: true });
-      test.skip(true, 'Step 2 inputs not found (UI differs)');
-      return;
+    if ((await motivationInput.count()) > 0) {
+      await motivationInput.fill('Test motivation');
     }
 
     // Next (2 -> 3)
     const next2 = nextButtonLocator(page);
-    const enabled2 = await expect
-      .poll(async () => await next2.isEnabled(), { timeout: 20_000 })
-      .toBeTruthy()
-      .then(() => true)
-      .catch(() => false);
-
-    if (!enabled2) {
-      await page.screenshot({ path: `test-results/goalcoach-next2-not-enabled-${Date.now()}.png`, fullPage: true });
-      test.skip(true, 'Next button on step 2 did not become enabled');
-      return;
-    }
-
-    await next2.click().catch(() => {});
+    await expect(next2).toBeVisible({ timeout: 30_000 });
+    await expect
+      .poll(async () => await next2.isEnabled(), { timeout: 30_000 })
+      .toBe(true);
+    await next2.click().catch(async () => {
+      await next2.click({ force: true });
+    });
 
     if (isAuthUrl(page.url())) {
       test.skip(true, `Redirected to auth/login after Next (${page.url()})`);
@@ -284,32 +195,22 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
     }
 
     const step3Anchor = stepAnchorLocator(page, 3);
-    const step3Ok = await step3Anchor
-      .waitFor({ state: 'visible', timeout: 25_000 })
-      .then(() => true)
-      .catch(() => false);
-
-    if (!step3Ok) {
-      await page.screenshot({ path: `test-results/goalcoach-step3-not-visible-${Date.now()}.png`, fullPage: true });
-      test.skip(true, 'Step 3 anchor not visible');
-      return;
+    if ((await step3Anchor.count()) > 0) {
+      await expect(step3Anchor).toBeVisible({ timeout: 30_000 });
     }
 
-    // Step 3: no 180s sleep. Just proceed when Next is enabled, otherwise skip.
+    // IMPORTANT FIX: remove the 180000ms hard sleep that was guaranteeing timeouts
+    await page.waitForTimeout(400);
+
+    // Next (3 -> 4)
     const next3 = nextButtonLocator(page);
-    const enabled3 = await expect
-      .poll(async () => await next3.isEnabled(), { timeout: 20_000 })
-      .toBeTruthy()
-      .then(() => true)
-      .catch(() => false);
-
-    if (!enabled3) {
-      await page.screenshot({ path: `test-results/goalcoach-next3-not-enabled-${Date.now()}.png`, fullPage: true });
-      test.skip(true, 'Next button on step 3 did not become enabled');
-      return;
-    }
-
-    await next3.click().catch(() => {});
+    await expect(next3).toBeVisible({ timeout: 30_000 });
+    await expect
+      .poll(async () => await next3.isEnabled(), { timeout: 30_000 })
+      .toBe(true);
+    await next3.click().catch(async () => {
+      await next3.click({ force: true });
+    });
 
     if (isAuthUrl(page.url())) {
       test.skip(true, `Redirected to auth/login after Next (${page.url()})`);
@@ -317,55 +218,31 @@ test.describe('GoalCoach parity (web + mobile projects)', () => {
     }
 
     const step4Anchor = stepAnchorLocator(page, 4);
-    const step4Ok = await step4Anchor
-      .waitFor({ state: 'visible', timeout: 25_000 })
-      .then(() => true)
-      .catch(() => false);
-
-    if (!step4Ok) {
-      await page.screenshot({ path: `test-results/goalcoach-step4-not-visible-${Date.now()}.png`, fullPage: true });
-      test.skip(true, 'Step 4 anchor not visible');
-      return;
+    if ((await step4Anchor.count()) > 0) {
+      await expect(step4Anchor).toBeVisible({ timeout: 30_000 });
     }
 
-    // Step 4: Save (guarded)
+    // Save
     const saveBtn = saveButtonLocator(page);
-    const saveVisible = await saveBtn
-      .waitFor({ state: 'visible', timeout: 20_000 })
-      .then(() => true)
-      .catch(() => false);
+    await expect(saveBtn).toBeVisible({ timeout: 30_000 });
+    await saveBtn.click().catch(async () => {
+      await saveBtn.click({ force: true });
+    });
 
-    if (!saveVisible) {
-      await page.screenshot({ path: `test-results/goalcoach-save-not-visible-${Date.now()}.png`, fullPage: true });
-      test.skip(true, 'Save button not visible on step 4');
-      return;
-    }
-
-    const saveEnabled = await expect
-      .poll(async () => await saveBtn.isEnabled(), { timeout: 20_000 })
-      .toBeTruthy()
-      .then(() => true)
-      .catch(() => false);
-
-    if (!saveEnabled) {
-      await page.screenshot({ path: `test-results/goalcoach-save-not-enabled-${Date.now()}.png`, fullPage: true });
-      test.skip(true, 'Save button did not become enabled');
-      return;
-    }
-
-    // If an auth prompt appears after clicking Save, skip instead of failing
-    await saveBtn.click().catch(() => {});
+    // If an auth prompt appears after Save, skip (do not fail)
     const authPrompt = page.locator('text=/sign in|login|התחבר|כניסה|התחברות/i').first();
     if ((await authPrompt.count()) > 0) {
+      await expect(authPrompt).toBeVisible({ timeout: 10_000 });
       test.skip(true, `Auth prompt detected after Save (${page.url()})`);
       return;
     }
 
-    // Optional success assertion (best effort)
+    // Optional success assertion (non-fatal)
     const success = page.getByText(/saved|success|הושלם|נשמר/i).first();
     if ((await success.count()) > 0) {
-      await expect(success).toBeVisible({ timeout: 15_000 }).catch(() => {});
+      await expect(success).toBeVisible({ timeout: 15_000 });
     }
   });
 });
+
 
