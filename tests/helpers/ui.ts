@@ -128,16 +128,23 @@ export async function mockApi(page: Page) {
       return;
     }
 
-    // Add message to conversation
+       // Add message to conversation (echo back the sent content)
     if (url.includes('/agents/conversations/') && url.includes('/messages') && method === 'POST') {
+      let posted: any = {};
+      try {
+        posted = route.request().postDataJSON?.() || {};
+      } catch {
+        // ignore
+      }
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
-          role: 'user',
-          content: 'Test message',
-          created_date: new Date().toISOString()
-        })
+          role: posted.role || 'user',
+          content: posted.content || posted.message || posted.text || 'E2E message',
+          created_date: new Date().toISOString(),
+        }),
       });
       return;
     }
