@@ -11,20 +11,19 @@ export async function waitForAppHydration(page: Page, timeout = 10000) {
 }
 
 export async function spaNavigate(page: Page, path: string) {
-  let baseUrl = process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://127.0.0.1:5173';
+  let baseUrl = process.env.PLAYWRIGHT_TEST_BASE_URL || process.env.BASE_URL || 'http://127.0.0.1:5173';
 
   try {
     const currentUrl = page.url();
-    if (currentUrl && currentUrl !== 'about:blank' && !currentUrl.includes('playwright')) {
+    if (currentUrl && currentUrl !== 'about:blank' && currentUrl.startsWith('http')) {
       const url = new URL(currentUrl);
       baseUrl = url.origin;
     }
   } catch {
-    // Ignore URL parsing errors
+    // ignore
   }
 
   const targetUrl = `${baseUrl}${path.startsWith('/') ? path : '/' + path}`;
-
   await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await waitForAppHydration(page);
 }
@@ -37,39 +36,48 @@ export async function takeDebugScreenshot(page: Page, name: string) {
   });
 }
 
+/**
+ * Mocks Base44-style API calls so the UI can render "happy path" without real backend.
+ * Important: covers public-settings and analytics which otherwise 404 and can block UI flow.
+ */
 export async function mockApi(page: Page) {
   const mockConversationId = 'test-conversation-123';
   const mockUserId = 'test-user-123';
   const mockUserEmail = 'test@example.com';
 
   await page.route('**/api/**', async (route) => {
-    const url = route.request().url();
-    const method = route.request().method();
+    const req = route.request();
+    const url = req.url();
+    const method = req.method();
 
-    // 1) Base44 analytics (ignore)
+    // ---- Base44 infrastructure endpoints (must not 404) ----
+
+    // analytics tracking (ignore)
     if (url.includes('/analytics/track/batch')) {
-      await route.fulfill({ status: 204, body: '' });
+      await route.fulfill({
+        status: 204,
+        body: ''
+      });
       return;
     }
 
-    // 2) Public settings (avoid 404 that can break UI flows)
-    // Example you showed:
-    // /api/apps/public/prod/public-settings/by-id/null
+    // public settings by id (often called with null during tests)
     if (url.includes('/public-settings/by-id/')) {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
-          id: 'mock-public-settings',
-          appId: 'mock-app',
-          env: 'prod',
-          settings: {}
+          id: 'public-settings-test',
+          // keep minimal; app should treat as valid
+          flags: {},
+          created_date: new Date().toISOString(),
+          updated_date: new Date().toISOString()
         })
       });
       return;
     }
 
-    // 3) Auth endpoints
+    // ---- Auth endpoints ----
     if (url.includes('/auth/me') || url.includes('/auth/session')) {
       await route.fulfill({
         status: 200,
@@ -85,8 +93,9 @@ export async function mockApi(page: Page) {
       return;
     }
 
-    // 4) Agent conversations list
+    // ---- Agent conversations ----
     if (url.includes('/agents/conversations') && method === 'GET') {
+      // return empty so UI shows "Start your first session"
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -95,7 +104,6 @@ export async function mockApi(page: Page) {
       return;
     }
 
-    // 5) Create agent conversation
     if (url.includes('/agents/conversations') && method === 'POST') {
       await route.fulfill({
         status: 200,
@@ -111,7 +119,6 @@ export async function mockApi(page: Page) {
       return;
     }
 
-    // 6) Get conversation
     if (url.includes('/agents/conversations/') && method === 'GET') {
       await route.fulfill({
         status: 200,
@@ -127,34 +134,37 @@ export async function mockApi(page: Page) {
       return;
     }
 
-    // 7) Add message to conversation (ECHO the sent content so UI can render it)
+    // add message to conversation (echo request content so UI can render the same text)
     if (url.includes('/agents/conversations/') && url.includes('/messages') && method === 'POST') {
-      let postData: any = {};
+      let body: any = {};
       try {
-        postData = route.request().postDataJSON();
+        body = req.postDataJSON();
       } catch {
         // ignore
       }
 
-      const sentContent =
-        postData?.content ??
-        postData?.message ??
-        postData?.text ??
+      const candidate =
+        body?.content ??
+        body?.message ??
+        body?.text ??
+        body?.input ??
+        body?.payload?.content ??
+        body?.payload?.message ??
         'Test message';
 
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
-          role: postData?.role ?? 'user',
-          content: sentContent,
+          role: body?.role ?? 'user',
+          content: candidate,
           created_date: new Date().toISOString()
         })
       });
       return;
     }
 
-    // 8) Entities: return empty arrays / simple mocks
+    // ---- Entities used by UI ----
     if (url.includes('/entities/UserDeletedConversations')) {
       await route.fulfill({
         status: 200,
@@ -176,10 +186,11 @@ export async function mockApi(page: Page) {
     if (url.includes('/entities/Goal') && method === 'POST') {
       let postData: any = {};
       try {
-        postData = route.request().postDataJSON();
+        postData = req.postDataJSON();
       } catch {
         // ignore
       }
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -212,6 +223,7 @@ export async function mockApi(page: Page) {
       return;
     }
 
+    // Any other entity GET - return empty array
     if (url.includes('/entities/') && method === 'GET') {
       await route.fulfill({
         status: 200,
@@ -221,7 +233,7 @@ export async function mockApi(page: Page) {
       return;
     }
 
-    // Default: continue without mocking
+    // Default: pass through
     await route.continue();
   });
 }
@@ -244,7 +256,7 @@ export async function logFailedRequests(page: Page) {
     logToConsole: () => {
       if (failedRequests.length > 0) {
         console.log('\n❌ Failed Requests (first 10):');
-        failedRequests.slice(0, 10).forEach(req => console.log(`  - ${req}`));
+        failedRequests.slice(0, 10).forEach((r) => console.log(`  - ${r}`));
       }
     }
   };
@@ -258,4 +270,5 @@ export async function safeFill(locator: any, text: string) {
 export async function safeClick(locator: any) {
   await locator.click({ force: false });
 }
+
 
