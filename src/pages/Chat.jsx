@@ -295,7 +295,7 @@ export default function Chat() {
     });
   };
 
-  const handleKeyPress = (e) => {
+  const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
@@ -599,7 +599,7 @@ export default function Chat() {
               <Textarea
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
+                onKeyDown={handleKeyDown}
                 placeholder="Share what's on your mind..."
                 className="flex-1 min-h-[60px] max-h-[200px] resize-none"
                 data-testid="chat-input"
