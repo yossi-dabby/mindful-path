@@ -247,34 +247,39 @@ export default function Chat() {
   };
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim()) return;
+    if (!inputMessage.trim() || isLoading) return;
 
-    let convId = currentConversationId;
-    if (!convId) {
-      const conversation = await base44.agents.createConversation({
-        agent_name: 'cbt_therapist',
-        metadata: {
-          name: `Session ${conversations.length + 1}`,
-          description: 'Therapy session'
-        }
+    try {
+      let convId = currentConversationId;
+      if (!convId) {
+        const conversation = await base44.agents.createConversation({
+          agent_name: 'cbt_therapist',
+          metadata: {
+            name: `Session ${conversations.length + 1}`,
+            description: 'Therapy session'
+          }
+        });
+        convId = conversation.id;
+        setCurrentConversationId(convId);
+        refetchConversations();
+        setShowSidebar(false);
+      }
+
+      const conversation = await base44.agents.getConversation(convId);
+      const messageText = inputMessage;
+      
+      setInputMessage('');
+      setShowSummaryPrompt(false);
+      setIsLoading(true);
+
+      await base44.agents.addMessage(conversation, {
+        role: 'user',
+        content: messageText
       });
-      convId = conversation.id;
-      setCurrentConversationId(convId);
-      refetchConversations();
-      setShowSidebar(false);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      setIsLoading(false);
     }
-
-    const conversation = await base44.agents.getConversation(convId);
-    const messageText = inputMessage;
-    
-    setIsLoading(true);
-    setInputMessage('');
-    setShowSummaryPrompt(false);
-
-    await base44.agents.addMessage(conversation, {
-      role: 'user',
-      content: messageText
-    });
   };
 
   const requestSummary = async () => {
