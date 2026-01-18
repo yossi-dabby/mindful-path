@@ -1,21 +1,22 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
+  testDir: './tests', // Ensures Playwright looks in the tests folder
+  testMatch: ['e2e/**/*.spec.ts'], // Ensures it finds tests/e2e/smoke.web.spec.ts
   projects: [
     {
       name: 'web-desktop',
       use: {
-        ...devices['Desktop Chrome'], // Or your preferred desktop config
+        ...devices['Desktop Chrome'],
       },
     },
     {
       name: 'mobile-390x844',
       use: {
-        ...devices['Pixel 5'],       // Or any mobile device config you want
-        viewport: { width: 390, height: 844 }, // Ensures correct viewport
+        ...devices['Pixel 5'],
+        viewport: { width: 390, height: 844 },
       },
     },
   ],
-  // Add any other global config here if needed
-  // e.g. testDir: './tests', timeout, retries, etc.
+  // Add more global config if needed.
 });
