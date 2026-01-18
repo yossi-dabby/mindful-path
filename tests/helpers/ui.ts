@@ -134,14 +134,38 @@ export async function mockApi(page: Page) {
       return;
     }
 
-    // add message to conversation (echo request content so UI can render the same text)
-    if (url.includes('/agents/conversations/') && url.includes('/messages') && method === 'POST') {
-      let body: any = {};
-      try {
-        body = req.postDataJSON();
-      } catch {
-        // ignore
+// Add message to conversation (echo back posted content)
+if (url.includes('/agents/conversations/') && url.includes('/messages') && method === 'POST') {
+  let postedContent = 'Test message';
+
+  try {
+    const postData = route.request().postData();
+    if (postData) {
+      const json = JSON.parse(postData);
+      if (typeof json?.content === 'string' && json.content.trim()) {
+        postedContent = json.content.trim();
       }
+      // לעתים payload נקרא "message"
+      if (typeof json?.message === 'string' && json.message.trim()) {
+        postedContent = json.message.trim();
+      }
+    }
+  } catch {
+    // ignore parse errors
+  }
+
+  await route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({
+      role: 'user',
+      content: postedContent,
+      created_date: new Date().toISOString()
+    })
+  });
+  return;
+}
+
 
       const candidate =
         body?.content ??
@@ -267,7 +291,10 @@ export async function safeFill(locator: any, text: string) {
   await locator.fill(text);
 }
 
-export async function safeClick(locator: any) {
+export async function safeClick(locator: any, timeout = 20000) {
+  await locator.waitFor({ state: 'attached', timeout });
+  await expect(locator).toBeVisible({ timeout });
+  await expect(locator).toBeEnabled({ timeout });
   await locator.click({ force: false });
 }
 
