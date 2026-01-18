@@ -57,10 +57,12 @@ jobs:
           fi
 
       - name: Start dev server
-        run: npm run dev -- --host 127.0.0.1 --port 5173 &
+        run: |
+          nohup npm run dev -- --host 127.0.0.1 --port 5173 > devserver.log 2>&1 &
+          echo "Dev server started (logging to devserver.log)"
 
       - name: Wait for server
-        run: npx wait-on http://127.0.0.1:5173 --timeout 60000
+        run: npx --yes wait-on http://127.0.0.1:5173 --timeout 60000
 
       - name: Run Playwright tests
         run: npm run test:e2e -- --project=${{ matrix.project }}
@@ -68,6 +70,14 @@ jobs:
           CI: true
           BASE_URL: http://127.0.0.1:5173
           PLAYWRIGHT_TEST_BASE_URL: http://127.0.0.1:5173
+
+      - name: Upload dev server log
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: devserver-log-${{ matrix.project }}
+          path: devserver.log
+          retention-days: 7
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
