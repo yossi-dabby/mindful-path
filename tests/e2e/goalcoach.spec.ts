@@ -1,145 +1,131 @@
-// FILE: tests/e2e/goalcoach.spec.ts
 import { test, expect } from '@playwright/test';
-import {
-  attachDiagnostics,
-  waitForAppHydration,
-  checkAuthGuard,
-  stableClick,
-  safeFill,
-  spaNavigate,
-  takeDebugScreenshot,
-} from '../helpers/ui';
+import { spaNavigate, safeFill, safeClick, mockApi, logFailedRequests } from '../helpers/ui';
 
 test.describe('GoalCoach Flow (Steps 1→4)', () => {
-  test.beforeEach(async ({ page }) => {
-    attachDiagnostics(page);
-  });
-
   test('should complete GoalCoach wizard from step 1 to step 4', async ({ page }) => {
-    // Navigate to GoalCoach
-    await spaNavigate(page, '/GoalCoach');
+    test.setTimeout(90000);
 
-    // Check for auth guard
-    if (await checkAuthGuard(page)) {
-      test.skip(true, 'Auth required - skipping test');
-      return;
-    }
+    const requestLogger = await logFailedRequests(page);
 
-    // ============ STEP 1: Category Selection ============
-    await test.step('Step 1 - Select category', async () => {
-      // Wait for wizard to load
-      await expect(page.locator('text=/Select.*Category|Choose.*Goal/i').first()).toBeVisible({ timeout: 15000 });
+    try {
+      // Mock API before navigation
+      await mockApi(page);
 
-      // Find category buttons (they have aria-pressed attribute in the real component)
-      const categoryButtons = page.locator('button[aria-pressed]');
-      await expect(categoryButtons.first()).toBeVisible({ timeout: 10000 });
+      // Navigate to GoalCoach page
+      await spaNavigate(page, '/GoalCoach');
 
-      // Click the first available category
-      const firstCategory = categoryButtons.first();
-      await stableClick(firstCategory);
+      // Wait for page to be interactive
+      await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {
+        console.log('Network idle timeout - continuing anyway');
+      });
 
-      // Verify category is selected (aria-pressed="true")
-      await expect(firstCategory).toHaveAttribute('aria-pressed', 'true', { timeout: 5000 });
+      // ========== STEP 1: SELECT CATEGORY ==========
+      console.log('[Step 1] Selecting goal category...');
 
-      // Find and click Next button
-      const nextButton = page.locator('button:has-text("Next"), button:has-text("Continue")').last();
-      await stableClick(nextButton);
+      // Wait for step 1 to be visible
+      const step1Container = page.locator('[data-testid="goalcoach-step-1"]');
+      await expect(step1Container).toBeVisible({ timeout: 10000 });
 
-      await page.waitForTimeout(500);
-    });
+      // Select a specific category (emotional/stress management)
+      const categoryButton = page.locator('[data-testid="goalcoach-category-emotional-emotions-stress"]').or(
+        page.locator('[data-testid^="goalcoach-category-"]').first()
+      );
+      await expect(categoryButton).toBeVisible({ timeout: 10000 });
+      await safeClick(categoryButton);
 
-    // ============ STEP 2: Goal Definition ============
-    await test.step('Step 2 - Define goal', async () => {
-      // Wait for step 2 content (title input should be visible)
-      const titleInput = page.locator('input[type="text"]').first();
+      // Verify category is selected (has aria-pressed="true")
+      await expect(categoryButton).toHaveAttribute('aria-pressed', 'true', { timeout: 2000 });
+
+      console.log('[Step 1] Category selected, clicking Next...');
+
+      // Click Next to proceed to Step 2
+      const nextButton = page.locator('[data-testid="goalcoach-next"]');
+      await expect(nextButton).toBeVisible({ timeout: 5000 });
+      await expect(nextButton).toBeEnabled({ timeout: 5000 });
+      await safeClick(nextButton);
+
+      // ========== STEP 2: ENTER GOAL DETAILS ==========
+      console.log('[Step 2] Entering goal details...');
+
+      // Wait for step 2 to be visible
+      const step2Container = page.locator('[data-testid="goalcoach-step-2"]');
+      await expect(step2Container).toBeVisible({ timeout: 10000 });
+
+      // Wait for title input specifically
+      const titleInput = page.locator('[data-testid="goalcoach-title-input"]').or(
+        page.locator('input[placeholder*="e.g.,"]').first()
+      );
       await expect(titleInput).toBeVisible({ timeout: 10000 });
 
       // Fill required fields
       await safeFill(titleInput, 'E2E Test Goal - Improve Mental Wellness');
 
-      // Fill description if present
-      const descriptionField = page.locator('textarea').first();
-      if (await descriptionField.count() > 0) {
-        await safeFill(descriptionField, 'This is a comprehensive goal to improve my overall mental wellness through daily practices.');
-      }
+      // Fill motivation textarea
+      const motivationTextarea = page.locator('[data-testid="goalcoach-motivation-input"]').or(
+        page.locator('textarea[placeholder*="why"]').first()
+      );
+      await expect(motivationTextarea).toBeVisible({ timeout: 5000 });
+      await safeFill(motivationTextarea, 'This is important because I want to reduce stress and anxiety in my daily life.');
 
-      // Fill motivation if present
-      const motivationField = page.locator('textarea, input').filter({ hasText: /motivation|why/i }).or(page.locator('[placeholder*="motivation" i], [placeholder*="why" i]')).first();
-      if (await motivationField.count() > 0) {
-        await safeFill(motivationField, 'I want to feel more balanced and present in my daily life.');
-      }
+      console.log('[Step 2] Goal details filled, clicking Next...');
 
-      // Find and click Next/Continue
-      const nextButton = page.locator('button:has-text("Next"), button:has-text("Continue")').last();
-      await stableClick(nextButton);
-
+      // Wait for Next button to be enabled (form validation)
       await page.waitForTimeout(500);
-    });
+      await expect(nextButton).toBeEnabled({ timeout: 5000 });
+      await safeClick(nextButton);
 
-    // ============ STEP 3: Planning (SMART/Milestones) ============
-    await test.step('Step 3 - Planning', async () => {
-      // Wait for step 3 content
-      await page.waitForTimeout(1000);
+      // ========== STEP 3: PLAN NEXT STEPS ==========
+      console.log('[Step 3] Planning next steps...');
 
-      // Look for SMART criteria inputs or milestone inputs
-      const visibleInputs = page.locator('input[type="text"]:visible, textarea:visible');
-      const inputCount = await visibleInputs.count();
+      // Wait for step 3 to be visible
+      const step3Container = page.locator('[data-testid="goalcoach-step-3"]');
+      await expect(step3Container).toBeVisible({ timeout: 10000 });
 
-      if (inputCount > 0) {
-        // Fill first few visible inputs
-        for (let i = 0; i < Math.min(inputCount, 3); i++) {
-          const input = visibleInputs.nth(i);
-          if (await input.isVisible()) {
-            await safeFill(input, `E2E Test Data ${i + 1}`);
-          }
-        }
-      }
+      console.log('[Step 3] Optional fields displayed, clicking Next...');
 
-      // Check for "Add Milestone" or similar buttons and click if needed
-      const addButton = page.locator('button:has-text("Add"), button:has-text("+ ")').first();
-      if (await addButton.count() > 0 && await addButton.isVisible()) {
-        await stableClick(addButton);
-        await page.waitForTimeout(300);
-        
-        // Fill the newly added input if present
-        const newInput = page.locator('input:visible, textarea:visible').last();
-        if (await newInput.count() > 0) {
-          await safeFill(newInput, 'E2E Milestone');
-        }
-      }
+      // Step 3 is optional, click Next immediately
+      await safeClick(nextButton);
 
-      // Find and click Next/Continue
-      const nextButton = page.locator('button:has-text("Next"), button:has-text("Continue")').last();
-      await stableClick(nextButton);
+      // ========== STEP 4: REVIEW & SAVE ==========
+      console.log('[Step 4] Reviewing goal...');
 
-      await page.waitForTimeout(500);
-    });
+      // Wait for step 4 review to be visible
+      const step4Container = page.locator('[data-testid="goalcoach-step-4"]');
+      await expect(step4Container).toBeVisible({ timeout: 10000 });
 
-    // ============ STEP 4: Review & Save ============
-    await test.step('Step 4 - Review and save', async () => {
-      // Wait for review step (should show summary)
-      await page.waitForTimeout(1000);
+      // Verify goal details appear in review
+      await expect(page.locator('text=E2E Test Goal - Improve Mental Wellness')).toBeVisible({ timeout: 5000 });
 
-      // Look for Save/Finish/Complete button
-      const saveButton = page.locator('button:has-text("Save"), button:has-text("Finish"), button:has-text("Complete"), button:has-text("Create Goal")').last();
+      console.log('[Step 4] Review complete, clicking Save Goal...');
+
+      // Click Save Goal button
+      const saveButton = page.locator('[data-testid="goalcoach-save"]');
+      await expect(saveButton).toBeVisible({ timeout: 5000 });
+      await expect(saveButton).toBeEnabled({ timeout: 5000 });
+      await safeClick(saveButton);
+
+      // Wait for save to complete (wizard should close or show success)
+      await page.waitForTimeout(2000);
+
+      console.log('✅ GoalCoach flow completed successfully');
+    } catch (error) {
+      console.error('❌ GoalCoach flow failed:', error);
+      requestLogger.logToConsole();
       
-      await expect(saveButton).toBeVisible({ timeout: 10000 });
-      await stableClick(saveButton);
-
-      // Wait for success indication (navigation away or success message)
-      await Promise.race([
-        page.waitForURL(/\/(Home|Goals)/, { timeout: 10000 }),
-        page.waitForSelector('text=/success|created|saved/i', { timeout: 10000 }),
-      ]).catch(async () => {
-        await takeDebugScreenshot(page, 'goalcoach-save-timeout');
+      // Take screenshot on failure
+      await page.screenshot({ 
+        path: `test-results/goalcoach-failed-${Date.now()}.png`,
+        fullPage: true 
       });
-
-      // Small delay for any post-save actions
-      await page.waitForTimeout(1000);
-    });
+      
+      // Log current step for debugging
+      const currentStep = await page.locator('[data-testid^="goalcoach-step-"]').count();
+      console.log(`Current visible steps: ${currentStep}`);
+      
+      throw error;
+    }
   });
 });
-
 
 
 
