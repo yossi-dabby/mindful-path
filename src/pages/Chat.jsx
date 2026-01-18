@@ -587,48 +587,46 @@ export default function Chat() {
           </div>
         )}
 
-        {/* Input Area */}
-        {currentConversationId && (
-          <div className="p-4 md:p-6" style={{
-            background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(232, 246, 243, 0.8) 100%)',
-            backdropFilter: 'blur(12px)',
-            borderTop: '1px solid rgba(38, 166, 154, 0.2)',
-            boxShadow: '0 -4px 16px rgba(38, 166, 154, 0.1)'
-          }}>
-            <div className="max-w-4xl mx-auto flex gap-3">
-              <Textarea
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Share what's on your mind..."
-                className="flex-1 min-h-[60px] max-h-[200px] resize-none"
-                data-testid="chat-input"
-                style={{
-                  borderRadius: '20px',
-                  borderColor: 'rgba(38, 166, 154, 0.3)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)'
-                }}
-                disabled={isLoading}
-              />
-              <Button
-                onClick={handleSendMessage}
-                disabled={!inputMessage.trim() || isLoading}
-                data-testid="chat-send"
-                className="h-[60px] px-6 text-white"
-                style={{
-                  borderRadius: '20px',
-                  backgroundColor: '#26A69A',
-                  boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
-                }}
-              >
-                <Send className="w-5 h-5" />
-              </Button>
-            </div>
-            <p className="text-xs text-center mt-3" style={{ color: '#5A7A72' }}>
-              This is AI-assisted support. In crisis, contact emergency services.
-            </p>
+        {/* Input Area - Always visible */}
+        <div className="p-4 md:p-6" style={{
+          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(232, 246, 243, 0.8) 100%)',
+          backdropFilter: 'blur(12px)',
+          borderTop: '1px solid rgba(38, 166, 154, 0.2)',
+          boxShadow: '0 -4px 16px rgba(38, 166, 154, 0.1)'
+        }}>
+          <div className="max-w-4xl mx-auto flex gap-3">
+            <Textarea
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Share what's on your mind..."
+              className="flex-1 min-h-[60px] max-h-[200px] resize-none"
+              data-testid="chat-input"
+              style={{
+                borderRadius: '20px',
+                borderColor: 'rgba(38, 166, 154, 0.3)',
+                backgroundColor: 'rgba(255, 255, 255, 0.9)'
+              }}
+              disabled={isLoading}
+            />
+            <Button
+              onClick={handleSendMessage}
+              disabled={!inputMessage.trim() || isLoading}
+              data-testid="chat-send"
+              className="h-[60px] px-6 text-white"
+              style={{
+                borderRadius: '20px',
+                backgroundColor: '#26A69A',
+                boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
+              }}
+            >
+              <Send className="w-5 h-5" />
+            </Button>
           </div>
-        )}
+          <p className="text-xs text-center mt-3" style={{ color: '#5A7A72' }}>
+            This is AI-assisted support. In crisis, contact emergency services.
+          </p>
+        </div>
 
       {/* Enhanced Check-in Modal */}
       {showCheckInModal && (
