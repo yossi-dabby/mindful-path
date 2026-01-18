@@ -45,7 +45,31 @@ export async function mockApi(page: Page) {
   await page.route('**/api/**', async (route) => {
     const url = route.request().url();
     const method = route.request().method();
-    
+        // Base44: analytics tracking (ignore)
+    if (url.includes('/api/apps/') && url.includes('/analytics/track/batch')) {
+      await route.fulfill({
+        status: 204,
+        contentType: 'application/json',
+        body: '',
+      });
+      return;
+    }
+
+    // Base44: public settings (return minimal OK so app doesn't break)
+    if (url.includes('/api/apps/public/') && url.includes('/public-settings/by-id/')) {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          id: 'mock-public-settings',
+          settings: {},
+          data: {},
+          ok: true,
+        }),
+      });
+      return;
+    }
+
     // Auth endpoints
     if (url.includes('/auth/me') || url.includes('/auth/session')) {
       await route.fulfill({
