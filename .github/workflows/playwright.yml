@@ -15,11 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - project: mobile-390x844
-            specs: tests/e2e/goalcoach.spec.ts tests/e2e/smoke.spec.ts
-          - project: web-desktop
-            specs: tests/e2e/goalcoach.spec.ts tests/e2e/smoke.web.spec.ts
+        project: [web-desktop, mobile-390x844]
 
     steps:
       - name: Checkout code
@@ -49,7 +45,7 @@ jobs:
         run: npx --yes wait-on http://127.0.0.1:5173 --timeout 60000
 
       - name: Run Playwright tests
-        run: npm run test:e2e -- --project=${{ matrix.project }} ${{ matrix.specs }}
+        run: npm run test:e2e -- --project=${{ matrix.project }}
         env:
           CI: true
           BASE_URL: http://127.0.0.1:5173
@@ -78,6 +74,7 @@ jobs:
           name: test-results-${{ matrix.project }}
           path: test-results/
           retention-days: 7
+
 
 
 
