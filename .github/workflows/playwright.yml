@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        project: [web-1440x900, mobile-390x844]
+        project: [web-desktop, mobile-390x844]
 
     steps:
       - name: Checkout code
@@ -94,6 +94,7 @@ jobs:
           name: test-results-${{ matrix.project }}
           path: test-results/
           retention-days: 7
+
 
 
 
