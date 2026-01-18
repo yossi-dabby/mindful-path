@@ -77,11 +77,22 @@ export async function safeFill(locator: Locator, value: string, retries = 3) {
 }
 
 export async function spaNavigate(page: Page, path: string) {
-  const targetUrl = new URL(path, page.url()).href;
+  // Get base URL from page context or use environment variable
+  const currentUrl = page.url();
+  let baseUrl: string;
+  
+  if (currentUrl && currentUrl !== 'about:blank' && currentUrl.startsWith('http')) {
+    const url = new URL(currentUrl);
+    baseUrl = `${url.protocol}//${url.host}`;
+  } else {
+    baseUrl = process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3000';
+  }
+  
+  const targetUrl = `${baseUrl}${path.startsWith('/') ? path : '/' + path}`;
+  
   await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await waitForAppHydration(page);
 }
-
 export async function takeDebugScreenshot(page: Page, name: string) {
   try {
     await page.screenshot({ path: `test-results/debug-${name}-${Date.now()}.png`, fullPage: true });
