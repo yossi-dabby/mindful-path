@@ -11,11 +11,18 @@ export async function waitForAppHydration(page: Page, timeout = 10000) {
 }
 
 export async function spaNavigate(page: Page, path: string) {
-  let baseUrl = process.env.PLAYWRIGHT_TEST_BASE_URL || process.env.BASE_URL || 'http://127.0.0.1:5173';
+  let baseUrl =
+    process.env.PLAYWRIGHT_TEST_BASE_URL ||
+    process.env.BASE_URL ||
+    'http://127.0.0.1:5173';
 
   try {
     const currentUrl = page.url();
-    if (currentUrl && currentUrl !== 'about:blank' && currentUrl.startsWith('http')) {
+    if (
+      currentUrl &&
+      currentUrl !== 'about:blank' &&
+      currentUrl.startsWith('http')
+    ) {
       const url = new URL(currentUrl);
       baseUrl = url.origin;
     }
@@ -32,7 +39,7 @@ export async function takeDebugScreenshot(page: Page, name: string) {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   await page.screenshot({
     path: `test-results/debug-${name}-${timestamp}.png`,
-    fullPage: true
+    fullPage: true,
   });
 }
 
@@ -56,7 +63,7 @@ export async function mockApi(page: Page) {
     if (url.includes('/analytics/track/batch')) {
       await route.fulfill({
         status: 204,
-        body: ''
+        body: '',
       });
       return;
     }
@@ -68,11 +75,10 @@ export async function mockApi(page: Page) {
         contentType: 'application/json',
         body: JSON.stringify({
           id: 'public-settings-test',
-          // keep minimal; app should treat as valid
           flags: {},
           created_date: new Date().toISOString(),
-          updated_date: new Date().toISOString()
-        })
+          updated_date: new Date().toISOString(),
+        }),
       });
       return;
     }
@@ -87,19 +93,18 @@ export async function mockApi(page: Page) {
           email: mockUserEmail,
           full_name: 'Test User',
           role: 'user',
-          created_date: new Date().toISOString()
-        })
+          created_date: new Date().toISOString(),
+        }),
       });
       return;
     }
 
     // ---- Agent conversations ----
     if (url.includes('/agents/conversations') && method === 'GET') {
-      // return empty so UI shows "Start your first session"
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify([])
+        body: JSON.stringify([]),
       });
       return;
     }
@@ -113,8 +118,8 @@ export async function mockApi(page: Page) {
           agent_name: 'cbt_therapist',
           metadata: { name: 'Test Session', description: 'Test' },
           messages: [],
-          created_date: new Date().toISOString()
-        })
+          created_date: new Date().toISOString(),
+        }),
       });
       return;
     }
@@ -128,82 +133,61 @@ export async function mockApi(page: Page) {
           agent_name: 'cbt_therapist',
           metadata: { name: 'Test Session', description: 'Test' },
           messages: [],
-          created_date: new Date().toISOString()
-        })
+          created_date: new Date().toISOString(),
+        }),
       });
       return;
     }
 
-// Add message to conversation (echo back posted content)
-if (url.includes('/agents/conversations/') && url.includes('/messages') && method === 'POST') {
-  let postedContent = 'Test message';
-
-  try {
-    const postData = route.request().postData();
-    if (postData) {
-      const json = JSON.parse(postData);
-      if (typeof json?.content === 'string' && json.content.trim()) {
-        postedContent = json.content.trim();
+    // Add message to conversation (echo back posted content)
+    if (
+      url.includes('/agents/conversations/') &&
+      url.includes('/messages') &&
+      method === 'POST'
+    ) {
+      let postedContent = 'Test message';
+      try {
+        const postData = route.request().postData();
+        if (postData) {
+          const json = JSON.parse(postData);
+          if (typeof json?.content === 'string' && json.content.trim()) {
+            postedContent = json.content.trim();
+          }
+          if (typeof json?.message === 'string' && json.message.trim()) {
+            postedContent = json.message.trim();
+          }
+        }
+      } catch {
+        // ignore parse errors
       }
-      // לעתים payload נקרא "message"
-      if (typeof json?.message === 'string' && json.message.trim()) {
-        postedContent = json.message.trim();
-      }
-    }
-  } catch {
-    // ignore parse errors
-  }
-
-  await route.fulfill({
-    status: 200,
-    contentType: 'application/json',
-    body: JSON.stringify({
-      role: 'user',
-      content: postedContent,
-      created_date: new Date().toISOString()
-    })
-  });
-  return;
-}
-
-
-      const candidate =
-        body?.content ??
-        body?.message ??
-        body?.text ??
-        body?.input ??
-        body?.payload?.content ??
-        body?.payload?.message ??
-        'Test message';
 
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
-          role: body?.role ?? 'user',
-          content: candidate,
-          created_date: new Date().toISOString()
-        })
+          role: 'user',
+          content: postedContent,
+          created_date: new Date().toISOString(),
+        }),
       });
       return;
     }
 
     // ---- Entities used by UI ----
-        await route.fulfill({...});
-    return;
-  } // <--- CLOSE the async route handler function or block here
-
-  // ---- Entities used by UI ----
-  if (url.includes('/entities/UserDeletedConversations')) {
-    await route.fulfill({...});
-    return;
-  }
+    if (url.includes('/entities/UserDeletedConversations')) {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([]),
+      });
+      return;
+    }
 
     if (url.includes('/entities/Goal') && method === 'GET') {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify([])
+        body: JSON.stringify([]),
       });
       return;
     }
@@ -215,7 +199,6 @@ if (url.includes('/agents/conversations/') && url.includes('/messages') && metho
       } catch {
         // ignore
       }
-
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -224,8 +207,8 @@ if (url.includes('/agents/conversations/') && url.includes('/messages') && metho
           ...postData,
           created_date: new Date().toISOString(),
           created_by: mockUserEmail,
-          updated_date: new Date().toISOString()
-        })
+          updated_date: new Date().toISOString(),
+        }),
       });
       return;
     }
@@ -234,7 +217,7 @@ if (url.includes('/agents/conversations/') && url.includes('/messages') && metho
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify([])
+        body: JSON.stringify([]),
       });
       return;
     }
@@ -243,7 +226,7 @@ if (url.includes('/agents/conversations/') && url.includes('/messages') && metho
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify([])
+        body: JSON.stringify([]),
       });
       return;
     }
@@ -253,7 +236,7 @@ if (url.includes('/agents/conversations/') && url.includes('/messages') && metho
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify([])
+        body: JSON.stringify([]),
       });
       return;
     }
@@ -267,12 +250,16 @@ export async function logFailedRequests(page: Page) {
   const failedRequests: string[] = [];
 
   page.on('requestfailed', (request) => {
-    failedRequests.push(`${request.method()} ${request.url()} - ${request.failure()?.errorText}`);
+    failedRequests.push(
+      `${request.method()} ${request.url()} - ${request.failure()?.errorText}`
+    );
   });
 
   page.on('response', (response) => {
     if (response.status() >= 400) {
-      failedRequests.push(`${response.request().method()} ${response.url()} - ${response.status()}`);
+      failedRequests.push(
+        `${response.request().method()} ${response.url()} - ${response.status()}`
+      );
     }
   });
 
@@ -283,7 +270,7 @@ export async function logFailedRequests(page: Page) {
         console.log('\n❌ Failed Requests (first 10):');
         failedRequests.slice(0, 10).forEach((r) => console.log(`  - ${r}`));
       }
-    }
+    },
   };
 }
 
@@ -298,5 +285,4 @@ export async function safeClick(locator: any, timeout = 20000) {
   await expect(locator).toBeEnabled({ timeout });
   await locator.click({ force: false });
 }
-
 
