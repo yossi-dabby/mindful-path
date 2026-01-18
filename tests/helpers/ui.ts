@@ -189,14 +189,15 @@ if (url.includes('/agents/conversations/') && url.includes('/messages') && metho
     }
 
     // ---- Entities used by UI ----
-    if (url.includes('/entities/UserDeletedConversations')) {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify([])
-      });
-      return;
-    }
+        await route.fulfill({...});
+    return;
+  } // <--- CLOSE the async route handler function or block here
+
+  // ---- Entities used by UI ----
+  if (url.includes('/entities/UserDeletedConversations')) {
+    await route.fulfill({...});
+    return;
+  }
 
     if (url.includes('/entities/Goal') && method === 'GET') {
       await route.fulfill({
