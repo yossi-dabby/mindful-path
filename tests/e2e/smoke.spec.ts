@@ -19,60 +19,42 @@ test.describe('Chat Smoke Test', () => {
         console.log('Network idle timeout - continuing anyway');
       });
 
-      // Check if we need to start a new session first
+      // Start a new session if needed
       const startSessionButton = page.locator('text=Start Your First Session');
       const isNewSession = await startSessionButton.isVisible({ timeout: 2000 }).catch(() => false);
 
       if (isNewSession) {
         console.log('Starting new session...');
-
-        // Wait for the conversation creation request to happen (stable smoke)
-        await Promise.all([
-          page.waitForRequest((req) =>
-            req.method() === 'POST' &&
-            req.url().includes('/agents/conversations')
-          , { timeout: 15000 }),
-          safeClick(startSessionButton),
-        ]);
-
-        // Give the UI a moment to render the textarea
+        await safeClick(startSessionButton);
         await page.waitForTimeout(800);
       }
 
       // Generate unique test message
       const testMessage = `Test message ${Date.now()}`;
 
-      // The real app has textarea for message input
-      const messageInput = page.locator('textarea[data-testid="chat-input"]').or(page.locator('textarea').first());
+      // Find input
+      const messageInput = page
+        .locator('textarea[data-testid="chat-input"]')
+        .or(page.locator('textarea').first());
       await expect(messageInput).toBeVisible({ timeout: 15000 });
 
-      // Fill message
       await safeFill(messageInput, testMessage);
 
-      // Find and click send button
-      const sendButton = page.locator('[data-testid="chat-send"]').or(page.locator('button[type="submit"]').last());
-      await expect(sendButton).toBeVisible({ timeout: 15000 });
-      await expect(sendButton).toBeEnabled({ timeout: 15000 });
+      // Click send
+      const sendButton = page.locator('[data-testid="chat-send"]').or(page.locator('button:has-text("Send")').first());
+      await expect(sendButton).toBeVisible({ timeout: 5000 });
+      await expect(sendButton).toBeEnabled({ timeout: 5000 });
 
-      // Instead of relying on UI text rendering (flaky), verify the POST /messages request was sent with our payload
-      const [msgReq] = await Promise.all([
-        page.waitForRequest((req) =>
-          req.method() === 'POST' &&
-          req.url().includes('/agents/conversations/') &&
-          req.url().includes('/messages')
-        , { timeout: 15000 }),
-        safeClick(sendButton),
-      ]);
+      await safeClick(sendButton);
 
-      const postData = msgReq.postData() || '';
-      expect(postData).toContain(testMessage);
+      // Because mockApi now ECHOs the sent content, it should appear in UI
+      await expect(page.locator(`text=${testMessage}`).first()).toBeVisible({ timeout: 15000 });
 
       console.log('✅ Chat smoke test passed');
     } catch (error) {
       console.error('❌ Chat smoke test failed:', error);
       requestLogger.logToConsole();
 
-      // Take screenshot on failure
       await page.screenshot({
         path: `test-results/chat-smoke-failed-${Date.now()}.png`,
         fullPage: true
