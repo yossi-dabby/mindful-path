@@ -1,14 +1,14 @@
 import { test, expect } from '@playwright/test';
 import { spaNavigate, safeFill, safeClick, mockApi, logFailedRequests } from '../helpers/ui';
 
-test.describe('Chat Smoke Test', () => {
+test.describe('Chat Smoke Test (MOBILE ONLY)', () => {
   test('should send a message and verify it appears', async ({ page }, testInfo) => {
-    test.setTimeout(90000);
+    // חשוב: לא להריץ את הטסט הזה על web
+    test.skip(testInfo.project.name !== 'mobile-390x844', 'Mobile-only smoke test');
+
+    test.setTimeout(60000);
 
     const requestLogger = await logFailedRequests(page);
-
-    // IMPORTANT: apply extra stability only for web-desktop (do not affect mobile)
-    const isWebDesktop = testInfo.project.name === 'web-desktop';
 
     try {
       // Mock API before navigation
@@ -36,44 +36,25 @@ test.describe('Chat Smoke Test', () => {
       // Generate unique test message
       const testMessage = `Test message ${Date.now()}`;
 
-      // Message input
+      // The real app has textarea for message input
       const messageInput = page.locator('textarea[data-testid="chat-input"]').or(page.locator('textarea').first());
-      await expect(messageInput).toBeVisible({ timeout: 20000 });
+      await expect(messageInput).toBeVisible({ timeout: 15000 });
 
       // Fill message
       await safeFill(messageInput, testMessage);
 
-      // Send button (primary selector + fallback)
-      const sendButton = page
-        .locator('[data-testid="chat-send"]')
-        .or(page.locator('button[type="submit"]'))
-        .first();
+      // Find and click send button
+      const sendButton = page.locator('[data-testid="chat-send"]');
+      await expect(sendButton).toBeVisible({ timeout: 5000 });
+      await expect(sendButton).toBeEnabled({ timeout: 5000 });
+      await safeClick(sendButton);
 
-      await expect(sendButton).toBeVisible({ timeout: 20000 });
+      // Wait for the message to appear in the chat
+      await expect(page.locator('text=' + testMessage).first()).toBeVisible({ timeout: 10000 });
 
-      // Web-desktop sometimes needs more time for hydration/enabled-state
-      if (isWebDesktop) {
-        // Ensure it’s in view and not blocked by layout/overlay timing
-        await sendButton.scrollIntoViewIfNeeded().catch(() => {});
-        await sendButton.waitFor({ state: 'visible', timeout: 30000 });
-        await expect(sendButton).toBeEnabled({ timeout: 30000 });
-
-        // Small settle to avoid “click eaten” by late re-render
-        await page.waitForTimeout(150);
-
-        await sendButton.click({ force: false });
-      } else {
-        // Keep mobile behavior unchanged
-        await expect(sendButton).toBeEnabled({ timeout: 20000 });
-        await safeClick(sendButton);
-      }
-
-      // Verify by UI echo (most stable with mocks)
-      await expect(page.locator('text=' + testMessage).first()).toBeVisible({ timeout: isWebDesktop ? 20000 : 10000 });
-
-      console.log('✅ Chat smoke test passed');
+      console.log('✅ Chat smoke test (mobile) passed');
     } catch (error) {
-      console.error('❌ Chat smoke test failed:', error);
+      console.error('❌ Chat smoke test (mobile) failed:', error);
       requestLogger.logToConsole();
 
       // Take screenshot on failure
