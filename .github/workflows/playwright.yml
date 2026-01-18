@@ -56,10 +56,18 @@ jobs:
             echo "dist/assets not found"
           fi
 
+      - name: Start dev server
+        run: npm run dev -- --host 127.0.0.1 --port 5173 &
+
+      - name: Wait for server
+        run: npx wait-on http://127.0.0.1:5173 --timeout 60000
+
       - name: Run Playwright tests
         run: npm run test:e2e -- --project=${{ matrix.project }}
         env:
           CI: true
+          BASE_URL: http://127.0.0.1:5173
+          PLAYWRIGHT_TEST_BASE_URL: http://127.0.0.1:5173
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
@@ -76,5 +84,6 @@ jobs:
           name: test-results-${{ matrix.project }}
           path: test-results/
           retention-days: 7
+
 
 
