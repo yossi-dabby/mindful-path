@@ -11,8 +11,8 @@ export async function waitForAppHydration(page: Page, timeout = 10000) {
 }
 
 export async function spaNavigate(page: Page, path: string) {
-  let baseUrl = process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3000';
-  
+  let baseUrl = process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://127.0.0.1:5173';
+
   try {
     const currentUrl = page.url();
     if (currentUrl && currentUrl !== 'about:blank' && !currentUrl.includes('playwright')) {
@@ -22,18 +22,18 @@ export async function spaNavigate(page: Page, path: string) {
   } catch {
     // Ignore URL parsing errors
   }
-  
+
   const targetUrl = `${baseUrl}${path.startsWith('/') ? path : '/' + path}`;
-  
+
   await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await waitForAppHydration(page);
 }
 
 export async function takeDebugScreenshot(page: Page, name: string) {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  await page.screenshot({ 
+  await page.screenshot({
     path: `test-results/debug-${name}-${timestamp}.png`,
-    fullPage: true 
+    fullPage: true
   });
 }
 
@@ -41,36 +41,35 @@ export async function mockApi(page: Page) {
   const mockConversationId = 'test-conversation-123';
   const mockUserId = 'test-user-123';
   const mockUserEmail = 'test@example.com';
-  
+
   await page.route('**/api/**', async (route) => {
     const url = route.request().url();
     const method = route.request().method();
-        // Base44: analytics tracking (ignore)
-    if (url.includes('/api/apps/') && url.includes('/analytics/track/batch')) {
-      await route.fulfill({
-        status: 204,
-        contentType: 'application/json',
-        body: '',
-      });
+
+    // 1) Base44 analytics (ignore)
+    if (url.includes('/analytics/track/batch')) {
+      await route.fulfill({ status: 204, body: '' });
       return;
     }
 
-    // Base44: public settings (return minimal OK so app doesn't break)
-    if (url.includes('/api/apps/public/') && url.includes('/public-settings/by-id/')) {
+    // 2) Public settings (avoid 404 that can break UI flows)
+    // Example you showed:
+    // /api/apps/public/prod/public-settings/by-id/null
+    if (url.includes('/public-settings/by-id/')) {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
           id: 'mock-public-settings',
-          settings: {},
-          data: {},
-          ok: true,
-        }),
+          appId: 'mock-app',
+          env: 'prod',
+          settings: {}
+        })
       });
       return;
     }
 
-    // Auth endpoints
+    // 3) Auth endpoints
     if (url.includes('/auth/me') || url.includes('/auth/session')) {
       await route.fulfill({
         status: 200,
@@ -86,7 +85,7 @@ export async function mockApi(page: Page) {
       return;
     }
 
-    // Agent conversations list
+    // 4) Agent conversations list
     if (url.includes('/agents/conversations') && method === 'GET') {
       await route.fulfill({
         status: 200,
@@ -96,7 +95,7 @@ export async function mockApi(page: Page) {
       return;
     }
 
-    // Create agent conversation
+    // 5) Create agent conversation
     if (url.includes('/agents/conversations') && method === 'POST') {
       await route.fulfill({
         status: 200,
@@ -112,7 +111,7 @@ export async function mockApi(page: Page) {
       return;
     }
 
-    // Get conversation
+    // 6) Get conversation
     if (url.includes('/agents/conversations/') && method === 'GET') {
       await route.fulfill({
         status: 200,
@@ -128,28 +127,34 @@ export async function mockApi(page: Page) {
       return;
     }
 
-       // Add message to conversation (echo back the sent content)
+    // 7) Add message to conversation (ECHO the sent content so UI can render it)
     if (url.includes('/agents/conversations/') && url.includes('/messages') && method === 'POST') {
-      let posted: any = {};
+      let postData: any = {};
       try {
-        posted = route.request().postDataJSON?.() || {};
+        postData = route.request().postDataJSON();
       } catch {
         // ignore
       }
+
+      const sentContent =
+        postData?.content ??
+        postData?.message ??
+        postData?.text ??
+        'Test message';
 
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
-          role: posted.role || 'user',
-          content: posted.content || posted.message || posted.text || 'E2E message',
-          created_date: new Date().toISOString(),
-        }),
+          role: postData?.role ?? 'user',
+          content: sentContent,
+          created_date: new Date().toISOString()
+        })
       });
       return;
     }
 
-    // UserDeletedConversations entity
+    // 8) Entities: return empty arrays / simple mocks
     if (url.includes('/entities/UserDeletedConversations')) {
       await route.fulfill({
         status: 200,
@@ -159,7 +164,6 @@ export async function mockApi(page: Page) {
       return;
     }
 
-    // Goal entity - list
     if (url.includes('/entities/Goal') && method === 'GET') {
       await route.fulfill({
         status: 200,
@@ -169,9 +173,13 @@ export async function mockApi(page: Page) {
       return;
     }
 
-    // Goal entity - create
     if (url.includes('/entities/Goal') && method === 'POST') {
-      const postData = route.request().postDataJSON();
+      let postData: any = {};
+      try {
+        postData = route.request().postDataJSON();
+      } catch {
+        // ignore
+      }
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -186,7 +194,6 @@ export async function mockApi(page: Page) {
       return;
     }
 
-    // MoodEntry entity
     if (url.includes('/entities/MoodEntry')) {
       await route.fulfill({
         status: 200,
@@ -196,7 +203,6 @@ export async function mockApi(page: Page) {
       return;
     }
 
-    // DailyFlow entity
     if (url.includes('/entities/DailyFlow')) {
       await route.fulfill({
         status: 200,
@@ -206,7 +212,6 @@ export async function mockApi(page: Page) {
       return;
     }
 
-    // Any other entity requests - return empty array
     if (url.includes('/entities/') && method === 'GET') {
       await route.fulfill({
         status: 200,
@@ -223,17 +228,17 @@ export async function mockApi(page: Page) {
 
 export async function logFailedRequests(page: Page) {
   const failedRequests: string[] = [];
-  
+
   page.on('requestfailed', (request) => {
     failedRequests.push(`${request.method()} ${request.url()} - ${request.failure()?.errorText}`);
   });
-  
+
   page.on('response', (response) => {
     if (response.status() >= 400) {
       failedRequests.push(`${response.request().method()} ${response.url()} - ${response.status()}`);
     }
   });
-  
+
   return {
     getFailedRequests: () => failedRequests.slice(0, 10),
     logToConsole: () => {
@@ -253,3 +258,4 @@ export async function safeFill(locator: any, text: string) {
 export async function safeClick(locator: any) {
   await locator.click({ force: false });
 }
+
