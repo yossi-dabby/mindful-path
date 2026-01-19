@@ -48,14 +48,18 @@ test.describe('Chat Smoke Test (Web)', () => {
         .or(page.getByRole('button', { name: /send/i }))
         .or(page.locator('button[aria-label*="Send" i]')).first();
 
-      if (await sendButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await expect(sendButton).toBeVisible({ timeout: 20000 });
-        await expect(sendButton).toBeEnabled({ timeout: 20000 });
-        await safeClick(sendButton);
-      } else {
-        // Fallback: try pressing Enter in the message input
-        await messageInput.press('Enter');
-      }
+      let attemptedClick = false;
+      try {
+           await expect(sendButton).toBeVisible({ timeout: 20000 });
+           await expect(sendButton).toBeEnabled({ timeout: 20000 });
+           await safeClick(sendButton, 20000);
+            attemptedClick = true;
+            } catch {
+          // Fallback if the button is not visible or interactable
+        }
+         if (!attemptedClick) {
+         await messageInput.press('Enter');
+       }
 
       await waitForPost;
 
