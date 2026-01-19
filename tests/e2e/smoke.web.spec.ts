@@ -50,16 +50,20 @@ test.describe('Chat Smoke Test (Web)', () => {
 
       let attemptedClick = false;
       try {
-           await expect(sendButton).toBeVisible({ timeout: 20000 });
-           await expect(sendButton).toBeEnabled({ timeout: 20000 });
-           await safeClick(sendButton, 20000);
-            attemptedClick = true;
-            } catch {
-          // Fallback if the button is not visible or interactable
+        await expect(sendButton).toBeVisible({ timeout: 20000 });
+        await expect(sendButton).toBeEnabled({ timeout: 20000 });
+        await safeClick(sendButton, 20000);
+        attemptedClick = true;
+      } catch {
+        // Fallback if the button is not visible or interactable
+      }
+      if (!attemptedClick) {
+        if (!page.isClosed()) {
+          await messageInput.press('Enter');
+        } else {
+          throw new Error('Page was closed before trying to send message with Enter key.');
         }
-         if (!attemptedClick) {
-         await messageInput.press('Enter');
-       }
+      }
 
       await waitForPost;
 
@@ -71,4 +75,3 @@ test.describe('Chat Smoke Test (Web)', () => {
     }
   });
 });
-
