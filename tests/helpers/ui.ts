@@ -36,6 +36,10 @@ export async function spaNavigate(page: Page, path: string) {
 }
 
 export async function takeDebugScreenshot(page: Page, name: string) {
+  if (page.isClosed()) {
+    console.warn(`[Screenshot] Skipped: page '${name}' was closed.`);
+    return;
+  }
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   await page.screenshot({
     path: `test-results/debug-${name}-${timestamp}.png`,
