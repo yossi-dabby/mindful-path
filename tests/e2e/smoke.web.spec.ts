@@ -34,13 +34,32 @@ test.describe('Chat Smoke Test (Web)', () => {
         .or(page.getByRole('button', { name: /send/i }))
         .or(page.locator('button[aria-label*="Send" i]')).first();
 
-      // DIAGNOSTIC: Log presence and state of key elements
+      // DIAGNOSTIC: Log presence, state, and value before interaction
       console.log('[DIAGNOSTIC] Checking for input and send button presence...');
       console.log('[DIAGNOSTIC] Chat input visible:', await messageInput.isVisible().catch(() => false));
       console.log('[DIAGNOSTIC] Send button visible:', await sendButton.isVisible().catch(() => false));
 
       await expect(messageInput).toBeVisible({ timeout: 20000 });
       await safeFill(messageInput, testMessage);
+
+      // Additional checks after filling input
+      console.log('[DIAGNOSTIC] After fill:');
+      console.log('[DIAGNOSTIC] Chat input value:', await messageInput.inputValue().catch(() => '[error reading value]'));
+      console.log('[DIAGNOSTIC] Send button enabled:', await sendButton.isEnabled().catch(() => '[error]'));
+      console.log('[DIAGNOSTIC] Send button disabled:', await sendButton.isDisabled().catch(() => '[error]'));
+      console.log('[DIAGNOSTIC] Send button visible:', await sendButton.isVisible().catch(() => '[error]'));
+
+      // Log any send-labeled buttons for further context
+      const allButtons = page.locator('button');
+      const buttonCount = await allButtons.count();
+      for (let i = 0; i < buttonCount; i++) {
+        const label = await allButtons.nth(i).innerText().catch(() => '');
+        const visible = await allButtons.nth(i).isVisible().catch(() => false);
+        const enabled = await allButtons.nth(i).isEnabled().catch(() => false);
+        if (/send/i.test(label)) {
+          console.log(`[DIAGNOSTIC] Button[${i}] label: "${label}", visible: ${visible}, enabled: ${enabled}`);
+        }
+      }
 
       // Take a debug screenshot before trying to send
       await takeDebugScreenshot(page, 'before-chat-send-web');
