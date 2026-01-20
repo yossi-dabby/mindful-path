@@ -390,11 +390,12 @@ export default function Chat() {
     <div className="h-screen flex relative" data-testid="chat-root" style={{ 
       background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)'
     }}>
-      {/* Backdrop overlay when sidebar is open */}
+      {/* Backdrop overlay when sidebar is open - below input area */}
       {showSidebar && currentConversationId && (
         <div 
           className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30"
           onClick={() => setShowSidebar(false)}
+          style={{ zIndex: 30 }}
         />
       )}
 
@@ -621,12 +622,13 @@ export default function Chat() {
           </div>
         )}
 
-        {/* Input Area - Always visible */}
-        <div className="p-4 md:p-6" style={{
+        {/* Input Area - Always visible, always on top */}
+        <div className="p-4 md:p-6 relative" style={{
           background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(232, 246, 243, 0.8) 100%)',
           backdropFilter: 'blur(12px)',
           borderTop: '1px solid rgba(38, 166, 154, 0.2)',
-          boxShadow: '0 -4px 16px rgba(38, 166, 154, 0.1)'
+          boxShadow: '0 -4px 16px rgba(38, 166, 154, 0.1)',
+          zIndex: 50
         }}>
           <div className="max-w-4xl mx-auto flex gap-3">
             <Textarea
@@ -647,12 +649,17 @@ export default function Chat() {
               onClick={handleSendMessage}
               disabled={!inputMessage.trim() || isLoading}
               data-testid="chat-send"
-              className="h-[60px] px-6 text-white"
+              className="h-[60px] px-6 text-white relative"
               style={{
                 borderRadius: '20px',
                 backgroundColor: '#26A69A',
-                boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
+                boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)',
+                zIndex: 51,
+                pointerEvents: (!inputMessage.trim() || isLoading) ? 'none' : 'auto'
               }}
+              onMouseEnter={() => console.log('[DIAGNOSTIC] Send button mouse enter')}
+              onMouseDown={() => console.log('[DIAGNOSTIC] Send button mouse down')}
+              onPointerDown={() => console.log('[DIAGNOSTIC] Send button pointer down')}
             >
               <Send className="w-5 h-5" />
             </Button>
@@ -662,12 +669,14 @@ export default function Chat() {
           </p>
         </div>
 
-      {/* Enhanced Check-in Modal */}
+      {/* Enhanced Check-in Modal - highest z-index when active */}
       {showCheckInModal && (
-        <EnhancedMoodCheckIn
-          onClose={() => setShowCheckInModal(false)}
-          onComplete={handleCheckInComplete}
-        />
+        <div style={{ zIndex: 100 }}>
+          <EnhancedMoodCheckIn
+            onClose={() => setShowCheckInModal(false)}
+            onComplete={handleCheckInComplete}
+          />
+        </div>
       )}
       </div>
     </div>
