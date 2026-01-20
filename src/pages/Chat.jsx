@@ -247,11 +247,25 @@ export default function Chat() {
   };
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || isLoading) return;
+    console.log('[DIAGNOSTIC] handleSendMessage called', { 
+      inputMessage, 
+      currentConversationId, 
+      isLoading,
+      hasInput: !!inputMessage.trim()
+    });
+    
+    if (!inputMessage.trim() || isLoading) {
+      console.log('[DIAGNOSTIC] Early return - no input or loading', { 
+        trimmed: inputMessage.trim(), 
+        isLoading 
+      });
+      return;
+    }
 
     try {
       let convId = currentConversationId;
       if (!convId) {
+        console.log('[DIAGNOSTIC] No conversation exists, creating new conversation');
         const conversation = await base44.agents.createConversation({
           agent_name: 'cbt_therapist',
           metadata: {
@@ -260,24 +274,44 @@ export default function Chat() {
           }
         });
         convId = conversation.id;
+        console.log('[DIAGNOSTIC] New conversation created', { conversationId: convId });
         setCurrentConversationId(convId);
         refetchConversations();
         setShowSidebar(false);
       }
 
+      console.log('[DIAGNOSTIC] Fetching conversation', { conversationId: convId });
       const conversation = await base44.agents.getConversation(convId);
       const messageText = inputMessage;
+      
+      console.log('[DIAGNOSTIC] Attempting to POST message', { 
+        conversationId: convId,
+        messageLength: messageText.length,
+        endpoint: `/agents/conversations/${convId}/messages`
+      });
       
       setInputMessage('');
       setShowSummaryPrompt(false);
       setIsLoading(true);
 
+      console.log('[DIAGNOSTIC] Calling base44.agents.addMessage', { 
+        conversationId: convId, 
+        messageText 
+      });
+      
       await base44.agents.addMessage(conversation, {
         role: 'user',
         content: messageText
       });
+      
+      console.log('[DIAGNOSTIC] Message sent successfully');
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error('[DIAGNOSTIC] Error sending message:', error);
+      console.error('[DIAGNOSTIC] Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
       setIsLoading(false);
     }
   };
