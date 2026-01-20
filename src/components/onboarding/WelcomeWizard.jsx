@@ -67,7 +67,7 @@ export default function WelcomeWizard({ onComplete }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-orange-100 via-white to-blue-100 z-50 overflow-y-auto">
+    <div className="fixed inset-0 bg-gradient-to-br from-orange-100 via-white to-blue-100 overflow-y-auto" style={{ zIndex: 60 }}>
       <div className="min-h-screen flex items-center justify-center p-4 pb-24">
         <div className="w-full max-w-2xl">
           <AnimatePresence mode="wait">

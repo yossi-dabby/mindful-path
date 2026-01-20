@@ -5,13 +5,14 @@ import { Button } from '@/components/ui/button';
 export default function VideoModal({ videoUrl, onClose }) {
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 pb-24 bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 flex items-center justify-center p-4 pb-24 bg-black/60 backdrop-blur-sm"
       onClick={onClose}
+      style={{ zIndex: 50 }}
     >
       <div 
         className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden my-8"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxHeight: 'calc(90vh - 120px)' }}
+        style={{ maxHeight: 'calc(90vh - 120px)', zIndex: 55 }}
       >
         {/* Close Button */}
         <Button

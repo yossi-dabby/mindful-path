@@ -235,7 +235,7 @@ export default function DraggableAiCompanion() {
     position: 'fixed',
     right: `${position.right}px`,
     bottom: `${position.bottom}px`,
-    zIndex: 40
+    zIndex: 45
   };
 
   if (!isOpen) {

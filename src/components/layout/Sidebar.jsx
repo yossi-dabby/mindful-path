@@ -25,8 +25,9 @@ const secondaryItems = [
 export default function Sidebar({ currentPageName }) {
   return (
     <nav 
-      className="hidden md:flex fixed left-0 top-0 bottom-0 backdrop-blur-xl border-r shadow-sm flex-col py-6 z-50"
-      style={{ 
+      className="hidden md:flex fixed left-0 top-0 bottom-0 backdrop-blur-xl border-r shadow-sm flex-col py-6"
+      style={{
+        zIndex: 35, 
         width: `${SIDEBAR_WIDTH}px`,
         background: 'linear-gradient(170deg, rgba(212, 237, 232, 0.95) 0%, rgba(190, 225, 218, 0.92) 50%, rgba(200, 230, 225, 0.94) 100%)',
         borderColor: 'rgba(38, 166, 154, 0.25)',
