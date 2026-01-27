@@ -58,35 +58,20 @@ export default function Home() {
     initialData: []
   });
 
-  const { data: latestGoal } = useQuery({
-    queryKey: ['latestGoal'],
+  // Combined query for journal data - fetch recent entries and use for both count and latest
+  const { data: recentJournals } = useQuery({
+    queryKey: ['recentJournals'],
     queryFn: async () => {
-      const goals = await base44.entities.Goal.list('-created_date', 1);
-      return goals[0] || null;
+      const entries = await base44.entities.ThoughtJournal.list('-created_date', 50);
+      return entries;
     },
-    initialData: null
+    initialData: []
   });
 
-  const { data: journalCount } = useQuery({
-    queryKey: ['journalCount'],
-    queryFn: async () => {
-      const thoughtJournals = await base44.entities.ThoughtJournal.list();
-      return thoughtJournals.length;
-    },
-    initialData: 0
-  });
-
-  // Check for the most recent journal entry
-  const { data: latestJournalEntry } = useQuery({
-    queryKey: ['latestJournalEntry'],
-    queryFn: async () => {
-      const entries = await base44.entities.ThoughtJournal.list('-created_date', 1);
-      return entries[0] || null;
-    },
-    initialData: null
-  });
-
-  // Show icon if we have a journal entry
+  // Derive values from combined query
+  const latestGoal = recentGoals[0] || null;
+  const journalCount = recentJournals.length;
+  const latestJournalEntry = recentJournals[0] || null;
   const savedEntryId = latestJournalEntry ? latestJournalEntry.id : null;
 
   // Get today's flow
