@@ -108,15 +108,21 @@ export default function Home() {
     mutationFn: async () => {
       const today = new Date().toISOString().split('T')[0];
       
-      // Get or create today's flow
+      // Get or create today's flow (prevent duplicates)
       let flow = todayFlow;
       if (!flow) {
-        const newFlow = await base44.entities.DailyFlow.create({
-          date: today,
-          check_in_completed: true,
-          check_in_time: new Date().toISOString()
-        });
-        flow = newFlow;
+        // Check if flow already exists before creating
+        const existingFlows = await base44.entities.DailyFlow.filter({ date: today });
+        if (existingFlows.length > 0) {
+          flow = existingFlows[0];
+        } else {
+          const newFlow = await base44.entities.DailyFlow.create({
+            date: today,
+            check_in_completed: true,
+            check_in_time: new Date().toISOString()
+          });
+          flow = newFlow;
+        }
       }
 
       // Select exercise based on recent mood data

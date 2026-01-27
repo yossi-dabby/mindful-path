@@ -68,10 +68,17 @@ export default function DetailedMoodForm({ entry, onClose }) {
   );
 
   const saveMutation = useMutation({
-    mutationFn: (data) =>
-      entry
-        ? base44.entities.MoodEntry.update(entry.id, data)
-        : base44.entities.MoodEntry.create(data),
+    mutationFn: (data) => {
+      // Validate ranges before saving
+      const validatedData = {
+        ...data,
+        intensity: Math.max(1, Math.min(10, data.intensity || 5)),
+        stress_level: Math.max(1, Math.min(10, data.stress_level || 5))
+      };
+      return entry
+        ? base44.entities.MoodEntry.update(entry.id, validatedData)
+        : base44.entities.MoodEntry.create(validatedData);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['moodEntries']);
       queryClient.invalidateQueries(['recentMood']);

@@ -25,7 +25,19 @@ const rarityBgColors = {
 export default function BadgeDisplay({ compact = false }) {
   const { data: badges, isLoading } = useQuery({
     queryKey: ['userBadges'],
-    queryFn: () => base44.entities.Badge.list('-earned_date'),
+    queryFn: async () => {
+      const allBadges = await base44.entities.Badge.list('-earned_date');
+      // Deduplicate by badge_type (keep most recent)
+      const uniqueBadges = {};
+      allBadges.forEach(badge => {
+        const key = badge.badge_type || badge.name;
+        if (!uniqueBadges[key] || 
+            new Date(badge.updated_date) > new Date(uniqueBadges[key].updated_date)) {
+          uniqueBadges[key] = badge;
+        }
+      });
+      return Object.values(uniqueBadges);
+    },
     initialData: []
   });
   const badgesArr = Array.isArray(badges) ? badges : [];

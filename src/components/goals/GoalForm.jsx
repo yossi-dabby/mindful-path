@@ -45,10 +45,16 @@ export default function GoalForm({ goal, prefilledData, onClose }) {
   const isSavingRef = useRef(false);
 
   const saveMutation = useMutation({
-    mutationFn: (data) =>
-      goal
-        ? base44.entities.Goal.update(goal.id, data)
-        : base44.entities.Goal.create(data),
+    mutationFn: (data) => {
+      // Validate progress range
+      const validatedData = {
+        ...data,
+        progress: Math.max(0, Math.min(100, data.progress || 0))
+      };
+      return goal
+        ? base44.entities.Goal.update(goal.id, validatedData)
+        : base44.entities.Goal.create(validatedData);
+    },
     onSuccess: () => {
       isSavingRef.current = false;
       onClose();

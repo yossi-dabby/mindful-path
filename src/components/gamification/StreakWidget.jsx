@@ -10,7 +10,18 @@ import { cn } from '@/lib/utils';
 export default function StreakWidget({ compact = false }) {
   const { data: streaks, isLoading } = useQuery({
     queryKey: ['userStreaks'],
-    queryFn: () => base44.entities.UserStreak.list(),
+    queryFn: async () => {
+      const allStreaks = await base44.entities.UserStreak.list();
+      // Deduplicate by streak_type (take most recent)
+      const uniqueStreaks = {};
+      allStreaks.forEach(streak => {
+        if (!uniqueStreaks[streak.streak_type] || 
+            new Date(streak.updated_date) > new Date(uniqueStreaks[streak.streak_type].updated_date)) {
+          uniqueStreaks[streak.streak_type] = streak;
+        }
+      });
+      return Object.values(uniqueStreaks);
+    },
     initialData: []
   });
   const streaksArr = Array.isArray(streaks) ? streaks : [];

@@ -23,7 +23,7 @@ export default function Settings() {
   const [dashboardLayout, setDashboardLayout] = useState('default');
 
   useEffect(() => {
-    base44.auth.me().then((userData) => {
+    base44.auth.me().then(async (userData) => {
       setUser(userData);
       setFullName(userData.full_name || '');
       setCurrentTheme(userData.preferences?.theme || 'default');
@@ -34,6 +34,27 @@ export default function Settings() {
         exerciseReminders: false
       });
       setDashboardLayout(userData.preferences?.dashboardLayout || 'default');
+
+      // Initialize UserPoints singleton (fetch-or-create pattern)
+      const existingPoints = await base44.entities.UserPoints.list();
+      if (existingPoints.length === 0) {
+        await base44.entities.UserPoints.create({
+          total_points: 0,
+          weekly_points: 0,
+          level: 1,
+          points_to_next_level: 100,
+          last_updated: new Date().toISOString().split('T')[0]
+        });
+      }
+
+      // Initialize Subscription singleton (fetch-or-create pattern)
+      const existingSubs = await base44.entities.Subscription.list();
+      if (existingSubs.length === 0) {
+        await base44.entities.Subscription.create({
+          plan_type: 'free',
+          status: 'trial'
+        });
+      }
     });
   }, []);
 

@@ -73,10 +73,17 @@ export default function ThoughtRecordForm({ entry, template, templates, onClose,
   const queryClient = useQueryClient();
 
   const saveMutation = useMutation({
-    mutationFn: (data) => 
-      entry 
-        ? base44.entities.ThoughtJournal.update(entry.id, data)
-        : base44.entities.ThoughtJournal.create(data),
+    mutationFn: (data) => {
+      // Validate ranges before saving
+      const validatedData = {
+        ...data,
+        emotion_intensity: Math.max(1, Math.min(10, data.emotion_intensity || 5)),
+        outcome_emotion_intensity: Math.max(1, Math.min(10, data.outcome_emotion_intensity || 5))
+      };
+      return entry 
+        ? base44.entities.ThoughtJournal.update(entry.id, validatedData)
+        : base44.entities.ThoughtJournal.create(validatedData);
+    },
     onSuccess: (data) => {
       queryClient.invalidateQueries(['thoughtJournals']);
       setSavedEntry(data);
