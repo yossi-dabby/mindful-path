@@ -19,6 +19,8 @@ const categories = [
 
 export default function GoalForm({ goal, prefilledData, onClose }) {
   const [currentTab, setCurrentTab] = useState('basic');
+  const abortControllerRef = useRef(null);
+  const mountedRef = useRef(true);
   const [formData, setFormData] = useState(
     goal || prefilledData || {
       title: '',
@@ -67,6 +69,13 @@ export default function GoalForm({ goal, prefilledData, onClose }) {
 
   const generateSmartSuggestions = async () => {
     if (!formData.title.trim()) return;
+    
+    // Abort any in-flight request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+    
     setAiSuggesting(true);
     setSaveError(null);
     try {
@@ -101,6 +110,8 @@ Provide SMART criteria answers and suggestions for milestones.`,
         }
       });
 
+      if (!mountedRef.current) return;
+      
       setFormData({
         ...formData,
         smart_criteria: {
@@ -118,10 +129,14 @@ Provide SMART criteria answers and suggestions for milestones.`,
       });
       setCurrentTab('smart');
     } catch (error) {
+      if (error.name === 'AbortError') return;
       console.error('Failed to generate SMART suggestions:', error);
+      if (!mountedRef.current) return;
       setSaveError('AI suggestion failed. Please try again or fill manually.');
     } finally {
-      setAiSuggesting(false);
+      if (mountedRef.current) {
+        setAiSuggesting(false);
+      }
     }
   };
 
@@ -142,6 +157,16 @@ Provide SMART criteria answers and suggestions for milestones.`,
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
   }, [onClose]);
+
+  // Cleanup on unmount
+  React.useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   const updateMilestone = (index, field, value) => {
     const newMilestones = [...formData.milestones];
@@ -451,12 +476,12 @@ Provide SMART criteria answers and suggestions for milestones.`,
             </Button>
             <Button
               onClick={() => {
-                if (!formData.title.trim() || isSavingRef.current) return;
+                if (!formData.title.trim() || isSavingRef.current || saveMutation.isPending) return;
                 isSavingRef.current = true;
                 setSaveError(null);
                 saveMutation.mutate(formData);
               }}
-              disabled={!formData.title || saveMutation.isPending}
+              disabled={!formData.title.trim() || isSavingRef.current || saveMutation.isPending}
               className="flex-1 bg-blue-600 hover:bg-blue-700"
             >
               {saveMutation.isPending ? 'Saving...' : goal ? 'Update Goal' : 'Create Goal'}

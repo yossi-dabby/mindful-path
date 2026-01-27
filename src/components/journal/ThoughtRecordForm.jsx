@@ -64,6 +64,8 @@ export default function ThoughtRecordForm({ entry, template, templates, onClose,
   const [savedEntry, setSavedEntry] = useState(null);
   const [showDistortionAnalysis, setShowDistortionAnalysis] = useState(false);
   const isSavingRef = React.useRef(false);
+  const abortControllerRef = React.useRef(null);
+  const mountedRef = React.useRef(true);
 
   const { data: goals } = useQuery({
     queryKey: ['activeGoals'],
@@ -98,6 +100,12 @@ export default function ThoughtRecordForm({ entry, template, templates, onClose,
   });
 
   const analyzeEntry = async () => {
+    // Abort any in-flight request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+    
     setIsAnalyzing(true);
     try {
       const prompt = `Analyze this CBT journal entry and provide insights:
@@ -149,6 +157,8 @@ Provide:
         }
       });
 
+      if (!mountedRef.current) return;
+      
       setAiAnalysis(response);
       
       // Auto-apply suggested tags
@@ -157,9 +167,12 @@ Provide:
         tags: [...new Set([...prev.tags, ...response.suggested_tags])]
       }));
     } catch (error) {
+      if (error.name === 'AbortError') return;
       console.error('Analysis failed:', error);
     } finally {
-      setIsAnalyzing(false);
+      if (mountedRef.current) {
+        setIsAnalyzing(false);
+      }
     }
   };
 
@@ -249,6 +262,16 @@ Provide:
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
   }, [onClose]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   const toggleItem = (field, item) => {
     setFormData(prev => ({

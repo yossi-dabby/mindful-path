@@ -23,6 +23,8 @@ export default function DraggableAiCompanion() {
   const [position, setPosition] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [memoryError, setMemoryError] = useState(false);
+  const [sendError, setSendError] = useState(null);
+  const mountedRef = useRef(true);
   const messagesEndRef = useRef(null);
   const dragRef = useRef({ startX: 0, startY: 0, initialX: 0, initialY: 0 });
   const queryClient = useQueryClient();
@@ -125,6 +127,13 @@ export default function DraggableAiCompanion() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   // Save position to localStorage
   const savePosition = (newPos) => {
     const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
@@ -216,6 +225,7 @@ export default function DraggableAiCompanion() {
 
     const userMessage = message;
     setMessage('');
+    setSendError(null);
     setIsLoading(true);
 
     try {
@@ -223,10 +233,13 @@ export default function DraggableAiCompanion() {
         role: 'user',
         content: userMessage
       });
+      if (!mountedRef.current) return;
       queryClient.invalidateQueries(['proactiveReminders']);
     } catch (error) {
       console.error('Failed to send message:', error);
+      if (!mountedRef.current) return;
       setIsLoading(false);
+      setSendError('Failed to send message. Please try again.');
     }
   };
 
@@ -493,7 +506,10 @@ export default function DraggableAiCompanion() {
           <div className="flex gap-2">
             <Input
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={(e) => {
+                setMessage(e.target.value);
+                setSendError(null);
+              }}
               onKeyPress={handleKeyPress}
               placeholder="Ask me anything..."
               className="flex-1 rounded-xl"
@@ -508,9 +524,16 @@ export default function DraggableAiCompanion() {
               <Send className="w-4 h-4" />
             </Button>
           </div>
-          <p className="text-xs text-gray-500 mt-2 text-center">
-            I remember our conversations and your wellness journey
-          </p>
+          {sendError && (
+            <p className="text-xs text-red-600 mt-2 text-center">
+              {sendError}
+            </p>
+          )}
+          {!sendError && (
+            <p className="text-xs text-gray-500 mt-2 text-center">
+              I remember our conversations and your wellness journey
+            </p>
+          )}
         </div>
       </Card>
     </motion.div>

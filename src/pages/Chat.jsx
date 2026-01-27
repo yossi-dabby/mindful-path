@@ -29,6 +29,7 @@ export default function Chat() {
   const inFlightIntentRef = useRef(false);
   const sessionTriggeredRef = useRef(new Set());
   const sendingMessageRef = useRef(false);
+  const mountedRef = useRef(true);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -37,6 +38,13 @@ export default function Chat() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   // Handle intent from URL parameters - create conversation with intent metadata
   useEffect(() => {
@@ -316,6 +324,7 @@ export default function Chat() {
         content: messageText
       });
       
+      if (!mountedRef.current) return;
       console.log('[DIAGNOSTIC] Message sent successfully');
     } catch (error) {
       console.error('[DIAGNOSTIC] Error sending message:', error);
@@ -324,6 +333,7 @@ export default function Chat() {
         message: error.message,
         stack: error.stack
       });
+      if (!mountedRef.current) return;
       setIsLoading(false);
       // Show user-friendly error
       setMessages(prev => [...prev, {
