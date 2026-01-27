@@ -191,6 +191,19 @@ export default function StandaloneDailyCheckIn() {
     }
   };
 
+  // Add Esc key handler for video modal
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape' && activeVideo) {
+        setActiveVideo(null);
+      }
+    };
+    if (activeVideo) {
+      document.addEventListener('keydown', handleEsc);
+      return () => document.removeEventListener('keydown', handleEsc);
+    }
+  }, [activeVideo]);
+
   // If loading, show skeleton
   if (isLoading) {
     return (
@@ -242,6 +255,7 @@ export default function StandaloneDailyCheckIn() {
                     handleEdit();
                   }}
                   className="h-9 w-9"
+                  aria-label="Edit check-in"
                 >
                   <Edit2 className="w-4 h-4" />
                 </Button>
@@ -253,6 +267,7 @@ export default function StandaloneDailyCheckIn() {
                     handleDelete();
                   }}
                   className="h-9 w-9"
+                  aria-label="Delete check-in"
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
@@ -390,12 +405,20 @@ export default function StandaloneDailyCheckIn() {
                   <button
                     key={mood.value}
                     onClick={() => handleMoodSelect(mood)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleMoodSelect(mood);
+                      }
+                    }}
                     className={cn(
                       "flex flex-col items-center justify-center p-2 md:p-4 transition-all hover:scale-105",
                       formData.mood === mood.value
                         ? "shadow-lg"
                         : "hover:opacity-80"
                     )}
+                    aria-label={`Select ${mood.label} mood`}
+                    aria-pressed={formData.mood === mood.value}
                   >
                     <div 
                       className={cn(
@@ -440,12 +463,20 @@ export default function StandaloneDailyCheckIn() {
                         <button
                           key={emotion}
                           onClick={() => toggleEmotion(emotion)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              toggleEmotion(emotion);
+                            }
+                          }}
                           className={cn(
                             "px-3 py-1.5 rounded-full text-xs font-medium transition-all border-2",
                             formData.emotions.includes(emotion)
                               ? cn(colors.selected, colors.text, "border-transparent scale-105")
                               : "border-gray-300 text-gray-700 hover:border-gray-400"
                           )}
+                          aria-label={`${emotion} emotion`}
+                          aria-pressed={formData.emotions.includes(emotion)}
                         >
                           {emotion}
                         </button>
@@ -485,6 +516,8 @@ export default function StandaloneDailyCheckIn() {
                   style={{
                     background: `linear-gradient(to right, #26A69A 0%, #26A69A ${formData.intensity}%, #E5E7EB ${formData.intensity}%, #E5E7EB 100%)`
                   }}
+                  aria-label="Emotion intensity level"
+                  aria-valuetext={`${formData.intensity} out of 100`}
                 />
                 <div className="flex justify-between text-xs text-gray-500">
                   <span>1</span>
