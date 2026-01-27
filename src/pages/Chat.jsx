@@ -16,7 +16,7 @@ import TherapyStateMachine from '../components/chat/TherapyStateMachine';
 import EnhancedMoodCheckIn from '../components/home/EnhancedMoodCheckIn';
 import InlineConsentBanner from '../components/chat/InlineConsentBanner';
 import InlineRiskPanel from '../components/chat/InlineRiskPanel';
-import { detectCrisisLanguage } from '../components/utils/crisisDetector';
+import { detectCrisisLanguage, detectCrisisWithReason } from '../components/utils/crisisDetector';
 import AgeGateModal from '../components/utils/AgeGateModal';
 import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 
@@ -295,9 +295,25 @@ export default function Chat() {
     }
 
     // Crisis detection gate - check before sending
-    if (detectCrisisLanguage(inputMessage)) {
+    const reasonCode = detectCrisisWithReason(inputMessage);
+    if (reasonCode) {
       console.log('[CRISIS GATE] High-risk language detected, blocking send');
       setShowRiskPanel(true);
+      
+      // Log crisis alert (non-blocking)
+      (async () => {
+        try {
+          const user = await base44.auth.me();
+          await base44.entities.CrisisAlert.create({
+            surface: 'chat',
+            conversation_id: currentConversationId || 'none',
+            reason_code: reasonCode,
+            user_email: user?.email || 'unknown'
+          });
+        } catch (error) {
+          console.error('[CRISIS ALERT] Failed to log alert:', error);
+        }
+      })();
       return;
     }
 

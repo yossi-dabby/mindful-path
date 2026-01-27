@@ -12,7 +12,7 @@ import { isAuthError, shouldShowAuthError } from '../utils/authErrorHandler';
 import AuthErrorBanner from '../utils/AuthErrorBanner';
 import InlineConsentBanner from '../chat/InlineConsentBanner';
 import InlineRiskPanel from '../chat/InlineRiskPanel';
-import { detectCrisisLanguage } from '../utils/crisisDetector';
+import { detectCrisisLanguage, detectCrisisWithReason } from '../utils/crisisDetector';
 import MessageFeedback from '../chat/MessageFeedback';
 
 const STORAGE_KEY = 'ai_companion_position';
@@ -258,8 +258,24 @@ export default function DraggableAiCompanion() {
     if (!message.trim() || !conversation) return;
 
     // Crisis detection gate
-    if (detectCrisisLanguage(message)) {
+    const reasonCode = detectCrisisWithReason(message);
+    if (reasonCode) {
       setShowRiskPanel(true);
+      
+      // Log crisis alert (non-blocking)
+      (async () => {
+        try {
+          const user = await base44.auth.me();
+          await base44.entities.CrisisAlert.create({
+            surface: 'companion',
+            conversation_id: conversation?.id || 'none',
+            reason_code: reasonCode,
+            user_email: user?.email || 'unknown'
+          });
+        } catch (error) {
+          console.error('[CRISIS ALERT] Failed to log alert:', error);
+        }
+      })();
       return;
     }
 

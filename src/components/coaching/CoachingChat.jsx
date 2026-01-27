@@ -9,7 +9,7 @@ import { ChevronLeft, Send, Loader2, Target, CheckCircle2, Plus, Edit } from 'lu
 import MessageBubble from '../chat/MessageBubble';
 import InlineConsentBanner from '../chat/InlineConsentBanner';
 import InlineRiskPanel from '../chat/InlineRiskPanel';
-import { detectCrisisLanguage } from '../utils/crisisDetector';
+import { detectCrisisLanguage, detectCrisisWithReason } from '../utils/crisisDetector';
 import ActionPlanPanel from './ActionPlanPanel';
 
 const stageLabels = {
@@ -89,8 +89,25 @@ export default function CoachingChat({ session, onBack }) {
     if (!inputMessage.trim() || !currentSession.agent_conversation_id) return;
 
     // Crisis detection gate - check before sending
-    if (detectCrisisLanguage(inputMessage)) {
+    const reasonCode = detectCrisisWithReason(inputMessage);
+    if (reasonCode) {
       setShowRiskPanel(true);
+      
+      // Log crisis alert (non-blocking)
+      (async () => {
+        try {
+          const user = await base44.auth.me();
+          await base44.entities.CrisisAlert.create({
+            surface: 'coach',
+            conversation_id: currentSession.agent_conversation_id || 'none',
+            session_id: session.id,
+            reason_code: reasonCode,
+            user_email: user?.email || 'unknown'
+          });
+        } catch (error) {
+          console.error('[CRISIS ALERT] Failed to log alert:', error);
+        }
+      })();
       return;
     }
 

@@ -58,6 +58,24 @@ function normalizeForDetection(text) {
   return normalized;
 }
 
+/**
+ * Categorize detected crisis language into reason codes
+ */
+function categorizeReason(message) {
+  const normalized = normalizeForDetection(message);
+  const original = message.toLowerCase().trim();
+  
+  const testMessage = (text) => {
+    if (/\b(kill|hurt|harm|cut)\s+(myself|my\s*self)\b/i.test(text)) return 'self_harm';
+    if (/\bsuicide\b/i.test(text)) return 'suicide';
+    if (/\boverdose\b/i.test(text)) return 'overdose';
+    if (/\b(take\s+all\s+(my|the)\s+(pills|meds)|goodbye\s+world|ready\s+to\s+(die|end\s+it))\b/i.test(text)) return 'immediate_danger';
+    return 'general_crisis';
+  };
+  
+  return testMessage(original) || testMessage(normalized) || 'general_crisis';
+}
+
 export function detectCrisisLanguage(message) {
   if (!message || typeof message !== 'string') {
     return false;
@@ -71,4 +89,15 @@ export function detectCrisisLanguage(message) {
   return CRISIS_PATTERNS.some(pattern => 
     pattern.test(original) || pattern.test(normalized)
   );
+}
+
+/**
+ * Detect crisis language and return reason code if detected
+ * Returns null if no crisis detected, otherwise returns reason code
+ */
+export function detectCrisisWithReason(message) {
+  if (detectCrisisLanguage(message)) {
+    return categorizeReason(message);
+  }
+  return null;
 }
