@@ -44,8 +44,13 @@ export default function PersonalizedFeed() {
 
   // Analyze user patterns and generate recommendations
   const recommendations = React.useMemo(() => {
+    // Early return for empty data
+    if (!allAudio.length && !allExercises.length) {
+      return { audio: [], exercises: [], reason: '' };
+    }
+
     if (!recentMoods.length && !recentJournals.length) {
-      // Default recommendations for new users
+      // Default recommendations for new users - no scoring needed
       return {
         audio: allAudio.slice(0, 2),
         exercises: allExercises.slice(0, 2),
@@ -53,32 +58,26 @@ export default function PersonalizedFeed() {
       };
     }
 
-    // Analyze mood patterns
-    const lowMoodCount = recentMoods.filter(m => 
-      ['low', 'very_low'].includes(m.mood)
-    ).length;
-    const anxietyMentions = recentMoods.filter(m => 
-      m.emotions?.some(e => e.toLowerCase().includes('anxi'))
-    ).length;
-    const stressMentions = recentMoods.filter(m => 
-      m.stress_level >= 7
-    ).length;
+    // Analyze mood patterns (memoize calculations)
+    const moodStats = React.useMemo(() => ({
+      lowMoodCount: recentMoods.filter(m => ['low', 'very_low'].includes(m.mood)).length,
+      anxietyMentions: recentMoods.filter(m => m.emotions?.some(e => e.toLowerCase().includes('anxi'))).length,
+      stressMentions: recentMoods.filter(m => m.stress_level >= 7).length
+    }), [recentMoods]);
 
     // Analyze journal patterns
-    const cognitiveDistortions = recentJournals.filter(j => 
-      j.cognitive_distortions?.length > 0
-    ).length;
+    const cognitiveDistortions = recentJournals.filter(j => j.cognitive_distortions?.length > 0).length;
 
     // Determine primary need
     let primaryCategories = [];
     let reason = '';
 
-    if (lowMoodCount > recentMoods.length * 0.4) {
+    if (moodStats.lowMoodCount > recentMoods.length * 0.4) {
       primaryCategories.push('behavioral_activation', 'mindfulness');
       reason = 'Based on your recent mood patterns';
     }
 
-    if (anxietyMentions > 3 || stressMentions > 3) {
+    if (moodStats.anxietyMentions > 3 || moodStats.stressMentions > 3) {
       primaryCategories.push('breathing', 'grounding', 'mindfulness');
       reason = reason || 'To help manage anxiety and stress';
     }
@@ -93,28 +92,28 @@ export default function PersonalizedFeed() {
       reason = 'Recommended for you';
     }
 
-    // Filter and score content
-    const scoredAudio = allAudio.map(audio => {
+    // Optimize scoring: only score if we have content
+    const scoredAudio = allAudio.length > 0 ? allAudio.map(audio => {
       let score = 0;
       if (primaryCategories.includes(audio.category)) score += 3;
-      if (audio.type === 'breathing_guide' && anxietyMentions > 2) score += 2;
-      if (audio.type === 'soundscape' && stressMentions > 2) score += 2;
-      if (audio.duration_minutes <= 10) score += 1; // Prefer shorter content
+      if (audio.type === 'breathing_guide' && moodStats.anxietyMentions > 2) score += 2;
+      if (audio.type === 'soundscape' && moodStats.stressMentions > 2) score += 2;
+      if (audio.duration_minutes <= 10) score += 1;
       return { ...audio, score };
-    }).sort((a, b) => b.score - a.score);
+    }).sort((a, b) => b.score - a.score).slice(0, 2) : [];
 
-    const scoredExercises = allExercises.map(exercise => {
+    const scoredExercises = allExercises.length > 0 ? allExercises.map(exercise => {
       let score = 0;
       if (primaryCategories.includes(exercise.category)) score += 3;
-      if (exercise.category === 'breathing' && anxietyMentions > 2) score += 2;
+      if (exercise.category === 'breathing' && moodStats.anxietyMentions > 2) score += 2;
       if (exercise.category === 'cognitive_restructuring' && cognitiveDistortions > 3) score += 2;
       if (exercise.difficulty === 'beginner') score += 1;
       return { ...exercise, score };
-    }).sort((a, b) => b.score - a.score);
+    }).sort((a, b) => b.score - a.score).slice(0, 2) : [];
 
     return {
-      audio: scoredAudio.slice(0, 2),
-      exercises: scoredExercises.slice(0, 2),
+      audio: scoredAudio,
+      exercises: scoredExercises,
       reason
     };
   }, [recentMoods, recentJournals, allAudio, allExercises]);
