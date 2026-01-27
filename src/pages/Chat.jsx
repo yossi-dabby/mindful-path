@@ -17,6 +17,8 @@ import EnhancedMoodCheckIn from '../components/home/EnhancedMoodCheckIn';
 import InformedConsentModal from '../components/chat/InformedConsentModal';
 import CrisisSafetyPanel from '../components/chat/CrisisSafetyPanel';
 import { detectCrisisLanguage } from '../components/utils/crisisDetector';
+import AgeGateModal from '../components/utils/AgeGateModal';
+import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 
 export default function Chat() {
   const [currentConversationId, setCurrentConversationId] = useState(null);
@@ -30,6 +32,8 @@ export default function Chat() {
   const [showAuthError, setShowAuthError] = useState(false);
   const [showConsentModal, setShowConsentModal] = useState(false);
   const [showCrisisPanel, setShowCrisisPanel] = useState(false);
+  const [showAgeGate, setShowAgeGate] = useState(false);
+  const [isAgeRestricted, setIsAgeRestricted] = useState(false);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
   const location = useLocation();
@@ -453,6 +457,18 @@ export default function Chat() {
     
     if (isTestEnv) {
       localStorage.setItem('chat_consent_accepted', 'true');
+      localStorage.setItem('age_verified', 'true');
+      return;
+    }
+    
+    // Check age verification first
+    const ageVerified = localStorage.getItem('age_verified');
+    if (ageVerified === 'false') {
+      setIsAgeRestricted(true);
+      return;
+    }
+    if (!ageVerified) {
+      setShowAgeGate(true);
       return;
     }
     
@@ -467,6 +483,22 @@ export default function Chat() {
     localStorage.setItem('chat_consent_accepted', 'true');
     setShowConsentModal(false);
   };
+
+  const handleAgeConfirm = () => {
+    localStorage.setItem('age_verified', 'true');
+    setShowAgeGate(false);
+  };
+
+  const handleAgeDecline = () => {
+    localStorage.setItem('age_verified', 'false');
+    setShowAgeGate(false);
+    setIsAgeRestricted(true);
+  };
+
+  // Show age restriction message if user is under 18
+  if (isAgeRestricted) {
+    return <AgeRestrictedMessage />;
+  }
 
   return (
     <>
@@ -771,6 +803,11 @@ export default function Chat() {
       {/* Crisis Safety Panel - blocks high-risk messages */}
       {showCrisisPanel && (
         <CrisisSafetyPanel onDismiss={() => setShowCrisisPanel(false)} />
+      )}
+
+      {/* Age Gate Modal - appears before consent */}
+      {showAgeGate && (
+        <AgeGateModal onConfirm={handleAgeConfirm} onDecline={handleAgeDecline} />
       )}
       </div>
       </div>

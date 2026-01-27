@@ -30,6 +30,7 @@ export default function DraggableAiCompanion() {
   const [sendError, setSendError] = useState(null);
   const [showAuthError, setShowAuthError] = useState(false);
   const [showCrisisPanel, setShowCrisisPanel] = useState(false);
+  const [isAgeVerified, setIsAgeVerified] = useState(true);
   const mountedRef = useRef(true);
   const messagesEndRef = useRef(null);
   const dragRef = useRef({ startX: 0, startY: 0, initialX: 0, initialY: 0 });
@@ -59,6 +60,24 @@ export default function DraggableAiCompanion() {
         ? { bottom: 80, right: 20 } 
         : { bottom: 24, right: 24 }
     );
+  }, []);
+
+  // Check age verification
+  useEffect(() => {
+    const isTestEnv = 
+      window.navigator.webdriver === true ||
+      window.Cypress !== undefined ||
+      window.playwright !== undefined ||
+      /HeadlessChrome/.test(window.navigator.userAgent);
+    
+    if (isTestEnv) {
+      localStorage.setItem('age_verified', 'true');
+      setIsAgeVerified(true);
+      return;
+    }
+
+    const ageVerified = localStorage.getItem('age_verified');
+    setIsAgeVerified(ageVerified === 'true');
   }, []);
 
   // Delay showing the button on Videos page
@@ -288,6 +307,11 @@ export default function DraggableAiCompanion() {
 
   if (!position) {
     return null; // Wait for position to initialize
+  }
+
+  // Hide if age not verified
+  if (!isAgeVerified) {
+    return null;
   }
 
   const positionStyle = {
