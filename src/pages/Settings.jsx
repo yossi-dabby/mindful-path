@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { User, Bell, CreditCard, LogOut, Crown, Shield, Layout as LayoutIcon } from 'lucide-react';
 import ThemeSelector, { themes } from '../components/settings/ThemeSelector';
+import DataPrivacy from '../components/settings/DataPrivacy';
 import { motion } from 'framer-motion';
 
 export default function Settings() {
@@ -309,11 +310,21 @@ export default function Settings() {
       </Card>
       </motion.div>
 
-      {/* Notifications Section */}
+      {/* Data & Privacy Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.5 }}
+        className="mb-6"
+      >
+        <DataPrivacy user={user} />
+      </motion.div>
+
+      {/* Notifications Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.6 }}
       >
         <Card className="border-0 mb-6" style={{ 
           borderRadius: '24px',
@@ -378,7 +389,7 @@ export default function Settings() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.6 }}
+        transition={{ duration: 0.4, delay: 0.7 }}
       >
         <Card className="border-0" style={{ 
           borderRadius: '24px',

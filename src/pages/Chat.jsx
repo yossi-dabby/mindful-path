@@ -493,6 +493,23 @@ export default function Chat() {
     if (!consentAccepted) {
       setShowConsentBanner(true);
     }
+
+    // Run retention cleanup on app start (non-blocking)
+    (async () => {
+      try {
+        const lastCleanup = localStorage.getItem('last_retention_cleanup');
+        const now = Date.now();
+        const cleanupInterval = 24 * 60 * 60 * 1000; // 24 hours
+
+        if (!lastCleanup || now - parseInt(lastCleanup) > cleanupInterval) {
+          await base44.functions.invoke('retentionCleanup', {});
+          localStorage.setItem('last_retention_cleanup', now.toString());
+        }
+      } catch (error) {
+        console.error('Retention cleanup failed:', error);
+        // Non-blocking: log but don't interrupt user
+      }
+    })();
   }, []);
 
   const handleConsentAccept = () => {
