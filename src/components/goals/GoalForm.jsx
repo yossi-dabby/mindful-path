@@ -18,7 +18,6 @@ const categories = [
 ];
 
 export default function GoalForm({ goal, prefilledData, onClose }) {
-  const isSavingRef = useRef(false);
   const [currentTab, setCurrentTab] = useState('basic');
   const [formData, setFormData] = useState(
     goal || prefilledData || {
@@ -43,6 +42,7 @@ export default function GoalForm({ goal, prefilledData, onClose }) {
 
   const [aiSuggesting, setAiSuggesting] = useState(false);
   const [saveError, setSaveError] = useState(null);
+  const isSavingRef = useRef(false);
 
   const saveMutation = useMutation({
     mutationFn: (data) =>
