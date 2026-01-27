@@ -548,6 +548,7 @@ export default function DraggableAiCompanion() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
+                data-testid="companion-loading"
                 className="flex gap-2"
               >
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center flex-shrink-0">
@@ -566,6 +567,7 @@ export default function DraggableAiCompanion() {
         <div className="p-4 border-t bg-white rounded-b-xl flex-shrink-0">
           <div className="flex gap-2">
             <Input
+              data-testid="companion-input"
               value={message}
               onChange={(e) => {
                 setMessage(e.target.value);
@@ -577,6 +579,7 @@ export default function DraggableAiCompanion() {
               disabled={isLoading}
             />
             <Button
+              data-testid="companion-send"
               onClick={sendMessage}
               disabled={!message.trim() || isLoading}
               className="bg-gradient-to-br from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
