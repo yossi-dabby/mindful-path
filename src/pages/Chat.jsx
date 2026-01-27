@@ -15,6 +15,8 @@ import ProactiveCheckIn from '../components/chat/ProactiveCheckIn';
 import TherapyStateMachine from '../components/chat/TherapyStateMachine';
 import EnhancedMoodCheckIn from '../components/home/EnhancedMoodCheckIn';
 import InformedConsentModal from '../components/chat/InformedConsentModal';
+import CrisisSafetyPanel from '../components/chat/CrisisSafetyPanel';
+import { detectCrisisLanguage } from '../components/utils/crisisDetector';
 
 export default function Chat() {
   const [currentConversationId, setCurrentConversationId] = useState(null);
@@ -27,6 +29,7 @@ export default function Chat() {
   const [showCheckInModal, setShowCheckInModal] = useState(false);
   const [showAuthError, setShowAuthError] = useState(false);
   const [showConsentModal, setShowConsentModal] = useState(false);
+  const [showCrisisPanel, setShowCrisisPanel] = useState(false);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
   const location = useLocation();
@@ -284,6 +287,13 @@ export default function Chat() {
         isLoading,
         alreadySending: sendingMessageRef.current
       });
+      return;
+    }
+
+    // Crisis detection gate - check before sending
+    if (detectCrisisLanguage(inputMessage)) {
+      console.log('[CRISIS GATE] High-risk language detected, blocking send');
+      setShowCrisisPanel(true);
       return;
     }
 
@@ -742,6 +752,11 @@ export default function Chat() {
       {/* Informed Consent Modal - appears once, highest z-index */}
       {showConsentModal && (
         <InformedConsentModal onAccept={handleConsentAccept} />
+      )}
+
+      {/* Crisis Safety Panel - blocks high-risk messages */}
+      {showCrisisPanel && (
+        <CrisisSafetyPanel onDismiss={() => setShowCrisisPanel(false)} />
       )}
       </div>
       </div>
