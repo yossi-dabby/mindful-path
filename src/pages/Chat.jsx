@@ -784,7 +784,7 @@ export default function Chat() {
               onKeyDown={handleKeyDown}
               placeholder="Share what's on your mind..."
               className="flex-1 min-h-[60px] max-h-[200px] resize-none"
-              data-testid="chat-input"
+              data-testid="therapist-chat-input"
               style={{
                 borderRadius: '20px',
                 borderColor: 'rgba(38, 166, 154, 0.3)',
@@ -795,7 +795,7 @@ export default function Chat() {
             <Button
               onClick={handleSendMessage}
               disabled={!inputMessage.trim() || isLoading || sendingMessageRef.current}
-              data-testid="chat-send"
+              data-testid="therapist-chat-send"
               className="h-[60px] px-6 text-white relative"
               style={{
                 borderRadius: '20px',
