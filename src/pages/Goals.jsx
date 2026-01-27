@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useCrossTabInvalidation } from '../components/utils/useCrossTabInvalidation';
+import { emitEntityChange } from '../components/utils/crossTabSync';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Plus, Target, Calendar as CalendarIcon, Sparkles, Lightbulb } from 'lucide-react';
@@ -22,6 +24,9 @@ export default function Goals() {
   const [showCoaching, setShowCoaching] = useState(null);
   const [prefilledGoal, setPrefilledGoal] = useState(null);
   const queryClient = useQueryClient();
+  
+  // Enable cross-tab synchronization
+  useCrossTabInvalidation();
 
   const { data: goals, isLoading, isError, refetch } = useQuery({
     queryKey: ['allGoals'],
@@ -34,6 +39,7 @@ export default function Goals() {
     mutationFn: (goalId) => base44.entities.Goal.delete(goalId),
     onSuccess: () => {
       queryClient.invalidateQueries(['allGoals']);
+      emitEntityChange('Goal', 'delete');
     },
     onError: (error) => {
       alert('Failed to delete goal. Check your connection and try again.');
@@ -71,6 +77,7 @@ export default function Goals() {
         }))
       }).then(() => {
         queryClient.invalidateQueries(['allGoals']);
+        emitEntityChange('Goal', 'update');
         setShowBreakdown(null);
       });
     }

@@ -46,13 +46,15 @@ export default function Journal() {
   const { data: thoughtJournals, isLoading: isLoadingJournals } = useQuery({
     queryKey: ['thoughtJournals'],
     queryFn: () => base44.entities.ThoughtJournal.list('-created_date'),
-    initialData: []
+    initialData: [],
+    refetchOnWindowFocus: true
   });
 
   const { data: sessionSummaries, isLoading: isLoadingSummaries } = useQuery({
     queryKey: ['sessionSummaries'],
     queryFn: () => base44.entities.SessionSummary.list('-session_date'),
-    initialData: []
+    initialData: [],
+    refetchOnWindowFocus: true
   });
 
   const entries = [...thoughtJournals, ...sessionSummaries.map(s => ({

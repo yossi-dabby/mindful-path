@@ -193,7 +193,8 @@ export default function Chat() {
         return [];
       }
     },
-    initialData: []
+    initialData: [],
+    refetchOnWindowFocus: true
   });
 
   const { data: currentConversationData } = useQuery({

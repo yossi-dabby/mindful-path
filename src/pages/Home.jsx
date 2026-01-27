@@ -49,13 +49,15 @@ export default function Home() {
       const today = new Date().toISOString().split('T')[0];
       const moods = await base44.entities.MoodEntry.filter({ date: today });
       return moods[0] || null;
-    }
+    },
+    refetchOnWindowFocus: true
   });
 
   const { data: recentGoals, isError: goalsError, refetch: refetchGoals } = useQuery({
     queryKey: ['recentGoals'],
     queryFn: () => base44.entities.Goal.filter({ status: 'active' }, '-created_date', 3),
-    initialData: []
+    initialData: [],
+    refetchOnWindowFocus: true
   });
 
   // Combined query for journal data - fetch recent entries and use for both count and latest
@@ -65,7 +67,8 @@ export default function Home() {
       const entries = await base44.entities.ThoughtJournal.list('-created_date', 50);
       return entries;
     },
-    initialData: []
+    initialData: [],
+    refetchOnWindowFocus: true
   });
 
   // Derive values from combined query
