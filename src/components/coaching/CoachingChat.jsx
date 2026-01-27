@@ -192,7 +192,7 @@ export default function CoachingChat({ session, onBack }) {
         {/* Chat Area */}
         <div className="flex-1 flex flex-col">
           <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
-            <div data-testid="coach-messages" className="max-w-4xl mx-auto space-y-4">
+            <div data-testid="coach-chat-messages" className="max-w-4xl mx-auto space-y-4">
               {/* Inline Consent Banner - Non-blocking */}
               {showConsentBanner && (
                 <InlineConsentBanner onAccept={() => {
@@ -254,7 +254,7 @@ export default function CoachingChat({ session, onBack }) {
           <div className="bg-white border-t border-gray-200 p-4">
             <div className="max-w-4xl mx-auto flex gap-3">
               <Textarea
-                data-testid="coach-input"
+                data-testid="coach-chat-input"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyDown={(e) => {
@@ -268,7 +268,7 @@ export default function CoachingChat({ session, onBack }) {
                 disabled={isLoading}
               />
               <Button
-                data-testid="coach-send"
+                data-testid="coach-chat-send"
                 onClick={handleSendMessage}
                 disabled={!inputMessage.trim() || isLoading}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 h-[60px] px-6 rounded-2xl"
