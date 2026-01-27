@@ -1,5 +1,12 @@
 /**
  * Data Retention & User Control E2E Test Suite Documentation
+ * + Eval-Driven Prompt Testing Strategy
+ * 
+ * This suite uses GOLDEN_SCENARIOS (functions/goldenScenarios.js) for validating:
+ * - Hard refusals (medical, crisis language)
+ * - Therapy mode activation (thought_work, goal_work)
+ * - Safety boundaries (non-blocking UI, crisis detection)
+ * - Behavior consistency across all 3 AI surfaces
  * 
  * Covers:
  * - Data & Privacy settings page accessibility
@@ -8,6 +15,11 @@
  * - Delete data with two-step confirmation
  * - No blocking overlays/modals
  * - Responsive mobile design
+ * 
+ * Related to Prompt Testing:
+ * - Imports GOLDEN_SCENARIOS from functions/goldenScenarios.js
+ * - Uses validateScenario() to check behavior without exact text matching
+ * - Validates across: therapist_chat, ai_companion, coach_chat
  * 
  * Test IDs added:
  * - data-testid="data-privacy-card" - Main settings card
