@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, Loader2, RefreshCw, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { safeInvokeLLM } from '../utils/safeInvokeLLM';
 
 export default function AiJournalPrompts({ onSelectPrompt, onClose }) {
   const [prompts, setPrompts] = useState(null);
@@ -40,7 +41,7 @@ export default function AiJournalPrompts({ onSelectPrompt, onClose }) {
         ? `Recent journal themes: ${recentJournals.map(j => j.situation?.replace(/<[^>]*>/g, '').substring(0, 100)).filter(Boolean).join('; ')}`
         : 'No recent journal entries';
 
-      const response = await base44.integrations.Core.InvokeLLM({
+      const response = await safeInvokeLLM({
         prompt: `As a CBT therapist, generate 4 personalized journal prompts for the user based on their context:
 
 ${moodContext}
@@ -69,7 +70,7 @@ Each prompt should be a thoughtful question or scenario to explore.`,
             }
           }
         }
-      });
+      }, true); // Skip risk gate - system-generated prompt
 
       setPrompts(response.prompts);
     } catch (error) {

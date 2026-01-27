@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle, Loader2, Lightbulb, BookOpen, X } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { safeInvokeLLM } from '../utils/safeInvokeLLM';
 
 const commonDistortions = [
   { name: 'All-or-Nothing Thinking', description: 'Seeing things in black and white categories' },
@@ -31,7 +32,7 @@ export default function AiDistortionAnalysis({ entry, onApplyDistortions }) {
     try {
       const stripHtml = (html) => html?.replace(/<[^>]*>/g, '') || '';
 
-      const response = await base44.integrations.Core.InvokeLLM({
+      const response = await safeInvokeLLM({
         prompt: `You are a CBT therapist analyzing a journal entry for cognitive distortions (unhelpful thought patterns).
 
 **Journal Entry:**
@@ -66,7 +67,7 @@ Only identify distortions that are clearly present. If no distortions are found,
             suggested_reframe: { type: "string" }
           }
         }
-      });
+      }, true); // Skip risk gate - system-generated prompt
 
       setAnalysis(response);
     } catch (error) {

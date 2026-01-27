@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Sparkles, Loader2, Target, TrendingUp, Calendar, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { normalizeGoalData, safeJoin, safeArray, safeText } from '@/components/utils/aiDataNormalizer';
+import { safeInvokeLLM } from '../utils/safeInvokeLLM';
 
 export default function AiGoalSuggestions({ onSelectGoal, onClose }) {
   const [suggestions, setSuggestions] = useState(null);
@@ -48,7 +49,7 @@ export default function AiGoalSuggestions({ onSelectGoal, onClose }) {
         activities: safeJoin(m.activities)
       }));
 
-      const response = await base44.integrations.Core.InvokeLLM({
+      const response = await safeInvokeLLM({
         prompt: `Based on the user's journal entries and mood tracking, suggest 3-4 SMART goals for personal growth.
 
 **Recent Journal Entries:**
@@ -102,7 +103,7 @@ Focus on goals that address recurring patterns, emotional needs, or areas for gr
             }
           }
         }
-      });
+      }, true); // Skip risk gate - system-generated prompt
 
       if (!response || !response.goals || response.goals.length === 0) {
         throw new Error('No goal suggestions were generated. Try adding more journal entries or mood check-ins.');
