@@ -3,6 +3,7 @@ import Chat from './pages/Chat';
 import Coach from './pages/Coach';
 import CoachingAnalytics from './pages/CoachingAnalytics';
 import Community from './pages/Community';
+import CrisisAlerts from './pages/CrisisAlerts';
 import Exercises from './pages/Exercises';
 import GoalCoach from './pages/GoalCoach';
 import Goals from './pages/Goals';
@@ -20,7 +21,6 @@ import TestSetupGuide from './pages/TestSetupGuide';
 import ThoughtCoach from './pages/ThoughtCoach';
 import VideoPlayer from './pages/VideoPlayer';
 import Videos from './pages/Videos';
-import CrisisAlerts from './pages/CrisisAlerts';
 import __Layout from './Layout.jsx';
 
 
@@ -30,6 +30,7 @@ export const PAGES = {
     "Coach": Coach,
     "CoachingAnalytics": CoachingAnalytics,
     "Community": Community,
+    "CrisisAlerts": CrisisAlerts,
     "Exercises": Exercises,
     "GoalCoach": GoalCoach,
     "Goals": Goals,
@@ -47,7 +48,6 @@ export const PAGES = {
     "ThoughtCoach": ThoughtCoach,
     "VideoPlayer": VideoPlayer,
     "Videos": Videos,
-    "CrisisAlerts": CrisisAlerts,
 }
 
 export const pagesConfig = {

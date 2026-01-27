@@ -165,12 +165,20 @@ export default function Chat() {
   useEffect(() => {
     if (!currentConversationId) return;
 
+    let responseTimeoutId = null;
+    let isSubscribed = true;
+
     const unsubscribe = base44.agents.subscribeToConversation(
       currentConversationId,
       (data) => {
+        if (!isSubscribed || !mountedRef.current) return;
+
+        // Clear timeout - we got a response
+        if (responseTimeoutId) clearTimeout(responseTimeoutId);
+
         setMessages(data.messages || []);
         setIsLoading(false);
-        
+
         // Check if AI triggered UI form
         const lastMessage = data.messages?.[data.messages.length - 1];
         if (lastMessage?.role === 'assistant' && lastMessage?.metadata?.trigger_ui_form === 'daily_checkin' && !showCheckInModal) {
@@ -179,18 +187,38 @@ export default function Chat() {
         }
       },
       (error) => {
+        if (!isSubscribed || !mountedRef.current) return;
+
         // Handle stream/connection errors
         console.error('[Chat Stream Error]', error);
+        if (responseTimeoutId) clearTimeout(responseTimeoutId);
         setIsLoading(false);
         setMessages(prev => [...prev, {
           role: 'system',
-          content: 'Connection interrupted. Please try sending your message again.'
+          content: 'Connection lost. Please try again.'
         }]);
       }
     );
 
-    return () => unsubscribe();
-  }, [currentConversationId]);
+    // Safety timeout: if no response after 30s, abort
+    responseTimeoutId = setTimeout(() => {
+      if (isSubscribed && mountedRef.current) {
+        console.error('[Response Timeout] No response after 30s');
+        setIsLoading(false);
+        setMessages(prev => [...prev, {
+          role: 'system',
+          content: 'Response timeout. Please try again.'
+        }]);
+      }
+      unsubscribe?.();
+    }, 30000);
+
+    return () => {
+      isSubscribed = false;
+      if (responseTimeoutId) clearTimeout(responseTimeoutId);
+      unsubscribe();
+    };
+  }, [currentConversationId, showCheckInModal]);
 
   const { data: conversations, refetch: refetchConversations } = useQuery({
     queryKey: ['conversations'],
