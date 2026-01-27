@@ -306,108 +306,75 @@ export default function Chat() {
   };
 
   const handleSendMessage = async () => {
-    console.log('[DIAGNOSTIC] handleSendMessage called', { 
-      inputMessage, 
-      currentConversationId, 
-      isLoading,
-      hasInput: !!inputMessage.trim()
-    });
-    
+    // Safety: guard against closed component
+    if (!mountedRef.current) return;
+
     if (!inputMessage.trim() || isLoading || sendingMessageRef.current) {
-      console.log('[DIAGNOSTIC] Early return - no input or loading', { 
-        trimmed: inputMessage.trim(), 
-        isLoading,
-        alreadySending: sendingMessageRef.current
-      });
       return;
     }
 
-    // Crisis detection gate - check before sending
+    // Crisis detection gate
     const reasonCode = detectCrisisWithReason(inputMessage);
     if (reasonCode) {
-      console.log('[CRISIS GATE] High-risk language detected, blocking send');
       setShowRiskPanel(true);
-      
-      // Log crisis alert (non-blocking)
-      (async () => {
-        try {
-          const user = await base44.auth.me();
-          await base44.entities.CrisisAlert.create({
-            surface: 'chat',
-            conversation_id: currentConversationId || 'none',
-            reason_code: reasonCode,
-            user_email: user?.email || 'unknown'
-          });
-        } catch (error) {
-          console.error('[CRISIS ALERT] Failed to log alert:', error);
-        }
-      })();
+      // Log alert async (non-blocking)
+      base44.auth.me().then(user => {
+        base44.entities.CrisisAlert.create({
+          surface: 'chat',
+          conversation_id: currentConversationId || 'none',
+          reason_code: reasonCode,
+          user_email: user?.email || 'unknown'
+        }).catch(e => console.error('Crisis log failed:', e));
+      }).catch(() => {});
       return;
     }
 
     sendingMessageRef.current = true;
+    const messageText = inputMessage;
+
     try {
+      if (!mountedRef.current) return;
+
       let convId = currentConversationId;
       if (!convId) {
-        console.log('[DIAGNOSTIC] No conversation exists, creating new conversation');
         const conversation = await base44.agents.createConversation({
           agent_name: 'cbt_therapist',
           metadata: {
-            name: `Session ${conversations.length + 1}`,
+            name: `Session ${conversations?.length + 1 || 1}`,
             description: 'Therapy session'
           }
         });
         convId = conversation.id;
-        console.log('[DIAGNOSTIC] New conversation created', { conversationId: convId });
+        if (!mountedRef.current) return;
         setCurrentConversationId(convId);
         refetchConversations();
         setShowSidebar(false);
       }
 
-      console.log('[DIAGNOSTIC] Fetching conversation', { conversationId: convId });
+      if (!mountedRef.current) return;
       const conversation = await base44.agents.getConversation(convId);
-      const messageText = inputMessage;
-      
-      console.log('[DIAGNOSTIC] Attempting to POST message', { 
-        conversationId: convId,
-        messageLength: messageText.length,
-        endpoint: `/agents/conversations/${convId}/messages`
-      });
-      
+
+      if (!mountedRef.current) return;
       setInputMessage('');
       setShowSummaryPrompt(false);
       setIsLoading(true);
 
-      console.log('[DIAGNOSTIC] Calling base44.agents.addMessage', { 
-        conversationId: convId, 
-        messageText 
-      });
-      
       await base44.agents.addMessage(conversation, {
         role: 'user',
         content: messageText
       });
-      
+
       if (!mountedRef.current) return;
-      console.log('[DIAGNOSTIC] Message sent successfully');
     } catch (error) {
-      console.error('[DIAGNOSTIC] Error sending message:', error);
-      console.error('[DIAGNOSTIC] Error details:', {
-        name: error.name,
-        message: error.message,
-        stack: error.stack
-      });
       if (!mountedRef.current) return;
       setIsLoading(false);
-      
-      // Check for auth error
+
       if (isAuthError(error) && shouldShowAuthError()) {
         setShowAuthError(true);
       } else {
-        // Show user-friendly error
         setMessages(prev => [...prev, {
           role: 'system',
-          content: 'Network error. Please check your connection and try again.'
+          content: 'Failed to send. Please try again.'
         }]);
       }
     } finally {
