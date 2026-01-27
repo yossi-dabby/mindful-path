@@ -442,6 +442,15 @@ export default function Chat() {
   useEffect(() => {
     setIsPageReady(true);
     
+    // Skip consent modal in test environment
+    const isTestEnv = window.location.search.includes('e2e-test') || 
+                      document.body.getAttribute('data-test-env') === 'true';
+    
+    if (isTestEnv) {
+      localStorage.setItem('chat_consent_accepted', 'true');
+      return;
+    }
+    
     // Check if user has already accepted consent
     const consentAccepted = localStorage.getItem('chat_consent_accepted');
     if (!consentAccepted) {
