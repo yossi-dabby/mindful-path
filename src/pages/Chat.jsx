@@ -424,10 +424,16 @@ export default function Chat() {
     setShowCheckInModal(false);
   };
 
+  const [isPageReady, setIsPageReady] = useState(false);
+
+  useEffect(() => {
+    setIsPageReady(true);
+  }, []);
+
   return (
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
-      <div className="h-screen flex relative" data-testid="chat-root" style={{ 
+      <div className="h-screen flex relative" data-testid="chat-root" data-page-ready={isPageReady} style={{ 
         background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)'
       }}>
       {/* Backdrop overlay when sidebar is open - below input area */}
