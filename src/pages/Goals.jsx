@@ -234,8 +234,8 @@ export default function Goals() {
               </div>
               <div className="space-y-4">
                 {activeGoals.map((goal) => (
-                  <div key={goal.id} className="flex flex-col md:relative md:group">
-                    <GoalCard goal={goal} onEdit={handleEdit} onDelete={deleteGoalMutation.mutate} />
+                 <div key={goal.id} className="flex flex-col md:relative md:group">
+                   <GoalCard goal={goal} onEdit={handleEdit} onDelete={deleteGoalMutation.mutate} isDeleting={deleteGoalMutation.isPending} />
                     <div className="flex flex-col md:flex-row gap-2 mt-2 md:mt-0 md:absolute md:top-4 md:right-4 md:opacity-0 md:group-hover:opacity-100 md:transition-opacity">
                       <Button
                         onClick={() => setShowBreakdown(goal)}
@@ -270,7 +270,7 @@ export default function Goals() {
               <h2 className="text-xl font-semibold text-gray-800 mb-4">Completed Goals</h2>
               <div className="space-y-4">
                 {completedGoals.map((goal) => (
-                  <GoalCard key={goal.id} goal={goal} onEdit={handleEdit} onDelete={deleteGoalMutation.mutate} />
+                 <GoalCard key={goal.id} goal={goal} onEdit={handleEdit} onDelete={deleteGoalMutation.mutate} isDeleting={deleteGoalMutation.isPending} />
                 ))}
               </div>
             </div>
