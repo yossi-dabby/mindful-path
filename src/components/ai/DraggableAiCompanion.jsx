@@ -8,6 +8,8 @@ import { MessageCircle, X, Send, Sparkles, MinusCircle, Brain, Loader2, GripVert
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
+import { isAuthError, shouldShowAuthError } from '../utils/authErrorHandler';
+import AuthErrorBanner from '../utils/AuthErrorBanner';
 
 const STORAGE_KEY = 'ai_companion_position';
 const MOBILE_BREAKPOINT = 768;
@@ -24,6 +26,7 @@ export default function DraggableAiCompanion() {
   const [isDragging, setIsDragging] = useState(false);
   const [memoryError, setMemoryError] = useState(false);
   const [sendError, setSendError] = useState(null);
+  const [showAuthError, setShowAuthError] = useState(false);
   const mountedRef = useRef(true);
   const messagesEndRef = useRef(null);
   const dragRef = useRef({ startX: 0, startY: 0, initialX: 0, initialY: 0 });
@@ -239,7 +242,11 @@ export default function DraggableAiCompanion() {
       console.error('Failed to send message:', error);
       if (!mountedRef.current) return;
       setIsLoading(false);
-      setSendError('Failed to send message. Please try again.');
+      if (isAuthError(error) && shouldShowAuthError()) {
+        setShowAuthError(true);
+      } else {
+        setSendError('Failed to send message. Please try again.');
+      }
     }
   };
 
@@ -358,12 +365,12 @@ export default function DraggableAiCompanion() {
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
       <motion.div
-      initial={{ y: 20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ y: 20, opacity: 0 }}
-      style={positionStyle}
-      className="w-[calc(100vw-3rem)] md:w-96 flex flex-col"
-    >
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 20, opacity: 0 }}
+        style={positionStyle}
+        className="w-[calc(100vw-3rem)] md:w-96 flex flex-col"
+      >
       <Card className="border-2 border-purple-200 shadow-2xl flex flex-col overflow-hidden" style={{ maxHeight: 'calc(100vh - 200px)' }}>
         {/* Draggable Header */}
         <div 
@@ -538,6 +545,7 @@ export default function DraggableAiCompanion() {
           )}
         </div>
       </Card>
-    </motion.div>
+      </motion.div>
+    </>
   );
 }
