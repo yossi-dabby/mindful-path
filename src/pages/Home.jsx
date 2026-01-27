@@ -95,6 +95,14 @@ export default function Home() {
     enabled: !!todayFlow?.exercise_id
   });
 
+  // Cache all exercises with longer stale time for assignment logic
+  const { data: allExercises } = useQuery({
+    queryKey: ['allExercises'],
+    queryFn: () => base44.entities.Exercise.list(),
+    initialData: [],
+    staleTime: 1000 * 60 * 30 // 30 minutes - exercises don't change often
+  });
+
   // Auto-assign exercise when check-in is completed
   const assignExerciseMutation = useMutation({
     mutationFn: async () => {
@@ -113,7 +121,9 @@ export default function Home() {
 
       // Select exercise based on recent mood data
       const recentMoods = await base44.entities.MoodEntry.list('-created_date', 7);
-      const allExercises = await base44.entities.Exercise.list();
+      
+      // Use cached exercises from query instead of fetching again
+      const exercises = allExercises.length > 0 ? allExercises : await base44.entities.Exercise.list();
       
       // Simple scoring logic
       const anxietyCount = recentMoods.filter(m => 
@@ -127,9 +137,9 @@ export default function Home() {
       if (anxietyCount > 2) targetCategory = 'breathing';
       if (lowMoodCount > 3) targetCategory = 'behavioral_activation';
 
-      const matchingExercises = allExercises.filter(e => e.category === targetCategory);
+      const matchingExercises = exercises.filter(e => e.category === targetCategory);
       const selectedExercise = matchingExercises[Math.floor(Math.random() * matchingExercises.length)] 
-        || allExercises[0];
+        || exercises[0];
 
       await base44.entities.DailyFlow.update(flow.id, {
         exercise_id: selectedExercise.id
