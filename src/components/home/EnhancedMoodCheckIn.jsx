@@ -338,7 +338,7 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
                     min="1"
                     max="100"
                     value={formData.intensity}
-                    onChange={(e) => setFormData({ ...formData, intensity: parseInt(e.target.value) })}
+                    onChange={(e) => setFormData({ ...formData, intensity: parseInt(e.target.value) || 50 })}
                     className="w-full h-3 rounded-lg appearance-none cursor-pointer"
                     style={{
                       background: `linear-gradient(to right, #26A69A 0%, #26A69A ${formData.intensity}%, #E5E7EB ${formData.intensity}%, #E5E7EB 100%)`
@@ -370,7 +370,10 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
               )}
               <Button
                 onClick={handleContinue}
-                disabled={step === 1 && !formData.mood}
+                disabled={
+                  (step === 1 && !formData.mood) ||
+                  (step === 2 && formData.emotions.length === 0)
+                }
                 className="flex-1 text-white"
                 style={{
                   borderRadius: '16px',

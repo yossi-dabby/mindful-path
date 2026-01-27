@@ -18,6 +18,7 @@ const categories = [
 ];
 
 export default function GoalForm({ goal, prefilledData, onClose }) {
+  const isSavingRef = useRef(false);
   const [currentTab, setCurrentTab] = useState('basic');
   const [formData, setFormData] = useState(
     goal || prefilledData || {
@@ -41,17 +42,28 @@ export default function GoalForm({ goal, prefilledData, onClose }) {
   );
 
   const [aiSuggesting, setAiSuggesting] = useState(false);
+  const [saveError, setSaveError] = useState(null);
+  const isSavingRef = useRef(false);
 
   const saveMutation = useMutation({
     mutationFn: (data) =>
       goal
         ? base44.entities.Goal.update(goal.id, data)
         : base44.entities.Goal.create(data),
-    onSuccess: () => onClose()
+    onSuccess: () => {
+      isSavingRef.current = false;
+      onClose();
+    },
+    onError: (error) => {
+      isSavingRef.current = false;
+      setSaveError(error.message || 'Failed to save goal');
+    }
   });
 
   const generateSmartSuggestions = async () => {
+    if (!formData.title.trim()) return;
     setAiSuggesting(true);
+    setSaveError(null);
     try {
       const response = await base44.integrations.Core.InvokeLLM({
         prompt: `Help make this goal SMART (Specific, Measurable, Achievable, Relevant, Time-bound):
@@ -102,6 +114,7 @@ Provide SMART criteria answers and suggestions for milestones.`,
       setCurrentTab('smart');
     } catch (error) {
       console.error('Failed to generate SMART suggestions:', error);
+      setSaveError('AI suggestion failed. Please try again or fill manually.');
     } finally {
       setAiSuggesting(false);
     }
@@ -398,6 +411,7 @@ Provide SMART criteria answers and suggestions for milestones.`,
                             value={milestone.due_date || ''}
                             onChange={(e) => updateMilestone(index, 'due_date', e.target.value)}
                             placeholder="Due date"
+                            min={new Date().toISOString().split('T')[0]}
                             className="rounded-lg text-sm"
                           />
                         </div>
@@ -410,11 +424,21 @@ Provide SMART criteria answers and suggestions for milestones.`,
           </Tabs>
 
           <div className="flex gap-3 pt-6 border-t mt-6">
+            {saveError && (
+              <div className="w-full mb-3 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                {saveError}
+              </div>
+            )}
             <Button variant="outline" onClick={onClose} className="flex-1">
               Cancel
             </Button>
             <Button
-              onClick={() => saveMutation.mutate(formData)}
+              onClick={() => {
+                if (!formData.title.trim() || isSavingRef.current) return;
+                isSavingRef.current = true;
+                setSaveError(null);
+                saveMutation.mutate(formData);
+              }}
               disabled={!formData.title || saveMutation.isPending}
               className="flex-1 bg-blue-600 hover:bg-blue-700"
             >

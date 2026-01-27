@@ -27,7 +27,8 @@ export default function Chat() {
   const location = useLocation();
   const processedIntentRef = useRef(null);
   const inFlightIntentRef = useRef(false);
-  const sessionTriggeredRef = useRef(new Set()); // Track which conversations have been triggered
+  const sessionTriggeredRef = useRef(new Set());
+  const sendingMessageRef = useRef(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -254,14 +255,16 @@ export default function Chat() {
       hasInput: !!inputMessage.trim()
     });
     
-    if (!inputMessage.trim() || isLoading) {
+    if (!inputMessage.trim() || isLoading || sendingMessageRef.current) {
       console.log('[DIAGNOSTIC] Early return - no input or loading', { 
         trimmed: inputMessage.trim(), 
-        isLoading 
+        isLoading,
+        alreadySending: sendingMessageRef.current
       });
       return;
     }
 
+    sendingMessageRef.current = true;
     try {
       let convId = currentConversationId;
       if (!convId) {
@@ -313,6 +316,8 @@ export default function Chat() {
         stack: error.stack
       });
       setIsLoading(false);
+    } finally {
+      sendingMessageRef.current = false;
     }
   };
 

@@ -22,6 +22,7 @@ export default function DraggableAiCompanion() {
   const [shouldShow, setShouldShow] = useState(false);
   const [position, setPosition] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [memoryError, setMemoryError] = useState(false);
   const messagesEndRef = useRef(null);
   const dragRef = useRef({ startX: 0, startY: 0, initialX: 0, initialY: 0 });
   const queryClient = useQueryClient();
@@ -67,6 +68,8 @@ export default function DraggableAiCompanion() {
   useEffect(() => {
     if (isOpen && !conversation) {
       (async () => {
+        let memoryContext = '';
+        
         try {
           // Fetch recent memories to provide context
           const memories = await base44.entities.CompanionMemory.filter(
@@ -75,10 +78,16 @@ export default function DraggableAiCompanion() {
             10
           );
           
-          const memoryContext = memories.length > 0
+          memoryContext = memories.length > 0
             ? `\n\n[User Context from Previous Sessions]\n${memories.map(m => `- ${m.content}`).join('\n')}`
             : '';
+        } catch (error) {
+          console.error('Failed to fetch memories:', error);
+          setMemoryError(true);
+          // Continue without memory context - graceful degradation
+        }
 
+        try {
           const conv = await base44.agents.createConversation({
             agent_name: 'ai_coach',
             metadata: {
@@ -93,6 +102,7 @@ export default function DraggableAiCompanion() {
           setMessages(conv.messages || []);
         } catch (error) {
           console.error('Failed to create conversation:', error);
+          // TODO: Show error UI to user
         }
       })();
     }

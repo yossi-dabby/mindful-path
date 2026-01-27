@@ -35,6 +35,7 @@ const cognitiveDistortions = [
 export default function ThoughtRecordForm({ entry, template, templates, onClose, initialSituation = '' }) {
   const [step, setStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState(template || (entry?.template_id ? templates.find(t => t.id === entry.template_id) : null));
+  const [uploadError, setUploadError] = useState(null);
   const [formData, setFormData] = useState({
     entry_type: entry?.entry_type || template?.entry_type || 'cbt_standard',
     template_id: entry?.template_id || template?.id || null,
@@ -151,7 +152,29 @@ Provide:
   };
 
   const handleFileUpload = async (file, type) => {
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setUploadError(`File too large. Maximum size is 5MB.`);
+      return;
+    }
+
+    // Validate file type
+    const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    const validAudioTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/webm'];
+    
+    if (type === 'image' && !validImageTypes.includes(file.type)) {
+      setUploadError('Invalid image format. Use JPG, PNG, GIF, or WebP.');
+      return;
+    }
+    
+    if (type === 'audio' && !validAudioTypes.includes(file.type)) {
+      setUploadError('Invalid audio format. Use MP3, WAV, OGG, or WebM.');
+      return;
+    }
+
     setUploadingFile(true);
+    setUploadError(null);
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       if (type === 'image') {
@@ -167,6 +190,7 @@ Provide:
       }
     } catch (error) {
       console.error('Upload failed:', error);
+      setUploadError('Upload failed. Please try again.');
     } finally {
       setUploadingFile(false);
     }
@@ -313,7 +337,12 @@ Provide:
 
               <Button
                 onClick={() => setStep(2)}
-                disabled={!formData.situation || !formData.automatic_thoughts}
+                disabled={
+                  !formData.situation?.trim() || 
+                  !formData.automatic_thoughts?.trim() ||
+                  formData.situation === '<p><br></p>' ||
+                  formData.automatic_thoughts === '<p><br></p>'
+                }
                 className="w-full bg-purple-600 hover:bg-purple-700 py-6 rounded-xl"
               >
                 Continue
@@ -356,7 +385,7 @@ Provide:
                     min="1"
                     max="10"
                     value={formData.emotion_intensity}
-                    onChange={(e) => setFormData({ ...formData, emotion_intensity: parseInt(e.target.value) })}
+                    onChange={(e) => setFormData({ ...formData, emotion_intensity: parseInt(e.target.value) || 5 })}
                     className="flex-1"
                   />
                   <span className="text-2xl font-bold text-purple-600 w-12 text-center">
@@ -366,12 +395,17 @@ Provide:
               </div>
 
               <div className="flex gap-3">
-                <Button onClick={() => setStep(1)} variant="outline" className="flex-1">
+                <Button onClick={() => setStep(2)} variant="outline" className="flex-1">
                   Back
                 </Button>
                 <Button
-                  onClick={() => setStep(3)}
-                  disabled={formData.emotions.length === 0}
+                  onClick={() => setStep(4)}
+                  disabled={
+                    !formData.evidence_for?.trim() ||
+                    !formData.evidence_against?.trim() ||
+                    formData.evidence_for === '<p><br></p>' ||
+                    formData.evidence_against === '<p><br></p>'
+                  }
                   className="flex-1 bg-purple-600 hover:bg-purple-700"
                 >
                   Continue
@@ -526,7 +560,7 @@ Provide:
                     min="1"
                     max="10"
                     value={formData.outcome_emotion_intensity}
-                    onChange={(e) => setFormData({ ...formData, outcome_emotion_intensity: parseInt(e.target.value) })}
+                    onChange={(e) => setFormData({ ...formData, outcome_emotion_intensity: parseInt(e.target.value) || 5 })}
                     className="flex-1"
                   />
                   <span className="text-2xl font-bold text-purple-600 w-12 text-center">
@@ -709,6 +743,11 @@ Provide:
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
                   Attachments (Optional)
                 </label>
+                {uploadError && (
+                  <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700">
+                    {uploadError}
+                  </div>
+                )}
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
