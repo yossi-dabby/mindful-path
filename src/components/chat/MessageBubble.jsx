@@ -1,8 +1,9 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
+import MessageFeedback from './MessageFeedback';
 
-export default function MessageBubble({ message }) {
+export default function MessageBubble({ message, conversationId, messageIndex, agentName = 'cbt_therapist', context = 'chat' }) {
   if (!message || !message.content) return null;
   
   const isUser = message.role === 'user';
@@ -75,6 +76,16 @@ export default function MessageBubble({ message }) {
                   >
                   {content}
                   </ReactMarkdown>
+                  )}
+                  
+                  {/* Feedback for assistant messages */}
+                  {!isUser && conversationId && messageIndex !== undefined && (
+                    <MessageFeedback 
+                      conversationId={conversationId}
+                      messageIndex={messageIndex}
+                      agentName={agentName}
+                      context={context}
+                    />
                   )}
                   </div>
                   </div>
