@@ -63,22 +63,38 @@ export default function DraggableAiCompanion() {
     }
   }, []);
 
-  // Create or get companion conversation
+  // Create or get companion conversation with memory context
   useEffect(() => {
     if (isOpen && !conversation) {
-      base44.agents.createConversation({
-        agent_name: 'ai_coach',
-        metadata: {
-          name: 'AI Companion Chat',
-          type: 'companion',
-          persistent: true
+      (async () => {
+        try {
+          // Fetch recent memories to provide context
+          const memories = await base44.entities.CompanionMemory.filter(
+            { is_active: true },
+            '-importance',
+            10
+          );
+          
+          const memoryContext = memories.length > 0
+            ? `\n\n[User Context from Previous Sessions]\n${memories.map(m => `- ${m.content}`).join('\n')}`
+            : '';
+
+          const conv = await base44.agents.createConversation({
+            agent_name: 'ai_coach',
+            metadata: {
+              name: 'AI Companion Chat',
+              type: 'companion',
+              persistent: true,
+              memory_context: memoryContext
+            }
+          });
+          
+          setConversation(conv);
+          setMessages(conv.messages || []);
+        } catch (error) {
+          console.error('Failed to create conversation:', error);
         }
-      }).then((conv) => {
-        setConversation(conv);
-        setMessages(conv.messages || []);
-      }).catch((error) => {
-        console.error('Failed to create conversation:', error);
-      });
+      })();
     }
   }, [isOpen, conversation]);
 
