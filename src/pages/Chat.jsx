@@ -641,7 +641,7 @@ export default function Chat() {
               )}
 
               {/* Active Chat Messages Section - Separate scrollable container */}
-              <div className="flex-1 p-4 md:p-6 pb-8 space-y-6 overflow-y-auto min-h-0" style={{ backgroundColor: 'transparent' }}>
+              <div data-testid="chat-messages" className="flex-1 p-4 md:p-6 pb-8 space-y-6 overflow-y-auto min-h-0" style={{ backgroundColor: 'transparent' }}>
                 {/* Inline Consent Banner - Non-blocking, dismissible */}
                 {showConsentBanner && (
                   <InlineConsentBanner onAccept={handleConsentAccept} />
@@ -654,7 +654,7 @@ export default function Chat() {
                   <MessageBubble key={index} message={message} />
                 ))}
                 {isLoading && (
-                  <div className="flex gap-3">
+                  <div data-testid="chat-loading" className="flex gap-3">
                     <div className="h-7 w-7 flex items-center justify-center" style={{
                       borderRadius: '12px',
                       backgroundColor: 'rgba(38, 166, 154, 0.15)'

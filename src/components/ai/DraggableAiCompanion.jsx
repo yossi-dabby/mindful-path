@@ -455,7 +455,7 @@ export default function DraggableAiCompanion() {
         </div>
 
         {/* Messages */}
-        <CardContent className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-br from-purple-50/30 to-blue-50/30 min-h-0" style={{ maxHeight: 'calc(100vh - 350px)' }}>
+        <CardContent data-testid="companion-messages" className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-br from-purple-50/30 to-blue-50/30 min-h-0" style={{ maxHeight: 'calc(100vh - 350px)' }}>
           {/* Inline Consent Banner - Non-blocking */}
           {showConsentBanner && (
             <InlineConsentBanner onAccept={() => {
