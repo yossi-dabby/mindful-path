@@ -10,6 +10,8 @@ import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { isAuthError, shouldShowAuthError } from '../utils/authErrorHandler';
 import AuthErrorBanner from '../utils/AuthErrorBanner';
+import CrisisSafetyPanel from '../chat/CrisisSafetyPanel';
+import { detectCrisisLanguage } from '../utils/crisisDetector';
 
 const STORAGE_KEY = 'ai_companion_position';
 const MOBILE_BREAKPOINT = 768;
@@ -27,6 +29,7 @@ export default function DraggableAiCompanion() {
   const [memoryError, setMemoryError] = useState(false);
   const [sendError, setSendError] = useState(null);
   const [showAuthError, setShowAuthError] = useState(false);
+  const [showCrisisPanel, setShowCrisisPanel] = useState(false);
   const mountedRef = useRef(true);
   const messagesEndRef = useRef(null);
   const dragRef = useRef({ startX: 0, startY: 0, initialX: 0, initialY: 0 });
@@ -226,6 +229,12 @@ export default function DraggableAiCompanion() {
   const sendMessage = async () => {
     if (!message.trim() || !conversation) return;
 
+    // Crisis detection gate
+    if (detectCrisisLanguage(message)) {
+      setShowCrisisPanel(true);
+      return;
+    }
+
     const userMessage = message;
     setMessage('');
     setSendError(null);
@@ -364,6 +373,7 @@ export default function DraggableAiCompanion() {
   return (
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
+      {showCrisisPanel && <CrisisSafetyPanel onDismiss={() => setShowCrisisPanel(false)} />}
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
