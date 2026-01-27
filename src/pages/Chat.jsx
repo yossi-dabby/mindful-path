@@ -651,7 +651,14 @@ export default function Chat() {
                   <InlineRiskPanel onDismiss={() => setShowRiskPanel(false)} />
                 )}
                 {messages.filter(m => m && m.content).map((message, index) => (
-                  <MessageBubble key={index} message={message} />
+                  <MessageBubble 
+                    key={index} 
+                    message={message}
+                    conversationId={currentConversationId}
+                    messageIndex={index}
+                    agentName="cbt_therapist"
+                    context="chat"
+                  />
                 ))}
                 {isLoading && (
                   <div data-testid="chat-loading" className="flex gap-3">

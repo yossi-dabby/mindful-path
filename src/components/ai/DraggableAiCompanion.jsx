@@ -13,6 +13,7 @@ import AuthErrorBanner from '../utils/AuthErrorBanner';
 import InlineConsentBanner from '../chat/InlineConsentBanner';
 import InlineRiskPanel from '../chat/InlineRiskPanel';
 import { detectCrisisLanguage } from '../utils/crisisDetector';
+import MessageFeedback from '../chat/MessageFeedback';
 
 const STORAGE_KEY = 'ai_companion_position';
 const MOBILE_BREAKPOINT = 768;
@@ -538,11 +539,19 @@ export default function DraggableAiCompanion() {
                       }}
                     >
                       {msg.content}
-                    </ReactMarkdown>
-                  )}
-                </div>
-              </motion.div>
-            ))}
+                      </ReactMarkdown>
+                      )}
+                      {msg.role === 'assistant' && conversation?.id && (
+                      <MessageFeedback 
+                      conversationId={conversation.id}
+                      messageIndex={i}
+                      agentName="ai_coach"
+                      context="companion"
+                      />
+                      )}
+                      </div>
+                      </motion.div>
+                      ))}
 
             {isLoading && (
               <motion.div

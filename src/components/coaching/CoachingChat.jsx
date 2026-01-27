@@ -188,7 +188,14 @@ export default function CoachingChat({ session, onBack }) {
                 <InlineRiskPanel onDismiss={() => setShowRiskPanel(false)} />
               )}
               {messages.filter(m => m && m.content).map((message, index) => (
-                <MessageBubble key={index} message={message} />
+                <MessageBubble 
+                  key={index} 
+                  message={message}
+                  conversationId={currentSession.agent_conversation_id}
+                  messageIndex={index}
+                  agentName="ai_coach"
+                  context="coach"
+                />
               ))}
               {isLoading && (
                 <div data-testid="coach-loading" className="flex gap-3">
