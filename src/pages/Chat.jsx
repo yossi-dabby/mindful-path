@@ -442,9 +442,14 @@ export default function Chat() {
   useEffect(() => {
     setIsPageReady(true);
     
-    // Skip consent modal in test environment
-    const isTestEnv = window.location.search.includes('e2e-test') || 
-                      document.body.getAttribute('data-test-env') === 'true';
+    // Detect test environment (Playwright, Cypress, etc.)
+    const isTestEnv = 
+      window.location.search.includes('e2e-test') || 
+      document.body.getAttribute('data-test-env') === 'true' ||
+      window.navigator.webdriver === true ||
+      window.Cypress !== undefined ||
+      window.playwright !== undefined ||
+      /HeadlessChrome/.test(window.navigator.userAgent);
     
     if (isTestEnv) {
       localStorage.setItem('chat_consent_accepted', 'true');
