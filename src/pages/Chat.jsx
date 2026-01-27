@@ -157,6 +157,15 @@ export default function Chat() {
           console.log('[UI Form Trigger] Opening check-in modal');
           setShowCheckInModal(true);
         }
+      },
+      (error) => {
+        // Handle stream/connection errors
+        console.error('[Chat Stream Error]', error);
+        setIsLoading(false);
+        setMessages(prev => [...prev, {
+          role: 'system',
+          content: 'Connection interrupted. Please try sending your message again.'
+        }]);
       }
     );
 
@@ -316,6 +325,11 @@ export default function Chat() {
         stack: error.stack
       });
       setIsLoading(false);
+      // Show user-friendly error
+      setMessages(prev => [...prev, {
+        role: 'system',
+        content: 'Network error. Please check your connection and try again.'
+      }]);
     } finally {
       sendingMessageRef.current = false;
     }
@@ -648,11 +662,11 @@ export default function Chat() {
                 borderColor: 'rgba(38, 166, 154, 0.3)',
                 backgroundColor: 'rgba(255, 255, 255, 0.9)'
               }}
-              disabled={isLoading}
+              disabled={isLoading || sendingMessageRef.current}
             />
             <Button
               onClick={handleSendMessage}
-              disabled={!inputMessage.trim() || isLoading}
+              disabled={!inputMessage.trim() || isLoading || sendingMessageRef.current}
               data-testid="chat-send"
               className="h-[60px] px-6 text-white relative"
               style={{
@@ -660,7 +674,7 @@ export default function Chat() {
                 backgroundColor: '#26A69A',
                 boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)',
                 zIndex: 51,
-                pointerEvents: (!inputMessage.trim() || isLoading) ? 'none' : 'auto'
+                pointerEvents: (!inputMessage.trim() || isLoading || sendingMessageRef.current) ? 'none' : 'auto'
               }}
               onMouseEnter={() => console.log('[DIAGNOSTIC] Send button mouse enter')}
               onMouseDown={() => console.log('[DIAGNOSTIC] Send button mouse down')}
