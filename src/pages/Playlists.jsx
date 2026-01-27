@@ -169,10 +169,12 @@ export default function Playlists() {
                         size="icon"
                         onClick={(e) => {
                           e.preventDefault();
+                          if (deleteMutation.isPending) return;
                           if (confirm('Delete this playlist?')) {
                             deleteMutation.mutate(playlist.id);
                           }
                         }}
+                        disabled={deleteMutation.isPending}
                         className="opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         <Trash2 className="w-4 h-4 text-red-500" />

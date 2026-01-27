@@ -107,10 +107,12 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
               variant="ghost" 
               size="icon" 
               onClick={() => {
+                if (isDeleting) return;
                 if (confirm(`Are you sure you want to delete "${goal.title}"? This action cannot be undone.`)) {
                   onDelete(goal.id);
                 }
               }}
+              disabled={isDeleting}
             >
               <Trash2 className="w-4 h-4 text-red-400 hover:text-red-600" />
             </Button>
