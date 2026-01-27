@@ -6,7 +6,7 @@ import { AlertTriangle, Phone, MessageSquare } from 'lucide-react';
 export default function InlineRiskPanel({ onDismiss }) {
   return (
     <Card 
-      data-testid="risk-panel"
+      data-testid="inline-risk-panel"
       className="border-0 mb-4"
       style={{
         borderRadius: '20px',
@@ -62,7 +62,7 @@ export default function InlineRiskPanel({ onDismiss }) {
 
             <Button
               onClick={onDismiss}
-              data-testid="risk-return"
+              data-testid="risk-panel-dismiss"
               className="w-full md:w-auto text-white font-medium"
               style={{
                 borderRadius: '14px',
