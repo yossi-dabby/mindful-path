@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocation } from 'react-router-dom';
+import { isAuthError, shouldShowAuthError } from '../components/utils/authErrorHandler';
+import AuthErrorBanner from '../components/utils/AuthErrorBanner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -336,11 +338,17 @@ export default function Chat() {
       });
       if (!mountedRef.current) return;
       setIsLoading(false);
-      // Show user-friendly error
-      setMessages(prev => [...prev, {
-        role: 'system',
-        content: 'Network error. Please check your connection and try again.'
-      }]);
+      
+      // Check for auth error
+      if (isAuthError(error) && shouldShowAuthError()) {
+        setShowAuthError(true);
+      } else {
+        // Show user-friendly error
+        setMessages(prev => [...prev, {
+          role: 'system',
+          content: 'Network error. Please check your connection and try again.'
+        }]);
+      }
     } finally {
       sendingMessageRef.current = false;
     }
@@ -417,9 +425,11 @@ export default function Chat() {
   };
 
   return (
-    <div className="h-screen flex relative" data-testid="chat-root" style={{ 
-      background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)'
-    }}>
+    <>
+      {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
+      <div className="h-screen flex relative" data-testid="chat-root" style={{ 
+        background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)'
+      }}>
       {/* Backdrop overlay when sidebar is open - below input area */}
       {showSidebar && currentConversationId && (
         <div 
@@ -709,6 +719,7 @@ export default function Chat() {
         </div>
       )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation } from '@tanstack/react-query';
+import { isAuthError, shouldShowAuthError } from '../utils/authErrorHandler';
+import AuthErrorBanner from '../utils/AuthErrorBanner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -44,6 +46,7 @@ export default function GoalForm({ goal, prefilledData, onClose }) {
 
   const [aiSuggesting, setAiSuggesting] = useState(false);
   const [saveError, setSaveError] = useState(null);
+  const [showAuthError, setShowAuthError] = useState(false);
   const isSavingRef = useRef(false);
 
   const saveMutation = useMutation({
@@ -63,7 +66,11 @@ export default function GoalForm({ goal, prefilledData, onClose }) {
     },
     onError: (error) => {
       isSavingRef.current = false;
-      setSaveError(error.message || 'Failed to save goal');
+      if (isAuthError(error) && shouldShowAuthError()) {
+        setShowAuthError(true);
+      } else {
+        setSaveError(error.message || 'Failed to save goal');
+      }
     }
   });
 
@@ -132,7 +139,11 @@ Provide SMART criteria answers and suggestions for milestones.`,
       if (error.name === 'AbortError') return;
       console.error('Failed to generate SMART suggestions:', error);
       if (!mountedRef.current) return;
-      setSaveError('AI suggestion failed. Please try again or fill manually.');
+      if (isAuthError(error) && shouldShowAuthError()) {
+        setShowAuthError(true);
+      } else {
+        setSaveError('AI suggestion failed. Please try again or fill manually.');
+      }
     } finally {
       if (mountedRef.current) {
         setAiSuggesting(false);
@@ -182,8 +193,10 @@ Provide SMART criteria answers and suggestions for milestones.`,
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 pb-24 overflow-y-auto" style={{ zIndex: 50 }}>
-      <Card className="w-full max-w-3xl border-0 shadow-2xl my-8" style={{ maxHeight: 'calc(100vh - 160px)', zIndex: 55 }}>
+    <>
+      {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 pb-24 overflow-y-auto" style={{ zIndex: 50 }}>
+        <Card className="w-full max-w-3xl border-0 shadow-2xl my-8" style={{ maxHeight: 'calc(100vh - 160px)', zIndex: 55 }}>
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">
             <div>
@@ -489,6 +502,7 @@ Provide SMART criteria answers and suggestions for milestones.`,
           </div>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </>
   );
 }

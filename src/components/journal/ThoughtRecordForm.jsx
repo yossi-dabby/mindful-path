@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { isAuthError, shouldShowAuthError } from '../utils/authErrorHandler';
+import AuthErrorBanner from '../utils/AuthErrorBanner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -64,6 +66,7 @@ export default function ThoughtRecordForm({ entry, template, templates, onClose,
   const [savedEntry, setSavedEntry] = useState(null);
   const [showDistortionAnalysis, setShowDistortionAnalysis] = useState(false);
   const [saveError, setSaveError] = useState(null);
+  const [showAuthError, setShowAuthError] = useState(false);
   const isSavingRef = React.useRef(false);
   const abortControllerRef = React.useRef(null);
   const mountedRef = React.useRef(true);
@@ -97,7 +100,11 @@ export default function ThoughtRecordForm({ entry, template, templates, onClose,
     },
     onError: (error) => {
       isSavingRef.current = false;
-      setSaveError('Couldn\'t save. Check connection and try again.');
+      if (isAuthError(error) && shouldShowAuthError()) {
+        setShowAuthError(true);
+      } else {
+        setSaveError('Couldn\'t save. Check connection and try again.');
+      }
     }
   });
 
@@ -171,6 +178,10 @@ Provide:
     } catch (error) {
       if (error.name === 'AbortError') return;
       console.error('Analysis failed:', error);
+      if (!mountedRef.current) return;
+      if (isAuthError(error) && shouldShowAuthError()) {
+        setShowAuthError(true);
+      }
     } finally {
       if (mountedRef.current) {
         setIsAnalyzing(false);
@@ -285,8 +296,10 @@ Provide:
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto">
-      <Card className="w-full max-w-2xl border-0 shadow-2xl my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
+    <>
+      {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto">
+        <Card className="w-full max-w-2xl border-0 shadow-2xl my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">
             <div>
@@ -900,6 +913,7 @@ Provide:
           )}
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </>
   );
 }

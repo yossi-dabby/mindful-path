@@ -3,6 +3,8 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
+import { isAuthError, shouldShowAuthError } from '../components/utils/authErrorHandler';
+import AuthErrorBanner from '../components/utils/AuthErrorBanner';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, List, Trash2, ArrowLeft } from 'lucide-react';
@@ -11,6 +13,7 @@ import CreatePlaylistModal from '../components/playlists/CreatePlaylistModal';
 
 export default function Playlists() {
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showAuthError, setShowAuthError] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -30,13 +33,19 @@ export default function Playlists() {
       queryClient.invalidateQueries(['playlists']);
     },
     onError: (error) => {
-      alert('Failed to delete playlist. Check your connection and try again.');
+      if (isAuthError(error) && shouldShowAuthError()) {
+        setShowAuthError(true);
+      } else {
+        alert('Failed to delete playlist. Check your connection and try again.');
+      }
     }
   });
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
-      <div className="page-container max-w-7xl">
+    <>
+      {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
+      <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
+        <div className="page-container max-w-7xl">
         {/* Header with Back Button */}
         <div className="mb-6 mt-6">
           <Button
@@ -200,7 +209,8 @@ export default function Playlists() {
           isOpen={showCreateModal} 
           onClose={() => setShowCreateModal(false)} 
         />
+        </div>
       </div>
-    </div>
+    </>
   );
 }

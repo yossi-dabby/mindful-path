@@ -3,6 +3,8 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCrossTabInvalidation } from '../components/utils/useCrossTabInvalidation';
 import { emitEntityChange } from '../components/utils/crossTabSync';
+import { isAuthError, shouldShowAuthError } from '../components/utils/authErrorHandler';
+import AuthErrorBanner from '../components/utils/AuthErrorBanner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Plus, Target, Calendar as CalendarIcon, Sparkles, Lightbulb } from 'lucide-react';
@@ -23,6 +25,7 @@ export default function Goals() {
   const [showBreakdown, setShowBreakdown] = useState(null);
   const [showCoaching, setShowCoaching] = useState(null);
   const [prefilledGoal, setPrefilledGoal] = useState(null);
+  const [showAuthError, setShowAuthError] = useState(false);
   const queryClient = useQueryClient();
   
   // Enable cross-tab synchronization
@@ -42,7 +45,11 @@ export default function Goals() {
       emitEntityChange('Goal', 'delete');
     },
     onError: (error) => {
-      alert('Failed to delete goal. Check your connection and try again.');
+      if (isAuthError(error) && shouldShowAuthError()) {
+        setShowAuthError(true);
+      } else {
+        alert('Failed to delete goal. Check your connection and try again.');
+      }
     }
   });
 
@@ -84,7 +91,9 @@ export default function Goals() {
   };
 
   return (
-    <div className="p-4 md:p-8 pb-32 md:pb-24 max-w-5xl mx-auto" style={{ minHeight: '100vh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
+    <>
+      {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
+      <div className="p-4 md:p-8 pb-32 md:pb-24 max-w-5xl mx-auto" style={{ minHeight: '100vh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 mt-4">
         <div className="flex items-center gap-3">
@@ -312,6 +321,7 @@ export default function Goals() {
           onClose={() => setShowCoaching(null)}
         />
       )}
-    </div>
+      </div>
+    </>
   );
 }

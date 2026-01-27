@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { isAuthError, shouldShowAuthError } from '../utils/authErrorHandler';
+import AuthErrorBanner from '../utils/AuthErrorBanner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -45,12 +47,14 @@ export default function StandaloneDailyCheckIn() {
   const [step, setStep] = useState(1);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeVideo, setActiveVideo] = useState(null);
+  const [showAuthError, setShowAuthError] = useState(false);
   const [formData, setFormData] = useState({
     mood: '',
     mood_emoji: '',
     emotions: [],
     intensity: 50
   });
+  const isSubmittingRef = useRef(false);
 
   // Check if today's check-in exists
   const { data: todayMood, isLoading } = useQuery({
@@ -64,6 +68,10 @@ export default function StandaloneDailyCheckIn() {
 
   const saveMutation = useMutation({
     mutationFn: async (data) => {
+      if (isSubmittingRef.current) {
+        throw new Error('Already submitting');
+      }
+      isSubmittingRef.current = true;
       const today = new Date().toISOString().split('T')[0];
       
       // Save MoodEntry
@@ -107,15 +115,22 @@ export default function StandaloneDailyCheckIn() {
       return moodEntry;
     },
     onSuccess: () => {
+      isSubmittingRef.current = false;
       queryClient.invalidateQueries(['todayMood']);
       queryClient.invalidateQueries(['todayFlow']);
       setStep(4);
+    },
+    onError: (error) => {
+      isSubmittingRef.current = false;
+      if (isAuthError(error) && shouldShowAuthError()) {
+        setShowAuthError(true);
+      }
     }
   });
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      if (todayMood) {
+      if (!todayMood || isSubmittingRef.current) return;
         await base44.entities.MoodEntry.delete(todayMood.id);
         
         // Also update DailyFlow
@@ -135,6 +150,11 @@ export default function StandaloneDailyCheckIn() {
       queryClient.invalidateQueries(['todayFlow']);
       setStep(1);
       setFormData({ mood: '', mood_emoji: '', emotions: [], intensity: 50 });
+    },
+    onError: (error) => {
+      if (isAuthError(error) && shouldShowAuthError()) {
+        setShowAuthError(true);
+      }
     }
   });
 
@@ -326,10 +346,12 @@ export default function StandaloneDailyCheckIn() {
 
   // Interactive check-in form
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-    >
+    <>
+      {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
       <Card className="border-0" style={{
         borderRadius: '36px',
         background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(232, 246, 243, 0.9) 100%)',
@@ -610,6 +632,7 @@ export default function StandaloneDailyCheckIn() {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+      </motion.div>
+    </>
   );
 }
