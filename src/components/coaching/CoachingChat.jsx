@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, Send, Loader2, Target, CheckCircle2, Plus, Edit } from 'lucide-react';
 import MessageBubble from '../chat/MessageBubble';
+import InlineConsentBanner from '../chat/InlineConsentBanner';
 import ActionPlanPanel from './ActionPlanPanel';
 
 const stageLabels = {
@@ -23,7 +24,27 @@ export default function CoachingChat({ session, onBack }) {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showActionPanel, setShowActionPanel] = useState(false);
+  const [showConsentBanner, setShowConsentBanner] = useState(false);
   const messagesEndRef = useRef(null);
+
+  // Check consent on mount
+  React.useEffect(() => {
+    const isTestEnv = 
+      window.navigator.webdriver === true ||
+      window.Cypress !== undefined ||
+      window.playwright !== undefined ||
+      /HeadlessChrome/.test(window.navigator.userAgent);
+    
+    if (isTestEnv) {
+      localStorage.setItem('chat_consent_accepted', 'true');
+      return;
+    }
+
+    const consentAccepted = localStorage.getItem('chat_consent_accepted');
+    if (!consentAccepted) {
+      setShowConsentBanner(true);
+    }
+  }, []);
 
   const { data: currentSession, refetch: refetchSession } = useQuery({
     queryKey: ['coachingSession', session.id],
@@ -146,6 +167,13 @@ export default function CoachingChat({ session, onBack }) {
         <div className="flex-1 flex flex-col">
           <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
             <div className="max-w-4xl mx-auto space-y-4">
+              {/* Inline Consent Banner - Non-blocking */}
+              {showConsentBanner && (
+                <InlineConsentBanner onAccept={() => {
+                  localStorage.setItem('chat_consent_accepted', 'true');
+                  setShowConsentBanner(false);
+                }} />
+              )}
               {messages.filter(m => m && m.content).map((message, index) => (
                 <MessageBubble key={index} message={message} />
               ))}

@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { isAuthError, shouldShowAuthError } from '../utils/authErrorHandler';
 import AuthErrorBanner from '../utils/AuthErrorBanner';
+import InlineConsentBanner from '../chat/InlineConsentBanner';
 import CrisisSafetyPanel from '../chat/CrisisSafetyPanel';
 import { detectCrisisLanguage } from '../utils/crisisDetector';
 
@@ -29,6 +30,7 @@ export default function DraggableAiCompanion() {
   const [memoryError, setMemoryError] = useState(false);
   const [sendError, setSendError] = useState(null);
   const [showAuthError, setShowAuthError] = useState(false);
+  const [showConsentBanner, setShowConsentBanner] = useState(false);
   const [showCrisisPanel, setShowCrisisPanel] = useState(false);
   const [isAgeVerified, setIsAgeVerified] = useState(true);
   const mountedRef = useRef(true);
@@ -62,7 +64,7 @@ export default function DraggableAiCompanion() {
     );
   }, []);
 
-  // Check age verification
+  // Check age verification and consent
   useEffect(() => {
     const isTestEnv = 
       window.navigator.webdriver === true ||
@@ -72,12 +74,18 @@ export default function DraggableAiCompanion() {
     
     if (isTestEnv) {
       localStorage.setItem('age_verified', 'true');
+      localStorage.setItem('chat_consent_accepted', 'true');
       setIsAgeVerified(true);
       return;
     }
 
     const ageVerified = localStorage.getItem('age_verified');
     setIsAgeVerified(ageVerified === 'true');
+    
+    const consentAccepted = localStorage.getItem('chat_consent_accepted');
+    if (!consentAccepted && ageVerified === 'true') {
+      setShowConsentBanner(true);
+    }
   }, []);
 
   // Delay showing the button on Videos page

@@ -14,7 +14,7 @@ import SessionSummary from '../components/chat/SessionSummary';
 import ProactiveCheckIn from '../components/chat/ProactiveCheckIn';
 import TherapyStateMachine from '../components/chat/TherapyStateMachine';
 import EnhancedMoodCheckIn from '../components/home/EnhancedMoodCheckIn';
-import InformedConsentModal from '../components/chat/InformedConsentModal';
+import InlineConsentBanner from '../components/chat/InlineConsentBanner';
 import CrisisSafetyPanel from '../components/chat/CrisisSafetyPanel';
 import { detectCrisisLanguage } from '../components/utils/crisisDetector';
 import AgeGateModal from '../components/utils/AgeGateModal';
@@ -30,7 +30,7 @@ export default function Chat() {
   const [showTherapyFlow, setShowTherapyFlow] = useState(false);
   const [showCheckInModal, setShowCheckInModal] = useState(false);
   const [showAuthError, setShowAuthError] = useState(false);
-  const [showConsentModal, setShowConsentModal] = useState(false);
+  const [showConsentBanner, setShowConsentBanner] = useState(false);
   const [showCrisisPanel, setShowCrisisPanel] = useState(false);
   const [showAgeGate, setShowAgeGate] = useState(false);
   const [isAgeRestricted, setIsAgeRestricted] = useState(false);
@@ -475,13 +475,13 @@ export default function Chat() {
     // Check if user has already accepted consent
     const consentAccepted = localStorage.getItem('chat_consent_accepted');
     if (!consentAccepted) {
-      setShowConsentModal(true);
+      setShowConsentBanner(true);
     }
   }, []);
 
   const handleConsentAccept = () => {
     localStorage.setItem('chat_consent_accepted', 'true');
-    setShowConsentModal(false);
+    setShowConsentBanner(false);
   };
 
   const handleAgeConfirm = () => {
@@ -642,6 +642,10 @@ export default function Chat() {
 
               {/* Active Chat Messages Section - Separate scrollable container */}
               <div className="flex-1 p-4 md:p-6 pb-8 space-y-6 overflow-y-auto min-h-0" style={{ backgroundColor: 'transparent' }}>
+                {/* Inline Consent Banner - Non-blocking, dismissible */}
+                {showConsentBanner && (
+                  <InlineConsentBanner onAccept={handleConsentAccept} />
+                )}
                 {messages.filter(m => m && m.content).map((message, index) => (
                   <MessageBubble key={index} message={message} />
                 ))}
@@ -793,11 +797,6 @@ export default function Chat() {
             onComplete={handleCheckInComplete}
           />
         </div>
-      )}
-
-      {/* Informed Consent Modal - appears once, highest z-index */}
-      {showConsentModal && (
-        <InformedConsentModal onAccept={handleConsentAccept} />
       )}
 
       {/* Crisis Safety Panel - blocks high-risk messages */}
