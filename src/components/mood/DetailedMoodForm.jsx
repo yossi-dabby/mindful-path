@@ -51,6 +51,7 @@ const sleepQualities = [
 export default function DetailedMoodForm({ entry, onClose }) {
   const queryClient = useQueryClient();
   const today = new Date().toISOString().split('T')[0];
+  const isSavingRef = React.useRef(false);
 
   const [formData, setFormData] = useState(
     entry || {
@@ -80,9 +81,15 @@ export default function DetailedMoodForm({ entry, onClose }) {
         : base44.entities.MoodEntry.create(validatedData);
     },
     onSuccess: () => {
+      isSavingRef.current = false;
       queryClient.invalidateQueries(['moodEntries']);
       queryClient.invalidateQueries(['recentMood']);
+      queryClient.invalidateQueries(['todayFlow']);
       onClose();
+    },
+    onError: (error) => {
+      isSavingRef.current = false;
+      alert('Failed to save mood entry. Please check your connection and try again.');
     }
   });
 
@@ -331,8 +338,12 @@ export default function DetailedMoodForm({ entry, onClose }) {
               Cancel
             </Button>
             <Button
-              onClick={() => saveMutation.mutate(formData)}
-              disabled={saveMutation.isPending}
+              onClick={() => {
+                if (isSavingRef.current || saveMutation.isPending) return;
+                isSavingRef.current = true;
+                saveMutation.mutate(formData);
+              }}
+              disabled={isSavingRef.current || saveMutation.isPending}
               className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
             >
               {saveMutation.isPending ? 'Saving...' : entry ? 'Update Entry' : 'Save Entry'}
