@@ -23,10 +23,11 @@ export default function Goals() {
   const [prefilledGoal, setPrefilledGoal] = useState(null);
   const queryClient = useQueryClient();
 
-  const { data: goals, isLoading } = useQuery({
+  const { data: goals, isLoading, isError, refetch } = useQuery({
     queryKey: ['allGoals'],
     queryFn: () => base44.entities.Goal.list('-created_date'),
-    initialData: []
+    initialData: [],
+    refetchOnWindowFocus: true
   });
 
   const deleteGoalMutation = useMutation({
