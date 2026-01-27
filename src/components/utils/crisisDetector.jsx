@@ -1,4 +1,4 @@
-// Conservative crisis language detection
+// Conservative crisis language detection with bypass-resistant normalization
 // Returns true if message contains high-risk patterns
 
 const CRISIS_PATTERNS = [
@@ -17,15 +17,58 @@ const CRISIS_PATTERNS = [
   /\bgoodbye\s+(cruel\s+)?world\b/i,
   /\bcan'?t\s+go\s+on\b/i,
   /\bbetter\s+off\s+(dead|without\s+me)\b/i,
+  
+  // Indirect/semantic patterns
+  /\bno\s+point\s+(in\s+)?(living|going\s+on|continuing)\b/i,
+  /\bwant\s+to\s+disappear\b/i,
+  /\beveryone\s+(would\s+be\s+)?better\s+(off\s+)?without\s+me\b/i,
+  /\bcan'?t\s+(take|do)\s+(this|it)\s+anymore\b/i,
+  /\bready\s+to\s+(die|end\s+it)\b/i,
 ];
+
+/**
+ * Aggressively normalize text to prevent bypass attempts:
+ * - Remove spaces between letters (ki ll -> kill)
+ * - Replace common character substitutions (1->i, 3->e, 0->o, @->a, $->s)
+ * - Remove punctuation between letters (k.i.l.l -> kill)
+ * - Convert to lowercase
+ */
+function normalizeForDetection(text) {
+  if (!text || typeof text !== 'string') return '';
+  
+  let normalized = text.toLowerCase().trim();
+  
+  // Replace common character substitutions
+  const substitutions = {
+    '1': 'i', '3': 'e', '0': 'o', '@': 'a', '$': 's',
+    '!': 'i', '7': 't', '5': 's', '8': 'b', '4': 'a'
+  };
+  
+  for (const [char, replacement] of Object.entries(substitutions)) {
+    normalized = normalized.replace(new RegExp(char, 'g'), replacement);
+  }
+  
+  // Remove punctuation and excessive spacing between letters
+  // This helps catch "k.i.l.l" or "ki  ll" patterns
+  normalized = normalized.replace(/([a-z])[.\s_-]+([a-z])/g, '$1$2');
+  
+  // Normalize multiple spaces to single space
+  normalized = normalized.replace(/\s+/g, ' ');
+  
+  return normalized;
+}
 
 export function detectCrisisLanguage(message) {
   if (!message || typeof message !== 'string') {
     return false;
   }
   
-  const normalizedMessage = message.toLowerCase().trim();
+  // Check both original and aggressively normalized versions
+  const original = message.toLowerCase().trim();
+  const normalized = normalizeForDetection(message);
   
-  // Check against patterns
-  return CRISIS_PATTERNS.some(pattern => pattern.test(normalizedMessage));
+  // Check against patterns on both versions for robustness
+  return CRISIS_PATTERNS.some(pattern => 
+    pattern.test(original) || pattern.test(normalized)
+  );
 }
