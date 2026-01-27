@@ -278,6 +278,7 @@ export default function DraggableAiCompanion() {
           onClick={() => setIsOpen(true)}
           size="lg"
           className="rounded-full w-16 h-16 shadow-2xl bg-gradient-to-br from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+          aria-label="Open AI Companion chat"
         >
           <MessageCircle className="w-7 h-7" />
         </Button>
@@ -320,6 +321,7 @@ export default function DraggableAiCompanion() {
                 setIsMinimized(false);
               }}
               className="flex-shrink-0"
+              aria-label="Close AI Companion"
             >
               <X className="w-4 h-4" />
             </Button>
@@ -360,6 +362,7 @@ export default function DraggableAiCompanion() {
               size="icon"
               onClick={() => setIsMinimized(true)}
               className="text-white hover:bg-white/20"
+              aria-label="Minimize AI Companion"
             >
               <MinusCircle className="w-4 h-4" />
             </Button>
@@ -371,6 +374,7 @@ export default function DraggableAiCompanion() {
                 setIsMinimized(false);
               }}
               className="text-white hover:bg-white/20"
+              aria-label="Close AI Companion"
             >
               <X className="w-4 h-4" />
             </Button>
@@ -489,6 +493,7 @@ export default function DraggableAiCompanion() {
               onClick={sendMessage}
               disabled={!message.trim() || isLoading}
               className="bg-gradient-to-br from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+              aria-label="Send message"
             >
               <Send className="w-4 h-4" />
             </Button>

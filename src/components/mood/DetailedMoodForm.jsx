@@ -93,7 +93,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
         <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-purple-50">
           <div className="flex items-center justify-between">
             <CardTitle className="text-2xl">How are you feeling today?</CardTitle>
-            <Button variant="ghost" size="icon" onClick={onClose}>
+            <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close mood entry form">
               <X className="w-5 h-5" />
             </Button>
           </div>
@@ -168,6 +168,8 @@ export default function DetailedMoodForm({ entry, onClose }) {
               max={10}
               step={1}
               className="w-full"
+              aria-label="Emotional intensity"
+              aria-valuetext={`Intensity ${formData.intensity} out of 10`}
             />
             <div className="flex justify-between text-xs text-gray-500 mt-1">
               <span>Mild</span>
@@ -237,6 +239,8 @@ export default function DetailedMoodForm({ entry, onClose }) {
               max={10}
               step={1}
               className="w-full"
+              aria-label="Stress level"
+              aria-valuetext={`Stress level ${formData.stress_level} out of 10`}
             />
             <div className="flex justify-between text-xs text-gray-500 mt-1">
               <span>Relaxed</span>

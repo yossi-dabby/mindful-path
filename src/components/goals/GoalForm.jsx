@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -148,7 +148,7 @@ Provide SMART criteria answers and suggestions for milestones.`,
               <CardTitle>{goal ? 'Edit Goal' : 'Create SMART Goal'}</CardTitle>
               <p className="text-sm text-gray-500 mt-1">Set goals that are specific, measurable, and achievable</p>
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose}>
+            <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close goal form">
               <X className="w-5 h-5" />
             </Button>
           </div>
@@ -392,6 +392,7 @@ Provide SMART criteria answers and suggestions for milestones.`,
                           size="icon"
                           onClick={() => removeMilestone(index)}
                           className="text-red-500 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
+                          aria-label={`Remove milestone ${index + 1}`}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>

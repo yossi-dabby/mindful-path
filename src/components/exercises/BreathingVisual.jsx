@@ -144,6 +144,7 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
               toggleMute();
             }}
             className="text-white/80 hover:text-white hover:bg-white/10 rounded-full h-8 w-8 md:h-10 md:w-10"
+            aria-label={isMuted ? "Unmute audio" : "Mute audio"}
           >
             {isMuted ? <VolumeX className="w-4 h-4 md:w-5 md:h-5" /> : <Volume2 className="w-4 h-4 md:w-5 md:h-5" />}
           </Button>
@@ -154,6 +155,8 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
             step={1}
             className="w-16 md:w-24"
             disabled={isMuted}
+            aria-label="Volume control"
+            aria-valuetext={`Volume ${volume} percent`}
           />
         </div>
         <Button
@@ -165,6 +168,7 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
             onClose();
           }}
           className="text-white/80 hover:text-white hover:bg-white/10 backdrop-blur-xl rounded-full h-8 w-8 md:h-10 md:w-10 pointer-events-auto"
+          aria-label="Close breathing exercise"
         >
           <X className="w-5 h-5 md:w-6 md:h-6" />
         </Button>

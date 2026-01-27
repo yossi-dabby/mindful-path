@@ -249,7 +249,7 @@ Provide:
                 <p className="text-sm text-gray-500 mt-1">{selectedTemplate.description}</p>
               )}
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose}>
+            <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close journal form">
               <X className="w-5 h-5" />
             </Button>
           </div>
@@ -387,6 +387,8 @@ Provide:
                     value={formData.emotion_intensity}
                     onChange={(e) => setFormData({ ...formData, emotion_intensity: parseInt(e.target.value) || 5 })}
                     className="flex-1"
+                    aria-label="Emotion intensity"
+                    aria-valuetext={`Intensity ${formData.emotion_intensity} out of 10`}
                   />
                   <span className="text-2xl font-bold text-purple-600 w-12 text-center">
                     {formData.emotion_intensity}
@@ -562,6 +564,8 @@ Provide:
                     value={formData.outcome_emotion_intensity}
                     onChange={(e) => setFormData({ ...formData, outcome_emotion_intensity: parseInt(e.target.value) || 5 })}
                     className="flex-1"
+                    aria-label="Outcome emotion intensity"
+                    aria-valuetext={`Intensity ${formData.outcome_emotion_intensity} out of 10`}
                   />
                   <span className="text-2xl font-bold text-purple-600 w-12 text-center">
                     {formData.outcome_emotion_intensity}
@@ -732,7 +736,7 @@ Provide:
                     placeholder="Add a custom tag..."
                     className="rounded-xl"
                   />
-                  <Button onClick={addTag} variant="outline" size="icon">
+                  <Button onClick={addTag} variant="outline" size="icon" aria-label="Add tag">
                     <Plus className="w-4 h-4" />
                   </Button>
                 </div>
@@ -794,6 +798,7 @@ Provide:
                           <button
                             onClick={() => removeFile(i, 'image')}
                             className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            aria-label={`Remove image ${i + 1}`}
                           >
                             <Trash2 className="w-3 h-3" />
                           </button>
