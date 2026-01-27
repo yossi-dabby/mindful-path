@@ -24,6 +24,7 @@ export default function Chat() {
   const [showSummaryPrompt, setShowSummaryPrompt] = useState(false);
   const [showTherapyFlow, setShowTherapyFlow] = useState(false);
   const [showCheckInModal, setShowCheckInModal] = useState(false);
+  const [showAuthError, setShowAuthError] = useState(false);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
   const location = useLocation();
