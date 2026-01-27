@@ -7,6 +7,7 @@ import AppContent from './components/layout/AppContent';
 
 export default function Layout({ children, currentPageName }) {
   const [theme, setTheme] = React.useState('default');
+  const [isOffline, setIsOffline] = React.useState(!navigator.onLine);
 
   React.useEffect(() => {
     // Load user theme preference
@@ -31,9 +32,23 @@ export default function Layout({ children, currentPageName }) {
     }).catch(() => {
       // User not logged in, use default theme
     });
-  }, []);
+    }, []);
 
-  const themeBackgrounds = {
+    // Detect offline/online status
+    React.useEffect(() => {
+    const handleOffline = () => setIsOffline(true);
+    const handleOnline = () => setIsOffline(false);
+
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', handleOnline);
+
+    return () => {
+    window.removeEventListener('offline', handleOffline);
+    window.removeEventListener('online', handleOnline);
+    };
+    }, []);
+
+    const themeBackgrounds = {
     default: 'bg-warm-gradient',
     ocean: 'bg-calm-gradient',
     sunset: 'bg-warm-gradient',
@@ -52,10 +67,17 @@ export default function Layout({ children, currentPageName }) {
           --color-background: 255 255 255;
           --color-text: 45 55 72;
         }
-      `}</style>
+        `}</style>
 
-      {/* AI Companion Widget - Draggable across all pages */}
-      <DraggableAiCompanion />
+        {/* Offline Banner - Global */}
+        {isOffline && (
+          <div className="fixed top-0 left-0 right-0 z-50 bg-orange-500 text-white px-4 py-2 text-center text-sm font-medium shadow-lg">
+            You're offline. Check your connection.
+          </div>
+        )}
+
+        {/* AI Companion Widget - Draggable across all pages */}
+        <DraggableAiCompanion />
       
       {/* Sidebar - Desktop only */}
       <Sidebar currentPageName={currentPageName} />
