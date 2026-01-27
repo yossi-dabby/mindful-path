@@ -19,7 +19,7 @@ export default function MessageBubble({ message }) {
   if (!content) return null;
   
   return (
-    <div className={cn('flex gap-3', isUser ? 'justify-end' : 'justify-start')}>
+    <div className={cn('flex gap-3', isUser ? 'justify-end flex-row-reverse' : 'justify-start')} dir="ltr">
       {!isUser && (
         <div className="h-8 w-8 rounded-full bg-gradient-to-br from-green-400 to-purple-400 flex items-center justify-center flex-shrink-0">
           <span className="text-white text-sm">AI</span>

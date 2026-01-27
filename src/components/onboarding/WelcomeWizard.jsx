@@ -254,7 +254,7 @@ export default function WelcomeWizard({ onComplete }) {
           </AnimatePresence>
 
           {/* Progress Indicator */}
-          <div className="flex justify-center gap-2 mt-6">
+          <div className="flex justify-center gap-2 mt-6" dir="ltr">
             {[1, 2, 3].map((s) => (
               <div
                 key={s}
@@ -262,6 +262,11 @@ export default function WelcomeWizard({ onComplete }) {
                   "w-3 h-3 rounded-full transition-all",
                   s === step ? 'bg-orange-500 w-8' : 'bg-gray-300'
                 )}
+                role="progressbar"
+                aria-valuenow={step}
+                aria-valuemin={1}
+                aria-valuemax={3}
+                aria-label={`Step ${s} of 3`}
               />
             ))}
           </div>

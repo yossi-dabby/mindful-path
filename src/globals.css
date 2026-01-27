@@ -275,9 +275,20 @@
 
 /* Focus styles - warm ring, no sharp edges */
 *:focus-visible {
-  outline: 2px solid rgb(var(--ring));
-  outline-offset: 2px;
+  outline: 3px solid rgb(var(--ring));
+  outline-offset: 3px;
   border-radius: var(--r-xs);
+}
+
+/* Ensure focus is always visible for keyboard users */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible {
+  outline: 3px solid rgb(var(--accent) / 0.8) !important;
+  outline-offset: 2px;
 }
 
 /* Selection - warm accent */

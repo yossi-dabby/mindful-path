@@ -309,7 +309,7 @@ export default function BreathingVisual({ exercise, duration, onClose, onComplet
           transition={{ delay: 0.7 }}
           className="mt-12 w-full max-w-md"
         >
-          <div className="h-3 bg-white/20 rounded-full overflow-hidden backdrop-blur-xl border border-white/30">
+          <div className="h-3 bg-white/20 rounded-full overflow-hidden backdrop-blur-xl border border-white/30" dir="ltr">
             <motion.div
               className="h-full rounded-full"
               style={{
