@@ -63,6 +63,7 @@ export default function ThoughtRecordForm({ entry, template, templates, onClose,
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [savedEntry, setSavedEntry] = useState(null);
   const [showDistortionAnalysis, setShowDistortionAnalysis] = useState(false);
+  const isSavingRef = React.useRef(false);
 
   const { data: goals } = useQuery({
     queryKey: ['activeGoals'],
@@ -85,10 +86,14 @@ export default function ThoughtRecordForm({ entry, template, templates, onClose,
         : base44.entities.ThoughtJournal.create(validatedData);
     },
     onSuccess: (data) => {
+      isSavingRef.current = false;
       queryClient.invalidateQueries(['thoughtJournals']);
       setSavedEntry(data);
       setShowSuggestions(true);
       setStep(6);
+    },
+    onError: () => {
+      isSavingRef.current = false;
     }
   });
 
@@ -832,8 +837,12 @@ Provide:
                   Back
                 </Button>
                 <Button
-                  onClick={() => saveMutation.mutate(formData)}
-                  disabled={saveMutation.isPending}
+                  onClick={() => {
+                    if (isSavingRef.current || saveMutation.isPending) return;
+                    isSavingRef.current = true;
+                    saveMutation.mutate(formData);
+                  }}
+                  disabled={isSavingRef.current || saveMutation.isPending}
                   className="flex-1 bg-purple-600 hover:bg-purple-700"
                 >
                   {saveMutation.isPending ? 'Saving...' : 'Save Entry'}
