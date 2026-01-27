@@ -816,9 +816,6 @@ export default function Chat() {
                 zIndex: 51,
                 pointerEvents: (!inputMessage.trim() || isLoading || sendingMessageRef.current) ? 'none' : 'auto'
               }}
-              onMouseEnter={() => console.log('[DIAGNOSTIC] Send button mouse enter')}
-              onMouseDown={() => console.log('[DIAGNOSTIC] Send button mouse down')}
-              onPointerDown={() => console.log('[DIAGNOSTIC] Send button pointer down')}
             >
               <Send className="w-5 h-5" />
             </Button>
