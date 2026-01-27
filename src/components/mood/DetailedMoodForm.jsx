@@ -52,6 +52,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
   const queryClient = useQueryClient();
   const today = new Date().toISOString().split('T')[0];
   const isSavingRef = React.useRef(false);
+  const [saveError, setSaveError] = React.useState(null);
 
   const [formData, setFormData] = useState(
     entry || {
@@ -89,7 +90,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
     },
     onError: (error) => {
       isSavingRef.current = false;
-      alert('Failed to save mood entry. Please check your connection and try again.');
+      setSaveError('Couldn\'t save. Check connection and try again.');
     }
   });
 
@@ -333,6 +334,11 @@ export default function DetailedMoodForm({ entry, onClose }) {
           </div>
 
           {/* Actions */}
+          {saveError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 mb-3">
+              {saveError}
+            </div>
+          )}
           <div className="flex gap-3 pt-4">
             <Button variant="outline" onClick={onClose} className="flex-1">
               Cancel
@@ -341,6 +347,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
               onClick={() => {
                 if (isSavingRef.current || saveMutation.isPending) return;
                 isSavingRef.current = true;
+                setSaveError(null);
                 saveMutation.mutate(formData);
               }}
               disabled={isSavingRef.current || saveMutation.isPending}

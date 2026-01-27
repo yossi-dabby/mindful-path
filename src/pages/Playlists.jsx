@@ -14,9 +14,10 @@ export default function Playlists() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const { data: playlists = [], isLoading } = useQuery({
+  const { data: playlists = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['playlists'],
-    queryFn: () => base44.entities.Playlist.list('-created_date')
+    queryFn: () => base44.entities.Playlist.list('-created_date'),
+    refetchOnWindowFocus: true
   });
 
   const deleteMutation = useMutation({
@@ -27,6 +28,9 @@ export default function Playlists() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['playlists']);
+    },
+    onError: (error) => {
+      alert('Failed to delete playlist. Check your connection and try again.');
     }
   });
 
@@ -70,15 +74,46 @@ export default function Playlists() {
           </div>
         </div>
 
+        {/* Error State */}
+        {isError && (
+          <Card className="border-0" style={{
+            borderRadius: '32px',
+            background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(254, 242, 242, 0.9) 100%)',
+            boxShadow: '0 12px 40px rgba(239, 68, 68, 0.12)'
+          }}>
+            <CardContent className="p-12 text-center">
+              <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4" style={{
+                borderRadius: '50%',
+                background: 'rgba(239, 68, 68, 0.1)'
+              }}>
+                <List className="w-10 h-10 text-red-500" />
+              </div>
+              <h2 className="text-2xl font-semibold mb-2 text-gray-800">Couldn't load data</h2>
+              <p className="mb-6 text-gray-600">Check your connection and try again.</p>
+              <Button
+                onClick={() => refetch()}
+                className="text-white px-8 py-6"
+                style={{
+                  borderRadius: '24px',
+                  backgroundColor: '#26A69A',
+                  boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
+                }}
+              >
+                Retry
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Loading State */}
-        {isLoading && (
+        {!isError && isLoading && (
           <div className="text-center py-12">
             <p style={{ color: 'rgb(var(--muted))' }}>Loading playlists...</p>
           </div>
         )}
 
         {/* Empty State */}
-        {!isLoading && playlists.length === 0 && (
+        {!isError && !isLoading && playlists.length === 0 && (
           <div className="text-center py-12">
             <List className="w-16 h-16 mx-auto mb-4" style={{ color: 'rgb(var(--muted))' }} />
             <p className="text-lg mb-2" style={{ color: 'rgb(var(--text))' }}>No playlists yet</p>
@@ -99,7 +134,7 @@ export default function Playlists() {
         )}
 
         {/* Playlist Grid */}
-        {!isLoading && playlists.length > 0 && (
+        {!isError && !isLoading && playlists.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {playlists.map((playlist, index) => (
               <motion.div

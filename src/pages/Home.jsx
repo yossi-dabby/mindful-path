@@ -43,7 +43,7 @@ export default function Home() {
     }).catch(() => {});
   }, []);
 
-  const { data: todayMood } = useQuery({
+  const { data: todayMood, isError: moodError, refetch: refetchMood } = useQuery({
     queryKey: ['todayMood'],
     queryFn: async () => {
       const today = new Date().toISOString().split('T')[0];
@@ -52,14 +52,14 @@ export default function Home() {
     }
   });
 
-  const { data: recentGoals } = useQuery({
+  const { data: recentGoals, isError: goalsError, refetch: refetchGoals } = useQuery({
     queryKey: ['recentGoals'],
     queryFn: () => base44.entities.Goal.filter({ status: 'active' }, '-created_date', 3),
     initialData: []
   });
 
   // Combined query for journal data - fetch recent entries and use for both count and latest
-  const { data: recentJournals } = useQuery({
+  const { data: recentJournals, isError: journalsError, refetch: refetchJournals } = useQuery({
     queryKey: ['recentJournals'],
     queryFn: async () => {
       const entries = await base44.entities.ThoughtJournal.list('-created_date', 50);
@@ -353,6 +353,48 @@ export default function Home() {
           <StreakWidget compact />
           <BadgeDisplay compact />
         </div>
+
+        {/* Error State for Goals */}
+        {goalsError && (
+          <Card className="mt-6 border-0" style={{
+            borderRadius: '24px',
+            background: 'rgba(254, 242, 242, 0.8)',
+            border: '1px solid rgba(239, 68, 68, 0.2)'
+          }}>
+            <CardContent className="p-4 text-center">
+              <p className="text-sm text-gray-700 mb-2">Couldn't load goals.</p>
+              <Button
+                onClick={() => refetchGoals()}
+                size="sm"
+                variant="outline"
+                className="text-xs"
+              >
+                Retry
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Error State for Journal */}
+        {journalsError && (
+          <Card className="mt-6 border-0" style={{
+            borderRadius: '24px',
+            background: 'rgba(254, 242, 242, 0.8)',
+            border: '1px solid rgba(239, 68, 68, 0.2)'
+          }}>
+            <CardContent className="p-4 text-center">
+              <p className="text-sm text-gray-700 mb-2">Couldn't load journal entries.</p>
+              <Button
+                onClick={() => refetchJournals()}
+                size="sm"
+                variant="outline"
+                className="text-xs"
+              >
+                Retry
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Quick Actions */}
         <div className="mt-8">

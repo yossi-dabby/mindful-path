@@ -33,6 +33,9 @@ export default function Goals() {
     mutationFn: (goalId) => base44.entities.Goal.delete(goalId),
     onSuccess: () => {
       queryClient.invalidateQueries(['allGoals']);
+    },
+    onError: (error) => {
+      alert('Failed to delete goal. Check your connection and try again.');
     }
   });
 
@@ -128,7 +131,35 @@ export default function Goals() {
       </div>
 
       {/* Goals List */}
-      {isLoading ? (
+      {isError ? (
+        <Card className="border-0" style={{
+          borderRadius: '32px',
+          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(254, 242, 242, 0.9) 100%)',
+          boxShadow: '0 12px 40px rgba(239, 68, 68, 0.12)'
+        }}>
+          <CardContent className="p-12 text-center">
+            <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4" style={{
+              borderRadius: '50%',
+              background: 'rgba(239, 68, 68, 0.1)'
+            }}>
+              <Target className="w-10 h-10 text-red-500" />
+            </div>
+            <h2 className="text-2xl font-semibold mb-2 text-gray-800">Couldn't load data</h2>
+            <p className="mb-6 text-gray-600">Check your connection and try again.</p>
+            <Button
+              onClick={() => refetch()}
+              className="text-white px-8 py-6"
+              style={{
+                borderRadius: '24px',
+                backgroundColor: '#26A69A',
+                boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
+              }}
+            >
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
+      ) : isLoading ? (
         <div className="text-center py-12">
           <p className="text-gray-500">Loading goals...</p>
         </div>

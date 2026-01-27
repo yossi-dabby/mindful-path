@@ -63,6 +63,7 @@ export default function ThoughtRecordForm({ entry, template, templates, onClose,
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [savedEntry, setSavedEntry] = useState(null);
   const [showDistortionAnalysis, setShowDistortionAnalysis] = useState(false);
+  const [saveError, setSaveError] = useState(null);
   const isSavingRef = React.useRef(false);
   const abortControllerRef = React.useRef(null);
   const mountedRef = React.useRef(true);
@@ -94,8 +95,9 @@ export default function ThoughtRecordForm({ entry, template, templates, onClose,
       setShowSuggestions(true);
       setStep(6);
     },
-    onError: () => {
+    onError: (error) => {
       isSavingRef.current = false;
+      setSaveError('Couldn\'t save. Check connection and try again.');
     }
   });
 
@@ -855,6 +857,11 @@ Provide:
                 )}
               </div>
 
+              {saveError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 mb-3">
+                  {saveError}
+                </div>
+              )}
               <div className="flex gap-3">
                 <Button onClick={() => setStep(4)} variant="outline" className="flex-1">
                   Back
@@ -863,6 +870,7 @@ Provide:
                   onClick={() => {
                     if (isSavingRef.current || saveMutation.isPending) return;
                     isSavingRef.current = true;
+                    setSaveError(null);
                     saveMutation.mutate(formData);
                   }}
                   disabled={isSavingRef.current || saveMutation.isPending}

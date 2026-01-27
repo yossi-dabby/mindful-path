@@ -14,7 +14,7 @@ export default function PersonalizedFeed() {
   const queryClient = useQueryClient();
 
   // Fetch user data for recommendations
-  const { data: recentMoods } = useQuery({
+  const { data: recentMoods, isLoading: moodsLoading } = useQuery({
     queryKey: ['recentMoods'],
     queryFn: async () => {
       const thirtyDaysAgo = new Date();
@@ -24,19 +24,19 @@ export default function PersonalizedFeed() {
     initialData: []
   });
 
-  const { data: recentJournals } = useQuery({
+  const { data: recentJournals, isLoading: journalsLoading } = useQuery({
     queryKey: ['recentJournals'],
     queryFn: () => base44.entities.ThoughtJournal.list('-created_date', 20),
     initialData: []
   });
 
-  const { data: allAudio } = useQuery({
+  const { data: allAudio, isLoading: audioLoading } = useQuery({
     queryKey: ['allAudio'],
     queryFn: () => base44.entities.AudioContent.list(),
     initialData: []
   });
 
-  const { data: allExercises } = useQuery({
+  const { data: allExercises, isLoading: exercisesLoading } = useQuery({
     queryKey: ['allExercises'],
     queryFn: () => base44.entities.Exercise.list(),
     initialData: []
@@ -132,6 +132,21 @@ export default function PersonalizedFeed() {
   };
 
   const getRating = (type, id) => ratings[`${type}-${id}`];
+
+  const isLoading = moodsLoading || journalsLoading || audioLoading || exercisesLoading;
+
+  if (isLoading) {
+    return (
+      <Card className="mb-8 border-0" style={{ 
+        borderRadius: 'var(--r-xl)',
+        backgroundColor: 'rgb(var(--surface))'
+      }}>
+        <CardContent className="p-8 text-center">
+          <p className="text-sm" style={{ color: 'rgb(var(--muted))' }}>Loading recommendations...</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (!recommendations.audio.length && !recommendations.exercises.length) {
     return null;
