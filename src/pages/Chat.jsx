@@ -14,6 +14,7 @@ import SessionSummary from '../components/chat/SessionSummary';
 import ProactiveCheckIn from '../components/chat/ProactiveCheckIn';
 import TherapyStateMachine from '../components/chat/TherapyStateMachine';
 import EnhancedMoodCheckIn from '../components/home/EnhancedMoodCheckIn';
+import InformedConsentModal from '../components/chat/InformedConsentModal';
 
 export default function Chat() {
   const [currentConversationId, setCurrentConversationId] = useState(null);
@@ -25,6 +26,7 @@ export default function Chat() {
   const [showTherapyFlow, setShowTherapyFlow] = useState(false);
   const [showCheckInModal, setShowCheckInModal] = useState(false);
   const [showAuthError, setShowAuthError] = useState(false);
+  const [showConsentModal, setShowConsentModal] = useState(false);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
   const location = useLocation();
@@ -429,7 +431,18 @@ export default function Chat() {
 
   useEffect(() => {
     setIsPageReady(true);
+    
+    // Check if user has already accepted consent
+    const consentAccepted = localStorage.getItem('chat_consent_accepted');
+    if (!consentAccepted) {
+      setShowConsentModal(true);
+    }
   }, []);
+
+  const handleConsentAccept = () => {
+    localStorage.setItem('chat_consent_accepted', 'true');
+    setShowConsentModal(false);
+  };
 
   return (
     <>
@@ -724,6 +737,11 @@ export default function Chat() {
             onComplete={handleCheckInComplete}
           />
         </div>
+      )}
+
+      {/* Informed Consent Modal - appears once, highest z-index */}
+      {showConsentModal && (
+        <InformedConsentModal onAccept={handleConsentAccept} />
       )}
       </div>
       </div>
