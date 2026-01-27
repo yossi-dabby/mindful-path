@@ -15,7 +15,7 @@ import ProactiveCheckIn from '../components/chat/ProactiveCheckIn';
 import TherapyStateMachine from '../components/chat/TherapyStateMachine';
 import EnhancedMoodCheckIn from '../components/home/EnhancedMoodCheckIn';
 import InlineConsentBanner from '../components/chat/InlineConsentBanner';
-import CrisisSafetyPanel from '../components/chat/CrisisSafetyPanel';
+import InlineRiskPanel from '../components/chat/InlineRiskPanel';
 import { detectCrisisLanguage } from '../components/utils/crisisDetector';
 import AgeGateModal from '../components/utils/AgeGateModal';
 import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
@@ -31,7 +31,7 @@ export default function Chat() {
   const [showCheckInModal, setShowCheckInModal] = useState(false);
   const [showAuthError, setShowAuthError] = useState(false);
   const [showConsentBanner, setShowConsentBanner] = useState(false);
-  const [showCrisisPanel, setShowCrisisPanel] = useState(false);
+  const [showRiskPanel, setShowRiskPanel] = useState(false);
   const [showAgeGate, setShowAgeGate] = useState(false);
   const [isAgeRestricted, setIsAgeRestricted] = useState(false);
   const messagesEndRef = useRef(null);
@@ -297,7 +297,7 @@ export default function Chat() {
     // Crisis detection gate - check before sending
     if (detectCrisisLanguage(inputMessage)) {
       console.log('[CRISIS GATE] High-risk language detected, blocking send');
-      setShowCrisisPanel(true);
+      setShowRiskPanel(true);
       return;
     }
 
@@ -646,6 +646,10 @@ export default function Chat() {
                 {showConsentBanner && (
                   <InlineConsentBanner onAccept={handleConsentAccept} />
                 )}
+                {/* Inline Risk Panel - Non-blocking, shown when crisis language detected */}
+                {showRiskPanel && (
+                  <InlineRiskPanel onDismiss={() => setShowRiskPanel(false)} />
+                )}
                 {messages.filter(m => m && m.content).map((message, index) => (
                   <MessageBubble key={index} message={message} />
                 ))}
@@ -797,11 +801,6 @@ export default function Chat() {
             onComplete={handleCheckInComplete}
           />
         </div>
-      )}
-
-      {/* Crisis Safety Panel - blocks high-risk messages */}
-      {showCrisisPanel && (
-        <CrisisSafetyPanel onDismiss={() => setShowCrisisPanel(false)} />
       )}
 
       {/* Age Gate Modal - appears before consent */}

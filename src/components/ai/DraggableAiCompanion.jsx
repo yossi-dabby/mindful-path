@@ -11,7 +11,7 @@ import ReactMarkdown from 'react-markdown';
 import { isAuthError, shouldShowAuthError } from '../utils/authErrorHandler';
 import AuthErrorBanner from '../utils/AuthErrorBanner';
 import InlineConsentBanner from '../chat/InlineConsentBanner';
-import CrisisSafetyPanel from '../chat/CrisisSafetyPanel';
+import InlineRiskPanel from '../chat/InlineRiskPanel';
 import { detectCrisisLanguage } from '../utils/crisisDetector';
 
 const STORAGE_KEY = 'ai_companion_position';
@@ -31,7 +31,7 @@ export default function DraggableAiCompanion() {
   const [sendError, setSendError] = useState(null);
   const [showAuthError, setShowAuthError] = useState(false);
   const [showConsentBanner, setShowConsentBanner] = useState(false);
-  const [showCrisisPanel, setShowCrisisPanel] = useState(false);
+  const [showRiskPanel, setShowRiskPanel] = useState(false);
   const [isAgeVerified, setIsAgeVerified] = useState(true);
   const mountedRef = useRef(true);
   const messagesEndRef = useRef(null);
@@ -258,7 +258,7 @@ export default function DraggableAiCompanion() {
 
     // Crisis detection gate
     if (detectCrisisLanguage(message)) {
-      setShowCrisisPanel(true);
+      setShowRiskPanel(true);
       return;
     }
 
@@ -405,7 +405,6 @@ export default function DraggableAiCompanion() {
   return (
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
-      {showCrisisPanel && <CrisisSafetyPanel onDismiss={() => setShowCrisisPanel(false)} />}
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -463,6 +462,10 @@ export default function DraggableAiCompanion() {
               localStorage.setItem('chat_consent_accepted', 'true');
               setShowConsentBanner(false);
             }} />
+          )}
+          {/* Inline Risk Panel - Non-blocking, shown when crisis language detected */}
+          {showRiskPanel && (
+            <InlineRiskPanel onDismiss={() => setShowRiskPanel(false)} />
           )}
           <AnimatePresence>
             {messages.length === 0 && (

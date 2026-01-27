@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, Send, Loader2, Target, CheckCircle2, Plus, Edit } from 'lucide-react';
 import MessageBubble from '../chat/MessageBubble';
 import InlineConsentBanner from '../chat/InlineConsentBanner';
+import InlineRiskPanel from '../chat/InlineRiskPanel';
+import { detectCrisisLanguage } from '../utils/crisisDetector';
 import ActionPlanPanel from './ActionPlanPanel';
 
 const stageLabels = {
@@ -25,6 +27,7 @@ export default function CoachingChat({ session, onBack }) {
   const [isLoading, setIsLoading] = useState(false);
   const [showActionPanel, setShowActionPanel] = useState(false);
   const [showConsentBanner, setShowConsentBanner] = useState(false);
+  const [showRiskPanel, setShowRiskPanel] = useState(false);
   const messagesEndRef = useRef(null);
 
   // Check consent on mount
@@ -84,6 +87,12 @@ export default function CoachingChat({ session, onBack }) {
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || !currentSession.agent_conversation_id) return;
+
+    // Crisis detection gate - check before sending
+    if (detectCrisisLanguage(inputMessage)) {
+      setShowRiskPanel(true);
+      return;
+    }
 
     try {
       const conversation = await base44.agents.getConversation(currentSession.agent_conversation_id);
@@ -173,6 +182,10 @@ export default function CoachingChat({ session, onBack }) {
                   localStorage.setItem('chat_consent_accepted', 'true');
                   setShowConsentBanner(false);
                 }} />
+              )}
+              {/* Inline Risk Panel - Non-blocking, shown when crisis language detected */}
+              {showRiskPanel && (
+                <InlineRiskPanel onDismiss={() => setShowRiskPanel(false)} />
               )}
               {messages.filter(m => m && m.content).map((message, index) => (
                 <MessageBubble key={index} message={message} />
