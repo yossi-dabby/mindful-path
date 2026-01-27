@@ -27,7 +27,8 @@ export default function AuthErrorBanner({ onDismiss }) {
 
   return (
     <div 
-      className="fixed top-4 left-1/2 -translate-x-1/2 z-50 max-w-md w-full mx-4"
+      className="fixed top-4 left-1/2 -translate-x-1/2 max-w-md w-full mx-4"
+      style={{ zIndex: 90 }}
       role="alert"
       aria-live="assertive"
     >

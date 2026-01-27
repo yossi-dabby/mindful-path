@@ -258,7 +258,7 @@ export default function GoalCoachWizard({ onClose }) {
   );
 
   return (
-    <div className="fixed inset-0 z-50 bg-gradient-to-br from-orange-50 via-yellow-50 to-green-50" style={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden' }}>
+    <div className="fixed inset-0 bg-gradient-to-br from-orange-50 via-yellow-50 to-green-50" style={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden', zIndex: 70 }}>
       {/* Header - Fixed */}
       <div className="bg-white border-b shadow-sm flex-shrink-0">
         <div className="max-w-2xl mx-auto p-4 w-full">
@@ -714,7 +714,7 @@ export default function GoalCoachWizard({ onClose }) {
       </div>
 
       {/* Navigation - Sticky at bottom, above mobile nav */}
-      <div className="sticky bottom-0 z-50 bg-white border-t shadow-lg flex-shrink-0" style={{ marginBottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)' }}>
+      <div className="sticky bottom-0 bg-white border-t shadow-lg flex-shrink-0" style={{ marginBottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)', zIndex: 10 }}>
         <div className="max-w-2xl mx-auto px-3 py-3 w-full">
           <div className="flex gap-2.5">
             {step > 1 && (

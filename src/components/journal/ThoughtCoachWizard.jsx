@@ -190,9 +190,9 @@ export default function ThoughtCoachWizard({ onClose }) {
   const selectedThought = thoughtTypes.find(t => t.type === formData.thought_type);
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] md:min-h-screen flex flex-col bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 w-full overflow-x-hidden">
+    <div className="fixed inset-0 flex flex-col bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 w-full overflow-x-hidden" style={{ zIndex: 70 }}>
       {/* Header - Sticky on mobile */}
-      <div className="bg-white border-b shadow-sm sticky top-0 z-10 flex-shrink-0 overflow-x-hidden">
+      <div className="bg-white border-b shadow-sm sticky top-0 flex-shrink-0 overflow-x-hidden" style={{ zIndex: 10 }}>
         <div className="max-w-2xl mx-auto p-4 w-full">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -507,7 +507,7 @@ export default function ThoughtCoachWizard({ onClose }) {
       </div>
 
       {/* Navigation - Fixed at bottom above mobile nav */}
-      <div className="bg-white border-t shadow-lg fixed bottom-0 left-0 right-0 z-20 flex-shrink-0" style={{ marginBottom: 'calc(80px + env(safe-area-inset-bottom, 0))' }}>
+      <div className="bg-white border-t shadow-lg fixed bottom-0 left-0 right-0 flex-shrink-0" style={{ marginBottom: 'calc(80px + env(safe-area-inset-bottom, 0))', zIndex: 10 }}>
         <div className="max-w-2xl mx-auto p-4 w-full overflow-x-hidden">
           <div className="flex gap-3">
             {step > 1 && (

@@ -71,7 +71,7 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Offline Banner - Global */}
         {isOffline && (
-          <div className="fixed top-0 left-0 right-0 z-50 bg-orange-500 text-white px-4 py-2 text-center text-sm font-medium shadow-lg">
+          <div className="fixed top-0 left-0 right-0 bg-orange-500 text-white px-4 py-2 text-center text-sm font-medium shadow-lg" style={{ zIndex: 100 }}>
             You're offline. Check your connection.
           </div>
         )}
