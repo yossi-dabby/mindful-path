@@ -126,6 +126,17 @@ Provide SMART criteria answers and suggestions for milestones.`,
     });
   };
 
+  // Handle Escape key to close
+  React.useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [onClose]);
+
   const updateMilestone = (index, field, value) => {
     const newMilestones = [...formData.milestones];
     newMilestones[index] = { ...newMilestones[index], [field]: value };

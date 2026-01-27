@@ -235,6 +235,10 @@ export default function DraggableAiCompanion() {
       e.preventDefault();
       sendMessage();
     }
+    if (e.key === 'Escape' && isOpen) {
+      setIsOpen(false);
+      setIsMinimized(false);
+    }
   };
 
   const quickPrompts = [
@@ -276,6 +280,12 @@ export default function DraggableAiCompanion() {
       >
         <Button
           onClick={() => setIsOpen(true)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setIsOpen(true);
+            }
+          }}
           size="lg"
           className="rounded-full w-16 h-16 shadow-2xl bg-gradient-to-br from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
           aria-label="Open AI Companion chat"
