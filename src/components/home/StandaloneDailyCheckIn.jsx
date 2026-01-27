@@ -131,18 +131,17 @@ export default function StandaloneDailyCheckIn() {
   const deleteMutation = useMutation({
     mutationFn: async () => {
       if (!todayMood || isSubmittingRef.current) return;
-        await base44.entities.MoodEntry.delete(todayMood.id);
-        
-        // Also update DailyFlow
-        const today = new Date().toISOString().split('T')[0];
-        const flows = await base44.entities.DailyFlow.filter({ date: today });
-        if (flows.length > 0) {
-          await base44.entities.DailyFlow.update(flows[0].id, {
-            check_in_completed: false,
-            check_in_time: null,
-            mood_snapshot: null
-          });
-        }
+      await base44.entities.MoodEntry.delete(todayMood.id);
+      
+      // Also update DailyFlow
+      const today = new Date().toISOString().split('T')[0];
+      const flows = await base44.entities.DailyFlow.filter({ date: today });
+      if (flows.length > 0) {
+        await base44.entities.DailyFlow.update(flows[0].id, {
+          check_in_completed: false,
+          check_in_time: null,
+          mood_snapshot: null
+        });
       }
     },
     onSuccess: () => {
