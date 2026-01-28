@@ -300,7 +300,7 @@ export default function Chat() {
 
   // Check if we should show summary prompt (after 5+ messages)
   useEffect(() => {
-    if (messages.length >= 6 && !isLoading && messages[messages.length - 1]?.role === 'assistant') {
+    if (messages.length >= 6 && !isLoading && messages[messages.length - 1]?.role === 'assistant' && !showSummaryPrompt) {
       setShowSummaryPrompt(true);
     }
   }, [messages, isLoading]);
