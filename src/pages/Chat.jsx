@@ -45,6 +45,16 @@ export default function Chat() {
   const sendingMessageRef = useRef(false);
   const mountedRef = useRef(true);
 
+  // Debug: Log button state changes
+  useEffect(() => {
+    console.log('[Button State]', { 
+      isLoading, 
+      isSending: sendingMessageRef.current,
+      hasInput: !!inputMessage.trim(),
+      disabled: !inputMessage.trim() || isLoading || sendingMessageRef.current
+    });
+  }, [isLoading, inputMessage]);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -53,8 +63,13 @@ export default function Chat() {
     scrollToBottom();
   }, [messages]);
 
-  // Cleanup on unmount
+  // Cleanup on unmount and reset stuck states
   useEffect(() => {
+    // Reset any stuck states on mount
+    setIsLoading(false);
+    sendingMessageRef.current = false;
+    console.log('[Mount] Reset all sending states');
+    
     return () => {
       mountedRef.current = false;
     };
@@ -215,6 +230,7 @@ export default function Chat() {
         }
         setIsLoading(false);
         sendingMessageRef.current = false; // CRITICAL: Reset sending state
+        console.log('[Subscription] Reset sendingMessageRef to false');
 
         // Check if AI triggered UI form
         const lastMessage = processedMessages[processedMessages.length - 1];
@@ -230,6 +246,7 @@ export default function Chat() {
         console.error('[Chat Stream Error]', error);
         if (responseTimeoutId) clearTimeout(responseTimeoutId);
         setIsLoading(false);
+        sendingMessageRef.current = false; // Reset on error too
         setMessages(prev => [...prev, {
           role: 'system',
           content: 'Connection lost. Please try again.'
