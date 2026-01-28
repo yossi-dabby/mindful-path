@@ -16,6 +16,76 @@ export const testHelpers = {
   },
 
   /**
+   * Mock Base44 API endpoints to prevent 404 errors during E2E tests
+   */
+  async mockBase44APIs(page) {
+    // Mock public settings endpoint
+    await page.route('**/api/apps/public/*/public-settings/**', route => {
+      console.log('[MOCK] Public settings:', route.request().url());
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          appId: 'test-app-id',
+          appName: 'Test App',
+          isPublic: true
+        })
+      });
+    });
+
+    // Mock auth/user endpoints
+    await page.route('**/api/auth/me', route => {
+      console.log('[MOCK] Auth me:', route.request().url());
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          id: 'test-user-id',
+          email: 'test@example.com',
+          full_name: 'Test User',
+          role: 'user'
+        })
+      });
+    });
+
+    // Mock agent conversation endpoints
+    await page.route('**/api/agents/**', route => {
+      const method = route.request().method();
+      console.log('[MOCK] Agent API:', method, route.request().url());
+      
+      if (method === 'GET') {
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([])
+        });
+      } else if (method === 'POST') {
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            id: 'test-conversation-id',
+            messages: [],
+            metadata: {}
+          })
+        });
+      } else {
+        route.fulfill({ status: 200, body: '{}' });
+      }
+    });
+
+    // Mock entity endpoints
+    await page.route('**/api/entities/**', route => {
+      console.log('[MOCK] Entity API:', route.request().url());
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([])
+      });
+    });
+  },
+
+  /**
    * Safe page interaction with closure detection
    */
   async safePageAction(page, action, label = 'action') {
