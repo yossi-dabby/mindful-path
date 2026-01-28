@@ -13,26 +13,23 @@ test.describe('Chat Smoke Test', () => {
   test.beforeEach(async ({ page }) => {
     console.log('[TEST] Starting beforeEach setup');
     
-    // CRITICAL: Let JavaScript/asset files load normally - this MUST come first
-    await page.route('**/*.{js,jsx,ts,tsx,css,png,jpg,svg,woff,woff2}', async (route) => {
-      console.log(`[SKIP] Allowing asset file: ${route.request().url()}`);
-      await route.continue();
-    });
-    
-    // Mock analytics to prevent crashes
-    await page.route('**/analytics/**', async (route) => {
-      console.log('[MOCK] Analytics blocked');
-      await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
-    });
-    
-    // Mock API endpoints (but not src files)
-    await page.route('**/api/apps/**', async (route) => {
+    // CRITICAL: Only mock specific API endpoints, let everything else through
+    await page.route('**/*', async (route) => {
       const url = route.request().url();
       const method = route.request().method();
-      console.log(`[MOCK] API: ${method} ${url}`);
+      
+      // Let all static files through (JS, CSS, images, fonts)
+      if (url.match(/\.(js|jsx|ts|tsx|css|png|jpg|jpeg|svg|gif|woff|woff2|ttf|eot|ico)$/)) {
+        console.log(`[ALLOW] Static file: ${url}`);
+        await route.continue();
+        return;
+      }
+      
+      // Mock specific API endpoints only
       
       // Public settings
-      if (url.includes('/public-settings/')) {
+      if (url.includes('/api/apps/') && url.includes('/public-settings/')) {
+        console.log(`[MOCK] Public settings: ${url}`);
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -47,64 +44,69 @@ test.describe('Chat Smoke Test', () => {
         return;
       }
       
-      // Default API response
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ success: true })
-      });
-    });
-    
-    await page.route('**/api/auth/**', async (route) => {
-      const url = route.request().url();
-      console.log(`[MOCK] Auth: ${url}`);
+      // Auth endpoints
+      if (url.includes('/api/auth/')) {
+        console.log(`[MOCK] Auth: ${url}`);
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            id: 'test-user-id',
+            email: 'test@example.com',
+            full_name: 'Test User',
+            role: 'user',
+            preferences: {}
+          })
+        });
+        return;
+      }
       
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          id: 'test-user-id',
-          email: 'test@example.com',
-          full_name: 'Test User',
-          role: 'user',
-          preferences: {}
-        })
-      });
-    });
-    
-    await page.route('**/api/agents/**', async (route) => {
-      const url = route.request().url();
-      const method = route.request().method();
-      console.log(`[MOCK] Agents: ${method} ${url}`);
+      // Agent/conversation endpoints
+      if (url.includes('/api/agents/') || url.includes('/api/conversations/')) {
+        console.log(`[MOCK] Agents: ${method} ${url}`);
+        if (method === 'GET') {
+          await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify([])
+          });
+        } else if (method === 'POST') {
+          await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              id: 'test-conversation-id',
+              messages: [],
+              metadata: { name: 'Test Session' }
+            })
+          });
+        } else {
+          await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+        }
+        return;
+      }
       
-      if (method === 'GET') {
+      // Entity endpoints
+      if (url.includes('/api/entities/')) {
+        console.log(`[MOCK] Entities: ${url}`);
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
           body: JSON.stringify([])
         });
-      } else if (method === 'POST') {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            id: 'test-conversation-id',
-            messages: [],
-            metadata: { name: 'Test Session' }
-          })
-        });
-      } else {
-        await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+        return;
       }
-    });
-    
-    await page.route('**/api/entities/**', async (route) => {
-      console.log(`[MOCK] Entities: ${route.request().url()}`);
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify([])
-      });
+      
+      // Analytics endpoints
+      if (url.includes('/analytics/')) {
+        console.log('[MOCK] Analytics blocked');
+        await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+        return;
+      }
+      
+      // Let everything else through (including dev server requests)
+      console.log(`[ALLOW] Passthrough: ${url}`);
+      await route.continue();
     });
     
     // Set up test environment BEFORE page loads
