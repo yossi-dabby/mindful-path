@@ -180,37 +180,39 @@ export default function Chat() {
 
         // Process messages: validate and extract structured JSON from assistant messages
         // CRITICAL: This must handle both new structured output AND legacy/corrupted messages
-        let processedMessages = (data.messages || []).map(msg => {
-          if (msg.role === 'assistant' && msg.content) {
-            // Validate and normalize agent output (non-breaking)
-            const validated = validateAgentOutput(msg.content);
-            
-            if (validated) {
-              // Structured output validated successfully
+        try {
+          const processedMessages = (data.messages || []).map(msg => {
+            if (msg.role === 'assistant' && msg.content) {
+              // Validate and normalize agent output (non-breaking)
+              const validated = validateAgentOutput(msg.content);
+              
+              if (validated) {
+                // Structured output validated successfully
+                return {
+                  ...msg,
+                  content: validated.assistant_message, // User-visible content only
+                  metadata: {
+                    ...(msg.metadata || {}),
+                    structured_data: validated // Store validated structured data
+                  }
+                };
+              }
+              
+              // Validation failed - extract message or use as-is (backward compatible)
+              const extracted = extractAssistantMessage(msg.content);
               return {
                 ...msg,
-                content: validated.assistant_message, // User-visible content only
-                metadata: {
-                  ...(msg.metadata || {}),
-                  structured_data: validated // Store validated structured data
-                }
+                content: extracted
               };
             }
-            
-            // Validation failed - extract message or use as-is (backward compatible)
-            const extracted = extractAssistantMessage(msg.content);
-            return {
-              ...msg,
-              content: extracted
-            };
-          }
-          return msg;
-        });
+            return msg;
+          });
 
-        // Additional safety: sanitize any remaining corrupted messages
-        processedMessages = sanitizeConversationMessages(processedMessages);
-
-        setMessages(processedMessages);
+          setMessages(processedMessages);
+        } catch (err) {
+          console.error('[Message Processing Error]', err);
+          // Don't crash - keep existing messages
+        }
         setIsLoading(false);
 
         // Check if AI triggered UI form
@@ -340,10 +342,18 @@ export default function Chat() {
   };
 
   const loadConversation = async (conversationId) => {
-    const conversation = await base44.agents.getConversation(conversationId);
-    setCurrentConversationId(conversationId);
-    setMessages(conversation.messages || []);
-    setShowSidebar(false);
+    try {
+      const conversation = await base44.agents.getConversation(conversationId);
+      setCurrentConversationId(conversationId);
+      
+      // Process and sanitize messages before setting
+      const sanitized = sanitizeConversationMessages(conversation.messages || []);
+      setMessages(sanitized);
+      setShowSidebar(false);
+    } catch (error) {
+      console.error('[Load Conversation Error]', error);
+      setMessages([]);
+    }
   };
 
   const handleSendMessage = async () => {
