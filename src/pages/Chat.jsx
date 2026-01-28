@@ -20,6 +20,7 @@ import { detectCrisisLanguage, detectCrisisWithReason } from '../components/util
 import AgeGateModal from '../components/utils/AgeGateModal';
 import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
+import { validateAgentOutput, extractAssistantMessage } from '../components/utils/validateAgentOutput';
 
 export default function Chat() {
   const [currentConversationId, setCurrentConversationId] = useState(null);
@@ -177,27 +178,30 @@ export default function Chat() {
         // Clear timeout - we got a response
         if (responseTimeoutId) clearTimeout(responseTimeoutId);
 
-        // Process messages: extract structured JSON from assistant messages
+        // Process messages: validate and extract structured JSON from assistant messages
         const processedMessages = (data.messages || []).map(msg => {
           if (msg.role === 'assistant' && msg.content) {
-            try {
-              // Attempt to parse as JSON
-              const parsed = JSON.parse(msg.content);
-              
-              // If it has assistant_message, it's structured output
-              if (parsed.assistant_message) {
-                return {
-                  ...msg,
-                  content: parsed.assistant_message, // User-visible content
-                  metadata: {
-                    ...(msg.metadata || {}),
-                    structured_data: parsed // Store full structured data
-                  }
-                };
-              }
-            } catch (e) {
-              // Not JSON or parsing failed - use content as-is (backward compatible)
+            // Validate and normalize agent output (non-breaking)
+            const validated = validateAgentOutput(msg.content);
+            
+            if (validated) {
+              // Structured output validated successfully
+              return {
+                ...msg,
+                content: validated.assistant_message, // User-visible content only
+                metadata: {
+                  ...(msg.metadata || {}),
+                  structured_data: validated // Store validated structured data
+                }
+              };
             }
+            
+            // Validation failed - extract message or use as-is (backward compatible)
+            const extracted = extractAssistantMessage(msg.content);
+            return {
+              ...msg,
+              content: extracted
+            };
           }
           return msg;
         });
