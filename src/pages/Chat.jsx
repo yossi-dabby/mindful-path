@@ -195,8 +195,9 @@ export default function Chat() {
 
         // Process messages: validate and extract structured JSON from assistant messages
         // CRITICAL: This must handle both new structured output AND legacy/corrupted messages
+        let processedMessages = [];
         try {
-          const processedMessages = (data.messages || []).map(msg => {
+          processedMessages = (data.messages || []).map(msg => {
             if (msg.role === 'assistant' && msg.content) {
               // Validate and normalize agent output (non-breaking)
               const validated = validateAgentOutput(msg.content);
@@ -224,6 +225,13 @@ export default function Chat() {
           });
 
           setMessages(processedMessages);
+          
+          // Check if AI triggered UI form
+          const lastMessage = processedMessages[processedMessages.length - 1];
+          if (lastMessage?.role === 'assistant' && lastMessage?.metadata?.trigger_ui_form === 'daily_checkin' && !showCheckInModal) {
+            console.log('[UI Form Trigger] Opening check-in modal');
+            setShowCheckInModal(true);
+          }
         } catch (err) {
           console.error('[Message Processing Error]', err);
           // Don't crash - keep existing messages
@@ -231,13 +239,6 @@ export default function Chat() {
         setIsLoading(false);
         sendingMessageRef.current = false; // CRITICAL: Reset sending state
         console.log('[Subscription] Reset sendingMessageRef to false');
-
-        // Check if AI triggered UI form
-        const lastMessage = processedMessages[processedMessages.length - 1];
-        if (lastMessage?.role === 'assistant' && lastMessage?.metadata?.trigger_ui_form === 'daily_checkin' && !showCheckInModal) {
-          console.log('[UI Form Trigger] Opening check-in modal');
-          setShowCheckInModal(true);
-        }
       },
       (error) => {
         if (!isSubscribed || !mountedRef.current) return;
