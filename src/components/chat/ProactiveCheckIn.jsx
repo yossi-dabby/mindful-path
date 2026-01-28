@@ -11,37 +11,32 @@ export default function ProactiveCheckIn({ onSendMessage }) {
   const queryClient = useQueryClient();
   const today = new Date().toISOString().split('T')[0];
 
-  const { data: goals } = useQuery({
+  const { data: goals = [] } = useQuery({
     queryKey: ['activeGoals'],
-    queryFn: () => base44.entities.Goal.filter({ status: 'active' }),
-    initialData: []
+    queryFn: () => base44.entities.Goal.filter({ status: 'active' })
   });
 
-  const { data: recentMoods } = useQuery({
+  const { data: recentMoods = [] } = useQuery({
     queryKey: ['recentMoods'],
-    queryFn: () => base44.entities.MoodEntry.list('-date', 7),
-    initialData: []
+    queryFn: () => base44.entities.MoodEntry.list('-date', 7)
   });
 
-  const { data: recentJournals } = useQuery({
+  const { data: recentJournals = [] } = useQuery({
     queryKey: ['recentJournals'],
-    queryFn: () => base44.entities.ThoughtJournal.list('-created_date', 5),
-    initialData: []
+    queryFn: () => base44.entities.ThoughtJournal.list('-created_date', 5)
   });
 
-  const { data: exercises } = useQuery({
+  const { data: exercises = [] } = useQuery({
     queryKey: ['exercises'],
-    queryFn: () => base44.entities.Exercise.list(),
-    initialData: []
+    queryFn: () => base44.entities.Exercise.list()
   });
 
-  const { data: aiReminders } = useQuery({
+  const { data: aiReminders = [] } = useQuery({
     queryKey: ['proactiveReminders'],
     queryFn: async () => {
       const reminders = await base44.entities.ProactiveReminder.filter({ status: 'pending' });
-      return reminders.filter(r => r.scheduled_date <= today);
-    },
-    initialData: []
+      return Array.isArray(reminders) ? reminders.filter(r => r.scheduled_date <= today) : [];
+    }
   });
 
   const dismissReminderMutation = useMutation({
