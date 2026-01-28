@@ -813,8 +813,7 @@ export default function Chat() {
                 borderRadius: '20px',
                 backgroundColor: '#26A69A',
                 boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)',
-                zIndex: 51,
-                pointerEvents: (!inputMessage.trim() || isLoading || sendingMessageRef.current) ? 'none' : 'auto'
+                zIndex: 51
               }}
             >
               <Send className="w-5 h-5" />
