@@ -44,6 +44,7 @@ export default function Chat() {
   const inFlightIntentRef = useRef(false);
   const sessionTriggeredRef = useRef(new Set());
   const mountedRef = useRef(true);
+  const subscriptionActiveRef = useRef(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
