@@ -254,6 +254,7 @@ export default function Chat() {
       if (isSubscribed && mountedRef.current) {
         console.error('[Response Timeout] No response after 30s');
         setIsLoading(false);
+        subscriptionActiveRef.current = false;
       }
       unsubscribe?.();
     }, 30000);
