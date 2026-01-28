@@ -348,14 +348,14 @@ Provide:
                 </div>
               )}
 
-              <div>
+              <div key="situation-editor">
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
                   What happened? (The Situation)
                 </label>
                 <div className="border rounded-xl overflow-hidden">
                   <ReactQuill
                     value={formData.situation || ''}
-                    onChange={(value) => setFormData({ ...formData, situation: value })}
+                    onChange={(value) => setFormData(prev => ({ ...prev, situation: value }))}
                     placeholder="Describe the situation that triggered these thoughts..."
                     modules={{
                       toolbar: [
@@ -365,18 +365,19 @@ Provide:
                       ]
                     }}
                     className="h-32"
+                    theme="snow"
                   />
                 </div>
               </div>
 
-              <div>
+              <div key="thoughts-editor">
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
                   What went through your mind? (Automatic Thoughts)
                 </label>
                 <div className="border rounded-xl overflow-hidden">
                   <ReactQuill
                     value={formData.automatic_thoughts || ''}
-                    onChange={(value) => setFormData({ ...formData, automatic_thoughts: value })}
+                    onChange={(value) => setFormData(prev => ({ ...prev, automatic_thoughts: value }))}
                     placeholder="What thoughts automatically came up? Write them exactly as they appeared..."
                     modules={{
                       toolbar: [
@@ -386,6 +387,7 @@ Provide:
                       ]
                     }}
                     className="h-32"
+                    theme="snow"
                   />
                 </div>
               </div>
