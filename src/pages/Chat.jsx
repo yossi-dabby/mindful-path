@@ -42,18 +42,7 @@ export default function Chat() {
   const processedIntentRef = useRef(null);
   const inFlightIntentRef = useRef(false);
   const sessionTriggeredRef = useRef(new Set());
-  const sendingMessageRef = useRef(false);
   const mountedRef = useRef(true);
-
-  // Debug: Log button state changes
-  useEffect(() => {
-    console.log('[Button State]', { 
-      isLoading, 
-      isSending: sendingMessageRef.current,
-      hasInput: !!inputMessage.trim(),
-      disabled: !inputMessage.trim() || isLoading || sendingMessageRef.current
-    });
-  }, [isLoading, inputMessage]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -63,13 +52,8 @@ export default function Chat() {
     scrollToBottom();
   }, [messages]);
 
-  // Cleanup on unmount and reset stuck states
+  // Cleanup on unmount
   useEffect(() => {
-    // Reset any stuck states on mount
-    setIsLoading(false);
-    sendingMessageRef.current = false;
-    console.log('[Mount] Reset all sending states');
-    
     return () => {
       mountedRef.current = false;
     };
@@ -234,11 +218,8 @@ export default function Chat() {
           }
         } catch (err) {
           console.error('[Message Processing Error]', err);
-          // Don't crash - keep existing messages
         }
         setIsLoading(false);
-        sendingMessageRef.current = false; // CRITICAL: Reset sending state
-        console.log('[Subscription] Reset sendingMessageRef to false');
       },
       (error) => {
         if (!isSubscribed || !mountedRef.current) return;
@@ -247,7 +228,6 @@ export default function Chat() {
         console.error('[Chat Stream Error]', error);
         if (responseTimeoutId) clearTimeout(responseTimeoutId);
         setIsLoading(false);
-        sendingMessageRef.current = false; // Reset on error too
         setMessages(prev => [...prev, {
           role: 'system',
           content: 'Connection lost. Please try again.'
@@ -376,11 +356,8 @@ export default function Chat() {
   };
 
   const handleSendMessage = async () => {
-    // Safety: guard against closed component
-    if (!mountedRef.current) return;
-
-    if (!inputMessage.trim() || isLoading || sendingMessageRef.current) {
-      console.log('[Send] Blocked:', { hasInput: !!inputMessage.trim(), isLoading, isSending: sendingMessageRef.current });
+    if (!inputMessage.trim() || isLoading) {
+      console.log('[Send] Blocked:', { hasInput: !!inputMessage.trim(), isLoading });
       return;
     }
 
@@ -388,7 +365,6 @@ export default function Chat() {
     const reasonCode = detectCrisisWithReason(inputMessage);
     if (reasonCode) {
       setShowRiskPanel(true);
-      // Log alert async (non-blocking, with error suppression)
       base44.auth.me()
         .then(user => {
           base44.entities.CrisisAlert.create({
@@ -402,16 +378,12 @@ export default function Chat() {
       return;
     }
 
-    console.log('[Send] Starting message send');
-    sendingMessageRef.current = true;
     const messageText = inputMessage;
+    setInputMessage('');
+    setShowSummaryPrompt(false);
+    setIsLoading(true);
 
     try {
-      if (!mountedRef.current) {
-        sendingMessageRef.current = false;
-        return;
-      }
-
       let convId = currentConversationId;
       if (!convId) {
         const conversation = await base44.agents.createConversation({
@@ -422,46 +394,18 @@ export default function Chat() {
           }
         });
         convId = conversation.id;
-        if (!mountedRef.current) {
-          sendingMessageRef.current = false;
-          return;
-        }
         setCurrentConversationId(convId);
         refetchConversations();
         setShowSidebar(false);
       }
 
-      if (!mountedRef.current) {
-        sendingMessageRef.current = false;
-        return;
-      }
       const conversation = await base44.agents.getConversation(convId);
-
-      if (!mountedRef.current) {
-        sendingMessageRef.current = false;
-        return;
-      }
-      setInputMessage('');
-      setShowSummaryPrompt(false);
-      setIsLoading(true);
-
-      console.log('[Send] Calling addMessage');
       await base44.agents.addMessage(conversation, {
         role: 'user',
         content: messageText
       });
-
-      console.log('[Send] Message sent successfully');
-      if (!mountedRef.current) {
-        sendingMessageRef.current = false;
-        return;
-      }
     } catch (error) {
       console.error('[Send] Error:', error);
-      if (!mountedRef.current) {
-        sendingMessageRef.current = false;
-        return;
-      }
       setIsLoading(false);
 
       if (isAuthError(error) && shouldShowAuthError()) {
@@ -472,8 +416,6 @@ export default function Chat() {
           content: 'Failed to send. Please try again.'
         }]);
       }
-    } finally {
-      sendingMessageRef.current = false;
     }
   };
 
@@ -903,29 +845,17 @@ export default function Chat() {
                 borderColor: 'rgba(38, 166, 154, 0.3)',
                 backgroundColor: 'rgba(255, 255, 255, 0.9)'
               }}
-              disabled={isLoading || sendingMessageRef.current}
+              disabled={isLoading}
             />
             <Button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('[Send Button] Clicked', { 
-                  hasInput: !!inputMessage.trim(), 
-                  isLoading, 
-                  isSending: sendingMessageRef.current,
-                  inputLength: inputMessage.length 
-                });
-                handleSendMessage();
-              }}
-              disabled={!inputMessage.trim() || isLoading || sendingMessageRef.current}
+              onClick={handleSendMessage}
+              disabled={!inputMessage.trim() || isLoading}
               data-testid="therapist-chat-send"
-              className="h-[60px] px-6 text-white relative"
+              className="h-[60px] px-6 text-white"
               style={{
                 borderRadius: '20px',
                 backgroundColor: '#26A69A',
-                boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)',
-                zIndex: 51,
-                pointerEvents: 'auto'
+                boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
               }}
             >
               <Send className="w-5 h-5" />
