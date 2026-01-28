@@ -228,10 +228,6 @@ export default function Chat() {
         console.error('[Chat Stream Error]', error);
         if (responseTimeoutId) clearTimeout(responseTimeoutId);
         setIsLoading(false);
-        setMessages(prev => [...prev, {
-          role: 'system',
-          content: 'Connection lost. Please try again.'
-        }]);
       }
     );
 
@@ -240,10 +236,6 @@ export default function Chat() {
       if (isSubscribed && mountedRef.current) {
         console.error('[Response Timeout] No response after 30s');
         setIsLoading(false);
-        setMessages(prev => [...prev, {
-          role: 'system',
-          content: 'Response timeout. Please try again.'
-        }]);
       }
       unsubscribe?.();
     }, 30000);
@@ -410,11 +402,6 @@ export default function Chat() {
 
       if (isAuthError(error) && shouldShowAuthError()) {
         setShowAuthError(true);
-      } else {
-        setMessages(prev => [...prev, {
-          role: 'system',
-          content: 'Failed to send. Please try again.'
-        }]);
       }
     }
   };
@@ -731,7 +718,7 @@ export default function Chat() {
                     context="chat"
                   />
                 ))}
-                {isLoading && (
+                {isLoading && messages.length > 0 && (
                   <div data-testid="chat-loading" className="flex gap-3">
                     <div className="h-7 w-7 flex items-center justify-center" style={{
                       borderRadius: '12px',
