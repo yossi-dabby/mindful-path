@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 // Import helpers from Base44 app
-import { testHelpers } from '../e2eTestHelpers.js';
+import { testHelpers } from '../../functions/e2eTestHelpers.js';
 
 test.describe('Chat Smoke Test (Web)', () => {
   test.beforeEach(async ({ page }) => {
