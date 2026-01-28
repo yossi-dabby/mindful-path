@@ -1,10 +1,18 @@
 # Playwright Test Integration Guide
 
-## Critical Setup Steps for smoke.web.spec.ts
+## Quick Start - Copy/Paste Solution
+
+**See `functions/smoke.web.spec.example.ts` for a complete working test file.**
+
+Replace your entire `tests/e2e/smoke.web.spec.ts` with the example file, adjusting only:
+- Import paths: `import { testHelpers } from '../functions/e2eTestHelpers.js';`
+- Base URL if different from http://127.0.0.1:5173
+
+## Critical Setup Steps
 
 ### 1. Import Test Helpers
 ```typescript
-import { testHelpers } from './functions/e2eTestHelpers.js';
+import { testHelpers } from '../functions/e2eTestHelpers.js';
 ```
 
 ### 2. Setup Before Each Test
@@ -14,13 +22,13 @@ test.beforeEach(async ({ page }) => {
   await testHelpers.mockAnalytics(page);
   
   // Setup closure diagnostics
-  const diagnostics = testHelpers.setupClosureDiagnostics(page);
+  testHelpers.setupClosureDiagnostics(page);
   
   // Set test environment flags
   await page.addInitScript(() => {
     localStorage.setItem('chat_consent_accepted', 'true');
     localStorage.setItem('age_verified', 'true');
-    window.location.search = '?e2e-test=true';
+    document.body.setAttribute('data-test-env', 'true');
   });
 });
 ```
@@ -31,11 +39,7 @@ test.beforeEach(async ({ page }) => {
 const buttonCount = await allButtons.count();
 for (let i = 0; i < buttonCount; i++) {
   const label = await allButtons.nth(i).innerText().catch(() => '');
-  const visible = await allButtons.nth(i).isVisible().catch(() => false);
-  const enabled = await allButtons.nth(i).isEnabled().catch(() => false);
-  if (/send/i.test(label)) {
-    console.log(`[DIAGNOSTIC] Button[${i}] label: "${label}", visible: ${visible}, enabled: ${enabled}`);
-  }
+  // ...
 }
 
 // AFTER (safe with closure protection):
@@ -55,47 +59,30 @@ await testHelpers.safeDiagnosticLoop(page, allButtons, async (button, i) => {
 if (page.isClosed()) {
   throw new Error('Page closed prematurely');
 }
-
-// Example:
-if (page.isClosed()) throw new Error('Page closed before send');
-await expect(sendButton).toBeVisible({ timeout: 20000 });
-
-if (page.isClosed()) throw new Error('Page closed before click');
-await sendButton.click();
 ```
 
-### 5. GitHub Workflow Changes (.github/workflows/playwright.yml)
+### 5. GitHub Workflow Changes
 ```yaml
-- name: Wait for server
-  run: npx --yes wait-on http://127.0.0.1:5173 --timeout 120000  # Increased from 60s to 120s
+# In .github/workflows/playwright.yml:
 
-- name: Run Playwright tests
-  run: npx playwright test
-  env:
-    CI: true
-    NODE_ENV: test
+- name: Wait for server
+  run: npx --yes wait-on http://127.0.0.1:5173 --timeout 120000  # Increased to 120s
 ```
 
-## Root Causes Fixed in App Code
+## Root Causes Fixed
 
-✅ **Analytics crash**: Added `mockAnalytics()` in e2eTestHelpers.js
-✅ **Button not clickable**: Removed `pointerEvents: 'none'` from Chat.js send button
+✅ **Analytics crash**: Added `mockAnalytics()` in e2eTestHelpers.js + app-side disable flag
+✅ **Button not clickable**: Removed `pointerEvents: 'none'` from Chat.js send button  
 ✅ **Unguarded setState**: Added `mountedRef` checks to prevent updates after unmount
 ✅ **Response timeout**: Added 30s timeout with abort in subscription handler
-
-## Remaining Test File Changes Needed
-
-1. Import testHelpers
-2. Call `mockAnalytics()` before navigation
-3. Replace diagnostic loop at line ~54 with `safeDiagnosticLoop()`
-4. Add `page.isClosed()` checks before each expect/action
-5. Increase workflow wait-on timeout to 120s
+✅ **Diagnostic loop crash**: Created `safeDiagnosticLoop()` with closure protection
 
 ## Verification Checklist
 
+- [ ] Copy `smoke.web.spec.example.ts` to `tests/e2e/smoke.web.spec.ts`
 - [ ] Test imports testHelpers
 - [ ] mockAnalytics() called in beforeEach
 - [ ] Diagnostic loops use safeDiagnosticLoop()
 - [ ] page.isClosed() checked before critical actions
-- [ ] Workflow wait-on timeout increased
+- [ ] Workflow wait-on timeout increased to 120s
 - [ ] Test passes without "Target page, context or browser has been closed"
