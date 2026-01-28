@@ -13,11 +13,18 @@ test.describe('Chat Smoke Test', () => {
   test.beforeEach(async ({ page }) => {
     console.log('[TEST] Starting beforeEach setup');
     
-    // CRITICAL: Mock ALL API calls BEFORE navigation
+    // CRITICAL: Mock ALL API calls BEFORE navigation (but skip JS/asset files)
     await page.route('**/api/**', async (route) => {
       const url = route.request().url();
       const method = route.request().method();
       console.log(`[MOCK] Intercepting: ${method} ${url}`);
+      
+      // Skip JavaScript module files - let them load normally
+      if (url.endsWith('.js') || url.endsWith('.jsx') || url.endsWith('.ts') || url.endsWith('.tsx')) {
+        console.log(`[MOCK] Skipping module file: ${url}`);
+        await route.continue();
+        return;
+      }
       
       // Public settings
       if (url.includes('/public-settings/')) {
