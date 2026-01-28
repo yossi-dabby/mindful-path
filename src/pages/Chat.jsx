@@ -180,6 +180,10 @@ export default function Chat() {
   useEffect(() => {
     if (!currentConversationId) return;
 
+    // Prevent duplicate subscriptions
+    if (subscriptionActiveRef.current) return;
+    subscriptionActiveRef.current = true;
+
     let responseTimeoutId = null;
     let isSubscribed = true;
 
