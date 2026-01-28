@@ -49,7 +49,7 @@ export default function InlineConsentBanner({ onAccept }) {
               This AI provides wellness support but is not a substitute for professional mental health care. In crisis, contact emergency services immediately.
             </p>
             <Button
-              onClick={onAccept}
+              onClick={handleAccept}
               data-testid="consent-accept"
               size="sm"
               className="text-white font-medium"

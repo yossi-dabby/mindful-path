@@ -75,7 +75,7 @@ export default function InlineRiskPanel({ onDismiss }) {
             </div>
 
             <Button
-              onClick={onDismiss}
+              onClick={handleDismiss}
               data-testid="risk-panel-dismiss"
               className="w-full md:w-auto text-white font-medium"
               style={{

@@ -21,6 +21,17 @@ export default function MessageFeedback({ conversationId, messageIndex, agentNam
         agent_name: agentName,
         session_context: context
       });
+      
+      // Analytics tracking
+      base44.analytics.track({
+        eventName: 'message_feedback_given',
+        properties: {
+          feedback_type: type,
+          conversation_id: conversationId,
+          agent_name: agentName,
+          context: context
+        }
+      });
     } catch (error) {
       console.error('Failed to submit feedback:', error);
       setFeedback(null);
