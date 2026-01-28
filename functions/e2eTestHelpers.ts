@@ -6,6 +6,16 @@
 
 export const testHelpers = {
   /**
+   * Mock analytics API to prevent crashes in test environment
+   */
+  async mockAnalytics(page) {
+    await page.route('**/api/apps/*/analytics/**', route => {
+      console.log('[MOCK] Intercepted analytics call:', route.request().url());
+      route.fulfill({ status: 200, body: JSON.stringify({ success: true }) });
+    });
+  },
+
+  /**
    * Safe page interaction with closure detection
    */
   async safePageAction(page, action, label = 'action') {
