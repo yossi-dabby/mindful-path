@@ -1,7 +1,38 @@
 /**
  * Non-breaking validator for CBT agent structured output.
  * Returns validated/normalized JSON or null if invalid (falls back gracefully).
+ * 
+ * SAFETY RULES:
+ * - Strips any medical/diagnostic language from assistant_message
+ * - Blocks responses with harmful advice patterns
+ * - Ensures no raw JSON or metadata leaks
  */
+
+// Safety patterns to detect and strip
+const UNSAFE_PATTERNS = [
+  /\b(you (have|might have) (depression|anxiety|PTSD|bipolar|schizophrenia))\b/gi,
+  /\b(I (can )?(diagnose|prescribe))\b/gi,
+  /\b(take (this|these) (medication|drug)s?)\b/gi
+];
+
+function sanitizeAssistantMessage(message) {
+  if (!message || typeof message !== 'string') return message;
+  
+  let sanitized = message;
+  
+  // Strip unsafe patterns
+  for (const pattern of UNSAFE_PATTERNS) {
+    sanitized = sanitized.replace(pattern, '[content removed for safety]');
+  }
+  
+  // Ensure no JSON-like structures leak
+  if (sanitized.includes('"situation":') || sanitized.includes('"homework":')) {
+    console.error('[Safety] JSON structure detected in assistant_message');
+    return 'Unable to display this message safely.';
+  }
+  
+  return sanitized;
+}
 
 export function validateAgentOutput(rawContent) {
   try {
@@ -30,8 +61,9 @@ export function validateAgentOutput(rawContent) {
     }
 
     // Normalize to expected schema (fill missing fields with defaults)
+    // CRITICAL: Sanitize assistant_message for safety
     const normalized = {
-      assistant_message: parsed.assistant_message.trim(),
+      assistant_message: sanitizeAssistantMessage(parsed.assistant_message.trim()),
       mode: parsed.mode || 'thought_work',
       situation: parsed.situation || null,
       automatic_thought: parsed.automatic_thought || null,
@@ -117,7 +149,7 @@ export function extractAssistantMessage(rawContent) {
   const validated = validateAgentOutput(rawContent);
   
   if (validated?.assistant_message) {
-    return validated.assistant_message;
+    return sanitizeAssistantMessage(validated.assistant_message);
   }
   
   // Fallback: if content is already a string but looks like JSON, try to extract

@@ -379,7 +379,7 @@ export default function Chat() {
       return;
     }
 
-    // Crisis detection gate
+    // Layer 1: Regex-based crisis detection (fast, explicit patterns)
     const reasonCode = detectCrisisWithReason(inputMessage);
     if (reasonCode) {
       setShowRiskPanel(true);
@@ -394,6 +394,31 @@ export default function Chat() {
         })
         .catch(() => {});
       return;
+    }
+
+    // Layer 2: LLM-based crisis detection (nuanced, implicit patterns)
+    try {
+      const user = await base44.auth.me();
+      const enhancedCheck = await base44.functions.invoke('enhancedCrisisDetector', {
+        message: inputMessage,
+        language: user?.preferences?.language || 'en'
+      });
+
+      if (enhancedCheck.data?.is_crisis && 
+          (enhancedCheck.data.severity === 'severe' || enhancedCheck.data.severity === 'high') &&
+          enhancedCheck.data.confidence > 0.7) {
+        setShowRiskPanel(true);
+        base44.entities.CrisisAlert.create({
+          surface: 'chat',
+          conversation_id: currentConversationId || 'none',
+          reason_code: `llm_${enhancedCheck.data.severity}`,
+          user_email: user?.email || 'unknown'
+        }).catch(() => {});
+        return;
+      }
+    } catch (error) {
+      console.warn('[Enhanced Crisis Detection] Failed, continuing with message:', error);
+      // Non-blocking: if enhanced detection fails, continue with message send
     }
 
     const messageText = inputMessage;
