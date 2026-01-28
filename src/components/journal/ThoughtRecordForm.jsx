@@ -34,9 +34,9 @@ const cognitiveDistortions = [
   'Personalization'
 ];
 
-export default function ThoughtRecordForm({ entry, template, templates, onClose, initialSituation = '' }) {
+export default function ThoughtRecordForm({ entry, template, templates = [], onClose, initialSituation = '' }) {
   const [step, setStep] = useState(1);
-  const [selectedTemplate, setSelectedTemplate] = useState(template || (entry?.template_id ? templates.find(t => t.id === entry.template_id) : null));
+  const [selectedTemplate, setSelectedTemplate] = useState(template || (entry?.template_id ? (templates || []).find(t => t.id === entry.template_id) : null));
   const [uploadError, setUploadError] = useState(null);
   const [formData, setFormData] = useState({
     entry_type: entry?.entry_type || template?.entry_type || 'cbt_standard',
