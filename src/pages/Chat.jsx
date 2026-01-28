@@ -225,7 +225,7 @@ export default function Chat() {
           
           // Check if AI triggered UI form
           const lastMessage = processedMessages[processedMessages.length - 1];
-          if (lastMessage?.role === 'assistant' && lastMessage?.metadata?.trigger_ui_form === 'daily_checkin') {
+          if (lastMessage?.role === 'assistant' && lastMessage?.metadata?.trigger_ui_form === 'daily_checkin' && !showCheckInModal) {
             console.log('[UI Form Trigger] Opening check-in modal');
             setShowCheckInModal(true);
           }
