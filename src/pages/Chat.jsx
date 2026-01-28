@@ -16,6 +16,7 @@ import TherapyStateMachine from '../components/chat/TherapyStateMachine';
 import EnhancedMoodCheckIn from '../components/home/EnhancedMoodCheckIn';
 import InlineConsentBanner from '../components/chat/InlineConsentBanner';
 import InlineRiskPanel from '../components/chat/InlineRiskPanel';
+import ProfileSpecificDisclaimer from '../components/chat/ProfileSpecificDisclaimer';
 import { detectCrisisLanguage, detectCrisisWithReason } from '../components/utils/crisisDetector';
 import AgeGateModal from '../components/utils/AgeGateModal';
 import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
@@ -796,6 +797,8 @@ export default function Chat() {
                 {showRiskPanel && (
                   <InlineRiskPanel onDismiss={() => setShowRiskPanel(false)} />
                 )}
+                {/* Profile-specific periodic disclaimer */}
+                <ProfileSpecificDisclaimer messageCount={messages.length} />
                 {messages.filter(m => m && m.content).map((message, index) => (
                   <MessageBubble 
                     key={index} 
@@ -936,9 +939,15 @@ export default function Chat() {
               <Send className="w-5 h-5" />
             </Button>
           </div>
-          <p className="text-xs text-center mt-3" style={{ color: '#5A7A72' }}>
-            This is AI-assisted support. In crisis, contact emergency services.
-          </p>
+          {/* Always-visible persistent disclaimer */}
+          <div className="text-center mt-3 px-4">
+            <p className="text-xs font-medium mb-1" style={{ color: '#5A7A72' }}>
+              ⚠️ AI Support - Not Professional Therapy
+            </p>
+            <p className="text-xs" style={{ color: '#7A8A82' }}>
+              Cannot diagnose or prescribe. Crisis? Call 988 (US) or your local emergency services.
+            </p>
+          </div>
         </div>
 
       {/* Enhanced Check-in Modal - highest z-index when active */}
