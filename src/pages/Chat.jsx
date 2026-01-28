@@ -294,7 +294,7 @@ export default function Chat() {
       }
     },
     initialData: [],
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
     retry: false // Don't retry in test mode
   });
 
