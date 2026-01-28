@@ -120,10 +120,68 @@ export function extractAssistantMessage(rawContent) {
     return validated.assistant_message;
   }
   
-  // Fallback: if content is already a string, return as-is (backward compatible)
+  // Fallback: if content is already a string but looks like JSON, try to extract
   if (typeof rawContent === 'string') {
+    // Check if it's JSON
+    if (rawContent.trim().startsWith('{')) {
+      try {
+        const parsed = JSON.parse(rawContent);
+        if (parsed.assistant_message) {
+          return String(parsed.assistant_message);
+        }
+      } catch (e) {
+        // Not valid JSON, treat as regular text
+      }
+    }
     return rawContent;
   }
   
   return 'Unable to process response.';
+}
+
+/**
+ * Sanitize corrupted conversation history (recovery utility).
+ * Processes all messages and extracts assistant_message from any JSON content.
+ */
+export function sanitizeConversationMessages(messages) {
+  if (!Array.isArray(messages)) return [];
+  
+  return messages.map(msg => {
+    if (msg.role === 'assistant' && msg.content) {
+      const validated = validateAgentOutput(msg.content);
+      
+      if (validated) {
+        return {
+          ...msg,
+          content: validated.assistant_message,
+          metadata: {
+            ...(msg.metadata || {}),
+            structured_data: validated,
+            sanitized: true
+          }
+        };
+      }
+      
+      // Additional fallback for malformed JSON
+      if (typeof msg.content === 'string' && msg.content.includes('"assistant_message"')) {
+        try {
+          const parsed = JSON.parse(msg.content);
+          if (parsed.assistant_message) {
+            return {
+              ...msg,
+              content: parsed.assistant_message,
+              metadata: {
+                ...(msg.metadata || {}),
+                structured_data: parsed,
+                sanitized: true
+              }
+            };
+          }
+        } catch (e) {
+          console.warn('[Sanitize] Failed to extract from JSON-like content:', msg.content?.substring(0, 100));
+        }
+      }
+    }
+    return msg;
+  });
 }

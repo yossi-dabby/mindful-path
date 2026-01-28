@@ -20,7 +20,7 @@ import { detectCrisisLanguage, detectCrisisWithReason } from '../components/util
 import AgeGateModal from '../components/utils/AgeGateModal';
 import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
-import { validateAgentOutput, extractAssistantMessage } from '../components/utils/validateAgentOutput';
+import { validateAgentOutput, extractAssistantMessage, sanitizeConversationMessages } from '../components/utils/validateAgentOutput';
 
 export default function Chat() {
   const [currentConversationId, setCurrentConversationId] = useState(null);
@@ -179,7 +179,8 @@ export default function Chat() {
         if (responseTimeoutId) clearTimeout(responseTimeoutId);
 
         // Process messages: validate and extract structured JSON from assistant messages
-        const processedMessages = (data.messages || []).map(msg => {
+        // CRITICAL: This must handle both new structured output AND legacy/corrupted messages
+        let processedMessages = (data.messages || []).map(msg => {
           if (msg.role === 'assistant' && msg.content) {
             // Validate and normalize agent output (non-breaking)
             const validated = validateAgentOutput(msg.content);
@@ -205,6 +206,9 @@ export default function Chat() {
           }
           return msg;
         });
+
+        // Additional safety: sanitize any remaining corrupted messages
+        processedMessages = sanitizeConversationMessages(processedMessages);
 
         setMessages(processedMessages);
         setIsLoading(false);

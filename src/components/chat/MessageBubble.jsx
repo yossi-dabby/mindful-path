@@ -8,10 +8,49 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   
   const isUser = message.role === 'user';
   
-  // Safely handle content conversion
+  // Safely handle content conversion with JSON detection and sanitization
   let content = '';
   try {
-    content = String(message.content || '').trim();
+    const rawContent = message.content || '';
+    
+    // CRITICAL: Detect and prevent JSON rendering
+    // If content looks like JSON, attempt to extract assistant_message
+    if (typeof rawContent === 'string' && rawContent.trim().startsWith('{')) {
+      try {
+        const parsed = JSON.parse(rawContent);
+        // If it's structured output, use assistant_message only
+        if (parsed.assistant_message) {
+          content = String(parsed.assistant_message).trim();
+        } else if (parsed.content) {
+          // Nested content field (fallback)
+          content = String(parsed.content).trim();
+        } else {
+          // No valid message field - show error fallback
+          content = '[Unable to display message]';
+          console.warn('[MessageBubble] Raw JSON detected without assistant_message:', rawContent.substring(0, 100));
+        }
+      } catch (jsonError) {
+        // Failed to parse as JSON, treat as regular text
+        content = String(rawContent).trim();
+      }
+    } else if (typeof rawContent === 'object') {
+      // Content is already an object (shouldn't happen, but handle it)
+      if (rawContent.assistant_message) {
+        content = String(rawContent.assistant_message).trim();
+      } else {
+        content = '[Unable to display message]';
+        console.warn('[MessageBubble] Object content without assistant_message:', rawContent);
+      }
+    } else {
+      content = String(rawContent).trim();
+    }
+    
+    // Additional safety: Remove any remaining JSON-like fragments or escaped sequences
+    if (content.includes('\\u') || content.includes('"s":') || content.includes('"homework"')) {
+      console.warn('[MessageBubble] Potential JSON fragment detected, sanitizing');
+      content = '[Unable to display message - invalid format]';
+    }
+    
   } catch (e) {
     console.error('Error processing message content:', e);
     return null;
