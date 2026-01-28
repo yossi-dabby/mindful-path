@@ -262,7 +262,7 @@ Provide:
   // Handle Escape key to close
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && mountedRef.current) {
         onClose();
       }
     };
