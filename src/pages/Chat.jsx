@@ -298,7 +298,8 @@ export default function Chat() {
   const { data: currentConversationData } = useQuery({
     queryKey: ['currentConversation', currentConversationId],
     queryFn: () => currentConversationId ? base44.agents.getConversation(currentConversationId) : null,
-    enabled: !!currentConversationId
+    enabled: !!currentConversationId,
+    refetchOnWindowFocus: false
   });
 
   // Check if we should show summary prompt (after 5+ messages, only once)
