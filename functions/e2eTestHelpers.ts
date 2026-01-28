@@ -160,6 +160,44 @@ export const testHelpers = {
     } catch {
       return false;
     }
+  },
+
+  /**
+   * Diagnostic loop with closure protection
+   * Use this to safely iterate over elements without crashing on page closure
+   */
+  async safeDiagnosticLoop(page, locator, callback) {
+    if (page.isClosed?.()) {
+      console.warn('[SKIP] Page closed before diagnostic loop');
+      return;
+    }
+
+    try {
+      const count = await locator.count().catch(() => 0);
+      
+      for (let i = 0; i < count; i++) {
+        if (page.isClosed?.()) {
+          console.warn('[ABORT] Page closed during diagnostic loop');
+          break;
+        }
+        
+        try {
+          await callback(locator.nth(i), i);
+        } catch (e) {
+          if (e.message?.includes('closed')) {
+            console.warn('[ABORT] Page closed in loop iteration', i);
+            break;
+          }
+          // Continue on non-closure errors
+        }
+      }
+    } catch (e) {
+      if (e.message?.includes('closed')) {
+        console.warn('[ABORT] Page closed before count');
+      } else {
+        throw e;
+      }
+    }
   }
 };
 
