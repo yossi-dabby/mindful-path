@@ -471,6 +471,8 @@ export default function Chat() {
     if (isTestEnv) {
       localStorage.setItem('chat_consent_accepted', 'true');
       localStorage.setItem('age_verified', 'true');
+      // Disable analytics in test environment
+      window.__DISABLE_ANALYTICS__ = true;
       return;
     }
     
