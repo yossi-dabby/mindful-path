@@ -260,6 +260,7 @@ export default function Chat() {
 
     return () => {
       isSubscribed = false;
+      subscriptionActiveRef.current = false;
       if (responseTimeoutId) clearTimeout(responseTimeoutId);
       unsubscribe();
     };
