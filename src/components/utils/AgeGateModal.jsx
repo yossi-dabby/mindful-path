@@ -34,17 +34,32 @@ export default function AgeGateModal({ onConfirm, onDecline }) {
 
           {/* Title */}
           <h2 className="text-xl md:text-2xl font-semibold text-center mb-3" style={{ color: '#1A3A34' }}>
-            Age Verification
+            Age Verification Required
           </h2>
 
           {/* Content */}
-          <div className="space-y-3 mb-6 text-sm md:text-base" style={{ color: '#5A7A72' }}>
+          <div className="space-y-3 mb-4 text-sm md:text-base" style={{ color: '#5A7A72' }}>
             <p className="leading-relaxed text-center">
-              To use our AI-powered wellness features, we need to confirm you're 18 years or older.
+              Our AI therapy features are designed for adults 18 and older. This helps ensure we provide appropriate support and maintain safety standards.
             </p>
-            <p className="text-xs md:text-sm opacity-80 text-center">
-              This helps us provide age-appropriate support and comply with safety guidelines.
+          </div>
+          
+          {/* Teen Resources */}
+          <div 
+            className="mb-6 p-3 rounded-lg text-xs md:text-sm"
+            style={{
+              background: 'linear-gradient(145deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%)',
+              border: '1px solid rgba(251, 191, 36, 0.3)'
+            }}
+          >
+            <p className="font-semibold mb-2" style={{ color: '#78350F' }}>
+              If you're under 18 and need support:
             </p>
+            <ul className="space-y-1" style={{ color: '#92400E' }}>
+              <li>• School counselor or trusted adult</li>
+              <li>• Teen Line: 1-800-852-8336 (or text TEEN to 839863)</li>
+              <li>• Crisis Text Line: Text "HOME" to 741741</li>
+            </ul>
           </div>
 
           {/* Buttons */}
