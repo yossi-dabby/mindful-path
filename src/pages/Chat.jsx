@@ -361,6 +361,7 @@ export default function Chat() {
     if (!mountedRef.current) return;
 
     if (!inputMessage.trim() || isLoading || sendingMessageRef.current) {
+      console.log('[Send] Blocked:', { hasInput: !!inputMessage.trim(), isLoading, isSending: sendingMessageRef.current });
       return;
     }
 
@@ -382,11 +383,15 @@ export default function Chat() {
       return;
     }
 
+    console.log('[Send] Starting message send');
     sendingMessageRef.current = true;
     const messageText = inputMessage;
 
     try {
-      if (!mountedRef.current) return;
+      if (!mountedRef.current) {
+        sendingMessageRef.current = false;
+        return;
+      }
 
       let convId = currentConversationId;
       if (!convId) {
@@ -398,28 +403,46 @@ export default function Chat() {
           }
         });
         convId = conversation.id;
-        if (!mountedRef.current) return;
+        if (!mountedRef.current) {
+          sendingMessageRef.current = false;
+          return;
+        }
         setCurrentConversationId(convId);
         refetchConversations();
         setShowSidebar(false);
       }
 
-      if (!mountedRef.current) return;
+      if (!mountedRef.current) {
+        sendingMessageRef.current = false;
+        return;
+      }
       const conversation = await base44.agents.getConversation(convId);
 
-      if (!mountedRef.current) return;
+      if (!mountedRef.current) {
+        sendingMessageRef.current = false;
+        return;
+      }
       setInputMessage('');
       setShowSummaryPrompt(false);
       setIsLoading(true);
 
+      console.log('[Send] Calling addMessage');
       await base44.agents.addMessage(conversation, {
         role: 'user',
         content: messageText
       });
 
-      if (!mountedRef.current) return;
+      console.log('[Send] Message sent successfully');
+      if (!mountedRef.current) {
+        sendingMessageRef.current = false;
+        return;
+      }
     } catch (error) {
-      if (!mountedRef.current) return;
+      console.error('[Send] Error:', error);
+      if (!mountedRef.current) {
+        sendingMessageRef.current = false;
+        return;
+      }
       setIsLoading(false);
 
       if (isAuthError(error) && shouldShowAuthError()) {
