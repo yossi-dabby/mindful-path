@@ -1,10 +1,10 @@
 /**
- * SELF-CONTAINED E2E SMOKE TEST
+ * E2E SMOKE TEST - MIME Type Issue Fixed
  * 
- * Copy this file to your test directory:
- * cp functions/smoke.web.spec.ts tests/e2e/smoke.web.spec.ts
+ * Copy to: tests/e2e/smoke.web.spec.ts
+ * Run: npx playwright test smoke.web.spec.ts
  * 
- * Then run: npx playwright test smoke.web.spec.ts
+ * FIX: Only mock specific /api/** routes to prevent intercepting module files
  */
 
 import { test, expect } from '@playwright/test';
@@ -13,23 +13,12 @@ test.describe('Chat Smoke Test', () => {
   test.beforeEach(async ({ page }) => {
     console.log('[TEST] Starting beforeEach setup');
     
-    // CRITICAL: Only mock specific API endpoints, let everything else through
-    await page.route('**/*', async (route) => {
+    // CRITICAL: Only intercept /api/** routes - never intercept module files
+    // This prevents MIME type errors for src/api/base44Client.js
+    
+    await page.route('**/api/apps/**', async (route) => {
       const url = route.request().url();
-      const method = route.request().method();
-      
-      // Let all static files through (JS, CSS, images, fonts)
-      if (url.match(/\.(js|jsx|ts|tsx|css|png|jpg|jpeg|svg|gif|woff|woff2|ttf|eot|ico)$/)) {
-        console.log(`[ALLOW] Static file: ${url}`);
-        await route.continue();
-        return;
-      }
-      
-      // Mock specific API endpoints only
-      
-      // Public settings
-      if (url.includes('/api/apps/') && url.includes('/public-settings/')) {
-        console.log(`[MOCK] Public settings: ${url}`);
+      if (url.includes('/public-settings/')) {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -37,125 +26,77 @@ test.describe('Chat Smoke Test', () => {
             id: 'test-app-id',
             appId: 'test-app-id',
             appName: 'Test App',
-            isPublic: true,
-            public_settings: {}
+            isPublic: true
           })
         });
-        return;
+      } else {
+        await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
       }
-      
-      // Auth endpoints
-      if (url.includes('/api/auth/')) {
-        console.log(`[MOCK] Auth: ${url}`);
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            id: 'test-user-id',
-            email: 'test@example.com',
-            full_name: 'Test User',
-            role: 'user',
-            preferences: {}
-          })
-        });
-        return;
-      }
-      
-      // Agent/conversation endpoints
-      if (url.includes('/api/agents/') || url.includes('/api/conversations/')) {
-        console.log(`[MOCK] Agents: ${method} ${url}`);
-        if (method === 'GET') {
-          await route.fulfill({
-            status: 200,
-            contentType: 'application/json',
-            body: JSON.stringify([])
-          });
-        } else if (method === 'POST') {
-          await route.fulfill({
-            status: 200,
-            contentType: 'application/json',
-            body: JSON.stringify({
-              id: 'test-conversation-id',
-              messages: [],
-              metadata: { name: 'Test Session' }
-            })
-          });
-        } else {
-          await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
-        }
-        return;
-      }
-      
-      // Entity endpoints
-      if (url.includes('/api/entities/')) {
-        console.log(`[MOCK] Entities: ${url}`);
+    });
+    
+    await page.route('**/api/auth/**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          id: 'test-user-id',
+          email: 'test@example.com',
+          full_name: 'Test User',
+          role: 'user',
+          preferences: {}
+        })
+      });
+    });
+    
+    await page.route('**/api/agents/**', async (route) => {
+      const method = route.request().method();
+      if (method === 'GET') {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
           body: JSON.stringify([])
         });
-        return;
-      }
-      
-      // Analytics endpoints
-      if (url.includes('/analytics/')) {
-        console.log('[MOCK] Analytics blocked');
+      } else if (method === 'POST') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            id: 'test-conversation-id',
+            messages: [],
+            metadata: { name: 'Test Session' }
+          })
+        });
+      } else {
         await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
-        return;
       }
-      
-      // Let everything else through (including dev server requests)
-      console.log(`[ALLOW] Passthrough: ${url}`);
-      await route.continue();
     });
     
-    // Set up test environment BEFORE page loads
+    await page.route('**/api/entities/**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([])
+      });
+    });
+    
+    await page.route('**/analytics/**', async (route) => {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+    });
+    
+    // Set up test environment
     await page.addInitScript(() => {
-      console.log('[INIT] Setting up test environment');
-      
-      // Bypass gates
       localStorage.setItem('chat_consent_accepted', 'true');
       localStorage.setItem('age_verified', 'true');
-      
-      // Test flags
       document.body.setAttribute('data-test-env', 'true');
       window.__TEST_APP_ID__ = 'test-app-id';
-      window.__TEST_APP_TOKEN__ = 'test-token';
       window.__DISABLE_ANALYTICS__ = true;
-      
-      // Mock Base44 SDK if it doesn't exist
-      if (!window.base44) {
-        window.base44 = {
-          auth: {
-            me: () => Promise.resolve({
-              id: 'test-user',
-              email: 'test@example.com',
-              full_name: 'Test User'
-            }),
-            isAuthenticated: () => Promise.resolve(true)
-          },
-          entities: {
-            UserDeletedConversations: {
-              list: () => Promise.resolve([])
-            }
-          },
-          agents: {
-            listConversations: () => Promise.resolve([]),
-            getConversation: (id) => Promise.resolve({ id, messages: [] }),
-            createConversation: (opts) => Promise.resolve({ id: 'new-conv', ...opts })
-          }
-        };
-      }
     });
-    
-    console.log('[TEST] beforeEach setup complete');
   });
 
-  test('should load chat page without 404 errors', async ({ page }) => {
-    console.log('[TEST] Starting chat page load test');
-    
-    // Track console errors
+  test('should load chat page without errors', async ({ page }) => {
     const errors = [];
+    const networkErrors = [];
+    
     page.on('console', msg => {
       if (msg.type() === 'error') {
         console.error('[PAGE ERROR]', msg.text());
@@ -163,70 +104,42 @@ test.describe('Chat Smoke Test', () => {
       }
     });
     
-    // Track network failures
-    const networkErrors = [];
     page.on('response', response => {
       if (response.status() === 404) {
-        const url = response.url();
-        console.error('[404 ERROR]', url);
-        networkErrors.push(url);
+        console.error('[404 ERROR]', response.url());
+        networkErrors.push(response.url());
       }
     });
     
-    // Navigate
     await page.goto('http://127.0.0.1:5173/chat', { waitUntil: 'networkidle' });
     
-    // Wait for page ready
     await page.waitForFunction(() => {
       return document.querySelector('[data-page-ready="true"]') !== null;
     }, { timeout: 20000 });
     
-    console.log('[TEST] Page loaded, checking for chat elements');
-    
-    // Chat root should be visible
     const chatRoot = page.locator('[data-testid="chat-root"]');
     await expect(chatRoot).toBeVisible({ timeout: 10000 });
     
-    // Input should be visible and enabled
     const input = page.locator('[data-testid="therapist-chat-input"]');
     await expect(input).toBeVisible({ timeout: 10000 });
     await expect(input).toBeEnabled();
     
-    // Either welcome screen OR messages should be visible
-    const hasWelcome = await page.locator('text=Welcome to Therapy').isVisible().catch(() => false);
-    const hasMessages = await page.locator('[data-testid="chat-messages"]').isVisible().catch(() => false);
-    
-    console.log('[TEST] UI state - Welcome:', hasWelcome, 'Messages:', hasMessages);
-    expect(hasWelcome || hasMessages).toBe(true);
-    
-    // Verify no 404 errors
-    if (networkErrors.length > 0) {
-      console.error('[TEST FAILED] Found 404 errors:', networkErrors);
-    }
     expect(networkErrors.length).toBe(0);
     
-    // Take screenshot for debugging
     await page.screenshot({ path: 'test-results/chat-loaded.png', fullPage: true });
-    
-    console.log('[TEST] Chat page test passed');
   });
 
-  test('should handle no active conversation state', async ({ page }) => {
+  test('should show welcome screen', async ({ page }) => {
     await page.goto('http://127.0.0.1:5173/chat', { waitUntil: 'networkidle' });
     
-    // Wait for ready
     await page.waitForFunction(() => {
       return document.querySelector('[data-page-ready="true"]') !== null;
     }, { timeout: 20000 });
     
-    // Should show welcome screen when no conversation
     const welcome = page.locator('text=Welcome to Therapy');
     await expect(welcome).toBeVisible({ timeout: 10000 });
     
-    // "Start Your First Session" button should be visible
     const startButton = page.locator('text=Start Your First Session');
     await expect(startButton).toBeVisible();
-    
-    console.log('[TEST] No conversation state test passed');
   });
 });
