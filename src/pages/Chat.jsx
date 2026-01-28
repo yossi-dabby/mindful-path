@@ -307,11 +307,11 @@ export default function Chat() {
 
   // Check if we should show summary prompt (after 5+ messages, only once)
   useEffect(() => {
-    if (messages.length >= 6 && !isLoading && messages[messages.length - 1]?.role === 'assistant' && !showSummaryPrompt && currentConversationId) {
+    if (messages.length >= 6 && messages[messages.length - 1]?.role === 'assistant' && !showSummaryPrompt && currentConversationId) {
       // Only set once per conversation
       setShowSummaryPrompt(true);
     }
-  }, [currentConversationId, messages.length, isLoading]);
+  }, [currentConversationId, messages.length]);
 
   const startNewConversationWithIntent = async (intentParam) => {
     try {
