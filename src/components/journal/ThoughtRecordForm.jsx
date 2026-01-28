@@ -170,13 +170,8 @@ Provide:
       
       setAiAnalysis(response);
       
-      // Auto-apply suggested tags in same update
-      if (response.suggested_tags?.length > 0) {
-        setFormData(prev => ({
-          ...prev,
-          tags: [...new Set([...prev.tags, ...response.suggested_tags])]
-        }));
-      }
+      // Store analysis without triggering cascading updates
+      setAiAnalysis(response);
     } catch (error) {
       if (error.name === 'AbortError') return;
       console.error('Analysis failed:', error);
