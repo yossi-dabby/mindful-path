@@ -19,6 +19,7 @@ import InlineRiskPanel from '../components/chat/InlineRiskPanel';
 import { detectCrisisLanguage, detectCrisisWithReason } from '../components/utils/crisisDetector';
 import AgeGateModal from '../components/utils/AgeGateModal';
 import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
+import ErrorBoundary from '../components/utils/ErrorBoundary';
 
 export default function Chat() {
   const [currentConversationId, setCurrentConversationId] = useState(null);
@@ -647,12 +648,14 @@ export default function Chat() {
                 background: 'linear-gradient(to bottom, rgba(232, 246, 243, 0.5), rgba(212, 237, 232, 0.5))'
               }}>
                 <div className="max-w-2xl mx-auto">
-                  <ProactiveCheckIn onSendMessage={async (prompt) => {
-                    await startNewConversation();
-                    setTimeout(() => {
-                      setInputMessage(prompt);
-                    }, 500);
-                  }} />
+                  <ErrorBoundary>
+                    <ProactiveCheckIn onSendMessage={async (prompt) => {
+                      await startNewConversation();
+                      setTimeout(() => {
+                        setInputMessage(prompt);
+                      }, 500);
+                    }} />
+                  </ErrorBoundary>
                 </div>
               </div>
             </div>
@@ -674,7 +677,9 @@ export default function Chat() {
                   background: 'linear-gradient(to bottom, rgba(232, 246, 243, 0.5), rgba(212, 237, 232, 0.5))'
                 }}>
                   <div className="max-w-3xl mx-auto">
-                    <ProactiveCheckIn onSendMessage={(prompt) => setInputMessage(prompt)} />
+                    <ErrorBoundary>
+                      <ProactiveCheckIn onSendMessage={(prompt) => setInputMessage(prompt)} />
+                    </ErrorBoundary>
                   </div>
                 </div>
               )}
