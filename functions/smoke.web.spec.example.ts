@@ -1,5 +1,5 @@
 /**
- * EXAMPLE SMOKE TEST - Replace your smoke.web.spec.ts with this
+ * EXAMPLE SMOKE TEST - Copy to tests/e2e/smoke.web.spec.ts
  * 
  * This test includes all necessary safeguards to prevent page closure crashes
  */
@@ -7,7 +7,9 @@
 import { test, expect } from '@playwright/test';
 
 // Import helpers from Base44 app
-import { testHelpers } from '../e2eTestHelpers.js';
+// Path assumes test is at: tests/e2e/smoke.web.spec.ts
+// Adjust if your test location is different
+import { testHelpers } from '../../functions/e2eTestHelpers.js';
 
 test.describe('Chat Smoke Test (Web)', () => {
   test.beforeEach(async ({ page }) => {

@@ -1,18 +1,34 @@
 # Playwright Test Integration Guide
 
+## Quick Fix - Import Path Error
+
+**Error**: `Cannot find module 'tests/e2eTestHelpers.js'`
+
+**Solution**: The helpers are in `functions/e2eTestHelpers.js`, not `tests/`
+
+### Correct Import Path
+```typescript
+// If your test is at: tests/e2e/smoke.web.spec.ts
+import { testHelpers } from '../../functions/e2eTestHelpers.js';
+
+// If your test is at: tests/smoke.web.spec.ts  
+import { testHelpers } from '../functions/e2eTestHelpers.js';
+```
+
 ## Quick Start - Copy/Paste Solution
 
 **See `functions/smoke.web.spec.example.ts` for a complete working test file.**
 
-Replace your entire `tests/e2e/smoke.web.spec.ts` with the example file, adjusting only:
-- Import paths: `import { testHelpers } from '../functions/e2eTestHelpers.js';`
-- Base URL if different from http://127.0.0.1:5173
+1. Copy the example file to your test location: `tests/e2e/smoke.web.spec.ts`
+2. Verify the import path matches your test location
+3. Adjust base URL if needed (default: http://127.0.0.1:5173)
 
 ## Critical Setup Steps
 
-### 1. Import Test Helpers
+### 1. Import Test Helpers (Fix Import Path!)
 ```typescript
-import { testHelpers } from '../functions/e2eTestHelpers.js';
+// Adjust path based on test file location
+import { testHelpers } from '../../functions/e2eTestHelpers.js';
 ```
 
 ### 2. Setup Before Each Test
@@ -76,11 +92,13 @@ if (page.isClosed()) {
 ✅ **Unguarded setState**: Added `mountedRef` checks to prevent updates after unmount
 ✅ **Response timeout**: Added 30s timeout with abort in subscription handler
 ✅ **Diagnostic loop crash**: Created `safeDiagnosticLoop()` with closure protection
+✅ **Import path error**: Helpers are in `functions/`, not `tests/`
 
 ## Verification Checklist
 
-- [ ] Copy `smoke.web.spec.example.ts` to `tests/e2e/smoke.web.spec.ts`
-- [ ] Test imports testHelpers
+- [ ] Copy `functions/smoke.web.spec.example.ts` to `tests/e2e/smoke.web.spec.ts`
+- [ ] Verify import path: `'../../functions/e2eTestHelpers.js'` (from tests/e2e/)
+- [ ] Test imports testHelpers successfully
 - [ ] mockAnalytics() called in beforeEach
 - [ ] Diagnostic loops use safeDiagnosticLoop()
 - [ ] page.isClosed() checked before critical actions
