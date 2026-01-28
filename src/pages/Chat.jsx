@@ -82,8 +82,13 @@ export default function Chat() {
           
           if (!currentConversationId) {
             // No active conversation - start new one with intent in metadata
+            // Get safety profile from user settings or default to 'standard'
+            const user = await base44.auth.me().catch(() => null);
+            const safetyProfile = user?.preferences?.safety_profile || 'standard';
+            const agentName = `cbt_therapist_${safetyProfile}`;
+
             const conversation = await base44.agents.createConversation({
-              agent_name: 'cbt_therapist',
+              agent_name: agentName,
               metadata: {
                 name: intentParam === 'thought_work' ? 'Thought Journal Session' : 
                       intentParam === 'goal_work' ? 'Goal Setting Session' : 
@@ -91,7 +96,8 @@ export default function Chat() {
                       intentParam === 'grounding' ? 'Grounding Exercise' : 
                       `Session ${conversations.length + 1}`,
                 description: 'CBT Therapy Session',
-                intent: intentParam
+                intent: intentParam,
+                safety_profile: safetyProfile
               }
             });
             
@@ -118,8 +124,13 @@ export default function Chat() {
             }
           } else {
             // Active conversation exists - create new conversation with intent instead
+            // Get safety profile from user settings or default to 'standard'
+            const user = await base44.auth.me().catch(() => null);
+            const safetyProfile = user?.preferences?.safety_profile || 'standard';
+            const agentName = `cbt_therapist_${safetyProfile}`;
+
             const conversation = await base44.agents.createConversation({
-              agent_name: 'cbt_therapist',
+              agent_name: agentName,
               metadata: {
                 name: intentParam === 'thought_work' ? 'Thought Journal Session' : 
                       intentParam === 'goal_work' ? 'Goal Setting Session' : 
@@ -127,7 +138,8 @@ export default function Chat() {
                       intentParam === 'grounding' ? 'Grounding Exercise' : 
                       `Session ${conversations.length + 1}`,
                 description: 'CBT Therapy Session',
-                intent: intentParam
+                intent: intentParam,
+                safety_profile: safetyProfile
               }
             });
             
