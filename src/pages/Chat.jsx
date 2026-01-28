@@ -177,11 +177,36 @@ export default function Chat() {
         // Clear timeout - we got a response
         if (responseTimeoutId) clearTimeout(responseTimeoutId);
 
-        setMessages(data.messages || []);
+        // Process messages: extract structured JSON from assistant messages
+        const processedMessages = (data.messages || []).map(msg => {
+          if (msg.role === 'assistant' && msg.content) {
+            try {
+              // Attempt to parse as JSON
+              const parsed = JSON.parse(msg.content);
+              
+              // If it has assistant_message, it's structured output
+              if (parsed.assistant_message) {
+                return {
+                  ...msg,
+                  content: parsed.assistant_message, // User-visible content
+                  metadata: {
+                    ...(msg.metadata || {}),
+                    structured_data: parsed // Store full structured data
+                  }
+                };
+              }
+            } catch (e) {
+              // Not JSON or parsing failed - use content as-is (backward compatible)
+            }
+          }
+          return msg;
+        });
+
+        setMessages(processedMessages);
         setIsLoading(false);
 
         // Check if AI triggered UI form
-        const lastMessage = data.messages?.[data.messages.length - 1];
+        const lastMessage = processedMessages[processedMessages.length - 1];
         if (lastMessage?.role === 'assistant' && lastMessage?.metadata?.trigger_ui_form === 'daily_checkin' && !showCheckInModal) {
           console.log('[UI Form Trigger] Opening check-in modal');
           setShowCheckInModal(true);
