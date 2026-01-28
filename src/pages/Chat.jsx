@@ -228,12 +228,12 @@ export default function Chat() {
 
           setMessages(processedMessages);
           
-          // Check if AI triggered UI form
-          const lastMessage = processedMessages[processedMessages.length - 1];
-          if (lastMessage?.role === 'assistant' && lastMessage?.metadata?.trigger_ui_form === 'daily_checkin' && !showCheckInModal) {
-            console.log('[UI Form Trigger] Opening check-in modal');
-            setShowCheckInModal(true);
-          }
+          // Check if AI triggered UI form (only if modal not already shown and not loading)
+                  const lastMessage = processedMessages[processedMessages.length - 1];
+                  if (lastMessage?.role === 'assistant' && lastMessage?.metadata?.trigger_ui_form === 'daily_checkin' && !showCheckInModal && isLoading === false) {
+                    console.log('[UI Form Trigger] Opening check-in modal');
+                    setShowCheckInModal(true);
+                  }
         } catch (err) {
           console.error('[Message Processing Error]', err);
         }
