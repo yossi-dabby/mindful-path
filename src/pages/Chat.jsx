@@ -568,6 +568,8 @@ export default function Chat() {
   const [isPageReady, setIsPageReady] = useState(false);
 
   useEffect(() => {
+    // Signal page is ready for E2E tests
+    document.body.setAttribute('data-page-ready', 'true');
     setIsPageReady(true);
     
     // Detect test environment (Playwright, Cypress, etc.)

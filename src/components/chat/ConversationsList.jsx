@@ -5,13 +5,16 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
 export default function ConversationsList({
-  conversations,
+  conversations = [],
   currentConversationId,
   onSelectConversation,
   onNewConversation,
   onDeleteConversation,
   onClose
 }) {
+  // Ensure conversations is always an array
+  const safeConversations = Array.isArray(conversations) ? conversations : [];
+  
   return (
     <div className="h-full flex flex-col min-h-0">
       {/* Header */}
@@ -45,7 +48,7 @@ export default function ConversationsList({
 
       {/* Conversations List */}
       <div className="flex-1 overflow-y-auto p-2 min-h-0">
-        {conversations.length === 0 ? (
+        {safeConversations.length === 0 ? (
           <div className="text-center py-8 px-4">
             <MessageCircle className="w-12 h-12 mx-auto mb-3" style={{ color: 'rgba(38, 166, 154, 0.3)' }} />
             <p className="text-sm" style={{ color: '#5A7A72' }}>No sessions yet</p>
@@ -53,7 +56,7 @@ export default function ConversationsList({
           </div>
         ) : (
           <div className="space-y-1">
-            {conversations.map((conversation) => (
+            {safeConversations.map((conversation) => (
               <div
                 key={conversation.id}
                 className={cn(
