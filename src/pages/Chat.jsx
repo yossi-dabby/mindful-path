@@ -256,10 +256,18 @@ export default function Chat() {
           return [];
         }
         
-        const allConversations = await base44.agents.listConversations({ agent_name: 'cbt_therapist' });
+        // Fetch conversations from all safety profile agents
+        const allConversations = await Promise.all([
+          base44.agents.listConversations({ agent_name: 'cbt_therapist_lenient' }).catch(() => []),
+          base44.agents.listConversations({ agent_name: 'cbt_therapist_standard' }).catch(() => []),
+          base44.agents.listConversations({ agent_name: 'cbt_therapist_strict' }).catch(() => []),
+          base44.agents.listConversations({ agent_name: 'cbt_therapist' }).catch(() => []) // Legacy
+        ]);
+        
+        const flatConversations = allConversations.flat();
         const deletedConversations = await base44.entities.UserDeletedConversations.list();
         const deletedIds = Array.isArray(deletedConversations) ? deletedConversations.map(d => d.agent_conversation_id) : [];
-        const conversationsArray = Array.isArray(allConversations) ? allConversations : [];
+        const conversationsArray = Array.isArray(flatConversations) ? flatConversations : [];
         return conversationsArray.filter(c => !deletedIds.includes(c.id));
       } catch (error) {
         console.error('Error fetching conversations:', error);
@@ -299,12 +307,18 @@ export default function Chat() {
       
       const initialMessage = intentParam ? intentMessages[intentParam] || 'Hello' : undefined;
       
+      // Get safety profile from user settings or default to 'standard'
+      const user = await base44.auth.me().catch(() => null);
+      const safetyProfile = user?.preferences?.safety_profile || 'standard';
+      const agentName = `cbt_therapist_${safetyProfile}`;
+      
       const conversation = await base44.agents.createConversation({
-        agent_name: 'cbt_therapist',
+        agent_name: agentName,
         metadata: {
           name: intentParam ? `${intentParam} session` : `Session ${conversations.length + 1}`,
           description: 'CBT Therapy Session',
-          intent: intentParam
+          intent: intentParam,
+          safety_profile: safetyProfile
         }
       });
       
@@ -378,11 +392,17 @@ export default function Chat() {
     try {
       let convId = currentConversationId;
       if (!convId) {
+        // Get safety profile from user settings or default to 'standard'
+        const user = await base44.auth.me().catch(() => null);
+        const safetyProfile = user?.preferences?.safety_profile || 'standard';
+        const agentName = `cbt_therapist_${safetyProfile}`;
+
         const conversation = await base44.agents.createConversation({
-          agent_name: 'cbt_therapist',
+          agent_name: agentName,
           metadata: {
             name: `Session ${conversations?.length + 1 || 1}`,
-            description: 'Therapy session'
+            description: 'Therapy session',
+            safety_profile: safetyProfile
           }
         });
         convId = conversation.id;
