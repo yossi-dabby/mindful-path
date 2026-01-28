@@ -214,6 +214,7 @@ export default function Chat() {
           // Don't crash - keep existing messages
         }
         setIsLoading(false);
+        sendingMessageRef.current = false; // CRITICAL: Reset sending state
 
         // Check if AI triggered UI form
         const lastMessage = processedMessages[processedMessages.length - 1];
@@ -887,7 +888,17 @@ export default function Chat() {
               disabled={isLoading || sendingMessageRef.current}
             />
             <Button
-              onClick={handleSendMessage}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('[Send Button] Clicked', { 
+                  hasInput: !!inputMessage.trim(), 
+                  isLoading, 
+                  isSending: sendingMessageRef.current,
+                  inputLength: inputMessage.length 
+                });
+                handleSendMessage();
+              }}
               disabled={!inputMessage.trim() || isLoading || sendingMessageRef.current}
               data-testid="therapist-chat-send"
               className="h-[60px] px-6 text-white relative"
@@ -895,7 +906,8 @@ export default function Chat() {
                 borderRadius: '20px',
                 backgroundColor: '#26A69A',
                 boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)',
-                zIndex: 51
+                zIndex: 51,
+                pointerEvents: 'auto'
               }}
             >
               <Send className="w-5 h-5" />
