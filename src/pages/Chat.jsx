@@ -231,7 +231,7 @@ export default function Chat() {
         
         const allConversations = await base44.agents.listConversations({ agent_name: 'cbt_therapist' });
         const deletedConversations = await base44.entities.UserDeletedConversations.list();
-        const deletedIds = deletedConversations.map(d => d.agent_conversation_id);
+        const deletedIds = Array.isArray(deletedConversations) ? deletedConversations.map(d => d.agent_conversation_id) : [];
         return allConversations.filter(c => !deletedIds.includes(c.id));
       } catch (error) {
         console.error('Error fetching conversations:', error);
