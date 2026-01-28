@@ -458,17 +458,11 @@ Provide:
               </div>
 
               <div className="flex gap-3">
-                <Button onClick={() => setStep(2)} variant="outline" className="flex-1">
+                <Button onClick={() => setStep(1)} variant="outline" className="flex-1">
                   Back
                 </Button>
                 <Button
-                  onClick={() => setStep(4)}
-                  disabled={
-                    !formData.evidence_for?.trim() ||
-                    !formData.evidence_against?.trim() ||
-                    formData.evidence_for === '<p><br></p>' ||
-                    formData.evidence_against === '<p><br></p>'
-                  }
+                  onClick={() => setStep(3)}
                   className="flex-1 bg-purple-600 hover:bg-purple-700"
                 >
                   Continue
