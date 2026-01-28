@@ -169,9 +169,6 @@ Provide:
       if (!mountedRef.current) return;
       
       setAiAnalysis(response);
-      
-      // Store analysis without triggering cascading updates
-      setAiAnalysis(response);
     } catch (error) {
       if (error.name === 'AbortError') return;
       console.error('Analysis failed:', error);
