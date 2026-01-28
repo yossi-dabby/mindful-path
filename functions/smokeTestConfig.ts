@@ -8,20 +8,20 @@
  * - "Target page, context or browser has been closed"
  * - Error at line ~54 (send interaction)
  * 
- * ROOT CAUSES TO CHECK:
- * 1. ❌ Unhandled promise rejection in Chat.js → stops rendering
- * 2. ❌ Navigation triggered by error boundary
- * 3. ❌ Missing mountedRef check → stale state updates after unmount
- * 4. ❌ Infinite loop in useEffect → React DevTools error
- * 5. ❌ Network request timeout → 30s+ hang, then crash
+ * ROOT CAUSES IDENTIFIED:
+ * 1. ❌ Analytics SDK call with null app ID → unhandled error → page crash
+ * 2. ❌ Missing page.isClosed() checks in diagnostic loops
+ * 3. ❌ Send button had pointerEvents: 'none' → not clickable
  * 
  * FIXES APPLIED:
  * ✅ Chat.js: Added mountedRef guards to all setState calls
  * ✅ Chat.js: Simplified message send flow (removed verbose logging)
  * ✅ Chat.js: Added 30s response timeout with auto-abort
  * ✅ Chat.js: Removed async operations that could fail silently
+ * ✅ Chat.js: Fixed send button CSS (removed pointerEvents: 'none')
  * ✅ promptTestingGuide.js: Added page.isClosed() checks + early exit
  * ✅ e2eTestHelpers.js: Created helper with closure detection
+ * ✅ e2eTestHelpers.js: Added analytics mocking to prevent null app ID crash
  * 
  * TEST FLOW:
  * 1. Setup page closure diagnostics
