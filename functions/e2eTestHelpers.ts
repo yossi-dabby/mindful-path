@@ -19,68 +19,83 @@ export const testHelpers = {
    * Mock Base44 API endpoints to prevent 404 errors during E2E tests
    */
   async mockBase44APIs(page) {
-    // Mock public settings endpoint
-    await page.route('**/api/apps/public/*/public-settings/**', route => {
-      console.log('[MOCK] Public settings:', route.request().url());
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          appId: 'test-app-id',
-          appName: 'Test App',
-          isPublic: true
-        })
-      });
-    });
-
-    // Mock auth/user endpoints
-    await page.route('**/api/auth/me', route => {
-      console.log('[MOCK] Auth me:', route.request().url());
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          id: 'test-user-id',
-          email: 'test@example.com',
-          full_name: 'Test User',
-          role: 'user'
-        })
-      });
-    });
-
-    // Mock agent conversation endpoints
-    await page.route('**/api/agents/**', route => {
+    // Mock ALL API calls with wildcard - catch everything
+    await page.route('**/api/**', route => {
+      const url = route.request().url();
       const method = route.request().method();
-      console.log('[MOCK] Agent API:', method, route.request().url());
+      console.log('[MOCK] API Call:', method, url);
       
-      if (method === 'GET') {
+      // Public settings
+      if (url.includes('/public-settings/')) {
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            id: 'test-app-id',
+            appId: 'test-app-id',
+            appName: 'Test App',
+            isPublic: true,
+            public_settings: {}
+          })
+        });
+        return;
+      }
+      
+      // Auth endpoints
+      if (url.includes('/auth/me')) {
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            id: 'test-user-id',
+            email: 'test@example.com',
+            full_name: 'Test User',
+            role: 'user',
+            preferences: {}
+          })
+        });
+        return;
+      }
+      
+      // Agent conversation endpoints
+      if (url.includes('/agents/')) {
+        if (method === 'GET') {
+          route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify([])
+          });
+        } else if (method === 'POST') {
+          route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              id: 'test-conversation-id',
+              messages: [],
+              metadata: { name: 'Test Session' }
+            })
+          });
+        } else {
+          route.fulfill({ status: 200, body: '{}' });
+        }
+        return;
+      }
+      
+      // Entity endpoints
+      if (url.includes('/entities/')) {
         route.fulfill({
           status: 200,
           contentType: 'application/json',
           body: JSON.stringify([])
         });
-      } else if (method === 'POST') {
-        route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            id: 'test-conversation-id',
-            messages: [],
-            metadata: {}
-          })
-        });
-      } else {
-        route.fulfill({ status: 200, body: '{}' });
+        return;
       }
-    });
-
-    // Mock entity endpoints
-    await page.route('**/api/entities/**', route => {
-      console.log('[MOCK] Entity API:', route.request().url());
+      
+      // Default: return empty success for any other API call
       route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify([])
+        body: JSON.stringify({ success: true })
       });
     });
   },
