@@ -4,6 +4,20 @@ import { Card } from '@/components/ui/card';
 import { Info } from 'lucide-react';
 
 export default function InlineConsentBanner({ onAccept }) {
+  const handleAccept = () => {
+    // Track consent acceptance
+    import('@/api/base44Client').then(({ base44 }) => {
+      base44.analytics.track({
+        eventName: 'consent_accepted',
+        properties: {
+          surface: 'chat',
+          timestamp: new Date().toISOString()
+        }
+      });
+    });
+    onAccept();
+  };
+
   return (
     <Card 
       data-testid="consent-banner"

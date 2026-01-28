@@ -324,6 +324,16 @@ export default function Chat() {
       const safetyProfile = user?.preferences?.safety_profile || 'standard';
       const agentName = `cbt_therapist_${safetyProfile}`;
       
+      // Track agent profile usage
+      base44.analytics.track({
+        eventName: 'conversation_started',
+        properties: {
+          safety_profile: safetyProfile,
+          intent: intentParam || 'none',
+          agent_name: agentName
+        }
+      });
+      
       const conversation = await base44.agents.createConversation({
         agent_name: agentName,
         metadata: {
@@ -391,6 +401,16 @@ export default function Chat() {
             reason_code: reasonCode,
             user_email: user?.email || 'unknown'
           }).catch(() => {});
+          
+          // Analytics tracking
+          base44.analytics.track({
+            eventName: 'crisis_detected_regex',
+            properties: {
+              reason_code: reasonCode,
+              surface: 'chat',
+              conversation_id: currentConversationId || 'none'
+            }
+          });
         })
         .catch(() => {});
       return;
@@ -414,6 +434,17 @@ export default function Chat() {
           reason_code: `llm_${enhancedCheck.data.severity}`,
           user_email: user?.email || 'unknown'
         }).catch(() => {});
+        
+        // Analytics tracking for LLM-detected crisis
+        base44.analytics.track({
+          eventName: 'crisis_detected_llm_layer2',
+          properties: {
+            severity: enhancedCheck.data.severity,
+            confidence: enhancedCheck.data.confidence,
+            surface: 'chat',
+            conversation_id: currentConversationId || 'none'
+          }
+        });
         return;
       }
     } catch (error) {

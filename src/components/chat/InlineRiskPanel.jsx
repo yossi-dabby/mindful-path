@@ -4,6 +4,20 @@ import { Card } from '@/components/ui/card';
 import { AlertTriangle, Phone, MessageSquare } from 'lucide-react';
 
 export default function InlineRiskPanel({ onDismiss }) {
+  const handleDismiss = () => {
+    // Track risk panel dismissal
+    import('@/api/base44Client').then(({ base44 }) => {
+      base44.analytics.track({
+        eventName: 'risk_panel_dismissed',
+        properties: {
+          surface: 'chat',
+          timestamp: new Date().toISOString()
+        }
+      });
+    });
+    onDismiss();
+  };
+
   return (
     <Card 
       data-testid="inline-risk-panel"
