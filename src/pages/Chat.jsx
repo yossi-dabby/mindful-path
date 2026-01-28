@@ -670,14 +670,16 @@ export default function Chat() {
         backdropFilter: 'blur(16px)',
         borderRight: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
-        <ConversationsList
-          conversations={conversations}
-          currentConversationId={currentConversationId}
-          onSelectConversation={loadConversation}
-          onNewConversation={startNewConversation}
-          onDeleteConversation={handleDeleteConversation}
-          onClose={() => setShowSidebar(false)}
-        />
+        <ErrorBoundary>
+          <ConversationsList
+            conversations={Array.isArray(conversations) ? conversations : []}
+            currentConversationId={currentConversationId}
+            onSelectConversation={loadConversation}
+            onNewConversation={startNewConversation}
+            onDeleteConversation={handleDeleteConversation}
+            onClose={() => setShowSidebar(false)}
+          />
+        </ErrorBoundary>
       </div>
 
       {/* Main Chat Area */}
