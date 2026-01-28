@@ -317,15 +317,17 @@ export default function Chat() {
     const reasonCode = detectCrisisWithReason(inputMessage);
     if (reasonCode) {
       setShowRiskPanel(true);
-      // Log alert async (non-blocking)
-      base44.auth.me().then(user => {
-        base44.entities.CrisisAlert.create({
-          surface: 'chat',
-          conversation_id: currentConversationId || 'none',
-          reason_code: reasonCode,
-          user_email: user?.email || 'unknown'
-        }).catch(e => console.error('Crisis log failed:', e));
-      }).catch(() => {});
+      // Log alert async (non-blocking, with error suppression)
+      base44.auth.me()
+        .then(user => {
+          base44.entities.CrisisAlert.create({
+            surface: 'chat',
+            conversation_id: currentConversationId || 'none',
+            reason_code: reasonCode,
+            user_email: user?.email || 'unknown'
+          }).catch(() => {});
+        })
+        .catch(() => {});
       return;
     }
 
