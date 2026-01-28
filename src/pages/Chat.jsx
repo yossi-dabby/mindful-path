@@ -227,10 +227,13 @@ export default function Chat() {
           });
 
           setMessages(processedMessages);
+          // Only set loading to false once after receiving messages
+          if (processedMessages.length > 0) {
+            setIsLoading(false);
+          }
         } catch (err) {
           console.error('[Message Processing Error]', err);
         }
-        setIsLoading(false);
       },
       (error) => {
         if (!isSubscribed || !mountedRef.current) return;
