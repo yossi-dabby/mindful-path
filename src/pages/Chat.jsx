@@ -173,7 +173,7 @@ export default function Chat() {
       
       handleIntent();
     }
-  }, [location.search, currentConversationId]);
+  }, [location.search]);
 
   // Subscribe to conversation updates
   useEffect(() => {
