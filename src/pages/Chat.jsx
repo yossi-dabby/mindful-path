@@ -180,17 +180,23 @@ export default function Chat() {
   useEffect(() => {
     if (!currentConversationId) return;
 
-    // Prevent duplicate subscriptions
-    if (subscriptionActiveRef.current) return;
+    // CRITICAL FIX: Reset subscription flag for new conversation
     subscriptionActiveRef.current = true;
 
     let responseTimeoutId = null;
     let isSubscribed = true;
 
+    console.log('[Subscription] Starting subscription for conversation:', currentConversationId);
+    
     const unsubscribe = base44.agents.subscribeToConversation(
       currentConversationId,
       (data) => {
-        if (!isSubscribed || !mountedRef.current) return;
+        if (!isSubscribed || !mountedRef.current) {
+          console.log('[Subscription] Ignoring update - unsubscribed or unmounted');
+          return;
+        }
+
+        console.log('[Subscription] Received update, messages count:', data.messages?.length);
 
         // Clear timeout - we got a response
         if (responseTimeoutId) clearTimeout(responseTimeoutId);
@@ -227,10 +233,9 @@ export default function Chat() {
           });
 
           setMessages(processedMessages);
-          // Only set loading to false once after receiving messages
-          if (processedMessages.length > 0) {
-            setIsLoading(false);
-          }
+          console.log('[Subscription] Processed messages, setting loading to false');
+          // CRITICAL FIX: Always turn off loading when we receive data
+          setIsLoading(false);
         } catch (err) {
           console.error('[Message Processing Error]', err);
           // CRITICAL FIX: Reset loading state on processing error
@@ -267,7 +272,9 @@ export default function Chat() {
       isSubscribed = false;
       subscriptionActiveRef.current = false;
       if (responseTimeoutId) clearTimeout(responseTimeoutId);
-      unsubscribe();
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      }
     };
   }, [currentConversationId]);
 
@@ -403,6 +410,8 @@ export default function Chat() {
       return;
     }
 
+    console.log('[Send] Starting message send, conversation:', currentConversationId);
+
     // Layer 1: Regex-based crisis detection (fast, explicit patterns)
     const reasonCode = detectCrisisWithReason(inputMessage);
     if (reasonCode) {
@@ -494,13 +503,16 @@ export default function Chat() {
       }
 
       const conversation = await base44.agents.getConversation(convId);
+      console.log('[Send] Adding message to conversation:', convId);
       await base44.agents.addMessage(conversation, {
         role: 'user',
         content: messageText
       });
+      console.log('[Send] Message added successfully');
     } catch (error) {
       console.error('[Send] Error:', error);
       setIsLoading(false);
+      subscriptionActiveRef.current = false; // Reset on error
 
       if (isAuthError(error) && shouldShowAuthError()) {
         setShowAuthError(true);
