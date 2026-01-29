@@ -178,15 +178,18 @@ export default function Chat() {
 
   // Subscribe to conversation updates
   useEffect(() => {
-    if (!currentConversationId) return;
+    if (!currentConversationId) {
+      console.log('[Subscription] No conversation ID, skipping');
+      return;
+    }
 
-    // CRITICAL FIX: Reset subscription flag for new conversation
+    // CRITICAL FIX: Always allow subscription to be recreated
     subscriptionActiveRef.current = true;
 
     let responseTimeoutId = null;
     let isSubscribed = true;
 
-    console.log('[Subscription] Starting subscription for conversation:', currentConversationId);
+    console.log('[Subscription] Creating subscription for:', currentConversationId);
     
     const unsubscribe = base44.agents.subscribeToConversation(
       currentConversationId,
@@ -232,13 +235,15 @@ export default function Chat() {
             return msg;
           });
 
+          console.log('[Subscription] ✅ Setting', processedMessages.length, 'messages');
           setMessages(processedMessages);
-          console.log('[Subscription] Processed messages, setting loading to false');
-          // CRITICAL FIX: Always turn off loading when we receive data
+          
+          // CRITICAL FIX: ALWAYS turn off loading when data arrives
+          console.log('[Subscription] ✅ Turning OFF loading state');
           setIsLoading(false);
         } catch (err) {
-          console.error('[Message Processing Error]', err);
-          // CRITICAL FIX: Reset loading state on processing error
+          console.error('[Subscription] ❌ Processing error:', err);
+          // Force recovery on error
           setIsLoading(false);
           subscriptionActiveRef.current = false;
         }
@@ -247,21 +252,33 @@ export default function Chat() {
         if (!isSubscribed || !mountedRef.current) return;
 
         // Handle stream/connection errors
-        console.error('[Chat Stream Error]', error);
-        if (responseTimeoutId) clearTimeout(responseTimeoutId);
+        console.error('[Subscription] ❌ STREAM ERROR:', error);
+        if (responseTimeoutId) {
+          clearTimeout(responseTimeoutId);
+          responseTimeoutId = null;
+        }
+        // Force recovery
         setIsLoading(false);
-        // CRITICAL FIX: Reset subscription flag on error
         subscriptionActiveRef.current = false;
       }
     );
 
-    // Safety timeout: if no response after 30s, abort
+    // IMMEDIATE CHECK: Verify subscription was created
+    if (!unsubscribe || typeof unsubscribe !== 'function') {
+      console.error('[Subscription] ❌ FAILED to create subscription!');
+      setIsLoading(false);
+      subscriptionActiveRef.current = false;
+      return;
+    }
+    
+    console.log('[Subscription] ✅ Subscription created successfully');
+
+    // Safety timeout: if no response after 30s, force recovery
     responseTimeoutId = setTimeout(() => {
       if (isSubscribed && mountedRef.current) {
-        console.error('[Response Timeout] No response after 30s');
+        console.error('[Subscription] ⏱️ TIMEOUT after 30s - forcing recovery');
         setIsLoading(false);
         subscriptionActiveRef.current = false;
-        // CRITICAL FIX: Always call unsubscribe
         if (typeof unsubscribe === 'function') {
           unsubscribe();
         }
@@ -269,11 +286,19 @@ export default function Chat() {
     }, 30000);
 
     return () => {
+      console.log('[Subscription] 🧹 Cleanup for:', currentConversationId);
       isSubscribed = false;
       subscriptionActiveRef.current = false;
-      if (responseTimeoutId) clearTimeout(responseTimeoutId);
+      if (responseTimeoutId) {
+        clearTimeout(responseTimeoutId);
+        responseTimeoutId = null;
+      }
       if (typeof unsubscribe === 'function') {
-        unsubscribe();
+        try {
+          unsubscribe();
+        } catch (err) {
+          console.error('[Subscription] Cleanup error:', err);
+        }
       }
     };
   }, [currentConversationId]);
@@ -405,12 +430,17 @@ export default function Chat() {
   };
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || isLoading) {
-      console.log('[Send] Blocked:', { hasInput: !!inputMessage.trim(), isLoading });
+    if (!inputMessage.trim()) {
+      console.log('[Send] ❌ Blocked - empty message');
+      return;
+    }
+    
+    if (isLoading) {
+      console.log('[Send] ⚠️ Already loading, ignoring duplicate send');
       return;
     }
 
-    console.log('[Send] Starting message send, conversation:', currentConversationId);
+    console.log('[Send] 📤 Starting send, conversation:', currentConversationId || 'none');
 
     // Layer 1: Regex-based crisis detection (fast, explicit patterns)
     const reasonCode = detectCrisisWithReason(inputMessage);
@@ -503,16 +533,19 @@ export default function Chat() {
       }
 
       const conversation = await base44.agents.getConversation(convId);
-      console.log('[Send] Adding message to conversation:', convId);
+      console.log('[Send] 📤 Adding message to conversation:', convId);
+      
       await base44.agents.addMessage(conversation, {
         role: 'user',
         content: messageText
       });
-      console.log('[Send] Message added successfully');
+      
+      console.log('[Send] ✅ Message sent - waiting for subscription update');
     } catch (error) {
-      console.error('[Send] Error:', error);
+      console.error('[Send] ❌ SEND ERROR:', error);
+      // Force recovery on send error
       setIsLoading(false);
-      subscriptionActiveRef.current = false; // Reset on error
+      subscriptionActiveRef.current = false;
 
       if (isAuthError(error) && shouldShowAuthError()) {
         setShowAuthError(true);
