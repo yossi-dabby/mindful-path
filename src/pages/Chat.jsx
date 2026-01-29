@@ -233,6 +233,9 @@ export default function Chat() {
           }
         } catch (err) {
           console.error('[Message Processing Error]', err);
+          // CRITICAL FIX: Reset loading state on processing error
+          setIsLoading(false);
+          subscriptionActiveRef.current = false;
         }
       },
       (error) => {
@@ -242,6 +245,8 @@ export default function Chat() {
         console.error('[Chat Stream Error]', error);
         if (responseTimeoutId) clearTimeout(responseTimeoutId);
         setIsLoading(false);
+        // CRITICAL FIX: Reset subscription flag on error
+        subscriptionActiveRef.current = false;
       }
     );
 
@@ -251,8 +256,11 @@ export default function Chat() {
         console.error('[Response Timeout] No response after 30s');
         setIsLoading(false);
         subscriptionActiveRef.current = false;
+        // CRITICAL FIX: Always call unsubscribe
+        if (typeof unsubscribe === 'function') {
+          unsubscribe();
+        }
       }
-      unsubscribe?.();
     }, 30000);
 
     return () => {

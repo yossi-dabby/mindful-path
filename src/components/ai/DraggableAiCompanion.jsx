@@ -14,6 +14,7 @@ import InlineConsentBanner from '../chat/InlineConsentBanner';
 import InlineRiskPanel from '../chat/InlineRiskPanel';
 import { detectCrisisLanguage, detectCrisisWithReason } from '../utils/crisisDetector';
 import MessageFeedback from '../chat/MessageFeedback';
+import { validateAgentOutput, extractAssistantMessage } from '../utils/validateAgentOutput';
 
 const STORAGE_KEY = 'ai_companion_position';
 const MOBILE_BREAKPOINT = 768;
@@ -149,7 +150,15 @@ export default function DraggableAiCompanion() {
     if (!conversation?.id) return;
 
     const unsubscribe = base44.agents.subscribeToConversation(conversation.id, (data) => {
-      setMessages(data.messages || []);
+      // Process messages to extract assistant_message from JSON
+      const processedMessages = (data.messages || []).map(msg => {
+        if (msg.role === 'assistant' && msg.content) {
+          const extracted = extractAssistantMessage(msg.content);
+          return { ...msg, content: extracted };
+        }
+        return msg;
+      });
+      setMessages(processedMessages);
       setIsLoading(false);
     });
 
