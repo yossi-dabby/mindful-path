@@ -103,46 +103,56 @@ export default function DraggableAiCompanion() {
 
   // Create or get companion conversation with memory context
   useEffect(() => {
-    if (isOpen && !conversation) {
-      (async () => {
-        let memoryContext = '';
+    if (!isOpen || conversation) return;
+    
+    let isCancelled = false;
+    
+    (async () => {
+      let memoryContext = '';
+      
+      try {
+        // Fetch recent memories to provide context
+        const memories = await base44.entities.CompanionMemory.filter(
+          { is_active: true },
+          '-importance',
+          10
+        );
         
-        try {
-          // Fetch recent memories to provide context
-          const memories = await base44.entities.CompanionMemory.filter(
-            { is_active: true },
-            '-importance',
-            10
-          );
-          
-          memoryContext = memories.length > 0
-            ? `\n\n[User Context from Previous Sessions]\n${memories.map(m => `- ${m.content}`).join('\n')}`
-            : '';
-        } catch (error) {
-          console.error('Failed to fetch memories:', error);
-          setMemoryError(true);
-          // Continue without memory context - graceful degradation
-        }
+        memoryContext = memories.length > 0
+          ? `\n\n[User Context from Previous Sessions]\n${memories.map(m => `- ${m.content}`).join('\n')}`
+          : '';
+      } catch (error) {
+        console.error('Failed to fetch memories:', error);
+        if (!isCancelled) setMemoryError(true);
+        // Continue without memory context - graceful degradation
+      }
 
-        try {
-          const conv = await base44.agents.createConversation({
-            agent_name: 'ai_coach',
-            metadata: {
-              name: 'AI Companion Chat',
-              type: 'companion',
-              persistent: true,
-              memory_context: memoryContext
-            }
-          });
-          
+      if (isCancelled) return;
+
+      try {
+        const conv = await base44.agents.createConversation({
+          agent_name: 'ai_coach',
+          metadata: {
+            name: 'AI Companion Chat',
+            type: 'companion',
+            persistent: true,
+            memory_context: memoryContext
+          }
+        });
+        
+        if (!isCancelled) {
           setConversation(conv);
           setMessages(conv.messages || []);
-        } catch (error) {
-          console.error('Failed to create conversation:', error);
-          // TODO: Show error UI to user
         }
-      })();
-    }
+      } catch (error) {
+        console.error('Failed to create conversation:', error);
+        // TODO: Show error UI to user
+      }
+    })();
+    
+    return () => {
+      isCancelled = true;
+    };
   }, [isOpen, conversation]);
 
   // Subscribe to conversation updates
