@@ -280,8 +280,11 @@ export default function DraggableAiCompanion() {
         const finalBottom = parseInt(elementRef.current.style.bottom) || position.bottom;
         const finalPos = { right: finalRight, bottom: finalBottom };
         
-        setPosition(finalPos);
-        savePosition(finalPos);
+        // Only update state if position actually changed
+        if (finalPos.right !== position.right || finalPos.bottom !== position.bottom) {
+          setPosition(finalPos);
+          savePosition(finalPos);
+        }
       }
     };
 
