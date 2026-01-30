@@ -247,45 +247,60 @@ export default function DraggableAiCompanion() {
   useEffect(() => {
     if (!isDragging || !elementRef.current) return;
 
+    let rafId = null;
+
     const handleDragMove = (e) => {
       e.preventDefault();
-      const clientX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
-      const clientY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
       
-      const deltaX = dragRef.current.startX - clientX;
-      const deltaY = clientY - dragRef.current.startY;
+      if (rafId) return; // Throttle updates
       
-      const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
-      const margin = 16;
-      const bottomNavHeight = isMobile ? 64 : 0;
-      const maxRight = window.innerWidth - (isMobile ? 96 : 384) - margin;
-      const maxBottom = window.innerHeight - bottomNavHeight - margin;
-      
-      const newRight = Math.max(margin, Math.min(maxRight, dragRef.current.initialRight + deltaX));
-      const newBottom = Math.max(margin, Math.min(maxBottom, dragRef.current.initialBottom + deltaY));
-      
-      // Update DOM directly during drag to avoid re-renders
-      if (elementRef.current) {
-        elementRef.current.style.right = `${newRight}px`;
-        elementRef.current.style.bottom = `${newBottom}px`;
-      }
+      rafId = requestAnimationFrame(() => {
+        const clientX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+        const clientY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
+        
+        const deltaX = dragRef.current.startX - clientX;
+        const deltaY = clientY - dragRef.current.startY;
+        
+        const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
+        const margin = 16;
+        const bottomNavHeight = isMobile ? 64 : 0;
+        const maxRight = window.innerWidth - (isMobile ? 96 : 384) - margin;
+        const maxBottom = window.innerHeight - bottomNavHeight - margin;
+        
+        const newRight = Math.max(margin, Math.min(maxRight, dragRef.current.initialRight + deltaX));
+        const newBottom = Math.max(margin, Math.min(maxBottom, dragRef.current.initialBottom + deltaY));
+        
+        // Update DOM directly during drag to avoid re-renders
+        if (elementRef.current) {
+          elementRef.current.style.right = `${newRight}px`;
+          elementRef.current.style.bottom = `${newBottom}px`;
+        }
+        
+        rafId = null;
+      });
     };
 
     const handleDragEnd = () => {
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
+      
       setIsDragging(false);
       
-      // Get final position from DOM
-      if (elementRef.current) {
-        const finalRight = parseInt(elementRef.current.style.right) || position.right;
-        const finalBottom = parseInt(elementRef.current.style.bottom) || position.bottom;
-        const finalPos = { right: finalRight, bottom: finalBottom };
-        
-        // Only update state if position actually changed
-        if (finalPos.right !== position.right || finalPos.bottom !== position.bottom) {
-          setPosition(finalPos);
-          savePosition(finalPos);
+      // Get final position from DOM after a brief delay to ensure DOM is updated
+      requestAnimationFrame(() => {
+        if (elementRef.current && position) {
+          const finalRight = parseInt(elementRef.current.style.right) || position.right;
+          const finalBottom = parseInt(elementRef.current.style.bottom) || position.bottom;
+          
+          // Only update if changed by at least 2px to avoid micro-updates
+          if (Math.abs(finalRight - position.right) > 1 || Math.abs(finalBottom - position.bottom) > 1) {
+            const finalPos = { right: finalRight, bottom: finalBottom };
+            setPosition(finalPos);
+            savePosition(finalPos);
+          }
         }
-      }
+      });
     };
 
     window.addEventListener('mousemove', handleDragMove, { passive: false });
@@ -294,12 +309,15 @@ export default function DraggableAiCompanion() {
     window.addEventListener('touchend', handleDragEnd);
     
     return () => {
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
       window.removeEventListener('mousemove', handleDragMove);
       window.removeEventListener('mouseup', handleDragEnd);
       window.removeEventListener('touchmove', handleDragMove);
       window.removeEventListener('touchend', handleDragEnd);
     };
-  }, [isDragging]);
+  }, [isDragging, position]);
 
   const sendMessage = async () => {
     if (!message.trim() || !conversation) return;
