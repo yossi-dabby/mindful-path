@@ -393,6 +393,7 @@ export default function DraggableAiCompanion() {
   if (!isOpen) {
     return (
       <motion.div
+        ref={elementRef}
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         style={positionStyle}
