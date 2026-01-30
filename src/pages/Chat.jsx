@@ -49,36 +49,99 @@ export default function Chat() {
   const pollingIntervalRef = useRef(null);
   const expectedReplyCountRef = useRef(0);
   const lastMessageHashRef = useRef('');
+  const lastConfirmedMessagesRef = useRef([]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // CRITICAL: Deduplicate messages by ID to prevent duplicate rendering
+  // CRITICAL: Validate message is render-safe (no raw JSON, tool_calls, or incomplete data)
+  const isMessageRenderSafe = (msg) => {
+    if (!msg || !msg.role || !msg.content) {
+      console.warn('[Validation] BLOCKED: Missing role or content');
+      return false;
+    }
+    
+    const content = String(msg.content);
+    
+    // Block if content looks like raw JSON/structured data
+    if (content.includes('"assistant_message"') || 
+        content.includes('"tool_calls"') ||
+        content.includes('"homework":{') ||
+        content.includes('\\u00') ||
+        (content.trim().startsWith('{') && content.includes('"'))) {
+      console.warn('[Validation] BLOCKED: Structured data detected in:', msg.role, content.substring(0, 50));
+      return false;
+    }
+    
+    // Block if content is suspiciously short for assistant (likely partial)
+    if (msg.role === 'assistant' && content.trim().length < 3) {
+      console.warn('[Validation] BLOCKED: Suspiciously short assistant message');
+      return false;
+    }
+    
+    return true;
+  };
+
+  // CRITICAL: Deduplicate messages by stable ID
   const deduplicateMessages = (newMessages) => {
     const seen = new Set();
     const deduplicated = [];
     
     for (const msg of newMessages) {
-      // Create stable ID: use msg.id if available, otherwise hash of role+content+timestamp
-      const msgId = msg.id || `${msg.role}-${msg.content?.substring(0, 50)}-${msg.created_at}`;
+      const msgId = msg.id || `${msg.role}-${String(msg.content).substring(0, 50)}-${msg.created_at}`;
       
       if (!seen.has(msgId)) {
         seen.add(msgId);
         deduplicated.push(msg);
       } else {
-        console.log('[Dedup] Skipped duplicate message:', msgId.substring(0, 30));
+        console.log('[Dedup] ✅ BLOCKED duplicate:', msgId.substring(0, 30));
       }
     }
     
     return deduplicated;
   };
 
-  // CRITICAL: Compute hash of latest assistant message to detect state changes
-  const computeMessageHash = (msgs) => {
-    const lastAssistant = msgs.filter(m => m.role === 'assistant').pop();
-    if (!lastAssistant) return '';
-    return `${lastAssistant.content?.substring(0, 100)}-${msgs.length}`;
+  // CRITICAL: Pre-validate + sanitize messages before allowing state update
+  const validateAndSanitizeMessages = (msgs) => {
+    const validated = msgs.filter(isMessageRenderSafe);
+    
+    if (validated.length < msgs.length) {
+      console.log(`[Validation] ✅ BLOCKED ${msgs.length - validated.length} unsafe messages`);
+    }
+    
+    return deduplicateMessages(validated);
+  };
+
+  // CRITICAL: Safe state update - only update if new messages are strictly better
+  const safeUpdateMessages = (newMessages, source) => {
+    const sanitized = validateAndSanitizeMessages(newMessages);
+    
+    // Compare with last confirmed state
+    if (sanitized.length < lastConfirmedMessagesRef.current.length) {
+      console.log(`[${source}] ⚠️ Rejecting update - fewer messages than confirmed state`);
+      return false;
+    }
+    
+    // Check if this is actually new content
+    const lastConfirmedAssistant = lastConfirmedMessagesRef.current.filter(m => m.role === 'assistant').pop();
+    const newAssistant = sanitized.filter(m => m.role === 'assistant').pop();
+    
+    if (lastConfirmedAssistant && newAssistant) {
+      const oldContent = String(lastConfirmedAssistant.content);
+      const newContent = String(newAssistant.content);
+      
+      if (oldContent === newContent && sanitized.length === lastConfirmedMessagesRef.current.length) {
+        console.log(`[${source}] ⚠️ Rejecting update - no new content detected`);
+        return false;
+      }
+    }
+    
+    // Update is safe - commit to state
+    console.log(`[${source}] ✅ SAFE UPDATE: ${sanitized.length} messages`);
+    lastConfirmedMessagesRef.current = sanitized;
+    setMessages(sanitized);
+    return true;
   };
 
   useEffect(() => {
@@ -280,28 +343,22 @@ export default function Chat() {
             return msg;
           });
 
-          // CRITICAL: Deduplicate before setting state
-          const deduplicated = deduplicateMessages(processedMessages);
-          const newHash = computeMessageHash(deduplicated);
+          // CRITICAL: Safe update with validation + deduplication
+          const updated = safeUpdateMessages(processedMessages, 'Subscription');
           
-          // Only update if hash changed (prevents unnecessary re-renders)
-          if (newHash !== lastMessageHashRef.current) {
-            console.log('[Subscription] Setting', deduplicated.length, 'messages (hash changed)');
-            lastMessageHashRef.current = newHash;
-            setMessages(deduplicated);
+          if (updated) {
+            // CRITICAL: Always reset loading when safe update succeeds
+            console.log('[Subscription] ✅ Loading OFF');
+            setIsLoading(false);
+            
+            // Stop polling if active - subscription worked
+            if (pollingIntervalRef.current) {
+              console.log('[Subscription] Stopping polling - subscription successful');
+              clearInterval(pollingIntervalRef.current);
+              pollingIntervalRef.current = null;
+            }
           } else {
-            console.log('[Subscription] Skipping update - no change detected');
-          }
-          
-          // CRITICAL: Always reset loading immediately when data arrives
-          console.log('[Subscription] ✅ Loading OFF');
-          setIsLoading(false);
-          
-          // Stop polling if active - subscription worked
-          if (pollingIntervalRef.current) {
-            console.log('[Subscription] Stopping polling - subscription successful');
-            clearInterval(pollingIntervalRef.current);
-            pollingIntervalRef.current = null;
+            console.log('[Subscription] Update rejected - keeping current state');
           }
         } catch (err) {
           console.error('[Subscription] ❌ Processing error:', err);
@@ -492,9 +549,7 @@ export default function Chat() {
       
       // Process and sanitize messages before setting
       const sanitized = sanitizeConversationMessages(conversation.messages || []);
-      const deduplicated = deduplicateMessages(sanitized);
-      lastMessageHashRef.current = computeMessageHash(deduplicated);
-      setMessages(deduplicated);
+      safeUpdateMessages(sanitized, 'LoadConversation');
       setShowSidebar(false);
     } catch (error) {
       console.error('[Load Conversation Error]', error);
@@ -652,18 +707,11 @@ export default function Chat() {
             if (sanitized.length >= expectedReplyCountRef.current) {
               console.log('[Polling] ✅ Reply found - stopping polling');
               
-              // CRITICAL: Deduplicate before setting state
-              const deduplicated = deduplicateMessages(sanitized);
-              const newHash = computeMessageHash(deduplicated);
+              // CRITICAL: Safe update with validation
+              const updated = safeUpdateMessages(sanitized, 'Polling');
               
-              // Only update if hash changed
-              if (newHash !== lastMessageHashRef.current) {
-                console.log('[Polling] Setting', deduplicated.length, 'messages (new reply)');
-                lastMessageHashRef.current = newHash;
-                setMessages(deduplicated);
-              }
-              
-              setIsLoading(false);
+              if (updated) {
+                setIsLoading(false);
               
               if (pollingIntervalRef.current) {
                 clearInterval(pollingIntervalRef.current);
@@ -676,16 +724,8 @@ export default function Chat() {
             } else if (pollAttempts >= maxPollAttempts) {
               console.error('[Polling] ⏱️ Timeout - no reply after 10s');
               
-              // CRITICAL: Deduplicate before setting state
-              const deduplicated = deduplicateMessages(sanitized);
-              const newHash = computeMessageHash(deduplicated);
-              
-              if (newHash !== lastMessageHashRef.current) {
-                console.log('[Polling] Setting', deduplicated.length, 'messages (timeout)');
-                lastMessageHashRef.current = newHash;
-                setMessages(deduplicated);
-              }
-              
+              // CRITICAL: Safe update with validation
+              safeUpdateMessages(sanitized, 'Polling-Timeout');
               setIsLoading(false);
               
               if (pollingIntervalRef.current) {

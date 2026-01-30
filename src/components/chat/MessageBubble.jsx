@@ -4,75 +4,77 @@ import { cn } from '@/lib/utils';
 import MessageFeedback from './MessageFeedback';
 
 export default function MessageBubble({ message, conversationId, messageIndex, agentName = 'cbt_therapist', context = 'chat' }) {
-  // CRITICAL: Strict null/undefined/empty gating - never render incomplete messages
+  // CRITICAL GATE 1: Strict null/undefined/empty gating
   if (!message || !message.role || !message.content) {
-    console.warn('[MessageBubble] Skipping incomplete message:', message?.role, !!message?.content);
     return null;
   }
   
   const isUser = message.role === 'user';
   
-  // CRITICAL: Strict content extraction with zero tolerance for raw data
+  // CRITICAL GATE 2: Content extraction with ZERO tolerance for raw/structured data
   let content = '';
   try {
     const rawContent = message.content;
+    const contentStr = String(rawContent).trim();
     
-    // Type 1: Already a clean string
-    if (typeof rawContent === 'string' && !rawContent.trim().startsWith('{') && !rawContent.trim().startsWith('[')) {
-      content = rawContent.trim();
+    // IMMEDIATE REJECT: Any sign of structured data
+    if (contentStr.includes('"assistant_message"') || 
+        contentStr.includes('"tool_calls"') ||
+        contentStr.includes('"homework":{') ||
+        contentStr.includes('"s":') ||
+        contentStr.includes('\\u00') ||
+        (contentStr.startsWith('{') && contentStr.includes('"')) ||
+        (contentStr.startsWith('[') && contentStr.includes('{'))) {
+      console.error('[MessageBubble] ⛔ HARD BLOCK: Structured data rejected');
+      return null;
+    }
+    
+    // Type 1: Clean string (most common)
+    if (typeof rawContent === 'string' && !contentStr.startsWith('{') && !contentStr.startsWith('[')) {
+      content = contentStr;
     }
     // Type 2: JSON string - extract assistant_message ONLY
-    else if (typeof rawContent === 'string' && (rawContent.trim().startsWith('{') || rawContent.trim().startsWith('['))) {
+    else if (typeof rawContent === 'string' && (contentStr.startsWith('{') || contentStr.startsWith('['))) {
       try {
-        const parsed = JSON.parse(rawContent);
+        const parsed = JSON.parse(contentStr);
         if (parsed.assistant_message && typeof parsed.assistant_message === 'string') {
           content = parsed.assistant_message.trim();
-          console.log('[MessageBubble] Extracted from JSON:', content.substring(0, 50));
         } else {
-          // No valid assistant_message - abort rendering
-          console.error('[MessageBubble] BLOCKED: JSON without assistant_message');
+          console.error('[MessageBubble] ⛔ HARD BLOCK: JSON without assistant_message');
           return null;
         }
-      } catch (jsonError) {
-        // Not valid JSON - treat as plain text
-        content = rawContent.trim();
+      } catch {
+        // Not valid JSON - use as-is
+        content = contentStr;
       }
     }
-    // Type 3: Already an object
-    else if (typeof rawContent === 'object') {
+    // Type 3: Object
+    else if (typeof rawContent === 'object' && rawContent !== null) {
       if (rawContent.assistant_message && typeof rawContent.assistant_message === 'string') {
         content = rawContent.assistant_message.trim();
       } else {
-        // No valid assistant_message - abort rendering
-        console.error('[MessageBubble] BLOCKED: Object without assistant_message');
+        console.error('[MessageBubble] ⛔ HARD BLOCK: Object without assistant_message');
         return null;
       }
     }
     else {
-      // Unexpected type - abort
-      console.error('[MessageBubble] BLOCKED: Unexpected content type:', typeof rawContent);
+      console.error('[MessageBubble] ⛔ HARD BLOCK: Unexpected type');
       return null;
     }
     
-    // CRITICAL: Final safety check - reject if any structured data leaked through
-    if (content.includes('"assistant_message"') || 
-        content.includes('"tool_calls"') || 
-        content.includes('"homework":{') ||
-        content.includes('\\u00') ||
-        content.startsWith('{') ||
-        content.startsWith('[')) {
-      console.error('[MessageBubble] BLOCKED: Structured data detected in final content');
+    // CRITICAL GATE 3: Final content validation
+    if (!content || content.length < 1) {
+      return null;
+    }
+    
+    // CRITICAL GATE 4: Double-check no structured data leaked
+    if (content.includes('{"') || content.includes('"}') || content.includes('[{')) {
+      console.error('[MessageBubble] ⛔ HARD BLOCK: Final check failed');
       return null;
     }
     
   } catch (e) {
-    console.error('[MessageBubble] Fatal error processing content:', e);
-    return null;
-  }
-  
-  // CRITICAL: Empty content = abort rendering
-  if (!content || content.length === 0) {
-    console.warn('[MessageBubble] Skipping empty content');
+    console.error('[MessageBubble] ⛔ Fatal error:', e);
     return null;
   }
   
