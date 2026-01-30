@@ -712,6 +712,7 @@ export default function Chat() {
               
               if (updated) {
                 setIsLoading(false);
+              }
               
               if (pollingIntervalRef.current) {
                 clearInterval(pollingIntervalRef.current);
