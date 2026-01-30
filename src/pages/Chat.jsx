@@ -50,6 +50,14 @@ export default function Chat() {
   const expectedReplyCountRef = useRef(0);
   const lastMessageHashRef = useRef('');
   const lastConfirmedMessagesRef = useRef([]);
+  
+  // INSTRUMENTATION: Track blocked renders to prove fix
+  const instrumentationRef = useRef({
+    RENDER_BLOCKED_NON_STRING: 0,
+    RENDER_BLOCKED_JSON_LIKE: 0,
+    DUPLICATE_BLOCKED: 0,
+    SAFE_UPDATES: 0
+  });
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -62,15 +70,25 @@ export default function Chat() {
       return false;
     }
     
-    const content = String(msg.content);
+    // CRITICAL TYPE CHECK: Content MUST be a string
+    if (typeof msg.content !== 'string') {
+      console.warn('[Validation] ⛔ BLOCKED: Content is not a string, type:', typeof msg.content);
+      instrumentationRef.current.RENDER_BLOCKED_NON_STRING++;
+      return false;
+    }
+    
+    const content = msg.content;
     
     // Block if content looks like raw JSON/structured data
     if (content.includes('"assistant_message"') || 
         content.includes('"tool_calls"') ||
         content.includes('"homework":{') ||
         content.includes('\\u00') ||
-        (content.trim().startsWith('{') && content.includes('"'))) {
-      console.warn('[Validation] BLOCKED: Structured data detected in:', msg.role, content.substring(0, 50));
+        content.includes('"metadata"') ||
+        (content.trim().startsWith('{') && content.includes('"')) ||
+        (content.trim().startsWith('[{') && content.includes('"'))) {
+      console.warn('[Validation] ⛔ BLOCKED: JSON-like content detected:', content.substring(0, 50));
+      instrumentationRef.current.RENDER_BLOCKED_JSON_LIKE++;
       return false;
     }
     
@@ -96,6 +114,7 @@ export default function Chat() {
         deduplicated.push(msg);
       } else {
         console.log('[Dedup] ✅ BLOCKED duplicate:', msgId.substring(0, 30));
+        instrumentationRef.current.DUPLICATE_BLOCKED++;
       }
     }
     
@@ -139,6 +158,7 @@ export default function Chat() {
     
     // Update is safe - commit to state
     console.log(`[${source}] ✅ SAFE UPDATE: ${sanitized.length} messages`);
+    instrumentationRef.current.SAFE_UPDATES++;
     lastConfirmedMessagesRef.current = sanitized;
     setMessages(sanitized);
     return true;
@@ -318,6 +338,20 @@ export default function Chat() {
         try {
           processedMessages = (data.messages || []).map(msg => {
             if (msg.role === 'assistant' && msg.content) {
+              // CRITICAL TYPE CHECK: If content is not a string, extract it
+              if (typeof msg.content !== 'string') {
+                console.warn('[Subscription] ⚠️ Content is object, extracting assistant_message');
+                const extracted = extractAssistantMessage(msg.content);
+                return {
+                  ...msg,
+                  content: extracted,
+                  metadata: {
+                    ...(msg.metadata || {}),
+                    structured_data: msg.content // Store original object
+                  }
+                };
+              }
+              
               // Validate and normalize agent output (non-breaking)
               const validated = validateAgentOutput(msg.content);
               
@@ -844,6 +878,23 @@ export default function Chat() {
     // Signal page is ready for E2E tests
     document.body.setAttribute('data-page-ready', 'true');
     setIsPageReady(true);
+    
+    // INSTRUMENTATION: Log counters every 10 seconds
+    const logInterval = setInterval(() => {
+      const counters = instrumentationRef.current;
+      console.log('[INSTRUMENTATION]', {
+        RENDER_BLOCKED_NON_STRING: counters.RENDER_BLOCKED_NON_STRING,
+        RENDER_BLOCKED_JSON_LIKE: counters.RENDER_BLOCKED_JSON_LIKE,
+        DUPLICATE_BLOCKED: counters.DUPLICATE_BLOCKED,
+        SAFE_UPDATES: counters.SAFE_UPDATES
+      });
+    }, 10000);
+    
+    // Cleanup
+    const cleanup = () => {
+      clearInterval(logInterval);
+    };
+    window.addEventListener('beforeunload', cleanup);
     
     // Detect test environment (Playwright, Cypress, etc.)
     const isTestEnv = 

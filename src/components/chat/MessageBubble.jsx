@@ -11,65 +11,42 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   
   const isUser = message.role === 'user';
   
-  // CRITICAL GATE 2: Content extraction with ZERO tolerance for raw/structured data
+  // CRITICAL GATE 2: TYPE CHECK - Content MUST be a string
+  if (typeof message.content !== 'string') {
+    console.error('[MessageBubble] ⛔ FATAL: Content is not a string, type:', typeof message.content);
+    return null;
+  }
+  
+  // CRITICAL GATE 3: Content extraction with ZERO tolerance for raw/structured data
   let content = '';
   try {
     const rawContent = message.content;
-    const contentStr = String(rawContent).trim();
+    const contentStr = rawContent.trim();
     
     // IMMEDIATE REJECT: Any sign of structured data
     if (contentStr.includes('"assistant_message"') || 
         contentStr.includes('"tool_calls"') ||
         contentStr.includes('"homework":{') ||
+        contentStr.includes('"metadata"') ||
         contentStr.includes('"s":') ||
         contentStr.includes('\\u00') ||
         (contentStr.startsWith('{') && contentStr.includes('"')) ||
-        (contentStr.startsWith('[') && contentStr.includes('{'))) {
-      console.error('[MessageBubble] ⛔ HARD BLOCK: Structured data rejected');
+        (contentStr.startsWith('[{') && contentStr.includes('"'))) {
+      console.error('[MessageBubble] ⛔ HARD BLOCK: Structured data rejected:', contentStr.substring(0, 50));
       return null;
     }
     
-    // Type 1: Clean string (most common)
-    if (typeof rawContent === 'string' && !contentStr.startsWith('{') && !contentStr.startsWith('[')) {
-      content = contentStr;
-    }
-    // Type 2: JSON string - extract assistant_message ONLY
-    else if (typeof rawContent === 'string' && (contentStr.startsWith('{') || contentStr.startsWith('['))) {
-      try {
-        const parsed = JSON.parse(contentStr);
-        if (parsed.assistant_message && typeof parsed.assistant_message === 'string') {
-          content = parsed.assistant_message.trim();
-        } else {
-          console.error('[MessageBubble] ⛔ HARD BLOCK: JSON without assistant_message');
-          return null;
-        }
-      } catch {
-        // Not valid JSON - use as-is
-        content = contentStr;
-      }
-    }
-    // Type 3: Object
-    else if (typeof rawContent === 'object' && rawContent !== null) {
-      if (rawContent.assistant_message && typeof rawContent.assistant_message === 'string') {
-        content = rawContent.assistant_message.trim();
-      } else {
-        console.error('[MessageBubble] ⛔ HARD BLOCK: Object without assistant_message');
-        return null;
-      }
-    }
-    else {
-      console.error('[MessageBubble] ⛔ HARD BLOCK: Unexpected type');
-      return null;
-    }
+    // Use string content directly (already validated as string)
+    content = contentStr;
     
-    // CRITICAL GATE 3: Final content validation
+    // CRITICAL GATE 4: Final content validation
     if (!content || content.length < 1) {
       return null;
     }
     
-    // CRITICAL GATE 4: Double-check no structured data leaked
-    if (content.includes('{"') || content.includes('"}') || content.includes('[{')) {
-      console.error('[MessageBubble] ⛔ HARD BLOCK: Final check failed');
+    // CRITICAL GATE 5: Double-check no structured data leaked
+    if (content.includes('{"') || content.includes('"}') || content.includes('[{') || content.includes('"content"')) {
+      console.error('[MessageBubble] ⛔ HARD BLOCK: Final check failed:', content.substring(0, 50));
       return null;
     }
     
