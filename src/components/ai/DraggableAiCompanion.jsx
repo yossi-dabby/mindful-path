@@ -243,45 +243,43 @@ export default function DraggableAiCompanion() {
     e.preventDefault();
   };
 
-  const handleDragMove = (e) => {
-    if (!isDragging) return;
-    
-    const clientX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
-    const clientY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
-    
-    const deltaX = dragRef.current.startX - clientX;
-    const deltaY = clientY - dragRef.current.startY;
-    
-    const newPos = constrainPosition({
-      right: dragRef.current.initialRight + deltaX,
-      bottom: dragRef.current.initialBottom + deltaY
-    });
-    
-    setPosition(newPos);
-  };
-
-  const handleDragEnd = () => {
-    if (isDragging && position) {
-      setIsDragging(false);
-      savePosition(position);
-    }
-  };
-
   useEffect(() => {
-    if (isDragging) {
-      window.addEventListener('mousemove', handleDragMove);
-      window.addEventListener('mouseup', handleDragEnd);
-      window.addEventListener('touchmove', handleDragMove);
-      window.addEventListener('touchend', handleDragEnd);
+    if (!isDragging) return;
+
+    const handleDragMove = (e) => {
+      const clientX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+      const clientY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
       
-      return () => {
-        window.removeEventListener('mousemove', handleDragMove);
-        window.removeEventListener('mouseup', handleDragEnd);
-        window.removeEventListener('touchmove', handleDragMove);
-        window.removeEventListener('touchend', handleDragEnd);
-      };
-    }
-  }, [isDragging, position]);
+      const deltaX = dragRef.current.startX - clientX;
+      const deltaY = clientY - dragRef.current.startY;
+      
+      const newPos = constrainPosition({
+        right: dragRef.current.initialRight + deltaX,
+        bottom: dragRef.current.initialBottom + deltaY
+      });
+      
+      setPosition(newPos);
+    };
+
+    const handleDragEnd = () => {
+      setIsDragging(false);
+      if (position) {
+        savePosition(position);
+      }
+    };
+
+    window.addEventListener('mousemove', handleDragMove);
+    window.addEventListener('mouseup', handleDragEnd);
+    window.addEventListener('touchmove', handleDragMove);
+    window.addEventListener('touchend', handleDragEnd);
+    
+    return () => {
+      window.removeEventListener('mousemove', handleDragMove);
+      window.removeEventListener('mouseup', handleDragEnd);
+      window.removeEventListener('touchmove', handleDragMove);
+      window.removeEventListener('touchend', handleDragEnd);
+    };
+  }, [isDragging]);
 
   const sendMessage = async () => {
     if (!message.trim() || !conversation) return;
