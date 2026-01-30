@@ -8,6 +8,7 @@ import { ChevronDown, ChevronUp, Edit, Trash2, TrendingDown, Image as ImageIcon,
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import AiJournalSuggestions from './AiJournalSuggestions';
+import AiEntrySummary from './AiEntrySummary';
 
 // Helper to strip HTML tags for plain text display
 const stripHtml = (html) => {
@@ -20,6 +21,7 @@ const stripHtml = (html) => {
 export default function ThoughtRecordCard({ entry, onEdit }) {
   const [expanded, setExpanded] = useState(false);
   const [showAiSuggestions, setShowAiSuggestions] = useState(false);
+  const [hasSummary, setHasSummary] = useState(!!entry.ai_summary);
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
@@ -46,7 +48,17 @@ export default function ThoughtRecordCard({ entry, onEdit }) {
             <p className="text-sm text-gray-500 mb-1">
               {format(new Date(entry.created_date), 'MMM d, yyyy • h:mm a')}
             </p>
-            <p className="text-gray-800 font-medium line-clamp-2">{stripHtml(entry.situation)}</p>
+            {!expanded && hasSummary ? (
+              <AiEntrySummary 
+                entry={entry} 
+                onSummaryGenerated={() => {
+                  setHasSummary(true);
+                  queryClient.invalidateQueries(['thoughtJournals']);
+                }} 
+              />
+            ) : (
+              <p className="text-gray-800 font-medium line-clamp-2">{stripHtml(entry.situation)}</p>
+            )}
           </div>
           <div className="flex gap-1">
             <Button variant="ghost" size="icon" onClick={() => onEdit(entry)}>
