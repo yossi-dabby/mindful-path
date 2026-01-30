@@ -245,9 +245,10 @@ export default function DraggableAiCompanion() {
   };
 
   useEffect(() => {
-    if (!isDragging) return;
+    if (!isDragging || !elementRef.current) return;
 
     const handleDragMove = (e) => {
+      e.preventDefault();
       const clientX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
       const clientY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
       
@@ -260,26 +261,33 @@ export default function DraggableAiCompanion() {
       const maxRight = window.innerWidth - (isMobile ? 96 : 384) - margin;
       const maxBottom = window.innerHeight - bottomNavHeight - margin;
       
-      const newPos = {
-        right: Math.max(margin, Math.min(maxRight, dragRef.current.initialRight + deltaX)),
-        bottom: Math.max(margin, Math.min(maxBottom, dragRef.current.initialBottom + deltaY))
-      };
+      const newRight = Math.max(margin, Math.min(maxRight, dragRef.current.initialRight + deltaX));
+      const newBottom = Math.max(margin, Math.min(maxBottom, dragRef.current.initialBottom + deltaY));
       
-      setPosition(newPos);
+      // Update DOM directly during drag to avoid re-renders
+      if (elementRef.current) {
+        elementRef.current.style.right = `${newRight}px`;
+        elementRef.current.style.bottom = `${newBottom}px`;
+      }
     };
 
     const handleDragEnd = () => {
       setIsDragging(false);
-      const currentPos = {
-        right: dragRef.current.initialRight,
-        bottom: dragRef.current.initialBottom
-      };
-      savePosition(currentPos);
+      
+      // Get final position from DOM
+      if (elementRef.current) {
+        const finalRight = parseInt(elementRef.current.style.right) || position.right;
+        const finalBottom = parseInt(elementRef.current.style.bottom) || position.bottom;
+        const finalPos = { right: finalRight, bottom: finalBottom };
+        
+        setPosition(finalPos);
+        savePosition(finalPos);
+      }
     };
 
-    window.addEventListener('mousemove', handleDragMove);
+    window.addEventListener('mousemove', handleDragMove, { passive: false });
     window.addEventListener('mouseup', handleDragEnd);
-    window.addEventListener('touchmove', handleDragMove);
+    window.addEventListener('touchmove', handleDragMove, { passive: false });
     window.addEventListener('touchend', handleDragEnd);
     
     return () => {
