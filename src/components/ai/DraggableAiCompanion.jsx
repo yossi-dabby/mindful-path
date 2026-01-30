@@ -149,7 +149,12 @@ export default function DraggableAiCompanion() {
   useEffect(() => {
     if (!conversation?.id) return;
 
-    const unsubscribe = base44.agents.subscribeToConversation(conversation.id, (data) => {
+    let isSubscribed = true;
+    const conversationId = conversation.id;
+
+    const unsubscribe = base44.agents.subscribeToConversation(conversationId, (data) => {
+      if (!isSubscribed || !mountedRef.current) return;
+      
       // Process messages to extract assistant_message from JSON
       const processedMessages = (data.messages || []).map(msg => {
         if (msg.role === 'assistant' && msg.content) {
@@ -162,7 +167,12 @@ export default function DraggableAiCompanion() {
       setIsLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      isSubscribed = false;
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      }
+    };
   }, [conversation?.id]);
 
   // Auto-scroll to bottom
