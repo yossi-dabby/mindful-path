@@ -183,9 +183,6 @@ export default function Chat() {
       return;
     }
 
-    // CRITICAL FIX: Always allow subscription to be recreated
-    subscriptionActiveRef.current = true;
-
     let responseTimeoutId = null;
     let isSubscribed = true;
 
@@ -199,10 +196,13 @@ export default function Chat() {
           return;
         }
 
-        console.log('[Subscription] Received update, messages count:', data.messages?.length);
+        console.log('[Subscription] ✅ DATA RECEIVED, messages:', data.messages?.length);
 
-        // Clear timeout - we got a response
-        if (responseTimeoutId) clearTimeout(responseTimeoutId);
+        // Clear timeout immediately
+        if (responseTimeoutId) {
+          clearTimeout(responseTimeoutId);
+          responseTimeoutId = null;
+        }
 
         // Process messages: validate and extract structured JSON from assistant messages
         // CRITICAL: This must handle both new structured output AND legacy/corrupted messages
