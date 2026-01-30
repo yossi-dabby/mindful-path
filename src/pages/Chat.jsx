@@ -235,50 +235,43 @@ export default function Chat() {
             return msg;
           });
 
-          console.log('[Subscription] ✅ Setting', processedMessages.length, 'messages');
+          console.log('[Subscription] Setting', processedMessages.length, 'messages');
           setMessages(processedMessages);
           
-          // CRITICAL FIX: ALWAYS turn off loading when data arrives
-          console.log('[Subscription] ✅ Turning OFF loading state');
+          // CRITICAL: Always reset loading immediately when data arrives
+          console.log('[Subscription] ✅ Loading OFF');
           setIsLoading(false);
         } catch (err) {
           console.error('[Subscription] ❌ Processing error:', err);
-          // Force recovery on error
           setIsLoading(false);
-          subscriptionActiveRef.current = false;
         }
       },
       (error) => {
         if (!isSubscribed || !mountedRef.current) return;
 
-        // Handle stream/connection errors
-        console.error('[Subscription] ❌ STREAM ERROR:', error);
+        console.error('[Subscription] ❌ Stream error:', error);
         if (responseTimeoutId) {
           clearTimeout(responseTimeoutId);
           responseTimeoutId = null;
         }
-        // Force recovery
         setIsLoading(false);
-        subscriptionActiveRef.current = false;
       }
     );
 
-    // IMMEDIATE CHECK: Verify subscription was created
+    // Verify subscription created
     if (!unsubscribe || typeof unsubscribe !== 'function') {
-      console.error('[Subscription] ❌ FAILED to create subscription!');
+      console.error('[Subscription] ❌ Failed to create subscription');
       setIsLoading(false);
-      subscriptionActiveRef.current = false;
       return;
     }
     
-    console.log('[Subscription] ✅ Subscription created successfully');
+    console.log('[Subscription] ✅ Subscription active');
 
-    // Safety timeout: if no response after 30s, force recovery
+    // Timeout after 30s
     responseTimeoutId = setTimeout(() => {
       if (isSubscribed && mountedRef.current) {
-        console.error('[Subscription] ⏱️ TIMEOUT after 30s - forcing recovery');
+        console.error('[Subscription] ⏱️ Timeout after 30s');
         setIsLoading(false);
-        subscriptionActiveRef.current = false;
         if (typeof unsubscribe === 'function') {
           unsubscribe();
         }
@@ -286,9 +279,8 @@ export default function Chat() {
     }, 30000);
 
     return () => {
-      console.log('[Subscription] 🧹 Cleanup for:', currentConversationId);
+      console.log('[Subscription] Cleanup');
       isSubscribed = false;
-      subscriptionActiveRef.current = false;
       if (responseTimeoutId) {
         clearTimeout(responseTimeoutId);
         responseTimeoutId = null;
