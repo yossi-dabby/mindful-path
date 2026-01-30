@@ -176,6 +176,25 @@ export default function ThoughtRecordCard({ entry, onEdit }) {
               </div>
             )}
 
+            {entry.homework_tasks?.length > 0 && (
+              <div className="bg-blue-50 p-4 rounded-xl">
+                <p className="text-sm font-medium text-blue-900 mb-2">Homework Tasks:</p>
+                <ul className="space-y-3">
+                  {entry.homework_tasks.map((task, index) => (
+                    <li key={index} className="text-blue-800 text-sm pl-4 border-l-2 border-blue-300">
+                      <p className="font-semibold mb-1">{task.task}</p>
+                      {task.duration_minutes && (
+                        <p className="text-xs text-blue-700">⏱️ Duration: {task.duration_minutes} minutes</p>
+                      )}
+                      {task.success_criteria && (
+                        <p className="text-xs text-blue-700">✓ Success: {task.success_criteria}</p>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {/* Attached Media */}
             {entry.images?.length > 0 && (
               <div>
