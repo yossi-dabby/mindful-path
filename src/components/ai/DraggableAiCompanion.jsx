@@ -38,6 +38,7 @@ export default function DraggableAiCompanion() {
   const mountedRef = useRef(true);
   const messagesEndRef = useRef(null);
   const dragRef = useRef({ startX: 0, startY: 0, initialX: 0, initialY: 0 });
+  const elementRef = useRef(null);
   const queryClient = useQueryClient();
 
   // Initialize position from localStorage or defaults
