@@ -252,7 +252,7 @@ export default function DraggableAiCompanion() {
     const handleDragMove = (e) => {
       e.preventDefault();
       
-      if (rafId) return; // Throttle updates
+      if (rafId) return;
       
       rafId = requestAnimationFrame(() => {
         const clientX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
@@ -270,7 +270,6 @@ export default function DraggableAiCompanion() {
         const newRight = Math.max(margin, Math.min(maxRight, dragRef.current.initialRight + deltaX));
         const newBottom = Math.max(margin, Math.min(maxBottom, dragRef.current.initialBottom + deltaY));
         
-        // Update DOM directly during drag to avoid re-renders
         if (elementRef.current) {
           elementRef.current.style.right = `${newRight}px`;
           elementRef.current.style.bottom = `${newBottom}px`;
@@ -287,14 +286,12 @@ export default function DraggableAiCompanion() {
       
       setIsDragging(false);
       
-      // Get final position from DOM after a brief delay to ensure DOM is updated
       requestAnimationFrame(() => {
-        if (elementRef.current && position) {
-          const finalRight = parseInt(elementRef.current.style.right) || position.right;
-          const finalBottom = parseInt(elementRef.current.style.bottom) || position.bottom;
+        if (elementRef.current) {
+          const finalRight = parseInt(elementRef.current.style.right) || dragRef.current.initialRight;
+          const finalBottom = parseInt(elementRef.current.style.bottom) || dragRef.current.initialBottom;
           
-          // Only update if changed by at least 2px to avoid micro-updates
-          if (Math.abs(finalRight - position.right) > 1 || Math.abs(finalBottom - position.bottom) > 1) {
+          if (Math.abs(finalRight - dragRef.current.initialRight) > 1 || Math.abs(finalBottom - dragRef.current.initialBottom) > 1) {
             const finalPos = { right: finalRight, bottom: finalBottom };
             setPosition(finalPos);
             savePosition(finalPos);
@@ -317,7 +314,7 @@ export default function DraggableAiCompanion() {
       window.removeEventListener('touchmove', handleDragMove);
       window.removeEventListener('touchend', handleDragEnd);
     };
-  }, [isDragging, position]);
+  }, [isDragging]);
 
   const sendMessage = async () => {
     if (!message.trim() || !conversation) return;
