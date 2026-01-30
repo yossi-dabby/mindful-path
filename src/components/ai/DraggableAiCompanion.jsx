@@ -157,21 +157,27 @@ export default function DraggableAiCompanion() {
   }, [isOpen, conversation]);
 
   // Subscribe to conversation updates
+  const messagesRef = useRef([]);
+  
   useEffect(() => {
     if (!conversation?.id) return;
 
     let isSubscribed = true;
     const conversationId = conversation.id;
-    let lastMessageCount = 0;
 
     const unsubscribe = base44.agents.subscribeToConversation(conversationId, (data) => {
       if (!isSubscribed || !mountedRef.current) return;
       
       const newMessages = data.messages || [];
       
-      // Only update if message count changed to prevent infinite loops
-      if (newMessages.length === lastMessageCount) return;
-      lastMessageCount = newMessages.length;
+      // Check if messages actually changed (deep comparison by length and last message)
+      const lastNew = newMessages[newMessages.length - 1];
+      const lastOld = messagesRef.current[messagesRef.current.length - 1];
+      
+      if (newMessages.length === messagesRef.current.length && 
+          lastNew?.content === lastOld?.content) {
+        return;
+      }
       
       // Process messages to extract assistant_message from JSON
       const processedMessages = newMessages.map(msg => {
@@ -181,6 +187,8 @@ export default function DraggableAiCompanion() {
         }
         return msg;
       });
+      
+      messagesRef.current = processedMessages;
       setMessages(processedMessages);
       setIsLoading(false);
     });
