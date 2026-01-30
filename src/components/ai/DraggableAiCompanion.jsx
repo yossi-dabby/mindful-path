@@ -368,9 +368,38 @@ export default function DraggableAiCompanion() {
     "Suggest an exercise"
   ];
 
-  const handleQuickPrompt = (prompt) => {
-    setMessage(prompt);
-    setTimeout(() => sendMessage(), 100);
+  const handleQuickPrompt = async (prompt) => {
+    if (!conversation) return;
+    
+    setMessage('');
+    setSendError(null);
+    setIsLoading(true);
+
+    // Crisis detection gate
+    const reasonCode = detectCrisisWithReason(prompt);
+    if (reasonCode) {
+      setShowRiskPanel(true);
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      await base44.agents.addMessage(conversation, {
+        role: 'user',
+        content: prompt
+      });
+      if (!mountedRef.current) return;
+      queryClient.invalidateQueries(['proactiveReminders']);
+    } catch (error) {
+      console.error('Failed to send message:', error);
+      if (!mountedRef.current) return;
+      setIsLoading(false);
+      if (isAuthError(error) && shouldShowAuthError()) {
+        setShowAuthError(true);
+      } else {
+        setSendError('Failed to send message. Please try again.');
+      }
+    }
   };
 
   if (!isOpen && !shouldShow) {
