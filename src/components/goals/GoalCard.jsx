@@ -6,12 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Edit, Calendar, CheckCircle2, ChevronDown, ChevronUp, TrendingUp, BookOpen, Trash2 } from 'lucide-react';
+import { Edit, Calendar, CheckCircle2, ChevronDown, ChevronUp, TrendingUp, BookOpen, Trash2, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { safeArray, safeText } from '@/components/utils/aiDataNormalizer';
 import GoalProgressChart from './GoalProgressChart';
 import LinkedJournalEntries from './LinkedJournalEntries';
+import AiGoalAdjustment from './AiGoalAdjustment';
 
 const categoryColors = {
   behavioral: 'bg-blue-100 text-blue-700',
@@ -24,6 +25,8 @@ const categoryColors = {
 export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   const [showChart, setShowChart] = useState(false);
   const [showJournalEntries, setShowJournalEntries] = useState(false);
+  const [showObstacles, setShowObstacles] = useState(false);
+  const [showAiAdjustment, setShowAiAdjustment] = useState(false);
   const queryClient = useQueryClient();
 
   const toggleMilestoneMutation = useMutation({
@@ -66,6 +69,18 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   const isCompleted = goal.status === 'completed';
   const isOverdue =
     goal.target_date && new Date(goal.target_date) < new Date() && !isCompleted;
+
+  const handleApplyAdjustment = async (updates) => {
+    try {
+      await base44.entities.Goal.update(goal.id, updates);
+      queryClient.invalidateQueries(['allGoals']);
+      queryClient.invalidateQueries(['goals']);
+      setShowAiAdjustment(false);
+    } catch (error) {
+      console.error('Failed to apply adjustment:', error);
+      alert('Failed to apply changes. Please try again.');
+    }
+  };
 
   return (
     <Card className={cn('border-0 shadow-md w-full', isCompleted && 'opacity-75')}>
@@ -169,8 +184,64 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
           </div>
         )}
 
+        {/* Obstacles Section */}
+        {(goal.obstacles?.identified_obstacles?.length > 0 || goal.obstacles?.cognitive_distortions?.length > 0) && (
+          <div className="mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowObstacles(!showObstacles)}
+              className="flex items-center justify-center gap-2 w-full"
+            >
+              <span className="flex-1 text-left font-medium">Obstacles & CBT Work</span>
+              {showObstacles ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </Button>
+            {showObstacles && (
+              <div className="mt-3 p-4 bg-amber-50 rounded-lg border border-amber-200 space-y-3">
+                {goal.obstacles.identified_obstacles?.length > 0 && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-2">Identified Obstacles:</p>
+                    <ul className="space-y-1">
+                      {goal.obstacles.identified_obstacles.map((obstacle, i) => (
+                        <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                          <span className="text-amber-600 mt-1">•</span>
+                          <span>{obstacle}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {goal.obstacles.cognitive_distortions?.length > 0 && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-2">Thinking Patterns:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {goal.obstacles.cognitive_distortions.map((dist, i) => (
+                        <Badge key={i} variant="outline" className="text-xs bg-white">
+                          {dist}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {goal.obstacles.balanced_thoughts?.length > 0 && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-2">Balanced Thoughts:</p>
+                    <ul className="space-y-1">
+                      {goal.obstacles.balanced_thoughts.slice(0, 3).map((thought, i) => (
+                        <li key={i} className="text-sm text-green-700 flex items-start gap-2">
+                          <span className="text-green-600 mt-1">✓</span>
+                          <span>{thought}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Action Buttons */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-4">
           <Button
             variant="outline"
             onClick={() => setShowChart(!showChart)}
@@ -189,6 +260,14 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
             <span className="flex-1 text-left">{showJournalEntries ? 'Hide' : 'Show'} Journal</span>
             {showJournalEntries ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </Button>
+          <Button
+            variant="outline"
+            onClick={() => setShowAiAdjustment(true)}
+            className="flex items-center justify-center gap-2 w-full border-purple-300 text-purple-700 hover:bg-purple-50"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span className="flex-1 text-left">AI Adjust</span>
+          </Button>
         </div>
 
         {/* Progress Chart */}
@@ -205,6 +284,15 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
           </div>
         )}
       </CardContent>
+
+      {/* AI Adjustment Modal */}
+      {showAiAdjustment && (
+        <AiGoalAdjustment
+          goal={goal}
+          onApply={handleApplyAdjustment}
+          onClose={() => setShowAiAdjustment(false)}
+        />
+      )}
     </Card>
   );
 }
