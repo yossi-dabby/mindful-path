@@ -46,6 +46,8 @@ export default function Chat() {
   const mountedRef = useRef(true);
   const subscriptionActiveRef = useRef(false);
   const loadingTimeoutRef = useRef(null);
+  const pollingIntervalRef = useRef(null);
+  const expectedReplyCountRef = useRef(0);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -256,6 +258,13 @@ export default function Chat() {
           // CRITICAL: Always reset loading immediately when data arrives
           console.log('[Subscription] ✅ Loading OFF');
           setIsLoading(false);
+          
+          // Stop polling if active - subscription worked
+          if (pollingIntervalRef.current) {
+            console.log('[Subscription] Stopping polling - subscription successful');
+            clearInterval(pollingIntervalRef.current);
+            pollingIntervalRef.current = null;
+          }
         } catch (err) {
           console.error('[Subscription] ❌ Processing error:', err);
           setIsLoading(false);
@@ -311,6 +320,10 @@ export default function Chat() {
       if (loadingTimeoutRef.current) {
         clearTimeout(loadingTimeoutRef.current);
         loadingTimeoutRef.current = null;
+      }
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
       }
       if (typeof unsubscribe === 'function') {
         try {
@@ -461,6 +474,9 @@ export default function Chat() {
     }
 
     console.log('[Send] 📤 Starting send, conversation:', currentConversationId || 'none');
+    
+    // Track expected message count for deterministic verification
+    expectedReplyCountRef.current = messages.length + 2; // user message + assistant reply
 
     // Layer 1: Regex-based crisis detection (fast, explicit patterns)
     const reasonCode = detectCrisisWithReason(inputMessage);
@@ -570,7 +586,70 @@ export default function Chat() {
         content: messageText
       });
       
-      console.log('[Send] ✅ Message sent - waiting for subscription update');
+      console.log('[Send] ✅ Message sent - starting authoritative polling');
+      
+      // CRITICAL: Start authoritative polling as deterministic fallback
+      // This ensures we get the reply even if subscription fails
+      let pollAttempts = 0;
+      const maxPollAttempts = 5; // 5 attempts x 2s = 10s max
+      
+      const startPolling = () => {
+        if (pollingIntervalRef.current) {
+          clearInterval(pollingIntervalRef.current);
+        }
+        
+        pollingIntervalRef.current = setInterval(async () => {
+          pollAttempts++;
+          console.log(`[Polling] Attempt ${pollAttempts}/${maxPollAttempts}`);
+          
+          try {
+            const updatedConv = await base44.agents.getConversation(convId);
+            const sanitized = sanitizeConversationMessages(updatedConv.messages || []);
+            
+            console.log(`[Polling] Retrieved ${sanitized.length} messages, expected ${expectedReplyCountRef.current}`);
+            
+            // Check if we have the expected reply
+            if (sanitized.length >= expectedReplyCountRef.current) {
+              console.log('[Polling] ✅ Reply found - stopping polling');
+              setMessages(sanitized);
+              setIsLoading(false);
+              
+              if (pollingIntervalRef.current) {
+                clearInterval(pollingIntervalRef.current);
+                pollingIntervalRef.current = null;
+              }
+              if (loadingTimeoutRef.current) {
+                clearTimeout(loadingTimeoutRef.current);
+                loadingTimeoutRef.current = null;
+              }
+            } else if (pollAttempts >= maxPollAttempts) {
+              console.error('[Polling] ⏱️ Timeout - no reply after 10s');
+              setMessages(sanitized); // Show what we have
+              setIsLoading(false);
+              
+              if (pollingIntervalRef.current) {
+                clearInterval(pollingIntervalRef.current);
+                pollingIntervalRef.current = null;
+              }
+              if (loadingTimeoutRef.current) {
+                clearTimeout(loadingTimeoutRef.current);
+                loadingTimeoutRef.current = null;
+              }
+            }
+          } catch (err) {
+            console.error('[Polling] ❌ Error:', err);
+            if (pollAttempts >= maxPollAttempts) {
+              setIsLoading(false);
+              if (pollingIntervalRef.current) {
+                clearInterval(pollingIntervalRef.current);
+                pollingIntervalRef.current = null;
+              }
+            }
+          }
+        }, 2000); // Poll every 2 seconds
+      };
+      
+      startPolling();
     } catch (error) {
       console.error('[Send] ❌ SEND ERROR:', error);
       // Force recovery on send error
