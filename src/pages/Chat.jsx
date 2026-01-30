@@ -15,6 +15,7 @@ import ProactiveCheckIn from '../components/chat/ProactiveCheckIn';
 import TherapyStateMachine from '../components/chat/TherapyStateMachine';
 import EnhancedMoodCheckIn from '../components/home/EnhancedMoodCheckIn';
 import InlineConsentBanner from '../components/chat/InlineConsentBanner';
+import ThoughtWorkSaveHandler from '../components/chat/ThoughtWorkSaveHandler';
 import InlineRiskPanel from '../components/chat/InlineRiskPanel';
 import ProfileSpecificDisclaimer from '../components/chat/ProfileSpecificDisclaimer';
 import { detectCrisisLanguage, detectCrisisWithReason } from '../components/utils/crisisDetector';
@@ -37,6 +38,8 @@ export default function Chat() {
   const [showRiskPanel, setShowRiskPanel] = useState(false);
   const [showAgeGate, setShowAgeGate] = useState(false);
   const [isAgeRestricted, setIsAgeRestricted] = useState(false);
+  const [showSavePrompt, setShowSavePrompt] = useState(false);
+  const [savePromptData, setSavePromptData] = useState(null);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
   const location = useLocation();
@@ -335,6 +338,8 @@ export default function Chat() {
         // Process messages: validate and extract structured JSON from assistant messages
         // CRITICAL: This must handle both new structured output AND legacy/corrupted messages
         let processedMessages = [];
+        let lastStructuredData = null;
+        
         try {
           processedMessages = (data.messages || []).map(msg => {
             if (msg.role === 'assistant' && msg.content) {
@@ -356,6 +361,9 @@ export default function Chat() {
               const validated = validateAgentOutput(msg.content);
               
               if (validated) {
+                // Track last structured data for save prompt
+                lastStructuredData = validated;
+                
                 // Structured output validated successfully
                 return {
                   ...msg,
@@ -384,6 +392,17 @@ export default function Chat() {
             // CRITICAL: Always reset loading when safe update succeeds
             console.log('[Subscription] ✅ Loading OFF');
             setIsLoading(false);
+            
+            // Check if we should offer save (homework + emotion baseline present)
+            if (lastStructuredData?.journal_save_candidate?.should_offer_save) {
+              console.log('[Save Prompt] Triggering save offer');
+              setSavePromptData({
+                structuredData: lastStructuredData,
+                conversationId: currentConversationId,
+                messages: processedMessages
+              });
+              setShowSavePrompt(true);
+            }
             
             // Stop polling if active - subscription worked
             if (pollingIntervalRef.current) {
@@ -1156,6 +1175,29 @@ export default function Chat() {
                 )}
                 <div ref={messagesEndRef} />
               </div>
+
+              {/* Save Prompt - After homework commitment */}
+              {showSavePrompt && !isLoading && savePromptData && (
+                <div className="p-4 md:p-6" style={{
+                  borderTop: '1px solid rgba(38, 166, 154, 0.2)',
+                  background: 'linear-gradient(to right, rgba(232, 246, 243, 0.5), rgba(212, 237, 232, 0.5))'
+                }}>
+                  <div className="max-w-3xl mx-auto">
+                    <ThoughtWorkSaveHandler
+                      conversationId={savePromptData.conversationId}
+                      conversationMessages={savePromptData.messages}
+                      onSaveComplete={() => {
+                        setShowSavePrompt(false);
+                        setSavePromptData(null);
+                      }}
+                      onCancel={() => {
+                        setShowSavePrompt(false);
+                        setSavePromptData(null);
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
 
               {/* Summary Prompt Section - Separate container with border */}
               {showSummaryPrompt && !isLoading && (
