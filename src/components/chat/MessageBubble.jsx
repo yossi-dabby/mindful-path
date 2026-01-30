@@ -4,59 +4,77 @@ import { cn } from '@/lib/utils';
 import MessageFeedback from './MessageFeedback';
 
 export default function MessageBubble({ message, conversationId, messageIndex, agentName = 'cbt_therapist', context = 'chat' }) {
-  if (!message || !message.content) return null;
-  
-  const isUser = message.role === 'user';
-  
-  // Safely handle content conversion with JSON detection and sanitization
-  let content = '';
-  try {
-    const rawContent = message.content || '';
-    
-    // CRITICAL: Detect and prevent JSON rendering
-    // If content looks like JSON, attempt to extract assistant_message
-    if (typeof rawContent === 'string' && rawContent.trim().startsWith('{')) {
-      try {
-        const parsed = JSON.parse(rawContent);
-        // If it's structured output, use assistant_message only
-        if (parsed.assistant_message) {
-          content = String(parsed.assistant_message).trim();
-        } else if (parsed.content) {
-          // Nested content field (fallback)
-          content = String(parsed.content).trim();
-        } else {
-          // No valid message field - show error fallback
-          content = '[Unable to display message]';
-          console.warn('[MessageBubble] Raw JSON detected without assistant_message:', rawContent.substring(0, 100));
-        }
-      } catch (jsonError) {
-        // Failed to parse as JSON, treat as regular text
-        content = String(rawContent).trim();
-      }
-    } else if (typeof rawContent === 'object') {
-      // Content is already an object (shouldn't happen, but handle it)
-      if (rawContent.assistant_message) {
-        content = String(rawContent.assistant_message).trim();
-      } else {
-        content = '[Unable to display message]';
-        console.warn('[MessageBubble] Object content without assistant_message:', rawContent);
-      }
-    } else {
-      content = String(rawContent).trim();
-    }
-    
-    // Additional safety: Remove any remaining JSON-like fragments or escaped sequences
-    if (content.includes('\\u') || content.includes('"s":') || content.includes('"homework"')) {
-      console.warn('[MessageBubble] Potential JSON fragment detected, sanitizing');
-      content = '[Unable to display message - invalid format]';
-    }
-    
-  } catch (e) {
-    console.error('Error processing message content:', e);
+  // CRITICAL: Strict null/undefined/empty gating - never render incomplete messages
+  if (!message || !message.role || !message.content) {
+    console.warn('[MessageBubble] Skipping incomplete message:', message?.role, !!message?.content);
     return null;
   }
   
-  if (!content) return null;
+  const isUser = message.role === 'user';
+  
+  // CRITICAL: Strict content extraction with zero tolerance for raw data
+  let content = '';
+  try {
+    const rawContent = message.content;
+    
+    // Type 1: Already a clean string
+    if (typeof rawContent === 'string' && !rawContent.trim().startsWith('{') && !rawContent.trim().startsWith('[')) {
+      content = rawContent.trim();
+    }
+    // Type 2: JSON string - extract assistant_message ONLY
+    else if (typeof rawContent === 'string' && (rawContent.trim().startsWith('{') || rawContent.trim().startsWith('['))) {
+      try {
+        const parsed = JSON.parse(rawContent);
+        if (parsed.assistant_message && typeof parsed.assistant_message === 'string') {
+          content = parsed.assistant_message.trim();
+          console.log('[MessageBubble] Extracted from JSON:', content.substring(0, 50));
+        } else {
+          // No valid assistant_message - abort rendering
+          console.error('[MessageBubble] BLOCKED: JSON without assistant_message');
+          return null;
+        }
+      } catch (jsonError) {
+        // Not valid JSON - treat as plain text
+        content = rawContent.trim();
+      }
+    }
+    // Type 3: Already an object
+    else if (typeof rawContent === 'object') {
+      if (rawContent.assistant_message && typeof rawContent.assistant_message === 'string') {
+        content = rawContent.assistant_message.trim();
+      } else {
+        // No valid assistant_message - abort rendering
+        console.error('[MessageBubble] BLOCKED: Object without assistant_message');
+        return null;
+      }
+    }
+    else {
+      // Unexpected type - abort
+      console.error('[MessageBubble] BLOCKED: Unexpected content type:', typeof rawContent);
+      return null;
+    }
+    
+    // CRITICAL: Final safety check - reject if any structured data leaked through
+    if (content.includes('"assistant_message"') || 
+        content.includes('"tool_calls"') || 
+        content.includes('"homework":{') ||
+        content.includes('\\u00') ||
+        content.startsWith('{') ||
+        content.startsWith('[')) {
+      console.error('[MessageBubble] BLOCKED: Structured data detected in final content');
+      return null;
+    }
+    
+  } catch (e) {
+    console.error('[MessageBubble] Fatal error processing content:', e);
+    return null;
+  }
+  
+  // CRITICAL: Empty content = abort rendering
+  if (!content || content.length === 0) {
+    console.warn('[MessageBubble] Skipping empty content');
+    return null;
+  }
   
   return (
     <div className={cn('flex gap-3', isUser ? 'justify-end flex-row-reverse' : 'justify-start')} dir="ltr">

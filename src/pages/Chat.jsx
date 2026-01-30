@@ -48,9 +48,37 @@ export default function Chat() {
   const loadingTimeoutRef = useRef(null);
   const pollingIntervalRef = useRef(null);
   const expectedReplyCountRef = useRef(0);
+  const lastMessageHashRef = useRef('');
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // CRITICAL: Deduplicate messages by ID to prevent duplicate rendering
+  const deduplicateMessages = (newMessages) => {
+    const seen = new Set();
+    const deduplicated = [];
+    
+    for (const msg of newMessages) {
+      // Create stable ID: use msg.id if available, otherwise hash of role+content+timestamp
+      const msgId = msg.id || `${msg.role}-${msg.content?.substring(0, 50)}-${msg.created_at}`;
+      
+      if (!seen.has(msgId)) {
+        seen.add(msgId);
+        deduplicated.push(msg);
+      } else {
+        console.log('[Dedup] Skipped duplicate message:', msgId.substring(0, 30));
+      }
+    }
+    
+    return deduplicated;
+  };
+
+  // CRITICAL: Compute hash of latest assistant message to detect state changes
+  const computeMessageHash = (msgs) => {
+    const lastAssistant = msgs.filter(m => m.role === 'assistant').pop();
+    if (!lastAssistant) return '';
+    return `${lastAssistant.content?.substring(0, 100)}-${msgs.length}`;
   };
 
   useEffect(() => {
@@ -252,8 +280,18 @@ export default function Chat() {
             return msg;
           });
 
-          console.log('[Subscription] Setting', processedMessages.length, 'messages');
-          setMessages(processedMessages);
+          // CRITICAL: Deduplicate before setting state
+          const deduplicated = deduplicateMessages(processedMessages);
+          const newHash = computeMessageHash(deduplicated);
+          
+          // Only update if hash changed (prevents unnecessary re-renders)
+          if (newHash !== lastMessageHashRef.current) {
+            console.log('[Subscription] Setting', deduplicated.length, 'messages (hash changed)');
+            lastMessageHashRef.current = newHash;
+            setMessages(deduplicated);
+          } else {
+            console.log('[Subscription] Skipping update - no change detected');
+          }
           
           // CRITICAL: Always reset loading immediately when data arrives
           console.log('[Subscription] ✅ Loading OFF');
@@ -454,7 +492,9 @@ export default function Chat() {
       
       // Process and sanitize messages before setting
       const sanitized = sanitizeConversationMessages(conversation.messages || []);
-      setMessages(sanitized);
+      const deduplicated = deduplicateMessages(sanitized);
+      lastMessageHashRef.current = computeMessageHash(deduplicated);
+      setMessages(deduplicated);
       setShowSidebar(false);
     } catch (error) {
       console.error('[Load Conversation Error]', error);
@@ -611,7 +651,18 @@ export default function Chat() {
             // Check if we have the expected reply
             if (sanitized.length >= expectedReplyCountRef.current) {
               console.log('[Polling] ✅ Reply found - stopping polling');
-              setMessages(sanitized);
+              
+              // CRITICAL: Deduplicate before setting state
+              const deduplicated = deduplicateMessages(sanitized);
+              const newHash = computeMessageHash(deduplicated);
+              
+              // Only update if hash changed
+              if (newHash !== lastMessageHashRef.current) {
+                console.log('[Polling] Setting', deduplicated.length, 'messages (new reply)');
+                lastMessageHashRef.current = newHash;
+                setMessages(deduplicated);
+              }
+              
               setIsLoading(false);
               
               if (pollingIntervalRef.current) {
@@ -624,7 +675,17 @@ export default function Chat() {
               }
             } else if (pollAttempts >= maxPollAttempts) {
               console.error('[Polling] ⏱️ Timeout - no reply after 10s');
-              setMessages(sanitized); // Show what we have
+              
+              // CRITICAL: Deduplicate before setting state
+              const deduplicated = deduplicateMessages(sanitized);
+              const newHash = computeMessageHash(deduplicated);
+              
+              if (newHash !== lastMessageHashRef.current) {
+                console.log('[Polling] Setting', deduplicated.length, 'messages (timeout)');
+                lastMessageHashRef.current = newHash;
+                setMessages(deduplicated);
+              }
+              
               setIsLoading(false);
               
               if (pollingIntervalRef.current) {
@@ -974,7 +1035,7 @@ export default function Chat() {
                 )}
                 {/* Profile-specific periodic disclaimer */}
                 <ProfileSpecificDisclaimer messageCount={messages.length} />
-                {messages.filter(m => m && m.content).map((message, index) => (
+                {messages.filter(m => m && m.role && m.content).map((message, index) => (
                   <MessageBubble 
                     key={index} 
                     message={message}
