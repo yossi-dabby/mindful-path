@@ -158,6 +158,7 @@ export default function DraggableAiCompanion() {
 
   // Subscribe to conversation updates
   const messagesRef = useRef([]);
+  const updateTimeoutRef = useRef(null);
   
   useEffect(() => {
     if (!conversation?.id) return;
@@ -170,31 +171,45 @@ export default function DraggableAiCompanion() {
       
       const newMessages = data.messages || [];
       
-      // Check if messages actually changed (deep comparison by length and last message)
-      const lastNew = newMessages[newMessages.length - 1];
-      const lastOld = messagesRef.current[messagesRef.current.length - 1];
-      
-      if (newMessages.length === messagesRef.current.length && 
-          lastNew?.content === lastOld?.content) {
-        return;
+      // Debounce updates to prevent rapid-fire setState calls
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
       }
       
-      // Process messages to extract assistant_message from JSON
-      const processedMessages = newMessages.map(msg => {
-        if (msg.role === 'assistant' && msg.content) {
-          const extracted = extractAssistantMessage(msg.content);
-          return { ...msg, content: extracted };
-        }
-        return msg;
-      });
-      
-      messagesRef.current = processedMessages;
-      setMessages(processedMessages);
-      setIsLoading(false);
+      updateTimeoutRef.current = setTimeout(() => {
+        if (!isSubscribed || !mountedRef.current) return;
+        
+        // Check if messages actually changed
+        const lastNew = newMessages[newMessages.length - 1];
+        const lastOld = messagesRef.current[messagesRef.current.length - 1];
+        
+        const messagesChanged = 
+          newMessages.length !== messagesRef.current.length || 
+          lastNew?.content !== lastOld?.content ||
+          lastNew?.role !== lastOld?.role;
+        
+        if (!messagesChanged) return;
+        
+        // Process messages to extract assistant_message from JSON
+        const processedMessages = newMessages.map(msg => {
+          if (msg.role === 'assistant' && msg.content) {
+            const extracted = extractAssistantMessage(msg.content);
+            return { ...msg, content: extracted };
+          }
+          return msg;
+        });
+        
+        messagesRef.current = processedMessages;
+        setMessages(processedMessages);
+        setIsLoading(false);
+      }, 50);
     });
 
     return () => {
       isSubscribed = false;
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
       if (typeof unsubscribe === 'function') {
         unsubscribe();
       }
