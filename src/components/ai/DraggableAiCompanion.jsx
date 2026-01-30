@@ -162,12 +162,19 @@ export default function DraggableAiCompanion() {
 
     let isSubscribed = true;
     const conversationId = conversation.id;
+    let lastMessageCount = 0;
 
     const unsubscribe = base44.agents.subscribeToConversation(conversationId, (data) => {
       if (!isSubscribed || !mountedRef.current) return;
       
+      const newMessages = data.messages || [];
+      
+      // Only update if message count changed to prevent infinite loops
+      if (newMessages.length === lastMessageCount) return;
+      lastMessageCount = newMessages.length;
+      
       // Process messages to extract assistant_message from JSON
-      const processedMessages = (data.messages || []).map(msg => {
+      const processedMessages = newMessages.map(msg => {
         if (msg.role === 'assistant' && msg.content) {
           const extracted = extractAssistantMessage(msg.content);
           return { ...msg, content: extracted };
