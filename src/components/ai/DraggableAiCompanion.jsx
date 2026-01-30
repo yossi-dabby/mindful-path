@@ -253,19 +253,27 @@ export default function DraggableAiCompanion() {
       const deltaX = dragRef.current.startX - clientX;
       const deltaY = clientY - dragRef.current.startY;
       
-      const newPos = constrainPosition({
-        right: dragRef.current.initialRight + deltaX,
-        bottom: dragRef.current.initialBottom + deltaY
-      });
+      const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
+      const margin = 16;
+      const bottomNavHeight = isMobile ? 64 : 0;
+      const maxRight = window.innerWidth - (isMobile ? 96 : 384) - margin;
+      const maxBottom = window.innerHeight - bottomNavHeight - margin;
+      
+      const newPos = {
+        right: Math.max(margin, Math.min(maxRight, dragRef.current.initialRight + deltaX)),
+        bottom: Math.max(margin, Math.min(maxBottom, dragRef.current.initialBottom + deltaY))
+      };
       
       setPosition(newPos);
     };
 
     const handleDragEnd = () => {
       setIsDragging(false);
-      if (position) {
-        savePosition(position);
-      }
+      const currentPos = {
+        right: dragRef.current.initialRight,
+        bottom: dragRef.current.initialBottom
+      };
+      savePosition(currentPos);
     };
 
     window.addEventListener('mousemove', handleDragMove);
