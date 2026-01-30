@@ -6,7 +6,7 @@ import { createPageUrl } from '../utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MessageCircle, Sparkles, Heart, TrendingUp, BookOpen, Target, Plus } from 'lucide-react';
+import { MessageCircle, Sparkles, Heart, TrendingUp, BookOpen, Target } from 'lucide-react';
 import MoodCheckIn from '../components/home/MoodCheckIn';
 import QuickActions from '../components/home/QuickActions';
 import RecentProgress from '../components/home/RecentProgress';
@@ -20,8 +20,6 @@ import PersonalizedFeed from '../components/home/PersonalizedFeed';
 import StandaloneDailyCheckIn from '../components/home/StandaloneDailyCheckIn';
 import DailyReflection from '../components/home/DailyReflection';
 import StarterPathCard from '../components/home/StarterPathCard';
-import SixStepGoalWizard from '../components/goals/SixStepGoalWizard';
-import EnhancedGoalCard from '../components/goals/EnhancedGoalCard';
 import ExerciseDetail from '../components/exercises/ExerciseDetail';
 import VideoModal from '../components/home/VideoModal';
 import { motion } from 'framer-motion';
@@ -34,7 +32,6 @@ export default function Home() {
   const [showExercise, setShowExercise] = useState(false);
   const [showGoalsVideo, setShowGoalsVideo] = useState(false);
   const [showJournalVideo, setShowJournalVideo] = useState(false);
-  const [showGoalWizard, setShowGoalWizard] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -226,52 +223,9 @@ export default function Home() {
 
           {/* 7-Day Starter Path */}
           <StarterPathCard />
-        </div>
-
-        {/* My Active Goals Section */}
-        <motion.div
-          className="mt-8 space-y-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl md:text-2xl font-semibold" style={{ color: '#1A3A34' }}>My Active Goals</h2>
-            <Button
-              onClick={() => setShowGoalWizard(true)}
-              className="bg-teal-600 hover:bg-teal-700 text-white"
-            >
-              <Plus className="w-4 h-4 mr-2" /> Add Goal
-            </Button>
           </div>
-          {recentGoals && recentGoals.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {recentGoals.map(goal => (
-                <EnhancedGoalCard key={goal.id} goal={goal} />
-              ))}
-            </div>
-          ) : (
-            <Card className="p-6 text-center shadow-lg border border-gray-200" style={{
-              borderRadius: '24px',
-              background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.85) 0%, rgba(180, 220, 210, 0.75) 100%)',
-              backdropFilter: 'blur(12px)',
-              boxShadow: '0 8px 32px rgba(38, 166, 154, 0.18), 0 4px 12px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.4)'
-            }}>
-              <CardContent>
-                <p className="text-lg font-semibold mb-2" style={{ color: '#1A3A34' }}>No Active Goals</p>
-                <p className="text-sm mb-4" style={{ color: '#3D5A52' }}>Start your journey by adding a new goal!</p>
-                <Button
-                  onClick={() => setShowGoalWizard(true)}
-                  className="bg-teal-600 hover:bg-teal-700 text-white"
-                >
-                  <Plus className="w-4 h-4 mr-2" /> Create First Goal
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-        </motion.div>
 
-        {/* Secondary Content - Below the fold */}
+          {/* Secondary Content - Below the fold */}
         <div className="mt-8 space-y-4">
         {/* Quick Stats */}
         <style>{`
@@ -497,17 +451,6 @@ export default function Home() {
         <VideoModal
           videoUrl="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%209.mp4?alt=media&token=4a8ae8b9-e803-4108-bc3e-26c4c25751f8"
           onClose={() => setShowJournalVideo(false)}
-        />
-      )}
-
-      {/* Six-Step Goal Wizard Modal */}
-      {showGoalWizard && (
-        <SixStepGoalWizard
-          onClose={() => {
-            setShowGoalWizard(false);
-            queryClient.invalidateQueries(['recentGoals']);
-          }}
-          user={user}
         />
       )}
       </div>
