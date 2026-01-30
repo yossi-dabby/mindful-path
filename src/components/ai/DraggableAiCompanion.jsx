@@ -158,7 +158,7 @@ export default function DraggableAiCompanion() {
 
   // Subscribe to conversation updates
   const messagesRef = useRef([]);
-  const updateTimeoutRef = useRef(null);
+  const isUpdatingRef = useRef(false);
   
   useEffect(() => {
     if (!conversation?.id) return;
@@ -167,49 +167,46 @@ export default function DraggableAiCompanion() {
     const conversationId = conversation.id;
 
     const unsubscribe = base44.agents.subscribeToConversation(conversationId, (data) => {
-      if (!isSubscribed || !mountedRef.current) return;
+      if (!isSubscribed || !mountedRef.current || isUpdatingRef.current) return;
       
       const newMessages = data.messages || [];
       
-      // Debounce updates to prevent rapid-fire setState calls
-      if (updateTimeoutRef.current) {
-        clearTimeout(updateTimeoutRef.current);
-      }
+      // Check if messages actually changed
+      const lastNew = newMessages[newMessages.length - 1];
+      const lastOld = messagesRef.current[messagesRef.current.length - 1];
       
-      updateTimeoutRef.current = setTimeout(() => {
-        if (!isSubscribed || !mountedRef.current) return;
-        
-        // Check if messages actually changed
-        const lastNew = newMessages[newMessages.length - 1];
-        const lastOld = messagesRef.current[messagesRef.current.length - 1];
-        
-        const messagesChanged = 
-          newMessages.length !== messagesRef.current.length || 
-          lastNew?.content !== lastOld?.content ||
-          lastNew?.role !== lastOld?.role;
-        
-        if (!messagesChanged) return;
-        
-        // Process messages to extract assistant_message from JSON
-        const processedMessages = newMessages.map(msg => {
-          if (msg.role === 'assistant' && msg.content) {
-            const extracted = extractAssistantMessage(msg.content);
-            return { ...msg, content: extracted };
-          }
-          return msg;
-        });
-        
-        messagesRef.current = processedMessages;
-        setMessages(processedMessages);
-        setIsLoading(false);
-      }, 50);
+      const messagesChanged = 
+        newMessages.length !== messagesRef.current.length || 
+        lastNew?.content !== lastOld?.content ||
+        lastNew?.role !== lastOld?.role;
+      
+      if (!messagesChanged) return;
+      
+      isUpdatingRef.current = true;
+      
+      // Process messages to extract assistant_message from JSON
+      const processedMessages = newMessages.map(msg => {
+        if (msg.role === 'assistant' && msg.content) {
+          const extracted = extractAssistantMessage(msg.content);
+          return { ...msg, content: extracted };
+        }
+        return msg;
+      });
+      
+      messagesRef.current = processedMessages;
+      
+      requestAnimationFrame(() => {
+        if (isSubscribed && mountedRef.current) {
+          setMessages(processedMessages);
+          setIsLoading(false);
+          isUpdatingRef.current = false;
+        }
+      });
     });
 
     return () => {
       isSubscribed = false;
-      if (updateTimeoutRef.current) {
-        clearTimeout(updateTimeoutRef.current);
-      }
+      isUpdatingRef.current = false;
       if (typeof unsubscribe === 'function') {
         unsubscribe();
       }
