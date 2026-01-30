@@ -45,6 +45,7 @@ export default function Chat() {
   const sessionTriggeredRef = useRef(new Set());
   const mountedRef = useRef(true);
   const subscriptionActiveRef = useRef(false);
+  const loadingTimeoutRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -180,9 +181,17 @@ export default function Chat() {
   useEffect(() => {
     if (!currentConversationId) {
       console.log('[Subscription] No conversation ID, skipping');
+      subscriptionActiveRef.current = false;
       return;
     }
 
+    // CRITICAL: Prevent duplicate subscriptions
+    if (subscriptionActiveRef.current) {
+      console.log('[Subscription] ⚠️ Already subscribed, skipping duplicate');
+      return;
+    }
+
+    subscriptionActiveRef.current = true;
     let responseTimeoutId = null;
     let isSubscribed = true;
 
@@ -202,6 +211,12 @@ export default function Chat() {
         if (responseTimeoutId) {
           clearTimeout(responseTimeoutId);
           responseTimeoutId = null;
+        }
+        
+        // Clear loading timeout
+        if (loadingTimeoutRef.current) {
+          clearTimeout(loadingTimeoutRef.current);
+          loadingTimeoutRef.current = null;
         }
 
         // Process messages: validate and extract structured JSON from assistant messages
@@ -254,7 +269,12 @@ export default function Chat() {
           clearTimeout(responseTimeoutId);
           responseTimeoutId = null;
         }
+        if (loadingTimeoutRef.current) {
+          clearTimeout(loadingTimeoutRef.current);
+          loadingTimeoutRef.current = null;
+        }
         setIsLoading(false);
+        subscriptionActiveRef.current = false;
       }
     );
 
@@ -262,6 +282,7 @@ export default function Chat() {
     if (!unsubscribe || typeof unsubscribe !== 'function') {
       console.error('[Subscription] ❌ Failed to create subscription');
       setIsLoading(false);
+      subscriptionActiveRef.current = false;
       return;
     }
     
@@ -270,8 +291,9 @@ export default function Chat() {
     // Timeout after 30s
     responseTimeoutId = setTimeout(() => {
       if (isSubscribed && mountedRef.current) {
-        console.error('[Subscription] ⏱️ Timeout after 30s');
+        console.error('[Subscription] ⏱️ Timeout after 30s - forcing recovery');
         setIsLoading(false);
+        subscriptionActiveRef.current = false;
         if (typeof unsubscribe === 'function') {
           unsubscribe();
         }
@@ -279,15 +301,21 @@ export default function Chat() {
     }, 30000);
 
     return () => {
-      console.log('[Subscription] Cleanup');
+      console.log('[Subscription] Cleanup - unsubscribing');
       isSubscribed = false;
+      subscriptionActiveRef.current = false;
       if (responseTimeoutId) {
         clearTimeout(responseTimeoutId);
         responseTimeoutId = null;
       }
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
       if (typeof unsubscribe === 'function') {
         try {
           unsubscribe();
+          console.log('[Subscription] ✅ Unsubscribed successfully');
         } catch (err) {
           console.error('[Subscription] Cleanup error:', err);
         }
@@ -501,6 +529,16 @@ export default function Chat() {
     setInputMessage('');
     setShowSummaryPrompt(false);
     setIsLoading(true);
+    
+    // CRITICAL: Add loading timeout failsafe (10s)
+    if (loadingTimeoutRef.current) {
+      clearTimeout(loadingTimeoutRef.current);
+    }
+    loadingTimeoutRef.current = setTimeout(() => {
+      console.error('[Send] ⏱️ Loading timeout after 10s - forcing recovery');
+      setIsLoading(false);
+      loadingTimeoutRef.current = null;
+    }, 10000);
 
     try {
       let convId = currentConversationId;
@@ -536,6 +574,10 @@ export default function Chat() {
     } catch (error) {
       console.error('[Send] ❌ SEND ERROR:', error);
       // Force recovery on send error
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
       setIsLoading(false);
       subscriptionActiveRef.current = false;
 
