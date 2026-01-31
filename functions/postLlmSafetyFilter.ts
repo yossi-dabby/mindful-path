@@ -1,131 +1,123 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 /**
- * Post-LLM safety filter: validates agent output for medical claims and harmful advice
- * Called after agent generates response, before displaying to user
- * Returns: { safe: boolean, filtered_message: string, violations: string[] }
+ * Post-LLM Safety Filter
+ * Scans and sanitizes agent outputs to enforce safety boundaries
+ * beyond what prompts can guarantee.
  */
-
-const MEDICAL_CLAIM_PATTERNS = [
-  /\b(diagnos(e|is|ed|ing)|prescrib(e|ed|ing)|treat(ment)?)\b/i,
-  /\byou (have|might have|could have|probably have)\b.*\b(disorder|condition|disease|illness)\b/i,
-  /\btake (this|these) (medication|drug|pill|supplement)s?\b/i,
-  /\bstop taking (your )?(medication|meds|pills)\b/i,
-  /\b(definitely|certainly) (have|are|suffer from)\b/i,
-  /\bI (can )?(diagnose|prescribe|treat)\b/i
-];
-
-const HARMFUL_ADVICE_PATTERNS = [
-  /\b(skip|avoid|ignore) (your )?(therapy|doctor|medical|professional)\b/i,
-  /\byou don'?t need (a )?(therapist|doctor|professional|help)\b/i,
-  /\bjust (stop|quit) (your )?(medication|meds|pills)\b/i,
-  /\b(self-medicate|self medicate)\b/i
-];
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me();
     
-    const { assistant_message, conversation_id, agent_name } = await req.json();
-
-    if (!assistant_message || typeof assistant_message !== 'string') {
-      return Response.json({ 
-        safe: false, 
-        filtered_message: 'Unable to process response.',
-        violations: ['invalid_input']
-      });
+    if (!user) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const violations = [];
-    
-    // Check for medical claims
-    for (const pattern of MEDICAL_CLAIM_PATTERNS) {
-      if (pattern.test(assistant_message)) {
-        violations.push('medical_claim');
+    const { assistant_message, metadata } = await req.json();
+
+    // DIAGNOSIS PATTERNS (hard block)
+    const diagnosisPatterns = [
+      /you (have|are suffering from|show signs of|may have) (depression|anxiety disorder|bipolar|schizophrenia|ptsd|ocd|adhd|bpd|personality disorder)/gi,
+      /\b(diagnose|diagnosis of|clinical diagnosis)\b/gi,
+      /\byou('re| are) (depressed|bipolar|schizophrenic)\b/gi,
+      /\bthis (is|sounds like) (major depression|clinical anxiety|bipolar disorder|ptsd)/gi
+    ];
+
+    // MEDICATION PATTERNS (hard block)
+    const medicationPatterns = [
+      /\b(take|try|start|stop|increase|decrease) (prozac|zoloft|lexapro|xanax|ativan|klonopin|valium|adderall|ritalin|lithium|seroquel|abilify|wellbutrin|cymbalta|effexor|paxil|celexa|buspar)\b/gi,
+      /\b(ssri|snri|benzodiazepine|antidepressant|anti-anxiety medication|mood stabilizer|antipsychotic)\s*(might help|could help|would help|is effective)\b/gi,
+      /\bask your doctor about (medication|meds|prescription)\b/gi
+    ];
+
+    // HARMFUL COPING PATTERNS (replace)
+    const harmfulCopingPatterns = [
+      { pattern: /\b(drink alcohol|have a drink|use alcohol)\b/gi, replacement: 'use healthy coping strategies' },
+      { pattern: /\b(skip meals?|don't eat|avoid eating)\b/gi, replacement: 'maintain regular eating' },
+      { pattern: /\b(isolate yourself|stay away from everyone)\b/gi, replacement: 'take breaks when needed, but stay connected' },
+      { pattern: /\b(push through the pain|ignore your feelings)\b/gi, replacement: 'acknowledge your feelings and pace yourself' }
+    ];
+
+    // OUTCOME GUARANTEE PATTERNS (soften)
+    const guaranteePatterns = [
+      { pattern: /\bthis will (fix|cure|eliminate|get rid of)\b/gi, replacement: 'this might help with' },
+      { pattern: /\byou('ll| will) (definitely |certainly )?feel better\b/gi, replacement: 'you might feel better' },
+      { pattern: /\bthis (always |definitely )?works\b/gi, replacement: 'this often helps' },
+      { pattern: /\bguaranteed to\b/gi, replacement: 'likely to' }
+    ];
+
+    let sanitized_message = assistant_message;
+    let flags = [];
+
+    // BLOCK: Diagnosis language
+    for (const pattern of diagnosisPatterns) {
+      if (pattern.test(sanitized_message)) {
+        flags.push('diagnosis_language_detected');
+        sanitized_message = "I'm not qualified to diagnose. For a professional assessment, please consult a licensed therapist or psychiatrist.";
         break;
       }
     }
 
-    // Check for harmful advice
-    for (const pattern of HARMFUL_ADVICE_PATTERNS) {
-      if (pattern.test(assistant_message)) {
-        violations.push('harmful_advice');
-        break;
+    // BLOCK: Medication advice
+    if (flags.length === 0) {
+      for (const pattern of medicationPatterns) {
+        if (pattern.test(sanitized_message)) {
+          flags.push('medication_advice_detected');
+          sanitized_message = "I can't provide medication advice. For questions about medication, please consult your doctor or psychiatrist.";
+          break;
+        }
       }
     }
 
-    // If violations found, use LLM to double-check and generate safe alternative
-    if (violations.length > 0) {
-      console.log('[Safety Filter] Violations detected:', violations);
-      
-      const llmCheck = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are a safety filter for a mental health AI. Review this AI response for safety violations:
+    // REPLACE: Harmful coping
+    if (flags.length === 0) {
+      for (const { pattern, replacement } of harmfulCopingPatterns) {
+        if (pattern.test(sanitized_message)) {
+          flags.push('harmful_coping_replaced');
+          sanitized_message = sanitized_message.replace(pattern, replacement);
+        }
+      }
+    }
 
-AI Response: "${assistant_message}"
+    // SOFTEN: Guarantees
+    if (flags.length === 0) {
+      for (const { pattern, replacement } of guaranteePatterns) {
+        if (pattern.test(sanitized_message)) {
+          flags.push('guarantee_language_softened');
+          sanitized_message = sanitized_message.replace(pattern, replacement);
+        }
+      }
+    }
 
-Potential violations detected: ${violations.join(', ')}
-
-1. Does this response make medical claims (diagnosis, prescriptions, treatment advice)? YES/NO
-2. Does this response give harmful advice (avoid doctors, stop medication)? YES/NO
-3. If YES to either: Provide a safe, supportive alternative response that redirects appropriately.
-
-Return ONLY this JSON:
-{
-  "is_unsafe": true/false,
-  "confirmed_violations": ["medical_claim", "harmful_advice"],
-  "safe_alternative": "string or null"
-}`,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            is_unsafe: { type: "boolean" },
-            confirmed_violations: { 
-              type: "array",
-              items: { type: "string" }
-            },
-            safe_alternative: { type: "string" }
-          },
-          required: ["is_unsafe", "confirmed_violations"]
+    // LOG INCIDENTS
+    if (flags.length > 0) {
+      // Track safety filter activations
+      base44.analytics.track({
+        eventName: 'post_llm_safety_filter_triggered',
+        properties: {
+          flags: flags.join(', '),
+          original_length: assistant_message.length,
+          sanitized_length: sanitized_message.length,
+          user_email: user.email
         }
       });
-
-      if (llmCheck.is_unsafe) {
-        // Log safety violation
-        base44.analytics.track({
-          eventName: 'safety_filter_triggered',
-          properties: {
-            violations: llmCheck.confirmed_violations,
-            conversation_id,
-            agent_name
-          }
-        });
-
-        // Return filtered response
-        return Response.json({
-          safe: false,
-          filtered_message: llmCheck.safe_alternative || 
-            "I'm not able to provide medical advice. For health concerns, please consult a licensed professional.",
-          violations: llmCheck.confirmed_violations
-        });
-      }
     }
 
-    // No violations or false positive - allow original message
     return Response.json({
-      safe: true,
-      filtered_message: assistant_message,
-      violations: []
+      sanitized_message,
+      flags,
+      was_modified: flags.length > 0
     });
 
   } catch (error) {
-    console.error('[Post-LLM Safety Filter] Error:', error);
-    
-    // Fail-safe: return original message but log error
-    return Response.json({
-      safe: true,
-      filtered_message: req.json().assistant_message || 'Error processing response.',
-      violations: [],
-      error: error.message
-    }, { status: 200 });
+    console.error('Post-LLM safety filter error:', error);
+    return Response.json({ 
+      error: 'Safety filter failed',
+      sanitized_message: "I'm having trouble processing that. Let's try a different approach.",
+      flags: ['filter_error'],
+      was_modified: true
+    }, { status: 500 });
   }
 });
