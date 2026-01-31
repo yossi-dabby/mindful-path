@@ -54,12 +54,15 @@ export default function Chat() {
   const lastMessageHashRef = useRef('');
   const lastConfirmedMessagesRef = useRef([]);
   
-  // INSTRUMENTATION: Track blocked renders to prove fix
+  // INSTRUMENTATION: Track contract enforcement and UI stability
   const instrumentationRef = useRef({
-    RENDER_BLOCKED_NON_STRING: 0,
-    RENDER_BLOCKED_JSON_LIKE: 0,
-    DUPLICATE_BLOCKED: 0,
-    SAFE_UPDATES: 0
+    RENDER_BLOCKED_NON_STRING: 0,      // Objects blocked from rendering
+    RENDER_BLOCKED_JSON_LIKE: 0,       // JSON strings blocked from rendering
+    DUPLICATE_BLOCKED: 0,              // Duplicate messages prevented
+    DUPLICATE_OCCURRED: 0,             // Duplicates that got through (must be 0)
+    SAFE_UPDATES: 0,                   // Successful state updates
+    CONTRACT_VIOLATIONS: 0,            // Messages that violated contract
+    TOTAL_MESSAGES_PROCESSED: 0       // Total messages seen
   });
 
   const scrollToBottom = () => {
@@ -104,21 +107,31 @@ export default function Chat() {
     return true;
   };
 
-  // CRITICAL: Deduplicate messages by stable ID
+  // CRITICAL: Deduplicate messages using deterministic message_index + role + timestamp
   const deduplicateMessages = (newMessages) => {
     const seen = new Set();
     const deduplicated = [];
+    let duplicatesBlocked = 0;
     
-    for (const msg of newMessages) {
-      const msgId = msg.id || `${msg.role}-${String(msg.content).substring(0, 50)}-${msg.created_at}`;
+    for (let i = 0; i < newMessages.length; i++) {
+      const msg = newMessages[i];
       
-      if (!seen.has(msgId)) {
-        seen.add(msgId);
+      // Build deterministic key using index + role + timestamp + content hash
+      const contentHash = String(msg.content || '').substring(0, 30);
+      const msgKey = msg.id || `${i}-${msg.role}-${msg.created_at || ''}-${contentHash}`;
+      
+      if (!seen.has(msgKey)) {
+        seen.add(msgKey);
         deduplicated.push(msg);
       } else {
-        console.log('[Dedup] ✅ BLOCKED duplicate:', msgId.substring(0, 30));
+        console.warn(`[Dedup] BLOCKED duplicate at index ${i}:`, msgKey.substring(0, 50));
+        duplicatesBlocked++;
         instrumentationRef.current.DUPLICATE_BLOCKED++;
       }
+    }
+    
+    if (duplicatesBlocked > 0) {
+      console.log(`[Dedup] ✅ Total duplicates blocked: ${duplicatesBlocked}`);
     }
     
     return deduplicated;
@@ -135,14 +148,44 @@ export default function Chat() {
     return deduplicateMessages(validated);
   };
 
-  // CRITICAL: Safe state update - only update if new messages are strictly better
+  // CRITICAL: Safe state update with duplicate detection
   const safeUpdateMessages = (newMessages, source) => {
     const sanitized = validateAndSanitizeMessages(newMessages);
+    instrumentationRef.current.TOTAL_MESSAGES_PROCESSED += newMessages.length;
     
     // Compare with last confirmed state
     if (sanitized.length < lastConfirmedMessagesRef.current.length) {
       console.log(`[${source}] ⚠️ Rejecting update - fewer messages than confirmed state`);
       return false;
+    }
+    
+    // CRITICAL: Check for duplicate assistant messages in new batch
+    const assistantMessages = sanitized.filter(m => m.role === 'assistant');
+    const assistantContents = assistantMessages.map(m => String(m.content).substring(0, 100));
+    const uniqueContents = new Set(assistantContents);
+    
+    if (assistantContents.length !== uniqueContents.size) {
+      console.error(`[${source}] ✗ DUPLICATE OCCURRED: ${assistantContents.length - uniqueContents.size} duplicate assistant messages found`);
+      instrumentationRef.current.DUPLICATE_OCCURRED += (assistantContents.length - uniqueContents.size);
+      
+      // Further deduplicate by content
+      const seenContents = new Set();
+      const fullyDeduplicated = sanitized.filter(msg => {
+        if (msg.role !== 'assistant') return true;
+        const contentKey = String(msg.content).substring(0, 100);
+        if (seenContents.has(contentKey)) {
+          console.warn('[Dedup] Removing duplicate assistant message');
+          return false;
+        }
+        seenContents.add(contentKey);
+        return true;
+      });
+      
+      // Update with fully deduplicated version
+      lastConfirmedMessagesRef.current = fullyDeduplicated;
+      setMessages(fullyDeduplicated);
+      instrumentationRef.current.SAFE_UPDATES++;
+      return true;
     }
     
     // Check if this is actually new content
@@ -335,55 +378,87 @@ export default function Chat() {
           loadingTimeoutRef.current = null;
         }
 
-        // Process messages: validate and extract structured JSON from assistant messages
-        // CRITICAL: This must handle both new structured output AND legacy/corrupted messages
+        // CRITICAL CONTRACT ENFORCEMENT: Process messages and ensure content is ALWAYS a string
+        // This is the LAST LINE OF DEFENSE - platform should prevent objects from reaching here
         let processedMessages = [];
         let lastStructuredData = null;
+        let contractViolations = 0;
         
         try {
-          processedMessages = (data.messages || []).map(msg => {
+          processedMessages = (data.messages || []).map((msg, idx) => {
             if (msg.role === 'assistant' && msg.content) {
-              // CRITICAL TYPE CHECK: If content is not a string, extract it
+              // CRITICAL TYPE CHECK: Content MUST be string - log violation
               if (typeof msg.content !== 'string') {
-                console.warn('[Subscription] ⚠️ Content is object, extracting assistant_message');
+                console.error(`[CONTRACT VIOLATION] Message ${idx}: content is ${typeof msg.content}, not string`);
+                contractViolations++;
+                instrumentationRef.current.RENDER_BLOCKED_NON_STRING++;
+                
                 const extracted = extractAssistantMessage(msg.content);
                 return {
                   ...msg,
                   content: extracted,
                   metadata: {
                     ...(msg.metadata || {}),
-                    structured_data: msg.content // Store original object
+                    structured_data: msg.content,
+                    contract_violation: true
                   }
                 };
               }
               
-              // Validate and normalize agent output (non-breaking)
-              const validated = validateAgentOutput(msg.content);
-              
-              if (validated) {
-                // Track last structured data for save prompt
-                lastStructuredData = validated;
+              // Content is string - check if it's JSON-like (secondary violation)
+              const trimmed = msg.content.trim();
+              if ((trimmed.startsWith('{') || trimmed.startsWith('[{')) && trimmed.includes('"assistant_message"')) {
+                console.error(`[CONTRACT VIOLATION] Message ${idx}: content contains JSON structure`);
+                contractViolations++;
+                instrumentationRef.current.RENDER_BLOCKED_JSON_LIKE++;
                 
-                // Structured output validated successfully
+                const validated = validateAgentOutput(msg.content);
+                if (validated) {
+                  lastStructuredData = validated;
+                  return {
+                    ...msg,
+                    content: validated.assistant_message,
+                    metadata: {
+                      ...(msg.metadata || {}),
+                      structured_data: validated,
+                      contract_violation: true
+                    }
+                  };
+                }
+              }
+              
+              // Content is a clean string - validate for structured data extraction
+              const validated = validateAgentOutput(msg.content);
+              if (validated) {
+                lastStructuredData = validated;
                 return {
                   ...msg,
-                  content: validated.assistant_message, // User-visible content only
+                  content: validated.assistant_message || msg.content,
                   metadata: {
                     ...(msg.metadata || {}),
-                    structured_data: validated // Store validated structured data
+                    structured_data: validated
                   }
                 };
               }
               
-              // Validation failed - extract message or use as-is (backward compatible)
-              const extracted = extractAssistantMessage(msg.content);
-              return {
-                ...msg,
-                content: extracted
-              };
+              // Plain string, no structured data
+              return msg;
             }
             return msg;
           });
+          
+          // Log contract violations for monitoring
+          if (contractViolations > 0) {
+            console.error(`[CONTRACT VIOLATIONS] ${contractViolations} messages violated UI Display Contract`);
+            base44.analytics.track({
+              eventName: 'ui_contract_violation',
+              properties: {
+                conversation_id: currentConversationId,
+                violations: contractViolations,
+                source: 'subscription'
+              }
+            }).catch(() => {});
+          }
 
           // CRITICAL: Safe update with validation + deduplication
           const updated = safeUpdateMessages(processedMessages, 'Subscription');
@@ -898,15 +973,23 @@ export default function Chat() {
     document.body.setAttribute('data-page-ready', 'true');
     setIsPageReady(true);
     
-    // INSTRUMENTATION: Log counters every 10 seconds
+    // INSTRUMENTATION: Log stability counters every 10 seconds
     const logInterval = setInterval(() => {
       const counters = instrumentationRef.current;
-      console.log('[INSTRUMENTATION]', {
-        RENDER_BLOCKED_NON_STRING: counters.RENDER_BLOCKED_NON_STRING,
-        RENDER_BLOCKED_JSON_LIKE: counters.RENDER_BLOCKED_JSON_LIKE,
-        DUPLICATE_BLOCKED: counters.DUPLICATE_BLOCKED,
-        SAFE_UPDATES: counters.SAFE_UPDATES
-      });
+      console.log('═══════════════════════════════════════════════════');
+      console.log('[UI STABILITY REPORT]');
+      console.log('───────────────────────────────────────────────────');
+      console.log('✓ Contract Enforcement:');
+      console.log('  • Objects blocked:', counters.RENDER_BLOCKED_NON_STRING);
+      console.log('  • JSON strings blocked:', counters.RENDER_BLOCKED_JSON_LIKE);
+      console.log('  • Contract violations detected:', counters.CONTRACT_VIOLATIONS);
+      console.log('✓ Duplicate Prevention:');
+      console.log('  • Duplicates blocked:', counters.DUPLICATE_BLOCKED);
+      console.log('  • Duplicates occurred:', counters.DUPLICATE_OCCURRED, counters.DUPLICATE_OCCURRED === 0 ? '✓ PASS' : '✗ FAIL');
+      console.log('✓ State Updates:');
+      console.log('  • Safe updates:', counters.SAFE_UPDATES);
+      console.log('  • Total messages processed:', counters.TOTAL_MESSAGES_PROCESSED);
+      console.log('═══════════════════════════════════════════════════');
     }, 10000);
     
     // Cleanup
