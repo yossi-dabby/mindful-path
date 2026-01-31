@@ -53,61 +53,93 @@ export default function Chat() {
   const expectedReplyCountRef = useRef(0);
   const lastMessageHashRef = useRef('');
   const lastConfirmedMessagesRef = useRef([]);
+  const currentTurnIdRef = useRef(0);
+  const isRefetchingRef = useRef(false);
+  const thinkingPlaceholderRef = useRef(null);
   
-  // INSTRUMENTATION: Track contract enforcement and UI stability
+  // INSTRUMENTATION: Track hard render gate enforcement
   const instrumentationRef = useRef({
     RENDER_BLOCKED_NON_STRING: 0,      // Objects blocked from rendering
     RENDER_BLOCKED_JSON_LIKE: 0,       // JSON strings blocked from rendering
     DUPLICATE_BLOCKED: 0,              // Duplicate messages prevented
-    DUPLICATE_OCCURRED: 0,             // Duplicates that got through (must be 0)
+    DUPLICATE_OCCURRED: 0,             // Duplicates that got through (MUST BE 0)
+    UNSAFE_MESSAGE_SKIPPED: 0,         // Messages skipped by hard gate
+    PLACEHOLDER_RENDERED_AS_MESSAGE: 0,// Placeholder mistakes (MUST BE 0)
     SAFE_UPDATES: 0,                   // Successful state updates
     CONTRACT_VIOLATIONS: 0,            // Messages that violated contract
-    TOTAL_MESSAGES_PROCESSED: 0       // Total messages seen
+    TOTAL_MESSAGES_PROCESSED: 0,      // Total messages seen
+    REFETCH_TRIGGERED: 0               // Refetches triggered by unsafe messages
   });
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // CRITICAL: Validate message is render-safe (no raw JSON, tool_calls, or incomplete data)
+  // CRITICAL: HARD RENDER GATE - validate message is 100% render-safe
   const isMessageRenderSafe = (msg) => {
     if (!msg || !msg.role || !msg.content) {
-      console.warn('[Validation] BLOCKED: Missing role or content');
+      console.warn('[HARD GATE] BLOCKED: Missing role or content');
       return false;
     }
     
     // CRITICAL TYPE CHECK: Content MUST be a string
     if (typeof msg.content !== 'string') {
-      console.warn('[Validation] ⛔ BLOCKED: Content is not a string, type:', typeof msg.content);
+      console.error('[HARD GATE] ⛔ BLOCKED: Content is not a string, type:', typeof msg.content);
       instrumentationRef.current.RENDER_BLOCKED_NON_STRING++;
+      instrumentationRef.current.UNSAFE_MESSAGE_SKIPPED++;
       return false;
     }
     
     const content = msg.content;
     
-    // Block if content looks like raw JSON/structured data
-    if (content.includes('"assistant_message"') || 
-        content.includes('"tool_calls"') ||
-        content.includes('"homework":{') ||
-        content.includes('\\u00') ||
-        content.includes('"metadata"') ||
-        (content.trim().startsWith('{') && content.includes('"')) ||
-        (content.trim().startsWith('[{') && content.includes('"'))) {
-      console.warn('[Validation] ⛔ BLOCKED: JSON-like content detected:', content.substring(0, 50));
-      instrumentationRef.current.RENDER_BLOCKED_JSON_LIKE++;
+    // Block placeholder/thinking messages from being treated as real messages
+    if (content.toLowerCase().includes('thinking') && content.length < 20) {
+      console.warn('[HARD GATE] BLOCKED: Thinking placeholder detected');
+      instrumentationRef.current.PLACEHOLDER_RENDERED_AS_MESSAGE++;
       return false;
     }
     
-    // Block if content is suspiciously short for assistant (likely partial)
+    // Enhanced JSON detection patterns
+    const jsonPatterns = [
+      '"assistant_message"',
+      '"tool_calls"',
+      '"homework"',
+      '"protocol_selected"',
+      '"behavioral_experiment"',
+      '"emotion_ratings"',
+      '"belief_strength"',
+      '"metadata"',
+      '\\u00'
+    ];
+    
+    for (const pattern of jsonPatterns) {
+      if (content.includes(pattern)) {
+        console.error('[HARD GATE] ⛔ BLOCKED: JSON pattern detected:', pattern);
+        instrumentationRef.current.RENDER_BLOCKED_JSON_LIKE++;
+        instrumentationRef.current.UNSAFE_MESSAGE_SKIPPED++;
+        return false;
+      }
+    }
+    
+    // Block if starts with JSON structure
+    const trimmed = content.trim();
+    if ((trimmed.startsWith('{') || trimmed.startsWith('[{')) && trimmed.includes('"')) {
+      console.error('[HARD GATE] ⛔ BLOCKED: JSON structure at start');
+      instrumentationRef.current.RENDER_BLOCKED_JSON_LIKE++;
+      instrumentationRef.current.UNSAFE_MESSAGE_SKIPPED++;
+      return false;
+    }
+    
+    // Block if suspiciously short for assistant (likely partial/corrupted)
     if (msg.role === 'assistant' && content.trim().length < 3) {
-      console.warn('[Validation] BLOCKED: Suspiciously short assistant message');
+      console.warn('[HARD GATE] BLOCKED: Suspiciously short assistant message');
       return false;
     }
     
     return true;
   };
 
-  // CRITICAL: Deduplicate messages using deterministic message_index + role + timestamp
+  // CRITICAL: Deduplicate using stable message IDs (no content hashing)
   const deduplicateMessages = (newMessages) => {
     const seen = new Set();
     const deduplicated = [];
@@ -116,22 +148,33 @@ export default function Chat() {
     for (let i = 0; i < newMessages.length; i++) {
       const msg = newMessages[i];
       
-      // Build deterministic key using index + role + timestamp + content hash
-      const contentHash = String(msg.content || '').substring(0, 30);
-      const msgKey = msg.id || `${i}-${msg.role}-${msg.created_at || ''}-${contentHash}`;
+      // Use deterministic key: msg.id > created_at+role+index > generated turn_id
+      let msgKey;
+      if (msg.id) {
+        msgKey = msg.id;
+      } else if (msg.created_at) {
+        msgKey = `${msg.role}-${msg.created_at}-${i}`;
+      } else {
+        // Generate stable turn_id for this conversation turn
+        if (msg.role === 'assistant' && !msg._turn_id) {
+          currentTurnIdRef.current++;
+          msg._turn_id = currentTurnIdRef.current;
+        }
+        msgKey = msg._turn_id ? `turn-${msg._turn_id}` : `idx-${i}-${msg.role}`;
+      }
       
       if (!seen.has(msgKey)) {
         seen.add(msgKey);
         deduplicated.push(msg);
       } else {
-        console.warn(`[Dedup] BLOCKED duplicate at index ${i}:`, msgKey.substring(0, 50));
+        console.warn(`[Dedup] BLOCKED duplicate:`, msgKey);
         duplicatesBlocked++;
         instrumentationRef.current.DUPLICATE_BLOCKED++;
       }
     }
     
     if (duplicatesBlocked > 0) {
-      console.log(`[Dedup] ✅ Total duplicates blocked: ${duplicatesBlocked}`);
+      console.log(`[Dedup] ✅ Duplicates blocked: ${duplicatesBlocked}`);
     }
     
     return deduplicated;
@@ -378,86 +421,78 @@ export default function Chat() {
           loadingTimeoutRef.current = null;
         }
 
-        // CRITICAL CONTRACT ENFORCEMENT: Process messages and ensure content is ALWAYS a string
-        // This is the LAST LINE OF DEFENSE - platform should prevent objects from reaching here
+        // HARD RENDER GATE: Block unsafe messages BEFORE they reach React state
         let processedMessages = [];
         let lastStructuredData = null;
-        let contractViolations = 0;
+        let unsafeMessagesFound = 0;
         
         try {
-          processedMessages = (data.messages || []).map((msg, idx) => {
-            if (msg.role === 'assistant' && msg.content) {
-              // CRITICAL TYPE CHECK: Content MUST be string - log violation
-              if (typeof msg.content !== 'string') {
-                console.error(`[CONTRACT VIOLATION] Message ${idx}: content is ${typeof msg.content}, not string`);
-                contractViolations++;
-                instrumentationRef.current.RENDER_BLOCKED_NON_STRING++;
-                
-                const extracted = extractAssistantMessage(msg.content);
-                return {
-                  ...msg,
-                  content: extracted,
-                  metadata: {
-                    ...(msg.metadata || {}),
-                    structured_data: msg.content,
-                    contract_violation: true
-                  }
-                };
+          // First pass: identify unsafe messages
+          const hasUnsafeContent = (data.messages || []).some(msg => {
+            if (msg.role !== 'assistant' || !msg.content) return false;
+            if (typeof msg.content !== 'string') return true;
+            const trimmed = msg.content.trim();
+            if ((trimmed.startsWith('{') || trimmed.startsWith('[{')) && trimmed.includes('"assistant_message"')) return true;
+            return false;
+          });
+          
+          // If unsafe content detected, trigger refetch instead of rendering
+          if (hasUnsafeContent && !isRefetchingRef.current) {
+            console.error('[HARD GATE] ⛔ UNSAFE CONTENT DETECTED - Triggering authoritative refetch');
+            instrumentationRef.current.UNSAFE_MESSAGE_SKIPPED++;
+            instrumentationRef.current.REFETCH_TRIGGERED++;
+            isRefetchingRef.current = true;
+            
+            // Trigger immediate refetch
+            setTimeout(async () => {
+              try {
+                const refetched = await base44.agents.getConversation(currentConversationId);
+                const sanitized = sanitizeConversationMessages(refetched.messages || []);
+                safeUpdateMessages(sanitized, 'Refetch-AfterUnsafe');
+                isRefetchingRef.current = false;
+              } catch (err) {
+                console.error('[Refetch] Failed:', err);
+                isRefetchingRef.current = false;
               }
-              
-              // Content is string - check if it's JSON-like (secondary violation)
-              const trimmed = msg.content.trim();
-              if ((trimmed.startsWith('{') || trimmed.startsWith('[{')) && trimmed.includes('"assistant_message"')) {
-                console.error(`[CONTRACT VIOLATION] Message ${idx}: content contains JSON structure`);
-                contractViolations++;
-                instrumentationRef.current.RENDER_BLOCKED_JSON_LIKE++;
+            }, 100);
+            
+            // Do NOT process current batch - wait for refetch
+            return;
+          }
+          
+          // Second pass: process only safe messages
+          processedMessages = (data.messages || [])
+            .map((msg, idx) => {
+              if (msg.role === 'assistant' && msg.content) {
+                // Skip if not render-safe
+                if (!isMessageRenderSafe(msg)) {
+                  unsafeMessagesFound++;
+                  return null;
+                }
                 
+                // Validate and extract structured data (non-blocking)
                 const validated = validateAgentOutput(msg.content);
                 if (validated) {
                   lastStructuredData = validated;
                   return {
                     ...msg,
-                    content: validated.assistant_message,
+                    content: validated.assistant_message || msg.content,
                     metadata: {
                       ...(msg.metadata || {}),
-                      structured_data: validated,
-                      contract_violation: true
+                      structured_data: validated
                     }
                   };
                 }
+                
+                return msg;
               }
-              
-              // Content is a clean string - validate for structured data extraction
-              const validated = validateAgentOutput(msg.content);
-              if (validated) {
-                lastStructuredData = validated;
-                return {
-                  ...msg,
-                  content: validated.assistant_message || msg.content,
-                  metadata: {
-                    ...(msg.metadata || {}),
-                    structured_data: validated
-                  }
-                };
-              }
-              
-              // Plain string, no structured data
               return msg;
-            }
-            return msg;
-          });
+            })
+            .filter(msg => msg !== null); // Remove unsafe messages
           
-          // Log contract violations for monitoring
-          if (contractViolations > 0) {
-            console.error(`[CONTRACT VIOLATIONS] ${contractViolations} messages violated UI Display Contract`);
-            base44.analytics.track({
-              eventName: 'ui_contract_violation',
-              properties: {
-                conversation_id: currentConversationId,
-                violations: contractViolations,
-                source: 'subscription'
-              }
-            }).catch(() => {});
+          if (unsafeMessagesFound > 0) {
+            console.warn(`[HARD GATE] Filtered out ${unsafeMessagesFound} unsafe messages`);
+            instrumentationRef.current.UNSAFE_MESSAGE_SKIPPED += unsafeMessagesFound;
           }
 
           // CRITICAL: Safe update with validation + deduplication
@@ -973,19 +1008,22 @@ export default function Chat() {
     document.body.setAttribute('data-page-ready', 'true');
     setIsPageReady(true);
     
-    // INSTRUMENTATION: Log stability counters every 10 seconds
+    // INSTRUMENTATION: Log hard gate metrics every 10 seconds
     const logInterval = setInterval(() => {
       const counters = instrumentationRef.current;
       console.log('═══════════════════════════════════════════════════');
-      console.log('[UI STABILITY REPORT]');
+      console.log('[HARD RENDER GATE REPORT]');
       console.log('───────────────────────────────────────────────────');
-      console.log('✓ Contract Enforcement:');
+      console.log('✓ Hard Gate Enforcement:');
+      console.log('  • Unsafe messages skipped:', counters.UNSAFE_MESSAGE_SKIPPED);
+      console.log('  • Refetches triggered:', counters.REFETCH_TRIGGERED);
       console.log('  • Objects blocked:', counters.RENDER_BLOCKED_NON_STRING);
       console.log('  • JSON strings blocked:', counters.RENDER_BLOCKED_JSON_LIKE);
-      console.log('  • Contract violations detected:', counters.CONTRACT_VIOLATIONS);
       console.log('✓ Duplicate Prevention:');
       console.log('  • Duplicates blocked:', counters.DUPLICATE_BLOCKED);
       console.log('  • Duplicates occurred:', counters.DUPLICATE_OCCURRED, counters.DUPLICATE_OCCURRED === 0 ? '✓ PASS' : '✗ FAIL');
+      console.log('✓ Placeholder Protection:');
+      console.log('  • Placeholder as message:', counters.PLACEHOLDER_RENDERED_AS_MESSAGE, counters.PLACEHOLDER_RENDERED_AS_MESSAGE === 0 ? '✓ PASS' : '✗ FAIL');
       console.log('✓ State Updates:');
       console.log('  • Safe updates:', counters.SAFE_UPDATES);
       console.log('  • Total messages processed:', counters.TOTAL_MESSAGES_PROCESSED);
@@ -1240,17 +1278,24 @@ export default function Chat() {
                   />
                 ))}
                 {isLoading && messages.length > 0 && (
-                  <div data-testid="chat-loading" className="flex gap-3">
-                    <div className="h-7 w-7 flex items-center justify-center" style={{
+                  <div 
+                    data-testid="chat-loading" 
+                    ref={thinkingPlaceholderRef}
+                    className="flex gap-3"
+                    style={{ minHeight: '60px' }}
+                  >
+                    <div className="h-7 w-7 flex items-center justify-center flex-shrink-0" style={{
                       borderRadius: '12px',
                       backgroundColor: 'rgba(38, 166, 154, 0.15)'
                     }}>
                       <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#26A69A' }} />
                     </div>
-                    <div className="rounded-2xl px-4 py-3" style={{
+                    <div className="rounded-2xl px-4 py-3 flex-1" style={{
                       background: 'rgba(255, 255, 255, 0.9)',
                       backdropFilter: 'blur(8px)',
-                      border: '1px solid rgba(38, 166, 154, 0.2)'
+                      border: '1px solid rgba(38, 166, 154, 0.2)',
+                      minHeight: '48px',
+                      transition: 'none'
                     }}>
                       <p className="text-sm" style={{ color: '#5A7A72' }}>Thinking...</p>
                     </div>
