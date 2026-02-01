@@ -26,7 +26,8 @@ export default function AiDistortionAnalysis({ entry, onApplyDistortions }) {
 
   useEffect(() => {
     analyzeDistortions();
-  }, [entry]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const analyzeDistortions = async () => {
     try {
