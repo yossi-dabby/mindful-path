@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -44,37 +44,43 @@ export default function AdvancedAnalytics() {
 
   const isPremium = subscription?.status === 'active' && subscription?.plan_type !== 'free';
 
-  // Calculate mood trends
-  const moodTrends = moodData.slice(0, 30).reverse().map(m => ({
-    date: new Date(m.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    mood: { 'excellent': 5, 'good': 4, 'okay': 3, 'low': 2, 'very_low': 1 }[m.mood] || 3,
-    energy: { 'very_high': 5, 'high': 4, 'moderate': 3, 'low': 2, 'very_low': 1 }[m.energy_level] || 3
-  }));
+  // Calculate mood trends - memoized to prevent re-calculation on every render
+  const moodTrends = useMemo(() => 
+    moodData.slice(0, 30).reverse().map(m => ({
+      date: new Date(m.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      mood: { 'excellent': 5, 'good': 4, 'okay': 3, 'low': 2, 'very_low': 1 }[m.mood] || 3,
+      energy: { 'very_high': 5, 'high': 4, 'moderate': 3, 'low': 2, 'very_low': 1 }[m.energy_level] || 3
+    })), [moodData]
+  );
 
-  // Exercise completion by category
-  const exerciseStats = exerciseData.reduce((acc, ex) => {
-    const category = ex.category || 'other';
-    acc[category] = (acc[category] || 0) + (ex.completed_count || 0);
-    return acc;
-  }, {});
+  // Exercise completion by category - memoized
+  const exerciseChartData = useMemo(() => {
+    const exerciseStats = exerciseData.reduce((acc, ex) => {
+      const category = ex.category || 'other';
+      acc[category] = (acc[category] || 0) + (ex.completed_count || 0);
+      return acc;
+    }, {});
 
-  const exerciseChartData = Object.entries(exerciseStats).map(([name, value]) => ({
-    name: name.replace('_', ' '),
-    value
-  }));
+    return Object.entries(exerciseStats).map(([name, value]) => ({
+      name: name.replace('_', ' '),
+      value
+    }));
+  }, [exerciseData]);
 
-  // Journal insights
-  const distortionCounts = journalData.reduce((acc, j) => {
-    (j.cognitive_distortions || []).forEach(d => {
-      acc[d] = (acc[d] || 0) + 1;
-    });
-    return acc;
-  }, {});
+  // Journal insights - memoized
+  const distortionData = useMemo(() => {
+    const distortionCounts = journalData.reduce((acc, j) => {
+      (j.cognitive_distortions || []).forEach(d => {
+        acc[d] = (acc[d] || 0) + 1;
+      });
+      return acc;
+    }, {});
 
-  const distortionData = Object.entries(distortionCounts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5)
-    .map(([name, value]) => ({ name, value }));
+    return Object.entries(distortionCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([name, value]) => ({ name, value }));
+  }, [journalData]);
 
   const COLORS = ['#F8744C', '#FFB47C', '#4B6B8C', '#B9A3C1', '#F49283'];
 
