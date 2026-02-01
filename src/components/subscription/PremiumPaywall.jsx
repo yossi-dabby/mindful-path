@@ -103,7 +103,7 @@ export default function PremiumPaywall({ onClose }) {
               </p>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
