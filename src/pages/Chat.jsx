@@ -590,6 +590,13 @@ export default function Chat() {
         instrumentationRef.current.THINKING_OVER_10S++;
         setIsLoading(false);
         subscriptionActiveRef.current = false;
+
+        // Cancel any pending polls
+        if (pollingIntervalRef.current) {
+          clearTimeout(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
+        }
+
         emitStabilitySummary();
         if (typeof unsubscribe === 'function') {
           unsubscribe();
@@ -610,7 +617,7 @@ export default function Chat() {
         loadingTimeoutRef.current = null;
       }
       if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
+        clearTimeout(pollingIntervalRef.current);
         pollingIntervalRef.current = null;
       }
       if (typeof unsubscribe === 'function') {
