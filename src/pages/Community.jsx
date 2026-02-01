@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Users, MessageSquare, TrendingUp, Search, ThumbsUp } from 'lucide-react';
+import { Plus, Users, MessageSquare, TrendingUp, Search, ThumbsUp, Loader2 } from 'lucide-react';
 import ForumPostCard from '../components/community/ForumPostCard';
 import ForumPostForm from '../components/community/ForumPostForm';
 import GroupCard from '../components/community/GroupCard';
@@ -233,6 +233,7 @@ export default function Community() {
                     onView={() => {}}
                     onUpvote={(post) => upvotePostMutation.mutate(post)}
                     onModerate={() => setModeratingPost(post)}
+                    isUpvoting={upvotePostMutation.isPending}
                   />
                 ))}
               </div>
@@ -353,8 +354,13 @@ export default function Community() {
                           size="sm"
                           className="h-auto p-0"
                           onClick={() => upvoteProgressMutation.mutate(progress)}
+                          disabled={upvoteProgressMutation.isPending}
                         >
-                          <ThumbsUp className="w-4 h-4 mr-1" />
+                          {upvoteProgressMutation.isPending ? (
+                            <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                          ) : (
+                            <ThumbsUp className="w-4 h-4 mr-1" />
+                          )}
                           {progress.upvotes || 0}
                         </Button>
                       </div>
