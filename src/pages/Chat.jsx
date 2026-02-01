@@ -410,6 +410,30 @@ export default function Chat() {
     }
   }, [location.search]);
 
+  // Handle visibility changes - refetch when page becomes visible
+  useEffect(() => {
+    if (!currentConversationId) return;
+
+    const handleVisibilityChange = async () => {
+      if (!document.hidden && isLoading) {
+        console.log('[Visibility] Page visible, checking for updates');
+        try {
+          const conversation = await base44.agents.getConversation(currentConversationId);
+          const sanitized = sanitizeConversationMessages(conversation.messages || []);
+          const updated = safeUpdateMessages(sanitized, 'VisibilityRefetch');
+          if (updated) {
+            setIsLoading(false);
+          }
+        } catch (err) {
+          console.error('[Visibility] Refetch failed:', err);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [currentConversationId, isLoading]);
+
   // Subscribe to conversation updates
   useEffect(() => {
     if (!currentConversationId) {
