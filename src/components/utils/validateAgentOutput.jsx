@@ -34,15 +34,49 @@ function sanitizeAssistantMessage(message) {
   return sanitized;
 }
 
+// Global counters for parse tracking (resetable for testing)
+export const parseCounters = {
+  PARSE_ATTEMPTS: 0,
+  PARSE_SUCCEEDED: 0,
+  PARSE_SKIPPED_NON_JSON: 0,
+  PARSE_FAILED: 0,
+  reset() {
+    this.PARSE_ATTEMPTS = 0;
+    this.PARSE_SUCCEEDED = 0;
+    this.PARSE_SKIPPED_NON_JSON = 0;
+    this.PARSE_FAILED = 0;
+  }
+};
+
 export function validateAgentOutput(rawContent) {
+  if (!rawContent) {
+    return null;
+  }
+
   try {
     // Attempt to parse JSON
     let parsed;
     
     // Handle case where content is already an object
     if (typeof rawContent === 'object') {
+      parseCounters.PARSE_ATTEMPTS++;
       parsed = rawContent;
     } else if (typeof rawContent === 'string') {
+      const trimmed = rawContent.trim();
+      
+      // CRITICAL: Smart pre-check - only parse strings that look like JSON
+      const looksLikeJSON = (trimmed.startsWith('{') || trimmed.startsWith('[')) && 
+                            (trimmed.includes('"assistant_message"') || trimmed.includes('"tool_calls"') || trimmed.includes('"homework"'));
+      
+      if (!looksLikeJSON) {
+        // Plain text (Hebrew, English, etc.) - skip parsing entirely
+        parseCounters.PARSE_SKIPPED_NON_JSON++;
+        return null;
+      }
+      
+      // Looks like JSON - attempt parse
+      parseCounters.PARSE_ATTEMPTS++;
+      
       // Try to extract JSON if wrapped in markdown code blocks or extra text
       const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
@@ -56,7 +90,7 @@ export function validateAgentOutput(rawContent) {
 
     // Validate required field: assistant_message
     if (!parsed.assistant_message || typeof parsed.assistant_message !== 'string') {
-      console.warn('[Agent Validation] Missing or invalid assistant_message');
+      parseCounters.PARSE_FAILED++;
       return null;
     }
 
@@ -133,10 +167,13 @@ export function validateAgentOutput(rawContent) {
       normalized.journal_save_candidate.should_offer_save = false;
     }
 
+    parseCounters.PARSE_SUCCEEDED++;
     return normalized;
 
   } catch (error) {
-    console.error('[Agent Validation] Parse error:', error);
+    // Single-line concise warning (no stack trace spam)
+    parseCounters.PARSE_FAILED++;
+    console.warn(`[Parse] Failed: ${error.message.substring(0, 50)}`);
     return null;
   }
 }
