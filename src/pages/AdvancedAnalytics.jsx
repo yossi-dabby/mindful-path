@@ -9,6 +9,29 @@ import { TrendingUp, Brain, Target, Activity, Download, Crown, Lock, ArrowLeft }
 import PremiumPaywall from '../components/subscription/PremiumPaywall';
 import PremiumBadge from '../components/subscription/PremiumBadge';
 
+const COLORS = ['#F8744C', '#FFB47C', '#4B6B8C', '#B9A3C1', '#F49283'];
+
+const LockedCard = ({ title, description, height = "auto", onUnlock }) => (
+  <Card className="border-0 shadow-lg bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl">
+    <CardContent className={`p-6 md:p-8 flex items-center justify-center ${height === "chart" ? "min-h-[300px]" : "min-h-[200px]"}`}>
+      <div className="text-center max-w-sm">
+        <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center mx-auto mb-4">
+          <Lock className="w-8 h-8 text-gray-400" />
+        </div>
+        <h3 className="font-semibold text-gray-800 mb-2 text-base md:text-lg">{title}</h3>
+        <p className="text-sm text-gray-600 mb-4">{description}</p>
+        <Button
+          onClick={onUnlock}
+          className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white"
+        >
+          <Crown className="w-4 h-4 mr-2" />
+          Go Premium
+        </Button>
+      </div>
+    </CardContent>
+  </Card>
+);
+
 export default function AdvancedAnalytics() {
   const [showPaywall, setShowPaywall] = useState(false);
 
@@ -82,28 +105,7 @@ export default function AdvancedAnalytics() {
       .map(([name, value]) => ({ name, value }));
   }, [journalData]);
 
-  const COLORS = ['#F8744C', '#FFB47C', '#4B6B8C', '#B9A3C1', '#F49283'];
-
-  const LockedCard = ({ title, description, height = "auto" }) => (
-    <Card className="border-0 shadow-lg bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl">
-      <CardContent className={`p-6 md:p-8 flex items-center justify-center ${height === "chart" ? "min-h-[300px]" : "min-h-[200px]"}`}>
-        <div className="text-center max-w-sm">
-          <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center mx-auto mb-4">
-            <Lock className="w-8 h-8 text-gray-400" />
-          </div>
-          <h3 className="font-semibold text-gray-800 mb-2 text-base md:text-lg">{title}</h3>
-          <p className="text-sm text-gray-600 mb-4">{description}</p>
-          <Button
-            onClick={() => setShowPaywall(true)}
-            className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white"
-          >
-            <Crown className="w-4 h-4 mr-2" />
-            Go Premium
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
+  const handleUnlockClick = () => setShowPaywall(true);
 
   return (
     <div className="min-h-screen pb-20 md:pb-8">
@@ -178,7 +180,7 @@ export default function AdvancedAnalytics() {
                     <div className="text-center max-w-xs px-4">
                       <Lock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
                       <p className="text-sm text-gray-600 mb-4">Unlock detailed mood analytics</p>
-                      <Button onClick={() => setShowPaywall(true)} className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600">
+                      <Button onClick={handleUnlockClick} className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600">
                         <Crown className="w-4 h-4 mr-2" />
                         Go Premium
                       </Button>
@@ -217,9 +219,9 @@ export default function AdvancedAnalytics() {
                 </>
               ) : (
                 <>
-                  <LockedCard title="Average Mood" description="Track your mood trends" />
-                  <LockedCard title="Best Days" description="Identify patterns" />
-                  <LockedCard title="Consistency" description="Measure stability" />
+                  <LockedCard title="Average Mood" description="Track your mood trends" onUnlock={handleUnlockClick} />
+                  <LockedCard title="Best Days" description="Identify patterns" onUnlock={handleUnlockClick} />
+                  <LockedCard title="Consistency" description="Measure stability" onUnlock={handleUnlockClick} />
                 </>
               )}
             </div>
@@ -257,7 +259,7 @@ export default function AdvancedAnalytics() {
                       <div className="text-center max-w-xs px-4">
                         <Lock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
                         <p className="text-sm text-gray-600 mb-4">Analyze your thought patterns</p>
-                        <Button onClick={() => setShowPaywall(true)} className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600">
+                        <Button onClick={handleUnlockClick} className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600">
                           <Crown className="w-4 h-4 mr-2" />
                           Go Premium
                         </Button>
@@ -304,6 +306,7 @@ export default function AdvancedAnalytics() {
                   title="Emotional Shift Analysis" 
                   description="See how CBT improves your emotions"
                   height="chart"
+                  onUnlock={handleUnlockClick}
                 />
               )}
             </div>
@@ -330,7 +333,7 @@ export default function AdvancedAnalytics() {
                     <div className="text-center max-w-xs px-4">
                       <Lock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
                       <p className="text-sm text-gray-600 mb-4">Track exercise performance</p>
-                      <Button onClick={() => setShowPaywall(true)} className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600">
+                      <Button onClick={handleUnlockClick} className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600">
                         <Crown className="w-4 h-4 mr-2" />
                         Go Premium
                       </Button>
@@ -394,6 +397,7 @@ export default function AdvancedAnalytics() {
                 title="AI Predictions & Insights" 
                 description="Get personalized forecasts and recommendations"
                 height="chart"
+                onUnlock={handleUnlockClick}
               />
             )}
           </TabsContent>
