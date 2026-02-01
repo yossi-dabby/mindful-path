@@ -95,14 +95,11 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
       if (!mountedRef.current) return;
       isSavingRef.current = false;
       
-      // Batch state updates to avoid multiple re-renders
-      Promise.resolve().then(() => {
-        if (!mountedRef.current) return;
-        queryClient.invalidateQueries(['thoughtJournals']);
-        setSavedEntry(data);
-        setShowSuggestions(true);
-        setStep(6);
-      });
+      // React 18 automatically batches these updates
+      setSavedEntry(data);
+      setShowSuggestions(true);
+      setStep(6);
+      queryClient.invalidateQueries(['thoughtJournals']);
     },
     onError: (error) => {
       if (!mountedRef.current) return;
@@ -886,6 +883,11 @@ Provide:
                     if (isSavingRef.current || saveMutation.isPending) return;
                     isSavingRef.current = true;
                     setSaveError(null);
+                    
+                    // Clear any existing suggestions state before saving
+                    setSavedEntry(null);
+                    setShowSuggestions(false);
+                    
                     // Use a snapshot of formData at click time
                     const dataToSave = { ...formData };
                     saveMutation.mutate(dataToSave);
