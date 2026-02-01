@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -105,7 +105,7 @@ export default function AdvancedAnalytics() {
       .map(([name, value]) => ({ name, value }));
   }, [journalData]);
 
-  const handleUnlockClick = () => setShowPaywall(true);
+  const handleUnlockClick = useCallback(() => setShowPaywall(true), []);
 
   return (
     <div className="min-h-screen pb-20 md:pb-8">
