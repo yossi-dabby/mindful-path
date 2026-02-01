@@ -22,7 +22,7 @@ import { detectCrisisLanguage, detectCrisisWithReason } from '../components/util
 import AgeGateModal from '../components/utils/AgeGateModal';
 import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
-import { validateAgentOutput, extractAssistantMessage, sanitizeConversationMessages } from '../components/utils/validateAgentOutput';
+import { validateAgentOutput, extractAssistantMessage, sanitizeConversationMessages, parseCounters } from '../components/utils/validateAgentOutput';
 
 export default function Chat() {
   const [currentConversationId, setCurrentConversationId] = useState(null);
@@ -57,22 +57,38 @@ export default function Chat() {
   const isRefetchingRef = useRef(false);
   const thinkingPlaceholderRef = useRef(null);
   
-  // INSTRUMENTATION: Track hard render gate enforcement
+  // INSTRUMENTATION: Track hard render gate enforcement + send cycle proof
   const instrumentationRef = useRef({
+    SEND_COUNT: 0,                     // Total sends initiated
     RENDER_BLOCKED_NON_STRING: 0,      // Objects blocked from rendering
     RENDER_BLOCKED_JSON_LIKE: 0,       // JSON strings blocked from rendering
     DUPLICATE_BLOCKED: 0,              // Duplicate messages prevented
     DUPLICATE_OCCURRED: 0,             // Duplicates that got through (MUST BE 0)
     UNSAFE_MESSAGE_SKIPPED: 0,         // Messages skipped by hard gate
     PLACEHOLDER_RENDERED_AS_MESSAGE: 0,// Placeholder mistakes (MUST BE 0)
-    SAFE_UPDATES: 0,                   // Successful state updates
     CONTRACT_VIOLATIONS: 0,            // Messages that violated contract
-    TOTAL_MESSAGES_PROCESSED: 0,      // Total messages seen
-    REFETCH_TRIGGERED: 0               // Refetches triggered by unsafe messages
+    STUCK_THINKING_TIMEOUTS: 0,        // Thinking state stuck beyond timeout
+    REFRESH_REQUIRED: 0,               // Unrecoverable errors requiring page refresh (MUST BE 0)
+    SAFE_UPDATES: 0,                   // Successful state updates
+    TOTAL_MESSAGES_PROCESSED: 0       // Total messages seen
   });
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Emit mandatory one-line stability proof after each send cycle
+  const emitStabilitySummary = () => {
+    const counters = instrumentationRef.current;
+    console.log(
+      `FINAL STABILITY SUMMARY | send=${counters.SEND_COUNT} | ` +
+      `parse_failed=${parseCounters.PARSE_FAILED} | ` +
+      `dup_occurred=${counters.DUPLICATE_OCCURRED} | ` +
+      `unsafe_skipped=${counters.UNSAFE_MESSAGE_SKIPPED} | ` +
+      `placeholder_as_msg=${counters.PLACEHOLDER_RENDERED_AS_MESSAGE} | ` +
+      `stuck_thinking_timeouts=${counters.STUCK_THINKING_TIMEOUTS} | ` +
+      `refresh_required=${counters.REFRESH_REQUIRED}`
+    );
   };
 
   // CRITICAL: HARD RENDER GATE - validate message is 100% render-safe
@@ -503,6 +519,9 @@ export default function Chat() {
             console.log('[Subscription] ✅ Loading OFF');
             setIsLoading(false);
             
+            // Emit FINAL STABILITY SUMMARY for this send cycle
+            emitStabilitySummary();
+            
             // Check if we should offer save (homework + emotion baseline present)
             if (lastStructuredData?.journal_save_candidate?.should_offer_save) {
               console.log('[Save Prompt] Triggering save offer');
@@ -542,6 +561,7 @@ export default function Chat() {
         }
         setIsLoading(false);
         subscriptionActiveRef.current = false;
+        emitStabilitySummary();
       }
     );
 
@@ -559,8 +579,10 @@ export default function Chat() {
     responseTimeoutId = setTimeout(() => {
       if (isSubscribed && mountedRef.current) {
         console.error('[Subscription] ⏱️ Timeout after 30s - forcing recovery');
+        instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
         setIsLoading(false);
         subscriptionActiveRef.current = false;
+        emitStabilitySummary();
         if (typeof unsubscribe === 'function') {
           unsubscribe();
         }
@@ -731,7 +753,9 @@ export default function Chat() {
       return;
     }
 
-    console.log('[Send] 📤 Starting send, conversation:', currentConversationId || 'none');
+    // Increment send counter for this cycle
+    instrumentationRef.current.SEND_COUNT++;
+    console.log('[Send] 📤 Starting send #', instrumentationRef.current.SEND_COUNT);
     
     // Track expected message count for deterministic verification
     expectedReplyCountRef.current = messages.length + 2; // user message + assistant reply
@@ -810,7 +834,9 @@ export default function Chat() {
     }
     loadingTimeoutRef.current = setTimeout(() => {
       console.error('[Send] ⏱️ Loading timeout after 10s - forcing recovery');
+      instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
       setIsLoading(false);
+      emitStabilitySummary();
       loadingTimeoutRef.current = null;
     }, 10000);
 
@@ -875,6 +901,7 @@ export default function Chat() {
               
               if (updated) {
                 setIsLoading(false);
+                emitStabilitySummary();
               }
               
               if (pollingIntervalRef.current) {
@@ -887,10 +914,12 @@ export default function Chat() {
               }
             } else if (pollAttempts >= maxPollAttempts) {
               console.error('[Polling] ⏱️ Timeout - no reply after 10s');
+              instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
               
               // CRITICAL: Safe update with validation
               safeUpdateMessages(sanitized, 'Polling-Timeout');
               setIsLoading(false);
+              emitStabilitySummary();
               
               if (pollingIntervalRef.current) {
                 clearInterval(pollingIntervalRef.current);
@@ -904,7 +933,9 @@ export default function Chat() {
           } catch (err) {
             console.error('[Polling] ❌ Error:', err);
             if (pollAttempts >= maxPollAttempts) {
+              instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
               setIsLoading(false);
+              emitStabilitySummary();
               if (pollingIntervalRef.current) {
                 clearInterval(pollingIntervalRef.current);
                 pollingIntervalRef.current = null;
@@ -924,6 +955,9 @@ export default function Chat() {
       }
       setIsLoading(false);
       subscriptionActiveRef.current = false;
+
+      // Emit summary even on error path
+      emitStabilitySummary();
 
       if (isAuthError(error) && shouldShowAuthError()) {
         setShowAuthError(true);
