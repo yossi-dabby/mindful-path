@@ -77,18 +77,15 @@ export default function PremiumPaywall({ onClose }) {
               {/* Features */}
               <div className="space-y-2 md:space-y-3 mb-6 md:mb-8">
                 {features.map((feature, i) => (
-                  <motion.div
+                  <div
                     key={i}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.05 }}
                     className="flex items-center gap-3"
                   >
                     <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center flex-shrink-0">
                       <Check className="w-3 h-3 md:w-4 md:h-4 text-white" />
                     </div>
                     <span className="text-sm md:text-base text-gray-700">{feature.text}</span>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
 
