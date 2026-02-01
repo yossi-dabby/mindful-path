@@ -46,13 +46,9 @@ export default function PremiumPaywall({ onClose }) {
               </button>
 
               <div className="text-center mb-6 md:mb-8">
-                <motion.div
-                  animate={{ rotate: [0, 10, -10, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center mx-auto mb-4 shadow-lg"
-                >
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <Crown className="w-8 h-8 md:w-10 md:h-10 text-white" />
-                </motion.div>
+                </div>
                 <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
                   Unlock Premium
                 </h2>
