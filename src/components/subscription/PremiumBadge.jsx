@@ -14,14 +14,9 @@ export default function PremiumBadge({ locked = false, compact = false }) {
   }
 
   return (
-    <motion.div
-      animate={{ scale: [1, 1.05, 1] }}
-      transition={{ duration: 2, repeat: Infinity }}
-    >
-      <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 gap-1">
-        <Crown className="w-3 h-3" />
-        {!compact && 'Premium'}
-      </Badge>
-    </motion.div>
+    <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 gap-1">
+      <Crown className="w-3 h-3" />
+      {!compact && 'Premium'}
+    </Badge>
   );
 }
