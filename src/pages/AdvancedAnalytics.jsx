@@ -41,7 +41,9 @@ export default function AdvancedAnalytics() {
       const user = await base44.auth.me();
       const subs = await base44.entities.Subscription.filter({ created_by: user.email });
       return subs[0];
-    }
+    },
+    staleTime: 30000,
+    refetchOnWindowFocus: false
   });
 
   const { data: moodData } = useQuery({
