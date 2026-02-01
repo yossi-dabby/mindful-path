@@ -1053,12 +1053,6 @@ export default function Chat() {
     // Expose report function globally for testing
     window.printChatStabilityReport = printFinalStabilityReport;
     
-    // Cleanup
-    const cleanup = () => {
-      clearInterval(logInterval);
-    };
-    window.addEventListener('beforeunload', cleanup);
-    
     // Detect test environment (Playwright, Cypress, etc.)
     const isTestEnv = 
       window.location.search.includes('e2e-test') || 
