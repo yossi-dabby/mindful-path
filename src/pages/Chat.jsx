@@ -1175,6 +1175,7 @@ export default function Chat() {
             variant="ghost"
             size="icon"
             onClick={() => window.location.href = '/'}
+            aria-label="Go back to home"
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
@@ -1182,6 +1183,7 @@ export default function Chat() {
             variant="ghost"
             size="icon"
             onClick={() => setShowSidebar(!showSidebar)}
+            aria-label={showSidebar ? "Close conversations sidebar" : "Open conversations sidebar"}
           >
             <Menu className="w-5 h-5" />
           </Button>
