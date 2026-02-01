@@ -23,9 +23,13 @@ const commonDistortions = [
 export default function AiDistortionAnalysis({ entry, onApplyDistortions }) {
   const [analysis, setAnalysis] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const hasAnalyzedRef = React.useRef(false);
 
   useEffect(() => {
-    analyzeDistortions();
+    if (!hasAnalyzedRef.current) {
+      hasAnalyzedRef.current = true;
+      analyzeDistortions();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
