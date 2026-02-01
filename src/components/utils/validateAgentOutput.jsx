@@ -38,15 +38,73 @@ function sanitizeAssistantMessage(message) {
 export const parseCounters = {
   PARSE_ATTEMPTS: 0,
   PARSE_SUCCEEDED: 0,
-  PARSE_SKIPPED_NON_JSON: 0,
+  PARSE_SKIPPED_NOT_JSON: 0,
   PARSE_FAILED: 0,
+  SANITIZE_EXTRACT_OK: 0,
+  SANITIZE_EXTRACT_FAILED: 0,
   reset() {
     this.PARSE_ATTEMPTS = 0;
     this.PARSE_SUCCEEDED = 0;
-    this.PARSE_SKIPPED_NON_JSON = 0;
+    this.PARSE_SKIPPED_NOT_JSON = 0;
     this.PARSE_FAILED = 0;
+    this.SANITIZE_EXTRACT_OK = 0;
+    this.SANITIZE_EXTRACT_FAILED = 0;
   }
 };
+
+/**
+ * Strict JSON detection - returns true ONLY if content is parseable JSON
+ * Prevents JSON.parse on Hebrew/English plain text
+ */
+function isStrictJSON(content) {
+  if (!content || typeof content !== 'string') return false;
+  
+  const trimmed = content.trim();
+  
+  // Must start with { or [
+  if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) return false;
+  
+  // Must not be inside fences
+  if (content.includes('```json') || content.includes('```')) return false;
+  
+  // Check for non-whitespace prefix (indicates it's not pure JSON)
+  const beforeBrace = content.substring(0, content.indexOf(trimmed[0]));
+  if (beforeBrace.trim().length > 0) return false;
+  
+  // Must contain JSON-specific markers
+  return trimmed.includes('"assistant_message"') || 
+         trimmed.includes('"tool_calls"') || 
+         trimmed.includes('"homework"');
+}
+
+/**
+ * Robust extractor for assistant_message from JSON-like content
+ * Handles fenced blocks and strings with prefix/suffix
+ * Does NOT use JSON.parse for robustness
+ */
+function extractAssistantMessageRobust(content) {
+  if (!content || typeof content !== 'string') {
+    parseCounters.SANITIZE_EXTRACT_FAILED++;
+    return null;
+  }
+  
+  // Pattern 1: Extract from fenced JSON block
+  const fencedMatch = content.match(/```json?\s*\n?\s*\{[\s\S]*?"assistant_message"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+  if (fencedMatch) {
+    parseCounters.SANITIZE_EXTRACT_OK++;
+    return fencedMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '\n');
+  }
+  
+  // Pattern 2: Extract from JSON-ish string with prefix/suffix
+  const jsonishMatch = content.match(/"assistant_message"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+  if (jsonishMatch) {
+    parseCounters.SANITIZE_EXTRACT_OK++;
+    return jsonishMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '\n');
+  }
+  
+  parseCounters.SANITIZE_EXTRACT_FAILED++;
+  return null;
+}
 
 export function validateAgentOutput(rawContent) {
   if (!rawContent) {
@@ -62,28 +120,23 @@ export function validateAgentOutput(rawContent) {
       parseCounters.PARSE_ATTEMPTS++;
       parsed = rawContent;
     } else if (typeof rawContent === 'string') {
-      const trimmed = rawContent.trim();
-      
-      // CRITICAL: Smart pre-check - only parse strings that look like JSON
-      const looksLikeJSON = (trimmed.startsWith('{') || trimmed.startsWith('[')) && 
-                            (trimmed.includes('"assistant_message"') || trimmed.includes('"tool_calls"') || trimmed.includes('"homework"'));
-      
-      if (!looksLikeJSON) {
-        // Plain text (Hebrew, English, etc.) - skip parsing entirely
-        parseCounters.PARSE_SKIPPED_NON_JSON++;
+      // STRICT JSON DETECTION: Only parse if truly JSON-shaped
+      if (!isStrictJSON(rawContent)) {
+        // Not JSON - try robust extraction for fenced blocks or JSON-ish strings
+        const extracted = extractAssistantMessageRobust(rawContent);
+        if (extracted) {
+          parseCounters.PARSE_SKIPPED_NOT_JSON++;
+          // Return as plain text message (no structured data)
+          return null;
+        }
+        // Plain text - skip entirely
+        parseCounters.PARSE_SKIPPED_NOT_JSON++;
         return null;
       }
       
-      // Looks like JSON - attempt parse
+      // Strict JSON detected - safe to parse
       parseCounters.PARSE_ATTEMPTS++;
-      
-      // Try to extract JSON if wrapped in markdown code blocks or extra text
-      const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        parsed = JSON.parse(jsonMatch[0]);
-      } else {
-        parsed = JSON.parse(rawContent);
-      }
+      parsed = JSON.parse(rawContent.trim());
     } else {
       return null;
     }
@@ -189,23 +242,35 @@ export function extractAssistantMessage(rawContent) {
     return sanitizeAssistantMessage(validated.assistant_message);
   }
   
-  // Fallback: if content is already a string but looks like JSON, try to extract
+  // Try robust extraction (handles fenced JSON, JSON-ish strings)
   if (typeof rawContent === 'string') {
-    // Check if it's JSON
-    if (rawContent.trim().startsWith('{')) {
+    const extracted = extractAssistantMessageRobust(rawContent);
+    if (extracted) {
+      return sanitizeAssistantMessage(extracted);
+    }
+    
+    // Only try JSON.parse if strict JSON detected
+    if (isStrictJSON(rawContent)) {
       try {
-        const parsed = JSON.parse(rawContent);
+        const parsed = JSON.parse(rawContent.trim());
         if (parsed.assistant_message) {
-          return String(parsed.assistant_message);
+          return sanitizeAssistantMessage(String(parsed.assistant_message));
         }
       } catch (e) {
-        // Not valid JSON, treat as regular text
+        // Parse failed - already counted in parseCounters
       }
     }
+    
+    // Plain text - return as-is
     return rawContent;
   }
   
-  return 'Unable to process response.';
+  // Object without assistant_message - use deterministic fallback
+  if (typeof rawContent === 'object' && !rawContent.assistant_message) {
+    return 'I received your message. Please rephrase in one sentence what you want me to do next.';
+  }
+  
+  return 'I received your message. Please rephrase in one sentence what you want me to do next.';
 }
 
 /**
