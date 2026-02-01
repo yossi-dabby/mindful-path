@@ -894,7 +894,7 @@ Provide:
             </div>
           )}
 
-          {step === 6 && showSuggestions && savedEntry && (
+          {step === 6 && showSuggestions && savedEntry && savedEntry.id && (
             <div>
               <div className="text-center mb-6">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-blue-400 flex items-center justify-center mx-auto mb-3">
@@ -905,6 +905,7 @@ Provide:
               </div>
 
               <AiJournalSuggestions 
+                key={savedEntry.id}
                 entry={savedEntry}
                 onClose={onClose}
               />
