@@ -881,7 +881,9 @@ Provide:
                     if (isSavingRef.current || saveMutation.isPending) return;
                     isSavingRef.current = true;
                     setSaveError(null);
-                    saveMutation.mutate(formData);
+                    // Use a snapshot of formData at click time
+                    const dataToSave = { ...formData };
+                    saveMutation.mutate(dataToSave);
                   }}
                   disabled={isSavingRef.current || saveMutation.isPending}
                   className="flex-1 bg-purple-600 hover:bg-purple-700"
