@@ -33,7 +33,8 @@ export default function AiJournalSuggestions({ entry, onClose }) {
 
   useEffect(() => {
     generateSuggestions();
-  }, [entry]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const generateSuggestions = async () => {
     try {
