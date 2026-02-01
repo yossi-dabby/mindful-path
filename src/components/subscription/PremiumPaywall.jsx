@@ -31,11 +31,7 @@ export default function PremiumPaywall({ onClose }) {
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto" style={{ zIndex: 80 }}>
       <div className="min-h-full flex items-center justify-center py-8">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-2xl"
-        >
+        <div className="w-full max-w-2xl">
           <Card className="border-0 shadow-2xl bg-gradient-to-br from-yellow-50 via-white to-orange-50 relative">
             <CardContent className="p-6 md:p-12">
               <button
