@@ -95,11 +95,16 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
       if (!mountedRef.current) return;
       isSavingRef.current = false;
       
-      // React 18 automatically batches these updates
+      // Set saved entry and move to final step
       setSavedEntry(data);
-      setShowSuggestions(true);
       setStep(6);
-      queryClient.invalidateQueries(['thoughtJournals']);
+      
+      // Delay query invalidation to avoid cascading re-renders
+      setTimeout(() => {
+        if (mountedRef.current) {
+          setShowSuggestions(true);
+        }
+      }, 0);
     },
     onError: (error) => {
       if (!mountedRef.current) return;
@@ -281,8 +286,10 @@ Provide:
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
+      // Invalidate queries when form closes
+      queryClient.invalidateQueries(['thoughtJournals']);
     };
-  }, []);
+  }, [queryClient]);
 
   const toggleItem = (field, item) => {
     setFormData(prev => ({
@@ -883,10 +890,6 @@ Provide:
                     if (isSavingRef.current || saveMutation.isPending) return;
                     isSavingRef.current = true;
                     setSaveError(null);
-                    
-                    // Clear any existing suggestions state before saving
-                    setSavedEntry(null);
-                    setShowSuggestions(false);
                     
                     // Use a snapshot of formData at click time
                     const dataToSave = { ...formData };
