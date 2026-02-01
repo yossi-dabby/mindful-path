@@ -62,7 +62,6 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
   const [newTag, setNewTag] = useState('');
   const [aiAnalysis, setAiAnalysis] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const [savedEntry, setSavedEntry] = useState(null);
   const [showDistortionAnalysis, setShowDistortionAnalysis] = useState(false);
   const [saveError, setSaveError] = useState(null);
@@ -95,16 +94,9 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
       if (!mountedRef.current) return;
       isSavingRef.current = false;
       
-      // Set saved entry and move to final step
+      // Single state update: set entry and move to final step
       setSavedEntry(data);
       setStep(6);
-      
-      // Delay query invalidation to avoid cascading re-renders
-      setTimeout(() => {
-        if (mountedRef.current) {
-          setShowSuggestions(true);
-        }
-      }, 0);
     },
     onError: (error) => {
       if (!mountedRef.current) return;
@@ -904,7 +896,7 @@ Provide:
             </div>
           )}
 
-          {step === 6 && showSuggestions && savedEntry && savedEntry.id && (
+          {step === 6 && savedEntry && savedEntry.id && (
             <div>
               <div className="text-center mb-6">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-blue-400 flex items-center justify-center mx-auto mb-3">
