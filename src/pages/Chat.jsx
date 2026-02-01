@@ -410,29 +410,53 @@ export default function Chat() {
     }
   }, [location.search]);
 
-  // Handle visibility changes - refetch when page becomes visible
+  // Handle visibility changes - force check when page becomes visible
   useEffect(() => {
     if (!currentConversationId) return;
 
     const handleVisibilityChange = async () => {
-      if (!document.hidden && isLoading) {
-        console.log('[Visibility] Page visible, checking for updates');
-        try {
-          const conversation = await base44.agents.getConversation(currentConversationId);
-          const sanitized = sanitizeConversationMessages(conversation.messages || []);
-          const updated = safeUpdateMessages(sanitized, 'VisibilityRefetch');
-          if (updated) {
-            setIsLoading(false);
+      if (!document.hidden) {
+        console.log('[Visibility] Page now visible');
+        
+        // If we're loading, force a check for updates
+        if (isLoading) {
+          console.log('[Visibility] Still loading - forcing refetch');
+          try {
+            const conversation = await base44.agents.getConversation(currentConversationId);
+            const sanitized = sanitizeConversationMessages(conversation.messages || []);
+            
+            // Check if we have new messages
+            if (sanitized.length > messages.length) {
+              const updated = safeUpdateMessages(sanitized, 'VisibilityRefetch');
+              if (updated) {
+                setIsLoading(false);
+                emitStabilitySummary();
+              }
+            }
+          } catch (err) {
+            console.error('[Visibility] Refetch failed:', err);
           }
-        } catch (err) {
-          console.error('[Visibility] Refetch failed:', err);
         }
       }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [currentConversationId, isLoading]);
+    
+    // Also handle focus events
+    const handleFocus = () => {
+      if (isLoading && currentConversationId) {
+        console.log('[Focus] Window focused while loading - checking updates');
+        handleVisibilityChange();
+      }
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [currentConversationId, isLoading, messages.length]);
 
   // Subscribe to conversation updates
   useEffect(() => {
@@ -462,7 +486,9 @@ export default function Chat() {
           return;
         }
 
-        console.log('[Subscription] ✅ DATA RECEIVED, messages:', data.messages?.length);
+        // CRITICAL: Process updates even if page is hidden
+        // Browser may pause event loop, but we still need to process when it fires
+        console.log('[Subscription] ✅ DATA RECEIVED, messages:', data.messages?.length, 'hidden:', document.hidden);
 
         // Clear timeout immediately
         if (responseTimeoutId) {
@@ -922,7 +948,7 @@ export default function Chat() {
         
         pollingIntervalRef.current = setTimeout(async () => {
           pollAttempts++;
-          console.log(`[Polling] Attempt ${pollAttempts}/${maxPollAttempts} (delay: ${delay}ms)`);
+          console.log(`[Polling] Attempt ${pollAttempts}/${maxPollAttempts} (delay: ${delay}ms, hidden: ${document.hidden})`);
           
           try {
             const updatedConv = await base44.agents.getConversation(convId);
