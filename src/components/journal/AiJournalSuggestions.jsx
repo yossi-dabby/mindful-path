@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,31 +12,35 @@ import { motion } from 'framer-motion';
 export default function AiJournalSuggestions({ entry, onClose }) {
   const [suggestions, setSuggestions] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const hasAnalyzedRef = useRef(false);
 
   const { data: exercises } = useQuery({
     queryKey: ['exercises'],
     queryFn: () => base44.entities.Exercise.list(),
-    initialData: []
+    initialData: [],
+    staleTime: 300000,
+    refetchOnWindowFocus: false
   });
 
   const { data: goals } = useQuery({
     queryKey: ['goals'],
     queryFn: () => base44.entities.Goal.filter({ status: 'active' }),
-    initialData: []
+    initialData: [],
+    staleTime: 300000,
+    refetchOnWindowFocus: false
   });
 
   const { data: allEntries } = useQuery({
     queryKey: ['thoughtJournals'],
     queryFn: () => base44.entities.ThoughtJournal.list('-created_date', 20),
-    initialData: []
+    initialData: [],
+    staleTime: 60000,
+    refetchOnWindowFocus: false
   });
 
-  useEffect(() => {
-    generateSuggestions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const generateSuggestions = async () => {
+  const generateSuggestions = useCallback(async () => {
+    if (hasAnalyzedRef.current) return;
+    hasAnalyzedRef.current = true;
     try {
       const stripHtml = (html) => html?.replace(/<[^>]*>/g, '') || '';
 
@@ -148,7 +152,11 @@ Provide comprehensive analysis:
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [entry, goals, allEntries]);
+
+  useEffect(() => {
+    generateSuggestions();
+  }, [generateSuggestions]);
 
   if (isLoading) {
     return (
