@@ -16,6 +16,10 @@ export default function MoodTracker() {
   const [showForm, setShowForm] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
   const [dateRange, setDateRange] = useState(30); // days
+  
+  // Persist tab state via URL query param
+  const urlParams = new URLSearchParams(window.location.search);
+  const [activeTab, setActiveTab] = useState(urlParams.get('tab') || 'overview');
 
   const { data: moodEntries, isLoading } = useQuery({
     queryKey: ['moodEntries', dateRange],
@@ -84,7 +88,11 @@ export default function MoodTracker() {
         </motion.div>
 
         {/* Tabs */}
-        <Tabs defaultValue="overview" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={(newTab) => {
+          setActiveTab(newTab);
+          const newUrl = `${window.location.pathname}?tab=${newTab}`;
+          window.history.replaceState({}, '', newUrl);
+        }} className="space-y-6">
           <TabsList className="backdrop-blur-xl border-0" style={{
             background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.6) 0%, rgba(255, 255, 255, 0.8) 100%)',
             backdropFilter: 'blur(10px)',

@@ -110,6 +110,7 @@ export default function Coach() {
               size="icon"
               onClick={() => window.location.href = '/'}
               style={{ borderRadius: '50%', width: '36px', height: '36px' }}
+              aria-label="Go back to home"
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
@@ -170,6 +171,7 @@ export default function Coach() {
               size="icon"
               onClick={() => window.location.href = '/'}
               style={{ borderRadius: '50%' }}
+              aria-label="Go back to home"
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
