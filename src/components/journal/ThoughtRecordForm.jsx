@@ -92,6 +92,7 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
         : base44.entities.ThoughtJournal.create(validatedData);
     },
     onSuccess: (data) => {
+      if (!mountedRef.current) return;
       isSavingRef.current = false;
       queryClient.invalidateQueries(['thoughtJournals']);
       setSavedEntry(data);
@@ -99,6 +100,7 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
       setStep(6);
     },
     onError: (error) => {
+      if (!mountedRef.current) return;
       isSavingRef.current = false;
       if (isAuthError(error) && shouldShowAuthError()) {
         setShowAuthError(true);
@@ -494,11 +496,11 @@ Provide:
                 <AiDistortionAnalysis 
                   entry={formData}
                   onApplyDistortions={(distortions, reframe) => {
-                    setFormData({
-                      ...formData,
+                    setFormData(prev => ({
+                      ...prev,
                       cognitive_distortions: distortions,
-                      balanced_thought: reframe || formData.balanced_thought
-                    });
+                      balanced_thought: reframe || prev.balanced_thought
+                    }));
                     setShowDistortionAnalysis(false);
                   }}
                 />
