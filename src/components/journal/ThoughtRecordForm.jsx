@@ -783,7 +783,12 @@ Provide:
                   <Input
                     value={newTag}
                     onChange={(e) => setNewTag(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addTag();
+                      }
+                    }}
                     placeholder="Add a custom tag..."
                     className="rounded-xl"
                   />
