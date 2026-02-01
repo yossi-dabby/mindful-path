@@ -22,7 +22,7 @@ import { detectCrisisLanguage, detectCrisisWithReason } from '../components/util
 import AgeGateModal from '../components/utils/AgeGateModal';
 import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
-import { validateAgentOutput, extractAssistantMessage, sanitizeConversationMessages, parseCounters } from '../components/utils/validateAgentOutput';
+import { validateAgentOutput, extractAssistantMessage, sanitizeConversationMessages, parseCounters } from '../components/utils/validateAgentOutput.jsx';
 
 export default function Chat() {
   const [currentConversationId, setCurrentConversationId] = useState(null);
