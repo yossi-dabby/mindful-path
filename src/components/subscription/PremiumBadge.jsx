@@ -1,7 +1,6 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Crown, Lock } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 export default function PremiumBadge({ locked = false, compact = false }) {
   if (locked) {
