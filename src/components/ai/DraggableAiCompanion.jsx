@@ -489,11 +489,7 @@ export default function DraggableAiCompanion() {
         >
           <MessageCircle className="w-7 h-7" />
         </Button>
-        <motion.div
-          animate={{ scale: [1, 1.2, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"
-        />
+        <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white" />
       </motion.div>
     );
   }
