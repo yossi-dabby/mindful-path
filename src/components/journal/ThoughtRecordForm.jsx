@@ -94,10 +94,15 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
     onSuccess: (data) => {
       if (!mountedRef.current) return;
       isSavingRef.current = false;
-      queryClient.invalidateQueries(['thoughtJournals']);
-      setSavedEntry(data);
-      setShowSuggestions(true);
-      setStep(6);
+      
+      // Batch state updates to avoid multiple re-renders
+      Promise.resolve().then(() => {
+        if (!mountedRef.current) return;
+        queryClient.invalidateQueries(['thoughtJournals']);
+        setSavedEntry(data);
+        setShowSuggestions(true);
+        setStep(6);
+      });
     },
     onError: (error) => {
       if (!mountedRef.current) return;
