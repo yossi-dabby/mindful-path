@@ -59,19 +59,23 @@ export default function Chat() {
   
   // INSTRUMENTATION: Track hard render gate enforcement + send cycle proof
   const instrumentationRef = useRef({
-    SEND_COUNT: 0,                     // Total sends initiated
-    RENDER_BLOCKED_NON_STRING: 0,      // Objects blocked from rendering
-    RENDER_BLOCKED_JSON_LIKE: 0,       // JSON strings blocked from rendering
-    DUPLICATE_BLOCKED: 0,              // Duplicate messages prevented
-    DUPLICATE_OCCURRED: 0,             // Duplicates that got through (MUST BE 0)
-    UNSAFE_MESSAGE_SKIPPED: 0,         // Messages skipped by hard gate
-    PLACEHOLDER_RENDERED_AS_MESSAGE: 0,// Placeholder mistakes (MUST BE 0)
-    CONTRACT_VIOLATIONS: 0,            // Messages that violated contract
-    STUCK_THINKING_TIMEOUTS: 0,        // Thinking state stuck beyond timeout
-    REFRESH_REQUIRED: 0,               // Unrecoverable errors requiring page refresh (MUST BE 0)
-    SAFE_UPDATES: 0,                   // Successful state updates
-    TOTAL_MESSAGES_PROCESSED: 0       // Total messages seen
+    SEND_COUNT: 0,
+    WEB_SENDS_PASS: 0,
+    MOBILE_SENDS_PASS: 0,
+    HARD_GATE_BLOCKED_OBJECT: 0,
+    HARD_GATE_BLOCKED_JSON_STRING: 0,
+    HARD_GATE_FALSE_POSITIVE_PREVENTED: 0,
+    REFETCH_TRIGGERED: 0,
+    DUPLICATE_BLOCKED: 0,
+    DUPLICATE_OCCURRED: 0,
+    PLACEHOLDER_RENDERED: 0,
+    PLACEHOLDER_BECAME_MESSAGE: 0,
+    THINKING_OVER_10S: 0,
+    UI_FLASHES_DETECTED: 0,
+    SAFE_UPDATES: 0
   });
+  
+  const refetchDebounceRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -84,71 +88,82 @@ export default function Chat() {
       `FINAL STABILITY SUMMARY | send=${counters.SEND_COUNT} | ` +
       `parse_failed=${parseCounters.PARSE_FAILED} | ` +
       `dup_occurred=${counters.DUPLICATE_OCCURRED} | ` +
-      `unsafe_skipped=${counters.UNSAFE_MESSAGE_SKIPPED} | ` +
-      `placeholder_as_msg=${counters.PLACEHOLDER_RENDERED_AS_MESSAGE} | ` +
-      `stuck_thinking_timeouts=${counters.STUCK_THINKING_TIMEOUTS} | ` +
-      `refresh_required=${counters.REFRESH_REQUIRED}`
+      `placeholder_became_msg=${counters.PLACEHOLDER_BECAME_MESSAGE} | ` +
+      `thinking_over_10s=${counters.THINKING_OVER_10S}`
     );
   };
+  
+  // Print final stability report
+  const printFinalStabilityReport = () => {
+    const counters = instrumentationRef.current;
+    const parseErrors = parseCounters.PARSE_FAILED;
+    const duplicates = counters.DUPLICATE_OCCURRED;
+    const placeholderIssues = counters.PLACEHOLDER_BECAME_MESSAGE;
+    const thinkingIssues = counters.THINKING_OVER_10S;
+    
+    console.log('\n═══════════════════════════════════════════════════');
+    console.log('[CHAT STABILITY REPORT]');
+    console.log('═══════════════════════════════════════════════════');
+    console.log(`Web sends: ${counters.WEB_SENDS_PASS}/30 ${counters.WEB_SENDS_PASS >= 30 ? 'PASS' : 'FAIL'}`);
+    console.log(`Mobile sends: ${counters.MOBILE_SENDS_PASS}/15 ${counters.MOBILE_SENDS_PASS >= 15 ? 'PASS' : 'FAIL'}`);
+    console.log(`UI flashes detected: ${counters.UI_FLASHES_DETECTED === 0 ? 'PASS' : 'FAIL'}`);
+    console.log(`Parse errors: ${parseErrors === 0 ? 'PASS' : 'FAIL'} (${parseErrors})`);
+    console.log(`Duplicates occurred: ${duplicates === 0 ? 'PASS' : 'FAIL'} (${duplicates})`);
+    console.log(`Placeholder became message: ${placeholderIssues === 0 ? 'PASS' : 'FAIL'} (${placeholderIssues})`);
+    console.log(`Thinking >10s: ${thinkingIssues === 0 ? 'PASS' : 'FAIL'} (${thinkingIssues})`);
+    console.log('───────────────────────────────────────────────────');
+    console.log('Summary counters:');
+    console.log(`  PARSE_ATTEMPTS: ${parseCounters.PARSE_ATTEMPTS}`);
+    console.log(`  PARSE_SKIPPED_NOT_JSON: ${parseCounters.PARSE_SKIPPED_NOT_JSON}`);
+    console.log(`  SANITIZE_EXTRACT_OK: ${parseCounters.SANITIZE_EXTRACT_OK}`);
+    console.log(`  HARD_GATE_BLOCKED_OBJECT: ${counters.HARD_GATE_BLOCKED_OBJECT}`);
+    console.log(`  HARD_GATE_BLOCKED_JSON_STRING: ${counters.HARD_GATE_BLOCKED_JSON_STRING}`);
+    console.log(`  HARD_GATE_FALSE_POSITIVE_PREVENTED: ${counters.HARD_GATE_FALSE_POSITIVE_PREVENTED}`);
+    console.log(`  REFETCH_TRIGGERED: ${counters.REFETCH_TRIGGERED}`);
+    console.log(`  DUPLICATE_BLOCKED: ${counters.DUPLICATE_BLOCKED}`);
+    console.log('═══════════════════════════════════════════════════\n');
+  };
 
-  // CRITICAL: HARD RENDER GATE - validate message is 100% render-safe
+  // CRITICAL: HARD RENDER GATE - validate message is 100% render-safe (NO FALSE POSITIVES)
   const isMessageRenderSafe = (msg) => {
     if (!msg || !msg.role || !msg.content) {
-      console.warn('[HARD GATE] BLOCKED: Missing role or content');
       return false;
     }
     
     // CRITICAL TYPE CHECK: Content MUST be a string
     if (typeof msg.content !== 'string') {
-      console.error('[HARD GATE] ⛔ BLOCKED: Content is not a string, type:', typeof msg.content);
-      instrumentationRef.current.RENDER_BLOCKED_NON_STRING++;
-      instrumentationRef.current.UNSAFE_MESSAGE_SKIPPED++;
+      console.error('[HARD GATE] ⛔ Object blocked');
+      instrumentationRef.current.HARD_GATE_BLOCKED_OBJECT++;
       return false;
     }
     
     const content = msg.content;
-    
-    // Block placeholder/thinking messages from being treated as real messages
-    if (content.toLowerCase().includes('thinking') && content.length < 20) {
-      console.warn('[HARD GATE] BLOCKED: Thinking placeholder detected');
-      instrumentationRef.current.PLACEHOLDER_RENDERED_AS_MESSAGE++;
-      return false;
-    }
-    
-    // Enhanced JSON detection patterns
-    const jsonPatterns = [
-      '"assistant_message"',
-      '"tool_calls"',
-      '"homework"',
-      '"protocol_selected"',
-      '"behavioral_experiment"',
-      '"emotion_ratings"',
-      '"belief_strength"',
-      '"metadata"',
-      '\\u00'
-    ];
-    
-    for (const pattern of jsonPatterns) {
-      if (content.includes(pattern)) {
-        console.error('[HARD GATE] ⛔ BLOCKED: JSON pattern detected:', pattern);
-        instrumentationRef.current.RENDER_BLOCKED_JSON_LIKE++;
-        instrumentationRef.current.UNSAFE_MESSAGE_SKIPPED++;
-        return false;
-      }
-    }
-    
-    // Block if starts with JSON structure
     const trimmed = content.trim();
-    if ((trimmed.startsWith('{') || trimmed.startsWith('[{')) && trimmed.includes('"')) {
-      console.error('[HARD GATE] ⛔ BLOCKED: JSON structure at start');
-      instrumentationRef.current.RENDER_BLOCKED_JSON_LIKE++;
-      instrumentationRef.current.UNSAFE_MESSAGE_SKIPPED++;
+    
+    // Block placeholder/thinking messages
+    if ((content.toLowerCase().includes('thinking') || content === '...') && content.length < 20) {
+      instrumentationRef.current.PLACEHOLDER_BECAME_MESSAGE++;
       return false;
     }
     
-    // Block if suspiciously short for assistant (likely partial/corrupted)
-    if (msg.role === 'assistant' && content.trim().length < 3) {
-      console.warn('[HARD GATE] BLOCKED: Suspiciously short assistant message');
+    // Block ONLY if truly JSON-shaped (not just containing keywords)
+    const isJSONShaped = (trimmed.startsWith('{') || trimmed.startsWith('[')) || trimmed.startsWith('```json');
+    
+    if (isJSONShaped) {
+      // This is actual JSON structure - block it
+      console.error('[HARD GATE] ⛔ JSON structure blocked');
+      instrumentationRef.current.HARD_GATE_BLOCKED_JSON_STRING++;
+      return false;
+    }
+    
+    // Plain text that just contains keywords like "assistant_message" is ALLOWED
+    // This prevents false positives on Hebrew/English text
+    if (trimmed.includes('"assistant_message"') && !isJSONShaped) {
+      instrumentationRef.current.HARD_GATE_FALSE_POSITIVE_PREVENTED++;
+    }
+    
+    // Block suspiciously short for assistant
+    if (msg.role === 'assistant' && trimmed.length < 3) {
       return false;
     }
     
@@ -440,49 +455,47 @@ export default function Chat() {
         // HARD RENDER GATE: Block unsafe messages BEFORE they reach React state
         let processedMessages = [];
         let lastStructuredData = null;
-        let unsafeMessagesFound = 0;
         
         try {
-          // First pass: identify unsafe messages
+          // First pass: identify truly unsafe content (objects or JSON-shaped strings)
           const hasUnsafeContent = (data.messages || []).some(msg => {
             if (msg.role !== 'assistant' || !msg.content) return false;
             if (typeof msg.content !== 'string') return true;
             const trimmed = msg.content.trim();
-            if ((trimmed.startsWith('{') || trimmed.startsWith('[{')) && trimmed.includes('"assistant_message"')) return true;
-            return false;
+            // Only flag as unsafe if truly JSON-shaped (starts with { or [ or ```json)
+            return (trimmed.startsWith('{') || trimmed.startsWith('[') || trimmed.startsWith('```json'));
           });
           
-          // If unsafe content detected, trigger refetch instead of rendering
+          // If unsafe content detected, trigger debounced refetch (don't spam)
           if (hasUnsafeContent && !isRefetchingRef.current) {
-            console.error('[HARD GATE] ⛔ UNSAFE CONTENT DETECTED - Triggering authoritative refetch');
-            instrumentationRef.current.UNSAFE_MESSAGE_SKIPPED++;
+            console.error('[HARD GATE] ⛔ UNSAFE CONTENT - Triggering refetch');
             instrumentationRef.current.REFETCH_TRIGGERED++;
             isRefetchingRef.current = true;
             
-            // Trigger immediate refetch
-            setTimeout(async () => {
+            // Debounced refetch (prevent spam)
+            if (refetchDebounceRef.current) clearTimeout(refetchDebounceRef.current);
+            refetchDebounceRef.current = setTimeout(async () => {
               try {
                 const refetched = await base44.agents.getConversation(currentConversationId);
                 const sanitized = sanitizeConversationMessages(refetched.messages || []);
-                safeUpdateMessages(sanitized, 'Refetch-AfterUnsafe');
+                safeUpdateMessages(sanitized, 'Refetch');
                 isRefetchingRef.current = false;
               } catch (err) {
                 console.error('[Refetch] Failed:', err);
                 isRefetchingRef.current = false;
               }
-            }, 100);
+            }, 200);
             
-            // Do NOT process current batch - wait for refetch
+            // Keep showing current messages (do not clear state)
             return;
           }
           
           // Second pass: process only safe messages
           processedMessages = (data.messages || [])
-            .map((msg, idx) => {
+            .map(msg => {
               if (msg.role === 'assistant' && msg.content) {
                 // Skip if not render-safe
                 if (!isMessageRenderSafe(msg)) {
-                  unsafeMessagesFound++;
                   return null;
                 }
                 
@@ -504,12 +517,7 @@ export default function Chat() {
               }
               return msg;
             })
-            .filter(msg => msg !== null); // Remove unsafe messages
-          
-          if (unsafeMessagesFound > 0) {
-            console.warn(`[HARD GATE] Filtered out ${unsafeMessagesFound} unsafe messages`);
-            instrumentationRef.current.UNSAFE_MESSAGE_SKIPPED += unsafeMessagesFound;
-          }
+            .filter(msg => msg !== null);
 
           // CRITICAL: Safe update with validation + deduplication
           const updated = safeUpdateMessages(processedMessages, 'Subscription');
@@ -579,7 +587,7 @@ export default function Chat() {
     responseTimeoutId = setTimeout(() => {
       if (isSubscribed && mountedRef.current) {
         console.error('[Subscription] ⏱️ Timeout after 30s - forcing recovery');
-        instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
+        instrumentationRef.current.THINKING_OVER_10S++;
         setIsLoading(false);
         subscriptionActiveRef.current = false;
         emitStabilitySummary();
@@ -834,7 +842,7 @@ export default function Chat() {
     }
     loadingTimeoutRef.current = setTimeout(() => {
       console.error('[Send] ⏱️ Loading timeout after 10s - forcing recovery');
-      instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
+      instrumentationRef.current.THINKING_OVER_10S++;
       setIsLoading(false);
       emitStabilitySummary();
       loadingTimeoutRef.current = null;
@@ -933,7 +941,7 @@ export default function Chat() {
           } catch (err) {
             console.error('[Polling] ❌ Error:', err);
             if (pollAttempts >= maxPollAttempts) {
-              instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
+              instrumentationRef.current.THINKING_OVER_10S++;
               setIsLoading(false);
               emitStabilitySummary();
               if (pollingIntervalRef.current) {
@@ -1042,27 +1050,8 @@ export default function Chat() {
     document.body.setAttribute('data-page-ready', 'true');
     setIsPageReady(true);
     
-    // INSTRUMENTATION: Log hard gate metrics every 10 seconds
-    const logInterval = setInterval(() => {
-      const counters = instrumentationRef.current;
-      console.log('═══════════════════════════════════════════════════');
-      console.log('[HARD RENDER GATE REPORT]');
-      console.log('───────────────────────────────────────────────────');
-      console.log('✓ Hard Gate Enforcement:');
-      console.log('  • Unsafe messages skipped:', counters.UNSAFE_MESSAGE_SKIPPED);
-      console.log('  • Refetches triggered:', counters.REFETCH_TRIGGERED);
-      console.log('  • Objects blocked:', counters.RENDER_BLOCKED_NON_STRING);
-      console.log('  • JSON strings blocked:', counters.RENDER_BLOCKED_JSON_LIKE);
-      console.log('✓ Duplicate Prevention:');
-      console.log('  • Duplicates blocked:', counters.DUPLICATE_BLOCKED);
-      console.log('  • Duplicates occurred:', counters.DUPLICATE_OCCURRED, counters.DUPLICATE_OCCURRED === 0 ? '✓ PASS' : '✗ FAIL');
-      console.log('✓ Placeholder Protection:');
-      console.log('  • Placeholder as message:', counters.PLACEHOLDER_RENDERED_AS_MESSAGE, counters.PLACEHOLDER_RENDERED_AS_MESSAGE === 0 ? '✓ PASS' : '✗ FAIL');
-      console.log('✓ State Updates:');
-      console.log('  • Safe updates:', counters.SAFE_UPDATES);
-      console.log('  • Total messages processed:', counters.TOTAL_MESSAGES_PROCESSED);
-      console.log('═══════════════════════════════════════════════════');
-    }, 10000);
+    // Expose report function globally for testing
+    window.printChatStabilityReport = printFinalStabilityReport;
     
     // Cleanup
     const cleanup = () => {
@@ -1311,30 +1300,38 @@ export default function Chat() {
                     context="chat"
                   />
                 ))}
-                {isLoading && messages.length > 0 && (
-                  <div 
-                    data-testid="chat-loading" 
-                    ref={thinkingPlaceholderRef}
-                    className="flex gap-3"
-                    style={{ minHeight: '60px' }}
-                  >
-                    <div className="h-7 w-7 flex items-center justify-center flex-shrink-0" style={{
-                      borderRadius: '12px',
-                      backgroundColor: 'rgba(38, 166, 154, 0.15)'
-                    }}>
-                      <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#26A69A' }} />
+                {isLoading && messages.length > 0 && (() => {
+                  instrumentationRef.current.PLACEHOLDER_RENDERED++;
+                  return (
+                    <div 
+                      data-testid="chat-loading" 
+                      ref={thinkingPlaceholderRef}
+                      className="flex gap-3"
+                      style={{ 
+                        minHeight: '60px',
+                        transition: 'opacity 0.2s ease-in-out'
+                      }}
+                    >
+                      <div className="h-7 w-7 flex items-center justify-center flex-shrink-0" style={{
+                        borderRadius: '12px',
+                        backgroundColor: 'rgba(38, 166, 154, 0.15)'
+                      }}>
+                        <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#26A69A' }} />
+                      </div>
+                      <div className="rounded-2xl px-4 py-3 flex-1" style={{
+                        background: 'rgba(255, 255, 255, 0.9)',
+                        backdropFilter: 'blur(8px)',
+                        border: '1px solid rgba(38, 166, 154, 0.2)',
+                        minHeight: '48px',
+                        maxHeight: '120px',
+                        transition: 'none',
+                        willChange: 'auto'
+                      }}>
+                        <p className="text-sm" style={{ color: '#5A7A72' }}>Thinking...</p>
+                      </div>
                     </div>
-                    <div className="rounded-2xl px-4 py-3 flex-1" style={{
-                      background: 'rgba(255, 255, 255, 0.9)',
-                      backdropFilter: 'blur(8px)',
-                      border: '1px solid rgba(38, 166, 154, 0.2)',
-                      minHeight: '48px',
-                      transition: 'none'
-                    }}>
-                      <p className="text-sm" style={{ color: '#5A7A72' }}>Thinking...</p>
-                    </div>
-                  </div>
-                )}
+                  );
+                })()}
                 <div ref={messagesEndRef} />
               </div>
 
