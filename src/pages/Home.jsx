@@ -253,6 +253,7 @@ export default function Home() {
                       backgroundColor: 'rgba(56, 178, 172, 0.15)',
                       color: '#38B2AC'
                     }}
+                    aria-label="View goal details"
                   >
                     <Target className="w-4 h-4" />
                   </Button>
@@ -273,6 +274,7 @@ export default function Home() {
                   animation: 'angelPulse 2s ease-in-out infinite'
                 }}
                 title="Watch help video"
+                aria-label="Watch goals help video"
               >
                 <Sparkles className="w-3 h-3" style={{ color: '#FFD700' }} strokeWidth={2} />
               </Button>
@@ -290,6 +292,7 @@ export default function Home() {
                 animation: 'angelPulse 2s ease-in-out infinite'
               }}
               title="Watch help video"
+              aria-label="Watch goals help video"
             >
               <Sparkles className="w-4 h-4" style={{ color: '#FFD700' }} strokeWidth={2} />
             </Button>
@@ -312,6 +315,7 @@ export default function Home() {
                       backgroundColor: 'rgba(159, 122, 234, 0.15)',
                       color: '#9F7AEA'
                     }}
+                    aria-label="View journal entry"
                   >
                     <BookOpen className="w-4 h-4" />
                   </Button>
@@ -332,6 +336,7 @@ export default function Home() {
                   animation: 'angelPulse 2s ease-in-out infinite'
                 }}
                 title="Watch help video"
+                aria-label="Watch journal help video"
               >
                 <Sparkles className="w-3 h-3" style={{ color: '#FFD700' }} strokeWidth={2} />
               </Button>
@@ -349,6 +354,7 @@ export default function Home() {
                 animation: 'angelPulse 2s ease-in-out infinite'
               }}
               title="Watch help video"
+              aria-label="Watch journal help video"
             >
               <Sparkles className="w-4 h-4" style={{ color: '#FFD700' }} strokeWidth={2} />
             </Button>
