@@ -880,19 +880,18 @@ export default function Chat() {
       
       console.log('[Send] ✅ Message sent - starting authoritative polling');
       
-      // CRITICAL: Start authoritative polling as deterministic fallback
+      // CRITICAL: Start authoritative polling with exponential backoff
       // This ensures we get the reply even if subscription fails
       let pollAttempts = 0;
-      const maxPollAttempts = 5; // 5 attempts x 2s = 10s max
+      const maxPollAttempts = 5;
+      const pollDelays = [500, 1000, 2000, 4000, 8000]; // Exponential backoff
       
-      const startPolling = () => {
-        if (pollingIntervalRef.current) {
-          clearInterval(pollingIntervalRef.current);
-        }
+      const pollWithBackoff = (attemptIndex) => {
+        const delay = pollDelays[Math.min(attemptIndex, pollDelays.length - 1)];
         
-        pollingIntervalRef.current = setInterval(async () => {
+        pollingIntervalRef.current = setTimeout(async () => {
           pollAttempts++;
-          console.log(`[Polling] Attempt ${pollAttempts}/${maxPollAttempts}`);
+          console.log(`[Polling] Attempt ${pollAttempts}/${maxPollAttempts} (delay: ${delay}ms)`);
           
           try {
             const updatedConv = await base44.agents.getConversation(convId);
@@ -913,7 +912,7 @@ export default function Chat() {
               }
               
               if (pollingIntervalRef.current) {
-                clearInterval(pollingIntervalRef.current);
+                clearTimeout(pollingIntervalRef.current);
                 pollingIntervalRef.current = null;
               }
               if (loadingTimeoutRef.current) {
@@ -921,7 +920,7 @@ export default function Chat() {
                 loadingTimeoutRef.current = null;
               }
             } else if (pollAttempts >= maxPollAttempts) {
-              console.error('[Polling] ⏱️ Timeout - no reply after 10s');
+              console.error('[Polling] ⏱️ Timeout - no reply after max attempts');
               instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
               
               // CRITICAL: Safe update with validation
@@ -930,13 +929,16 @@ export default function Chat() {
               emitStabilitySummary();
               
               if (pollingIntervalRef.current) {
-                clearInterval(pollingIntervalRef.current);
+                clearTimeout(pollingIntervalRef.current);
                 pollingIntervalRef.current = null;
               }
               if (loadingTimeoutRef.current) {
                 clearTimeout(loadingTimeoutRef.current);
                 loadingTimeoutRef.current = null;
               }
+            } else {
+              // Continue polling with next backoff delay
+              pollWithBackoff(pollAttempts);
             }
           } catch (err) {
             console.error('[Polling] ❌ Error:', err);
@@ -945,15 +947,18 @@ export default function Chat() {
               setIsLoading(false);
               emitStabilitySummary();
               if (pollingIntervalRef.current) {
-                clearInterval(pollingIntervalRef.current);
+                clearTimeout(pollingIntervalRef.current);
                 pollingIntervalRef.current = null;
               }
+            } else {
+              // Retry with next backoff delay
+              pollWithBackoff(pollAttempts);
             }
           }
-        }, 2000); // Poll every 2 seconds
+        }, delay);
       };
       
-      startPolling();
+      pollWithBackoff(0);
     } catch (error) {
       console.error('[Send] ❌ SEND ERROR:', error);
       // Force recovery on send error

@@ -2,10 +2,10 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, ThumbsUp, Pin, User, Shield } from 'lucide-react';
+import { MessageCircle, ThumbsUp, Pin, User, Shield, Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
-export default function ForumPostCard({ post, onView, onUpvote, onModerate }) {
+export default function ForumPostCard({ post, onView, onUpvote, onModerate, isUpvoting }) {
   const categoryColors = {
     general: 'bg-gray-100 text-gray-700',
     goals: 'bg-blue-100 text-blue-700',
@@ -58,8 +58,13 @@ export default function ForumPostCard({ post, onView, onUpvote, onModerate }) {
                   e.stopPropagation();
                   onUpvote(post);
                 }}
+                disabled={isUpvoting}
               >
-                <ThumbsUp className="w-4 h-4 mr-1" />
+                {isUpvoting ? (
+                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                ) : (
+                  <ThumbsUp className="w-4 h-4 mr-1" />
+                )}
                 {post.upvotes || 0}
               </Button>
               <span className="flex items-center gap-1">
