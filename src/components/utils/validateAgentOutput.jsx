@@ -15,12 +15,66 @@ const UNSAFE_PATTERNS = [
   /\b(take (this|these) (medication|drug)s?)\b/gi
 ];
 
+// CRITICAL: Forbidden reasoning patterns (NO REASONING LEAKAGE)
+const FORBIDDEN_REASONING_PATTERNS = [
+  /^THOUGHT:/mi,
+  /^THINKING:/mi,
+  /^ANALYSIS:/mi,
+  /^REASONING:/mi,
+  /^INTERNAL:/mi,
+  /^SYSTEM:/mi,
+  /^DEVELOPER:/mi,
+  /^PLAN:/mi,
+  /^CHECKLIST:/mi,
+  /^STEP\s+\d+:/mi,
+  /^CONFIDENCE:/mi,
+  /^I should\b/mi,
+  /^I need to\b/mi,
+  /^I will\b/mi,
+  /^Let me\b/mi,
+  /^First I'll\b/mi,
+  /^Then I'll\b/mi,
+  /^My goal is\b/mi,
+  /^The next step is\b/mi,
+  /\[checking/i,
+  /\[internal/i,
+  /\[validation/i,
+  /\[constraint/i,
+  /\[protocol/i,
+  /\bconstraint checklist\b/i,
+  /\bmental sandbox\b/i,
+  /\bconfidence score\b/i
+];
+
 function sanitizeAssistantMessage(message) {
   if (!message || typeof message !== 'string') return message;
   
   let sanitized = message;
   
-  // Strip unsafe patterns
+  // CRITICAL: Strip forbidden reasoning patterns line-by-line
+  const lines = sanitized.split('\n');
+  const cleanedLines = lines.filter(line => {
+    const trimmed = line.trim();
+    if (!trimmed) return true; // Keep empty lines
+    
+    // Check if line contains forbidden reasoning
+    const isForbidden = FORBIDDEN_REASONING_PATTERNS.some(pattern => pattern.test(line));
+    if (isForbidden) {
+      console.warn(`[Reasoning Filter] Blocked: "${line.substring(0, 50)}..."`);
+      return false;
+    }
+    return true;
+  });
+  
+  sanitized = cleanedLines.join('\n').trim();
+  
+  // Failsafe: If we removed everything, use safe fallback
+  if (!sanitized || sanitized.length < 10) {
+    console.error('[Reasoning Filter] Message empty after filtering, using failsafe');
+    return 'אני כאן איתך. מה הכי מטריד אותך כרגע?';
+  }
+  
+  // Strip unsafe medical patterns
   for (const pattern of UNSAFE_PATTERNS) {
     sanitized = sanitized.replace(pattern, '[content removed for safety]');
   }
@@ -42,6 +96,7 @@ export const parseCounters = {
   PARSE_FAILED: 0,
   SANITIZE_EXTRACT_OK: 0,
   SANITIZE_EXTRACT_FAILED: 0,
+  REASONING_LINES_BLOCKED: 0,
   reset() {
     this.PARSE_ATTEMPTS = 0;
     this.PARSE_SUCCEEDED = 0;
@@ -49,6 +104,7 @@ export const parseCounters = {
     this.PARSE_FAILED = 0;
     this.SANITIZE_EXTRACT_OK = 0;
     this.SANITIZE_EXTRACT_FAILED = 0;
+    this.REASONING_LINES_BLOCKED = 0;
   }
 };
 
