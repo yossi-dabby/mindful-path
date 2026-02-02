@@ -633,10 +633,10 @@ export default function Chat() {
     
     console.log('[Subscription] ✅ Subscription active');
 
-    // Timeout after 30s
+    // Timeout after 60s
     responseTimeoutId = setTimeout(() => {
       if (isSubscribed && mountedRef.current) {
-        console.error('[Subscription] ⏱️ Timeout after 30s - forcing recovery');
+        console.error('[Subscription] ⏱️ Timeout after 60s - forcing recovery');
         instrumentationRef.current.THINKING_OVER_10S++;
         setIsLoading(false);
         subscriptionActiveRef.current = false;
@@ -652,7 +652,7 @@ export default function Chat() {
           unsubscribe();
         }
       }
-    }, 30000);
+    }, 60000);
 
     return () => {
       console.log('[Subscription] Cleanup - unsubscribing');
