@@ -1,123 +1,134 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 /**
- * Post-LLM Safety Filter
- * Scans and sanitizes agent outputs to enforce safety boundaries
- * beyond what prompts can guarantee.
+ * PLATFORM-LEVEL MANDATORY FILTER
+ * This function is called automatically by the platform AFTER every LLM response
+ * before it reaches the user. It cannot be bypassed.
+ * 
+ * Purpose: Strip all internal reasoning, meta-commentary, and forbidden patterns
+ * from agent outputs to enforce "No Reasoning Leakage" policy.
  */
+
+const FORBIDDEN_PATTERNS = [
+  // Direct reasoning markers
+  /^\s*THOUGHT:/mi,
+  /^\s*THINKING:/mi,
+  /^\s*ANALYSIS:/mi,
+  /^\s*REASONING:/mi,
+  /^\s*INTERNAL:/mi,
+  /^\s*SYSTEM:/mi,
+  /^\s*DEVELOPER:/mi,
+  /^\s*PLAN:/mi,
+  /^\s*CHECKLIST:/mi,
+  /^\s*STEP\s+\d+:/mi,
+  /^\s*CONFIDENCE:/mi,
+  
+  // Meta-commentary about process
+  /^I should\b/mi,
+  /^I need to\b/mi,
+  /^I will\b/mi,
+  /^Let me\b/mi,
+  /^First I'll\b/mi,
+  /^Then I'll\b/mi,
+  /^My goal is\b/mi,
+  /^The next step is\b/mi,
+  
+  // Bracketed internal notes
+  /\[checking/i,
+  /\[internal/i,
+  /\[validation/i,
+  /\[constraint/i,
+  /\[protocol/i,
+  /\[note:/i,
+  
+  // Technical/system terms
+  /\bconstraint checklist\b/i,
+  /\bmental sandbox\b/i,
+  /\bconfidence score\b/i,
+  /\bsanitizer\b/i,
+  /\bhard gate\b/i,
+  /\binstrumentation\b/i,
+  /\bpolling\b/i,
+  /\bparse failed\b/i,
+  /\bdetection layer\b/i,
+  /\bassessment protocol\b/i,
+  
+  // Process narration
+  /\bhere's a plan\b/i,
+  /\blet's break down\b/i,
+  /\bnow I'll\b/i,
+  /\bnext I'll\b/i
+];
+
+const HEBREW_FAILSAFE = "אני כאן איתך. מה הכי מטריד אותך כרגע?";
+const ENGLISH_FAILSAFE = "I'm here with you. What's on your mind?";
+
+function stripForbiddenContent(text, userLanguage = 'en') {
+  if (!text || typeof text !== 'string') {
+    return text;
+  }
+
+  // Split into lines
+  const lines = text.split('\n');
+  
+  // Filter out lines containing forbidden patterns
+  const cleanedLines = lines.filter(line => {
+    const trimmed = line.trim();
+    
+    // Skip empty lines
+    if (!trimmed) return true;
+    
+    // Check if line starts with or contains forbidden pattern
+    const isForbidden = FORBIDDEN_PATTERNS.some(pattern => pattern.test(line));
+    
+    if (isForbidden) {
+      console.log(`[PostLLM Filter] Blocked line: "${line.substring(0, 50)}..."`);
+      return false;
+    }
+    
+    return true;
+  });
+
+  // Join back
+  let cleaned = cleanedLines.join('\n').trim();
+
+  // If we removed everything or left too little, use failsafe
+  if (!cleaned || cleaned.length < 10) {
+    console.warn('[PostLLM Filter] Message too short after filtering, using failsafe');
+    cleaned = userLanguage === 'he' ? HEBREW_FAILSAFE : ENGLISH_FAILSAFE;
+  }
+
+  // Log if we made changes
+  if (cleaned !== text) {
+    console.log(`[PostLLM Filter] Stripped ${text.split('\n').length - cleanedLines.length} lines with forbidden content`);
+  }
+
+  return cleaned;
+}
 
 Deno.serve(async (req) => {
   try {
-    const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const { message_content, conversation_metadata } = await req.json();
+
+    if (!message_content) {
+      return Response.json({ error: 'Missing message_content' }, { status: 400 });
     }
 
-    const { assistant_message, metadata } = await req.json();
+    // Detect language from metadata or content
+    const userLanguage = conversation_metadata?.language || 'en';
 
-    // DIAGNOSIS PATTERNS (hard block)
-    const diagnosisPatterns = [
-      /you (have|are suffering from|show signs of|may have) (depression|anxiety disorder|bipolar|schizophrenia|ptsd|ocd|adhd|bpd|personality disorder)/gi,
-      /\b(diagnose|diagnosis of|clinical diagnosis)\b/gi,
-      /\byou('re| are) (depressed|bipolar|schizophrenic)\b/gi,
-      /\bthis (is|sounds like) (major depression|clinical anxiety|bipolar disorder|ptsd)/gi
-    ];
-
-    // MEDICATION PATTERNS (hard block)
-    const medicationPatterns = [
-      /\b(take|try|start|stop|increase|decrease) (prozac|zoloft|lexapro|xanax|ativan|klonopin|valium|adderall|ritalin|lithium|seroquel|abilify|wellbutrin|cymbalta|effexor|paxil|celexa|buspar)\b/gi,
-      /\b(ssri|snri|benzodiazepine|antidepressant|anti-anxiety medication|mood stabilizer|antipsychotic)\s*(might help|could help|would help|is effective)\b/gi,
-      /\bask your doctor about (medication|meds|prescription)\b/gi
-    ];
-
-    // HARMFUL COPING PATTERNS (replace)
-    const harmfulCopingPatterns = [
-      { pattern: /\b(drink alcohol|have a drink|use alcohol)\b/gi, replacement: 'use healthy coping strategies' },
-      { pattern: /\b(skip meals?|don't eat|avoid eating)\b/gi, replacement: 'maintain regular eating' },
-      { pattern: /\b(isolate yourself|stay away from everyone)\b/gi, replacement: 'take breaks when needed, but stay connected' },
-      { pattern: /\b(push through the pain|ignore your feelings)\b/gi, replacement: 'acknowledge your feelings and pace yourself' }
-    ];
-
-    // OUTCOME GUARANTEE PATTERNS (soften)
-    const guaranteePatterns = [
-      { pattern: /\bthis will (fix|cure|eliminate|get rid of)\b/gi, replacement: 'this might help with' },
-      { pattern: /\byou('ll| will) (definitely |certainly )?feel better\b/gi, replacement: 'you might feel better' },
-      { pattern: /\bthis (always |definitely )?works\b/gi, replacement: 'this often helps' },
-      { pattern: /\bguaranteed to\b/gi, replacement: 'likely to' }
-    ];
-
-    let sanitized_message = assistant_message;
-    let flags = [];
-
-    // BLOCK: Diagnosis language
-    for (const pattern of diagnosisPatterns) {
-      if (pattern.test(sanitized_message)) {
-        flags.push('diagnosis_language_detected');
-        sanitized_message = "I'm not qualified to diagnose. For a professional assessment, please consult a licensed therapist or psychiatrist.";
-        break;
-      }
-    }
-
-    // BLOCK: Medication advice
-    if (flags.length === 0) {
-      for (const pattern of medicationPatterns) {
-        if (pattern.test(sanitized_message)) {
-          flags.push('medication_advice_detected');
-          sanitized_message = "I can't provide medication advice. For questions about medication, please consult your doctor or psychiatrist.";
-          break;
-        }
-      }
-    }
-
-    // REPLACE: Harmful coping
-    if (flags.length === 0) {
-      for (const { pattern, replacement } of harmfulCopingPatterns) {
-        if (pattern.test(sanitized_message)) {
-          flags.push('harmful_coping_replaced');
-          sanitized_message = sanitized_message.replace(pattern, replacement);
-        }
-      }
-    }
-
-    // SOFTEN: Guarantees
-    if (flags.length === 0) {
-      for (const { pattern, replacement } of guaranteePatterns) {
-        if (pattern.test(sanitized_message)) {
-          flags.push('guarantee_language_softened');
-          sanitized_message = sanitized_message.replace(pattern, replacement);
-        }
-      }
-    }
-
-    // LOG INCIDENTS
-    if (flags.length > 0) {
-      // Track safety filter activations
-      base44.analytics.track({
-        eventName: 'post_llm_safety_filter_triggered',
-        properties: {
-          flags: flags.join(', '),
-          original_length: assistant_message.length,
-          sanitized_length: sanitized_message.length,
-          user_email: user.email
-        }
-      });
-    }
+    // Apply filtering
+    const filtered = stripForbiddenContent(message_content, userLanguage);
 
     return Response.json({
-      sanitized_message,
-      flags,
-      was_modified: flags.length > 0
+      filtered_content: filtered,
+      was_modified: filtered !== message_content,
+      original_length: message_content.length,
+      filtered_length: filtered.length
     });
 
   } catch (error) {
-    console.error('Post-LLM safety filter error:', error);
-    return Response.json({ 
-      error: 'Safety filter failed',
-      sanitized_message: "I'm having trouble processing that. Let's try a different approach.",
-      flags: ['filter_error'],
-      was_modified: true
-    }, { status: 500 });
+    console.error('[PostLLM Filter] Error:', error);
+    return Response.json({ error: error.message }, { status: 500 });
   }
 });
