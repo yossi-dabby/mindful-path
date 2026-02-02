@@ -45,7 +45,7 @@ export default function Journal() {
 
   const { data: thoughtJournals, isLoading: isLoadingJournals } = useQuery({
     queryKey: ['thoughtJournals'],
-    queryFn: () => base44.entities.ThoughtJournal.list('-created_date'),
+    queryFn: () => base44.entities.ThoughtJournal.list('-created_date', 30),
     initialData: [],
     refetchOnWindowFocus: false
   });

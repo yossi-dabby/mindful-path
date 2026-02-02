@@ -13,13 +13,13 @@ const COLORS = ['#26A69A', '#9F7AEA', '#F6AD55', '#4299E1', '#ED8936', '#38B2AC'
 export default function EnhancedProgressDashboard() {
   const { data: moodEntries = [] } = useQuery({
     queryKey: ['moodEntries'],
-    queryFn: () => base44.entities.MoodEntry.list('-date', 90),
+    queryFn: () => base44.entities.MoodEntry.list('-date', 30),
     initialData: []
   });
 
   const { data: journalEntries = [] } = useQuery({
     queryKey: ['thoughtJournals'],
-    queryFn: () => base44.entities.ThoughtJournal.list('-created_date', 100),
+    queryFn: () => base44.entities.ThoughtJournal.list('-created_date', 30),
     initialData: []
   });
 

@@ -64,7 +64,7 @@ export default function Home() {
   const { data: recentJournals, isError: journalsError, refetch: refetchJournals } = useQuery({
     queryKey: ['recentJournals'],
     queryFn: async () => {
-      const entries = await base44.entities.ThoughtJournal.list('-created_date', 50);
+      const entries = await base44.entities.ThoughtJournal.list('-created_date', 10);
       return entries;
     },
     initialData: [],
