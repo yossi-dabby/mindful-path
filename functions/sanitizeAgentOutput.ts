@@ -61,6 +61,11 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // CRITICAL: Admin-only function
+    if (user.role !== 'admin') {
+      return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
+    }
+
     const { conversation_id, message_content } = await req.json();
 
     // Case 1: Sanitize a specific message content (live)

@@ -33,6 +33,11 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // CRITICAL: Admin-only function (scheduled automation only)
+    if (user.role !== 'admin') {
+      return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
+    }
+
     const now = new Date();
     const threeDaysAgo = new Date(now - 3 * 24 * 60 * 60 * 1000);
     const fiveDaysAgo = new Date(now - 5 * 24 * 60 * 60 * 1000);
