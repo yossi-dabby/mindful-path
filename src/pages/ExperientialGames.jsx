@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Dialog, DialogPortal, DialogOverlay, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogPortal, DialogOverlay, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, X } from 'lucide-react';
 import { gamesCatalog } from '../components/experiential_games/mindGamesContent';
 import GameCard from '../components/experiential_games/GameCard';
 import MindGamesModalShell from '../components/experiential_games/MindGamesModalShell';
