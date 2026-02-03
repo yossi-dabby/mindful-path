@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { gamesCatalog } from '../components/experiential_games/mindGamesContent';
 import GameCard from '../components/experiential_games/GameCard';
+import MindGamesModalShell, { mindGamesModalStyle } from '../components/experiential_games/MindGamesModalShell';
 import ThoughtQuiz from '../components/experiential_games/ThoughtQuiz';
 import ReframePick from '../components/experiential_games/ReframePick';
 import ValueCompass from '../components/experiential_games/ValueCompass';
@@ -77,8 +78,8 @@ export default function ExperientialGames() {
       {/* Game Modal */}
       <Dialog open={!!activeGame} onOpenChange={handleClose}>
         <DialogContent
-          className="max-w-2xl max-h-[90vh] overflow-y-auto"
-          style={{ borderRadius: '24px' }}
+          className="max-w-2xl"
+          style={mindGamesModalStyle}
           data-testid={activeGame ? `mindgame-modal-${activeGame.slug}` : undefined}
         >
           <DialogHeader>
@@ -86,7 +87,9 @@ export default function ExperientialGames() {
               {activeGame?.title}
             </DialogTitle>
           </DialogHeader>
-          {ActiveGameComponent && <ActiveGameComponent onClose={handleClose} />}
+          <MindGamesModalShell>
+            {ActiveGameComponent && <ActiveGameComponent onClose={handleClose} />}
+          </MindGamesModalShell>
         </DialogContent>
       </Dialog>
     </div>
