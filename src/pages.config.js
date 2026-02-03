@@ -70,6 +70,7 @@ import TestSetupGuide from './pages/TestSetupGuide';
 import ThoughtCoach from './pages/ThoughtCoach';
 import VideoPlayer from './pages/VideoPlayer';
 import Videos from './pages/Videos';
+import ExperientialGames from './pages/ExperientialGames';
 import __Layout from './Layout.jsx';
 
 
@@ -97,6 +98,7 @@ export const PAGES = {
     "ThoughtCoach": ThoughtCoach,
     "VideoPlayer": VideoPlayer,
     "Videos": Videos,
+    "ExperientialGames": ExperientialGames,
 }
 
 export const pagesConfig = {
