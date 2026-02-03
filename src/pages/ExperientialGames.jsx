@@ -79,32 +79,44 @@ export default function ExperientialGames() {
       <Dialog open={!!activeGame} onOpenChange={handleClose}>
         <DialogPortal>
           <DialogOverlay 
-            className="!bg-emerald-50/70 backdrop-blur-sm"
+            className="bg-emerald-50/70 backdrop-blur-sm"
+            style={{
+              background: 'rgba(212, 237, 232, 0.75)',
+              backdropFilter: 'blur(8px)'
+            }}
           />
-          <DialogContent
-            className="w-[92vw] max-w-md sm:max-w-2xl overflow-hidden p-0 border-emerald-100/60"
+          <DialogPrimitive.Content
+            className="fixed left-[50%] top-[50%] z-50 w-[92vw] max-w-md sm:max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-hidden p-0 duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
             style={{
               borderRadius: '24px',
               background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.98), rgba(232, 246, 243, 0.95))',
               backdropFilter: 'blur(16px)',
               boxShadow: '0 16px 48px rgba(38, 166, 154, 0.15), 0 6px 20px rgba(0,0,0,0.05)',
+              border: '1px solid rgba(38, 166, 154, 0.2)',
               maxHeight: '85vh'
             }}
             data-testid={activeGame ? `mindgame-modal-${activeGame.slug}` : undefined}
           >
-            <div className="flex flex-col h-full overflow-hidden">
+            <div className="flex flex-col h-full max-h-[85vh] overflow-hidden">
               <DialogHeader className="px-6 pt-6 pb-4 flex-shrink-0 border-b border-emerald-100/40">
                 <DialogTitle style={{ color: '#1A3A34' }}>
                   {activeGame?.title}
                 </DialogTitle>
               </DialogHeader>
-              <div className="flex-1 overflow-y-auto px-6 py-4">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-4 min-w-0">
                 <MindGamesModalShell>
                   {ActiveGameComponent && <ActiveGameComponent onClose={handleClose} />}
                 </MindGamesModalShell>
               </div>
             </div>
-          </DialogContent>
+            <DialogPrimitive.Close
+              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+              style={{ zIndex: 10 }}
+            >
+              <X className="h-4 w-4" />
+              <span className="sr-only">Close</span>
+            </DialogPrimitive.Close>
+          </DialogPrimitive.Content>
         </DialogPortal>
       </Dialog>
     </div>

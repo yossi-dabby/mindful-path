@@ -30,7 +30,7 @@ export default function CalmBingo({ onClose }) {
             <Button
               key={index}
               variant="outline"
-              className="h-auto py-3 px-3 text-left justify-start relative"
+              className="h-auto py-3 px-3 pr-8 text-left justify-start relative whitespace-normal break-words min-w-0 w-full"
               style={{
                 borderRadius: '12px',
                 borderColor: isSelected
@@ -42,7 +42,7 @@ export default function CalmBingo({ onClose }) {
               }}
               onClick={() => handleTileClick(tile)}
             >
-              <span className="text-xs">{tile}</span>
+              <span className="text-xs leading-tight">{tile}</span>
               {isSelected && (
                 <CheckCircle className="w-4 h-4 text-green-600 absolute top-2 right-2" />
               )}

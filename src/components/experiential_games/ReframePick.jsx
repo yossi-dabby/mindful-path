@@ -30,17 +30,17 @@ export default function ReframePick({ onClose }) {
         background: 'rgba(255, 255, 255, 0.95)',
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
-        <div className="mb-4">
+        <div className="mb-4 w-full min-w-0">
           <p className="text-xs font-medium mb-1" style={{ color: '#5A7A72' }}>
             Situation:
           </p>
-          <p className="text-sm mb-3" style={{ color: '#1A3A34' }}>
+          <p className="text-sm mb-3 break-words whitespace-normal" style={{ color: '#1A3A34' }}>
             {currentItem.situation}
           </p>
           <p className="text-xs font-medium mb-1" style={{ color: '#5A7A72' }}>
             Automatic Thought:
           </p>
-          <p className="text-sm italic" style={{ color: '#1A3A34' }}>
+          <p className="text-sm italic break-words whitespace-normal" style={{ color: '#1A3A34' }}>
             "{currentItem.automaticThought}"
           </p>
         </div>
@@ -58,7 +58,7 @@ export default function ReframePick({ onClose }) {
               <Button
                 key={index}
                 variant="outline"
-                className="w-full justify-start text-left h-auto py-3 px-4"
+                className="w-full justify-start text-left h-auto py-3 px-4 whitespace-normal break-words min-w-0"
                 style={{
                   borderRadius: '12px',
                   borderColor: showResult
@@ -79,8 +79,8 @@ export default function ReframePick({ onClose }) {
                 onClick={() => !showResult && handleChoice(index)}
                 disabled={showResult}
               >
-                <div className="flex items-start gap-2 w-full">
-                  <span className="flex-1">{choice}</span>
+                <div className="flex items-start gap-2 w-full min-w-0">
+                  <span className="flex-1 break-words whitespace-normal leading-snug text-sm">{choice}</span>
                   {showResult && isBest && <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />}
                   {showResult && isSelected && !isBest && <XCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />}
                 </div>
