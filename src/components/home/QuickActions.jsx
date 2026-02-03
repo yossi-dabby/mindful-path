@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { Card, CardContent } from '@/components/ui/card';
-import { MessageCircle, BookOpen, Target, Dumbbell, Play, Sparkles, MapPin, User } from 'lucide-react';
+import { MessageCircle, BookOpen, Target, Dumbbell, Play, Sparkles, Puzzle, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // THERAPEUTIC ACTIONS - Route to AI Chat with Intent
@@ -38,13 +38,14 @@ const therapeuticActions = [
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%204.mp4?alt=media&token=389888db-76eb-42e4-ba04-6b62335217cb'
   },
   {
-    title: 'Grounding Exercise',
-    description: 'Calm anxiety',
-    icon: Sparkles,
-    intent: 'grounding',
+    title: 'Mind Games',
+    description: 'Quick mental exercises',
+    icon: Puzzle,
+    page: 'ExperientialGames',
     color: '#4299E1',
     bgColor: 'rgba(66, 153, 225, 0.15)',
-    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%205.mp4?alt=media&token=905b8eb3-09ba-4f02-ba8e-930b44dd5070'
+    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%205.mp4?alt=media&token=905b8eb3-09ba-4f02-ba8e-930b44dd5070',
+    testIds: ['quickaction-grounding', 'quickaction-mindgames']
   }
 ];
 
@@ -98,8 +99,14 @@ export default function QuickActions() {
                 whileHover={{ scale: 1.04, y: -6 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <Link to={action.intent ? createPageUrl('Chat', `intent=${action.intent}`) : createPageUrl(action.page)}>
-                  <Card className="border-0 hover:shadow-xl transition-all cursor-pointer group h-full" style={{
+                <Link 
+                  to={action.intent ? createPageUrl('Chat', `intent=${action.intent}`) : createPageUrl(action.page)}
+                  data-testid={action.testIds ? action.testIds[0] : undefined}
+                >
+                  <Card 
+                    className="border-0 hover:shadow-xl transition-all cursor-pointer group h-full" 
+                    data-testid={action.testIds ? action.testIds[1] : undefined}
+                    style={{
                     borderRadius: '28px',
                     background: `linear-gradient(145deg, ${action.bgColor} 0%, rgba(255, 255, 255, 0.7) 100%)`,
                     backdropFilter: 'blur(12px)',
