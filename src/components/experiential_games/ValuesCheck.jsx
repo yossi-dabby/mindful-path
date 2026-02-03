@@ -100,8 +100,8 @@ export default function ValuesCheck({ onClose }) {
           }}>
             <p className="text-sm break-words whitespace-normal mb-3" style={{ color: '#1A3A34' }}>
               {alignment === 'yes' && '✓ Great! Keep moving in this direction.'}
-              {alignment === 'somewhat' && '→ Good awareness. What's one small step toward more alignment?'}
-              {alignment === 'no' && '⚠️ Noticed the gap? That's the first step. Choose one tiny action today.'}
+              {alignment === 'somewhat' && "→ Good awareness. What's one small step toward more alignment?"}
+              {alignment === 'no' && "⚠️ Noticed the gap? That's the first step. Choose one tiny action today."}
             </p>
             <p className="text-xs break-words whitespace-normal" style={{ color: '#5A7A72' }}>
               Values aren't goals to achieve—they're directions to move toward.
