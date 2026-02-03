@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MessageCircle, Sparkles, Heart, TrendingUp, BookOpen, Target } from 'lucide-react';
 import MoodCheckIn from '../components/home/MoodCheckIn';
-import QuickActions from '../components/home/QuickActions';
+import ExperientialCategories from '../components/home/ExperientialCategories';
 import RecentProgress from '../components/home/RecentProgress';
 import ProactiveNudges from '../components/home/ProactiveNudges';
 import WelcomeWizard from '../components/onboarding/WelcomeWizard';
@@ -405,9 +405,9 @@ export default function Home() {
           </Card>
         )}
 
-        {/* Quick Actions */}
+        {/* Experiential Categories */}
         <div className="mt-8">
-          <QuickActions />
+          <ExperientialCategories />
         </div>
         </div>
 
