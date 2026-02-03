@@ -20,6 +20,18 @@ import UrgeSurfing from '../components/experiential_games/UrgeSurfing';
 import WorryTime from '../components/experiential_games/WorryTime';
 import EvidenceBalance from '../components/experiential_games/EvidenceBalance';
 import DefusionCards from '../components/experiential_games/DefusionCards';
+import TIPPSkills from '../components/experiential_games/TIPPSkills';
+import ACCEPTS from '../components/experiential_games/ACCEPTS';
+import WillingHands from '../components/experiential_games/WillingHands';
+import HalfSmile from '../components/experiential_games/HalfSmile';
+import IMPROVE from '../components/experiential_games/IMPROVE';
+import LeavesOnStream from '../components/experiential_games/LeavesOnStream';
+import Expansion from '../components/experiential_games/Expansion';
+import ValuesCheck from '../components/experiential_games/ValuesCheck';
+import ProsAndCons from '../components/experiential_games/ProsAndCons';
+import CheckTheFacts from '../components/experiential_games/CheckTheFacts';
+import SelfSoothe from '../components/experiential_games/SelfSoothe';
+import MountainMeditation from '../components/experiential_games/MountainMeditation';
 
 const gameComponents = {
   ThoughtQuiz,
@@ -34,6 +46,18 @@ const gameComponents = {
   WorryTime,
   EvidenceBalance,
   DefusionCards,
+  TIPPSkills,
+  ACCEPTS,
+  WillingHands,
+  HalfSmile,
+  IMPROVE,
+  LeavesOnStream,
+  Expansion,
+  ValuesCheck,
+  ProsAndCons,
+  CheckTheFacts,
+  SelfSoothe,
+  MountainMeditation,
 };
 
 export default function ExperientialGames() {

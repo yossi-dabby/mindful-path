@@ -21,6 +21,18 @@ const gameMetadata = {
   worry_time: { category: 'CBT', skill: 'cognitive_restructuring' },
   evidence_balance: { category: 'CBT', skill: 'cognitive_restructuring' },
   defusion_cards: { category: 'ACT', skill: 'defusion' },
+  tipp_skills: { category: 'DBT', skill: 'distress_tolerance' },
+  accepts: { category: 'DBT', skill: 'distress_tolerance' },
+  willing_hands: { category: 'DBT', skill: 'emotion_regulation' },
+  half_smile: { category: 'DBT', skill: 'emotion_regulation' },
+  improve: { category: 'DBT', skill: 'distress_tolerance' },
+  leaves_on_stream: { category: 'ACT', skill: 'defusion' },
+  expansion: { category: 'ACT', skill: 'emotion_regulation' },
+  values_check: { category: 'ACT', skill: 'mindfulness' },
+  pros_and_cons: { category: 'DBT', skill: 'emotion_regulation' },
+  check_the_facts: { category: 'DBT', skill: 'emotion_regulation' },
+  self_soothe: { category: 'DBT', skill: 'distress_tolerance' },
+  mountain_meditation: { category: 'ACT', skill: 'mindfulness' },
 };
 
 function getRecommendations(activities) {
