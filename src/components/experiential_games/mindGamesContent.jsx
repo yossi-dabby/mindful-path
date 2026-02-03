@@ -61,6 +61,66 @@ export const gamesCatalog = [
     componentKey: "CalmBingo",
     testId: "mindgame-card-calm-bingo",
   },
+  {
+    id: "dbt_stop",
+    slug: "dbt-stop",
+    title: "STOP Skill",
+    description: "Pause, breathe, and choose a wise next step.",
+    time: "60s",
+    icon: "Puzzle",
+    componentKey: "DBTSTOP",
+    testId: "mindgame-card-dbt-stop",
+  },
+  {
+    id: "opposite_action",
+    slug: "opposite-action",
+    title: "Opposite Action",
+    description: "Match actions to goals, not moods.",
+    time: "90s",
+    icon: "Puzzle",
+    componentKey: "OppositeAction",
+    testId: "mindgame-card-opposite-action",
+  },
+  {
+    id: "urge_surfing",
+    slug: "urge-surfing",
+    title: "Urge Surfing",
+    description: "Ride an urge like a wave for 60 seconds.",
+    time: "60s",
+    icon: "Puzzle",
+    componentKey: "UrgeSurfing",
+    testId: "mindgame-card-urge-surfing",
+  },
+  {
+    id: "worry_time",
+    slug: "worry-time",
+    title: "Worry Time",
+    description: "Park worries now, schedule them later.",
+    time: "60s",
+    icon: "Puzzle",
+    componentKey: "WorryTime",
+    testId: "mindgame-card-worry-time",
+  },
+  {
+    id: "evidence_balance",
+    slug: "evidence-balance",
+    title: "Evidence Balance",
+    description: "Weigh evidence and find a fair conclusion.",
+    time: "120s",
+    icon: "Puzzle",
+    componentKey: "EvidenceBalance",
+    testId: "mindgame-card-evidence-balance",
+  },
+  {
+    id: "defusion_cards",
+    slug: "defusion-cards",
+    title: "Defusion Cards",
+    description: "Unhook from thoughts in a playful way.",
+    time: "60–90s",
+    icon: "Puzzle",
+    componentKey: "DefusionCards",
+    testId: "mindgame-card-defusion-cards",
+  },
 ];
 
 // 1) Thought Quiz (CBT)
@@ -623,4 +683,401 @@ export const calmBingoTiles = [
   "Put phone down for 2 minutes",
   "Smile gently (even 10%)",
   "Choose one tiny next step",
+];
+
+// --------------------
+// 7) DBT STOP Skill
+// --------------------
+export const dbtStopPrompts = [
+  {
+    id: "stop1",
+    trigger: "You feel a strong urge to react immediately.",
+    steps: [
+      { key: "S", label: "Stop", text: "Pause. Don't act yet." },
+      { key: "T", label: "Take a step back", text: "Breathe once. Create a tiny space." },
+      { key: "O", label: "Observe", text: "Notice: thoughts, feelings, body signals." },
+      { key: "P", label: "Proceed mindfully", text: "Choose one wise next step." },
+    ],
+    nextSteps: [
+      "Send a calm, short reply (or wait 10 minutes).",
+      "Ask one clarifying question.",
+      "Do one small grounding action, then decide.",
+    ],
+  },
+  {
+    id: "stop2",
+    trigger: "You're about to avoid something important.",
+    steps: [
+      { key: "S", label: "Stop", text: "Pause avoidance for a moment." },
+      { key: "T", label: "Take a step back", text: "Exhale slowly and reset posture." },
+      { key: "O", label: "Observe", text: "What are you afraid will happen?" },
+      { key: "P", label: "Proceed mindfully", text: "Pick the smallest brave step (10%)." },
+    ],
+    nextSteps: [
+      "Do 2 minutes of the first step only.",
+      "Make it easier: reduce scope by 50%.",
+      "Text someone: 'I'm starting now—wish me luck.'",
+    ],
+  },
+  {
+    id: "stop3",
+    trigger: "You feel criticized and want to defend yourself fast.",
+    steps: [
+      { key: "S", label: "Stop", text: "Hold back the instant response." },
+      { key: "T", label: "Take a step back", text: "Breathe and relax your jaw." },
+      { key: "O", label: "Observe", text: "What's the goal: to win or to repair?" },
+      { key: "P", label: "Proceed mindfully", text: "Respond to the goal, not the heat." },
+    ],
+    nextSteps: [
+      "Say: 'Let me think about that for a moment.'",
+      "Reflect back what you heard in one sentence.",
+      "Ask: 'What would be most helpful right now?'",
+    ],
+  },
+  {
+    id: "stop4",
+    trigger: "You're scrolling/doomscrolling and feel stuck.",
+    steps: [
+      { key: "S", label: "Stop", text: "Pause scrolling now." },
+      { key: "T", label: "Take a step back", text: "Put phone down for one breath." },
+      { key: "O", label: "Observe", text: "Name the feeling in one word." },
+      { key: "P", label: "Proceed mindfully", text: "Choose one small helpful action." },
+    ],
+    nextSteps: [
+      "Drink water and stretch for 30 seconds.",
+      "Open a window or step outside for 1 minute.",
+      "Write one tiny next step and do it.",
+    ],
+  },
+];
+
+// --------------------
+// 8) Opposite Action (DBT)
+// --------------------
+export const oppositeActionItems = [
+  {
+    id: "oa1",
+    emotion: "Anxiety",
+    urge: "Avoid / escape",
+    opposite: "Approach gently",
+    choices: [
+      "Show up for 5 minutes, then reassess.",
+      "Do the smallest first step (10%).",
+      "Ask one question instead of avoiding.",
+    ],
+    note: "Opposite action is for emotions that don't fit the facts or are too intense.",
+  },
+  {
+    id: "oa2",
+    emotion: "Sadness",
+    urge: "Withdraw / isolate",
+    opposite: "Connect or activate",
+    choices: [
+      "Send one simple 'hey' message.",
+      "Step outside for 2 minutes.",
+      "Do a tiny task to build momentum.",
+    ],
+    note: "Small activation often shifts mood more than waiting for motivation.",
+  },
+  {
+    id: "oa3",
+    emotion: "Anger",
+    urge: "Attack / argue",
+    opposite: "Be gentle and effective",
+    choices: [
+      "Lower voice + slow down your words.",
+      "State one need clearly without blame.",
+      "Take a 2-minute pause before replying.",
+    ],
+    note: "Opposite action aims for effectiveness, not 'winning.'",
+  },
+  {
+    id: "oa4",
+    emotion: "Shame",
+    urge: "Hide / disappear",
+    opposite: "Small reveal + self-respect",
+    choices: [
+      "Share a tiny truth with a safe person.",
+      "Stand tall, breathe, and stay present for 30s.",
+      "Do one value-based action anyway.",
+    ],
+    note: "Shame shrinks with safe connection and self-respect actions.",
+  },
+  {
+    id: "oa5",
+    emotion: "Guilt (too much)",
+    urge: "Over-apologize / self-punish",
+    opposite: "Repair effectively",
+    choices: [
+      "Apologize once, then propose one repair step.",
+      "Ask what would help and listen.",
+      "Stop repeating apologies; act instead.",
+    ],
+    note: "Effective repair beats endless self-blame.",
+  },
+  {
+    id: "oa6",
+    emotion: "Fear of rejection",
+    urge: "People-please / over-text",
+    opposite: "Balanced boundary",
+    choices: [
+      "Send one message, then wait.",
+      "Do one self-caring action while you wait.",
+      "Remind yourself: 'I can handle uncertainty.'",
+    ],
+    note: "Opposite action builds tolerance for uncertainty.",
+  },
+];
+
+// --------------------
+// 9) Urge Surfing (DBT)
+// --------------------
+export const urgeSurfingSteps = [
+  {
+    id: "us1",
+    title: "Ride the wave (60 seconds)",
+    steps: [
+      "Name the urge: 'I'm having the urge to ____.'",
+      "Rate intensity 0–10.",
+      "Notice where it lives in the body.",
+      "Breathe slowly for 5 breaths.",
+      "Rate intensity again. (Urges rise and fall.)",
+    ],
+    finishChoices: [
+      "Delay 10 minutes (set a timer).",
+      "Do a 2-minute replacement action.",
+      "Ask for support (one message).",
+    ],
+  },
+  {
+    id: "us2",
+    title: "Surf + redirect",
+    steps: [
+      "Name the urge without judging it.",
+      "Imagine it as a wave—rising, cresting, passing.",
+      "Relax shoulders and jaw.",
+      "Pick one value-based micro-action.",
+    ],
+    finishChoices: [
+      "Take 10% of a helpful step.",
+      "Move your body for 60 seconds.",
+      "Drink water + reset posture.",
+    ],
+  },
+];
+
+// --------------------
+// 10) Worry Time (CBT)
+// --------------------
+export const worryTimeItems = [
+  {
+    id: "wt1",
+    worry: "What if I mess up tomorrow?",
+    parkIt: "I'll think about this during Worry Time at 6:00 PM for 10 minutes.",
+    tinyNow: [
+      "Write one small preparation step.",
+      "Do 2 minutes of that step now.",
+      "Then return to the present task.",
+    ],
+  },
+  {
+    id: "wt2",
+    worry: "What if they're mad at me?",
+    parkIt: "I'll revisit this at 7:00 PM for 10 minutes, then decide on a calm follow-up.",
+    tinyNow: [
+      "List 2 alternative explanations.",
+      "Wait 30 minutes before acting.",
+      "Do one calming reset (5 breaths).",
+    ],
+  },
+  {
+    id: "wt3",
+    worry: "What if something bad happens?",
+    parkIt: "I'll schedule Worry Time at 5:30 PM for 10 minutes and focus on what's controllable.",
+    tinyNow: [
+      "Name 1 thing you can control today.",
+      "Do the smallest step toward it.",
+      "Return attention to the room.",
+    ],
+  },
+  {
+    id: "wt4",
+    worry: "I'm behind; I'll never catch up.",
+    parkIt: "I'll worry about this at 6:30 PM for 10 minutes and make a realistic plan.",
+    tinyNow: [
+      "Pick the single next step.",
+      "Work 2 minutes on it.",
+      "Stop and acknowledge progress.",
+    ],
+  },
+  {
+    id: "wt5",
+    worry: "What if I disappoint people?",
+    parkIt: "I'll revisit this at 8:00 PM for 10 minutes and choose a value-based action.",
+    tinyNow: [
+      "Ask: 'What matters to me here?'",
+      "Choose one respectful sentence/boundary.",
+      "Delay responding for 10 minutes.",
+    ],
+  },
+  {
+    id: "wt6",
+    worry: "What if I can't handle it?",
+    parkIt: "I'll schedule Worry Time at 7:30 PM for 10 minutes and review coping options.",
+    tinyNow: [
+      "Write 1 coping tool you already use.",
+      "Use it for 60 seconds.",
+      "Continue with the next small task.",
+    ],
+  },
+];
+
+// --------------------
+// 11) Evidence Balance (CBT)
+// --------------------
+export const evidenceBalanceItems = [
+  {
+    id: "eb1",
+    thought: "I always mess things up.",
+    evidenceFor: [
+      "I made a mistake recently.",
+      "I remember failures more than successes.",
+    ],
+    evidenceAgainst: [
+      "I've done many things well.",
+      "One mistake doesn't define 'always'.",
+    ],
+    balancedConclusion:
+      "I've made mistakes and also succeeded. I can learn and improve.",
+  },
+  {
+    id: "eb2",
+    thought: "They don't like me.",
+    evidenceFor: [
+      "They replied late once.",
+      "They were quiet last time.",
+    ],
+    evidenceAgainst: [
+      "They've been friendly before.",
+      "There are many reasons for silence.",
+    ],
+    balancedConclusion:
+      "I don't know their thoughts. I can check in calmly or wait for more info.",
+  },
+  {
+    id: "eb3",
+    thought: "If I'm anxious, I can't cope.",
+    evidenceFor: [
+      "Anxiety feels intense.",
+      "I want to escape when anxious.",
+    ],
+    evidenceAgainst: [
+      "I've coped with anxiety before.",
+      "Anxiety rises and falls.",
+    ],
+    balancedConclusion:
+      "Anxiety is uncomfortable but manageable. I can act while it's present.",
+  },
+  {
+    id: "eb4",
+    thought: "I'm not improving.",
+    evidenceFor: [
+      "Progress feels slow.",
+      "I compare myself to others.",
+    ],
+    evidenceAgainst: [
+      "I've taken small steps.",
+      "Learning is gradual.",
+    ],
+    balancedConclusion:
+      "Progress can be slow and real. Small steps still count.",
+  },
+  {
+    id: "eb5",
+    thought: "I must do everything perfectly.",
+    evidenceFor: [
+      "I value quality.",
+      "Perfection sometimes prevents criticism.",
+    ],
+    evidenceAgainst: [
+      "Perfect isn't required to succeed.",
+      "Good-enough frees time and reduces stress.",
+    ],
+    balancedConclusion:
+      "I can aim for quality while allowing 'good enough' when it's effective.",
+  },
+  {
+    id: "eb6",
+    thought: "If I say no, I'll be rejected.",
+    evidenceFor: [
+      "I worry about disappointing people.",
+      "I've had conflict before.",
+    ],
+    evidenceAgainst: [
+      "Many people respect boundaries.",
+      "I can say no politely and offer alternatives.",
+    ],
+    balancedConclusion:
+      "Saying no respectfully protects relationships and my wellbeing.",
+  },
+];
+
+// --------------------
+// 12) Defusion Cards (ACT)
+// --------------------
+export const defusionCards = [
+  {
+    id: "df1",
+    thought: "I'm not good enough.",
+    defuseLines: [
+      "I'm having the thought that I'm not good enough.",
+      "Thanks, mind. Interesting story.",
+      "This is a thought, not a fact.",
+    ],
+  },
+  {
+    id: "df2",
+    thought: "Something bad will happen.",
+    defuseLines: [
+      "I'm noticing a 'danger prediction' thought.",
+      "My mind is trying to protect me.",
+      "I can take one small step anyway.",
+    ],
+  },
+  {
+    id: "df3",
+    thought: "They're judging me.",
+    defuseLines: [
+      "I'm having the thought they're judging me.",
+      "I can't read minds. I can act on my values.",
+      "Let this thought ride in the back seat.",
+    ],
+  },
+  {
+    id: "df4",
+    thought: "I can't handle this feeling.",
+    defuseLines: [
+      "I'm noticing the thought 'I can't handle it'.",
+      "Feelings are waves; they change.",
+      "I can make room and keep going.",
+    ],
+  },
+  {
+    id: "df5",
+    thought: "I must fix everything now.",
+    defuseLines: [
+      "There's the 'urgent fixer' thought.",
+      "I can pause and choose one wise next step.",
+      "Slow is smooth; smooth is fast.",
+    ],
+  },
+  {
+    id: "df6",
+    thought: "If it's hard, I should quit.",
+    defuseLines: [
+      "I'm having the thought 'quit'.",
+      "Hard can mean 'new', not 'wrong'.",
+      "I can do the smallest version (10%).",
+    ],
+  },
 ];
