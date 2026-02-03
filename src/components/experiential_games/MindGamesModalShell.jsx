@@ -3,6 +3,7 @@ import React from 'react';
 /**
  * Shared styling shell for all Mind Games modals
  * Ensures consistent mint/teal theme across all mini-games
+ * Handles mobile-safe sizing and scrolling automatically
  */
 export default function MindGamesModalShell({ children, title }) {
   return (
@@ -18,26 +19,3 @@ export default function MindGamesModalShell({ children, title }) {
     </div>
   );
 }
-
-/**
- * Shared overlay styling (for Dialog component)
- * Apply to DialogContent via className
- */
-export const mindGamesOverlayClass = `
-  data-[state=open]:bg-[rgba(180,220,210,0.85)]
-  backdrop-blur-sm
-`;
-
-/**
- * Shared modal content styling
- * Apply to DialogContent via style prop
- */
-export const mindGamesModalStyle = {
-  borderRadius: '24px',
-  background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(232, 246, 243, 0.95) 100%)',
-  backdropFilter: 'blur(16px)',
-  boxShadow: '0 16px 48px rgba(38, 166, 154, 0.15), 0 6px 20px rgba(0,0,0,0.05)',
-  border: '1px solid rgba(38, 166, 154, 0.2)',
-  maxHeight: '90vh',
-  overflowY: 'auto'
-};

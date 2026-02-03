@@ -79,24 +79,31 @@ export default function ExperientialGames() {
       <Dialog open={!!activeGame} onOpenChange={handleClose}>
         <DialogPortal>
           <DialogOverlay 
-            style={{
-              background: 'rgba(180, 220, 210, 0.85)',
-              backdropFilter: 'blur(8px)'
-            }}
+            className="!bg-emerald-50/70 backdrop-blur-sm"
           />
           <DialogContent
-            className="max-w-2xl"
-            style={mindGamesModalStyle}
+            className="w-[92vw] max-w-md sm:max-w-2xl max-h-[85vh] overflow-hidden p-0"
+            style={{
+              borderRadius: '24px',
+              background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.98), rgba(232, 246, 243, 0.95))',
+              backdropFilter: 'blur(16px)',
+              boxShadow: '0 16px 48px rgba(38, 166, 154, 0.15), 0 6px 20px rgba(0,0,0,0.05)',
+              border: '1px solid rgba(38, 166, 154, 0.2)'
+            }}
             data-testid={activeGame ? `mindgame-modal-${activeGame.slug}` : undefined}
           >
-            <DialogHeader>
-              <DialogTitle style={{ color: '#1A3A34' }}>
-                {activeGame?.title}
-              </DialogTitle>
-            </DialogHeader>
-            <MindGamesModalShell>
-              {ActiveGameComponent && <ActiveGameComponent onClose={handleClose} />}
-            </MindGamesModalShell>
+            <div className="flex flex-col max-h-[85vh] overflow-hidden">
+              <DialogHeader className="px-6 pt-6 pb-4 flex-shrink-0">
+                <DialogTitle style={{ color: '#1A3A34' }}>
+                  {activeGame?.title}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="flex-1 overflow-y-auto px-6 pb-6">
+                <MindGamesModalShell>
+                  {ActiveGameComponent && <ActiveGameComponent onClose={handleClose} />}
+                </MindGamesModalShell>
+              </div>
+            </div>
           </DialogContent>
         </DialogPortal>
       </Dialog>
