@@ -1,0 +1,118 @@
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { dbtStopPrompts } from './mindGamesContent';
+
+export default function DBTSTOP({ onClose }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedNext, setSelectedNext] = useState(null);
+
+  const currentPrompt = dbtStopPrompts[currentIndex];
+
+  const handleNextStep = (step) => {
+    setSelectedNext(step);
+  };
+
+  const handleTryAnother = () => {
+    const randomIndex = Math.floor(Math.random() * dbtStopPrompts.length);
+    setCurrentIndex(randomIndex);
+    setSelectedNext(null);
+  };
+
+  return (
+    <div className="space-y-4 w-full min-w-0">
+      <Card className="p-6 border-0" style={{
+        borderRadius: '20px',
+        background: 'rgba(255, 255, 255, 0.95)',
+        border: '1px solid rgba(38, 166, 154, 0.2)'
+      }}>
+        <p className="text-xs font-medium mb-3" style={{ color: '#5A7A72' }}>
+          Trigger:
+        </p>
+        <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: '#1A3A34' }}>
+          {currentPrompt.trigger}
+        </p>
+
+        <div className="space-y-3 mb-4">
+          {currentPrompt.steps.map((step, index) => (
+            <div key={index} className="flex gap-3">
+              <div 
+                className="w-8 h-8 flex-shrink-0 flex items-center justify-center font-bold text-white"
+                style={{
+                  borderRadius: '10px',
+                  backgroundColor: '#26A69A'
+                }}
+              >
+                {step.key}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium mb-1 break-words" style={{ color: '#1A3A34' }}>
+                  {step.label}
+                </p>
+                <p className="text-xs break-words whitespace-normal" style={{ color: '#5A7A72' }}>
+                  {step.text}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <p className="text-sm font-semibold mb-3" style={{ color: '#1A3A34' }}>
+          Choose one wise next step:
+        </p>
+
+        <div className="space-y-2">
+          {currentPrompt.nextSteps.map((step, index) => (
+            <Button
+              key={index}
+              variant="outline"
+              className="w-full justify-start text-left h-auto py-3 px-4 whitespace-normal break-words min-w-0"
+              style={{
+                borderRadius: '12px',
+                borderColor: selectedNext === step
+                  ? 'rgba(34, 197, 94, 0.4)'
+                  : 'rgba(38, 166, 154, 0.2)',
+                backgroundColor: selectedNext === step
+                  ? 'rgba(34, 197, 94, 0.1)'
+                  : 'transparent'
+              }}
+              onClick={() => handleNextStep(step)}
+            >
+              <span className="text-sm leading-snug">{step}</span>
+            </Button>
+          ))}
+        </div>
+
+        {selectedNext && (
+          <div className="mt-4 p-3" style={{
+            borderRadius: '12px',
+            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+            border: '1px solid rgba(34, 197, 94, 0.2)'
+          }}>
+            <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
+              ✓ You chose: <span className="break-words">{selectedNext}</span>
+            </p>
+          </div>
+        )}
+      </Card>
+
+      <div className="flex gap-3 justify-end">
+        <Button variant="outline" onClick={onClose} style={{ borderRadius: '12px' }}>
+          Close
+        </Button>
+        {selectedNext && (
+          <Button
+            onClick={handleTryAnother}
+            style={{
+              borderRadius: '12px',
+              backgroundColor: '#26A69A',
+              color: 'white'
+            }}
+          >
+            Try Another
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}

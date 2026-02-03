@@ -12,6 +12,12 @@ import ValueCompass from '../components/experiential_games/ValueCompass';
 import TinyExperiment from '../components/experiential_games/TinyExperiment';
 import QuickWin from '../components/experiential_games/QuickWin';
 import CalmBingo from '../components/experiential_games/CalmBingo';
+import DBTSTOP from '../components/experiential_games/DBTSTOP';
+import OppositeAction from '../components/experiential_games/OppositeAction';
+import UrgeSurfing from '../components/experiential_games/UrgeSurfing';
+import WorryTime from '../components/experiential_games/WorryTime';
+import EvidenceBalance from '../components/experiential_games/EvidenceBalance';
+import DefusionCards from '../components/experiential_games/DefusionCards';
 
 const gameComponents = {
   ThoughtQuiz,
@@ -20,6 +26,12 @@ const gameComponents = {
   TinyExperiment,
   QuickWin,
   CalmBingo,
+  DBTSTOP,
+  OppositeAction,
+  UrgeSurfing,
+  WorryTime,
+  EvidenceBalance,
+  DefusionCards,
 };
 
 export default function ExperientialGames() {
