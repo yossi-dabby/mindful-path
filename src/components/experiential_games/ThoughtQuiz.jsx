@@ -10,7 +10,7 @@ export default function ThoughtQuiz({ onClose }) {
   const [showExplanation, setShowExplanation] = useState(false);
   const [score, setScore] = useState(0);
 
-  const currentItem = thoughtQuizItems[currentIndex];
+  const currentItem = questionPool[currentIndex];
 
   const handleAnswer = (index) => {
     setSelectedOption(index);

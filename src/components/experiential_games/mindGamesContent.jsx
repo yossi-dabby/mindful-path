@@ -283,6 +283,70 @@ export const thoughtQuizItems = [
   },
 ];
 
+// Advanced Thought Quiz items
+export const thoughtQuizItemsAdvanced = [
+  {
+    id: "tq_adv1",
+    prompt: "I received constructive feedback, but all I can think about is the one negative comment buried in it.",
+    options: [
+      "Mental filter",
+      "Overgeneralization",
+      "Personalization",
+      "Emotional reasoning",
+    ],
+    correctIndex: 0,
+    explanation: "You're filtering out the positive and focusing only on the negative detail.",
+  },
+  {
+    id: "tq_adv2",
+    prompt: "If I set boundaries, people will see me as selfish and abandon me.",
+    options: [
+      "Fortune telling + labeling",
+      "Mind reading + catastrophizing",
+      "Should statements",
+      "Emotional reasoning",
+    ],
+    correctIndex: 1,
+    explanation: "This combines mind reading (knowing what they'll think) with catastrophizing (predicting abandonment).",
+  },
+  {
+    id: "tq_adv3",
+    prompt: "I didn't get the promotion, which proves I'm not competent enough, and I never will be.",
+    options: [
+      "Fortune telling + labeling",
+      "All-or-nothing thinking",
+      "Discounting the positive",
+      "Personalization",
+    ],
+    correctIndex: 0,
+    explanation: "This creates a fixed label and predicts a permanent future based on one event.",
+  },
+  {
+    id: "tq_adv4",
+    prompt: "My colleague was curt with me today. I must have done something to upset them, and now the whole team probably thinks poorly of me.",
+    options: [
+      "Personalization + magnification + mind reading",
+      "Catastrophizing + overgeneralization",
+      "Mental filter + should statements",
+      "Emotional reasoning",
+    ],
+    correctIndex: 0,
+    explanation: "This combines taking personal blame, blowing up the impact, and assuming you know what others think.",
+  },
+  {
+    id: "tq_adv5",
+    prompt: "I feel uncertain about this decision, which means I'm making the wrong choice.",
+    options: [
+      "Emotional reasoning",
+      "Fortune telling",
+      "All-or-nothing thinking",
+      "Catastrophizing",
+    ],
+    correctIndex: 0,
+    explanation: "The feeling of uncertainty is treated as evidence of a bad decision, not just a normal part of choosing.",
+  },
+];
+
 // 2) Reframe Pick (CBT)
 export const reframePickItems = [
   {
@@ -832,6 +896,7 @@ export const oppositeActionItems = [
 // --------------------
 // 9) Urge Surfing (DBT)
 // --------------------
+// Beginner: More guided, simpler prompts
 export const urgeSurfingSteps = [
   {
     id: "us1",
@@ -862,6 +927,41 @@ export const urgeSurfingSteps = [
       "Take 10% of a helpful step.",
       "Move your body for 60 seconds.",
       "Drink water + reset posture.",
+    ],
+  },
+];
+
+// Advanced Urge Surfing: More independence, less guidance
+export const urgeSurfingStepsAdvanced = [
+  {
+    id: "us_adv1",
+    title: "Surf independently (90 seconds)",
+    steps: [
+      "Name and rate the urge (0-10).",
+      "Locate it in your body.",
+      "Breathe with it for 10 breaths.",
+      "Notice the peak and decline.",
+      "Rate it again.",
+    ],
+    finishChoices: [
+      "Delay 20 minutes and reassess.",
+      "Do the opposite action for 5 minutes.",
+      "Journal about what you noticed.",
+    ],
+  },
+  {
+    id: "us_adv2",
+    title: "Surf + value-based action",
+    steps: [
+      "Acknowledge the urge without judgment.",
+      "Watch it like a scientist observing data.",
+      "Let it peak naturally.",
+      "Choose one value-aligned micro-step.",
+    ],
+    finishChoices: [
+      "Do the tiny step immediately.",
+      "Practice the skill again in 1 hour.",
+      "Note what worked for next time.",
     ],
   },
 ];

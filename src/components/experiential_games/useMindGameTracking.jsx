@@ -21,7 +21,15 @@ export function useMindGameTracking() {
   const queryClient = useQueryClient();
 
   const trackGamePlay = useMutation({
-    mutationFn: async ({ game, completed = false, durationSeconds = 0, rating = null }) => {
+    mutationFn: async ({ 
+      game, 
+      completed = false, 
+      durationSeconds = 0, 
+      rating = null,
+      difficulty_level = 'beginner',
+      success_rate = null,
+      attempts = 1
+    }) => {
       const metadata = gameMetadata[game.id] || { category: 'CBT', skill: 'mindfulness' };
       
       return base44.entities.MindGameActivity.create({
@@ -33,6 +41,9 @@ export function useMindGameTracking() {
         completed,
         duration_seconds: durationSeconds,
         rating,
+        difficulty_level,
+        success_rate,
+        attempts,
       });
     },
     onSuccess: () => {

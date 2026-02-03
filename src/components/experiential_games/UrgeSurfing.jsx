@@ -1,21 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { urgeSurfingSteps } from './mindGamesContent';
+import { Badge } from '@/components/ui/badge';
+import { urgeSurfingSteps, urgeSurfingStepsAdvanced } from './mindGamesContent';
+import { useAdaptiveDifficulty } from './useAdaptiveDifficulty';
+import { useMindGameTracking } from './useMindGameTracking';
 
 export default function UrgeSurfing({ onClose }) {
+  const { suggestedDifficulty } = useAdaptiveDifficulty('urge_surfing');
+  const { trackGamePlay } = useMindGameTracking();
+  
+  const [difficulty, setDifficulty] = useState(suggestedDifficulty);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedFinish, setSelectedFinish] = useState(null);
+  const [completedCount, setCompletedCount] = useState(0);
 
-  const currentItem = urgeSurfingSteps[currentIndex];
+  const stepsPool = difficulty === 'advanced' ? urgeSurfingStepsAdvanced : urgeSurfingSteps;
+  const currentItem = stepsPool[currentIndex];
+  
+  useEffect(() => {
+    return () => {
+      if (completedCount > 0) {
+        trackGamePlay({
+          game: { id: 'urge_surfing', slug: 'urge-surfing', title: 'Urge Surfing' },
+          completed: true,
+          durationSeconds: completedCount * 60,
+          difficulty_level: difficulty,
+          success_rate: 100,
+          attempts: completedCount,
+        });
+      }
+    };
+  }, [completedCount, difficulty]);
 
   const handleFinishChoice = (choice) => {
     setSelectedFinish(choice);
+    setCompletedCount(prev => prev + 1);
   };
 
   const handleNext = () => {
-    const nextIndex = (currentIndex + 1) % urgeSurfingSteps.length;
+    const nextIndex = (currentIndex + 1) % stepsPool.length;
     setCurrentIndex(nextIndex);
+    setSelectedFinish(null);
+  };
+  
+  const handleDifficultyChange = (newDifficulty) => {
+    setDifficulty(newDifficulty);
+    setCurrentIndex(0);
     setSelectedFinish(null);
   };
 
@@ -26,6 +57,43 @@ export default function UrgeSurfing({ onClose }) {
         background: 'rgba(255, 255, 255, 0.95)',
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
+        <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
+          <Badge variant="outline" style={{
+            borderRadius: '8px',
+            borderColor: 'rgba(38, 166, 154, 0.3)',
+            color: '#26A69A'
+          }}>
+            Completed: {completedCount}
+          </Badge>
+          
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleDifficultyChange('beginner')}
+              className="px-3 py-1 text-xs rounded-lg transition-all"
+              style={{
+                backgroundColor: difficulty === 'beginner' ? 'rgba(38, 166, 154, 0.2)' : 'transparent',
+                border: `1px solid ${difficulty === 'beginner' ? '#26A69A' : 'rgba(38, 166, 154, 0.3)'}`,
+                color: difficulty === 'beginner' ? '#26A69A' : '#5A7A72',
+                fontWeight: difficulty === 'beginner' ? '600' : '400'
+              }}
+            >
+              Guided
+            </button>
+            <button
+              onClick={() => handleDifficultyChange('advanced')}
+              className="px-3 py-1 text-xs rounded-lg transition-all"
+              style={{
+                backgroundColor: difficulty === 'advanced' ? 'rgba(38, 166, 154, 0.2)' : 'transparent',
+                border: `1px solid ${difficulty === 'advanced' ? '#26A69A' : 'rgba(38, 166, 154, 0.3)'}`,
+                color: difficulty === 'advanced' ? '#26A69A' : '#5A7A72',
+                fontWeight: difficulty === 'advanced' ? '600' : '400'
+              }}
+            >
+              Independent
+            </button>
+          </div>
+        </div>
+        
         <p className="text-sm font-semibold mb-4 break-words" style={{ color: '#1A3A34' }}>
           {currentItem.title}
         </p>
