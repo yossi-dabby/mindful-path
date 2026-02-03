@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogPortal, DialogOverlay, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { gamesCatalog } from '../components/experiential_games/mindGamesContent';
@@ -77,20 +77,28 @@ export default function ExperientialGames() {
 
       {/* Game Modal */}
       <Dialog open={!!activeGame} onOpenChange={handleClose}>
-        <DialogContent
-          className="max-w-2xl"
-          style={mindGamesModalStyle}
-          data-testid={activeGame ? `mindgame-modal-${activeGame.slug}` : undefined}
-        >
-          <DialogHeader>
-            <DialogTitle style={{ color: '#1A3A34' }}>
-              {activeGame?.title}
-            </DialogTitle>
-          </DialogHeader>
-          <MindGamesModalShell>
-            {ActiveGameComponent && <ActiveGameComponent onClose={handleClose} />}
-          </MindGamesModalShell>
-        </DialogContent>
+        <DialogPortal>
+          <DialogOverlay 
+            style={{
+              background: 'rgba(180, 220, 210, 0.85)',
+              backdropFilter: 'blur(8px)'
+            }}
+          />
+          <DialogContent
+            className="max-w-2xl"
+            style={mindGamesModalStyle}
+            data-testid={activeGame ? `mindgame-modal-${activeGame.slug}` : undefined}
+          >
+            <DialogHeader>
+              <DialogTitle style={{ color: '#1A3A34' }}>
+                {activeGame?.title}
+              </DialogTitle>
+            </DialogHeader>
+            <MindGamesModalShell>
+              {ActiveGameComponent && <ActiveGameComponent onClose={handleClose} />}
+            </MindGamesModalShell>
+          </DialogContent>
+        </DialogPortal>
       </Dialog>
     </div>
   );
