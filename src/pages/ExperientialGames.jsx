@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogPortal, DialogOverlay, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { Button } from '@/components/ui/button';
@@ -6,6 +6,8 @@ import { ArrowLeft, X } from 'lucide-react';
 import { gamesCatalog } from '../components/experiential_games/mindGamesContent';
 import GameCard from '../components/experiential_games/GameCard';
 import MindGamesModalShell from '../components/experiential_games/MindGamesModalShell';
+import MindGameRecommendations from '../components/experiential_games/MindGameRecommendations';
+import { useMindGameTracking } from '../components/experiential_games/useMindGameTracking';
 import ThoughtQuiz from '../components/experiential_games/ThoughtQuiz';
 import ReframePick from '../components/experiential_games/ReframePick';
 import ValueCompass from '../components/experiential_games/ValueCompass';
@@ -36,13 +38,27 @@ const gameComponents = {
 
 export default function ExperientialGames() {
   const [activeGame, setActiveGame] = useState(null);
+  const [gameStartTime, setGameStartTime] = useState(null);
+  const { trackGamePlay } = useMindGameTracking();
 
   const handleGameClick = (game) => {
     setActiveGame(game);
+    setGameStartTime(Date.now());
   };
 
   const handleClose = () => {
+    // Track game play when closing
+    if (activeGame && gameStartTime) {
+      const durationSeconds = Math.floor((Date.now() - gameStartTime) / 1000);
+      trackGamePlay({
+        game: activeGame,
+        completed: durationSeconds >= 30, // Consider completed if played for 30+ seconds
+        durationSeconds,
+      });
+    }
+    
     setActiveGame(null);
+    setGameStartTime(null);
   };
 
   const ActiveGameComponent = activeGame ? gameComponents[activeGame.componentKey] : null;
@@ -74,6 +90,9 @@ export default function ExperientialGames() {
             Quick, playful CBT/ACT/DBT micro-activities (30–120 seconds)
           </p>
         </div>
+
+        {/* Recommendations */}
+        <MindGameRecommendations onGameSelect={handleGameClick} />
 
         {/* Games Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
