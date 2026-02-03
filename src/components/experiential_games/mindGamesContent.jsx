@@ -1301,3 +1301,166 @@ export const defusionCards = [
     ],
   },
 ];
+
+// --------------------
+// 13) TIPP Skills (DBT)
+// --------------------
+export const tippSkillsItems = [
+  {
+    id: "tipp1",
+    situation: "Your emotions are at 8/10 or higher and you need to come down fast.",
+    skills: [
+      { letter: "T", name: "Temperature", description: "Cold water on face, ice cube, cold shower" },
+      { letter: "I", name: "Intense exercise", description: "Run, jump, push-ups for 60 seconds" },
+      { letter: "P", name: "Paced breathing", description: "Breathe out longer than in (4 in / 6 out)" },
+      { letter: "P", name: "Paired muscle relaxation", description: "Tense then release muscle groups" },
+    ],
+    actions: [
+      "Splash cold water on your face for 30 seconds.",
+      "Do 20 jumping jacks right now.",
+      "Breathe: 4 in, hold 4, 6 out—repeat 5 times.",
+    ],
+  },
+];
+
+// --------------------
+// 14) ACCEPTS (DBT)
+// --------------------
+export const acceptsItems = [
+  {
+    letter: "A",
+    name: "Activities",
+    description: "Do something engaging",
+    action: "Watch a 5-minute video, play a quick game, or clean one surface.",
+  },
+  {
+    letter: "C",
+    name: "Contributing",
+    description: "Help someone else",
+    action: "Send a kind message, do one helpful thing, or share something useful.",
+  },
+  {
+    letter: "C",
+    name: "Comparisons",
+    description: "Compare to when you coped before",
+    action: "Remember: You've survived 100% of your worst days so far.",
+  },
+  {
+    letter: "E",
+    name: "Emotions",
+    description: "Create a different emotion",
+    action: "Watch something funny, listen to upbeat music, or read something calming.",
+  },
+  {
+    letter: "P",
+    name: "Pushing away",
+    description: "Mentally put the situation aside",
+    action: "Imagine putting the problem in a box on a shelf for later.",
+  },
+  {
+    letter: "T",
+    name: "Thoughts",
+    description: "Fill your mind with other thoughts",
+    action: "Count backwards from 100 by 7s, list countries A-Z, or describe the room.",
+  },
+  {
+    letter: "S",
+    name: "Sensations",
+    description: "Create strong physical sensations",
+    action: "Hold ice, take a hot/cold shower, or squeeze a stress ball hard.",
+  },
+];
+
+// --------------------
+// 15) IMPROVE (DBT)
+// --------------------
+export const improveItems = [
+  {
+    letter: "I",
+    name: "Imagery",
+    description: "Visualize a peaceful or safe place",
+    quickAction: "Close your eyes. Picture a place you feel calm (real or imagined).",
+  },
+  {
+    letter: "M",
+    name: "Meaning",
+    description: "Find purpose in the pain",
+    quickAction: "Ask: What can I learn? How might this help me grow?",
+  },
+  {
+    letter: "P",
+    name: "Prayer",
+    description: "Connect to something larger",
+    quickAction: "Say a phrase that grounds you or ask for support from your values/beliefs.",
+  },
+  {
+    letter: "R",
+    name: "Relaxation",
+    description: "Relax your body",
+    quickAction: "Tense and release: shoulders, jaw, hands. Breathe slowly.",
+  },
+  {
+    letter: "O",
+    name: "One thing in the moment",
+    description: "Focus fully on one small task",
+    quickAction: "Pick one action: wash a dish, water a plant, fold one item.",
+  },
+  {
+    letter: "V",
+    name: "Vacation",
+    description: "Take a brief mental break",
+    quickAction: "Give yourself 10 minutes off from the problem. Set a timer.",
+  },
+  {
+    letter: "E",
+    name: "Encouragement",
+    description: "Be your own cheerleader",
+    quickAction: "Say: 'I can handle this. I've done hard things before.'",
+  },
+];
+
+// --------------------
+// 16) Self-Soothe 5 Senses (DBT)
+// --------------------
+export const selfSootheItems = [
+  {
+    sense: "Vision",
+    actions: [
+      "Look at nature or a calming image.",
+      "Watch clouds or water move.",
+      "Light a candle and watch the flame.",
+    ],
+  },
+  {
+    sense: "Hearing",
+    actions: [
+      "Listen to calming music or nature sounds.",
+      "Play a song that makes you feel safe.",
+      "Listen to the sound of rain or wind.",
+    ],
+  },
+  {
+    sense: "Smell",
+    actions: [
+      "Smell something pleasant (lotion, coffee, flowers).",
+      "Light a scented candle or incense.",
+      "Take a deep breath of fresh air.",
+    ],
+  },
+  {
+    sense: "Taste",
+    actions: [
+      "Eat something you enjoy slowly.",
+      "Savor a piece of chocolate or tea.",
+      "Notice the flavors and textures.",
+    ],
+  },
+  {
+    sense: "Touch",
+    actions: [
+      "Hold something soft (blanket, pet).",
+      "Take a warm shower or bath.",
+      "Massage your hands with lotion.",
+    ],
+  },
+];
