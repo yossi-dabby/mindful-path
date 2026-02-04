@@ -2,6 +2,7 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
 import MessageFeedback from './MessageFeedback';
+import { sanitizeMessageContent } from '../utils/messageContentSanitizer';
 
 export default function MessageBubble({ message, conversationId, messageIndex, agentName = 'cbt_therapist', context = 'chat' }) {
   // CRITICAL GATE 1: Strict null/undefined/empty gating
@@ -36,8 +37,10 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
       return null;
     }
     
-    // Use string content directly (already validated as string)
-    content = contentStr;
+    // CRITICAL: Sanitize reasoning leakage (THOUGHT:, PLAN:, etc.)
+    // This is the last line of defense before rendering
+    const sanitized = isUser ? contentStr : sanitizeMessageContent(contentStr, 'auto');
+    content = sanitized;
     
     // CRITICAL GATE 4: Final content validation
     if (!content || content.length < 1) {
