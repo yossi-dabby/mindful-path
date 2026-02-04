@@ -36,14 +36,14 @@ export default function GameCard({ game, onClick, index }) {
             >
               <Puzzle className="w-6 h-6" />
             </div>
-            <div className="flex-1 min-w-0 overflow-hidden">
+            <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2 mb-1 min-w-0">
-                <h3 className="font-semibold text-base break-words line-clamp-2 min-w-0" style={{ color: '#1A3A34' }}>
+                <h3 className="font-semibold text-base break-words min-w-0 overflow-wrap-anywhere" style={{ color: '#1A3A34', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                   {game.titleKey ? t(game.titleKey) : game.title}
                 </h3>
                 <Badge
                   variant="outline"
-                  className="text-xs flex-shrink-0"
+                  className="text-xs flex-shrink-0 whitespace-nowrap"
                   style={{
                     borderRadius: '12px',
                     borderColor: 'rgba(38, 166, 154, 0.3)',
@@ -53,7 +53,7 @@ export default function GameCard({ game, onClick, index }) {
                   {game.time}
                 </Badge>
               </div>
-              <p className="text-sm line-clamp-2 break-words min-w-0 overflow-hidden" style={{ color: '#5A7A72' }}>
+              <p className="text-sm break-words min-w-0" style={{ color: '#5A7A72', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                 {game.descriptionKey ? t(game.descriptionKey) : game.description}
               </p>
             </div>
