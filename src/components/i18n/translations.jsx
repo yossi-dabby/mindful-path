@@ -285,6 +285,22 @@ export const translations = {
           no_available: "No journeys available right now",
           no_in_progress: "You haven't started any journeys yet",
           no_completed: "You haven't completed any journeys yet"
+        },
+        card: {
+          days: "days",
+          steps: "steps",
+          progress: "Progress",
+          start_journey: "Start Journey",
+          view_details: "View Details"
+        },
+        detail: {
+          what_youll_gain: "What you'll gain:",
+          journey_steps: "Journey Steps",
+          day: "Day",
+          play_game: "Play Game",
+          reflection_placeholder: "Your reflection (optional)",
+          saving: "Saving...",
+          mark_complete: "Mark Complete"
         }
       },
       mind_games: {
@@ -643,6 +659,22 @@ export const translations = {
           no_available: "אין מסעות זמינים כרגע",
           no_in_progress: "עדיין לא התחלתם מסעות",
           no_completed: "עדיין לא השלמתם מסעות"
+        },
+        card: {
+          days: "ימים",
+          steps: "צעדים",
+          progress: "התקדמות",
+          start_journey: "התחל מסע",
+          view_details: "הצג פרטים"
+        },
+        detail: {
+          what_youll_gain: "מה תרוויחו:",
+          journey_steps: "צעדי המסע",
+          day: "יום",
+          play_game: "שחק משחק",
+          reflection_placeholder: "ההשתקפות שלך (אופציונלי)",
+          saving: "שומר...",
+          mark_complete: "סמן כהושלם"
         }
       },
       mind_games: {
@@ -1001,6 +1033,22 @@ export const translations = {
           no_available: "No hay viajes disponibles en este momento",
           no_in_progress: "Aún no has comenzado ningún viaje",
           no_completed: "Aún no has completado ningún viaje"
+        },
+        card: {
+          days: "días",
+          steps: "pasos",
+          progress: "Progreso",
+          start_journey: "Iniciar Viaje",
+          view_details: "Ver Detalles"
+        },
+        detail: {
+          what_youll_gain: "Lo que obtendrás:",
+          journey_steps: "Pasos del Viaje",
+          day: "Día",
+          play_game: "Jugar",
+          reflection_placeholder: "Tu reflexión (opcional)",
+          saving: "Guardando...",
+          mark_complete: "Marcar Completo"
         }
       },
       mind_games: {
@@ -1359,6 +1407,22 @@ export const translations = {
           no_available: "Aucun parcours disponible pour le moment",
           no_in_progress: "Vous n'avez pas encore commencé de parcours",
           no_completed: "Vous n'avez pas encore terminé de parcours"
+        },
+        card: {
+          days: "jours",
+          steps: "étapes",
+          progress: "Progrès",
+          start_journey: "Commencer le Parcours",
+          view_details: "Voir les Détails"
+        },
+        detail: {
+          what_youll_gain: "Ce que vous allez gagner :",
+          journey_steps: "Étapes du Parcours",
+          day: "Jour",
+          play_game: "Jouer",
+          reflection_placeholder: "Votre réflexion (facultatif)",
+          saving: "Enregistrement...",
+          mark_complete: "Marquer Terminé"
         }
       },
       mind_games: {
@@ -1717,6 +1781,22 @@ export const translations = {
           no_available: "Derzeit keine Reisen verfügbar",
           no_in_progress: "Sie haben noch keine Reisen begonnen",
           no_completed: "Sie haben noch keine Reisen abgeschlossen"
+        },
+        card: {
+          days: "Tage",
+          steps: "Schritte",
+          progress: "Fortschritt",
+          start_journey: "Reise Beginnen",
+          view_details: "Details Anzeigen"
+        },
+        detail: {
+          what_youll_gain: "Was Sie gewinnen werden:",
+          journey_steps: "Reiseschritte",
+          day: "Tag",
+          play_game: "Spiel Spielen",
+          reflection_placeholder: "Ihre Reflexion (optional)",
+          saving: "Speichern...",
+          mark_complete: "Als Abgeschlossen Markieren"
         }
       },
       mind_games: {
@@ -2075,6 +2155,22 @@ export const translations = {
           no_available: "Nessun percorso disponibile al momento",
           no_in_progress: "Non hai ancora iniziato alcun percorso",
           no_completed: "Non hai ancora completato alcun percorso"
+        },
+        card: {
+          days: "giorni",
+          steps: "passi",
+          progress: "Progresso",
+          start_journey: "Inizia Percorso",
+          view_details: "Visualizza Dettagli"
+        },
+        detail: {
+          what_youll_gain: "Cosa otterrai:",
+          journey_steps: "Passi del Percorso",
+          day: "Giorno",
+          play_game: "Gioca",
+          reflection_placeholder: "La tua riflessione (facoltativo)",
+          saving: "Salvataggio...",
+          mark_complete: "Segna come Completato"
         }
       },
       mind_games: {
@@ -2433,6 +2529,22 @@ export const translations = {
           no_available: "Nenhuma jornada disponível no momento",
           no_in_progress: "Você ainda não iniciou nenhuma jornada",
           no_completed: "Você ainda não concluiu nenhuma jornada"
+        },
+        card: {
+          days: "dias",
+          steps: "passos",
+          progress: "Progresso",
+          start_journey: "Iniciar Jornada",
+          view_details: "Ver Detalhes"
+        },
+        detail: {
+          what_youll_gain: "O que você vai ganhar:",
+          journey_steps: "Passos da Jornada",
+          day: "Dia",
+          play_game: "Jogar",
+          reflection_placeholder: "Sua reflexão (opcional)",
+          saving: "Salvando...",
+          mark_complete: "Marcar como Completo"
         }
       },
       mind_games: {
