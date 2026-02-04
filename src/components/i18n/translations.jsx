@@ -655,6 +655,13 @@ export const translations = {
         error: {
           goals_load: "No se pudieron cargar los objetivos.",
           journal_load: "No se pudieron cargar las entradas del diario."
+        },
+        aria: {
+          view_goal_details: "Ver detalles del objetivo",
+          view_journal_entry: "Ver entrada de diario",
+          watch_help_video: "Ver video de ayuda",
+          watch_goals_help_video: "Ver video de ayuda de objetivos",
+          watch_journal_help_video: "Ver video de ayuda de diario"
         }
       },
       quick_actions: {
@@ -667,7 +674,11 @@ export const translations = {
         journeys: { title: "Viajes", description: "Rutas de habilidades curadas" },
         exercises_library: { title: "Biblioteca de Ejercicios", description: "Explora técnicas" },
         video_library: { title: "Biblioteca de Videos", description: "Mira y aprende" },
-        personalized_recommendations: "Recomendaciones Personalizadas"
+        personalized_recommendations: "Recomendaciones Personalizadas",
+        aria: {
+          guided_intro_video: "Video de introducción guiada",
+          close_video: "Cerrar video"
+        }
       },
       settings: {
         page_title: "Configuración",
@@ -784,10 +795,140 @@ export const translations = {
         return: "Regresar",
         close: "Cerrar",
         dismiss: "Descartar",
+        complete: "Completar",
         close_video_aria: "Cerrar video",
-        video_unsupported: "Tu navegador no soporta la etiqueta de video.",
+        video_not_supported: "Tu navegador no soporta la etiqueta de video.",
+        audio_not_supported: "Tu navegador no soporta el elemento de audio.",
         go_back_aria: "Regresar",
-        go_back_home_aria: "Regresar al inicio"
+        go_back_home_aria: "Regresar al inicio",
+        ai_label: "IA",
+        you_label: "Tú",
+        minutes_short: "min"
+      },
+      chat: {
+        aria: {
+          go_back_home: "Regresar al inicio",
+          open_conversations: "Abrir barra lateral de conversaciones",
+          close_conversations: "Cerrar barra lateral de conversaciones"
+        },
+        therapist_title: "Tu Terapeuta",
+        therapist_subtitle: "Un espacio seguro para hablar",
+        welcome: {
+          title: "Bienvenido a Terapia",
+          message: "Este es un espacio seguro y sin juicios. Comparte lo que tienes en mente y trabajemos juntos.",
+          start_session: "Iniciar Tu Primera Sesión"
+        },
+        thinking_placeholder: "Pensando...",
+        summary_prompt: {
+          title: "¿Te gustaría un resumen de la sesión?",
+          description: "Obtén conclusiones clave, ejercicios recomendados y recursos útiles",
+          yes: "Sí, crear resumen",
+          not_now: "Ahora no"
+        },
+        input_placeholder: "Comparte lo que tienes en mente...",
+        disclaimer: {
+          title: "⚠️ Soporte IA - No es Terapia Profesional",
+          message: "No puede diagnosticar ni prescribir. ¿Crisis? Llama al 988 (EE. UU.) o a tus servicios de emergencia locales.",
+          strict: "Recordatorio: Esta IA no puede diagnosticar condiciones ni prescribir tratamientos. Para preocupaciones médicas, consulta a un profesional licenciado.",
+          standard: "Recordatorio: Este es soporte asistido por IA, no terapia profesional. Las situaciones de emergencia requieren ayuda profesional inmediata."
+        },
+        delete_session_failed: "Error al eliminar la sesión. Por favor, inténtalo de nuevo.",
+        confirm_delete_session: "¿Eliminar esta sesión? Esta acción no se puede deshacer.",
+        daily_checkin_message: "He completado mi Check-in Diario.",
+        consent: {
+          lenient: {
+            title: "Soporte de Bienestar IA - Modo Permisivo",
+            message: "Esta IA proporciona conversación de apoyo con interrupciones mínimas. No puede diagnosticar, prescribir ni reemplazar la atención profesional. Las situaciones de crisis requieren ayuda profesional inmediata."
+          },
+          standard: {
+            title: "Soporte de Bienestar IA - Modo Estándar",
+            message: "Esta IA proporciona soporte de bienestar utilizando principios CBT basados en evidencia. No es un sustituto de la atención de salud mental profesional y no puede diagnosticar ni prescribir. En crisis, contacta a los servicios de emergencia inmediatamente."
+          },
+          strict: {
+            title: "Soporte de Bienestar IA - Modo de Seguridad Estricto",
+            message: "Este modo incluye monitoreo de seguridad mejorado y recordatorios frecuentes. La IA no puede diagnosticar, prescribir ni manejar emergencias. Se requiere atención de salud mental profesional para preocupaciones clínicas."
+          },
+          learn_more: "Más información sobre perfiles de seguridad",
+          understand_button: "Entiendo"
+        },
+        risk_panel: {
+          title: "Estamos Aquí para Ayudar",
+          message: "Esta IA no puede proporcionar soporte de emergencia. Si estás en crisis, comunícate con un profesional de inmediato.",
+          crisis_hotline_label: "Línea de Crisis:",
+          crisis_hotline_number: "988 (EE. UU.)",
+          crisis_text_line_label: "Línea de Texto de Crisis:",
+          crisis_text_line_number: "Envía \"HELLO\" al 741741",
+          emergency_label: "Emergencia:",
+          emergency_number: "911",
+          return_to_chat: "Volver al Chat"
+        },
+        conversations_list: {
+          title: "Sesiones",
+          empty_title: "Aún no hay sesiones",
+          empty_message: "Inicia una conversación para comenzar",
+          session_prefix: "Sesión",
+          delete_aria: "Eliminar sesión"
+        },
+        session_summary: {
+          title: "Resumen de Sesión",
+          key_takeaways: "Conclusiones Clave",
+          recommended_exercises: "Ejercicios Recomendados",
+          helpful_resources: "Recursos Útiles",
+          reflect_button: "Reflexionar en Diario",
+          view_exercises_button: "Ver Todos los Ejercicios"
+        }
+      },
+      age_gate: {
+        title: "Verificación de Edad Requerida",
+        message: "Nuestras funciones de terapia con IA están diseñadas para adultos de 18 años o más. Esto ayuda a garantizar que brindamos el soporte adecuado y mantenemos estándares de seguridad.",
+        teen_support_heading: "Si tienes menos de 18 años y necesitas apoyo:",
+        teen_support: {
+          counselor: "• Consejero escolar o adulto de confianza",
+          teen_line: "• Teen Line: 1-800-852-8336 (o envía TEEN al 839863)",
+          crisis_text_line: "• Línea de Texto de Crisis: Envía \"HOME\" al 741741"
+        },
+        confirm_button: "Tengo 18 o Más",
+        decline_button: "Tengo Menos de 18"
+      },
+      age_restricted: {
+        title: "Restringido por Edad",
+        message: "Nuestras funciones de chat impulsadas por IA están diseñadas para usuarios de 18 años o más. Aún tienes acceso a otras herramientas de bienestar como seguimiento del estado de ánimo, diario y ejercicios.",
+        back_to_home: "Volver al Inicio"
+      },
+      exercises: {
+        detail: {
+          untitled_exercise: "Ejercicio sin Título",
+          duration_options_suffix: "min opciones",
+          minutes_suffix: "minutos",
+          video_label: "Video",
+          tabs: {
+            overview: "Descripción",
+            practice: "Práctica",
+            audio: "Audio",
+            benefits: "Beneficios",
+            tips: "Consejos"
+          },
+          about: "Acerca de Este Ejercicio",
+          guided_visualization: "Visualización Guiada",
+          video_demonstration: "Demostración en Video",
+          helps_with: "Ayuda Con",
+          guided_audio: "Audio Guiado",
+          guided_audio_description: "Sigue la guía de audio narrada profesionalmente para este ejercicio.",
+          step_by_step_guide: "Guía Paso a Paso",
+          step_duration: "Duración: {{seconds}} segundos",
+          instructions: "Instrucciones",
+          choose_duration: "Elegir Duración",
+          key_benefits: "Beneficios Clave",
+          default_benefits: "Este ejercicio ayuda a mejorar el bienestar mental, reducir el estrés y mejorar la regulación emocional.",
+          helpful_tips: "Consejos Útiles",
+          default_tips: "Practica regularmente para obtener mejores resultados. Encuentra un espacio tranquilo, comienza despacio y sé paciente contigo mismo.",
+          your_progress: "Tu Progreso",
+          times_completed: "Veces Completado",
+          minutes_practiced: "Minutos Practicados",
+          last_practiced: "Última práctica: {{date}}",
+          completed_message: "¡Ejercicio Completado!",
+          mark_as_complete: "Marcar como Completado"
+        }
       }
     }
   },
@@ -825,6 +966,13 @@ export const translations = {
         error: {
           goals_load: "Impossible de charger les objectifs.",
           journal_load: "Impossible de charger les entrées du journal."
+        },
+        aria: {
+          view_goal_details: "Voir les détails de l'objectif",
+          view_journal_entry: "Voir l'entrée de journal",
+          watch_help_video: "Regarder la vidéo d'aide",
+          watch_goals_help_video: "Regarder la vidéo d'aide des objectifs",
+          watch_journal_help_video: "Regarder la vidéo d'aide du journal"
         }
       },
       quick_actions: {
@@ -837,7 +985,11 @@ export const translations = {
         journeys: { title: "Parcours", description: "Chemins de compétences organisés" },
         exercises_library: { title: "Bibliothèque d'Exercices", description: "Parcourir les techniques" },
         video_library: { title: "Bibliothèque Vidéo", description: "Regarder et apprendre" },
-        personalized_recommendations: "Recommandations Personnalisées"
+        personalized_recommendations: "Recommandations Personnalisées",
+        aria: {
+          guided_intro_video: "Vidéo d'introduction guidée",
+          close_video: "Fermer la vidéo"
+        }
       },
       settings: {
         page_title: "Paramètres",
@@ -954,10 +1106,140 @@ export const translations = {
         return: "Retour",
         close: "Fermer",
         dismiss: "Ignorer",
+        complete: "Terminer",
         close_video_aria: "Fermer la vidéo",
-        video_unsupported: "Votre navigateur ne prend pas en charge la balise vidéo.",
+        video_not_supported: "Votre navigateur ne prend pas en charge la balise vidéo.",
+        audio_not_supported: "Votre navigateur ne prend pas en charge l'élément audio.",
         go_back_aria: "Retour",
-        go_back_home_aria: "Retour à l'accueil"
+        go_back_home_aria: "Retour à l'accueil",
+        ai_label: "IA",
+        you_label: "Vous",
+        minutes_short: "min"
+      },
+      chat: {
+        aria: {
+          go_back_home: "Retour à l'accueil",
+          open_conversations: "Ouvrir la barre latérale des conversations",
+          close_conversations: "Fermer la barre latérale des conversations"
+        },
+        therapist_title: "Votre Thérapeute",
+        therapist_subtitle: "Un espace sûr pour parler",
+        welcome: {
+          title: "Bienvenue en Thérapie",
+          message: "C'est un espace sûr et sans jugement. Partagez ce qui vous préoccupe et travaillons ensemble.",
+          start_session: "Commencer Votre Première Séance"
+        },
+        thinking_placeholder: "Réflexion...",
+        summary_prompt: {
+          title: "Souhaitez-vous un résumé de session ?",
+          description: "Obtenez des points clés, des exercices recommandés et des ressources utiles",
+          yes: "Oui, créer un résumé",
+          not_now: "Pas maintenant"
+        },
+        input_placeholder: "Partagez ce qui vous préoccupe...",
+        disclaimer: {
+          title: "⚠️ Support IA - Pas de Thérapie Professionnelle",
+          message: "Ne peut pas diagnostiquer ni prescrire. Crise ? Appelez le 988 (États-Unis) ou vos services d'urgence locaux.",
+          strict: "Rappel : Cette IA ne peut pas diagnostiquer de conditions ni prescrire de traitements. Pour les préoccupations médicales, consultez un professionnel agréé.",
+          standard: "Rappel : Il s'agit d'un soutien assisté par IA, pas d'une thérapie professionnelle. Les situations d'urgence nécessitent une aide professionnelle immédiate."
+        },
+        delete_session_failed: "Échec de la suppression de la session. Veuillez réessayer.",
+        confirm_delete_session: "Supprimer cette session ? Cette action ne peut pas être annulée.",
+        daily_checkin_message: "J'ai terminé mon Check-in Quotidien.",
+        consent: {
+          lenient: {
+            title: "Support de Bien-être IA - Mode Permissif",
+            message: "Cette IA fournit une conversation de soutien avec des interruptions minimales. Elle ne peut pas diagnostiquer, prescrire ou remplacer les soins professionnels. Les situations de crise nécessitent une aide professionnelle immédiate."
+          },
+          standard: {
+            title: "Support de Bien-être IA - Mode Standard",
+            message: "Cette IA fournit un soutien au bien-être en utilisant des principes CBT fondés sur des preuves. Ce n'est pas un substitut aux soins de santé mentale professionnels et ne peut pas diagnostiquer ni prescrire. En cas de crise, contactez immédiatement les services d'urgence."
+          },
+          strict: {
+            title: "Support de Bien-être IA - Mode de Sécurité Strict",
+            message: "Ce mode comprend une surveillance de sécurité améliorée et des rappels fréquents. L'IA ne peut pas diagnostiquer, prescrire ou gérer les urgences. Des soins de santé mentale professionnels sont requis pour les préoccupations cliniques."
+          },
+          learn_more: "En savoir plus sur les profils de sécurité",
+          understand_button: "Je Comprends"
+        },
+        risk_panel: {
+          title: "Nous Sommes Là pour Aider",
+          message: "Cette IA ne peut pas fournir de soutien d'urgence. Si vous êtes en crise, veuillez contacter un professionnel immédiatement.",
+          crisis_hotline_label: "Ligne de Crise :",
+          crisis_hotline_number: "988 (États-Unis)",
+          crisis_text_line_label: "Ligne de Texte de Crise :",
+          crisis_text_line_number: "Envoyez \"HELLO\" au 741741",
+          emergency_label: "Urgence :",
+          emergency_number: "911",
+          return_to_chat: "Retour au Chat"
+        },
+        conversations_list: {
+          title: "Séances",
+          empty_title: "Pas encore de séances",
+          empty_message: "Commencez une conversation pour débuter",
+          session_prefix: "Séance",
+          delete_aria: "Supprimer la séance"
+        },
+        session_summary: {
+          title: "Résumé de Séance",
+          key_takeaways: "Points Clés",
+          recommended_exercises: "Exercices Recommandés",
+          helpful_resources: "Ressources Utiles",
+          reflect_button: "Réfléchir dans le Journal",
+          view_exercises_button: "Voir Tous les Exercices"
+        }
+      },
+      age_gate: {
+        title: "Vérification de l'Âge Requise",
+        message: "Nos fonctionnalités de thérapie IA sont conçues pour les adultes de 18 ans et plus. Cela nous aide à fournir un soutien approprié et à maintenir des normes de sécurité.",
+        teen_support_heading: "Si vous avez moins de 18 ans et avez besoin de soutien :",
+        teen_support: {
+          counselor: "• Conseiller scolaire ou adulte de confiance",
+          teen_line: "• Teen Line : 1-800-852-8336 (ou envoyez TEEN au 839863)",
+          crisis_text_line: "• Ligne de Texte de Crise : Envoyez \"HOME\" au 741741"
+        },
+        confirm_button: "J'ai 18 Ans ou Plus",
+        decline_button: "J'ai Moins de 18 Ans"
+      },
+      age_restricted: {
+        title: "Restreint par Âge",
+        message: "Nos fonctionnalités de chat alimentées par l'IA sont conçues pour les utilisateurs de 18 ans et plus. Vous avez toujours accès à d'autres outils de bien-être comme le suivi de l'humeur, le journal et les exercices.",
+        back_to_home: "Retour à l'Accueil"
+      },
+      exercises: {
+        detail: {
+          untitled_exercise: "Exercice sans Titre",
+          duration_options_suffix: "min options",
+          minutes_suffix: "minutes",
+          video_label: "Vidéo",
+          tabs: {
+            overview: "Aperçu",
+            practice: "Pratique",
+            audio: "Audio",
+            benefits: "Avantages",
+            tips: "Conseils"
+          },
+          about: "À Propos de Cet Exercice",
+          guided_visualization: "Visualisation Guidée",
+          video_demonstration: "Démonstration Vidéo",
+          helps_with: "Aide Avec",
+          guided_audio: "Audio Guidé",
+          guided_audio_description: "Suivez le guide audio narré professionnellement pour cet exercice.",
+          step_by_step_guide: "Guide Étape par Étape",
+          step_duration: "Durée : {{seconds}} secondes",
+          instructions: "Instructions",
+          choose_duration: "Choisir la Durée",
+          key_benefits: "Avantages Clés",
+          default_benefits: "Cet exercice aide à améliorer le bien-être mental, réduire le stress et améliorer la régulation émotionnelle.",
+          helpful_tips: "Conseils Utiles",
+          default_tips: "Pratiquez régulièrement pour de meilleurs résultats. Trouvez un espace calme, commencez lentement et soyez patient avec vous-même.",
+          your_progress: "Votre Progrès",
+          times_completed: "Fois Terminé",
+          minutes_practiced: "Minutes Pratiquées",
+          last_practiced: "Dernière pratique : {{date}}",
+          completed_message: "Exercice Terminé !",
+          mark_as_complete: "Marquer comme Terminé"
+        }
       }
     }
   },
@@ -995,6 +1277,13 @@ export const translations = {
         error: {
           goals_load: "Ziele konnten nicht geladen werden.",
           journal_load: "Tagebucheinträge konnten nicht geladen werden."
+        },
+        aria: {
+          view_goal_details: "Zieldetails anzeigen",
+          view_journal_entry: "Tagebucheintrag anzeigen",
+          watch_help_video: "Hilfevideo ansehen",
+          watch_goals_help_video: "Ziele-Hilfevideo ansehen",
+          watch_journal_help_video: "Tagebuch-Hilfevideo ansehen"
         }
       },
       quick_actions: {
@@ -1007,7 +1296,11 @@ export const translations = {
         journeys: { title: "Reisen", description: "Kuratierte Fähigkeitspfade" },
         exercises_library: { title: "Übungsbibliothek", description: "Techniken durchsuchen" },
         video_library: { title: "Videobibliothek", description: "Ansehen und lernen" },
-        personalized_recommendations: "Personalisierte Empfehlungen"
+        personalized_recommendations: "Personalisierte Empfehlungen",
+        aria: {
+          guided_intro_video: "Geführtes Einführungsvideo",
+          close_video: "Video schließen"
+        }
       },
       settings: {
         page_title: "Einstellungen",
@@ -1124,10 +1417,140 @@ export const translations = {
         return: "Zurück",
         close: "Schließen",
         dismiss: "Verwerfen",
+        complete: "Abschließen",
         close_video_aria: "Video schließen",
-        video_unsupported: "Ihr Browser unterstützt das Video-Tag nicht.",
+        video_not_supported: "Ihr Browser unterstützt das Video-Tag nicht.",
+        audio_not_supported: "Ihr Browser unterstützt das Audio-Element nicht.",
         go_back_aria: "Zurück",
-        go_back_home_aria: "Zurück zur Startseite"
+        go_back_home_aria: "Zurück zur Startseite",
+        ai_label: "KI",
+        you_label: "Sie",
+        minutes_short: "Min"
+      },
+      chat: {
+        aria: {
+          go_back_home: "Zurück zur Startseite",
+          open_conversations: "Konversationsseitenleiste öffnen",
+          close_conversations: "Konversationsseitenleiste schließen"
+        },
+        therapist_title: "Ihr Therapeut",
+        therapist_subtitle: "Ein sicherer Raum zum Reden",
+        welcome: {
+          title: "Willkommen zur Therapie",
+          message: "Dies ist ein sicherer, urteilsfreier Raum. Teilen Sie, was Ihnen durch den Kopf geht, und lassen Sie uns gemeinsam daran arbeiten.",
+          start_session: "Erste Sitzung Starten"
+        },
+        thinking_placeholder: "Denkt nach...",
+        summary_prompt: {
+          title: "Möchten Sie eine Sitzungszusammenfassung?",
+          description: "Erhalten Sie wichtige Erkenntnisse, empfohlene Übungen und hilfreiche Ressourcen",
+          yes: "Ja, Zusammenfassung erstellen",
+          not_now: "Jetzt nicht"
+        },
+        input_placeholder: "Teilen Sie, was Ihnen durch den Kopf geht...",
+        disclaimer: {
+          title: "⚠️ KI-Unterstützung - Keine Professionelle Therapie",
+          message: "Kann nicht diagnostizieren oder verschreiben. Krise? Rufen Sie 988 (USA) oder Ihre lokalen Notdienste.",
+          strict: "Erinnerung: Diese KI kann keine Zustände diagnostizieren oder Behandlungen verschreiben. Bei medizinischen Bedenken konsultieren Sie einen zugelassenen Fachmann.",
+          standard: "Erinnerung: Dies ist KI-unterstützte Unterstützung, keine professionelle Therapie. Notsituationen erfordern sofortige professionelle Hilfe."
+        },
+        delete_session_failed: "Sitzung konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
+        confirm_delete_session: "Diese Sitzung löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+        daily_checkin_message: "Ich habe meinen täglichen Check-in abgeschlossen.",
+        consent: {
+          lenient: {
+            title: "KI-Wellness-Unterstützung - Nachsichtiger Modus",
+            message: "Diese KI bietet unterstützende Gespräche mit minimalen Unterbrechungen. Sie kann nicht diagnostizieren, verschreiben oder professionelle Pflege ersetzen. Krisensituationen erfordern sofortige professionelle Hilfe."
+          },
+          standard: {
+            title: "KI-Wellness-Unterstützung - Standard-Modus",
+            message: "Diese KI bietet Wellness-Unterstützung unter Verwendung evidenzbasierter CBT-Prinzipien. Sie ist kein Ersatz für professionelle psychische Gesundheitsversorgung und kann nicht diagnostizieren oder verschreiben. In Krisen wenden Sie sich sofort an Notdienste."
+          },
+          strict: {
+            title: "KI-Wellness-Unterstützung - Strenger Sicherheitsmodus",
+            message: "Dieser Modus umfasst erweiterte Sicherheitsüberwachung und häufige Erinnerungen. Die KI kann nicht diagnostizieren, verschreiben oder Notfälle bewältigen. Professionelle psychische Gesundheitsversorgung ist für klinische Bedenken erforderlich."
+          },
+          learn_more: "Mehr über Sicherheitsprofile erfahren",
+          understand_button: "Ich Verstehe"
+        },
+        risk_panel: {
+          title: "Wir Sind Hier, um zu Helfen",
+          message: "Diese KI kann keine Notfallunterstützung bieten. Wenn Sie in einer Krise sind, wenden Sie sich bitte sofort an einen Fachmann.",
+          crisis_hotline_label: "Krisen-Hotline:",
+          crisis_hotline_number: "988 (USA)",
+          crisis_text_line_label: "Krisen-Textlinie:",
+          crisis_text_line_number: "Senden Sie \"HELLO\" an 741741",
+          emergency_label: "Notfall:",
+          emergency_number: "911",
+          return_to_chat: "Zurück zum Chat"
+        },
+        conversations_list: {
+          title: "Sitzungen",
+          empty_title: "Noch keine Sitzungen",
+          empty_message: "Starten Sie ein Gespräch, um zu beginnen",
+          session_prefix: "Sitzung",
+          delete_aria: "Sitzung löschen"
+        },
+        session_summary: {
+          title: "Sitzungszusammenfassung",
+          key_takeaways: "Wichtige Erkenntnisse",
+          recommended_exercises: "Empfohlene Übungen",
+          helpful_resources: "Hilfreiche Ressourcen",
+          reflect_button: "Im Tagebuch Reflektieren",
+          view_exercises_button: "Alle Übungen Anzeigen"
+        }
+      },
+      age_gate: {
+        title: "Altersverifizierung Erforderlich",
+        message: "Unsere KI-Therapiefunktionen sind für Erwachsene ab 18 Jahren konzipiert. Dies hilft uns, angemessene Unterstützung zu bieten und Sicherheitsstandards aufrechtzuerhalten.",
+        teen_support_heading: "Wenn Sie unter 18 sind und Unterstützung benötigen:",
+        teen_support: {
+          counselor: "• Schulberater oder vertrauenswürdiger Erwachsener",
+          teen_line: "• Teen Line: 1-800-852-8336 (oder senden Sie TEEN an 839863)",
+          crisis_text_line: "• Krisen-Textlinie: Senden Sie \"HOME\" an 741741"
+        },
+        confirm_button: "Ich bin 18 oder Älter",
+        decline_button: "Ich bin Unter 18"
+      },
+      age_restricted: {
+        title: "Altersbeschränkt",
+        message: "Unsere KI-gestützten Chat-Funktionen sind für Benutzer ab 18 Jahren konzipiert. Sie haben weiterhin Zugriff auf andere Wellness-Tools wie Stimmungsverfolgung, Tagebuchführung und Übungen.",
+        back_to_home: "Zurück zur Startseite"
+      },
+      exercises: {
+        detail: {
+          untitled_exercise: "Übung ohne Titel",
+          duration_options_suffix: "Min Optionen",
+          minutes_suffix: "Minuten",
+          video_label: "Video",
+          tabs: {
+            overview: "Übersicht",
+            practice: "Praxis",
+            audio: "Audio",
+            benefits: "Vorteile",
+            tips: "Tipps"
+          },
+          about: "Über Diese Übung",
+          guided_visualization: "Geführte Visualisierung",
+          video_demonstration: "Video-Demonstration",
+          helps_with: "Hilft Bei",
+          guided_audio: "Geführtes Audio",
+          guided_audio_description: "Folgen Sie der professionell gesprochenen Audio-Anleitung für diese Übung.",
+          step_by_step_guide: "Schritt-für-Schritt-Anleitung",
+          step_duration: "Dauer: {{seconds}} Sekunden",
+          instructions: "Anweisungen",
+          choose_duration: "Dauer Wählen",
+          key_benefits: "Hauptvorteile",
+          default_benefits: "Diese Übung hilft, das geistige Wohlbefinden zu verbessern, Stress abzubauen und die emotionale Regulation zu verbessern.",
+          helpful_tips: "Hilfreiche Tipps",
+          default_tips: "Üben Sie regelmäßig für beste Ergebnisse. Finden Sie einen ruhigen Ort, beginnen Sie langsam und seien Sie geduldig mit sich selbst.",
+          your_progress: "Ihr Fortschritt",
+          times_completed: "Mal Abgeschlossen",
+          minutes_practiced: "Minuten Geübt",
+          last_practiced: "Zuletzt geübt: {{date}}",
+          completed_message: "Übung Abgeschlossen!",
+          mark_as_complete: "Als Abgeschlossen Markieren"
+        }
       }
     }
   },
@@ -1165,6 +1588,13 @@ export const translations = {
         error: {
           goals_load: "Impossibile caricare gli obiettivi.",
           journal_load: "Impossibile caricare le voci del diario."
+        },
+        aria: {
+          view_goal_details: "Visualizza dettagli obiettivo",
+          view_journal_entry: "Visualizza voce diario",
+          watch_help_video: "Guarda video di aiuto",
+          watch_goals_help_video: "Guarda video di aiuto obiettivi",
+          watch_journal_help_video: "Guarda video di aiuto diario"
         }
       },
       quick_actions: {
@@ -1177,7 +1607,11 @@ export const translations = {
         journeys: { title: "Percorsi", description: "Percorsi di abilità curati" },
         exercises_library: { title: "Libreria Esercizi", description: "Sfoglia tecniche" },
         video_library: { title: "Libreria Video", description: "Guarda e impara" },
-        personalized_recommendations: "Raccomandazioni Personalizzate"
+        personalized_recommendations: "Raccomandazioni Personalizzate",
+        aria: {
+          guided_intro_video: "Video di introduzione guidata",
+          close_video: "Chiudi video"
+        }
       },
       settings: {
         page_title: "Impostazioni",
@@ -1294,10 +1728,140 @@ export const translations = {
         return: "Indietro",
         close: "Chiudi",
         dismiss: "Ignora",
+        complete: "Completa",
         close_video_aria: "Chiudi video",
-        video_unsupported: "Il tuo browser non supporta il tag video.",
+        video_not_supported: "Il tuo browser non supporta il tag video.",
+        audio_not_supported: "Il tuo browser non supporta l'elemento audio.",
         go_back_aria: "Indietro",
-        go_back_home_aria: "Torna alla home"
+        go_back_home_aria: "Torna alla home",
+        ai_label: "IA",
+        you_label: "Tu",
+        minutes_short: "min"
+      },
+      chat: {
+        aria: {
+          go_back_home: "Torna alla home",
+          open_conversations: "Apri barra laterale conversazioni",
+          close_conversations: "Chiudi barra laterale conversazioni"
+        },
+        therapist_title: "Il Tuo Terapeuta",
+        therapist_subtitle: "Uno spazio sicuro per parlare",
+        welcome: {
+          title: "Benvenuto alla Terapia",
+          message: "Questo è uno spazio sicuro e senza giudizi. Condividi ciò che hai in mente e lavoriamoci insieme.",
+          start_session: "Inizia la Tua Prima Sessione"
+        },
+        thinking_placeholder: "Pensando...",
+        summary_prompt: {
+          title: "Vorresti un riepilogo della sessione?",
+          description: "Ottieni punti chiave, esercizi consigliati e risorse utili",
+          yes: "Sì, crea riepilogo",
+          not_now: "Non ora"
+        },
+        input_placeholder: "Condividi ciò che hai in mente...",
+        disclaimer: {
+          title: "⚠️ Supporto IA - Non Terapia Professionale",
+          message: "Non può diagnosticare né prescrivere. Crisi? Chiama 988 (USA) o i tuoi servizi di emergenza locali.",
+          strict: "Promemoria: Questa IA non può diagnosticare condizioni né prescrivere trattamenti. Per preoccupazioni mediche, consulta un professionista autorizzato.",
+          standard: "Promemoria: Questo è supporto assistito da IA, non terapia professionale. Le situazioni di emergenza richiedono aiuto professionale immediato."
+        },
+        delete_session_failed: "Impossibile eliminare la sessione. Riprova.",
+        confirm_delete_session: "Eliminare questa sessione? Questa azione non può essere annullata.",
+        daily_checkin_message: "Ho completato il mio Check-in Giornaliero.",
+        consent: {
+          lenient: {
+            title: "Supporto Benessere IA - Modalità Permissiva",
+            message: "Questa IA fornisce conversazioni di supporto con interruzioni minime. Non può diagnosticare, prescrivere o sostituire cure professionali. Le situazioni di crisi richiedono aiuto professionale immediato."
+          },
+          standard: {
+            title: "Supporto Benessere IA - Modalità Standard",
+            message: "Questa IA fornisce supporto al benessere utilizzando principi CBT basati sull'evidenza. Non sostituisce la cura della salute mentale professionale e non può diagnosticare né prescrivere. In crisi, contatta immediatamente i servizi di emergenza."
+          },
+          strict: {
+            title: "Supporto Benessere IA - Modalità di Sicurezza Rigorosa",
+            message: "Questa modalità include monitoraggio della sicurezza avanzato e promemoria frequenti. L'IA non può diagnosticare, prescrivere o gestire emergenze. È richiesta cura professionale della salute mentale per preoccupazioni cliniche."
+          },
+          learn_more: "Scopri di più sui profili di sicurezza",
+          understand_button: "Ho Capito"
+        },
+        risk_panel: {
+          title: "Siamo Qui per Aiutare",
+          message: "Questa IA non può fornire supporto di emergenza. Se sei in crisi, contatta immediatamente un professionista.",
+          crisis_hotline_label: "Hotline Crisi:",
+          crisis_hotline_number: "988 (USA)",
+          crisis_text_line_label: "Linea Testo Crisi:",
+          crisis_text_line_number: "Invia \"HELLO\" al 741741",
+          emergency_label: "Emergenza:",
+          emergency_number: "911",
+          return_to_chat: "Torna alla Chat"
+        },
+        conversations_list: {
+          title: "Sessioni",
+          empty_title: "Ancora nessuna sessione",
+          empty_message: "Inizia una conversazione per cominciare",
+          session_prefix: "Sessione",
+          delete_aria: "Elimina sessione"
+        },
+        session_summary: {
+          title: "Riepilogo Sessione",
+          key_takeaways: "Punti Chiave",
+          recommended_exercises: "Esercizi Consigliati",
+          helpful_resources: "Risorse Utili",
+          reflect_button: "Rifletti nel Diario",
+          view_exercises_button: "Visualizza Tutti gli Esercizi"
+        }
+      },
+      age_gate: {
+        title: "Verifica dell'Età Richiesta",
+        message: "Le nostre funzionalità di terapia con IA sono progettate per adulti di 18 anni o più. Questo ci aiuta a fornire supporto appropriato e mantenere standard di sicurezza.",
+        teen_support_heading: "Se hai meno di 18 anni e hai bisogno di supporto:",
+        teen_support: {
+          counselor: "• Consulente scolastico o adulto fidato",
+          teen_line: "• Teen Line: 1-800-852-8336 (o invia TEEN al 839863)",
+          crisis_text_line: "• Linea Testo Crisi: Invia \"HOME\" al 741741"
+        },
+        confirm_button: "Ho 18 Anni o Più",
+        decline_button: "Ho Meno di 18 Anni"
+      },
+      age_restricted: {
+        title: "Limitato per Età",
+        message: "Le nostre funzionalità di chat potenziate dall'IA sono progettate per utenti di 18 anni o più. Hai ancora accesso ad altri strumenti di benessere come il monitoraggio dell'umore, il diario e gli esercizi.",
+        back_to_home: "Torna alla Home"
+      },
+      exercises: {
+        detail: {
+          untitled_exercise: "Esercizio Senza Titolo",
+          duration_options_suffix: "min opzioni",
+          minutes_suffix: "minuti",
+          video_label: "Video",
+          tabs: {
+            overview: "Panoramica",
+            practice: "Pratica",
+            audio: "Audio",
+            benefits: "Benefici",
+            tips: "Consigli"
+          },
+          about: "Informazioni su Questo Esercizio",
+          guided_visualization: "Visualizzazione Guidata",
+          video_demonstration: "Dimostrazione Video",
+          helps_with: "Aiuta Con",
+          guided_audio: "Audio Guidato",
+          guided_audio_description: "Segui la guida audio narrata professionalmente per questo esercizio.",
+          step_by_step_guide: "Guida Passo per Passo",
+          step_duration: "Durata: {{seconds}} secondi",
+          instructions: "Istruzioni",
+          choose_duration: "Scegli Durata",
+          key_benefits: "Benefici Principali",
+          default_benefits: "Questo esercizio aiuta a migliorare il benessere mentale, ridurre lo stress e migliorare la regolazione emotiva.",
+          helpful_tips: "Consigli Utili",
+          default_tips: "Pratica regolarmente per risultati migliori. Trova uno spazio tranquillo, inizia lentamente e sii paziente con te stesso.",
+          your_progress: "Il Tuo Progresso",
+          times_completed: "Volte Completato",
+          minutes_practiced: "Minuti Praticati",
+          last_practiced: "Ultima pratica: {{date}}",
+          completed_message: "Esercizio Completato!",
+          mark_as_complete: "Segna come Completato"
+        }
       }
     }
   },
@@ -1335,6 +1899,13 @@ export const translations = {
         error: {
           goals_load: "Não foi possível carregar os objetivos.",
           journal_load: "Não foi possível carregar as entradas do diário."
+        },
+        aria: {
+          view_goal_details: "Ver detalhes do objetivo",
+          view_journal_entry: "Ver entrada de diário",
+          watch_help_video: "Assistir vídeo de ajuda",
+          watch_goals_help_video: "Assistir vídeo de ajuda de objetivos",
+          watch_journal_help_video: "Assistir vídeo de ajuda de diário"
         }
       },
       quick_actions: {
@@ -1347,7 +1918,11 @@ export const translations = {
         journeys: { title: "Jornadas", description: "Caminhos de habilidades selecionados" },
         exercises_library: { title: "Biblioteca de Exercícios", description: "Navegue pelas técnicas" },
         video_library: { title: "Biblioteca de Vídeos", description: "Assista e aprenda" },
-        personalized_recommendations: "Recomendações Personalizadas"
+        personalized_recommendations: "Recomendações Personalizadas",
+        aria: {
+          guided_intro_video: "Vídeo de introdução guiada",
+          close_video: "Fechar vídeo"
+        }
       },
       settings: {
         page_title: "Configurações",
@@ -1464,10 +2039,140 @@ export const translations = {
         return: "Voltar",
         close: "Fechar",
         dismiss: "Dispensar",
+        complete: "Concluir",
         close_video_aria: "Fechar vídeo",
-        video_unsupported: "Seu navegador não suporta a tag de vídeo.",
+        video_not_supported: "Seu navegador não suporta a tag de vídeo.",
+        audio_not_supported: "Seu navegador não suporta o elemento de áudio.",
         go_back_aria: "Voltar",
-        go_back_home_aria: "Voltar para o início"
+        go_back_home_aria: "Voltar para o início",
+        ai_label: "IA",
+        you_label: "Você",
+        minutes_short: "min"
+      },
+      chat: {
+        aria: {
+          go_back_home: "Voltar para o início",
+          open_conversations: "Abrir barra lateral de conversas",
+          close_conversations: "Fechar barra lateral de conversas"
+        },
+        therapist_title: "Seu Terapeuta",
+        therapist_subtitle: "Um espaço seguro para conversar",
+        welcome: {
+          title: "Bem-vindo à Terapia",
+          message: "Este é um espaço seguro e sem julgamentos. Compartilhe o que está em sua mente e vamos trabalhar juntos.",
+          start_session: "Iniciar Sua Primeira Sessão"
+        },
+        thinking_placeholder: "Pensando...",
+        summary_prompt: {
+          title: "Gostaria de um resumo da sessão?",
+          description: "Obtenha conclusões-chave, exercícios recomendados e recursos úteis",
+          yes: "Sim, criar resumo",
+          not_now: "Agora não"
+        },
+        input_placeholder: "Compartilhe o que está em sua mente...",
+        disclaimer: {
+          title: "⚠️ Suporte IA - Não é Terapia Profissional",
+          message: "Não pode diagnosticar nem prescrever. Crise? Ligue 988 (EUA) ou seus serviços de emergência locais.",
+          strict: "Lembrete: Esta IA não pode diagnosticar condições nem prescrever tratamentos. Para preocupações médicas, consulte um profissional licenciado.",
+          standard: "Lembrete: Este é suporte assistido por IA, não terapia profissional. Situações de emergência requerem ajuda profissional imediata."
+        },
+        delete_session_failed: "Falha ao excluir a sessão. Por favor, tente novamente.",
+        confirm_delete_session: "Excluir esta sessão? Esta ação não pode ser desfeita.",
+        daily_checkin_message: "Concluí meu Check-in Diário.",
+        consent: {
+          lenient: {
+            title: "Suporte de Bem-estar IA - Modo Permissivo",
+            message: "Esta IA fornece conversação de apoio com interrupções mínimas. Ela não pode diagnosticar, prescrever ou substituir cuidados profissionais. Situações de crise requerem ajuda profissional imediata."
+          },
+          standard: {
+            title: "Suporte de Bem-estar IA - Modo Padrão",
+            message: "Esta IA fornece suporte de bem-estar usando princípios CBT baseados em evidências. Não é um substituto para cuidados de saúde mental profissionais e não pode diagnosticar nem prescrever. Em crise, entre em contato com serviços de emergência imediatamente."
+          },
+          strict: {
+            title: "Suporte de Bem-estar IA - Modo de Segurança Rigoroso",
+            message: "Este modo inclui monitoramento de segurança aprimorado e lembretes frequentes. A IA não pode diagnosticar, prescrever ou lidar com emergências. Cuidados de saúde mental profissionais são necessários para preocupações clínicas."
+          },
+          learn_more: "Saiba mais sobre perfis de segurança",
+          understand_button: "Entendi"
+        },
+        risk_panel: {
+          title: "Estamos Aqui para Ajudar",
+          message: "Esta IA não pode fornecer suporte de emergência. Se você estiver em crise, entre em contato com um profissional imediatamente.",
+          crisis_hotline_label: "Linha Direta de Crise:",
+          crisis_hotline_number: "988 (EUA)",
+          crisis_text_line_label: "Linha de Texto de Crise:",
+          crisis_text_line_number: "Envie \"HELLO\" para 741741",
+          emergency_label: "Emergência:",
+          emergency_number: "911",
+          return_to_chat: "Voltar ao Chat"
+        },
+        conversations_list: {
+          title: "Sessões",
+          empty_title: "Ainda não há sessões",
+          empty_message: "Inicie uma conversa para começar",
+          session_prefix: "Sessão",
+          delete_aria: "Excluir sessão"
+        },
+        session_summary: {
+          title: "Resumo da Sessão",
+          key_takeaways: "Conclusões-Chave",
+          recommended_exercises: "Exercícios Recomendados",
+          helpful_resources: "Recursos Úteis",
+          reflect_button: "Refletir no Diário",
+          view_exercises_button: "Ver Todos os Exercícios"
+        }
+      },
+      age_gate: {
+        title: "Verificação de Idade Necessária",
+        message: "Nossos recursos de terapia com IA são projetados para adultos de 18 anos ou mais. Isso nos ajuda a fornecer suporte apropriado e manter padrões de segurança.",
+        teen_support_heading: "Se você tem menos de 18 anos e precisa de apoio:",
+        teen_support: {
+          counselor: "• Conselheiro escolar ou adulto de confiança",
+          teen_line: "• Teen Line: 1-800-852-8336 (ou envie TEEN para 839863)",
+          crisis_text_line: "• Linha de Texto de Crise: Envie \"HOME\" para 741741"
+        },
+        confirm_button: "Tenho 18 ou Mais",
+        decline_button: "Tenho Menos de 18"
+      },
+      age_restricted: {
+        title: "Restrito por Idade",
+        message: "Nossos recursos de chat alimentados por IA são projetados para usuários de 18 anos ou mais. Você ainda tem acesso a outras ferramentas de bem-estar como rastreamento de humor, diário e exercícios.",
+        back_to_home: "Voltar para o Início"
+      },
+      exercises: {
+        detail: {
+          untitled_exercise: "Exercício sem Título",
+          duration_options_suffix: "min opções",
+          minutes_suffix: "minutos",
+          video_label: "Vídeo",
+          tabs: {
+            overview: "Visão Geral",
+            practice: "Prática",
+            audio: "Áudio",
+            benefits: "Benefícios",
+            tips: "Dicas"
+          },
+          about: "Sobre Este Exercício",
+          guided_visualization: "Visualização Guiada",
+          video_demonstration: "Demonstração em Vídeo",
+          helps_with: "Ajuda Com",
+          guided_audio: "Áudio Guiado",
+          guided_audio_description: "Acompanhe a orientação em áudio narrada profissionalmente para este exercício.",
+          step_by_step_guide: "Guia Passo a Passo",
+          step_duration: "Duração: {{seconds}} segundos",
+          instructions: "Instruções",
+          choose_duration: "Escolher Duração",
+          key_benefits: "Principais Benefícios",
+          default_benefits: "Este exercício ajuda a melhorar o bem-estar mental, reduzir o estresse e melhorar a regulação emocional.",
+          helpful_tips: "Dicas Úteis",
+          default_tips: "Pratique regularmente para melhores resultados. Encontre um espaço tranquilo, comece devagar e seja paciente consigo mesmo.",
+          your_progress: "Seu Progresso",
+          times_completed: "Vezes Concluído",
+          minutes_practiced: "Minutos Praticados",
+          last_practiced: "Última prática: {{date}}",
+          completed_message: "Exercício Concluído!",
+          mark_as_complete: "Marcar como Concluído"
+        }
       }
     }
   }
