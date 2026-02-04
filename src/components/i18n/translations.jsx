@@ -402,6 +402,10 @@ export const translations = {
         close_aria: "Close",
         recommended_title: "Recommended For You",
         recommended_subtitle: "Based on your activity, we think you'll enjoy these:",
+        thought_quiz: {
+          score: "Score",
+          next_question: "Next Question"
+        },
         games: {
           thought_quiz: { title: "Thought Quiz", description: "Spot the thinking trap in a quick example." },
           reframe_pick: { title: "Reframe Pick", description: "Choose the most balanced alternative thought." },
@@ -899,6 +903,10 @@ export const translations = {
         close_aria: "סגירה",
         recommended_title: "מומלץ עבורך",
         recommended_subtitle: "על סמך הפעילות שלך, אנחנו חושבים שתהנה מאלה:",
+        thought_quiz: {
+          score: "ציון",
+          next_question: "שאלה הבאה"
+        },
         games: {
           thought_quiz: { title: "חידון מחשבות", description: "זהו את מלכודת החשיבה בדוגמה מהירה." },
           reframe_pick: { title: "בחירת מסגור מחדש", description: "בחרו את המחשבה האלטרנטיבית המאוזנת ביותר." },
@@ -1396,6 +1404,10 @@ export const translations = {
         close_aria: "Cerrar",
         recommended_title: "Recomendado para Ti",
         recommended_subtitle: "Según tu actividad, creemos que disfrutarás estos:",
+        thought_quiz: {
+          score: "Puntuación",
+          next_question: "Siguiente Pregunta"
+        },
         games: {
           thought_quiz: { title: "Quiz de Pensamientos", description: "Identifica la trampa de pensamiento en un ejemplo rápido." },
           reframe_pick: { title: "Elegir Reformulación", description: "Elige el pensamiento alternativo más equilibrado." },
@@ -1893,6 +1905,10 @@ export const translations = {
         close_aria: "Fermer",
         recommended_title: "Recommandé pour Vous",
         recommended_subtitle: "En fonction de votre activité, nous pensons que vous apprécierez ces:",
+        thought_quiz: {
+          score: "Score",
+          next_question: "Question Suivante"
+        },
         games: {
           thought_quiz: { title: "Quiz de Pensées", description: "Repérez le piège de pensée dans un exemple rapide." },
           reframe_pick: { title: "Choix de Recadrage", description: "Choisissez la pensée alternative la plus équilibrée." },
@@ -2390,6 +2406,10 @@ export const translations = {
         close_aria: "Schließen",
         recommended_title: "Für Sie Empfohlen",
         recommended_subtitle: "Basierend auf Ihrer Aktivität denken wir, dass Ihnen diese gefallen werden:",
+        thought_quiz: {
+          score: "Punktzahl",
+          next_question: "Nächste Frage"
+        },
         games: {
           thought_quiz: { title: "Gedanken-Quiz", description: "Erkennen Sie die Denkfalle in einem schnellen Beispiel." },
           reframe_pick: { title: "Neurahmungs-Auswahl", description: "Wählen Sie den ausgewogensten alternativen Gedanken." },
@@ -2887,6 +2907,10 @@ export const translations = {
         close_aria: "Chiudi",
         recommended_title: "Consigliato per Te",
         recommended_subtitle: "In base alla tua attività, pensiamo che ti piaceranno questi:",
+        thought_quiz: {
+          score: "Punteggio",
+          next_question: "Prossima Domanda"
+        },
         games: {
           thought_quiz: { title: "Quiz di Pensieri", description: "Individua la trappola del pensiero in un esempio rapido." },
           reframe_pick: { title: "Scelta di Ristrutturazione", description: "Scegli il pensiero alternativo più equilibrato." },
@@ -3384,6 +3408,10 @@ export const translations = {
         close_aria: "Fechar",
         recommended_title: "Recomendado para Você",
         recommended_subtitle: "Com base na sua atividade, achamos que você vai gostar destes:",
+        thought_quiz: {
+          score: "Pontuação",
+          next_question: "Próxima Pergunta"
+        },
         games: {
           thought_quiz: { title: "Quiz de Pensamentos", description: "Identifique a armadilha do pensamento em um exemplo rápido." },
           reframe_pick: { title: "Escolha de Reenquadramento", description: "Escolha o pensamento alternativo mais equilibrado." },
