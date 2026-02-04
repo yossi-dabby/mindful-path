@@ -24,8 +24,8 @@ export default function GameCard({ game, onClick, index }) {
         onClick={onClick}
         data-testid={game.testId}
       >
-        <CardContent className="p-5">
-          <div className="flex items-start gap-3">
+        <CardContent className="p-5 min-w-0">
+          <div className="flex items-start gap-3 min-w-0">
             <div
               className="w-12 h-12 flex items-center justify-center flex-shrink-0"
               style={{
@@ -36,9 +36,9 @@ export default function GameCard({ game, onClick, index }) {
             >
               <Puzzle className="w-6 h-6" />
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-2 mb-1">
-                <h3 className="font-semibold text-base break-words line-clamp-2" style={{ color: '#1A3A34' }}>
+            <div className="flex-1 min-w-0 overflow-hidden">
+              <div className="flex items-start justify-between gap-2 mb-1 min-w-0">
+                <h3 className="font-semibold text-base break-words line-clamp-2 min-w-0" style={{ color: '#1A3A34' }}>
                   {game.titleKey ? t(game.titleKey) : game.title}
                 </h3>
                 <Badge
@@ -53,7 +53,7 @@ export default function GameCard({ game, onClick, index }) {
                   {game.time}
                 </Badge>
               </div>
-              <p className="text-sm line-clamp-2 break-words" style={{ color: '#5A7A72' }}>
+              <p className="text-sm line-clamp-2 break-words min-w-0 overflow-hidden" style={{ color: '#5A7A72' }}>
                 {game.descriptionKey ? t(game.descriptionKey) : game.description}
               </p>
             </div>
