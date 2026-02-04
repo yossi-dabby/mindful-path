@@ -119,13 +119,14 @@ export default function MindGameRecommendations({ onGameSelect }) {
         {t('mind_games.recommended_subtitle')}
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 min-w-0">
         {recommendedGames.map(game => (
-          <GameCard
-            key={game.id}
-            game={game}
-            onClick={() => onGameSelect(game)}
-          />
+          <div key={game.id} className="min-w-0">
+            <GameCard
+              game={game}
+              onClick={() => onGameSelect(game)}
+            />
+          </div>
         ))}
       </div>
     </Card>
