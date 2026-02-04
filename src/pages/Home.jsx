@@ -224,9 +224,6 @@ export default function Home() {
 
           {/* 7-Day Starter Path */}
           <StarterPathCard />
-          
-          {/* AI-Powered Personalized Content Feed */}
-          <AiPersonalizedFeed />
           </div>
 
           {/* Secondary Content - Below the fold */}
