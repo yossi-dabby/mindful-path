@@ -33,6 +33,13 @@ export const translations = {
         error: {
           goals_load: "Couldn't load goals.",
           journal_load: "Couldn't load journal entries."
+        },
+        aria: {
+          view_goal_details: "View goal details",
+          view_journal_entry: "View journal entry",
+          watch_help_video: "Watch help video",
+          watch_goals_help_video: "Watch goals help video",
+          watch_journal_help_video: "Watch journal help video"
         }
       },
       quick_actions: {
@@ -45,7 +52,11 @@ export const translations = {
         journeys: { title: "Journeys", description: "Curated skill paths" },
         exercises_library: { title: "Exercises Library", description: "Browse techniques" },
         video_library: { title: "Video Library", description: "Watch & learn" },
-        personalized_recommendations: "Personalized Recommendations"
+        personalized_recommendations: "Personalized Recommendations",
+        aria: {
+          guided_intro_video: "Guided introduction video",
+          close_video: "Close video"
+        }
       },
       settings: {
         page_title: "Settings",
@@ -162,10 +173,140 @@ export const translations = {
         return: "Return",
         close: "Close",
         dismiss: "Dismiss",
+        complete: "Complete",
         close_video_aria: "Close video",
-        video_unsupported: "Your browser does not support the video tag.",
+        video_not_supported: "Your browser does not support the video tag.",
+        audio_not_supported: "Your browser does not support the audio element.",
         go_back_aria: "Go back",
-        go_back_home_aria: "Go back to home"
+        go_back_home_aria: "Go back to home",
+        ai_label: "AI",
+        you_label: "You",
+        minutes_short: "min"
+      },
+      chat: {
+        aria: {
+          go_back_home: "Go back to home",
+          open_conversations: "Open conversations sidebar",
+          close_conversations: "Close conversations sidebar"
+        },
+        therapist_title: "Your Therapist",
+        therapist_subtitle: "A safe space to talk",
+        welcome: {
+          title: "Welcome to Therapy",
+          message: "This is a safe, judgment-free space. Share what's on your mind, and let's work through it together.",
+          start_session: "Start Your First Session"
+        },
+        thinking_placeholder: "Thinking...",
+        summary_prompt: {
+          title: "Would you like a session summary?",
+          description: "Get key takeaways, recommended exercises, and helpful resources",
+          yes: "Yes, create summary",
+          not_now: "Not now"
+        },
+        input_placeholder: "Share what's on your mind...",
+        disclaimer: {
+          title: "⚠️ AI Support - Not Professional Therapy",
+          message: "Cannot diagnose or prescribe. Crisis? Call 988 (US) or your local emergency services.",
+          strict: "Reminder: This AI cannot diagnose conditions or prescribe treatments. For medical concerns, consult a licensed professional.",
+          standard: "Reminder: This is AI-assisted support, not professional therapy. Emergency situations require immediate professional help."
+        },
+        delete_session_failed: "Failed to delete session. Please try again.",
+        confirm_delete_session: "Delete this session? This action cannot be undone.",
+        daily_checkin_message: "I've completed my Daily Check-in.",
+        consent: {
+          lenient: {
+            title: "AI Wellness Support - Lenient Mode",
+            message: "This AI provides supportive conversation with minimal interruptions. It cannot diagnose, prescribe, or replace professional care. Crisis situations require immediate professional help."
+          },
+          standard: {
+            title: "AI Wellness Support - Standard Mode",
+            message: "This AI provides wellness support using evidence-based CBT principles. It is not a substitute for professional mental health care and cannot diagnose or prescribe. In crisis, contact emergency services immediately."
+          },
+          strict: {
+            title: "AI Wellness Support - Strict Safety Mode",
+            message: "This mode includes enhanced safety monitoring and frequent reminders. The AI cannot diagnose, prescribe, or handle emergencies. Professional mental health care is required for clinical concerns."
+          },
+          learn_more: "Learn more about safety profiles",
+          understand_button: "I Understand"
+        },
+        risk_panel: {
+          title: "We're Here to Help",
+          message: "This AI cannot provide emergency support. If you're in crisis, please reach out to a professional immediately.",
+          crisis_hotline_label: "Crisis Hotline:",
+          crisis_hotline_number: "988 (US)",
+          crisis_text_line_label: "Crisis Text Line:",
+          crisis_text_line_number: "Text \"HELLO\" to 741741",
+          emergency_label: "Emergency:",
+          emergency_number: "911",
+          return_to_chat: "Return to Chat"
+        },
+        conversations_list: {
+          title: "Sessions",
+          empty_title: "No sessions yet",
+          empty_message: "Start a conversation to begin",
+          session_prefix: "Session",
+          delete_aria: "Delete session"
+        },
+        session_summary: {
+          title: "Session Summary",
+          key_takeaways: "Key Takeaways",
+          recommended_exercises: "Recommended Exercises",
+          helpful_resources: "Helpful Resources",
+          reflect_button: "Reflect in Journal",
+          view_exercises_button: "View All Exercises"
+        }
+      },
+      age_gate: {
+        title: "Age Verification Required",
+        message: "Our AI therapy features are designed for adults 18 and older. This helps ensure we provide appropriate support and maintain safety standards.",
+        teen_support_heading: "If you're under 18 and need support:",
+        teen_support: {
+          counselor: "• School counselor or trusted adult",
+          teen_line: "• Teen Line: 1-800-852-8336 (or text TEEN to 839863)",
+          crisis_text_line: "• Crisis Text Line: Text \"HOME\" to 741741"
+        },
+        confirm_button: "I'm 18 or Older",
+        decline_button: "I'm Under 18"
+      },
+      age_restricted: {
+        title: "Age Restricted",
+        message: "Our AI-powered chat features are designed for users 18 and older. You still have access to other wellness tools like mood tracking, journaling, and exercises.",
+        back_to_home: "Back to Home"
+      },
+      exercises: {
+        detail: {
+          untitled_exercise: "Untitled Exercise",
+          duration_options_suffix: "min options",
+          minutes_suffix: "minutes",
+          video_label: "Video",
+          tabs: {
+            overview: "Overview",
+            practice: "Practice",
+            audio: "Audio",
+            benefits: "Benefits",
+            tips: "Tips"
+          },
+          about: "About This Exercise",
+          guided_visualization: "Guided Visualization",
+          video_demonstration: "Video Demonstration",
+          helps_with: "Helps With",
+          guided_audio: "Guided Audio",
+          guided_audio_description: "Follow along with professionally narrated audio guidance for this exercise.",
+          step_by_step_guide: "Step-by-Step Guide",
+          step_duration: "Duration: {{seconds}} seconds",
+          instructions: "Instructions",
+          choose_duration: "Choose Duration",
+          key_benefits: "Key Benefits",
+          default_benefits: "This exercise helps improve mental well-being, reduce stress, and enhance emotional regulation.",
+          helpful_tips: "Helpful Tips",
+          default_tips: "Practice regularly for best results. Find a quiet space, start slowly, and be patient with yourself.",
+          your_progress: "Your Progress",
+          times_completed: "Times Completed",
+          minutes_practiced: "Minutes Practiced",
+          last_practiced: "Last practiced: {{date}}",
+          completed_message: "Exercise Completed!",
+          mark_as_complete: "Mark as Complete"
+        }
       }
     }
   },
