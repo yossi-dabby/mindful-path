@@ -714,11 +714,48 @@ export const translations = {
           mark_complete: "סמן כהושלם"
         }
       },
+      mood_tracker: {
+        page_title: "מעקב אחר מצב רוח",
+        page_subtitle: "עקבו אחר הרווחה הרגשית שלכם וגלו דפוסים",
+        update_today: "עדכן היום",
+        log_mood: "רשום מצב רוח",
+        mood_trends: "מגמות מצב רוח",
+        loading_chart: "טוען תרשים...",
+        no_data: "אין נתוני מצב רוח עדיין",
+        no_data_subtitle: "התחילו לבדוק מדי יום כדי לראות מגמות",
+        tabs: {
+          overview: "סקירה",
+          calendar: "לוח שנה",
+          insights: "תובנות AI"
+        },
+        time_range: {
+          "7_days": "7 ימים",
+          "14_days": "14 ימים",
+          "30_days": "30 ימים"
+        }
+      },
+      progress: {
+        page_title: "ההתקדמות שלך",
+        page_subtitle: "עקבו אחר המסע",
+        page_subtitle_full: "עקבו אחר המסע וחגגו את הצמיחה שלכם",
+        health_wellness: "בריאות ורווחה",
+        tabs: {
+          overview: "סקירה",
+          achievements: "הישגים",
+          rewards: "תגמולים",
+          mood: "מצב רוח",
+          goals: "מטרות",
+          exercises: "תרגילים",
+          health: "בריאות"
+        }
+      },
       mind_games: {
         page_title: "משחקי מוח",
         page_subtitle: "תרגול מיומנויות אינטראקטיבי של CBT ו-DBT",
         go_back_aria: "חזרה",
-        close_aria: "סגירה"
+        close_aria: "סגירה",
+        recommended_title: "מומלץ עבורך",
+        recommended_subtitle: "על סמך הפעילות שלך, אנחנו חושבים שתהנה מאלה:"
       },
       exercises: {
         page_title: "ספריית תרגילים",
@@ -1088,11 +1125,48 @@ export const translations = {
           mark_complete: "Marcar Completo"
         }
       },
+      mood_tracker: {
+        page_title: "Rastreador de Estado de Ánimo",
+        page_subtitle: "Rastrea tu bienestar emocional y descubre patrones",
+        update_today: "Actualizar Hoy",
+        log_mood: "Registrar Estado de Ánimo",
+        mood_trends: "Tendencias de Estado de Ánimo",
+        loading_chart: "Cargando gráfico...",
+        no_data: "Sin datos de estado de ánimo aún",
+        no_data_subtitle: "Comienza a registrarte diariamente para ver tendencias",
+        tabs: {
+          overview: "Resumen",
+          calendar: "Calendario",
+          insights: "Perspectivas IA"
+        },
+        time_range: {
+          "7_days": "7 días",
+          "14_days": "14 días",
+          "30_days": "30 días"
+        }
+      },
+      progress: {
+        page_title: "Tu Progreso",
+        page_subtitle: "Rastrea tu viaje",
+        page_subtitle_full: "Rastrea tu viaje y celebra tu crecimiento",
+        health_wellness: "Salud y Bienestar",
+        tabs: {
+          overview: "Resumen",
+          achievements: "Logros",
+          rewards: "Premios",
+          mood: "Estado",
+          goals: "Objetivos",
+          exercises: "Ejercicios",
+          health: "Salud"
+        }
+      },
       mind_games: {
         page_title: "Juegos Mentales",
         page_subtitle: "Práctica interactiva de habilidades CBT y DBT",
         go_back_aria: "Regresar",
-        close_aria: "Cerrar"
+        close_aria: "Cerrar",
+        recommended_title: "Recomendado para Ti",
+        recommended_subtitle: "Según tu actividad, creemos que disfrutarás estos:"
       },
       exercises: {
         page_title: "Biblioteca de Ejercicios",
@@ -1462,11 +1536,48 @@ export const translations = {
           mark_complete: "Marquer Terminé"
         }
       },
+      mood_tracker: {
+        page_title: "Suivi de l'Humeur",
+        page_subtitle: "Suivez votre bien-être émotionnel et découvrez des tendances",
+        update_today: "Mettre à Jour Aujourd'hui",
+        log_mood: "Enregistrer l'Humeur",
+        mood_trends: "Tendances de l'Humeur",
+        loading_chart: "Chargement du graphique...",
+        no_data: "Pas encore de données d'humeur",
+        no_data_subtitle: "Commencez à vous enregistrer quotidiennement pour voir les tendances",
+        tabs: {
+          overview: "Aperçu",
+          calendar: "Calendrier",
+          insights: "Perspectives IA"
+        },
+        time_range: {
+          "7_days": "7 jours",
+          "14_days": "14 jours",
+          "30_days": "30 jours"
+        }
+      },
+      progress: {
+        page_title: "Votre Progrès",
+        page_subtitle: "Suivez votre parcours",
+        page_subtitle_full: "Suivez votre parcours et célébrez votre croissance",
+        health_wellness: "Santé et Bien-être",
+        tabs: {
+          overview: "Aperçu",
+          achievements: "Réalisations",
+          rewards: "Récompenses",
+          mood: "Humeur",
+          goals: "Objectifs",
+          exercises: "Exercices",
+          health: "Santé"
+        }
+      },
       mind_games: {
         page_title: "Jeux Mentaux",
         page_subtitle: "Pratique interactive des compétences CBT et DBT",
         go_back_aria: "Retour",
-        close_aria: "Fermer"
+        close_aria: "Fermer",
+        recommended_title: "Recommandé pour Vous",
+        recommended_subtitle: "En fonction de votre activité, nous pensons que vous apprécierez ces:"
       },
       exercises: {
         page_title: "Bibliothèque d'Exercices",
@@ -1836,11 +1947,48 @@ export const translations = {
           mark_complete: "Als Abgeschlossen Markieren"
         }
       },
+      mood_tracker: {
+        page_title: "Stimmungs-Tracker",
+        page_subtitle: "Verfolgen Sie Ihr emotionales Wohlbefinden und entdecken Sie Muster",
+        update_today: "Heute Aktualisieren",
+        log_mood: "Stimmung Erfassen",
+        mood_trends: "Stimmungstrends",
+        loading_chart: "Lade Diagramm...",
+        no_data: "Noch keine Stimmungsdaten",
+        no_data_subtitle: "Beginnen Sie täglich einzuchecken, um Trends zu sehen",
+        tabs: {
+          overview: "Übersicht",
+          calendar: "Kalender",
+          insights: "KI-Einblicke"
+        },
+        time_range: {
+          "7_days": "7 Tage",
+          "14_days": "14 Tage",
+          "30_days": "30 Tage"
+        }
+      },
+      progress: {
+        page_title: "Ihr Fortschritt",
+        page_subtitle: "Verfolgen Sie Ihre Reise",
+        page_subtitle_full: "Verfolgen Sie Ihre Reise und feiern Sie Ihr Wachstum",
+        health_wellness: "Gesundheit & Wohlbefinden",
+        tabs: {
+          overview: "Übersicht",
+          achievements: "Erfolge",
+          rewards: "Belohnungen",
+          mood: "Stimmung",
+          goals: "Ziele",
+          exercises: "Übungen",
+          health: "Gesundheit"
+        }
+      },
       mind_games: {
         page_title: "Gedankenspiele",
         page_subtitle: "Interaktive CBT- und DBT-Fähigkeitenübung",
         go_back_aria: "Zurück",
-        close_aria: "Schließen"
+        close_aria: "Schließen",
+        recommended_title: "Für Sie Empfohlen",
+        recommended_subtitle: "Basierend auf Ihrer Aktivität denken wir, dass Ihnen diese gefallen werden:"
       },
       exercises: {
         page_title: "Übungsbibliothek",
@@ -2210,11 +2358,48 @@ export const translations = {
           mark_complete: "Segna come Completato"
         }
       },
+      mood_tracker: {
+        page_title: "Tracciamento Umore",
+        page_subtitle: "Traccia il tuo benessere emotivo e scopri schemi",
+        update_today: "Aggiorna Oggi",
+        log_mood: "Registra Umore",
+        mood_trends: "Tendenze Umore",
+        loading_chart: "Caricamento grafico...",
+        no_data: "Ancora nessun dato sull'umore",
+        no_data_subtitle: "Inizia a controllare quotidianamente per vedere le tendenze",
+        tabs: {
+          overview: "Panoramica",
+          calendar: "Calendario",
+          insights: "Approfondimenti IA"
+        },
+        time_range: {
+          "7_days": "7 giorni",
+          "14_days": "14 giorni",
+          "30_days": "30 giorni"
+        }
+      },
+      progress: {
+        page_title: "Il Tuo Progresso",
+        page_subtitle: "Traccia il tuo viaggio",
+        page_subtitle_full: "Traccia il tuo viaggio e celebra la tua crescita",
+        health_wellness: "Salute e Benessere",
+        tabs: {
+          overview: "Panoramica",
+          achievements: "Successi",
+          rewards: "Premi",
+          mood: "Umore",
+          goals: "Obiettivi",
+          exercises: "Esercizi",
+          health: "Salute"
+        }
+      },
       mind_games: {
         page_title: "Giochi Mentali",
         page_subtitle: "Pratica interattiva delle abilità CBT e DBT",
         go_back_aria: "Indietro",
-        close_aria: "Chiudi"
+        close_aria: "Chiudi",
+        recommended_title: "Consigliato per Te",
+        recommended_subtitle: "In base alla tua attività, pensiamo che ti piaceranno questi:"
       },
       exercises: {
         page_title: "Libreria Esercizi",
@@ -2584,11 +2769,48 @@ export const translations = {
           mark_complete: "Marcar como Completo"
         }
       },
+      mood_tracker: {
+        page_title: "Rastreador de Humor",
+        page_subtitle: "Acompanhe seu bem-estar emocional e descubra padrões",
+        update_today: "Atualizar Hoje",
+        log_mood: "Registrar Humor",
+        mood_trends: "Tendências de Humor",
+        loading_chart: "Carregando gráfico...",
+        no_data: "Ainda sem dados de humor",
+        no_data_subtitle: "Comece a fazer check-in diariamente para ver tendências",
+        tabs: {
+          overview: "Visão Geral",
+          calendar: "Calendário",
+          insights: "Insights IA"
+        },
+        time_range: {
+          "7_days": "7 dias",
+          "14_days": "14 dias",
+          "30_days": "30 dias"
+        }
+      },
+      progress: {
+        page_title: "Seu Progresso",
+        page_subtitle: "Acompanhe sua jornada",
+        page_subtitle_full: "Acompanhe sua jornada e celebre seu crescimento",
+        health_wellness: "Saúde e Bem-estar",
+        tabs: {
+          overview: "Visão Geral",
+          achievements: "Conquistas",
+          rewards: "Recompensas",
+          mood: "Humor",
+          goals: "Objetivos",
+          exercises: "Exercícios",
+          health: "Saúde"
+        }
+      },
       mind_games: {
         page_title: "Jogos Mentais",
         page_subtitle: "Prática interativa de habilidades CBT e DBT",
         go_back_aria: "Voltar",
-        close_aria: "Fechar"
+        close_aria: "Fechar",
+        recommended_title: "Recomendado para Você",
+        recommended_subtitle: "Com base na sua atividade, achamos que você vai gostar destes:"
       },
       exercises: {
         page_title: "Biblioteca de Exercícios",

@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import GameCard from './GameCard';
 import { gamesCatalog } from './mindGamesContent';
 
@@ -87,6 +88,7 @@ function getRecommendations(activities) {
 }
 
 export default function MindGameRecommendations({ onGameSelect }) {
+  const { t } = useTranslation();
   const { data: activities = [] } = useQuery({
     queryKey: ['mindGameActivities'],
     queryFn: () => base44.entities.MindGameActivity.list('-created_date', 50),
@@ -109,12 +111,12 @@ export default function MindGameRecommendations({ onGameSelect }) {
       <div className="flex items-center gap-2 mb-4">
         <Sparkles className="w-5 h-5" style={{ color: '#26A69A' }} />
         <h3 className="text-lg font-semibold" style={{ color: '#1A3A34' }}>
-          Recommended For You
+          {t('mind_games.recommended_title')}
         </h3>
       </div>
       
       <p className="text-sm mb-4" style={{ color: '#5A7A72' }}>
-        Based on your activity, we think you'll enjoy these:
+        {t('mind_games.recommended_subtitle')}
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
