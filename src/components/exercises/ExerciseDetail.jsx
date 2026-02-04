@@ -346,56 +346,54 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               </TabsContent>
             </Tabs>
 
-              </div>
-
-              {/* Mobile: Progress Stats */}
-              <div className="lg:hidden">
-                <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border-2 border-green-200">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Your Progress</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-2xl font-bold text-green-600">{exercise.completed_count || 0}</p>
-                      <p className="text-xs text-gray-600">Times Completed</p>
+                {/* Mobile: Progress Stats */}
+                <div className="lg:hidden">
+                  <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border-2 border-green-200">
+                    <h3 className="text-sm font-semibold text-gray-700 mb-3">Your Progress</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-2xl font-bold text-green-600">{exercise.completed_count || 0}</p>
+                        <p className="text-xs text-gray-600">Times Completed</p>
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-blue-600">{exercise.total_time_practiced || 0}</p>
+                        <p className="text-xs text-gray-600">Minutes Practiced</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-2xl font-bold text-blue-600">{exercise.total_time_practiced || 0}</p>
-                      <p className="text-xs text-gray-600">Minutes Practiced</p>
-                    </div>
+                    {exercise.last_completed && (
+                      <p className="text-xs text-gray-500 mt-3">
+                        Last practiced: {new Date(exercise.last_completed).toLocaleDateString('en-US', {
+                          weekday: 'short',
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </p>
+                    )}
                   </div>
-                  {exercise.last_completed && (
-                    <p className="text-xs text-gray-500 mt-3">
-                      Last practiced: {new Date(exercise.last_completed).toLocaleDateString('en-US', {
-                        weekday: 'short',
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                      })}
-                    </p>
-                  )}
                 </div>
-              </div>
 
-              {/* Mobile: Action Buttons */}
-              {exercise.category !== 'breathing' && (
-                <div className="lg:hidden flex gap-3">
-                  {completed ? (
-                    <div className="flex-1 bg-green-100 border border-green-300 rounded-xl p-4 flex items-center justify-center gap-2 text-green-700 font-medium">
-                      <CheckCircle className="w-5 h-5" />
-                      Exercise Completed!
-                    </div>
-                  ) : (
-                    <>
-                      <Button variant="outline" onClick={onClose} className="flex-1">
-                        Close
-                      </Button>
-                      <Button onClick={handleComplete} className="flex-1 bg-green-600 hover:bg-green-700">
-                        <Play className="w-4 h-4 mr-2" />
-                        Mark as Complete
-                      </Button>
-                    </>
-                  )}
-                </div>
-              )}
+                {/* Mobile: Action Buttons */}
+                {exercise.category !== 'breathing' && (
+                  <div className="lg:hidden flex gap-3">
+                    {completed ? (
+                      <div className="flex-1 bg-green-100 border border-green-300 rounded-xl p-4 flex items-center justify-center gap-2 text-green-700 font-medium">
+                        <CheckCircle className="w-5 h-5" />
+                        Exercise Completed!
+                      </div>
+                    ) : (
+                      <>
+                        <Button variant="outline" onClick={onClose} className="flex-1">
+                          Close
+                        </Button>
+                        <Button onClick={handleComplete} className="flex-1 bg-green-600 hover:bg-green-700">
+                          <Play className="w-4 h-4 mr-2" />
+                          Mark as Complete
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Right Column: Progress & Actions (Desktop) */}
