@@ -12,7 +12,6 @@ const navItems = [
   { name: 'Coach', icon: Heart, path: 'Coach', description: 'AI Wellness Coach' },
   { name: 'Mood', icon: Activity, path: 'MoodTracker', description: 'Track your mood' },
   { name: 'Journal', icon: BookOpen, path: 'Journal', description: 'Thought records' },
-  { name: 'Journeys', icon: Compass, path: 'Journeys', description: 'Curated skill paths' },
   { name: 'Progress', icon: Activity, path: 'Progress', description: 'Track your journey' },
   { name: 'Exercises', icon: Dumbbell, path: 'Exercises', description: 'CBT techniques' }
 ];

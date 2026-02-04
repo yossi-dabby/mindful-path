@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { MessageCircle, BookOpen, Target, Dumbbell, Play, Sparkles, Puzzle, User } from 'lucide-react';
+import { MessageCircle, BookOpen, Target, Dumbbell, Play, Sparkles, Puzzle, User, Compass } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AiPersonalizedFeed from './AiPersonalizedFeed';
 
@@ -48,6 +48,15 @@ const therapeuticActions = [
     bgColor: 'rgba(66, 153, 225, 0.15)',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%205.mp4?alt=media&token=905b8eb3-09ba-4f02-ba8e-930b44dd5070',
     testIds: ['quickaction-grounding', 'quickaction-mindgames']
+  },
+  {
+    title: 'Journeys',
+    description: 'Curated skill paths',
+    icon: Compass,
+    page: 'Journeys',
+    color: '#8B5CF6',
+    bgColor: 'rgba(139, 92, 246, 0.15)',
+    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%205.mp4?alt=media&token=905b8eb3-09ba-4f02-ba8e-930b44dd5070'
   }
 ];
 

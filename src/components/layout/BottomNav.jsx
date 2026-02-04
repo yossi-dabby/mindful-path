@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { cn } from "@/lib/utils";
-import { Home, MessageCircle, BookOpen, Activity, Dumbbell, Compass } from 'lucide-react';
+import { Home, MessageCircle, BookOpen, Activity, Dumbbell, Heart } from 'lucide-react';
 
 // CRITICAL: This height MUST match the padding-bottom in AppContent
 export const BOTTOM_NAV_HEIGHT = 80; // 20 * 4 = 80px (h-20)
@@ -10,7 +10,7 @@ export const BOTTOM_NAV_HEIGHT = 80; // 20 * 4 = 80px (h-20)
 const navItems = [
   { name: 'Home', icon: Home, path: 'Home' },
   { name: 'Chat', icon: MessageCircle, path: 'Chat' },
-  { name: 'Journeys', icon: Compass, path: 'Journeys' },
+  { name: 'Coach', icon: Heart, path: 'Coach' },
   { name: 'Journal', icon: BookOpen, path: 'Journal' },
   { name: 'Mood', icon: Activity, path: 'MoodTracker' },
   { name: 'Exercises', icon: Dumbbell, path: 'Exercises' }
