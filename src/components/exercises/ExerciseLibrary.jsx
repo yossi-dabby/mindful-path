@@ -3,9 +3,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Clock, Star, Play, Heart, Headphones, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import ExerciseMediaBadge from './ExerciseMediaBadge';
 
 export default function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExercise, onToggleFavorite }) {
+  const { t } = useTranslation();
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {exercises.map((exercise, index) => {
@@ -67,8 +69,8 @@ export default function ExerciseLibrary({ exercises, categoryIcons, categoryColo
                 </div>
 
                 <div className="flex items-start justify-between gap-2 mb-2">
-                  <h3 className="font-semibold text-gray-800 text-lg group-hover:text-green-600 transition-colors line-clamp-1">
-                    {exercise.title || 'Untitled Exercise'}
+                  <h3 className="font-semibold text-gray-800 text-lg group-hover:text-green-600 transition-colors line-clamp-1 break-words">
+                    {exercise.title || t('exercises.detail.untitled_exercise')}
                   </h3>
                   <ExerciseMediaBadge mediaType={exercise.media_type} />
                 </div>
@@ -89,8 +91,8 @@ export default function ExerciseLibrary({ exercises, categoryIcons, categoryColo
                   <div className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     {exercise.duration_options?.length > 0
-                      ? `${exercise.duration_options[0]}-${exercise.duration_options[exercise.duration_options.length - 1]} min`
-                      : 'Flexible'}
+                      ? `${exercise.duration_options[0]}-${exercise.duration_options[exercise.duration_options.length - 1]} ${t('common.minutes_short')}`
+                      : t('exercises.library.flexible')}
                   </div>
                   <Badge variant="outline" className="text-xs capitalize">
                     {exercise.difficulty || 'beginner'}
@@ -101,8 +103,8 @@ export default function ExerciseLibrary({ exercises, categoryIcons, categoryColo
                 {exercise.completed_count > 0 && (
                   <div className="mt-3">
                     <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-                      <span>Progress</span>
-                      <span>{exercise.total_time_practiced || 0} min</span>
+                      <span>{t('journeys.card.progress')}</span>
+                      <span>{exercise.total_time_practiced || 0} {t('common.minutes_short')}</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-1.5">
                       <div
