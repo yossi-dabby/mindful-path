@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { User, Bell, CreditCard, LogOut, Crown, Shield, Layout as LayoutIcon } from 'lucide-react';
-import ThemeSelector, { themes } from '../components/settings/ThemeSelector';
+import ThemeSelector from '../components/settings/ThemeSelector';
 import DataPrivacy from '../components/settings/DataPrivacy';
 import LanguageSelector from '../components/settings/LanguageSelector';
 import { motion } from 'framer-motion';
