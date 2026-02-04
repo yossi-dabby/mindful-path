@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MessageCircle, Sparkles, Heart, TrendingUp, BookOpen, Target } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import MoodCheckIn from '../components/home/MoodCheckIn';
 import QuickActions from '../components/home/QuickActions';
 import RecentProgress from '../components/home/RecentProgress';
@@ -26,6 +27,7 @@ import VideoModal from '../components/home/VideoModal';
 import { motion } from 'framer-motion';
 
 export default function Home() {
+  const { t } = useTranslation();
   const [user, setUser] = useState(null);
   const [showMoodCheckIn, setShowMoodCheckIn] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -195,9 +197,9 @@ export default function Home() {
 
   const greeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 18) return 'Good afternoon';
-    return 'Good evening';
+    if (hour < 12) return t('home.greeting.morning');
+    if (hour < 18) return t('home.greeting.afternoon');
+    return t('home.greeting.evening');
   };
 
   return (
@@ -279,7 +281,7 @@ export default function Home() {
               >
                 <Sparkles className="w-3 h-3" style={{ color: '#FFD700' }} strokeWidth={2} />
               </Button>
-              <p className="text-xs" style={{ color: '#3D5A52' }}>Active Goals</p>
+              <p className="text-xs" style={{ color: '#3D5A52' }}>{t('home.active_goals')}</p>
             </div>
             {/* Help Video Button - WEB: Below text */}
             <Button
@@ -341,7 +343,7 @@ export default function Home() {
               >
                 <Sparkles className="w-3 h-3" style={{ color: '#FFD700' }} strokeWidth={2} />
               </Button>
-              <p className="text-xs" style={{ color: '#3D5A52' }}>Journal Entries</p>
+              <p className="text-xs" style={{ color: '#3D5A52' }}>{t('home.journal_entries')}</p>
             </div>
             {/* Help Video Button - WEB: Below text */}
             <Button
@@ -372,14 +374,14 @@ export default function Home() {
             border: '1px solid rgba(239, 68, 68, 0.2)'
           }}>
             <CardContent className="p-4 text-center">
-              <p className="text-sm text-gray-700 mb-2">Couldn't load goals.</p>
+              <p className="text-sm text-gray-700 mb-2">{t('home.error.goals_load')}</p>
               <Button
                 onClick={() => refetchGoals()}
                 size="sm"
                 variant="outline"
                 className="text-xs"
               >
-                Retry
+                {t('common.retry')}
               </Button>
             </CardContent>
           </Card>
@@ -393,14 +395,14 @@ export default function Home() {
             border: '1px solid rgba(239, 68, 68, 0.2)'
           }}>
             <CardContent className="p-4 text-center">
-              <p className="text-sm text-gray-700 mb-2">Couldn't load journal entries.</p>
+              <p className="text-sm text-gray-700 mb-2">{t('home.error.journal_load')}</p>
               <Button
                 onClick={() => refetchJournals()}
                 size="sm"
                 variant="outline"
                 className="text-xs"
               >
-                Retry
+                {t('common.retry')}
               </Button>
             </CardContent>
           </Card>

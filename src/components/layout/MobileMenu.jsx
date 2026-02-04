@@ -4,15 +4,17 @@ import { createPageUrl } from '../../utils';
 import { cn } from "@/lib/utils";
 import { Menu, X, Users, BookOpen, Settings } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerClose, DrawerOverlay, DrawerPortal } from '@/components/ui/drawer';
-
-const secondaryItems = [
-  { name: 'Community', icon: Users, path: 'Community', testId: 'mobile-nav-community' },
-  { name: 'Resources', icon: BookOpen, path: 'Resources', testId: 'mobile-nav-resources' },
-  { name: 'Settings', icon: Settings, path: 'Settings', testId: 'mobile-nav-settings' }
-];
+import { useTranslation } from 'react-i18next';
 
 export default function MobileMenu() {
   const [open, setOpen] = React.useState(false);
+  const { t } = useTranslation();
+  
+  const secondaryItems = [
+    { name: t('sidebar.community.name'), icon: Users, path: 'Community', testId: 'mobile-nav-community' },
+    { name: t('sidebar.resources.name'), icon: BookOpen, path: 'Resources', testId: 'mobile-nav-resources' },
+    { name: t('sidebar.settings.name'), icon: Settings, path: 'Settings', testId: 'mobile-nav-settings' }
+  ];
 
   return (
     <div className="md:hidden">
@@ -25,7 +27,7 @@ export default function MobileMenu() {
           borderRadius: 'var(--r-sm)',
           color: '#26A69A'
         }}
-        aria-label="Open menu"
+        aria-label={t('mobile_menu.open_aria')}
       >
         <Menu className="w-6 h-6" />
       </button>
@@ -58,7 +60,7 @@ export default function MobileMenu() {
                   <span className="text-white font-bold text-lg">M</span>
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold" style={{ color: '#1A3A34' }}>Menu</h2>
+                  <h2 className="text-lg font-semibold" style={{ color: '#1A3A34' }}>{t('mobile_menu.menu_title')}</h2>
                 </div>
               </div>
               <DrawerClose asChild>
@@ -68,7 +70,7 @@ export default function MobileMenu() {
                     borderRadius: 'var(--r-sm)',
                     color: '#5A7A72'
                   }}
-                  aria-label="Close menu"
+                  aria-label={t('mobile_menu.close_aria')}
                 >
                   <X className="w-5 h-5" />
                 </button>

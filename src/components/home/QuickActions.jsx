@@ -6,87 +6,89 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { MessageCircle, BookOpen, Target, Dumbbell, Play, Sparkles, Puzzle, User, Compass } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AiPersonalizedFeed from './AiPersonalizedFeed';
+import { useTranslation } from 'react-i18next';
 
-// THERAPEUTIC ACTIONS - Route to AI Chat with Intent
-const therapeuticActions = [
-  {
-    title: 'AI Therapist',
-    description: 'Talk to your therapist',
-    icon: MessageCircle,
-    intent: null,
-    page: 'Chat',
-    color: '#26A69A',
-    bgColor: 'rgba(38, 166, 154, 0.15)',
-    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%202.mp4?alt=media&token=15202381-d3a7-44f4-ade9-cc118256e8c1'
-  },
-  {
-    title: 'Journal a Thought',
-    description: 'Challenge thinking',
-    icon: BookOpen,
-    intent: null,
-    page: 'ThoughtCoach',
-    color: '#9F7AEA',
-    bgColor: 'rgba(159, 122, 234, 0.15)',
-    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%206.mp4?alt=media&token=78391ab6-7f22-4288-a22f-2efa53ad0aac'
-  },
-  {
-    title: 'Set a Goal',
-    description: 'Define objectives',
-    icon: Target,
-    intent: null,
-    page: 'GoalCoach',
-    color: '#F6AD55',
-    bgColor: 'rgba(246, 173, 85, 0.15)',
-    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%204.mp4?alt=media&token=389888db-76eb-42e4-ba04-6b62335217cb'
-  },
-  {
-    title: 'Mind Games',
-    description: 'Quick mental exercises',
-    icon: Puzzle,
-    page: 'ExperientialGames',
-    color: '#4299E1',
-    bgColor: 'rgba(66, 153, 225, 0.15)',
-    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%205.mp4?alt=media&token=905b8eb3-09ba-4f02-ba8e-930b44dd5070',
-    testIds: ['quickaction-grounding', 'quickaction-mindgames']
-  },
-  {
-    title: 'Journeys',
-    description: 'Curated skill paths',
-    icon: Compass,
-    page: 'Journeys',
-    color: '#8B5CF6',
-    bgColor: 'rgba(139, 92, 246, 0.15)',
-    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%205.mp4?alt=media&token=905b8eb3-09ba-4f02-ba8e-930b44dd5070'
-  }
-];
 
-// NON-THERAPEUTIC ACTIONS - Direct Navigation
-const selfDirectedActions = [
-  {
-    title: 'Exercises Library',
-    description: 'Browse techniques',
-    icon: Dumbbell,
-    page: 'Exercises',
-    color: '#38B2AC',
-    bgColor: 'rgba(56, 178, 172, 0.15)',
-    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%205.mp4?alt=media&token=905b8eb3-09ba-4f02-ba8e-930b44dd5070'
-  },
-  {
-    title: 'Video Library',
-    description: 'Watch & learn',
-    icon: Play,
-    page: 'Videos',
-    color: '#ED8936',
-    bgColor: 'rgba(237, 137, 54, 0.15)',
-    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%207.mp4?alt=media&token=3cfbbe9d-39eb-4f87-805e-53b4a36395dd'
-  }
-];
-
-const actions = [...therapeuticActions, ...selfDirectedActions];
 
 export default function QuickActions() {
+  const { t } = useTranslation();
   const [activeVideo, setActiveVideo] = useState(null);
   const [showRecommendations, setShowRecommendations] = useState(false);
+  
+  const therapeuticActions = [
+    {
+      title: t('quick_actions.ai_therapist.title'),
+      description: t('quick_actions.ai_therapist.description'),
+      icon: MessageCircle,
+      intent: null,
+      page: 'Chat',
+      color: '#26A69A',
+      bgColor: 'rgba(38, 166, 154, 0.15)',
+      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%202.mp4?alt=media&token=15202381-d3a7-44f4-ade9-cc118256e8c1'
+    },
+    {
+      title: t('quick_actions.journal_thought.title'),
+      description: t('quick_actions.journal_thought.description'),
+      icon: BookOpen,
+      intent: null,
+      page: 'ThoughtCoach',
+      color: '#9F7AEA',
+      bgColor: 'rgba(159, 122, 234, 0.15)',
+      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%206.mp4?alt=media&token=78391ab6-7f22-4288-a22f-2efa53ad0aac'
+    },
+    {
+      title: t('quick_actions.set_goal.title'),
+      description: t('quick_actions.set_goal.description'),
+      icon: Target,
+      intent: null,
+      page: 'GoalCoach',
+      color: '#F6AD55',
+      bgColor: 'rgba(246, 173, 85, 0.15)',
+      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%204.mp4?alt=media&token=389888db-76eb-42e4-ba04-6b62335217cb'
+    },
+    {
+      title: t('quick_actions.mind_games.title'),
+      description: t('quick_actions.mind_games.description'),
+      icon: Puzzle,
+      page: 'ExperientialGames',
+      color: '#4299E1',
+      bgColor: 'rgba(66, 153, 225, 0.15)',
+      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%205.mp4?alt=media&token=905b8eb3-09ba-4f02-ba8e-930b44dd5070',
+      testIds: ['quickaction-grounding', 'quickaction-mindgames']
+    },
+    {
+      title: t('quick_actions.journeys.title'),
+      description: t('quick_actions.journeys.description'),
+      icon: Compass,
+      page: 'Journeys',
+      color: '#8B5CF6',
+      bgColor: 'rgba(139, 92, 246, 0.15)',
+      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%205.mp4?alt=media&token=905b8eb3-09ba-4f02-ba8e-930b44dd5070'
+    }
+  ];
+  
+  const selfDirectedActions = [
+    {
+      title: t('quick_actions.exercises_library.title'),
+      description: t('quick_actions.exercises_library.description'),
+      icon: Dumbbell,
+      page: 'Exercises',
+      color: '#38B2AC',
+      bgColor: 'rgba(56, 178, 172, 0.15)',
+      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%205.mp4?alt=media&token=905b8eb3-09ba-4f02-ba8e-930b44dd5070'
+    },
+    {
+      title: t('quick_actions.video_library.title'),
+      description: t('quick_actions.video_library.description'),
+      icon: Play,
+      page: 'Videos',
+      color: '#ED8936',
+      bgColor: 'rgba(237, 137, 54, 0.15)',
+      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%207.mp4?alt=media&token=3cfbbe9d-39eb-4f87-805e-53b4a36395dd'
+    }
+  ];
+  
+  const actions = [...therapeuticActions, ...selfDirectedActions];
 
   return (
     <motion.div 
@@ -95,7 +97,7 @@ export default function QuickActions() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5, delay: 0.5 }}
     >
-      <h2 className="text-lg font-semibold mb-4 truncate" style={{ color: '#1A3A34' }}>Quick Actions</h2>
+      <h2 className="text-lg font-semibold mb-4 truncate" style={{ color: '#1A3A34' }}>{t('quick_actions.title')}</h2>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 w-full overflow-x-hidden">
         {/* AI Recommendations Card */}
         <motion.div
@@ -133,8 +135,8 @@ export default function QuickActions() {
                     <Sparkles className="w-7 h-7 text-white" strokeWidth={2.5} />
                   </motion.div>
                 </div>
-                <h3 className="font-semibold text-sm mb-1 break-words" style={{ color: '#1A3A34' }}>Recommended for You</h3>
-                <p className="text-xs line-clamp-2 break-words" style={{ color: '#5A7A72' }}>AI-tailored suggestions</p>
+                <h3 className="font-semibold text-sm mb-1 break-words" style={{ color: '#1A3A34' }}>{t('quick_actions.recommended.title')}</h3>
+                <p className="text-xs line-clamp-2 break-words" style={{ color: '#5A7A72' }}>{t('quick_actions.recommended.description')}</p>
               </CardContent>
             </Card>
           </motion.div>
@@ -283,7 +285,7 @@ export default function QuickActions() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Sparkles className="w-5 h-5" style={{ color: 'rgb(var(--accent))' }} />
-              Personalized Recommendations
+              {t('quick_actions.personalized_recommendations')}
             </DialogTitle>
           </DialogHeader>
           <AiPersonalizedFeed />

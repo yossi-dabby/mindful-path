@@ -3,20 +3,23 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { cn } from "@/lib/utils";
 import { Home, MessageCircle, BookOpen, Activity, Dumbbell, Heart } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 // CRITICAL: This height MUST match the padding-bottom in AppContent
 export const BOTTOM_NAV_HEIGHT = 80; // 20 * 4 = 80px (h-20)
 
-const navItems = [
-  { name: 'Home', icon: Home, path: 'Home' },
-  { name: 'Chat', icon: MessageCircle, path: 'Chat' },
-  { name: 'Coach', icon: Heart, path: 'Coach' },
-  { name: 'Journal', icon: BookOpen, path: 'Journal' },
-  { name: 'Mood', icon: Activity, path: 'MoodTracker' },
-  { name: 'Exercises', icon: Dumbbell, path: 'Exercises' }
-];
-
 export default function BottomNav({ currentPageName }) {
+  const { t } = useTranslation();
+  
+  const navItems = [
+    { name: t('sidebar.home.name'), icon: Home, path: 'Home' },
+    { name: t('sidebar.chat.name'), icon: MessageCircle, path: 'Chat' },
+    { name: t('sidebar.coach.name'), icon: Heart, path: 'Coach' },
+    { name: t('sidebar.journal.name'), icon: BookOpen, path: 'Journal' },
+    { name: t('sidebar.mood.name'), icon: Activity, path: 'MoodTracker' },
+    { name: t('sidebar.exercises.name'), icon: Dumbbell, path: 'Exercises' }
+  ];
+  
   return (
     <nav 
       className="md:hidden fixed bottom-0 left-0 right-0 backdrop-blur-xl border-t shadow-lg"

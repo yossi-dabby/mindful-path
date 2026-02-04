@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Shield, Download, Trash2, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export default function DataPrivacy({ user }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [retentionDays, setRetentionDays] = useState(user?.preferences?.data_retention_days || 365);
   const [deleteConfirming, setDeleteConfirming] = useState(false);
@@ -25,11 +27,11 @@ export default function DataPrivacy({ user }) {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries(['currentUser']);
-      setActionMessage({ type: 'success', text: 'Retention setting saved' });
+      setActionMessage({ type: 'success', text: t('settings.data_privacy.retention_saved') });
       setTimeout(() => setActionMessage(null), 3000);
     },
     onError: () => {
-      setActionMessage({ type: 'error', text: 'Failed to save retention setting' });
+      setActionMessage({ type: 'error', text: t('settings.data_privacy.retention_failed') });
       setTimeout(() => setActionMessage(null), 3000);
     }
   });
@@ -91,11 +93,11 @@ export default function DataPrivacy({ user }) {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
-      setActionMessage({ type: 'success', text: 'Data exported successfully' });
+      setActionMessage({ type: 'success', text: t('settings.data_privacy.export_success') });
       setTimeout(() => setActionMessage(null), 3000);
     } catch (error) {
       console.error('Export error:', error);
-      setActionMessage({ type: 'error', text: 'Failed to export data' });
+      setActionMessage({ type: 'error', text: t('settings.data_privacy.export_failed') });
       setTimeout(() => setActionMessage(null), 3000);
     } finally {
       setExportingData(false);
@@ -131,13 +133,13 @@ export default function DataPrivacy({ user }) {
         await base44.entities.ThoughtJournal.delete(entry.id);
       }
 
-      setActionMessage({ type: 'success', text: 'All data cleared successfully' });
+      setActionMessage({ type: 'success', text: t('settings.data_privacy.delete_success') });
       setDeleteConfirming(false);
       setTimeout(() => setActionMessage(null), 3000);
       queryClient.invalidateQueries();
     } catch (error) {
       console.error('Delete error:', error);
-      setActionMessage({ type: 'error', text: 'Failed to delete data' });
+      setActionMessage({ type: 'error', text: t('settings.data_privacy.delete_failed') });
       setTimeout(() => setActionMessage(null), 3000);
     } finally {
       setDeletingData(false);
@@ -163,7 +165,7 @@ export default function DataPrivacy({ user }) {
         <CardHeader className="border-b">
           <CardTitle className="flex items-center gap-2">
             <Shield className="w-5 h-5 text-gray-600" />
-            Data & Privacy
+            {t('settings.data_privacy.title')}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6 space-y-6">
@@ -192,10 +194,10 @@ export default function DataPrivacy({ user }) {
           {/* Data Retention */}
           <div>
             <label className="text-sm font-medium text-gray-700 mb-3 block">
-              Data Retention Policy
+              {t('settings.data_privacy.retention_label')}
             </label>
             <p className="text-sm text-gray-600 mb-4">
-              Choose how long your therapy records, mood entries, and journal data are kept. After this period, records may be automatically deleted.
+              {t('settings.data_privacy.retention_description')}
             </p>
             <div className="flex gap-3 items-center">
               <Select value={retentionDays.toString()} onValueChange={handleRetentionChange}>
@@ -203,10 +205,10 @@ export default function DataPrivacy({ user }) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="30">30 days</SelectItem>
-                  <SelectItem value="90">90 days</SelectItem>
-                  <SelectItem value="365">1 year</SelectItem>
-                  <SelectItem value="999999">Keep indefinitely</SelectItem>
+                  <SelectItem value="30">{t('settings.data_privacy.retention_30_days')}</SelectItem>
+                  <SelectItem value="90">{t('settings.data_privacy.retention_90_days')}</SelectItem>
+                  <SelectItem value="365">{t('settings.data_privacy.retention_1_year')}</SelectItem>
+                  <SelectItem value="999999">{t('settings.data_privacy.retention_indefinite')}</SelectItem>
                 </SelectContent>
               </Select>
               {updateRetentionMutation.isPending && (
@@ -214,15 +216,19 @@ export default function DataPrivacy({ user }) {
               )}
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              Current setting: {retentionDays === 999999 ? 'Indefinite' : `${retentionDays} days`}
+              {t('settings.data_privacy.current_setting', { 
+                value: retentionDays === 999999 
+                  ? t('settings.data_privacy.current_setting_indefinite') 
+                  : t('settings.data_privacy.current_setting_days', { days: retentionDays })
+              })}
             </p>
           </div>
 
           {/* Export Data */}
           <div className="border-t pt-6">
-            <label className="text-sm font-medium text-gray-700 mb-3 block">Export Your Data</label>
+            <label className="text-sm font-medium text-gray-700 mb-3 block">{t('settings.data_privacy.export_title')}</label>
             <p className="text-sm text-gray-600 mb-4">
-              Download a summary of your therapy records, mood entries, and goals as a JSON file.
+              {t('settings.data_privacy.export_description')}
             </p>
             <Button
               onClick={handleExportData}
@@ -236,15 +242,15 @@ export default function DataPrivacy({ user }) {
               ) : (
                 <Download className="w-4 h-4" />
               )}
-              {exportingData ? 'Exporting...' : 'Export Data'}
+              {exportingData ? t('settings.data_privacy.exporting') : t('settings.data_privacy.export_button')}
             </Button>
           </div>
 
           {/* Delete Data */}
           <div className="border-t pt-6">
-            <label className="text-sm font-medium text-gray-700 mb-3 block">Delete All Data</label>
+            <label className="text-sm font-medium text-gray-700 mb-3 block">{t('settings.data_privacy.delete_title')}</label>
             <p className="text-sm text-gray-600 mb-4">
-              Permanently remove all your therapy records, mood entries, and journal data. This action cannot be undone.
+              {t('settings.data_privacy.delete_description')}
             </p>
 
             {/* Confirmation State */}
@@ -256,7 +262,7 @@ export default function DataPrivacy({ user }) {
                 data-testid="delete-confirm-panel"
               >
                 <p className="text-sm font-medium text-red-800 mb-3">
-                  Are you sure? This will permanently delete all your data.
+                  {t('settings.data_privacy.delete_confirm_prompt')}
                 </p>
                 <div className="flex gap-3">
                   <Button
@@ -268,12 +274,12 @@ export default function DataPrivacy({ user }) {
                     {deletingData ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Deleting...
+                        {t('settings.data_privacy.deleting')}
                       </>
                     ) : (
                       <>
                         <Trash2 className="w-4 h-4 mr-2" />
-                        Yes, Delete All
+                        {t('settings.data_privacy.delete_confirm_button')}
                       </>
                     )}
                   </Button>
@@ -284,7 +290,7 @@ export default function DataPrivacy({ user }) {
                     data-testid="delete-cancel-btn"
                     disabled={deletingData}
                   >
-                    Cancel
+                    {t('settings.data_privacy.cancel_button')}
                   </Button>
                 </div>
               </motion.div>
@@ -300,7 +306,7 @@ export default function DataPrivacy({ user }) {
                 data-testid="delete-data-btn"
               >
                 <Trash2 className="w-4 h-4" />
-                Delete All Data
+                {t('settings.data_privacy.delete_button')}
               </Button>
             )}
           </div>
@@ -308,7 +314,7 @@ export default function DataPrivacy({ user }) {
           {/* Info Box */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-xs text-blue-800">
-              <strong>Privacy Notice:</strong> This app does not claim HIPAA compliance. Your data is stored securely in our database and subject to our terms of service. Deletion requests are processed immediately. For questions about data handling, contact support.
+              {t('settings.data_privacy.privacy_notice')}
             </p>
           </div>
         </CardContent>

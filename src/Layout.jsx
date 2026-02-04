@@ -4,6 +4,7 @@ import DraggableAiCompanion from './components/ai/DraggableAiCompanion';
 import BottomNav from './components/layout/BottomNav';
 import Sidebar from './components/layout/Sidebar';
 import AppContent from './components/layout/AppContent';
+import './components/i18n/i18nConfig';
 
 export default function Layout({ children, currentPageName }) {
   const [theme, setTheme] = React.useState('default');

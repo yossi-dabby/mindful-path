@@ -3,26 +3,29 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { cn } from "@/lib/utils";
 import { Home, MessageCircle, BookOpen, Activity, Dumbbell, Heart, Users, Settings, Compass } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export const SIDEBAR_WIDTH = 288; // 72 * 4 = 288px (w-72)
 
-const navItems = [
-  { name: 'Home', icon: Home, path: 'Home', description: 'Dashboard & overview' },
-  { name: 'Chat', icon: MessageCircle, path: 'Chat', description: 'AI Therapist' },
-  { name: 'Coach', icon: Heart, path: 'Coach', description: 'AI Wellness Coach' },
-  { name: 'Mood', icon: Activity, path: 'MoodTracker', description: 'Track your mood' },
-  { name: 'Journal', icon: BookOpen, path: 'Journal', description: 'Thought records' },
-  { name: 'Progress', icon: Activity, path: 'Progress', description: 'Track your journey' },
-  { name: 'Exercises', icon: Dumbbell, path: 'Exercises', description: 'CBT techniques' }
-];
-
-const secondaryItems = [
-  { name: 'Community', icon: Users, path: 'Community' },
-  { name: 'Resources', icon: BookOpen, path: 'Resources' },
-  { name: 'Settings', icon: Settings, path: 'Settings' }
-];
-
 export default function Sidebar({ currentPageName }) {
+  const { t } = useTranslation();
+  
+  const navItems = [
+    { name: t('sidebar.home.name'), icon: Home, path: 'Home', description: t('sidebar.home.description') },
+    { name: t('sidebar.chat.name'), icon: MessageCircle, path: 'Chat', description: t('sidebar.chat.description') },
+    { name: t('sidebar.coach.name'), icon: Heart, path: 'Coach', description: t('sidebar.coach.description') },
+    { name: t('sidebar.mood.name'), icon: Activity, path: 'MoodTracker', description: t('sidebar.mood.description') },
+    { name: t('sidebar.journal.name'), icon: BookOpen, path: 'Journal', description: t('sidebar.journal.description') },
+    { name: t('sidebar.progress.name'), icon: Activity, path: 'Progress', description: t('sidebar.progress.description') },
+    { name: t('sidebar.exercises.name'), icon: Dumbbell, path: 'Exercises', description: t('sidebar.exercises.description') }
+  ];
+  
+  const secondaryItems = [
+    { name: t('sidebar.community.name'), icon: Users, path: 'Community' },
+    { name: t('sidebar.resources.name'), icon: BookOpen, path: 'Resources' },
+    { name: t('sidebar.settings.name'), icon: Settings, path: 'Settings' }
+  ];
+  
   return (
     <nav 
       className="hidden md:flex fixed left-0 top-0 bottom-0 backdrop-blur-xl border-r shadow-sm flex-col py-6"
@@ -44,8 +47,8 @@ export default function Sidebar({ currentPageName }) {
             <span className="text-white font-bold text-lg">M</span>
           </div>
           <div>
-            <h1 className="text-lg font-semibold" style={{ color: '#1A3A34' }}>MindWell</h1>
-            <p className="text-xs" style={{ color: '#5A7A72' }}>Mental Wellness App</p>
+            <h1 className="text-lg font-semibold" style={{ color: '#1A3A34' }}>{t('global.app_name')}</h1>
+            <p className="text-xs" style={{ color: '#5A7A72' }}>{t('global.app_tagline')}</p>
           </div>
         </div>
       </div>

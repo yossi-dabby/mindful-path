@@ -9,9 +9,12 @@ import { Switch } from '@/components/ui/switch';
 import { User, Bell, CreditCard, LogOut, Crown, Shield, Layout as LayoutIcon } from 'lucide-react';
 import ThemeSelector, { themes } from '../components/settings/ThemeSelector';
 import DataPrivacy from '../components/settings/DataPrivacy';
+import LanguageSelector from '../components/settings/LanguageSelector';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export default function Settings() {
+  const { t } = useTranslation();
   const [user, setUser] = useState(null);
   const [fullName, setFullName] = useState('');
   const [currentTheme, setCurrentTheme] = useState('default');
@@ -109,7 +112,7 @@ export default function Settings() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">Loading...</p>
+        <p className="text-gray-500">{t('common.loading')}</p>
       </div>
     );
   }
@@ -123,8 +126,8 @@ export default function Settings() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-3xl md:text-4xl font-light mb-2" style={{ color: '#2D3748' }}>Settings</h1>
-        <p style={{ color: '#718096' }}>Manage your account and preferences</p>
+        <h1 className="text-3xl md:text-4xl font-light mb-2" style={{ color: '#2D3748' }}>{t('settings.page_title')}</h1>
+        <p style={{ color: '#718096' }}>{t('settings.page_subtitle')}</p>
       </motion.div>
 
       {/* Profile Section */}
@@ -142,28 +145,28 @@ export default function Settings() {
         <CardHeader className="border-b">
           <CardTitle className="flex items-center gap-2">
             <User className="w-5 h-5 text-gray-600" />
-            Profile
+            {t('settings.profile.title')}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6 space-y-4">
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">Full Name</label>
+            <label className="text-sm font-medium text-gray-700 mb-2 block">{t('settings.profile.full_name')}</label>
             <Input
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              placeholder="Your name"
+              placeholder={t('settings.profile.name_placeholder')}
               className="rounded-xl"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">Email</label>
+            <label className="text-sm font-medium text-gray-700 mb-2 block">{t('settings.profile.email')}</label>
             <Input value={user.email} disabled className="rounded-xl bg-gray-50" />
-            <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+            <p className="text-xs text-gray-500 mt-1">{t('settings.profile.email_readonly')}</p>
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">Role</label>
+            <label className="text-sm font-medium text-gray-700 mb-2 block">{t('settings.profile.role')}</label>
             <div className="flex items-center gap-2">
               <Badge
                 variant="secondary"
@@ -176,12 +179,12 @@ export default function Settings() {
                 {user.role === 'admin' ? (
                   <>
                     <Shield className="w-3 h-3 mr-1" />
-                    Admin
+                    {t('settings.profile.role_admin')}
                   </>
                 ) : (
                   <>
                     <User className="w-3 h-3 mr-1" />
-                    User
+                    {t('settings.profile.role_user')}
                   </>
                 )}
               </Badge>
@@ -198,17 +201,27 @@ export default function Settings() {
               boxShadow: '0 2px 8px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.06)'
             }}
           >
-            {updateProfileMutation.isPending ? 'Saving...' : 'Save Changes'}
+            {updateProfileMutation.isPending ? t('settings.profile.saving') : t('settings.profile.save_changes')}
           </Button>
         </CardContent>
       </Card>
+      </motion.div>
+
+      {/* Language Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+        className="mb-6"
+      >
+        <LanguageSelector />
       </motion.div>
 
       {/* Theme Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.2 }}
+        transition={{ duration: 0.4, delay: 0.25 }}
         className="mb-6"
       >
         <ThemeSelector currentTheme={currentTheme} onThemeChange={handleThemeChange} />
@@ -229,12 +242,12 @@ export default function Settings() {
           <CardHeader className="border-b">
             <CardTitle className="flex items-center gap-2">
               <LayoutIcon className="w-5 h-5 text-gray-600" />
-              Dashboard Layout
+              {t('settings.dashboard_layout.title')}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <p className="text-sm text-gray-600 mb-4">
-              Choose how your home dashboard is organized
+              {t('settings.dashboard_layout.description')}
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <button
@@ -245,8 +258,8 @@ export default function Settings() {
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
-                <h3 className="font-semibold text-gray-800 mb-1">Default</h3>
-                <p className="text-xs text-gray-500">Balanced layout with all sections</p>
+                <h3 className="font-semibold text-gray-800 mb-1">{t('settings.dashboard_layout.default_title')}</h3>
+                <p className="text-xs text-gray-500">{t('settings.dashboard_layout.default_description')}</p>
               </button>
               <button
                 onClick={() => handleDashboardLayoutChange('compact')}
@@ -256,8 +269,8 @@ export default function Settings() {
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
-                <h3 className="font-semibold text-gray-800 mb-1">Compact</h3>
-                <p className="text-xs text-gray-500">Condensed view for quick access</p>
+                <h3 className="font-semibold text-gray-800 mb-1">{t('settings.dashboard_layout.compact_title')}</h3>
+                <p className="text-xs text-gray-500">{t('settings.dashboard_layout.compact_description')}</p>
               </button>
             </div>
           </CardContent>
@@ -279,32 +292,32 @@ export default function Settings() {
         <CardHeader className="border-b">
           <CardTitle className="flex items-center gap-2">
             <CreditCard className="w-5 h-5 text-gray-600" />
-            Subscription
+            {t('settings.subscription.title')}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           <div className="flex items-start justify-between">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <h3 className="text-lg font-semibold text-gray-800">Free Trial</h3>
-                <Badge className="bg-green-100 text-green-700">Active</Badge>
+                <h3 className="text-lg font-semibold text-gray-800">{t('settings.subscription.free_trial')}</h3>
+                <Badge className="bg-green-100 text-green-700">{t('settings.subscription.active')}</Badge>
               </div>
               <p className="text-sm text-gray-600 mb-4">
-                You're currently on a free trial. Upgrade to Premium for unlimited access to all features.
+                {t('settings.subscription.description')}
               </p>
               <ul className="text-sm text-gray-600 space-y-1 mb-4">
-                <li>✓ Limited therapy sessions (5 free)</li>
-                <li>✓ Basic CBT exercises</li>
-                <li>✓ Mood tracking</li>
+                <li>{t('settings.subscription.feature_sessions')}</li>
+                <li>{t('settings.subscription.feature_exercises')}</li>
+                <li>{t('settings.subscription.feature_mood')}</li>
               </ul>
             </div>
           </div>
           <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl">
             <Crown className="w-4 h-4 mr-2" />
-            Upgrade to Premium - $9.99/month
+            {t('settings.subscription.upgrade_button')}
           </Button>
           <p className="text-xs text-gray-500 mt-3">
-            Premium includes: Unlimited sessions, advanced exercises, priority support, and more.
+            {t('settings.subscription.premium_benefits')}
           </p>
         </CardContent>
       </Card>
@@ -335,15 +348,15 @@ export default function Settings() {
         <CardHeader className="border-b">
           <CardTitle className="flex items-center gap-2">
             <Bell className="w-5 h-5 text-gray-600" />
-            Notifications
+            {t('settings.notifications.title')}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           <div className="space-y-4">
             <div className="flex items-center justify-between py-3">
               <div className="flex-1">
-                <p className="font-medium text-gray-800">Daily Reminders</p>
-                <p className="text-sm text-gray-500">Get reminded to check in daily</p>
+                <p className="font-medium text-gray-800">{t('settings.notifications.daily_reminders')}</p>
+                <p className="text-sm text-gray-500">{t('settings.notifications.daily_reminders_description')}</p>
               </div>
               <Switch
                 checked={notifications.dailyReminders}
@@ -352,8 +365,8 @@ export default function Settings() {
             </div>
             <div className="flex items-center justify-between py-3 border-t">
               <div className="flex-1">
-                <p className="font-medium text-gray-800">Progress Updates</p>
-                <p className="text-sm text-gray-500">Weekly summary of your progress</p>
+                <p className="font-medium text-gray-800">{t('settings.notifications.progress_updates')}</p>
+                <p className="text-sm text-gray-500">{t('settings.notifications.progress_updates_description')}</p>
               </div>
               <Switch
                 checked={notifications.progressUpdates}
@@ -362,8 +375,8 @@ export default function Settings() {
             </div>
             <div className="flex items-center justify-between py-3 border-t">
               <div className="flex-1">
-                <p className="font-medium text-gray-800">Goal Reminders</p>
-                <p className="text-sm text-gray-500">Notifications about goal deadlines</p>
+                <p className="font-medium text-gray-800">{t('settings.notifications.goal_reminders')}</p>
+                <p className="text-sm text-gray-500">{t('settings.notifications.goal_reminders_description')}</p>
               </div>
               <Switch
                 checked={notifications.goalReminders}
@@ -372,8 +385,8 @@ export default function Settings() {
             </div>
             <div className="flex items-center justify-between py-3 border-t">
               <div className="flex-1">
-                <p className="font-medium text-gray-800">Exercise Reminders</p>
-                <p className="text-sm text-gray-500">Suggested times for CBT exercises</p>
+                <p className="font-medium text-gray-800">{t('settings.notifications.exercise_reminders')}</p>
+                <p className="text-sm text-gray-500">{t('settings.notifications.exercise_reminders_description')}</p>
               </div>
               <Switch
                 checked={notifications.exerciseReminders}
@@ -398,7 +411,7 @@ export default function Settings() {
           boxShadow: '0 3px 12px rgba(38, 166, 154, 0.1), 0 1px 3px rgba(0,0,0,0.04)'
         }}>
         <CardHeader className="border-b">
-          <CardTitle>Account</CardTitle>
+          <CardTitle>{t('settings.account.title')}</CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           <Button
@@ -407,7 +420,7 @@ export default function Settings() {
             className="w-full rounded-xl border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
           >
             <LogOut className="w-4 h-4 mr-2" />
-            Log Out
+            {t('settings.account.logout')}
           </Button>
         </CardContent>
       </Card>
@@ -416,13 +429,13 @@ export default function Settings() {
       {/* Footer */}
       <div className="mt-8 text-center">
         <p className="text-sm text-gray-500">
-          Need help?{' '}
+          {t('settings.footer.need_help')}{' '}
           <a href="#" className="text-green-600 hover:text-green-700 font-medium">
-            Contact Support
+            {t('settings.footer.contact_support')}
           </a>
         </p>
         <p className="text-xs text-gray-400 mt-2">
-          MindCare CBT Therapist · Version 1.0
+          {t('settings.footer.version')}
         </p>
       </div>
     </div>
