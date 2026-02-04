@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { cn } from "@/lib/utils";
-import { Home, MessageCircle, BookOpen, Activity, Dumbbell, Heart, Users, Settings } from 'lucide-react';
+import { Home, MessageCircle, BookOpen, Activity, Dumbbell, Heart, Users, Settings, Compass } from 'lucide-react';
 
 export const SIDEBAR_WIDTH = 288; // 72 * 4 = 288px (w-72)
 
@@ -12,6 +12,7 @@ const navItems = [
   { name: 'Coach', icon: Heart, path: 'Coach', description: 'AI Wellness Coach' },
   { name: 'Mood', icon: Activity, path: 'MoodTracker', description: 'Track your mood' },
   { name: 'Journal', icon: BookOpen, path: 'Journal', description: 'Thought records' },
+  { name: 'Journeys', icon: Compass, path: 'Journeys', description: 'Curated skill paths' },
   { name: 'Progress', icon: Activity, path: 'Progress', description: 'Track your journey' },
   { name: 'Exercises', icon: Dumbbell, path: 'Exercises', description: 'CBT techniques' }
 ];
