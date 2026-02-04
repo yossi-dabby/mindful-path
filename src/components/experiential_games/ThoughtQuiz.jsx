@@ -41,6 +41,15 @@ export default function ThoughtQuiz({ onClose }) {
   }, [score, questionsAnswered, difficulty]);
 
   const currentItem = questionPool[currentIndex];
+  
+  // Guard: Prevent render if currentItem is undefined
+  if (!currentItem) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-sm text-gray-500">Loading question...</p>
+      </div>
+    );
+  }
 
   const handleAnswer = (index) => {
     setSelectedOption(index);
