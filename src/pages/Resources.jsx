@@ -5,10 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Search, Bookmark, Sparkles, Library } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import ResourceCard from '../components/resources/ResourceCard';
 import AIResourceRecommendations from '../components/resources/AIResourceRecommendations';
 
 export default function Resources() {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [activeTab, setActiveTab] = useState('all');
@@ -60,30 +62,30 @@ export default function Resources() {
   const [selectedType, setSelectedType] = useState('all');
 
   const categories = [
-    { value: 'all', label: 'All Topics' },
-    { value: 'anxiety', label: 'Anxiety' },
-    { value: 'depression', label: 'Depression' },
-    { value: 'stress', label: 'Stress' },
-    { value: 'mindfulness', label: 'Mindfulness' },
-    { value: 'relationships', label: 'Relationships' },
-    { value: 'self-esteem', label: 'Self-Esteem' },
-    { value: 'sleep', label: 'Sleep' },
-    { value: 'coping_skills', label: 'Coping Skills' },
-    { value: 'emotional_regulation', label: 'Emotional Regulation' },
-    { value: 'communication', label: 'Communication' },
-    { value: 'general', label: 'General Wellness' }
+    { value: 'all', label: t('resources.categories.all') },
+    { value: 'anxiety', label: t('resources.categories.anxiety') },
+    { value: 'depression', label: t('resources.categories.depression') },
+    { value: 'stress', label: t('resources.categories.stress') },
+    { value: 'mindfulness', label: t('resources.categories.mindfulness') },
+    { value: 'relationships', label: t('resources.categories.relationships') },
+    { value: 'self-esteem', label: t('resources.categories.self_esteem') },
+    { value: 'sleep', label: t('resources.categories.sleep') },
+    { value: 'coping_skills', label: t('resources.categories.coping_skills') },
+    { value: 'emotional_regulation', label: t('resources.categories.emotional_regulation') },
+    { value: 'communication', label: t('resources.categories.communication') },
+    { value: 'general', label: t('resources.categories.general') }
   ];
 
   const contentTypes = [
-    { value: 'all', label: 'All Types' },
-    { value: 'article', label: 'Articles' },
-    { value: 'meditation', label: 'Meditations' },
-    { value: 'scenario', label: 'Practice Scenarios' },
-    { value: 'interview', label: 'Expert Interviews' },
-    { value: 'guide', label: 'Guides' },
-    { value: 'video', label: 'Videos' },
-    { value: 'podcast', label: 'Podcasts' },
-    { value: 'book', label: 'Books' }
+    { value: 'all', label: t('resources.content_types.all') },
+    { value: 'article', label: t('resources.content_types.article') },
+    { value: 'meditation', label: t('resources.content_types.meditation') },
+    { value: 'scenario', label: t('resources.content_types.scenario') },
+    { value: 'interview', label: t('resources.content_types.interview') },
+    { value: 'guide', label: t('resources.content_types.guide') },
+    { value: 'video', label: t('resources.content_types.video') },
+    { value: 'podcast', label: t('resources.content_types.podcast') },
+    { value: 'book', label: t('resources.content_types.book') }
   ];
 
   const savedResourceIds = savedResources.map(sr => sr.resource_id);
@@ -119,9 +121,9 @@ export default function Resources() {
       <div className="mb-8 mt-4">
         <h1 className="text-3xl md:text-4xl font-light mb-2 flex items-center gap-3" style={{ color: '#1A3A34' }}>
           <Library className="w-8 h-8" style={{ color: '#26A69A' }} />
-          Resource Library
+          {t('resources.page_title')}
         </h1>
-        <p style={{ color: '#5A7A72' }}>Curated mental health resources for your journey</p>
+        <p style={{ color: '#5A7A72' }}>{t('resources.page_subtitle')}</p>
       </div>
 
       {/* AI Recommendations */}
@@ -141,7 +143,7 @@ export default function Resources() {
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search resources, topics, tags..."
+            placeholder={t('resources.search_placeholder')}
             className="pl-10 h-12"
             style={{ borderRadius: '28px' }}
           />
@@ -149,7 +151,7 @@ export default function Resources() {
 
         <div className="space-y-3">
           <div>
-            <p className="text-sm font-medium mb-2" style={{ color: '#1A3A34' }}>Category</p>
+            <p className="text-sm font-medium mb-2" style={{ color: '#1A3A34' }}>{t('resources.category_label')}</p>
             <div className="flex gap-2 overflow-x-auto pb-2">
               {categories.map((cat) => (
                 <Button
@@ -170,7 +172,7 @@ export default function Resources() {
             </div>
           </div>
           <div>
-            <p className="text-sm font-medium mb-2" style={{ color: '#1A3A34' }}>Content Type</p>
+            <p className="text-sm font-medium mb-2" style={{ color: '#1A3A34' }}>{t('resources.content_type_label')}</p>
             <div className="flex gap-2 overflow-x-auto pb-2">
               {contentTypes.map((type) => (
                 <Button
@@ -199,10 +201,10 @@ export default function Resources() {
           background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.7) 0%, rgba(180, 220, 210, 0.6) 100%)',
           borderRadius: '28px'
         }}>
-          <TabsTrigger value="all">All Resources</TabsTrigger>
+          <TabsTrigger value="all">{t('resources.tabs.all')}</TabsTrigger>
           <TabsTrigger value="saved" className="flex items-center gap-2">
             <Bookmark className="w-4 h-4" />
-            Saved ({savedResources.length})
+            {t('resources.tabs.saved')} ({savedResources.length})
           </TabsTrigger>
         </TabsList>
       </Tabs>
@@ -210,13 +212,13 @@ export default function Resources() {
       {/* Resources Grid */}
       {isLoading ? (
         <div className="text-center py-12">
-          <p className="text-gray-500">Loading resources...</p>
+          <p className="text-gray-500">{t('resources.loading')}</p>
         </div>
       ) : displayedResources.length === 0 ? (
         <div className="text-center py-12">
           <Library className="w-16 h-16 mx-auto mb-4" style={{ color: '#A8D4CB' }} />
-          <p className="mb-2" style={{ color: '#5A7A72' }}>No resources found</p>
-          <p className="text-sm" style={{ color: '#7A9A92' }}>Try adjusting your search or filters</p>
+          <p className="mb-2" style={{ color: '#5A7A72' }}>{t('resources.empty_state.no_resources_title')}</p>
+          <p className="text-sm" style={{ color: '#7A9A92' }}>{t('resources.empty_state.no_resources_message')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

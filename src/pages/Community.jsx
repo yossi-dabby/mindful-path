@@ -6,6 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Users, MessageSquare, TrendingUp, Search, ThumbsUp, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import ForumPostCard from '../components/community/ForumPostCard';
 import ForumPostForm from '../components/community/ForumPostForm';
 import GroupCard from '../components/community/GroupCard';
@@ -14,6 +15,7 @@ import ProgressShareForm from '../components/community/ProgressShareForm';
 import ModerationTools from '../components/community/ModerationTools';
 
 export default function Community() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('forum');
   const [showPostForm, setShowPostForm] = useState(false);
   const [showGroupForm, setShowGroupForm] = useState(false);
@@ -94,8 +96,8 @@ export default function Community() {
     <div className="p-4 md:p-8 max-w-7xl mx-auto" style={{ minHeight: '100vh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
       {/* Header */}
       <div className="mb-8 mt-4">
-        <h1 className="text-3xl md:text-4xl font-light mb-2" style={{ color: '#1A3A34' }}>Community</h1>
-        <p style={{ color: '#5A7A72' }}>Connect, share, and support each other's journeys</p>
+        <h1 className="text-3xl md:text-4xl font-light mb-2" style={{ color: '#1A3A34' }}>{t('community.page_title')}</h1>
+        <p style={{ color: '#5A7A72' }}>{t('community.page_subtitle')}</p>
       </div>
 
       {/* Quick Stats */}
@@ -109,7 +111,7 @@ export default function Community() {
             <MessageSquare className="w-8 h-8" style={{ color: '#26A69A' }} />
             <div>
               <p className="text-2xl font-bold" style={{ color: '#1A3A34' }}>{forumPosts.length}</p>
-              <p className="text-sm" style={{ color: '#3D5A52' }}>Forum Posts</p>
+              <p className="text-sm" style={{ color: '#3D5A52' }}>{t('community.stats.forum_posts')}</p>
             </div>
           </CardContent>
         </Card>
@@ -122,7 +124,7 @@ export default function Community() {
             <Users className="w-8 h-8" style={{ color: '#26A69A' }} />
             <div>
               <p className="text-2xl font-bold" style={{ color: '#1A3A34' }}>{groups.length}</p>
-              <p className="text-sm" style={{ color: '#3D5A52' }}>Active Groups</p>
+              <p className="text-sm" style={{ color: '#3D5A52' }}>{t('community.stats.active_groups')}</p>
             </div>
           </CardContent>
         </Card>
@@ -135,7 +137,7 @@ export default function Community() {
             <TrendingUp className="w-8 h-8" style={{ color: '#26A69A' }} />
             <div>
               <p className="text-2xl font-bold" style={{ color: '#1A3A34' }}>{sharedProgress.length}</p>
-              <p className="text-sm" style={{ color: '#3D5A52' }}>Success Stories</p>
+              <p className="text-sm" style={{ color: '#3D5A52' }}>{t('community.stats.success_stories')}</p>
             </div>
           </CardContent>
         </Card>
@@ -149,9 +151,9 @@ export default function Community() {
             borderColor: 'rgba(38, 166, 154, 0.25)',
             borderRadius: '28px'
           }}>
-            <TabsTrigger value="forum">Forum</TabsTrigger>
-            <TabsTrigger value="groups">Groups</TabsTrigger>
-            <TabsTrigger value="progress">Success Stories</TabsTrigger>
+            <TabsTrigger value="forum">{t('community.tabs.forum')}</TabsTrigger>
+            <TabsTrigger value="groups">{t('community.tabs.groups')}</TabsTrigger>
+            <TabsTrigger value="progress">{t('community.tabs.progress')}</TabsTrigger>
           </TabsList>
           {activeTab === 'forum' && (
             <Button onClick={() => setShowPostForm(true)} className="text-white gap-2" style={{
@@ -160,7 +162,7 @@ export default function Community() {
               boxShadow: '0 6px 20px rgba(38, 166, 154, 0.3)'
             }}>
               <Plus className="w-4 h-4" />
-              New Post
+              {t('community.buttons.new_post')}
             </Button>
           )}
           {activeTab === 'groups' && (
@@ -170,7 +172,7 @@ export default function Community() {
               boxShadow: '0 6px 20px rgba(38, 166, 154, 0.3)'
             }}>
               <Plus className="w-4 h-4" />
-              Create Group
+              {t('community.buttons.create_group')}
             </Button>
           )}
           {activeTab === 'progress' && (
@@ -180,7 +182,7 @@ export default function Community() {
               boxShadow: '0 6px 20px rgba(38, 166, 154, 0.3)'
             }}>
               <Plus className="w-4 h-4" />
-              Share Progress
+              {t('community.buttons.share_progress')}
             </Button>
           )}
         </div>
@@ -193,7 +195,7 @@ export default function Community() {
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search posts..."
+                placeholder={t('community.search_placeholder')}
                 className="pl-10"
                 style={{ borderRadius: '28px' }}
               />
@@ -202,7 +204,7 @@ export default function Community() {
             {loadingPosts ? (
               <Card>
                 <CardContent className="p-12 text-center">
-                  <p className="text-gray-500">Loading posts...</p>
+                  <p className="text-gray-500">{t('community.loading.posts')}</p>
                 </CardContent>
               </Card>
             ) : filteredPosts.length === 0 ? (
@@ -213,14 +215,14 @@ export default function Community() {
               }}>
                 <CardContent className="p-12 text-center">
                   <MessageSquare className="w-16 h-16 mx-auto mb-3" style={{ color: '#A8D4CB' }} />
-                  <h3 className="text-xl font-semibold mb-2" style={{ color: '#1A3A34' }}>No posts yet</h3>
-                  <p className="mb-4" style={{ color: '#5A7A72' }}>Be the first to start a conversation!</p>
+                  <h3 className="text-xl font-semibold mb-2" style={{ color: '#1A3A34' }}>{t('community.empty_state.no_posts_title')}</h3>
+                  <p className="mb-4" style={{ color: '#5A7A72' }}>{t('community.empty_state.no_posts_message')}</p>
                   <Button onClick={() => setShowPostForm(true)} className="text-white" style={{
                     borderRadius: '28px',
                     backgroundColor: '#26A69A',
                     boxShadow: '0 8px 24px rgba(38, 166, 154, 0.35)'
-                  }}>
-                    Create First Post
+                  }} data-testid="create-first-post-btn">
+                    {t('community.empty_state.create_first_post')}
                   </Button>
                 </CardContent>
               </Card>
@@ -246,7 +248,7 @@ export default function Community() {
           <div className="space-y-4">
             {memberships.length > 0 && (
               <div>
-                <h3 className="font-semibold text-gray-800 mb-3">Your Groups</h3>
+                <h3 className="font-semibold text-gray-800 mb-3">{t('community.your_groups')}</h3>
                 <div className="space-y-3 mb-6">
                   {groups.filter(g => myGroupIds.includes(g.id)).map((group) => (
                     <GroupCard
@@ -262,11 +264,11 @@ export default function Community() {
             )}
 
             <div>
-              <h3 className="font-semibold text-gray-800 mb-3">Discover Groups</h3>
+              <h3 className="font-semibold text-gray-800 mb-3">{t('community.discover_groups')}</h3>
               {loadingGroups ? (
                 <Card>
                   <CardContent className="p-12 text-center">
-                    <p className="text-gray-500">Loading groups...</p>
+                    <p className="text-gray-500">{t('community.loading.groups')}</p>
                   </CardContent>
                 </Card>
               ) : groups.filter(g => !myGroupIds.includes(g.id)).length === 0 ? (
@@ -277,14 +279,14 @@ export default function Community() {
                 }}>
                   <CardContent className="p-12 text-center">
                     <Users className="w-16 h-16 mx-auto mb-3" style={{ color: '#A8D4CB' }} />
-                    <h3 className="text-xl font-semibold mb-2" style={{ color: '#1A3A34' }}>No groups yet</h3>
-                    <p className="mb-4" style={{ color: '#5A7A72' }}>Create the first group to bring people together!</p>
+                    <h3 className="text-xl font-semibold mb-2" style={{ color: '#1A3A34' }}>{t('community.empty_state.no_groups_title')}</h3>
+                    <p className="mb-4" style={{ color: '#5A7A72' }}>{t('community.empty_state.no_groups_message')}</p>
                     <Button onClick={() => setShowGroupForm(true)} className="text-white" style={{
                       borderRadius: '28px',
                       backgroundColor: '#26A69A',
                       boxShadow: '0 8px 24px rgba(38, 166, 154, 0.35)'
-                    }}>
-                      Create First Group
+                    }} data-testid="create-first-group-btn">
+                      {t('community.empty_state.create_first_group')}
                     </Button>
                   </CardContent>
                 </Card>
@@ -316,14 +318,14 @@ export default function Community() {
               }}>
                 <CardContent className="p-12 text-center">
                   <TrendingUp className="w-16 h-16 mx-auto mb-3" style={{ color: '#A8D4CB' }} />
-                  <h3 className="text-xl font-semibold mb-2" style={{ color: '#1A3A34' }}>No stories yet</h3>
-                  <p className="mb-4" style={{ color: '#5A7A72' }}>Share your progress and inspire others!</p>
+                  <h3 className="text-xl font-semibold mb-2" style={{ color: '#1A3A34' }}>{t('community.empty_state.no_stories_title')}</h3>
+                  <p className="mb-4" style={{ color: '#5A7A72' }}>{t('community.empty_state.no_stories_message')}</p>
                   <Button onClick={() => setShowProgressForm(true)} className="text-white" style={{
                     borderRadius: '28px',
                     backgroundColor: '#26A69A',
                     boxShadow: '0 8px 24px rgba(38, 166, 154, 0.35)'
-                  }}>
-                    Share Your Story
+                  }} data-testid="share-story-btn">
+                    {t('community.empty_state.share_your_story')}
                   </Button>
                 </CardContent>
               </Card>
