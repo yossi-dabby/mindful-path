@@ -71,6 +71,7 @@ import TestSetupGuide from './pages/TestSetupGuide';
 import ThoughtCoach from './pages/ThoughtCoach';
 import VideoPlayer from './pages/VideoPlayer';
 import Videos from './pages/Videos';
+import Journeys from './pages/Journeys';
 import __Layout from './Layout.jsx';
 
 
@@ -99,6 +100,7 @@ export const PAGES = {
     "ThoughtCoach": ThoughtCoach,
     "VideoPlayer": VideoPlayer,
     "Videos": Videos,
+    "Journeys": Journeys,
 }
 
 export const pagesConfig = {

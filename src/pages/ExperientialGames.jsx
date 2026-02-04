@@ -65,6 +65,16 @@ export default function ExperientialGames() {
   const [gameStartTime, setGameStartTime] = useState(null);
   const { trackGamePlay } = useMindGameTracking();
 
+  React.useEffect(() => {
+    const gameSlug = searchParams.get('game');
+    if (gameSlug) {
+      const game = mindGames.find(g => g.slug === gameSlug);
+      if (game) {
+        handleGameClick(game);
+      }
+    }
+  }, []);
+
   const handleGameClick = (game) => {
     setActiveGame(game);
     setGameStartTime(Date.now());
