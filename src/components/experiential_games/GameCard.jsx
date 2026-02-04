@@ -3,8 +3,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Puzzle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export default function GameCard({ game, onClick, index }) {
+  const { t } = useTranslation();
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -37,7 +39,7 @@ export default function GameCard({ game, onClick, index }) {
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2 mb-1">
                 <h3 className="font-semibold text-base break-words line-clamp-2" style={{ color: '#1A3A34' }}>
-                  {game.title}
+                  {game.titleKey ? t(game.titleKey) : game.title}
                 </h3>
                 <Badge
                   variant="outline"
@@ -51,8 +53,8 @@ export default function GameCard({ game, onClick, index }) {
                   {game.time}
                 </Badge>
               </div>
-              <p className="text-sm line-clamp-2" style={{ color: '#5A7A72' }}>
-                {game.description}
+              <p className="text-sm line-clamp-2 break-words" style={{ color: '#5A7A72' }}>
+                {game.descriptionKey ? t(game.descriptionKey) : game.description}
               </p>
             </div>
           </div>
