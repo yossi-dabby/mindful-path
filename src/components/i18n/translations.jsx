@@ -303,11 +303,48 @@ export const translations = {
           mark_complete: "Mark Complete"
         }
       },
+      mood_tracker: {
+        page_title: "Mood Tracker",
+        page_subtitle: "Track your emotional well-being and discover patterns",
+        update_today: "Update Today",
+        log_mood: "Log Mood",
+        mood_trends: "Mood Trends",
+        loading_chart: "Loading chart...",
+        no_data: "No mood data yet",
+        no_data_subtitle: "Start checking in daily to see trends",
+        tabs: {
+          overview: "Overview",
+          calendar: "Calendar",
+          insights: "AI Insights"
+        },
+        time_range: {
+          "7_days": "7 days",
+          "14_days": "14 days",
+          "30_days": "30 days"
+        }
+      },
+      progress: {
+        page_title: "Your Progress",
+        page_subtitle: "Track your journey",
+        page_subtitle_full: "Track your journey and celebrate your growth",
+        health_wellness: "Health & Wellness",
+        tabs: {
+          overview: "Overview",
+          achievements: "Achievements",
+          rewards: "Rewards",
+          mood: "Mood",
+          goals: "Goals",
+          exercises: "Exercises",
+          health: "Health"
+        }
+      },
       mind_games: {
         page_title: "Mind Games",
         page_subtitle: "Interactive CBT & DBT skills practice",
         go_back_aria: "Go back",
-        close_aria: "Close"
+        close_aria: "Close",
+        recommended_title: "Recommended For You",
+        recommended_subtitle: "Based on your activity, we think you'll enjoy these:"
       },
       exercises: {
         page_title: "Exercises Library",
