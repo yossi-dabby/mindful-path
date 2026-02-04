@@ -9,13 +9,14 @@ import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { X, Smile, Meh, Frown, Battery, Moon, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
-const moods = [
-  { value: 'excellent', label: 'Excellent', icon: '😄', color: 'from-green-400 to-green-600' },
-  { value: 'good', label: 'Good', icon: '🙂', color: 'from-blue-400 to-blue-600' },
-  { value: 'okay', label: 'Okay', icon: '😐', color: 'from-yellow-400 to-yellow-600' },
-  { value: 'low', label: 'Low', icon: '😟', color: 'from-orange-400 to-orange-600' },
-  { value: 'very_low', label: 'Very Low', icon: '😢', color: 'from-red-400 to-red-600' }
+const moodsConfig = [
+  { value: 'excellent', labelKey: 'mood_tracker.form.mood_excellent', icon: '😄', color: 'from-green-400 to-green-600' },
+  { value: 'good', labelKey: 'mood_tracker.form.mood_good', icon: '🙂', color: 'from-blue-400 to-blue-600' },
+  { value: 'okay', labelKey: 'mood_tracker.form.mood_okay', icon: '😐', color: 'from-yellow-400 to-yellow-600' },
+  { value: 'low', labelKey: 'mood_tracker.form.mood_low', icon: '😟', color: 'from-orange-400 to-orange-600' },
+  { value: 'very_low', labelKey: 'mood_tracker.form.mood_very_low', icon: '😢', color: 'from-red-400 to-red-600' }
 ];
 
 const emotions = [
@@ -33,22 +34,23 @@ const commonActivities = [
   'watching TV', 'gaming', 'cooking', 'outdoor activities', 'therapy', 'journaling'
 ];
 
-const energyLevels = [
-  { value: 'very_low', label: 'Very Low', icon: Battery },
-  { value: 'low', label: 'Low', icon: Battery },
-  { value: 'moderate', label: 'Moderate', icon: Battery },
-  { value: 'high', label: 'High', icon: Zap },
-  { value: 'very_high', label: 'Very High', icon: Zap }
+const energyLevelsConfig = [
+  { value: 'very_low', labelKey: 'mood_tracker.form.energy_very_low', icon: Battery },
+  { value: 'low', labelKey: 'mood_tracker.form.energy_low', icon: Battery },
+  { value: 'moderate', labelKey: 'mood_tracker.form.energy_moderate', icon: Battery },
+  { value: 'high', labelKey: 'mood_tracker.form.energy_high', icon: Zap },
+  { value: 'very_high', labelKey: 'mood_tracker.form.energy_very_high', icon: Zap }
 ];
 
-const sleepQualities = [
-  { value: 'poor', label: 'Poor', icon: Moon },
-  { value: 'fair', label: 'Fair', icon: Moon },
-  { value: 'good', label: 'Good', icon: Moon },
-  { value: 'excellent', label: 'Excellent', icon: Moon }
+const sleepQualitiesConfig = [
+  { value: 'poor', labelKey: 'mood_tracker.form.sleep_poor', icon: Moon },
+  { value: 'fair', labelKey: 'mood_tracker.form.sleep_fair', icon: Moon },
+  { value: 'good', labelKey: 'mood_tracker.form.sleep_good', icon: Moon },
+  { value: 'excellent', labelKey: 'mood_tracker.form.sleep_excellent', icon: Moon }
 ];
 
 export default function DetailedMoodForm({ entry, onClose }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const today = new Date().toISOString().split('T')[0];
   const isSavingRef = React.useRef(false);
@@ -90,7 +92,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
     },
     onError: (error) => {
       isSavingRef.current = false;
-      setSaveError('Couldn\'t save. Check connection and try again.');
+      setSaveError(t('mood_tracker.form.save_error'));
     }
   });
 
@@ -118,8 +120,8 @@ export default function DetailedMoodForm({ entry, onClose }) {
       <Card className="w-full max-w-3xl border-0 shadow-2xl my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
         <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-purple-50">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-2xl">How are you feeling today?</CardTitle>
-            <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close mood entry form">
+            <CardTitle className="text-2xl">{t('mood_tracker.form.title')}</CardTitle>
+            <Button variant="ghost" size="icon" onClick={onClose} aria-label={t('mood_tracker.form.close_aria')}>
               <X className="w-5 h-5" />
             </Button>
           </div>
@@ -127,7 +129,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
         <CardContent className="p-4 md:p-6 space-y-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 280px)' }}>
           {/* Date */}
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">Date</label>
+            <label className="text-sm font-medium text-gray-700 mb-2 block">{t('mood_tracker.form.date')}</label>
             <Input
               type="date"
               value={formData.date}
@@ -139,9 +141,9 @@ export default function DetailedMoodForm({ entry, onClose }) {
 
           {/* Mood Selection */}
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-3 block">Overall Mood</label>
-            <div className="grid grid-cols-5 gap-3">
-              {moods.map((mood) => (
+            <label className="text-sm font-medium text-gray-700 mb-3 block">{t('mood_tracker.form.overall_mood')}</label>
+            <div className="grid grid-cols-5 gap-2 sm:gap-3">
+              {moodsConfig.map((mood) => (
                 <button
                   key={mood.value}
                   onClick={() => setFormData({ ...formData, mood: mood.value })}
@@ -152,8 +154,8 @@ export default function DetailedMoodForm({ entry, onClose }) {
                       : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                   )}
                 >
-                  <span className="text-3xl">{mood.icon}</span>
-                  <span className="text-xs font-medium text-gray-700">{mood.label}</span>
+                  <span className="text-2xl sm:text-3xl">{mood.icon}</span>
+                  <span className="text-xs font-medium text-gray-700 break-words text-center">{t(mood.labelKey)}</span>
                 </button>
               ))}
             </div>
@@ -162,7 +164,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
           {/* Emotions */}
           <div>
             <label className="text-sm font-medium text-gray-700 mb-3 block">
-              What emotions are you feeling?
+              {t('mood_tracker.form.emotions_question')}
             </label>
             <div className="flex flex-wrap gap-2">
               {emotions.map((emotion) => (
@@ -185,7 +187,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
           {/* Intensity */}
           <div>
             <label className="text-sm font-medium text-gray-700 mb-2 block">
-              Emotional Intensity: {formData.intensity}/10
+              {t('mood_tracker.form.intensity_label')}: {formData.intensity}/10
             </label>
             <Slider
               value={[formData.intensity]}
@@ -194,20 +196,20 @@ export default function DetailedMoodForm({ entry, onClose }) {
               max={10}
               step={1}
               className="w-full"
-              aria-label="Emotional intensity"
-              aria-valuetext={`Intensity ${formData.intensity} out of 10`}
+              aria-label={t('mood_tracker.form.intensity_label')}
+              aria-valuetext={`${t('mood_tracker.form.intensity_label')} ${formData.intensity} out of 10`}
             />
             <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>Mild</span>
-              <span>Intense</span>
+              <span>{t('mood_tracker.form.mild')}</span>
+              <span>{t('mood_tracker.form.intense')}</span>
             </div>
           </div>
 
           {/* Energy Level */}
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-3 block">Energy Level</label>
+            <label className="text-sm font-medium text-gray-700 mb-3 block">{t('mood_tracker.form.energy_level')}</label>
             <div className="grid grid-cols-5 gap-2">
-              {energyLevels.map((level) => {
+              {energyLevelsConfig.map((level) => {
                 const Icon = level.icon;
                 return (
                   <button
@@ -220,8 +222,8 @@ export default function DetailedMoodForm({ entry, onClose }) {
                         : 'border-gray-200 hover:border-gray-300'
                     )}
                   >
-                    <Icon className="w-5 h-5" />
-                    <span className="text-xs">{level.label}</span>
+                    <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="text-xs break-words text-center">{t(level.labelKey)}</span>
                   </button>
                 );
               })}
@@ -230,9 +232,9 @@ export default function DetailedMoodForm({ entry, onClose }) {
 
           {/* Sleep Quality */}
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-3 block">Sleep Quality</label>
+            <label className="text-sm font-medium text-gray-700 mb-3 block">{t('mood_tracker.form.sleep_quality')}</label>
             <div className="grid grid-cols-4 gap-2">
-              {sleepQualities.map((quality) => {
+              {sleepQualitiesConfig.map((quality) => {
                 const Icon = quality.icon;
                 return (
                   <button
@@ -245,8 +247,8 @@ export default function DetailedMoodForm({ entry, onClose }) {
                         : 'border-gray-200 hover:border-gray-300'
                     )}
                   >
-                    <Icon className="w-5 h-5" />
-                    <span className="text-xs">{quality.label}</span>
+                    <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="text-xs break-words text-center">{t(quality.labelKey)}</span>
                   </button>
                 );
               })}
@@ -256,7 +258,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
           {/* Stress Level */}
           <div>
             <label className="text-sm font-medium text-gray-700 mb-2 block">
-              Stress Level: {formData.stress_level}/10
+              {t('mood_tracker.form.stress_level')}: {formData.stress_level}/10
             </label>
             <Slider
               value={[formData.stress_level]}
@@ -265,19 +267,19 @@ export default function DetailedMoodForm({ entry, onClose }) {
               max={10}
               step={1}
               className="w-full"
-              aria-label="Stress level"
-              aria-valuetext={`Stress level ${formData.stress_level} out of 10`}
+              aria-label={t('mood_tracker.form.stress_level')}
+              aria-valuetext={`${t('mood_tracker.form.stress_level')} ${formData.stress_level} out of 10`}
             />
             <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>Relaxed</span>
-              <span>Very Stressed</span>
+              <span>{t('mood_tracker.form.relaxed')}</span>
+              <span>{t('mood_tracker.form.very_stressed')}</span>
             </div>
           </div>
 
           {/* Triggers */}
           <div>
             <label className="text-sm font-medium text-gray-700 mb-3 block">
-              What triggered your mood today?
+              {t('mood_tracker.form.triggers_question')}
             </label>
             <div className="flex flex-wrap gap-2">
               {commonTriggers.map((trigger) => (
@@ -300,7 +302,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
           {/* Activities */}
           <div>
             <label className="text-sm font-medium text-gray-700 mb-3 block">
-              What did you do today?
+              {t('mood_tracker.form.activities_question')}
             </label>
             <div className="flex flex-wrap gap-2">
               {commonActivities.map((activity) => (
@@ -323,12 +325,12 @@ export default function DetailedMoodForm({ entry, onClose }) {
           {/* Notes */}
           <div>
             <label className="text-sm font-medium text-gray-700 mb-2 block">
-              Additional Notes
+              {t('mood_tracker.form.notes_label')}
             </label>
             <Textarea
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              placeholder="Any other thoughts or observations about your day..."
+              placeholder={t('mood_tracker.form.notes_placeholder')}
               className="h-32 rounded-xl"
             />
           </div>
@@ -341,7 +343,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
           )}
           <div className="flex gap-3 pt-4">
             <Button variant="outline" onClick={onClose} className="flex-1">
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={() => {
@@ -353,7 +355,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
               disabled={isSavingRef.current || saveMutation.isPending}
               className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
             >
-              {saveMutation.isPending ? 'Saving...' : entry ? 'Update Entry' : 'Save Entry'}
+              {saveMutation.isPending ? t('mood_tracker.form.saving') : entry ? t('mood_tracker.form.update_entry') : t('mood_tracker.form.save_entry')}
             </Button>
           </div>
         </CardContent>
