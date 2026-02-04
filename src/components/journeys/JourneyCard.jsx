@@ -3,8 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, Target, TrendingUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function JourneyCard({ journey, progress, onStart, onContinue, onView }) {
+  const { t } = useTranslation();
   const isStarted = !!progress;
   const isCompleted = progress?.status === 'completed';
   const completionPercentage = progress 
@@ -32,7 +34,7 @@ export default function JourneyCard({ journey, progress, onStart, onContinue, on
           </Badge>
           {isCompleted && (
             <Badge className="bg-green-100 text-green-800">
-              ✓ Completed
+              ✓ {t('journeys.tabs.completed')}
             </Badge>
           )}
         </div>
@@ -48,11 +50,11 @@ export default function JourneyCard({ journey, progress, onStart, onContinue, on
         <div className="flex gap-4 text-xs" style={{ color: '#5A7A72' }}>
           <div className="flex items-center gap-1">
             <Calendar className="w-4 h-4" />
-            <span>{journey.duration_days} days</span>
+            <span>{journey.duration_days} {t('journeys.card.days')}</span>
           </div>
           <div className="flex items-center gap-1">
             <Target className="w-4 h-4" />
-            <span>{journey.steps?.length || 0} steps</span>
+            <span>{journey.steps?.length || 0} {t('journeys.card.steps')}</span>
           </div>
           <div className="flex items-center gap-1">
             <TrendingUp className="w-4 h-4" />
@@ -63,7 +65,7 @@ export default function JourneyCard({ journey, progress, onStart, onContinue, on
         {isStarted && !isCompleted && (
           <div>
             <div className="flex justify-between text-xs mb-1" style={{ color: '#5A7A72' }}>
-              <span>Progress</span>
+              <span>{t('journeys.card.progress')}</span>
               <span>{completionPercentage}%</span>
             </div>
             <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -89,7 +91,7 @@ export default function JourneyCard({ journey, progress, onStart, onContinue, on
                 color: 'white'
               }}
             >
-              Start Journey
+              {t('journeys.card.start_journey')}
             </Button>
           )}
           {isStarted && !isCompleted && (
@@ -102,7 +104,7 @@ export default function JourneyCard({ journey, progress, onStart, onContinue, on
                 color: 'white'
               }}
             >
-              Continue
+              {t('common.continue')}
             </Button>
           )}
           <Button
@@ -111,7 +113,7 @@ export default function JourneyCard({ journey, progress, onStart, onContinue, on
             className="flex-1"
             style={{ borderRadius: '12px' }}
           >
-            View Details
+            {t('journeys.card.view_details')}
           </Button>
         </div>
       </CardContent>

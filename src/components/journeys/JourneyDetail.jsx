@@ -5,8 +5,10 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Circle, Lock, Play } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
 export default function JourneyDetail({ journey, progress, onClose, onPlayGame }) {
+  const { t } = useTranslation();
   const [reflection, setReflection] = useState('');
   const [savingStep, setSavingStep] = useState(null);
   const queryClient = useQueryClient();
@@ -62,7 +64,7 @@ export default function JourneyDetail({ journey, progress, onClose, onPlayGame }
         {journey.outcomes && journey.outcomes.length > 0 && (
           <div className="mb-4">
             <p className="text-sm font-semibold mb-2" style={{ color: '#26A69A' }}>
-              What you'll gain:
+              {t('journeys.detail.what_youll_gain')}
             </p>
             <ul className="space-y-1">
               {journey.outcomes.map((outcome, i) => (
@@ -78,7 +80,7 @@ export default function JourneyDetail({ journey, progress, onClose, onPlayGame }
 
       <div className="space-y-3">
         <h3 className="text-lg font-semibold" style={{ color: '#1A3A34' }}>
-          Journey Steps
+          {t('journeys.detail.journey_steps')}
         </h3>
         
         {journey.steps?.map((step, index) => {
@@ -111,7 +113,7 @@ export default function JourneyDetail({ journey, progress, onClose, onPlayGame }
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div>
                       <Badge variant="outline" className="mb-1">
-                        Day {step.day}
+                        {t('journeys.detail.day')} {step.day}
                       </Badge>
                       <h4 className="font-semibold" style={{ color: '#1A3A34' }}>
                         {step.title}
@@ -135,7 +137,7 @@ export default function JourneyDetail({ journey, progress, onClose, onPlayGame }
                         }}
                       >
                         <Play className="w-4 h-4 mr-1" />
-                        Play Game
+                        {t('journeys.detail.play_game')}
                       </Button>
 
                       {step.reflection_prompt && (
@@ -146,7 +148,7 @@ export default function JourneyDetail({ journey, progress, onClose, onPlayGame }
                           <textarea
                             value={reflection}
                             onChange={(e) => setReflection(e.target.value)}
-                            placeholder="Your reflection (optional)"
+                            placeholder={t('journeys.detail.reflection_placeholder')}
                             rows={2}
                             className="w-full p-2 text-sm rounded-lg border"
                             style={{ borderColor: 'rgba(38, 166, 154, 0.3)' }}
@@ -161,7 +163,7 @@ export default function JourneyDetail({ journey, progress, onClose, onPlayGame }
                         variant="outline"
                         style={{ borderRadius: '10px' }}
                       >
-                        {savingStep === index ? 'Saving...' : 'Mark Complete'}
+                        {savingStep === index ? t('journeys.detail.saving') : t('journeys.detail.mark_complete')}
                       </Button>
                     </div>
                   )}
@@ -171,7 +173,7 @@ export default function JourneyDetail({ journey, progress, onClose, onPlayGame }
                       backgroundColor: 'rgba(34, 197, 94, 0.1)',
                       color: '#5A7A72'
                     }}>
-                      ✓ Completed
+                      ✓ {t('journeys.tabs.completed')}
                     </div>
                   )}
                 </div>
@@ -187,7 +189,7 @@ export default function JourneyDetail({ journey, progress, onClose, onPlayGame }
         className="w-full"
         style={{ borderRadius: '12px' }}
       >
-        Close
+        {t('common.close')}
       </Button>
     </div>
   );
