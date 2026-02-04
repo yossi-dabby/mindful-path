@@ -51,6 +51,7 @@ export default function AppContent({ children, currentPageName }) {
           {children}
         </motion.div>
       </AnimatePresence>
-    </main>
+      </main>
+    </>
   );
 }
