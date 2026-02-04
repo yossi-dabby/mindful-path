@@ -273,7 +273,54 @@ export const translations = {
         message: "Our AI-powered chat features are designed for users 18 and older. You still have access to other wellness tools like mood tracking, journaling, and exercises.",
         back_to_home: "Back to Home"
       },
+      journeys: {
+        page_title: "Journeys",
+        page_subtitle: "Guided skill-building paths for personal growth",
+        tabs: {
+          available: "Available",
+          in_progress: "In Progress",
+          completed: "Completed"
+        },
+        empty_state: {
+          no_available: "No journeys available right now",
+          no_in_progress: "You haven't started any journeys yet",
+          no_completed: "You haven't completed any journeys yet"
+        }
+      },
+      mind_games: {
+        page_title: "Mind Games",
+        page_subtitle: "Interactive CBT & DBT skills practice",
+        go_back_aria: "Go back",
+        close_aria: "Close"
+      },
       exercises: {
+        page_title: "Exercises Library",
+        page_subtitle: "Practice CBT techniques",
+        page_subtitle_full: "Browse and practice evidence-based CBT techniques",
+        loading: "Loading exercises...",
+        go_back_aria: "Go back",
+        ai_plan: "AI Practice Plan",
+        favorites: "Favorites",
+        search_placeholder: "Search exercises...",
+        empty_state: {
+          favorites_title: "No favorites yet",
+          no_results_title: "No exercises found",
+          favorites_message: "Mark exercises as favorites to see them here",
+          search_message: "Try adjusting your search or filters",
+          no_exercises_message: "No exercises available"
+        },
+        categories: {
+          all: "All",
+          breathing: "Breathing",
+          grounding: "Grounding",
+          cognitive: "Cognitive",
+          behavioral: "Behavioral",
+          mindfulness: "Mindfulness",
+          exposure: "Exposure",
+          sleep: "Sleep",
+          relationships: "Relationships",
+          stress: "Stress Management"
+        },
         detail: {
           untitled_exercise: "Untitled Exercise",
           duration_options_suffix: "min options",
@@ -584,7 +631,54 @@ export const translations = {
         message: "תכונות הצ'אט המופעלות על ידי AI שלנו מיועדות למשתמשים בני 18 ומעלה. יש לכם עדיין גישה לכלי רווחה אחרים כמו מעקב אחר מצב רוח, כתיבת יומן ותרגילים.",
         back_to_home: "חזרה לדף הבית"
       },
+      journeys: {
+        page_title: "מסעות",
+        page_subtitle: "מסלולי בניית מיומנויות מודרכים לצמיחה אישית",
+        tabs: {
+          available: "זמין",
+          in_progress: "בתהליך",
+          completed: "הושלם"
+        },
+        empty_state: {
+          no_available: "אין מסעות זמינים כרגע",
+          no_in_progress: "עדיין לא התחלתם מסעות",
+          no_completed: "עדיין לא השלמתם מסעות"
+        }
+      },
+      mind_games: {
+        page_title: "משחקי מוח",
+        page_subtitle: "תרגול מיומנויות אינטראקטיבי של CBT ו-DBT",
+        go_back_aria: "חזרה",
+        close_aria: "סגירה"
+      },
       exercises: {
+        page_title: "ספריית תרגילים",
+        page_subtitle: "תרגלו טכניקות CBT",
+        page_subtitle_full: "עיינו ותרגלו טכניקות CBT מבוססות ראיות",
+        loading: "טוען תרגילים...",
+        go_back_aria: "חזרה",
+        ai_plan: "תוכנית תרגול AI",
+        favorites: "מועדפים",
+        search_placeholder: "חפש תרגילים...",
+        empty_state: {
+          favorites_title: "אין מועדפים עדיין",
+          no_results_title: "לא נמצאו תרגילים",
+          favorites_message: "סמנו תרגילים כמועדפים כדי לראות אותם כאן",
+          search_message: "נסו להתאים את החיפוש או הסינונים",
+          no_exercises_message: "אין תרגילים זמינים"
+        },
+        categories: {
+          all: "הכל",
+          breathing: "נשימה",
+          grounding: "קרקוע",
+          cognitive: "קוגניטיבי",
+          behavioral: "התנהגותי",
+          mindfulness: "מיינדפולנס",
+          exposure: "חשיפה",
+          sleep: "שינה",
+          relationships: "יחסים",
+          stress: "ניהול לחץ"
+        },
         detail: {
           untitled_exercise: "תרגיל ללא כותרת",
           duration_options_suffix: "דק' אפשרויות",
@@ -895,7 +989,54 @@ export const translations = {
         message: "Nuestras funciones de chat impulsadas por IA están diseñadas para usuarios de 18 años o más. Aún tienes acceso a otras herramientas de bienestar como seguimiento del estado de ánimo, diario y ejercicios.",
         back_to_home: "Volver al Inicio"
       },
+      journeys: {
+        page_title: "Viajes",
+        page_subtitle: "Rutas guiadas de desarrollo de habilidades para crecimiento personal",
+        tabs: {
+          available: "Disponible",
+          in_progress: "En Progreso",
+          completed: "Completado"
+        },
+        empty_state: {
+          no_available: "No hay viajes disponibles en este momento",
+          no_in_progress: "Aún no has comenzado ningún viaje",
+          no_completed: "Aún no has completado ningún viaje"
+        }
+      },
+      mind_games: {
+        page_title: "Juegos Mentales",
+        page_subtitle: "Práctica interactiva de habilidades CBT y DBT",
+        go_back_aria: "Regresar",
+        close_aria: "Cerrar"
+      },
       exercises: {
+        page_title: "Biblioteca de Ejercicios",
+        page_subtitle: "Practica técnicas CBT",
+        page_subtitle_full: "Explora y practica técnicas CBT basadas en evidencia",
+        loading: "Cargando ejercicios...",
+        go_back_aria: "Regresar",
+        ai_plan: "Plan de Práctica IA",
+        favorites: "Favoritos",
+        search_placeholder: "Buscar ejercicios...",
+        empty_state: {
+          favorites_title: "Sin favoritos aún",
+          no_results_title: "No se encontraron ejercicios",
+          favorites_message: "Marca ejercicios como favoritos para verlos aquí",
+          search_message: "Intenta ajustar tu búsqueda o filtros",
+          no_exercises_message: "No hay ejercicios disponibles"
+        },
+        categories: {
+          all: "Todos",
+          breathing: "Respiración",
+          grounding: "Anclaje",
+          cognitive: "Cognitivo",
+          behavioral: "Conductual",
+          mindfulness: "Atención Plena",
+          exposure: "Exposición",
+          sleep: "Sueño",
+          relationships: "Relaciones",
+          stress: "Manejo del Estrés"
+        },
         detail: {
           untitled_exercise: "Ejercicio sin Título",
           duration_options_suffix: "min opciones",
@@ -1206,7 +1347,54 @@ export const translations = {
         message: "Nos fonctionnalités de chat alimentées par l'IA sont conçues pour les utilisateurs de 18 ans et plus. Vous avez toujours accès à d'autres outils de bien-être comme le suivi de l'humeur, le journal et les exercices.",
         back_to_home: "Retour à l'Accueil"
       },
+      journeys: {
+        page_title: "Parcours",
+        page_subtitle: "Chemins guidés de développement des compétences pour la croissance personnelle",
+        tabs: {
+          available: "Disponible",
+          in_progress: "En Cours",
+          completed: "Terminé"
+        },
+        empty_state: {
+          no_available: "Aucun parcours disponible pour le moment",
+          no_in_progress: "Vous n'avez pas encore commencé de parcours",
+          no_completed: "Vous n'avez pas encore terminé de parcours"
+        }
+      },
+      mind_games: {
+        page_title: "Jeux Mentaux",
+        page_subtitle: "Pratique interactive des compétences CBT et DBT",
+        go_back_aria: "Retour",
+        close_aria: "Fermer"
+      },
       exercises: {
+        page_title: "Bibliothèque d'Exercices",
+        page_subtitle: "Pratiquer les techniques CBT",
+        page_subtitle_full: "Parcourir et pratiquer les techniques CBT fondées sur des preuves",
+        loading: "Chargement des exercices...",
+        go_back_aria: "Retour",
+        ai_plan: "Plan de Pratique IA",
+        favorites: "Favoris",
+        search_placeholder: "Rechercher des exercices...",
+        empty_state: {
+          favorites_title: "Pas encore de favoris",
+          no_results_title: "Aucun exercice trouvé",
+          favorites_message: "Marquez les exercices comme favoris pour les voir ici",
+          search_message: "Essayez d'ajuster votre recherche ou vos filtres",
+          no_exercises_message: "Aucun exercice disponible"
+        },
+        categories: {
+          all: "Tous",
+          breathing: "Respiration",
+          grounding: "Ancrage",
+          cognitive: "Cognitif",
+          behavioral: "Comportemental",
+          mindfulness: "Pleine Conscience",
+          exposure: "Exposition",
+          sleep: "Sommeil",
+          relationships: "Relations",
+          stress: "Gestion du Stress"
+        },
         detail: {
           untitled_exercise: "Exercice sans Titre",
           duration_options_suffix: "min options",
@@ -1517,7 +1705,54 @@ export const translations = {
         message: "Unsere KI-gestützten Chat-Funktionen sind für Benutzer ab 18 Jahren konzipiert. Sie haben weiterhin Zugriff auf andere Wellness-Tools wie Stimmungsverfolgung, Tagebuchführung und Übungen.",
         back_to_home: "Zurück zur Startseite"
       },
+      journeys: {
+        page_title: "Reisen",
+        page_subtitle: "Geführte Fähigkeitsentwicklungspfade für persönliches Wachstum",
+        tabs: {
+          available: "Verfügbar",
+          in_progress: "In Bearbeitung",
+          completed: "Abgeschlossen"
+        },
+        empty_state: {
+          no_available: "Derzeit keine Reisen verfügbar",
+          no_in_progress: "Sie haben noch keine Reisen begonnen",
+          no_completed: "Sie haben noch keine Reisen abgeschlossen"
+        }
+      },
+      mind_games: {
+        page_title: "Gedankenspiele",
+        page_subtitle: "Interaktive CBT- und DBT-Fähigkeitenübung",
+        go_back_aria: "Zurück",
+        close_aria: "Schließen"
+      },
       exercises: {
+        page_title: "Übungsbibliothek",
+        page_subtitle: "CBT-Techniken üben",
+        page_subtitle_full: "Durchsuchen und üben Sie evidenzbasierte CBT-Techniken",
+        loading: "Übungen werden geladen...",
+        go_back_aria: "Zurück",
+        ai_plan: "KI-Übungsplan",
+        favorites: "Favoriten",
+        search_placeholder: "Übungen suchen...",
+        empty_state: {
+          favorites_title: "Noch keine Favoriten",
+          no_results_title: "Keine Übungen gefunden",
+          favorites_message: "Markieren Sie Übungen als Favoriten, um sie hier zu sehen",
+          search_message: "Versuchen Sie, Ihre Suche oder Filter anzupassen",
+          no_exercises_message: "Keine Übungen verfügbar"
+        },
+        categories: {
+          all: "Alle",
+          breathing: "Atmung",
+          grounding: "Erdung",
+          cognitive: "Kognitiv",
+          behavioral: "Verhaltens",
+          mindfulness: "Achtsamkeit",
+          exposure: "Exposition",
+          sleep: "Schlaf",
+          relationships: "Beziehungen",
+          stress: "Stressmanagement"
+        },
         detail: {
           untitled_exercise: "Übung ohne Titel",
           duration_options_suffix: "Min Optionen",
@@ -1828,7 +2063,54 @@ export const translations = {
         message: "Le nostre funzionalità di chat potenziate dall'IA sono progettate per utenti di 18 anni o più. Hai ancora accesso ad altri strumenti di benessere come il monitoraggio dell'umore, il diario e gli esercizi.",
         back_to_home: "Torna alla Home"
       },
+      journeys: {
+        page_title: "Percorsi",
+        page_subtitle: "Percorsi guidati di sviluppo delle competenze per la crescita personale",
+        tabs: {
+          available: "Disponibile",
+          in_progress: "In Corso",
+          completed: "Completato"
+        },
+        empty_state: {
+          no_available: "Nessun percorso disponibile al momento",
+          no_in_progress: "Non hai ancora iniziato alcun percorso",
+          no_completed: "Non hai ancora completato alcun percorso"
+        }
+      },
+      mind_games: {
+        page_title: "Giochi Mentali",
+        page_subtitle: "Pratica interattiva delle abilità CBT e DBT",
+        go_back_aria: "Indietro",
+        close_aria: "Chiudi"
+      },
       exercises: {
+        page_title: "Libreria Esercizi",
+        page_subtitle: "Pratica tecniche CBT",
+        page_subtitle_full: "Sfoglia e pratica tecniche CBT basate sull'evidenza",
+        loading: "Caricamento esercizi...",
+        go_back_aria: "Indietro",
+        ai_plan: "Piano di Pratica IA",
+        favorites: "Preferiti",
+        search_placeholder: "Cerca esercizi...",
+        empty_state: {
+          favorites_title: "Ancora nessun preferito",
+          no_results_title: "Nessun esercizio trovato",
+          favorites_message: "Segna gli esercizi come preferiti per vederli qui",
+          search_message: "Prova a regolare la tua ricerca o i filtri",
+          no_exercises_message: "Nessun esercizio disponibile"
+        },
+        categories: {
+          all: "Tutti",
+          breathing: "Respirazione",
+          grounding: "Radicamento",
+          cognitive: "Cognitivo",
+          behavioral: "Comportamentale",
+          mindfulness: "Consapevolezza",
+          exposure: "Esposizione",
+          sleep: "Sonno",
+          relationships: "Relazioni",
+          stress: "Gestione dello Stress"
+        },
         detail: {
           untitled_exercise: "Esercizio Senza Titolo",
           duration_options_suffix: "min opzioni",
@@ -2139,7 +2421,54 @@ export const translations = {
         message: "Nossos recursos de chat alimentados por IA são projetados para usuários de 18 anos ou mais. Você ainda tem acesso a outras ferramentas de bem-estar como rastreamento de humor, diário e exercícios.",
         back_to_home: "Voltar para o Início"
       },
+      journeys: {
+        page_title: "Jornadas",
+        page_subtitle: "Caminhos guiados de desenvolvimento de habilidades para crescimento pessoal",
+        tabs: {
+          available: "Disponível",
+          in_progress: "Em Andamento",
+          completed: "Concluído"
+        },
+        empty_state: {
+          no_available: "Nenhuma jornada disponível no momento",
+          no_in_progress: "Você ainda não iniciou nenhuma jornada",
+          no_completed: "Você ainda não concluiu nenhuma jornada"
+        }
+      },
+      mind_games: {
+        page_title: "Jogos Mentais",
+        page_subtitle: "Prática interativa de habilidades CBT e DBT",
+        go_back_aria: "Voltar",
+        close_aria: "Fechar"
+      },
       exercises: {
+        page_title: "Biblioteca de Exercícios",
+        page_subtitle: "Pratique técnicas CBT",
+        page_subtitle_full: "Navegue e pratique técnicas CBT baseadas em evidências",
+        loading: "Carregando exercícios...",
+        go_back_aria: "Voltar",
+        ai_plan: "Plano de Prática IA",
+        favorites: "Favoritos",
+        search_placeholder: "Pesquisar exercícios...",
+        empty_state: {
+          favorites_title: "Ainda sem favoritos",
+          no_results_title: "Nenhum exercício encontrado",
+          favorites_message: "Marque exercícios como favoritos para vê-los aqui",
+          search_message: "Tente ajustar sua pesquisa ou filtros",
+          no_exercises_message: "Nenhum exercício disponível"
+        },
+        categories: {
+          all: "Todos",
+          breathing: "Respiração",
+          grounding: "Aterramento",
+          cognitive: "Cognitivo",
+          behavioral: "Comportamental",
+          mindfulness: "Atenção Plena",
+          exposure: "Exposição",
+          sleep: "Sono",
+          relationships: "Relacionamentos",
+          stress: "Gerenciamento de Estresse"
+        },
         detail: {
           untitled_exercise: "Exercício sem Título",
           duration_options_suffix: "min opções",
