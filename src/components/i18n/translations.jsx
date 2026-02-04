@@ -336,6 +336,26 @@ export const translations = {
           goals: "Goals",
           exercises: "Exercises",
           health: "Health"
+        },
+        dashboard: {
+          current_streak: "Current Streak",
+          days: "days",
+          points: "Points",
+          badges: "Badges",
+          level: "Level",
+          level_prefix: "Lv.",
+          avg_mood: "Avg Mood",
+          trend_improving: "improving",
+          trend_declining: "declining",
+          trend_stable: "stable",
+          goals_achieved: "Goals Achieved",
+          active: "active",
+          charts: {
+            mood_trends: "Mood Trends (Last 30 Days)",
+            exercise_by_category: "Exercise by Category",
+            journal_consistency: "Journal Consistency",
+            goal_progress: "Goal Progress"
+          }
         }
       },
       mind_games: {
@@ -747,6 +767,26 @@ export const translations = {
           goals: "מטרות",
           exercises: "תרגילים",
           health: "בריאות"
+        },
+        dashboard: {
+          current_streak: "רצף נוכחי",
+          days: "ימים",
+          points: "נקודות",
+          badges: "תגים",
+          level: "רמה",
+          level_prefix: "רמה ",
+          avg_mood: "מצב רוח ממוצע",
+          trend_improving: "משתפר",
+          trend_declining: "יורד",
+          trend_stable: "יציב",
+          goals_achieved: "מטרות שהושגו",
+          active: "פעיל",
+          charts: {
+            mood_trends: "מגמות מצב רוח (30 ימים אחרונים)",
+            exercise_by_category: "תרגילים לפי קטגוריה",
+            journal_consistency: "עקביות יומן",
+            goal_progress: "התקדמות מטרות"
+          }
         }
       },
       mind_games: {
@@ -1158,6 +1198,26 @@ export const translations = {
           goals: "Objetivos",
           exercises: "Ejercicios",
           health: "Salud"
+        },
+        dashboard: {
+          current_streak: "Racha Actual",
+          days: "días",
+          points: "Puntos",
+          badges: "Insignias",
+          level: "Nivel",
+          level_prefix: "Nv.",
+          avg_mood: "Estado Promedio",
+          trend_improving: "mejorando",
+          trend_declining: "decayendo",
+          trend_stable: "estable",
+          goals_achieved: "Objetivos Logrados",
+          active: "activo",
+          charts: {
+            mood_trends: "Tendencias de Estado (Últimos 30 Días)",
+            exercise_by_category: "Ejercicios por Categoría",
+            journal_consistency: "Consistencia del Diario",
+            goal_progress: "Progreso de Objetivos"
+          }
         }
       },
       mind_games: {
@@ -1569,6 +1629,26 @@ export const translations = {
           goals: "Objectifs",
           exercises: "Exercices",
           health: "Santé"
+        },
+        dashboard: {
+          current_streak: "Série Actuelle",
+          days: "jours",
+          points: "Points",
+          badges: "Insignes",
+          level: "Niveau",
+          level_prefix: "Nv.",
+          avg_mood: "Humeur Moyenne",
+          trend_improving: "amélioration",
+          trend_declining: "déclin",
+          trend_stable: "stable",
+          goals_achieved: "Objectifs Atteints",
+          active: "actif",
+          charts: {
+            mood_trends: "Tendances de l'Humeur (30 Derniers Jours)",
+            exercise_by_category: "Exercices par Catégorie",
+            journal_consistency: "Cohérence du Journal",
+            goal_progress: "Progrès des Objectifs"
+          }
         }
       },
       mind_games: {
@@ -1980,6 +2060,26 @@ export const translations = {
           goals: "Ziele",
           exercises: "Übungen",
           health: "Gesundheit"
+        },
+        dashboard: {
+          current_streak: "Aktuelle Serie",
+          days: "Tage",
+          points: "Punkte",
+          badges: "Abzeichen",
+          level: "Stufe",
+          level_prefix: "Lv.",
+          avg_mood: "Durchschn. Stimmung",
+          trend_improving: "verbessernd",
+          trend_declining: "abnehmend",
+          trend_stable: "stabil",
+          goals_achieved: "Erreichte Ziele",
+          active: "aktiv",
+          charts: {
+            mood_trends: "Stimmungstrends (Letzte 30 Tage)",
+            exercise_by_category: "Übungen nach Kategorie",
+            journal_consistency: "Tagebuch-Konsistenz",
+            goal_progress: "Ziel-Fortschritt"
+          }
         }
       },
       mind_games: {
@@ -2391,6 +2491,26 @@ export const translations = {
           goals: "Obiettivi",
           exercises: "Esercizi",
           health: "Salute"
+        },
+        dashboard: {
+          current_streak: "Serie Corrente",
+          days: "giorni",
+          points: "Punti",
+          badges: "Badge",
+          level: "Livello",
+          level_prefix: "Lv.",
+          avg_mood: "Umore Medio",
+          trend_improving: "miglioramento",
+          trend_declining: "declino",
+          trend_stable: "stabile",
+          goals_achieved: "Obiettivi Raggiunti",
+          active: "attivo",
+          charts: {
+            mood_trends: "Tendenze Umore (Ultimi 30 Giorni)",
+            exercise_by_category: "Esercizi per Categoria",
+            journal_consistency: "Coerenza del Diario",
+            goal_progress: "Progresso Obiettivi"
+          }
         }
       },
       mind_games: {
@@ -2802,6 +2922,26 @@ export const translations = {
           goals: "Objetivos",
           exercises: "Exercícios",
           health: "Saúde"
+        },
+        dashboard: {
+          current_streak: "Sequência Atual",
+          days: "dias",
+          points: "Pontos",
+          badges: "Emblemas",
+          level: "Nível",
+          level_prefix: "Nv.",
+          avg_mood: "Humor Médio",
+          trend_improving: "melhorando",
+          trend_declining: "declinando",
+          trend_stable: "estável",
+          goals_achieved: "Objetivos Alcançados",
+          active: "ativo",
+          charts: {
+            mood_trends: "Tendências de Humor (Últimos 30 Dias)",
+            exercise_by_category: "Exercícios por Categoria",
+            journal_consistency: "Consistência do Diário",
+            goal_progress: "Progresso de Objetivos"
+          }
         }
       },
       mind_games: {
