@@ -3,6 +3,7 @@ import { Dialog, DialogPortal, DialogOverlay, DialogHeader, DialogTitle } from '
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { gamesCatalog } from '../components/experiential_games/mindGamesContent';
 import GameCard from '../components/experiential_games/GameCard';
 import MindGamesModalShell from '../components/experiential_games/MindGamesModalShell';
@@ -61,6 +62,7 @@ const gameComponents = {
 };
 
 export default function ExperientialGames() {
+  const { t } = useTranslation();
   const [activeGame, setActiveGame] = useState(null);
   const [gameStartTime, setGameStartTime] = useState(null);
   const { trackGamePlay } = useMindGameTracking();
@@ -115,15 +117,15 @@ export default function ExperientialGames() {
             size="icon"
             onClick={() => window.location.href = '/'}
             className="mb-4"
-            aria-label="Go back to home"
+            aria-label={t('mind_games.go_back_aria')}
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <h1 className="text-2xl md:text-3xl font-semibold mb-2" style={{ color: '#1A3A34' }}>
-            Mind Games
+            {t('mind_games.page_title')}
           </h1>
           <p className="text-sm md:text-base" style={{ color: '#5A7A72' }}>
-            Quick, playful CBT/ACT/DBT micro-activities (30–120 seconds)
+            {t('mind_games.page_subtitle')}
           </p>
         </div>
 
@@ -182,7 +184,7 @@ export default function ExperientialGames() {
               style={{ zIndex: 10 }}
             >
               <X className="h-4 w-4" />
-              <span className="sr-only">Close</span>
+              <span className="sr-only">{t('mind_games.close_aria')}</span>
             </DialogPrimitive.Close>
           </DialogPrimitive.Content>
         </DialogPortal>

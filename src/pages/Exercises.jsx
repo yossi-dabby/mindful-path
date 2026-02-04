@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Wind, Anchor, Brain, TrendingUp, Sparkles, Heart, Search, Star, Moon, Users, Zap } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import ExerciseDetail from '../components/exercises/ExerciseDetail';
 import ExerciseLibrary from '../components/exercises/ExerciseLibrary';
 import AiExerciseRecommendations from '../components/exercises/AiExerciseRecommendations';
@@ -37,6 +38,7 @@ const categoryColors = {
 };
 
 export default function Exercises() {
+  const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -103,22 +105,22 @@ export default function Exercises() {
   });
 
   const categories = [
-    { value: 'all', label: 'All' },
-    { value: 'breathing', label: 'Breathing' },
-    { value: 'grounding', label: 'Grounding' },
-    { value: 'cognitive_restructuring', label: 'Cognitive' },
-    { value: 'behavioral_activation', label: 'Behavioral' },
-    { value: 'mindfulness', label: 'Mindfulness' },
-    { value: 'exposure', label: 'Exposure' },
-    { value: 'sleep', label: 'Sleep' },
-    { value: 'relationships', label: 'Relationships' },
-    { value: 'stress_management', label: 'Stress' }
+    { value: 'all', label: t('exercises.categories.all') },
+    { value: 'breathing', label: t('exercises.categories.breathing') },
+    { value: 'grounding', label: t('exercises.categories.grounding') },
+    { value: 'cognitive_restructuring', label: t('exercises.categories.cognitive') },
+    { value: 'behavioral_activation', label: t('exercises.categories.behavioral') },
+    { value: 'mindfulness', label: t('exercises.categories.mindfulness') },
+    { value: 'exposure', label: t('exercises.categories.exposure') },
+    { value: 'sleep', label: t('exercises.categories.sleep') },
+    { value: 'relationships', label: t('exercises.categories.relationships') },
+    { value: 'stress_management', label: t('exercises.categories.stress') }
   ];
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">Loading exercises...</p>
+        <p className="text-gray-500">{t('exercises.loading')}</p>
       </div>
     );
   }
@@ -135,13 +137,13 @@ export default function Exercises() {
               size="icon"
               onClick={() => window.location.href = '/'}
               style={{ borderRadius: '50%' }}
-              aria-label="Go back to home"
+              aria-label={t('exercises.go_back_aria')}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             </Button>
             <div>
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-light" style={{ color: '#1A3A34' }}>Exercise Library</h1>
-              <p className="text-sm md:text-base md:hidden" style={{ color: '#5A7A72' }}>Practice evidence-based techniques</p>
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-light" style={{ color: '#1A3A34' }}>{t('exercises.page_title')}</h1>
+              <p className="text-sm md:text-base md:hidden" style={{ color: '#5A7A72' }}>{t('exercises.page_subtitle')}</p>
             </div>
           </div>
           <div className="flex gap-2">
@@ -152,7 +154,7 @@ export default function Exercises() {
               style={{ borderRadius: '24px' }}
             >
               <Sparkles className="w-4 h-4" />
-              AI Plan
+              {t('exercises.ai_plan')}
             </Button>
             <button
               onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
@@ -167,13 +169,13 @@ export default function Exercises() {
             }}
           >
             <Star className={`w-4 h-4 inline mr-1 md:mr-2 ${showFavoritesOnly ? 'fill-current' : ''}`} />
-            <span className="hidden md:inline">Favorites</span>
+            <span className="hidden md:inline">{t('exercises.favorites')}</span>
             {showFavoritesOnly && <span className="md:hidden">({exercises.filter(e => e.favorite).length})</span>}
             {showFavoritesOnly && <span className="hidden md:inline"> ({exercises.filter(e => e.favorite).length})</span>}
           </button>
           </div>
         </div>
-        <p className="text-sm md:text-base ml-0 md:ml-12 hidden md:block" style={{ color: '#5A7A72' }}>Practice evidence-based techniques to manage thoughts and emotions</p>
+        <p className="text-sm md:text-base ml-0 md:ml-12 hidden md:block" style={{ color: '#5A7A72' }}>{t('exercises.page_subtitle_full')}</p>
       </div>
 
       {/* Search Bar */}
@@ -183,7 +185,7 @@ export default function Exercises() {
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search exercises..."
+            placeholder={t('exercises.search_placeholder')}
             className="pl-10"
             style={{ borderRadius: '28px' }}
           />
@@ -249,14 +251,14 @@ export default function Exercises() {
               <Sparkles className="w-10 h-10" style={{ color: '#26A69A' }} />
             </div>
             <h2 className="text-2xl font-semibold mb-2" style={{ color: '#1A3A34' }}>
-              {showFavoritesOnly ? 'No favorite exercises yet' : 'No exercises found'}
+              {showFavoritesOnly ? t('exercises.empty_state.favorites_title') : t('exercises.empty_state.no_results_title')}
             </h2>
             <p style={{ color: '#5A7A72' }}>
               {showFavoritesOnly
-                ? 'Mark exercises as favorites to see them here'
+                ? t('exercises.empty_state.favorites_message')
                 : searchQuery
-                ? 'Try adjusting your search or filters'
-                : 'Exercises will be added soon to help with your practice.'}
+                ? t('exercises.empty_state.search_message')
+                : t('exercises.empty_state.no_exercises_message')}
             </p>
           </CardContent>
         </Card>

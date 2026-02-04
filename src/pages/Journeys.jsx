@@ -8,8 +8,10 @@ import JourneyDetail from '../components/journeys/JourneyDetail';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { Compass } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function JourneysPage() {
+  const { t } = useTranslation();
   const [selectedJourney, setSelectedJourney] = useState(null);
   const [selectedProgress, setSelectedProgress] = useState(null);
   const [showDetail, setShowDetail] = useState(false);
@@ -91,31 +93,31 @@ export default function JourneysPage() {
           <div className="flex items-center gap-3 mb-2">
             <Compass className="w-8 h-8" style={{ color: '#26A69A' }} />
             <h1 className="text-3xl font-bold" style={{ color: '#1A3A34' }}>
-              Mind Games Journeys
+              {t('journeys.page_title')}
             </h1>
           </div>
           <p className="text-base" style={{ color: '#5A7A72' }}>
-            Follow curated pathways that sequence games to build specific skills over time.
+            {t('journeys.page_subtitle')}
           </p>
         </div>
 
         <Tabs defaultValue="available" className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="available">
-              Available ({availableJourneys.length})
+              {t('journeys.tabs.available')} ({availableJourneys.length})
             </TabsTrigger>
             <TabsTrigger value="in-progress">
-              In Progress ({inProgressJourneys.length})
+              {t('journeys.tabs.in_progress')} ({inProgressJourneys.length})
             </TabsTrigger>
             <TabsTrigger value="completed">
-              Completed ({completedJourneys.length})
+              {t('journeys.tabs.completed')} ({completedJourneys.length})
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="available" className="space-y-4">
             {availableJourneys.length === 0 ? (
               <p className="text-center py-12" style={{ color: '#5A7A72' }}>
-                No journeys available. Check back soon!
+                {t('journeys.empty_state.no_available')}
               </p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -135,7 +137,7 @@ export default function JourneysPage() {
           <TabsContent value="in-progress" className="space-y-4">
             {inProgressJourneys.length === 0 ? (
               <p className="text-center py-12" style={{ color: '#5A7A72' }}>
-                No journeys in progress. Start one from the Available tab!
+                {t('journeys.empty_state.no_in_progress')}
               </p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -155,7 +157,7 @@ export default function JourneysPage() {
           <TabsContent value="completed" className="space-y-4">
             {completedJourneys.length === 0 ? (
               <p className="text-center py-12" style={{ color: '#5A7A72' }}>
-                No completed journeys yet. Keep going!
+                {t('journeys.empty_state.no_completed')}
               </p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
