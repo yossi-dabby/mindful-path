@@ -452,6 +452,6 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
         </Card>
       </motion.div>
       </div>
-      </div>
-      );
-      }
+    </div>
+  );
+}
