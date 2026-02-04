@@ -419,6 +419,9 @@ export const translations = {
           search_message: "Try adjusting your search or filters",
           no_exercises_message: "No exercises available"
         },
+        library: {
+          flexible: "Flexible"
+        },
         categories: {
           all: "All",
           breathing: "Breathing",
@@ -886,6 +889,9 @@ export const translations = {
           favorites_message: "סמנו תרגילים כמועדפים כדי לראות אותם כאן",
           search_message: "נסו להתאים את החיפוש או הסינונים",
           no_exercises_message: "אין תרגילים זמינים"
+        },
+        library: {
+          flexible: "גמיש"
         },
         categories: {
           all: "הכל",
@@ -1355,6 +1361,9 @@ export const translations = {
           search_message: "Intenta ajustar tu búsqueda o filtros",
           no_exercises_message: "No hay ejercicios disponibles"
         },
+        library: {
+          flexible: "Flexible"
+        },
         categories: {
           all: "Todos",
           breathing: "Respiración",
@@ -1822,6 +1831,9 @@ export const translations = {
           favorites_message: "Marquez les exercices comme favoris pour les voir ici",
           search_message: "Essayez d'ajuster votre recherche ou vos filtres",
           no_exercises_message: "Aucun exercice disponible"
+        },
+        library: {
+          flexible: "Flexible"
         },
         categories: {
           all: "Tous",
@@ -2291,6 +2303,9 @@ export const translations = {
           search_message: "Versuchen Sie, Ihre Suche oder Filter anzupassen",
           no_exercises_message: "Keine Übungen verfügbar"
         },
+        library: {
+          flexible: "Flexibel"
+        },
         categories: {
           all: "Alle",
           breathing: "Atmung",
@@ -2759,6 +2774,9 @@ export const translations = {
           search_message: "Prova a regolare la tua ricerca o i filtri",
           no_exercises_message: "Nessun esercizio disponibile"
         },
+        library: {
+          flexible: "Flessibile"
+        },
         categories: {
           all: "Tutti",
           breathing: "Respirazione",
@@ -3226,6 +3244,9 @@ export const translations = {
           favorites_message: "Marque exercícios como favoritos para vê-los aqui",
           search_message: "Tente ajustar sua pesquisa ou filtros",
           no_exercises_message: "Nenhum exercício disponível"
+        },
+        library: {
+          flexible: "Flexível"
         },
         categories: {
           all: "Todos",
