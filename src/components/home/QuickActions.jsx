@@ -158,8 +158,8 @@ export default function QuickActions() {
                           <User className="w-6 h-6 icon-default" style={{ color: action.color }} strokeWidth={2} />
                         </motion.button>
                       </div>
-                      <h3 className="font-semibold text-sm mb-1 truncate" style={{ color: '#1A3A34' }}>{action.title}</h3>
-                      <p className="text-xs line-clamp-1" style={{ color: '#5A7A72' }}>{action.description}</p>
+                      <h3 className="font-semibold text-sm mb-1 break-words" style={{ color: '#1A3A34' }}>{action.title}</h3>
+                      <p className="text-xs line-clamp-2 break-words" style={{ color: '#5A7A72' }}>{action.description}</p>
                     </CardContent>
                   </Card>
                 </Link>

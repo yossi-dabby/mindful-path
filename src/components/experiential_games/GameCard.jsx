@@ -36,7 +36,7 @@ export default function GameCard({ game, onClick, index }) {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2 mb-1">
-                <h3 className="font-semibold text-base truncate" style={{ color: '#1A3A34' }}>
+                <h3 className="font-semibold text-base break-words" style={{ color: '#1A3A34' }}>
                   {game.title}
                 </h3>
                 <Badge

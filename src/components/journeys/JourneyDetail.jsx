@@ -50,7 +50,7 @@ export default function JourneyDetail({ journey, progress, onClose, onPlayGame }
   };
 
   return (
-    <div className="space-y-6 max-h-[80vh] overflow-y-auto">
+    <div className="space-y-6 max-h-[80vh] overflow-y-auto overflow-x-hidden">
       <div>
         <h2 className="text-2xl font-bold mb-2" style={{ color: '#1A3A34' }}>
           {journey.title}

@@ -41,8 +41,8 @@ export default function ThoughtRecordCard({ entry, onEdit }) {
   const improvement = intensityChange > 0;
 
   return (
-    <Card className="border-0 shadow-md hover:shadow-lg transition-shadow w-full overflow-x-hidden">
-      <CardContent className="p-4 md:p-6">
+    <Card className="border-0 shadow-md hover:shadow-lg transition-shadow w-full overflow-hidden">
+      <CardContent className="p-4 md:p-6 overflow-x-hidden">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <p className="text-sm text-gray-500 mb-1">
@@ -57,7 +57,7 @@ export default function ThoughtRecordCard({ entry, onEdit }) {
                 }} 
               />
             ) : (
-              <p className="text-gray-800 font-medium line-clamp-2">{stripHtml(entry.situation)}</p>
+              <p className="text-gray-800 font-medium line-clamp-2 break-words">{stripHtml(entry.situation)}</p>
             )}
           </div>
           <div className="flex gap-1">

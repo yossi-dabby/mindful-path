@@ -190,10 +190,10 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
             <Button
               variant="outline"
               onClick={() => setShowObstacles(!showObstacles)}
-              className="flex items-center justify-center gap-2 w-full"
+              className="flex items-center justify-center gap-2 w-full min-w-0"
             >
-              <span className="flex-1 text-left font-medium">Obstacles & CBT Work</span>
-              {showObstacles ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              <span className="flex-1 text-left font-medium min-w-0 break-words">Obstacles & CBT Work</span>
+              {showObstacles ? <ChevronUp className="w-4 h-4 flex-shrink-0" /> : <ChevronDown className="w-4 h-4 flex-shrink-0" />}
             </Button>
             {showObstacles && (
               <div className="mt-3 p-4 bg-amber-50 rounded-lg border border-amber-200 space-y-3">
@@ -245,28 +245,28 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
           <Button
             variant="outline"
             onClick={() => setShowChart(!showChart)}
-            className="flex items-center justify-center gap-2 w-full"
+            className="flex items-center justify-center gap-2 w-full min-w-0"
           >
-            <TrendingUp className="w-4 h-4" />
-            <span className="flex-1 text-left">{showChart ? 'Hide' : 'Show'} Chart</span>
-            {showChart ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            <TrendingUp className="w-4 h-4 flex-shrink-0" />
+            <span className="flex-1 text-left min-w-0 break-words">{showChart ? 'Hide' : 'Show'} Chart</span>
+            {showChart ? <ChevronUp className="w-4 h-4 flex-shrink-0" /> : <ChevronDown className="w-4 h-4 flex-shrink-0" />}
           </Button>
           <Button
             variant="outline"
             onClick={() => setShowJournalEntries(!showJournalEntries)}
-            className="flex items-center justify-center gap-2 w-full"
+            className="flex items-center justify-center gap-2 w-full min-w-0"
           >
-            <BookOpen className="w-4 h-4" />
-            <span className="flex-1 text-left">{showJournalEntries ? 'Hide' : 'Show'} Journal</span>
-            {showJournalEntries ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            <BookOpen className="w-4 h-4 flex-shrink-0" />
+            <span className="flex-1 text-left min-w-0 break-words">{showJournalEntries ? 'Hide' : 'Show'} Journal</span>
+            {showJournalEntries ? <ChevronUp className="w-4 h-4 flex-shrink-0" /> : <ChevronDown className="w-4 h-4 flex-shrink-0" />}
           </Button>
           <Button
             variant="outline"
             onClick={() => setShowAiAdjustment(true)}
-            className="flex items-center justify-center gap-2 w-full border-purple-300 text-purple-700 hover:bg-purple-50"
+            className="flex items-center justify-center gap-2 w-full min-w-0 border-purple-300 text-purple-700 hover:bg-purple-50"
           >
-            <Sparkles className="w-4 h-4" />
-            <span className="flex-1 text-left">AI Adjust</span>
+            <Sparkles className="w-4 h-4 flex-shrink-0" />
+            <span className="flex-1 text-left min-w-0 break-words">AI Adjust</span>
           </Button>
         </div>
 
