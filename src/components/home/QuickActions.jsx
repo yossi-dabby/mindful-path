@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { Card, CardContent } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { MessageCircle, BookOpen, Target, Dumbbell, Play, Sparkles, Puzzle, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import AiPersonalizedFeed from './AiPersonalizedFeed';
 
 // THERAPEUTIC ACTIONS - Route to AI Chat with Intent
 const therapeuticActions = [
@@ -75,6 +77,7 @@ const actions = [...therapeuticActions, ...selfDirectedActions];
 
 export default function QuickActions() {
   const [activeVideo, setActiveVideo] = useState(null);
+  const [showRecommendations, setShowRecommendations] = useState(false);
 
   return (
     <motion.div 
@@ -85,6 +88,49 @@ export default function QuickActions() {
     >
       <h2 className="text-lg font-semibold mb-4 truncate" style={{ color: '#1A3A34' }}>Quick Actions</h2>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 w-full overflow-x-hidden">
+        {/* AI Recommendations Card */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, delay: 0.6 }}
+          className="relative"
+        >
+          <motion.div
+            whileHover={{ scale: 1.04, y: -6 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Card 
+              className="border-0 hover:shadow-xl transition-all cursor-pointer group h-full" 
+              style={{
+                borderRadius: '28px',
+                background: 'linear-gradient(145deg, rgba(255, 142, 66, 0.15) 0%, rgba(255, 255, 255, 0.7) 100%)',
+                backdropFilter: 'blur(12px)',
+                boxShadow: '0 6px 24px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.6)'
+              }}
+              onClick={() => setShowRecommendations(true)}
+            >
+              <CardContent className="p-5">
+                <div className="flex items-center gap-3 mb-4">
+                  <motion.div 
+                    className="w-14 h-14 flex items-center justify-center"
+                    style={{ 
+                      borderRadius: '20px',
+                      backgroundColor: 'rgb(var(--accent))',
+                      boxShadow: '0 6px 16px rgba(255, 142, 66, 0.4)'
+                    }}
+                    whileHover={{ rotate: 5 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Sparkles className="w-7 h-7 text-white" strokeWidth={2.5} />
+                  </motion.div>
+                </div>
+                <h3 className="font-semibold text-sm mb-1 break-words" style={{ color: '#1A3A34' }}>Recommended for You</h3>
+                <p className="text-xs line-clamp-2 break-words" style={{ color: '#5A7A72' }}>AI-tailored suggestions</p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </motion.div>
+
         {actions.map((action, index) => {
           const Icon = action.icon;
           return (
@@ -221,6 +267,19 @@ export default function QuickActions() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* AI Recommendations Modal */}
+      <Dialog open={showRecommendations} onOpenChange={setShowRecommendations}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" style={{ borderRadius: '24px' }}>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5" style={{ color: 'rgb(var(--accent))' }} />
+              Personalized Recommendations
+            </DialogTitle>
+          </DialogHeader>
+          <AiPersonalizedFeed />
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }
