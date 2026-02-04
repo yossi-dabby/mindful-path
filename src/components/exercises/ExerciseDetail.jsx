@@ -107,9 +107,12 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="p-4 md:p-6 flex flex-col overflow-hidden" style={{ maxHeight: 'calc(100vh - 340px)' }}>
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 flex flex-col min-h-0 flex-1">
-              <TabsList className={`grid w-full ${audioContent.length > 0 ? 'grid-cols-5' : 'grid-cols-4'}`}>
+          <CardContent className="p-4 md:p-6 overflow-hidden" style={{ maxHeight: 'calc(100vh - 340px)' }}>
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6 h-full overflow-hidden">
+              {/* Left Column: Main Content */}
+              <div className="flex flex-col min-h-0 overflow-hidden">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 flex flex-col min-h-0 flex-1 overflow-hidden">
+              <TabsList className={`grid w-full ${audioContent.length > 0 ? 'grid-cols-5' : 'grid-cols-4'} flex-shrink-0`}>
                 <TabsTrigger value="overview">
                   <BookOpen className="w-4 h-4 mr-2" />
                   Overview
@@ -343,34 +346,9 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               </TabsContent>
             </Tabs>
 
-            {/* Completion Stats */}
-            <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border-2 border-green-200">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">Your Progress</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-2xl font-bold text-green-600">{exercise.completed_count || 0}</p>
-                  <p className="text-xs text-gray-600">Times Completed</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-blue-600">{exercise.total_time_practiced || 0}</p>
-                  <p className="text-xs text-gray-600">Minutes Practiced</p>
-                </div>
-              </div>
-              {exercise.last_completed && (
-                <p className="text-xs text-gray-500 mt-3">
-                  Last practiced: {new Date(exercise.last_completed).toLocaleDateString('en-US', {
-                    weekday: 'short',
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                  })}
-                </p>
-              )}
-            </div>
-
-            {/* Action Buttons */}
+            {/* Action Buttons - Mobile: show here, Desktop: show in right column */}
             {exercise.category !== 'breathing' && (
-              <div className="flex gap-3">
+              <div className="flex gap-3 mt-4 lg:hidden flex-shrink-0">
                 {completed ? (
                   <div className="flex-1 bg-green-100 border border-green-300 rounded-xl p-4 flex items-center justify-center gap-2 text-green-700 font-medium">
                     <CheckCircle className="w-5 h-5" />
@@ -389,6 +367,85 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                 )}
               </div>
             )}
+              </div>
+
+              {/* Right Column: Progress & Actions (Desktop only visible) */}
+              <div className="hidden lg:flex lg:flex-col gap-4 overflow-y-auto">
+                {/* Completion Stats */}
+                <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border-2 border-green-200 flex-shrink-0">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Your Progress</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-2xl font-bold text-green-600">{exercise.completed_count || 0}</p>
+                      <p className="text-xs text-gray-600">Times Completed</p>
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-blue-600">{exercise.total_time_practiced || 0}</p>
+                      <p className="text-xs text-gray-600">Minutes Practiced</p>
+                    </div>
+                  </div>
+                  {exercise.last_completed && (
+                    <p className="text-xs text-gray-500 mt-3">
+                      Last practiced: {new Date(exercise.last_completed).toLocaleDateString('en-US', {
+                        weekday: 'short',
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  )}
+                </div>
+
+                {/* Action Buttons - Desktop */}
+                {exercise.category !== 'breathing' && (
+                  <div className="flex flex-col gap-3 flex-shrink-0">
+                    {completed ? (
+                      <div className="bg-green-100 border border-green-300 rounded-xl p-4 flex items-center justify-center gap-2 text-green-700 font-medium">
+                        <CheckCircle className="w-5 h-5" />
+                        Exercise Completed!
+                      </div>
+                    ) : (
+                      <>
+                        <Button onClick={handleComplete} className="w-full bg-green-600 hover:bg-green-700">
+                          <Play className="w-4 h-4 mr-2" />
+                          Mark as Complete
+                        </Button>
+                        <Button variant="outline" onClick={onClose} className="w-full">
+                          Close
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Mobile: Progress Stats below content */}
+              <div className="lg:hidden mt-4 flex-shrink-0">
+                <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border-2 border-green-200">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Your Progress</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-2xl font-bold text-green-600">{exercise.completed_count || 0}</p>
+                      <p className="text-xs text-gray-600">Times Completed</p>
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-blue-600">{exercise.total_time_practiced || 0}</p>
+                      <p className="text-xs text-gray-600">Minutes Practiced</p>
+                    </div>
+                  </div>
+                  {exercise.last_completed && (
+                    <p className="text-xs text-gray-500 mt-3">
+                      Last practiced: {new Date(exercise.last_completed).toLocaleDateString('en-US', {
+                        weekday: 'short',
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </motion.div>
