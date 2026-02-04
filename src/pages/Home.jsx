@@ -17,6 +17,7 @@ import BadgeDisplay from '../components/gamification/BadgeDisplay';
 import DailyChallenges from '../components/gamification/DailyChallenges';
 import DailyProgram from '../components/home/DailyProgram';
 import PersonalizedFeed from '../components/home/PersonalizedFeed';
+import AiPersonalizedFeed from '../components/home/AiPersonalizedFeed';
 import StandaloneDailyCheckIn from '../components/home/StandaloneDailyCheckIn';
 import DailyReflection from '../components/home/DailyReflection';
 import StarterPathCard from '../components/home/StarterPathCard';
@@ -223,6 +224,9 @@ export default function Home() {
 
           {/* 7-Day Starter Path */}
           <StarterPathCard />
+          
+          {/* AI-Powered Personalized Content Feed */}
+          <AiPersonalizedFeed />
           </div>
 
           {/* Secondary Content - Below the fold */}
