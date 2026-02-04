@@ -177,27 +177,27 @@ export default function EnhancedProgressDashboard() {
             </div>
           </div>
           
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3 sm:gap-6">
             <div className="text-center">
               <div className="flex items-center gap-1 justify-center">
                 <Zap className="w-4 h-4" style={{ color: '#F6AD55' }} />
                 <span className="text-lg sm:text-xl font-bold" style={{ color: '#1A3A34' }}>{userPoints.total_points}</span>
               </div>
-              <p className="text-xs" style={{ color: '#5A7A72' }}>{t('progress.dashboard.points')}</p>
+              <p className="text-xs break-words" style={{ color: '#5A7A72' }}>{t('progress.dashboard.points')}</p>
             </div>
-            <div className="text-center">
+            <div className="text-center min-w-0">
               <div className="flex items-center gap-1 justify-center">
                 <Award className="w-4 h-4" style={{ color: '#ECC94B' }} />
                 <span className="text-lg sm:text-xl font-bold" style={{ color: '#1A3A34' }}>{earnedBadges.length}</span>
               </div>
-              <p className="text-xs" style={{ color: '#5A7A72' }}>{t('progress.dashboard.badges')}</p>
+              <p className="text-xs break-words" style={{ color: '#5A7A72' }}>{t('progress.dashboard.badges')}</p>
             </div>
-            <div className="text-center">
+            <div className="text-center min-w-0">
               <div className="flex items-center gap-1 justify-center">
                 <Sparkles className="w-4 h-4" style={{ color: '#9F7AEA' }} />
-                <span className="text-lg sm:text-xl font-bold" style={{ color: '#1A3A34' }}>{t('progress.dashboard.level_prefix')}{userPoints.level}</span>
+                <span className="text-lg sm:text-xl font-bold whitespace-nowrap" style={{ color: '#1A3A34' }}>{t('progress.dashboard.level_prefix')}{userPoints.level}</span>
               </div>
-              <p className="text-xs" style={{ color: '#5A7A72' }}>{t('progress.dashboard.level')}</p>
+              <p className="text-xs break-words" style={{ color: '#5A7A72' }}>{t('progress.dashboard.level')}</p>
             </div>
           </div>
         </div>
@@ -374,8 +374,8 @@ export default function EnhancedProgressDashboard() {
             <div className="space-y-3">
               {goalProgressData.map((goal, index) => (
                 <div key={index}>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium" style={{ color: '#3D5A52' }}>{goal.name}</span>
+                  <div className="flex items-center justify-between mb-1 gap-2">
+                    <span className="text-sm font-medium break-words flex-1 min-w-0" style={{ color: '#3D5A52' }}>{goal.name}</span>
                     <span className="text-sm font-bold" style={{ color: '#26A69A' }}>{goal.progress}%</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">

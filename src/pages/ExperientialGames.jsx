@@ -121,10 +121,10 @@ export default function ExperientialGames() {
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h1 className="text-2xl md:text-3xl font-semibold mb-2" style={{ color: '#1A3A34' }}>
+          <h1 className="text-2xl md:text-3xl font-semibold mb-2 break-words" style={{ color: '#1A3A34' }}>
             {t('mind_games.page_title')}
           </h1>
-          <p className="text-sm md:text-base" style={{ color: '#5A7A72' }}>
+          <p className="text-sm md:text-base break-words" style={{ color: '#5A7A72' }}>
             {t('mind_games.page_subtitle')}
           </p>
         </div>

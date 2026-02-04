@@ -90,13 +90,13 @@ export default function JourneysPage() {
     <div className="min-h-screen p-6 safe-bottom">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <Compass className="w-8 h-8" style={{ color: '#26A69A' }} />
-            <h1 className="text-3xl font-bold" style={{ color: '#1A3A34' }}>
+          <div className="flex items-center gap-2 sm:gap-3 mb-2 min-w-0">
+            <Compass className="w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0" style={{ color: '#26A69A' }} />
+            <h1 className="text-2xl sm:text-3xl font-bold break-words" style={{ color: '#1A3A34' }}>
               {t('journeys.page_title')}
             </h1>
           </div>
-          <p className="text-base" style={{ color: '#5A7A72' }}>
+          <p className="text-sm sm:text-base break-words" style={{ color: '#5A7A72' }}>
             {t('journeys.page_subtitle')}
           </p>
         </div>

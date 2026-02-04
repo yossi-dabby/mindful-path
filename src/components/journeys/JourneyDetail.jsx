@@ -54,10 +54,10 @@ export default function JourneyDetail({ journey, progress, onClose, onPlayGame }
   return (
     <div className="space-y-6 max-h-[80vh] overflow-y-auto overflow-x-hidden">
       <div>
-        <h2 className="text-2xl font-bold mb-2" style={{ color: '#1A3A34' }}>
+        <h2 className="text-2xl font-bold mb-2 break-words" style={{ color: '#1A3A34' }}>
           {journey.title}
         </h2>
-        <p className="text-sm mb-4" style={{ color: '#5A7A72' }}>
+        <p className="text-sm mb-4 break-words" style={{ color: '#5A7A72' }}>
           {journey.description}
         </p>
         
@@ -115,13 +115,13 @@ export default function JourneyDetail({ journey, progress, onClose, onPlayGame }
                       <Badge variant="outline" className="mb-1">
                         {t('journeys.detail.day')} {step.day}
                       </Badge>
-                      <h4 className="font-semibold" style={{ color: '#1A3A34' }}>
+                      <h4 className="font-semibold break-words" style={{ color: '#1A3A34' }}>
                         {step.title}
                       </h4>
                     </div>
                   </div>
                   
-                  <p className="text-sm mb-3" style={{ color: '#5A7A72' }}>
+                  <p className="text-sm mb-3 break-words" style={{ color: '#5A7A72' }}>
                     {step.description}
                   </p>
 

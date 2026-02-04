@@ -58,7 +58,7 @@ export default function MoodTracker() {
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
               <Button
                 variant="ghost"
                 size="icon"
@@ -68,9 +68,9 @@ export default function MoodTracker() {
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
               </Button>
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2" style={{ color: '#2D3748' }}>{t('mood_tracker.page_title')}</h1>
-                <p className="text-sm md:text-base" style={{ color: '#718096' }}>{t('mood_tracker.page_subtitle')}</p>
+              <div className="min-w-0">
+                <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2 break-words" style={{ color: '#2D3748' }}>{t('mood_tracker.page_title')}</h1>
+                <p className="text-sm md:text-base break-words" style={{ color: '#718096' }}>{t('mood_tracker.page_subtitle')}</p>
               </div>
             </div>
             <Button

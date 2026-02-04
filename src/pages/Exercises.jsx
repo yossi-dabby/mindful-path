@@ -131,22 +131,23 @@ export default function Exercises() {
       {/* Header */}
       <div className="mb-8 mt-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => window.location.href = '/'}
               style={{ borderRadius: '50%' }}
               aria-label={t('exercises.go_back_aria')}
+              className="flex-shrink-0"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             </Button>
-            <div>
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-light" style={{ color: '#1A3A34' }}>{t('exercises.page_title')}</h1>
-              <p className="text-sm md:text-base md:hidden" style={{ color: '#5A7A72' }}>{t('exercises.page_subtitle')}</p>
+            <div className="min-w-0">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-light break-words" style={{ color: '#1A3A34' }}>{t('exercises.page_title')}</h1>
+              <p className="text-sm md:text-base md:hidden break-words" style={{ color: '#5A7A72' }}>{t('exercises.page_subtitle')}</p>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap sm:flex-nowrap">
             <Button
               onClick={() => setShowCoaching(true)}
               variant="outline"
@@ -154,11 +155,11 @@ export default function Exercises() {
               style={{ borderRadius: '24px' }}
             >
               <Sparkles className="w-4 h-4" />
-              {t('exercises.ai_plan')}
+              <span className="whitespace-nowrap">{t('exercises.ai_plan')}</span>
             </Button>
             <button
               onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-            className="px-3 py-2 md:px-4 md:py-2 transition-all text-sm md:text-base"
+            className="px-3 py-2 md:px-4 md:py-2 transition-all text-sm md:text-base whitespace-nowrap"
             style={{
               borderRadius: '24px',
               background: showFavoritesOnly

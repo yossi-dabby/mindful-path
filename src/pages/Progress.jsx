@@ -76,9 +76,9 @@ export default function Progress() {
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </Button>
-          <div>
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-light" style={{ color: '#1A3A34' }}>{t('progress.page_title')}</h1>
-            <p className="text-sm md:text-base md:hidden" style={{ color: '#5A7A72' }}>{t('progress.page_subtitle')}</p>
+          <div className="min-w-0">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-light break-words" style={{ color: '#1A3A34' }}>{t('progress.page_title')}</h1>
+            <p className="text-sm md:text-base md:hidden break-words" style={{ color: '#5A7A72' }}>{t('progress.page_subtitle')}</p>
           </div>
         </div>
         <p className="text-sm md:text-base ml-0 md:ml-12 hidden md:block" style={{ color: '#5A7A72' }}>{t('progress.page_subtitle_full')}</p>

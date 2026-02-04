@@ -38,16 +38,16 @@ export default function JourneyCard({ journey, progress, onStart, onContinue, on
             </Badge>
           )}
         </div>
-        <CardTitle className="text-xl" style={{ color: '#1A3A34' }}>
+        <CardTitle className="text-xl break-words" style={{ color: '#1A3A34' }}>
           {journey.title}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-sm" style={{ color: '#5A7A72' }}>
+        <p className="text-sm break-words" style={{ color: '#5A7A72' }}>
           {journey.description}
         </p>
 
-        <div className="flex gap-4 text-xs" style={{ color: '#5A7A72' }}>
+        <div className="flex flex-wrap gap-2 sm:gap-4 text-xs" style={{ color: '#5A7A72' }}>
           <div className="flex items-center gap-1">
             <Calendar className="w-4 h-4" />
             <span>{journey.duration_days} {t('journeys.card.days')}</span>
