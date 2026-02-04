@@ -3,11 +3,13 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { thoughtQuizItems, thoughtQuizItemsAdvanced } from './mindGamesContent';
 import { useAdaptiveDifficulty } from './useAdaptiveDifficulty';
 import { useMindGameTracking } from './useMindGameTracking';
 
 export default function ThoughtQuiz({ onClose }) {
+  const { t } = useTranslation();
   const { suggestedDifficulty } = useAdaptiveDifficulty('thought_quiz');
   const { trackGamePlay } = useMindGameTracking();
   
@@ -88,7 +90,7 @@ export default function ThoughtQuiz({ onClose }) {
             borderColor: 'rgba(38, 166, 154, 0.3)',
             color: '#26A69A'
           }}>
-            Score: {score}/{questionsAnswered}
+            {t('mind_games.thought_quiz.score')}: {score}/{questionsAnswered}
           </Badge>
           
           <div className="flex gap-2">
@@ -170,9 +172,9 @@ export default function ThoughtQuiz({ onClose }) {
         )}
       </Card>
 
-      <div className="flex gap-3 justify-end">
+      <div className="flex gap-3 justify-end flex-wrap">
         <Button variant="outline" onClick={onClose} style={{ borderRadius: '12px' }}>
-          Close
+          {t('common.close')}
         </Button>
         {showExplanation && (
           <Button
@@ -183,7 +185,7 @@ export default function ThoughtQuiz({ onClose }) {
               color: 'white'
             }}
           >
-            Next Question
+            {t('mind_games.thought_quiz.next_question')}
           </Button>
         )}
       </div>
