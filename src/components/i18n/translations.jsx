@@ -344,6 +344,13 @@ export const translations = {
         error: {
           goals_load: "לא ניתן לטעון מטרות.",
           journal_load: "לא ניתן לטעון רשומות יומן."
+        },
+        aria: {
+          view_goal_details: "הצג פרטי מטרה",
+          view_journal_entry: "הצג רשומת יומן",
+          watch_help_video: "צפה בוידאו עזרה",
+          watch_goals_help_video: "צפה בוידאו עזרה למטרות",
+          watch_journal_help_video: "צפה בוידאו עזרה ליומן"
         }
       },
       quick_actions: {
@@ -356,7 +363,11 @@ export const translations = {
         journeys: { title: "מסעות", description: "מסלולי מיומנות מאורגנים" },
         exercises_library: { title: "ספריית תרגילים", description: "עיינו בטכניקות" },
         video_library: { title: "ספריית וידאו", description: "צפו ולמדו" },
-        personalized_recommendations: "המלצות מותאמות אישית"
+        personalized_recommendations: "המלצות מותאמות אישית",
+        aria: {
+          guided_intro_video: "סרטון הדרכה מודרך",
+          close_video: "סגור וידאו"
+        }
       },
       settings: {
         page_title: "הגדרות",
@@ -473,10 +484,140 @@ export const translations = {
         return: "חזרה",
         close: "סגירה",
         dismiss: "דחה",
+        complete: "השלם",
         close_video_aria: "סגור וידאו",
-        video_unsupported: "הדפדפן שלכם אינו תומך בתג הווידאו.",
+        video_not_supported: "הדפדפן שלכם אינו תומך בתג הווידאו.",
+        audio_not_supported: "הדפדפן שלכם אינו תומך באלמנט האודיו.",
         go_back_aria: "חזרה",
-        go_back_home_aria: "חזרה לדף הבית"
+        go_back_home_aria: "חזרה לדף הבית",
+        ai_label: "AI",
+        you_label: "אתה",
+        minutes_short: "דק'"
+      },
+      chat: {
+        aria: {
+          go_back_home: "חזרה לדף הבית",
+          open_conversations: "פתח סרגל שיחות",
+          close_conversations: "סגור סרגל שיחות"
+        },
+        therapist_title: "המטפל שלך",
+        therapist_subtitle: "מרחב בטוח לשיחה",
+        welcome: {
+          title: "ברוכים הבאים לטיפול",
+          message: "זהו מרחב בטוח וללא שיפוטיות. שתפו את מה שמטריד אתכם ונעבוד על זה ביחד.",
+          start_session: "התחל את המפגש הראשון"
+        },
+        thinking_placeholder: "חושב...",
+        summary_prompt: {
+          title: "האם תרצו סיכום מפגש?",
+          description: "קבלו מסקנות מרכזיות, תרגילים מומלצים ומשאבים מועילים",
+          yes: "כן, צור סיכום",
+          not_now: "לא עכשיו"
+        },
+        input_placeholder: "שתפו מה עובר לכם בראש...",
+        disclaimer: {
+          title: "⚠️ תמיכת AI - לא טיפול מקצועי",
+          message: "לא יכול לאבחן או לרשום. משבר? התקשרו 988 (ארה\"ב) או לשירותי חירום מקומיים.",
+          strict: "תזכורת: AI זה אינו יכול לאבחן מצבים או לרשום טיפולים. לבעיות רפואיות, התייעצו עם מקצוען מורשה.",
+          standard: "תזכורת: זוהי תמיכה בסיוע AI, לא טיפול מקצועי. מצבי חירום דורשים עזרה מקצועית מיידית."
+        },
+        delete_session_failed: "מחיקת המפגש נכשלה. נסו שוב.",
+        confirm_delete_session: "למחוק את המפגש? פעולה זו אינה הפיכה.",
+        daily_checkin_message: "השלמתי את הצ'ק-אין היומי שלי.",
+        consent: {
+          lenient: {
+            title: "תמיכת רווחה AI - מצב מקל",
+            message: "AI זה מספק שיחה תומכת עם הפרעות מינימליות. הוא אינו יכול לאבחן, לרשום או להחליף טיפול מקצועי. מצבי משבר דורשים עזרה מקצועית מיידית."
+          },
+          standard: {
+            title: "תמיכת רווחה AI - מצב סטנדרטי",
+            message: "AI זה מספק תמיכת רווחה תוך שימוש בעקרונות CBT מבוססי ראיות. זה אינו תחליף לטיפול בבריאות הנפש המקצועי ואינו יכול לאבחן או לרשום. במשבר, צרו קשר עם שירותי חירום מיד."
+          },
+          strict: {
+            title: "תמיכת רווחה AI - מצב בטיחות מחמיר",
+            message: "מצב זה כולל ניטור בטיחות משופר ותזכורות תכופות. ה-AI אינו יכול לאבחן, לרשום או לטפל בחירום. טיפול מקצועי בבריאות הנפש נדרש לדאגות קליניות."
+          },
+          learn_more: "למדו עוד על פרופילי בטיחות",
+          understand_button: "הבנתי"
+        },
+        risk_panel: {
+          title: "אנחנו כאן לעזור",
+          message: "AI זה אינו יכול לספק תמיכת חירום. אם אתם במשבר, אנא פנו למקצוען מיידית.",
+          crisis_hotline_label: "קו חם למשבר:",
+          crisis_hotline_number: "988 (ארה\"ב)",
+          crisis_text_line_label: "קו טקסט למשבר:",
+          crisis_text_line_number: "שלחו \"HELLO\" ל-741741",
+          emergency_label: "חירום:",
+          emergency_number: "911",
+          return_to_chat: "חזרה לצ'אט"
+        },
+        conversations_list: {
+          title: "מפגשים",
+          empty_title: "אין מפגשים עדיין",
+          empty_message: "התחילו שיחה כדי להתחיל",
+          session_prefix: "מפגש",
+          delete_aria: "מחק מפגש"
+        },
+        session_summary: {
+          title: "סיכום מפגש",
+          key_takeaways: "מסקנות מרכזיות",
+          recommended_exercises: "תרגילים מומלצים",
+          helpful_resources: "משאבים מועילים",
+          reflect_button: "שקף ביומן",
+          view_exercises_button: "הצג את כל התרגילים"
+        }
+      },
+      age_gate: {
+        title: "נדרש אימות גיל",
+        message: "תכונות הטיפול ב-AI שלנו מיועדות למבוגרים בני 18 ומעלה. זה עוזר להבטיח שאנו מספקים תמיכה מתאימה ושומרים על סטנדרטים של בטיחות.",
+        teen_support_heading: "אם אתם מתחת לגיל 18 וזקוקים לתמיכה:",
+        teen_support: {
+          counselor: "• יועץ בבית ספר או מבוגר מהימן",
+          teen_line: "• Teen Line: 1-800-852-8336 (או שלחו TEEN ל-839863)",
+          crisis_text_line: "• קו טקסט למשבר: שלחו \"HOME\" ל-741741"
+        },
+        confirm_button: "אני בן 18 או מעלה",
+        decline_button: "אני מתחת לגיל 18"
+      },
+      age_restricted: {
+        title: "מוגבל לגיל",
+        message: "תכונות הצ'אט המופעלות על ידי AI שלנו מיועדות למשתמשים בני 18 ומעלה. יש לכם עדיין גישה לכלי רווחה אחרים כמו מעקב אחר מצב רוח, כתיבת יומן ותרגילים.",
+        back_to_home: "חזרה לדף הבית"
+      },
+      exercises: {
+        detail: {
+          untitled_exercise: "תרגיל ללא כותרת",
+          duration_options_suffix: "דק' אפשרויות",
+          minutes_suffix: "דקות",
+          video_label: "וידאו",
+          tabs: {
+            overview: "סקירה",
+            practice: "תרגול",
+            audio: "אודיו",
+            benefits: "יתרונות",
+            tips: "טיפים"
+          },
+          about: "אודות תרגיל זה",
+          guided_visualization: "ויזואליזציה מודרכת",
+          video_demonstration: "הדגמת וידאו",
+          helps_with: "עוזר עם",
+          guided_audio: "אודיו מודרך",
+          guided_audio_description: "עקבו אחר הדרכת אודיו מקצועית לתרגיל זה.",
+          step_by_step_guide: "מדריך שלב אחר שלב",
+          step_duration: "משך: {{seconds}} שניות",
+          instructions: "הוראות",
+          choose_duration: "בחרו משך זמן",
+          key_benefits: "יתרונות מרכזיים",
+          default_benefits: "תרגיל זה עוזר לשפר את הרווחה הנפשית, להפחית לחץ ולשפר את הרגולציה הרגשית.",
+          helpful_tips: "טיפים מועילים",
+          default_tips: "תרגלו באופן קבוע לתוצאות הטובות ביותר. מצאו מקום שקט, התחילו לאט והיו סבלניים עם עצמכם.",
+          your_progress: "ההתקדמות שלך",
+          times_completed: "פעמים שהושלמו",
+          minutes_practiced: "דקות תרגול",
+          last_practiced: "תרגול אחרון: {{date}}",
+          completed_message: "התרגיל הושלם!",
+          mark_as_complete: "סמן כהושלם"
+        }
       }
     }
   },
