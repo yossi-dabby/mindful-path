@@ -107,12 +107,12 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="p-4 md:p-6 overflow-hidden" style={{ maxHeight: 'calc(100vh - 340px)' }}>
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6 h-full overflow-hidden">
+          <CardContent className="p-4 md:p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6">
               {/* Left Column: Main Content */}
-              <div className="flex flex-col min-h-0 overflow-hidden">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 flex flex-col min-h-0 flex-1 overflow-hidden">
-              <TabsList className={`grid w-full ${audioContent.length > 0 ? 'grid-cols-5' : 'grid-cols-4'} flex-shrink-0`}>
+              <div className="flex flex-col space-y-4">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+              <TabsList className={`grid w-full ${audioContent.length > 0 ? 'grid-cols-5' : 'grid-cols-4'}`}>
                 <TabsTrigger value="overview">
                   <BookOpen className="w-4 h-4 mr-2" />
                   Overview
@@ -138,7 +138,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               </TabsList>
 
               {/* Overview Tab */}
-              <TabsContent value="overview" className="space-y-4 overflow-y-auto flex-1">
+              <TabsContent value="overview" className="space-y-4 max-h-[50vh] overflow-y-auto">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-2">About This Exercise</h3>
                   <p className="text-gray-600 leading-relaxed">{exercise.description || ''}</p>
@@ -209,7 +209,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
 
               {/* Audio Tab */}
               {audioContent.length > 0 && (
-                <TabsContent value="audio" className="space-y-4 overflow-y-auto flex-1">
+                <TabsContent value="audio" className="space-y-4 max-h-[50vh] overflow-y-auto">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">Guided Audio</h3>
                     <p className="text-gray-600 mb-4">
@@ -228,7 +228,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               )}
 
               {/* Instructions Tab */}
-              <TabsContent value="instructions" className="space-y-4 overflow-y-auto flex-1">
+              <TabsContent value="instructions" className="space-y-4 max-h-[50vh] overflow-y-auto">
                 {exercise.detailed_steps?.length > 0 ? (
                   <div>
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">Step-by-Step Guide</h3>
@@ -290,7 +290,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               </TabsContent>
 
               {/* Benefits Tab */}
-              <TabsContent value="benefits" className="space-y-4 overflow-y-auto flex-1">
+              <TabsContent value="benefits" className="space-y-4 max-h-[50vh] overflow-y-auto">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">Key Benefits</h3>
                   {exercise.benefits?.length > 0 ? (
@@ -317,7 +317,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               </TabsContent>
 
               {/* Tips Tab */}
-              <TabsContent value="tips" className="space-y-auto overflow-y-auto flex-1">
+              <TabsContent value="tips" className="space-y-4 max-h-[50vh] overflow-y-auto">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">Helpful Tips</h3>
                   {exercise.tips?.length > 0 ? (
@@ -346,33 +346,62 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               </TabsContent>
             </Tabs>
 
-            {/* Action Buttons - Mobile: show here, Desktop: show in right column */}
-            {exercise.category !== 'breathing' && (
-              <div className="flex gap-3 mt-4 lg:hidden flex-shrink-0">
-                {completed ? (
-                  <div className="flex-1 bg-green-100 border border-green-300 rounded-xl p-4 flex items-center justify-center gap-2 text-green-700 font-medium">
-                    <CheckCircle className="w-5 h-5" />
-                    Exercise Completed!
-                  </div>
-                ) : (
-                  <>
-                    <Button variant="outline" onClick={onClose} className="flex-1">
-                      Close
-                    </Button>
-                    <Button onClick={handleComplete} className="flex-1 bg-green-600 hover:bg-green-700">
-                      <Play className="w-4 h-4 mr-2" />
-                      Mark as Complete
-                    </Button>
-                  </>
-                )}
-              </div>
-            )}
               </div>
 
-              {/* Right Column: Progress & Actions (Desktop only visible) */}
-              <div className="hidden lg:flex lg:flex-col gap-4 overflow-y-auto">
+              {/* Mobile: Progress Stats */}
+              <div className="lg:hidden">
+                <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border-2 border-green-200">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Your Progress</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-2xl font-bold text-green-600">{exercise.completed_count || 0}</p>
+                      <p className="text-xs text-gray-600">Times Completed</p>
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-blue-600">{exercise.total_time_practiced || 0}</p>
+                      <p className="text-xs text-gray-600">Minutes Practiced</p>
+                    </div>
+                  </div>
+                  {exercise.last_completed && (
+                    <p className="text-xs text-gray-500 mt-3">
+                      Last practiced: {new Date(exercise.last_completed).toLocaleDateString('en-US', {
+                        weekday: 'short',
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Mobile: Action Buttons */}
+              {exercise.category !== 'breathing' && (
+                <div className="lg:hidden flex gap-3">
+                  {completed ? (
+                    <div className="flex-1 bg-green-100 border border-green-300 rounded-xl p-4 flex items-center justify-center gap-2 text-green-700 font-medium">
+                      <CheckCircle className="w-5 h-5" />
+                      Exercise Completed!
+                    </div>
+                  ) : (
+                    <>
+                      <Button variant="outline" onClick={onClose} className="flex-1">
+                        Close
+                      </Button>
+                      <Button onClick={handleComplete} className="flex-1 bg-green-600 hover:bg-green-700">
+                        <Play className="w-4 h-4 mr-2" />
+                        Mark as Complete
+                      </Button>
+                    </>
+                  )}
+                </div>
+              )}
+              </div>
+
+              {/* Right Column: Progress & Actions (Desktop) */}
+              <div className="hidden lg:flex lg:flex-col gap-4 self-start">
                 {/* Completion Stats */}
-                <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border-2 border-green-200 flex-shrink-0">
+                <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border-2 border-green-200">
                   <h3 className="text-sm font-semibold text-gray-700 mb-3">Your Progress</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -398,7 +427,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
 
                 {/* Action Buttons - Desktop */}
                 {exercise.category !== 'breathing' && (
-                  <div className="flex flex-col gap-3 flex-shrink-0">
+                  <div className="flex flex-col gap-3">
                     {completed ? (
                       <div className="bg-green-100 border border-green-300 rounded-xl p-4 flex items-center justify-center gap-2 text-green-700 font-medium">
                         <CheckCircle className="w-5 h-5" />
@@ -417,33 +446,6 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                     )}
                   </div>
                 )}
-              </div>
-
-              {/* Mobile: Progress Stats below content */}
-              <div className="lg:hidden mt-4 flex-shrink-0">
-                <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border-2 border-green-200">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Your Progress</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-2xl font-bold text-green-600">{exercise.completed_count || 0}</p>
-                      <p className="text-xs text-gray-600">Times Completed</p>
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-blue-600">{exercise.total_time_practiced || 0}</p>
-                      <p className="text-xs text-gray-600">Minutes Practiced</p>
-                    </div>
-                  </div>
-                  {exercise.last_completed && (
-                    <p className="text-xs text-gray-500 mt-3">
-                      Last practiced: {new Date(exercise.last_completed).toLocaleDateString('en-US', {
-                        weekday: 'short',
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                      })}
-                    </p>
-                  )}
-                </div>
               </div>
             </div>
           </CardContent>
