@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { TrendingUp, Calendar, Brain, Target, Activity, Trophy } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import EnhancedMoodChart from '../components/progress/EnhancedMoodChart';
 import InsightsPanel from '../components/progress/InsightsPanel';
 import StatsOverview from '../components/progress/StatsOverview';
@@ -19,6 +20,7 @@ import EnhancedProgressDashboard from '../components/progress/EnhancedProgressDa
 import GamificationHub from '../components/gamification/GamificationHub';
 
 export default function Progress() {
+  const { t } = useTranslation();
   const [timeRange, setTimeRange] = useState('7');
 
   const { data: moodEntries, isLoading: loadingMoods } = useQuery({
@@ -70,16 +72,16 @@ export default function Progress() {
             size="icon"
             onClick={() => window.history.back()}
             style={{ borderRadius: '50%' }}
-            aria-label="Go back"
+            aria-label={t('common.go_back_aria')}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </Button>
           <div>
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-light" style={{ color: '#1A3A34' }}>Your Progress</h1>
-            <p className="text-sm md:text-base md:hidden" style={{ color: '#5A7A72' }}>Track your journey</p>
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-light" style={{ color: '#1A3A34' }}>{t('progress.page_title')}</h1>
+            <p className="text-sm md:text-base md:hidden" style={{ color: '#5A7A72' }}>{t('progress.page_subtitle')}</p>
           </div>
         </div>
-        <p className="text-sm md:text-base ml-0 md:ml-12 hidden md:block" style={{ color: '#5A7A72' }}>Track your journey and celebrate your growth</p>
+        <p className="text-sm md:text-base ml-0 md:ml-12 hidden md:block" style={{ color: '#5A7A72' }}>{t('progress.page_subtitle_full')}</p>
       </div>
 
       {/* Tabs Navigation */}
@@ -89,16 +91,16 @@ export default function Progress() {
           borderRadius: '20px',
           padding: '4px'
         }}>
-          <TabsTrigger value="overview" className="text-xs sm:text-sm" style={{ borderRadius: '16px' }}>Overview</TabsTrigger>
+          <TabsTrigger value="overview" className="text-xs sm:text-sm" style={{ borderRadius: '16px' }}>{t('progress.tabs.overview')}</TabsTrigger>
           <TabsTrigger value="achievements" className="text-xs sm:text-sm" style={{ borderRadius: '16px' }}>
             <Trophy className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-            <span className="hidden sm:inline">Achievements</span>
-            <span className="sm:hidden">Rewards</span>
+            <span className="hidden sm:inline">{t('progress.tabs.achievements')}</span>
+            <span className="sm:hidden">{t('progress.tabs.rewards')}</span>
           </TabsTrigger>
-          <TabsTrigger value="mood" className="text-xs sm:text-sm" style={{ borderRadius: '16px' }}>Mood</TabsTrigger>
-          <TabsTrigger value="goals" className="text-xs sm:text-sm" style={{ borderRadius: '16px' }}>Goals</TabsTrigger>
-          <TabsTrigger value="exercises" className="text-xs sm:text-sm" style={{ borderRadius: '16px' }}>Exercises</TabsTrigger>
-          <TabsTrigger value="health" className="text-xs sm:text-sm" style={{ borderRadius: '16px' }}>Health</TabsTrigger>
+          <TabsTrigger value="mood" className="text-xs sm:text-sm" style={{ borderRadius: '16px' }}>{t('progress.tabs.mood')}</TabsTrigger>
+          <TabsTrigger value="goals" className="text-xs sm:text-sm" style={{ borderRadius: '16px' }}>{t('progress.tabs.goals')}</TabsTrigger>
+          <TabsTrigger value="exercises" className="text-xs sm:text-sm" style={{ borderRadius: '16px' }}>{t('progress.tabs.exercises')}</TabsTrigger>
+          <TabsTrigger value="health" className="text-xs sm:text-sm" style={{ borderRadius: '16px' }}>{t('progress.tabs.health')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -119,16 +121,16 @@ export default function Progress() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <CardTitle className="flex items-center gap-2" style={{ color: '#1A3A34' }}>
                   <TrendingUp className="w-5 h-5" style={{ color: '#26A69A' }} />
-                  Mood Trends
+                  {t('mood_tracker.mood_trends')}
                 </CardTitle>
                 <Tabs value={timeRange} onValueChange={setTimeRange}>
                   <TabsList style={{
                     background: 'rgba(200, 230, 225, 0.6)',
                     borderRadius: '16px'
                   }}>
-                    <TabsTrigger value="7" className="text-xs sm:text-sm">7 days</TabsTrigger>
-                    <TabsTrigger value="14" className="text-xs sm:text-sm">14 days</TabsTrigger>
-                    <TabsTrigger value="30" className="text-xs sm:text-sm">30 days</TabsTrigger>
+                    <TabsTrigger value="7" className="text-xs sm:text-sm">{t('mood_tracker.time_range.7_days')}</TabsTrigger>
+                    <TabsTrigger value="14" className="text-xs sm:text-sm">{t('mood_tracker.time_range.14_days')}</TabsTrigger>
+                    <TabsTrigger value="30" className="text-xs sm:text-sm">{t('mood_tracker.time_range.30_days')}</TabsTrigger>
                   </TabsList>
                 </Tabs>
               </div>
@@ -136,14 +138,14 @@ export default function Progress() {
             <CardContent>
               {loadingMoods ? (
                 <div className="h-64 flex items-center justify-center">
-                  <p style={{ color: '#5A7A72' }}>Loading chart...</p>
+                  <p style={{ color: '#5A7A72' }}>{t('mood_tracker.loading_chart')}</p>
                 </div>
               ) : filteredMoodEntries.length === 0 ? (
                 <div className="h-64 flex items-center justify-center">
                   <div className="text-center">
                     <Calendar className="w-12 h-12 mx-auto mb-3" style={{ color: '#A8D4CB' }} />
-                    <p style={{ color: '#5A7A72' }}>No mood data yet</p>
-                    <p className="text-sm mt-1" style={{ color: '#7A9A92' }}>Start checking in daily to see trends</p>
+                    <p style={{ color: '#5A7A72' }}>{t('mood_tracker.no_data')}</p>
+                    <p className="text-sm mt-1" style={{ color: '#7A9A92' }}>{t('mood_tracker.no_data_subtitle')}</p>
                   </div>
                 </div>
               ) : (
@@ -170,7 +172,7 @@ export default function Progress() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2" style={{ color: '#1A3A34' }}>
                 <Activity className="w-5 h-5" style={{ color: '#26A69A' }} />
-                Health & Wellness
+                {t('progress.health_wellness')}
               </CardTitle>
             </CardHeader>
             <CardContent>
