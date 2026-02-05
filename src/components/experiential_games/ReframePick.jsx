@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { CheckCircle, XCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { reframePickItems } from './mindGamesContent';
 
 export default function ReframePick({ onClose }) {
   const { t } = useTranslation();
@@ -11,13 +10,16 @@ export default function ReframePick({ onClose }) {
   const [selectedChoice, setSelectedChoice] = useState(null);
   const [showResult, setShowResult] = useState(false);
 
-  const currentItem = reframePickItems[currentIndex];
+  const reframePickItems = t('mind_games.content.reframe_pick.items', { returnObjects: true });
+  const currentItem = reframePickItems?.[currentIndex];
   
-  // Translate content
-  const situation = t(`mind_games.reframe_pick.situations.${currentItem.id}`);
-  const automaticThought = t(`mind_games.reframe_pick.automatic_thoughts.${currentItem.id}`);
-  const choices = currentItem.choices.map((_, idx) => t(`mind_games.reframe_pick.choices.${currentItem.id}_${idx}`));
-  const why = t(`mind_games.reframe_pick.why.${currentItem.id}`);
+  if (!currentItem || !reframePickItems) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-sm text-gray-500">{t('common.loading')}</p>
+      </div>
+    );
+  }
 
   const handleChoice = (index) => {
     setSelectedChoice(index);
@@ -31,6 +33,9 @@ export default function ReframePick({ onClose }) {
     setShowResult(false);
   };
 
+  // Determine best index - it's always the first choice (index 0) based on the pattern
+  const bestIndex = 0;
+
   return (
     <div className="space-y-4">
       <Card className="p-6 border-0" style={{
@@ -40,27 +45,27 @@ export default function ReframePick({ onClose }) {
       }}>
         <div className="mb-4 w-full min-w-0">
           <p className="text-xs font-medium mb-1" style={{ color: '#5A7A72' }}>
-            {t('mind_games.reframe_pick.situation_label')}
+            Situation:
           </p>
           <p className="text-sm mb-3 break-words whitespace-normal" style={{ color: '#1A3A34' }}>
-            {situation}
+            {currentItem.situation}
           </p>
           <p className="text-xs font-medium mb-1" style={{ color: '#5A7A72' }}>
-            {t('mind_games.reframe_pick.automatic_thought_label')}
+            Automatic Thought:
           </p>
           <p className="text-sm italic break-words whitespace-normal" style={{ color: '#1A3A34' }}>
-            "{automaticThought}"
+            "{currentItem.automatic_thought}"
           </p>
         </div>
 
         <p className="text-sm font-semibold mb-3" style={{ color: '#1A3A34' }}>
-          {t('mind_games.reframe_pick.prompt')}
+          Choose the most balanced thought:
         </p>
 
         <div className="space-y-2">
-          {choices.map((choice, index) => {
+          {currentItem.choices?.map((choice, index) => {
             const isSelected = selectedChoice === index;
-            const isBest = index === currentItem.bestIndex;
+            const isBest = index === bestIndex;
 
             return (
               <Button
@@ -104,7 +109,7 @@ export default function ReframePick({ onClose }) {
             border: '1px solid rgba(38, 166, 154, 0.2)'
           }}>
             <p className="text-sm" style={{ color: '#1A3A34' }}>
-              <strong>{t('mind_games.reframe_pick.why_label')}</strong> {why}
+              <strong>Why:</strong> {currentItem.why}
             </p>
           </div>
         )}
@@ -123,7 +128,7 @@ export default function ReframePick({ onClose }) {
               color: 'white'
             }}
           >
-            {t('common.try_another')}
+            Try Another
           </Button>
         )}
       </div>

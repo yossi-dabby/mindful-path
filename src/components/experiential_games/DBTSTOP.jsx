@@ -9,7 +9,15 @@ export default function DBTSTOP({ onClose }) {
   const [selectedNext, setSelectedNext] = useState(null);
 
   const dbtStopPrompts = t('mind_games.content.dbt_stop.prompts', { returnObjects: true });
-  const currentPrompt = dbtStopPrompts[currentIndex];
+  const currentPrompt = dbtStopPrompts?.[currentIndex];
+
+  if (!currentPrompt || !dbtStopPrompts) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-sm text-gray-500">{t('common.loading')}</p>
+      </div>
+    );
+  }
 
   const handleNextStep = (step) => {
     setSelectedNext(step);
@@ -36,7 +44,7 @@ export default function DBTSTOP({ onClose }) {
         </p>
 
         <div className="space-y-3 mb-4">
-          {currentPrompt.steps.map((step, index) => (
+          {currentPrompt.steps?.map((step, index) => (
             <div key={index} className="flex gap-3">
               <div 
                 className="w-8 h-8 flex-shrink-0 flex items-center justify-center font-bold text-white"
@@ -64,7 +72,7 @@ export default function DBTSTOP({ onClose }) {
         </p>
 
         <div className="space-y-2">
-          {currentPrompt.nextSteps.map((step, index) => (
+          {currentPrompt.next_steps?.map((step, index) => (
             <Button
               key={index}
               variant="outline"

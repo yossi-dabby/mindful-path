@@ -2,21 +2,35 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useTranslation } from 'react-i18next';
-import { tinyExperimentItems } from './mindGamesContent';
 
 export default function TinyExperiment({ onClose }) {
   const { t } = useTranslation();
-  const [currentIndex] = useState(Math.floor(Math.random() * tinyExperimentItems.length));
+  const tinyExperimentItems = t('mind_games.content.tiny_experiment.items', { returnObjects: true });
+  
+  const [currentIndex] = useState(() => {
+    if (!tinyExperimentItems) return 0;
+    return Math.floor(Math.random() * tinyExperimentItems.length);
+  });
   const [selectedExperiment, setSelectedExperiment] = useState(null);
   const [selectedReflection, setSelectedReflection] = useState(null);
 
+  if (!tinyExperimentItems) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-sm text-gray-500">{t('common.loading')}</p>
+      </div>
+    );
+  }
+
   const currentItem = tinyExperimentItems[currentIndex];
-  
-  // Translate content
-  const belief = t(`mind_games.tiny_experiment.beliefs.${currentItem.id}`);
-  const experiments = currentItem.experiments.map((_, idx) => t(`mind_games.tiny_experiment.experiments.${currentItem.id}_${idx}`));
-  const reflectionQuestion = t(`mind_games.tiny_experiment.reflection_questions.${currentItem.id}`);
-  const reflectionOptions = currentItem.reflection.options.map((_, idx) => t(`mind_games.tiny_experiment.reflection_options.${currentItem.id}_${idx}`));
+
+  if (!currentItem) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-sm text-gray-500">{t('common.loading')}</p>
+      </div>
+    );
+  }
 
   const handleExperimentSelect = (experiment) => {
     setSelectedExperiment(experiment);
@@ -35,24 +49,24 @@ export default function TinyExperiment({ onClose }) {
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <p className="text-xs font-medium mb-1" style={{ color: '#5A7A72' }}>
-          {t('mind_games.tiny_experiment.belief_label')}
+          Belief to test:
         </p>
-        <p className="text-sm italic" style={{ color: '#1A3A34' }}>
-          "{belief}"
+        <p className="text-sm italic break-words whitespace-normal" style={{ color: '#1A3A34' }}>
+          "{currentItem.belief}"
         </p>
       </Card>
 
       <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
-        {t('mind_games.tiny_experiment.prompt')}
+        Pick one tiny experiment (2 min max):
       </p>
       <div className="space-y-2">
-        {experiments.map((experiment, index) => {
-          const isSelected = selectedExperiment === currentItem.experiments[index];
+        {currentItem.experiments?.map((experiment, index) => {
+          const isSelected = selectedExperiment === experiment;
           return (
             <Button
               key={index}
               variant="outline"
-              className="w-full justify-start text-left h-auto py-3 px-4"
+              className="w-full justify-start text-left h-auto py-3 px-4 whitespace-normal break-words"
               style={{
                 borderRadius: '12px',
                 borderColor: isSelected
@@ -62,7 +76,7 @@ export default function TinyExperiment({ onClose }) {
                   ? 'rgba(38, 166, 154, 0.1)'
                   : 'transparent'
               }}
-              onClick={() => handleExperimentSelect(currentItem.experiments[index])}
+              onClick={() => handleExperimentSelect(experiment)}
             >
               {experiment}
             </Button>
@@ -78,17 +92,17 @@ export default function TinyExperiment({ onClose }) {
             border: '1px solid rgba(38, 166, 154, 0.2)'
           }}>
             <p className="text-sm font-medium mb-2" style={{ color: '#1A3A34' }}>
-              {reflectionQuestion}
+              {currentItem.reflection_question}
             </p>
             <div className="space-y-2">
-              {reflectionOptions.map((option, index) => {
-                const isSelected = selectedReflection === currentItem.reflection.options[index];
+              {currentItem.reflection_options?.map((option, index) => {
+                const isSelected = selectedReflection === option;
                 return (
                   <Button
                     key={index}
                     variant="outline"
                     size="sm"
-                    className="w-full justify-start text-left"
+                    className="w-full justify-start text-left whitespace-normal break-words"
                     style={{
                       borderRadius: '10px',
                       borderColor: isSelected
@@ -98,7 +112,7 @@ export default function TinyExperiment({ onClose }) {
                         ? 'rgba(34, 197, 94, 0.1)'
                         : 'transparent'
                     }}
-                    onClick={() => handleReflectionSelect(currentItem.reflection.options[index])}
+                    onClick={() => handleReflectionSelect(option)}
                   >
                     {option}
                   </Button>
@@ -113,8 +127,8 @@ export default function TinyExperiment({ onClose }) {
               background: 'rgba(34, 197, 94, 0.1)',
               border: '1px solid rgba(34, 197, 94, 0.2)'
             }}>
-              <p className="text-xs" style={{ color: '#1A3A34' }}>
-                {t('mind_games.tiny_experiment.reflection_success')}
+              <p className="text-xs break-words whitespace-normal" style={{ color: '#1A3A34' }}>
+                ✓ Experiments collect data. Even 'negative' results teach you something valuable.
               </p>
             </Card>
           )}
