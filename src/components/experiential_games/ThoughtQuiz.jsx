@@ -53,6 +53,14 @@ export default function ThoughtQuiz({ onClose }) {
     );
   }
 
+  // Translate content
+  const prompt = t(`mind_games.thought_quiz.prompts.${currentItem.id}`);
+  const explanation = t(`mind_games.thought_quiz.explanations.${currentItem.id}`);
+  const options = currentItem.options.map((opt, idx) => {
+    const optKey = opt.toLowerCase().replace(/\s+/g, '_').replace(/\+/g, '').replace(/\(/g, '').replace(/\)/g, '');
+    return t(`mind_games.thought_quiz.options.${optKey}`, opt);
+  });
+
   const handleAnswer = (index) => {
     setSelectedOption(index);
     setShowExplanation(true);
@@ -115,11 +123,11 @@ export default function ThoughtQuiz({ onClose }) {
         </div>
         
         <p className="text-base font-medium mb-4 break-words whitespace-normal" style={{ color: '#1A3A34' }}>
-          {currentItem.prompt}
+          {prompt}
         </p>
 
         <div className="space-y-2">
-          {currentItem.options.map((option, index) => {
+          {options.map((option, index) => {
             const isSelected = selectedOption === index;
             const isCorrect = index === currentItem.correctIndex;
             const showResult = showExplanation;
@@ -166,7 +174,7 @@ export default function ThoughtQuiz({ onClose }) {
             border: '1px solid rgba(38, 166, 154, 0.2)'
           }}>
             <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
-              <strong>Why:</strong> {currentItem.explanation}
+              <strong>{t('mind_games.thought_quiz.why_label')}</strong> {explanation}
             </p>
           </div>
         )}

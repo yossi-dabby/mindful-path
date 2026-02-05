@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useTranslation } from 'react-i18next';
 import { valueCompassValues } from './mindGamesContent';
 
 export default function ValueCompass({ onClose }) {
+  const { t } = useTranslation();
   const [selectedValue, setSelectedValue] = useState(null);
   const [selectedAction, setSelectedAction] = useState(null);
 
@@ -26,24 +28,27 @@ export default function ValueCompass({ onClose }) {
       {!selectedValue ? (
         <>
           <p className="text-sm font-medium mb-3" style={{ color: '#1A3A34' }}>
-            Choose a value that matters to you:
+            {t('mind_games.value_compass.prompt')}
           </p>
           <div className="grid grid-cols-2 gap-3">
-            {valueCompassValues.map((valueData) => (
-              <Button
-                key={valueData.id}
-                variant="outline"
-                className="h-auto py-4 px-4"
-                style={{
-                  borderRadius: '16px',
-                  borderColor: 'rgba(38, 166, 154, 0.3)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.8)'
-                }}
-                onClick={() => handleValueSelect(valueData)}
-              >
-                <span className="font-medium">{valueData.value}</span>
-              </Button>
-            ))}
+            {valueCompassValues.map((valueData) => {
+              const valueKey = valueData.value.toLowerCase();
+              return (
+                <Button
+                  key={valueData.id}
+                  variant="outline"
+                  className="h-auto py-4 px-4"
+                  style={{
+                    borderRadius: '16px',
+                    borderColor: 'rgba(38, 166, 154, 0.3)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.8)'
+                  }}
+                  onClick={() => handleValueSelect(valueData)}
+                >
+                  <span className="font-medium">{t(`mind_games.value_compass.values.${valueKey}`)}</span>
+                </Button>
+              );
+            })}
           </div>
         </>
       ) : (
@@ -54,15 +59,17 @@ export default function ValueCompass({ onClose }) {
             border: '1px solid rgba(38, 166, 154, 0.2)'
           }}>
             <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
-              Your value: <span className="text-base font-bold">{selectedValue.value}</span>
+              {t('mind_games.value_compass.your_value')} <span className="text-base font-bold">{t(`mind_games.value_compass.values.${selectedValue.value.toLowerCase()}`)}</span>
             </p>
           </Card>
 
           <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
-            Choose one tiny action:
+            {t('mind_games.value_compass.choose_action')}
           </p>
           <div className="space-y-2">
             {selectedValue.actions.map((action, index) => {
+              const valueKey = selectedValue.value.toLowerCase();
+              const translatedAction = t(`mind_games.value_compass.actions.${valueKey}_${index}`);
               const isSelected = selectedAction === action;
               return (
                 <Button
@@ -80,7 +87,7 @@ export default function ValueCompass({ onClose }) {
                   }}
                   onClick={() => handleActionSelect(action)}
                 >
-                  {action}
+                  {translatedAction}
                 </Button>
               );
             })}
@@ -93,7 +100,7 @@ export default function ValueCompass({ onClose }) {
               border: '1px solid rgba(34, 197, 94, 0.2)'
             }}>
               <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
-                ✓ Great! Take this step today and notice how it feels.
+                {t('mind_games.value_compass.success')}
               </p>
             </Card>
           )}
@@ -103,11 +110,11 @@ export default function ValueCompass({ onClose }) {
       <div className="flex gap-3 justify-end">
         {selectedValue && (
           <Button variant="outline" onClick={handleReset} style={{ borderRadius: '12px' }}>
-            Pick Different Value
+            {t('mind_games.value_compass.pick_different')}
           </Button>
         )}
         <Button variant="outline" onClick={onClose} style={{ borderRadius: '12px' }}>
-          Close
+          {t('common.close')}
         </Button>
       </div>
     </div>
