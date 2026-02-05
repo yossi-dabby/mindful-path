@@ -467,8 +467,69 @@ export const translations = {
               { situation: "You didn't get invited to something.", automatic_thought: "Nobody likes me.", choices: ["There could be many reasons. I can reach out or plan something else.", "This proves I'm unlikable and always will be.", "I'll isolate so I don't have to feel left out again."], why: "It avoids overgeneralization and offers flexible, constructive options." },
               { situation: "You're learning a new skill and feel behind.", automatic_thought: "If I'm not fast, I'm not meant for this.", choices: ["Skills grow with practice. I can improve step by step.", "If I'm not immediately great, it's a waste of time.", "I should compare myself nonstop to prove I'm failing."], why: "It supports growth mindset and realistic learning curves." }
             ]
+          },
+          value_compass: {
+            values: [
+              { value: "Family", actions: ["Send a kind message to a family member.", "Do one small helpful thing at home.", "Plan 10 minutes of quality time today."] },
+              { value: "Health", actions: ["Drink a glass of water right now.", "Take a 2-minute stretch break.", "Step outside for fresh air for 3 minutes."] },
+              { value: "Growth", actions: ["Learn one tiny thing (watch/read for 2 minutes).", "Practice a skill for 3 minutes.", "Write one sentence about what you want to improve."] },
+              { value: "Friendship", actions: ["Check in with a friend with a simple hello.", "Reply to a message you've been postponing.", "Share one genuine compliment today."] },
+              { value: "Courage", actions: ["Do the smallest version of the scary step (10%).", "Name what you fear in one sentence, then proceed anyway.", "Ask one small question instead of assuming."] },
+              { value: "Calm", actions: ["Take 5 slow breaths (count 4 in / 4 out).", "Relax your shoulders and jaw for 20 seconds.", "Put your phone down for 2 minutes and reset."] },
+              { value: "Creativity", actions: ["Write a silly 1-line idea (no judgment).", "Take a photo of something interesting around you.", "Doodle for 60 seconds."] },
+              { value: "Purpose", actions: ["Choose one task that matters and do 2 minutes of it.", "Write your 'why' in 1 sentence.", "Remove one small obstacle from your path today."] }
+            ]
+          },
+          tiny_experiment: {
+            items: [
+              { belief: "If I ask for help, people will think I'm weak.", experiments: ["Ask one small, specific question and observe the response.", "Ask a trusted person for a tiny favor and note what happens.", "Ask for clarification once instead of guessing."], reflection_question: "What happened?", reflection_options: ["It went better than I feared.", "It was neutral / fine.", "It was uncomfortable, but I handled it."] },
+              { belief: "If I say no, people will dislike me.", experiments: ["Say no to a low-stakes request using one polite sentence.", "Offer an alternative (not now / later) instead of automatic yes.", "Pause for 5 seconds before agreeing to anything."], reflection_question: "What did you notice?", reflection_options: ["People respected it.", "Nothing dramatic happened.", "It felt hard, and I survived it."] },
+              { belief: "If I make a mistake, it will be a disaster.", experiments: ["Do a small task imperfectly on purpose (10%) and observe outcomes.", "Share a minor correction without apologizing excessively.", "Let one tiny typo exist and see what actually happens."], reflection_question: "What was the outcome?", reflection_options: ["No one cared.", "It was fixable.", "It felt big in my head, smaller in reality."] },
+              { belief: "If I don't feel motivated, I can't start.", experiments: ["Start for 2 minutes only, then reassess.", "Set a timer for 90 seconds and do the first step.", "Make the task 10x smaller and begin."], reflection_question: "After starting, how was it?", reflection_options: ["Easier than expected.", "Still hard, but possible.", "I gained a little momentum."] },
+              { belief: "If someone is quiet, it must be about me.", experiments: ["Write 3 alternative explanations before reacting.", "Ask a simple check-in question instead of assuming.", "Wait 30 minutes and see if new info appears."], reflection_question: "What did you learn?", reflection_options: ["I didn't have enough evidence.", "There were other explanations.", "Checking in was helpful."] },
+              { belief: "I have to do everything right to be accepted.", experiments: ["Share one imperfect draft and request feedback.", "Do one task at 'good enough' level and stop.", "Let someone else choose one detail instead of controlling it."], reflection_question: "How did it go?", reflection_options: ["Good enough worked.", "Acceptance didn't depend on perfection.", "I felt discomfort, and it passed."] },
+              { belief: "If I feel anxious, I shouldn't go.", experiments: ["Go for 5 minutes only and reassess.", "Bring one coping tool (water / music / breathing).", "Rate anxiety 0–10 before and after to compare."], reflection_question: "What did you notice?", reflection_options: ["Anxiety changed over time.", "I could function with anxiety present.", "Avoidance wasn't necessary."] },
+              { belief: "If I rest, I'm wasting time.", experiments: ["Take a 3-minute break and then return to one small task.", "Rest first, then do 2 minutes of the priority task.", "Track: does a short break help focus?"], reflection_question: "Result?", reflection_options: ["Rest helped me reset.", "No harm done.", "I returned with a bit more clarity."] },
+              { belief: "If I don't get it quickly, I'm not capable.", experiments: ["Practice for 3 minutes daily for 3 days and compare.", "Ask one question and notice improvement.", "Write one thing you learned today, even if small."], reflection_question: "What changed?", reflection_options: ["Progress showed up gradually.", "Learning took repetition.", "I was harsher than necessary."] },
+              { belief: "I need to feel confident before I act.", experiments: ["Act with 'small courage' for 2 minutes anyway.", "Do the first step while confidence is low.", "Rate confidence after action (not before)."], reflection_question: "After action, how was your confidence?", reflection_options: ["A bit higher.", "About the same, but I did it.", "I learned I can move without perfect confidence."] }
+            ]
+          },
+          quick_win: {
+            presets: ["I drank water.", "I took a 2-minute break.", "I sent one message I was avoiding.", "I cleaned one tiny area.", "I did one small task for 2 minutes.", "I took 5 slow breaths.", "I stepped outside for fresh air.", "I asked a question instead of assuming.", "I showed up even though it was uncomfortable.", "I wrote one helpful sentence to myself.", "I stretched my shoulders/neck.", "I ate something nourishing.", "I paused before reacting.", "I said no (or not now) politely.", "I made a small plan for tomorrow.", "I finished a mini-step.", "I noticed a thinking trap and named it.", "I chose 'good enough' and stopped.", "I did something kind for someone.", "I did something kind for myself."]
+          },
+          calm_bingo: {
+            tiles: ["Drink a glass of water", "5 slow breaths", "Relax shoulders + jaw", "Look out a window for 30s", "Stand up and stretch", "Send a kind text", "Tidy one small thing", "Step outside for 2 minutes", "Name 3 things you can see", "Play one calm song", "Write 1 supportive sentence", "Wash your hands slowly", "Move your body for 60s", "Put phone down for 2 minutes", "Smile gently (even 10%)", "Choose one tiny next step"]
+          },
+          dbt_stop: {
+            prompts: [
+              { trigger: "You feel a strong urge to react immediately.", steps: [{ key: "S", label: "Stop", text: "Pause. Don't act yet." }, { key: "T", label: "Take a step back", text: "Breathe once. Create a tiny space." }, { key: "O", label: "Observe", text: "Notice: thoughts, feelings, body signals." }, { key: "P", label: "Proceed mindfully", text: "Choose one wise next step." }], next_steps: ["Send a calm, short reply (or wait 10 minutes).", "Ask one clarifying question.", "Do one small grounding action, then decide."] },
+              { trigger: "You're about to avoid something important.", steps: [{ key: "S", label: "Stop", text: "Pause avoidance for a moment." }, { key: "T", label: "Take a step back", text: "Exhale slowly and reset posture." }, { key: "O", label: "Observe", text: "What are you afraid will happen?" }, { key: "P", label: "Proceed mindfully", text: "Pick the smallest brave step (10%)." }], next_steps: ["Do 2 minutes of the first step only.", "Make it easier: reduce scope by 50%.", "Text someone: 'I'm starting now—wish me luck.'"] },
+              { trigger: "You feel criticized and want to defend yourself fast.", steps: [{ key: "S", label: "Stop", text: "Hold back the instant response." }, { key: "T", label: "Take a step back", text: "Breathe and relax your jaw." }, { key: "O", label: "Observe", text: "What's the goal: to win or to repair?" }, { key: "P", label: "Proceed mindfully", text: "Respond to the goal, not the heat." }], next_steps: ["Say: 'Let me think about that for a moment.'", "Reflect back what you heard in one sentence.", "Ask: 'What would be most helpful right now?'"] },
+              { trigger: "You're scrolling/doomscrolling and feel stuck.", steps: [{ key: "S", label: "Stop", text: "Pause scrolling now." }, { key: "T", label: "Take a step back", text: "Put phone down for one breath." }, { key: "O", label: "Observe", text: "Name the feeling in one word." }, { key: "P", label: "Proceed mindfully", text: "Choose one small helpful action." }], next_steps: ["Drink water and stretch for 30 seconds.", "Open a window or step outside for 1 minute.", "Write one tiny next step and do it."] }
+            ]
+          },
+          opposite_action: {
+            items: [
+              { emotion: "Anxiety", urge: "Avoid / escape", opposite: "Approach gently", choices: ["Show up for 5 minutes, then reassess.", "Do the smallest first step (10%).", "Ask one question instead of avoiding."], note: "Opposite action is for emotions that don't fit the facts or are too intense." },
+              { emotion: "Sadness", urge: "Withdraw / isolate", opposite: "Connect or activate", choices: ["Send one simple 'hey' message.", "Step outside for 2 minutes.", "Do a tiny task to build momentum."], note: "Small activation often shifts mood more than waiting for motivation." },
+              { emotion: "Anger", urge: "Attack / argue", opposite: "Be gentle and effective", choices: ["Lower voice + slow down your words.", "State one need clearly without blame.", "Take a 2-minute pause before replying."], note: "Opposite action aims for effectiveness, not 'winning.'" },
+              { emotion: "Shame", urge: "Hide / disappear", opposite: "Small reveal + self-respect", choices: ["Share a tiny truth with a safe person.", "Stand tall, breathe, and stay present for 30s.", "Do one value-based action anyway."], note: "Shame shrinks with safe connection and self-respect actions." },
+              { emotion: "Guilt (too much)", urge: "Over-apologize / self-punish", opposite: "Repair effectively", choices: ["Apologize once, then propose one repair step.", "Ask what would help and listen.", "Stop repeating apologies; act instead."], note: "Effective repair beats endless self-blame." },
+              { emotion: "Fear of rejection", urge: "People-please / over-text", opposite: "Balanced boundary", choices: ["Send one message, then wait.", "Do one self-caring action while you wait.", "Remind yourself: 'I can handle uncertainty.'"], note: "Opposite action builds tolerance for uncertainty." }
+            ]
+          },
+          urge_surfing: {
+            beginner: [
+              { title: "Ride the wave (60 seconds)", steps: ["Name the urge: 'I'm having the urge to ____.'", "Rate intensity 0–10.", "Notice where it lives in the body.", "Breathe slowly for 5 breaths.", "Rate intensity again. (Urges rise and fall.)"], finish_choices: ["Delay 10 minutes (set a timer).", "Do a 2-minute replacement action.", "Ask for support (one message)."] },
+              { title: "Surf + redirect", steps: ["Name the urge without judging it.", "Imagine it as a wave—rising, cresting, passing.", "Relax shoulders and jaw.", "Pick one value-based micro-action."], finish_choices: ["Take 10% of a helpful step.", "Move your body for 60 seconds.", "Drink water + reset posture."] }
+            ],
+            advanced: [
+              { title: "Surf independently (90 seconds)", steps: ["Name and rate the urge (0-10).", "Locate it in your body.", "Breathe with it for 10 breaths.", "Notice the peak and decline.", "Rate it again."], finish_choices: ["Delay 20 minutes and reassess.", "Do the opposite action for 5 minutes.", "Journal about what you noticed."] },
+              { title: "Surf + value-based action", steps: ["Acknowledge the urge without judgment.", "Watch it like a scientist observing data.", "Let it peak naturally.", "Choose one value-aligned micro-step."], finish_choices: ["Do the tiny step immediately.", "Practice the skill again in 1 hour.", "Note what worked for next time."] }
+            ]
           }
         }
+      }
       }
       },
       exercises: {
