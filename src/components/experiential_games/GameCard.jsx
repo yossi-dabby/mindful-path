@@ -20,13 +20,15 @@ export default function GameCard({ game, onClick, index }) {
           background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
           backdropFilter: 'blur(12px)',
           boxShadow: '0 8px 24px rgba(38, 166, 154, 0.12), 0 4px 12px rgba(0,0,0,0.04)',
-          minHeight: '140px'
+          minHeight: '160px',
+          display: 'flex',
+          flexDirection: 'column'
         }}
         onClick={onClick}
         data-testid={game.testId}
       >
-        <CardContent className="p-5">
-          <div className="flex items-start gap-3 w-full min-w-0">
+        <CardContent className="p-5 flex-1 flex flex-col">
+          <div className="flex items-start gap-3 w-full">
             <div
               className="w-12 h-12 flex items-center justify-center flex-shrink-0"
               style={{
@@ -37,12 +39,15 @@ export default function GameCard({ game, onClick, index }) {
             >
               <Puzzle className="w-6 h-6" />
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start gap-2 mb-2 min-w-0">
+            <div className="flex-1 overflow-hidden">
+              <div className="flex items-start gap-2 mb-2">
                 <h3
-                  className="font-semibold text-base break-words line-clamp-2 flex-1 min-w-0"
+                  className="font-semibold text-base flex-1"
                   style={{ 
-                    color: '#1A3A34'
+                    color: '#1A3A34',
+                    wordWrap: 'break-word',
+                    overflowWrap: 'break-word',
+                    hyphens: 'auto'
                   }}
                 >
                   {game.titleKey ? t(game.titleKey) : game.title}
@@ -59,7 +64,14 @@ export default function GameCard({ game, onClick, index }) {
                   {game.time}
                 </Badge>
               </div>
-              <p className="text-sm break-words line-clamp-2" style={{ color: '#5A7A72' }}>
+              <p 
+                className="text-sm" 
+                style={{ 
+                  color: '#5A7A72',
+                  wordWrap: 'break-word',
+                  overflowWrap: 'break-word'
+                }}
+              >
                 {game.descriptionKey ? t(game.descriptionKey) : game.description}
               </p>
             </div>
