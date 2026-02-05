@@ -39,10 +39,10 @@ export default function GameCard({ game, onClick, index }) {
             >
               <Puzzle className="w-6 h-6" />
             </div>
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 min-w-0">
               <div className="flex items-start gap-2 mb-2">
                 <h3
-                  className="font-semibold text-base flex-1"
+                  className="font-semibold text-base flex-1 min-w-0"
                   style={{ 
                     color: '#1A3A34',
                     wordWrap: 'break-word',
@@ -54,11 +54,12 @@ export default function GameCard({ game, onClick, index }) {
                 </h3>
                 <Badge
                   variant="outline"
-                  className="text-xs flex-shrink-0 whitespace-nowrap"
+                  className="text-xs whitespace-nowrap ml-2"
                   style={{
                     borderRadius: '12px',
                     borderColor: 'rgba(38, 166, 154, 0.3)',
-                    color: '#26A69A'
+                    color: '#26A69A',
+                    flexShrink: 0
                   }}
                 >
                   {game.time}
