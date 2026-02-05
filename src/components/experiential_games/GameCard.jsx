@@ -14,7 +14,7 @@ export default function GameCard({ game, onClick, index }) {
       transition={{ duration: 0.3, delay: index * 0.1 }}
     >
       <Card
-        className="border-0 hover:shadow-xl transition-all cursor-pointer group"
+        className="border-0 hover:shadow-xl transition-all cursor-pointer group h-full"
         style={{
           borderRadius: '24px',
           background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
@@ -24,7 +24,7 @@ export default function GameCard({ game, onClick, index }) {
         onClick={onClick}
         data-testid={game.testId}
       >
-        <CardContent className="p-5">
+        <CardContent className="p-5 h-full flex flex-col">
           <div className="flex items-start gap-3 w-full min-w-0">
             <div
               className="w-12 h-12 flex items-center justify-center flex-shrink-0"
@@ -37,7 +37,7 @@ export default function GameCard({ game, onClick, index }) {
               <Puzzle className="w-6 h-6" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex flex-wrap items-start gap-2 mb-1 min-w-0">
+              <div className="flex items-start gap-2 mb-1 min-w-0">
                 <h3
                   className="font-semibold text-base break-words line-clamp-2 flex-1 min-w-0"
                   style={{ color: '#1A3A34' }}
@@ -46,7 +46,7 @@ export default function GameCard({ game, onClick, index }) {
                 </h3>
                 <Badge
                   variant="outline"
-                  className="text-xs flex-shrink-0 whitespace-nowrap ml-auto"
+                  className="text-xs flex-shrink-0 whitespace-nowrap"
                   style={{
                     borderRadius: '12px',
                     borderColor: 'rgba(38, 166, 154, 0.3)',
