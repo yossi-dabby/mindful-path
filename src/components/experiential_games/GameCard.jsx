@@ -14,17 +14,18 @@ export default function GameCard({ game, onClick, index }) {
       transition={{ duration: 0.3, delay: index * 0.1 }}
     >
       <Card
-        className="border-0 hover:shadow-xl transition-all cursor-pointer group h-full"
+        className="border-0 hover:shadow-xl transition-all cursor-pointer group"
         style={{
           borderRadius: '24px',
           background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
           backdropFilter: 'blur(12px)',
-          boxShadow: '0 8px 24px rgba(38, 166, 154, 0.12), 0 4px 12px rgba(0,0,0,0.04)'
+          boxShadow: '0 8px 24px rgba(38, 166, 154, 0.12), 0 4px 12px rgba(0,0,0,0.04)',
+          minHeight: '140px'
         }}
         onClick={onClick}
         data-testid={game.testId}
       >
-        <CardContent className="p-5 h-full flex flex-col">
+        <CardContent className="p-5">
           <div className="flex items-start gap-3 w-full min-w-0">
             <div
               className="w-12 h-12 flex items-center justify-center flex-shrink-0"
@@ -39,8 +40,14 @@ export default function GameCard({ game, onClick, index }) {
             <div className="flex-1 min-w-0">
               <div className="flex items-start gap-2 mb-1 min-w-0">
                 <h3
-                  className="font-semibold text-base break-words line-clamp-2 flex-1 min-w-0"
-                  style={{ color: '#1A3A34' }}
+                  className="font-semibold text-base break-words flex-1 min-w-0"
+                  style={{ 
+                    color: '#1A3A34',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'visible'
+                  }}
                 >
                   {game.titleKey ? t(game.titleKey) : game.title}
                 </h3>
