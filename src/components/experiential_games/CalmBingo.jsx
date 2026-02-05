@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { calmBingoTiles } from './mindGamesContent';
 import { CheckCircle } from 'lucide-react';
 
 export default function CalmBingo({ onClose }) {
+  const { t } = useTranslation();
   const [selected, setSelected] = useState([]);
+
+  const calmBingoTiles = t('mind_games.content.calm_bingo.tiles', { returnObjects: true });
 
   const handleTileClick = (tile) => {
     if (selected.includes(tile)) {
@@ -65,7 +68,7 @@ export default function CalmBingo({ onClose }) {
 
       <div className="flex gap-3 justify-end">
         <Button variant="outline" onClick={onClose} style={{ borderRadius: '12px' }}>
-          Close
+          {t('common.close')}
         </Button>
       </div>
     </div>

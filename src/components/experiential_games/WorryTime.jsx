@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { worryTimeItems } from './mindGamesContent';
 
 export default function WorryTime({ onClose }) {
+  const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedNow, setSelectedNow] = useState(null);
 
+  const worryTimeItems = t('mind_games.content.worry_time.items', { returnObjects: true });
   const currentItem = worryTimeItems[currentIndex];
 
   const handleNowChoice = (choice) => {
@@ -42,7 +44,7 @@ export default function WorryTime({ onClose }) {
             Park it:
           </p>
           <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
-            {currentItem.parkIt}
+            {currentItem.park_it}
           </p>
         </div>
 
@@ -51,7 +53,7 @@ export default function WorryTime({ onClose }) {
         </p>
 
         <div className="space-y-2">
-          {currentItem.tinyNow.map((step, index) => (
+          {currentItem.tiny_now.map((step, index) => (
             <Button
               key={index}
               variant="outline"
@@ -87,7 +89,7 @@ export default function WorryTime({ onClose }) {
 
       <div className="flex gap-3 justify-end">
         <Button variant="outline" onClick={onClose} style={{ borderRadius: '12px' }}>
-          Close
+          {t('common.close')}
         </Button>
         {selectedNow && (
           <Button

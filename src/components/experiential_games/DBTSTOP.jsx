@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { dbtStopPrompts } from './mindGamesContent';
 
 export default function DBTSTOP({ onClose }) {
+  const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedNext, setSelectedNext] = useState(null);
 
+  const dbtStopPrompts = t('mind_games.content.dbt_stop.prompts', { returnObjects: true });
   const currentPrompt = dbtStopPrompts[currentIndex];
 
   const handleNextStep = (step) => {
@@ -98,7 +100,7 @@ export default function DBTSTOP({ onClose }) {
 
       <div className="flex gap-3 justify-end">
         <Button variant="outline" onClick={onClose} style={{ borderRadius: '12px' }}>
-          Close
+          {t('common.close')}
         </Button>
         {selectedNext && (
           <Button

@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { improveItems } from './mindGamesContent';
 
 export default function IMPROVE({ onClose }) {
+  const { t } = useTranslation();
   const [selectedSkill, setSelectedSkill] = useState(null);
+
+  const improveItems = t('mind_games.content.improve.items', { returnObjects: true });
 
   const handleSelect = (item) => {
     setSelectedSkill(item);
@@ -55,7 +58,7 @@ export default function IMPROVE({ onClose }) {
               Quick Action:
             </p>
             <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
-              {selectedSkill.quickAction}
+              {selectedSkill.quick_action}
             </p>
           </div>
         )}
@@ -63,7 +66,7 @@ export default function IMPROVE({ onClose }) {
 
       <div className="flex gap-3 justify-end">
         <Button variant="outline" onClick={onClose} style={{ borderRadius: '12px' }}>
-          Close
+          {t('common.close')}
         </Button>
       </div>
     </div>

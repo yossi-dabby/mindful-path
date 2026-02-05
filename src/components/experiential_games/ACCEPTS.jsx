@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { acceptsItems } from './mindGamesContent';
 
 export default function ACCEPTS({ onClose }) {
+  const { t } = useTranslation();
   const [selectedSkill, setSelectedSkill] = useState(null);
+
+  const acceptsItems = t('mind_games.content.accepts.items', { returnObjects: true });
 
   const handleSelect = (skill) => {
     setSelectedSkill(skill);
@@ -63,7 +66,7 @@ export default function ACCEPTS({ onClose }) {
 
       <div className="flex gap-3 justify-end">
         <Button variant="outline" onClick={onClose} style={{ borderRadius: '12px' }}>
-          Close
+          {t('common.close')}
         </Button>
       </div>
     </div>
