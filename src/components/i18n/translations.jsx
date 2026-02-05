@@ -431,7 +431,45 @@ export const translations = {
           check_the_facts: { title: "Check the Facts", description: "Does your emotion fit the situation?" },
           self_soothe: { title: "Self-Soothe 5 Senses", description: "Comfort yourself with sensory experiences." },
           mountain_meditation: { title: "Mountain Meditation", description: "Embody stability and groundedness." }
+        },
+        content: {
+          thought_quiz: {
+            items: [
+              { prompt: "If I don't do this perfectly, I'm a total failure.", options: ["All-or-nothing thinking", "Mind reading", "Catastrophizing", "Discounting the positive"], explanation: "This treats performance as a strict pass/fail label instead of a spectrum." },
+              { prompt: "They haven't replied yet, so they must be upset with me.", options: ["Emotional reasoning", "Mind reading", "Labeling", "Overgeneralization"], explanation: "You're assuming you know what they think without clear evidence." },
+              { prompt: "If I make one mistake, everything will fall apart.", options: ["Catastrophizing", "Personalization", "Should statements", "Mental filter"], explanation: "This jumps to the worst-case outcome and treats it as likely." },
+              { prompt: "I had an awkward moment today. I always mess things up.", options: ["Overgeneralization", "Mind reading", "Fortune telling", "Disqualifying the positive"], explanation: "One moment gets turned into a sweeping rule about your whole life." },
+              { prompt: "I feel anxious, so something bad must be about to happen.", options: ["Emotional reasoning", "Should statements", "Labeling", "Black-and-white thinking"], explanation: "Feelings are treated like facts, even when they're just signals." },
+              { prompt: "My friend sounded quiet. It's probably my fault.", options: ["Personalization", "Catastrophizing", "Fortune telling", "Magnification"], explanation: "You're taking responsibility for something that may have many causes." },
+              { prompt: "I should be more productive all the time.", options: ["Should statements", "Mental filter", "Mind reading", "Overgeneralization"], explanation: "Rigid rules ('should') create pressure and ignore real human limits." },
+              { prompt: "One person criticized me, so I'm probably not good at this.", options: ["Labeling", "Disqualifying the positive", "Magnification", "All-or-nothing thinking"], explanation: "A single critique gets blown up and outweighs the full picture." },
+              { prompt: "I did well, but it doesn't count because it was easy.", options: ["Discounting the positive", "Fortune telling", "Personalization", "Catastrophizing"], explanation: "You're dismissing real effort and progress instead of acknowledging it." },
+              { prompt: "Everyone noticed my mistake. They must think I'm incompetent.", options: ["Mind reading", "Mental filter", "Emotional reasoning", "Should statements"], explanation: "You're guessing others' judgments without checking the evidence." },
+              { prompt: "If I try and it's uncomfortable, that means it's wrong for me.", options: ["Emotional reasoning", "Overgeneralization", "Labeling", "Disqualifying the positive"], explanation: "Discomfort can be part of growth; it doesn't automatically mean danger." },
+              { prompt: "I didn't meet my goal today, so I'm never going to change.", options: ["Fortune telling", "Catastrophizing", "Overgeneralization", "All-or-nothing thinking"], explanation: "A single day becomes a permanent prediction, ignoring gradual progress." }
+            ],
+            advanced: [
+              { prompt: "I received constructive feedback, but all I can think about is the one negative comment buried in it.", options: ["Mental filter", "Overgeneralization", "Personalization", "Emotional reasoning"], explanation: "You're filtering out the positive and focusing only on the negative detail." },
+              { prompt: "If I set boundaries, people will see me as selfish and abandon me.", options: ["Fortune telling + labeling", "Mind reading + catastrophizing", "Should statements", "Emotional reasoning"], explanation: "This combines mind reading (knowing what they'll think) with catastrophizing (predicting abandonment)." },
+              { prompt: "I didn't get the promotion, which proves I'm not competent enough, and I never will be.", options: ["Fortune telling + labeling", "All-or-nothing thinking", "Discounting the positive", "Personalization"], explanation: "This creates a fixed label and predicts a permanent future based on one event." },
+              { prompt: "My colleague was curt with me today. I must have done something to upset them, and now the whole team probably thinks poorly of me.", options: ["Personalization + magnification + mind reading", "Catastrophizing + overgeneralization", "Mental filter + should statements", "Emotional reasoning"], explanation: "This combines taking personal blame, blowing up the impact, and assuming you know what others think." },
+              { prompt: "I feel uncertain about this decision, which means I'm making the wrong choice.", options: ["Emotional reasoning", "Fortune telling", "All-or-nothing thinking", "Catastrophizing"], explanation: "The feeling of uncertainty is treated as evidence of a bad decision, not just a normal part of choosing." }
+            ]
+          },
+          reframe_pick: {
+            items: [
+              { situation: "You sent a message and haven't heard back.", automatic_thought: "They're ignoring me because I said something wrong.", choices: ["They're busy. I can wait or follow up later in a calm way.", "They definitely hate me now and I ruined everything.", "I'll never message anyone again so I don't risk feeling this."], why: "It considers multiple possibilities and suggests a reasonable next step." },
+              { situation: "You made a small mistake at work/school.", automatic_thought: "I'm terrible at this.", choices: ["One mistake is normal. I can fix it and learn for next time.", "I'm the worst person here. I should quit immediately.", "I'll pretend it didn't happen and avoid anything challenging."], why: "It's specific, realistic, and focused on learning rather than global labels." },
+              { situation: "A friend was quiet during your hangout.", automatic_thought: "They must be annoyed with me.", choices: ["I don't know the reason. I can check in kindly or give space.", "It's my fault. I always ruin friendships.", "I should cut them off before they reject me first."], why: "It avoids mind reading and leaves room for a gentle check-in." },
+              { situation: "You didn't finish a task you planned.", automatic_thought: "I'm so lazy.", choices: ["I struggled today. I can pick one small next step and restart.", "I'm hopeless. I'll never be consistent at anything.", "I should punish myself until I finally get disciplined."], why: "It acknowledges difficulty and moves toward a doable, compassionate action." },
+              { situation: "You feel anxious before an event.", automatic_thought: "This anxiety means the event will go badly.", choices: ["Anxiety is a feeling, not a prediction. I can go anyway and cope.", "Anxiety means danger. I must avoid this at all costs.", "I need to feel zero anxiety before I'm allowed to show up."], why: "It separates feelings from forecasts and supports valued action." },
+              { situation: "Someone gave you feedback.", automatic_thought: "I'm not good enough.", choices: ["Feedback can help me improve. I can take what's useful and grow.", "They think I'm incompetent and everyone agrees with them.", "I'll stop trying so no one can judge me again."], why: "It keeps self-worth intact while allowing improvement." },
+              { situation: "You didn't get invited to something.", automatic_thought: "Nobody likes me.", choices: ["There could be many reasons. I can reach out or plan something else.", "This proves I'm unlikable and always will be.", "I'll isolate so I don't have to feel left out again."], why: "It avoids overgeneralization and offers flexible, constructive options." },
+              { situation: "You're learning a new skill and feel behind.", automatic_thought: "If I'm not fast, I'm not meant for this.", choices: ["Skills grow with practice. I can improve step by step.", "If I'm not immediately great, it's a waste of time.", "I should compare myself nonstop to prove I'm failing."], why: "It supports growth mindset and realistic learning curves." }
+            ]
+          }
         }
+      }
       },
       exercises: {
         page_title: "Exercises Library",
