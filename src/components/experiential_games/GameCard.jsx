@@ -38,15 +38,11 @@ export default function GameCard({ game, onClick, index }) {
               <Puzzle className="w-6 h-6" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-start gap-2 mb-1 min-w-0">
+              <div className="flex items-start gap-2 mb-2 min-w-0">
                 <h3
-                  className="font-semibold text-base break-words flex-1 min-w-0"
+                  className="font-semibold text-base break-words line-clamp-2 flex-1 min-w-0"
                   style={{ 
-                    color: '#1A3A34',
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'visible'
+                    color: '#1A3A34'
                   }}
                 >
                   {game.titleKey ? t(game.titleKey) : game.title}
