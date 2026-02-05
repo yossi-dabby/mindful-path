@@ -120,11 +120,12 @@ export default function MindGameRecommendations({ onGameSelect }) {
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 min-w-0">
-        {recommendedGames.map(game => (
+        {recommendedGames.map((game, index) => (
           <div key={game.id} className="min-w-0">
             <GameCard
               game={game}
               onClick={() => onGameSelect(game)}
+              index={index}
             />
           </div>
         ))}
