@@ -70,20 +70,20 @@ export default function QuickWin({ onClose }) {
       <p className="text-xs" style={{ color: '#5A7A72' }}>
         Or pick a common win:
       </p>
-      <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto overflow-x-hidden">
+      <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto overflow-x-hidden min-w-0">
         {quickWinPresets.map((preset, index) => (
           <Button
             key={index}
             variant="outline"
             size="sm"
-            className="h-auto py-2 px-3 text-left justify-start whitespace-normal break-words min-w-0 w-full"
+            className="h-auto py-2 px-3 text-left justify-start break-words min-w-0 w-full"
             style={{
               borderRadius: '10px',
               borderColor: 'rgba(38, 166, 154, 0.2)'
             }}
             onClick={() => handlePresetClick(preset)}
           >
-            <span className="text-xs leading-tight">{preset}</span>
+            <span className="text-xs leading-tight break-words">{preset}</span>
           </Button>
         ))}
       </div>
