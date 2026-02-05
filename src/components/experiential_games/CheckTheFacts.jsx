@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
 export default function CheckTheFacts({ onClose }) {
+  const { t } = useTranslation();
   const [emotion, setEmotion] = useState('');
   const [step, setStep] = useState('input');
   const [prompts, setPrompts] = useState(null);
@@ -98,7 +100,7 @@ export default function CheckTheFacts({ onClose }) {
 
       <div className="flex gap-3 justify-end">
         <Button variant="outline" onClick={onClose} style={{ borderRadius: '12px' }}>
-          Close
+          {t('common.close')}
         </Button>
       </div>
     </div>

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
 export default function WillingHands({ onClose }) {
+  const { t } = useTranslation();
   const [step, setStep] = useState(0);
   const [practiced, setPracticed] = useState(false);
 
@@ -75,7 +77,7 @@ export default function WillingHands({ onClose }) {
 
       <div className="flex gap-3 justify-end">
         <Button variant="outline" onClick={onClose} style={{ borderRadius: '12px' }}>
-          Close
+          {t('common.close')}
         </Button>
       </div>
     </div>

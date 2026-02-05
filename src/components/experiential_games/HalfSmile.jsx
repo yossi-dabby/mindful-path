@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
 export default function HalfSmile({ onClose }) {
+  const { t } = useTranslation();
   const [practiced, setPracticed] = useState(false);
   const [emotionBefore, setEmotionBefore] = useState(null);
   const [emotionAfter, setEmotionAfter] = useState(null);
@@ -134,7 +136,7 @@ export default function HalfSmile({ onClose }) {
 
       <div className="flex gap-3 justify-end">
         <Button variant="outline" onClick={onClose} style={{ borderRadius: '12px' }}>
-          Close
+          {t('common.close')}
         </Button>
       </div>
     </div>

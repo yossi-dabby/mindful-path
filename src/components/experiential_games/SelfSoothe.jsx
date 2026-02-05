@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { selfSootheItems } from './mindGamesContent';
 
 export default function SelfSoothe({ onClose }) {
+  const { t } = useTranslation();
   const [selectedSense, setSelectedSense] = useState(null);
   const [selectedAction, setSelectedAction] = useState(null);
+
+  const selfSootheItems = t('mind_games.content.self_soothe.senses', { returnObjects: true });
 
   const handleSenseSelect = (item) => {
     setSelectedSense(item);
@@ -96,7 +99,7 @@ export default function SelfSoothe({ onClose }) {
 
       <div className="flex gap-3 justify-end">
         <Button variant="outline" onClick={onClose} style={{ borderRadius: '12px' }}>
-          Close
+          {t('common.close')}
         </Button>
       </div>
     </div>
