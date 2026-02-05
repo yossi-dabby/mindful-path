@@ -600,9 +600,6 @@ export const translations = {
             ]
           }
         }
-      }
-      }
-      }
       },
       exercises: {
         page_title: "Exercises Library",
