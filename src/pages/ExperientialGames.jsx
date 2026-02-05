@@ -169,7 +169,7 @@ export default function ExperientialGames() {
           >
             <div className="flex flex-col h-full max-h-[85vh] overflow-hidden">
               <DialogHeader className="px-6 pt-6 pb-4 flex-shrink-0 border-b border-emerald-100/40">
-                <DialogTitle className="break-words" style={{ color: '#1A3A34' }}>
+                <DialogTitle className="break-words min-w-0" style={{ color: '#1A3A34' }}>
                   {activeGame?.titleKey ? t(activeGame.titleKey) : activeGame?.title}
                 </DialogTitle>
               </DialogHeader>
