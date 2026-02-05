@@ -21,7 +21,6 @@ import PersonalizedFeed from '../components/home/PersonalizedFeed';
 import AiPersonalizedFeed from '../components/home/AiPersonalizedFeed';
 import StandaloneDailyCheckIn from '../components/home/StandaloneDailyCheckIn';
 import DailyReflection from '../components/home/DailyReflection';
-import StarterPathCard from '../components/home/StarterPathCard';
 import ExerciseDetail from '../components/exercises/ExerciseDetail';
 import VideoModal from '../components/home/VideoModal';
 import { motion } from 'framer-motion';
@@ -223,9 +222,6 @@ export default function Home() {
         {/* Daily Check-in - Primary CTA */}
         <div className="space-y-4">
           <StandaloneDailyCheckIn />
-
-          {/* 7-Day Starter Path */}
-          <StarterPathCard />
           </div>
 
           {/* Secondary Content - Below the fold */}
