@@ -527,8 +527,80 @@ export const translations = {
               { title: "Surf independently (90 seconds)", steps: ["Name and rate the urge (0-10).", "Locate it in your body.", "Breathe with it for 10 breaths.", "Notice the peak and decline.", "Rate it again."], finish_choices: ["Delay 20 minutes and reassess.", "Do the opposite action for 5 minutes.", "Journal about what you noticed."] },
               { title: "Surf + value-based action", steps: ["Acknowledge the urge without judgment.", "Watch it like a scientist observing data.", "Let it peak naturally.", "Choose one value-aligned micro-step."], finish_choices: ["Do the tiny step immediately.", "Practice the skill again in 1 hour.", "Note what worked for next time."] }
             ]
+          },
+          worry_time: {
+            items: [
+              { worry: "What if I mess up tomorrow?", park_it: "I'll think about this during Worry Time at 6:00 PM for 10 minutes.", tiny_now: ["Write one small preparation step.", "Do 2 minutes of that step now.", "Then return to the present task."] },
+              { worry: "What if they're mad at me?", park_it: "I'll revisit this at 7:00 PM for 10 minutes, then decide on a calm follow-up.", tiny_now: ["List 2 alternative explanations.", "Wait 30 minutes before acting.", "Do one calming reset (5 breaths)."] },
+              { worry: "What if something bad happens?", park_it: "I'll schedule Worry Time at 5:30 PM for 10 minutes and focus on what's controllable.", tiny_now: ["Name 1 thing you can control today.", "Do the smallest step toward it.", "Return attention to the room."] },
+              { worry: "I'm behind; I'll never catch up.", park_it: "I'll worry about this at 6:30 PM for 10 minutes and make a realistic plan.", tiny_now: ["Pick the single next step.", "Work 2 minutes on it.", "Stop and acknowledge progress."] },
+              { worry: "What if I disappoint people?", park_it: "I'll revisit this at 8:00 PM for 10 minutes and choose a value-based action.", tiny_now: ["Ask: 'What matters to me here?'", "Choose one respectful sentence/boundary.", "Delay responding for 10 minutes."] },
+              { worry: "What if I can't handle it?", park_it: "I'll schedule Worry Time at 7:30 PM for 10 minutes and review coping options.", tiny_now: ["Write 1 coping tool you already use.", "Use it for 60 seconds.", "Continue with the next small task."] }
+            ]
+          },
+          evidence_balance: {
+            items: [
+              { thought: "I always mess things up.", evidence_for: ["I made a mistake recently.", "I remember failures more than successes."], evidence_against: ["I've done many things well.", "One mistake doesn't define 'always'."], balanced_conclusion: "I've made mistakes and also succeeded. I can learn and improve." },
+              { thought: "They don't like me.", evidence_for: ["They replied late once.", "They were quiet last time."], evidence_against: ["They've been friendly before.", "There are many reasons for silence."], balanced_conclusion: "I don't know their thoughts. I can check in calmly or wait for more info." },
+              { thought: "If I'm anxious, I can't cope.", evidence_for: ["Anxiety feels intense.", "I want to escape when anxious."], evidence_against: ["I've coped with anxiety before.", "Anxiety rises and falls."], balanced_conclusion: "Anxiety is uncomfortable but manageable. I can act while it's present." },
+              { thought: "I'm not improving.", evidence_for: ["Progress feels slow.", "I compare myself to others."], evidence_against: ["I've taken small steps.", "Learning is gradual."], balanced_conclusion: "Progress can be slow and real. Small steps still count." },
+              { thought: "I must do everything perfectly.", evidence_for: ["I value quality.", "Perfection sometimes prevents criticism."], evidence_against: ["Perfect isn't required to succeed.", "Good-enough frees time and reduces stress."], balanced_conclusion: "I can aim for quality while allowing 'good enough' when it's effective." },
+              { thought: "If I say no, I'll be rejected.", evidence_for: ["I worry about disappointing people.", "I've had conflict before."], evidence_against: ["Many people respect boundaries.", "I can say no politely and offer alternatives."], balanced_conclusion: "Saying no respectfully protects relationships and my wellbeing." }
+            ]
+          },
+          defusion_cards: {
+            cards: [
+              { thought: "I'm not good enough.", defuse_lines: ["I'm having the thought that I'm not good enough.", "Thanks, mind. Interesting story.", "This is a thought, not a fact."] },
+              { thought: "Something bad will happen.", defuse_lines: ["I'm noticing a 'danger prediction' thought.", "My mind is trying to protect me.", "I can take one small step anyway."] },
+              { thought: "They're judging me.", defuse_lines: ["I'm having the thought they're judging me.", "I can't read minds. I can act on my values.", "Let this thought ride in the back seat."] },
+              { thought: "I can't handle this feeling.", defuse_lines: ["I'm noticing the thought 'I can't handle it'.", "Feelings are waves; they change.", "I can make room and keep going."] },
+              { thought: "I must fix everything now.", defuse_lines: ["There's the 'urgent fixer' thought.", "I can pause and choose one wise next step.", "Slow is smooth; smooth is fast."] },
+              { thought: "If it's hard, I should quit.", defuse_lines: ["I'm having the thought 'quit'.", "Hard can mean 'new', not 'wrong'.", "I can do the smallest version (10%)."] }
+            ]
+          },
+          tipp_skills: {
+            situation: "Your emotions are at 8/10 or higher and you need to come down fast.",
+            skills: [
+              { letter: "T", name: "Temperature", description: "Cold water on face, ice cube, cold shower" },
+              { letter: "I", name: "Intense exercise", description: "Run, jump, push-ups for 60 seconds" },
+              { letter: "P", name: "Paced breathing", description: "Breathe out longer than in (4 in / 6 out)" },
+              { letter: "P", name: "Paired muscle relaxation", description: "Tense then release muscle groups" }
+            ],
+            actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."]
+          },
+          accepts: {
+            items: [
+              { letter: "A", name: "Activities", description: "Do something engaging", action: "Watch a 5-minute video, play a quick game, or clean one surface." },
+              { letter: "C", name: "Contributing", description: "Help someone else", action: "Send a kind message, do one helpful thing, or share something useful." },
+              { letter: "C", name: "Comparisons", description: "Compare to when you coped before", action: "Remember: You've survived 100% of your worst days so far." },
+              { letter: "E", name: "Emotions", description: "Create a different emotion", action: "Watch something funny, listen to upbeat music, or read something calming." },
+              { letter: "P", name: "Pushing away", description: "Mentally put the situation aside", action: "Imagine putting the problem in a box on a shelf for later." },
+              { letter: "T", name: "Thoughts", description: "Fill your mind with other thoughts", action: "Count backwards from 100 by 7s, list countries A-Z, or describe the room." },
+              { letter: "S", name: "Sensations", description: "Create strong physical sensations", action: "Hold ice, take a hot/cold shower, or squeeze a stress ball hard." }
+            ]
+          },
+          improve: {
+            items: [
+              { letter: "I", name: "Imagery", description: "Visualize a peaceful or safe place", quick_action: "Close your eyes. Picture a place you feel calm (real or imagined)." },
+              { letter: "M", name: "Meaning", description: "Find purpose in the pain", quick_action: "Ask: What can I learn? How might this help me grow?" },
+              { letter: "P", name: "Prayer", description: "Connect to something larger", quick_action: "Say a phrase that grounds you or ask for support from your values/beliefs." },
+              { letter: "R", name: "Relaxation", description: "Relax your body", quick_action: "Tense and release: shoulders, jaw, hands. Breathe slowly." },
+              { letter: "O", name: "One thing in the moment", description: "Focus fully on one small task", quick_action: "Pick one action: wash a dish, water a plant, fold one item." },
+              { letter: "V", name: "Vacation", description: "Take a brief mental break", quick_action: "Give yourself 10 minutes off from the problem. Set a timer." },
+              { letter: "E", name: "Encouragement", description: "Be your own cheerleader", quick_action: "Say: 'I can handle this. I've done hard things before.'" }
+            ]
+          },
+          self_soothe: {
+            senses: [
+              { sense: "Vision", actions: ["Look at nature or a calming image.", "Watch clouds or water move.", "Light a candle and watch the flame."] },
+              { sense: "Hearing", actions: ["Listen to calming music or nature sounds.", "Play a song that makes you feel safe.", "Listen to the sound of rain or wind."] },
+              { sense: "Smell", actions: ["Smell something pleasant (lotion, coffee, flowers).", "Light a scented candle or incense.", "Take a deep breath of fresh air."] },
+              { sense: "Taste", actions: ["Eat something you enjoy slowly.", "Savor a piece of chocolate or tea.", "Notice the flavors and textures."] },
+              { sense: "Touch", actions: ["Hold something soft (blanket, pet).", "Take a warm shower or bath.", "Massage your hands with lotion."] }
+            ]
           }
         }
+      }
       }
       }
       },
