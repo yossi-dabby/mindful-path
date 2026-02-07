@@ -32,7 +32,7 @@ jobs:
         run: npm run build
       
       - name: Start preview server
-        run: npm run preview &
+        run: nohup npm run preview > preview-server.log 2>&1 &
       
       - name: Wait for server
         run: npx wait-on http://localhost:4173 --timeout 60000
@@ -41,6 +41,14 @@ jobs:
         run: npm test
         env:
           SMOKE_TEST_BASE_URL: http://localhost:4173
+      
+      - name: Upload preview server log
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: preview-server-log-${{ matrix.node-version }}
+          path: preview-server.log
+          retention-days: 7
       
       - name: Upload coverage
         uses: actions/upload-artifact@v4
