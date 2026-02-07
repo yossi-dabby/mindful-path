@@ -15,6 +15,7 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "test:property": "vitest run test/**/*.test.js",
+    "test:smoke": "vitest run test/smoke/production-smoke.critical-path.test.js",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
   },
