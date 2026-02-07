@@ -5,13 +5,22 @@ export default defineConfig({
   testMatch: ['e2e/**/*.spec.ts'], // Ensures it finds tests/e2e/smoke.web.spec.ts
   projects: [
     {
+      name: 'smoke-production-critical',
+      testMatch: ['**/smoke-production-critical.spec.ts'],
+      use: {
+        ...devices['Desktop Chrome'],
+      },
+    },
+    {
       name: 'web-desktop',
+      testIgnore: ['**/smoke-production-critical.spec.ts'],
       use: {
         ...devices['Desktop Chrome'],
       },
     },
     {
       name: 'mobile-390x844',
+      testIgnore: ['**/smoke-production-critical.spec.ts'],
       use: {
         ...devices['Pixel 5'],
         viewport: { width: 390, height: 844 },

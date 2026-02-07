@@ -2,6 +2,26 @@
 
 ## Running E2E Tests
 
+### Smoke Tests (Production-critical, Read-only)
+
+Quick smoke tests verify critical functionality without modifying data. Perfect for pre-deployment validation:
+
+```bash
+npm run test:e2e -- --project=smoke-production-critical
+```
+
+**📖 [Full Smoke Test Documentation](SMOKE.md)**
+
+### Full E2E Test Suite
+
+To run all E2E tests (including smoke, web-desktop, and mobile):
+
+```bash
+npm ci
+npx playwright install --with-deps
+npm run test:e2e
+```
+
 ### Local Setup and Execution
 
 To run E2E tests locally, execute the following commands:
