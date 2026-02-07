@@ -161,6 +161,6 @@ A: Yes, just run `npm run test:e2e` without the `--project` flag to run all test
 
 ## Related Documentation
 
-- [E2E Testing Overview](../README.md#running-e2e-tests)
+- [E2E Testing Overview](README.md#running-e2e-tests)
 - [Playwright Documentation](https://playwright.dev)
-- [Test Helpers](../tests/helpers/ui.ts)
+- [Test Helpers](tests/helpers/ui.ts)

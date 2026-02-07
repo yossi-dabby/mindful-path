@@ -25,6 +25,14 @@ test.describe('Smoke – Production-critical (Read-only)', () => {
     const requestLogger = await logFailedRequests(page);
 
     try {
+      // Set up console error listener before navigation
+      const criticalErrors: string[] = [];
+      page.on('console', msg => {
+        if (msg.type() === 'error' && !msg.text().includes('favicon')) {
+          criticalErrors.push(msg.text());
+        }
+      });
+
       // Navigate to the base URL
       await spaNavigate(page, '/');
       
@@ -40,17 +48,6 @@ test.describe('Smoke – Production-critical (Read-only)', () => {
       // Verify the app root element is present and visible
       const appRoot = page.locator('#root');
       await expect(appRoot).toBeVisible({ timeout: 10000 });
-      
-      // Verify no critical console errors
-      const criticalErrors: string[] = [];
-      page.on('console', msg => {
-        if (msg.type() === 'error' && !msg.text().includes('favicon')) {
-          criticalErrors.push(msg.text());
-        }
-      });
-      
-      // Wait a moment to catch any immediate errors
-      await page.waitForTimeout(2000);
       
       console.log('✅ Application loaded successfully');
       
