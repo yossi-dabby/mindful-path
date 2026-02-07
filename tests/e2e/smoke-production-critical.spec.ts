@@ -82,8 +82,8 @@ test.describe('Smoke – Production-critical (Read-only)', () => {
       );
 
       // Wait for network to be idle
-      await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {
-        console.log('Network idle timeout - continuing anyway');
+      await page.waitForLoadState('networkidle', { timeout: 15000 }).catch((err) => {
+        console.warn('[Home Page] Network idle timeout (non-critical):', err.message);
       });
 
       // Verify page content is visible - look for common home page elements
@@ -142,8 +142,14 @@ test.describe('Smoke – Production-critical (Read-only)', () => {
       expect(goalsUrl).toContain('/Goals');
       console.log('[Navigation] ✓ Goals page loaded');
 
-      // Wait for page content to render
-      await page.waitForTimeout(2000);
+      // Wait for Goals page to fully render
+      await page.waitForFunction(
+        () => {
+          const root = document.querySelector('#root');
+          return root && root.children.length > 0 && document.readyState === 'complete';
+        },
+        { timeout: 10000 }
+      );
 
       // Navigate back to Home
       console.log('[Navigation] Navigating back to Home...');
