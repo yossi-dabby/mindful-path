@@ -190,8 +190,23 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
 
         {/* Milestones */}
         {safeArray(goal.milestones).length > 0 && (
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-gray-700 mb-2">Tasks:</p>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-gray-700">Tasks:</p>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500">
+                  {safeArray(localMilestones).filter(m => m.completed).length}/{safeArray(localMilestones).length}
+                </span>
+                <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-blue-500 transition-all duration-300"
+                    style={{ 
+                      width: `${(safeArray(localMilestones).filter(m => m.completed).length / safeArray(localMilestones).length) * 100}%` 
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
             {safeArray(localMilestones || goal.milestones).map((milestoneRaw, index) => {
               const milestone = typeof milestoneRaw === 'object' ? {
                 ...milestoneRaw,
