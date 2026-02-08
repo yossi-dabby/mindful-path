@@ -143,6 +143,8 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     updateMilestone.mutate({ milestones: updatedMilestones, progress: newProgress });
   };
 
+  const isSaving = updateMilestone.isPending;
+
   const isCompleted = goal.status === 'completed';
   const isOverdue = (() => {
     if (!goal.target_date || isCompleted) return false;
@@ -239,7 +241,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         {/* Progress Bar */}
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">Progress</span>
+            <span className="text-sm font-medium text-gray-700">Progress {isSaving && <span className="text-xs text-gray-500 ml-2">Saving...</span>}</span>
             <span className="text-sm font-bold text-blue-600">{localProgress}%</span>
           </div>
           <Progress value={localProgress} className="h-3" />
@@ -265,7 +267,6 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
               </div>
             </div>
             {localMilestones.map((milestone, index) => {
-              
               const isOverdue = (() => {
                 if (!milestone.due_date || milestone.completed) return false;
                 try {
@@ -294,7 +295,8 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                   "flex items-start gap-3 p-3 rounded-lg border transition-colors relative",
                   milestone.completed ? "border-green-100 bg-green-50/30" : "border-gray-100 hover:bg-gray-50",
                   isOverdue && "border-red-200 bg-red-50/30",
-                  isDueSoon && !isOverdue && "border-amber-200 bg-amber-50/30"
+                  isDueSoon && !isOverdue && "border-amber-200 bg-amber-50/30",
+                  isSaving && "opacity-60"
                 )}
               >
                 {milestone.completed && (
