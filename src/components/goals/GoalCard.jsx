@@ -198,7 +198,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
               >
                 <div className="flex-shrink-0 pt-0.5 pointer-events-none">
                   <Checkbox
-                    checked={milestone.completed}
+                    checked={Boolean(milestone.completed)}
                     disabled={toggleMilestoneMutation.isPending}
                   />
                 </div>
