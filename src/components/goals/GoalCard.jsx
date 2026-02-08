@@ -197,11 +197,43 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                 ...milestoneRaw,
                 completed: Boolean(milestoneRaw.completed)
               } : { title: safeText(milestoneRaw, `Step ${index + 1}`), completed: false };
+              
+              const isOverdue = (() => {
+                if (!milestone.due_date || milestone.completed) return false;
+                try {
+                  const dueDate = new Date(milestone.due_date);
+                  return !isNaN(dueDate.getTime()) && dueDate < new Date();
+                } catch {
+                  return false;
+                }
+              })();
+
+              const isDueSoon = (() => {
+                if (!milestone.due_date || milestone.completed) return false;
+                try {
+                  const dueDate = new Date(milestone.due_date);
+                  const daysUntil = Math.ceil((dueDate - new Date()) / (1000 * 60 * 60 * 24));
+                  return daysUntil >= 0 && daysUntil <= 3;
+                } catch {
+                  return false;
+                }
+              })();
+
               return (
               <div 
                 key={index}
-                className="flex items-start gap-3 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
+                className={cn(
+                  "flex items-start gap-3 p-3 rounded-lg border transition-colors relative",
+                  milestone.completed ? "border-green-100 bg-green-50/30" : "border-gray-100 hover:bg-gray-50",
+                  isOverdue && "border-red-200 bg-red-50/30",
+                  isDueSoon && !isOverdue && "border-amber-200 bg-amber-50/30"
+                )}
               >
+                {milestone.completed && (
+                  <div className="absolute top-2 right-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-600" />
+                  </div>
+                )}
                 <Checkbox
                   checked={Boolean(milestone.completed)}
                   onCheckedChange={(checked) => toggleMilestone(index, checked)}
@@ -229,10 +261,22 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                     try {
                       const date = new Date(milestone.due_date);
                       if (isNaN(date.getTime())) return null;
+                      const daysUntil = Math.ceil((date - new Date()) / (1000 * 60 * 60 * 24));
                       return (
-                        <Badge variant="outline" className="mt-1 text-xs pointer-events-none">
+                        <Badge 
+                          variant="outline" 
+                          className={cn(
+                            "mt-1 text-xs pointer-events-none",
+                            isOverdue && "border-red-300 bg-red-100 text-red-700",
+                            isDueSoon && !isOverdue && "border-amber-300 bg-amber-100 text-amber-700"
+                          )}
+                        >
                           <Calendar className="w-3 h-3 mr-1" />
                           {format(date, 'MMM d')}
+                          {!milestone.completed && daysUntil >= 0 && daysUntil <= 7 && (
+                            <span className="ml-1">• {daysUntil === 0 ? 'Today' : `${daysUntil}d`}</span>
+                          )}
+                          {isOverdue && <span className="ml-1">• Overdue</span>}
                         </Badge>
                       );
                     } catch {
