@@ -232,6 +232,13 @@ export default function Goals() {
             <GoalCalendar goals={goals} />
           )}
 
+          {/* Timeline View */}
+          {showTimeline && (
+            <div className="mb-8">
+              <MilestonesTimeline goals={goals} />
+            </div>
+          )}
+
           {/* Active Goals */}
           {activeGoals.length > 0 && (
             <div>
