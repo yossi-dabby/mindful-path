@@ -189,14 +189,14 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
             {safeArray(goal.milestones).map((milestoneRaw, index) => {
               const milestone = typeof milestoneRaw === 'object' ? milestoneRaw : { title: safeText(milestoneRaw, `Step ${index + 1}`), completed: false };
               return (
-              <div key={index} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 border border-gray-100">
-                <div className="flex-shrink-0 pt-0.5">
+              <div key={index} className="flex items-start gap-3 p-3 rounded-lg border border-gray-100">
+                <label className="flex items-center justify-center min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 cursor-pointer -m-2 md:m-0">
                   <Checkbox
                     checked={milestone.completed}
                     onCheckedChange={() => toggleMilestone(index)}
                     disabled={toggleMilestoneMutation.isPending}
                   />
-                </div>
+                </label>
                 <div className="flex-1 min-w-0">
                   <span
                     className={cn(
