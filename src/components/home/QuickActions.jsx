@@ -510,17 +510,19 @@ export default function QuickActions() {
       )}
 
       {/* AI Recommendations Modal */}
-      <Dialog open={showRecommendations} onOpenChange={setShowRecommendations}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" style={{ borderRadius: '24px' }}>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5" style={{ color: 'rgb(var(--accent))' }} />
-              {t('quick_actions.personalized_recommendations')}
-            </DialogTitle>
-          </DialogHeader>
-          <AiPersonalizedFeed />
-        </DialogContent>
-      </Dialog>
+      {showRecommendations && (
+        <Dialog open={showRecommendations} onOpenChange={setShowRecommendations}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" style={{ borderRadius: '24px' }}>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5" style={{ color: 'rgb(var(--accent))' }} />
+                {t('quick_actions.personalized_recommendations')}
+              </DialogTitle>
+            </DialogHeader>
+            <AiPersonalizedFeed />
+          </DialogContent>
+        </Dialog>
+      )}
     </motion.div>
   );
 }
