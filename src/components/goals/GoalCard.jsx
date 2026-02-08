@@ -45,10 +45,16 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     })
   );
   const [localProgress, setLocalProgress] = useState(goal.progress || 0);
+  const pendingUpdateRef = React.useRef(false);
   const queryClient = useQueryClient();
 
   // Sync local state when goal data changes from server (e.g., after page refresh)
   useEffect(() => {
+    // Don't sync if we have a pending update (user just made a change)
+    if (pendingUpdateRef.current) {
+      return;
+    }
+    
     const normalizedMilestones = safeArray(goal.milestones).map((m, i) => {
       if (typeof m === 'string') {
         return { title: m, completed: false, description: '', due_date: null };
@@ -62,16 +68,8 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       };
     });
     
-    // Only update if data actually changed (to avoid overriding user's immediate changes)
-    const milestonesChanged = JSON.stringify(normalizedMilestones) !== JSON.stringify(localMilestones);
-    const progressChanged = (goal.progress || 0) !== localProgress;
-    
-    if (milestonesChanged) {
-      setLocalMilestones(normalizedMilestones);
-    }
-    if (progressChanged) {
-      setLocalProgress(goal.progress || 0);
-    }
+    setLocalMilestones(normalizedMilestones);
+    setLocalProgress(goal.progress || 0);
   }, [goal.id, goal.milestones, goal.progress]);
 
   const updateMilestone = useMutation({
@@ -79,12 +77,19 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       return await base44.entities.Goal.update(goal.id, { milestones, progress });
     },
     onSuccess: () => {
+      // Clear pending flag after short delay to allow server state to settle
+      setTimeout(() => {
+        pendingUpdateRef.current = false;
+      }, 500);
+      
       // Invalidate to sync across tabs/sessions
       queryClient.invalidateQueries(['allGoals']);
       queryClient.invalidateQueries(['goals']);
     },
     onError: (error) => {
       console.error('Failed to update milestone:', error);
+      pendingUpdateRef.current = false;
+      
       // Revert to goal.milestones on error
       setLocalMilestones(safeArray(goal.milestones).map((m, i) => {
         if (typeof m === 'string') {
@@ -102,6 +107,9 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   });
 
   const toggleMilestone = (index, checked) => {
+    // Mark that we have a pending update
+    pendingUpdateRef.current = true;
+    
     // Update local milestones immediately for instant visual feedback
     const updatedMilestones = localMilestones.map((m, i) => 
       i === index 
