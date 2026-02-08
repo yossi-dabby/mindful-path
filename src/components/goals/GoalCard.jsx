@@ -63,8 +63,15 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   };
 
   const isCompleted = goal.status === 'completed';
-  const isOverdue =
-    goal.target_date && new Date(goal.target_date) < new Date() && !isCompleted;
+  const isOverdue = (() => {
+    if (!goal.target_date || isCompleted) return false;
+    try {
+      const targetDate = new Date(goal.target_date);
+      return !isNaN(targetDate.getTime()) && targetDate < new Date();
+    } catch {
+      return false;
+    }
+  })();
 
   const handleApplyAdjustment = async (updates) => {
     try {
