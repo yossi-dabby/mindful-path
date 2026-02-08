@@ -31,6 +31,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   const [showReminders, setShowReminders] = useState(false);
   
   const goalIdRef = React.useRef(goal.id);
+  const hasSyncedRef = React.useRef(false);
   const queryClient = useQueryClient();
   
   // Normalize and store milestones in local state for immediate visual feedback
@@ -50,10 +51,11 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   );
   const [localProgress, setLocalProgress] = useState(goal.progress || 0);
 
-  // Only reset local state when viewing a different goal
+  // Reset when switching to a different goal
   useEffect(() => {
     if (goalIdRef.current !== goal.id) {
       goalIdRef.current = goal.id;
+      hasSyncedRef.current = false;
       
       const normalizedMilestones = safeArray(goal.milestones).map((m, i) => {
         if (typeof m === 'string') {
@@ -73,24 +75,28 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     }
   }, [goal.id]);
 
-  // Sync milestones when server data updates (after page refresh)
+  // Sync from server only once per goal (prevents overwriting local changes)
   useEffect(() => {
-    const normalizedMilestones = safeArray(goal.milestones).map((m, i) => {
-      if (typeof m === 'string') {
-        return { title: m, completed: false, description: '', due_date: null };
-      }
-      return {
-        title: safeText(m.title || m, `Step ${i + 1}`),
-        description: safeText(m.description, ''),
-        completed: Boolean(m.completed),
-        due_date: m.due_date || null,
-        completed_date: m.completed_date || null
-      };
-    });
-    
-    setLocalMilestones(normalizedMilestones);
-    setLocalProgress(goal.progress || 0);
-  }, [goal.milestones, goal.progress]);
+    if (!hasSyncedRef.current) {
+      hasSyncedRef.current = true;
+      
+      const normalizedMilestones = safeArray(goal.milestones).map((m, i) => {
+        if (typeof m === 'string') {
+          return { title: m, completed: false, description: '', due_date: null };
+        }
+        return {
+          title: safeText(m.title || m, `Step ${i + 1}`),
+          description: safeText(m.description, ''),
+          completed: Boolean(m.completed),
+          due_date: m.due_date || null,
+          completed_date: m.completed_date || null
+        };
+      });
+      
+      setLocalMilestones(normalizedMilestones);
+      setLocalProgress(goal.progress || 0);
+    }
+  }, []);
 
   const updateMilestone = useMutation({
     mutationFn: async ({ milestones, progress }) => {
