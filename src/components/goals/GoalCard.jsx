@@ -50,7 +50,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   );
   const [localProgress, setLocalProgress] = useState(goal.progress || 0);
 
-  // Only reset local state when viewing a different goal
+  // Reset local state when viewing a different goal
   useEffect(() => {
     if (goalIdRef.current !== goal.id) {
       goalIdRef.current = goal.id;
@@ -72,6 +72,28 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       setLocalProgress(goal.progress || 0);
     }
   }, [goal.id]);
+
+  // Sync milestones when they change from server (e.g., after mutation refresh)
+  useEffect(() => {
+    const normalizedMilestones = safeArray(goal.milestones).map((m, i) => {
+      if (typeof m === 'string') {
+        return { title: m, completed: false, description: '', due_date: null };
+      }
+      return {
+        title: safeText(m.title || m, `Step ${i + 1}`),
+        description: safeText(m.description, ''),
+        completed: Boolean(m.completed),
+        due_date: m.due_date || null,
+        completed_date: m.completed_date || null
+      };
+    });
+    
+    // Only sync if server data actually changed
+    if (JSON.stringify(normalizedMilestones) !== JSON.stringify(localMilestones)) {
+      setLocalMilestones(normalizedMilestones);
+      setLocalProgress(goal.progress || 0);
+    }
+  }, [goal.milestones, goal.progress]);
 
   const updateMilestone = useMutation({
     mutationFn: async ({ milestones, progress }) => {
