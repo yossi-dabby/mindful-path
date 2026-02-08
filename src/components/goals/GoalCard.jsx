@@ -47,13 +47,41 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   const [localProgress, setLocalProgress] = useState(goal.progress || 0);
   const queryClient = useQueryClient();
 
+  // Sync local state when goal data changes from server (e.g., after page refresh)
+  useEffect(() => {
+    const normalizedMilestones = safeArray(goal.milestones).map((m, i) => {
+      if (typeof m === 'string') {
+        return { title: m, completed: false, description: '', due_date: null };
+      }
+      return {
+        title: safeText(m.title || m, `Step ${i + 1}`),
+        description: safeText(m.description, ''),
+        completed: Boolean(m.completed),
+        due_date: m.due_date || null,
+        completed_date: m.completed_date || null
+      };
+    });
+    
+    // Only update if data actually changed (to avoid overriding user's immediate changes)
+    const milestonesChanged = JSON.stringify(normalizedMilestones) !== JSON.stringify(localMilestones);
+    const progressChanged = (goal.progress || 0) !== localProgress;
+    
+    if (milestonesChanged) {
+      setLocalMilestones(normalizedMilestones);
+    }
+    if (progressChanged) {
+      setLocalProgress(goal.progress || 0);
+    }
+  }, [goal.id, goal.milestones, goal.progress]);
+
   const updateMilestone = useMutation({
     mutationFn: async ({ milestones, progress }) => {
       return await base44.entities.Goal.update(goal.id, { milestones, progress });
     },
     onSuccess: () => {
-      // Don't invalidate queries immediately - keep local state
-      // This prevents the UI from reverting before the refetch completes
+      // Invalidate to sync across tabs/sessions
+      queryClient.invalidateQueries(['allGoals']);
+      queryClient.invalidateQueries(['goals']);
     },
     onError: (error) => {
       console.error('Failed to update milestone:', error);
