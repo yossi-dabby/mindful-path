@@ -44,6 +44,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       };
     })
   );
+  const [localProgress, setLocalProgress] = useState(goal.progress || 0);
   const queryClient = useQueryClient();
 
   const updateMilestone = useMutation({
@@ -85,6 +86,9 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     // Calculate new progress
     const completedCount = updatedMilestones.filter(m => m.completed).length;
     const newProgress = Math.round((completedCount / updatedMilestones.length) * 100);
+    
+    // Update local progress immediately
+    setLocalProgress(newProgress);
     
     // Trigger mutation to update the database
     updateMilestone.mutate({ milestones: updatedMilestones, progress: newProgress });
@@ -187,9 +191,9 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-700">Progress</span>
-            <span className="text-sm font-bold text-blue-600">{goal.progress}%</span>
+            <span className="text-sm font-bold text-blue-600">{localProgress}%</span>
           </div>
-          <Progress value={goal.progress} className="h-3" />
+          <Progress value={localProgress} className="h-3" />
         </div>
 
         {/* Milestones */}
