@@ -195,7 +195,14 @@ Provide SMART criteria answers and suggestions for milestones.`,
   return (
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 pb-24 overflow-y-auto" style={{ zIndex: 50 }}>
+      <div 
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 pb-24 overflow-y-auto" 
+        style={{ 
+          zIndex: 50,
+          paddingTop: 'env(safe-area-inset-top)',
+          paddingBottom: 'calc(env(safe-area-inset-bottom) + 6rem)'
+        }}
+      >
         <Card className="w-full max-w-3xl border-0 shadow-2xl my-8" style={{ maxHeight: 'calc(100vh - 160px)', zIndex: 55 }}>
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">
