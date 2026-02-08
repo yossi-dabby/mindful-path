@@ -189,20 +189,11 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
             {safeArray(goal.milestones).map((milestoneRaw, index) => {
               const milestone = typeof milestoneRaw === 'object' ? milestoneRaw : { title: safeText(milestoneRaw, `Step ${index + 1}`), completed: false };
               return (
-              <button 
-                key={index} 
-                className="flex items-start gap-3 p-3 rounded-lg border border-gray-100 w-full text-left hover:bg-gray-50 transition-colors"
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (!toggleMilestoneMutation.isPending) {
-                    toggleMilestone(index);
-                  }
-                }}
-                disabled={toggleMilestoneMutation.isPending}
-              >
-                <div className="flex-shrink-0 pt-0.5 pointer-events-none">
+              <div key={index} className="flex items-start gap-3 p-3 rounded-lg border border-gray-100 hover:bg-gray-50">
+                <div className="flex-shrink-0 pt-0.5">
                   <Checkbox
                     checked={milestone.completed}
+                    onCheckedChange={() => toggleMilestone(index)}
                     disabled={toggleMilestoneMutation.isPending}
                   />
                 </div>
@@ -227,7 +218,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                     </Badge>
                   )}
                 </div>
-              </button>
+              </div>
             );
             })}
           </div>
