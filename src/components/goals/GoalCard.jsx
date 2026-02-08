@@ -29,51 +29,9 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   const [showAiAdjustment, setShowAiAdjustment] = useState(false);
   const queryClient = useQueryClient();
 
-  const toggleMilestoneMutation = useMutation({
-    mutationFn: async ({ milestones }) => {
-      await base44.entities.Goal.update(goal.id, { milestones });
-    },
-    onMutate: async ({ milestones }) => {
-      // Cancel outgoing refetches
-      await queryClient.cancelQueries(['allGoals']);
-      await queryClient.cancelQueries(['goals']);
 
-      // Snapshot previous values
-      const previousGoals = queryClient.getQueryData(['allGoals']);
-      const previousGoalsList = queryClient.getQueryData(['goals']);
-
-      // Optimistically update
-      queryClient.setQueryData(['allGoals'], (old) => {
-        if (!old) return old;
-        return old.map(g => g.id === goal.id ? { ...g, milestones } : g);
-      });
-
-      queryClient.setQueryData(['goals'], (old) => {
-        if (!old) return old;
-        return old.map(g => g.id === goal.id ? { ...g, milestones } : g);
-      });
-
-      return { previousGoals, previousGoalsList };
-    },
-    onError: (error, variables, context) => {
-      // Rollback on error
-      if (context?.previousGoals) {
-        queryClient.setQueryData(['allGoals'], context.previousGoals);
-      }
-      if (context?.previousGoalsList) {
-        queryClient.setQueryData(['goals'], context.previousGoalsList);
-      }
-      console.error('Failed to update milestone:', error);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries(['allGoals']);
-      queryClient.invalidateQueries(['goals']);
-    }
-  });
 
   const toggleMilestone = (index) => {
-    if (toggleMilestoneMutation.isPending) return;
-    
     const milestones = safeArray(goal.milestones).map((m, i) => {
       if (typeof m === 'string') {
         return { title: m, completed: false, description: '', due_date: null };
@@ -92,7 +50,10 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       completed_date: !milestones[index].completed ? new Date().toISOString() : null
     };
     
-    toggleMilestoneMutation.mutate({ milestones });
+    base44.entities.Goal.update(goal.id, { milestones }).then(() => {
+      queryClient.invalidateQueries(['allGoals']);
+      queryClient.invalidateQueries(['goals']);
+    });
   };
 
   const isCompleted = goal.status === 'completed';
@@ -200,12 +161,11 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                   <Checkbox
                     checked={Boolean(milestone.completed)}
                     onCheckedChange={() => toggleMilestone(index)}
-                    disabled={toggleMilestoneMutation.isPending}
                   />
                 </div>
                 <div 
                   className="flex-1 min-w-0 cursor-pointer"
-                  onClick={() => !toggleMilestoneMutation.isPending && toggleMilestone(index)}
+                  onClick={() => toggleMilestone(index)}
                 >
                   <span
                     className={cn(
