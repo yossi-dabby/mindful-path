@@ -186,12 +186,20 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                   {milestone.description && (
                     <p className="text-xs text-gray-500 mt-0.5">{safeText(milestone.description)}</p>
                   )}
-                  {milestone.due_date && (
-                    <Badge variant="outline" className="mt-1 text-xs">
-                      <Calendar className="w-3 h-3 mr-1" />
-                      {format(new Date(milestone.due_date), 'MMM d')}
-                    </Badge>
-                  )}
+                  {milestone.due_date && (() => {
+                    try {
+                      const date = new Date(milestone.due_date);
+                      if (isNaN(date.getTime())) return null;
+                      return (
+                        <Badge variant="outline" className="mt-1 text-xs">
+                          <Calendar className="w-3 h-3 mr-1" />
+                          {format(date, 'MMM d')}
+                        </Badge>
+                      );
+                    } catch {
+                      return null;
+                    }
+                  })()}
                 </div>
               </div>
             );
