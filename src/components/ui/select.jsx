@@ -13,14 +13,35 @@ const useMediaQuery = (query) => {
   const [matches, setMatches] = React.useState(false);
 
   React.useEffect(() => {
+    // Guard against SSR / non-DOM environments (iOS Safari pre-hydration, Android WebViews, etc.)
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      return;
+    }
+
     const media = window.matchMedia(query);
+
+    // Set initial value
     if (media.matches !== matches) {
       setMatches(media.matches);
     }
-    const listener = () => setMatches(media.matches);
-    media.addEventListener('change', listener);
-    return () => media.removeEventListener('change', listener);
-  }, [matches, query]);
+
+    const listener = (event) => {
+      setMatches(event.matches);
+    };
+
+    // Support both modern and legacy APIs
+    if (typeof media.addEventListener === 'function') {
+      media.addEventListener('change', listener);
+      return () => media.removeEventListener('change', listener);
+    } else if (typeof media.addListener === 'function') {
+      // Fallback for older browsers / Android WebViews
+      media.addListener(listener);
+      return () => media.removeListener(listener);
+    }
+
+    // Fallback: no cleanup needed
+    return undefined;
+  }, [query]); // Don't depend on `matches` to avoid recreating listener on every render
 
   return matches;
 }
