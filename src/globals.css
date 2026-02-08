@@ -273,6 +273,25 @@
   background: rgb(var(--accent) / 0.4);
 }
 
+/* Mobile touch optimization */
+button, a, [role="button"], svg, .icon {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Keep text selectable */
+p, span, h1, h2, h3, h4, h5, h6, li, td, th, label {
+  user-select: auto;
+  -webkit-user-select: auto;
+}
+
+/* Prevent overscroll bounce */
+html, body {
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+}
+
 /* Focus styles - warm ring, no sharp edges */
 *:focus-visible {
   outline: 3px solid rgb(var(--ring));

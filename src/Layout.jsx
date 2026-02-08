@@ -9,6 +9,31 @@ import './components/i18n/i18nConfig';
 export default function Layout({ children, currentPageName }) {
   const [theme, setTheme] = React.useState('default');
   const [isOffline, setIsOffline] = React.useState(!navigator.onLine);
+  const [isDarkMode, setIsDarkMode] = React.useState(false);
+
+  // Detect system dark mode preference
+  React.useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    setIsDarkMode(mediaQuery.matches);
+
+    const handleChange = (e) => {
+      setIsDarkMode(e.matches);
+      if (e.matches) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    
+    // Apply initial state
+    if (mediaQuery.matches) {
+      document.documentElement.classList.add('dark');
+    }
+
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
 
   React.useEffect(() => {
     // Load user theme preference
