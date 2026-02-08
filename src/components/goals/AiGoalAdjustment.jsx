@@ -72,7 +72,15 @@ GOAL:
 Title: ${goal.title}
 Category: ${goal.category}
 Current Progress: ${goal.progress}%
-Target Date: ${goal.target_date ? format(new Date(goal.target_date), 'MMM d, yyyy') : 'Not set'}
+Target Date: ${(() => {
+          if (!goal.target_date) return 'Not set';
+          try {
+            const date = new Date(goal.target_date);
+            return !isNaN(date.getTime()) ? format(date, 'MMM d, yyyy') : 'Not set';
+          } catch {
+            return 'Not set';
+          }
+        })()}
 Milestones: ${goal.milestones?.length || 0} (${goal.milestones?.filter(m => m.completed).length || 0} completed)
 
 OBSTACLES:
@@ -292,11 +300,19 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
                     <div>
                       <h3 className="font-semibold mb-1">Timeline Adjustment</h3>
                       <p className="text-sm text-gray-600 mb-2">{suggestions.timeline_adjustment.recommendation}</p>
-                      {suggestions.timeline_adjustment.suggested_date && (
-                        <Badge variant="outline" className="flex items-center gap-1 w-fit">
-                          New target: {format(new Date(suggestions.timeline_adjustment.suggested_date), 'MMM d, yyyy')}
-                        </Badge>
-                      )}
+                      {suggestions.timeline_adjustment.suggested_date && (() => {
+                        try {
+                          const date = new Date(suggestions.timeline_adjustment.suggested_date);
+                          if (isNaN(date.getTime())) return null;
+                          return (
+                            <Badge variant="outline" className="flex items-center gap-1 w-fit">
+                              New target: {format(date, 'MMM d, yyyy')}
+                            </Badge>
+                          );
+                        } catch {
+                          return null;
+                        }
+                      })()}
                       <p className="text-xs text-gray-500 mt-2">{suggestions.timeline_adjustment.reasoning}</p>
                     </div>
                     <Button size="sm" onClick={applyTimeline}>Apply</Button>

@@ -74,7 +74,14 @@ export default function LinkedJournalEntries({ goalId }) {
               <div className="flex items-start justify-between mb-2">
                 <p className="text-xs text-gray-500 flex items-center gap-1">
                   <Calendar className="w-3 h-3" />
-                  {format(new Date(entry.created_date), 'MMM d, yyyy')}
+                  {(() => {
+                    try {
+                      const date = new Date(entry.created_date);
+                      return !isNaN(date.getTime()) ? format(date, 'MMM d, yyyy') : 'Date unavailable';
+                    } catch {
+                      return 'Date unavailable';
+                    }
+                  })()}
                 </p>
                 {entry.outcome_emotion_intensity && (
                   <div className={cn(

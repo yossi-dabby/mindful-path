@@ -123,22 +123,30 @@ export default function GoalProgressChart({ goal }) {
         </div>
 
         {/* Target Date Progress */}
-        {goal.target_date && (
-          <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-4 rounded-xl border border-orange-200">
-            <div className="flex items-center gap-2 mb-2">
-              <Calendar className="w-4 h-4 text-orange-600" />
-              <span className="text-sm font-semibold text-orange-800">Target Date</span>
-            </div>
-            <p className="text-sm text-orange-700">
-              {format(new Date(goal.target_date), 'MMMM d, yyyy')}
-            </p>
-            {new Date(goal.target_date) < new Date() && goal.progress < 100 && (
-              <p className="text-xs text-red-600 mt-1 font-medium">
-                Goal is overdue - consider adjusting timeline or breaking into smaller steps
-              </p>
-            )}
-          </div>
-        )}
+        {goal.target_date && (() => {
+          try {
+            const targetDate = new Date(goal.target_date);
+            if (isNaN(targetDate.getTime())) return null;
+            return (
+              <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-4 rounded-xl border border-orange-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <Calendar className="w-4 h-4 text-orange-600" />
+                  <span className="text-sm font-semibold text-orange-800">Target Date</span>
+                </div>
+                <p className="text-sm text-orange-700">
+                  {format(targetDate, 'MMMM d, yyyy')}
+                </p>
+                {targetDate < new Date() && goal.progress < 100 && (
+                  <p className="text-xs text-red-600 mt-1 font-medium">
+                    Goal is overdue - consider adjusting timeline or breaking into smaller steps
+                  </p>
+                )}
+              </div>
+            );
+          } catch {
+            return null;
+          }
+        })()}
 
         {/* Insights */}
         {velocity > 0 && goal.progress < 100 && (
