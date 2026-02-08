@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,8 +29,15 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   const [showObstacles, setShowObstacles] = useState(false);
   const [showAiAdjustment, setShowAiAdjustment] = useState(false);
   const [showReminders, setShowReminders] = useState(false);
-  const [localMilestones, setLocalMilestones] = useState(goal.milestones);
+  // Local optimistic state for milestones to provide immediate visual feedback
+  // null means "use server state" (goal.milestones), non-null means "use optimistic state"
+  const [localMilestones, setLocalMilestones] = useState(null);
   const queryClient = useQueryClient();
+
+  // Reset local state when goal prop changes (e.g., after successful mutation)
+  useEffect(() => {
+    setLocalMilestones(null);
+  }, [goal.milestones]);
 
   const updateMilestone = useMutation({
     mutationFn: async ({ milestones, progress }) => {
@@ -39,11 +46,17 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     onSuccess: () => {
       queryClient.invalidateQueries(['allGoals']);
       queryClient.invalidateQueries(['goals']);
+    },
+    onError: (error) => {
+      console.error('Failed to update milestone:', error);
+      // Reset local state on error so UI reverts to server state
+      setLocalMilestones(null);
     }
   });
 
-  const toggleMilestone = (index) => {
-    const normalizedMilestones = safeArray(localMilestones).map((m, i) => {
+  const toggleMilestone = (index, checked) => {
+    // Normalize milestones to object format
+    const milestones = safeArray(goal.milestones).map((m, i) => {
       if (typeof m === 'string') {
         return { title: m, completed: false, description: '', due_date: null };
       }
@@ -55,19 +68,22 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       };
     });
     
-    const updatedMilestones = [...normalizedMilestones];
-    updatedMilestones[index] = {
-      ...updatedMilestones[index],
-      completed: !updatedMilestones[index].completed,
-      completed_date: !updatedMilestones[index].completed ? new Date().toISOString() : null
+    // Update the specific milestone with the new checked state
+    milestones[index] = {
+      ...milestones[index],
+      completed: checked,
+      completed_date: checked ? new Date().toISOString() : null
     };
     
-    setLocalMilestones(updatedMilestones);
+    // Set optimistic local state for immediate UI update
+    setLocalMilestones(milestones);
     
-    const completedCount = updatedMilestones.filter(m => m.completed).length;
-    const newProgress = Math.round((completedCount / updatedMilestones.length) * 100);
+    // Calculate new progress
+    const completedCount = milestones.filter(m => m.completed).length;
+    const newProgress = Math.round((completedCount / milestones.length) * 100);
     
-    updateMilestone.mutate({ milestones: updatedMilestones, progress: newProgress });
+    // Trigger mutation to update the database
+    updateMilestone.mutate({ milestones, progress: newProgress });
   };
 
   const isCompleted = goal.status === 'completed';
@@ -176,7 +192,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         {safeArray(goal.milestones).length > 0 && (
           <div className="space-y-2">
             <p className="text-sm font-medium text-gray-700 mb-2">Tasks:</p>
-            {safeArray(localMilestones).map((milestoneRaw, index) => {
+            {safeArray(localMilestones || goal.milestones).map((milestoneRaw, index) => {
               const milestone = typeof milestoneRaw === 'object' ? {
                 ...milestoneRaw,
                 completed: Boolean(milestoneRaw.completed)
@@ -188,7 +204,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
               >
                 <Checkbox
                   checked={Boolean(milestone.completed)}
-                  onCheckedChange={() => toggleMilestone(index)}
+                  onCheckedChange={(checked) => toggleMilestone(index, checked)}
                   className="mt-0.5 flex-shrink-0"
                   id={`milestone-${goal.id}-${index}`}
                 />
