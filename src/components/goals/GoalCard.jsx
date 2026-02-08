@@ -60,7 +60,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         completed_date: m.completed_date || null
       };
     }));
-  }, [goal.id]);
+  }, [goal.milestones]);
 
   const updateMilestone = useMutation({
     mutationFn: async ({ milestones, progress }) => {
@@ -215,13 +215,13 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
               <p className="text-sm font-medium text-gray-700">Tasks:</p>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-500">
-                  {safeArray(localMilestones).filter(m => m.completed).length}/{safeArray(localMilestones).length}
+                  {localMilestones.filter(m => m.completed).length}/{localMilestones.length}
                 </span>
                 <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
                   <div 
                     className="h-full bg-blue-500 transition-all duration-300"
                     style={{ 
-                      width: `${(safeArray(localMilestones).filter(m => m.completed).length / safeArray(localMilestones).length) * 100}%` 
+                      width: `${localMilestones.length > 0 ? (localMilestones.filter(m => m.completed).length / localMilestones.length) * 100 : 0}%` 
                     }}
                   />
                 </div>
