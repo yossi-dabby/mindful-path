@@ -190,12 +190,13 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
               const milestone = typeof milestoneRaw === 'object' ? milestoneRaw : { title: safeText(milestoneRaw, `Step ${index + 1}`), completed: false };
               return (
               <div key={index} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 border border-gray-100">
-                <Checkbox
-                  checked={milestone.completed}
-                  onCheckedChange={() => toggleMilestone(index)}
-                  disabled={toggleMilestoneMutation.isPending}
-                  className="rounded mt-0.5 cursor-pointer"
-                />
+                <div className="flex-shrink-0 pt-0.5">
+                  <Checkbox
+                    checked={milestone.completed}
+                    onCheckedChange={() => toggleMilestone(index)}
+                    disabled={toggleMilestoneMutation.isPending}
+                  />
+                </div>
                 <div className="flex-1 min-w-0">
                   <span
                     className={cn(
