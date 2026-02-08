@@ -19,6 +19,14 @@ export default function BottomNav({ currentPageName }) {
     { name: t('sidebar.mood.name'), icon: Activity, path: 'MoodTracker' },
     { name: t('sidebar.exercises.name'), icon: Dumbbell, path: 'Exercises' }
   ];
+
+  const handleTabClick = (e, item) => {
+    // If clicking the already active tab, navigate to root of that section
+    if (currentPageName === item.path) {
+      e.preventDefault();
+      window.location.href = createPageUrl(item.path);
+    }
+  };
   
   return (
     <nav 
@@ -39,6 +47,7 @@ export default function BottomNav({ currentPageName }) {
             <Link
               key={item.path}
               to={createPageUrl(item.path)}
+              onClick={(e) => handleTabClick(e, item)}
               className="flex flex-col items-center justify-center gap-1 px-2 py-2 transition-calm"
               style={{
                 borderRadius: '16px',

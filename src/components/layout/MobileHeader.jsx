@@ -1,7 +1,20 @@
 import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import MobileMenu from './MobileMenu';
 
 export default function MobileHeader() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Detect if we're on a sub-page (more than one level deep)
+  const pathParts = location.pathname.split('/').filter(Boolean);
+  const isSubPage = pathParts.length > 1;
+
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   return (
     <header 
       className="md:hidden fixed top-0 left-0 right-0 z-40 backdrop-blur-xl border-b"
@@ -13,8 +26,18 @@ export default function MobileHeader() {
       }}
     >
       <div className="flex items-center justify-between h-full px-4">
-        {/* Left: Hamburger Menu */}
-        <MobileMenu />
+        {/* Left: Back button or Hamburger Menu */}
+        {isSubPage ? (
+          <button
+            onClick={handleBack}
+            className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-black/5 transition-colors"
+            aria-label="Go back"
+          >
+            <ArrowLeft className="w-5 h-5" style={{ color: '#26A69A' }} />
+          </button>
+        ) : (
+          <MobileMenu />
+        )}
         
         {/* Center: Logo */}
         <div className="flex items-center gap-2">

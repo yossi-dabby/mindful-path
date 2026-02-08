@@ -13,8 +13,10 @@ export default function DataPrivacy({ user }) {
   const queryClient = useQueryClient();
   const [retentionDays, setRetentionDays] = useState(user?.preferences?.data_retention_days || 365);
   const [deleteConfirming, setDeleteConfirming] = useState(false);
+  const [deleteAccountConfirming, setDeleteAccountConfirming] = useState(false);
   const [exportingData, setExportingData] = useState(false);
   const [deletingData, setDeletingData] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
   const [actionMessage, setActionMessage] = useState(null);
 
   const updateRetentionMutation = useMutation({
@@ -143,6 +145,28 @@ export default function DataPrivacy({ user }) {
       setTimeout(() => setActionMessage(null), 3000);
     } finally {
       setDeletingData(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!deleteAccountConfirming) {
+      setDeleteAccountConfirming(true);
+      return;
+    }
+
+    setDeletingAccount(true);
+    try {
+      await base44.auth.deleteMe();
+      setActionMessage({ type: 'success', text: 'Account deleted successfully. Logging out...' });
+      setTimeout(() => {
+        base44.auth.logout();
+      }, 2000);
+    } catch (error) {
+      console.error('Delete account error:', error);
+      setActionMessage({ type: 'error', text: 'Failed to delete account. Please try again.' });
+      setTimeout(() => setActionMessage(null), 3000);
+      setDeletingAccount(false);
+      setDeleteAccountConfirming(false);
     }
   };
 
@@ -307,6 +331,71 @@ export default function DataPrivacy({ user }) {
               >
                 <Trash2 className="w-4 h-4" />
                 {t('settings.data_privacy.delete_button')}
+              </Button>
+            )}
+          </div>
+
+          {/* Delete Account */}
+          <div className="border-t pt-6">
+            <label className="text-sm font-medium text-gray-700 mb-3 block">Delete Account</label>
+            <p className="text-sm text-gray-600 mb-4">
+              Permanently delete your account and all associated data. This action cannot be undone.
+            </p>
+
+            {/* Confirmation State */}
+            {deleteAccountConfirming && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4"
+                data-testid="delete-account-confirm-panel"
+              >
+                <p className="text-sm font-medium text-red-800 mb-3">
+                  Are you absolutely sure? This will permanently delete your account and all data.
+                </p>
+                <div className="flex gap-3">
+                  <Button
+                    onClick={handleDeleteAccount}
+                    disabled={deletingAccount}
+                    className="bg-red-600 hover:bg-red-700 text-white rounded-lg"
+                    data-testid="delete-account-confirm-btn"
+                  >
+                    {deletingAccount ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Yes, Delete My Account
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    onClick={() => setDeleteAccountConfirming(false)}
+                    variant="outline"
+                    className="rounded-lg"
+                    data-testid="delete-account-cancel-btn"
+                    disabled={deletingAccount}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Initial Delete Account Button */}
+            {!deleteAccountConfirming && (
+              <Button
+                onClick={handleDeleteAccount}
+                disabled={deletingAccount}
+                variant="outline"
+                className="gap-2 rounded-lg border-red-300 text-red-700 hover:bg-red-100"
+                data-testid="delete-account-btn"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete Account
               </Button>
             )}
           </div>
