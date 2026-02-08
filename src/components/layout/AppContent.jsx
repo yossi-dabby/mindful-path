@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
 import { BOTTOM_NAV_HEIGHT } from './BottomNav';
 import { SIDEBAR_WIDTH } from './Sidebar';
 import MobileHeader from './MobileHeader';
@@ -58,9 +59,7 @@ export default function AppContent({ children, currentPageName }) {
             opacity: pullDistance / 80
           }}
         >
-          <div className="text-sm text-muted-foreground">
-            {pullDistance > 80 ? 'Release to refresh' : 'Pull to refresh'}
-          </div>
+          <Loader2 className="w-5 h-5 animate-spin text-gray-600" />
         </div>
       )}
       <main

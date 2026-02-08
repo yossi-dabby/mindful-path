@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { cn } from "@/lib/utils";
 import { Home, MessageCircle, BookOpen, Activity, Dumbbell, Heart } from 'lucide-react';
@@ -10,6 +10,7 @@ export const BOTTOM_NAV_HEIGHT = 80; // 20 * 4 = 80px (h-20)
 
 export default function BottomNav({ currentPageName }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   
   const navItems = [
     { name: t('sidebar.home.name'), icon: Home, path: 'Home' },
@@ -24,7 +25,7 @@ export default function BottomNav({ currentPageName }) {
     // If clicking the already active tab, navigate to root of that section
     if (currentPageName === item.path) {
       e.preventDefault();
-      window.location.href = createPageUrl(item.path);
+      navigate(createPageUrl(item.path), { replace: true });
     }
   };
   

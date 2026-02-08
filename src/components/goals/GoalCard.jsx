@@ -33,12 +33,41 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     mutationFn: async ({ milestones }) => {
       await base44.entities.Goal.update(goal.id, { milestones });
     },
-    onSuccess: () => {
+    onMutate: async ({ milestones }) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries(['allGoals']);
+      await queryClient.cancelQueries(['goals']);
+
+      // Snapshot previous values
+      const previousGoals = queryClient.getQueryData(['allGoals']);
+      const previousGoalsList = queryClient.getQueryData(['goals']);
+
+      // Optimistically update
+      queryClient.setQueryData(['allGoals'], (old) => {
+        if (!old) return old;
+        return old.map(g => g.id === goal.id ? { ...g, milestones } : g);
+      });
+
+      queryClient.setQueryData(['goals'], (old) => {
+        if (!old) return old;
+        return old.map(g => g.id === goal.id ? { ...g, milestones } : g);
+      });
+
+      return { previousGoals, previousGoalsList };
+    },
+    onError: (error, variables, context) => {
+      // Rollback on error
+      if (context?.previousGoals) {
+        queryClient.setQueryData(['allGoals'], context.previousGoals);
+      }
+      if (context?.previousGoalsList) {
+        queryClient.setQueryData(['goals'], context.previousGoalsList);
+      }
+      console.error('Failed to update milestone:', error);
+    },
+    onSettled: () => {
       queryClient.invalidateQueries(['allGoals']);
       queryClient.invalidateQueries(['goals']);
-    },
-    onError: (error) => {
-      console.error('Failed to update milestone:', error);
     }
   });
 

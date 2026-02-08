@@ -114,17 +114,56 @@ export default function StandaloneDailyCheckIn() {
 
       return moodEntry;
     },
+    onMutate: async (data) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries(['todayMood']);
+      await queryClient.cancelQueries(['todayFlow']);
+
+      // Snapshot previous values
+      const previousMood = queryClient.getQueryData(['todayMood']);
+      const previousFlow = queryClient.getQueryData(['todayFlow']);
+
+      // Optimistically update
+      const today = new Date().toISOString().split('T')[0];
+      const optimisticMood = {
+        id: 'temp-' + Date.now(),
+        date: today,
+        mood: data.mood,
+        emotions: data.emotions,
+        intensity: data.intensity,
+        energy_level: 'moderate',
+        stress_level: Math.max(1, Math.min(10, Math.round((100 - data.intensity) / 10))),
+        triggers: [],
+        activities: [],
+        notes: '',
+        created_date: new Date().toISOString()
+      };
+
+      queryClient.setQueryData(['todayMood'], optimisticMood);
+      setStep(4);
+
+      return { previousMood, previousFlow };
+    },
     onSuccess: () => {
       isSubmittingRef.current = false;
-      queryClient.invalidateQueries(['todayMood']);
-      queryClient.invalidateQueries(['todayFlow']);
-      setStep(4);
     },
-    onError: (error) => {
+    onError: (error, variables, context) => {
       isSubmittingRef.current = false;
+      // Rollback on error
+      if (context?.previousMood !== undefined) {
+        queryClient.setQueryData(['todayMood'], context.previousMood);
+      }
+      if (context?.previousFlow !== undefined) {
+        queryClient.setQueryData(['todayFlow'], context.previousFlow);
+      }
+      setStep(3);
       if (isAuthError(error) && shouldShowAuthError()) {
         setShowAuthError(true);
       }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(['todayMood']);
+      queryClient.invalidateQueries(['todayFlow']);
     }
   });
 
@@ -144,16 +183,40 @@ export default function StandaloneDailyCheckIn() {
         });
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['todayMood']);
-      queryClient.invalidateQueries(['todayFlow']);
+    onMutate: async () => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries(['todayMood']);
+      await queryClient.cancelQueries(['todayFlow']);
+
+      // Snapshot previous values
+      const previousMood = queryClient.getQueryData(['todayMood']);
+      const previousFlow = queryClient.getQueryData(['todayFlow']);
+
+      // Optimistically update
+      queryClient.setQueryData(['todayMood'], null);
       setStep(1);
       setFormData({ mood: '', mood_emoji: '', emotions: [], intensity: 50 });
+
+      return { previousMood, previousFlow };
     },
-    onError: (error) => {
+    onError: (error, variables, context) => {
+      // Rollback on error
+      if (context?.previousMood !== undefined) {
+        queryClient.setQueryData(['todayMood'], context.previousMood);
+      }
+      if (context?.previousFlow !== undefined) {
+        queryClient.setQueryData(['todayFlow'], context.previousFlow);
+      }
+      if (context?.previousMood) {
+        setStep(4);
+      }
       if (isAuthError(error) && shouldShowAuthError()) {
         setShowAuthError(true);
       }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(['todayMood']);
+      queryClient.invalidateQueries(['todayFlow']);
     }
   });
 
