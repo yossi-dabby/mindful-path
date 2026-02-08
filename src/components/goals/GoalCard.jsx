@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -30,11 +30,12 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   const [showAiAdjustment, setShowAiAdjustment] = useState(false);
   const [showReminders, setShowReminders] = useState(false);
   // Local optimistic state for milestones to provide immediate visual feedback
+  // null means "use server state" (goal.milestones), non-null means "use optimistic state"
   const [localMilestones, setLocalMilestones] = useState(null);
   const queryClient = useQueryClient();
 
   // Reset local state when goal prop changes (e.g., after successful mutation)
-  React.useEffect(() => {
+  useEffect(() => {
     setLocalMilestones(null);
   }, [goal.milestones]);
 
