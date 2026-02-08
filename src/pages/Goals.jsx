@@ -7,7 +7,7 @@ import { isAuthError, shouldShowAuthError } from '../components/utils/authErrorH
 import AuthErrorBanner from '../components/utils/AuthErrorBanner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Target, Calendar as CalendarIcon, Sparkles, Lightbulb } from 'lucide-react';
+import { Plus, Target, Calendar as CalendarIcon, Sparkles, Lightbulb, Clock } from 'lucide-react';
 import { createPageUrl } from '../utils';
 import GoalForm from '../components/goals/GoalForm';
 import GoalCard from '../components/goals/GoalCard';
@@ -16,6 +16,7 @@ import AiGoalSuggestions from '../components/goals/AiGoalSuggestions';
 import AiGoalBreakdown from '../components/goals/AiGoalBreakdown';
 import GoalMotivation from '../components/goals/GoalMotivation';
 import AiGoalCoaching from '../components/goals/AiGoalCoaching';
+import MilestonesTimeline from '../components/goals/MilestonesTimeline';
 
 export default function Goals() {
   const [showForm, setShowForm] = useState(false);
@@ -26,6 +27,7 @@ export default function Goals() {
   const [showCoaching, setShowCoaching] = useState(null);
   const [prefilledGoal, setPrefilledGoal] = useState(null);
   const [showAuthError, setShowAuthError] = useState(false);
+  const [showTimeline, setShowTimeline] = useState(false);
   const queryClient = useQueryClient();
   
   // Enable cross-tab synchronization
@@ -121,6 +123,16 @@ export default function Goals() {
           >
             <CalendarIcon className="w-4 h-4 md:w-5 md:h-5 md:mr-2" />
             <span className="hidden md:inline">Calendar</span>
+          </Button>
+          <Button
+            onClick={() => setShowTimeline(!showTimeline)}
+            variant="outline"
+            className="text-sm md:text-base"
+            size="sm"
+            style={{ borderRadius: '24px' }}
+          >
+            <Clock className="w-4 h-4 md:w-5 md:h-5 md:mr-2" />
+            <span className="hidden md:inline">Timeline</span>
           </Button>
           <Button
             onClick={() => setShowAiSuggestions(true)}
