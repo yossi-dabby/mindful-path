@@ -251,31 +251,30 @@ export default function Goals() {
               </div>
               <div className="space-y-4">
                 {activeGoals.map((goal) => (
-                 <div key={goal.id} className="flex flex-col md:relative md:group">
+                 <div key={goal.id}>
                    <GoalCard goal={goal} onEdit={handleEdit} onDelete={deleteGoalMutation.mutate} isDeleting={deleteGoalMutation.isPending} />
-                    <div className="flex flex-col md:flex-row gap-2 mt-2 md:mt-0 md:absolute md:top-4 md:right-4 md:opacity-0 md:group-hover:opacity-100 md:transition-opacity">
-                      <Button
-                        onClick={() => setShowBreakdown(goal)}
-                        variant="outline"
-                        size="sm"
-                        className="gap-2 w-full md:w-auto"
-                      >
-                        <Lightbulb className="w-4 h-4" />
-                        <span className="md:hidden">Break Down</span>
-                        <span className="hidden md:inline">Break Down</span>
-                      </Button>
-                      <Button
-                        onClick={() => setShowCoaching(goal)}
-                        variant="outline"
-                        size="sm"
-                        className="gap-2 w-full md:w-auto"
-                        style={{ borderColor: '#26A69A', color: '#26A69A' }}
-                      >
-                        <Sparkles className="w-4 h-4" />
-                        Coach
-                      </Button>
-                    </div>
-                  </div>
+                   <div className="flex flex-col md:flex-row gap-2 mt-2">
+                     <Button
+                       onClick={() => setShowBreakdown(goal)}
+                       variant="outline"
+                       size="sm"
+                       className="gap-2 w-full md:w-auto"
+                     >
+                       <Lightbulb className="w-4 h-4" />
+                       Break Down
+                     </Button>
+                     <Button
+                       onClick={() => setShowCoaching(goal)}
+                       variant="outline"
+                       size="sm"
+                       className="gap-2 w-full md:w-auto"
+                       style={{ borderColor: '#26A69A', color: '#26A69A' }}
+                     >
+                       <Sparkles className="w-4 h-4" />
+                       Coach
+                     </Button>
+                   </div>
+                 </div>
                 ))}
               </div>
             </div>
