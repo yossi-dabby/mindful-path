@@ -192,20 +192,21 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                 completed: Boolean(milestoneRaw.completed)
               } : { title: safeText(milestoneRaw, `Step ${index + 1}`), completed: false };
               return (
-              <button 
-                key={index} 
-                type="button"
-                className="flex items-start gap-3 p-3 rounded-lg border border-gray-100 w-full text-left hover:bg-gray-50 transition-colors active:bg-gray-100"
-                onClick={() => toggleMilestone(index)}
-                disabled={toggleMilestoneMutation.isPending}
+              <div 
+                key={index}
+                className="flex items-start gap-3 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
               >
-                <div className="flex-shrink-0 pt-0.5 pointer-events-none">
+                <div className="flex-shrink-0 pt-0.5">
                   <Checkbox
                     checked={Boolean(milestone.completed)}
+                    onCheckedChange={() => toggleMilestone(index)}
                     disabled={toggleMilestoneMutation.isPending}
                   />
                 </div>
-                <div className="flex-1 min-w-0">
+                <div 
+                  className="flex-1 min-w-0 cursor-pointer"
+                  onClick={() => !toggleMilestoneMutation.isPending && toggleMilestone(index)}
+                >
                   <span
                     className={cn(
                       'text-sm font-medium block',
@@ -226,7 +227,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                     </Badge>
                   )}
                 </div>
-              </button>
+              </div>
             );
             })}
           </div>
