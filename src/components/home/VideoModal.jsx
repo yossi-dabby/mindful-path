@@ -7,7 +7,11 @@ export default function VideoModal({ videoUrl, onClose }) {
     <div 
       className="fixed inset-0 flex items-center justify-center p-4 pb-24 bg-black/60 backdrop-blur-sm"
       onClick={onClose}
-      style={{ zIndex: 60 }}
+      style={{
+        zIndex: 60,
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingBottom: 'calc(env(safe-area-inset-bottom) + 6rem)'
+      }}
     >
       <div 
         className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden my-8"

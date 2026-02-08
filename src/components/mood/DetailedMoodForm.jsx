@@ -83,16 +83,65 @@ export default function DetailedMoodForm({ entry, onClose }) {
         ? base44.entities.MoodEntry.update(entry.id, validatedData)
         : base44.entities.MoodEntry.create(validatedData);
     },
+    onMutate: async (data) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries(['moodEntries']);
+      await queryClient.cancelQueries(['recentMood']);
+      await queryClient.cancelQueries(['todayFlow']);
+
+      // Snapshot previous values
+      const previousMoodEntries = queryClient.getQueryData(['moodEntries']);
+      const previousRecentMood = queryClient.getQueryData(['recentMood']);
+      const previousTodayFlow = queryClient.getQueryData(['todayFlow']);
+
+      // Optimistically update
+      const validatedData = {
+        ...data,
+        intensity: Math.max(1, Math.min(10, data.intensity || 5)),
+        stress_level: Math.max(1, Math.min(10, data.stress_level || 5))
+      };
+
+      if (entry) {
+        // Update existing entry
+        queryClient.setQueryData(['moodEntries'], (old) => {
+          if (!old) return old;
+          return old.map(e => e.id === entry.id ? { ...e, ...validatedData } : e);
+        });
+      } else {
+        // Add new entry
+        const optimisticEntry = {
+          id: 'temp-' + Date.now(),
+          ...validatedData,
+          created_date: new Date().toISOString()
+        };
+        queryClient.setQueryData(['moodEntries'], (old) => [optimisticEntry, ...(old || [])]);
+        queryClient.setQueryData(['recentMood'], (old) => [optimisticEntry, ...(old || [])]);
+      }
+
+      return { previousMoodEntries, previousRecentMood, previousTodayFlow };
+    },
     onSuccess: () => {
       isSavingRef.current = false;
+      onClose();
+    },
+    onError: (error, variables, context) => {
+      isSavingRef.current = false;
+      // Rollback on error
+      if (context?.previousMoodEntries !== undefined) {
+        queryClient.setQueryData(['moodEntries'], context.previousMoodEntries);
+      }
+      if (context?.previousRecentMood !== undefined) {
+        queryClient.setQueryData(['recentMood'], context.previousRecentMood);
+      }
+      if (context?.previousTodayFlow !== undefined) {
+        queryClient.setQueryData(['todayFlow'], context.previousTodayFlow);
+      }
+      setSaveError(t('mood_tracker.form.save_error'));
+    },
+    onSettled: () => {
       queryClient.invalidateQueries(['moodEntries']);
       queryClient.invalidateQueries(['recentMood']);
       queryClient.invalidateQueries(['todayFlow']);
-      onClose();
-    },
-    onError: (error) => {
-      isSavingRef.current = false;
-      setSaveError(t('mood_tracker.form.save_error'));
     }
   });
 
@@ -116,7 +165,13 @@ export default function DetailedMoodForm({ entry, onClose }) {
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto">
+    <div 
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto"
+      style={{
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingBottom: 'calc(env(safe-area-inset-bottom) + 6rem)'
+      }}
+    >
       <Card className="w-full max-w-3xl border-0 shadow-2xl my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
         <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-purple-50">
           <div className="flex items-center justify-between">

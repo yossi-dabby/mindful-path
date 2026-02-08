@@ -12,6 +12,10 @@ export default function MobileHeader() {
   const isSubPage = pathParts.length > 1;
 
   const handleBack = () => {
+    // Trigger haptic feedback if available
+    if (navigator.vibrate) {
+      navigator.vibrate(10);
+    }
     navigate(-1);
   };
 

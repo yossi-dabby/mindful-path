@@ -54,7 +54,13 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 overflow-y-auto">
+    <div 
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 overflow-y-auto"
+      style={{
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingBottom: 'calc(env(safe-area-inset-bottom) + 6rem)'
+      }}
+    >
       <div className="min-h-full flex items-center justify-center p-4 pb-24">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}

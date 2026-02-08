@@ -90,22 +90,67 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
         ? base44.entities.ThoughtJournal.update(entry.id, validatedData)
         : base44.entities.ThoughtJournal.create(validatedData);
     },
+    onMutate: async (data) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries(['thoughtJournals']);
+
+      // Snapshot previous values
+      const previousJournals = queryClient.getQueryData(['thoughtJournals']);
+
+      // Optimistically update
+      const validatedData = {
+        ...data,
+        emotion_intensity: Math.max(1, Math.min(10, data.emotion_intensity || 5)),
+        outcome_emotion_intensity: Math.max(1, Math.min(10, data.outcome_emotion_intensity || 5))
+      };
+
+      if (entry) {
+        // Update existing entry
+        queryClient.setQueryData(['thoughtJournals'], (old) => {
+          if (!old) return old;
+          return old.map(e => e.id === entry.id ? { ...e, ...validatedData } : e);
+        });
+      } else {
+        // Add new entry
+        const optimisticEntry = {
+          id: 'temp-' + Date.now(),
+          ...validatedData,
+          created_date: new Date().toISOString()
+        };
+        queryClient.setQueryData(['thoughtJournals'], (old) => [optimisticEntry, ...(old || [])]);
+        setSavedEntry(optimisticEntry);
+        setStep(6);
+      }
+
+      return { previousJournals };
+    },
     onSuccess: (data) => {
       if (!mountedRef.current) return;
       isSavingRef.current = false;
       
-      // Single state update: set entry and move to final step
+      // Update with real data
       setSavedEntry(data);
       setStep(6);
     },
-    onError: (error) => {
+    onError: (error, variables, context) => {
       if (!mountedRef.current) return;
       isSavingRef.current = false;
+      
+      // Rollback on error
+      if (context?.previousJournals !== undefined) {
+        queryClient.setQueryData(['thoughtJournals'], context.previousJournals);
+      }
+      setStep(5);
+      
       if (isAuthError(error) && shouldShowAuthError()) {
         setShowAuthError(true);
       } else {
         setSaveError('Couldn\'t save. Check connection and try again.');
       }
+    },
+    onSettled: () => {
+      if (!mountedRef.current) return;
+      queryClient.invalidateQueries(['thoughtJournals']);
     }
   });
 
@@ -295,7 +340,13 @@ Provide:
   return (
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto">
+      <div 
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto"
+        style={{
+          paddingTop: 'env(safe-area-inset-top)',
+          paddingBottom: 'calc(env(safe-area-inset-bottom) + 6rem)'
+        }}
+      >
         <Card className="w-full max-w-2xl border-0 shadow-2xl my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">

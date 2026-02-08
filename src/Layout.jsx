@@ -4,6 +4,7 @@ import DraggableAiCompanion from './components/ai/DraggableAiCompanion';
 import BottomNav from './components/layout/BottomNav';
 import Sidebar from './components/layout/Sidebar';
 import AppContent from './components/layout/AppContent';
+import ScrollPreservation from './components/layout/ScrollPreservation';
 import './components/i18n/i18nConfig';
 
 export default function Layout({ children, currentPageName }) {
@@ -85,6 +86,9 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <div className={`min-h-screen overflow-hidden ${themeBackgrounds[theme] || themeBackgrounds.default}`}>
+      {/* Preserve scroll position between tab switches */}
+      <ScrollPreservation />
+      
       <style>{`
         :root {
           --color-primary: 139 178 158;
