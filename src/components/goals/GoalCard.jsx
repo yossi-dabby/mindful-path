@@ -32,7 +32,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
 
 
 
-  const toggleMilestone = (index) => {
+  const toggleMilestone = async (index) => {
     const milestones = safeArray(goal.milestones).map((m, i) => {
       if (typeof m === 'string') {
         return { title: m, completed: false, description: '', due_date: null };
@@ -51,15 +51,23 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       completed_date: !milestones[index].completed ? new Date().toISOString() : null
     };
     
+    const completedCount = milestones.filter(m => m.completed).length;
+    const newProgress = Math.round((completedCount / milestones.length) * 100);
+    
     setLocalMilestones(milestones);
     
-    base44.entities.Goal.update(goal.id, { milestones }).then(() => {
+    try {
+      await base44.entities.Goal.update(goal.id, { 
+        milestones,
+        progress: newProgress
+      });
       queryClient.invalidateQueries(['allGoals']);
       queryClient.invalidateQueries(['goals']);
       setLocalMilestones(null);
-    }).catch(() => {
+    } catch (error) {
+      console.error('Failed to update milestone:', error);
       setLocalMilestones(null);
-    });
+    }
   };
 
   const isCompleted = goal.status === 'completed';
@@ -178,15 +186,15 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                 key={index}
                 className="flex items-start gap-3 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
               >
-                <div className="flex-shrink-0 pt-0.5">
-                  <Checkbox
-                    checked={Boolean(milestone.completed)}
-                    onCheckedChange={() => toggleMilestone(index)}
-                  />
-                </div>
-                <div 
+                <Checkbox
+                  checked={Boolean(milestone.completed)}
+                  onCheckedChange={() => toggleMilestone(index)}
+                  className="mt-0.5 flex-shrink-0"
+                  id={`milestone-${goal.id}-${index}`}
+                />
+                <label 
+                  htmlFor={`milestone-${goal.id}-${index}`}
                   className="flex-1 min-w-0 cursor-pointer"
-                  onClick={() => toggleMilestone(index)}
                 >
                   <span
                     className={cn(
@@ -206,7 +214,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                       const date = new Date(milestone.due_date);
                       if (isNaN(date.getTime())) return null;
                       return (
-                        <Badge variant="outline" className="mt-1 text-xs">
+                        <Badge variant="outline" className="mt-1 text-xs pointer-events-none">
                           <Calendar className="w-3 h-3 mr-1" />
                           {format(date, 'MMM d')}
                         </Badge>
@@ -215,7 +223,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                       return null;
                     }
                   })()}
-                </div>
+                </label>
               </div>
             );
             })}
