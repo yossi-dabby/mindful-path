@@ -51,52 +51,31 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   );
   const [localProgress, setLocalProgress] = useState(goal.progress || 0);
 
-  // Reset when switching to a different goal
+  // Reset when switching to a different goal or when data changes from server
   useEffect(() => {
     if (goalIdRef.current !== goal.id) {
       goalIdRef.current = goal.id;
       hasSyncedRef.current = false;
-      
-      const normalizedMilestones = safeArray(goal.milestones).map((m, i) => {
-        if (typeof m === 'string') {
-          return { title: m, completed: false, description: '', due_date: null };
-        }
-        return {
-          title: safeText(m.title || m, `Step ${i + 1}`),
-          description: safeText(m.description, ''),
-          completed: Boolean(m.completed),
-          due_date: m.due_date || null,
-          completed_date: m.completed_date || null
-        };
-      });
-      
-      setLocalMilestones(normalizedMilestones);
-      setLocalProgress(goal.progress || 0);
     }
-  }, [goal.id]);
-
-  // Sync from server only once per goal (prevents overwriting local changes)
-  useEffect(() => {
-    if (!hasSyncedRef.current) {
-      hasSyncedRef.current = true;
-      
-      const normalizedMilestones = safeArray(goal.milestones).map((m, i) => {
-        if (typeof m === 'string') {
-          return { title: m, completed: false, description: '', due_date: null };
-        }
-        return {
-          title: safeText(m.title || m, `Step ${i + 1}`),
-          description: safeText(m.description, ''),
-          completed: Boolean(m.completed),
-          due_date: m.due_date || null,
-          completed_date: m.completed_date || null
-        };
-      });
-      
-      setLocalMilestones(normalizedMilestones);
-      setLocalProgress(goal.progress || 0);
-    }
-  }, []);
+    
+    // Always sync from server data (not just on first load)
+    // This ensures checkboxes persist after refresh/navigation
+    const normalizedMilestones = safeArray(goal.milestones).map((m, i) => {
+      if (typeof m === 'string') {
+        return { title: m, completed: false, description: '', due_date: null };
+      }
+      return {
+        title: safeText(m.title || m, `Step ${i + 1}`),
+        description: safeText(m.description, ''),
+        completed: Boolean(m.completed),
+        due_date: m.due_date || null,
+        completed_date: m.completed_date || null
+      };
+    });
+    
+    setLocalMilestones(normalizedMilestones);
+    setLocalProgress(goal.progress || 0);
+  }, [goal.id, goal.milestones, goal.progress]);
 
   const updateMilestone = useMutation({
     mutationFn: async ({ milestones, progress }) => {
