@@ -13,9 +13,17 @@ export default function GoalMotivation({ goals }) {
   useEffect(() => {
     // Show motivation for goals that haven't been updated in 3+ days
     const needsMotivation = goals.filter(goal => {
-      const daysSinceUpdate = goal.updated_date 
-        ? (Date.now() - new Date(goal.updated_date).getTime()) / (1000 * 60 * 60 * 24)
-        : 999;
+      let daysSinceUpdate = 999;
+      if (goal.updated_date) {
+        try {
+          const updateDate = new Date(goal.updated_date);
+          if (!isNaN(updateDate.getTime())) {
+            daysSinceUpdate = (Date.now() - updateDate.getTime()) / (1000 * 60 * 60 * 24);
+          }
+        } catch (e) {
+          // Invalid date
+        }
+      }
       return daysSinceUpdate >= 3 && goal.status === 'active';
     });
 
@@ -34,7 +42,16 @@ export default function GoalMotivation({ goals }) {
 **Description:** ${goal.description}
 **Progress:** ${goal.progress || 0}%
 **Target Date:** ${goal.target_date || 'Not set'}
-**Days Since Last Update:** ${goal.updated_date ? Math.floor((Date.now() - new Date(goal.updated_date).getTime()) / (1000 * 60 * 60 * 24)) : 'Many'}
+**Days Since Last Update:** ${(() => {
+          if (!goal.updated_date) return 'Many';
+          try {
+            const updateDate = new Date(goal.updated_date);
+            if (isNaN(updateDate.getTime())) return 'Many';
+            return Math.floor((Date.now() - updateDate.getTime()) / (1000 * 60 * 60 * 24));
+          } catch {
+            return 'Many';
+          }
+        })()}
 
 Provide:
 1. **Motivational Message**: A personalized, encouraging message (2-3 sentences)

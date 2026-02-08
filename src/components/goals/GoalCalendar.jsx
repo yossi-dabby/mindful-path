@@ -27,23 +27,37 @@ export default function GoalCalendar({ goals }) {
     
     goals.forEach(goal => {
       // Check goal target date
-      if (goal.target_date && isSameDay(new Date(goal.target_date), day)) {
-        events.push({
-          type: 'goal',
-          goal,
-          label: goal.title
-        });
+      if (goal.target_date) {
+        try {
+          const targetDate = new Date(goal.target_date);
+          if (!isNaN(targetDate.getTime()) && isSameDay(targetDate, day)) {
+            events.push({
+              type: 'goal',
+              goal,
+              label: goal.title
+            });
+          }
+        } catch (e) {
+          // Invalid date, skip
+        }
       }
       
       // Check milestone dates
       goal.milestones?.forEach((milestone, idx) => {
-        if (milestone.due_date && isSameDay(new Date(milestone.due_date), day)) {
-          events.push({
-            type: 'milestone',
-            goal,
-            milestone,
-            label: milestone.title
-          });
+        if (milestone.due_date) {
+          try {
+            const dueDate = new Date(milestone.due_date);
+            if (!isNaN(dueDate.getTime()) && isSameDay(dueDate, day)) {
+              events.push({
+                type: 'milestone',
+                goal,
+                milestone,
+                label: milestone.title
+              });
+            }
+          } catch (e) {
+            // Invalid date, skip
+          }
         }
       });
     });
