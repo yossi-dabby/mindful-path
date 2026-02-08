@@ -187,7 +187,10 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
           <div className="space-y-2">
             <p className="text-sm font-medium text-gray-700 mb-2">Tasks:</p>
             {safeArray(goal.milestones).map((milestoneRaw, index) => {
-              const milestone = typeof milestoneRaw === 'object' ? milestoneRaw : { title: safeText(milestoneRaw, `Step ${index + 1}`), completed: false };
+              const milestone = typeof milestoneRaw === 'object' ? {
+                ...milestoneRaw,
+                completed: Boolean(milestoneRaw.completed)
+              } : { title: safeText(milestoneRaw, `Step ${index + 1}`), completed: false };
               return (
               <button 
                 key={index} 
