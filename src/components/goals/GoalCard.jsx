@@ -29,9 +29,8 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   const [showObstacles, setShowObstacles] = useState(false);
   const [showAiAdjustment, setShowAiAdjustment] = useState(false);
   const [showReminders, setShowReminders] = useState(false);
+  const [localMilestones, setLocalMilestones] = useState(goal.milestones);
   const queryClient = useQueryClient();
-
-
 
   const updateMilestone = useMutation({
     mutationFn: async ({ milestones, progress }) => {
@@ -44,7 +43,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   });
 
   const toggleMilestone = (index) => {
-    const milestones = safeArray(goal.milestones).map((m, i) => {
+    const normalizedMilestones = safeArray(localMilestones).map((m, i) => {
       if (typeof m === 'string') {
         return { title: m, completed: false, description: '', due_date: null };
       }
@@ -56,16 +55,19 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       };
     });
     
-    milestones[index] = {
-      ...milestones[index],
-      completed: !milestones[index].completed,
-      completed_date: !milestones[index].completed ? new Date().toISOString() : null
+    const updatedMilestones = [...normalizedMilestones];
+    updatedMilestones[index] = {
+      ...updatedMilestones[index],
+      completed: !updatedMilestones[index].completed,
+      completed_date: !updatedMilestones[index].completed ? new Date().toISOString() : null
     };
     
-    const completedCount = milestones.filter(m => m.completed).length;
-    const newProgress = Math.round((completedCount / milestones.length) * 100);
+    setLocalMilestones(updatedMilestones);
     
-    updateMilestone.mutate({ milestones, progress: newProgress });
+    const completedCount = updatedMilestones.filter(m => m.completed).length;
+    const newProgress = Math.round((completedCount / updatedMilestones.length) * 100);
+    
+    updateMilestone.mutate({ milestones: updatedMilestones, progress: newProgress });
   };
 
   const isCompleted = goal.status === 'completed';
@@ -174,7 +176,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         {safeArray(goal.milestones).length > 0 && (
           <div className="space-y-2">
             <p className="text-sm font-medium text-gray-700 mb-2">Tasks:</p>
-            {safeArray(goal.milestones).map((milestoneRaw, index) => {
+            {safeArray(localMilestones).map((milestoneRaw, index) => {
               const milestone = typeof milestoneRaw === 'object' ? {
                 ...milestoneRaw,
                 completed: Boolean(milestoneRaw.completed)
