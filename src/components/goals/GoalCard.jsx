@@ -144,19 +144,29 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
               </div>
             </div>
             <div className="flex gap-1 flex-shrink-0">
-            <Button variant="ghost" size="icon" onClick={() => onEdit(goal)}>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(goal);
+              }}
+              aria-label="Edit goal"
+            >
               <Edit className="w-4 h-4 text-gray-400" />
             </Button>
             <Button 
               variant="ghost" 
               size="icon" 
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 if (isDeleting) return;
                 if (confirm(`Are you sure you want to delete "${goal.title}"? This action cannot be undone.`)) {
                   onDelete(goal.id);
                 }
               }}
               disabled={isDeleting}
+              aria-label="Delete goal"
             >
               <Trash2 className="w-4 h-4 text-red-400 hover:text-red-600" />
             </Button>
@@ -180,12 +190,14 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
               const milestone = typeof milestoneRaw === 'object' ? milestoneRaw : { title: safeText(milestoneRaw, `Step ${index + 1}`), completed: false };
               return (
               <div key={index} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 border border-gray-100">
-                <Checkbox
-                  checked={milestone.completed}
-                  onCheckedChange={() => toggleMilestone(index)}
-                  disabled={toggleMilestoneMutation.isPending}
-                  className="rounded mt-0.5 cursor-pointer"
-                />
+                <div onClick={(e) => e.stopPropagation()}>
+                  <Checkbox
+                    checked={milestone.completed}
+                    onCheckedChange={() => toggleMilestone(index)}
+                    disabled={toggleMilestoneMutation.isPending}
+                    className="rounded mt-0.5 cursor-pointer"
+                  />
+                </div>
                 <div className="flex-1 min-w-0">
                   <span
                     className={cn(
