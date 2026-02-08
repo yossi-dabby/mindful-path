@@ -100,19 +100,38 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
 
   const updateMilestone = useMutation({
     mutationFn: async ({ milestones, progress }) => {
-      return await base44.entities.Goal.update(goal.id, { milestones, progress });
+      console.log('Saving milestone update:', { goalId: goal.id, milestonesCount: milestones.length, progress });
+      const result = await base44.entities.Goal.update(goal.id, { milestones, progress });
+      console.log('Milestone save successful:', result);
+      return result;
     },
-    onSuccess: () => {
-      // Invalidate after a delay to allow DB to update first
-      setTimeout(() => {
-        queryClient.invalidateQueries(['allGoals']);
-        queryClient.invalidateQueries(['goals']);
-      }, 300);
-    },
-    onError: (error) => {
-      console.error('Failed to update milestone:', error);
+    onMutate: async ({ milestones, progress }) => {
+      // Optimistic update: immediately update cache before server response
+      await queryClient.cancelQueries(['allGoals']);
+      const previousGoals = queryClient.getQueryData(['allGoals']);
       
-      // Revert to goal.milestones on error
+      queryClient.setQueryData(['allGoals'], (old) =>
+        Array.isArray(old)
+          ? old.map((g) => g.id === goal.id ? { ...g, milestones, progress } : g)
+          : old
+      );
+      
+      return { previousGoals };
+    },
+    onSuccess: (data, variables, context) => {
+      console.log('Milestone update completed, data:', data);
+      // Ensure cache is fresh by fetching latest data
+      queryClient.invalidateQueries(['allGoals']);
+    },
+    onError: (error, variables, context) => {
+      console.error('Failed to update milestone:', error, 'Variables:', variables);
+      
+      // Revert optimistic update on error
+      if (context?.previousGoals) {
+        queryClient.setQueryData(['allGoals'], context.previousGoals);
+      }
+      
+      // Revert local state to server values
       setLocalMilestones(safeArray(goal.milestones).map((m, i) => {
         if (typeof m === 'string') {
           return { title: m, completed: false, description: '', due_date: null };
@@ -125,6 +144,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
           completed_date: m.completed_date || null
         };
       }));
+      setLocalProgress(goal.progress || 0);
     }
   });
 
