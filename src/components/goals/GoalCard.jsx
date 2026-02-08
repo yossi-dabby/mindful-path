@@ -27,12 +27,21 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   const [showJournalEntries, setShowJournalEntries] = useState(false);
   const [showObstacles, setShowObstacles] = useState(false);
   const [showAiAdjustment, setShowAiAdjustment] = useState(false);
-  const [localMilestones, setLocalMilestones] = useState(null);
   const queryClient = useQueryClient();
 
 
 
-  const toggleMilestone = async (index) => {
+  const updateMilestone = useMutation({
+    mutationFn: async ({ milestones, progress }) => {
+      return await base44.entities.Goal.update(goal.id, { milestones, progress });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['allGoals']);
+      queryClient.invalidateQueries(['goals']);
+    }
+  });
+
+  const toggleMilestone = (index) => {
     const milestones = safeArray(goal.milestones).map((m, i) => {
       if (typeof m === 'string') {
         return { title: m, completed: false, description: '', due_date: null };
@@ -54,20 +63,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     const completedCount = milestones.filter(m => m.completed).length;
     const newProgress = Math.round((completedCount / milestones.length) * 100);
     
-    setLocalMilestones(milestones);
-    
-    try {
-      await base44.entities.Goal.update(goal.id, { 
-        milestones,
-        progress: newProgress
-      });
-      queryClient.invalidateQueries(['allGoals']);
-      queryClient.invalidateQueries(['goals']);
-      setLocalMilestones(null);
-    } catch (error) {
-      console.error('Failed to update milestone:', error);
-      setLocalMilestones(null);
-    }
+    updateMilestone.mutate({ milestones, progress: newProgress });
   };
 
   const isCompleted = goal.status === 'completed';
@@ -176,7 +172,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         {safeArray(goal.milestones).length > 0 && (
           <div className="space-y-2">
             <p className="text-sm font-medium text-gray-700 mb-2">Tasks:</p>
-            {safeArray(localMilestones || goal.milestones).map((milestoneRaw, index) => {
+            {safeArray(goal.milestones).map((milestoneRaw, index) => {
               const milestone = typeof milestoneRaw === 'object' ? {
                 ...milestoneRaw,
                 completed: Boolean(milestoneRaw.completed)
