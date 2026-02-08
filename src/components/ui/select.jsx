@@ -5,7 +5,8 @@ import * as SelectPrimitive from "@radix-ui/react-select"
 import { Check, ChevronDown, ChevronUp } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
+// Note: Drawer removed from SelectContent due to DialogPortal conflicts with Radix Select on mobile.
+// SelectContent now uses SelectPrimitive.Portal consistently across all platforms.
 
 const Select = SelectPrimitive.Root
 
