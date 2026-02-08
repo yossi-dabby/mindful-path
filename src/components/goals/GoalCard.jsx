@@ -96,18 +96,26 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                 <Badge className={categoryColors[goal.category]} variant="secondary">
                   {goal.category}
                 </Badge>
-                {goal.target_date && (
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      'flex items-center gap-1',
-                      isOverdue && 'border-red-300 text-red-600'
-                    )}
-                  >
-                    <Calendar className="w-3 h-3" />
-                    {format(new Date(goal.target_date), 'MMM d, yyyy')}
-                  </Badge>
-                )}
+                {goal.target_date && (() => {
+                  try {
+                    const date = new Date(goal.target_date);
+                    if (isNaN(date.getTime())) return null;
+                    return (
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          'flex items-center gap-1',
+                          isOverdue && 'border-red-300 text-red-600'
+                        )}
+                      >
+                        <Calendar className="w-3 h-3" />
+                        {format(date, 'MMM d, yyyy')}
+                      </Badge>
+                    );
+                  } catch {
+                    return null;
+                  }
+                })()}
               </div>
             </div>
             <div className="flex gap-1 flex-shrink-0">
