@@ -29,15 +29,38 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   const [showObstacles, setShowObstacles] = useState(false);
   const [showAiAdjustment, setShowAiAdjustment] = useState(false);
   const [showReminders, setShowReminders] = useState(false);
-  // Local optimistic state for milestones to provide immediate visual feedback
-  // null means "use server state" (goal.milestones), non-null means "use optimistic state"
-  const [localMilestones, setLocalMilestones] = useState(null);
+  // Normalize and store milestones in local state for immediate visual feedback
+  const [localMilestones, setLocalMilestones] = useState(() => 
+    safeArray(goal.milestones).map((m, i) => {
+      if (typeof m === 'string') {
+        return { title: m, completed: false, description: '', due_date: null };
+      }
+      return {
+        title: safeText(m.title || m, `Step ${i + 1}`),
+        description: safeText(m.description, ''),
+        completed: Boolean(m.completed),
+        due_date: m.due_date || null,
+        completed_date: m.completed_date || null
+      };
+    })
+  );
   const queryClient = useQueryClient();
 
-  // Reset local state when goal prop changes (e.g., after successful mutation)
+  // Sync local state when goal.milestones changes from external source
   useEffect(() => {
-    setLocalMilestones(null);
-  }, [goal.milestones]);
+    setLocalMilestones(safeArray(goal.milestones).map((m, i) => {
+      if (typeof m === 'string') {
+        return { title: m, completed: false, description: '', due_date: null };
+      }
+      return {
+        title: safeText(m.title || m, `Step ${i + 1}`),
+        description: safeText(m.description, ''),
+        completed: Boolean(m.completed),
+        due_date: m.due_date || null,
+        completed_date: m.completed_date || null
+      };
+    }));
+  }, [goal.id]);
 
   const updateMilestone = useMutation({
     mutationFn: async ({ milestones, progress }) => {
@@ -49,41 +72,38 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     },
     onError: (error) => {
       console.error('Failed to update milestone:', error);
-      // Reset local state on error so UI reverts to server state
-      setLocalMilestones(null);
+      // Revert to goal.milestones on error
+      setLocalMilestones(safeArray(goal.milestones).map((m, i) => {
+        if (typeof m === 'string') {
+          return { title: m, completed: false, description: '', due_date: null };
+        }
+        return {
+          title: safeText(m.title || m, `Step ${i + 1}`),
+          description: safeText(m.description, ''),
+          completed: Boolean(m.completed),
+          due_date: m.due_date || null,
+          completed_date: m.completed_date || null
+        };
+      }));
     }
   });
 
   const toggleMilestone = (index, checked) => {
-    // Normalize milestones to object format
-    const milestones = safeArray(goal.milestones).map((m, i) => {
-      if (typeof m === 'string') {
-        return { title: m, completed: false, description: '', due_date: null };
-      }
-      return {
-        title: safeText(m.title || m, `Step ${i + 1}`),
-        description: safeText(m.description, ''),
-        completed: Boolean(m.completed),
-        due_date: m.due_date || null
-      };
-    });
+    // Update local milestones immediately for instant visual feedback
+    const updatedMilestones = localMilestones.map((m, i) => 
+      i === index 
+        ? { ...m, completed: checked, completed_date: checked ? new Date().toISOString() : null }
+        : m
+    );
     
-    // Update the specific milestone with the new checked state
-    milestones[index] = {
-      ...milestones[index],
-      completed: checked,
-      completed_date: checked ? new Date().toISOString() : null
-    };
-    
-    // Set optimistic local state for immediate UI update
-    setLocalMilestones(milestones);
+    setLocalMilestones(updatedMilestones);
     
     // Calculate new progress
-    const completedCount = milestones.filter(m => m.completed).length;
-    const newProgress = Math.round((completedCount / milestones.length) * 100);
+    const completedCount = updatedMilestones.filter(m => m.completed).length;
+    const newProgress = Math.round((completedCount / updatedMilestones.length) * 100);
     
     // Trigger mutation to update the database
-    updateMilestone.mutate({ milestones, progress: newProgress });
+    updateMilestone.mutate({ milestones: updatedMilestones, progress: newProgress });
   };
 
   const isCompleted = goal.status === 'completed';
@@ -207,11 +227,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                 </div>
               </div>
             </div>
-            {safeArray(localMilestones || goal.milestones).map((milestoneRaw, index) => {
-              const milestone = typeof milestoneRaw === 'object' ? {
-                ...milestoneRaw,
-                completed: Boolean(milestoneRaw.completed)
-              } : { title: safeText(milestoneRaw, `Step ${index + 1}`), completed: false };
+            {localMilestones.map((milestone, index) => {
               
               const isOverdue = (() => {
                 if (!milestone.due_date || milestone.completed) return false;
