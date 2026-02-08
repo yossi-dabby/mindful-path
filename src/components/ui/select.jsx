@@ -89,10 +89,8 @@ SelectScrollDownButton.displayName =
   SelectPrimitive.ScrollDownButton.displayName
 
 const SelectContent = React.forwardRef(({ className, children, position = "popper", ...props }, ref) => {
-  const isMobile = useMediaQuery('(max-width: 767px)');
-  
-  // For mobile, skip Drawer since it causes DialogPortal errors with Select
-  // Use SelectPrimitive.Portal instead for consistent behavior
+  // Uses SelectPrimitive.Portal consistently for all platforms.
+  // Mobile and desktop share the same behavior to avoid portal conflicts.
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
