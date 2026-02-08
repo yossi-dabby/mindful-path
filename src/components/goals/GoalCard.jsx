@@ -27,6 +27,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   const [showJournalEntries, setShowJournalEntries] = useState(false);
   const [showObstacles, setShowObstacles] = useState(false);
   const [showAiAdjustment, setShowAiAdjustment] = useState(false);
+  const [localMilestones, setLocalMilestones] = useState(null);
   const queryClient = useQueryClient();
 
 
@@ -50,9 +51,14 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       completed_date: !milestones[index].completed ? new Date().toISOString() : null
     };
     
+    setLocalMilestones(milestones);
+    
     base44.entities.Goal.update(goal.id, { milestones }).then(() => {
       queryClient.invalidateQueries(['allGoals']);
       queryClient.invalidateQueries(['goals']);
+      setLocalMilestones(null);
+    }).catch(() => {
+      setLocalMilestones(null);
     });
   };
 
