@@ -47,6 +47,24 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   const [localProgress, setLocalProgress] = useState(goal.progress || 0);
   const queryClient = useQueryClient();
 
+  // Sync local state with goal data when it changes (e.g., after refetch)
+  useEffect(() => {
+    const normalizedMilestones = safeArray(goal.milestones).map((m, i) => {
+      if (typeof m === 'string') {
+        return { title: m, completed: false, description: '', due_date: null };
+      }
+      return {
+        title: safeText(m.title || m, `Step ${i + 1}`),
+        description: safeText(m.description, ''),
+        completed: Boolean(m.completed),
+        due_date: m.due_date || null,
+        completed_date: m.completed_date || null
+      };
+    });
+    setLocalMilestones(normalizedMilestones);
+    setLocalProgress(goal.progress || 0);
+  }, [goal.id, goal.milestones, goal.progress]);
+
   const updateMilestone = useMutation({
     mutationFn: async ({ milestones, progress }) => {
       return await base44.entities.Goal.update(goal.id, { milestones, progress });
