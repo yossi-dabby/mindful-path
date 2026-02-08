@@ -6,13 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Edit, Calendar, CheckCircle2, ChevronDown, ChevronUp, TrendingUp, BookOpen, Trash2, Sparkles } from 'lucide-react';
+import { Edit, Calendar, CheckCircle2, ChevronDown, ChevronUp, TrendingUp, BookOpen, Trash2, Sparkles, Bell } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { safeArray, safeText } from '@/components/utils/aiDataNormalizer';
 import GoalProgressChart from './GoalProgressChart';
 import LinkedJournalEntries from './LinkedJournalEntries';
 import AiGoalAdjustment from './AiGoalAdjustment';
+import ReminderSettings from './ReminderSettings';
 
 const categoryColors = {
   behavioral: 'bg-blue-100 text-blue-700',
@@ -27,6 +28,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   const [showJournalEntries, setShowJournalEntries] = useState(false);
   const [showObstacles, setShowObstacles] = useState(false);
   const [showAiAdjustment, setShowAiAdjustment] = useState(false);
+  const [showReminders, setShowReminders] = useState(false);
   const queryClient = useQueryClient();
 
 
@@ -283,7 +285,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         )}
 
         {/* Action Buttons */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mt-4">
           <Button
             variant="outline"
             onClick={() => setShowChart(!showChart)}
@@ -310,6 +312,14 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
             <Sparkles className="w-4 h-4 flex-shrink-0" />
             <span className="flex-1 text-left min-w-0 break-words">AI Adjust</span>
           </Button>
+          <Button
+            variant="outline"
+            onClick={() => setShowReminders(true)}
+            className="flex items-center justify-center gap-2 w-full min-w-0"
+          >
+            <Bell className="w-4 h-4 flex-shrink-0" />
+            <span className="flex-1 text-left min-w-0 break-words">Reminders</span>
+          </Button>
         </div>
 
         {/* Progress Chart */}
@@ -333,6 +343,14 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
           goal={goal}
           onApply={handleApplyAdjustment}
           onClose={() => setShowAiAdjustment(false)}
+        />
+      )}
+
+      {/* Reminder Settings Modal */}
+      {showReminders && (
+        <ReminderSettings
+          goal={goal}
+          onClose={() => setShowReminders(false)}
         />
       )}
     </Card>
