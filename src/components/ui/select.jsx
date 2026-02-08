@@ -69,21 +69,8 @@ SelectScrollDownButton.displayName =
 const SelectContent = React.forwardRef(({ className, children, position = "popper", ...props }, ref) => {
   const isMobile = useMediaQuery('(max-width: 767px)');
   
-  if (isMobile) {
-    return (
-      <SelectPrimitive.Portal>
-        <DrawerContent className="max-h-[80vh]">
-          <DrawerHeader>
-            <DrawerTitle>Select an option</DrawerTitle>
-          </DrawerHeader>
-          <div className="overflow-y-auto px-4 pb-4">
-            {children}
-          </div>
-        </DrawerContent>
-      </SelectPrimitive.Portal>
-    );
-  }
-
+  // For mobile, skip Drawer since it causes DialogPortal errors with Select
+  // Use SelectPrimitive.Portal instead for consistent behavior
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
