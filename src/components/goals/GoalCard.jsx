@@ -147,7 +147,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         {safeArray(goal.milestones).length > 0 && (
           <div className="space-y-2">
             <p className="text-sm font-medium text-gray-700 mb-2">Tasks:</p>
-            {safeArray(goal.milestones).map((milestoneRaw, index) => {
+            {safeArray(localMilestones || goal.milestones).map((milestoneRaw, index) => {
               const milestone = typeof milestoneRaw === 'object' ? {
                 ...milestoneRaw,
                 completed: Boolean(milestoneRaw.completed)
