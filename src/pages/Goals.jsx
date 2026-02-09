@@ -41,7 +41,7 @@ export default function Goals() {
     initialData: [],
     refetchOnWindowFocus: true,
     refetchOnMount: true,
-    staleTime: 0
+    staleTime: 30000 // 30 seconds to allow optimistic updates to settle
   });
 
   const deleteGoalMutation = useMutation({
