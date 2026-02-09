@@ -50,19 +50,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     }), [goal.milestones]
   );
 
-  const updateMilestone = useMutation({
-    mutationFn: async ({ milestones, progress }) => {
-      await base44.entities.Goal.update(goal.id, { milestones, progress });
-    },
-    onSuccess: async () => {
-      await queryClient.refetchQueries(['allGoals']);
-    },
-    onError: (error) => {
-      alert('Failed to update: ' + (error.message || 'Unknown error'));
-    }
-  });
-
-  const toggleMilestone = (index, checked) => {
+  const toggleMilestone = async (index, checked) => {
     const updatedMilestones = normalizedMilestones.map((m, i) => 
       i === index 
         ? { ...m, completed: checked, completed_date: checked ? new Date().toISOString() : null }
@@ -72,8 +60,28 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     const completedCount = updatedMilestones.filter(m => m.completed).length;
     const newProgress = Math.round((completedCount / updatedMilestones.length) * 100);
     
-    updateMilestone.mutate({ milestones: updatedMilestones, progress: newProgress });
+    // Update cache immediately
+    queryClient.setQueryData(['allGoals'], (old) =>
+      Array.isArray(old)
+        ? old.map((g) => g.id === goal.id ? { ...g, milestones: updatedMilestones, progress: newProgress } : g)
+        : old
+    );
+    
+    // Save to server in background
+    try {
+      await base44.entities.Goal.update(goal.id, { milestones: updatedMilestones, progress: newProgress });
+    } catch (error) {
+      // Revert on error
+      queryClient.setQueryData(['allGoals'], (old) =>
+        Array.isArray(old)
+          ? old.map((g) => g.id === goal.id ? { ...g, milestones: goal.milestones, progress: goal.progress } : g)
+          : old
+      );
+      alert('Failed to update: ' + (error.message || 'Unknown error'));
+    }
   };
+
+  const updateMilestone = { isPending: false };
 
   const isSaving = updateMilestone.isPending;
 
