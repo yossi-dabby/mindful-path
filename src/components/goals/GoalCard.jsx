@@ -428,49 +428,51 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         )}
 
         {/* Action Buttons */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mt-4">
+        <div className="flex flex-wrap gap-2 mt-4">
           <Button
             variant="outline"
             onClick={() => setShowChart(!showChart)}
-            className="flex items-center justify-center gap-2 w-full min-w-0"
+            className="flex items-center gap-1.5 text-sm"
+            size="sm"
           >
-            <TrendingUp className="w-4 h-4 flex-shrink-0" />
-            <span className="flex-1 text-left min-w-0 break-words">{showChart ? 'Hide' : 'Show'} Chart</span>
-            {showChart ? <ChevronUp className="w-4 h-4 flex-shrink-0" /> : <ChevronDown className="w-4 h-4 flex-shrink-0" />}
+            <TrendingUp className="w-4 h-4" />
+            <span>{showChart ? 'Hide' : 'Show'} Chart</span>
           </Button>
           <Button
             variant="outline"
             onClick={() => setShowKanban(!showKanban)}
-            className="flex items-center justify-center gap-2 w-full min-w-0"
+            className="flex items-center gap-1.5 text-sm"
+            size="sm"
           >
-            <LayoutGrid className="w-4 h-4 flex-shrink-0" />
-            <span className="flex-1 text-left min-w-0 break-words">{showKanban ? 'Hide' : 'Show'} Board</span>
-            {showKanban ? <ChevronUp className="w-4 h-4 flex-shrink-0" /> : <ChevronDown className="w-4 h-4 flex-shrink-0" />}
+            <LayoutGrid className="w-4 h-4" />
+            <span>{showKanban ? 'Hide' : 'Show'} Board</span>
           </Button>
           <Button
             variant="outline"
             onClick={() => setShowJournalEntries(!showJournalEntries)}
-            className="flex items-center justify-center gap-2 w-full min-w-0"
+            className="flex items-center gap-1.5 text-sm"
+            size="sm"
           >
-            <BookOpen className="w-4 h-4 flex-shrink-0" />
-            <span className="flex-1 text-left min-w-0 break-words">{showJournalEntries ? 'Hide' : 'Show'} Journal</span>
-            {showJournalEntries ? <ChevronUp className="w-4 h-4 flex-shrink-0" /> : <ChevronDown className="w-4 h-4 flex-shrink-0" />}
+            <BookOpen className="w-4 h-4" />
+            <span>{showJournalEntries ? 'Hide' : 'Show'} Journal</span>
           </Button>
           <Button
             variant="outline"
             onClick={() => setShowAiAdjustment(true)}
-            className="flex items-center justify-center gap-2 w-full min-w-0 border-purple-300 text-purple-700 hover:bg-purple-50"
+            className="flex items-center gap-1.5 text-sm border-purple-300 text-purple-700 hover:bg-purple-50"
+            size="sm"
           >
-            <Sparkles className="w-4 h-4 flex-shrink-0" />
-            <span className="flex-1 text-left min-w-0 break-words">AI Adjust</span>
+            <Sparkles className="w-4 h-4" />
+            <span>AI Adjust</span>
           </Button>
           <Button
             variant="outline"
             onClick={() => setShowReminders(true)}
-            className="flex items-center justify-center gap-2 w-full min-w-0"
+            className="flex items-center gap-1.5 text-sm"
+            size="sm"
           >
-            <Bell className="w-4 h-4 flex-shrink-0" />
-            <span className="flex-1 text-left min-w-0 break-words">Reminders</span>
+            <Bell className="w-4 h-4" />
+            <span>Reminders</span>
           </Button>
         </div>
 
