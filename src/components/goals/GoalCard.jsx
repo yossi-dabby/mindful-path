@@ -53,23 +53,25 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   const [localProgress, setLocalProgress] = useState(goal.progress || 0);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Sync from server when goal changes
+  // Sync from server when goal changes (but not during save)
   useEffect(() => {
-    const normalized = safeArray(goal.milestones).map((m, i) => {
-      if (typeof m === 'string') {
-        return { title: m, completed: false, description: '', due_date: null };
-      }
-      return {
-        title: safeText(m.title || m, `Step ${i + 1}`),
-        description: safeText(m.description, ''),
-        completed: Boolean(m.completed),
-        due_date: m.due_date || null,
-        completed_date: m.completed_date || null
-      };
-    });
-    setLocalMilestones(normalized);
-    setLocalProgress(goal.progress || 0);
-  }, [goal.id, goal.milestones, goal.progress]);
+    if (!isSaving) {
+      const normalized = safeArray(goal.milestones).map((m, i) => {
+        if (typeof m === 'string') {
+          return { title: m, completed: false, description: '', due_date: null };
+        }
+        return {
+          title: safeText(m.title || m, `Step ${i + 1}`),
+          description: safeText(m.description, ''),
+          completed: Boolean(m.completed),
+          due_date: m.due_date || null,
+          completed_date: m.completed_date || null
+        };
+      });
+      setLocalMilestones(normalized);
+      setLocalProgress(goal.progress || 0);
+    }
+  }, [goal.id, goal.milestones, goal.progress, isSaving]);
 
   const toggleMilestone = async (index, checked) => {
     // Immediate UI update
