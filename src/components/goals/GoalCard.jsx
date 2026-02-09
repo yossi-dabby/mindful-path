@@ -65,48 +65,35 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         progress: newProgress 
       });
     },
-    onMutate: async ({ updatedMilestones, newProgress }) => {
-      // Cancel outgoing refetches
-      await queryClient.cancelQueries(['allGoals']);
-      
-      // Snapshot the previous value
-      const previousGoals = queryClient.getQueryData(['allGoals']);
-      
-      // Optimistically update to the new value
-      queryClient.setQueryData(['allGoals'], (old) => {
-        if (!old) return old;
-        return old.map(g => 
-          g.id === goal.id 
-            ? { ...g, milestones: updatedMilestones, progress: newProgress }
-            : g
-        );
-      });
-      
-      return { previousGoals };
-    },
-    onError: (err, variables, context) => {
-      // Rollback on error
-      if (context?.previousGoals) {
-        queryClient.setQueryData(['allGoals'], context.previousGoals);
+    onSuccess: (data) => {
+      // Update local state with server response
+      if (data?.milestones) {
+        setLocalMilestones(getNormalizedMilestones(data.milestones));
       }
-      alert('Failed to update: ' + (err.message || 'Unknown error'));
-    },
-    onSettled: () => {
-      // Refetch to ensure data is synced
+      // Invalidate queries to sync with other components
       queryClient.invalidateQueries(['allGoals']);
+    },
+    onError: (err) => {
+      // Revert local state on error
+      setLocalMilestones(getNormalizedMilestones(goal.milestones));
+      alert('Failed to update: ' + (err.message || 'Unknown error'));
     }
   });
 
   const toggleMilestone = (index, checked) => {
-    const updatedMilestones = normalizedMilestones.map((m, i) => 
+    // Immediately update local state for instant UI feedback
+    const updatedMilestones = localMilestones.map((m, i) => 
       i === index 
         ? { ...m, completed: checked, completed_date: checked ? new Date().toISOString() : null }
         : m
     );
     
+    setLocalMilestones(updatedMilestones);
+    
     const completedCount = updatedMilestones.filter(m => m.completed).length;
     const newProgress = Math.round((completedCount / updatedMilestones.length) * 100);
     
+    // Send to server
     updateMilestone.mutate({ updatedMilestones, newProgress });
   };
 
