@@ -16,7 +16,8 @@
     "test:coverage": "vitest run --coverage",
     "test:property": "vitest run test/**/*.test.js",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:android": "playwright test -c playwright.android.config.ts"
   },
   "dependencies": {
     "@base44/sdk": "^0.8.3",
