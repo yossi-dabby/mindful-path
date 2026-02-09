@@ -121,7 +121,7 @@ test.describe('Android Keyboard Layout', () => {
       if (await element.count() > 0) {
         composer = element;
         usedSelector = selector;
-        console.log(`Found composer with selector: ${selector}`);
+        test.info().annotations.push({ type: 'info', description: `Found composer with selector: ${selector}` });
         break;
       }
     }

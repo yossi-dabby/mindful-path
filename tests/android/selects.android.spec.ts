@@ -246,7 +246,7 @@ test.describe('Android Selects - HealthDataForm', () => {
       const button = page.locator(`button:has-text("${buttonText}")`);
       if (await button.count() > 0) {
         modalButton = button;
-        console.log(`Found modal button with text: ${buttonText}`);
+        test.info().annotations.push({ type: 'info', description: `Found modal button with text: ${buttonText}` });
         break;
       }
     }

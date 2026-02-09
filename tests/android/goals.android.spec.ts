@@ -166,7 +166,7 @@ test.describe('Android Goals Milestone Persistence', () => {
       const elements = page.locator(selector);
       if (await elements.count() > 0) {
         checkboxes = elements;
-        console.log(`Found ${await elements.count()} checkboxes with selector: ${selector}`);
+        test.info().annotations.push({ type: 'info', description: `Found ${await elements.count()} checkboxes with selector: ${selector}` });
         break;
       }
     }
@@ -195,7 +195,7 @@ test.describe('Android Goals Milestone Persistence', () => {
     const initialState1 = await getCheckboxState(firstCheckbox);
     const initialState2 = secondCheckbox ? await getCheckboxState(secondCheckbox) : null;
 
-    console.log(`Initial states - First: ${initialState1}, Second: ${initialState2}`);
+    test.info().annotations.push({ type: 'info', description: `Initial states - First: ${initialState1}, Second: ${initialState2}` });
 
     // Toggle both checkboxes
     await firstCheckbox.click();
@@ -237,7 +237,7 @@ test.describe('Android Goals Milestone Persistence', () => {
     const stateAfterReload1 = await getCheckboxState(firstCheckboxAfterReload);
     const stateAfterReload2 = secondCheckboxAfterReload ? await getCheckboxState(secondCheckboxAfterReload) : null;
 
-    console.log(`States after reload - First: ${stateAfterReload1}, Second: ${stateAfterReload2}`);
+    test.info().annotations.push({ type: 'info', description: `States after reload - First: ${stateAfterReload1}, Second: ${stateAfterReload2}` });
 
     // Assert that states have changed (indicating persistence)
     expect(stateAfterReload1, 

@@ -58,31 +58,6 @@ export function setupConsoleMonitoring(page: Page): () => Promise<void> {
 }
 
 /**
- * Convenience function that asserts no console errors or warnings occurred.
- * Note: This should ideally be called at the beginning of the test to set up monitoring,
- * but it's designed to work when called at the end too (though some early messages may be missed).
- * For best results, use setupConsoleMonitoring() at the start of your test.
- * 
- * @param page - The Playwright Page object
- * 
- * @example
- * await assertNoConsoleErrorsOrWarnings(page);
- */
-export async function assertNoConsoleErrorsOrWarnings(page: Page): Promise<void> {
-  // Note: This is a simplified version that checks for errors that have already occurred
-  // It won't catch new errors after this point
-  const errors: string[] = [];
-  
-  // Get any existing console messages (if Playwright has captured them)
-  // This is a best-effort check
-  await page.waitForTimeout(100); // Brief wait to allow any pending console messages
-  
-  // For now, this is a no-op since we can't retroactively get console messages
-  // The proper pattern is to use setupConsoleMonitoring at the test start
-  // However, we'll leave this for backwards compatibility
-}
-
-/**
  * Asserts that an element is visible and tappable (not obscured by keyboard).
  * This helper checks if the element's bottom edge is within the viewport height,
  * which indicates it's not hidden behind the Android virtual keyboard.

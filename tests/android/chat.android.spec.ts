@@ -119,7 +119,7 @@ test.describe('Android Chat Readiness', () => {
       const element = page.locator(selector).first();
       if (await element.count() > 0) {
         composer = element;
-        console.log(`Found composer with selector: ${selector}`);
+        test.info().annotations.push({ type: 'info', description: `Found composer with selector: ${selector}` });
         break;
       }
     }
@@ -145,7 +145,7 @@ test.describe('Android Chat Readiness', () => {
       const element = page.locator(selector).first();
       if (await element.count() > 0) {
         sendButton = element;
-        console.log(`Found send button with selector: ${selector}`);
+        test.info().annotations.push({ type: 'info', description: `Found send button with selector: ${selector}` });
         break;
       }
     }
