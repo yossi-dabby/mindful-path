@@ -91,6 +91,9 @@ export default function GoalKanbanBoard({ goal }) {
   };
 
   const toggleMilestoneComplete = (milestoneId, checked) => {
+    console.log('🟠 Kanban: toggleMilestoneComplete', { milestoneId, checked, goalId: goal.id });
+    console.log('🟠 Kanban: localMilestones BEFORE:', JSON.stringify(localMilestones));
+    
     const updatedMilestones = localMilestones.map(m => {
       if (m.id === milestoneId) {
         return {
@@ -106,6 +109,9 @@ export default function GoalKanbanBoard({ goal }) {
     const completedCount = updatedMilestones.filter(m => m.completed).length;
     const newProgress = Math.round((completedCount / updatedMilestones.length) * 100);
     
+    console.log('🟠 Kanban: updatedMilestones:', JSON.stringify(updatedMilestones));
+    console.log('🟠 Kanban: newProgress:', newProgress);
+    
     // Optimistic update
     setLocalMilestones(updatedMilestones);
     
@@ -118,6 +124,7 @@ export default function GoalKanbanBoard({ goal }) {
       completed_date: m.completed_date || null
     }));
     
+    console.log('🟠 Kanban: Sending to backend:', JSON.stringify(milestonesForDb));
     updateMilestone.mutate({ milestones: milestonesForDb, progress: newProgress });
   };
 

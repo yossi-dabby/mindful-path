@@ -14,13 +14,36 @@ export default function MilestonesTimeline({ goals }) {
 
   // Extract all milestones with goal info
   const allMilestones = useMemo(() => {
+    console.log('🟣 Timeline: Processing goals', { 
+      totalGoals: goals.length,
+      activeGoals: goals.filter(g => g.status === 'active').length
+    });
+    
     const milestones = [];
     
     goals.forEach(goal => {
-      if (goal.status !== 'active') return;
+      if (goal.status !== 'active') {
+        console.log('🟣 Timeline: Skipping non-active goal', { id: goal.id, status: goal.status });
+        return;
+      }
       
-      safeArray(goal.milestones).forEach((milestone, index) => {
+      const goalMilestones = safeArray(goal.milestones);
+      console.log('🟣 Timeline: Processing goal milestones', { 
+        goalId: goal.id, 
+        goalTitle: goal.title,
+        totalMilestones: goalMilestones.length,
+        milestones: JSON.stringify(goalMilestones)
+      });
+      
+      goalMilestones.forEach((milestone, index) => {
         const ms = typeof milestone === 'object' ? milestone : { title: milestone };
+        console.log('🟣 Timeline: Processing milestone', { 
+          goalId: goal.id,
+          index, 
+          hasDueDate: !!ms.due_date,
+          milestone: JSON.stringify(ms)
+        });
+        
         if (ms.due_date) {
           milestones.push({
             ...ms,
@@ -30,16 +53,20 @@ export default function MilestonesTimeline({ goals }) {
             milestoneIndex: index,
             completed: Boolean(ms.completed)
           });
+        } else {
+          console.log('⚠️ Timeline: Milestone missing due_date', { goalId: goal.id, index });
         }
       });
     });
 
+    console.log('🟣 Timeline: Total milestones found:', milestones.length);
+    
     return milestones.sort((a, b) => {
       const dateA = new Date(a.due_date);
       const dateB = new Date(b.due_date);
       return dateA - dateB;
     });
-  }, [JSON.stringify(goals.map(g => ({ id: g.id, milestones: g.milestones })))]);
+  }, [JSON.stringify(goals.map(g => ({ id: g.id, milestones: g.milestones, status: g.status })))]);
 
   // Filter milestones
   const filteredMilestones = useMemo(() => {
