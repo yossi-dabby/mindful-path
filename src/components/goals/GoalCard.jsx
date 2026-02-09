@@ -200,25 +200,25 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         </div>
 
         {/* Milestones */}
-        {safeArray(goal.milestones).length > 0 && (
+        {localMilestones.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm font-medium text-gray-700">Tasks:</p>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-500">
-                  {normalizedMilestones.filter(m => m.completed).length}/{normalizedMilestones.length}
+                  {localMilestones.filter(m => m.completed).length}/{localMilestones.length}
                 </span>
                 <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
                   <div 
                     className="h-full bg-blue-500 transition-all duration-300"
                     style={{ 
-                      width: `${normalizedMilestones.length > 0 ? (normalizedMilestones.filter(m => m.completed).length / normalizedMilestones.length) * 100 : 0}%` 
+                      width: `${localMilestones.length > 0 ? (localMilestones.filter(m => m.completed).length / localMilestones.length) * 100 : 0}%` 
                     }}
                   />
                 </div>
               </div>
             </div>
-            {normalizedMilestones.map((milestone, index) => {
+            {localMilestones.map((milestone, index) => {
               const isOverdue = (() => {
                 if (!milestone.due_date || milestone.completed) return false;
                 try {
