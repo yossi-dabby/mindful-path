@@ -12,59 +12,33 @@ export default function MilestonesTimeline({ goals }) {
   const [selectedGoalId, setSelectedGoalId] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
 
-  // Extract all milestones with goal info
+  // Extract all milestones with goal info - now includes milestones without due_date
   const allMilestones = useMemo(() => {
-    console.log('🟣 Timeline: Processing goals', { 
-      totalGoals: goals.length,
-      activeGoals: goals.filter(g => g.status === 'active').length
-    });
-    
     const milestones = [];
     
     goals.forEach(goal => {
-      if (goal.status !== 'active') {
-        console.log('🟣 Timeline: Skipping non-active goal', { id: goal.id, status: goal.status });
-        return;
-      }
+      if (goal.status !== 'active') return;
       
-      const goalMilestones = safeArray(goal.milestones);
-      console.log('🟣 Timeline: Processing goal milestones', { 
-        goalId: goal.id, 
-        goalTitle: goal.title,
-        totalMilestones: goalMilestones.length,
-        milestones: JSON.stringify(goalMilestones)
-      });
-      
-      goalMilestones.forEach((milestone, index) => {
+      safeArray(goal.milestones).forEach((milestone, index) => {
         const ms = typeof milestone === 'object' ? milestone : { title: milestone };
-        console.log('🟣 Timeline: Processing milestone', { 
+        milestones.push({
+          ...ms,
           goalId: goal.id,
-          index, 
-          hasDueDate: !!ms.due_date,
-          milestone: JSON.stringify(ms)
+          goalTitle: goal.title,
+          goalCategory: goal.category,
+          milestoneIndex: index,
+          completed: Boolean(ms.completed),
+          due_date: ms.due_date || null
         });
-        
-        if (ms.due_date) {
-          milestones.push({
-            ...ms,
-            goalId: goal.id,
-            goalTitle: goal.title,
-            goalCategory: goal.category,
-            milestoneIndex: index,
-            completed: Boolean(ms.completed)
-          });
-        } else {
-          console.log('⚠️ Timeline: Milestone missing due_date', { goalId: goal.id, index });
-        }
       });
     });
 
-    console.log('🟣 Timeline: Total milestones found:', milestones.length);
-    
     return milestones.sort((a, b) => {
-      const dateA = new Date(a.due_date);
-      const dateB = new Date(b.due_date);
-      return dateA - dateB;
+      // Sort: items with due_date first, then by date, then no due_date last
+      if (!a.due_date && !b.due_date) return 0;
+      if (!a.due_date) return 1;
+      if (!b.due_date) return -1;
+      return new Date(a.due_date) - new Date(b.due_date);
     });
   }, [JSON.stringify(goals.map(g => ({ id: g.id, milestones: g.milestones, status: g.status })))]);
 
@@ -100,6 +74,7 @@ export default function MilestonesTimeline({ goals }) {
 
   const getMilestoneStatus = (milestone) => {
     if (milestone.completed) return 'completed';
+    if (!milestone.due_date) return 'no-date';
     
     const dueDate = new Date(milestone.due_date);
     const now = new Date();
@@ -151,6 +126,14 @@ export default function MilestonesTimeline({ goals }) {
       borderColor: 'border-gray-200',
       icon: Calendar,
       label: 'Future'
+    },
+    'no-date': {
+      color: 'bg-slate-400',
+      textColor: 'text-slate-700',
+      bgColor: 'bg-slate-50',
+      borderColor: 'border-slate-200',
+      icon: Clock,
+      label: 'No Date Set'
     }
   };
 
@@ -287,17 +270,25 @@ export default function MilestonesTimeline({ goals }) {
                         </div>
                         
                         <div className="flex flex-col items-end gap-1">
-                          <div className="text-sm font-medium text-gray-700">
-                            {format(dueDate, 'MMM d, yyyy')}
-                          </div>
-                          {!milestone.completed && daysUntil >= 0 && daysUntil <= 7 && (
-                            <div className={cn("text-xs font-medium", config.textColor)}>
-                              {daysUntil === 0 ? 'Today' : daysUntil === 1 ? 'Tomorrow' : `${daysUntil} days`}
-                            </div>
-                          )}
-                          {!milestone.completed && daysUntil < 0 && (
-                            <div className="text-xs font-medium text-red-600">
-                              {Math.abs(daysUntil)} days overdue
+                          {milestone.due_date ? (
+                            <>
+                              <div className="text-sm font-medium text-gray-700">
+                                {format(dueDate, 'MMM d, yyyy')}
+                              </div>
+                              {!milestone.completed && daysUntil >= 0 && daysUntil <= 7 && (
+                                <div className={cn("text-xs font-medium", config.textColor)}>
+                                  {daysUntil === 0 ? 'Today' : daysUntil === 1 ? 'Tomorrow' : `${daysUntil} days`}
+                                </div>
+                              )}
+                              {!milestone.completed && daysUntil < 0 && (
+                                <div className="text-xs font-medium text-red-600">
+                                  {Math.abs(daysUntil)} days overdue
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <div className="text-sm text-slate-500 italic">
+                              No due date
                             </div>
                           )}
                         </div>

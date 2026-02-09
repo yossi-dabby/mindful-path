@@ -55,24 +55,16 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
 
   // Sync from server when goal prop updates
   useEffect(() => {
-    console.log('🔄 GoalCard: Syncing from server', { 
-      goalId: goal.id, 
-      normalizedMilestones: JSON.stringify(normalizedMilestones),
-      progress: goal.progress 
-    });
     setLocalMilestones(normalizedMilestones);
     setLocalProgress(goal.progress || 0);
   }, [normalizedMilestones, goal.progress]);
 
   const updateMilestone = useMutation({
     mutationFn: async ({ milestones, progress }) => {
-      console.log('🟢 GoalCard: Mutation starting', { goalId: goal.id, milestones, progress });
       const result = await base44.entities.Goal.update(goal.id, { milestones, progress });
-      console.log('🟢 GoalCard: Mutation SUCCESS', result);
       return result;
     },
     onMutate: async ({ milestones, progress }) => {
-      console.log('🟡 GoalCard: onMutate - optimistic update');
       await queryClient.cancelQueries(['allGoals']);
       const previousGoals = queryClient.getQueryData(['allGoals']);
       queryClient.setQueryData(['allGoals'], (old) =>
@@ -83,12 +75,10 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       return { previousGoals };
     },
     onSuccess: () => {
-      console.log('✅ GoalCard: Mutation onSuccess - invalidating queries');
       queryClient.invalidateQueries(['allGoals']);
     },
     onError: (error, variables, context) => {
-      console.error('❌ GoalCard: Mutation ERROR:', error);
-      console.log('🔄 GoalCard: Rolling back to previous state');
+      console.error('Failed to update milestone:', error);
       if (context?.previousGoals) {
         queryClient.setQueryData(['allGoals'], context.previousGoals);
       }
@@ -105,13 +95,11 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         };
       }));
       setLocalProgress(goal.progress || 0);
+      alert('Failed to update task. Please try again.');
     }
   });
 
   const toggleMilestone = (index, checked) => {
-    console.log('🔵 GoalCard: toggleMilestone called', { index, checked, goalId: goal.id });
-    console.log('🔵 GoalCard: localMilestones BEFORE:', JSON.stringify(localMilestones));
-    
     const updatedMilestones = localMilestones.map((m, i) => 
       i === index 
         ? { ...m, completed: checked, completed_date: checked ? new Date().toISOString() : null }
@@ -120,9 +108,6 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     
     const completedCount = updatedMilestones.filter(m => m.completed).length;
     const newProgress = Math.round((completedCount / updatedMilestones.length) * 100);
-    
-    console.log('🔵 GoalCard: updatedMilestones:', JSON.stringify(updatedMilestones));
-    console.log('🔵 GoalCard: newProgress:', newProgress);
     
     // Optimistic UI update
     setLocalMilestones(updatedMilestones);
