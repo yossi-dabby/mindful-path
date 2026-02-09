@@ -12,7 +12,7 @@ export default function MilestonesTimeline({ goals }) {
   const [selectedGoalId, setSelectedGoalId] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
 
-  // Extract all milestones with goal info
+  // Extract all milestones with goal info - memoize with deep comparison of milestones
   const allMilestones = useMemo(() => {
     const milestones = [];
     
@@ -28,7 +28,9 @@ export default function MilestonesTimeline({ goals }) {
             goalTitle: goal.title,
             goalCategory: goal.category,
             milestoneIndex: index,
-            completed: Boolean(ms.completed)
+            completed: Boolean(ms.completed),
+            // Add key for React tracking
+            _key: `${goal.id}-${index}-${ms.completed}-${ms.title}`
           });
         }
       });
@@ -39,7 +41,7 @@ export default function MilestonesTimeline({ goals }) {
       const dateB = new Date(b.due_date);
       return dateA - dateB;
     });
-  }, [goals]);
+  }, [goals, goals.map(g => g.milestones).flat()]);
 
   // Filter milestones
   const filteredMilestones = useMemo(() => {

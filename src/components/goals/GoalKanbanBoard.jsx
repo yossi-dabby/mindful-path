@@ -206,9 +206,10 @@ export default function GoalKanbanBoard({ goal }) {
                                         <GripVertical className="w-4 h-4 text-gray-400" />
                                       </div>
                                       <Checkbox
-                                        checked={milestone.completed}
-                                        onCheckedChange={(checked) => toggleMilestoneComplete(milestone.id, checked)}
-                                        className="mt-0.5"
+                                       checked={milestone.completed}
+                                       onCheckedChange={(checked) => toggleMilestoneComplete(milestone.id, checked)}
+                                       className="mt-0.5"
+                                       id={`kanban-${milestone.id}`}
                                       />
                                       <div className="flex-1 min-w-0">
                                         <p className={cn(
