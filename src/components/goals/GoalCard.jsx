@@ -91,7 +91,6 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     // Save to server
     try {
       await base44.entities.Goal.update(goal.id, { milestones: updatedMilestones, progress: newProgress });
-      await queryClient.refetchQueries(['allGoals']);
     } catch (error) {
       // Revert on error
       setLocalMilestones(safeArray(goal.milestones).map((m, i) => {
