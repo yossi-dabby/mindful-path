@@ -71,7 +71,7 @@ export default function Goals() {
     setShowForm(false);
     setEditingGoal(null);
     setPrefilledGoal(null);
-    queryClient.invalidateQueries(['allGoals']);
+    // Let react-query handle refetching naturally
   };
 
   const handleSelectAiGoal = (goalData) => {
