@@ -81,7 +81,7 @@ Tests are designed to skip gracefully when preconditions aren't met rather than 
 Tests use generic selectors and don't assume specific goal titles or alert content, making them resilient to staging data sharing scenarios.
 
 ### Console Monitoring
-All tests use `setupConsoleMonitoring()` at the start to capture console errors and warnings throughout test execution. The returned function is called at the end to assert no issues occurred.
+All tests use `assertNoConsoleErrorsOrWarnings()` at the start to capture console errors and warnings throughout test execution. The returned function is called at the end to assert no issues occurred.
 
 ### Platform-Specific Validation
 - `assertElementVisibleAndTappable()` checks that elements aren't obscured by the virtual keyboard
@@ -89,12 +89,12 @@ All tests use `setupConsoleMonitoring()` at the start to capture console errors 
 
 ## Helper Functions
 
-### `setupConsoleMonitoring(page)`
+### `assertNoConsoleErrorsOrWarnings(page)`
 Sets up monitoring for console errors and warnings. Returns a function that should be called at the end of the test to check for issues.
 
 **Usage:**
 ```javascript
-const checkConsole = setupConsoleMonitoring(page);
+const checkConsole = assertNoConsoleErrorsOrWarnings(page);
 // ... test actions ...
 await checkConsole();
 ```

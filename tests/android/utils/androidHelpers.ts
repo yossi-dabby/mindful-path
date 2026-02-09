@@ -8,18 +8,18 @@ import { Page, expect } from '@playwright/test';
 
 /**
  * Sets up console monitoring for a page and returns a function to check for errors/warnings.
- * Call setupConsoleMonitoring at the start of your test, then call the returned function
+ * Call assertNoConsoleErrorsOrWarnings at the start of your test, then call the returned function
  * at the end to assert no errors or warnings occurred.
  * 
  * @param page - The Playwright Page object
  * @returns A function that checks for console errors and warnings
  * 
  * @example
- * const checkConsole = setupConsoleMonitoring(page);
+ * const checkConsole = assertNoConsoleErrorsOrWarnings(page);
  * // ... test actions ...
  * await checkConsole();
  */
-export function setupConsoleMonitoring(page: Page): () => Promise<void> {
+export function assertNoConsoleErrorsOrWarnings(page: Page): () => Promise<void> {
   const consoleErrors: string[] = [];
   const consoleWarnings: string[] = [];
 
@@ -98,3 +98,6 @@ export async function assertElementVisibleAndTappable(
     `Element "${selector}" bottom (${elementBottom}px) should be within viewport height (${viewportSize.height}px)`
   ).toBe(true);
 }
+
+// Backward compatibility export
+export const setupConsoleMonitoring = assertNoConsoleErrorsOrWarnings;
