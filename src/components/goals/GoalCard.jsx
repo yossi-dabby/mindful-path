@@ -113,8 +113,6 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
 
   const updateMilestone = { isPending: isSaving };
 
-  const isSaving = updateMilestone.isPending;
-
   const isCompleted = goal.status === 'completed';
   const isOverdue = (() => {
     if (!goal.target_date || isCompleted) return false;
