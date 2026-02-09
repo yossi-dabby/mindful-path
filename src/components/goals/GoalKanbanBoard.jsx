@@ -27,9 +27,24 @@ export default function GoalKanbanBoard({ goal }) {
     }));
   });
 
+  // Sync from server when goal updates
+  React.useEffect(() => {
+    if (!goal.milestones || goal.milestones.length === 0) {
+      setLocalMilestones([]);
+      return;
+    }
+    const synced = goal.milestones.map((m, i) => ({
+      ...m,
+      id: `milestone-${i}`,
+      index: i,
+      status: m.completed ? 'completed' : (m.status || 'todo')
+    }));
+    setLocalMilestones(synced);
+  }, [goal.milestones, goal.id]);
+
   const updateMilestone = useMutation({
-    mutationFn: async ({ milestones }) => {
-      const result = await base44.entities.Goal.update(goal.id, { milestones });
+    mutationFn: async ({ milestones, progress }) => {
+      const result = await base44.entities.Goal.update(goal.id, { milestones, progress });
       return result;
     },
     onSuccess: () => {
