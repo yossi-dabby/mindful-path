@@ -16,6 +16,7 @@ import baseConfig from './playwright.config';
 export default defineConfig({
   ...baseConfig,
   testDir: './tests/android',
+  testMatch: ['**/*.android.spec.ts'], // Match Android-specific test files
   projects: [
     {
       name: 'android-chrome',
