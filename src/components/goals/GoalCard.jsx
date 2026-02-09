@@ -16,6 +16,8 @@ import LinkedJournalEntries from './LinkedJournalEntries';
 import AiGoalAdjustment from './AiGoalAdjustment';
 import ReminderSettings from './ReminderSettings';
 
+const GOALS_QUERY_KEY = ['allGoals'];
+
 const categoryColors = {
   behavioral: 'bg-blue-100 text-blue-700',
   emotional: 'bg-purple-100 text-purple-700',
@@ -61,9 +63,9 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       });
     },
     onMutate: async ({ updatedMilestones, newProgress }) => {
-      await queryClient.cancelQueries({ queryKey: ['allGoals'] });
-      const previousGoals = queryClient.getQueryData(['allGoals']);
-      queryClient.setQueryData(['allGoals'], (old = []) => 
+      await queryClient.cancelQueries({ queryKey: GOALS_QUERY_KEY });
+      const previousGoals = queryClient.getQueryData(GOALS_QUERY_KEY);
+      queryClient.setQueryData(GOALS_QUERY_KEY, (old = []) => 
         old.map((g) => g.id === goal.id ? { ...g, milestones: updatedMilestones, progress: newProgress } : g)
       );
       return { previousGoals };
@@ -74,7 +76,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         setLocalMilestones(getNormalizedMilestones(data.milestones));
       }
       // Invalidate queries to sync with other components
-      queryClient.invalidateQueries({ queryKey: ['allGoals'] });
+      queryClient.invalidateQueries({ queryKey: GOALS_QUERY_KEY });
     },
     onError: (err, _vars, context) => {
       if (context?.previousGoals) {
@@ -86,11 +88,13 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     }
   });
 
+  const isUpdatePending = updateMilestone.isPending;
+
   // Sync local state when goal prop changes (skip while optimistic update is in flight)
   React.useEffect(() => {
-    if (updateMilestone.isPending) return;
+    if (isUpdatePending) return;
     setLocalMilestones(getNormalizedMilestones(goal.milestones));
-  }, [goal.milestones, updateMilestone.isPending]);
+  }, [goal.milestones, isUpdatePending]);
 
   const localProgress = React.useMemo(() => {
     if (localMilestones.length === 0) return 0;
