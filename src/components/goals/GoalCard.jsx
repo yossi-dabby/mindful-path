@@ -63,21 +63,26 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     onMutate: async ({ updatedMilestones, newProgress }) => {
       await queryClient.cancelQueries({ queryKey: ['allGoals'] });
       const previousGoals = queryClient.getQueryData(['allGoals']);
-      queryClient.setQueryData(['allGoals'], (old = []) => 
-        old.map((g) => g.id === goal.id ? { ...g, milestones: updatedMilestones, progress: newProgress } : g)
-      );
+      queryClient.setQueryData(['allGoals'], (old) => {
+        if (!old) return old;
+        return old.map((g) => g.id === goal.id ? { ...g, milestones: updatedMilestones, progress: newProgress } : g);
+      });
       return { previousGoals };
     },
     onSuccess: (updatedGoal) => {
       // Trust server response if present
       if (updatedGoal?.id) {
-        queryClient.setQueryData(['allGoals'], (old = []) => 
-          old.map((g) => (g.id === updatedGoal.id ? updatedGoal : g))
-        );
+        queryClient.setQueryData(['allGoals'], (old) => {
+          if (!old) return old;
+          return old.map((g) => (g.id === updatedGoal.id ? updatedGoal : g));
+        });
         // Update local state with server response
         if (updatedGoal.milestones) {
           setLocalMilestones(getNormalizedMilestones(updatedGoal.milestones));
         }
+      } else {
+        // Fallback: ensure a refetch if server response is missing
+        queryClient.invalidateQueries(['allGoals']);
       }
       // Don't invalidate - we already have the latest data
     },
