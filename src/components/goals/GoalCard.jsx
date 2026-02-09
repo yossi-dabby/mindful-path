@@ -55,9 +55,14 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
 
   // Sync from server when goal prop updates
   useEffect(() => {
+    console.log('USEEFFECT SYNC - Updating local state from server:', {
+      goalId: goal.id,
+      serverMilestones: normalizedMilestones.map(m => ({ title: m.title, completed: m.completed })),
+      serverProgress: goal.progress
+    });
     setLocalMilestones(normalizedMilestones);
     setLocalProgress(goal.progress || 0);
-  }, [normalizedMilestones, goal.progress]);
+  }, [goal.milestones, goal.progress]);
 
   const updateMilestone = useMutation({
     mutationFn: async ({ milestones, progress }) => {
