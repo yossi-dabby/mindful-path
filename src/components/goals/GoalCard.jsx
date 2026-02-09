@@ -68,13 +68,18 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       );
       return { previousGoals };
     },
-    onSuccess: (data) => {
-      // Update local state with server response
-      if (data?.milestones) {
-        setLocalMilestones(getNormalizedMilestones(data.milestones));
+    onSuccess: (updatedGoal) => {
+      // Trust server response if present
+      if (updatedGoal?.id) {
+        queryClient.setQueryData(['allGoals'], (old = []) => 
+          old.map((g) => (g.id === updatedGoal.id ? updatedGoal : g))
+        );
+        // Update local state with server response
+        if (updatedGoal.milestones) {
+          setLocalMilestones(getNormalizedMilestones(updatedGoal.milestones));
+        }
       }
-      // Invalidate queries to sync with other components
-      queryClient.invalidateQueries({ queryKey: ['allGoals'] });
+      // Don't invalidate - we already have the latest data
     },
     onError: (err, _vars, context) => {
       if (context?.previousGoals) {
@@ -130,9 +135,16 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
 
   const handleApplyAdjustment = async (updates) => {
     try {
-      await base44.entities.Goal.update(goal.id, updates);
-      queryClient.invalidateQueries(['allGoals']);
-      queryClient.invalidateQueries(['goals']);
+      const updatedGoal = await base44.entities.Goal.update(goal.id, updates);
+      // Optimistically update cache instead of invalidating
+      if (updatedGoal?.id) {
+        queryClient.setQueryData(['allGoals'], (old = []) => 
+          old.map((g) => (g.id === updatedGoal.id ? updatedGoal : g))
+        );
+        queryClient.setQueryData(['goals'], (old = []) => 
+          old?.map((g) => (g.id === updatedGoal.id ? updatedGoal : g))
+        );
+      }
       setShowAiAdjustment(false);
     } catch (error) {
       console.error('Failed to apply adjustment:', error);

@@ -39,9 +39,9 @@ export default function Goals() {
     queryKey: ['allGoals'],
     queryFn: () => base44.entities.Goal.list('-created_date'),
     initialData: [],
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    staleTime: 30000 // 30 seconds to allow optimistic updates to settle
+    refetchOnWindowFocus: false, // Rely on manual invalidations and optimistic updates
+    refetchOnMount: false, // Rely on manual invalidations and optimistic updates
+    staleTime: 60000 // 60 seconds to allow optimistic updates to settle
   });
 
   const deleteGoalMutation = useMutation({
@@ -88,8 +88,13 @@ export default function Goals() {
           title: m.title, 
           completed: false 
         }))
-      }).then(() => {
-        queryClient.invalidateQueries(['allGoals']);
+      }).then((updatedGoal) => {
+        // Optimistically update cache instead of invalidating
+        if (updatedGoal?.id) {
+          queryClient.setQueryData(['allGoals'], (old = []) => 
+            old.map((g) => (g.id === updatedGoal.id ? updatedGoal : g))
+          );
+        }
         emitEntityChange('Goal', 'update');
         setShowBreakdown(null);
       });

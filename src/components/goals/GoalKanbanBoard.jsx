@@ -47,8 +47,27 @@ export default function GoalKanbanBoard({ goal }) {
       const result = await base44.entities.Goal.update(goal.id, { milestones, progress });
       return result;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['allGoals']);
+    onMutate: async ({ milestones, progress }) => {
+      await queryClient.cancelQueries({ queryKey: ['allGoals'] });
+      const previousGoals = queryClient.getQueryData(['allGoals']);
+      queryClient.setQueryData(['allGoals'], (old = []) => 
+        old.map((g) => g.id === goal.id ? { ...g, milestones, progress } : g)
+      );
+      return { previousGoals };
+    },
+    onSuccess: (updatedGoal) => {
+      // Trust server response if present
+      if (updatedGoal?.id) {
+        queryClient.setQueryData(['allGoals'], (old = []) => 
+          old.map((g) => (g.id === updatedGoal.id ? updatedGoal : g))
+        );
+      }
+      // Don't invalidate - we already have the latest data
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previousGoals) {
+        queryClient.setQueryData(['allGoals'], context.previousGoals);
+      }
     }
   });
 
