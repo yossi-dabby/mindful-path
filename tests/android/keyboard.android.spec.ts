@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { setupConsoleMonitoring, assertElementVisibleAndTappable } from './utils/androidHelpers';
+import { assertNoConsoleErrorsOrWarnings, assertElementVisibleAndTappable } from './utils/androidHelpers';
 
 /**
  * Android Keyboard Layout Test
@@ -96,7 +96,7 @@ test.describe('Android Keyboard Layout', () => {
 
   test('should maintain composer visibility and accessibility with keyboard', async ({ page }) => {
     // Set up console monitoring at the start
-    const checkConsole = setupConsoleMonitoring(page);
+    const checkConsole = assertNoConsoleErrorsOrWarnings(page);
     
     // Navigate to Chat page
     await page.goto(`${BASE_URL}/Chat`, { waitUntil: 'networkidle' });

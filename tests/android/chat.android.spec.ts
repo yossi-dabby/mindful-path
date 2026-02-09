@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { setupConsoleMonitoring, assertElementVisibleAndTappable } from './utils/androidHelpers';
+import { assertNoConsoleErrorsOrWarnings, assertElementVisibleAndTappable } from './utils/androidHelpers';
 
 /**
  * Android Chat Readiness Test
@@ -96,7 +96,7 @@ test.describe('Android Chat Readiness', () => {
 
   test('should handle 15 consecutive messages and maintain composer visibility', async ({ page }) => {
     // Set up console monitoring at the start
-    const checkConsole = setupConsoleMonitoring(page);
+    const checkConsole = assertNoConsoleErrorsOrWarnings(page);
     
     // Navigate to Chat page
     await page.goto(`${BASE_URL}/Chat`, { waitUntil: 'networkidle' });
