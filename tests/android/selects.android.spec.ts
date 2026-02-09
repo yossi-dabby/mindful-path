@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { assertNoConsoleErrorsOrWarnings } from './utils/androidHelpers';
+import { setupConsoleMonitoring } from './utils/androidHelpers';
 
 /**
  * Android Selects Readiness Test
@@ -85,6 +85,9 @@ test.describe('Android Selects - CrisisAlerts Filters', () => {
   });
 
   test('should interact with crisis alerts filter selects', async ({ page }) => {
+    // Set up console monitoring at the start
+    const checkConsole = setupConsoleMonitoring(page);
+    
     // Navigate to CrisisAlerts page
     await page.goto(`${BASE_URL}/CrisisAlerts`, { waitUntil: 'networkidle' });
     
@@ -144,7 +147,7 @@ test.describe('Android Selects - CrisisAlerts Filters', () => {
     await expect(alertsList).toBeVisible({ timeout: 5000 });
 
     // Assert no console errors or warnings
-    await assertNoConsoleErrorsOrWarnings(page);
+    await checkConsole();
   });
 });
 
@@ -220,6 +223,9 @@ test.describe('Android Selects - HealthDataForm', () => {
   });
 
   test('should interact with health data form sleep quality select', async ({ page }) => {
+    // Set up console monitoring at the start
+    const checkConsole = setupConsoleMonitoring(page);
+    
     // Navigate to Progress page (where HealthDataForm is likely used)
     await page.goto(`${BASE_URL}/Progress`, { waitUntil: 'networkidle' });
     
@@ -319,6 +325,6 @@ test.describe('Android Selects - HealthDataForm', () => {
     await page.waitForTimeout(500);
 
     // Assert no console errors or warnings
-    await assertNoConsoleErrorsOrWarnings(page);
+    await checkConsole();
   });
 });

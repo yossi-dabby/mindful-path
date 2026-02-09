@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { assertNoConsoleErrorsOrWarnings } from './utils/androidHelpers';
+import { setupConsoleMonitoring } from './utils/androidHelpers';
 
 /**
  * Android Goals Readiness Test
@@ -111,6 +111,9 @@ test.describe('Android Goals Milestone Persistence', () => {
   });
 
   test('should persist milestone checkbox state across page reload', async ({ page }) => {
+    // Set up console monitoring at the start
+    const checkConsole = setupConsoleMonitoring(page);
+    
     // Navigate to Goals page
     await page.goto(`${BASE_URL}/Goals`, { waitUntil: 'networkidle' });
     
@@ -248,6 +251,6 @@ test.describe('Android Goals Milestone Persistence', () => {
     }
 
     // Assert no console errors or warnings
-    await assertNoConsoleErrorsOrWarnings(page);
+    await checkConsole();
   });
 });
