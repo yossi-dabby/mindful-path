@@ -61,10 +61,13 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
 
   const updateMilestone = useMutation({
     mutationFn: async ({ milestones, progress }) => {
+      console.log('MUTATION STARTED - Sending to server:', { goalId: goal.id, milestones, progress });
       const result = await base44.entities.Goal.update(goal.id, { milestones, progress });
+      console.log('MUTATION SUCCESS - Server response:', result);
       return result;
     },
     onMutate: async ({ milestones, progress }) => {
+      console.log('ON_MUTATE - Optimistic update');
       await queryClient.cancelQueries(['allGoals']);
       const previousGoals = queryClient.getQueryData(['allGoals']);
       queryClient.setQueryData(['allGoals'], (old) =>
@@ -74,11 +77,13 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       );
       return { previousGoals };
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('ON_SUCCESS - Invalidating queries, server data:', data);
       queryClient.invalidateQueries(['allGoals']);
     },
     onError: (error, variables, context) => {
-      console.error('Failed to update milestone:', error);
+      console.error('MUTATION ERROR:', error);
+      console.error('Error details:', error.message, error.response);
       if (context?.previousGoals) {
         queryClient.setQueryData(['allGoals'], context.previousGoals);
       }
@@ -95,25 +100,36 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         };
       }));
       setLocalProgress(goal.progress || 0);
-      alert('Failed to update task. Please try again.');
+      alert('Failed to update task: ' + (error.message || 'Unknown error'));
     }
   });
 
   const toggleMilestone = (index, checked) => {
+    console.log('TOGGLE MILESTONE:', { 
+      index, 
+      checked, 
+      beforeMilestones: localMilestones.map(m => ({ title: m.title, completed: m.completed }))
+    });
+    
     const updatedMilestones = localMilestones.map((m, i) => 
       i === index 
         ? { ...m, completed: checked, completed_date: checked ? new Date().toISOString() : null }
         : m
     );
     
+    console.log('AFTER UPDATE:', updatedMilestones.map(m => ({ title: m.title, completed: m.completed })));
+    
     const completedCount = updatedMilestones.filter(m => m.completed).length;
     const newProgress = Math.round((completedCount / updatedMilestones.length) * 100);
+    
+    console.log('NEW PROGRESS:', newProgress);
     
     // Optimistic UI update
     setLocalMilestones(updatedMilestones);
     setLocalProgress(newProgress);
     
     // Save to backend
+    console.log('CALLING MUTATION...');
     updateMilestone.mutate({ milestones: updatedMilestones, progress: newProgress });
   };
 
@@ -280,7 +296,10 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                 )}
                 <Checkbox
                   checked={Boolean(milestone.completed)}
-                  onCheckedChange={(checked) => toggleMilestone(index, checked)}
+                  onCheckedChange={(checked) => {
+                    console.log('CHECKBOX CLICKED:', { index, checked, currentCompleted: milestone.completed });
+                    toggleMilestone(index, checked);
+                  }}
                   className="mt-0.5 flex-shrink-0"
                   id={`milestone-${goal.id}-${index}`}
                 />
