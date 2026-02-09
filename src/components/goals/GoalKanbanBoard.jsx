@@ -202,15 +202,16 @@ export default function GoalKanbanBoard({ goal }) {
                                     )}
                                   >
                                     <div className="flex items-start gap-2">
+                                      <Checkbox
+                                        checked={milestone.completed}
+                                        onCheckedChange={(checked) => toggleMilestoneComplete(milestone.id, checked)}
+                                        className="mt-0.5"
+                                        id={`kanban-${milestone.id}`}
+                                        onClick={(e) => e.stopPropagation()}
+                                      />
                                       <div {...provided.dragHandleProps} className="mt-1 cursor-grab active:cursor-grabbing">
                                         <GripVertical className="w-4 h-4 text-gray-400" />
                                       </div>
-                                      <Checkbox
-                                       checked={milestone.completed}
-                                       onCheckedChange={(checked) => toggleMilestoneComplete(milestone.id, checked)}
-                                       className="mt-0.5"
-                                       id={`kanban-${milestone.id}`}
-                                      />
                                       <div className="flex-1 min-w-0">
                                         <p className={cn(
                                           'text-sm font-medium',
