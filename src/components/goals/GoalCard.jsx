@@ -32,12 +32,10 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   const [showAiAdjustment, setShowAiAdjustment] = useState(false);
   const [showReminders, setShowReminders] = useState(false);
   
-  const goalIdRef = React.useRef(goal.id);
-  const hasSyncedRef = React.useRef(false);
   const queryClient = useQueryClient();
   
-  // Normalize and store milestones in local state for immediate visual feedback
-  const [localMilestones, setLocalMilestones] = useState(() => 
+  // Normalize milestones - always sync from goal prop
+  const normalizedMilestones = React.useMemo(() => 
     safeArray(goal.milestones).map((m, i) => {
       if (typeof m === 'string') {
         return { title: m, completed: false, description: '', due_date: null };
@@ -49,28 +47,17 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         due_date: m.due_date || null,
         completed_date: m.completed_date || null
       };
-    })
+    }), [goal.milestones]
   );
+
+  const [localMilestones, setLocalMilestones] = useState(normalizedMilestones);
   const [localProgress, setLocalProgress] = useState(goal.progress || 0);
 
-  // Sync from server when goal data updates
+  // Sync from server when goal prop updates
   useEffect(() => {
-    const normalizedMilestones = safeArray(goal.milestones).map((m, i) => {
-      if (typeof m === 'string') {
-        return { title: m, completed: false, description: '', due_date: null };
-      }
-      return {
-        title: safeText(m.title || m, `Step ${i + 1}`),
-        description: safeText(m.description, ''),
-        completed: Boolean(m.completed),
-        due_date: m.due_date || null,
-        completed_date: m.completed_date || null
-      };
-    });
-    
     setLocalMilestones(normalizedMilestones);
     setLocalProgress(goal.progress || 0);
-  }, [goal.milestones, goal.progress, goal.id]);
+  }, [normalizedMilestones, goal.progress]);
 
   const updateMilestone = useMutation({
     mutationFn: async ({ milestones, progress }) => {
@@ -121,23 +108,20 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   });
 
   const toggleMilestone = (index, checked) => {
-    // Update local milestones immediately for instant visual feedback
     const updatedMilestones = localMilestones.map((m, i) => 
       i === index 
         ? { ...m, completed: checked, completed_date: checked ? new Date().toISOString() : null }
         : m
     );
     
-    setLocalMilestones(updatedMilestones);
-    
-    // Calculate new progress
     const completedCount = updatedMilestones.filter(m => m.completed).length;
     const newProgress = Math.round((completedCount / updatedMilestones.length) * 100);
     
-    // Update local progress immediately
+    // Optimistic UI update
+    setLocalMilestones(updatedMilestones);
     setLocalProgress(newProgress);
     
-    // Trigger mutation to update the database
+    // Save to backend
     updateMilestone.mutate({ milestones: updatedMilestones, progress: newProgress });
   };
 

@@ -58,11 +58,10 @@ export default function GoalKanbanBoard({ goal }) {
     if (!destination) return;
     if (destination.droppableId === source.droppableId && destination.index === source.index) return;
 
-    const milestoneId = draggableId;
     const newStatus = destination.droppableId;
     
     const updatedMilestones = localMilestones.map(m => {
-      if (m.id === milestoneId) {
+      if (m.id === draggableId) {
         return {
           ...m,
           status: newStatus,
@@ -73,35 +72,30 @@ export default function GoalKanbanBoard({ goal }) {
       return m;
     });
     
-    setLocalMilestones(updatedMilestones);
-    
-    // Calculate new progress
     const completedCount = updatedMilestones.filter(m => m.completed).length;
     const newProgress = Math.round((completedCount / updatedMilestones.length) * 100);
     
-    // Update backend
+    // Optimistic update
+    setLocalMilestones(updatedMilestones);
+    
+    // Save to backend
     const milestonesForDb = updatedMilestones.map(m => ({
       title: m.title,
-      description: m.description,
-      due_date: m.due_date,
+      description: m.description || '',
+      due_date: m.due_date || null,
       completed: m.completed,
-      completed_date: m.completed_date,
-      status: m.status
+      completed_date: m.completed_date || null
     }));
     
-    updateMilestone.mutate({ 
-      milestones: milestonesForDb,
-      progress: newProgress 
-    });
+    updateMilestone.mutate({ milestones: milestonesForDb, progress: newProgress });
   };
 
   const toggleMilestoneComplete = (milestoneId, checked) => {
     const updatedMilestones = localMilestones.map(m => {
       if (m.id === milestoneId) {
-        const newStatus = checked ? 'completed' : 'todo';
         return {
           ...m,
-          status: newStatus,
+          status: checked ? 'completed' : 'todo',
           completed: checked,
           completed_date: checked ? new Date().toISOString() : null
         };
@@ -109,24 +103,22 @@ export default function GoalKanbanBoard({ goal }) {
       return m;
     });
     
-    setLocalMilestones(updatedMilestones);
-    
     const completedCount = updatedMilestones.filter(m => m.completed).length;
     const newProgress = Math.round((completedCount / updatedMilestones.length) * 100);
     
+    // Optimistic update
+    setLocalMilestones(updatedMilestones);
+    
+    // Save to backend
     const milestonesForDb = updatedMilestones.map(m => ({
       title: m.title,
-      description: m.description,
-      due_date: m.due_date,
+      description: m.description || '',
+      due_date: m.due_date || null,
       completed: m.completed,
-      completed_date: m.completed_date,
-      status: m.status
+      completed_date: m.completed_date || null
     }));
     
-    updateMilestone.mutate({ 
-      milestones: milestonesForDb,
-      progress: newProgress 
-    });
+    updateMilestone.mutate({ milestones: milestonesForDb, progress: newProgress });
   };
 
   const getMilestonesByStatus = (status) => {

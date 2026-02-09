@@ -5,7 +5,7 @@ import { TrendingUp, Calendar } from 'lucide-react';
 import { format, subDays } from 'date-fns';
 
 export default function GoalProgressChart({ goal }) {
-  // Generate milestone completion timeline
+  // Generate milestone completion timeline - use actual progress
   const generateMilestoneTimeline = () => {
     if (!goal.milestones || goal.milestones.length === 0) {
       return generateSimpleProgress();
@@ -13,9 +13,10 @@ export default function GoalProgressChart({ goal }) {
 
     const completedMilestones = goal.milestones
       .filter(m => m.completed && m.completed_date)
-      .map(m => ({
+      .map((m, idx) => ({
         date: new Date(m.completed_date),
-        title: m.title
+        title: m.title,
+        index: idx
       }))
       .sort((a, b) => a.date - b.date);
 
@@ -28,21 +29,21 @@ export default function GoalProgressChart({ goal }) {
     const startDate = subDays(completedMilestones[0].date, 7);
     const totalDays = Math.ceil((today - startDate) / (1000 * 60 * 60 * 24));
     
-    let currentProgress = 0;
     let milestoneIndex = 0;
     
     for (let i = 0; i <= totalDays; i++) {
       const date = new Date(startDate);
       date.setDate(date.getDate() + i);
       
-      // Check if any milestones were completed on this day
+      // Count completed milestones up to this date
       while (
         milestoneIndex < completedMilestones.length &&
         completedMilestones[milestoneIndex].date <= date
       ) {
-        currentProgress = ((milestoneIndex + 1) / goal.milestones.length) * 100;
         milestoneIndex++;
       }
+      
+      const currentProgress = (milestoneIndex / goal.milestones.length) * 100;
       
       data.push({
         date: format(date, 'MMM d'),

@@ -39,7 +39,9 @@ export default function Goals() {
     queryKey: ['allGoals'],
     queryFn: () => base44.entities.Goal.list('-created_date'),
     initialData: [],
-    refetchOnWindowFocus: true
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    staleTime: 0
   });
 
   const deleteGoalMutation = useMutation({
