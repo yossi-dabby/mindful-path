@@ -52,12 +52,6 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
 
   const [localMilestones, setLocalMilestones] = useState(() => getNormalizedMilestones(goal.milestones));
 
-  // Sync local state when goal prop changes
-  React.useEffect(() => {
-    if (updateMilestone?.isPending) return;
-    setLocalMilestones(getNormalizedMilestones(goal.milestones));
-  }, [goal.milestones, updateMilestone?.isPending]);
-
   // Mutation with optimistic update
   const updateMilestone = useMutation({
     mutationFn: async ({ updatedMilestones, newProgress }) => {
@@ -91,6 +85,24 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       alert('Failed to update: ' + (err.message || 'Unknown error'));
     }
   });
+
+  const isUpdatePendingRef = React.useRef(false);
+
+  React.useEffect(() => {
+    isUpdatePendingRef.current = updateMilestone.isPending;
+  }, [updateMilestone.isPending]);
+
+  // Sync local state when goal prop changes (skip while optimistic update is in flight)
+  React.useEffect(() => {
+    if (isUpdatePendingRef.current) return;
+    setLocalMilestones(getNormalizedMilestones(goal.milestones));
+  }, [goal.milestones]);
+
+  const localProgress = React.useMemo(() => {
+    if (localMilestones.length === 0) return goal.progress || 0;
+    const completed = localMilestones.filter(m => m.completed).length;
+    return Math.round((completed / localMilestones.length) * 100);
+  }, [localMilestones, goal.progress]);
 
   const toggleMilestone = (index, checked) => {
     // Immediately update local state for instant UI feedback
@@ -208,18 +220,10 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         <div className="mb-4">
            <div className="flex items-center justify-between mb-2">
              <span className="text-sm font-medium text-gray-700">Progress {updateMilestone.isPending && <span className="text-xs text-gray-500 ml-2">Saving...</span>}</span>
-             <span className="text-sm font-bold text-blue-600">
-               {localMilestones.length > 0 
-                 ? Math.round((localMilestones.filter(m => m.completed).length / localMilestones.length) * 100)
-                 : (goal.progress || 0)}%
-             </span>
+             <span className="text-sm font-bold text-blue-600">{localProgress}%</span>
            </div>
            <Progress 
-             value={
-               localMilestones.length > 0 
-                 ? Math.round((localMilestones.filter(m => m.completed).length / localMilestones.length) * 100)
-                 : (goal.progress || 0)
-             } 
+             value={localProgress} 
              className="h-3" 
            />
         </div>
