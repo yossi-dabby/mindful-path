@@ -41,7 +41,7 @@ export default function Goals() {
     initialData: [],
     refetchOnWindowFocus: false, // Rely on manual invalidations and optimistic updates
     refetchOnMount: false, // Rely on manual invalidations and optimistic updates
-    staleTime: 60000 // 60 seconds to allow optimistic updates to settle
+    staleTime: 30000 // 30 seconds to allow optimistic updates to settle
   });
 
   const deleteGoalMutation = useMutation({
