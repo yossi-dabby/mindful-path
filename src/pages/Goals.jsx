@@ -7,11 +7,12 @@ import { isAuthError, shouldShowAuthError } from '../components/utils/authErrorH
 import AuthErrorBanner from '../components/utils/AuthErrorBanner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Target, Calendar as CalendarIcon, Sparkles, Lightbulb, Clock } from 'lucide-react';
+import { Plus, Target, Calendar as CalendarIcon, Sparkles, Lightbulb, Clock, LayoutGrid } from 'lucide-react';
 import { createPageUrl } from '../utils';
 import GoalForm from '../components/goals/GoalForm';
 import GoalCard from '../components/goals/GoalCard';
 import GoalCalendar from '../components/goals/GoalCalendar';
+import GoalKanbanBoard from '../components/goals/GoalKanbanBoard';
 import AiGoalSuggestions from '../components/goals/AiGoalSuggestions';
 import AiGoalBreakdown from '../components/goals/AiGoalBreakdown';
 import GoalMotivation from '../components/goals/GoalMotivation';
@@ -28,6 +29,7 @@ export default function Goals() {
   const [prefilledGoal, setPrefilledGoal] = useState(null);
   const [showAuthError, setShowAuthError] = useState(false);
   const [showTimeline, setShowTimeline] = useState(false);
+  const [showKanban, setShowKanban] = useState(false);
   const queryClient = useQueryClient();
   
   // Enable cross-tab synchronization
@@ -133,6 +135,16 @@ export default function Goals() {
           >
             <Clock className="w-4 h-4 md:w-5 md:h-5 md:mr-2" />
             <span className="hidden md:inline">Timeline</span>
+          </Button>
+          <Button
+            onClick={() => setShowKanban(!showKanban)}
+            variant="outline"
+            className="text-sm md:text-base"
+            size="sm"
+            style={{ borderRadius: '24px' }}
+          >
+            <LayoutGrid className="w-4 h-4 md:w-5 md:h-5 md:mr-2" />
+            <span className="hidden md:inline">Kanban</span>
           </Button>
           <Button
             onClick={() => setShowAiSuggestions(true)}
@@ -248,6 +260,18 @@ export default function Goals() {
           {showTimeline && (
             <div className="mb-8">
               <MilestonesTimeline goals={goals} />
+            </div>
+          )}
+
+          {/* Kanban Board for All Goals */}
+          {showKanban && activeGoals.length > 0 && (
+            <div className="mb-8">
+              {activeGoals.map(goal => (
+                <div key={goal.id} className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3">{goal.title}</h3>
+                  <GoalKanbanBoard goal={goal} />
+                </div>
+              ))}
             </div>
           )}
 

@@ -6,11 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Edit, Calendar, CheckCircle2, ChevronDown, ChevronUp, TrendingUp, BookOpen, Trash2, Sparkles, Bell } from 'lucide-react';
+import { Edit, Calendar, CheckCircle2, ChevronDown, ChevronUp, TrendingUp, BookOpen, Trash2, Sparkles, Bell, LayoutGrid } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { safeArray, safeText } from '@/components/utils/aiDataNormalizer';
 import GoalProgressChart from './GoalProgressChart';
+import GoalKanbanBoard from './GoalKanbanBoard';
 import LinkedJournalEntries from './LinkedJournalEntries';
 import AiGoalAdjustment from './AiGoalAdjustment';
 import ReminderSettings from './ReminderSettings';
@@ -25,6 +26,7 @@ const categoryColors = {
 
 export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   const [showChart, setShowChart] = useState(false);
+  const [showKanban, setShowKanban] = useState(false);
   const [showJournalEntries, setShowJournalEntries] = useState(false);
   const [showObstacles, setShowObstacles] = useState(false);
   const [showAiAdjustment, setShowAiAdjustment] = useState(false);
@@ -426,7 +428,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         )}
 
         {/* Action Buttons */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mt-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mt-4">
           <Button
             variant="outline"
             onClick={() => setShowChart(!showChart)}
@@ -435,6 +437,15 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
             <TrendingUp className="w-4 h-4 flex-shrink-0" />
             <span className="flex-1 text-left min-w-0 break-words">{showChart ? 'Hide' : 'Show'} Chart</span>
             {showChart ? <ChevronUp className="w-4 h-4 flex-shrink-0" /> : <ChevronDown className="w-4 h-4 flex-shrink-0" />}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setShowKanban(!showKanban)}
+            className="flex items-center justify-center gap-2 w-full min-w-0"
+          >
+            <LayoutGrid className="w-4 h-4 flex-shrink-0" />
+            <span className="flex-1 text-left min-w-0 break-words">{showKanban ? 'Hide' : 'Show'} Board</span>
+            {showKanban ? <ChevronUp className="w-4 h-4 flex-shrink-0" /> : <ChevronDown className="w-4 h-4 flex-shrink-0" />}
           </Button>
           <Button
             variant="outline"
@@ -467,6 +478,13 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         {showChart && (
           <div className="mt-4 pt-4 border-t">
             <GoalProgressChart goal={goal} />
+          </div>
+        )}
+
+        {/* Kanban Board */}
+        {showKanban && (
+          <div className="mt-4 pt-4 border-t">
+            <GoalKanbanBoard goal={goal} />
           </div>
         )}
 

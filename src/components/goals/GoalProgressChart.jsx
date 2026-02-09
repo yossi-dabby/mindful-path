@@ -5,8 +5,59 @@ import { TrendingUp, Calendar } from 'lucide-react';
 import { format, subDays } from 'date-fns';
 
 export default function GoalProgressChart({ goal }) {
-  // Generate progress history data (simulated for demo - in real app would come from database)
-  const generateProgressHistory = () => {
+  // Generate milestone completion timeline
+  const generateMilestoneTimeline = () => {
+    if (!goal.milestones || goal.milestones.length === 0) {
+      return generateSimpleProgress();
+    }
+
+    const completedMilestones = goal.milestones
+      .filter(m => m.completed && m.completed_date)
+      .map(m => ({
+        date: new Date(m.completed_date),
+        title: m.title
+      }))
+      .sort((a, b) => a.date - b.date);
+
+    if (completedMilestones.length === 0) {
+      return generateSimpleProgress();
+    }
+
+    const data = [];
+    const today = new Date();
+    const startDate = subDays(completedMilestones[0].date, 7);
+    const totalDays = Math.ceil((today - startDate) / (1000 * 60 * 60 * 24));
+    
+    let currentProgress = 0;
+    let milestoneIndex = 0;
+    
+    for (let i = 0; i <= totalDays; i++) {
+      const date = new Date(startDate);
+      date.setDate(date.getDate() + i);
+      
+      // Check if any milestones were completed on this day
+      while (
+        milestoneIndex < completedMilestones.length &&
+        completedMilestones[milestoneIndex].date <= date
+      ) {
+        currentProgress = ((milestoneIndex + 1) / goal.milestones.length) * 100;
+        milestoneIndex++;
+      }
+      
+      data.push({
+        date: format(date, 'MMM d'),
+        progress: currentProgress,
+        fullDate: date,
+        milestone: completedMilestones.find(m => 
+          format(m.date, 'MMM d') === format(date, 'MMM d')
+        )?.title
+      });
+    }
+    
+    return data;
+  };
+
+  const generateSimpleProgress = () => {
     const days = 30;
     const data = [];
     const today = new Date();
@@ -15,7 +66,7 @@ export default function GoalProgressChart({ goal }) {
     for (let i = days; i >= 0; i--) {
       const date = subDays(today, i);
       const progress = startProgress + ((goal.progress - startProgress) * (days - i)) / days;
-      const jitter = Math.random() * 5 - 2.5; // Add some variation
+      const jitter = Math.random() * 5 - 2.5;
       
       data.push({
         date: format(date, 'MMM d'),
@@ -27,7 +78,7 @@ export default function GoalProgressChart({ goal }) {
     return data;
   };
 
-  const progressData = generateProgressHistory();
+  const progressData = generateMilestoneTimeline();
   
   // Calculate completion rate and trend
   const completedMilestones = goal.milestones?.filter(m => m.completed).length || 0;
@@ -42,12 +93,20 @@ export default function GoalProgressChart({ goal }) {
 
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
+      const data = payload[0].payload;
       return (
         <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
-          <p className="text-sm font-medium text-gray-800">{payload[0].payload.date}</p>
+          <p className="text-sm font-medium text-gray-800">{data.date}</p>
           <p className="text-sm text-blue-600 font-semibold">
             {payload[0].value.toFixed(1)}% complete
           </p>
+          {data.milestone && (
+            <div className="mt-2 pt-2 border-t border-gray-200">
+              <p className="text-xs text-green-600 font-medium flex items-center gap-1">
+                <span>✓</span> {data.milestone}
+              </p>
+            </div>
+          )}
         </div>
       );
     }
