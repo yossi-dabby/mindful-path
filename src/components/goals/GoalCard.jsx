@@ -52,26 +52,13 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
 
   const updateMilestone = useMutation({
     mutationFn: async ({ milestones, progress }) => {
-      return await base44.entities.Goal.update(goal.id, { milestones, progress });
+      await base44.entities.Goal.update(goal.id, { milestones, progress });
     },
-    onMutate: async ({ milestones, progress }) => {
-      await queryClient.cancelQueries(['allGoals']);
-      const previousGoals = queryClient.getQueryData(['allGoals']);
-      queryClient.setQueryData(['allGoals'], (old) =>
-        Array.isArray(old)
-          ? old.map((g) => g.id === goal.id ? { ...g, milestones, progress } : g)
-          : old
-      );
-      return { previousGoals };
+    onSuccess: async () => {
+      await queryClient.refetchQueries(['allGoals']);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['allGoals']);
-    },
-    onError: (error, variables, context) => {
-      if (context?.previousGoals) {
-        queryClient.setQueryData(['allGoals'], context.previousGoals);
-      }
-      alert('Failed to update task: ' + (error.message || 'Unknown error'));
+    onError: (error) => {
+      alert('Failed to update: ' + (error.message || 'Unknown error'));
     }
   });
 
