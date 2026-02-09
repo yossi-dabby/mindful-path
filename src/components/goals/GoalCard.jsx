@@ -50,29 +50,11 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     }), [goal.milestones]
   );
 
-  const [localMilestones, setLocalMilestones] = useState(normalizedMilestones);
-  const [localProgress, setLocalProgress] = useState(goal.progress || 0);
-
-  // Sync from server when goal prop updates
-  useEffect(() => {
-    console.log('USEEFFECT SYNC - Updating local state from server:', {
-      goalId: goal.id,
-      serverMilestones: normalizedMilestones.map(m => ({ title: m.title, completed: m.completed })),
-      serverProgress: goal.progress
-    });
-    setLocalMilestones(normalizedMilestones);
-    setLocalProgress(goal.progress || 0);
-  }, [goal.milestones, goal.progress]);
-
   const updateMilestone = useMutation({
     mutationFn: async ({ milestones, progress }) => {
-      console.log('MUTATION STARTED - Sending to server:', { goalId: goal.id, milestones, progress });
-      const result = await base44.entities.Goal.update(goal.id, { milestones, progress });
-      console.log('MUTATION SUCCESS - Server response:', result);
-      return result;
+      return await base44.entities.Goal.update(goal.id, { milestones, progress });
     },
     onMutate: async ({ milestones, progress }) => {
-      console.log('ON_MUTATE - Optimistic update');
       await queryClient.cancelQueries(['allGoals']);
       const previousGoals = queryClient.getQueryData(['allGoals']);
       queryClient.setQueryData(['allGoals'], (old) =>
@@ -82,59 +64,27 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       );
       return { previousGoals };
     },
-    onSuccess: (data) => {
-      console.log('ON_SUCCESS - Invalidating queries, server data:', data);
+    onSuccess: () => {
       queryClient.invalidateQueries(['allGoals']);
     },
     onError: (error, variables, context) => {
-      console.error('MUTATION ERROR:', error);
-      console.error('Error details:', error.message, error.response);
       if (context?.previousGoals) {
         queryClient.setQueryData(['allGoals'], context.previousGoals);
       }
-      setLocalMilestones(safeArray(goal.milestones).map((m, i) => {
-        if (typeof m === 'string') {
-          return { title: m, completed: false, description: '', due_date: null };
-        }
-        return {
-          title: safeText(m.title || m, `Step ${i + 1}`),
-          description: safeText(m.description, ''),
-          completed: Boolean(m.completed),
-          due_date: m.due_date || null,
-          completed_date: m.completed_date || null
-        };
-      }));
-      setLocalProgress(goal.progress || 0);
       alert('Failed to update task: ' + (error.message || 'Unknown error'));
     }
   });
 
   const toggleMilestone = (index, checked) => {
-    console.log('TOGGLE MILESTONE:', { 
-      index, 
-      checked, 
-      beforeMilestones: localMilestones.map(m => ({ title: m.title, completed: m.completed }))
-    });
-    
-    const updatedMilestones = localMilestones.map((m, i) => 
+    const updatedMilestones = normalizedMilestones.map((m, i) => 
       i === index 
         ? { ...m, completed: checked, completed_date: checked ? new Date().toISOString() : null }
         : m
     );
     
-    console.log('AFTER UPDATE:', updatedMilestones.map(m => ({ title: m.title, completed: m.completed })));
-    
     const completedCount = updatedMilestones.filter(m => m.completed).length;
     const newProgress = Math.round((completedCount / updatedMilestones.length) * 100);
     
-    console.log('NEW PROGRESS:', newProgress);
-    
-    // Optimistic UI update
-    setLocalMilestones(updatedMilestones);
-    setLocalProgress(newProgress);
-    
-    // Save to backend
-    console.log('CALLING MUTATION...');
     updateMilestone.mutate({ milestones: updatedMilestones, progress: newProgress });
   };
 
@@ -237,9 +187,9 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-700">Progress {isSaving && <span className="text-xs text-gray-500 ml-2">Saving...</span>}</span>
-            <span className="text-sm font-bold text-blue-600">{localProgress}%</span>
+            <span className="text-sm font-bold text-blue-600">{goal.progress || 0}%</span>
           </div>
-          <Progress value={localProgress} className="h-3" />
+          <Progress value={goal.progress || 0} className="h-3" />
         </div>
 
         {/* Milestones */}
@@ -249,19 +199,19 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
               <p className="text-sm font-medium text-gray-700">Tasks:</p>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-500">
-                  {localMilestones.filter(m => m.completed).length}/{localMilestones.length}
+                  {normalizedMilestones.filter(m => m.completed).length}/{normalizedMilestones.length}
                 </span>
                 <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
                   <div 
                     className="h-full bg-blue-500 transition-all duration-300"
                     style={{ 
-                      width: `${localMilestones.length > 0 ? (localMilestones.filter(m => m.completed).length / localMilestones.length) * 100 : 0}%` 
+                      width: `${normalizedMilestones.length > 0 ? (normalizedMilestones.filter(m => m.completed).length / normalizedMilestones.length) * 100 : 0}%` 
                     }}
                   />
                 </div>
               </div>
             </div>
-            {localMilestones.map((milestone, index) => {
+            {normalizedMilestones.map((milestone, index) => {
               const isOverdue = (() => {
                 if (!milestone.due_date || milestone.completed) return false;
                 try {
@@ -301,12 +251,10 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                 )}
                 <Checkbox
                   checked={Boolean(milestone.completed)}
-                  onCheckedChange={(checked) => {
-                    console.log('CHECKBOX CLICKED:', { index, checked, currentCompleted: milestone.completed });
-                    toggleMilestone(index, checked);
-                  }}
+                  onCheckedChange={(checked) => toggleMilestone(index, checked)}
                   className="mt-0.5 flex-shrink-0"
                   id={`milestone-${goal.id}-${index}`}
+                  disabled={isSaving}
                 />
                 <label 
                   htmlFor={`milestone-${goal.id}-${index}`}
