@@ -61,7 +61,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       });
     },
     onMutate: async ({ updatedMilestones, newProgress }) => {
-      await queryClient.cancelQueries(['allGoals']);
+      await queryClient.cancelQueries({ queryKey: ['allGoals'] });
       const previousGoals = queryClient.getQueryData(['allGoals']);
       queryClient.setQueryData(['allGoals'], (old = []) => 
         old.map((g) => g.id === goal.id ? { ...g, milestones: updatedMilestones, progress: newProgress } : g)
@@ -74,7 +74,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         setLocalMilestones(getNormalizedMilestones(data.milestones));
       }
       // Invalidate queries to sync with other components
-      queryClient.invalidateQueries(['allGoals']);
+      queryClient.invalidateQueries({ queryKey: ['allGoals'] });
     },
     onError: (err, _vars, context) => {
       if (context?.previousGoals) {
@@ -99,10 +99,10 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   }, [goal.milestones]);
 
   const localProgress = React.useMemo(() => {
-    if (localMilestones.length === 0) return goal.progress || 0;
+    if (localMilestones.length === 0) return 0;
     const completed = localMilestones.filter(m => m.completed).length;
     return Math.round((completed / localMilestones.length) * 100);
-  }, [localMilestones, goal.progress]);
+  }, [localMilestones]);
 
   const toggleMilestone = (index, checked) => {
     // Immediately update local state for instant UI feedback
