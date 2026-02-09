@@ -52,11 +52,6 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
 
   const [localMilestones, setLocalMilestones] = useState(() => getNormalizedMilestones(goal.milestones));
 
-  // Sync local state when goal prop changes
-  React.useEffect(() => {
-    setLocalMilestones(getNormalizedMilestones(goal.milestones));
-  }, [goal.milestones]);
-
   // Mutation with optimistic update
   const updateMilestone = useMutation({
     mutationFn: async ({ updatedMilestones, newProgress }) => {
@@ -65,20 +60,43 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         progress: newProgress 
       });
     },
+    onMutate: async ({ updatedMilestones, newProgress }) => {
+      await queryClient.cancelQueries({ queryKey: ['allGoals'] });
+      const previousGoals = queryClient.getQueryData(['allGoals']);
+      queryClient.setQueryData(['allGoals'], (old = []) => 
+        old.map((g) => g.id === goal.id ? { ...g, milestones: updatedMilestones, progress: newProgress } : g)
+      );
+      return { previousGoals };
+    },
     onSuccess: (data) => {
       // Update local state with server response
       if (data?.milestones) {
         setLocalMilestones(getNormalizedMilestones(data.milestones));
       }
       // Invalidate queries to sync with other components
-      queryClient.invalidateQueries(['allGoals']);
+      queryClient.invalidateQueries({ queryKey: ['allGoals'] });
     },
-    onError: (err) => {
+    onError: (err, _vars, context) => {
+      if (context?.previousGoals) {
+        queryClient.setQueryData(['allGoals'], context.previousGoals);
+      }
       // Revert local state on error
       setLocalMilestones(getNormalizedMilestones(goal.milestones));
       alert('Failed to update: ' + (err.message || 'Unknown error'));
     }
   });
+
+  // Sync local state when goal prop changes (skip while optimistic update is in flight)
+  React.useEffect(() => {
+    if (updateMilestone.isPending) return;
+    setLocalMilestones(getNormalizedMilestones(goal.milestones));
+  }, [goal.milestones, updateMilestone.isPending]);
+
+  const localProgress = React.useMemo(() => {
+    if (localMilestones.length === 0) return 0;
+    const completed = localMilestones.filter(m => m.completed).length;
+    return Math.round((completed / localMilestones.length) * 100);
+  }, [localMilestones]);
 
   const toggleMilestone = (index, checked) => {
     // Immediately update local state for instant UI feedback
@@ -91,7 +109,9 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     setLocalMilestones(updatedMilestones);
     
     const completedCount = updatedMilestones.filter(m => m.completed).length;
-    const newProgress = Math.round((completedCount / updatedMilestones.length) * 100);
+    const newProgress = updatedMilestones.length > 0 
+      ? Math.round((completedCount / updatedMilestones.length) * 100)
+      : 0;
     
     // Send to server
     updateMilestone.mutate({ updatedMilestones, newProgress });
@@ -192,11 +212,14 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
 
         {/* Progress Bar */}
         <div className="mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">Progress {updateMilestone.isPending && <span className="text-xs text-gray-500 ml-2">Saving...</span>}</span>
-            <span className="text-sm font-bold text-blue-600">{goal.progress || 0}%</span>
-          </div>
-          <Progress value={goal.progress || 0} className="h-3" />
+           <div className="flex items-center justify-between mb-2">
+             <span className="text-sm font-medium text-gray-700">Progress {updateMilestone.isPending && <span className="text-xs text-gray-500 ml-2">Saving...</span>}</span>
+             <span className="text-sm font-bold text-blue-600">{localProgress}%</span>
+           </div>
+           <Progress 
+             value={localProgress} 
+             className="h-3" 
+           />
         </div>
 
         {/* Milestones */}
