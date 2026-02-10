@@ -23,6 +23,7 @@ import StandaloneDailyCheckIn from '../components/home/StandaloneDailyCheckIn';
 import DailyReflection from '../components/home/DailyReflection';
 import ExerciseDetail from '../components/exercises/ExerciseDetail';
 import VideoModal from '../components/home/VideoModal';
+import GoalsDashboardWidget from '../components/goals/GoalsDashboardWidget';
 import { motion } from 'framer-motion';
 
 export default function Home() {
@@ -226,6 +227,10 @@ export default function Home() {
 
           {/* Secondary Content - Below the fold */}
         <div className="mt-8 space-y-4">
+        
+        {/* Goals Dashboard Widget */}
+        <GoalsDashboardWidget />
+        
         {/* Quick Stats */}
         <style>{`
           @keyframes angelPulse {
