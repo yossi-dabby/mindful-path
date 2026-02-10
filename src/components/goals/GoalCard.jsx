@@ -92,9 +92,10 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   // Sync local state when goal.milestones changes, but NOT during our own mutation
   React.useEffect(() => {
     if (!isMutatingRef.current) {
-      setLocalMilestones(getNormalizedMilestones(goal.milestones));
+      const normalized = getNormalizedMilestones(goal.milestones);
+      setLocalMilestones(normalized);
     }
-  }, [goal.milestones, goal.id]);
+  }, [goal.milestones]);
 
   const localProgress = React.useMemo(() => {
     if (localMilestones.length === 0) return 0;

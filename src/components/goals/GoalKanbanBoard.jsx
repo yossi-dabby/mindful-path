@@ -44,7 +44,7 @@ export default function GoalKanbanBoard({ goal }) {
       status: m.completed ? 'completed' : (m.status || 'todo')
     }));
     setLocalMilestones(synced);
-  }, [goal.milestones, goal.id]);
+  }, [goal.milestones]);
 
   const updateMilestone = useMutation({
     mutationFn: async ({ milestones, progress }) => {
