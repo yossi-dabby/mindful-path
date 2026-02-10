@@ -56,7 +56,12 @@ export default function GoalKanbanBoard({ goal }) {
       await queryClient.cancelQueries({ queryKey: ['allGoals'] });
       const previousGoals = queryClient.getQueryData(['allGoals']);
       queryClient.setQueryData(['allGoals'], (old = []) => 
-        old.map((g) => g.id === goal.id ? { ...g, milestones, progress } : g)
+        old.map((g) => g.id === goal.id ? { 
+          ...g, 
+          milestones: [...milestones], 
+          progress,
+          updated_date: new Date().toISOString()
+        } : g)
       );
       return { previousGoals };
     },

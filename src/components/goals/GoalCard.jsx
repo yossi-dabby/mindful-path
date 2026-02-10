@@ -68,7 +68,12 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       const previousGoals = queryClient.getQueryData(['allGoals']);
       queryClient.setQueryData(['allGoals'], (old) => {
         if (!old) return old;
-        return old.map((g) => g.id === goal.id ? { ...g, milestones: updatedMilestones, progress: newProgress } : g);
+        return old.map((g) => g.id === goal.id ? { 
+          ...g, 
+          milestones: [...updatedMilestones], 
+          progress: newProgress,
+          updated_date: new Date().toISOString()
+        } : g);
       });
       return { previousGoals };
     },
