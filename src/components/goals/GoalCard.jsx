@@ -53,11 +53,6 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
 
   const [localMilestones, setLocalMilestones] = useState(() => getNormalizedMilestones(goal.milestones));
 
-  // Sync local state with goal prop when it changes (e.g., after refetch)
-  React.useEffect(() => {
-    setLocalMilestones(getNormalizedMilestones(goal.milestones));
-  }, [goal.milestones, goal.id]);
-
   // Mutation with optimistic update
   const updateMilestone = useMutation({
     mutationFn: async ({ updatedMilestones, newProgress }) => {
