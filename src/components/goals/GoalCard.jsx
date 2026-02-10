@@ -56,10 +56,13 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   // Mutation with optimistic update
   const updateMilestone = useMutation({
     mutationFn: async ({ updatedMilestones, newProgress }) => {
-      return await base44.entities.Goal.update(goal.id, { 
+      console.log('📤 Sending to backend:', { goalId: goal.id, milestones: updatedMilestones, progress: newProgress });
+      const result = await base44.entities.Goal.update(goal.id, { 
         milestones: updatedMilestones, 
         progress: newProgress 
       });
+      console.log('📥 Backend response:', result);
+      return result;
     },
     onMutate: async ({ updatedMilestones, newProgress }) => {
       await queryClient.cancelQueries({ queryKey: ['allGoals'] });
@@ -71,29 +74,33 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       return { previousGoals };
     },
     onSuccess: (updatedGoal) => {
+      console.log('✅ Update successful:', updatedGoal);
       // Trust server response if present
       if (updatedGoal?.id) {
         queryClient.setQueryData(['allGoals'], (old) => {
           if (!old) return old;
           return old.map((g) => (g.id === updatedGoal.id ? updatedGoal : g));
         });
-        // Update local state with server response
+        // Update local state with server response to ensure sync
         if (updatedGoal.milestones) {
-          setLocalMilestones(getNormalizedMilestones(updatedGoal.milestones));
+          const normalizedMilestones = getNormalizedMilestones(updatedGoal.milestones);
+          console.log('🔄 Syncing local state with server:', normalizedMilestones);
+          setLocalMilestones(normalizedMilestones);
         }
       } else {
         // Fallback: ensure a refetch if server response is missing
+        console.warn('⚠️ No server response, invalidating queries');
         queryClient.invalidateQueries(['allGoals']);
       }
-      // Don't invalidate - we already have the latest data
     },
     onError: (err, _vars, context) => {
+      console.error('❌ Update failed:', err);
       if (context?.previousGoals) {
         queryClient.setQueryData(['allGoals'], context.previousGoals);
       }
       // Revert local state on error
       setLocalMilestones(getNormalizedMilestones(goal.milestones));
-      alert('Failed to update: ' + (err.message || 'Unknown error'));
+      alert('Failed to update milestone: ' + (err.message || 'Unknown error'));
     }
   });
 
@@ -106,13 +113,17 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   }, [localMilestones]);
 
   const toggleMilestone = (index, checked) => {
-    // Normalize checked value (handle "indeterminate" and other edge cases)
+    // Normalize checked value to boolean
     const isChecked = checked === true;
     
     // Immediately update local state for instant UI feedback
     const updatedMilestones = localMilestones.map((m, i) => 
       i === index 
-        ? { ...m, completed: isChecked, completed_date: isChecked ? new Date().toISOString() : null }
+        ? { 
+            ...m, 
+            completed: isChecked, 
+            completed_date: isChecked ? new Date().toISOString() : null 
+          }
         : m
     );
     
@@ -125,6 +136,8 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     
     // Convert to backend-compatible format
     const milestonesForDb = updatedMilestones.map(toBackendMilestone);
+    
+    console.log('🔄 Updating milestone:', { index, isChecked, milestonesForDb, newProgress });
     
     // Send to server
     updateMilestone.mutate({ updatedMilestones: milestonesForDb, newProgress });
@@ -301,7 +314,11 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                 )}
                 <Checkbox
                   checked={Boolean(milestone.completed)}
-                  onCheckedChange={(checked) => toggleMilestone(index, checked)}
+                  onCheckedChange={(checked) => {
+                    console.log('✅ Checkbox clicked:', { index, checked, current: milestone.completed });
+                    toggleMilestone(index, checked);
+                  }}
+                  disabled={updateMilestone.isPending}
                   className="mt-0.5 flex-shrink-0"
                   id={`milestone-${goal.id}-${index}`}
                 />
