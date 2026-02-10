@@ -96,11 +96,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     }
   });
 
-  // Sync local state when goal prop changes (skip while optimistic update is in flight)
-  React.useEffect(() => {
-    if (updateMilestone.isPending) return;
-    setLocalMilestones(getNormalizedMilestones(goal.milestones));
-  }, [goal.milestones, updateMilestone.isPending]);
+
 
   const localProgress = React.useMemo(() => {
     if (localMilestones.length === 0) return 0;
