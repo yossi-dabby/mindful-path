@@ -206,7 +206,9 @@ export default function MilestonesTimeline({ goals }) {
             <div className="text-xs text-amber-600">Due Soon</div>
           </div>
           <div className="p-3 bg-green-50 rounded-lg border border-green-200">
-            <div className="text-2xl font-bold text-green-700">{stats.completed}</div>
+            <div className="text-xl md:text-2xl font-bold text-green-700 truncate">
+              {stats.completed}/{stats.total}
+            </div>
             <div className="text-xs text-green-600">Completed</div>
           </div>
         </div>

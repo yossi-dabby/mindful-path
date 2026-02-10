@@ -110,7 +110,9 @@ export default function GoalsDashboardWidget() {
               <CheckCircle2 className="w-4 h-4 text-green-600" />
               <span className="text-xs text-gray-600">Completed</span>
             </div>
-            <p className="text-2xl font-bold text-green-700">{completedGoals.length}</p>
+            <p className="text-xl md:text-2xl font-bold text-green-700 truncate">
+              {completedMilestones.length}/{allMilestones.length}
+            </p>
           </div>
 
           <div className={cn(
