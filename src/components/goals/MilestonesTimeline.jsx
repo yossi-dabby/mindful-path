@@ -40,7 +40,7 @@ export default function MilestonesTimeline({ goals }) {
       if (!b.due_date) return -1;
       return new Date(a.due_date) - new Date(b.due_date);
     });
-  }, [JSON.stringify(goals.map(g => ({ id: g.id, milestones: g.milestones, status: g.status })))]);
+  }, [goals]);
 
   // Filter milestones
   const filteredMilestones = useMemo(() => {
@@ -151,8 +151,10 @@ export default function MilestonesTimeline({ goals }) {
     const completed = filteredMilestones.filter(m => m.completed).length;
     const overdue = filteredMilestones.filter(m => getMilestoneStatus(m) === 'overdue').length;
     const dueSoon = filteredMilestones.filter(m => getMilestoneStatus(m) === 'due-soon').length;
-    return { completed, overdue, dueSoon, total: filteredMilestones.length };
-  }, [filteredMilestones]);
+    const allCompleted = allMilestones.filter(m => m.completed).length;
+    const allTotal = allMilestones.length;
+    return { completed: allCompleted, overdue, dueSoon, total: allTotal };
+  }, [filteredMilestones, allMilestones]);
 
   return (
     <Card className="border-0 shadow-md">
