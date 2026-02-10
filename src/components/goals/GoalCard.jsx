@@ -109,10 +109,13 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   }, [localMilestones]);
 
   const toggleMilestone = (index, checked) => {
+    // Normalize checked value (handle "indeterminate" and other edge cases)
+    const isChecked = checked === true;
+    
     // Immediately update local state for instant UI feedback
     const updatedMilestones = localMilestones.map((m, i) => 
       i === index 
-        ? { ...m, completed: checked, completed_date: checked ? new Date().toISOString() : null }
+        ? { ...m, completed: isChecked, completed_date: isChecked ? new Date().toISOString() : null }
         : m
     );
     
@@ -301,7 +304,6 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                   onCheckedChange={(checked) => toggleMilestone(index, checked)}
                   className="mt-0.5 flex-shrink-0"
                   id={`milestone-${goal.id}-${index}`}
-                  disabled={updateMilestone.isPending}
                 />
                 <label 
                   htmlFor={`milestone-${goal.id}-${index}`}

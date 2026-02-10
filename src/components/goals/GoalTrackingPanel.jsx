@@ -21,6 +21,14 @@ export default function GoalTrackingPanel({ goal, onUpdate }) {
     coping_strategies_used: []
   });
   const [tempInput, setTempInput] = useState('');
+  
+  // Local milestone state for instant UI feedback
+  const [localMilestones, setLocalMilestones] = useState(goal.milestones || []);
+  
+  // Sync local state when goal prop changes
+  React.useEffect(() => {
+    setLocalMilestones(goal.milestones || []);
+  }, [goal.milestones, goal.id]);
 
   const handleDailyCheckIn = async () => {
     const today = format(new Date(), 'yyyy-MM-dd');
@@ -73,23 +81,36 @@ export default function GoalTrackingPanel({ goal, onUpdate }) {
   };
 
   const toggleMilestone = async (milestoneIndex) => {
-    const updatedMilestones = [...goal.milestones];
-    updatedMilestones[milestoneIndex].completed = !updatedMilestones[milestoneIndex].completed;
-    if (updatedMilestones[milestoneIndex].completed) {
-      updatedMilestones[milestoneIndex].completed_date = new Date().toISOString();
-    } else {
-      updatedMilestones[milestoneIndex].completed_date = null;
-    }
+    // Update local state first for instant feedback
+    const updatedMilestones = localMilestones.map((m, i) =>
+      i === milestoneIndex
+        ? {
+            ...m,
+            completed: !m.completed,
+            completed_date: !m.completed ? new Date().toISOString() : null
+          }
+        : m
+    );
+    
+    setLocalMilestones(updatedMilestones);
 
     const completedCount = updatedMilestones.filter(m => m.completed).length;
-    const progress = (completedCount / updatedMilestones.length) * 100;
+    const progress = updatedMilestones.length > 0
+      ? (completedCount / updatedMilestones.length) * 100
+      : 0;
 
-    await base44.entities.Goal.update(goal.id, {
-      milestones: updatedMilestones,
-      progress
-    });
+    try {
+      await base44.entities.Goal.update(goal.id, {
+        milestones: updatedMilestones,
+        progress
+      });
 
-    onUpdate();
+      onUpdate && onUpdate();
+    } catch (error) {
+      // Revert on error
+      setLocalMilestones(goal.milestones || []);
+      alert('Failed to update milestone. Please try again.');
+    }
   };
 
   const recentCheckIns = goal.tracking?.daily_check_ins?.slice(-7) || [];
@@ -133,11 +154,11 @@ export default function GoalTrackingPanel({ goal, onUpdate }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5" />
-            Milestones ({goal.milestones?.filter(m => m.completed).length || 0}/{goal.milestones?.length || 0})
+            Milestones ({localMilestones.filter(m => m.completed).length || 0}/{localMilestones.length || 0})
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          {goal.milestones?.map((milestone, i) => (
+          {localMilestones.map((milestone, i) => (
             <div
               key={i}
               className={cn(
@@ -148,9 +169,9 @@ export default function GoalTrackingPanel({ goal, onUpdate }) {
               <div className="flex items-center gap-3">
                 <input
                   type="checkbox"
-                  checked={milestone.completed}
+                  checked={Boolean(milestone.completed)}
                   onChange={() => toggleMilestone(i)}
-                  className="w-5 h-5"
+                  className="w-5 h-5 cursor-pointer"
                 />
                 <div>
                   <p className={cn(
