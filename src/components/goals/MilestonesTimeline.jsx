@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,10 @@ import { format, isAfter, isBefore, startOfDay, endOfDay, addDays } from 'date-f
 import { cn } from '@/lib/utils';
 import { safeArray, safeText } from '@/components/utils/aiDataNormalizer';
 
-export default function MilestonesTimeline({ goals }) {
+export default function MilestonesTimeline({ goals: propGoals }) {
+  const queryClient = useQueryClient();
+  // Get fresh data from cache to ensure synchronization
+  const goals = queryClient.getQueryData(['allGoals']) || propGoals || [];
   const [selectedGoalId, setSelectedGoalId] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
 
