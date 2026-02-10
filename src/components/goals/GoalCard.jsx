@@ -53,6 +53,13 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
 
   const [localMilestones, setLocalMilestones] = useState(() => getNormalizedMilestones(goal.milestones));
 
+  // Sync local state with backend data when goal updates (e.g., after page refresh)
+  React.useEffect(() => {
+    if (!updateMilestone.isPending) {
+      setLocalMilestones(getNormalizedMilestones(goal.milestones));
+    }
+  }, [goal.milestones, goal.id, updateMilestone.isPending]);
+
   // Mutation with optimistic update
   const updateMilestone = useMutation({
     mutationFn: async ({ updatedMilestones, newProgress }) => {
@@ -84,12 +91,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     }
   });
 
-  // Sync local state with backend data when goal updates (e.g., after page refresh)
-  React.useEffect(() => {
-    if (!updateMilestone.isPending) {
-      setLocalMilestones(getNormalizedMilestones(goal.milestones));
-    }
-  }, [goal.milestones, goal.id, updateMilestone.isPending]);
+
 
   const localProgress = React.useMemo(() => {
     if (localMilestones.length === 0) return 0;
