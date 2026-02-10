@@ -8,6 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar, GripVertical } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { toBackendMilestone } from './milestoneSchemaAdapter';
 
 const statusColumns = {
   todo: { title: 'To Do', color: 'bg-gray-100', badge: 'bg-gray-500' },
@@ -98,13 +99,7 @@ export default function GoalKanbanBoard({ goal }) {
     setLocalMilestones(updatedMilestones);
     
     // Save to backend
-    const milestonesForDb = updatedMilestones.map(m => ({
-      title: m.title,
-      description: m.description || '',
-      due_date: m.due_date || null,
-      completed: m.completed,
-      completed_date: m.completed_date || null
-    }));
+    const milestonesForDb = updatedMilestones.map(toBackendMilestone);
     
     updateMilestone.mutate({ milestones: milestonesForDb, progress: newProgress });
   };
@@ -129,13 +124,7 @@ export default function GoalKanbanBoard({ goal }) {
     setLocalMilestones(updatedMilestones);
     
     // Save to backend
-    const milestonesForDb = updatedMilestones.map(m => ({
-      title: m.title,
-      description: m.description || '',
-      due_date: m.due_date || null,
-      completed: m.completed,
-      completed_date: m.completed_date || null
-    }));
+    const milestonesForDb = updatedMilestones.map(toBackendMilestone);
     
     updateMilestone.mutate({ milestones: milestonesForDb, progress: newProgress });
   };
