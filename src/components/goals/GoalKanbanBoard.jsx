@@ -28,7 +28,7 @@ export default function GoalKanbanBoard({ goal }) {
     }));
   });
 
-  // Sync from server when goal updates
+  // Sync from server ONLY when switching to a different goal
   React.useEffect(() => {
     if (!goal.milestones || goal.milestones.length === 0) {
       setLocalMilestones([]);
@@ -41,7 +41,7 @@ export default function GoalKanbanBoard({ goal }) {
       status: m.completed ? 'completed' : (m.status || 'todo')
     }));
     setLocalMilestones(synced);
-  }, [goal.milestones, goal.id]);
+  }, [goal.id]);
 
   const updateMilestone = useMutation({
     mutationFn: async ({ milestones, progress }) => {
@@ -56,14 +56,8 @@ export default function GoalKanbanBoard({ goal }) {
       );
       return { previousGoals };
     },
-    onSuccess: (updatedGoal) => {
-      // Trust server response if present
-      if (updatedGoal?.id) {
-        queryClient.setQueryData(['allGoals'], (old = []) => 
-          old.map((g) => (g.id === updatedGoal.id ? updatedGoal : g))
-        );
-      }
-      // Don't invalidate - we already have the latest data
+    onSuccess: () => {
+      // Do NOT invalidate or update cache - keep optimistic update
     },
     onError: (_err, _vars, context) => {
       if (context?.previousGoals) {
