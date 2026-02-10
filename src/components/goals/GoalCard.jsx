@@ -84,10 +84,12 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     }
   });
 
-  // Sync local state ONLY when switching to a different goal (not after updates to same goal)
+  // Sync local state with backend data (but not while mutation is in progress)
   React.useEffect(() => {
-    setLocalMilestones(getNormalizedMilestones(goal.milestones));
-  }, [goal.id]);
+    if (!updateMilestone.isPending) {
+      setLocalMilestones(getNormalizedMilestones(goal.milestones));
+    }
+  }, [goal.milestones, goal.id, updateMilestone.isPending]);
 
   const localProgress = React.useMemo(() => {
     if (localMilestones.length === 0) return 0;
