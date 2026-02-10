@@ -53,11 +53,6 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
 
   const [localMilestones, setLocalMilestones] = useState(() => getNormalizedMilestones(goal.milestones));
 
-  // Sync local state with goal prop when it changes (e.g., after refetch)
-  React.useEffect(() => {
-    setLocalMilestones(getNormalizedMilestones(goal.milestones));
-  }, [goal.milestones, goal.id]);
-
   // Mutation with optimistic update
   const updateMilestone = useMutation({
     mutationFn: async ({ updatedMilestones, newProgress }) => {
@@ -75,14 +70,9 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       });
       return { previousGoals };
     },
-    onSuccess: (updatedGoal) => {
-      // Update cache with server response for persistence
-      if (updatedGoal?.id) {
-        queryClient.setQueryData(['allGoals'], (old) => {
-          if (!old) return old;
-          return old.map((g) => (g.id === updatedGoal.id ? updatedGoal : g));
-        });
-      }
+    onSuccess: () => {
+      // Don't update local state from server - trust the optimistic update
+      // Only invalidate in case other parts of the UI need refreshing
       queryClient.invalidateQueries(['allGoals']);
     },
     onError: (err, _vars, context) => {
