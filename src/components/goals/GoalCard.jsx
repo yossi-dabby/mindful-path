@@ -52,6 +52,9 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   };
 
   const [localMilestones, setLocalMilestones] = useState(() => getNormalizedMilestones(goal.milestones));
+  
+  // Track if we're currently updating to prevent sync conflicts
+  const isUpdatingRef = React.useRef(false);
 
   // Mutation with optimistic update
   const updateMilestone = useMutation({
@@ -62,6 +65,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       });
     },
     onMutate: async ({ updatedMilestones, newProgress }) => {
+      isUpdatingRef.current = true;
       await queryClient.cancelQueries({ queryKey: ['allGoals'] });
       const previousGoals = queryClient.getQueryData(['allGoals']);
       queryClient.setQueryData(['allGoals'], (old) => {
@@ -73,8 +77,13 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     onSuccess: () => {
       // Refresh to ensure we have the latest server state
       queryClient.invalidateQueries(['allGoals']);
+      // Allow sync after backend confirms the update
+      setTimeout(() => {
+        isUpdatingRef.current = false;
+      }, 100);
     },
     onError: (err, _vars, context) => {
+      isUpdatingRef.current = false;
       if (context?.previousGoals) {
         queryClient.setQueryData(['allGoals'], context.previousGoals);
       }
@@ -84,10 +93,12 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     }
   });
 
-  // Sync local state only when viewing a different goal (not after our own updates)
+  // Sync local state with backend data when it changes (but not during our own updates)
   React.useEffect(() => {
-    setLocalMilestones(getNormalizedMilestones(goal.milestones));
-  }, [goal.id]);
+    if (!isUpdatingRef.current) {
+      setLocalMilestones(getNormalizedMilestones(goal.milestones));
+    }
+  }, [goal.milestones, goal.id]);
 
   const localProgress = React.useMemo(() => {
     if (localMilestones.length === 0) return 0;
