@@ -10,6 +10,7 @@ import { Edit, Calendar, CheckCircle2, ChevronDown, ChevronUp, TrendingUp, BookO
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { safeArray, safeText } from '@/components/utils/aiDataNormalizer';
+import { toBackendMilestone } from './milestoneSchemaAdapter';
 import GoalProgressChart from './GoalProgressChart';
 import GoalKanbanBoard from './GoalKanbanBoard';
 import LinkedJournalEntries from './LinkedJournalEntries';
@@ -122,8 +123,11 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       ? Math.round((completedCount / updatedMilestones.length) * 100)
       : 0;
     
+    // Convert to backend-compatible format
+    const milestonesForDb = updatedMilestones.map(toBackendMilestone);
+    
     // Send to server
-    updateMilestone.mutate({ updatedMilestones, newProgress });
+    updateMilestone.mutate({ updatedMilestones: milestonesForDb, newProgress });
   };
 
   const isCompleted = goal.status === 'completed';
