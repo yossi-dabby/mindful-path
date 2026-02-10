@@ -52,6 +52,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   };
 
   const [localMilestones, setLocalMilestones] = useState(() => getNormalizedMilestones(goal.milestones));
+  const isMutatingRef = React.useRef(false);
 
   // Mutation with optimistic update
   const updateMilestone = useMutation({
@@ -62,6 +63,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       });
     },
     onMutate: async ({ updatedMilestones, newProgress }) => {
+      isMutatingRef.current = true;
       await queryClient.cancelQueries({ queryKey: ['allGoals'] });
       const previousGoals = queryClient.getQueryData(['allGoals']);
       queryClient.setQueryData(['allGoals'], (old) => {
@@ -71,10 +73,13 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       return { previousGoals };
     },
     onSuccess: () => {
-      // Do NOT invalidate - keep the optimistic update
-      // The backend has saved it, and we already have the correct state
+      // Mark mutation as complete after a brief delay
+      setTimeout(() => {
+        isMutatingRef.current = false;
+      }, 100);
     },
     onError: (err, _vars, context) => {
+      isMutatingRef.current = false;
       if (context?.previousGoals) {
         queryClient.setQueryData(['allGoals'], context.previousGoals);
       }
@@ -84,10 +89,12 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     }
   });
 
-  // Sync local state ONLY when viewing a different goal - never after updates to the same goal
+  // Sync local state when goal.milestones changes, but NOT during our own mutation
   React.useEffect(() => {
-    setLocalMilestones(getNormalizedMilestones(goal.milestones));
-  }, [goal.id]);
+    if (!isMutatingRef.current) {
+      setLocalMilestones(getNormalizedMilestones(goal.milestones));
+    }
+  }, [goal.milestones, goal.id]);
 
   const localProgress = React.useMemo(() => {
     if (localMilestones.length === 0) return 0;

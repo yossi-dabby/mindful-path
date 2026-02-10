@@ -27,9 +27,12 @@ export default function GoalKanbanBoard({ goal }) {
       status: m.completed ? 'completed' : (m.status || 'todo')
     }));
   });
+  const isMutatingRef = React.useRef(false);
 
-  // Sync from server ONLY when switching to a different goal
+  // Sync from server when goal.milestones changes, but NOT during our own mutation
   React.useEffect(() => {
+    if (isMutatingRef.current) return;
+    
     if (!goal.milestones || goal.milestones.length === 0) {
       setLocalMilestones([]);
       return;
@@ -41,7 +44,7 @@ export default function GoalKanbanBoard({ goal }) {
       status: m.completed ? 'completed' : (m.status || 'todo')
     }));
     setLocalMilestones(synced);
-  }, [goal.id]);
+  }, [goal.milestones, goal.id]);
 
   const updateMilestone = useMutation({
     mutationFn: async ({ milestones, progress }) => {
@@ -49,6 +52,7 @@ export default function GoalKanbanBoard({ goal }) {
       return result;
     },
     onMutate: async ({ milestones, progress }) => {
+      isMutatingRef.current = true;
       await queryClient.cancelQueries({ queryKey: ['allGoals'] });
       const previousGoals = queryClient.getQueryData(['allGoals']);
       queryClient.setQueryData(['allGoals'], (old = []) => 
@@ -57,9 +61,13 @@ export default function GoalKanbanBoard({ goal }) {
       return { previousGoals };
     },
     onSuccess: () => {
-      // Do NOT invalidate or update cache - keep optimistic update
+      // Mark mutation as complete after a brief delay
+      setTimeout(() => {
+        isMutatingRef.current = false;
+      }, 100);
     },
     onError: (_err, _vars, context) => {
+      isMutatingRef.current = false;
       if (context?.previousGoals) {
         queryClient.setQueryData(['allGoals'], context.previousGoals);
       }
