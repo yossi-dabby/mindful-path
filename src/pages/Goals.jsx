@@ -18,8 +18,21 @@ import AiGoalBreakdown from '../components/goals/AiGoalBreakdown';
 import GoalMotivation from '../components/goals/GoalMotivation';
 import AiGoalCoaching from '../components/goals/AiGoalCoaching';
 import MilestonesTimeline from '../components/goals/MilestonesTimeline';
+import GoalTemplateLibrary from '../components/goals/GoalTemplateLibrary';
 
-
+export default function Goals() {
+  const [showForm, setShowForm] = useState(false);
+  const [editingGoal, setEditingGoal] = useState(null);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [showAiSuggestions, setShowAiSuggestions] = useState(false);
+  const [showBreakdown, setShowBreakdown] = useState(null);
+  const [showCoaching, setShowCoaching] = useState(null);
+  const [prefilledGoal, setPrefilledGoal] = useState(null);
+  const [showAuthError, setShowAuthError] = useState(false);
+  const [showTimeline, setShowTimeline] = useState(false);
+  const [showKanban, setShowKanban] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const queryClient = useQueryClient();
   
   // Enable cross-tab synchronization
   useCrossTabInvalidation();
