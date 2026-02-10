@@ -71,8 +71,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       return { previousGoals };
     },
     onSuccess: () => {
-      // Don't update local state from server - trust the optimistic update
-      // Only invalidate in case other parts of the UI need refreshing
+      // Refresh to ensure we have the latest server state
       queryClient.invalidateQueries(['allGoals']);
     },
     onError: (err, _vars, context) => {
