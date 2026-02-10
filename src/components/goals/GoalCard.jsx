@@ -70,22 +70,10 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       });
       return { previousGoals };
     },
-    onSuccess: (updatedGoal) => {
-      // Trust server response if present
-      if (updatedGoal?.id) {
-        queryClient.setQueryData(['allGoals'], (old) => {
-          if (!old) return old;
-          return old.map((g) => (g.id === updatedGoal.id ? updatedGoal : g));
-        });
-        // Update local state with server response
-        if (updatedGoal.milestones) {
-          setLocalMilestones(getNormalizedMilestones(updatedGoal.milestones));
-        }
-      } else {
-        // Fallback: ensure a refetch if server response is missing
-        queryClient.invalidateQueries(['allGoals']);
-      }
-      // Don't invalidate - we already have the latest data
+    onSuccess: () => {
+      // Don't update local state from server - trust the optimistic update
+      // Only invalidate in case other parts of the UI need refreshing
+      queryClient.invalidateQueries(['allGoals']);
     },
     onError: (err, _vars, context) => {
       if (context?.previousGoals) {
