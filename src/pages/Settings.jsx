@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { User, Bell, CreditCard, LogOut, Crown, Shield, Layout as LayoutIcon } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { User, Bell, CreditCard, LogOut, Crown, Shield, Layout as LayoutIcon, Trash2 } from 'lucide-react';
 import ThemeSelector from '../components/settings/ThemeSelector';
 import DataPrivacy from '../components/settings/DataPrivacy';
 import LanguageSelector from '../components/settings/LanguageSelector';
@@ -107,6 +108,32 @@ export default function Settings() {
 
   const handleLogout = () => {
     base44.auth.logout();
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      // Delete all user data
+      const [goals, journals, moods, exercises, conversations] = await Promise.all([
+        base44.entities.Goal.list(),
+        base44.entities.ThoughtJournal.list(),
+        base44.entities.MoodEntry.list(),
+        base44.entities.Exercise.list(),
+        base44.entities.Conversation.list()
+      ]);
+
+      await Promise.all([
+        ...goals.map(g => base44.entities.Goal.delete(g.id)),
+        ...journals.map(j => base44.entities.ThoughtJournal.delete(j.id)),
+        ...moods.map(m => base44.entities.MoodEntry.delete(m.id)),
+        ...exercises.map(e => base44.entities.Exercise.delete(e.id)),
+        ...conversations.map(c => base44.entities.Conversation.delete(c.id))
+      ]);
+
+      // Logout after deletion
+      base44.auth.logout();
+    } catch (error) {
+      alert('Failed to delete account. Please try again or contact support.');
+    }
   };
 
   if (!user) {
@@ -413,15 +440,44 @@ export default function Settings() {
         <CardHeader className="border-b">
           <CardTitle>{t('settings.account.title')}</CardTitle>
         </CardHeader>
-        <CardContent className="p-6">
+        <CardContent className="p-6 space-y-3">
           <Button
             onClick={handleLogout}
             variant="outline"
-            className="w-full rounded-xl border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+            className="w-full rounded-xl border-gray-300 text-gray-700 hover:bg-gray-50"
           >
             <LogOut className="w-4 h-4 mr-2" />
             {t('settings.account.logout')}
           </Button>
+          
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full rounded-xl border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete Account
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Account Permanently?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. All your data including goals, journals, mood entries, and conversations will be permanently deleted.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={handleDeleteAccount}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Delete My Account
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </CardContent>
       </Card>
       </motion.div>

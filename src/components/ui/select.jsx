@@ -3,10 +3,9 @@
 import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
 import { Check, ChevronDown, ChevronUp } from "lucide-react"
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
 
 import { cn } from "@/lib/utils"
-// Note: Drawer removed from SelectContent due to DialogPortal conflicts with Radix Select on mobile.
-// SelectContent now uses SelectPrimitive.Portal consistently across all platforms.
 
 const Select = SelectPrimitive.Root
 
@@ -89,8 +88,33 @@ SelectScrollDownButton.displayName =
   SelectPrimitive.ScrollDownButton.displayName
 
 const SelectContent = React.forwardRef(({ className, children, position = "popper", ...props }, ref) => {
-  // Uses SelectPrimitive.Portal consistently for all platforms.
-  // Mobile and desktop share the same behavior to avoid portal conflicts.
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  // On mobile, use Drawer instead of Popover
+  if (isMobile) {
+    return (
+      <Drawer open={isOpen} onOpenChange={setIsOpen}>
+        <DrawerContent style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
+          <DrawerHeader>
+            <DrawerTitle>Select an option</DrawerTitle>
+          </DrawerHeader>
+          <div className="px-4 pb-4 max-h-[60vh] overflow-y-auto">
+            {React.Children.map(children, child => {
+              if (React.isValidElement(child) && child.type === SelectPrimitive.Item) {
+                return React.cloneElement(child, {
+                  onClick: () => setIsOpen(false)
+                });
+              }
+              return child;
+            })}
+          </div>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
+  // Desktop: use standard Radix Portal
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
