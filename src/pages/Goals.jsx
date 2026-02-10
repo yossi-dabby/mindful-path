@@ -19,29 +19,35 @@ import GoalMotivation from '../components/goals/GoalMotivation';
 import AiGoalCoaching from '../components/goals/AiGoalCoaching';
 import MilestonesTimeline from '../components/goals/MilestonesTimeline';
 
-export default function Goals() {
-  const [showForm, setShowForm] = useState(false);
-  const [editingGoal, setEditingGoal] = useState(null);
-  const [showCalendar, setShowCalendar] = useState(false);
-  const [showAiSuggestions, setShowAiSuggestions] = useState(false);
-  const [showBreakdown, setShowBreakdown] = useState(null);
-  const [showCoaching, setShowCoaching] = useState(null);
-  const [prefilledGoal, setPrefilledGoal] = useState(null);
-  const [showAuthError, setShowAuthError] = useState(false);
-  const [showTimeline, setShowTimeline] = useState(false);
-  const [showKanban, setShowKanban] = useState(false);
-  const queryClient = useQueryClient();
+
   
   // Enable cross-tab synchronization
   useCrossTabInvalidation();
 
-  const { data: goals, isLoading, isError, refetch } = useQuery({
+  const { data: goals = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['allGoals'],
-    queryFn: () => base44.entities.Goal.list('-created_date'),
+    queryFn: async () => {
+      const result = await base44.entities.Goal.list('-created_date');
+      return Array.isArray(result) 
+        ? result.map(goal => ({
+            ...goal,
+            ...goal.data,
+            id: goal.id,
+            created_date: goal.created_date,
+            updated_date: goal.updated_date,
+            created_by: goal.created_by
+          }))
+        : [];
+    },
     initialData: [],
-    refetchOnWindowFocus: false, // Rely on manual invalidations and optimistic updates
-    refetchOnMount: false, // Rely on manual invalidations and optimistic updates
-    staleTime: 30000 // 30s buffer for optimistic updates without aggressive refetching
+    refetchOnWindowFocus: false,
+    refetchOnMount: 'always', // Always fetch on mount to ensure fresh data
+    staleTime: 30000,
+    onError: (error) => {
+      if (isAuthError(error) && shouldShowAuthError()) {
+        setShowAuthError(true);
+      }
+    }
   });
 
   const deleteGoalMutation = useMutation({
@@ -80,24 +86,61 @@ export default function Goals() {
     setShowForm(true);
   };
 
+  const handleSelectTemplate = (template) => {
+    setPrefilledGoal({
+      title: template.title,
+      description: template.description,
+      category: template.category,
+      motivation: template.motivation,
+      smart_criteria: template.smart_criteria,
+      milestones: template.milestones?.map(m => ({ 
+        title: m.title, 
+        description: m.description,
+        completed: false 
+      }))
+    });
+    setShowTemplates(false);
+    setShowForm(true);
+  };
+
+  const updateGoalMutation = useMutation({
+    mutationFn: ({ goalId, data }) => base44.entities.Goal.update(goalId, data),
+    onSuccess: (updatedGoal) => {
+      if (updatedGoal?.id) {
+        queryClient.setQueryData(['allGoals'], (old = []) => 
+          old.map((g) => (g.id === updatedGoal.id ? {
+            ...updatedGoal,
+            ...updatedGoal.data,
+            id: updatedGoal.id,
+            created_date: updatedGoal.created_date,
+            updated_date: updatedGoal.updated_date,
+            created_by: updatedGoal.created_by
+          } : g))
+        );
+      }
+      emitEntityChange('Goal', 'update');
+    },
+    onError: (error) => {
+      if (isAuthError(error) && shouldShowAuthError()) {
+        setShowAuthError(true);
+      } else {
+        alert('Failed to update goal. Check your connection and try again.');
+      }
+    }
+  });
+
   const handleApplyBreakdown = (breakdown) => {
-    // Apply the breakdown to the goal
     if (showBreakdown && breakdown.milestones) {
-      base44.entities.Goal.update(showBreakdown.id, {
-        milestones: breakdown.milestones.map(m => ({ 
-          title: m.title, 
-          completed: false 
-        }))
-      }).then((updatedGoal) => {
-        // Optimistically update cache instead of invalidating
-        if (updatedGoal?.id) {
-          queryClient.setQueryData(['allGoals'], (old = []) => 
-            old.map((g) => (g.id === updatedGoal.id ? updatedGoal : g))
-          );
+      updateGoalMutation.mutate({
+        goalId: showBreakdown.id,
+        data: {
+          milestones: breakdown.milestones.map(m => ({ 
+            title: m.title, 
+            completed: false 
+          }))
         }
-        emitEntityChange('Goal', 'update');
-        setShowBreakdown(null);
       });
+      setShowBreakdown(null);
     }
   };
 
@@ -152,6 +195,16 @@ export default function Goals() {
           >
             <LayoutGrid className="w-4 h-4 md:w-5 md:h-5 md:mr-2" />
             <span className="hidden md:inline">Kanban</span>
+          </Button>
+          <Button
+            onClick={() => setShowTemplates(true)}
+            variant="outline"
+            className="text-sm md:text-base"
+            size="sm"
+            style={{ borderRadius: '24px' }}
+          >
+            <Target className="w-4 h-4 md:w-5 md:h-5 md:mr-2" />
+            <span className="hidden md:inline">Templates</span>
           </Button>
           <Button
             onClick={() => setShowAiSuggestions(true)}
@@ -231,7 +284,7 @@ export default function Goals() {
             </p>
             <div className="flex flex-col gap-3 items-center max-w-md mx-auto">
               <Button
-                onClick={() => setShowAiSuggestions(true)}
+                onClick={() => setShowTemplates(true)}
                 className="text-white px-8 py-6 text-lg w-full"
                 style={{
                   borderRadius: '32px',
@@ -239,8 +292,17 @@ export default function Goals() {
                   boxShadow: '0 8px 24px rgba(38, 166, 154, 0.35)'
                 }}
               >
+                <Target className="w-5 h-5 mr-2" />
+                Browse Goal Templates
+              </Button>
+              <Button
+                onClick={() => setShowAiSuggestions(true)}
+                variant="outline"
+                className="px-8 py-6 text-lg w-full"
+                style={{ borderRadius: '32px' }}
+              >
                 <Sparkles className="w-5 h-5 mr-2" />
-                Get AI Goal Suggestions
+                Get AI Suggestions
               </Button>
               <Button
                 onClick={() => window.location.href = createPageUrl('Chat', 'intent=goal_work')}
@@ -271,14 +333,27 @@ export default function Goals() {
           )}
 
           {/* Kanban Board for All Goals */}
-          {showKanban && activeGoals.length > 0 && (
+          {showKanban && (
             <div className="mb-8">
-              {activeGoals.map(goal => (
-                <div key={goal.id} className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-3">{goal.title}</h3>
-                  <GoalKanbanBoard goal={goal} />
-                </div>
-              ))}
+              {activeGoals.length > 0 ? (
+                activeGoals.map(goal => (
+                  <div key={goal.id} className="mb-6">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-3">{goal.title}</h3>
+                    <GoalKanbanBoard goal={goal} />
+                  </div>
+                ))
+              ) : (
+                <Card className="border-0" style={{
+                  borderRadius: '24px',
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  boxShadow: '0 8px 32px rgba(38, 166, 154, 0.12)'
+                }}>
+                  <CardContent className="p-8 text-center">
+                    <LayoutGrid className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                    <p className="text-gray-600">No active goals to display in Kanban view</p>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           )}
 
@@ -369,6 +444,14 @@ export default function Goals() {
         <AiGoalCoaching
           goal={showCoaching}
           onClose={() => setShowCoaching(null)}
+        />
+      )}
+
+      {/* Goal Template Library */}
+      {showTemplates && (
+        <GoalTemplateLibrary
+          onSelectTemplate={handleSelectTemplate}
+          onClose={() => setShowTemplates(false)}
         />
       )}
       </div>
