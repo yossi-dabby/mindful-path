@@ -72,12 +72,12 @@ export default function GoalCalendar({ goals }) {
   return (
     <Card className="border-0 shadow-lg">
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="flex items-center gap-2">
             <Calendar className="w-5 h-5" />
             Goal Calendar
           </CardTitle>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-center">
             <Button
               variant="outline"
               size="icon"
@@ -85,7 +85,7 @@ export default function GoalCalendar({ goals }) {
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <span className="text-sm font-semibold min-w-[120px] text-center">
+            <span className="text-sm font-semibold flex-1 text-center">
               {format(currentMonth, 'MMMM yyyy')}
             </span>
             <Button

@@ -3,7 +3,6 @@
 import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
 import { Check, ChevronDown, ChevronUp } from "lucide-react"
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
 
 import { cn } from "@/lib/utils"
 
@@ -89,51 +88,39 @@ SelectScrollDownButton.displayName =
 
 const SelectContent = React.forwardRef(({ className, children, position = "popper", ...props }, ref) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const [isOpen, setIsOpen] = React.useState(false);
 
-  // On mobile, use Drawer instead of Popover
-  if (isMobile) {
-    return (
-      <Drawer open={isOpen} onOpenChange={setIsOpen}>
-        <DrawerContent style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
-          <DrawerHeader>
-            <DrawerTitle>Select an option</DrawerTitle>
-          </DrawerHeader>
-          <div className="px-4 pb-4 max-h-[60vh] overflow-y-auto">
-            {React.Children.map(children, child => {
-              if (React.isValidElement(child) && child.type === SelectPrimitive.Item) {
-                return React.cloneElement(child, {
-                  onClick: () => setIsOpen(false)
-                });
-              }
-              return child;
-            })}
-          </div>
-        </DrawerContent>
-      </Drawer>
-    );
-  }
+  const mobileClasses =
+    "fixed inset-x-0 bottom-0 z-50 max-h-[70vh] overflow-hidden rounded-t-2xl border bg-popover text-popover-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom";
 
-  // Desktop: use standard Radix Portal
+  const desktopClasses =
+    "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2";
+
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
         ref={ref}
         className={cn(
-          "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
-          position === "popper" &&
+          isMobile ? mobileClasses : desktopClasses,
+          !isMobile &&
+            position === "popper" &&
             "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
           className
         )}
-        position={position}
+        position={isMobile ? "popper" : position}
+        side={isMobile ? "bottom" : undefined}
+        sideOffset={isMobile ? 0 : undefined}
         {...props}>
-        <SelectScrollUpButton />
+        {!isMobile && <SelectScrollUpButton />}
         <SelectPrimitive.Viewport
-          className={cn("p-1", position === "popper" &&
-            "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]")}>
+          className={cn(
+            "p-1",
+            position === "popper" &&
+              "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]",
+            isMobile && "max-h-[70vh]"
+          )}>
           {children}
         </SelectPrimitive.Viewport>
-        <SelectScrollDownButton />
+        {!isMobile && <SelectScrollDownButton />}
       </SelectPrimitive.Content>
     </SelectPrimitive.Portal>
   );
