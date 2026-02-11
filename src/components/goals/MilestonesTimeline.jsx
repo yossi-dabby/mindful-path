@@ -56,7 +56,7 @@ export default function MilestonesTimeline() {
           goalCategory: goal.category,
           milestoneIndex: index,
           completed,
-          due_date: ms.due_date ?? null
+          due_date: ms.due_date || null
         });
       });
     });
