@@ -79,10 +79,8 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       return { previousGoals };
     },
     onSuccess: () => {
-      // Broadcast change immediately
+      // Broadcast change to other components and tabs
       emitEntityChange('Goal', 'update');
-      // Invalidate all goal queries to force refetch
-      queryClient.invalidateQueries({ queryKey: ['allGoals'] });
       // Mark mutation as complete after a brief delay
       setTimeout(() => {
         isMutatingRef.current = false;
