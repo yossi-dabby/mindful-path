@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar, CheckCircle2, AlertCircle, Clock, Filter } from 'lucide-react';
 import { format, isAfter, isBefore, startOfDay, endOfDay, addDays } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { safeArray, safeText } from '@/components/utils/aiDataNormalizer';
+import { safeText } from '@/components/utils/aiDataNormalizer';
 
 export default function MilestonesTimeline() {
   const queryClient = useQueryClient();
@@ -45,15 +45,17 @@ export default function MilestonesTimeline() {
     goals.forEach(goal => {
       if (goal.status !== 'active') return;
       
-      safeArray(goal.milestones).forEach((milestone, index) => {
+      const milestoneList = Array.isArray(goal.milestones) ? goal.milestones : [];
+      milestoneList.forEach((milestone, index) => {
         const ms = typeof milestone === 'object' ? milestone : { title: milestone };
+        const completed = typeof ms.completed === 'string' ? ms.completed === 'true' : Boolean(ms.completed);
         milestones.push({
           ...ms,
           goalId: goal.id,
           goalTitle: goal.title,
           goalCategory: goal.category,
           milestoneIndex: index,
-          completed: Boolean(ms.completed),
+          completed,
           due_date: ms.due_date || null
         });
       });
