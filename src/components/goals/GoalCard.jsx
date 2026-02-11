@@ -9,7 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Edit, Calendar, CheckCircle2, ChevronDown, ChevronUp, TrendingUp, BookOpen, Trash2, Sparkles, Bell, LayoutGrid } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { safeArray, safeText } from '@/components/utils/aiDataNormalizer';
+import { safeText } from '@/components/utils/aiDataNormalizer';
 import { toBackendMilestone } from './milestoneSchemaAdapter';
 import GoalProgressChart from './GoalProgressChart';
 import GoalKanbanBoard from './GoalKanbanBoard';
@@ -38,14 +38,19 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   
   // Normalize milestones from goal prop and sync to local state
   const getNormalizedMilestones = (milestones) => {
-    return safeArray(milestones).map((m, i) => {
+    const source = Array.isArray(milestones) ? milestones : [];
+    return source.map((m, i) => {
       if (typeof m === 'string') {
         return { title: m, completed: false, description: '', due_date: null };
       }
+      const completed =
+        typeof m.completed === 'string'
+          ? m.completed === 'true'
+          : Boolean(m.completed);
       return {
         title: safeText(m.title || m, `Step ${i + 1}`),
         description: safeText(m.description, ''),
-        completed: Boolean(m.completed),
+        completed,
         due_date: m.due_date || null,
         completed_date: m.completed_date || null
       };
