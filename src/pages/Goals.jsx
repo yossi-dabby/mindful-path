@@ -341,7 +341,7 @@ export default function Goals() {
           {/* Timeline View */}
           {showTimeline && (
             <div className="mb-8">
-              <MilestonesTimeline goals={goals} />
+              <MilestonesTimeline />
             </div>
           )}
 

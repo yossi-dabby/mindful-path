@@ -9,6 +9,7 @@ import { Calendar, GripVertical } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toBackendMilestone } from './milestoneSchemaAdapter';
+import { emitEntityChange } from '@/components/utils/crossTabSync';
 
 const statusColumns = {
   todo: { title: 'To Do', color: 'bg-gray-100', badge: 'bg-gray-500' },
@@ -69,6 +70,8 @@ export default function GoalKanbanBoard({ goal }) {
       // Mark mutation as complete after a brief delay
       setTimeout(() => {
         isMutatingRef.current = false;
+        // Broadcast change to other components and tabs
+        emitEntityChange('Goal', 'update');
       }, 100);
     },
     onError: (_err, _vars, context) => {

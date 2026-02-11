@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,10 +10,31 @@ import { format, isAfter, isBefore, startOfDay, endOfDay, addDays } from 'date-f
 import { cn } from '@/lib/utils';
 import { safeArray, safeText } from '@/components/utils/aiDataNormalizer';
 
-export default function MilestonesTimeline({ goals: propGoals }) {
+export default function MilestonesTimeline() {
   const queryClient = useQueryClient();
-  // Get fresh data from cache to ensure synchronization
-  const goals = queryClient.getQueryData(['allGoals']) || propGoals || [];
+  
+  // Fetch goals independently to ensure synchronization
+  const { data: goals = [] } = useQuery({
+    queryKey: ['allGoals'],
+    queryFn: async () => {
+      const result = await base44.entities.Goal.list('-created_date');
+      return Array.isArray(result) 
+        ? result.map(goal => ({
+            ...goal,
+            ...goal.data,
+            id: goal.id,
+            created_date: goal.created_date,
+            updated_date: goal.updated_date,
+            created_by: goal.created_by
+          }))
+        : [];
+    },
+    initialData: [],
+    refetchOnWindowFocus: false,
+    refetchOnMount: 'always',
+    staleTime: 30000,
+  });
+  
   const [selectedGoalId, setSelectedGoalId] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
 

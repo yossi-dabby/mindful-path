@@ -16,6 +16,7 @@ import GoalKanbanBoard from './GoalKanbanBoard';
 import LinkedJournalEntries from './LinkedJournalEntries';
 import AiGoalAdjustment from './AiGoalAdjustment';
 import ReminderSettings from './ReminderSettings';
+import { emitEntityChange } from '@/components/utils/crossTabSync';
 
 const categoryColors = {
   behavioral: 'bg-blue-100 text-blue-700',
@@ -81,6 +82,8 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       // Mark mutation as complete after a brief delay
       setTimeout(() => {
         isMutatingRef.current = false;
+        // Broadcast change to other components and tabs
+        emitEntityChange('Goal', 'update');
       }, 100);
     },
     onError: (err, _vars, context) => {
