@@ -495,7 +495,12 @@ export const translations = {
             ]
           },
           quick_win: {
-            presets: ["I drank water.", "I took a 2-minute break.", "I sent one message I was avoiding.", "I cleaned one tiny area.", "I did one small task for 2 minutes.", "I took 5 slow breaths.", "I stepped outside for fresh air.", "I asked a question instead of assuming.", "I showed up even though it was uncomfortable.", "I wrote one helpful sentence to myself.", "I stretched my shoulders/neck.", "I ate something nourishing.", "I paused before reacting.", "I said no (or not now) politely.", "I made a small plan for tomorrow.", "I finished a mini-step.", "I noticed a thinking trap and named it.", "I chose 'good enough' and stopped.", "I did something kind for someone.", "I did something kind for myself."]
+            presets: ["I drank water.", "I took a 2-minute break.", "I sent one message I was avoiding.", "I cleaned one tiny area.", "I did one small task for 2 minutes.", "I took 5 slow breaths.", "I stepped outside for fresh air.", "I asked a question instead of assuming.", "I showed up even though it was uncomfortable.", "I wrote one helpful sentence to myself.", "I stretched my shoulders/neck.", "I ate something nourishing.", "I paused before reacting.", "I said no (or not now) politely.", "I made a small plan for tomorrow.", "I finished a mini-step.", "I noticed a thinking trap and named it.", "I chose 'good enough' and stopped.", "I did something kind for someone.", "I did something kind for myself."],
+            heading: "Log one small win from today:",
+            instruction: "Or pick a common win:",
+            input_placeholder: "Type your win...",
+            button_log: "Log",
+            success_message: "Win logged! Keep building momentum."
           },
           calm_bingo: {
             tiles: ["Drink a glass of water", "5 slow breaths", "Relax shoulders + jaw", "Look out a window for 30s", "Stand up and stretch", "Send a kind text", "Tidy one small thing", "Step outside for 2 minutes", "Name 3 things you can see", "Play one calm song", "Write 1 supportive sentence", "Wash your hands slowly", "Move your body for 60s", "Put phone down for 2 minutes", "Smile gently (even 10%)", "Choose one tiny next step"]
@@ -516,7 +521,15 @@ export const translations = {
               { emotion: "Shame", urge: "Hide / disappear", opposite: "Small reveal + self-respect", choices: ["Share a tiny truth with a safe person.", "Stand tall, breathe, and stay present for 30s.", "Do one value-based action anyway."], note: "Shame shrinks with safe connection and self-respect actions." },
               { emotion: "Guilt (too much)", urge: "Over-apologize / self-punish", opposite: "Repair effectively", choices: ["Apologize once, then propose one repair step.", "Ask what would help and listen.", "Stop repeating apologies; act instead."], note: "Effective repair beats endless self-blame." },
               { emotion: "Fear of rejection", urge: "People-please / over-text", opposite: "Balanced boundary", choices: ["Send one message, then wait.", "Do one self-caring action while you wait.", "Remind yourself: 'I can handle uncertainty.'"], note: "Opposite action builds tolerance for uncertainty." }
-            ]
+            ],
+            ui: {
+              emotion: "Emotion:",
+              urge: "Urge:",
+              opposite_action: "Opposite Action:",
+              pick_step: "Pick one small step:",
+              note_label: "Note:",
+              try_another: "Try Another"
+            }
           },
           urge_surfing: {
             beginner: [
@@ -526,7 +539,15 @@ export const translations = {
             advanced: [
               { title: "Surf independently (90 seconds)", steps: ["Name and rate the urge (0-10).", "Locate it in your body.", "Breathe with it for 10 breaths.", "Notice the peak and decline.", "Rate it again."], finish_choices: ["Delay 20 minutes and reassess.", "Do the opposite action for 5 minutes.", "Journal about what you noticed."] },
               { title: "Surf + value-based action", steps: ["Acknowledge the urge without judgment.", "Watch it like a scientist observing data.", "Let it peak naturally.", "Choose one value-aligned micro-step."], finish_choices: ["Do the tiny step immediately.", "Practice the skill again in 1 hour.", "Note what worked for next time."] }
-            ]
+            ],
+            ui: {
+              completed: "Completed",
+              guided: "Guided",
+              independent: "Independent",
+              after_surfing: "After surfing, pick one:",
+              success_message: "✓ Good! Urges rise and fall. You rode the wave.",
+              try_another: "Try Another"
+            }
           },
           worry_time: {
             items: [
@@ -546,7 +567,15 @@ export const translations = {
               { thought: "I'm not improving.", evidence_for: ["Progress feels slow.", "I compare myself to others."], evidence_against: ["I've taken small steps.", "Learning is gradual."], balanced_conclusion: "Progress can be slow and real. Small steps still count." },
               { thought: "I must do everything perfectly.", evidence_for: ["I value quality.", "Perfection sometimes prevents criticism."], evidence_against: ["Perfect isn't required to succeed.", "Good-enough frees time and reduces stress."], balanced_conclusion: "I can aim for quality while allowing 'good enough' when it's effective." },
               { thought: "If I say no, I'll be rejected.", evidence_for: ["I worry about disappointing people.", "I've had conflict before."], evidence_against: ["Many people respect boundaries.", "I can say no politely and offer alternatives."], balanced_conclusion: "Saying no respectfully protects relationships and my wellbeing." }
-            ]
+            ],
+            ui: {
+              thought: "Thought:",
+              evidence_for: "Evidence For:",
+              evidence_against: "Evidence Against:",
+              show_conclusion: "Show Balanced Conclusion",
+              balanced_conclusion: "Balanced Conclusion:",
+              try_another: "Try Another"
+            }
           },
           defusion_cards: {
             cards: [
@@ -556,7 +585,13 @@ export const translations = {
               { thought: "I can't handle this feeling.", defuse_lines: ["I'm noticing the thought 'I can't handle it'.", "Feelings are waves; they change.", "I can make room and keep going."] },
               { thought: "I must fix everything now.", defuse_lines: ["There's the 'urgent fixer' thought.", "I can pause and choose one wise next step.", "Slow is smooth; smooth is fast."] },
               { thought: "If it's hard, I should quit.", defuse_lines: ["I'm having the thought 'quit'.", "Hard can mean 'new', not 'wrong'.", "I can do the smallest version (10%)."] }
-            ]
+            ],
+            ui: {
+              sticky_thought: "Sticky Thought:",
+              try_defusion: "Try one defusion line:",
+              success_message: "Nice! You created space between you and the thought. Notice: you can observe it without being controlled by it.",
+              next_card: "Next Card"
+            }
           },
           tipp_skills: {
             situation: "Your emotions are at 8/10 or higher and you need to come down fast.",
@@ -566,7 +601,13 @@ export const translations = {
               { letter: "P", name: "Paced breathing", description: "Breathe out longer than in (4 in / 6 out)" },
               { letter: "P", name: "Paired muscle relaxation", description: "Tense then release muscle groups" }
             ],
-            actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."]
+            actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."],
+            ui: {
+              intro: "When you need to change your body chemistry fast:",
+              pick_one: "Pick one to try right now:",
+              success_message: "✓ Great! TIPP skills change your physiology to reduce emotional intensity.",
+              try_another: "Try Another"
+            }
           },
           accepts: {
             items: [
@@ -1164,7 +1205,12 @@ export const translations = {
             ]
           },
           quick_win: {
-            presets: ["I drank water.", "I took a 2-minute break.", "I sent one message I was avoiding.", "I cleaned one tiny area.", "I did one small task for 2 minutes.", "I took 5 slow breaths.", "I stepped outside for fresh air.", "I asked a question instead of assuming.", "I showed up even though it was uncomfortable.", "I wrote one helpful sentence to myself.", "I stretched my shoulders/neck.", "I ate something nourishing.", "I paused before reacting.", "I said no (or not now) politely.", "I made a small plan for tomorrow.", "I finished a mini-step.", "I noticed a thinking trap and named it.", "I chose 'good enough' and stopped.", "I did something kind for someone.", "I did something kind for myself."]
+            presets: ["I drank water.", "I took a 2-minute break.", "I sent one message I was avoiding.", "I cleaned one tiny area.", "I did one small task for 2 minutes.", "I took 5 slow breaths.", "I stepped outside for fresh air.", "I asked a question instead of assuming.", "I showed up even though it was uncomfortable.", "I wrote one helpful sentence to myself.", "I stretched my shoulders/neck.", "I ate something nourishing.", "I paused before reacting.", "I said no (or not now) politely.", "I made a small plan for tomorrow.", "I finished a mini-step.", "I noticed a thinking trap and named it.", "I chose 'good enough' and stopped.", "I did something kind for someone.", "I did something kind for myself."],
+            heading: "Log one small win from today:",
+            instruction: "Or pick a common win:",
+            input_placeholder: "Type your win...",
+            button_log: "Log",
+            success_message: "Win logged! Keep building momentum."
           },
           calm_bingo: {
             tiles: ["Drink a glass of water", "5 slow breaths", "Relax shoulders + jaw", "Look out a window for 30s", "Stand up and stretch", "Send a kind text", "Tidy one small thing", "Step outside for 2 minutes", "Name 3 things you can see", "Play one calm song", "Write 1 supportive sentence", "Wash your hands slowly", "Move your body for 60s", "Put phone down for 2 minutes", "Smile gently (even 10%)", "Choose one tiny next step"]
@@ -1185,7 +1231,15 @@ export const translations = {
               { emotion: "Shame", urge: "Hide / disappear", opposite: "Small reveal + self-respect", choices: ["Share a tiny truth with a safe person.", "Stand tall, breathe, and stay present for 30s.", "Do one value-based action anyway."], note: "Shame shrinks with safe connection and self-respect actions." },
               { emotion: "Guilt (too much)", urge: "Over-apologize / self-punish", opposite: "Repair effectively", choices: ["Apologize once, then propose one repair step.", "Ask what would help and listen.", "Stop repeating apologies; act instead."], note: "Effective repair beats endless self-blame." },
               { emotion: "Fear of rejection", urge: "People-please / over-text", opposite: "Balanced boundary", choices: ["Send one message, then wait.", "Do one self-caring action while you wait.", "Remind yourself: 'I can handle uncertainty.'"], note: "Opposite action builds tolerance for uncertainty." }
-            ]
+            ],
+            ui: {
+              emotion: "Emotion:",
+              urge: "Urge:",
+              opposite_action: "Opposite Action:",
+              pick_step: "Pick one small step:",
+              note_label: "Note:",
+              try_another: "Try Another"
+            }
           },
           urge_surfing: {
             beginner: [
@@ -1195,7 +1249,15 @@ export const translations = {
             advanced: [
               { title: "Surf independently (90 seconds)", steps: ["Name and rate the urge (0-10).", "Locate it in your body.", "Breathe with it for 10 breaths.", "Notice the peak and decline.", "Rate it again."], finish_choices: ["Delay 20 minutes and reassess.", "Do the opposite action for 5 minutes.", "Journal about what you noticed."] },
               { title: "Surf + value-based action", steps: ["Acknowledge the urge without judgment.", "Watch it like a scientist observing data.", "Let it peak naturally.", "Choose one value-aligned micro-step."], finish_choices: ["Do the tiny step immediately.", "Practice the skill again in 1 hour.", "Note what worked for next time."] }
-            ]
+            ],
+            ui: {
+              completed: "Completed",
+              guided: "Guided",
+              independent: "Independent",
+              after_surfing: "After surfing, pick one:",
+              success_message: "✓ Good! Urges rise and fall. You rode the wave.",
+              try_another: "Try Another"
+            }
           },
           worry_time: {
             items: [
@@ -1215,7 +1277,15 @@ export const translations = {
               { thought: "I'm not improving.", evidence_for: ["Progress feels slow.", "I compare myself to others."], evidence_against: ["I've taken small steps.", "Learning is gradual."], balanced_conclusion: "Progress can be slow and real. Small steps still count." },
               { thought: "I must do everything perfectly.", evidence_for: ["I value quality.", "Perfection sometimes prevents criticism."], evidence_against: ["Perfect isn't required to succeed.", "Good-enough frees time and reduces stress."], balanced_conclusion: "I can aim for quality while allowing 'good enough' when it's effective." },
               { thought: "If I say no, I'll be rejected.", evidence_for: ["I worry about disappointing people.", "I've had conflict before."], evidence_against: ["Many people respect boundaries.", "I can say no politely and offer alternatives."], balanced_conclusion: "Saying no respectfully protects relationships and my wellbeing." }
-            ]
+            ],
+            ui: {
+              thought: "Thought:",
+              evidence_for: "Evidence For:",
+              evidence_against: "Evidence Against:",
+              show_conclusion: "Show Balanced Conclusion",
+              balanced_conclusion: "Balanced Conclusion:",
+              try_another: "Try Another"
+            }
           },
           defusion_cards: {
             cards: [
@@ -1225,7 +1295,13 @@ export const translations = {
               { thought: "I can't handle this feeling.", defuse_lines: ["I'm noticing the thought 'I can't handle it'.", "Feelings are waves; they change.", "I can make room and keep going."] },
               { thought: "I must fix everything now.", defuse_lines: ["There's the 'urgent fixer' thought.", "I can pause and choose one wise next step.", "Slow is smooth; smooth is fast."] },
               { thought: "If it's hard, I should quit.", defuse_lines: ["I'm having the thought 'quit'.", "Hard can mean 'new', not 'wrong'.", "I can do the smallest version (10%)."] }
-            ]
+            ],
+            ui: {
+              sticky_thought: "Sticky Thought:",
+              try_defusion: "Try one defusion line:",
+              success_message: "Nice! You created space between you and the thought. Notice: you can observe it without being controlled by it.",
+              next_card: "Next Card"
+            }
           },
           tipp_skills: {
             situation: "Your emotions are at 8/10 or higher and you need to come down fast.",
@@ -1235,7 +1311,13 @@ export const translations = {
               { letter: "P", name: "Paced breathing", description: "Breathe out longer than in (4 in / 6 out)" },
               { letter: "P", name: "Paired muscle relaxation", description: "Tense then release muscle groups" }
             ],
-            actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."]
+            actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."],
+            ui: {
+              intro: "When you need to change your body chemistry fast:",
+              pick_one: "Pick one to try right now:",
+              success_message: "✓ Great! TIPP skills change your physiology to reduce emotional intensity.",
+              try_another: "Try Another"
+            }
           },
           accepts: {
             items: [
@@ -2334,7 +2416,12 @@ export const translations = {
             ]
           },
           quick_win: {
-            presets: ["I drank water.", "I took a 2-minute break.", "I sent one message I was avoiding.", "I cleaned one tiny area.", "I did one small task for 2 minutes.", "I took 5 slow breaths.", "I stepped outside for fresh air.", "I asked a question instead of assuming.", "I showed up even though it was uncomfortable.", "I wrote one helpful sentence to myself.", "I stretched my shoulders/neck.", "I ate something nourishing.", "I paused before reacting.", "I said no (or not now) politely.", "I made a small plan for tomorrow.", "I finished a mini-step.", "I noticed a thinking trap and named it.", "I chose 'good enough' and stopped.", "I did something kind for someone.", "I did something kind for myself."]
+            presets: ["I drank water.", "I took a 2-minute break.", "I sent one message I was avoiding.", "I cleaned one tiny area.", "I did one small task for 2 minutes.", "I took 5 slow breaths.", "I stepped outside for fresh air.", "I asked a question instead of assuming.", "I showed up even though it was uncomfortable.", "I wrote one helpful sentence to myself.", "I stretched my shoulders/neck.", "I ate something nourishing.", "I paused before reacting.", "I said no (or not now) politely.", "I made a small plan for tomorrow.", "I finished a mini-step.", "I noticed a thinking trap and named it.", "I chose 'good enough' and stopped.", "I did something kind for someone.", "I did something kind for myself."],
+            heading: "Log one small win from today:",
+            instruction: "Or pick a common win:",
+            input_placeholder: "Type your win...",
+            button_log: "Log",
+            success_message: "Win logged! Keep building momentum."
           },
           calm_bingo: {
             tiles: ["Drink a glass of water", "5 slow breaths", "Relax shoulders + jaw", "Look out a window for 30s", "Stand up and stretch", "Send a kind text", "Tidy one small thing", "Step outside for 2 minutes", "Name 3 things you can see", "Play one calm song", "Write 1 supportive sentence", "Wash your hands slowly", "Move your body for 60s", "Put phone down for 2 minutes", "Smile gently (even 10%)", "Choose one tiny next step"]
@@ -2355,7 +2442,15 @@ export const translations = {
               { emotion: "Shame", urge: "Hide / disappear", opposite: "Small reveal + self-respect", choices: ["Share a tiny truth with a safe person.", "Stand tall, breathe, and stay present for 30s.", "Do one value-based action anyway."], note: "Shame shrinks with safe connection and self-respect actions." },
               { emotion: "Guilt (too much)", urge: "Over-apologize / self-punish", opposite: "Repair effectively", choices: ["Apologize once, then propose one repair step.", "Ask what would help and listen.", "Stop repeating apologies; act instead."], note: "Effective repair beats endless self-blame." },
               { emotion: "Fear of rejection", urge: "People-please / over-text", opposite: "Balanced boundary", choices: ["Send one message, then wait.", "Do one self-caring action while you wait.", "Remind yourself: 'I can handle uncertainty.'"], note: "Opposite action builds tolerance for uncertainty." }
-            ]
+            ],
+            ui: {
+              emotion: "Emotion:",
+              urge: "Urge:",
+              opposite_action: "Opposite Action:",
+              pick_step: "Pick one small step:",
+              note_label: "Note:",
+              try_another: "Try Another"
+            }
           },
           urge_surfing: {
             beginner: [
@@ -2365,7 +2460,15 @@ export const translations = {
             advanced: [
               { title: "Surf independently (90 seconds)", steps: ["Name and rate the urge (0-10).", "Locate it in your body.", "Breathe with it for 10 breaths.", "Notice the peak and decline.", "Rate it again."], finish_choices: ["Delay 20 minutes and reassess.", "Do the opposite action for 5 minutes.", "Journal about what you noticed."] },
               { title: "Surf + value-based action", steps: ["Acknowledge the urge without judgment.", "Watch it like a scientist observing data.", "Let it peak naturally.", "Choose one value-aligned micro-step."], finish_choices: ["Do the tiny step immediately.", "Practice the skill again in 1 hour.", "Note what worked for next time."] }
-            ]
+            ],
+            ui: {
+              completed: "Completed",
+              guided: "Guided",
+              independent: "Independent",
+              after_surfing: "After surfing, pick one:",
+              success_message: "✓ Good! Urges rise and fall. You rode the wave.",
+              try_another: "Try Another"
+            }
           },
           worry_time: {
             items: [
@@ -2385,7 +2488,15 @@ export const translations = {
               { thought: "I'm not improving.", evidence_for: ["Progress feels slow.", "I compare myself to others."], evidence_against: ["I've taken small steps.", "Learning is gradual."], balanced_conclusion: "Progress can be slow and real. Small steps still count." },
               { thought: "I must do everything perfectly.", evidence_for: ["I value quality.", "Perfection sometimes prevents criticism."], evidence_against: ["Perfect isn't required to succeed.", "Good-enough frees time and reduces stress."], balanced_conclusion: "I can aim for quality while allowing 'good enough' when it's effective." },
               { thought: "If I say no, I'll be rejected.", evidence_for: ["I worry about disappointing people.", "I've had conflict before."], evidence_against: ["Many people respect boundaries.", "I can say no politely and offer alternatives."], balanced_conclusion: "Saying no respectfully protects relationships and my wellbeing." }
-            ]
+            ],
+            ui: {
+              thought: "Thought:",
+              evidence_for: "Evidence For:",
+              evidence_against: "Evidence Against:",
+              show_conclusion: "Show Balanced Conclusion",
+              balanced_conclusion: "Balanced Conclusion:",
+              try_another: "Try Another"
+            }
           },
           defusion_cards: {
             cards: [
@@ -2395,7 +2506,13 @@ export const translations = {
               { thought: "I can't handle this feeling.", defuse_lines: ["I'm noticing the thought 'I can't handle it'.", "Feelings are waves; they change.", "I can make room and keep going."] },
               { thought: "I must fix everything now.", defuse_lines: ["There's the 'urgent fixer' thought.", "I can pause and choose one wise next step.", "Slow is smooth; smooth is fast."] },
               { thought: "If it's hard, I should quit.", defuse_lines: ["I'm having the thought 'quit'.", "Hard can mean 'new', not 'wrong'.", "I can do the smallest version (10%)."] }
-            ]
+            ],
+            ui: {
+              sticky_thought: "Sticky Thought:",
+              try_defusion: "Try one defusion line:",
+              success_message: "Nice! You created space between you and the thought. Notice: you can observe it without being controlled by it.",
+              next_card: "Next Card"
+            }
           },
           tipp_skills: {
             situation: "Your emotions are at 8/10 or higher and you need to come down fast.",
@@ -2405,7 +2522,13 @@ export const translations = {
               { letter: "P", name: "Paced breathing", description: "Breathe out longer than in (4 in / 6 out)" },
               { letter: "P", name: "Paired muscle relaxation", description: "Tense then release muscle groups" }
             ],
-            actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."]
+            actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."],
+            ui: {
+              intro: "When you need to change your body chemistry fast:",
+              pick_one: "Pick one to try right now:",
+              success_message: "✓ Great! TIPP skills change your physiology to reduce emotional intensity.",
+              try_another: "Try Another"
+            }
           },
           accepts: {
             items: [
@@ -3003,7 +3126,12 @@ export const translations = {
             ]
           },
           quick_win: {
-            presets: ["I drank water.", "I took a 2-minute break.", "I sent one message I was avoiding.", "I cleaned one tiny area.", "I did one small task for 2 minutes.", "I took 5 slow breaths.", "I stepped outside for fresh air.", "I asked a question instead of assuming.", "I showed up even though it was uncomfortable.", "I wrote one helpful sentence to myself.", "I stretched my shoulders/neck.", "I ate something nourishing.", "I paused before reacting.", "I said no (or not now) politely.", "I made a small plan for tomorrow.", "I finished a mini-step.", "I noticed a thinking trap and named it.", "I chose 'good enough' and stopped.", "I did something kind for someone.", "I did something kind for myself."]
+            presets: ["I drank water.", "I took a 2-minute break.", "I sent one message I was avoiding.", "I cleaned one tiny area.", "I did one small task for 2 minutes.", "I took 5 slow breaths.", "I stepped outside for fresh air.", "I asked a question instead of assuming.", "I showed up even though it was uncomfortable.", "I wrote one helpful sentence to myself.", "I stretched my shoulders/neck.", "I ate something nourishing.", "I paused before reacting.", "I said no (or not now) politely.", "I made a small plan for tomorrow.", "I finished a mini-step.", "I noticed a thinking trap and named it.", "I chose 'good enough' and stopped.", "I did something kind for someone.", "I did something kind for myself."],
+            heading: "Log one small win from today:",
+            instruction: "Or pick a common win:",
+            input_placeholder: "Type your win...",
+            button_log: "Log",
+            success_message: "Win logged! Keep building momentum."
           },
           calm_bingo: {
             tiles: ["Drink a glass of water", "5 slow breaths", "Relax shoulders + jaw", "Look out a window for 30s", "Stand up and stretch", "Send a kind text", "Tidy one small thing", "Step outside for 2 minutes", "Name 3 things you can see", "Play one calm song", "Write 1 supportive sentence", "Wash your hands slowly", "Move your body for 60s", "Put phone down for 2 minutes", "Smile gently (even 10%)", "Choose one tiny next step"]
@@ -3024,7 +3152,15 @@ export const translations = {
               { emotion: "Shame", urge: "Hide / disappear", opposite: "Small reveal + self-respect", choices: ["Share a tiny truth with a safe person.", "Stand tall, breathe, and stay present for 30s.", "Do one value-based action anyway."], note: "Shame shrinks with safe connection and self-respect actions." },
               { emotion: "Guilt (too much)", urge: "Over-apologize / self-punish", opposite: "Repair effectively", choices: ["Apologize once, then propose one repair step.", "Ask what would help and listen.", "Stop repeating apologies; act instead."], note: "Effective repair beats endless self-blame." },
               { emotion: "Fear of rejection", urge: "People-please / over-text", opposite: "Balanced boundary", choices: ["Send one message, then wait.", "Do one self-caring action while you wait.", "Remind yourself: 'I can handle uncertainty.'"], note: "Opposite action builds tolerance for uncertainty." }
-            ]
+            ],
+            ui: {
+              emotion: "Emotion:",
+              urge: "Urge:",
+              opposite_action: "Opposite Action:",
+              pick_step: "Pick one small step:",
+              note_label: "Note:",
+              try_another: "Try Another"
+            }
           },
           urge_surfing: {
             beginner: [
@@ -3034,7 +3170,15 @@ export const translations = {
             advanced: [
               { title: "Surf independently (90 seconds)", steps: ["Name and rate the urge (0-10).", "Locate it in your body.", "Breathe with it for 10 breaths.", "Notice the peak and decline.", "Rate it again."], finish_choices: ["Delay 20 minutes and reassess.", "Do the opposite action for 5 minutes.", "Journal about what you noticed."] },
               { title: "Surf + value-based action", steps: ["Acknowledge the urge without judgment.", "Watch it like a scientist observing data.", "Let it peak naturally.", "Choose one value-aligned micro-step."], finish_choices: ["Do the tiny step immediately.", "Practice the skill again in 1 hour.", "Note what worked for next time."] }
-            ]
+            ],
+            ui: {
+              completed: "Completed",
+              guided: "Guided",
+              independent: "Independent",
+              after_surfing: "After surfing, pick one:",
+              success_message: "✓ Good! Urges rise and fall. You rode the wave.",
+              try_another: "Try Another"
+            }
           },
           worry_time: {
             items: [
@@ -3054,7 +3198,15 @@ export const translations = {
               { thought: "I'm not improving.", evidence_for: ["Progress feels slow.", "I compare myself to others."], evidence_against: ["I've taken small steps.", "Learning is gradual."], balanced_conclusion: "Progress can be slow and real. Small steps still count." },
               { thought: "I must do everything perfectly.", evidence_for: ["I value quality.", "Perfection sometimes prevents criticism."], evidence_against: ["Perfect isn't required to succeed.", "Good-enough frees time and reduces stress."], balanced_conclusion: "I can aim for quality while allowing 'good enough' when it's effective." },
               { thought: "If I say no, I'll be rejected.", evidence_for: ["I worry about disappointing people.", "I've had conflict before."], evidence_against: ["Many people respect boundaries.", "I can say no politely and offer alternatives."], balanced_conclusion: "Saying no respectfully protects relationships and my wellbeing." }
-            ]
+            ],
+            ui: {
+              thought: "Thought:",
+              evidence_for: "Evidence For:",
+              evidence_against: "Evidence Against:",
+              show_conclusion: "Show Balanced Conclusion",
+              balanced_conclusion: "Balanced Conclusion:",
+              try_another: "Try Another"
+            }
           },
           defusion_cards: {
             cards: [
@@ -3064,7 +3216,13 @@ export const translations = {
               { thought: "I can't handle this feeling.", defuse_lines: ["I'm noticing the thought 'I can't handle it'.", "Feelings are waves; they change.", "I can make room and keep going."] },
               { thought: "I must fix everything now.", defuse_lines: ["There's the 'urgent fixer' thought.", "I can pause and choose one wise next step.", "Slow is smooth; smooth is fast."] },
               { thought: "If it's hard, I should quit.", defuse_lines: ["I'm having the thought 'quit'.", "Hard can mean 'new', not 'wrong'.", "I can do the smallest version (10%)."] }
-            ]
+            ],
+            ui: {
+              sticky_thought: "Sticky Thought:",
+              try_defusion: "Try one defusion line:",
+              success_message: "Nice! You created space between you and the thought. Notice: you can observe it without being controlled by it.",
+              next_card: "Next Card"
+            }
           },
           tipp_skills: {
             situation: "Your emotions are at 8/10 or higher and you need to come down fast.",
@@ -3074,7 +3232,13 @@ export const translations = {
               { letter: "P", name: "Paced breathing", description: "Breathe out longer than in (4 in / 6 out)" },
               { letter: "P", name: "Paired muscle relaxation", description: "Tense then release muscle groups" }
             ],
-            actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."]
+            actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."],
+            ui: {
+              intro: "When you need to change your body chemistry fast:",
+              pick_one: "Pick one to try right now:",
+              success_message: "✓ Great! TIPP skills change your physiology to reduce emotional intensity.",
+              try_another: "Try Another"
+            }
           },
           accepts: {
             items: [
@@ -3672,7 +3836,12 @@ export const translations = {
             ]
           },
           quick_win: {
-            presets: ["I drank water.", "I took a 2-minute break.", "I sent one message I was avoiding.", "I cleaned one tiny area.", "I did one small task for 2 minutes.", "I took 5 slow breaths.", "I stepped outside for fresh air.", "I asked a question instead of assuming.", "I showed up even though it was uncomfortable.", "I wrote one helpful sentence to myself.", "I stretched my shoulders/neck.", "I ate something nourishing.", "I paused before reacting.", "I said no (or not now) politely.", "I made a small plan for tomorrow.", "I finished a mini-step.", "I noticed a thinking trap and named it.", "I chose 'good enough' and stopped.", "I did something kind for someone.", "I did something kind for myself."]
+            presets: ["I drank water.", "I took a 2-minute break.", "I sent one message I was avoiding.", "I cleaned one tiny area.", "I did one small task for 2 minutes.", "I took 5 slow breaths.", "I stepped outside for fresh air.", "I asked a question instead of assuming.", "I showed up even though it was uncomfortable.", "I wrote one helpful sentence to myself.", "I stretched my shoulders/neck.", "I ate something nourishing.", "I paused before reacting.", "I said no (or not now) politely.", "I made a small plan for tomorrow.", "I finished a mini-step.", "I noticed a thinking trap and named it.", "I chose 'good enough' and stopped.", "I did something kind for someone.", "I did something kind for myself."],
+            heading: "Log one small win from today:",
+            instruction: "Or pick a common win:",
+            input_placeholder: "Type your win...",
+            button_log: "Log",
+            success_message: "Win logged! Keep building momentum."
           },
           calm_bingo: {
             tiles: ["Drink a glass of water", "5 slow breaths", "Relax shoulders + jaw", "Look out a window for 30s", "Stand up and stretch", "Send a kind text", "Tidy one small thing", "Step outside for 2 minutes", "Name 3 things you can see", "Play one calm song", "Write 1 supportive sentence", "Wash your hands slowly", "Move your body for 60s", "Put phone down for 2 minutes", "Smile gently (even 10%)", "Choose one tiny next step"]
@@ -3693,7 +3862,15 @@ export const translations = {
               { emotion: "Shame", urge: "Hide / disappear", opposite: "Small reveal + self-respect", choices: ["Share a tiny truth with a safe person.", "Stand tall, breathe, and stay present for 30s.", "Do one value-based action anyway."], note: "Shame shrinks with safe connection and self-respect actions." },
               { emotion: "Guilt (too much)", urge: "Over-apologize / self-punish", opposite: "Repair effectively", choices: ["Apologize once, then propose one repair step.", "Ask what would help and listen.", "Stop repeating apologies; act instead."], note: "Effective repair beats endless self-blame." },
               { emotion: "Fear of rejection", urge: "People-please / over-text", opposite: "Balanced boundary", choices: ["Send one message, then wait.", "Do one self-caring action while you wait.", "Remind yourself: 'I can handle uncertainty.'"], note: "Opposite action builds tolerance for uncertainty." }
-            ]
+            ],
+            ui: {
+              emotion: "Emotion:",
+              urge: "Urge:",
+              opposite_action: "Opposite Action:",
+              pick_step: "Pick one small step:",
+              note_label: "Note:",
+              try_another: "Try Another"
+            }
           },
           urge_surfing: {
             beginner: [
@@ -3703,7 +3880,15 @@ export const translations = {
             advanced: [
               { title: "Surf independently (90 seconds)", steps: ["Name and rate the urge (0-10).", "Locate it in your body.", "Breathe with it for 10 breaths.", "Notice the peak and decline.", "Rate it again."], finish_choices: ["Delay 20 minutes and reassess.", "Do the opposite action for 5 minutes.", "Journal about what you noticed."] },
               { title: "Surf + value-based action", steps: ["Acknowledge the urge without judgment.", "Watch it like a scientist observing data.", "Let it peak naturally.", "Choose one value-aligned micro-step."], finish_choices: ["Do the tiny step immediately.", "Practice the skill again in 1 hour.", "Note what worked for next time."] }
-            ]
+            ],
+            ui: {
+              completed: "Completed",
+              guided: "Guided",
+              independent: "Independent",
+              after_surfing: "After surfing, pick one:",
+              success_message: "✓ Good! Urges rise and fall. You rode the wave.",
+              try_another: "Try Another"
+            }
           },
           worry_time: {
             items: [
@@ -3723,7 +3908,15 @@ export const translations = {
               { thought: "I'm not improving.", evidence_for: ["Progress feels slow.", "I compare myself to others."], evidence_against: ["I've taken small steps.", "Learning is gradual."], balanced_conclusion: "Progress can be slow and real. Small steps still count." },
               { thought: "I must do everything perfectly.", evidence_for: ["I value quality.", "Perfection sometimes prevents criticism."], evidence_against: ["Perfect isn't required to succeed.", "Good-enough frees time and reduces stress."], balanced_conclusion: "I can aim for quality while allowing 'good enough' when it's effective." },
               { thought: "If I say no, I'll be rejected.", evidence_for: ["I worry about disappointing people.", "I've had conflict before."], evidence_against: ["Many people respect boundaries.", "I can say no politely and offer alternatives."], balanced_conclusion: "Saying no respectfully protects relationships and my wellbeing." }
-            ]
+            ],
+            ui: {
+              thought: "Thought:",
+              evidence_for: "Evidence For:",
+              evidence_against: "Evidence Against:",
+              show_conclusion: "Show Balanced Conclusion",
+              balanced_conclusion: "Balanced Conclusion:",
+              try_another: "Try Another"
+            }
           },
           defusion_cards: {
             cards: [
@@ -3733,7 +3926,13 @@ export const translations = {
               { thought: "I can't handle this feeling.", defuse_lines: ["I'm noticing the thought 'I can't handle it'.", "Feelings are waves; they change.", "I can make room and keep going."] },
               { thought: "I must fix everything now.", defuse_lines: ["There's the 'urgent fixer' thought.", "I can pause and choose one wise next step.", "Slow is smooth; smooth is fast."] },
               { thought: "If it's hard, I should quit.", defuse_lines: ["I'm having the thought 'quit'.", "Hard can mean 'new', not 'wrong'.", "I can do the smallest version (10%)."] }
-            ]
+            ],
+            ui: {
+              sticky_thought: "Sticky Thought:",
+              try_defusion: "Try one defusion line:",
+              success_message: "Nice! You created space between you and the thought. Notice: you can observe it without being controlled by it.",
+              next_card: "Next Card"
+            }
           },
           tipp_skills: {
             situation: "Your emotions are at 8/10 or higher and you need to come down fast.",
@@ -3743,7 +3942,13 @@ export const translations = {
               { letter: "P", name: "Paced breathing", description: "Breathe out longer than in (4 in / 6 out)" },
               { letter: "P", name: "Paired muscle relaxation", description: "Tense then release muscle groups" }
             ],
-            actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."]
+            actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."],
+            ui: {
+              intro: "When you need to change your body chemistry fast:",
+              pick_one: "Pick one to try right now:",
+              success_message: "✓ Great! TIPP skills change your physiology to reduce emotional intensity.",
+              try_another: "Try Another"
+            }
           },
           accepts: {
             items: [
@@ -4341,7 +4546,12 @@ export const translations = {
             ]
           },
           quick_win: {
-            presets: ["I drank water.", "I took a 2-minute break.", "I sent one message I was avoiding.", "I cleaned one tiny area.", "I did one small task for 2 minutes.", "I took 5 slow breaths.", "I stepped outside for fresh air.", "I asked a question instead of assuming.", "I showed up even though it was uncomfortable.", "I wrote one helpful sentence to myself.", "I stretched my shoulders/neck.", "I ate something nourishing.", "I paused before reacting.", "I said no (or not now) politely.", "I made a small plan for tomorrow.", "I finished a mini-step.", "I noticed a thinking trap and named it.", "I chose 'good enough' and stopped.", "I did something kind for someone.", "I did something kind for myself."]
+            presets: ["I drank water.", "I took a 2-minute break.", "I sent one message I was avoiding.", "I cleaned one tiny area.", "I did one small task for 2 minutes.", "I took 5 slow breaths.", "I stepped outside for fresh air.", "I asked a question instead of assuming.", "I showed up even though it was uncomfortable.", "I wrote one helpful sentence to myself.", "I stretched my shoulders/neck.", "I ate something nourishing.", "I paused before reacting.", "I said no (or not now) politely.", "I made a small plan for tomorrow.", "I finished a mini-step.", "I noticed a thinking trap and named it.", "I chose 'good enough' and stopped.", "I did something kind for someone.", "I did something kind for myself."],
+            heading: "Log one small win from today:",
+            instruction: "Or pick a common win:",
+            input_placeholder: "Type your win...",
+            button_log: "Log",
+            success_message: "Win logged! Keep building momentum."
           },
           calm_bingo: {
             tiles: ["Drink a glass of water", "5 slow breaths", "Relax shoulders + jaw", "Look out a window for 30s", "Stand up and stretch", "Send a kind text", "Tidy one small thing", "Step outside for 2 minutes", "Name 3 things you can see", "Play one calm song", "Write 1 supportive sentence", "Wash your hands slowly", "Move your body for 60s", "Put phone down for 2 minutes", "Smile gently (even 10%)", "Choose one tiny next step"]
@@ -4362,7 +4572,15 @@ export const translations = {
               { emotion: "Shame", urge: "Hide / disappear", opposite: "Small reveal + self-respect", choices: ["Share a tiny truth with a safe person.", "Stand tall, breathe, and stay present for 30s.", "Do one value-based action anyway."], note: "Shame shrinks with safe connection and self-respect actions." },
               { emotion: "Guilt (too much)", urge: "Over-apologize / self-punish", opposite: "Repair effectively", choices: ["Apologize once, then propose one repair step.", "Ask what would help and listen.", "Stop repeating apologies; act instead."], note: "Effective repair beats endless self-blame." },
               { emotion: "Fear of rejection", urge: "People-please / over-text", opposite: "Balanced boundary", choices: ["Send one message, then wait.", "Do one self-caring action while you wait.", "Remind yourself: 'I can handle uncertainty.'"], note: "Opposite action builds tolerance for uncertainty." }
-            ]
+            ],
+            ui: {
+              emotion: "Emotion:",
+              urge: "Urge:",
+              opposite_action: "Opposite Action:",
+              pick_step: "Pick one small step:",
+              note_label: "Note:",
+              try_another: "Try Another"
+            }
           },
           urge_surfing: {
             beginner: [
@@ -4372,7 +4590,15 @@ export const translations = {
             advanced: [
               { title: "Surf independently (90 seconds)", steps: ["Name and rate the urge (0-10).", "Locate it in your body.", "Breathe with it for 10 breaths.", "Notice the peak and decline.", "Rate it again."], finish_choices: ["Delay 20 minutes and reassess.", "Do the opposite action for 5 minutes.", "Journal about what you noticed."] },
               { title: "Surf + value-based action", steps: ["Acknowledge the urge without judgment.", "Watch it like a scientist observing data.", "Let it peak naturally.", "Choose one value-aligned micro-step."], finish_choices: ["Do the tiny step immediately.", "Practice the skill again in 1 hour.", "Note what worked for next time."] }
-            ]
+            ],
+            ui: {
+              completed: "Completed",
+              guided: "Guided",
+              independent: "Independent",
+              after_surfing: "After surfing, pick one:",
+              success_message: "✓ Good! Urges rise and fall. You rode the wave.",
+              try_another: "Try Another"
+            }
           },
           worry_time: {
             items: [
@@ -4392,7 +4618,15 @@ export const translations = {
               { thought: "I'm not improving.", evidence_for: ["Progress feels slow.", "I compare myself to others."], evidence_against: ["I've taken small steps.", "Learning is gradual."], balanced_conclusion: "Progress can be slow and real. Small steps still count." },
               { thought: "I must do everything perfectly.", evidence_for: ["I value quality.", "Perfection sometimes prevents criticism."], evidence_against: ["Perfect isn't required to succeed.", "Good-enough frees time and reduces stress."], balanced_conclusion: "I can aim for quality while allowing 'good enough' when it's effective." },
               { thought: "If I say no, I'll be rejected.", evidence_for: ["I worry about disappointing people.", "I've had conflict before."], evidence_against: ["Many people respect boundaries.", "I can say no politely and offer alternatives."], balanced_conclusion: "Saying no respectfully protects relationships and my wellbeing." }
-            ]
+            ],
+            ui: {
+              thought: "Thought:",
+              evidence_for: "Evidence For:",
+              evidence_against: "Evidence Against:",
+              show_conclusion: "Show Balanced Conclusion",
+              balanced_conclusion: "Balanced Conclusion:",
+              try_another: "Try Another"
+            }
           },
           defusion_cards: {
             cards: [
@@ -4402,7 +4636,13 @@ export const translations = {
               { thought: "I can't handle this feeling.", defuse_lines: ["I'm noticing the thought 'I can't handle it'.", "Feelings are waves; they change.", "I can make room and keep going."] },
               { thought: "I must fix everything now.", defuse_lines: ["There's the 'urgent fixer' thought.", "I can pause and choose one wise next step.", "Slow is smooth; smooth is fast."] },
               { thought: "If it's hard, I should quit.", defuse_lines: ["I'm having the thought 'quit'.", "Hard can mean 'new', not 'wrong'.", "I can do the smallest version (10%)."] }
-            ]
+            ],
+            ui: {
+              sticky_thought: "Sticky Thought:",
+              try_defusion: "Try one defusion line:",
+              success_message: "Nice! You created space between you and the thought. Notice: you can observe it without being controlled by it.",
+              next_card: "Next Card"
+            }
           },
           tipp_skills: {
             situation: "Your emotions are at 8/10 or higher and you need to come down fast.",
@@ -4412,7 +4652,13 @@ export const translations = {
               { letter: "P", name: "Paced breathing", description: "Breathe out longer than in (4 in / 6 out)" },
               { letter: "P", name: "Paired muscle relaxation", description: "Tense then release muscle groups" }
             ],
-            actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."]
+            actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."],
+            ui: {
+              intro: "When you need to change your body chemistry fast:",
+              pick_one: "Pick one to try right now:",
+              success_message: "✓ Great! TIPP skills change your physiology to reduce emotional intensity.",
+              try_another: "Try Another"
+            }
           },
           accepts: {
             items: [

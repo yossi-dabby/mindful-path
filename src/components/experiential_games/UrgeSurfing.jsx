@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { urgeSurfingSteps, urgeSurfingStepsAdvanced } from './mindGamesContent';
+import { useTranslation } from 'react-i18next';
 import { useAdaptiveDifficulty } from './useAdaptiveDifficulty';
 import { useMindGameTracking } from './useMindGameTracking';
 
 export default function UrgeSurfing({ onClose }) {
+  const { t } = useTranslation();
   const { suggestedDifficulty } = useAdaptiveDifficulty('urge_surfing');
   const { trackGamePlay } = useMindGameTracking();
   
@@ -15,8 +16,18 @@ export default function UrgeSurfing({ onClose }) {
   const [selectedFinish, setSelectedFinish] = useState(null);
   const [completedCount, setCompletedCount] = useState(0);
 
-  const stepsPool = difficulty === 'advanced' ? urgeSurfingStepsAdvanced : urgeSurfingSteps;
+  const beginnerSteps = t('mind_games.content.urge_surfing.beginner', { returnObjects: true }) || [];
+  const advancedSteps = t('mind_games.content.urge_surfing.advanced', { returnObjects: true }) || [];
+  const stepsPool = difficulty === 'advanced' ? advancedSteps : beginnerSteps;
   const currentItem = stepsPool[currentIndex];
+
+  if (!currentItem) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-sm text-gray-500">{t('common.loading')}</p>
+      </div>
+    );
+  }
   
   useEffect(() => {
     return () => {
@@ -63,7 +74,7 @@ export default function UrgeSurfing({ onClose }) {
             borderColor: 'rgba(38, 166, 154, 0.3)',
             color: '#26A69A'
           }}>
-            Completed: {completedCount}
+            {t('mind_games.content.urge_surfing.ui.completed')}: {completedCount}
           </Badge>
           
           <div className="flex gap-2">
@@ -77,7 +88,7 @@ export default function UrgeSurfing({ onClose }) {
                 fontWeight: difficulty === 'beginner' ? '600' : '400'
               }}
             >
-              Guided
+              {t('mind_games.content.urge_surfing.ui.guided')}
             </button>
             <button
               onClick={() => handleDifficultyChange('advanced')}
@@ -89,7 +100,7 @@ export default function UrgeSurfing({ onClose }) {
                 fontWeight: difficulty === 'advanced' ? '600' : '400'
               }}
             >
-              Independent
+              {t('mind_games.content.urge_surfing.ui.independent')}
             </button>
           </div>
         </div>
@@ -112,11 +123,11 @@ export default function UrgeSurfing({ onClose }) {
         </div>
 
         <p className="text-sm font-semibold mb-3" style={{ color: '#1A3A34' }}>
-          After surfing, pick one:
+          {t('mind_games.content.urge_surfing.ui.after_surfing')}
         </p>
 
         <div className="space-y-2">
-          {currentItem.finishChoices.map((choice, index) => (
+          {currentItem.finish_choices.map((choice, index) => (
             <Button
               key={index}
               variant="outline"
@@ -144,7 +155,7 @@ export default function UrgeSurfing({ onClose }) {
             border: '1px solid rgba(34, 197, 94, 0.2)'
           }}>
             <p className="text-sm font-medium break-words whitespace-normal" style={{ color: '#1A3A34' }}>
-              ✓ Good! Urges rise and fall. You rode the wave.
+              {t('mind_games.content.urge_surfing.ui.success_message')}
             </p>
           </div>
         )}
@@ -152,7 +163,7 @@ export default function UrgeSurfing({ onClose }) {
 
       <div className="flex gap-3 justify-end">
         <Button variant="outline" onClick={onClose} style={{ borderRadius: '12px' }}>
-          Close
+          {t('common.close')}
         </Button>
         {selectedFinish && (
           <Button
@@ -163,7 +174,7 @@ export default function UrgeSurfing({ onClose }) {
               color: 'white'
             }}
           >
-            Try Another
+            {t('mind_games.content.urge_surfing.ui.try_another')}
           </Button>
         )}
       </div>

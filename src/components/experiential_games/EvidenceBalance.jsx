@@ -1,20 +1,30 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { evidenceBalanceItems } from './mindGamesContent';
+import { useTranslation } from 'react-i18next';
 
 export default function EvidenceBalance({ onClose }) {
+  const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showConclusion, setShowConclusion] = useState(false);
 
-  const currentItem = evidenceBalanceItems[currentIndex];
+  const items = t('mind_games.content.evidence_balance.items', { returnObjects: true }) || [];
+  const currentItem = items[currentIndex];
+
+  if (!currentItem) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-sm text-gray-500">{t('common.loading')}</p>
+      </div>
+    );
+  }
 
   const handleShowConclusion = () => {
     setShowConclusion(true);
   };
 
   const handleNext = () => {
-    const randomIndex = Math.floor(Math.random() * evidenceBalanceItems.length);
+    const randomIndex = Math.floor(Math.random() * items.length);
     setCurrentIndex(randomIndex);
     setShowConclusion(false);
   };
@@ -27,7 +37,7 @@ export default function EvidenceBalance({ onClose }) {
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <p className="text-xs font-medium mb-2" style={{ color: '#5A7A72' }}>
-          Thought:
+          {t('mind_games.content.evidence_balance.ui.thought')}
         </p>
         <p className="text-sm font-semibold mb-4 break-words whitespace-normal" style={{ color: '#1A3A34' }}>
           "{currentItem.thought}"
@@ -37,10 +47,10 @@ export default function EvidenceBalance({ onClose }) {
         <div className="space-y-4 mb-4">
           <div>
             <p className="text-xs font-medium mb-2" style={{ color: '#EF4444' }}>
-              Evidence For:
+              {t('mind_games.content.evidence_balance.ui.evidence_for')}
             </p>
             <ul className="space-y-1">
-              {currentItem.evidenceFor.map((item, index) => (
+              {currentItem.evidence_for.map((item, index) => (
                 <li key={index} className="flex gap-2">
                   <span className="text-sm flex-shrink-0" style={{ color: '#EF4444' }}>•</span>
                   <span className="text-sm break-words whitespace-normal flex-1 min-w-0" style={{ color: '#1A3A34' }}>
@@ -53,10 +63,10 @@ export default function EvidenceBalance({ onClose }) {
 
           <div>
             <p className="text-xs font-medium mb-2" style={{ color: '#22C55E' }}>
-              Evidence Against:
+              {t('mind_games.content.evidence_balance.ui.evidence_against')}
             </p>
             <ul className="space-y-1">
-              {currentItem.evidenceAgainst.map((item, index) => (
+              {currentItem.evidence_against.map((item, index) => (
                 <li key={index} className="flex gap-2">
                   <span className="text-sm flex-shrink-0" style={{ color: '#22C55E' }}>•</span>
                   <span className="text-sm break-words whitespace-normal flex-1 min-w-0" style={{ color: '#1A3A34' }}>
@@ -78,7 +88,7 @@ export default function EvidenceBalance({ onClose }) {
               color: 'white'
             }}
           >
-            Show Balanced Conclusion
+            {t('mind_games.content.evidence_balance.ui.show_conclusion')}
           </Button>
         ) : (
           <div className="p-4" style={{
@@ -87,10 +97,10 @@ export default function EvidenceBalance({ onClose }) {
             border: '1px solid rgba(38, 166, 154, 0.2)'
           }}>
             <p className="text-xs font-medium mb-2" style={{ color: '#26A69A' }}>
-              Balanced Conclusion:
+              {t('mind_games.content.evidence_balance.ui.balanced_conclusion')}
             </p>
             <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
-              {currentItem.balancedConclusion}
+              {currentItem.balanced_conclusion}
             </p>
           </div>
         )}
@@ -98,7 +108,7 @@ export default function EvidenceBalance({ onClose }) {
 
       <div className="flex gap-3 justify-end">
         <Button variant="outline" onClick={onClose} style={{ borderRadius: '12px' }}>
-          Close
+          {t('common.close')}
         </Button>
         {showConclusion && (
           <Button
@@ -109,7 +119,7 @@ export default function EvidenceBalance({ onClose }) {
               color: 'white'
             }}
           >
-            Try Another
+            {t('mind_games.content.evidence_balance.ui.try_another')}
           </Button>
         )}
       </div>
