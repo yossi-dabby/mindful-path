@@ -48,7 +48,7 @@ export default function DefusionCards({ onClose }) {
         </p>
 
         <div className="space-y-2">
-          {currentCard.defuse_lines.map((line, index) => (
+          {currentCard.defuse_lines && currentCard.defuse_lines.map((line, index) => (
             <Button
               key={index}
               variant="outline"

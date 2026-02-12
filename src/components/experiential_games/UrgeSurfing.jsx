@@ -127,7 +127,7 @@ export default function UrgeSurfing({ onClose }) {
         </p>
 
         <div className="space-y-2">
-          {currentItem.finish_choices.map((choice, index) => (
+          {currentItem.finish_choices && currentItem.finish_choices.map((choice, index) => (
             <Button
               key={index}
               variant="outline"

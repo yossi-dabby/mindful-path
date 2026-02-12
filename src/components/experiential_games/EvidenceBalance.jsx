@@ -50,7 +50,7 @@ export default function EvidenceBalance({ onClose }) {
               {t('mind_games.content.evidence_balance.ui.evidence_for')}
             </p>
             <ul className="space-y-1">
-              {currentItem.evidence_for.map((item, index) => (
+              {currentItem.evidence_for && currentItem.evidence_for.map((item, index) => (
                 <li key={index} className="flex gap-2">
                   <span className="text-sm flex-shrink-0" style={{ color: '#EF4444' }}>•</span>
                   <span className="text-sm break-words whitespace-normal flex-1 min-w-0" style={{ color: '#1A3A34' }}>
@@ -66,7 +66,7 @@ export default function EvidenceBalance({ onClose }) {
               {t('mind_games.content.evidence_balance.ui.evidence_against')}
             </p>
             <ul className="space-y-1">
-              {currentItem.evidence_against.map((item, index) => (
+              {currentItem.evidence_against && currentItem.evidence_against.map((item, index) => (
                 <li key={index} className="flex gap-2">
                   <span className="text-sm flex-shrink-0" style={{ color: '#22C55E' }}>•</span>
                   <span className="text-sm break-words whitespace-normal flex-1 min-w-0" style={{ color: '#1A3A34' }}>
