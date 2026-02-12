@@ -80,19 +80,19 @@ test.describe('Android Goals Milestone Persistence', () => {
       });
     });
     
-    // Mock goals API with test data
-    await page.route('**/api/entities/Goal**', async (route) => {
+    const handleGoalRoute = async (route: any) => {
       const method = route.request().method();
       
       if (method === 'GET') {
-        // List goals
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
           body: JSON.stringify(goalData)
         });
-      } else if (method === 'PATCH' || method === 'PUT') {
-        // Update goal - return updated data
+        return;
+      }
+      
+      if (method === 'PATCH' || method === 'PUT') {
         const postData = route.request().postDataJSON();
         const nextMilestones = postData?.milestones || postData?.updatedMilestones;
         if (nextMilestones) {
@@ -113,47 +113,15 @@ test.describe('Android Goals Milestone Persistence', () => {
             milestones: nextMilestones || goalData[0].milestones
           })
         });
-      } else {
-        await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+        return;
       }
-    });
+      
+      await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+    };
 
-    await page.route('**/api/apps/**/entities/Goal**', async (route) => {
-      const method = route.request().method();
-      
-      if (method === 'GET') {
-        // List goals
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify(goalData)
-        });
-      } else if (method === 'PATCH' || method === 'PUT') {
-        // Update goal - return updated data
-        const postData = route.request().postDataJSON();
-        const nextMilestones = postData?.milestones || postData?.updatedMilestones;
-        if (nextMilestones) {
-          goalData = [
-            {
-              ...goalData[0],
-              progress: postData.progress || postData.newProgress || goalData[0].progress,
-              milestones: nextMilestones
-            }
-          ];
-        }
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            ...goalData[0],
-            progress: postData.progress || postData.newProgress || goalData[0].progress,
-            milestones: nextMilestones || goalData[0].milestones
-          })
-        });
-      } else {
-        await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
-      }
-    });
+    // Mock goals API with test data
+    await page.route('**/api/entities/Goal**', handleGoalRoute);
+    await page.route('**/api/apps/**/entities/Goal**', handleGoalRoute);
     
     await page.route('**/analytics/**', async (route) => {
       await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
