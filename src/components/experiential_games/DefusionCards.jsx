@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { defusionCards } from './mindGamesContent';
+import { useTranslation } from 'react-i18next';
 
 export default function DefusionCards({ onClose }) {
+  const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedLine, setSelectedLine] = useState(null);
 
+  const defusionCards = t('mind_games.content.defusion_cards.cards', { returnObjects: true }) || [];
   const currentCard = defusionCards[currentIndex];
+  const defuseLines = currentCard?.defuse_lines ?? currentCard?.defuseLines;
 
   const handleSelectLine = (line) => {
     setSelectedLine(line);
@@ -27,18 +30,18 @@ export default function DefusionCards({ onClose }) {
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <p className="text-xs font-medium mb-2" style={{ color: '#5A7A72' }}>
-          Sticky Thought:
+          {t('mind_games.defusion_cards.sticky_thought')}
         </p>
         <p className="text-sm font-semibold mb-4 break-words whitespace-normal italic" style={{ color: '#1A3A34' }}>
-          "{currentCard.thought}"
+          "{currentCard?.thought}"
         </p>
 
         <p className="text-sm font-semibold mb-3" style={{ color: '#1A3A34' }}>
-          Try one defusion line:
+          {t('mind_games.defusion_cards.prompt')}
         </p>
 
         <div className="space-y-2">
-          {currentCard.defuseLines.map((line, index) => (
+          {defuseLines?.map((line, index) => (
             <Button
               key={index}
               variant="outline"
@@ -66,7 +69,7 @@ export default function DefusionCards({ onClose }) {
             border: '1px solid rgba(159, 122, 234, 0.2)'
           }}>
             <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
-              Nice! You created space between you and the thought. Notice: you can observe it without being controlled by it.
+              {t('mind_games.defusion_cards.success')}
             </p>
           </div>
         )}
@@ -74,7 +77,7 @@ export default function DefusionCards({ onClose }) {
 
       <div className="flex gap-3 justify-end">
         <Button variant="outline" onClick={onClose} style={{ borderRadius: '12px' }}>
-          Close
+          {t('common.close')}
         </Button>
         {selectedLine && (
           <Button
@@ -85,7 +88,7 @@ export default function DefusionCards({ onClose }) {
               color: 'white'
             }}
           >
-            Next Card
+            {t('mind_games.defusion_cards.next_card')}
           </Button>
         )}
       </div>

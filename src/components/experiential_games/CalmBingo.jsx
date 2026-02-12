@@ -23,7 +23,7 @@ export default function CalmBingo({ onClose }) {
   return (
     <div className="space-y-4">
       <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
-        Mark 2 actions you'll do now:
+        {t('mind_games.calm_bingo.prompt')}
       </p>
 
       <div className="grid grid-cols-2 gap-2">
@@ -61,7 +61,7 @@ export default function CalmBingo({ onClose }) {
           border: '1px solid rgba(34, 197, 94, 0.2)'
         }}>
           <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
-            ✓ Mini round complete! Take a moment to do these now.
+            {t('mind_games.calm_bingo.success')}
           </p>
         </Card>
       )}

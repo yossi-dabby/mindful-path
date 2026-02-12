@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { quickWinPresets } from './mindGamesContent';
 import { Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function QuickWin({ onClose }) {
+  const { t } = useTranslation();
   const [customWin, setCustomWin] = useState('');
   const [savedWins, setSavedWins] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
+
+  const quickWinPresets = t('mind_games.content.quick_win.presets', { returnObjects: true }) || [];
 
   useEffect(() => {
     const stored = localStorage.getItem('mindgames_quickWins');
@@ -43,14 +46,14 @@ export default function QuickWin({ onClose }) {
   return (
     <div className="space-y-4">
       <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
-        Log one small win from today:
+        {t('mind_games.quick_win.log_prompt')}
       </p>
 
       <div className="flex gap-2">
         <Input
           value={customWin}
           onChange={(e) => setCustomWin(e.target.value)}
-          placeholder="Type your win..."
+          placeholder={t('mind_games.quick_win.input_placeholder')}
           onKeyDown={(e) => e.key === 'Enter' && handleCustomSubmit()}
           style={{ borderRadius: '12px' }}
         />
@@ -63,12 +66,12 @@ export default function QuickWin({ onClose }) {
             color: 'white'
           }}
         >
-          Log
+          {t('mind_games.quick_win.log_button')}
         </Button>
       </div>
 
       <p className="text-xs" style={{ color: '#5A7A72' }}>
-        Or pick a common win:
+        {t('mind_games.quick_win.preset_prompt')}
       </p>
       <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto overflow-x-hidden min-w-0">
         {quickWinPresets.map((preset, index) => (
@@ -97,7 +100,7 @@ export default function QuickWin({ onClose }) {
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-green-600" />
             <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
-              Win logged! Keep building momentum.
+              {t('mind_games.quick_win.success_message')}
             </p>
           </div>
         </Card>
@@ -105,7 +108,7 @@ export default function QuickWin({ onClose }) {
 
       <div className="flex gap-3 justify-end">
         <Button variant="outline" onClick={onClose} style={{ borderRadius: '12px' }}>
-          Close
+          {t('common.close')}
         </Button>
       </div>
     </div>

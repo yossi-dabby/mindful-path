@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { tippSkillsItems } from './mindGamesContent';
+import { useTranslation } from 'react-i18next';
 
 export default function TIPPSkills({ onClose }) {
+  const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAction, setSelectedAction] = useState(null);
 
+  const tippSkillsContent = t('mind_games.content.tipp_skills', { returnObjects: true });
+  const tippSkillsItems = tippSkillsContent ? [tippSkillsContent] : [];
   const currentItem = tippSkillsItems[currentIndex];
 
   const handleSelect = (action) => {
@@ -27,14 +30,14 @@ export default function TIPPSkills({ onClose }) {
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <p className="text-xs font-medium mb-2" style={{ color: '#5A7A72' }}>
-          When you need to change your body chemistry fast:
+          {t('mind_games.tipp_skills.prompt')}
         </p>
         <p className="text-sm font-semibold mb-4 break-words whitespace-normal" style={{ color: '#1A3A34' }}>
-          {currentItem.situation}
+          {currentItem?.situation}
         </p>
 
         <div className="space-y-3 mb-4">
-          {currentItem.skills.map((skill, index) => (
+          {currentItem?.skills?.map((skill, index) => (
             <div key={index} className="p-3" style={{
               borderRadius: '12px',
               backgroundColor: 'rgba(38, 166, 154, 0.05)',
@@ -51,11 +54,11 @@ export default function TIPPSkills({ onClose }) {
         </div>
 
         <p className="text-sm font-semibold mb-3" style={{ color: '#1A3A34' }}>
-          Pick one to try right now:
+          {t('mind_games.tipp_skills.pick_action')}
         </p>
 
         <div className="space-y-2">
-          {currentItem.actions.map((action, index) => (
+          {currentItem?.actions?.map((action, index) => (
             <Button
               key={index}
               variant="outline"
@@ -83,7 +86,7 @@ export default function TIPPSkills({ onClose }) {
             border: '1px solid rgba(34, 197, 94, 0.2)'
           }}>
             <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
-              ✓ Great! TIPP skills change your physiology to reduce emotional intensity.
+              {t('mind_games.tipp_skills.success')}
             </p>
           </div>
         )}
@@ -91,7 +94,7 @@ export default function TIPPSkills({ onClose }) {
 
       <div className="flex gap-3 justify-end">
         <Button variant="outline" onClick={onClose} style={{ borderRadius: '12px' }}>
-          Close
+          {t('common.close')}
         </Button>
         {selectedAction && (
           <Button
@@ -102,7 +105,7 @@ export default function TIPPSkills({ onClose }) {
               color: 'white'
             }}
           >
-            Try Another
+            {t('mind_games.common.try_another')}
           </Button>
         )}
       </div>

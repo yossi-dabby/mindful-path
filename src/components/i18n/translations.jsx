@@ -4515,3 +4515,102 @@ export const translations = {
     }
   }
 };
+
+const mindGamesUi = {
+  common: {
+    try_another: "Try Another"
+  },
+  quick_win: {
+    log_prompt: "Log one small win from today:",
+    input_placeholder: "Type your win...",
+    log_button: "Log",
+    preset_prompt: "Or pick a common win:",
+    success_message: "Win logged! Keep building momentum."
+  },
+  opposite_action: {
+    emotion_label: "Emotion:",
+    urge_label: "Urge:",
+    opposite_label: "Opposite Action:",
+    pick_step: "Pick one small step:",
+    note_label: "Note:"
+  },
+  urge_surfing: {
+    completed: "Completed: {{count}}",
+    guided: "Guided",
+    independent: "Independent",
+    finish_prompt: "After surfing, pick one:",
+    success: "✓ Good! Urges rise and fall. You rode the wave."
+  },
+  value_compass: {
+    pick_value: "Pick a value that matters to you right now:",
+    your_value: "Your Value: {{value}}",
+    pick_action: "Choose one tiny action aligned with this value:",
+    success: "✓ Great! Small value-based actions build a meaningful life.",
+    reset: "Pick Different Value"
+  },
+  tiny_experiment: {
+    belief_label: "Belief to test:",
+    pick_experiment: "Pick one tiny experiment (2 min max):",
+    success: "✓ Experiments collect data. Even 'negative' results teach you something valuable."
+  },
+  worry_time: {
+    current_worry: "Current Worry:",
+    park_it: "Park it:",
+    tiny_step: "Do this tiny step now:",
+    success: "✓ Great! You parked the worry and took a present-moment action."
+  },
+  dbt_stop: {
+    trigger: "Trigger:",
+    next_step: "Choose one wise next step:",
+    chosen: "✓ You chose: {{step}}"
+  },
+  defusion_cards: {
+    sticky_thought: "Sticky Thought:",
+    prompt: "Try one defusion line:",
+    success: "Nice! You created space between you and the thought. Notice: you can observe it without being controlled by it.",
+    next_card: "Next Card"
+  },
+  calm_bingo: {
+    prompt: "Mark 2 actions you'll do now:",
+    success: "✓ Mini round complete! Take a moment to do these now."
+  },
+  tipp_skills: {
+    prompt: "When you need to change your body chemistry fast:",
+    pick_action: "Pick one to try right now:",
+    success: "✓ Great! TIPP skills change your physiology to reduce emotional intensity."
+  },
+  accepts: {
+    prompt: "When you need to distract from overwhelming emotions, use ACCEPTS:",
+    try_now: "Try this now:"
+  },
+  improve: {
+    prompt: "IMPROVE the moment when you're in crisis and need to shift your state:",
+    quick_action: "Quick Action:"
+  },
+  self_soothe: {
+    prompt: "Self-soothe with your 5 senses to create moments of comfort and safety.",
+    back: "← Back to senses",
+    success: "✓ Take a moment to fully experience this. Self-soothing is a gift you give yourself."
+  }
+};
+
+['en', 'he', 'es', 'fr', 'de', 'it', 'pt'].forEach((lng) => {
+  const current = translations[lng]?.translation?.mind_games || {};
+  translations[lng].translation.mind_games = {
+    ...current,
+    common: { ...(current.common || {}), ...mindGamesUi.common },
+    quick_win: { ...(current.quick_win || {}), ...mindGamesUi.quick_win },
+    opposite_action: { ...(current.opposite_action || {}), ...mindGamesUi.opposite_action },
+    urge_surfing: { ...(current.urge_surfing || {}), ...mindGamesUi.urge_surfing },
+    value_compass: { ...(current.value_compass || {}), ...mindGamesUi.value_compass },
+    tiny_experiment: { ...(current.tiny_experiment || {}), ...mindGamesUi.tiny_experiment },
+    worry_time: { ...(current.worry_time || {}), ...mindGamesUi.worry_time },
+    dbt_stop: { ...(current.dbt_stop || {}), ...mindGamesUi.dbt_stop },
+    defusion_cards: { ...(current.defusion_cards || {}), ...mindGamesUi.defusion_cards },
+    calm_bingo: { ...(current.calm_bingo || {}), ...mindGamesUi.calm_bingo },
+    tipp_skills: { ...(current.tipp_skills || {}), ...mindGamesUi.tipp_skills },
+    accepts: { ...(current.accepts || {}), ...mindGamesUi.accepts },
+    improve: { ...(current.improve || {}), ...mindGamesUi.improve },
+    self_soothe: { ...(current.self_soothe || {}), ...mindGamesUi.self_soothe },
+  };
+});

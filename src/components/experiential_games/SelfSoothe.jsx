@@ -27,7 +27,7 @@ export default function SelfSoothe({ onClose }) {
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: '#5A7A72' }}>
-          Self-soothe with your 5 senses to create moments of comfort and safety.
+          {t('mind_games.self_soothe.prompt')}
         </p>
 
         {!selectedSense ? (
@@ -56,7 +56,7 @@ export default function SelfSoothe({ onClose }) {
               className="text-xs mb-3"
               style={{ color: '#5A7A72' }}
             >
-              ← Back to senses
+              {t('mind_games.self_soothe.back')}
             </button>
             <p className="text-sm font-semibold mb-3" style={{ color: '#26A69A' }}>
               {selectedSense.sense}
@@ -89,7 +89,7 @@ export default function SelfSoothe({ onClose }) {
                 border: '1px solid rgba(34, 197, 94, 0.2)'
               }}>
                 <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
-                  ✓ Take a moment to fully experience this. Self-soothing is a gift you give yourself.
+                  {t('mind_games.self_soothe.success')}
                 </p>
               </div>
             )}

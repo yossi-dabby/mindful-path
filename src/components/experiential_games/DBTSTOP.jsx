@@ -37,7 +37,7 @@ export default function DBTSTOP({ onClose }) {
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <p className="text-xs font-medium mb-3" style={{ color: '#5A7A72' }}>
-          Trigger:
+          {t('mind_games.dbt_stop.trigger')}
         </p>
         <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: '#1A3A34' }}>
           {currentPrompt.trigger}
@@ -68,7 +68,7 @@ export default function DBTSTOP({ onClose }) {
         </div>
 
         <p className="text-sm font-semibold mb-3" style={{ color: '#1A3A34' }}>
-          Choose one wise next step:
+          {t('mind_games.dbt_stop.next_step')}
         </p>
 
         <div className="space-y-2">
@@ -100,7 +100,7 @@ export default function DBTSTOP({ onClose }) {
             border: '1px solid rgba(34, 197, 94, 0.2)'
           }}>
             <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
-              ✓ You chose: <span className="break-words">{selectedNext}</span>
+              {t('mind_games.dbt_stop.chosen', { step: selectedNext })}
             </p>
           </div>
         )}
@@ -119,7 +119,7 @@ export default function DBTSTOP({ onClose }) {
               color: 'white'
             }}
           >
-            Try Another
+            {t('mind_games.common.try_another')}
           </Button>
         )}
       </div>

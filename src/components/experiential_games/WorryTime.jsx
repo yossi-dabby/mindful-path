@@ -29,7 +29,7 @@ export default function WorryTime({ onClose }) {
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <p className="text-xs font-medium mb-2" style={{ color: '#5A7A72' }}>
-          Current Worry:
+          {t('mind_games.worry_time.current_worry')}
         </p>
         <p className="text-sm font-semibold mb-4 break-words whitespace-normal" style={{ color: '#1A3A34' }}>
           {currentItem.worry}
@@ -41,7 +41,7 @@ export default function WorryTime({ onClose }) {
           border: '1px solid rgba(159, 122, 234, 0.2)'
         }}>
           <p className="text-xs font-medium mb-1" style={{ color: '#9F7AEA' }}>
-            Park it:
+            {t('mind_games.worry_time.park_it')}
           </p>
           <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
             {currentItem.park_it}
@@ -49,7 +49,7 @@ export default function WorryTime({ onClose }) {
         </div>
 
         <p className="text-sm font-semibold mb-3" style={{ color: '#1A3A34' }}>
-          Do this tiny step now:
+          {t('mind_games.worry_time.tiny_step')}
         </p>
 
         <div className="space-y-2">
@@ -81,7 +81,7 @@ export default function WorryTime({ onClose }) {
             border: '1px solid rgba(34, 197, 94, 0.2)'
           }}>
             <p className="text-sm font-medium break-words whitespace-normal" style={{ color: '#1A3A34' }}>
-              ✓ Great! You parked the worry and took a present-moment action.
+              {t('mind_games.worry_time.success')}
             </p>
           </div>
         )}
@@ -100,7 +100,7 @@ export default function WorryTime({ onClose }) {
               color: 'white'
             }}
           >
-            Try Another
+            {t('mind_games.common.try_another')}
           </Button>
         )}
       </div>

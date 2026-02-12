@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { oppositeActionItems } from './mindGamesContent';
+import { useTranslation } from 'react-i18next';
 
 export default function OppositeAction({ onClose }) {
+  const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState(null);
 
+  const oppositeActionItems = t('mind_games.content.opposite_action.items', { returnObjects: true }) || [];
   const currentItem = oppositeActionItems[currentIndex];
 
   const handleChoice = (choice) => {
@@ -29,36 +31,36 @@ export default function OppositeAction({ onClose }) {
         <div className="space-y-3 mb-4">
           <div>
             <p className="text-xs font-medium mb-1" style={{ color: '#5A7A72' }}>
-              Emotion:
+              {t('mind_games.opposite_action.emotion_label')}
             </p>
             <p className="text-sm font-semibold break-words" style={{ color: '#1A3A34' }}>
-              {currentItem.emotion}
+              {currentItem?.emotion}
             </p>
           </div>
           <div>
             <p className="text-xs font-medium mb-1" style={{ color: '#5A7A72' }}>
-              Urge:
+              {t('mind_games.opposite_action.urge_label')}
             </p>
             <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
-              {currentItem.urge}
+              {currentItem?.urge}
             </p>
           </div>
           <div>
             <p className="text-xs font-medium mb-1" style={{ color: '#5A7A72' }}>
-              Opposite Action:
+              {t('mind_games.opposite_action.opposite_label')}
             </p>
             <p className="text-sm font-semibold break-words" style={{ color: '#26A69A' }}>
-              {currentItem.opposite}
+              {currentItem?.opposite}
             </p>
           </div>
         </div>
 
         <p className="text-sm font-semibold mb-3" style={{ color: '#1A3A34' }}>
-          Pick one small step:
+          {t('mind_games.opposite_action.pick_step')}
         </p>
 
         <div className="space-y-2">
-          {currentItem.choices.map((choice, index) => (
+          {currentItem?.choices?.map((choice, index) => (
             <Button
               key={index}
               variant="outline"
@@ -86,7 +88,7 @@ export default function OppositeAction({ onClose }) {
             border: '1px solid rgba(38, 166, 154, 0.2)'
           }}>
             <p className="text-xs break-words whitespace-normal" style={{ color: '#1A3A34' }}>
-              <strong>Note:</strong> {currentItem.note}
+              <strong>{t('mind_games.opposite_action.note_label')} </strong>{currentItem?.note}
             </p>
           </div>
         )}
@@ -94,7 +96,7 @@ export default function OppositeAction({ onClose }) {
 
       <div className="flex gap-3 justify-end">
         <Button variant="outline" onClick={onClose} style={{ borderRadius: '12px' }}>
-          Close
+          {t('common.close')}
         </Button>
         {selectedChoice && (
           <Button
@@ -105,7 +107,7 @@ export default function OppositeAction({ onClose }) {
               color: 'white'
             }}
           >
-            Try Another
+            {t('mind_games.common.try_another')}
           </Button>
         )}
       </div>

@@ -247,159 +247,147 @@ export const gamesCatalog = [
 export const thoughtQuizItems = [
   {
     id: "tq1",
-    prompt: "If I don't do this perfectly, I'm a total failure.",
-    options: [
-      "All-or-nothing thinking",
-      "Mind reading",
-      "Catastrophizing",
-      "Discounting the positive",
+    promptKey: "mind_games.content.thought_quiz.items.0.prompt",
+    optionKeys: [
+      "mind_games.content.thought_quiz.items.0.options.0",
+      "mind_games.content.thought_quiz.items.0.options.1",
+      "mind_games.content.thought_quiz.items.0.options.2",
+      "mind_games.content.thought_quiz.items.0.options.3",
     ],
     correctIndex: 0,
-    explanation:
-      "This treats performance as a strict pass/fail label instead of a spectrum.",
+    explanationKey: "mind_games.content.thought_quiz.items.0.explanation",
   },
   {
     id: "tq2",
-    prompt: "They haven't replied yet, so they must be upset with me.",
-    options: [
-      "Emotional reasoning",
-      "Mind reading",
-      "Labeling",
-      "Overgeneralization",
+    promptKey: "mind_games.content.thought_quiz.items.1.prompt",
+    optionKeys: [
+      "mind_games.content.thought_quiz.items.1.options.0",
+      "mind_games.content.thought_quiz.items.1.options.1",
+      "mind_games.content.thought_quiz.items.1.options.2",
+      "mind_games.content.thought_quiz.items.1.options.3",
     ],
     correctIndex: 1,
-    explanation:
-      "You're assuming you know what they think without clear evidence.",
+    explanationKey: "mind_games.content.thought_quiz.items.1.explanation",
   },
   {
     id: "tq3",
-    prompt: "If I make one mistake, everything will fall apart.",
-    options: [
-      "Catastrophizing",
-      "Personalization",
-      "Should statements",
-      "Mental filter",
+    promptKey: "mind_games.content.thought_quiz.items.2.prompt",
+    optionKeys: [
+      "mind_games.content.thought_quiz.items.2.options.0",
+      "mind_games.content.thought_quiz.items.2.options.1",
+      "mind_games.content.thought_quiz.items.2.options.2",
+      "mind_games.content.thought_quiz.items.2.options.3",
     ],
     correctIndex: 0,
-    explanation:
-      "This jumps to the worst-case outcome and treats it as likely.",
+    explanationKey: "mind_games.content.thought_quiz.items.2.explanation",
   },
   {
     id: "tq4",
-    prompt: "I had an awkward moment today. I always mess things up.",
-    options: [
-      "Overgeneralization",
-      "Mind reading",
-      "Fortune telling",
-      "Disqualifying the positive",
+    promptKey: "mind_games.content.thought_quiz.items.3.prompt",
+    optionKeys: [
+      "mind_games.content.thought_quiz.items.3.options.0",
+      "mind_games.content.thought_quiz.items.3.options.1",
+      "mind_games.content.thought_quiz.items.3.options.2",
+      "mind_games.content.thought_quiz.items.3.options.3",
     ],
     correctIndex: 0,
-    explanation:
-      "One moment gets turned into a sweeping rule about your whole life.",
+    explanationKey: "mind_games.content.thought_quiz.items.3.explanation",
   },
   {
     id: "tq5",
-    prompt: "I feel anxious, so something bad must be about to happen.",
-    options: [
-      "Emotional reasoning",
-      "Should statements",
-      "Labeling",
-      "Black-and-white thinking",
+    promptKey: "mind_games.content.thought_quiz.items.4.prompt",
+    optionKeys: [
+      "mind_games.content.thought_quiz.items.4.options.0",
+      "mind_games.content.thought_quiz.items.4.options.1",
+      "mind_games.content.thought_quiz.items.4.options.2",
+      "mind_games.content.thought_quiz.items.4.options.3",
     ],
     correctIndex: 0,
-    explanation:
-      "Feelings are treated like facts, even when they're just signals.",
+    explanationKey: "mind_games.content.thought_quiz.items.4.explanation",
   },
   {
     id: "tq6",
-    prompt: "My friend sounded quiet. It's probably my fault.",
-    options: [
-      "Personalization",
-      "Catastrophizing",
-      "Fortune telling",
-      "Magnification",
+    promptKey: "mind_games.content.thought_quiz.items.5.prompt",
+    optionKeys: [
+      "mind_games.content.thought_quiz.items.5.options.0",
+      "mind_games.content.thought_quiz.items.5.options.1",
+      "mind_games.content.thought_quiz.items.5.options.2",
+      "mind_games.content.thought_quiz.items.5.options.3",
     ],
     correctIndex: 0,
-    explanation:
-      "You're taking responsibility for something that may have many causes.",
+    explanationKey: "mind_games.content.thought_quiz.items.5.explanation",
   },
   {
     id: "tq7",
-    prompt: "I should be more productive all the time.",
-    options: [
-      "Should statements",
-      "Mental filter",
-      "Mind reading",
-      "Overgeneralization",
+    promptKey: "mind_games.content.thought_quiz.items.6.prompt",
+    optionKeys: [
+      "mind_games.content.thought_quiz.items.6.options.0",
+      "mind_games.content.thought_quiz.items.6.options.1",
+      "mind_games.content.thought_quiz.items.6.options.2",
+      "mind_games.content.thought_quiz.items.6.options.3",
     ],
     correctIndex: 0,
-    explanation:
-      "Rigid rules ('should') create pressure and ignore real human limits.",
+    explanationKey: "mind_games.content.thought_quiz.items.6.explanation",
   },
   {
     id: "tq8",
-    prompt: "One person criticized me, so I'm probably not good at this.",
-    options: [
-      "Labeling",
-      "Disqualifying the positive",
-      "Magnification",
-      "All-or-nothing thinking",
+    promptKey: "mind_games.content.thought_quiz.items.7.prompt",
+    optionKeys: [
+      "mind_games.content.thought_quiz.items.7.options.0",
+      "mind_games.content.thought_quiz.items.7.options.1",
+      "mind_games.content.thought_quiz.items.7.options.2",
+      "mind_games.content.thought_quiz.items.7.options.3",
     ],
     correctIndex: 2,
-    explanation:
-      "A single critique gets blown up and outweighs the full picture.",
+    explanationKey: "mind_games.content.thought_quiz.items.7.explanation",
   },
   {
     id: "tq9",
-    prompt: "I did well, but it doesn't count because it was easy.",
-    options: [
-      "Discounting the positive",
-      "Fortune telling",
-      "Personalization",
-      "Catastrophizing",
+    promptKey: "mind_games.content.thought_quiz.items.8.prompt",
+    optionKeys: [
+      "mind_games.content.thought_quiz.items.8.options.0",
+      "mind_games.content.thought_quiz.items.8.options.1",
+      "mind_games.content.thought_quiz.items.8.options.2",
+      "mind_games.content.thought_quiz.items.8.options.3",
     ],
     correctIndex: 0,
-    explanation:
-      "You're dismissing real effort and progress instead of acknowledging it.",
+    explanationKey: "mind_games.content.thought_quiz.items.8.explanation",
   },
   {
     id: "tq10",
-    prompt: "Everyone noticed my mistake. They must think I'm incompetent.",
-    options: [
-      "Mind reading",
-      "Mental filter",
-      "Emotional reasoning",
-      "Should statements",
+    promptKey: "mind_games.content.thought_quiz.items.9.prompt",
+    optionKeys: [
+      "mind_games.content.thought_quiz.items.9.options.0",
+      "mind_games.content.thought_quiz.items.9.options.1",
+      "mind_games.content.thought_quiz.items.9.options.2",
+      "mind_games.content.thought_quiz.items.9.options.3",
     ],
     correctIndex: 0,
-    explanation:
-      "You're guessing others' judgments without checking the evidence.",
+    explanationKey: "mind_games.content.thought_quiz.items.9.explanation",
   },
   {
     id: "tq11",
-    prompt: "If I try and it's uncomfortable, that means it's wrong for me.",
-    options: [
-      "Emotional reasoning",
-      "Overgeneralization",
-      "Labeling",
-      "Disqualifying the positive",
+    promptKey: "mind_games.content.thought_quiz.items.10.prompt",
+    optionKeys: [
+      "mind_games.content.thought_quiz.items.10.options.0",
+      "mind_games.content.thought_quiz.items.10.options.1",
+      "mind_games.content.thought_quiz.items.10.options.2",
+      "mind_games.content.thought_quiz.items.10.options.3",
     ],
     correctIndex: 0,
-    explanation:
-      "Discomfort can be part of growth; it doesn't automatically mean danger.",
+    explanationKey: "mind_games.content.thought_quiz.items.10.explanation",
   },
   {
     id: "tq12",
-    prompt: "I didn't meet my goal today, so I'm never going to change.",
-    options: [
-      "Fortune telling",
-      "Catastrophizing",
-      "Overgeneralization",
-      "All-or-nothing thinking",
+    promptKey: "mind_games.content.thought_quiz.items.11.prompt",
+    optionKeys: [
+      "mind_games.content.thought_quiz.items.11.options.0",
+      "mind_games.content.thought_quiz.items.11.options.1",
+      "mind_games.content.thought_quiz.items.11.options.2",
+      "mind_games.content.thought_quiz.items.11.options.3",
     ],
     correctIndex: 2,
-    explanation:
-      "A single day becomes a permanent prediction, ignoring gradual progress.",
+    explanationKey: "mind_games.content.thought_quiz.items.11.explanation",
   },
 ];
 
@@ -407,63 +395,63 @@ export const thoughtQuizItems = [
 export const thoughtQuizItemsAdvanced = [
   {
     id: "tq_adv1",
-    prompt: "I received constructive feedback, but all I can think about is the one negative comment buried in it.",
-    options: [
-      "Mental filter",
-      "Overgeneralization",
-      "Personalization",
-      "Emotional reasoning",
+    promptKey: "mind_games.content.thought_quiz.advanced.0.prompt",
+    optionKeys: [
+      "mind_games.content.thought_quiz.advanced.0.options.0",
+      "mind_games.content.thought_quiz.advanced.0.options.1",
+      "mind_games.content.thought_quiz.advanced.0.options.2",
+      "mind_games.content.thought_quiz.advanced.0.options.3",
     ],
     correctIndex: 0,
-    explanation: "You're filtering out the positive and focusing only on the negative detail.",
+    explanationKey: "mind_games.content.thought_quiz.advanced.0.explanation",
   },
   {
     id: "tq_adv2",
-    prompt: "If I set boundaries, people will see me as selfish and abandon me.",
-    options: [
-      "Fortune telling + labeling",
-      "Mind reading + catastrophizing",
-      "Should statements",
-      "Emotional reasoning",
+    promptKey: "mind_games.content.thought_quiz.advanced.1.prompt",
+    optionKeys: [
+      "mind_games.content.thought_quiz.advanced.1.options.0",
+      "mind_games.content.thought_quiz.advanced.1.options.1",
+      "mind_games.content.thought_quiz.advanced.1.options.2",
+      "mind_games.content.thought_quiz.advanced.1.options.3",
     ],
     correctIndex: 1,
-    explanation: "This combines mind reading (knowing what they'll think) with catastrophizing (predicting abandonment).",
+    explanationKey: "mind_games.content.thought_quiz.advanced.1.explanation",
   },
   {
     id: "tq_adv3",
-    prompt: "I didn't get the promotion, which proves I'm not competent enough, and I never will be.",
-    options: [
-      "Fortune telling + labeling",
-      "All-or-nothing thinking",
-      "Discounting the positive",
-      "Personalization",
+    promptKey: "mind_games.content.thought_quiz.advanced.2.prompt",
+    optionKeys: [
+      "mind_games.content.thought_quiz.advanced.2.options.0",
+      "mind_games.content.thought_quiz.advanced.2.options.1",
+      "mind_games.content.thought_quiz.advanced.2.options.2",
+      "mind_games.content.thought_quiz.advanced.2.options.3",
     ],
     correctIndex: 0,
-    explanation: "This creates a fixed label and predicts a permanent future based on one event.",
+    explanationKey: "mind_games.content.thought_quiz.advanced.2.explanation",
   },
   {
     id: "tq_adv4",
-    prompt: "My colleague was curt with me today. I must have done something to upset them, and now the whole team probably thinks poorly of me.",
-    options: [
-      "Personalization + magnification + mind reading",
-      "Catastrophizing + overgeneralization",
-      "Mental filter + should statements",
-      "Emotional reasoning",
+    promptKey: "mind_games.content.thought_quiz.advanced.3.prompt",
+    optionKeys: [
+      "mind_games.content.thought_quiz.advanced.3.options.0",
+      "mind_games.content.thought_quiz.advanced.3.options.1",
+      "mind_games.content.thought_quiz.advanced.3.options.2",
+      "mind_games.content.thought_quiz.advanced.3.options.3",
     ],
     correctIndex: 0,
-    explanation: "This combines taking personal blame, blowing up the impact, and assuming you know what others think.",
+    explanationKey: "mind_games.content.thought_quiz.advanced.3.explanation",
   },
   {
     id: "tq_adv5",
-    prompt: "I feel uncertain about this decision, which means I'm making the wrong choice.",
-    options: [
-      "Emotional reasoning",
-      "Fortune telling",
-      "All-or-nothing thinking",
-      "Catastrophizing",
+    promptKey: "mind_games.content.thought_quiz.advanced.4.prompt",
+    optionKeys: [
+      "mind_games.content.thought_quiz.advanced.4.options.0",
+      "mind_games.content.thought_quiz.advanced.4.options.1",
+      "mind_games.content.thought_quiz.advanced.4.options.2",
+      "mind_games.content.thought_quiz.advanced.4.options.3",
     ],
     correctIndex: 0,
-    explanation: "The feeling of uncertainty is treated as evidence of a bad decision, not just a normal part of choosing.",
+    explanationKey: "mind_games.content.thought_quiz.advanced.4.explanation",
   },
 ];
 
@@ -471,107 +459,99 @@ export const thoughtQuizItemsAdvanced = [
 export const reframePickItems = [
   {
     id: "rp1",
-    situation: "You sent a message and haven't heard back.",
-    automaticThought: "They're ignoring me because I said something wrong.",
-    choices: [
-      "They're busy. I can wait or follow up later in a calm way.",
-      "They definitely hate me now and I ruined everything.",
-      "I'll never message anyone again so I don't risk feeling this.",
+    situationKey: "mind_games.content.reframe_pick.items.0.situation",
+    automaticThoughtKey: "mind_games.content.reframe_pick.items.0.automatic_thought",
+    choiceKeys: [
+      "mind_games.content.reframe_pick.items.0.choices.0",
+      "mind_games.content.reframe_pick.items.0.choices.1",
+      "mind_games.content.reframe_pick.items.0.choices.2",
     ],
     bestIndex: 0,
-    why:
-      "It considers multiple possibilities and suggests a reasonable next step.",
+    whyKey: "mind_games.content.reframe_pick.items.0.why",
   },
   {
     id: "rp2",
-    situation: "You made a small mistake at work/school.",
-    automaticThought: "I'm terrible at this.",
-    choices: [
-      "One mistake is normal. I can fix it and learn for next time.",
-      "I'm the worst person here. I should quit immediately.",
-      "I'll pretend it didn't happen and avoid anything challenging.",
+    situationKey: "mind_games.content.reframe_pick.items.1.situation",
+    automaticThoughtKey: "mind_games.content.reframe_pick.items.1.automatic_thought",
+    choiceKeys: [
+      "mind_games.content.reframe_pick.items.1.choices.0",
+      "mind_games.content.reframe_pick.items.1.choices.1",
+      "mind_games.content.reframe_pick.items.1.choices.2",
     ],
     bestIndex: 0,
-    why:
-      "It's specific, realistic, and focused on learning rather than global labels.",
+    whyKey: "mind_games.content.reframe_pick.items.1.why",
   },
   {
     id: "rp3",
-    situation: "A friend was quiet during your hangout.",
-    automaticThought: "They must be annoyed with me.",
-    choices: [
-      "I don't know the reason. I can check in kindly or give space.",
-      "It's my fault. I always ruin friendships.",
-      "I should cut them off before they reject me first.",
+    situationKey: "mind_games.content.reframe_pick.items.2.situation",
+    automaticThoughtKey: "mind_games.content.reframe_pick.items.2.automatic_thought",
+    choiceKeys: [
+      "mind_games.content.reframe_pick.items.2.choices.0",
+      "mind_games.content.reframe_pick.items.2.choices.1",
+      "mind_games.content.reframe_pick.items.2.choices.2",
     ],
     bestIndex: 0,
-    why:
-      "It avoids mind reading and leaves room for a gentle check-in.",
+    whyKey: "mind_games.content.reframe_pick.items.2.why",
   },
   {
     id: "rp4",
-    situation: "You didn't finish a task you planned.",
-    automaticThought: "I'm so lazy.",
-    choices: [
-      "I struggled today. I can pick one small next step and restart.",
-      "I'm hopeless. I'll never be consistent at anything.",
-      "I should punish myself until I finally get disciplined.",
+    situationKey: "mind_games.content.reframe_pick.items.3.situation",
+    automaticThoughtKey: "mind_games.content.reframe_pick.items.3.automatic_thought",
+    choiceKeys: [
+      "mind_games.content.reframe_pick.items.3.choices.0",
+      "mind_games.content.reframe_pick.items.3.choices.1",
+      "mind_games.content.reframe_pick.items.3.choices.2",
     ],
     bestIndex: 0,
-    why:
-      "It acknowledges difficulty and moves toward a doable, compassionate action.",
+    whyKey: "mind_games.content.reframe_pick.items.3.why",
   },
   {
     id: "rp5",
-    situation: "You feel anxious before an event.",
-    automaticThought: "This anxiety means the event will go badly.",
-    choices: [
-      "Anxiety is a feeling, not a prediction. I can go anyway and cope.",
-      "Anxiety means danger. I must avoid this at all costs.",
-      "I need to feel zero anxiety before I'm allowed to show up.",
+    situationKey: "mind_games.content.reframe_pick.items.4.situation",
+    automaticThoughtKey: "mind_games.content.reframe_pick.items.4.automatic_thought",
+    choiceKeys: [
+      "mind_games.content.reframe_pick.items.4.choices.0",
+      "mind_games.content.reframe_pick.items.4.choices.1",
+      "mind_games.content.reframe_pick.items.4.choices.2",
     ],
     bestIndex: 0,
-    why:
-      "It separates feelings from forecasts and supports valued action.",
+    whyKey: "mind_games.content.reframe_pick.items.4.why",
   },
   {
     id: "rp6",
-    situation: "Someone gave you feedback.",
-    automaticThought: "I'm not good enough.",
-    choices: [
-      "Feedback can help me improve. I can take what's useful and grow.",
-      "They think I'm incompetent and everyone agrees with them.",
-      "I'll stop trying so no one can judge me again.",
+    situationKey: "mind_games.content.reframe_pick.items.5.situation",
+    automaticThoughtKey: "mind_games.content.reframe_pick.items.5.automatic_thought",
+    choiceKeys: [
+      "mind_games.content.reframe_pick.items.5.choices.0",
+      "mind_games.content.reframe_pick.items.5.choices.1",
+      "mind_games.content.reframe_pick.items.5.choices.2",
     ],
     bestIndex: 0,
-    why:
-      "It keeps self-worth intact while allowing improvement.",
+    whyKey: "mind_games.content.reframe_pick.items.5.why",
   },
   {
     id: "rp7",
-    situation: "You didn't get invited to something.",
-    automaticThought: "Nobody likes me.",
-    choices: [
-      "There could be many reasons. I can reach out or plan something else.",
-      "This proves I'm unlikable and always will be.",
-      "I'll isolate so I don't have to feel left out again.",
+    situationKey: "mind_games.content.reframe_pick.items.6.situation",
+    automaticThoughtKey: "mind_games.content.reframe_pick.items.6.automatic_thought",
+    choiceKeys: [
+      "mind_games.content.reframe_pick.items.6.choices.0",
+      "mind_games.content.reframe_pick.items.6.choices.1",
+      "mind_games.content.reframe_pick.items.6.choices.2",
     ],
     bestIndex: 0,
-    why:
-      "It avoids overgeneralization and offers flexible, constructive options.",
+    whyKey: "mind_games.content.reframe_pick.items.6.why",
   },
   {
     id: "rp8",
-    situation: "You're learning a new skill and feel behind.",
-    automaticThought: "If I'm not fast, I'm not meant for this.",
-    choices: [
-      "Skills grow with practice. I can improve step by step.",
-      "If I'm not immediately great, it's a waste of time.",
-      "I should compare myself nonstop to prove I'm failing.",
+    situationKey: "mind_games.content.reframe_pick.items.7.situation",
+    automaticThoughtKey: "mind_games.content.reframe_pick.items.7.automatic_thought",
+    choiceKeys: [
+      "mind_games.content.reframe_pick.items.7.choices.0",
+      "mind_games.content.reframe_pick.items.7.choices.1",
+      "mind_games.content.reframe_pick.items.7.choices.2",
     ],
     bestIndex: 0,
-    why:
-      "It supports growth mindset and realistic learning curves.",
+    whyKey: "mind_games.content.reframe_pick.items.7.why",
   },
 ];
 
@@ -579,74 +559,74 @@ export const reframePickItems = [
 export const valueCompassValues = [
   {
     id: "v1",
-    value: "Family",
-    actions: [
-      "Send a kind message to a family member.",
-      "Do one small helpful thing at home.",
-      "Plan 10 minutes of quality time today.",
+    valueKey: "mind_games.content.value_compass.values.0.value",
+    actionKeys: [
+      "mind_games.content.value_compass.values.0.actions.0",
+      "mind_games.content.value_compass.values.0.actions.1",
+      "mind_games.content.value_compass.values.0.actions.2",
     ],
   },
   {
     id: "v2",
-    value: "Health",
-    actions: [
-      "Drink a glass of water right now.",
-      "Take a 2-minute stretch break.",
-      "Step outside for fresh air for 3 minutes.",
+    valueKey: "mind_games.content.value_compass.values.1.value",
+    actionKeys: [
+      "mind_games.content.value_compass.values.1.actions.0",
+      "mind_games.content.value_compass.values.1.actions.1",
+      "mind_games.content.value_compass.values.1.actions.2",
     ],
   },
   {
     id: "v3",
-    value: "Growth",
-    actions: [
-      "Learn one tiny thing (watch/read for 2 minutes).",
-      "Practice a skill for 3 minutes.",
-      "Write one sentence about what you want to improve.",
+    valueKey: "mind_games.content.value_compass.values.2.value",
+    actionKeys: [
+      "mind_games.content.value_compass.values.2.actions.0",
+      "mind_games.content.value_compass.values.2.actions.1",
+      "mind_games.content.value_compass.values.2.actions.2",
     ],
   },
   {
     id: "v4",
-    value: "Friendship",
-    actions: [
-      "Check in with a friend with a simple hello.",
-      "Reply to a message you've been postponing.",
-      "Share one genuine compliment today.",
+    valueKey: "mind_games.content.value_compass.values.3.value",
+    actionKeys: [
+      "mind_games.content.value_compass.values.3.actions.0",
+      "mind_games.content.value_compass.values.3.actions.1",
+      "mind_games.content.value_compass.values.3.actions.2",
     ],
   },
   {
     id: "v5",
-    value: "Courage",
-    actions: [
-      "Do the smallest version of the scary step (10%).",
-      "Name what you fear in one sentence, then proceed anyway.",
-      "Ask one small question instead of assuming.",
+    valueKey: "mind_games.content.value_compass.values.4.value",
+    actionKeys: [
+      "mind_games.content.value_compass.values.4.actions.0",
+      "mind_games.content.value_compass.values.4.actions.1",
+      "mind_games.content.value_compass.values.4.actions.2",
     ],
   },
   {
     id: "v6",
-    value: "Calm",
-    actions: [
-      "Take 5 slow breaths (count 4 in / 4 out).",
-      "Relax your shoulders and jaw for 20 seconds.",
-      "Put your phone down for 2 minutes and reset.",
+    valueKey: "mind_games.content.value_compass.values.5.value",
+    actionKeys: [
+      "mind_games.content.value_compass.values.5.actions.0",
+      "mind_games.content.value_compass.values.5.actions.1",
+      "mind_games.content.value_compass.values.5.actions.2",
     ],
   },
   {
     id: "v7",
-    value: "Creativity",
-    actions: [
-      "Write a silly 1-line idea (no judgment).",
-      "Take a photo of something interesting around you.",
-      "Doodle for 60 seconds.",
+    valueKey: "mind_games.content.value_compass.values.6.value",
+    actionKeys: [
+      "mind_games.content.value_compass.values.6.actions.0",
+      "mind_games.content.value_compass.values.6.actions.1",
+      "mind_games.content.value_compass.values.6.actions.2",
     ],
   },
   {
     id: "v8",
-    value: "Purpose",
-    actions: [
-      "Choose one task that matters and do 2 minutes of it.",
-      "Write your 'why' in 1 sentence.",
-      "Remove one small obstacle from your path today.",
+    valueKey: "mind_games.content.value_compass.values.7.value",
+    actionKeys: [
+      "mind_games.content.value_compass.values.7.actions.0",
+      "mind_games.content.value_compass.values.7.actions.1",
+      "mind_games.content.value_compass.values.7.actions.2",
     ],
   },
 ];
@@ -655,219 +635,187 @@ export const valueCompassValues = [
 export const tinyExperimentItems = [
   {
     id: "te1",
-    belief: "If I ask for help, people will think I'm weak.",
-    experiments: [
-      "Ask one small, specific question and observe the response.",
-      "Ask a trusted person for a tiny favor and note what happens.",
-      "Ask for clarification once instead of guessing.",
+    beliefKey: "mind_games.content.tiny_experiment.items.0.belief",
+    experimentKeys: [
+      "mind_games.content.tiny_experiment.items.0.experiments.0",
+      "mind_games.content.tiny_experiment.items.0.experiments.1",
+      "mind_games.content.tiny_experiment.items.0.experiments.2",
     ],
     reflection: {
-      question: "What happened?",
-      options: [
-        "It went better than I feared.",
-        "It was neutral / fine.",
-        "It was uncomfortable, but I handled it.",
+      questionKey: "mind_games.content.tiny_experiment.items.0.reflection_question",
+      optionKeys: [
+        "mind_games.content.tiny_experiment.items.0.reflection_options.0",
+        "mind_games.content.tiny_experiment.items.0.reflection_options.1",
+        "mind_games.content.tiny_experiment.items.0.reflection_options.2",
       ],
     },
   },
   {
     id: "te2",
-    belief: "If I say no, people will dislike me.",
-    experiments: [
-      "Say no to a low-stakes request using one polite sentence.",
-      "Offer an alternative (not now / later) instead of automatic yes.",
-      "Pause for 5 seconds before agreeing to anything.",
+    beliefKey: "mind_games.content.tiny_experiment.items.1.belief",
+    experimentKeys: [
+      "mind_games.content.tiny_experiment.items.1.experiments.0",
+      "mind_games.content.tiny_experiment.items.1.experiments.1",
+      "mind_games.content.tiny_experiment.items.1.experiments.2",
     ],
     reflection: {
-      question: "What did you notice?",
-      options: [
-        "People respected it.",
-        "Nothing dramatic happened.",
-        "It felt hard, and I survived it.",
+      questionKey: "mind_games.content.tiny_experiment.items.1.reflection_question",
+      optionKeys: [
+        "mind_games.content.tiny_experiment.items.1.reflection_options.0",
+        "mind_games.content.tiny_experiment.items.1.reflection_options.1",
+        "mind_games.content.tiny_experiment.items.1.reflection_options.2",
       ],
     },
   },
   {
     id: "te3",
-    belief: "If I make a mistake, it will be a disaster.",
-    experiments: [
-      "Do a small task imperfectly on purpose (10%) and observe outcomes.",
-      "Share a minor correction without apologizing excessively.",
-      "Let one tiny typo exist and see what actually happens.",
+    beliefKey: "mind_games.content.tiny_experiment.items.2.belief",
+    experimentKeys: [
+      "mind_games.content.tiny_experiment.items.2.experiments.0",
+      "mind_games.content.tiny_experiment.items.2.experiments.1",
+      "mind_games.content.tiny_experiment.items.2.experiments.2",
     ],
     reflection: {
-      question: "What was the outcome?",
-      options: [
-        "No one cared.",
-        "It was fixable.",
-        "It felt big in my head, smaller in reality.",
+      questionKey: "mind_games.content.tiny_experiment.items.2.reflection_question",
+      optionKeys: [
+        "mind_games.content.tiny_experiment.items.2.reflection_options.0",
+        "mind_games.content.tiny_experiment.items.2.reflection_options.1",
+        "mind_games.content.tiny_experiment.items.2.reflection_options.2",
       ],
     },
   },
   {
     id: "te4",
-    belief: "If I don't feel motivated, I can't start.",
-    experiments: [
-      "Start for 2 minutes only, then reassess.",
-      "Set a timer for 90 seconds and do the first step.",
-      "Make the task 10x smaller and begin.",
+    beliefKey: "mind_games.content.tiny_experiment.items.3.belief",
+    experimentKeys: [
+      "mind_games.content.tiny_experiment.items.3.experiments.0",
+      "mind_games.content.tiny_experiment.items.3.experiments.1",
+      "mind_games.content.tiny_experiment.items.3.experiments.2",
     ],
     reflection: {
-      question: "After starting, how was it?",
-      options: [
-        "Easier than expected.",
-        "Still hard, but possible.",
-        "I gained a little momentum.",
+      questionKey: "mind_games.content.tiny_experiment.items.3.reflection_question",
+      optionKeys: [
+        "mind_games.content.tiny_experiment.items.3.reflection_options.0",
+        "mind_games.content.tiny_experiment.items.3.reflection_options.1",
+        "mind_games.content.tiny_experiment.items.3.reflection_options.2",
       ],
     },
   },
   {
     id: "te5",
-    belief: "If someone is quiet, it must be about me.",
-    experiments: [
-      "Write 3 alternative explanations before reacting.",
-      "Ask a simple check-in question instead of assuming.",
-      "Wait 30 minutes and see if new info appears.",
+    beliefKey: "mind_games.content.tiny_experiment.items.4.belief",
+    experimentKeys: [
+      "mind_games.content.tiny_experiment.items.4.experiments.0",
+      "mind_games.content.tiny_experiment.items.4.experiments.1",
+      "mind_games.content.tiny_experiment.items.4.experiments.2",
     ],
     reflection: {
-      question: "What did you learn?",
-      options: [
-        "I didn't have enough evidence.",
-        "There were other explanations.",
-        "Checking in was helpful.",
+      questionKey: "mind_games.content.tiny_experiment.items.4.reflection_question",
+      optionKeys: [
+        "mind_games.content.tiny_experiment.items.4.reflection_options.0",
+        "mind_games.content.tiny_experiment.items.4.reflection_options.1",
+        "mind_games.content.tiny_experiment.items.4.reflection_options.2",
       ],
     },
   },
   {
     id: "te6",
-    belief: "I have to do everything right to be accepted.",
-    experiments: [
-      "Share one imperfect draft and request feedback.",
-      "Do one task at 'good enough' level and stop.",
-      "Let someone else choose one detail instead of controlling it.",
+    beliefKey: "mind_games.content.tiny_experiment.items.5.belief",
+    experimentKeys: [
+      "mind_games.content.tiny_experiment.items.5.experiments.0",
+      "mind_games.content.tiny_experiment.items.5.experiments.1",
+      "mind_games.content.tiny_experiment.items.5.experiments.2",
     ],
     reflection: {
-      question: "How did it go?",
-      options: [
-        "Good enough worked.",
-        "Acceptance didn't depend on perfection.",
-        "I felt discomfort, and it passed.",
+      questionKey: "mind_games.content.tiny_experiment.items.5.reflection_question",
+      optionKeys: [
+        "mind_games.content.tiny_experiment.items.5.reflection_options.0",
+        "mind_games.content.tiny_experiment.items.5.reflection_options.1",
+        "mind_games.content.tiny_experiment.items.5.reflection_options.2",
       ],
     },
   },
   {
     id: "te7",
-    belief: "If I feel anxious, I shouldn't go.",
-    experiments: [
-      "Go for 5 minutes only and reassess.",
-      "Bring one coping tool (water / music / breathing).",
-      "Rate anxiety 0–10 before and after to compare.",
+    beliefKey: "mind_games.content.tiny_experiment.items.6.belief",
+    experimentKeys: [
+      "mind_games.content.tiny_experiment.items.6.experiments.0",
+      "mind_games.content.tiny_experiment.items.6.experiments.1",
+      "mind_games.content.tiny_experiment.items.6.experiments.2",
     ],
     reflection: {
-      question: "What did you notice?",
-      options: [
-        "Anxiety changed over time.",
-        "I could function with anxiety present.",
-        "Avoidance wasn't necessary.",
+      questionKey: "mind_games.content.tiny_experiment.items.6.reflection_question",
+      optionKeys: [
+        "mind_games.content.tiny_experiment.items.6.reflection_options.0",
+        "mind_games.content.tiny_experiment.items.6.reflection_options.1",
+        "mind_games.content.tiny_experiment.items.6.reflection_options.2",
       ],
     },
   },
   {
     id: "te8",
-    belief: "If I rest, I'm wasting time.",
-    experiments: [
-      "Take a 3-minute break and then return to one small task.",
-      "Rest first, then do 2 minutes of the priority task.",
-      "Track: does a short break help focus?",
+    beliefKey: "mind_games.content.tiny_experiment.items.7.belief",
+    experimentKeys: [
+      "mind_games.content.tiny_experiment.items.7.experiments.0",
+      "mind_games.content.tiny_experiment.items.7.experiments.1",
+      "mind_games.content.tiny_experiment.items.7.experiments.2",
     ],
     reflection: {
-      question: "Result?",
-      options: [
-        "Rest helped me reset.",
-        "No harm done.",
-        "I returned with a bit more clarity.",
+      questionKey: "mind_games.content.tiny_experiment.items.7.reflection_question",
+      optionKeys: [
+        "mind_games.content.tiny_experiment.items.7.reflection_options.0",
+        "mind_games.content.tiny_experiment.items.7.reflection_options.1",
+        "mind_games.content.tiny_experiment.items.7.reflection_options.2",
       ],
     },
   },
   {
     id: "te9",
-    belief: "If I don't get it quickly, I'm not capable.",
-    experiments: [
-      "Practice for 3 minutes daily for 3 days and compare.",
-      "Ask one question and notice improvement.",
-      "Write one thing you learned today, even if small.",
+    beliefKey: "mind_games.content.tiny_experiment.items.8.belief",
+    experimentKeys: [
+      "mind_games.content.tiny_experiment.items.8.experiments.0",
+      "mind_games.content.tiny_experiment.items.8.experiments.1",
+      "mind_games.content.tiny_experiment.items.8.experiments.2",
     ],
     reflection: {
-      question: "What changed?",
-      options: [
-        "Progress showed up gradually.",
-        "Learning took repetition.",
-        "I was harsher than necessary.",
+      questionKey: "mind_games.content.tiny_experiment.items.8.reflection_question",
+      optionKeys: [
+        "mind_games.content.tiny_experiment.items.8.reflection_options.0",
+        "mind_games.content.tiny_experiment.items.8.reflection_options.1",
+        "mind_games.content.tiny_experiment.items.8.reflection_options.2",
       ],
     },
   },
   {
     id: "te10",
-    belief: "I need to feel confident before I act.",
-    experiments: [
-      "Act with 'small courage' for 2 minutes anyway.",
-      "Do the first step while confidence is low.",
-      "Rate confidence after action (not before).",
+    beliefKey: "mind_games.content.tiny_experiment.items.9.belief",
+    experimentKeys: [
+      "mind_games.content.tiny_experiment.items.9.experiments.0",
+      "mind_games.content.tiny_experiment.items.9.experiments.1",
+      "mind_games.content.tiny_experiment.items.9.experiments.2",
     ],
     reflection: {
-      question: "After action, how was your confidence?",
-      options: [
-        "A bit higher.",
-        "About the same, but I did it.",
-        "I learned I can move without perfect confidence.",
+      questionKey: "mind_games.content.tiny_experiment.items.9.reflection_question",
+      optionKeys: [
+        "mind_games.content.tiny_experiment.items.9.reflection_options.0",
+        "mind_games.content.tiny_experiment.items.9.reflection_options.1",
+        "mind_games.content.tiny_experiment.items.9.reflection_options.2",
       ],
     },
   },
 ];
 
 // 5) Quick Win (DBT/CBT)
-export const quickWinPresets = [
-  "I drank water.",
-  "I took a 2-minute break.",
-  "I sent one message I was avoiding.",
-  "I cleaned one tiny area.",
-  "I did one small task for 2 minutes.",
-  "I took 5 slow breaths.",
-  "I stepped outside for fresh air.",
-  "I asked a question instead of assuming.",
-  "I showed up even though it was uncomfortable.",
-  "I wrote one helpful sentence to myself.",
-  "I stretched my shoulders/neck.",
-  "I ate something nourishing.",
-  "I paused before reacting.",
-  "I said no (or not now) politely.",
-  "I made a small plan for tomorrow.",
-  "I finished a mini-step.",
-  "I noticed a thinking trap and named it.",
-  "I chose 'good enough' and stopped.",
-  "I did something kind for someone.",
-  "I did something kind for myself.",
-];
+export const quickWinPresetKeys = Array.from(
+  { length: 20 },
+  (_, index) => `mind_games.content.quick_win.presets.${index}`
+);
 
 // 6) Calm Bingo (DBT)
-export const calmBingoTiles = [
-  "Drink a glass of water",
-  "5 slow breaths",
-  "Relax shoulders + jaw",
-  "Look out a window for 30s",
-  "Stand up and stretch",
-  "Send a kind text",
-  "Tidy one small thing",
-  "Step outside for 2 minutes",
-  "Name 3 things you can see",
-  "Play one calm song",
-  "Write 1 supportive sentence",
-  "Wash your hands slowly",
-  "Move your body for 60s",
-  "Put phone down for 2 minutes",
-  "Smile gently (even 10%)",
-  "Choose one tiny next step",
-];
+export const calmBingoTileKeys = Array.from(
+  { length: 16 },
+  (_, index) => `mind_games.content.calm_bingo.tiles.${index}`
+);
 
 // --------------------
 // 7) DBT STOP Skill
@@ -875,62 +823,62 @@ export const calmBingoTiles = [
 export const dbtStopPrompts = [
   {
     id: "stop1",
-    trigger: "You feel a strong urge to react immediately.",
+    triggerKey: "mind_games.content.dbt_stop.prompts.0.trigger",
     steps: [
-      { key: "S", label: "Stop", text: "Pause. Don't act yet." },
-      { key: "T", label: "Take a step back", text: "Breathe once. Create a tiny space." },
-      { key: "O", label: "Observe", text: "Notice: thoughts, feelings, body signals." },
-      { key: "P", label: "Proceed mindfully", text: "Choose one wise next step." },
+      { key: "S", labelKey: "mind_games.content.dbt_stop.prompts.0.steps.0.label", textKey: "mind_games.content.dbt_stop.prompts.0.steps.0.text" },
+      { key: "T", labelKey: "mind_games.content.dbt_stop.prompts.0.steps.1.label", textKey: "mind_games.content.dbt_stop.prompts.0.steps.1.text" },
+      { key: "O", labelKey: "mind_games.content.dbt_stop.prompts.0.steps.2.label", textKey: "mind_games.content.dbt_stop.prompts.0.steps.2.text" },
+      { key: "P", labelKey: "mind_games.content.dbt_stop.prompts.0.steps.3.label", textKey: "mind_games.content.dbt_stop.prompts.0.steps.3.text" },
     ],
-    nextSteps: [
-      "Send a calm, short reply (or wait 10 minutes).",
-      "Ask one clarifying question.",
-      "Do one small grounding action, then decide.",
+    nextStepKeys: [
+      "mind_games.content.dbt_stop.prompts.0.next_steps.0",
+      "mind_games.content.dbt_stop.prompts.0.next_steps.1",
+      "mind_games.content.dbt_stop.prompts.0.next_steps.2",
     ],
   },
   {
     id: "stop2",
-    trigger: "You're about to avoid something important.",
+    triggerKey: "mind_games.content.dbt_stop.prompts.1.trigger",
     steps: [
-      { key: "S", label: "Stop", text: "Pause avoidance for a moment." },
-      { key: "T", label: "Take a step back", text: "Exhale slowly and reset posture." },
-      { key: "O", label: "Observe", text: "What are you afraid will happen?" },
-      { key: "P", label: "Proceed mindfully", text: "Pick the smallest brave step (10%)." },
+      { key: "S", labelKey: "mind_games.content.dbt_stop.prompts.1.steps.0.label", textKey: "mind_games.content.dbt_stop.prompts.1.steps.0.text" },
+      { key: "T", labelKey: "mind_games.content.dbt_stop.prompts.1.steps.1.label", textKey: "mind_games.content.dbt_stop.prompts.1.steps.1.text" },
+      { key: "O", labelKey: "mind_games.content.dbt_stop.prompts.1.steps.2.label", textKey: "mind_games.content.dbt_stop.prompts.1.steps.2.text" },
+      { key: "P", labelKey: "mind_games.content.dbt_stop.prompts.1.steps.3.label", textKey: "mind_games.content.dbt_stop.prompts.1.steps.3.text" },
     ],
-    nextSteps: [
-      "Do 2 minutes of the first step only.",
-      "Make it easier: reduce scope by 50%.",
-      "Text someone: 'I'm starting now—wish me luck.'",
+    nextStepKeys: [
+      "mind_games.content.dbt_stop.prompts.1.next_steps.0",
+      "mind_games.content.dbt_stop.prompts.1.next_steps.1",
+      "mind_games.content.dbt_stop.prompts.1.next_steps.2",
     ],
   },
   {
     id: "stop3",
-    trigger: "You feel criticized and want to defend yourself fast.",
+    triggerKey: "mind_games.content.dbt_stop.prompts.2.trigger",
     steps: [
-      { key: "S", label: "Stop", text: "Hold back the instant response." },
-      { key: "T", label: "Take a step back", text: "Breathe and relax your jaw." },
-      { key: "O", label: "Observe", text: "What's the goal: to win or to repair?" },
-      { key: "P", label: "Proceed mindfully", text: "Respond to the goal, not the heat." },
+      { key: "S", labelKey: "mind_games.content.dbt_stop.prompts.2.steps.0.label", textKey: "mind_games.content.dbt_stop.prompts.2.steps.0.text" },
+      { key: "T", labelKey: "mind_games.content.dbt_stop.prompts.2.steps.1.label", textKey: "mind_games.content.dbt_stop.prompts.2.steps.1.text" },
+      { key: "O", labelKey: "mind_games.content.dbt_stop.prompts.2.steps.2.label", textKey: "mind_games.content.dbt_stop.prompts.2.steps.2.text" },
+      { key: "P", labelKey: "mind_games.content.dbt_stop.prompts.2.steps.3.label", textKey: "mind_games.content.dbt_stop.prompts.2.steps.3.text" },
     ],
-    nextSteps: [
-      "Say: 'Let me think about that for a moment.'",
-      "Reflect back what you heard in one sentence.",
-      "Ask: 'What would be most helpful right now?'",
+    nextStepKeys: [
+      "mind_games.content.dbt_stop.prompts.2.next_steps.0",
+      "mind_games.content.dbt_stop.prompts.2.next_steps.1",
+      "mind_games.content.dbt_stop.prompts.2.next_steps.2",
     ],
   },
   {
     id: "stop4",
-    trigger: "You're scrolling/doomscrolling and feel stuck.",
+    triggerKey: "mind_games.content.dbt_stop.prompts.3.trigger",
     steps: [
-      { key: "S", label: "Stop", text: "Pause scrolling now." },
-      { key: "T", label: "Take a step back", text: "Put phone down for one breath." },
-      { key: "O", label: "Observe", text: "Name the feeling in one word." },
-      { key: "P", label: "Proceed mindfully", text: "Choose one small helpful action." },
+      { key: "S", labelKey: "mind_games.content.dbt_stop.prompts.3.steps.0.label", textKey: "mind_games.content.dbt_stop.prompts.3.steps.0.text" },
+      { key: "T", labelKey: "mind_games.content.dbt_stop.prompts.3.steps.1.label", textKey: "mind_games.content.dbt_stop.prompts.3.steps.1.text" },
+      { key: "O", labelKey: "mind_games.content.dbt_stop.prompts.3.steps.2.label", textKey: "mind_games.content.dbt_stop.prompts.3.steps.2.text" },
+      { key: "P", labelKey: "mind_games.content.dbt_stop.prompts.3.steps.3.label", textKey: "mind_games.content.dbt_stop.prompts.3.steps.3.text" },
     ],
-    nextSteps: [
-      "Drink water and stretch for 30 seconds.",
-      "Open a window or step outside for 1 minute.",
-      "Write one tiny next step and do it.",
+    nextStepKeys: [
+      "mind_games.content.dbt_stop.prompts.3.next_steps.0",
+      "mind_games.content.dbt_stop.prompts.3.next_steps.1",
+      "mind_games.content.dbt_stop.prompts.3.next_steps.2",
     ],
   },
 ];
@@ -941,75 +889,75 @@ export const dbtStopPrompts = [
 export const oppositeActionItems = [
   {
     id: "oa1",
-    emotion: "Anxiety",
-    urge: "Avoid / escape",
-    opposite: "Approach gently",
-    choices: [
-      "Show up for 5 minutes, then reassess.",
-      "Do the smallest first step (10%).",
-      "Ask one question instead of avoiding.",
+    emotionKey: "mind_games.content.opposite_action.items.0.emotion",
+    urgeKey: "mind_games.content.opposite_action.items.0.urge",
+    oppositeKey: "mind_games.content.opposite_action.items.0.opposite",
+    choiceKeys: [
+      "mind_games.content.opposite_action.items.0.choices.0",
+      "mind_games.content.opposite_action.items.0.choices.1",
+      "mind_games.content.opposite_action.items.0.choices.2",
     ],
-    note: "Opposite action is for emotions that don't fit the facts or are too intense.",
+    noteKey: "mind_games.content.opposite_action.items.0.note",
   },
   {
     id: "oa2",
-    emotion: "Sadness",
-    urge: "Withdraw / isolate",
-    opposite: "Connect or activate",
-    choices: [
-      "Send one simple 'hey' message.",
-      "Step outside for 2 minutes.",
-      "Do a tiny task to build momentum.",
+    emotionKey: "mind_games.content.opposite_action.items.1.emotion",
+    urgeKey: "mind_games.content.opposite_action.items.1.urge",
+    oppositeKey: "mind_games.content.opposite_action.items.1.opposite",
+    choiceKeys: [
+      "mind_games.content.opposite_action.items.1.choices.0",
+      "mind_games.content.opposite_action.items.1.choices.1",
+      "mind_games.content.opposite_action.items.1.choices.2",
     ],
-    note: "Small activation often shifts mood more than waiting for motivation.",
+    noteKey: "mind_games.content.opposite_action.items.1.note",
   },
   {
     id: "oa3",
-    emotion: "Anger",
-    urge: "Attack / argue",
-    opposite: "Be gentle and effective",
-    choices: [
-      "Lower voice + slow down your words.",
-      "State one need clearly without blame.",
-      "Take a 2-minute pause before replying.",
+    emotionKey: "mind_games.content.opposite_action.items.2.emotion",
+    urgeKey: "mind_games.content.opposite_action.items.2.urge",
+    oppositeKey: "mind_games.content.opposite_action.items.2.opposite",
+    choiceKeys: [
+      "mind_games.content.opposite_action.items.2.choices.0",
+      "mind_games.content.opposite_action.items.2.choices.1",
+      "mind_games.content.opposite_action.items.2.choices.2",
     ],
-    note: "Opposite action aims for effectiveness, not 'winning.'",
+    noteKey: "mind_games.content.opposite_action.items.2.note",
   },
   {
     id: "oa4",
-    emotion: "Shame",
-    urge: "Hide / disappear",
-    opposite: "Small reveal + self-respect",
-    choices: [
-      "Share a tiny truth with a safe person.",
-      "Stand tall, breathe, and stay present for 30s.",
-      "Do one value-based action anyway.",
+    emotionKey: "mind_games.content.opposite_action.items.3.emotion",
+    urgeKey: "mind_games.content.opposite_action.items.3.urge",
+    oppositeKey: "mind_games.content.opposite_action.items.3.opposite",
+    choiceKeys: [
+      "mind_games.content.opposite_action.items.3.choices.0",
+      "mind_games.content.opposite_action.items.3.choices.1",
+      "mind_games.content.opposite_action.items.3.choices.2",
     ],
-    note: "Shame shrinks with safe connection and self-respect actions.",
+    noteKey: "mind_games.content.opposite_action.items.3.note",
   },
   {
     id: "oa5",
-    emotion: "Guilt (too much)",
-    urge: "Over-apologize / self-punish",
-    opposite: "Repair effectively",
-    choices: [
-      "Apologize once, then propose one repair step.",
-      "Ask what would help and listen.",
-      "Stop repeating apologies; act instead.",
+    emotionKey: "mind_games.content.opposite_action.items.4.emotion",
+    urgeKey: "mind_games.content.opposite_action.items.4.urge",
+    oppositeKey: "mind_games.content.opposite_action.items.4.opposite",
+    choiceKeys: [
+      "mind_games.content.opposite_action.items.4.choices.0",
+      "mind_games.content.opposite_action.items.4.choices.1",
+      "mind_games.content.opposite_action.items.4.choices.2",
     ],
-    note: "Effective repair beats endless self-blame.",
+    noteKey: "mind_games.content.opposite_action.items.4.note",
   },
   {
     id: "oa6",
-    emotion: "Fear of rejection",
-    urge: "People-please / over-text",
-    opposite: "Balanced boundary",
-    choices: [
-      "Send one message, then wait.",
-      "Do one self-caring action while you wait.",
-      "Remind yourself: 'I can handle uncertainty.'",
+    emotionKey: "mind_games.content.opposite_action.items.5.emotion",
+    urgeKey: "mind_games.content.opposite_action.items.5.urge",
+    oppositeKey: "mind_games.content.opposite_action.items.5.opposite",
+    choiceKeys: [
+      "mind_games.content.opposite_action.items.5.choices.0",
+      "mind_games.content.opposite_action.items.5.choices.1",
+      "mind_games.content.opposite_action.items.5.choices.2",
     ],
-    note: "Opposite action builds tolerance for uncertainty.",
+    noteKey: "mind_games.content.opposite_action.items.5.note",
   },
 ];
 
@@ -1020,33 +968,33 @@ export const oppositeActionItems = [
 export const urgeSurfingSteps = [
   {
     id: "us1",
-    title: "Ride the wave (60 seconds)",
-    steps: [
-      "Name the urge: 'I'm having the urge to ____.'",
-      "Rate intensity 0–10.",
-      "Notice where it lives in the body.",
-      "Breathe slowly for 5 breaths.",
-      "Rate intensity again. (Urges rise and fall.)",
+    titleKey: "mind_games.content.urge_surfing.beginner.0.title",
+    stepKeys: [
+      "mind_games.content.urge_surfing.beginner.0.steps.0",
+      "mind_games.content.urge_surfing.beginner.0.steps.1",
+      "mind_games.content.urge_surfing.beginner.0.steps.2",
+      "mind_games.content.urge_surfing.beginner.0.steps.3",
+      "mind_games.content.urge_surfing.beginner.0.steps.4",
     ],
-    finishChoices: [
-      "Delay 10 minutes (set a timer).",
-      "Do a 2-minute replacement action.",
-      "Ask for support (one message).",
+    finishChoiceKeys: [
+      "mind_games.content.urge_surfing.beginner.0.finish_choices.0",
+      "mind_games.content.urge_surfing.beginner.0.finish_choices.1",
+      "mind_games.content.urge_surfing.beginner.0.finish_choices.2",
     ],
   },
   {
     id: "us2",
-    title: "Surf + redirect",
-    steps: [
-      "Name the urge without judging it.",
-      "Imagine it as a wave—rising, cresting, passing.",
-      "Relax shoulders and jaw.",
-      "Pick one value-based micro-action.",
+    titleKey: "mind_games.content.urge_surfing.beginner.1.title",
+    stepKeys: [
+      "mind_games.content.urge_surfing.beginner.1.steps.0",
+      "mind_games.content.urge_surfing.beginner.1.steps.1",
+      "mind_games.content.urge_surfing.beginner.1.steps.2",
+      "mind_games.content.urge_surfing.beginner.1.steps.3",
     ],
-    finishChoices: [
-      "Take 10% of a helpful step.",
-      "Move your body for 60 seconds.",
-      "Drink water + reset posture.",
+    finishChoiceKeys: [
+      "mind_games.content.urge_surfing.beginner.1.finish_choices.0",
+      "mind_games.content.urge_surfing.beginner.1.finish_choices.1",
+      "mind_games.content.urge_surfing.beginner.1.finish_choices.2",
     ],
   },
 ];
@@ -1055,33 +1003,33 @@ export const urgeSurfingSteps = [
 export const urgeSurfingStepsAdvanced = [
   {
     id: "us_adv1",
-    title: "Surf independently (90 seconds)",
-    steps: [
-      "Name and rate the urge (0-10).",
-      "Locate it in your body.",
-      "Breathe with it for 10 breaths.",
-      "Notice the peak and decline.",
-      "Rate it again.",
+    titleKey: "mind_games.content.urge_surfing.advanced.0.title",
+    stepKeys: [
+      "mind_games.content.urge_surfing.advanced.0.steps.0",
+      "mind_games.content.urge_surfing.advanced.0.steps.1",
+      "mind_games.content.urge_surfing.advanced.0.steps.2",
+      "mind_games.content.urge_surfing.advanced.0.steps.3",
+      "mind_games.content.urge_surfing.advanced.0.steps.4",
     ],
-    finishChoices: [
-      "Delay 20 minutes and reassess.",
-      "Do the opposite action for 5 minutes.",
-      "Journal about what you noticed.",
+    finishChoiceKeys: [
+      "mind_games.content.urge_surfing.advanced.0.finish_choices.0",
+      "mind_games.content.urge_surfing.advanced.0.finish_choices.1",
+      "mind_games.content.urge_surfing.advanced.0.finish_choices.2",
     ],
   },
   {
     id: "us_adv2",
-    title: "Surf + value-based action",
-    steps: [
-      "Acknowledge the urge without judgment.",
-      "Watch it like a scientist observing data.",
-      "Let it peak naturally.",
-      "Choose one value-aligned micro-step.",
+    titleKey: "mind_games.content.urge_surfing.advanced.1.title",
+    stepKeys: [
+      "mind_games.content.urge_surfing.advanced.1.steps.0",
+      "mind_games.content.urge_surfing.advanced.1.steps.1",
+      "mind_games.content.urge_surfing.advanced.1.steps.2",
+      "mind_games.content.urge_surfing.advanced.1.steps.3",
     ],
-    finishChoices: [
-      "Do the tiny step immediately.",
-      "Practice the skill again in 1 hour.",
-      "Note what worked for next time.",
+    finishChoiceKeys: [
+      "mind_games.content.urge_surfing.advanced.1.finish_choices.0",
+      "mind_games.content.urge_surfing.advanced.1.finish_choices.1",
+      "mind_games.content.urge_surfing.advanced.1.finish_choices.2",
     ],
   },
 ];
@@ -1092,62 +1040,62 @@ export const urgeSurfingStepsAdvanced = [
 export const worryTimeItems = [
   {
     id: "wt1",
-    worry: "What if I mess up tomorrow?",
-    parkIt: "I'll think about this during Worry Time at 6:00 PM for 10 minutes.",
-    tinyNow: [
-      "Write one small preparation step.",
-      "Do 2 minutes of that step now.",
-      "Then return to the present task.",
+    worryKey: "mind_games.content.worry_time.items.0.worry",
+    parkItKey: "mind_games.content.worry_time.items.0.park_it",
+    tinyNowKeys: [
+      "mind_games.content.worry_time.items.0.tiny_now.0",
+      "mind_games.content.worry_time.items.0.tiny_now.1",
+      "mind_games.content.worry_time.items.0.tiny_now.2",
     ],
   },
   {
     id: "wt2",
-    worry: "What if they're mad at me?",
-    parkIt: "I'll revisit this at 7:00 PM for 10 minutes, then decide on a calm follow-up.",
-    tinyNow: [
-      "List 2 alternative explanations.",
-      "Wait 30 minutes before acting.",
-      "Do one calming reset (5 breaths).",
+    worryKey: "mind_games.content.worry_time.items.1.worry",
+    parkItKey: "mind_games.content.worry_time.items.1.park_it",
+    tinyNowKeys: [
+      "mind_games.content.worry_time.items.1.tiny_now.0",
+      "mind_games.content.worry_time.items.1.tiny_now.1",
+      "mind_games.content.worry_time.items.1.tiny_now.2",
     ],
   },
   {
     id: "wt3",
-    worry: "What if something bad happens?",
-    parkIt: "I'll schedule Worry Time at 5:30 PM for 10 minutes and focus on what's controllable.",
-    tinyNow: [
-      "Name 1 thing you can control today.",
-      "Do the smallest step toward it.",
-      "Return attention to the room.",
+    worryKey: "mind_games.content.worry_time.items.2.worry",
+    parkItKey: "mind_games.content.worry_time.items.2.park_it",
+    tinyNowKeys: [
+      "mind_games.content.worry_time.items.2.tiny_now.0",
+      "mind_games.content.worry_time.items.2.tiny_now.1",
+      "mind_games.content.worry_time.items.2.tiny_now.2",
     ],
   },
   {
     id: "wt4",
-    worry: "I'm behind; I'll never catch up.",
-    parkIt: "I'll worry about this at 6:30 PM for 10 minutes and make a realistic plan.",
-    tinyNow: [
-      "Pick the single next step.",
-      "Work 2 minutes on it.",
-      "Stop and acknowledge progress.",
+    worryKey: "mind_games.content.worry_time.items.3.worry",
+    parkItKey: "mind_games.content.worry_time.items.3.park_it",
+    tinyNowKeys: [
+      "mind_games.content.worry_time.items.3.tiny_now.0",
+      "mind_games.content.worry_time.items.3.tiny_now.1",
+      "mind_games.content.worry_time.items.3.tiny_now.2",
     ],
   },
   {
     id: "wt5",
-    worry: "What if I disappoint people?",
-    parkIt: "I'll revisit this at 8:00 PM for 10 minutes and choose a value-based action.",
-    tinyNow: [
-      "Ask: 'What matters to me here?'",
-      "Choose one respectful sentence/boundary.",
-      "Delay responding for 10 minutes.",
+    worryKey: "mind_games.content.worry_time.items.4.worry",
+    parkItKey: "mind_games.content.worry_time.items.4.park_it",
+    tinyNowKeys: [
+      "mind_games.content.worry_time.items.4.tiny_now.0",
+      "mind_games.content.worry_time.items.4.tiny_now.1",
+      "mind_games.content.worry_time.items.4.tiny_now.2",
     ],
   },
   {
     id: "wt6",
-    worry: "What if I can't handle it?",
-    parkIt: "I'll schedule Worry Time at 7:30 PM for 10 minutes and review coping options.",
-    tinyNow: [
-      "Write 1 coping tool you already use.",
-      "Use it for 60 seconds.",
-      "Continue with the next small task.",
+    worryKey: "mind_games.content.worry_time.items.5.worry",
+    parkItKey: "mind_games.content.worry_time.items.5.park_it",
+    tinyNowKeys: [
+      "mind_games.content.worry_time.items.5.tiny_now.0",
+      "mind_games.content.worry_time.items.5.tiny_now.1",
+      "mind_games.content.worry_time.items.5.tiny_now.2",
     ],
   },
 ];
@@ -1158,87 +1106,87 @@ export const worryTimeItems = [
 export const evidenceBalanceItems = [
   {
     id: "eb1",
-    thought: "I always mess things up.",
-    evidenceFor: [
-      "I made a mistake recently.",
-      "I remember failures more than successes.",
+    thoughtKey: "mind_games.content.evidence_balance.items.0.thought",
+    evidenceForKeys: [
+      "mind_games.content.evidence_balance.items.0.evidence_for.0",
+      "mind_games.content.evidence_balance.items.0.evidence_for.1",
     ],
-    evidenceAgainst: [
-      "I've done many things well.",
-      "One mistake doesn't define 'always'.",
+    evidenceAgainstKeys: [
+      "mind_games.content.evidence_balance.items.0.evidence_against.0",
+      "mind_games.content.evidence_balance.items.0.evidence_against.1",
     ],
-    balancedConclusion:
-      "I've made mistakes and also succeeded. I can learn and improve.",
+    balancedConclusionKey:
+      "mind_games.content.evidence_balance.items.0.balanced_conclusion",
   },
   {
     id: "eb2",
-    thought: "They don't like me.",
-    evidenceFor: [
-      "They replied late once.",
-      "They were quiet last time.",
+    thoughtKey: "mind_games.content.evidence_balance.items.1.thought",
+    evidenceForKeys: [
+      "mind_games.content.evidence_balance.items.1.evidence_for.0",
+      "mind_games.content.evidence_balance.items.1.evidence_for.1",
     ],
-    evidenceAgainst: [
-      "They've been friendly before.",
-      "There are many reasons for silence.",
+    evidenceAgainstKeys: [
+      "mind_games.content.evidence_balance.items.1.evidence_against.0",
+      "mind_games.content.evidence_balance.items.1.evidence_against.1",
     ],
-    balancedConclusion:
-      "I don't know their thoughts. I can check in calmly or wait for more info.",
+    balancedConclusionKey:
+      "mind_games.content.evidence_balance.items.1.balanced_conclusion",
   },
   {
     id: "eb3",
-    thought: "If I'm anxious, I can't cope.",
-    evidenceFor: [
-      "Anxiety feels intense.",
-      "I want to escape when anxious.",
+    thoughtKey: "mind_games.content.evidence_balance.items.2.thought",
+    evidenceForKeys: [
+      "mind_games.content.evidence_balance.items.2.evidence_for.0",
+      "mind_games.content.evidence_balance.items.2.evidence_for.1",
     ],
-    evidenceAgainst: [
-      "I've coped with anxiety before.",
-      "Anxiety rises and falls.",
+    evidenceAgainstKeys: [
+      "mind_games.content.evidence_balance.items.2.evidence_against.0",
+      "mind_games.content.evidence_balance.items.2.evidence_against.1",
     ],
-    balancedConclusion:
-      "Anxiety is uncomfortable but manageable. I can act while it's present.",
+    balancedConclusionKey:
+      "mind_games.content.evidence_balance.items.2.balanced_conclusion",
   },
   {
     id: "eb4",
-    thought: "I'm not improving.",
-    evidenceFor: [
-      "Progress feels slow.",
-      "I compare myself to others.",
+    thoughtKey: "mind_games.content.evidence_balance.items.3.thought",
+    evidenceForKeys: [
+      "mind_games.content.evidence_balance.items.3.evidence_for.0",
+      "mind_games.content.evidence_balance.items.3.evidence_for.1",
     ],
-    evidenceAgainst: [
-      "I've taken small steps.",
-      "Learning is gradual.",
+    evidenceAgainstKeys: [
+      "mind_games.content.evidence_balance.items.3.evidence_against.0",
+      "mind_games.content.evidence_balance.items.3.evidence_against.1",
     ],
-    balancedConclusion:
-      "Progress can be slow and real. Small steps still count.",
+    balancedConclusionKey:
+      "mind_games.content.evidence_balance.items.3.balanced_conclusion",
   },
   {
     id: "eb5",
-    thought: "I must do everything perfectly.",
-    evidenceFor: [
-      "I value quality.",
-      "Perfection sometimes prevents criticism.",
+    thoughtKey: "mind_games.content.evidence_balance.items.4.thought",
+    evidenceForKeys: [
+      "mind_games.content.evidence_balance.items.4.evidence_for.0",
+      "mind_games.content.evidence_balance.items.4.evidence_for.1",
     ],
-    evidenceAgainst: [
-      "Perfect isn't required to succeed.",
-      "Good-enough frees time and reduces stress.",
+    evidenceAgainstKeys: [
+      "mind_games.content.evidence_balance.items.4.evidence_against.0",
+      "mind_games.content.evidence_balance.items.4.evidence_against.1",
     ],
-    balancedConclusion:
-      "I can aim for quality while allowing 'good enough' when it's effective.",
+    balancedConclusionKey:
+      "mind_games.content.evidence_balance.items.4.balanced_conclusion",
   },
   {
     id: "eb6",
-    thought: "If I say no, I'll be rejected.",
-    evidenceFor: [
-      "I worry about disappointing people.",
-      "I've had conflict before.",
+    thoughtKey: "mind_games.content.evidence_balance.items.5.thought",
+    evidenceForKeys: [
+      "mind_games.content.evidence_balance.items.5.evidence_for.0",
+      "mind_games.content.evidence_balance.items.5.evidence_for.1",
     ],
-    evidenceAgainst: [
-      "Many people respect boundaries.",
-      "I can say no politely and offer alternatives.",
+    evidenceAgainstKeys: [
+      "mind_games.content.evidence_balance.items.5.evidence_against.0",
+      "mind_games.content.evidence_balance.items.5.evidence_against.1",
     ],
-    balancedConclusion:
-      "Saying no respectfully protects relationships and my wellbeing.",
+    balancedConclusionKey:
+      "mind_games.content.evidence_balance.items.5.balanced_conclusion",
   },
 ];
 
@@ -1248,56 +1196,56 @@ export const evidenceBalanceItems = [
 export const defusionCards = [
   {
     id: "df1",
-    thought: "I'm not good enough.",
-    defuseLines: [
-      "I'm having the thought that I'm not good enough.",
-      "Thanks, mind. Interesting story.",
-      "This is a thought, not a fact.",
+    thoughtKey: "mind_games.content.defusion_cards.cards.0.thought",
+    defuseLineKeys: [
+      "mind_games.content.defusion_cards.cards.0.defuse_lines.0",
+      "mind_games.content.defusion_cards.cards.0.defuse_lines.1",
+      "mind_games.content.defusion_cards.cards.0.defuse_lines.2",
     ],
   },
   {
     id: "df2",
-    thought: "Something bad will happen.",
-    defuseLines: [
-      "I'm noticing a 'danger prediction' thought.",
-      "My mind is trying to protect me.",
-      "I can take one small step anyway.",
+    thoughtKey: "mind_games.content.defusion_cards.cards.1.thought",
+    defuseLineKeys: [
+      "mind_games.content.defusion_cards.cards.1.defuse_lines.0",
+      "mind_games.content.defusion_cards.cards.1.defuse_lines.1",
+      "mind_games.content.defusion_cards.cards.1.defuse_lines.2",
     ],
   },
   {
     id: "df3",
-    thought: "They're judging me.",
-    defuseLines: [
-      "I'm having the thought they're judging me.",
-      "I can't read minds. I can act on my values.",
-      "Let this thought ride in the back seat.",
+    thoughtKey: "mind_games.content.defusion_cards.cards.2.thought",
+    defuseLineKeys: [
+      "mind_games.content.defusion_cards.cards.2.defuse_lines.0",
+      "mind_games.content.defusion_cards.cards.2.defuse_lines.1",
+      "mind_games.content.defusion_cards.cards.2.defuse_lines.2",
     ],
   },
   {
     id: "df4",
-    thought: "I can't handle this feeling.",
-    defuseLines: [
-      "I'm noticing the thought 'I can't handle it'.",
-      "Feelings are waves; they change.",
-      "I can make room and keep going.",
+    thoughtKey: "mind_games.content.defusion_cards.cards.3.thought",
+    defuseLineKeys: [
+      "mind_games.content.defusion_cards.cards.3.defuse_lines.0",
+      "mind_games.content.defusion_cards.cards.3.defuse_lines.1",
+      "mind_games.content.defusion_cards.cards.3.defuse_lines.2",
     ],
   },
   {
     id: "df5",
-    thought: "I must fix everything now.",
-    defuseLines: [
-      "There's the 'urgent fixer' thought.",
-      "I can pause and choose one wise next step.",
-      "Slow is smooth; smooth is fast.",
+    thoughtKey: "mind_games.content.defusion_cards.cards.4.thought",
+    defuseLineKeys: [
+      "mind_games.content.defusion_cards.cards.4.defuse_lines.0",
+      "mind_games.content.defusion_cards.cards.4.defuse_lines.1",
+      "mind_games.content.defusion_cards.cards.4.defuse_lines.2",
     ],
   },
   {
     id: "df6",
-    thought: "If it's hard, I should quit.",
-    defuseLines: [
-      "I'm having the thought 'quit'.",
-      "Hard can mean 'new', not 'wrong'.",
-      "I can do the smallest version (10%).",
+    thoughtKey: "mind_games.content.defusion_cards.cards.5.thought",
+    defuseLineKeys: [
+      "mind_games.content.defusion_cards.cards.5.defuse_lines.0",
+      "mind_games.content.defusion_cards.cards.5.defuse_lines.1",
+      "mind_games.content.defusion_cards.cards.5.defuse_lines.2",
     ],
   },
 ];
@@ -1308,17 +1256,17 @@ export const defusionCards = [
 export const tippSkillsItems = [
   {
     id: "tipp1",
-    situation: "Your emotions are at 8/10 or higher and you need to come down fast.",
+    situationKey: "mind_games.content.tipp_skills.situation",
     skills: [
-      { letter: "T", name: "Temperature", description: "Cold water on face, ice cube, cold shower" },
-      { letter: "I", name: "Intense exercise", description: "Run, jump, push-ups for 60 seconds" },
-      { letter: "P", name: "Paced breathing", description: "Breathe out longer than in (4 in / 6 out)" },
-      { letter: "P", name: "Paired muscle relaxation", description: "Tense then release muscle groups" },
+      { letter: "T", nameKey: "mind_games.content.tipp_skills.skills.0.name", descriptionKey: "mind_games.content.tipp_skills.skills.0.description" },
+      { letter: "I", nameKey: "mind_games.content.tipp_skills.skills.1.name", descriptionKey: "mind_games.content.tipp_skills.skills.1.description" },
+      { letter: "P", nameKey: "mind_games.content.tipp_skills.skills.2.name", descriptionKey: "mind_games.content.tipp_skills.skills.2.description" },
+      { letter: "P", nameKey: "mind_games.content.tipp_skills.skills.3.name", descriptionKey: "mind_games.content.tipp_skills.skills.3.description" },
     ],
-    actions: [
-      "Splash cold water on your face for 30 seconds.",
-      "Do 20 jumping jacks right now.",
-      "Breathe: 4 in, hold 4, 6 out—repeat 5 times.",
+    actionKeys: [
+      "mind_games.content.tipp_skills.actions.0",
+      "mind_games.content.tipp_skills.actions.1",
+      "mind_games.content.tipp_skills.actions.2",
     ],
   },
 ];
@@ -1329,45 +1277,45 @@ export const tippSkillsItems = [
 export const acceptsItems = [
   {
     letter: "A",
-    name: "Activities",
-    description: "Do something engaging",
-    action: "Watch a 5-minute video, play a quick game, or clean one surface.",
+    nameKey: "mind_games.content.accepts.items.0.name",
+    descriptionKey: "mind_games.content.accepts.items.0.description",
+    actionKey: "mind_games.content.accepts.items.0.action",
   },
   {
     letter: "C",
-    name: "Contributing",
-    description: "Help someone else",
-    action: "Send a kind message, do one helpful thing, or share something useful.",
+    nameKey: "mind_games.content.accepts.items.1.name",
+    descriptionKey: "mind_games.content.accepts.items.1.description",
+    actionKey: "mind_games.content.accepts.items.1.action",
   },
   {
     letter: "C",
-    name: "Comparisons",
-    description: "Compare to when you coped before",
-    action: "Remember: You've survived 100% of your worst days so far.",
+    nameKey: "mind_games.content.accepts.items.2.name",
+    descriptionKey: "mind_games.content.accepts.items.2.description",
+    actionKey: "mind_games.content.accepts.items.2.action",
   },
   {
     letter: "E",
-    name: "Emotions",
-    description: "Create a different emotion",
-    action: "Watch something funny, listen to upbeat music, or read something calming.",
+    nameKey: "mind_games.content.accepts.items.3.name",
+    descriptionKey: "mind_games.content.accepts.items.3.description",
+    actionKey: "mind_games.content.accepts.items.3.action",
   },
   {
     letter: "P",
-    name: "Pushing away",
-    description: "Mentally put the situation aside",
-    action: "Imagine putting the problem in a box on a shelf for later.",
+    nameKey: "mind_games.content.accepts.items.4.name",
+    descriptionKey: "mind_games.content.accepts.items.4.description",
+    actionKey: "mind_games.content.accepts.items.4.action",
   },
   {
     letter: "T",
-    name: "Thoughts",
-    description: "Fill your mind with other thoughts",
-    action: "Count backwards from 100 by 7s, list countries A-Z, or describe the room.",
+    nameKey: "mind_games.content.accepts.items.5.name",
+    descriptionKey: "mind_games.content.accepts.items.5.description",
+    actionKey: "mind_games.content.accepts.items.5.action",
   },
   {
     letter: "S",
-    name: "Sensations",
-    description: "Create strong physical sensations",
-    action: "Hold ice, take a hot/cold shower, or squeeze a stress ball hard.",
+    nameKey: "mind_games.content.accepts.items.6.name",
+    descriptionKey: "mind_games.content.accepts.items.6.description",
+    actionKey: "mind_games.content.accepts.items.6.action",
   },
 ];
 
@@ -1377,45 +1325,45 @@ export const acceptsItems = [
 export const improveItems = [
   {
     letter: "I",
-    name: "Imagery",
-    description: "Visualize a peaceful or safe place",
-    quickAction: "Close your eyes. Picture a place you feel calm (real or imagined).",
+    nameKey: "mind_games.content.improve.items.0.name",
+    descriptionKey: "mind_games.content.improve.items.0.description",
+    quickActionKey: "mind_games.content.improve.items.0.quick_action",
   },
   {
     letter: "M",
-    name: "Meaning",
-    description: "Find purpose in the pain",
-    quickAction: "Ask: What can I learn? How might this help me grow?",
+    nameKey: "mind_games.content.improve.items.1.name",
+    descriptionKey: "mind_games.content.improve.items.1.description",
+    quickActionKey: "mind_games.content.improve.items.1.quick_action",
   },
   {
     letter: "P",
-    name: "Prayer",
-    description: "Connect to something larger",
-    quickAction: "Say a phrase that grounds you or ask for support from your values/beliefs.",
+    nameKey: "mind_games.content.improve.items.2.name",
+    descriptionKey: "mind_games.content.improve.items.2.description",
+    quickActionKey: "mind_games.content.improve.items.2.quick_action",
   },
   {
     letter: "R",
-    name: "Relaxation",
-    description: "Relax your body",
-    quickAction: "Tense and release: shoulders, jaw, hands. Breathe slowly.",
+    nameKey: "mind_games.content.improve.items.3.name",
+    descriptionKey: "mind_games.content.improve.items.3.description",
+    quickActionKey: "mind_games.content.improve.items.3.quick_action",
   },
   {
     letter: "O",
-    name: "One thing in the moment",
-    description: "Focus fully on one small task",
-    quickAction: "Pick one action: wash a dish, water a plant, fold one item.",
+    nameKey: "mind_games.content.improve.items.4.name",
+    descriptionKey: "mind_games.content.improve.items.4.description",
+    quickActionKey: "mind_games.content.improve.items.4.quick_action",
   },
   {
     letter: "V",
-    name: "Vacation",
-    description: "Take a brief mental break",
-    quickAction: "Give yourself 10 minutes off from the problem. Set a timer.",
+    nameKey: "mind_games.content.improve.items.5.name",
+    descriptionKey: "mind_games.content.improve.items.5.description",
+    quickActionKey: "mind_games.content.improve.items.5.quick_action",
   },
   {
     letter: "E",
-    name: "Encouragement",
-    description: "Be your own cheerleader",
-    quickAction: "Say: 'I can handle this. I've done hard things before.'",
+    nameKey: "mind_games.content.improve.items.6.name",
+    descriptionKey: "mind_games.content.improve.items.6.description",
+    quickActionKey: "mind_games.content.improve.items.6.quick_action",
   },
 ];
 
@@ -1424,43 +1372,43 @@ export const improveItems = [
 // --------------------
 export const selfSootheItems = [
   {
-    sense: "Vision",
-    actions: [
-      "Look at nature or a calming image.",
-      "Watch clouds or water move.",
-      "Light a candle and watch the flame.",
+    senseKey: "mind_games.content.self_soothe.senses.0.sense",
+    actionKeys: [
+      "mind_games.content.self_soothe.senses.0.actions.0",
+      "mind_games.content.self_soothe.senses.0.actions.1",
+      "mind_games.content.self_soothe.senses.0.actions.2",
     ],
   },
   {
-    sense: "Hearing",
-    actions: [
-      "Listen to calming music or nature sounds.",
-      "Play a song that makes you feel safe.",
-      "Listen to the sound of rain or wind.",
+    senseKey: "mind_games.content.self_soothe.senses.1.sense",
+    actionKeys: [
+      "mind_games.content.self_soothe.senses.1.actions.0",
+      "mind_games.content.self_soothe.senses.1.actions.1",
+      "mind_games.content.self_soothe.senses.1.actions.2",
     ],
   },
   {
-    sense: "Smell",
-    actions: [
-      "Smell something pleasant (lotion, coffee, flowers).",
-      "Light a scented candle or incense.",
-      "Take a deep breath of fresh air.",
+    senseKey: "mind_games.content.self_soothe.senses.2.sense",
+    actionKeys: [
+      "mind_games.content.self_soothe.senses.2.actions.0",
+      "mind_games.content.self_soothe.senses.2.actions.1",
+      "mind_games.content.self_soothe.senses.2.actions.2",
     ],
   },
   {
-    sense: "Taste",
-    actions: [
-      "Eat something you enjoy slowly.",
-      "Savor a piece of chocolate or tea.",
-      "Notice the flavors and textures.",
+    senseKey: "mind_games.content.self_soothe.senses.3.sense",
+    actionKeys: [
+      "mind_games.content.self_soothe.senses.3.actions.0",
+      "mind_games.content.self_soothe.senses.3.actions.1",
+      "mind_games.content.self_soothe.senses.3.actions.2",
     ],
   },
   {
-    sense: "Touch",
-    actions: [
-      "Hold something soft (blanket, pet).",
-      "Take a warm shower or bath.",
-      "Massage your hands with lotion.",
+    senseKey: "mind_games.content.self_soothe.senses.4.sense",
+    actionKeys: [
+      "mind_games.content.self_soothe.senses.4.actions.0",
+      "mind_games.content.self_soothe.senses.4.actions.1",
+      "mind_games.content.self_soothe.senses.4.actions.2",
     ],
   },
 ];

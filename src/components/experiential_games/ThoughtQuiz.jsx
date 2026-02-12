@@ -49,7 +49,7 @@ export default function ThoughtQuiz({ onClose }) {
   if (!currentItem) {
     return (
       <div className="p-6 text-center">
-        <p className="text-sm text-gray-500">Loading question...</p>
+        <p className="text-sm text-gray-500">{t('common.loading')}</p>
       </div>
     );
   }

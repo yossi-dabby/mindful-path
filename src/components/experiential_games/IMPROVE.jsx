@@ -21,7 +21,7 @@ export default function IMPROVE({ onClose }) {
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: '#5A7A72' }}>
-          IMPROVE the moment when you're in crisis and need to shift your state:
+          {t('mind_games.improve.prompt')}
         </p>
 
         <div className="space-y-2">
@@ -55,7 +55,7 @@ export default function IMPROVE({ onClose }) {
             border: '1px solid rgba(38, 166, 154, 0.2)'
           }}>
             <p className="text-xs font-medium mb-2" style={{ color: '#26A69A' }}>
-              Quick Action:
+              {t('mind_games.improve.quick_action')}
             </p>
             <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
               {selectedSkill.quick_action}

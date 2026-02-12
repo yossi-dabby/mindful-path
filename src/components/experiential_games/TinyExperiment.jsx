@@ -49,7 +49,7 @@ export default function TinyExperiment({ onClose }) {
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <p className="text-xs font-medium mb-1" style={{ color: '#5A7A72' }}>
-          Belief to test:
+          {t('mind_games.tiny_experiment.belief_label')}
         </p>
         <p className="text-sm italic break-words whitespace-normal" style={{ color: '#1A3A34' }}>
           "{currentItem.belief}"
@@ -57,7 +57,7 @@ export default function TinyExperiment({ onClose }) {
       </Card>
 
       <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
-        Pick one tiny experiment (2 min max):
+        {t('mind_games.tiny_experiment.pick_experiment')}
       </p>
       <div className="space-y-2">
         {currentItem.experiments?.map((experiment, index) => {
@@ -128,7 +128,7 @@ export default function TinyExperiment({ onClose }) {
               border: '1px solid rgba(34, 197, 94, 0.2)'
             }}>
               <p className="text-xs break-words whitespace-normal" style={{ color: '#1A3A34' }}>
-                ✓ Experiments collect data. Even 'negative' results teach you something valuable.
+                {t('mind_games.tiny_experiment.success')}
               </p>
             </Card>
           )}
