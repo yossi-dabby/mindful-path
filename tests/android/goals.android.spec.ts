@@ -240,11 +240,11 @@ test.describe('Android Goals Milestone Persistence', () => {
 
     // Toggle both checkboxes
     await firstCheckbox.click();
-    await page.waitForTimeout(500); // Wait for backend update
+    await expect.poll(async () => await getCheckboxState(firstCheckbox)).toBe(!initialState1);
 
     if (secondCheckbox) {
       await secondCheckbox.click();
-      await page.waitForTimeout(500);
+      await expect.poll(async () => await getCheckboxState(secondCheckbox)).toBe(!initialState2);
     }
 
     // Reload the page

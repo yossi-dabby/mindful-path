@@ -116,8 +116,7 @@ const SelectContent = React.forwardRef(({ className, children, position = "poppe
         <SelectPrimitive.Viewport
           className={cn(
             "p-1",
-            !isMobile &&
-              position === "popper" &&
+            (!isMobile && position === "popper") &&
               "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]",
             isMobile && "max-h-[70vh]"
           )}>
