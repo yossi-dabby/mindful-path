@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { urgeSurfingSteps, urgeSurfingStepsAdvanced } from './mindGamesContent';
+import { useTranslation } from 'react-i18next';
 import { useAdaptiveDifficulty } from './useAdaptiveDifficulty';
 import { useMindGameTracking } from './useMindGameTracking';
 
 export default function UrgeSurfing({ onClose }) {
+  const { t } = useTranslation();
   const { suggestedDifficulty } = useAdaptiveDifficulty('urge_surfing');
   const { trackGamePlay } = useMindGameTracking();
   
@@ -15,8 +16,22 @@ export default function UrgeSurfing({ onClose }) {
   const [selectedFinish, setSelectedFinish] = useState(null);
   const [completedCount, setCompletedCount] = useState(0);
 
-  const stepsPool = difficulty === 'advanced' ? urgeSurfingStepsAdvanced : urgeSurfingSteps;
+  const stepsPool =
+    difficulty === 'advanced'
+      ? t('mind_games.content.urge_surfing.advanced', { returnObjects: true }) || []
+      : t('mind_games.content.urge_surfing.beginner', { returnObjects: true }) || [];
   const currentItem = stepsPool[currentIndex];
+  const steps = Array.isArray(currentItem?.steps)
+    ? currentItem.steps
+    : currentItem
+      ? Object.values(currentItem.steps || {})
+      : [];
+  const finishChoicesRaw = currentItem?.finish_choices ?? currentItem?.finishChoices;
+  const finishChoices = Array.isArray(finishChoicesRaw)
+    ? finishChoicesRaw
+    : finishChoicesRaw
+      ? Object.values(finishChoicesRaw)
+      : [];
   
   useEffect(() => {
     return () => {
@@ -63,7 +78,7 @@ export default function UrgeSurfing({ onClose }) {
             borderColor: 'rgba(38, 166, 154, 0.3)',
             color: '#26A69A'
           }}>
-            Completed: {completedCount}
+            {t('mind_games.urge_surfing.completed', { count: completedCount })}
           </Badge>
           
           <div className="flex gap-2">
@@ -77,7 +92,7 @@ export default function UrgeSurfing({ onClose }) {
                 fontWeight: difficulty === 'beginner' ? '600' : '400'
               }}
             >
-              Guided
+              {t('mind_games.urge_surfing.guided')}
             </button>
             <button
               onClick={() => handleDifficultyChange('advanced')}
@@ -89,18 +104,18 @@ export default function UrgeSurfing({ onClose }) {
                 fontWeight: difficulty === 'advanced' ? '600' : '400'
               }}
             >
-              Independent
+              {t('mind_games.urge_surfing.independent')}
             </button>
           </div>
         </div>
         
         <p className="text-sm font-semibold mb-4 break-words" style={{ color: '#1A3A34' }}>
-          {currentItem.title}
+          {currentItem?.title}
         </p>
 
         <div className="mb-4">
           <ul className="space-y-2">
-            {currentItem.steps.map((step, index) => (
+            {steps.map((step, index) => (
               <li key={index} className="flex gap-2">
                 <span className="text-sm flex-shrink-0" style={{ color: '#26A69A' }}>•</span>
                 <span className="text-sm break-words whitespace-normal flex-1 min-w-0" style={{ color: '#1A3A34' }}>
@@ -112,11 +127,11 @@ export default function UrgeSurfing({ onClose }) {
         </div>
 
         <p className="text-sm font-semibold mb-3" style={{ color: '#1A3A34' }}>
-          After surfing, pick one:
+          {t('mind_games.urge_surfing.finish_prompt')}
         </p>
 
         <div className="space-y-2">
-          {currentItem.finishChoices.map((choice, index) => (
+          {finishChoices.map((choice, index) => (
             <Button
               key={index}
               variant="outline"
@@ -144,7 +159,7 @@ export default function UrgeSurfing({ onClose }) {
             border: '1px solid rgba(34, 197, 94, 0.2)'
           }}>
             <p className="text-sm font-medium break-words whitespace-normal" style={{ color: '#1A3A34' }}>
-              ✓ Good! Urges rise and fall. You rode the wave.
+              {t('mind_games.urge_surfing.success')}
             </p>
           </div>
         )}
@@ -152,7 +167,7 @@ export default function UrgeSurfing({ onClose }) {
 
       <div className="flex gap-3 justify-end">
         <Button variant="outline" onClick={onClose} style={{ borderRadius: '12px' }}>
-          Close
+          {t('common.close')}
         </Button>
         {selectedFinish && (
           <Button
@@ -163,7 +178,7 @@ export default function UrgeSurfing({ onClose }) {
               color: 'white'
             }}
           >
-            Try Another
+            {t('mind_games.common.try_another')}
           </Button>
         )}
       </div>

@@ -45,13 +45,13 @@ export default function ReframePick({ onClose }) {
       }}>
         <div className="mb-4 w-full min-w-0">
           <p className="text-xs font-medium mb-1" style={{ color: '#5A7A72' }}>
-            Situation:
+            {t('mind_games.reframe_pick.situation')}
           </p>
           <p className="text-sm mb-3 break-words whitespace-normal" style={{ color: '#1A3A34' }}>
             {currentItem.situation}
           </p>
           <p className="text-xs font-medium mb-1" style={{ color: '#5A7A72' }}>
-            Automatic Thought:
+            {t('mind_games.reframe_pick.automatic_thought')}
           </p>
           <p className="text-sm italic break-words whitespace-normal" style={{ color: '#1A3A34' }}>
             "{currentItem.automatic_thought}"
@@ -59,7 +59,7 @@ export default function ReframePick({ onClose }) {
         </div>
 
         <p className="text-sm font-semibold mb-3" style={{ color: '#1A3A34' }}>
-          Choose the most balanced thought:
+          {t('mind_games.reframe_pick.choose')}
         </p>
 
         <div className="space-y-2">
@@ -109,7 +109,7 @@ export default function ReframePick({ onClose }) {
             border: '1px solid rgba(38, 166, 154, 0.2)'
           }}>
             <p className="text-sm" style={{ color: '#1A3A34' }}>
-              <strong>Why:</strong> {currentItem.why}
+              <strong>{t('mind_games.reframe_pick.why_label')}</strong> {currentItem.why}
             </p>
           </div>
         )}
@@ -128,7 +128,7 @@ export default function ReframePick({ onClose }) {
               color: 'white'
             }}
           >
-            Try Another
+            {t('mind_games.common.try_another')}
           </Button>
         )}
       </div>

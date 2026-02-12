@@ -37,7 +37,7 @@ export default function ValueCompass({ onClose }) {
       {!selectedValue ? (
         <>
           <p className="text-sm font-medium mb-3" style={{ color: '#1A3A34' }}>
-            Pick a value that matters to you right now:
+            {t('mind_games.value_compass.pick_value')}
           </p>
           <div className="grid grid-cols-2 gap-3">
             {valueCompassValues.map((valueData, idx) => (
@@ -65,12 +65,12 @@ export default function ValueCompass({ onClose }) {
             border: '1px solid rgba(38, 166, 154, 0.2)'
           }}>
             <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
-              Your Value: <span className="text-base font-bold">{selectedValue.value}</span>
+              {t('mind_games.value_compass.your_value', { value: selectedValue.value })}
             </p>
           </Card>
 
           <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
-            Choose one tiny action aligned with this value:
+            {t('mind_games.value_compass.pick_action')}
           </p>
           <div className="space-y-2">
             {selectedValue.actions?.map((action, index) => {
@@ -104,7 +104,7 @@ export default function ValueCompass({ onClose }) {
               border: '1px solid rgba(34, 197, 94, 0.2)'
             }}>
               <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
-                ✓ Great! Small value-based actions build a meaningful life.
+                {t('mind_games.value_compass.success')}
               </p>
             </Card>
           )}
@@ -114,7 +114,7 @@ export default function ValueCompass({ onClose }) {
       <div className="flex gap-3 justify-end">
         {selectedValue && (
           <Button variant="outline" onClick={handleReset} style={{ borderRadius: '12px' }}>
-            Pick Different Value
+            {t('mind_games.value_compass.reset')}
           </Button>
         )}
         <Button variant="outline" onClick={onClose} style={{ borderRadius: '12px' }}>

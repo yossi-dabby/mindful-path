@@ -21,7 +21,7 @@ export default function ACCEPTS({ onClose }) {
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: '#5A7A72' }}>
-          When you need to distract from overwhelming emotions, use ACCEPTS:
+          {t('mind_games.accepts.prompt')}
         </p>
 
         <div className="space-y-2 mb-4">
@@ -55,7 +55,7 @@ export default function ACCEPTS({ onClose }) {
             border: '1px solid rgba(159, 122, 234, 0.2)'
           }}>
             <p className="text-xs font-medium mb-2" style={{ color: '#9F7AEA' }}>
-              Try this now:
+              {t('mind_games.accepts.try_now')}
             </p>
             <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
               {selectedSkill.action}
