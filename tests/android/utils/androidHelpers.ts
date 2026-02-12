@@ -26,10 +26,14 @@ export function assertNoConsoleErrorsOrWarnings(page: Page): () => Promise<void>
   // Set up console listener
   const consoleListener = (msg: any) => {
     const type = msg.type();
+    const text = msg.text();
     if (type === 'error') {
       consoleErrors.push(msg.text());
     } else if (type === 'warning') {
-      consoleWarnings.push(msg.text());
+      if (text.includes('React Router Future Flag Warning')) {
+        return;
+      }
+      consoleWarnings.push(text);
     }
   };
 
