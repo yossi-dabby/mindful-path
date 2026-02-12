@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Route } from '@playwright/test';
 import { assertNoConsoleErrorsOrWarnings } from './utils/androidHelpers';
 
 /**
@@ -14,8 +14,18 @@ import { assertNoConsoleErrorsOrWarnings } from './utils/androidHelpers';
 
 const BASE_URL = process.env.E2E_BASE_URL || 'http://localhost:5173';
 
+type TestGoal = {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  progress: number;
+  milestones: { title: string; completed: boolean; description?: string; due_date?: string | null }[];
+  created_date: string;
+};
+
 test.describe('Android Goals Milestone Persistence', () => {
-  let goalData: any[];
+  let goalData: TestGoal[];
 
   test.beforeEach(async ({ page }) => {
     goalData = [
@@ -80,7 +90,7 @@ test.describe('Android Goals Milestone Persistence', () => {
       });
     });
     
-    const handleGoalRoute = async (route: any) => {
+    const handleGoalRoute = async (route: Route) => {
       const method = route.request().method();
       
       if (method === 'GET') {
