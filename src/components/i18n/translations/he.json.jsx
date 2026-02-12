@@ -119,6 +119,9 @@
     "page_subtitle": "פעילויות מיקרו CBT/ACT/DBT מהירות ומשעשעות (30-120 שניות)",
     "go_back_aria": "חזור לבית",
     "close_aria": "סגור",
+    "common": {
+      "try_another": "נסה/י דוגמה נוספת"
+    },
     "games": {
       "reframe_pick": {
         "title": "בחירת מחשבה מחודשת",
@@ -128,6 +131,12 @@
         "title": "מיומנות STOP",
         "description": "עצור, נשום ובחר את הצעד החכם הבא."
       }
+    },
+    "reframe_pick": {
+      "situation": "המצב",
+      "automatic_thought": "מחשבה אוטומטית",
+      "choose": "בחר/י את המחשבה המאוזנת ביותר",
+      "why_label": "למה זו הבחירה המאוזנת?"
     },
     "content": {
       "reframe_pick": {
