@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Route } from '@playwright/test';
 import { assertNoConsoleErrorsOrWarnings } from './utils/androidHelpers';
 
 /**
@@ -14,8 +14,35 @@ import { assertNoConsoleErrorsOrWarnings } from './utils/androidHelpers';
 
 const BASE_URL = process.env.E2E_BASE_URL || 'http://localhost:5173';
 
+type TestGoal = {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  progress: number;
+  milestones: { title: string; completed: boolean; description?: string; due_date?: string | null }[];
+  created_date: string;
+};
+
 test.describe('Android Goals Milestone Persistence', () => {
+  let goalData: TestGoal[];
+
   test.beforeEach(async ({ page }) => {
+    goalData = [
+      {
+        id: 'test-goal-1',
+        title: 'Test Goal',
+        description: 'A test goal for Android testing',
+        status: 'active',
+        progress: 0,
+        milestones: [
+          { title: 'First task', completed: false, description: 'First milestone' },
+          { title: 'Second task', completed: false, description: 'Second milestone' }
+        ],
+        created_date: new Date().toISOString()
+      }
+    ];
+
     // Set up test environment
     await page.route('**/api/apps/**', async (route) => {
       const url = route.request().url();
@@ -48,57 +75,69 @@ test.describe('Android Goals Milestone Persistence', () => {
         })
       });
     });
+
+    await page.route('**/api/apps/**/entities/User/me', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          id: 'test-user-id',
+          email: 'test@example.com',
+          full_name: 'Test User',
+          role: 'user',
+          preferences: {}
+        })
+      });
+    });
     
-    // Mock goals API with test data
-    await page.route('**/api/entities/Goal**', async (route) => {
+    const handleGoalRoute = async (route: Route) => {
       const method = route.request().method();
-      const url = route.request().url();
       
-      if (method === 'GET' && !url.includes('/')) {
-        // List goals
+      if (method === 'GET') {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify([
-            {
-              id: 'test-goal-1',
-              title: 'Test Goal',
-              description: 'A test goal for Android testing',
-              status: 'active',
-              progress: 0,
-              milestones: [
-                { title: 'First task', completed: false, description: 'First milestone' },
-                { title: 'Second task', completed: false, description: 'Second milestone' }
-              ],
-              created_date: new Date().toISOString()
-            }
-          ])
+          body: JSON.stringify(goalData)
         });
-      } else if (method === 'PATCH' || method === 'PUT') {
-        // Update goal - return updated data
+        return;
+      }
+      
+      if (method === 'PATCH' || method === 'PUT') {
         const postData = route.request().postDataJSON();
+        const nextMilestones = postData?.milestones || postData?.updatedMilestones;
+        if (nextMilestones) {
+          goalData = [
+            {
+              ...goalData[0],
+              progress: postData.progress || postData.newProgress || goalData[0].progress,
+              milestones: nextMilestones
+            }
+          ];
+        }
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
           body: JSON.stringify({
-            id: 'test-goal-1',
-            title: 'Test Goal',
-            description: 'A test goal for Android testing',
-            status: 'active',
-            progress: postData.progress || 0,
-            milestones: postData.milestones || [
-              { title: 'First task', completed: false },
-              { title: 'Second task', completed: false }
-            ],
-            created_date: new Date().toISOString()
+            ...goalData[0],
+            progress: postData.progress || postData.newProgress || goalData[0].progress,
+            milestones: nextMilestones || goalData[0].milestones
           })
         });
-      } else {
-        await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+        return;
       }
-    });
+      
+      await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+    };
+
+    // Mock goals API with test data
+    await page.route('**/api/entities/Goal**', handleGoalRoute);
+    await page.route('**/api/apps/**/entities/Goal**', handleGoalRoute);
     
     await page.route('**/analytics/**', async (route) => {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+    });
+
+    await page.route('**/api/apps/**/analytics/**', async (route) => {
       await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
     });
     
@@ -106,6 +145,8 @@ test.describe('Android Goals Milestone Persistence', () => {
     await page.addInitScript(() => {
       document.body.setAttribute('data-test-env', 'true');
       window.__TEST_APP_ID__ = 'test-app-id';
+      localStorage.setItem('base44_app_id', 'test-app-id');
+      localStorage.setItem('base44_access_token', 'test-token');
       window.__DISABLE_ANALYTICS__ = true;
     });
   });
@@ -141,9 +182,6 @@ test.describe('Android Goals Milestone Persistence', () => {
       return;
     }
 
-    // Wait a bit for goals to render
-    await page.waitForTimeout(1000);
-
     // Look for "Tasks:" section
     const tasksSection = page.locator('text=Tasks:').first();
     
@@ -151,6 +189,7 @@ test.describe('Android Goals Milestone Persistence', () => {
       test.skip(true, 'No "Tasks:" section found - skipping test');
       return;
     }
+    await expect(tasksSection).toBeVisible({ timeout: 5000 });
 
     // Find checkboxes - try multiple strategies
     // 1. Standard input checkboxes
@@ -199,18 +238,15 @@ test.describe('Android Goals Milestone Persistence', () => {
 
     // Toggle both checkboxes
     await firstCheckbox.click();
-    await page.waitForTimeout(500); // Wait for backend update
+    await expect.poll(async () => await getCheckboxState(firstCheckbox)).toBe(!initialState1);
 
     if (secondCheckbox) {
       await secondCheckbox.click();
-      await page.waitForTimeout(500);
+      await expect.poll(async () => await getCheckboxState(secondCheckbox)).toBe(!initialState2);
     }
 
     // Reload the page
     await page.reload({ waitUntil: 'networkidle' });
-    
-    // Wait for page to reload and goals to appear again
-    await page.waitForTimeout(2000);
 
     // Find the Tasks section and checkboxes again after reload
     const tasksAfterReload = page.locator('text=Tasks:').first();
@@ -251,6 +287,30 @@ test.describe('Android Goals Milestone Persistence', () => {
     }
 
     // Assert no console errors or warnings
+    await checkConsole();
+  });
+
+  test('milestones timeline filters open as drawers', async ({ page }) => {
+    const checkConsole = assertNoConsoleErrorsOrWarnings(page);
+
+    await page.goto(`${BASE_URL}/Goals`, { waitUntil: 'networkidle' });
+
+    const timelineToggle = page.locator('button:has(svg.lucide-clock)');
+    await expect(timelineToggle).toBeVisible({ timeout: 5000 });
+    await timelineToggle.click();
+
+    const timelineHeading = page.locator('text=Milestones Timeline');
+    await expect(timelineHeading).toBeVisible({ timeout: 5000 });
+
+    const goalFilter = page.getByRole('combobox').first();
+    await goalFilter.click();
+    await expect(page.getByRole('option', { name: /all goals/i })).toBeVisible({ timeout: 5000 });
+    await page.keyboard.press('Escape');
+
+    const dateFilter = page.getByRole('combobox').nth(1);
+    await dateFilter.click();
+    await expect(page.getByRole('option', { name: /all dates/i })).toBeVisible({ timeout: 5000 });
+
     await checkConsole();
   });
 });
