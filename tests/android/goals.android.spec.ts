@@ -182,9 +182,6 @@ test.describe('Android Goals Milestone Persistence', () => {
       return;
     }
 
-    // Wait a bit for goals to render
-    await page.waitForTimeout(1000);
-
     // Look for "Tasks:" section
     const tasksSection = page.locator('text=Tasks:').first();
     
@@ -192,6 +189,7 @@ test.describe('Android Goals Milestone Persistence', () => {
       test.skip(true, 'No "Tasks:" section found - skipping test');
       return;
     }
+    await expect(tasksSection).toBeVisible({ timeout: 5000 });
 
     // Find checkboxes - try multiple strategies
     // 1. Standard input checkboxes
@@ -249,9 +247,6 @@ test.describe('Android Goals Milestone Persistence', () => {
 
     // Reload the page
     await page.reload({ waitUntil: 'networkidle' });
-    
-    // Wait for page to reload and goals to appear again
-    await page.waitForTimeout(2000);
 
     // Find the Tasks section and checkboxes again after reload
     const tasksAfterReload = page.locator('text=Tasks:').first();
@@ -299,7 +294,6 @@ test.describe('Android Goals Milestone Persistence', () => {
     const checkConsole = assertNoConsoleErrorsOrWarnings(page);
 
     await page.goto(`${BASE_URL}/Goals`, { waitUntil: 'networkidle' });
-    await page.waitForTimeout(1000);
 
     const timelineToggle = page.locator('button:has(svg.lucide-clock)');
     await expect(timelineToggle).toBeVisible({ timeout: 5000 });
