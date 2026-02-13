@@ -1,3 +1,4 @@
+// Updated Hebrew translations - rebuild [current date]
 export const translations = {
   en: {
     translation: {
