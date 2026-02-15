@@ -4616,6 +4616,378 @@ const mindGamesUi = {
       { rule: "Pattern: Multiply by 2 each time" }
     ]
   },
+  he: {
+    memory_match: {
+      title: "התאמת זיכרון",
+      instructions: "מצאו את כל הזוגות התואמים על ידי לחיצה על קלפים.",
+      moves: "מהלכים",
+      complete_title: "כל הכבוד!",
+      complete_message: "השלמתם את משחק הזיכרון ב-{{moves}} מהלכים."
+    },
+    focus_flow: {
+      title: "זרימת מיקוד",
+      instructions: "צפו ברצף בעיון, ואז חזרו עליו.",
+      watch_carefully: "צפו בעיון...",
+      level: "רמה",
+      game_over: "מאמץ טוב!",
+      final_score: "הגעתם לרמה {{score}}.",
+      colors: {
+        teal: "טורקיז",
+        lavender: "לבנדר",
+        coral: "אלמוג",
+        sage: "מרווה"
+      }
+    },
+    pattern_shift: {
+      title: "שינוי דפוסים",
+      complete_title: "אמן דפוסים!",
+      complete_message: "קיבלתם {{score}} מתוך {{total}} דפוסים נכון.",
+      patterns: [
+        { question: "מה בא הבא בדפוס: אדום, כחול, ירוק, אדום, כחול, ?" },
+        { question: "איזו צורה משלימה את הדפוס: עיגול, ריבוע, ?, עיגול?" },
+        { question: "איזה גודל בא הבא: גדול, בינוני, ?, גדול?" },
+        { question: "המשיכו את הדפוס: 1, 2, 3, 1, ?" }
+      ]
+    },
+    word_association: {
+      title: "קישור מילים",
+      instructions: "חשבו במהירות על מילה הקשורה לזו המוצגת. השלימו 5 קישורים.",
+      prompt: "איזו מילה עולה בראש?",
+      input_placeholder: "הקלידו את הקישור שלכם...",
+      submit: "שלח",
+      your_chain: "השרשרת שלכם:",
+      complete_title: "חשיבה יצירתית!",
+      complete_message: "יצרתם שרשרת ייחודית של קישורים.",
+      start_words: ["רוגע", "צמיחה", "כוח", "שמחה", "שלום", "אומץ", "תקווה", "איזון"]
+    },
+    number_sequence: {
+      title: "רצף מספרים",
+      instructions: "מצאו את הדפוס וחזו את המספר הבא.",
+      answer_placeholder: "התשובה שלכם",
+      check: "בדוק",
+      correct: "נכון!",
+      incorrect: "לא בדיוק. התשובה היא {{answer}}.",
+      complete_title: "רצף נפתר!",
+      complete_message: "קיבלתם {{score}} מתוך {{total}} רצפים נכון.",
+      sequences: [
+        { rule: "דפוס: הוסף 2 בכל פעם" },
+        { rule: "דפוס: הוסף מספרים עולים (1, 2, 3, 4, 5)" },
+        { rule: "דפוס: כפולות של 5" },
+        { rule: "דפוס: הוסף 1, אז 2, אז 3, אז 4" },
+        { rule: "דפוס: הכפל ב-2 בכל פעם" }
+      ]
+    }
+  },
+  es: {
+    memory_match: {
+      title: "Emparejamiento de Memoria",
+      instructions: "Encuentra todos los pares coincidentes haciendo clic en las cartas.",
+      moves: "Movimientos",
+      complete_title: "¡Bien hecho!",
+      complete_message: "Completaste el juego de memoria en {{moves}} movimientos."
+    },
+    focus_flow: {
+      title: "Flujo de Enfoque",
+      instructions: "Observa la secuencia con cuidado, luego repítela.",
+      watch_carefully: "Observa con cuidado...",
+      level: "Nivel",
+      game_over: "¡Buen esfuerzo!",
+      final_score: "Alcanzaste el nivel {{score}}.",
+      colors: {
+        teal: "Verde azulado",
+        lavender: "Lavanda",
+        coral: "Coral",
+        sage: "Salvia"
+      }
+    },
+    pattern_shift: {
+      title: "Cambio de Patrón",
+      complete_title: "¡Maestro de patrones!",
+      complete_message: "Acertaste {{score}} de {{total}} patrones.",
+      patterns: [
+        { question: "¿Qué sigue en el patrón: Rojo, Azul, Verde, Rojo, Azul, ?" },
+        { question: "¿Qué forma completa el patrón: Círculo, Cuadrado, ?, Círculo?" },
+        { question: "¿Qué tamaño sigue: Grande, Mediano, ?, Grande?" },
+        { question: "Continúa el patrón: 1, 2, 3, 1, ?" }
+      ]
+    },
+    word_association: {
+      title: "Asociación de Palabras",
+      instructions: "Piensa rápidamente en una palabra relacionada con la mostrada. Completa 5 asociaciones.",
+      prompt: "¿Qué palabra viene a la mente?",
+      input_placeholder: "Escribe tu asociación...",
+      submit: "Enviar",
+      your_chain: "Tu cadena:",
+      complete_title: "¡Pensamiento creativo!",
+      complete_message: "Has creado una cadena única de asociaciones.",
+      start_words: ["Calma", "Crecimiento", "Fuerza", "Alegría", "Paz", "Coraje", "Esperanza", "Balance"]
+    },
+    number_sequence: {
+      title: "Secuencia Numérica",
+      instructions: "Encuentra el patrón y predice el siguiente número.",
+      answer_placeholder: "Tu respuesta",
+      check: "Verificar",
+      correct: "¡Correcto!",
+      incorrect: "No exactamente. La respuesta es {{answer}}.",
+      complete_title: "¡Secuencia resuelta!",
+      complete_message: "Acertaste {{score}} de {{total}} secuencias.",
+      sequences: [
+        { rule: "Patrón: Sumar 2 cada vez" },
+        { rule: "Patrón: Sumar números crecientes (1, 2, 3, 4, 5)" },
+        { rule: "Patrón: Múltiplos de 5" },
+        { rule: "Patrón: Sumar 1, luego 2, luego 3, luego 4" },
+        { rule: "Patrón: Multiplicar por 2 cada vez" }
+      ]
+    }
+  },
+  fr: {
+    memory_match: {
+      title: "Correspondance de Mémoire",
+      instructions: "Trouvez toutes les paires correspondantes en cliquant sur les cartes.",
+      moves: "Mouvements",
+      complete_title: "Bien joué !",
+      complete_message: "Vous avez terminé le jeu de mémoire en {{moves}} mouvements."
+    },
+    focus_flow: {
+      title: "Flux de Concentration",
+      instructions: "Regardez attentivement la séquence, puis répétez-la.",
+      watch_carefully: "Regardez attentivement...",
+      level: "Niveau",
+      game_over: "Bon effort !",
+      final_score: "Vous avez atteint le niveau {{score}}.",
+      colors: {
+        teal: "Sarcelle",
+        lavender: "Lavande",
+        coral: "Corail",
+        sage: "Sauge"
+      }
+    },
+    pattern_shift: {
+      title: "Changement de Motif",
+      complete_title: "Maître des motifs !",
+      complete_message: "Vous avez obtenu {{score}} motifs corrects sur {{total}}.",
+      patterns: [
+        { question: "Que vient ensuite dans le motif : Rouge, Bleu, Vert, Rouge, Bleu, ?" },
+        { question: "Quelle forme complète le motif : Cercle, Carré, ?, Cercle ?" },
+        { question: "Quelle taille vient ensuite : Grand, Moyen, ?, Grand ?" },
+        { question: "Continuez le motif : 1, 2, 3, 1, ?" }
+      ]
+    },
+    word_association: {
+      title: "Association de Mots",
+      instructions: "Pensez rapidement à un mot lié à celui montré. Complétez 5 associations.",
+      prompt: "Quel mot vous vient à l'esprit ?",
+      input_placeholder: "Tapez votre association...",
+      submit: "Soumettre",
+      your_chain: "Votre chaîne :",
+      complete_title: "Pensée créative !",
+      complete_message: "Vous avez créé une chaîne unique d'associations.",
+      start_words: ["Calme", "Croissance", "Force", "Joie", "Paix", "Courage", "Espoir", "Équilibre"]
+    },
+    number_sequence: {
+      title: "Séquence de Nombres",
+      instructions: "Trouvez le motif et prédisez le nombre suivant.",
+      answer_placeholder: "Votre réponse",
+      check: "Vérifier",
+      correct: "Correct !",
+      incorrect: "Pas tout à fait. La réponse est {{answer}}.",
+      complete_title: "Séquence résolue !",
+      complete_message: "Vous avez obtenu {{score}} séquences correctes sur {{total}}.",
+      sequences: [
+        { rule: "Motif : Ajouter 2 à chaque fois" },
+        { rule: "Motif : Ajouter des nombres croissants (1, 2, 3, 4, 5)" },
+        { rule: "Motif : Multiples de 5" },
+        { rule: "Motif : Ajouter 1, puis 2, puis 3, puis 4" },
+        { rule: "Motif : Multiplier par 2 à chaque fois" }
+      ]
+    }
+  },
+  de: {
+    memory_match: {
+      title: "Gedächtnis-Match",
+      instructions: "Finden Sie alle passenden Paare, indem Sie auf Karten klicken.",
+      moves: "Züge",
+      complete_title: "Gut gemacht!",
+      complete_message: "Sie haben das Gedächtnisspiel in {{moves}} Zügen abgeschlossen."
+    },
+    focus_flow: {
+      title: "Fokus-Fluss",
+      instructions: "Beobachten Sie die Sequenz sorgfältig und wiederholen Sie sie dann.",
+      watch_carefully: "Beobachten Sie sorgfältig...",
+      level: "Stufe",
+      game_over: "Gute Leistung!",
+      final_score: "Sie haben Stufe {{score}} erreicht.",
+      colors: {
+        teal: "Türkis",
+        lavender: "Lavendel",
+        coral: "Koralle",
+        sage: "Salbei"
+      }
+    },
+    pattern_shift: {
+      title: "Muster-Wechsel",
+      complete_title: "Muster-Meister!",
+      complete_message: "Sie haben {{score}} von {{total}} Mustern richtig erkannt.",
+      patterns: [
+        { question: "Was kommt als nächstes im Muster: Rot, Blau, Grün, Rot, Blau, ?" },
+        { question: "Welche Form vervollständigt das Muster: Kreis, Quadrat, ?, Kreis?" },
+        { question: "Welche Größe kommt als nächstes: Groß, Mittel, ?, Groß?" },
+        { question: "Setzen Sie das Muster fort: 1, 2, 3, 1, ?" }
+      ]
+    },
+    word_association: {
+      title: "Wort-Assoziation",
+      instructions: "Denken Sie schnell an ein Wort, das mit dem gezeigten verwandt ist. Vervollständigen Sie 5 Assoziationen.",
+      prompt: "Welches Wort kommt Ihnen in den Sinn?",
+      input_placeholder: "Geben Sie Ihre Assoziation ein...",
+      submit: "Senden",
+      your_chain: "Ihre Kette:",
+      complete_title: "Kreatives Denken!",
+      complete_message: "Sie haben eine einzigartige Kette von Assoziationen erstellt.",
+      start_words: ["Ruhe", "Wachstum", "Stärke", "Freude", "Frieden", "Mut", "Hoffnung", "Balance"]
+    },
+    number_sequence: {
+      title: "Zahlenfolge",
+      instructions: "Finden Sie das Muster und sagen Sie die nächste Zahl voraus.",
+      answer_placeholder: "Ihre Antwort",
+      check: "Prüfen",
+      correct: "Richtig!",
+      incorrect: "Nicht ganz. Die Antwort ist {{answer}}.",
+      complete_title: "Sequenz gelöst!",
+      complete_message: "Sie haben {{score}} von {{total}} Sequenzen richtig.",
+      sequences: [
+        { rule: "Muster: Jedes Mal 2 addieren" },
+        { rule: "Muster: Steigende Zahlen addieren (1, 2, 3, 4, 5)" },
+        { rule: "Muster: Vielfache von 5" },
+        { rule: "Muster: 1 addieren, dann 2, dann 3, dann 4" },
+        { rule: "Muster: Jedes Mal mit 2 multiplizieren" }
+      ]
+    }
+  },
+  it: {
+    memory_match: {
+      title: "Abbinamento di Memoria",
+      instructions: "Trova tutte le coppie corrispondenti facendo clic sulle carte.",
+      moves: "Mosse",
+      complete_title: "Ben fatto!",
+      complete_message: "Hai completato il gioco di memoria in {{moves}} mosse."
+    },
+    focus_flow: {
+      title: "Flusso di Concentrazione",
+      instructions: "Osserva attentamente la sequenza, poi ripetila.",
+      watch_carefully: "Osserva attentamente...",
+      level: "Livello",
+      game_over: "Buon sforzo!",
+      final_score: "Hai raggiunto il livello {{score}}.",
+      colors: {
+        teal: "Turchese",
+        lavender: "Lavanda",
+        coral: "Corallo",
+        sage: "Salvia"
+      }
+    },
+    pattern_shift: {
+      title: "Cambio di Schema",
+      complete_title: "Maestro di schemi!",
+      complete_message: "Hai indovinato {{score}} schemi su {{total}}.",
+      patterns: [
+        { question: "Cosa viene dopo nel modello: Rosso, Blu, Verde, Rosso, Blu, ?" },
+        { question: "Quale forma completa il modello: Cerchio, Quadrato, ?, Cerchio?" },
+        { question: "Quale dimensione viene dopo: Grande, Medio, ?, Grande?" },
+        { question: "Continua il modello: 1, 2, 3, 1, ?" }
+      ]
+    },
+    word_association: {
+      title: "Associazione di Parole",
+      instructions: "Pensa rapidamente a una parola correlata a quella mostrata. Completa 5 associazioni.",
+      prompt: "Quale parola ti viene in mente?",
+      input_placeholder: "Digita la tua associazione...",
+      submit: "Invia",
+      your_chain: "La tua catena:",
+      complete_title: "Pensiero creativo!",
+      complete_message: "Hai creato una catena unica di associazioni.",
+      start_words: ["Calma", "Crescita", "Forza", "Gioia", "Pace", "Coraggio", "Speranza", "Equilibrio"]
+    },
+    number_sequence: {
+      title: "Sequenza di Numeri",
+      instructions: "Trova il modello e prevedi il numero successivo.",
+      answer_placeholder: "La tua risposta",
+      check: "Controlla",
+      correct: "Corretto!",
+      incorrect: "Non proprio. La risposta è {{answer}}.",
+      complete_title: "Sequenza risolta!",
+      complete_message: "Hai indovinato {{score}} sequenze su {{total}}.",
+      sequences: [
+        { rule: "Modello: Aggiungi 2 ogni volta" },
+        { rule: "Modello: Aggiungi numeri crescenti (1, 2, 3, 4, 5)" },
+        { rule: "Modello: Multipli di 5" },
+        { rule: "Modello: Aggiungi 1, poi 2, poi 3, poi 4" },
+        { rule: "Modello: Moltiplica per 2 ogni volta" }
+      ]
+    }
+  },
+  pt: {
+    memory_match: {
+      title: "Combinação de Memória",
+      instructions: "Encontre todos os pares correspondentes clicando nas cartas.",
+      moves: "Movimentos",
+      complete_title: "Muito bem!",
+      complete_message: "Você completou o jogo de memória em {{moves}} movimentos."
+    },
+    focus_flow: {
+      title: "Fluxo de Foco",
+      instructions: "Observe a sequência com cuidado, depois repita.",
+      watch_carefully: "Observe com cuidado...",
+      level: "Nível",
+      game_over: "Bom esforço!",
+      final_score: "Você alcançou o nível {{score}}.",
+      colors: {
+        teal: "Azul-petróleo",
+        lavender: "Lavanda",
+        coral: "Coral",
+        sage: "Sálvia"
+      }
+    },
+    pattern_shift: {
+      title: "Mudança de Padrão",
+      complete_title: "Mestre de padrões!",
+      complete_message: "Você acertou {{score}} de {{total}} padrões.",
+      patterns: [
+        { question: "O que vem a seguir no padrão: Vermelho, Azul, Verde, Vermelho, Azul, ?" },
+        { question: "Qual forma completa o padrão: Círculo, Quadrado, ?, Círculo?" },
+        { question: "Qual tamanho vem a seguir: Grande, Médio, ?, Grande?" },
+        { question: "Continue o padrão: 1, 2, 3, 1, ?" }
+      ]
+    },
+    word_association: {
+      title: "Associação de Palavras",
+      instructions: "Pense rapidamente em uma palavra relacionada à mostrada. Complete 5 associações.",
+      prompt: "Qual palavra vem à mente?",
+      input_placeholder: "Digite sua associação...",
+      submit: "Enviar",
+      your_chain: "Sua cadeia:",
+      complete_title: "Pensamento criativo!",
+      complete_message: "Você criou uma cadeia única de associações.",
+      start_words: ["Calma", "Crescimento", "Força", "Alegria", "Paz", "Coragem", "Esperança", "Equilíbrio"]
+    },
+    number_sequence: {
+      title: "Sequência Numérica",
+      instructions: "Encontre o padrão e preveja o próximo número.",
+      answer_placeholder: "Sua resposta",
+      check: "Verificar",
+      correct: "Correto!",
+      incorrect: "Não exatamente. A resposta é {{answer}}.",
+      complete_title: "Sequência resolvida!",
+      complete_message: "Você acertou {{score}} de {{total}} sequências.",
+      sequences: [
+        { rule: "Padrão: Adicionar 2 cada vez" },
+        { rule: "Padrão: Adicionar números crescentes (1, 2, 3, 4, 5)" },
+        { rule: "Padrão: Múltiplos de 5" },
+        { rule: "Padrão: Adicionar 1, depois 2, depois 3, depois 4" },
+        { rule: "Padrão: Multiplicar por 2 cada vez" }
+      ]
+    }
+  },
   quick_win: {
     log_prompt: "Log one small win from today:",
     input_placeholder: "Type your win...",
