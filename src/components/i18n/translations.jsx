@@ -594,14 +594,48 @@ export const translations = {
             }
           },
           tipp_skills: {
-            situation: "Your emotions are at 8/10 or higher and you need to come down fast.",
-            skills: [
-              { letter: "T", name: "Temperature", description: "Cold water on face, ice cube, cold shower" },
-              { letter: "I", name: "Intense exercise", description: "Run, jump, push-ups for 60 seconds" },
-              { letter: "P", name: "Paced breathing", description: "Breathe out longer than in (4 in / 6 out)" },
-              { letter: "P", name: "Paired muscle relaxation", description: "Tense then release muscle groups" }
+            items: [
+              {
+                situation: "Your emotions are at 8/10 or higher and you need to come down fast.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Cold water on face, ice cube, cold shower" },
+                  { letter: "I", name: "Intense exercise", description: "Run, jump, push-ups for 60 seconds" },
+                  { letter: "P", name: "Paced breathing", description: "Breathe out longer than in (4 in / 6 out)" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Tense then release muscle groups" }
+                ],
+                actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."]
+              },
+              {
+                situation: "You're feeling overwhelmed and need to reset your nervous system.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Hold ice cubes or splash cold water to activate dive reflex" },
+                  { letter: "I", name: "Intense exercise", description: "Sprint in place, do burpees, or fast dancing" },
+                  { letter: "P", name: "Paced breathing", description: "Box breathing: 4 in, 4 hold, 4 out, 4 hold" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Progressive muscle relaxation from head to toe" }
+                ],
+                actions: ["Hold ice cubes in your hands for 60 seconds.", "Do 30 seconds of intense cardio right now.", "Try box breathing for 2 minutes."]
+              },
+              {
+                situation: "You're experiencing intense anger or frustration that feels uncontrollable.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Cold shower or ice pack on neck/wrists" },
+                  { letter: "I", name: "Intense exercise", description: "Punch a pillow, do push-ups, or run hard" },
+                  { letter: "P", name: "Paced breathing", description: "Long exhales: 4 in / 8 out to calm fight response" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Clench fists tight, then release completely" }
+                ],
+                actions: ["Take a cold shower or splash face repeatedly.", "Do 25 push-ups or jumping jacks.", "Breathe: 4 in, 8 out—repeat 10 times."]
+              },
+              {
+                situation: "You're having a panic attack or experiencing extreme distress.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Ice on face/neck to interrupt panic response" },
+                  { letter: "I", name: "Intense exercise", description: "Fast movement to burn adrenaline" },
+                  { letter: "P", name: "Paced breathing", description: "Slow breathing: 4 in through nose, 6 out through mouth" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Tense whole body for 5 seconds, release fully" }
+                ],
+                actions: ["Hold ice pack on your face for 30 seconds.", "Shake your body vigorously for 60 seconds.", "Breathe slowly: 4 in, 6 out—repeat until calm."]
+              }
             ],
-            actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."],
             ui: {
               intro: "When you need to change your body chemistry fast:",
               pick_one: "Pick one to try right now:",
@@ -1304,14 +1338,48 @@ export const translations = {
             }
           },
           tipp_skills: {
-            situation: "Your emotions are at 8/10 or higher and you need to come down fast.",
-            skills: [
-              { letter: "T", name: "Temperature", description: "Cold water on face, ice cube, cold shower" },
-              { letter: "I", name: "Intense exercise", description: "Run, jump, push-ups for 60 seconds" },
-              { letter: "P", name: "Paced breathing", description: "Breathe out longer than in (4 in / 6 out)" },
-              { letter: "P", name: "Paired muscle relaxation", description: "Tense then release muscle groups" }
+            items: [
+              {
+                situation: "Your emotions are at 8/10 or higher and you need to come down fast.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Cold water on face, ice cube, cold shower" },
+                  { letter: "I", name: "Intense exercise", description: "Run, jump, push-ups for 60 seconds" },
+                  { letter: "P", name: "Paced breathing", description: "Breathe out longer than in (4 in / 6 out)" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Tense then release muscle groups" }
+                ],
+                actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."]
+              },
+              {
+                situation: "You're feeling overwhelmed and need to reset your nervous system.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Hold ice cubes or splash cold water to activate dive reflex" },
+                  { letter: "I", name: "Intense exercise", description: "Sprint in place, do burpees, or fast dancing" },
+                  { letter: "P", name: "Paced breathing", description: "Box breathing: 4 in, 4 hold, 4 out, 4 hold" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Progressive muscle relaxation from head to toe" }
+                ],
+                actions: ["Hold ice cubes in your hands for 60 seconds.", "Do 30 seconds of intense cardio right now.", "Try box breathing for 2 minutes."]
+              },
+              {
+                situation: "You're experiencing intense anger or frustration that feels uncontrollable.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Cold shower or ice pack on neck/wrists" },
+                  { letter: "I", name: "Intense exercise", description: "Punch a pillow, do push-ups, or run hard" },
+                  { letter: "P", name: "Paced breathing", description: "Long exhales: 4 in / 8 out to calm fight response" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Clench fists tight, then release completely" }
+                ],
+                actions: ["Take a cold shower or splash face repeatedly.", "Do 25 push-ups or jumping jacks.", "Breathe: 4 in, 8 out—repeat 10 times."]
+              },
+              {
+                situation: "You're having a panic attack or experiencing extreme distress.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Ice on face/neck to interrupt panic response" },
+                  { letter: "I", name: "Intense exercise", description: "Fast movement to burn adrenaline" },
+                  { letter: "P", name: "Paced breathing", description: "Slow breathing: 4 in through nose, 6 out through mouth" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Tense whole body for 5 seconds, release fully" }
+                ],
+                actions: ["Hold ice pack on your face for 30 seconds.", "Shake your body vigorously for 60 seconds.", "Breathe slowly: 4 in, 6 out—repeat until calm."]
+              }
             ],
-            actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."],
             ui: {
               intro: "When you need to change your body chemistry fast:",
               pick_one: "Pick one to try right now:",
@@ -2515,14 +2583,48 @@ export const translations = {
             }
           },
           tipp_skills: {
-            situation: "Your emotions are at 8/10 or higher and you need to come down fast.",
-            skills: [
-              { letter: "T", name: "Temperature", description: "Cold water on face, ice cube, cold shower" },
-              { letter: "I", name: "Intense exercise", description: "Run, jump, push-ups for 60 seconds" },
-              { letter: "P", name: "Paced breathing", description: "Breathe out longer than in (4 in / 6 out)" },
-              { letter: "P", name: "Paired muscle relaxation", description: "Tense then release muscle groups" }
+            items: [
+              {
+                situation: "Your emotions are at 8/10 or higher and you need to come down fast.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Cold water on face, ice cube, cold shower" },
+                  { letter: "I", name: "Intense exercise", description: "Run, jump, push-ups for 60 seconds" },
+                  { letter: "P", name: "Paced breathing", description: "Breathe out longer than in (4 in / 6 out)" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Tense then release muscle groups" }
+                ],
+                actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."]
+              },
+              {
+                situation: "You're feeling overwhelmed and need to reset your nervous system.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Hold ice cubes or splash cold water to activate dive reflex" },
+                  { letter: "I", name: "Intense exercise", description: "Sprint in place, do burpees, or fast dancing" },
+                  { letter: "P", name: "Paced breathing", description: "Box breathing: 4 in, 4 hold, 4 out, 4 hold" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Progressive muscle relaxation from head to toe" }
+                ],
+                actions: ["Hold ice cubes in your hands for 60 seconds.", "Do 30 seconds of intense cardio right now.", "Try box breathing for 2 minutes."]
+              },
+              {
+                situation: "You're experiencing intense anger or frustration that feels uncontrollable.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Cold shower or ice pack on neck/wrists" },
+                  { letter: "I", name: "Intense exercise", description: "Punch a pillow, do push-ups, or run hard" },
+                  { letter: "P", name: "Paced breathing", description: "Long exhales: 4 in / 8 out to calm fight response" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Clench fists tight, then release completely" }
+                ],
+                actions: ["Take a cold shower or splash face repeatedly.", "Do 25 push-ups or jumping jacks.", "Breathe: 4 in, 8 out—repeat 10 times."]
+              },
+              {
+                situation: "You're having a panic attack or experiencing extreme distress.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Ice on face/neck to interrupt panic response" },
+                  { letter: "I", name: "Intense exercise", description: "Fast movement to burn adrenaline" },
+                  { letter: "P", name: "Paced breathing", description: "Slow breathing: 4 in through nose, 6 out through mouth" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Tense whole body for 5 seconds, release fully" }
+                ],
+                actions: ["Hold ice pack on your face for 30 seconds.", "Shake your body vigorously for 60 seconds.", "Breathe slowly: 4 in, 6 out—repeat until calm."]
+              }
             ],
-            actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."],
             ui: {
               intro: "When you need to change your body chemistry fast:",
               pick_one: "Pick one to try right now:",
@@ -3225,14 +3327,48 @@ export const translations = {
             }
           },
           tipp_skills: {
-            situation: "Your emotions are at 8/10 or higher and you need to come down fast.",
-            skills: [
-              { letter: "T", name: "Temperature", description: "Cold water on face, ice cube, cold shower" },
-              { letter: "I", name: "Intense exercise", description: "Run, jump, push-ups for 60 seconds" },
-              { letter: "P", name: "Paced breathing", description: "Breathe out longer than in (4 in / 6 out)" },
-              { letter: "P", name: "Paired muscle relaxation", description: "Tense then release muscle groups" }
+            items: [
+              {
+                situation: "Your emotions are at 8/10 or higher and you need to come down fast.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Cold water on face, ice cube, cold shower" },
+                  { letter: "I", name: "Intense exercise", description: "Run, jump, push-ups for 60 seconds" },
+                  { letter: "P", name: "Paced breathing", description: "Breathe out longer than in (4 in / 6 out)" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Tense then release muscle groups" }
+                ],
+                actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."]
+              },
+              {
+                situation: "You're feeling overwhelmed and need to reset your nervous system.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Hold ice cubes or splash cold water to activate dive reflex" },
+                  { letter: "I", name: "Intense exercise", description: "Sprint in place, do burpees, or fast dancing" },
+                  { letter: "P", name: "Paced breathing", description: "Box breathing: 4 in, 4 hold, 4 out, 4 hold" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Progressive muscle relaxation from head to toe" }
+                ],
+                actions: ["Hold ice cubes in your hands for 60 seconds.", "Do 30 seconds of intense cardio right now.", "Try box breathing for 2 minutes."]
+              },
+              {
+                situation: "You're experiencing intense anger or frustration that feels uncontrollable.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Cold shower or ice pack on neck/wrists" },
+                  { letter: "I", name: "Intense exercise", description: "Punch a pillow, do push-ups, or run hard" },
+                  { letter: "P", name: "Paced breathing", description: "Long exhales: 4 in / 8 out to calm fight response" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Clench fists tight, then release completely" }
+                ],
+                actions: ["Take a cold shower or splash face repeatedly.", "Do 25 push-ups or jumping jacks.", "Breathe: 4 in, 8 out—repeat 10 times."]
+              },
+              {
+                situation: "You're having a panic attack or experiencing extreme distress.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Ice on face/neck to interrupt panic response" },
+                  { letter: "I", name: "Intense exercise", description: "Fast movement to burn adrenaline" },
+                  { letter: "P", name: "Paced breathing", description: "Slow breathing: 4 in through nose, 6 out through mouth" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Tense whole body for 5 seconds, release fully" }
+                ],
+                actions: ["Hold ice pack on your face for 30 seconds.", "Shake your body vigorously for 60 seconds.", "Breathe slowly: 4 in, 6 out—repeat until calm."]
+              }
             ],
-            actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."],
             ui: {
               intro: "When you need to change your body chemistry fast:",
               pick_one: "Pick one to try right now:",
@@ -3935,14 +4071,48 @@ export const translations = {
             }
           },
           tipp_skills: {
-            situation: "Your emotions are at 8/10 or higher and you need to come down fast.",
-            skills: [
-              { letter: "T", name: "Temperature", description: "Cold water on face, ice cube, cold shower" },
-              { letter: "I", name: "Intense exercise", description: "Run, jump, push-ups for 60 seconds" },
-              { letter: "P", name: "Paced breathing", description: "Breathe out longer than in (4 in / 6 out)" },
-              { letter: "P", name: "Paired muscle relaxation", description: "Tense then release muscle groups" }
+            items: [
+              {
+                situation: "Your emotions are at 8/10 or higher and you need to come down fast.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Cold water on face, ice cube, cold shower" },
+                  { letter: "I", name: "Intense exercise", description: "Run, jump, push-ups for 60 seconds" },
+                  { letter: "P", name: "Paced breathing", description: "Breathe out longer than in (4 in / 6 out)" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Tense then release muscle groups" }
+                ],
+                actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."]
+              },
+              {
+                situation: "You're feeling overwhelmed and need to reset your nervous system.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Hold ice cubes or splash cold water to activate dive reflex" },
+                  { letter: "I", name: "Intense exercise", description: "Sprint in place, do burpees, or fast dancing" },
+                  { letter: "P", name: "Paced breathing", description: "Box breathing: 4 in, 4 hold, 4 out, 4 hold" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Progressive muscle relaxation from head to toe" }
+                ],
+                actions: ["Hold ice cubes in your hands for 60 seconds.", "Do 30 seconds of intense cardio right now.", "Try box breathing for 2 minutes."]
+              },
+              {
+                situation: "You're experiencing intense anger or frustration that feels uncontrollable.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Cold shower or ice pack on neck/wrists" },
+                  { letter: "I", name: "Intense exercise", description: "Punch a pillow, do push-ups, or run hard" },
+                  { letter: "P", name: "Paced breathing", description: "Long exhales: 4 in / 8 out to calm fight response" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Clench fists tight, then release completely" }
+                ],
+                actions: ["Take a cold shower or splash face repeatedly.", "Do 25 push-ups or jumping jacks.", "Breathe: 4 in, 8 out—repeat 10 times."]
+              },
+              {
+                situation: "You're having a panic attack or experiencing extreme distress.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Ice on face/neck to interrupt panic response" },
+                  { letter: "I", name: "Intense exercise", description: "Fast movement to burn adrenaline" },
+                  { letter: "P", name: "Paced breathing", description: "Slow breathing: 4 in through nose, 6 out through mouth" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Tense whole body for 5 seconds, release fully" }
+                ],
+                actions: ["Hold ice pack on your face for 30 seconds.", "Shake your body vigorously for 60 seconds.", "Breathe slowly: 4 in, 6 out—repeat until calm."]
+              }
             ],
-            actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."],
             ui: {
               intro: "When you need to change your body chemistry fast:",
               pick_one: "Pick one to try right now:",
@@ -4645,14 +4815,48 @@ export const translations = {
             }
           },
           tipp_skills: {
-            situation: "Your emotions are at 8/10 or higher and you need to come down fast.",
-            skills: [
-              { letter: "T", name: "Temperature", description: "Cold water on face, ice cube, cold shower" },
-              { letter: "I", name: "Intense exercise", description: "Run, jump, push-ups for 60 seconds" },
-              { letter: "P", name: "Paced breathing", description: "Breathe out longer than in (4 in / 6 out)" },
-              { letter: "P", name: "Paired muscle relaxation", description: "Tense then release muscle groups" }
+            items: [
+              {
+                situation: "Your emotions are at 8/10 or higher and you need to come down fast.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Cold water on face, ice cube, cold shower" },
+                  { letter: "I", name: "Intense exercise", description: "Run, jump, push-ups for 60 seconds" },
+                  { letter: "P", name: "Paced breathing", description: "Breathe out longer than in (4 in / 6 out)" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Tense then release muscle groups" }
+                ],
+                actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."]
+              },
+              {
+                situation: "You're feeling overwhelmed and need to reset your nervous system.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Hold ice cubes or splash cold water to activate dive reflex" },
+                  { letter: "I", name: "Intense exercise", description: "Sprint in place, do burpees, or fast dancing" },
+                  { letter: "P", name: "Paced breathing", description: "Box breathing: 4 in, 4 hold, 4 out, 4 hold" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Progressive muscle relaxation from head to toe" }
+                ],
+                actions: ["Hold ice cubes in your hands for 60 seconds.", "Do 30 seconds of intense cardio right now.", "Try box breathing for 2 minutes."]
+              },
+              {
+                situation: "You're experiencing intense anger or frustration that feels uncontrollable.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Cold shower or ice pack on neck/wrists" },
+                  { letter: "I", name: "Intense exercise", description: "Punch a pillow, do push-ups, or run hard" },
+                  { letter: "P", name: "Paced breathing", description: "Long exhales: 4 in / 8 out to calm fight response" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Clench fists tight, then release completely" }
+                ],
+                actions: ["Take a cold shower or splash face repeatedly.", "Do 25 push-ups or jumping jacks.", "Breathe: 4 in, 8 out—repeat 10 times."]
+              },
+              {
+                situation: "You're having a panic attack or experiencing extreme distress.",
+                skills: [
+                  { letter: "T", name: "Temperature", description: "Ice on face/neck to interrupt panic response" },
+                  { letter: "I", name: "Intense exercise", description: "Fast movement to burn adrenaline" },
+                  { letter: "P", name: "Paced breathing", description: "Slow breathing: 4 in through nose, 6 out through mouth" },
+                  { letter: "P", name: "Paired muscle relaxation", description: "Tense whole body for 5 seconds, release fully" }
+                ],
+                actions: ["Hold ice pack on your face for 30 seconds.", "Shake your body vigorously for 60 seconds.", "Breathe slowly: 4 in, 6 out—repeat until calm."]
+              }
             ],
-            actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."],
             ui: {
               intro: "When you need to change your body chemistry fast:",
               pick_one: "Pick one to try right now:",
