@@ -10,7 +10,7 @@ export default function TIPPSkills({ onClose }) {
 
   const content = t('mind_games.content.tipp_skills', { returnObjects: true });
   
-  if (!content || (!content.items && !Array.isArray(content))) {
+  if (!content || (!content.items && !content.situation && !Array.isArray(content))) {
     return (
       <div className="p-6 text-center">
         <p className="text-sm text-gray-500">{t('common.loading')}</p>
@@ -21,6 +21,10 @@ export default function TIPPSkills({ onClose }) {
   // Handle both new structure (items array + ui object) and old structure (single object or array)
   const items = content.items || (Array.isArray(content) ? content : [content]);
   const currentItem = items[currentIndex] || items[0];
+
+  const getUIText = (key) => {
+    return content.ui ? content.ui[key] : t(`mind_games.content.tipp_skills.ui.${key}`);
+  };
 
   const handleSelect = (action) => {
     setSelectedAction(action);
@@ -40,7 +44,7 @@ export default function TIPPSkills({ onClose }) {
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <p className="text-xs font-medium mb-2" style={{ color: '#5A7A72' }}>
-          {content.ui ? content.ui.intro : t('mind_games.content.tipp_skills.ui.intro')}
+          {getUIText('intro')}
         </p>
         <p className="text-sm font-semibold mb-4 break-words whitespace-normal" style={{ color: '#1A3A34' }}>
           {currentItem.situation}
@@ -64,7 +68,7 @@ export default function TIPPSkills({ onClose }) {
         </div>
 
         <p className="text-sm font-semibold mb-3" style={{ color: '#1A3A34' }}>
-          {content.ui ? content.ui.pick_one : t('mind_games.content.tipp_skills.ui.pick_one')}
+          {getUIText('pick_one')}
         </p>
 
         <div className="space-y-2">
@@ -96,7 +100,7 @@ export default function TIPPSkills({ onClose }) {
             border: '1px solid rgba(34, 197, 94, 0.2)'
           }}>
             <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
-              {content.ui ? content.ui.success_message : t('mind_games.content.tipp_skills.ui.success_message')}
+              {getUIText('success_message')}
             </p>
           </div>
         )}
@@ -115,7 +119,7 @@ export default function TIPPSkills({ onClose }) {
               color: 'white'
             }}
           >
-            {content.ui ? content.ui.try_another : t('mind_games.content.tipp_skills.ui.try_another')}
+            {getUIText('try_another')}
           </Button>
         )}
       </div>
