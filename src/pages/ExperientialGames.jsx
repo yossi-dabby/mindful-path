@@ -33,6 +33,11 @@ import ProsAndCons from '../components/experiential_games/ProsAndCons';
 import CheckTheFacts from '../components/experiential_games/CheckTheFacts';
 import SelfSoothe from '../components/experiential_games/SelfSoothe';
 import MountainMeditation from '../components/experiential_games/MountainMeditation';
+import MemoryMatch from '../components/experiential_games/MemoryMatch';
+import FocusFlow from '../components/experiential_games/FocusFlow';
+import PatternShift from '../components/experiential_games/PatternShift';
+import WordAssociation from '../components/experiential_games/WordAssociation';
+import NumberSequence from '../components/experiential_games/NumberSequence';
 
 const gameComponents = {
   ThoughtQuiz,
@@ -59,6 +64,11 @@ const gameComponents = {
   CheckTheFacts,
   SelfSoothe,
   MountainMeditation,
+  MemoryMatch,
+  FocusFlow,
+  PatternShift,
+  WordAssociation,
+  NumberSequence,
 };
 
 export default function ExperientialGames() {

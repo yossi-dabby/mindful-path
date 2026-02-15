@@ -431,7 +431,12 @@ export const translations = {
           pros_and_cons: { title: "Pros & Cons", description: "Wise decision-making in crisis." },
           check_the_facts: { title: "Check the Facts", description: "Does your emotion fit the situation?" },
           self_soothe: { title: "Self-Soothe 5 Senses", description: "Comfort yourself with sensory experiences." },
-          mountain_meditation: { title: "Mountain Meditation", description: "Embody stability and groundedness." }
+          mountain_meditation: { title: "Mountain Meditation", description: "Embody stability and groundedness." },
+          memory_match: { title: "Memory Match", description: "Flip cards and find matching pairs to boost memory." },
+          focus_flow: { title: "Focus Flow", description: "Follow the color sequence to sharpen attention." },
+          pattern_shift: { title: "Pattern Shift", description: "Identify patterns and switch mental gears quickly." },
+          word_association: { title: "Word Association", description: "Connect words creatively to enhance cognitive flexibility." },
+          number_sequence: { title: "Number Sequence", description: "Solve number patterns to strengthen problem-solving." }
         },
         content: {
           thought_quiz: {
@@ -1100,7 +1105,12 @@ export const translations = {
           pros_and_cons: { title: "יתרונות וחסרונות", description: "קבלת החלטות חכמה במשבר." },
           check_the_facts: { title: "בדקו את העובדות", description: "האם הרגש שלך מתאים למצב?" },
           self_soothe: { title: "הרגעה עצמית 5 חושים", description: "נחמו את עצמכם עם חוויות חושיות." },
-          mountain_meditation: { title: "מדיטציית הר", description: "גלמו יציבות והקרקעה." }
+          mountain_meditation: { title: "מדיטציית הר", description: "גלמו יציבות והקרקעה." },
+          memory_match: { title: "התאמת זיכרון", description: "הפכו קלפים ומצאו זוגות תואמים לשיפור הזיכרון." },
+          focus_flow: { title: "זרימת מיקוד", description: "עקבו אחר רצף הצבעים לחדד קשב." },
+          pattern_shift: { title: "שינוי דפוסים", description: "זהו דפוסים והחליפו הילוכים מנטליים במהירות." },
+          word_association: { title: "קישור מילים", description: "חברו מילים באופן יצירתי לשיפור גמישות קוגניטיבית." },
+          number_sequence: { title: "רצף מספרים", description: "פתרו דפוסי מספרים לחיזוק פתרון בעיות." }
         },
         content: {
           thought_quiz: {
@@ -4520,6 +4530,66 @@ export const translations = {
 const mindGamesUi = {
   common: {
     try_another: "Try Another"
+  },
+  memory_match: {
+    title: "Memory Match",
+    instructions: "Find all matching pairs by clicking cards.",
+    moves: "Moves",
+    complete_title: "Well done!",
+    complete_message: "You completed the memory game in {{moves}} moves."
+  },
+  focus_flow: {
+    title: "Focus Flow",
+    instructions: "Watch the sequence carefully, then repeat it.",
+    watch_carefully: "Watch carefully...",
+    level: "Level",
+    game_over: "Good effort!",
+    final_score: "You reached level {{score}}.",
+    colors: {
+      teal: "Teal",
+      lavender: "Lavender",
+      coral: "Coral",
+      sage: "Sage"
+    }
+  },
+  pattern_shift: {
+    title: "Pattern Shift",
+    complete_title: "Pattern Master!",
+    complete_message: "You got {{score}} out of {{total}} patterns correct.",
+    patterns: [
+      { question: "What comes next in the pattern: Red, Blue, Green, Red, Blue, ?" },
+      { question: "Which shape completes the pattern: Circle, Square, ?, Circle?" },
+      { question: "What size comes next: Large, Medium, ?, Large?" },
+      { question: "Continue the pattern: 1, 2, 3, 1, ?" }
+    ]
+  },
+  word_association: {
+    title: "Word Association",
+    instructions: "Quickly think of a word related to the one shown. Complete 5 associations.",
+    prompt: "What word comes to mind?",
+    input_placeholder: "Type your association...",
+    submit: "Submit",
+    your_chain: "Your chain:",
+    complete_title: "Creative thinking!",
+    complete_message: "You've created a unique chain of associations.",
+    start_words: ["Calm", "Growth", "Strength", "Joy", "Peace", "Courage", "Hope", "Balance"]
+  },
+  number_sequence: {
+    title: "Number Sequence",
+    instructions: "Find the pattern and predict the next number.",
+    answer_placeholder: "Your answer",
+    check: "Check",
+    correct: "Correct!",
+    incorrect: "Not quite. The answer is {{answer}}.",
+    complete_title: "Sequence solved!",
+    complete_message: "You got {{score}} out of {{total}} sequences correct.",
+    sequences: [
+      { rule: "Pattern: Add 2 each time" },
+      { rule: "Pattern: Add increasing numbers (1, 2, 3, 4, 5)" },
+      { rule: "Pattern: Multiples of 5" },
+      { rule: "Pattern: Add 1, then 2, then 3, then 4" },
+      { rule: "Pattern: Multiply by 2 each time" }
+    ]
   },
   quick_win: {
     log_prompt: "Log one small win from today:",
