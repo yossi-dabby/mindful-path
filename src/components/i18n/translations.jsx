@@ -1779,7 +1779,12 @@ export const translations = {
           pros_and_cons: { title: "Pros y Contras", description: "Toma de decisiones sabia en crisis." },
           check_the_facts: { title: "Verifica los Hechos", description: "¿Tu emoción se ajusta a la situación?" },
           self_soothe: { title: "Autocalma 5 Sentidos", description: "Consuélate con experiencias sensoriales." },
-          mountain_meditation: { title: "Meditación de la Montaña", description: "Encarna estabilidad y arraigo." }
+          mountain_meditation: { title: "Meditación de la Montaña", description: "Encarna estabilidad y arraigo." },
+          memory_match: { title: "Emparejamiento de Memoria", description: "Voltea cartas y encuentra pares para mejorar la memoria." },
+          focus_flow: { title: "Flujo de Enfoque", description: "Sigue la secuencia de colores para agudizar la atención." },
+          pattern_shift: { title: "Cambio de Patrón", description: "Identifica patrones y cambia de marcha mental rápidamente." },
+          word_association: { title: "Asociación de Palabras", description: "Conecta palabras creativamente para mejorar la flexibilidad cognitiva." },
+          number_sequence: { title: "Secuencia Numérica", description: "Resuelve patrones numéricos para fortalecer la resolución de problemas." }
         }
       },
       exercises: {
@@ -2280,7 +2285,12 @@ export const translations = {
           pros_and_cons: { title: "Avantages et Inconvénients", description: "Prise de décision sage en crise." },
           check_the_facts: { title: "Vérifier les Faits", description: "Votre émotion correspond-elle à la situation ?" },
           self_soothe: { title: "Auto-Apaisement 5 Sens", description: "Réconfortez-vous avec des expériences sensorielles." },
-          mountain_meditation: { title: "Méditation Montagne", description: "Incarnez stabilité et ancrage." }
+          mountain_meditation: { title: "Méditation Montagne", description: "Incarnez stabilité et ancrage." },
+          memory_match: { title: "Correspondance de Mémoire", description: "Retournez les cartes et trouvez les paires pour améliorer la mémoire." },
+          focus_flow: { title: "Flux de Concentration", description: "Suivez la séquence de couleurs pour affiner l'attention." },
+          pattern_shift: { title: "Changement de Motif", description: "Identifiez les motifs et changez de vitesse mentale rapidement." },
+          word_association: { title: "Association de Mots", description: "Connectez les mots de manière créative pour améliorer la flexibilité cognitive." },
+          number_sequence: { title: "Séquence de Nombres", description: "Résolvez les motifs numériques pour renforcer la résolution de problèmes." }
         },
         content: {
           thought_quiz: {
@@ -2949,7 +2959,12 @@ export const translations = {
           pros_and_cons: { title: "Vor- und Nachteile", description: "Weise Entscheidungsfindung in Krisen." },
           check_the_facts: { title: "Fakten Prüfen", description: "Passt Ihre Emotion zur Situation?" },
           self_soothe: { title: "Selbstberuhigung 5 Sinne", description: "Trösten Sie sich mit sensorischen Erfahrungen." },
-          mountain_meditation: { title: "Berg-Meditation", description: "Verkörpern Sie Stabilität und Erdung." }
+          mountain_meditation: { title: "Berg-Meditation", description: "Verkörpern Sie Stabilität und Erdung." },
+          memory_match: { title: "Gedächtnis-Match", description: "Drehen Sie Karten um und finden Sie passende Paare zur Gedächtnissteigerung." },
+          focus_flow: { title: "Fokus-Fluss", description: "Folgen Sie der Farbsequenz, um die Aufmerksamkeit zu schärfen." },
+          pattern_shift: { title: "Muster-Wechsel", description: "Identifizieren Sie Muster und schalten Sie schnell mental um." },
+          word_association: { title: "Wort-Assoziation", description: "Verbinden Sie Wörter kreativ, um die kognitive Flexibilität zu verbessern." },
+          number_sequence: { title: "Zahlenfolge", description: "Lösen Sie Zahlenmuster zur Stärkung der Problemlösung." }
         },
         content: {
           thought_quiz: {
@@ -3618,7 +3633,12 @@ export const translations = {
           pros_and_cons: { title: "Pro e Contro", description: "Prendere decisioni sagge in crisi." },
           check_the_facts: { title: "Controlla i Fatti", description: "La tua emozione si adatta alla situazione?" },
           self_soothe: { title: "Auto-Calmante 5 Sensi", description: "Confortati con esperienze sensoriali." },
-          mountain_meditation: { title: "Meditazione della Montagna", description: "Incarna stabilità e radicamento." }
+          mountain_meditation: { title: "Meditazione della Montagna", description: "Incarna stabilità e radicamento." },
+          memory_match: { title: "Abbinamento di Memoria", description: "Gira le carte e trova coppie corrispondenti per migliorare la memoria." },
+          focus_flow: { title: "Flusso di Concentrazione", description: "Segui la sequenza di colori per affinare l'attenzione." },
+          pattern_shift: { title: "Cambio di Schema", description: "Identifica schemi e cambia marcia mentale rapidamente." },
+          word_association: { title: "Associazione di Parole", description: "Collega parole creativamente per migliorare la flessibilità cognitiva." },
+          number_sequence: { title: "Sequenza di Numeri", description: "Risolvi schemi numerici per rafforzare la risoluzione dei problemi." }
         },
         content: {
           thought_quiz: {
@@ -4287,7 +4307,12 @@ export const translations = {
           pros_and_cons: { title: "Prós e Contras", description: "Tomada de decisão sábia em crise." },
           check_the_facts: { title: "Verificar os Fatos", description: "Sua emoção se encaixa na situação?" },
           self_soothe: { title: "Auto-Acalmar 5 Sentidos", description: "Conforte-se com experiências sensoriais." },
-          mountain_meditation: { title: "Meditação da Montanha", description: "Incorpore estabilidade e enraizamento." }
+          mountain_meditation: { title: "Meditação da Montanha", description: "Incorpore estabilidade e enraizamento." },
+          memory_match: { title: "Combinação de Memória", description: "Vire cartas e encontre pares correspondentes para melhorar a memória." },
+          focus_flow: { title: "Fluxo de Foco", description: "Siga a sequência de cores para aprimorar a atenção." },
+          pattern_shift: { title: "Mudança de Padrão", description: "Identifique padrões e mude de marcha mental rapidamente." },
+          word_association: { title: "Associação de Palavras", description: "Conecte palavras criativamente para melhorar a flexibilidade cognitiva." },
+          number_sequence: { title: "Sequência Numérica", description: "Resolva padrões numéricos para fortalecer a resolução de problemas." }
         },
         content: {
           thought_quiz: {
@@ -4683,5 +4708,10 @@ const mindGamesUi = {
     accepts: { ...(current.accepts || {}), ...mindGamesUi.accepts },
     improve: { ...(current.improve || {}), ...mindGamesUi.improve },
     self_soothe: { ...(current.self_soothe || {}), ...mindGamesUi.self_soothe },
+    memory_match: { ...(current.memory_match || {}), ...mindGamesUi.memory_match },
+    focus_flow: { ...(current.focus_flow || {}), ...mindGamesUi.focus_flow },
+    pattern_shift: { ...(current.pattern_shift || {}), ...mindGamesUi.pattern_shift },
+    word_association: { ...(current.word_association || {}), ...mindGamesUi.word_association },
+    number_sequence: { ...(current.number_sequence || {}), ...mindGamesUi.number_sequence },
   };
 });
