@@ -112,27 +112,10 @@ export default function Settings() {
 
   const handleDeleteAccount = async () => {
     try {
-      // Delete all user data
-      const [goals, journals, moods, exercises, conversations] = await Promise.all([
-        base44.entities.Goal.list(),
-        base44.entities.ThoughtJournal.list(),
-        base44.entities.MoodEntry.list(),
-        base44.entities.Exercise.list(),
-        base44.entities.Conversation.list()
-      ]);
-
-      await Promise.all([
-        ...goals.map(g => base44.entities.Goal.delete(g.id)),
-        ...journals.map(j => base44.entities.ThoughtJournal.delete(j.id)),
-        ...moods.map(m => base44.entities.MoodEntry.delete(m.id)),
-        ...exercises.map(e => base44.entities.Exercise.delete(e.id)),
-        ...conversations.map(c => base44.entities.Conversation.delete(c.id))
-      ]);
-
-      // Logout after deletion
-      base44.auth.logout();
+      await base44.auth.deleteAccount();
+      // User will be automatically logged out after account deletion
     } catch (error) {
-      alert('Failed to delete account. Please try again or contact support.');
+      alert(t('settings.account.delete_error'));
     }
   };
 
@@ -457,23 +440,23 @@ export default function Settings() {
                 className="w-full rounded-xl border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
-                Delete Account
+                {t('settings.account.delete_account')}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}>
               <AlertDialogHeader>
-                <AlertDialogTitle>Delete Account Permanently?</AlertDialogTitle>
+                <AlertDialogTitle>{t('settings.account.delete_confirm_title')}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. All your data including goals, journals, mood entries, and conversations will be permanently deleted.
+                  {t('settings.account.delete_confirm_description')}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
                 <AlertDialogAction 
                   onClick={handleDeleteAccount}
                   className="bg-red-600 hover:bg-red-700 text-white"
                 >
-                  Delete My Account
+                  {t('settings.account.delete_confirm_button')}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

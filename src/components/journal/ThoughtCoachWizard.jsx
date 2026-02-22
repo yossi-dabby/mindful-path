@@ -204,8 +204,12 @@ export default function ThoughtCoachWizard({ onClose }) {
                 <p className="text-sm text-gray-500">Step {step} of 4</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="w-5 h-5" />
+            <Button variant="ghost" size="icon" onClick={step > 1 ? () => setStep(step - 1) : onClose}>
+              {step > 1 ? (
+                <ChevronLeft className="w-5 h-5" />
+              ) : (
+                <X className="w-5 h-5" />
+              )}
             </Button>
           </div>
         </div>
