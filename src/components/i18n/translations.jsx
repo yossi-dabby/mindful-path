@@ -158,7 +158,12 @@ export const translations = {
         },
         account: {
           title: "Account",
-          logout: "Log Out"
+          logout: "Log Out",
+          delete_account: "Delete Account",
+          delete_confirm_title: "Delete Account Permanently?",
+          delete_confirm_description: "This action cannot be undone. All your data including goals, journals, mood entries, and conversations will be permanently deleted.",
+          delete_confirm_button: "Delete My Account",
+          delete_error: "Failed to delete account. Please try again or contact support."
         },
         footer: {
           need_help: "Need help?",
@@ -832,7 +837,12 @@ export const translations = {
         },
         account: {
           title: "חשבון",
-          logout: "התנתקות"
+          logout: "התנתקות",
+          delete_account: "מחיקת חשבון",
+          delete_confirm_title: "למחוק את החשבון לצמיתות?",
+          delete_confirm_description: "פעולה זו אינה הפיכה. כל הנתונים שלכם כולל מטרות, רשומות יומן, רשומות מצב רוח ושיחות יימחקו לצמיתות.",
+          delete_confirm_button: "מחקו את החשבון שלי",
+          delete_error: "מחיקת החשבון נכשלה. נסו שוב או צרו קשר עם התמיכה."
         },
         footer: {
           need_help: "צריכים עזרה?",
@@ -1506,7 +1516,12 @@ export const translations = {
         },
         account: {
           title: "Cuenta",
-          logout: "Cerrar Sesión"
+          logout: "Cerrar Sesión",
+          delete_account: "Eliminar Cuenta",
+          delete_confirm_title: "¿Eliminar cuenta permanentemente?",
+          delete_confirm_description: "Esta acción no se puede deshacer. Todos tus datos, incluidos objetivos, diarios, entradas de humor y conversaciones, se eliminarán permanentemente.",
+          delete_confirm_button: "Eliminar Mi Cuenta",
+          delete_error: "Error al eliminar la cuenta. Por favor, inténtalo de nuevo o contacta con soporte."
         },
         footer: {
           need_help: "¿Necesitas ayuda?",
@@ -2012,7 +2027,12 @@ export const translations = {
         },
         account: {
           title: "Compte",
-          logout: "Se Déconnecter"
+          logout: "Se Déconnecter",
+          delete_account: "Supprimer le Compte",
+          delete_confirm_title: "Supprimer le compte définitivement ?",
+          delete_confirm_description: "Cette action ne peut pas être annulée. Toutes vos données, y compris les objectifs, journaux, entrées d'humeur et conversations, seront définitivement supprimées.",
+          delete_confirm_button: "Supprimer Mon Compte",
+          delete_error: "Échec de la suppression du compte. Veuillez réessayer ou contacter le support."
         },
         footer: {
           need_help: "Besoin d'aide ?",
@@ -2686,7 +2706,12 @@ export const translations = {
         },
         account: {
           title: "Konto",
-          logout: "Abmelden"
+          logout: "Abmelden",
+          delete_account: "Konto Löschen",
+          delete_confirm_title: "Konto dauerhaft löschen?",
+          delete_confirm_description: "Diese Aktion kann nicht rückgängig gemacht werden. Alle Ihre Daten, einschließlich Ziele, Tagebücher, Stimmungseinträge und Gespräche, werden dauerhaft gelöscht.",
+          delete_confirm_button: "Mein Konto Löschen",
+          delete_error: "Konto konnte nicht gelöscht werden. Bitte versuchen Sie es erneut oder wenden Sie sich an den Support."
         },
         footer: {
           need_help: "Brauchen Sie Hilfe?",
@@ -3360,7 +3385,12 @@ export const translations = {
         },
         account: {
           title: "Account",
-          logout: "Disconnetti"
+          logout: "Disconnetti",
+          delete_account: "Elimina Account",
+          delete_confirm_title: "Eliminare l'account definitivamente?",
+          delete_confirm_description: "Questa azione non può essere annullata. Tutti i tuoi dati, inclusi obiettivi, diari, voci di umore e conversazioni, saranno eliminati definitivamente.",
+          delete_confirm_button: "Elimina il Mio Account",
+          delete_error: "Impossibile eliminare l'account. Riprova o contatta il supporto."
         },
         footer: {
           need_help: "Hai bisogno di aiuto?",
@@ -4034,7 +4064,12 @@ export const translations = {
         },
         account: {
           title: "Conta",
-          logout: "Sair"
+          logout: "Sair",
+          delete_account: "Excluir Conta",
+          delete_confirm_title: "Excluir conta permanentemente?",
+          delete_confirm_description: "Esta ação não pode ser desfeita. Todos os seus dados, incluindo objetivos, diários, entradas de humor e conversas, serão permanentemente excluídos.",
+          delete_confirm_button: "Excluir Minha Conta",
+          delete_error: "Falha ao excluir a conta. Por favor, tente novamente ou entre em contato com o suporte."
         },
         footer: {
           need_help: "Precisa de ajuda?",
