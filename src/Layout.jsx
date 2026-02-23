@@ -8,6 +8,7 @@ import Sidebar from './components/layout/Sidebar';
 import AppContent from './components/layout/AppContent';
 import ScrollPreservation from './components/layout/ScrollPreservation';
 import MobileHeader from './components/layout/MobileHeader';
+import { TabNavigationProvider } from './components/layout/TabNavigationProvider';
 import './components/i18n/i18nConfig';
 
 export default function Layout({ children, currentPageName }) {
@@ -143,9 +144,10 @@ export default function Layout({ children, currentPageName }) {
   };
 
   return (
-    <div className={`min-h-screen overflow-hidden ${themeBackgrounds[theme] || themeBackgrounds.default}`}>
-      {/* Preserve scroll position between tab switches */}
-      <ScrollPreservation />
+    <TabNavigationProvider currentPageName={currentPageName}>
+      <div className={`min-h-screen overflow-hidden ${themeBackgrounds[theme] || themeBackgrounds.default}`}>
+        {/* Preserve scroll position between tab switches */}
+        <ScrollPreservation />
       
       <style>{`
         :root {
@@ -189,8 +191,9 @@ export default function Layout({ children, currentPageName }) {
         </AnimatePresence>
       </AppContent>
       
-      {/* Bottom Navigation - Mobile only */}
-      <BottomNav currentPageName={currentPageName} />
-    </div>
+        {/* Bottom Navigation - Mobile only */}
+        <BottomNav currentPageName={currentPageName} />
+      </div>
+    </TabNavigationProvider>
   );
 }
