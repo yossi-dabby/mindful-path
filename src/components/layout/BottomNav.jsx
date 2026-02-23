@@ -4,6 +4,7 @@ import { createPageUrl } from '../../utils';
 import { cn } from "@/lib/utils";
 import { Home, MessageCircle, BookOpen, Activity, Dumbbell, Heart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useTabNavigation } from './TabNavigationProvider';
 
 // CRITICAL: This height MUST match the padding-bottom in AppContent
 export const BOTTOM_NAV_HEIGHT = 80; // 20 * 4 = 80px (h-20)
@@ -11,6 +12,7 @@ export const BOTTOM_NAV_HEIGHT = 80; // 20 * 4 = 80px (h-20)
 export default function BottomNav({ currentPageName }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const tabNav = useTabNavigation();
   
   const navItems = [
     { name: t('sidebar.home.name'), icon: Home, path: 'Home' },
@@ -52,17 +54,23 @@ export default function BottomNav({ currentPageName }) {
   }, [currentPageName]);
 
   const handleTabClick = (e, item) => {
-    // If clicking the already active tab, navigate to root of that section
-    if (currentPageName === item.path) {
-      e.preventDefault();
-      // Clear scroll position and navigate to root
-      sessionStorage.removeItem(`scroll_${item.path}`);
-      sessionStorage.removeItem(`navState_${item.path}`);
-      navigate(createPageUrl(item.path), { replace: true });
-      // Scroll to top after navigation
-      requestAnimationFrame(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
+    e.preventDefault();
+    
+    // Use tab navigation context for independent stacks
+    if (tabNav) {
+      tabNav.switchToTab(item.path);
+    } else {
+      // Fallback behavior
+      if (currentPageName === item.path) {
+        sessionStorage.removeItem(`scroll_${item.path}`);
+        sessionStorage.removeItem(`navState_${item.path}`);
+        navigate(createPageUrl(item.path), { replace: true });
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      } else {
+        navigate(createPageUrl(item.path));
+      }
     }
   };
   

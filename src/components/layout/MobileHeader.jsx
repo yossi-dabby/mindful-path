@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import { createPageUrl } from '../../utils';
+import { useTabNavigation } from './TabNavigationProvider';
 
 // Define root routes for each tab
 const ROOT_ROUTES = {
@@ -22,6 +23,7 @@ const ROOT_ROUTES = {
 export default function MobileHeader({ currentPageName }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const tabNav = useTabNavigation();
   const currentPath = location.pathname;
 
   // Determine if we're on a root route
@@ -49,11 +51,16 @@ export default function MobileHeader({ currentPageName }) {
   };
 
   const handleBack = () => {
-    // Check if there's history to go back to
+    // Use tab navigation if available for stack-aware back
+    if (tabNav?.canGoBack()) {
+      const didGoBack = tabNav.goBackInTab();
+      if (didGoBack) return;
+    }
+    
+    // Fallback to browser history
     if (window.history.length > 1) {
       navigate(-1);
     } else {
-      // If no history, go to home
       navigate(createPageUrl('Home'));
     }
   };
