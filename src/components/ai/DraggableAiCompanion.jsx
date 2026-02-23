@@ -59,10 +59,11 @@ export default function DraggableAiCompanion() {
       }
     }
     
-    // Default positions
+    // Default positions with safe area insets
+    const safeBottomOffset = isMobile ? 80 : 24;
     setPosition(
       isMobile 
-        ? { bottom: 80, right: 20 } 
+        ? { bottom: safeBottomOffset, right: 20 } 
         : { bottom: 24, right: 24 }
     );
   }, []);
@@ -457,10 +458,11 @@ export default function DraggableAiCompanion() {
     return null;
   }
 
+  const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
   const positionStyle = {
     position: 'fixed',
     right: `${position.right}px`,
-    bottom: `${position.bottom}px`,
+    bottom: isMobile ? `calc(${position.bottom}px + env(safe-area-inset-bottom, 0px))` : `${position.bottom}px`,
     zIndex: 40
   };
 

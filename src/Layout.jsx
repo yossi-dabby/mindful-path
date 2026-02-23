@@ -12,10 +12,17 @@ export default function Layout({ children, currentPageName }) {
   const [isOffline, setIsOffline] = React.useState(!navigator.onLine);
   const [isDarkMode, setIsDarkMode] = React.useState(false);
 
-  // Detect system dark mode preference
+  // Detect system dark mode preference and update theme-color
   React.useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     setIsDarkMode(mediaQuery.matches);
+
+    const updateThemeColor = (isDark) => {
+      const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+      if (themeColorMeta) {
+        themeColorMeta.setAttribute('content', isDark ? '#0c121c' : '#f8f8f6');
+      }
+    };
 
     const handleChange = (e) => {
       setIsDarkMode(e.matches);
@@ -24,6 +31,7 @@ export default function Layout({ children, currentPageName }) {
       } else {
         document.documentElement.classList.remove('dark');
       }
+      updateThemeColor(e.matches);
     };
 
     mediaQuery.addEventListener('change', handleChange);
@@ -32,6 +40,7 @@ export default function Layout({ children, currentPageName }) {
     if (mediaQuery.matches) {
       document.documentElement.classList.add('dark');
     }
+    updateThemeColor(mediaQuery.matches);
 
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
