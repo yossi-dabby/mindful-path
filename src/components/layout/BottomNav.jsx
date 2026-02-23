@@ -55,9 +55,14 @@ export default function BottomNav({ currentPageName }) {
     // If clicking the already active tab, navigate to root of that section
     if (currentPageName === item.path) {
       e.preventDefault();
-      navigate(createPageUrl(item.path), { replace: true });
+      // Clear scroll position and navigate to root
       sessionStorage.removeItem(`scroll_${item.path}`);
-      window.scrollTo(0, 0);
+      sessionStorage.removeItem(`navState_${item.path}`);
+      navigate(createPageUrl(item.path), { replace: true });
+      // Scroll to top after navigation
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
     }
   };
   

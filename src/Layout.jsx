@@ -1,16 +1,46 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
+import { useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import DraggableAiCompanion from './components/ai/DraggableAiCompanion';
 import BottomNav from './components/layout/BottomNav';
 import Sidebar from './components/layout/Sidebar';
 import AppContent from './components/layout/AppContent';
 import ScrollPreservation from './components/layout/ScrollPreservation';
+import MobileHeader from './components/layout/MobileHeader';
 import './components/i18n/i18nConfig';
 
 export default function Layout({ children, currentPageName }) {
+  const location = useLocation();
   const [theme, setTheme] = React.useState('default');
   const [isOffline, setIsOffline] = React.useState(!navigator.onLine);
   const [isDarkMode, setIsDarkMode] = React.useState(false);
+
+  // Page transition variants for iOS-style navigation
+  const pageVariants = {
+    initial: {
+      x: '100%',
+      opacity: 0
+    },
+    animate: {
+      x: 0,
+      opacity: 1,
+      transition: {
+        type: 'tween',
+        ease: [0.4, 0.0, 0.2, 1],
+        duration: 0.3
+      }
+    },
+    exit: {
+      x: '-30%',
+      opacity: 0,
+      transition: {
+        type: 'tween',
+        ease: [0.4, 0.0, 0.2, 1],
+        duration: 0.3
+      }
+    }
+  };
 
   // Detect system dark mode preference and update theme-color
   React.useEffect(() => {
@@ -137,12 +167,26 @@ export default function Layout({ children, currentPageName }) {
         {/* AI Companion Widget - Draggable across all pages */}
         <DraggableAiCompanion />
       
+      {/* Mobile Header - Mobile only */}
+      <MobileHeader currentPageName={currentPageName} />
+      
       {/* Sidebar - Desktop only */}
       <Sidebar currentPageName={currentPageName} />
       
-      {/* Main Content - Single scroll container */}
+      {/* Main Content - Single scroll container with page transitions */}
       <AppContent currentPageName={currentPageName}>
-        {children}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={location.pathname}
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="w-full"
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
       </AppContent>
       
       {/* Bottom Navigation - Mobile only */}
