@@ -25,6 +25,7 @@ import ExerciseDetail from '../components/exercises/ExerciseDetail';
 import VideoModal from '../components/home/VideoModal';
 import GoalsDashboardWidget from '../components/goals/GoalsDashboardWidget';
 import { motion } from 'framer-motion';
+import PullToRefresh from '../components/utils/PullToRefresh';
 
 export default function Home() {
   const { t } = useTranslation();
@@ -464,7 +465,8 @@ export default function Home() {
           onClose={() => setShowJournalVideo(false)}
         />
       )}
+        </div>
       </div>
-      </PullToRefresh>
-      );
-      }
+    </PullToRefresh>
+  );
+}
