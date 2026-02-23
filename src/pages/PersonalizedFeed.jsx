@@ -5,6 +5,7 @@ import FeedPreferences from '../components/feed/FeedPreferences';
 import FeedFilters from '../components/feed/FeedFilters';
 import { Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
+import PullToRefresh from '../components/utils/PullToRefresh';
 
 export default function PersonalizedFeed() {
   const [userInterests, setUserInterests] = useState([]);
@@ -23,7 +24,8 @@ export default function PersonalizedFeed() {
   const hasActiveFilters = contentType !== 'all' || sortBy !== 'relevance';
 
   return (
-    <div className="min-h-screen p-4 md:p-8 pb-24 max-w-5xl mx-auto" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
+    <PullToRefresh queryKeys={['personalizedFeed', 'feedContent']}>
+      <div className="min-h-screen p-4 md:p-8 pb-24 max-w-5xl mx-auto" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
       {/* Header */}
       <motion.div 
         className="flex items-center justify-between mb-6 mt-4"
@@ -69,6 +71,7 @@ export default function PersonalizedFeed() {
         contentType={contentType}
         sortBy={sortBy}
       />
-    </div>
+      </div>
+    </PullToRefresh>
   );
 }

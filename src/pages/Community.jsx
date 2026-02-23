@@ -13,6 +13,7 @@ import GroupCard from '../components/community/GroupCard';
 import GroupForm from '../components/community/GroupForm';
 import ProgressShareForm from '../components/community/ProgressShareForm';
 import ModerationTools from '../components/community/ModerationTools';
+import PullToRefresh from '../components/utils/PullToRefresh';
 
 export default function Community() {
   const { t } = useTranslation();
@@ -93,7 +94,8 @@ export default function Community() {
   );
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto" style={{ minHeight: '100vh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
+    <PullToRefresh queryKeys={['forumPosts', 'communityGroups', 'groupMemberships', 'sharedProgress']}>
+      <div className="p-4 md:p-8 max-w-7xl mx-auto" style={{ minHeight: '100vh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
       {/* Header */}
       <div className="mb-8 mt-4">
         <h1 className="text-3xl md:text-4xl font-light mb-2" style={{ color: '#1A3A34' }}>{t('community.page_title')}</h1>
@@ -380,6 +382,7 @@ export default function Community() {
       {showGroupForm && <GroupForm onClose={() => setShowGroupForm(false)} />}
       {showProgressForm && <ProgressShareForm onClose={() => setShowProgressForm(false)} />}
       {moderatingPost && <ModerationTools post={moderatingPost} onClose={() => setModeratingPost(null)} />}
-    </div>
+      </div>
+    </PullToRefresh>
   );
 }

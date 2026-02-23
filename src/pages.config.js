@@ -53,6 +53,7 @@ import Coach from './pages/Coach';
 import CoachingAnalytics from './pages/CoachingAnalytics';
 import Community from './pages/Community';
 import CrisisAlerts from './pages/CrisisAlerts';
+import ExerciseView from './pages/ExerciseView';
 import Exercises from './pages/Exercises';
 import ExperientialGames from './pages/ExperientialGames';
 import GoalCoach from './pages/GoalCoach';
@@ -72,7 +73,6 @@ import TestSetupGuide from './pages/TestSetupGuide';
 import ThoughtCoach from './pages/ThoughtCoach';
 import VideoPlayer from './pages/VideoPlayer';
 import Videos from './pages/Videos';
-import ExerciseView from './pages/ExerciseView';
 import __Layout from './Layout.jsx';
 
 
@@ -83,6 +83,7 @@ export const PAGES = {
     "CoachingAnalytics": CoachingAnalytics,
     "Community": Community,
     "CrisisAlerts": CrisisAlerts,
+    "ExerciseView": ExerciseView,
     "Exercises": Exercises,
     "ExperientialGames": ExperientialGames,
     "GoalCoach": GoalCoach,
@@ -102,7 +103,6 @@ export const PAGES = {
     "ThoughtCoach": ThoughtCoach,
     "VideoPlayer": VideoPlayer,
     "Videos": Videos,
-    "ExerciseView": ExerciseView,
 }
 
 export const pagesConfig = {

@@ -21,11 +21,32 @@ export default function BottomNav({ currentPageName }) {
     { name: t('sidebar.exercises.name'), icon: Dumbbell, path: 'Exercises' }
   ];
 
+  // Preserve scroll position for each tab
+  React.useEffect(() => {
+    const key = `scroll_${currentPageName}`;
+    const savedScroll = sessionStorage.getItem(key);
+    
+    if (savedScroll) {
+      requestAnimationFrame(() => {
+        window.scrollTo(0, parseInt(savedScroll));
+      });
+    }
+
+    const handleScroll = () => {
+      sessionStorage.setItem(key, window.scrollY.toString());
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [currentPageName]);
+
   const handleTabClick = (e, item) => {
     // If clicking the already active tab, navigate to root of that section
     if (currentPageName === item.path) {
       e.preventDefault();
       navigate(createPageUrl(item.path), { replace: true });
+      sessionStorage.removeItem(`scroll_${item.path}`);
+      window.scrollTo(0, 0);
     }
   };
   

@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { X, Plus, Trash2, Target, CheckCircle, Sparkles } from 'lucide-react';
+import DatePickerMobile from '../ui/date-picker-mobile';
 
 const categories = [
   { value: 'behavioral', label: 'Behavioral' },
@@ -267,11 +268,11 @@ Provide SMART criteria answers and suggestions for milestones.`,
 
                   <div>
                     <label className="text-sm font-medium text-gray-700 mb-2 block">Target Date</label>
-                    <Input
-                      type="date"
+                    <DatePickerMobile
                       value={formData.target_date}
-                      onChange={(e) => setFormData({ ...formData, target_date: e.target.value })}
-                      className="rounded-xl"
+                      onChange={(date) => setFormData({ ...formData, target_date: date })}
+                      placeholder="Select target date"
+                      minDate={new Date().toISOString().split('T')[0]}
                     />
                   </div>
                 </div>
@@ -468,13 +469,11 @@ Provide SMART criteria answers and suggestions for milestones.`,
                           rows={2}
                         />
                         <div className="flex gap-2">
-                          <Input
-                            type="date"
+                          <DatePickerMobile
                             value={milestone.due_date || ''}
-                            onChange={(e) => updateMilestone(index, 'due_date', e.target.value)}
+                            onChange={(date) => updateMilestone(index, 'due_date', date)}
                             placeholder="Due date"
-                            min={new Date().toISOString().split('T')[0]}
-                            className="rounded-lg text-sm"
+                            minDate={new Date().toISOString().split('T')[0]}
                           />
                         </div>
                       </div>
