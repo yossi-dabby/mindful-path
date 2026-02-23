@@ -13,12 +13,16 @@ const config: CapacitorConfig = {
       releaseType: 'AAB',
     },
   },
+  ios: {
+    scheme: 'Mindful Path',
+  },
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000,
       backgroundColor: '#f8f8f6',
       androidSplashResourceName: 'splash',
       androidScaleType: 'CENTER_CROP',
+      iosSpinnerStyle: 'small',
       showSpinner: false,
     },
   },

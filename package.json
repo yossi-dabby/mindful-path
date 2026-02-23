@@ -20,13 +20,17 @@
     "test:e2e:android": "playwright test -c playwright.android.config.ts",
     "android:build": "npm run build && npx cap sync android",
     "android:open": "npx cap open android",
-    "android:run": "npx cap run android"
+    "android:run": "npx cap run android",
+    "ios:build": "npm run build && npx cap sync ios",
+    "ios:open": "npx cap open ios",
+    "ios:run": "npx cap run ios"
   },
   "dependencies": {
     "@base44/sdk": "^0.8.3",
     "@base44/vite-plugin": "^0.2.12",
     "@capacitor/android": "^8.1.0",
     "@capacitor/core": "^8.1.0",
+    "@capacitor/ios": "^8.1.0",
     "@hello-pangea/dnd": "^17.0.0",
     "@hookform/resolvers": "^4.1.2",
     "@radix-ui/react-accordion": "^1.2.3",
