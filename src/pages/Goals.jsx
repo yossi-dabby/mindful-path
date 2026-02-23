@@ -19,6 +19,7 @@ import GoalMotivation from '../components/goals/GoalMotivation';
 import AiGoalCoaching from '../components/goals/AiGoalCoaching';
 import MilestonesTimeline from '../components/goals/MilestonesTimeline';
 import GoalTemplateLibrary from '../components/goals/GoalTemplateLibrary';
+import PullToRefresh from '../components/utils/PullToRefresh';
 
 export default function Goals() {
   const [showForm, setShowForm] = useState(false);
@@ -160,7 +161,8 @@ export default function Goals() {
   return (
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
-      <div className="p-4 md:p-8 pb-32 md:pb-24 max-w-5xl mx-auto" style={{ minHeight: '100vh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
+      <PullToRefresh queryKeys={['allGoals', 'recentGoals']}>
+        <div className="p-4 md:p-8 pb-32 md:pb-24 max-w-5xl mx-auto" style={{ minHeight: '100vh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 mt-4">
         <div className="flex items-center gap-3">
@@ -467,7 +469,8 @@ export default function Goals() {
           onClose={() => setShowTemplates(false)}
         />
       )}
-      </div>
+        </div>
+      </PullToRefresh>
     </>
   );
 }
