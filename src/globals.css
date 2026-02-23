@@ -306,10 +306,16 @@ p, span:not([class*="badge"]), h1, h2, h3, h4, h5, h6, li, td, th, label, articl
   }
 }
 
-/* Prevent overscroll bounce */
-html, body {
+/* Prevent overscroll bounce on document level (prevents browser chrome bounce)
+   but allow it on internal scroll containers for pull-to-refresh */
+html {
   overscroll-behavior: none;
   overscroll-behavior-y: none;
+}
+
+body {
+  overscroll-behavior: contain;
+  overscroll-behavior-y: contain;
 }
 
 /* Focus styles - warm ring, no sharp edges */
