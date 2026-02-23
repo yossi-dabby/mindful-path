@@ -95,13 +95,14 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
           >
             <div className="bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg flex items-center gap-2">
               <Loader2 
-                className={`w-4 h-4 text-purple-600 ${isRefreshing || shouldTrigger ? 'animate-spin' : ''}`}
+                className={`w-4 h-4 ${isRefreshing || shouldTrigger ? 'animate-spin' : ''}`}
                 style={{ 
+                  color: '#26A69A',
                   transform: isRefreshing ? 'rotate(0deg)' : `rotate(${pullProgress * 360}deg)`,
                   transition: isRefreshing ? 'none' : 'transform 0.1s linear'
                 }}
               />
-              <span className="text-xs font-medium text-gray-700">
+              <span className="text-xs font-medium" style={{ color: '#1A3A34' }}>
                 {isRefreshing ? 'Refreshing...' : shouldTrigger ? 'Release to refresh' : 'Pull to refresh'}
               </span>
             </div>
