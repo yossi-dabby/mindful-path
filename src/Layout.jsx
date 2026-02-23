@@ -45,6 +45,25 @@ export default function Layout({ children, currentPageName }) {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
+  // Global popstate handler for Android back button
+  React.useEffect(() => {
+    const handlePopState = () => {
+      // Close any open dialogs/drawers by dispatching ESC key
+      const escEvent = new KeyboardEvent('keydown', {
+        key: 'Escape',
+        code: 'Escape',
+        keyCode: 27,
+        which: 27,
+        bubbles: true,
+        cancelable: true
+      });
+      document.dispatchEvent(escEvent);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   React.useEffect(() => {
     // Load user theme preference
     base44.auth.me().then((user) => {

@@ -110,14 +110,32 @@ export default function Settings() {
     base44.auth.logout();
   };
 
-  const handleDeleteAccount = async () => {
-    try {
+  const deleteAccountMutation = useMutation({
+    mutationFn: async () => {
+      // Delete all user data first
+      const entities = ['Goal', 'MoodEntry', 'ThoughtJournal', 'Conversation', 'Exercise', 
+                       'CoachingSession', 'HealthMetric', 'ForumPost', 'ForumComment', 
+                       'SharedProgress', 'UserStreak', 'Badge', 'ProactiveReminder', 
+                       'JournalReminder', 'SavedResource', 'SessionSummary'];
+      
+      for (const entityName of entities) {
+        try {
+          const records = await base44.entities[entityName].list();
+          for (const record of records) {
+            await base44.entities[entityName].delete(record.id);
+          }
+        } catch (err) {
+          console.error(`Failed to delete ${entityName}:`, err);
+        }
+      }
+      
+      // Delete account
       await base44.auth.deleteAccount();
-      // User will be automatically logged out after account deletion
-    } catch (error) {
+    },
+    onError: (error) => {
       alert(t('settings.account.delete_error'));
     }
-  };
+  });
 
   if (!user) {
     return (
@@ -446,17 +464,29 @@ export default function Settings() {
             <AlertDialogContent style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}>
               <AlertDialogHeader>
                 <AlertDialogTitle>{t('settings.account.delete_confirm_title')}</AlertDialogTitle>
-                <AlertDialogDescription>
-                  {t('settings.account.delete_confirm_description')}
+                <AlertDialogDescription className="space-y-2">
+                  <p>{t('settings.account.delete_confirm_description')}</p>
+                  <p className="font-semibold text-red-600 mt-3">
+                    {t('settings.account.delete_warning')}
+                  </p>
+                  <ul className="text-sm text-gray-600 list-disc list-inside mt-2 space-y-1">
+                    <li>{t('settings.account.delete_data_goals')}</li>
+                    <li>{t('settings.account.delete_data_journal')}</li>
+                    <li>{t('settings.account.delete_data_conversations')}</li>
+                    <li>{t('settings.account.delete_data_progress')}</li>
+                  </ul>
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+                <AlertDialogCancel disabled={deleteAccountMutation.isPending}>
+                  {t('common.cancel')}
+                </AlertDialogCancel>
                 <AlertDialogAction 
-                  onClick={handleDeleteAccount}
+                  onClick={() => deleteAccountMutation.mutate()}
+                  disabled={deleteAccountMutation.isPending}
                   className="bg-red-600 hover:bg-red-700 text-white"
                 >
-                  {t('settings.account.delete_confirm_button')}
+                  {deleteAccountMutation.isPending ? t('settings.account.deleting') : t('settings.account.delete_confirm_button')}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

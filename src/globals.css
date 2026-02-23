@@ -273,6 +273,18 @@
   background: rgb(var(--accent) / 0.4);
 }
 
+/* Mobile: Hide scrollbars for native look */
+@media (max-width: 768px) {
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  *::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* Mobile touch optimization */
 button, a, [role="button"], svg, .icon {
   user-select: none;
