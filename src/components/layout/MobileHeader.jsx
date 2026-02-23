@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import { createPageUrl } from '../../utils';
 import { useTabNavigation } from './TabNavigationProvider';
+import MobileMenu from './MobileMenu';
 
 // Define root routes for each tab
 const ROOT_ROUTES = {
@@ -99,8 +100,10 @@ export default function MobileHeader({ currentPageName }) {
           {getPageTitle()}
         </h1>
 
-        {/* Right: Empty space for symmetry */}
-        <div className="w-12"></div>
+        {/* Right: Menu button */}
+        <div className="w-12 flex justify-end">
+          <MobileMenu />
+        </div>
       </div>
     </header>
   );
