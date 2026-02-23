@@ -17,11 +17,16 @@
     "test:property": "vitest run test/**/*.test.js",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:android": "playwright test -c playwright.android.config.ts"
+    "test:e2e:android": "playwright test -c playwright.android.config.ts",
+    "android:build": "npm run build && npx cap sync android",
+    "android:open": "npx cap open android",
+    "android:run": "npx cap run android"
   },
   "dependencies": {
     "@base44/sdk": "^0.8.3",
     "@base44/vite-plugin": "^0.2.12",
+    "@capacitor/android": "^8.1.0",
+    "@capacitor/core": "^8.1.0",
     "@hello-pangea/dnd": "^17.0.0",
     "@hookform/resolvers": "^4.1.2",
     "@radix-ui/react-accordion": "^1.2.3",
@@ -90,6 +95,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.1.0",
     "@eslint/js": "^9.19.0",
     "@playwright/test": "^1.49.1",
     "@types/node": "^22.13.5",

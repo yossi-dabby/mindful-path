@@ -12,11 +12,12 @@ import { createPageUrl } from '@/utils';
 import { Link } from 'react-router-dom';
 
 export default function GoalsDashboardWidget() {
-  const { data: goals = [], isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['allGoals'],
     queryFn: () => base44.entities.Goal.list(),
     staleTime: 30000
   });
+  const goals = Array.isArray(data) ? data : [];
 
   const activeGoals = goals.filter(g => g.status !== 'completed');
   const completedGoals = goals.filter(g => g.status === 'completed');
