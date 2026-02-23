@@ -465,7 +465,6 @@ export default function Home() {
           onClose={() => setShowJournalVideo(false)}
         />
       )}
-        </div>
       </div>
     </PullToRefresh>
   );
