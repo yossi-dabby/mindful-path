@@ -286,16 +286,24 @@
 }
 
 /* Mobile touch optimization */
-button, a, [role="button"], svg, .icon {
+button, a, [role="button"], svg, .icon, [class*="Button"], [class*="badge"] {
   user-select: none;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Keep text selectable */
-p, span, h1, h2, h3, h4, h5, h6, li, td, th, label {
+/* Keep all content text selectable */
+p, span:not([class*="badge"]), h1, h2, h3, h4, h5, h6, li, td, th, label, article, div[class*="content"], [class*="description"], [class*="text"] {
   user-select: auto;
   -webkit-user-select: auto;
+}
+
+/* Ensure minimum 44px touch targets on mobile */
+@media (max-width: 768px) {
+  button, a[role="button"], [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }
 
 /* Prevent overscroll bounce */

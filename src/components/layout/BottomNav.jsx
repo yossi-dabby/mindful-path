@@ -21,23 +21,34 @@ export default function BottomNav({ currentPageName }) {
     { name: t('sidebar.exercises.name'), icon: Dumbbell, path: 'Exercises' }
   ];
 
-  // Preserve scroll position for each tab
+  // Preserve scroll position and navigation state for each tab
   React.useEffect(() => {
-    const key = `scroll_${currentPageName}`;
-    const savedScroll = sessionStorage.getItem(key);
+    const scrollKey = `scroll_${currentPageName}`;
+    const savedScroll = sessionStorage.getItem(scrollKey);
     
+    // Restore scroll position when returning to a tab
     if (savedScroll) {
       requestAnimationFrame(() => {
         window.scrollTo(0, parseInt(savedScroll));
       });
     }
 
+    // Save scroll position continuously
     const handleScroll = () => {
-      sessionStorage.setItem(key, window.scrollY.toString());
+      sessionStorage.setItem(scrollKey, window.scrollY.toString());
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
+  }, [currentPageName]);
+
+  // Save navigation state when tab changes
+  React.useEffect(() => {
+    const navStateKey = `navState_${currentPageName}`;
+    const currentPath = window.location.pathname;
+    
+    // Store the current path for this tab
+    sessionStorage.setItem(navStateKey, currentPath);
   }, [currentPageName]);
 
   const handleTabClick = (e, item) => {
