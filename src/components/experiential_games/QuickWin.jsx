@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { triggerHaptic } from '../utils/hapticFeedback';
 
 export default function QuickWin({ onClose }) {
   const { t } = useTranslation();
@@ -21,11 +22,13 @@ export default function QuickWin({ onClose }) {
   }, []);
 
   const handlePresetClick = (preset) => {
+    triggerHaptic('light');
     saveWin(preset);
   };
 
   const handleCustomSubmit = () => {
     if (customWin.trim()) {
+      triggerHaptic('medium');
       saveWin(customWin.trim());
       setCustomWin('');
     }
@@ -79,7 +82,7 @@ export default function QuickWin({ onClose }) {
             key={index}
             variant="outline"
             size="sm"
-            className="h-auto py-2 px-3 text-left justify-start break-words min-w-0 w-full"
+            className="h-auto py-2 px-3 text-left justify-start break-words min-w-0 w-full active:scale-95 active:opacity-80 transition-all"
             style={{
               borderRadius: '10px',
               borderColor: 'rgba(38, 166, 154, 0.2)'

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useTranslation } from 'react-i18next';
+import { triggerHaptic } from '../utils/hapticFeedback';
 
 export default function DefusionCards({ onClose }) {
   const { t } = useTranslation();
@@ -13,10 +14,12 @@ export default function DefusionCards({ onClose }) {
   const defuseLines = currentCard?.defuse_lines ?? currentCard?.defuseLines;
 
   const handleSelectLine = (line) => {
+    triggerHaptic('light');
     setSelectedLine(line);
   };
 
   const handleNext = () => {
+    triggerHaptic('medium');
     const randomIndex = Math.floor(Math.random() * defusionCards.length);
     setCurrentIndex(randomIndex);
     setSelectedLine(null);
@@ -45,7 +48,7 @@ export default function DefusionCards({ onClose }) {
             <Button
               key={index}
               variant="outline"
-              className="w-full justify-start text-left h-auto py-3 px-4 whitespace-normal break-words min-w-0"
+              className="w-full justify-start text-left h-auto py-3 px-4 whitespace-normal break-words min-w-0 active:scale-95 active:opacity-80 transition-all"
               style={{
                 borderRadius: '12px',
                 borderColor: selectedLine === line
