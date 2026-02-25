@@ -41,10 +41,8 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
       setIsRefreshing(true);
       
       try {
-        // Invalidate all specified query keys
-        if (queryKeys.length > 0) {
-          await Promise.all(queryKeys.map(key => queryClient.invalidateQueries([key])));
-        }
+        // Invalidate all active React Query keys
+        await queryClient.invalidateQueries();
         
         // Call custom refresh handler if provided
         if (onRefresh) {
