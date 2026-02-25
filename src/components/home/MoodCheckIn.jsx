@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -48,10 +48,40 @@ export default function MoodCheckIn({ onClose, onComplete }) {
     notes: ''
   });
 
+  const queryClient = useQueryClient();
+
   const saveMutation = useMutation({
     mutationFn: (data) => base44.entities.MoodEntry.create(data),
+    onMutate: async (newEntry) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries(['moodEntries']);
+      
+      // Snapshot previous value
+      const previousMoodEntries = queryClient.getQueryData(['moodEntries']);
+      
+      // Optimistically update cache
+      const optimisticEntry = {
+        id: 'temp-' + Date.now(),
+        ...newEntry,
+        created_date: new Date().toISOString()
+      };
+      
+      queryClient.setQueryData(['moodEntries'], (old) => [optimisticEntry, ...(old || [])]);
+      
+      return { previousMoodEntries };
+    },
     onSuccess: () => {
       onClose();
+      if (onComplete) onComplete();
+    },
+    onError: (error, variables, context) => {
+      // Rollback on error
+      if (context?.previousMoodEntries) {
+        queryClient.setQueryData(['moodEntries'], context.previousMoodEntries);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(['moodEntries']);
     }
   });
 

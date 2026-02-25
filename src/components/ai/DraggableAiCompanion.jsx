@@ -60,7 +60,10 @@ export default function DraggableAiCompanion() {
     }
     
     // Default positions with safe area insets
-    const safeBottomOffset = isMobile ? 80 : 24;
+    const computedStyle = getComputedStyle(document.documentElement);
+    const safeAreaBottom = parseInt(computedStyle.getPropertyValue('env(safe-area-inset-bottom)') || '0') || 0;
+    const safeBottomOffset = isMobile ? (80 + safeAreaBottom) : 24;
+    
     setPosition(
       isMobile 
         ? { bottom: safeBottomOffset, right: 20 } 
@@ -246,12 +249,17 @@ export default function DraggableAiCompanion() {
     const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
     const margin = 16;
     const bottomNavHeight = isMobile ? 64 : 0; // Account for mobile bottom nav
+    
+    // Get safe area insets (iOS)
+    const computedStyle = getComputedStyle(document.documentElement);
+    const safeAreaBottom = parseInt(computedStyle.getPropertyValue('env(safe-area-inset-bottom)') || '0') || 0;
+    
     const maxRight = window.innerWidth - (isMobile ? 96 : 384) - margin;
-    const maxBottom = window.innerHeight - bottomNavHeight - margin;
+    const maxBottom = window.innerHeight - bottomNavHeight - safeAreaBottom - margin;
     
     return {
       right: Math.max(margin, Math.min(maxRight, pos.right)),
-      bottom: Math.max(margin, Math.min(maxBottom, pos.bottom))
+      bottom: Math.max(margin + safeAreaBottom, Math.min(maxBottom, pos.bottom))
     };
   };
 
@@ -292,11 +300,16 @@ export default function DraggableAiCompanion() {
         const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
         const margin = 16;
         const bottomNavHeight = isMobile ? 64 : 0;
+        
+        // Get safe area insets (iOS)
+        const computedStyle = getComputedStyle(document.documentElement);
+        const safeAreaBottom = parseInt(computedStyle.getPropertyValue('env(safe-area-inset-bottom)') || '0') || 0;
+        
         const maxRight = window.innerWidth - (isMobile ? 96 : 384) - margin;
-        const maxBottom = window.innerHeight - bottomNavHeight - margin;
+        const maxBottom = window.innerHeight - bottomNavHeight - safeAreaBottom - margin;
         
         const newRight = Math.max(margin, Math.min(maxRight, dragRef.current.initialRight + deltaX));
-        const newBottom = Math.max(margin, Math.min(maxBottom, dragRef.current.initialBottom + deltaY));
+        const newBottom = Math.max(margin + safeAreaBottom, Math.min(maxBottom, dragRef.current.initialBottom + deltaY));
         
         if (elementRef.current) {
           elementRef.current.style.right = `${newRight}px`;
