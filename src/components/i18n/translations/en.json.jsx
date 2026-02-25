@@ -633,7 +633,18 @@
     },
     "account": {
       "title": "Account",
-      "logout": "Log Out"
+      "logout": "Log Out",
+      "delete_account": "Delete Account",
+      "delete_confirm_title": "Are you absolutely sure?",
+      "delete_confirm_description": "This action cannot be undone. Your account and all associated data will be permanently deleted.",
+      "delete_warning": "This will permanently delete:",
+      "delete_data_goals": "All your goals and progress",
+      "delete_data_journal": "All journal entries and reflections",
+      "delete_data_conversations": "All therapy conversations",
+      "delete_data_progress": "All mood tracking and analytics data",
+      "deleting": "Deleting...",
+      "delete_confirm_button": "Yes, Delete My Account",
+      "delete_error": "Failed to delete account. Please try again."
     },
     "footer": {
       "need_help": "Need help?",

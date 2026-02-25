@@ -11,7 +11,10 @@ export function useTabNavigation() {
 const TAB_ROOTS = {
   Home: 'Home',
   Chat: 'Chat',
+  Coach: 'Coach',
   Journal: 'Journal',
+  MoodTracker: 'MoodTracker',
+  Exercises: 'Exercises',
   Progress: 'Progress'
 };
 
@@ -26,8 +29,6 @@ function getTabForPage(pageName) {
   const tabMapping = {
     // Home tab pages
     'StarterPath': 'Home',
-    'Exercises': 'Home',
-    'ExerciseView': 'Home',
     'Videos': 'Home',
     'VideoPlayer': 'Home',
     'Playlists': 'Home',
@@ -35,16 +36,17 @@ function getTabForPage(pageName) {
     'Journeys': 'Home',
     'ExperientialGames': 'Home',
     
-    // Chat tab pages (AI coaching, therapy)
-    'Coach': 'Chat',
+    // Chat tab pages (AI therapy)
     'ThoughtCoach': 'Chat',
     
-    // Journal tab pages
-    'MoodTracker': 'Journal',
+    // Coach tab pages
+    'GoalCoach': 'Coach',
+    
+    // Exercises tab pages
+    'ExerciseView': 'Exercises',
     
     // Progress tab pages
     'Goals': 'Progress',
-    'GoalCoach': 'Progress',
     'Community': 'Progress',
     'PersonalizedFeed': 'Progress',
     'AdvancedAnalytics': 'Progress',
@@ -63,7 +65,10 @@ export function TabNavigationProvider({ children, currentPageName }) {
   const [tabStacks, setTabStacks] = useState({
     Home: [{ path: '/Home', pageName: 'Home' }],
     Chat: [{ path: '/Chat', pageName: 'Chat' }],
+    Coach: [{ path: '/Coach', pageName: 'Coach' }],
     Journal: [{ path: '/Journal', pageName: 'Journal' }],
+    MoodTracker: [{ path: '/MoodTracker', pageName: 'MoodTracker' }],
+    Exercises: [{ path: '/Exercises', pageName: 'Exercises' }],
     Progress: [{ path: '/Progress', pageName: 'Progress' }]
   });
   const [activeTab, setActiveTab] = useState('Home');
@@ -111,6 +116,7 @@ export function TabNavigationProvider({ children, currentPageName }) {
     if (tabName === activeTab) {
       // Switching to already active tab - reset to root
       const rootPage = TAB_ROOTS[tabName];
+      if (!rootPage) return;
       const rootPath = `/${rootPage}`;
       
       // Clear stack and navigate to root
@@ -127,10 +133,16 @@ export function TabNavigationProvider({ children, currentPageName }) {
     } else {
       // Switching to different tab - restore its last state
       const targetStack = tabStacks[tabName];
-      const lastPage = targetStack[targetStack.length - 1];
-      
-      isNavigatingRef.current = true;
-      navigate(lastPage.path);
+      if (!targetStack || targetStack.length === 0) {
+        // Fallback: navigate to root for this tab
+        const rootPage = TAB_ROOTS[tabName] || tabName;
+        isNavigatingRef.current = true;
+        navigate(`/${rootPage}`);
+      } else {
+        const lastPage = targetStack[targetStack.length - 1];
+        isNavigatingRef.current = true;
+        navigate(lastPage.path);
+      }
     }
     
     setActiveTab(tabName);

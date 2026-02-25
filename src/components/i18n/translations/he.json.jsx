@@ -474,7 +474,18 @@
     },
     "account": {
       "title": "חשבון",
-      "logout": "התנתק"
+      "logout": "התנתק",
+      "delete_account": "מחק חשבון",
+      "delete_confirm_title": "האם אתה בטוח לחלוטין?",
+      "delete_confirm_description": "פעולה זו לא ניתנת לביטול. החשבון שלך וכל הנתונים הקשורים אליו יימחקו לצמיתות.",
+      "delete_warning": "פעולה זו תמחק לצמיתות:",
+      "delete_data_goals": "את כל המטרות וההתקדמות שלך",
+      "delete_data_journal": "את כל רשומות היומן וההרהורים",
+      "delete_data_conversations": "את כל שיחות הטיפול",
+      "delete_data_progress": "את כל נתוני מעקב מצב הרוח והאנליטיקה",
+      "deleting": "מוחק...",
+      "delete_confirm_button": "כן, מחק את החשבון שלי",
+      "delete_error": "מחיקת החשבון נכשלה. אנא נסה שוב."
     },
     "footer": {
       "need_help": "צריך עזרה?",
