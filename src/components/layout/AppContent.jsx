@@ -2,9 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BOTTOM_NAV_HEIGHT } from './BottomNav';
 import { SIDEBAR_WIDTH } from './Sidebar';
-import MobileHeader from './MobileHeader';
-
-const MOBILE_HEADER_HEIGHT = 60; // Height of mobile header in px
+import MobileHeader, { MOBILE_HEADER_HEIGHT } from './MobileHeader';
 
 /**
  * AppContent - Main content wrapper with proper spacing for navigation
