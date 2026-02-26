@@ -1,7 +1,5 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useQueryClient } from '@tanstack/react-query';
-import { Loader2 } from 'lucide-react';
 import { BOTTOM_NAV_HEIGHT } from './BottomNav';
 import { SIDEBAR_WIDTH } from './Sidebar';
 import MobileHeader from './MobileHeader';
@@ -16,66 +14,17 @@ const MOBILE_HEADER_HEIGHT = 60; // Height of mobile header in px
  * 2. Mobile: padding-bottom matches BOTTOM_NAV_HEIGHT, padding-top for header
  * 3. Desktop: padding-left matches SIDEBAR_WIDTH
  * 4. Children should NOT have overflow or fixed heights
+ * 5. Pull-to-refresh is handled by page-level PullToRefresh components
  */
 export default function AppContent({ children, currentPageName }) {
-  const queryClient = useQueryClient();
-  const [isPulling, setIsPulling] = React.useState(false);
-  const [pullDistance, setPullDistance] = React.useState(0);
-  const [isRefreshing, setIsRefreshing] = React.useState(false);
-  const touchStartY = React.useRef(0);
   const mainRef = React.useRef(null);
-
-  const handleTouchStart = (e) => {
-    if (mainRef.current?.scrollTop === 0) {
-      touchStartY.current = e.touches[0].clientY;
-    }
-  };
-
-  const handleTouchMove = (e) => {
-    if (mainRef.current?.scrollTop === 0 && !isRefreshing) {
-      const touchY = e.touches[0].clientY;
-      const distance = touchY - touchStartY.current;
-      
-      if (distance > 0 && distance < 120) {
-        setIsPulling(true);
-        setPullDistance(distance);
-      }
-    }
-  };
-
-  const handleTouchEnd = async () => {
-    if (pullDistance > 80 && !isRefreshing) {
-      setIsRefreshing(true);
-      // Invalidate all queries to refresh data smoothly
-      await queryClient.invalidateQueries();
-      setTimeout(() => {
-        setIsRefreshing(false);
-      }, 500);
-    }
-    setIsPulling(false);
-    setPullDistance(0);
-  };
 
   return (
     <>
       <MobileHeader />
-      {(isPulling || isRefreshing) && (
-        <div 
-          className="fixed top-0 left-0 right-0 z-50 flex items-center justify-center bg-white/90 dark:bg-black/90 transition-all"
-          style={{ 
-            height: isRefreshing ? '60px' : `${pullDistance}px`,
-            opacity: isRefreshing ? 1 : pullDistance / 80
-          }}
-        >
-          <Loader2 className="w-5 h-5 animate-spin text-gray-600" />
-        </div>
-      )}
       <main
         ref={mainRef}
         className="overflow-y-auto overflow-x-hidden"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
         style={{
           WebkitOverflowScrolling: 'touch',
           overscrollBehavior: 'none',

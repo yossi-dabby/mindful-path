@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,21 +8,26 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const touchStartY = useRef(0);
-  const containerRef = useRef(null);
+  const mainElRef = useRef(null);
   const queryClient = useQueryClient();
 
   const PULL_THRESHOLD = 80;
   const MAX_PULL = 120;
 
-  const handleTouchStart = (e) => {
-    // Only activate if scrolled to top
-    if (containerRef.current?.scrollTop === 0) {
+  // Cache the main scroll container reference once on mount
+  useEffect(() => {
+    mainElRef.current = document.querySelector('main');
+  }, []);
+
+  const handleTouchStart = useCallback((e) => {
+    // Only activate if the main scroll container exists and is scrolled to the top
+    if (mainElRef.current && mainElRef.current.scrollTop === 0) {
       touchStartY.current = e.touches[0].clientY;
     }
-  };
+  }, []);
 
-  const handleTouchMove = (e) => {
-    if (touchStartY.current === 0 || containerRef.current?.scrollTop > 0) return;
+  const handleTouchMove = useCallback((e) => {
+    if (touchStartY.current === 0 || !mainElRef.current || mainElRef.current.scrollTop > 0) return;
 
     const currentY = e.touches[0].clientY;
     const distance = currentY - touchStartY.current;
@@ -32,9 +37,9 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
       setPullDistance(distance);
       e.preventDefault();
     }
-  };
+  }, []);
 
-  const handleTouchEnd = async () => {
+  const handleTouchEnd = useCallback(async () => {
     if (!isPulling) return;
 
     if (pullDistance >= PULL_THRESHOLD) {
@@ -61,35 +66,27 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
     setIsPulling(false);
     setPullDistance(0);
     touchStartY.current = 0;
-  };
+  }, [isPulling, pullDistance, queryClient, onRefresh]);
 
   const pullProgress = Math.min(pullDistance / PULL_THRESHOLD, 1);
   const shouldTrigger = pullDistance >= PULL_THRESHOLD;
 
   return (
-    <div 
-      ref={containerRef}
+    <div
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      className="relative overflow-y-auto flex-1"
-      style={{ 
-        WebkitOverflowScrolling: 'touch',
-        touchAction: 'pan-y'
-      }}
+      className="relative"
     >
-      {/* Pull indicator */}
+      {/* Pull indicator - fixed so it appears at the top of the viewport */}
       <AnimatePresence>
         {(isPulling || isRefreshing) && (
           <motion.div
             initial={{ opacity: 0, y: -40 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -40 }}
-            className="absolute top-0 left-0 right-0 flex justify-center items-center z-50"
-            style={{ 
-              height: `${Math.min(pullDistance, MAX_PULL)}px`,
-              pointerEvents: 'none'
-            }}
+            className="fixed top-4 left-0 right-0 flex justify-center items-center z-50"
+            style={{ pointerEvents: 'none' }}
           >
             <div className="bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg flex items-center gap-2">
               <Loader2 

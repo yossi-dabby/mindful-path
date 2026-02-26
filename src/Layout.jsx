@@ -77,18 +77,38 @@ export default function Layout({ children, currentPageName }) {
   }, []);
 
   // Global popstate handler for Android back button
+  const isClosingOverlay = React.useRef(false);
   React.useEffect(() => {
     const handlePopState = () => {
-      // Close any open dialogs/drawers by dispatching ESC key
-      const escEvent = new KeyboardEvent('keydown', {
-        key: 'Escape',
-        code: 'Escape',
-        keyCode: 27,
-        which: 27,
-        bubbles: true,
-        cancelable: true
-      });
-      document.dispatchEvent(escEvent);
+      // Skip if this popstate was fired by our own history.go(1) to cancel a back navigation
+      if (isClosingOverlay.current) {
+        isClosingOverlay.current = false;
+        return;
+      }
+
+      // Check if any Drawer or Dialog (including Sheet) is currently open.
+      // Radix UI dialogs/sheets render with role="dialog" and data-state="open".
+      // Vaul drawers render their overlay with data-vaul-drawer-overlay and data-state="open".
+      const hasOpenOverlay = !!document.querySelector(
+        '[role="dialog"][data-state="open"], [data-vaul-drawer-overlay][data-state="open"]'
+      );
+
+      if (hasOpenOverlay) {
+        // Move forward in history to cancel the back navigation, keeping the user on the current page
+        isClosingOverlay.current = true;
+        window.history.go(1);
+
+        // Close the open overlay via ESC (works for Radix Dialog, Sheet, and Vaul Drawer)
+        const escEvent = new KeyboardEvent('keydown', {
+          key: 'Escape',
+          code: 'Escape',
+          keyCode: 27,
+          which: 27,
+          bubbles: true,
+          cancelable: true
+        });
+        document.dispatchEvent(escEvent);
+      }
     };
 
     window.addEventListener('popstate', handlePopState);
