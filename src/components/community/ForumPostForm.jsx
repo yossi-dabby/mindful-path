@@ -112,8 +112,8 @@ export default function ForumPostForm({ onClose, groupId }) {
                 {formData.tags.map((tag) => (
                   <Badge key={tag} className="bg-blue-100 text-blue-700 pr-1">
                     {tag}
-                    <button onClick={() => removeTag(tag)} className="ml-1 hover:bg-blue-200 rounded-full p-0.5">
-                      <X className="w-3 h-3" />
+                    <button type="button" aria-label={`Remove tag ${tag}`} onClick={() => removeTag(tag)} className="ml-1 hover:bg-blue-200 rounded-full p-0.5">
+                      <X className="w-3 h-3" aria-hidden="true" />
                     </button>
                   </Badge>
                 ))}

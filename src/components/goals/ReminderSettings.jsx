@@ -96,7 +96,7 @@ export default function ReminderSettings({ goal, onClose }) {
               <Bell className="w-5 h-5" />
               Goal Reminders
             </CardTitle>
-            <Button variant="ghost" onClick={onClose}>✕</Button>
+            <Button variant="ghost" aria-label="Close" onClick={onClose}>✕</Button>
           </div>
           <p className="text-sm text-gray-600">
             Set up reminders for "{goal.title}"
