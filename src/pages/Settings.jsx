@@ -13,9 +13,11 @@ import DataPrivacy from '../components/settings/DataPrivacy';
 import LanguageSelector from '../components/settings/LanguageSelector';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function Settings() {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const [user, setUser] = useState(null);
   const [fullName, setFullName] = useState('');
   const [currentTheme, setCurrentTheme] = useState('default');
@@ -133,7 +135,10 @@ export default function Settings() {
       await base44.auth.deleteAccount();
     },
     onError: (error) => {
-      alert(t('settings.account.delete_error'));
+      toast({
+        title: t('settings.account.delete_error'),
+        variant: 'destructive',
+      });
     }
   });
 
@@ -461,7 +466,7 @@ export default function Settings() {
                 {t('settings.account.delete_account')}
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}>
+            <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>{t('settings.account.delete_confirm_title')}</AlertDialogTitle>
                 <AlertDialogDescription className="space-y-2">
