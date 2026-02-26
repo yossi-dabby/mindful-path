@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { BOTTOM_NAV_HEIGHT } from './BottomNav';
 import { SIDEBAR_WIDTH } from './Sidebar';
 import MobileHeader, { MOBILE_HEADER_HEIGHT } from './MobileHeader';
@@ -14,7 +13,7 @@ import MobileHeader, { MOBILE_HEADER_HEIGHT } from './MobileHeader';
  * 4. Children should NOT have overflow or fixed heights
  * 5. Pull-to-refresh is handled by page-level PullToRefresh components
  */
-export default function AppContent({ children, currentPageName }) {
+export default function AppContent({ children }) {
   const mainRef = React.useRef(null);
 
   return (
@@ -43,17 +42,7 @@ export default function AppContent({ children, currentPageName }) {
           }
         }
       `}</style>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentPageName}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.2 }}
-        >
-          {children}
-        </motion.div>
-      </AnimatePresence>
+      {children}
       </main>
     </>
   );
