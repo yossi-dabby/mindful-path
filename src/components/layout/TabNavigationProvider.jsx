@@ -103,6 +103,15 @@ export function TabNavigationProvider({ children, currentPageName }) {
         return prev; // No change needed
       }
 
+      // Check if this matches the previous entry — browser back was used
+      if (currentStack.length > 1) {
+        const prevEntry = currentStack[currentStack.length - 2];
+        if (prevEntry?.path === currentPath) {
+          newStacks[currentTab] = currentStack.slice(0, -1);
+          return newStacks;
+        }
+      }
+
       // Add to stack (push navigation)
       currentStack.push({ path: currentPath, pageName: currentPageName });
       newStacks[currentTab] = currentStack;

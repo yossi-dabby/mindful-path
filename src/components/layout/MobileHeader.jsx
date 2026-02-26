@@ -8,29 +8,19 @@ import MobileMenu from './MobileMenu';
 
 export const MOBILE_HEADER_HEIGHT = 60; // Height of mobile header nav area in px (excluding safe area)
 
-// Define root routes for each tab
-const ROOT_ROUTES = {
-  '/Home': true,
-  '/Chat': true,
-  '/Coach': true,
-  '/Journal': true,
-  '/MoodTracker': true,
-  '/Exercises': true,
-  '/Goals': true,
-  '/Progress': true,
-  '/Settings': true,
-  '/Community': true,
-  '/PersonalizedFeed': true
-};
-
-export default function MobileHeader({ currentPageName }) {
+export default function MobileHeader({ currentPageName: currentPageNameProp }) {
   const navigate = useNavigate();
   const location = useLocation();
   const tabNav = useTabNavigation();
   const currentPath = location.pathname;
 
-  // Determine if we're on a root route
-  const isRootRoute = ROOT_ROUTES[currentPath];
+  // Prefer the prop; fall back to what the TabNavigationProvider knows
+  const currentPageName = currentPageNameProp ?? tabNav?.currentPageName;
+
+  // Show the Back button when the tab navigation stack has history to go back to,
+  // OR when the URL has more than one path segment (genuine sub-route).
+  const pathSegments = currentPath.split('/').filter(Boolean);
+  const isSubRoute = pathSegments.length > 1 || !!tabNav?.canGoBack();
 
   // Get page title based on current page
   const getPageTitle = () => {
@@ -81,7 +71,7 @@ export default function MobileHeader({ currentPageName }) {
       <div className="flex items-center justify-between h-full px-4">
         {/* Left: Back button on child routes, logo on root */}
         <div className="w-12">
-          {!isRootRoute ? (
+          {isSubRoute ? (
             <Button
               variant="ghost"
               size="icon"
