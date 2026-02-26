@@ -34,6 +34,7 @@ export default function VideoModal({ videoUrl, onClose }) {
             className="absolute inset-0 w-full h-full"
             controls
             autoPlay
+            playsInline
             src={videoUrl}
           >
             Your browser does not support the video tag.

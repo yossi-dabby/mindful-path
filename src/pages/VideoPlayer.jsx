@@ -156,6 +156,7 @@ export default function VideoPlayer() {
                   className="w-full"
                   controls
                   autoPlay={false}
+                  playsInline
                   src={videoUrl}
                   style={{ maxHeight: '70vh' }}
                 >

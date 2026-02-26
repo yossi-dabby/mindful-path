@@ -318,6 +318,7 @@ export default function TodaysFocus({ onStartCheckIn, onStartExercise, onStartRe
               <video
                 autoPlay
                 controls
+                playsInline
                 className="w-full"
                 style={{ maxHeight: '80vh', backgroundColor: '#000' }}
               >
