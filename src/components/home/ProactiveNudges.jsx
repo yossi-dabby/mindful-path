@@ -84,6 +84,7 @@ export default function ProactiveNudges() {
                           size="icon"
                           onClick={() => dismissMutation.mutate(nudge.id)}
                           className="h-6 w-6 flex-shrink-0"
+                          aria-label="Dismiss notification"
                         >
                           <X className="w-3 h-3" />
                         </Button>

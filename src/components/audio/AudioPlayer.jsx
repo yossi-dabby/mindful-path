@@ -120,6 +120,7 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
           onClick={togglePlay}
           size="icon"
           className="rounded-full bg-gradient-to-br from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+          aria-label={isPlaying ? "Pause" : "Play"}
         >
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
         </Button>
@@ -165,11 +166,12 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
               size="icon"
               onClick={() => setIsFavorite(!isFavorite)}
               className={cn(isFavorite && "text-red-500")}
+              aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
             >
               <Heart className={cn("w-5 h-5", isFavorite && "fill-current")} />
             </Button>
             {audioContent.download_enabled && (
-              <Button variant="ghost" size="icon" onClick={downloadAudio}>
+              <Button variant="ghost" size="icon" onClick={downloadAudio} aria-label="Download audio">
                 <Download className="w-5 h-5" />
               </Button>
             )}
@@ -199,6 +201,7 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
               size="icon"
               onClick={toggleMute}
               className="text-gray-600"
+              aria-label={isMuted ? "Unmute" : "Mute"}
             >
               {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
             </Button>
@@ -217,6 +220,7 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
               size="icon"
               onClick={() => skip(-10)}
               className="rounded-full"
+              aria-label="Skip back 10 seconds"
             >
               <SkipBack className="w-4 h-4" />
             </Button>
@@ -224,6 +228,7 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
               onClick={togglePlay}
               size="lg"
               className="rounded-full w-14 h-14 bg-gradient-to-br from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg"
+              aria-label={isPlaying ? "Pause" : "Play"}
             >
               {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-1" />}
             </Button>
@@ -232,6 +237,7 @@ export default function AudioPlayer({ audioContent, onComplete, compact = false 
               size="icon"
               onClick={() => skip(10)}
               className="rounded-full"
+              aria-label="Skip forward 10 seconds"
             >
               <SkipForward className="w-4 h-4" />
             </Button>

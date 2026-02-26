@@ -155,6 +155,7 @@ export default function ReminderSettings({ goal, onClose }) {
                               deleteReminder.mutate(reminder.id);
                             }
                           }}
+                          aria-label="Delete reminder"
                         >
                           <Trash2 className="w-4 h-4 text-red-500" />
                         </Button>

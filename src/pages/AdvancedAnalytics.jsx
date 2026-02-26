@@ -121,6 +121,7 @@ export default function AdvancedAnalytics() {
                 size="icon"
                 onClick={() => window.history.back()}
                 className="md:hidden"
+                aria-label="Go back"
               >
                 <ArrowLeft className="w-5 h-5" />
               </Button>

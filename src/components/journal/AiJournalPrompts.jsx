@@ -98,7 +98,7 @@ Each prompt should be a thoughtful question or scenario to explore.`,
                 </div>
                 <CardTitle>AI Journal Prompts</CardTitle>
               </div>
-              <Button variant="ghost" size="icon" onClick={onClose}>
+              <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
                 <X className="w-5 h-5" />
               </Button>
             </div>

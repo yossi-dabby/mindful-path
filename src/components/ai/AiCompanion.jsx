@@ -161,6 +161,7 @@ export default function AiCompanion() {
                 setIsMinimized(false);
               }}
               className="flex-shrink-0"
+              aria-label="Close AI Companion"
             >
               <X className="w-4 h-4" />
             </Button>
@@ -195,6 +196,7 @@ export default function AiCompanion() {
               size="icon"
               onClick={() => setIsMinimized(true)}
               className="text-white hover:bg-white/20"
+              aria-label="Minimize AI Companion"
             >
               <MinusCircle className="w-4 h-4" />
             </Button>
@@ -206,6 +208,7 @@ export default function AiCompanion() {
                 setIsMinimized(false);
               }}
               className="text-white hover:bg-white/20"
+              aria-label="Close AI Companion"
             >
               <X className="w-4 h-4" />
             </Button>

@@ -292,6 +292,11 @@ button, a, [role="button"], svg, .icon, [class*="Button"], [class*="badge"] {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Prevent 300ms tap delay on iOS for interactive elements */
+button, a, [role="button"], input, select, textarea, label {
+  touch-action: manipulation;
+}
+
 /* Keep all content text selectable */
 p, span:not([class*="badge"]), h1, h2, h3, h4, h5, h6, li, td, th, label, article, div[class*="content"], [class*="description"], [class*="text"] {
   user-select: auto;

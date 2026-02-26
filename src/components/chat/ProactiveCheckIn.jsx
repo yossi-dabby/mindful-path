@@ -237,6 +237,7 @@ export default function ProactiveCheckIn({ onSendMessage }) {
                         size="icon"
                         className="h-6 w-6 -mt-1 -mr-1"
                         onClick={(e) => handleDismiss(suggestion, e)}
+                        aria-label="Dismiss reminder"
                       >
                         <X className="w-3 h-3" />
                       </Button>

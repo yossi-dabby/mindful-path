@@ -75,6 +75,7 @@ export default function GoalTemplateLibrary({ onSelectTemplate, onClose }) {
               size="icon"
               onClick={onClose}
               className="shrink-0"
+              aria-label="Close"
             >
               <X className="w-5 h-5" />
             </Button>

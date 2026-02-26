@@ -132,7 +132,7 @@ export default function Coach() {
           </div>
           <div className="flex gap-2">
             <Link to={createPageUrl('CoachingAnalytics')}>
-              <Button variant="ghost" size="icon" style={{ borderRadius: '50%', width: '36px', height: '36px' }}>
+              <Button variant="ghost" size="icon" style={{ borderRadius: '50%', width: '36px', height: '36px' }} aria-label="View coaching analytics">
                 <BarChart3 className="w-5 h-5" />
               </Button>
             </Link>
@@ -147,6 +147,7 @@ export default function Coach() {
                 backgroundColor: '#26A69A',
                 boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
               }}
+              aria-label="Start new session"
             >
               <Target className="w-5 h-5" />
             </Button>

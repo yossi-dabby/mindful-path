@@ -171,7 +171,7 @@ Please help me create a structured plan to work through this.`
                 <p className="text-sm text-gray-500">Step {step} of 3</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={step > 1 ? () => setStep(step - 1) : onClose}>
+            <Button variant="ghost" size="icon" onClick={step > 1 ? () => setStep(step - 1) : onClose} aria-label={step > 1 ? "Go back" : "Close"}>
               {step > 1 ? (
                 <ChevronLeft className="w-5 h-5" />
               ) : (

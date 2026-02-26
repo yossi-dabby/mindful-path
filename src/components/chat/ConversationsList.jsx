@@ -32,6 +32,7 @@ export default function ConversationsList({
               backgroundColor: '#26A69A',
               boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
             }}
+            aria-label="New conversation"
           >
             <Plus className="w-5 h-5" />
           </Button>
@@ -40,6 +41,7 @@ export default function ConversationsList({
             size="icon"
             variant="ghost"
             className="md:hidden flex-shrink-0"
+            aria-label="Close conversations list"
           >
             <X className="w-5 h-5" />
           </Button>

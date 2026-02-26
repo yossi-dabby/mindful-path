@@ -61,7 +61,7 @@ export default function ThoughtRecordCard({ entry, onEdit }) {
             )}
           </div>
           <div className="flex gap-1">
-            <Button variant="ghost" size="icon" onClick={() => onEdit(entry)}>
+            <Button variant="ghost" size="icon" onClick={() => onEdit(entry)} aria-label="Edit thought record">
               <Edit className="w-4 h-4 text-gray-400 hover:text-blue-600" />
             </Button>
             <Button 
@@ -69,6 +69,7 @@ export default function ThoughtRecordCard({ entry, onEdit }) {
               size="icon" 
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
+              aria-label="Delete thought record"
             >
               <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-600" />
             </Button>

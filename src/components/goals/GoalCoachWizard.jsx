@@ -272,7 +272,7 @@ export default function GoalCoachWizard({ onClose }) {
                 <p className="text-sm text-gray-500">Step {step} of 4</p>
               </div>
             </div>
-            <Button type="button" variant="ghost" size="icon" onClick={step > 1 ? () => setStep(step - 1) : onClose}>
+            <Button type="button" variant="ghost" size="icon" onClick={step > 1 ? () => setStep(step - 1) : onClose} aria-label={step > 1 ? "Go back" : "Close"}>
               {step > 1 ? (
                 <ChevronLeft className="w-5 h-5" />
               ) : (
@@ -526,6 +526,7 @@ export default function GoalCoachWizard({ onClose }) {
                             size="icon"
                             onClick={() => removeMilestone(index)}
                             className="flex-shrink-0 h-9 w-9"
+                            aria-label={`Remove milestone ${index + 1}`}
                           >
                             <Minus className="w-3.5 h-3.5" />
                           </Button>
@@ -578,6 +579,7 @@ export default function GoalCoachWizard({ onClose }) {
                           size="icon"
                           onClick={() => removeReward(index)}
                           className="flex-shrink-0 h-9 w-9"
+                          aria-label={`Remove reward ${index + 1}`}
                         >
                           <Minus className="w-3.5 h-3.5" />
                         </Button>

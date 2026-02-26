@@ -136,6 +136,7 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
                     handleEdit();
                   }}
                   className="h-8 w-8"
+                  aria-label="Edit check-in"
                 >
                   <Edit2 className="w-4 h-4" />
                 </Button>
@@ -147,6 +148,7 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
                     handleDelete();
                   }}
                   className="h-8 w-8"
+                  aria-label="Delete check-in"
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
@@ -227,7 +229,7 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
           <CardHeader style={{ borderBottom: '1px solid rgba(38, 166, 154, 0.2)', padding: '20px 24px' }}>
             <div className="flex items-center justify-between">
               <CardTitle className="text-xl">Daily Check-in</CardTitle>
-              <Button variant="ghost" size="icon" onClick={onClose}>
+              <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
                 <X className="w-5 h-5" />
               </Button>
             </div>

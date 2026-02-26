@@ -185,6 +185,7 @@ export default function Playlists() {
                         }}
                         disabled={deleteMutation.isPending}
                         className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        aria-label="Delete playlist"
                       >
                         <Trash2 className="w-4 h-4 text-red-500" />
                       </Button>

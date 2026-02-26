@@ -94,7 +94,7 @@ export default function StarterPathCard() {
                   backgroundColor: 'rgba(255, 215, 0, 0.15)',
                   animation: 'angelPulse 2s ease-in-out infinite'
                 }}
-                title="Watch help video"
+                aria-label="Watch help video"
               >
                 <Sparkles className="w-6 h-6" style={{ color: '#FFD700' }} strokeWidth={2} />
               </Button>
@@ -219,7 +219,7 @@ export default function StarterPathCard() {
                   backgroundColor: 'rgba(255, 215, 0, 0.15)',
                   animation: 'angelPulse 2s ease-in-out infinite'
                 }}
-                title="Watch help video"
+                aria-label="Watch help video"
               >
                 <Sparkles className="w-5 h-5" style={{ color: '#FFD700' }} strokeWidth={2} />
               </Button>

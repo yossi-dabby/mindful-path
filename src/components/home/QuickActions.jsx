@@ -337,7 +337,7 @@ export default function QuickActions() {
                               borderRadius: '16px',
                               borderColor: 'rgba(38, 166, 154, 0.3)'
                             }}
-                            title="Restart path"
+                            aria-label="Restart path"
                           >
                             <RefreshCw className="w-4 h-4" style={{ color: '#26A69A' }} strokeWidth={2} />
                           </Button>
@@ -530,7 +530,7 @@ export default function QuickActions() {
                   <Sparkles className="w-5 h-5" style={{ color: 'rgb(var(--accent))' }} />
                   <h2 className="text-xl font-semibold">{t('quick_actions.personalized_recommendations')}</h2>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => setShowRecommendations(false)}>
+                <Button variant="ghost" size="icon" onClick={() => setShowRecommendations(false)} aria-label="Close recommendations">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>

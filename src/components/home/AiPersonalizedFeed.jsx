@@ -217,7 +217,7 @@ Return JSON only.`,
               size="icon"
               onClick={handleRefresh}
               className="flex-shrink-0"
-              title="Refresh recommendations"
+              aria-label="Refresh recommendations"
             >
               <RefreshCw className="w-4 h-4" style={{ color: '#26A69A' }} />
             </Button>
