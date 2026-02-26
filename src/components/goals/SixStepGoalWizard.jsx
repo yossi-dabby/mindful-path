@@ -257,8 +257,8 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                 {goalData.problem_definition.emotions.map((emotion, i) => (
                   <Badge key={i} variant="secondary" className="gap-1">
                     {emotion}
-                    <button onClick={() => removeFromArray('problem_definition.emotions', i)}>
-                      <X className="w-3 h-3" />
+                    <button type="button" aria-label={`Remove ${emotion}`} onClick={() => removeFromArray('problem_definition.emotions', i)}>
+                      <X className="w-3 h-3" aria-hidden="true" />
                     </button>
                   </Badge>
                 ))}
@@ -483,8 +483,8 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                 {goalData.obstacles.cognitive_distortions.map((dist, i) => (
                   <Badge key={i} variant="outline" className="gap-1">
                     {dist}
-                    <button onClick={() => removeFromArray('obstacles.cognitive_distortions', i)}>
-                      <X className="w-3 h-3" />
+                    <button type="button" aria-label={`Remove ${dist}`} onClick={() => removeFromArray('obstacles.cognitive_distortions', i)}>
+                      <X className="w-3 h-3" aria-hidden="true" />
                     </button>
                   </Badge>
                 ))}
@@ -616,8 +616,8 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                 {goalData.action_plan.coping_skills.map((skill, i) => (
                   <Badge key={i} className="gap-1">
                     {skill}
-                    <button onClick={() => removeFromArray('action_plan.coping_skills', i)}>
-                      <X className="w-3 h-3" />
+                    <button type="button" aria-label={`Remove ${skill}`} onClick={() => removeFromArray('action_plan.coping_skills', i)}>
+                      <X className="w-3 h-3" aria-hidden="true" />
                     </button>
                   </Badge>
                 ))}
@@ -692,8 +692,8 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                 {goalData.action_plan.support_system.map((support, i) => (
                   <Badge key={i} variant="secondary" className="gap-1">
                     {support}
-                    <button onClick={() => removeFromArray('action_plan.support_system', i)}>
-                      <X className="w-3 h-3" />
+                    <button type="button" aria-label={`Remove ${support}`} onClick={() => removeFromArray('action_plan.support_system', i)}>
+                      <X className="w-3 h-3" aria-hidden="true" />
                     </button>
                   </Badge>
                 ))}

@@ -284,13 +284,13 @@ export default function GoalTrackingPanel({ goal, onUpdate }) {
                   {checkInData.obstacles_faced.map((obs, i) => (
                     <Badge key={i} variant="secondary" className="gap-1">
                       {obs}
-                      <button onClick={() => {
+                      <button type="button" aria-label={`Remove ${obs}`} onClick={() => {
                         setCheckInData({
                           ...checkInData,
                           obstacles_faced: checkInData.obstacles_faced.filter((_, idx) => idx !== i)
                         });
                       }}>
-                        <X className="w-3 h-3" />
+                        <X className="w-3 h-3" aria-hidden="true" />
                       </button>
                     </Badge>
                   ))}
