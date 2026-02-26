@@ -328,6 +328,13 @@ Provide:
     };
   }, [queryClient]);
 
+  // Set inputmode="text" on ReactQuill contenteditable elements for mobile keyboard optimization.
+  // Runs when `step` changes because each step may mount new ReactQuill editor instances.
+  useEffect(() => {
+    const contentEditables = document.querySelectorAll('.ql-editor[contenteditable="true"]');
+    contentEditables.forEach(el => el.setAttribute('inputmode', 'text'));
+  }, [step]);
+
   const toggleItem = (field, item) => {
     setFormData(prev => ({
       ...prev,
@@ -845,6 +852,7 @@ Provide:
                     }}
                     placeholder="Add a custom tag..."
                     className="rounded-xl"
+                    inputMode="text"
                   />
                   <Button onClick={addTag} variant="outline" size="icon" aria-label="Add tag">
                     <Plus className="w-4 h-4" />

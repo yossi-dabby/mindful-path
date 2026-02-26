@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, Activity, Moon, Heart, TrendingUp } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import HealthDataForm from './HealthDataForm';
+import PullToRefresh from '@/components/utils/PullToRefresh';
 
 export default function HealthDashboard() {
   const [showForm, setShowForm] = useState(false);
@@ -32,6 +33,7 @@ export default function HealthDashboard() {
 
   if (healthMetrics.length === 0) {
     return (
+      <PullToRefresh queryKeys={['healthMetrics']}>
       <div className="space-y-4">
         <Card className="border-0 shadow-lg">
           <CardContent className="p-12 text-center">
@@ -54,10 +56,12 @@ export default function HealthDashboard() {
 
         {showForm && <HealthDataForm onClose={() => setShowForm(false)} />}
       </div>
+      </PullToRefresh>
     );
   }
 
   return (
+    <PullToRefresh queryKeys={['healthMetrics']}>
     <div className="space-y-6">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -135,5 +139,6 @@ export default function HealthDashboard() {
 
       {showForm && <HealthDataForm onClose={() => setShowForm(false)} />}
     </div>
+    </PullToRefresh>
   );
 }
