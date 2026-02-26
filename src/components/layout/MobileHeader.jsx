@@ -6,6 +6,8 @@ import { createPageUrl } from '../../utils';
 import { useTabNavigation } from './TabNavigationProvider';
 import MobileMenu from './MobileMenu';
 
+export const MOBILE_HEADER_HEIGHT = 60; // Height of mobile header nav area in px (excluding safe area)
+
 // Define root routes for each tab
 const ROOT_ROUTES = {
   '/Home': true,
@@ -70,10 +72,10 @@ export default function MobileHeader({ currentPageName }) {
     <header 
       className="md:hidden fixed top-0 left-0 right-0 backdrop-blur-xl border-b z-40"
       style={{
-        height: '60px',
+        height: 'calc(60px + env(safe-area-inset-top, 0px))',
         background: 'linear-gradient(to bottom, rgba(212, 237, 232, 0.95) 0%, rgba(200, 230, 225, 0.92) 100%)',
         borderColor: 'rgba(38, 166, 154, 0.15)',
-        paddingTop: 'env(safe-area-inset-top)'
+        paddingTop: 'env(safe-area-inset-top, 0px)'
       }}
     >
       <div className="flex items-center justify-between h-full px-4">

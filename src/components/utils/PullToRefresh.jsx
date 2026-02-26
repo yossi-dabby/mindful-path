@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { MOBILE_HEADER_HEIGHT } from '../layout/MobileHeader';
 
 export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
   const [isPulling, setIsPulling] = useState(false);
@@ -85,8 +86,8 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
             initial={{ opacity: 0, y: -40 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -40 }}
-            className="fixed top-4 left-0 right-0 flex justify-center items-center z-50"
-            style={{ pointerEvents: 'none' }}
+            className="fixed left-0 right-0 flex justify-center items-center z-50"
+            style={{ top: `calc(${MOBILE_HEADER_HEIGHT}px + env(safe-area-inset-top, 0px) + 8px)`, pointerEvents: 'none' }}
           >
             <div className="bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg flex items-center gap-2">
               <Loader2 
