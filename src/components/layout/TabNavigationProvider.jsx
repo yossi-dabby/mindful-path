@@ -80,7 +80,7 @@ export function TabNavigationProvider({ children, currentPageName }) {
     if (currentTab && currentTab !== activeTab) {
       setActiveTab(currentTab);
     }
-  }, [currentPageName]);
+  }, [currentPageName, activeTab]);
 
   // Track navigation within tabs
   useEffect(() => {

@@ -7,7 +7,6 @@ import BottomNav from './components/layout/BottomNav';
 import Sidebar from './components/layout/Sidebar';
 import AppContent from './components/layout/AppContent';
 import ScrollPreservation from './components/layout/ScrollPreservation';
-import MobileHeader from './components/layout/MobileHeader';
 import { TabNavigationProvider } from './components/layout/TabNavigationProvider';
 import './components/i18n/i18nConfig';
 
@@ -15,7 +14,6 @@ export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const [theme, setTheme] = React.useState('default');
   const [isOffline, setIsOffline] = React.useState(!navigator.onLine);
-  const [isDarkMode, setIsDarkMode] = React.useState(false);
 
   // Page transition variants for iOS-style navigation
   const pageVariants = {
@@ -46,7 +44,6 @@ export default function Layout({ children, currentPageName }) {
   // Detect system dark mode preference and update theme-color
   React.useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    setIsDarkMode(mediaQuery.matches);
 
     const updateThemeColor = (isDark) => {
       const themeColorMeta = document.querySelector('meta[name="theme-color"]');
@@ -56,7 +53,6 @@ export default function Layout({ children, currentPageName }) {
     };
 
     const handleChange = (e) => {
-      setIsDarkMode(e.matches);
       if (e.matches) {
         document.documentElement.classList.add('dark');
       } else {
@@ -189,14 +185,11 @@ export default function Layout({ children, currentPageName }) {
         {/* AI Companion Widget - Draggable across all pages */}
         <DraggableAiCompanion />
       
-      {/* Mobile Header - Mobile only */}
-      <MobileHeader currentPageName={currentPageName} />
-      
       {/* Sidebar - Desktop only */}
       <Sidebar currentPageName={currentPageName} />
       
       {/* Main Content - Single scroll container with page transitions */}
-      <AppContent currentPageName={currentPageName}>
+      <AppContent>
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={location.pathname}
