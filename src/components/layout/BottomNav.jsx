@@ -79,7 +79,8 @@ export default function BottomNav({ currentPageName }) {
       className="md:hidden fixed bottom-0 left-0 right-0 backdrop-blur-xl border-t shadow-lg"
       style={{
         zIndex: 35, 
-        height: `${BOTTOM_NAV_HEIGHT}px`,
+        height: `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))`,
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         background: 'linear-gradient(to top, rgba(212, 237, 232, 0.95) 0%, rgba(200, 230, 225, 0.92) 100%)',
         borderColor: 'rgba(38, 166, 154, 0.25)',
         boxShadow: '0 -6px 20px rgba(38, 166, 154, 0.14)'
