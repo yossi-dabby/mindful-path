@@ -79,9 +79,9 @@ export default function MobileHeader({ currentPageName }) {
       }}
     >
       <div className="flex items-center justify-between h-full px-4">
-        {/* Left: Back button on child routes, empty on root */}
+        {/* Left: Back button on child routes, logo on root */}
         <div className="w-12">
-          {!isRootRoute && (
+          {!isRootRoute ? (
             <Button
               variant="ghost"
               size="icon"
@@ -91,6 +91,17 @@ export default function MobileHeader({ currentPageName }) {
             >
               <ChevronLeft className="w-6 h-6" style={{ color: '#26A69A' }} />
             </Button>
+          ) : (
+            <div
+              className="w-8 h-8 flex items-center justify-center shadow-sm"
+              style={{
+                borderRadius: '10px',
+                background: 'linear-gradient(135deg, #26A69A, #38B2AC)'
+              }}
+              aria-hidden="true"
+            >
+              <span className="text-white font-bold text-sm">M</span>
+            </div>
           )}
         </div>
 

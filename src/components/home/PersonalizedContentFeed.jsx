@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { motion } from 'framer-motion';
 import { normalizeFeedData, safeJoin, safeArray, safeText } from '@/components/utils/aiDataNormalizer';
+import PullToRefresh from '@/components/utils/PullToRefresh';
 
 export default function PersonalizedContentFeed({ userInterests = [], contentType = 'all', sortBy = 'relevance' }) {
   const [feed, setFeed] = useState(null);
@@ -277,6 +278,10 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
   const highlightedPosts = filteredPosts.slice(0, 3);
 
   return (
+    <PullToRefresh
+      queryKeys={['goals', 'moodEntries', 'thoughtJournals', 'exercises', 'resources', 'forumPosts']}
+      onRefresh={generateFeed}
+    >
     <div className="space-y-4">
       {/* Refresh Button */}
       <div className="flex justify-end mb-2">
@@ -474,5 +479,6 @@ Make it personal, warm, and encouraging. Reference their specific patterns and i
         </motion.div>
       )}
     </div>
+    </PullToRefresh>
   );
 }
