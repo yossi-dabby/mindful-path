@@ -490,6 +490,7 @@ export default function QuickActions() {
               <video
                 autoPlay
                 controls
+                playsInline
                 className="w-full"
                 style={{ maxHeight: '80vh', backgroundColor: '#000' }}
               >
