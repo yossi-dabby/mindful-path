@@ -126,7 +126,9 @@ export function TabNavigationProvider({ children, currentPageName }) {
       }));
       
       isNavigatingRef.current = true;
-      navigate(rootPath);
+      // Replace current history entry: tab-switching should not accumulate
+      // history entries (iOS "Bottom Tabs & Stack Preservation" pattern).
+      navigate(rootPath, { replace: true });
       
       // Scroll to top
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -137,11 +139,11 @@ export function TabNavigationProvider({ children, currentPageName }) {
         // Fallback: navigate to root for this tab
         const rootPage = TAB_ROOTS[tabName] || tabName;
         isNavigatingRef.current = true;
-        navigate(`/${rootPage}`);
+        navigate(`/${rootPage}`, { replace: true });
       } else {
         const lastPage = targetStack[targetStack.length - 1];
         isNavigatingRef.current = true;
-        navigate(lastPage.path);
+        navigate(lastPage.path, { replace: true });
       }
     }
     

@@ -72,28 +72,76 @@ export default function Layout({ children, currentPageName }) {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  // Global popstate handler for Android back button
-  const isClosingOverlay = React.useRef(false);
-  React.useEffect(() => {
-    const handlePopState = () => {
-      // Skip if this popstate was fired by our own history.go(1) to cancel a back navigation
-      if (isClosingOverlay.current) {
-        isClosingOverlay.current = false;
-        return;
-      }
+  // Track whether we pushed a sentinel history entry for an open overlay.
+  // Using a sentinel push/pop pattern avoids calling history.go(1) from inside
+  // a popstate handler, which causes iOS WKWebView "Unified Navigation" warnings.
+  const overlayHistoryPushed = React.useRef(false);
+  // Record history.length at the time we push so we can verify the sentinel is
+  // still at the top of the stack when the overlay closes programmatically.
+  const overlayHistoryLength = React.useRef(0);
 
-      // Check if any Drawer or Dialog (including Sheet) is currently open.
-      // Radix UI dialogs/sheets render with role="dialog" and data-state="open".
-      // Vaul drawers render their overlay with data-vaul-drawer-overlay and data-state="open".
-      const hasOpenOverlay = !!document.querySelector(
-        '[role="dialog"][data-state="open"], [data-vaul-drawer-overlay][data-state="open"]'
-      );
+  // Observe overlay open/close via MutationObserver and manage the sentinel entry.
+  React.useEffect(() => {
+    const OVERLAY_SELECTOR =
+      '[role="dialog"][data-state="open"], [data-vaul-drawer-overlay][data-state="open"]';
+
+    const handleMutation = () => {
+      const hasOpenOverlay = !!document.querySelector(OVERLAY_SELECTOR);
+
+      if (hasOpenOverlay && !overlayHistoryPushed.current) {
+        // Overlay just opened: push a sentinel entry so back gesture closes the overlay
+        // instead of navigating away from the page.
+        overlayHistoryLength.current = window.history.length;
+        window.history.pushState({ overlayOpen: true }, '');
+        overlayHistoryPushed.current = true;
+      } else if (!hasOpenOverlay && overlayHistoryPushed.current) {
+        // Overlay closed programmatically (X button, backdrop click, ESC key, etc.)
+        // without the user pressing the hardware/gesture back button.
+        overlayHistoryPushed.current = false;
+        // Only go back if the sentinel is still the current entry — i.e. no other
+        // navigation happened while the overlay was open.
+        if (
+          window.history.state?.overlayOpen &&
+          window.history.length === overlayHistoryLength.current + 1
+        ) {
+          window.history.back();
+        }
+      }
+    };
+
+    // Debounce via requestAnimationFrame: Radix UI toggles data-state on multiple
+    // elements during open/close animations; batching to one frame avoids redundant
+    // selector queries and history mutations.
+    let rafId = null;
+    const debouncedMutation = () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(handleMutation);
+    };
+
+    const observer = new MutationObserver(debouncedMutation);
+    observer.observe(document.body, {
+      attributes: true,
+      subtree: true,
+      attributeFilter: ['data-state']
+    });
+    return () => {
+      observer.disconnect();
+      if (rafId !== null) cancelAnimationFrame(rafId);
+    };
+  }, []);
+
+  // Handle back navigation: close any open overlay instead of navigating away.
+  // The history.back() / swipe-back already moved history back, so we only need
+  // to close the overlay UI — no history.go(1) required.
+  React.useEffect(() => {
+    const OVERLAY_SELECTOR =
+      '[role="dialog"][data-state="open"], [data-vaul-drawer-overlay][data-state="open"]';
+
+    const handlePopState = () => {
+      const hasOpenOverlay = !!document.querySelector(OVERLAY_SELECTOR);
 
       if (hasOpenOverlay) {
-        // Move forward in history to cancel the back navigation, keeping the user on the current page
-        isClosingOverlay.current = true;
-        window.history.go(1);
-
+        overlayHistoryPushed.current = false;
         // Close the open overlay via ESC (works for Radix Dialog, Sheet, and Vaul Drawer)
         const escEvent = new KeyboardEvent('keydown', {
           key: 'Escape',
