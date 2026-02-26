@@ -286,8 +286,6 @@ export default function DraggableAiCompanion() {
     let rafId = null;
 
     const handleDragMove = (e) => {
-      e.preventDefault();
-      
       if (rafId) return;
       
       rafId = requestAnimationFrame(() => {
@@ -343,7 +341,7 @@ export default function DraggableAiCompanion() {
 
     window.addEventListener('mousemove', handleDragMove, { passive: false });
     window.addEventListener('mouseup', handleDragEnd);
-    window.addEventListener('touchmove', handleDragMove, { passive: false });
+    window.addEventListener('touchmove', handleDragMove, { passive: true });
     window.addEventListener('touchend', handleDragEnd);
     
     return () => {
@@ -485,7 +483,7 @@ export default function DraggableAiCompanion() {
         ref={elementRef}
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        style={positionStyle}
+        style={{ ...positionStyle, touchAction: 'none' }}
         onMouseDown={handleDragStart}
         onTouchStart={handleDragStart}
         className={cn("cursor-move", isDragging && "cursor-grabbing")}
@@ -565,6 +563,7 @@ export default function DraggableAiCompanion() {
         {/* Draggable Header */}
         <div 
           className="bg-gradient-to-r from-purple-600 to-blue-600 p-4 rounded-t-xl flex items-center justify-between cursor-move"
+          style={{ touchAction: 'none' }}
           onMouseDown={handleDragStart}
           onTouchStart={handleDragStart}
         >
