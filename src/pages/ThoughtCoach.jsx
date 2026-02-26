@@ -193,7 +193,7 @@ export default function ThoughtCoachPage() {
                 <p className="text-sm text-gray-500">Step {step} of 4</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={() => step > 1 ? setStep(step - 1) : navigate(-1)}>
+            <Button variant="ghost" size="icon" onClick={() => step > 1 ? setStep(step - 1) : navigate(-1)} aria-label={step > 1 ? "Go to previous step" : "Go back"}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
           </div>

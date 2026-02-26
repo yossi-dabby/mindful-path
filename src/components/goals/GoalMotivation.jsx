@@ -111,6 +111,7 @@ Keep it warm, personal, and actionable.`,
                 variant="ghost"
                 size="icon"
                 onClick={() => setShowMotivation(false)}
+                aria-label="Close"
               >
                 <X className="w-4 h-4" />
               </Button>

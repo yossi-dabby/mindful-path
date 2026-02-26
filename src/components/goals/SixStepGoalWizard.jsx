@@ -925,7 +925,7 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
                 <CardDescription>{STEPS[currentStep - 1].description}</CardDescription>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={onCancel}>
+            <Button variant="ghost" size="icon" onClick={onCancel} aria-label="Cancel">
               <X className="w-5 h-5" />
             </Button>
           </div>

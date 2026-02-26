@@ -70,6 +70,7 @@ export default function ResourceCard({ resource, isSaved, onSaveToggle }) {
             size="icon"
             onClick={onSaveToggle}
             className="h-8 w-8"
+            aria-label={isSaved ? "Remove from saved" : "Save resource"}
           >
             {isSaved ? (
               <BookmarkCheck className="w-5 h-5 text-purple-600 fill-purple-600" />

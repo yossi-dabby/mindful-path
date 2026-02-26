@@ -62,6 +62,7 @@ export default function EnhancedGoalCard({ goal, onUpdate, onEdit }) {
             variant="ghost"
             size="icon"
             onClick={() => setIsExpanded(!isExpanded)}
+            aria-label={isExpanded ? "Collapse goal details" : "Expand goal details"}
           >
             {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </Button>

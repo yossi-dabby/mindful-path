@@ -50,6 +50,7 @@ export default function MoodCalendar({ entries, onEditEntry }) {
               variant="outline"
               size="icon"
               onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+              aria-label="Previous month"
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
@@ -60,6 +61,7 @@ export default function MoodCalendar({ entries, onEditEntry }) {
               variant="outline"
               size="icon"
               onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+              aria-label="Next month"
             >
               <ChevronRight className="w-4 h-4" />
             </Button>

@@ -58,7 +58,7 @@ export default function ForumPostForm({ onClose, groupId }) {
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">
             <CardTitle>Create Post</CardTitle>
-            <Button variant="ghost" size="icon" onClick={onClose}>
+            <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
               <X className="w-5 h-5" />
             </Button>
           </div>
@@ -126,7 +126,7 @@ export default function ForumPostForm({ onClose, groupId }) {
                   placeholder="Add a tag..."
                   className="rounded-xl"
                 />
-                <Button onClick={addTag} variant="outline" size="icon">
+                <Button onClick={addTag} variant="outline" size="icon" aria-label="Add tag">
                   <Plus className="w-4 h-4" />
                 </Button>
               </div>

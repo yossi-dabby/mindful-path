@@ -108,7 +108,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                   )}
                 </div>
               </div>
-              <Button variant="ghost" size="icon" onClick={onClose}>
+              <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
                 <X className="w-5 h-5" />
               </Button>
             </div>

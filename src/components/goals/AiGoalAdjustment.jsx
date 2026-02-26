@@ -220,7 +220,7 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
                 <p className="text-sm text-gray-600">Based on {journalEntries.length} journal entries</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose}>✕</Button>
+            <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">✕</Button>
           </div>
         </CardHeader>
 

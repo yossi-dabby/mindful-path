@@ -40,7 +40,7 @@ export default function TemplateManager({ templates, onClose, onSelectTemplate }
                 Create custom templates for different types of journaling
               </p>
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose}>
+            <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
               <X className="w-5 h-5" />
             </Button>
           </div>
@@ -157,6 +157,7 @@ function TemplateCard({ template, onSelect, onEdit, onDelete }) {
                   e.stopPropagation();
                   onEdit();
                 }}
+                aria-label="Edit template"
               >
                 <Edit className="w-4 h-4" />
               </Button>
@@ -170,6 +171,7 @@ function TemplateCard({ template, onSelect, onEdit, onDelete }) {
                   e.stopPropagation();
                   if (confirm('Delete this template?')) onDelete();
                 }}
+                aria-label="Delete template"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>

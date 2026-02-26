@@ -122,7 +122,7 @@ export default function MoodCheckIn({ onClose, onComplete }) {
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">
             <CardTitle>Daily Check-in</CardTitle>
-            <Button variant="ghost" size="icon" onClick={onClose}>
+            <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
               <X className="w-5 h-5" />
             </Button>
           </div>

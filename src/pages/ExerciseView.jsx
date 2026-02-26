@@ -111,7 +111,7 @@ export default function ExerciseViewPage() {
       <div className="bg-white border-b shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto p-4">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Go back">
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="flex-1">
@@ -120,6 +120,7 @@ export default function ExerciseViewPage() {
             <button
               onClick={() => toggleFavoriteMutation.mutate()}
               className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              aria-label={exercise.favorite ? "Remove from favorites" : "Add to favorites"}
             >
               <Heart
                 className={`w-5 h-5 ${exercise.favorite ? 'fill-red-500 text-red-500' : 'text-gray-400'}`}

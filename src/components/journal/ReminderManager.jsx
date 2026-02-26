@@ -44,7 +44,7 @@ export default function ReminderManager({ onClose }) {
                 Set reminders for different types of journaling
               </p>
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose}>
+            <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
               <X className="w-5 h-5" />
             </Button>
           </div>
@@ -104,6 +104,7 @@ export default function ReminderManager({ onClose }) {
                               size="icon"
                               className="h-8 w-8"
                               onClick={() => setEditingReminder(reminder)}
+                              aria-label="Edit reminder"
                             >
                               <Edit className="w-4 h-4" />
                             </Button>
@@ -116,6 +117,7 @@ export default function ReminderManager({ onClose }) {
                                   deleteReminderMutation.mutate(reminder.id);
                                 }
                               }}
+                              aria-label="Delete reminder"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>

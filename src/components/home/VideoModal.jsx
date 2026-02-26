@@ -24,6 +24,7 @@ export default function VideoModal({ videoUrl, onClose }) {
           size="icon"
           variant="ghost"
           className="absolute top-4 right-4 z-10 bg-white/90 hover:bg-white rounded-full shadow-lg"
+          aria-label="Close video"
         >
           <X className="w-5 h-5" />
         </Button>

@@ -131,6 +131,7 @@ export default function OnboardingTour({ onComplete, onSkip }) {
                     size="icon"
                     onClick={handleSkip}
                     className="text-gray-400 hover:text-gray-600"
+                    aria-label="Skip tour"
                   >
                     <X className="w-4 h-4" />
                   </Button>

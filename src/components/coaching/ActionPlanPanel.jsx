@@ -51,7 +51,7 @@ export default function ActionPlanPanel({ session, onClose, onUpdate }) {
             <CheckCircle2 className="w-5 h-5 text-purple-600" />
             Action Plan
           </CardTitle>
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
             <X className="w-4 h-4" />
           </Button>
         </div>
@@ -100,6 +100,7 @@ export default function ActionPlanPanel({ session, onClose, onUpdate }) {
                 size="icon"
                 className="h-6 w-6"
                 onClick={() => removeAction(index)}
+                aria-label={`Remove action ${index + 1}`}
               >
                 <X className="w-3 h-3" />
               </Button>

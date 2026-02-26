@@ -47,7 +47,7 @@ export default function SessionSummaryCard({ summary, onDelete }) {
           </CardDescription>
         </div>
         <div className="flex gap-2">
-          <Button variant="ghost" size="icon" onClick={handleDelete} disabled={deleteSummaryMutation.isPending}>
+          <Button variant="ghost" size="icon" onClick={handleDelete} disabled={deleteSummaryMutation.isPending} aria-label="Delete session summary">
             <Trash2 className="w-4 h-4 text-red-500" />
           </Button>
         </div>
