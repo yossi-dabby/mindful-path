@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -63,6 +64,7 @@ const DAY_STRUCTURE = [
 ];
 
 export default function StarterPath() {
+  const { t } = useTranslation();
   const [step, setStep] = useState('loading'); // loading, intro, exercise, complete
   const [userResponse, setUserResponse] = useState('');
   const [generatedContent, setGeneratedContent] = useState(null);
@@ -239,7 +241,7 @@ Generate a concise insight or action the user can apply today.`;
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
         <div className="text-center">
           <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin" style={{ color: 'rgb(var(--calm))' }} strokeWidth={2} />
-          <p style={{ color: 'rgb(var(--muted))' }}>Preparing your daily exercise...</p>
+          <p style={{ color: 'rgb(var(--muted))' }}>{t('starter_path.loading')}</p>
         </div>
       </div>
     );
@@ -270,7 +272,7 @@ Generate a concise insight or action the user can apply today.`;
                 <CheckCircle2 className="w-10 h-10 icon-default" style={{ color: 'rgb(var(--success))' }} strokeWidth={2} />
               </motion.div>
               <h2 className="text-2xl font-semibold mb-3" style={{ color: 'rgb(var(--text))' }}>
-                Day {currentDay} Complete!
+                {t('starter_path.day_complete', { day: currentDay })}
               </h2>
               {completeDayMutation.data?.takeaway && (
                 <div className="mb-6 p-4" style={{ 
@@ -279,7 +281,7 @@ Generate a concise insight or action the user can apply today.`;
                   border: '1px solid rgb(var(--border))'
                 }}>
                   <p className="text-sm font-medium mb-2" style={{ color: 'rgb(var(--calm))' }}>
-                    Today's Takeaway
+                    {t('starter_path.todays_takeaway')}
                   </p>
                   <p style={{ color: 'rgb(var(--text))' }}>
                     {completeDayMutation.data.takeaway}
@@ -288,8 +290,8 @@ Generate a concise insight or action the user can apply today.`;
               )}
               <p className="mb-6" style={{ color: 'rgb(var(--muted))' }}>
                 {currentDay === 7 
-                  ? "You've completed the 7-Day Starter Path! Continue with your daily practice."
-                  : "Come back tomorrow for Day " + (currentDay + 1)}
+                  ? t('starter_path.completed_all')
+                  : t('starter_path.come_back_tomorrow', { day: currentDay + 1 })}
               </p>
               <Link to={createPageUrl('Home')}>
                 <Button className="transition-calm text-white px-7 py-6" style={{ 
@@ -297,7 +299,7 @@ Generate a concise insight or action the user can apply today.`;
                   backgroundColor: '#26A69A',
                   boxShadow: '0 3px 10px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.08)'
                 }}>
-                Return Home
+                {t('starter_path.return_home')}
                 </Button>
               </Link>
             </CardContent>
@@ -319,7 +321,7 @@ Generate a concise insight or action the user can apply today.`;
           <Link to={createPageUrl('Home')}>
             <Button variant="ghost" className="mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" strokeWidth={2} />
-              Back to Home
+              {t('starter_path.back_to_home')}
             </Button>
           </Link>
           <div className="flex items-center justify-between">
@@ -331,7 +333,7 @@ Generate a concise insight or action the user can apply today.`;
             </div>
             <div className="text-right">
               <p className="text-sm font-medium" style={{ color: 'rgb(var(--calm))' }}>
-                Day {currentDay} of 7
+                {t('starter_path.day_of_7', { day: currentDay })}
               </p>
               <div className="flex gap-1 mt-2">
                 {[1, 2, 3, 4, 5, 6, 7].map((d) => (
@@ -373,7 +375,7 @@ Generate a concise insight or action the user can apply today.`;
                     </div>
                     <div className="flex-1">
                       <h3 className="text-lg font-semibold mb-3" style={{ color: 'rgb(var(--text))' }}>
-                        Today's Focus
+                        {t('starter_path.todays_focus')}
                       </h3>
                       <p className="mb-4 leading-relaxed" style={{ color: 'rgb(var(--text))' }}>
                         {generatedContent?.introduction}
@@ -395,7 +397,7 @@ Generate a concise insight or action the user can apply today.`;
                       boxShadow: '0 3px 10px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.08)'
                     }}
                   >
-                    Begin Exercise
+                    {t('starter_path.begin_exercise')}
                   </Button>
                 </CardContent>
               </Card>
@@ -434,7 +436,7 @@ Generate a concise insight or action the user can apply today.`;
                   <Textarea
                     value={userResponse}
                     onChange={(e) => setUserResponse(e.target.value)}
-                    placeholder="Take your time to reflect and write your thoughts..."
+                    placeholder={t('starter_path.reflect_placeholder')}
                     rows={6}
                     className="mb-4"
                     style={{ 
@@ -450,7 +452,7 @@ Generate a concise insight or action the user can apply today.`;
                       className="flex-1"
                       style={{ borderRadius: 'var(--r-md)' }}
                     >
-                      Back
+                      {t('starter_path.back_button')}
                     </Button>
                     <Button
                       onClick={() => completeDayMutation.mutate()}
@@ -463,7 +465,7 @@ Generate a concise insight or action the user can apply today.`;
                         opacity: !userResponse.trim() ? 0.5 : 1
                       }}
                     >
-                      {completeDayMutation.isPending ? 'Completing...' : 'Complete Day ' + currentDay}
+                      {completeDayMutation.isPending ? t('starter_path.completing') : t('starter_path.complete_day', { day: currentDay })}
                     </Button>
                   </div>
                 </CardContent>

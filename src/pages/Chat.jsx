@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocation } from 'react-router-dom';
@@ -25,6 +26,7 @@ import ErrorBoundary from '../components/utils/ErrorBoundary';
 import { validateAgentOutput, extractAssistantMessage, sanitizeConversationMessages, parseCounters } from '../components/utils/validateAgentOutput.jsx';
 
 export default function Chat() {
+  const { t } = useTranslation();
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -1237,7 +1239,7 @@ export default function Chat() {
             variant="ghost"
             size="icon"
             onClick={() => window.location.href = '/'}
-            aria-label="Go back to home"
+            aria-label={t('chat.go_back_aria')}
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
@@ -1245,13 +1247,13 @@ export default function Chat() {
             variant="ghost"
             size="icon"
             onClick={() => setShowSidebar(!showSidebar)}
-            aria-label={showSidebar ? "Close conversations sidebar" : "Open conversations sidebar"}
+            aria-label={showSidebar ? t('chat.close_sidebar_aria') : t('chat.open_sidebar_aria')}
           >
             <Menu className="w-5 h-5" />
           </Button>
           <div className="flex-1">
-            <h1 className="text-xl font-semibold" style={{ color: '#1A3A34' }}>Your Therapist</h1>
-            <p className="text-sm" style={{ color: '#5A7A72' }}>A safe space to talk</p>
+            <h1 className="text-xl font-semibold" style={{ color: '#1A3A34' }}>{t('chat.title')}</h1>
+            <p className="text-sm" style={{ color: '#5A7A72' }}>{t('chat.subtitle')}</p>
           </div>
         </div>
 
@@ -1385,7 +1387,7 @@ export default function Chat() {
                         transition: 'none',
                         willChange: 'auto'
                       }}>
-                        <p className="text-sm" style={{ color: '#5A7A72' }}>Thinking...</p>
+                        <p className="text-sm" style={{ color: '#5A7A72' }}>{t('chat.thinking')}</p>
                       </div>
                     </div>
                   );
@@ -1502,7 +1504,7 @@ export default function Chat() {
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Share what's on your mind..."
+              placeholder={t('chat.message_placeholder')}
               className="flex-1 min-h-[60px] max-h-[200px] resize-none"
               data-testid="therapist-chat-input"
               style={{

@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,7 +26,7 @@ const LockedCard = ({ title, description, height = "auto", onUnlock }) => (
           className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white"
         >
           <Crown className="w-4 h-4 mr-2" />
-          Go Premium
+          {t('advanced_analytics.go_premium')}
         </Button>
       </div>
     </CardContent>
@@ -33,6 +34,7 @@ const LockedCard = ({ title, description, height = "auto", onUnlock }) => (
 );
 
 export default function AdvancedAnalytics() {
+  const { t } = useTranslation();
   const [showPaywall, setShowPaywall] = useState(false);
 
   const { data: subscription } = useQuery({
@@ -121,21 +123,21 @@ export default function AdvancedAnalytics() {
                 size="icon"
                 onClick={() => window.history.back()}
                 className="md:hidden"
-                aria-label="Go back"
+                aria-label={t('advanced_analytics.go_back_aria')}
               >
                 <ArrowLeft className="w-5 h-5" />
               </Button>
-              <h1 className="text-2xl md:text-4xl font-light text-gray-800">Advanced Analytics</h1>
+              <h1 className="text-2xl md:text-4xl font-light text-gray-800">{t('advanced_analytics.title')}</h1>
               <PremiumBadge locked={!isPremium} compact />
             </div>
             <p className="text-sm md:text-base text-gray-500 ml-12 md:ml-0">
-              Deep insights into your mental wellness journey
+              {t('advanced_analytics.subtitle')}
             </p>
           </div>
           {isPremium && (
             <Button variant="outline" className="gap-2 self-start md:self-auto ml-12 md:ml-0">
               <Download className="w-4 h-4" />
-              <span className="hidden sm:inline">Export Data</span>
+              <span className="hidden sm:inline">{t('advanced_analytics.export_data')}</span>
             </Button>
           )}
         </div>
@@ -144,26 +146,26 @@ export default function AdvancedAnalytics() {
           <TabsList className="bg-white border shadow-sm w-full flex-wrap h-auto gap-1 p-1">
             <TabsTrigger value="mood" className="gap-1 md:gap-2 flex-1 text-xs md:text-sm">
               <Activity className="w-3 h-3 md:w-4 md:h-4" />
-              <span className="hidden sm:inline">Mood</span>
+              <span className="hidden sm:inline">{t('advanced_analytics.tab_mood')}</span>
             </TabsTrigger>
             <TabsTrigger value="patterns" className="gap-1 md:gap-2 flex-1 text-xs md:text-sm">
               <Brain className="w-3 h-3 md:w-4 md:h-4" />
-              <span className="hidden sm:inline">Patterns</span>
+              <span className="hidden sm:inline">{t('advanced_analytics.tab_patterns')}</span>
             </TabsTrigger>
             <TabsTrigger value="progress" className="gap-1 md:gap-2 flex-1 text-xs md:text-sm">
               <Target className="w-3 h-3 md:w-4 md:h-4" />
-              <span className="hidden sm:inline">Exercise</span>
+              <span className="hidden sm:inline">{t('advanced_analytics.tab_exercise')}</span>
             </TabsTrigger>
             <TabsTrigger value="predictions" className="gap-1 md:gap-2 flex-1 text-xs md:text-sm">
               <TrendingUp className="w-3 h-3 md:w-4 md:h-4" />
-              <span className="hidden sm:inline">AI</span>
+              <span className="hidden sm:inline">{t('advanced_analytics.tab_ai')}</span>
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="mood" className="space-y-4 md:space-y-6">
             <Card className="border-0 shadow-lg rounded-2xl">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg md:text-xl">30-Day Mood & Energy Correlation</CardTitle>
+                <CardTitle className="text-lg md:text-xl">{t('advanced_analytics.chart_mood_energy')}</CardTitle>
               </CardHeader>
               <CardContent className="px-2 md:px-6">
                 {isPremium ? (
@@ -174,18 +176,18 @@ export default function AdvancedAnalytics() {
                       <YAxis domain={[1, 5]} tick={{ fontSize: 12 }} />
                       <Tooltip />
                       <Legend />
-                      <Line type="monotone" dataKey="mood" stroke="#F8744C" strokeWidth={2} name="Mood" />
-                      <Line type="monotone" dataKey="energy" stroke="#4B6B8C" strokeWidth={2} name="Energy" />
+                      <Line type="monotone" dataKey="mood" stroke="#F8744C" strokeWidth={2} name={t('advanced_analytics.line_mood')} />
+                      <Line type="monotone" dataKey="energy" stroke="#4B6B8C" strokeWidth={2} name={t('advanced_analytics.line_energy')} />
                     </LineChart>
                   </ResponsiveContainer>
                 ) : (
                   <div className="min-h-[300px] flex items-center justify-center">
                     <div className="text-center max-w-xs px-4">
                       <Lock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                      <p className="text-sm text-gray-600 mb-4">Unlock detailed mood analytics</p>
+                      <p className="text-sm text-gray-600 mb-4">{t('advanced_analytics.unlock_mood')}</p>
                       <Button onClick={handleUnlockClick} className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600">
                         <Crown className="w-4 h-4 mr-2" />
-                        Go Premium
+                        {t('advanced_analytics.go_premium')}
                       </Button>
                     </div>
                   </div>
@@ -198,33 +200,33 @@ export default function AdvancedAnalytics() {
                 <>
                   <Card className="border-0 shadow-lg rounded-2xl">
                     <CardContent className="p-4 md:p-6">
-                      <p className="text-xs md:text-sm text-gray-600 mb-1">Average Mood</p>
+                      <p className="text-xs md:text-sm text-gray-600 mb-1">{t('advanced_analytics.label_avg_mood')}</p>
                       <p className="text-3xl md:text-4xl font-bold text-orange-600">
                         {(moodTrends.reduce((acc, m) => acc + m.mood, 0) / moodTrends.length || 0).toFixed(1)}
                       </p>
-                      <p className="text-xs text-green-600 mt-1">+0.3 from last month</p>
+                      <p className="text-xs text-green-600 mt-1">{t('advanced_analytics.from_last_month')}</p>
                     </CardContent>
                   </Card>
                   <Card className="border-0 shadow-lg rounded-2xl">
                     <CardContent className="p-4 md:p-6">
-                      <p className="text-xs md:text-sm text-gray-600 mb-1">Best Day</p>
-                      <p className="text-3xl md:text-4xl font-bold text-green-600">Mon</p>
-                      <p className="text-xs text-gray-500 mt-1">Highest average mood</p>
+                      <p className="text-xs md:text-sm text-gray-600 mb-1">{t('advanced_analytics.label_best_day')}</p>
+                      <p className="text-3xl md:text-4xl font-bold text-green-600">{t('advanced_analytics.best_day_label')}</p>
+                      <p className="text-xs text-gray-500 mt-1">{t('advanced_analytics.highest_avg_mood')}</p>
                     </CardContent>
                   </Card>
                   <Card className="border-0 shadow-lg rounded-2xl">
                     <CardContent className="p-4 md:p-6">
-                      <p className="text-xs md:text-sm text-gray-600 mb-1">Consistency</p>
+                      <p className="text-xs md:text-sm text-gray-600 mb-1">{t('advanced_analytics.label_consistency')}</p>
                       <p className="text-3xl md:text-4xl font-bold text-blue-600">87%</p>
-                      <p className="text-xs text-gray-500 mt-1">Mood variance score</p>
+                      <p className="text-xs text-gray-500 mt-1">{t('advanced_analytics.mood_variance')}</p>
                     </CardContent>
                   </Card>
                 </>
               ) : (
                 <>
-                  <LockedCard title="Average Mood" description="Track your mood trends" onUnlock={handleUnlockClick} />
-                  <LockedCard title="Best Days" description="Identify patterns" onUnlock={handleUnlockClick} />
-                  <LockedCard title="Consistency" description="Measure stability" onUnlock={handleUnlockClick} />
+                  <LockedCard title={t('advanced_analytics.locked_avg_mood_title')} description={t('advanced_analytics.locked_avg_mood_desc')} onUnlock={handleUnlockClick} />
+                  <LockedCard title={t('advanced_analytics.locked_best_days_title')} description={t('advanced_analytics.locked_best_days_desc')} onUnlock={handleUnlockClick} />
+                  <LockedCard title={t('advanced_analytics.locked_consistency_title')} description={t('advanced_analytics.locked_consistency_desc')} onUnlock={handleUnlockClick} />
                 </>
               )}
             </div>
@@ -234,7 +236,7 @@ export default function AdvancedAnalytics() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
               <Card className="border-0 shadow-lg rounded-2xl">
                 <CardHeader className="pb-4">
-                  <CardTitle className="text-lg md:text-xl">Most Common Thought Patterns</CardTitle>
+                  <CardTitle className="text-lg md:text-xl">{t('advanced_analytics.chart_thought_patterns')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   {isPremium ? (
@@ -261,10 +263,10 @@ export default function AdvancedAnalytics() {
                     <div className="min-h-[300px] flex items-center justify-center">
                       <div className="text-center max-w-xs px-4">
                         <Lock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                        <p className="text-sm text-gray-600 mb-4">Analyze your thought patterns</p>
+                        <p className="text-sm text-gray-600 mb-4">{t('advanced_analytics.unlock_patterns')}</p>
                         <Button onClick={handleUnlockClick} className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600">
                           <Crown className="w-4 h-4 mr-2" />
-                          Go Premium
+                          {t('advanced_analytics.go_premium')}
                         </Button>
                       </div>
                     </div>
@@ -275,13 +277,13 @@ export default function AdvancedAnalytics() {
               {isPremium ? (
                 <Card className="border-0 shadow-lg rounded-2xl">
                   <CardHeader className="pb-4">
-                    <CardTitle className="text-lg md:text-xl">Emotional Shift Analysis</CardTitle>
+                    <CardTitle className="text-lg md:text-xl">{t('advanced_analytics.chart_emotional_shift')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
                       <div>
                         <div className="flex justify-between mb-1">
-                          <span className="text-xs md:text-sm text-gray-600">Before CBT</span>
+                          <span className="text-xs md:text-sm text-gray-600">{t('advanced_analytics.before_cbt')}</span>
                           <span className="text-xs md:text-sm font-semibold">7.2/10</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
@@ -290,7 +292,7 @@ export default function AdvancedAnalytics() {
                       </div>
                       <div>
                         <div className="flex justify-between mb-1">
-                          <span className="text-xs md:text-sm text-gray-600">After CBT</span>
+                          <span className="text-xs md:text-sm text-gray-600">{t('advanced_analytics.after_cbt')}</span>
                           <span className="text-xs md:text-sm font-semibold">4.1/10</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
@@ -298,8 +300,8 @@ export default function AdvancedAnalytics() {
                         </div>
                       </div>
                       <div className="mt-6 p-3 md:p-4 bg-green-50 rounded-xl">
-                        <p className="text-sm text-green-800 font-semibold">43% Average Improvement</p>
-                        <p className="text-xs text-green-600 mt-1">CBT techniques are working well for you</p>
+                        <p className="text-sm text-green-800 font-semibold">{t('advanced_analytics.improvement_percent')}</p>
+                        <p className="text-xs text-green-600 mt-1">{t('advanced_analytics.improvement_note')}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -318,7 +320,7 @@ export default function AdvancedAnalytics() {
           <TabsContent value="progress" className="space-y-4 md:space-y-6">
             <Card className="border-0 shadow-lg rounded-2xl">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg md:text-xl">Exercise Completion by Category</CardTitle>
+                <CardTitle className="text-lg md:text-xl">{t('advanced_analytics.chart_exercise_completion')}</CardTitle>
               </CardHeader>
               <CardContent className="px-2 md:px-6">
                 {isPremium ? (
@@ -335,10 +337,10 @@ export default function AdvancedAnalytics() {
                   <div className="min-h-[300px] flex items-center justify-center">
                     <div className="text-center max-w-xs px-4">
                       <Lock className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                      <p className="text-sm text-gray-600 mb-4">Track exercise performance</p>
+                      <p className="text-sm text-gray-600 mb-4">{t('advanced_analytics.unlock_exercise')}</p>
                       <Button onClick={handleUnlockClick} className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600">
                         <Crown className="w-4 h-4 mr-2" />
-                        Go Premium
+                        {t('advanced_analytics.go_premium')}
                       </Button>
                     </div>
                   </div>
@@ -353,18 +355,17 @@ export default function AdvancedAnalytics() {
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
                     <Brain className="w-5 h-5 text-purple-600" />
-                    AI-Powered Predictions
+                    {t('advanced_analytics.ai_predictions_title')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="bg-purple-50 p-4 md:p-6 rounded-xl border border-purple-200">
-                    <h4 className="font-semibold text-gray-800 mb-2 text-sm md:text-base">Mood Forecast (Next 7 Days)</h4>
+                    <h4 className="font-semibold text-gray-800 mb-2 text-sm md:text-base">{t('advanced_analytics.mood_forecast_title')}</h4>
                     <p className="text-xs md:text-sm text-gray-700 mb-4">
-                      Based on your patterns, you're likely to experience improved mood this week, 
-                      especially on Tuesday and Friday. Consider scheduling important tasks on these days.
+                      {t('advanced_analytics.mood_forecast_text')}
                     </p>
                     <div className="flex gap-1 md:gap-2">
-                      {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, i) => {
+                      {[t('advanced_analytics.day_mon'), t('advanced_analytics.day_tue'), t('advanced_analytics.day_wed'), t('advanced_analytics.day_thu'), t('advanced_analytics.day_fri'), t('advanced_analytics.day_sat'), t('advanced_analytics.day_sun')].map((day, i) => {
                         const levels = [3, 4, 3, 3, 4, 4, 3];
                         return (
                           <div key={day} className="flex-1 text-center">
@@ -377,19 +378,19 @@ export default function AdvancedAnalytics() {
                   </div>
 
                   <div className="bg-blue-50 p-4 md:p-6 rounded-xl border border-blue-200">
-                    <h4 className="font-semibold text-gray-800 mb-2 text-sm md:text-base">Recommended Actions</h4>
+                    <h4 className="font-semibold text-gray-800 mb-2 text-sm md:text-base">{t('advanced_analytics.recommended_actions_title')}</h4>
                     <ul className="space-y-2">
                       <li className="flex items-start gap-2 text-xs md:text-sm text-gray-700">
                         <span className="text-blue-600">•</span>
-                        Practice breathing exercises in the morning for better energy
+                        {t('advanced_analytics.action_1')}
                       </li>
                       <li className="flex items-start gap-2 text-xs md:text-sm text-gray-700">
                         <span className="text-blue-600">•</span>
-                        Journal on days when stress levels are predicted to be high
+                        {t('advanced_analytics.action_2')}
                       </li>
                       <li className="flex items-start gap-2 text-xs md:text-sm text-gray-700">
                         <span className="text-blue-600">•</span>
-                        Your best time for meditation is 7-8 PM based on completion patterns
+                        {t('advanced_analytics.action_3')}
                       </li>
                     </ul>
                   </div>
@@ -397,8 +398,8 @@ export default function AdvancedAnalytics() {
               </Card>
             ) : (
               <LockedCard 
-                title="AI Predictions & Insights" 
-                description="Get personalized forecasts and recommendations"
+                title={t('advanced_analytics.locked_ai_title')} 
+                description={t('advanced_analytics.locked_ai_desc')}
                 height="chart"
                 onUnlock={handleUnlockClick}
               />

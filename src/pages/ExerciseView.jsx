@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
@@ -14,6 +15,7 @@ import PremiumBadge from '../components/subscription/PremiumBadge';
 import ExerciseMediaBadge from '../components/exercises/ExerciseMediaBadge';
 
 export default function ExerciseViewPage() {
+  const { t } = useTranslation();
   const { exerciseId } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -87,8 +89,8 @@ export default function ExerciseViewPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-500 mb-4">Exercise not found</p>
-          <Button onClick={() => navigate(-1)}>Go Back</Button>
+          <p className="text-gray-500 mb-4">{t('exercise_view.not_found')}</p>
+          <Button onClick={() => navigate(-1)}>{t('exercise_view.go_back')}</Button>
         </div>
       </div>
     );
@@ -111,11 +113,11 @@ export default function ExerciseViewPage() {
       <div className="bg-white border-b shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto p-4">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Go back">
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label={t('exercise_view.go_back_aria')}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="flex-1">
-              <h1 className="text-xl font-semibold text-gray-800">{exercise.title || 'Untitled Exercise'}</h1>
+              <h1 className="text-xl font-semibold text-gray-800">{exercise.title || t('exercise_view.untitled')}</h1>
             </div>
             <button
               onClick={() => toggleFavoriteMutation.mutate()}
