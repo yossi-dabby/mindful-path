@@ -676,6 +676,51 @@ export const translations = {
           completed_message: "Exercise Completed!",
           mark_as_complete: "Mark as Complete"
         }
+      },
+      videos: {
+        title: "CBT Video Library",
+        subtitle: "Guided videos to practice CBT",
+        new_button: "New",
+        my_playlists: "My Playlists",
+        loading: "Loading videos...",
+        no_videos_title: "No videos yet",
+        no_videos_description: "Videos will appear here once added",
+        add_to_list: "Add to List"
+      },
+      playlists: {
+        back_to_videos: "Back to Videos",
+        title: "My Playlists",
+        subtitle: "Organize your CBT videos into custom playlists",
+        new_playlist: "New Playlist",
+        error_title: "Couldn't load data",
+        error_description: "Check your connection and try again.",
+        retry: "Retry",
+        loading: "Loading playlists...",
+        no_playlists_title: "No playlists yet",
+        no_playlists_description: "Create your first playlist to organize your videos",
+        create_playlist: "Create Playlist",
+        video_count: "{{count}} videos",
+        view_playlist: "View Playlist",
+        delete_aria: "Delete playlist",
+        delete_confirm: "Delete this playlist?",
+        delete_error: "Failed to delete playlist. Check your connection and try again."
+      },
+      playlist_detail: {
+        back_to_playlists: "Back to Playlists",
+        video_count: "{{count}} videos",
+        no_videos_title: "No videos in this playlist",
+        no_videos_description: "Go to the Video Library and add videos to this playlist",
+        browse_videos: "Browse Videos",
+        completed_badge: "✓ Completed",
+        remove_video_aria: "Remove video from playlist",
+        loading: "Loading playlist..."
+      },
+      video_player: {
+        back_to_library: "Back to Video Library",
+        no_video: "No video selected",
+        completed: "✓ Completed",
+        watched_percent: "{{percent}}% watched",
+        browser_no_support: "Your browser does not support the video tag."
       }
     }
   },
@@ -1355,6 +1400,51 @@ export const translations = {
           completed_message: "התרגיל הושלם!",
           mark_as_complete: "סמן כהושלם"
         }
+      },
+      videos: {
+        title: "ספריית וידאו CBT",
+        subtitle: "סרטונים מודרכים לתרגול CBT",
+        new_button: "חדש",
+        my_playlists: "הרשימות שלי",
+        loading: "טוען סרטונים...",
+        no_videos_title: "אין סרטונים עדיין",
+        no_videos_description: "סרטונים יופיעו כאן לאחר הוספתם",
+        add_to_list: "הוסף לרשימה"
+      },
+      playlists: {
+        back_to_videos: "חזרה לסרטונים",
+        title: "הרשימות שלי",
+        subtitle: "ארגנו את סרטוני ה-CBT שלכם לרשימות מותאמות אישית",
+        new_playlist: "רשימה חדשה",
+        error_title: "לא ניתן לטעון נתונים",
+        error_description: "בדקו את החיבור ונסו שנית.",
+        retry: "נסו שנית",
+        loading: "טוען רשימות...",
+        no_playlists_title: "אין רשימות עדיין",
+        no_playlists_description: "צרו את הרשימה הראשונה שלכם לארגון הסרטונים",
+        create_playlist: "צרו רשימה",
+        video_count: "{{count}} סרטונים",
+        view_playlist: "צפו ברשימה",
+        delete_aria: "מחק רשימה",
+        delete_confirm: "למחוק את הרשימה?",
+        delete_error: "מחיקת הרשימה נכשלה. בדקו את החיבור ונסו שנית."
+      },
+      playlist_detail: {
+        back_to_playlists: "חזרה לרשימות",
+        video_count: "{{count}} סרטונים",
+        no_videos_title: "אין סרטונים ברשימה זו",
+        no_videos_description: "עברו לספריית הוידאו והוסיפו סרטונים לרשימה זו",
+        browse_videos: "עיינו בסרטונים",
+        completed_badge: "✓ הושלם",
+        remove_video_aria: "הסר סרטון מהרשימה",
+        loading: "טוען רשימה..."
+      },
+      video_player: {
+        back_to_library: "חזרה לספריית הוידאו",
+        no_video: "לא נבחר סרטון",
+        completed: "✓ הושלם",
+        watched_percent: "{{percent}}% נצפה",
+        browser_no_support: "הדפדפן שלכם אינו תומך בתג וידאו."
       }
     }
   },
@@ -1866,6 +1956,51 @@ export const translations = {
           completed_message: "¡Ejercicio Completado!",
           mark_as_complete: "Marcar como Completado"
         }
+      },
+      videos: {
+        title: "Biblioteca de Videos CBT",
+        subtitle: "Videos guiados para practicar CBT",
+        new_button: "Nuevo",
+        my_playlists: "Mis Listas",
+        loading: "Cargando videos...",
+        no_videos_title: "Aún no hay videos",
+        no_videos_description: "Los videos aparecerán aquí una vez añadidos",
+        add_to_list: "Agregar a lista"
+      },
+      playlists: {
+        back_to_videos: "Volver a Videos",
+        title: "Mis Listas",
+        subtitle: "Organiza tus videos de CBT en listas personalizadas",
+        new_playlist: "Nueva Lista",
+        error_title: "No se pudieron cargar los datos",
+        error_description: "Verifica tu conexión e intenta de nuevo.",
+        retry: "Reintentar",
+        loading: "Cargando listas...",
+        no_playlists_title: "Aún no hay listas",
+        no_playlists_description: "Crea tu primera lista para organizar tus videos",
+        create_playlist: "Crear Lista",
+        video_count: "{{count}} videos",
+        view_playlist: "Ver Lista",
+        delete_aria: "Eliminar lista",
+        delete_confirm: "¿Eliminar esta lista?",
+        delete_error: "Error al eliminar la lista. Verifica tu conexión e intenta de nuevo."
+      },
+      playlist_detail: {
+        back_to_playlists: "Volver a Listas",
+        video_count: "{{count}} videos",
+        no_videos_title: "No hay videos en esta lista",
+        no_videos_description: "Ve a la Biblioteca de Videos y agrega videos a esta lista",
+        browse_videos: "Ver Videos",
+        completed_badge: "✓ Completado",
+        remove_video_aria: "Quitar video de la lista",
+        loading: "Cargando lista..."
+      },
+      video_player: {
+        back_to_library: "Volver a la Biblioteca de Videos",
+        no_video: "Ningún video seleccionado",
+        completed: "✓ Completado",
+        watched_percent: "{{percent}}% visto",
+        browser_no_support: "Tu navegador no admite el elemento de video."
       }
     }
   },
@@ -2545,6 +2680,51 @@ export const translations = {
           completed_message: "Exercice Terminé !",
           mark_as_complete: "Marquer comme Terminé"
         }
+      },
+      videos: {
+        title: "Bibliothèque Vidéo TCC",
+        subtitle: "Vidéos guidées pour pratiquer la TCC",
+        new_button: "Nouveau",
+        my_playlists: "Mes Listes",
+        loading: "Chargement des vidéos...",
+        no_videos_title: "Aucune vidéo pour l'instant",
+        no_videos_description: "Les vidéos apparaîtront ici une fois ajoutées",
+        add_to_list: "Ajouter à la liste"
+      },
+      playlists: {
+        back_to_videos: "Retour aux vidéos",
+        title: "Mes Listes",
+        subtitle: "Organisez vos vidéos TCC en listes personnalisées",
+        new_playlist: "Nouvelle Liste",
+        error_title: "Impossible de charger les données",
+        error_description: "Vérifiez votre connexion et réessayez.",
+        retry: "Réessayer",
+        loading: "Chargement des listes...",
+        no_playlists_title: "Aucune liste pour l'instant",
+        no_playlists_description: "Créez votre première liste pour organiser vos vidéos",
+        create_playlist: "Créer une liste",
+        video_count: "{{count}} vidéos",
+        view_playlist: "Voir la liste",
+        delete_aria: "Supprimer la liste",
+        delete_confirm: "Supprimer cette liste ?",
+        delete_error: "Impossible de supprimer la liste. Vérifiez votre connexion et réessayez."
+      },
+      playlist_detail: {
+        back_to_playlists: "Retour aux listes",
+        video_count: "{{count}} vidéos",
+        no_videos_title: "Aucune vidéo dans cette liste",
+        no_videos_description: "Allez à la bibliothèque vidéo et ajoutez des vidéos à cette liste",
+        browse_videos: "Parcourir les vidéos",
+        completed_badge: "✓ Terminé",
+        remove_video_aria: "Retirer la vidéo de la liste",
+        loading: "Chargement de la liste..."
+      },
+      video_player: {
+        back_to_library: "Retour à la bibliothèque vidéo",
+        no_video: "Aucune vidéo sélectionnée",
+        completed: "✓ Terminé",
+        watched_percent: "{{percent}}% regardé",
+        browser_no_support: "Votre navigateur ne prend pas en charge la balise vidéo."
       }
     }
   },
@@ -3224,6 +3404,51 @@ export const translations = {
           completed_message: "Übung Abgeschlossen!",
           mark_as_complete: "Als Abgeschlossen Markieren"
         }
+      },
+      videos: {
+        title: "CBT-Videobibliothek",
+        subtitle: "Geführte Videos zur CBT-Praxis",
+        new_button: "Neu",
+        my_playlists: "Meine Listen",
+        loading: "Videos werden geladen...",
+        no_videos_title: "Noch keine Videos",
+        no_videos_description: "Videos erscheinen hier, sobald sie hinzugefügt wurden",
+        add_to_list: "Zur Liste hinzufügen"
+      },
+      playlists: {
+        back_to_videos: "Zurück zu Videos",
+        title: "Meine Listen",
+        subtitle: "Organisieren Sie Ihre CBT-Videos in benutzerdefinierten Listen",
+        new_playlist: "Neue Liste",
+        error_title: "Daten konnten nicht geladen werden",
+        error_description: "Überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+        retry: "Wiederholen",
+        loading: "Listen werden geladen...",
+        no_playlists_title: "Noch keine Listen",
+        no_playlists_description: "Erstellen Sie Ihre erste Liste, um Ihre Videos zu organisieren",
+        create_playlist: "Liste erstellen",
+        video_count: "{{count}} Videos",
+        view_playlist: "Liste anzeigen",
+        delete_aria: "Liste löschen",
+        delete_confirm: "Diese Liste löschen?",
+        delete_error: "Liste konnte nicht gelöscht werden. Überprüfen Sie Ihre Verbindung und versuchen Sie es erneut."
+      },
+      playlist_detail: {
+        back_to_playlists: "Zurück zu Listen",
+        video_count: "{{count}} Videos",
+        no_videos_title: "Keine Videos in dieser Liste",
+        no_videos_description: "Gehen Sie zur Videobibliothek und fügen Sie Videos zu dieser Liste hinzu",
+        browse_videos: "Videos durchsuchen",
+        completed_badge: "✓ Abgeschlossen",
+        remove_video_aria: "Video aus Liste entfernen",
+        loading: "Liste wird geladen..."
+      },
+      video_player: {
+        back_to_library: "Zurück zur Videobibliothek",
+        no_video: "Kein Video ausgewählt",
+        completed: "✓ Abgeschlossen",
+        watched_percent: "{{percent}}% angesehen",
+        browser_no_support: "Ihr Browser unterstützt das Video-Tag nicht."
       }
     }
   },
@@ -3903,6 +4128,51 @@ export const translations = {
           completed_message: "Esercizio Completato!",
           mark_as_complete: "Segna come Completato"
         }
+      },
+      videos: {
+        title: "Libreria Video CBT",
+        subtitle: "Video guidati per praticare la CBT",
+        new_button: "Nuovo",
+        my_playlists: "Le mie Liste",
+        loading: "Caricamento video...",
+        no_videos_title: "Nessun video ancora",
+        no_videos_description: "I video appariranno qui una volta aggiunti",
+        add_to_list: "Aggiungi alla lista"
+      },
+      playlists: {
+        back_to_videos: "Torna ai video",
+        title: "Le mie Liste",
+        subtitle: "Organizza i tuoi video CBT in liste personalizzate",
+        new_playlist: "Nuova Lista",
+        error_title: "Impossibile caricare i dati",
+        error_description: "Controlla la connessione e riprova.",
+        retry: "Riprova",
+        loading: "Caricamento liste...",
+        no_playlists_title: "Nessuna lista ancora",
+        no_playlists_description: "Crea la tua prima lista per organizzare i video",
+        create_playlist: "Crea Lista",
+        video_count: "{{count}} video",
+        view_playlist: "Vedi Lista",
+        delete_aria: "Elimina lista",
+        delete_confirm: "Eliminare questa lista?",
+        delete_error: "Impossibile eliminare la lista. Controlla la connessione e riprova."
+      },
+      playlist_detail: {
+        back_to_playlists: "Torna alle liste",
+        video_count: "{{count}} video",
+        no_videos_title: "Nessun video in questa lista",
+        no_videos_description: "Vai alla Libreria Video e aggiungi video a questa lista",
+        browse_videos: "Sfoglia video",
+        completed_badge: "✓ Completato",
+        remove_video_aria: "Rimuovi video dalla lista",
+        loading: "Caricamento lista..."
+      },
+      video_player: {
+        back_to_library: "Torna alla libreria video",
+        no_video: "Nessun video selezionato",
+        completed: "✓ Completato",
+        watched_percent: "{{percent}}% guardato",
+        browser_no_support: "Il tuo browser non supporta il tag video."
       }
     }
   },
@@ -4582,6 +4852,51 @@ export const translations = {
           completed_message: "Exercício Concluído!",
           mark_as_complete: "Marcar como Concluído"
         }
+      },
+      videos: {
+        title: "Biblioteca de Vídeos TCC",
+        subtitle: "Vídeos guiados para praticar TCC",
+        new_button: "Novo",
+        my_playlists: "Minhas Listas",
+        loading: "Carregando vídeos...",
+        no_videos_title: "Nenhum vídeo ainda",
+        no_videos_description: "Os vídeos aparecerão aqui após serem adicionados",
+        add_to_list: "Adicionar à lista"
+      },
+      playlists: {
+        back_to_videos: "Voltar aos vídeos",
+        title: "Minhas Listas",
+        subtitle: "Organize seus vídeos de TCC em listas personalizadas",
+        new_playlist: "Nova Lista",
+        error_title: "Não foi possível carregar os dados",
+        error_description: "Verifique sua conexão e tente novamente.",
+        retry: "Tentar novamente",
+        loading: "Carregando listas...",
+        no_playlists_title: "Nenhuma lista ainda",
+        no_playlists_description: "Crie sua primeira lista para organizar seus vídeos",
+        create_playlist: "Criar Lista",
+        video_count: "{{count}} vídeos",
+        view_playlist: "Ver Lista",
+        delete_aria: "Excluir lista",
+        delete_confirm: "Excluir esta lista?",
+        delete_error: "Falha ao excluir a lista. Verifique sua conexão e tente novamente."
+      },
+      playlist_detail: {
+        back_to_playlists: "Voltar às listas",
+        video_count: "{{count}} vídeos",
+        no_videos_title: "Nenhum vídeo nesta lista",
+        no_videos_description: "Vá à Biblioteca de Vídeos e adicione vídeos a esta lista",
+        browse_videos: "Explorar Vídeos",
+        completed_badge: "✓ Concluído",
+        remove_video_aria: "Remover vídeo da lista",
+        loading: "Carregando lista..."
+      },
+      video_player: {
+        back_to_library: "Voltar à Biblioteca de Vídeos",
+        no_video: "Nenhum vídeo selecionado",
+        completed: "✓ Concluído",
+        watched_percent: "{{percent}}% assistido",
+        browser_no_support: "Seu navegador não suporta o elemento de vídeo."
       }
     }
   }

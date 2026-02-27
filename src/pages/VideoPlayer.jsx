@@ -7,8 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export default function VideoPlayer() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const videoRef = useRef(null);
   const queryClient = useQueryClient();
@@ -105,13 +107,13 @@ export default function VideoPlayer() {
         <div className="page-container max-w-4xl">
           <div className="text-center py-12">
             <p className="text-lg mb-4" style={{ color: '#2D3748' }}>
-              No video selected
+              {t('video_player.no_video')}
             </p>
             <Button onClick={handleBack} className="px-6 py-5 text-white" style={{ 
               borderRadius: '9999px',
               backgroundColor: '#26A69A',
               boxShadow: '0 2px 8px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.06)'
-            }}>Back to Video Library</Button>
+            }}>{t('video_player.back_to_library')}</Button>
           </div>
         </div>
       </div>
@@ -135,7 +137,7 @@ export default function VideoPlayer() {
               style={{ color: '#718096' }}
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Video Library
+              {t('video_player.back_to_library')}
             </Button>
             <h1 className="text-2xl font-semibold" style={{ color: '#2D3748' }}>
               {title}
@@ -160,14 +162,14 @@ export default function VideoPlayer() {
                   src={videoUrl}
                   style={{ maxHeight: '70vh' }}
                 >
-                  Your browser does not support the video tag.
+                  {t('video_player.browser_no_support')}
                 </video>
               </div>
               {videoProgress && videoProgress.progress > 0 && (
                 <div className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium" style={{ color: 'rgb(var(--text))' }}>
-                      {videoProgress.completed ? '✓ Completed' : `${Math.floor(videoProgress.progress)}% watched`}
+                      {videoProgress.completed ? t('video_player.completed') : t('video_player.watched_percent', { percent: Math.floor(videoProgress.progress) })}
                     </span>
                   </div>
                   <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -195,7 +197,7 @@ export default function VideoPlayer() {
                 boxShadow: '0 3px 10px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.08)'
               }}
             >
-              Back to Video Library
+              {t('video_player.back_to_library')}
             </Button>
           </div>
         </motion.div>
