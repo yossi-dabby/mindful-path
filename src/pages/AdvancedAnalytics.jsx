@@ -111,6 +111,12 @@ export default function AdvancedAnalytics() {
 
   const handleUnlockClick = useCallback(() => setShowPaywall(true), []);
 
+  const weekDays = useMemo(() => [
+    t('advanced_analytics.day_mon'), t('advanced_analytics.day_tue'), t('advanced_analytics.day_wed'),
+    t('advanced_analytics.day_thu'), t('advanced_analytics.day_fri'), t('advanced_analytics.day_sat'),
+    t('advanced_analytics.day_sun')
+  ], [t]);
+
   return (
     <div className="min-h-screen pb-20 md:pb-8">
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 md:py-8">
@@ -365,7 +371,7 @@ export default function AdvancedAnalytics() {
                       {t('advanced_analytics.mood_forecast_text')}
                     </p>
                     <div className="flex gap-1 md:gap-2">
-                      {[t('advanced_analytics.day_mon'), t('advanced_analytics.day_tue'), t('advanced_analytics.day_wed'), t('advanced_analytics.day_thu'), t('advanced_analytics.day_fri'), t('advanced_analytics.day_sat'), t('advanced_analytics.day_sun')].map((day, i) => {
+                      {weekDays.map((day, i) => {
                         const levels = [3, 4, 3, 3, 4, 4, 3];
                         return (
                           <div key={day} className="flex-1 text-center">
