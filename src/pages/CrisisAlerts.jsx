@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertTriangle, Filter, MessageCircle, Brain, Target } from 'lucide-react';
 import { format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 const surfaceIcons = {
   chat: MessageCircle,
@@ -31,6 +32,15 @@ const reasonColors = {
 };
 
 export default function CrisisAlerts() {
+  const { t } = useTranslation();
+
+  const reasonLabels = {
+    self_harm: t('crisis_alerts.reasons.self_harm'),
+    suicide: t('crisis_alerts.reasons.suicide'),
+    overdose: t('crisis_alerts.reasons.overdose'),
+    immediate_danger: t('crisis_alerts.reasons.immediate_danger'),
+    general_crisis: t('crisis_alerts.reasons.general_crisis')
+  };
   const [surfaceFilter, setSurfaceFilter] = useState('all');
   const [reasonFilter, setReasonFilter] = useState('all');
   const [isAdminChecked, setIsAdminChecked] = useState(false);
@@ -66,7 +76,7 @@ export default function CrisisAlerts() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600">{t('crisis_alerts.loading_check')}</p>
         </div>
       </div>
     );
@@ -78,12 +88,12 @@ export default function CrisisAlerts() {
         <Card className="max-w-md">
           <CardContent className="p-8 text-center">
             <AlertTriangle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">Admin Access Required</h2>
+            <h2 className="text-xl font-semibold mb-2">{t('crisis_alerts.admin_required_title')}</h2>
             <p className="text-gray-600 mb-4">
-              This page is only accessible to administrators.
+              {t('crisis_alerts.admin_required_description')}
             </p>
             <Button onClick={() => window.location.href = '/'}>
-              Return to Home
+              {t('crisis_alerts.return_home')}
             </Button>
           </CardContent>
         </Card>
@@ -98,10 +108,10 @@ export default function CrisisAlerts() {
         <div className="mb-6">
           <div className="flex items-center gap-3 mb-2">
             <AlertTriangle className="w-8 h-8 text-red-600" />
-            <h1 className="text-3xl font-bold text-gray-900">Crisis Alerts</h1>
+            <h1 className="text-3xl font-bold text-gray-900">{t('crisis_alerts.title')}</h1>
           </div>
           <p className="text-gray-600">
-            Evidence-based escalation protocol for safety gate triggers
+            {t('crisis_alerts.subtitle')}
           </p>
         </div>
 
@@ -111,37 +121,37 @@ export default function CrisisAlerts() {
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex items-center gap-2">
                 <Filter className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-700">Filters:</span>
+                <span className="text-sm font-medium text-gray-700">{t('crisis_alerts.filters_label')}</span>
               </div>
               
               <Select value={surfaceFilter} onValueChange={setSurfaceFilter}>
                 <SelectTrigger data-testid="surface-filter" className="w-40">
-                  <SelectValue placeholder="All Surfaces" />
+                  <SelectValue placeholder={t('crisis_alerts.all_surfaces')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Surfaces</SelectItem>
-                  <SelectItem value="chat">Therapist Chat</SelectItem>
-                  <SelectItem value="companion">AI Companion</SelectItem>
-                  <SelectItem value="coach">Coach Chat</SelectItem>
+                  <SelectItem value="all">{t('crisis_alerts.all_surfaces')}</SelectItem>
+                  <SelectItem value="chat">{t('crisis_alerts.therapist_chat')}</SelectItem>
+                  <SelectItem value="companion">{t('crisis_alerts.ai_companion')}</SelectItem>
+                  <SelectItem value="coach">{t('crisis_alerts.coach_chat')}</SelectItem>
                 </SelectContent>
               </Select>
 
               <Select value={reasonFilter} onValueChange={setReasonFilter}>
                 <SelectTrigger data-testid="reason-filter" className="w-40">
-                  <SelectValue placeholder="All Reasons" />
+                  <SelectValue placeholder={t('crisis_alerts.all_reasons')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Reasons</SelectItem>
-                  <SelectItem value="self_harm">Self-Harm</SelectItem>
-                  <SelectItem value="suicide">Suicide</SelectItem>
-                  <SelectItem value="overdose">Overdose</SelectItem>
-                  <SelectItem value="immediate_danger">Immediate Danger</SelectItem>
-                  <SelectItem value="general_crisis">General Crisis</SelectItem>
+                  <SelectItem value="all">{t('crisis_alerts.all_reasons')}</SelectItem>
+                  <SelectItem value="self_harm">{t('crisis_alerts.reasons.self_harm')}</SelectItem>
+                  <SelectItem value="suicide">{t('crisis_alerts.reasons.suicide')}</SelectItem>
+                  <SelectItem value="overdose">{t('crisis_alerts.reasons.overdose')}</SelectItem>
+                  <SelectItem value="immediate_danger">{t('crisis_alerts.reasons.immediate_danger')}</SelectItem>
+                  <SelectItem value="general_crisis">{t('crisis_alerts.reasons.general_crisis')}</SelectItem>
                 </SelectContent>
               </Select>
 
               <div className="ml-auto text-sm text-gray-500">
-                {alerts.length} {alerts.length === 1 ? 'alert' : 'alerts'}
+                {t('crisis_alerts.alert_count', { count: alerts.length, unit: alerts.length === 1 ? t('crisis_alerts.alert_singular') : t('crisis_alerts.alert_plural') })}
               </div>
             </div>
           </CardContent>
@@ -152,14 +162,14 @@ export default function CrisisAlerts() {
           {isLoading ? (
             <Card>
               <CardContent className="p-8 text-center">
-                <p className="text-gray-500">Loading alerts...</p>
+                <p className="text-gray-500">{t('crisis_alerts.loading_alerts')}</p>
               </CardContent>
             </Card>
           ) : alerts.length === 0 ? (
             <Card>
               <CardContent className="p-8 text-center">
                 <AlertTriangle className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">No crisis alerts found</p>
+                <p className="text-gray-500">{t('crisis_alerts.no_alerts')}</p>
               </CardContent>
             </Card>
           ) : (
@@ -185,16 +195,16 @@ export default function CrisisAlerts() {
                         
                         <div className="space-y-1 text-sm text-gray-600">
                           <p>
-                            <span className="font-medium">Time:</span>{' '}
+                            <span className="font-medium">{t('crisis_alerts.time_label')}</span>{' '}
                             {format(new Date(alert.created_date), 'MMM d, yyyy h:mm a')}
                           </p>
                           <p>
-                            <span className="font-medium">User:</span>{' '}
+                            <span className="font-medium">{t('crisis_alerts.user_label')}</span>{' '}
                             {alert.user_email}
                           </p>
                           {alert.conversation_id && alert.conversation_id !== 'none' && (
                             <p className="truncate">
-                              <span className="font-medium">Conversation:</span>{' '}
+                              <span className="font-medium">{t('crisis_alerts.conversation_label')}</span>{' '}
                               <code className="text-xs bg-gray-100 px-1 py-0.5 rounded">
                                 {alert.conversation_id}
                               </code>
@@ -202,7 +212,7 @@ export default function CrisisAlerts() {
                           )}
                           {alert.session_id && (
                             <p className="truncate">
-                              <span className="font-medium">Session:</span>{' '}
+                              <span className="font-medium">{t('crisis_alerts.session_label')}</span>{' '}
                               <code className="text-xs bg-gray-100 px-1 py-0.5 rounded">
                                 {alert.session_id}
                               </code>

@@ -7,28 +7,31 @@ import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Toolti
 import { TrendingUp, Target, CheckCircle, Users, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
+import { useTranslation } from 'react-i18next';
 
 const COLORS = ['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444'];
 
-const focusAreaLabels = {
-  mood_improvement: 'Mood Improvement',
-  stress_management: 'Stress Management',
-  goal_achievement: 'Goal Achievement',
-  behavior_change: 'Behavior Change',
-  relationship: 'Relationship',
-  self_esteem: 'Self-Esteem',
-  general: 'General Support'
-};
-
-const stageLabels = {
-  discovery: 'Discovery',
-  planning: 'Planning',
-  action: 'Action',
-  review: 'Review',
-  completed: 'Completed'
-};
-
 export default function CoachingAnalytics() {
+  const { t } = useTranslation();
+
+  const focusAreaLabels = {
+    mood_improvement: t('coaching_analytics.focus_areas.mood_improvement'),
+    stress_management: t('coaching_analytics.focus_areas.stress_management'),
+    goal_achievement: t('coaching_analytics.focus_areas.goal_achievement'),
+    behavior_change: t('coaching_analytics.focus_areas.behavior_change'),
+    relationship: t('coaching_analytics.focus_areas.relationship'),
+    self_esteem: t('coaching_analytics.focus_areas.self_esteem'),
+    general: t('coaching_analytics.focus_areas.general')
+  };
+
+  const stageLabels = {
+    discovery: t('coaching_analytics.stages.discovery'),
+    planning: t('coaching_analytics.stages.planning'),
+    action: t('coaching_analytics.stages.action'),
+    review: t('coaching_analytics.stages.review'),
+    completed: t('coaching_analytics.stages.completed')
+  };
+
   const { data: sessions, isLoading } = useQuery({
     queryKey: ['coachingSessions'],
     queryFn: () => base44.entities.CoachingSession.list(),
@@ -38,7 +41,7 @@ export default function CoachingAnalytics() {
   if (isLoading) {
     return (
       <div className="min-h-screen p-8 flex items-center justify-center">
-        <p className="text-gray-500">Loading analytics...</p>
+        <p className="text-gray-500">{t('coaching_analytics.loading')}</p>
       </div>
     );
   }
@@ -92,11 +95,11 @@ export default function CoachingAnalytics() {
         <Link to={createPageUrl('Coach')}>
           <Button variant="ghost" className="mb-4">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Coaching
+            {t('coaching_analytics.back_to_coaching')}
           </Button>
         </Link>
-        <h1 className="text-3xl md:text-4xl font-light text-gray-800 mb-2">Coaching Analytics</h1>
-        <p className="text-gray-500">Insights into your coaching journey</p>
+        <h1 className="text-3xl md:text-4xl font-light text-gray-800 mb-2">{t('coaching_analytics.title')}</h1>
+        <p className="text-gray-500">{t('coaching_analytics.subtitle')}</p>
       </div>
 
       {/* Stats Overview */}
@@ -105,7 +108,7 @@ export default function CoachingAnalytics() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 mb-1">Total Sessions</p>
+                <p className="text-sm text-gray-500 mb-1">{t('coaching_analytics.total_sessions')}</p>
                 <p className="text-3xl font-bold text-gray-800">{sessions.length}</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
@@ -119,7 +122,7 @@ export default function CoachingAnalytics() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 mb-1">Active Sessions</p>
+                <p className="text-sm text-gray-500 mb-1">{t('coaching_analytics.active_sessions')}</p>
                 <p className="text-3xl font-bold text-blue-600">{activeSessions.length}</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
@@ -133,7 +136,7 @@ export default function CoachingAnalytics() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 mb-1">Completion Rate</p>
+                <p className="text-sm text-gray-500 mb-1">{t('coaching_analytics.completion_rate')}</p>
                 <p className="text-3xl font-bold text-green-600">{completionRate}%</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
@@ -147,7 +150,7 @@ export default function CoachingAnalytics() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 mb-1">Action Completion</p>
+                <p className="text-sm text-gray-500 mb-1">{t('coaching_analytics.action_completion')}</p>
                 <p className="text-3xl font-bold text-orange-600">{actionCompletionRate}%</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
@@ -155,7 +158,7 @@ export default function CoachingAnalytics() {
               </div>
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              {completedActions} of {totalActions} actions completed
+              {t('coaching_analytics.actions_completed', { completed: completedActions, total: totalActions })}
             </p>
           </CardContent>
         </Card>
@@ -166,7 +169,7 @@ export default function CoachingAnalytics() {
         {/* Focus Areas */}
         <Card className="border-0 shadow-lg">
           <CardHeader>
-            <CardTitle>Most Common Challenges</CardTitle>
+            <CardTitle>{t('coaching_analytics.most_common_challenges')}</CardTitle>
           </CardHeader>
           <CardContent>
             {focusAreaData.length > 0 ? (
@@ -190,7 +193,7 @@ export default function CoachingAnalytics() {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <p className="text-center text-gray-500 py-12">No data available</p>
+              <p className="text-center text-gray-500 py-12">{t('coaching_analytics.no_data')}</p>
             )}
           </CardContent>
         </Card>
@@ -198,7 +201,7 @@ export default function CoachingAnalytics() {
         {/* Stage Distribution */}
         <Card className="border-0 shadow-lg">
           <CardHeader>
-            <CardTitle>Session Stage Distribution</CardTitle>
+            <CardTitle>{t('coaching_analytics.stage_distribution')}</CardTitle>
           </CardHeader>
           <CardContent>
             {stageData.length > 0 ? (
@@ -212,7 +215,7 @@ export default function CoachingAnalytics() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <p className="text-center text-gray-500 py-12">No data available</p>
+              <p className="text-center text-gray-500 py-12">{t('coaching_analytics.no_data')}</p>
             )}
           </CardContent>
         </Card>
@@ -221,7 +224,7 @@ export default function CoachingAnalytics() {
       {/* Top Challenges List */}
       <Card className="border-0 shadow-lg">
         <CardHeader>
-          <CardTitle>Challenge Breakdown</CardTitle>
+          <CardTitle>{t('coaching_analytics.challenge_breakdown')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -245,7 +248,7 @@ export default function CoachingAnalytics() {
                     />
                   </div>
                   <span className="text-gray-600 font-semibold w-16 text-right">
-                    {item.value} {item.value === 1 ? 'session' : 'sessions'}
+                    {item.value} {item.value === 1 ? t('coaching_analytics.session_singular') : t('coaching_analytics.session_plural')}
                   </span>
                 </div>
               </div>

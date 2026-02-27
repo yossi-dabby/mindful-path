@@ -6,8 +6,10 @@ import FeedFilters from '../components/feed/FeedFilters';
 import { Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import PullToRefresh from '../components/utils/PullToRefresh';
+import { useTranslation } from 'react-i18next';
 
 export default function PersonalizedFeed() {
+  const { t } = useTranslation();
   const [userInterests, setUserInterests] = useState([]);
   const [contentType, setContentType] = useState('all');
   const [sortBy, setSortBy] = useState('relevance');
@@ -39,16 +41,16 @@ export default function PersonalizedFeed() {
             size="icon"
             onClick={() => window.history.back()}
             className="rounded-full"
-            aria-label="Go back"
+            aria-label={t('personalized_feed.go_back_aria')}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </Button>
           <div>
             <div className="flex items-center gap-2">
               <Sparkles className="w-6 h-6" style={{ color: '#26A69A' }} />
-              <h1 className="text-3xl md:text-4xl font-light" style={{ color: '#2D3748' }}>Personalized Feed</h1>
+              <h1 className="text-3xl md:text-4xl font-light" style={{ color: '#2D3748' }}>{t('personalized_feed.title')}</h1>
             </div>
-            <p className="mt-1" style={{ color: '#718096' }}>AI-curated content tailored to your interests</p>
+            <p className="mt-1" style={{ color: '#718096' }}>{t('personalized_feed.subtitle')}</p>
           </div>
         </div>
       </motion.div>

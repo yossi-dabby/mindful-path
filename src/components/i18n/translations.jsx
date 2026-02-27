@@ -721,6 +721,90 @@ export const translations = {
         completed: "✓ Completed",
         watched_percent: "{{percent}}% watched",
         browser_no_support: "Your browser does not support the video tag."
+      },
+      coaching_analytics: {
+        back_to_coaching: "Back to Coaching",
+        title: "Coaching Analytics",
+        subtitle: "Insights into your coaching journey",
+        loading: "Loading analytics...",
+        total_sessions: "Total Sessions",
+        active_sessions: "Active Sessions",
+        completion_rate: "Completion Rate",
+        action_completion: "Action Completion",
+        actions_completed: "{{completed}} of {{total}} actions completed",
+        no_data: "No data available",
+        most_common_challenges: "Most Common Challenges",
+        stage_distribution: "Session Stage Distribution",
+        challenge_breakdown: "Challenge Breakdown",
+        session_singular: "session",
+        session_plural: "sessions",
+        focus_areas: {
+          mood_improvement: "Mood Improvement",
+          stress_management: "Stress Management",
+          goal_achievement: "Goal Achievement",
+          behavior_change: "Behavior Change",
+          relationship: "Relationship",
+          self_esteem: "Self-Esteem",
+          general: "General Support"
+        },
+        stages: {
+          discovery: "Discovery",
+          planning: "Planning",
+          action: "Action",
+          review: "Review",
+          completed: "Completed"
+        }
+      },
+      crisis_alerts: {
+        loading_check: "Loading...",
+        admin_required_title: "Admin Access Required",
+        admin_required_description: "This page is only accessible to administrators.",
+        return_home: "Return to Home",
+        title: "Crisis Alerts",
+        subtitle: "Evidence-based escalation protocol for safety gate triggers",
+        filters_label: "Filters:",
+        all_surfaces: "All Surfaces",
+        therapist_chat: "Therapist Chat",
+        ai_companion: "AI Companion",
+        coach_chat: "Coach Chat",
+        all_reasons: "All Reasons",
+        reasons: {
+          self_harm: "Self-Harm",
+          suicide: "Suicide",
+          overdose: "Overdose",
+          immediate_danger: "Immediate Danger",
+          general_crisis: "General Crisis"
+        },
+        alert_count: "{{count}} {{unit}}",
+        alert_singular: "alert",
+        alert_plural: "alerts",
+        loading_alerts: "Loading alerts...",
+        no_alerts: "No crisis alerts found",
+        time_label: "Time:",
+        user_label: "User:",
+        conversation_label: "Conversation:",
+        session_label: "Session:"
+      },
+      goals: {
+        title: "Your Goals",
+        subtitle: "Set intentions and track your progress",
+        view_calendar: "Calendar",
+        view_timeline: "Timeline",
+        view_kanban: "Kanban",
+        view_templates: "Templates",
+        ai_suggestions: "AI Suggestions",
+        error_title: "Couldn't load data",
+        error_description: "Check your connection and try again.",
+        loading: "Loading goals...",
+        first_goal_title: "Set Your First Goal",
+        no_active_kanban: "No active goals to display in Kanban view",
+        active_goals: "Active Goals",
+        completed_goals: "Completed Goals"
+      },
+      personalized_feed: {
+        title: "Personalized Feed",
+        subtitle: "AI-curated content tailored to your interests",
+        go_back_aria: "Go back"
       }
     }
   },
@@ -1445,6 +1529,90 @@ export const translations = {
         completed: "✓ הושלם",
         watched_percent: "{{percent}}% נצפה",
         browser_no_support: "הדפדפן שלכם אינו תומך בתג וידאו."
+      },
+      coaching_analytics: {
+        back_to_coaching: "חזרה לאימון",
+        title: "אנליטיקת האימון",
+        subtitle: "תובנות על מסע האימון שלכם",
+        loading: "טוען אנליטיקה...",
+        total_sessions: "סה\"כ מפגשים",
+        active_sessions: "מפגשים פעילים",
+        completion_rate: "שיעור השלמה",
+        action_completion: "השלמת פעולות",
+        actions_completed: "{{completed}} מתוך {{total}} פעולות הושלמו",
+        no_data: "אין נתונים זמינים",
+        most_common_challenges: "אתגרים נפוצים ביותר",
+        stage_distribution: "התפלגות שלבי מפגש",
+        challenge_breakdown: "פירוט אתגרים",
+        session_singular: "מפגש",
+        session_plural: "מפגשים",
+        focus_areas: {
+          mood_improvement: "שיפור מצב רוח",
+          stress_management: "ניהול לחץ",
+          goal_achievement: "השגת מטרות",
+          behavior_change: "שינוי התנהגות",
+          relationship: "מערכות יחסים",
+          self_esteem: "הערכה עצמית",
+          general: "תמיכה כללית"
+        },
+        stages: {
+          discovery: "גילוי",
+          planning: "תכנון",
+          action: "פעולה",
+          review: "סקירה",
+          completed: "הושלם"
+        }
+      },
+      crisis_alerts: {
+        loading_check: "טוען...",
+        admin_required_title: "נדרשת גישת מנהל",
+        admin_required_description: "דף זה נגיש למנהלים בלבד.",
+        return_home: "חזרה לדף הבית",
+        title: "התראות משבר",
+        subtitle: "פרוטוקול הסלמה מבוסס ראיות לטריגרי שערי בטיחות",
+        filters_label: "סינון:",
+        all_surfaces: "כל הממשקים",
+        therapist_chat: "שיחת מטפל",
+        ai_companion: "מלווה AI",
+        coach_chat: "שיחת מאמן",
+        all_reasons: "כל הסיבות",
+        reasons: {
+          self_harm: "פגיעה עצמית",
+          suicide: "אובדנות",
+          overdose: "מנת יתר",
+          immediate_danger: "סכנה מיידית",
+          general_crisis: "משבר כללי"
+        },
+        alert_count: "{{count}} {{unit}}",
+        alert_singular: "התראה",
+        alert_plural: "התראות",
+        loading_alerts: "טוען התראות...",
+        no_alerts: "לא נמצאו התראות משבר",
+        time_label: "זמן:",
+        user_label: "משתמש:",
+        conversation_label: "שיחה:",
+        session_label: "מפגש:"
+      },
+      goals: {
+        title: "המטרות שלכם",
+        subtitle: "הגדירו כוונות ועקבו אחר ההתקדמות",
+        view_calendar: "לוח שנה",
+        view_timeline: "ציר זמן",
+        view_kanban: "קנבן",
+        view_templates: "תבניות",
+        ai_suggestions: "הצעות AI",
+        error_title: "לא ניתן לטעון נתונים",
+        error_description: "בדקו את החיבור ונסו שנית.",
+        loading: "טוען מטרות...",
+        first_goal_title: "הגדירו את המטרה הראשונה שלכם",
+        no_active_kanban: "אין מטרות פעילות להצגה בתצוגת קנבן",
+        active_goals: "מטרות פעילות",
+        completed_goals: "מטרות שהושלמו"
+      },
+      personalized_feed: {
+        title: "פיד מותאם אישית",
+        subtitle: "תוכן מאורגן על ידי AI בהתאם לתחומי העניין שלכם",
+        go_back_aria: "חזרה"
       }
     }
   },
@@ -2001,6 +2169,90 @@ export const translations = {
         completed: "✓ Completado",
         watched_percent: "{{percent}}% visto",
         browser_no_support: "Tu navegador no admite el elemento de video."
+      },
+      coaching_analytics: {
+        back_to_coaching: "Volver al Coaching",
+        title: "Analíticas de Coaching",
+        subtitle: "Perspectivas de tu viaje de coaching",
+        loading: "Cargando analíticas...",
+        total_sessions: "Total de Sesiones",
+        active_sessions: "Sesiones Activas",
+        completion_rate: "Tasa de Finalización",
+        action_completion: "Completitud de Acciones",
+        actions_completed: "{{completed}} de {{total}} acciones completadas",
+        no_data: "Sin datos disponibles",
+        most_common_challenges: "Desafíos Más Comunes",
+        stage_distribution: "Distribución de Etapas de Sesión",
+        challenge_breakdown: "Desglose de Desafíos",
+        session_singular: "sesión",
+        session_plural: "sesiones",
+        focus_areas: {
+          mood_improvement: "Mejora del Estado de Ánimo",
+          stress_management: "Gestión del Estrés",
+          goal_achievement: "Logro de Metas",
+          behavior_change: "Cambio de Comportamiento",
+          relationship: "Relaciones",
+          self_esteem: "Autoestima",
+          general: "Apoyo General"
+        },
+        stages: {
+          discovery: "Descubrimiento",
+          planning: "Planificación",
+          action: "Acción",
+          review: "Revisión",
+          completed: "Completado"
+        }
+      },
+      crisis_alerts: {
+        loading_check: "Cargando...",
+        admin_required_title: "Acceso de Administrador Requerido",
+        admin_required_description: "Esta página solo es accesible para administradores.",
+        return_home: "Volver al Inicio",
+        title: "Alertas de Crisis",
+        subtitle: "Protocolo de escalada basado en evidencia para disparadores de seguridad",
+        filters_label: "Filtros:",
+        all_surfaces: "Todas las Superficies",
+        therapist_chat: "Chat con Terapeuta",
+        ai_companion: "Compañero IA",
+        coach_chat: "Chat con Coach",
+        all_reasons: "Todas las Razones",
+        reasons: {
+          self_harm: "Autolesión",
+          suicide: "Suicidio",
+          overdose: "Sobredosis",
+          immediate_danger: "Peligro Inmediato",
+          general_crisis: "Crisis General"
+        },
+        alert_count: "{{count}} {{unit}}",
+        alert_singular: "alerta",
+        alert_plural: "alertas",
+        loading_alerts: "Cargando alertas...",
+        no_alerts: "No se encontraron alertas de crisis",
+        time_label: "Hora:",
+        user_label: "Usuario:",
+        conversation_label: "Conversación:",
+        session_label: "Sesión:"
+      },
+      goals: {
+        title: "Tus Metas",
+        subtitle: "Establece intenciones y sigue tu progreso",
+        view_calendar: "Calendario",
+        view_timeline: "Cronología",
+        view_kanban: "Kanban",
+        view_templates: "Plantillas",
+        ai_suggestions: "Sugerencias IA",
+        error_title: "No se pudieron cargar los datos",
+        error_description: "Comprueba tu conexión e inténtalo de nuevo.",
+        loading: "Cargando metas...",
+        first_goal_title: "Establece Tu Primera Meta",
+        no_active_kanban: "No hay metas activas para mostrar en la vista Kanban",
+        active_goals: "Metas Activas",
+        completed_goals: "Metas Completadas"
+      },
+      personalized_feed: {
+        title: "Feed Personalizado",
+        subtitle: "Contenido curado por IA adaptado a tus intereses",
+        go_back_aria: "Volver"
       }
     }
   },
@@ -2725,6 +2977,90 @@ export const translations = {
         completed: "✓ Terminé",
         watched_percent: "{{percent}}% regardé",
         browser_no_support: "Votre navigateur ne prend pas en charge la balise vidéo."
+      },
+      coaching_analytics: {
+        back_to_coaching: "Retour au Coaching",
+        title: "Analytiques de Coaching",
+        subtitle: "Aperçu de votre parcours de coaching",
+        loading: "Chargement des analytiques...",
+        total_sessions: "Total des Séances",
+        active_sessions: "Séances Actives",
+        completion_rate: "Taux de Complétion",
+        action_completion: "Complétion des Actions",
+        actions_completed: "{{completed}} sur {{total}} actions complétées",
+        no_data: "Aucune donnée disponible",
+        most_common_challenges: "Défis les Plus Courants",
+        stage_distribution: "Distribution des Étapes de Séance",
+        challenge_breakdown: "Répartition des Défis",
+        session_singular: "séance",
+        session_plural: "séances",
+        focus_areas: {
+          mood_improvement: "Amélioration de l'Humeur",
+          stress_management: "Gestion du Stress",
+          goal_achievement: "Atteinte des Objectifs",
+          behavior_change: "Changement de Comportement",
+          relationship: "Relations",
+          self_esteem: "Estime de Soi",
+          general: "Soutien Général"
+        },
+        stages: {
+          discovery: "Découverte",
+          planning: "Planification",
+          action: "Action",
+          review: "Révision",
+          completed: "Terminé"
+        }
+      },
+      crisis_alerts: {
+        loading_check: "Chargement...",
+        admin_required_title: "Accès Administrateur Requis",
+        admin_required_description: "Cette page est uniquement accessible aux administrateurs.",
+        return_home: "Retour à l'Accueil",
+        title: "Alertes de Crise",
+        subtitle: "Protocole d'escalade basé sur des preuves pour les déclencheurs de sécurité",
+        filters_label: "Filtres :",
+        all_surfaces: "Toutes les Surfaces",
+        therapist_chat: "Chat Thérapeute",
+        ai_companion: "Compagnon IA",
+        coach_chat: "Chat Coach",
+        all_reasons: "Toutes les Raisons",
+        reasons: {
+          self_harm: "Automutilation",
+          suicide: "Suicide",
+          overdose: "Surdosage",
+          immediate_danger: "Danger Immédiat",
+          general_crisis: "Crise Générale"
+        },
+        alert_count: "{{count}} {{unit}}",
+        alert_singular: "alerte",
+        alert_plural: "alertes",
+        loading_alerts: "Chargement des alertes...",
+        no_alerts: "Aucune alerte de crise trouvée",
+        time_label: "Heure :",
+        user_label: "Utilisateur :",
+        conversation_label: "Conversation :",
+        session_label: "Séance :"
+      },
+      goals: {
+        title: "Vos Objectifs",
+        subtitle: "Définissez des intentions et suivez votre progression",
+        view_calendar: "Calendrier",
+        view_timeline: "Chronologie",
+        view_kanban: "Kanban",
+        view_templates: "Modèles",
+        ai_suggestions: "Suggestions IA",
+        error_title: "Impossible de charger les données",
+        error_description: "Vérifiez votre connexion et réessayez.",
+        loading: "Chargement des objectifs...",
+        first_goal_title: "Définissez Votre Premier Objectif",
+        no_active_kanban: "Aucun objectif actif à afficher en vue Kanban",
+        active_goals: "Objectifs Actifs",
+        completed_goals: "Objectifs Complétés"
+      },
+      personalized_feed: {
+        title: "Fil Personnalisé",
+        subtitle: "Contenu curé par IA adapté à vos intérêts",
+        go_back_aria: "Retour"
       }
     }
   },
@@ -3449,6 +3785,90 @@ export const translations = {
         completed: "✓ Abgeschlossen",
         watched_percent: "{{percent}}% angesehen",
         browser_no_support: "Ihr Browser unterstützt das Video-Tag nicht."
+      },
+      coaching_analytics: {
+        back_to_coaching: "Zurück zum Coaching",
+        title: "Coaching-Analytik",
+        subtitle: "Einblicke in Ihre Coaching-Reise",
+        loading: "Analytik wird geladen...",
+        total_sessions: "Gesamtsitzungen",
+        active_sessions: "Aktive Sitzungen",
+        completion_rate: "Abschlussrate",
+        action_completion: "Aktionsabschluss",
+        actions_completed: "{{completed}} von {{total}} Aktionen abgeschlossen",
+        no_data: "Keine Daten verfügbar",
+        most_common_challenges: "Häufigste Herausforderungen",
+        stage_distribution: "Verteilung der Sitzungsphasen",
+        challenge_breakdown: "Aufschlüsselung der Herausforderungen",
+        session_singular: "Sitzung",
+        session_plural: "Sitzungen",
+        focus_areas: {
+          mood_improvement: "Stimmungsverbesserung",
+          stress_management: "Stressmanagement",
+          goal_achievement: "Zielerreichung",
+          behavior_change: "Verhaltensänderung",
+          relationship: "Beziehungen",
+          self_esteem: "Selbstwertgefühl",
+          general: "Allgemeine Unterstützung"
+        },
+        stages: {
+          discovery: "Entdeckung",
+          planning: "Planung",
+          action: "Aktion",
+          review: "Überprüfung",
+          completed: "Abgeschlossen"
+        }
+      },
+      crisis_alerts: {
+        loading_check: "Laden...",
+        admin_required_title: "Administratorzugang Erforderlich",
+        admin_required_description: "Diese Seite ist nur für Administratoren zugänglich.",
+        return_home: "Zurück zur Startseite",
+        title: "Krisenmeldungen",
+        subtitle: "Evidenzbasiertes Eskalationsprotokoll für Sicherheitsauslöser",
+        filters_label: "Filter:",
+        all_surfaces: "Alle Oberflächen",
+        therapist_chat: "Therapeuten-Chat",
+        ai_companion: "KI-Begleiter",
+        coach_chat: "Coach-Chat",
+        all_reasons: "Alle Gründe",
+        reasons: {
+          self_harm: "Selbstverletzung",
+          suicide: "Suizid",
+          overdose: "Überdosis",
+          immediate_danger: "Unmittelbare Gefahr",
+          general_crisis: "Allgemeine Krise"
+        },
+        alert_count: "{{count}} {{unit}}",
+        alert_singular: "Meldung",
+        alert_plural: "Meldungen",
+        loading_alerts: "Meldungen werden geladen...",
+        no_alerts: "Keine Krisenmeldungen gefunden",
+        time_label: "Zeit:",
+        user_label: "Benutzer:",
+        conversation_label: "Gespräch:",
+        session_label: "Sitzung:"
+      },
+      goals: {
+        title: "Ihre Ziele",
+        subtitle: "Setzen Sie Absichten und verfolgen Sie Ihren Fortschritt",
+        view_calendar: "Kalender",
+        view_timeline: "Zeitachse",
+        view_kanban: "Kanban",
+        view_templates: "Vorlagen",
+        ai_suggestions: "KI-Vorschläge",
+        error_title: "Daten konnten nicht geladen werden",
+        error_description: "Überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+        loading: "Ziele werden geladen...",
+        first_goal_title: "Setzen Sie Ihr Erstes Ziel",
+        no_active_kanban: "Keine aktiven Ziele in der Kanban-Ansicht",
+        active_goals: "Aktive Ziele",
+        completed_goals: "Abgeschlossene Ziele"
+      },
+      personalized_feed: {
+        title: "Personalisierter Feed",
+        subtitle: "KI-kuratierte Inhalte, die auf Ihre Interessen zugeschnitten sind",
+        go_back_aria: "Zurück"
       }
     }
   },
@@ -4173,6 +4593,90 @@ export const translations = {
         completed: "✓ Completato",
         watched_percent: "{{percent}}% guardato",
         browser_no_support: "Il tuo browser non supporta il tag video."
+      },
+      coaching_analytics: {
+        back_to_coaching: "Torna al Coaching",
+        title: "Analisi del Coaching",
+        subtitle: "Approfondimenti sul tuo percorso di coaching",
+        loading: "Caricamento analisi...",
+        total_sessions: "Sessioni Totali",
+        active_sessions: "Sessioni Attive",
+        completion_rate: "Tasso di Completamento",
+        action_completion: "Completamento Azioni",
+        actions_completed: "{{completed}} di {{total}} azioni completate",
+        no_data: "Nessun dato disponibile",
+        most_common_challenges: "Sfide Più Comuni",
+        stage_distribution: "Distribuzione delle Fasi della Sessione",
+        challenge_breakdown: "Analisi delle Sfide",
+        session_singular: "sessione",
+        session_plural: "sessioni",
+        focus_areas: {
+          mood_improvement: "Miglioramento dell'Umore",
+          stress_management: "Gestione dello Stress",
+          goal_achievement: "Raggiungimento degli Obiettivi",
+          behavior_change: "Cambiamento del Comportamento",
+          relationship: "Relazioni",
+          self_esteem: "Autostima",
+          general: "Supporto Generale"
+        },
+        stages: {
+          discovery: "Scoperta",
+          planning: "Pianificazione",
+          action: "Azione",
+          review: "Revisione",
+          completed: "Completato"
+        }
+      },
+      crisis_alerts: {
+        loading_check: "Caricamento...",
+        admin_required_title: "Accesso Amministratore Richiesto",
+        admin_required_description: "Questa pagina è accessibile solo agli amministratori.",
+        return_home: "Torna alla Home",
+        title: "Avvisi di Crisi",
+        subtitle: "Protocollo di escalation basato su evidenze per i trigger di sicurezza",
+        filters_label: "Filtri:",
+        all_surfaces: "Tutte le Superfici",
+        therapist_chat: "Chat Terapeuta",
+        ai_companion: "Compagno IA",
+        coach_chat: "Chat Coach",
+        all_reasons: "Tutti i Motivi",
+        reasons: {
+          self_harm: "Autolesionismo",
+          suicide: "Suicidio",
+          overdose: "Overdose",
+          immediate_danger: "Pericolo Immediato",
+          general_crisis: "Crisi Generale"
+        },
+        alert_count: "{{count}} {{unit}}",
+        alert_singular: "avviso",
+        alert_plural: "avvisi",
+        loading_alerts: "Caricamento avvisi...",
+        no_alerts: "Nessun avviso di crisi trovato",
+        time_label: "Ora:",
+        user_label: "Utente:",
+        conversation_label: "Conversazione:",
+        session_label: "Sessione:"
+      },
+      goals: {
+        title: "I Tuoi Obiettivi",
+        subtitle: "Imposta intenzioni e monitora i tuoi progressi",
+        view_calendar: "Calendario",
+        view_timeline: "Cronologia",
+        view_kanban: "Kanban",
+        view_templates: "Modelli",
+        ai_suggestions: "Suggerimenti IA",
+        error_title: "Impossibile caricare i dati",
+        error_description: "Controlla la connessione e riprova.",
+        loading: "Caricamento obiettivi...",
+        first_goal_title: "Imposta il Tuo Primo Obiettivo",
+        no_active_kanban: "Nessun obiettivo attivo da visualizzare nella vista Kanban",
+        active_goals: "Obiettivi Attivi",
+        completed_goals: "Obiettivi Completati"
+      },
+      personalized_feed: {
+        title: "Feed Personalizzato",
+        subtitle: "Contenuti curati dall'IA su misura per i tuoi interessi",
+        go_back_aria: "Indietro"
       }
     }
   },
@@ -4897,6 +5401,90 @@ export const translations = {
         completed: "✓ Concluído",
         watched_percent: "{{percent}}% assistido",
         browser_no_support: "Seu navegador não suporta o elemento de vídeo."
+      },
+      coaching_analytics: {
+        back_to_coaching: "Voltar ao Coaching",
+        title: "Análise de Coaching",
+        subtitle: "Perspectivas da sua jornada de coaching",
+        loading: "Carregando análises...",
+        total_sessions: "Total de Sessões",
+        active_sessions: "Sessões Ativas",
+        completion_rate: "Taxa de Conclusão",
+        action_completion: "Conclusão de Ações",
+        actions_completed: "{{completed}} de {{total}} ações concluídas",
+        no_data: "Sem dados disponíveis",
+        most_common_challenges: "Desafios Mais Comuns",
+        stage_distribution: "Distribuição de Etapas da Sessão",
+        challenge_breakdown: "Detalhamento dos Desafios",
+        session_singular: "sessão",
+        session_plural: "sessões",
+        focus_areas: {
+          mood_improvement: "Melhoria do Humor",
+          stress_management: "Gestão do Estresse",
+          goal_achievement: "Conquista de Metas",
+          behavior_change: "Mudança de Comportamento",
+          relationship: "Relacionamentos",
+          self_esteem: "Autoestima",
+          general: "Suporte Geral"
+        },
+        stages: {
+          discovery: "Descoberta",
+          planning: "Planejamento",
+          action: "Ação",
+          review: "Revisão",
+          completed: "Concluído"
+        }
+      },
+      crisis_alerts: {
+        loading_check: "Carregando...",
+        admin_required_title: "Acesso de Administrador Necessário",
+        admin_required_description: "Esta página é acessível apenas para administradores.",
+        return_home: "Voltar ao Início",
+        title: "Alertas de Crise",
+        subtitle: "Protocolo de escalada baseado em evidências para gatilhos de segurança",
+        filters_label: "Filtros:",
+        all_surfaces: "Todas as Superfícies",
+        therapist_chat: "Chat com Terapeuta",
+        ai_companion: "Companheiro IA",
+        coach_chat: "Chat com Coach",
+        all_reasons: "Todos os Motivos",
+        reasons: {
+          self_harm: "Automutilação",
+          suicide: "Suicídio",
+          overdose: "Overdose",
+          immediate_danger: "Perigo Imediato",
+          general_crisis: "Crise Geral"
+        },
+        alert_count: "{{count}} {{unit}}",
+        alert_singular: "alerta",
+        alert_plural: "alertas",
+        loading_alerts: "Carregando alertas...",
+        no_alerts: "Nenhum alerta de crise encontrado",
+        time_label: "Hora:",
+        user_label: "Usuário:",
+        conversation_label: "Conversa:",
+        session_label: "Sessão:"
+      },
+      goals: {
+        title: "Seus Objetivos",
+        subtitle: "Defina intenções e acompanhe seu progresso",
+        view_calendar: "Calendário",
+        view_timeline: "Linha do Tempo",
+        view_kanban: "Kanban",
+        view_templates: "Modelos",
+        ai_suggestions: "Sugestões IA",
+        error_title: "Não foi possível carregar os dados",
+        error_description: "Verifique sua conexão e tente novamente.",
+        loading: "Carregando objetivos...",
+        first_goal_title: "Defina Seu Primeiro Objetivo",
+        no_active_kanban: "Nenhum objetivo ativo para exibir na visualização Kanban",
+        active_goals: "Objetivos Ativos",
+        completed_goals: "Objetivos Concluídos"
+      },
+      personalized_feed: {
+        title: "Feed Personalizado",
+        subtitle: "Conteúdo curado por IA adaptado aos seus interesses",
+        go_back_aria: "Voltar"
       }
     }
   }
