@@ -142,12 +142,11 @@ export default function Layout({ children, currentPageName }) {
 
       if (hasOpenOverlay) {
         overlayHistoryPushed.current = false;
-        // Close the open overlay via ESC (works for Radix Dialog, Sheet, and Vaul Drawer)
+        // Close the open overlay via ESC (works for Radix Dialog, Sheet, and Vaul Drawer).
+        // Only `key` and `code` are used; deprecated `keyCode`/`which` are omitted.
         const escEvent = new KeyboardEvent('keydown', {
           key: 'Escape',
           code: 'Escape',
-          keyCode: 27,
-          which: 27,
           bubbles: true,
           cancelable: true
         });

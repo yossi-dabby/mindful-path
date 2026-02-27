@@ -86,19 +86,20 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     onSuccess: () => {
       // Broadcast change to other components and tabs
       emitEntityChange('Goal', 'update');
-      // Mark mutation as complete after a brief delay
-      setTimeout(() => {
-        isMutatingRef.current = false;
-      }, 100);
     },
     onError: (err, _vars, context) => {
-      isMutatingRef.current = false;
       if (context?.previousGoals) {
         queryClient.setQueryData(['allGoals'], context.previousGoals);
       }
       // Revert local state on error
       setLocalMilestones(getNormalizedMilestones(goal.milestones));
       alert('Failed to update: ' + (err.message || 'Unknown error'));
+    },
+    onSettled: () => {
+      // Invalidate and refetch to ensure the cache reflects the true server state.
+      // This runs after both success and error, releasing the mutation lock.
+      queryClient.invalidateQueries({ queryKey: ['allGoals'] });
+      isMutatingRef.current = false;
     }
   });
 

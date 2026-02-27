@@ -122,40 +122,49 @@ export function TabNavigationProvider({ children, currentPageName }) {
 
   // Handle tab switching
   const switchToTab = (tabName) => {
+    const currentPath = location.pathname + location.search;
+
     if (tabName === activeTab) {
       // Switching to already active tab - reset to root
       const rootPage = TAB_ROOTS[tabName];
       if (!rootPage) return;
       const rootPath = `/${rootPage}`;
-      
+
       // Clear stack and navigate to root
       setTabStacks(prev => ({
         ...prev,
         [tabName]: [{ path: rootPath, pageName: rootPage }]
       }));
-      
-      isNavigatingRef.current = true;
-      // Replace current history entry: tab-switching should not accumulate
-      // history entries (iOS "Bottom Tabs & Stack Preservation" pattern).
-      navigate(rootPath, { replace: true });
-      
+
+      // Avoid a no-op navigation warning when already at the root.
+      if (currentPath !== rootPath) {
+        isNavigatingRef.current = true;
+        // Replace current history entry: tab-switching should not accumulate
+        // history entries (iOS "Bottom Tabs & Stack Preservation" pattern).
+        navigate(rootPath, { replace: true });
+      }
+
       // Scroll to top
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       // Switching to different tab - restore its last state
       const targetStack = tabStacks[tabName];
+      let targetPath;
       if (!targetStack || targetStack.length === 0) {
         // Fallback: navigate to root for this tab
         const rootPage = TAB_ROOTS[tabName] || tabName;
-        isNavigatingRef.current = true;
-        navigate(`/${rootPage}`, { replace: true });
+        targetPath = `/${rootPage}`;
       } else {
-        const lastPage = targetStack[targetStack.length - 1];
+        targetPath = targetStack[targetStack.length - 1].path;
+      }
+
+      // Avoid a no-op navigation warning when already at the target path.
+      if (currentPath !== targetPath) {
         isNavigatingRef.current = true;
-        navigate(lastPage.path, { replace: true });
+        navigate(targetPath, { replace: true });
       }
     }
-    
+
     setActiveTab(tabName);
   };
 
