@@ -10,8 +10,10 @@ import { Button } from '@/components/ui/button';
 import { Plus, List, Trash2, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import CreatePlaylistModal from '../components/playlists/CreatePlaylistModal';
+import { useTranslation } from 'react-i18next';
 
 export default function Playlists() {
+  const { t } = useTranslation();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAuthError, setShowAuthError] = useState(false);
   const queryClient = useQueryClient();
@@ -36,7 +38,7 @@ export default function Playlists() {
       if (isAuthError(error) && shouldShowAuthError()) {
         setShowAuthError(true);
       } else {
-        alert('Failed to delete playlist. Check your connection and try again.');
+        alert(t('playlists.delete_error'));
       }
     }
   });
@@ -56,15 +58,15 @@ export default function Playlists() {
             style={{ color: '#26A69A' }}
           >
             <ArrowLeft className="w-4 h-4 mr-1" />
-            Back to Videos
+            {t('playlists.back_to_videos')}
           </Button>
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-semibold mb-2" style={{ color: '#2D3748' }}>
-                My Playlists
+                {t('playlists.title')}
               </h1>
               <p className="text-base" style={{ color: '#718096' }}>
-                Organize your CBT videos into custom playlists
+                {t('playlists.subtitle')}
               </p>
             </div>
             <Button
@@ -78,7 +80,7 @@ export default function Playlists() {
               }}
             >
               <Plus className="w-4 h-4 mr-2" />
-              New Playlist
+              {t('playlists.new_playlist')}
             </Button>
           </div>
         </div>
@@ -97,8 +99,8 @@ export default function Playlists() {
               }}>
                 <List className="w-10 h-10 text-red-500" />
               </div>
-              <h2 className="text-2xl font-semibold mb-2 text-gray-800">Couldn't load data</h2>
-              <p className="mb-6 text-gray-600">Check your connection and try again.</p>
+              <h2 className="text-2xl font-semibold mb-2 text-gray-800">{t('playlists.error_title')}</h2>
+              <p className="mb-6 text-gray-600">{t('playlists.error_description')}</p>
               <Button
                 onClick={() => refetch()}
                 className="text-white px-8 py-6"
@@ -108,7 +110,7 @@ export default function Playlists() {
                   boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
                 }}
               >
-                Retry
+                {t('playlists.retry')}
               </Button>
             </CardContent>
           </Card>
@@ -117,7 +119,7 @@ export default function Playlists() {
         {/* Loading State */}
         {!isError && isLoading && (
           <div className="text-center py-12">
-            <p style={{ color: 'rgb(var(--muted))' }}>Loading playlists...</p>
+            <p style={{ color: 'rgb(var(--muted))' }}>{t('playlists.loading')}</p>
           </div>
         )}
 
@@ -125,9 +127,9 @@ export default function Playlists() {
         {!isError && !isLoading && playlists.length === 0 && (
           <div className="text-center py-12">
             <List className="w-16 h-16 mx-auto mb-4" style={{ color: 'rgb(var(--muted))' }} />
-            <p className="text-lg mb-2" style={{ color: 'rgb(var(--text))' }}>No playlists yet</p>
+            <p className="text-lg mb-2" style={{ color: 'rgb(var(--text))' }}>{t('playlists.no_playlists_title')}</p>
             <p className="mb-6" style={{ color: 'rgb(var(--muted))' }}>
-              Create your first playlist to organize your videos
+              {t('playlists.no_playlists_description')}
             </p>
             <Button
               onClick={() => setShowCreateModal(true)}
@@ -137,7 +139,7 @@ export default function Playlists() {
               }}
             >
               <Plus className="w-4 h-4 mr-2" />
-              Create Playlist
+              {t('playlists.create_playlist')}
             </Button>
           </div>
         )}
@@ -170,7 +172,7 @@ export default function Playlists() {
                           </p>
                         )}
                         <p className="text-sm font-medium" style={{ color: '#26A69A' }}>
-                          {playlist.video_count || 0} videos
+                          {t('playlists.video_count', { count: playlist.video_count || 0 })}
                         </p>
                       </div>
                       <Button
@@ -179,13 +181,13 @@ export default function Playlists() {
                         onClick={(e) => {
                           e.preventDefault();
                           if (deleteMutation.isPending) return;
-                          if (confirm('Delete this playlist?')) {
+                          if (confirm(t('playlists.delete_confirm'))) {
                             deleteMutation.mutate(playlist.id);
                           }
                         }}
                         disabled={deleteMutation.isPending}
                         className="opacity-0 group-hover:opacity-100 transition-opacity"
-                        aria-label="Delete playlist"
+                        aria-label={t('playlists.delete_aria')}
                       >
                         <Trash2 className="w-4 h-4 text-red-500" />
                       </Button>
@@ -196,7 +198,7 @@ export default function Playlists() {
                         variant="outline"
                         style={{ borderRadius: '9999px' }}
                       >
-                        View Playlist
+                        {t('playlists.view_playlist')}
                       </Button>
                     </Link>
                   </CardContent>

@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ import AiTrendsSummary from '../components/journal/AiTrendsSummary';
 import PullToRefresh from '../components/utils/PullToRefresh';
 
 export default function Journal() {
+  const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
@@ -130,16 +132,16 @@ export default function Journal() {
             size="icon"
             onClick={() => window.history.back()}
             style={{ borderRadius: '50%' }}
-            aria-label="Go back"
+            aria-label={t('journal.go_back_aria')}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </Button>
           <div>
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-light mb-1 md:mb-2" style={{ color: '#1A3A34' }}>
-              {focusedEntryId ? 'Your Saved Journal Entry' : focusedSummaryId ? 'Your Session Summary' : 'Thought Journal'}
+              {focusedEntryId ? t('journal.title_entry') : focusedSummaryId ? t('journal.title_summary') : t('journal.title_default')}
             </h1>
             <p className="text-sm md:text-base" style={{ color: '#5A7A72' }}>
-              {focusedEntryId ? 'Edit or review your entry' : focusedSummaryId ? 'Review your AI-generated session summary' : 'Challenge and reframe unhelpful thinking patterns'}
+              {focusedEntryId ? t('journal.subtitle_entry') : focusedSummaryId ? t('journal.subtitle_summary') : t('journal.subtitle_default')}
             </p>
             {(focusedEntryId || focusedSummaryId) && (
               <Button
@@ -153,7 +155,7 @@ export default function Journal() {
                 className="mt-2"
                 style={{ borderRadius: '16px' }}
               >
-                View All Entries
+                {t('journal.view_all_entries')}
               </Button>
             )}
           </div>
@@ -167,7 +169,7 @@ export default function Journal() {
             style={{ borderRadius: '24px' }}
           >
             <Sparkles className="w-4 h-4 md:mr-2" />
-            <span className="hidden md:inline">AI Insights</span>
+            <span className="hidden md:inline">{t('journal.ai_insights')}</span>
           </Button>
           <Button
             onClick={() => setShowAiPrompts(true)}
@@ -177,7 +179,7 @@ export default function Journal() {
             style={{ borderRadius: '24px' }}
           >
             <Sparkles className="w-4 h-4 md:mr-2" />
-            <span className="hidden md:inline">AI Prompts</span>
+            <span className="hidden md:inline">{t('journal.ai_prompts')}</span>
           </Button>
           <Button
             onClick={() => setShowReminderManager(true)}
@@ -187,7 +189,7 @@ export default function Journal() {
             style={{ borderRadius: '24px' }}
           >
             <Bell className="w-4 h-4 mr-2" />
-            Reminders
+            {t('journal.reminders')}
           </Button>
           <Button
             onClick={() => setShowTemplateManager(true)}
@@ -197,7 +199,7 @@ export default function Journal() {
             style={{ borderRadius: '24px' }}
           >
             <Settings className="w-4 h-4 mr-2" />
-            Templates
+            {t('journal.templates')}
           </Button>
           <Button
             onClick={() => window.location.href = createPageUrl('Chat', 'intent=thought_work')}
@@ -210,7 +212,7 @@ export default function Journal() {
             }}
           >
             <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
-            New Entry
+            {t('journal.new_entry')}
           </Button>
         </div>
       </div>
@@ -223,7 +225,7 @@ export default function Journal() {
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search entries..."
+              placeholder={t('journal.search_placeholder')}
               className="pl-10"
               style={{ borderRadius: '28px' }}
             />
@@ -244,7 +246,7 @@ export default function Journal() {
       {/* Entries List */}
       {(isLoadingJournals || isLoadingSummaries) ? (
         <div className="text-center py-12">
-          <p className="text-gray-500">Loading entries...</p>
+          <p className="text-gray-500">{t('journal.loading')}</p>
         </div>
       ) : entries.length === 0 ? (
         <Card className="border-0" style={{
@@ -259,9 +261,9 @@ export default function Journal() {
             }}>
               <BookOpen className="w-10 h-10" style={{ color: '#26A69A' }} />
             </div>
-            <h2 className="text-2xl font-semibold mb-2" style={{ color: '#1A3A34' }}>Start Your First Entry</h2>
+            <h2 className="text-2xl font-semibold mb-2" style={{ color: '#1A3A34' }}>{t('journal.first_entry_title')}</h2>
             <p className="mb-6 max-w-md mx-auto" style={{ color: '#5A7A72' }}>
-              Thought records help you identify and challenge cognitive distortions, leading to more balanced thinking.
+              {t('journal.first_entry_description')}
             </p>
             <div className="flex flex-col gap-3 items-center max-w-md mx-auto">
               <Button
@@ -273,7 +275,7 @@ export default function Journal() {
                   boxShadow: '0 8px 24px rgba(38, 166, 154, 0.35)'
                 }}
               >
-                Create Entry
+                {t('journal.create_entry')}
               </Button>
               <Button
                 onClick={() => setShowTemplateManager(true)}
@@ -281,7 +283,7 @@ export default function Journal() {
                 className="px-8 py-6 text-lg w-full"
                 style={{ borderRadius: '32px' }}
               >
-                Browse Templates
+                {t('journal.browse_templates')}
               </Button>
             </div>
           </CardContent>
@@ -291,7 +293,7 @@ export default function Journal() {
           {filteredEntries.length === 0 ? (
             <Card className="border-0 shadow-md">
               <CardContent className="p-12 text-center">
-                <p className="text-gray-600">No entries match your filters</p>
+                <p className="text-gray-600">{t('journal.no_entries_match')}</p>
                 <Button
                   onClick={() => {
                     setSearchQuery('');
@@ -301,7 +303,7 @@ export default function Journal() {
                   variant="outline"
                   className="mt-4"
                 >
-                  Clear Filters
+                  {t('journal.clear_filters')}
                 </Button>
               </CardContent>
             </Card>

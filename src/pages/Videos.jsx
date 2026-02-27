@@ -9,8 +9,10 @@ import { Play, Plus, List } from 'lucide-react';
 import { motion } from 'framer-motion';
 import CreatePlaylistModal from '../components/playlists/CreatePlaylistModal';
 import AddToPlaylistModal from '../components/playlists/AddToPlaylistModal';
+import { useTranslation } from 'react-i18next';
 
 export default function Videos() {
+  const { t } = useTranslation();
   const [showCreatePlaylist, setShowCreatePlaylist] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
 
@@ -44,10 +46,10 @@ export default function Videos() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 mt-6">
           <div>
             <h1 className="text-2xl md:text-3xl font-semibold mb-1" style={{ color: '#2D3748' }}>
-              CBT Video Library
+              {t('videos.title')}
             </h1>
             <p className="text-sm" style={{ color: '#718096' }}>
-              Guided videos to practice CBT
+              {t('videos.subtitle')}
             </p>
           </div>
           <div className="flex gap-2">
@@ -58,7 +60,7 @@ export default function Videos() {
               style={{ borderRadius: '9999px' }}
             >
               <Plus className="w-4 h-4 mr-1" />
-              New
+              {t('videos.new_button')}
             </Button>
             <Link to={createPageUrl('Playlists')}>
               <Button
@@ -70,7 +72,7 @@ export default function Videos() {
                 }}
               >
                 <List className="w-4 h-4 mr-1" />
-                My Playlists
+                {t('videos.my_playlists')}
               </Button>
             </Link>
           </div>
@@ -79,15 +81,15 @@ export default function Videos() {
         {/* Loading State */}
         {isLoading && (
           <div className="text-center py-12">
-            <p style={{ color: 'rgb(var(--muted))' }}>Loading videos...</p>
+            <p style={{ color: 'rgb(var(--muted))' }}>{t('videos.loading')}</p>
           </div>
         )}
 
         {/* Empty State */}
         {!isLoading && videos.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-lg mb-2" style={{ color: 'rgb(var(--text))' }}>No videos yet</p>
-            <p style={{ color: 'rgb(var(--muted))' }}>Videos will appear here once added</p>
+            <p className="text-lg mb-2" style={{ color: 'rgb(var(--text))' }}>{t('videos.no_videos_title')}</p>
+            <p style={{ color: 'rgb(var(--muted))' }}>{t('videos.no_videos_description')}</p>
           </div>
         )}
 
@@ -190,7 +192,7 @@ export default function Videos() {
                         }}
                       >
                         <Plus className="w-3.5 h-3.5 mr-1" />
-                        Add to List
+                        {t('videos.add_to_list')}
                       </Button>
                     </div>
                   </CardContent>

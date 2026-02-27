@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ import CoachingChat from '../components/coaching/CoachingChat';
 import PersonalizedInsights from '../components/coaching/PersonalizedInsights';
 
 export default function Coach() {
+  const { t } = useTranslation();
   const [showWizard, setShowWizard] = useState(false);
   const [selectedSession, setSelectedSession] = useState(null);
   const queryClient = useQueryClient();
@@ -110,7 +112,7 @@ export default function Coach() {
               size="icon"
               onClick={() => window.location.href = '/'}
               style={{ borderRadius: '50%', width: '36px', height: '36px' }}
-              aria-label="Go back to home"
+              aria-label={t('coach.go_back_aria')}
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
@@ -126,13 +128,13 @@ export default function Coach() {
               <Heart className="w-5 h-5 text-white" />
             </motion.div>
             <div>
-              <h1 className="text-sm font-semibold" style={{ color: '#1A3A34' }}>AI Wellness Coach</h1>
-              <p className="text-xs" style={{ color: '#5A7A72' }}>Structured guidance for your goals</p>
+              <h1 className="text-sm font-semibold" style={{ color: '#1A3A34' }}>{t('coach.title')}</h1>
+              <p className="text-xs" style={{ color: '#5A7A72' }}>{t('coach.subtitle')}</p>
             </div>
           </div>
           <div className="flex gap-2">
             <Link to={createPageUrl('CoachingAnalytics')}>
-              <Button variant="ghost" size="icon" style={{ borderRadius: '50%', width: '36px', height: '36px' }} aria-label="View coaching analytics">
+              <Button variant="ghost" size="icon" style={{ borderRadius: '50%', width: '36px', height: '36px' }} aria-label={t('coach.analytics_aria')}>
                 <BarChart3 className="w-5 h-5" />
               </Button>
             </Link>
@@ -147,7 +149,7 @@ export default function Coach() {
                 backgroundColor: '#26A69A',
                 boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
               }}
-              aria-label="Start new session"
+              aria-label={t('coach.new_session_aria')}
             >
               <Target className="w-5 h-5" />
             </Button>
@@ -172,7 +174,7 @@ export default function Coach() {
               size="icon"
               onClick={() => window.location.href = '/'}
               style={{ borderRadius: '50%' }}
-              aria-label="Go back to home"
+              aria-label={t('coach.go_back_aria')}
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
@@ -188,8 +190,8 @@ export default function Coach() {
               <Heart className="w-6 h-6 text-white" />
             </motion.div>
             <div>
-              <h1 className="text-xl font-semibold" style={{ color: '#1A3A34' }}>AI Wellness Coach</h1>
-              <p className="text-sm" style={{ color: '#5A7A72' }}>Structured guidance for your goals</p>
+              <h1 className="text-xl font-semibold" style={{ color: '#1A3A34' }}>{t('coach.title')}</h1>
+              <p className="text-sm" style={{ color: '#5A7A72' }}>{t('coach.subtitle')}</p>
             </div>
           </div>
           <div className="flex gap-3">

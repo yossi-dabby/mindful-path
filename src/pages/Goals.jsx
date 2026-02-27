@@ -20,8 +20,10 @@ import AiGoalCoaching from '../components/goals/AiGoalCoaching';
 import MilestonesTimeline from '../components/goals/MilestonesTimeline';
 import GoalTemplateLibrary from '../components/goals/GoalTemplateLibrary';
 import PullToRefresh from '../components/utils/PullToRefresh';
+import { useTranslation } from 'react-i18next';
 
 export default function Goals() {
+  const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
   const [editingGoal, setEditingGoal] = useState(null);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -176,8 +178,8 @@ export default function Goals() {
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </Button>
           <div>
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-light mb-1 md:mb-2" style={{ color: '#1A3A34' }}>Your Goals</h1>
-            <p className="text-sm md:text-base" style={{ color: '#5A7A72' }}>Set intentions and track your progress</p>
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-light mb-1 md:mb-2" style={{ color: '#1A3A34' }}>{t('goals.title')}</h1>
+            <p className="text-sm md:text-base" style={{ color: '#5A7A72' }}>{t('goals.subtitle')}</p>
           </div>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -189,7 +191,7 @@ export default function Goals() {
             style={{ borderRadius: '24px' }}
           >
             <CalendarIcon className="w-4 h-4 md:w-5 md:h-5 md:mr-2" />
-            <span className="hidden md:inline">Calendar</span>
+            <span className="hidden md:inline">{t('goals.view_calendar')}</span>
           </Button>
           <Button
             onClick={() => setShowTimeline(!showTimeline)}
@@ -199,7 +201,7 @@ export default function Goals() {
             style={{ borderRadius: '24px' }}
           >
             <Clock className="w-4 h-4 md:w-5 md:h-5 md:mr-2" />
-            <span className="hidden md:inline">Timeline</span>
+            <span className="hidden md:inline">{t('goals.view_timeline')}</span>
           </Button>
           <Button
             onClick={() => setShowKanban(!showKanban)}
@@ -209,7 +211,7 @@ export default function Goals() {
             style={{ borderRadius: '24px' }}
           >
             <LayoutGrid className="w-4 h-4 md:w-5 md:h-5 md:mr-2" />
-            <span className="hidden md:inline">Kanban</span>
+            <span className="hidden md:inline">{t('goals.view_kanban')}</span>
           </Button>
           <Button
             onClick={() => setShowTemplates(true)}
@@ -219,7 +221,7 @@ export default function Goals() {
             style={{ borderRadius: '24px' }}
           >
             <Target className="w-4 h-4 md:w-5 md:h-5 md:mr-2" />
-            <span className="hidden md:inline">Templates</span>
+            <span className="hidden md:inline">{t('goals.view_templates')}</span>
           </Button>
           <Button
             onClick={() => setShowAiSuggestions(true)}
@@ -229,7 +231,7 @@ export default function Goals() {
             style={{ borderRadius: '24px' }}
           >
             <Sparkles className="w-4 h-4 md:w-5 md:h-5 md:mr-2" />
-            <span className="hidden md:inline">AI Suggestions</span>
+            <span className="hidden md:inline">{t('goals.ai_suggestions')}</span>
           </Button>
           <Button
             onClick={() => window.location.href = createPageUrl('Chat', 'intent=goal_work')}
@@ -261,8 +263,8 @@ export default function Goals() {
             }}>
               <Target className="w-10 h-10 text-red-500" />
             </div>
-            <h2 className="text-2xl font-semibold mb-2 text-gray-800">Couldn't load data</h2>
-            <p className="mb-6 text-gray-600">Check your connection and try again.</p>
+            <h2 className="text-2xl font-semibold mb-2 text-gray-800">{t('goals.error_title')}</h2>
+            <p className="mb-6 text-gray-600">{t('goals.error_description')}</p>
             <Button
               onClick={() => refetch()}
               className="text-white px-8 py-6"
@@ -278,7 +280,7 @@ export default function Goals() {
         </Card>
       ) : isLoading ? (
         <div className="text-center py-12">
-          <p className="text-gray-500">Loading goals...</p>
+          <p className="text-gray-500">{t('goals.loading')}</p>
         </div>
       ) : goals.length === 0 ? (
         <Card className="border-0" style={{
@@ -293,7 +295,7 @@ export default function Goals() {
             }}>
               <Target className="w-10 h-10" style={{ color: '#26A69A' }} />
             </div>
-            <h2 className="text-2xl font-semibold mb-2" style={{ color: '#1A3A34' }}>Set Your First Goal</h2>
+            <h2 className="text-2xl font-semibold mb-2" style={{ color: '#1A3A34' }}>{t('goals.first_goal_title')}</h2>
             <p className="mb-6 max-w-md mx-auto" style={{ color: '#5A7A72' }}>
               Goals give you direction and motivation. Break them into small steps and celebrate each milestone.
             </p>
@@ -365,7 +367,7 @@ export default function Goals() {
                 }}>
                   <CardContent className="p-8 text-center">
                     <LayoutGrid className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-                    <p className="text-gray-600">No active goals to display in Kanban view</p>
+                    <p className="text-gray-600">{t('goals.no_active_kanban')}</p>
                   </CardContent>
                 </Card>
               )}
@@ -376,7 +378,7 @@ export default function Goals() {
           {activeGoals.length > 0 && (
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">Active Goals</h2>
+                <h2 className="text-xl font-semibold text-gray-800">{t('goals.active_goals')}</h2>
                 {activeGoals.length > 0 && (
                   <Button
                     onClick={() => setShowAiSuggestions(true)}
@@ -423,7 +425,7 @@ export default function Goals() {
           {/* Completed Goals */}
           {completedGoals.length > 0 && (
             <div>
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Completed Goals</h2>
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">{t('goals.completed_goals')}</h2>
               <div className="space-y-4">
                 {completedGoals.map((goal) => (
                  <GoalCard key={goal.id} goal={goal} onEdit={handleEdit} onDelete={deleteGoalMutation.mutate} isDeleting={deleteGoalMutation.isPending} />

@@ -7,8 +7,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Play, X } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export default function PlaylistDetail() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const urlParams = new URLSearchParams(window.location.search);
@@ -87,7 +89,7 @@ export default function PlaylistDetail() {
       <div className="min-h-screen bg-warm-gradient">
         <div className="page-container max-w-7xl">
           <div className="text-center py-12">
-            <p style={{ color: 'rgb(var(--muted))' }}>Loading playlist...</p>
+            <p style={{ color: 'rgb(var(--muted))' }}>{t('playlist_detail.loading')}</p>
           </div>
         </div>
       </div>
@@ -106,7 +108,7 @@ export default function PlaylistDetail() {
             style={{ color: 'rgb(var(--muted))' }}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Playlists
+            {t('playlist_detail.back_to_playlists')}
           </Button>
           <h1 className="text-3xl font-semibold mb-2" style={{ color: 'rgb(var(--text))' }}>
             {playlist.name}
@@ -117,16 +119,16 @@ export default function PlaylistDetail() {
             </p>
           )}
           <p className="text-sm" style={{ color: 'rgb(var(--accent))' }}>
-            {videos.length} videos
+            {t('playlist_detail.video_count', { count: videos.length })}
           </p>
         </div>
 
         {/* Empty State */}
         {videos.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-lg mb-2" style={{ color: 'rgb(var(--text))' }}>No videos in this playlist</p>
+            <p className="text-lg mb-2" style={{ color: 'rgb(var(--text))' }}>{t('playlist_detail.no_videos_title')}</p>
             <p style={{ color: 'rgb(var(--muted))' }}>
-              Go to the Video Library and add videos to this playlist
+              {t('playlist_detail.no_videos_description')}
             </p>
             <Button
               onClick={() => navigate(createPageUrl('Videos'))}
@@ -136,7 +138,7 @@ export default function PlaylistDetail() {
                 color: 'rgb(var(--accent-contrast))'
               }}
             >
-              Browse Videos
+              {t('playlist_detail.browse_videos')}
             </Button>
           </div>
         )}
@@ -181,7 +183,7 @@ export default function PlaylistDetail() {
                             <>
                               {progress.completed && (
                                 <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-                                  ✓ Completed
+                                  {t('playlist_detail.completed_badge')}
                                 </div>
                               )}
                               <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/30">
@@ -204,7 +206,7 @@ export default function PlaylistDetail() {
                             removeMutation.mutate(video.id);
                           }}
                           className="absolute top-2 right-2 bg-white/90 hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity"
-                          aria-label="Remove video from playlist"
+                          aria-label={t('playlist_detail.remove_video_aria')}
                         >
                           <X className="w-4 h-4 text-red-500" />
                         </Button>
