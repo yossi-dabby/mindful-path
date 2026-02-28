@@ -24,8 +24,8 @@ export default function AppContent({ children }) {
         className="overflow-y-auto overflow-x-hidden"
         style={{
           WebkitOverflowScrolling: 'touch',
-          overscrollBehavior: 'none',
-          minHeight: '100dvh',
+          overscrollBehavior: 'contain',
+          height: '100dvh',
           // Mobile: padding for header + bottom nav + safe areas
           paddingTop: `calc(${MOBILE_HEADER_HEIGHT}px + env(safe-area-inset-top, 0))`,
           paddingBottom: `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0))`,
