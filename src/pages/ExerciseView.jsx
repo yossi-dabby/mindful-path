@@ -166,25 +166,25 @@ export default function ExerciseViewPage() {
               <TabsList className={`grid w-full ${audioContent.length > 0 ? 'grid-cols-5' : 'grid-cols-4'}`}>
                 <TabsTrigger value="overview">
                   <BookOpen className="w-4 h-4 mr-2" />
-                  Overview
+                  {t('exercise_view.tabs.overview')}
                 </TabsTrigger>
                 <TabsTrigger value="instructions">
                   <Play className="w-4 h-4 mr-2" />
-                  Practice
+                  {t('exercise_view.tabs.practice')}
                 </TabsTrigger>
                 {audioContent.length > 0 && (
                   <TabsTrigger value="audio">
                     <Headphones className="w-4 h-4 mr-2" />
-                    Audio
+                    {t('exercise_view.tabs.audio')}
                   </TabsTrigger>
                 )}
                 <TabsTrigger value="benefits">
                   <Star className="w-4 h-4 mr-2" />
-                  Benefits
+                  {t('exercise_view.tabs.benefits')}
                 </TabsTrigger>
                 <TabsTrigger value="tips">
                   <Lightbulb className="w-4 h-4 mr-2" />
-                  Tips
+                  {t('exercise_view.tabs.tips')}
                 </TabsTrigger>
               </TabsList>
 

@@ -822,7 +822,13 @@ export const translations = {
         analytics_aria: "View coaching analytics",
         new_session_aria: "Start new session",
         go_back_step_aria: "Go to previous step",
-        go_back_nav_aria: "Go back"
+        go_back_nav_aria: "Go back",
+        analytics: "Analytics",
+        start_new_session: "Start New Session",
+        tabs: {
+          active: "Active ({{count}})",
+          completed: "Completed ({{count}})"
+        }
       },
       journal: {
         title_default: "Thought Journal",
@@ -882,7 +888,14 @@ export const translations = {
         not_found: "Exercise not found",
         go_back: "Go Back",
         go_back_aria: "Go back",
-        untitled: "Untitled Exercise"
+        untitled: "Untitled Exercise",
+        tabs: {
+          overview: "Overview",
+          practice: "Practice",
+          audio: "Audio",
+          benefits: "Benefits",
+          tips: "Tips"
+        }
       },
       starter_path: {
         loading: "Preparing your daily exercise...",
@@ -1777,7 +1790,13 @@ export const translations = {
         analytics_aria: "הצג אנליטיקת אימון",
         new_session_aria: "התחל מפגש חדש",
         go_back_step_aria: "חזרה לשלב הקודם",
-        go_back_nav_aria: "חזרה"
+        go_back_nav_aria: "חזרה",
+        analytics: "אנליטיקה",
+        start_new_session: "התחל מפגש חדש",
+        tabs: {
+          active: "פעיל ({{count}})",
+          completed: "הושלם ({{count}})"
+        }
       },
       journal: {
         title_default: "יומן מחשבות",
@@ -1837,7 +1856,14 @@ export const translations = {
         not_found: "התרגיל לא נמצא",
         go_back: "חזרה",
         go_back_aria: "חזרה",
-        untitled: "תרגיל ללא שם"
+        untitled: "תרגיל ללא שם",
+        tabs: {
+          overview: "סקירה",
+          practice: "תרגול",
+          audio: "אודיו",
+          benefits: "יתרונות",
+          tips: "טיפים"
+        }
       },
       starter_path: {
         loading: "מכין את התרגיל היומי שלכם...",
@@ -2564,7 +2590,13 @@ export const translations = {
         analytics_aria: "Ver análisis de coaching",
         new_session_aria: "Iniciar nueva sesión",
         go_back_step_aria: "Ir al paso anterior",
-        go_back_nav_aria: "Volver"
+        go_back_nav_aria: "Volver",
+        analytics: "Analíticas",
+        start_new_session: "Iniciar Nueva Sesión",
+        tabs: {
+          active: "Activas ({{count}})",
+          completed: "Completadas ({{count}})"
+        }
       },
       journal: {
         title_default: "Diario de Pensamientos",
@@ -2624,7 +2656,14 @@ export const translations = {
         not_found: "Ejercicio no encontrado",
         go_back: "Volver",
         go_back_aria: "Volver",
-        untitled: "Ejercicio sin título"
+        untitled: "Ejercicio sin título",
+        tabs: {
+          overview: "Descripción",
+          practice: "Práctica",
+          audio: "Audio",
+          benefits: "Beneficios",
+          tips: "Consejos"
+        }
       },
       starter_path: {
         loading: "Preparando tu ejercicio diario...",
@@ -3519,7 +3558,13 @@ export const translations = {
         analytics_aria: "Voir les analyses de coaching",
         new_session_aria: "Démarrer une nouvelle session",
         go_back_step_aria: "Revenir à l'étape précédente",
-        go_back_nav_aria: "Retour"
+        go_back_nav_aria: "Retour",
+        analytics: "Analytiques",
+        start_new_session: "Démarrer une Nouvelle Session",
+        tabs: {
+          active: "Actives ({{count}})",
+          completed: "Terminées ({{count}})"
+        }
       },
       journal: {
         title_default: "Journal de Pensées",
@@ -3579,7 +3624,14 @@ export const translations = {
         not_found: "Exercice introuvable",
         go_back: "Retour",
         go_back_aria: "Retour",
-        untitled: "Exercice sans titre"
+        untitled: "Exercice sans titre",
+        tabs: {
+          overview: "Aperçu",
+          practice: "Pratique",
+          audio: "Audio",
+          benefits: "Bénéfices",
+          tips: "Conseils"
+        }
       },
       starter_path: {
         loading: "Préparation de votre exercice quotidien...",
@@ -4474,7 +4526,13 @@ export const translations = {
         analytics_aria: "Coaching-Analysen anzeigen",
         new_session_aria: "Neue Sitzung starten",
         go_back_step_aria: "Zum vorherigen Schritt",
-        go_back_nav_aria: "Zurück"
+        go_back_nav_aria: "Zurück",
+        analytics: "Analysen",
+        start_new_session: "Neue Sitzung starten",
+        tabs: {
+          active: "Aktiv ({{count}})",
+          completed: "Abgeschlossen ({{count}})"
+        }
       },
       journal: {
         title_default: "Gedankentagebuch",
@@ -4534,7 +4592,14 @@ export const translations = {
         not_found: "Übung nicht gefunden",
         go_back: "Zurück",
         go_back_aria: "Zurück",
-        untitled: "Unbenannte Übung"
+        untitled: "Unbenannte Übung",
+        tabs: {
+          overview: "Übersicht",
+          practice: "Übung",
+          audio: "Audio",
+          benefits: "Vorteile",
+          tips: "Tipps"
+        }
       },
       starter_path: {
         loading: "Ihre tägliche Übung wird vorbereitet...",
@@ -5429,7 +5494,13 @@ export const translations = {
         analytics_aria: "Visualizza analisi coaching",
         new_session_aria: "Inizia nuova sessione",
         go_back_step_aria: "Vai al passo precedente",
-        go_back_nav_aria: "Indietro"
+        go_back_nav_aria: "Indietro",
+        analytics: "Analisi",
+        start_new_session: "Inizia Nuova Sessione",
+        tabs: {
+          active: "Attive ({{count}})",
+          completed: "Completate ({{count}})"
+        }
       },
       journal: {
         title_default: "Diario dei Pensieri",
@@ -5489,7 +5560,14 @@ export const translations = {
         not_found: "Esercizio non trovato",
         go_back: "Indietro",
         go_back_aria: "Indietro",
-        untitled: "Esercizio senza titolo"
+        untitled: "Esercizio senza titolo",
+        tabs: {
+          overview: "Panoramica",
+          practice: "Pratica",
+          audio: "Audio",
+          benefits: "Benefici",
+          tips: "Suggerimenti"
+        }
       },
       starter_path: {
         loading: "Preparazione del tuo esercizio quotidiano...",
@@ -6384,7 +6462,13 @@ export const translations = {
         analytics_aria: "Ver análises de coaching",
         new_session_aria: "Iniciar nova sessão",
         go_back_step_aria: "Ir para o passo anterior",
-        go_back_nav_aria: "Voltar"
+        go_back_nav_aria: "Voltar",
+        analytics: "Análises",
+        start_new_session: "Iniciar Nova Sessão",
+        tabs: {
+          active: "Ativas ({{count}})",
+          completed: "Concluídas ({{count}})"
+        }
       },
       journal: {
         title_default: "Diário de Pensamentos",
@@ -6444,7 +6528,14 @@ export const translations = {
         not_found: "Exercício não encontrado",
         go_back: "Voltar",
         go_back_aria: "Voltar",
-        untitled: "Exercício sem título"
+        untitled: "Exercício sem título",
+        tabs: {
+          overview: "Visão Geral",
+          practice: "Prática",
+          audio: "Áudio",
+          benefits: "Benefícios",
+          tips: "Dicas"
+        }
       },
       starter_path: {
         loading: "Preparando seu exercício diário...",
