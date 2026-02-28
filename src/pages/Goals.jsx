@@ -40,7 +40,7 @@ export default function Goals() {
   // Enable cross-tab synchronization
   useCrossTabInvalidation();
 
-  const { data: goals = [], isLoading, isError, refetch } = useQuery({
+  const { data: goals = [], isLoading, isError, error: goalsError, refetch } = useQuery({
     queryKey: ['allGoals'],
     queryFn: async () => {
       const result = await base44.entities.Goal.list('-created_date');
@@ -59,17 +59,19 @@ export default function Goals() {
     refetchOnWindowFocus: false,
     refetchOnMount: 'always', // Always fetch on mount to ensure fresh data
     staleTime: 30000,
-    onError: (error) => {
-      if (isAuthError(error) && shouldShowAuthError()) {
-        setShowAuthError(true);
-      }
-    }
   });
+
+  // React Query v5 removed onError from useQuery; handle it via the returned error instead.
+  React.useEffect(() => {
+    if (goalsError && isAuthError(goalsError) && shouldShowAuthError()) {
+      setShowAuthError(true);
+    }
+  }, [goalsError]);
 
   const deleteGoalMutation = useMutation({
     mutationFn: (goalId) => base44.entities.Goal.delete(goalId),
     onSuccess: () => {
-      queryClient.invalidateQueries(['allGoals']);
+      queryClient.invalidateQueries({ queryKey: ['allGoals'] });
       emitEntityChange('Goal', 'delete');
     },
     onError: (error) => {
