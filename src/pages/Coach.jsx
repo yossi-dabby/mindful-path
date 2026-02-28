@@ -198,7 +198,7 @@ export default function Coach() {
             <Link to={createPageUrl('CoachingAnalytics')}>
               <Button variant="outline" className="gap-2 shadow-sm" style={{ borderRadius: '24px' }}>
                 <BarChart3 className="w-4 h-4" />
-                Analytics
+                {t('coach.analytics')}
               </Button>
             </Link>
             <Button
@@ -211,7 +211,7 @@ export default function Coach() {
               }}
             >
               <Target className="w-5 h-5 mr-2" />
-              Start New Session
+              {t('coach.start_new_session')}
             </Button>
           </div>
         </div>
@@ -293,11 +293,11 @@ export default function Coach() {
               }}>
                 <TabsTrigger value="active" className="gap-2">
                   <TrendingUp className="w-4 h-4" />
-                  Active ({activeSessions.length})
+                  {t('coach.tabs.active', { count: activeSessions.length })}
                 </TabsTrigger>
                 <TabsTrigger value="completed" className="gap-2">
                   <MessageCircle className="w-4 h-4" />
-                  Completed ({completedSessions.length})
+                  {t('coach.tabs.completed', { count: completedSessions.length })}
                 </TabsTrigger>
               </TabsList>
 
