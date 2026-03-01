@@ -9,8 +9,10 @@ import { format, isAfter, isBefore, addDays } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { createPageUrl } from '@/utils';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export default function GoalsDashboardWidget() {
+  const { t } = useTranslation();
   const { data, isLoading } = useQuery({
     queryKey: ['allGoals'],
     queryFn: () => base44.entities.Goal.list(),
@@ -72,9 +74,9 @@ export default function GoalsDashboardWidget() {
       <Card className="border-0 shadow-md">
         <CardContent className="p-6 text-center">
           <Target className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-sm text-gray-500 mb-3">No goals yet</p>
+          <p className="text-sm text-gray-500 mb-3">{t('goals_dashboard_widget.no_goals_yet')}</p>
           <Link to={createPageUrl('Goals')}>
-            <Button size="sm">Create Your First Goal</Button>
+            <Button size="sm">{t('goals_dashboard_widget.create_first_goal')}</Button>
           </Link>
         </CardContent>
       </Card>
@@ -86,20 +88,21 @@ export default function GoalsDashboardWidget() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Target className="w-5 h-5" />
-          Goals Overview
+          {t('goals_dashboard_widget.title')}
         </CardTitle>
+        <p className="text-xs text-gray-500 mt-0.5">{t('goals_dashboard_widget.all_stages')}</p>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Overall Progress */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">Overall Progress</span>
+            <span className="text-sm font-medium text-gray-700">{t('goals_dashboard_widget.overall_progress')}</span>
             <span className="text-sm font-bold text-blue-600">{totalProgress}%</span>
           </div>
           <Progress value={totalProgress} className="h-2" />
           <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
-            <span>{activeGoals.length} active</span>
-            <span>{completedMilestones.length}/{allMilestones.length} tasks done</span>
+            <span>{t('goals_dashboard_widget.active', { count: activeGoals.length })}</span>
+            <span>{t('goals_dashboard_widget.tasks_done', { completed: completedMilestones.length, total: allMilestones.length })}</span>
           </div>
         </div>
 
@@ -108,7 +111,7 @@ export default function GoalsDashboardWidget() {
           <div className="bg-green-50 rounded-lg p-3 border border-green-200">
             <div className="flex items-center gap-2 mb-1">
               <CheckCircle2 className="w-4 h-4 text-green-600" />
-              <span className="text-xs text-gray-600">Completed</span>
+              <span className="text-xs text-gray-600">{t('goals_dashboard_widget.completed')}</span>
             </div>
             <p className="text-xl md:text-2xl font-bold text-green-700 truncate">
               {completedMilestones.length}/{allMilestones.length}
@@ -126,7 +129,7 @@ export default function GoalsDashboardWidget() {
                 "w-4 h-4",
                 overdueGoals.length > 0 ? "text-red-600" : "text-gray-400"
               )} />
-              <span className="text-xs text-gray-600">Overdue</span>
+              <span className="text-xs text-gray-600">{t('goals_dashboard_widget.overdue')}</span>
             </div>
             <p className={cn(
               "text-2xl font-bold",
@@ -140,7 +143,7 @@ export default function GoalsDashboardWidget() {
         {/* Overdue Goals Alert */}
         {overdueGoals.length > 0 && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-            <p className="text-sm font-medium text-red-800 mb-2">Overdue Goals:</p>
+            <p className="text-sm font-medium text-red-800 mb-2">{t('goals_dashboard_widget.overdue_goals')}</p>
             <div className="space-y-2">
               {overdueGoals.slice(0, 3).map(goal => (
                 <div key={goal.id} className="flex items-start gap-2 text-sm">
@@ -148,13 +151,13 @@ export default function GoalsDashboardWidget() {
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-red-900 truncate">{goal.title}</p>
                     <p className="text-xs text-red-700">
-                      Due {format(new Date(goal.target_date), 'MMM d')}
+                      {t('goals_dashboard_widget.due', { date: format(new Date(goal.target_date), 'MMM d') })}
                     </p>
                   </div>
                 </div>
               ))}
               {overdueGoals.length > 3 && (
-                <p className="text-xs text-red-600">+{overdueGoals.length - 3} more</p>
+                <p className="text-xs text-red-600">{t('goals_dashboard_widget.more', { count: overdueGoals.length - 3 })}</p>
               )}
             </div>
           </div>
@@ -163,7 +166,7 @@ export default function GoalsDashboardWidget() {
         {/* Upcoming Deadlines */}
         {upcomingDeadlines.length > 0 && (
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-            <p className="text-sm font-medium text-amber-800 mb-2">Coming Up This Week:</p>
+            <p className="text-sm font-medium text-amber-800 mb-2">{t('goals_dashboard_widget.coming_up')}</p>
             <div className="space-y-2">
               {upcomingDeadlines.slice(0, 3).map(goal => (
                 <div key={goal.id} className="flex items-start gap-2 text-sm">
@@ -171,7 +174,7 @@ export default function GoalsDashboardWidget() {
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-amber-900 truncate">{goal.title}</p>
                     <p className="text-xs text-amber-700">
-                      Due {format(new Date(goal.target_date), 'MMM d')}
+                      {t('goals_dashboard_widget.due', { date: format(new Date(goal.target_date), 'MMM d') })}
                     </p>
                   </div>
                 </div>
@@ -184,7 +187,7 @@ export default function GoalsDashboardWidget() {
         <Link to={createPageUrl('Goals')} className="block">
           <Button variant="outline" className="w-full" size="sm">
             <TrendingUp className="w-4 h-4 mr-2" />
-            View All Goals
+            {t('goals_dashboard_widget.view_all_goals')}
           </Button>
         </Link>
       </CardContent>
