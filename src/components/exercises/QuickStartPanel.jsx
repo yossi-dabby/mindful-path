@@ -1,6 +1,5 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Zap, Clock, Heart, Play, Headphones, Eye, Wind, Anchor, Brain, Sparkles, Moon, Users, Activity } from 'lucide-react';
 import { motion } from 'framer-motion';

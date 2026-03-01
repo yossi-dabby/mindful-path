@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { Dumbbell, TrendingUp, Award } from 'lucide-react';
+import { Dumbbell } from 'lucide-react';
 
 export default function ExerciseTracker({ exercises }) {
   const completedExercises = exercises.filter(e => e.completed_count > 0);

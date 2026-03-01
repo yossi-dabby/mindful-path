@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, Loader2, Lightbulb, BookOpen, X } from 'lucide-react';
+import { AlertCircle, Loader2, Lightbulb, BookOpen } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { safeInvokeLLM } from '../utils/safeInvokeLLM';
 
@@ -30,7 +29,7 @@ export default function AiDistortionAnalysis({ entry, onApplyDistortions }) {
       hasAnalyzedRef.current = true;
       analyzeDistortions();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   const analyzeDistortions = async () => {

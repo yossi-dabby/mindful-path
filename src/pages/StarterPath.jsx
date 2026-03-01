@@ -234,7 +234,7 @@ Generate a concise insight or action the user can apply today.`;
     if (starterPath && !generatedContent && step === 'loading') {
       generateContentMutation.mutate();
     }
-  }, [starterPath?.id, step]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [starterPath?.id, step]);  
 
   if (!starterPath || step === 'loading' || generateContentMutation.isPending) {
     return (

@@ -1,15 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, Send, Loader2, Target, CheckCircle2, Plus, Edit } from 'lucide-react';
+import { ChevronLeft, Send, Loader2, Target, CheckCircle2 } from 'lucide-react';
 import MessageBubble from '../chat/MessageBubble';
 import InlineConsentBanner from '../chat/InlineConsentBanner';
 import InlineRiskPanel from '../chat/InlineRiskPanel';
-import { detectCrisisLanguage, detectCrisisWithReason } from '../utils/crisisDetector';
+import { detectCrisisWithReason } from '../utils/crisisDetector';
 import ActionPlanPanel from './ActionPlanPanel';
 
 const stageLabels = {

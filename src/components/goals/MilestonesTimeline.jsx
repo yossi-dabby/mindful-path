@@ -3,10 +3,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar, CheckCircle2, AlertCircle, Clock, Filter } from 'lucide-react';
-import { format, isAfter, isBefore, startOfDay, endOfDay, addDays } from 'date-fns';
+import { format, startOfDay, endOfDay, addDays } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { safeText } from '@/components/utils/aiDataNormalizer';
 

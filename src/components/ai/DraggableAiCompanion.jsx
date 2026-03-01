@@ -12,9 +12,9 @@ import { isAuthError, shouldShowAuthError } from '../utils/authErrorHandler';
 import AuthErrorBanner from '../utils/AuthErrorBanner';
 import InlineConsentBanner from '../chat/InlineConsentBanner';
 import InlineRiskPanel from '../chat/InlineRiskPanel';
-import { detectCrisisLanguage, detectCrisisWithReason } from '../utils/crisisDetector';
+import { detectCrisisWithReason } from '../utils/crisisDetector';
 import MessageFeedback from '../chat/MessageFeedback';
-import { validateAgentOutput, extractAssistantMessage } from '../utils/validateAgentOutput';
+import { extractAssistantMessage } from '../utils/validateAgentOutput';
 
 const STORAGE_KEY = 'ai_companion_position';
 const MOBILE_BREAKPOINT = 768;

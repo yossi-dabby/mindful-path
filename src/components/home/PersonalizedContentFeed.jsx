@@ -4,11 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, Loader2, BookOpen, Dumbbell, MessageSquare, TrendingUp, ExternalLink, Quote, Users, RefreshCw } from 'lucide-react';
+import { Sparkles, Loader2, BookOpen, Dumbbell, TrendingUp, ExternalLink, Quote, Users, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { motion } from 'framer-motion';
-import { normalizeFeedData, safeJoin, safeArray, safeText } from '@/components/utils/aiDataNormalizer';
+import { normalizeFeedData, safeJoin, safeArray } from '@/components/utils/aiDataNormalizer';
 import PullToRefresh from '@/components/utils/PullToRefresh';
 
 export default function PersonalizedContentFeed({ userInterests = [], contentType = 'all', sortBy = 'relevance' }) {

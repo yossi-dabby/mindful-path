@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Brain, TrendingUp, Loader2 } from 'lucide-react';
+import { Sparkles, Brain, TrendingUp } from 'lucide-react';
 import AiTrendsSummary from './AiTrendsSummary';
 
 export default function JournalInsightsPanel({ entriesCount }) {

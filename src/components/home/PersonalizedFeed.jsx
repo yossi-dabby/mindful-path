@@ -58,12 +58,12 @@ export default function PersonalizedFeed() {
       };
     }
 
-    // Analyze mood patterns (memoize calculations)
-    const moodStats = React.useMemo(() => ({
+    // Analyze mood patterns
+    const moodStats = {
       lowMoodCount: recentMoods.filter(m => ['low', 'very_low'].includes(m.mood)).length,
       anxietyMentions: recentMoods.filter(m => m.emotions?.some(e => e.toLowerCase().includes('anxi'))).length,
       stressMentions: recentMoods.filter(m => m.stress_level >= 7).length
-    }), [recentMoods]);
+    };
 
     // Analyze journal patterns
     const cognitiveDistortions = recentJournals.filter(j => j.cognitive_distortions?.length > 0).length;

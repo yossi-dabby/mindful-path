@@ -10,7 +10,6 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ChevronLeft, ChevronRight, Check, Target, Brain, AlertTriangle, Map, TrendingUp, RefreshCw, Lightbulb, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
 
 const STEPS = [
   { 

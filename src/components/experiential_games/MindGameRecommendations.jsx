@@ -2,7 +2,6 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import GameCard from './GameCard';

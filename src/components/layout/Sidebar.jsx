@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { cn } from "@/lib/utils";
-import { Home, MessageCircle, BookOpen, Activity, Dumbbell, Heart, Users, Settings, Compass } from 'lucide-react';
+import { Home, MessageCircle, BookOpen, Activity, Dumbbell, Heart, Users, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export const SIDEBAR_WIDTH = 288; // 72 * 4 = 288px (w-72)

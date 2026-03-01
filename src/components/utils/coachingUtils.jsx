@@ -2,7 +2,7 @@
  * Coaching Utilities - Shared logic for coaching flows
  */
 
-import { safeText, safeArray, stripHtml } from './aiDataNormalizer';
+import { safeText, safeArray } from './aiDataNormalizer';
 
 /**
  * Validates coaching session data before creation

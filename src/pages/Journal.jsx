@@ -1,11 +1,11 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Plus, BookOpen, Search, Filter, Settings, Bell, Sparkles } from 'lucide-react';
+import { Plus, BookOpen, Search, Settings, Bell, Sparkles } from 'lucide-react';
 import { createPageUrl } from '../utils';
 import ThoughtRecordForm from '../components/journal/ThoughtRecordForm';
 import ThoughtRecordCard from '../components/journal/ThoughtRecordCard';

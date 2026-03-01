@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Sparkles, Loader2, RefreshCw, Wind, Anchor, Brain, TrendingUp, Heart, ThumbsUp, ThumbsDown, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Loader2, RefreshCw, Wind, Anchor, Brain, TrendingUp, Heart, ThumbsUp, ThumbsDown, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { normalizeExerciseRecommendations, safeArray, safeText } from '@/components/utils/aiDataNormalizer';
+import { normalizeExerciseRecommendations, safeArray } from '@/components/utils/aiDataNormalizer';
 
 const categoryIcons = {
   breathing: Wind,

@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, Loader2, BookOpen, Dumbbell, Target, TrendingUp, MessageSquare, BarChart3, Lightbulb } from 'lucide-react';
+import { Sparkles, Loader2, Dumbbell, Target, TrendingUp, MessageSquare, BarChart3, Lightbulb } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { motion } from 'framer-motion';

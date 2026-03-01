@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, Target, AlertCircle, TrendingUp, CheckCircle2 } from 'lucide-react';
 import { format, isAfter, isBefore, addDays } from 'date-fns';
