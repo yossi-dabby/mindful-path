@@ -1046,7 +1046,81 @@ export const mindGamesUiByLanguage = {
     tipp_skills: { prompt: "Quando devi cambiare la tua chimica corporea velocemente:", pick_action: "Scegline uno da provare subito:", success: "✓ Ottimo! Le abilità TIPP cambiano la tua fisiologia per ridurre l'intensità emotiva." },
     accepts: { prompt: "Quando devi distrarti da emozioni travolgenti, usa ACCEPTS:", try_now: "Prova questo ora:" },
     improve: { prompt: "MIGLIORA il momento quando sei in crisi e hai bisogno di cambiare il tuo stato:", quick_action: "Azione Rapida:" },
-    self_soothe: { prompt: "Calmati con i tuoi 5 sensi per creare momenti di comfort e sicurezza.", back: "← Torna ai sensi", success: "✓ Prenditi un momento per vivere questo pienamente. L'auto-calmante è un regalo che fai a te stesso." }
+    self_soothe: { prompt: "Calmati con i tuoi 5 sensi per creare momenti di comfort e sicurezza.", back: "← Torna ai sensi", success: "✓ Prenditi un momento per vivere questo pienamente. L'auto-calmante è un regalo che fai a te stesso." },
+    mountain_meditation: {
+      step_of: "Passo {{current}} di {{total}}",
+      steps: ["Chiudi gli occhi o ammorbidisci lo sguardo.", "Immagina una montagna—solida, radicata, indistruttibile.", "Senti il tuo corpo come la montagna: stabile, radicato.", "Il tempo passa sulla montagna: tempeste, sole, pioggia, vento.", "La montagna rimane. Non combatte il tempo—lo permette.", "Sei come la montagna. I pensieri e le emozioni sono come il tempo.", "Vengono e vanno. Tu rimani."],
+      completion: "Hai praticato la Meditazione della Montagna. Usa questa metafora ogni volta che hai bisogno di ricordare la tua stabilità."
+    },
+    check_the_facts: {
+      description: "Verificare i fatti ti aiuta a determinare se la tua emozione si adatta alla situazione. Se non lo fa, puoi lavorare per cambiarla.",
+      emotion_prompt: "Quale emozione stai provando?",
+      emotions: ["Paura", "Rabbia", "Tristezza", "Colpa", "Vergogna"],
+      check_btn: "Verificare i Fatti",
+      for_emotion: "Per {{emotion}}, chiediti:",
+      tip: "Se i fatti non supportano l'intensità dell'emozione, usa l'azione opposta o altre abilità per cambiarla.",
+      emotion_prompts: {
+        fear: ["C'è un pericolo reale e immediato?", "Qual è il peggio che potrebbe succedere?", "Quali sono le prove?"],
+        anger: ["Qualcuno ha violato i miei diritti intenzionalmente?", "Questa minaccia ai miei obiettivi è reale?", "La rabbia aiuterà o farà del male?"],
+        sadness: ["Ho davvero perso qualcosa di importante?", "È permanente o posso riprendermi?", "Cosa mi aiuterebbe ad affrontarlo?"],
+        guilt: ["Ho davvero fatto qualcosa contro i miei valori?", "Era nella mia controllo?", "Quale riparazione è necessaria?"],
+        shame: ["Sono cattivo come persona, o solo questa azione?", "Gli altri la vedrebbero allo stesso modo?", "Posso separare il comportamento dall'identità?"]
+      }
+    },
+    pros_and_cons: {
+      description: "Usa i Pro e Contro quando stai considerando un comportamento di crisi o una decisione difficile.",
+      decision_prompt: "Quale decisione stai affrontando?",
+      decision_placeholder: "es., Dovrei inviare quel messaggio ora?",
+      start_btn: "Inizia Analisi",
+      pros_label: "Pro del farlo:",
+      pros_placeholder: "Quali sono i vantaggi a breve termine?",
+      next_cons_btn: "Avanti: Contro",
+      cons_label: "Contro del farlo:",
+      cons_placeholder: "Quali sono i costi a lungo termine?",
+      see_result_btn: "Vedi Risultato",
+      pros_result_label: "Pro:",
+      cons_result_label: "Contro:",
+      conclusion: "Spesso, il sollievo a breve termine ha costi a lungo termine. Quale scelta serve i tuoi valori?"
+    },
+    values_check: {
+      prompt: "Controllo rapido: Quale valore conta di più per te in questo momento?",
+      alignment_prompt: "Le tue azioni recenti sono allineate con questo valore?",
+      yes: "Sì", somewhat: "In parte", not_really: "Non proprio",
+      result_yes: "✓ Ottimo! Continua a muoverti in questa direzione.",
+      result_somewhat: "→ Buona consapevolezza. Qual è un piccolo passo verso più allineamento?",
+      result_no: "⚠️ Hai notato il divario? È il primo passo. Scegli una piccola azione oggi.",
+      tip: "I valori non sono obiettivi da raggiungere—sono direzioni verso cui muoversi.",
+      values: { connection: "Connessione", growth: "Crescita", authenticity: "Autenticità", courage: "Coraggio", compassion: "Compassione", creativity: "Creatività", health: "Salute", peace: "Pace" }
+    },
+    expansion: {
+      description: "L'espansione significa fare spazio per le emozioni difficili invece di combatterle.",
+      emotion_prompt: "Quale emozione è presente in questo momento?",
+      emotion_placeholder: "es., ansia, tristezza, rabbia",
+      begin_btn: "Inizia la Pratica di Espansione",
+      steps: ["Nomina l'emozione che stai sentendo.", "Dove la senti nel tuo corpo?", "Invece di respingerla, respira verso quel punto.", "Immagina di creare spazio intorno alla sensazione—non restringerla, solo permetterla.", "Nota: Puoi sentire questo E andare comunque avanti."],
+      completion: "✓ Hai praticato fare spazio per {{emotion}}. L'espansione non fa scomparire i sentimenti—ti aiuta a portarli con meno lotta."
+    },
+    leaves_on_stream: {
+      description: "Immagina un ruscello gentile con foglie che galleggiano. Metti pensieri appiccicosi su foglie e guardali allontanarsi.",
+      thought_prompt: "Quale pensiero ti sta agganciando in questo momento?",
+      thought_placeholder: "es., Non sono abbastanza bravo",
+      place_btn: "Metti su una Foglia e Guarda Galleggiare",
+      floating: "Sta galleggiando via...",
+      tip: "Non stai cercando di sbarazzarti dei pensieri—solo di notarli senza aggrapparti."
+    },
+    half_smile: {
+      description: "Il Mezzo Sorriso è un'espressione facciale gentile che può cambiare il tuo stato emotivo. Anche un piccolo sorriso segnala sicurezza al tuo sistema nervoso.",
+      feel_now_prompt: "Come ti senti in questo momento?",
+      emotions: ["Teso", "Frustrato", "Ansioso", "Triste", "Neutro"],
+      practiced_btn: "Ho Praticato per 30 Secondi",
+      feel_after_prompt: "Come ti senti ora?",
+      result: "✓ Prima: {{before}} → Dopo: {{after}}\n\nAnche un cambiamento sottile conta. Il Mezzo Sorriso è uno strumento che puoi usare ovunque."
+    },
+    willing_hands: {
+      description: "Le Mani Aperte è una pratica di accettazione basata sul corpo. Segnala apertura alla realtà, anche quando è difficile.",
+      steps: ["Gira i palmi delle mani verso l'alto e appoggiali sulle ginocchia o ai lati.", "Rilassa completamente le mani—lascia defluire la tensione.", "Ammorbidisci il viso, soprattutto mascella e fronte.", "Respira naturalmente e dì (in silenzio): 'Sono disposto/a.'", "Mantieni questo per 30 secondi, notando qualsiasi cambiamento."],
+      completion: "✓ Bene! Le Mani Aperte è un gesto fisico di accettazione. Praticalo ogni volta che stai lottando contro la realtà."
+    }
   },
   pt: {
     common: { try_another: "Tentar Outro" },
