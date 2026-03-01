@@ -8,10 +8,8 @@ export default function ValuesCheck({ onClose }) {
   const [selectedValue, setSelectedValue] = useState(null);
   const [alignment, setAlignment] = useState(null);
 
-  const values = [
-    'Connection', 'Growth', 'Authenticity', 'Courage', 
-    'Compassion', 'Creativity', 'Health', 'Peace'
-  ];
+  const valuesKeys = ['connection', 'growth', 'authenticity', 'courage', 'compassion', 'creativity', 'health', 'peace'];
+  const values = valuesKeys.map(k => ({ key: k, label: t(`mind_games.values_check.values.${k}`) }));
 
   const handleValueSelect = (value) => {
     setSelectedValue(value);

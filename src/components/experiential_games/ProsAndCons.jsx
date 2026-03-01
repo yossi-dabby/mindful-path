@@ -27,19 +27,19 @@ export default function ProsAndCons({ onClose }) {
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: '#5A7A72' }}>
-          Use Pros & Cons when you're considering a crisis behavior or tough decision.
+          {t('mind_games.pros_and_cons.description')}
         </p>
 
         {step === 'input' && (
           <>
             <p className="text-sm font-semibold mb-2" style={{ color: '#1A3A34' }}>
-              What decision are you facing?
+              {t('mind_games.pros_and_cons.decision_prompt')}
             </p>
             <input
               type="text"
               value={decision}
               onChange={(e) => setDecision(e.target.value)}
-              placeholder="e.g., Should I send that message now?"
+              placeholder={t('mind_games.pros_and_cons.decision_placeholder')}
               className="w-full p-3 mb-4 text-sm"
               style={{
                 borderRadius: '12px',
@@ -57,7 +57,7 @@ export default function ProsAndCons({ onClose }) {
                 color: 'white'
               }}
             >
-              Start Analysis
+              {t('mind_games.pros_and_cons.start_btn')}
             </Button>
           </>
         )}
@@ -65,12 +65,12 @@ export default function ProsAndCons({ onClose }) {
         {step === 'pros' && (
           <>
             <p className="text-sm font-semibold mb-2 break-words" style={{ color: '#1A3A34' }}>
-              Pros of doing it:
+              {t('mind_games.pros_and_cons.pros_label')}
             </p>
             <textarea
               value={pros}
               onChange={(e) => setPros(e.target.value)}
-              placeholder="What are the short-term benefits?"
+              placeholder={t('mind_games.pros_and_cons.pros_placeholder')}
               rows={3}
               className="w-full p-3 mb-4 text-sm"
               style={{
@@ -90,7 +90,7 @@ export default function ProsAndCons({ onClose }) {
                 color: 'white'
               }}
             >
-              Next: Cons
+              {t('mind_games.pros_and_cons.next_cons_btn')}
             </Button>
           </>
         )}
@@ -98,12 +98,12 @@ export default function ProsAndCons({ onClose }) {
         {step === 'cons' && (
           <>
             <p className="text-sm font-semibold mb-2 break-words" style={{ color: '#1A3A34' }}>
-              Cons of doing it:
+              {t('mind_games.pros_and_cons.cons_label')}
             </p>
             <textarea
               value={cons}
               onChange={(e) => setCons(e.target.value)}
-              placeholder="What are the long-term costs?"
+              placeholder={t('mind_games.pros_and_cons.cons_placeholder')}
               rows={3}
               className="w-full p-3 mb-4 text-sm"
               style={{
@@ -123,7 +123,7 @@ export default function ProsAndCons({ onClose }) {
                 color: 'white'
               }}
             >
-              See Result
+              {t('mind_games.pros_and_cons.see_result_btn')}
             </Button>
           </>
         )}
@@ -136,7 +136,7 @@ export default function ProsAndCons({ onClose }) {
               border: '1px solid rgba(34, 197, 94, 0.2)'
             }}>
               <p className="text-xs font-semibold mb-1" style={{ color: '#22C55E' }}>
-                Pros:
+                {t('mind_games.pros_and_cons.pros_result_label')}
               </p>
               <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
                 {pros}
@@ -148,14 +148,14 @@ export default function ProsAndCons({ onClose }) {
               border: '1px solid rgba(239, 68, 68, 0.2)'
             }}>
               <p className="text-xs font-semibold mb-1" style={{ color: '#EF4444' }}>
-                Cons:
+                {t('mind_games.pros_and_cons.cons_result_label')}
               </p>
               <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
                 {cons}
               </p>
             </div>
             <p className="text-sm break-words whitespace-normal" style={{ color: '#5A7A72' }}>
-              Often, short-term relief has long-term costs. What choice serves your values?
+              {t('mind_games.pros_and_cons.conclusion')}
             </p>
           </div>
         )}

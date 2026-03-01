@@ -9,12 +9,13 @@ export default function CheckTheFacts({ onClose }) {
   const [step, setStep] = useState('input');
   const [prompts, setPrompts] = useState(null);
 
+  const emotionPromptsData = t('mind_games.check_the_facts.emotion_prompts', { returnObjects: true });
   const emotionPrompts = {
-    fear: ["Is there real, immediate danger?", "What's the worst that could happen?", "What's the evidence?"],
-    anger: ["Did someone violate my rights on purpose?", "Is this threat to my goals real?", "Will anger help or hurt?"],
-    sadness: ["Did I actually lose something important?", "Is it permanent or can I recover?", "What would help me cope?"],
-    guilt: ["Did I actually do something against my values?", "Was it within my control?", "What repair is needed?"],
-    shame: ["Is the whole 'me' bad, or just this action?", "Would others see it the same way?", "Can I separate behavior from identity?"],
+    fear: emotionPromptsData?.fear || [],
+    anger: emotionPromptsData?.anger || [],
+    sadness: emotionPromptsData?.sadness || [],
+    guilt: emotionPromptsData?.guilt || [],
+    shame: emotionPromptsData?.shame || [],
   };
 
   const handleStart = () => {

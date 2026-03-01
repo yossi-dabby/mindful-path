@@ -8,13 +8,7 @@ export default function WillingHands({ onClose }) {
   const [step, setStep] = useState(0);
   const [practiced, setPracticed] = useState(false);
 
-  const steps = [
-    "Turn your hands palms up and rest them on your lap or by your sides.",
-    "Relax your hands completely—let tension drain out.",
-    "Soften your face, especially jaw and forehead.",
-    "Breathe naturally and say (silently): 'I am willing.'",
-    "Hold this for 30 seconds, noticing any shift."
-  ];
+  const steps = t('mind_games.willing_hands.steps', { returnObjects: true });
 
   const handleNext = () => {
     if (step < steps.length - 1) {

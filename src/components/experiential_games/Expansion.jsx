@@ -8,13 +8,7 @@ export default function Expansion({ onClose }) {
   const [emotion, setEmotion] = useState('');
   const [step, setStep] = useState(0);
 
-  const steps = [
-    "Name the emotion you're feeling.",
-    "Where do you feel it in your body?",
-    "Instead of pushing it away, breathe into that spot.",
-    "Imagine making space around the feeling—not shrinking it, just allowing it.",
-    "Notice: You can feel this AND still move forward."
-  ];
+  const steps = t('mind_games.expansion.steps', { returnObjects: true });
 
   const handleStart = () => {
     if (emotion.trim()) setStep(1);

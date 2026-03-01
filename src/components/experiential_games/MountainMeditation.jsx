@@ -7,15 +7,7 @@ export default function MountainMeditation({ onClose }) {
   const { t } = useTranslation();
   const [step, setStep] = useState(0);
 
-  const steps = [
-    "Close your eyes or soften your gaze.",
-    "Imagine a mountain—solid, grounded, unshakable.",
-    "Feel your body as the mountain: stable, rooted.",
-    "Weather passes over the mountain: storms, sun, rain, wind.",
-    "The mountain remains. It doesn't fight the weather—it allows it.",
-    "You are like the mountain. Thoughts and emotions are like weather.",
-    "They come and go. You remain."
-  ];
+  const steps = t('mind_games.mountain_meditation.steps', { returnObjects: true });
 
   const handleNext = () => {
     if (step < steps.length - 1) {
