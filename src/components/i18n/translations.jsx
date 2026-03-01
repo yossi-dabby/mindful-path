@@ -1004,7 +1004,34 @@ export const translations = {
         back_button: "Back",
         complete_day: "Complete Day {{day}}",
         completing: "Completing...",
-        reflect_placeholder: "Take your time to reflect and write your thoughts..."
+        reflect_placeholder: "Take your time to reflect and write your thoughts...",
+        card_title: "7-Day Starter Path",
+        card_day_badge: "Day {{day}} of 7",
+        card_description_new: "Build a strong foundation with guided daily practices",
+        card_description_continue: "Continue your guided CBT journey",
+        card_progress: "{{day}} of 7 days completed",
+        card_btn_continue: "Continue",
+        card_btn_start: "Start Path",
+        card_btn_starting: "Starting...",
+        card_aria_watch_video: "Watch help video",
+        day_themes: {
+          1: { title: "Welcome & Breathing", description: "Learn foundational breathing techniques" },
+          2: { title: "Understanding Thoughts", description: "Identify automatic thinking patterns" },
+          3: { title: "Grounding Practice", description: "Stay present with grounding exercises" },
+          4: { title: "Challenging Beliefs", description: "Question negative thought patterns" },
+          5: { title: "Building Momentum", description: "Take small behavioral actions" },
+          6: { title: "Mindful Awareness", description: "Cultivate present-moment awareness" },
+          7: { title: "Integration & Next Steps", description: "Review and plan ahead" }
+        },
+        day_structure: {
+          1: { title: "Understanding Your Mind", description: "Explore how your thoughts influence your emotions" },
+          2: { title: "Catching Automatic Thoughts", description: "Notice the thoughts that pop up automatically" },
+          3: { title: "Spotting Thinking Patterns", description: "Identify thinking traps that affect your mood" },
+          4: { title: "The Power of Pause", description: "Learn to create space before responding" },
+          5: { title: "Building Balanced Thoughts", description: "Transform unhelpful thoughts into realistic ones" },
+          6: { title: "Testing New Approaches", description: "Try out a new way of responding" },
+          7: { title: "Your Journey Forward", description: "Review your progress and plan ahead" }
+        }
       },
       advanced_analytics: {
         title: "Advanced Analytics",
@@ -1102,6 +1129,33 @@ export const translations = {
           Overwhelmed: "Overwhelmed", Lonely: "Lonely", Fearful: "Fearful", Guilty: "Guilty", Ashamed: "Ashamed",
           Disappointed: "Disappointed", Hopeless: "Hopeless", Jealous: "Jealous", Resentful: "Resentful", Irritated: "Irritated",
           Worried: "Worried", Depressed: "Depressed", Helpless: "Helpless", Rejected: "Rejected", Insecure: "Insecure"
+        }
+      },
+      personalization: {
+        title_step1: "Let's Personalize Your Path",
+        subtitle_step1: "Select your primary concerns (choose 1-3)",
+        title_step2: "What Do You Hope to Achieve?",
+        subtitle_step2: "Select your goals (choose any that resonate)",
+        btn_continue: "Continue",
+        btn_back: "Back",
+        btn_start: "Start My Path",
+        concerns: {
+          anxiety: { label: "Anxiety", description: "Reduce worry and nervousness" },
+          stress: { label: "Stress Management", description: "Build coping strategies" },
+          mood: { label: "Low Mood", description: "Improve emotional wellbeing" },
+          self_esteem: { label: "Self-Esteem", description: "Build confidence" },
+          sleep: { label: "Sleep Issues", description: "Better rest and recovery" },
+          relationships: { label: "Relationships", description: "Healthier connections" }
+        },
+        goals: {
+          goal_0: "Feel calmer and more in control",
+          goal_1: "Manage difficult emotions better",
+          goal_2: "Build healthier thought patterns",
+          goal_3: "Improve daily functioning",
+          goal_4: "Reduce negative self-talk",
+          goal_5: "Better sleep quality",
+          goal_6: "Increase self-compassion",
+          goal_7: "Strengthen resilience"
         }
       }
     }
@@ -2110,7 +2164,34 @@ export const translations = {
         back_button: "חזרה",
         complete_day: "השלימו יום {{day}}",
         completing: "משלים...",
-        reflect_placeholder: "קחו את הזמן שלכם להרהר ולכתוב את מחשבותיכם..."
+        reflect_placeholder: "קחו את הזמן שלכם להרהר ולכתוב את מחשבותיכם...",
+        card_title: "מסלול פתיחה ל-7 ימים",
+        card_day_badge: "יום {{day}} מתוך 7",
+        card_description_new: "בנו בסיס חזק עם תרגול יומי מודרך",
+        card_description_continue: "המשיכו במסע ה-CBT המודרך שלכם",
+        card_progress: "{{day}} מתוך 7 ימים הושלמו",
+        card_btn_continue: "המשיכו",
+        card_btn_start: "התחילו את המסלול",
+        card_btn_starting: "מתחיל...",
+        card_aria_watch_video: "צפו בסרטון עזרה",
+        day_themes: {
+          1: { title: "ברוכים הבאים ונשימה", description: "למדו טכניקות נשימה בסיסיות" },
+          2: { title: "הבנת מחשבות", description: "זהו דפוסי חשיבה אוטומטיים" },
+          3: { title: "תרגול עיגון", description: "הישארו בהווה עם תרגילי עיגון" },
+          4: { title: "אתגור אמונות", description: "הטילו ספק בדפוסי חשיבה שליליים" },
+          5: { title: "בניית תאוצה", description: "בצעו פעולות התנהגותיות קטנות" },
+          6: { title: "מודעות מיינדפולנס", description: "טפחו מודעות לרגע הנוכחי" },
+          7: { title: "שילוב וצעדים הבאים", description: "סקרו וקדמו תוכנית" }
+        },
+        day_structure: {
+          1: { title: "הכרת הנפש שלכם", description: "חקרו כיצד מחשבותיכם משפיעות על רגשותיכם" },
+          2: { title: "תפיסת מחשבות אוטומטיות", description: "שימו לב למחשבות שצצות באופן אוטומטי" },
+          3: { title: "זיהוי דפוסי חשיבה", description: "זהו מלכודות חשיבה המשפיעות על מצב הרוח שלכם" },
+          4: { title: "כוח ההשהייה", description: "למדו ליצור מרחב לפני התגובה" },
+          5: { title: "בניית מחשבות מאוזנות", description: "הפכו מחשבות לא מועילות לריאליסטיות" },
+          6: { title: "בדיקת גישות חדשות", description: "נסו דרך תגובה חדשה" },
+          7: { title: "המסע שלכם קדימה", description: "סקרו את ההתקדמות שלכם ותכננו קדימה" }
+        }
       },
       advanced_analytics: {
         title: "אנליטיקה מתקדמת",
@@ -2208,6 +2289,33 @@ export const translations = {
           Overwhelmed: "מוצף/ת", Lonely: "בודד/ה", Fearful: "פחדן/ית", Guilty: "אשם/ה", Ashamed: "בוש/ה",
           Disappointed: "מאוכזב/ת", Hopeless: "חסר/ת תקווה", Jealous: "מקנא/ת", Resentful: "טרוד/ה", Irritated: "מרוגז/ת",
           Worried: "דואג/ת", Depressed: "מדוכא/ת", Helpless: "חסר/ת אונים", Rejected: "נדחה/ת", Insecure: "חסר/ת ביטחון"
+        }
+      },
+      personalization: {
+        title_step1: "בואו נתאים את המסלול שלכם",
+        subtitle_step1: "בחרו את הדאגות העיקריות שלכם (בחרו 1-3)",
+        title_step2: "מה אתם מקווים להשיג?",
+        subtitle_step2: "בחרו את המטרות שלכם (בחרו כל מה שמתחבר אליכם)",
+        btn_continue: "המשיכו",
+        btn_back: "חזרה",
+        btn_start: "התחילו את המסלול שלי",
+        concerns: {
+          anxiety: { label: "חרדה", description: "הפחיתו דאגה ועצבנות" },
+          stress: { label: "ניהול לחץ", description: "בנו אסטרטגיות התמודדות" },
+          mood: { label: "מצב רוח נמוך", description: "שפרו את הרווחה הרגשית" },
+          self_esteem: { label: "הערכה עצמית", description: "בנו ביטחון עצמי" },
+          sleep: { label: "בעיות שינה", description: "מנוחה והתאוששות טובה יותר" },
+          relationships: { label: "מערכות יחסים", description: "קשרים בריאים יותר" }
+        },
+        goals: {
+          goal_0: "הרגשה רגועה יותר ושליטה גדולה יותר",
+          goal_1: "ניהול טוב יותר של רגשות קשים",
+          goal_2: "בניית דפוסי חשיבה בריאים יותר",
+          goal_3: "שיפור התפקוד היומיומי",
+          goal_4: "הפחתת שיח עצמי שלילי",
+          goal_5: "איכות שינה טובה יותר",
+          goal_6: "הגברת חמלה עצמית",
+          goal_7: "חיזוק חוסן נפשי"
         }
       }
     }
@@ -3048,7 +3156,34 @@ export const translations = {
         back_button: "Atrás",
         complete_day: "Completar Día {{day}}",
         completing: "Completando...",
-        reflect_placeholder: "Tómate tu tiempo para reflexionar y escribir tus pensamientos..."
+        reflect_placeholder: "Tómate tu tiempo para reflexionar y escribir tus pensamientos...",
+        card_title: "Camino de 7 Días",
+        card_day_badge: "Día {{day}} de 7",
+        card_description_new: "Construye una base sólida con prácticas diarias guiadas",
+        card_description_continue: "Continúa tu viaje guiado de TCC",
+        card_progress: "{{day}} de 7 días completados",
+        card_btn_continue: "Continuar",
+        card_btn_start: "Comenzar Camino",
+        card_btn_starting: "Comenzando...",
+        card_aria_watch_video: "Ver video de ayuda",
+        day_themes: {
+          1: { title: "Bienvenida y Respiración", description: "Aprende técnicas de respiración fundamentales" },
+          2: { title: "Entendiendo los Pensamientos", description: "Identifica patrones de pensamiento automático" },
+          3: { title: "Práctica de Anclaje", description: "Mantente presente con ejercicios de anclaje" },
+          4: { title: "Desafiando Creencias", description: "Cuestiona patrones de pensamiento negativos" },
+          5: { title: "Construyendo Impulso", description: "Toma pequeñas acciones conductuales" },
+          6: { title: "Conciencia Plena", description: "Cultiva la conciencia del momento presente" },
+          7: { title: "Integración y Próximos Pasos", description: "Revisa y planifica el futuro" }
+        },
+        day_structure: {
+          1: { title: "Entendiendo Tu Mente", description: "Explora cómo tus pensamientos influyen en tus emociones" },
+          2: { title: "Captando Pensamientos Automáticos", description: "Observa los pensamientos que surgen automáticamente" },
+          3: { title: "Identificando Patrones de Pensamiento", description: "Identifica trampas de pensamiento que afectan tu estado de ánimo" },
+          4: { title: "El Poder de la Pausa", description: "Aprende a crear espacio antes de responder" },
+          5: { title: "Construyendo Pensamientos Equilibrados", description: "Transforma pensamientos no útiles en realistas" },
+          6: { title: "Probando Nuevos Enfoques", description: "Prueba una nueva forma de responder" },
+          7: { title: "Tu Viaje Hacia Adelante", description: "Revisa tu progreso y planifica el futuro" }
+        }
       },
       advanced_analytics: {
         title: "Análisis Avanzado",
@@ -3146,6 +3281,33 @@ export const translations = {
           Overwhelmed: "Abrumado", Lonely: "Solitario", Fearful: "Temeroso", Guilty: "Culpable", Ashamed: "Avergonzado",
           Disappointed: "Decepcionado", Hopeless: "Desesperanzado", Jealous: "Celoso", Resentful: "Resentido", Irritated: "Irritado",
           Worried: "Preocupado", Depressed: "Deprimido", Helpless: "Impotente", Rejected: "Rechazado", Insecure: "Inseguro"
+        }
+      },
+      personalization: {
+        title_step1: "Personalicemos Tu Camino",
+        subtitle_step1: "Selecciona tus preocupaciones principales (elige 1-3)",
+        title_step2: "¿Qué Esperas Lograr?",
+        subtitle_step2: "Selecciona tus objetivos (elige los que resuenen contigo)",
+        btn_continue: "Continuar",
+        btn_back: "Volver",
+        btn_start: "Iniciar Mi Camino",
+        concerns: {
+          anxiety: { label: "Ansiedad", description: "Reducir la preocupación y el nerviosismo" },
+          stress: { label: "Manejo del Estrés", description: "Desarrollar estrategias de afrontamiento" },
+          mood: { label: "Estado de Ánimo Bajo", description: "Mejorar el bienestar emocional" },
+          self_esteem: { label: "Autoestima", description: "Desarrollar confianza" },
+          sleep: { label: "Problemas de Sueño", description: "Mejor descanso y recuperación" },
+          relationships: { label: "Relaciones", description: "Conexiones más saludables" }
+        },
+        goals: {
+          goal_0: "Sentirme más tranquilo y en control",
+          goal_1: "Manejar mejor las emociones difíciles",
+          goal_2: "Desarrollar patrones de pensamiento más saludables",
+          goal_3: "Mejorar el funcionamiento diario",
+          goal_4: "Reducir el diálogo interno negativo",
+          goal_5: "Mejor calidad de sueño",
+          goal_6: "Aumentar la autocompasión",
+          goal_7: "Fortalecer la resiliencia"
         }
       }
     }
@@ -4154,7 +4316,34 @@ export const translations = {
         back_button: "Retour",
         complete_day: "Terminer le Jour {{day}}",
         completing: "En cours...",
-        reflect_placeholder: "Prenez le temps de réfléchir et d'écrire vos pensées..."
+        reflect_placeholder: "Prenez le temps de réfléchir et d'écrire vos pensées...",
+        card_title: "Parcours de 7 Jours",
+        card_day_badge: "Jour {{day}} sur 7",
+        card_description_new: "Construisez une base solide avec des pratiques quotidiennes guidées",
+        card_description_continue: "Continuez votre parcours TCC guidé",
+        card_progress: "{{day}} sur 7 jours complétés",
+        card_btn_continue: "Continuer",
+        card_btn_start: "Commencer le Parcours",
+        card_btn_starting: "Démarrage...",
+        card_aria_watch_video: "Regarder la vidéo d'aide",
+        day_themes: {
+          1: { title: "Bienvenue & Respiration", description: "Apprenez les techniques de respiration fondamentales" },
+          2: { title: "Comprendre les Pensées", description: "Identifiez les schémas de pensée automatiques" },
+          3: { title: "Pratique d'Ancrage", description: "Restez présent avec des exercices d'ancrage" },
+          4: { title: "Remettre en Question les Croyances", description: "Questionnez les schémas de pensée négatifs" },
+          5: { title: "Construire de l'Élan", description: "Prenez de petites actions comportementales" },
+          6: { title: "Pleine Conscience", description: "Cultivez la conscience du moment présent" },
+          7: { title: "Intégration & Prochaines Étapes", description: "Révisez et planifiez l'avenir" }
+        },
+        day_structure: {
+          1: { title: "Comprendre Votre Esprit", description: "Explorez comment vos pensées influencent vos émotions" },
+          2: { title: "Saisir les Pensées Automatiques", description: "Observez les pensées qui surgissent automatiquement" },
+          3: { title: "Repérer les Schémas de Pensée", description: "Identifiez les pièges de pensée qui affectent votre humeur" },
+          4: { title: "Le Pouvoir de la Pause", description: "Apprenez à créer un espace avant de répondre" },
+          5: { title: "Construire des Pensées Équilibrées", description: "Transformez les pensées inutiles en pensées réalistes" },
+          6: { title: "Tester de Nouvelles Approches", description: "Essayez une nouvelle façon de répondre" },
+          7: { title: "Votre Voyage en Avant", description: "Révisez vos progrès et planifiez l'avenir" }
+        }
       },
       advanced_analytics: {
         title: "Analyses Avancées",
@@ -4252,6 +4441,33 @@ export const translations = {
           Overwhelmed: "Submergé", Lonely: "Solitaire", Fearful: "Craintif", Guilty: "Coupable", Ashamed: "Honteux",
           Disappointed: "Déçu", Hopeless: "Désespéré", Jealous: "Jaloux", Resentful: "Rancunier", Irritated: "Irrité",
           Worried: "Inquiet", Depressed: "Déprimé", Helpless: "Impuissant", Rejected: "Rejeté", Insecure: "Insécure"
+        }
+      },
+      personalization: {
+        title_step1: "Personnalisons Votre Parcours",
+        subtitle_step1: "Sélectionnez vos principales préoccupations (choisissez 1-3)",
+        title_step2: "Qu'Espérez-Vous Accomplir ?",
+        subtitle_step2: "Sélectionnez vos objectifs (choisissez ceux qui vous parlent)",
+        btn_continue: "Continuer",
+        btn_back: "Retour",
+        btn_start: "Commencer Mon Parcours",
+        concerns: {
+          anxiety: { label: "Anxiété", description: "Réduire l'inquiétude et la nervosité" },
+          stress: { label: "Gestion du Stress", description: "Développer des stratégies d'adaptation" },
+          mood: { label: "Humeur Basse", description: "Améliorer le bien-être émotionnel" },
+          self_esteem: { label: "Estime de Soi", description: "Développer la confiance" },
+          sleep: { label: "Problèmes de Sommeil", description: "Meilleur repos et récupération" },
+          relationships: { label: "Relations", description: "Connexions plus saines" }
+        },
+        goals: {
+          goal_0: "Me sentir plus calme et en contrôle",
+          goal_1: "Mieux gérer les émotions difficiles",
+          goal_2: "Développer des schémas de pensée plus sains",
+          goal_3: "Améliorer le fonctionnement quotidien",
+          goal_4: "Réduire le discours intérieur négatif",
+          goal_5: "Meilleure qualité de sommeil",
+          goal_6: "Augmenter l'autocompassion",
+          goal_7: "Renforcer la résilience"
         }
       }
     }
@@ -5260,7 +5476,34 @@ export const translations = {
         back_button: "Zurück",
         complete_day: "Tag {{day}} abschließen",
         completing: "Wird abgeschlossen...",
-        reflect_placeholder: "Nehmen Sie sich Zeit zum Nachdenken und Schreiben Ihrer Gedanken..."
+        reflect_placeholder: "Nehmen Sie sich Zeit zum Nachdenken und Schreiben Ihrer Gedanken...",
+        card_title: "7-Tage-Starterpfad",
+        card_day_badge: "Tag {{day}} von 7",
+        card_description_new: "Bauen Sie mit täglichen geführten Übungen eine starke Grundlage auf",
+        card_description_continue: "Setzen Sie Ihre geführte KVT-Reise fort",
+        card_progress: "{{day}} von 7 Tagen abgeschlossen",
+        card_btn_continue: "Weiter",
+        card_btn_start: "Pfad starten",
+        card_btn_starting: "Wird gestartet...",
+        card_aria_watch_video: "Hilfevideo ansehen",
+        day_themes: {
+          1: { title: "Willkommen & Atmung", description: "Erlernen Sie grundlegende Atemtechniken" },
+          2: { title: "Gedanken verstehen", description: "Automatische Denkmuster erkennen" },
+          3: { title: "Erdungsübungen", description: "Im Moment präsent bleiben mit Erdungsübungen" },
+          4: { title: "Überzeugungen hinterfragen", description: "Negative Denkmuster in Frage stellen" },
+          5: { title: "Schwung aufbauen", description: "Kleine Verhaltensmaßnahmen ergreifen" },
+          6: { title: "Achtsames Bewusstsein", description: "Bewusstsein für den gegenwärtigen Moment kultivieren" },
+          7: { title: "Integration & Nächste Schritte", description: "Rückblick und Planung der Zukunft" }
+        },
+        day_structure: {
+          1: { title: "Ihren Geist verstehen", description: "Erforschen Sie, wie Ihre Gedanken Ihre Emotionen beeinflussen" },
+          2: { title: "Automatische Gedanken erkennen", description: "Beobachten Sie Gedanken, die automatisch auftauchen" },
+          3: { title: "Denkmuster erkennen", description: "Identifizieren Sie Denkfallen, die Ihre Stimmung beeinflussen" },
+          4: { title: "Die Kraft der Pause", description: "Lernen Sie, Raum zu schaffen, bevor Sie reagieren" },
+          5: { title: "Ausgewogene Gedanken aufbauen", description: "Wandeln Sie unförderliche Gedanken in realistische um" },
+          6: { title: "Neue Ansätze ausprobieren", description: "Probieren Sie eine neue Reaktionsweise aus" },
+          7: { title: "Ihre Reise nach vorne", description: "Überprüfen Sie Ihre Fortschritte und planen Sie die Zukunft" }
+        }
       },
       advanced_analytics: {
         title: "Erweiterte Analysen",
@@ -5358,6 +5601,33 @@ export const translations = {
           Overwhelmed: "Überwältigt", Lonely: "Einsam", Fearful: "Furchtsam", Guilty: "Schuldig", Ashamed: "Beschämt",
           Disappointed: "Enttäuscht", Hopeless: "Hoffnungslos", Jealous: "Eifersüchtig", Resentful: "Verbittert", Irritated: "Gereizt",
           Worried: "Besorgt", Depressed: "Deprimiert", Helpless: "Hilflos", Rejected: "Abgelehnt", Insecure: "Unsicher"
+        }
+      },
+      personalization: {
+        title_step1: "Lassen Sie uns Ihren Pfad personalisieren",
+        subtitle_step1: "Wählen Sie Ihre Hauptanliegen aus (wählen Sie 1-3)",
+        title_step2: "Was Hoffen Sie zu Erreichen?",
+        subtitle_step2: "Wählen Sie Ihre Ziele aus (wählen Sie, was zu Ihnen passt)",
+        btn_continue: "Weiter",
+        btn_back: "Zurück",
+        btn_start: "Meinen Pfad starten",
+        concerns: {
+          anxiety: { label: "Angst", description: "Sorgen und Nervosität reduzieren" },
+          stress: { label: "Stressmanagement", description: "Bewältigungsstrategien aufbauen" },
+          mood: { label: "Niedrige Stimmung", description: "Emotionales Wohlbefinden verbessern" },
+          self_esteem: { label: "Selbstwertgefühl", description: "Selbstvertrauen aufbauen" },
+          sleep: { label: "Schlafprobleme", description: "Bessere Erholung und Regeneration" },
+          relationships: { label: "Beziehungen", description: "Gesündere Verbindungen" }
+        },
+        goals: {
+          goal_0: "Ruhiger und kontrollierter fühlen",
+          goal_1: "Schwierige Emotionen besser handhaben",
+          goal_2: "Gesündere Denkmuster aufbauen",
+          goal_3: "Tägliches Funktionieren verbessern",
+          goal_4: "Negativen inneren Dialog reduzieren",
+          goal_5: "Bessere Schlafqualität",
+          goal_6: "Selbstmitgefühl stärken",
+          goal_7: "Resilienz stärken"
         }
       }
     }
@@ -6366,7 +6636,34 @@ export const translations = {
         back_button: "Indietro",
         complete_day: "Completa Giorno {{day}}",
         completing: "Completamento...",
-        reflect_placeholder: "Prenditi il tempo per riflettere e scrivere i tuoi pensieri..."
+        reflect_placeholder: "Prenditi il tempo per riflettere e scrivere i tuoi pensieri...",
+        card_title: "Percorso di 7 Giorni",
+        card_day_badge: "Giorno {{day}} di 7",
+        card_description_new: "Costruisci una base solida con pratiche quotidiane guidate",
+        card_description_continue: "Continua il tuo percorso CBT guidato",
+        card_progress: "{{day}} di 7 giorni completati",
+        card_btn_continue: "Continua",
+        card_btn_start: "Inizia il Percorso",
+        card_btn_starting: "Avvio...",
+        card_aria_watch_video: "Guarda il video di aiuto",
+        day_themes: {
+          1: { title: "Benvenuto e Respirazione", description: "Impara le tecniche di respirazione fondamentali" },
+          2: { title: "Comprendere i Pensieri", description: "Identifica i modelli di pensiero automatici" },
+          3: { title: "Pratica di Ancoraggio", description: "Rimani presente con esercizi di ancoraggio" },
+          4: { title: "Sfidare le Credenze", description: "Metti in discussione i modelli di pensiero negativi" },
+          5: { title: "Costruire Slancio", description: "Intraprendi piccole azioni comportamentali" },
+          6: { title: "Consapevolezza Mindful", description: "Coltiva la consapevolezza del momento presente" },
+          7: { title: "Integrazione e Prossimi Passi", description: "Rivedi e pianifica il futuro" }
+        },
+        day_structure: {
+          1: { title: "Comprendere la Tua Mente", description: "Esplora come i tuoi pensieri influenzano le tue emozioni" },
+          2: { title: "Cogliere i Pensieri Automatici", description: "Nota i pensieri che emergono automaticamente" },
+          3: { title: "Identificare i Modelli di Pensiero", description: "Identifica le trappole di pensiero che influenzano il tuo umore" },
+          4: { title: "Il Potere della Pausa", description: "Impara a creare spazio prima di rispondere" },
+          5: { title: "Costruire Pensieri Equilibrati", description: "Trasforma i pensieri non utili in pensieri realistici" },
+          6: { title: "Testare Nuovi Approcci", description: "Prova un nuovo modo di rispondere" },
+          7: { title: "Il Tuo Viaggio Avanti", description: "Rivedi i tuoi progressi e pianifica il futuro" }
+        }
       },
       advanced_analytics: {
         title: "Analisi Avanzate",
@@ -6464,6 +6761,33 @@ export const translations = {
           Overwhelmed: "Sopraffatto", Lonely: "Solitario", Fearful: "Timoroso", Guilty: "Colpevole", Ashamed: "Vergognoso",
           Disappointed: "Deluso", Hopeless: "Disperato", Jealous: "Geloso", Resentful: "Risentito", Irritated: "Irritato",
           Worried: "Preoccupato", Depressed: "Depresso", Helpless: "Impotente", Rejected: "Rifiutato", Insecure: "Insicuro"
+        }
+      },
+      personalization: {
+        title_step1: "Personalizziamo il Tuo Percorso",
+        subtitle_step1: "Seleziona le tue preoccupazioni principali (scegli 1-3)",
+        title_step2: "Cosa Speri di Raggiungere?",
+        subtitle_step2: "Seleziona i tuoi obiettivi (scegli quelli che ti risuonano)",
+        btn_continue: "Continua",
+        btn_back: "Indietro",
+        btn_start: "Inizia il Mio Percorso",
+        concerns: {
+          anxiety: { label: "Ansia", description: "Ridurre l'ansia e il nervosismo" },
+          stress: { label: "Gestione dello Stress", description: "Sviluppare strategie di coping" },
+          mood: { label: "Umore Basso", description: "Migliorare il benessere emotivo" },
+          self_esteem: { label: "Autostima", description: "Costruire fiducia" },
+          sleep: { label: "Problemi di Sonno", description: "Migliore riposo e recupero" },
+          relationships: { label: "Relazioni", description: "Connessioni più sane" }
+        },
+        goals: {
+          goal_0: "Sentirmi più calmo e in controllo",
+          goal_1: "Gestire meglio le emozioni difficili",
+          goal_2: "Sviluppare schemi di pensiero più sani",
+          goal_3: "Migliorare il funzionamento quotidiano",
+          goal_4: "Ridurre il dialogo interiore negativo",
+          goal_5: "Migliore qualità del sonno",
+          goal_6: "Aumentare l'autocompassione",
+          goal_7: "Rafforzare la resilienza"
         }
       }
     }
@@ -7472,7 +7796,34 @@ export const translations = {
         back_button: "Voltar",
         complete_day: "Concluir Dia {{day}}",
         completing: "Concluindo...",
-        reflect_placeholder: "Reserve um tempo para refletir e escrever seus pensamentos..."
+        reflect_placeholder: "Reserve um tempo para refletir e escrever seus pensamentos...",
+        card_title: "Caminho de 7 Dias",
+        card_day_badge: "Dia {{day}} de 7",
+        card_description_new: "Construa uma base sólida com práticas diárias guiadas",
+        card_description_continue: "Continue sua jornada de TCC guiada",
+        card_progress: "{{day}} de 7 dias concluídos",
+        card_btn_continue: "Continuar",
+        card_btn_start: "Iniciar Caminho",
+        card_btn_starting: "Iniciando...",
+        card_aria_watch_video: "Assistir ao vídeo de ajuda",
+        day_themes: {
+          1: { title: "Boas-vindas e Respiração", description: "Aprenda técnicas de respiração fundamentais" },
+          2: { title: "Entendendo os Pensamentos", description: "Identifique padrões de pensamento automáticos" },
+          3: { title: "Prática de Aterramento", description: "Permaneça presente com exercícios de aterramento" },
+          4: { title: "Desafiando Crenças", description: "Questione padrões de pensamento negativos" },
+          5: { title: "Construindo Impulso", description: "Tome pequenas ações comportamentais" },
+          6: { title: "Consciência Plena", description: "Cultive a consciência do momento presente" },
+          7: { title: "Integração e Próximos Passos", description: "Revise e planeje o futuro" }
+        },
+        day_structure: {
+          1: { title: "Entendendo Sua Mente", description: "Explore como seus pensamentos influenciam suas emoções" },
+          2: { title: "Capturando Pensamentos Automáticos", description: "Observe os pensamentos que surgem automaticamente" },
+          3: { title: "Identificando Padrões de Pensamento", description: "Identifique armadilhas de pensamento que afetam seu humor" },
+          4: { title: "O Poder da Pausa", description: "Aprenda a criar espaço antes de responder" },
+          5: { title: "Construindo Pensamentos Equilibrados", description: "Transforme pensamentos não úteis em pensamentos realistas" },
+          6: { title: "Testando Novas Abordagens", description: "Experimente uma nova forma de responder" },
+          7: { title: "Sua Jornada em Frente", description: "Revise seu progresso e planeje o futuro" }
+        }
       },
       advanced_analytics: {
         title: "Análises Avançadas",
@@ -7570,6 +7921,33 @@ export const translations = {
           Overwhelmed: "Sobrecarregado", Lonely: "Solitário", Fearful: "Temeroso", Guilty: "Culpado", Ashamed: "Envergonhado",
           Disappointed: "Decepcionado", Hopeless: "Desesperançado", Jealous: "Ciumento", Resentful: "Ressentido", Irritated: "Irritado",
           Worried: "Preocupado", Depressed: "Deprimido", Helpless: "Impotente", Rejected: "Rejeitado", Insecure: "Inseguro"
+        }
+      },
+      personalization: {
+        title_step1: "Vamos Personalizar Seu Caminho",
+        subtitle_step1: "Selecione suas principais preocupações (escolha 1-3)",
+        title_step2: "O Que Você Espera Alcançar?",
+        subtitle_step2: "Selecione seus objetivos (escolha os que ressoam com você)",
+        btn_continue: "Continuar",
+        btn_back: "Voltar",
+        btn_start: "Iniciar Meu Caminho",
+        concerns: {
+          anxiety: { label: "Ansiedade", description: "Reduzir preocupação e nervosismo" },
+          stress: { label: "Gerenciamento de Estresse", description: "Desenvolver estratégias de enfrentamento" },
+          mood: { label: "Humor Baixo", description: "Melhorar o bem-estar emocional" },
+          self_esteem: { label: "Autoestima", description: "Construir confiança" },
+          sleep: { label: "Problemas de Sono", description: "Melhor descanso e recuperação" },
+          relationships: { label: "Relacionamentos", description: "Conexões mais saudáveis" }
+        },
+        goals: {
+          goal_0: "Sentir-me mais calmo e no controle",
+          goal_1: "Gerenciar melhor as emoções difíceis",
+          goal_2: "Desenvolver padrões de pensamento mais saudáveis",
+          goal_3: "Melhorar o funcionamento diário",
+          goal_4: "Reduzir o diálogo interno negativo",
+          goal_5: "Melhor qualidade de sono",
+          goal_6: "Aumentar a autocompaixão",
+          goal_7: "Fortalecer a resiliência"
         }
       }
     }
