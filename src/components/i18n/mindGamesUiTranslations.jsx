@@ -29,7 +29,10 @@ export const mindGamesUiStrings = {
       { question: "Which shape completes the pattern: Circle, Square, ?, Circle?" },
       { question: "What size comes next: Large, Medium, ?, Large?" },
       { question: "Continue the pattern: 1, 2, 3, 1, ?" }
-    ]
+    ],
+    option_colors: ["Red", "Blue", "Green"],
+    option_shapes: ["Circle", "Square", "Triangle"],
+    option_sizes: ["Small", "Medium", "Large"]
   },
   word_association: {
     title: "Word Association",
@@ -163,6 +166,7 @@ export const mindGamesUiStrings = {
     emotions: ["Fear", "Anger", "Sadness", "Guilt", "Shame"],
     check_btn: "Check the Facts",
     for_emotion: "For {{emotion}}, ask yourself:",
+    default_prompts: ["What are the facts?", "Am I adding interpretations?", "Does this emotion fit?"],
     tip: "If the facts don't support the emotion's intensity, use opposite action or other skills to shift it.",
     emotion_prompts: {
       fear: ["Is there real, immediate danger?", "What's the worst that could happen?", "What's the evidence?"],
@@ -229,6 +233,13 @@ export const mindGamesUiStrings = {
     description: "Half Smile is a gentle facial expression that can shift your emotional state. Even a tiny smile signals safety to your nervous system.",
     feel_now_prompt: "How do you feel right now?",
     emotions: ["Tense", "Frustrated", "Anxious", "Sad", "Neutral"],
+    try_prompt: "Try this for 30 seconds:",
+    instructions: [
+      "Relax your face, especially your jaw.",
+      "Lift the corners of your mouth just slightly (10%).",
+      "Soften your eyes.",
+      "Breathe slowly."
+    ],
     practiced_btn: "I Practiced for 30 Seconds",
     feel_after_prompt: "How do you feel now?",
     result: "✓ Before: {{before}} → After: {{after}}\n\nEven a subtle shift matters. Half Smile is a tool you can use anywhere, anytime."
