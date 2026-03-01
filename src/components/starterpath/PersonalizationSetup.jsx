@@ -5,31 +5,33 @@ import { Badge } from '@/components/ui/badge';
 import { Target, Brain, Heart, TrendingUp, Sparkles, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-
-const primaryConcerns = [
-  { id: 'anxiety', label: 'Anxiety', icon: Brain, color: '#4299E1', description: 'Reduce worry and nervousness' },
-  { id: 'stress', label: 'Stress Management', icon: TrendingUp, color: '#F6AD55', description: 'Build coping strategies' },
-  { id: 'mood', label: 'Low Mood', icon: Heart, color: '#ED8936', description: 'Improve emotional wellbeing' },
-  { id: 'self_esteem', label: 'Self-Esteem', icon: Sparkles, color: '#9F7AEA', description: 'Build confidence' },
-  { id: 'sleep', label: 'Sleep Issues', icon: Brain, color: '#38B2AC', description: 'Better rest and recovery' },
-  { id: 'relationships', label: 'Relationships', icon: Heart, color: '#26A69A', description: 'Healthier connections' }
-];
-
-const goals = [
-  'Feel calmer and more in control',
-  'Manage difficult emotions better',
-  'Build healthier thought patterns',
-  'Improve daily functioning',
-  'Reduce negative self-talk',
-  'Better sleep quality',
-  'Increase self-compassion',
-  'Strengthen resilience'
-];
+import { useTranslation } from 'react-i18next';
 
 export default function PersonalizationSetup({ onComplete }) {
+  const { t } = useTranslation();
   const [step, setStep] = useState(1);
   const [selectedConcerns, setSelectedConcerns] = useState([]);
   const [selectedGoals, setSelectedGoals] = useState([]);
+
+  const primaryConcerns = [
+    { id: 'anxiety', label: t('personalization.concerns.anxiety.label'), icon: Brain, color: '#4299E1', description: t('personalization.concerns.anxiety.description') },
+    { id: 'stress', label: t('personalization.concerns.stress.label'), icon: TrendingUp, color: '#F6AD55', description: t('personalization.concerns.stress.description') },
+    { id: 'mood', label: t('personalization.concerns.mood.label'), icon: Heart, color: '#ED8936', description: t('personalization.concerns.mood.description') },
+    { id: 'self_esteem', label: t('personalization.concerns.self_esteem.label'), icon: Sparkles, color: '#9F7AEA', description: t('personalization.concerns.self_esteem.description') },
+    { id: 'sleep', label: t('personalization.concerns.sleep.label'), icon: Brain, color: '#38B2AC', description: t('personalization.concerns.sleep.description') },
+    { id: 'relationships', label: t('personalization.concerns.relationships.label'), icon: Heart, color: '#26A69A', description: t('personalization.concerns.relationships.description') }
+  ];
+
+  const goals = [
+    t('personalization.goals.goal_0'),
+    t('personalization.goals.goal_1'),
+    t('personalization.goals.goal_2'),
+    t('personalization.goals.goal_3'),
+    t('personalization.goals.goal_4'),
+    t('personalization.goals.goal_5'),
+    t('personalization.goals.goal_6'),
+    t('personalization.goals.goal_7'),
+  ];
 
   const toggleConcern = (id) => {
     setSelectedConcerns(prev => 
@@ -91,10 +93,10 @@ export default function PersonalizationSetup({ onComplete }) {
                   <div className="text-center mb-6">
                     <Target className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4" style={{ color: '#26A69A' }} />
                     <h2 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: '#1A3A34' }}>
-                      Let's Personalize Your Path
+                      {t('personalization.title_step1')}
                     </h2>
                     <p className="text-sm sm:text-base" style={{ color: '#5A7A72' }}>
-                      Select your primary concerns (choose 1-3)
+                      {t('personalization.subtitle_step1')}
                     </p>
                   </div>
 
@@ -153,7 +155,7 @@ export default function PersonalizationSetup({ onComplete }) {
                       boxShadow: '0 8px 24px rgba(38, 166, 154, 0.3)'
                     }}
                   >
-                    Continue
+                    {t('personalization.btn_continue')}
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                 </motion.div>
@@ -170,10 +172,10 @@ export default function PersonalizationSetup({ onComplete }) {
                   <div className="text-center mb-6">
                     <Sparkles className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4" style={{ color: '#9F7AEA' }} />
                     <h2 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: '#1A3A34' }}>
-                      What Do You Hope to Achieve?
+                      {t('personalization.title_step2')}
                     </h2>
                     <p className="text-sm sm:text-base" style={{ color: '#5A7A72' }}>
-                      Select your goals (choose any that resonate)
+                      {t('personalization.subtitle_step2')}
                     </p>
                   </div>
 
@@ -213,7 +215,7 @@ export default function PersonalizationSetup({ onComplete }) {
                       className="flex-1 py-6"
                       style={{ borderRadius: '20px' }}
                     >
-                      Back
+                      {t('personalization.btn_back')}
                     </Button>
                     <Button
                       onClick={handleComplete}
@@ -225,7 +227,7 @@ export default function PersonalizationSetup({ onComplete }) {
                         boxShadow: '0 8px 24px rgba(159, 122, 234, 0.3)'
                       }}
                     >
-                      Start My Path
+                      {t('personalization.btn_start')}
                       <Sparkles className="w-5 h-5 ml-2" />
                     </Button>
                   </div>

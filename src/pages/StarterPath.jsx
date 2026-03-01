@@ -327,9 +327,9 @@ Generate a concise insight or action the user can apply today.`;
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-semibold mb-2" style={{ color: 'rgb(var(--text))' }}>
-                Day {currentDay}: {dayStructure.title}
+                {t('starter_path.day_of_7', { day: currentDay })}: {t(`starter_path.day_structure.${currentDay}.title`, { defaultValue: dayStructure.title })}
               </h1>
-              <p style={{ color: 'rgb(var(--muted))' }}>{dayStructure.description}</p>
+              <p style={{ color: 'rgb(var(--muted))' }}>{t(`starter_path.day_structure.${currentDay}.description`, { defaultValue: dayStructure.description })}</p>
             </div>
             <div className="text-right">
               <p className="text-sm font-medium" style={{ color: 'rgb(var(--calm))' }}>

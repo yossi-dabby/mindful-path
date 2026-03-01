@@ -9,18 +9,10 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import VideoModal from './VideoModal';
-
-const DAY_THEMES = [
-  { title: "Welcome & Breathing", description: "Learn foundational breathing techniques" },
-  { title: "Understanding Thoughts", description: "Identify automatic thinking patterns" },
-  { title: "Grounding Practice", description: "Stay present with grounding exercises" },
-  { title: "Challenging Beliefs", description: "Question negative thought patterns" },
-  { title: "Building Momentum", description: "Take small behavioral actions" },
-  { title: "Mindful Awareness", description: "Cultivate present-moment awareness" },
-  { title: "Integration & Next Steps", description: "Review and plan ahead" }
-];
+import { useTranslation } from 'react-i18next';
 
 export default function StarterPathCard() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [showVideo, setShowVideo] = useState(false);
 
@@ -58,7 +50,9 @@ export default function StarterPathCard() {
 
   const currentDay = starterPath?.current_day || 0;
   const isStarted = currentDay > 0;
-  const dayTheme = currentDay > 0 ? DAY_THEMES[currentDay - 1] : null;
+  const dayThemeDescription = currentDay > 0
+    ? t(`starter_path.day_themes.${currentDay}.description`, { defaultValue: t('starter_path.card_description_continue') })
+    : null;
 
   return (
     <motion.div
@@ -94,7 +88,7 @@ export default function StarterPathCard() {
                   backgroundColor: 'rgba(255, 215, 0, 0.15)',
                   animation: 'angelPulse 2s ease-in-out infinite'
                 }}
-                aria-label="Watch help video"
+                aria-label={t('starter_path.card_aria_watch_video')}
               >
                 <Sparkles className="w-6 h-6" style={{ color: '#FFD700' }} strokeWidth={2} />
               </Button>
@@ -105,7 +99,7 @@ export default function StarterPathCard() {
               <div className="flex items-center gap-2 mb-3">
                 <Sparkles className="w-4 h-4 icon-default" style={{ color: '#26A69A' }} strokeWidth={2} />
                 <h3 className="text-base font-semibold truncate" style={{ color: '#1A3A34' }}>
-                  7-Day Starter Path
+                  {t('starter_path.card_title')}
                 </h3>
                 {isStarted && (
                   <Badge variant="secondary" className="border-0" style={{ 
@@ -113,7 +107,7 @@ export default function StarterPathCard() {
                     backgroundColor: 'rgba(38, 166, 154, 0.15)',
                     color: '#26A69A'
                   }}>
-                    Day {currentDay} of 7
+                    {t('starter_path.card_day_badge', { day: currentDay })}
                   </Badge>
                 )}
               </div>
@@ -121,8 +115,8 @@ export default function StarterPathCard() {
               {/* Description */}
               <p className="text-sm mb-4 line-clamp-2" style={{ color: '#5A7A72' }}>
                 {isStarted 
-                  ? dayTheme?.description || "Continue your guided CBT journey"
-                  : "Build a strong foundation with guided daily practices"}
+                  ? dayThemeDescription
+                  : t('starter_path.card_description_new')}
               </p>
 
               {/* Progress Bar */}
@@ -145,7 +139,7 @@ export default function StarterPathCard() {
                     />
                   </div>
                   <p className="text-xs mt-2" style={{ color: '#5A7A72' }}>
-                    {currentDay} of 7 days completed
+                    {t('starter_path.card_progress', { day: currentDay })}
                   </p>
                 </div>
               )}
@@ -161,7 +155,7 @@ export default function StarterPathCard() {
                       boxShadow: '0 6px 20px rgba(38, 166, 154, 0.3), 0 3px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.2)'
                     }}
                   >
-                    Continue
+                    {t('starter_path.card_btn_continue')}
                     <ArrowRight className="w-4 h-4 ml-2 icon-default" strokeWidth={2} />
                   </Button>
                 </Link>
@@ -176,7 +170,7 @@ export default function StarterPathCard() {
                     boxShadow: '0 6px 20px rgba(38, 166, 154, 0.3), 0 3px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.2)'
                   }}
                 >
-                  {startPathMutation.isPending ? 'Starting...' : 'Start Path'}
+                  {startPathMutation.isPending ? t('starter_path.card_btn_starting') : t('starter_path.card_btn_start')}
                   <ArrowRight className="w-4 h-4 ml-2 icon-default" strokeWidth={2} />
                 </Button>
               )}
@@ -219,7 +213,7 @@ export default function StarterPathCard() {
                   backgroundColor: 'rgba(255, 215, 0, 0.15)',
                   animation: 'angelPulse 2s ease-in-out infinite'
                 }}
-                aria-label="Watch help video"
+                aria-label={t('starter_path.card_aria_watch_video')}
               >
                 <Sparkles className="w-5 h-5" style={{ color: '#FFD700' }} strokeWidth={2} />
               </Button>
