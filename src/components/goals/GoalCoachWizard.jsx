@@ -268,7 +268,7 @@ export default function GoalCoachWizard({ onClose }) {
   );
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-orange-50 via-yellow-50 to-green-50" style={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden', zIndex: 70 }}>
+    <div className="fixed inset-0 bg-gradient-to-br from-orange-50 via-yellow-50 to-green-50" style={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden', zIndex: 70, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       {/* Header - Fixed */}
       <div className="bg-white border-b shadow-sm flex-shrink-0">
         <div className="max-w-2xl mx-auto p-4 w-full">
@@ -293,8 +293,8 @@ export default function GoalCoachWizard({ onClose }) {
         </div>
       </div>
 
-      {/* Content - Scrollable with padding for footer + bottom nav */}
-      <div className="flex-1 overflow-y-auto" style={{ minHeight: 0, paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px) + 80px)' }}>
+      {/* Content - Scrollable with padding for sticky footer + safe area */}
+      <div className="flex-1 overflow-y-auto" style={{ minHeight: 0, paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))' }}>
         <div className="max-w-2xl mx-auto p-4 md:p-6 w-full">
           {/* Step 1: Select Goal Category */}
           {step === 1 && (
@@ -726,8 +726,8 @@ export default function GoalCoachWizard({ onClose }) {
         </div>
       </div>
 
-      {/* Navigation - Sticky at bottom, above mobile nav */}
-      <div className="sticky bottom-0 bg-white border-t shadow-lg flex-shrink-0" style={{ marginBottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)', zIndex: 10 }}>
+      {/* Navigation - Sticky at bottom with safe area */}
+      <div className="sticky bottom-0 bg-white border-t shadow-lg flex-shrink-0" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)', zIndex: 10 }}>
         <div className="max-w-2xl mx-auto px-3 py-3 w-full">
           <div className="flex gap-2.5">
             {step > 1 && (
