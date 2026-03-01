@@ -1193,7 +1193,7 @@ export default function Chat() {
   return (
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
-      <div className="h-screen flex relative" data-testid="chat-root" data-page-ready={isPageReady} style={{ 
+      <div className="h-full flex relative" data-testid="chat-root" data-page-ready={isPageReady} style={{ 
         background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)'
       }}>
       {/* Backdrop overlay when sidebar is open - below input area */}
@@ -1228,7 +1228,7 @@ export default function Chat() {
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col h-screen">
+      <div className="flex-1 flex flex-col min-h-0">
         {/* Header */}
         <div className="px-4 md:px-6 py-4 flex items-center gap-3" style={{
           background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(232, 246, 243, 0.8) 100%)',
