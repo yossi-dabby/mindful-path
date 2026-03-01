@@ -12,16 +12,6 @@ import AiPersonalizedFeed from './AiPersonalizedFeed';
 import VideoModal from './VideoModal';
 import { useTranslation } from 'react-i18next';
 
-const DAY_THEMES = [
-  { title: "Welcome & Breathing", description: "Learn foundational breathing techniques" },
-  { title: "Understanding Thoughts", description: "Identify automatic thinking patterns" },
-  { title: "Grounding Practice", description: "Stay present with grounding exercises" },
-  { title: "Challenging Beliefs", description: "Question negative thought patterns" },
-  { title: "Building Momentum", description: "Take small behavioral actions" },
-  { title: "Mindful Awareness", description: "Cultivate present-moment awareness" },
-  { title: "Integration & Next Steps", description: "Review and plan ahead" }
-];
-
 export default function QuickActions() {
   const { t } = useTranslation();
   const [activeVideo, setActiveVideo] = useState(null);
@@ -71,7 +61,6 @@ export default function QuickActions() {
   const currentDay = starterPath?.current_day || 0;
   const isStarted = currentDay > 0;
   const isCompleted = starterPath?.completed || currentDay >= 7;
-  const dayTheme = currentDay > 0 && currentDay <= 7 ? DAY_THEMES[currentDay - 1] : null;
   
   const therapeuticActions = [
     {
@@ -269,7 +258,7 @@ export default function QuickActions() {
 
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-semibold text-sm break-words" style={{ color: '#1A3A34' }}>
-                      StarterPath
+                      {t('starter_path.card_title')}
                     </h3>
                     {isStarted && (
                       <Badge variant="secondary" className="border-0 text-xs" style={{ 
@@ -284,8 +273,8 @@ export default function QuickActions() {
 
                   <p className="text-xs mb-3 line-clamp-2 break-words" style={{ color: '#5A7A72' }}>
                     {isStarted 
-                      ? dayTheme?.description || "Continue your journey"
-                      : "7-day guided CBT foundation"}
+                      ? t(`starter_path.day_themes.${currentDay}.description`, { defaultValue: t('starter_path.card_description_continue') })
+                      : t('starter_path.card_description_new')}
                   </p>
 
                   {/* Progress Bar */}
@@ -321,7 +310,7 @@ export default function QuickActions() {
                               backgroundColor: '#26A69A'
                             }}
                           >
-                            {isCompleted ? 'Review' : 'Continue'}
+                            {isCompleted ? t('starter_path.card_btn_review') : t('starter_path.card_btn_continue')}
                             <ArrowRight className="w-3 h-3 ml-1" strokeWidth={2} />
                           </Button>
                         </Link>
@@ -352,7 +341,7 @@ export default function QuickActions() {
                           backgroundColor: '#26A69A'
                         }}
                       >
-                        {startPathMutation.isPending ? 'Starting...' : 'Start'}
+                        {startPathMutation.isPending ? t('starter_path.card_btn_starting') : t('starter_path.card_btn_start')}
                         <ArrowRight className="w-3 h-3 ml-1" strokeWidth={2} />
                       </Button>
                     )}
