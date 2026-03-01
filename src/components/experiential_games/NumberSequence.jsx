@@ -53,7 +53,7 @@ export default function NumberSequence({ onClose }) {
   const isCorrect = parseInt(userAnswer) === current.answer;
 
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-4 w-full min-w-0">
       <Card className="p-6 border-0" style={{
         borderRadius: '20px',
         background: 'rgba(255, 255, 255, 0.95)',
@@ -79,11 +79,11 @@ export default function NumberSequence({ onClose }) {
               {t('mind_games.number_sequence.instructions')}
             </p>
 
-            <div className="flex items-center justify-center gap-3 py-6">
+            <div className="flex items-center justify-center gap-1 py-6 flex-wrap">
               {current.sequence.map((num, idx) => (
                 <React.Fragment key={idx}>
                   <div
-                    className="w-14 h-14 rounded-xl flex items-center justify-center text-xl font-bold"
+                    className="w-11 h-11 rounded-xl flex items-center justify-center text-base font-bold"
                     style={{
                       backgroundColor: 'rgba(38, 166, 154, 0.15)',
                       color: '#26A69A',
@@ -93,13 +93,13 @@ export default function NumberSequence({ onClose }) {
                     {num}
                   </div>
                   {idx < current.sequence.length - 1 && (
-                    <span className="text-gray-400">→</span>
+                    <span className="text-gray-400 text-xs">→</span>
                   )}
                 </React.Fragment>
               ))}
-              <span className="text-gray-400">→</span>
+              <span className="text-gray-400 text-xs">→</span>
               <div
-                className="w-14 h-14 rounded-xl flex items-center justify-center text-xl font-bold"
+                className="w-11 h-11 rounded-xl flex items-center justify-center text-base font-bold"
                 style={{
                   backgroundColor: 'rgba(185, 163, 193, 0.15)',
                   color: '#B9A3C1',
@@ -118,7 +118,7 @@ export default function NumberSequence({ onClose }) {
                 onKeyPress={(e) => e.key === 'Enter' && !showResult && userAnswer && handleSubmit()}
                 placeholder={t('mind_games.number_sequence.answer_placeholder')}
                 disabled={showResult}
-                className="flex-1 px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#26A69A] focus:outline-none"
+                className="flex-1 min-w-0 px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#26A69A] focus:outline-none"
                 style={{
                   borderColor: showResult
                     ? isCorrect

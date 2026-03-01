@@ -21,7 +21,7 @@ export default function CalmBingo({ onClose }) {
   const isComplete = selected.length === 2;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full min-w-0">
       <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
         {t('mind_games.calm_bingo.prompt')}
       </p>
