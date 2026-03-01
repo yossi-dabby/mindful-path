@@ -1206,7 +1206,10 @@ export const mindGamesUiByLanguage = {
         { question: "Qual forma completa o padrão: Círculo, Quadrado, ?, Círculo?" },
         { question: "Qual tamanho vem a seguir: Grande, Médio, ?, Grande?" },
         { question: "Continue o padrão: 1, 2, 3, 1, ?" }
-      ]
+      ],
+      option_colors: ["Vermelho", "Azul", "Verde"],
+      option_shapes: ["Círculo", "Quadrado", "Triângulo"],
+      option_sizes: ["Pequeno", "Médio", "Grande"]
     },
     word_association: {
       title: "Associação de Palavras",
@@ -1260,6 +1263,7 @@ export const mindGamesUiByLanguage = {
       emotions: ["Medo", "Raiva", "Tristeza", "Culpa", "Vergonha"],
       check_btn: "Verificar os Fatos",
       for_emotion: "Para {{emotion}}, pergunte-se:",
+      default_prompts: ["Quais são os fatos?", "Estou adicionando interpretações?", "Esta emoção se encaixa?"],
       tip: "Se os fatos não suportam a intensidade da emoção, use ação oposta ou outras habilidades para mudá-la.",
       emotion_prompts: {
         fear: ["Há um perigo real e imediato?", "Qual é o pior que poderia acontecer?", "Quais são as evidências?"],
@@ -1314,6 +1318,8 @@ export const mindGamesUiByLanguage = {
       description: "O Meio Sorriso é uma expressão facial suave que pode mudar seu estado emocional. Mesmo um sorriso pequeno sinaliza segurança ao seu sistema nervoso.",
       feel_now_prompt: "Como você está se sentindo agora?",
       emotions: ["Tenso", "Frustrado", "Ansioso", "Triste", "Neutro"],
+      try_prompt: "Experimente isso por 30 segundos:",
+      instructions: ["Relaxe o rosto, especialmente a mandíbula.", "Levante levemente os cantos da boca (10%).", "Suavize o olhar.", "Respire devagar."],
       practiced_btn: "Pratiquei por 30 Segundos",
       feel_after_prompt: "Como você está se sentindo agora?",
       result: "✓ Antes: {{before}} → Depois: {{after}}\n\nMesmo uma mudança sutil importa. O Meio Sorriso é uma ferramenta que você pode usar em qualquer lugar."
