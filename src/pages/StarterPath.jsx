@@ -64,7 +64,7 @@ const DAY_STRUCTURE = [
 ];
 
 export default function StarterPath() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [step, setStep] = useState('loading'); // loading, intro, exercise, complete
   const [userResponse, setUserResponse] = useState('');
   const [generatedContent, setGeneratedContent] = useState(null);
@@ -166,7 +166,8 @@ RULES:
 - Keep total content under 200 words
 - Use simple, clear language
 - No bullet points or formatting, just clear sentences
-- Make it feel personal and directly relevant`;
+- Make it feel personal and directly relevant
+- IMPORTANT: Write ALL text content in the following language: ${i18n.language}`;
 
       const result = await base44.integrations.Core.InvokeLLM({
         prompt,
@@ -201,7 +202,8 @@ RULES:
 Exercise goal: ${dayStructure.goal}
 User response: ${userResponse}
 
-Generate a concise insight or action the user can apply today.`;
+Generate a concise insight or action the user can apply today.
+IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
 
       const takeawayResult = await base44.integrations.Core.InvokeLLM({
         prompt: takeawayPrompt

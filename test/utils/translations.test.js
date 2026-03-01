@@ -119,4 +119,26 @@ describe('translations', () => {
       }
     }
   });
+
+  it('all languages have all 7 starter_path day_themes with title and description', () => {
+    for (const lng of LANGUAGES) {
+      const dayThemes = translations[lng].translation.starter_path?.day_themes;
+      expect(dayThemes, `Missing starter_path.day_themes for ${lng}`).toBeDefined();
+      for (let day = 1; day <= 7; day++) {
+        expect(dayThemes[day]?.title, `Missing starter_path.day_themes.${day}.title for ${lng}`).toBeTruthy();
+        expect(dayThemes[day]?.description, `Missing starter_path.day_themes.${day}.description for ${lng}`).toBeTruthy();
+      }
+    }
+  });
+
+  it('all languages have starter_path card button keys including card_btn_review', () => {
+    const btnKeys = ['card_btn_continue', 'card_btn_review', 'card_btn_start', 'card_btn_starting'];
+    for (const lng of LANGUAGES) {
+      const starterPath = translations[lng].translation.starter_path;
+      expect(starterPath, `Missing starter_path for ${lng}`).toBeDefined();
+      for (const key of btnKeys) {
+        expect(starterPath[key], `Missing starter_path.${key} for ${lng}`).toBeTruthy();
+      }
+    }
+  });
 });
