@@ -716,7 +716,10 @@ export const mindGamesUiByLanguage = {
         { question: "Quelle forme complète le motif : Cercle, Carré, ?, Cercle ?" },
         { question: "Quelle taille vient ensuite : Grand, Moyen, ?, Grand ?" },
         { question: "Continuez le motif : 1, 2, 3, 1, ?" }
-      ]
+      ],
+      option_colors: ["Rouge", "Bleu", "Vert"],
+      option_shapes: ["Cercle", "Carré", "Triangle"],
+      option_sizes: ["Petit", "Moyen", "Grand"]
     },
     word_association: {
       title: "Association de Mots",
@@ -770,6 +773,7 @@ export const mindGamesUiByLanguage = {
       emotions: ["Peur", "Colère", "Tristesse", "Culpabilité", "Honte"],
       check_btn: "Vérifier les Faits",
       for_emotion: "Pour {{emotion}}, demandez-vous :",
+      default_prompts: ["Quels sont les faits ?", "Est-ce que j'ajoute des interprétations ?", "Cette émotion correspond-elle ?"],
       tip: "Si les faits ne soutiennent pas l'intensité de l'émotion, utilisez l'action opposée ou d'autres compétences pour la changer.",
       emotion_prompts: {
         fear: ["Y a-t-il un danger réel et immédiat ?", "Quel est le pire qui pourrait arriver ?", "Quelles sont les preuves ?"],
@@ -824,6 +828,8 @@ export const mindGamesUiByLanguage = {
       description: "Le Demi-Sourire est une expression faciale douce qui peut changer votre état émotionnel. Même un petit sourire signale la sécurité à votre système nerveux.",
       feel_now_prompt: "Comment vous sentez-vous en ce moment ?",
       emotions: ["Tendu", "Frustré", "Anxieux", "Triste", "Neutre"],
+      try_prompt: "Essayez ceci pendant 30 secondes :",
+      instructions: ["Détendez votre visage, surtout la mâchoire.", "Relevez légèrement les coins de la bouche (10%).", "Adoucissez votre regard.", "Respirez lentement."],
       practiced_btn: "J'ai Pratiqué pendant 30 Secondes",
       feel_after_prompt: "Comment vous sentez-vous maintenant ?",
       result: "✓ Avant : {{before}} → Après : {{after}}\n\nMême un changement subtil compte. Le Demi-Sourire est un outil que vous pouvez utiliser partout."
