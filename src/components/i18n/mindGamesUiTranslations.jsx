@@ -292,6 +292,19 @@ export const mindGamesUiByLanguage = {
   },
   es: {
     common: { try_another: "Probar Otro" },
+    reframe_pick: {
+      situation: "Situación:",
+      automatic_thought: "Pensamiento automático:",
+      choose: "Elige la respuesta más equilibrada:",
+      why_label: "Por qué funciona:"
+    },
+    evidence_balance: {
+      thought_label: "Pensamiento:",
+      for_label: "Evidencia A FAVOR:",
+      against_label: "Evidencia EN CONTRA:",
+      show_conclusion: "Mostrar conclusión equilibrada",
+      conclusion_label: "Conclusión equilibrada:"
+    },
     memory_match: {
       title: "Emparejamiento de Memoria",
       instructions: "Encuentra todos los pares coincidentes haciendo clic en las cartas.",
