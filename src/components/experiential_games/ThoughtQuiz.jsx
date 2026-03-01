@@ -129,7 +129,7 @@ export default function ThoughtQuiz({ onClose }) {
         <div className="space-y-2">
           {options.map((option, index) => {
             const isSelected = selectedOption === index;
-            const isCorrect = index === Number(currentItem.correctIndex);
+            const isCorrect = index === correctIndex;
             const showResult = showExplanation;
 
             return (
