@@ -811,6 +811,22 @@ export const translations = {
         go_back_aria: "Go back",
         retry: "Retry"
       },
+      goals_dashboard_widget: {
+        title: "Goals Overview",
+        all_stages: "All stages",
+        no_goals_yet: "No goals yet",
+        create_first_goal: "Create Your First Goal",
+        overall_progress: "Overall Progress",
+        active: "{{count}} active",
+        tasks_done: "{{completed}}/{{total}} tasks done",
+        completed: "Completed",
+        overdue: "Overdue",
+        overdue_goals: "Overdue Goals:",
+        due: "Due {{date}}",
+        more: "+{{count}} more",
+        coming_up: "Coming Up This Week:",
+        view_all_goals: "View All Goals"
+      },
       goal_coach_wizard: {
         title: "Goal Coach",
         step_of: "Step {{step}} of 4",
@@ -1901,6 +1917,22 @@ export const translations = {
         go_back_aria: "חזרה",
         retry: "נסה שנית"
       },
+      goals_dashboard_widget: {
+        title: "סקירת מטרות",
+        all_stages: "כל השלבים",
+        no_goals_yet: "עדיין אין מטרות",
+        create_first_goal: "צור את המטרה הראשונה שלך",
+        overall_progress: "התקדמות כללית",
+        active: "{{count}} פעיל",
+        tasks_done: "{{completed}}/{{total}} משימות הושלמו",
+        completed: "הושלמו",
+        overdue: "באיחור",
+        overdue_goals: "מטרות שחלף מועדן:",
+        due: "עד {{date}}",
+        more: "+{{count}} נוספים",
+        coming_up: "מגיע השבוע:",
+        view_all_goals: "הצג את כל המטרות"
+      },
       goal_coach_wizard: {
         title: "מאמן מטרות",
         step_of: "שלב {{step}} מתוך 4",
@@ -2822,6 +2854,22 @@ export const translations = {
         get_more_suggestions: "Obtener Más Sugerencias",
         go_back_aria: "Volver",
         retry: "Reintentar"
+      },
+      goals_dashboard_widget: {
+        title: "Resumen de Metas",
+        all_stages: "Todas las etapas",
+        no_goals_yet: "Sin metas aún",
+        create_first_goal: "Crea Tu Primera Meta",
+        overall_progress: "Progreso General",
+        active: "{{count}} activa(s)",
+        tasks_done: "{{completed}}/{{total}} tareas completadas",
+        completed: "Completadas",
+        overdue: "Atrasadas",
+        overdue_goals: "Metas Atrasadas:",
+        due: "Vence el {{date}}",
+        more: "+{{count}} más",
+        coming_up: "Esta Semana:",
+        view_all_goals: "Ver Todas las Metas"
       },
       goal_coach_wizard: {
         title: "Entrenador de Metas",
@@ -3913,6 +3961,22 @@ export const translations = {
         go_back_aria: "Retour",
         retry: "Réessayer"
       },
+      goals_dashboard_widget: {
+        title: "Aperçu des Objectifs",
+        all_stages: "Toutes les étapes",
+        no_goals_yet: "Pas encore d'objectifs",
+        create_first_goal: "Créez Votre Premier Objectif",
+        overall_progress: "Progrès Global",
+        active: "{{count}} actif(s)",
+        tasks_done: "{{completed}}/{{total}} tâches terminées",
+        completed: "Terminées",
+        overdue: "En retard",
+        overdue_goals: "Objectifs en retard :",
+        due: "Dû le {{date}}",
+        more: "+{{count}} de plus",
+        coming_up: "Cette Semaine :",
+        view_all_goals: "Voir Tous les Objectifs"
+      },
       goal_coach_wizard: {
         title: "Coach d'Objectifs",
         step_of: "Étape {{step}} sur 4",
@@ -5002,6 +5066,22 @@ export const translations = {
         get_more_suggestions: "Mehr Vorschläge Erhalten",
         go_back_aria: "Zurück",
         retry: "Erneut versuchen"
+      },
+      goals_dashboard_widget: {
+        title: "Zielübersicht",
+        all_stages: "Alle Phasen",
+        no_goals_yet: "Noch keine Ziele",
+        create_first_goal: "Erstelle dein erstes Ziel",
+        overall_progress: "Gesamtfortschritt",
+        active: "{{count}} aktiv",
+        tasks_done: "{{completed}}/{{total}} Aufgaben erledigt",
+        completed: "Abgeschlossen",
+        overdue: "Überfällig",
+        overdue_goals: "Überfällige Ziele:",
+        due: "Fällig am {{date}}",
+        more: "+{{count}} weitere",
+        coming_up: "Diese Woche:",
+        view_all_goals: "Alle Ziele anzeigen"
       },
       goal_coach_wizard: {
         title: "Ziel-Coach",
@@ -6093,6 +6173,22 @@ export const translations = {
         go_back_aria: "Indietro",
         retry: "Riprova"
       },
+      goals_dashboard_widget: {
+        title: "Panoramica degli Obiettivi",
+        all_stages: "Tutte le fasi",
+        no_goals_yet: "Nessun obiettivo ancora",
+        create_first_goal: "Crea il Tuo Primo Obiettivo",
+        overall_progress: "Progresso Generale",
+        active: "{{count}} attivo/a",
+        tasks_done: "{{completed}}/{{total}} attività completate",
+        completed: "Completate",
+        overdue: "In ritardo",
+        overdue_goals: "Obiettivi in Ritardo:",
+        due: "Scadenza {{date}}",
+        more: "+{{count}} altri",
+        coming_up: "Questa Settimana:",
+        view_all_goals: "Visualizza Tutti gli Obiettivi"
+      },
       goal_coach_wizard: {
         title: "Coach degli Obiettivi",
         step_of: "Passo {{step}} di 4",
@@ -7182,6 +7278,22 @@ export const translations = {
         get_more_suggestions: "Obter Mais Sugestões",
         go_back_aria: "Voltar",
         retry: "Tentar novamente"
+      },
+      goals_dashboard_widget: {
+        title: "Visão Geral das Metas",
+        all_stages: "Todas as etapas",
+        no_goals_yet: "Nenhuma meta ainda",
+        create_first_goal: "Crie Sua Primeira Meta",
+        overall_progress: "Progresso Geral",
+        active: "{{count}} ativa(s)",
+        tasks_done: "{{completed}}/{{total}} tarefas concluídas",
+        completed: "Concluídas",
+        overdue: "Atrasadas",
+        overdue_goals: "Metas Atrasadas:",
+        due: "Prazo {{date}}",
+        more: "+{{count}} a mais",
+        coming_up: "Esta Semana:",
+        view_all_goals: "Ver Todas as Metas"
       },
       goal_coach_wizard: {
         title: "Coach de Objetivos",
