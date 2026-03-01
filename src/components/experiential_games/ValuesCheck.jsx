@@ -29,13 +29,13 @@ export default function ValuesCheck({ onClose }) {
         {!selectedValue ? (
           <>
             <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: '#5A7A72' }}>
-              Quick check: Which value matters most to you right now?
+              {t('mind_games.values_check.prompt')}
             </p>
             <div className="flex flex-wrap gap-2">
-              {values.map((value) => (
+              {values.map(({ key, label }) => (
                 <button
-                  key={value}
-                  onClick={() => handleValueSelect(value)}
+                  key={key}
+                  onClick={() => handleValueSelect(label)}
                   className="px-4 py-2 text-sm rounded-lg transition-all"
                   style={{
                     backgroundColor: 'rgba(159, 122, 234, 0.1)',
@@ -43,7 +43,7 @@ export default function ValuesCheck({ onClose }) {
                     color: '#9F7AEA'
                   }}
                 >
-                  {value}
+                  {label}
                 </button>
               ))}
             </div>
@@ -54,7 +54,7 @@ export default function ValuesCheck({ onClose }) {
               You chose: <span style={{ color: '#9F7AEA' }}>{selectedValue}</span>
             </p>
             <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: '#5A7A72' }}>
-              Are your recent actions aligned with this value?
+              {t('mind_games.values_check.alignment_prompt')}
             </p>
             <div className="flex gap-3">
               <Button
@@ -66,7 +66,7 @@ export default function ValuesCheck({ onClose }) {
                   color: 'white'
                 }}
               >
-                Yes
+                {t('mind_games.values_check.yes')}
               </Button>
               <Button
                 onClick={() => handleAlignment('somewhat')}
@@ -77,7 +77,7 @@ export default function ValuesCheck({ onClose }) {
                   color: 'white'
                 }}
               >
-                Somewhat
+                {t('mind_games.values_check.somewhat')}
               </Button>
               <Button
                 onClick={() => handleAlignment('no')}
@@ -88,7 +88,7 @@ export default function ValuesCheck({ onClose }) {
                   color: 'white'
                 }}
               >
-                Not Really
+                {t('mind_games.values_check.not_really')}
               </Button>
             </div>
           </>
@@ -99,12 +99,12 @@ export default function ValuesCheck({ onClose }) {
             border: '1px solid rgba(159, 122, 234, 0.2)'
           }}>
             <p className="text-sm break-words whitespace-normal mb-3" style={{ color: '#1A3A34' }}>
-              {alignment === 'yes' && '✓ Great! Keep moving in this direction.'}
-              {alignment === 'somewhat' && "→ Good awareness. What's one small step toward more alignment?"}
-              {alignment === 'no' && "⚠️ Noticed the gap? That's the first step. Choose one tiny action today."}
+              {alignment === 'yes' && t('mind_games.values_check.result_yes')}
+              {alignment === 'somewhat' && t('mind_games.values_check.result_somewhat')}
+              {alignment === 'no' && t('mind_games.values_check.result_no')}
             </p>
             <p className="text-xs break-words whitespace-normal" style={{ color: '#5A7A72' }}>
-              Values aren't goals to achieve—they're directions to move toward.
+              {t('mind_games.values_check.tip')}
             </p>
           </div>
         )}
