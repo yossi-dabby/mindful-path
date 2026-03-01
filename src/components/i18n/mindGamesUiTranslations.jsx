@@ -149,6 +149,19 @@ export const mindGamesUiStrings = {
 export const mindGamesUiByLanguage = {
   he: {
     common: { try_another: "נסה אחר" },
+    reframe_pick: {
+      situation: "מצב:",
+      automatic_thought: "מחשבה אוטומטית:",
+      choose: "בחרו את התגובה המאוזנת ביותר:",
+      why_label: "למה זה עובד:"
+    },
+    evidence_balance: {
+      thought_label: "מחשבה:",
+      for_label: "ראיות בעד:",
+      against_label: "ראיות נגד:",
+      show_conclusion: "הצג מסקנה מאוזנת",
+      conclusion_label: "מסקנה מאוזנת:"
+    },
     memory_match: {
       title: "התאמת זיכרון",
       instructions: "מצאו את כל הזוגות התואמים על ידי לחיצה על קלפים.",
