@@ -7,68 +7,77 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { X, ChevronRight, ChevronLeft, Target, Brain, HeartHandshake, Users, ListChecks, Sparkles, Shapes, GraduationCap, HeartPulse, Plus, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 const goalCategories = [
   {
+    key: 'cognitive-study-work',
     value: 'cognitive',
     label: 'Study / Work',
-    subtitle: 'Learning, focus, performance',
+    i18nKey: 'study_work',
     icon: GraduationCap,
     color: '#9F7AEA',
     bgColor: 'rgba(159, 122, 234, 0.15)'
   },
   {
+    key: 'lifestyle-health-habits',
     value: 'lifestyle',
     label: 'Health & Habits',
-    subtitle: 'Sleep, food, movement',
+    i18nKey: 'health_habits',
     icon: HeartPulse,
     color: '#38B2AC',
     bgColor: 'rgba(56, 178, 172, 0.15)'
   },
   {
+    key: 'emotional-emotions-stress',
     value: 'emotional',
     label: 'Emotions & Stress',
-    subtitle: 'Regulation, coping, calm',
+    i18nKey: 'emotions_stress',
     icon: HeartHandshake,
     color: '#ED8936',
     bgColor: 'rgba(237, 137, 54, 0.15)'
   },
   {
+    key: 'cognitive-thoughts-confidence',
     value: 'cognitive',
     label: 'Thoughts & Confidence',
-    subtitle: 'Self-talk, mindset',
+    i18nKey: 'thoughts_confidence',
     icon: Brain,
     color: '#A78BFA',
     bgColor: 'rgba(167, 139, 250, 0.15)'
   },
   {
+    key: 'social-relationships-social',
     value: 'social',
     label: 'Relationships & Social',
-    subtitle: 'Connection, communication',
+    i18nKey: 'relationships_social',
     icon: Users,
     color: '#4299E1',
     bgColor: 'rgba(66, 153, 225, 0.15)'
   },
   {
+    key: 'behavioral-routine-productivity',
     value: 'behavioral',
     label: 'Routine & Productivity',
-    subtitle: 'Consistency, action',
+    i18nKey: 'routine_productivity',
     icon: ListChecks,
     color: '#F6AD55',
     bgColor: 'rgba(246, 173, 85, 0.15)'
   },
   {
+    key: 'lifestyle-self-care-wellbeing',
     value: 'lifestyle',
     label: 'Self-Care & Wellbeing',
-    subtitle: 'Recharge, balance',
+    i18nKey: 'self_care',
     icon: Sparkles,
     color: '#10B981',
     bgColor: 'rgba(16, 185, 129, 0.15)'
   },
   {
+    key: 'behavioral-other',
     value: 'behavioral',
     label: 'Other',
-    subtitle: 'Anything else',
+    i18nKey: 'other',
     icon: Shapes,
     color: '#6B7280',
     bgColor: 'rgba(107, 116, 128, 0.15)'
@@ -76,6 +85,7 @@ const goalCategories = [
 ];
 
 export default function GoalCoachWizard({ onClose }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -268,11 +278,11 @@ export default function GoalCoachWizard({ onClose }) {
                 <Target className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-gray-800">Goal Coach</h1>
-                <p className="text-sm text-gray-500">Step {step} of 4</p>
+                <h1 className="text-xl font-semibold text-gray-800">{t('goal_coach_wizard.title')}</h1>
+                <p className="text-sm text-gray-500">{t('goal_coach_wizard.step_of', { step })}</p>
               </div>
             </div>
-            <Button type="button" variant="ghost" size="icon" onClick={step > 1 ? () => setStep(step - 1) : onClose} aria-label={step > 1 ? "Go back" : "Close"}>
+            <Button type="button" variant="ghost" size="icon" onClick={step > 1 ? () => setStep(step - 1) : onClose} aria-label={step > 1 ? t('goal_coach_wizard.go_back_aria') : t('goal_coach_wizard.close_aria')}>
               {step > 1 ? (
                 <ChevronLeft className="w-5 h-5" />
               ) : (
@@ -290,23 +300,21 @@ export default function GoalCoachWizard({ onClose }) {
           {step === 1 && (
             <div className="space-y-6" data-testid="goalcoach-step-1">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">What type of goal would you like to work on?</h3>
-                <p className="text-sm text-gray-600 mb-4">Choose the category that best fits your goal</p>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('goal_coach_wizard.step1_title')}</h3>
+                <p className="text-sm text-gray-600 mb-4">{t('goal_coach_wizard.step1_subtitle')}</p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {goalCategories.map((category, index) => {
+                {goalCategories.map((category) => {
                   const Icon = category.icon;
                   const isSelected = formData.category === category.value && formData.ui_category_label === category.label;
-                  // Create stable test ID from category value and label
-                  const categoryId = `${category.value}-${category.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
                   return (
                     <button
-                      key={`${category.value}-${index}`}
+                      key={category.key}
                       type="button"
                       role="button"
                       aria-pressed={isSelected}
-                      data-testid={`goalcoach-category-${categoryId}`}
+                      data-testid={`goalcoach-category-${category.key}`}
                       onClick={() => {
                         setFormData(prev => ({ 
                           ...prev, 
@@ -329,8 +337,8 @@ export default function GoalCoachWizard({ onClose }) {
                           <Icon className="w-6 h-6 text-white" strokeWidth={2.5} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-gray-800 truncate">{category.label}</h4>
-                          <p className="text-xs text-gray-600 mt-1 line-clamp-1">{category.subtitle}</p>
+                          <h4 className="font-semibold text-gray-800 truncate">{t(`goal_coach_wizard.categories.${category.i18nKey}.label`)}</h4>
+                          <p className="text-xs text-gray-600 mt-1 line-clamp-1">{t(`goal_coach_wizard.categories.${category.i18nKey}.subtitle`)}</p>
                         </div>
                       </div>
                     </button>
@@ -344,8 +352,8 @@ export default function GoalCoachWizard({ onClose }) {
           {step === 2 && (
             <div className="space-y-6" data-testid="goalcoach-step-2">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Describe your goal</h3>
-                <p className="text-sm text-gray-600 mb-4">What do you want to achieve?</p>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('goal_coach_wizard.step2_title')}</h3>
+                <p className="text-sm text-gray-600 mb-4">{t('goal_coach_wizard.step2_subtitle')}</p>
               </div>
 
               {selectedCategory && (
@@ -359,8 +367,7 @@ export default function GoalCoachWizard({ onClose }) {
                         <selectedCategory.icon className="w-5 h-5 text-white" strokeWidth={2.5} />
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-800">{selectedCategory.label}</p>
-                        <p className="text-xs text-gray-600">{selectedCategory.description}</p>
+                        <p className="font-semibold text-gray-800">{t(`goal_coach_wizard.categories.${selectedCategory.i18nKey}.label`)}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -369,12 +376,12 @@ export default function GoalCoachWizard({ onClose }) {
 
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Goal Title <span className="text-red-500">*</span>
+                  {t('goal_coach_wizard.goal_title_label')} <span className="text-red-500">*</span>
                 </label>
                 <Input
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="e.g., Practice mindfulness daily"
+                  placeholder={t('goal_coach_wizard.goal_title_placeholder')}
                   className="rounded-xl"
                   data-testid="goalcoach-title-input"
                 />
@@ -382,30 +389,30 @@ export default function GoalCoachWizard({ onClose }) {
 
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Why is this goal important to you? <span className="text-red-500">*</span>
+                  {t('goal_coach_wizard.motivation_label')} <span className="text-red-500">*</span>
                 </label>
                 <Textarea
                   value={formData.motivation}
                   onChange={(e) => setFormData(prev => ({ ...prev, motivation: e.target.value }))}
-                  placeholder="Describe why achieving this goal matters to you..."
+                  placeholder={t('goal_coach_wizard.motivation_placeholder')}
                   className="h-28 rounded-xl"
                   data-testid="goalcoach-motivation-input"
                 />
               </div>
 
               <div className="space-y-4 p-3 bg-gray-50 rounded-xl">
-                <p className="text-sm font-medium text-gray-700">Additional details (Optional)</p>
+                <p className="text-sm font-medium text-gray-700">{t('goal_coach_wizard.additional_details')}</p>
                 <div>
-                  <label className="text-xs text-gray-600 mb-1 block">Description</label>
+                  <label className="text-xs text-gray-600 mb-1 block">{t('goal_coach_wizard.description_label')}</label>
                   <Textarea
                     value={formData.description}
                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder="Any additional context..."
+                    placeholder={t('goal_coach_wizard.description_placeholder')}
                     className="h-20 rounded-xl text-sm"
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-600 mb-1 block">Target Date</label>
+                  <label className="text-xs text-gray-600 mb-1 block">{t('goal_coach_wizard.target_date_label')}</label>
                   <Input
                     type="date"
                     value={formData.target_date}
@@ -421,8 +428,8 @@ export default function GoalCoachWizard({ onClose }) {
           {step === 3 && (
             <div className="space-y-5" data-testid="goalcoach-step-3">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Plan your next steps</h3>
-                <p className="text-sm text-gray-600 mb-4">Break your goal into actionable pieces</p>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('goal_coach_wizard.step3_title')}</h3>
+                <p className="text-sm text-gray-600 mb-4">{t('goal_coach_wizard.step3_subtitle')}</p>
               </div>
 
               {selectedCategory && (
@@ -445,26 +452,26 @@ export default function GoalCoachWizard({ onClose }) {
 
               <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl">
                 <div className="space-y-2">
-                  <p className="text-xs font-medium text-blue-900 mb-2">Reflect on these:</p>
+                  <p className="text-xs font-medium text-blue-900 mb-2">{t('goal_coach_wizard.reflect_title')}</p>
                   <div className="space-y-1 text-xs text-blue-800">
                     <div className="flex gap-1.5">
                       <span className="text-blue-600 flex-shrink-0">•</span>
-                      <p>What would success look like in concrete terms?</p>
+                      <p>{t('goal_coach_wizard.reflect_q1')}</p>
                     </div>
                     <div className="flex gap-1.5">
                       <span className="text-blue-600 flex-shrink-0">•</span>
-                      <p>What is one small step you can take this week?</p>
+                      <p>{t('goal_coach_wizard.reflect_q2')}</p>
                     </div>
                     <div className="flex gap-1.5">
                       <span className="text-blue-600 flex-shrink-0">•</span>
-                      <p>What might get in the way, and how could you handle it?</p>
+                      <p>{t('goal_coach_wizard.reflect_q3')}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-3 p-3 bg-purple-50 border border-purple-200 rounded-xl">
-                <p className="text-xs font-medium text-purple-900">SMART Criteria (Optional)</p>
+                <p className="text-xs font-medium text-purple-900">{t('goal_coach_wizard.smart_title')}</p>
                 <div className="space-y-2">
                   <Input
                     value={formData.smart_criteria.specific}
@@ -472,7 +479,7 @@ export default function GoalCoachWizard({ onClose }) {
                       ...prev, 
                       smart_criteria: { ...prev.smart_criteria, specific: e.target.value } 
                     }))}
-                    placeholder="Specific: What exactly will you accomplish?"
+                    placeholder={t('goal_coach_wizard.smart_specific_placeholder')}
                     className="rounded-lg text-xs h-9"
                   />
                   <Input
@@ -481,7 +488,7 @@ export default function GoalCoachWizard({ onClose }) {
                       ...prev, 
                       smart_criteria: { ...prev.smart_criteria, measurable: e.target.value } 
                     }))}
-                    placeholder="Measurable: How will you measure progress?"
+                    placeholder={t('goal_coach_wizard.smart_measurable_placeholder')}
                     className="rounded-lg text-xs h-9"
                   />
                   <Input
@@ -490,7 +497,7 @@ export default function GoalCoachWizard({ onClose }) {
                       ...prev, 
                       smart_criteria: { ...prev.smart_criteria, achievable: e.target.value } 
                     }))}
-                    placeholder="Achievable: Why is this realistic?"
+                    placeholder={t('goal_coach_wizard.smart_achievable_placeholder')}
                     className="rounded-lg text-xs h-9"
                   />
                   <Input
@@ -499,7 +506,7 @@ export default function GoalCoachWizard({ onClose }) {
                       ...prev, 
                       smart_criteria: { ...prev.smart_criteria, time_bound: e.target.value } 
                     }))}
-                    placeholder="Time-Bound: When will you achieve this?"
+                    placeholder={t('goal_coach_wizard.smart_time_bound_placeholder')}
                     className="rounded-lg text-xs h-9"
                   />
                 </div>
@@ -507,9 +514,9 @@ export default function GoalCoachWizard({ onClose }) {
 
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Milestones (Optional)
+                  {t('goal_coach_wizard.milestones_label')}
                 </label>
-                <p className="text-xs text-gray-600 mb-2">Break your goal into smaller steps</p>
+                <p className="text-xs text-gray-600 mb-2">{t('goal_coach_wizard.milestones_subtitle')}</p>
                 <div className="space-y-3">
                   {formData.milestones.map((milestone, index) => (
                     <div key={index} className="p-2.5 bg-gray-50 rounded-xl space-y-2">
@@ -517,7 +524,7 @@ export default function GoalCoachWizard({ onClose }) {
                         <Input
                           value={milestone.title}
                           onChange={(e) => updateMilestone(index, 'title', e.target.value)}
-                          placeholder={`Milestone ${index + 1}...`}
+                          placeholder={t('goal_coach_wizard.milestone_placeholder', { n: index + 1 })}
                           className="rounded-lg flex-1 text-sm h-9"
                         />
                         {formData.milestones.length > 1 && (
@@ -526,7 +533,7 @@ export default function GoalCoachWizard({ onClose }) {
                             size="icon"
                             onClick={() => removeMilestone(index)}
                             className="flex-shrink-0 h-9 w-9"
-                            aria-label={`Remove milestone ${index + 1}`}
+                            aria-label={t('goal_coach_wizard.remove_milestone_aria', { n: index + 1 })}
                           >
                             <Minus className="w-3.5 h-3.5" />
                           </Button>
@@ -535,7 +542,7 @@ export default function GoalCoachWizard({ onClose }) {
                       <Textarea
                         value={milestone.description}
                         onChange={(e) => updateMilestone(index, 'description', e.target.value)}
-                        placeholder="Details (optional)..."
+                        placeholder={t('goal_coach_wizard.milestone_details_placeholder')}
                         className="h-14 rounded-lg text-xs"
                       />
                       <Input
@@ -553,7 +560,7 @@ export default function GoalCoachWizard({ onClose }) {
                       className="w-full rounded-xl h-9 text-xs"
                     >
                       <Plus className="w-3.5 h-3.5 mr-1.5" />
-                      Add Milestone
+                      {t('goal_coach_wizard.add_milestone')}
                     </Button>
                   )}
                 </div>
@@ -561,16 +568,16 @@ export default function GoalCoachWizard({ onClose }) {
 
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Rewards (Optional)
+                  {t('goal_coach_wizard.rewards_label')}
                 </label>
-                <p className="text-xs text-gray-600 mb-2">What will you reward yourself with?</p>
+                <p className="text-xs text-gray-600 mb-2">{t('goal_coach_wizard.rewards_subtitle')}</p>
                 <div className="space-y-2">
                   {formData.rewards.map((reward, index) => (
                     <div key={index} className="flex gap-2">
                       <Input
                         value={reward}
                         onChange={(e) => updateReward(index, e.target.value)}
-                        placeholder={`Reward ${index + 1}...`}
+                        placeholder={t('goal_coach_wizard.reward_placeholder', { n: index + 1 })}
                         className="rounded-lg flex-1 text-sm h-9"
                       />
                       {formData.rewards.length > 1 && (
@@ -579,7 +586,7 @@ export default function GoalCoachWizard({ onClose }) {
                           size="icon"
                           onClick={() => removeReward(index)}
                           className="flex-shrink-0 h-9 w-9"
-                          aria-label={`Remove reward ${index + 1}`}
+                          aria-label={t('goal_coach_wizard.remove_reward_aria', { n: index + 1 })}
                         >
                           <Minus className="w-3.5 h-3.5" />
                         </Button>
@@ -593,7 +600,7 @@ export default function GoalCoachWizard({ onClose }) {
                       className="w-full rounded-xl h-9 text-xs"
                     >
                       <Plus className="w-3.5 h-3.5 mr-1.5" />
-                      Add Reward
+                      {t('goal_coach_wizard.add_reward')}
                     </Button>
                   )}
                 </div>
@@ -605,8 +612,8 @@ export default function GoalCoachWizard({ onClose }) {
           {step === 4 && (
             <div className="space-y-6" data-testid="goalcoach-step-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Review your goal</h3>
-                <p className="text-sm text-gray-600 mb-4">Check everything before saving to Active Goals</p>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('goal_coach_wizard.step4_title')}</h3>
+                <p className="text-sm text-gray-600 mb-4">{t('goal_coach_wizard.step4_subtitle')}</p>
               </div>
 
               {selectedCategory && (
@@ -620,28 +627,28 @@ export default function GoalCoachWizard({ onClose }) {
                         <selectedCategory.icon className="w-5 h-5 text-white" strokeWidth={2.5} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-gray-800 text-sm">{selectedCategory.label}</p>
+                        <p className="font-semibold text-gray-800 text-sm">{t(`goal_coach_wizard.categories.${selectedCategory.i18nKey}.label`)}</p>
                         <p className="text-xs text-gray-600">({formData.category})</p>
                       </div>
                     </div>
                     <div className="space-y-2 text-xs">
                       <div>
-                        <span className="text-gray-600 font-medium">Goal:</span>
+                        <span className="text-gray-600 font-medium">{t('goal_coach_wizard.review_goal_label')}</span>
                         <p className="text-gray-800 mt-0.5">{formData.title}</p>
                       </div>
                       <div>
-                        <span className="text-gray-600 font-medium">Why it matters:</span>
+                        <span className="text-gray-600 font-medium">{t('goal_coach_wizard.review_motivation_label')}</span>
                         <p className="text-gray-800 mt-0.5">{formData.motivation}</p>
                       </div>
                       {formData.description && (
                         <div>
-                          <span className="text-gray-600 font-medium">Details:</span>
+                          <span className="text-gray-600 font-medium">{t('goal_coach_wizard.review_details_label')}</span>
                           <p className="text-gray-800 mt-0.5">{formData.description}</p>
                         </div>
                       )}
                       {formData.target_date && (
                         <div>
-                          <span className="text-gray-600 font-medium">Target:</span>
+                          <span className="text-gray-600 font-medium">{t('goal_coach_wizard.review_target_label')}</span>
                           <span className="text-gray-800 ml-1">
                             {new Date(formData.target_date).toLocaleDateString()}
                           </span>
@@ -649,7 +656,7 @@ export default function GoalCoachWizard({ onClose }) {
                       )}
                       {formData.milestones.filter(m => m.title.trim()).length > 0 && (
                         <div>
-                          <span className="text-gray-600 font-medium">Milestones:</span>
+                          <span className="text-gray-600 font-medium">{t('goal_coach_wizard.review_milestones_label')}</span>
                           <ul className="mt-1 space-y-1.5">
                             {formData.milestones.filter(m => m.title.trim()).map((milestone, index) => (
                               <li key={index} className="text-gray-800 bg-white p-1.5 rounded-lg">
@@ -659,7 +666,7 @@ export default function GoalCoachWizard({ onClose }) {
                                 )}
                                 {milestone.due_date && (
                                   <div className="text-[10px] text-gray-500 ml-3">
-                                    Due: {new Date(milestone.due_date).toLocaleDateString()}
+                                    {t('goal_coach_wizard.review_due_prefix')} {new Date(milestone.due_date).toLocaleDateString()}
                                   </div>
                                 )}
                               </li>
@@ -669,7 +676,7 @@ export default function GoalCoachWizard({ onClose }) {
                       )}
                       {formData.rewards.filter(r => r.trim()).length > 0 && (
                         <div>
-                          <span className="text-gray-600 font-medium">Rewards:</span>
+                          <span className="text-gray-600 font-medium">{t('goal_coach_wizard.review_rewards_label')}</span>
                           <ul className="mt-0.5 space-y-0.5">
                             {formData.rewards.filter(r => r.trim()).map((reward, index) => (
                               <li key={index} className="text-gray-800">• {reward}</li>
@@ -679,7 +686,7 @@ export default function GoalCoachWizard({ onClose }) {
                       )}
                       {(formData.smart_criteria.specific || formData.smart_criteria.measurable || formData.smart_criteria.achievable || formData.smart_criteria.time_bound) && (
                         <div>
-                          <span className="text-gray-600 font-medium">SMART:</span>
+                          <span className="text-gray-600 font-medium">{t('goal_coach_wizard.review_smart_label')}</span>
                           <div className="mt-1 space-y-0.5 bg-white p-1.5 rounded-lg text-[10px]">
                             {formData.smart_criteria.specific && (
                               <div><span className="font-medium">S:</span> {formData.smart_criteria.specific}</div>
@@ -705,10 +712,9 @@ export default function GoalCoachWizard({ onClose }) {
                 <div className="flex items-start gap-3">
                   <Target className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-sm text-green-900 font-medium mb-1">What happens next?</p>
+                    <p className="text-sm text-green-900 font-medium mb-1">{t('goal_coach_wizard.what_next_title')}</p>
                     <p className="text-sm text-green-700">
-                      This goal will be saved to your Active Goals. You can track progress, update milestones, 
-                      and celebrate achievements along the way.
+                      {t('goal_coach_wizard.what_next_text')}
                     </p>
                   </div>
                 </div>
@@ -733,7 +739,7 @@ export default function GoalCoachWizard({ onClose }) {
                 className="flex-1 h-10"
               >
                 <ChevronLeft className="w-4 h-4 mr-1.5" />
-                Back
+                {t('goal_coach_wizard.back_button')}
               </Button>
             )}
             {step < 4 ? (
@@ -744,7 +750,7 @@ export default function GoalCoachWizard({ onClose }) {
                 data-testid="goalcoach-next"
                 className="flex-1 h-10 bg-gradient-to-r from-orange-600 to-yellow-600 hover:from-orange-700 hover:to-yellow-700"
               >
-                Next
+                {t('goal_coach_wizard.next_button')}
                 <ChevronRight className="w-4 h-4 ml-1.5" />
               </Button>
             ) : (
@@ -758,12 +764,12 @@ export default function GoalCoachWizard({ onClose }) {
                 {createGoalMutation.isPending ? (
                   <>
                     <Target className="w-4 h-4 mr-1.5 animate-spin" />
-                    Saving...
+                    {t('goal_coach_wizard.saving_button')}
                   </>
                 ) : (
                   <>
                     <Target className="w-4 h-4 mr-1.5" />
-                    Save Goal
+                    {t('goal_coach_wizard.save_button')}
                   </>
                 )}
               </Button>
@@ -774,7 +780,7 @@ export default function GoalCoachWizard({ onClose }) {
           {createGoalMutation.isError && (
             <div className="mt-2.5 p-2.5 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-xs text-red-800">
-                Failed to save goal. Please try again.
+                {t('goal_coach_wizard.error_save')}
               </p>
             </div>
           )}

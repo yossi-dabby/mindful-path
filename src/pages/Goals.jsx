@@ -175,7 +175,7 @@ export default function Goals() {
             size="icon"
             onClick={() => window.history.back()}
             style={{ borderRadius: '50%' }}
-            aria-label="Go back"
+            aria-label={t('goals.go_back_aria')}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </Button>
@@ -246,7 +246,7 @@ export default function Goals() {
             }}
           >
             <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
-            New Goal
+            {t('goals.new_goal')}
           </Button>
         </div>
       </div>
@@ -276,7 +276,7 @@ export default function Goals() {
                 boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
               }}
             >
-              Retry
+              {t('goals.retry')}
             </Button>
           </CardContent>
         </Card>
@@ -299,7 +299,7 @@ export default function Goals() {
             </div>
             <h2 className="text-2xl font-semibold mb-2" style={{ color: '#1A3A34' }}>{t('goals.first_goal_title')}</h2>
             <p className="mb-6 max-w-md mx-auto" style={{ color: '#5A7A72' }}>
-              Goals give you direction and motivation. Break them into small steps and celebrate each milestone.
+              {t('goals.first_goal_description')}
             </p>
             <div className="flex flex-col gap-3 items-center max-w-md mx-auto">
               <Button
@@ -312,7 +312,7 @@ export default function Goals() {
                 }}
               >
                 <Target className="w-5 h-5 mr-2" />
-                Browse Goal Templates
+                {t('goals.browse_templates')}
               </Button>
               <Button
                 onClick={() => setShowAiSuggestions(true)}
@@ -321,7 +321,7 @@ export default function Goals() {
                 style={{ borderRadius: '32px' }}
               >
                 <Sparkles className="w-5 h-5 mr-2" />
-                Get AI Suggestions
+                {t('goals.get_ai_suggestions')}
               </Button>
               <Button
                 onClick={() => window.location.href = createPageUrl('Chat', 'intent=goal_work')}
@@ -329,7 +329,7 @@ export default function Goals() {
                 className="px-8 py-6 text-lg w-full"
                 style={{ borderRadius: '32px' }}
               >
-                Create with AI
+                {t('goals.create_with_ai')}
               </Button>
             </div>
           </CardContent>
@@ -389,7 +389,7 @@ export default function Goals() {
                     className="gap-2"
                   >
                     <Sparkles className="w-4 h-4" />
-                    Get More Suggestions
+                    {t('goals.get_more_suggestions')}
                   </Button>
                 )}
               </div>
@@ -405,7 +405,7 @@ export default function Goals() {
                        className="gap-2 w-full md:w-auto"
                      >
                        <Lightbulb className="w-4 h-4" />
-                       Break Down
+                       {t('goals.break_down')}
                      </Button>
                      <Button
                        onClick={() => setShowCoaching(goal)}
@@ -415,7 +415,7 @@ export default function Goals() {
                        style={{ borderColor: '#26A69A', color: '#26A69A' }}
                      >
                        <Sparkles className="w-4 h-4" />
-                       Coach
+                       {t('goals.coach_button')}
                      </Button>
                    </div>
                  </div>
