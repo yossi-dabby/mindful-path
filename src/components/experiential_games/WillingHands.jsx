@@ -26,7 +26,7 @@ export default function WillingHands({ onClose }) {
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: '#5A7A72' }}>
-          Willing Hands is a body-based acceptance practice. It signals openness to reality, even when it's hard.
+          {t('mind_games.willing_hands.description')}
         </p>
 
         {!practiced ? (
@@ -53,7 +53,7 @@ export default function WillingHands({ onClose }) {
                 color: 'white'
               }}
             >
-              {step < steps.length - 1 ? 'Next' : 'Finish'}
+              {step < steps.length - 1 ? t('common.next') : t('common.finish')}
             </Button>
           </>
         ) : (
@@ -63,7 +63,7 @@ export default function WillingHands({ onClose }) {
             border: '1px solid rgba(34, 197, 94, 0.2)'
           }}>
             <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
-              ✓ Nice! Willing Hands is a physical gesture of acceptance. Practice it anytime you're fighting reality.
+              {t('mind_games.willing_hands.completion')}
             </p>
           </div>
         )}
