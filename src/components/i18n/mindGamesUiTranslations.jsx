@@ -1044,7 +1044,10 @@ export const mindGamesUiByLanguage = {
         { question: "Quale forma completa il modello: Cerchio, Quadrato, ?, Cerchio?" },
         { question: "Quale dimensione viene dopo: Grande, Medio, ?, Grande?" },
         { question: "Continua il modello: 1, 2, 3, 1, ?" }
-      ]
+      ],
+      option_colors: ["Rosso", "Blu", "Verde"],
+      option_shapes: ["Cerchio", "Quadrato", "Triangolo"],
+      option_sizes: ["Piccolo", "Medio", "Grande"]
     },
     word_association: {
       title: "Associazione di Parole",
@@ -1098,6 +1101,7 @@ export const mindGamesUiByLanguage = {
       emotions: ["Paura", "Rabbia", "Tristezza", "Colpa", "Vergogna"],
       check_btn: "Verificare i Fatti",
       for_emotion: "Per {{emotion}}, chiediti:",
+      default_prompts: ["Quali sono i fatti?", "Sto aggiungendo interpretazioni?", "Questa emozione si adatta?"],
       tip: "Se i fatti non supportano l'intensità dell'emozione, usa l'azione opposta o altre abilità per cambiarla.",
       emotion_prompts: {
         fear: ["C'è un pericolo reale e immediato?", "Qual è il peggio che potrebbe succedere?", "Quali sono le prove?"],
