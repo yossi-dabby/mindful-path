@@ -24,7 +24,7 @@ export default function ACCEPTS({ onClose }) {
           {t('mind_games.accepts.prompt')}
         </p>
 
-        <div className="space-y-2 mb-4 max-h-72 overflow-y-auto pr-1">
+        <div className="space-y-2 mb-4 max-h-64 overflow-y-auto pr-1 min-w-0">
           {acceptsItems.map((item, index) => (
             <button
               key={index}
