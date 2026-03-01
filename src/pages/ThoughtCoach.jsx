@@ -10,90 +10,20 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, ChevronRight, Sparkles, Brain, Frown, AlertCircle, Zap, Flame, Users, Target, Cloud, HeartCrack, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const thoughtTypes = [
-  {
-    type: 'fear_anxiety',
-    label: 'Fear / Anxiety',
-    description: 'Worried about the future, feeling nervous or scared',
-    icon: Frown,
-    color: '#9F7AEA',
-    bgColor: 'rgba(159, 122, 234, 0.15)'
-  },
-  {
-    type: 'self_criticism',
-    label: 'Self-Criticism / Failure',
-    description: 'Harsh self-judgment, feeling like you failed',
-    icon: AlertCircle,
-    color: '#ED8936',
-    bgColor: 'rgba(237, 137, 54, 0.15)'
-  },
-  {
-    type: 'catastrophizing',
-    label: 'Catastrophizing',
-    description: 'Expecting the worst possible outcome',
-    icon: Zap,
-    color: '#F56565',
-    bgColor: 'rgba(245, 101, 101, 0.15)'
-  },
-  {
-    type: 'guilt_shame',
-    label: 'Guilt / Shame',
-    description: 'Feeling bad about something you did or who you are',
-    icon: HeartCrack,
-    color: '#805AD5',
-    bgColor: 'rgba(128, 90, 213, 0.15)'
-  },
-  {
-    type: 'anger_resentment',
-    label: 'Anger / Resentment',
-    description: 'Frustrated, upset, or holding a grudge',
-    icon: Flame,
-    color: '#E53E3E',
-    bgColor: 'rgba(229, 62, 62, 0.15)'
-  },
-  {
-    type: 'social_anxiety',
-    label: 'Social Anxiety',
-    description: 'Worried about what others think or social situations',
-    icon: Users,
-    color: '#4299E1',
-    bgColor: 'rgba(66, 153, 225, 0.15)'
-  },
-  {
-    type: 'perfectionism',
-    label: 'Perfectionism',
-    description: 'Setting impossible standards, fear of mistakes',
-    icon: Target,
-    color: '#38B2AC',
-    bgColor: 'rgba(56, 178, 172, 0.15)'
-  },
-  {
-    type: 'overthinking',
-    label: 'Overthinking / Uncertainty',
-    description: 'Can\'t stop analyzing, stuck in loops, confused',
-    icon: Cloud,
-    color: '#718096',
-    bgColor: 'rgba(113, 128, 150, 0.15)'
-  },
-  {
-    type: 'hopelessness',
-    label: 'Hopelessness',
-    description: 'Feeling like nothing will get better',
-    icon: HeartCrack,
-    color: '#2D3748',
-    bgColor: 'rgba(45, 55, 72, 0.15)'
-  },
-  {
-    type: 'other',
-    label: 'Other / Free Thought',
-    description: 'Something else, or just want to journal freely',
-    icon: HelpCircle,
-    color: '#26A69A',
-    bgColor: 'rgba(38, 166, 154, 0.15)'
-  }
+const thoughtTypesMeta = [
+  { type: 'fear_anxiety', icon: Frown, color: '#9F7AEA', bgColor: 'rgba(159, 122, 234, 0.15)' },
+  { type: 'self_criticism', icon: AlertCircle, color: '#ED8936', bgColor: 'rgba(237, 137, 54, 0.15)' },
+  { type: 'catastrophizing', icon: Zap, color: '#F56565', bgColor: 'rgba(245, 101, 101, 0.15)' },
+  { type: 'guilt_shame', icon: HeartCrack, color: '#805AD5', bgColor: 'rgba(128, 90, 213, 0.15)' },
+  { type: 'anger_resentment', icon: Flame, color: '#E53E3E', bgColor: 'rgba(229, 62, 62, 0.15)' },
+  { type: 'social_anxiety', icon: Users, color: '#4299E1', bgColor: 'rgba(66, 153, 225, 0.15)' },
+  { type: 'perfectionism', icon: Target, color: '#38B2AC', bgColor: 'rgba(56, 178, 172, 0.15)' },
+  { type: 'overthinking', icon: Cloud, color: '#718096', bgColor: 'rgba(113, 128, 150, 0.15)' },
+  { type: 'hopelessness', icon: HeartCrack, color: '#2D3748', bgColor: 'rgba(45, 55, 72, 0.15)' },
+  { type: 'other', icon: HelpCircle, color: '#26A69A', bgColor: 'rgba(38, 166, 154, 0.15)' }
 ];
 
-const emotionOptions = [
+const emotionKeys = [
   'anxious', 'worried', 'sad', 'angry', 'frustrated', 'guilty', 'ashamed',
   'hopeless', 'overwhelmed', 'confused', 'scared', 'lonely', 'disappointed'
 ];
@@ -111,6 +41,12 @@ export default function ThoughtCoachPage() {
     emotion_intensity: 5,
     balanced_thought: ''
   });
+
+  const thoughtTypes = thoughtTypesMeta.map((meta) => ({
+    ...meta,
+    label: t(`thought_coach.thought_types.${meta.type}.label`),
+    description: t(`thought_coach.thought_types.${meta.type}.description`)
+  }));
 
   const createJournalMutation = useMutation({
     mutationFn: async (data) => {
@@ -178,7 +114,7 @@ export default function ThoughtCoachPage() {
     });
   };
 
-  const selectedThought = thoughtTypes.find(t => t.type === formData.thought_type);
+  const selectedThought = thoughtTypes.find(thought => thought.type === formData.thought_type);
 
   return (
     <div className="fixed inset-0 flex flex-col bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 w-full overflow-x-hidden" style={{ zIndex: 70 }}>
@@ -192,7 +128,7 @@ export default function ThoughtCoachPage() {
               </div>
               <div>
                 <h1 className="text-xl font-semibold text-gray-800">{t('thought_coach.title')}</h1>
-                <p className="text-sm text-gray-500">Step {step} of 4</p>
+                <p className="text-sm text-gray-500">{t('thought_coach.step_label', { step })}</p>
               </div>
             </div>
             <Button variant="ghost" size="icon" onClick={() => step > 1 ? setStep(step - 1) : navigate(-1)} aria-label={step > 1 ? t('thought_coach.go_back_step_aria') : t('thought_coach.go_back_nav_aria')}>
@@ -276,7 +212,7 @@ export default function ThoughtCoachPage() {
 
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  What situation triggered this thought? <span className="text-red-500">*</span>
+                  {t('thought_coach.step_details_situation_label')} <span className="text-red-500">*</span>
                 </label>
                 <Textarea
                   value={formData.situation}
@@ -288,7 +224,7 @@ export default function ThoughtCoachPage() {
 
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  What are the automatic thoughts going through your mind? <span className="text-red-500">*</span>
+                  {t('thought_coach.step_details_thoughts_label')} <span className="text-red-500">*</span>
                 </label>
                 <Textarea
                   value={formData.automatic_thoughts}
@@ -300,21 +236,21 @@ export default function ThoughtCoachPage() {
 
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-3 block">
-                  What emotions are you feeling? (Select all that apply) <span className="text-red-500">*</span>
+                  {t('thought_coach.step_details_emotions_label')} <span className="text-red-500">*</span>
                 </label>
                 <div className="flex flex-wrap gap-2">
-                  {emotionOptions.map((emotion) => (
+                  {emotionKeys.map((emotion) => (
                     <Badge
                       key={emotion}
                       onClick={() => toggleEmotion(emotion)}
                       className={cn(
-                        'cursor-pointer capitalize transition-all',
+                        'cursor-pointer transition-all',
                         formData.emotions.includes(emotion)
                           ? 'bg-purple-600 text-white'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       )}
                     >
-                      {emotion}
+                      {t(`thought_coach.emotion_options.${emotion}`)}
                     </Badge>
                   ))}
                 </div>
@@ -322,7 +258,7 @@ export default function ThoughtCoachPage() {
 
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  How intense are these emotions? ({formData.emotion_intensity}/10)
+                  {t('thought_coach.step_intensity_label', { value: formData.emotion_intensity })}
                 </label>
                 <input
                   type="range"
@@ -345,7 +281,7 @@ export default function ThoughtCoachPage() {
             <div className="space-y-6">
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('thought_coach.step_analysis_title')}</h3>
-                <p className="text-sm text-gray-600 mb-4">Examining your thoughts is an important CBT skill</p>
+                <p className="text-sm text-gray-600 mb-4">{t('thought_coach.step_analysis_subtitle')}</p>
               </div>
 
               {selectedThought && (
@@ -389,13 +325,13 @@ export default function ThoughtCoachPage() {
 
               <div className="p-3 bg-purple-50 border border-purple-200 rounded-xl">
                 <p className="text-sm text-purple-800 text-center">
-                  💡 Noticing and examining a thought is already an important CBT skill.
+                  {t('thought_coach.step_analysis_cbt_note')}
                 </p>
               </div>
 
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Balanced / Helpful Thought (Optional)
+                  {t('thought_coach.step_analysis_balanced_label')}
                 </label>
                 <Textarea
                   value={formData.balanced_thought}
@@ -404,7 +340,7 @@ export default function ThoughtCoachPage() {
                   className="h-32 rounded-xl"
                 />
                 <p className="text-xs text-gray-500 mt-2">
-                  This is optional - you can always add it later in your journal.
+                  {t('thought_coach.step_analysis_balanced_optional')}
                 </p>
               </div>
             </div>
@@ -445,8 +381,8 @@ export default function ThoughtCoachPage() {
                         <span className="text-gray-600 font-medium">{t('thought_coach.field_emotions')}</span>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {formData.emotions.map((emotion) => (
-                            <Badge key={emotion} variant="secondary" className="text-xs capitalize">
-                              {emotion}
+                            <Badge key={emotion} variant="secondary" className="text-xs">
+                              {t(`thought_coach.emotion_options.${emotion}`)}
                             </Badge>
                           ))}
                         </div>
