@@ -143,6 +143,106 @@ export const mindGamesUiStrings = {
     prompt: "Self-soothe with your 5 senses to create moments of comfort and safety.",
     back: "← Back to senses",
     success: "✓ Take a moment to fully experience this. Self-soothing is a gift you give yourself."
+  },
+  mountain_meditation: {
+    step_of: "Step {{current}} of {{total}}",
+    steps: [
+      "Close your eyes or soften your gaze.",
+      "Imagine a mountain—solid, grounded, unshakable.",
+      "Feel your body as the mountain: stable, rooted.",
+      "Weather passes over the mountain: storms, sun, rain, wind.",
+      "The mountain remains. It doesn't fight the weather—it allows it.",
+      "You are like the mountain. Thoughts and emotions are like weather.",
+      "They come and go. You remain."
+    ],
+    completion: "You practiced Mountain Meditation. Use this metaphor anytime you need to remember your stability."
+  },
+  check_the_facts: {
+    description: "Check the Facts helps you determine if your emotion fits the situation. If it doesn't, you can work to change it.",
+    emotion_prompt: "What emotion are you feeling?",
+    emotions: ["Fear", "Anger", "Sadness", "Guilt", "Shame"],
+    check_btn: "Check the Facts",
+    for_emotion: "For {{emotion}}, ask yourself:",
+    tip: "If the facts don't support the emotion's intensity, use opposite action or other skills to shift it.",
+    emotion_prompts: {
+      fear: ["Is there real, immediate danger?", "What's the worst that could happen?", "What's the evidence?"],
+      anger: ["Did someone violate my rights on purpose?", "Is this threat to my goals real?", "Will anger help or hurt?"],
+      sadness: ["Did I actually lose something important?", "Is it permanent or can I recover?", "What would help me cope?"],
+      guilt: ["Did I actually do something against my values?", "Was it within my control?", "What repair is needed?"],
+      shame: ["Is the whole 'me' bad, or just this action?", "Would others see it the same way?", "Can I separate behavior from identity?"]
+    }
+  },
+  pros_and_cons: {
+    description: "Use Pros & Cons when you're considering a crisis behavior or tough decision.",
+    decision_prompt: "What decision are you facing?",
+    decision_placeholder: "e.g., Should I send that message now?",
+    start_btn: "Start Analysis",
+    pros_label: "Pros of doing it:",
+    pros_placeholder: "What are the short-term benefits?",
+    next_cons_btn: "Next: Cons",
+    cons_label: "Cons of doing it:",
+    cons_placeholder: "What are the long-term costs?",
+    see_result_btn: "See Result",
+    pros_result_label: "Pros:",
+    cons_result_label: "Cons:",
+    conclusion: "Often, short-term relief has long-term costs. What choice serves your values?"
+  },
+  values_check: {
+    prompt: "Quick check: Which value matters most to you right now?",
+    alignment_prompt: "Are your recent actions aligned with this value?",
+    yes: "Yes",
+    somewhat: "Somewhat",
+    not_really: "Not Really",
+    result_yes: "✓ Great! Keep moving in this direction.",
+    result_somewhat: "→ Good awareness. What's one small step toward more alignment?",
+    result_no: "⚠️ Noticed the gap? That's the first step. Choose one tiny action today.",
+    tip: "Values aren't goals to achieve—they're directions to move toward.",
+    values: {
+      connection: "Connection", growth: "Growth", authenticity: "Authenticity",
+      courage: "Courage", compassion: "Compassion", creativity: "Creativity",
+      health: "Health", peace: "Peace"
+    }
+  },
+  expansion: {
+    description: "Expansion is making room for difficult emotions instead of fighting them.",
+    emotion_prompt: "What emotion is present right now?",
+    emotion_placeholder: "e.g., anxiety, sadness, anger",
+    begin_btn: "Begin Expansion Practice",
+    steps: [
+      "Name the emotion you're feeling.",
+      "Where do you feel it in your body?",
+      "Instead of pushing it away, breathe into that spot.",
+      "Imagine making space around the feeling—not shrinking it, just allowing it.",
+      "Notice: You can feel this AND still move forward."
+    ],
+    completion: "✓ You practiced making room for {{emotion}}. Expansion doesn't make feelings go away—it helps you carry them with less struggle."
+  },
+  leaves_on_stream: {
+    description: "Imagine a gentle stream with leaves floating by. Place sticky thoughts on leaves and watch them drift away.",
+    thought_prompt: "What thought is hooking you right now?",
+    thought_placeholder: "e.g., I'm not good enough",
+    place_btn: "Place on Leaf & Watch it Float",
+    floating: "Floating away...",
+    tip: "You're not trying to get rid of thoughts—just noticing them without grabbing on."
+  },
+  half_smile: {
+    description: "Half Smile is a gentle facial expression that can shift your emotional state. Even a tiny smile signals safety to your nervous system.",
+    feel_now_prompt: "How do you feel right now?",
+    emotions: ["Tense", "Frustrated", "Anxious", "Sad", "Neutral"],
+    practiced_btn: "I Practiced for 30 Seconds",
+    feel_after_prompt: "How do you feel now?",
+    result: "✓ Before: {{before}} → After: {{after}}\n\nEven a subtle shift matters. Half Smile is a tool you can use anywhere, anytime."
+  },
+  willing_hands: {
+    description: "Willing Hands is a body-based acceptance practice. It signals openness to reality, even when it's hard.",
+    steps: [
+      "Turn your hands palms up and rest them on your lap or by your sides.",
+      "Relax your hands completely—let tension drain out.",
+      "Soften your face, especially jaw and forehead.",
+      "Breathe naturally and say (silently): 'I am willing.'",
+      "Hold this for 30 seconds, noticing any shift."
+    ],
+    completion: "✓ Nice! Willing Hands is a physical gesture of acceptance. Practice it anytime you're fighting reality."
   }
 };
 
