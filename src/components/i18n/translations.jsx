@@ -1645,168 +1645,168 @@ export const translations = {
         content: {
           thought_quiz: {
             items: [
-              { prompt: "If I don't do this perfectly, I'm a total failure.", options: ["All-or-nothing thinking", "Mind reading", "Catastrophizing", "Discounting the positive"], explanation: "This treats performance as a strict pass/fail label instead of a spectrum." },
-              { prompt: "They haven't replied yet, so they must be upset with me.", options: ["Emotional reasoning", "Mind reading", "Labeling", "Overgeneralization"], explanation: "You're assuming you know what they think without clear evidence." },
-              { prompt: "If I make one mistake, everything will fall apart.", options: ["Catastrophizing", "Personalization", "Should statements", "Mental filter"], explanation: "This jumps to the worst-case outcome and treats it as likely." },
-              { prompt: "I had an awkward moment today. I always mess things up.", options: ["Overgeneralization", "Mind reading", "Fortune telling", "Disqualifying the positive"], explanation: "One moment gets turned into a sweeping rule about your whole life." },
-              { prompt: "I feel anxious, so something bad must be about to happen.", options: ["Emotional reasoning", "Should statements", "Labeling", "Black-and-white thinking"], explanation: "Feelings are treated like facts, even when they're just signals." },
-              { prompt: "My friend sounded quiet. It's probably my fault.", options: ["Personalization", "Catastrophizing", "Fortune telling", "Magnification"], explanation: "You're taking responsibility for something that may have many causes." },
-              { prompt: "I should be more productive all the time.", options: ["Should statements", "Mental filter", "Mind reading", "Overgeneralization"], explanation: "Rigid rules ('should') create pressure and ignore real human limits." },
-              { prompt: "One person criticized me, so I'm probably not good at this.", options: ["Labeling", "Disqualifying the positive", "Magnification", "All-or-nothing thinking"], explanation: "A single critique gets blown up and outweighs the full picture." },
-              { prompt: "I did well, but it doesn't count because it was easy.", options: ["Discounting the positive", "Fortune telling", "Personalization", "Catastrophizing"], explanation: "You're dismissing real effort and progress instead of acknowledging it." },
-              { prompt: "Everyone noticed my mistake. They must think I'm incompetent.", options: ["Mind reading", "Mental filter", "Emotional reasoning", "Should statements"], explanation: "You're guessing others' judgments without checking the evidence." },
-              { prompt: "If I try and it's uncomfortable, that means it's wrong for me.", options: ["Emotional reasoning", "Overgeneralization", "Labeling", "Disqualifying the positive"], explanation: "Discomfort can be part of growth; it doesn't automatically mean danger." },
-              { prompt: "I didn't meet my goal today, so I'm never going to change.", options: ["Fortune telling", "Catastrophizing", "Overgeneralization", "All-or-nothing thinking"], explanation: "A single day becomes a permanent prediction, ignoring gradual progress." }
+              { prompt: "אם לא אעשה את זה בצורה מושלמת, אני כישלון מוחלט.", options: ["חשיבה הכל-או-כלום", "קריאת מחשבות", "קטסטרופיזציה", "פסילת החיובי"], explanation: "זה מתייחס לביצועים כתווית עובר/נכשל מוחלטת במקום ספקטרום." },
+              { prompt: "הם עדיין לא ענו, כנראה שהם כועסים עליי.", options: ["הסקה רגשית", "קריאת מחשבות", "תיוג", "הכללת יתר"], explanation: "אתה מניח שאתה יודע מה הם חושבים ללא ראיות ברורות." },
+              { prompt: "אם אטעה טעות אחת, הכל יתפרק.", options: ["קטסטרופיזציה", "אישיות יתר", "הצהרות 'חייב'", "מסנן נפשי"], explanation: "זה קופץ לתוצאה הגרועה ביותר ומתייחס אליה כסבירה." },
+              { prompt: "היה לי רגע מביך היום. אני תמיד מקלקל הכל.", options: ["הכללת יתר", "קריאת מחשבות", "ניבוי העתיד", "פסילת החיובי"], explanation: "רגע אחד הופך לכלל גורף על כל חייך." },
+              { prompt: "אני חש חרדה, לכן משהו רע עומד לקרות.", options: ["הסקה רגשית", "הצהרות 'חייב'", "תיוג", "חשיבה שחור-לבן"], explanation: "רגשות מטופלים כעובדות, גם כשהם רק אותות." },
+              { prompt: "חברי נשמע שקט. כנראה שזה אשמתי.", options: ["אישיות יתר", "קטסטרופיזציה", "ניבוי העתיד", "הגדלה"], explanation: "אתה לוקח אחריות על משהו שיכול להיות לו סיבות רבות." },
+              { prompt: "אני צריך להיות יותר פרודוקטיבי כל הזמן.", options: ["הצהרות 'חייב'", "מסנן נפשי", "קריאת מחשבות", "הכללת יתר"], explanation: "כללים קשיחים ('צריך') יוצרים לחץ ומתעלמים מגבולות אנושיים אמיתיים." },
+              { prompt: "אדם אחד ביקר אותי, אז כנראה שאני לא טוב בזה.", options: ["תיוג", "פסילת החיובי", "הגדלה", "חשיבה הכל-או-כלום"], explanation: "ביקורת אחת מתנפחת ועולה על התמונה המלאה." },
+              { prompt: "עשיתי טוב, אבל זה לא נחשב כי זה היה קל.", options: ["פסילת החיובי", "ניבוי העתיד", "אישיות יתר", "קטסטרופיזציה"], explanation: "אתה דוחה מאמץ אמיתי והתקדמות במקום להכיר בהם." },
+              { prompt: "כולם שמו לב לטעות שלי. הם בטח חושבים שאני לא מוכשר.", options: ["קריאת מחשבות", "מסנן נפשי", "הסקה רגשית", "הצהרות 'חייב'"], explanation: "אתה מנחש את שיפוטי האחרים מבלי לבדוק את הראיות." },
+              { prompt: "אם אנסה ויהיה לי לא נוח, זאת אומרת שזה לא מתאים לי.", options: ["הסקה רגשית", "הכללת יתר", "תיוג", "פסילת החיובי"], explanation: "אי-נוחות יכולה להיות חלק מצמיחה; היא לא אוטומטית מסמנת סכנה." },
+              { prompt: "לא עמדתי ביעד שלי היום, אז לעולם לא אשתנה.", options: ["ניבוי העתיד", "קטסטרופיזציה", "הכללת יתר", "חשיבה הכל-או-כלום"], explanation: "יום אחד הופך לניבוי קבוע, בהתעלם מהתקדמות הדרגתית." }
             ],
             advanced: [
-              { prompt: "I received constructive feedback, but all I can think about is the one negative comment buried in it.", options: ["Mental filter", "Overgeneralization", "Personalization", "Emotional reasoning"], explanation: "You're filtering out the positive and focusing only on the negative detail." },
-              { prompt: "If I set boundaries, people will see me as selfish and abandon me.", options: ["Fortune telling + labeling", "Mind reading + catastrophizing", "Should statements", "Emotional reasoning"], explanation: "This combines mind reading (knowing what they'll think) with catastrophizing (predicting abandonment)." },
-              { prompt: "I didn't get the promotion, which proves I'm not competent enough, and I never will be.", options: ["Fortune telling + labeling", "All-or-nothing thinking", "Discounting the positive", "Personalization"], explanation: "This creates a fixed label and predicts a permanent future based on one event." },
-              { prompt: "My colleague was curt with me today. I must have done something to upset them, and now the whole team probably thinks poorly of me.", options: ["Personalization + magnification + mind reading", "Catastrophizing + overgeneralization", "Mental filter + should statements", "Emotional reasoning"], explanation: "This combines taking personal blame, blowing up the impact, and assuming you know what others think." },
-              { prompt: "I feel uncertain about this decision, which means I'm making the wrong choice.", options: ["Emotional reasoning", "Fortune telling", "All-or-nothing thinking", "Catastrophizing"], explanation: "The feeling of uncertainty is treated as evidence of a bad decision, not just a normal part of choosing." }
+              { prompt: "קיבלתי משוב בונה, אבל כל מה שאני יכול לחשוב עליו הוא ההערה השלילית האחת הקבורה בתוכו.", options: ["מסנן נפשי", "הכללת יתר", "אישיות יתר", "הסקה רגשית"], explanation: "אתה מסנן את החיובי ומתמקד רק בפרט השלילי." },
+              { prompt: "אם אציב גבולות, אנשים יראו אותי כאנוכי ויעזבו אותי.", options: ["ניבוי העתיד + תיוג", "קריאת מחשבות + קטסטרופיזציה", "הצהרות 'חייב'", "הסקה רגשית"], explanation: "זה משלב קריאת מחשבות (לדעת מה הם יחשבו) עם קטסטרופיזציה (ניבוי נטישה)." },
+              { prompt: "לא קיבלתי את הקידום, מה שמוכיח שאני לא מוכשר מספיק, ולעולם לא אהיה.", options: ["ניבוי העתיד + תיוג", "חשיבה הכל-או-כלום", "פסילת החיובי", "אישיות יתר"], explanation: "זה יוצר תווית קבועה ומנבא עתיד קבוע על בסיס אירוע אחד." },
+              { prompt: "הקולגה שלי היה חד איתי היום. בטח עשיתי משהו שכעס אותו, ועכשיו כל הצוות כנראה חושב עליי רע.", options: ["אישיות יתר + הגדלה + קריאת מחשבות", "קטסטרופיזציה + הכללת יתר", "מסנן נפשי + הצהרות 'חייב'", "הסקה רגשית"], explanation: "זה משלב לקיחת אשמה אישית, ניפוח ההשפעה, והנחה שאתה יודע מה האחרים חושבים." },
+              { prompt: "אני מרגיש לא בטוח לגבי ההחלטה הזו, מה שאומר שאני מקבל את הבחירה הלא נכונה.", options: ["הסקה רגשית", "ניבוי העתיד", "חשיבה הכל-או-כלום", "קטסטרופיזציה"], explanation: "תחושת אי-הוודאות מטופלת כראיה להחלטה רעה, לא כחלק נורמלי מבחירה." }
             ]
           },
           reframe_pick: {
             items: [
-              { situation: "You sent a message and haven't heard back.", automatic_thought: "They're ignoring me because I said something wrong.", choices: ["They're busy. I can wait or follow up later in a calm way.", "They definitely hate me now and I ruined everything.", "I'll never message anyone again so I don't risk feeling this."], why: "It considers multiple possibilities and suggests a reasonable next step." },
-              { situation: "You made a small mistake at work/school.", automatic_thought: "I'm terrible at this.", choices: ["One mistake is normal. I can fix it and learn for next time.", "I'm the worst person here. I should quit immediately.", "I'll pretend it didn't happen and avoid anything challenging."], why: "It's specific, realistic, and focused on learning rather than global labels." },
-              { situation: "A friend was quiet during your hangout.", automatic_thought: "They must be annoyed with me.", choices: ["I don't know the reason. I can check in kindly or give space.", "It's my fault. I always ruin friendships.", "I should cut them off before they reject me first."], why: "It avoids mind reading and leaves room for a gentle check-in." },
-              { situation: "You didn't finish a task you planned.", automatic_thought: "I'm so lazy.", choices: ["I struggled today. I can pick one small next step and restart.", "I'm hopeless. I'll never be consistent at anything.", "I should punish myself until I finally get disciplined."], why: "It acknowledges difficulty and moves toward a doable, compassionate action." },
-              { situation: "You feel anxious before an event.", automatic_thought: "This anxiety means the event will go badly.", choices: ["Anxiety is a feeling, not a prediction. I can go anyway and cope.", "Anxiety means danger. I must avoid this at all costs.", "I need to feel zero anxiety before I'm allowed to show up."], why: "It separates feelings from forecasts and supports valued action." },
-              { situation: "Someone gave you feedback.", automatic_thought: "I'm not good enough.", choices: ["Feedback can help me improve. I can take what's useful and grow.", "They think I'm incompetent and everyone agrees with them.", "I'll stop trying so no one can judge me again."], why: "It keeps self-worth intact while allowing improvement." },
-              { situation: "You didn't get invited to something.", automatic_thought: "Nobody likes me.", choices: ["There could be many reasons. I can reach out or plan something else.", "This proves I'm unlikable and always will be.", "I'll isolate so I don't have to feel left out again."], why: "It avoids overgeneralization and offers flexible, constructive options." },
-              { situation: "You're learning a new skill and feel behind.", automatic_thought: "If I'm not fast, I'm not meant for this.", choices: ["Skills grow with practice. I can improve step by step.", "If I'm not immediately great, it's a waste of time.", "I should compare myself nonstop to prove I'm failing."], why: "It supports growth mindset and realistic learning curves." }
+              { situation: "שלחת הודעה ועדיין לא קיבלת תשובה.", automatic_thought: "הם מתעלמים ממני כי אמרתי משהו לא בסדר.", choices: ["הם עסוקים. אני יכול לחכות או לעקוב מאוחר יותר בצורה רגועה.", "הם בטח שונאים אותי עכשיו וקלקלתי הכל.", "לעולם לא אשלח הודעה לאף אחד כדי לא לסכן את עצמי ברגשות כאלה."], why: "הוא מתחשב באפשרויות מרובות ומציע צעד הגיוני הבא." },
+              { situation: "עשית טעות קטנה בעבודה/בלימודים.", automatic_thought: "אני נורא בזה.", choices: ["טעות אחת זה נורמלי. אני יכול לתקן ולהסיק לפעם הבאה.", "אני הגרוע ביותר כאן. אני צריך להתפטר מיד.", "אעשה כאילו זה לא קרה ואמנע מכל דבר מאתגר."], why: "זה ספציפי, ריאלי, ומתמקד בלמידה ולא בתיוגים גלובליים." },
+              { situation: "חבר היה שקט במפגש שלכם.", automatic_thought: "הוא בטח עצבן עליי.", choices: ["אני לא יודע את הסיבה. אני יכול לבדוק בעדינות או לתת מרחב.", "זה אשמתי. אני תמיד מקלקל חברויות.", "אנתק אותו לפני שהוא ידחה אותי קודם."], why: "הוא מונע קריאת מחשבות ומשאיר מקום לבדיקה עדינה." },
+              { situation: "לא סיימת משימה שתכננת.", automatic_thought: "אני כל כך עצלן.", choices: ["התקשיתי היום. אני יכול לבחור צעד קטן אחד הלאה ולהתחיל מחדש.", "אני חסר תקווה. לעולם לא אהיה עקבי בשום דבר.", "אענש את עצמי עד שסוף סוף אתגייס."], why: "הוא מכיר בקושי ומתקדם לעבר פעולה ישימה וחומלת." },
+              { situation: "אתה חש חרדה לפני אירוע.", automatic_thought: "החרדה הזאת אומרת שהאירוע יעבור רע.", choices: ["חרדה היא תחושה, לא ניבוי. אני יכול ללכת ממילא ולהתמודד.", "חרדה מסמנת סכנה. אני חייב להימנע מזה בכל מחיר.", "אני צריך להרגיש אפס חרדה לפני שאני מורשה להופיע."], why: "הוא מפריד בין רגשות לבין תחזיות ותומך בפעולה מוערכת." },
+              { situation: "מישהו נתן לך משוב.", automatic_thought: "אני לא מספיק טוב.", choices: ["משוב יכול לעזור לי להשתפר. אני יכול לקחת מה שמועיל ולצמוח.", "הם חושבים שאני לא מוכשר וכולם מסכימים איתם.", "אפסיק לנסות כדי שאף אחד לא יוכל לשפוט אותי שוב."], why: "הוא שומר על ערך עצמי תוך מתן מקום לשיפור." },
+              { situation: "לא הוזמנת למשהו.", automatic_thought: "אף אחד לא אוהב אותי.", choices: ["יכולות להיות סיבות רבות. אני יכול לפנות או לתכנן משהו אחר.", "זה מוכיח שאני לא אהוב ותמיד אהיה כך.", "אתבודד כדי שלא יצטרך להרגיש מודר שוב."], why: "הוא מונע הכללת יתר ומציע אפשרויות גמישות ובונות." },
+              { situation: "אתה לומד מיומנות חדשה ומרגיש שאתה מאחור.", automatic_thought: "אם אני לא מהיר, זה לא בשבילי.", choices: ["מיומנויות צומחות עם תרגול. אני יכול להשתפר צעד אחר צעד.", "אם אני לא מיד נהדר, זה בזבוז זמן.", "אני צריך להשוות את עצמי כל הזמן כדי להוכיח שאני נכשל."], why: "הוא תומך בחשיבת צמיחה ועקומות למידה ריאליסטיות." }
             ]
           },
           value_compass: {
             values: [
-              { value: "Family", actions: ["Send a kind message to a family member.", "Do one small helpful thing at home.", "Plan 10 minutes of quality time today."] },
-              { value: "Health", actions: ["Drink a glass of water right now.", "Take a 2-minute stretch break.", "Step outside for fresh air for 3 minutes."] },
-              { value: "Growth", actions: ["Learn one tiny thing (watch/read for 2 minutes).", "Practice a skill for 3 minutes.", "Write one sentence about what you want to improve."] },
-              { value: "Friendship", actions: ["Check in with a friend with a simple hello.", "Reply to a message you've been postponing.", "Share one genuine compliment today."] },
-              { value: "Courage", actions: ["Do the smallest version of the scary step (10%).", "Name what you fear in one sentence, then proceed anyway.", "Ask one small question instead of assuming."] },
-              { value: "Calm", actions: ["Take 5 slow breaths (count 4 in / 4 out).", "Relax your shoulders and jaw for 20 seconds.", "Put your phone down for 2 minutes and reset."] },
-              { value: "Creativity", actions: ["Write a silly 1-line idea (no judgment).", "Take a photo of something interesting around you.", "Doodle for 60 seconds."] },
-              { value: "Purpose", actions: ["Choose one task that matters and do 2 minutes of it.", "Write your 'why' in 1 sentence.", "Remove one small obstacle from your path today."] }
+              { value: "משפחה", actions: ["שלח הודעה נחמדה לבן משפחה.", "עשה דבר אחד קטן מועיל בבית.", "תכנן 10 דקות של זמן איכות היום."] },
+              { value: "בריאות", actions: ["שתה כוס מים עכשיו.", "קח הפסקת מתיחה של 2 דקות.", "צא לאוויר הצח ל-3 דקות."] },
+              { value: "צמיחה", actions: ["למד דבר קטן אחד (צפה/קרא 2 דקות).", "תרגל מיומנות 3 דקות.", "כתב משפט אחד על מה שאתה רוצה לשפר."] },
+              { value: "חברות", actions: ["בדוק עם חבר בשלום פשוט.", "ענה להודעה שדחית.", "שתף מחמאה אמיתית אחת היום."] },
+              { value: "אומץ", actions: ["עשה את הגרסה הקטנה ביותר של הצעד המפחיד (10%).", "תן שם לפחד שלך במשפט אחד, ואז תמשיך ממילא.", "שאל שאלה קטנה אחת במקום להניח."] },
+              { value: "רוגע", actions: ["קח 5 נשימות איטיות (ספור 4 פנימה / 4 החוצה).", "שחרר את הכתפיים והלסת ל-20 שניות.", "הנח את הטלפון ל-2 דקות ואפס."] },
+              { value: "יצירתיות", actions: ["כתב רעיון טיפשי בשורה אחת (ללא שיפוטיות).", "צלם תמונה של משהו מעניין סביבך.", "ציור חופשי ל-60 שניות."] },
+              { value: "מטרה", actions: ["בחר משימה אחת שחשובה ועשה 2 דקות ממנה.", "כתב את ה'למה שלך' במשפט אחד.", "הסר מכשול קטן אחד מנתיבך היום."] }
             ]
           },
           tiny_experiment: {
             items: [
-              { belief: "If I ask for help, people will think I'm weak.", experiments: ["Ask one small, specific question and observe the response.", "Ask a trusted person for a tiny favor and note what happens.", "Ask for clarification once instead of guessing."], reflection_question: "What happened?", reflection_options: ["It went better than I feared.", "It was neutral / fine.", "It was uncomfortable, but I handled it."] },
-              { belief: "If I say no, people will dislike me.", experiments: ["Say no to a low-stakes request using one polite sentence.", "Offer an alternative (not now / later) instead of automatic yes.", "Pause for 5 seconds before agreeing to anything."], reflection_question: "What did you notice?", reflection_options: ["People respected it.", "Nothing dramatic happened.", "It felt hard, and I survived it."] },
-              { belief: "If I make a mistake, it will be a disaster.", experiments: ["Do a small task imperfectly on purpose (10%) and observe outcomes.", "Share a minor correction without apologizing excessively.", "Let one tiny typo exist and see what actually happens."], reflection_question: "What was the outcome?", reflection_options: ["No one cared.", "It was fixable.", "It felt big in my head, smaller in reality."] },
-              { belief: "If I don't feel motivated, I can't start.", experiments: ["Start for 2 minutes only, then reassess.", "Set a timer for 90 seconds and do the first step.", "Make the task 10x smaller and begin."], reflection_question: "After starting, how was it?", reflection_options: ["Easier than expected.", "Still hard, but possible.", "I gained a little momentum."] },
-              { belief: "If someone is quiet, it must be about me.", experiments: ["Write 3 alternative explanations before reacting.", "Ask a simple check-in question instead of assuming.", "Wait 30 minutes and see if new info appears."], reflection_question: "What did you learn?", reflection_options: ["I didn't have enough evidence.", "There were other explanations.", "Checking in was helpful."] },
-              { belief: "I have to do everything right to be accepted.", experiments: ["Share one imperfect draft and request feedback.", "Do one task at 'good enough' level and stop.", "Let someone else choose one detail instead of controlling it."], reflection_question: "How did it go?", reflection_options: ["Good enough worked.", "Acceptance didn't depend on perfection.", "I felt discomfort, and it passed."] },
-              { belief: "If I feel anxious, I shouldn't go.", experiments: ["Go for 5 minutes only and reassess.", "Bring one coping tool (water / music / breathing).", "Rate anxiety 0–10 before and after to compare."], reflection_question: "What did you notice?", reflection_options: ["Anxiety changed over time.", "I could function with anxiety present.", "Avoidance wasn't necessary."] },
-              { belief: "If I rest, I'm wasting time.", experiments: ["Take a 3-minute break and then return to one small task.", "Rest first, then do 2 minutes of the priority task.", "Track: does a short break help focus?"], reflection_question: "Result?", reflection_options: ["Rest helped me reset.", "No harm done.", "I returned with a bit more clarity."] },
-              { belief: "If I don't get it quickly, I'm not capable.", experiments: ["Practice for 3 minutes daily for 3 days and compare.", "Ask one question and notice improvement.", "Write one thing you learned today, even if small."], reflection_question: "What changed?", reflection_options: ["Progress showed up gradually.", "Learning took repetition.", "I was harsher than necessary."] },
-              { belief: "I need to feel confident before I act.", experiments: ["Act with 'small courage' for 2 minutes anyway.", "Do the first step while confidence is low.", "Rate confidence after action (not before)."], reflection_question: "After action, how was your confidence?", reflection_options: ["A bit higher.", "About the same, but I did it.", "I learned I can move without perfect confidence."] }
+              { belief: "אם אבקש עזרה, אנשים יחשבו שאני חלש.", experiments: ["שאל שאלה קטנה וספציפית אחת ושים לב לתגובה.", "בקש מאדם מהימן טובה קטנה ורשום מה קורה.", "בקש הבהרה פעם אחת במקום לנחש."], reflection_question: "מה קרה?", reflection_options: ["זה הלך טוב יותר ממה שפחדתי.", "זה היה ניטרלי / בסדר.", "זה היה לא נוח, אבל התמודדתי עם זה."] },
+              { belief: "אם אגיד לא, אנשים לא יאהבו אותי.", experiments: ["אמור לא לבקשה לא מחייבת במשפט מנומס אחד.", "הצע חלופה (לא עכשיו / מאוחר יותר) במקום כן אוטומטי.", "עצור 5 שניות לפני הסכמה לכל דבר."], reflection_question: "מה שמת לב?", reflection_options: ["אנשים כיבדו את זה.", "שום דבר דרמטי לא קרה.", "זה היה קשה, ושרדתי את זה."] },
+              { belief: "אם אטעה, זה יהיה אסון.", experiments: ["בצע משימה קטנה בצורה לא מושלמת בכוונה (10%) ושים לב לתוצאות.", "שתף תיקון קל ללא התנצלות מוגזמת.", "תן לשגיאת הקלדה קטנה אחת להתקיים וראה מה קורה בפועל."], reflection_question: "מה היה התוצאה?", reflection_options: ["אף אחד לא אכפת.", "זה היה ניתן לתיקון.", "זה הרגיש גדול בראש שלי, קטן יותר במציאות."] },
+              { belief: "אם לא מרגיש מוטיבציה, לא יכול להתחיל.", experiments: ["התחל ל-2 דקות בלבד, ואז הערך מחדש.", "הגדר טיימר ל-90 שניות ועשה את הצעד הראשון.", "הפוך את המשימה קטנה פי 10 והתחל."], reflection_question: "אחרי שהתחלת, איך היה?", reflection_options: ["קל יותר מהצפוי.", "עדיין קשה, אבל אפשרי.", "צברתי קצת תנופה."] },
+              { belief: "אם מישהו שקט, זה בטח בגללי.", experiments: ["כתב 3 הסברים חלופיים לפני תגובה.", "שאל שאלת בדיקה פשוטה במקום להניח.", "חכה 30 דקות וראה אם מידע חדש מופיע."], reflection_question: "מה למדת?", reflection_options: ["לא היו לי מספיק ראיות.", "היו הסברים אחרים.", "הבדיקה הייתה מועילה."] },
+              { belief: "אני חייב לעשות הכל נכון כדי להתקבל.", experiments: ["שתף טיוטה לא מושלמת אחת ובקש משוב.", "בצע משימה אחת ברמת 'מספיק טוב' ועצור.", "תן למישהו אחר לבחור פרט אחד במקום לשלוט."], reflection_question: "איך הלך?", reflection_options: ["מספיק טוב עבד.", "הקבלה לא הייתה תלויה בשלמות.", "הרגשתי אי-נוחות, והיא חלפה."] },
+              { belief: "אם מרגיש חרדה, לא כדאי ללכת.", experiments: ["לך ל-5 דקות בלבד ואז הערך מחדש.", "הבא כלי התמודדות אחד (מים / מוסיקה / נשימה).", "דרג חרדה 0-10 לפני ואחרי להשוואה."], reflection_question: "מה שמת לב?", reflection_options: ["החרדה השתנתה עם הזמן.", "יכולתי לתפקד כשהחרדה הייתה נוכחת.", "הימנעות לא הייתה הכרחית."] },
+              { belief: "אם אנוח, אני מבזבז זמן.", experiments: ["קח הפסקה של 3 דקות ואז חזור למשימה קטנה אחת.", "נוח קודם, אחר כך עשה 2 דקות של משימת העדיפות.", "עקוב: האם הפסקה קצרה עוזרת למיקוד?"], reflection_question: "תוצאה?", reflection_options: ["המנוחה עזרה לי לאפס.", "לא נגרם נזק.", "חזרתי עם קצת יותר בהירות."] },
+              { belief: "אם לא מבין מהר, אני לא מסוגל.", experiments: ["תרגל 3 דקות ביום למשך 3 ימים והשווה.", "שאל שאלה אחת ושים לב לשיפור.", "כתב דבר אחד שלמדת היום, גם אם קטן."], reflection_question: "מה השתנה?", reflection_options: ["ההתקדמות הופיעה בהדרגה.", "הלמידה דרשה חזרה.", "הייתי קשה על עצמי יותר ממה שצריך."] },
+              { belief: "אני צריך להרגיש ביטחון לפני שאפעל.", experiments: ["פעל עם 'אומץ קטן' ל-2 דקות ממילא.", "עשה את הצעד הראשון כשהביטחון נמוך.", "דרג ביטחון אחרי פעולה (לא לפניה)."], reflection_question: "אחרי הפעולה, איך היה הביטחון שלך?", reflection_options: ["קצת גבוה יותר.", "בערך אותו דבר, אבל עשיתי את זה.", "למדתי שאני יכול לנוע ללא ביטחון מושלם."] }
             ]
           },
           quick_win: {
-            presets: ["I drank water.", "I took a 2-minute break.", "I sent one message I was avoiding.", "I cleaned one tiny area.", "I did one small task for 2 minutes.", "I took 5 slow breaths.", "I stepped outside for fresh air.", "I asked a question instead of assuming.", "I showed up even though it was uncomfortable.", "I wrote one helpful sentence to myself.", "I stretched my shoulders/neck.", "I ate something nourishing.", "I paused before reacting.", "I said no (or not now) politely.", "I made a small plan for tomorrow.", "I finished a mini-step.", "I noticed a thinking trap and named it.", "I chose 'good enough' and stopped.", "I did something kind for someone.", "I did something kind for myself."]
+            presets: ["שתיתי מים.", "לקחתי הפסקה של 2 דקות.", "שלחתי הודעה אחת שנמנעתי ממנה.", "ניקיתי שטח קטן אחד.", "עשיתי משימה קטנה אחת ל-2 דקות.", "לקחתי 5 נשימות איטיות.", "יצאתי לאוויר הצח.", "שאלתי שאלה במקום להניח.", "הופעתי למרות שלא היה נוח.", "כתבתי לעצמי משפט מועיל אחד.", "מתחתי את הכתפיים/הצוואר.", "אכלתי משהו מזין.", "עצרתי לפני תגובה.", "אמרתי לא (או לא עכשיו) בנימוס.", "עשיתי תכנית קטנה למחר.", "סיימתי מיני-צעד.", "שמתי לב למלכודת חשיבה ונתתי לה שם.", "בחרתי 'מספיק טוב' ועצרתי.", "עשיתי משהו טוב עבור מישהו.", "עשיתי משהו טוב עבור עצמי."]
           },
           calm_bingo: {
-            tiles: ["Drink a glass of water", "5 slow breaths", "Relax shoulders + jaw", "Look out a window for 30s", "Stand up and stretch", "Send a kind text", "Tidy one small thing", "Step outside for 2 minutes", "Name 3 things you can see", "Play one calm song", "Write 1 supportive sentence", "Wash your hands slowly", "Move your body for 60s", "Put phone down for 2 minutes", "Smile gently (even 10%)", "Choose one tiny next step"]
+            tiles: ["שתה כוס מים", "5 נשימות איטיות", "שחרר כתפיים + לסת", "הסתכל מבעד לחלון 30 שניות", "קום והתמתח", "שלח הודעה נחמדה", "סדר דבר קטן אחד", "צא לחוץ 2 דקות", "ציין 3 דברים שאתה רואה", "נגן שיר רגוע אחד", "כתב משפט תומך אחד", "שטף ידיים לאט", "הזז גוף 60 שניות", "הנח טלפון 2 דקות", "חייך בעדינות (גם 10%)", "בחר צעד קטן הבא"]
           },
           dbt_stop: {
             prompts: [
-              { trigger: "You feel a strong urge to react immediately.", steps: [{ key: "S", label: "Stop", text: "Pause. Don't act yet." }, { key: "T", label: "Take a step back", text: "Breathe once. Create a tiny space." }, { key: "O", label: "Observe", text: "Notice: thoughts, feelings, body signals." }, { key: "P", label: "Proceed mindfully", text: "Choose one wise next step." }], next_steps: ["Send a calm, short reply (or wait 10 minutes).", "Ask one clarifying question.", "Do one small grounding action, then decide."] },
-              { trigger: "You're about to avoid something important.", steps: [{ key: "S", label: "Stop", text: "Pause avoidance for a moment." }, { key: "T", label: "Take a step back", text: "Exhale slowly and reset posture." }, { key: "O", label: "Observe", text: "What are you afraid will happen?" }, { key: "P", label: "Proceed mindfully", text: "Pick the smallest brave step (10%)." }], next_steps: ["Do 2 minutes of the first step only.", "Make it easier: reduce scope by 50%.", "Text someone: 'I'm starting now—wish me luck.'"] },
-              { trigger: "You feel criticized and want to defend yourself fast.", steps: [{ key: "S", label: "Stop", text: "Hold back the instant response." }, { key: "T", label: "Take a step back", text: "Breathe and relax your jaw." }, { key: "O", label: "Observe", text: "What's the goal: to win or to repair?" }, { key: "P", label: "Proceed mindfully", text: "Respond to the goal, not the heat." }], next_steps: ["Say: 'Let me think about that for a moment.'", "Reflect back what you heard in one sentence.", "Ask: 'What would be most helpful right now?'"] },
-              { trigger: "You're scrolling/doomscrolling and feel stuck.", steps: [{ key: "S", label: "Stop", text: "Pause scrolling now." }, { key: "T", label: "Take a step back", text: "Put phone down for one breath." }, { key: "O", label: "Observe", text: "Name the feeling in one word." }, { key: "P", label: "Proceed mindfully", text: "Choose one small helpful action." }], next_steps: ["Drink water and stretch for 30 seconds.", "Open a window or step outside for 1 minute.", "Write one tiny next step and do it."] }
+              { trigger: "אתה מרגיש דחף חזק להגיב מיידית.", steps: [{ key: "S", label: "עצור", text: "השהה. אל תפעל עדיין." }, { key: "T", label: "לקחת צעד אחורה", text: "נשום פעם אחת. צור מרחב קטן." }, { key: "O", label: "שים לב", text: "שמו לב: מחשבות, רגשות, אותות גוף." }, { key: "P", label: "התקדם בתשומת לב", text: "בחר צעד הגיוני אחד הבא." }], next_steps: ["שלח תגובה קצרה ורגועה (או המתן 10 דקות).", "שאל שאלת הבהרה אחת.", "עשה פעולת עיגון קטנה אחת, ואז החלט."] },
+              { trigger: "אתה עומד להימנע ממשהו חשוב.", steps: [{ key: "S", label: "עצור", text: "השהה את ההימנעות לרגע." }, { key: "T", label: "לקחת צעד אחורה", text: "נשום החוצה לאט ואפס תנוחה." }, { key: "O", label: "שים לב", text: "ממה אתה מפחד שיקרה?" }, { key: "P", label: "התקדם בתשומת לב", text: "בחר את הצעד האמיץ הקטן ביותר (10%)." }], next_steps: ["עשה 2 דקות של הצעד הראשון בלבד.", "הקל: הפחת את ההיקף ב-50%.", "שלח לאחד: 'אני מתחיל עכשיו - אחל לי הצלחה.'"] },
+              { trigger: "אתה מרגיש שבוקרו ורוצה להתגונן מהר.", steps: [{ key: "S", label: "עצור", text: "בלום את התגובה המיידית." }, { key: "T", label: "לקחת צעד אחורה", text: "נשום ורפה את הלסת." }, { key: "O", label: "שים לב", text: "מה המטרה: לנצח או לתקן?" }, { key: "P", label: "התקדם בתשומת לב", text: "הגב למטרה, לא לחום." }], next_steps: ["אמור: 'תן לי לחשוב על זה רגע.'", "שקף חזרה את מה שנשמע במשפט אחד.", "שאל: 'מה יהיה הכי מועיל עכשיו?'"] },
+              { trigger: "אתה גולל/doomscrolling ומרגיש תקוע.", steps: [{ key: "S", label: "עצור", text: "השהה את הגלילה עכשיו." }, { key: "T", label: "לקחת צעד אחורה", text: "הנח את הטלפון לנשימה אחת." }, { key: "O", label: "שים לב", text: "ציין את התחושה במילה אחת." }, { key: "P", label: "התקדם בתשומת לב", text: "בחר פעולה מועילה קטנה אחת." }], next_steps: ["שתה מים והתמתח 30 שניות.", "פתח חלון או צא החוצה דקה אחת.", "כתב צעד קטן הבא ועשה אותו."] }
             ]
           },
           opposite_action: {
             items: [
-              { emotion: "Anxiety", urge: "Avoid / escape", opposite: "Approach gently", choices: ["Show up for 5 minutes, then reassess.", "Do the smallest first step (10%).", "Ask one question instead of avoiding."], note: "Opposite action is for emotions that don't fit the facts or are too intense." },
-              { emotion: "Sadness", urge: "Withdraw / isolate", opposite: "Connect or activate", choices: ["Send one simple 'hey' message.", "Step outside for 2 minutes.", "Do a tiny task to build momentum."], note: "Small activation often shifts mood more than waiting for motivation." },
-              { emotion: "Anger", urge: "Attack / argue", opposite: "Be gentle and effective", choices: ["Lower voice + slow down your words.", "State one need clearly without blame.", "Take a 2-minute pause before replying."], note: "Opposite action aims for effectiveness, not 'winning.'" },
-              { emotion: "Shame", urge: "Hide / disappear", opposite: "Small reveal + self-respect", choices: ["Share a tiny truth with a safe person.", "Stand tall, breathe, and stay present for 30s.", "Do one value-based action anyway."], note: "Shame shrinks with safe connection and self-respect actions." },
-              { emotion: "Guilt (too much)", urge: "Over-apologize / self-punish", opposite: "Repair effectively", choices: ["Apologize once, then propose one repair step.", "Ask what would help and listen.", "Stop repeating apologies; act instead."], note: "Effective repair beats endless self-blame." },
-              { emotion: "Fear of rejection", urge: "People-please / over-text", opposite: "Balanced boundary", choices: ["Send one message, then wait.", "Do one self-caring action while you wait.", "Remind yourself: 'I can handle uncertainty.'"], note: "Opposite action builds tolerance for uncertainty." }
+              { emotion: "חרדה", urge: "הימנעות / בריחה", opposite: "התקרבות בעדינות", choices: ["הופע ל-5 דקות, ואז הערך מחדש.", "עשה את הצעד הראשון הקטן ביותר (10%).", "שאל שאלה אחת במקום להימנע."], note: "פעולה הפוכה היא לרגשות שלא מתאימים לעובדות או עזים מדי." },
+              { emotion: "עצב", urge: "נסיגה / בידוד", opposite: "חיבור או הפעלה", choices: ["שלח הודעת 'היי' פשוטה אחת.", "צא החוצה ל-2 דקות.", "עשה משימה קטנה לבניית תנופה."], note: "הפעלה קטנה לעתים קרובות משנה מצב רוח יותר מהמתנה למוטיבציה." },
+              { emotion: "כעס", urge: "תקיפה / ויכוח", opposite: "היה עדין ואפקטיבי", choices: ["הנמך קול + האט את המילים שלך.", "ציין צורך אחד בבהירות ללא אשמה.", "קח הפסקה של 2 דקות לפני תגובה."], note: "פעולה הפוכה שואפת לאפקטיביות, לא ל'ניצחון'." },
+              { emotion: "בושה", urge: "הסתתרות / היעלמות", opposite: "חשיפה קטנה + כבוד עצמי", choices: ["שתף אמת קטנה עם אדם בטוח.", "עמוד ישר, נשום, והישאר נוכח 30 שניות.", "עשה פעולה מבוססת ערכים ממילא."], note: "בושה מתכווצת עם חיבור בטוח ופעולות כבוד עצמי." },
+              { emotion: "אשמה (מוגזמת)", urge: "התנצלות יתר / ענישה עצמית", opposite: "תיקון אפקטיבי", choices: ["התנצל פעם אחת, ואז הצע צעד תיקון אחד.", "שאל מה יעזור והאזן.", "הפסק לחזור על ההתנצלויות; פעל במקום."], note: "תיקון אפקטיבי עדיף על האשמה עצמית אינסופית." },
+              { emotion: "פחד מדחייה", urge: "פייסנות / שליחת הודעות יתר", opposite: "גבול מאוזן", choices: ["שלח הודעה אחת, ואז המתן.", "עשה פעולה מטפלת בעצמי בזמן שאתה מחכה.", "הזכר לעצמך: 'אני יכול להתמודד עם אי-ודאות.'"], note: "פעולה הפוכה בונה סובלנות לאי-ודאות." }
             ]
           },
           urge_surfing: {
             beginner: [
-              { title: "Ride the wave (60 seconds)", steps: ["Name the urge: 'I'm having the urge to ____.'", "Rate intensity 0–10.", "Notice where it lives in the body.", "Breathe slowly for 5 breaths.", "Rate intensity again. (Urges rise and fall.)"], finish_choices: ["Delay 10 minutes (set a timer).", "Do a 2-minute replacement action.", "Ask for support (one message)."] },
-              { title: "Surf + redirect", steps: ["Name the urge without judging it.", "Imagine it as a wave—rising, cresting, passing.", "Relax shoulders and jaw.", "Pick one value-based micro-action."], finish_choices: ["Take 10% of a helpful step.", "Move your body for 60 seconds.", "Drink water + reset posture."] }
+              { title: "רכוב על הגל (60 שניות)", steps: ["ציין את הדחף: 'יש לי דחף ל-____.'", "דרג עצימות 0-10.", "שים לב לאן שהוא חי בגוף.", "נשום לאט ל-5 נשימות.", "דרג עצימות שוב. (דחפים עולים ויורדים.)"], finish_choices: ["עכב 10 דקות (הגדר טיימר).", "עשה פעולת תחליף של 2 דקות.", "בקש תמיכה (הודעה אחת)."] },
+              { title: "גלישה + הפניה מחדש", steps: ["ציין את הדחף ללא שיפוט.", "דמיין אותו כגל - עולה, מגיע לשיא, עובר.", "שחרר כתפיים ולסת.", "בחר פעולת מיקרו מבוססת ערכים אחת."], finish_choices: ["קח 10% מצעד מועיל.", "הזז גוף 60 שניות.", "שתה מים + אפס תנוחה."] }
             ],
             advanced: [
-              { title: "Surf independently (90 seconds)", steps: ["Name and rate the urge (0-10).", "Locate it in your body.", "Breathe with it for 10 breaths.", "Notice the peak and decline.", "Rate it again."], finish_choices: ["Delay 20 minutes and reassess.", "Do the opposite action for 5 minutes.", "Journal about what you noticed."] },
-              { title: "Surf + value-based action", steps: ["Acknowledge the urge without judgment.", "Watch it like a scientist observing data.", "Let it peak naturally.", "Choose one value-aligned micro-step."], finish_choices: ["Do the tiny step immediately.", "Practice the skill again in 1 hour.", "Note what worked for next time."] }
+              { title: "גלישה עצמאית (90 שניות)", steps: ["ציין ודרג את הדחף (0-10).", "אתר אותו בגוף שלך.", "נשום איתו ל-10 נשימות.", "שים לב לשיא ולירידה.", "דרג שוב."], finish_choices: ["עכב 20 דקות והערך מחדש.", "עשה את הפעולה ההפוכה ל-5 דקות.", "כתב ביומן מה שמת לב."] },
+              { title: "גלישה + פעולה מבוססת ערכים", steps: ["הכר בדחף ללא שיפוט.", "צפה בו כמו מדען שצופה בנתונים.", "תן לו להגיע לשיא באופן טבעי.", "בחר מיקרו-צעד מיושר ערכים אחד."], finish_choices: ["עשה את הצעד הקטן מיידית.", "תרגל שוב את המיומנות בעוד שעה.", "ציין מה עבד לפעם הבאה."] }
             ]
           },
           worry_time: {
             items: [
-              { worry: "What if I mess up tomorrow?", park_it: "I'll think about this during Worry Time at 6:00 PM for 10 minutes.", tiny_now: ["Write one small preparation step.", "Do 2 minutes of that step now.", "Then return to the present task."] },
-              { worry: "What if they're mad at me?", park_it: "I'll revisit this at 7:00 PM for 10 minutes, then decide on a calm follow-up.", tiny_now: ["List 2 alternative explanations.", "Wait 30 minutes before acting.", "Do one calming reset (5 breaths)."] },
-              { worry: "What if something bad happens?", park_it: "I'll schedule Worry Time at 5:30 PM for 10 minutes and focus on what's controllable.", tiny_now: ["Name 1 thing you can control today.", "Do the smallest step toward it.", "Return attention to the room."] },
-              { worry: "I'm behind; I'll never catch up.", park_it: "I'll worry about this at 6:30 PM for 10 minutes and make a realistic plan.", tiny_now: ["Pick the single next step.", "Work 2 minutes on it.", "Stop and acknowledge progress."] },
-              { worry: "What if I disappoint people?", park_it: "I'll revisit this at 8:00 PM for 10 minutes and choose a value-based action.", tiny_now: ["Ask: 'What matters to me here?'", "Choose one respectful sentence/boundary.", "Delay responding for 10 minutes."] },
-              { worry: "What if I can't handle it?", park_it: "I'll schedule Worry Time at 7:30 PM for 10 minutes and review coping options.", tiny_now: ["Write 1 coping tool you already use.", "Use it for 60 seconds.", "Continue with the next small task."] }
+              { worry: "מה אם אקלקל מחר?", park_it: "אחשוב על זה בזמן הדאגות בשעה 18:00 ל-10 דקות.", tiny_now: ["כתב צעד הכנה קטן אחד.", "עשה 2 דקות של אותו צעד עכשיו.", "ואז חזור למשימה הנוכחית."] },
+              { worry: "מה אם הם כועסים עליי?", park_it: "אחזור לזה בשעה 19:00 ל-10 דקות, ואז אחליט על מעקב רגוע.", tiny_now: ["רשום 2 הסברים חלופיים.", "המתן 30 דקות לפני פעולה.", "עשה אפוס מרגיע (5 נשימות)."] },
+              { worry: "מה אם משהו רע יקרה?", park_it: "אתזמן לזמן דאגות בשעה 17:30 ל-10 דקות ואתמקד במה שנשלט.", tiny_now: ["ציין דבר אחד שאתה יכול לשלוט בו היום.", "עשה את הצעד הקטן ביותר לכיוון זה.", "החזר תשומת לב לחדר."] },
+              { worry: "אני מאחור; לעולם לא אדביק.", park_it: "אדאג לזה בשעה 18:30 ל-10 דקות ואעשה תוכנית ריאליסטית.", tiny_now: ["בחר את הצעד הבודד הבא.", "עבוד 2 דקות עליו.", "עצור והכר בהתקדמות."] },
+              { worry: "מה אם אאכזב אנשים?", park_it: "אחזור לזה בשעה 20:00 ל-10 דקות ואבחר פעולה מבוססת ערכים.", tiny_now: ["שאל: 'מה חשוב לי כאן?'", "בחר משפט/גבול מכבד אחד.", "עכב תגובה 10 דקות."] },
+              { worry: "מה אם לא אוכל להתמודד?", park_it: "אתזמן לזמן דאגות בשעה 19:30 ל-10 דקות ואסקור אפשרויות התמודדות.", tiny_now: ["כתב כלי התמודדות אחד שאתה כבר משתמש בו.", "השתמש בו 60 שניות.", "המשך עם המשימה הקטנה הבאה."] }
             ]
           },
           evidence_balance: {
             items: [
-              { thought: "I always mess things up.", evidence_for: ["I made a mistake recently.", "I remember failures more than successes."], evidence_against: ["I've done many things well.", "One mistake doesn't define 'always'."], balanced_conclusion: "I've made mistakes and also succeeded. I can learn and improve." },
-              { thought: "They don't like me.", evidence_for: ["They replied late once.", "They were quiet last time."], evidence_against: ["They've been friendly before.", "There are many reasons for silence."], balanced_conclusion: "I don't know their thoughts. I can check in calmly or wait for more info." },
-              { thought: "If I'm anxious, I can't cope.", evidence_for: ["Anxiety feels intense.", "I want to escape when anxious."], evidence_against: ["I've coped with anxiety before.", "Anxiety rises and falls."], balanced_conclusion: "Anxiety is uncomfortable but manageable. I can act while it's present." },
-              { thought: "I'm not improving.", evidence_for: ["Progress feels slow.", "I compare myself to others."], evidence_against: ["I've taken small steps.", "Learning is gradual."], balanced_conclusion: "Progress can be slow and real. Small steps still count." },
-              { thought: "I must do everything perfectly.", evidence_for: ["I value quality.", "Perfection sometimes prevents criticism."], evidence_against: ["Perfect isn't required to succeed.", "Good-enough frees time and reduces stress."], balanced_conclusion: "I can aim for quality while allowing 'good enough' when it's effective." },
-              { thought: "If I say no, I'll be rejected.", evidence_for: ["I worry about disappointing people.", "I've had conflict before."], evidence_against: ["Many people respect boundaries.", "I can say no politely and offer alternatives."], balanced_conclusion: "Saying no respectfully protects relationships and my wellbeing." }
+              { thought: "אני תמיד מקלקל הכל.", evidence_for: ["עשיתי טעות לאחרונה.", "אני זוכר כישלונות יותר מהצלחות."], evidence_against: ["עשיתי הרבה דברים טוב.", "טעות אחת לא מגדירה 'תמיד'."], balanced_conclusion: "עשיתי טעויות וגם הצלחתי. אני יכול ללמוד ולהשתפר." },
+              { thought: "הם לא אוהבים אותי.", evidence_for: ["הם ענו מאוחר פעם אחת.", "הם היו שקטים בפעם האחרונה."], evidence_against: ["הם היו ידידותיים בעבר.", "יש סיבות רבות לשקט."], balanced_conclusion: "אני לא יודע את מחשבותיהם. אני יכול לבדוק בשלווה או לחכות למידע נוסף." },
+              { thought: "אם אני חרד, אני לא יכול להתמודד.", evidence_for: ["חרדה מרגישה עצימה.", "אני רוצה לברוח כשאני חרד."], evidence_against: ["התמודדתי עם חרדה בעבר.", "חרדה עולה ויורדת."], balanced_conclusion: "חרדה אינה נוחה אבל ניתנת לניהול. אני יכול לפעול כשהיא נוכחת." },
+              { thought: "אני לא משתפר.", evidence_for: ["ההתקדמות מרגישה איטית.", "אני משווה את עצמי לאחרים."], evidence_against: ["עשיתי צעדים קטנים.", "למידה היא הדרגתית."], balanced_conclusion: "התקדמות יכולה להיות איטית ואמיתית. צעדים קטנים עדיין נחשבים." },
+              { thought: "אני חייב לעשות הכל בצורה מושלמת.", evidence_for: ["אני מעריך איכות.", "שלמות לעתים מונעת ביקורת."], evidence_against: ["שלמות אינה נדרשת להצלחה.", "'מספיק טוב' מפנה זמן ומפחית לחץ."], balanced_conclusion: "אני יכול לשאוף לאיכות תוך מתן מקום ל'מספיק טוב' כשזה אפקטיבי." },
+              { thought: "אם אגיד לא, אדחה.", evidence_for: ["אני דואג לאכזב אנשים.", "היו לי קונפליקטים בעבר."], evidence_against: ["הרבה אנשים מכבדים גבולות.", "אני יכול לומר לא בנימוס ולהציע חלופות."], balanced_conclusion: "אמירת לא בכבוד מגנה על מערכות יחסים ועל הרווחה שלי." }
             ]
           },
           defusion_cards: {
             cards: [
-              { thought: "I'm not good enough.", defuse_lines: ["I'm having the thought that I'm not good enough.", "Thanks, mind. Interesting story.", "This is a thought, not a fact."] },
-              { thought: "Something bad will happen.", defuse_lines: ["I'm noticing a 'danger prediction' thought.", "My mind is trying to protect me.", "I can take one small step anyway."] },
-              { thought: "They're judging me.", defuse_lines: ["I'm having the thought they're judging me.", "I can't read minds. I can act on my values.", "Let this thought ride in the back seat."] },
-              { thought: "I can't handle this feeling.", defuse_lines: ["I'm noticing the thought 'I can't handle it'.", "Feelings are waves; they change.", "I can make room and keep going."] },
-              { thought: "I must fix everything now.", defuse_lines: ["There's the 'urgent fixer' thought.", "I can pause and choose one wise next step.", "Slow is smooth; smooth is fast."] },
-              { thought: "If it's hard, I should quit.", defuse_lines: ["I'm having the thought 'quit'.", "Hard can mean 'new', not 'wrong'.", "I can do the smallest version (10%)."] }
+              { thought: "אני לא מספיק טוב.", defuse_lines: ["יש לי את המחשבה שאני לא מספיק טוב.", "תודה, מוח. סיפור מעניין.", "זאת מחשבה, לא עובדה."] },
+              { thought: "משהו רע יקרה.", defuse_lines: ["אני שם לב למחשבת 'ניבוי סכנה'.", "המוח שלי מנסה להגן עליי.", "אני יכול לעשות צעד קטן אחד ממילא."] },
+              { thought: "הם שופטים אותי.", defuse_lines: ["יש לי את המחשבה שהם שופטים אותי.", "אני לא יכול לקרוא מחשבות. אני יכול לפעול לפי ערכיי.", "תן למחשבה הזאת לנסוע במושב האחורי."] },
+              { thought: "אני לא יכול להתמודד עם התחושה הזאת.", defuse_lines: ["אני שם לב למחשבה 'אני לא יכול להתמודד'.", "רגשות הם גלים; הם משתנים.", "אני יכול לפנות מקום ולהמשיך."] },
+              { thought: "אני חייב לתקן הכל עכשיו.", defuse_lines: ["הנה מחשבת 'המתקן הדחוף'.", "אני יכול להשהות ולבחור צעד חכם הבא.", "איטי הוא חלק; חלק הוא מהיר."] },
+              { thought: "אם קשה, כדאי לוותר.", defuse_lines: ["יש לי את המחשבה 'לוותר'.", "קשה יכול להיות 'חדש', לא 'לא נכון'.", "אני יכול לעשות את הגרסה הקטנה ביותר (10%)."] }
             ]
           },
           tipp_skills: {
-            situation: "Your emotions are at 8/10 or higher and you need to come down fast.",
+            situation: "הרגשות שלך בשמינית ומעלה ואתה צריך לרדת מהר.",
             skills: [
-              { letter: "T", name: "Temperature", description: "Cold water on face, ice cube, cold shower" },
-              { letter: "I", name: "Intense exercise", description: "Run, jump, push-ups for 60 seconds" },
-              { letter: "P", name: "Paced breathing", description: "Breathe out longer than in (4 in / 6 out)" },
-              { letter: "P", name: "Paired muscle relaxation", description: "Tense then release muscle groups" }
+              { letter: "T", name: "טמפרטורה", description: "מים קרים על הפנים, קוביית קרח, מקלחת קרה" },
+              { letter: "I", name: "פעילות גופנית עצימה", description: "ריצה, קפיצה, שכיבות שמיכה ל-60 שניות" },
+              { letter: "P", name: "נשימה בקצב", description: "נשום החוצה יותר מאשר פנימה (4 פנימה / 6 החוצה)" },
+              { letter: "P", name: "הרפיית שרירים זוגית", description: "כווץ ואחר כך שחרר קבוצות שרירים" }
             ],
-            actions: ["Splash cold water on your face for 30 seconds.", "Do 20 jumping jacks right now.", "Breathe: 4 in, hold 4, 6 out—repeat 5 times."]
+            actions: ["הזלף מים קרים על פניך 30 שניות.", "עשה 20 קפיצות ג'ק עכשיו.", "נשום: 4 פנימה, החזק 4, 6 החוצה - חזור 5 פעמים."]
           },
           accepts: {
             items: [
-              { letter: "A", name: "Activities", description: "Do something engaging", action: "Watch a 5-minute video, play a quick game, or clean one surface." },
-              { letter: "C", name: "Contributing", description: "Help someone else", action: "Send a kind message, do one helpful thing, or share something useful." },
-              { letter: "C", name: "Comparisons", description: "Compare to when you coped before", action: "Remember: You've survived 100% of your worst days so far." },
-              { letter: "E", name: "Emotions", description: "Create a different emotion", action: "Watch something funny, listen to upbeat music, or read something calming." },
-              { letter: "P", name: "Pushing away", description: "Mentally put the situation aside", action: "Imagine putting the problem in a box on a shelf for later." },
-              { letter: "T", name: "Thoughts", description: "Fill your mind with other thoughts", action: "Count backwards from 100 by 7s, list countries A-Z, or describe the room." },
-              { letter: "S", name: "Sensations", description: "Create strong physical sensations", action: "Hold ice, take a hot/cold shower, or squeeze a stress ball hard." }
+              { letter: "A", name: "פעילויות", description: "עשה משהו מעסיק", action: "צפה בסרטון של 5 דקות, שחק משחק מהיר, או נקה משטח אחד." },
+              { letter: "C", name: "תרומה", description: "עזור למישהו אחר", action: "שלח הודעה נחמדה, עשה דבר מועיל אחד, או שתף משהו שימושי." },
+              { letter: "C", name: "השוואות", description: "השווה לפעמים שהתמודדת לפני", action: "זכור: שרדת 100% מהימים הגרועים ביותר שלך עד כה." },
+              { letter: "E", name: "רגשות", description: "צור רגש שונה", action: "צפה במשהו מצחיק, הקשב למוסיקה עליזה, או קרא משהו מרגיע." },
+              { letter: "P", name: "דחיקה הצידה", description: "שים את המצב בצד נפשית", action: "דמיין שאתה שם את הבעיה בקופסה על מדף לאחר כך." },
+              { letter: "T", name: "מחשבות", description: "מלא את המוח במחשבות אחרות", action: "ספור אחורה מ-100 ב-7, רשום מדינות א-ת, או תאר את החדר." },
+              { letter: "S", name: "תחושות", description: "צור תחושות גופניות חזקות", action: "אחוז קרח, קח מקלחת חמה/קרה, או לחץ כדור לחץ בחוזקה." }
             ]
           },
           improve: {
             items: [
-              { letter: "I", name: "Imagery", description: "Visualize a peaceful or safe place", quick_action: "Close your eyes. Picture a place you feel calm (real or imagined)." },
-              { letter: "M", name: "Meaning", description: "Find purpose in the pain", quick_action: "Ask: What can I learn? How might this help me grow?" },
-              { letter: "P", name: "Prayer", description: "Connect to something larger", quick_action: "Say a phrase that grounds you or ask for support from your values/beliefs." },
-              { letter: "R", name: "Relaxation", description: "Relax your body", quick_action: "Tense and release: shoulders, jaw, hands. Breathe slowly." },
-              { letter: "O", name: "One thing in the moment", description: "Focus fully on one small task", quick_action: "Pick one action: wash a dish, water a plant, fold one item." },
-              { letter: "V", name: "Vacation", description: "Take a brief mental break", quick_action: "Give yourself 10 minutes off from the problem. Set a timer." },
-              { letter: "E", name: "Encouragement", description: "Be your own cheerleader", quick_action: "Say: 'I can handle this. I've done hard things before.'" }
+              { letter: "I", name: "דמיון", description: "דמיין מקום שלו או בטוח", quick_action: "עצום עיניים. דמיין מקום שאתה מרגיש בו רגוע (אמיתי או מדומיין)." },
+              { letter: "M", name: "משמעות", description: "מצא מטרה בכאב", quick_action: "שאל: מה אני יכול ללמוד? איך זה יכול לעזור לי לצמוח?" },
+              { letter: "P", name: "תפילה", description: "התחבר למשהו גדול יותר", quick_action: "אמור משפט שמעגן אותך או בקש תמיכה מהערכים/אמונות שלך." },
+              { letter: "R", name: "הרפיה", description: "הרגע את הגוף", quick_action: "כווץ ושחרר: כתפיים, לסת, ידיים. נשום לאט." },
+              { letter: "O", name: "דבר אחד ברגע", description: "התמקד לחלוטין במשימה קטנה אחת", quick_action: "בחר פעולה אחת: שטוף צלחת, השקה צמח, קפל פריט אחד." },
+              { letter: "V", name: "חופשה", description: "קח הפסקה נפשית קצרה", quick_action: "תן לעצמך 10 דקות הפסקה מהבעיה. הגדר טיימר." },
+              { letter: "E", name: "עידוד", description: "היה המעודד של עצמך", quick_action: "אמור: 'אני יכול להתמודד עם זה. עשיתי דברים קשים לפני.'" }
             ]
           },
           self_soothe: {
             senses: [
-              { sense: "Vision", actions: ["Look at nature or a calming image.", "Watch clouds or water move.", "Light a candle and watch the flame."] },
-              { sense: "Hearing", actions: ["Listen to calming music or nature sounds.", "Play a song that makes you feel safe.", "Listen to the sound of rain or wind."] },
-              { sense: "Smell", actions: ["Smell something pleasant (lotion, coffee, flowers).", "Light a scented candle or incense.", "Take a deep breath of fresh air."] },
-              { sense: "Taste", actions: ["Eat something you enjoy slowly.", "Savor a piece of chocolate or tea.", "Notice the flavors and textures."] },
-              { sense: "Touch", actions: ["Hold something soft (blanket, pet).", "Take a warm shower or bath.", "Massage your hands with lotion."] }
+              { sense: "ראייה", actions: ["הסתכל על טבע או תמונה מרגיעה.", "צפה בעננים או מים שנעים.", "הדלק נר וצפה בלהבה."] },
+              { sense: "שמיעה", actions: ["הקשב למוסיקה מרגיעה או צלילי טבע.", "נגן שיר שגורם לך להרגיש בטוח.", "הקשב לצליל הגשם או הרוח."] },
+              { sense: "ריח", actions: ["הריח משהו נעים (קרם, קפה, פרחים).", "הדלק נר מבושם או קטורת.", "קח נשימה עמוקה של אוויר צח."] },
+              { sense: "טעם", actions: ["אכול משהו שאוהב לאט.", "味道 חתיכת שוקולד או תה.", "שים לב לטעמים ולמרקמים."] },
+              { sense: "מגע", actions: ["אחוז במשהו רך (שמיכה, חיית מחמד).", "קח מקלחת או אמבטיה חמה.", "עסה ידיים עם קרם."] }
             ]
           }
         }
