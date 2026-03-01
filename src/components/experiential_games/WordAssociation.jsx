@@ -37,7 +37,7 @@ export default function WordAssociation({ onClose }) {
   };
 
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-4 w-full min-w-0">
       <Card className="p-6 border-0" style={{
         borderRadius: '20px',
         background: 'rgba(255, 255, 255, 0.95)',
@@ -70,7 +70,7 @@ export default function WordAssociation({ onClose }) {
                 onChange={(e) => setUserWord(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
                 placeholder={t('mind_games.word_association.input_placeholder')}
-                className="flex-1"
+                className="flex-1 min-w-0"
                 style={{ borderRadius: '12px' }}
               />
               <Button

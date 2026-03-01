@@ -47,7 +47,7 @@ export default function QuickWin({ onClose }) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full min-w-0">
       <p className="text-sm font-medium" style={{ color: '#1A3A34' }}>
         {t('mind_games.quick_win.log_prompt')}
       </p>
@@ -58,6 +58,7 @@ export default function QuickWin({ onClose }) {
           onChange={(e) => setCustomWin(e.target.value)}
           placeholder={t('mind_games.quick_win.input_placeholder')}
           onKeyDown={(e) => e.key === 'Enter' && handleCustomSubmit()}
+          className="flex-1 min-w-0"
           style={{ borderRadius: '12px' }}
         />
         <Button

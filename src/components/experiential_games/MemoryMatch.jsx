@@ -73,7 +73,7 @@ export default function MemoryMatch({ onClose }) {
     flippedIndices.includes(index) || matchedPairs.includes(cards[index].id);
 
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-4 w-full min-w-0">
       <Card className="p-6 border-0" style={{
         borderRadius: '20px',
         background: 'rgba(255, 255, 255, 0.95)',
