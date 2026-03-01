@@ -368,6 +368,7 @@ export default function GoalCoachWizard({ onClose }) {
                       </div>
                       <div>
                         <p className="font-semibold text-gray-800">{t(`goal_coach_wizard.categories.${selectedCategory.i18nKey}.label`)}</p>
+                        <p className="text-xs text-gray-600">{t(`goal_coach_wizard.categories.${selectedCategory.i18nKey}.subtitle`)}</p>
                       </div>
                     </div>
                   </CardContent>
