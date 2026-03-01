@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronDown, ChevronUp, Edit2, Trash2, Heart, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const moodOptions = [
   { value: 'excellent', emoji: '😊', label: 'Excellent' },
@@ -43,6 +44,7 @@ const categoryColors = {
 };
 
 export default function StandaloneDailyCheckIn() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [step, setStep] = useState(1);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -268,7 +270,7 @@ export default function StandaloneDailyCheckIn() {
   };
 
   const handleDelete = () => {
-    if (confirm('Delete this check-in? This action cannot be undone.')) {
+    if (confirm(t('daily_check_in.delete_confirm'))) {
       deleteMutation.mutate();
     }
   };
@@ -326,7 +328,7 @@ export default function StandaloneDailyCheckIn() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className="text-4xl">{completedMood?.emoji}</span>
-                <CardTitle className="text-lg">Daily Check-in Complete</CardTitle>
+                <CardTitle className="text-lg">{t('daily_check_in.complete_title')}</CardTitle>
               </div>
               <div className="flex items-center gap-2">
                 <Button
@@ -337,7 +339,7 @@ export default function StandaloneDailyCheckIn() {
                     handleEdit();
                   }}
                   className="h-9 w-9"
-                  aria-label="Edit check-in"
+                  aria-label={t('daily_check_in.aria_edit')}
                 >
                   <Edit2 className="w-4 h-4" />
                 </Button>
@@ -349,7 +351,7 @@ export default function StandaloneDailyCheckIn() {
                     handleDelete();
                   }}
                   className="h-9 w-9"
-                  aria-label="Delete check-in"
+                  aria-label={t('daily_check_in.aria_delete')}
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
@@ -367,7 +369,7 @@ export default function StandaloneDailyCheckIn() {
               >
                 <CardContent className="p-6 space-y-4">
                   <div>
-                    <p className="text-sm font-medium text-gray-500 mb-2">Emotions:</p>
+                    <p className="text-sm font-medium text-gray-500 mb-2">{t('daily_check_in.emotions_label')}</p>
                     <div className="flex flex-wrap gap-2">
                       {todayMood.emotions?.map((emotion) => {
                         const category = Object.keys(emotionCategories).find(cat => 
@@ -376,7 +378,7 @@ export default function StandaloneDailyCheckIn() {
                         const colors = categoryColors[category];
                         return (
                           <Badge key={emotion} className={cn(colors.bg, colors.text)}>
-                            {emotion}
+                            {t(`daily_check_in.emotions.${emotion}`, { defaultValue: emotion })}
                           </Badge>
                         );
                       })}
@@ -384,7 +386,7 @@ export default function StandaloneDailyCheckIn() {
                   </div>
                   
                   <div>
-                    <p className="text-sm font-medium text-gray-500 mb-2">Intensity:</p>
+                    <p className="text-sm font-medium text-gray-500 mb-2">{t('daily_check_in.intensity_label')}</p>
                     <div className="flex items-center gap-3">
                       <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
                         <div 
@@ -428,7 +430,7 @@ export default function StandaloneDailyCheckIn() {
               }}>
                 <Heart className="w-6 h-6" style={{ color: '#26A69A' }} />
               </div>
-              <CardTitle className="text-xl">Daily Check-in</CardTitle>
+              <CardTitle className="text-xl">{t('daily_check_in.title')}</CardTitle>
             </div>
             <motion.button
               animate={{ 
@@ -454,8 +456,8 @@ export default function StandaloneDailyCheckIn() {
                 border: 'none',
                 outline: 'none'
               }}
-              aria-label="Guided introduction video"
-              title="Guided introduction video"
+              aria-label={t('daily_check_in.aria_guided_video')}
+              title={t('daily_check_in.aria_guided_video')}
             >
               <User className="w-5 h-5" style={{ color: '#26A69A' }} strokeWidth={2} />
             </motion.button>
@@ -482,7 +484,7 @@ export default function StandaloneDailyCheckIn() {
               className="space-y-4"
             >
               <h3 className="text-base font-semibold text-gray-800">
-                How are you feeling overall?
+                {t('daily_check_in.step1_question')}
               </h3>
               <div className="grid grid-cols-5 gap-2 md:gap-3">
                 {moodOptions.map((mood) => (
@@ -501,7 +503,7 @@ export default function StandaloneDailyCheckIn() {
                         ? "shadow-lg"
                         : "hover:opacity-80"
                     )}
-                    aria-label={`Select ${mood.label} mood`}
+                    aria-label={t('daily_check_in.aria_select_mood', { label: t(`daily_check_in.moods.${mood.value}`, { defaultValue: mood.label }) })}
                     aria-pressed={formData.mood === mood.value}
                   >
                     <div 
@@ -517,7 +519,9 @@ export default function StandaloneDailyCheckIn() {
                     >
                       <span className="text-2xl md:text-3xl">{mood.emoji}</span>
                     </div>
-                    <div className="text-xs font-medium text-gray-700 text-center leading-tight whitespace-nowrap">{mood.label}</div>
+                    <div className="text-xs font-medium text-gray-700 text-center leading-tight whitespace-nowrap">
+                      {t(`daily_check_in.moods.${mood.value}`, { defaultValue: mood.label })}
+                    </div>
                   </button>
                 ))}
               </div>
@@ -532,7 +536,7 @@ export default function StandaloneDailyCheckIn() {
               className="space-y-4"
             >
               <h3 className="text-base font-semibold text-gray-800">
-                What emotions are you experiencing?
+                {t('daily_check_in.step2_question')}
               </h3>
               
               {Object.entries(emotionCategories).map(([category, emotions]) => {
@@ -540,7 +544,7 @@ export default function StandaloneDailyCheckIn() {
                 return (
                   <div key={category}>
                     <p className="text-sm font-medium text-gray-600 mb-2 capitalize">
-                      {category} Emotions
+                      {t(`daily_check_in.category_${category}`)}
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {emotions.map((emotion) => (
@@ -559,10 +563,10 @@ export default function StandaloneDailyCheckIn() {
                               ? cn(colors.selected, colors.text, "border-transparent scale-105")
                               : "border-gray-300 text-gray-700 hover:border-gray-400"
                           )}
-                          aria-label={`${emotion} emotion`}
+                          aria-label={t(`daily_check_in.emotions.${emotion}`, { defaultValue: emotion })}
                           aria-pressed={formData.emotions.includes(emotion)}
                         >
-                          {emotion}
+                          {t(`daily_check_in.emotions.${emotion}`, { defaultValue: emotion })}
                         </button>
                       ))}
                     </div>
@@ -580,15 +584,15 @@ export default function StandaloneDailyCheckIn() {
               className="space-y-4"
             >
               <h3 className="text-base font-semibold text-gray-800">
-                How intense are your emotions?
+                {t('daily_check_in.step3_question')}
               </h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Low</span>
+                  <span className="text-sm text-gray-600">{t('daily_check_in.intensity_low')}</span>
                   <span className="text-3xl font-bold" style={{ color: '#26A69A' }}>
                     {formData.intensity}
                   </span>
-                  <span className="text-sm text-gray-600">High</span>
+                  <span className="text-sm text-gray-600">{t('daily_check_in.intensity_high')}</span>
                 </div>
                 <input
                   type="range"
@@ -624,7 +628,7 @@ export default function StandaloneDailyCheckIn() {
                 style={{ borderRadius: '16px' }}
               >
                 <ChevronLeft className="w-4 h-4 mr-2" />
-                Return
+                {t('daily_check_in.btn_return')}
               </Button>
             )}
             <Button
@@ -636,7 +640,7 @@ export default function StandaloneDailyCheckIn() {
                 backgroundColor: '#26A69A'
               }}
             >
-              {step === 3 ? 'Complete' : 'Continue'}
+              {step === 3 ? t('daily_check_in.btn_complete') : t('daily_check_in.btn_continue')}
             </Button>
           </div>
         </CardContent>
@@ -674,7 +678,7 @@ export default function StandaloneDailyCheckIn() {
                   border: 'none',
                   cursor: 'pointer'
                 }}
-                aria-label="Close video"
+                aria-label={t('daily_check_in.aria_close_video')}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -689,7 +693,7 @@ export default function StandaloneDailyCheckIn() {
                 style={{ maxHeight: '80vh', backgroundColor: '#000' }}
               >
                 <source src={activeVideo} type="video/mp4" />
-                Your browser does not support the video tag.
+                {t('daily_check_in.video_not_supported')}
               </video>
             </motion.div>
           </motion.div>
