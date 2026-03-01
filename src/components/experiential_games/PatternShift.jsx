@@ -72,7 +72,8 @@ export default function PatternShift({ onClose }) {
             </p>
 
             <div className="grid grid-cols-1 gap-3">
-              {pattern.options.map((option, index) => {
+              {pattern.options_keys.map((optionKey, index) => {
+                const option = optionKey.startsWith('mind_games.') ? t(optionKey) : optionKey;
                 const isSelected = selected === index;
                 const isCorrect = index === pattern.correct;
                 const showResult = selected !== null;
