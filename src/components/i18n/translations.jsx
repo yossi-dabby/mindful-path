@@ -412,6 +412,16 @@ export const translations = {
           score: "Score",
           next_question: "Next Question"
         },
+        memory_match: {
+          title: "Memory Match",
+          moves: "Moves",
+        },
+        focus_flow: {
+          title: "Focus Flow",
+        },
+        number_sequence: {
+          title: "Number Sequence",
+        },
         games: {
           thought_quiz: { title: "Thought Quiz", description: "Spot the thinking trap in a quick example." },
           reframe_pick: { title: "Reframe Pick", description: "Choose the most balanced alternative thought." },
@@ -3841,6 +3851,16 @@ export const translations = {
           score: "Score",
           next_question: "Question Suivante"
         },
+        memory_match: {
+          title: "Correspondance de Mémoire",
+          moves: "Mouvements",
+        },
+        focus_flow: {
+          title: "Flux de Concentration",
+        },
+        number_sequence: {
+          title: "Séquence de Nombres",
+        },
         games: {
           thought_quiz: { title: "Quiz de Pensées", description: "Repérez le piège de pensée dans un exemple rapide." },
           reframe_pick: { title: "Choix de Recadrage", description: "Choisissez la pensée alternative la plus équilibrée." },
@@ -5039,6 +5059,16 @@ export const translations = {
         thought_quiz: {
           score: "Punktzahl",
           next_question: "Nächste Frage"
+        },
+        memory_match: {
+          title: "Gedächtnis-Match",
+          moves: "Züge",
+        },
+        focus_flow: {
+          title: "Fokus-Fluss",
+        },
+        number_sequence: {
+          title: "Zahlenfolge",
         },
         games: {
           thought_quiz: { title: "Gedanken-Quiz", description: "Erkennen Sie die Denkfalle in einem schnellen Beispiel." },
@@ -6239,6 +6269,16 @@ export const translations = {
           score: "Punteggio",
           next_question: "Prossima Domanda"
         },
+        memory_match: {
+          title: "Abbinamento di Memoria",
+          moves: "Mosse",
+        },
+        focus_flow: {
+          title: "Flusso di Concentrazione",
+        },
+        number_sequence: {
+          title: "Sequenza di Numeri",
+        },
         games: {
           thought_quiz: { title: "Quiz di Pensieri", description: "Individua la trappola del pensiero in un esempio rapido." },
           reframe_pick: { title: "Scelta di Ristrutturazione", description: "Scegli il pensiero alternativo più equilibrato." },
@@ -7437,6 +7477,16 @@ export const translations = {
         thought_quiz: {
           score: "Pontuação",
           next_question: "Próxima Pergunta"
+        },
+        memory_match: {
+          title: "Combinação de Memória",
+          moves: "Movimentos",
+        },
+        focus_flow: {
+          title: "Fluxo de Foco",
+        },
+        number_sequence: {
+          title: "Sequência Numérica",
         },
         games: {
           thought_quiz: { title: "Quiz de Pensamentos", description: "Identifique a armadilha do pensamento em um exemplo rápido." },
