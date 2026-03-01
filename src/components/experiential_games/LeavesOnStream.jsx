@@ -26,19 +26,19 @@ export default function LeavesOnStream({ onClose }) {
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: '#5A7A72' }}>
-          Imagine a gentle stream with leaves floating by. Place sticky thoughts on leaves and watch them drift away.
+          {t('mind_games.leaves_on_stream.description')}
         </p>
 
         {!placed ? (
           <>
             <p className="text-sm font-semibold mb-2" style={{ color: '#1A3A34' }}>
-              What thought is hooking you right now?
+              {t('mind_games.leaves_on_stream.thought_prompt')}
             </p>
             <input
               type="text"
               value={thought}
               onChange={(e) => setThought(e.target.value)}
-              placeholder="e.g., I'm not good enough"
+              placeholder={t('mind_games.leaves_on_stream.thought_placeholder')}
               className="w-full p-3 mb-4 text-sm"
               style={{
                 borderRadius: '12px',
@@ -58,7 +58,7 @@ export default function LeavesOnStream({ onClose }) {
                 color: 'white'
               }}
             >
-              Place on Leaf & Watch it Float
+              {t('mind_games.leaves_on_stream.place_btn')}
             </Button>
           </>
         ) : (
@@ -76,7 +76,7 @@ export default function LeavesOnStream({ onClose }) {
               </div>
             </div>
             <p className="text-sm italic break-words whitespace-normal" style={{ color: '#5A7A72' }}>
-              Floating away...
+              {t('mind_games.leaves_on_stream.floating')}
             </p>
           </div>
         )}
@@ -87,7 +87,7 @@ export default function LeavesOnStream({ onClose }) {
           border: '1px solid rgba(159, 122, 234, 0.2)'
         }}>
           <p className="text-xs break-words whitespace-normal" style={{ color: '#5A7A72' }}>
-            You're not trying to get rid of thoughts—just noticing them without grabbing on.
+            {t('mind_games.leaves_on_stream.tip')}
           </p>
         </div>
       </Card>
