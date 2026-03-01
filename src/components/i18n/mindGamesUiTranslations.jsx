@@ -552,7 +552,10 @@ export const mindGamesUiByLanguage = {
         { question: "¿Qué forma completa el patrón: Círculo, Cuadrado, ?, Círculo?" },
         { question: "¿Qué tamaño sigue: Grande, Mediano, ?, Grande?" },
         { question: "Continúa el patrón: 1, 2, 3, 1, ?" }
-      ]
+      ],
+      option_colors: ["Rojo", "Azul", "Verde"],
+      option_shapes: ["Círculo", "Cuadrado", "Triángulo"],
+      option_sizes: ["Pequeño", "Mediano", "Grande"]
     },
     word_association: {
       title: "Asociación de Palabras",
@@ -606,6 +609,7 @@ export const mindGamesUiByLanguage = {
       emotions: ["Miedo", "Ira", "Tristeza", "Culpa", "Vergüenza"],
       check_btn: "Comprobar los Hechos",
       for_emotion: "Para {{emotion}}, pregúntate:",
+      default_prompts: ["¿Cuáles son los hechos?", "¿Estoy añadiendo interpretaciones?", "¿Esta emoción encaja?"],
       tip: "Si los hechos no apoyan la intensidad de la emoción, usa la acción opuesta u otras habilidades para cambiarla.",
       emotion_prompts: {
         fear: ["¿Hay un peligro real e inmediato?", "¿Qué es lo peor que podría pasar?", "¿Cuáles son las evidencias?"],
@@ -660,6 +664,8 @@ export const mindGamesUiByLanguage = {
       description: "La Media Sonrisa es una expresión facial suave que puede cambiar tu estado emocional. Incluso una pequeña sonrisa señala seguridad a tu sistema nervioso.",
       feel_now_prompt: "¿Cómo te sientes ahora mismo?",
       emotions: ["Tenso", "Frustrado", "Ansioso", "Triste", "Neutral"],
+      try_prompt: "Prueba esto durante 30 segundos:",
+      instructions: ["Relaja tu cara, especialmente la mandíbula.", "Levanta las comisuras de tu boca ligeramente (10%).", "Suaviza tus ojos.", "Respira lentamente."],
       practiced_btn: "Practiqué durante 30 Segundos",
       feel_after_prompt: "¿Cómo te sientes ahora?",
       result: "✓ Antes: {{before}} → Después: {{after}}\n\nIncluso un cambio sutil importa. La Media Sonrisa es una herramienta que puedes usar en cualquier lugar."
