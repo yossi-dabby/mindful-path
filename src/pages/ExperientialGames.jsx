@@ -99,7 +99,11 @@ export default function ExperientialGames() {
     if (activeGame && gameStartTime) {
       const durationSeconds = Math.floor((Date.now() - gameStartTime) / 1000);
       trackGamePlay({
-        game: activeGame,
+        game: {
+          id: activeGame.id,
+          slug: activeGame.slug,
+          title: activeGame.titleKey ? t(activeGame.titleKey) : (activeGame.title || activeGame.id),
+        },
         completed: durationSeconds >= 30, // Consider completed if played for 30+ seconds
         durationSeconds,
       });
