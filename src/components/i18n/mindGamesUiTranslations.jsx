@@ -460,6 +460,19 @@ export const mindGamesUiByLanguage = {
   },
   de: {
     common: { try_another: "Anderes versuchen" },
+    reframe_pick: {
+      situation: "Situation:",
+      automatic_thought: "Automatischer Gedanke:",
+      choose: "Wählen Sie die ausgewogenste Antwort:",
+      why_label: "Warum das funktioniert:"
+    },
+    evidence_balance: {
+      thought_label: "Gedanke:",
+      for_label: "Beweise DAFÜR:",
+      against_label: "Beweise DAGEGEN:",
+      show_conclusion: "Ausgewogene Schlussfolgerung anzeigen",
+      conclusion_label: "Ausgewogene Schlussfolgerung:"
+    },
     memory_match: {
       title: "Gedächtnis-Match",
       instructions: "Finden Sie alle passenden Paare, indem Sie auf Karten klicken.",
