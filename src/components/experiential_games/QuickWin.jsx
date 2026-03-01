@@ -77,20 +77,22 @@ export default function QuickWin({ onClose }) {
       <p className="text-xs" style={{ color: '#5A7A72' }}>
         {t('mind_games.quick_win.preset_prompt')}
       </p>
-      <div className="grid grid-cols-2 gap-2 max-h-56 overflow-y-auto overflow-x-hidden min-w-0 pr-1">
+      <div className="grid grid-cols-2 gap-2 max-h-56 overflow-y-auto overflow-x-hidden min-w-0 pb-1 pr-1">
         {quickWinPresets.map((preset, index) => (
           <Button
             key={index}
             variant="outline"
             size="sm"
-            className="h-auto py-2 px-3 text-left justify-start break-words min-w-0 w-full active:scale-95 active:opacity-80 transition-all"
+            className="h-auto py-2 px-3 text-left justify-start min-w-0 w-full active:scale-95 active:opacity-80 transition-all overflow-hidden"
             style={{
               borderRadius: '10px',
-              borderColor: 'rgba(38, 166, 154, 0.2)'
+              borderColor: 'rgba(38, 166, 154, 0.2)',
+              whiteSpace: 'normal',
+              wordBreak: 'break-word'
             }}
             onClick={() => handlePresetClick(preset)}
           >
-            <span className="text-xs leading-tight break-words">{preset}</span>
+            <span className="text-xs leading-tight" style={{ whiteSpace: 'normal', wordBreak: 'break-word', display: 'block', width: '100%' }}>{preset}</span>
           </Button>
         ))}
       </div>
