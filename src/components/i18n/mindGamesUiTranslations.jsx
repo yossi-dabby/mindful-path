@@ -59,6 +59,19 @@ export const mindGamesUiStrings = {
       { rule: "Pattern: Multiply by 2 each time" }
     ]
   },
+  reframe_pick: {
+    situation: "Situation:",
+    automatic_thought: "Automatic thought:",
+    choose: "Choose the most balanced response:",
+    why_label: "Why this works:"
+  },
+  evidence_balance: {
+    thought_label: "Thought:",
+    for_label: "Evidence FOR:",
+    against_label: "Evidence AGAINST:",
+    show_conclusion: "Show Balanced Conclusion",
+    conclusion_label: "Balanced Conclusion:"
+  },
   quick_win: {
     log_prompt: "Log one small win from today:",
     input_placeholder: "Type your win...",
