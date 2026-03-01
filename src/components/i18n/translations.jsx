@@ -7661,6 +7661,7 @@ const mindGamesUi = {
 
 ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'].forEach((lng) => {
   const current = translations[lng]?.translation?.mind_games || {};
+  const lngGames = mindGamesUi[lng] || {};
   translations[lng].translation.mind_games = {
     ...current,
     common: { ...(current.common || {}), ...mindGamesUi.common },
@@ -7677,10 +7678,10 @@ const mindGamesUi = {
     accepts: { ...(current.accepts || {}), ...mindGamesUi.accepts },
     improve: { ...(current.improve || {}), ...mindGamesUi.improve },
     self_soothe: { ...(current.self_soothe || {}), ...mindGamesUi.self_soothe },
-    memory_match: { ...(current.memory_match || {}), ...mindGamesUi.memory_match },
-    focus_flow: { ...(current.focus_flow || {}), ...mindGamesUi.focus_flow },
-    pattern_shift: { ...(current.pattern_shift || {}), ...mindGamesUi.pattern_shift },
-    word_association: { ...(current.word_association || {}), ...mindGamesUi.word_association },
-    number_sequence: { ...(current.number_sequence || {}), ...mindGamesUi.number_sequence },
+    memory_match: { ...(current.memory_match || {}), ...mindGamesUi.memory_match, ...(lngGames.memory_match || {}) },
+    focus_flow: { ...(current.focus_flow || {}), ...mindGamesUi.focus_flow, ...(lngGames.focus_flow || {}) },
+    pattern_shift: { ...(current.pattern_shift || {}), ...mindGamesUi.pattern_shift, ...(lngGames.pattern_shift || {}) },
+    word_association: { ...(current.word_association || {}), ...mindGamesUi.word_association, ...(lngGames.word_association || {}) },
+    number_sequence: { ...(current.number_sequence || {}), ...mindGamesUi.number_sequence, ...(lngGames.number_sequence || {}) },
   };
 });
