@@ -141,4 +141,49 @@ describe('translations', () => {
       }
     }
   });
+
+  it('all languages have thought_coach new translation keys', () => {
+    const newKeys = [
+      'go_back_step_aria', 'go_back_nav_aria', 'step_label',
+      'step_details_situation_label', 'step_details_thoughts_label', 'step_details_emotions_label',
+      'step_intensity_label', 'step_analysis_subtitle', 'step_analysis_cbt_note',
+      'step_analysis_balanced_label', 'step_analysis_balanced_optional'
+    ];
+    for (const lng of LANGUAGES) {
+      const tc = translations[lng].translation.thought_coach;
+      expect(tc, `Missing thought_coach for ${lng}`).toBeDefined();
+      for (const key of newKeys) {
+        expect(tc[key], `Missing thought_coach.${key} for ${lng}`).toBeTruthy();
+      }
+    }
+  });
+
+  it('all languages have thought_coach thought_types with label and description for all 10 types', () => {
+    const typeKeys = [
+      'fear_anxiety', 'self_criticism', 'catastrophizing', 'guilt_shame', 'anger_resentment',
+      'social_anxiety', 'perfectionism', 'overthinking', 'hopelessness', 'other'
+    ];
+    for (const lng of LANGUAGES) {
+      const tc = translations[lng].translation.thought_coach;
+      expect(tc?.thought_types, `Missing thought_coach.thought_types for ${lng}`).toBeDefined();
+      for (const typeKey of typeKeys) {
+        expect(tc.thought_types[typeKey]?.label, `Missing thought_coach.thought_types.${typeKey}.label for ${lng}`).toBeTruthy();
+        expect(tc.thought_types[typeKey]?.description, `Missing thought_coach.thought_types.${typeKey}.description for ${lng}`).toBeTruthy();
+      }
+    }
+  });
+
+  it('all languages have thought_coach emotion_options for all 13 emotions', () => {
+    const emotionKeys = [
+      'anxious', 'worried', 'sad', 'angry', 'frustrated', 'guilty', 'ashamed',
+      'hopeless', 'overwhelmed', 'confused', 'scared', 'lonely', 'disappointed'
+    ];
+    for (const lng of LANGUAGES) {
+      const tc = translations[lng].translation.thought_coach;
+      expect(tc?.emotion_options, `Missing thought_coach.emotion_options for ${lng}`).toBeDefined();
+      for (const emotionKey of emotionKeys) {
+        expect(tc.emotion_options[emotionKey], `Missing thought_coach.emotion_options.${emotionKey} for ${lng}`).toBeTruthy();
+      }
+    }
+  });
 });
