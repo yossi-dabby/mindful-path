@@ -165,29 +165,6 @@
   .bg-energy-gradient {
     background: linear-gradient(135deg, rgb(var(--bg)) 0%, rgb(255 250 235) 100%);
   }
-
-  /* Theme-specific backgrounds that adapt to dark mode */
-  .bg-theme-forest {
-    background: linear-gradient(135deg, rgb(var(--bg)) 0%, rgba(240, 248, 240, 0.5) 100%);
-  }
-
-  .bg-theme-lavender {
-    background: linear-gradient(135deg, rgb(var(--bg)) 0%, rgba(240, 235, 255, 0.5) 100%);
-  }
-
-  .bg-theme-minimal {
-    background: linear-gradient(135deg, rgb(var(--bg)) 0%, rgba(245, 245, 247, 0.5) 100%);
-  }
-
-  /* Dark mode overrides for all gradient backgrounds */
-  .dark .bg-warm-gradient,
-  .dark .bg-calm-gradient,
-  .dark .bg-energy-gradient,
-  .dark .bg-theme-forest,
-  .dark .bg-theme-lavender,
-  .dark .bg-theme-minimal {
-    background: linear-gradient(135deg, rgb(var(--bg)) 0%, rgb(var(--surface-2)) 100%);
-  }
   
   /* Enhanced spacing utilities */
   .page-container {
