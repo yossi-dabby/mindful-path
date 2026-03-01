@@ -34,7 +34,7 @@ export default function MountainMeditation({ onClose }) {
               border: '1px solid rgba(38, 166, 154, 0.2)'
             }}>
               <p className="text-xs mb-2" style={{ color: '#5A7A72' }}>
-                Step {step + 1} of {steps.length}
+                {t('mind_games.mountain_meditation.step_of', { current: step + 1, total: steps.length })}
               </p>
               <p className="text-base break-words whitespace-normal text-center" style={{ color: '#1A3A34' }}>
                 {steps[step]}
@@ -49,7 +49,7 @@ export default function MountainMeditation({ onClose }) {
                 color: 'white'
               }}
             >
-              {step === steps.length - 1 ? 'Finish' : 'Next'}
+              {step === steps.length - 1 ? t('common.finish') : t('common.next')}
             </Button>
           </>
         ) : (
@@ -60,7 +60,7 @@ export default function MountainMeditation({ onClose }) {
           }}>
             <p className="text-lg mb-2">🏔️</p>
             <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
-              You practiced Mountain Meditation. Use this metaphor anytime you need to remember your stability.
+              {t('mind_games.mountain_meditation.completion')}
             </p>
           </div>
         )}
