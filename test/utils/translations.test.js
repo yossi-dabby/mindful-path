@@ -83,4 +83,40 @@ describe('translations', () => {
     expect(mindGames.focus_flow?.title).toBe('Focus Flow');
     expect(mindGames.number_sequence?.title).toBe('Number Sequence');
   });
+
+  it('all languages have daily_check_in core UI keys translated', () => {
+    const coreKeys = ['title', 'complete_title', 'step1_question', 'step2_question', 'step3_question',
+      'intensity_low', 'intensity_high', 'emotions_label', 'intensity_label',
+      'category_positive', 'category_intermediate', 'category_negative',
+      'btn_return', 'btn_continue', 'btn_complete', 'delete_confirm'];
+    for (const lng of LANGUAGES) {
+      const dci = translations[lng].translation.daily_check_in;
+      expect(dci, `Missing daily_check_in for ${lng}`).toBeDefined();
+      for (const key of coreKeys) {
+        expect(dci[key], `Missing daily_check_in.${key} for ${lng}`).toBeTruthy();
+      }
+    }
+  });
+
+  it('all languages have daily_check_in mood translations', () => {
+    const moodKeys = ['excellent', 'good', 'okay', 'low', 'very_low'];
+    for (const lng of LANGUAGES) {
+      const moods = translations[lng].translation.daily_check_in?.moods;
+      expect(moods, `Missing daily_check_in.moods for ${lng}`).toBeDefined();
+      for (const key of moodKeys) {
+        expect(moods[key], `Missing daily_check_in.moods.${key} for ${lng}`).toBeTruthy();
+      }
+    }
+  });
+
+  it('all languages have daily_check_in emotion translations', () => {
+    const emotionSample = ['Happy', 'Sad', 'Anxious', 'Peaceful', 'Confused'];
+    for (const lng of LANGUAGES) {
+      const emotions = translations[lng].translation.daily_check_in?.emotions;
+      expect(emotions, `Missing daily_check_in.emotions for ${lng}`).toBeDefined();
+      for (const emotion of emotionSample) {
+        expect(emotions[emotion], `Missing daily_check_in.emotions.${emotion} for ${lng}`).toBeTruthy();
+      }
+    }
+  });
 });
