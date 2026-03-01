@@ -77,7 +77,7 @@ export default function QuickWin({ onClose }) {
       <p className="text-xs" style={{ color: '#5A7A72' }}>
         {t('mind_games.quick_win.preset_prompt')}
       </p>
-      <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto overflow-x-hidden min-w-0">
+      <div className="grid grid-cols-2 gap-2 max-h-56 overflow-y-auto overflow-x-hidden min-w-0 pr-1">
         {quickWinPresets.map((preset, index) => (
           <Button
             key={index}
