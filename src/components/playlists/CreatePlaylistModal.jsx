@@ -67,7 +67,7 @@ export default function CreatePlaylistModal({ isOpen, onClose }) {
               type="submit" 
               disabled={!name.trim() || createMutation.isPending}
               style={{ 
-                backgroundColor: 'rgb(var(--accent))',
+                backgroundColor: 'rgb(var(--theme-accent))',
                 color: 'rgb(var(--accent-contrast))'
               }}
             >

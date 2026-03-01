@@ -142,7 +142,7 @@ export default function PersonalizedFeed() {
         backgroundColor: 'rgb(var(--surface))'
       }}>
         <CardContent className="p-8 text-center">
-          <p className="text-sm" style={{ color: 'rgb(var(--muted))' }}>Loading recommendations...</p>
+          <p className="text-sm" style={{ color: 'rgb(var(--theme-muted))' }}>Loading recommendations...</p>
         </CardContent>
       </Card>
     );
@@ -165,13 +165,13 @@ export default function PersonalizedFeed() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 icon-default" style={{ color: 'rgb(var(--accent))' }} strokeWidth={2} />
+              <Sparkles className="w-5 h-5 icon-default" style={{ color: 'rgb(var(--theme-accent))' }} strokeWidth={2} />
               <CardTitle style={{ color: 'rgb(var(--text))' }}>Recommended for You</CardTitle>
             </div>
             <Badge variant="secondary" className="border-0" style={{ 
               borderRadius: 'var(--r-sm)',
-              backgroundColor: 'rgb(var(--accent) / 0.1)',
-              color: 'rgb(var(--accent))'
+              backgroundColor: 'rgb(var(--theme-accent) / 0.1)',
+              color: 'rgb(var(--theme-accent))'
             }}>
               {recommendations.reason}
             </Badge>
@@ -190,7 +190,7 @@ export default function PersonalizedFeed() {
                 style={{ 
                   borderRadius: 'var(--r-md)',
                   backgroundColor: 'rgb(var(--surface-2))',
-                  border: '1px solid rgb(var(--border))'
+                  border: '1px solid rgb(var(--theme-border))'
                 }}
               >
                 <div className="flex items-start gap-4">
@@ -204,20 +204,20 @@ export default function PersonalizedFeed() {
                     <h3 className="font-semibold mb-1" style={{ color: 'rgb(var(--text))' }}>
                       {audio.title}
                     </h3>
-                    <p className="text-sm mb-2" style={{ color: 'rgb(var(--muted))' }}>
+                    <p className="text-sm mb-2" style={{ color: 'rgb(var(--theme-muted))' }}>
                       {audio.description}
                     </p>
                     <div className="flex items-center gap-2 flex-wrap mb-3">
                       <Badge variant="outline" className="text-xs" style={{ 
                         borderRadius: 'var(--r-xs)',
-                        borderColor: 'rgb(var(--border))'
+                        borderColor: 'rgb(var(--theme-border))'
                       }}>
                         <Clock className="w-3 h-3 mr-1" strokeWidth={2} />
                         {audio.duration_minutes} min
                       </Badge>
                       <Badge variant="outline" className="text-xs capitalize" style={{ 
                         borderRadius: 'var(--r-xs)',
-                        borderColor: 'rgb(var(--border))'
+                        borderColor: 'rgb(var(--theme-border))'
                       }}>
                         {audio.category.replace('_', ' ')}
                       </Badge>
@@ -226,7 +226,7 @@ export default function PersonalizedFeed() {
                       <Link to={createPageUrl('Exercises')}>
                         <Button size="sm" className="transition-calm" style={{ 
                           borderRadius: 'var(--r-sm)',
-                          backgroundColor: 'rgb(var(--accent))',
+                          backgroundColor: 'rgb(var(--theme-accent))',
                           color: 'rgb(var(--accent-contrast))'
                         }}>
                           Listen Now
@@ -242,7 +242,7 @@ export default function PersonalizedFeed() {
                           }}
                         >
                           <ThumbsUp className="w-4 h-4 icon-default" style={{ 
-                            color: getRating('audio', audio.id) === true ? 'rgb(var(--success))' : 'rgb(var(--muted))'
+                            color: getRating('audio', audio.id) === true ? 'rgb(var(--success))' : 'rgb(var(--theme-muted))'
                           }} strokeWidth={2} />
                         </button>
                         <button
@@ -254,7 +254,7 @@ export default function PersonalizedFeed() {
                           }}
                         >
                           <ThumbsDown className="w-4 h-4 icon-default" style={{ 
-                            color: getRating('audio', audio.id) === false ? 'rgb(var(--danger))' : 'rgb(var(--muted))'
+                            color: getRating('audio', audio.id) === false ? 'rgb(var(--danger))' : 'rgb(var(--theme-muted))'
                           }} strokeWidth={2} />
                         </button>
                       </div>
@@ -275,7 +275,7 @@ export default function PersonalizedFeed() {
                 style={{ 
                   borderRadius: 'var(--r-md)',
                   backgroundColor: 'rgb(var(--surface-2))',
-                  border: '1px solid rgb(var(--border))'
+                  border: '1px solid rgb(var(--theme-border))'
                 }}
               >
                 <div className="flex items-start gap-4">
@@ -289,14 +289,14 @@ export default function PersonalizedFeed() {
                     <h3 className="font-semibold mb-1" style={{ color: 'rgb(var(--text))' }}>
                       {exercise.title}
                     </h3>
-                    <p className="text-sm mb-2" style={{ color: 'rgb(var(--muted))' }}>
+                    <p className="text-sm mb-2" style={{ color: 'rgb(var(--theme-muted))' }}>
                       {exercise.description}
                     </p>
                     <div className="flex items-center gap-2 flex-wrap mb-3">
                       {exercise.duration_options?.length > 0 && (
                         <Badge variant="outline" className="text-xs" style={{ 
                           borderRadius: 'var(--r-xs)',
-                          borderColor: 'rgb(var(--border))'
+                          borderColor: 'rgb(var(--theme-border))'
                         }}>
                           <Clock className="w-3 h-3 mr-1" strokeWidth={2} />
                           {exercise.duration_options[0]} min
@@ -304,13 +304,13 @@ export default function PersonalizedFeed() {
                       )}
                       <Badge variant="outline" className="text-xs capitalize" style={{ 
                         borderRadius: 'var(--r-xs)',
-                        borderColor: 'rgb(var(--border))'
+                        borderColor: 'rgb(var(--theme-border))'
                       }}>
                         {exercise.category.replace('_', ' ')}
                       </Badge>
                       <Badge variant="outline" className="text-xs capitalize" style={{ 
                         borderRadius: 'var(--r-xs)',
-                        borderColor: 'rgb(var(--border))'
+                        borderColor: 'rgb(var(--theme-border))'
                       }}>
                         {exercise.difficulty}
                       </Badge>
@@ -319,7 +319,7 @@ export default function PersonalizedFeed() {
                       <Link to={createPageUrl('Exercises')}>
                         <Button size="sm" className="transition-calm" style={{ 
                           borderRadius: 'var(--r-sm)',
-                          backgroundColor: 'rgb(var(--accent))',
+                          backgroundColor: 'rgb(var(--theme-accent))',
                           color: 'rgb(var(--accent-contrast))'
                         }}>
                           Start Exercise
@@ -335,7 +335,7 @@ export default function PersonalizedFeed() {
                           }}
                         >
                           <ThumbsUp className="w-4 h-4 icon-default" style={{ 
-                            color: getRating('exercise', exercise.id) === true ? 'rgb(var(--success))' : 'rgb(var(--muted))'
+                            color: getRating('exercise', exercise.id) === true ? 'rgb(var(--success))' : 'rgb(var(--theme-muted))'
                           }} strokeWidth={2} />
                         </button>
                         <button
@@ -347,7 +347,7 @@ export default function PersonalizedFeed() {
                           }}
                         >
                           <ThumbsDown className="w-4 h-4 icon-default" style={{ 
-                            color: getRating('exercise', exercise.id) === false ? 'rgb(var(--danger))' : 'rgb(var(--muted))'
+                            color: getRating('exercise', exercise.id) === false ? 'rgb(var(--danger))' : 'rgb(var(--theme-muted))'
                           }} strokeWidth={2} />
                         </button>
                       </div>

@@ -243,7 +243,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
         <div className="text-center">
           <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin" style={{ color: 'rgb(var(--calm))' }} strokeWidth={2} />
-          <p style={{ color: 'rgb(var(--muted))' }}>{t('starter_path.loading')}</p>
+          <p style={{ color: 'rgb(var(--theme-muted))' }}>{t('starter_path.loading')}</p>
         </div>
       </div>
     );
@@ -280,7 +280,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
                 <div className="mb-6 p-4" style={{ 
                   borderRadius: 'var(--r-lg)',
                   backgroundColor: 'rgb(var(--calm) / 0.1)',
-                  border: '1px solid rgb(var(--border))'
+                  border: '1px solid rgb(var(--theme-border))'
                 }}>
                   <p className="text-sm font-medium mb-2" style={{ color: 'rgb(var(--calm))' }}>
                     {t('starter_path.todays_takeaway')}
@@ -290,7 +290,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
                   </p>
                 </div>
               )}
-              <p className="mb-6" style={{ color: 'rgb(var(--muted))' }}>
+              <p className="mb-6" style={{ color: 'rgb(var(--theme-muted))' }}>
                 {currentDay === 7 
                   ? t('starter_path.completed_all')
                   : t('starter_path.come_back_tomorrow', { day: currentDay + 1 })}
@@ -331,7 +331,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
               <h1 className="text-3xl font-semibold mb-2" style={{ color: 'rgb(var(--text))' }}>
                 {t('starter_path.day_of_7', { day: currentDay })}: {t(`starter_path.day_structure.${currentDay}.title`, { defaultValue: dayStructure.title })}
               </h1>
-              <p style={{ color: 'rgb(var(--muted))' }}>{t(`starter_path.day_structure.${currentDay}.description`, { defaultValue: dayStructure.description })}</p>
+              <p style={{ color: 'rgb(var(--theme-muted))' }}>{t(`starter_path.day_structure.${currentDay}.description`, { defaultValue: dayStructure.description })}</p>
             </div>
             <div className="text-right">
               <p className="text-sm font-medium" style={{ color: 'rgb(var(--calm))' }}>
@@ -345,7 +345,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
                     style={{
                       backgroundColor: d <= currentDay 
                         ? 'rgb(var(--calm))'
-                        : 'rgb(var(--border))'
+                        : 'rgb(var(--theme-border))'
                     }}
                   />
                 ))}
@@ -383,7 +383,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
                         {generatedContent?.introduction}
                       </p>
                       {generatedContent?.guidance && (
-                        <p className="text-sm leading-relaxed" style={{ color: 'rgb(var(--muted))' }}>
+                        <p className="text-sm leading-relaxed" style={{ color: 'rgb(var(--theme-muted))' }}>
                           {generatedContent.guidance}
                         </p>
                       )}
@@ -427,9 +427,9 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
                     <div className="mb-4 p-4" style={{ 
                       borderRadius: 'var(--r-md)',
                       backgroundColor: 'rgb(var(--surface-2))',
-                      border: '1px solid rgb(var(--border))'
+                      border: '1px solid rgb(var(--theme-border))'
                     }}>
-                      <p className="text-sm" style={{ color: 'rgb(var(--muted))' }}>
+                      <p className="text-sm" style={{ color: 'rgb(var(--theme-muted))' }}>
                         {generatedContent.example}
                       </p>
                     </div>
@@ -443,7 +443,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
                     className="mb-4"
                     style={{ 
                       borderRadius: 'var(--r-md)',
-                      borderColor: 'rgb(var(--border))'
+                      borderColor: 'rgb(var(--theme-border))'
                     }}
                   />
 

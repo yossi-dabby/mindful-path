@@ -119,22 +119,22 @@ export default function Playlists() {
         {/* Loading State */}
         {!isError && isLoading && (
           <div className="text-center py-12">
-            <p style={{ color: 'rgb(var(--muted))' }}>{t('playlists.loading')}</p>
+            <p style={{ color: 'rgb(var(--theme-muted))' }}>{t('playlists.loading')}</p>
           </div>
         )}
 
         {/* Empty State */}
         {!isError && !isLoading && playlists.length === 0 && (
           <div className="text-center py-12">
-            <List className="w-16 h-16 mx-auto mb-4" style={{ color: 'rgb(var(--muted))' }} />
+            <List className="w-16 h-16 mx-auto mb-4" style={{ color: 'rgb(var(--theme-muted))' }} />
             <p className="text-lg mb-2" style={{ color: 'rgb(var(--text))' }}>{t('playlists.no_playlists_title')}</p>
-            <p className="mb-6" style={{ color: 'rgb(var(--muted))' }}>
+            <p className="mb-6" style={{ color: 'rgb(var(--theme-muted))' }}>
               {t('playlists.no_playlists_description')}
             </p>
             <Button
               onClick={() => setShowCreateModal(true)}
               style={{ 
-                backgroundColor: 'rgb(var(--accent))',
+                backgroundColor: 'rgb(var(--theme-accent))',
                 color: 'rgb(var(--accent-contrast))'
               }}
             >

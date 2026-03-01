@@ -41,7 +41,8 @@ export default function Layout({ children, currentPageName }) {
     }
   };
 
-  // Detect system dark mode preference and update theme-color
+  // Detect system dark mode preference and update theme-color meta tag only.
+  // The dark class on <html> is managed by ThemeProvider (next-themes).
   React.useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
@@ -53,20 +54,10 @@ export default function Layout({ children, currentPageName }) {
     };
 
     const handleChange = (e) => {
-      if (e.matches) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
       updateThemeColor(e.matches);
     };
 
     mediaQuery.addEventListener('change', handleChange);
-    
-    // Apply initial state
-    if (mediaQuery.matches) {
-      document.documentElement.classList.add('dark');
-    }
     updateThemeColor(mediaQuery.matches);
 
     return () => mediaQuery.removeEventListener('change', handleChange);
@@ -201,9 +192,9 @@ export default function Layout({ children, currentPageName }) {
     default: 'bg-warm-gradient',
     ocean: 'bg-calm-gradient',
     sunset: 'bg-warm-gradient',
-    forest: 'bg-gradient-to-br from-emerald-50/30 via-white to-green-50/20',
-    lavender: 'bg-gradient-to-br from-purple-50/30 via-white to-violet-50/20',
-    minimal: 'bg-gradient-to-br from-gray-50/30 via-white to-slate-50/20'
+    forest: 'bg-theme-forest',
+    lavender: 'bg-theme-lavender',
+    minimal: 'bg-theme-minimal'
   };
 
   return (
@@ -211,16 +202,6 @@ export default function Layout({ children, currentPageName }) {
       <div className={`min-h-screen overflow-hidden ${themeBackgrounds[theme] || themeBackgrounds.default}`}>
         {/* Preserve scroll position between tab switches */}
         <ScrollPreservation />
-      
-      <style>{`
-        :root {
-          --color-primary: 139 178 158;
-          --color-secondary: 185 163 193;
-          --color-accent: 244 146 131;
-          --color-background: 255 255 255;
-          --color-text: 45 55 72;
-        }
-        `}</style>
 
         {/* Offline Banner - Global */}
         {isOffline && (
