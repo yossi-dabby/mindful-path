@@ -16,6 +16,17 @@ const contentKeys = [
   'tipp_skills','accepts','improve','self_soothe'
 ];
 
+// Injects missing common keys that components reference via t('common.next') / t('common.finish')
+const commonKeysByLanguage = {
+  en: { next: 'Next', finish: 'Finish' },
+  he: { next: 'הבא', finish: 'סיום' },
+  es: { next: 'Siguiente', finish: 'Finalizar' },
+  fr: { next: 'Suivant', finish: 'Terminer' },
+  de: { next: 'Weiter', finish: 'Fertig' },
+  it: { next: 'Avanti', finish: 'Fine' },
+  pt: { next: 'Próximo', finish: 'Concluir' },
+};
+
 export function applyMindGamesTranslations(translations) {
   // Game IDs that have a `title` field in mindGamesUiStrings / mindGamesUiByLanguage
   const gameTitleKeys = [
@@ -52,6 +63,17 @@ export function applyMindGamesTranslations(translations) {
     });
 
     translations[lng].translation.mind_games = merged;
+
+    // Inject common.next / common.finish if missing (for step-based games)
+    const commonKeys = commonKeysByLanguage[lng] || commonKeysByLanguage.en;
+    const existingCommon = translations[lng].translation.common || {};
+    if (!existingCommon.next || !existingCommon.finish) {
+      translations[lng].translation.common = {
+        ...existingCommon,
+        next: existingCommon.next || commonKeys.next,
+        finish: existingCommon.finish || commonKeys.finish,
+      };
+    }
   });
 
   return translations;
