@@ -376,6 +376,19 @@ export const mindGamesUiByLanguage = {
   },
   fr: {
     common: { try_another: "Essayer un autre" },
+    reframe_pick: {
+      situation: "Situation :",
+      automatic_thought: "Pensée automatique :",
+      choose: "Choisissez la réponse la plus équilibrée :",
+      why_label: "Pourquoi ça marche :"
+    },
+    evidence_balance: {
+      thought_label: "Pensée :",
+      for_label: "Preuves POUR :",
+      against_label: "Preuves CONTRE :",
+      show_conclusion: "Afficher la conclusion équilibrée",
+      conclusion_label: "Conclusion équilibrée :"
+    },
     memory_match: {
       title: "Correspondance de Mémoire",
       instructions: "Trouvez toutes les paires correspondantes en cliquant sur les cartes.",
