@@ -57,6 +57,9 @@ export default function ThoughtQuiz({ onClose }) {
   const prompt = currentItem.prompt;
   const explanation = currentItem.explanation;
   const options = currentItem.options;
+  // correctIndex: translation items store correct answer at index 0 by convention;
+  // fall back to 0 if the field is missing from the data.
+  const correctIndex = currentItem.correctIndex !== undefined ? Number(currentItem.correctIndex) : 0;
 
   const handleAnswer = (index) => {
     setSelectedOption(index);
