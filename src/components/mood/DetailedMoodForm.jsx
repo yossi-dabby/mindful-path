@@ -185,10 +185,11 @@ export default function DetailedMoodForm({ entry, onClose }) {
           {/* Date */}
           <div>
             <label className="text-sm font-medium text-gray-700 mb-2 block">{t('mood_tracker.form.date')}</label>
-            <DatePickerMobile
+            <input
+              type="date"
               value={formData.date}
-              onChange={(date) => setFormData({ ...formData, date })}
-              placeholder={t('mood_tracker.form.date')}
+              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+              className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
             />
           </div>
 
