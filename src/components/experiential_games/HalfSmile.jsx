@@ -9,7 +9,7 @@ export default function HalfSmile({ onClose }) {
   const [emotionBefore, setEmotionBefore] = useState(null);
   const [emotionAfter, setEmotionAfter] = useState(null);
 
-  const emotions = ['Tense', 'Frustrated', 'Anxious', 'Sad', 'Neutral'];
+  const emotions = t('mind_games.half_smile.emotions', { returnObjects: true }) || ['Tense', 'Frustrated', 'Anxious', 'Sad', 'Neutral'];
 
   const handlePractice = () => {
     setPracticed(true);
@@ -23,13 +23,13 @@ export default function HalfSmile({ onClose }) {
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: '#5A7A72' }}>
-          Half Smile is a gentle facial expression that can shift your emotional state. Even a tiny smile signals safety to your nervous system.
+          {t('mind_games.half_smile.description')}
         </p>
 
         {!emotionBefore ? (
           <>
             <p className="text-sm font-semibold mb-3" style={{ color: '#1A3A34' }}>
-              How do you feel right now?
+              {t('mind_games.half_smile.feel_now_prompt')}
             </p>
             <div className="flex flex-wrap gap-2">
               {emotions.map((emotion) => (
@@ -94,13 +94,13 @@ export default function HalfSmile({ onClose }) {
                 color: 'white'
               }}
             >
-              I Practiced for 30 Seconds
+              {t('mind_games.half_smile.practiced_btn')}
             </Button>
           </>
         ) : !emotionAfter ? (
           <>
             <p className="text-sm font-semibold mb-3" style={{ color: '#1A3A34' }}>
-              How do you feel now?
+              {t('mind_games.half_smile.feel_after_prompt')}
             </p>
             <div className="flex flex-wrap gap-2">
               {emotions.map((emotion) => (
@@ -126,9 +126,7 @@ export default function HalfSmile({ onClose }) {
             border: '1px solid rgba(34, 197, 94, 0.2)'
           }}>
             <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
-              ✓ Before: {emotionBefore} → After: {emotionAfter}
-              <br /><br />
-              Even a subtle shift matters. Half Smile is a tool you can use anywhere, anytime.
+              {t('mind_games.half_smile.result', { before: emotionBefore, after: emotionAfter })}
             </p>
           </div>
         )}
