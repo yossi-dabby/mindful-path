@@ -15,6 +15,11 @@ const contentKeys = [
 ];
 
 export function applyMindGamesTranslations(translations) {
+  // Game IDs that have a `title` field in mindGamesUiStrings / mindGamesUiByLanguage
+  const gameTitleKeys = [
+    'memory_match', 'focus_flow', 'pattern_shift', 'word_association', 'number_sequence'
+  ];
+
   ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'].forEach((lng) => {
     const current = translations[lng]?.translation?.mind_games || {};
     const lngUi = mindGamesUiByLanguage[lng] || {};
@@ -25,6 +30,17 @@ export function applyMindGamesTranslations(translations) {
     gameKeys.forEach(key => {
       merged[key] = { ...(current[key] || {}), ...(mindGamesUiStrings[key] || {}), ...(lngUi[key] || {}) };
     });
+
+    // Also propagate title strings into mind_games.games.<id>.title so that
+    // t('mind_games.games.memory_match.title') etc. resolve correctly.
+    const currentGames = merged.games || {};
+    gameTitleKeys.forEach(key => {
+      const title = (lngUi[key] || mindGamesUiStrings[key] || {}).title;
+      if (title) {
+        currentGames[key] = { ...(currentGames[key] || {}), title };
+      }
+    });
+    merged.games = currentGames;
 
     // Merge translated game content (items, values, tiles, etc.)
     contentKeys.forEach(key => {
