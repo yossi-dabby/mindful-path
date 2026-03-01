@@ -76,11 +76,13 @@ export default function WillingHands({ onClose }) {
         )}
       </Card>
 
-      <div className="flex gap-3 justify-end">
-        <Button variant="outline" onClick={onClose} style={{ borderRadius: '12px' }}>
-          {t('common.close')}
-        </Button>
-      </div>
+      {!practiced && (
+        <div className="flex gap-3 justify-end">
+          <Button variant="outline" onClick={onClose} style={{ borderRadius: '12px' }}>
+            {t('common.close')}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
