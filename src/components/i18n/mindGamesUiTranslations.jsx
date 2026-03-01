@@ -888,7 +888,81 @@ export const mindGamesUiByLanguage = {
     tipp_skills: { prompt: "Wenn Sie Ihre Körperchemie schnell ändern müssen:", pick_action: "Wählen Sie eines, das Sie jetzt ausprobieren möchten:", success: "✓ Super! TIPP-Fähigkeiten ändern Ihre Physiologie, um emotionale Intensität zu reduzieren." },
     accepts: { prompt: "Wenn Sie sich von überwältigenden Emotionen ablenken müssen, verwenden Sie ACCEPTS:", try_now: "Versuchen Sie dies jetzt:" },
     improve: { prompt: "VERBESSERN Sie den Moment, wenn Sie in einer Krise sind und Ihren Zustand ändern müssen:", quick_action: "Schnelle Aktion:" },
-    self_soothe: { prompt: "Beruhigen Sie sich mit Ihren 5 Sinnen, um Momente des Komforts und der Sicherheit zu schaffen.", back: "← Zurück zu den Sinnen", success: "✓ Nehmen Sie sich einen Moment, um dies vollständig zu erleben. Selbstberuhigung ist ein Geschenk, das Sie sich selbst machen." }
+    self_soothe: { prompt: "Beruhigen Sie sich mit Ihren 5 Sinnen, um Momente des Komforts und der Sicherheit zu schaffen.", back: "← Zurück zu den Sinnen", success: "✓ Nehmen Sie sich einen Moment, um dies vollständig zu erleben. Selbstberuhigung ist ein Geschenk, das Sie sich selbst machen." },
+    mountain_meditation: {
+      step_of: "Schritt {{current}} von {{total}}",
+      steps: ["Schließen Sie die Augen oder entspannen Sie Ihren Blick.", "Stellen Sie sich einen Berg vor—fest, geerdet, unerschütterlich.", "Spüren Sie Ihren Körper als den Berg: stabil, verwurzelt.", "Das Wetter zieht über den Berg: Stürme, Sonne, Regen, Wind.", "Der Berg bleibt. Er kämpft nicht gegen das Wetter—er lässt es zu.", "Sie sind wie der Berg. Gedanken und Emotionen sind wie das Wetter.", "Sie kommen und gehen. Sie bleiben."],
+      completion: "Sie haben die Berg-Meditation praktiziert. Nutzen Sie diese Metapher, wann immer Sie sich an Ihre Stabilität erinnern möchten."
+    },
+    check_the_facts: {
+      description: "Fakten prüfen hilft Ihnen festzustellen, ob Ihre Emotion zur Situation passt. Wenn nicht, können Sie daran arbeiten, sie zu ändern.",
+      emotion_prompt: "Welche Emotion fühlen Sie?",
+      emotions: ["Angst", "Ärger", "Traurigkeit", "Schuld", "Scham"],
+      check_btn: "Fakten Prüfen",
+      for_emotion: "Für {{emotion}}, fragen Sie sich:",
+      tip: "Wenn die Fakten die Intensität der Emotion nicht unterstützen, nutzen Sie entgegengesetzte Aktion oder andere Fähigkeiten.",
+      emotion_prompts: {
+        fear: ["Gibt es eine echte, unmittelbare Gefahr?", "Was ist das Schlimmste, was passieren könnte?", "Was sind die Beweise?"],
+        anger: ["Hat jemand meine Rechte absichtlich verletzt?", "Ist diese Bedrohung meiner Ziele real?", "Wird Ärger helfen oder schaden?"],
+        sadness: ["Habe ich wirklich etwas Wichtiges verloren?", "Ist es dauerhaft oder kann ich mich erholen?", "Was würde mir helfen, damit umzugehen?"],
+        guilt: ["Habe ich wirklich etwas gegen meine Werte getan?", "War es in meiner Kontrolle?", "Welche Wiedergutmachung ist nötig?"],
+        shame: ["Bin ich als Person schlecht, oder nur diese Handlung?", "Würden andere es genauso sehen?", "Kann ich Verhalten von Identität trennen?"]
+      }
+    },
+    pros_and_cons: {
+      description: "Nutzen Sie Pro und Contra, wenn Sie ein Krisenverhalten oder eine schwierige Entscheidung abwägen.",
+      decision_prompt: "Welcher Entscheidung stehen Sie gegenüber?",
+      decision_placeholder: "z.B., Sollte ich diese Nachricht jetzt senden?",
+      start_btn: "Analyse Starten",
+      pros_label: "Pro es zu tun:",
+      pros_placeholder: "Was sind die kurzfristigen Vorteile?",
+      next_cons_btn: "Weiter: Contra",
+      cons_label: "Contra es zu tun:",
+      cons_placeholder: "Was sind die langfristigen Kosten?",
+      see_result_btn: "Ergebnis Anzeigen",
+      pros_result_label: "Pro:",
+      cons_result_label: "Contra:",
+      conclusion: "Oft hat kurzfristige Erleichterung langfristige Kosten. Welche Wahl dient Ihren Werten?"
+    },
+    values_check: {
+      prompt: "Schnell-Check: Welcher Wert ist Ihnen jetzt am wichtigsten?",
+      alignment_prompt: "Sind Ihre letzten Handlungen mit diesem Wert ausgerichtet?",
+      yes: "Ja", somewhat: "Teilweise", not_really: "Nicht wirklich",
+      result_yes: "✓ Super! Bewegen Sie sich weiter in diese Richtung.",
+      result_somewhat: "→ Gutes Bewusstsein. Was ist ein kleiner Schritt zu mehr Ausrichtung?",
+      result_no: "⚠️ Haben Sie die Lücke bemerkt? Das ist der erste Schritt. Wählen Sie heute eine winzige Aktion.",
+      tip: "Werte sind keine Ziele zu erreichen—sie sind Richtungen, auf die man sich zubewegt.",
+      values: { connection: "Verbindung", growth: "Wachstum", authenticity: "Authentizität", courage: "Mut", compassion: "Mitgefühl", creativity: "Kreativität", health: "Gesundheit", peace: "Frieden" }
+    },
+    expansion: {
+      description: "Expansion bedeutet, schwierigen Emotionen Raum zu geben, anstatt gegen sie zu kämpfen.",
+      emotion_prompt: "Welche Emotion ist gerade präsent?",
+      emotion_placeholder: "z.B., Angst, Traurigkeit, Ärger",
+      begin_btn: "Expansions-Übung Beginnen",
+      steps: ["Nennen Sie die Emotion, die Sie fühlen.", "Wo spüren Sie sie in Ihrem Körper?", "Atmen Sie anstatt sie wegzustoßen in diese Stelle.", "Stellen Sie sich vor, Raum um das Gefühl zu schaffen—nicht es zu verkleinern, nur es zuzulassen.", "Beachten Sie: Sie können dies fühlen UND trotzdem vorankommen."],
+      completion: "✓ Sie haben geübt, {{emotion}} Raum zu geben. Expansion lässt Gefühle nicht verschwinden—sie hilft Ihnen, sie mit weniger Kampf zu tragen."
+    },
+    leaves_on_stream: {
+      description: "Stellen Sie sich einen sanften Bach mit treibenden Blättern vor. Legen Sie klebrige Gedanken auf Blätter und beobachten Sie, wie sie davontreiben.",
+      thought_prompt: "Welcher Gedanke hält Sie gerade fest?",
+      thought_placeholder: "z.B., Ich bin nicht gut genug",
+      place_btn: "Auf Blatt Legen & Treiben Sehen",
+      floating: "Treibt davon...",
+      tip: "Sie versuchen nicht, Gedanken loszuwerden—nur sie zu bemerken, ohne festzuhalten."
+    },
+    half_smile: {
+      description: "Das Halbe Lächeln ist ein sanfter Gesichtsausdruck, der Ihren emotionalen Zustand verändern kann. Sogar ein kleines Lächeln signalisiert Sicherheit an Ihr Nervensystem.",
+      feel_now_prompt: "Wie fühlen Sie sich gerade?",
+      emotions: ["Angespannt", "Frustriert", "Ängstlich", "Traurig", "Neutral"],
+      practiced_btn: "Ich Habe 30 Sekunden Geübt",
+      feel_after_prompt: "Wie fühlen Sie sich jetzt?",
+      result: "✓ Vorher: {{before}} → Nachher: {{after}}\n\nSogar eine subtile Verschiebung zählt. Das Halbe Lächeln ist ein Werkzeug, das Sie überall einsetzen können."
+    },
+    willing_hands: {
+      description: "Offene Hände ist eine körperbasierte Akzeptanzübung. Sie signalisiert Offenheit für die Realität, auch wenn es schwer ist.",
+      steps: ["Drehen Sie Ihre Handflächen nach oben und legen Sie sie auf Ihren Schoß oder neben Ihren Körper.", "Entspannen Sie Ihre Hände vollständig—lassen Sie die Spannung abfließen.", "Weichen Sie Ihr Gesicht, besonders Kiefer und Stirn.", "Atmen Sie natürlich und sagen Sie (in Stille): 'Ich bin bereit.'", "Halten Sie das 30 Sekunden lang, und bemerken Sie jede Veränderung."],
+      completion: "✓ Gut! Offene Hände ist eine körperliche Geste der Akzeptanz. Üben Sie es, wenn Sie gegen die Realität kämpfen."
+    }
   },
   it: {
     common: { try_another: "Prova un altro" },
