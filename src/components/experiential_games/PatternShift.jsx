@@ -6,10 +6,10 @@ import { useTranslation } from 'react-i18next';
 import { Shuffle, CheckCircle } from 'lucide-react';
 
 const PATTERNS = [
-  { rule: 'color', question_key: 'mind_games.pattern_shift.patterns.0.question', options: ['Red', 'Blue', 'Green'], correct: 1 },
-  { rule: 'shape', question_key: 'mind_games.pattern_shift.patterns.1.question', options: ['Circle', 'Square', 'Triangle'], correct: 2 },
-  { rule: 'size', question_key: 'mind_games.pattern_shift.patterns.2.question', options: ['Small', 'Medium', 'Large'], correct: 0 },
-  { rule: 'number', question_key: 'mind_games.pattern_shift.patterns.3.question', options: ['1', '2', '3'], correct: 1 },
+  { rule: 'color', question_key: 'mind_games.pattern_shift.patterns.0.question', options_keys: ['mind_games.pattern_shift.option_colors.0', 'mind_games.pattern_shift.option_colors.1', 'mind_games.pattern_shift.option_colors.2'], correct: 1 },
+  { rule: 'shape', question_key: 'mind_games.pattern_shift.patterns.1.question', options_keys: ['mind_games.pattern_shift.option_shapes.0', 'mind_games.pattern_shift.option_shapes.1', 'mind_games.pattern_shift.option_shapes.2'], correct: 2 },
+  { rule: 'size', question_key: 'mind_games.pattern_shift.patterns.2.question', options_keys: ['mind_games.pattern_shift.option_sizes.0', 'mind_games.pattern_shift.option_sizes.1', 'mind_games.pattern_shift.option_sizes.2'], correct: 0 },
+  { rule: 'number', question_key: 'mind_games.pattern_shift.patterns.3.question', options_keys: ['1', '2', '3'], correct: 1 },
 ];
 
 export default function PatternShift({ onClose }) {

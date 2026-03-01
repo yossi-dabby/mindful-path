@@ -56,33 +56,17 @@ export default function HalfSmile({ onClose }) {
               border: '1px solid rgba(159, 122, 234, 0.2)'
             }}>
               <p className="text-sm font-semibold mb-3" style={{ color: '#1A3A34' }}>
-                Try this for 30 seconds:
+                {t('mind_games.half_smile.try_prompt')}
               </p>
               <ul className="space-y-2">
-                <li className="flex gap-2">
-                  <span className="text-sm flex-shrink-0" style={{ color: '#9F7AEA' }}>•</span>
-                  <span className="text-sm break-words whitespace-normal flex-1 min-w-0" style={{ color: '#1A3A34' }}>
-                    Relax your face, especially your jaw.
-                  </span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-sm flex-shrink-0" style={{ color: '#9F7AEA' }}>•</span>
-                  <span className="text-sm break-words whitespace-normal flex-1 min-w-0" style={{ color: '#1A3A34' }}>
-                    Lift the corners of your mouth just slightly (10%).
-                  </span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-sm flex-shrink-0" style={{ color: '#9F7AEA' }}>•</span>
-                  <span className="text-sm break-words whitespace-normal flex-1 min-w-0" style={{ color: '#1A3A34' }}>
-                    Soften your eyes.
-                  </span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-sm flex-shrink-0" style={{ color: '#9F7AEA' }}>•</span>
-                  <span className="text-sm break-words whitespace-normal flex-1 min-w-0" style={{ color: '#1A3A34' }}>
-                    Breathe slowly.
-                  </span>
-                </li>
+                {(t('mind_games.half_smile.instructions', { returnObjects: true }) || []).map((step, i) => (
+                  <li key={i} className="flex gap-2">
+                    <span className="text-sm flex-shrink-0" style={{ color: '#9F7AEA' }}>•</span>
+                    <span className="text-sm break-words whitespace-normal flex-1 min-w-0" style={{ color: '#1A3A34' }}>
+                      {step}
+                    </span>
+                  </li>
+                ))}
               </ul>
             </div>
             <Button

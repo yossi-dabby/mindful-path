@@ -20,7 +20,8 @@ export default function CheckTheFacts({ onClose }) {
 
   const handleStart = () => {
     const key = emotion.toLowerCase();
-    const selectedPrompts = emotionPrompts[key] || ["What are the facts?", "Am I adding interpretations?", "Does this emotion fit?"];
+    const fallbackPrompts = t('mind_games.check_the_facts.default_prompts', { returnObjects: true }) || ["What are the facts?", "Am I adding interpretations?", "Does this emotion fit?"];
+    const selectedPrompts = emotionPrompts[key] || fallbackPrompts;
     setPrompts(selectedPrompts);
     setStep('check');
   };
