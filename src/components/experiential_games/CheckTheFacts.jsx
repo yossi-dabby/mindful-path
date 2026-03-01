@@ -33,16 +33,16 @@ export default function CheckTheFacts({ onClose }) {
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: '#5A7A72' }}>
-          Check the Facts helps you determine if your emotion fits the situation. If it doesn't, you can work to change it.
+          {t('mind_games.check_the_facts.description')}
         </p>
 
         {step === 'input' ? (
           <>
             <p className="text-sm font-semibold mb-2" style={{ color: '#1A3A34' }}>
-              What emotion are you feeling?
+              {t('mind_games.check_the_facts.emotion_prompt')}
             </p>
             <div className="flex flex-wrap gap-2 mb-4">
-              {['Fear', 'Anger', 'Sadness', 'Guilt', 'Shame'].map((e) => (
+              {(t('mind_games.check_the_facts.emotions', { returnObjects: true }) || ['Fear', 'Anger', 'Sadness', 'Guilt', 'Shame']).map((e) => (
                 <button
                   key={e}
                   onClick={() => setEmotion(e)}
@@ -68,13 +68,13 @@ export default function CheckTheFacts({ onClose }) {
                 color: 'white'
               }}
             >
-              Check the Facts
+              {t('mind_games.check_the_facts.check_btn')}
             </Button>
           </>
         ) : (
           <>
             <p className="text-sm font-semibold mb-3 break-words" style={{ color: '#1A3A34' }}>
-              For {emotion}, ask yourself:
+              {t('mind_games.check_the_facts.for_emotion', { emotion })}
             </p>
             <ul className="space-y-2 mb-4">
               {prompts.map((prompt, index) => (
@@ -92,7 +92,7 @@ export default function CheckTheFacts({ onClose }) {
               border: '1px solid rgba(38, 166, 154, 0.2)'
             }}>
               <p className="text-xs break-words whitespace-normal" style={{ color: '#5A7A72' }}>
-                If the facts don't support the emotion's intensity, use opposite action or other skills to shift it.
+                {t('mind_games.check_the_facts.tip')}
               </p>
             </div>
           </>
