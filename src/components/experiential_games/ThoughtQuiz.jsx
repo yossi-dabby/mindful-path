@@ -65,7 +65,7 @@ export default function ThoughtQuiz({ onClose }) {
     setSelectedOption(index);
     setShowExplanation(true);
     setQuestionsAnswered(prev => prev + 1);
-    if (index === Number(currentItem.correctIndex)) {
+    if (index === correctIndex) {
       setScore(score + 1);
     }
   };
