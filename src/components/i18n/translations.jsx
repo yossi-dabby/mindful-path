@@ -8230,29 +8230,16 @@ export const translations = {
 import { mindGamesUiStrings, mindGamesUiByLanguage } from './mindGamesUiTranslations';
 const mindGamesUi = { ...mindGamesUiStrings, ...mindGamesUiByLanguage };
 
+const gameKeys = ['common','quick_win','opposite_action','urge_surfing','value_compass','tiny_experiment',
+  'worry_time','dbt_stop','defusion_cards','calm_bingo','tipp_skills','accepts','improve','self_soothe',
+  'memory_match','focus_flow','pattern_shift','word_association','number_sequence'];
+
 ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'].forEach((lng) => {
   const current = translations[lng]?.translation?.mind_games || {};
-  const lngGames = mindGamesUi[lng] || {};
-  translations[lng].translation.mind_games = {
-    ...current,
-    common: { ...(current.common || {}), ...mindGamesUi.common },
-    quick_win: { ...(current.quick_win || {}), ...mindGamesUi.quick_win },
-    opposite_action: { ...(current.opposite_action || {}), ...mindGamesUi.opposite_action },
-    urge_surfing: { ...(current.urge_surfing || {}), ...mindGamesUi.urge_surfing },
-    value_compass: { ...(current.value_compass || {}), ...mindGamesUi.value_compass },
-    tiny_experiment: { ...(current.tiny_experiment || {}), ...mindGamesUi.tiny_experiment },
-    worry_time: { ...(current.worry_time || {}), ...mindGamesUi.worry_time },
-    dbt_stop: { ...(current.dbt_stop || {}), ...mindGamesUi.dbt_stop },
-    defusion_cards: { ...(current.defusion_cards || {}), ...mindGamesUi.defusion_cards },
-    calm_bingo: { ...(current.calm_bingo || {}), ...mindGamesUi.calm_bingo },
-    tipp_skills: { ...(current.tipp_skills || {}), ...mindGamesUi.tipp_skills },
-    accepts: { ...(current.accepts || {}), ...mindGamesUi.accepts },
-    improve: { ...(current.improve || {}), ...mindGamesUi.improve },
-    self_soothe: { ...(current.self_soothe || {}), ...mindGamesUi.self_soothe },
-    memory_match: { ...(current.memory_match || {}), ...mindGamesUi.memory_match, ...(lngGames.memory_match || {}) },
-    focus_flow: { ...(current.focus_flow || {}), ...mindGamesUi.focus_flow, ...(lngGames.focus_flow || {}) },
-    pattern_shift: { ...(current.pattern_shift || {}), ...mindGamesUi.pattern_shift, ...(lngGames.pattern_shift || {}) },
-    word_association: { ...(current.word_association || {}), ...mindGamesUi.word_association, ...(lngGames.word_association || {}) },
-    number_sequence: { ...(current.number_sequence || {}), ...mindGamesUi.number_sequence, ...(lngGames.number_sequence || {}) },
-  };
+  const lngOverrides = mindGamesUiByLanguage[lng] || {};
+  const merged = { ...current };
+  gameKeys.forEach(key => {
+    merged[key] = { ...(current[key] || {}), ...(mindGamesUiStrings[key] || {}), ...(lngOverrides[key] || {}) };
+  });
+  translations[lng].translation.mind_games = merged;
 });
