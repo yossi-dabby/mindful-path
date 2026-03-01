@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, BookOpen, Target, Play, TrendingUp, ArrowRight, Loader2, RefreshCw } from 'lucide-react';
+import { Sparkles, BookOpen, Target, Play, ArrowRight, Loader2, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 
 export default function AiPersonalizedFeed() {

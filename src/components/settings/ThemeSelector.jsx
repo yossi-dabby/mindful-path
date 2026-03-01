@@ -1,6 +1,5 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Palette, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';

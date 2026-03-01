@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import { useMutation } from '@tanstack/react-query';
 import PremiumBadge from '../subscription/PremiumBadge';
-import { Badge } from '@/components/ui/badge';
 
 export default function AudioPlayer({ audioContent, onComplete, compact = false }) {
   const [isPlaying, setIsPlaying] = useState(false);

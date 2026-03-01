@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { Shield, Flag, Ban, Eye, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
+import { Shield, Flag, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ModerationTools({ post, onClose }) {

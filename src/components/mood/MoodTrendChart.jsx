@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { TrendingUp, TrendingDown, Activity } from 'lucide-react';
-import { format, subDays, parseISO } from 'date-fns';
+import { format, subDays } from 'date-fns';
 
 const moodValues = {
   excellent: 5,

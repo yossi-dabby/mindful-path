@@ -5,7 +5,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Target, Sparkles, BookOpen, Dumbbell, Bell, X, ChevronRight } from 'lucide-react';
-import { format } from 'date-fns';
 
 export default function ProactiveCheckIn({ onSendMessage }) {
   const queryClient = useQueryClient();

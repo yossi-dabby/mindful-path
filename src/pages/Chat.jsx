@@ -8,7 +8,7 @@ import AuthErrorBanner from '../components/utils/AuthErrorBanner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Plus, Loader2, Menu, Sparkles, ArrowLeft } from 'lucide-react';
+import { Send, Loader2, Menu, Sparkles, ArrowLeft } from 'lucide-react';
 import MessageBubble from '../components/chat/MessageBubble';
 import ConversationsList from '../components/chat/ConversationsList';
 import SessionSummary from '../components/chat/SessionSummary';
@@ -19,11 +19,11 @@ import InlineConsentBanner from '../components/chat/InlineConsentBanner';
 import ThoughtWorkSaveHandler from '../components/chat/ThoughtWorkSaveHandler';
 import InlineRiskPanel from '../components/chat/InlineRiskPanel';
 import ProfileSpecificDisclaimer from '../components/chat/ProfileSpecificDisclaimer';
-import { detectCrisisLanguage, detectCrisisWithReason } from '../components/utils/crisisDetector';
+import { detectCrisisWithReason } from '../components/utils/crisisDetector';
 import AgeGateModal from '../components/utils/AgeGateModal';
 import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
-import { validateAgentOutput, extractAssistantMessage, sanitizeConversationMessages, parseCounters } from '../components/utils/validateAgentOutput.jsx';
+import { validateAgentOutput, sanitizeConversationMessages, parseCounters } from '../components/utils/validateAgentOutput.jsx';
 
 export default function Chat() {
   const { t } = useTranslation();
