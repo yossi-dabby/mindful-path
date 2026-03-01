@@ -37,7 +37,7 @@ export default function WillingHands({ onClose }) {
               border: '1px solid rgba(38, 166, 154, 0.2)'
             }}>
               <p className="text-xs mb-2" style={{ color: '#5A7A72' }}>
-                Step {step + 1} of {steps.length}
+                {t('mind_games.mountain_meditation.step_of', { current: step + 1, total: steps.length })}
               </p>
               <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
                 {steps[step]}
@@ -62,9 +62,16 @@ export default function WillingHands({ onClose }) {
             backgroundColor: 'rgba(34, 197, 94, 0.1)',
             border: '1px solid rgba(34, 197, 94, 0.2)'
           }}>
-            <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
+            <p className="text-sm break-words whitespace-normal mb-4" style={{ color: '#1A3A34' }}>
               {t('mind_games.willing_hands.completion')}
             </p>
+            <Button
+              onClick={onClose}
+              className="w-full"
+              style={{ borderRadius: '12px', backgroundColor: '#26A69A', color: 'white' }}
+            >
+              {t('common.close')}
+            </Button>
           </div>
         )}
       </Card>

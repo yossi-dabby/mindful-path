@@ -51,7 +51,7 @@ export default function ValuesCheck({ onClose }) {
         ) : !alignment ? (
           <>
             <p className="text-sm font-semibold mb-4 break-words" style={{ color: '#1A3A34' }}>
-              You chose: <span style={{ color: '#9F7AEA' }}>{selectedValue}</span>
+              {t('mind_games.values_check.you_chose', { value: selectedValue, defaultValue: `You chose: ${selectedValue}` })}
             </p>
             <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: '#5A7A72' }}>
               {t('mind_games.values_check.alignment_prompt')}
