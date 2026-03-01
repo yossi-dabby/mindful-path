@@ -730,7 +730,81 @@ export const mindGamesUiByLanguage = {
     tipp_skills: { prompt: "Quand vous avez besoin de changer votre chimie corporelle rapidement :", pick_action: "Choisissez-en un à essayer maintenant :", success: "✓ Super ! Les compétences TIPP changent votre physiologie pour réduire l'intensité émotionnelle." },
     accepts: { prompt: "Quand vous avez besoin de vous distraire des émotions accablantes, utilisez ACCEPTS :", try_now: "Essayez ceci maintenant :" },
     improve: { prompt: "AMÉLIOREZ le moment quand vous êtes en crise et avez besoin de changer d'état :", quick_action: "Action Rapide :" },
-    self_soothe: { prompt: "Apaisez-vous avec vos 5 sens pour créer des moments de confort et de sécurité.", back: "← Retour aux sens", success: "✓ Prenez un moment pour vivre cela pleinement. L'auto-apaisement est un cadeau que vous vous offrez." }
+    self_soothe: { prompt: "Apaisez-vous avec vos 5 sens pour créer des moments de confort et de sécurité.", back: "← Retour aux sens", success: "✓ Prenez un moment pour vivre cela pleinement. L'auto-apaisement est un cadeau que vous vous offrez." },
+    mountain_meditation: {
+      step_of: "Étape {{current}} sur {{total}}",
+      steps: ["Fermez les yeux ou adoucissez votre regard.", "Imaginez une montagne—solide, ancrée, inébranlable.", "Ressentez votre corps comme la montagne : stable, enraciné.", "La météo passe sur la montagne : tempêtes, soleil, pluie, vent.", "La montagne reste. Elle ne combat pas la météo—elle la permet.", "Vous êtes comme la montagne. Les pensées et les émotions sont comme la météo.", "Elles viennent et partent. Vous restez."],
+      completion: "Vous avez pratiqué la Méditation de la Montagne. Utilisez cette métaphore quand vous avez besoin de vous rappeler votre stabilité."
+    },
+    check_the_facts: {
+      description: "Vérifier les faits vous aide à déterminer si votre émotion correspond à la situation. Si non, vous pouvez travailler à la changer.",
+      emotion_prompt: "Quelle émotion ressentez-vous ?",
+      emotions: ["Peur", "Colère", "Tristesse", "Culpabilité", "Honte"],
+      check_btn: "Vérifier les Faits",
+      for_emotion: "Pour {{emotion}}, demandez-vous :",
+      tip: "Si les faits ne soutiennent pas l'intensité de l'émotion, utilisez l'action opposée ou d'autres compétences pour la changer.",
+      emotion_prompts: {
+        fear: ["Y a-t-il un danger réel et immédiat ?", "Quel est le pire qui pourrait arriver ?", "Quelles sont les preuves ?"],
+        anger: ["Quelqu'un a-t-il violé mes droits intentionnellement ?", "Cette menace envers mes objectifs est-elle réelle ?", "La colère va-t-elle aider ou nuire ?"],
+        sadness: ["Ai-je vraiment perdu quelque chose d'important ?", "Est-ce permanent ou puis-je me rétablir ?", "Qu'est-ce qui m'aiderait à faire face ?"],
+        guilt: ["Ai-je vraiment fait quelque chose contre mes valeurs ?", "Était-ce dans mon contrôle ?", "Quelle réparation est nécessaire ?"],
+        shame: ["Suis-je entièrement mauvais, ou juste cette action ?", "Les autres le verraient-ils de la même façon ?", "Puis-je séparer le comportement de l'identité ?"]
+      }
+    },
+    pros_and_cons: {
+      description: "Utilisez les Pour et Contre quand vous envisagez un comportement de crise ou une décision difficile.",
+      decision_prompt: "Quelle décision prenez-vous ?",
+      decision_placeholder: "ex., Devrais-je envoyer ce message maintenant ?",
+      start_btn: "Démarrer l'Analyse",
+      pros_label: "Avantages de le faire :",
+      pros_placeholder: "Quels sont les avantages à court terme ?",
+      next_cons_btn: "Suivant : Inconvénients",
+      cons_label: "Inconvénients de le faire :",
+      cons_placeholder: "Quels sont les coûts à long terme ?",
+      see_result_btn: "Voir le Résultat",
+      pros_result_label: "Avantages :",
+      cons_result_label: "Inconvénients :",
+      conclusion: "Souvent, le soulagement à court terme a des coûts à long terme. Quel choix sert vos valeurs ?"
+    },
+    values_check: {
+      prompt: "Vérification rapide : Quelle valeur vous importe le plus en ce moment ?",
+      alignment_prompt: "Vos actions récentes sont-elles alignées avec cette valeur ?",
+      yes: "Oui", somewhat: "En partie", not_really: "Pas vraiment",
+      result_yes: "✓ Super ! Continuez dans cette direction.",
+      result_somewhat: "→ Bonne conscience. Quel est un petit pas vers plus d'alignement ?",
+      result_no: "⚠️ Vous avez remarqué l'écart ? C'est le premier pas. Choisissez une petite action aujourd'hui.",
+      tip: "Les valeurs ne sont pas des objectifs à atteindre—ce sont des directions vers lesquelles se déplacer.",
+      values: { connection: "Connexion", growth: "Croissance", authenticity: "Authenticité", courage: "Courage", compassion: "Compassion", creativity: "Créativité", health: "Santé", peace: "Paix" }
+    },
+    expansion: {
+      description: "L'expansion consiste à faire de la place pour les émotions difficiles plutôt que de les combattre.",
+      emotion_prompt: "Quelle émotion est présente en ce moment ?",
+      emotion_placeholder: "ex., anxiété, tristesse, colère",
+      begin_btn: "Commencer la Pratique d'Expansion",
+      steps: ["Nommez l'émotion que vous ressentez.", "Où la ressentez-vous dans votre corps ?", "Au lieu de la repousser, respirez vers cet endroit.", "Imaginez créer de l'espace autour du sentiment—sans le rétrécir, en le permettant simplement.", "Remarquez : Vous pouvez ressentir cela ET continuer d'avancer."],
+      completion: "✓ Vous avez pratiqué la création d'espace pour {{emotion}}. L'expansion ne fait pas disparaître les sentiments—elle vous aide à les porter avec moins de lutte."
+    },
+    leaves_on_stream: {
+      description: "Imaginez un doux ruisseau avec des feuilles qui flottent. Placez des pensées collantes sur des feuilles et regardez-les dériver.",
+      thought_prompt: "Quelle pensée vous accroche en ce moment ?",
+      thought_placeholder: "ex., Je ne suis pas assez bien",
+      place_btn: "Placer sur une Feuille et Regarder Flotter",
+      floating: "En train de flotter...",
+      tip: "Vous n'essayez pas de vous débarrasser des pensées—juste de les remarquer sans vous y accrocher."
+    },
+    half_smile: {
+      description: "Le Demi-Sourire est une expression faciale douce qui peut changer votre état émotionnel. Même un petit sourire signale la sécurité à votre système nerveux.",
+      feel_now_prompt: "Comment vous sentez-vous en ce moment ?",
+      emotions: ["Tendu", "Frustré", "Anxieux", "Triste", "Neutre"],
+      practiced_btn: "J'ai Pratiqué pendant 30 Secondes",
+      feel_after_prompt: "Comment vous sentez-vous maintenant ?",
+      result: "✓ Avant : {{before}} → Après : {{after}}\n\nMême un changement subtil compte. Le Demi-Sourire est un outil que vous pouvez utiliser partout."
+    },
+    willing_hands: {
+      description: "Les Mains Ouvertes est une pratique d'acceptation basée sur le corps. Elle signale l'ouverture à la réalité, même quand c'est difficile.",
+      steps: ["Tournez vos paumes vers le haut et posez-les sur vos genoux ou à vos côtés.", "Relâchez complètement vos mains—laissez la tension s'écouler.", "Adoucissez votre visage, surtout la mâchoire et le front.", "Respirez naturellement et dites (en silence) : 'Je suis prêt(e).'", "Maintenez cela pendant 30 secondes, en remarquant tout changement."],
+      completion: "✓ Bien ! Les Mains Ouvertes est un geste physique d'acceptation. Pratiquez-le quand vous luttez contre la réalité."
+    }
   },
   de: {
     common: { try_another: "Anderes versuchen" },
