@@ -89,7 +89,7 @@ export default function DailyReflection({ todayFlow, exercise, onClose }) {
               <h2 className="text-2xl font-semibold mb-3" style={{ color: 'rgb(var(--text))' }}>
                 You're all done for today!
               </h2>
-              <p style={{ color: 'rgb(var(--muted))' }}>
+              <p style={{ color: 'rgb(var(--theme-muted))' }}>
                 See you tomorrow for your next daily practice
               </p>
             </CardContent>
@@ -133,7 +133,7 @@ export default function DailyReflection({ todayFlow, exercise, onClose }) {
             <div className="mb-8 p-6 transition-calm" style={{ 
               borderRadius: 'var(--r-lg)',
               backgroundColor: 'rgb(var(--calm) / 0.05)',
-              border: '1px solid rgb(var(--border))'
+              border: '1px solid rgb(var(--theme-border))'
             }}>
               <div className="flex items-start gap-3 mb-3">
                 <Sparkles className="w-5 h-5 icon-default mt-0.5" style={{ color: 'rgb(var(--calm))' }} strokeWidth={2} />
@@ -163,18 +163,18 @@ export default function DailyReflection({ todayFlow, exercise, onClose }) {
                     style={{ 
                       borderRadius: 'var(--r-md)',
                       backgroundColor: selectedTakeaway === takeaway 
-                        ? 'rgb(var(--accent) / 0.1)' 
+                        ? 'rgb(var(--theme-accent) / 0.1)' 
                         : 'rgb(var(--surface-2))',
                       border: selectedTakeaway === takeaway 
-                        ? '2px solid rgb(var(--accent))' 
-                        : '1px solid rgb(var(--border))'
+                        ? '2px solid rgb(var(--theme-accent))' 
+                        : '1px solid rgb(var(--theme-border))'
                     }}
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-5 h-5 flex items-center justify-center transition-calm" style={{ 
                         borderRadius: 'var(--r-xs)',
-                        border: `2px solid ${selectedTakeaway === takeaway ? 'rgb(var(--accent))' : 'rgb(var(--border))'}`,
-                        backgroundColor: selectedTakeaway === takeaway ? 'rgb(var(--accent))' : 'transparent'
+                        border: `2px solid ${selectedTakeaway === takeaway ? 'rgb(var(--theme-accent))' : 'rgb(var(--theme-border))'}`,
+                        backgroundColor: selectedTakeaway === takeaway ? 'rgb(var(--theme-accent))' : 'transparent'
                       }}>
                         {selectedTakeaway === takeaway && (
                           <CheckCircle2 className="w-4 h-4" style={{ color: 'rgb(var(--accent-contrast))' }} strokeWidth={3} />
@@ -201,7 +201,7 @@ export default function DailyReflection({ todayFlow, exercise, onClose }) {
                   className="transition-calm"
                   style={{ 
                     borderRadius: 'var(--r-md)',
-                    borderColor: 'rgb(var(--border))'
+                    borderColor: 'rgb(var(--theme-border))'
                   }}
                   rows={3}
                 />
@@ -224,7 +224,7 @@ export default function DailyReflection({ todayFlow, exercise, onClose }) {
                 className="flex-1 transition-calm"
                 style={{ 
                   borderRadius: 'var(--r-md)',
-                  backgroundColor: 'rgb(var(--accent))',
+                  backgroundColor: 'rgb(var(--theme-accent))',
                   color: 'rgb(var(--accent-contrast))',
                   opacity: (!customTakeaway && !selectedTakeaway) ? 0.5 : 1
                 }}

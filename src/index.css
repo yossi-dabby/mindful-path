@@ -37,6 +37,23 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Custom theme palette (RGB format, used with rgb()) */
+    --bg: 248 248 246;
+    --surface: 255 255 253;
+    --surface-2: 244 244 241;
+    --text: 34 39 46;
+    --theme-muted: 102 112 133;
+    --theme-border: 226 228 233;
+    --theme-accent: 255 142 66;
+    --theme-accent-2: 255 205 102;
+    --accent-contrast: 255 255 255;
+    --calm: 93 156 236;
+    --calm-2: 120 196 164;
+    --success: 84 179 126;
+    --warning: 243 179 74;
+    --danger: 222 92 92;
+    --theme-ring: 255 142 66;
   }
 
   .dark {
@@ -72,6 +89,22 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Custom theme palette dark mode overrides (RGB format) */
+    --bg: 12 18 28;
+    --surface: 16 24 36;
+    --surface-2: 20 30 44;
+    --text: 235 240 246;
+    --theme-muted: 170 182 198;
+    --theme-border: 34 46 64;
+    --theme-accent: 255 160 92;
+    --theme-accent-2: 255 212 132;
+    --calm: 120 176 246;
+    --calm-2: 136 206 176;
+    --success: 118 206 164;
+    --warning: 246 192 102;
+    --danger: 234 116 116;
+    --theme-ring: 255 160 92;
   }
 }
 
@@ -84,5 +117,43 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  /* Soft gradient backgrounds — use rgb(var(--bg)) so they adapt to dark mode */
+  .bg-warm-gradient {
+    background: linear-gradient(135deg, rgb(var(--bg)) 0%, rgb(248 244 238) 100%);
+  }
+
+  .bg-calm-gradient {
+    background: linear-gradient(135deg, rgb(var(--bg)) 0%, rgb(240 247 255) 100%);
+  }
+
+  .bg-energy-gradient {
+    background: linear-gradient(135deg, rgb(var(--bg)) 0%, rgb(255 250 235) 100%);
+  }
+
+  /* Theme-specific backgrounds with light-mode tints */
+  .bg-theme-forest {
+    background: linear-gradient(135deg, rgb(var(--bg)) 0%, rgba(240, 248, 240, 0.5) 100%);
+  }
+
+  .bg-theme-lavender {
+    background: linear-gradient(135deg, rgb(var(--bg)) 0%, rgba(240, 235, 255, 0.5) 100%);
+  }
+
+  .bg-theme-minimal {
+    background: linear-gradient(135deg, rgb(var(--bg)) 0%, rgba(245, 245, 247, 0.5) 100%);
+  }
+
+  /* Dark mode: override all gradient backgrounds to use the dark surface palette */
+  .dark .bg-warm-gradient,
+  .dark .bg-calm-gradient,
+  .dark .bg-energy-gradient,
+  .dark .bg-theme-forest,
+  .dark .bg-theme-lavender,
+  .dark .bg-theme-minimal {
+    background: linear-gradient(135deg, rgb(var(--bg)) 0%, rgb(var(--surface-2)) 100%);
   }
 }

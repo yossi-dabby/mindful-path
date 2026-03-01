@@ -81,7 +81,7 @@ export default function Videos() {
         {/* Loading State */}
         {isLoading && (
           <div className="text-center py-12">
-            <p style={{ color: 'rgb(var(--muted))' }}>{t('videos.loading')}</p>
+            <p style={{ color: 'rgb(var(--theme-muted))' }}>{t('videos.loading')}</p>
           </div>
         )}
 
@@ -89,7 +89,7 @@ export default function Videos() {
         {!isLoading && videos.length === 0 && (
           <div className="text-center py-12">
             <p className="text-lg mb-2" style={{ color: 'rgb(var(--text))' }}>{t('videos.no_videos_title')}</p>
-            <p style={{ color: 'rgb(var(--muted))' }}>{t('videos.no_videos_description')}</p>
+            <p style={{ color: 'rgb(var(--theme-muted))' }}>{t('videos.no_videos_description')}</p>
           </div>
         )}
 

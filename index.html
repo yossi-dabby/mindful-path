@@ -8,7 +8,9 @@
     <meta name="theme-color" content="#26a69a" />
     <script>
       (function () {
-        var isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var stored = localStorage.getItem('theme');
+        var isDark = stored === 'dark' || (stored !== 'light' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (isDark) document.documentElement.classList.add('dark');
         var meta = document.querySelector('meta[name="theme-color"]');
         if (meta) meta.setAttribute('content', isDark ? '#0c121c' : '#f8f8f6');
       })();

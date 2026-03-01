@@ -89,7 +89,7 @@ export default function PlaylistDetail() {
       <div className="min-h-screen bg-warm-gradient">
         <div className="page-container max-w-7xl">
           <div className="text-center py-12">
-            <p style={{ color: 'rgb(var(--muted))' }}>{t('playlist_detail.loading')}</p>
+            <p style={{ color: 'rgb(var(--theme-muted))' }}>{t('playlist_detail.loading')}</p>
           </div>
         </div>
       </div>
@@ -105,7 +105,7 @@ export default function PlaylistDetail() {
             variant="ghost"
             onClick={() => navigate(createPageUrl('Playlists'))}
             className="mb-4 -ml-2"
-            style={{ color: 'rgb(var(--muted))' }}
+            style={{ color: 'rgb(var(--theme-muted))' }}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             {t('playlist_detail.back_to_playlists')}
@@ -114,11 +114,11 @@ export default function PlaylistDetail() {
             {playlist.name}
           </h1>
           {playlist.description && (
-            <p className="text-base mb-2" style={{ color: 'rgb(var(--muted))' }}>
+            <p className="text-base mb-2" style={{ color: 'rgb(var(--theme-muted))' }}>
               {playlist.description}
             </p>
           )}
-          <p className="text-sm" style={{ color: 'rgb(var(--accent))' }}>
+          <p className="text-sm" style={{ color: 'rgb(var(--theme-accent))' }}>
             {t('playlist_detail.video_count', { count: videos.length })}
           </p>
         </div>
@@ -127,14 +127,14 @@ export default function PlaylistDetail() {
         {videos.length === 0 && (
           <div className="text-center py-12">
             <p className="text-lg mb-2" style={{ color: 'rgb(var(--text))' }}>{t('playlist_detail.no_videos_title')}</p>
-            <p style={{ color: 'rgb(var(--muted))' }}>
+            <p style={{ color: 'rgb(var(--theme-muted))' }}>
               {t('playlist_detail.no_videos_description')}
             </p>
             <Button
               onClick={() => navigate(createPageUrl('Videos'))}
               className="mt-4"
               style={{ 
-                backgroundColor: 'rgb(var(--accent))',
+                backgroundColor: 'rgb(var(--theme-accent))',
                 color: 'rgb(var(--accent-contrast))'
               }}
             >
@@ -171,7 +171,7 @@ export default function PlaylistDetail() {
                             className="w-16 h-16 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform"
                             style={{ 
                               borderRadius: 'var(--r-xl)',
-                              backgroundColor: 'rgb(var(--accent))'
+                              backgroundColor: 'rgb(var(--theme-accent))'
                             }}
                           >
                             <Play className="w-8 h-8 text-white fill-white" />
@@ -191,7 +191,7 @@ export default function PlaylistDetail() {
                                   className="h-full transition-all duration-300"
                                   style={{ 
                                     width: `${progress.progress}%`,
-                                    backgroundColor: 'rgb(var(--accent))'
+                                    backgroundColor: 'rgb(var(--theme-accent))'
                                   }}
                                 />
                               </div>
@@ -217,7 +217,7 @@ export default function PlaylistDetail() {
                         {video.title}
                       </h3>
                       {video.category && (
-                        <p className="text-sm" style={{ color: 'rgb(var(--muted))' }}>
+                        <p className="text-sm" style={{ color: 'rgb(var(--theme-muted))' }}>
                           {video.category}
                         </p>
                       )}

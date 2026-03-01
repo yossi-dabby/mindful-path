@@ -173,7 +173,7 @@ export default function QuickActions() {
                     className="w-14 h-14 flex items-center justify-center"
                     style={{ 
                       borderRadius: '20px',
-                      backgroundColor: 'rgb(var(--accent))',
+                      backgroundColor: 'rgb(var(--theme-accent))',
                       boxShadow: '0 6px 16px rgba(255, 142, 66, 0.4)'
                     }}
                     whileHover={{ rotate: 5 }}
@@ -515,7 +515,7 @@ export default function QuickActions() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5" style={{ color: 'rgb(var(--accent))' }} />
+                  <Sparkles className="w-5 h-5" style={{ color: 'rgb(var(--theme-accent))' }} />
                   <h2 className="text-xl font-semibold">{t('quick_actions.personalized_recommendations')}</h2>
                 </div>
                 <Button variant="ghost" size="icon" onClick={() => setShowRecommendations(false)} aria-label="Close recommendations">

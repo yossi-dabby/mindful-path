@@ -177,7 +177,7 @@ export default function VideoPlayer() {
                       className="h-full transition-all duration-300"
                       style={{ 
                         width: `${videoProgress.progress}%`,
-                        backgroundColor: 'rgb(var(--accent))'
+                        backgroundColor: 'rgb(var(--theme-accent))'
                       }}
                     />
                   </div>
