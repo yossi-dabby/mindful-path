@@ -26,19 +26,19 @@ export default function Expansion({ onClose }) {
         border: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
         <p className="text-sm mb-4 break-words whitespace-normal" style={{ color: '#5A7A72' }}>
-          Expansion is making room for difficult emotions instead of fighting them.
+          {t('mind_games.expansion.description')}
         </p>
 
         {step === 0 ? (
           <>
             <p className="text-sm font-semibold mb-2" style={{ color: '#1A3A34' }}>
-              What emotion is present right now?
+              {t('mind_games.expansion.emotion_prompt')}
             </p>
             <input
               type="text"
               value={emotion}
               onChange={(e) => setEmotion(e.target.value)}
-              placeholder="e.g., anxiety, sadness, anger"
+              placeholder={t('mind_games.expansion.emotion_placeholder')}
               className="w-full p-3 mb-4 text-sm"
               style={{
                 borderRadius: '12px',
@@ -58,7 +58,7 @@ export default function Expansion({ onClose }) {
                 color: 'white'
               }}
             >
-              Begin Expansion Practice
+              {t('mind_games.expansion.begin_btn')}
             </Button>
           </>
         ) : step <= steps.length ? (
@@ -84,7 +84,7 @@ export default function Expansion({ onClose }) {
                 color: 'white'
               }}
             >
-              {step < steps.length ? 'Next' : 'Finish'}
+              {step < steps.length ? t('common.next') : t('common.finish')}
             </Button>
           </>
         ) : (
@@ -94,7 +94,7 @@ export default function Expansion({ onClose }) {
             border: '1px solid rgba(34, 197, 94, 0.2)'
           }}>
             <p className="text-sm break-words whitespace-normal" style={{ color: '#1A3A34' }}>
-              ✓ You practiced making room for {emotion}. Expansion doesn't make feelings go away—it helps you carry them with less struggle.
+              {t('mind_games.expansion.completion', { emotion })}
             </p>
           </div>
         )}
