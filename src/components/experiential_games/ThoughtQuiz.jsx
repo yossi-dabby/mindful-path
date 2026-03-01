@@ -32,7 +32,7 @@ export default function ThoughtQuiz({ onClose }) {
       if (questionsAnswered > 0) {
         const successRate = (score / questionsAnswered) * 100;
         trackGamePlay({
-          game: { id: 'thought_quiz', slug: 'thought-quiz', title: 'Thought Quiz' },
+          game: { id: 'thought_quiz', slug: 'thought-quiz', title: t('mind_games.games.thought_quiz.title') },
           completed: true,
           durationSeconds: questionsAnswered * 15,
           difficulty_level: difficulty,
