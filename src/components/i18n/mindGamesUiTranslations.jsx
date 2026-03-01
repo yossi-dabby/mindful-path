@@ -880,7 +880,10 @@ export const mindGamesUiByLanguage = {
         { question: "Welche Form vervollständigt das Muster: Kreis, Quadrat, ?, Kreis?" },
         { question: "Welche Größe kommt als nächstes: Groß, Mittel, ?, Groß?" },
         { question: "Setzen Sie das Muster fort: 1, 2, 3, 1, ?" }
-      ]
+      ],
+      option_colors: ["Rot", "Blau", "Grün"],
+      option_shapes: ["Kreis", "Quadrat", "Dreieck"],
+      option_sizes: ["Klein", "Mittel", "Groß"]
     },
     word_association: {
       title: "Wort-Assoziation",
@@ -934,6 +937,7 @@ export const mindGamesUiByLanguage = {
       emotions: ["Angst", "Ärger", "Traurigkeit", "Schuld", "Scham"],
       check_btn: "Fakten Prüfen",
       for_emotion: "Für {{emotion}}, fragen Sie sich:",
+      default_prompts: ["Was sind die Fakten?", "Füge ich Interpretationen hinzu?", "Passt diese Emotion?"],
       tip: "Wenn die Fakten die Intensität der Emotion nicht unterstützen, nutzen Sie entgegengesetzte Aktion oder andere Fähigkeiten.",
       emotion_prompts: {
         fear: ["Gibt es eine echte, unmittelbare Gefahr?", "Was ist das Schlimmste, was passieren könnte?", "Was sind die Beweise?"],
@@ -988,6 +992,8 @@ export const mindGamesUiByLanguage = {
       description: "Das Halbe Lächeln ist ein sanfter Gesichtsausdruck, der Ihren emotionalen Zustand verändern kann. Sogar ein kleines Lächeln signalisiert Sicherheit an Ihr Nervensystem.",
       feel_now_prompt: "Wie fühlen Sie sich gerade?",
       emotions: ["Angespannt", "Frustriert", "Ängstlich", "Traurig", "Neutral"],
+      try_prompt: "Versuchen Sie das für 30 Sekunden:",
+      instructions: ["Entspannen Sie Ihr Gesicht, besonders den Kiefer.", "Heben Sie die Mundwinkel leicht an (10%).", "Entspannen Sie Ihren Blick.", "Atmen Sie langsam."],
       practiced_btn: "Ich Habe 30 Sekunden Geübt",
       feel_after_prompt: "Wie fühlen Sie sich jetzt?",
       result: "✓ Vorher: {{before}} → Nachher: {{after}}\n\nSogar eine subtile Verschiebung zählt. Das Halbe Lächeln ist ein Werkzeug, das Sie überall einsetzen können."
