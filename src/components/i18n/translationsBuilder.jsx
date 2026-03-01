@@ -6,7 +6,8 @@ const gameKeys = [
   'common','quick_win','opposite_action','urge_surfing','value_compass','tiny_experiment',
   'worry_time','dbt_stop','defusion_cards','calm_bingo','tipp_skills','accepts','improve',
   'self_soothe','memory_match','focus_flow','pattern_shift','word_association','number_sequence',
-  'reframe_pick','evidence_balance'
+  'reframe_pick','evidence_balance','mountain_meditation','check_the_facts','pros_and_cons',
+  'values_check','expansion','leaves_on_stream','half_smile','willing_hands'
 ];
 
 const contentKeys = [
