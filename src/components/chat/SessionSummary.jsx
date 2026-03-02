@@ -29,7 +29,7 @@ export default function SessionSummary({ conversation }) {
         <CardHeader className="border-b bg-white">
           <CardTitle className="flex items-center gap-2 text-purple-900">
             <FileText className="w-5 h-5" />
-            Session Summary
+            {t('chat.session_summary.title')}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6 space-y-6 bg-white">
