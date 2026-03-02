@@ -190,7 +190,7 @@ export default function QuickActions() {
           </motion.div>
         </motion.div>
 
-        {/* StarterPath Card */}
+        {/* StarterPath Card — collapsible, same size as other cards when folded */}
         {!pathLoading && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -202,20 +202,22 @@ export default function QuickActions() {
               whileHover={{ scale: 1.04, y: -6 }}
               whileTap={{ scale: 0.98 }}
             >
-              <Card 
-                className="border-0 hover:shadow-xl transition-all cursor-pointer group h-full" 
+              <Card
+                className="border-0 hover:shadow-xl transition-all cursor-pointer group h-full"
                 style={{
                   borderRadius: '28px',
                   background: 'linear-gradient(145deg, rgba(38, 166, 154, 0.15) 0%, rgba(255, 255, 255, 0.7) 100%)',
                   backdropFilter: 'blur(12px)',
                   boxShadow: '0 6px 24px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.6)'
                 }}
+                onClick={() => setStarterPathExpanded(v => !v)}
               >
                 <CardContent className="p-5">
-                  <div className="flex items-center gap-3 mb-3">
-                    <motion.div 
-                      className="w-14 h-14 flex items-center justify-center"
-                      style={{ 
+                  {/* Always-visible header row — same layout as other cards */}
+                  <div className="flex items-center gap-3 mb-4">
+                    <motion.div
+                      className="w-14 h-14 flex items-center justify-center flex-shrink-0"
+                      style={{
                         borderRadius: '20px',
                         backgroundColor: '#26A69A',
                         boxShadow: '0 6px 16px rgba(38, 166, 154, 0.4)'
@@ -225,9 +227,9 @@ export default function QuickActions() {
                     >
                       <Sparkles className="w-7 h-7 text-white" strokeWidth={2.5} />
                     </motion.div>
-                    
+
                     <motion.button
-                      animate={{ 
+                      animate={{
                         scale: [1, 1.05, 1],
                         boxShadow: [
                           '0 4px 12px rgba(38, 166, 154, 0.4)',
@@ -241,8 +243,8 @@ export default function QuickActions() {
                         e.stopPropagation();
                         setShowStarterPathVideo(true);
                       }}
-                      className="flex items-center justify-center cursor-pointer hover:scale-110 transition-transform"
-                      style={{ 
+                      className="flex items-center justify-center cursor-pointer hover:scale-110 transition-transform flex-shrink-0"
+                      style={{
                         width: '56px',
                         height: '56px',
                         borderRadius: '20px',
@@ -257,96 +259,109 @@ export default function QuickActions() {
                     </motion.button>
                   </div>
 
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold text-sm break-words" style={{ color: '#1A3A34' }}>
+                  {/* Title row */}
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-sm break-words leading-tight" style={{ color: '#1A3A34' }}>
                       {t('starter_path.card_title')}
                     </h3>
-                    {isStarted && (
-                      <Badge variant="secondary" className="border-0 text-xs" style={{ 
-                        borderRadius: '12px',
-                        backgroundColor: 'rgba(38, 166, 154, 0.15)',
-                        color: '#26A69A'
-                      }}>
-                        {currentDay}/7
-                      </Badge>
-                    )}
-                  </div>
-
-                  <p className="text-xs mb-3 line-clamp-2 break-words" style={{ color: '#5A7A72' }}>
-                    {isStarted 
-                      ? t(`starter_path.day_themes.${currentDay}.description`, { defaultValue: t('starter_path.card_description_continue') })
-                      : t('starter_path.card_description_new')}
-                  </p>
-
-                  {/* Progress Bar */}
-                  {isStarted && (
-                    <div className="mb-3">
-                      <div className="h-2 overflow-hidden" style={{ 
-                        backgroundColor: 'rgba(200, 220, 215, 0.5)',
-                        borderRadius: '10px'
-                      }}>
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${(currentDay / 7) * 100}%` }}
-                          transition={{ duration: 0.5 }}
-                          style={{ 
-                            height: '100%',
-                            backgroundColor: '#26A69A',
-                            borderRadius: '10px'
-                          }}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Actions */}
-                  <div className="flex gap-2">
-                    {isStarted ? (
-                      <>
-                        <Link to={createPageUrl('StarterPath')} className="flex-1">
-                          <Button
-                            className="w-full px-4 py-2 font-medium transition-calm text-white text-xs"
-                            style={{ 
-                              borderRadius: '16px',
-                              backgroundColor: '#26A69A'
-                            }}
-                          >
-                            {isCompleted ? t('starter_path.card_btn_review') : t('starter_path.card_btn_continue')}
-                            <ArrowRight className="w-3 h-3 ml-1" strokeWidth={2} />
-                          </Button>
-                        </Link>
-                        {isCompleted && (
-                          <Button
-                            onClick={() => refreshPathMutation.mutate()}
-                            disabled={refreshPathMutation.isPending}
-                            variant="outline"
-                            size="icon"
-                            className="flex-shrink-0"
-                            style={{ 
-                              borderRadius: '16px',
-                              borderColor: 'rgba(38, 166, 154, 0.3)'
-                            }}
-                            aria-label="Restart path"
-                          >
-                            <RefreshCw className="w-4 h-4" style={{ color: '#26A69A' }} strokeWidth={2} />
-                          </Button>
-                        )}
-                      </>
-                    ) : (
-                      <Button
-                        onClick={() => startPathMutation.mutate()}
-                        disabled={startPathMutation.isPending}
-                        className="w-full px-4 py-2 font-medium transition-calm text-white text-xs"
-                        style={{ 
-                          borderRadius: '16px',
-                          backgroundColor: '#26A69A'
-                        }}
+                    <div className="flex items-center gap-1 flex-shrink-0 ml-1">
+                      {isStarted && (
+                        <Badge variant="secondary" className="border-0 text-xs" style={{
+                          borderRadius: '12px',
+                          backgroundColor: 'rgba(38, 166, 154, 0.15)',
+                          color: '#26A69A'
+                        }}>
+                          {currentDay}/7
+                        </Badge>
+                      )}
+                      <motion.span
+                        animate={{ rotate: starterPathExpanded ? 180 : 0 }}
+                        transition={{ duration: 0.2 }}
+                        style={{ color: '#26A69A', display: 'inline-flex' }}
                       >
-                        {startPathMutation.isPending ? t('starter_path.card_btn_starting') : t('starter_path.card_btn_start')}
-                        <ArrowRight className="w-3 h-3 ml-1" strokeWidth={2} />
-                      </Button>
-                    )}
+                        <ArrowRight className="w-3 h-3" style={{ transform: 'rotate(90deg)' }} strokeWidth={2.5} />
+                      </motion.span>
+                    </div>
                   </div>
+
+                  {/* Expanded content */}
+                  <AnimatePresence initial={false}>
+                    {starterPathExpanded && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                        style={{ overflow: 'hidden' }}
+                        onClick={e => e.stopPropagation()}
+                      >
+                        <p className="text-xs mt-2 mb-3 line-clamp-2 break-words" style={{ color: '#5A7A72' }}>
+                          {isStarted
+                            ? t(`starter_path.day_themes.${currentDay}.description`, { defaultValue: t('starter_path.card_description_continue') })
+                            : t('starter_path.card_description_new')}
+                        </p>
+
+                        {isStarted && (
+                          <div className="mb-3">
+                            <div className="h-2 overflow-hidden" style={{
+                              backgroundColor: 'rgba(200, 220, 215, 0.5)',
+                              borderRadius: '10px'
+                            }}>
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${(currentDay / 7) * 100}%` }}
+                                transition={{ duration: 0.5 }}
+                                style={{
+                                  height: '100%',
+                                  backgroundColor: '#26A69A',
+                                  borderRadius: '10px'
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex gap-2">
+                          {isStarted ? (
+                            <>
+                              <Link to={createPageUrl('StarterPath')} className="flex-1" onClick={e => e.stopPropagation()}>
+                                <Button
+                                  className="w-full px-4 py-2 font-medium transition-calm text-white text-xs"
+                                  style={{ borderRadius: '16px', backgroundColor: '#26A69A' }}
+                                >
+                                  {isCompleted ? t('starter_path.card_btn_review') : t('starter_path.card_btn_continue')}
+                                  <ArrowRight className="w-3 h-3 ml-1" strokeWidth={2} />
+                                </Button>
+                              </Link>
+                              {isCompleted && (
+                                <Button
+                                  onClick={(e) => { e.stopPropagation(); refreshPathMutation.mutate(); }}
+                                  disabled={refreshPathMutation.isPending}
+                                  variant="outline"
+                                  size="icon"
+                                  className="flex-shrink-0"
+                                  style={{ borderRadius: '16px', borderColor: 'rgba(38, 166, 154, 0.3)' }}
+                                  aria-label="Restart path"
+                                >
+                                  <RefreshCw className="w-4 h-4" style={{ color: '#26A69A' }} strokeWidth={2} />
+                                </Button>
+                              )}
+                            </>
+                          ) : (
+                            <Button
+                              onClick={(e) => { e.stopPropagation(); startPathMutation.mutate(); }}
+                              disabled={startPathMutation.isPending}
+                              className="w-full px-4 py-2 font-medium transition-calm text-white text-xs"
+                              style={{ borderRadius: '16px', backgroundColor: '#26A69A' }}
+                            >
+                              {startPathMutation.isPending ? t('starter_path.card_btn_starting') : t('starter_path.card_btn_start')}
+                              <ArrowRight className="w-3 h-3 ml-1" strokeWidth={2} />
+                            </Button>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </CardContent>
               </Card>
             </motion.div>
