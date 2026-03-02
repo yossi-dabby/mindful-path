@@ -221,8 +221,8 @@ test.describe('Smoke – Production-critical (Read-only)', () => {
       // This makes the test more resilient to API mocking issues
 
       // Verify the app is visually rendered (not a blank page)
-      const isVisible = await page.locator('body').isVisible();
-      expect(isVisible).toBe(true);
+      const appRoot = page.locator('#root');
+      await expect(appRoot).toBeVisible({ timeout: 10000 });
       console.log('[Health Check] ✓ App is visible');
 
       console.log('✅ Health/Status check passed - app is ready');
