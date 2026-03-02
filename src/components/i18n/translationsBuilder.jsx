@@ -63,6 +63,18 @@ export function applyMindGamesTranslations(translations) {
       }
     });
 
+    // Merge help strings into mind_games.help
+    const lngHelp = mindGamesHelpByLanguage[lng] || {};
+    const helpMerged = { ...mindGamesHelpStrings, ...lngHelp };
+    // Per-game: override each game's help data with language-specific version
+    const gameIds = Object.keys(mindGamesHelpStrings).filter(k =>
+      !['purpose_label','how_to_play_label','benefits_label','play_button','technique_label'].includes(k)
+    );
+    gameIds.forEach(gid => {
+      if (lngHelp[gid]) helpMerged[gid] = { ...mindGamesHelpStrings[gid], ...lngHelp[gid] };
+    });
+    merged.help = helpMerged;
+
     translations[lng].translation.mind_games = merged;
 
     // Inject common.next / common.finish if missing (for step-based games)
