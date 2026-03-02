@@ -1490,20 +1490,20 @@ export default function Chat() {
         )}
 
         {/* Input Area - Always visible, always on top */}
-        <div className="p-4 md:p-6 relative" style={{
+        <div className="px-3 pt-2 pb-2 md:px-6 md:pt-3 md:pb-3 relative" style={{
           background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(232, 246, 243, 0.8) 100%)',
           backdropFilter: 'blur(12px)',
           borderTop: '1px solid rgba(38, 166, 154, 0.2)',
           boxShadow: '0 -4px 16px rgba(38, 166, 154, 0.1)',
           zIndex: 50
         }}>
-          <div className="max-w-4xl mx-auto flex gap-3">
+          <div className="max-w-4xl mx-auto flex gap-2">
             <Textarea
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={t('chat.message_placeholder')}
-              className="flex-1 min-h-[60px] max-h-[200px] resize-none"
+              className="flex-1 min-h-[48px] max-h-[160px] resize-none"
               data-testid="therapist-chat-input"
               style={{
                 borderRadius: '20px',
@@ -1516,7 +1516,7 @@ export default function Chat() {
               onClick={handleSendMessage}
               disabled={!inputMessage.trim() || isLoading}
               data-testid="therapist-chat-send"
-              className="h-[60px] px-6 text-white"
+              className="h-[48px] px-4 text-white flex-shrink-0"
               style={{
                 borderRadius: '20px',
                 backgroundColor: '#26A69A',
@@ -1526,15 +1526,10 @@ export default function Chat() {
               <Send className="w-5 h-5" />
             </Button>
           </div>
-          {/* Always-visible persistent disclaimer */}
-          <div className="text-center mt-3 px-4">
-            <p className="text-xs font-medium mb-1" style={{ color: '#5A7A72' }}>
-              ⚠️ AI Support - Not Professional Therapy
-            </p>
-            <p className="text-xs" style={{ color: '#7A8A82' }}>
-              Cannot diagnose or prescribe. Crisis? Call 988 (US) or your local emergency services.
-            </p>
-          </div>
+          {/* Compact disclaimer */}
+          <p className="text-center mt-1 text-xs" style={{ color: '#7A8A82' }}>
+            ⚠️ AI Support - Not Professional Therapy. Cannot diagnose or prescribe. Crisis? Call 988 (US) or local emergency services.
+          </p>
         </div>
 
       {/* Enhanced Check-in Modal - highest z-index when active */}
