@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { gamesCatalog } from '../components/experiential_games/mindGamesContent';
+import GameInfoModal from '../components/experiential_games/GameInfoModal';
 import GameCard from '../components/experiential_games/GameCard';
 import MindGamesModalShell from '../components/experiential_games/MindGamesModalShell';
 import MindGameRecommendations from '../components/experiential_games/MindGameRecommendations';
