@@ -1314,7 +1314,7 @@ export default function Chat() {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col">
+            <div className="flex flex-col min-h-0 flex-1 overflow-y-auto">
               {/* Therapy State Machine */}
               {showTherapyFlow && messages.length === 0 && (
                 <div className="p-4 md:p-6" style={{
