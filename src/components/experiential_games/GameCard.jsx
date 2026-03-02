@@ -5,7 +5,7 @@ import { Puzzle, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
-export default function GameCard({ game, onClick, index }) {
+export default function GameCard({ game, onClick, onInfo, index }) {
   const { t } = useTranslation();
   return (
     <motion.div
