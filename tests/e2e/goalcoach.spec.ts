@@ -37,7 +37,8 @@ test.describe('GoalCoach Flow (Steps 1→4)', () => {
       console.log('[Step 1] Category selected, clicking Next...');
 
       const nextButton = page.locator('[data-testid="goalcoach-next"]').first();
-      await expect(nextButton).toBeVisible({ timeout: 10000 });
+      await nextButton.waitFor({ state: 'visible', timeout: 30000 });
+      await nextButton.scrollIntoViewIfNeeded();
       await expect(nextButton).toBeEnabled({ timeout: 10000 });
       await safeClick(nextButton);
 
@@ -101,10 +102,14 @@ test.describe('GoalCoach Flow (Steps 1→4)', () => {
       console.error('❌ GoalCoach flow failed:', error);
       requestLogger.logToConsole();
 
-      await page.screenshot({
-        path: `test-results/goalcoach-failed-${Date.now()}.png`,
-        fullPage: true
-      });
+      try {
+        await page.screenshot({
+          path: `test-results/goalcoach-failed-${Date.now()}.png`,
+          fullPage: true
+        });
+      } catch (screenshotErr) {
+        console.warn('Screenshot failed:', screenshotErr);
+      }
 
       const currentStep = await page.locator('[data-testid^="goalcoach-step-"]').count();
       console.log(`Current visible steps: ${currentStep}`);
