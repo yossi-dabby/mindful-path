@@ -49,7 +49,7 @@ export default function SessionSummary({ conversation }) {
             <div>
               <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                 <Dumbbell className="w-4 h-4 text-purple-600" />
-                Recommended Exercises
+                {t('chat.session_summary.recommended_exercises')}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {suggestedExercises.map((exercise) => (
