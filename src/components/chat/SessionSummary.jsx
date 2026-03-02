@@ -10,6 +10,7 @@ import { createPageUrl } from '../../utils';
 import { useTranslation } from 'react-i18next';
 
 export default function SessionSummary({ conversation }) {
+  const { t } = useTranslation();
   const { data: exercises } = useQuery({
     queryKey: ['exercises'],
     queryFn: () => base44.entities.Exercise.list(),
