@@ -78,24 +78,24 @@ export default function LanguageSelector() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{lang.flag}</span>
-                    <div>
+                <div className="flex items-center justify-between gap-2 min-w-0">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <span className="text-2xl flex-shrink-0">{lang.flag}</span>
+                    <div className="min-w-0 flex-1">
                       <h3 className={cn(
-                        "font-semibold text-gray-800",
+                        "font-semibold text-gray-800 truncate",
                         lang.rtl && "text-right"
                       )}>
                         {lang.native}
                       </h3>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 truncate">
                         {t(`settings.language.${lang.code}`)}
                       </p>
                     </div>
                   </div>
                   {isSelected && (
                     <motion.div 
-                      className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0"
+                      className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 ml-1"
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ type: "spring", stiffness: 300 }}

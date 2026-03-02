@@ -8,7 +8,7 @@ import Sidebar from './components/layout/Sidebar';
 import AppContent from './components/layout/AppContent';
 import ScrollPreservation from './components/layout/ScrollPreservation';
 import { TabNavigationProvider } from './components/layout/TabNavigationProvider';
-import './components/i18n/i18nConfig';
+import i18n from './components/i18n/i18nConfig';
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();

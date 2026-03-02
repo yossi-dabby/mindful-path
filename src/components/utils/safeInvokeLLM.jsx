@@ -1,5 +1,17 @@
 import { base44 } from '@/api/base44Client';
 import { detectCrisisLanguage } from './crisisDetector';
+import i18n from '../i18n/i18nConfig';
+
+// Map i18n language codes to natural language names for AI prompts
+const LANGUAGE_NAMES = {
+  en: 'English',
+  he: 'Hebrew',
+  es: 'Spanish',
+  fr: 'French',
+  de: 'German',
+  it: 'Italian',
+  pt: 'Portuguese'
+};
 
 /**
  * Safe wrapper around base44.integrations.Core.InvokeLLM
