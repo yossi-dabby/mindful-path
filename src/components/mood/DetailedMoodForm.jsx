@@ -195,20 +195,20 @@ export default function DetailedMoodForm({ entry, onClose }) {
           {/* Mood Selection */}
           <div>
             <label className="text-sm font-medium text-gray-700 mb-3 block">{t('mood_tracker.form.overall_mood')}</label>
-            <div className="grid grid-cols-5 gap-2 sm:gap-3">
+            <div className="grid grid-cols-5 gap-1 sm:gap-2 md:gap-3">
               {moodsConfig.map((mood) => (
                 <button
                   key={mood.value}
                   onClick={() => setFormData({ ...formData, mood: mood.value })}
                   className={cn(
-                    'flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all',
+                    'flex flex-col items-center gap-1 sm:gap-2 p-2 sm:p-4 rounded-2xl border-2 transition-all',
                     formData.mood === mood.value
                       ? 'border-purple-400 bg-purple-50 shadow-lg scale-105'
                       : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                   )}
                 >
-                  <span className="text-2xl sm:text-3xl">{mood.icon}</span>
-                  <span className="text-xs font-medium text-gray-700 break-words text-center">{t(mood.labelKey)}</span>
+                  <span className="text-xl sm:text-2xl md:text-3xl">{mood.icon}</span>
+                  <span className="text-[10px] sm:text-xs font-medium text-gray-700 break-words text-center leading-tight">{t(mood.labelKey)}</span>
                 </button>
               ))}
             </div>
@@ -261,7 +261,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
           {/* Energy Level */}
           <div>
             <label className="text-sm font-medium text-gray-700 mb-3 block">{t('mood_tracker.form.energy_level')}</label>
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-5 gap-1 sm:gap-2">
               {energyLevelsConfig.map((level) => {
                 const Icon = level.icon;
                 return (
@@ -269,14 +269,14 @@ export default function DetailedMoodForm({ entry, onClose }) {
                     key={level.value}
                     onClick={() => setFormData({ ...formData, energy_level: level.value })}
                     className={cn(
-                      'flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all',
+                      'flex flex-col items-center gap-1 p-2 sm:p-3 rounded-xl border-2 transition-all',
                       formData.energy_level === level.value
                         ? 'border-blue-400 bg-blue-50'
                         : 'border-gray-200 hover:border-gray-300'
                     )}
                   >
                     <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
-                    <span className="text-xs break-words text-center">{t(level.labelKey)}</span>
+                    <span className="text-[10px] sm:text-xs break-words text-center leading-tight">{t(level.labelKey)}</span>
                   </button>
                 );
               })}
@@ -286,7 +286,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
           {/* Sleep Quality */}
           <div>
             <label className="text-sm font-medium text-gray-700 mb-3 block">{t('mood_tracker.form.sleep_quality')}</label>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-4 gap-1 sm:gap-2">
               {sleepQualitiesConfig.map((quality) => {
                 const Icon = quality.icon;
                 return (
@@ -294,14 +294,14 @@ export default function DetailedMoodForm({ entry, onClose }) {
                     key={quality.value}
                     onClick={() => setFormData({ ...formData, sleep_quality: quality.value })}
                     className={cn(
-                      'flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all',
+                      'flex flex-col items-center gap-1 p-2 sm:p-3 rounded-xl border-2 transition-all',
                       formData.sleep_quality === quality.value
                         ? 'border-indigo-400 bg-indigo-50'
                         : 'border-gray-200 hover:border-gray-300'
                     )}
                   >
                     <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
-                    <span className="text-xs break-words text-center">{t(quality.labelKey)}</span>
+                    <span className="text-[10px] sm:text-xs break-words text-center leading-tight">{t(quality.labelKey)}</span>
                   </button>
                 );
               })}

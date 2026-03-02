@@ -486,7 +486,7 @@ export default function StandaloneDailyCheckIn() {
               <h3 className="text-base font-semibold text-gray-800">
                 {t('daily_check_in.step1_question')}
               </h3>
-              <div className="grid grid-cols-5 gap-2 md:gap-3">
+              <div className="grid grid-cols-5 gap-1 sm:gap-2 md:gap-3">
                 {moodOptions.map((mood) => (
                   <button
                     key={mood.value}
@@ -498,7 +498,7 @@ export default function StandaloneDailyCheckIn() {
                       }
                     }}
                     className={cn(
-                      "flex flex-col items-center justify-center p-2 md:p-4 transition-all hover:scale-105",
+                      "flex flex-col items-center justify-center p-1 sm:p-2 md:p-4 transition-all hover:scale-105",
                       formData.mood === mood.value
                         ? "shadow-lg"
                         : "hover:opacity-80"
@@ -508,7 +508,7 @@ export default function StandaloneDailyCheckIn() {
                   >
                     <div 
                       className={cn(
-                        "w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-2 border-2 transition-all",
+                        "w-11 h-11 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-1 sm:mb-2 border-2 transition-all",
                         formData.mood === mood.value
                           ? "border-green-500 shadow-md"
                           : "border-transparent"
@@ -517,9 +517,9 @@ export default function StandaloneDailyCheckIn() {
                         backgroundColor: 'rgba(189, 224, 217, 0.6)'
                       }}
                     >
-                      <span className="text-2xl md:text-3xl">{mood.emoji}</span>
+                      <span className="text-xl sm:text-2xl md:text-3xl">{mood.emoji}</span>
                     </div>
-                    <div className="text-xs font-medium text-gray-700 text-center leading-tight whitespace-nowrap">
+                    <div className="text-[10px] sm:text-xs font-medium text-gray-700 text-center leading-tight">
                       {t(`daily_check_in.moods.${mood.value}`, { defaultValue: mood.label })}
                     </div>
                   </button>

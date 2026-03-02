@@ -80,9 +80,9 @@ export default function MoodCalendar({ entries, onEditEntry }) {
         </div>
 
         {/* Calendar Grid */}
-        <div className="grid grid-cols-7 gap-2">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <div key={day} className="text-center font-semibold text-sm text-gray-600 py-2">
+        <div className="grid grid-cols-7 gap-1 sm:gap-2">
+          {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
+            <div key={day} className="text-center font-semibold text-xs sm:text-sm text-gray-600 py-1 sm:py-2">
               {day}
             </div>
           ))}
@@ -100,20 +100,20 @@ export default function MoodCalendar({ entries, onEditEntry }) {
                 key={day.toString()}
                 onClick={() => entry && onEditEntry(entry)}
                 className={cn(
-                  'aspect-square rounded-xl border-2 transition-all p-2 flex flex-col items-center justify-center gap-1',
+                  'aspect-square rounded-lg sm:rounded-xl border-2 transition-all p-0.5 sm:p-2 flex flex-col items-center justify-center gap-0 sm:gap-1',
                   entry 
                     ? 'border-purple-300 hover:border-purple-500 hover:shadow-lg cursor-pointer'
                     : 'border-gray-200 hover:border-gray-300',
                   isToday && 'ring-2 ring-purple-400'
                 )}
               >
-                <span className={cn('text-sm font-medium', !isSameMonth(day, currentMonth) && 'text-gray-300')}>
+                <span className={cn('text-xs sm:text-sm font-medium', !isSameMonth(day, currentMonth) && 'text-gray-300')}>
                   {format(day, 'd')}
                 </span>
                 {entry && (
                   <>
-                    <span className="text-2xl">{moodEmojis[entry.mood]}</span>
-                    <div className={cn('w-2 h-2 rounded-full', moodColors[entry.mood])} />
+                    <span className="text-sm sm:text-2xl leading-none">{moodEmojis[entry.mood]}</span>
+                    <div className={cn('hidden sm:block w-2 h-2 rounded-full', moodColors[entry.mood])} />
                   </>
                 )}
               </button>

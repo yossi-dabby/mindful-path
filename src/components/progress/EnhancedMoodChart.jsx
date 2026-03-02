@@ -73,15 +73,15 @@ export default function EnhancedMoodChart({ data }) {
       </ResponsiveContainer>
 
       {/* Mood Distribution */}
-      <div className="grid grid-cols-5 gap-2">
+      <div className="grid grid-cols-5 gap-1 sm:gap-2">
         {Object.keys(moodMap).reverse().map((mood) => {
           const count = data.filter(e => e.mood === mood).length;
           const percentage = ((count / data.length) * 100).toFixed(0);
           return (
-            <div key={mood} className="text-center p-2 bg-gray-50 rounded-lg">
-              <p className="text-xs font-medium text-gray-600 capitalize">{mood.replace('_', ' ')}</p>
-              <p className="text-lg font-bold text-purple-600">{percentage}%</p>
-              <p className="text-xs text-gray-500">{count} days</p>
+            <div key={mood} className="text-center p-1 sm:p-2 bg-gray-50 rounded-lg">
+              <p className="text-[10px] sm:text-xs font-medium text-gray-600 capitalize leading-tight">{mood.replace('_', ' ')}</p>
+              <p className="text-base sm:text-lg font-bold text-purple-600">{percentage}%</p>
+              <p className="text-[10px] sm:text-xs text-gray-500">{count} days</p>
             </div>
           );
         })}

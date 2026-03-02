@@ -120,26 +120,26 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
               <TabsList className={`grid w-full ${audioContent.length > 0 ? 'grid-cols-5' : 'grid-cols-4'}`}>
                 <TabsTrigger value="overview">
-                  <BookOpen className="w-4 h-4 mr-2" />
-                  Overview
+                  <BookOpen className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Overview</span>
                 </TabsTrigger>
                 <TabsTrigger value="instructions">
-                  <Play className="w-4 h-4 mr-2" />
-                  Practice
+                  <Play className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Practice</span>
                 </TabsTrigger>
                 {audioContent.length > 0 && (
                   <TabsTrigger value="audio">
-                    <Headphones className="w-4 h-4 mr-2" />
-                    Audio
+                    <Headphones className="w-4 h-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Audio</span>
                   </TabsTrigger>
                 )}
                 <TabsTrigger value="benefits">
-                  <Star className="w-4 h-4 mr-2" />
-                  Benefits
+                  <Star className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Benefits</span>
                 </TabsTrigger>
                 <TabsTrigger value="tips">
-                  <Lightbulb className="w-4 h-4 mr-2" />
-                  Tips
+                  <Lightbulb className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Tips</span>
                 </TabsTrigger>
               </TabsList>
 

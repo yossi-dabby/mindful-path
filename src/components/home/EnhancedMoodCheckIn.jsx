@@ -111,7 +111,7 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="fixed bottom-4 right-4 z-40 w-80"
+        className="fixed bottom-4 right-4 z-40 w-[calc(100vw-2rem)] sm:w-80"
       >
         <Card className="border-0 shadow-2xl" style={{
           borderRadius: '24px',
@@ -257,20 +257,20 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
                 <h3 className="text-lg font-semibold text-gray-800">
                   How are you feeling overall?
                 </h3>
-                <div className="grid grid-cols-5 gap-3">
+                <div className="grid grid-cols-5 gap-1 sm:gap-2 md:gap-3">
                   {moodOptions.map((mood) => (
                     <button
                       key={mood.value}
                       onClick={() => handleMoodSelect(mood)}
                       className={cn(
-                        "p-4 rounded-2xl border-2 transition-all hover:scale-105",
+                        "p-2 sm:p-4 rounded-2xl border-2 transition-all hover:scale-105",
                         formData.mood === mood.value
                           ? "border-green-500 bg-green-50 shadow-lg"
                           : "border-gray-200 bg-white hover:border-gray-300"
                       )}
                     >
-                      <div className="text-4xl mb-2">{mood.emoji}</div>
-                      <div className="text-xs font-medium text-gray-700">{mood.label}</div>
+                      <div className="text-2xl sm:text-4xl mb-1 sm:mb-2">{mood.emoji}</div>
+                      <div className="text-[10px] sm:text-xs font-medium text-gray-700 leading-tight">{mood.label}</div>
                     </button>
                   ))}
                 </div>
