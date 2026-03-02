@@ -78,7 +78,9 @@ test.describe('Chat Smoke Test', () => {
     await page.addInitScript(() => {
       localStorage.setItem('chat_consent_accepted', 'true');
       localStorage.setItem('age_verified', 'true');
-      document.body.setAttribute('data-test-env', 'true');
+      if (document.body) {
+        document.body.setAttribute('data-test-env', 'true');
+      }
       window.__TEST_APP_ID__ = 'test-app-id';
       window.__DISABLE_ANALYTICS__ = true;
     });
