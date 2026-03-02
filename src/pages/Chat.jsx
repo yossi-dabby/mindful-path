@@ -26,7 +26,7 @@ import ErrorBoundary from '../components/utils/ErrorBoundary';
 import { validateAgentOutput, sanitizeConversationMessages, parseCounters } from '../components/utils/validateAgentOutput.jsx';
 
 export default function Chat() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -1290,10 +1290,10 @@ export default function Chat() {
                     <span className="text-2xl">👋</span>
                   </div>
                   <h2 className="text-2xl font-semibold mb-2" style={{ color: '#1A3A34' }}>
-                    Welcome to Therapy
+                    {t('chat.welcome.title')}
                   </h2>
                   <p className="mb-6" style={{ color: '#5A7A72' }}>
-                    This is a safe, judgment-free space. Share what's on your mind, and let's work through it together.
+                    {t('chat.welcome.message')}
                   </p>
                   <Button
                     onClick={startNewConversation}
@@ -1304,7 +1304,7 @@ export default function Chat() {
                       boxShadow: '0 8px 24px rgba(38, 166, 154, 0.35), 0 4px 10px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.2)'
                     }}
                   >
-                    Start Your First Session
+                    {t('chat.welcome.start_session')}
                   </Button>
                 </Card>
               </div>
@@ -1451,10 +1451,10 @@ export default function Chat() {
                         </div>
                         <div className="flex-1">
                           <p className="text-sm font-medium mb-1" style={{ color: '#1A3A34' }}>
-                            Would you like a session summary?
+                            {t('chat.summary_prompt.title')}
                           </p>
                           <p className="text-xs mb-3" style={{ color: '#5A7A72' }}>
-                            Get key takeaways, recommended exercises, and helpful resources
+                            {t('chat.summary_prompt.description')}
                           </p>
                           <div className="flex gap-2">
                             <Button
@@ -1467,7 +1467,7 @@ export default function Chat() {
                                 boxShadow: '0 4px 12px rgba(159, 122, 234, 0.3)'
                               }}
                             >
-                              Yes, create summary
+                              {t('chat.summary_prompt.yes')}
                             </Button>
                             <Button
                               onClick={() => setShowSummaryPrompt(false)}
@@ -1478,7 +1478,7 @@ export default function Chat() {
                                 borderColor: 'rgba(38, 166, 154, 0.3)'
                               }}
                             >
-                              Not now
+                              {t('chat.summary_prompt.not_now')}
                             </Button>
                           </div>
                         </div>
@@ -1541,7 +1541,7 @@ export default function Chat() {
           </div>
           {/* Compact disclaimer */}
           <p className="text-center mt-1 text-xs" style={{ color: '#7A8A82' }}>
-            ⚠️ AI Support - Not Professional Therapy. Cannot diagnose or prescribe. Crisis? Call 988 (US) or local emergency services.
+            {t('chat.disclaimer.title')} — {t('chat.disclaimer.message')}
           </p>
         </div>
 
