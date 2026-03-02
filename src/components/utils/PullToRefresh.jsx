@@ -36,17 +36,19 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
     const currentY = e.touches[0].clientY;
     const distance = currentY - touchStartY.current;
 
-    if (distance > 0 && distance < MAX_PULL) {
+    if (distance > 0) {
+      const clampedDistance = Math.min(distance, MAX_PULL);
       isPullingRef.current = true;
-      pullDistanceRef.current = distance;
+      pullDistanceRef.current = clampedDistance;
       setIsPulling(true);
-      setPullDistance(distance);
+      setPullDistance(clampedDistance);
       // preventDefault requires a non-passive listener (registered via useEffect below)
       e.preventDefault();
     }
   }, []);
 
   const handleTouchEnd = useCallback(async () => {
+    touchStartY.current = 0;
     if (!isPullingRef.current) return;
 
     const currentPullDistance = pullDistanceRef.current;
@@ -76,7 +78,6 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
 
     setIsPulling(false);
     setPullDistance(0);
-    touchStartY.current = 0;
   }, [queryClient, onRefresh]);
 
   // Register touch listeners with { passive: false } so e.preventDefault() works
