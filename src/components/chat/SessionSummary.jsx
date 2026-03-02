@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { FileText, Dumbbell, BookOpen, ExternalLink, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
+import { useTranslation } from 'react-i18next';
 
 export default function SessionSummary({ conversation }) {
   const { data: exercises } = useQuery({
