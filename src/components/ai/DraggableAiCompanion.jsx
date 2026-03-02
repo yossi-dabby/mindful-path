@@ -292,8 +292,8 @@ export default function DraggableAiCompanion() {
         const clientX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
         const clientY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
         
-        const deltaX = dragRef.current.startX - clientX;
-        const deltaY = clientY - dragRef.current.startY;
+        const deltaX = clientX - dragRef.current.startX;
+        const deltaY = dragRef.current.startY - clientY;
         
         const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
         const margin = 16;
