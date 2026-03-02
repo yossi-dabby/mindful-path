@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { getScrollContainer } from '@/lib/scrollContainer';
 
 // Store scroll positions for each page
 const scrollPositions = new Map();
@@ -11,7 +12,7 @@ export default function ScrollPreservation() {
     // Save current scroll position before navigating away
     return () => {
       const currentPath = location.pathname;
-      const scrollY = window.scrollY;
+      const scrollY = getScrollContainer().scrollTop;
       scrollPositions.set(currentPath, scrollY);
     };
   }, [location.pathname]);
@@ -24,11 +25,11 @@ export default function ScrollPreservation() {
     if (savedScrollY !== undefined) {
       // Use requestAnimationFrame to ensure DOM is ready
       requestAnimationFrame(() => {
-        window.scrollTo(0, savedScrollY);
+        getScrollContainer().scrollTop = savedScrollY;
       });
     } else {
       // New page, scroll to top
-      window.scrollTo(0, 0);
+      getScrollContainer().scrollTop = 0;
     }
   }, [location.pathname]);
 
