@@ -11,6 +11,7 @@ import { User, Bell, CreditCard, LogOut, Crown, Shield, Layout as LayoutIcon, Tr
 import ThemeSelector from '../components/settings/ThemeSelector';
 import DataPrivacy from '../components/settings/DataPrivacy';
 import LanguageSelector from '../components/settings/LanguageSelector';
+import { performLogout } from '@/lib/platform';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '@/components/ui/use-toast';
@@ -119,7 +120,7 @@ export default function Settings() {
   };
 
   const handleLogout = () => {
-    base44.auth.logout();
+    performLogout();
   };
 
   const deleteAccountMutation = useMutation({
@@ -141,8 +142,11 @@ export default function Settings() {
         }
       }
       
-      // Delete account
-      await base44.auth.deleteAccount();
+      // Delete the user account
+      await base44.entities.User.delete('me');
+    },
+    onSuccess: () => {
+      performLogout();
     },
     onError: (error) => {
       toast({

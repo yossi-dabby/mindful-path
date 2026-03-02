@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Shield, Download, Trash2, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { performLogout } from '@/lib/platform';
 
 export default function DataPrivacy({ user }) {
   const { t } = useTranslation();
@@ -156,10 +157,10 @@ export default function DataPrivacy({ user }) {
 
     setDeletingAccount(true);
     try {
-      await base44.auth.deleteMe();
+      await base44.entities.User.delete('me');
       setActionMessage({ type: 'success', text: 'Account deleted successfully. Logging out...' });
       setTimeout(() => {
-        base44.auth.logout();
+        performLogout();
       }, 2000);
     } catch (error) {
       console.error('Delete account error:', error);
