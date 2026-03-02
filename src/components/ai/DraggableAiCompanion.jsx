@@ -61,7 +61,7 @@ export default function DraggableAiCompanion() {
     
     // Default positions with safe area insets
     const computedStyle = getComputedStyle(document.documentElement);
-    const safeAreaBottom = parseInt(computedStyle.getPropertyValue('env(safe-area-inset-bottom)') || '0') || 0;
+    const safeAreaBottom = parseInt(computedStyle.getPropertyValue('--sab') || '0') || 0;
     const safeBottomOffset = isMobile ? (80 + safeAreaBottom) : 24;
     
     setPosition(
@@ -250,9 +250,9 @@ export default function DraggableAiCompanion() {
     const margin = 16;
     const bottomNavHeight = isMobile ? 64 : 0; // Account for mobile bottom nav
     
-    // Get safe area insets (iOS)
+    // Get safe area insets (iOS/Android)
     const computedStyle = getComputedStyle(document.documentElement);
-    const safeAreaBottom = parseInt(computedStyle.getPropertyValue('env(safe-area-inset-bottom)') || '0') || 0;
+    const safeAreaBottom = parseInt(computedStyle.getPropertyValue('--sab') || '0') || 0;
     
     const maxRight = window.innerWidth - (isMobile ? 96 : 384) - margin;
     const maxBottom = window.innerHeight - bottomNavHeight - safeAreaBottom - margin;
@@ -299,9 +299,9 @@ export default function DraggableAiCompanion() {
         const margin = 16;
         const bottomNavHeight = isMobile ? 64 : 0;
         
-        // Get safe area insets (iOS)
+        // Get safe area insets (iOS/Android)
         const computedStyle = getComputedStyle(document.documentElement);
-        const safeAreaBottom = parseInt(computedStyle.getPropertyValue('env(safe-area-inset-bottom)') || '0') || 0;
+        const safeAreaBottom = parseInt(computedStyle.getPropertyValue('--sab') || '0') || 0;
         
         const maxRight = window.innerWidth - (isMobile ? 96 : 384) - margin;
         const maxBottom = window.innerHeight - bottomNavHeight - safeAreaBottom - margin;
