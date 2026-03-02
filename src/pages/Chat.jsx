@@ -1208,7 +1208,7 @@ export default function Chat() {
       {/* Sidebar - Conversations List */}
       <div className={`
         ${showSidebar ? 'block' : 'hidden md:block'} 
-        fixed md:relative inset-0 md:inset-auto w-80 
+        fixed md:relative inset-0 md:inset-auto w-full sm:w-80 
         shadow-2xl md:shadow-none z-40
       `} style={{
         background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',

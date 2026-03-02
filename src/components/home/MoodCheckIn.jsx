@@ -234,13 +234,13 @@ export default function MoodCheckIn({ onClose, onComplete }) {
                     <label className="text-sm font-medium text-gray-700 mb-2 block">
                       Energy Level
                     </label>
-                    <div className="grid grid-cols-5 gap-2">
+                    <div className="grid grid-cols-5 gap-1 sm:gap-2">
                       {['very_low', 'low', 'moderate', 'high', 'very_high'].map((level) => (
                         <button
                           key={level}
                           onClick={() => setFormData({ ...formData, energy_level: level })}
                           className={cn(
-                            "p-3 rounded-xl border-2 text-xs font-medium transition-all",
+                            "p-2 sm:p-3 rounded-xl border-2 text-[10px] sm:text-xs font-medium transition-all leading-tight",
                             formData.energy_level === level
                               ? "border-green-500 bg-green-50"
                               : "border-gray-200 hover:border-gray-300"
@@ -256,13 +256,13 @@ export default function MoodCheckIn({ onClose, onComplete }) {
                     <label className="text-sm font-medium text-gray-700 mb-2 block">
                       Sleep Quality (last night)
                     </label>
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-4 gap-1 sm:gap-2">
                       {['poor', 'fair', 'good', 'excellent'].map((quality) => (
                         <button
                           key={quality}
                           onClick={() => setFormData({ ...formData, sleep_quality: quality })}
                           className={cn(
-                            "p-3 rounded-xl border-2 text-xs font-medium capitalize transition-all",
+                            "p-2 sm:p-3 rounded-xl border-2 text-[10px] sm:text-xs font-medium capitalize transition-all",
                             formData.sleep_quality === quality
                               ? "border-green-500 bg-green-50"
                               : "border-gray-200 hover:border-gray-300"
