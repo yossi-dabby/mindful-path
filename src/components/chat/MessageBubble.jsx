@@ -84,11 +84,11 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                     const safeClassName = String(className || '');
                     const safeChildren = children || '';
                     if (inline) {
-                      return <code className="px-1 py-0.5 rounded bg-gray-100 text-gray-800 text-sm" {...props}>{safeChildren}</code>;
+                      return <code className="px-1 py-0.5 rounded bg-gray-100 text-gray-800 text-sm">{safeChildren}</code>;
                     }
                     return (
                       <pre className="bg-gray-100 rounded-lg p-3 my-2 overflow-x-auto">
-                        <code className={safeClassName} {...props}>{safeChildren}</code>
+                        <code className={safeClassName}>{safeChildren}</code>
                       </pre>
                     );
                   },
