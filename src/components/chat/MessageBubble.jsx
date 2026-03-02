@@ -80,7 +80,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
               <ReactMarkdown
                 className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
                 components={{
-                  code: ({ inline, className, children, ...props }) => {
+                  code: ({ inline, className, children }) => {
                     const safeClassName = String(className || '');
                     const safeChildren = children || '';
                     if (inline) {
