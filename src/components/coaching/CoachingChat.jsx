@@ -190,7 +190,7 @@ export default function CoachingChat({ session, onBack }) {
       <div className="flex-1 overflow-hidden flex">
         {/* Chat Area */}
         <div className="flex-1 flex flex-col">
-          <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+          <div className="flex-1 overflow-y-auto p-4 bg-gray-50" style={{ overscrollBehavior: 'none' }}>
             <div data-testid="coach-chat-messages" className="max-w-4xl mx-auto space-y-4">
               {/* Inline Consent Banner - Non-blocking */}
               {showConsentBanner && (

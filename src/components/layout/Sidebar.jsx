@@ -54,7 +54,7 @@ export default function Sidebar({ currentPageName }) {
       </div>
 
       {/* Main Navigation */}
-      <div className="flex-1 px-3 overflow-y-auto">
+      <div className="flex-1 px-3 overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
         <div className="space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
