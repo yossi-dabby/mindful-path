@@ -1314,12 +1314,10 @@ export default function Chat() {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col min-h-0 flex-1 overflow-y-auto">
+            <div data-testid="chat-messages" className="flex-1 overflow-y-auto" style={{ backgroundColor: 'transparent', overscrollBehavior: 'contain' }}>
               {/* Therapy State Machine */}
               {showTherapyFlow && messages.length === 0 && (
-                <div className="p-4 md:p-6" style={{
-                  background: 'transparent'
-                }}>
+                <div className="p-4 md:p-6" style={{ background: 'transparent' }}>
                   <TherapyStateMachine onComplete={() => setShowTherapyFlow(false)} />
                 </div>
               )}
@@ -1338,8 +1336,8 @@ export default function Chat() {
                 </div>
               )}
 
-              {/* Active Chat Messages Section - Separate scrollable container */}
-              <div data-testid="chat-messages" className="flex-1 p-4 md:p-6 pb-8 space-y-6 overflow-y-auto" style={{ backgroundColor: 'transparent', overscrollBehavior: 'contain', minHeight: 0 }}>
+              {/* Active Chat Messages */}
+              <div className="p-4 md:p-6 pb-8 space-y-6">
                 {/* Inline Consent Banner - Non-blocking, dismissible */}
                 {showConsentBanner && (
                   <InlineConsentBanner onAccept={handleConsentAccept} />
