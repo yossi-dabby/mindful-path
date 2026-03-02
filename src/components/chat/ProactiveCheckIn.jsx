@@ -46,14 +46,14 @@ export default function ProactiveCheckIn({ onSendMessage }) {
   const dismissReminderMutation = useMutation({
     mutationFn: (reminderId) => base44.entities.ProactiveReminder.update(reminderId, { status: 'dismissed' }),
     onSuccess: () => {
-      queryClient.invalidateQueries(['proactiveReminders']);
+      queryClient.invalidateQueries({ queryKey: ['proactiveReminders'] });
     }
   });
 
   const completeReminderMutation = useMutation({
     mutationFn: (reminderId) => base44.entities.ProactiveReminder.update(reminderId, { status: 'completed' }),
     onSuccess: () => {
-      queryClient.invalidateQueries(['proactiveReminders']);
+      queryClient.invalidateQueries({ queryKey: ['proactiveReminders'] });
     }
   });
 

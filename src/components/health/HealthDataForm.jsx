@@ -38,7 +38,7 @@ export default function HealthDataForm({ metric, onClose }) {
         : base44.entities.HealthMetric.create(cleanData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['healthMetrics']);
+      queryClient.invalidateQueries({ queryKey: ['healthMetrics'] });
       onClose();
     }
   });

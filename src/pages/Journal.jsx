@@ -311,7 +311,7 @@ export default function Journal() {
             <div className="space-y-4">
               {filteredEntries.map((entry) => (
                 entry.isSummary ? (
-                  <SessionSummaryCard key={entry.id} summary={entry} onDelete={() => queryClient.invalidateQueries(['sessionSummaries', 'journalCount'])} />
+                  <SessionSummaryCard key={entry.id} summary={entry} onDelete={() => { queryClient.invalidateQueries({ queryKey: ['sessionSummaries'] }); queryClient.invalidateQueries({ queryKey: ['journalCount'] }); }} />
                 ) : (
                   <ThoughtRecordCard key={entry.id} entry={entry} onEdit={handleEdit} />
                 )

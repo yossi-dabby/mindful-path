@@ -182,8 +182,8 @@ export default function GoalCoachWizard({ onClose }) {
       return goal;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['allGoals']);
-      queryClient.invalidateQueries(['recentGoals']);
+      queryClient.invalidateQueries({ queryKey: ['allGoals'] });
+      queryClient.invalidateQueries({ queryKey: ['recentGoals'] });
       onClose();
     },
     onError: (error) => {

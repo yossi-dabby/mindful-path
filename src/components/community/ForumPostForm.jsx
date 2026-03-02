@@ -36,7 +36,7 @@ export default function ForumPostForm({ onClose, groupId }) {
       return base44.entities.ForumPost.create(postData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['forumPosts']);
+      queryClient.invalidateQueries({ queryKey: ['forumPosts'] });
       onClose();
     }
   });

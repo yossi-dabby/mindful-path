@@ -139,7 +139,7 @@ export default function ThoughtCoachWizard({ onClose }) {
       return entry;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['thoughtJournals']);
+      queryClient.invalidateQueries({ queryKey: ['thoughtJournals'] });
       onClose();
     },
     onError: (error) => {

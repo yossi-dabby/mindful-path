@@ -53,7 +53,7 @@ export default function MoodCheckIn({ onClose, onComplete }) {
     mutationFn: (data) => base44.entities.MoodEntry.create(data),
     onMutate: async (newEntry) => {
       // Cancel outgoing refetches
-      await queryClient.cancelQueries(['moodEntries']);
+      await queryClient.cancelQueries({ queryKey: ['moodEntries'] });
       
       // Snapshot previous value
       const previousMoodEntries = queryClient.getQueryData(['moodEntries']);
@@ -80,7 +80,7 @@ export default function MoodCheckIn({ onClose, onComplete }) {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries(['moodEntries']);
+      queryClient.invalidateQueries({ queryKey: ['moodEntries'] });
     }
   });
 

@@ -124,7 +124,7 @@ export default function TherapyStateMachine({ onComplete }) {
       await base44.entities.ThoughtJournal.update(journalEntryId, {
         alternative_thoughts: alternative
       });
-      queryClient.invalidateQueries(['journalEntries']);
+      queryClient.invalidateQueries({ queryKey: ['journalEntries'] });
       
       setTimeout(() => {
         setIsProcessing(false);

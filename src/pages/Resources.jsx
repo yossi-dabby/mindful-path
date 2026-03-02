@@ -51,12 +51,12 @@ export default function Resources() {
 
   const saveResourceMutation = useMutation({
     mutationFn: (resourceId) => base44.entities.SavedResource.create({ resource_id: resourceId }),
-    onSuccess: () => queryClient.invalidateQueries(['savedResources'])
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['savedResources'] })
   });
 
   const unsaveResourceMutation = useMutation({
     mutationFn: (savedResourceId) => base44.entities.SavedResource.delete(savedResourceId),
-    onSuccess: () => queryClient.invalidateQueries(['savedResources'])
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['savedResources'] })
   });
 
   const [selectedType, setSelectedType] = useState('all');

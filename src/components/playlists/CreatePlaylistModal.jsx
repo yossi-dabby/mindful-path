@@ -16,7 +16,7 @@ export default function CreatePlaylistModal({ isOpen, onClose }) {
       return await base44.entities.Playlist.create({ name, description, video_count: 0 });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['playlists']);
+      queryClient.invalidateQueries({ queryKey: ['playlists'] });
       setName('');
       setDescription('');
       onClose();

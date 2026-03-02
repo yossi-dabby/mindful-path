@@ -34,7 +34,7 @@ export default function ReminderSettings({ goal, onClose }) {
       goal_id: goal.id
     }),
     onSuccess: () => {
-      queryClient.invalidateQueries(['goalReminders', goal.id]);
+      queryClient.invalidateQueries({ queryKey: ['goalReminders', goal.id] });
       setShowAddForm(false);
       setNewReminder({
         reminder_type: 'goal_deadline',
@@ -49,14 +49,14 @@ export default function ReminderSettings({ goal, onClose }) {
   const toggleReminder = useMutation({
     mutationFn: ({ id, active }) => base44.entities.GoalReminder.update(id, { active }),
     onSuccess: () => {
-      queryClient.invalidateQueries(['goalReminders', goal.id]);
+      queryClient.invalidateQueries({ queryKey: ['goalReminders', goal.id] });
     }
   });
 
   const deleteReminder = useMutation({
     mutationFn: (id) => base44.entities.GoalReminder.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries(['goalReminders', goal.id]);
+      queryClient.invalidateQueries({ queryKey: ['goalReminders', goal.id] });
     }
   });
 

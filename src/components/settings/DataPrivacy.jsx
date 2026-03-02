@@ -28,7 +28,7 @@ export default function DataPrivacy({ user }) {
         }
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries(['currentUser']);
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
       setActionMessage({ type: 'success', text: t('settings.data_privacy.retention_saved') });
       setTimeout(() => setActionMessage(null), 3000);
     },

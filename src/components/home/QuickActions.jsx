@@ -37,7 +37,7 @@ export default function QuickActions() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['starterPath']);
+      queryClient.invalidateQueries({ queryKey: ['starterPath'] });
     }
   });
 
@@ -54,7 +54,7 @@ export default function QuickActions() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['starterPath']);
+      queryClient.invalidateQueries({ queryKey: ['starterPath'] });
     }
   });
 

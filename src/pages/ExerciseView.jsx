@@ -46,7 +46,7 @@ export default function ExerciseViewPage() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['exercise', exerciseId]);
+      queryClient.invalidateQueries({ queryKey: ['exercise', exerciseId] });
     }
   });
 
@@ -61,7 +61,7 @@ export default function ExerciseViewPage() {
     },
     onSuccess: () => {
       setCompleted(true);
-      queryClient.invalidateQueries(['exercise', exerciseId]);
+      queryClient.invalidateQueries({ queryKey: ['exercise', exerciseId] });
       setTimeout(() => {
         navigate(-1);
       }, 2000);

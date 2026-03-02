@@ -76,7 +76,7 @@ export default function ThoughtCoachPage() {
       return entry;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['thoughtJournals']);
+      queryClient.invalidateQueries({ queryKey: ['thoughtJournals'] });
       navigate(-1);
     },
     onError: (error) => {

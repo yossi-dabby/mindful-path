@@ -391,7 +391,7 @@ export default function DraggableAiCompanion() {
         content: userMessage
       });
       if (!mountedRef.current) return;
-      queryClient.invalidateQueries(['proactiveReminders']);
+      queryClient.invalidateQueries({ queryKey: ['proactiveReminders'] });
     } catch (error) {
       console.error('Failed to send message:', error);
       if (!mountedRef.current) return;
@@ -443,7 +443,7 @@ export default function DraggableAiCompanion() {
         content: prompt
       });
       if (!mountedRef.current) return;
-      queryClient.invalidateQueries(['proactiveReminders']);
+      queryClient.invalidateQueries({ queryKey: ['proactiveReminders'] });
     } catch (error) {
       console.error('Failed to send message:', error);
       if (!mountedRef.current) return;

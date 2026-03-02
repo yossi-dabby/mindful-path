@@ -37,7 +37,7 @@ export default function DailyReflection({ todayFlow, exercise, onClose }) {
       return { insight, takeaway };
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['todayFlow']);
+      queryClient.invalidateQueries({ queryKey: ['todayFlow'] });
       setTimeout(() => {
         onClose();
       }, 2000);

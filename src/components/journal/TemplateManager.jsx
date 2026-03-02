@@ -23,7 +23,7 @@ export default function TemplateManager({ templates, onClose, onSelectTemplate }
   const deleteTemplateMutation = useMutation({
     mutationFn: (id) => base44.entities.JournalTemplate.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries(['journalTemplates']);
+      queryClient.invalidateQueries({ queryKey: ['journalTemplates'] });
     }
   });
 
@@ -123,7 +123,7 @@ export default function TemplateManager({ templates, onClose, onSelectTemplate }
                 setEditingTemplate(null);
               }}
               onSuccess={() => {
-                queryClient.invalidateQueries(['journalTemplates']);
+                queryClient.invalidateQueries({ queryKey: ['journalTemplates'] });
                 setShowCreateForm(false);
                 setEditingTemplate(null);
               }}

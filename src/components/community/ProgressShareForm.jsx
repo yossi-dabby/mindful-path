@@ -33,7 +33,7 @@ export default function ProgressShareForm({ onClose }) {
       return base44.entities.SharedProgress.create(postData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['sharedProgress']);
+      queryClient.invalidateQueries({ queryKey: ['sharedProgress'] });
       onClose();
     }
   });

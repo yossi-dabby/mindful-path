@@ -31,7 +31,7 @@ export default function ModerationTools({ post, onClose }) {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['forumPosts']);
+      queryClient.invalidateQueries({ queryKey: ['forumPosts'] });
       onClose();
     }
   });

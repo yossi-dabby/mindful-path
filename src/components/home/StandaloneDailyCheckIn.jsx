@@ -118,8 +118,8 @@ export default function StandaloneDailyCheckIn() {
     },
     onMutate: async (data) => {
       // Cancel outgoing refetches
-      await queryClient.cancelQueries(['todayMood']);
-      await queryClient.cancelQueries(['todayFlow']);
+      await queryClient.cancelQueries({ queryKey: ['todayMood'] });
+      await queryClient.cancelQueries({ queryKey: ['todayFlow'] });
 
       // Snapshot previous values
       const previousMood = queryClient.getQueryData(['todayMood']);
@@ -164,8 +164,8 @@ export default function StandaloneDailyCheckIn() {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries(['todayMood']);
-      queryClient.invalidateQueries(['todayFlow']);
+      queryClient.invalidateQueries({ queryKey: ['todayMood'] });
+      queryClient.invalidateQueries({ queryKey: ['todayFlow'] });
     }
   });
 
@@ -187,8 +187,8 @@ export default function StandaloneDailyCheckIn() {
     },
     onMutate: async () => {
       // Cancel outgoing refetches
-      await queryClient.cancelQueries(['todayMood']);
-      await queryClient.cancelQueries(['todayFlow']);
+      await queryClient.cancelQueries({ queryKey: ['todayMood'] });
+      await queryClient.cancelQueries({ queryKey: ['todayFlow'] });
 
       // Snapshot previous values
       const previousMood = queryClient.getQueryData(['todayMood']);
@@ -217,8 +217,8 @@ export default function StandaloneDailyCheckIn() {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries(['todayMood']);
-      queryClient.invalidateQueries(['todayFlow']);
+      queryClient.invalidateQueries({ queryKey: ['todayMood'] });
+      queryClient.invalidateQueries({ queryKey: ['todayFlow'] });
     }
   });
 

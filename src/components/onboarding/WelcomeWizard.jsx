@@ -39,7 +39,7 @@ export default function WelcomeWizard({ onComplete }) {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['currentUser']);
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
       onComplete();
     }
   });

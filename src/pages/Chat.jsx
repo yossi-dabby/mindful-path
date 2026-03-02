@@ -1073,7 +1073,7 @@ export default function Chat() {
         setMessages([]);
       }
       // Invalidate and refetch to ensure UI is updated
-      queryClient.invalidateQueries(['conversations']);
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
       refetchConversations();
     },
     onError: (error) => {
@@ -1101,8 +1101,8 @@ export default function Chat() {
     });
 
     // Invalidate queries to update Home page
-    queryClient.invalidateQueries(['todayMood']);
-    queryClient.invalidateQueries(['todayFlow']);
+    queryClient.invalidateQueries({ queryKey: ['todayMood'] });
+    queryClient.invalidateQueries({ queryKey: ['todayFlow'] });
     
     setShowCheckInModal(false);
   };

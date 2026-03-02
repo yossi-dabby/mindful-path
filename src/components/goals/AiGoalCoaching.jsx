@@ -75,7 +75,7 @@ Format as JSON with: {
       await base44.entities.Goal.update(goal.id, { milestones: updatedMilestones });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['allGoals']);
+      queryClient.invalidateQueries({ queryKey: ['allGoals'] });
     }
   });
 

@@ -23,7 +23,7 @@ export function useCrossTabInvalidation(enabled = true) {
     const cleanup = listenForInvalidations(({ queryKeys }) => {
       // Invalidate each query key separately to avoid over-invalidation
       queryKeys.forEach(key => {
-        queryClient.invalidateQueries(key);
+        queryClient.invalidateQueries({ queryKey: key });
       });
     });
 

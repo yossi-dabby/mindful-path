@@ -74,7 +74,7 @@ export default function Exercises() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['exercises']);
+      queryClient.invalidateQueries({ queryKey: ['exercises'] });
     }
   });
 
@@ -90,7 +90,7 @@ export default function Exercises() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['exercises']);
+      queryClient.invalidateQueries({ queryKey: ['exercises'] });
     }
   });
 

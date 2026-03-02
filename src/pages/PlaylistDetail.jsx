@@ -78,9 +78,9 @@ export default function PlaylistDetail() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['playlist', playlistId]);
-      queryClient.invalidateQueries(['playlistVideos', playlistId]);
-      queryClient.invalidateQueries(['playlists']);
+      queryClient.invalidateQueries({ queryKey: ['playlist', playlistId] });
+      queryClient.invalidateQueries({ queryKey: ['playlistVideos', playlistId] });
+      queryClient.invalidateQueries({ queryKey: ['playlists'] });
     }
   });
 

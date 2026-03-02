@@ -34,7 +34,7 @@ export default function StarterPathCard() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['starterPath']);
+      queryClient.invalidateQueries({ queryKey: ['starterPath'] });
       // Navigation handled by Link component
     }
   });

@@ -40,7 +40,7 @@ export default function DailyChallenges() {
         current_progress: challenge.target_value
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries(['dailyChallenges']);
+      queryClient.invalidateQueries({ queryKey: ['dailyChallenges'] });
     }
   });
 
