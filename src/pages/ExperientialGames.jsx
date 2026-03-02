@@ -187,7 +187,7 @@ export default function ExperientialGames() {
                   {activeGame?.titleKey ? t(activeGame.titleKey) : activeGame?.title}
                 </DialogTitle>
               </DialogHeader>
-              <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-4 min-w-0">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-4 min-w-0" style={{ overscrollBehavior: 'none' }}>
                 <MindGamesModalShell>
                   {ActiveGameComponent && <ActiveGameComponent onClose={handleClose} />}
                 </MindGamesModalShell>

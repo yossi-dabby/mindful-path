@@ -319,8 +319,7 @@ html {
 }
 
 body {
-  overscroll-behavior: contain;
-  overscroll-behavior-y: contain;
+  overscroll-behavior: none;
 }
 
 /* Focus styles - warm ring, no sharp edges */

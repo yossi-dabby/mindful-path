@@ -49,7 +49,7 @@ export default function ConversationsList({
       </div>
 
       {/* Conversations List */}
-      <div className="flex-1 overflow-y-auto p-2 min-h-0">
+      <div className="flex-1 overflow-y-auto p-2 min-h-0" style={{ overscrollBehavior: 'none' }}>
         {safeConversations.length === 0 ? (
           <div className="text-center py-8 px-4">
             <MessageCircle className="w-12 h-12 mx-auto mb-3" style={{ color: 'rgba(38, 166, 154, 0.3)' }} />
