@@ -66,6 +66,13 @@
     --radius: 1rem;
     --radius-lg: 1.5rem;
     --radius-xl: 2rem;
+
+    /* Safe area insets exposed as custom properties so JavaScript can read them
+       via getComputedStyle(el).getPropertyValue('--sab') etc. */
+    --sat: env(safe-area-inset-top, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
   }
 
   .dark {
@@ -244,7 +251,7 @@
 
   /* Wizard action bar utilities */
   .safe-bottom-nav {
-    padding-bottom: calc(84px + env(safe-area-inset-bottom, 0));
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
   }
 
   @media (min-width: 768px) {

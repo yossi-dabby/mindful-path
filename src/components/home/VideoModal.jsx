@@ -9,8 +9,8 @@ export default function VideoModal({ videoUrl, onClose }) {
       onClick={onClose}
       style={{
         zIndex: 60,
-        paddingTop: 'env(safe-area-inset-top)',
-        paddingBottom: 'calc(env(safe-area-inset-bottom) + 6rem)'
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+        paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6rem)'
       }}
     >
       <div 

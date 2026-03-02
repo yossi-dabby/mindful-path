@@ -167,8 +167,8 @@ export default function DetailedMoodForm({ entry, onClose }) {
     <div 
       className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto"
       style={{
-        paddingTop: 'env(safe-area-inset-top)',
-        paddingBottom: 'calc(env(safe-area-inset-bottom) + 6rem)'
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+        paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6rem)'
       }}
     >
       <Card className="w-full max-w-3xl border-0 shadow-2xl my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>

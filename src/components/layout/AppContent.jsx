@@ -35,10 +35,10 @@ export default function AppContent({ children }) {
       >
       <style>{`
         @media (min-width: 768px) {
-          main {
+          #app-scroll-container {
             padding-left: ${SIDEBAR_WIDTH}px !important;
-            padding-bottom: env(safe-area-inset-bottom, 0) !important;
-            padding-top: env(safe-area-inset-top, 0) !important;
+            padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+            padding-top: env(safe-area-inset-top, 0px) !important;
           }
         }
       `}</style>

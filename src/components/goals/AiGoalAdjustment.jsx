@@ -204,8 +204,8 @@ Be specific and reference the actual data. Keep each suggestion under 100 words.
     <div 
       className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
       style={{
-        paddingTop: 'env(safe-area-inset-top)',
-        paddingBottom: 'calc(env(safe-area-inset-bottom) + 6rem)'
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+        paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6rem)'
       }}
     >
       <Card className="max-w-3xl w-full max-h-[90vh] overflow-y-auto">
