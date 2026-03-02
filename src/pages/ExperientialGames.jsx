@@ -206,6 +206,14 @@ export default function ExperientialGames() {
           </DialogPrimitive.Content>
         </DialogPortal>
       </Dialog>
+      {/* Game Info Modal */}
+      {infoGame && (
+        <GameInfoModal
+          game={infoGame}
+          onClose={() => setInfoGame(null)}
+          onPlay={() => { setInfoGame(null); handleGameClick(infoGame); }}
+        />
+      )}
     </div>
   );
 }
