@@ -76,6 +76,7 @@ export default function ExperientialGames() {
   const { t } = useTranslation();
   const [activeGame, setActiveGame] = useState(null);
   const [gameStartTime, setGameStartTime] = useState(null);
+  const [infoGame, setInfoGame] = useState(null);
   const { trackGamePlay } = useMindGameTracking();
 
   useEffect(() => {
