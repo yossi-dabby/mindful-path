@@ -8,20 +8,23 @@
  */
 
 const FORBIDDEN_PATTERNS = [
-  // Explicit reasoning markers
-  /^\s*THOUGHT\s*:\s*/mi,
-  /^\s*THINKING\s*:\s*/mi,
-  /^\s*ANALYSIS\s*:\s*/mi,
-  /^\s*REASONING\s*:\s*/mi,
-  /^\s*INTERNAL\s*:\s*/mi,
-  /^\s*SYSTEM\s*:\s*/mi,
-  /^\s*DEVELOPER\s*:\s*/mi,
-  /^\s*PLAN\s*:\s*/mi,
-  /^\s*DEBUG\s*:\s*/mi,
-  /^\s*TRACE\s*:\s*/mi,
+  // Explicit reasoning markers (at start of line, case-insensitive)
+  /^\s*THOUGHT\s*:/mi,
+  /^\s*THINKING\s*:/mi,
+  /^\s*ANALYSIS\s*:/mi,
+  /^\s*REASONING\s*:/mi,
+  /^\s*INTERNAL\s*:/mi,
+  /^\s*SYSTEM\s*:/mi,
+  /^\s*DEVELOPER\s*:/mi,
+  /^\s*PLAN\s*:/mi,
+  /^\s*DEBUG\s*:/mi,
+  /^\s*TRACE\s*:/mi,
+  /^\s*NOTE\s*:/mi,
+  /^\s*CONTEXT\s*:/mi,
+  /^\s*OBSERVATION\s*:/mi,
   
   // Planning/meta lines
-  /^\s*Step\s+\d+\s*:\s*/mi,
+  /^\s*Step\s+\d+\s*:/mi,
   /^\s*Phase\s+\d+/mi,
   /^Constraint\s+checklist/mi,
   /^Mental\s+sandbox/mi,
@@ -30,13 +33,16 @@ const FORBIDDEN_PATTERNS = [
   // Code blocks with reasoning
   /^```(thought|reasoning|analysis|debug)/mi,
   
-  // Meta planning phrases
-  /^(First\s+I'll|Then\s+I'll|I\s+should|I\s+need\s+to|My\s+goal\s+is)/mi,
+  // Meta planning phrases (start of line)
+  /^(First\s+I'll|Then\s+I'll|I\s+should\b|I\s+need\s+to\b|My\s+goal\s+is\b)/mi,
   /^\[checking/mi,
   /^\[internal/mi,
   /^\[validation/mi,
   /^\[constraint/mi,
-  /^\[protocol/mi
+  /^\[protocol/mi,
+  /^\[thinking/mi,
+  /^\[reasoning/mi,
+  /^\[thought/mi
 ];
 
 const HEBREW_FAILSAFE = "אני כאן איתך. מה הכי מטריד אותך כרגע?";
