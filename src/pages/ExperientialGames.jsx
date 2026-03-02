@@ -155,6 +155,7 @@ export default function ExperientialGames() {
               key={game.id}
               game={game}
               onClick={() => handleGameClick(game)}
+              onInfo={(g) => setInfoGame(g)}
               index={index}
             />
           ))}
