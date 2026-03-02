@@ -292,6 +292,8 @@ export default function DraggableAiCompanion() {
         const clientX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
         const clientY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
         
+        // Moving mouse right → element should move right → right value decreases
+        // Moving mouse up   → element should move up   → bottom value increases
         const deltaX = clientX - dragRef.current.startX;
         const deltaY = dragRef.current.startY - clientY;
         
@@ -306,8 +308,9 @@ export default function DraggableAiCompanion() {
         const maxRight = window.innerWidth - (isMobile ? 96 : 384) - margin;
         const maxBottom = window.innerHeight - bottomNavHeight - safeAreaBottom - margin;
         
-        const newRight = Math.max(margin, Math.min(maxRight, dragRef.current.initialRight + deltaX));
-        const newBottom = Math.max(margin + safeAreaBottom, Math.min(maxBottom, dragRef.current.initialBottom + deltaY));
+        // right decreases when moving right (element follows cursor from fixed right edge)
+        const newRight = Math.max(margin, Math.min(maxRight, dragRef.current.initialRight - deltaX));
+        const newBottom = Math.max(margin + safeAreaBottom, Math.min(maxBottom, dragRef.current.initialBottom - deltaY));
         
         if (elementRef.current) {
           elementRef.current.style.right = `${newRight}px`;
