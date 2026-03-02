@@ -113,12 +113,12 @@ export default function SessionSummary({ conversation }) {
           <div className="pt-4 border-t flex flex-col sm:flex-row gap-3">
             <Link to={createPageUrl('Journal')} className="flex-1">
               <Button variant="outline" className="w-full">
-                Reflect in Journal
+                {t('chat.session_summary.reflect_button')}
               </Button>
             </Link>
             <Link to={createPageUrl('Exercises')} className="flex-1">
               <Button className="w-full bg-purple-600 hover:bg-purple-700">
-                View All Exercises
+                {t('chat.session_summary.view_exercises_button')}
               </Button>
             </Link>
           </div>
