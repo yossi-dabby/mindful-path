@@ -1391,7 +1391,7 @@ export default function Chat() {
                   );
                 })()}
                 <div ref={messagesEndRef} />
-              </div>{/* end inner messages div */}
+              </div>
 
               {/* Save Prompt - After homework commitment */}
               {showSavePrompt && !isLoading && savePromptData && (
@@ -1474,7 +1474,7 @@ export default function Chat() {
                   </div>
                 </div>
               )}
-            </div>{/* end scrollable outer div */}
+            </div>
           )}
         </div>
 
