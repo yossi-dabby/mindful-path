@@ -37,7 +37,7 @@ export default function SessionSummary({ conversation }) {
           <div>
             <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-green-600" />
-              Key Takeaways
+              {t('chat.session_summary.key_takeaways')}
             </h3>
             <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
               {conversation.session_summary}
