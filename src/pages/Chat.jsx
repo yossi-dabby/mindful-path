@@ -1290,10 +1290,10 @@ export default function Chat() {
                     <span className="text-2xl">👋</span>
                   </div>
                   <h2 className="text-2xl font-semibold mb-2" style={{ color: '#1A3A34' }}>
-                    {t('chat.welcome.title')}
+                    {t('chat.welcome.title', 'Welcome to Therapy')}
                   </h2>
                   <p className="mb-6" style={{ color: '#5A7A72' }}>
-                    {t('chat.welcome.message')}
+                    {t('chat.welcome.message', "This is a safe, judgment-free space. Share what's on your mind, and let's work through it together.")}
                   </p>
                   <Button
                     onClick={startNewConversation}
@@ -1304,7 +1304,7 @@ export default function Chat() {
                       boxShadow: '0 8px 24px rgba(38, 166, 154, 0.35), 0 4px 10px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.2)'
                     }}
                   >
-                    {t('chat.welcome.start_session')}
+                    {t('chat.welcome.start_session', 'Start Your First Session')}
                   </Button>
                 </Card>
               </div>

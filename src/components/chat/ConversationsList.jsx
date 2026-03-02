@@ -93,7 +93,7 @@ export default function ConversationsList({
                     <p className="text-xs" style={{
                       color: currentConversationId === conversation.id ? '#26A69A' : '#5A7A72'
                     }}>
-                      {format(new Date(conversation.created_date), 'MMM d, h:mm a')}
+                      {conversation.created_date ? format(new Date(conversation.created_date), 'MMM d, h:mm a') : ''}
                     </p>
                   </div>
                 </button>
