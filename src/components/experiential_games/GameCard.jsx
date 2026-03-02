@@ -64,6 +64,16 @@ export default function GameCard({ game, onClick, onInfo, index }) {
                 >
                   {game.time}
                 </Badge>
+                {onInfo && (
+                  <button
+                    onClick={e => { e.stopPropagation(); onInfo(game); }}
+                    className="flex-shrink-0 rounded-full p-0.5 transition-colors hover:bg-emerald-50 focus:outline-none"
+                    style={{ color: 'rgba(38,166,154,0.7)', minHeight: '28px', minWidth: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    aria-label={`Info: ${game.titleKey ? '' : game.title}`}
+                  >
+                    <Info className="w-4 h-4" />
+                  </button>
+                )}
               </div>
               <p 
                 className="text-sm" 
