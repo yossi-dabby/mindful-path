@@ -80,7 +80,7 @@ export default function SessionSummary({ conversation }) {
             <div>
               <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                 <BookOpen className="w-4 h-4 text-blue-600" />
-                Helpful Resources
+                {t('chat.session_summary.helpful_resources')}
               </h3>
               <div className="space-y-2">
                 {conversation.recommended_resources.map((resource, index) => (
