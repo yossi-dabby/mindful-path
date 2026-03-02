@@ -157,3 +157,97 @@
     background: linear-gradient(135deg, rgb(var(--bg)) 0%, rgb(var(--surface-2)) 100%);
   }
 }
+
+/* ─── System Gesture & Selection Control ─────────────────────────────────── */
+
+/* Prevent pull-to-refresh / overscroll bounce at the document level.
+   Internal scroll containers (e.g. PullToRefresh) override this locally. */
+html {
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+  /* Disable pinch-to-zoom on the app shell; one-finger panning still works. */
+  touch-action: pan-x pan-y;
+  /* Disable the iOS long-press callout menu (Copy / Share / Open Link popups)
+     on shell elements.  Content elements re-enable it below. */
+  -webkit-touch-callout: none;
+}
+
+body {
+  overscroll-behavior: none;
+}
+
+/* Disable text selection and tap highlight on interactive / decorative elements */
+button, a, [role="button"], svg, .icon, [class*="Button"], [class*="badge"] {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent native drag-and-drop on images and icons */
+img, svg {
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Remove 300 ms tap delay on iOS for all interactive elements */
+button, a, [role="button"], input, select, textarea, label {
+  touch-action: manipulation;
+}
+
+/* Keep content text selectable and re-enable iOS callout so users can
+   copy chat messages, journal entries, and other readable content */
+p, span:not([class*="badge"]), h1, h2, h3, h4, h5, h6,
+li, td, th, label, article,
+div[class*="content"], [class*="description"],
+p[class*="text"], span[class*="text"], div[class*="text"] {
+  user-select: auto;
+  -webkit-user-select: auto;
+  -webkit-touch-callout: default;
+}
+
+/* Minimum 44 × 44 px touch targets on mobile (WCAG 2.5.5) */
+@media (max-width: 768px) {
+  button, a[role="button"], [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Mobile: hide scrollbars for a native-app look */
+@media (max-width: 768px) {
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  *::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Focus ring — warm accent, visible for keyboard / switch-access users */
+*:focus-visible {
+  outline: 3px solid rgb(var(--ring, 255 142 66));
+  outline-offset: 3px;
+  border-radius: 10px;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible {
+  /* !important ensures the warm-accent ring overrides any component-library defaults
+     (e.g. Radix UI resets focus outlines).  Prefer increasing specificity, but the
+     mixed selector set makes that impractical here. */
+  outline: 3px solid rgb(var(--ring, 255 142 66) / 0.8) !important;
+  outline-offset: 2px;
+}
+
+/* Text selection — themed accent color */
+::selection {
+  background-color: rgb(var(--primary, 0 0% 9%) / 0.15);
+  color: inherit;
+}

@@ -4,6 +4,9 @@ const config: CapacitorConfig = {
   appId: 'com.mindfulpath.app',
   appName: 'Mindful Path',
   webDir: 'dist',
+  ios: {
+    allowsLinkPreview: false,
+  },
   android: {
     buildOptions: {
       keystorePath: undefined,

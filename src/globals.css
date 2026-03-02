@@ -299,15 +299,25 @@ button, a, [role="button"], svg, .icon, [class*="Button"], [class*="badge"] {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Prevent native drag on images and icons */
+img, svg {
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 /* Prevent 300ms tap delay on iOS for interactive elements */
 button, a, [role="button"], input, select, textarea, label {
   touch-action: manipulation;
 }
 
 /* Keep all content text selectable */
-p, span:not([class*="badge"]), h1, h2, h3, h4, h5, h6, li, td, th, label, article, div[class*="content"], [class*="description"], [class*="text"] {
+p, span:not([class*="badge"]), h1, h2, h3, h4, h5, h6, li, td, th, label, article, div[class*="content"], [class*="description"],
+p[class*="text"], span[class*="text"], div[class*="text"] {
   user-select: auto;
   -webkit-user-select: auto;
+  /* Re-enable iOS callout for content text so users can copy chat/journal text */
+  -webkit-touch-callout: default;
 }
 
 /* Ensure minimum 44px touch targets on mobile */
@@ -323,6 +333,10 @@ p, span:not([class*="badge"]), h1, h2, h3, h4, h5, h6, li, td, th, label, articl
 html {
   overscroll-behavior: none;
   overscroll-behavior-y: none;
+  /* Disable iOS long-press callout menu (Copy / Share / Open Link popups) */
+  -webkit-touch-callout: none;
+  /* Disable pinch-to-zoom on the app shell; one-finger panning still works */
+  touch-action: pan-x pan-y;
 }
 
 body {
