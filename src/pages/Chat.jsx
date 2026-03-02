@@ -1339,7 +1339,7 @@ export default function Chat() {
               )}
 
               {/* Active Chat Messages Section - Separate scrollable container */}
-              <div data-testid="chat-messages" className="flex-1 p-4 md:p-6 pb-8 space-y-6 overflow-y-auto min-h-0" style={{ backgroundColor: 'transparent', overscrollBehavior: 'none' }}>
+              <div data-testid="chat-messages" className="flex-1 p-4 md:p-6 pb-8 space-y-6 overflow-y-auto" style={{ backgroundColor: 'transparent', overscrollBehavior: 'contain', minHeight: 0 }}>
                 {/* Inline Consent Banner - Non-blocking, dismissible */}
                 {showConsentBanner && (
                   <InlineConsentBanner onAccept={handleConsentAccept} />
