@@ -7,6 +7,23 @@
  * CRITICAL: This is the LAST line of defense before user sees content
  */
 
+/**
+ * Extract content inside <think>...</think> blocks (without consuming it from the text)
+ * @param {string} text - Raw message content
+ * @returns {string|null} - The combined thinking content, or null if no blocks found
+ */
+export function extractThinkingContent(text) {
+  if (!text || typeof text !== 'string') return null;
+  const matches = [];
+  const re = /<think>([\s\S]*?)<\/think>/gi;
+  let match;
+  while ((match = re.exec(text)) !== null) {
+    const trimmed = match[1].trim();
+    if (trimmed) matches.push(trimmed);
+  }
+  return matches.length > 0 ? matches.join('\n\n') : null;
+}
+
 const FORBIDDEN_PATTERNS = [
   // Explicit reasoning markers (at start of line, case-insensitive)
   /^\s*THOUGHT\s*:/mi,

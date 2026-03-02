@@ -203,6 +203,11 @@ export const translations = {
           start_session: "Start Your First Session"
         },
         thinking_placeholder: "Thinking...",
+        ai_thinking: {
+          label: "AI Thinking Process",
+          show: "Show thinking",
+          hide: "Hide thinking"
+        },
         summary_prompt: {
           title: "Would you like a session summary?",
           description: "Get key takeaways, recommended exercises, and helpful resources",
@@ -1412,6 +1417,11 @@ export const translations = {
           start_session: "התחל את המפגש הראשון"
         },
         thinking_placeholder: "חושב...",
+        ai_thinking: {
+          label: "תהליך חשיבת AI",
+          show: "הצג חשיבה",
+          hide: "הסתר חשיבה"
+        },
         summary_prompt: {
           title: "האם תרצו סיכום מפגש?",
           description: "קבלו מסקנות מרכזיות, תרגילים מומלצים ומשאבים מועילים",
@@ -2611,6 +2621,11 @@ export const translations = {
           start_session: "Iniciar Tu Primera Sesión"
         },
         thinking_placeholder: "Pensando...",
+        ai_thinking: {
+          label: "Proceso de Pensamiento de la IA",
+          show: "Mostrar pensamiento",
+          hide: "Ocultar pensamiento"
+        },
         summary_prompt: {
           title: "¿Te gustaría un resumen de la sesión?",
           description: "Obtén conclusiones clave, ejercicios recomendados y recursos útiles",
@@ -3642,6 +3657,11 @@ export const translations = {
           start_session: "Commencer Votre Première Séance"
         },
         thinking_placeholder: "Réflexion...",
+        ai_thinking: {
+          label: "Processus de réflexion de l'IA",
+          show: "Afficher la réflexion",
+          hide: "Masquer la réflexion"
+        },
         summary_prompt: {
           title: "Souhaitez-vous un résumé de session ?",
           description: "Obtenez des points clés, des exercices recommandés et des ressources utiles",
@@ -4851,6 +4871,11 @@ export const translations = {
           start_session: "Erste Sitzung Starten"
         },
         thinking_placeholder: "Denkt nach...",
+        ai_thinking: {
+          label: "KI-Denkprozess",
+          show: "Denken anzeigen",
+          hide: "Denken ausblenden"
+        },
         summary_prompt: {
           title: "Möchten Sie eine Sitzungszusammenfassung?",
           description: "Erhalten Sie wichtige Erkenntnisse, empfohlene Übungen und hilfreiche Ressourcen",
@@ -6060,6 +6085,11 @@ export const translations = {
           start_session: "Inizia la Tua Prima Sessione"
         },
         thinking_placeholder: "Pensando...",
+        ai_thinking: {
+          label: "Processo di pensiero dell'IA",
+          show: "Mostra il pensiero",
+          hide: "Nascondi il pensiero"
+        },
         summary_prompt: {
           title: "Vorresti un riepilogo della sessione?",
           description: "Ottieni punti chiave, esercizi consigliati e risorse utili",
@@ -7269,6 +7299,11 @@ export const translations = {
           start_session: "Iniciar Sua Primeira Sessão"
         },
         thinking_placeholder: "Pensando...",
+        ai_thinking: {
+          label: "Processo de pensamento da IA",
+          show: "Mostrar pensamento",
+          hide: "Ocultar pensamento"
+        },
         summary_prompt: {
           title: "Gostaria de um resumo da sessão?",
           description: "Obtenha conclusões-chave, exercícios recomendados e recursos úteis",
