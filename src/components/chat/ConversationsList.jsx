@@ -88,7 +88,7 @@ export default function ConversationsList({
                     <p className="font-medium truncate text-sm md:text-base" style={{
                       color: currentConversationId === conversation.id ? '#1A3A34' : '#3D5A52'
                     }}>
-                      {conversation.metadata?.name || `Session ${conversation.id.slice(0, 8)}`}
+                      {conversation.metadata?.name || `Session ${(conversation.id || '').slice(0, 8)}`}
                     </p>
                     <p className="text-xs" style={{
                       color: currentConversationId === conversation.id ? '#26A69A' : '#5A7A72'
