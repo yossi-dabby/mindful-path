@@ -78,7 +78,7 @@ export default function MobileMenu() {
             </div>
 
             {/* Navigation Items */}
-            <nav className="flex-1 p-4 overflow-y-auto min-w-0">
+            <nav className="flex-1 p-4 overflow-y-auto min-w-0" aria-label="Additional navigation">
               <div className="space-y-2">
                 {secondaryItems.map((item) => {
                   const Icon = item.icon;
