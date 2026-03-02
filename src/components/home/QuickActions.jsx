@@ -17,6 +17,7 @@ export default function QuickActions() {
   const [activeVideo, setActiveVideo] = useState(null);
   const [showRecommendations, setShowRecommendations] = useState(false);
   const [showStarterPathVideo, setShowStarterPathVideo] = useState(false);
+  const [starterPathExpanded, setStarterPathExpanded] = useState(false);
   const queryClient = useQueryClient();
 
   // Get user's starter path progress
