@@ -89,13 +89,17 @@ SelectScrollDownButton.displayName =
 const SelectContent = React.forwardRef(({ className, children, position = "popper", ...props }, ref) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
 
+  // On mobile, use "popper" with side="bottom" so the content opens below the trigger.
+  // "item-aligned" ignores the `side` prop and its inline positioning conflicts with CSS
+  // classes that attempt to force the content to the bottom of the viewport.
   const mobileClasses =
-    "fixed inset-x-0 bottom-0 z-50 max-h-[70vh] overflow-hidden rounded-t-2xl border bg-popover text-popover-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom";
+    "relative z-50 max-h-[70vh] min-w-[8rem] overflow-hidden rounded-t-2xl border bg-popover text-popover-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2";
 
   const desktopClasses =
     "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2";
 
-  const contentPosition = isMobile ? "item-aligned" : position;
+  // Use "popper" on mobile so that side/sideOffset are respected by Radix.
+  const contentPosition = isMobile ? "popper" : position;
   const shouldUsePopperDimensions = !isMobile && position === "popper";
 
   return (
@@ -111,7 +115,7 @@ const SelectContent = React.forwardRef(({ className, children, position = "poppe
         )}
         position={contentPosition}
         side={isMobile ? "bottom" : undefined}
-        sideOffset={isMobile ? 0 : undefined}
+        sideOffset={isMobile ? 4 : undefined}
         {...props}>
         {!isMobile && <SelectScrollUpButton />}
         <SelectPrimitive.Viewport
