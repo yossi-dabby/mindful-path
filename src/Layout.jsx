@@ -1,7 +1,7 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import DraggableAiCompanion from './components/ai/DraggableAiCompanion';
 import BottomNav from './components/layout/BottomNav';
 import Sidebar from './components/layout/Sidebar';
@@ -15,31 +15,50 @@ export default function Layout({ children, currentPageName }) {
   const [theme, setTheme] = React.useState('default');
   const [isOffline, setIsOffline] = React.useState(!navigator.onLine);
 
-  // Page transition variants for iOS-style navigation
-  const pageVariants = {
-    initial: {
-      x: '100%',
-      opacity: 0
-    },
-    animate: {
-      x: 0,
-      opacity: 1,
-      transition: {
-        type: 'tween',
-        ease: [0.4, 0.0, 0.2, 1],
-        duration: 0.3
+  // Respect the OS-level "reduce motion" accessibility setting.
+  const prefersReducedMotion = useReducedMotion();
+
+  // Track navigation direction so back-navigation slides the opposite way.
+  // Using a ref avoids triggering re-renders; direction is read at render time.
+  const navDirectionRef = React.useRef(1); // 1 = forward, -1 = backward
+
+  React.useEffect(() => {
+    const handlePopState = () => {
+      // A popstate can fire for overlay-sentinel entries (where the pathname
+      // doesn't change) as well as real page navigations. Set direction to
+      // backward, then unconditionally reset after the animation window
+      // (500 ms > 300 ms animation duration) so we don't permanently latch
+      // the backward direction if the pop was just an overlay closing.
+      navDirectionRef.current = -1;
+      setTimeout(() => {
+        navDirectionRef.current = 1;
+      }, 500);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Direction-aware, reduced-motion-aware page transition variants.
+  const dir = navDirectionRef.current;
+  const pageVariants = prefersReducedMotion
+    ? {
+        initial: { opacity: 0 },
+        animate: { opacity: 1, transition: { duration: 0.15 } },
+        exit:    { opacity: 0, transition: { duration: 0.15 } }
       }
-    },
-    exit: {
-      x: '-30%',
-      opacity: 0,
-      transition: {
-        type: 'tween',
-        ease: [0.4, 0.0, 0.2, 1],
-        duration: 0.3
-      }
-    }
-  };
+    : {
+        initial: { x: `${100 * dir}%`, opacity: 0 },
+        animate: {
+          x: 0,
+          opacity: 1,
+          transition: { type: 'tween', ease: [0.4, 0.0, 0.2, 1], duration: 0.3 }
+        },
+        exit: {
+          x: `${-30 * dir}%`,
+          opacity: 0,
+          transition: { type: 'tween', ease: [0.4, 0.0, 0.2, 1], duration: 0.3 }
+        }
+      };
 
   // Detect system dark mode preference and update theme-color meta tag only.
   // The dark class on <html> is managed by ThemeProvider (next-themes).
@@ -230,6 +249,7 @@ export default function Layout({ children, currentPageName }) {
             animate="animate"
             exit="exit"
             className="w-full"
+            style={{ willChange: 'transform, opacity' }}
           >
             {children}
           </motion.div>
