@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Home, MessageCircle, BookOpen, Activity, Dumbbell, Heart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useTabNavigation } from './TabNavigationProvider';
+import { getScrollContainer } from '@/lib/scrollContainer';
 
 // CRITICAL: This height MUST match the padding-bottom in AppContent
 export const BOTTOM_NAV_HEIGHT = 80; // 20 * 4 = 80px (h-20)
@@ -23,36 +24,6 @@ export default function BottomNav({ currentPageName }) {
     { name: t('sidebar.exercises.name'), icon: Dumbbell, path: 'Exercises' }
   ];
 
-  // Preserve scroll position and navigation state for each tab
-  React.useEffect(() => {
-    const scrollKey = `scroll_${currentPageName}`;
-    const savedScroll = sessionStorage.getItem(scrollKey);
-    
-    // Restore scroll position when returning to a tab
-    if (savedScroll) {
-      requestAnimationFrame(() => {
-        window.scrollTo(0, parseInt(savedScroll));
-      });
-    }
-
-    // Save scroll position continuously
-    const handleScroll = () => {
-      sessionStorage.setItem(scrollKey, window.scrollY.toString());
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [currentPageName]);
-
-  // Save navigation state when tab changes
-  React.useEffect(() => {
-    const navStateKey = `navState_${currentPageName}`;
-    const currentPath = window.location.pathname;
-    
-    // Store the current path for this tab
-    sessionStorage.setItem(navStateKey, currentPath);
-  }, [currentPageName]);
-
   const handleTabClick = (e, item) => {
     e.preventDefault();
     
@@ -62,11 +33,9 @@ export default function BottomNav({ currentPageName }) {
     } else {
       // Fallback behavior
       if (currentPageName === item.path) {
-        sessionStorage.removeItem(`scroll_${item.path}`);
-        sessionStorage.removeItem(`navState_${item.path}`);
         navigate(createPageUrl(item.path), { replace: true });
         requestAnimationFrame(() => {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          getScrollContainer().scrollTo({ top: 0, behavior: 'smooth' });
         });
       } else {
         navigate(createPageUrl(item.path));

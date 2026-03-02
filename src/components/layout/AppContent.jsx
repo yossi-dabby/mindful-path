@@ -20,6 +20,7 @@ export default function AppContent({ children }) {
     <>
       <MobileHeader />
       <main
+        id="app-scroll-container"
         ref={mainRef}
         className="overflow-y-auto overflow-x-hidden"
         style={{

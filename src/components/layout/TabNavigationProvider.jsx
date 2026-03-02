@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { getScrollContainer } from '@/lib/scrollContainer';
 
 const TabNavigationContext = createContext();
 
@@ -145,7 +146,7 @@ export function TabNavigationProvider({ children, currentPageName }) {
       }
 
       // Scroll to top
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      getScrollContainer().scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       // Switching to different tab - restore its last state
       const targetStack = tabStacks[tabName];
