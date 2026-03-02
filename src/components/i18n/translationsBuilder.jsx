@@ -1,6 +1,7 @@
 // This module applies mind games UI and content translations to the main translations object
 import { mindGamesUiStrings, mindGamesUiByLanguage } from './mindGamesUiTranslations';
 import { mindGamesContentByLanguage } from './mindGamesContentTranslations';
+import { mindGamesHelpStrings, mindGamesHelpByLanguage } from './mindGamesHelpTranslations';
 
 const gameKeys = [
   'common','quick_win','opposite_action','urge_surfing','value_compass','tiny_experiment',
