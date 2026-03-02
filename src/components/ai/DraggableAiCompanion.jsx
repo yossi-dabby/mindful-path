@@ -292,23 +292,22 @@ export default function DraggableAiCompanion() {
         const clientX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
         const clientY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
         
-        // Moving mouse right → element should move right → right value decreases
-        // Moving mouse up   → element should move up   → bottom value increases
+        // deltaX: positive = moved right, deltaY: positive = moved down
         const deltaX = clientX - dragRef.current.startX;
-        const deltaY = dragRef.current.startY - clientY;
+        const deltaY = clientY - dragRef.current.startY;
         
         const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
         const margin = 16;
         const bottomNavHeight = isMobile ? 64 : 0;
         
-        // Get safe area insets (iOS/Android)
         const computedStyle = getComputedStyle(document.documentElement);
         const safeAreaBottom = parseInt(computedStyle.getPropertyValue('--sab') || '0') || 0;
         
         const maxRight = window.innerWidth - (isMobile ? 96 : 384) - margin;
         const maxBottom = window.innerHeight - bottomNavHeight - safeAreaBottom - margin;
         
-        // right decreases when moving right (element follows cursor from fixed right edge)
+        // Moving right → right CSS value decreases (element anchored from right edge)
+        // Moving down  → bottom CSS value decreases (element anchored from bottom edge)
         const newRight = Math.max(margin, Math.min(maxRight, dragRef.current.initialRight - deltaX));
         const newBottom = Math.max(margin + safeAreaBottom, Math.min(maxBottom, dragRef.current.initialBottom - deltaY));
         
