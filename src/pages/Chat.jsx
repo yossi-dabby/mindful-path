@@ -1044,9 +1044,22 @@ export default function Chat() {
     setIsLoading(true);
     setShowSummaryPrompt(false);
 
+    // Build a language-aware summary request
+    const userLang = i18n.language || 'en';
+    const summaryPromptByLang = {
+      he: 'אנא ספק סיכום מפגש מקיף הכולל: (1) נקודות דיון מרכזיות, (2) תובנות ניתנות לפעולה, (3) צעדים הבאים מומלצים או תרגילים. אנא כתוב את הסיכום בעברית בצורה מובנית וברורה.',
+      es: 'Por favor proporciona un resumen completo de la sesión que incluya: (1) puntos clave discutidos, (2) perspectivas accionables, (3) próximos pasos recomendados o ejercicios. Escribe el resumen en español de forma estructurada y clara.',
+      fr: 'Veuillez fournir un résumé complet de la séance comprenant: (1) les points clés discutés, (2) des insights actionnables, (3) les prochaines étapes recommandées ou exercices. Rédigez le résumé en français de manière structurée et claire.',
+      de: 'Bitte gib eine umfassende Sitzungszusammenfassung, die enthält: (1) besprochene Hauptpunkte, (2) umsetzbare Erkenntnisse, (3) empfohlene nächste Schritte oder Übungen. Schreibe die Zusammenfassung auf Deutsch in strukturierter und klarer Form.',
+      it: 'Per favore fornisci un riassunto completo della sessione che includa: (1) punti chiave discussi, (2) intuizioni attuabili, (3) prossimi passi consigliati o esercizi. Scrivi il riassunto in italiano in modo strutturato e chiaro.',
+      pt: 'Por favor forneça um resumo abrangente da sessão incluindo: (1) pontos-chave discutidos, (2) insights acionáveis, (3) próximos passos recomendados ou exercícios. Escreva o resumo em português de forma estruturada e clara.',
+      en: 'Please provide a comprehensive session summary including: (1) key discussion points, (2) actionable insights, (3) recommended next steps or exercises. Write the summary in English in a structured and easy-to-understand format.'
+    };
+    const summaryPrompt = summaryPromptByLang[userLang] || summaryPromptByLang['en'];
+
     await base44.agents.addMessage(conversation, {
       role: 'user',
-      content: 'Can you provide a session summary with key takeaways, any exercises you recommend, and helpful resources for what we discussed today?'
+      content: summaryPrompt
     });
   };
 
