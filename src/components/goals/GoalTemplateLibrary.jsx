@@ -84,7 +84,7 @@ export default function GoalTemplateLibrary({ onSelectTemplate, onClose }) {
 
         <CardContent className="pt-6">
           {/* Category Filter */}
-          <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+          <div className="flex gap-2 mb-6 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
             {categories.map((cat) => {
               const Icon = cat.icon;
               return (
@@ -93,7 +93,7 @@ export default function GoalTemplateLibrary({ onSelectTemplate, onClose }) {
                   variant={selectedCategory === cat.value ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setSelectedCategory(cat.value)}
-                  className="whitespace-nowrap"
+                  className="flex-shrink-0 whitespace-nowrap"
                   style={selectedCategory === cat.value ? {
                     backgroundColor: '#26A69A',
                     color: 'white'
