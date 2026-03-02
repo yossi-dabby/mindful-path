@@ -32,7 +32,7 @@ export default function Playlists() {
       await base44.entities.Playlist.delete(playlistId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['playlists']);
+      queryClient.invalidateQueries({ queryKey: ['playlists'] });
     },
     onError: (error) => {
       if (isAuthError(error) && shouldShowAuthError()) {

@@ -22,12 +22,12 @@ export default function ReminderManager({ onClose }) {
 
   const toggleActiveMutation = useMutation({
     mutationFn: ({ id, active }) => base44.entities.JournalReminder.update(id, { active }),
-    onSuccess: () => queryClient.invalidateQueries(['journalReminders'])
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['journalReminders'] })
   });
 
   const deleteReminderMutation = useMutation({
     mutationFn: (id) => base44.entities.JournalReminder.delete(id),
-    onSuccess: () => queryClient.invalidateQueries(['journalReminders'])
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['journalReminders'] })
   });
 
   return (
@@ -137,7 +137,7 @@ export default function ReminderManager({ onClose }) {
                 setEditingReminder(null);
               }}
               onSuccess={() => {
-                queryClient.invalidateQueries(['journalReminders']);
+                queryClient.invalidateQueries({ queryKey: ['journalReminders'] });
                 setShowCreateForm(false);
                 setEditingReminder(null);
               }}

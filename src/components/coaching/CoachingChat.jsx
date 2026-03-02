@@ -80,7 +80,7 @@ export default function CoachingChat({ session, onBack }) {
       base44.entities.CoachingSession.update(session.id, { stage: newStage }),
     onSuccess: () => {
       refetchSession();
-      queryClient.invalidateQueries(['coachingSessions']);
+      queryClient.invalidateQueries({ queryKey: ['coachingSessions'] });
     }
   });
 

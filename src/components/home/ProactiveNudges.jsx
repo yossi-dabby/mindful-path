@@ -28,14 +28,14 @@ export default function ProactiveNudges() {
   const dismissMutation = useMutation({
     mutationFn: (id) => base44.entities.ProactiveReminder.update(id, { status: 'dismissed' }),
     onSuccess: () => {
-      queryClient.invalidateQueries(['proactiveReminders']);
+      queryClient.invalidateQueries({ queryKey: ['proactiveReminders'] });
     }
   });
 
   const completeMutation = useMutation({
     mutationFn: (id) => base44.entities.ProactiveReminder.update(id, { status: 'completed' }),
     onSuccess: () => {
-      queryClient.invalidateQueries(['proactiveReminders']);
+      queryClient.invalidateQueries({ queryKey: ['proactiveReminders'] });
     }
   });
 

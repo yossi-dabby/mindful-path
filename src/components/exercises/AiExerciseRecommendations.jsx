@@ -81,7 +81,7 @@ export default function AiExerciseRecommendations({ exercises, onSelectExercise 
       });
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries(['exerciseFeedback']);
+      queryClient.invalidateQueries({ queryKey: ['exerciseFeedback'] });
       setFeedbackGiven(prev => ({ ...prev, [variables.exerciseId]: variables.feedbackType }));
       toast.success('Thanks for your feedback!');
     }

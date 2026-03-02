@@ -66,7 +66,7 @@ export default function JournalAutoRun({ thoughtText, onComplete }) {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['journalEntries']);
+      queryClient.invalidateQueries({ queryKey: ['journalEntries'] });
       setSelectedAlternative(null);
       setTimeout(() => {
         onComplete();

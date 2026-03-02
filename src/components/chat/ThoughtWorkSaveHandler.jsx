@@ -65,7 +65,7 @@ export default function ThoughtWorkSaveHandler({
     },
     onSuccess: ({ structuredData }) => {
       setStatus('success');
-      queryClient.invalidateQueries(['thoughtJournals']);
+      queryClient.invalidateQueries({ queryKey: ['thoughtJournals'] });
       
       setTimeout(() => {
         if (onSaveComplete) {

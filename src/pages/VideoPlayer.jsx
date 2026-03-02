@@ -60,8 +60,8 @@ export default function VideoPlayer() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['videoProgress']);
-      queryClient.invalidateQueries(['allVideoProgress']);
+      queryClient.invalidateQueries({ queryKey: ['videoProgress'] });
+      queryClient.invalidateQueries({ queryKey: ['allVideoProgress'] });
     }
   });
 

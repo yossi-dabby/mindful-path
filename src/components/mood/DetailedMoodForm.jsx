@@ -84,9 +84,9 @@ export default function DetailedMoodForm({ entry, onClose }) {
     },
     onMutate: async (data) => {
       // Cancel outgoing refetches
-      await queryClient.cancelQueries(['moodEntries']);
-      await queryClient.cancelQueries(['recentMood']);
-      await queryClient.cancelQueries(['todayFlow']);
+      await queryClient.cancelQueries({ queryKey: ['moodEntries'] });
+      await queryClient.cancelQueries({ queryKey: ['recentMood'] });
+      await queryClient.cancelQueries({ queryKey: ['todayFlow'] });
 
       // Snapshot previous values
       const previousMoodEntries = queryClient.getQueryData(['moodEntries']);
@@ -138,9 +138,9 @@ export default function DetailedMoodForm({ entry, onClose }) {
       setSaveError(t('mood_tracker.form.save_error'));
     },
     onSettled: () => {
-      queryClient.invalidateQueries(['moodEntries']);
-      queryClient.invalidateQueries(['recentMood']);
-      queryClient.invalidateQueries(['todayFlow']);
+      queryClient.invalidateQueries({ queryKey: ['moodEntries'] });
+      queryClient.invalidateQueries({ queryKey: ['recentMood'] });
+      queryClient.invalidateQueries({ queryKey: ['todayFlow'] });
     }
   });
 

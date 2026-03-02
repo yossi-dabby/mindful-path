@@ -27,7 +27,7 @@ export default function ThoughtRecordCard({ entry, onEdit }) {
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.ThoughtJournal.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries(['thoughtJournals']);
+      queryClient.invalidateQueries({ queryKey: ['thoughtJournals'] });
     }
   });
 
@@ -53,7 +53,7 @@ export default function ThoughtRecordCard({ entry, onEdit }) {
                 entry={entry} 
                 onSummaryGenerated={() => {
                   setHasSummary(true);
-                  queryClient.invalidateQueries(['thoughtJournals']);
+                  queryClient.invalidateQueries({ queryKey: ['thoughtJournals'] });
                 }} 
               />
             ) : (

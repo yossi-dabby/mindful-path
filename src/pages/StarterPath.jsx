@@ -226,7 +226,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
       return { takeaway: takeawayResult };
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries(['starterPath']);
+      queryClient.invalidateQueries({ queryKey: ['starterPath'] });
       setStep('complete');
     }
   });

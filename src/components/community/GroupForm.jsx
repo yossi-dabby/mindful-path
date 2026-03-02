@@ -31,8 +31,8 @@ export default function GroupForm({ onClose }) {
       return group;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['communityGroups']);
-      queryClient.invalidateQueries(['groupMemberships']);
+      queryClient.invalidateQueries({ queryKey: ['communityGroups'] });
+      queryClient.invalidateQueries({ queryKey: ['groupMemberships'] });
       onClose();
     }
   });

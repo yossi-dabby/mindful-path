@@ -111,7 +111,7 @@ Please help me create a structured plan to work through this.`
       return session;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['coachingSessions']);
+      queryClient.invalidateQueries({ queryKey: ['coachingSessions'] });
       onClose();
     },
     onError: (error) => {

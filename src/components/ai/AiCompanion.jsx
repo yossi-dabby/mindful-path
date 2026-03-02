@@ -77,7 +77,7 @@ export default function AiCompanion() {
         role: 'user',
         content: userMessage
       });
-      queryClient.invalidateQueries(['proactiveReminders']);
+      queryClient.invalidateQueries({ queryKey: ['proactiveReminders'] });
     } catch (error) {
       console.error('Failed to send message:', error);
       setIsLoading(false);

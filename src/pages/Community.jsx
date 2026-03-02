@@ -55,7 +55,7 @@ export default function Community() {
         upvotes: (post.upvotes || 0) + 1
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries(['forumPosts']);
+      queryClient.invalidateQueries({ queryKey: ['forumPosts'] });
     }
   });
 
@@ -65,7 +65,7 @@ export default function Community() {
         upvotes: (progress.upvotes || 0) + 1
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries(['sharedProgress']);
+      queryClient.invalidateQueries({ queryKey: ['sharedProgress'] });
     }
   });
 
@@ -81,8 +81,8 @@ export default function Community() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['communityGroups']);
-      queryClient.invalidateQueries(['groupMemberships']);
+      queryClient.invalidateQueries({ queryKey: ['communityGroups'] });
+      queryClient.invalidateQueries({ queryKey: ['groupMemberships'] });
     }
   });
 

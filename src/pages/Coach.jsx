@@ -63,7 +63,7 @@ export default function Coach() {
   const deleteSessionMutation = useMutation({
     mutationFn: (sessionId) => base44.entities.CoachingSession.delete(sessionId),
     onSuccess: () => {
-      queryClient.invalidateQueries(['coachingSessions']);
+      queryClient.invalidateQueries({ queryKey: ['coachingSessions'] });
     },
     onError: (error) => {
       console.error('Failed to delete session:', error);

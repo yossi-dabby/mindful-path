@@ -40,8 +40,8 @@ export default function AddToPlaylistModal({ isOpen, onClose, video }) {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['playlists']);
-      queryClient.invalidateQueries(['playlistVideos']);
+      queryClient.invalidateQueries({ queryKey: ['playlists'] });
+      queryClient.invalidateQueries({ queryKey: ['playlistVideos'] });
     }
   });
 
@@ -57,8 +57,8 @@ export default function AddToPlaylistModal({ isOpen, onClose, video }) {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['playlists']);
-      queryClient.invalidateQueries(['playlistVideos']);
+      queryClient.invalidateQueries({ queryKey: ['playlists'] });
+      queryClient.invalidateQueries({ queryKey: ['playlistVideos'] });
     }
   });
 

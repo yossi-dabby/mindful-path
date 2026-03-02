@@ -154,8 +154,8 @@ export default function Home() {
       return selectedExercise;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['todayFlow']);
-      queryClient.invalidateQueries(['todayExercise']);
+      queryClient.invalidateQueries({ queryKey: ['todayFlow'] });
+      queryClient.invalidateQueries({ queryKey: ['todayExercise'] });
     }
   });
 
@@ -179,7 +179,7 @@ export default function Home() {
         exercise_completed: true,
         exercise_time: new Date().toISOString()
       });
-      queryClient.invalidateQueries(['todayFlow']);
+      queryClient.invalidateQueries({ queryKey: ['todayFlow'] });
     }
     setShowExercise(false);
     setShowReflection(true);
@@ -440,7 +440,7 @@ export default function Home() {
         <WelcomeWizard
           onComplete={() => {
             setShowOnboarding(false);
-            queryClient.invalidateQueries(['currentUser']);
+            queryClient.invalidateQueries({ queryKey: ['currentUser'] });
           }}
         />
       )}

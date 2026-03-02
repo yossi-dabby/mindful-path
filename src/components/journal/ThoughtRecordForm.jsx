@@ -91,7 +91,7 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
     },
     onMutate: async (data) => {
       // Cancel outgoing refetches
-      await queryClient.cancelQueries(['thoughtJournals']);
+      await queryClient.cancelQueries({ queryKey: ['thoughtJournals'] });
 
       // Snapshot previous values
       const previousJournals = queryClient.getQueryData(['thoughtJournals']);
@@ -149,7 +149,7 @@ export default function ThoughtRecordForm({ entry, template, templates = [], onC
     },
     onSettled: () => {
       if (!mountedRef.current) return;
-      queryClient.invalidateQueries(['thoughtJournals']);
+      queryClient.invalidateQueries({ queryKey: ['thoughtJournals'] });
     }
   });
 
@@ -323,7 +323,7 @@ Provide:
         abortControllerRef.current.abort();
       }
       // Invalidate queries when form closes
-      queryClient.invalidateQueries(['thoughtJournals']);
+      queryClient.invalidateQueries({ queryKey: ['thoughtJournals'] });
     };
   }, [queryClient]);
 
