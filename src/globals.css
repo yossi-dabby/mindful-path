@@ -192,6 +192,11 @@
   .transition-calm {
     transition: all var(--dur-med) var(--ease-calm);
   }
+
+  /* Page transition wrapper – promote to GPU layer for smooth slide animations */
+  .page-transition-wrapper {
+    will-change: transform, opacity;
+  }
   
   /* Breathing animation - slow, parasympathetic */
   @keyframes breathe {

@@ -229,7 +229,7 @@ export default function Layout({ children, currentPageName }) {
             initial="initial"
             animate="animate"
             exit="exit"
-            className="w-full"
+            className="w-full page-transition-wrapper"
           >
             {children}
           </motion.div>
