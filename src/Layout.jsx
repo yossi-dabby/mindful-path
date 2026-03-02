@@ -67,9 +67,9 @@ export default function Layout({ children, currentPageName }) {
   // Using a sentinel push/pop pattern avoids calling history.go(1) from inside
   // a popstate handler, which causes iOS WKWebView "Unified Navigation" warnings.
   const overlayHistoryPushed = React.useRef(false);
-  // Record history.length at the time we push so we can verify the sentinel is
-  // still at the top of the stack when the overlay closes programmatically.
-  const overlayHistoryLength = React.useRef(0);
+  // A unique ID stamped into each sentinel pushState so we can reliably
+  // identify it even when other navigations happened while the overlay was open.
+  const overlayHistorySentinelId = React.useRef(null);
 
   // Observe overlay open/close via MutationObserver and manage the sentinel entry.
   React.useEffect(() => {
@@ -82,18 +82,22 @@ export default function Layout({ children, currentPageName }) {
       if (hasOpenOverlay && !overlayHistoryPushed.current) {
         // Overlay just opened: push a sentinel entry so back gesture closes the overlay
         // instead of navigating away from the page.
-        overlayHistoryLength.current = window.history.length;
-        window.history.pushState({ overlayOpen: true }, '');
+        const sentinelId = Date.now();
+        overlayHistorySentinelId.current = sentinelId;
+        window.history.pushState({ overlayOpen: true, sentinelId }, '');
         overlayHistoryPushed.current = true;
       } else if (!hasOpenOverlay && overlayHistoryPushed.current) {
         // Overlay closed programmatically (X button, backdrop click, ESC key, etc.)
         // without the user pressing the hardware/gesture back button.
+        const expectedId = overlayHistorySentinelId.current;
         overlayHistoryPushed.current = false;
-        // Only go back if the sentinel is still the current entry — i.e. no other
-        // navigation happened while the overlay was open.
+        overlayHistorySentinelId.current = null;
+        // Only go back if the sentinel is still the current entry — identified by
+        // the unique sentinelId — so that any navigation that occurred while the
+        // overlay was open is not accidentally reverted.
         if (
           window.history.state?.overlayOpen &&
-          window.history.length === overlayHistoryLength.current + 1
+          window.history.state?.sentinelId === expectedId
         ) {
           window.history.back();
         }

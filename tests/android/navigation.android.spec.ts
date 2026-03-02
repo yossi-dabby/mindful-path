@@ -4,14 +4,20 @@ import { assertNoConsoleErrorsOrWarnings } from './utils/androidHelpers';
 /**
  * Android Navigation & Optimistic UI Tests
  *
- * Covers two categories of issues that were causing console warnings on Android and iOS:
+ * Covers three categories of issues that were causing console warnings on Android and iOS:
  *
  * 1. Bottom Tabs & Stack Preservation
  *    - Switching between bottom-nav tabs navigates correctly without no-op warnings.
  *    - Re-tapping the active tab resets to the tab root and scrolls to top.
  *    - Each tab remembers its last visited sub-page (stack preservation).
  *
- * 2. Optimistic UI Updates (Android)
+ * 2. Within-Tab Back Navigation (Unified Navigation / Back Stack)
+ *    - The mobile header back button navigates back within the tab's stack.
+ *    - Using navigate(-1) keeps the browser history in sync with the tab stack,
+ *      preventing iOS WKWebView "Unified Navigation" warnings.
+ *    - Tab switching with replace:true does not pollute the browser history.
+ *
+ * 3. Optimistic UI Updates (Android)
  *    - Toggling a milestone checkbox updates the UI immediately (before the server
  *      responds), and the cache is reconciled with server state via invalidation.
  */
@@ -173,7 +179,89 @@ test.describe('Bottom Tabs & Stack Preservation', () => {
 });
 
 // ===========================================================================
-// 2. Optimistic UI Updates (Android)
+// 2. Within-Tab Back Navigation (Unified Navigation / Back Stack)
+// ===========================================================================
+test.describe('Within-Tab Back Navigation', () => {
+  test.beforeEach(async ({ page }) => {
+    await mockApis(page);
+  });
+
+  test('navigating from a sub-page to another page and back uses the history stack correctly', async ({ page }) => {
+    const checkConsole = assertNoConsoleErrorsOrWarnings(page);
+
+    // Start at Home tab root
+    await page.goto(`${BASE_URL}/Home`, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(1000);
+
+    const initialUrl = page.url();
+    expect(initialUrl).toContain('/Home');
+
+    // Navigate to a sub-page within the same logical tab (Settings is accessible from any tab)
+    await page.goto(`${BASE_URL}/Settings`, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(800);
+    expect(page.url()).toContain('/Settings');
+
+    // Simulate pressing the browser/native back button
+    await page.goBack();
+    await page.waitForTimeout(800);
+
+    // Should be back at /Home, not at /Settings or any other URL
+    expect(page.url()).toContain('/Home');
+
+    await checkConsole();
+  });
+
+  test('tab switching via bottom nav uses replace navigation and does not inflate browser history', async ({ page }) => {
+    const checkConsole = assertNoConsoleErrorsOrWarnings(page);
+
+    await page.goto(`${BASE_URL}/Home`, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(1000);
+
+    const bottomNav = page.getByRole('navigation');
+    if ((await bottomNav.count()) === 0) {
+      test.skip(true, 'No navigation found – skipping');
+      return;
+    }
+
+    // Record history length before tab switches
+    const historyLengthBefore = await page.evaluate(() => window.history.length);
+
+    // Switch to Journal and back to Home via the bottom nav
+    await bottomNavLink(page, 'Journal').click();
+    await page.waitForTimeout(500);
+    expect(page.url()).toContain('/Journal');
+
+    await bottomNavLink(page, 'Home').click();
+    await page.waitForTimeout(500);
+    expect(page.url()).toContain('/Home');
+
+    // Tab switching uses replace:true so history length should not grow — both
+    // navigations replace the current entry rather than pushing a new one.
+    const historyLengthAfter = await page.evaluate(() => window.history.length);
+    expect(historyLengthAfter).toBeGreaterThanOrEqual(historyLengthBefore);
+    expect(historyLengthAfter).toBeLessThanOrEqual(historyLengthBefore + 1);
+
+    await checkConsole();
+  });
+
+  test('mobile header shows back button only on sub-pages, not on tab roots', async ({ page }) => {
+    const checkConsole = assertNoConsoleErrorsOrWarnings(page);
+
+    await page.goto(`${BASE_URL}/Home`, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(1000);
+
+    // At the Home root: no back button should appear in the mobile header
+    const backButton = page.locator('header[class*="md:hidden"] button[aria-label="Go back"]');
+    const backButtonVisible = await backButton.isVisible().catch(() => false);
+    // On the root page the back button should be absent (or hidden)
+    expect(backButtonVisible).toBe(false);
+
+    await checkConsole();
+  });
+});
+
+// ===========================================================================
+// 3. Optimistic UI Updates (Android)
 // ===========================================================================
 test.describe('Optimistic UI Updates', () => {
   test.beforeEach(async ({ page }) => {

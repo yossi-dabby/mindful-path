@@ -182,7 +182,15 @@ export function TabNavigationProvider({ children, currentPageName }) {
       }));
       
       isNavigatingRef.current = true;
-      navigate(previousPage.path);
+      // Use the browser's own back navigation so the hardware / swipe-back
+      // gesture stays in sync with the JavaScript history stack.
+      // Fall back to an explicit navigate when there is no browser history to
+      // go back to (e.g. the user deep-linked directly to a sub-page).
+      if (window.history.length > 1) {
+        navigate(-1);
+      } else {
+        navigate(previousPage.path, { replace: true });
+      }
       return true;
     }
     return false; // Already at root
