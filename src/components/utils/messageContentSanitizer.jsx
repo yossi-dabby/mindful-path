@@ -59,6 +59,16 @@ export function sanitizeMessageContent(text, language = 'en') {
     return text;
   }
 
+  // Strip <think>...</think> blocks (XML-style reasoning tokens used by some LLMs)
+  if (/<think>/i.test(text)) {
+    text = text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+    console.warn('[Sanitizer] ⚠️ Stripped <think> block from assistant message');
+    if (!text || text.length < 5) {
+      console.error('[Sanitizer] ⚠️ All content removed after <think> stripping - using failsafe');
+      return language === 'he' ? HEBREW_FAILSAFE : ENGLISH_FAILSAFE;
+    }
+  }
+
   // Quick check - if no forbidden patterns exist, return as-is (performance optimization)
   const hasAnyForbiddenPattern = FORBIDDEN_PATTERNS.some(pattern => pattern.test(text));
   if (!hasAnyForbiddenPattern) {
@@ -103,6 +113,7 @@ export function sanitizeMessageContent(text, language = 'en') {
 export function hasReasoningLeakage(text) {
   if (!text || typeof text !== 'string') return false;
   
+  if (/<think>/i.test(text)) return true;
   return FORBIDDEN_PATTERNS.some(pattern => pattern.test(text));
 }
 

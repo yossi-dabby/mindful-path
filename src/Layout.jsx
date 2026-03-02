@@ -235,7 +235,7 @@ export default function Layout({ children, currentPageName }) {
             initial="initial"
             animate="animate"
             exit="exit"
-            className="w-full"
+            className="w-full h-full"
           >
             {children}
           </motion.div>
