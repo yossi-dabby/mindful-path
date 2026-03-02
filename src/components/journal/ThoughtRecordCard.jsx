@@ -214,7 +214,7 @@ export default function ThoughtRecordCard({ entry, onEdit }) {
                 <p className="text-sm font-medium text-gray-700 mb-2">Attached Images:</p>
                 <div className="grid grid-cols-3 gap-2">
                   {entry.images.map((url, index) => (
-                    <img key={index} src={url} alt="" className="w-full h-24 object-cover rounded-lg cursor-pointer" onClick={() => window.open(url, '_blank')} />
+                    <img key={index} src={url} alt={`Attached image ${index + 1}`} className="w-full h-24 object-cover rounded-lg cursor-pointer" onClick={() => window.open(url, '_blank')} />
                   ))}
                 </div>
               </div>

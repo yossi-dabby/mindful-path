@@ -100,7 +100,7 @@ export default function IllustrationCard({
       )}>
         <CardContent className="p-8">
           {/* Illustration */}
-          <div className="w-32 h-32 mx-auto mb-6">
+          <div className="w-32 h-32 mx-auto mb-6" aria-hidden="true">
             {illustrations[type] || illustrations.meditation}
           </div>
 

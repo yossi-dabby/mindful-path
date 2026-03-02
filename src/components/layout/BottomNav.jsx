@@ -45,6 +45,7 @@ export default function BottomNav({ currentPageName }) {
   
   return (
     <nav 
+      aria-label="Main navigation"
       className="md:hidden fixed bottom-0 left-0 right-0 backdrop-blur-xl border-t shadow-lg"
       style={{
         zIndex: 35, 
@@ -64,6 +65,8 @@ export default function BottomNav({ currentPageName }) {
               key={item.path}
               to={createPageUrl(item.path)}
               onClick={(e) => handleTabClick(e, item)}
+              aria-current={isActive ? 'page' : undefined}
+              aria-label={item.name}
               className="flex flex-col items-center justify-center gap-1 px-2 py-2 transition-calm"
               style={{
                 borderRadius: '16px',

@@ -28,6 +28,7 @@ export default function Sidebar({ currentPageName }) {
   
   return (
     <nav 
+      aria-label="Main navigation"
       className="hidden md:flex fixed left-0 top-0 bottom-0 backdrop-blur-xl border-r shadow-sm flex-col py-6"
       style={{
         zIndex: 35, 
@@ -63,6 +64,7 @@ export default function Sidebar({ currentPageName }) {
               <Link
                 key={item.path}
                 to={createPageUrl(item.path)}
+                aria-current={isActive ? 'page' : undefined}
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 transition-calm group",
                   isActive && "shadow-sm"
@@ -103,6 +105,7 @@ export default function Sidebar({ currentPageName }) {
                 <Link
                   key={item.path}
                   to={createPageUrl(item.path)}
+                  aria-current={isActive ? 'page' : undefined}
                   className="flex items-center gap-3 px-4 py-2.5 transition-calm"
                   style={{
                     borderRadius: '16px',
