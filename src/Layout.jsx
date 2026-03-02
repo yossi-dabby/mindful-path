@@ -154,10 +154,16 @@ export default function Layout({ children, currentPageName }) {
   }, []);
 
   React.useEffect(() => {
-    // Load user theme preference
+    // Load user theme + language preference
     base44.auth.me().then((user) => {
       const userTheme = user?.preferences?.theme || 'default';
       setTheme(userTheme);
+
+      // Sync saved language preference → i18n (user profile wins over localStorage)
+      const savedLang = user?.preferences?.language;
+      if (savedLang && savedLang !== i18n.language) {
+        i18n.changeLanguage(savedLang);
+      }
       
       // Apply theme colors
       const themeColors = {

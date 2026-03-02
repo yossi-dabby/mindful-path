@@ -34,8 +34,19 @@ export async function safeInvokeLLM(params, skipRiskGate = false) {
     throw error;
   }
 
+  // Inject user's selected language into every AI prompt
+  const lang = i18n.language || localStorage.getItem('language') || 'en';
+  const langName = LANGUAGE_NAMES[lang] || 'English';
+  const langInstruction = lang !== 'en'
+    ? `IMPORTANT: You must respond entirely in ${langName}. All text, labels, and content must be in ${langName}.\n\n`
+    : '';
+
+  const enrichedParams = langInstruction
+    ? { ...params, prompt: langInstruction + params.prompt }
+    : params;
+
   // Pass through to actual InvokeLLM
-  return await base44.integrations.Core.InvokeLLM(params);
+  return await base44.integrations.Core.InvokeLLM(enrichedParams);
 }
 
 /**
