@@ -1474,7 +1474,7 @@ export default function Chat() {
                   </div>
                 </div>
               )}
-            </div>
+            </div>{/* end scrollable outer div */}
           )}
         </div>
 
