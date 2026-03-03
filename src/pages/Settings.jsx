@@ -54,6 +54,14 @@ export default function Settings() {
         goalReminders: false,
         exerciseReminders: false
       });
+      setEmailNotifications(userData.preferences?.emailNotifications || {
+        emailCritical: true,
+        emailMentions: false,
+        dailyReminders: false,
+        progressUpdates: false,
+        goalReminders: false,
+        exerciseReminders: false
+      });
       setDashboardLayout(userData.preferences?.dashboardLayout || 'default');
 
       // Initialize UserPoints singleton (fetch-or-create pattern)
