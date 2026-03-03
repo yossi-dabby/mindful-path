@@ -42,6 +42,7 @@ export default function Sidebar({ currentPageName }) {
       {/* Logo */}
       <div className="px-6 mb-8">
         <div className="flex items-center gap-3">
+          <NotificationBell />
           <div className="w-10 h-10 flex items-center justify-center shadow-md" style={{ 
             borderRadius: 'var(--r-lg)',
             background: 'linear-gradient(135deg, #26A69A, #38B2AC)'
