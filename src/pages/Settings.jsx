@@ -11,6 +11,7 @@ import { User, CreditCard, LogOut, Crown, Shield, Layout as LayoutIcon, Trash2 }
 import ThemeSelector from '../components/settings/ThemeSelector';
 import DataPrivacy from '../components/settings/DataPrivacy';
 import LanguageSelector from '../components/settings/LanguageSelector';
+import NotificationSettings from '../components/settings/NotificationSettings';
 import { performLogout } from '@/lib/platform';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +24,14 @@ export default function Settings() {
   const [fullName, setFullName] = useState('');
   const [currentTheme, setCurrentTheme] = useState('default');
   const [notifications, setNotifications] = useState({
+    dailyReminders: false,
+    progressUpdates: false,
+    goalReminders: false,
+    exerciseReminders: false
+  });
+  const [emailNotifications, setEmailNotifications] = useState({
+    emailCritical: true,
+    emailMentions: false,
     dailyReminders: false,
     progressUpdates: false,
     goalReminders: false,
