@@ -119,10 +119,15 @@ export default function Settings() {
     const newNotifications = { ...notifications, [key]: !notifications[key] };
     setNotifications(newNotifications);
     await updateProfileMutation.mutateAsync({
-      preferences: {
-        ...user.preferences,
-        notifications: newNotifications
-      }
+      preferences: { ...user.preferences, notifications: newNotifications }
+    });
+  };
+
+  const handleEmailNotificationToggle = async (key) => {
+    const newEmailNotifications = { ...emailNotifications, [key]: !emailNotifications[key] };
+    setEmailNotifications(newEmailNotifications);
+    await updateProfileMutation.mutateAsync({
+      preferences: { ...user.preferences, emailNotifications: newEmailNotifications }
     });
   };
 
