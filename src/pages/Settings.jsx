@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { User, Bell, CreditCard, LogOut, Crown, Shield, Layout as LayoutIcon, Trash2 } from 'lucide-react';
+import { User, CreditCard, LogOut, Crown, Shield, Layout as LayoutIcon, Trash2 } from 'lucide-react';
 import ThemeSelector from '../components/settings/ThemeSelector';
 import DataPrivacy from '../components/settings/DataPrivacy';
 import LanguageSelector from '../components/settings/LanguageSelector';
