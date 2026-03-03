@@ -5,6 +5,7 @@ import { ChevronLeft } from 'lucide-react';
 import { createPageUrl } from '../../utils';
 import { useTabNavigation } from './TabNavigationProvider';
 import MobileMenu from './MobileMenu';
+import NotificationBell from '../notifications/NotificationBell';
 
 export const MOBILE_HEADER_HEIGHT = 60; // Height of mobile header nav area in px (excluding safe area)
 
@@ -103,8 +104,9 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
           {getPageTitle()}
         </h1>
 
-        {/* Right: Menu button */}
-        <div className="w-12 flex justify-end">
+        {/* Right: Notification bell + Menu button */}
+        <div className="flex items-center gap-1 justify-end">
+          <NotificationBell />
           <MobileMenu />
         </div>
       </div>
