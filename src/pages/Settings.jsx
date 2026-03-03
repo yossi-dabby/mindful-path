@@ -407,64 +407,14 @@ export default function Settings() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.6 }}
+        className="mb-6"
       >
-        <Card className="border-0 mb-6" style={{ 
-          borderRadius: '24px',
-          background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.5) 0%, rgba(255, 255, 255, 0.8) 100%)',
-          backdropFilter: 'blur(10px)',
-          boxShadow: '0 3px 12px rgba(38, 166, 154, 0.1), 0 1px 3px rgba(0,0,0,0.04)'
-        }}>
-        <CardHeader className="border-b">
-          <CardTitle className="flex items-center gap-2">
-            <Bell className="w-5 h-5 text-gray-600" />
-            {t('settings.notifications.title')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-6">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between py-3">
-              <div className="flex-1">
-                <p className="font-medium text-gray-800">{t('settings.notifications.daily_reminders')}</p>
-                <p className="text-sm text-gray-500">{t('settings.notifications.daily_reminders_description')}</p>
-              </div>
-              <Switch
-                checked={notifications.dailyReminders}
-                onCheckedChange={() => handleNotificationToggle('dailyReminders')}
-              />
-            </div>
-            <div className="flex items-center justify-between py-3 border-t">
-              <div className="flex-1">
-                <p className="font-medium text-gray-800">{t('settings.notifications.progress_updates')}</p>
-                <p className="text-sm text-gray-500">{t('settings.notifications.progress_updates_description')}</p>
-              </div>
-              <Switch
-                checked={notifications.progressUpdates}
-                onCheckedChange={() => handleNotificationToggle('progressUpdates')}
-              />
-            </div>
-            <div className="flex items-center justify-between py-3 border-t">
-              <div className="flex-1">
-                <p className="font-medium text-gray-800">{t('settings.notifications.goal_reminders')}</p>
-                <p className="text-sm text-gray-500">{t('settings.notifications.goal_reminders_description')}</p>
-              </div>
-              <Switch
-                checked={notifications.goalReminders}
-                onCheckedChange={() => handleNotificationToggle('goalReminders')}
-              />
-            </div>
-            <div className="flex items-center justify-between py-3 border-t">
-              <div className="flex-1">
-                <p className="font-medium text-gray-800">{t('settings.notifications.exercise_reminders')}</p>
-                <p className="text-sm text-gray-500">{t('settings.notifications.exercise_reminders_description')}</p>
-              </div>
-              <Switch
-                checked={notifications.exerciseReminders}
-                onCheckedChange={() => handleNotificationToggle('exerciseReminders')}
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        <NotificationSettings
+          notifications={notifications}
+          emailNotifications={emailNotifications}
+          onToggleInApp={handleNotificationToggle}
+          onToggleEmail={handleEmailNotificationToggle}
+        />
       </motion.div>
 
       {/* Account Actions */}
