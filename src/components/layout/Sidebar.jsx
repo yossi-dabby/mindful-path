@@ -42,17 +42,17 @@ export default function Sidebar({ currentPageName }) {
       {/* Logo */}
       <div className="px-6 mb-8">
         <div className="flex items-center gap-3">
-          <NotificationBell />
           <div className="w-10 h-10 flex items-center justify-center shadow-md" style={{ 
             borderRadius: 'var(--r-lg)',
             background: 'linear-gradient(135deg, #26A69A, #38B2AC)'
           }}>
             <span className="text-white font-bold text-lg">M</span>
           </div>
-          <div>
+          <div className="flex-1">
             <h1 className="text-lg font-semibold" style={{ color: '#1A3A34' }}>{t('global.app_name')}</h1>
             <p className="text-xs" style={{ color: '#5A7A72' }}>{t('global.app_tagline')}</p>
           </div>
+          <NotificationBell />
         </div>
       </div>
 
