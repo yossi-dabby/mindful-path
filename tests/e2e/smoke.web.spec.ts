@@ -1,88 +1,24 @@
 import { test, expect } from '@playwright/test';
+import { mockApi } from '../helpers/ui';
 
 test.describe('Chat Smoke Test', () => {
   test.beforeEach(async ({ page }) => {
     console.log('[TEST] Starting beforeEach setup');
-    
-    // CRITICAL: Only intercept /api/** routes - never intercept module files
-    // This prevents MIME type errors for src/api/base44Client.js
-    
-    await page.route('**/api/apps/**', async (route) => {
-      const url = route.request().url();
-      if (url.includes('/public-settings/')) {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            id: 'test-app-id',
-            appId: 'test-app-id',
-            appName: 'Test App',
-            isPublic: true
-          })
-        });
-      } else {
-        await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
-      }
-    });
-    
-    await page.route('**/api/auth/**', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          id: 'test-user-id',
-          email: 'test@example.com',
-          full_name: 'Test User',
-          role: 'user',
-          preferences: {}
-        })
-      });
-    });
-    
-    await page.route('**/api/agents/**', async (route) => {
-      const method = route.request().method();
-      if (method === 'GET') {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify([])
-        });
-      } else if (method === 'POST') {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            id: 'test-conversation-id',
-            messages: [],
-            metadata: { name: 'Test Session' }
-          })
-        });
-      } else {
-        await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
-      }
-    });
-    
-    await page.route('**/api/entities/**', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify([])
-      });
-    });
-    
-    await page.route('**/analytics/**', async (route) => {
-      await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
-    });
-    
-    // Set up test environment
+
+    // Use the shared mockApi helper which:
+    // - Intercepts only /api/** routes (not JS module files, preventing MIME errors)
+    // - Returns correct response types ([] for entity lists, {} for other calls)
+    await mockApi(page);
+
+    // Set up test environment variables
     await page.addInitScript(() => {
       localStorage.setItem('chat_consent_accepted', 'true');
       localStorage.setItem('age_verified', 'true');
       if (document.body) {
         document.body.setAttribute('data-test-env', 'true');
       }
-      window.__TEST_APP_ID__ = 'test-app-id';
-      window.__DISABLE_ANALYTICS__ = true;
+      (window as any).__TEST_APP_ID__ = 'test-app-id';
+      (window as any).__DISABLE_ANALYTICS__ = true;
     });
   });
 
