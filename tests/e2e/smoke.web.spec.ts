@@ -4,11 +4,12 @@ test.describe('Chat Smoke Test', () => {
   test.beforeEach(async ({ page }) => {
     console.log('[TEST] Starting beforeEach setup');
     
-    // CRITICAL: Only intercept /api/** routes - never intercept module files
-    // This prevents MIME type errors for src/api/base44Client.js
-    
-    await page.route('**/api/apps/**', async (route) => {
+    // Intercept all API calls with a single broad handler to ensure no real backend calls
+    await page.route('**/api/**', async (route) => {
       const url = route.request().url();
+      const method = route.request().method();
+
+      // Public settings
       if (url.includes('/public-settings/')) {
         await route.fulfill({
           status: 200,
@@ -17,60 +18,67 @@ test.describe('Chat Smoke Test', () => {
             id: 'test-app-id',
             appId: 'test-app-id',
             appName: 'Test App',
-            isPublic: true
+            isPublic: true,
+            created_date: new Date().toISOString(),
+            updated_date: new Date().toISOString()
           })
         });
-      } else {
-        await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+        return;
       }
-    });
-    
-    await page.route('**/api/auth/**', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          id: 'test-user-id',
-          email: 'test@example.com',
-          full_name: 'Test User',
-          role: 'user',
-          preferences: {}
-        })
-      });
-    });
-    
-    await page.route('**/api/agents/**', async (route) => {
-      const method = route.request().method();
-      if (method === 'GET') {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify([])
-        });
-      } else if (method === 'POST') {
+
+      // Auth endpoints
+      if (url.includes('/auth/')) {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
           body: JSON.stringify({
-            id: 'test-conversation-id',
-            messages: [],
-            metadata: { name: 'Test Session' }
+            id: 'test-user-id',
+            email: 'test@example.com',
+            full_name: 'Test User',
+            role: 'user',
+            preferences: {},
+            created_date: new Date().toISOString()
           })
         });
-      } else {
-        await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+        return;
       }
-    });
-    
-    await page.route('**/api/entities/**', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify([])
-      });
-    });
-    
-    await page.route('**/analytics/**', async (route) => {
+
+      // Agent conversations
+      if (url.includes('/agents/') || url.includes('/conversations')) {
+        if (method === 'POST') {
+          await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              id: 'test-conversation-id',
+              messages: [],
+              metadata: { name: 'Test Session' },
+              created_date: new Date().toISOString()
+            })
+          });
+        } else {
+          await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([]) });
+        }
+        return;
+      }
+
+      // All entity endpoints (regardless of URL structure with appId)
+      if (url.includes('/entities/')) {
+        if (method === 'GET') {
+          await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([]) });
+        } else {
+          await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+        }
+        return;
+      }
+
+      // Analytics and tracking
+      if (url.includes('/analytics/') || url.includes('/track/')) {
+        await route.fulfill({ status: 204, body: '' });
+        return;
+      }
+
+      // Default: return empty success for any remaining API calls
       await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
     });
     

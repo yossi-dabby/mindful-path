@@ -37,6 +37,15 @@ const PRIORITY_DOT = {
   low: 'bg-transparent'
 };
 
+function formatNotificationDate(dateString) {
+  try {
+    const d = new Date(dateString);
+    return isNaN(d.getTime()) ? '' : formatDistanceToNow(d, { addSuffix: true });
+  } catch {
+    return '';
+  }
+}
+
 function NotificationItem({ notification, onMarkRead, onDelete }) {
   const Icon = TYPE_ICON[notification.type] || Info;
   const color = TYPE_COLOR[notification.type] || '#607D8B';
@@ -71,7 +80,7 @@ function NotificationItem({ notification, onMarkRead, onDelete }) {
         <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{notification.message}</p>
         <div className="flex items-center gap-2 mt-1">
           <span className="text-xs text-gray-400">
-            {formatDistanceToNow(new Date(notification.created_date), { addSuffix: true })}
+            {formatNotificationDate(notification.created_date)}
           </span>
           {isUnread && <span className="w-1.5 h-1.5 rounded-full bg-teal-500 flex-shrink-0" />}
           {(notification.priority === 'high' || notification.priority === 'critical') && (

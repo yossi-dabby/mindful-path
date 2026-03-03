@@ -4,6 +4,7 @@ import { createPageUrl } from '../../utils';
 import { cn } from "@/lib/utils";
 import { Home, MessageCircle, BookOpen, Activity, Dumbbell, Heart, Users, Settings } from 'lucide-react';
 import NotificationBell from '../notifications/NotificationBell';
+import ErrorBoundary from '../utils/ErrorBoundary';
 import { useTranslation } from 'react-i18next';
 
 export const SIDEBAR_WIDTH = 288; // 72 * 4 = 288px (w-72)
@@ -52,7 +53,9 @@ export default function Sidebar({ currentPageName }) {
             <h1 className="text-lg font-semibold" style={{ color: '#1A3A34' }}>{t('global.app_name')}</h1>
             <p className="text-xs" style={{ color: '#5A7A72' }}>{t('global.app_tagline')}</p>
           </div>
-          <NotificationBell />
+          <ErrorBoundary>
+            <NotificationBell />
+          </ErrorBoundary>
         </div>
       </div>
 

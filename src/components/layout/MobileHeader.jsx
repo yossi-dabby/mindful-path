@@ -6,6 +6,7 @@ import { createPageUrl } from '../../utils';
 import { useTabNavigation } from './TabNavigationProvider';
 import MobileMenu from './MobileMenu';
 import NotificationBell from '../notifications/NotificationBell';
+import ErrorBoundary from '../utils/ErrorBoundary';
 
 export const MOBILE_HEADER_HEIGHT = 60; // Height of mobile header nav area in px (excluding safe area)
 
@@ -106,7 +107,9 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
 
         {/* Right: Notification bell + Menu button */}
         <div className="flex items-center gap-1 justify-end">
-          <NotificationBell />
+          <ErrorBoundary>
+            <NotificationBell />
+          </ErrorBoundary>
           <MobileMenu />
         </div>
       </div>
