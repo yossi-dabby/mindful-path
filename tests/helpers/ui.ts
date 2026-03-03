@@ -61,6 +61,16 @@ export async function mockApi(page: Page) {
     const url = req.url();
     const method = req.method();
 
+    // Never intercept JS/TS module files — let Vite serve them with the
+    // correct MIME type (application/javascript).  Without this guard the
+    // broad **/api/** pattern can match source files that contain "api" in
+    // their path (e.g. /src/api/base44Client.js) and return JSON, which
+    // triggers a strict-MIME-type browser error for module scripts.
+    if (/\.(js|jsx|ts|tsx|mjs|cjs)(\?.*)?$/.test(url)) {
+      await route.continue();
+      return;
+    }
+
     // ---- Base44 infrastructure endpoints (must not 404) ----
 
     // analytics tracking (ignore)
