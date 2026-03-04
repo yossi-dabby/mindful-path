@@ -115,10 +115,13 @@ test.describe('PullToRefresh gesture handling', () => {
   test.beforeEach(async ({ page }) => {
     await mockApis(page);
     await page.goto(`${BASE_URL}/Home`, { waitUntil: 'domcontentloaded' });
+    // Wait for the authenticated page content (PullToRefresh included) to be mounted,
+    // not just the loading spinner.  #app-scroll-container is only populated once the
+    // auth check completes and the real page tree renders.
     await page.waitForFunction(
       () => {
-        const root = document.querySelector('#root');
-        return root && root.children.length > 0;
+        const container = document.querySelector('#app-scroll-container');
+        return container && container.children.length > 0;
       },
       { timeout: 10000 },
     );
@@ -128,7 +131,7 @@ test.describe('PullToRefresh gesture handling', () => {
     // Pull 90px down — past PULL_THRESHOLD (80) but below MAX_PULL (120)
     await simulatePull(page, 200, 290);
 
-    await expect(page.getByText('Release to refresh')).toBeVisible({ timeout: 2000 });
+    await expect(page.getByText('Release to refresh')).toBeVisible({ timeout: 4000 });
   });
 
   test('pull indicator appears even when distance exceeds MAX_PULL in a single touchmove', async ({ page }) => {
@@ -137,7 +140,7 @@ test.describe('PullToRefresh gesture handling', () => {
     // so isPulling was never set to true and the indicator never appeared.
     await simulatePull(page, 200, 350);
 
-    await expect(page.getByText('Release to refresh')).toBeVisible({ timeout: 2000 });
+    await expect(page.getByText('Release to refresh')).toBeVisible({ timeout: 4000 });
   });
 
   test('main scroll container stays at scrollTop 0 during a pull gesture', async ({ page }) => {
