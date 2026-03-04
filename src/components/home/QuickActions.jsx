@@ -145,17 +145,8 @@ export default function QuickActions() {
       <h2 className="text-lg font-semibold mb-4 truncate" style={{ color: '#1A3A34' }}>{t('quick_actions.title')}</h2>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 w-full overflow-x-hidden">
         {/* AI Recommendations Card */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3, delay: 0.6 }}
-          className="relative"
-        >
-          <motion.div
-            whileHover={{ scale: 1.04, y: -6 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <Card 
+        <div className="relative">
+          <Card 
               className="border-0 hover:shadow-xl transition-all cursor-pointer group h-full" 
               style={{
                 borderRadius: '28px',
