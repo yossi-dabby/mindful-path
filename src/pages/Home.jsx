@@ -227,16 +227,11 @@ export default function Home() {
       }}>
         <div className="page-container max-w-5xl mx-auto w-full pb-24">
         {/* Header */}
-        <motion.div 
-          className="mb-4 mt-6"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+        <div className="mb-4 mt-6">
           <h1 className="text-xl md:text-2xl font-normal mb-2" style={{ color: '#1A3A34' }}>
             {greeting()}{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
           </h1>
-        </motion.div>
+        </div>
 
         {/* Daily Check-in - Primary CTA */}
         <div className="space-y-4">
