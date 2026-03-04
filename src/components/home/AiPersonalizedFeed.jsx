@@ -272,11 +272,8 @@ Return JSON only.`,
             const colors = priorityColors[rec.priority] || priorityColors.medium;
 
             return (
-              <motion.div
+              <div
                 key={`${rec.type}-${rec.id || index}`}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
                 className="p-4 hover:shadow-md transition-all cursor-pointer group"
                 style={{
                   borderRadius: '20px',
