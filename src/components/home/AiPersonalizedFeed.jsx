@@ -57,10 +57,9 @@ export default function AiPersonalizedFeed() {
   // Wait until we have data before running the expensive LLM call
   const dataReady = goals !== undefined && recentJournals !== undefined && recentMoods !== undefined;
 
-  // AI-powered recommendations
+  // AI-powered recommendations - only run when explicitly opened (dataReady + has some data)
   const { data: aiRecommendations, isLoading, refetch } = useQuery({
     queryKey: ['aiRecommendations'],
-    enabled: dataReady,
     queryFn: async () => {
       if (!goals.length && !recentJournals.length && !recentMoods.length) {
         // New user - provide starter recommendations
