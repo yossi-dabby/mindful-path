@@ -32,11 +32,15 @@ jobs:
 
       - name: Build application
         run: npm run build
+        env:
+          VITE_BASE44_APP_ID: test-app-id
 
       - name: Start dev server
         run: |
           nohup npm run dev -- --host 127.0.0.1 --port 5173 > devserver.log 2>&1 &
           echo "Dev server started (logging to devserver.log)"
+        env:
+          VITE_BASE44_APP_ID: test-app-id
 
       - name: Wait for server
         run: npx --yes wait-on http://127.0.0.1:5173 --timeout 60000
@@ -47,6 +51,7 @@ jobs:
           CI: true
           BASE_URL: http://127.0.0.1:5173
           PLAYWRIGHT_TEST_BASE_URL: http://127.0.0.1:5173
+          VITE_BASE44_APP_ID: test-app-id
 
       - name: Upload dev server log
         uses: actions/upload-artifact@v4
@@ -102,11 +107,15 @@ jobs:
 
       - name: Build application
         run: npm run build
+        env:
+          VITE_BASE44_APP_ID: test-app-id
 
       - name: Start dev server
         run: |
           nohup npm run dev -- --host 127.0.0.1 --port 5173 > devserver.log 2>&1 &
           echo "Dev server started (logging to devserver.log)"
+        env:
+          VITE_BASE44_APP_ID: test-app-id
 
       - name: Wait for server
         run: npx --yes wait-on http://127.0.0.1:5173 --timeout 60000
@@ -117,6 +126,7 @@ jobs:
           CI: true
           BASE_URL: http://127.0.0.1:5173
           PLAYWRIGHT_TEST_BASE_URL: http://127.0.0.1:5173
+          VITE_BASE44_APP_ID: test-app-id
 
       - name: Upload dev server log
         uses: actions/upload-artifact@v4

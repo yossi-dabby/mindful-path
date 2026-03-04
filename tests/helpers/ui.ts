@@ -113,6 +113,23 @@ export async function mockApi(page: Page) {
       return;
     }
 
+    // entities/User/me — current user lookup via entity endpoint
+    if (url.includes('/entities/User/me')) {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          id: mockUserId,
+          email: mockUserEmail,
+          full_name: 'Test User',
+          role: 'user',
+          onboarding_completed: true,
+          created_date: new Date().toISOString(),
+        }),
+      });
+      return;
+    }
+
     // ---- Agent conversations ----
     if (url.includes('/agents/conversations') && method === 'GET') {
       await route.fulfill({
@@ -241,6 +258,25 @@ export async function mockApi(page: Page) {
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify([]),
+      });
+      return;
+    }
+
+    if (url.includes('/entities/ForumPost')) {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([]),
+      });
+      return;
+    }
+
+    // app-logs endpoint (page visit tracking)
+    if (url.includes('/api/app-logs/')) {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ ok: true }),
       });
       return;
     }
