@@ -10,11 +10,18 @@ import { createPageUrl } from '../../utils';
 
 export default function AiPersonalizedFeed() {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [loadData, setLoadData] = useState(false);
 
-  // Fetch user data - all lazy (only when component mounts after being explicitly opened)
+  // Only start fetching data after a short delay (component is inside a modal that was just opened)
+  React.useEffect(() => {
+    const t = setTimeout(() => setLoadData(true), 100);
+    return () => clearTimeout(t);
+  }, []);
+
   const { data: goals = [] } = useQuery({
     queryKey: ['activeGoals'],
     queryFn: () => base44.entities.Goal.filter({ status: 'active' }, '-created_date', 5),
+    enabled: loadData,
     staleTime: 1000 * 60 * 10,
     refetchOnWindowFocus: false
   });
@@ -22,6 +29,7 @@ export default function AiPersonalizedFeed() {
   const { data: recentJournals = [] } = useQuery({
     queryKey: ['recentJournals'],
     queryFn: () => base44.entities.ThoughtJournal.list('-created_date', 10),
+    enabled: loadData,
     staleTime: 1000 * 60 * 10,
     refetchOnWindowFocus: false
   });
@@ -29,6 +37,7 @@ export default function AiPersonalizedFeed() {
   const { data: recentMoods = [] } = useQuery({
     queryKey: ['recentMoods'],
     queryFn: () => base44.entities.MoodEntry.list('-created_date', 7),
+    enabled: loadData,
     staleTime: 1000 * 60 * 10,
     refetchOnWindowFocus: false
   });
@@ -36,6 +45,7 @@ export default function AiPersonalizedFeed() {
   const { data: exercises = [] } = useQuery({
     queryKey: ['exercises'],
     queryFn: () => base44.entities.Exercise.list(),
+    enabled: loadData,
     staleTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false
   });
@@ -43,6 +53,7 @@ export default function AiPersonalizedFeed() {
   const { data: resources = [] } = useQuery({
     queryKey: ['resources'],
     queryFn: () => base44.entities.Resource.list(),
+    enabled: loadData,
     staleTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false
   });
@@ -50,12 +61,13 @@ export default function AiPersonalizedFeed() {
   const { data: videos = [] } = useQuery({
     queryKey: ['videos'],
     queryFn: () => base44.entities.Video.list(),
+    enabled: loadData,
     staleTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false
   });
 
-  // Wait until we have data before running the expensive LLM call
-  const dataReady = goals !== undefined && recentJournals !== undefined && recentMoods !== undefined;
+  // Only run LLM once all 3 user data queries have actually resolved with real arrays
+  const dataReady = loadData && Array.isArray(goals) && Array.isArray(recentJournals) && Array.isArray(recentMoods);
 
   // AI-powered recommendations - only run when explicitly opened (dataReady + has some data)
   const { data: aiRecommendations, isLoading, refetch } = useQuery({
