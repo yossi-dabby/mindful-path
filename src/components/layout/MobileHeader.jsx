@@ -97,12 +97,12 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
         </div>
 
         {/* Center: Page title */}
-        <h1 
+        <p 
           className="text-lg font-semibold truncate" 
           style={{ color: '#1A3A34' }}
         >
           {getPageTitle()}
-        </h1>
+        </p>
 
         {/* Right: Notification bell + Menu button */}
         <div className="flex items-center gap-1 justify-end">
