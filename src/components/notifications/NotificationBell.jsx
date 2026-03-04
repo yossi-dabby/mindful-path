@@ -94,7 +94,9 @@ export default function NotificationBell() {
   const { data: notifications = [] } = useQuery({
     queryKey: ['notifications'],
     queryFn: () => base44.entities.AppNotification.list('-created_date', 50),
-    refetchInterval: 60000 // poll every minute
+    refetchInterval: open ? 60000 : false, // only poll when panel is open
+    staleTime: 30000,
+    refetchOnWindowFocus: false
   });
 
   const unreadCount = notifications.filter(n => !n.is_read).length;

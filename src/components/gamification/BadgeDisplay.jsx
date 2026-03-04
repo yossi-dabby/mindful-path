@@ -36,7 +36,9 @@ export default function BadgeDisplay({ compact = false }) {
       });
       return Object.values(uniqueBadges);
     },
-    initialData: []
+    initialData: [],
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchOnWindowFocus: false
   });
   const badgesArr = Array.isArray(badges) ? badges : [];
   const earnedBadges = badgesArr.filter(b => b.earned_date);

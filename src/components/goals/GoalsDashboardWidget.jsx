@@ -16,7 +16,8 @@ export default function GoalsDashboardWidget() {
   const { data, isLoading } = useQuery({
     queryKey: ['allGoals'],
     queryFn: () => base44.entities.Goal.list(),
-    staleTime: 30000
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchOnWindowFocus: false
   });
   const goals = Array.isArray(data) ? data : [];
 
