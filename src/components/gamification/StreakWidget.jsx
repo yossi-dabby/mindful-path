@@ -48,13 +48,9 @@ export default function StreakWidget({ compact = false }) {
         boxShadow: '0 8px 32px rgba(38, 166, 154, 0.18), 0 4px 12px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.4)'
       }}>
         <CardContent className="p-5 text-center">
-          <motion.div
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ duration: 2, repeat: Infinity, ease: [0.2, 0.8, 0.2, 1] }}
-            className="inline-flex mb-2"
-          >
+          <div className="inline-flex mb-2">
             <Flame className="w-8 h-8" style={{ color: '#F6AD55' }} strokeWidth={2} />
-          </motion.div>
+          </div>
           <p className="text-2xl font-bold mb-1" style={{ color: '#1A3A34' }}>
             {currentStreak}
           </p>
