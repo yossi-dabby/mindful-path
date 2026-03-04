@@ -212,29 +212,18 @@ export default function QuickActions() {
                 <CardContent className="p-5">
                   {/* Always-visible header row — same layout as other cards */}
                   <div className="flex items-center gap-3 mb-4">
-                    <motion.div
+                    <div
                       className="w-14 h-14 flex items-center justify-center flex-shrink-0"
                       style={{
                         borderRadius: '20px',
                         backgroundColor: '#26A69A',
                         boxShadow: '0 6px 16px rgba(38, 166, 154, 0.4)'
                       }}
-                      whileHover={{ rotate: 5 }}
-                      transition={{ duration: 0.3 }}
                     >
                       <Sparkles className="w-7 h-7 text-white" strokeWidth={2.5} />
-                    </motion.div>
+                    </div>
 
-                    <motion.button
-                      animate={{
-                        scale: [1, 1.05, 1],
-                        boxShadow: [
-                          '0 4px 12px rgba(38, 166, 154, 0.4)',
-                          '0 6px 16px rgba(38, 166, 154, 0.6)',
-                          '0 4px 12px rgba(38, 166, 154, 0.4)'
-                        ]
-                      }}
-                      transition={{ duration: 2, repeat: Infinity, ease: [0.2, 0.8, 0.2, 1] }}
+                    <button
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -253,7 +242,7 @@ export default function QuickActions() {
                       title="Guided introduction video"
                     >
                       <User className="w-6 h-6 icon-default" style={{ color: '#26A69A' }} strokeWidth={2} />
-                    </motion.button>
+                    </button>
                   </div>
 
                   {/* Title row */}
