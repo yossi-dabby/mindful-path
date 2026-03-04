@@ -17,7 +17,6 @@ import DailyReflection from '../components/home/DailyReflection';
 import ExerciseDetail from '../components/exercises/ExerciseDetail';
 import VideoModal from '../components/home/VideoModal';
 import GoalsDashboardWidget from '../components/goals/GoalsDashboardWidget';
-import { motion } from 'framer-motion';
 import PullToRefresh from '../components/utils/PullToRefresh';
 
 export default function Home() {
