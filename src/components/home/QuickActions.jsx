@@ -522,6 +522,6 @@ export default function QuickActions() {
           </Card>
         </div>
       )}
-    </motion.div>
+    </>
   );
 }
