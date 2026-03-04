@@ -330,11 +330,11 @@ Return JSON only.`,
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             );
           })}
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   );
 }
