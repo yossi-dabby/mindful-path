@@ -227,6 +227,32 @@ export async function mockApi(page: Page) {
       return;
     }
 
+    if (url.includes('/entities/ForumPost') && method === 'POST') {
+      let postData: any = {};
+      try {
+        postData = req.postDataJSON();
+      } catch {
+        // ignore
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          id: 'test-post-123',
+          title: postData.title || 'Test Post',
+          content: postData.content || 'Test content',
+          category: postData.category || 'general',
+          tags: postData.tags || [],
+          upvotes: 0,
+          author_display_name: postData.author_display_name || 'Test User',
+          created_date: new Date().toISOString(),
+          created_by: mockUserEmail,
+          updated_date: new Date().toISOString(),
+        }),
+      });
+      return;
+    }
+
     if (url.includes('/entities/MoodEntry')) {
       await route.fulfill({
         status: 200,
