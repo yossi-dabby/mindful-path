@@ -57,7 +57,6 @@ export default function Goals() {
     },
     initialData: [],
     refetchOnWindowFocus: false,
-    refetchOnMount: 'always', // Always fetch on mount to ensure fresh data
     staleTime: 30000,
   });
 

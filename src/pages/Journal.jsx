@@ -50,14 +50,16 @@ export default function Journal() {
     queryKey: ['thoughtJournals'],
     queryFn: () => base44.entities.ThoughtJournal.list('-created_date', 30),
     initialData: [],
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 5
   });
 
   const { data: sessionSummaries, isLoading: isLoadingSummaries } = useQuery({
     queryKey: ['sessionSummaries'],
     queryFn: () => base44.entities.SessionSummary.list('-session_date'),
     initialData: [],
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 5
   });
 
   const entries = [...thoughtJournals, ...sessionSummaries.map(s => ({
@@ -70,7 +72,8 @@ export default function Journal() {
   const { data: templates } = useQuery({
     queryKey: ['journalTemplates'],
     queryFn: () => base44.entities.JournalTemplate.list(),
-    initialData: []
+    initialData: [],
+    staleTime: 1000 * 60 * 30
   });
 
   // Get all unique tags from entries

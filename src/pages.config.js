@@ -47,32 +47,33 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
-import AdvancedAnalytics from './pages/AdvancedAnalytics';
-import Chat from './pages/Chat';
-import Coach from './pages/Coach';
-import CoachingAnalytics from './pages/CoachingAnalytics';
-import Community from './pages/Community';
-import CrisisAlerts from './pages/CrisisAlerts';
-import ExerciseView from './pages/ExerciseView';
-import Exercises from './pages/Exercises';
-import ExperientialGames from './pages/ExperientialGames';
-import GoalCoach from './pages/GoalCoach';
-import Goals from './pages/Goals';
-import Home from './pages/Home';
-import Journal from './pages/Journal';
-import Journeys from './pages/Journeys';
-import MoodTracker from './pages/MoodTracker';
-import PersonalizedFeed from './pages/PersonalizedFeed';
-import PlaylistDetail from './pages/PlaylistDetail';
-import Playlists from './pages/Playlists';
-import Progress from './pages/Progress';
-import Resources from './pages/Resources';
-import Settings from './pages/Settings';
-import StarterPath from './pages/StarterPath';
-import TestSetupGuide from './pages/TestSetupGuide';
-import ThoughtCoach from './pages/ThoughtCoach';
-import VideoPlayer from './pages/VideoPlayer';
-import Videos from './pages/Videos';
+import { lazy } from 'react';
+const AdvancedAnalytics = lazy(() => import('./pages/AdvancedAnalytics'));
+const Chat = lazy(() => import('./pages/Chat'));
+const Coach = lazy(() => import('./pages/Coach'));
+const CoachingAnalytics = lazy(() => import('./pages/CoachingAnalytics'));
+const Community = lazy(() => import('./pages/Community'));
+const CrisisAlerts = lazy(() => import('./pages/CrisisAlerts'));
+const ExerciseView = lazy(() => import('./pages/ExerciseView'));
+const Exercises = lazy(() => import('./pages/Exercises'));
+const ExperientialGames = lazy(() => import('./pages/ExperientialGames'));
+const GoalCoach = lazy(() => import('./pages/GoalCoach'));
+const Goals = lazy(() => import('./pages/Goals'));
+const Home = lazy(() => import('./pages/Home'));
+const Journal = lazy(() => import('./pages/Journal'));
+const Journeys = lazy(() => import('./pages/Journeys'));
+const MoodTracker = lazy(() => import('./pages/MoodTracker'));
+const PersonalizedFeed = lazy(() => import('./pages/PersonalizedFeed'));
+const PlaylistDetail = lazy(() => import('./pages/PlaylistDetail'));
+const Playlists = lazy(() => import('./pages/Playlists'));
+const Progress = lazy(() => import('./pages/Progress'));
+const Resources = lazy(() => import('./pages/Resources'));
+const Settings = lazy(() => import('./pages/Settings'));
+const StarterPath = lazy(() => import('./pages/StarterPath'));
+const TestSetupGuide = lazy(() => import('./pages/TestSetupGuide'));
+const ThoughtCoach = lazy(() => import('./pages/ThoughtCoach'));
+const VideoPlayer = lazy(() => import('./pages/VideoPlayer'));
+const Videos = lazy(() => import('./pages/Videos'));
 import __Layout from './Layout.jsx';
 
 
