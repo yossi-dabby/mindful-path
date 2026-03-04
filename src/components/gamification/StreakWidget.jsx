@@ -117,11 +117,8 @@ export default function StreakWidget({ compact = false }) {
               {[...Array(7)].map((_, i) => {
                 const isActive = i < currentStreak;
                 return (
-                  <motion.div
+                  <div
                     key={i}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.05 }}
                     className={cn(
                       "flex-1 h-2 rounded-full",
                       isActive 
