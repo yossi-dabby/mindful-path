@@ -55,12 +55,9 @@ export default function BadgeDisplay({ compact = false }) {
         boxShadow: '0 8px 32px rgba(38, 166, 154, 0.18), 0 4px 12px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.4)'
       }}>
         <CardContent className="p-5 text-center">
-          <motion.div
-            animate={{ rotate: [0, 10, -10, 0] }}
-            transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-          >
+          <div>
             <Award className="w-8 h-8 mx-auto mb-2" style={{ color: '#ECC94B' }} strokeWidth={2} />
-          </motion.div>
+          </div>
           <p className="text-2xl font-bold mb-1" style={{ color: '#1A3A34' }}>{earnedBadges.length}</p>
           <p className="text-xs" style={{ color: '#3D5A52' }}>Badges</p>
           {inProgressBadges.length > 0 && (
