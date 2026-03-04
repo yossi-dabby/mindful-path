@@ -26,7 +26,9 @@ export default function QuickActions() {
     queryFn: async () => {
       const paths = await base44.entities.StarterPath.list();
       return paths[0] || null;
-    }
+    },
+    staleTime: 1000 * 60 * 10, // 10 minutes
+    refetchOnWindowFocus: false
   });
 
   const startPathMutation = useMutation({
