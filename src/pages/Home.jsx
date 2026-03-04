@@ -47,14 +47,16 @@ export default function Home() {
       const moods = await base44.entities.MoodEntry.filter({ date: today });
       return moods[0] || null;
     },
-    refetchOnWindowFocus: true
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false
   });
 
   const { data: recentGoals, isError: goalsError, refetch: refetchGoals } = useQuery({
     queryKey: ['recentGoals'],
     queryFn: () => base44.entities.Goal.filter({ status: 'active' }, '-created_date', 3),
     initialData: [],
-    refetchOnWindowFocus: true
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false
   });
 
   // Combined query for journal data - fetch recent entries and use for both count and latest
@@ -65,7 +67,8 @@ export default function Home() {
       return entries;
     },
     initialData: [],
-    refetchOnWindowFocus: true
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false
   });
 
   // Derive values from combined query
@@ -81,7 +84,9 @@ export default function Home() {
       const today = new Date().toISOString().split('T')[0];
       const flows = await base44.entities.DailyFlow.filter({ date: today });
       return flows[0] || null;
-    }
+    },
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false
   });
 
   // Get today's exercise
