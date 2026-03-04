@@ -329,8 +329,7 @@ export default function QuickActions() {
                   </AnimatePresence>
                 </CardContent>
               </Card>
-            </motion.div>
-          </motion.div>
+          </div>
         )}
 
         {actions.map((action, index) => {
