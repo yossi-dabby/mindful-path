@@ -141,7 +141,7 @@ export default function QuickActions() {
   const actions = [...therapeuticActions, ...selfDirectedActions];
 
   return (
-    <div className="mb-6">
+    <>
       <h2 className="text-lg font-semibold mb-4 truncate" style={{ color: '#1A3A34' }}>{t('quick_actions.title')}</h2>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 w-full overflow-x-hidden">
         {/* AI Recommendations Card */}
