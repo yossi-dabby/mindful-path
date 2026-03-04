@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, BookOpen, Target, Play, ArrowRight, Loader2, RefreshCw } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { createPageUrl } from '../../utils';
 
 export default function AiPersonalizedFeed() {
