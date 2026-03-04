@@ -456,10 +456,7 @@ export default function QuickActions() {
         />
       )}
 
-    </div>
-
-    {/* Modals */}
-    {/* AI Recommendations Modal - Conditional rendering to avoid DialogPortal error */}
+      {/* AI Recommendations Modal */}
       {showRecommendations && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto"
           style={{
