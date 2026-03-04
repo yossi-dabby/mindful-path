@@ -202,12 +202,7 @@ Return JSON only.`,
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-      className="mb-6"
-    >
+    <div className="mb-6">
       <Card className="border-0" style={{
         borderRadius: '28px',
         background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
