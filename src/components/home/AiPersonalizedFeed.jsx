@@ -11,46 +11,56 @@ import { createPageUrl } from '../../utils';
 export default function AiPersonalizedFeed() {
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Fetch user data
-  const { data: goals } = useQuery({
+  // Fetch user data - all lazy (only when component mounts after being explicitly opened)
+  const { data: goals = [] } = useQuery({
     queryKey: ['activeGoals'],
     queryFn: () => base44.entities.Goal.filter({ status: 'active' }, '-created_date', 5),
-    initialData: []
+    staleTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false
   });
 
-  const { data: recentJournals } = useQuery({
+  const { data: recentJournals = [] } = useQuery({
     queryKey: ['recentJournals'],
     queryFn: () => base44.entities.ThoughtJournal.list('-created_date', 10),
-    initialData: []
+    staleTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false
   });
 
-  const { data: recentMoods } = useQuery({
+  const { data: recentMoods = [] } = useQuery({
     queryKey: ['recentMoods'],
     queryFn: () => base44.entities.MoodEntry.list('-created_date', 7),
-    initialData: []
+    staleTime: 1000 * 60 * 10,
+    refetchOnWindowFocus: false
   });
 
-  const { data: exercises } = useQuery({
+  const { data: exercises = [] } = useQuery({
     queryKey: ['exercises'],
     queryFn: () => base44.entities.Exercise.list(),
-    initialData: []
+    staleTime: 1000 * 60 * 30,
+    refetchOnWindowFocus: false
   });
 
-  const { data: resources } = useQuery({
+  const { data: resources = [] } = useQuery({
     queryKey: ['resources'],
     queryFn: () => base44.entities.Resource.list(),
-    initialData: []
+    staleTime: 1000 * 60 * 30,
+    refetchOnWindowFocus: false
   });
 
-  const { data: videos } = useQuery({
+  const { data: videos = [] } = useQuery({
     queryKey: ['videos'],
     queryFn: () => base44.entities.Video.list(),
-    initialData: []
+    staleTime: 1000 * 60 * 30,
+    refetchOnWindowFocus: false
   });
+
+  // Wait until we have data before running the expensive LLM call
+  const dataReady = goals !== undefined && recentJournals !== undefined && recentMoods !== undefined;
 
   // AI-powered recommendations
   const { data: aiRecommendations, isLoading, refetch } = useQuery({
-    queryKey: ['aiRecommendations', goals.length, recentJournals.length, recentMoods.length],
+    queryKey: ['aiRecommendations'],
+    enabled: dataReady,
     queryFn: async () => {
       if (!goals.length && !recentJournals.length && !recentMoods.length) {
         // New user - provide starter recommendations
