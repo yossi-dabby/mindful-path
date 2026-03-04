@@ -13,7 +13,7 @@ export default function AiPersonalizedFeed() {
   const [loadData, setLoadData] = useState(false);
 
   // Only start fetching data after a short delay (component is inside a modal that was just opened)
-  React.useEffect(() => {
+  useEffect(() => {
     const t = setTimeout(() => setLoadData(true), 100);
     return () => clearTimeout(t);
   }, []);
