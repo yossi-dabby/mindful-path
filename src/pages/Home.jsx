@@ -288,7 +288,7 @@ export default function Home() {
                 style={{
                   borderRadius: '50%',
                   backgroundColor: 'rgba(255, 215, 0, 0.15)',
-                  animation: 'angelPulse 2s ease-in-out infinite'
+                  opacity: 0.9
                 }}
                 title="Watch help video"
                 aria-label="Watch goals help video"
@@ -306,7 +306,7 @@ export default function Home() {
               style={{
                 borderRadius: '50%',
                 backgroundColor: 'rgba(255, 215, 0, 0.15)',
-                animation: 'angelPulse 2s ease-in-out infinite'
+                opacity: 0.9
               }}
               title="Watch help video"
               aria-label="Watch goals help video"
@@ -350,7 +350,7 @@ export default function Home() {
                 style={{
                   borderRadius: '50%',
                   backgroundColor: 'rgba(255, 215, 0, 0.15)',
-                  animation: 'angelPulse 2s ease-in-out infinite'
+                  opacity: 0.9
                 }}
                 title="Watch help video"
                 aria-label="Watch journal help video"
@@ -368,7 +368,7 @@ export default function Home() {
               style={{
                 borderRadius: '50%',
                 backgroundColor: 'rgba(255, 215, 0, 0.15)',
-                animation: 'angelPulse 2s ease-in-out infinite'
+                opacity: 0.9
               }}
               title="Watch help video"
               aria-label="Watch journal help video"
