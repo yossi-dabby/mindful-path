@@ -32,11 +32,29 @@ export default function Home() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    // Use sessionStorage cache from Layout.js if available
+    const cached = sessionStorage.getItem('user_prefs_loaded');
+    if (cached) {
+      try {
+        const { name, onboarding_completed } = JSON.parse(cached);
+        if (name) setUser({ full_name: name });
+        if (onboarding_completed === false) setShowOnboarding(true);
+      } catch (_) {}
+    }
     base44.auth.me().then(userData => {
       setUser(userData);
       if (!userData.onboarding_completed) {
         setShowOnboarding(true);
       }
+      // Update cache with onboarding status
+      try {
+        const prev = JSON.parse(sessionStorage.getItem('user_prefs_loaded') || '{}');
+        sessionStorage.setItem('user_prefs_loaded', JSON.stringify({
+          ...prev,
+          name: userData.full_name,
+          onboarding_completed: userData.onboarding_completed
+        }));
+      } catch (_) {}
     }).catch(() => {});
   }, []);
 
