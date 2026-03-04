@@ -12,6 +12,15 @@ export default defineConfig({
     minify: process.env.CI ? false : "esbuild",
   },
 
+  server: {
+    headers: {
+      // Restrict Permissions-Policy to only features the app uses,
+      // omitting deprecated/unrecognised features (vr, ambient-light-sensor, battery)
+      // that produce browser warnings when included.
+      "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    },
+  },
+
   plugins: [
     base44({
       legacySDKImports: process.env.BASE44_LEGACY_SDK_IMPORTS === "true",
