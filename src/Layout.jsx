@@ -154,7 +154,15 @@ export default function Layout({ children, currentPageName }) {
   }, []);
 
   React.useEffect(() => {
-    // Load user theme + language preference
+    // Load user theme + language preference — only once on mount
+    const cached = sessionStorage.getItem('user_prefs_loaded');
+    if (cached) {
+      try {
+        const { theme: t, lang } = JSON.parse(cached);
+        setTheme(t || 'default');
+        if (lang && lang !== i18n.language) i18n.changeLanguage(lang);
+      } catch (_) {}
+    }
     base44.auth.me().then((user) => {
       const userTheme = user?.preferences?.theme || 'default';
       setTheme(userTheme);
@@ -179,6 +187,13 @@ export default function Layout({ children, currentPageName }) {
       document.documentElement.style.setProperty('--color-primary', colors.primary);
       document.documentElement.style.setProperty('--color-secondary', colors.secondary);
       document.documentElement.style.setProperty('--color-accent', colors.accent);
+      // Cache so subsequent navigations don't re-fetch
+      try {
+        sessionStorage.setItem('user_prefs_loaded', JSON.stringify({
+          theme: userTheme,
+          lang: user?.preferences?.language || null
+        }));
+      } catch (_) {}
     }).catch(() => {
       // User not logged in, use default theme
     });
