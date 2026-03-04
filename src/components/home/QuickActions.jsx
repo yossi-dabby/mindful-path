@@ -177,16 +177,7 @@ export default function QuickActions() {
 
         {/* StarterPath Card — collapsible, same size as other cards when folded */}
         {!pathLoading && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3, delay: 0.65 }}
-            className="relative"
-          >
-            <motion.div
-              whileHover={{ scale: 1.04, y: -6 }}
-              whileTap={{ scale: 0.98 }}
-            >
+          <div className="relative">
               <Card
                 className="border-0 hover:shadow-xl transition-all cursor-pointer group h-full"
                 style={{
