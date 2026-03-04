@@ -488,6 +488,6 @@ export default function QuickActions() {
           </Card>
         </div>
       )}
-    </>
+    </div>
   );
 }
