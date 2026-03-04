@@ -250,12 +250,7 @@ export default function Home() {
         <GoalsDashboardWidget />
         
         {/* Quick Stats */}
-        <style>{`
-          @keyframes angelPulse {
-            0%, 100% { opacity: 0.9; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.05); }
-          }
-        `}</style>
+        
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="p-5 text-center relative" style={{ 
             borderRadius: '28px',
