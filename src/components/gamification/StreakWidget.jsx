@@ -71,16 +71,9 @@ export default function StreakWidget({ compact = false }) {
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <motion.div
-                animate={{ 
-                  scale: currentStreak > 0 ? [1, 1.2, 1] : 1,
-                  rotate: currentStreak > 0 ? [0, 10, -10, 0] : 0
-                }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shadow-lg"
-              >
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shadow-lg">
                 <Flame className="w-6 h-6 text-white" />
-              </motion.div>
+              </div>
               <div>
                 <h3 className="font-semibold text-gray-800">Daily Streak</h3>
                 <p className="text-xs text-gray-600">Keep the momentum going!</p>
