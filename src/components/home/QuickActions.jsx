@@ -158,25 +158,22 @@ export default function QuickActions() {
             >
               <CardContent className="p-5">
                 <div className="flex items-center gap-3 mb-4">
-                  <motion.div 
+                  <div 
                     className="w-14 h-14 flex items-center justify-center"
                     style={{ 
                       borderRadius: '20px',
                       backgroundColor: 'rgb(var(--theme-accent))',
                       boxShadow: '0 6px 16px rgba(255, 142, 66, 0.4)'
                     }}
-                    whileHover={{ rotate: 5 }}
-                    transition={{ duration: 0.3 }}
                   >
                     <Sparkles className="w-7 h-7 text-white" strokeWidth={2.5} />
-                  </motion.div>
+                  </div>
                 </div>
                 <h3 className="font-semibold text-sm mb-1 break-words" style={{ color: '#1A3A34' }}>{t('quick_actions.recommended.title')}</h3>
                 <p className="text-xs line-clamp-2 break-words" style={{ color: '#5A7A72' }}>{t('quick_actions.recommended.description')}</p>
               </CardContent>
             </Card>
-          </motion.div>
-        </motion.div>
+        </div>
 
         {/* StarterPath Card — collapsible, same size as other cards when folded */}
         {!pathLoading && (
