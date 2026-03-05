@@ -8,6 +8,17 @@ import { applyMindGamesTranslations } from './translationsBuilder';
 // Apply mind games UI + content translations to all languages
 applyMindGamesTranslations(translations);
 
+/**
+ * Convert a dot-notation key into a human-readable fallback label.
+ * e.g. "community.page_title" → "Page Title"
+ */
+function keyToHumanFallback(key) {
+  const leaf = key.split('.').pop() || key;
+  return leaf
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
@@ -27,7 +38,16 @@ i18n
     
     react: {
       useSuspense: false
-    }
+    },
+
+    // Warn on missing keys and return a human-readable fallback instead of raw key strings
+    saveMissing: true,
+    missingKeyHandler: (lngs, ns, key) => {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(`[i18n] Missing translation key: "${key}" (langs: ${lngs.join(', ')}, ns: ${ns})`);
+      }
+    },
+    parseMissingKeyHandler: (key) => keyToHumanFallback(key),
   });
 
 // Save language changes to localStorage
