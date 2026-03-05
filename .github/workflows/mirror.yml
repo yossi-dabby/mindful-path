@@ -1,0 +1,28 @@
+name: Mirror Repository
+
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - '**'
+  workflow_dispatch:
+
+jobs:
+  mirror:
+    name: Mirror to mindful-path-copy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Clone source as bare mirror
+        run: git clone --mirror https://github.com/${{ github.repository }}.git
+
+      - name: Push all refs to destination
+        env:
+          MIRROR_TOKEN: ${{ secrets.MIRROR_TOKEN }}
+        run: |
+          cd mindful-path.git
+          git config credential.helper '!f() { echo "username=x-access-token"; echo "password=${MIRROR_TOKEN}"; }; f'
+          git push --mirror https://github.com/yossi-dabby/mindful-path-copy.git
