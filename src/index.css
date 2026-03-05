@@ -121,6 +121,15 @@
 }
 
 @layer utilities {
+  /* Cross-browser scrollbar hiding — use on horizontal chip/tag scroll rows */
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
   /* Soft gradient backgrounds — use rgb(var(--bg)) so they adapt to dark mode */
   .bg-warm-gradient {
     background: linear-gradient(135deg, rgb(var(--bg)) 0%, rgb(248 244 238) 100%);
