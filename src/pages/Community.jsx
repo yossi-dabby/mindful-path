@@ -147,8 +147,8 @@ export default function Community() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <div className="flex items-center justify-between mb-6">
-          <TabsList className="border" style={{
+        <div className="flex flex-wrap items-center gap-3 mb-6">
+          <TabsList className="border flex-shrink-0" style={{
             background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.7) 0%, rgba(180, 220, 210, 0.6) 100%)',
             borderColor: 'rgba(38, 166, 154, 0.25)',
             borderRadius: '28px'
@@ -158,7 +158,7 @@ export default function Community() {
             <TabsTrigger value="progress">{t('community.tabs.progress')}</TabsTrigger>
           </TabsList>
           {activeTab === 'forum' && (
-            <Button onClick={() => setShowPostForm(true)} className="text-white gap-2" style={{
+            <Button onClick={() => setShowPostForm(true)} className="text-white gap-2 flex-shrink-0" style={{
               borderRadius: '24px',
               backgroundColor: '#26A69A',
               boxShadow: '0 6px 20px rgba(38, 166, 154, 0.3)'
@@ -168,7 +168,7 @@ export default function Community() {
             </Button>
           )}
           {activeTab === 'groups' && (
-            <Button onClick={() => setShowGroupForm(true)} className="text-white gap-2" style={{
+            <Button onClick={() => setShowGroupForm(true)} className="text-white gap-2 flex-shrink-0" style={{
               borderRadius: '24px',
               backgroundColor: '#26A69A',
               boxShadow: '0 6px 20px rgba(38, 166, 154, 0.3)'
@@ -178,7 +178,7 @@ export default function Community() {
             </Button>
           )}
           {activeTab === 'progress' && (
-            <Button onClick={() => setShowProgressForm(true)} className="text-white gap-2" style={{
+            <Button onClick={() => setShowProgressForm(true)} className="text-white gap-2 flex-shrink-0" style={{
               borderRadius: '24px',
               backgroundColor: '#26A69A',
               boxShadow: '0 6px 20px rgba(38, 166, 154, 0.3)'
