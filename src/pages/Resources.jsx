@@ -152,14 +152,18 @@ export default function Resources() {
         <div className="space-y-3">
           <div>
             <p className="text-sm font-medium mb-2" style={{ color: '#1A3A34' }}>{t('resources.category_label')}</p>
-            <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', cursor: 'pointer' }}>
+            <div
+              data-testid="category-chips"
+              className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide"
+              style={{ WebkitOverflowScrolling: 'touch', cursor: 'pointer' }}
+            >
               {categories.map((cat) => (
                 <Button
                   key={cat.value}
                   onClick={() => setSelectedCategory(cat.value)}
                   variant={selectedCategory === cat.value ? 'default' : 'outline'}
                   size="sm"
-                  className="whitespace-nowrap flex-shrink-0"
+                  className="whitespace-nowrap flex-shrink-0 text-xs sm:text-sm"
                   style={{
                     borderRadius: '24px',
                     backgroundColor: selectedCategory === cat.value ? '#26A69A' : 'transparent',
@@ -173,14 +177,18 @@ export default function Resources() {
           </div>
           <div>
             <p className="text-sm font-medium mb-2" style={{ color: '#1A3A34' }}>{t('resources.content_type_label')}</p>
-            <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', cursor: 'pointer' }}>
+            <div
+              data-testid="type-chips"
+              className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide"
+              style={{ WebkitOverflowScrolling: 'touch', cursor: 'pointer' }}
+            >
               {contentTypes.map((type) => (
                 <Button
                   key={type.value}
                   onClick={() => setSelectedType(type.value)}
                   variant={selectedType === type.value ? 'default' : 'outline'}
                   size="sm"
-                  className="whitespace-nowrap flex-shrink-0"
+                  className="whitespace-nowrap flex-shrink-0 text-xs sm:text-sm"
                   style={{
                     borderRadius: '24px',
                     backgroundColor: selectedType === type.value ? '#26A69A' : 'transparent',
