@@ -190,6 +190,13 @@ export const translations = {
         minutes_short: "min"
       },
       chat: {
+        title: "Your Therapist",
+        subtitle: "A safe space to talk",
+        thinking: "Thinking...",
+        message_placeholder: "Share what\'s on your mind...",
+        go_back_aria: "Go back to home",
+        open_sidebar_aria: "Open conversations sidebar",
+        close_sidebar_aria: "Close conversations sidebar",
         aria: {
           go_back_home: "Go back to home",
           open_conversations: "Open conversations sidebar",
@@ -914,15 +921,6 @@ export const translations = {
         subtitle: "AI-curated content tailored to your interests",
         go_back_aria: "Go back"
       },
-      chat: {
-        title: "Your Therapist",
-        subtitle: "A safe space to talk",
-        thinking: "Thinking...",
-        message_placeholder: "Share what's on your mind...",
-        go_back_aria: "Go back to home",
-        open_sidebar_aria: "Open conversations sidebar",
-        close_sidebar_aria: "Close conversations sidebar"
-      },
       coach: {
         title: "AI Wellness Coach",
         subtitle: "Structured guidance for your goals",
@@ -1211,7 +1209,85 @@ export const translations = {
           goal_6: "Increase self-compassion",
           goal_7: "Strengthen resilience"
         }
-      }
+      },
+      community: {
+        page_title: "Community",
+        page_subtitle: "Connect, share, and support others on their journey",
+        search_placeholder: "Search posts and groups...",
+        stats: {
+          forum_posts: "Forum Posts",
+          active_groups: "Active Groups",
+          success_stories: "Success Stories",
+        },
+        tabs: {
+          forum: "Forum",
+          groups: "Groups",
+          progress: "Progress",
+        },
+        buttons: {
+          new_post: "New Post",
+          create_group: "Create Group",
+          share_progress: "Share Progress",
+        },
+        loading: {
+          posts: "Loading posts...",
+          groups: "Loading groups...",
+        },
+        empty_state: {
+          no_posts_title: "No posts yet",
+          no_posts_message: "Be the first to start a conversation!",
+          create_first_post: "Create First Post",
+          no_groups_title: "No groups yet",
+          no_groups_message: "Start a group to connect with others!",
+          create_first_group: "Create First Group",
+          no_stories_title: "No stories yet",
+          no_stories_message: "Share your progress and inspire others!",
+          share_your_story: "Share Your Story",
+        },
+        your_groups: "Your Groups",
+        discover_groups: "Discover Groups",
+      },
+      resources: {
+        page_title: "Resource Library",
+        page_subtitle: "Curated mental health resources for your journey",
+        search_placeholder: "Search resources, topics, tags...",
+        category_label: "Category",
+        content_type_label: "Content Type",
+        categories: {
+          all: "All Topics",
+          anxiety: "Anxiety",
+          depression: "Depression",
+          stress: "Stress",
+          mindfulness: "Mindfulness",
+          relationships: "Relationships",
+          self_esteem: "Self-Esteem",
+          sleep: "Sleep",
+          coping_skills: "Coping Skills",
+          emotional_regulation: "Emotional Regulation",
+          communication: "Communication",
+          general: "General Wellness",
+        },
+        content_types: {
+          all: "All Types",
+          article: "Articles",
+          meditation: "Meditations",
+          scenario: "Practice Scenarios",
+          interview: "Expert Interviews",
+          guide: "Guides",
+          video: "Videos",
+          podcast: "Podcasts",
+          book: "Books",
+        },
+        tabs: {
+          all: "All Resources",
+          saved: "Saved",
+        },
+        loading: "Loading resources...",
+        empty_state: {
+          no_resources_title: "No resources found",
+          no_resources_message: "Try adjusting your search or filters",
+        },
+      },
     }
   },
   he: {
@@ -1404,6 +1480,13 @@ export const translations = {
         minutes_short: "דק'"
       },
       chat: {
+        title: "המטפל שלכם",
+        subtitle: "מרחב בטוח לדבר",
+        thinking: "חושב...",
+        message_placeholder: "שתפו מה עובר עליכם...",
+        go_back_aria: "חזרה לדף הבית",
+        open_sidebar_aria: "פתח סרגל שיחות",
+        close_sidebar_aria: "סגור סרגל שיחות",
         aria: {
           go_back_home: "חזרה לדף הבית",
           open_conversations: "פתח סרגל שיחות",
@@ -2118,15 +2201,6 @@ export const translations = {
         subtitle: "תוכן מאורגן על ידי AI בהתאם לתחומי העניין שלכם",
         go_back_aria: "חזרה"
       },
-      chat: {
-        title: "המטפל שלכם",
-        subtitle: "מרחב בטוח לדבר",
-        thinking: "חושב...",
-        message_placeholder: "שתפו מה עובר עליכם...",
-        go_back_aria: "חזרה לדף הבית",
-        open_sidebar_aria: "פתח סרגל שיחות",
-        close_sidebar_aria: "סגור סרגל שיחות"
-      },
       coach: {
         title: "מאמן רווחה AI",
         subtitle: "הדרכה מובנית למטרותיכם",
@@ -2415,7 +2489,85 @@ export const translations = {
           goal_6: "הגברת חמלה עצמית",
           goal_7: "חיזוק חוסן נפשי"
         }
-      }
+      },
+      community: {
+        page_title: "קהילה",
+        page_subtitle: "התחברו, שתפו ותמכו באחרים במסעם",
+        search_placeholder: "חפשו פוסטים וקבוצות...",
+        stats: {
+          forum_posts: "פוסטים בפורום",
+          active_groups: "קבוצות פעילות",
+          success_stories: "סיפורי הצלחה",
+        },
+        tabs: {
+          forum: "פורום",
+          groups: "קבוצות",
+          progress: "התקדמות",
+        },
+        buttons: {
+          new_post: "פוסט חדש",
+          create_group: "צור קבוצה",
+          share_progress: "שתף התקדמות",
+        },
+        loading: {
+          posts: "טוען פוסטים...",
+          groups: "טוען קבוצות...",
+        },
+        empty_state: {
+          no_posts_title: "אין פוסטים עדיין",
+          no_posts_message: "היה הראשון להתחיל שיחה!",
+          create_first_post: "צור פוסט ראשון",
+          no_groups_title: "אין קבוצות עדיין",
+          no_groups_message: "פתח קבוצה כדי להתחבר עם אחרים!",
+          create_first_group: "צור קבוצה ראשונה",
+          no_stories_title: "אין סיפורים עדיין",
+          no_stories_message: "שתף את ההתקדמות שלך ועורר השראה באחרים!",
+          share_your_story: "שתף את הסיפור שלך",
+        },
+        your_groups: "הקבוצות שלך",
+        discover_groups: "גלה קבוצות",
+      },
+      resources: {
+        page_title: "ספריית משאבים",
+        page_subtitle: "משאבי בריאות נפש מתוכננים למסע שלך",
+        search_placeholder: "חפש משאבים, נושאים, תגיות...",
+        category_label: "קטגוריה",
+        content_type_label: "סוג תוכן",
+        categories: {
+          all: "כל הנושאים",
+          anxiety: "חרדה",
+          depression: "דיכאון",
+          stress: "מתח",
+          mindfulness: "מיינדפולנס",
+          relationships: "מערכות יחסים",
+          self_esteem: "הערכה עצמית",
+          sleep: "שינה",
+          coping_skills: "כישורי התמודדות",
+          emotional_regulation: "ויסות רגשי",
+          communication: "תקשורת",
+          general: "בריאות כללית",
+        },
+        content_types: {
+          all: "כל הסוגים",
+          article: "מאמרים",
+          meditation: "מדיטציות",
+          scenario: "תרחישי תרגול",
+          interview: "ראיונות מומחים",
+          guide: "מדריכים",
+          video: "סרטונים",
+          podcast: "פודקאסטים",
+          book: "ספרים",
+        },
+        tabs: {
+          all: "כל המשאבים",
+          saved: "נשמר",
+        },
+        loading: "טוען משאבים...",
+        empty_state: {
+          no_resources_title: "לא נמצאו משאבים",
+          no_resources_message: "נסה להתאים את החיפוש או המסננים",
+        },
+      },
     }
   },
   es: {
@@ -2608,6 +2760,13 @@ export const translations = {
         minutes_short: "min"
       },
       chat: {
+        title: "Tu Terapeuta",
+        subtitle: "Un espacio seguro para hablar",
+        thinking: "Pensando...",
+        message_placeholder: "Comparte lo que tienes en mente...",
+        go_back_aria: "Volver al inicio",
+        open_sidebar_aria: "Abrir barra lateral de conversaciones",
+        close_sidebar_aria: "Cerrar barra lateral de conversaciones",
         aria: {
           go_back_home: "Regresar al inicio",
           open_conversations: "Abrir barra lateral de conversaciones",
@@ -3154,15 +3313,6 @@ export const translations = {
         subtitle: "Contenido curado por IA adaptado a tus intereses",
         go_back_aria: "Volver"
       },
-      chat: {
-        title: "Tu Terapeuta",
-        subtitle: "Un espacio seguro para hablar",
-        thinking: "Pensando...",
-        message_placeholder: "Comparte lo que tienes en mente...",
-        go_back_aria: "Volver al inicio",
-        open_sidebar_aria: "Abrir barra lateral de conversaciones",
-        close_sidebar_aria: "Cerrar barra lateral de conversaciones"
-      },
       coach: {
         title: "Coach de Bienestar IA",
         subtitle: "Orientación estructurada para tus metas",
@@ -3451,7 +3601,85 @@ export const translations = {
           goal_6: "Aumentar la autocompasión",
           goal_7: "Fortalecer la resiliencia"
         }
-      }
+      },
+      community: {
+        page_title: "Comunidad",
+        page_subtitle: "Conecta, comparte y apoya a otros en su camino",
+        search_placeholder: "Buscar publicaciones y grupos...",
+        stats: {
+          forum_posts: "Publicaciones del foro",
+          active_groups: "Grupos activos",
+          success_stories: "Historias de éxito",
+        },
+        tabs: {
+          forum: "Foro",
+          groups: "Grupos",
+          progress: "Progreso",
+        },
+        buttons: {
+          new_post: "Nueva publicación",
+          create_group: "Crear grupo",
+          share_progress: "Compartir progreso",
+        },
+        loading: {
+          posts: "Cargando publicaciones...",
+          groups: "Cargando grupos...",
+        },
+        empty_state: {
+          no_posts_title: "No hay publicaciones aún",
+          no_posts_message: "¡Sé el primero en iniciar una conversación!",
+          create_first_post: "Crear primera publicación",
+          no_groups_title: "No hay grupos aún",
+          no_groups_message: "¡Crea un grupo para conectarte con otros!",
+          create_first_group: "Crear primer grupo",
+          no_stories_title: "No hay historias aún",
+          no_stories_message: "¡Comparte tu progreso e inspira a otros!",
+          share_your_story: "Comparte tu historia",
+        },
+        your_groups: "Tus grupos",
+        discover_groups: "Descubrir grupos",
+      },
+      resources: {
+        page_title: "Biblioteca de Recursos",
+        page_subtitle: "Recursos de salud mental seleccionados para tu camino",
+        search_placeholder: "Buscar recursos, temas, etiquetas...",
+        category_label: "Categoría",
+        content_type_label: "Tipo de contenido",
+        categories: {
+          all: "Todos los temas",
+          anxiety: "Ansiedad",
+          depression: "Depresión",
+          stress: "Estrés",
+          mindfulness: "Mindfulness",
+          relationships: "Relaciones",
+          self_esteem: "Autoestima",
+          sleep: "Sueño",
+          coping_skills: "Habilidades de afrontamiento",
+          emotional_regulation: "Regulación emocional",
+          communication: "Comunicación",
+          general: "Bienestar general",
+        },
+        content_types: {
+          all: "Todos los tipos",
+          article: "Artículos",
+          meditation: "Meditaciones",
+          scenario: "Escenarios de práctica",
+          interview: "Entrevistas de expertos",
+          guide: "Guías",
+          video: "Videos",
+          podcast: "Podcasts",
+          book: "Libros",
+        },
+        tabs: {
+          all: "Todos los recursos",
+          saved: "Guardados",
+        },
+        loading: "Cargando recursos...",
+        empty_state: {
+          no_resources_title: "No se encontraron recursos",
+          no_resources_message: "Intenta ajustar tu búsqueda o filtros",
+        },
+      },
     }
   },
   fr: {
@@ -3644,6 +3872,13 @@ export const translations = {
         minutes_short: "min"
       },
       chat: {
+        title: "Votre Thérapeute",
+        subtitle: "Un espace sûr pour parler",
+        thinking: "Réflexion en cours...",
+        message_placeholder: "Partagez ce qui vous préoccupe...",
+        go_back_aria: "Retour à l\'accueil",
+        open_sidebar_aria: "Ouvrir la barre des conversations",
+        close_sidebar_aria: "Fermer la barre des conversations",
         aria: {
           go_back_home: "Retour à l'accueil",
           open_conversations: "Ouvrir la barre latérale des conversations",
@@ -4368,15 +4603,6 @@ export const translations = {
         subtitle: "Contenu curé par IA adapté à vos intérêts",
         go_back_aria: "Retour"
       },
-      chat: {
-        title: "Votre Thérapeute",
-        subtitle: "Un espace sûr pour parler",
-        thinking: "Réflexion en cours...",
-        message_placeholder: "Partagez ce qui vous préoccupe...",
-        go_back_aria: "Retour à l'accueil",
-        open_sidebar_aria: "Ouvrir la barre des conversations",
-        close_sidebar_aria: "Fermer la barre des conversations"
-      },
       coach: {
         title: "Coach de Bien-être IA",
         subtitle: "Accompagnement structuré pour vos objectifs",
@@ -4665,7 +4891,85 @@ export const translations = {
           goal_6: "Augmenter l'autocompassion",
           goal_7: "Renforcer la résilience"
         }
-      }
+      },
+      community: {
+        page_title: "Communauté",
+        page_subtitle: "Connectez-vous, partagez et soutenez les autres dans leur parcours",
+        search_placeholder: "Rechercher des publications et des groupes...",
+        stats: {
+          forum_posts: "Publications du forum",
+          active_groups: "Groupes actifs",
+          success_stories: "Histoires de réussite",
+        },
+        tabs: {
+          forum: "Forum",
+          groups: "Groupes",
+          progress: "Progrès",
+        },
+        buttons: {
+          new_post: "Nouvelle publication",
+          create_group: "Créer un groupe",
+          share_progress: "Partager les progrès",
+        },
+        loading: {
+          posts: "Chargement des publications...",
+          groups: "Chargement des groupes...",
+        },
+        empty_state: {
+          no_posts_title: "Pas encore de publications",
+          no_posts_message: "Soyez le premier à lancer une conversation !",
+          create_first_post: "Créer la première publication",
+          no_groups_title: "Pas encore de groupes",
+          no_groups_message: "Créez un groupe pour vous connecter avec les autres !",
+          create_first_group: "Créer le premier groupe",
+          no_stories_title: "Pas encore d\'histoires",
+          no_stories_message: "Partagez vos progrès et inspirez les autres !",
+          share_your_story: "Partagez votre histoire",
+        },
+        your_groups: "Vos groupes",
+        discover_groups: "Découvrir des groupes",
+      },
+      resources: {
+        page_title: "Bibliothèque de ressources",
+        page_subtitle: "Ressources de santé mentale sélectionnées pour votre parcours",
+        search_placeholder: "Rechercher des ressources, sujets, tags...",
+        category_label: "Catégorie",
+        content_type_label: "Type de contenu",
+        categories: {
+          all: "Tous les sujets",
+          anxiety: "Anxiété",
+          depression: "Dépression",
+          stress: "Stress",
+          mindfulness: "Pleine conscience",
+          relationships: "Relations",
+          self_esteem: "Estime de soi",
+          sleep: "Sommeil",
+          coping_skills: "Compétences de gestion",
+          emotional_regulation: "Régulation émotionnelle",
+          communication: "Communication",
+          general: "Bien-être général",
+        },
+        content_types: {
+          all: "Tous les types",
+          article: "Articles",
+          meditation: "Méditations",
+          scenario: "Scénarios d\'entraînement",
+          interview: "Interviews d\'experts",
+          guide: "Guides",
+          video: "Vidéos",
+          podcast: "Podcasts",
+          book: "Livres",
+        },
+        tabs: {
+          all: "Toutes les ressources",
+          saved: "Enregistrés",
+        },
+        loading: "Chargement des ressources...",
+        empty_state: {
+          no_resources_title: "Aucune ressource trouvée",
+          no_resources_message: "Essayez d\'ajuster votre recherche ou vos filtres",
+        },
+      },
     }
   },
   de: {
@@ -4858,6 +5162,13 @@ export const translations = {
         minutes_short: "Min"
       },
       chat: {
+        title: "Ihr Therapeut",
+        subtitle: "Ein sicherer Raum zum Reden",
+        thinking: "Nachdenken...",
+        message_placeholder: "Teilen Sie mit, was Sie beschäftigt...",
+        go_back_aria: "Zurück zur Startseite",
+        open_sidebar_aria: "Gesprächsleiste öffnen",
+        close_sidebar_aria: "Gesprächsleiste schließen",
         aria: {
           go_back_home: "Zurück zur Startseite",
           open_conversations: "Konversationsseitenleiste öffnen",
@@ -5582,15 +5893,6 @@ export const translations = {
         subtitle: "KI-kuratierte Inhalte, die auf Ihre Interessen zugeschnitten sind",
         go_back_aria: "Zurück"
       },
-      chat: {
-        title: "Ihr Therapeut",
-        subtitle: "Ein sicherer Raum zum Reden",
-        thinking: "Nachdenken...",
-        message_placeholder: "Teilen Sie mit, was Sie beschäftigt...",
-        go_back_aria: "Zurück zur Startseite",
-        open_sidebar_aria: "Gesprächsleiste öffnen",
-        close_sidebar_aria: "Gesprächsleiste schließen"
-      },
       coach: {
         title: "KI-Wellness-Coach",
         subtitle: "Strukturierte Anleitung für Ihre Ziele",
@@ -5879,7 +6181,85 @@ export const translations = {
           goal_6: "Selbstmitgefühl stärken",
           goal_7: "Resilienz stärken"
         }
-      }
+      },
+      community: {
+        page_title: "Gemeinschaft",
+        page_subtitle: "Verbinden, teilen und andere auf ihrem Weg unterstützen",
+        search_placeholder: "Beiträge und Gruppen suchen...",
+        stats: {
+          forum_posts: "Forumbeiträge",
+          active_groups: "Aktive Gruppen",
+          success_stories: "Erfolgsgeschichten",
+        },
+        tabs: {
+          forum: "Forum",
+          groups: "Gruppen",
+          progress: "Fortschritt",
+        },
+        buttons: {
+          new_post: "Neuer Beitrag",
+          create_group: "Gruppe erstellen",
+          share_progress: "Fortschritt teilen",
+        },
+        loading: {
+          posts: "Beiträge werden geladen...",
+          groups: "Gruppen werden geladen...",
+        },
+        empty_state: {
+          no_posts_title: "Noch keine Beiträge",
+          no_posts_message: "Seien Sie der Erste, der eine Unterhaltung beginnt!",
+          create_first_post: "Ersten Beitrag erstellen",
+          no_groups_title: "Noch keine Gruppen",
+          no_groups_message: "Erstellen Sie eine Gruppe, um sich mit anderen zu verbinden!",
+          create_first_group: "Erste Gruppe erstellen",
+          no_stories_title: "Noch keine Geschichten",
+          no_stories_message: "Teilen Sie Ihren Fortschritt und inspirieren Sie andere!",
+          share_your_story: "Ihre Geschichte teilen",
+        },
+        your_groups: "Ihre Gruppen",
+        discover_groups: "Gruppen entdecken",
+      },
+      resources: {
+        page_title: "Ressourcenbibliothek",
+        page_subtitle: "Kuratierte Ressourcen zur psychischen Gesundheit für Ihren Weg",
+        search_placeholder: "Ressourcen, Themen, Tags suchen...",
+        category_label: "Kategorie",
+        content_type_label: "Inhaltstyp",
+        categories: {
+          all: "Alle Themen",
+          anxiety: "Angst",
+          depression: "Depression",
+          stress: "Stress",
+          mindfulness: "Achtsamkeit",
+          relationships: "Beziehungen",
+          self_esteem: "Selbstwertgefühl",
+          sleep: "Schlaf",
+          coping_skills: "Bewältigungskompetenzen",
+          emotional_regulation: "Emotionsregulation",
+          communication: "Kommunikation",
+          general: "Allgemeines Wohlbefinden",
+        },
+        content_types: {
+          all: "Alle Typen",
+          article: "Artikel",
+          meditation: "Meditationen",
+          scenario: "Übungsszenarien",
+          interview: "Experteninterviews",
+          guide: "Leitfäden",
+          video: "Videos",
+          podcast: "Podcasts",
+          book: "Bücher",
+        },
+        tabs: {
+          all: "Alle Ressourcen",
+          saved: "Gespeichert",
+        },
+        loading: "Ressourcen werden geladen...",
+        empty_state: {
+          no_resources_title: "Keine Ressourcen gefunden",
+          no_resources_message: "Versuchen Sie, Ihre Suche oder Filter anzupassen",
+        },
+      },
     }
   },
   it: {
@@ -6072,6 +6452,13 @@ export const translations = {
         minutes_short: "min"
       },
       chat: {
+        title: "Il Tuo Terapeuta",
+        subtitle: "Uno spazio sicuro per parlare",
+        thinking: "Pensando...",
+        message_placeholder: "Condividi cosa hai in mente...",
+        go_back_aria: "Torna alla home",
+        open_sidebar_aria: "Apri barra delle conversazioni",
+        close_sidebar_aria: "Chiudi barra delle conversazioni",
         aria: {
           go_back_home: "Torna alla home",
           open_conversations: "Apri barra laterale conversazioni",
@@ -6796,15 +7183,6 @@ export const translations = {
         subtitle: "Contenuti curati dall'IA su misura per i tuoi interessi",
         go_back_aria: "Indietro"
       },
-      chat: {
-        title: "Il Tuo Terapeuta",
-        subtitle: "Uno spazio sicuro per parlare",
-        thinking: "Pensando...",
-        message_placeholder: "Condividi cosa hai in mente...",
-        go_back_aria: "Torna alla home",
-        open_sidebar_aria: "Apri barra delle conversazioni",
-        close_sidebar_aria: "Chiudi barra delle conversazioni"
-      },
       coach: {
         title: "Coach del Benessere IA",
         subtitle: "Guida strutturata per i tuoi obiettivi",
@@ -7093,7 +7471,85 @@ export const translations = {
           goal_6: "Aumentare l'autocompassione",
           goal_7: "Rafforzare la resilienza"
         }
-      }
+      },
+      community: {
+        page_title: "Comunità",
+        page_subtitle: "Connettiti, condividi e supporta gli altri nel loro percorso",
+        search_placeholder: "Cerca post e gruppi...",
+        stats: {
+          forum_posts: "Post del forum",
+          active_groups: "Gruppi attivi",
+          success_stories: "Storie di successo",
+        },
+        tabs: {
+          forum: "Forum",
+          groups: "Gruppi",
+          progress: "Progressi",
+        },
+        buttons: {
+          new_post: "Nuovo post",
+          create_group: "Crea gruppo",
+          share_progress: "Condividi progressi",
+        },
+        loading: {
+          posts: "Caricamento post...",
+          groups: "Caricamento gruppi...",
+        },
+        empty_state: {
+          no_posts_title: "Nessun post ancora",
+          no_posts_message: "Sii il primo a iniziare una conversazione!",
+          create_first_post: "Crea il primo post",
+          no_groups_title: "Nessun gruppo ancora",
+          no_groups_message: "Crea un gruppo per connetterti con gli altri!",
+          create_first_group: "Crea il primo gruppo",
+          no_stories_title: "Nessuna storia ancora",
+          no_stories_message: "Condividi i tuoi progressi e ispira gli altri!",
+          share_your_story: "Condividi la tua storia",
+        },
+        your_groups: "I tuoi gruppi",
+        discover_groups: "Scopri gruppi",
+      },
+      resources: {
+        page_title: "Biblioteca delle risorse",
+        page_subtitle: "Risorse di salute mentale selezionate per il tuo percorso",
+        search_placeholder: "Cerca risorse, argomenti, tag...",
+        category_label: "Categoria",
+        content_type_label: "Tipo di contenuto",
+        categories: {
+          all: "Tutti gli argomenti",
+          anxiety: "Ansia",
+          depression: "Depressione",
+          stress: "Stress",
+          mindfulness: "Consapevolezza",
+          relationships: "Relazioni",
+          self_esteem: "Autostima",
+          sleep: "Sonno",
+          coping_skills: "Abilità di coping",
+          emotional_regulation: "Regolazione emotiva",
+          communication: "Comunicazione",
+          general: "Benessere generale",
+        },
+        content_types: {
+          all: "Tutti i tipi",
+          article: "Articoli",
+          meditation: "Meditazioni",
+          scenario: "Scenari di pratica",
+          interview: "Interviste con esperti",
+          guide: "Guide",
+          video: "Video",
+          podcast: "Podcast",
+          book: "Libri",
+        },
+        tabs: {
+          all: "Tutte le risorse",
+          saved: "Salvati",
+        },
+        loading: "Caricamento risorse...",
+        empty_state: {
+          no_resources_title: "Nessuna risorsa trovata",
+          no_resources_message: "Prova ad aggiustare la ricerca o i filtri",
+        },
+      },
     }
   },
   pt: {
@@ -7286,6 +7742,13 @@ export const translations = {
         minutes_short: "min"
       },
       chat: {
+        title: "Seu Terapeuta",
+        subtitle: "Um espaço seguro para conversar",
+        thinking: "Pensando...",
+        message_placeholder: "Compartilhe o que está em sua mente...",
+        go_back_aria: "Voltar ao início",
+        open_sidebar_aria: "Abrir barra de conversas",
+        close_sidebar_aria: "Fechar barra de conversas",
         aria: {
           go_back_home: "Voltar para o início",
           open_conversations: "Abrir barra lateral de conversas",
@@ -8010,15 +8473,6 @@ export const translations = {
         subtitle: "Conteúdo curado por IA adaptado aos seus interesses",
         go_back_aria: "Voltar"
       },
-      chat: {
-        title: "Seu Terapeuta",
-        subtitle: "Um espaço seguro para conversar",
-        thinking: "Pensando...",
-        message_placeholder: "Compartilhe o que está em sua mente...",
-        go_back_aria: "Voltar ao início",
-        open_sidebar_aria: "Abrir barra de conversas",
-        close_sidebar_aria: "Fechar barra de conversas"
-      },
       coach: {
         title: "Coach de Bem-estar IA",
         subtitle: "Orientação estruturada para seus objetivos",
@@ -8307,7 +8761,85 @@ export const translations = {
           goal_6: "Aumentar a autocompaixão",
           goal_7: "Fortalecer a resiliência"
         }
-      }
+      },
+      community: {
+        page_title: "Comunidade",
+        page_subtitle: "Conecte-se, compartilhe e apoie outros em sua jornada",
+        search_placeholder: "Pesquisar publicações e grupos...",
+        stats: {
+          forum_posts: "Publicações do fórum",
+          active_groups: "Grupos ativos",
+          success_stories: "Histórias de sucesso",
+        },
+        tabs: {
+          forum: "Fórum",
+          groups: "Grupos",
+          progress: "Progresso",
+        },
+        buttons: {
+          new_post: "Nova publicação",
+          create_group: "Criar grupo",
+          share_progress: "Compartilhar progresso",
+        },
+        loading: {
+          posts: "Carregando publicações...",
+          groups: "Carregando grupos...",
+        },
+        empty_state: {
+          no_posts_title: "Nenhuma publicação ainda",
+          no_posts_message: "Seja o primeiro a iniciar uma conversa!",
+          create_first_post: "Criar primeira publicação",
+          no_groups_title: "Nenhum grupo ainda",
+          no_groups_message: "Crie um grupo para se conectar com outros!",
+          create_first_group: "Criar primeiro grupo",
+          no_stories_title: "Nenhuma história ainda",
+          no_stories_message: "Compartilhe seu progresso e inspire outros!",
+          share_your_story: "Compartilhe sua história",
+        },
+        your_groups: "Seus grupos",
+        discover_groups: "Descobrir grupos",
+      },
+      resources: {
+        page_title: "Biblioteca de Recursos",
+        page_subtitle: "Recursos de saúde mental selecionados para sua jornada",
+        search_placeholder: "Pesquisar recursos, tópicos, tags...",
+        category_label: "Categoria",
+        content_type_label: "Tipo de conteúdo",
+        categories: {
+          all: "Todos os tópicos",
+          anxiety: "Ansiedade",
+          depression: "Depressão",
+          stress: "Estresse",
+          mindfulness: "Mindfulness",
+          relationships: "Relacionamentos",
+          self_esteem: "Autoestima",
+          sleep: "Sono",
+          coping_skills: "Habilidades de enfrentamento",
+          emotional_regulation: "Regulação emocional",
+          communication: "Comunicação",
+          general: "Bem-estar geral",
+        },
+        content_types: {
+          all: "Todos os tipos",
+          article: "Artigos",
+          meditation: "Meditações",
+          scenario: "Cenários de prática",
+          interview: "Entrevistas com especialistas",
+          guide: "Guias",
+          video: "Vídeos",
+          podcast: "Podcasts",
+          book: "Livros",
+        },
+        tabs: {
+          all: "Todos os recursos",
+          saved: "Salvos",
+        },
+        loading: "Carregando recursos...",
+        empty_state: {
+          no_resources_title: "Nenhum recurso encontrado",
+          no_resources_message: "Tente ajustar sua pesquisa ou filtros",
+        },
+      },
     }
   }
 };
