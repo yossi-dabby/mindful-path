@@ -156,7 +156,7 @@ Please help me create a structured plan to work through this.`
   };
 
   return (
-    <div className="min-h-dvh flex flex-col bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 w-full">
+    <div className="min-h-[calc(100vh-4rem)] md:min-h-dvh flex flex-col bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 w-full">
       {/* Header - Sticky on mobile */}
       <div className="bg-white border-b shadow-sm sticky top-0 z-10 flex-shrink-0">
         <div className="max-w-2xl mx-auto p-4 w-full">
