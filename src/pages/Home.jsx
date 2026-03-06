@@ -220,8 +220,8 @@ export default function Home() {
 
   return (
     <PullToRefresh queryKeys={['recentGoals', 'recentJournals', 'todayFlow', 'todayMood', 'todayExercise']}>
-      <div className="w-full overflow-x-hidden" style={{ 
-        minHeight: '100vh',
+      <div className="w-full" style={{ 
+        minHeight: '100dvh',
         background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)'
       }}>
         <div className="page-container max-w-5xl mx-auto w-full pb-24">

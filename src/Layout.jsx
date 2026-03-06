@@ -224,7 +224,10 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <TabNavigationProvider currentPageName={currentPageName}>
-      <div className={`min-h-screen overflow-hidden ${themeBackgrounds[theme] || themeBackgrounds.default}`}>
+      {/* overflow-x-clip (not overflow-hidden) so the horizontal clip for page-transition
+          animations does not create an ancestor overflow:hidden that would prevent
+          iOS WKWebView touch-scroll events from reaching #app-scroll-container. */}
+      <div className={`min-h-dvh overflow-x-clip ${themeBackgrounds[theme] || themeBackgrounds.default}`}>
         {/* Preserve scroll position between tab switches */}
         <ScrollPreservation />
 
@@ -244,13 +247,17 @@ export default function Layout({ children, currentPageName }) {
       {/* Main Content - Single scroll container with page transitions */}
       <AppContent>
         <AnimatePresence mode="wait" initial={false}>
+          {/* min-h-full (not h-full): lets page content taller than the viewport
+              drive #app-scroll-container's scrollHeight. With h-full the wrapper
+              was capped at exactly 100dvh-padding and Safari/WebKit excluded
+              the visual overflow from the scrollable area. */}
           <motion.div
             key={location.pathname}
             variants={pageVariants}
             initial="initial"
             animate="animate"
             exit="exit"
-            className="w-full h-full"
+            className="w-full min-h-full"
           >
             {children}
           </motion.div>

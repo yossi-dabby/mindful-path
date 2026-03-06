@@ -102,7 +102,7 @@ export default function CrisisAlerts() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-6 bg-gray-50">
+    <div className="min-h-dvh p-4 md:p-6 bg-gray-50">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-6">

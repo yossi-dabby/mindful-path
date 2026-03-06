@@ -40,7 +40,7 @@ export default function Videos() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
+    <div className="min-h-dvh" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
       <div className="page-container max-w-7xl">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 mt-6">

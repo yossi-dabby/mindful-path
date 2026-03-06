@@ -312,7 +312,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
   }
 
   return (
-    <div className="min-h-screen p-4" style={{ background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
+    <div className="min-h-dvh p-4" style={{ background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
       {showPersonalization && (
         <PersonalizationSetup onComplete={handlePersonalizationComplete} />
       )}

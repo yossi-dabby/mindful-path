@@ -103,7 +103,7 @@ export default function VideoPlayer() {
 
   if (!videoUrl) {
     return (
-      <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
+      <div className="min-h-dvh" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
         <div className="page-container max-w-4xl">
           <div className="text-center py-12">
             <p className="text-lg mb-4" style={{ color: '#2D3748' }}>
@@ -121,7 +121,7 @@ export default function VideoPlayer() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
+    <div className="min-h-dvh" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
       <div className="page-container max-w-4xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

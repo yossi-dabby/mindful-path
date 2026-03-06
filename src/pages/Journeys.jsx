@@ -87,7 +87,7 @@ export default function JourneysPage() {
   const availableJourneys = journeys.filter(j => !progressMap[j.id]);
 
   return (
-    <div className="min-h-screen p-6 safe-bottom">
+    <div className="min-h-dvh p-6 safe-bottom">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <div className="flex items-center gap-2 sm:gap-3 mb-2 min-w-0">

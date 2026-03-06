@@ -89,7 +89,7 @@ export default function CoachingAnalytics() {
     : 0;
 
   return (
-    <div className="min-h-screen p-4 md:p-8 max-w-7xl mx-auto">
+    <div className="min-h-dvh p-4 md:p-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8 mt-4">
         <Link to={createPageUrl('Coach')}>
