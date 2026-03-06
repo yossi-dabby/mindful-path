@@ -27,7 +27,7 @@ export default function PersonalizedFeed() {
 
   return (
     <PullToRefresh queryKeys={['personalizedFeed', 'feedContent']}>
-      <div className="min-h-screen p-4 md:p-8 pb-24 max-w-5xl mx-auto" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
+      <div className="min-h-dvh p-4 md:p-8 pb-24 max-w-5xl mx-auto" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
       {/* Header */}
       <motion.div 
         className="flex items-center justify-between mb-6 mt-4"

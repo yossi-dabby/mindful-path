@@ -119,7 +119,7 @@ export default function ExperientialGames() {
 
   return (
     <div
-      className="min-h-screen"
+      className="min-h-dvh"
       style={{
         background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)'
       }}

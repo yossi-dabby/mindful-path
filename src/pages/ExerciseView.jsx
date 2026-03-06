@@ -108,7 +108,7 @@ export default function ExerciseViewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 pb-24">
+    <div className="min-h-dvh bg-gradient-to-br from-green-50 to-blue-50 pb-24">
       {/* Header */}
       <div className="bg-white border-b shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto p-4">
