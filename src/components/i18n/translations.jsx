@@ -263,7 +263,9 @@ export const translations = {
           empty_title: "No sessions yet",
           empty_message: "Start a conversation to begin",
           session_prefix: "Session",
-          delete_aria: "Delete session"
+          delete_aria: "Delete session",
+          new_conversation_aria: "New conversation",
+          close_list_aria: "Close conversations list"
         },
         session_summary: {
           title: "Session Summary",
@@ -809,6 +811,7 @@ export const translations = {
       },
       goals: {
         title: "Your Goals",
+        nav_title: "Goals",
         subtitle: "Set intentions and track your progress",
         view_calendar: "Calendar",
         view_timeline: "Timeline",
@@ -918,6 +921,7 @@ export const translations = {
       },
       personalized_feed: {
         title: "Personalized Feed",
+        nav_title: "Feed",
         subtitle: "AI-curated content tailored to your interests",
         go_back_aria: "Go back"
       },
@@ -1030,6 +1034,7 @@ export const translations = {
       },
       exercise_view: {
         not_found: "Exercise not found",
+        nav_title: "Exercise",
         go_back: "Go Back",
         go_back_aria: "Go back",
         untitled: "Untitled Exercise",
@@ -1553,7 +1558,9 @@ export const translations = {
           empty_title: "אין מפגשים עדיין",
           empty_message: "התחילו שיחה כדי להתחיל",
           session_prefix: "מפגש",
-          delete_aria: "מחק מפגש"
+          delete_aria: "מחק מפגש",
+          new_conversation_aria: "שיחה חדשה",
+          close_list_aria: "סגור רשימת שיחות"
         },
         session_summary: {
           title: "סיכום מפגש",
@@ -2089,6 +2096,7 @@ export const translations = {
       },
       goals: {
         title: "המטרות שלכם",
+        nav_title: "מטרות",
         subtitle: "הגדירו כוונות ועקבו אחר ההתקדמות",
         view_calendar: "לוח שנה",
         view_timeline: "ציר זמן",
@@ -2198,6 +2206,7 @@ export const translations = {
       },
       personalized_feed: {
         title: "פיד מותאם אישית",
+        nav_title: "פיד",
         subtitle: "תוכן מאורגן על ידי AI בהתאם לתחומי העניין שלכם",
         go_back_aria: "חזרה"
       },
@@ -2310,6 +2319,7 @@ export const translations = {
       },
       exercise_view: {
         not_found: "התרגיל לא נמצא",
+        nav_title: "תרגיל",
         go_back: "חזרה",
         go_back_aria: "חזרה",
         untitled: "תרגיל ללא שם",
@@ -2833,7 +2843,9 @@ export const translations = {
           empty_title: "Aún no hay sesiones",
           empty_message: "Inicia una conversación para comenzar",
           session_prefix: "Sesión",
-          delete_aria: "Eliminar sesión"
+          delete_aria: "Eliminar sesión",
+          new_conversation_aria: "Nueva conversación",
+          close_list_aria: "Cerrar lista de conversaciones"
         },
         session_summary: {
           title: "Resumen de Sesión",
@@ -3201,6 +3213,7 @@ export const translations = {
       },
       goals: {
         title: "Tus Metas",
+        nav_title: "Metas",
         subtitle: "Establece intenciones y sigue tu progreso",
         view_calendar: "Calendario",
         view_timeline: "Cronología",
@@ -3310,6 +3323,7 @@ export const translations = {
       },
       personalized_feed: {
         title: "Feed Personalizado",
+        nav_title: "Feed",
         subtitle: "Contenido curado por IA adaptado a tus intereses",
         go_back_aria: "Volver"
       },
@@ -3422,6 +3436,7 @@ export const translations = {
       },
       exercise_view: {
         not_found: "Ejercicio no encontrado",
+        nav_title: "Ejercicio",
         go_back: "Volver",
         go_back_aria: "Volver",
         untitled: "Ejercicio sin título",
@@ -3945,7 +3960,9 @@ export const translations = {
           empty_title: "Pas encore de séances",
           empty_message: "Commencez une conversation pour débuter",
           session_prefix: "Séance",
-          delete_aria: "Supprimer la séance"
+          delete_aria: "Supprimer la séance",
+          new_conversation_aria: "Nouvelle conversation",
+          close_list_aria: "Fermer la liste des conversations"
         },
         session_summary: {
           title: "Résumé de Séance",
@@ -4491,6 +4508,7 @@ export const translations = {
       },
       goals: {
         title: "Vos Objectifs",
+        nav_title: "Objectifs",
         subtitle: "Définissez des intentions et suivez votre progression",
         view_calendar: "Calendrier",
         view_timeline: "Chronologie",
@@ -4600,6 +4618,7 @@ export const translations = {
       },
       personalized_feed: {
         title: "Fil Personnalisé",
+        nav_title: "Fil",
         subtitle: "Contenu curé par IA adapté à vos intérêts",
         go_back_aria: "Retour"
       },
@@ -4712,6 +4731,7 @@ export const translations = {
       },
       exercise_view: {
         not_found: "Exercice introuvable",
+        nav_title: "Exercice",
         go_back: "Retour",
         go_back_aria: "Retour",
         untitled: "Exercice sans titre",
@@ -5235,7 +5255,9 @@ export const translations = {
           empty_title: "Noch keine Sitzungen",
           empty_message: "Starten Sie ein Gespräch, um zu beginnen",
           session_prefix: "Sitzung",
-          delete_aria: "Sitzung löschen"
+          delete_aria: "Sitzung löschen",
+          new_conversation_aria: "Neues Gespräch",
+          close_list_aria: "Gesprächsliste schließen"
         },
         session_summary: {
           title: "Sitzungszusammenfassung",
@@ -5781,6 +5803,7 @@ export const translations = {
       },
       goals: {
         title: "Ihre Ziele",
+        nav_title: "Ziele",
         subtitle: "Setzen Sie Absichten und verfolgen Sie Ihren Fortschritt",
         view_calendar: "Kalender",
         view_timeline: "Zeitachse",
@@ -5890,6 +5913,7 @@ export const translations = {
       },
       personalized_feed: {
         title: "Personalisierter Feed",
+        nav_title: "Feed",
         subtitle: "KI-kuratierte Inhalte, die auf Ihre Interessen zugeschnitten sind",
         go_back_aria: "Zurück"
       },
@@ -6002,6 +6026,7 @@ export const translations = {
       },
       exercise_view: {
         not_found: "Übung nicht gefunden",
+        nav_title: "Übung",
         go_back: "Zurück",
         go_back_aria: "Zurück",
         untitled: "Unbenannte Übung",
@@ -6525,7 +6550,9 @@ export const translations = {
           empty_title: "Ancora nessuna sessione",
           empty_message: "Inizia una conversazione per cominciare",
           session_prefix: "Sessione",
-          delete_aria: "Elimina sessione"
+          delete_aria: "Elimina sessione",
+          new_conversation_aria: "Nuova conversazione",
+          close_list_aria: "Chiudi elenco conversazioni"
         },
         session_summary: {
           title: "Riepilogo Sessione",
@@ -7071,6 +7098,7 @@ export const translations = {
       },
       goals: {
         title: "I Tuoi Obiettivi",
+        nav_title: "Obiettivi",
         subtitle: "Imposta intenzioni e monitora i tuoi progressi",
         view_calendar: "Calendario",
         view_timeline: "Cronologia",
@@ -7180,6 +7208,7 @@ export const translations = {
       },
       personalized_feed: {
         title: "Feed Personalizzato",
+        nav_title: "Feed",
         subtitle: "Contenuti curati dall'IA su misura per i tuoi interessi",
         go_back_aria: "Indietro"
       },
@@ -7292,6 +7321,7 @@ export const translations = {
       },
       exercise_view: {
         not_found: "Esercizio non trovato",
+        nav_title: "Esercizio",
         go_back: "Indietro",
         go_back_aria: "Indietro",
         untitled: "Esercizio senza titolo",
@@ -7815,7 +7845,9 @@ export const translations = {
           empty_title: "Ainda não há sessões",
           empty_message: "Inicie uma conversa para começar",
           session_prefix: "Sessão",
-          delete_aria: "Excluir sessão"
+          delete_aria: "Excluir sessão",
+          new_conversation_aria: "Nova conversa",
+          close_list_aria: "Fechar lista de conversas"
         },
         session_summary: {
           title: "Resumo da Sessão",
@@ -8361,6 +8393,7 @@ export const translations = {
       },
       goals: {
         title: "Seus Objetivos",
+        nav_title: "Objetivos",
         subtitle: "Defina intenções e acompanhe seu progresso",
         view_calendar: "Calendário",
         view_timeline: "Linha do Tempo",
@@ -8470,6 +8503,7 @@ export const translations = {
       },
       personalized_feed: {
         title: "Feed Personalizado",
+        nav_title: "Feed",
         subtitle: "Conteúdo curado por IA adaptado aos seus interesses",
         go_back_aria: "Voltar"
       },
@@ -8582,6 +8616,7 @@ export const translations = {
       },
       exercise_view: {
         not_found: "Exercício não encontrado",
+        nav_title: "Exercício",
         go_back: "Voltar",
         go_back_aria: "Voltar",
         untitled: "Exercício sem título",

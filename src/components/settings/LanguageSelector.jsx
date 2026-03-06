@@ -67,7 +67,7 @@ export default function LanguageSelector() {
                 key={lang.code}
                 onClick={() => handleLanguageChange(lang.code)}
                 className={cn(
-                  'relative p-4 rounded-xl border-2 transition-all text-left',
+                  'relative p-4 rounded-xl border-2 transition-all text-start',
                   isSelected
                     ? 'border-blue-500 shadow-lg'
                     : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
@@ -95,7 +95,7 @@ export default function LanguageSelector() {
                   </div>
                   {isSelected && (
                     <motion.div 
-                      className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 ml-1"
+                      className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 ms-1"
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ type: "spring", stiffness: 300 }}
