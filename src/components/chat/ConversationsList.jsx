@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, MessageCircle, X, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 export default function ConversationsList({
   conversations = [],
@@ -12,6 +13,7 @@ export default function ConversationsList({
   onDeleteConversation,
   onClose
 }) {
+  const { t } = useTranslation();
   // Ensure conversations is always an array
   const safeConversations = Array.isArray(conversations) ? conversations : [];
   
@@ -21,7 +23,7 @@ export default function ConversationsList({
       <div className="p-3 md:p-4 flex items-center justify-between flex-shrink-0" style={{
         borderBottom: '1px solid rgba(38, 166, 154, 0.2)'
       }}>
-        <h2 className="text-base md:text-lg font-semibold truncate" style={{ color: '#1A3A34' }}>Sessions</h2>
+        <h2 className="text-base md:text-lg font-semibold truncate" style={{ color: '#1A3A34' }}>{t('chat.conversations_list.title')}</h2>
         <div className="flex gap-2">
           <Button
             onClick={onNewConversation}
@@ -32,7 +34,7 @@ export default function ConversationsList({
               backgroundColor: '#26A69A',
               boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
             }}
-            aria-label="New conversation"
+            aria-label={t('chat.conversations_list.new_conversation_aria')}
           >
             <Plus className="w-5 h-5" />
           </Button>
@@ -41,7 +43,7 @@ export default function ConversationsList({
             size="icon"
             variant="ghost"
             className="md:hidden flex-shrink-0"
-            aria-label="Close conversations list"
+            aria-label={t('chat.conversations_list.close_list_aria')}
           >
             <X className="w-5 h-5" />
           </Button>
@@ -53,8 +55,8 @@ export default function ConversationsList({
         {safeConversations.length === 0 ? (
           <div className="text-center py-8 px-4">
             <MessageCircle className="w-12 h-12 mx-auto mb-3" style={{ color: 'rgba(38, 166, 154, 0.3)' }} />
-            <p className="text-sm" style={{ color: '#5A7A72' }}>No sessions yet</p>
-            <p className="text-xs mt-1" style={{ color: '#7A9A92' }}>Start a conversation to begin</p>
+            <p className="text-sm" style={{ color: '#5A7A72' }}>{t('chat.conversations_list.empty_title')}</p>
+            <p className="text-xs mt-1" style={{ color: '#7A9A92' }}>{t('chat.conversations_list.empty_message')}</p>
           </div>
         ) : (
           <div className="space-y-1">
@@ -76,7 +78,7 @@ export default function ConversationsList({
               >
                 <button
                   onClick={() => onSelectConversation(conversation.id)}
-                  className="w-full text-left p-3 flex items-start gap-3 min-w-0"
+                  className="w-full text-start p-3 flex items-start gap-3 min-w-0"
                 >
                   <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center flex-shrink-0" style={{
                     borderRadius: '16px',
@@ -84,11 +86,11 @@ export default function ConversationsList({
                   }}>
                     <MessageCircle className="w-4 h-4 md:w-5 md:h-5" style={{ color: '#26A69A' }} />
                   </div>
-                  <div className="flex-1 min-w-0 pr-8">
+                  <div className="flex-1 min-w-0 pe-8">
                     <p className="font-medium truncate text-sm md:text-base" style={{
                       color: currentConversationId === conversation.id ? '#1A3A34' : '#3D5A52'
                     }}>
-                      {conversation.metadata?.name || `Session ${(conversation.id || '').slice(0, 8)}`}
+                      {conversation.metadata?.name || `${t('chat.conversations_list.session_prefix')} ${(conversation.id || '').slice(0, 8)}`}
                     </p>
                     <p className="text-xs" style={{
                       color: currentConversationId === conversation.id ? '#26A69A' : '#5A7A72'
@@ -104,11 +106,11 @@ export default function ConversationsList({
                     e.stopPropagation();
                     onDeleteConversation(conversation.id);
                   }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-lg flex-shrink-0"
+                  className="absolute end-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-lg flex-shrink-0"
                   style={{
                     backgroundColor: 'rgba(239, 68, 68, 0.1)'
                   }}
-                  title="Delete session"
+                  aria-label={t('chat.conversations_list.delete_aria')}
                 >
                   <Trash2 className="w-4 h-4 text-red-500" />
                 </button>

@@ -133,10 +133,10 @@ export default function VideoPlayer() {
             <Button
               variant="ghost"
               onClick={handleBack}
-              className="mb-4 -ml-2"
+              className="mb-4 -ms-2"
               style={{ color: '#718096' }}
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="w-4 h-4 me-2 rtl:scale-x-[-1]" />
               {t('video_player.back_to_library')}
             </Button>
             <h1 className="text-2xl font-semibold" style={{ color: '#2D3748' }}>

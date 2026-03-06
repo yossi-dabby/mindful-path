@@ -6,6 +6,7 @@ import { createPageUrl } from '../../utils';
 import { useTabNavigation } from './TabNavigationProvider';
 import MobileMenu from './MobileMenu';
 import NotificationBell from '../notifications/NotificationBell';
+import { useTranslation } from 'react-i18next';
 
 export const MOBILE_HEADER_HEIGHT = 60; // Height of mobile header nav area in px (excluding safe area)
 
@@ -13,6 +14,7 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
   const navigate = useNavigate();
   const location = useLocation();
   const tabNav = useTabNavigation();
+  const { t } = useTranslation();
   const currentPath = location.pathname;
 
   // Prefer the prop; fall back to what the TabNavigationProvider knows
@@ -26,22 +28,22 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
   // Get page title based on current page
   const getPageTitle = () => {
     const titles = {
-      'Home': 'Mindful Path',
-      'Chat': 'AI Therapy',
-      'Coach': 'Coach',
-      'Journal': 'Journal',
-      'MoodTracker': 'Mood Tracker',
-      'Exercises': 'Exercises',
-      'Goals': 'Goals',
-      'Progress': 'Progress',
-      'Settings': 'Settings',
-      'Community': 'Community',
-      'PersonalizedFeed': 'Feed',
-      'ThoughtCoach': 'Thought Coach',
-      'ExerciseView': 'Exercise',
-      'GoalCoach': 'Goal Coach'
+      'Home': t('global.app_name'),
+      'Chat': t('sidebar.chat.name'),
+      'Coach': t('sidebar.coach.name'),
+      'Journal': t('sidebar.journal.name'),
+      'MoodTracker': t('mood_tracker.page_title'),
+      'Exercises': t('sidebar.exercises.name'),
+      'Goals': t('goals.nav_title'),
+      'Progress': t('sidebar.progress.name'),
+      'Settings': t('sidebar.settings.name'),
+      'Community': t('sidebar.community.name'),
+      'PersonalizedFeed': t('personalized_feed.nav_title'),
+      'ThoughtCoach': t('thought_coach.title'),
+      'ExerciseView': t('exercise_view.nav_title'),
+      'GoalCoach': t('goal_coach_wizard.title')
     };
-    return titles[currentPageName] || 'Mindful Path';
+    return titles[currentPageName] || t('global.app_name');
   };
 
   const handleBack = () => {
@@ -70,7 +72,7 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
       }}
     >
       <div className="flex items-center justify-between h-full px-4">
-        {/* Left: Back button on child routes, logo on root */}
+        {/* Start: Back button on child routes, logo on root */}
         <div className="w-12">
           {isSubRoute ? (
             <Button
@@ -78,9 +80,9 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
               size="icon"
               onClick={handleBack}
               className="rounded-full"
-              aria-label="Go back"
+              aria-label={t('common.back')}
             >
-              <ChevronLeft className="w-6 h-6" style={{ color: '#26A69A' }} />
+              <ChevronLeft className="w-6 h-6 rtl:scale-x-[-1]" style={{ color: '#26A69A' }} />
             </Button>
           ) : (
             <div
@@ -104,7 +106,7 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
           {getPageTitle()}
         </p>
 
-        {/* Right: Notification bell + Menu button */}
+        {/* End: Notification bell + Menu button */}
         <div className="flex items-center gap-1 justify-end">
           <NotificationBell />
           <MobileMenu />
