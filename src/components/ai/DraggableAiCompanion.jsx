@@ -15,9 +15,12 @@ import InlineRiskPanel from '../chat/InlineRiskPanel';
 import { detectCrisisWithReason } from '../utils/crisisDetector';
 import MessageFeedback from '../chat/MessageFeedback';
 import { extractAssistantMessage } from '../utils/validateAgentOutput';
+import { BOTTOM_NAV_HEIGHT } from '../layout/BottomNav';
 
 const STORAGE_KEY = 'ai_companion_position';
 const MOBILE_BREAKPOINT = 768;
+// Gap between FAB and the top of the BottomNav (px)
+const FAB_NAV_GAP = 16;
 
 export default function DraggableAiCompanion() {
   const [isOpen, setIsOpen] = useState(false);
@@ -51,7 +54,13 @@ export default function DraggableAiCompanion() {
         const parsed = JSON.parse(stored);
         const storedPos = isMobile ? parsed.mobile : parsed.desktop;
         if (storedPos) {
-          setPosition(storedPos);
+          // Constrain legacy stored positions that may have been saved before
+          // the nav-height fix (could be inside the BottomNav zone on mobile).
+          const minBottom = isMobile ? BOTTOM_NAV_HEIGHT + FAB_NAV_GAP : FAB_NAV_GAP;
+          setPosition({
+            ...storedPos,
+            bottom: Math.max(minBottom, storedPos.bottom)
+          });
           return;
         }
       } catch (e) {
@@ -59,10 +68,9 @@ export default function DraggableAiCompanion() {
       }
     }
     
-    // Default positions with safe area insets
-    const computedStyle = getComputedStyle(document.documentElement);
-    const safeAreaBottom = parseInt(computedStyle.getPropertyValue('--sab') || '0') || 0;
-    const safeBottomOffset = isMobile ? (80 + safeAreaBottom) : 24;
+    // Default positions — safe area is added at render time via positionStyle,
+    // so position.bottom stores the offset above the bottom nav only.
+    const safeBottomOffset = isMobile ? (BOTTOM_NAV_HEIGHT + FAB_NAV_GAP) : 24;
     
     setPosition(
       isMobile 
@@ -248,7 +256,8 @@ export default function DraggableAiCompanion() {
   const constrainPosition = (pos) => {
     const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
     const margin = 16;
-    const bottomNavHeight = isMobile ? 64 : 0; // Account for mobile bottom nav
+    // On mobile, keep FAB above BottomNav + gap; on desktop no nav bar.
+    const bottomNavHeight = isMobile ? BOTTOM_NAV_HEIGHT : 0;
     
     // Get safe area insets (iOS/Android)
     const computedStyle = getComputedStyle(document.documentElement);
@@ -259,7 +268,8 @@ export default function DraggableAiCompanion() {
     
     return {
       right: Math.max(margin, Math.min(maxRight, pos.right)),
-      bottom: Math.max(margin + safeAreaBottom, Math.min(maxBottom, pos.bottom))
+      // Minimum bottom keeps FAB above the nav bar (+ gap) so it never overlaps it
+      bottom: Math.max(bottomNavHeight + margin, Math.min(maxBottom, pos.bottom))
     };
   };
 
@@ -298,7 +308,8 @@ export default function DraggableAiCompanion() {
         
         const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
         const margin = 16;
-        const bottomNavHeight = isMobile ? 64 : 0;
+        // Use the correct nav height (same constant as BottomNav component)
+        const bottomNavHeight = isMobile ? BOTTOM_NAV_HEIGHT : 0;
         
         const computedStyle = getComputedStyle(document.documentElement);
         const safeAreaBottom = parseInt(computedStyle.getPropertyValue('--sab') || '0') || 0;
@@ -309,7 +320,8 @@ export default function DraggableAiCompanion() {
         // Moving right → right CSS value decreases (element anchored from right edge)
         // Moving down  → bottom CSS value decreases (element anchored from bottom edge)
         const newRight = Math.max(margin, Math.min(maxRight, dragRef.current.initialRight - deltaX));
-        const newBottom = Math.max(margin + safeAreaBottom, Math.min(maxBottom, dragRef.current.initialBottom - deltaY));
+        // Minimum bottom keeps FAB above the nav bar so it never overlaps it
+        const newBottom = Math.max(bottomNavHeight + margin, Math.min(maxBottom, dragRef.current.initialBottom - deltaY));
         
         if (elementRef.current) {
           elementRef.current.style.right = `${newRight}px`;
