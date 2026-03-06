@@ -95,7 +95,7 @@ export default function Community() {
 
   return (
     <PullToRefresh queryKeys={['forumPosts', 'communityGroups', 'groupMemberships', 'sharedProgress']}>
-      <div className="p-4 md:p-8 max-w-7xl mx-auto" style={{ minHeight: '100vh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
+      <div className="p-4 md:p-8 pb-36 md:pb-8 max-w-7xl mx-auto" style={{ minHeight: '100vh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
       {/* Header */}
       <div className="mb-8 mt-4">
         <h1 className="text-3xl md:text-4xl font-light mb-2" style={{ color: '#1A3A34' }}>{t('community.page_title')}</h1>
