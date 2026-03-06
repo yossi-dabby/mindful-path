@@ -98,8 +98,8 @@ export default function Community() {
       <div className="p-4 md:p-8 pb-36 md:pb-8 max-w-7xl mx-auto" style={{ minHeight: '100vh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
       {/* Header */}
       <div className="mb-8 mt-4">
-        <h1 className="text-3xl md:text-4xl font-light mb-2" style={{ color: '#1A3A34' }}>{t('community.page_title')}</h1>
-        <p style={{ color: '#5A7A72' }}>{t('community.page_subtitle')}</p>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-light mb-2 leading-tight break-words" style={{ color: '#1A3A34' }}>{t('community.page_title')}</h1>
+        <p className="leading-relaxed break-words" style={{ color: '#5A7A72' }}>{t('community.page_subtitle')}</p>
       </div>
 
       {/* Quick Stats */}
@@ -217,8 +217,8 @@ export default function Community() {
               }}>
                 <CardContent className="p-12 text-center">
                   <MessageSquare className="w-16 h-16 mx-auto mb-3" style={{ color: '#A8D4CB' }} />
-                  <h3 className="text-xl font-semibold mb-2" style={{ color: '#1A3A34' }}>{t('community.empty_state.no_posts_title')}</h3>
-                  <p className="mb-4" style={{ color: '#5A7A72' }}>{t('community.empty_state.no_posts_message')}</p>
+                  <h3 className="text-xl font-semibold mb-2 break-words" style={{ color: '#1A3A34' }}>{t('community.empty_state.no_posts_title')}</h3>
+                  <p className="mb-4 leading-relaxed break-words max-w-sm mx-auto" style={{ color: '#5A7A72' }}>{t('community.empty_state.no_posts_message')}</p>
                   <Button onClick={() => setShowPostForm(true)} className="text-white" style={{
                     borderRadius: '28px',
                     backgroundColor: '#26A69A',
@@ -281,8 +281,8 @@ export default function Community() {
                 }}>
                   <CardContent className="p-12 text-center">
                     <Users className="w-16 h-16 mx-auto mb-3" style={{ color: '#A8D4CB' }} />
-                    <h3 className="text-xl font-semibold mb-2" style={{ color: '#1A3A34' }}>{t('community.empty_state.no_groups_title')}</h3>
-                    <p className="mb-4" style={{ color: '#5A7A72' }}>{t('community.empty_state.no_groups_message')}</p>
+                    <h3 className="text-xl font-semibold mb-2 break-words" style={{ color: '#1A3A34' }}>{t('community.empty_state.no_groups_title')}</h3>
+                    <p className="mb-4 leading-relaxed break-words max-w-sm mx-auto" style={{ color: '#5A7A72' }}>{t('community.empty_state.no_groups_message')}</p>
                     <Button onClick={() => setShowGroupForm(true)} className="text-white" style={{
                       borderRadius: '28px',
                       backgroundColor: '#26A69A',
@@ -320,8 +320,8 @@ export default function Community() {
               }}>
                 <CardContent className="p-12 text-center">
                   <TrendingUp className="w-16 h-16 mx-auto mb-3" style={{ color: '#A8D4CB' }} />
-                  <h3 className="text-xl font-semibold mb-2" style={{ color: '#1A3A34' }}>{t('community.empty_state.no_stories_title')}</h3>
-                  <p className="mb-4" style={{ color: '#5A7A72' }}>{t('community.empty_state.no_stories_message')}</p>
+                  <h3 className="text-xl font-semibold mb-2 break-words" style={{ color: '#1A3A34' }}>{t('community.empty_state.no_stories_title')}</h3>
+                  <p className="mb-4 leading-relaxed break-words max-w-sm mx-auto" style={{ color: '#5A7A72' }}>{t('community.empty_state.no_stories_message')}</p>
                   <Button onClick={() => setShowProgressForm(true)} className="text-white" style={{
                     borderRadius: '28px',
                     backgroundColor: '#26A69A',
@@ -342,7 +342,7 @@ export default function Community() {
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
-                          <h3 className="font-semibold mb-1" style={{ color: '#1A3A34' }}>{progress.title}</h3>
+                          <h3 className="font-semibold mb-1 break-words min-w-0" style={{ color: '#1A3A34' }}>{progress.title}</h3>
                           <p className="text-sm line-clamp-3" style={{ color: '#5A7A72' }}>{progress.content}</p>
                         </div>
                       </div>

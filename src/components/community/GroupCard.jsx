@@ -23,7 +23,7 @@ export default function GroupCard({ group, isMember, onJoin, onView }) {
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between mb-2">
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-800 line-clamp-1 mb-1">{group.name}</h3>
+                <h3 className="font-semibold text-gray-800 line-clamp-2 mb-1">{group.name}</h3>
                 <p className="text-sm text-gray-600 line-clamp-2">{group.description}</p>
               </div>
               {group.is_private && <Lock className="w-4 h-4 text-gray-400 ml-2" />}
