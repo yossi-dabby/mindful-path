@@ -26,7 +26,7 @@ export default function ForumPostCard({ post, onView, onUpvote, onModerate, isUp
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
               {post.pinned && <Pin className="w-4 h-4 text-blue-600" />}
-              <h3 className="font-semibold text-gray-800 line-clamp-1">{post.title}</h3>
+            <h3 className="font-semibold text-gray-800 line-clamp-2">{post.title}</h3>
             </div>
             <p className="text-sm text-gray-600 line-clamp-2 mb-3">{post.content}</p>
             <div className="flex items-center flex-wrap gap-2 mb-2">
