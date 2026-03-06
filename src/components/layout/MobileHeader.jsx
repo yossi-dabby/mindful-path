@@ -41,7 +41,18 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
       'PersonalizedFeed': t('personalized_feed.nav_title'),
       'ThoughtCoach': t('thought_coach.title'),
       'ExerciseView': t('exercise_view.nav_title'),
-      'GoalCoach': t('goal_coach_wizard.title')
+      'GoalCoach': t('goal_coach_wizard.title'),
+      'Videos': t('videos.title'),
+      'Playlists': t('playlists.title'),
+      'PlaylistDetail': t('playlists.title'),
+      'VideoPlayer': t('videos.title'),
+      'Resources': t('resources.page_title'),
+      'Journeys': t('journeys.page_title'),
+      'AdvancedAnalytics': t('advanced_analytics.title'),
+      'CoachingAnalytics': t('coaching_analytics.title'),
+      'CrisisAlerts': t('crisis_alerts.title'),
+      'ExperientialGames': t('mind_games.page_title'),
+      'StarterPath': t('starter_path.card_title'),
     };
     return titles[currentPageName] || t('global.app_name');
   };
