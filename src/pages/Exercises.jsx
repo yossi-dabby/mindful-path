@@ -5,13 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Wind, Anchor, Brain, TrendingUp, Sparkles, Heart, Search, Star, Moon, Users, Zap } from 'lucide-react';
+import { Wind, Anchor, Brain, TrendingUp, Sparkles, Heart, Search, Star, Moon, Users, Zap, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import ExerciseDetail from '../components/exercises/ExerciseDetail';
 import ExerciseLibrary from '../components/exercises/ExerciseLibrary';
 import AiExerciseRecommendations from '../components/exercises/AiExerciseRecommendations';
 import AiExerciseCoaching from '../components/exercises/AiExerciseCoaching';
 import QuickStartPanel from '../components/exercises/QuickStartPanel';
+import InteractiveBreathingTool from '../components/exercises/InteractiveBreathingTool';
 import PullToRefresh from '../components/utils/PullToRefresh';
 
 const categoryIcons = {
@@ -45,6 +46,7 @@ export default function Exercises() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [showCoaching, setShowCoaching] = useState(false);
+  const [showBreathingTool, setShowBreathingTool] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: exercises, isLoading } = useQuery({
@@ -95,6 +97,8 @@ export default function Exercises() {
   });
 
   const filteredExercises = exercises.filter((exercise) => {
+    // Breathing exercises are handled by the new Interactive Breathing Tool
+    if (exercise.category === 'breathing') return false;
     const matchesCategory = selectedCategory === 'all' || exercise.category === selectedCategory;
     const matchesSearch = !searchQuery || 
       (exercise.title && exercise.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
@@ -229,6 +233,81 @@ export default function Exercises() {
         />
       )}
 
+      {/* ── Interactive Breathing Tool Card ────────────────────────────── */}
+      {!showFavoritesOnly && selectedCategory !== 'grounding' && selectedCategory !== 'cognitive_restructuring' && selectedCategory !== 'behavioral_activation' && selectedCategory !== 'mindfulness' && selectedCategory !== 'exposure' && selectedCategory !== 'sleep' && selectedCategory !== 'relationships' && selectedCategory !== 'stress_management' && (
+        <div className="mb-6">
+          <button
+            onClick={() => setShowBreathingTool(true)}
+            className="w-full text-left transition-transform active:scale-[0.99]"
+            aria-label={t('breathing_tool.open_tool')}
+          >
+            <Card className="border-0 overflow-hidden" style={{
+              borderRadius: '28px',
+              background: 'linear-gradient(135deg, #a8edda 0%, #40c9a2 60%, #26A69A 100%)',
+              boxShadow: '0 12px 40px rgba(38, 166, 154, 0.25), 0 4px 16px rgba(0,0,0,0.06)'
+            }}>
+              <CardContent className="p-5 md:p-6">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center"
+                      style={{ background: 'rgba(255,255,255,0.25)' }}>
+                      <Wind className="w-6 h-6 md:w-7 md:h-7 text-white" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-base md:text-lg font-semibold text-white">
+                        {t('breathing_tool.card_title')}
+                      </h3>
+                      <p className="text-sm text-white/80 truncate">
+                        {t('breathing_tool.card_subtitle')}
+                      </p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-white/70 flex-shrink-0" />
+                </div>
+              </CardContent>
+            </Card>
+          </button>
+        </div>
+      )}
+
+      {/* When breathing category tab is selected, show the tool directly */}
+      {selectedCategory === 'breathing' && !showBreathingTool && (
+        <div className="mb-6">
+          <button
+            onClick={() => setShowBreathingTool(true)}
+            className="w-full text-left"
+          >
+            <Card className="border-0" style={{
+              borderRadius: '28px',
+              background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
+              boxShadow: '0 12px 40px rgba(38, 166, 154, 0.12), 0 4px 16px rgba(0,0,0,0.04)'
+            }}>
+              <CardContent className="p-12 text-center">
+                <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4" style={{
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #a8edda 0%, #40c9a2 100%)'
+                }}>
+                  <Wind className="w-10 h-10 text-white" />
+                </div>
+                <h2 className="text-2xl font-semibold mb-2" style={{ color: '#1A3A34' }}>
+                  {t('breathing_tool.card_title')}
+                </h2>
+                <p className="mb-4" style={{ color: '#5A7A72' }}>
+                  {t('breathing_tool.card_subtitle')}
+                </p>
+                <span
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-white font-medium"
+                  style={{ background: '#26A69A' }}
+                >
+                  <Wind className="w-4 h-4" />
+                  {t('breathing_tool.open_tool')}
+                </span>
+              </CardContent>
+            </Card>
+          </button>
+        </div>
+      )}
+
       {/* AI Recommendations */}
       {!showFavoritesOnly && !searchQuery && selectedCategory === 'all' && (
         <div className="mb-6">
@@ -290,6 +369,14 @@ export default function Exercises() {
           <AiExerciseCoaching
             onClose={() => setShowCoaching(false)}
             onSelectExercise={(exercise) => setSelectedExercise(exercise)}
+          />
+        )}
+
+        {/* Interactive Breathing Tool */}
+        {showBreathingTool && (
+          <InteractiveBreathingTool
+            onClose={() => setShowBreathingTool(false)}
+            onComplete={() => setShowBreathingTool(false)}
           />
         )}
         </div>

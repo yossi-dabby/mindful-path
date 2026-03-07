@@ -701,6 +701,83 @@ export const translations = {
           mark_as_complete: "Mark as Complete"
         }
       },
+      breathing_tool: {
+        title: "Interactive Breathing",
+        subtitle: "Guided breathing exercises",
+        card_title: "Breathing Exercises",
+        card_subtitle: "6 interactive exercises with animated guidance",
+        open_tool: "Open Breathing Tool",
+        phases: {
+          inhale: "Breathe In",
+          exhale: "Breathe Out",
+          hold: "Hold"
+        },
+        exercises: {
+          box: {
+            name: "Box Breathing",
+            description: "4-4-4-4 equal timing to reset the nervous system and sharpen focus."
+          },
+          four_seven_eight: {
+            name: "4-7-8 Breathing",
+            description: "4-7-8 pattern. A natural tranquilizer that quickly reduces anxiety."
+          },
+          coherent: {
+            name: "Coherent Breathing",
+            description: "5-5 balanced cycles for sustained calm and heart-rate coherence."
+          },
+          extended_exhale: {
+            name: "Extended Exhale",
+            description: "4-2-6 pattern. Longer exhale activates the parasympathetic system."
+          },
+          resonant: {
+            name: "Resonant Breathing",
+            description: "6-2-6-2 pattern for deep relaxation and nervous system balance."
+          },
+          calm_ladder: {
+            name: "Calm Ladder",
+            description: "Gradually deepens from 3s to 5s cycles to gently release tension."
+          }
+        },
+        controls: {
+          start: "Start",
+          pause: "Pause",
+          resume: "Resume",
+          reset: "Reset",
+          close: "Close",
+          settings: "Settings",
+          sound: "Sound",
+          sound_on: "Turn sound on",
+          sound_off: "Turn sound off",
+          reduce_motion: "Gentle Mode",
+          reduce_motion_active: "Gentle mode active (reduced motion)",
+          theme: "Theme",
+          duration: "Duration",
+          duration_value: "{{min}} min",
+          cycles: "Cycles"
+        },
+        status: {
+          get_ready: "Get ready...",
+          time_remaining: "Remaining",
+          cycle_count: "Cycle {{count}}",
+          completed: "Session complete!",
+          well_done: "Well done. Take a moment to notice how you feel."
+        },
+        themes: {
+          mint: "Mint",
+          indigo: "Indigo",
+          sunset: "Sunset"
+        },
+        calm_ladder: {
+          stage_1: "3 sec",
+          stage_2: "4 sec",
+          stage_3: "5 sec"
+        },
+        accessibility: {
+          aria_phase: "Current phase: {{phase}}",
+          aria_timer: "Time remaining: {{time}}",
+          aria_circle: "Breathing animation"
+        }
+      },
       videos: {
         title: "CBT Video Library",
         subtitle: "Guided videos to practice CBT",
@@ -1986,6 +2063,83 @@ export const translations = {
           mark_as_complete: "סמן כהושלם"
         }
       },
+      breathing_tool: {
+        title: "נשימה אינטראקטיבית",
+        subtitle: "תרגילי נשימה מודרכים",
+        card_title: "תרגילי נשימה",
+        card_subtitle: "6 תרגילים אינטראקטיביים עם הדרכה מונפשת",
+        open_tool: "פתח כלי נשימה",
+        phases: {
+          inhale: "שאיפה",
+          exhale: "נשיפה",
+          hold: "עצור"
+        },
+        exercises: {
+          box: {
+            name: "נשימת קופסה",
+            description: "תזמון שווה 4-4-4-4 לאיפוס מערכת העצבים ולחידוד הקשב."
+          },
+          four_seven_eight: {
+            name: "נשימה 4-7-8",
+            description: "תבנית 4-7-8. מרגיע טבעי שמפחית חרדה במהירות."
+          },
+          coherent: {
+            name: "נשימה קוהרנטית",
+            description: "מחזורים מאוזנים 5-5 לרוגע מתמשך."
+          },
+          extended_exhale: {
+            name: "נשיפה מורחבת",
+            description: "תבנית 4-2-6. נשיפה ארוכה יותר מפעילה את מערכת העצבים הפאראסימפתטית."
+          },
+          resonant: {
+            name: "נשימה רזוננטית",
+            description: "תבנית 6-2-6-2 להרפיה עמוקה ואיזון מערכת העצבים."
+          },
+          calm_ladder: {
+            name: "סולם הרוגע",
+            description: "מעמיק בהדרגה מ-3 שניות ל-5 שניות למחזור."
+          }
+        },
+        controls: {
+          start: "התחל",
+          pause: "השהה",
+          resume: "המשך",
+          reset: "אפס",
+          close: "סגור",
+          settings: "הגדרות",
+          sound: "צליל",
+          sound_on: "הפעל צליל",
+          sound_off: "השתק צליל",
+          reduce_motion: "מצב עדין",
+          reduce_motion_active: "מצב עדין פעיל (אנימציה מופחתת)",
+          theme: "ערכת נושא",
+          duration: "משך",
+          duration_value: "{{min}} דק׳",
+          cycles: "מחזורים"
+        },
+        status: {
+          get_ready: "היכן להתכונן...",
+          time_remaining: "נותר",
+          cycle_count: "מחזור {{count}}",
+          completed: "המפגש הושלם!",
+          well_done: "כל הכבוד. קח רגע לשים לב איך אתה מרגיש."
+        },
+        themes: {
+          mint: "מנטה",
+          indigo: "אינדיגו",
+          sunset: "שקיעה"
+        },
+        calm_ladder: {
+          stage_1: "3 שנ׳",
+          stage_2: "4 שנ׳",
+          stage_3: "5 שנ׳"
+        },
+        accessibility: {
+          aria_phase: "שלב נוכחי: {{phase}}",
+          aria_timer: "זמן שנותר: {{time}}",
+          aria_circle: "אנימציית נשימה"
+        }
+      },
       videos: {
         title: "ספריית וידאו CBT",
         subtitle: "סרטונים מודרכים לתרגול CBT",
@@ -3103,8 +3257,42 @@ export const translations = {
           mark_as_complete: "Marcar como Completado"
         }
       },
+      breathing_tool: {
+        title: "Respiración Interactiva",
+        subtitle: "Ejercicios de respiración guiados",
+        card_title: "Ejercicios de Respiración",
+        card_subtitle: "6 ejercicios interactivos con guía animada",
+        open_tool: "Abrir herramienta de respiración",
+        phases: { inhale: "Inhalar", exhale: "Exhalar", hold: "Mantener" },
+        exercises: {
+          box: { name: "Respiración en Caja", description: "Ritmo 4-4-4-4 para calmar el sistema nervioso y mejorar el enfoque." },
+          four_seven_eight: { name: "Respiración 4-7-8", description: "Patrón 4-7-8. Tranquilizante natural para reducir la ansiedad rápidamente." },
+          coherent: { name: "Respiración Coherente", description: "Ciclos equilibrados 5-5 para una calma sostenida." },
+          extended_exhale: { name: "Exhalación Extendida", description: "Patrón 4-2-6. La exhalación larga activa el sistema parasimpático." },
+          resonant: { name: "Respiración Resonante", description: "Patrón 6-2-6-2 para relajación profunda." },
+          calm_ladder: { name: "Escalera de Calma", description: "Profundiza gradualmente de 3 a 5 segundos por ciclo." }
+        },
+        controls: {
+          start: "Iniciar", pause: "Pausar", resume: "Reanudar", reset: "Reiniciar",
+          close: "Cerrar", settings: "Configuración", sound: "Sonido",
+          sound_on: "Activar sonido", sound_off: "Silenciar",
+          reduce_motion: "Modo suave", reduce_motion_active: "Modo suave activo",
+          theme: "Tema", duration: "Duración", duration_value: "{{min}} min", cycles: "Ciclos"
+        },
+        status: {
+          get_ready: "Prepárate...", time_remaining: "Restante",
+          cycle_count: "Ciclo {{count}}", completed: "¡Sesión completada!",
+          well_done: "Bien hecho. Tómate un momento para notar cómo te sientes."
+        },
+        themes: { mint: "Menta", indigo: "Índigo", sunset: "Atardecer" },
+        calm_ladder: { stage_1: "3 seg", stage_2: "4 seg", stage_3: "5 seg" },
+        accessibility: {
+          aria_phase: "Fase actual: {{phase}}",
+          aria_timer: "Tiempo restante: {{time}}",
+          aria_circle: "Animación de respiración"
+        }
+      },
       videos: {
-        title: "Biblioteca de Videos CBT",
         subtitle: "Videos guiados para practicar CBT",
         new_button: "Nuevo",
         my_playlists: "Mis Listas",
@@ -4398,8 +4586,42 @@ export const translations = {
           mark_as_complete: "Marquer comme Terminé"
         }
       },
+      breathing_tool: {
+        title: "Respiration Interactive",
+        subtitle: "Exercices de respiration guidés",
+        card_title: "Exercices de Respiration",
+        card_subtitle: "6 exercices interactifs avec guidage animé",
+        open_tool: "Ouvrir l'outil de respiration",
+        phases: { inhale: "Inspirer", exhale: "Expirer", hold: "Maintenir" },
+        exercises: {
+          box: { name: "Respiration en Boîte", description: "Rythme 4-4-4-4 pour calmer le système nerveux." },
+          four_seven_eight: { name: "Respiration 4-7-8", description: "Tranquillisant naturel pour réduire l'anxiété rapidement." },
+          coherent: { name: "Respiration Cohérente", description: "Cycles équilibrés 5-5 pour un calme durable." },
+          extended_exhale: { name: "Expiration Prolongée", description: "Schéma 4-2-6 activant le système parasympathique." },
+          resonant: { name: "Respiration Résonante", description: "Schéma 6-2-6-2 pour une relaxation profonde." },
+          calm_ladder: { name: "Échelle de Calme", description: "Approfondit progressivement de 3 à 5 secondes par cycle." }
+        },
+        controls: {
+          start: "Démarrer", pause: "Pause", resume: "Reprendre", reset: "Réinitialiser",
+          close: "Fermer", settings: "Paramètres", sound: "Son",
+          sound_on: "Activer le son", sound_off: "Couper le son",
+          reduce_motion: "Mode doux", reduce_motion_active: "Mode doux actif",
+          theme: "Thème", duration: "Durée", duration_value: "{{min}} min", cycles: "Cycles"
+        },
+        status: {
+          get_ready: "Préparez-vous...", time_remaining: "Restant",
+          cycle_count: "Cycle {{count}}", completed: "Séance terminée !",
+          well_done: "Bravo. Prenez un moment pour observer vos sensations."
+        },
+        themes: { mint: "Menthe", indigo: "Indigo", sunset: "Coucher de soleil" },
+        calm_ladder: { stage_1: "3 sec", stage_2: "4 sec", stage_3: "5 sec" },
+        accessibility: {
+          aria_phase: "Phase actuelle : {{phase}}",
+          aria_timer: "Temps restant : {{time}}",
+          aria_circle: "Animation de respiration"
+        }
+      },
       videos: {
-        title: "Bibliothèque Vidéo TCC",
         subtitle: "Vidéos guidées pour pratiquer la TCC",
         new_button: "Nouveau",
         my_playlists: "Mes Listes",
@@ -5693,8 +5915,42 @@ export const translations = {
           mark_as_complete: "Als Abgeschlossen Markieren"
         }
       },
+      breathing_tool: {
+        title: "Interaktive Atmung",
+        subtitle: "Geführte Atemübungen",
+        card_title: "Atemübungen",
+        card_subtitle: "6 interaktive Übungen mit animierter Anleitung",
+        open_tool: "Atemwerkzeug öffnen",
+        phases: { inhale: "Einatmen", exhale: "Ausatmen", hold: "Halten" },
+        exercises: {
+          box: { name: "Box-Atmung", description: "4-4-4-4 Rhythmus zur Beruhigung des Nervensystems." },
+          four_seven_eight: { name: "4-7-8 Atmung", description: "Natürliches Beruhigungsmittel gegen Angst." },
+          coherent: { name: "Kohärente Atmung", description: "Ausgeglichene 5-5 Zyklen für anhaltende Ruhe." },
+          extended_exhale: { name: "Verlängertes Ausatmen", description: "4-2-6 Muster aktiviert das Parasympathikum." },
+          resonant: { name: "Resonanzatmung", description: "6-2-6-2 Muster für tiefe Entspannung." },
+          calm_ladder: { name: "Ruhe-Leiter", description: "Vertieft schrittweise von 3 auf 5 Sekunden pro Zyklus." }
+        },
+        controls: {
+          start: "Starten", pause: "Pause", resume: "Fortsetzen", reset: "Zurücksetzen",
+          close: "Schließen", settings: "Einstellungen", sound: "Ton",
+          sound_on: "Ton einschalten", sound_off: "Ton ausschalten",
+          reduce_motion: "Sanfter Modus", reduce_motion_active: "Sanfter Modus aktiv",
+          theme: "Thema", duration: "Dauer", duration_value: "{{min}} Min", cycles: "Zyklen"
+        },
+        status: {
+          get_ready: "Mach dich bereit...", time_remaining: "Verbleibend",
+          cycle_count: "Zyklus {{count}}", completed: "Sitzung abgeschlossen!",
+          well_done: "Gut gemacht. Nimm dir einen Moment, um zu bemerken, wie du dich fühlst."
+        },
+        themes: { mint: "Minze", indigo: "Indigo", sunset: "Sonnenuntergang" },
+        calm_ladder: { stage_1: "3 Sek", stage_2: "4 Sek", stage_3: "5 Sek" },
+        accessibility: {
+          aria_phase: "Aktuelle Phase: {{phase}}",
+          aria_timer: "Verbleibende Zeit: {{time}}",
+          aria_circle: "Atemanimation"
+        }
+      },
       videos: {
-        title: "CBT-Videobibliothek",
         subtitle: "Geführte Videos zur CBT-Praxis",
         new_button: "Neu",
         my_playlists: "Meine Listen",
@@ -6988,8 +7244,42 @@ export const translations = {
           mark_as_complete: "Segna come Completato"
         }
       },
+      breathing_tool: {
+        title: "Respirazione Interattiva",
+        subtitle: "Esercizi di respirazione guidati",
+        card_title: "Esercizi di Respirazione",
+        card_subtitle: "6 esercizi interattivi con guida animata",
+        open_tool: "Apri strumento di respirazione",
+        phases: { inhale: "Inspirare", exhale: "Espirare", hold: "Tenere" },
+        exercises: {
+          box: { name: "Respirazione a Scatola", description: "Ritmo 4-4-4-4 per calmare il sistema nervoso." },
+          four_seven_eight: { name: "Respirazione 4-7-8", description: "Calmante naturale per ridurre l'ansia rapidamente." },
+          coherent: { name: "Respirazione Coerente", description: "Cicli equilibrati 5-5 per una calma sostenuta." },
+          extended_exhale: { name: "Espirazione Prolungata", description: "Schema 4-2-6 che attiva il sistema parasimpatico." },
+          resonant: { name: "Respirazione Risonante", description: "Schema 6-2-6-2 per un rilassamento profondo." },
+          calm_ladder: { name: "Scala della Calma", description: "Approfondisce gradualmente da 3 a 5 secondi per ciclo." }
+        },
+        controls: {
+          start: "Inizia", pause: "Pausa", resume: "Riprendi", reset: "Reimposta",
+          close: "Chiudi", settings: "Impostazioni", sound: "Suono",
+          sound_on: "Attiva suono", sound_off: "Disattiva suono",
+          reduce_motion: "Modalità delicata", reduce_motion_active: "Modalità delicata attiva",
+          theme: "Tema", duration: "Durata", duration_value: "{{min}} min", cycles: "Cicli"
+        },
+        status: {
+          get_ready: "Preparati...", time_remaining: "Rimanente",
+          cycle_count: "Ciclo {{count}}", completed: "Sessione completata!",
+          well_done: "Bravissimo. Prenditi un momento per osservare come ti senti."
+        },
+        themes: { mint: "Menta", indigo: "Indaco", sunset: "Tramonto" },
+        calm_ladder: { stage_1: "3 sec", stage_2: "4 sec", stage_3: "5 sec" },
+        accessibility: {
+          aria_phase: "Fase corrente: {{phase}}",
+          aria_timer: "Tempo rimanente: {{time}}",
+          aria_circle: "Animazione di respirazione"
+        }
+      },
       videos: {
-        title: "Libreria Video CBT",
         subtitle: "Video guidati per praticare la CBT",
         new_button: "Nuovo",
         my_playlists: "Le mie Liste",
@@ -8283,8 +8573,42 @@ export const translations = {
           mark_as_complete: "Marcar como Concluído"
         }
       },
+      breathing_tool: {
+        title: "Respiração Interativa",
+        subtitle: "Exercícios de respiração guiados",
+        card_title: "Exercícios de Respiração",
+        card_subtitle: "6 exercícios interativos com orientação animada",
+        open_tool: "Abrir ferramenta de respiração",
+        phases: { inhale: "Inspirar", exhale: "Expirar", hold: "Segurar" },
+        exercises: {
+          box: { name: "Respiração em Caixa", description: "Ritmo 4-4-4-4 para acalmar o sistema nervoso." },
+          four_seven_eight: { name: "Respiração 4-7-8", description: "Calmante natural para reduzir a ansiedade rapidamente." },
+          coherent: { name: "Respiração Coerente", description: "Ciclos equilibrados 5-5 para calma sustentada." },
+          extended_exhale: { name: "Expiração Estendida", description: "Padrão 4-2-6 que ativa o sistema parassimpático." },
+          resonant: { name: "Respiração Ressonante", description: "Padrão 6-2-6-2 para relaxamento profundo." },
+          calm_ladder: { name: "Escada da Calma", description: "Aprofunda gradualmente de 3 a 5 segundos por ciclo." }
+        },
+        controls: {
+          start: "Iniciar", pause: "Pausar", resume: "Retomar", reset: "Reiniciar",
+          close: "Fechar", settings: "Configurações", sound: "Som",
+          sound_on: "Ativar som", sound_off: "Silenciar",
+          reduce_motion: "Modo suave", reduce_motion_active: "Modo suave ativo",
+          theme: "Tema", duration: "Duração", duration_value: "{{min}} min", cycles: "Ciclos"
+        },
+        status: {
+          get_ready: "Prepare-se...", time_remaining: "Restante",
+          cycle_count: "Ciclo {{count}}", completed: "Sessão concluída!",
+          well_done: "Muito bem. Reserve um momento para notar como você se sente."
+        },
+        themes: { mint: "Menta", indigo: "Índigo", sunset: "Pôr do Sol" },
+        calm_ladder: { stage_1: "3 seg", stage_2: "4 seg", stage_3: "5 seg" },
+        accessibility: {
+          aria_phase: "Fase atual: {{phase}}",
+          aria_timer: "Tempo restante: {{time}}",
+          aria_circle: "Animação de respiração"
+        }
+      },
       videos: {
-        title: "Biblioteca de Vídeos TCC",
         subtitle: "Vídeos guiados para praticar TCC",
         new_button: "Novo",
         my_playlists: "Minhas Listas",
