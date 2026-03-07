@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { base44 } from '@/api/base44Client';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -484,6 +485,10 @@ export default function DraggableAiCompanion() {
   }
 
   const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
+  // position: fixed with a high z-index so the companion always floats above page
+  // content. Rendered via createPortal to document.body so it is never clipped by
+  // ancestor overflow:hidden/clip containers or trapped in ancestor stacking contexts
+  // created by transform/filter/will-change on parent elements.
   const positionStyle = {
     position: 'fixed',
     right: `${position.right}px`,
@@ -492,7 +497,7 @@ export default function DraggableAiCompanion() {
   };
 
   if (!isOpen) {
-    return (
+    return createPortal(
       <motion.div
         ref={elementRef}
         initial={{ scale: 0, opacity: 0 }}
@@ -517,12 +522,13 @@ export default function DraggableAiCompanion() {
           <MessageCircle className="w-7 h-7" />
         </Button>
         <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white" />
-      </motion.div>
+      </motion.div>,
+      document.body
     );
   }
 
   if (isMinimized) {
-    return (
+    return createPortal(
       <motion.div
         ref={elementRef}
         initial={{ y: 20, opacity: 0 }}
@@ -558,11 +564,12 @@ export default function DraggableAiCompanion() {
             </Button>
           </CardContent>
         </Card>
-      </motion.div>
+      </motion.div>,
+      document.body
     );
   }
 
-  return (
+  return createPortal(
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
       <motion.div
@@ -573,7 +580,7 @@ export default function DraggableAiCompanion() {
         style={positionStyle}
         className="w-[calc(100vw-3rem)] md:w-96 flex flex-col"
       >
-      <Card className="border-2 border-purple-200 shadow-2xl flex flex-col overflow-hidden" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+      <Card className="border-2 border-purple-200 shadow-2xl flex flex-col overflow-hidden" style={{ maxHeight: 'calc(100dvh - 200px)' }}>
         {/* Draggable Header */}
         <div 
           className="bg-gradient-to-r from-purple-600 to-blue-600 p-4 rounded-t-xl flex items-center justify-between cursor-move"
@@ -617,7 +624,7 @@ export default function DraggableAiCompanion() {
         </div>
 
         {/* Messages */}
-        <CardContent data-testid="companion-messages" className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-br from-purple-50/30 to-blue-50/30 min-h-0" style={{ maxHeight: 'calc(100vh - 350px)' }}>
+        <CardContent data-testid="companion-messages" className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-br from-purple-50/30 to-blue-50/30 min-h-0" style={{ maxHeight: 'calc(100dvh - 350px)' }}>
           {/* Inline Consent Banner - Non-blocking */}
           {showConsentBanner && (
             <InlineConsentBanner onAccept={() => {
@@ -771,6 +778,7 @@ export default function DraggableAiCompanion() {
         </div>
       </Card>
       </motion.div>
-    </>
+    </>,
+    document.body
   );
 }
