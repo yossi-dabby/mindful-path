@@ -3293,6 +3293,7 @@ export const translations = {
         }
       },
       videos: {
+        title: "Biblioteca de Videos CBT",
         subtitle: "Videos guiados para practicar CBT",
         new_button: "Nuevo",
         my_playlists: "Mis Listas",
@@ -4622,6 +4623,7 @@ export const translations = {
         }
       },
       videos: {
+        title: "Bibliothèque Vidéo TCC",
         subtitle: "Vidéos guidées pour pratiquer la TCC",
         new_button: "Nouveau",
         my_playlists: "Mes Listes",
@@ -5951,6 +5953,7 @@ export const translations = {
         }
       },
       videos: {
+        title: "CBT-Videobibliothek",
         subtitle: "Geführte Videos zur CBT-Praxis",
         new_button: "Neu",
         my_playlists: "Meine Listen",
@@ -7280,6 +7283,7 @@ export const translations = {
         }
       },
       videos: {
+        title: "Libreria Video CBT",
         subtitle: "Video guidati per praticare la CBT",
         new_button: "Nuovo",
         my_playlists: "Le mie Liste",
@@ -8609,6 +8613,7 @@ export const translations = {
         }
       },
       videos: {
+        title: "Biblioteca de Vídeos TCC",
         subtitle: "Vídeos guiados para praticar TCC",
         new_button: "Novo",
         my_playlists: "Minhas Listas",

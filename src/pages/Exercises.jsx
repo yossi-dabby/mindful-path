@@ -234,7 +234,7 @@ export default function Exercises() {
       )}
 
       {/* ── Interactive Breathing Tool Card ────────────────────────────── */}
-      {!showFavoritesOnly && selectedCategory !== 'grounding' && selectedCategory !== 'cognitive_restructuring' && selectedCategory !== 'behavioral_activation' && selectedCategory !== 'mindfulness' && selectedCategory !== 'exposure' && selectedCategory !== 'sleep' && selectedCategory !== 'relationships' && selectedCategory !== 'stress_management' && (
+      {!showFavoritesOnly && (selectedCategory === 'all' || selectedCategory === 'breathing') && (
         <div className="mb-6">
           <button
             onClick={() => setShowBreathingTool(true)}
