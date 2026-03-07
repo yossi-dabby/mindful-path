@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Bell, X, Check, CheckCheck, ExternalLink, Target, Dumbbell, TrendingUp, Calendar, Flame, FileText, AtSign, Info } from 'lucide-react';
@@ -86,9 +87,48 @@ function NotificationItem({ notification, onMarkRead, onDelete }) {
   );
 }
 
+// Dropdown panel width in px — must match the w-80/w-96 values used in the panel.
+const PANEL_WIDTH_MOBILE = 320; // w-80
+const PANEL_WIDTH_DESKTOP = 384; // w-96
+const PANEL_GAP = 8; // gap below the bell button
+
+function useDropdownPosition(buttonRef, open) {
+  const [pos, setPos] = useState(null);
+
+  const recalculate = useCallback(() => {
+    if (typeof window === 'undefined' || !buttonRef.current) return;
+    const rect = buttonRef.current.getBoundingClientRect();
+    const vw = window.innerWidth;
+    const panelWidth = vw >= 768 ? PANEL_WIDTH_DESKTOP : PANEL_WIDTH_MOBILE;
+
+    // Prefer aligning the panel's right edge with the button's right edge.
+    // If that would clip the left side, align left edges instead.
+    let left = rect.right - panelWidth;
+    if (left < 8) left = Math.min(rect.left, vw - panelWidth - 8);
+    left = Math.max(8, left);
+
+    const top = rect.bottom + PANEL_GAP;
+    setPos({ top, left, width: panelWidth });
+  }, [buttonRef]);
+
+  useEffect(() => {
+    if (!open) { setPos(null); return; }
+    recalculate();
+    window.addEventListener('resize', recalculate);
+    window.addEventListener('scroll', recalculate, true);
+    return () => {
+      window.removeEventListener('resize', recalculate);
+      window.removeEventListener('scroll', recalculate, true);
+    };
+  }, [open, recalculate]);
+
+  return pos;
+}
+
 export default function NotificationBell() {
   const [open, setOpen] = useState(false);
-  const panelRef = useRef(null);
+  const buttonRef = useRef(null);
+  const dropdownRef = useRef(null);
   const queryClient = useQueryClient();
 
   const { data: notifications = [] } = useQuery({
@@ -119,21 +159,107 @@ export default function NotificationBell() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] })
   });
 
-  // Close on outside click
+  // Close on outside click (covers both button and portal dropdown)
   useEffect(() => {
     const handler = (e) => {
-      if (panelRef.current && !panelRef.current.contains(e.target)) setOpen(false);
+      if (
+        buttonRef.current && !buttonRef.current.contains(e.target) &&
+        dropdownRef.current && !dropdownRef.current.contains(e.target)
+      ) {
+        setOpen(false);
+      }
     };
     if (open) document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, [open]);
 
+  // Close on Escape key
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') setOpen(false); };
+    if (open) document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [open]);
+
+  const pos = useDropdownPosition(buttonRef, open);
+
+  const panel = pos && (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          ref={dropdownRef}
+          initial={{ opacity: 0, y: -8, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -8, scale: 0.97 }}
+          transition={{ duration: 0.15 }}
+          style={{
+            position: 'fixed',
+            top: pos.top,
+            left: pos.left,
+            width: pos.width,
+            maxHeight: '480px',
+            zIndex: 9999,
+          }}
+          className="rounded-2xl shadow-2xl border border-gray-100 bg-white overflow-hidden"
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-teal-50 to-white">
+            <div className="flex items-center gap-2">
+              <Bell className="w-4 h-4 text-teal-600" />
+              <span className="font-semibold text-gray-800 text-sm">Notifications</span>
+              {unreadCount > 0 && (
+                <Badge className="bg-teal-100 text-teal-700 text-xs px-1.5 py-0">{unreadCount} new</Badge>
+              )}
+            </div>
+            {unreadCount > 0 && (
+              <button
+                onClick={() => markAllReadMutation.mutate()}
+                className="flex items-center gap-1 text-xs text-teal-600 hover:text-teal-700 font-medium"
+              >
+                <CheckCheck className="w-3.5 h-3.5" />
+                Mark all read
+              </button>
+            )}
+          </div>
+
+          {/* List */}
+          <div className="overflow-y-auto" style={{ maxHeight: '380px' }}>
+            {notifications.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center px-6">
+                <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                  <Bell className="w-6 h-6 text-gray-400" />
+                </div>
+                <p className="text-sm font-medium text-gray-600">All caught up!</p>
+                <p className="text-xs text-gray-400 mt-1">No notifications yet. We'll let you know when something happens.</p>
+              </div>
+            ) : (
+              <div className="p-2 space-y-1">
+                <AnimatePresence>
+                  {notifications.map(n => (
+                    <NotificationItem
+                      key={n.id}
+                      notification={n}
+                      onMarkRead={(id) => markReadMutation.mutate(id)}
+                      onDelete={(id) => deleteMutation.mutate(id)}
+                    />
+                  ))}
+                </AnimatePresence>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
   return (
-    <div className="relative" ref={panelRef}>
+    <>
       <button
+        ref={buttonRef}
         onClick={() => setOpen(o => !o)}
         className="relative w-10 h-10 flex items-center justify-center rounded-full transition-colors hover:bg-teal-50"
         aria-label="Notifications"
+        aria-expanded={open}
+        aria-haspopup="true"
       >
         <Bell className="w-5 h-5 text-gray-600" />
         {unreadCount > 0 && (
@@ -143,64 +269,7 @@ export default function NotificationBell() {
         )}
       </button>
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: -8, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.97 }}
-            transition={{ duration: 0.15 }}
-            className="absolute right-0 top-12 w-80 md:w-96 z-50 rounded-2xl shadow-2xl border border-gray-100 bg-white overflow-hidden"
-            style={{ maxHeight: '480px' }}
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-teal-50 to-white">
-              <div className="flex items-center gap-2">
-                <Bell className="w-4 h-4 text-teal-600" />
-                <span className="font-semibold text-gray-800 text-sm">Notifications</span>
-                {unreadCount > 0 && (
-                  <Badge className="bg-teal-100 text-teal-700 text-xs px-1.5 py-0">{unreadCount} new</Badge>
-                )}
-              </div>
-              {unreadCount > 0 && (
-                <button
-                  onClick={() => markAllReadMutation.mutate()}
-                  className="flex items-center gap-1 text-xs text-teal-600 hover:text-teal-700 font-medium"
-                >
-                  <CheckCheck className="w-3.5 h-3.5" />
-                  Mark all read
-                </button>
-              )}
-            </div>
-
-            {/* List */}
-            <div className="overflow-y-auto" style={{ maxHeight: '380px' }}>
-              {notifications.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center px-6">
-                  <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
-                    <Bell className="w-6 h-6 text-gray-400" />
-                  </div>
-                  <p className="text-sm font-medium text-gray-600">All caught up!</p>
-                  <p className="text-xs text-gray-400 mt-1">No notifications yet. We'll let you know when something happens.</p>
-                </div>
-              ) : (
-                <div className="p-2 space-y-1">
-                  <AnimatePresence>
-                    {notifications.map(n => (
-                      <NotificationItem
-                        key={n.id}
-                        notification={n}
-                        onMarkRead={(id) => markReadMutation.mutate(id)}
-                        onDelete={(id) => deleteMutation.mutate(id)}
-                      />
-                    ))}
-                  </AnimatePresence>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+      {typeof document !== 'undefined' && createPortal(panel, document.body)}
+    </>
   );
 }
