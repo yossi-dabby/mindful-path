@@ -23,6 +23,15 @@ const MOBILE_BREAKPOINT = 768;
 // Gap between FAB and the top of the BottomNav (px)
 const FAB_NAV_GAP = 16;
 
+/** Returns the visual viewport size, preferring visualViewport over innerWidth/Height. */
+const getViewportSize = () => {
+  const vp = window.visualViewport;
+  return {
+    width: vp ? vp.width : window.innerWidth,
+    height: vp ? vp.height : window.innerHeight,
+  };
+};
+
 export default function DraggableAiCompanion() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -47,21 +56,24 @@ export default function DraggableAiCompanion() {
 
   // Initialize position from localStorage or defaults
   useEffect(() => {
-    const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
+    const { width: vpWidth } = getViewportSize();
+    const isMobile = vpWidth < MOBILE_BREAKPOINT;
     const stored = localStorage.getItem(STORAGE_KEY);
     
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
         const storedPos = isMobile ? parsed.mobile : parsed.desktop;
-        if (storedPos) {
-          // Constrain legacy stored positions that may have been saved before
-          // the nav-height fix (could be inside the BottomNav zone on mobile).
-          const minBottom = isMobile ? BOTTOM_NAV_HEIGHT + FAB_NAV_GAP : FAB_NAV_GAP;
-          setPosition({
-            ...storedPos,
-            bottom: Math.max(minBottom, storedPos.bottom)
-          });
+        if (storedPos &&
+            typeof storedPos.right === 'number' && isFinite(storedPos.right) &&
+            typeof storedPos.bottom === 'number' && isFinite(storedPos.bottom)) {
+          // Fully clamp both axes so a position saved on a wider/taller screen
+          // never places the bubble off-screen on the current (smaller) viewport.
+          const clamped = constrainPosition(storedPos);
+          if (process.env.NODE_ENV === 'development') {
+            console.debug('[AI Companion] init | saved:', storedPos, '| clamped:', clamped);
+          }
+          setPosition(clamped);
           return;
         }
       } catch (e) {
@@ -78,6 +90,32 @@ export default function DraggableAiCompanion() {
         ? { bottom: safeBottomOffset, right: 20 } 
         : { bottom: 24, right: 24 }
     );
+  }, []);
+
+  // Re-clamp position when the viewport changes (resize, orientation change, or
+  // visualViewport resize inside an embedded/app-like window) so the bubble is
+  // never left off-screen after the viewport shrinks.
+  useEffect(() => {
+    const handleViewportChange = () => {
+      setPosition(prev => {
+        if (!prev) return prev;
+        return constrainPosition(prev);
+      });
+    };
+
+    window.addEventListener('resize', handleViewportChange);
+    window.addEventListener('orientationchange', handleViewportChange);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleViewportChange);
+    }
+
+    return () => {
+      window.removeEventListener('resize', handleViewportChange);
+      window.removeEventListener('orientationchange', handleViewportChange);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleViewportChange);
+      }
+    };
   }, []);
 
   // Check age verification and consent
@@ -253,25 +291,42 @@ export default function DraggableAiCompanion() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(positions));
   };
 
-  // Constrain position within viewport with safe margins
+  // Constrain position within viewport with safe margins.
+  // Uses visualViewport (more accurate in embedded/app-like windows and on iOS)
+  // falling back to window dimensions.
   const constrainPosition = (pos) => {
-    const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
+    const { width: vpWidth, height: vpHeight } = getViewportSize();
+    const isMobileVp = vpWidth < MOBILE_BREAKPOINT;
     const margin = 16;
     // On mobile, keep FAB above BottomNav + gap; on desktop no nav bar.
-    const bottomNavHeight = isMobile ? BOTTOM_NAV_HEIGHT : 0;
+    const bottomNavHeight = isMobileVp ? BOTTOM_NAV_HEIGHT : 0;
     
     // Get safe area insets (iOS/Android)
     const computedStyle = getComputedStyle(document.documentElement);
     const safeAreaBottom = parseInt(computedStyle.getPropertyValue('--sab') || '0') || 0;
     
-    const maxRight = window.innerWidth - (isMobile ? 96 : 384) - margin;
-    const maxBottom = window.innerHeight - bottomNavHeight - safeAreaBottom - margin;
+    // Use the wider bubble width (open card = 384px on desktop, ~96px on mobile) so
+    // the bubble is guaranteed on-screen even after it's opened or the viewport shrinks.
+    const elementWidth = isMobileVp ? 96 : 384;
+    const maxRight = Math.max(margin, vpWidth - elementWidth - margin);
+    const maxBottom = vpHeight - bottomNavHeight - safeAreaBottom - margin;
     
-    return {
+    const clamped = {
       right: Math.max(margin, Math.min(maxRight, pos.right)),
       // Minimum bottom keeps FAB above the nav bar (+ gap) so it never overlaps it
       bottom: Math.max(bottomNavHeight + margin, Math.min(maxBottom, pos.bottom))
     };
+
+    if (process.env.NODE_ENV === 'development') {
+      console.debug(
+        '[AI Companion] constrainPosition | viewport:', vpWidth, 'x', vpHeight,
+        '| input:', pos, '| clamped:', clamped,
+        '| maxRight:', maxRight, '| maxBottom:', maxBottom,
+        '| bottomNavH:', bottomNavHeight
+      );
+    }
+
+    return clamped;
   };
 
   const handleDragStart = (e) => {
@@ -315,8 +370,10 @@ export default function DraggableAiCompanion() {
         const computedStyle = getComputedStyle(document.documentElement);
         const safeAreaBottom = parseInt(computedStyle.getPropertyValue('--sab') || '0') || 0;
         
-        const maxRight = window.innerWidth - (isMobile ? 96 : 384) - margin;
-        const maxBottom = window.innerHeight - bottomNavHeight - safeAreaBottom - margin;
+        const { width: vpWidth, height: vpHeight } = getViewportSize();
+        const elementWidth = isMobile ? 96 : 384;
+        const maxRight = Math.max(margin, vpWidth - elementWidth - margin);
+        const maxBottom = vpHeight - bottomNavHeight - safeAreaBottom - margin;
         
         // Moving right → right CSS value decreases (element anchored from right edge)
         // Moving down  → bottom CSS value decreases (element anchored from bottom edge)
