@@ -124,15 +124,15 @@ Format as JSON:
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-4xl my-8"
-        style={{ maxHeight: 'calc(100vh - 160px)' }}
+        className="w-full max-w-4xl flex flex-col"
+        style={{ maxHeight: 'calc(100dvh - 2rem)' }}
       >
-        <Card className="border-0 shadow-2xl">
-          <CardHeader className="border-b" style={{
+        <Card className="border-0 shadow-2xl flex flex-col overflow-hidden">
+          <CardHeader className="border-b flex-shrink-0" style={{
             background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.9) 0%, rgba(180, 220, 210, 0.8) 100%)'
           }}>
             <div className="flex items-center justify-between">
@@ -148,7 +148,7 @@ Format as JSON:
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="p-4 md:p-6 space-y-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+          <CardContent className="p-4 md:p-6 space-y-6 overflow-y-auto flex-1" style={{ minHeight: 0 }}>
             {!plan && !isGenerating && (
               <div className="text-center py-8">
                 <Dumbbell className="w-16 h-16 mx-auto mb-4" style={{ color: '#A8D4CB' }} />
