@@ -15,7 +15,7 @@ export const translations = {
         settings: { name: "Settings" }
       },
       global: {
-        app_name: "MindWell",
+        app_name: "Mindful Path",
         app_tagline: "Mental Wellness App"
       },
       mobile_menu: {
@@ -1387,7 +1387,7 @@ export const translations = {
         settings: { name: "הגדרות" }
       },
       global: {
-        app_name: "MindWell",
+        app_name: "Mindful Path",
         app_tagline: "אפליקציית בריאות נפש"
       },
       mobile_menu: {
@@ -2749,7 +2749,7 @@ export const translations = {
         settings: { name: "Configuración" }
       },
       global: {
-        app_name: "MindWell",
+        app_name: "Mindful Path",
         app_tagline: "App de Bienestar Mental"
       },
       mobile_menu: {
@@ -3901,7 +3901,7 @@ export const translations = {
         settings: { name: "Paramètres" }
       },
       global: {
-        app_name: "MindWell",
+        app_name: "Mindful Path",
         app_tagline: "App de Bien-être Mental"
       },
       mobile_menu: {
@@ -5231,7 +5231,7 @@ export const translations = {
         settings: { name: "Einstellungen" }
       },
       global: {
-        app_name: "MindWell",
+        app_name: "Mindful Path",
         app_tagline: "Mental-Wellness-App"
       },
       mobile_menu: {
@@ -6561,7 +6561,7 @@ export const translations = {
         settings: { name: "Impostazioni" }
       },
       global: {
-        app_name: "MindWell",
+        app_name: "Mindful Path",
         app_tagline: "App per il Benessere Mentale"
       },
       mobile_menu: {
@@ -7891,7 +7891,7 @@ export const translations = {
         settings: { name: "Configurações" }
       },
       global: {
-        app_name: "MindWell",
+        app_name: "Mindful Path",
         app_tagline: "App de Bem-estar Mental"
       },
       mobile_menu: {
