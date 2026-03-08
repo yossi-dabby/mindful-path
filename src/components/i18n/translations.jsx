@@ -1149,7 +1149,7 @@ export const translations = {
         card_btn_starting: "Starting...",
         card_aria_watch_video: "Watch help video",
         day_themes: {
-          1: { title: "Welcome & Breathing", description: "Learn foundational breathing techniques" },
+          1: { title: "Welcome & Breathing", description: "Explore how your thoughts influence your emotions" },
           2: { title: "Understanding Thoughts", description: "Identify automatic thinking patterns" },
           3: { title: "Grounding Practice", description: "Stay present with grounding exercises" },
           4: { title: "Challenging Beliefs", description: "Question negative thought patterns" },
