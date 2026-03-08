@@ -156,9 +156,9 @@ Please help me create a structured plan to work through this.`
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] md:min-h-dvh flex flex-col bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 w-full">
-      {/* Header - Sticky on mobile */}
-      <div className="bg-white border-b shadow-sm sticky top-0 z-10 flex-shrink-0">
+    <div className="flex flex-col bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 w-full" style={{ position: 'fixed', inset: 0, height: '100dvh', overflow: 'hidden', zIndex: 70, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+      {/* Header */}
+      <div className="bg-white border-b shadow-sm flex-shrink-0" style={{ zIndex: 10 }}>
         <div className="max-w-2xl mx-auto p-4 w-full">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -182,8 +182,8 @@ Please help me create a structured plan to work through this.`
       </div>
 
       {/* Content - Scrollable */}
-      <div className="flex-1 overflow-y-auto min-h-0" style={{ overscrollBehavior: 'none' }}>
-        <div className="max-w-2xl mx-auto p-4 md:p-6 pb-32 w-full">
+      <div className="flex-1 overflow-y-auto" style={{ minHeight: 0, overscrollBehavior: 'none' }}>
+        <div className="max-w-2xl mx-auto p-4 md:p-6 pb-8 w-full">
           {/* Step 1: Focus Area */}
           {step === 1 && (
             <div className="space-y-6">
@@ -350,8 +350,8 @@ Please help me create a structured plan to work through this.`
         </div>
       </div>
 
-      {/* Navigation - Fixed at bottom above mobile nav */}
-      <div className="bg-white border-t shadow-lg fixed bottom-0 left-0 right-0 z-20 flex-shrink-0" style={{ marginBottom: 'calc(80px + env(safe-area-inset-bottom, 0))' }}>
+      {/* Navigation - Sticky at bottom of fixed container */}
+      <div className="bg-white border-t shadow-lg flex-shrink-0 safe-bottom-nav" style={{ zIndex: 10 }}>
         <div className="max-w-2xl mx-auto p-4">
           <div className="flex gap-3">
             {step > 1 && (

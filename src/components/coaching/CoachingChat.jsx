@@ -153,7 +153,7 @@ export default function CoachingChat({ session, onBack }) {
   const totalActions = currentSession.action_plan?.length || 0;
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex flex-col" style={{ position: 'fixed', inset: 0, height: '100dvh', overflow: 'hidden', zIndex: 70, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       {/* Header */}
       <div className="bg-white border-b border-gray-200 p-4 flex-shrink-0">
         <div className="max-w-4xl mx-auto">
@@ -187,7 +187,7 @@ export default function CoachingChat({ session, onBack }) {
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden flex">
+      <div className="flex-1 min-h-0 flex">
         {/* Chat Area */}
         <div className="flex-1 flex flex-col">
           <div className="flex-1 overflow-y-auto p-4 bg-gray-50" style={{ overscrollBehavior: 'none' }}>
@@ -250,7 +250,7 @@ export default function CoachingChat({ session, onBack }) {
           )}
 
           {/* Input Area */}
-          <div className="bg-white border-t border-gray-200 p-4">
+          <div className="bg-white border-t border-gray-200 p-4 flex-shrink-0" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
             <div className="max-w-4xl mx-auto flex gap-3">
               <Textarea
                 data-testid="coach-chat-input"
