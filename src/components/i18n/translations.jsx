@@ -664,7 +664,7 @@ export const translations = {
           mindfulness: "Mindfulness",
           exposure: "Exposure",
           sleep: "Sleep",
-          relationships: "Relationships",
+          relationships: "Relationship",
           stress: "Stress Management"
         },
         detail: {

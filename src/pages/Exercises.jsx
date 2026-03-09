@@ -14,6 +14,7 @@ import AiExerciseCoaching from '../components/exercises/AiExerciseCoaching';
 import QuickStartPanel from '../components/exercises/QuickStartPanel';
 import InteractiveBreathingTool from '../components/exercises/InteractiveBreathingTool';
 import PullToRefresh from '../components/utils/PullToRefresh';
+import { mergeExercises, validateExercisesTaxonomy } from '../components/exercises/exercisesData';
 
 const categoryIcons = {
   breathing: Wind,
@@ -62,14 +63,22 @@ export default function Exercises() {
     queryKey: ['exercises'],
     queryFn: async () => {
       try {
-        return await base44.entities.Exercise.list();
+        const apiExercises = await base44.entities.Exercise.list();
+        return mergeExercises(apiExercises);
       } catch (error) {
         console.error('Error fetching exercises:', error);
-        return [];
+        return mergeExercises([]);
       }
     },
-    initialData: []
+    initialData: mergeExercises([])
   });
+
+  // Dev-only taxonomy validation — runs once after exercises data is ready
+  useEffect(() => {
+    if (exercises && exercises.length > 0) {
+      validateExercisesTaxonomy(exercises);
+    }
+  }, [exercises]);
 
   const completeMutation = useMutation({
     mutationFn: async ({ exercise, duration }) => {
