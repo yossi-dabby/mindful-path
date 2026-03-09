@@ -103,3 +103,27 @@ The following entities are unchanged and remain prohibited:
 | `AI_COMPANION_WIRING_HYBRID`  | AI Companion  | 9  | V1 + Conversation (9) |
 
 All V1 step exports (Steps 1, 2, 3) are unmodified by the hybrid wiring.
+
+---
+
+## F. Rollback to V1
+
+The active wiring selection lives in **`src/api/activeAgentWiring.js`**.
+
+To revert both agents to the V1 (Step 3) baseline, change the two imports in that file:
+
+```js
+// Replace:
+import {
+  CBT_THERAPIST_WIRING_HYBRID,
+  AI_COMPANION_WIRING_HYBRID,
+} from './agentWiring.js';
+
+// With:
+import {
+  CBT_THERAPIST_WIRING_STEP_3 as CBT_THERAPIST_WIRING_HYBRID,
+  AI_COMPANION_WIRING_STEP_3  as AI_COMPANION_WIRING_HYBRID,
+} from './agentWiring.js';
+```
+
+No other files need to change. All hybrid exports remain in `agentWiring.js` and can be re-activated at any time.
