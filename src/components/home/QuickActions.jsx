@@ -16,6 +16,7 @@ export default function QuickActions() {
   const { t } = useTranslation();
   const [activeVideo, setActiveVideo] = useState(null);
   const [showRecommendations, setShowRecommendations] = useState(false);
+  const [showRecommendedVideo, setShowRecommendedVideo] = useState(false);
   const [showStarterPathVideo, setShowStarterPathVideo] = useState(false);
   const [starterPathExpanded, setStarterPathExpanded] = useState(false);
   const queryClient = useQueryClient();
@@ -74,7 +75,7 @@ export default function QuickActions() {
       page: 'Chat',
       color: '#26A69A',
       bgColor: 'rgba(38, 166, 154, 0.15)',
-      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%202.mp4?alt=media&token=15202381-d3a7-44f4-ade9-cc118256e8c1'
+      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/AI%20Therapist.mp4?alt=media&token=db591799-a5af-422f-9b95-0c4ceb15f17b'
     },
     {
       title: t('quick_actions.journal_thought.title'),
@@ -84,7 +85,7 @@ export default function QuickActions() {
       page: 'ThoughtCoach',
       color: '#9F7AEA',
       bgColor: 'rgba(159, 122, 234, 0.15)',
-      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%206.mp4?alt=media&token=78391ab6-7f22-4288-a22f-2efa53ad0aac'
+      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/Journal%20a%20Thought.mp4?alt=media&token=863057e2-8265-47cc-ade1-1fae55cbca20'
     },
     {
       title: t('quick_actions.set_goal.title'),
@@ -94,7 +95,7 @@ export default function QuickActions() {
       page: 'GoalCoach',
       color: '#F6AD55',
       bgColor: 'rgba(246, 173, 85, 0.15)',
-      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%204.mp4?alt=media&token=389888db-76eb-42e4-ba04-6b62335217cb'
+      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/Goal%20Coach.mp4?alt=media&token=f28cf868-bf68-4896-816e-2a02e43951de'
     },
     {
       title: t('quick_actions.mind_games.title'),
@@ -103,7 +104,7 @@ export default function QuickActions() {
       page: 'ExperientialGames',
       color: '#4299E1',
       bgColor: 'rgba(66, 153, 225, 0.15)',
-      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%205.mp4?alt=media&token=905b8eb3-09ba-4f02-ba8e-930b44dd5070',
+      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/Mind%20Games.mp4?alt=media&token=275ef615-9611-457c-8e0e-f17c5621dac7',
       testIds: ['quickaction-grounding', 'quickaction-mindgames']
     },
     {
@@ -113,7 +114,7 @@ export default function QuickActions() {
       page: 'Journeys',
       color: '#8B5CF6',
       bgColor: 'rgba(139, 92, 246, 0.15)',
-      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%205.mp4?alt=media&token=905b8eb3-09ba-4f02-ba8e-930b44dd5070'
+      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/Journeys.mp4?alt=media&token=07d21248-a2b0-47ed-ab83-bf26a0ca0d0b'
     }
   ];
   
@@ -125,7 +126,7 @@ export default function QuickActions() {
       page: 'Exercises',
       color: '#38B2AC',
       bgColor: 'rgba(56, 178, 172, 0.15)',
-      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%205.mp4?alt=media&token=905b8eb3-09ba-4f02-ba8e-930b44dd5070'
+      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/Exercises%20Library.mp4?alt=media&token=3c3d0112-f226-4a69-b8c9-74ad0a5a3a05'
     },
     {
       title: t('quick_actions.video_library.title'),
@@ -134,7 +135,7 @@ export default function QuickActions() {
       page: 'Videos',
       color: '#ED8936',
       bgColor: 'rgba(237, 137, 54, 0.15)',
-      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%207.mp4?alt=media&token=3cfbbe9d-39eb-4f87-805e-53b4a36395dd'
+      videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/CBT%20Video%20Library.mp4?alt=media&token=3e7a4ce8-5b61-4398-8579-dd2c42c83687'
     }
   ];
   
@@ -168,6 +169,26 @@ export default function QuickActions() {
                   >
                     <Sparkles className="w-7 h-7 text-white" strokeWidth={2.5} />
                   </div>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setShowRecommendedVideo(true);
+                    }}
+                    className="flex items-center justify-center cursor-pointer hover:scale-110 transition-transform"
+                    style={{
+                      width: '56px',
+                      height: '56px',
+                      borderRadius: '20px',
+                      backgroundColor: 'rgba(255, 142, 66, 0.15)',
+                      border: 'none',
+                      outline: 'none'
+                    }}
+                    aria-label="Guided introduction video"
+                    title="Guided introduction video"
+                  >
+                    <User className="w-6 h-6 icon-default" style={{ color: 'rgb(var(--theme-accent))' }} strokeWidth={2} />
+                  </button>
                 </div>
                 <h3 className="font-semibold text-sm mb-1 break-words" style={{ color: '#1A3A34' }}>{t('quick_actions.recommended.title')}</h3>
                 <p className="text-xs line-clamp-2 break-words" style={{ color: '#5A7A72' }}>{t('quick_actions.recommended.description')}</p>
@@ -448,10 +469,18 @@ export default function QuickActions() {
         )}
       </AnimatePresence>
 
+      {/* Recommended for You Video Modal */}
+      {showRecommendedVideo && (
+        <VideoModal
+          videoUrl="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/Recommended%20for%20You.mp4?alt=media&token=d6126635-2c04-459b-b88c-fce5d36135b5"
+          onClose={() => setShowRecommendedVideo(false)}
+        />
+      )}
+
       {/* StarterPath Video Modal */}
       {showStarterPathVideo && (
         <VideoModal
-          videoUrl="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%203.mp4?alt=media&token=7d591673-f152-496d-987f-e8cc393ff58d"
+          videoUrl="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/7-Day%20Starter%20Path.mp4?alt=media&token=4fcbf1a9-fbec-42f2-a969-fb887f804819"
           onClose={() => setShowStarterPathVideo(false)}
         />
       )}

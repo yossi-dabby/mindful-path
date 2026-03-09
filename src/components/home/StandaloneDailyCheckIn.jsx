@@ -447,7 +447,7 @@ export default function StandaloneDailyCheckIn() {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                setActiveVideo('https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%201.mp4?alt=media&token=5a32c03e-2031-4c1b-a24f-f82d21409313');
+                setActiveVideo('https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/Daily%20Check-in.mp4?alt=media&token=6c2b0997-3dd4-4824-8791-b01f3c0e28f2');
               }}
               className="flex items-center justify-center cursor-pointer hover:scale-110 transition-transform"
               style={{ 

@@ -225,7 +225,7 @@ export default function StarterPathCard() {
       {/* Video Modal */}
       {showVideo && (
         <VideoModal
-          videoUrl="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%203.mp4?alt=media&token=7d591673-f152-496d-987f-e8cc393ff58d"
+          videoUrl="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/7-Day%20Starter%20Path.mp4?alt=media&token=4fcbf1a9-fbec-42f2-a969-fb887f804819"
           onClose={() => setShowVideo(false)}
         />
       )}
