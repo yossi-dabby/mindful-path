@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Sparkles, Loader2, RefreshCw, Wind, Anchor, Brain, TrendingUp, Heart, ThumbsUp, ThumbsDown, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { normalizeExerciseRecommendations, safeArray } from '@/components/utils/aiDataNormalizer';
+import { normalizeExerciseRecommendations } from '@/components/utils/aiDataNormalizer';
 
 const categoryIcons = {
   breathing: Wind,
@@ -349,9 +349,15 @@ Provide recommendations with:
           </div>
         )}
 
-        {safeArray(recommendations).length > 0 && (
+        {generateMutation.isError && (
+          <div className="text-center py-6">
+            <p className="text-gray-600 font-medium">Couldn&apos;t fetch recommendations. Please try again.</p>
+          </div>
+        )}
+
+        {Array.isArray(recommendations) && recommendations.length > 0 && (
           <div className="space-y-3">
-            {safeArray(recommendations).map((rec, index) => {
+            {recommendations.map((rec, index) => {
               const exercise = getExerciseByTitle(rec.exercise_title);
               const Icon = exercise ? categoryIcons[exercise.category] : Sparkles;
               const priorityColors = {
@@ -359,6 +365,7 @@ Provide recommendations with:
                 medium: 'bg-yellow-100 text-yellow-700 border-yellow-300',
                 low: 'bg-blue-100 text-blue-700 border-blue-300'
               };
+              const feedbackKey = exercise ? exercise.id : `${rec.exercise_title}_${index}`;
 
               return (
                 <motion.div
@@ -382,12 +389,16 @@ Provide recommendations with:
                               {rec.priority}
                             </Badge>
                           </div>
-                          <p className="text-sm text-gray-600 mb-2">{rec.reason}</p>
-                          <div className="flex items-start gap-2 bg-green-50 rounded-lg p-2 border border-green-200">
-                            <Sparkles className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
-                            <p className="text-xs text-gray-700">{rec.benefit}</p>
-                          </div>
-                          {exercise && (
+                          {rec.reason ? (
+                            <p className="text-sm text-gray-600 mb-2">{rec.reason}</p>
+                          ) : null}
+                          {rec.benefit ? (
+                            <div className="flex items-start gap-2 bg-green-50 rounded-lg p-2 border border-green-200">
+                              <Sparkles className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                              <p className="text-xs text-gray-700">{rec.benefit}</p>
+                            </div>
+                          ) : null}
+                          {exercise ? (
                             <>
                               <Button
                                 size="sm"
@@ -399,18 +410,18 @@ Provide recommendations with:
                               >
                                 Try This Exercise
                               </Button>
-                              
+
                               {/* Feedback Buttons */}
                               <div className="mt-2 flex gap-2">
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  className={`flex-1 ${feedbackGiven[exercise.id] === 'helpful' ? 'bg-green-50 border-green-300 text-green-700' : ''}`}
+                                  className={`flex-1 ${feedbackGiven[feedbackKey] === 'helpful' ? 'bg-green-50 border-green-300 text-green-700' : ''}`}
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleFeedback(exercise.id, 'helpful', rec.reason);
+                                    handleFeedback(feedbackKey, 'helpful', rec.reason);
                                   }}
-                                  disabled={!!feedbackGiven[exercise.id]}
+                                  disabled={!!feedbackGiven[feedbackKey]}
                                 >
                                   <ThumbsUp className="w-3 h-3 mr-1" />
                                   Helpful
@@ -418,18 +429,22 @@ Provide recommendations with:
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  className={`flex-1 ${feedbackGiven[exercise.id] === 'not_relevant' ? 'bg-red-50 border-red-300 text-red-700' : ''}`}
+                                  className={`flex-1 ${feedbackGiven[feedbackKey] === 'not_relevant' ? 'bg-red-50 border-red-300 text-red-700' : ''}`}
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleFeedback(exercise.id, 'not_relevant', rec.reason);
+                                    handleFeedback(feedbackKey, 'not_relevant', rec.reason);
                                   }}
-                                  disabled={!!feedbackGiven[exercise.id]}
+                                  disabled={!!feedbackGiven[feedbackKey]}
                                 >
                                   <ThumbsDown className="w-3 h-3 mr-1" />
                                   Not Relevant
                                 </Button>
                               </div>
                             </>
+                          ) : (
+                            <p className="mt-3 text-xs text-gray-400 italic">
+                              Exercise not found in library — browse the Exercises section to find similar ones.
+                            </p>
                           )}
                         </div>
                       </div>
@@ -441,9 +456,9 @@ Provide recommendations with:
           </div>
         )}
 
-        {recommendations && recommendations.length === 0 && (
+        {Array.isArray(recommendations) && recommendations.length === 0 && (
           <div className="text-center py-6">
-            <p className="text-gray-600">No recommendations available. Try again later.</p>
+            <p className="text-gray-600">No recommendations yet — try again.</p>
           </div>
         )}
       </CardContent>
