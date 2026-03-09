@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -48,6 +48,15 @@ export default function Exercises() {
   const [showCoaching, setShowCoaching] = useState(false);
   const [showBreathingTool, setShowBreathingTool] = useState(false);
   const queryClient = useQueryClient();
+  const tabsListRef = useRef(null);
+
+  useEffect(() => {
+    if (!tabsListRef.current) return;
+    const activeTab = tabsListRef.current.querySelector('[data-state="active"]');
+    if (activeTab) {
+      activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }, [selectedCategory]);
 
   const { data: exercises, isLoading } = useQuery({
     queryKey: ['exercises'],
@@ -200,9 +209,13 @@ export default function Exercises() {
       </div>
 
       {/* Category Filter */}
-      <div className="mb-6 overflow-x-auto">
+      <div
+        id="exercises_category_switcher"
+        className="mb-6 overflow-x-auto"
+        style={{ overscrollBehaviorX: 'contain' }}
+      >
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-          <TabsList className="border p-1 inline-flex w-auto min-w-full" style={{
+          <TabsList ref={tabsListRef} className="border p-1 inline-flex w-auto min-w-full" style={{
             background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.7) 0%, rgba(180, 220, 210, 0.6) 100%)',
             borderColor: 'rgba(38, 166, 154, 0.25)',
             borderRadius: '28px'
