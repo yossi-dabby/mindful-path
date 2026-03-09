@@ -5,13 +5,22 @@ import MobileHeader, { MOBILE_HEADER_HEIGHT } from './MobileHeader';
 
 /**
  * AppContent - Main content wrapper with proper spacing for navigation
- * 
+ *
  * CRITICAL LAYOUT RULES:
- * 1. This is the ONLY scrollable container in the app
- * 2. Mobile: padding-bottom matches BOTTOM_NAV_HEIGHT, padding-top for header
- * 3. Desktop: padding-left matches SIDEBAR_WIDTH
+ * 1. This is the ONLY scrollable container in the app (#app-scroll-container)
+ * 2. Mobile (<768px): padding-bottom matches BOTTOM_NAV_HEIGHT, padding-top for header
+ * 3. Desktop/tablet (≥768px): padding-left matches SIDEBAR_WIDTH
  * 4. Children should NOT have overflow or fixed heights
  * 5. Pull-to-refresh is handled by page-level PullToRefresh components
+ *
+ * TABLET SCROLL FIX (768-1023px):
+ * - Uses overflow-x-clip (not overflow-x-hidden) so the horizontal clip does NOT
+ *   create a Block Formatting Context (BFC).  A BFC on the scroll container can
+ *   cause browsers to miscalculate scrollHeight at narrow tablet widths (sidebar
+ *   eats 288px, leaving only 480-612px of content area; tall content is cut off).
+ * - overflow-x: clip paints the same clip boundary as overflow-x: hidden but
+ *   without the BFC side-effect, keeping vertical scrollHeight calculation correct.
+ * - The outer Layout shell already uses overflow-x-clip for the same reason.
  */
 export default function AppContent({ children }) {
   const mainRef = React.useRef(null);
@@ -34,7 +43,7 @@ export default function AppContent({ children }) {
         id="app-scroll-container"
         ref={mainRef}
         tabIndex="-1"
-        className="overflow-y-auto overflow-x-hidden"
+        className="overflow-y-auto overflow-x-clip"
         style={{
           overscrollBehavior: 'none',
           height: '100dvh',
@@ -49,8 +58,11 @@ export default function AppContent({ children }) {
         @media (min-width: 768px) {
           #app-scroll-container {
             padding-left: ${SIDEBAR_WIDTH}px !important;
+            /* Reset mobile header/nav paddings; sidebar is fixed so content starts at top */
             padding-bottom: env(safe-area-inset-bottom, 0px) !important;
             padding-top: env(safe-area-inset-top, 0px) !important;
+            /* Reinforce: no BFC at tablet/desktop — clip, not hidden */
+            overflow-x: clip !important;
           }
         }
       `}</style>
