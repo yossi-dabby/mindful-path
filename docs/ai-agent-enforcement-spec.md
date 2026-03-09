@@ -219,3 +219,49 @@ For the current product stage, enforce the following as the minimum viable polic
 ---
 
 > **Note:** This document enforces the policy defined across `docs/ai-entity-classification.md`, `docs/ai-agent-content-mapping.md`, `docs/ai-agent-access-policy.md`, and `docs/ai-agent-decision-matrix.md`. No code, schemas, or behavior is changed.
+
+---
+
+## I. Wiring Rollout Log
+
+### Step 1 — Preferred entities only (completed)
+
+Wired the Preferred entity set for both agents in `src/api/agentWiring.js`
+(`CBT_THERAPIST_WIRING_STEP_1`, `AI_COMPANION_WIRING_STEP_1`).
+
+| Agent | Entities wired | Access level |
+|---|---|---|
+| CBT Therapist | SessionSummary, ThoughtJournal, Goal, CoachingSession | preferred |
+| AI Companion | CompanionMemory, MoodEntry | preferred |
+
+### Step 2 — Allowed shared content pool (completed)
+
+Added the four Allowed shared entities for both agents
+(`CBT_THERAPIST_WIRING_STEP_2`, `AI_COMPANION_WIRING_STEP_2`).
+All Step 1 preferred entities are carried forward unchanged.
+Shared entities are placed at higher source_order numbers so they remain
+lower priority than each agent's preferred layer.
+
+| Agent | Entities added | Access level | Source order |
+|---|---|---|---|
+| CBT Therapist | Exercise | allowed | 6 |
+| CBT Therapist | Resource | allowed | 7 |
+| CBT Therapist | AudioContent | allowed | 8 |
+| CBT Therapist | Journey | allowed | 9 |
+| AI Companion | Exercise | allowed | 3 |
+| AI Companion | Resource | allowed | 4 |
+| AI Companion | AudioContent | allowed | 5 |
+| AI Companion | Journey | allowed | 6 |
+
+### Deferred — not wired in Steps 1–2
+
+The following entities are intentionally absent from both Step 1 and Step 2
+wiring and must not be added without an explicit policy review:
+
+| Category | Entities | Reason |
+|---|---|---|
+| Restricted — CBT Therapist | MoodEntry, CompanionMemory | Lower-priority context; gated by §D rules |
+| Restricted — AI Companion | Goal, SessionSummary | Continuity fallbacks only; gated by §D rules |
+| Caution layer — both agents | CaseFormulation, Conversation | Require additional clinical or privacy gating |
+| Prohibited — both agents | Subscription, UserDeletedConversations, AppNotification, MindGameActivity | Permanently excluded per §E |
+| Prohibited — AI Companion only | ThoughtJournal, CoachingSession, CaseFormulation | Clinical entities outside Companion's role (§E) |
