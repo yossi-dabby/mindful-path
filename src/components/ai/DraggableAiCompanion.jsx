@@ -550,7 +550,7 @@ export default function DraggableAiCompanion() {
     position: 'fixed',
     right: `${position.right}px`,
     bottom: isMobile ? `calc(${position.bottom}px + env(safe-area-inset-bottom, 0px))` : `${position.bottom}px`,
-    zIndex: 40
+    zIndex: 9990
   };
 
   if (!isOpen) {
