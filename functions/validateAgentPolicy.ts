@@ -75,6 +75,12 @@ interface ToolConfig {
   source_order?: number;
   use_for_clinical_reasoning?: boolean;
   unrestricted?: boolean;
+  caution_layer?: boolean;
+  secondary_only?: boolean;
+  read_only?: boolean;
+  calibration_only?: boolean;
+  reference_only?: boolean;
+  continuity_check_only?: boolean;
 }
 
 interface AgentConfig {
@@ -201,6 +207,43 @@ export function validateAgentPolicy(agentConfig: AgentConfig): {
         `Agent "${agentName}": "CaseFormulation" must not be configured as unrestricted ` +
           `(enforcement spec §F — Both agents).`
       );
+    }
+
+    // ── Hybrid caution-layer checks ──────────────────────────────────────────
+    const cautionEntities = toolConfigs.filter((t) => t.caution_layer === true);
+    const v1Entities = toolConfigs.filter((t) => !t.caution_layer);
+
+    // Check H1: Caution-layer entities must be lower priority than all V1 sources.
+    if (cautionEntities.length > 0 && v1Entities.length > 0) {
+      const maxV1Order = Math.max(...v1Entities.map((t) => t.source_order ?? 0));
+      for (const ct of cautionEntities) {
+        if ((ct.source_order ?? Infinity) <= maxV1Order) {
+          violations.push(
+            `Agent "${agentName}": caution-layer entity "${ct.entity_name}" ` +
+              `(source_order ${ct.source_order}) must be lower priority than all V1 sources ` +
+              `(max V1 source_order: ${maxV1Order}) — hybrid model guardrail.`
+          );
+        }
+      }
+    }
+
+    // Check H2: Conversation must never be marked preferred.
+    const convEntry = toolConfigs.find((t) => t.entity_name === 'Conversation');
+    if (convEntry && convEntry.access_level === 'preferred') {
+      violations.push(
+        `Agent "${agentName}": "Conversation" must never be marked "preferred" — ` +
+          `hybrid model requires Conversation to be secondary-only (caution layer).`
+      );
+    }
+
+    // Check H3: Any caution-layer entity must not be marked preferred.
+    for (const ct of cautionEntities) {
+      if (ct.access_level === 'preferred') {
+        violations.push(
+          `Agent "${agentName}": caution-layer entity "${ct.entity_name}" must not be ` +
+            `marked "preferred" — caution-layer sources are secondary augmentation only.`
+        );
+      }
     }
   }
 
