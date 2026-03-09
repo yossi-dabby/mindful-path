@@ -1,18 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { Calendar, Target, AlertCircle, TrendingUp, CheckCircle2 } from 'lucide-react';
+import { Calendar, Target, AlertCircle, TrendingUp, CheckCircle2, User } from 'lucide-react';
 import { format, isAfter, isBefore, addDays } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { createPageUrl } from '@/utils';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import VideoModal from '../home/VideoModal';
 
 export default function GoalsDashboardWidget() {
   const { t } = useTranslation();
+  const [showVideo, setShowVideo] = useState(false);
   const { data, isLoading } = useQuery({
     queryKey: ['allGoals'],
     queryFn: () => base44.entities.Goal.list(),
@@ -87,12 +89,36 @@ export default function GoalsDashboardWidget() {
   return (
     <Card className="border-0 shadow-md">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Target className="w-5 h-5" />
-          {t('goals_dashboard_widget.title')}
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Target className="w-5 h-5" />
+            {t('goals_dashboard_widget.title')}
+          </div>
+          <button
+            onClick={() => setShowVideo(true)}
+            className="flex items-center justify-center cursor-pointer hover:scale-110 transition-transform"
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '14px',
+              backgroundColor: 'rgba(66, 153, 225, 0.15)',
+              border: 'none',
+              outline: 'none'
+            }}
+            aria-label="Guided introduction video"
+            title="Guided introduction video"
+          >
+            <User className="w-5 h-5" style={{ color: '#4299E1' }} strokeWidth={2} />
+          </button>
         </CardTitle>
         <p className="text-xs text-gray-500 mt-0.5">{t('goals_dashboard_widget.all_stages')}</p>
       </CardHeader>
+      {showVideo && (
+        <VideoModal
+          videoUrl="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/Goals%20Overview.mp4?alt=media&token=a5849ef3-fc5b-4411-92e6-2ee608ee4952"
+          onClose={() => setShowVideo(false)}
+        />
+      )}
       <CardContent className="space-y-4">
         {/* Overall Progress */}
         <div>
