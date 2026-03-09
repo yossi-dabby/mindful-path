@@ -84,4 +84,38 @@ Short practical order for connecting content to the two agents:
 
 ---
 
+## G. Step 1 Wiring — What Was Wired
+
+> **Implementation note:** `src/api/agentWiring.js` exports the first-pass wiring
+> configurations (`CBT_THERAPIST_WIRING_STEP_1` and `AI_COMPANION_WIRING_STEP_1`).
+> Only Preferred entities are included in this step.  All Restricted, caution-layer,
+> and prohibited entities are intentionally absent.  The configuration is validated by
+> the policy rules in `functions/validateAgentPolicy.ts` and tested in
+> `test/utils/agentWiring.test.js`.
+
+### CBT Therapist — Step 1
+
+| source_order | Entity | access_level |
+|---|---|---|
+| 2 | SessionSummary | preferred |
+| 3 | ThoughtJournal | preferred |
+| 4 | Goal | preferred |
+| 5 | CoachingSession | preferred |
+
+Deferred to later steps: MoodEntry (restricted), CompanionMemory (restricted),
+CaseFormulation (restricted/caution), Conversation (caution), and the Allowed layer
+(Exercise, Resource, AudioContent, Journey).
+
+### AI Companion — Step 1
+
+| source_order | Entity | access_level | Note |
+|---|---|---|---|
+| 1 | CompanionMemory | preferred | `use_for_clinical_reasoning: false` enforced |
+| 2 | MoodEntry | preferred | |
+
+Deferred to later steps: Goal (restricted), SessionSummary (restricted),
+Conversation (caution), and the Allowed layer (Exercise, Resource, AudioContent, Journey).
+
+---
+
 > **Note:** This document maps the 12 AI Core Content entities defined in `docs/ai-entity-classification.md` to the two agent roles in the Base44 runtime. No code, schemas, or behavior is changed.
