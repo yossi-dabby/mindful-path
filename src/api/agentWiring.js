@@ -63,6 +63,36 @@
  *   - Caution layer (CaseFormulation, Conversation) — require additional
  *     clinical or privacy gating before wiring
  *   - All prohibited entities (permanently excluded)
+ *
+ * ─── Hybrid wiring summary ──────────────────────────────────────────────────
+ *
+ * Caution-layer entities are added as guarded secondary augmentation only.
+ * V1 (Steps 1–3) remains the default operating layer, unchanged.  Caution
+ * entities carry caution_layer: true and are placed at the lowest source_order
+ * positions so they are always below every V1 source.
+ *
+ * CBT Therapist (adds caution-layer restricted entities):
+ *   source_order 12 — CaseFormulation  (read-only, non-dominant secondary
+ *                                       context; read_only: true,
+ *                                       unrestricted: false per §D)
+ *   source_order 13 — Conversation     (last-resort recall only;
+ *                                       secondary_only: true;
+ *                                       must not precede SessionSummary)
+ *
+ * AI Companion (adds caution-layer restricted entity):
+ *   source_order  9 — Conversation     (secondary context only when
+ *                                       CompanionMemory/MoodEntry/
+ *                                       SessionSummary are insufficient;
+ *                                       secondary_only: true)
+ *
+ *   CaseFormulation remains PROHIBITED for AI Companion (enforcement spec §E).
+ *
+ * All caution-layer entities:
+ *   - caution_layer: true  (explicitly flagged)
+ *   - access_level: 'restricted'  (never preferred or allowed)
+ *   - source_order always above max V1 source_order for the same agent
+ *   - Conversation: secondary_only: true, never preferred
+ *   - CaseFormulation (CBT only): read_only: true, unrestricted: false
  * ────────────────────────────────────────────────────────────────────────────
  */
 
@@ -241,5 +271,113 @@ export const AI_COMPANION_WIRING_STEP_3 = {
     // ── Step 3: Restricted entities (hard guardrails per §D) ──
     { entity_name: 'Goal',            access_level: 'restricted',  source_order: 7, reference_only: true },
     { entity_name: 'SessionSummary',  access_level: 'restricted',  source_order: 8, continuity_check_only: true },
+  ],
+};
+
+/**
+ * Hybrid wiring for the CBT Therapist agent.
+ *
+ * Extends Step 3 with the two caution-layer entities (CaseFormulation and
+ * Conversation) as guarded secondary augmentation.  V1 (Steps 1–3) is
+ * unchanged and remains the default operating layer.
+ *
+ * Caution entities are placed at source_order 12–13, strictly below every
+ * V1 source (max V1 source_order: 11).
+ *
+ * Hard guardrails (caution layer):
+ *   CaseFormulation — read_only: true    (must not write or overwrite)
+ *                     unrestricted: false (clinical-review gated)
+ *                     secondary_only: true (non-dominant context)
+ *                     caution_layer: true
+ *   Conversation    — secondary_only: true (must not be primary reasoning)
+ *                     caution_layer: true
+ *                     must not precede SessionSummary (enforced by validator)
+ *
+ * Source of truth: docs/ai-agent-hybrid-model.md §B, §D
+ */
+export const CBT_THERAPIST_WIRING_HYBRID = {
+  name: 'cbt_therapist',
+  tool_configs: [
+    // ── Step 1: Preferred entities (unchanged) ──
+    { entity_name: 'SessionSummary',  access_level: 'preferred',  source_order: 2 },
+    { entity_name: 'ThoughtJournal',  access_level: 'preferred',  source_order: 3 },
+    { entity_name: 'Goal',            access_level: 'preferred',  source_order: 4 },
+    { entity_name: 'CoachingSession', access_level: 'preferred',  source_order: 5 },
+    // ── Step 2: Allowed shared content pool (unchanged) ──
+    { entity_name: 'Exercise',        access_level: 'allowed',    source_order: 6 },
+    { entity_name: 'Resource',        access_level: 'allowed',    source_order: 7 },
+    { entity_name: 'AudioContent',    access_level: 'allowed',    source_order: 8 },
+    { entity_name: 'Journey',         access_level: 'allowed',    source_order: 9 },
+    // ── Step 3: Non-caution restricted entities (unchanged) ──
+    { entity_name: 'CompanionMemory', access_level: 'restricted', source_order: 10, read_only: true },
+    { entity_name: 'MoodEntry',       access_level: 'restricted', source_order: 11, calibration_only: true },
+    // ── Hybrid: Caution-layer entities (secondary augmentation only) ──
+    {
+      entity_name: 'CaseFormulation',
+      access_level: 'restricted',
+      source_order: 12,
+      read_only: true,
+      unrestricted: false,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    {
+      entity_name: 'Conversation',
+      access_level: 'restricted',
+      source_order: 13,
+      secondary_only: true,
+      caution_layer: true,
+    },
+  ],
+};
+
+/**
+ * Hybrid wiring for the AI Companion agent.
+ *
+ * Extends Step 3 with Conversation as guarded secondary augmentation.
+ * V1 (Steps 1–3) is unchanged and remains the default operating layer.
+ *
+ * CaseFormulation remains PROHIBITED for AI Companion (enforcement spec §E).
+ * CompanionMemory, MoodEntry, and SessionSummary-safe continuity must be
+ * preferred over raw Conversation at all times.
+ *
+ * Conversation is placed at source_order 9, strictly below every V1 source
+ * (max V1 source_order for AI Companion: 8).
+ *
+ * Hard guardrails (caution layer):
+ *   Conversation — secondary_only: true (may only augment, not replace,
+ *                  CompanionMemory / MoodEntry / SessionSummary continuity)
+ *                  caution_layer: true
+ *                  must not precede SessionSummary (enforced by validator)
+ *
+ * Source of truth: docs/ai-agent-hybrid-model.md §B, §D
+ */
+export const AI_COMPANION_WIRING_HYBRID = {
+  name: 'ai_companion',
+  tool_configs: [
+    // ── Step 1: Preferred entities (unchanged) ──
+    {
+      entity_name: 'CompanionMemory',
+      access_level: 'preferred',
+      source_order: 1,
+      use_for_clinical_reasoning: false,
+    },
+    { entity_name: 'MoodEntry',       access_level: 'preferred',   source_order: 2 },
+    // ── Step 2: Allowed shared content pool (unchanged) ──
+    { entity_name: 'Exercise',        access_level: 'allowed',     source_order: 3 },
+    { entity_name: 'Resource',        access_level: 'allowed',     source_order: 4 },
+    { entity_name: 'AudioContent',    access_level: 'allowed',     source_order: 5 },
+    { entity_name: 'Journey',         access_level: 'allowed',     source_order: 6 },
+    // ── Step 3: Non-caution restricted entities (unchanged) ──
+    { entity_name: 'Goal',            access_level: 'restricted',  source_order: 7, reference_only: true },
+    { entity_name: 'SessionSummary',  access_level: 'restricted',  source_order: 8, continuity_check_only: true },
+    // ── Hybrid: Caution-layer entity (secondary augmentation only) ──
+    {
+      entity_name: 'Conversation',
+      access_level: 'restricted',
+      source_order: 9,
+      secondary_only: true,
+      caution_layer: true,
+    },
   ],
 };
