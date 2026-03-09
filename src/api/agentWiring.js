@@ -1,7 +1,7 @@
 /**
  * @file src/api/agentWiring.js
  *
- * Additive-only entity wiring for the two current agents (Steps 1 and 2).
+ * Additive-only entity wiring for the two current agents (Steps 1–3).
  *
  * This file declares which entities are wired to each agent.  It is a pure
  * configuration module — no runtime behavior is changed and no existing API
@@ -40,10 +40,29 @@
  *   source_order 5 — AudioContent     (guided meditation / relaxation)
  *   source_order 6 — Journey          (gentle step-by-step pacing)
  *
- * Still deferred (not wired in Steps 1–2):
- *   - Restricted entities (MoodEntry for CBT; Goal/SessionSummary for Companion)
- *   - Caution layer (CaseFormulation, Conversation)
- *   - All prohibited entities
+ * ─── Step 3 wiring summary ──────────────────────────────────────────────────
+ *
+ * Non-caution restricted entities are wired with hard guardrail flags.
+ * All Step 1 preferred and Step 2 allowed entities are unchanged.
+ * Restricted entities are placed at higher source_order numbers, keeping
+ * them lower priority than all preferred and allowed entities.
+ *
+ * CBT Therapist (adds Restricted layer):
+ *   source_order 10 — CompanionMemory  (read-only personalization baseline;
+ *                                       read_only: true per §D)
+ *   source_order 11 — MoodEntry        (session-tone calibration only;
+ *                                       calibration_only: true per §D)
+ *
+ * AI Companion (adds Restricted layer):
+ *   source_order  7 — Goal             (encouragement reference only;
+ *                                       reference_only: true per §D)
+ *   source_order  8 — SessionSummary   (continuity guardrail only;
+ *                                       continuity_check_only: true per §D)
+ *
+ * Still deferred (not wired in Steps 1–3):
+ *   - Caution layer (CaseFormulation, Conversation) — require additional
+ *     clinical or privacy gating before wiring
+ *   - All prohibited entities (permanently excluded)
  * ────────────────────────────────────────────────────────────────────────────
  */
 
@@ -139,5 +158,88 @@ export const AI_COMPANION_WIRING_STEP_2 = {
     { entity_name: 'Resource',     access_level: 'allowed',   source_order: 4 },
     { entity_name: 'AudioContent', access_level: 'allowed',   source_order: 5 },
     { entity_name: 'Journey',      access_level: 'allowed',   source_order: 6 },
+  ],
+};
+
+/**
+ * Step 3 additive wiring for the CBT Therapist agent.
+ *
+ * Extends Step 2 with the two non-caution Restricted entities
+ * (CompanionMemory, MoodEntry) as defined in
+ * docs/ai-agent-enforcement-spec.md §B (Restricted) and §C (source order).
+ *
+ * Steps 1 and 2 entities are carried forward unchanged.
+ * Restricted entities use access_level 'restricted' and are placed at
+ * source_order positions 10–11, keeping them lower priority than all
+ * Step 1 preferred (ends at 5) and Step 2 allowed (ends at 9) entities.
+ *
+ * Hard guardrails per §D:
+ *   CompanionMemory — read_only: true (must not write/overwrite entries)
+ *   MoodEntry       — calibration_only: true (session-tone calibration only;
+ *                     must not substitute for structured clinical assessment)
+ *
+ * Still deferred (caution layer — not wired in Step 3):
+ *   CaseFormulation — requires clinical-review gate before wiring
+ *   Conversation    — requires privacy gate and minimum-window enforcement
+ */
+export const CBT_THERAPIST_WIRING_STEP_3 = {
+  name: 'cbt_therapist',
+  tool_configs: [
+    // ── Step 1: Preferred entities (unchanged) ──
+    { entity_name: 'SessionSummary',  access_level: 'preferred', source_order: 2 },
+    { entity_name: 'ThoughtJournal',  access_level: 'preferred', source_order: 3 },
+    { entity_name: 'Goal',            access_level: 'preferred', source_order: 4 },
+    { entity_name: 'CoachingSession', access_level: 'preferred', source_order: 5 },
+    // ── Step 2: Allowed shared content pool (unchanged) ──
+    { entity_name: 'Exercise',        access_level: 'allowed',   source_order: 6 },
+    { entity_name: 'Resource',        access_level: 'allowed',   source_order: 7 },
+    { entity_name: 'AudioContent',    access_level: 'allowed',   source_order: 8 },
+    { entity_name: 'Journey',         access_level: 'allowed',   source_order: 9 },
+    // ── Step 3: Restricted entities (hard guardrails per §D) ──
+    { entity_name: 'CompanionMemory', access_level: 'restricted', source_order: 10, read_only: true },
+    { entity_name: 'MoodEntry',       access_level: 'restricted', source_order: 11, calibration_only: true },
+  ],
+};
+
+/**
+ * Step 3 additive wiring for the AI Companion agent.
+ *
+ * Extends Step 2 with the two non-caution Restricted entities
+ * (Goal, SessionSummary) as defined in
+ * docs/ai-agent-enforcement-spec.md §B (Restricted) and §C (source order).
+ *
+ * Steps 1 and 2 entities are carried forward unchanged.
+ * Restricted entities use access_level 'restricted' and are placed at
+ * source_order positions 7–8, keeping them lower priority than all
+ * Step 1 preferred (ends at 2) and Step 2 allowed (ends at 6) entities.
+ *
+ * Hard guardrails per §D:
+ *   Goal          — reference_only: true (encouragement reference only;
+ *                   must not set, modify, or formally evaluate goals)
+ *   SessionSummary — continuity_check_only: true (avoid repeating resolved
+ *                    topics only; must not drive conversation direction)
+ *
+ * Still deferred (caution layer — not wired in Step 3):
+ *   Conversation — requires privacy gate and minimum-window enforcement
+ */
+export const AI_COMPANION_WIRING_STEP_3 = {
+  name: 'ai_companion',
+  tool_configs: [
+    // ── Step 1: Preferred entities (unchanged) ──
+    {
+      entity_name: 'CompanionMemory',
+      access_level: 'preferred',
+      source_order: 1,
+      use_for_clinical_reasoning: false,
+    },
+    { entity_name: 'MoodEntry',       access_level: 'preferred',   source_order: 2 },
+    // ── Step 2: Allowed shared content pool (unchanged) ──
+    { entity_name: 'Exercise',        access_level: 'allowed',     source_order: 3 },
+    { entity_name: 'Resource',        access_level: 'allowed',     source_order: 4 },
+    { entity_name: 'AudioContent',    access_level: 'allowed',     source_order: 5 },
+    { entity_name: 'Journey',         access_level: 'allowed',     source_order: 6 },
+    // ── Step 3: Restricted entities (hard guardrails per §D) ──
+    { entity_name: 'Goal',            access_level: 'restricted',  source_order: 7, reference_only: true },
+    { entity_name: 'SessionSummary',  access_level: 'restricted',  source_order: 8, continuity_check_only: true },
   ],
 };
