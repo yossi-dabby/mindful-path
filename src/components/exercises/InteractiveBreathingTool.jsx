@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Slider } from '@/components/ui/slider';
 import {
-  X, Play, Pause, RotateCcw, Volume2, VolumeX, Settings
+  X, Play, Pause, RotateCcw, Volume2, VolumeX, Settings, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -158,6 +158,8 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
   const soundEnabledRef = useRef(true);
   const intervalRef = useRef(null);
   const audioCtxRef = useRef(null);
+  const selectorScrollRef = useRef(null);
+  const pillRefs = useRef([]);
 
   exerciseIdxRef.current = exerciseIdx;
   soundEnabledRef.current = soundEnabled;
@@ -290,6 +292,24 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
     return () => window.removeEventListener('keydown', handler);
   }, [onClose]);
 
+  // ─── Scroll active pill into view on exercise change ──────────────────────
+  useEffect(() => {
+    const pill = pillRefs.current[exerciseIdx];
+    if (pill) {
+      pill.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    }
+  }, [exerciseIdx]);
+
+  // ─── Selector keyboard navigation ─────────────────────────────────────────
+  const handleSelectorKeyDown = useCallback((e) => {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      const delta = e.key === 'ArrowLeft' ? -1 : 1;
+      const newIdx = Math.max(0, Math.min(BREATHING_EXERCISES.length - 1, exerciseIdx + delta));
+      if (newIdx !== exerciseIdx) switchExercise(newIdx);
+    }
+  }, [exerciseIdx, switchExercise]);
+
   // ─── Derived values ────────────────────────────────────────────────────────
   const exercise = BREATHING_EXERCISES[exerciseIdx];
   const theme = THEMES[themeKey] || THEMES.mint;
@@ -363,13 +383,34 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
       </div>
 
       {/* ── Exercise Selector ───────────────────────────────────────────────── */}
-      <div className="flex-shrink-0 px-4 pb-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-        <div className="flex gap-2 min-w-max mx-auto w-fit">
+      <div className="flex-shrink-0 flex items-center gap-1 px-2 pb-2">
+        {/* Previous exercise arrow */}
+        <button
+          onClick={() => switchExercise(Math.max(0, exerciseIdx - 1))}
+          disabled={exerciseIdx === 0}
+          className="flex-shrink-0 p-1.5 rounded-full transition-colors disabled:opacity-30"
+          style={{ color: theme.textSecondary, background: theme.cardBg }}
+          aria-label={t('breathing_tool.controls.prev_exercise')}
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+
+        {/* Scrollable pills */}
+        <div
+          ref={selectorScrollRef}
+          className="flex gap-2 overflow-x-auto flex-1 [&::-webkit-scrollbar]:hidden"
+          style={{ scrollbarWidth: 'none' }}
+          role="tablist"
+          onKeyDown={handleSelectorKeyDown}
+        >
           {BREATHING_EXERCISES.map((ex, idx) => (
             <button
               key={ex.id}
+              ref={el => { pillRefs.current[idx] = el; }}
               onClick={() => switchExercise(idx)}
-              className="px-3 py-1.5 rounded-full text-xs md:text-sm font-medium whitespace-nowrap transition-all"
+              role="tab"
+              aria-selected={idx === exerciseIdx}
+              className="px-3 py-1.5 rounded-full text-xs md:text-sm font-medium whitespace-nowrap transition-all flex-shrink-0"
               style={{
                 background: idx === exerciseIdx ? theme.ringColor : theme.cardBg,
                 color: idx === exerciseIdx ? '#fff' : theme.textSecondary,
@@ -380,10 +421,21 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
             </button>
           ))}
         </div>
+
+        {/* Next exercise arrow */}
+        <button
+          onClick={() => switchExercise(Math.min(BREATHING_EXERCISES.length - 1, exerciseIdx + 1))}
+          disabled={exerciseIdx === BREATHING_EXERCISES.length - 1}
+          className="flex-shrink-0 p-1.5 rounded-full transition-colors disabled:opacity-30"
+          style={{ color: theme.textSecondary, background: theme.cardBg }}
+          aria-label={t('breathing_tool.controls.next_exercise')}
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
       </div>
 
       {/* ── Main Area ───────────────────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-12 px-4 pb-4 min-h-0">
+      <div className="flex-1 flex flex-col lg:flex-row items-center justify-start lg:justify-center gap-6 lg:gap-12 px-4 py-4 min-h-0 overflow-y-auto">
 
         {/* ── Circle & Phase Info ──────────────────────────────────────────── */}
         <div className="flex flex-col items-center justify-center flex-shrink-0">
