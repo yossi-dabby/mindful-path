@@ -253,15 +253,30 @@ lower priority than each agent's preferred layer.
 | AI Companion | AudioContent | allowed | 5 |
 | AI Companion | Journey | allowed | 6 |
 
-### Deferred — not wired in Steps 1–2
+### Step 3 — Non-caution restricted entities (completed)
 
-The following entities are intentionally absent from both Step 1 and Step 2
-wiring and must not be added without an explicit policy review:
+Added the approved non-caution Restricted entities for both agents
+(`CBT_THERAPIST_WIRING_STEP_3`, `AI_COMPANION_WIRING_STEP_3`).
+All Step 1 preferred and Step 2 allowed entities are carried forward unchanged.
+Restricted entities are placed at higher source_order numbers, keeping them
+lower priority than all preferred and allowed entities.
+Hard guardrail flags are set per §D to enforce usage constraints.
+
+| Agent | Entity added | Access level | Source order | Guardrail |
+|---|---|---|---|---|
+| CBT Therapist | CompanionMemory | restricted | 10 | `read_only: true` |
+| CBT Therapist | MoodEntry | restricted | 11 | `calibration_only: true` |
+| AI Companion | Goal | restricted | 7 | `reference_only: true` |
+| AI Companion | SessionSummary | restricted | 8 | `continuity_check_only: true` |
+
+### Deferred — not wired in Steps 1–3
+
+The following entities remain intentionally absent and must not be added
+without an explicit caution-layer policy review:
 
 | Category | Entities | Reason |
 |---|---|---|
-| Restricted — CBT Therapist | MoodEntry, CompanionMemory | Lower-priority context; gated by §D rules |
-| Restricted — AI Companion | Goal, SessionSummary | Continuity fallbacks only; gated by §D rules |
-| Caution layer — both agents | CaseFormulation, Conversation | Require additional clinical or privacy gating |
+| Caution layer — CBT Therapist | CaseFormulation | Requires clinical-review gate; must remain read-only and gated before wiring |
+| Caution layer — both agents | Conversation | Requires privacy gate and minimum-window enforcement before wiring |
 | Prohibited — both agents | Subscription, UserDeletedConversations, AppNotification, MindGameActivity | Permanently excluded per §E |
 | Prohibited — AI Companion only | ThoughtJournal, CoachingSession, CaseFormulation | Clinical entities outside Companion's role (§E) |
