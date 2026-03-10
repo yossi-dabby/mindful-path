@@ -73,8 +73,7 @@ Language context: ${language === 'he' ? 'Hebrew (translate if needed)' : 'Englis
         properties: {
           severity: response.severity,
           confidence: response.confidence,
-          reason: response.reason,
-          user_email: user.email
+          reason: response.reason
         }
       });
     }

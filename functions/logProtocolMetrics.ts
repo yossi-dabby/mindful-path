@@ -32,8 +32,7 @@ Deno.serve(async (req) => {
         eventName: 'cbt_protocol_started',
         properties: {
           protocol: protocol_selected,
-          conversation_id,
-          user_email: user.email
+          conversation_id
         }
       });
     }
@@ -46,8 +45,7 @@ Deno.serve(async (req) => {
           homework_offered,
           homework_accepted,
           protocol: protocol_selected,
-          conversation_id,
-          user_email: user.email
+          conversation_id
         }
       });
     }
@@ -60,8 +58,7 @@ Deno.serve(async (req) => {
           has_before: !!metrics_captured?.before,
           has_after: !!metrics_captured?.after,
           protocol: protocol_selected,
-          conversation_id,
-          user_email: user.email
+          conversation_id
         }
       });
     }
@@ -75,8 +72,7 @@ Deno.serve(async (req) => {
           has_outcome: !!experiment_completed?.outcome,
           belief_change: experiment_completed?.belief_after - experiment_completed?.belief_before,
           protocol: protocol_selected,
-          conversation_id,
-          user_email: user.email
+          conversation_id
         }
       });
     }
@@ -88,8 +84,7 @@ Deno.serve(async (req) => {
         properties: {
           loop_detected: !!loop_detected,
           json_leakage: !!json_leakage_detected,
-          conversation_id,
-          user_email: user.email
+          conversation_id
         }
       });
     }
