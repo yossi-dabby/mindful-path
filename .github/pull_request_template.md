@@ -46,5 +46,7 @@
 - [ ] This PR touches more than one high-scrutiny path
 - [ ] I am uncertain about the safety impact of this change
 
+<!-- If any box above is checked AND the change touches a safety-filter file, complete docs/safety-filter-review-checklist.md before requesting review -->
+
 ## Additional Notes
 <!-- Any additional context, screenshots, or information -->
