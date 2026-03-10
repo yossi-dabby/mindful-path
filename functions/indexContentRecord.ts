@@ -288,15 +288,11 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const body = await req.json();
 
-    // ── AUTH: direct admin call vs automation call vs service-role internal call ─
+    // ── AUTH: direct admin call vs automation call ─────────────────────────────
     const isAutomationCall = body?.event?.entity_name !== undefined;
     if (!isAutomationCall) {
-      // base44.auth.me() returns null when called via asServiceRole.functions.invoke
-      // (no user token on the request). Service-role calls originate from other
-      // admin-verified pipeline functions (e.g. backfillKnowledgeIndex) and are
-      // trusted at the platform level — allow them through.
-      const user = await base44.auth.me().catch(() => null);
-      if (user !== null && user?.role !== 'admin') {
+      const user = await base44.auth.me();
+      if (user?.role !== 'admin') {
         return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
       }
     }
