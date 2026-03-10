@@ -62,6 +62,9 @@ export default function ThoughtRecordCard({ entry, onEdit }) {
             )}
           </div>
           <div className="flex gap-1">
+            <Button variant="ghost" size="icon" onClick={() => exportThoughtRecordPdf(entry)} aria-label="Export as PDF">
+              <Download className="w-4 h-4 text-gray-400 hover:text-teal-600" />
+            </Button>
             <Button variant="ghost" size="icon" onClick={() => onEdit(entry)} aria-label="Edit thought record">
               <Edit className="w-4 h-4 text-gray-400 hover:text-blue-600" />
             </Button>
