@@ -137,6 +137,7 @@ async function searchVectors(query_embedding, filters, top_k, config) {
 // ─── HANDLER ──────────────────────────────────────────────────────────────────
 Deno.serve(async (req) => {
   try {
+    const t0 = Date.now();
     const base44 = createClientFromRequest(req);
 
     // Requires authentication — any authenticated user.

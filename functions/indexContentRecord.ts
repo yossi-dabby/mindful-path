@@ -285,6 +285,7 @@ async function deleteDocumentFromIndex(document_id, config) {
 // ─── HANDLER ──────────────────────────────────────────────────────────────────
 Deno.serve(async (req) => {
   try {
+    const t0 = Date.now();
     const base44 = createClientFromRequest(req);
     const body = await req.json();
 
