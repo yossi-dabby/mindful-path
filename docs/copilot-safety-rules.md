@@ -80,6 +80,7 @@ For any change to `functions/`:
 - Describe the expected behavior change in the PR
 - Propose or add corresponding unit or integration tests
 - Have a second reviewer check safety-critical files
+- For safety-filter files specifically, complete the full checklist at `docs/safety-filter-review-checklist.md`
 
 ---
 

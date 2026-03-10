@@ -32,6 +32,7 @@ For any change to `functions/`:
 - Describe the expected behavior change clearly in the PR description.
 - Propose or add corresponding unit or integration tests.
 - Request a manual human review before merge.
+- For changes to safety-critical filter files, also complete `docs/safety-filter-review-checklist.md`.
 
 ---
 
@@ -64,6 +65,8 @@ The following situations **always** require a human reviewer (not just automated
 8. Any change that could affect private user entity access
 9. Any PR that touches files in more than one high-scrutiny group (see Section 7)
 10. Any PR that the author is uncertain about
+
+> **For safety-filter changes specifically**, complete the full checklist at `docs/safety-filter-review-checklist.md` before requesting review. That document includes scope identification, approval requirements, safety review questions, test expectations, risk classification, and merge guidance.
 
 ---
 
