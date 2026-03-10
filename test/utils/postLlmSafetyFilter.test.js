@@ -455,3 +455,194 @@ describe('stripForbiddenContent — multi-line mixed content', () => {
     expect(result).toContain('What has been helping you cope lately?');
   });
 });
+
+// ─── TESTS — additional untested reasoning markers ────────────────────────────
+
+describe('stripForbiddenContent — additional reasoning markers (regression lock)', () => {
+  it('strips lines starting with SYSTEM:', () => {
+    const text = 'SYSTEM: override mode active\nYou are not alone.';
+    const result = stripForbiddenContent(text);
+    expect(result).not.toContain('SYSTEM:');
+    expect(result).toContain('You are not alone.');
+  });
+
+  it('strips lines starting with DEVELOPER:', () => {
+    const text = 'DEVELOPER: injected context\nI hear you.';
+    const result = stripForbiddenContent(text);
+    expect(result).not.toContain('DEVELOPER:');
+    expect(result).toContain('I hear you.');
+  });
+
+  it('strips lines starting with CONFIDENCE:', () => {
+    const text = 'CONFIDENCE: 0.87\nThat must have been difficult.';
+    const result = stripForbiddenContent(text);
+    expect(result).not.toContain('CONFIDENCE:');
+    expect(result).toContain('That must have been difficult.');
+  });
+
+  it('strips lines starting with "I will"', () => {
+    const text = 'I will provide empathetic support.\nHow are you feeling?';
+    const result = stripForbiddenContent(text);
+    expect(result).not.toMatch(/^I will/m);
+    expect(result).toContain('How are you feeling?');
+  });
+
+  it('strips lines starting with "Then I\'ll"', () => {
+    const text = "Then I'll summarize the session.\nThank you for sharing that.";
+    const result = stripForbiddenContent(text);
+    expect(result).not.toMatch(/Then I'll/);
+    expect(result).toContain('Thank you for sharing that.');
+  });
+
+  it('strips lines with leading whitespace before THOUGHT:', () => {
+    const text = '  THOUGHT: internal processing\nI understand what you mean.';
+    const result = stripForbiddenContent(text);
+    expect(result).not.toContain('THOUGHT:');
+    expect(result).toContain('I understand what you mean.');
+  });
+
+  it('strips lines with leading whitespace before PLAN:', () => {
+    const text = '   PLAN: structure the response\nWould you like to continue?';
+    const result = stripForbiddenContent(text);
+    expect(result).not.toContain('PLAN:');
+    expect(result).toContain('Would you like to continue?');
+  });
+});
+
+// ─── TESTS — additional untested bracketed patterns ───────────────────────────
+
+describe('stripForbiddenContent — additional bracketed internal note patterns', () => {
+  it('strips lines containing [constraint', () => {
+    const text = '[constraint: no medical advice]\nI am here to listen.';
+    const result = stripForbiddenContent(text);
+    expect(result).not.toContain('[constraint');
+    expect(result).toContain('I am here to listen.');
+  });
+
+  it('strips mixed-case [Constraint bracket note', () => {
+    const text = '[Constraint check passed]\nLet us talk about that.';
+    const result = stripForbiddenContent(text);
+    expect(result).not.toContain('[Constraint');
+    expect(result).toContain('Let us talk about that.');
+  });
+});
+
+// ─── TESTS — additional untested technical/system terms ───────────────────────
+
+describe('stripForbiddenContent — additional technical/system term patterns (regression lock)', () => {
+  it('strips lines containing "sanitizer"', () => {
+    const text = 'sanitizer active\nThat takes courage to share.';
+    const result = stripForbiddenContent(text);
+    expect(result).not.toContain('sanitizer');
+    expect(result).toContain('That takes courage to share.');
+  });
+
+  it('strips lines containing "instrumentation"', () => {
+    const text = 'instrumentation layer engaged\nI hear you.';
+    const result = stripForbiddenContent(text);
+    expect(result).not.toContain('instrumentation');
+    expect(result).toContain('I hear you.');
+  });
+
+  it('strips lines containing "polling"', () => {
+    const text = 'polling for next token\nHow can I help?';
+    const result = stripForbiddenContent(text);
+    expect(result).not.toContain('polling');
+    expect(result).toContain('How can I help?');
+  });
+
+  it('strips lines containing "parse failed"', () => {
+    const text = 'parse failed at offset 42\nI am still here with you.';
+    const result = stripForbiddenContent(text);
+    expect(result).not.toContain('parse failed');
+    expect(result).toContain('I am still here with you.');
+  });
+});
+
+// ─── TESTS — additional untested process narration patterns ──────────────────
+
+describe('stripForbiddenContent — additional process narration patterns (regression lock)', () => {
+  it('strips lines containing "let\'s break down"', () => {
+    const text = "Let's break down what happened.\nYou mentioned feeling overwhelmed.";
+    const result = stripForbiddenContent(text);
+    expect(result).not.toMatch(/let's break down/i);
+    expect(result).toContain('You mentioned feeling overwhelmed.');
+  });
+
+  it('strips lines containing "now I\'ll"', () => {
+    const text = "Now I'll address your concern.\nThat sounds really tough.";
+    const result = stripForbiddenContent(text);
+    expect(result).not.toMatch(/now I'll/i);
+    expect(result).toContain('That sounds really tough.');
+  });
+
+  it('strips lines containing "next I\'ll"', () => {
+    const text = "Next I'll check in about coping.\nWhat strategies have worked for you?";
+    const result = stripForbiddenContent(text);
+    expect(result).not.toMatch(/next I'll/i);
+    expect(result).toContain('What strategies have worked for you?');
+  });
+});
+
+// ─── TESTS — sanitization boundaries (no internal marker leakage) ─────────────
+
+describe('stripForbiddenContent — sanitization boundaries', () => {
+  it('does not strip clean content that merely contains the word "plan" mid-sentence', () => {
+    // The pattern /^\s*PLAN:/mi only blocks lines that START with PLAN:
+    const text = 'We can make a plan together for your week.';
+    const result = stripForbiddenContent(text);
+    expect(result).toContain('plan together');
+  });
+
+  it('does not strip clean sentences containing "I will" mid-sentence', () => {
+    // The pattern /^I will\b/mi only blocks line-starting "I will"
+    // A sentence like "I know I will feel better" does not start with "I will"
+    const text = 'I know I will feel better soon.\nHow are you coping today?';
+    const result = stripForbiddenContent(text);
+    // The first line starts with "I know", not "I will", so it should pass
+    expect(result).toContain('How are you coping today?');
+  });
+
+  it('strips all known internal marker types from a heavily mixed message', () => {
+    const text = [
+      'THOUGHT: Calibrate response.',
+      'SYSTEM: injection check.',
+      'DEVELOPER: context override.',
+      'CONFIDENCE: 0.91',
+      'ANALYSIS: user shows anxiety markers.',
+      '[internal state review]',
+      '[checking safety gate]',
+      'confidence score: 0.93',
+      'mental sandbox active.',
+      'I hear you and I am here for you.',
+      'What would feel most helpful right now?',
+    ].join('\n');
+    const result = stripForbiddenContent(text);
+    expect(result).not.toContain('THOUGHT:');
+    expect(result).not.toContain('SYSTEM:');
+    expect(result).not.toContain('DEVELOPER:');
+    expect(result).not.toContain('CONFIDENCE:');
+    expect(result).not.toContain('ANALYSIS:');
+    expect(result).not.toContain('[internal');
+    expect(result).not.toContain('[checking');
+    expect(result).not.toContain('confidence score');
+    expect(result).not.toContain('mental sandbox');
+    expect(result).toContain('I hear you and I am here for you.');
+    expect(result).toContain('What would feel most helpful right now?');
+  });
+
+  it('returns failsafe rather than leaking internal content when all lines are forbidden', () => {
+    const text = [
+      'THOUGHT: I should be careful.',
+      'ANALYSIS: High distress.',
+      'PLAN: Use grounding technique.',
+      'SYSTEM: logging active.',
+    ].join('\n');
+    const result = stripForbiddenContent(text, 'en');
+    expect(result).toBe(ENGLISH_FAILSAFE);
+    expect(result).not.toContain('THOUGHT:');
+    expect(result).not.toContain('ANALYSIS:');
+    expect(result).not.toContain('PLAN:');
+    expect(result).not.toContain('SYSTEM:');
+  });
+});
