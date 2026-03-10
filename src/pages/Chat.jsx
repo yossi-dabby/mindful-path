@@ -24,6 +24,7 @@ import AgeGateModal from '../components/utils/AgeGateModal';
 import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
 import { validateAgentOutput, sanitizeConversationMessages, parseCounters } from '../components/utils/validateAgentOutput.jsx';
+import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
 
 export default function Chat() {
   const { t, i18n } = useTranslation();
@@ -327,6 +328,7 @@ export default function Chat() {
 
             const conversation = await base44.agents.createConversation({
               agent_name: agentName,
+              tool_configs: ACTIVE_CBT_THERAPIST_WIRING.tool_configs,
               metadata: {
                 name: intentParam === 'thought_work' ? 'Thought Journal Session' : 
                       intentParam === 'goal_work' ? 'Goal Setting Session' : 
@@ -338,8 +340,6 @@ export default function Chat() {
                 safety_profile: safetyProfile
               }
             });
-            
-            console.log(`[Conversation Created] ID: ${conversation.id}, Intent: ${intentParam}`);
             
             setCurrentConversationId(conversation.id);
             setMessages([]);
@@ -369,6 +369,7 @@ export default function Chat() {
 
             const conversation = await base44.agents.createConversation({
               agent_name: agentName,
+              tool_configs: ACTIVE_CBT_THERAPIST_WIRING.tool_configs,
               metadata: {
                 name: intentParam === 'thought_work' ? 'Thought Journal Session' : 
                       intentParam === 'goal_work' ? 'Goal Setting Session' : 
@@ -762,6 +763,7 @@ export default function Chat() {
       
       const conversation = await base44.agents.createConversation({
         agent_name: agentName,
+        tool_configs: ACTIVE_CBT_THERAPIST_WIRING.tool_configs,
         metadata: {
           name: intentParam ? `${intentParam} session` : `Session ${conversations.length + 1}`,
           description: 'CBT Therapy Session',
@@ -917,6 +919,7 @@ export default function Chat() {
 
         const conversation = await base44.agents.createConversation({
           agent_name: agentName,
+          tool_configs: ACTIVE_CBT_THERAPIST_WIRING.tool_configs,
           metadata: {
             name: `Session ${conversations?.length + 1 || 1}`,
             description: 'Therapy session',
