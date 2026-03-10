@@ -162,6 +162,16 @@ export default function Journal() {
         </div>
         <div className="flex gap-2 flex-wrap">
           <Button
+            onClick={() => window.location.href = createPageUrl('JournalDashboard')}
+            variant="outline"
+            className="text-sm md:text-base"
+            size="sm"
+            style={{ borderRadius: '24px', borderColor: 'rgba(38,166,154,0.5)', color: '#26A69A' }}
+          >
+            <BarChart2 className="w-4 h-4 md:mr-2" />
+            <span className="hidden md:inline">Progress</span>
+          </Button>
+          <Button
             onClick={() => setShowTrendsSummary(true)}
             variant="outline"
             className="text-sm md:text-base"
