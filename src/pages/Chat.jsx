@@ -847,8 +847,7 @@ export default function Chat() {
             eventName: 'crisis_detected_regex',
             properties: {
               reason_code: reasonCode,
-              surface: 'chat',
-              conversation_id: currentConversationId || 'none'
+              surface: 'chat'
             }
           });
         })
@@ -881,8 +880,7 @@ export default function Chat() {
           properties: {
             severity: enhancedCheck.data.severity,
             confidence: enhancedCheck.data.confidence,
-            surface: 'chat',
-            conversation_id: currentConversationId || 'none'
+            surface: 'chat'
           }
         });
         return;
