@@ -1,7 +1,8 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trash2, Calendar, Lightbulb, ClipboardList, BookOpen } from 'lucide-react';
+import { Trash2, Calendar, Lightbulb, ClipboardList, BookOpen, Download } from 'lucide-react';
+import { exportSessionSummaryPdf } from './exportPdfUtils';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import ReactMarkdown from 'react-markdown';
