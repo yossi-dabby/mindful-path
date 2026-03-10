@@ -358,6 +358,7 @@ Deno.serve(async (req) => {
         return Response.json({ success: true, action: 'no_op', entity_type, record_id, document_id, mode: 'no_op', reason: 'Provider not configured.', errors: [] });
       }
       await deleteDocumentFromIndex(document_id, config);
+      console.log(`[KB:INDEX] action=removed entity_type=${entity_type} record_id=${record_id} ms=${Date.now() - t0}`);
       return Response.json({ success: true, action: 'removed', entity_type, record_id, document_id, mode: 'live', errors: [] });
     }
 
@@ -387,6 +388,7 @@ Deno.serve(async (req) => {
         return Response.json({ success: true, action: 'no_op', entity_type, record_id, document_id, mode: 'no_op', reason: 'Provider not configured.', errors: [] });
       }
       await deleteDocumentFromIndex(document_id, config);
+      console.log(`[KB:INDEX] action=removed_inactive entity_type=${entity_type} record_id=${record_id} status=${record_status} ms=${Date.now() - t0}`);
       return Response.json({ success: true, action: 'removed', entity_type, record_id, document_id, mode: 'live', reason: `Status is '${record_status}' — removed from index.`, errors: [] });
     }
 
@@ -440,8 +442,16 @@ Deno.serve(async (req) => {
       }
     }
 
+    const ms = Date.now() - t0;
+    const success = errors.length === 0;
+    if (success) {
+      console.log(`[KB:INDEX] action=indexed entity_type=${entity_type} record_id=${record_id} chunks=${indexed} ms=${ms}`);
+    } else {
+      console.error(`[KB:INDEX:ERROR] action=partial entity_type=${entity_type} record_id=${record_id} chunks_ok=${indexed} chunks_failed=${errors.length} ms=${ms}`);
+    }
+
     return Response.json({
-      success: errors.length === 0,
+      success,
       action: 'indexed',
       entity_type,
       record_id,
@@ -453,6 +463,7 @@ Deno.serve(async (req) => {
     });
 
   } catch (error) {
+    console.error(`[KB:INDEX:FATAL] ${error.message}`);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });

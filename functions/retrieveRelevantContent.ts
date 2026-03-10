@@ -235,6 +235,14 @@ Deno.serve(async (req) => {
     const raw_results = await searchVectors(query_embedding, filters_applied, effective_top_k, config);
     const filtered_results = raw_results.filter(r => r.score >= min_score);
 
+    const ms = Date.now() - t0;
+    const no_results = filtered_results.length === 0;
+    const top_score = filtered_results.length > 0 ? filtered_results[0].score?.toFixed(3) : null;
+    console.log(`[KB:RETRIEVE] results=${filtered_results.length} top_score=${top_score ?? 'none'} lang=${effective_language} top_k=${effective_top_k} no_result=${no_results} ms=${ms}`);
+    if (no_results) {
+      console.log(`[KB:RETRIEVE:NO_RESULT] entity_types=${effective_entity_types.join(',')} min_score=${min_score} ms=${ms}`);
+    }
+
     return Response.json({
       results: filtered_results,
       total_results: filtered_results.length,
@@ -245,6 +253,7 @@ Deno.serve(async (req) => {
     });
 
   } catch (error) {
+    console.error(`[KB:RETRIEVE:ERROR] ${error.message}`);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
