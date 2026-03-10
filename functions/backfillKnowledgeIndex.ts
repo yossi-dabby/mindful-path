@@ -359,26 +359,13 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ── FEATURE FLAG: live indexing requires KNOWLEDGE_INDEX_ENABLED ──────────
-    // Dry run is always allowed when backfill is enabled.
-    // Live run additionally requires KNOWLEDGE_INDEX_ENABLED=true and a provider.
+    // ── PROVIDER CONFIG (live runs only) ──────────────────────────────────────
+    // Dry run: no provider needed.
+    // Live run: KNOWLEDGE_INDEX_ENABLED is the automation flag and is NOT required
+    // here — backfill is an admin-triggered operation governed solely by
+    // KNOWLEDGE_BACKFILL_ENABLED. Provider credentials must be present.
     let config = null;
     if (!dry_run) {
-      if (!isIndexEnabled()) {
-        return Response.json({
-          success: false,
-          mode: 'no_op',
-          entity_types_processed: [],
-          total_records_fetched: 0,
-          indexed_count: 0,
-          skipped_count: 0,
-          error_count: 0,
-          record_results: [],
-          batch_size: effective_batch_size,
-          offset,
-          note: 'Live backfill requires KNOWLEDGE_INDEX_ENABLED=true. Set this flag to proceed with live indexing.',
-        });
-      }
       config = getProviderConfig();
       if (!config) {
         return Response.json({
