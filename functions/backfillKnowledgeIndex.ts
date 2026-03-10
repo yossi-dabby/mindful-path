@@ -3,14 +3,18 @@
  * backfillKnowledgeIndex
  *
  * Admin-only, manually-triggered batch backfill. Fetches records from the
- * allowed shared content entities and indexes them via indexContentRecord.
+ * allowed shared content entities and indexes them directly (pipeline inlined).
+ *
+ * NOTE: Inter-function SDK calls are not supported between Deno functions on
+ * this platform. The full embedding/upsert pipeline from indexContentRecord
+ * is inlined here to avoid that constraint.
  *
  * This function NEVER runs automatically. It must be triggered explicitly
  * by an admin. It does NOT run on deploy.
  *
- * FEATURE FLAG:
- *   KNOWLEDGE_BACKFILL_ENABLED — must be 'true' to allow live backfill
- *   KNOWLEDGE_INDEX_ENABLED    — must also be 'true' (checked inside indexContentRecord)
+ * FEATURE FLAGS:
+ *   KNOWLEDGE_BACKFILL_ENABLED — must be 'true' to allow any processing
+ *   KNOWLEDGE_INDEX_ENABLED    — must be 'true' for live (non-dry-run) indexing
  *
  * INPUT:
  *   {
@@ -40,19 +44,200 @@
 
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
+// ─── CONSTANTS ────────────────────────────────────────────────────────────────
 const ALLOWED_ENTITY_TYPES = ['Exercise', 'Resource', 'JournalTemplate', 'Psychoeducation'];
 const DEFAULT_BATCH_SIZE = 10;
 const MAX_BATCH_SIZE = 50;
 
-// ─── FEATURE FLAG ─────────────────────────────────────────────────────────────
+// ─── FEATURE FLAGS ────────────────────────────────────────────────────────────
 function isBackfillEnabled() {
   return Deno.env.get('KNOWLEDGE_BACKFILL_ENABLED') === 'true';
 }
 
-// ─── FETCH RECORDS FOR ONE ENTITY TYPE ────────────────────────────────────────
+function isIndexEnabled() {
+  return Deno.env.get('KNOWLEDGE_INDEX_ENABLED') === 'true';
+}
+
+// ─── PROVIDER CONFIG ──────────────────────────────────────────────────────────
+function getProviderConfig() {
+  const provider = Deno.env.get('KNOWLEDGE_PROVIDER');
+  const embedding_key = Deno.env.get('KNOWLEDGE_EMBEDDING_KEY');
+  const index_key = Deno.env.get('KNOWLEDGE_INDEX_KEY');
+  const index_host = Deno.env.get('KNOWLEDGE_INDEX_HOST');
+  const index_name = Deno.env.get('KNOWLEDGE_INDEX_NAME') || 'cbt-knowledge';
+  if (!provider || !embedding_key || !index_key || !index_host) return null;
+  return { provider, embedding_key, index_key, index_host, index_name };
+}
+
+// ─── FIELD MAPS ───────────────────────────────────────────────────────────────
+const ENTITY_FIELD_MAP = {
+  Exercise: {
+    title_field: 'title',
+    primary_text_fields: ['summary', 'instructions', 'detailed_description', 'visualization_script', 'when_to_use'],
+    metadata_fields: [
+      'title', 'category', 'difficulty', 'tags', 'goal_types', 'mood_targets',
+      'contraindications', 'benefits', 'tips', 'source', 'evidence_base',
+      'language', 'status', 'version', 'slug',
+    ],
+  },
+  Resource: {
+    title_field: 'title',
+    primary_text_fields: ['summary', 'content', 'description', 'when_to_use'],
+    metadata_fields: [
+      'title', 'category', 'type', 'difficulty_level', 'tags', 'goal_types', 'mood_targets',
+      'contraindications', 'author', 'source', 'language', 'status', 'version', 'slug',
+    ],
+  },
+  JournalTemplate: {
+    title_field: 'name',
+    primary_text_fields: ['summary', 'guidance_text', 'description', 'when_to_use'],
+    metadata_fields: [
+      'name', 'entry_type', 'tags', 'goal_types', 'mood_targets',
+      'language', 'status', 'version', 'slug',
+    ],
+  },
+  Psychoeducation: {
+    title_field: 'title',
+    primary_text_fields: ['summary', 'content', 'when_to_use'],
+    metadata_fields: [
+      'title', 'category', 'subcategory', 'difficulty', 'tags', 'key_concepts',
+      'example_scenarios', 'goal_types', 'mood_targets', 'contraindications',
+      'related_exercises', 'related_resources', 'evidence_base', 'source',
+      'language', 'status', 'version', 'slug', 'reviewed_by', 'last_reviewed_date',
+    ],
+  },
+};
+
+// ─── DOCUMENT BUILDER ─────────────────────────────────────────────────────────
+function buildDocument(entity_type, record_id, record) {
+  const fieldMap = ENTITY_FIELD_MAP[entity_type];
+  const primary_text = fieldMap.primary_text_fields
+    .map(f => (record[f] && typeof record[f] === 'string' ? record[f].trim() : ''))
+    .filter(Boolean)
+    .join('\n\n');
+  if (!primary_text) return null;
+
+  const metadata = {};
+  for (const f of fieldMap.metadata_fields) {
+    const val = record[f];
+    if (val !== undefined && val !== null && val !== '') metadata[f] = val;
+  }
+
+  return {
+    document_id: `${entity_type}::${record_id}`,
+    entity_type,
+    record_id,
+    title: record[fieldMap.title_field] || '',
+    slug: record.slug || null,
+    primary_text,
+    metadata,
+    language: record.language || 'en',
+    status: record.status || 'active',
+    version: record.version || 1,
+  };
+}
+
+// ─── CHUNKER ──────────────────────────────────────────────────────────────────
+function chunkDocument(document) {
+  const CHUNK_SIZE = 1000;
+  const OVERLAP = 100;
+  const text = document.primary_text;
+  const paragraphs = text.split(/\n\n+/).map(p => p.trim()).filter(Boolean);
+  const raw_chunks = [];
+  let current = '';
+
+  for (const p of paragraphs) {
+    const combined = current.length > 0 ? `${current}\n\n${p}` : p;
+    if (combined.length <= CHUNK_SIZE) {
+      current = combined;
+    } else {
+      if (current.length > 0) {
+        raw_chunks.push(current.trim());
+        const tail = current.length > OVERLAP ? current.slice(current.length - OVERLAP) : current;
+        current = `${tail}\n\n${p}`;
+      } else {
+        current = p;
+      }
+      while (current.length > CHUNK_SIZE) {
+        raw_chunks.push(current.slice(0, CHUNK_SIZE).trim());
+        current = current.slice(Math.max(0, CHUNK_SIZE - OVERLAP)).trim();
+      }
+    }
+  }
+  if (current.trim().length > 0) raw_chunks.push(current.trim());
+
+  const filtered = raw_chunks.filter(c => c.length > 0);
+  return filtered.map((text, index) => ({
+    chunk_id: `${document.document_id}::chunk_${index}`,
+    document_id: document.document_id,
+    entity_type: document.entity_type,
+    record_id: document.record_id,
+    title: document.title || '',
+    slug: document.slug || null,
+    chunk_index: index,
+    total_chunks: filtered.length,
+    text,
+    character_count: text.length,
+    metadata: document.metadata || {},
+    language: document.language || 'en',
+    version: document.version || 1,
+  }));
+}
+
+// ─── PINECONE METADATA FLATTENER ──────────────────────────────────────────────
+function flattenForPinecone(obj) {
+  const flat = {};
+  for (const [k, v] of Object.entries(obj || {})) {
+    if (v === null || v === undefined) continue;
+    if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') {
+      flat[k] = v;
+    } else if (Array.isArray(v)) {
+      flat[k] = v.map(i => (typeof i === 'object' ? JSON.stringify(i) : String(i)));
+    } else if (typeof v === 'object') {
+      flat[k] = JSON.stringify(v);
+    }
+  }
+  return flat;
+}
+
+// ─── EMBED + UPSERT ONE CHUNK ─────────────────────────────────────────────────
+async function embedAndUpsertChunk(chunk, config) {
+  // Generate embedding via OpenAI
+  const embedRes = await fetch('https://api.openai.com/v1/embeddings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${config.embedding_key}` },
+    body: JSON.stringify({ model: 'text-embedding-3-small', input: chunk.text }),
+  });
+  if (!embedRes.ok) throw new Error(`OpenAI embedding failed (${embedRes.status}): ${(await embedRes.text()).slice(0, 200)}`);
+  const embedData = await embedRes.json();
+  const embedding = embedData.data[0].embedding;
+
+  // Upsert to Pinecone
+  const metadata = flattenForPinecone({
+    ...chunk.metadata,
+    document_id: chunk.document_id,
+    entity_type: chunk.entity_type,
+    record_id: chunk.record_id,
+    title: chunk.title || '',
+    slug: chunk.slug || '',
+    chunk_index: chunk.chunk_index,
+    language: chunk.language,
+    version: chunk.version,
+    text: chunk.text.slice(0, 2000),
+  });
+  const upsertRes = await fetch(`${config.index_host}/vectors/upsert`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Api-Key': config.index_key },
+    body: JSON.stringify({
+      vectors: [{ id: chunk.chunk_id, values: embedding, metadata }],
+      namespace: config.index_name,
+    }),
+  });
+  if (!upsertRes.ok) throw new Error(`Pinecone upsert failed (${upsertRes.status}): ${(await upsertRes.text()).slice(0, 200)}`);
+}
+
+// ─── FETCH RECORDS ────────────────────────────────────────────────────────────
 async function fetchEntityRecords(base44, entity_type, batch_size, offset) {
-  // Fetch slightly more than batch_size to account for skipped records,
-  // but cap at batch_size for safety.
   switch (entity_type) {
     case 'Exercise':
       return base44.asServiceRole.entities.Exercise.list('-created_date', batch_size, offset);
@@ -65,6 +250,61 @@ async function fetchEntityRecords(base44, entity_type, batch_size, offset) {
     default:
       return [];
   }
+}
+
+// ─── PROCESS ONE RECORD ───────────────────────────────────────────────────────
+async function processRecord(etype, record, dry_run, config) {
+  const record_id = record.id;
+  const record_status = record.status || 'active';
+
+  // Skip non-active records
+  if (record_status !== 'active') {
+    return { entity_type: etype, record_id, status: 'skipped', reason: `Status is '${record_status}' — only active records are backfilled.` };
+  }
+
+  // Build document
+  const document = buildDocument(etype, record_id, record);
+  if (!document) {
+    return { entity_type: etype, record_id, status: 'skipped', reason: 'No primary text content — cannot build document.' };
+  }
+
+  // Chunk document
+  const chunks = chunkDocument(document);
+  if (chunks.length === 0) {
+    return { entity_type: etype, record_id, status: 'skipped', reason: 'No chunks produced — content too short.' };
+  }
+
+  // Dry run: report what would happen, no I/O
+  if (dry_run) {
+    return {
+      entity_type: etype,
+      record_id,
+      status: 'would_index',
+      chunks_would_index: chunks.length,
+      reason: `Would index ${chunks.length} chunk(s). Set dry_run=false with KNOWLEDGE_INDEX_ENABLED=true to execute.`,
+    };
+  }
+
+  // Live: embed + upsert each chunk
+  const errors = [];
+  let indexed = 0;
+  for (const chunk of chunks) {
+    try {
+      await embedAndUpsertChunk(chunk, config);
+      indexed++;
+    } catch (err) {
+      errors.push(`${chunk.chunk_id}: ${err.message}`);
+    }
+  }
+
+  return {
+    entity_type: etype,
+    record_id,
+    status: errors.length === 0 ? 'indexed' : 'partial',
+    chunks_indexed: indexed,
+    chunks_total: chunks.length,
+    errors,
+  };
 }
 
 // ─── HANDLER ──────────────────────────────────────────────────────────────────
@@ -102,7 +342,7 @@ Deno.serve(async (req) => {
       ? [entity_type]
       : [...ALLOWED_ENTITY_TYPES];
 
-    // ── FEATURE FLAG CHECK ─────────────────────────────────────────────────────
+    // ── FEATURE FLAG: backfill must be enabled for any processing ─────────────
     if (!isBackfillEnabled()) {
       return Response.json({
         success: true,
@@ -115,8 +355,46 @@ Deno.serve(async (req) => {
         record_results: [],
         batch_size: effective_batch_size,
         offset,
-        note: `No-op: KNOWLEDGE_BACKFILL_ENABLED is not set to 'true'. Set this flag to enable controlled backfill. Also ensure KNOWLEDGE_INDEX_ENABLED=true.`,
+        note: 'No-op: KNOWLEDGE_BACKFILL_ENABLED is not set to true. Set this flag to enable controlled backfill.',
       });
+    }
+
+    // ── FEATURE FLAG: live indexing requires KNOWLEDGE_INDEX_ENABLED ──────────
+    // Dry run is always allowed when backfill is enabled.
+    // Live run additionally requires KNOWLEDGE_INDEX_ENABLED=true and a provider.
+    let config = null;
+    if (!dry_run) {
+      if (!isIndexEnabled()) {
+        return Response.json({
+          success: false,
+          mode: 'no_op',
+          entity_types_processed: [],
+          total_records_fetched: 0,
+          indexed_count: 0,
+          skipped_count: 0,
+          error_count: 0,
+          record_results: [],
+          batch_size: effective_batch_size,
+          offset,
+          note: 'Live backfill requires KNOWLEDGE_INDEX_ENABLED=true. Set this flag to proceed with live indexing.',
+        });
+      }
+      config = getProviderConfig();
+      if (!config) {
+        return Response.json({
+          success: false,
+          mode: 'no_op',
+          entity_types_processed: [],
+          total_records_fetched: 0,
+          indexed_count: 0,
+          skipped_count: 0,
+          error_count: 0,
+          record_results: [],
+          batch_size: effective_batch_size,
+          offset,
+          note: 'Provider not fully configured. Check KNOWLEDGE_PROVIDER, KNOWLEDGE_EMBEDDING_KEY, KNOWLEDGE_INDEX_KEY, KNOWLEDGE_INDEX_HOST.',
+        });
+      }
     }
 
     // ── FETCH AND PROCESS RECORDS ──────────────────────────────────────────────
@@ -144,75 +422,18 @@ Deno.serve(async (req) => {
       total_records_fetched += records.length;
 
       for (const record of records) {
-        const record_id = record.id;
-        const record_status = record.status || 'active';
-
-        // Skip non-active records immediately (don't even call indexContentRecord)
-        if (record_status !== 'active') {
-          record_results.push({
-            entity_type: etype,
-            record_id,
-            status: 'skipped',
-            reason: `Status is '${record_status}' — only active records are backfilled.`,
-          });
-          skipped_count++;
-          continue;
-        }
-
-        if (dry_run) {
-          // In dry_run, call indexContentRecord with dry_run=true to validate
-          // without actually indexing. This validates the pipeline end-to-end.
-          try {
-            const res = await base44.asServiceRole.functions.invoke('indexContentRecord', {
-              entity_type: etype,
-              record_id,
-              dry_run: true,
-            });
-            const result = res?.data || {};
-            record_results.push({
-              entity_type: etype,
-              record_id,
-              status: result.action || 'unknown',
-              chunks_would_index: result.chunks_indexed,
-              reason: result.reason || null,
-            });
-            if (result.action === 'skipped' || result.action === 'no_op') {
-              skipped_count++;
-            } else {
-              indexed_count++; // would-be indexed count in dry_run
-            }
-          } catch (err) {
-            record_results.push({ entity_type: etype, record_id, status: 'error', reason: err.message });
-            error_count++;
-          }
-          continue;
-        }
-
-        // Live indexing: call indexContentRecord
         try {
-          const res = await base44.asServiceRole.functions.invoke('indexContentRecord', {
-            entity_type: etype,
-            record_id,
-            event_type: 'upsert',
-            dry_run: false,
-          });
-          const result = res?.data || {};
-          record_results.push({
-            entity_type: etype,
-            record_id,
-            status: result.action || 'unknown',
-            chunks_indexed: result.chunks_indexed || 0,
-            errors: result.errors || [],
-          });
-          if (result.success && result.action === 'indexed') {
+          const result = await processRecord(etype, record, dry_run, config);
+          record_results.push(result);
+          if (result.status === 'indexed' || result.status === 'would_index') {
             indexed_count++;
-          } else if (result.action === 'skipped' || result.action === 'no_op') {
+          } else if (result.status === 'skipped') {
             skipped_count++;
           } else {
             error_count++;
           }
         } catch (err) {
-          record_results.push({ entity_type: etype, record_id, status: 'error', reason: err.message });
+          record_results.push({ entity_type: etype, record_id: record.id, status: 'error', reason: err.message });
           error_count++;
         }
       }
