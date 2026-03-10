@@ -18,6 +18,9 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:android": "playwright test -c playwright.android.config.ts",
+    "test:knowledge": "vitest run knowledgePipeline",
+    "test:regression": "vitest run knowledgePipeline.retrievalRegression",
+    "validate:pr": "npm run lint && npm run typecheck && npm test && npm run build",
     "android:build": "npm run build && npx cap sync android",
     "android:open": "npx cap open android",
     "android:run": "npx cap run android"
