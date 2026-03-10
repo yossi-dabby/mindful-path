@@ -2,10 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Bell, X, Check, CheckCheck, ExternalLink, Target, Dumbbell, TrendingUp, Calendar, Flame, FileText, AtSign, Info } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Bell, X, CheckCheck, ExternalLink, Target, Dumbbell, TrendingUp, Calendar, Flame, FileText, AtSign, Info } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { createPageUrl } from '@/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 
