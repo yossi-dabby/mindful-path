@@ -8,6 +8,7 @@ import { MessageCircle, X, Send, Sparkles, MinusCircle, Brain, Loader2 } from 'l
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
+import { ACTIVE_AI_COMPANION_WIRING } from '@/api/activeAgentWiring.js';
 
 export default function AiCompanion() {
   const [isOpen, setIsOpen] = useState(false);
@@ -36,6 +37,7 @@ export default function AiCompanion() {
     if (isOpen && !conversation) {
       base44.agents.createConversation({
         agent_name: 'ai_coach',
+        tool_configs: ACTIVE_AI_COMPANION_WIRING.tool_configs,
         metadata: {
           name: 'AI Companion Chat',
           type: 'companion',

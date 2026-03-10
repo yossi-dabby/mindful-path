@@ -17,6 +17,7 @@ import { detectCrisisWithReason } from '../utils/crisisDetector';
 import MessageFeedback from '../chat/MessageFeedback';
 import { extractAssistantMessage } from '../utils/validateAgentOutput';
 import { BOTTOM_NAV_HEIGHT } from '../layout/BottomNav';
+import { ACTIVE_AI_COMPANION_WIRING } from '@/api/activeAgentWiring.js';
 
 const STORAGE_KEY = 'ai_companion_position';
 const MOBILE_BREAKPOINT = 768;
@@ -184,6 +185,7 @@ export default function DraggableAiCompanion() {
       try {
         const conv = await base44.agents.createConversation({
           agent_name: 'ai_coach',
+          tool_configs: ACTIVE_AI_COMPANION_WIRING.tool_configs,
           metadata: {
             name: 'AI Companion Chat',
             type: 'companion',
