@@ -163,7 +163,7 @@ Deno.serve(async (req) => {
           // In dry_run, call indexContentRecord with dry_run=true to validate
           // without actually indexing. This validates the pipeline end-to-end.
           try {
-            const res = await base44.functions.invoke('indexContentRecord', {
+            const res = await base44.asServiceRole.functions.invoke('indexContentRecord', {
               entity_type: etype,
               record_id,
               dry_run: true,
@@ -190,7 +190,7 @@ Deno.serve(async (req) => {
 
         // Live indexing: call indexContentRecord
         try {
-          const res = await base44.functions.invoke('indexContentRecord', {
+          const res = await base44.asServiceRole.functions.invoke('indexContentRecord', {
             entity_type: etype,
             record_id,
             event_type: 'upsert',
