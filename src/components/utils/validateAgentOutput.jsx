@@ -326,7 +326,7 @@ export function extractAssistantMessage(rawContent) {
   }
   
   // Object without assistant_message - use deterministic fallback
-  if (typeof rawContent === 'object' && !rawContent.assistant_message) {
+  if (typeof rawContent === 'object' && rawContent !== null && !rawContent.assistant_message) {
     return 'I received your message. Please rephrase in one sentence what you want me to do next.';
   }
   
