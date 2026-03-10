@@ -1,84 +1,88 @@
 /**
- * STAGE 2 — KNOWLEDGE BASE FOUNDATION
+ * STAGE 3 — LIVE KNOWLEDGE INDEX WIRING
  * removeFromKnowledgeIndex
  *
  * Removes all indexed chunks for a given content record from the external
  * knowledge index when a record is deleted or archived.
  *
- * This function is the deletion counterpart to upsertKnowledgeIndex.
- * It is intended to be called by an automation (Stage 2 defines the hook;
- * automation activation is deferred until Stage 3).
+ * STAGE 3 CHANGES vs STAGE 2:
+ *   - Added KNOWLEDGE_INDEX_ENABLED feature flag (must be 'true' to delete).
+ *   - Implemented real provider logic for 'openai_pinecone'.
+ *   - cohere_weaviate and openai_qdrant remain documented stubs.
+ *   - All Stage 2 no-op and dry_run behavior preserved unchanged.
  *
- * SAFE NO-OP BEHAVIOR:
- * If no provider is configured (same env vars as upsertKnowledgeIndex),
- * the function returns a safe no-op response without error.
+ * FEATURE FLAGS:
+ *   KNOWLEDGE_INDEX_ENABLED    — must be 'true' for live deletion
+ *
+ * PROVIDER CONFIG:
+ *   KNOWLEDGE_PROVIDER, KNOWLEDGE_INDEX_KEY, KNOWLEDGE_INDEX_HOST, KNOWLEDGE_INDEX_NAME
  *
  * INPUT:
- *   {
- *     document_id: string,   // Format: "EntityType::record_id"
- *     entity_type?: string,  // Optional — for validation and logging
- *     record_id?: string,    // Optional — for logging
- *     dry_run?: boolean,     // If true, log without deleting (default: false)
- *   }
+ *   { document_id: string, entity_type?: string, record_id?: string, dry_run?: boolean }
  *
  * OUTPUT:
- *   {
- *     success: boolean,
- *     mode: 'live' | 'dry_run' | 'no_op',
- *     provider: string | null,
- *     document_id: string,
- *     deleted_count: number,   // Number of chunk vectors deleted
- *     errors: string[],
- *     summary: string,
- *   }
+ *   { success, mode, provider, document_id, deleted_count, errors, summary }
  *
- * BEHAVIOR: Admin-only. Safe no-op without provider configuration.
- * NOT connected to any agent in Stage 2.
+ * BEHAVIOR: Admin-only. Safe no-op if flag disabled or provider unconfigured.
+ * NOT connected to any agent.
  */
 
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 const ALLOWED_ENTITY_TYPES = ['Exercise', 'Resource', 'JournalTemplate', 'Psychoeducation'];
 
+// ─── FEATURE FLAG ─────────────────────────────────────────────────────────────
+function isIndexEnabled() {
+  return Deno.env.get('KNOWLEDGE_INDEX_ENABLED') === 'true';
+}
+
+// ─── PROVIDER CONFIG ──────────────────────────────────────────────────────────
 function getProviderConfig() {
   const provider = Deno.env.get('KNOWLEDGE_PROVIDER');
-  const embedding_key = Deno.env.get('KNOWLEDGE_EMBEDDING_KEY');
   const index_key = Deno.env.get('KNOWLEDGE_INDEX_KEY');
   const index_host = Deno.env.get('KNOWLEDGE_INDEX_HOST');
-  const index_name = Deno.env.get('KNOWLEDGE_INDEX_NAME');
+  const index_name = Deno.env.get('KNOWLEDGE_INDEX_NAME') || 'cbt-knowledge';
+  if (!provider || !index_key) return null;
+  return { provider, index_key, index_host, index_name };
+}
 
-  if (!provider || !index_key) {
-    return null;
+// ─── PROVIDER: DELETE VECTORS BY DOCUMENT ID (PINECONE) ───────────────────────
+// Deletes all vectors in the namespace whose metadata.document_id == document_id.
+// Returns the number of vectors deleted (Pinecone does not return a count; returns 0).
+async function deleteVectorsByDocumentId(document_id, config) {
+  if (config.provider === 'openai_pinecone') {
+    const res = await fetch(`${config.index_host}/vectors/delete`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Api-Key': config.index_key,
+      },
+      body: JSON.stringify({
+        filter: { document_id: { '$eq': document_id } },
+        namespace: config.index_name,
+      }),
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`Pinecone delete failed (${res.status}): ${err.slice(0, 200)}`);
+    }
+    // Pinecone delete response is {} on success; does not include a deleted count.
+    return 0;
   }
 
-  return { provider, embedding_key, index_key, index_host, index_name };
+  if (config.provider === 'openai_qdrant') {
+    // openai_qdrant: DELETE by payload filter
+    // POST ${config.index_host}/collections/${config.index_name}/points/delete
+    //   body: { filter: { must: [{ key: 'document_id', match: { value: document_id } }] } }
+    // Not yet implemented in Stage 3.
+    throw new Error(`Provider 'openai_qdrant' deletion is not yet implemented. Implement in Stage 4.`);
+  }
+
+  // cohere_weaviate: DELETE WHERE document_id = document_id — not yet implemented.
+  throw new Error(`Provider '${config.provider}' deletion is not yet implemented.`);
 }
 
-/**
- * Provider-agnostic vector deletion stub.
- * In Stage 2: documents the contract without executing live calls.
- * In Stage 3+: implement deletion by document_id prefix filter or namespace delete.
- *
- * All providers must support deleting all vectors whose ID starts with
- * `${document_id}::chunk_` — this is the naming convention set in chunkContentDocument.
- *
- * Supported provider patterns (to be implemented):
- *
- * PINECONE:
- *   DELETE by metadata filter: { document_id: { $eq: document_id } }
- *   or by ID prefix if the index supports it.
- *
- * WEAVIATE:
- *   DELETE WHERE document_id = document_id
- *
- * QDRANT:
- *   DELETE by payload filter: { key: 'document_id', match: { value: document_id } }
- */
-async function deleteVectorsByDocumentId(document_id, config) {
-  // Stage 2 stub — actual implementation added in Stage 3.
-  throw new Error('deleteVectorsByDocumentId: No provider implemented yet. Configure KNOWLEDGE_PROVIDER.');
-}
-
+// ─── HANDLER ──────────────────────────────────────────────────────────────────
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -92,37 +96,38 @@ Deno.serve(async (req) => {
 
     // Validate document_id
     if (!document_id || typeof document_id !== 'string') {
-      return Response.json({
-        error: 'document_id is required. Format: "EntityType::record_id"',
-      }, { status: 400 });
+      return Response.json({ error: 'document_id is required. Format: "EntityType::record_id"' }, { status: 400 });
     }
-
-    // Optionally validate entity_type if provided
-    if (entity_type && !ALLOWED_ENTITY_TYPES.includes(entity_type)) {
-      return Response.json({
-        error: `Invalid entity_type. Allowed: ${ALLOWED_ENTITY_TYPES.join(', ')}`,
-      }, { status: 400 });
-    }
-
-    // Validate document_id format loosely
     if (!document_id.includes('::')) {
-      return Response.json({
-        error: 'document_id format invalid. Expected: "EntityType::record_id"',
-      }, { status: 400 });
+      return Response.json({ error: 'document_id format invalid. Expected: "EntityType::record_id"' }, { status: 400 });
     }
 
-    // Safety check: ensure document_id does not reference a private user entity
+    // Safety: reject non-content entity types
     const [id_entity_type] = document_id.split('::');
     if (!ALLOWED_ENTITY_TYPES.includes(id_entity_type)) {
       return Response.json({
-        error: `document_id references a non-content entity type: '${id_entity_type}'. This function only handles shared content entities.`,
+        error: `document_id references a non-content entity type: '${id_entity_type}'. Only shared content entities are permitted.`,
       }, { status: 400 });
     }
+    if (entity_type && !ALLOWED_ENTITY_TYPES.includes(entity_type)) {
+      return Response.json({ error: `Invalid entity_type. Allowed: ${ALLOWED_ENTITY_TYPES.join(', ')}` }, { status: 400 });
+    }
 
-    // Check provider configuration
+    // ── FEATURE FLAG CHECK ─────────────────────────────────────────────────────
+    if (!isIndexEnabled()) {
+      return Response.json({
+        success: true,
+        mode: 'no_op',
+        provider: null,
+        document_id,
+        deleted_count: 0,
+        errors: [],
+        summary: `No-op: KNOWLEDGE_INDEX_ENABLED is not set to 'true'. No deletion attempted for '${document_id}'.`,
+      });
+    }
+
+    // ── PROVIDER CONFIG CHECK ──────────────────────────────────────────────────
     const config = getProviderConfig();
-
-    // SAFE NO-OP: provider not configured
     if (!config) {
       return Response.json({
         success: true,
@@ -131,11 +136,11 @@ Deno.serve(async (req) => {
         document_id,
         deleted_count: 0,
         errors: [],
-        summary: `No-op: KNOWLEDGE_PROVIDER or KNOWLEDGE_INDEX_KEY are not configured. No deletion was attempted for document '${document_id}'. Set the required environment variables to enable live index management.`,
+        summary: `No-op: KNOWLEDGE_PROVIDER or KNOWLEDGE_INDEX_KEY are not configured. No deletion attempted for '${document_id}'.`,
       });
     }
 
-    // DRY RUN
+    // ── DRY RUN ────────────────────────────────────────────────────────────────
     if (dry_run) {
       return Response.json({
         success: true,
@@ -144,11 +149,11 @@ Deno.serve(async (req) => {
         document_id,
         deleted_count: 0,
         errors: [],
-        summary: `Dry run: Would delete all vectors for document '${document_id}' from provider '${config.provider}'. No data was removed. Set dry_run=false to execute.`,
+        summary: `Dry run: Would delete all vectors for '${document_id}' from provider '${config.provider}'. Set dry_run=false to execute.`,
       });
     }
 
-    // LIVE MODE: Stage 2 stub — provider calls not yet implemented.
+    // ── LIVE DELETE ────────────────────────────────────────────────────────────
     let deleted_count = 0;
     const errors = [];
 
@@ -166,7 +171,7 @@ Deno.serve(async (req) => {
       deleted_count,
       errors,
       summary: errors.length === 0
-        ? `Deleted ${deleted_count} vectors for document '${document_id}' from provider '${config.provider}'.`
+        ? `Deletion request sent for document '${document_id}' via provider '${config.provider}'.`
         : `Deletion attempted for '${document_id}' with errors.`,
     });
 

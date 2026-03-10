@@ -1,68 +1,75 @@
 /**
- * STAGE 2 — KNOWLEDGE BASE FOUNDATION
+ * STAGE 3 — LIVE KNOWLEDGE INDEX WIRING
  * upsertKnowledgeIndex
  *
  * Accepts an array of content chunks (output of chunkContentDocument) and
  * sends them to the configured external knowledge index (vector database).
  *
- * PROVIDER-AGNOSTIC DESIGN:
- * This function does not hardcode a single vendor. The active provider is
- * controlled by environment variables. If no provider is configured, the
- * function runs as a SAFE NO-OP and returns a dry-run summary.
+ * STAGE 3 CHANGES vs STAGE 2:
+ *   - Added KNOWLEDGE_INDEX_ENABLED feature flag (must be 'true' to index).
+ *   - Implemented real provider logic for 'openai_pinecone'.
+ *   - cohere_weaviate and openai_qdrant remain documented stubs.
+ *   - All Stage 2 no-op and dry_run behavior preserved unchanged.
  *
- * Required environment variables to enable live indexing:
- *   KNOWLEDGE_PROVIDER       — 'openai_pinecone' | 'cohere_weaviate' | 'openai_qdrant' (extensible)
- *   KNOWLEDGE_EMBEDDING_KEY  — API key for the embedding service
- *   KNOWLEDGE_INDEX_KEY      — API key for the vector index service
- *   KNOWLEDGE_INDEX_HOST     — Host URL for the vector index (e.g., Pinecone index URL)
- *   KNOWLEDGE_INDEX_NAME     — Name of the index / namespace / collection
+ * FEATURE FLAGS (environment variables):
+ *   KNOWLEDGE_INDEX_ENABLED    — must be 'true' to allow live indexing (default: disabled)
  *
- * If any required variable is absent → safe no-op, no error, no data loss.
+ * PROVIDER CONFIG (environment variables):
+ *   KNOWLEDGE_PROVIDER         — 'openai_pinecone' (live) | 'cohere_weaviate' | 'openai_qdrant' (stubs)
+ *   KNOWLEDGE_EMBEDDING_KEY    — OpenAI API key (for openai_pinecone / openai_qdrant)
+ *   KNOWLEDGE_INDEX_KEY        — Pinecone API key
+ *   KNOWLEDGE_INDEX_HOST       — Pinecone index host URL (e.g. https://my-index-xyz.svc.pinecone.io)
+ *   KNOWLEDGE_INDEX_NAME       — Pinecone namespace (default: 'cbt-knowledge')
  *
  * INPUT:
- *   {
- *     chunks: array,       // Output of chunkContentDocument
- *     dry_run?: boolean,   // If true, validate and log without indexing (default: false)
- *   }
+ *   { chunks: array, dry_run?: boolean }
  *
  * OUTPUT:
- *   {
- *     success: boolean,
- *     mode: 'live' | 'dry_run' | 'no_op',
- *     provider: string | null,
- *     indexed_count: number,
- *     skipped_count: number,
- *     errors: string[],
- *     summary: string,
- *   }
+ *   { success, mode, provider, indexed_count, skipped_count, errors, summary }
  *
- * BEHAVIOR: Admin-only. Safe no-op without provider configuration.
- * NOT connected to any agent in Stage 2.
+ * BEHAVIOR: Admin-only. Safe no-op if flag disabled or provider unconfigured.
+ * NOT connected to any agent.
  */
 
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-/**
- * Reads and validates the provider configuration from environment variables.
- * Returns null if not fully configured (triggers safe no-op).
- */
+const ALLOWED_ENTITY_TYPES = ['Exercise', 'Resource', 'JournalTemplate', 'Psychoeducation'];
+
+// ─── FEATURE FLAG ─────────────────────────────────────────────────────────────
+function isIndexEnabled() {
+  return Deno.env.get('KNOWLEDGE_INDEX_ENABLED') === 'true';
+}
+
+// ─── PROVIDER CONFIG ──────────────────────────────────────────────────────────
 function getProviderConfig() {
   const provider = Deno.env.get('KNOWLEDGE_PROVIDER');
   const embedding_key = Deno.env.get('KNOWLEDGE_EMBEDDING_KEY');
   const index_key = Deno.env.get('KNOWLEDGE_INDEX_KEY');
   const index_host = Deno.env.get('KNOWLEDGE_INDEX_HOST');
-  const index_name = Deno.env.get('KNOWLEDGE_INDEX_NAME');
-
-  if (!provider || !embedding_key || !index_key) {
-    return null;
-  }
-
+  const index_name = Deno.env.get('KNOWLEDGE_INDEX_NAME') || 'cbt-knowledge';
+  if (!provider || !embedding_key || !index_key) return null;
   return { provider, embedding_key, index_key, index_host, index_name };
 }
 
-/**
- * Validate a single chunk object has the required fields.
- */
+// ─── PINECONE METADATA FLATTENER ──────────────────────────────────────────────
+// Pinecone metadata values must be: string | number | boolean | string[]
+// Nested objects and mixed arrays are JSON-stringified to comply.
+function flattenForPinecone(obj) {
+  const flat = {};
+  for (const [k, v] of Object.entries(obj || {})) {
+    if (v === null || v === undefined) continue;
+    if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') {
+      flat[k] = v;
+    } else if (Array.isArray(v)) {
+      flat[k] = v.map(i => (typeof i === 'object' ? JSON.stringify(i) : String(i)));
+    } else if (typeof v === 'object') {
+      flat[k] = JSON.stringify(v);
+    }
+  }
+  return flat;
+}
+
+// ─── CHUNK VALIDATION ─────────────────────────────────────────────────────────
 function validateChunk(chunk) {
   const required = ['chunk_id', 'document_id', 'entity_type', 'record_id', 'text', 'language'];
   for (const field of required) {
@@ -71,57 +78,87 @@ function validateChunk(chunk) {
   if (typeof chunk.text !== 'string' || chunk.text.trim().length === 0) {
     return 'chunk.text must be a non-empty string';
   }
-  return null; // valid
+  // Safety: only allow shared content entity types
+  if (!ALLOWED_ENTITY_TYPES.includes(chunk.entity_type)) {
+    return `entity_type '${chunk.entity_type}' is not an allowed content entity.`;
+  }
+  return null;
 }
 
-/**
- * Provider-agnostic embedding call stub.
- * In Stage 2: documents the contract without executing live calls.
- * In Stage 3+: replace with actual provider-specific embedding logic.
- *
- * Expected signature for all providers:
- *   generateEmbedding(text: string, config: object) → number[]
- */
+// ─── PROVIDER: GENERATE EMBEDDING ────────────────────────────────────────────
+// Returns float[] (vector).
 async function generateEmbedding(text, config) {
-  // Stage 2 stub — actual implementation added in Stage 3
-  // when a provider is selected and credentials are provided.
-  //
-  // Supported provider patterns (to be implemented):
-  //
-  // OPENAI:
-  //   POST https://api.openai.com/v1/embeddings
-  //   model: 'text-embedding-3-small' or 'text-embedding-3-large'
-  //   Authorization: Bearer ${config.embedding_key}
-  //
-  // COHERE:
-  //   POST https://api.cohere.ai/v1/embed
-  //   model: 'embed-english-v3.0' or 'embed-multilingual-v3.0'
-  //   Authorization: Bearer ${config.embedding_key}
-  //
-  throw new Error('generateEmbedding: No provider implemented yet. Configure KNOWLEDGE_PROVIDER.');
+  if (config.provider === 'openai_pinecone' || config.provider === 'openai_qdrant') {
+    const res = await fetch('https://api.openai.com/v1/embeddings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${config.embedding_key}`,
+      },
+      body: JSON.stringify({ model: 'text-embedding-3-small', input: text }),
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`OpenAI embedding failed (${res.status}): ${err.slice(0, 200)}`);
+    }
+    const data = await res.json();
+    return data.data[0].embedding;
+  }
+
+  // cohere_weaviate — not yet implemented in Stage 3.
+  // To implement: POST https://api.cohere.ai/v1/embed
+  //   model: 'embed-multilingual-v3.0', texts: [text]
+  throw new Error(`Provider '${config.provider}' embedding is not yet implemented. Implement cohere_weaviate in Stage 4.`);
 }
 
-/**
- * Provider-agnostic vector upsert stub.
- * In Stage 2: documents the contract without executing live calls.
- * In Stage 3+: replace with actual provider-specific upsert logic.
- *
- * Expected upsert payload format for all providers:
- *   {
- *     id: chunk.chunk_id,
- *     values: float32[],    // embedding vector
- *     metadata: {
- *       document_id, entity_type, record_id, title, slug,
- *       chunk_index, language, version, ...chunk.metadata
- *     },
- *     text: chunk.text,    // stored for retrieval result display
- *   }
- */
+// ─── PROVIDER: UPSERT VECTOR (PINECONE) ───────────────────────────────────────
 async function upsertVector(chunk, embedding, config) {
-  // Stage 2 stub — actual implementation added in Stage 3.
-  throw new Error('upsertVector: No provider implemented yet. Configure KNOWLEDGE_PROVIDER.');
+  if (config.provider === 'openai_pinecone') {
+    const metadata = flattenForPinecone({
+      ...chunk.metadata,
+      document_id: chunk.document_id,
+      entity_type: chunk.entity_type,
+      record_id: chunk.record_id,
+      title: chunk.title || '',
+      slug: chunk.slug || '',
+      chunk_index: chunk.chunk_index,
+      language: chunk.language,
+      version: chunk.version,
+      // Store first 2000 chars of text for display in retrieval results.
+      // Full text is not stored in metadata to stay within Pinecone's 40KB limit.
+      text: chunk.text.slice(0, 2000),
+    });
+
+    const res = await fetch(`${config.index_host}/vectors/upsert`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Api-Key': config.index_key,
+      },
+      body: JSON.stringify({
+        vectors: [{ id: chunk.chunk_id, values: embedding, metadata }],
+        namespace: config.index_name,
+      }),
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`Pinecone upsert failed (${res.status}): ${err.slice(0, 200)}`);
+    }
+    return;
+  }
+
+  if (config.provider === 'openai_qdrant') {
+    // openai_qdrant — Qdrant requires UUID-format IDs.
+    // To implement: PUT ${config.index_host}/collections/${config.index_name}/points
+    // Requires mapping chunk_id string → UUID. Not yet implemented in Stage 3.
+    throw new Error(`Provider 'openai_qdrant' upsert is not yet implemented. Implement in Stage 4.`);
+  }
+
+  // cohere_weaviate — not yet implemented.
+  throw new Error(`Provider '${config.provider}' upsert is not yet implemented.`);
 }
 
+// ─── HANDLER ──────────────────────────────────────────────────────────────────
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -144,17 +181,25 @@ Deno.serve(async (req) => {
       if (err) validation_errors.push(`Chunk ${i}: ${err}`);
     }
     if (validation_errors.length > 0) {
-      return Response.json({
-        success: false,
-        mode: 'validation_error',
-        errors: validation_errors,
-      }, { status: 400 });
+      return Response.json({ success: false, mode: 'validation_error', errors: validation_errors }, { status: 400 });
     }
 
-    // Check provider configuration
-    const config = getProviderConfig();
+    // ── FEATURE FLAG CHECK ─────────────────────────────────────────────────────
+    if (!isIndexEnabled()) {
+      return Response.json({
+        success: true,
+        mode: 'no_op',
+        provider: null,
+        indexed_count: 0,
+        skipped_count: chunks.length,
+        errors: [],
+        summary: `No-op: KNOWLEDGE_INDEX_ENABLED is not set to 'true'. ${chunks.length} chunks validated but not indexed. Set KNOWLEDGE_INDEX_ENABLED=true to enable live indexing.`,
+        chunks_validated: chunks.length,
+      });
+    }
 
-    // SAFE NO-OP: provider not configured
+    // ── PROVIDER CONFIG CHECK ──────────────────────────────────────────────────
+    const config = getProviderConfig();
     if (!config) {
       return Response.json({
         success: true,
@@ -163,13 +208,13 @@ Deno.serve(async (req) => {
         indexed_count: 0,
         skipped_count: chunks.length,
         errors: [],
-        summary: `No-op: KNOWLEDGE_PROVIDER, KNOWLEDGE_EMBEDDING_KEY, or KNOWLEDGE_INDEX_KEY are not configured. ${chunks.length} chunks were validated successfully and would be indexed once a provider is configured. Set the required environment variables to enable live indexing.`,
+        summary: `No-op: KNOWLEDGE_PROVIDER, KNOWLEDGE_EMBEDDING_KEY, or KNOWLEDGE_INDEX_KEY are not configured. ${chunks.length} chunks validated but not indexed.`,
         chunks_validated: chunks.length,
         chunk_ids_preview: chunks.slice(0, 3).map(c => c.chunk_id),
       });
     }
 
-    // DRY RUN: provider configured but dry_run=true
+    // ── DRY RUN ────────────────────────────────────────────────────────────────
     if (dry_run) {
       return Response.json({
         success: true,
@@ -178,15 +223,12 @@ Deno.serve(async (req) => {
         indexed_count: 0,
         skipped_count: chunks.length,
         errors: [],
-        summary: `Dry run: ${chunks.length} chunks validated successfully. No data was sent to the index. Set dry_run=false to execute live indexing.`,
+        summary: `Dry run: ${chunks.length} chunks validated. Provider '${config.provider}' configured. No data sent. Set dry_run=false to execute.`,
         chunks_validated: chunks.length,
       });
     }
 
-    // LIVE MODE: provider configured and dry_run=false
-    // Stage 2: live embedding + upsert stubs are not yet implemented.
-    // This block will be activated in Stage 3 when generateEmbedding
-    // and upsertVector are implemented for the chosen provider.
+    // ── LIVE INDEXING ──────────────────────────────────────────────────────────
     const errors = [];
     let indexed_count = 0;
 
