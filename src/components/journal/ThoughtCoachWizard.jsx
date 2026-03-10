@@ -157,13 +157,6 @@ export default function ThoughtCoachWizard({ onClose }) {
   };
 
   const canProceed = () => {
-    console.log('ThoughtCoach canProceed - step:', step, 'formData:', {
-      thought_type: formData.thought_type,
-      situation: formData.situation,
-      automatic_thoughts: formData.automatic_thoughts,
-      emotions: formData.emotions
-    });
-    
     if (step === 1) return !!formData.thought_type;
     if (step === 2) return formData.situation?.trim().length > 0 && formData.automatic_thoughts?.trim().length > 0 && formData.emotions.length > 0;
     if (step === 3) return true; // CBT step - balanced_thought is optional
@@ -240,7 +233,6 @@ export default function ThoughtCoachWizard({ onClose }) {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        console.log('Thought category clicked:', thought.type);
                         setFormData(prev => ({ ...prev, thought_type: thought.type }));
                       }}
                       className={cn(
