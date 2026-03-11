@@ -27,10 +27,10 @@ const stageLabels = {
 export default function CoachingSessionList({ sessions, onSelectSession, onDeleteSession }) {
   if (sessions.length === 0) {
     return (
-      <Card className="border-0 shadow-xl">
+      <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
         <CardContent className="p-12 text-center">
-          <Target className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500">No sessions yet</p>
+          <Target className="w-12 h-12 text-primary/30 mx-auto mb-3" />
+          <p className="text-muted-foreground">No sessions yet</p>
         </CardContent>
       </Card>
     );
@@ -50,48 +50,48 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
             transition={{ delay: index * 0.1 }}
           >
             <Card 
-              className="border-0 shadow-xl hover:shadow-2xl transition-all group"
+              className="border border-border/80 bg-card shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] transition-all group"
             >
               <CardContent className="p-6 cursor-pointer" onClick={() => onSelectSession(session)}>
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-start gap-3 flex-1">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center flex-shrink-0">
-                      <Target className="w-6 h-6 text-white" />
+                    <div className="w-12 h-12 rounded-[var(--radius-control)] bg-primary flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]">
+                      <Target className="w-6 h-6 text-primary-foreground" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-gray-800 mb-1 group-hover:text-purple-700 transition-colors">
+                      <h3 className="font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
                         {session.title}
                       </h3>
-                      <Badge className={focusAreaColors[session.focus_area]}>
+                      <Badge variant="secondary" className="capitalize">
                         {session.focus_area.replace('_', ' ')}
                       </Badge>
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-purple-600 transition-colors" />
+                  <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
                 </div>
 
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Calendar className="w-4 h-4" />
                     <span>Started {format(new Date(session.created_date), 'MMM dd, yyyy')}</span>
                   </div>
 
                   <div>
                     <div className="flex items-center justify-between text-sm mb-2">
-                      <span className="text-gray-600">Stage:</span>
-                      <span className="font-medium text-purple-700">{stageLabels[session.stage]}</span>
+                      <span className="text-muted-foreground">Stage:</span>
+                      <span className="font-medium text-primary">{stageLabels[session.stage]}</span>
                     </div>
                   </div>
 
                   {totalActions > 0 && (
                     <div>
                       <div className="flex items-center justify-between text-sm mb-2">
-                        <span className="text-gray-600">Progress:</span>
-                        <span className="font-medium text-gray-800">{completedActions}/{totalActions} actions</span>
+                        <span className="text-muted-foreground">Progress:</span>
+                        <span className="font-medium text-foreground">{completedActions}/{totalActions} actions</span>
                       </div>
-                      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all"
+                          className="h-full bg-primary transition-all"
                           style={{ width: `${totalActions > 0 ? (completedActions / totalActions) * 100 : 0}%` }}
                         />
                       </div>

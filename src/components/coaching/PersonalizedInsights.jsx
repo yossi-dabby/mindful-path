@@ -157,13 +157,13 @@ Be specific, encouraging, and reference their actual data.`,
     <div className="space-y-4">
       {/* Quick Alerts */}
       {(daysSinceJournal > 5 || daysSinceMood > 3 || staleGoals.length > 0) && (
-        <Card className="border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-white">
+        <Card className="border border-border/80 bg-card shadow-[var(--shadow-sm)]">
           <CardContent className="p-4">
             <div className="flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
               <div className="flex-1">
-                <h4 className="font-semibold text-orange-900 mb-2">Activity Reminder</h4>
-                <ul className="space-y-1 text-sm text-orange-800">
+                <h4 className="font-semibold text-foreground mb-2">Activity Reminder</h4>
+                <ul className="space-y-1 text-sm text-foreground/85">
                   {daysSinceJournal > 5 && (
                     <li>• It's been {daysSinceJournal} days since your last journal entry</li>
                   )}
@@ -182,16 +182,15 @@ Be specific, encouraging, and reference their actual data.`,
 
       {/* Generate Insights */}
       {!insights && !isGenerating && (
-        <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-white">
+        <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
           <CardContent className="p-6 text-center">
-            <Brain className="w-12 h-12 text-purple-600 mx-auto mb-3" />
-            <h3 className="font-semibold text-gray-800 mb-2">Get Personalized Coaching Insights</h3>
-            <p className="text-sm text-gray-600 mb-4">
+            <Brain className="w-12 h-12 text-primary mx-auto mb-3" />
+            <h3 className="font-semibold text-foreground mb-2">Get Personalized Coaching Insights</h3>
+            <p className="text-sm text-muted-foreground mb-4">
               Analyze your journal patterns, goals, and mood trends to receive tailored recommendations
             </p>
             <Button
               onClick={generateInsights}
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
             >
               <Sparkles className="w-4 h-4 mr-2" />
               Generate Insights
@@ -201,10 +200,10 @@ Be specific, encouraging, and reference their actual data.`,
       )}
 
       {isGenerating && (
-        <Card>
+        <Card className="border border-border/80 bg-card shadow-[var(--shadow-sm)]">
           <CardContent className="p-8 text-center">
-            <Loader2 className="w-8 h-8 text-purple-600 animate-spin mx-auto mb-3" />
-            <p className="text-gray-600">Analyzing your mental wellness journey...</p>
+            <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-3" />
+            <p className="text-muted-foreground">Analyzing your mental wellness journey...</p>
           </CardContent>
         </Card>
       )}

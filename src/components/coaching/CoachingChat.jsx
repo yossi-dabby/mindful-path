@@ -153,9 +153,9 @@ export default function CoachingChat({ session, onBack }) {
   const totalActions = currentSession.action_plan?.length || 0;
 
   return (
-    <div className="flex flex-col" style={{ position: 'fixed', inset: 0, height: '100dvh', overflow: 'hidden', zIndex: 70, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+    <div className="flex flex-col bg-transparent" style={{ position: 'fixed', inset: 0, height: '100dvh', overflow: 'hidden', zIndex: 70, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 p-4 flex-shrink-0">
+      <div className="bg-[hsl(var(--card)/0.9)] backdrop-blur-xl border-b border-border/70 p-4 flex-shrink-0">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-3">
             <Button variant="ghost" onClick={onBack} className="gap-2">
@@ -169,8 +169,8 @@ export default function CoachingChat({ session, onBack }) {
           </div>
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-xl font-bold text-gray-800 mb-1">{currentSession.title}</h2>
-              <p className="text-sm text-gray-600">{currentSession.current_challenge}</p>
+              <h2 className="text-xl font-bold text-foreground mb-1">{currentSession.title}</h2>
+              <p className="text-sm text-muted-foreground">{currentSession.current_challenge}</p>
             </div>
             {totalActions > 0 && (
               <Button
@@ -190,7 +190,7 @@ export default function CoachingChat({ session, onBack }) {
       <div className="flex-1 min-h-0 flex">
         {/* Chat Area */}
         <div className="flex-1 flex flex-col">
-          <div className="flex-1 overflow-y-auto p-4 bg-gray-50" style={{ overscrollBehavior: 'none' }}>
+          <div className="flex-1 overflow-y-auto p-4 bg-[hsl(var(--surface-tint))]" style={{ overscrollBehavior: 'none' }}>
             <div data-testid="coach-chat-messages" className="max-w-4xl mx-auto space-y-4">
               {/* Inline Consent Banner - Non-blocking */}
               {showConsentBanner && (
@@ -215,11 +215,11 @@ export default function CoachingChat({ session, onBack }) {
               ))}
               {isLoading && (
                 <div data-testid="coach-loading" className="flex gap-3">
-                  <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center">
-                    <Loader2 className="w-4 h-4 text-white animate-spin" />
+                  <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center shadow-[var(--shadow-sm)]">
+                    <Loader2 className="w-4 h-4 text-primary-foreground animate-spin" />
                   </div>
-                  <div className="bg-white rounded-2xl px-4 py-3 shadow-sm">
-                    <p className="text-sm text-gray-500">Thinking...</p>
+                  <div className="bg-card rounded-2xl px-4 py-3 shadow-[var(--shadow-sm)] border border-border/80">
+                    <p className="text-sm text-muted-foreground">Thinking...</p>
                   </div>
                 </div>
               )}
@@ -229,9 +229,9 @@ export default function CoachingChat({ session, onBack }) {
 
           {/* Quick Prompts */}
           {quickPrompts[currentSession.stage] && (
-            <div className="bg-white border-t border-gray-200 px-4 py-3">
+            <div className="bg-popover border-t border-border/70 px-4 py-3">
               <div className="max-w-4xl mx-auto">
-                <p className="text-xs text-gray-500 mb-2">Quick prompts:</p>
+                <p className="text-xs text-muted-foreground mb-2">Quick prompts:</p>
                 <div className="flex flex-wrap gap-2">
                   {quickPrompts[currentSession.stage].map((prompt, i) => (
                     <Button
@@ -250,7 +250,7 @@ export default function CoachingChat({ session, onBack }) {
           )}
 
           {/* Input Area */}
-          <div className="bg-white border-t border-gray-200 p-4 flex-shrink-0" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
+          <div className="bg-popover border-t border-border/70 p-4 flex-shrink-0" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
             <div className="max-w-4xl mx-auto flex gap-3">
               <Textarea
                 data-testid="coach-chat-input"
@@ -263,14 +263,14 @@ export default function CoachingChat({ session, onBack }) {
                   }
                 }}
                 placeholder="Share your thoughts, progress, or ask for guidance..."
-                className="flex-1 min-h-[60px] max-h-[200px] resize-none rounded-2xl"
+                className="flex-1 min-h-[60px] max-h-[200px] resize-none rounded-[var(--radius-card)]"
                 disabled={isLoading}
               />
               <Button
                 data-testid="coach-chat-send"
                 onClick={handleSendMessage}
                 disabled={!inputMessage.trim() || isLoading}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 h-[60px] px-6 rounded-2xl"
+                className="h-[60px] px-6 rounded-[var(--radius-card)]"
               >
                 <Send className="w-5 h-5" />
               </Button>

@@ -44,11 +44,11 @@ export default function ActionPlanPanel({ session, onClose, onUpdate }) {
   const totalCount = session.action_plan?.length || 0;
 
   return (
-    <Card className="w-96 border-l-0 rounded-none h-full overflow-y-auto">
-      <CardHeader className="border-b sticky top-0 bg-white z-10">
+    <Card className="w-96 border-l border-border/70 rounded-none h-full overflow-y-auto bg-card shadow-[var(--shadow-md)]">
+      <CardHeader className="border-b border-border/70 sticky top-0 bg-popover z-10">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-purple-600" />
+            <CheckCircle2 className="w-5 h-5 text-primary" />
             Action Plan
           </CardTitle>
           <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
@@ -56,13 +56,13 @@ export default function ActionPlanPanel({ session, onClose, onUpdate }) {
           </Button>
         </div>
         <div className="flex items-center gap-2 mt-2">
-          <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
             <div 
-              className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all"
+              className="h-full bg-primary transition-all"
               style={{ width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%` }}
             />
           </div>
-          <span className="text-sm font-medium text-gray-600">
+          <span className="text-sm font-medium text-muted-foreground">
             {completedCount}/{totalCount}
           </span>
         </div>
