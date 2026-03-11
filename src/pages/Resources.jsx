@@ -116,14 +116,14 @@ export default function Resources() {
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto" style={{ minHeight: '100dvh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
+    <div className="p-4 md:p-8 max-w-7xl mx-auto min-h-[100dvh] bg-transparent">
       {/* Header */}
       <div className="mb-8 mt-4">
-        <h1 className="text-3xl md:text-4xl font-light mb-2 flex items-center gap-3" style={{ color: '#1A3A34' }}>
-          <Library className="w-8 h-8" style={{ color: '#26A69A' }} />
+        <h1 className="text-3xl md:text-4xl font-semibold mb-2 flex items-center gap-3 text-foreground">
+          <Library className="w-8 h-8 text-primary" />
           {t('resources.page_title')}
         </h1>
-        <p style={{ color: '#5A7A72' }}>{t('resources.page_subtitle')}</p>
+        <p className="text-muted-foreground">{t('resources.page_subtitle')}</p>
       </div>
 
       {/* AI Recommendations */}
@@ -139,7 +139,7 @@ export default function Resources() {
       {/* Search & Filters */}
       <div className="mb-6 space-y-4">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -151,7 +151,7 @@ export default function Resources() {
 
         <div className="space-y-3">
           <div>
-            <p className="text-sm font-medium mb-2" style={{ color: '#1A3A34' }}>{t('resources.category_label')}</p>
+            <p className="text-sm font-medium mb-2 text-foreground">{t('resources.category_label')}</p>
             <div
               data-testid="category-chips"
               className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide"
@@ -163,12 +163,7 @@ export default function Resources() {
                   onClick={() => setSelectedCategory(cat.value)}
                   variant={selectedCategory === cat.value ? 'default' : 'outline'}
                   size="sm"
-                  className="whitespace-nowrap flex-shrink-0 text-xs sm:text-sm"
-                  style={{
-                    borderRadius: '24px',
-                    backgroundColor: selectedCategory === cat.value ? '#26A69A' : 'transparent',
-                    color: selectedCategory === cat.value ? '#fff' : '#3D5A52'
-                  }}
+                  className="whitespace-nowrap flex-shrink-0 text-xs sm:text-sm rounded-[var(--radius-card)]"
                 >
                   {cat.label}
                 </Button>
@@ -176,7 +171,7 @@ export default function Resources() {
             </div>
           </div>
           <div>
-            <p className="text-sm font-medium mb-2" style={{ color: '#1A3A34' }}>{t('resources.content_type_label')}</p>
+            <p className="text-sm font-medium mb-2 text-foreground">{t('resources.content_type_label')}</p>
             <div
               data-testid="type-chips"
               className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide"
@@ -188,12 +183,7 @@ export default function Resources() {
                   onClick={() => setSelectedType(type.value)}
                   variant={selectedType === type.value ? 'default' : 'outline'}
                   size="sm"
-                  className="whitespace-nowrap flex-shrink-0 text-xs sm:text-sm"
-                  style={{
-                    borderRadius: '24px',
-                    backgroundColor: selectedType === type.value ? '#26A69A' : 'transparent',
-                    color: selectedType === type.value ? '#fff' : '#3D5A52'
-                  }}
+                  className="whitespace-nowrap flex-shrink-0 text-xs sm:text-sm rounded-[var(--radius-card)]"
                 >
                   {type.label}
                 </Button>
@@ -205,10 +195,7 @@ export default function Resources() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <TabsList style={{
-          background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.7) 0%, rgba(180, 220, 210, 0.6) 100%)',
-          borderRadius: '28px'
-        }}>
+        <TabsList>
           <TabsTrigger value="all">{t('resources.tabs.all')}</TabsTrigger>
           <TabsTrigger value="saved" className="flex items-center gap-2">
             <Bookmark className="w-4 h-4" />
@@ -220,7 +207,7 @@ export default function Resources() {
       {/* Resources Grid */}
       {isLoading ? (
         <div className="text-center py-12">
-          <p className="text-gray-500">{t('resources.loading')}</p>
+          <p className="text-muted-foreground">{t('resources.loading')}</p>
         </div>
       ) : displayedResources.length === 0 ? (
         <div className="text-center py-12">

@@ -40,15 +40,15 @@ export default function Videos() {
   };
 
   return (
-    <div className="min-h-dvh" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
+    <div className="min-h-dvh bg-transparent">
       <div className="page-container max-w-7xl">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 mt-6">
           <div>
-            <h1 className="text-2xl md:text-3xl font-semibold mb-1" style={{ color: '#2D3748' }}>
+            <h1 className="text-2xl md:text-3xl font-semibold mb-1 text-foreground">
               {t('videos.title')}
             </h1>
-            <p className="text-sm" style={{ color: '#718096' }}>
+            <p className="text-sm text-muted-foreground">
               {t('videos.subtitle')}
             </p>
           </div>
@@ -64,12 +64,7 @@ export default function Videos() {
             </Button>
             <Link to={createPageUrl('Playlists')}>
               <Button
-                className="text-sm font-medium text-white px-6 py-5"
-                style={{ 
-                  backgroundColor: '#26A69A',
-                  borderRadius: '9999px',
-                  boxShadow: '0 2px 8px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.06)'
-                }}
+                className="text-sm font-medium px-6 py-5 rounded-full"
               >
                 <List className="w-4 h-4 mr-1" />
                 {t('videos.my_playlists')}

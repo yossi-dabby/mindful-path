@@ -95,20 +95,16 @@ export default function Community() {
 
   return (
     <PullToRefresh queryKeys={['forumPosts', 'communityGroups', 'groupMemberships', 'sharedProgress']}>
-      <div className="p-4 md:p-8 pb-36 md:pb-8 max-w-7xl mx-auto" style={{ minHeight: '100dvh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
+      <div className="p-4 md:p-8 pb-36 md:pb-8 max-w-7xl mx-auto min-h-[100dvh] bg-transparent">
       {/* Header */}
       <div className="mb-8 mt-4">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-light mb-2 leading-tight break-words" style={{ color: '#1A3A34' }}>{t('community.page_title')}</h1>
-        <p className="leading-relaxed break-words" style={{ color: '#5A7A72' }}>{t('community.page_subtitle')}</p>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold mb-2 leading-tight break-words text-foreground">{t('community.page_title')}</h1>
+        <p className="leading-relaxed break-words text-muted-foreground">{t('community.page_subtitle')}</p>
       </div>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Card className="border-0" style={{
-          borderRadius: '28px',
-          background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.85) 0%, rgba(180, 220, 210, 0.75) 100%)',
-          boxShadow: '0 8px 32px rgba(38, 166, 154, 0.18), 0 4px 12px rgba(0,0,0,0.05)'
-        }}>
+        <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
           <CardContent className="p-4 flex items-center gap-3">
             <MessageSquare className="w-8 h-8" style={{ color: '#26A69A' }} />
             <div>
@@ -117,11 +113,7 @@ export default function Community() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0" style={{
-          borderRadius: '28px',
-          background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.85) 0%, rgba(180, 220, 210, 0.75) 100%)',
-          boxShadow: '0 8px 32px rgba(38, 166, 154, 0.18), 0 4px 12px rgba(0,0,0,0.05)'
-        }}>
+        <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
           <CardContent className="p-4 flex items-center gap-3">
             <Users className="w-8 h-8" style={{ color: '#26A69A' }} />
             <div>
@@ -130,11 +122,7 @@ export default function Community() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0" style={{
-          borderRadius: '28px',
-          background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.85) 0%, rgba(180, 220, 210, 0.75) 100%)',
-          boxShadow: '0 8px 32px rgba(38, 166, 154, 0.18), 0 4px 12px rgba(0,0,0,0.05)'
-        }}>
+        <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
           <CardContent className="p-4 flex items-center gap-3">
             <TrendingUp className="w-8 h-8" style={{ color: '#26A69A' }} />
             <div>
@@ -148,41 +136,25 @@ export default function Community() {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="flex flex-wrap items-center gap-3 mb-6">
-          <TabsList className="border flex-shrink-0" style={{
-            background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.7) 0%, rgba(180, 220, 210, 0.6) 100%)',
-            borderColor: 'rgba(38, 166, 154, 0.25)',
-            borderRadius: '28px'
-          }}>
+          <TabsList className="flex-shrink-0">
             <TabsTrigger value="forum">{t('community.tabs.forum')}</TabsTrigger>
             <TabsTrigger value="groups">{t('community.tabs.groups')}</TabsTrigger>
             <TabsTrigger value="progress">{t('community.tabs.progress')}</TabsTrigger>
           </TabsList>
           {activeTab === 'forum' && (
-            <Button onClick={() => setShowPostForm(true)} className="text-white gap-2 flex-shrink-0" style={{
-              borderRadius: '24px',
-              backgroundColor: '#26A69A',
-              boxShadow: '0 6px 20px rgba(38, 166, 154, 0.3)'
-            }}>
+            <Button onClick={() => setShowPostForm(true)} className="gap-2 flex-shrink-0 rounded-[var(--radius-card)]">
               <Plus className="w-4 h-4" />
               {t('community.buttons.new_post')}
             </Button>
           )}
           {activeTab === 'groups' && (
-            <Button onClick={() => setShowGroupForm(true)} className="text-white gap-2 flex-shrink-0" style={{
-              borderRadius: '24px',
-              backgroundColor: '#26A69A',
-              boxShadow: '0 6px 20px rgba(38, 166, 154, 0.3)'
-            }}>
+            <Button onClick={() => setShowGroupForm(true)} className="gap-2 flex-shrink-0 rounded-[var(--radius-card)]">
               <Plus className="w-4 h-4" />
               {t('community.buttons.create_group')}
             </Button>
           )}
           {activeTab === 'progress' && (
-            <Button onClick={() => setShowProgressForm(true)} className="text-white gap-2 flex-shrink-0" style={{
-              borderRadius: '24px',
-              backgroundColor: '#26A69A',
-              boxShadow: '0 6px 20px rgba(38, 166, 154, 0.3)'
-            }}>
+            <Button onClick={() => setShowProgressForm(true)} className="gap-2 flex-shrink-0 rounded-[var(--radius-card)]">
               <Plus className="w-4 h-4" />
               {t('community.buttons.share_progress')}
             </Button>
