@@ -19,30 +19,30 @@ label {
 
 @layer base {
   :root {
-    --background: 42 34% 96.6%;
+    --background: 44 33% 96.4%;
     --foreground: 188 20% 22%;
-    --card: 40 30% 98.4%;
+    --card: 42 31% 98.2%;
     --card-foreground: 188 20% 22%;
-    --popover: 40 30% 98.4%;
+    --popover: 42 31% 98.2%;
     --popover-foreground: 188 20% 22%;
-    --surface-tint: 154 30% 93.8%;
-    --surface-nested: 154 24% 91.8%;
+    --surface-tint: 154 34% 94.1%;
+    --surface-nested: 154 27% 92.2%;
     --overlay: 195 19% 20%;
-    --primary: 168 40% 43%;
+    --primary: 168 42% 42%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 156 29% 89.6%;
+    --secondary: 156 30% 90.4%;
     --secondary-foreground: 170 28% 28%;
-    --accent: 37 88% 64%;
-    --accent-2: 39 82% 72%;
+    --accent: 37 86% 65%;
+    --accent-2: 39 80% 73%;
     --accent-foreground: 28 42% 18%;
-    --muted: 156 22% 93%;
+    --muted: 154 23% 92.8%;
     --muted-foreground: 190 11% 43%;
     --destructive: 0 67% 58%;
     --destructive-foreground: 0 0% 100%;
-    --border: 156 18% 82.5%;
-    --input: 156 18% 82.5%;
-    --ring: 168 40% 43%;
-    --surface-2: 154 24% 92.6%;
+    --border: 156 20% 81.5%;
+    --input: 156 20% 81.5%;
+    --ring: 168 42% 42%;
+    --surface-2: 154 25% 92.8%;
     --success: 145 35% 47%;
     --warning: 38 88% 58%;
     --danger: 0 67% 58%;
@@ -313,21 +313,24 @@ label {
   }
 
   .surface-primary {
-    background-color: hsl(var(--card));
-    border: 1px solid hsl(var(--border) / 0.92);
+    background-color: hsl(var(--card) / 0.94);
+    border: 1px solid hsl(var(--border) / 0.9);
     box-shadow: var(--shadow-md);
+    backdrop-filter: blur(14px);
   }
 
   .surface-secondary {
-    background-color: hsl(var(--surface-tint));
-    border: 1px solid hsl(var(--border) / 0.88);
+    background-color: hsl(var(--surface-tint) / 0.9);
+    border: 1px solid hsl(var(--border) / 0.86);
     box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(10px);
   }
 
   .surface-nested {
-    background-color: hsl(var(--surface-nested));
-    border: 1px solid hsl(var(--border) / 0.82);
+    background-color: hsl(var(--surface-nested) / 0.88);
+    border: 1px solid hsl(var(--border) / 0.8);
     box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(8px);
   }
   
   /* Enhanced spacing utilities */
@@ -416,6 +419,33 @@ label {
       padding-bottom: calc(12px + env(safe-area-inset-bottom, 0));
     }
   }
+}
+
+/* Calm Oasis rich text editor styling */
+.ql-toolbar.ql-snow {
+  border: 1px solid hsl(var(--border) / 0.86) !important;
+  border-bottom: 0 !important;
+  background: hsl(var(--surface-tint) / 0.82);
+  border-top-left-radius: var(--radius-control);
+  border-top-right-radius: var(--radius-control);
+}
+
+.ql-container.ql-snow {
+  border: 1px solid hsl(var(--border) / 0.86) !important;
+  background: hsl(var(--card) / 0.9);
+  color: hsl(var(--foreground));
+  border-bottom-left-radius: var(--radius-control);
+  border-bottom-right-radius: var(--radius-control);
+}
+
+.ql-editor.ql-blank::before {
+  color: hsl(var(--muted-foreground)) !important;
+  font-style: normal !important;
+}
+
+.dark .ql-toolbar.ql-snow,
+.dark .ql-container.ql-snow {
+  backdrop-filter: none;
 }
 
 /* Scrollbar styling - soft and unobtrusive */

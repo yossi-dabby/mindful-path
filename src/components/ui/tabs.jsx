@@ -9,7 +9,7 @@ const TabsList = React.forwardRef(({ className, ...props }, ref) => (
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex min-h-[44px] items-center justify-center gap-1 rounded-[var(--radius-control)] border border-border/70 bg-[hsl(var(--surface-tint))] p-1 text-muted-foreground shadow-[var(--shadow-sm)]",
+      "inline-flex min-h-[44px] items-center justify-center gap-1 rounded-[var(--radius-control)] border border-border/60 bg-[hsl(var(--surface-tint)/0.92)] p-1 text-muted-foreground shadow-[var(--shadow-sm)] backdrop-blur-[8px]",
       className
     )}
     {...props} />
@@ -20,7 +20,7 @@ const TabsTrigger = React.forwardRef(({ className, ...props }, ref) => (
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-[calc(var(--radius-control)-2px)] px-3 py-1 min-h-[44px] md:min-h-0 text-[0.875rem] font-medium leading-none tracking-[0.003em] text-muted-foreground ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:text-foreground data-[state=active]:border data-[state=active]:border-border/70 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-[var(--shadow-sm)]",
+      "inline-flex items-center justify-center whitespace-nowrap rounded-[calc(var(--radius-control)-2px)] px-3 py-1 min-h-[44px] md:min-h-0 text-[0.875rem] font-medium leading-none tracking-[0.003em] text-muted-foreground ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]",
       className
     )}
     {...props} />
