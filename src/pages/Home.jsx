@@ -265,12 +265,7 @@ export default function Home() {
                 onClick={() => setShowGoalsVideo(true)}
                 size="icon"
                 variant="ghost"
-                className="md:hidden p-0 h-6 w-6"
-                style={{
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(255, 215, 0, 0.15)',
-                  opacity: 0.9
-                }}
+                className="md:hidden p-0 h-6 w-6 rounded-full bg-accent/15 text-accent hover:bg-accent/20"
                 title="Watch help video"
                 aria-label="Watch goals help video"
               >
@@ -283,16 +278,11 @@ export default function Home() {
               onClick={() => setShowGoalsVideo(true)}
               size="icon"
               variant="ghost"
-              className="hidden md:flex p-0 h-7 w-7 mt-2 mx-auto"
-              style={{
-                borderRadius: '50%',
-                backgroundColor: 'rgba(255, 215, 0, 0.15)',
-                opacity: 0.9
-              }}
+              className="hidden md:flex p-0 h-7 w-7 mt-2 mx-auto rounded-full bg-accent/15 text-accent hover:bg-accent/20"
               title="Watch help video"
               aria-label="Watch goals help video"
             >
-              <Sparkles className="w-4 h-4" style={{ color: '#FFD700' }} strokeWidth={2} />
+              <Sparkles className="w-4 h-4 text-accent" strokeWidth={2} />
             </Button>
           </div>
           <div className="surface-secondary rounded-[var(--radius-card)] p-5 text-center relative">
@@ -317,12 +307,7 @@ export default function Home() {
                 onClick={() => setShowJournalVideo(true)}
                 size="icon"
                 variant="ghost"
-                className="md:hidden p-0 h-6 w-6"
-                style={{
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(255, 215, 0, 0.15)',
-                  opacity: 0.9
-                }}
+                className="md:hidden p-0 h-6 w-6 rounded-full bg-accent/15 text-accent hover:bg-accent/20"
                 title="Watch help video"
                 aria-label="Watch journal help video"
               >
@@ -335,16 +320,11 @@ export default function Home() {
               onClick={() => setShowJournalVideo(true)}
               size="icon"
               variant="ghost"
-              className="hidden md:flex p-0 h-7 w-7 mt-2 mx-auto"
-              style={{
-                borderRadius: '50%',
-                backgroundColor: 'rgba(255, 215, 0, 0.15)',
-                opacity: 0.9
-              }}
+              className="hidden md:flex p-0 h-7 w-7 mt-2 mx-auto rounded-full bg-accent/15 text-accent hover:bg-accent/20"
               title="Watch help video"
               aria-label="Watch journal help video"
             >
-              <Sparkles className="w-4 h-4" style={{ color: '#FFD700' }} strokeWidth={2} />
+              <Sparkles className="w-4 h-4 text-accent" strokeWidth={2} />
             </Button>
           </div>
           <StreakWidget compact />
@@ -355,7 +335,7 @@ export default function Home() {
         {goalsError && (
           <Card className="mt-6 border border-destructive/20 bg-destructive/5">
             <CardContent className="p-4 text-center">
-              <p className="text-sm text-gray-700 mb-2">{t('home.error.goals_load')}</p>
+              <p className="text-sm text-foreground mb-2">{t('home.error.goals_load')}</p>
               <Button
                 onClick={() => refetchGoals()}
                 size="sm"
@@ -372,7 +352,7 @@ export default function Home() {
         {journalsError && (
           <Card className="mt-6 border border-destructive/20 bg-destructive/5">
             <CardContent className="p-4 text-center">
-              <p className="text-sm text-gray-700 mb-2">{t('home.error.journal_load')}</p>
+              <p className="text-sm text-foreground mb-2">{t('home.error.journal_load')}</p>
               <Button
                 onClick={() => refetchJournals()}
                 size="sm"

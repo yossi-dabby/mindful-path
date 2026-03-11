@@ -48,20 +48,15 @@ export default function BadgeDisplay({ compact = false }) {
 
   if (compact) {
     return (
-      <Card className="border-0 hover:shadow-xl transition-calm" style={{ 
-        borderRadius: '28px',
-        background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.85) 0%, rgba(180, 220, 210, 0.75) 100%)',
-        backdropFilter: 'blur(12px)',
-        boxShadow: '0 8px 32px rgba(38, 166, 154, 0.18), 0 4px 12px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.4)'
-      }}>
+      <Card className="surface-secondary rounded-[var(--radius-card)] hover:shadow-[var(--shadow-lg)] transition-calm border-border/80">
         <CardContent className="p-5 text-center">
-          <div>
-            <Award className="w-8 h-8 mx-auto mb-2" style={{ color: '#ECC94B' }} strokeWidth={2} />
+          <div className="text-accent">
+            <Award className="w-8 h-8 mx-auto mb-2" strokeWidth={2} />
           </div>
-          <p className="text-2xl font-bold mb-1" style={{ color: '#1A3A34' }}>{earnedBadges.length}</p>
-          <p className="text-xs" style={{ color: '#3D5A52' }}>Badges</p>
+          <p className="text-2xl font-bold mb-1 text-foreground">{earnedBadges.length}</p>
+          <p className="text-xs text-muted-foreground">Badges</p>
           {inProgressBadges.length > 0 && (
-            <p className="text-xs mt-1" style={{ color: '#7A9A92' }}>{inProgressBadges.length} in progress</p>
+            <p className="text-xs mt-1 text-muted-foreground">{inProgressBadges.length} in progress</p>
           )}
         </CardContent>
       </Card>

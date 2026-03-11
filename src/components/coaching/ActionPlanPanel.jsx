@@ -72,10 +72,10 @@ export default function ActionPlanPanel({ session, onClose, onUpdate }) {
           <div
             key={index}
             className={cn(
-              'p-3 rounded-xl border-2 transition-all',
+              'p-3 rounded-[var(--radius-control)] border transition-all',
               action.completed 
-                ? 'bg-green-50 border-green-200' 
-                : 'bg-white border-gray-200'
+                ? 'bg-primary/10 border-primary/20' 
+                : 'bg-card border-border/70'
             )}
           >
             <div className="flex items-start gap-3">
@@ -87,12 +87,12 @@ export default function ActionPlanPanel({ session, onClose, onUpdate }) {
               <div className="flex-1">
                 <p className={cn(
                   'text-sm font-medium',
-                  action.completed ? 'line-through text-gray-500' : 'text-gray-800'
+                  action.completed ? 'line-through text-muted-foreground' : 'text-foreground'
                 )}>
                   {action.action}
                 </p>
                 {action.timeline && (
-                  <p className="text-xs text-gray-500 mt-1">📅 {action.timeline}</p>
+                  <p className="text-xs text-muted-foreground mt-1">📅 {action.timeline}</p>
                 )}
               </div>
               <Button
@@ -109,25 +109,23 @@ export default function ActionPlanPanel({ session, onClose, onUpdate }) {
         ))}
 
         {isAdding ? (
-          <Card className="border-2 border-purple-200 bg-purple-50">
+          <Card className="border border-border/70 bg-secondary/45">
             <CardContent className="p-3 space-y-2">
               <Input
                 value={newAction.action}
                 onChange={(e) => setNewAction({ ...newAction, action: e.target.value })}
                 placeholder="Action step..."
-                className="bg-white"
               />
               <Input
                 value={newAction.timeline}
                 onChange={(e) => setNewAction({ ...newAction, timeline: e.target.value })}
                 placeholder="Timeline (optional)"
-                className="bg-white"
               />
               <div className="flex gap-2">
                 <Button
                   size="sm"
                   onClick={addAction}
-                  className="flex-1 bg-purple-600 hover:bg-purple-700"
+                  className="flex-1"
                 >
                   Add
                 </Button>
@@ -156,8 +154,8 @@ export default function ActionPlanPanel({ session, onClose, onUpdate }) {
         )}
 
         {session.action_plan?.length === 0 && !isAdding && (
-          <div className="text-center py-8 text-gray-500">
-            <Circle className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+          <div className="text-center py-8 text-muted-foreground">
+            <Circle className="w-8 h-8 mx-auto mb-2 text-muted-foreground/40" />
             <p className="text-sm">No actions yet</p>
             <p className="text-xs mt-1">Work with your coach to create your plan</p>
           </div>

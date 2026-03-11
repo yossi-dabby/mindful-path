@@ -153,10 +153,7 @@ export default function QuickActions() {
             >
               <CardContent className="p-5">
                 <div className="flex items-center gap-3 mb-4">
-                  <div 
-                    className="w-14 h-14 flex items-center justify-center"
-                    className="w-14 h-14 flex items-center justify-center rounded-[var(--radius-control)] bg-accent text-accent-foreground shadow-[var(--shadow-sm)]"
-                    >
+                  <div className="w-14 h-14 flex items-center justify-center rounded-[var(--radius-control)] bg-accent text-accent-foreground shadow-[var(--shadow-sm)]">
                     <Sparkles className="w-7 h-7" strokeWidth={2.5} />
                   </div>
                   <button
@@ -188,10 +185,7 @@ export default function QuickActions() {
                 <CardContent className="p-5">
                   {/* Always-visible header row — same layout as other cards */}
                   <div className="flex items-center gap-3 mb-4">
-                    <div
-                      className="w-14 h-14 flex items-center justify-center flex-shrink-0"
-                      className="w-14 h-14 flex items-center justify-center flex-shrink-0 rounded-[var(--radius-control)] bg-primary text-primary-foreground shadow-[var(--shadow-sm)]"
-                      >
+                    <div className="w-14 h-14 flex items-center justify-center flex-shrink-0 rounded-[var(--radius-control)] bg-primary text-primary-foreground shadow-[var(--shadow-sm)]">
                       <Sparkles className="w-7 h-7 text-white" strokeWidth={2.5} />
                     </div>
 
@@ -319,23 +313,14 @@ export default function QuickActions() {
                 data-testid={action.testIds ? action.testIds[0] : undefined}
               >
                 <Card 
-                  className="border-0 hover:shadow-xl transition-all cursor-pointer group h-full" 
+                  className="surface-primary rounded-[var(--radius-card)] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group h-full border-border/80"
                   data-testid={action.testIds ? action.testIds[1] : undefined}
-                  style={{
-                  borderRadius: '28px',
-                  background: `linear-gradient(145deg, ${action.bgColor} 0%, rgba(255, 255, 255, 0.7) 100%)`,
-                  backdropFilter: 'blur(12px)',
-                  boxShadow: '0 6px 24px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.6)'
-                }}>
+                >
                   <CardContent className="p-5">
                     <div className="flex items-center gap-3 mb-4">
                       <div 
-                        className="w-14 h-14 flex items-center justify-center"
-                        style={{ 
-                          borderRadius: '20px',
-                          backgroundColor: action.color,
-                          boxShadow: `0 6px 16px ${action.color}40`
-                        }}
+                        className="w-14 h-14 flex items-center justify-center rounded-[var(--radius-control)] shadow-[var(--shadow-sm)]"
+                        style={{ backgroundColor: action.color }}
                       >
                         <Icon className="w-7 h-7 text-white" strokeWidth={2.5} />
                       </div>
@@ -347,23 +332,16 @@ export default function QuickActions() {
                           e.stopPropagation();
                           setActiveVideo(action.videoUrl);
                         }}
-                        className="flex items-center justify-center cursor-pointer hover:scale-110 transition-transform"
-                        style={{ 
-                          width: '56px',
-                          height: '56px',
-                          borderRadius: '20px',
-                          backgroundColor: action.bgColor,
-                          border: 'none',
-                          outline: 'none'
-                        }}
+                        className="flex items-center justify-center cursor-pointer hover:scale-105 transition-transform w-14 h-14 rounded-[var(--radius-control)] border-0 outline-none"
+                        style={{ backgroundColor: action.bgColor }}
                         aria-label="Guided introduction video"
                         title="Guided introduction video"
                       >
                         <User className="w-6 h-6 icon-default" style={{ color: action.color }} strokeWidth={2} />
                       </button>
                     </div>
-                    <h3 className="font-semibold text-sm mb-1 break-words" style={{ color: '#1A3A34' }}>{action.title}</h3>
-                    <p className="text-xs line-clamp-2 break-words" style={{ color: '#5A7A72' }}>{action.description}</p>
+                    <h3 className="font-semibold text-sm mb-1 break-words text-foreground">{action.title}</h3>
+                    <p className="text-xs line-clamp-2 break-words text-muted-foreground">{action.description}</p>
                   </CardContent>
                 </Card>
               </Link>

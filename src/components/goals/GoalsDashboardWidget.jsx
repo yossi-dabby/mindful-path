@@ -61,7 +61,7 @@ export default function GoalsDashboardWidget() {
 
   if (isLoading) {
     return (
-      <Card className="border-0 shadow-md">
+      <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
         <CardContent className="p-6">
           <div className="animate-pulse space-y-4">
             <div className="h-4 bg-gray-200 rounded w-1/3" />
@@ -74,7 +74,7 @@ export default function GoalsDashboardWidget() {
 
   if (goals.length === 0) {
     return (
-      <Card className="border-0 shadow-md">
+      <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
         <CardContent className="p-6 text-center">
           <Target className="w-12 h-12 text-gray-300 mx-auto mb-3" />
           <p className="text-sm text-gray-500 mb-3">{t('goals_dashboard_widget.no_goals_yet')}</p>
@@ -87,7 +87,7 @@ export default function GoalsDashboardWidget() {
   }
 
   return (
-    <Card className="border-0 shadow-md">
+    <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -96,22 +96,14 @@ export default function GoalsDashboardWidget() {
           </div>
           <button
             onClick={() => setShowVideo(true)}
-            className="flex items-center justify-center cursor-pointer hover:scale-110 transition-transform"
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '14px',
-              backgroundColor: 'rgba(66, 153, 225, 0.15)',
-              border: 'none',
-              outline: 'none'
-            }}
+            className="flex items-center justify-center cursor-pointer hover:scale-105 transition-transform w-10 h-10 rounded-[var(--radius-nested)] bg-secondary text-primary border-0 outline-none"
             aria-label="Guided introduction video"
             title="Guided introduction video"
           >
-            <User className="w-5 h-5" style={{ color: '#4299E1' }} strokeWidth={2} />
+            <User className="w-5 h-5 text-primary" strokeWidth={2} />
           </button>
         </CardTitle>
-        <p className="text-xs text-gray-500 mt-0.5">{t('goals_dashboard_widget.all_stages')}</p>
+        <p className="text-xs text-muted-foreground mt-0.5">{t('goals_dashboard_widget.all_stages')}</p>
       </CardHeader>
       {showVideo && (
         <VideoModal
