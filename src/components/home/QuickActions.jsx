@@ -143,31 +143,21 @@ export default function QuickActions() {
 
   return (
     <div className="mb-6">
-      <h2 className="text-lg font-semibold mb-4 truncate" style={{ color: '#1A3A34' }}>{t('quick_actions.title')}</h2>
+      <h2 className="text-lg font-semibold mb-4 truncate text-foreground">{t('quick_actions.title')}</h2>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 w-full overflow-x-hidden">
         {/* AI Recommendations Card */}
         <div className="relative">
           <Card 
-              className="border-0 hover:shadow-xl transition-all cursor-pointer group h-full" 
-              style={{
-                borderRadius: '28px',
-                background: 'linear-gradient(145deg, rgba(255, 142, 66, 0.15) 0%, rgba(255, 255, 255, 0.7) 100%)',
-                backdropFilter: 'blur(12px)',
-                boxShadow: '0 6px 24px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.6)'
-              }}
+              className="surface-primary rounded-[var(--radius-card)] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group h-full border-border/80"
               onClick={() => setShowRecommendations(true)}
             >
               <CardContent className="p-5">
                 <div className="flex items-center gap-3 mb-4">
                   <div 
                     className="w-14 h-14 flex items-center justify-center"
-                    style={{ 
-                      borderRadius: '20px',
-                      backgroundColor: 'rgb(var(--theme-accent))',
-                      boxShadow: '0 6px 16px rgba(255, 142, 66, 0.4)'
-                    }}
-                  >
-                    <Sparkles className="w-7 h-7 text-white" strokeWidth={2.5} />
+                    className="w-14 h-14 flex items-center justify-center rounded-[var(--radius-control)] bg-accent text-accent-foreground shadow-[var(--shadow-sm)]"
+                    >
+                    <Sparkles className="w-7 h-7" strokeWidth={2.5} />
                   </div>
                   <button
                     onClick={(e) => {
@@ -175,23 +165,15 @@ export default function QuickActions() {
                       e.stopPropagation();
                       setShowRecommendedVideo(true);
                     }}
-                    className="flex items-center justify-center cursor-pointer hover:scale-110 transition-transform"
-                    style={{
-                      width: '56px',
-                      height: '56px',
-                      borderRadius: '20px',
-                      backgroundColor: 'rgba(255, 142, 66, 0.15)',
-                      border: 'none',
-                      outline: 'none'
-                    }}
+                    className="flex items-center justify-center cursor-pointer hover:scale-105 transition-transform w-14 h-14 rounded-[var(--radius-control)] bg-secondary text-primary border-0 outline-none"
                     aria-label="Guided introduction video"
                     title="Guided introduction video"
                   >
-                    <User className="w-6 h-6 icon-default" style={{ color: 'rgb(var(--theme-accent))' }} strokeWidth={2} />
+                    <User className="w-6 h-6 icon-default text-primary" strokeWidth={2} />
                   </button>
                 </div>
-                <h3 className="font-semibold text-sm mb-1 break-words" style={{ color: '#1A3A34' }}>{t('quick_actions.recommended.title')}</h3>
-                <p className="text-xs line-clamp-2 break-words" style={{ color: '#5A7A72' }}>{t('quick_actions.recommended.description')}</p>
+                <h3 className="font-semibold text-sm mb-1 break-words text-foreground">{t('quick_actions.recommended.title')}</h3>
+                <p className="text-xs line-clamp-2 break-words text-muted-foreground">{t('quick_actions.recommended.description')}</p>
               </CardContent>
             </Card>
         </div>
@@ -200,13 +182,7 @@ export default function QuickActions() {
         {!pathLoading && (
           <div className="relative">
               <Card
-                className="border-0 hover:shadow-xl transition-all cursor-pointer group h-full"
-                style={{
-                  borderRadius: '28px',
-                  background: 'linear-gradient(145deg, rgba(38, 166, 154, 0.15) 0%, rgba(255, 255, 255, 0.7) 100%)',
-                  backdropFilter: 'blur(12px)',
-                  boxShadow: '0 6px 24px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.6)'
-                }}
+                className="surface-primary rounded-[var(--radius-card)] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group h-full border-border/80"
                 onClick={() => setStarterPathExpanded(v => !v)}
               >
                 <CardContent className="p-5">
@@ -214,12 +190,8 @@ export default function QuickActions() {
                   <div className="flex items-center gap-3 mb-4">
                     <div
                       className="w-14 h-14 flex items-center justify-center flex-shrink-0"
-                      style={{
-                        borderRadius: '20px',
-                        backgroundColor: '#26A69A',
-                        boxShadow: '0 6px 16px rgba(38, 166, 154, 0.4)'
-                      }}
-                    >
+                      className="w-14 h-14 flex items-center justify-center flex-shrink-0 rounded-[var(--radius-control)] bg-primary text-primary-foreground shadow-[var(--shadow-sm)]"
+                      >
                       <Sparkles className="w-7 h-7 text-white" strokeWidth={2.5} />
                     </div>
 
@@ -229,41 +201,29 @@ export default function QuickActions() {
                         e.stopPropagation();
                         setShowStarterPathVideo(true);
                       }}
-                      className="flex items-center justify-center cursor-pointer hover:scale-110 transition-transform flex-shrink-0"
-                      style={{
-                        width: '56px',
-                        height: '56px',
-                        borderRadius: '20px',
-                        backgroundColor: 'rgba(38, 166, 154, 0.15)',
-                        border: 'none',
-                        outline: 'none'
-                      }}
+                      className="flex items-center justify-center cursor-pointer hover:scale-105 transition-transform flex-shrink-0 w-14 h-14 rounded-[var(--radius-control)] bg-secondary text-primary border-0 outline-none"
                       aria-label="Guided introduction video"
                       title="Guided introduction video"
                     >
-                      <User className="w-6 h-6 icon-default" style={{ color: '#26A69A' }} strokeWidth={2} />
+                      <User className="w-6 h-6 icon-default text-primary" strokeWidth={2} />
                     </button>
                   </div>
 
                   {/* Title row */}
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-sm break-words leading-tight" style={{ color: '#1A3A34' }}>
+                    <h3 className="font-semibold text-sm break-words leading-tight text-foreground">
                       {t('starter_path.card_title')}
                     </h3>
                     <div className="flex items-center gap-1 flex-shrink-0 ml-1">
                       {isStarted && (
-                        <Badge variant="secondary" className="border-0 text-xs" style={{
-                          borderRadius: '12px',
-                          backgroundColor: 'rgba(38, 166, 154, 0.15)',
-                          color: '#26A69A'
-                        }}>
+                        <Badge variant="default" className="text-xs">
                           {currentDay}/7
                         </Badge>
                       )}
                       <motion.span
                         animate={{ rotate: starterPathExpanded ? 180 : 0 }}
                         transition={{ duration: 0.2 }}
-                        style={{ color: '#26A69A', display: 'inline-flex' }}
+                        className="text-primary inline-flex"
                       >
                         <ArrowRight className="w-3 h-3" style={{ transform: 'rotate(90deg)' }} strokeWidth={2.5} />
                       </motion.span>
@@ -281,7 +241,7 @@ export default function QuickActions() {
                         style={{ overflow: 'hidden' }}
                         onClick={e => e.stopPropagation()}
                       >
-                        <p className="text-xs mt-2 mb-3 line-clamp-2 break-words" style={{ color: '#5A7A72' }}>
+                        <p className="text-xs mt-2 mb-3 line-clamp-2 break-words text-muted-foreground">
                           {isStarted
                             ? t(`starter_path.day_themes.${currentDay}.description`, { defaultValue: t('starter_path.card_description_continue') })
                             : t('starter_path.card_description_new')}
@@ -312,8 +272,7 @@ export default function QuickActions() {
                             <>
                               <Link to={createPageUrl('StarterPath')} className="flex-1" onClick={e => e.stopPropagation()}>
                                 <Button
-                                  className="w-full px-4 py-2 font-medium transition-calm text-white text-xs"
-                                  style={{ borderRadius: '16px', backgroundColor: '#26A69A' }}
+                                  className="w-full px-4 py-2 font-medium transition-calm text-xs"
                                 >
                                   {isCompleted ? t('starter_path.card_btn_review') : t('starter_path.card_btn_continue')}
                                   <ArrowRight className="w-3 h-3 ml-1" strokeWidth={2} />
@@ -325,11 +284,10 @@ export default function QuickActions() {
                                   disabled={refreshPathMutation.isPending}
                                   variant="outline"
                                   size="icon"
-                                  className="flex-shrink-0"
-                                  style={{ borderRadius: '16px', borderColor: 'rgba(38, 166, 154, 0.3)' }}
+                                  className="flex-shrink-0 rounded-[var(--radius-control)]"
                                   aria-label="Restart path"
                                 >
-                                  <RefreshCw className="w-4 h-4" style={{ color: '#26A69A' }} strokeWidth={2} />
+                                  <RefreshCw className="w-4 h-4 text-primary" strokeWidth={2} />
                                 </Button>
                               )}
                             </>
@@ -337,8 +295,7 @@ export default function QuickActions() {
                             <Button
                               onClick={(e) => { e.stopPropagation(); startPathMutation.mutate(); }}
                               disabled={startPathMutation.isPending}
-                              className="w-full px-4 py-2 font-medium transition-calm text-white text-xs"
-                              style={{ borderRadius: '16px', backgroundColor: '#26A69A' }}
+                              className="w-full px-4 py-2 font-medium transition-calm text-xs"
                             >
                               {startPathMutation.isPending ? t('starter_path.card_btn_starting') : t('starter_path.card_btn_start')}
                               <ArrowRight className="w-3 h-3 ml-1" strokeWidth={2} />

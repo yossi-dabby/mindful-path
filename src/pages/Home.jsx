@@ -220,14 +220,11 @@ export default function Home() {
 
   return (
     <PullToRefresh queryKeys={['recentGoals', 'recentJournals', 'todayFlow', 'todayMood', 'todayExercise']}>
-      <div className="w-full" style={{ 
-        minHeight: '100dvh',
-        background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)'
-      }}>
+      <div className="w-full min-h-[100dvh]">
         <div className="page-container max-w-5xl mx-auto w-full pb-24">
         {/* Header */}
-        <div className="mb-4 mt-6">
-          <h1 className="text-xl md:text-2xl font-normal mb-2" style={{ color: '#1A3A34' }}>
+        <div className="mb-6 mt-6">
+          <h1 className="text-2xl md:text-3xl font-semibold mb-2 text-foreground">
             {greeting()}{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
           </h1>
         </div>
@@ -246,31 +243,21 @@ export default function Home() {
         {/* Quick Stats */}
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="p-5 text-center relative" style={{ 
-            borderRadius: '28px',
-            background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.85) 0%, rgba(180, 220, 210, 0.75) 100%)',
-            backdropFilter: 'blur(12px)',
-            boxShadow: '0 8px 32px rgba(38, 166, 154, 0.18), 0 4px 12px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.4)'
-          }}>
+          <div className="surface-secondary rounded-[var(--radius-card)] p-5 text-center relative">
             <div className="flex items-center justify-center gap-2 mb-1">
               {latestGoal && (
                 <Link to={createPageUrl('Goals', `goal=${latestGoal.id}`)}>
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="p-0 h-8 w-8 hover:bg-transparent flex items-center justify-center"
-                    style={{
-                      borderRadius: '50%',
-                      backgroundColor: 'rgba(56, 178, 172, 0.15)',
-                      color: '#38B2AC'
-                    }}
+                    className="p-0 h-8 w-8 hover:bg-secondary/80 text-primary flex items-center justify-center rounded-full bg-secondary"
                     aria-label="View goal details"
                   >
                     <Target className="w-4 h-4" />
                   </Button>
                 </Link>
               )}
-              <p className="text-2xl font-bold" style={{ color: '#1A3A34' }}>{recentGoals.length}</p>
+              <p className="text-2xl font-bold text-foreground">{recentGoals.length}</p>
             </div>
             <div className="flex items-center justify-center gap-2">
               {/* Help Video Button - MOBILE: LEFT of text */}
@@ -287,9 +274,9 @@ export default function Home() {
                 title="Watch help video"
                 aria-label="Watch goals help video"
               >
-                <Sparkles className="w-3 h-3" style={{ color: '#FFD700' }} strokeWidth={2} />
+                <Sparkles className="w-3 h-3 text-accent" strokeWidth={2} />
               </Button>
-              <p className="text-xs" style={{ color: '#3D5A52' }}>{t('home.active_goals')}</p>
+              <p className="text-xs text-muted-foreground">{t('home.active_goals')}</p>
             </div>
             {/* Help Video Button - WEB: Below text */}
             <Button
@@ -308,31 +295,21 @@ export default function Home() {
               <Sparkles className="w-4 h-4" style={{ color: '#FFD700' }} strokeWidth={2} />
             </Button>
           </div>
-          <div className="p-5 text-center relative" style={{ 
-            borderRadius: '28px',
-            background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.85) 0%, rgba(180, 220, 210, 0.75) 100%)',
-            backdropFilter: 'blur(12px)',
-            boxShadow: '0 8px 32px rgba(38, 166, 154, 0.18), 0 4px 12px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.4)'
-          }}>
+          <div className="surface-secondary rounded-[var(--radius-card)] p-5 text-center relative">
             <div className="flex items-center justify-center gap-2 mb-1">
               {savedEntryId && (
                 <Link to={createPageUrl('Journal', `entry=${savedEntryId}`)}>
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="p-0 h-8 w-8 hover:bg-transparent flex items-center justify-center"
-                    style={{
-                      borderRadius: '50%',
-                      backgroundColor: 'rgba(159, 122, 234, 0.15)',
-                      color: '#9F7AEA'
-                    }}
+                    className="p-0 h-8 w-8 hover:bg-secondary/80 text-primary flex items-center justify-center rounded-full bg-secondary"
                     aria-label="View journal entry"
                   >
                     <BookOpen className="w-4 h-4" />
                   </Button>
                 </Link>
               )}
-              <p className="text-2xl font-bold" style={{ color: '#1A3A34' }}>{journalCount}</p>
+              <p className="text-2xl font-bold text-foreground">{journalCount}</p>
             </div>
             <div className="flex items-center justify-center gap-2">
               {/* Help Video Button - MOBILE: LEFT of text */}
@@ -349,9 +326,9 @@ export default function Home() {
                 title="Watch help video"
                 aria-label="Watch journal help video"
               >
-                <Sparkles className="w-3 h-3" style={{ color: '#FFD700' }} strokeWidth={2} />
+                <Sparkles className="w-3 h-3 text-accent" strokeWidth={2} />
               </Button>
-              <p className="text-xs" style={{ color: '#3D5A52' }}>{t('home.journal_entries')}</p>
+              <p className="text-xs text-muted-foreground">{t('home.journal_entries')}</p>
             </div>
             {/* Help Video Button - WEB: Below text */}
             <Button
@@ -376,11 +353,7 @@ export default function Home() {
 
         {/* Error State for Goals */}
         {goalsError && (
-          <Card className="mt-6 border-0" style={{
-            borderRadius: '24px',
-            background: 'rgba(254, 242, 242, 0.8)',
-            border: '1px solid rgba(239, 68, 68, 0.2)'
-          }}>
+          <Card className="mt-6 border border-destructive/20 bg-destructive/5">
             <CardContent className="p-4 text-center">
               <p className="text-sm text-gray-700 mb-2">{t('home.error.goals_load')}</p>
               <Button
@@ -397,11 +370,7 @@ export default function Home() {
 
         {/* Error State for Journal */}
         {journalsError && (
-          <Card className="mt-6 border-0" style={{
-            borderRadius: '24px',
-            background: 'rgba(254, 242, 242, 0.8)',
-            border: '1px solid rgba(239, 68, 68, 0.2)'
-          }}>
+          <Card className="mt-6 border border-destructive/20 bg-destructive/5">
             <CardContent className="p-4 text-center">
               <p className="text-sm text-gray-700 mb-2">{t('home.error.journal_load')}</p>
               <Button
