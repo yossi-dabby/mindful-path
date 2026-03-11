@@ -19,30 +19,30 @@ label {
 
 @layer base {
   :root {
-    --background: 156 24% 97%;
-    --foreground: 195 19% 20%;
-    --card: 42 20% 99%;
-    --card-foreground: 195 19% 20%;
-    --popover: 42 20% 99%;
-    --popover-foreground: 195 19% 20%;
-    --surface-tint: 156 20% 95%;
-    --surface-nested: 156 18% 93%;
+    --background: 42 34% 96.6%;
+    --foreground: 188 20% 22%;
+    --card: 40 30% 98.4%;
+    --card-foreground: 188 20% 22%;
+    --popover: 40 30% 98.4%;
+    --popover-foreground: 188 20% 22%;
+    --surface-tint: 154 30% 93.8%;
+    --surface-nested: 154 24% 91.8%;
     --overlay: 195 19% 20%;
-    --primary: 168 34% 42%;
+    --primary: 168 40% 43%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 156 24% 92%;
-    --secondary-foreground: 170 27% 27%;
-    --accent: 37 92% 63%;
-    --accent-2: 39 88% 70%;
+    --secondary: 156 29% 89.6%;
+    --secondary-foreground: 170 28% 28%;
+    --accent: 37 88% 64%;
+    --accent-2: 39 82% 72%;
     --accent-foreground: 28 42% 18%;
-    --muted: 156 16% 94%;
-    --muted-foreground: 198 10% 42%;
+    --muted: 156 22% 93%;
+    --muted-foreground: 190 11% 43%;
     --destructive: 0 67% 58%;
     --destructive-foreground: 0 0% 100%;
-    --border: 160 16% 86%;
-    --input: 160 16% 86%;
-    --ring: 168 34% 42%;
-    --surface-2: 156 18% 94%;
+    --border: 156 18% 82.5%;
+    --input: 156 18% 82.5%;
+    --ring: 168 40% 43%;
+    --surface-2: 154 24% 92.6%;
     --success: 145 35% 47%;
     --warning: 38 88% 58%;
     --danger: 0 67% 58%;
@@ -64,9 +64,9 @@ label {
     --radius-card: 1rem;
     --radius-chip: 999px;
     --radius: var(--radius-control);
-    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 1px rgba(15, 23, 42, 0.03);
-    --shadow-md: 0 8px 24px rgba(22, 38, 34, 0.06), 0 2px 8px rgba(22, 38, 34, 0.04);
-    --shadow-lg: 0 18px 42px rgba(22, 38, 34, 0.08), 0 6px 18px rgba(22, 38, 34, 0.05);
+    --shadow-sm: 0 1px 2px rgba(57, 74, 69, 0.05), 0 1px 1px rgba(57, 74, 69, 0.035);
+    --shadow-md: 0 10px 28px rgba(71, 95, 86, 0.08), 0 3px 10px rgba(71, 95, 86, 0.045);
+    --shadow-lg: 0 20px 48px rgba(71, 95, 86, 0.11), 0 8px 20px rgba(71, 95, 86, 0.06);
 
     /* Legacy compatibility tokens kept for existing theme hooks */
     --color-primary: 104 176 162;
@@ -280,15 +280,15 @@ label {
   
   /* Soft gradient backgrounds - calm, warm, premium */
   .bg-warm-gradient {
-    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(38 55% 95%) 100%);
+    background: linear-gradient(180deg, hsl(150 30% 96.5%) 0%, hsl(var(--background)) 44%, hsl(38 56% 94.8%) 100%);
   }
   
   .bg-calm-gradient {
-    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(188 38% 95%) 100%);
+    background: linear-gradient(180deg, hsl(168 28% 95.8%) 0%, hsl(var(--background)) 48%, hsl(194 34% 95%) 100%);
   }
   
   .bg-energy-gradient {
-    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(42 62% 94%) 100%);
+    background: linear-gradient(180deg, hsl(42 54% 95.6%) 0%, hsl(var(--background)) 46%, hsl(35 60% 94.4%) 100%);
   }
 
   .bg-theme-forest {
@@ -314,19 +314,19 @@ label {
 
   .surface-primary {
     background-color: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
+    border: 1px solid hsl(var(--border) / 0.92);
     box-shadow: var(--shadow-md);
   }
 
   .surface-secondary {
     background-color: hsl(var(--surface-tint));
-    border: 1px solid hsl(var(--border));
+    border: 1px solid hsl(var(--border) / 0.88);
     box-shadow: var(--shadow-sm);
   }
 
   .surface-nested {
     background-color: hsl(var(--surface-nested));
-    border: 1px solid hsl(var(--border));
+    border: 1px solid hsl(var(--border) / 0.82);
     box-shadow: var(--shadow-sm);
   }
   
