@@ -88,12 +88,12 @@ export default function ResourceCard({ resource, isSaved, onSaveToggle }) {
             {resource.category}
           </Badge>
           {resource.estimated_time && (
-            <Badge variant="outline" className="text-xs text-gray-600">
+            <Badge variant="outline" className="text-xs text-muted-foreground">
               {resource.estimated_time}
             </Badge>
           )}
           {resource.difficulty_level && (
-            <Badge variant="outline" className="text-xs text-gray-600 capitalize">
+            <Badge variant="outline" className="text-xs text-muted-foreground capitalize">
               {resource.difficulty_level}
             </Badge>
           )}
@@ -102,7 +102,7 @@ export default function ResourceCard({ resource, isSaved, onSaveToggle }) {
         {resource.tags?.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-4">
             {resource.tags.slice(0, 3).map((tag, i) => (
-              <span key={i} className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+              <span key={i} className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded">
                 {tag}
               </span>
             ))}

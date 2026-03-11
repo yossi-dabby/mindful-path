@@ -37,16 +37,16 @@ export default function HealthDashboard() {
       <div className="space-y-4">
         <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
           <CardContent className="p-12 text-center">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-100 to-green-100 flex items-center justify-center mx-auto mb-4">
-              <Activity className="w-10 h-10 text-blue-600" />
+            <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center mx-auto mb-4 shadow-[var(--shadow-sm)]">
+              <Activity className="w-10 h-10 text-primary" />
             </div>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-2">Track Your Health</h2>
-            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+            <h2 className="text-2xl font-semibold text-foreground mb-2">Track Your Health</h2>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
               Start logging your sleep, activity, and vital signs to unlock holistic insights about your well-being.
             </p>
             <Button
               onClick={() => setShowForm(true)}
-              className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 px-8 py-6 text-lg rounded-xl"
+              className="px-8 py-6 text-lg rounded-[var(--radius-card)]"
             >
               <Plus className="w-5 h-5 mr-2" />
               Log Health Data
@@ -69,8 +69,8 @@ export default function HealthDashboard() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Avg Sleep (7 days)</p>
-                <p className="text-2xl font-bold text-purple-600">
+                <p className="text-sm text-muted-foreground mb-1">Avg Sleep (7 days)</p>
+                <p className="text-2xl font-bold text-foreground">
                   {avgSleep.toFixed(1)}h
                 </p>
               </div>
@@ -83,8 +83,8 @@ export default function HealthDashboard() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Avg Steps (7 days)</p>
-                <p className="text-2xl font-bold text-green-600">
+                <p className="text-sm text-muted-foreground mb-1">Avg Steps (7 days)</p>
+                <p className="text-2xl font-bold text-foreground">
                   {Math.round(avgSteps).toLocaleString()}
                 </p>
               </div>
@@ -97,8 +97,8 @@ export default function HealthDashboard() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Avg Heart Rate</p>
-                <p className="text-2xl font-bold text-red-600">
+                <p className="text-sm text-muted-foreground mb-1">Avg Heart Rate</p>
+                <p className="text-2xl font-bold text-foreground">
                   {Math.round(avgHeartRate)} bpm
                 </p>
               </div>
@@ -109,11 +109,11 @@ export default function HealthDashboard() {
       </div>
 
       {/* Chart */}
-      <Card>
+      <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-800 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5" />
+            <h3 className="font-semibold text-foreground flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-primary" />
               Health Trends (14 days)
             </h3>
             <Button onClick={() => setShowForm(true)} size="sm" className="gap-2">
@@ -126,7 +126,7 @@ export default function HealthDashboard() {
               <XAxis dataKey="date" stroke="#9ca3af" style={{ fontSize: '12px' }} />
               <YAxis stroke="#9ca3af" style={{ fontSize: '12px' }} />
               <Tooltip 
-                contentStyle={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px', color: 'hsl(var(--foreground))' }}
               />
               <Legend />
               <Line type="monotone" dataKey="sleep" stroke="#9333ea" name="Sleep (hrs)" strokeWidth={2} dot={{ r: 4 }} />

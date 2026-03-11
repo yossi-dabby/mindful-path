@@ -212,8 +212,8 @@ export default function EnhancedProgressDashboard() {
                 <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-teal-600" />
               )}
             </div>
-            <p className="text-2xl sm:text-3xl font-bold" style={{ color: '#1A3A34' }}>{metrics.avgMood}</p>
-            <p className="text-xs sm:text-sm mt-1" style={{ color: '#5A7A72' }}>{t('progress.dashboard.avg_mood')}</p>
+            <p className="text-2xl sm:text-3xl font-bold text-foreground">{metrics.avgMood}</p>
+            <p className="text-xs sm:text-sm mt-1 text-muted-foreground">{t('progress.dashboard.avg_mood')}</p>
             <Badge className="mt-2 text-xs" variant="secondary">{t(`progress.dashboard.trend_${metrics.moodTrend}`)}</Badge>
           </CardContent>
         </Card>
@@ -221,26 +221,26 @@ export default function EnhancedProgressDashboard() {
         <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
           <CardContent className="p-4 sm:p-6 text-center">
             <Dumbbell className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2" style={{ color: '#9F7AEA' }} />
-            <p className="text-2xl sm:text-3xl font-bold" style={{ color: '#1A3A34' }}>{metrics.totalExercises}</p>
-            <p className="text-xs sm:text-sm mt-1" style={{ color: '#5A7A72' }}>{t('progress.tabs.exercises')}</p>
-            <p className="text-xs mt-1" style={{ color: '#7A9A92' }}>{metrics.totalExerciseTime} {t('common.minutes_short')}</p>
+            <p className="text-2xl sm:text-3xl font-bold text-foreground">{metrics.totalExercises}</p>
+            <p className="text-xs sm:text-sm mt-1 text-muted-foreground">{t('progress.tabs.exercises')}</p>
+            <p className="text-xs mt-1 text-muted-foreground/80">{metrics.totalExerciseTime} {t('common.minutes_short')}</p>
           </CardContent>
         </Card>
 
         <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
           <CardContent className="p-4 sm:p-6 text-center">
             <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2" style={{ color: '#F6AD55' }} />
-            <p className="text-2xl sm:text-3xl font-bold" style={{ color: '#1A3A34' }}>{metrics.journalCount}</p>
-            <p className="text-xs sm:text-sm mt-1" style={{ color: '#5A7A72' }}>{t('home.journal_entries')}</p>
+            <p className="text-2xl sm:text-3xl font-bold text-foreground">{metrics.journalCount}</p>
+            <p className="text-xs sm:text-sm mt-1 text-muted-foreground">{t('home.journal_entries')}</p>
           </CardContent>
         </Card>
 
         <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
           <CardContent className="p-4 sm:p-6 text-center">
             <Target className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2" style={{ color: '#4299E1' }} />
-            <p className="text-2xl sm:text-3xl font-bold" style={{ color: '#1A3A34' }}>{metrics.completedGoals}</p>
-            <p className="text-xs sm:text-sm mt-1" style={{ color: '#5A7A72' }}>{t('progress.dashboard.goals_achieved')}</p>
-            <p className="text-xs mt-1" style={{ color: '#7A9A92' }}>{metrics.activeGoals} {t('progress.dashboard.active')}</p>
+            <p className="text-2xl sm:text-3xl font-bold text-foreground">{metrics.completedGoals}</p>
+            <p className="text-xs sm:text-sm mt-1 text-muted-foreground">{t('progress.dashboard.goals_achieved')}</p>
+            <p className="text-xs mt-1 text-muted-foreground/80">{metrics.activeGoals} {t('progress.dashboard.active')}</p>
           </CardContent>
         </Card>
       </div>
@@ -279,11 +279,7 @@ export default function EnhancedProgressDashboard() {
       {/* Two-column layout for remaining charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Exercise Frequency */}
-        <Card className="border-0" style={{
-          borderRadius: '24px',
-          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
-          boxShadow: '0 8px 24px rgba(38, 166, 154, 0.1)'
-        }}>
+        <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg" style={{ color: '#1A3A34' }}>
               <Dumbbell className="w-5 h-5" style={{ color: '#9F7AEA' }} />
@@ -304,11 +300,7 @@ export default function EnhancedProgressDashboard() {
         </Card>
 
         {/* Journal Consistency */}
-        <Card className="border-0" style={{
-          borderRadius: '24px',
-          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
-          boxShadow: '0 8px 24px rgba(38, 166, 154, 0.1)'
-        }}>
+        <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg" style={{ color: '#1A3A34' }}>
               <BookOpen className="w-5 h-5" style={{ color: '#F6AD55' }} />
@@ -335,11 +327,7 @@ export default function EnhancedProgressDashboard() {
 
       {/* Goal Progress */}
       {goalProgressData.length > 0 && (
-        <Card className="border-0" style={{
-          borderRadius: '24px',
-          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
-          boxShadow: '0 8px 24px rgba(38, 166, 154, 0.1)'
-        }}>
+        <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg" style={{ color: '#1A3A34' }}>
               <Target className="w-5 h-5" style={{ color: '#4299E1' }} />
