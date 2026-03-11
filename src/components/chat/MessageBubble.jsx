@@ -70,25 +70,25 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   return (
     <div className={cn('flex gap-3', isUser ? 'justify-end flex-row-reverse' : 'justify-start')} dir="ltr">
       {!isUser && (
-        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-green-400 to-purple-400 flex items-center justify-center flex-shrink-0">
-          <span className="text-white text-sm">AI</span>
+        <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]">
+          <span className="text-primary-foreground text-sm">AI</span>
         </div>
       )}
       <div className={cn('max-w-[85%] md:max-w-[70%]', isUser && 'flex flex-col items-end')}>
         {/* AI Thinking Process - collapsible, shown before the response */}
         {!isUser && thinkingContent && (
-          <div className="mb-2 rounded-xl border border-purple-200 bg-purple-50/60 overflow-hidden">
+          <div className="mb-2 rounded-[var(--radius-control)] border border-border/70 bg-secondary/60 overflow-hidden">
             <button
               onClick={() => setThinkingExpanded(prev => !prev)}
-              className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-purple-700 hover:bg-purple-100/60 transition-colors"
+              className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-primary hover:bg-secondary transition-colors"
               aria-expanded={thinkingExpanded}
             >
-              <span className="text-purple-400">✦</span>
+              <span className="text-primary/70">✦</span>
               <span>{t('chat.ai_thinking.label')}</span>
-              <span className="ml-auto text-purple-400">{thinkingExpanded ? '▲' : '▼'}</span>
+              <span className="ml-auto text-primary/70">{thinkingExpanded ? '▲' : '▼'}</span>
             </button>
             {thinkingExpanded && (
-              <div className="px-3 pb-3 pt-1 text-xs text-purple-800 whitespace-pre-wrap leading-relaxed border-t border-purple-200">
+              <div className="px-3 pb-3 pt-1 text-xs text-foreground whitespace-pre-wrap leading-relaxed border-t border-border/70">
                 {thinkingContent}
               </div>
             )}
@@ -96,10 +96,10 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
         )}
         <div
             className={cn(
-              'rounded-2xl px-5 py-3',
+              'rounded-2xl px-5 py-3 shadow-[var(--shadow-sm)]',
               isUser
-                ? 'bg-green-600 text-white'
-                : 'bg-white border border-gray-200 text-gray-800'
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-card border border-border/80 text-foreground'
             )}
           >
             {isUser ? (
@@ -112,10 +112,10 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                     const safeClassName = String(className || '');
                     const safeChildren = children || '';
                     if (inline) {
-                      return <code className="px-1 py-0.5 rounded bg-gray-100 text-gray-800 text-sm">{safeChildren}</code>;
+                      return <code className="px-1 py-0.5 rounded bg-secondary text-foreground text-sm">{safeChildren}</code>;
                     }
                     return (
-                      <pre className="bg-gray-100 rounded-lg p-3 my-2 overflow-x-auto">
+                      <pre className="bg-secondary rounded-lg p-3 my-2 overflow-x-auto">
                         <code className={safeClassName}>{safeChildren}</code>
                       </pre>
                     );
@@ -131,11 +131,11 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                   ),
                   li: ({ children }) => <li className="my-1">{children || ''}</li>,
                   strong: ({ children }) => (
-                    <strong className="font-semibold text-gray-900">{children || ''}</strong>
+                    <strong className="font-semibold text-foreground">{children || ''}</strong>
                   ),
                   em: ({ children }) => <em className="italic">{children || ''}</em>,
                   blockquote: ({ children }) => (
-                    <blockquote className="border-l-4 border-green-300 pl-4 my-3 italic text-gray-600">
+                    <blockquote className="border-l-4 border-primary/35 pl-4 my-3 italic text-muted-foreground">
                       {children || ''}
                     </blockquote>
                   )
@@ -157,8 +157,8 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                   </div>
                   </div>
       {isUser && (
-        <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
-          <span className="text-gray-600 text-sm">You</span>
+        <div className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
+          <span className="text-muted-foreground text-sm">You</span>
         </div>
       )}
     </div>

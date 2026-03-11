@@ -1207,13 +1207,11 @@ export default function Chat() {
   return (
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
-      <div className="h-full flex relative" data-testid="chat-root" data-page-ready={isPageReady} style={{ 
-        background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)'
-      }}>
+      <div className="h-full flex relative bg-transparent" data-testid="chat-root" data-page-ready={isPageReady}>
       {/* Backdrop overlay when sidebar is open - below input area */}
       {showSidebar && currentConversationId && (
         <div 
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30"
+          className="fixed inset-0 bg-[hsl(var(--overlay)/0.18)] backdrop-blur-sm z-30"
           onClick={() => setShowSidebar(false)}
           style={{ zIndex: 30 }}
         />
@@ -1223,12 +1221,8 @@ export default function Chat() {
       <div className={`
         ${showSidebar ? 'block' : 'hidden md:block'} 
         fixed md:relative inset-0 md:inset-auto w-full sm:w-80 
-        shadow-2xl md:shadow-none z-40
-      `} style={{
-        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
-        backdropFilter: 'blur(16px)',
-        borderRight: '1px solid rgba(38, 166, 154, 0.2)'
-      }}>
+        border-r border-border/70 bg-[hsl(var(--sidebar-background)/0.9)] backdrop-blur-2xl shadow-[var(--shadow-lg)] md:shadow-none z-40
+      `}>
         <ErrorBoundary>
           <ConversationsList
             conversations={Array.isArray(conversations) ? conversations : []}
@@ -1244,11 +1238,7 @@ export default function Chat() {
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col min-h-0">
         {/* Header */}
-        <div className="px-4 md:px-6 py-4 flex items-center gap-3" style={{
-          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(232, 246, 243, 0.8) 100%)',
-          backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid rgba(38, 166, 154, 0.2)'
-        }}>
+        <div className="px-4 md:px-6 py-4 flex items-center gap-3 border-b border-border/70 bg-[hsl(var(--card)/0.88)] backdrop-blur-xl">
           <Button
             variant="ghost"
             size="icon"
@@ -1266,8 +1256,8 @@ export default function Chat() {
             <Menu className="w-5 h-5" />
           </Button>
           <div className="flex-1">
-            <h1 className="text-xl font-semibold" style={{ color: '#1A3A34' }}>{t('chat.title')}</h1>
-            <p className="text-sm" style={{ color: '#5A7A72' }}>{t('chat.subtitle')}</p>
+            <h1 className="text-xl font-semibold text-foreground">{t('chat.title')}</h1>
+            <p className="text-sm text-muted-foreground">{t('chat.subtitle')}</p>
           </div>
         </div>
 
@@ -1277,33 +1267,19 @@ export default function Chat() {
             <div className="h-full flex flex-col">
               {/* Welcome Section - Separate container */}
               <div className="flex-1 flex items-center justify-center p-4 md:p-6">
-                <Card className="p-8 max-w-md text-center border-0" style={{
-                  borderRadius: '32px',
-                  background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
-                  backdropFilter: 'blur(16px)',
-                  boxShadow: '0 16px 48px rgba(38, 166, 154, 0.15), 0 6px 20px rgba(0,0,0,0.05), inset 0 2px 0 rgba(255,255,255,0.95)'
-                }}>
-                  <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4" style={{
-                    borderRadius: '22px',
-                    background: 'linear-gradient(145deg, rgba(38, 166, 154, 0.15) 0%, rgba(56, 178, 172, 0.15) 100%)',
-                    boxShadow: '0 4px 12px rgba(38, 166, 154, 0.2)'
-                  }}>
+                <Card className="p-8 max-w-md text-center border border-border/80 bg-card shadow-[var(--shadow-lg)]">
+                  <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4 rounded-[var(--radius-card)] bg-secondary text-primary shadow-[var(--shadow-sm)]">
                     <span className="text-2xl">👋</span>
                   </div>
-                  <h2 className="text-2xl font-semibold mb-2" style={{ color: '#1A3A34' }}>
+                  <h2 className="text-2xl font-semibold mb-2 text-foreground">
                     {t('chat.welcome.title', 'Welcome to Therapy')}
                   </h2>
-                  <p className="mb-6" style={{ color: '#5A7A72' }}>
+                  <p className="mb-6 text-muted-foreground">
                     {t('chat.welcome.message', "This is a safe, judgment-free space. Share what's on your mind, and let's work through it together.")}
                   </p>
                   <Button
                     onClick={startNewConversation}
-                    className="px-6 py-6 text-lg text-white"
-                    style={{
-                      borderRadius: '24px',
-                      backgroundColor: '#26A69A',
-                      boxShadow: '0 8px 24px rgba(38, 166, 154, 0.35), 0 4px 10px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.2)'
-                    }}
+                    className="px-6 py-6 text-lg"
                   >
                     {t('chat.welcome.start_session', 'Start Your First Session')}
                   </Button>
@@ -1311,10 +1287,7 @@ export default function Chat() {
               </div>
 
               {/* Insight Cards Section - Separate container with border */}
-              <div className="p-4 md:p-6" style={{
-                borderTop: '1px solid rgba(38, 166, 154, 0.2)',
-                background: 'linear-gradient(to bottom, rgba(232, 246, 243, 0.5), rgba(212, 237, 232, 0.5))'
-              }}>
+              <div className="p-4 md:p-6 border-t border-border/70 bg-secondary/35">
                 <div className="max-w-2xl mx-auto">
                   <ErrorBoundary>
                     <ProactiveCheckIn onSendMessage={async (prompt) => {
@@ -1338,10 +1311,7 @@ export default function Chat() {
 
               {/* Insight Cards - Show if no flow active */}
               {messages.length === 0 && !showTherapyFlow && (
-                <div className="p-4 md:p-6" style={{
-                  borderBottom: '1px solid rgba(38, 166, 154, 0.2)',
-                  background: 'linear-gradient(to bottom, rgba(232, 246, 243, 0.5), rgba(212, 237, 232, 0.5))'
-                }}>
+                <div className="p-4 md:p-6 border-b border-border/70 bg-secondary/35">
                   <div className="max-w-3xl mx-auto">
                     <ErrorBoundary>
                       <ProactiveCheckIn onSendMessage={(prompt) => setInputMessage(prompt)} />
@@ -1384,22 +1354,16 @@ export default function Chat() {
                         transition: 'opacity 0.2s ease-in-out'
                       }}
                     >
-                      <div className="h-7 w-7 flex items-center justify-center flex-shrink-0" style={{
-                        borderRadius: '12px',
-                        backgroundColor: 'rgba(38, 166, 154, 0.15)'
-                      }}>
-                        <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#26A69A' }} />
+                      <div className="h-7 w-7 flex items-center justify-center flex-shrink-0 rounded-[var(--radius-nested)] bg-secondary">
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
                       </div>
-                      <div className="rounded-2xl px-4 py-3 flex-1" style={{
-                        background: 'rgba(255, 255, 255, 0.9)',
-                        backdropFilter: 'blur(8px)',
-                        border: '1px solid rgba(38, 166, 154, 0.2)',
+                      <div className="rounded-2xl px-4 py-3 flex-1 bg-card border border-border/80" style={{
                         minHeight: '48px',
                         maxHeight: '120px',
                         transition: 'none',
                         willChange: 'auto'
                       }}>
-                        <p className="text-sm" style={{ color: '#5A7A72' }}>{t('chat.thinking')}</p>
+                        <p className="text-sm text-muted-foreground">{t('chat.thinking')}</p>
                       </div>
                     </div>
                   );
@@ -1409,10 +1373,7 @@ export default function Chat() {
 
               {/* Save Prompt - After homework commitment */}
               {showSavePrompt && !isLoading && savePromptData && (
-                <div className="p-4 md:p-6" style={{
-                  borderTop: '1px solid rgba(38, 166, 154, 0.2)',
-                  background: 'linear-gradient(to right, rgba(232, 246, 243, 0.5), rgba(212, 237, 232, 0.5))'
-                }}>
+                <div className="p-4 md:p-6 border-t border-border/70 bg-secondary/35">
                   <div className="max-w-3xl mx-auto">
                     <ThoughtWorkSaveHandler
                       conversationId={savePromptData.conversationId}
@@ -1432,41 +1393,24 @@ export default function Chat() {
 
               {/* Summary Prompt Section - Separate container with border */}
               {showSummaryPrompt && !isLoading && (
-                <div className="p-4 md:p-6" style={{
-                  borderTop: '1px solid rgba(38, 166, 154, 0.2)',
-                  background: 'linear-gradient(to right, rgba(232, 246, 243, 0.5), rgba(212, 237, 232, 0.5))'
-                }}>
+                <div className="p-4 md:p-6 border-t border-border/70 bg-secondary/35">
                   <div className="max-w-3xl mx-auto">
-                    <Card className="p-4 border-0" style={{
-                      borderRadius: '24px',
-                      background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(232, 246, 243, 0.8) 100%)',
-                      backdropFilter: 'blur(12px)',
-                      boxShadow: '0 8px 24px rgba(38, 166, 154, 0.15)'
-                    }}>
+                    <Card className="p-4 border border-border/80 bg-card shadow-[var(--shadow-md)]">
                       <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 flex items-center justify-center flex-shrink-0" style={{
-                          borderRadius: '16px',
-                          backgroundColor: 'rgba(159, 122, 234, 0.15)'
-                        }}>
-                          <Sparkles className="w-5 h-5" style={{ color: '#9F7AEA' }} />
+                        <div className="w-10 h-10 flex items-center justify-center flex-shrink-0 rounded-[var(--radius-control)] bg-secondary text-primary">
+                          <Sparkles className="w-5 h-5" />
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-medium mb-1" style={{ color: '#1A3A34' }}>
+                          <p className="text-sm font-medium mb-1 text-foreground">
                             {t('chat.summary_prompt.title')}
                           </p>
-                          <p className="text-xs mb-3" style={{ color: '#5A7A72' }}>
+                          <p className="text-xs mb-3 text-muted-foreground">
                             {t('chat.summary_prompt.description')}
                           </p>
                           <div className="flex gap-2">
                             <Button
                               onClick={requestSummary}
                               size="sm"
-                              className="text-white"
-                              style={{
-                                borderRadius: '16px',
-                                backgroundColor: '#9F7AEA',
-                                boxShadow: '0 4px 12px rgba(159, 122, 234, 0.3)'
-                              }}
                             >
                               {t('chat.summary_prompt.yes')}
                             </Button>
@@ -1474,10 +1418,6 @@ export default function Chat() {
                               onClick={() => setShowSummaryPrompt(false)}
                               size="sm"
                               variant="outline"
-                              style={{
-                                borderRadius: '16px',
-                                borderColor: 'rgba(38, 166, 154, 0.3)'
-                              }}
                             >
                               {t('chat.summary_prompt.not_now')}
                             </Button>
@@ -1494,21 +1434,13 @@ export default function Chat() {
 
         {/* Session Summary Display */}
         {currentConversationData?.session_summary && (
-          <div style={{
-            borderTop: '1px solid rgba(38, 166, 154, 0.2)',
-            background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(232, 246, 243, 0.8) 100%)',
-            backdropFilter: 'blur(12px)'
-          }}>
+          <div className="border-t border-border/70 bg-card/85 backdrop-blur-xl">
             <SessionSummary conversation={currentConversationData} />
           </div>
         )}
 
         {/* Input Area - Always visible, always on top */}
-        <div className="px-3 pt-2 pb-2 md:px-6 md:pt-3 md:pb-3 relative" style={{
-          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(232, 246, 243, 0.8) 100%)',
-          backdropFilter: 'blur(12px)',
-          borderTop: '1px solid rgba(38, 166, 154, 0.2)',
-          boxShadow: '0 -4px 16px rgba(38, 166, 154, 0.1)',
+        <div className="px-3 pt-2 pb-2 md:px-6 md:pt-3 md:pb-3 relative border-t border-border/70 bg-popover/90 backdrop-blur-xl shadow-[var(--shadow-md)]" style={{
           zIndex: 50
         }}>
           <div className="max-w-4xl mx-auto flex gap-2">
@@ -1517,31 +1449,21 @@ export default function Chat() {
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={t('chat.message_placeholder')}
-              className="flex-1 min-h-[48px] max-h-[160px] resize-none"
+              className="flex-1 min-h-[48px] max-h-[160px] resize-none rounded-[var(--radius-card)]"
               data-testid="therapist-chat-input"
-              style={{
-                borderRadius: '20px',
-                borderColor: 'rgba(38, 166, 154, 0.3)',
-                backgroundColor: 'rgba(255, 255, 255, 0.9)'
-              }}
               disabled={isLoading}
             />
             <Button
               onClick={handleSendMessage}
               disabled={!inputMessage.trim() || isLoading}
               data-testid="therapist-chat-send"
-              className="h-[48px] px-4 text-white flex-shrink-0"
-              style={{
-                borderRadius: '20px',
-                backgroundColor: '#26A69A',
-                boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
-              }}
+              className="h-[48px] px-4 flex-shrink-0 rounded-[var(--radius-card)]"
             >
               <Send className="w-5 h-5" />
             </Button>
           </div>
           {/* Compact disclaimer */}
-          <p className="text-center mt-1 text-xs" style={{ color: '#7A8A82' }}>
+          <p className="text-center mt-1 text-xs text-muted-foreground">
             {t('chat.disclaimer.title')} — {t('chat.disclaimer.message')}
           </p>
         </div>

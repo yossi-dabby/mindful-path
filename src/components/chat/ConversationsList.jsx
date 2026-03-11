@@ -20,20 +20,13 @@ export default function ConversationsList({
   return (
     <div className="h-full flex flex-col min-h-0">
       {/* Header */}
-      <div className="p-3 md:p-4 flex items-center justify-between flex-shrink-0" style={{
-        borderBottom: '1px solid rgba(38, 166, 154, 0.2)'
-      }}>
-        <h2 className="text-base md:text-lg font-semibold truncate" style={{ color: '#1A3A34' }}>{t('chat.conversations_list.title')}</h2>
+      <div className="p-3 md:p-4 flex items-center justify-between flex-shrink-0 border-b border-border/70 bg-card/40">
+        <h2 className="text-base md:text-lg font-semibold truncate text-foreground">{t('chat.conversations_list.title')}</h2>
         <div className="flex gap-2">
           <Button
             onClick={onNewConversation}
             size="icon"
-            className="text-white flex-shrink-0"
-            style={{
-              borderRadius: '16px',
-              backgroundColor: '#26A69A',
-              boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
-            }}
+            className="flex-shrink-0 rounded-[var(--radius-control)]"
             aria-label={t('chat.conversations_list.new_conversation_aria')}
           >
             <Plus className="w-5 h-5" />
@@ -54,9 +47,9 @@ export default function ConversationsList({
       <div className="flex-1 overflow-y-auto p-2 min-h-0" style={{ overscrollBehavior: 'none' }}>
         {safeConversations.length === 0 ? (
           <div className="text-center py-8 px-4">
-            <MessageCircle className="w-12 h-12 mx-auto mb-3" style={{ color: 'rgba(38, 166, 154, 0.3)' }} />
-            <p className="text-sm" style={{ color: '#5A7A72' }}>{t('chat.conversations_list.empty_title')}</p>
-            <p className="text-xs mt-1" style={{ color: '#7A9A92' }}>{t('chat.conversations_list.empty_message')}</p>
+            <MessageCircle className="w-12 h-12 mx-auto mb-3 text-primary/30" />
+            <p className="text-sm text-muted-foreground">{t('chat.conversations_list.empty_title')}</p>
+            <p className="text-xs mt-1 text-muted-foreground/80">{t('chat.conversations_list.empty_message')}</p>
           </div>
         ) : (
           <div className="space-y-1">
@@ -64,37 +57,30 @@ export default function ConversationsList({
               <div
                 key={conversation.id}
                 className={cn(
-                  'group relative transition-all'
+                  'group relative transition-all rounded-[var(--radius-control)] border',
+                  currentConversationId === conversation.id
+                    ? 'border-border/70 bg-card shadow-[var(--shadow-sm)]'
+                    : 'border-transparent bg-card/55 hover:bg-secondary/60'
                 )}
-                style={{
-                  borderRadius: '18px',
-                  ...(currentConversationId === conversation.id ? {
-                    background: 'linear-gradient(145deg, rgba(38, 166, 154, 0.15) 0%, rgba(56, 178, 172, 0.1) 100%)',
-                    boxShadow: '0 4px 12px rgba(38, 166, 154, 0.2), inset 0 0 0 2px rgba(38, 166, 154, 0.3)'
-                  } : {
-                    background: 'rgba(255, 255, 255, 0.6)'
-                  })
-                }}
               >
                 <button
                   onClick={() => onSelectConversation(conversation.id)}
                   className="w-full text-start p-3 flex items-start gap-3 min-w-0"
                 >
-                  <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center flex-shrink-0" style={{
-                    borderRadius: '16px',
-                    background: 'linear-gradient(145deg, rgba(38, 166, 154, 0.15) 0%, rgba(56, 178, 172, 0.15) 100%)'
-                  }}>
-                    <MessageCircle className="w-4 h-4 md:w-5 md:h-5" style={{ color: '#26A69A' }} />
+                  <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center flex-shrink-0 rounded-[var(--radius-control)] bg-secondary text-primary">
+                    <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
                   </div>
                   <div className="flex-1 min-w-0 pe-8">
-                    <p className="font-medium truncate text-sm md:text-base" style={{
-                      color: currentConversationId === conversation.id ? '#1A3A34' : '#3D5A52'
-                    }}>
+                    <p className={cn(
+                      "font-medium truncate text-sm md:text-base",
+                      currentConversationId === conversation.id ? "text-foreground" : "text-foreground/80"
+                    )}>
                       {conversation.metadata?.name || `${t('chat.conversations_list.session_prefix')} ${(conversation.id || '').slice(0, 8)}`}
                     </p>
-                    <p className="text-xs" style={{
-                      color: currentConversationId === conversation.id ? '#26A69A' : '#5A7A72'
-                    }}>
+                    <p className={cn(
+                      "text-xs",
+                      currentConversationId === conversation.id ? "text-primary" : "text-muted-foreground"
+                    )}>
                       {conversation.created_date ? format(new Date(conversation.created_date), 'MMM d, h:mm a') : ''}
                     </p>
                   </div>
@@ -106,10 +92,7 @@ export default function ConversationsList({
                     e.stopPropagation();
                     onDeleteConversation(conversation.id);
                   }}
-                  className="absolute end-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-lg flex-shrink-0"
-                  style={{
-                    backgroundColor: 'rgba(239, 68, 68, 0.1)'
-                  }}
+                  className="absolute end-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-[var(--radius-nested)] flex-shrink-0 bg-destructive/10"
                   aria-label={t('chat.conversations_list.delete_aria')}
                 >
                   <Trash2 className="w-4 h-4 text-red-500" />
