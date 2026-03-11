@@ -51,15 +51,15 @@ function NotificationItem({ notification, onMarkRead, onDelete }) {
       initial={{ opacity: 0, x: 10 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -10 }}
-      className={`flex gap-3 p-3 rounded-xl cursor-pointer transition-colors ${isUnread ? 'bg-teal-50' : 'bg-white hover:bg-gray-50'}`}
+      className={`flex gap-3 p-3 rounded-[var(--radius-control)] cursor-pointer transition-colors border ${isUnread ? 'bg-secondary/70 border-border/70' : 'bg-card border-transparent hover:bg-secondary/60'}`}
       onClick={handleClick}
     >
-      <div className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: `${color}20` }}>
-        <Icon className="w-4 h-4" style={{ color }} />
+      <div className="flex-shrink-0 w-9 h-9 rounded-[var(--radius-control)] bg-secondary flex items-center justify-center">
+        <Icon className="w-4 h-4 text-primary" />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
-          <p className={`text-sm font-medium leading-tight ${isUnread ? 'text-gray-900' : 'text-gray-700'}`}>{notification.title}</p>
+          <p className={`text-sm font-medium leading-tight ${isUnread ? 'text-foreground' : 'text-foreground/80'}`}>{notification.title}</p>
           <button
             onClick={(e) => { e.stopPropagation(); onDelete(notification.id); }}
             className="flex-shrink-0 text-gray-300 hover:text-gray-500 transition-colors"
@@ -67,9 +67,9 @@ function NotificationItem({ notification, onMarkRead, onDelete }) {
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
-        <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{notification.message}</p>
+        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{notification.message}</p>
         <div className="flex items-center gap-2 mt-1">
-          <span className="text-xs text-gray-400">
+          <span className="text-xs text-muted-foreground/80">
             {formatDistanceToNow(new Date(notification.created_date), { addSuffix: true })}
           </span>
           {isUnread && <span className="w-1.5 h-1.5 rounded-full bg-teal-500 flex-shrink-0" />}
@@ -197,21 +197,21 @@ export default function NotificationBell() {
             maxHeight: '480px',
             zIndex: 9999,
           }}
-          className="rounded-2xl shadow-2xl border border-gray-100 bg-white overflow-hidden"
+          className="rounded-[var(--radius-card)] shadow-[var(--shadow-lg)] border border-border/80 bg-popover overflow-hidden"
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-teal-50 to-white">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border/70 bg-secondary/55">
             <div className="flex items-center gap-2">
-              <Bell className="w-4 h-4 text-teal-600" />
-              <span className="font-semibold text-gray-800 text-sm">Notifications</span>
+              <Bell className="w-4 h-4 text-primary" />
+              <span className="font-semibold text-foreground text-sm">Notifications</span>
               {unreadCount > 0 && (
-                <Badge className="bg-teal-100 text-teal-700 text-xs px-1.5 py-0">{unreadCount} new</Badge>
+                <Badge className="text-xs px-1.5 py-0">{unreadCount} new</Badge>
               )}
             </div>
             {unreadCount > 0 && (
               <button
                 onClick={() => markAllReadMutation.mutate()}
-                className="flex items-center gap-1 text-xs text-teal-600 hover:text-teal-700 font-medium"
+                className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-medium"
               >
                 <CheckCheck className="w-3.5 h-3.5" />
                 Mark all read
@@ -223,11 +223,11 @@ export default function NotificationBell() {
           <div className="overflow-y-auto" style={{ maxHeight: '380px' }}>
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center px-6">
-                <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
-                  <Bell className="w-6 h-6 text-gray-400" />
+                <div className="w-12 h-12 rounded-[var(--radius-control)] bg-secondary flex items-center justify-center mb-3">
+                  <Bell className="w-6 h-6 text-primary" />
                 </div>
-                <p className="text-sm font-medium text-gray-600">All caught up!</p>
-                <p className="text-xs text-gray-400 mt-1">No notifications yet. We'll let you know when something happens.</p>
+                <p className="text-sm font-medium text-foreground">All caught up!</p>
+                <p className="text-xs text-muted-foreground mt-1">No notifications yet. We'll let you know when something happens.</p>
               </div>
             ) : (
               <div className="p-2 space-y-1">
@@ -254,12 +254,12 @@ export default function NotificationBell() {
       <button
         ref={buttonRef}
         onClick={() => setOpen(o => !o)}
-        className="relative w-10 h-10 flex items-center justify-center rounded-full transition-colors hover:bg-teal-50"
+        className="relative w-10 h-10 flex items-center justify-center rounded-[var(--radius-control)] border border-transparent text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
         aria-label="Notifications"
         aria-expanded={open}
         aria-haspopup="true"
       >
-        <Bell className="w-5 h-5 text-gray-600" />
+        <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
           <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full text-[10px] font-bold text-white bg-red-500">
             {unreadCount > 99 ? '99+' : unreadCount}

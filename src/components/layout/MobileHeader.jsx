@@ -63,11 +63,9 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
 
   return (
     <header 
-      className="md:hidden fixed top-0 left-0 right-0 backdrop-blur-xl border-b z-40"
+      className="md:hidden fixed top-0 left-0 right-0 border-b border-border/70 bg-[hsl(var(--sidebar-background)/0.88)] backdrop-blur-2xl z-40"
       style={{
         height: 'calc(60px + env(safe-area-inset-top, 0px))',
-        background: 'linear-gradient(to bottom, rgba(212, 237, 232, 0.95) 0%, rgba(200, 230, 225, 0.92) 100%)',
-        borderColor: 'rgba(38, 166, 154, 0.15)',
         paddingTop: 'env(safe-area-inset-top, 0px)'
       }}
     >
@@ -82,15 +80,11 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
               className="rounded-full"
               aria-label={t('common.back')}
             >
-              <ChevronLeft className="w-6 h-6 rtl:scale-x-[-1]" style={{ color: '#26A69A' }} />
+              <ChevronLeft className="w-6 h-6 rtl:scale-x-[-1] text-primary" />
             </Button>
           ) : (
             <div
-              className="w-8 h-8 flex items-center justify-center shadow-sm"
-              style={{
-                borderRadius: '10px',
-                background: 'linear-gradient(135deg, #26A69A, #38B2AC)'
-              }}
+              className="w-8 h-8 flex items-center justify-center rounded-[var(--radius-nested)] bg-primary text-primary-foreground shadow-[var(--shadow-sm)]"
               aria-hidden="true"
             >
               <span className="text-white font-bold text-sm">M</span>
@@ -100,8 +94,7 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
 
         {/* Center: Page title */}
         <p 
-          className="text-lg font-semibold truncate" 
-          style={{ color: '#1A3A34' }}
+          className="text-[1rem] font-semibold text-foreground truncate"
         >
           {getPageTitle()}
         </p>

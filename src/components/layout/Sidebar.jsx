@@ -30,27 +30,21 @@ export default function Sidebar({ currentPageName }) {
   return (
     <nav 
       aria-label="Main navigation"
-      className="hidden md:flex fixed left-0 top-0 bottom-0 backdrop-blur-xl border-r shadow-sm flex-col py-6"
+      className="hidden md:flex fixed left-0 top-0 bottom-0 flex-col py-6 border-r border-border/70 bg-[hsl(var(--sidebar-background)/0.9)] backdrop-blur-2xl shadow-[var(--shadow-lg)]"
       style={{
         zIndex: 35, 
-        width: `${SIDEBAR_WIDTH}px`,
-        background: 'linear-gradient(170deg, rgba(212, 237, 232, 0.95) 0%, rgba(190, 225, 218, 0.92) 50%, rgba(200, 230, 225, 0.94) 100%)',
-        borderColor: 'rgba(38, 166, 154, 0.25)',
-        boxShadow: '2px 0 20px rgba(38, 166, 154, 0.12)'
+        width: `${SIDEBAR_WIDTH}px`
       }}
     >
       {/* Logo */}
       <div className="px-6 mb-8">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 flex items-center justify-center shadow-md" style={{ 
-            borderRadius: 'var(--r-lg)',
-            background: 'linear-gradient(135deg, #26A69A, #38B2AC)'
-          }}>
+          <div className="w-10 h-10 flex items-center justify-center rounded-[var(--radius-control)] bg-primary text-primary-foreground shadow-[var(--shadow-md)]">
             <span className="text-white font-bold text-lg">M</span>
           </div>
-          <div className="flex-1">
-            <h1 className="text-lg font-semibold" style={{ color: '#1A3A34' }}>{t('global.app_name')}</h1>
-            <p className="text-xs" style={{ color: '#5A7A72' }}>{t('global.app_tagline')}</p>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-[1rem] font-semibold text-foreground truncate">{t('global.app_name')}</h1>
+            <p className="text-xs text-muted-foreground truncate">{t('global.app_tagline')}</p>
           </div>
           <NotificationBell />
         </div>
@@ -68,29 +62,21 @@ export default function Sidebar({ currentPageName }) {
                 to={createPageUrl(item.path)}
                 aria-current={isActive ? 'page' : undefined}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-3 transition-calm group",
-                  isActive && "shadow-sm"
+                  "flex items-center gap-3 px-4 py-3 rounded-[var(--radius-control)] transition-calm group border",
+                  isActive
+                    ? "border-border/70 bg-card text-foreground shadow-[var(--shadow-sm)]"
+                    : "border-transparent text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
                 )}
-                style={{ 
-                  borderRadius: '18px',
-                  background: isActive 
-                    ? 'linear-gradient(135deg, rgba(38, 166, 154, 0.15) 0%, rgba(56, 178, 172, 0.1) 100%)'
-                    : 'transparent',
-                  color: isActive ? '#26A69A' : '#5A7A72'
-                }}
               >
                 <Icon className={cn("w-5 h-5 icon-default", isActive && "scale-110")} strokeWidth={2} />
                 <div className="flex-1">
-                  <p className={cn("text-sm font-medium", isActive && "font-semibold")}>{item.name}</p>
+                  <p className={cn("text-[0.9375rem] font-medium leading-5", isActive && "font-semibold")}>{item.name}</p>
                   {item.description && (
-                    <p className="text-xs mt-0.5" style={{ color: '#5A7A72' }}>{item.description}</p>
+                    <p className={cn("text-xs mt-0.5 leading-4", isActive ? "text-muted-foreground" : "text-muted-foreground")}>{item.description}</p>
                   )}
                 </div>
                 {isActive && (
-                  <div className="w-1 h-6 rounded-full" style={{ 
-                    backgroundColor: '#26A69A',
-                    boxShadow: '0 2px 8px rgba(38, 166, 154, 0.4)'
-                  }} />
+                  <div className="w-1 h-6 rounded-full bg-primary shadow-[var(--shadow-sm)]" />
                 )}
               </Link>
             );
@@ -98,7 +84,7 @@ export default function Sidebar({ currentPageName }) {
         </div>
 
         {/* Secondary Items */}
-        <div className="mt-8 pt-6 border-t" style={{ borderColor: 'rgba(38, 166, 154, 0.2)' }}>
+        <div className="mt-8 pt-6 border-t border-border/70">
           <div className="space-y-1">
             {secondaryItems.map((item) => {
               const Icon = item.icon;
@@ -108,14 +94,12 @@ export default function Sidebar({ currentPageName }) {
                   key={item.path}
                   to={createPageUrl(item.path)}
                   aria-current={isActive ? 'page' : undefined}
-                  className="flex items-center gap-3 px-4 py-2.5 transition-calm"
-                  style={{
-                    borderRadius: '16px',
-                    background: isActive 
-                      ? 'linear-gradient(135deg, rgba(38, 166, 154, 0.15) 0%, rgba(56, 178, 172, 0.1) 100%)'
-                      : 'transparent',
-                    color: isActive ? '#26A69A' : '#5A7A72'
-                  }}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-2.5 rounded-[var(--radius-control)] border transition-calm",
+                    isActive
+                      ? "border-border/70 bg-card text-foreground shadow-[var(--shadow-sm)]"
+                      : "border-transparent text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
+                  )}
                 >
                   <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
                   <span className={cn("text-sm", isActive && "font-semibold")}>{item.name}</span>

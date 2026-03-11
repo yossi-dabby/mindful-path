@@ -227,13 +227,13 @@ export default function Layout({ children, currentPageName }) {
       {/* overflow-x-clip (not overflow-hidden) so the horizontal clip for page-transition
           animations does not create an ancestor overflow:hidden that would prevent
           iOS WKWebView touch-scroll events from reaching #app-scroll-container. */}
-      <div className={`min-h-dvh overflow-x-clip ${themeBackgrounds[theme] || themeBackgrounds.default}`}>
+      <div className={`min-h-dvh overflow-x-clip text-foreground ${themeBackgrounds[theme] || themeBackgrounds.default}`}>
         {/* Preserve scroll position between tab switches */}
         <ScrollPreservation />
 
         {/* Offline Banner - Global */}
         {isOffline && (
-          <div className="fixed top-0 left-0 right-0 bg-orange-500 text-white px-4 py-2 text-center text-sm font-medium shadow-lg" style={{ zIndex: 100 }}>
+          <div className="fixed top-0 left-0 right-0 border-b border-border/70 bg-accent text-accent-foreground px-4 py-2 text-center text-sm font-medium shadow-[var(--shadow-md)]" style={{ zIndex: 100 }}>
             {i18n.t('offline_banner', "You're offline. Check your connection.")}
           </div>
         )}

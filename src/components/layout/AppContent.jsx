@@ -30,11 +30,7 @@ export default function AppContent({ children }) {
       {/* Skip to main content link for keyboard users */}
       <a
         href="#app-scroll-container"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm focus:font-medium focus:shadow-md"
-        style={{
-          background: 'rgb(38, 166, 154)',
-          color: '#fff'
-        }}
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-[var(--radius-control)] focus:text-sm focus:font-medium focus:bg-primary focus:text-primary-foreground focus:shadow-[var(--shadow-md)]"
       >
         Skip to main content
       </a>

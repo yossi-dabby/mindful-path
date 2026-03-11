@@ -575,12 +575,12 @@ export default function DraggableAiCompanion() {
             }
           }}
           size="lg"
-          className="rounded-full w-16 h-16 shadow-2xl bg-gradient-to-br from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+          className="rounded-full w-16 h-16 border border-border/60 bg-primary text-primary-foreground shadow-[var(--shadow-lg)] hover:bg-primary/94"
           aria-label="Open AI Companion chat"
         >
           <MessageCircle className="w-7 h-7" />
         </Button>
-        <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white" />
+        <div className="absolute -top-1 -right-1 w-4 h-4 bg-[hsl(var(--success))] rounded-full border-2 border-card" />
       </motion.div>,
       document.body
     );
@@ -595,17 +595,17 @@ export default function DraggableAiCompanion() {
         style={positionStyle}
       >
         <Card 
-          className="w-64 border-2 border-purple-200 shadow-2xl cursor-pointer hover:shadow-xl transition-shadow"
+          className="w-64 border border-border/80 shadow-[var(--shadow-lg)] cursor-pointer hover:shadow-[var(--shadow-lg)] transition-shadow"
           onClick={() => setIsMinimized(false)}
         >
           <CardContent className="p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
-                <Brain className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                <Brain className="w-5 h-5 text-primary-foreground" />
               </div>
               <div>
-                <p className="font-semibold text-gray-800">AI Companion</p>
-                <p className="text-xs text-gray-500">Click to expand</p>
+                <p className="font-semibold text-foreground">AI Companion</p>
+                <p className="text-xs text-muted-foreground">Click to expand</p>
               </div>
             </div>
             <Button
@@ -639,10 +639,10 @@ export default function DraggableAiCompanion() {
         style={positionStyle}
         className="w-[calc(100vw-3rem)] md:w-96 flex flex-col"
       >
-      <Card className="border-2 border-purple-200 shadow-2xl flex flex-col overflow-hidden" style={{ maxHeight: 'calc(100dvh - 200px)' }}>
+      <Card className="border border-border/80 shadow-[var(--shadow-lg)] flex flex-col overflow-hidden bg-card" style={{ maxHeight: 'calc(100dvh - 200px)' }}>
         {/* Draggable Header */}
         <div 
-          className="bg-gradient-to-r from-purple-600 to-blue-600 p-4 rounded-t-xl flex items-center justify-between cursor-move"
+          className="bg-primary p-4 rounded-t-[var(--radius-card)] flex items-center justify-between cursor-move border-b border-white/10"
           style={{ touchAction: 'none' }}
           onMouseDown={handleDragStart}
           onTouchStart={handleDragStart}
@@ -683,7 +683,7 @@ export default function DraggableAiCompanion() {
         </div>
 
         {/* Messages */}
-        <CardContent data-testid="companion-messages" className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-br from-purple-50/30 to-blue-50/30 min-h-0" style={{ maxHeight: 'calc(100dvh - 350px)' }}>
+        <CardContent data-testid="companion-messages" className="flex-1 overflow-y-auto p-4 space-y-4 bg-[hsl(var(--surface-tint))] min-h-0" style={{ maxHeight: 'calc(100dvh - 350px)' }}>
           {/* Inline Consent Banner - Non-blocking */}
           {showConsentBanner && (
             <InlineConsentBanner onAccept={() => {
@@ -702,9 +702,9 @@ export default function DraggableAiCompanion() {
                 animate={{ opacity: 1 }}
                 className="text-center py-8"
               >
-                <Sparkles className="w-12 h-12 text-purple-400 mx-auto mb-3" />
-                <h4 className="font-semibold text-gray-800 mb-2">Hello! I'm here for you</h4>
-                <p className="text-sm text-gray-600 mb-4">
+                <Sparkles className="w-12 h-12 text-primary mx-auto mb-3" />
+                <h4 className="font-semibold text-foreground mb-2">Hello! I'm here for you</h4>
+                <p className="text-sm text-muted-foreground mb-4">
                   I can help with your wellness journey, answer questions, or just listen.
                 </p>
                 <div className="grid grid-cols-2 gap-2">
@@ -734,16 +734,16 @@ export default function DraggableAiCompanion() {
                 )}
               >
                 {msg.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center flex-shrink-0">
-                    <Brain className="w-4 h-4 text-white" />
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                    <Brain className="w-4 h-4 text-primary-foreground" />
                   </div>
                 )}
                 <div
                   className={cn(
                     "max-w-[75%] rounded-2xl px-4 py-2",
                     msg.role === 'user'
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-white border border-gray-200 text-gray-800'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-card border border-border/80 text-foreground'
                   )}
                 >
                   {msg.role === 'user' ? (
@@ -759,9 +759,9 @@ export default function DraggableAiCompanion() {
                         strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
                         code: ({ inline, children }) =>
                           inline ? (
-                            <code className="px-1 py-0.5 rounded bg-gray-100 text-xs">{children}</code>
+                            <code className="px-1 py-0.5 rounded bg-secondary text-xs">{children}</code>
                           ) : (
-                            <code className="block p-2 rounded bg-gray-100 text-xs">{children}</code>
+                            <code className="block p-2 rounded bg-secondary text-xs">{children}</code>
                           )
                       }}
                     >
@@ -790,8 +790,8 @@ export default function DraggableAiCompanion() {
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center flex-shrink-0">
                   <Brain className="w-4 h-4 text-white" />
                 </div>
-                <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3">
-                  <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
+                <div className="bg-card border border-border/80 rounded-2xl px-4 py-3">
+                  <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
                 </div>
               </motion.div>
             )}
@@ -800,7 +800,7 @@ export default function DraggableAiCompanion() {
         </CardContent>
 
         {/* Input */}
-        <div className="p-4 border-t bg-white rounded-b-xl flex-shrink-0">
+        <div className="p-4 border-t border-border/80 bg-popover rounded-b-[var(--radius-card)] flex-shrink-0">
           <div className="flex gap-2">
             <Input
               data-testid="ai-companion-input"
@@ -818,19 +818,19 @@ export default function DraggableAiCompanion() {
               data-testid="ai-companion-send"
               onClick={sendMessage}
               disabled={!message.trim() || isLoading}
-              className="bg-gradient-to-br from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+              className="bg-primary hover:bg-primary/94 text-primary-foreground"
               aria-label="Send message"
             >
               <Send className="w-4 h-4" />
             </Button>
           </div>
           {sendError && (
-            <p className="text-xs text-red-600 mt-2 text-center">
+            <p className="text-xs text-destructive mt-2 text-center">
               {sendError}
             </p>
           )}
           {!sendError && (
-            <p className="text-xs text-gray-500 mt-2 text-center">
+            <p className="text-xs text-muted-foreground mt-2 text-center">
               I remember our conversations and your wellness journey
             </p>
           )}
