@@ -4,37 +4,19 @@
 
 @layer base {
   :root {
-    /* Neutrals (avoid pure white/black) */
-    --bg: 248 248 246;          /* warm off-white */
-    --surface: 255 255 253;     /* card surface */
-    --surface-2: 244 244 241;   /* subtle alternative */
-    --text: 34 39 46;           /* soft near-black */
-    --muted: 102 112 133;       /* secondary text */
-    --border: 226 228 233;      /* soft separators */
+    /* Legacy compatibility tokens kept for existing theme hooks */
+    --color-primary: 104 176 162;
+    --color-secondary: 142 189 179;
+    --color-accent: 238 181 92;
+    --color-background: 245 248 246;
+    --color-text: 41 54 59;
 
-    /* Brand warmth (use sparingly) */
-    --accent: 255 142 66;       /* warm orange */
-    --accent-2: 255 205 102;    /* soft amber highlight */
-    --accent-contrast: 255 255 255;
-
-    /* Calming support tones */
-    --calm: 93 156 236;         /* soft blue */
-    --calm-2: 120 196 164;      /* muted green */
-
-    /* Status (muted, non-alarming) */
-    --success: 84 179 126;
-    --warning: 243 179 74;
-    --danger: 222 92 92;
-
-    /* Focus ring (subtle) */
-    --ring: 255 142 66;
-
-    /* Radius scale (no sharp corners) */
-    --r-xs: 10px;
-    --r-sm: 14px;
-    --r-md: 18px;
-    --r-lg: 24px;
-    --r-xl: 32px;
+    /* Radius aliases for any older class usage */
+    --r-xs: var(--radius-nested);
+    --r-sm: 0.875rem;
+    --r-md: var(--radius-control);
+    --r-lg: var(--radius-card);
+    --r-xl: 1.5rem;
 
     /* Spacing scale (white space as a feature) */
     --space-1: 4px;
@@ -54,18 +36,12 @@
     --dur-med: 240ms;
     --dur-slow: 420ms;
 
-    /* Legacy compatibility */
-    --color-primary: 255 142 66;
-    --color-secondary: 255 205 102;
-    --color-accent: 93 156 236;
-    --color-background: 248 248 246;
-    --color-text: 34 39 46;
+    /* Legacy spacing aliases */
     --spacing-page: 2rem;
     --spacing-card: 2rem;
     --spacing-section: 3rem;
-    --radius: 1rem;
-    --radius-lg: 1.5rem;
-    --radius-xl: 2rem;
+    --radius-lg: 1.25rem;
+    --radius-xl: 1.5rem;
 
     /* Safe area insets exposed as custom properties so JavaScript can read them
        via getComputedStyle(el).getPropertyValue('--sab') etc. */
@@ -74,28 +50,15 @@
     --sab: env(safe-area-inset-bottom, 0px);
     --sal: env(safe-area-inset-left, 0px);
   }
+}
 
+@layer base {
   .dark {
-    /* Dark mode: deep blue-gray, not pure black */
-    --bg: 12 18 28;
-    --surface: 16 24 36;
-    --surface-2: 20 30 44;
-    --text: 235 240 246;
-    --muted: 170 182 198;
-    --border: 34 46 64;
-
-    /* Accents: slightly desaturated and softer in dark */
-    --accent: 255 160 92;
-    --accent-2: 255 212 132;
-
-    --calm: 120 176 246;
-    --calm-2: 136 206 176;
-
-    --danger: 234 116 116;
-    --warning: 246 192 102;
-    --success: 118 206 164;
-
-    --ring: 255 160 92;
+    --color-primary: 112 198 181;
+    --color-secondary: 126 164 158;
+    --color-accent: 242 190 110;
+    --color-background: 18 26 37;
+    --color-text: 235 240 246;
   }
 }
 

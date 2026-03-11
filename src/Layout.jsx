@@ -175,12 +175,12 @@ export default function Layout({ children, currentPageName }) {
       
       // Apply theme colors
       const themeColors = {
-        default: { primary: '139 178 158', secondary: '185 163 193', accent: '244 146 131' },
-        ocean: { primary: '14 165 233', secondary: '6 182 212', accent: '20 184 166' },
-        sunset: { primary: '249 115 22', secondary: '236 72 153', accent: '251 146 60' },
-        forest: { primary: '16 185 129', secondary: '34 197 94', accent: '132 204 22' },
-        lavender: { primary: '168 85 247', secondary: '139 92 246', accent: '217 70 239' },
-        minimal: { primary: '71 85 105', secondary: '100 116 139', accent: '51 65 85' }
+        default: { primary: '104 176 162', secondary: '142 189 179', accent: '238 181 92' },
+        ocean: { primary: '91 161 170', secondary: '121 177 184', accent: '238 181 92' },
+        sunset: { primary: '169 149 118', secondary: '197 170 136', accent: '236 174 92' },
+        forest: { primary: '95 154 132', secondary: '126 173 152', accent: '230 176 88' },
+        lavender: { primary: '137 146 180', secondary: '164 171 198', accent: '235 183 104' },
+        minimal: { primary: '104 124 128', secondary: '145 158 160', accent: '226 176 94' }
       };
       
       const colors = themeColors[userTheme] || themeColors.default;

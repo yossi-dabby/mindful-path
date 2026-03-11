@@ -60,6 +60,7 @@ import GoalCoach from './pages/GoalCoach';
 import Goals from './pages/Goals';
 import Home from './pages/Home';
 import Journal from './pages/Journal';
+import JournalDashboard from './pages/JournalDashboard';
 import Journeys from './pages/Journeys';
 import MoodTracker from './pages/MoodTracker';
 import PersonalizedFeed from './pages/PersonalizedFeed';
@@ -73,7 +74,6 @@ import TestSetupGuide from './pages/TestSetupGuide';
 import ThoughtCoach from './pages/ThoughtCoach';
 import VideoPlayer from './pages/VideoPlayer';
 import Videos from './pages/Videos';
-import JournalDashboard from './pages/JournalDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -91,6 +91,7 @@ export const PAGES = {
     "Goals": Goals,
     "Home": Home,
     "Journal": Journal,
+    "JournalDashboard": JournalDashboard,
     "Journeys": Journeys,
     "MoodTracker": MoodTracker,
     "PersonalizedFeed": PersonalizedFeed,
@@ -104,7 +105,6 @@ export const PAGES = {
     "ThoughtCoach": ThoughtCoach,
     "VideoPlayer": VideoPlayer,
     "Videos": Videos,
-    "JournalDashboard": JournalDashboard,
 }
 
 export const pagesConfig = {
