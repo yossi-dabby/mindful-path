@@ -72,7 +72,7 @@ function NotificationItem({ notification, onMarkRead, onDelete }) {
           <span className="text-xs text-muted-foreground/80">
             {formatDistanceToNow(new Date(notification.created_date), { addSuffix: true })}
           </span>
-          {isUnread && <span className="w-1.5 h-1.5 rounded-full bg-teal-500 flex-shrink-0" />}
+          {isUnread && <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />}
           {(notification.priority === 'high' || notification.priority === 'critical') && (
             <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${PRIORITY_DOT[notification.priority]}`} />
           )}

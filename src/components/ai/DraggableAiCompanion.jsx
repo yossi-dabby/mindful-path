@@ -787,8 +787,8 @@ export default function DraggableAiCompanion() {
                 data-testid="companion-loading"
                 className="flex gap-2"
               >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center flex-shrink-0">
-                  <Brain className="w-4 h-4 text-white" />
+                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                  <Brain className="w-4 h-4 text-primary-foreground" />
                 </div>
                 <div className="bg-card border border-border/80 rounded-2xl px-4 py-3">
                   <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
