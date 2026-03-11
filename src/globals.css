@@ -21,10 +21,13 @@ label {
   :root {
     --background: 156 24% 97%;
     --foreground: 195 19% 20%;
-    --card: 0 0% 100%;
+    --card: 42 20% 99%;
     --card-foreground: 195 19% 20%;
-    --popover: 0 0% 100%;
+    --popover: 42 20% 99%;
     --popover-foreground: 195 19% 20%;
+    --surface-tint: 156 20% 95%;
+    --surface-nested: 156 18% 93%;
+    --overlay: 195 19% 20%;
     --primary: 168 34% 42%;
     --primary-foreground: 0 0% 100%;
     --secondary: 156 24% 92%;
@@ -115,10 +118,13 @@ label {
   .dark {
     --background: 205 34% 10%;
     --foreground: 210 22% 94%;
-    --card: 204 29% 13%;
+    --card: 204 28% 14%;
     --card-foreground: 210 22% 94%;
-    --popover: 204 29% 13%;
+    --popover: 204 28% 14%;
     --popover-foreground: 210 22% 94%;
+    --surface-tint: 204 22% 18%;
+    --surface-nested: 204 18% 20%;
+    --overlay: 210 22% 6%;
     --primary: 168 39% 54%;
     --primary-foreground: 185 32% 12%;
     --secondary: 204 18% 20%;
@@ -304,6 +310,24 @@ label {
   .dark .bg-theme-lavender,
   .dark .bg-theme-minimal {
     background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--surface-2)) 100%);
+  }
+
+  .surface-primary {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-md);
+  }
+
+  .surface-secondary {
+    background-color: hsl(var(--surface-tint));
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-sm);
+  }
+
+  .surface-nested {
+    background-color: hsl(var(--surface-nested));
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-sm);
   }
   
   /* Enhanced spacing utilities */
