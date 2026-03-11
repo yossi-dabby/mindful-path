@@ -159,7 +159,7 @@ export default function CoachingChat({ session, onBack }) {
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-3">
             <Button variant="ghost" onClick={onBack} className="gap-2">
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-4 h-4 rtl:scale-x-[-1]" />
               Back to Sessions
             </Button>
             <Badge variant="outline" className="gap-2">

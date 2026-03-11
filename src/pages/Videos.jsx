@@ -76,15 +76,15 @@ export default function Videos() {
         {/* Loading State */}
         {isLoading && (
           <div className="text-center py-12">
-            <p style={{ color: 'rgb(var(--theme-muted))' }}>{t('videos.loading')}</p>
+            <p className="text-muted-foreground">{t('videos.loading')}</p>
           </div>
         )}
 
         {/* Empty State */}
         {!isLoading && videos.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-lg mb-2" style={{ color: 'rgb(var(--text))' }}>{t('videos.no_videos_title')}</p>
-            <p style={{ color: 'rgb(var(--theme-muted))' }}>{t('videos.no_videos_description')}</p>
+            <p className="text-lg mb-2 text-foreground">{t('videos.no_videos_title')}</p>
+            <p className="text-muted-foreground">{t('videos.no_videos_description')}</p>
           </div>
         )}
 

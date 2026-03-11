@@ -110,7 +110,7 @@ export default function Coach() {
               style={{ borderRadius: '50%', width: '36px', height: '36px' }}
               aria-label={t('coach.go_back_aria')}
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-5 h-5 rtl:scale-x-[-1]" />
             </Button>
             <motion.div 
               className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-control)] bg-primary text-primary-foreground shadow-[var(--shadow-sm)]"
@@ -157,7 +157,7 @@ export default function Coach() {
               style={{ borderRadius: '50%' }}
               aria-label={t('coach.go_back_aria')}
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-5 h-5 rtl:scale-x-[-1]" />
             </Button>
             <motion.div 
               className="w-12 h-12 flex items-center justify-center rounded-[var(--radius-card)] bg-primary text-primary-foreground shadow-[var(--shadow-md)]"

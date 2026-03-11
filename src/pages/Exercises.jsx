@@ -165,7 +165,7 @@ export default function Exercises() {
               aria-label={t('exercises.go_back_aria')}
               className="flex-shrink-0"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              <svg className="rtl:scale-x-[-1]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             </Button>
             <div className="min-w-0">
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-semibold break-words text-foreground">{t('exercises.page_title')}</h1>
@@ -203,12 +203,12 @@ export default function Exercises() {
       {/* Search Bar */}
       <div className="mb-4">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+          <Search className="absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t('exercises.search_placeholder')}
-            className="pl-10"
+            className="pl-10 rtl:pl-3 rtl:pr-10"
             style={{ borderRadius: '28px' }}
           />
         </div>

@@ -165,12 +165,12 @@ export default function Community() {
         <TabsContent value="forum">
           <div className="space-y-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t('community.search_placeholder')}
-                className="pl-10"
+                className="pl-10 rtl:pl-3 rtl:pr-10"
                 style={{ borderRadius: '28px' }}
               />
             </div>

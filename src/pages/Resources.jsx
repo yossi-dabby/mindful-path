@@ -139,12 +139,12 @@ export default function Resources() {
       {/* Search & Filters */}
       <div className="mb-6 space-y-4">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+          <Search className="absolute left-3 rtl:left-auto rtl:right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t('resources.search_placeholder')}
-            className="pl-10 h-12"
+            className="pl-10 rtl:pl-3 rtl:pr-10 h-12"
             style={{ borderRadius: '28px' }}
           />
         </div>

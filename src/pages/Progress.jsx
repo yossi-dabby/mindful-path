@@ -70,7 +70,7 @@ export default function Progress() {
             style={{ borderRadius: '50%' }}
             aria-label={t('common.go_back_aria')}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            <svg className="rtl:scale-x-[-1]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </Button>
           <div className="min-w-0">
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-semibold break-words text-foreground">{t('progress.page_title')}</h1>

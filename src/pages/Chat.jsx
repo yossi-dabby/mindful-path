@@ -1245,7 +1245,7 @@ export default function Chat() {
             onClick={() => window.location.href = '/'}
             aria-label={t('chat.go_back_aria')}
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5 rtl:scale-x-[-1]" />
           </Button>
           <Button
             variant="ghost"
