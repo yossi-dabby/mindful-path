@@ -361,7 +361,7 @@ Provide:
                 {selectedTemplate ? selectedTemplate.name : 'Journal Entry'} - Step {step} of 6
               </CardTitle>
               {selectedTemplate && (
-                <p className="text-sm text-gray-500 mt-1">{selectedTemplate.description}</p>
+                <p className="text-sm text-muted-foreground mt-1">{selectedTemplate.description}</p>
               )}
             </div>
             <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close journal form">
@@ -375,7 +375,7 @@ Provide:
               {/* Template Selection */}
               {!entry && !template && templates.length > 0 && (
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  <label className="text-sm font-medium text-foreground mb-2 block">
                     Choose a Template (Optional)
                   </label>
                   <Select
@@ -409,10 +409,10 @@ Provide:
               )}
 
               <div key="situation-editor">
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   What happened? (The Situation)
                 </label>
-                <div className="border rounded-xl overflow-hidden">
+                <div className="border border-border/70 rounded-xl overflow-hidden bg-card">
                   <ReactQuill
                     value={formData.situation || ''}
                     onChange={(value) => setFormData(prev => ({ ...prev, situation: value }))}
@@ -431,10 +431,10 @@ Provide:
               </div>
 
               <div key="thoughts-editor">
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   What went through your mind? (Automatic Thoughts)
                 </label>
-                <div className="border rounded-xl overflow-hidden">
+                <div className="border border-border/70 rounded-xl overflow-hidden bg-card">
                   <ReactQuill
                     value={formData.automatic_thoughts || ''}
                     onChange={(value) => setFormData(prev => ({ ...prev, automatic_thoughts: value }))}
@@ -470,7 +470,7 @@ Provide:
           {step === 2 && (
             <div className="space-y-6">
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-3 block">
+                <label className="text-sm font-medium text-foreground mb-3 block">
                   What emotions did you feel?
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -493,7 +493,7 @@ Provide:
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   How intense? (1-10)
                 </label>
                 <div className="flex items-center gap-4">
@@ -531,7 +531,7 @@ Provide:
             <div className="space-y-6">
               {/* AI Distortion Analysis */}
               {formData.situation && formData.automatic_thoughts && !showDistortionAnalysis && (
-                <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-xl border-2 border-amber-200">
+                <div className="bg-secondary/40 p-4 rounded-[var(--radius-control)] border border-border/70">
                   <div className="text-center">
                     <Brain className="w-12 h-12 text-amber-600 mx-auto mb-2" />
                     <h4 className="font-semibold text-gray-800 mb-1">AI Distortion Detection</h4>
@@ -565,7 +565,7 @@ Provide:
               )}
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-3 block">
+                <label className="text-sm font-medium text-foreground mb-3 block">
                   Identify thinking patterns (optional)
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -576,7 +576,7 @@ Provide:
                       className={cn(
                         'cursor-pointer px-3 py-2 text-xs',
                         formData.cognitive_distortions.includes(distortion)
-                          ? 'bg-purple-600 hover:bg-purple-700'
+                          ? 'bg-primary hover:bg-primary/90'
                           : 'hover:bg-gray-100'
                       )}
                       onClick={() => toggleItem('cognitive_distortions', distortion)}
@@ -588,10 +588,10 @@ Provide:
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   Evidence FOR the thought
                 </label>
-                <div className="border rounded-xl overflow-hidden">
+                <div className="border border-border/70 rounded-xl overflow-hidden bg-card">
                   <ReactQuill
                     value={formData.evidence_for || ''}
                     onChange={(value) => setFormData({ ...formData, evidence_for: value })}
@@ -609,10 +609,10 @@ Provide:
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   Evidence AGAINST the thought
                 </label>
-                <div className="border rounded-xl overflow-hidden">
+                <div className="border border-border/70 rounded-xl overflow-hidden bg-card">
                   <ReactQuill
                     value={formData.evidence_against || ''}
                     onChange={(value) => setFormData({ ...formData, evidence_against: value })}
@@ -633,7 +633,7 @@ Provide:
                 <Button onClick={() => setStep(2)} variant="outline" className="flex-1">
                   Back
                 </Button>
-                <Button onClick={() => setStep(4)} className="flex-1 bg-purple-600 hover:bg-purple-700">
+                <Button onClick={() => setStep(4)} className="flex-1 bg-primary hover:bg-primary/90">
                   Continue
                 </Button>
               </div>
@@ -643,10 +643,10 @@ Provide:
           {step === 4 && (
             <div className="space-y-6">
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   Balanced, realistic thought
                 </label>
-                <div className="border rounded-xl overflow-hidden">
+                <div className="border border-border/70 rounded-xl overflow-hidden bg-card">
                   <ReactQuill
                     value={formData.balanced_thought || ''}
                     onChange={(value) => setFormData({ ...formData, balanced_thought: value })}
@@ -664,7 +664,7 @@ Provide:
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   How intense are the emotions now? (1-10)
                 </label>
                 <div className="flex items-center gap-4">
@@ -702,7 +702,7 @@ Provide:
             <div className="space-y-6">
               {/* AI Analysis Section */}
               {!aiAnalysis && !isAnalyzing && (
-                <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-xl border-2 border-purple-200">
+                <div className="bg-secondary/40 p-6 rounded-[var(--radius-card)] border border-border/70">
                   <div className="text-center">
                     <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-3">
                       <Sparkles className="w-8 h-8 text-purple-600" />
@@ -713,7 +713,7 @@ Provide:
                     </p>
                     <Button
                       onClick={analyzeEntry}
-                      className="bg-purple-600 hover:bg-purple-700"
+                      className="bg-primary hover:bg-primary/90"
                     >
                       <Sparkles className="w-4 h-4 mr-2" />
                       Analyze Entry
@@ -723,7 +723,7 @@ Provide:
               )}
 
               {isAnalyzing && (
-                <div className="bg-white p-8 rounded-xl border text-center">
+                <div className="bg-card p-8 rounded-[var(--radius-card)] border border-border/70 text-center">
                   <Loader2 className="w-8 h-8 text-purple-600 animate-spin mx-auto mb-3" />
                   <p className="text-sm text-gray-600">Analyzing your journal entry...</p>
                 </div>
@@ -732,7 +732,7 @@ Provide:
               {aiAnalysis && (
                 <div className="space-y-4">
                   {/* Sentiment Analysis */}
-                  <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-4 rounded-xl border border-blue-200">
+                  <div className="bg-secondary/40 p-4 rounded-[var(--radius-control)] border border-border/70">
                     <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
                       <Brain className="w-4 h-4 text-blue-600" />
                       Sentiment Analysis
@@ -761,7 +761,7 @@ Provide:
                   </div>
 
                   {/* Key Insight */}
-                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl border border-green-200">
+                  <div className="bg-secondary/40 p-4 rounded-[var(--radius-control)] border border-border/70">
                     <h4 className="font-semibold text-green-800 mb-2 flex items-center gap-2">
                       <Lightbulb className="w-4 h-4" />
                       Key Insight
@@ -771,7 +771,7 @@ Provide:
 
                   {/* Recommended Exercises */}
                   {aiAnalysis.recommended_exercises?.length > 0 && (
-                    <div className="bg-gradient-to-br from-orange-50 to-yellow-50 p-4 rounded-xl border border-orange-200">
+                    <div className="bg-secondary/40 p-4 rounded-[var(--radius-control)] border border-border/70">
                       <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
                         <Target className="w-4 h-4 text-orange-600" />
                         Recommended Practices
@@ -792,7 +792,7 @@ Provide:
               {/* Link to Goal */}
               {goals.length > 0 && (
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-2">
+                  <label className="text-sm font-medium text-foreground mb-2 block flex items-center gap-2">
                     <Link2 className="w-4 h-4" />
                     Link to Goal (optional)
                   </label>
@@ -812,7 +812,7 @@ Provide:
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     Connect this entry to a goal for context and tracking
                   </p>
                 </div>
@@ -820,7 +820,7 @@ Provide:
 
               {/* Tags Section */}
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   Tags {aiAnalysis && <span className="text-purple-600">(AI-suggested tags applied)</span>}
                 </label>
                 <div className="flex flex-wrap gap-2 mb-3">
@@ -861,7 +861,7 @@ Provide:
 
               {/* Media Attachments */}
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   Attachments (Optional)
                 </label>
                 {uploadError && (

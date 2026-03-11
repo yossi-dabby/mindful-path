@@ -183,7 +183,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
         <CardContent className="p-4 md:p-6 space-y-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 280px)' }}>
           {/* Date */}
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">{t('mood_tracker.form.date')}</label>
+            <label className="text-sm font-medium text-foreground mb-2 block">{t('mood_tracker.form.date')}</label>
             <input
               type="date"
               value={formData.date}
@@ -194,7 +194,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
 
           {/* Mood Selection */}
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-3 block">{t('mood_tracker.form.overall_mood')}</label>
+            <label className="text-sm font-medium text-foreground mb-3 block">{t('mood_tracker.form.overall_mood')}</label>
             <div className="grid grid-cols-5 gap-1 sm:gap-2 md:gap-3">
               {moodsConfig.map((mood) => (
                 <button
@@ -203,8 +203,8 @@ export default function DetailedMoodForm({ entry, onClose }) {
                   className={cn(
                     'flex flex-col items-center gap-1 sm:gap-2 p-2 sm:p-4 rounded-2xl border-2 transition-all',
                     formData.mood === mood.value
-                      ? 'border-purple-400 bg-purple-50 shadow-lg scale-105'
-                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                      ? 'border-primary/40 bg-primary/10 shadow-[var(--shadow-sm)] scale-105'
+                      : 'border-border/70 hover:border-border hover:bg-secondary/60'
                   )}
                 >
                   <span className="text-xl sm:text-2xl md:text-3xl">{mood.icon}</span>
@@ -216,7 +216,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
 
           {/* Emotions */}
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-3 block">
+            <label className="text-sm font-medium text-foreground mb-3 block">
               {t('mood_tracker.form.emotions_question')}
             </label>
             <div className="flex flex-wrap gap-2">
@@ -227,8 +227,8 @@ export default function DetailedMoodForm({ entry, onClose }) {
                   className={cn(
                     'cursor-pointer capitalize transition-all',
                     formData.emotions?.includes(emotion)
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-secondary text-foreground hover:bg-secondary/80'
                   )}
                 >
                   {emotion}
@@ -239,7 +239,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
 
           {/* Intensity */}
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">
+            <label className="text-sm font-medium text-foreground mb-2 block">
               {t('mood_tracker.form.intensity_label')}: {formData.intensity}/10
             </label>
             <Slider
@@ -252,7 +252,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
               aria-label={t('mood_tracker.form.intensity_label')}
               aria-valuetext={`${t('mood_tracker.form.intensity_label')} ${formData.intensity} out of 10`}
             />
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <div className="flex justify-between text-xs text-muted-foreground mt-1">
               <span>{t('mood_tracker.form.mild')}</span>
               <span>{t('mood_tracker.form.intense')}</span>
             </div>
@@ -260,7 +260,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
 
           {/* Energy Level */}
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-3 block">{t('mood_tracker.form.energy_level')}</label>
+            <label className="text-sm font-medium text-foreground mb-3 block">{t('mood_tracker.form.energy_level')}</label>
             <div className="grid grid-cols-5 gap-1 sm:gap-2">
               {energyLevelsConfig.map((level) => {
                 const Icon = level.icon;
@@ -271,7 +271,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
                     className={cn(
                       'flex flex-col items-center gap-1 p-2 sm:p-3 rounded-xl border-2 transition-all',
                       formData.energy_level === level.value
-                        ? 'border-blue-400 bg-blue-50'
+                        ? 'border-primary/40 bg-primary/10'
                         : 'border-gray-200 hover:border-gray-300'
                     )}
                   >
@@ -285,7 +285,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
 
           {/* Sleep Quality */}
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-3 block">{t('mood_tracker.form.sleep_quality')}</label>
+            <label className="text-sm font-medium text-foreground mb-3 block">{t('mood_tracker.form.sleep_quality')}</label>
             <div className="grid grid-cols-4 gap-1 sm:gap-2">
               {sleepQualitiesConfig.map((quality) => {
                 const Icon = quality.icon;
@@ -296,7 +296,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
                     className={cn(
                       'flex flex-col items-center gap-1 p-2 sm:p-3 rounded-xl border-2 transition-all',
                       formData.sleep_quality === quality.value
-                        ? 'border-indigo-400 bg-indigo-50'
+                        ? 'border-primary/40 bg-primary/10'
                         : 'border-gray-200 hover:border-gray-300'
                     )}
                   >
@@ -310,7 +310,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
 
           {/* Stress Level */}
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">
+            <label className="text-sm font-medium text-foreground mb-2 block">
               {t('mood_tracker.form.stress_level')}: {formData.stress_level}/10
             </label>
             <Slider
@@ -323,7 +323,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
               aria-label={t('mood_tracker.form.stress_level')}
               aria-valuetext={`${t('mood_tracker.form.stress_level')} ${formData.stress_level} out of 10`}
             />
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <div className="flex justify-between text-xs text-muted-foreground mt-1">
               <span>{t('mood_tracker.form.relaxed')}</span>
               <span>{t('mood_tracker.form.very_stressed')}</span>
             </div>
@@ -331,7 +331,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
 
           {/* Triggers */}
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-3 block">
+            <label className="text-sm font-medium text-foreground mb-3 block">
               {t('mood_tracker.form.triggers_question')}
             </label>
             <div className="flex flex-wrap gap-2">
@@ -342,8 +342,8 @@ export default function DetailedMoodForm({ entry, onClose }) {
                   className={cn(
                     'cursor-pointer capitalize transition-all',
                     formData.triggers?.includes(trigger)
-                      ? 'bg-orange-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-secondary text-foreground hover:bg-secondary/80'
                   )}
                 >
                   {trigger}
@@ -354,7 +354,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
 
           {/* Activities */}
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-3 block">
+            <label className="text-sm font-medium text-foreground mb-3 block">
               {t('mood_tracker.form.activities_question')}
             </label>
             <div className="flex flex-wrap gap-2">
@@ -365,8 +365,8 @@ export default function DetailedMoodForm({ entry, onClose }) {
                   className={cn(
                     'cursor-pointer capitalize transition-all',
                     formData.activities?.includes(activity)
-                      ? 'bg-green-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-secondary text-foreground hover:bg-secondary/80'
                   )}
                 >
                   {activity}
@@ -377,7 +377,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
 
           {/* Notes */}
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">
+            <label className="text-sm font-medium text-foreground mb-2 block">
               {t('mood_tracker.form.notes_label')}
             </label>
             <Textarea

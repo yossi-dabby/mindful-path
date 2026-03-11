@@ -153,11 +153,7 @@ export default function EnhancedProgressDashboard() {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="p-4 sm:p-5 rounded-2xl"
-        style={{
-          background: 'linear-gradient(145deg, rgba(246, 173, 85, 0.2) 0%, rgba(237, 137, 54, 0.15) 100%)',
-          boxShadow: '0 4px 16px rgba(246, 173, 85, 0.15)'
-        }}
+        className="surface-secondary rounded-[var(--radius-card)] p-4 sm:p-5 border-border/80"
       >
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
@@ -170,8 +166,8 @@ export default function EnhancedProgressDashboard() {
               <Flame className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
             </motion.div>
             <div>
-              <p className="text-xs sm:text-sm" style={{ color: '#5A7A72' }}>{t('progress.dashboard.current_streak')}</p>
-              <p className="text-2xl sm:text-3xl font-bold" style={{ color: '#1A3A34' }}>
+              <p className="text-xs sm:text-sm text-muted-foreground">{t('progress.dashboard.current_streak')}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-foreground">
                 {overallStreak.current_streak} {t('progress.dashboard.days')}
               </p>
             </div>
@@ -181,9 +177,9 @@ export default function EnhancedProgressDashboard() {
             <div className="text-center">
               <div className="flex items-center gap-1 justify-center">
                 <Zap className="w-4 h-4" style={{ color: '#F6AD55' }} />
-                <span className="text-lg sm:text-xl font-bold" style={{ color: '#1A3A34' }}>{userPoints.total_points}</span>
+                <span className="text-lg sm:text-xl font-bold text-foreground">{userPoints.total_points}</span>
               </div>
-              <p className="text-xs break-words" style={{ color: '#5A7A72' }}>{t('progress.dashboard.points')}</p>
+              <p className="text-xs break-words text-muted-foreground">{t('progress.dashboard.points')}</p>
             </div>
             <div className="text-center min-w-0">
               <div className="flex items-center gap-1 justify-center">

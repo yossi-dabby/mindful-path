@@ -63,10 +63,10 @@ export default function InsightsPanel({ moodEntries, journalEntries }) {
 
         {/* Mood Streak */}
         <div>
-          <p className="text-sm text-gray-500 mb-2">Check-in Streak</p>
+          <p className="text-sm text-muted-foreground mb-2">Check-in Streak</p>
           <div className="flex items-center gap-2">
-            <div className="text-3xl font-bold text-purple-600">{moodEntries.length}</div>
-            <div className="text-sm text-gray-600">days</div>
+            <div className="text-3xl font-bold text-primary">{moodEntries.length}</div>
+            <div className="text-sm text-muted-foreground">days</div>
           </div>
         </div>
 
@@ -76,7 +76,7 @@ export default function InsightsPanel({ moodEntries, journalEntries }) {
             <p className="text-sm text-gray-500 mb-2">Common Emotions</p>
             <div className="flex flex-wrap gap-2">
               {commonEmotions.map((emotion) => (
-                <Badge key={emotion} variant="secondary" className="bg-blue-100 text-blue-700">
+                <Badge key={emotion} variant="secondary">
                   {emotion}
                 </Badge>
               ))}
@@ -90,9 +90,9 @@ export default function InsightsPanel({ moodEntries, journalEntries }) {
             <p className="text-sm text-gray-500 mb-3">Thinking Patterns to Watch</p>
             <div className="space-y-2">
               {topDistortions.map(({ distortion, count }) => (
-                <div key={distortion} className="p-2 rounded-lg bg-orange-50 border border-orange-200">
-                  <p className="text-xs font-medium text-orange-900">{distortion}</p>
-                  <p className="text-xs text-orange-600 mt-0.5">Identified {count} times</p>
+                <div key={distortion} className="p-2 rounded-[var(--radius-nested)] bg-secondary/45 border border-border/60">
+                  <p className="text-xs font-medium text-foreground">{distortion}</p>
+                  <p className="text-xs text-primary mt-0.5">Identified {count} times</p>
                 </div>
               ))}
             </div>
@@ -100,9 +100,9 @@ export default function InsightsPanel({ moodEntries, journalEntries }) {
         )}
 
         {/* Encouragement */}
-        <div className="p-4 rounded-xl bg-gradient-to-br from-green-50 to-purple-50 border border-green-200">
-          <p className="text-sm font-medium text-gray-800 mb-1">Keep Going! 🌟</p>
-          <p className="text-xs text-gray-600">
+        <div className="p-4 rounded-[var(--radius-control)] bg-secondary/45 border border-border/60">
+          <p className="text-sm font-medium text-foreground mb-1">Keep Going! 🌟</p>
+          <p className="text-xs text-muted-foreground">
             {journalEntries.length > 5 
               ? "You're building great self-awareness through consistent practice."
               : "Every entry brings you closer to understanding your patterns."}
