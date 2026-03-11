@@ -109,11 +109,11 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
 
   if (entries.length < 5) {
     return (
-      <Card className="border-0 shadow-xl">
+      <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
         <CardContent className="p-12 text-center">
-          <Brain className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">Not Enough Data Yet</h3>
-          <p className="text-gray-500">
+          <Brain className="w-16 h-16 text-primary/30 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-foreground mb-2">Not Enough Data Yet</h3>
+          <p className="text-muted-foreground">
             Track your mood for at least 5 days to get AI-powered insights about your emotional patterns
           </p>
         </CardContent>
@@ -125,19 +125,19 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
     <div className="space-y-6">
       {/* Generate Button */}
       {!insights && (
-        <Card className="border-0 shadow-xl bg-gradient-to-br from-purple-50 to-blue-50">
+        <Card className="border border-border/80 bg-card shadow-[var(--shadow-lg)]">
           <CardContent className="p-8 text-center">
-            <Brain className="w-16 h-16 text-purple-600 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">
+            <Brain className="w-16 h-16 text-primary mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-foreground mb-2">
               Get AI-Powered Insights
             </h3>
-            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
               Let AI analyze your mood patterns and provide personalized recommendations based on your {entries.length} mood entries
             </p>
             <Button
               onClick={generateInsights}
               disabled={isGenerating}
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 px-8 py-6 text-lg"
+              className="px-8 py-6 text-lg rounded-[var(--radius-card)]"
             >
               {isGenerating ? (
                 <>

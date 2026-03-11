@@ -67,11 +67,11 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
   }, [entries, dateRange]);
 
   return (
-    <Card className="border-0 shadow-xl">
-      <CardHeader className="border-b">
+    <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
+      <CardHeader className="border-b border-border/70 bg-secondary/35">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <Activity className="w-5 h-5 text-purple-600" />
+            <Activity className="w-5 h-5 text-primary" />
             Mood Trends
           </CardTitle>
           <Select value={dateRange.toString()} onValueChange={(v) => onDateRangeChange(parseInt(v))}>
@@ -91,18 +91,18 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
         {/* Stats Cards */}
         {stats && (
           <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
-              <p className="text-xs font-medium text-gray-600 mb-1">Average Mood</p>
-              <p className="text-2xl font-bold text-blue-700">{stats.avgMood.toFixed(1)}/5</p>
+            <div className="p-4 bg-secondary/45 border border-border/60 rounded-[var(--radius-control)]">
+              <p className="text-xs font-medium text-muted-foreground mb-1">Average Mood</p>
+              <p className="text-2xl font-bold text-foreground">{stats.avgMood.toFixed(1)}/5</p>
             </div>
-            <div className="p-4 bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl">
-              <p className="text-xs font-medium text-gray-600 mb-1">Average Stress</p>
-              <p className="text-2xl font-bold text-amber-700">
+            <div className="p-4 bg-secondary/45 border border-border/60 rounded-[var(--radius-control)]">
+              <p className="text-xs font-medium text-muted-foreground mb-1">Average Stress</p>
+              <p className="text-2xl font-bold text-foreground">
                 {stats.avgStress != null ? `${stats.avgStress.toFixed(1)}/10` : 'No data yet'}
               </p>
             </div>
-            <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
-              <p className="text-xs font-medium text-gray-600 mb-1">Trend</p>
+            <div className="p-4 bg-secondary/45 border border-border/60 rounded-[var(--radius-control)]">
+              <p className="text-xs font-medium text-muted-foreground mb-1">Trend</p>
               <div className="flex items-center justify-center gap-1">
                 {stats.trend > 0.5 ? (
                   <>

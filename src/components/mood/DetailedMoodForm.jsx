@@ -165,14 +165,14 @@ export default function DetailedMoodForm({ entry, onClose }) {
 
   return (
     <div 
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto"
+      className="fixed inset-0 bg-[hsl(var(--overlay)/0.18)] backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto"
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6rem)'
       }}
     >
-      <Card className="w-full max-w-3xl border-0 shadow-2xl my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
-        <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-purple-50">
+      <Card className="w-full max-w-3xl border border-border/80 bg-card shadow-[var(--shadow-lg)] my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
+        <CardHeader className="border-b border-border/70 bg-secondary/35">
           <div className="flex items-center justify-between">
             <CardTitle className="text-2xl">{t('mood_tracker.form.title')}</CardTitle>
             <Button variant="ghost" size="icon" onClick={onClose} aria-label={t('mood_tracker.form.close_aria')}>

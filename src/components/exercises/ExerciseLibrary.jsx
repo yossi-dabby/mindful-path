@@ -22,7 +22,7 @@ export default function ExerciseLibrary({ exercises, categoryIcons, categoryColo
             transition={{ delay: index * 0.05 }}
           >
             <Card
-              className="border-0 shadow-md hover:shadow-xl transition-all cursor-pointer group relative overflow-hidden"
+              className="border border-border/80 bg-card shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group relative overflow-hidden"
               onClick={() => onSelectExercise(exercise)}
             >
               {/* Favorite Button */}
@@ -31,7 +31,7 @@ export default function ExerciseLibrary({ exercises, categoryIcons, categoryColo
                   e.stopPropagation();
                   onToggleFavorite(exercise);
                 }}
-                className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/80 hover:bg-white shadow-sm transition-all"
+                className="absolute top-3 right-3 z-10 p-2 rounded-full bg-card/90 hover:bg-card shadow-[var(--shadow-sm)] transition-all border border-border/70"
               >
                 <Heart
                   className={`w-4 h-4 ${exercise.favorite ? 'fill-red-500 text-red-500' : 'text-gray-400'}`}
@@ -47,8 +47,8 @@ export default function ExerciseLibrary({ exercises, categoryIcons, categoryColo
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   {exercise.video_url && (
-                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                      <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-[hsl(var(--overlay)/0.12)] flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-card/90 flex items-center justify-center">
                         <Play className="w-6 h-6 text-gray-800 ml-1" />
                       </div>
                     </div>
@@ -69,12 +69,12 @@ export default function ExerciseLibrary({ exercises, categoryIcons, categoryColo
                 </div>
 
                 <div className="flex items-start justify-between gap-2 mb-2">
-                  <h3 className="font-semibold text-gray-800 text-lg group-hover:text-green-600 transition-colors line-clamp-1 break-words">
+                  <h3 className="font-semibold text-foreground text-lg group-hover:text-primary transition-colors line-clamp-1 break-words">
                     {exercise.title || t('exercises.detail.untitled_exercise')}
                   </h3>
                   <ExerciseMediaBadge mediaType={exercise.media_type} />
                 </div>
-                <p className="text-sm text-gray-600 mb-4 line-clamp-2">{exercise.description || ''}</p>
+                <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{exercise.description || ''}</p>
 
                 {/* Tags */}
                 {exercise.tags?.length > 0 && (
@@ -87,7 +87,7 @@ export default function ExerciseLibrary({ exercises, categoryIcons, categoryColo
                   </div>
                 )}
 
-                <div className="flex items-center justify-between text-xs text-gray-500 pt-3 border-t">
+                <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border/60">
                   <div className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     {exercise.duration_options?.length > 0
@@ -106,9 +106,9 @@ export default function ExerciseLibrary({ exercises, categoryIcons, categoryColo
                       <span>{t('journeys.card.progress')}</span>
                       <span>{exercise.total_time_practiced || 0} {t('common.minutes_short')}</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-1.5">
+                    <div className="w-full bg-secondary rounded-full h-1.5">
                       <div
-                        className="bg-green-600 h-1.5 rounded-full transition-all"
+                        className="bg-primary h-1.5 rounded-full transition-all"
                         style={{
                           width: `${Math.min((exercise.completed_count / 10) * 100, 100)}%`
                         }}

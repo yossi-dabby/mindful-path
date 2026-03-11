@@ -63,21 +63,17 @@ export default function QuickStartPanel({ exercises, onSelectExercise }) {
   if (quickStartExercises.length === 0) return null;
 
   return (
-    <Card className="border-0 mb-6" style={{
-      borderRadius: '24px',
-      background: 'linear-gradient(145deg, rgba(246, 173, 85, 0.15) 0%, rgba(237, 137, 54, 0.1) 100%)',
-      boxShadow: '0 8px 24px rgba(246, 173, 85, 0.15)'
-    }}>
+    <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)] mb-6">
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-base sm:text-lg" style={{ color: '#1A3A34' }}>
+        <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-foreground">
           <motion.div
             animate={{ rotate: [0, 15, -15, 0] }}
             transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
           >
-            <Zap className="w-5 h-5" style={{ color: '#F6AD55' }} />
+            <Zap className="w-5 h-5 text-accent" />
           </motion.div>
           Quick Start
-          <Badge className="ml-2 text-xs" style={{ background: 'rgba(246, 173, 85, 0.3)', color: '#C05621' }}>
+          <Badge variant="warning" className="ml-2 text-xs">
             Your go-to exercises
           </Badge>
         </CardTitle>
@@ -100,11 +96,7 @@ export default function QuickStartPanel({ exercises, onSelectExercise }) {
               >
                 <button
                   onClick={() => onSelectExercise(exercise)}
-                  className="w-full text-left p-3 sm:p-4 rounded-2xl transition-all"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.9)',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
-                  }}
+                  className="w-full text-left p-3 sm:p-4 rounded-2xl transition-all bg-secondary/45 border border-border/60 shadow-[var(--shadow-sm)]"
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div 
@@ -122,10 +114,10 @@ export default function QuickStartPanel({ exercises, onSelectExercise }) {
                       )}
                     </div>
                   </div>
-                  <h4 className="font-medium text-sm mb-1 line-clamp-1" style={{ color: '#1A3A34' }}>
+                  <h4 className="font-medium text-sm mb-1 line-clamp-1 text-foreground">
                     {exercise.title}
                   </h4>
-                  <div className="flex items-center gap-2 text-xs" style={{ color: '#7A9A92' }}>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Clock className="w-3 h-3" />
                     {exercise.duration_options?.[0] || 5} min
                     {exercise.completed_count > 0 && (

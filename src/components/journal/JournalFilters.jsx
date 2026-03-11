@@ -34,7 +34,7 @@ export default function JournalFilters({
     <div className="space-y-3">
       {/* Type Filter */}
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-sm font-medium text-gray-600">Type:</span>
+        <span className="text-sm font-medium text-muted-foreground">Type:</span>
         {entryTypes.map((type) => (
           <Badge
             key={type.value}
@@ -42,8 +42,8 @@ export default function JournalFilters({
             className={cn(
               'cursor-pointer px-3 py-1',
               selectedType === type.value
-                ? 'bg-purple-600 hover:bg-purple-700'
-                : 'hover:bg-gray-100'
+                ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                : 'hover:bg-secondary text-foreground'
             )}
             onClick={() => onTypeChange(type.value)}
           >
@@ -55,7 +55,7 @@ export default function JournalFilters({
       {/* Tag Filter */}
       {allTags.length > 0 && (
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-sm font-medium text-gray-600">Tags:</span>
+          <span className="text-sm font-medium text-muted-foreground">Tags:</span>
           {allTags.map((tag) => (
             <Badge
               key={tag}
@@ -63,8 +63,8 @@ export default function JournalFilters({
               className={cn(
                 'cursor-pointer px-3 py-1',
                 selectedTags.includes(tag)
-                  ? 'bg-blue-600 hover:bg-blue-700'
-                  : 'hover:bg-gray-100'
+                  ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                  : 'hover:bg-secondary text-foreground'
               )}
               onClick={() => toggleTag(tag)}
             >
@@ -84,7 +84,7 @@ export default function JournalFilters({
               onTagsChange([]);
               onTypeChange('all');
             }}
-            className="text-gray-600 hover:text-gray-800"
+            className="text-muted-foreground hover:text-foreground"
           >
             <X className="w-4 h-4 mr-1" />
             Clear All Filters

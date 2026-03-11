@@ -347,14 +347,14 @@ Provide:
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
       <div 
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto"
+        className="fixed inset-0 bg-[hsl(var(--overlay)/0.18)] backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-24 overflow-y-auto"
         style={{
           paddingTop: 'env(safe-area-inset-top, 0px)',
           paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6rem)'
         }}
       >
-        <Card className="w-full max-w-2xl border-0 shadow-2xl my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
-        <CardHeader className="border-b">
+        <Card className="w-full max-w-2xl border border-border/80 bg-card shadow-[var(--shadow-lg)] my-8" style={{ maxHeight: 'calc(100vh - 160px)' }}>
+      <CardHeader className="border-b border-border/70 bg-secondary/35">
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>
@@ -460,7 +460,7 @@ Provide:
                   formData.situation === '<p><br></p>' ||
                   formData.automatic_thoughts === '<p><br></p>'
                 }
-                className="w-full bg-purple-600 hover:bg-purple-700 py-6 rounded-xl"
+                className="w-full py-6 rounded-xl"
               >
                 Continue
               </Button>
@@ -481,8 +481,8 @@ Provide:
                       className={cn(
                         'cursor-pointer px-4 py-2',
                         formData.emotions.includes(emotion)
-                          ? 'bg-purple-600 hover:bg-purple-700'
-                          : 'hover:bg-gray-100'
+                          ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                          : 'hover:bg-secondary text-foreground'
                       )}
                       onClick={() => toggleItem('emotions', emotion)}
                     >
@@ -519,7 +519,7 @@ Provide:
                 </Button>
                 <Button
                   onClick={() => setStep(3)}
-                  className="flex-1 bg-purple-600 hover:bg-purple-700"
+                  className="flex-1"
                 >
                   Continue
                 </Button>
@@ -690,7 +690,7 @@ Provide:
                 </Button>
                 <Button
                   onClick={() => setStep(5)}
-                  className="flex-1 bg-purple-600 hover:bg-purple-700"
+                  className="flex-1"
                 >
                   Continue
                 </Button>
@@ -946,7 +946,7 @@ Provide:
                     saveMutation.mutate(dataToSave);
                   }}
                   disabled={isSavingRef.current || saveMutation.isPending}
-                  className="flex-1 bg-purple-600 hover:bg-purple-700"
+                  className="flex-1"
                 >
                   {saveMutation.isPending ? 'Saving...' : 'Save Entry'}
                 </Button>

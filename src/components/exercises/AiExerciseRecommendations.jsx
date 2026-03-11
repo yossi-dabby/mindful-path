@@ -214,12 +214,12 @@ Provide recommendations with:
   };
 
   return (
-    <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-blue-50">
-      <CardHeader>
+    <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
+      <CardHeader className="border-b border-border/70 bg-secondary/35">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-purple-600" />
-            <CardTitle className="text-xl">AI Recommendations</CardTitle>
+            <Sparkles className="w-5 h-5 text-primary" />
+            <CardTitle className="text-xl text-foreground">AI Recommendations</CardTitle>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button
@@ -236,7 +236,7 @@ Provide recommendations with:
               onClick={handleGenerate}
               disabled={generateMutation.isPending}
               size="sm"
-              className="bg-purple-600 hover:bg-purple-700 flex-1 sm:flex-none"
+              className="flex-1 sm:flex-none"
             >
               {generateMutation.isPending ? (
                 <>
@@ -263,7 +263,7 @@ Provide recommendations with:
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="mb-4 p-4 bg-white rounded-lg border-2 border-purple-200"
+              className="mb-4 p-4 bg-secondary/35 rounded-[var(--radius-control)] border border-border/70"
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                 <div>
@@ -304,7 +304,7 @@ Provide recommendations with:
                 </div>
               </div>
               {(selectedMood || selectedGoal) && (
-                <div className="flex items-center gap-2 text-sm text-purple-700 bg-purple-50 px-3 py-2 rounded-lg">
+                <div className="flex items-center gap-2 text-sm text-primary bg-secondary px-3 py-2 rounded-[var(--radius-control)]">
                   <CheckCircle2 className="w-4 h-4" />
                   <span>
                     {selectedMood && selectedGoal
@@ -332,8 +332,8 @@ Provide recommendations with:
 
         {!recommendations && !generateMutation.isPending && (
           <div className="text-center py-8 px-4">
-            <Sparkles className="w-12 h-12 text-purple-300 mx-auto mb-3" />
-            <p className="text-gray-600 mb-4 text-sm sm:text-base">
+            <Sparkles className="w-12 h-12 text-primary/30 mx-auto mb-3" />
+            <p className="text-muted-foreground mb-4 text-sm sm:text-base">
               Get personalized exercise recommendations based on your activity, favorites, mood, and goals
             </p>
           </div>
@@ -343,7 +343,7 @@ Provide recommendations with:
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
               <div key={i} className="animate-pulse">
-                <div className="h-24 bg-gray-200 rounded-xl" />
+                <div className="h-24 bg-secondary rounded-xl" />
               </div>
             ))}
           </div>
@@ -374,15 +374,15 @@ Provide recommendations with:
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <Card className="border-2 hover:shadow-md transition-all cursor-pointer" onClick={() => exercise && onSelectExercise(exercise)}>
+                  <Card className="border border-border/80 bg-card hover:shadow-[var(--shadow-md)] transition-all cursor-pointer" onClick={() => exercise && onSelectExercise(exercise)}>
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-secondary text-primary flex items-center justify-center flex-shrink-0">
                           {Icon && <Icon className="w-5 h-5" />}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2 mb-2">
-                            <h4 className="font-semibold text-gray-800">
+                            <h4 className="font-semibold text-foreground">
                               {rec.exercise_title}
                             </h4>
                             <Badge className={`text-xs ${priorityColors[rec.priority] || priorityColors.medium}`}>
@@ -390,12 +390,12 @@ Provide recommendations with:
                             </Badge>
                           </div>
                           {rec.reason ? (
-                            <p className="text-sm text-gray-600 mb-2">{rec.reason}</p>
+                            <p className="text-sm text-muted-foreground mb-2">{rec.reason}</p>
                           ) : null}
                           {rec.benefit ? (
-                            <div className="flex items-start gap-2 bg-green-50 rounded-lg p-2 border border-green-200">
-                              <Sparkles className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
-                              <p className="text-xs text-gray-700">{rec.benefit}</p>
+                            <div className="flex items-start gap-2 bg-secondary/45 rounded-lg p-2 border border-border/60">
+                              <Sparkles className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                              <p className="text-xs text-foreground/85">{rec.benefit}</p>
                             </div>
                           ) : null}
                           {exercise ? (
