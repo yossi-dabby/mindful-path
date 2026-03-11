@@ -188,7 +188,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
               type="date"
               value={formData.date}
               onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-              className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+              className="w-full border border-input/90 bg-[hsl(var(--surface-nested)/0.92)] rounded-xl px-3 py-2 text-sm text-foreground shadow-[var(--shadow-sm)] focus:outline-none focus:ring-1 focus:ring-ring"
             />
           </div>
 
@@ -208,7 +208,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
                   )}
                 >
                   <span className="text-xl sm:text-2xl md:text-3xl">{mood.icon}</span>
-                  <span className="text-[10px] sm:text-xs font-medium text-gray-700 break-words text-center leading-tight">{t(mood.labelKey)}</span>
+                  <span className="text-[10px] sm:text-xs font-medium text-foreground/85 break-words text-center leading-tight">{t(mood.labelKey)}</span>
                 </button>
               ))}
             </div>
@@ -272,7 +272,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
                       'flex flex-col items-center gap-1 p-2 sm:p-3 rounded-xl border-2 transition-all',
                       formData.energy_level === level.value
                         ? 'border-primary/40 bg-primary/10'
-                        : 'border-gray-200 hover:border-gray-300'
+                        : 'border-border/70 hover:border-border hover:bg-secondary/50'
                     )}
                   >
                     <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -297,7 +297,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
                       'flex flex-col items-center gap-1 p-2 sm:p-3 rounded-xl border-2 transition-all',
                       formData.sleep_quality === quality.value
                         ? 'border-primary/40 bg-primary/10'
-                        : 'border-gray-200 hover:border-gray-300'
+                        : 'border-border/70 hover:border-border hover:bg-secondary/50'
                     )}
                   >
                     <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -406,7 +406,7 @@ export default function DetailedMoodForm({ entry, onClose }) {
                 saveMutation.mutate(formData);
               }}
               disabled={isSavingRef.current || saveMutation.isPending}
-              className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              className="flex-1 shadow-[var(--shadow-md)]"
             >
               {saveMutation.isPending ? t('mood_tracker.form.saving') : entry ? t('mood_tracker.form.update_entry') : t('mood_tracker.form.save_entry')}
             </Button>

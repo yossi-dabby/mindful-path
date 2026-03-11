@@ -183,17 +183,17 @@ export default function EnhancedProgressDashboard() {
             </div>
             <div className="text-center min-w-0">
               <div className="flex items-center gap-1 justify-center">
-                <Award className="w-4 h-4" style={{ color: '#ECC94B' }} />
-                <span className="text-lg sm:text-xl font-bold" style={{ color: '#1A3A34' }}>{earnedBadges.length}</span>
+                <Award className="w-4 h-4 text-accent" />
+                <span className="text-lg sm:text-xl font-bold text-foreground">{earnedBadges.length}</span>
               </div>
-              <p className="text-xs break-words" style={{ color: '#5A7A72' }}>{t('progress.dashboard.badges')}</p>
+              <p className="text-xs break-words text-muted-foreground">{t('progress.dashboard.badges')}</p>
             </div>
             <div className="text-center min-w-0">
               <div className="flex items-center gap-1 justify-center">
-                <Sparkles className="w-4 h-4" style={{ color: '#9F7AEA' }} />
-                <span className="text-lg sm:text-xl font-bold whitespace-nowrap" style={{ color: '#1A3A34' }}>{t('progress.dashboard.level_prefix')}{userPoints.level}</span>
+                <Sparkles className="w-4 h-4 text-primary" />
+                <span className="text-lg sm:text-xl font-bold whitespace-nowrap text-foreground">{t('progress.dashboard.level_prefix')}{userPoints.level}</span>
               </div>
-              <p className="text-xs break-words" style={{ color: '#5A7A72' }}>{t('progress.dashboard.level')}</p>
+              <p className="text-xs break-words text-muted-foreground">{t('progress.dashboard.level')}</p>
             </div>
           </div>
         </div>
@@ -220,7 +220,7 @@ export default function EnhancedProgressDashboard() {
 
         <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
           <CardContent className="p-4 sm:p-6 text-center">
-            <Dumbbell className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2" style={{ color: '#9F7AEA' }} />
+            <Dumbbell className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2 text-primary" />
             <p className="text-2xl sm:text-3xl font-bold text-foreground">{metrics.totalExercises}</p>
             <p className="text-xs sm:text-sm mt-1 text-muted-foreground">{t('progress.tabs.exercises')}</p>
             <p className="text-xs mt-1 text-muted-foreground/80">{metrics.totalExerciseTime} {t('common.minutes_short')}</p>
@@ -229,7 +229,7 @@ export default function EnhancedProgressDashboard() {
 
         <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
           <CardContent className="p-4 sm:p-6 text-center">
-            <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2" style={{ color: '#F6AD55' }} />
+            <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2 text-accent" />
             <p className="text-2xl sm:text-3xl font-bold text-foreground">{metrics.journalCount}</p>
             <p className="text-xs sm:text-sm mt-1 text-muted-foreground">{t('home.journal_entries')}</p>
           </CardContent>
@@ -237,7 +237,7 @@ export default function EnhancedProgressDashboard() {
 
         <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
           <CardContent className="p-4 sm:p-6 text-center">
-            <Target className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2" style={{ color: '#4299E1' }} />
+            <Target className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2 text-primary" />
             <p className="text-2xl sm:text-3xl font-bold text-foreground">{metrics.completedGoals}</p>
             <p className="text-xs sm:text-sm mt-1 text-muted-foreground">{t('progress.dashboard.goals_achieved')}</p>
             <p className="text-xs mt-1 text-muted-foreground/80">{metrics.activeGoals} {t('progress.dashboard.active')}</p>
@@ -248,8 +248,8 @@ export default function EnhancedProgressDashboard() {
       {/* Mood Trend Chart */}
       <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base sm:text-lg" style={{ color: '#1A3A34' }}>
-            <TrendingUp className="w-5 h-5" style={{ color: '#26A69A' }} />
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-foreground">
+            <TrendingUp className="w-5 h-5 text-primary" />
             {t('progress.dashboard.charts.mood_trends')}
           </CardTitle>
         </CardHeader>
@@ -281,8 +281,8 @@ export default function EnhancedProgressDashboard() {
         {/* Exercise Frequency */}
         <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base sm:text-lg" style={{ color: '#1A3A34' }}>
-              <Dumbbell className="w-5 h-5" style={{ color: '#9F7AEA' }} />
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-foreground">
+              <Dumbbell className="w-5 h-5 text-primary" />
               {t('progress.dashboard.charts.exercise_by_category')}
             </CardTitle>
           </CardHeader>
@@ -293,7 +293,7 @@ export default function EnhancedProgressDashboard() {
                 <XAxis dataKey="name" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={80} />
                 <YAxis tick={{ fontSize: 10 }} />
                 <Tooltip />
-                <Bar dataKey="count" fill="#9F7AEA" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="count" fill="#68B39B" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -302,8 +302,8 @@ export default function EnhancedProgressDashboard() {
         {/* Journal Consistency */}
         <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base sm:text-lg" style={{ color: '#1A3A34' }}>
-              <BookOpen className="w-5 h-5" style={{ color: '#F6AD55' }} />
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-foreground">
+              <BookOpen className="w-5 h-5 text-accent" />
               {t('progress.dashboard.charts.journal_consistency')}
             </CardTitle>
           </CardHeader>
@@ -318,7 +318,7 @@ export default function EnhancedProgressDashboard() {
                 />
                 <YAxis tick={{ fontSize: 10 }} />
                 <Tooltip />
-                <Bar dataKey="entries" fill="#F6AD55" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="entries" fill="#E6B86E" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -329,8 +329,8 @@ export default function EnhancedProgressDashboard() {
       {goalProgressData.length > 0 && (
         <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base sm:text-lg" style={{ color: '#1A3A34' }}>
-              <Target className="w-5 h-5" style={{ color: '#4299E1' }} />
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-foreground">
+              <Target className="w-5 h-5 text-primary" />
               {t('progress.dashboard.charts.goal_progress')}
             </CardTitle>
           </CardHeader>
@@ -339,10 +339,10 @@ export default function EnhancedProgressDashboard() {
               {goalProgressData.map((goal, index) => (
                 <div key={index}>
                   <div className="flex items-center justify-between mb-1 gap-2">
-                    <span className="text-sm font-medium break-words flex-1 min-w-0" style={{ color: '#3D5A52' }}>{goal.name}</span>
-                    <span className="text-sm font-bold" style={{ color: '#26A69A' }}>{goal.progress}%</span>
+                    <span className="text-sm font-medium break-words flex-1 min-w-0 text-foreground/85">{goal.name}</span>
+                    <span className="text-sm font-bold text-primary">{goal.progress}%</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-secondary rounded-full h-2">
                     <div 
                       className="h-2 rounded-full transition-all"
                       style={{ 

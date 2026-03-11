@@ -29,7 +29,7 @@ export default function ResourceCard({ resource, isSaved, onSaveToggle }) {
     meditation: 'bg-teal-100 text-teal-700 border border-teal-200',
     scenario: 'bg-cyan-100 text-cyan-700 border border-cyan-200',
     interview: 'bg-sky-100 text-sky-700 border border-sky-200',
-    guide: 'bg-mint-100 text-teal-700 border border-teal-200'
+    guide: 'bg-teal-100 text-teal-700 border border-teal-200'
   };
 
   const categoryColors = {

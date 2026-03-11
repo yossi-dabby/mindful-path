@@ -7,13 +7,13 @@ import { formatDistanceToNow } from 'date-fns';
 
 export default function ForumPostCard({ post, onView, onUpvote, onModerate, isUpvoting }) {
   const categoryColors = {
-    general: 'bg-gray-100 text-gray-700',
-    goals: 'bg-blue-100 text-blue-700',
-    mental_health: 'bg-purple-100 text-purple-700',
-    exercises: 'bg-green-100 text-green-700',
-    success_stories: 'bg-yellow-100 text-yellow-700',
-    questions: 'bg-orange-100 text-orange-700',
-    tips: 'bg-pink-100 text-pink-700'
+    general: 'bg-secondary text-secondary-foreground border border-border/60',
+    goals: 'bg-teal-100 text-teal-700 border border-teal-200',
+    mental_health: 'bg-cyan-100 text-cyan-700 border border-cyan-200',
+    exercises: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+    success_stories: 'bg-amber-100 text-amber-700 border border-amber-200',
+    questions: 'bg-orange-100 text-orange-700 border border-orange-200',
+    tips: 'bg-rose-100 text-rose-700 border border-rose-200'
   };
 
   return (
@@ -25,7 +25,7 @@ export default function ForumPostCard({ post, onView, onUpvote, onModerate, isUp
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
-              {post.pinned && <Pin className="w-4 h-4 text-blue-600" />}
+              {post.pinned && <Pin className="w-4 h-4 text-primary" />}
             <h3 className="font-semibold text-foreground line-clamp-2">{post.title}</h3>
             </div>
             <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{post.content}</p>
@@ -44,7 +44,7 @@ export default function ForumPostCard({ post, onView, onUpvote, onModerate, isUp
                 </Badge>
               )}
             </div>
-            <div className="flex items-center gap-4 text-sm text-gray-500">
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
                 <User className="w-4 h-4" />
                 {post.author_display_name}
@@ -80,7 +80,7 @@ export default function ForumPostCard({ post, onView, onUpvote, onModerate, isUp
                     e.stopPropagation();
                     onModerate(post);
                   }}
-                  style={{ color: '#F59E0B' }}
+                  className="h-auto p-0 hover:bg-transparent text-accent"
                 >
                   <Shield className="w-4 h-4 mr-1" />
                   Moderate

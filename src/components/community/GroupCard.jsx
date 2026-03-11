@@ -26,7 +26,7 @@ export default function GroupCard({ group, isMember, onJoin, onView }) {
                 <h3 className="font-semibold text-foreground line-clamp-2 mb-1">{group.name}</h3>
                 <p className="text-sm text-muted-foreground line-clamp-2">{group.description}</p>
               </div>
-              {group.is_private && <Lock className="w-4 h-4 text-gray-400 ml-2" />}
+              {group.is_private && <Lock className="w-4 h-4 text-muted-foreground ml-2" />}
             </div>
             <div className="flex items-center gap-2 mb-3">
               <Badge variant="outline" className="text-xs">
@@ -34,7 +34,7 @@ export default function GroupCard({ group, isMember, onJoin, onView }) {
               </Badge>
             </div>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3 text-sm text-gray-500">
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Users className="w-4 h-4" />
                   {group.member_count || 0}

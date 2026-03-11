@@ -73,7 +73,7 @@ export default function InsightsPanel({ moodEntries, journalEntries }) {
         {/* Common Emotions */}
         {commonEmotions.length > 0 && (
           <div>
-            <p className="text-sm text-gray-500 mb-2">Common Emotions</p>
+            <p className="text-sm text-muted-foreground mb-2">Common Emotions</p>
             <div className="flex flex-wrap gap-2">
               {commonEmotions.map((emotion) => (
                 <Badge key={emotion} variant="secondary">
@@ -87,7 +87,7 @@ export default function InsightsPanel({ moodEntries, journalEntries }) {
         {/* Top Thinking Patterns */}
         {topDistortions.length > 0 && (
           <div>
-            <p className="text-sm text-gray-500 mb-3">Thinking Patterns to Watch</p>
+            <p className="text-sm text-muted-foreground mb-3">Thinking Patterns to Watch</p>
             <div className="space-y-2">
               {topDistortions.map(({ distortion, count }) => (
                 <div key={distortion} className="p-2 rounded-[var(--radius-nested)] bg-secondary/45 border border-border/60">

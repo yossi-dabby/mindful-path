@@ -74,7 +74,7 @@ export default function HealthDashboard() {
                   {avgSleep.toFixed(1)}h
                 </p>
               </div>
-              <Moon className="w-8 h-8 text-purple-600" />
+              <Moon className="w-8 h-8 text-primary" />
             </div>
           </CardContent>
         </Card>
@@ -88,7 +88,7 @@ export default function HealthDashboard() {
                   {Math.round(avgSteps).toLocaleString()}
                 </p>
               </div>
-              <Activity className="w-8 h-8 text-green-600" />
+              <Activity className="w-8 h-8 text-emerald-600" />
             </div>
           </CardContent>
         </Card>
@@ -102,7 +102,7 @@ export default function HealthDashboard() {
                   {Math.round(avgHeartRate)} bpm
                 </p>
               </div>
-              <Heart className="w-8 h-8 text-red-600" />
+              <Heart className="w-8 h-8 text-accent" />
             </div>
           </CardContent>
         </Card>
@@ -129,9 +129,9 @@ export default function HealthDashboard() {
                 contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px', color: 'hsl(var(--foreground))' }}
               />
               <Legend />
-              <Line type="monotone" dataKey="sleep" stroke="#9333ea" name="Sleep (hrs)" strokeWidth={2} dot={{ r: 4 }} />
-              <Line type="monotone" dataKey="steps" stroke="#22c55e" name="Steps (k)" strokeWidth={2} dot={{ r: 4 }} />
-              <Line type="monotone" dataKey="heartRate" stroke="#ef4444" name="Heart Rate" strokeWidth={2} dot={{ r: 4 }} />
+              <Line type="monotone" dataKey="sleep" stroke="#26A69A" name="Sleep (hrs)" strokeWidth={2} dot={{ r: 4 }} />
+              <Line type="monotone" dataKey="steps" stroke="#68B39B" name="Steps (k)" strokeWidth={2} dot={{ r: 4 }} />
+              <Line type="monotone" dataKey="heartRate" stroke="#E6A86E" name="Heart Rate" strokeWidth={2} dot={{ r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>

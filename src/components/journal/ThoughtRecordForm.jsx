@@ -507,7 +507,7 @@ Provide:
                     aria-label="Emotion intensity"
                     aria-valuetext={`Intensity ${formData.emotion_intensity} out of 10`}
                   />
-                  <span className="text-2xl font-bold text-purple-600 w-12 text-center">
+                  <span className="text-2xl font-bold text-primary w-12 text-center">
                     {formData.emotion_intensity}
                   </span>
                 </div>
@@ -534,8 +534,8 @@ Provide:
                 <div className="bg-secondary/40 p-4 rounded-[var(--radius-control)] border border-border/70">
                   <div className="text-center">
                     <Brain className="w-12 h-12 text-amber-600 mx-auto mb-2" />
-                    <h4 className="font-semibold text-gray-800 mb-1">AI Distortion Detection</h4>
-                    <p className="text-sm text-gray-600 mb-3">
+                    <h4 className="font-semibold text-foreground mb-1">AI Distortion Detection</h4>
+                    <p className="text-sm text-muted-foreground mb-3">
                       Let AI identify cognitive distortions in your thoughts
                     </p>
                     <Button
@@ -577,7 +577,7 @@ Provide:
                         'cursor-pointer px-3 py-2 text-xs',
                         formData.cognitive_distortions.includes(distortion)
                           ? 'bg-primary hover:bg-primary/90'
-                          : 'hover:bg-gray-100'
+                          : 'hover:bg-secondary/70'
                       )}
                       onClick={() => toggleItem('cognitive_distortions', distortion)}
                     >
@@ -678,7 +678,7 @@ Provide:
                     aria-label="Outcome emotion intensity"
                     aria-valuetext={`Intensity ${formData.outcome_emotion_intensity} out of 10`}
                   />
-                  <span className="text-2xl font-bold text-purple-600 w-12 text-center">
+                  <span className="text-2xl font-bold text-primary w-12 text-center">
                     {formData.outcome_emotion_intensity}
                   </span>
                 </div>
@@ -704,11 +704,11 @@ Provide:
               {!aiAnalysis && !isAnalyzing && (
                 <div className="bg-secondary/40 p-6 rounded-[var(--radius-card)] border border-border/70">
                   <div className="text-center">
-                    <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-3">
-                      <Sparkles className="w-8 h-8 text-purple-600" />
+                    <div className="w-16 h-16 rounded-full bg-primary/12 flex items-center justify-center mx-auto mb-3">
+                      <Sparkles className="w-8 h-8 text-primary" />
                     </div>
-                    <h3 className="font-semibold text-gray-800 mb-2">Get AI Insights</h3>
-                    <p className="text-sm text-gray-600 mb-4">
+                    <h3 className="font-semibold text-foreground mb-2">Get AI Insights</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
                       Analyze your entry for sentiment, themes, and get personalized exercise recommendations
                     </p>
                     <Button
@@ -724,8 +724,8 @@ Provide:
 
               {isAnalyzing && (
                 <div className="bg-card p-8 rounded-[var(--radius-card)] border border-border/70 text-center">
-                  <Loader2 className="w-8 h-8 text-purple-600 animate-spin mx-auto mb-3" />
-                  <p className="text-sm text-gray-600">Analyzing your journal entry...</p>
+                  <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">Analyzing your journal entry...</p>
                 </div>
               )}
 
@@ -733,23 +733,23 @@ Provide:
                 <div className="space-y-4">
                   {/* Sentiment Analysis */}
                   <div className="bg-secondary/40 p-4 rounded-[var(--radius-control)] border border-border/70">
-                    <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                    <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
                       <Brain className="w-4 h-4 text-blue-600" />
                       Sentiment Analysis
                     </h4>
                     <div className="space-y-2 text-sm">
-                      <p className="text-gray-700">
+                      <p className="text-foreground/85">
                         <span className="font-medium">Overall Tone:</span> {aiAnalysis.sentiment.overall_tone}
                       </p>
-                      <p className="text-gray-700">
+                      <p className="text-foreground/85">
                         <span className="font-medium">Emotional Shift:</span> {aiAnalysis.sentiment.emotional_shift}
                       </p>
                       {aiAnalysis.sentiment.patterns_noticed?.length > 0 && (
                         <div>
-                          <p className="font-medium text-gray-700 mb-1">Patterns:</p>
+                          <p className="font-medium text-foreground/85 mb-1">Patterns:</p>
                           <ul className="space-y-1">
                             {aiAnalysis.sentiment.patterns_noticed.map((pattern, i) => (
-                              <li key={i} className="text-gray-600 text-xs flex items-start gap-1">
+                              <li key={i} className="text-muted-foreground text-xs flex items-start gap-1">
                                 <span className="text-blue-600 mt-0.5">•</span>
                                 {pattern}
                               </li>
@@ -772,15 +772,15 @@ Provide:
                   {/* Recommended Exercises */}
                   {aiAnalysis.recommended_exercises?.length > 0 && (
                     <div className="bg-secondary/40 p-4 rounded-[var(--radius-control)] border border-border/70">
-                      <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                      <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                         <Target className="w-4 h-4 text-orange-600" />
                         Recommended Practices
                       </h4>
                       <div className="space-y-2">
                         {aiAnalysis.recommended_exercises.map((rec, i) => (
                           <div key={i} className="bg-white/70 p-3 rounded-lg">
-                            <p className="font-medium text-gray-800 text-sm capitalize">{rec.category}</p>
-                            <p className="text-xs text-gray-600 mt-1">{rec.reason}</p>
+                            <p className="font-medium text-foreground text-sm capitalize">{rec.category}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{rec.reason}</p>
                           </div>
                         ))}
                       </div>
@@ -821,13 +821,13 @@ Provide:
               {/* Tags Section */}
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">
-                  Tags {aiAnalysis && <span className="text-purple-600">(AI-suggested tags applied)</span>}
+                  Tags {aiAnalysis && <span className="text-primary">(AI-suggested tags applied)</span>}
                 </label>
                 <div className="flex flex-wrap gap-2 mb-3">
                   {formData.tags.map((tag) => (
                     <Badge
                       key={tag}
-                      className="bg-purple-100 text-purple-700 pr-1 pl-3 py-1 flex items-center gap-1"
+                      className="bg-primary/12 text-purple-700 pr-1 pl-3 py-1 flex items-center gap-1"
                     >
                       {tag}
                       <button
@@ -907,7 +907,7 @@ Provide:
                 {/* Display attached files */}
                 {formData.images?.length > 0 && (
                   <div className="mt-3">
-                    <p className="text-xs text-gray-600 mb-2">Images:</p>
+                    <p className="text-xs text-muted-foreground mb-2">Images:</p>
                     <div className="grid grid-cols-3 gap-2">
                       {formData.images.map((url, i) => (
                         <div key={i} className="relative group">
@@ -946,7 +946,7 @@ Provide:
                     saveMutation.mutate(dataToSave);
                   }}
                   disabled={isSavingRef.current || saveMutation.isPending}
-                  className="flex-1"
+                  className="flex-1 shadow-[var(--shadow-md)]"
                 >
                   {saveMutation.isPending ? 'Saving...' : 'Save Entry'}
                 </Button>
@@ -960,8 +960,8 @@ Provide:
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-blue-400 flex items-center justify-center mx-auto mb-3">
                   <Sparkles className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">Entry Saved!</h3>
-                <p className="text-sm text-gray-600">Here are some AI-powered insights based on your entry</p>
+                <h3 className="text-xl font-semibold text-foreground mb-2">Entry Saved!</h3>
+                <p className="text-sm text-muted-foreground">Here are some AI-powered insights based on your entry</p>
               </div>
 
               <AiJournalSuggestions 
