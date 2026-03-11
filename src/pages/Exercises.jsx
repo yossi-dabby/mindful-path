@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Wind, Anchor, Brain, TrendingUp, Sparkles, Heart, Search, Star, Moon, Users, Zap, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { cn } from '@/lib/utils';
 import ExerciseDetail from '../components/exercises/ExerciseDetail';
 import ExerciseLibrary from '../components/exercises/ExerciseLibrary';
 import AiExerciseRecommendations from '../components/exercises/AiExerciseRecommendations';
