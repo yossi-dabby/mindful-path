@@ -20,30 +20,30 @@ export default function ResourceCard({ resource, isSaved, onSaveToggle }) {
   };
 
   const typeColors = {
-    article: 'bg-blue-100 text-blue-700',
-    video: 'bg-red-100 text-red-700',
-    podcast: 'bg-purple-100 text-purple-700',
-    app: 'bg-green-100 text-green-700',
-    book: 'bg-yellow-100 text-yellow-700',
-    website: 'bg-gray-100 text-gray-700',
-    meditation: 'bg-teal-100 text-teal-700',
-    scenario: 'bg-orange-100 text-orange-700',
-    interview: 'bg-indigo-100 text-indigo-700',
-    guide: 'bg-emerald-100 text-emerald-700'
+    article: 'bg-secondary text-primary border border-border/60',
+    video: 'bg-rose-100 text-rose-700 border border-rose-200',
+    podcast: 'bg-amber-100 text-amber-700 border border-amber-200',
+    app: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+    book: 'bg-orange-100 text-orange-700 border border-orange-200',
+    website: 'bg-slate-100 text-slate-700 border border-slate-200',
+    meditation: 'bg-teal-100 text-teal-700 border border-teal-200',
+    scenario: 'bg-cyan-100 text-cyan-700 border border-cyan-200',
+    interview: 'bg-sky-100 text-sky-700 border border-sky-200',
+    guide: 'bg-mint-100 text-teal-700 border border-teal-200'
   };
 
   const categoryColors = {
-    anxiety: 'bg-orange-100 text-orange-700',
-    depression: 'bg-indigo-100 text-indigo-700',
-    stress: 'bg-red-100 text-red-700',
-    mindfulness: 'bg-green-100 text-green-700',
-    relationships: 'bg-pink-100 text-pink-700',
-    'self-esteem': 'bg-purple-100 text-purple-700',
-    sleep: 'bg-blue-100 text-blue-700',
-    general: 'bg-gray-100 text-gray-700',
-    coping_skills: 'bg-cyan-100 text-cyan-700',
-    emotional_regulation: 'bg-violet-100 text-violet-700',
-    communication: 'bg-rose-100 text-rose-700'
+    anxiety: 'bg-amber-100 text-amber-700 border border-amber-200',
+    depression: 'bg-indigo-100 text-indigo-700 border border-indigo-200',
+    stress: 'bg-rose-100 text-rose-700 border border-rose-200',
+    mindfulness: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+    relationships: 'bg-teal-100 text-teal-700 border border-teal-200',
+    'self-esteem': 'bg-cyan-100 text-cyan-700 border border-cyan-200',
+    sleep: 'bg-sky-100 text-sky-700 border border-sky-200',
+    general: 'bg-secondary text-secondary-foreground border border-border/60',
+    coping_skills: 'bg-orange-100 text-orange-700 border border-orange-200',
+    emotional_regulation: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+    communication: 'bg-rose-100 text-rose-700 border border-rose-200'
   };
 
   const Icon = typeIcons[resource.type] || FileText;
@@ -102,12 +102,12 @@ export default function ResourceCard({ resource, isSaved, onSaveToggle }) {
         {resource.tags?.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-4">
             {resource.tags.slice(0, 3).map((tag, i) => (
-              <span key={i} className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded">
+              <span key={i} className="text-xs text-muted-foreground bg-secondary/80 px-2 py-0.5 rounded-[var(--radius-chip)] border border-border/50">
                 {tag}
               </span>
             ))}
             {resource.tags.length > 3 && (
-              <span className="text-xs text-gray-400">+{resource.tags.length - 3}</span>
+              <span className="text-xs text-muted-foreground">+{resource.tags.length - 3}</span>
             )}
           </div>
         )}

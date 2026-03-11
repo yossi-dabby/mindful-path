@@ -210,10 +210,10 @@ export default function Resources() {
           <p className="text-muted-foreground">{t('resources.loading')}</p>
         </div>
       ) : displayedResources.length === 0 ? (
-        <div className="text-center py-12">
-          <Library className="w-16 h-16 mx-auto mb-4" style={{ color: '#A8D4CB' }} />
-          <p className="mb-2" style={{ color: '#5A7A72' }}>{t('resources.empty_state.no_resources_title')}</p>
-          <p className="text-sm" style={{ color: '#7A9A92' }}>{t('resources.empty_state.no_resources_message')}</p>
+        <div className="text-center py-12 surface-secondary rounded-[var(--radius-card)] border-border/70 shadow-[var(--shadow-md)]">
+          <Library className="w-16 h-16 mx-auto mb-4 text-primary/40" />
+          <p className="mb-2 text-foreground">{t('resources.empty_state.no_resources_title')}</p>
+          <p className="text-sm text-muted-foreground">{t('resources.empty_state.no_resources_message')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

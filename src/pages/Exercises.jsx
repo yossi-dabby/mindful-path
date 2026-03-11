@@ -30,15 +30,15 @@ const categoryIcons = {
 };
 
 const categoryColors = {
-  breathing: 'bg-blue-100 text-blue-700',
-  grounding: 'bg-green-100 text-green-700',
-  cognitive_restructuring: 'bg-purple-100 text-purple-700',
-  behavioral_activation: 'bg-orange-100 text-orange-700',
-  mindfulness: 'bg-pink-100 text-pink-700',
-  exposure: 'bg-red-100 text-red-700',
-  sleep: 'bg-indigo-100 text-indigo-700',
-  relationships: 'bg-teal-100 text-teal-700',
-  stress_management: 'bg-amber-100 text-amber-700'
+  breathing: 'bg-teal-100 text-teal-700 border border-teal-200',
+  grounding: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+  cognitive_restructuring: 'bg-cyan-100 text-cyan-700 border border-cyan-200',
+  behavioral_activation: 'bg-amber-100 text-amber-700 border border-amber-200',
+  mindfulness: 'bg-sky-100 text-sky-700 border border-sky-200',
+  exposure: 'bg-rose-100 text-rose-700 border border-rose-200',
+  sleep: 'bg-indigo-100 text-indigo-700 border border-indigo-200',
+  relationships: 'bg-teal-100 text-teal-700 border border-teal-200',
+  stress_management: 'bg-orange-100 text-orange-700 border border-orange-200'
 };
 
 export default function Exercises() {
@@ -144,7 +144,7 @@ export default function Exercises() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">{t('exercises.loading')}</p>
+        <p className="text-muted-foreground">{t('exercises.loading')}</p>
       </div>
     );
   }
@@ -317,11 +317,7 @@ export default function Exercises() {
 
       {/* Exercises Grid */}
       {filteredExercises.length === 0 ? (
-        <Card className="border-0" style={{
-          borderRadius: '32px',
-          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
-          boxShadow: '0 12px 40px rgba(38, 166, 154, 0.12), 0 4px 16px rgba(0,0,0,0.04)'
-        }}>
+        <Card className="surface-secondary rounded-[var(--radius-card)] border-border/70 shadow-[var(--shadow-md)]">
           <CardContent className="p-12 text-center">
             <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4 rounded-full bg-secondary text-primary shadow-[var(--shadow-sm)]">
               <Sparkles className="w-10 h-10" />

@@ -106,28 +106,28 @@ export default function Community() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
           <CardContent className="p-4 flex items-center gap-3">
-            <MessageSquare className="w-8 h-8" style={{ color: '#26A69A' }} />
+            <MessageSquare className="w-8 h-8 text-primary" />
             <div>
-              <p className="text-2xl font-bold" style={{ color: '#1A3A34' }}>{forumPosts.length}</p>
-              <p className="text-sm" style={{ color: '#3D5A52' }}>{t('community.stats.forum_posts')}</p>
+              <p className="text-2xl font-bold text-foreground">{forumPosts.length}</p>
+              <p className="text-sm text-muted-foreground">{t('community.stats.forum_posts')}</p>
             </div>
           </CardContent>
         </Card>
         <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
           <CardContent className="p-4 flex items-center gap-3">
-            <Users className="w-8 h-8" style={{ color: '#26A69A' }} />
+            <Users className="w-8 h-8 text-primary" />
             <div>
-              <p className="text-2xl font-bold" style={{ color: '#1A3A34' }}>{groups.length}</p>
-              <p className="text-sm" style={{ color: '#3D5A52' }}>{t('community.stats.active_groups')}</p>
+              <p className="text-2xl font-bold text-foreground">{groups.length}</p>
+              <p className="text-sm text-muted-foreground">{t('community.stats.active_groups')}</p>
             </div>
           </CardContent>
         </Card>
         <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
           <CardContent className="p-4 flex items-center gap-3">
-            <TrendingUp className="w-8 h-8" style={{ color: '#26A69A' }} />
+            <TrendingUp className="w-8 h-8 text-primary" />
             <div>
-              <p className="text-2xl font-bold" style={{ color: '#1A3A34' }}>{sharedProgress.length}</p>
-              <p className="text-sm" style={{ color: '#3D5A52' }}>{t('community.stats.success_stories')}</p>
+              <p className="text-2xl font-bold text-foreground">{sharedProgress.length}</p>
+              <p className="text-sm text-muted-foreground">{t('community.stats.success_stories')}</p>
             </div>
           </CardContent>
         </Card>
@@ -178,24 +178,16 @@ export default function Community() {
             {loadingPosts ? (
               <Card>
                 <CardContent className="p-12 text-center">
-                  <p className="text-gray-500">{t('community.loading.posts')}</p>
+                  <p className="text-muted-foreground">{t('community.loading.posts')}</p>
                 </CardContent>
               </Card>
             ) : filteredPosts.length === 0 ? (
-              <Card className="border-0" style={{
-                borderRadius: '32px',
-                background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
-                boxShadow: '0 12px 40px rgba(38, 166, 154, 0.12), 0 4px 16px rgba(0,0,0,0.04)'
-              }}>
+              <Card className="surface-secondary rounded-[var(--radius-card)] border-border/70 shadow-[var(--shadow-md)]">
                 <CardContent className="p-12 text-center">
-                  <MessageSquare className="w-16 h-16 mx-auto mb-3" style={{ color: '#A8D4CB' }} />
-                  <h3 className="text-xl font-semibold mb-2 break-words" style={{ color: '#1A3A34' }}>{t('community.empty_state.no_posts_title')}</h3>
-                  <p className="mb-4 leading-relaxed break-words max-w-sm mx-auto" style={{ color: '#5A7A72' }}>{t('community.empty_state.no_posts_message')}</p>
-                  <Button onClick={() => setShowPostForm(true)} className="text-white" style={{
-                    borderRadius: '28px',
-                    backgroundColor: '#26A69A',
-                    boxShadow: '0 8px 24px rgba(38, 166, 154, 0.35)'
-                  }} data-testid="create-first-post-btn">
+                  <MessageSquare className="w-16 h-16 mx-auto mb-3 text-primary/40" />
+                  <h3 className="text-xl font-semibold mb-2 break-words text-foreground">{t('community.empty_state.no_posts_title')}</h3>
+                  <p className="mb-4 leading-relaxed break-words max-w-sm mx-auto text-muted-foreground">{t('community.empty_state.no_posts_message')}</p>
+                  <Button onClick={() => setShowPostForm(true)} className="rounded-full shadow-[var(--shadow-md)]" data-testid="create-first-post-btn">
                     {t('community.empty_state.create_first_post')}
                   </Button>
                 </CardContent>
@@ -222,7 +214,7 @@ export default function Community() {
           <div className="space-y-4">
             {memberships.length > 0 && (
               <div>
-                <h3 className="font-semibold text-gray-800 mb-3">{t('community.your_groups')}</h3>
+                <h3 className="font-semibold text-foreground mb-3">{t('community.your_groups')}</h3>
                 <div className="space-y-3 mb-6">
                   {groups.filter(g => myGroupIds.includes(g.id)).map((group) => (
                     <GroupCard
@@ -238,28 +230,20 @@ export default function Community() {
             )}
 
             <div>
-              <h3 className="font-semibold text-gray-800 mb-3">{t('community.discover_groups')}</h3>
+              <h3 className="font-semibold text-foreground mb-3">{t('community.discover_groups')}</h3>
               {loadingGroups ? (
                 <Card>
                   <CardContent className="p-12 text-center">
-                    <p className="text-gray-500">{t('community.loading.groups')}</p>
+                    <p className="text-muted-foreground">{t('community.loading.groups')}</p>
                   </CardContent>
                 </Card>
               ) : groups.filter(g => !myGroupIds.includes(g.id)).length === 0 ? (
-                <Card className="border-0" style={{
-                  borderRadius: '32px',
-                  background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
-                  boxShadow: '0 12px 40px rgba(38, 166, 154, 0.12), 0 4px 16px rgba(0,0,0,0.04)'
-                }}>
+                <Card className="surface-secondary rounded-[var(--radius-card)] border-border/70 shadow-[var(--shadow-md)]">
                   <CardContent className="p-12 text-center">
-                    <Users className="w-16 h-16 mx-auto mb-3" style={{ color: '#A8D4CB' }} />
-                    <h3 className="text-xl font-semibold mb-2 break-words" style={{ color: '#1A3A34' }}>{t('community.empty_state.no_groups_title')}</h3>
-                    <p className="mb-4 leading-relaxed break-words max-w-sm mx-auto" style={{ color: '#5A7A72' }}>{t('community.empty_state.no_groups_message')}</p>
-                    <Button onClick={() => setShowGroupForm(true)} className="text-white" style={{
-                      borderRadius: '28px',
-                      backgroundColor: '#26A69A',
-                      boxShadow: '0 8px 24px rgba(38, 166, 154, 0.35)'
-                    }} data-testid="create-first-group-btn">
+                    <Users className="w-16 h-16 mx-auto mb-3 text-primary/40" />
+                    <h3 className="text-xl font-semibold mb-2 break-words text-foreground">{t('community.empty_state.no_groups_title')}</h3>
+                    <p className="mb-4 leading-relaxed break-words max-w-sm mx-auto text-muted-foreground">{t('community.empty_state.no_groups_message')}</p>
+                    <Button onClick={() => setShowGroupForm(true)} className="rounded-full shadow-[var(--shadow-md)]" data-testid="create-first-group-btn">
                       {t('community.empty_state.create_first_group')}
                     </Button>
                   </CardContent>
@@ -285,20 +269,12 @@ export default function Community() {
         <TabsContent value="progress">
           <div className="space-y-4">
             {sharedProgress.length === 0 ? (
-              <Card className="border-0" style={{
-                borderRadius: '32px',
-                background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
-                boxShadow: '0 12px 40px rgba(38, 166, 154, 0.12), 0 4px 16px rgba(0,0,0,0.04)'
-              }}>
+              <Card className="surface-secondary rounded-[var(--radius-card)] border-border/70 shadow-[var(--shadow-md)]">
                 <CardContent className="p-12 text-center">
-                  <TrendingUp className="w-16 h-16 mx-auto mb-3" style={{ color: '#A8D4CB' }} />
-                  <h3 className="text-xl font-semibold mb-2 break-words" style={{ color: '#1A3A34' }}>{t('community.empty_state.no_stories_title')}</h3>
-                  <p className="mb-4 leading-relaxed break-words max-w-sm mx-auto" style={{ color: '#5A7A72' }}>{t('community.empty_state.no_stories_message')}</p>
-                  <Button onClick={() => setShowProgressForm(true)} className="text-white" style={{
-                    borderRadius: '28px',
-                    backgroundColor: '#26A69A',
-                    boxShadow: '0 8px 24px rgba(38, 166, 154, 0.35)'
-                  }} data-testid="share-story-btn">
+                  <TrendingUp className="w-16 h-16 mx-auto mb-3 text-primary/40" />
+                  <h3 className="text-xl font-semibold mb-2 break-words text-foreground">{t('community.empty_state.no_stories_title')}</h3>
+                  <p className="mb-4 leading-relaxed break-words max-w-sm mx-auto text-muted-foreground">{t('community.empty_state.no_stories_message')}</p>
+                  <Button onClick={() => setShowProgressForm(true)} className="rounded-full shadow-[var(--shadow-md)]" data-testid="share-story-btn">
                     {t('community.empty_state.share_your_story')}
                   </Button>
                 </CardContent>
@@ -306,24 +282,20 @@ export default function Community() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {sharedProgress.map((progress) => (
-                  <Card key={progress.id} className="border-0 hover:shadow-md transition-shadow" style={{
-                    borderRadius: '24px',
-                    background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 249, 247, 0.85) 100%)',
-                    boxShadow: '0 6px 20px rgba(38, 166, 154, 0.1)'
-                  }}>
+                  <Card key={progress.id} className="surface-primary rounded-[var(--radius-card)] border-border/70 hover:shadow-[var(--shadow-lg)] transition-shadow">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
-                          <h3 className="font-semibold mb-1 break-words min-w-0" style={{ color: '#1A3A34' }}>{progress.title}</h3>
-                          <p className="text-sm line-clamp-3" style={{ color: '#5A7A72' }}>{progress.content}</p>
+                          <h3 className="font-semibold mb-1 break-words min-w-0 text-foreground">{progress.title}</h3>
+                          <p className="text-sm line-clamp-3 text-muted-foreground">{progress.content}</p>
                         </div>
                       </div>
                       <div className="flex items-center justify-between mt-3">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">
+                          <span className="text-xs px-2 py-1 rounded-full bg-secondary text-primary border border-border/60">
                             {progress.progress_type.replace('_', ' ')}
                           </span>
-                          <span className="text-xs text-gray-500">{progress.author_display_name}</span>
+                          <span className="text-xs text-muted-foreground">{progress.author_display_name}</span>
                         </div>
                         <Button
                           variant="ghost"

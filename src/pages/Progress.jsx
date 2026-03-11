@@ -151,8 +151,8 @@ export default function Progress() {
         <TabsContent value="health">
           <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2" style={{ color: '#1A3A34' }}>
-                <Activity className="w-5 h-5" style={{ color: '#26A69A' }} />
+              <CardTitle className="flex items-center gap-2 text-foreground">
+                <Activity className="w-5 h-5 text-primary" />
                 {t('progress.health_wellness')}
               </CardTitle>
             </CardHeader>

@@ -98,19 +98,13 @@ export default function Videos() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
               >
-                <Card className="border-0 hover:shadow-md transition-calm overflow-hidden group flex flex-col" style={{ 
-                  borderRadius: '16px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                  backdropFilter: 'blur(10px)',
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)',
-                  height: '100%'
-                }}>
+                <Card className="surface-primary rounded-[var(--radius-card)] hover:shadow-[var(--shadow-lg)] transition-calm overflow-hidden group flex flex-col h-full">
                   <CardContent className="p-0 flex flex-col" style={{ height: '100%' }}>
                     <Link 
                       to={`${createPageUrl('VideoPlayer')}?videoUrl=${encodeURIComponent(video.videoUrl)}&title=${encodeURIComponent(video.title)}&videoId=${video.id}`}
                     >
                       {/* Thumbnail with Play Overlay */}
-                      <div className="relative bg-gray-100" style={{ aspectRatio: '16/10' }}>
+                      <div className="relative bg-secondary/40" style={{ aspectRatio: '16/10' }}>
                         <img
                           src={video.thumbnailUrl}
                           alt={video.title}
@@ -165,11 +159,11 @@ export default function Videos() {
 
                     {/* Video Info */}
                     <div className="p-3 flex flex-col" style={{ minHeight: '120px' }}>
-                      <h3 className="text-sm font-semibold mb-1.5 line-clamp-2 leading-tight" style={{ color: '#2D3748', minHeight: '2.5rem' }}>
+                      <h3 className="text-sm font-semibold mb-1.5 line-clamp-2 leading-tight text-foreground" style={{ minHeight: '2.5rem' }}>
                         {video.title}
                       </h3>
                       {video.category && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 w-fit mb-2">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-primary border border-border/60 w-fit mb-2">
                           {video.category}
                         </span>
                       )}
