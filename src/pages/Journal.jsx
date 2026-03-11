@@ -123,7 +123,7 @@ export default function Journal() {
 
   return (
     <PullToRefresh queryKeys={['thoughtJournals', 'sessionSummaries', 'journalTemplates']}>
-      <div className="p-4 md:p-8 pb-32 md:pb-24 max-w-5xl mx-auto w-full" style={{ minHeight: '100dvh', background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
+      <div className="p-4 md:p-8 pb-32 md:pb-24 max-w-5xl mx-auto w-full min-h-[100dvh] bg-transparent">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 mt-4">
         <div className="flex items-center gap-3">
@@ -137,10 +137,10 @@ export default function Journal() {
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </Button>
           <div>
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-light mb-1 md:mb-2" style={{ color: '#1A3A34' }}>
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-semibold mb-1 md:mb-2 text-foreground">
               {focusedEntryId ? t('journal.title_entry') : focusedSummaryId ? t('journal.title_summary') : t('journal.title_default')}
             </h1>
-            <p className="text-sm md:text-base" style={{ color: '#5A7A72' }}>
+            <p className="text-sm md:text-base text-muted-foreground">
               {focusedEntryId ? t('journal.subtitle_entry') : focusedSummaryId ? t('journal.subtitle_summary') : t('journal.subtitle_default')}
             </p>
             {(focusedEntryId || focusedSummaryId) && (
@@ -164,9 +164,8 @@ export default function Journal() {
           <Button
             onClick={() => window.location.href = createPageUrl('JournalDashboard')}
             variant="outline"
-            className="text-sm md:text-base"
+            className="text-sm md:text-base rounded-[var(--radius-card)]"
             size="sm"
-            style={{ borderRadius: '24px', borderColor: 'rgba(38,166,154,0.5)', color: '#26A69A' }}
           >
             <BarChart2 className="w-4 h-4 md:mr-2" />
             <span className="hidden md:inline">Progress</span>
@@ -174,9 +173,8 @@ export default function Journal() {
           <Button
             onClick={() => setShowTrendsSummary(true)}
             variant="outline"
-            className="text-sm md:text-base"
+            className="text-sm md:text-base rounded-[var(--radius-card)]"
             size="sm"
-            style={{ borderRadius: '24px' }}
           >
             <Sparkles className="w-4 h-4 md:mr-2" />
             <span className="hidden md:inline">{t('journal.ai_insights')}</span>
@@ -184,9 +182,8 @@ export default function Journal() {
           <Button
             onClick={() => setShowAiPrompts(true)}
             variant="outline"
-            className="text-sm md:text-base"
+            className="text-sm md:text-base rounded-[var(--radius-card)]"
             size="sm"
-            style={{ borderRadius: '24px' }}
           >
             <Sparkles className="w-4 h-4 md:mr-2" />
             <span className="hidden md:inline">{t('journal.ai_prompts')}</span>
@@ -213,13 +210,8 @@ export default function Journal() {
           </Button>
           <Button
             onClick={() => window.location.href = createPageUrl('Chat', 'intent=thought_work')}
-            className="text-white text-sm md:text-base"
+            className="text-sm md:text-base rounded-[var(--radius-card)]"
             size="sm"
-            style={{
-              borderRadius: '24px',
-              backgroundColor: '#26A69A',
-              boxShadow: '0 6px 20px rgba(38, 166, 154, 0.3)'
-            }}
           >
             <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
             {t('journal.new_entry')}
@@ -231,7 +223,7 @@ export default function Journal() {
       <div className="mb-6 space-y-4">
         <div className="flex gap-3">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -256,34 +248,22 @@ export default function Journal() {
       {/* Entries List */}
       {(isLoadingJournals || isLoadingSummaries) ? (
         <div className="text-center py-12">
-          <p className="text-gray-500">{t('journal.loading')}</p>
+          <p className="text-muted-foreground">{t('journal.loading')}</p>
         </div>
       ) : entries.length === 0 ? (
-        <Card className="border-0" style={{
-          borderRadius: '32px',
-          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
-          boxShadow: '0 12px 40px rgba(38, 166, 154, 0.12), 0 4px 16px rgba(0,0,0,0.04)'
-        }}>
+        <Card className="border border-border/80 bg-card shadow-[var(--shadow-lg)]">
           <CardContent className="p-12 text-center">
-            <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4" style={{
-              borderRadius: '50%',
-              background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.7) 0%, rgba(180, 220, 210, 0.6) 100%)'
-            }}>
-              <BookOpen className="w-10 h-10" style={{ color: '#26A69A' }} />
+            <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4 rounded-full bg-secondary text-primary shadow-[var(--shadow-sm)]">
+              <BookOpen className="w-10 h-10" />
             </div>
-            <h2 className="text-2xl font-semibold mb-2" style={{ color: '#1A3A34' }}>{t('journal.first_entry_title')}</h2>
-            <p className="mb-6 max-w-md mx-auto" style={{ color: '#5A7A72' }}>
+            <h2 className="text-2xl font-semibold mb-2 text-foreground">{t('journal.first_entry_title')}</h2>
+            <p className="mb-6 max-w-md mx-auto text-muted-foreground">
               {t('journal.first_entry_description')}
             </p>
             <div className="flex flex-col gap-3 items-center max-w-md mx-auto">
               <Button
                 onClick={() => window.location.href = createPageUrl('Chat', 'intent=thought_work')}
-                className="text-white px-8 py-6 text-lg w-full"
-                style={{
-                  borderRadius: '32px',
-                  backgroundColor: '#26A69A',
-                  boxShadow: '0 8px 24px rgba(38, 166, 154, 0.35)'
-                }}
+                className="px-8 py-6 text-lg w-full rounded-[var(--radius-card)]"
               >
                 {t('journal.create_entry')}
               </Button>
@@ -301,9 +281,9 @@ export default function Journal() {
       ) : (
         <>
           {filteredEntries.length === 0 ? (
-            <Card className="border-0 shadow-md">
+            <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
               <CardContent className="p-12 text-center">
-                <p className="text-gray-600">{t('journal.no_entries_match')}</p>
+                <p className="text-muted-foreground">{t('journal.no_entries_match')}</p>
                 <Button
                   onClick={() => {
                     setSearchQuery('');

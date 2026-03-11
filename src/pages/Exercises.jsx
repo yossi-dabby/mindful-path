@@ -150,7 +150,7 @@ export default function Exercises() {
 
   return (
     <PullToRefresh queryKeys={['exercises']}>
-      <div className="min-h-dvh w-full" style={{ background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
+      <div className="min-h-dvh w-full bg-transparent">
         <div className="p-4 md:p-8 pb-32 md:pb-24 max-w-6xl mx-auto w-full">
       {/* Header */}
       <div className="mb-8 mt-4">
@@ -167,31 +167,27 @@ export default function Exercises() {
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             </Button>
             <div className="min-w-0">
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-light break-words" style={{ color: '#1A3A34' }}>{t('exercises.page_title')}</h1>
-              <p className="text-sm md:text-base md:hidden break-words" style={{ color: '#5A7A72' }}>{t('exercises.page_subtitle')}</p>
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-semibold break-words text-foreground">{t('exercises.page_title')}</h1>
+              <p className="text-sm md:text-base md:hidden break-words text-muted-foreground">{t('exercises.page_subtitle')}</p>
             </div>
           </div>
           <div className="flex gap-2 flex-wrap sm:flex-nowrap">
             <Button
               onClick={() => setShowCoaching(true)}
               variant="outline"
-              className="gap-2 hidden md:flex"
-              style={{ borderRadius: '24px' }}
+              className="gap-2 hidden md:flex rounded-[var(--radius-card)]"
             >
               <Sparkles className="w-4 h-4" />
               <span className="whitespace-nowrap">{t('exercises.ai_plan')}</span>
             </Button>
             <button
               onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-            className="px-3 py-2 md:px-4 md:py-2 transition-all text-sm md:text-base whitespace-nowrap"
-            style={{
-              borderRadius: '24px',
-              background: showFavoritesOnly
-                ? 'linear-gradient(145deg, rgba(254, 202, 202, 0.7) 0%, rgba(252, 165, 165, 0.6) 100%)'
-                : 'linear-gradient(145deg, rgba(200, 230, 225, 0.7) 0%, rgba(180, 220, 210, 0.6) 100%)',
-              color: showFavoritesOnly ? '#991B1B' : '#3D5A52',
-              boxShadow: '0 4px 12px rgba(38, 166, 154, 0.08)'
-            }}
+            className={cn(
+              "px-3 py-2 md:px-4 md:py-2 transition-all text-sm md:text-base whitespace-nowrap rounded-[var(--radius-card)] border shadow-[var(--shadow-sm)]",
+              showFavoritesOnly
+                ? "bg-destructive/10 border-destructive/20 text-destructive"
+                : "bg-secondary/60 border-border/70 text-muted-foreground hover:text-foreground"
+            )}
           >
             <Star className={`w-4 h-4 inline mr-1 md:mr-2 ${showFavoritesOnly ? 'fill-current' : ''}`} />
             <span className="hidden md:inline">{t('exercises.favorites')}</span>
@@ -200,13 +196,13 @@ export default function Exercises() {
           </button>
           </div>
         </div>
-        <p className="text-sm md:text-base ml-0 md:ml-12 hidden md:block" style={{ color: '#5A7A72' }}>{t('exercises.page_subtitle_full')}</p>
+        <p className="text-sm md:text-base ml-0 md:ml-12 hidden md:block text-muted-foreground">{t('exercises.page_subtitle_full')}</p>
       </div>
 
       {/* Search Bar */}
       <div className="mb-4">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -224,21 +220,12 @@ export default function Exercises() {
         style={{ overscrollBehaviorX: 'contain' }}
       >
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-          <TabsList ref={tabsListRef} className="border p-1 inline-flex w-auto min-w-full" style={{
-            background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.7) 0%, rgba(180, 220, 210, 0.6) 100%)',
-            borderColor: 'rgba(38, 166, 154, 0.25)',
-            borderRadius: '28px'
-          }}>
+          <TabsList ref={tabsListRef} className="inline-flex w-auto min-w-full">
             {categories.map((cat) => (
               <TabsTrigger
                 key={cat.value}
                 value={cat.value}
                 className="whitespace-nowrap text-sm px-3"
-                style={{
-                  borderRadius: '24px',
-                  color: selectedCategory === cat.value ? '#fff' : '#3D5A52',
-                  background: selectedCategory === cat.value ? '#26A69A' : 'transparent'
-                }}
               >
                 {cat.label}
               </TabsTrigger>
@@ -263,16 +250,11 @@ export default function Exercises() {
             className="w-full text-left transition-transform active:scale-[0.99]"
             aria-label={t('breathing_tool.open_tool')}
           >
-            <Card className="border-0 overflow-hidden" style={{
-              borderRadius: '28px',
-              background: 'linear-gradient(135deg, #a8edda 0%, #40c9a2 60%, #26A69A 100%)',
-              boxShadow: '0 12px 40px rgba(38, 166, 154, 0.25), 0 4px 16px rgba(0,0,0,0.06)'
-            }}>
+            <Card className="overflow-hidden border border-border/80 bg-primary text-primary-foreground shadow-[var(--shadow-lg)]">
               <CardContent className="p-5 md:p-6">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4 min-w-0">
-                    <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center"
-                      style={{ background: 'rgba(255,255,255,0.25)' }}>
+                    <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center bg-white/15 border border-white/10">
                       <Wind className="w-6 h-6 md:w-7 md:h-7 text-white" />
                     </div>
                     <div className="min-w-0">
@@ -299,27 +281,19 @@ export default function Exercises() {
             onClick={() => setShowBreathingTool(true)}
             className="w-full text-left"
           >
-            <Card className="border-0" style={{
-              borderRadius: '28px',
-              background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
-              boxShadow: '0 12px 40px rgba(38, 166, 154, 0.12), 0 4px 16px rgba(0,0,0,0.04)'
-            }}>
+            <Card className="border border-border/80 bg-card shadow-[var(--shadow-lg)]">
               <CardContent className="p-12 text-center">
-                <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4" style={{
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #a8edda 0%, #40c9a2 100%)'
-                }}>
+                <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4 rounded-full bg-primary text-primary-foreground shadow-[var(--shadow-sm)]">
                   <Wind className="w-10 h-10 text-white" />
                 </div>
-                <h2 className="text-2xl font-semibold mb-2" style={{ color: '#1A3A34' }}>
+                <h2 className="text-2xl font-semibold mb-2 text-foreground">
                   {t('breathing_tool.card_title')}
                 </h2>
-                <p className="mb-4" style={{ color: '#5A7A72' }}>
+                <p className="mb-4 text-muted-foreground">
                   {t('breathing_tool.card_subtitle')}
                 </p>
                 <span
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-white font-medium"
-                  style={{ background: '#26A69A' }}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-primary text-primary-foreground font-medium"
                 >
                   <Wind className="w-4 h-4" />
                   {t('breathing_tool.open_tool')}
@@ -348,16 +322,13 @@ export default function Exercises() {
           boxShadow: '0 12px 40px rgba(38, 166, 154, 0.12), 0 4px 16px rgba(0,0,0,0.04)'
         }}>
           <CardContent className="p-12 text-center">
-            <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4" style={{
-              borderRadius: '50%',
-              background: 'linear-gradient(145deg, rgba(200, 230, 225, 0.7) 0%, rgba(180, 220, 210, 0.6) 100%)'
-            }}>
-              <Sparkles className="w-10 h-10" style={{ color: '#26A69A' }} />
+            <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4 rounded-full bg-secondary text-primary shadow-[var(--shadow-sm)]">
+              <Sparkles className="w-10 h-10" />
             </div>
-            <h2 className="text-2xl font-semibold mb-2" style={{ color: '#1A3A34' }}>
+            <h2 className="text-2xl font-semibold mb-2 text-foreground">
               {showFavoritesOnly ? t('exercises.empty_state.favorites_title') : t('exercises.empty_state.no_results_title')}
             </h2>
-            <p style={{ color: '#5A7A72' }}>
+            <p className="text-muted-foreground">
               {showFavoritesOnly
                 ? t('exercises.empty_state.favorites_message')
                 : searchQuery
