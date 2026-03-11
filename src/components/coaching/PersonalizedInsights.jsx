@@ -212,18 +212,18 @@ Be specific, encouraging, and reference their actual data.`,
         <>
           {/* Positive Progress */}
           {safeArray(insights.positive_progress).length > 0 && (
-            <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-white">
+            <Card className="border border-border/80 bg-card shadow-[var(--shadow-sm)]">
               <CardContent className="p-4">
-                <h4 className="font-semibold text-green-900 mb-3 flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5" />
+                <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-primary" />
                   Great Progress!
                 </h4>
                 <ul className="space-y-2">
                   {safeArray(insights.positive_progress).map((item, i) => {
                     const text = safeText(item);
                     return text ? (
-                      <li key={i} className="text-sm text-green-800 flex items-start gap-2">
-                        <span className="text-green-600 mt-0.5">✓</span>
+                      <li key={i} className="text-sm text-foreground/85 flex items-start gap-2">
+                        <span className="text-primary mt-0.5">✓</span>
                         <span>{text}</span>
                       </li>
                     ) : null;
@@ -235,15 +235,15 @@ Be specific, encouraging, and reference their actual data.`,
 
           {/* Recurring Patterns */}
           {safeArray(insights.recurring_patterns).filter(p => p && (p.pattern || typeof p === 'string')).length > 0 && (
-            <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white">
+            <Card className="border border-border/80 bg-card shadow-[var(--shadow-sm)]">
               <CardContent className="p-4">
-                <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
-                  <Brain className="w-5 h-5" />
+                <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <Brain className="w-5 h-5 text-primary" />
                   Thought Patterns Identified
                 </h4>
                 <div className="space-y-3">
                   {safeArray(insights.recurring_patterns).filter(p => p && (p.pattern || typeof p === 'string')).map((pattern, i) => (
-                    <div key={i} className="bg-white p-3 rounded-lg">
+                    <div key={i} className="bg-secondary/45 p-3 rounded-[var(--radius-control)] border border-border/60">
                       <div className="flex items-start justify-between mb-1">
                         <p className="font-medium text-gray-800 text-sm">
                           {typeof pattern === 'string' ? pattern : pattern.pattern}
@@ -264,15 +264,15 @@ Be specific, encouraging, and reference their actual data.`,
 
           {/* CBT Recommendations */}
           {safeArray(insights.cbt_recommendations).filter(r => r && (r.exercise_category || typeof r === 'string')).length > 0 && (
-            <Card className="border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-white">
+            <Card className="border border-border/80 bg-card shadow-[var(--shadow-sm)]">
               <CardContent className="p-4">
-                <h4 className="font-semibold text-indigo-900 mb-3 flex items-center gap-2">
-                  <Book className="w-5 h-5" />
+                <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <Book className="w-5 h-5 text-primary" />
                   Recommended CBT Techniques
                 </h4>
                 <div className="space-y-3">
                   {safeArray(insights.cbt_recommendations).filter(r => r && (r.exercise_category || typeof r === 'string')).map((rec, i) => (
-                    <div key={i} className="bg-white p-3 rounded-lg border-l-4 border-indigo-400">
+                    <div key={i} className="bg-secondary/45 p-3 rounded-[var(--radius-control)] border border-border/60">
                       <p className="font-medium text-gray-800 text-sm capitalize mb-1">
                         {typeof rec === 'string' ? rec : (rec.exercise_category || '').replace(/_/g, ' ')}
                       </p>
@@ -280,7 +280,7 @@ Be specific, encouraging, and reference their actual data.`,
                         <p className="text-xs text-gray-600 mb-2">{rec.reason}</p>
                       )}
                       {typeof rec === 'object' && rec.expected_benefit && (
-                        <p className="text-xs text-indigo-700 italic">💡 {rec.expected_benefit}</p>
+                        <p className="text-xs text-primary italic">💡 {rec.expected_benefit}</p>
                       )}
                       {matchedExercises[i] && (
                         <p className="text-xs text-gray-500 mt-2">
@@ -296,15 +296,15 @@ Be specific, encouraging, and reference their actual data.`,
 
           {/* Goal Insights */}
           {safeArray(insights.goal_insights).filter(g => g && (g.goal_title || typeof g === 'string')).length > 0 && (
-            <Card className="border-2 border-teal-200 bg-gradient-to-br from-teal-50 to-white">
+            <Card className="border border-border/80 bg-card shadow-[var(--shadow-sm)]">
               <CardContent className="p-4">
-                <h4 className="font-semibold text-teal-900 mb-3 flex items-center gap-2">
-                  <Target className="w-5 h-5" />
+                <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <Target className="w-5 h-5 text-primary" />
                   Goal Alignment
                 </h4>
                 <div className="space-y-3">
                   {safeArray(insights.goal_insights).filter(g => g && (g.goal_title || typeof g === 'string')).map((insight, i) => (
-                    <div key={i} className="bg-white p-3 rounded-lg">
+                    <div key={i} className="bg-secondary/45 p-3 rounded-[var(--radius-control)] border border-border/60">
                       <p className="font-medium text-gray-800 text-sm mb-1">
                         {typeof insight === 'string' ? insight : insight.goal_title}
                       </p>
@@ -312,7 +312,7 @@ Be specific, encouraging, and reference their actual data.`,
                         <p className="text-xs text-gray-600 mb-2">{insight.connection}</p>
                       )}
                       {typeof insight === 'object' && insight.suggestion && (
-                        <p className="text-xs text-teal-700">→ {insight.suggestion}</p>
+                        <p className="text-xs text-primary">→ {insight.suggestion}</p>
                       )}
                     </div>
                   ))}
@@ -323,14 +323,14 @@ Be specific, encouraging, and reference their actual data.`,
 
           {/* Engagement Nudges */}
           {safeArray(insights.engagement_nudges).length > 0 && (
-            <Card className="border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-white">
+            <Card className="border border-border/80 bg-card shadow-[var(--shadow-sm)]">
               <CardContent className="p-4">
-                <h4 className="font-semibold text-amber-900 mb-3">Gentle Reminders</h4>
+                <h4 className="font-semibold text-foreground mb-3">Gentle Reminders</h4>
                 <ul className="space-y-2">
                   {safeArray(insights.engagement_nudges).map((nudge, i) => {
                     const text = safeText(nudge);
                     return text ? (
-                      <li key={i} className="text-sm text-amber-800 flex items-start gap-2">
+                      <li key={i} className="text-sm text-foreground/85 flex items-start gap-2">
                         <span className="mt-0.5">💭</span>
                         <span>{text}</span>
                       </li>
