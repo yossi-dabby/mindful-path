@@ -762,11 +762,11 @@ Provide:
 
                   {/* Key Insight */}
                   <div className="bg-secondary/40 p-4 rounded-[var(--radius-control)] border border-border/70">
-                    <h4 className="font-semibold text-green-800 mb-2 flex items-center gap-2">
-                      <Lightbulb className="w-4 h-4" />
+                    <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                      <Lightbulb className="w-4 h-4 text-accent" />
                       Key Insight
                     </h4>
-                    <p className="text-sm text-green-700">{aiAnalysis.key_insight}</p>
+                    <p className="text-sm text-muted-foreground">{aiAnalysis.key_insight}</p>
                   </div>
 
                   {/* Recommended Exercises */}
@@ -778,7 +778,7 @@ Provide:
                       </h4>
                       <div className="space-y-2">
                         {aiAnalysis.recommended_exercises.map((rec, i) => (
-                          <div key={i} className="bg-white/70 p-3 rounded-lg">
+                          <div key={i} className="surface-nested p-3 rounded-lg">
                             <p className="font-medium text-foreground text-sm capitalize">{rec.category}</p>
                             <p className="text-xs text-muted-foreground mt-1">{rec.reason}</p>
                           </div>
@@ -827,12 +827,12 @@ Provide:
                   {formData.tags.map((tag) => (
                     <Badge
                       key={tag}
-                      className="bg-primary/12 text-purple-700 pr-1 pl-3 py-1 flex items-center gap-1"
+                      className="bg-primary/12 text-primary pr-1 pl-3 py-1 flex items-center gap-1 border border-primary/12"
                     >
                       {tag}
                       <button
                         onClick={() => removeTag(tag)}
-                        className="hover:bg-purple-200 rounded-full p-0.5"
+                        className="hover:bg-primary/10 rounded-full p-0.5"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -957,7 +957,7 @@ Provide:
           {step === 6 && savedEntry && savedEntry.id && (
             <div>
               <div className="text-center mb-6">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-blue-400 flex items-center justify-center mx-auto mb-3">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-500 to-emerald-400 flex items-center justify-center mx-auto mb-3 shadow-[var(--shadow-md)]">
                   <Sparkles className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold text-foreground mb-2">Entry Saved!</h3>

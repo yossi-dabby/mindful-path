@@ -75,12 +75,11 @@ export default function ForumPostCard({ post, onView, onUpvote, onModerate, isUp
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-auto p-0 hover:bg-transparent"
+                  className="h-auto p-0 hover:bg-transparent text-accent"
                   onClick={(e) => {
                     e.stopPropagation();
                     onModerate(post);
                   }}
-                  className="h-auto p-0 hover:bg-transparent text-accent"
                 >
                   <Shield className="w-4 h-4 mr-1" />
                   Moderate
