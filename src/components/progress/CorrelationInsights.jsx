@@ -106,13 +106,13 @@ Provide insights on:
 
   if (!insights && !isAnalyzing) {
     return (
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-indigo-50 to-purple-50">
+      <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
         <CardContent className="p-8 text-center">
-          <div className="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center mx-auto mb-4">
-            <Activity className="w-8 h-8 text-indigo-600" />
+          <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mx-auto mb-4">
+            <Activity className="w-8 h-8 text-primary" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">Discover Your Patterns</h3>
-          <p className="text-gray-600 mb-4 max-w-lg mx-auto">
+          <h3 className="text-xl font-semibold text-foreground mb-2">Discover Your Patterns</h3>
+          <p className="text-muted-foreground mb-4 max-w-lg mx-auto">
             AI will analyze correlations between your mood, journal entries, and exercises to reveal what works best for you.
           </p>
           <Button onClick={analyzeCorrelations} className="bg-indigo-600 hover:bg-indigo-700">

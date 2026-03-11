@@ -6,7 +6,7 @@ import { Users, Lock, MessageSquare } from 'lucide-react';
 
 export default function GroupCard({ group, isMember, onJoin, onView }) {
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className="border border-border/80 bg-card shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-shadow">
       <CardContent className="p-4">
         <div className="flex gap-4">
           {group.image_url ? (
@@ -16,15 +16,15 @@ export default function GroupCard({ group, isMember, onJoin, onView }) {
               className="w-16 h-16 rounded-xl object-cover"
             />
           ) : (
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center">
+            <div className="w-16 h-16 rounded-xl bg-primary flex items-center justify-center shadow-[var(--shadow-sm)]">
               <Users className="w-8 h-8 text-white" />
             </div>
           )}
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between mb-2">
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-800 line-clamp-2 mb-1">{group.name}</h3>
-                <p className="text-sm text-gray-600 line-clamp-2">{group.description}</p>
+                <h3 className="font-semibold text-foreground line-clamp-2 mb-1">{group.name}</h3>
+                <p className="text-sm text-muted-foreground line-clamp-2">{group.description}</p>
               </div>
               {group.is_private && <Lock className="w-4 h-4 text-gray-400 ml-2" />}
             </div>
@@ -52,7 +52,6 @@ export default function GroupCard({ group, isMember, onJoin, onView }) {
                   <Button
                     size="sm"
                     onClick={() => onJoin(group)}
-                    className="bg-blue-600 hover:bg-blue-700"
                   >
                     Join
                   </Button>

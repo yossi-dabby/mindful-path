@@ -205,11 +205,7 @@ export default function EnhancedProgressDashboard() {
 
       {/* Key Metrics Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        <Card className="border-0" style={{
-          borderRadius: '20px',
-          background: 'linear-gradient(145deg, rgba(38, 166, 154, 0.15) 0%, rgba(56, 178, 172, 0.1) 100%)',
-          boxShadow: '0 4px 12px rgba(38, 166, 154, 0.1)'
-        }}>
+        <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
           <CardContent className="p-4 sm:p-6 text-center">
             <div className="flex items-center justify-center mb-2">
               {metrics.moodTrend === 'improving' ? (
@@ -226,11 +222,7 @@ export default function EnhancedProgressDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-0" style={{
-          borderRadius: '20px',
-          background: 'linear-gradient(145deg, rgba(159, 122, 234, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%)',
-          boxShadow: '0 4px 12px rgba(159, 122, 234, 0.1)'
-        }}>
+        <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
           <CardContent className="p-4 sm:p-6 text-center">
             <Dumbbell className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2" style={{ color: '#9F7AEA' }} />
             <p className="text-2xl sm:text-3xl font-bold" style={{ color: '#1A3A34' }}>{metrics.totalExercises}</p>
@@ -239,11 +231,7 @@ export default function EnhancedProgressDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-0" style={{
-          borderRadius: '20px',
-          background: 'linear-gradient(145deg, rgba(246, 173, 85, 0.15) 0%, rgba(237, 137, 54, 0.1) 100%)',
-          boxShadow: '0 4px 12px rgba(246, 173, 85, 0.1)'
-        }}>
+        <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
           <CardContent className="p-4 sm:p-6 text-center">
             <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2" style={{ color: '#F6AD55' }} />
             <p className="text-2xl sm:text-3xl font-bold" style={{ color: '#1A3A34' }}>{metrics.journalCount}</p>
@@ -251,11 +239,7 @@ export default function EnhancedProgressDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-0" style={{
-          borderRadius: '20px',
-          background: 'linear-gradient(145deg, rgba(66, 153, 225, 0.15) 0%, rgba(56, 178, 172, 0.1) 100%)',
-          boxShadow: '0 4px 12px rgba(66, 153, 225, 0.1)'
-        }}>
+        <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
           <CardContent className="p-4 sm:p-6 text-center">
             <Target className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2" style={{ color: '#4299E1' }} />
             <p className="text-2xl sm:text-3xl font-bold" style={{ color: '#1A3A34' }}>{metrics.completedGoals}</p>
@@ -266,11 +250,7 @@ export default function EnhancedProgressDashboard() {
       </div>
 
       {/* Mood Trend Chart */}
-      <Card className="border-0" style={{
-        borderRadius: '24px',
-        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
-        boxShadow: '0 8px 24px rgba(38, 166, 154, 0.1)'
-      }}>
+      <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg" style={{ color: '#1A3A34' }}>
             <TrendingUp className="w-5 h-5" style={{ color: '#26A69A' }} />

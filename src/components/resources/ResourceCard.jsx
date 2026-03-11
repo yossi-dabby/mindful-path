@@ -49,7 +49,7 @@ export default function ResourceCard({ resource, isSaved, onSaveToggle }) {
   const Icon = typeIcons[resource.type] || FileText;
 
   return (
-    <Card className="border-0 shadow-lg hover:shadow-xl transition-all group">
+    <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] transition-all group">
       {resource.thumbnail_url && (
         <div className="h-40 overflow-hidden rounded-t-xl">
           <img
@@ -73,14 +73,14 @@ export default function ResourceCard({ resource, isSaved, onSaveToggle }) {
             aria-label={isSaved ? "Remove from saved" : "Save resource"}
           >
             {isSaved ? (
-              <BookmarkCheck className="w-5 h-5 text-purple-600 fill-purple-600" />
+              <BookmarkCheck className="w-5 h-5 text-primary fill-primary" />
             ) : (
-              <Bookmark className="w-5 h-5 text-gray-400 hover:text-purple-600" />
+              <Bookmark className="w-5 h-5 text-muted-foreground hover:text-primary" />
             )}
           </Button>
         </div>
-        <h3 className="font-semibold text-gray-800 line-clamp-2 mb-2">{resource.title}</h3>
-        <p className="text-sm text-gray-600 line-clamp-3">{resource.description}</p>
+        <h3 className="font-semibold text-foreground line-clamp-2 mb-2">{resource.title}</h3>
+        <p className="text-sm text-muted-foreground line-clamp-3">{resource.description}</p>
       </CardHeader>
       <CardContent className="pt-0">
         <div className="flex flex-wrap gap-2 mb-4">
@@ -119,14 +119,14 @@ export default function ResourceCard({ resource, isSaved, onSaveToggle }) {
             rel="noopener noreferrer"
             className="block"
           >
-            <Button className="w-full bg-purple-600 hover:bg-purple-700 group/btn">
+            <Button className="w-full group/btn">
               <span>View Resource</span>
               <ExternalLink className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
             </Button>
           </a>
         ) : resource.content ? (
           <Button 
-            className="w-full bg-purple-600 hover:bg-purple-700"
+            className="w-full"
             onClick={() => {
               // Open content in modal or new view
               window.open(`/resources/${resource.id}`, '_blank');

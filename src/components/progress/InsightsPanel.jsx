@@ -42,10 +42,10 @@ export default function InsightsPanel({ moodEntries, journalEntries }) {
   const topDistortions = getTopDistortions();
 
   return (
-    <Card className="border-0 shadow-lg">
+    <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Lightbulb className="w-5 h-5 text-yellow-600" />
+          <Lightbulb className="w-5 h-5 text-accent" />
           Insights
         </CardTitle>
       </CardHeader>
@@ -53,10 +53,10 @@ export default function InsightsPanel({ moodEntries, journalEntries }) {
         {/* Average Mood */}
         {avgMood && (
           <div>
-            <p className="text-sm text-gray-500 mb-2">Average Mood</p>
+            <p className="text-sm text-muted-foreground mb-2">Average Mood</p>
             <div className="flex items-center gap-2">
-              <div className="text-3xl font-bold text-green-600">{avgMood}</div>
-              <div className="text-sm text-gray-600">/ 5.0</div>
+              <div className="text-3xl font-bold text-foreground">{avgMood}</div>
+              <div className="text-sm text-muted-foreground">/ 5.0</div>
             </div>
           </div>
         )}

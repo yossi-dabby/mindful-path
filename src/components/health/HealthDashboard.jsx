@@ -35,7 +35,7 @@ export default function HealthDashboard() {
     return (
       <PullToRefresh queryKeys={['healthMetrics']}>
       <div className="space-y-4">
-        <Card className="border-0 shadow-lg">
+        <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
           <CardContent className="p-12 text-center">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-100 to-green-100 flex items-center justify-center mx-auto mb-4">
               <Activity className="w-10 h-10 text-blue-600" />
@@ -65,7 +65,7 @@ export default function HealthDashboard() {
     <div className="space-y-6">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-white">
+        <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -79,7 +79,7 @@ export default function HealthDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-white">
+        <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -93,7 +93,7 @@ export default function HealthDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-2 border-red-200 bg-gradient-to-br from-red-50 to-white">
+        <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>

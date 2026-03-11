@@ -111,11 +111,7 @@ export default function GamificationHub() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="border-0 overflow-hidden" style={{
-          borderRadius: '24px',
-          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)',
-          boxShadow: '0 8px 24px rgba(38, 166, 154, 0.12)'
-        }}>
+        <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)] overflow-hidden">
           <CardContent className="p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
               <div className="flex items-center gap-3">

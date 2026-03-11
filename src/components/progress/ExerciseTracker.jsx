@@ -34,7 +34,7 @@ export default function ExerciseTracker({ exercises }) {
   }, {});
 
   return (
-    <Card className="border-0 shadow-lg">
+    <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Dumbbell className="w-5 h-5 text-green-600" />

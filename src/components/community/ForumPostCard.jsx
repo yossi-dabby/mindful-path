@@ -17,18 +17,18 @@ export default function ForumPostCard({ post, onView, onUpvote, onModerate, isUp
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={onView}>
+    <Card className="border border-border/80 bg-card shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-shadow cursor-pointer" onClick={onView}>
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-blue-400 flex items-center justify-center flex-shrink-0">
-            <User className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]">
+            <User className="w-5 h-5 text-primary-foreground" />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
               {post.pinned && <Pin className="w-4 h-4 text-blue-600" />}
-            <h3 className="font-semibold text-gray-800 line-clamp-2">{post.title}</h3>
+            <h3 className="font-semibold text-foreground line-clamp-2">{post.title}</h3>
             </div>
-            <p className="text-sm text-gray-600 line-clamp-2 mb-3">{post.content}</p>
+            <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{post.content}</p>
             <div className="flex items-center flex-wrap gap-2 mb-2">
               <Badge className={categoryColors[post.category]}>
                 {post.category.replace('_', ' ')}
