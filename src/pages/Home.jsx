@@ -252,7 +252,7 @@ export default function Home() {
           </div>
 
           {/* Secondary Content - Below the fold */}
-        <div className="bg-[linear-gradient(180deg,rgba(255,252,248,0.44)_0%,rgba(233,244,239,0.58)_100%)] mt-8 p-4 rounded-[40px] space-y-4 border border-[rgba(125,173,160,0.24)] md:p-5 shadow-[0_20px_52px_rgba(68,108,96,0.08)] backdrop-blur-[10px]">
+        <div className="bg-emerald-100 text-emerald-200 mt-8 p-4 rounded-[40px] space-y-4 border border-[rgba(125,173,160,0.24)] md:p-5 shadow-[0_20px_52px_rgba(68,108,96,0.08)] backdrop-blur-[10px]">
         
         {/* Goals Dashboard Widget */}
         <GoalsDashboardWidget />
