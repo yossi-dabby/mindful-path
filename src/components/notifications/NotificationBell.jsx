@@ -52,8 +52,8 @@ function NotificationItem({ notification, onMarkRead, onDelete }) {
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -10 }}
       className={`flex gap-3 p-3 rounded-[var(--radius-control)] cursor-pointer transition-colors border ${isUnread ? 'bg-secondary/70 border-border/70' : 'bg-card border-transparent hover:bg-secondary/60'}`}
-      onClick={handleClick}
-    >
+      onClick={handleClick}>
+
       <div className="flex-shrink-0 w-9 h-9 rounded-[var(--radius-control)] bg-secondary flex items-center justify-center">
         <Icon className="w-4 h-4 text-primary" />
       </div>
@@ -61,9 +61,9 @@ function NotificationItem({ notification, onMarkRead, onDelete }) {
         <div className="flex items-start justify-between gap-2">
           <p className={`text-sm font-medium leading-tight ${isUnread ? 'text-foreground' : 'text-foreground/80'}`}>{notification.title}</p>
           <button
-            onClick={(e) => { e.stopPropagation(); onDelete(notification.id); }}
-            className="flex-shrink-0 text-gray-300 hover:text-gray-500 transition-colors"
-          >
+            onClick={(e) => {e.stopPropagation();onDelete(notification.id);}}
+            className="flex-shrink-0 text-gray-300 hover:text-gray-500 transition-colors">
+
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -73,16 +73,16 @@ function NotificationItem({ notification, onMarkRead, onDelete }) {
             {formatDistanceToNow(new Date(notification.created_date), { addSuffix: true })}
           </span>
           {isUnread && <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />}
-          {(notification.priority === 'high' || notification.priority === 'critical') && (
-            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${PRIORITY_DOT[notification.priority]}`} />
-          )}
-          {notification.action_url && (
-            <ExternalLink className="w-3 h-3 text-gray-400" />
-          )}
+          {(notification.priority === 'high' || notification.priority === 'critical') &&
+          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${PRIORITY_DOT[notification.priority]}`} />
+          }
+          {notification.action_url &&
+          <ExternalLink className="w-3 h-3 text-gray-400" />
+          }
         </div>
       </div>
-    </motion.div>
-  );
+    </motion.div>);
+
 }
 
 // Dropdown panel width in px — must match the w-80/w-96 values used in the panel.
@@ -110,7 +110,7 @@ function useDropdownPosition(buttonRef, open) {
   }, [buttonRef]);
 
   useEffect(() => {
-    if (!open) { setPos(null); return; }
+    if (!open) {setPos(null);return;}
     recalculate();
     window.addEventListener('resize', recalculate);
     window.addEventListener('scroll', recalculate, true);
@@ -137,7 +137,7 @@ export default function NotificationBell() {
     refetchOnWindowFocus: false
   });
 
-  const unreadCount = notifications.filter(n => !n.is_read).length;
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   const markReadMutation = useMutation({
     mutationFn: (id) => base44.entities.AppNotification.update(id, { is_read: true }),
@@ -146,8 +146,8 @@ export default function NotificationBell() {
 
   const markAllReadMutation = useMutation({
     mutationFn: async () => {
-      const unread = notifications.filter(n => !n.is_read);
-      await Promise.all(unread.map(n => base44.entities.AppNotification.update(n.id, { is_read: true })));
+      const unread = notifications.filter((n) => !n.is_read);
+      await Promise.all(unread.map((n) => base44.entities.AppNotification.update(n.id, { is_read: true })));
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] })
   });
@@ -161,9 +161,9 @@ export default function NotificationBell() {
   useEffect(() => {
     const handler = (e) => {
       if (
-        buttonRef.current && !buttonRef.current.contains(e.target) &&
-        dropdownRef.current && !dropdownRef.current.contains(e.target)
-      ) {
+      buttonRef.current && !buttonRef.current.contains(e.target) &&
+      dropdownRef.current && !dropdownRef.current.contains(e.target))
+      {
         setOpen(false);
       }
     };
@@ -173,101 +173,101 @@ export default function NotificationBell() {
 
   // Close on Escape key
   useEffect(() => {
-    const handler = (e) => { if (e.key === 'Escape') setOpen(false); };
+    const handler = (e) => {if (e.key === 'Escape') setOpen(false);};
     if (open) document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
   }, [open]);
 
   const pos = useDropdownPosition(buttonRef, open);
 
-  const panel = pos && (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          ref={dropdownRef}
-          initial={{ opacity: 0, y: -8, scale: 0.97 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -8, scale: 0.97 }}
-          transition={{ duration: 0.15 }}
-          style={{
-            position: 'fixed',
-            top: pos.top,
-            left: pos.left,
-            width: pos.width,
-            maxHeight: '480px',
-            zIndex: 9999,
-          }}
-          className="rounded-[var(--radius-card)] shadow-[var(--shadow-lg)] border border-border/80 bg-popover overflow-hidden"
-        >
+  const panel = pos &&
+  <AnimatePresence>
+      {open &&
+    <motion.div
+      ref={dropdownRef}
+      initial={{ opacity: 0, y: -8, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -8, scale: 0.97 }}
+      transition={{ duration: 0.15 }}
+      style={{
+        position: 'fixed',
+        top: pos.top,
+        left: pos.left,
+        width: pos.width,
+        maxHeight: '480px',
+        zIndex: 9999
+      }}
+      className="rounded-[var(--radius-card)] shadow-[var(--shadow-lg)] border border-border/80 bg-popover overflow-hidden">
+
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border/70 bg-secondary/55">
             <div className="flex items-center gap-2">
               <Bell className="w-4 h-4 text-primary" />
               <span className="font-semibold text-foreground text-sm">Notifications</span>
-              {unreadCount > 0 && (
-                <Badge className="text-xs px-1.5 py-0">{unreadCount} new</Badge>
-              )}
+              {unreadCount > 0 &&
+          <Badge className="text-xs px-1.5 py-0">{unreadCount} new</Badge>
+          }
             </div>
-            {unreadCount > 0 && (
-              <button
-                onClick={() => markAllReadMutation.mutate()}
-                className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-medium"
-              >
+            {unreadCount > 0 &&
+        <button
+          onClick={() => markAllReadMutation.mutate()}
+          className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-medium">
+
                 <CheckCheck className="w-3.5 h-3.5" />
                 Mark all read
               </button>
-            )}
+        }
           </div>
 
           {/* List */}
           <div className="overflow-y-auto" style={{ maxHeight: '380px' }}>
-            {notifications.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center px-6">
+            {notifications.length === 0 ?
+        <div className="flex flex-col items-center justify-center py-12 text-center px-6">
                 <div className="w-12 h-12 rounded-[var(--radius-control)] bg-secondary flex items-center justify-center mb-3">
                   <Bell className="w-6 h-6 text-primary" />
                 </div>
                 <p className="text-sm font-medium text-foreground">All caught up!</p>
                 <p className="text-xs text-muted-foreground mt-1">No notifications yet. We'll let you know when something happens.</p>
-              </div>
-            ) : (
-              <div className="p-2 space-y-1">
+              </div> :
+
+        <div className="p-2 space-y-1">
                 <AnimatePresence>
-                  {notifications.map(n => (
-                    <NotificationItem
-                      key={n.id}
-                      notification={n}
-                      onMarkRead={(id) => markReadMutation.mutate(id)}
-                      onDelete={(id) => deleteMutation.mutate(id)}
-                    />
-                  ))}
+                  {notifications.map((n) =>
+            <NotificationItem
+              key={n.id}
+              notification={n}
+              onMarkRead={(id) => markReadMutation.mutate(id)}
+              onDelete={(id) => deleteMutation.mutate(id)} />
+
+            )}
                 </AnimatePresence>
               </div>
-            )}
+        }
           </div>
         </motion.div>
-      )}
-    </AnimatePresence>
-  );
+    }
+    </AnimatePresence>;
+
 
   return (
     <>
       <button
         ref={buttonRef}
-        onClick={() => setOpen(o => !o)}
+        onClick={() => setOpen((o) => !o)}
         className="relative w-10 h-10 flex items-center justify-center rounded-[var(--radius-control)] border border-transparent text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
         aria-label="Notifications"
         aria-expanded={open}
-        aria-haspopup="true"
-      >
-        <Bell className="w-5 h-5" />
-        {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full text-[10px] font-bold text-white bg-red-500">
+        aria-haspopup="true">
+
+        <Bell className="text-teal-600 lucide lucide-bell w-5 h-5" />
+        {unreadCount > 0 &&
+        <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full text-[10px] font-bold text-white bg-red-500">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
-        )}
+        }
       </button>
 
       {typeof document !== 'undefined' && createPortal(panel, document.body)}
-    </>
-  );
+    </>);
+
 }
