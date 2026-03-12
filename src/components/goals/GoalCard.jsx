@@ -436,8 +436,8 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
           </Button>
           <Button
             variant="outline"
-            onClick={() => setShowKanban(!showKanban)}
-            className="flex items-center gap-1.5 text-sm"
+            onClick={() => setShowKanban(!showKanban)} className="bg-emerald-600 text-slate-50 px-3 text-sm font-medium tracking-[0.005em] rounded-2xl justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 flex items-center gap-1.5"
+
             size="sm">
 
             <LayoutGrid className="w-4 h-4" />
@@ -445,8 +445,8 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
           </Button>
           <Button
             variant="outline"
-            onClick={() => setShowJournalEntries(!showJournalEntries)}
-            className="flex items-center gap-1.5 text-sm"
+            onClick={() => setShowJournalEntries(!showJournalEntries)} className="bg-teal-600 text-slate-50 px-3 text-sm font-medium tracking-[0.005em] rounded-2xl justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 flex items-center gap-1.5"
+
             size="sm">
 
             <BookOpen className="w-4 h-4" />
@@ -454,8 +454,8 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
           </Button>
           <Button
             variant="outline"
-            onClick={() => setShowAiAdjustment(true)}
-            className="flex items-center gap-1.5 text-sm border-purple-300 text-purple-700 hover:bg-purple-50"
+            onClick={() => setShowAiAdjustment(true)} className="bg-teal-600 text-purple-700 px-3 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border shadow-[var(--shadow-sm)] hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 flex items-center gap-1.5 border-purple-300 hover:bg-purple-50"
+
             size="sm">
 
             <Sparkles className="w-4 h-4" />
@@ -463,8 +463,8 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
           </Button>
           <Button
             variant="outline"
-            onClick={() => setShowReminders(true)}
-            className="flex items-center gap-1.5 text-sm"
+            onClick={() => setShowReminders(true)} className="bg-teal-600 text-secondary-foreground px-3 text-sm font-medium tracking-[0.005em] rounded-2xl justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 flex items-center gap-1.5"
+
             size="sm">
 
             <Bell className="w-4 h-4" />
