@@ -319,7 +319,7 @@ export default function QuickActions() {
                   style={{ borderColor: 'rgba(118, 170, 156, 0.34)', background: 'linear-gradient(180deg, rgba(255,252,248,0.99) 0%, rgba(230,244,238,0.96) 100%)', boxShadow: '0 24px 56px rgba(68, 108, 96, 0.16), 0 10px 22px rgba(68, 108, 96, 0.08)' }}
                   data-testid={action.testIds ? action.testIds[1] : undefined}>
 
-                  <CardContent className="p-5">
+                  <CardContent className="p-5 rounded-md">
                     <div className="flex items-center gap-3 mb-4">
                       <div
                         className="w-14 h-14 flex items-center justify-center rounded-[var(--radius-control)]"
