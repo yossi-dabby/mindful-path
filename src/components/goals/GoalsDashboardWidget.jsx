@@ -90,20 +90,20 @@ export default function GoalsDashboardWidget() {
     <Card className="rounded-[30px] border overflow-hidden" style={{ borderColor: 'rgba(118, 170, 156, 0.34)', background: 'linear-gradient(180deg, rgba(255,253,250,0.99) 0%, rgba(228,244,238,0.96) 100%)', boxShadow: '0 28px 64px rgba(68, 108, 96, 0.16), 0 12px 24px rgba(68, 108, 96, 0.08)' }}>
       <CardHeader className="bg-teal-50 p-6 flex flex-col space-y-1.5 border-b border-[rgba(118,170,156,0.22)]">
         <CardTitle className="flex items-center justify-between text-foreground">
-          <div className="flex items-center gap-2">
-            <Target className="w-5 h-5 text-primary" />
+          <div className="text-teal-600 flex items-center gap-2">
+            <Target className="text-teal-600 lucide lucide-target w-5 h-5" />
             {t('goals_dashboard_widget.title')}
           </div>
           <button
-            onClick={() => setShowVideo(true)}
-            className="flex items-center justify-center cursor-pointer hover:scale-105 transition-transform w-10 h-10 rounded-[var(--radius-nested)] bg-secondary text-primary border-0 outline-none"
+            onClick={() => setShowVideo(true)} className="bg-teal-50 text-teal-600 rounded-[var(--radius-nested)] flex items-center justify-center cursor-pointer hover:scale-105 transition-transform w-10 h-10 border-0 outline-none"
+
             aria-label="Guided introduction video"
             title="Guided introduction video">
 
-            <User className="w-5 h-5 text-primary" strokeWidth={2} />
+            <User className="text-teal-600 lucide lucide-user w-5 h-5" strokeWidth={2} />
           </button>
         </CardTitle>
-        <p className="text-xs text-muted-foreground mt-0.5">{t('goals_dashboard_widget.all_stages')}</p>
+        <p className="text-teal-600 mt-0.5 text-xs">{t('goals_dashboard_widget.all_stages')}</p>
       </CardHeader>
       {showVideo &&
       <VideoModal
@@ -115,11 +115,11 @@ export default function GoalsDashboardWidget() {
         {/* Overall Progress */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-foreground/85">{t('goals_dashboard_widget.overall_progress')}</span>
-            <span className="text-sm font-bold text-primary">{totalProgress}%</span>
+            <span className="text-teal-600 text-sm font-medium">{t('goals_dashboard_widget.overall_progress')}</span>
+            <span className="text-teal-600 text-sm font-bold">{totalProgress}%</span>
           </div>
           <Progress value={totalProgress} className="h-2" />
-          <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
+          <div className="text-teal-600 mt-2 text-xs flex items-center justify-between">
             <span>{t('goals_dashboard_widget.active', { count: activeGoals.length })}</span>
             <span>{t('goals_dashboard_widget.tasks_done', { completed: completedMilestones.length, total: allMilestones.length })}</span>
           </div>
@@ -130,7 +130,7 @@ export default function GoalsDashboardWidget() {
         <div className="rounded-2xl p-3 border border-emerald-200 bg-[linear-gradient(180deg,rgba(237,250,246,0.95)_0%,rgba(247,252,250,0.98)_100%)] shadow-[var(--shadow-sm)]">
             <div className="flex items-center gap-2 mb-1">
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span className="text-xs text-muted-foreground">{t('goals_dashboard_widget.completed')}</span>
+              <span className="text-teal-600 text-xs">{t('goals_dashboard_widget.completed')}</span>
             </div>
             <p className="text-xl md:text-2xl font-bold text-emerald-700 truncate">
               {completedMilestones.length}/{allMilestones.length}
@@ -148,7 +148,7 @@ export default function GoalsDashboardWidget() {
                 "w-4 h-4",
                 overdueGoals.length > 0 ? "text-rose-600" : "text-muted-foreground"
               )} />
-              <span className="text-xs text-muted-foreground">{t('goals_dashboard_widget.overdue')}</span>
+              <span className="text-red-700 text-xs">{t('goals_dashboard_widget.overdue')}</span>
             </div>
             <p className={cn(
               "text-2xl font-bold",
@@ -204,7 +204,7 @@ export default function GoalsDashboardWidget() {
 
         {/* Action Button */}
         <Link to={createPageUrl('Goals')} className="block">
-          <Button variant="outline" className="w-full" size="sm">
+          <Button variant="outline" className="bg-[hsl(var(--card)/0.88)] text-teal-600 px-3 text-xs font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 w-full" size="sm">
             <TrendingUp className="w-4 h-4 mr-2" />
             {t('goals_dashboard_widget.view_all_goals')}
           </Button>
