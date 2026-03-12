@@ -196,11 +196,11 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                   if (isNaN(date.getTime())) return null;
                   return (
                     <Badge
-                      variant="outline"
-                      className={cn(
-                        'flex items-center gap-1',
-                        isOverdue && 'border-red-300 text-red-600'
-                      )}>
+                      variant="outline" className="bg-[hsl(var(--card)/0.82)] text-red-600 px-2.5 py-1 font-medium tracking-[0.01em] leading-4 rounded-2xl border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 flex items-center gap-1 border-red-300">
+
+
+
+
 
                         <Calendar className="w-3 h-3" />
                         {format(date, 'MMM d, yyyy')}
@@ -313,8 +313,8 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                 }
                 <Checkbox
                   checked={Boolean(milestone.completed)}
-                  onCheckedChange={(checked) => toggleMilestone(index, checked)}
-                  className="mt-0.5 flex-shrink-0"
+                  onCheckedChange={(checked) => toggleMilestone(index, checked)} className="bg-teal-500 mt-0.5 rounded-sm peer h-4 w-4 shrink-0 border border-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground flex-shrink-0"
+
                   id={`milestone-${goal.id}-${index}`} />
 
                 <label
@@ -454,7 +454,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
           </Button>
           <Button
             variant="outline"
-            onClick={() => setShowAiAdjustment(true)} className="bg-teal-600 text-purple-700 px-3 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border shadow-[var(--shadow-sm)] hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 flex items-center gap-1.5 border-purple-300 hover:bg-purple-50"
+            onClick={() => setShowAiAdjustment(true)} className="bg-teal-600 text-slate-50 px-3 text-sm font-medium tracking-[0.005em] rounded-2xl justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border shadow-[var(--shadow-sm)] hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 flex items-center gap-1.5 border-purple-300 hover:bg-purple-50"
 
             size="sm">
 
@@ -463,7 +463,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
           </Button>
           <Button
             variant="outline"
-            onClick={() => setShowReminders(true)} className="bg-teal-600 text-secondary-foreground px-3 text-sm font-medium tracking-[0.005em] rounded-2xl justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 flex items-center gap-1.5"
+            onClick={() => setShowReminders(true)} className="bg-teal-600 text-slate-50 px-3 text-sm font-medium tracking-[0.005em] rounded-2xl justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 flex items-center gap-1.5"
 
             size="sm">
 
