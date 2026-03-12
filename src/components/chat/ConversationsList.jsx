@@ -44,7 +44,7 @@ export default function ConversationsList({
       </div>
 
       {/* Conversations List */}
-      <div className="flex-1 overflow-y-auto p-2 min-h-0" style={{ overscrollBehavior: 'none' }}>
+      <div className="bg-teal-50 p-2 flex-1 overflow-y-auto min-h-0" style={{ overscrollBehavior: 'none' }}>
         {safeConversations.length === 0 ?
         <div className="bg-teal-50 px-4 py-8 text-center rounded-2xl">
             <MessageCircle className="w-12 h-12 mx-auto mb-3 text-primary/30" />
@@ -64,8 +64,8 @@ export default function ConversationsList({
             )}>
 
                 <button
-              onClick={() => onSelectConversation(conversation.id)}
-              className="w-full text-start p-3 flex items-start gap-3 min-w-0">
+              onClick={() => onSelectConversation(conversation.id)} className="bg-teal-100 text-start p-3 w-full flex items-start gap-3 min-w-0">
+
 
                   <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center flex-shrink-0 rounded-[var(--radius-control)] bg-secondary text-primary">
                     <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
