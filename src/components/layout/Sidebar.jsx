@@ -39,7 +39,7 @@ export default function Sidebar({ currentPageName }) {
       {/* Logo */}
       <div className="px-6 mb-8">
         <div className="text-teal-600 flex items-center gap-3">
-          <div className="w-10 h-10 flex items-center justify-center rounded-[var(--radius-control)] bg-primary text-primary-foreground shadow-[var(--shadow-md)]">
+          <div className="bg-primary text-teal-500 rounded-[var(--radius-control)] w-10 h-10 flex items-center justify-center shadow-[var(--shadow-md)]">
             <span className="text-white font-bold text-lg">M</span>
           </div>
           <div className="flex-1 min-w-0">
