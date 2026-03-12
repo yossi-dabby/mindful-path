@@ -40,7 +40,7 @@ export default function Sidebar({ currentPageName }) {
       <div className="bg-teal-100 mb-8 px-6">
         <div className="bg-teal-100 text-teal-600 flex items-center gap-3">
           <div className="bg-teal-400 text-teal-500 rounded-[var(--radius-control)] w-10 h-10 flex items-center justify-center shadow-[var(--shadow-md)]">
-            <span className="bg-teal-100 text-white text-lg font-bold">M</span>
+            <span className="bg-teal-400 text-teal-600 text-lg font-bold">M</span>
           </div>
           <div className="flex-1 min-w-0">
             <h1 className="text-teal-600 font-semibold truncate">{t('global.app_name')}</h1>
@@ -68,11 +68,11 @@ export default function Sidebar({ currentPageName }) {
 
 
 
-                <Icon className={cn("w-5 h-5 icon-default", isActive && "scale-110")} strokeWidth={2} />
+                <Icon className="text-teal-600 lucide lucide-house w-5 h-5 icon-default scale-110" strokeWidth={2} />
                 <div className="flex-1">
                   <p className="bg-teal-50 text-teal-600 font-semibold leading-5">{item.name}</p>
                   {item.description &&
-                  <p className={cn("text-xs mt-0.5 leading-4", isActive ? "text-muted-foreground" : "text-muted-foreground")}>{item.description}</p>
+                  <p className="text-teal-600 mt-0.5 text-xs leading-4">{item.description}</p>
                   }
                 </div>
                 {isActive &&
@@ -101,8 +101,8 @@ export default function Sidebar({ currentPageName }) {
                     "border-transparent text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
                   )}>
 
-                  <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
-                  <span className={cn("text-sm", isActive && "font-semibold")}>{item.name}</span>
+                  <Icon className="text-teal-600 lucide lucide-users w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
+                  <span className="text-teal-600 text-sm">{item.name}</span>
                 </Link>);
 
             })}
