@@ -200,9 +200,9 @@ export default function EnhancedProgressDashboard() {
       </motion.div>
 
       {/* Key Metrics Grid */}
-      <div className="text-teal-600 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+      <div className="text-teal-600 rounded-2xl grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
-          <CardContent className="bg-teal-100 p-4 text-center rounded sm:p-6">
+          <CardContent className="bg-teal-100 p-4 text-center rounded-2xl sm:p-6">
             <div className="flex items-center justify-center mb-2">
               {metrics.moodTrend === 'improving' ?
               <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" /> :
@@ -218,8 +218,8 @@ export default function EnhancedProgressDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="bg-red-50 text-card-foreground rounded-[var(--radius-card)] border shadow-[var(--shadow-md)] backdrop-blur-[10px] surface-secondary border-border/80">
-          <CardContent className="p-4 sm:p-6 text-center">
+        <Card className="bg-red-50 text-card-foreground rounded-2xl border shadow-[var(--shadow-md)] backdrop-blur-[10px] surface-secondary border-border/80">
+          <CardContent className="p-4 text-center rounded-2xl sm:p-6">
             <Dumbbell className="text-red-600 mb-2 mx-auto lucide lucide-dumbbell w-5 h-5 sm:w-6 sm:h-6" />
             <p className="text-red-600 text-2xl font-bold sm:text-3xl">{metrics.totalExercises}</p>
             <p className="text-red-600 mt-1 text-xs sm:text-sm">{t('progress.tabs.exercises')}</p>
@@ -228,7 +228,7 @@ export default function EnhancedProgressDashboard() {
         </Card>
 
         <Card className="bg-lime-50 text-card-foreground rounded-[var(--radius-card)] border shadow-[var(--shadow-md)] backdrop-blur-[10px] surface-secondary border-border/80">
-          <CardContent className="p-4 sm:p-6 text-center">
+          <CardContent className="p-4 text-center rounded-2xl sm:p-6">
             <BookOpen className="text-lime-600 mb-2 mx-auto lucide lucide-book-open w-5 h-5 sm:w-6 sm:h-6" />
             <p className="text-lime-600 text-2xl font-bold sm:text-3xl">{metrics.journalCount}</p>
             <p className="text-lime-600 mt-1 text-xs sm:text-sm">{t('home.journal_entries')}</p>
@@ -236,7 +236,7 @@ export default function EnhancedProgressDashboard() {
         </Card>
 
         <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
-          <CardContent className="bg-teal-100 p-4 text-center sm:p-6">
+          <CardContent className="bg-teal-100 p-4 text-center rounded-2xl sm:p-6">
             <Target className="text-teal-600 mb-2 mx-auto lucide lucide-target w-5 h-5 sm:w-6 sm:h-6" />
             <p className="text-teal-600 text-2xl font-bold sm:text-3xl">{metrics.completedGoals}</p>
             <p className="text-teal-600 mt-1 text-xs sm:text-sm">{t('progress.dashboard.goals_achieved')}</p>
