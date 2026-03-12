@@ -51,7 +51,7 @@ export default function Sidebar({ currentPageName }) {
       </div>
 
       {/* Main Navigation */}
-      <div className="bg-teal-100 text-teal-600 px-3 flex-1 overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
+      <div className="bg-teal-50 text-teal-600 px-3 flex-1 overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
         <div className="space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
