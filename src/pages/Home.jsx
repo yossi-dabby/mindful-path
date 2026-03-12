@@ -40,7 +40,7 @@ export default function Home() {
         if (onboarding_completed === false) setShowOnboarding(true);
       } catch (_) {}
     }
-    base44.auth.me().then(userData => {
+    base44.auth.me().then((userData) => {
       setUser(userData);
       if (!userData.onboarding_completed) {
         setShowOnboarding(true);
@@ -129,7 +129,7 @@ export default function Home() {
   const assignExerciseMutation = useMutation({
     mutationFn: async () => {
       const today = new Date().toISOString().split('T')[0];
-      
+
       // Get or create today's flow (prevent duplicates)
       let flow = todayFlow;
       if (!flow) {
@@ -149,25 +149,25 @@ export default function Home() {
 
       // Select exercise based on recent mood data
       const recentMoods = await base44.entities.MoodEntry.list('-created_date', 7);
-      
+
       // Use cached exercises from query instead of fetching again
       const exercises = allExercises.length > 0 ? allExercises : await base44.entities.Exercise.list();
-      
+
       // Simple scoring logic
-      const anxietyCount = recentMoods.filter(m => 
-        m.emotions?.some(e => e.toLowerCase().includes('anxi'))
+      const anxietyCount = recentMoods.filter((m) =>
+      m.emotions?.some((e) => e.toLowerCase().includes('anxi'))
       ).length;
-      const lowMoodCount = recentMoods.filter(m => 
-        ['low', 'very_low'].includes(m.mood)
+      const lowMoodCount = recentMoods.filter((m) =>
+      ['low', 'very_low'].includes(m.mood)
       ).length;
 
       let targetCategory = 'mindfulness';
       if (anxietyCount > 2) targetCategory = 'breathing';
       if (lowMoodCount > 3) targetCategory = 'behavioral_activation';
 
-      const matchingExercises = exercises.filter(e => e.category === targetCategory);
-      const selectedExercise = matchingExercises[Math.floor(Math.random() * matchingExercises.length)] 
-        || exercises[0];
+      const matchingExercises = exercises.filter((e) => e.category === targetCategory);
+      const selectedExercise = matchingExercises[Math.floor(Math.random() * matchingExercises.length)] ||
+      exercises[0];
 
       await base44.entities.DailyFlow.update(flow.id, {
         exercise_id: selectedExercise.id
@@ -252,7 +252,7 @@ export default function Home() {
           </div>
 
           {/* Secondary Content - Below the fold */}
-        <div className="mt-8 space-y-4 rounded-[32px] border border-[rgba(125,173,160,0.24)] bg-[linear-gradient(180deg,rgba(255,252,248,0.44)_0%,rgba(233,244,239,0.58)_100%)] p-4 md:p-5 shadow-[0_20px_52px_rgba(68,108,96,0.08)] backdrop-blur-[10px]">
+        <div className="bg-[linear-gradient(180deg,rgba(255,252,248,0.44)_0%,rgba(233,244,239,0.58)_100%)] mt-8 p-4 rounded-[40px] space-y-4 border border-[rgba(125,173,160,0.24)] md:p-5 shadow-[0_20px_52px_rgba(68,108,96,0.08)] backdrop-blur-[10px]">
         
         {/* Goals Dashboard Widget */}
         <GoalsDashboardWidget />
@@ -262,85 +262,85 @@ export default function Home() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="relative overflow-hidden rounded-[28px] border border-[rgba(116,169,154,0.34)] bg-[linear-gradient(180deg,rgba(255,253,250,0.98)_0%,rgba(227,244,238,0.96)_100%)] p-5 text-center shadow-[0_24px_54px_rgba(68,108,96,0.14),0_8px_18px_rgba(68,108,96,0.08)]">
             <div className="flex items-center justify-center gap-2 mb-1">
-              {latestGoal && (
-                <Link to={createPageUrl('Goals', `goal=${latestGoal.id}`)}>
+              {latestGoal &&
+                  <Link to={createPageUrl('Goals', `goal=${latestGoal.id}`)}>
                   <Button
-                    size="icon"
-                    variant="ghost"
-                    className="p-0 h-8 w-8 hover:bg-secondary/80 text-primary flex items-center justify-center rounded-full bg-secondary"
-                    aria-label="View goal details"
-                  >
+                      size="icon"
+                      variant="ghost"
+                      className="p-0 h-8 w-8 hover:bg-secondary/80 text-primary flex items-center justify-center rounded-full bg-secondary"
+                      aria-label="View goal details">
+
                     <Target className="w-4 h-4" />
                   </Button>
                 </Link>
-              )}
+                  }
               <p className="text-2xl font-bold text-foreground">{recentGoals.length}</p>
             </div>
             <div className="flex items-center justify-center gap-2">
               {/* Help Video Button - MOBILE: LEFT of text */}
               <Button
-                onClick={() => setShowGoalsVideo(true)}
-                size="icon"
-                variant="ghost"
-                className="md:hidden p-0 h-6 w-6 rounded-full bg-accent/15 text-accent hover:bg-accent/20"
-                title="Watch help video"
-                aria-label="Watch goals help video"
-              >
+                    onClick={() => setShowGoalsVideo(true)}
+                    size="icon"
+                    variant="ghost"
+                    className="md:hidden p-0 h-6 w-6 rounded-full bg-accent/15 text-accent hover:bg-accent/20"
+                    title="Watch help video"
+                    aria-label="Watch goals help video">
+
                 <Sparkles className="w-3 h-3 text-accent" strokeWidth={2} />
               </Button>
               <p className="text-xs text-muted-foreground">{t('home.active_goals')}</p>
             </div>
             {/* Help Video Button - WEB: Below text */}
             <Button
-              onClick={() => setShowGoalsVideo(true)}
-              size="icon"
-              variant="ghost"
-              className="hidden md:flex p-0 h-7 w-7 mt-2 mx-auto rounded-full bg-accent/15 text-accent hover:bg-accent/20"
-              title="Watch help video"
-              aria-label="Watch goals help video"
-            >
+                  onClick={() => setShowGoalsVideo(true)}
+                  size="icon"
+                  variant="ghost"
+                  className="hidden md:flex p-0 h-7 w-7 mt-2 mx-auto rounded-full bg-accent/15 text-accent hover:bg-accent/20"
+                  title="Watch help video"
+                  aria-label="Watch goals help video">
+
               <Sparkles className="w-4 h-4 text-accent" strokeWidth={2} />
             </Button>
           </div>
           <div className="relative overflow-hidden rounded-[28px] border border-[rgba(116,169,154,0.3)] bg-[linear-gradient(180deg,rgba(252,248,241,0.98)_0%,rgba(232,246,241,0.96)_100%)] p-5 text-center shadow-[0_24px_54px_rgba(68,108,96,0.14),0_8px_18px_rgba(68,108,96,0.08)]">
             <div className="flex items-center justify-center gap-2 mb-1">
-              {savedEntryId && (
-                <Link to={createPageUrl('Journal', `entry=${savedEntryId}`)}>
+              {savedEntryId &&
+                  <Link to={createPageUrl('Journal', `entry=${savedEntryId}`)}>
                   <Button
-                    size="icon"
-                    variant="ghost"
-                    className="p-0 h-8 w-8 hover:bg-secondary/80 text-primary flex items-center justify-center rounded-full bg-secondary"
-                    aria-label="View journal entry"
-                  >
+                      size="icon"
+                      variant="ghost"
+                      className="p-0 h-8 w-8 hover:bg-secondary/80 text-primary flex items-center justify-center rounded-full bg-secondary"
+                      aria-label="View journal entry">
+
                     <BookOpen className="w-4 h-4" />
                   </Button>
                 </Link>
-              )}
+                  }
               <p className="text-2xl font-bold text-foreground">{journalCount}</p>
             </div>
             <div className="flex items-center justify-center gap-2">
               {/* Help Video Button - MOBILE: LEFT of text */}
               <Button
-                onClick={() => setShowJournalVideo(true)}
-                size="icon"
-                variant="ghost"
-                className="md:hidden p-0 h-6 w-6 rounded-full bg-accent/15 text-accent hover:bg-accent/20"
-                title="Watch help video"
-                aria-label="Watch journal help video"
-              >
+                    onClick={() => setShowJournalVideo(true)}
+                    size="icon"
+                    variant="ghost"
+                    className="md:hidden p-0 h-6 w-6 rounded-full bg-accent/15 text-accent hover:bg-accent/20"
+                    title="Watch help video"
+                    aria-label="Watch journal help video">
+
                 <Sparkles className="w-3 h-3 text-accent" strokeWidth={2} />
               </Button>
               <p className="text-xs text-muted-foreground">{t('home.journal_entries')}</p>
             </div>
             {/* Help Video Button - WEB: Below text */}
             <Button
-              onClick={() => setShowJournalVideo(true)}
-              size="icon"
-              variant="ghost"
-              className="hidden md:flex p-0 h-7 w-7 mt-2 mx-auto rounded-full bg-accent/15 text-accent hover:bg-accent/20"
-              title="Watch help video"
-              aria-label="Watch journal help video"
-            >
+                  onClick={() => setShowJournalVideo(true)}
+                  size="icon"
+                  variant="ghost"
+                  className="hidden md:flex p-0 h-7 w-7 mt-2 mx-auto rounded-full bg-accent/15 text-accent hover:bg-accent/20"
+                  title="Watch help video"
+                  aria-label="Watch journal help video">
+
               <Sparkles className="w-4 h-4 text-accent" strokeWidth={2} />
             </Button>
           </div>
@@ -349,38 +349,38 @@ export default function Home() {
         </div>
 
         {/* Error State for Goals */}
-        {goalsError && (
-          <Card className="mt-6 border border-destructive/20 bg-destructive/5">
+        {goalsError &&
+            <Card className="mt-6 border border-destructive/20 bg-destructive/5">
             <CardContent className="p-4 text-center">
               <p className="text-sm text-foreground mb-2">{t('home.error.goals_load')}</p>
               <Button
-                onClick={() => refetchGoals()}
-                size="sm"
-                variant="outline"
-                className="text-xs"
-              >
+                  onClick={() => refetchGoals()}
+                  size="sm"
+                  variant="outline"
+                  className="text-xs">
+
                 {t('common.retry')}
               </Button>
             </CardContent>
           </Card>
-        )}
+            }
 
         {/* Error State for Journal */}
-        {journalsError && (
-          <Card className="mt-6 border border-destructive/20 bg-destructive/5">
+        {journalsError &&
+            <Card className="mt-6 border border-destructive/20 bg-destructive/5">
             <CardContent className="p-4 text-center">
               <p className="text-sm text-foreground mb-2">{t('home.error.journal_load')}</p>
               <Button
-                onClick={() => refetchJournals()}
-                size="sm"
-                variant="outline"
-                className="text-xs"
-              >
+                  onClick={() => refetchJournals()}
+                  size="sm"
+                  variant="outline"
+                  className="text-xs">
+
                 {t('common.retry')}
               </Button>
             </CardContent>
           </Card>
-        )}
+            }
 
         {/* Quick Actions */}
         <div className="mt-8 rounded-[32px] bg-[linear-gradient(180deg,rgba(255,252,248,0.9)_0%,rgba(228,242,237,0.88)_100%)] border border-[rgba(116,169,154,0.28)] p-4 md:p-5 shadow-[0_24px_58px_rgba(68,108,96,0.12),0_8px_22px_rgba(68,108,96,0.07)] backdrop-blur-[12px]">
@@ -391,53 +391,53 @@ export default function Home() {
 
 
       {/* Mood Check-in Modal */}
-      {showMoodCheckIn && (
-        <MoodCheckIn onClose={handleCheckInComplete} />
-      )}
+      {showMoodCheckIn &&
+          <MoodCheckIn onClose={handleCheckInComplete} />
+          }
 
       {/* Exercise Modal */}
-      {showExercise && todayExercise && (
-        <ExerciseDetail
-          exercise={todayExercise}
-          onClose={() => setShowExercise(false)}
-          onComplete={handleExerciseComplete}
-        />
-      )}
+      {showExercise && todayExercise &&
+          <ExerciseDetail
+            exercise={todayExercise}
+            onClose={() => setShowExercise(false)}
+            onComplete={handleExerciseComplete} />
+
+          }
 
       {/* Reflection Modal */}
-      {showReflection && (
-        <DailyReflection
-          todayFlow={todayFlow}
-          exercise={todayExercise}
-          onClose={() => setShowReflection(false)}
-        />
-      )}
+      {showReflection &&
+          <DailyReflection
+            todayFlow={todayFlow}
+            exercise={todayExercise}
+            onClose={() => setShowReflection(false)} />
+
+          }
 
       {/* Onboarding Wizard */}
-      {showOnboarding && (
-        <WelcomeWizard
-          onComplete={() => {
-            setShowOnboarding(false);
-            queryClient.invalidateQueries({ queryKey: ['currentUser'] });
-          }}
-        />
-      )}
+      {showOnboarding &&
+          <WelcomeWizard
+            onComplete={() => {
+              setShowOnboarding(false);
+              queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+            }} />
+
+          }
 
       {/* Video Modals */}
-      {showGoalsVideo && (
-        <VideoModal
-          videoUrl="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%208.mp4?alt=media&token=cc85d70d-251f-41d9-a5a8-44a0b350f40b"
-          onClose={() => setShowGoalsVideo(false)}
-        />
-      )}
-      {showJournalVideo && (
-        <VideoModal
-          videoUrl="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%209.mp4?alt=media&token=4a8ae8b9-e803-4108-bc3e-26c4c25751f8"
-          onClose={() => setShowJournalVideo(false)}
-        />
-      )}
+      {showGoalsVideo &&
+          <VideoModal
+            videoUrl="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%208.mp4?alt=media&token=cc85d70d-251f-41d9-a5a8-44a0b350f40b"
+            onClose={() => setShowGoalsVideo(false)} />
+
+          }
+      {showJournalVideo &&
+          <VideoModal
+            videoUrl="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%209.mp4?alt=media&token=4a8ae8b9-e803-4108-bc3e-26c4c25751f8"
+            onClose={() => setShowJournalVideo(false)} />
+
+          }
         </div>
       </div>
-    </PullToRefresh>
-  );
+    </PullToRefresh>);
+
 }
