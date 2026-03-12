@@ -313,7 +313,7 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                 }
                 <Checkbox
                   checked={Boolean(milestone.completed)}
-                  onCheckedChange={(checked) => toggleMilestone(index, checked)} className="bg-teal-500 mt-0.5 rounded-sm peer h-4 w-4 shrink-0 border border-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground flex-shrink-0"
+                  onCheckedChange={(checked) => toggleMilestone(index, checked)} className="bg-teal-500 text-slate-50 mt-0.5 rounded-sm peer h-4 w-4 shrink-0 border border-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground flex-shrink-0"
 
                   id={`milestone-${goal.id}-${index}`} />
 
