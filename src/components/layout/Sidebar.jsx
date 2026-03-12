@@ -39,12 +39,12 @@ export default function Sidebar({ currentPageName }) {
       {/* Logo */}
       <div className="bg-teal-100 mb-8 px-6">
         <div className="bg-teal-100 text-teal-600 flex items-center gap-3">
-          <div className="bg-teal-500 text-teal-500 rounded-[var(--radius-control)] w-10 h-10 flex items-center justify-center shadow-[var(--shadow-md)]">
-            <span className="bg-teal-400 text-white text-lg font-bold">M</span>
+          <div className="bg-teal-400 text-teal-500 rounded-[var(--radius-control)] w-10 h-10 flex items-center justify-center shadow-[var(--shadow-md)]">
+            <span className="bg-teal-100 text-white text-lg font-bold">M</span>
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-[1rem] font-semibold text-foreground truncate">{t('global.app_name')}</h1>
-            <p className="text-xs text-muted-foreground truncate">{t('global.app_tagline')}</p>
+            <h1 className="text-teal-600 font-semibold truncate">{t('global.app_name')}</h1>
+            <p className="text-teal-600 text-xs truncate">{t('global.app_tagline')}</p>
           </div>
           <NotificationBell />
         </div>
@@ -70,7 +70,7 @@ export default function Sidebar({ currentPageName }) {
 
                 <Icon className={cn("w-5 h-5 icon-default", isActive && "scale-110")} strokeWidth={2} />
                 <div className="flex-1">
-                  <p className="bg-teal-50 text-[0.9375rem] font-semibold leading-5">{item.name}</p>
+                  <p className="bg-teal-50 text-teal-600 font-semibold leading-5">{item.name}</p>
                   {item.description &&
                   <p className={cn("text-xs mt-0.5 leading-4", isActive ? "text-muted-foreground" : "text-muted-foreground")}>{item.description}</p>
                   }
