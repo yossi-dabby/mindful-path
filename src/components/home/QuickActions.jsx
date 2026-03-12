@@ -162,8 +162,8 @@ export default function QuickActions() {
                     e.preventDefault();
                     e.stopPropagation();
                     setShowRecommendedVideo(true);
-                  }}
-                  className="flex items-center justify-center cursor-pointer hover:scale-105 transition-transform w-14 h-14 rounded-[var(--radius-control)] bg-secondary text-primary border-0 outline-none"
+                  }} className="bg-green-50 text-emerald-50 rounded-[var(--radius-control)] flex items-center justify-center cursor-pointer hover:scale-105 transition-transform w-14 h-14 border-0 outline-none"
+
                   aria-label="Guided introduction video"
                   title="Guided introduction video">
 
@@ -196,12 +196,12 @@ export default function QuickActions() {
                     e.preventDefault();
                     e.stopPropagation();
                     setShowStarterPathVideo(true);
-                  }} className="bg-teal-400 text-primary rounded-[var(--radius-control)] flex items-center justify-center cursor-pointer hover:scale-105 transition-transform flex-shrink-0 w-14 h-14 border-0 outline-none"
+                  }} className="bg-teal-100 text-primary rounded-[var(--radius-control)] flex items-center justify-center cursor-pointer hover:scale-105 transition-transform flex-shrink-0 w-14 h-14 border-0 outline-none"
 
                   aria-label="Guided introduction video"
                   title="Guided introduction video">
 
-                      <User className="bg-teal-50 text-teal-600 lucide lucide-user w-6 h-6 icon-default" strokeWidth={2} />
+                      <User className="bg-teal-100 text-teal-600 lucide lucide-user w-6 h-6 icon-default" strokeWidth={2} />
                     </button>
                   </div>
 
