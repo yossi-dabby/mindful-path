@@ -383,7 +383,7 @@ export default function Home() {
             }
 
         {/* Quick Actions */}
-        <div className="mt-8 rounded-[32px] bg-[linear-gradient(180deg,rgba(255,252,248,0.9)_0%,rgba(228,242,237,0.88)_100%)] border border-[rgba(116,169,154,0.28)] p-4 md:p-5 shadow-[0_24px_58px_rgba(68,108,96,0.12),0_8px_22px_rgba(68,108,96,0.07)] backdrop-blur-[12px]">
+        <div className="bg-teal-100 mt-8 p-4 rounded-[32px] border border-[rgba(116,169,154,0.28)] md:p-5 shadow-[0_24px_58px_rgba(68,108,96,0.12),0_8px_22px_rgba(68,108,96,0.07)] backdrop-blur-[12px]">
           <QuickActions />
         </div>
         </div>
