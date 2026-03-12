@@ -144,7 +144,7 @@ export default function QuickActions() {
   return (
     <div className="mb-6">
       <h2 className="text-emerald-600 mb-4 text-lg font-semibold truncate">{t('quick_actions.title')}</h2>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 w-full overflow-x-hidden">
+      <div className="rounded-3xl grid grid-cols-2 md:grid-cols-3 gap-4 w-full overflow-x-hidden">
         {/* AI Recommendations Card */}
         <div className="rounded-lg relative">
           <Card className="bg-[hsl(var(--card)/0.94)] text-card-foreground rounded-[20px] border-border/60 shadow-[var(--shadow-md)] backdrop-blur-[10px] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group h-full border overflow-hidden"
@@ -170,8 +170,8 @@ export default function QuickActions() {
                     <User className="text-teal-600 lucide lucide-user w-6 h-6 icon-default" strokeWidth={2} />
                   </button>
                 </div>
-                <h3 className="font-semibold text-sm mb-1 break-words text-foreground">{t('quick_actions.recommended.title')}</h3>
-                <p className="text-xs line-clamp-2 break-words text-muted-foreground">{t('quick_actions.recommended.description')}</p>
+                <h3 className="text-teal-600 mb-1 text-sm font-semibold break-words">{t('quick_actions.recommended.title')}</h3>
+                <p className="text-teal-600 text-xs line-clamp-2 break-words">{t('quick_actions.recommended.description')}</p>
               </CardContent>
             </Card>
         </div>
@@ -187,7 +187,7 @@ export default function QuickActions() {
                 <CardContent className="p-5 rounded-[20px]">
                   {/* Always-visible header row — same layout as other cards */}
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="bg-teal-500 text-teal-500 rounded-[var(--radius-control)] w-14 h-14 flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]">
+                    <div className="bg-teal-600 text-teal-500 rounded-[var(--radius-control)] w-14 h-14 flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]">
                       <Sparkles className="w-7 h-7 text-white" strokeWidth={2.5} />
                     </div>
 
@@ -207,12 +207,12 @@ export default function QuickActions() {
 
                   {/* Title row */}
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-sm break-words leading-tight text-foreground">
+                    <h3 className="text-emerald-600 text-sm font-semibold leading-tight break-words">
                       {t('starter_path.card_title')}
                     </h3>
                     <div className="flex items-center gap-1 flex-shrink-0 ml-1">
                       {isStarted &&
-                  <Badge variant="default" className="text-xs">
+                  <Badge variant="default" className="bg-primary/12 text-emerald-600 px-2.5 py-1 text-xs font-medium tracking-[0.01em] rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-primary/18">
                           {currentDay}/7
                         </Badge>
                   }
@@ -221,7 +221,7 @@ export default function QuickActions() {
                     transition={{ duration: 0.2 }}
                     className="text-primary inline-flex">
 
-                        <ArrowRight className="w-3 h-3" style={{ transform: 'rotate(90deg)' }} strokeWidth={2.5} />
+                        <ArrowRight className="text-teal-600 lucide lucide-arrow-right w-3 h-3" style={{ transform: 'rotate(90deg)' }} strokeWidth={2.5} />
                       </motion.span>
                     </div>
                   </div>
@@ -343,8 +343,8 @@ export default function QuickActions() {
                         <User className="w-6 h-6 icon-default" style={{ color: action.color }} strokeWidth={2} />
                       </button>
                     </div>
-                    <h3 className="font-semibold text-sm mb-1 break-words text-foreground">{action.title}</h3>
-                    <p className="text-xs line-clamp-2 break-words text-muted-foreground">{action.description}</p>
+                    <h3 className="text-teal-600 mb-1 text-sm font-semibold break-words">{action.title}</h3>
+                    <p className="text-teal-600 text-xs line-clamp-2 break-words">{action.description}</p>
                   </CardContent>
                 </Card>
               </Link>
