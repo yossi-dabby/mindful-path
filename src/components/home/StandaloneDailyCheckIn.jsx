@@ -627,7 +627,7 @@ export default function StandaloneDailyCheckIn() {
             }
 
           {/* Navigation */}
-          <div className="flex gap-3 mt-6">
+          <div className="bg-teal-300 mt-6 flex gap-3">
             {step > 1 &&
               <Button
                 onClick={handleReturn}
