@@ -70,7 +70,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   return (
     <div className="bg-teal-50 flex gap-3 justify-start" dir="ltr">
       {!isUser &&
-      <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]">
+      <div className="bg-teal-600 rounded-full h-8 w-8 flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]">
           <span className="bg-teal-600 text-primary-foreground text-sm">AI</span>
         </div>
       }
