@@ -580,7 +580,7 @@ export default function DraggableAiCompanion() {
 
           <MessageCircle className="w-7 h-7" />
         </Button>
-        <div className="absolute -top-1 -right-1 w-4 h-4 bg-[hsl(var(--success))] rounded-full border-2 border-card" />
+        <div className="bg-cyan-700 rounded-full absolute -top-1 -right-1 w-4 h-4 border-2 border-card" />
       </motion.div>,
       document.body
     );
