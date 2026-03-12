@@ -181,7 +181,7 @@ export default function Goals() {
           </Button>
           <div>
             <h1 className="mb-1 text-2xl font-medium md:text-3xl lg:text-4xl md:mb-2" style={{ color: '#1A3A34' }}>{t('goals.title')}</h1>
-            <p className="text-slate-950 text-sm font-medium md:text-base" style={{ color: '#5A7A72' }}>{t('goals.subtitle')}</p>
+            <p className="text-slate-950 text-sm font-medium text-right md:text-base" style={{ color: '#5A7A72' }}>{t('goals.subtitle')}</p>
           </div>
         </div>
         <div className="flex gap-2 flex-wrap">
