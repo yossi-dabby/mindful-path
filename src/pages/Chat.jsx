@@ -59,7 +59,7 @@ export default function Chat() {
   const currentTurnIdRef = useRef(0);
   const isRefetchingRef = useRef(false);
   const thinkingPlaceholderRef = useRef(null);
-  
+
   // INSTRUMENTATION: Track hard render gate enforcement + send cycle proof
   const instrumentationRef = useRef({
     SEND_COUNT: 0,
@@ -77,7 +77,7 @@ export default function Chat() {
     UI_FLASHES_DETECTED: 0,
     SAFE_UPDATES: 0
   });
-  
+
   const refetchDebounceRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -95,7 +95,7 @@ export default function Chat() {
       `thinking_over_10s=${counters.THINKING_OVER_10S}`
     );
   };
-  
+
   // Print final stability report
   const printFinalStabilityReport = () => {
     const counters = instrumentationRef.current;
@@ -103,7 +103,7 @@ export default function Chat() {
     const duplicates = counters.DUPLICATE_OCCURRED;
     const placeholderIssues = counters.PLACEHOLDER_BECAME_MESSAGE;
     const thinkingIssues = counters.THINKING_OVER_10S;
-    
+
     console.log('\n═══════════════════════════════════════════════════');
     console.log('[CHAT STABILITY REPORT]');
     console.log('═══════════════════════════════════════════════════');
@@ -132,44 +132,44 @@ export default function Chat() {
     if (!msg || !msg.role || !msg.content) {
       return false;
     }
-    
+
     // CRITICAL TYPE CHECK: Content MUST be a string
     if (typeof msg.content !== 'string') {
       console.error('[HARD GATE] ⛔ Object blocked');
       instrumentationRef.current.HARD_GATE_BLOCKED_OBJECT++;
       return false;
     }
-    
+
     const content = msg.content;
     const trimmed = content.trim();
-    
+
     // Block placeholder/thinking messages
     if ((content.toLowerCase().includes('thinking') || content === '...') && content.length < 20) {
       instrumentationRef.current.PLACEHOLDER_BECAME_MESSAGE++;
       return false;
     }
-    
+
     // Block ONLY if truly JSON-shaped (not just containing keywords)
-    const isJSONShaped = (trimmed.startsWith('{') || trimmed.startsWith('[')) || trimmed.startsWith('```json');
-    
+    const isJSONShaped = trimmed.startsWith('{') || trimmed.startsWith('[') || trimmed.startsWith('```json');
+
     if (isJSONShaped) {
       // This is actual JSON structure - block it
       console.error('[HARD GATE] ⛔ JSON structure blocked');
       instrumentationRef.current.HARD_GATE_BLOCKED_JSON_STRING++;
       return false;
     }
-    
+
     // Plain text that just contains keywords like "assistant_message" is ALLOWED
     // This prevents false positives on Hebrew/English text
     if (trimmed.includes('"assistant_message"') && !isJSONShaped) {
       instrumentationRef.current.HARD_GATE_FALSE_POSITIVE_PREVENTED++;
     }
-    
+
     // Block suspiciously short for assistant
     if (msg.role === 'assistant' && trimmed.length < 3) {
       return false;
     }
-    
+
     return true;
   };
 
@@ -178,10 +178,10 @@ export default function Chat() {
     const seen = new Set();
     const deduplicated = [];
     let duplicatesBlocked = 0;
-    
+
     for (let i = 0; i < newMessages.length; i++) {
       const msg = newMessages[i];
-      
+
       // Use deterministic key: msg.id > created_at+role+index > generated turn_id
       let msgKey;
       if (msg.id) {
@@ -196,7 +196,7 @@ export default function Chat() {
         }
         msgKey = msg._turn_id ? `turn-${msg._turn_id}` : `idx-${i}-${msg.role}`;
       }
-      
+
       if (!seen.has(msgKey)) {
         seen.add(msgKey);
         deduplicated.push(msg);
@@ -206,22 +206,22 @@ export default function Chat() {
         instrumentationRef.current.DUPLICATE_BLOCKED++;
       }
     }
-    
+
     if (duplicatesBlocked > 0) {
       console.log(`[Dedup] ✅ Duplicates blocked: ${duplicatesBlocked}`);
     }
-    
+
     return deduplicated;
   };
 
   // CRITICAL: Pre-validate + sanitize messages before allowing state update
   const validateAndSanitizeMessages = (msgs) => {
     const validated = msgs.filter(isMessageRenderSafe);
-    
+
     if (validated.length < msgs.length) {
       console.log(`[Validation] ✅ BLOCKED ${msgs.length - validated.length} unsafe messages`);
     }
-    
+
     return deduplicateMessages(validated);
   };
 
@@ -229,25 +229,25 @@ export default function Chat() {
   const safeUpdateMessages = (newMessages, source) => {
     const sanitized = validateAndSanitizeMessages(newMessages);
     instrumentationRef.current.TOTAL_MESSAGES_PROCESSED += newMessages.length;
-    
+
     // Compare with last confirmed state
     if (sanitized.length < lastConfirmedMessagesRef.current.length) {
       console.log(`[${source}] ⚠️ Rejecting update - fewer messages than confirmed state`);
       return false;
     }
-    
+
     // CRITICAL: Check for duplicate assistant messages in new batch
-    const assistantMessages = sanitized.filter(m => m.role === 'assistant');
-    const assistantContents = assistantMessages.map(m => String(m.content).substring(0, 100));
+    const assistantMessages = sanitized.filter((m) => m.role === 'assistant');
+    const assistantContents = assistantMessages.map((m) => String(m.content).substring(0, 100));
     const uniqueContents = new Set(assistantContents);
-    
+
     if (assistantContents.length !== uniqueContents.size) {
       console.error(`[${source}] ✗ DUPLICATE OCCURRED: ${assistantContents.length - uniqueContents.size} duplicate assistant messages found`);
-      instrumentationRef.current.DUPLICATE_OCCURRED += (assistantContents.length - uniqueContents.size);
-      
+      instrumentationRef.current.DUPLICATE_OCCURRED += assistantContents.length - uniqueContents.size;
+
       // Further deduplicate by content
       const seenContents = new Set();
-      const fullyDeduplicated = sanitized.filter(msg => {
+      const fullyDeduplicated = sanitized.filter((msg) => {
         if (msg.role !== 'assistant') return true;
         const contentKey = String(msg.content).substring(0, 100);
         if (seenContents.has(contentKey)) {
@@ -257,28 +257,28 @@ export default function Chat() {
         seenContents.add(contentKey);
         return true;
       });
-      
+
       // Update with fully deduplicated version
       lastConfirmedMessagesRef.current = fullyDeduplicated;
       setMessages(fullyDeduplicated);
       instrumentationRef.current.SAFE_UPDATES++;
       return true;
     }
-    
+
     // Check if this is actually new content
-    const lastConfirmedAssistant = lastConfirmedMessagesRef.current.filter(m => m.role === 'assistant').pop();
-    const newAssistant = sanitized.filter(m => m.role === 'assistant').pop();
-    
+    const lastConfirmedAssistant = lastConfirmedMessagesRef.current.filter((m) => m.role === 'assistant').pop();
+    const newAssistant = sanitized.filter((m) => m.role === 'assistant').pop();
+
     if (lastConfirmedAssistant && newAssistant) {
       const oldContent = String(lastConfirmedAssistant.content);
       const newContent = String(newAssistant.content);
-      
+
       if (oldContent === newContent && sanitized.length === lastConfirmedMessagesRef.current.length) {
         console.log(`[${source}] ⚠️ Rejecting update - no new content detected`);
         return false;
       }
     }
-    
+
     // Update is safe - commit to state
     console.log(`[${source}] ✅ SAFE UPDATE: ${sanitized.length} messages`);
     instrumentationRef.current.SAFE_UPDATES++;
@@ -302,23 +302,23 @@ export default function Chat() {
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const intentParam = urlParams.get('intent');
-    
+
     // Prevent duplicate processing of the same intent
     if (intentParam && processedIntentRef.current !== intentParam) {
       processedIntentRef.current = intentParam;
-      
+
       const handleIntent = async () => {
         // Debounce guard - prevent duplicate triggers
         if (inFlightIntentRef.current) {
           console.log('[Intent Guard] Already processing intent, skipping');
           return;
         }
-        
+
         inFlightIntentRef.current = true;
-        
+
         try {
           console.log(`[Intent Detected] ${intentParam}`);
-          
+
           if (!currentConversationId) {
             // No active conversation - start new one with intent in metadata
             // Get safety profile from user settings or default to 'standard'
@@ -330,22 +330,22 @@ export default function Chat() {
               agent_name: agentName,
               tool_configs: ACTIVE_CBT_THERAPIST_WIRING.tool_configs,
               metadata: {
-                name: intentParam === 'thought_work' ? 'Thought Journal Session' : 
-                      intentParam === 'goal_work' ? 'Goal Setting Session' : 
-                      intentParam === 'daily_checkin' ? 'Daily Check-in' :
-                      intentParam === 'grounding' ? 'Grounding Exercise' : 
-                      `Session ${conversations.length + 1}`,
+                name: intentParam === 'thought_work' ? 'Thought Journal Session' :
+                intentParam === 'goal_work' ? 'Goal Setting Session' :
+                intentParam === 'daily_checkin' ? 'Daily Check-in' :
+                intentParam === 'grounding' ? 'Grounding Exercise' :
+                `Session ${conversations.length + 1}`,
                 description: 'CBT Therapy Session',
                 intent: intentParam,
                 safety_profile: safetyProfile
               }
             });
-            
+
             setCurrentConversationId(conversation.id);
             setMessages([]);
             setShowSidebar(false);
             refetchConversations();
-            
+
             // Trigger AI to send opening message based on intent (one-time only)
             if (!sessionTriggeredRef.current.has(conversation.id)) {
               sessionTriggeredRef.current.add(conversation.id);
@@ -371,22 +371,22 @@ export default function Chat() {
               agent_name: agentName,
               tool_configs: ACTIVE_CBT_THERAPIST_WIRING.tool_configs,
               metadata: {
-                name: intentParam === 'thought_work' ? 'Thought Journal Session' : 
-                      intentParam === 'goal_work' ? 'Goal Setting Session' : 
-                      intentParam === 'daily_checkin' ? 'Daily Check-in' :
-                      intentParam === 'grounding' ? 'Grounding Exercise' : 
-                      `Session ${conversations.length + 1}`,
+                name: intentParam === 'thought_work' ? 'Thought Journal Session' :
+                intentParam === 'goal_work' ? 'Goal Setting Session' :
+                intentParam === 'daily_checkin' ? 'Daily Check-in' :
+                intentParam === 'grounding' ? 'Grounding Exercise' :
+                `Session ${conversations.length + 1}`,
                 description: 'CBT Therapy Session',
                 intent: intentParam,
                 safety_profile: safetyProfile
               }
             });
-            
+
             setCurrentConversationId(conversation.id);
             setMessages([]);
             setShowSidebar(false);
             refetchConversations();
-            
+
             // Trigger AI to send opening message (one-time only)
             if (!sessionTriggeredRef.current.has(conversation.id)) {
               sessionTriggeredRef.current.add(conversation.id);
@@ -408,7 +408,7 @@ export default function Chat() {
           inFlightIntentRef.current = false;
         }
       };
-      
+
       handleIntent();
     }
   }, [location.search]);
@@ -420,14 +420,14 @@ export default function Chat() {
     const handleVisibilityChange = async () => {
       if (!document.hidden) {
         console.log('[Visibility] Page now visible');
-        
+
         // If we're loading, force a check for updates
         if (isLoading) {
           console.log('[Visibility] Still loading - forcing refetch');
           try {
             const conversation = await base44.agents.getConversation(currentConversationId);
             const sanitized = sanitizeConversationMessages(conversation.messages || []);
-            
+
             // Check if we have new messages
             if (sanitized.length > messages.length) {
               const updated = safeUpdateMessages(sanitized, 'VisibilityRefetch');
@@ -444,7 +444,7 @@ export default function Chat() {
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    
+
     // Also handle focus events
     const handleFocus = () => {
       if (isLoading && currentConversationId) {
@@ -452,9 +452,9 @@ export default function Chat() {
         handleVisibilityChange();
       }
     };
-    
+
     window.addEventListener('focus', handleFocus);
-    
+
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleFocus);
@@ -480,7 +480,7 @@ export default function Chat() {
     let isSubscribed = true;
 
     console.log('[Subscription] Creating subscription for:', currentConversationId);
-    
+
     const unsubscribe = base44.agents.subscribeToConversation(
       currentConversationId,
       (data) => {
@@ -498,7 +498,7 @@ export default function Chat() {
           clearTimeout(responseTimeoutId);
           responseTimeoutId = null;
         }
-        
+
         // Clear loading timeout
         if (loadingTimeoutRef.current) {
           clearTimeout(loadingTimeoutRef.current);
@@ -508,23 +508,23 @@ export default function Chat() {
         // HARD RENDER GATE: Block unsafe messages BEFORE they reach React state
         let processedMessages = [];
         let lastStructuredData = null;
-        
+
         try {
           // First pass: identify truly unsafe content (objects or JSON-shaped strings)
-          const hasUnsafeContent = (data.messages || []).some(msg => {
+          const hasUnsafeContent = (data.messages || []).some((msg) => {
             if (msg.role !== 'assistant' || !msg.content) return false;
             if (typeof msg.content !== 'string') return true;
             const trimmed = msg.content.trim();
             // Only flag as unsafe if truly JSON-shaped (starts with { or [ or ```json)
-            return (trimmed.startsWith('{') || trimmed.startsWith('[') || trimmed.startsWith('```json'));
+            return trimmed.startsWith('{') || trimmed.startsWith('[') || trimmed.startsWith('```json');
           });
-          
+
           // If unsafe content detected, trigger debounced refetch (don't spam)
           if (hasUnsafeContent && !isRefetchingRef.current) {
             console.error('[HARD GATE] ⛔ UNSAFE CONTENT - Triggering refetch');
             instrumentationRef.current.REFETCH_TRIGGERED++;
             isRefetchingRef.current = true;
-            
+
             // Debounced refetch (prevent spam)
             if (refetchDebounceRef.current) clearTimeout(refetchDebounceRef.current);
             refetchDebounceRef.current = setTimeout(async () => {
@@ -538,51 +538,51 @@ export default function Chat() {
                 isRefetchingRef.current = false;
               }
             }, 200);
-            
+
             // Keep showing current messages (do not clear state)
             return;
           }
-          
+
           // Second pass: process only safe messages
-          processedMessages = (data.messages || [])
-            .map(msg => {
-              if (msg.role === 'assistant' && msg.content) {
-                // Skip if not render-safe
-                if (!isMessageRenderSafe(msg)) {
-                  return null;
-                }
-                
-                // Validate and extract structured data (non-blocking)
-                const validated = validateAgentOutput(msg.content);
-                if (validated) {
-                  lastStructuredData = validated;
-                  return {
-                    ...msg,
-                    content: validated.assistant_message || msg.content,
-                    metadata: {
-                      ...(msg.metadata || {}),
-                      structured_data: validated
-                    }
-                  };
-                }
-                
-                return msg;
+          processedMessages = (data.messages || []).
+          map((msg) => {
+            if (msg.role === 'assistant' && msg.content) {
+              // Skip if not render-safe
+              if (!isMessageRenderSafe(msg)) {
+                return null;
               }
+
+              // Validate and extract structured data (non-blocking)
+              const validated = validateAgentOutput(msg.content);
+              if (validated) {
+                lastStructuredData = validated;
+                return {
+                  ...msg,
+                  content: validated.assistant_message || msg.content,
+                  metadata: {
+                    ...(msg.metadata || {}),
+                    structured_data: validated
+                  }
+                };
+              }
+
               return msg;
-            })
-            .filter(msg => msg !== null);
+            }
+            return msg;
+          }).
+          filter((msg) => msg !== null);
 
           // CRITICAL: Safe update with validation + deduplication
           const updated = safeUpdateMessages(processedMessages, 'Subscription');
-          
+
           if (updated) {
             // CRITICAL: Always reset loading when safe update succeeds
             console.log('[Subscription] ✅ Loading OFF');
             setIsLoading(false);
-            
+
             // Emit FINAL STABILITY SUMMARY for this send cycle
             emitStabilitySummary();
-            
+
             // Check if we should offer save (homework + emotion baseline present)
             if (lastStructuredData?.journal_save_candidate?.should_offer_save) {
               console.log('[Save Prompt] Triggering save offer');
@@ -593,7 +593,7 @@ export default function Chat() {
               });
               setShowSavePrompt(true);
             }
-            
+
             // Stop polling if active - subscription worked
             if (pollingIntervalRef.current) {
               console.log('[Subscription] Stopping polling - subscription successful');
@@ -633,7 +633,7 @@ export default function Chat() {
       subscriptionActiveRef.current = false;
       return;
     }
-    
+
     console.log('[Subscription] ✅ Subscription active');
 
     // Timeout after 60s
@@ -692,20 +692,20 @@ export default function Chat() {
         if (window.__TEST_APP_ID__ || document.body.getAttribute('data-test-env') === 'true') {
           return [];
         }
-        
+
         // Fetch conversations from all safety profile agents
         const allConversations = await Promise.all([
-          base44.agents.listConversations({ agent_name: 'cbt_therapist_lenient' }).catch(() => []),
-          base44.agents.listConversations({ agent_name: 'cbt_therapist_standard' }).catch(() => []),
-          base44.agents.listConversations({ agent_name: 'cbt_therapist_strict' }).catch(() => []),
-          base44.agents.listConversations({ agent_name: 'cbt_therapist' }).catch(() => []) // Legacy
+        base44.agents.listConversations({ agent_name: 'cbt_therapist_lenient' }).catch(() => []),
+        base44.agents.listConversations({ agent_name: 'cbt_therapist_standard' }).catch(() => []),
+        base44.agents.listConversations({ agent_name: 'cbt_therapist_strict' }).catch(() => []),
+        base44.agents.listConversations({ agent_name: 'cbt_therapist' }).catch(() => []) // Legacy
         ]);
-        
+
         const flatConversations = allConversations.flat();
         const deletedConversations = await base44.entities.UserDeletedConversations.list();
-        const deletedIds = Array.isArray(deletedConversations) ? deletedConversations.map(d => d.agent_conversation_id) : [];
+        const deletedIds = Array.isArray(deletedConversations) ? deletedConversations.map((d) => d.agent_conversation_id) : [];
         const conversationsArray = Array.isArray(flatConversations) ? flatConversations : [];
-        return conversationsArray.filter(c => !deletedIds.includes(c.id));
+        return conversationsArray.filter((c) => !deletedIds.includes(c.id));
       } catch (error) {
         console.error('Error fetching conversations:', error);
         return [];
@@ -743,14 +743,14 @@ export default function Chat() {
         'calming_exercise': 'User clicked: Calming help. Start grounding flow.',
         'anxiety_help': 'User clicked: Anxiety help. Start grounding flow.'
       };
-      
+
       const initialMessage = intentParam ? intentMessages[intentParam] || 'Hello' : undefined;
-      
+
       // Get safety profile from user settings or default to 'standard'
       const user = await base44.auth.me().catch(() => null);
       const safetyProfile = user?.preferences?.safety_profile || 'standard';
       const agentName = `cbt_therapist_${safetyProfile}`;
-      
+
       // Track agent profile usage
       base44.analytics.track({
         eventName: 'conversation_started',
@@ -760,7 +760,7 @@ export default function Chat() {
           agent_name: agentName
         }
       });
-      
+
       const conversation = await base44.agents.createConversation({
         agent_name: agentName,
         tool_configs: ACTIVE_CBT_THERAPIST_WIRING.tool_configs,
@@ -771,12 +771,12 @@ export default function Chat() {
           safety_profile: safetyProfile
         }
       });
-      
+
       setCurrentConversationId(conversation.id);
       setMessages([]);
       setShowSidebar(false);
       refetchConversations();
-      
+
       // If there's an intent and initial message, send it
       if (initialMessage) {
         setTimeout(async () => {
@@ -800,7 +800,7 @@ export default function Chat() {
     try {
       const conversation = await base44.agents.getConversation(conversationId);
       setCurrentConversationId(conversationId);
-      
+
       // Process and sanitize messages before setting
       const sanitized = sanitizeConversationMessages(conversation.messages || []);
       safeUpdateMessages(sanitized, 'LoadConversation');
@@ -816,7 +816,7 @@ export default function Chat() {
       console.log('[Send] ❌ Blocked - empty message');
       return;
     }
-    
+
     if (isLoading) {
       console.log('[Send] ⚠️ Already loading, ignoring duplicate send');
       return;
@@ -825,7 +825,7 @@ export default function Chat() {
     // Increment send counter for this cycle
     instrumentationRef.current.SEND_COUNT++;
     console.log('[Send] 📤 Starting send #', instrumentationRef.current.SEND_COUNT);
-    
+
     // Track expected message count for deterministic verification
     expectedReplyCountRef.current = messages.length + 2; // user message + assistant reply
 
@@ -833,25 +833,25 @@ export default function Chat() {
     const reasonCode = detectCrisisWithReason(inputMessage);
     if (reasonCode) {
       setShowRiskPanel(true);
-      base44.auth.me()
-        .then(user => {
-          base44.entities.CrisisAlert.create({
-            surface: 'chat',
-            conversation_id: currentConversationId || 'none',
+      base44.auth.me().
+      then((user) => {
+        base44.entities.CrisisAlert.create({
+          surface: 'chat',
+          conversation_id: currentConversationId || 'none',
+          reason_code: reasonCode,
+          user_email: user?.email || 'unknown'
+        }).catch(() => {});
+
+        // Analytics tracking
+        base44.analytics.track({
+          eventName: 'crisis_detected_regex',
+          properties: {
             reason_code: reasonCode,
-            user_email: user?.email || 'unknown'
-          }).catch(() => {});
-          
-          // Analytics tracking
-          base44.analytics.track({
-            eventName: 'crisis_detected_regex',
-            properties: {
-              reason_code: reasonCode,
-              surface: 'chat'
-            }
-          });
-        })
-        .catch(() => {});
+            surface: 'chat'
+          }
+        });
+      }).
+      catch(() => {});
       return;
     }
 
@@ -863,9 +863,9 @@ export default function Chat() {
         language: user?.preferences?.language || 'en'
       });
 
-      if (enhancedCheck.data?.is_crisis && 
-          (enhancedCheck.data.severity === 'severe' || enhancedCheck.data.severity === 'high') &&
-          enhancedCheck.data.confidence > 0.7) {
+      if (enhancedCheck.data?.is_crisis && (
+      enhancedCheck.data.severity === 'severe' || enhancedCheck.data.severity === 'high') &&
+      enhancedCheck.data.confidence > 0.7) {
         setShowRiskPanel(true);
         base44.entities.CrisisAlert.create({
           surface: 'chat',
@@ -873,7 +873,7 @@ export default function Chat() {
           reason_code: `llm_${enhancedCheck.data.severity}`,
           user_email: user?.email || 'unknown'
         }).catch(() => {});
-        
+
         // Analytics tracking for LLM-detected crisis
         base44.analytics.track({
           eventName: 'crisis_detected_llm_layer2',
@@ -894,7 +894,7 @@ export default function Chat() {
     setInputMessage('');
     setShowSummaryPrompt(false);
     setIsLoading(true);
-    
+
     // CRITICAL: Add loading timeout failsafe (10s)
     if (loadingTimeoutRef.current) {
       clearTimeout(loadingTimeoutRef.current);
@@ -932,45 +932,45 @@ export default function Chat() {
 
       const conversation = await base44.agents.getConversation(convId);
       console.log('[Send] 📤 Adding message to conversation:', convId);
-      
+
       await base44.agents.addMessage(conversation, {
         role: 'user',
         content: messageText
       });
-      
+
       console.log('[Send] ✅ Message sent - starting authoritative polling');
-      
+
       // CRITICAL: Start authoritative polling with exponential backoff
       // This ensures we get the reply even if subscription fails
       let pollAttempts = 0;
       const maxPollAttempts = 5;
       const pollDelays = [500, 1000, 2000, 4000, 8000]; // Exponential backoff
-      
+
       const pollWithBackoff = (attemptIndex) => {
         const delay = pollDelays[Math.min(attemptIndex, pollDelays.length - 1)];
-        
+
         pollingIntervalRef.current = setTimeout(async () => {
           pollAttempts++;
           console.log(`[Polling] Attempt ${pollAttempts}/${maxPollAttempts} (delay: ${delay}ms, hidden: ${document.hidden})`);
-          
+
           try {
             const updatedConv = await base44.agents.getConversation(convId);
             const sanitized = sanitizeConversationMessages(updatedConv.messages || []);
-            
+
             console.log(`[Polling] Retrieved ${sanitized.length} messages, expected ${expectedReplyCountRef.current}`);
-            
+
             // Check if we have the expected reply
             if (sanitized.length >= expectedReplyCountRef.current) {
               console.log('[Polling] ✅ Reply found - stopping polling');
-              
+
               // CRITICAL: Safe update with validation
               const updated = safeUpdateMessages(sanitized, 'Polling');
-              
+
               if (updated) {
                 setIsLoading(false);
                 emitStabilitySummary();
               }
-              
+
               if (pollingIntervalRef.current) {
                 clearTimeout(pollingIntervalRef.current);
                 pollingIntervalRef.current = null;
@@ -982,12 +982,12 @@ export default function Chat() {
             } else if (pollAttempts >= maxPollAttempts) {
               console.error('[Polling] ⏱️ Timeout - no reply after max attempts');
               instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
-              
+
               // CRITICAL: Safe update with validation
               safeUpdateMessages(sanitized, 'Polling-Timeout');
               setIsLoading(false);
               emitStabilitySummary();
-              
+
               if (pollingIntervalRef.current) {
                 clearTimeout(pollingIntervalRef.current);
                 pollingIntervalRef.current = null;
@@ -1017,7 +1017,7 @@ export default function Chat() {
           }
         }, delay);
       };
-      
+
       pollWithBackoff(0);
     } catch (error) {
       console.error('[Send] ❌ SEND ERROR:', error);
@@ -1040,7 +1040,7 @@ export default function Chat() {
 
   const requestSummary = async () => {
     if (!currentConversationId) return;
-    
+
     const conversation = await base44.agents.getConversation(currentConversationId);
     setIsLoading(true);
     setShowSummaryPrompt(false);
@@ -1074,7 +1074,7 @@ export default function Chat() {
   const deleteConversationMutation = useMutation({
     mutationFn: async (conversationId) => {
       // Record deletion in UserDeletedConversations (soft delete)
-      const conversation = conversations.find(c => c.id === conversationId);
+      const conversation = conversations.find((c) => c.id === conversationId);
       await base44.entities.UserDeletedConversations.create({
         agent_conversation_id: conversationId,
         conversation_title: conversation?.metadata?.name || 'Deleted Session'
@@ -1104,10 +1104,10 @@ export default function Chat() {
 
   const handleCheckInComplete = async (checkinData) => {
     if (!currentConversationId) return;
-    
+
     const conversation = await base44.agents.getConversation(currentConversationId);
     setIsLoading(true);
-    
+
     await base44.agents.addMessage(conversation, {
       role: 'user',
       content: "I've completed my Daily Check-in.",
@@ -1117,7 +1117,7 @@ export default function Chat() {
     // Invalidate queries to update Home page
     queryClient.invalidateQueries({ queryKey: ['todayMood'] });
     queryClient.invalidateQueries({ queryKey: ['todayFlow'] });
-    
+
     setShowCheckInModal(false);
   };
 
@@ -1127,19 +1127,19 @@ export default function Chat() {
     // Signal page is ready for E2E tests
     document.body.setAttribute('data-page-ready', 'true');
     setIsPageReady(true);
-    
+
     // Expose report function globally for testing
     window.printChatStabilityReport = printFinalStabilityReport;
-    
+
     // Detect test environment (Playwright, Cypress, etc.)
-    const isTestEnv = 
-      window.location.search.includes('e2e-test') || 
-      document.body.getAttribute('data-test-env') === 'true' ||
-      window.navigator.webdriver === true ||
-      window.Cypress !== undefined ||
-      window.playwright !== undefined ||
-      /HeadlessChrome/.test(window.navigator.userAgent);
-    
+    const isTestEnv =
+    window.location.search.includes('e2e-test') ||
+    document.body.getAttribute('data-test-env') === 'true' ||
+    window.navigator.webdriver === true ||
+    window.Cypress !== undefined ||
+    window.playwright !== undefined ||
+    /HeadlessChrome/.test(window.navigator.userAgent);
+
     if (isTestEnv) {
       localStorage.setItem('chat_consent_accepted', 'true');
       localStorage.setItem('age_verified', 'true');
@@ -1147,7 +1147,7 @@ export default function Chat() {
       window.__DISABLE_ANALYTICS__ = true;
       return;
     }
-    
+
     // Check age verification first
     const ageVerified = localStorage.getItem('age_verified');
     if (ageVerified === 'false') {
@@ -1158,7 +1158,7 @@ export default function Chat() {
       setShowAgeGate(true);
       return;
     }
-    
+
     // Check if user has already accepted consent
     const consentAccepted = localStorage.getItem('chat_consent_accepted');
     if (!consentAccepted) {
@@ -1209,13 +1209,13 @@ export default function Chat() {
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
       <div className="h-full flex relative bg-transparent" data-testid="chat-root" data-page-ready={isPageReady}>
       {/* Backdrop overlay when sidebar is open - below input area */}
-      {showSidebar && currentConversationId && (
-        <div 
+      {showSidebar && currentConversationId &&
+        <div
           className="fixed inset-0 bg-[hsl(var(--overlay)/0.18)] backdrop-blur-sm z-30"
           onClick={() => setShowSidebar(false)}
-          style={{ zIndex: 30 }}
-        />
-      )}
+          style={{ zIndex: 30 }} />
+
+        }
 
       {/* Sidebar - Conversations List */}
       <div className={`
@@ -1225,62 +1225,62 @@ export default function Chat() {
       `}>
         <ErrorBoundary>
           <ConversationsList
-            conversations={Array.isArray(conversations) ? conversations : []}
-            currentConversationId={currentConversationId}
-            onSelectConversation={loadConversation}
-            onNewConversation={startNewConversation}
-            onDeleteConversation={handleDeleteConversation}
-            onClose={() => setShowSidebar(false)}
-          />
+              conversations={Array.isArray(conversations) ? conversations : []}
+              currentConversationId={currentConversationId}
+              onSelectConversation={loadConversation}
+              onNewConversation={startNewConversation}
+              onDeleteConversation={handleDeleteConversation}
+              onClose={() => setShowSidebar(false)} />
+
         </ErrorBoundary>
       </div>
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col min-h-0">
         {/* Header */}
-        <div className="px-4 md:px-6 py-4 flex items-center gap-3 border-b border-border/70 bg-[hsl(var(--card)/0.88)] backdrop-blur-xl">
+        <div className="bg-teal-50 px-4 py-4 rounded-2xl md:px-6 flex items-center gap-3 border-b border-border/70 backdrop-blur-xl">
           <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => window.location.href = '/'}
-            aria-label={t('chat.go_back_aria')}
-          >
+              variant="ghost"
+              size="icon"
+              onClick={() => window.location.href = '/'}
+              aria-label={t('chat.go_back_aria')} className="text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
+
             <ArrowLeft className="w-5 h-5 rtl:scale-x-[-1]" />
           </Button>
           <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setShowSidebar(!showSidebar)}
-            aria-label={showSidebar ? t('chat.close_sidebar_aria') : t('chat.open_sidebar_aria')}
-          >
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowSidebar(!showSidebar)}
+              aria-label={showSidebar ? t('chat.close_sidebar_aria') : t('chat.open_sidebar_aria')} className="text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
+
             <Menu className="w-5 h-5" />
           </Button>
           <div className="flex-1">
-            <h1 className="text-xl font-semibold text-foreground">{t('chat.title')}</h1>
-            <p className="text-sm text-muted-foreground">{t('chat.subtitle')}</p>
+            <h1 className="text-teal-600 text-xl font-semibold">{t('chat.title')}</h1>
+            <p className="text-teal-600 text-sm">{t('chat.subtitle')}</p>
           </div>
         </div>
 
         {/* Messages Area */}
         <div className="flex-1 min-h-0 overflow-hidden flex flex-col" style={{ backgroundColor: 'transparent' }}>
-          {!currentConversationId ? (
+          {!currentConversationId ?
             <div className="h-full flex flex-col">
               {/* Welcome Section - Separate container */}
               <div className="flex-1 flex items-center justify-center p-4 md:p-6">
-                <Card className="p-8 max-w-md text-center border border-border/80 bg-card shadow-[var(--shadow-lg)]">
+                <Card className="bg-teal-50 text-teal-600 p-8 text-center rounded-[var(--radius-card)] backdrop-blur-[10px] max-w-md border border-border/80 shadow-[var(--shadow-lg)]">
                   <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4 rounded-[var(--radius-card)] bg-secondary text-primary shadow-[var(--shadow-sm)]">
                     <span className="text-2xl">👋</span>
                   </div>
-                  <h2 className="text-2xl font-semibold mb-2 text-foreground">
+                  <h2 className="text-teal-600 mb-2 text-2xl font-semibold">
                     {t('chat.welcome.title', 'Welcome to Therapy')}
                   </h2>
-                  <p className="mb-6 text-muted-foreground">
+                  <p className="text-teal-600 mb-6">
                     {t('chat.welcome.message', "This is a safe, judgment-free space. Share what's on your mind, and let's work through it together.")}
                   </p>
                   <Button
-                    onClick={startNewConversation}
-                    className="px-6 py-6 text-lg"
-                  >
+                    onClick={startNewConversation} className="bg-teal-600 text-primary-foreground px-6 py-6 text-lg font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0">
+
+
                     {t('chat.welcome.start_session', 'Start Your First Session')}
                   </Button>
                 </Card>
@@ -1299,61 +1299,61 @@ export default function Chat() {
                   </ErrorBoundary>
                 </div>
               </div>
-            </div>
-          ) : (
+            </div> :
+
             <div data-testid="chat-messages" className="flex-1 overflow-y-auto" style={{ backgroundColor: 'transparent', overscrollBehavior: 'contain' }}>
               {/* Therapy State Machine */}
-              {showTherapyFlow && messages.length === 0 && (
-                <div className="p-4 md:p-6" style={{ background: 'transparent' }}>
+              {showTherapyFlow && messages.length === 0 &&
+              <div className="p-4 md:p-6" style={{ background: 'transparent' }}>
                   <TherapyStateMachine onComplete={() => setShowTherapyFlow(false)} />
                 </div>
-              )}
+              }
 
               {/* Insight Cards - Show if no flow active */}
-              {messages.length === 0 && !showTherapyFlow && (
-                <div className="p-4 md:p-6 border-b border-border/70 bg-secondary/35">
+              {messages.length === 0 && !showTherapyFlow &&
+              <div className="p-4 md:p-6 border-b border-border/70 bg-secondary/35">
                   <div className="max-w-3xl mx-auto">
                     <ErrorBoundary>
                       <ProactiveCheckIn onSendMessage={(prompt) => setInputMessage(prompt)} />
                     </ErrorBoundary>
                   </div>
                 </div>
-              )}
+              }
 
               {/* Active Chat Messages */}
               <div className="p-4 md:p-6 pb-8 space-y-6">
                 {/* Inline Consent Banner - Non-blocking, dismissible */}
-                {showConsentBanner && (
-                  <InlineConsentBanner onAccept={handleConsentAccept} />
-                )}
+                {showConsentBanner &&
+                <InlineConsentBanner onAccept={handleConsentAccept} />
+                }
                 {/* Inline Risk Panel - Non-blocking, shown when crisis language detected */}
-                {showRiskPanel && (
-                  <InlineRiskPanel onDismiss={() => setShowRiskPanel(false)} />
-                )}
+                {showRiskPanel &&
+                <InlineRiskPanel onDismiss={() => setShowRiskPanel(false)} />
+                }
                 {/* Profile-specific periodic disclaimer */}
                 <ProfileSpecificDisclaimer messageCount={messages.length} />
-                {messages.filter(m => m && m.role && m.content).map((message, index) => (
-                  <MessageBubble 
-                    key={index} 
-                    message={message}
-                    conversationId={currentConversationId}
-                    messageIndex={index}
-                    agentName="cbt_therapist"
-                    context="chat"
-                  />
-                ))}
+                {messages.filter((m) => m && m.role && m.content).map((message, index) =>
+                <MessageBubble
+                  key={index}
+                  message={message}
+                  conversationId={currentConversationId}
+                  messageIndex={index}
+                  agentName="cbt_therapist"
+                  context="chat" />
+
+                )}
                 {isLoading && messages.length > 0 && (() => {
                   instrumentationRef.current.PLACEHOLDER_RENDERED++;
                   return (
-                    <div 
-                      data-testid="chat-loading" 
+                    <div
+                      data-testid="chat-loading"
                       ref={thinkingPlaceholderRef}
                       className="flex gap-3"
-                      style={{ 
+                      style={{
                         minHeight: '60px',
                         transition: 'opacity 0.2s ease-in-out'
-                      }}
-                    >
+                      }}>
+
                       <div className="h-7 w-7 flex items-center justify-center flex-shrink-0 rounded-[var(--radius-nested)] bg-secondary">
                         <Loader2 className="w-4 h-4 animate-spin text-primary" />
                       </div>
@@ -1365,35 +1365,35 @@ export default function Chat() {
                       }}>
                         <p className="text-sm text-muted-foreground">{t('chat.thinking')}</p>
                       </div>
-                    </div>
-                  );
+                    </div>);
+
                 })()}
                 <div ref={messagesEndRef} />
               </div>
 
               {/* Save Prompt - After homework commitment */}
-              {showSavePrompt && !isLoading && savePromptData && (
-                <div className="p-4 md:p-6 border-t border-border/70 bg-secondary/35">
+              {showSavePrompt && !isLoading && savePromptData &&
+              <div className="p-4 md:p-6 border-t border-border/70 bg-secondary/35">
                   <div className="max-w-3xl mx-auto">
                     <ThoughtWorkSaveHandler
-                      conversationId={savePromptData.conversationId}
-                      conversationMessages={savePromptData.messages}
-                      onSaveComplete={() => {
-                        setShowSavePrompt(false);
-                        setSavePromptData(null);
-                      }}
-                      onCancel={() => {
-                        setShowSavePrompt(false);
-                        setSavePromptData(null);
-                      }}
-                    />
+                    conversationId={savePromptData.conversationId}
+                    conversationMessages={savePromptData.messages}
+                    onSaveComplete={() => {
+                      setShowSavePrompt(false);
+                      setSavePromptData(null);
+                    }}
+                    onCancel={() => {
+                      setShowSavePrompt(false);
+                      setSavePromptData(null);
+                    }} />
+
                   </div>
                 </div>
-              )}
+              }
 
               {/* Summary Prompt Section - Separate container with border */}
-              {showSummaryPrompt && !isLoading && (
-                <div className="p-4 md:p-6 border-t border-border/70 bg-secondary/35">
+              {showSummaryPrompt && !isLoading &&
+              <div className="p-4 md:p-6 border-t border-border/70 bg-secondary/35">
                   <div className="max-w-3xl mx-auto">
                     <Card className="p-4 border border-border/80 bg-card shadow-[var(--shadow-md)]">
                       <div className="flex items-start gap-3">
@@ -1409,16 +1409,16 @@ export default function Chat() {
                           </p>
                           <div className="flex gap-2">
                             <Button
-                              onClick={requestSummary}
-                              size="sm"
-                            >
+                            onClick={requestSummary}
+                            size="sm">
+
                               {t('chat.summary_prompt.yes')}
                             </Button>
                             <Button
-                              onClick={() => setShowSummaryPrompt(false)}
-                              size="sm"
-                              variant="outline"
-                            >
+                            onClick={() => setShowSummaryPrompt(false)}
+                            size="sm"
+                            variant="outline">
+
                               {t('chat.summary_prompt.not_now')}
                             </Button>
                           </div>
@@ -1427,38 +1427,38 @@ export default function Chat() {
                     </Card>
                   </div>
                 </div>
-              )}
+              }
             </div>
-          )}
+            }
         </div>
 
         {/* Session Summary Display */}
-        {currentConversationData?.session_summary && (
+        {currentConversationData?.session_summary &&
           <div className="border-t border-border/70 bg-card/85 backdrop-blur-xl">
             <SessionSummary conversation={currentConversationData} />
           </div>
-        )}
+          }
 
         {/* Input Area - Always visible, always on top */}
-        <div className="px-3 pt-2 pb-2 md:px-6 md:pt-3 md:pb-3 relative border-t border-border/70 bg-popover/90 backdrop-blur-xl shadow-[var(--shadow-md)]" style={{
-          zIndex: 50
-        }}>
-          <div className="max-w-4xl mx-auto flex gap-2">
+        <div className="bg-teal-50 text-teal-600 pt-2 pb-2 px-3 rounded-2xl md:px-6 md:pt-3 md:pb-3 relative border-t border-border/70 backdrop-blur-xl shadow-[var(--shadow-md)]" style={{
+            zIndex: 50
+          }}>
+          <div className="text-teal-600 mx-auto max-w-4xl flex gap-2">
             <Textarea
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={t('chat.message_placeholder')}
-              className="flex-1 min-h-[48px] max-h-[160px] resize-none rounded-[var(--radius-card)]"
-              data-testid="therapist-chat-input"
-              disabled={isLoading}
-            />
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={t('chat.message_placeholder')}
+                className="flex-1 min-h-[48px] max-h-[160px] resize-none rounded-[var(--radius-card)]"
+                data-testid="therapist-chat-input"
+                disabled={isLoading} />
+
             <Button
-              onClick={handleSendMessage}
-              disabled={!inputMessage.trim() || isLoading}
-              data-testid="therapist-chat-send"
-              className="h-[48px] px-4 flex-shrink-0 rounded-[var(--radius-card)]"
-            >
+                onClick={handleSendMessage}
+                disabled={!inputMessage.trim() || isLoading}
+                data-testid="therapist-chat-send"
+                className="h-[48px] px-4 flex-shrink-0 rounded-[var(--radius-card)]">
+
               <Send className="w-5 h-5" />
             </Button>
           </div>
@@ -1469,21 +1469,21 @@ export default function Chat() {
         </div>
 
       {/* Enhanced Check-in Modal - highest z-index when active */}
-      {showCheckInModal && (
-        <div style={{ zIndex: 100 }}>
+      {showCheckInModal &&
+          <div style={{ zIndex: 100 }}>
           <EnhancedMoodCheckIn
-            onClose={() => setShowCheckInModal(false)}
-            onComplete={handleCheckInComplete}
-          />
+              onClose={() => setShowCheckInModal(false)}
+              onComplete={handleCheckInComplete} />
+
         </div>
-      )}
+          }
 
       {/* Age Gate Modal - appears before consent */}
-      {showAgeGate && (
-        <AgeGateModal onConfirm={handleAgeConfirm} onDecline={handleAgeDecline} />
-      )}
+      {showAgeGate &&
+          <AgeGateModal onConfirm={handleAgeConfirm} onDecline={handleAgeDecline} />
+          }
       </div>
       </div>
-    </>
-  );
+    </>);
+
 }
