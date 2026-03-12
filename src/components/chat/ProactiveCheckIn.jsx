@@ -38,7 +38,7 @@ export default function ProactiveCheckIn({ onSendMessage }) {
     queryKey: ['proactiveReminders'],
     queryFn: async () => {
       const reminders = await base44.entities.ProactiveReminder.filter({ status: 'pending' });
-      return Array.isArray(reminders) ? reminders.filter(r => r.scheduled_date <= today) : [];
+      return Array.isArray(reminders) ? reminders.filter((r) => r.scheduled_date <= today) : [];
     }
   });
   const aiReminders = Array.isArray(aiRemindersData) ? aiRemindersData : aiRemindersData?.results || [];
@@ -57,35 +57,35 @@ export default function ProactiveCheckIn({ onSendMessage }) {
     }
   });
 
-  const hasLowMoodTrend = recentMoods.length >= 3 && 
-    recentMoods.slice(0, 3).every(m => ['low', 'very_low'].includes(m.mood));
+  const hasLowMoodTrend = recentMoods.length >= 3 &&
+  recentMoods.slice(0, 3).every((m) => ['low', 'very_low'].includes(m.mood));
 
   const hasPositiveTrend = recentMoods.length >= 3 &&
-    recentMoods.slice(0, 3).every(m => ['good', 'excellent'].includes(m.mood));
+  recentMoods.slice(0, 3).every((m) => ['good', 'excellent'].includes(m.mood));
 
   const hasActiveGoals = goals.length > 0;
-  
-  const recentJournalPatterns = recentJournals.length >= 2 && recentJournals
-    .slice(0, 2)
-    .flatMap(j => j.cognitive_distortions || [])
-    .reduce((acc, d) => {
-      acc[d] = (acc[d] || 0) + 1;
-      return acc;
-    }, {});
-  
-  const commonDistortion = recentJournalPatterns && Object.keys(recentJournalPatterns).length > 0
-    ? Object.entries(recentJournalPatterns).sort((a, b) => b[1] - a[1])[0][0]
-    : null;
 
-  const practiceOpportunities = exercises
-    .filter(ex => (ex.completed_count || 0) > 0 && (ex.last_completed))
-    .sort((a, b) => new Date(b.last_completed) - new Date(a.last_completed))
-    .slice(0, 1)[0];
+  const recentJournalPatterns = recentJournals.length >= 2 && recentJournals.
+  slice(0, 2).
+  flatMap((j) => j.cognitive_distortions || []).
+  reduce((acc, d) => {
+    acc[d] = (acc[d] || 0) + 1;
+    return acc;
+  }, {});
+
+  const commonDistortion = recentJournalPatterns && Object.keys(recentJournalPatterns).length > 0 ?
+  Object.entries(recentJournalPatterns).sort((a, b) => b[1] - a[1])[0][0] :
+  null;
+
+  const practiceOpportunities = exercises.
+  filter((ex) => (ex.completed_count || 0) > 0 && ex.last_completed).
+  sort((a, b) => new Date(b.last_completed) - new Date(a.last_completed)).
+  slice(0, 1)[0];
 
   const suggestions = [];
 
   // AI-Generated Reminders (highest priority)
-  aiReminders.forEach(reminder => {
+  aiReminders.forEach((reminder) => {
     const icon = {
       'goal_follow_up': Target,
       'mood_trend': TrendingDown,
@@ -141,7 +141,7 @@ export default function ProactiveCheckIn({ onSendMessage }) {
   if (hasActiveGoals) {
     const oldestGoal = goals.sort((a, b) => new Date(a.created_date) - new Date(b.created_date))[0];
     const daysSinceCreated = Math.floor((new Date() - new Date(oldestGoal.created_date)) / (1000 * 60 * 60 * 24));
-    
+
     if (daysSinceCreated >= 7) {
       suggestions.push({
         icon: Target,
@@ -170,7 +170,7 @@ export default function ProactiveCheckIn({ onSendMessage }) {
   // Exercise follow-up
   if (practiceOpportunities) {
     const daysSinceLastPractice = Math.floor((new Date() - new Date(practiceOpportunities.last_completed)) / (1000 * 60 * 60 * 24));
-    
+
     if (daysSinceLastPractice >= 3 && daysSinceLastPractice <= 7) {
       suggestions.push({
         icon: Dumbbell,
@@ -210,12 +210,12 @@ export default function ProactiveCheckIn({ onSendMessage }) {
       {suggestions.map((suggestion, index) => {
         const Icon = suggestion.icon;
         return (
-          <Card 
-            key={index} 
-            className="border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-blue-50 hover:border-purple-300 transition-all cursor-pointer"
-            onClick={() => handleClick(suggestion)}
-          >
-            <CardContent className="p-4">
+          <Card
+            key={index} className="bg-gradient-to-r text-card-foreground rounded-2xl shadow-[var(--shadow-md)] backdrop-blur-[10px] border-2 border-purple-200 from-purple-50 to-blue-50 hover:border-purple-300 transition-all cursor-pointer"
+
+            onClick={() => handleClick(suggestion)}>
+
+            <CardContent className="bg-teal-50 mx-auto px-4 py-4">
               <div className="flex items-start gap-3">
                 <div className={`w-10 h-10 rounded-full ${suggestion.color} flex items-center justify-center flex-shrink-0`}>
                   <Icon className="w-5 h-5" />
@@ -224,30 +224,30 @@ export default function ProactiveCheckIn({ onSendMessage }) {
                   <div className="flex items-start justify-between gap-2 mb-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h4 className="font-semibold text-gray-800 text-sm">{suggestion.title}</h4>
-                      {suggestion.type === 'ai_reminder' && (
-                        <Badge variant="secondary" className="text-xs">
+                      {suggestion.type === 'ai_reminder' &&
+                      <Badge variant="secondary" className="text-xs">
                           AI Suggested
                         </Badge>
-                      )}
+                      }
                     </div>
-                    {suggestion.type === 'ai_reminder' && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 -mt-1 -mr-1"
-                        onClick={(e) => handleDismiss(suggestion, e)}
-                        aria-label="Dismiss reminder"
-                      >
+                    {suggestion.type === 'ai_reminder' &&
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 -mt-1 -mr-1"
+                      onClick={(e) => handleDismiss(suggestion, e)}
+                      aria-label="Dismiss reminder">
+
                         <X className="w-3 h-3" />
                       </Button>
-                    )}
+                    }
                   </div>
                   <p className="text-sm text-gray-700 mb-2">{suggestion.message}</p>
-                  {suggestion.reminder?.context?.insight && (
-                    <p className="text-xs text-gray-600 italic mb-2 bg-white/50 p-2 rounded">
+                  {suggestion.reminder?.context?.insight &&
+                  <p className="text-xs text-gray-600 italic mb-2 bg-white/50 p-2 rounded">
                       💡 {suggestion.reminder.context.insight}
                     </p>
-                  )}
+                  }
                   <div className="flex items-center gap-2 text-xs text-purple-600 font-medium">
                     <span>Discuss this</span>
                     <ChevronRight className="w-3 h-3" />
@@ -255,9 +255,9 @@ export default function ProactiveCheckIn({ onSendMessage }) {
                 </div>
               </div>
             </CardContent>
-          </Card>
-        );
+          </Card>);
+
       })}
-    </div>
-  );
+    </div>);
+
 }
