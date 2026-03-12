@@ -236,7 +236,7 @@ export default function EnhancedProgressDashboard() {
         </Card>
 
         <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
-          <CardContent className="bg-teal-100 p-4 text-center rounded-2xl sm:p-6">
+          <CardContent className="bg-teal-100 p-4 text-center rounded sm:p-6">
             <Target className="text-teal-600 mb-2 mx-auto lucide lucide-target w-5 h-5 sm:w-6 sm:h-6" />
             <p className="text-teal-600 text-2xl font-bold sm:text-3xl">{metrics.completedGoals}</p>
             <p className="text-teal-600 mt-1 text-xs sm:text-sm">{t('progress.dashboard.goals_achieved')}</p>
@@ -248,14 +248,14 @@ export default function EnhancedProgressDashboard() {
       {/* Mood Trend Chart */}
       <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-foreground">
-            <TrendingUp className="w-5 h-5 text-primary" />
+          <CardTitle className="text-teal-600 text-base font-semibold tracking-[-0.012em] flex items-center gap-2 sm:text-lg">
+            <TrendingUp className="text-teal-600 lucide lucide-trending-up w-5 h-5" />
             {t('progress.dashboard.charts.mood_trends')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={moodTrendData}>
+            <LineChart data={moodTrendData} className="bg-teal-50 recharts-surface">
               <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
               <XAxis
                 dataKey="date"
