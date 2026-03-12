@@ -288,8 +288,19 @@ export default function Chat() {
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    const container = document.querySelector('[data-testid="chat-messages"]');
+    if (!container) {
+      scrollToBottom();
+      return;
+    }
+
+    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    const isNearBottom = distanceFromBottom < 140;
+
+    if (isNearBottom || isLoading) {
+      scrollToBottom();
+    }
+  }, [messages, isLoading]);
 
   // Cleanup on unmount
   useEffect(() => {
