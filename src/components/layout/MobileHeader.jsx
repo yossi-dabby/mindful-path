@@ -52,7 +52,7 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
       const didGoBack = tabNav.goBackInTab();
       if (didGoBack) return;
     }
-    
+
     // Fallback to browser history
     if (window.history.length > 1) {
       navigate(-1);
@@ -62,40 +62,40 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
   };
 
   return (
-    <header 
+    <header
       className="md:hidden fixed top-0 left-0 right-0 border-b border-border/70 bg-[hsl(var(--sidebar-background)/0.88)] backdrop-blur-2xl z-40"
       style={{
         height: 'calc(60px + env(safe-area-inset-top, 0px))',
         paddingTop: 'env(safe-area-inset-top, 0px)'
-      }}
-    >
+      }}>
+
       <div className="flex items-center justify-between h-full px-4">
         {/* Start: Back button on child routes, logo on root */}
         <div className="w-12">
-          {isSubRoute ? (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleBack}
-              className="rounded-full"
-              aria-label={t('common.back')}
-            >
+          {isSubRoute ?
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleBack}
+            className="rounded-full"
+            aria-label={t('common.back')}>
+
               <ChevronLeft className="w-6 h-6 rtl:scale-x-[-1] text-primary" />
-            </Button>
-          ) : (
-            <div
-              className="w-8 h-8 flex items-center justify-center rounded-[var(--radius-nested)] bg-primary text-primary-foreground shadow-[var(--shadow-sm)]"
-              aria-hidden="true"
-            >
+            </Button> :
+
+          <div className="bg-teal-600 text-primary-foreground rounded-3xl w-8 h-8 flex items-center justify-center shadow-[var(--shadow-sm)]"
+
+          aria-hidden="true">
+
               <span className="text-white font-bold text-sm">M</span>
             </div>
-          )}
+          }
         </div>
 
         {/* Center: Page title */}
-        <p 
-          className="text-[1rem] font-semibold text-foreground truncate"
-        >
+        <p className="text-teal-600 font-semibold truncate">
+
+
           {getPageTitle()}
         </p>
 
@@ -105,6 +105,6 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
           <MobileMenu />
         </div>
       </div>
-    </header>
-  );
+    </header>);
+
 }
