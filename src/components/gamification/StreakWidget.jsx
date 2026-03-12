@@ -14,9 +14,9 @@ export default function StreakWidget({ compact = false }) {
       const allStreaks = await base44.entities.UserStreak.list();
       // Deduplicate by streak_type (take most recent)
       const uniqueStreaks = {};
-      allStreaks.forEach(streak => {
-        if (!uniqueStreaks[streak.streak_type] || 
-            new Date(streak.updated_date) > new Date(uniqueStreaks[streak.streak_type].updated_date)) {
+      allStreaks.forEach((streak) => {
+        if (!uniqueStreaks[streak.streak_type] ||
+        new Date(streak.updated_date) > new Date(uniqueStreaks[streak.streak_type].updated_date)) {
           uniqueStreaks[streak.streak_type] = streak;
         }
       });
@@ -27,12 +27,12 @@ export default function StreakWidget({ compact = false }) {
     refetchOnWindowFocus: false
   });
   const streaksArr = Array.isArray(streaks) ? streaks : [];
-  const overallStreak = streaksArr.find(s => s.streak_type === 'overall');
-  const moodStreak = streaksArr.find(s => s.streak_type === 'mood_check');
-  const journalStreak = streaksArr.find(s => s.streak_type === 'journal');
-  const exerciseStreak = streaksArr.find(s => s.streak_type === 'exercise');
+  const overallStreak = streaksArr.find((s) => s.streak_type === 'overall');
+  const moodStreak = streaksArr.find((s) => s.streak_type === 'mood_check');
+  const journalStreak = streaksArr.find((s) => s.streak_type === 'journal');
+  const exerciseStreak = streaksArr.find((s) => s.streak_type === 'exercise');
 
-  
+
   const currentStreak = overallStreak?.current_streak || 0;
   const longestStreak = overallStreak?.longest_streak || 0;
 
@@ -44,15 +44,15 @@ export default function StreakWidget({ compact = false }) {
       <Card className="rounded-[26px] border hover:shadow-[var(--shadow-lg)] transition-calm overflow-hidden" style={{ borderColor: 'rgba(118, 170, 156, 0.3)', background: 'linear-gradient(180deg, rgba(255,248,238,0.98) 0%, rgba(239,247,242,0.96) 100%)', boxShadow: '0 22px 50px rgba(68, 108, 96, 0.13), 0 8px 18px rgba(68, 108, 96, 0.07)' }}>
         <CardContent className="p-5 text-center">
           <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-[18px] bg-accent/18 text-accent shadow-[var(--shadow-sm)]">
-            <Flame className="w-8 h-8" strokeWidth={2} />
+            <Flame className="text-teal-600 lucide lucide-flame w-8 h-8" strokeWidth={2} />
           </div>
-          <p className="text-2xl font-bold mb-1 text-foreground">
+          <p className="text-teal-600 mb-1 text-2xl font-bold">
             {currentStreak}
           </p>
-          <p className="text-xs text-muted-foreground">day streak</p>
+          <p className="text-teal-600 text-xs">day streak</p>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -60,8 +60,8 @@ export default function StreakWidget({ compact = false }) {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ scale: 1.02 }}
-      transition={{ duration: 0.2 }}
-    >
+      transition={{ duration: 0.2 }}>
+
       <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-red-50 overflow-hidden rounded-2xl">
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
@@ -74,12 +74,12 @@ export default function StreakWidget({ compact = false }) {
                 <p className="text-xs text-gray-600">Keep the momentum going!</p>
               </div>
             </div>
-            {currentStreak >= 7 && (
-              <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">
+            {currentStreak >= 7 &&
+            <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">
                 <Award className="w-3 h-3 mr-1" />
                 On Fire!
               </Badge>
-            )}
+            }
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -116,19 +116,19 @@ export default function StreakWidget({ compact = false }) {
                     key={i}
                     className={cn(
                       "flex-1 h-2 rounded-full",
-                      isActive 
-                        ? "bg-gradient-to-r from-orange-400 to-red-500" 
-                        : "bg-gray-200"
-                    )}
-                  />
-                );
+                      isActive ?
+                      "bg-gradient-to-r from-orange-400 to-red-500" :
+                      "bg-gray-200"
+                    )} />);
+
+
               })}
             </div>
             <div className="flex justify-between mt-2">
               <p className="text-xs text-gray-500">7 days</p>
-              {currentStreak >= 7 && (
-                <p className="text-xs text-orange-600 font-semibold">Week complete! 🎉</p>
-              )}
+              {currentStreak >= 7 &&
+              <p className="text-xs text-orange-600 font-semibold">Week complete! 🎉</p>
+              }
             </div>
           </div>
 
@@ -152,6 +152,6 @@ export default function StreakWidget({ compact = false }) {
           </div>
         </CardContent>
       </Card>
-    </motion.div>
-  );
+    </motion.div>);
+
 }
