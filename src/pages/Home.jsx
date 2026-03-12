@@ -221,23 +221,26 @@ export default function Home() {
   return (
     <PullToRefresh queryKeys={['recentGoals', 'recentJournals', 'todayFlow', 'todayMood', 'todayExercise']}>
       <div className="relative w-full min-h-[100dvh] overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(110,193,174,0.18),transparent_34%),radial-gradient(circle_at_top_right,rgba(242,194,132,0.12),transparent_30%),linear-gradient(180deg,rgba(244,251,248,0.94)_0%,rgba(250,247,241,0.92)_52%,rgba(245,250,247,0.98)_100%)]" />
-        <div className="absolute -top-16 -left-16 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute top-24 right-0 h-48 w-48 rounded-full bg-accent/10 blur-3xl" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(215,235,228,0.92)_0%,rgba(228,241,235,0.94)_18%,rgba(238,245,240,0.96)_42%,rgba(245,243,237,0.98)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(73,147,130,0.28),transparent_30%),radial-gradient(circle_at_85%_12%,rgba(236,183,120,0.18),transparent_26%),radial-gradient(circle_at_50%_36%,rgba(111,184,165,0.14),transparent_38%)]" />
+        <div className="absolute inset-x-0 top-0 h-[420px] bg-[linear-gradient(180deg,rgba(52,104,93,0.12)_0%,rgba(52,104,93,0.05)_38%,transparent_100%)]" />
+        <div className="absolute -top-20 -left-20 h-72 w-72 rounded-full bg-primary/16 blur-3xl" />
+        <div className="absolute top-10 right-[-3rem] h-64 w-64 rounded-full bg-accent/14 blur-3xl" />
+        <div className="absolute bottom-24 left-1/3 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
         <div className="page-container relative z-10 max-w-5xl mx-auto w-full pb-24">
         {/* Header */}
-        <div className="mb-6 mt-6 surface-primary rounded-[28px] px-6 py-6 md:px-8 md:py-8 border-border/70 shadow-[var(--shadow-lg)]">
+        <div className="mb-6 mt-6 rounded-[32px] border border-[rgba(125,173,160,0.38)] bg-[linear-gradient(180deg,rgba(255,253,250,0.86)_0%,rgba(237,247,242,0.82)_100%)] px-6 py-6 md:px-8 md:py-8 shadow-[0_28px_70px_rgba(68,108,96,0.18),0_12px_28px_rgba(68,108,96,0.1)] backdrop-blur-[18px]">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="text-2xl md:text-3xl font-semibold mb-2 text-foreground">
                 {greeting()}{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
               </h1>
-              <div className="inline-flex items-center gap-2 rounded-full bg-secondary/90 px-3 py-1 text-xs font-medium text-primary border border-border/60 shadow-[var(--shadow-sm)]">
+              <div className="inline-flex items-center gap-2 rounded-full bg-[linear-gradient(180deg,rgba(214,239,231,0.96)_0%,rgba(242,235,223,0.92)_100%)] px-3 py-1 text-xs font-medium text-primary border border-[rgba(110,169,154,0.34)] shadow-[0_10px_24px_rgba(68,108,96,0.12)]">
                 <Sparkles className="w-3.5 h-3.5" />
                 Calm Oasis
               </div>
             </div>
-            <div className="hidden md:flex h-14 w-14 items-center justify-center rounded-[20px] bg-primary text-primary-foreground shadow-[var(--shadow-md)]">
+            <div className="hidden md:flex h-14 w-14 items-center justify-center rounded-[20px] bg-[linear-gradient(180deg,rgba(43,154,133,0.98)_0%,rgba(34,128,111,0.98)_100%)] text-primary-foreground shadow-[0_18px_36px_rgba(38,134,116,0.32)]">
               <Sparkles className="w-6 h-6" />
             </div>
           </div>
@@ -249,7 +252,7 @@ export default function Home() {
           </div>
 
           {/* Secondary Content - Below the fold */}
-        <div className="mt-8 space-y-4">
+        <div className="mt-8 space-y-4 rounded-[32px] border border-[rgba(125,173,160,0.24)] bg-[linear-gradient(180deg,rgba(255,252,248,0.44)_0%,rgba(233,244,239,0.58)_100%)] p-4 md:p-5 shadow-[0_20px_52px_rgba(68,108,96,0.08)] backdrop-blur-[10px]">
         
         {/* Goals Dashboard Widget */}
         <GoalsDashboardWidget />
@@ -257,7 +260,7 @@ export default function Home() {
         {/* Quick Stats */}
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="relative overflow-hidden rounded-[26px] border border-border/70 bg-[linear-gradient(180deg,rgba(255,252,248,0.96)_0%,rgba(232,247,242,0.92)_100%)] p-5 text-center shadow-[var(--shadow-lg)]">
+          <div className="relative overflow-hidden rounded-[28px] border border-[rgba(116,169,154,0.34)] bg-[linear-gradient(180deg,rgba(255,253,250,0.98)_0%,rgba(227,244,238,0.96)_100%)] p-5 text-center shadow-[0_24px_54px_rgba(68,108,96,0.14),0_8px_18px_rgba(68,108,96,0.08)]">
             <div className="flex items-center justify-center gap-2 mb-1">
               {latestGoal && (
                 <Link to={createPageUrl('Goals', `goal=${latestGoal.id}`)}>
@@ -299,7 +302,7 @@ export default function Home() {
               <Sparkles className="w-4 h-4 text-accent" strokeWidth={2} />
             </Button>
           </div>
-          <div className="relative overflow-hidden rounded-[26px] border border-border/70 bg-[linear-gradient(180deg,rgba(250,247,240,0.96)_0%,rgba(238,249,245,0.92)_100%)] p-5 text-center shadow-[var(--shadow-lg)]">
+          <div className="relative overflow-hidden rounded-[28px] border border-[rgba(116,169,154,0.3)] bg-[linear-gradient(180deg,rgba(252,248,241,0.98)_0%,rgba(232,246,241,0.96)_100%)] p-5 text-center shadow-[0_24px_54px_rgba(68,108,96,0.14),0_8px_18px_rgba(68,108,96,0.08)]">
             <div className="flex items-center justify-center gap-2 mb-1">
               {savedEntryId && (
                 <Link to={createPageUrl('Journal', `entry=${savedEntryId}`)}>
@@ -380,7 +383,7 @@ export default function Home() {
         )}
 
         {/* Quick Actions */}
-        <div className="mt-8 rounded-[30px] bg-[linear-gradient(180deg,rgba(255,253,249,0.82)_0%,rgba(236,247,243,0.86)_100%)] border border-border/60 p-4 md:p-5 shadow-[var(--shadow-md)]">
+        <div className="mt-8 rounded-[32px] bg-[linear-gradient(180deg,rgba(255,252,248,0.9)_0%,rgba(228,242,237,0.88)_100%)] border border-[rgba(116,169,154,0.28)] p-4 md:p-5 shadow-[0_24px_58px_rgba(68,108,96,0.12),0_8px_22px_rgba(68,108,96,0.07)] backdrop-blur-[12px]">
           <QuickActions />
         </div>
         </div>

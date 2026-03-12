@@ -87,8 +87,8 @@ export default function GoalsDashboardWidget() {
   }
 
   return (
-    <Card className="rounded-[30px] border border-border/70 overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(255,252,248,0.98) 0%, rgba(236,248,244,0.94) 100%)', boxShadow: '0 20px 52px rgba(77, 125, 111, 0.12), 0 8px 20px rgba(77, 125, 111, 0.06)' }}>
-      <CardHeader className="border-b border-border/50 bg-[linear-gradient(180deg,rgba(255,255,255,0.38)_0%,rgba(238,247,243,0.52)_100%)]">
+    <Card className="rounded-[30px] border overflow-hidden" style={{ borderColor: 'rgba(118, 170, 156, 0.34)', background: 'linear-gradient(180deg, rgba(255,253,250,0.99) 0%, rgba(228,244,238,0.96) 100%)', boxShadow: '0 28px 64px rgba(68, 108, 96, 0.16), 0 12px 24px rgba(68, 108, 96, 0.08)' }}>
+      <CardHeader className="border-b border-[rgba(118,170,156,0.22)] bg-[linear-gradient(180deg,rgba(255,255,255,0.62)_0%,rgba(226,242,236,0.66)_100%)]">
         <CardTitle className="flex items-center justify-between text-foreground">
           <div className="flex items-center gap-2">
             <Target className="w-5 h-5 text-primary" />

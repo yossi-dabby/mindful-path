@@ -148,8 +148,8 @@ export default function QuickActions() {
         {/* AI Recommendations Card */}
         <div className="relative">
           <Card 
-          className="rounded-[var(--radius-card)] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group h-full border border-border/70 overflow-hidden"
-          style={{ background: 'linear-gradient(180deg, rgba(255,251,246,0.98) 0%, rgba(233,247,242,0.94) 100%)', boxShadow: '0 18px 44px rgba(77, 125, 111, 0.12), 0 6px 16px rgba(77, 125, 111, 0.06)' }}
+              className="rounded-[var(--radius-card)] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group h-full border overflow-hidden"
+              style={{ borderColor: 'rgba(118, 170, 156, 0.34)', background: 'linear-gradient(180deg, rgba(255,252,248,0.99) 0%, rgba(227,244,238,0.96) 100%)', boxShadow: '0 24px 56px rgba(68, 108, 96, 0.16), 0 10px 22px rgba(68, 108, 96, 0.08)' }}
           onClick={() => setShowRecommendations(true)}
           >
               <CardContent className="p-5">
@@ -181,7 +181,7 @@ export default function QuickActions() {
           <div className="relative">
               <Card
                 className="rounded-[var(--radius-card)] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group h-full border border-border/70 overflow-hidden"
-                style={{ background: 'linear-gradient(180deg, rgba(250,247,241,0.98) 0%, rgba(236,248,244,0.94) 100%)', boxShadow: '0 18px 44px rgba(77, 125, 111, 0.12), 0 6px 16px rgba(77, 125, 111, 0.06)' }}
+                style={{ borderColor: 'rgba(118, 170, 156, 0.34)', background: 'linear-gradient(180deg, rgba(252,248,242,0.99) 0%, rgba(231,245,239,0.96) 100%)', boxShadow: '0 24px 56px rgba(68, 108, 96, 0.16), 0 10px 22px rgba(68, 108, 96, 0.08)' }}
                 onClick={() => setStarterPathExpanded(v => !v)}
               >
                 <CardContent className="p-5">
@@ -315,15 +315,15 @@ export default function QuickActions() {
                 data-testid={action.testIds ? action.testIds[0] : undefined}
               >
                 <Card 
-                  className="rounded-[var(--radius-card)] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group h-full border border-border/70 overflow-hidden"
-                  style={{ background: 'linear-gradient(180deg, rgba(255,252,248,0.97) 0%, rgba(239,248,244,0.92) 100%)', boxShadow: '0 18px 44px rgba(77, 125, 111, 0.12), 0 6px 16px rgba(77, 125, 111, 0.06)' }}
+                  className="rounded-[var(--radius-card)] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group h-full border overflow-hidden"
+                  style={{ borderColor: 'rgba(118, 170, 156, 0.34)', background: 'linear-gradient(180deg, rgba(255,252,248,0.99) 0%, rgba(230,244,238,0.96) 100%)', boxShadow: '0 24px 56px rgba(68, 108, 96, 0.16), 0 10px 22px rgba(68, 108, 96, 0.08)' }}
                   data-testid={action.testIds ? action.testIds[1] : undefined}
                 >
                   <CardContent className="p-5">
                     <div className="flex items-center gap-3 mb-4">
                       <div 
-                        className="w-14 h-14 flex items-center justify-center rounded-[var(--radius-control)] shadow-[var(--shadow-sm)]"
-                        style={{ backgroundColor: action.color }}
+                        className="w-14 h-14 flex items-center justify-center rounded-[var(--radius-control)]"
+                        style={{ background: `linear-gradient(180deg, ${action.color} 0%, ${action.color}dd 100%)`, boxShadow: '0 16px 30px rgba(68, 108, 96, 0.16)' }}
                       >
                         <Icon className="w-7 h-7 text-white" strokeWidth={2.5} />
                       </div>
