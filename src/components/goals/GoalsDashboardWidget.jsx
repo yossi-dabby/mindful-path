@@ -204,7 +204,7 @@ export default function GoalsDashboardWidget() {
 
         {/* Action Button */}
         <Link to={createPageUrl('Goals')} className="block">
-          <Button variant="outline" className="bg-[hsl(var(--card)/0.88)] text-teal-600 px-3 text-xs font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 w-full" size="sm">
+          <Button variant="outline" className="bg-[hsl(var(--card)/0.88)] text-teal-600 px-3 text-xs font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 w-full" size="sm">
             <TrendingUp className="w-4 h-4 mr-2" />
             {t('goals_dashboard_widget.view_all_goals')}
           </Button>
