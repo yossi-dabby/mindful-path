@@ -33,9 +33,9 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   const [showObstacles, setShowObstacles] = useState(false);
   const [showAiAdjustment, setShowAiAdjustment] = useState(false);
   const [showReminders, setShowReminders] = useState(false);
-  
+
   const queryClient = useQueryClient();
-  
+
   // Normalize milestones from goal prop and sync to local state
   const getNormalizedMilestones = (milestones) => {
     const source = Array.isArray(milestones) ? milestones : [];
@@ -44,9 +44,9 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         return { title: m, completed: false, description: '', due_date: null };
       }
       const completed =
-        typeof m.completed === 'string'
-          ? m.completed === 'true'
-          : Boolean(m.completed);
+      typeof m.completed === 'string' ?
+      m.completed === 'true' :
+      Boolean(m.completed);
       return {
         title: safeText(m.title || m, `Step ${i + 1}`),
         description: safeText(m.description, ''),
@@ -63,9 +63,9 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   // Mutation with optimistic update
   const updateMilestone = useMutation({
     mutationFn: async ({ updatedMilestones, newProgress }) => {
-      return await base44.entities.Goal.update(goal.id, { 
-        milestones: updatedMilestones, 
-        progress: newProgress 
+      return await base44.entities.Goal.update(goal.id, {
+        milestones: updatedMilestones,
+        progress: newProgress
       });
     },
     onMutate: async ({ updatedMilestones, newProgress }) => {
@@ -74,9 +74,9 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       const previousGoals = queryClient.getQueryData(['allGoals']);
       queryClient.setQueryData(['allGoals'], (old) => {
         if (!old) return old;
-        return old.map((g) => g.id === goal.id ? { 
-          ...g, 
-          milestones: [...updatedMilestones], 
+        return old.map((g) => g.id === goal.id ? {
+          ...g,
+          milestones: [...updatedMilestones],
           progress: newProgress,
           updated_date: new Date().toISOString()
         } : g);
@@ -113,31 +113,31 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
 
   const localProgress = React.useMemo(() => {
     if (localMilestones.length === 0) return 0;
-    const completed = localMilestones.filter(m => m.completed).length;
-    return Math.round((completed / localMilestones.length) * 100);
+    const completed = localMilestones.filter((m) => m.completed).length;
+    return Math.round(completed / localMilestones.length * 100);
   }, [localMilestones]);
 
   const toggleMilestone = (index, checked) => {
     // Normalize checked value (handle "indeterminate" and other edge cases)
     const isChecked = checked === true;
-    
+
     // Immediately update local state for instant UI feedback
-    const updatedMilestones = localMilestones.map((m, i) => 
-      i === index 
-        ? { ...m, completed: isChecked, completed_date: isChecked ? new Date().toISOString() : null }
-        : m
+    const updatedMilestones = localMilestones.map((m, i) =>
+    i === index ?
+    { ...m, completed: isChecked, completed_date: isChecked ? new Date().toISOString() : null } :
+    m
     );
-    
+
     setLocalMilestones(updatedMilestones);
-    
-    const completedCount = updatedMilestones.filter(m => m.completed).length;
-    const newProgress = updatedMilestones.length > 0 
-      ? Math.round((completedCount / updatedMilestones.length) * 100)
-      : 0;
-    
+
+    const completedCount = updatedMilestones.filter((m) => m.completed).length;
+    const newProgress = updatedMilestones.length > 0 ?
+    Math.round(completedCount / updatedMilestones.length * 100) :
+    0;
+
     // Convert to backend-compatible format
     const milestonesForDb = updatedMilestones.map(toBackendMilestone);
-    
+
     // Send to server
     updateMilestone.mutate({ updatedMilestones: milestonesForDb, newProgress });
   };
@@ -158,11 +158,11 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       const updatedGoal = await base44.entities.Goal.update(goal.id, updates);
       // Optimistically update cache instead of invalidating
       if (updatedGoal?.id) {
-        queryClient.setQueryData(['allGoals'], (old = []) => 
-          old.map((g) => (g.id === updatedGoal.id ? updatedGoal : g))
+        queryClient.setQueryData(['allGoals'], (old = []) =>
+        old.map((g) => g.id === updatedGoal.id ? updatedGoal : g)
         );
-        queryClient.setQueryData(['goals'], (old = []) => 
-          old?.map((g) => (g.id === updatedGoal.id ? updatedGoal : g))
+        queryClient.setQueryData(['goals'], (old = []) =>
+        old?.map((g) => g.id === updatedGoal.id ? updatedGoal : g)
         );
       }
       setShowAiAdjustment(false);
@@ -178,55 +178,55 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 md:gap-0 mb-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <h3 className={cn('text-xl font-semibold text-gray-800', isCompleted && 'line-through')}>
+              <h3 className="text-teal-700 text-xl font-semibold">
                 {goal.title}
               </h3>
               {isCompleted && <CheckCircle2 className="w-5 h-5 text-green-600" />}
             </div>
-            {goal.description && (
-              <p className="text-sm text-gray-600 mb-3">{goal.description}</p>
-            )}
+            {goal.description &&
+            <p className="text-sm text-gray-600 mb-3">{goal.description}</p>
+            }
             <div className="flex items-center gap-2 flex-wrap">
-                <Badge className={categoryColors[goal.category]} variant="secondary">
+                <Badge className="bg-orange-100 text-orange-700 px-2.5 py-1 font-medium tracking-[0.01em] leading-4 rounded-2xl inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/60" variant="secondary">
                   {goal.category}
                 </Badge>
                 {goal.target_date && (() => {
-                  try {
-                    const date = new Date(goal.target_date);
-                    if (isNaN(date.getTime())) return null;
-                    return (
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          'flex items-center gap-1',
-                          isOverdue && 'border-red-300 text-red-600'
-                        )}
-                      >
+                try {
+                  const date = new Date(goal.target_date);
+                  if (isNaN(date.getTime())) return null;
+                  return (
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        'flex items-center gap-1',
+                        isOverdue && 'border-red-300 text-red-600'
+                      )}>
+
                         <Calendar className="w-3 h-3" />
                         {format(date, 'MMM d, yyyy')}
-                      </Badge>
-                    );
-                  } catch {
-                    return null;
-                  }
-                })()}
+                      </Badge>);
+
+                } catch {
+                  return null;
+                }
+              })()}
               </div>
             </div>
             <div className="flex gap-1 flex-shrink-0">
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={(e) => {
                 e.stopPropagation();
                 onEdit(goal);
               }}
-              aria-label="Edit goal"
-            >
+              aria-label="Edit goal">
+
               <Edit className="w-4 h-4 text-gray-400" />
             </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={(e) => {
                 e.stopPropagation();
                 if (isDeleting) return;
@@ -235,8 +235,8 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                 }
               }}
               disabled={isDeleting}
-              aria-label="Delete goal"
-            >
+              aria-label="Delete goal">
+
               <Trash2 className="w-4 h-4 text-red-400 hover:text-red-600" />
             </Button>
           </div>
@@ -248,55 +248,55 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
              <span className="text-sm font-medium text-gray-700">Progress {updateMilestone.isPending && <span className="text-xs text-gray-500 ml-2">Saving...</span>}</span>
              <span className="text-sm font-bold text-blue-600">{localProgress}%</span>
            </div>
-           <Progress 
-             value={localProgress} 
-             className="h-3" 
-           />
+           <Progress
+            value={localProgress}
+            className="h-3" />
+
         </div>
 
         {/* Milestones */}
-        {localMilestones.length > 0 && (
-          <div className="space-y-3">
+        {localMilestones.length > 0 &&
+        <div className="space-y-3">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm font-medium text-gray-700">Tasks:</p>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500">
-                  {localMilestones.filter(m => m.completed).length}/{localMilestones.length}
+                <span className="text-gray-500 text-sm font-medium">
+                  {localMilestones.filter((m) => m.completed).length}/{localMilestones.length}
                 </span>
                 <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-blue-500 transition-all duration-300"
-                    style={{ 
-                      width: `${localMilestones.length > 0 ? (localMilestones.filter(m => m.completed).length / localMilestones.length) * 100 : 0}%` 
-                    }}
-                  />
+                  <div
+                  className="h-full bg-blue-500 transition-all duration-300"
+                  style={{
+                    width: `${localMilestones.length > 0 ? localMilestones.filter((m) => m.completed).length / localMilestones.length * 100 : 0}%`
+                  }} />
+
                 </div>
               </div>
             </div>
             {localMilestones.map((milestone, index) => {
-              const isOverdue = (() => {
-                if (!milestone.due_date || milestone.completed) return false;
-                try {
-                  const dueDate = new Date(milestone.due_date);
-                  return !isNaN(dueDate.getTime()) && dueDate < new Date();
-                } catch {
-                  return false;
-                }
-              })();
+            const isOverdue = (() => {
+              if (!milestone.due_date || milestone.completed) return false;
+              try {
+                const dueDate = new Date(milestone.due_date);
+                return !isNaN(dueDate.getTime()) && dueDate < new Date();
+              } catch {
+                return false;
+              }
+            })();
 
-              const isDueSoon = (() => {
-                if (!milestone.due_date || milestone.completed) return false;
-                try {
-                  const dueDate = new Date(milestone.due_date);
-                  const daysUntil = Math.ceil((dueDate - new Date()) / (1000 * 60 * 60 * 24));
-                  return daysUntil >= 0 && daysUntil <= 3;
-                } catch {
-                  return false;
-                }
-              })();
+            const isDueSoon = (() => {
+              if (!milestone.due_date || milestone.completed) return false;
+              try {
+                const dueDate = new Date(milestone.due_date);
+                const daysUntil = Math.ceil((dueDate - new Date()) / (1000 * 60 * 60 * 24));
+                return daysUntil >= 0 && daysUntil <= 3;
+              } catch {
+                return false;
+              }
+            })();
 
-              return (
-              <div 
+            return (
+              <div
                 key={index}
                 className={cn(
                   "flex items-start gap-3 p-3 rounded-lg border transition-colors relative",
@@ -304,124 +304,124 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
                   isOverdue && "border-red-200 bg-red-50/30",
                   isDueSoon && !isOverdue && "border-amber-200 bg-amber-50/30",
                   updateMilestone.isPending && "opacity-60"
-                )}
-              >
-                {milestone.completed && (
-                  <div className="absolute top-2 right-2">
+                )}>
+
+                {milestone.completed &&
+                <div className="absolute top-2 right-2">
                     <CheckCircle2 className="w-4 h-4 text-green-600" />
                   </div>
-                )}
+                }
                 <Checkbox
                   checked={Boolean(milestone.completed)}
                   onCheckedChange={(checked) => toggleMilestone(index, checked)}
                   className="mt-0.5 flex-shrink-0"
-                  id={`milestone-${goal.id}-${index}`}
-                />
-                <label 
+                  id={`milestone-${goal.id}-${index}`} />
+
+                <label
                   htmlFor={`milestone-${goal.id}-${index}`}
-                  className="flex-1 min-w-0 cursor-pointer"
-                >
+                  className="flex-1 min-w-0 cursor-pointer">
+
                   <span
                     className={cn(
                       'text-sm font-medium block',
-                      milestone.completed
-                        ? 'line-through text-gray-400'
-                        : 'text-gray-700'
-                    )}
-                  >
+                      milestone.completed ?
+                      'line-through text-gray-400' :
+                      'text-gray-700'
+                    )}>
+
                     {safeText(milestone.title, `Step ${index + 1}`)}
                   </span>
-                  {milestone.description && (
-                    <p className="text-xs text-gray-500 mt-0.5">{safeText(milestone.description)}</p>
-                  )}
+                  {milestone.description &&
+                  <p className="text-xs text-gray-500 mt-0.5">{safeText(milestone.description)}</p>
+                  }
                   {milestone.due_date && (() => {
                     try {
                       const date = new Date(milestone.due_date);
                       if (isNaN(date.getTime())) return null;
                       const daysUntil = Math.ceil((date - new Date()) / (1000 * 60 * 60 * 24));
                       return (
-                        <Badge 
-                          variant="outline" 
+                        <Badge
+                          variant="outline"
                           className={cn(
                             "mt-1 text-xs pointer-events-none",
                             isOverdue && "border-red-300 bg-red-100 text-red-700",
                             isDueSoon && !isOverdue && "border-amber-300 bg-amber-100 text-amber-700"
-                          )}
-                        >
+                          )}>
+
                           <Calendar className="w-3 h-3 mr-1" />
                           {format(date, 'MMM d')}
-                          {!milestone.completed && daysUntil >= 0 && daysUntil <= 7 && (
-                            <span className="ml-1">• {daysUntil === 0 ? 'Today' : `${daysUntil}d`}</span>
-                          )}
+                          {!milestone.completed && daysUntil >= 0 && daysUntil <= 7 &&
+                          <span className="ml-1">• {daysUntil === 0 ? 'Today' : `${daysUntil}d`}</span>
+                          }
                           {isOverdue && <span className="ml-1">• Overdue</span>}
-                        </Badge>
-                      );
+                        </Badge>);
+
                     } catch {
                       return null;
                     }
                   })()}
                 </label>
-              </div>
-            );
-            })}
+              </div>);
+
+          })}
           </div>
-        )}
+        }
 
         {/* Obstacles Section */}
-        {(goal.obstacles?.identified_obstacles?.length > 0 || goal.obstacles?.cognitive_distortions?.length > 0) && (
-          <div className="mt-4">
+        {(goal.obstacles?.identified_obstacles?.length > 0 || goal.obstacles?.cognitive_distortions?.length > 0) &&
+        <div className="mt-4">
             <Button
-              variant="outline"
-              onClick={() => setShowObstacles(!showObstacles)}
-              className="flex items-center justify-center gap-2 w-full min-w-0"
-            >
+            variant="outline"
+            onClick={() => setShowObstacles(!showObstacles)}
+            className="flex items-center justify-center gap-2 w-full min-w-0">
+
               <span className="flex-1 text-left font-medium min-w-0 break-words">Obstacles & CBT Work</span>
               {showObstacles ? <ChevronUp className="w-4 h-4 flex-shrink-0" /> : <ChevronDown className="w-4 h-4 flex-shrink-0" />}
             </Button>
-            {showObstacles && (
-              <div className="mt-3 p-4 bg-amber-50 rounded-lg border border-amber-200 space-y-3">
-                {goal.obstacles.identified_obstacles?.length > 0 && (
-                  <div>
+            {showObstacles &&
+          <div className="mt-3 p-4 bg-amber-50 rounded-lg border border-amber-200 space-y-3">
+                {goal.obstacles.identified_obstacles?.length > 0 &&
+            <div>
                     <p className="text-sm font-medium text-gray-700 mb-2">Identified Obstacles:</p>
                     <ul className="space-y-1">
-                      {goal.obstacles.identified_obstacles.map((obstacle, i) => (
-                        <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                      {goal.obstacles.identified_obstacles.map((obstacle, i) =>
+                <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
                           <span className="text-amber-600 mt-1">•</span>
                           <span>{obstacle}</span>
                         </li>
-                      ))}
+                )}
                     </ul>
                   </div>
-                )}
-                {goal.obstacles.cognitive_distortions?.length > 0 && (
-                  <div>
+            }
+                {goal.obstacles.cognitive_distortions?.length > 0 &&
+            <div>
                     <p className="text-sm font-medium text-gray-700 mb-2">Thinking Patterns:</p>
                     <div className="flex flex-wrap gap-1">
-                      {goal.obstacles.cognitive_distortions.map((dist, i) => (
-                        <Badge key={i} variant="outline" className="text-xs bg-white">
+                      {goal.obstacles.cognitive_distortions.map((dist, i) =>
+                <Badge key={i} variant="outline" className="text-xs bg-white">
                           {dist}
                         </Badge>
-                      ))}
+                )}
                     </div>
                   </div>
-                )}
-                {goal.obstacles.balanced_thoughts?.length > 0 && (
-                  <div>
+            }
+                {goal.obstacles.balanced_thoughts?.length > 0 &&
+            <div>
                     <p className="text-sm font-medium text-gray-700 mb-2">Balanced Thoughts:</p>
                     <ul className="space-y-1">
-                      {goal.obstacles.balanced_thoughts.slice(0, 3).map((thought, i) => (
-                        <li key={i} className="text-sm text-green-700 flex items-start gap-2">
+                      {goal.obstacles.balanced_thoughts.slice(0, 3).map((thought, i) =>
+                <li key={i} className="text-sm text-green-700 flex items-start gap-2">
                           <span className="text-green-600 mt-1">✓</span>
                           <span>{thought}</span>
                         </li>
-                      ))}
+                )}
                     </ul>
                   </div>
-                )}
+            }
               </div>
-            )}
+          }
           </div>
-        )}
+        }
 
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-2 mt-4">
@@ -429,8 +429,8 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
             variant="outline"
             onClick={() => setShowChart(!showChart)}
             className="flex items-center gap-1.5 text-sm"
-            size="sm"
-          >
+            size="sm">
+
             <TrendingUp className="w-4 h-4" />
             <span>{showChart ? 'Hide' : 'Show'} Chart</span>
           </Button>
@@ -438,8 +438,8 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
             variant="outline"
             onClick={() => setShowKanban(!showKanban)}
             className="flex items-center gap-1.5 text-sm"
-            size="sm"
-          >
+            size="sm">
+
             <LayoutGrid className="w-4 h-4" />
             <span>{showKanban ? 'Hide' : 'Show'} Board</span>
           </Button>
@@ -447,8 +447,8 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
             variant="outline"
             onClick={() => setShowJournalEntries(!showJournalEntries)}
             className="flex items-center gap-1.5 text-sm"
-            size="sm"
-          >
+            size="sm">
+
             <BookOpen className="w-4 h-4" />
             <span>{showJournalEntries ? 'Hide' : 'Show'} Journal</span>
           </Button>
@@ -456,8 +456,8 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
             variant="outline"
             onClick={() => setShowAiAdjustment(true)}
             className="flex items-center gap-1.5 text-sm border-purple-300 text-purple-700 hover:bg-purple-50"
-            size="sm"
-          >
+            size="sm">
+
             <Sparkles className="w-4 h-4" />
             <span>AI Adjust</span>
           </Button>
@@ -465,51 +465,51 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
             variant="outline"
             onClick={() => setShowReminders(true)}
             className="flex items-center gap-1.5 text-sm"
-            size="sm"
-          >
+            size="sm">
+
             <Bell className="w-4 h-4" />
             <span>Reminders</span>
           </Button>
         </div>
 
         {/* Progress Chart */}
-        {showChart && (
-          <div className="mt-4 pt-4 border-t">
+        {showChart &&
+        <div className="mt-4 pt-4 border-t">
             <GoalProgressChart goal={goal} />
           </div>
-        )}
+        }
 
         {/* Kanban Board */}
-        {showKanban && (
-          <div className="mt-4 pt-4 border-t">
+        {showKanban &&
+        <div className="mt-4 pt-4 border-t">
             <GoalKanbanBoard goal={goal} />
           </div>
-        )}
+        }
 
         {/* Linked Journal Entries */}
-        {showJournalEntries && (
-          <div className="mt-4 pt-4 border-t">
+        {showJournalEntries &&
+        <div className="mt-4 pt-4 border-t">
             <LinkedJournalEntries goalId={goal.id} />
           </div>
-        )}
+        }
       </CardContent>
 
       {/* AI Adjustment Modal */}
-      {showAiAdjustment && (
-        <AiGoalAdjustment
-          goal={goal}
-          onApply={handleApplyAdjustment}
-          onClose={() => setShowAiAdjustment(false)}
-        />
-      )}
+      {showAiAdjustment &&
+      <AiGoalAdjustment
+        goal={goal}
+        onApply={handleApplyAdjustment}
+        onClose={() => setShowAiAdjustment(false)} />
+
+      }
 
       {/* Reminder Settings Modal */}
-      {showReminders && (
-        <ReminderSettings
-          goal={goal}
-          onClose={() => setShowReminders(false)}
-        />
-      )}
-    </Card>
-  );
+      {showReminders &&
+      <ReminderSettings
+        goal={goal}
+        onClose={() => setShowReminders(false)} />
+
+      }
+    </Card>);
+
 }
