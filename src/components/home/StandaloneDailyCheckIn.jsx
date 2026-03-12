@@ -501,13 +501,13 @@ export default function StandaloneDailyCheckIn() {
                       e.preventDefault();
                       handleMoodSelect(mood);
                     }
-                  }}
-                  className={cn(
-                    "flex flex-col items-center justify-center p-1 sm:p-2 md:p-4 transition-all hover:scale-105",
-                    formData.mood === mood.value ?
-                    "shadow-lg" :
-                    "hover:opacity-80"
-                  )}
+                  }} className="p-1 text-sm normal-case flex flex-col items-center justify-center sm:p-2 md:p-4 transition-all hover:scale-105 hover:opacity-80"
+
+
+
+
+
+
                   aria-label={t('daily_check_in.aria_select_mood', { label: t(`daily_check_in.moods.${mood.value}`, { defaultValue: mood.label }) })}
                   aria-pressed={formData.mood === mood.value}>
 
@@ -524,7 +524,7 @@ export default function StandaloneDailyCheckIn() {
                       'linear-gradient(180deg, rgba(224, 240, 234, 0.86) 0%, rgba(247, 244, 236, 0.82) 100%)'
                     }}>
 
-                      <span className="text-2xl sm:text-2xl md:text-3xl">{mood.emoji}</span>
+                      <span className="text-3xl font-light text-justify sm:text-2xl md:text-3xl">{mood.emoji}</span>
                     </div>
                     <div className="text-teal-600 font-medium text-center leading-tight rounded sm:text-xs">
                       {t(`daily_check_in.moods.${mood.value}`, { defaultValue: mood.label })}
