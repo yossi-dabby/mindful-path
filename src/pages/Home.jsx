@@ -252,7 +252,7 @@ export default function Home() {
           </div>
 
           {/* Secondary Content - Below the fold */}
-        <div className="bg-emerald-100 text-emerald-200 mt-8 p-4 rounded-[40px] space-y-4 border border-[rgba(125,173,160,0.24)] md:p-5 shadow-[0_20px_52px_rgba(68,108,96,0.08)] backdrop-blur-[10px]">
+        <div className="bg-teal-100 text-emerald-200 mt-8 p-4 rounded-[40px] space-y-4 border border-[rgba(125,173,160,0.24)] md:p-5 shadow-[0_20px_52px_rgba(68,108,96,0.08)] backdrop-blur-[10px]">
         
         {/* Goals Dashboard Widget */}
         <GoalsDashboardWidget />
@@ -274,7 +274,7 @@ export default function Home() {
                   </Button>
                 </Link>
                   }
-              <p className="text-2xl font-bold text-foreground">{recentGoals.length}</p>
+              <p className="text-teal-600 text-2xl font-bold">{recentGoals.length}</p>
             </div>
             <div className="flex items-center justify-center gap-2">
               {/* Help Video Button - MOBILE: LEFT of text */}
@@ -288,7 +288,7 @@ export default function Home() {
 
                 <Sparkles className="w-3 h-3 text-accent" strokeWidth={2} />
               </Button>
-              <p className="text-xs text-muted-foreground">{t('home.active_goals')}</p>
+              <p className="text-teal-600 text-xs">{t('home.active_goals')}</p>
             </div>
             {/* Help Video Button - WEB: Below text */}
             <Button
@@ -303,7 +303,7 @@ export default function Home() {
             </Button>
           </div>
           <div className="relative overflow-hidden rounded-[28px] border border-[rgba(116,169,154,0.3)] bg-[linear-gradient(180deg,rgba(252,248,241,0.98)_0%,rgba(232,246,241,0.96)_100%)] p-5 text-center shadow-[0_24px_54px_rgba(68,108,96,0.14),0_8px_18px_rgba(68,108,96,0.08)]">
-            <div className="flex items-center justify-center gap-2 mb-1">
+            <div className="text-teal-600 mb-1 flex items-center justify-center gap-2">
               {savedEntryId &&
                   <Link to={createPageUrl('Journal', `entry=${savedEntryId}`)}>
                   <Button
@@ -316,7 +316,7 @@ export default function Home() {
                   </Button>
                 </Link>
                   }
-              <p className="text-2xl font-bold text-foreground">{journalCount}</p>
+              <p className="text-teal-600 text-2xl font-bold">{journalCount}</p>
             </div>
             <div className="flex items-center justify-center gap-2">
               {/* Help Video Button - MOBILE: LEFT of text */}
@@ -330,7 +330,7 @@ export default function Home() {
 
                 <Sparkles className="w-3 h-3 text-accent" strokeWidth={2} />
               </Button>
-              <p className="text-xs text-muted-foreground">{t('home.journal_entries')}</p>
+              <p className="text-teal-600 text-xs">{t('home.journal_entries')}</p>
             </div>
             {/* Help Video Button - WEB: Below text */}
             <Button
