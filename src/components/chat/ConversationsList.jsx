@@ -67,7 +67,7 @@ export default function ConversationsList({
               onClick={() => onSelectConversation(conversation.id)} className="bg-teal-100 text-start p-3 w-full flex items-start gap-3 min-w-0">
 
 
-                  <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center flex-shrink-0 rounded-[var(--radius-control)] bg-secondary text-primary">
+                  <div className="bg-teal-600 text-slate-50 rounded-[20px] w-8 h-8 md:w-10 md:h-10 flex items-center justify-center flex-shrink-0">
                     <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
                   </div>
                   <div className="flex-1 min-w-0 pe-8">
