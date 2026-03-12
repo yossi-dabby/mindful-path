@@ -162,33 +162,33 @@ export default function Exercises() {
                   size="icon"
                   onClick={() => window.location.href = '/'}
                   style={{ borderRadius: '50%' }}
-                  aria-label={t('exercises.go_back_aria')}
-                  className="flex-shrink-0">
+                  aria-label={t('exercises.go_back_aria')} className="text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 flex-shrink-0">
+
 
               <svg className="rtl:scale-x-[-1]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
             </Button>
             <div className="min-w-0">
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-semibold break-words text-foreground">{t('exercises.page_title')}</h1>
+              <h1 className="text-teal-600 text-2xl font-semibold md:text-3xl lg:text-4xl break-words">{t('exercises.page_title')}</h1>
               <p className="text-sm md:text-base md:hidden break-words text-muted-foreground">{t('exercises.page_subtitle')}</p>
             </div>
           </div>
           <div className="flex gap-2 flex-wrap sm:flex-nowrap">
             <Button
                   onClick={() => setShowCoaching(true)}
-                  variant="outline"
-                  className="gap-2 hidden md:flex rounded-[var(--radius-card)]">
+                  variant="outline" className="bg-teal-50 text-teal-600 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] items-center justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 gap-2 hidden md:flex">
+
 
               <Sparkles className="w-4 h-4" />
               <span className="whitespace-nowrap">{t('exercises.ai_plan')}</span>
             </Button>
             <button
-                  onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-                  className={cn(
-                    "px-3 py-2 md:px-4 md:py-2 transition-all text-sm md:text-base whitespace-nowrap rounded-[var(--radius-card)] border shadow-[var(--shadow-sm)]",
-                    showFavoritesOnly ?
-                    "bg-destructive/10 border-destructive/20 text-destructive" :
-                    "bg-secondary/60 border-border/70 text-muted-foreground hover:text-foreground"
-                  )}>
+                  onClick={() => setShowFavoritesOnly(!showFavoritesOnly)} className="bg-teal-50 text-teal-600 px-3 py-2 text-sm rounded-[var(--radius-card)] md:px-4 md:py-2 transition-all md:text-base whitespace-nowrap border shadow-[var(--shadow-sm)] border-border/70 hover:text-foreground">
+
+
+
+
+
+
 
             <Star className={`w-4 h-4 inline mr-1 md:mr-2 ${showFavoritesOnly ? 'fill-current' : ''}`} />
             <span className="hidden md:inline">{t('exercises.favorites')}</span>
@@ -197,7 +197,7 @@ export default function Exercises() {
           </button>
           </div>
         </div>
-        <p className="text-sm md:text-base ml-0 md:ml-12 hidden md:block text-muted-foreground">{t('exercises.page_subtitle_full')}</p>
+        <p className="text-teal-600 ml-0 text-sm md:text-base md:ml-12 hidden md:block">{t('exercises.page_subtitle_full')}</p>
       </div>
 
       {/* Search Bar */}
@@ -225,8 +225,8 @@ export default function Exercises() {
             {categories.map((cat) =>
                 <TabsTrigger
                   key={cat.value}
-                  value={cat.value}
-                  className="whitespace-nowrap text-sm px-3">
+                  value={cat.value} className="text-teal-600 px-3 py-1 text-sm font-medium tracking-[0.003em] rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)] whitespace-nowrap">
+
 
                 {cat.label}
               </TabsTrigger>
