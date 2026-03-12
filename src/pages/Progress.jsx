@@ -164,7 +164,7 @@ export default function Progress() {
       </Tabs>
 
       {/* AI Insights - Below tabs */}
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="mt-6 rounded-2xl grid grid-cols-1 lg:grid-cols-2 gap-6">
         <InsightsPanel
           moodEntries={filteredMoodEntries}
           journalEntries={journalEntries} />
