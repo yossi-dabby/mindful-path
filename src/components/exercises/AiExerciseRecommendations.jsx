@@ -82,7 +82,7 @@ export default function AiExerciseRecommendations({ exercises, onSelectExercise 
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['exerciseFeedback'] });
-      setFeedbackGiven(prev => ({ ...prev, [variables.exerciseId]: variables.feedbackType }));
+      setFeedbackGiven((prev) => ({ ...prev, [variables.exerciseId]: variables.feedbackType }));
       toast.success('Thanks for your feedback!');
     }
   });
@@ -90,63 +90,63 @@ export default function AiExerciseRecommendations({ exercises, onSelectExercise 
   // Generate recommendations
   const generateMutation = useMutation({
     mutationFn: async () => {
-      const favoriteExercises = exercises.filter(e => e.favorite).map(e => e.title);
-      const completedExercises = exercises
-        .filter(e => e.completed_count > 0)
-        .sort((a, b) => (b.completed_count || 0) - (a.completed_count || 0))
-        .slice(0, 10)
-        .map(e => ({ 
-          title: e.title, 
-          count: e.completed_count,
-          difficulty: e.difficulty || 'beginner',
-          category: e.category
-        }));
+      const favoriteExercises = exercises.filter((e) => e.favorite).map((e) => e.title);
+      const completedExercises = exercises.
+      filter((e) => e.completed_count > 0).
+      sort((a, b) => (b.completed_count || 0) - (a.completed_count || 0)).
+      slice(0, 10).
+      map((e) => ({
+        title: e.title,
+        count: e.completed_count,
+        difficulty: e.difficulty || 'beginner',
+        category: e.category
+      }));
 
       // Calculate difficulty progression
-      const completedDifficulties = completedExercises.map(e => e.difficulty);
+      const completedDifficulties = completedExercises.map((e) => e.difficulty);
       const hasCompletedBeginner = completedDifficulties.includes('beginner');
       const hasCompletedIntermediate = completedDifficulties.includes('intermediate');
       const suggestedDifficulty = !hasCompletedBeginner ? 'beginner' :
-                                   !hasCompletedIntermediate ? 'intermediate or beginner' :
-                                   'intermediate or advanced';
+      !hasCompletedIntermediate ? 'intermediate or beginner' :
+      'intermediate or advanced';
 
-      const recentMoodSummary = recentMoods.length > 0
-        ? `Recent moods (last 7 entries): ${recentMoods.map(m => `${m.mood_level}/10 feeling ${m.primary_emotion || 'neutral'}`).join(', ')}`
-        : 'No recent mood data';
+      const recentMoodSummary = recentMoods.length > 0 ?
+      `Recent moods (last 7 entries): ${recentMoods.map((m) => `${m.mood_level}/10 feeling ${m.primary_emotion || 'neutral'}`).join(', ')}` :
+      'No recent mood data';
 
-      const goalsSummary = activeGoals.length > 0
-        ? `Active goals: ${activeGoals.map(g => `${g.title} (${g.category})`).join(', ')}`
-        : 'No active goals';
-      
+      const goalsSummary = activeGoals.length > 0 ?
+      `Active goals: ${activeGoals.map((g) => `${g.title} (${g.category})`).join(', ')}` :
+      'No active goals';
+
       // User feedback analysis
-      const helpfulExercises = feedbackHistory
-        .filter(f => f.feedback_type === 'helpful')
-        .map(f => f.exercise_id);
-      const notRelevantExercises = feedbackHistory
-        .filter(f => f.feedback_type === 'not_relevant')
-        .map(f => f.exercise_id);
+      const helpfulExercises = feedbackHistory.
+      filter((f) => f.feedback_type === 'helpful').
+      map((f) => f.exercise_id);
+      const notRelevantExercises = feedbackHistory.
+      filter((f) => f.feedback_type === 'not_relevant').
+      map((f) => f.exercise_id);
 
-      const feedbackSummary = feedbackHistory.length > 0
-        ? `User has marked ${helpfulExercises.length} exercises as helpful and ${notRelevantExercises.length} as not relevant. Avoid recommending exercises the user found not relevant.`
-        : 'No feedback history yet.';
+      const feedbackSummary = feedbackHistory.length > 0 ?
+      `User has marked ${helpfulExercises.length} exercises as helpful and ${notRelevantExercises.length} as not relevant. Avoid recommending exercises the user found not relevant.` :
+      'No feedback history yet.';
 
-      const availableExercises = exercises.map(e => ({
+      const availableExercises = exercises.map((e) => ({
         title: e.title || 'Untitled',
         category: e.category,
         difficulty: e.difficulty || 'beginner',
         description: e.description || '',
-        tags: (e.tags || []).filter(t => t && typeof t === 'string')
+        tags: (e.tags || []).filter((t) => t && typeof t === 'string')
       }));
 
-      const currentContext = selectedMood || selectedGoal 
-        ? `\n\nCURRENT CONTEXT (HIGH PRIORITY):\n${selectedMood ? `- User is currently feeling: ${selectedMood}` : ''}${selectedGoal ? `\n- User wants to work on: ${selectedGoal}` : ''}\n`
-        : '';
+      const currentContext = selectedMood || selectedGoal ?
+      `\n\nCURRENT CONTEXT (HIGH PRIORITY):\n${selectedMood ? `- User is currently feeling: ${selectedMood}` : ''}${selectedGoal ? `\n- User wants to work on: ${selectedGoal}` : ''}\n` :
+      '';
 
       const prompt = `You are a CBT therapy assistant. Based on the user's activity and needs, recommend 3-5 exercises from the available list.
 ${currentContext}
 User History:
 - Favorite exercises: ${favoriteExercises.length > 0 ? favoriteExercises.join(', ') : 'None yet'}
-- Most completed: ${completedExercises.length > 0 ? completedExercises.map(e => `${e.title} (${e.count}x, ${e.difficulty})`).join(', ') : 'None yet'}
+- Most completed: ${completedExercises.length > 0 ? completedExercises.map((e) => `${e.title} (${e.count}x, ${e.difficulty})`).join(', ') : 'None yet'}
 - ${recentMoodSummary}
 - ${goalsSummary}
 - ${feedbackSummary}
@@ -207,9 +207,9 @@ Provide recommendations with:
   };
 
   const getExerciseByTitle = (title) => {
-    return exercises.find(e => 
-      (e.title || '').toLowerCase() === (title || '').toLowerCase() ||
-      (e.title || '').toLowerCase().includes((title || '').toLowerCase())
+    return exercises.find((e) =>
+    (e.title || '').toLowerCase() === (title || '').toLowerCase() ||
+    (e.title || '').toLowerCase().includes((title || '').toLowerCase())
     );
   };
 
@@ -218,39 +218,39 @@ Provide recommendations with:
       <CardHeader className="border-b border-border/70 bg-secondary/35">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
-            <CardTitle className="text-xl text-foreground">AI Recommendations</CardTitle>
+            <Sparkles className="text-teal-600 lucide lucide-sparkles w-5 h-5" />
+            <CardTitle className="text-teal-600 text-xl font-semibold tracking-[-0.012em]">AI Recommendations</CardTitle>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button
               onClick={() => setShowFilters(!showFilters)}
               disabled={generateMutation.isPending}
               size="sm"
-              variant="outline"
-              className="flex-1 sm:flex-none"
-            >
+              variant="outline" className="bg-teal-500 text-secondary-foreground px-3 text-xs font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 flex-1 sm:flex-none">
+
+
               <Sparkles className="w-4 h-4 sm:mr-2" />
               <span className="hidden sm:inline">Customize</span>
             </Button>
             <Button
               onClick={handleGenerate}
               disabled={generateMutation.isPending}
-              size="sm"
-              className="flex-1 sm:flex-none"
-            >
-              {generateMutation.isPending ? (
-                <>
+              size="sm" className="bg-teal-500 text-primary-foreground px-3 text-xs font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-8 min-h-[44px] md:min-h-0 flex-1 sm:flex-none">
+
+
+              {generateMutation.isPending ?
+              <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   <span className="hidden sm:inline">Analyzing...</span>
                   <span className="sm:hidden">...</span>
-                </>
-              ) : (
-                <>
+                </> :
+
+              <>
                   <RefreshCw className="w-4 h-4 sm:mr-2" />
                   <span className="hidden sm:inline">{recommendations ? 'Refresh' : 'Get Recommendations'}</span>
                   <span className="sm:hidden">{recommendations ? 'Refresh' : 'Get'}</span>
                 </>
-              )}
+              }
             </Button>
           </div>
         </div>
@@ -258,13 +258,13 @@ Provide recommendations with:
       <CardContent className="overflow-x-hidden">
         {/* Mood/Goal Filters */}
         <AnimatePresence>
-          {showFilters && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mb-4 p-4 bg-secondary/35 rounded-[var(--radius-control)] border border-border/70"
-            >
+          {showFilters &&
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mb-4 p-4 bg-secondary/35 rounded-[var(--radius-control)] border border-border/70">
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                 <div>
                   <Label className="text-sm font-medium mb-2">How are you feeling right now?</Label>
@@ -303,77 +303,77 @@ Provide recommendations with:
                   </Select>
                 </div>
               </div>
-              {(selectedMood || selectedGoal) && (
-                <div className="flex items-center gap-2 text-sm text-primary bg-secondary px-3 py-2 rounded-[var(--radius-control)]">
+              {(selectedMood || selectedGoal) &&
+            <div className="flex items-center gap-2 text-sm text-primary bg-secondary px-3 py-2 rounded-[var(--radius-control)]">
                   <CheckCircle2 className="w-4 h-4" />
                   <span>
-                    {selectedMood && selectedGoal
-                      ? `Recommendations will focus on "${selectedGoal}" while feeling "${selectedMood}"`
-                      : selectedMood
-                      ? `Recommendations will address feeling "${selectedMood}"`
-                      : `Recommendations will focus on "${selectedGoal}"`}
+                    {selectedMood && selectedGoal ?
+                `Recommendations will focus on "${selectedGoal}" while feeling "${selectedMood}"` :
+                selectedMood ?
+                `Recommendations will address feeling "${selectedMood}"` :
+                `Recommendations will focus on "${selectedGoal}"`}
                   </span>
                   <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => {
-                      setSelectedMood('');
-                      setSelectedGoal('');
-                    }}
-                    className="ml-auto h-6 px-2"
-                  >
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  setSelectedMood('');
+                  setSelectedGoal('');
+                }}
+                className="ml-auto h-6 px-2">
+
                     Clear
                   </Button>
                 </div>
-              )}
+            }
             </motion.div>
-          )}
+          }
         </AnimatePresence>
 
-        {!recommendations && !generateMutation.isPending && (
-          <div className="text-center py-8 px-4">
-            <Sparkles className="w-12 h-12 text-primary/30 mx-auto mb-3" />
-            <p className="text-muted-foreground mb-4 text-sm sm:text-base">
-              Get personalized exercise recommendations based on your activity, favorites, mood, and goals
-            </p>
-          </div>
-        )}
+        {!recommendations && !generateMutation.isPending &&
+        <div className="text-center py-8 px-4">
+            <Sparkles className="text-teal-600 mb-3 mx-auto lucide lucide-sparkles w-12 h-12" />
+            <p className="text-teal-600 mb-4 text-sm sm:text-base">Get personalized exercise recommendations based on your activity, favorites, mood, and goals
 
-        {generateMutation.isPending && (
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="animate-pulse">
+          </p>
+          </div>
+        }
+
+        {generateMutation.isPending &&
+        <div className="space-y-3">
+            {[1, 2, 3].map((i) =>
+          <div key={i} className="animate-pulse">
                 <div className="h-24 bg-secondary rounded-xl" />
               </div>
-            ))}
+          )}
           </div>
-        )}
+        }
 
-        {generateMutation.isError && (
-          <div className="text-center py-6">
+        {generateMutation.isError &&
+        <div className="text-center py-6">
             <p className="text-gray-600 font-medium">Couldn&apos;t fetch recommendations. Please try again.</p>
           </div>
-        )}
+        }
 
-        {Array.isArray(recommendations) && recommendations.length > 0 && (
-          <div className="space-y-3">
+        {Array.isArray(recommendations) && recommendations.length > 0 &&
+        <div className="space-y-3">
             {recommendations.map((rec, index) => {
-              const exercise = getExerciseByTitle(rec.exercise_title);
-              const Icon = exercise ? categoryIcons[exercise.category] : Sparkles;
-              const priorityColors = {
-                high: 'bg-red-100 text-red-700 border-red-300',
-                medium: 'bg-yellow-100 text-yellow-700 border-yellow-300',
-                low: 'bg-blue-100 text-blue-700 border-blue-300'
-              };
-              const feedbackKey = exercise ? exercise.id : `${rec.exercise_title}_${index}`;
+            const exercise = getExerciseByTitle(rec.exercise_title);
+            const Icon = exercise ? categoryIcons[exercise.category] : Sparkles;
+            const priorityColors = {
+              high: 'bg-red-100 text-red-700 border-red-300',
+              medium: 'bg-yellow-100 text-yellow-700 border-yellow-300',
+              low: 'bg-blue-100 text-blue-700 border-blue-300'
+            };
+            const feedbackKey = exercise ? exercise.id : `${rec.exercise_title}_${index}`;
 
-              return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
+            return (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}>
+
                   <Card className="border border-border/80 bg-card hover:shadow-[var(--shadow-md)] transition-all cursor-pointer" onClick={() => exercise && onSelectExercise(exercise)}>
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
@@ -389,79 +389,79 @@ Provide recommendations with:
                               {rec.priority}
                             </Badge>
                           </div>
-                          {rec.reason ? (
-                            <p className="text-sm text-muted-foreground mb-2">{rec.reason}</p>
-                          ) : null}
-                          {rec.benefit ? (
-                            <div className="flex items-start gap-2 bg-secondary/45 rounded-lg p-2 border border-border/60">
+                          {rec.reason ?
+                        <p className="text-sm text-muted-foreground mb-2">{rec.reason}</p> :
+                        null}
+                          {rec.benefit ?
+                        <div className="flex items-start gap-2 bg-secondary/45 rounded-lg p-2 border border-border/60">
                               <Sparkles className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                               <p className="text-xs text-foreground/85">{rec.benefit}</p>
-                            </div>
-                          ) : null}
-                          {exercise ? (
-                            <>
+                            </div> :
+                        null}
+                          {exercise ?
+                        <>
                               <Button
-                                size="sm"
-                                className="mt-3 w-full bg-purple-600 hover:bg-purple-700"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  onSelectExercise(exercise);
-                                }}
-                              >
+                            size="sm"
+                            className="mt-3 w-full bg-purple-600 hover:bg-purple-700"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onSelectExercise(exercise);
+                            }}>
+
                                 Try This Exercise
                               </Button>
 
                               {/* Feedback Buttons */}
                               <div className="mt-2 flex gap-2">
                                 <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className={`flex-1 ${feedbackGiven[feedbackKey] === 'helpful' ? 'bg-green-50 border-green-300 text-green-700' : ''}`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleFeedback(feedbackKey, 'helpful', rec.reason);
-                                  }}
-                                  disabled={!!feedbackGiven[feedbackKey]}
-                                >
+                              size="sm"
+                              variant="outline"
+                              className={`flex-1 ${feedbackGiven[feedbackKey] === 'helpful' ? 'bg-green-50 border-green-300 text-green-700' : ''}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleFeedback(feedbackKey, 'helpful', rec.reason);
+                              }}
+                              disabled={!!feedbackGiven[feedbackKey]}>
+
                                   <ThumbsUp className="w-3 h-3 mr-1" />
                                   Helpful
                                 </Button>
                                 <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className={`flex-1 ${feedbackGiven[feedbackKey] === 'not_relevant' ? 'bg-red-50 border-red-300 text-red-700' : ''}`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleFeedback(feedbackKey, 'not_relevant', rec.reason);
-                                  }}
-                                  disabled={!!feedbackGiven[feedbackKey]}
-                                >
+                              size="sm"
+                              variant="outline"
+                              className={`flex-1 ${feedbackGiven[feedbackKey] === 'not_relevant' ? 'bg-red-50 border-red-300 text-red-700' : ''}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleFeedback(feedbackKey, 'not_relevant', rec.reason);
+                              }}
+                              disabled={!!feedbackGiven[feedbackKey]}>
+
                                   <ThumbsDown className="w-3 h-3 mr-1" />
                                   Not Relevant
                                 </Button>
                               </div>
-                            </>
-                          ) : (
-                            <p className="mt-3 text-xs text-gray-400 italic">
+                            </> :
+
+                        <p className="mt-3 text-xs text-gray-400 italic">
                               Exercise not found in library — browse the Exercises section to find similar ones.
                             </p>
-                          )}
+                        }
                         </div>
                       </div>
                     </CardContent>
                   </Card>
-                </motion.div>
-              );
-            })}
-          </div>
-        )}
+                </motion.div>);
 
-        {Array.isArray(recommendations) && recommendations.length === 0 && (
-          <div className="text-center py-6">
+          })}
+          </div>
+        }
+
+        {Array.isArray(recommendations) && recommendations.length === 0 &&
+        <div className="text-center py-6">
             <p className="text-gray-600">No recommendations yet — try again.</p>
           </div>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }
