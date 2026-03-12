@@ -56,25 +56,25 @@ export default function EnhancedProgressDashboard() {
   });
 
   // Get gamification data
-  const overallStreak = streaks.find(s => s.streak_type === 'overall') || { current_streak: 0 };
+  const overallStreak = streaks.find((s) => s.streak_type === 'overall') || { current_streak: 0 };
   const userPoints = points[0] || { total_points: 0, level: 1 };
-  const earnedBadges = badges.filter(b => b.earned_date);
+  const earnedBadges = badges.filter((b) => b.earned_date);
 
   // Calculate mood trends (last 30 days)
   const moodTrendData = useMemo(() => {
     const last30Days = Array.from({ length: 30 }, (_, i) => {
       const date = startOfDay(subDays(new Date(), 29 - i));
       const dateStr = format(date, 'yyyy-MM-dd');
-      const dayMoods = moodEntries.filter(m => m.date === dateStr);
-      
+      const dayMoods = moodEntries.filter((m) => m.date === dateStr);
+
       return {
         date: format(date, 'MMM dd'),
-        mood: dayMoods.length > 0 
-          ? dayMoods.reduce((sum, m) => sum + (m.mood_level || 5), 0) / dayMoods.length 
-          : null
+        mood: dayMoods.length > 0 ?
+        dayMoods.reduce((sum, m) => sum + (m.mood_level || 5), 0) / dayMoods.length :
+        null
       };
     });
-    return last30Days.filter(d => d.mood !== null);
+    return last30Days.filter((d) => d.mood !== null);
   }, [moodEntries]);
 
   // Calculate exercise completion frequency
@@ -96,11 +96,11 @@ export default function EnhancedProgressDashboard() {
     const last30Days = Array.from({ length: 30 }, (_, i) => {
       const date = startOfDay(subDays(new Date(), 29 - i));
       const dateStr = format(date, 'yyyy-MM-dd');
-      const dayJournals = journalEntries.filter(j => {
+      const dayJournals = journalEntries.filter((j) => {
         const jDate = format(new Date(j.created_date), 'yyyy-MM-dd');
         return jDate === dateStr;
       });
-      
+
       return {
         date: format(date, 'MMM dd'),
         entries: dayJournals.length
@@ -111,7 +111,7 @@ export default function EnhancedProgressDashboard() {
 
   // Goal progress distribution
   const goalProgressData = useMemo(() => {
-    return goals.map(g => ({
+    return goals.map((g) => ({
       name: g.title?.substring(0, 20) + (g.title?.length > 20 ? '...' : ''),
       progress: g.progress || 0
     })).slice(0, 5);
@@ -119,15 +119,15 @@ export default function EnhancedProgressDashboard() {
 
   // Calculate key metrics
   const metrics = useMemo(() => {
-    const avgMood = moodTrendData.length > 0
-      ? (moodTrendData.reduce((sum, d) => sum + d.mood, 0) / moodTrendData.length).toFixed(1)
-      : 'N/A';
-    
+    const avgMood = moodTrendData.length > 0 ?
+    (moodTrendData.reduce((sum, d) => sum + d.mood, 0) / moodTrendData.length).toFixed(1) :
+    'N/A';
+
     const totalExercises = exercises.reduce((sum, e) => sum + (e.completed_count || 0), 0);
     const totalExerciseTime = Math.round(exercises.reduce((sum, e) => sum + (e.total_time_practiced || 0), 0));
     const journalCount = journalEntries.length;
-    const completedGoals = goals.filter(g => g.status === 'completed').length;
-    const activeGoals = goals.filter(g => g.status === 'active').length;
+    const completedGoals = goals.filter((g) => g.status === 'completed').length;
+    const activeGoals = goals.filter((g) => g.status === 'active').length;
 
     // Trend calculation
     const recent7 = moodTrendData.slice(-7);
@@ -153,16 +153,16 @@ export default function EnhancedProgressDashboard() {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="surface-secondary rounded-[var(--radius-card)] p-4 sm:p-5 border-border/80"
-      >
+        className="surface-secondary rounded-[var(--radius-card)] p-4 sm:p-5 border-border/80">
+
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <motion.div
               animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
               className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(145deg, #F6AD55 0%, #ED8936 100%)' }}
-            >
+              style={{ background: 'linear-gradient(145deg, #F6AD55 0%, #ED8936 100%)' }}>
+
               <Flame className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
             </motion.div>
             <div>
@@ -200,47 +200,47 @@ export default function EnhancedProgressDashboard() {
       </motion.div>
 
       {/* Key Metrics Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+      <div className="text-teal-600 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
-          <CardContent className="p-4 sm:p-6 text-center">
+          <CardContent className="bg-teal-100 p-4 text-center rounded sm:p-6">
             <div className="flex items-center justify-center mb-2">
-              {metrics.moodTrend === 'improving' ? (
-                <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
-              ) : metrics.moodTrend === 'declining' ? (
-                <TrendingDown className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" />
-              ) : (
-                <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-teal-600" />
-              )}
+              {metrics.moodTrend === 'improving' ?
+              <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" /> :
+              metrics.moodTrend === 'declining' ?
+              <TrendingDown className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" /> :
+
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-teal-600" />
+              }
             </div>
-            <p className="text-2xl sm:text-3xl font-bold text-foreground">{metrics.avgMood}</p>
-            <p className="text-xs sm:text-sm mt-1 text-muted-foreground">{t('progress.dashboard.avg_mood')}</p>
-            <Badge className="mt-2 text-xs" variant="secondary">{t(`progress.dashboard.trend_${metrics.moodTrend}`)}</Badge>
+            <p className="text-teal-600 text-2xl font-bold sm:text-3xl">{metrics.avgMood}</p>
+            <p className="text-teal-600 mt-1 text-xs sm:text-sm">{t('progress.dashboard.avg_mood')}</p>
+            <Badge className="bg-secondary/86 text-teal-600 mt-2 px-2.5 py-1 text-xs font-medium tracking-[0.01em] rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/60" variant="secondary">{t(`progress.dashboard.trend_${metrics.moodTrend}`)}</Badge>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-red-50 text-card-foreground rounded-[var(--radius-card)] border shadow-[var(--shadow-md)] backdrop-blur-[10px] surface-secondary border-border/80">
+          <CardContent className="p-4 sm:p-6 text-center">
+            <Dumbbell className="text-red-600 mb-2 mx-auto lucide lucide-dumbbell w-5 h-5 sm:w-6 sm:h-6" />
+            <p className="text-red-600 text-2xl font-bold sm:text-3xl">{metrics.totalExercises}</p>
+            <p className="text-red-600 mt-1 text-xs sm:text-sm">{t('progress.tabs.exercises')}</p>
+            <p className="text-red-600 mt-1 text-xs">{metrics.totalExerciseTime} {t('common.minutes_short')}</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-lime-50 text-card-foreground rounded-[var(--radius-card)] border shadow-[var(--shadow-md)] backdrop-blur-[10px] surface-secondary border-border/80">
+          <CardContent className="p-4 sm:p-6 text-center">
+            <BookOpen className="text-lime-600 mb-2 mx-auto lucide lucide-book-open w-5 h-5 sm:w-6 sm:h-6" />
+            <p className="text-lime-600 text-2xl font-bold sm:text-3xl">{metrics.journalCount}</p>
+            <p className="text-lime-600 mt-1 text-xs sm:text-sm">{t('home.journal_entries')}</p>
           </CardContent>
         </Card>
 
         <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
-          <CardContent className="p-4 sm:p-6 text-center">
-            <Dumbbell className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2 text-primary" />
-            <p className="text-2xl sm:text-3xl font-bold text-foreground">{metrics.totalExercises}</p>
-            <p className="text-xs sm:text-sm mt-1 text-muted-foreground">{t('progress.tabs.exercises')}</p>
-            <p className="text-xs mt-1 text-muted-foreground/80">{metrics.totalExerciseTime} {t('common.minutes_short')}</p>
-          </CardContent>
-        </Card>
-
-        <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
-          <CardContent className="p-4 sm:p-6 text-center">
-            <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2 text-accent" />
-            <p className="text-2xl sm:text-3xl font-bold text-foreground">{metrics.journalCount}</p>
-            <p className="text-xs sm:text-sm mt-1 text-muted-foreground">{t('home.journal_entries')}</p>
-          </CardContent>
-        </Card>
-
-        <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
-          <CardContent className="p-4 sm:p-6 text-center">
-            <Target className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2 text-primary" />
-            <p className="text-2xl sm:text-3xl font-bold text-foreground">{metrics.completedGoals}</p>
-            <p className="text-xs sm:text-sm mt-1 text-muted-foreground">{t('progress.dashboard.goals_achieved')}</p>
-            <p className="text-xs mt-1 text-muted-foreground/80">{metrics.activeGoals} {t('progress.dashboard.active')}</p>
+          <CardContent className="bg-teal-100 p-4 text-center sm:p-6">
+            <Target className="text-teal-600 mb-2 mx-auto lucide lucide-target w-5 h-5 sm:w-6 sm:h-6" />
+            <p className="text-teal-600 text-2xl font-bold sm:text-3xl">{metrics.completedGoals}</p>
+            <p className="text-teal-600 mt-1 text-xs sm:text-sm">{t('progress.dashboard.goals_achieved')}</p>
+            <p className="text-teal-600 mt-1 text-xs">{metrics.activeGoals} {t('progress.dashboard.active')}</p>
           </CardContent>
         </Card>
       </div>
@@ -257,20 +257,20 @@ export default function EnhancedProgressDashboard() {
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={moodTrendData}>
               <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-              <XAxis 
-                dataKey="date" 
+              <XAxis
+                dataKey="date"
                 tick={{ fontSize: 10 }}
-                interval={Math.floor(moodTrendData.length / 6)}
-              />
+                interval={Math.floor(moodTrendData.length / 6)} />
+
               <YAxis domain={[0, 10]} tick={{ fontSize: 10 }} />
               <Tooltip />
-              <Line 
-                type="monotone" 
-                dataKey="mood" 
-                stroke="#26A69A" 
+              <Line
+                type="monotone"
+                dataKey="mood"
+                stroke="#26A69A"
                 strokeWidth={3}
-                dot={{ fill: '#26A69A', r: 4 }}
-              />
+                dot={{ fill: '#26A69A', r: 4 }} />
+
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
@@ -311,11 +311,11 @@ export default function EnhancedProgressDashboard() {
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={journalConsistencyData}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                <XAxis 
-                  dataKey="date" 
+                <XAxis
+                  dataKey="date"
                   tick={{ fontSize: 10 }}
-                  interval={Math.floor(journalConsistencyData.length / 6)}
-                />
+                  interval={Math.floor(journalConsistencyData.length / 6)} />
+
                 <YAxis tick={{ fontSize: 10 }} />
                 <Tooltip />
                 <Bar dataKey="entries" fill="#E6B86E" radius={[8, 8, 0, 0]} />
@@ -326,8 +326,8 @@ export default function EnhancedProgressDashboard() {
       </div>
 
       {/* Goal Progress */}
-      {goalProgressData.length > 0 && (
-        <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
+      {goalProgressData.length > 0 &&
+      <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-foreground">
               <Target className="w-5 h-5 text-primary" />
@@ -336,27 +336,27 @@ export default function EnhancedProgressDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {goalProgressData.map((goal, index) => (
-                <div key={index}>
+              {goalProgressData.map((goal, index) =>
+            <div key={index}>
                   <div className="flex items-center justify-between mb-1 gap-2">
                     <span className="text-sm font-medium break-words flex-1 min-w-0 text-foreground/85">{goal.name}</span>
                     <span className="text-sm font-bold text-primary">{goal.progress}%</span>
                   </div>
                   <div className="w-full bg-secondary rounded-full h-2">
-                    <div 
-                      className="h-2 rounded-full transition-all"
-                      style={{ 
-                        width: `${goal.progress}%`,
-                        background: COLORS[index % COLORS.length]
-                      }}
-                    />
+                    <div
+                  className="h-2 rounded-full transition-all"
+                  style={{
+                    width: `${goal.progress}%`,
+                    background: COLORS[index % COLORS.length]
+                  }} />
+
                   </div>
                 </div>
-              ))}
+            )}
             </div>
           </CardContent>
         </Card>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 }
