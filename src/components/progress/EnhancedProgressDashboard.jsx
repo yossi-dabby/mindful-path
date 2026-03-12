@@ -166,7 +166,7 @@ export default function EnhancedProgressDashboard() {
               <Flame className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
             </motion.div>
             <div>
-              <p className="text-xs sm:text-sm text-muted-foreground">{t('progress.dashboard.current_streak')}</p>
+              <p className="text-muted-foreground text-xs font-medium sm:text-sm">{t('progress.dashboard.current_streak')}</p>
               <p className="text-2xl sm:text-3xl font-bold text-foreground">
                 {overallStreak.current_streak} {t('progress.dashboard.days')}
               </p>
@@ -179,21 +179,21 @@ export default function EnhancedProgressDashboard() {
                 <Zap className="w-4 h-4" style={{ color: '#F6AD55' }} />
                 <span className="text-lg sm:text-xl font-bold text-foreground">{userPoints.total_points}</span>
               </div>
-              <p className="text-xs break-words text-muted-foreground">{t('progress.dashboard.points')}</p>
+              <p className="text-muted-foreground text-sm font-medium break-words">{t('progress.dashboard.points')}</p>
             </div>
             <div className="text-center min-w-0">
               <div className="flex items-center gap-1 justify-center">
                 <Award className="w-4 h-4 text-accent" />
                 <span className="text-lg sm:text-xl font-bold text-foreground">{earnedBadges.length}</span>
               </div>
-              <p className="text-xs break-words text-muted-foreground">{t('progress.dashboard.badges')}</p>
+              <p className="text-muted-foreground text-sm font-medium break-words">{t('progress.dashboard.badges')}</p>
             </div>
             <div className="text-center min-w-0">
               <div className="flex items-center gap-1 justify-center">
                 <Sparkles className="w-4 h-4 text-primary" />
                 <span className="text-lg sm:text-xl font-bold whitespace-nowrap text-foreground">{t('progress.dashboard.level_prefix')}{userPoints.level}</span>
               </div>
-              <p className="text-xs break-words text-muted-foreground">{t('progress.dashboard.level')}</p>
+              <p className="text-muted-foreground text-sm font-medium break-words">{t('progress.dashboard.level')}</p>
             </div>
           </div>
         </div>
@@ -227,7 +227,7 @@ export default function EnhancedProgressDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="bg-lime-50 text-card-foreground rounded-[var(--radius-card)] border shadow-[var(--shadow-md)] backdrop-blur-[10px] surface-secondary border-border/80">
+        <Card className="bg-lime-50 text-card-foreground rounded-2xl border shadow-[var(--shadow-md)] backdrop-blur-[10px] surface-secondary border-border/80">
           <CardContent className="p-4 text-center rounded-2xl sm:p-6">
             <BookOpen className="text-lime-600 mb-2 mx-auto lucide lucide-book-open w-5 h-5 sm:w-6 sm:h-6" />
             <p className="text-lime-600 text-2xl font-bold sm:text-3xl">{metrics.journalCount}</p>
@@ -235,7 +235,7 @@ export default function EnhancedProgressDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
+        <Card className="bg-teal-100 text-card-foreground rounded-2xl border shadow-[var(--shadow-md)] backdrop-blur-[10px] surface-secondary border-border/80">
           <CardContent className="bg-teal-100 p-4 text-center rounded sm:p-6">
             <Target className="text-teal-600 mb-2 mx-auto lucide lucide-target w-5 h-5 sm:w-6 sm:h-6" />
             <p className="text-teal-600 text-2xl font-bold sm:text-3xl">{metrics.completedGoals}</p>
@@ -281,14 +281,14 @@ export default function EnhancedProgressDashboard() {
         {/* Exercise Frequency */}
         <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-foreground">
-              <Dumbbell className="w-5 h-5 text-primary" />
+            <CardTitle className="text-teal-600 text-base font-semibold tracking-[-0.012em] flex items-center gap-2 sm:text-lg">
+              <Dumbbell className="text-teal-600 lucide lucide-dumbbell w-5 h-5" />
               {t('progress.dashboard.charts.exercise_by_category')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={exerciseFrequencyData}>
+              <BarChart data={exerciseFrequencyData} className="bg-teal-50 recharts-surface">
                 <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                 <XAxis dataKey="name" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={80} />
                 <YAxis tick={{ fontSize: 10 }} />
@@ -302,12 +302,12 @@ export default function EnhancedProgressDashboard() {
         {/* Journal Consistency */}
         <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-foreground">
+            <CardTitle className="text-amber-600 text-base font-semibold tracking-[-0.012em] flex items-center gap-2 sm:text-lg">
               <BookOpen className="w-5 h-5 text-accent" />
               {t('progress.dashboard.charts.journal_consistency')}
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="bg-orange-50 pt-0 p-6">
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={journalConsistencyData}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
@@ -329,8 +329,8 @@ export default function EnhancedProgressDashboard() {
       {goalProgressData.length > 0 &&
       <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-foreground">
-              <Target className="w-5 h-5 text-primary" />
+            <CardTitle className="text-teal-600 text-base font-semibold tracking-[-0.012em] flex items-center gap-2 sm:text-lg">
+              <Target className="text-teal-600 lucide lucide-target w-5 h-5" />
               {t('progress.dashboard.charts.goal_progress')}
             </CardTitle>
           </CardHeader>
