@@ -72,8 +72,19 @@ export default function CoachingChat({ session, onBack }) {
   }, [currentSession.agent_conversation_id]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    const container = document.querySelector('[data-testid="coach-chat-messages"]');
+    if (!container) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+
+    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    const isNearBottom = distanceFromBottom < 140;
+
+    if (isNearBottom || isLoading) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, isLoading]);
 
   const updateStageMutation = useMutation({
     mutationFn: (newStage) => 
@@ -190,7 +201,7 @@ export default function CoachingChat({ session, onBack }) {
       <div className="flex-1 min-h-0 flex">
         {/* Chat Area */}
         <div className="flex-1 flex flex-col">
-          <div className="flex-1 overflow-y-auto p-4 bg-[hsl(var(--surface-tint))]" style={{ overscrollBehavior: 'none' }}>
+          <div className="flex-1 min-h-0 overflow-y-auto p-4 bg-[hsl(var(--surface-tint))]" style={{ overscrollBehavior: 'none', WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
             <div data-testid="coach-chat-messages" className="max-w-4xl mx-auto space-y-4">
               {/* Inline Consent Banner - Non-blocking */}
               {showConsentBanner && (
