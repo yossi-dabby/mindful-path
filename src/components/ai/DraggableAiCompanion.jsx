@@ -29,7 +29,7 @@ const getViewportSize = () => {
   const vp = window.visualViewport;
   return {
     width: vp ? vp.width : window.innerWidth,
-    height: vp ? vp.height : window.innerHeight,
+    height: vp ? vp.height : window.innerHeight
   };
 };
 
@@ -60,14 +60,14 @@ export default function DraggableAiCompanion() {
     const { width: vpWidth } = getViewportSize();
     const isMobile = vpWidth < MOBILE_BREAKPOINT;
     const stored = localStorage.getItem(STORAGE_KEY);
-    
+
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
         const storedPos = isMobile ? parsed.mobile : parsed.desktop;
         if (storedPos &&
-            typeof storedPos.right === 'number' && isFinite(storedPos.right) &&
-            typeof storedPos.bottom === 'number' && isFinite(storedPos.bottom)) {
+        typeof storedPos.right === 'number' && isFinite(storedPos.right) &&
+        typeof storedPos.bottom === 'number' && isFinite(storedPos.bottom)) {
           // Fully clamp both axes so a position saved on a wider/taller screen
           // never places the bubble off-screen on the current (smaller) viewport.
           const clamped = constrainPosition(storedPos);
@@ -81,15 +81,15 @@ export default function DraggableAiCompanion() {
         console.error('Failed to parse stored position', e);
       }
     }
-    
+
     // Default positions — safe area is added at render time via positionStyle,
     // so position.bottom stores the offset above the bottom nav only.
-    const safeBottomOffset = isMobile ? (BOTTOM_NAV_HEIGHT + FAB_NAV_GAP) : 24;
-    
+    const safeBottomOffset = isMobile ? BOTTOM_NAV_HEIGHT + FAB_NAV_GAP : 24;
+
     setPosition(
-      isMobile 
-        ? { bottom: safeBottomOffset, right: 20 } 
-        : { bottom: 24, right: 24 }
+      isMobile ?
+      { bottom: safeBottomOffset, right: 20 } :
+      { bottom: 24, right: 24 }
     );
   }, []);
 
@@ -98,7 +98,7 @@ export default function DraggableAiCompanion() {
   // never left off-screen after the viewport shrinks.
   useEffect(() => {
     const handleViewportChange = () => {
-      setPosition(prev => {
+      setPosition((prev) => {
         if (!prev) return prev;
         return constrainPosition(prev);
       });
@@ -121,12 +121,12 @@ export default function DraggableAiCompanion() {
 
   // Check age verification and consent
   useEffect(() => {
-    const isTestEnv = 
-      window.navigator.webdriver === true ||
-      window.Cypress !== undefined ||
-      window.playwright !== undefined ||
-      /HeadlessChrome/.test(window.navigator.userAgent);
-    
+    const isTestEnv =
+    window.navigator.webdriver === true ||
+    window.Cypress !== undefined ||
+    window.playwright !== undefined ||
+    /HeadlessChrome/.test(window.navigator.userAgent);
+
     if (isTestEnv) {
       localStorage.setItem('age_verified', 'true');
       localStorage.setItem('chat_consent_accepted', 'true');
@@ -136,7 +136,7 @@ export default function DraggableAiCompanion() {
 
     const ageVerified = localStorage.getItem('age_verified');
     setIsAgeVerified(ageVerified === 'true');
-    
+
     const consentAccepted = localStorage.getItem('chat_consent_accepted');
     if (!consentAccepted && ageVerified === 'true') {
       setShowConsentBanner(true);
@@ -157,12 +157,12 @@ export default function DraggableAiCompanion() {
   // Create or get companion conversation with memory context
   useEffect(() => {
     if (!isOpen || conversation) return;
-    
+
     let isCancelled = false;
-    
+
     (async () => {
       let memoryContext = '';
-      
+
       try {
         // Fetch recent memories to provide context
         const memories = await base44.entities.CompanionMemory.filter(
@@ -170,10 +170,10 @@ export default function DraggableAiCompanion() {
           '-importance',
           10
         );
-        
-        memoryContext = memories.length > 0
-          ? `\n\n[User Context from Previous Sessions]\n${memories.map(m => `- ${m.content}`).join('\n')}`
-          : '';
+
+        memoryContext = memories.length > 0 ?
+        `\n\n[User Context from Previous Sessions]\n${memories.map((m) => `- ${m.content}`).join('\n')}` :
+        '';
       } catch (error) {
         console.error('Failed to fetch memories:', error);
         if (!isCancelled) setMemoryError(true);
@@ -193,7 +193,7 @@ export default function DraggableAiCompanion() {
             memory_context: memoryContext
           }
         });
-        
+
         if (!isCancelled) {
           setConversation(conv);
           setMessages(conv.messages || []);
@@ -203,7 +203,7 @@ export default function DraggableAiCompanion() {
         // TODO: Show error UI to user
       }
     })();
-    
+
     return () => {
       isCancelled = true;
     };
@@ -212,7 +212,7 @@ export default function DraggableAiCompanion() {
   // Subscribe to conversation updates
   const messagesRef = useRef([]);
   const isUpdatingRef = useRef(false);
-  
+
   useEffect(() => {
     if (!conversation?.id) return;
 
@@ -221,33 +221,33 @@ export default function DraggableAiCompanion() {
 
     const unsubscribe = base44.agents.subscribeToConversation(conversationId, (data) => {
       if (!isSubscribed || !mountedRef.current || isUpdatingRef.current) return;
-      
+
       const newMessages = data.messages || [];
-      
+
       // Check if messages actually changed
       const lastNew = newMessages[newMessages.length - 1];
       const lastOld = messagesRef.current[messagesRef.current.length - 1];
-      
-      const messagesChanged = 
-        newMessages.length !== messagesRef.current.length || 
-        lastNew?.content !== lastOld?.content ||
-        lastNew?.role !== lastOld?.role;
-      
+
+      const messagesChanged =
+      newMessages.length !== messagesRef.current.length ||
+      lastNew?.content !== lastOld?.content ||
+      lastNew?.role !== lastOld?.role;
+
       if (!messagesChanged) return;
-      
+
       isUpdatingRef.current = true;
-      
+
       // Process messages to extract assistant_message from JSON
-      const processedMessages = newMessages.map(msg => {
+      const processedMessages = newMessages.map((msg) => {
         if (msg.role === 'assistant' && msg.content) {
           const extracted = extractAssistantMessage(msg.content);
           return { ...msg, content: extracted };
         }
         return msg;
       });
-      
+
       messagesRef.current = processedMessages;
-      
+
       requestAnimationFrame(() => {
         if (isSubscribed && mountedRef.current) {
           setMessages(processedMessages);
@@ -283,13 +283,13 @@ export default function DraggableAiCompanion() {
     const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
     const stored = localStorage.getItem(STORAGE_KEY);
     let positions = stored ? JSON.parse(stored) : {};
-    
+
     if (isMobile) {
       positions.mobile = newPos;
     } else {
       positions.desktop = newPos;
     }
-    
+
     localStorage.setItem(STORAGE_KEY, JSON.stringify(positions));
   };
 
@@ -302,17 +302,17 @@ export default function DraggableAiCompanion() {
     const margin = 16;
     // On mobile, keep FAB above BottomNav + gap; on desktop no nav bar.
     const bottomNavHeight = isMobileVp ? BOTTOM_NAV_HEIGHT : 0;
-    
+
     // Get safe area insets (iOS/Android)
     const computedStyle = getComputedStyle(document.documentElement);
     const safeAreaBottom = parseInt(computedStyle.getPropertyValue('--sab') || '0') || 0;
-    
+
     // Use the wider bubble width (open card = 384px on desktop, ~96px on mobile) so
     // the bubble is guaranteed on-screen even after it's opened or the viewport shrinks.
     const elementWidth = isMobileVp ? 96 : 384;
     const maxRight = Math.max(margin, vpWidth - elementWidth - margin);
     const maxBottom = vpHeight - bottomNavHeight - safeAreaBottom - margin;
-    
+
     const clamped = {
       right: Math.max(margin, Math.min(maxRight, pos.right)),
       // Minimum bottom keeps FAB above the nav bar (+ gap) so it never overlaps it
@@ -334,17 +334,17 @@ export default function DraggableAiCompanion() {
   const handleDragStart = (e) => {
     if (!position) return;
     setIsDragging(true);
-    
+
     const clientX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
     const clientY = e.type === 'mousedown' ? e.clientY : e.touches[0].clientY;
-    
+
     dragRef.current = {
       startX: clientX,
       startY: clientY,
       initialRight: position.right,
       initialBottom: position.bottom
     };
-    
+
     e.preventDefault();
   };
 
@@ -355,39 +355,39 @@ export default function DraggableAiCompanion() {
 
     const handleDragMove = (e) => {
       if (rafId) return;
-      
+
       rafId = requestAnimationFrame(() => {
         const clientX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
         const clientY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
-        
+
         // deltaX: positive = moved right, deltaY: positive = moved down
         const deltaX = clientX - dragRef.current.startX;
         const deltaY = clientY - dragRef.current.startY;
-        
+
         const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
         const margin = 16;
         // Use the correct nav height (same constant as BottomNav component)
         const bottomNavHeight = isMobile ? BOTTOM_NAV_HEIGHT : 0;
-        
+
         const computedStyle = getComputedStyle(document.documentElement);
         const safeAreaBottom = parseInt(computedStyle.getPropertyValue('--sab') || '0') || 0;
-        
+
         const { width: vpWidth, height: vpHeight } = getViewportSize();
         const elementWidth = isMobile ? 96 : 384;
         const maxRight = Math.max(margin, vpWidth - elementWidth - margin);
         const maxBottom = vpHeight - bottomNavHeight - safeAreaBottom - margin;
-        
+
         // Moving right → right CSS value decreases (element anchored from right edge)
         // Moving down  → bottom CSS value decreases (element anchored from bottom edge)
         const newRight = Math.max(margin, Math.min(maxRight, dragRef.current.initialRight - deltaX));
         // Minimum bottom keeps FAB above the nav bar so it never overlaps it
         const newBottom = Math.max(bottomNavHeight + margin, Math.min(maxBottom, dragRef.current.initialBottom - deltaY));
-        
+
         if (elementRef.current) {
           elementRef.current.style.right = `${newRight}px`;
           elementRef.current.style.bottom = `${newBottom}px`;
         }
-        
+
         rafId = null;
       });
     };
@@ -396,14 +396,14 @@ export default function DraggableAiCompanion() {
       if (rafId) {
         cancelAnimationFrame(rafId);
       }
-      
+
       setIsDragging(false);
-      
+
       requestAnimationFrame(() => {
         if (elementRef.current) {
           const finalRight = parseInt(elementRef.current.style.right) || dragRef.current.initialRight;
           const finalBottom = parseInt(elementRef.current.style.bottom) || dragRef.current.initialBottom;
-          
+
           if (Math.abs(finalRight - dragRef.current.initialRight) > 1 || Math.abs(finalBottom - dragRef.current.initialBottom) > 1) {
             const finalPos = { right: finalRight, bottom: finalBottom };
             setPosition(finalPos);
@@ -417,7 +417,7 @@ export default function DraggableAiCompanion() {
     window.addEventListener('mouseup', handleDragEnd);
     window.addEventListener('touchmove', handleDragMove, { passive: true });
     window.addEventListener('touchend', handleDragEnd);
-    
+
     return () => {
       if (rafId) {
         cancelAnimationFrame(rafId);
@@ -436,7 +436,7 @@ export default function DraggableAiCompanion() {
     const reasonCode = detectCrisisWithReason(message);
     if (reasonCode) {
       setShowRiskPanel(true);
-      
+
       // Log crisis alert (non-blocking)
       (async () => {
         try {
@@ -490,15 +490,15 @@ export default function DraggableAiCompanion() {
   };
 
   const quickPrompts = [
-    "How am I doing?",
-    "I'm feeling anxious",
-    "Help me with goals",
-    "Suggest an exercise"
-  ];
+  "How am I doing?",
+  "I'm feeling anxious",
+  "Help me with goals",
+  "Suggest an exercise"];
+
 
   const handleQuickPrompt = async (prompt) => {
     if (!conversation) return;
-    
+
     setMessage('');
     setSendError(null);
     setIsLoading(true);
@@ -564,8 +564,8 @@ export default function DraggableAiCompanion() {
         style={{ ...positionStyle, touchAction: 'none' }}
         onMouseDown={handleDragStart}
         onTouchStart={handleDragStart}
-        className={cn("cursor-move", isDragging && "cursor-grabbing")}
-      >
+        className={cn("cursor-move", isDragging && "cursor-grabbing")}>
+
         <Button
           onClick={() => setIsOpen(true)}
           onKeyDown={(e) => {
@@ -574,10 +574,10 @@ export default function DraggableAiCompanion() {
               setIsOpen(true);
             }
           }}
-          size="lg"
-          className="rounded-full w-16 h-16 border border-border/60 bg-primary text-primary-foreground shadow-[var(--shadow-lg)] hover:bg-primary/94"
-          aria-label="Open AI Companion chat"
-        >
+          size="lg" className="bg-teal-600 text-primary-foreground px-8 font-medium tracking-[0.005em] leading-none rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 w-16 h-16 border border-border/60 shadow-[var(--shadow-lg)] hover:bg-primary/94"
+
+          aria-label="Open AI Companion chat">
+
           <MessageCircle className="w-7 h-7" />
         </Button>
         <div className="absolute -top-1 -right-1 w-4 h-4 bg-[hsl(var(--success))] rounded-full border-2 border-card" />
@@ -592,12 +592,12 @@ export default function DraggableAiCompanion() {
         ref={elementRef}
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        style={positionStyle}
-      >
-        <Card 
+        style={positionStyle}>
+
+        <Card
           className="w-64 border border-border/80 shadow-[var(--shadow-lg)] cursor-pointer hover:shadow-[var(--shadow-lg)] transition-shadow"
-          onClick={() => setIsMinimized(false)}
-        >
+          onClick={() => setIsMinimized(false)}>
+
           <CardContent className="p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
@@ -617,8 +617,8 @@ export default function DraggableAiCompanion() {
                 setIsMinimized(false);
               }}
               className="flex-shrink-0"
-              aria-label="Close AI Companion"
-            >
+              aria-label="Close AI Companion">
+
               <X className="w-4 h-4" />
             </Button>
           </CardContent>
@@ -637,16 +637,16 @@ export default function DraggableAiCompanion() {
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 20, opacity: 0 }}
         style={positionStyle}
-        className="w-[calc(100vw-3rem)] md:w-96 flex flex-col"
-      >
+        className="w-[calc(100vw-3rem)] md:w-96 flex flex-col">
+
       <Card className="border border-border/80 shadow-[var(--shadow-lg)] flex flex-col overflow-hidden bg-card" style={{ maxHeight: 'calc(100dvh - 200px)' }}>
         {/* Draggable Header */}
-        <div 
-          className="bg-primary p-4 rounded-t-[var(--radius-card)] flex items-center justify-between cursor-move border-b border-white/10"
-          style={{ touchAction: 'none' }}
-          onMouseDown={handleDragStart}
-          onTouchStart={handleDragStart}
-        >
+        <div
+            className="bg-primary p-4 rounded-t-[var(--radius-card)] flex items-center justify-between cursor-move border-b border-white/10"
+            style={{ touchAction: 'none' }}
+            onMouseDown={handleDragStart}
+            onTouchStart={handleDragStart}>
+
           <div className="flex items-center gap-3">
             <GripVertical className="w-4 h-4 text-white/60" />
             <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-xl flex items-center justify-center">
@@ -659,24 +659,24 @@ export default function DraggableAiCompanion() {
           </div>
           <div className="flex gap-1">
             <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsMinimized(true)}
-              className="text-white hover:bg-white/20"
-              aria-label="Minimize AI Companion"
-            >
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsMinimized(true)}
+                className="text-white hover:bg-white/20"
+                aria-label="Minimize AI Companion">
+
               <MinusCircle className="w-4 h-4" />
             </Button>
             <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                setIsOpen(false);
-                setIsMinimized(false);
-              }}
-              className="text-white hover:bg-white/20"
-              aria-label="Close AI Companion"
-            >
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setIsOpen(false);
+                  setIsMinimized(false);
+                }}
+                className="text-white hover:bg-white/20"
+                aria-label="Close AI Companion">
+
               <X className="w-4 h-4" />
             </Button>
           </div>
@@ -685,45 +685,45 @@ export default function DraggableAiCompanion() {
         {/* Messages */}
         <CardContent data-testid="companion-messages" className="flex-1 overflow-y-auto p-4 space-y-4 bg-[hsl(var(--surface-tint))] min-h-0" style={{ maxHeight: 'calc(100dvh - 350px)' }}>
           {/* Inline Consent Banner - Non-blocking */}
-          {showConsentBanner && (
+          {showConsentBanner &&
             <InlineConsentBanner onAccept={() => {
               localStorage.setItem('chat_consent_accepted', 'true');
               setShowConsentBanner(false);
             }} />
-          )}
+            }
           {/* Inline Risk Panel - Non-blocking, shown when crisis language detected */}
-          {showRiskPanel && (
+          {showRiskPanel &&
             <InlineRiskPanel onDismiss={() => setShowRiskPanel(false)} />
-          )}
+            }
           <AnimatePresence>
-            {messages.length === 0 && (
+            {messages.length === 0 &&
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-center py-8"
-              >
+                className="text-center py-8">
+
                 <Sparkles className="w-12 h-12 text-primary mx-auto mb-3" />
                 <h4 className="font-semibold text-foreground mb-2">Hello! I'm here for you</h4>
                 <p className="text-sm text-muted-foreground mb-4">
                   I can help with your wellness journey, answer questions, or just listen.
                 </p>
                 <div className="grid grid-cols-2 gap-2">
-                  {quickPrompts.map((prompt, i) => (
-                    <Button
-                      key={i}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleQuickPrompt(prompt)}
-                      className="text-xs"
-                    >
+                  {quickPrompts.map((prompt, i) =>
+                  <Button
+                    key={i}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleQuickPrompt(prompt)}
+                    className="text-xs">
+
                       {prompt}
                     </Button>
-                  ))}
+                  )}
                 </div>
               </motion.div>
-            )}
+              }
 
-            {messages.map((msg, i) => (
+            {messages.map((msg, i) =>
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 10 }}
@@ -731,62 +731,62 @@ export default function DraggableAiCompanion() {
                 className={cn(
                   "flex gap-2",
                   msg.role === 'user' ? 'justify-end' : 'justify-start'
-                )}
-              >
-                {msg.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                )}>
+
+                {msg.role === 'assistant' &&
+                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
                     <Brain className="w-4 h-4 text-primary-foreground" />
                   </div>
-                )}
+                }
                 <div
                   className={cn(
                     "max-w-[75%] rounded-2xl px-4 py-2",
-                    msg.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-card border border-border/80 text-foreground'
-                  )}
-                >
-                  {msg.role === 'user' ? (
-                    <p className="text-sm">{msg.content}</p>
-                  ) : (
-                    <ReactMarkdown
-                      className="text-sm prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
-                      components={{
-                        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                        ul: ({ children }) => <ul className="ml-4 mb-2 list-disc">{children}</ul>,
-                        ol: ({ children }) => <ol className="ml-4 mb-2 list-decimal">{children}</ol>,
-                        li: ({ children }) => <li className="mb-1">{children}</li>,
-                        strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
-                        code: ({ inline, children }) =>
-                          inline ? (
-                            <code className="px-1 py-0.5 rounded bg-secondary text-xs">{children}</code>
-                          ) : (
-                            <code className="block p-2 rounded bg-secondary text-xs">{children}</code>
-                          )
-                      }}
-                    >
+                    msg.role === 'user' ?
+                    'bg-primary text-primary-foreground' :
+                    'bg-card border border-border/80 text-foreground'
+                  )}>
+
+                  {msg.role === 'user' ?
+                  <p className="text-sm">{msg.content}</p> :
+
+                  <ReactMarkdown
+                    className="text-sm prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+                    components={{
+                      p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                      ul: ({ children }) => <ul className="ml-4 mb-2 list-disc">{children}</ul>,
+                      ol: ({ children }) => <ol className="ml-4 mb-2 list-decimal">{children}</ol>,
+                      li: ({ children }) => <li className="mb-1">{children}</li>,
+                      strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                      code: ({ inline, children }) =>
+                      inline ?
+                      <code className="px-1 py-0.5 rounded bg-secondary text-xs">{children}</code> :
+
+                      <code className="block p-2 rounded bg-secondary text-xs">{children}</code>
+
+                    }}>
+
                       {msg.content}
                       </ReactMarkdown>
-                      )}
-                      {msg.role === 'assistant' && conversation?.id && (
-                      <MessageFeedback 
-                      conversationId={conversation.id}
-                      messageIndex={i}
-                      agentName="ai_coach"
-                      context="companion"
-                      />
-                      )}
+                  }
+                      {msg.role === 'assistant' && conversation?.id &&
+                  <MessageFeedback
+                    conversationId={conversation.id}
+                    messageIndex={i}
+                    agentName="ai_coach"
+                    context="companion" />
+
+                  }
                       </div>
                       </motion.div>
-                      ))}
+              )}
 
-            {isLoading && (
+            {isLoading &&
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 data-testid="companion-loading"
-                className="flex gap-2"
-              >
+                className="flex gap-2">
+
                 <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
                   <Brain className="w-4 h-4 text-primary-foreground" />
                 </div>
@@ -794,7 +794,7 @@ export default function DraggableAiCompanion() {
                   <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
                 </div>
               </motion.div>
-            )}
+              }
           </AnimatePresence>
           <div ref={messagesEndRef} />
         </CardContent>
@@ -803,37 +803,37 @@ export default function DraggableAiCompanion() {
         <div className="p-4 border-t border-border/80 bg-popover rounded-b-[var(--radius-card)] flex-shrink-0">
           <div className="flex gap-2">
             <Input
-              data-testid="ai-companion-input"
-              value={message}
-              onChange={(e) => {
-                setMessage(e.target.value);
-                setSendError(null);
-              }}
-              onKeyPress={handleKeyPress}
-              placeholder="Ask me anything..."
-              className="flex-1 rounded-xl"
-              disabled={isLoading}
-            />
+                data-testid="ai-companion-input"
+                value={message}
+                onChange={(e) => {
+                  setMessage(e.target.value);
+                  setSendError(null);
+                }}
+                onKeyPress={handleKeyPress}
+                placeholder="Ask me anything..."
+                className="flex-1 rounded-xl"
+                disabled={isLoading} />
+
             <Button
-              data-testid="ai-companion-send"
-              onClick={sendMessage}
-              disabled={!message.trim() || isLoading}
-              className="bg-primary hover:bg-primary/94 text-primary-foreground"
-              aria-label="Send message"
-            >
+                data-testid="ai-companion-send"
+                onClick={sendMessage}
+                disabled={!message.trim() || isLoading}
+                className="bg-primary hover:bg-primary/94 text-primary-foreground"
+                aria-label="Send message">
+
               <Send className="w-4 h-4" />
             </Button>
           </div>
-          {sendError && (
+          {sendError &&
             <p className="text-xs text-destructive mt-2 text-center">
               {sendError}
             </p>
-          )}
-          {!sendError && (
+            }
+          {!sendError &&
             <p className="text-xs text-muted-foreground mt-2 text-center">
               I remember our conversations and your wellness journey
             </p>
-          )}
+            }
         </div>
       </Card>
       </motion.div>
