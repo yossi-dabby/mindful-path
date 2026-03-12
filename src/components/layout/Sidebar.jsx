@@ -10,32 +10,32 @@ export const SIDEBAR_WIDTH = 288; // 72 * 4 = 288px (w-72)
 
 export default function Sidebar({ currentPageName }) {
   const { t } = useTranslation();
-  
+
   const navItems = [
-    { name: t('sidebar.home.name'), icon: Home, path: 'Home', description: t('sidebar.home.description') },
-    { name: t('sidebar.chat.name'), icon: MessageCircle, path: 'Chat', description: t('sidebar.chat.description') },
-    { name: t('sidebar.coach.name'), icon: Heart, path: 'Coach', description: t('sidebar.coach.description') },
-    { name: t('sidebar.mood.name'), icon: Activity, path: 'MoodTracker', description: t('sidebar.mood.description') },
-    { name: t('sidebar.journal.name'), icon: BookOpen, path: 'Journal', description: t('sidebar.journal.description') },
-    { name: t('sidebar.progress.name'), icon: Activity, path: 'Progress', description: t('sidebar.progress.description') },
-    { name: t('sidebar.exercises.name'), icon: Dumbbell, path: 'Exercises', description: t('sidebar.exercises.description') }
-  ];
-  
+  { name: t('sidebar.home.name'), icon: Home, path: 'Home', description: t('sidebar.home.description') },
+  { name: t('sidebar.chat.name'), icon: MessageCircle, path: 'Chat', description: t('sidebar.chat.description') },
+  { name: t('sidebar.coach.name'), icon: Heart, path: 'Coach', description: t('sidebar.coach.description') },
+  { name: t('sidebar.mood.name'), icon: Activity, path: 'MoodTracker', description: t('sidebar.mood.description') },
+  { name: t('sidebar.journal.name'), icon: BookOpen, path: 'Journal', description: t('sidebar.journal.description') },
+  { name: t('sidebar.progress.name'), icon: Activity, path: 'Progress', description: t('sidebar.progress.description') },
+  { name: t('sidebar.exercises.name'), icon: Dumbbell, path: 'Exercises', description: t('sidebar.exercises.description') }];
+
+
   const secondaryItems = [
-    { name: t('sidebar.community.name'), icon: Users, path: 'Community' },
-    { name: t('sidebar.resources.name'), icon: BookOpen, path: 'Resources' },
-    { name: t('sidebar.settings.name'), icon: Settings, path: 'Settings' }
-  ];
-  
+  { name: t('sidebar.community.name'), icon: Users, path: 'Community' },
+  { name: t('sidebar.resources.name'), icon: BookOpen, path: 'Resources' },
+  { name: t('sidebar.settings.name'), icon: Settings, path: 'Settings' }];
+
+
   return (
-    <nav 
+    <nav
       aria-label="Main navigation"
       className="hidden md:flex fixed left-0 top-0 bottom-0 flex-col py-6 border-r border-border/70 bg-[hsl(var(--sidebar-background)/0.9)] backdrop-blur-2xl shadow-[var(--shadow-lg)]"
       style={{
-        zIndex: 35, 
+        zIndex: 35,
         width: `${SIDEBAR_WIDTH}px`
-      }}
-    >
+      }}>
+
       {/* Logo */}
       <div className="px-6 mb-8">
         <div className="flex items-center gap-3">
@@ -51,7 +51,7 @@ export default function Sidebar({ currentPageName }) {
       </div>
 
       {/* Main Navigation */}
-      <div className="flex-1 px-3 overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
+      <div className="bg-teal-100 text-teal-600 px-3 flex-1 overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
         <div className="space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -63,23 +63,23 @@ export default function Sidebar({ currentPageName }) {
                 aria-current={isActive ? 'page' : undefined}
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-[var(--radius-control)] transition-calm group border",
-                  isActive
-                    ? "border-border/70 bg-card text-foreground shadow-[var(--shadow-sm)]"
-                    : "border-transparent text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
-                )}
-              >
+                  isActive ?
+                  "border-border/70 bg-card text-foreground shadow-[var(--shadow-sm)]" :
+                  "border-transparent text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
+                )}>
+
                 <Icon className={cn("w-5 h-5 icon-default", isActive && "scale-110")} strokeWidth={2} />
                 <div className="flex-1">
                   <p className={cn("text-[0.9375rem] font-medium leading-5", isActive && "font-semibold")}>{item.name}</p>
-                  {item.description && (
-                    <p className={cn("text-xs mt-0.5 leading-4", isActive ? "text-muted-foreground" : "text-muted-foreground")}>{item.description}</p>
-                  )}
+                  {item.description &&
+                  <p className={cn("text-xs mt-0.5 leading-4", isActive ? "text-muted-foreground" : "text-muted-foreground")}>{item.description}</p>
+                  }
                 </div>
-                {isActive && (
-                  <div className="w-1 h-6 rounded-full bg-primary shadow-[var(--shadow-sm)]" />
-                )}
-              </Link>
-            );
+                {isActive &&
+                <div className="w-1 h-6 rounded-full bg-primary shadow-[var(--shadow-sm)]" />
+                }
+              </Link>);
+
           })}
         </div>
 
@@ -96,19 +96,19 @@ export default function Sidebar({ currentPageName }) {
                   aria-current={isActive ? 'page' : undefined}
                   className={cn(
                     "flex items-center gap-3 px-4 py-2.5 rounded-[var(--radius-control)] border transition-calm",
-                    isActive
-                      ? "border-border/70 bg-card text-foreground shadow-[var(--shadow-sm)]"
-                      : "border-transparent text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
-                  )}
-                >
+                    isActive ?
+                    "border-border/70 bg-card text-foreground shadow-[var(--shadow-sm)]" :
+                    "border-transparent text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
+                  )}>
+
                   <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
                   <span className={cn("text-sm", isActive && "font-semibold")}>{item.name}</span>
-                </Link>
-              );
+                </Link>);
+
             })}
           </div>
         </div>
       </div>
-    </nav>
-  );
+    </nav>);
+
 }
