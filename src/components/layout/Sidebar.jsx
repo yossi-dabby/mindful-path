@@ -76,7 +76,7 @@ export default function Sidebar({ currentPageName }) {
                   }
                 </div>
                 {isActive &&
-                <div className="w-1 h-6 rounded-full bg-primary shadow-[var(--shadow-sm)]" />
+                <div className="bg-primary text-teal-600 rounded-full w-1 h-6 shadow-[var(--shadow-sm)]" />
                 }
               </Link>);
 
