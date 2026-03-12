@@ -25,6 +25,8 @@ import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
 import { validateAgentOutput, sanitizeConversationMessages, parseCounters } from '../components/utils/validateAgentOutput.jsx';
 import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
+import { MOBILE_HEADER_HEIGHT } from '../components/layout/MobileHeader';
+import { BOTTOM_NAV_HEIGHT } from '../components/layout/BottomNav';
 
 export default function Chat() {
   const { t, i18n } = useTranslation();
@@ -1218,7 +1220,26 @@ export default function Chat() {
   return (
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
-      <div className="h-full flex relative bg-transparent" data-testid="chat-root" data-page-ready={isPageReady}>
+      {/* Chat root: explicit dvh-based height so the flex-1/min-h-0 scroll chain works.
+          `h-full` would resolve to `auto` because the parent motion.div uses min-h-full
+          (not a fixed height), breaking the inner overflow-y-auto messages scroll. */}
+      <div
+        className="flex relative bg-transparent"
+        data-testid="chat-root"
+        data-page-ready={isPageReady}
+        style={{
+          height: `calc(100dvh - ${MOBILE_HEADER_HEIGHT}px - ${BOTTOM_NAV_HEIGHT}px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))`,
+        }}
+      >
+        {/* On tablet/desktop (≥768px) there is no fixed mobile header or bottom nav,
+            so we only subtract the safe-area insets (mirrors AppContent.jsx logic). */}
+        <style>{`
+          @media (min-width: 768px) {
+            [data-testid="chat-root"] {
+              height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+            }
+          }
+        `}</style>
       {/* Backdrop overlay when sidebar is open - below input area */}
       {showSidebar && currentConversationId &&
         <div
