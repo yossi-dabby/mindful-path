@@ -12,29 +12,29 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
 const moodOptions = [
-  { value: 'excellent', emoji: '😊', label: 'Excellent' },
-  { value: 'good', emoji: '🙂', label: 'Good' },
-  { value: 'okay', emoji: '😐', label: 'Okay' },
-  { value: 'low', emoji: '😔', label: 'Low' },
-  { value: 'very_low', emoji: '😢', label: 'Very Low' }
-];
+{ value: 'excellent', emoji: '😊', label: 'Excellent' },
+{ value: 'good', emoji: '🙂', label: 'Good' },
+{ value: 'okay', emoji: '😐', label: 'Okay' },
+{ value: 'low', emoji: '😔', label: 'Low' },
+{ value: 'very_low', emoji: '😢', label: 'Very Low' }];
+
 
 const emotionCategories = {
   positive: [
-    'Happy', 'Joyful', 'Peaceful', 'Grateful', 'Excited', 'Hopeful', 'Confident',
-    'Proud', 'Content', 'Energized', 'Inspired', 'Loved', 'Optimistic', 'Relaxed',
-    'Satisfied', 'Amused', 'Interested', 'Playful', 'Courageous', 'Compassionate'
-  ],
+  'Happy', 'Joyful', 'Peaceful', 'Grateful', 'Excited', 'Hopeful', 'Confident',
+  'Proud', 'Content', 'Energized', 'Inspired', 'Loved', 'Optimistic', 'Relaxed',
+  'Satisfied', 'Amused', 'Interested', 'Playful', 'Courageous', 'Compassionate'],
+
   intermediate: [
-    'Uncertain', 'Confused', 'Curious', 'Surprised', 'Bored', 'Tired', 'Restless',
-    'Indifferent', 'Neutral', 'Ambivalent', 'Pensive', 'Nostalgic', 'Wistful',
-    'Distracted', 'Apathetic', 'Disconnected', 'Numb', 'Empty', 'Doubtful', 'Hesitant'
-  ],
+  'Uncertain', 'Confused', 'Curious', 'Surprised', 'Bored', 'Tired', 'Restless',
+  'Indifferent', 'Neutral', 'Ambivalent', 'Pensive', 'Nostalgic', 'Wistful',
+  'Distracted', 'Apathetic', 'Disconnected', 'Numb', 'Empty', 'Doubtful', 'Hesitant'],
+
   negative: [
-    'Anxious', 'Sad', 'Angry', 'Frustrated', 'Stressed', 'Overwhelmed', 'Lonely',
-    'Fearful', 'Guilty', 'Ashamed', 'Disappointed', 'Hopeless', 'Jealous', 'Resentful',
-    'Irritated', 'Worried', 'Depressed', 'Helpless', 'Rejected', 'Insecure'
-  ]
+  'Anxious', 'Sad', 'Angry', 'Frustrated', 'Stressed', 'Overwhelmed', 'Lonely',
+  'Fearful', 'Guilty', 'Ashamed', 'Disappointed', 'Hopeless', 'Jealous', 'Resentful',
+  'Irritated', 'Worried', 'Depressed', 'Helpless', 'Rejected', 'Insecure']
+
 };
 
 const categoryColors = {
@@ -77,7 +77,7 @@ export default function StandaloneDailyCheckIn() {
       }
       isSubmittingRef.current = true;
       const today = new Date().toISOString().split('T')[0];
-      
+
       // Save MoodEntry
       const moodEntry = await base44.entities.MoodEntry.create({
         date: today,
@@ -175,7 +175,7 @@ export default function StandaloneDailyCheckIn() {
     mutationFn: async () => {
       if (!todayMood || isSubmittingRef.current) return;
       await base44.entities.MoodEntry.delete(todayMood.id);
-      
+
       // Also update DailyFlow
       const today = new Date().toISOString().split('T')[0];
       const flows = await base44.entities.DailyFlow.filter({ date: today });
@@ -224,18 +224,18 @@ export default function StandaloneDailyCheckIn() {
     }
   });
 
-  const selectedMood = moodOptions.find(m => m.value === formData.mood);
+  const selectedMood = moodOptions.find((m) => m.value === formData.mood);
 
   const handleMoodSelect = (mood) => {
     setFormData({ ...formData, mood: mood.value, mood_emoji: mood.emoji });
   };
 
   const toggleEmotion = (emotion) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      emotions: prev.emotions.includes(emotion)
-        ? prev.emotions.filter(e => e !== emotion)
-        : [...prev.emotions, emotion]
+      emotions: prev.emotions.includes(emotion) ?
+      prev.emotions.filter((e) => e !== emotion) :
+      [...prev.emotions, emotion]
     }));
   };
 
@@ -262,7 +262,7 @@ export default function StandaloneDailyCheckIn() {
     if (todayMood) {
       setFormData({
         mood: todayMood.mood,
-        mood_emoji: moodOptions.find(m => m.value === todayMood.mood)?.emoji || '',
+        mood_emoji: moodOptions.find((m) => m.value === todayMood.mood)?.emoji || '',
         emotions: todayMood.emotions || [],
         intensity: todayMood.intensity || 50
       });
@@ -304,30 +304,30 @@ export default function StandaloneDailyCheckIn() {
             <div className="h-4 bg-gray-200 rounded w-2/3"></div>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   // Summary view (completed check-in)
   if (todayMood && step === 4) {
-    const completedMood = moodOptions.find(m => m.value === todayMood.mood);
-    
+    const completedMood = moodOptions.find((m) => m.value === todayMood.mood);
+
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
+        animate={{ opacity: 1, y: 0 }}>
+
         <Card className="border overflow-hidden" style={{
           borderRadius: '36px',
           borderColor: 'rgba(118, 170, 156, 0.38)',
           background: 'linear-gradient(180deg, rgba(255, 253, 250, 0.99) 0%, rgba(228, 244, 238, 0.96) 58%, rgba(242, 248, 245, 0.99) 100%)',
           boxShadow: '0 30px 72px rgba(68, 108, 96, 0.18), 0 12px 28px rgba(68, 108, 96, 0.1)'
         }}>
-          <CardHeader 
+          <CardHeader
             className="cursor-pointer hover:bg-secondary/45 transition-colors bg-[linear-gradient(180deg,rgba(255,255,255,0.62)_0%,rgba(226,242,236,0.66)_100%)] border-b border-[rgba(118,170,156,0.24)]"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            style={{ borderRadius: '36px 36px 0 0', padding: '20px 24px' }}
-          >
+            style={{ borderRadius: '36px 36px 0 0', padding: '20px 24px' }}>
+
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className="text-4xl">{completedMood?.emoji}</span>
@@ -342,8 +342,8 @@ export default function StandaloneDailyCheckIn() {
                     handleEdit();
                   }}
                   className="h-9 w-9"
-                  aria-label={t('daily_check_in.aria_edit')}
-                >
+                  aria-label={t('daily_check_in.aria_edit')}>
+
                   <Edit2 className="w-4 h-4" />
                 </Button>
                 <Button
@@ -354,8 +354,8 @@ export default function StandaloneDailyCheckIn() {
                     handleDelete();
                   }}
                   className="h-9 w-9"
-                  aria-label={t('daily_check_in.aria_delete')}
-                >
+                  aria-label={t('daily_check_in.aria_delete')}>
+
                   <Trash2 className="w-4 h-4" />
                 </Button>
                 {isCollapsed ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
@@ -364,27 +364,27 @@ export default function StandaloneDailyCheckIn() {
           </CardHeader>
           
           <AnimatePresence>
-            {!isCollapsed && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-              >
+            {!isCollapsed &&
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}>
+
                 <CardContent className="p-6 space-y-4">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground mb-2">{t('daily_check_in.emotions_label')}</p>
                     <div className="flex flex-wrap gap-2">
                       {todayMood.emotions?.map((emotion) => {
-                        const category = Object.keys(emotionCategories).find(cat => 
-                          emotionCategories[cat].includes(emotion)
-                        );
-                        const colors = categoryColors[category];
-                        return (
-                          <Badge key={emotion} className={cn(colors.bg, colors.text)}>
+                      const category = Object.keys(emotionCategories).find((cat) =>
+                      emotionCategories[cat].includes(emotion)
+                      );
+                      const colors = categoryColors[category];
+                      return (
+                        <Badge key={emotion} className={cn(colors.bg, colors.text)}>
                             {t(`daily_check_in.emotions.${emotion}`, { defaultValue: emotion })}
-                          </Badge>
-                        );
-                      })}
+                          </Badge>);
+
+                    })}
                     </div>
                   </div>
                   
@@ -392,10 +392,10 @@ export default function StandaloneDailyCheckIn() {
                     <p className="text-sm font-medium text-muted-foreground mb-2">{t('daily_check_in.intensity_label')}</p>
                     <div className="flex items-center gap-3">
                       <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-gradient-to-r from-green-400 to-green-600"
-                          style={{ width: `${todayMood.intensity}%` }}
-                        />
+                        <div
+                        className="h-full bg-gradient-to-r from-green-400 to-green-600"
+                        style={{ width: `${todayMood.intensity}%` }} />
+
                       </div>
                       <span className="text-lg font-bold text-primary">
                         {todayMood.intensity}
@@ -404,11 +404,11 @@ export default function StandaloneDailyCheckIn() {
                   </div>
                 </CardContent>
               </motion.div>
-            )}
+            }
           </AnimatePresence>
         </Card>
-      </motion.div>
-    );
+      </motion.div>);
+
   }
 
   // Interactive check-in form
@@ -417,131 +417,131 @@ export default function StandaloneDailyCheckIn() {
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
+        animate={{ opacity: 1, y: 0 }}>
+
       <Card className="border border-border/70 overflow-hidden" style={{
-        borderRadius: '36px',
-        background: 'linear-gradient(180deg, rgba(255, 252, 247, 0.98) 0%, rgba(235, 248, 243, 0.94) 62%, rgba(247, 251, 249, 0.98) 100%)',
-        boxShadow: '0 20px 56px rgba(77, 125, 111, 0.14), 0 8px 22px rgba(77, 125, 111, 0.08)'
-      }}>
+          borderRadius: '36px',
+          background: 'linear-gradient(180deg, rgba(255, 252, 247, 0.98) 0%, rgba(235, 248, 243, 0.94) 62%, rgba(247, 251, 249, 0.98) 100%)',
+          boxShadow: '0 20px 56px rgba(77, 125, 111, 0.14), 0 8px 22px rgba(77, 125, 111, 0.08)'
+        }}>
         <CardHeader className="bg-[linear-gradient(180deg,rgba(255,255,255,0.42)_0%,rgba(238,247,243,0.52)_100%)] border-b border-border/50" style={{ padding: '20px 24px' }}>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 flex items-center justify-center" style={{
-                borderRadius: '18px',
-                background: 'linear-gradient(180deg, rgba(49, 158, 136, 0.22) 0%, rgba(49, 158, 136, 0.34) 100%)',
-                boxShadow: '0 14px 28px rgba(38, 134, 116, 0.2)'
-              }}>
+                  borderRadius: '18px',
+                  background: 'linear-gradient(180deg, rgba(49, 158, 136, 0.22) 0%, rgba(49, 158, 136, 0.34) 100%)',
+                  boxShadow: '0 14px 28px rgba(38, 134, 116, 0.2)'
+                }}>
                 <Heart className="w-6 h-6 text-primary" />
               </div>
-              <CardTitle className="text-xl">{t('daily_check_in.title')}</CardTitle>
+              <CardTitle className="text-teal-600 text-xl font-semibold tracking-[-0.012em]">{t('daily_check_in.title')}</CardTitle>
             </div>
             <motion.button
-              animate={{ 
-                scale: [1, 1.05, 1],
-                boxShadow: [
+                animate={{
+                  scale: [1, 1.05, 1],
+                  boxShadow: [
                   '0 4px 12px rgba(38, 166, 154, 0.4)',
                   '0 6px 16px rgba(38, 166, 154, 0.6)',
-                  '0 4px 12px rgba(38, 166, 154, 0.4)'
-                ]
-              }}
-              transition={{ duration: 2, repeat: Infinity, ease: [0.2, 0.8, 0.2, 1] }}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setActiveVideo('https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/Daily%20Check-in.mp4?alt=media&token=6c2b0997-3dd4-4824-8791-b01f3c0e28f2');
-              }}
-              className="flex items-center justify-center cursor-pointer hover:scale-110 transition-transform"
-              style={{ 
-                width: '48px',
-                height: '48px',
-                borderRadius: '16px',
-                background: 'linear-gradient(180deg, rgba(49, 158, 136, 0.18) 0%, rgba(236, 185, 120, 0.18) 100%)',
-                boxShadow: '0 12px 24px rgba(68, 108, 96, 0.1)',
-                border: 'none',
-                outline: 'none'
-              }}
-              aria-label={t('daily_check_in.aria_guided_video')}
-              title={t('daily_check_in.aria_guided_video')}
-            >
+                  '0 4px 12px rgba(38, 166, 154, 0.4)']
+
+                }}
+                transition={{ duration: 2, repeat: Infinity, ease: [0.2, 0.8, 0.2, 1] }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setActiveVideo('https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/Daily%20Check-in.mp4?alt=media&token=6c2b0997-3dd4-4824-8791-b01f3c0e28f2');
+                }}
+                className="flex items-center justify-center cursor-pointer hover:scale-110 transition-transform"
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '16px',
+                  background: 'linear-gradient(180deg, rgba(49, 158, 136, 0.18) 0%, rgba(236, 185, 120, 0.18) 100%)',
+                  boxShadow: '0 12px 24px rgba(68, 108, 96, 0.1)',
+                  border: 'none',
+                  outline: 'none'
+                }}
+                aria-label={t('daily_check_in.aria_guided_video')}
+                title={t('daily_check_in.aria_guided_video')}>
+
               <User className="w-5 h-5 text-primary" strokeWidth={2} />
             </motion.button>
           </div>
           <div className="flex gap-2">
-            {[1, 2, 3].map((s) => (
+            {[1, 2, 3].map((s) =>
               <div
                 key={s}
                 className="h-2 flex-1 rounded-full transition-all"
                 style={{
                   background: s <= step ? 'linear-gradient(90deg, #2D9D88 0%, #1F7F6C 100%)' : 'rgba(188, 208, 201, 0.62)'
-                }}
-              />
-            ))}
+                }} />
+
+              )}
           </div>
         </CardHeader>
 
         <CardContent className="p-6">
           {/* Step 1: Mood Selection */}
-          {step === 1 && (
+          {step === 1 &&
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="space-y-4"
-            >
-              <h3 className="text-base font-semibold text-foreground">
+              className="space-y-4">
+
+              <h3 className="text-teal-600 text-base font-semibold">
                 {t('daily_check_in.step1_question')}
               </h3>
               <div className="grid grid-cols-5 gap-1 sm:gap-2 md:gap-3">
-                {moodOptions.map((mood) => (
-                  <button
-                    key={mood.value}
-                    onClick={() => handleMoodSelect(mood)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        handleMoodSelect(mood);
-                      }
-                    }}
+                {moodOptions.map((mood) =>
+                <button
+                  key={mood.value}
+                  onClick={() => handleMoodSelect(mood)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleMoodSelect(mood);
+                    }
+                  }}
+                  className={cn(
+                    "flex flex-col items-center justify-center p-1 sm:p-2 md:p-4 transition-all hover:scale-105",
+                    formData.mood === mood.value ?
+                    "shadow-lg" :
+                    "hover:opacity-80"
+                  )}
+                  aria-label={t('daily_check_in.aria_select_mood', { label: t(`daily_check_in.moods.${mood.value}`, { defaultValue: mood.label }) })}
+                  aria-pressed={formData.mood === mood.value}>
+
+                    <div
                     className={cn(
-                      "flex flex-col items-center justify-center p-1 sm:p-2 md:p-4 transition-all hover:scale-105",
-                      formData.mood === mood.value
-                        ? "shadow-lg"
-                        : "hover:opacity-80"
+                      "w-11 h-11 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-1 sm:mb-2 border-2 transition-all",
+                      formData.mood === mood.value ?
+                      "border-primary shadow-[var(--shadow-md)]" :
+                      "border-border/40"
                     )}
-                    aria-label={t('daily_check_in.aria_select_mood', { label: t(`daily_check_in.moods.${mood.value}`, { defaultValue: mood.label }) })}
-                    aria-pressed={formData.mood === mood.value}
-                  >
-                    <div 
-                      className={cn(
-                        "w-11 h-11 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-1 sm:mb-2 border-2 transition-all",
-                        formData.mood === mood.value
-                          ? "border-primary shadow-[var(--shadow-md)]"
-                          : "border-border/40"
-                      )}
-                      style={{
-                        background: formData.mood === mood.value
-                          ? 'linear-gradient(180deg, rgba(210, 239, 231, 0.98) 0%, rgba(247, 236, 222, 0.95) 100%)'
-                          : 'linear-gradient(180deg, rgba(224, 240, 234, 0.86) 0%, rgba(247, 244, 236, 0.82) 100%)'
-                      }}
-                    >
+                    style={{
+                      background: formData.mood === mood.value ?
+                      'linear-gradient(180deg, rgba(210, 239, 231, 0.98) 0%, rgba(247, 236, 222, 0.95) 100%)' :
+                      'linear-gradient(180deg, rgba(224, 240, 234, 0.86) 0%, rgba(247, 244, 236, 0.82) 100%)'
+                    }}>
+
                       <span className="text-xl sm:text-2xl md:text-3xl">{mood.emoji}</span>
                     </div>
-                    <div className="text-[10px] sm:text-xs font-medium text-foreground/85 text-center leading-tight">
+                    <div className="text-teal-600 font-medium text-center leading-tight sm:text-xs">
                       {t(`daily_check_in.moods.${mood.value}`, { defaultValue: mood.label })}
                     </div>
                   </button>
-                ))}
+                )}
               </div>
             </motion.div>
-          )}
+            }
 
           {/* Step 2: Emotions Selection */}
-          {step === 2 && (
+          {step === 2 &&
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="space-y-4"
-            >
+              className="space-y-4">
+
               <h3 className="text-base font-semibold text-foreground">
                 {t('daily_check_in.step2_question')}
               </h3>
@@ -554,42 +554,42 @@ export default function StandaloneDailyCheckIn() {
                       {t(`daily_check_in.category_${category}`)}
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      {emotions.map((emotion) => (
-                        <button
-                          key={emotion}
-                          onClick={() => toggleEmotion(emotion)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.preventDefault();
-                              toggleEmotion(emotion);
-                            }
-                          }}
-                          className={cn(
-                            "px-3 py-1.5 rounded-full text-xs font-medium transition-all border-2",
-                            formData.emotions.includes(emotion)
-                              ? cn(colors.selected, colors.text, "border-transparent scale-105")
-                              : "border-border/70 bg-white/55 text-foreground/85 hover:border-primary/30 hover:bg-secondary/70"
-                          )}
-                          aria-label={t(`daily_check_in.emotions.${emotion}`, { defaultValue: emotion })}
-                          aria-pressed={formData.emotions.includes(emotion)}
-                        >
+                      {emotions.map((emotion) =>
+                      <button
+                        key={emotion}
+                        onClick={() => toggleEmotion(emotion)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            toggleEmotion(emotion);
+                          }
+                        }}
+                        className={cn(
+                          "px-3 py-1.5 rounded-full text-xs font-medium transition-all border-2",
+                          formData.emotions.includes(emotion) ?
+                          cn(colors.selected, colors.text, "border-transparent scale-105") :
+                          "border-border/70 bg-white/55 text-foreground/85 hover:border-primary/30 hover:bg-secondary/70"
+                        )}
+                        aria-label={t(`daily_check_in.emotions.${emotion}`, { defaultValue: emotion })}
+                        aria-pressed={formData.emotions.includes(emotion)}>
+
                           {t(`daily_check_in.emotions.${emotion}`, { defaultValue: emotion })}
                         </button>
-                      ))}
+                      )}
                     </div>
-                  </div>
-                );
+                  </div>);
+
               })}
             </motion.div>
-          )}
+            }
 
           {/* Step 3: Intensity */}
-          {step === 3 && (
+          {step === 3 &&
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="space-y-4"
-            >
+              className="space-y-4">
+
               <h3 className="text-base font-semibold text-foreground">
                 {t('daily_check_in.step3_question')}
               </h3>
@@ -613,8 +613,8 @@ export default function StandaloneDailyCheckIn() {
                     boxShadow: 'inset 0 1px 3px rgba(68,108,96,0.12)'
                   }}
                   aria-label="Emotion intensity level"
-                  aria-valuetext={`${formData.intensity} out of 100`}
-                />
+                  aria-valuetext={`${formData.intensity} out of 100`} />
+
                 <div className="flex justify-between text-xs text-muted-foreground">
                   <span>1</span>
                   <span>25</span>
@@ -624,29 +624,29 @@ export default function StandaloneDailyCheckIn() {
                 </div>
               </div>
             </motion.div>
-          )}
+            }
 
           {/* Navigation */}
           <div className="flex gap-3 mt-6">
-            {step > 1 && (
+            {step > 1 &&
               <Button
                 onClick={handleReturn}
                 variant="outline"
                 className="flex-1"
-                style={{ borderRadius: '16px' }}
-              >
+                style={{ borderRadius: '16px' }}>
+
                 <ChevronLeft className="w-4 h-4 mr-2" />
                 {t('daily_check_in.btn_return')}
               </Button>
-            )}
+              }
             <Button
-              onClick={handleContinue}
-              disabled={step === 1 && !formData.mood}
-              className="flex-1 shadow-[var(--shadow-lg)]"
-              style={{
-                borderRadius: '16px'
-              }}
-            >
+                onClick={handleContinue}
+                disabled={step === 1 && !formData.mood}
+                className="flex-1 shadow-[var(--shadow-lg)]"
+                style={{
+                  borderRadius: '16px'
+                }}>
+
               {step === 3 ? t('daily_check_in.btn_complete') : t('daily_check_in.btn_continue')}
             </Button>
           </div>
@@ -655,27 +655,27 @@ export default function StandaloneDailyCheckIn() {
 
       {/* Video Modal */}
       <AnimatePresence>
-        {activeVideo && (
+        {activeVideo &&
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
             style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
-            onClick={() => setActiveVideo(null)}
-          >
+            onClick={() => setActiveVideo(null)}>
+
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               className="relative w-full max-w-4xl"
               onClick={(e) => e.stopPropagation()}
-              style={{ 
+              style={{
                 borderRadius: '24px',
                 overflow: 'hidden',
                 boxShadow: '0 20px 60px rgba(0,0,0,0.5)'
-              }}
-            >
+              }}>
+
               <button
                 onClick={() => setActiveVideo(null)}
                 className="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
@@ -685,8 +685,8 @@ export default function StandaloneDailyCheckIn() {
                   border: 'none',
                   cursor: 'pointer'
                 }}
-                aria-label={t('daily_check_in.aria_close_video')}
-              >
+                aria-label={t('daily_check_in.aria_close_video')}>
+
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -697,16 +697,16 @@ export default function StandaloneDailyCheckIn() {
                 controls
                 playsInline
                 className="w-full"
-                style={{ maxHeight: '80vh', backgroundColor: '#000' }}
-              >
+                style={{ maxHeight: '80vh', backgroundColor: '#000' }}>
+
                 <source src={activeVideo} type="video/mp4" />
                 {t('daily_check_in.video_not_supported')}
               </video>
             </motion.div>
           </motion.div>
-        )}
+          }
       </AnimatePresence>
       </motion.div>
-    </>
-  );
+    </>);
+
 }
