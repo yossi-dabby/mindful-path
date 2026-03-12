@@ -178,13 +178,13 @@ export default function QuickActions() {
 
         {/* StarterPath Card — collapsible, same size as other cards when folded */}
         {!pathLoading &&
-        <div className="relative">
+        <div className="rounded-[20px] relative">
               <Card
             className="rounded-[var(--radius-card)] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group h-full border border-border/70 overflow-hidden"
             style={{ borderColor: 'rgba(118, 170, 156, 0.34)', background: 'linear-gradient(180deg, rgba(252,248,242,0.99) 0%, rgba(231,245,239,0.96) 100%)', boxShadow: '0 24px 56px rgba(68, 108, 96, 0.16), 0 10px 22px rgba(68, 108, 96, 0.08)' }}
             onClick={() => setStarterPathExpanded((v) => !v)}>
 
-                <CardContent className="p-5">
+                <CardContent className="p-5 rounded-[20px]">
                   {/* Always-visible header row — same layout as other cards */}
                   <div className="flex items-center gap-3 mb-4">
                     <div className="bg-teal-500 text-teal-500 rounded-[var(--radius-control)] w-14 h-14 flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]">
@@ -314,12 +314,12 @@ export default function QuickActions() {
                 to={action.intent ? createPageUrl('Chat', `intent=${action.intent}`) : createPageUrl(action.page)}
                 data-testid={action.testIds ? action.testIds[0] : undefined}>
 
-                <Card
-                  className="rounded-[var(--radius-card)] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group h-full border overflow-hidden"
-                  style={{ borderColor: 'rgba(118, 170, 156, 0.34)', background: 'linear-gradient(180deg, rgba(255,252,248,0.99) 0%, rgba(230,244,238,0.96) 100%)', boxShadow: '0 24px 56px rgba(68, 108, 96, 0.16), 0 10px 22px rgba(68, 108, 96, 0.08)' }}
-                  data-testid={action.testIds ? action.testIds[1] : undefined}>
+                <Card className="bg-[hsl(var(--card)/0.94)] text-card-foreground rounded-[20px] border-border/60 shadow-[var(--shadow-md)] backdrop-blur-[10px] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group h-full border overflow-hidden"
 
-                  <CardContent className="p-5 rounded-md">
+                style={{ borderColor: 'rgba(118, 170, 156, 0.34)', background: 'linear-gradient(180deg, rgba(255,252,248,0.99) 0%, rgba(230,244,238,0.96) 100%)', boxShadow: '0 24px 56px rgba(68, 108, 96, 0.16), 0 10px 22px rgba(68, 108, 96, 0.08)' }}
+                data-testid={action.testIds ? action.testIds[1] : undefined}>
+
+                  <CardContent className="p-5 rounded-2xl">
                     <div className="flex items-center gap-3 mb-4">
                       <div
                         className="w-14 h-14 flex items-center justify-center rounded-[var(--radius-control)]"
