@@ -34,11 +34,11 @@ export default function JournalFilters({
     <div className="space-y-3">
       {/* Type Filter */}
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-sm font-medium text-muted-foreground">Type:</span>
+        <span className="text-teal-600 text-sm font-medium">Type:</span>
         {entryTypes.map((type) =>
         <Badge
           key={type.value}
-          variant={selectedType === type.value ? 'default' : 'outline'} className="bg-[hsl(var(--card)/0.82)] text-foreground px-3 py-1 font-medium tracking-[0.01em] leading-4 rounded-2xl inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70 cursor-pointer hover:bg-secondary"
+          variant={selectedType === type.value ? 'default' : 'outline'} className="bg-teal-600 text-slate-50 px-3 py-1 font-medium tracking-[0.01em] leading-4 rounded-2xl inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70 cursor-pointer hover:bg-secondary"
 
 
 
@@ -55,17 +55,17 @@ export default function JournalFilters({
       {/* Tag Filter */}
       {allTags.length > 0 &&
       <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-sm font-medium text-muted-foreground">Tags:</span>
+          <span className="text-teal-600 text-sm font-medium">Tags:</span>
           {allTags.map((tag) =>
         <Badge
           key={tag}
-          variant={selectedTags.includes(tag) ? 'default' : 'outline'}
-          className={cn(
-            'cursor-pointer px-3 py-1',
-            selectedTags.includes(tag) ?
-            'bg-primary hover:bg-primary/90 text-primary-foreground' :
-            'hover:bg-secondary text-foreground'
-          )}
+          variant={selectedTags.includes(tag) ? 'default' : 'outline'} className="bg-teal-600 text-slate-50 px-3 py-1 font-medium tracking-[0.01em] leading-4 rounded-2xl inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70 cursor-pointer hover:bg-secondary"
+
+
+
+
+
+
           onClick={() => toggleTag(tag)}>
 
               {tag}
