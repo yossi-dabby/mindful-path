@@ -27,10 +27,10 @@ export default function BadgeDisplay({ compact = false }) {
       const allBadges = await base44.entities.Badge.list('-earned_date');
       // Deduplicate by badge_type (keep most recent)
       const uniqueBadges = {};
-      allBadges.forEach(badge => {
+      allBadges.forEach((badge) => {
         const key = badge.badge_type || badge.name;
-        if (!uniqueBadges[key] || 
-            new Date(badge.updated_date) > new Date(uniqueBadges[key].updated_date)) {
+        if (!uniqueBadges[key] ||
+        new Date(badge.updated_date) > new Date(uniqueBadges[key].updated_date)) {
           uniqueBadges[key] = badge;
         }
       });
@@ -41,26 +41,26 @@ export default function BadgeDisplay({ compact = false }) {
     refetchOnWindowFocus: false
   });
   const badgesArr = Array.isArray(badges) ? badges : [];
-  const earnedBadges = badgesArr.filter(b => b.earned_date);
-  const inProgressBadges = badgesArr.filter(b => !b.earned_date && b.progress > 0);
+  const earnedBadges = badgesArr.filter((b) => b.earned_date);
+  const inProgressBadges = badgesArr.filter((b) => !b.earned_date && b.progress > 0);
 
   if (isLoading) return null;
 
   if (compact) {
     return (
       <Card className="rounded-[26px] border hover:shadow-[var(--shadow-lg)] transition-calm overflow-hidden" style={{ borderColor: 'rgba(118, 170, 156, 0.3)', background: 'linear-gradient(180deg, rgba(246,252,248,0.98) 0%, rgba(235,245,240,0.96) 100%)', boxShadow: '0 22px 50px rgba(68, 108, 96, 0.13), 0 8px 18px rgba(68, 108, 96, 0.07)' }}>
-        <CardContent className="p-5 text-center">
+        <CardContent className="bg-emerald-50 p-5 text-center">
           <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-[18px] bg-primary/12 text-primary shadow-[var(--shadow-sm)]">
-            <Award className="w-8 h-8 mx-auto" strokeWidth={2} />
+            <Award className="text-teal-600 mx-auto lucide lucide-award w-8 h-8" strokeWidth={2} />
           </div>
-          <p className="text-2xl font-bold mb-1 text-foreground">{earnedBadges.length}</p>
-          <p className="text-xs text-muted-foreground">Badges</p>
-          {inProgressBadges.length > 0 && (
-            <p className="text-xs mt-1 text-muted-foreground">{inProgressBadges.length} in progress</p>
-          )}
+          <p className="text-teal-600 mb-1 text-2xl font-bold">{earnedBadges.length}</p>
+          <p className="text-teal-600 text-xs">Badges</p>
+          {inProgressBadges.length > 0 &&
+          <p className="text-xs mt-1 text-muted-foreground">{inProgressBadges.length} in progress</p>
+          }
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -79,54 +79,54 @@ export default function BadgeDisplay({ compact = false }) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {earnedBadges.length === 0 ? (
-            <div className="text-center py-8">
+          {earnedBadges.length === 0 ?
+          <div className="text-center py-8">
               <Award className="w-12 h-12 mx-auto mb-3 opacity-30" style={{ color: '#7A9A92' }} />
               <p className="text-sm" style={{ color: '#7A9A92' }}>Complete activities to earn your first badge!</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 sm:gap-4">
-              {earnedBadges.map((badge, i) => (
-                <motion.div
-                  key={badge.id}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: i * 0.05 }}
-                  whileHover={{ y: -4, scale: 1.05 }}
-                  className="relative cursor-pointer group"
-                >
-                  <div 
-                    className="aspect-square rounded-2xl flex flex-col items-center justify-center p-2 sm:p-3 transition-all"
-                    style={{
-                      background: `linear-gradient(145deg, ${rarityBgColors[badge.rarity] || rarityBgColors.common} 0%, rgba(255, 255, 255, 0.9) 100%)`,
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
-                    }}
-                  >
+            </div> :
+
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 sm:gap-4">
+              {earnedBadges.map((badge, i) =>
+            <motion.div
+              key={badge.id}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: i * 0.05 }}
+              whileHover={{ y: -4, scale: 1.05 }}
+              className="relative cursor-pointer group">
+
+                  <div
+                className="aspect-square rounded-2xl flex flex-col items-center justify-center p-2 sm:p-3 transition-all"
+                style={{
+                  background: `linear-gradient(145deg, ${rarityBgColors[badge.rarity] || rarityBgColors.common} 0%, rgba(255, 255, 255, 0.9) 100%)`,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
+                }}>
+
                     <span className="text-2xl sm:text-3xl mb-1">{badge.icon}</span>
                     <p className="text-xs font-medium text-center line-clamp-2" style={{ color: '#1A3A34' }}>{badge.name}</p>
-                    <Badge className="mt-1 text-xs capitalize" style={{ 
-                      background: badge.rarity === 'legendary' ? 'rgba(245, 158, 11, 0.2)' :
-                                  badge.rarity === 'epic' ? 'rgba(168, 85, 247, 0.2)' :
-                                  badge.rarity === 'rare' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(156, 163, 175, 0.2)',
-                      color: badge.rarity === 'legendary' ? '#B45309' :
-                             badge.rarity === 'epic' ? '#7C3AED' :
-                             badge.rarity === 'rare' ? '#2563EB' : '#4B5563'
-                    }}>
+                    <Badge className="mt-1 text-xs capitalize" style={{
+                  background: badge.rarity === 'legendary' ? 'rgba(245, 158, 11, 0.2)' :
+                  badge.rarity === 'epic' ? 'rgba(168, 85, 247, 0.2)' :
+                  badge.rarity === 'rare' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(156, 163, 175, 0.2)',
+                  color: badge.rarity === 'legendary' ? '#B45309' :
+                  badge.rarity === 'epic' ? '#7C3AED' :
+                  badge.rarity === 'rare' ? '#2563EB' : '#4B5563'
+                }}>
                       {badge.rarity}
                     </Badge>
                   </div>
                 </motion.div>
-              ))}
+            )}
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
       {/* In Progress */}
-      {inProgressBadges.length > 0 && (
-        <Card className="border-0 shadow-lg rounded-2xl" style={{
-          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)'
-        }}>
+      {inProgressBadges.length > 0 &&
+      <Card className="border-0 shadow-lg rounded-2xl" style={{
+        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 246, 243, 0.9) 100%)'
+      }}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2" style={{ color: '#1A3A34' }}>
               <Sparkles className="w-5 h-5" style={{ color: '#F6AD55' }} />
@@ -135,19 +135,19 @@ export default function BadgeDisplay({ compact = false }) {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {inProgressBadges.map((badge, i) => (
-                <motion.div 
-                  key={badge.id} 
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  className="rounded-xl p-4 transition-all hover:shadow-md"
-                  style={{ background: 'rgba(200, 230, 225, 0.3)' }}
-                >
+              {inProgressBadges.map((badge, i) =>
+            <motion.div
+              key={badge.id}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.1 }}
+              className="rounded-xl p-4 transition-all hover:shadow-md"
+              style={{ background: 'rgba(200, 230, 225, 0.3)' }}>
+
                   <div className="flex items-start gap-3 mb-3">
                     <div className="w-12 h-12 rounded-xl flex items-center justify-center opacity-50" style={{
-                      background: 'rgba(200, 200, 200, 0.4)'
-                    }}>
+                  background: 'rgba(200, 200, 200, 0.4)'
+                }}>
                       <span className="text-xl grayscale">{badge.icon}</span>
                     </div>
                     <div className="flex-1 min-w-0">
@@ -162,20 +162,20 @@ export default function BadgeDisplay({ compact = false }) {
                     </div>
                     <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'rgba(200, 230, 225, 0.5)' }}>
                       <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${badge.progress || 0}%` }}
-                        transition={{ duration: 0.5 }}
-                        className="h-full rounded-full"
-                        style={{ background: 'linear-gradient(90deg, #26A69A 0%, #38B2AC 100%)' }}
-                      />
+                    initial={{ width: 0 }}
+                    animate={{ width: `${badge.progress || 0}%` }}
+                    transition={{ duration: 0.5 }}
+                    className="h-full rounded-full"
+                    style={{ background: 'linear-gradient(90deg, #26A69A 0%, #38B2AC 100%)' }} />
+
                     </div>
                   </div>
                 </motion.div>
-              ))}
+            )}
             </div>
           </CardContent>
         </Card>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 }
