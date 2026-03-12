@@ -641,11 +641,11 @@ export default function DraggableAiCompanion() {
 
       <Card className="border border-border/80 shadow-[var(--shadow-lg)] flex flex-col overflow-hidden bg-card" style={{ maxHeight: 'calc(100dvh - 200px)' }}>
         {/* Draggable Header */}
-        <div
-            className="bg-primary p-4 rounded-t-[var(--radius-card)] flex items-center justify-between cursor-move border-b border-white/10"
-            style={{ touchAction: 'none' }}
-            onMouseDown={handleDragStart}
-            onTouchStart={handleDragStart}>
+        <div className="bg-teal-600 p-4 rounded-t-[var(--radius-card)] flex items-center justify-between cursor-move border-b border-white/10"
+
+          style={{ touchAction: 'none' }}
+          onMouseDown={handleDragStart}
+          onTouchStart={handleDragStart}>
 
           <div className="flex items-center gap-3">
             <GripVertical className="w-4 h-4 text-white/60" />
@@ -683,7 +683,7 @@ export default function DraggableAiCompanion() {
         </div>
 
         {/* Messages */}
-        <CardContent data-testid="companion-messages" className="flex-1 overflow-y-auto p-4 space-y-4 bg-[hsl(var(--surface-tint))] min-h-0" style={{ maxHeight: 'calc(100dvh - 350px)' }}>
+        <CardContent data-testid="companion-messages" className="bg-teal-50 p-4 flex-1 overflow-y-auto space-y-4 min-h-0" style={{ maxHeight: 'calc(100dvh - 350px)' }}>
           {/* Inline Consent Banner - Non-blocking */}
           {showConsentBanner &&
             <InlineConsentBanner onAccept={() => {
@@ -702,10 +702,10 @@ export default function DraggableAiCompanion() {
                 animate={{ opacity: 1 }}
                 className="text-center py-8">
 
-                <Sparkles className="w-12 h-12 text-primary mx-auto mb-3" />
-                <h4 className="font-semibold text-foreground mb-2">Hello! I'm here for you</h4>
-                <p className="text-sm text-muted-foreground mb-4">
-                  I can help with your wellness journey, answer questions, or just listen.
+                <Sparkles className="text-teal-600 mb-3 mx-auto lucide lucide-sparkles w-12 h-12" />
+                <h4 className="text-teal-600 mb-2 font-semibold">Hello! I'm here for you</h4>
+                <p className="text-teal-600 mb-4 text-sm">I can help with your wellness journey, answer questions, or just listen.
+
                 </p>
                 <div className="grid grid-cols-2 gap-2">
                   {quickPrompts.map((prompt, i) =>
@@ -713,8 +713,8 @@ export default function DraggableAiCompanion() {
                     key={i}
                     variant="outline"
                     size="sm"
-                    onClick={() => handleQuickPrompt(prompt)}
-                    className="text-xs">
+                    onClick={() => handleQuickPrompt(prompt)} className="bg-[hsl(var(--card)/0.88)] text-teal-600 px-3 text-xs font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0">
+
 
                       {prompt}
                     </Button>
@@ -800,8 +800,8 @@ export default function DraggableAiCompanion() {
         </CardContent>
 
         {/* Input */}
-        <div className="p-4 border-t border-border/80 bg-popover rounded-b-[var(--radius-card)] flex-shrink-0">
-          <div className="flex gap-2">
+        <div className="bg-teal-50 text-teal-600 p-4 rounded-b-[var(--radius-card)] border-t border-border/80 flex-shrink-0">
+          <div className="text-teal-600 flex gap-2">
             <Input
                 data-testid="ai-companion-input"
                 value={message}
@@ -810,15 +810,15 @@ export default function DraggableAiCompanion() {
                   setSendError(null);
                 }}
                 onKeyPress={handleKeyPress}
-                placeholder="Ask me anything..."
-                className="flex-1 rounded-xl"
+                placeholder="Ask me anything..." className="bg-[hsl(var(--surface-nested)/0.92)] text-teal-800 px-3 py-1 font-normal tracking-[0.001em] leading-6 rounded-xl flex h-9 w-full border border-input/90 shadow-[var(--shadow-sm)] transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 flex-1"
+
                 disabled={isLoading} />
 
             <Button
                 data-testid="ai-companion-send"
                 onClick={sendMessage}
-                disabled={!message.trim() || isLoading}
-                className="bg-primary hover:bg-primary/94 text-primary-foreground"
+                disabled={!message.trim() || isLoading} className="bg-primary text-teal-600 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 hover:bg-primary/94"
+
                 aria-label="Send message">
 
               <Send className="w-4 h-4" />
