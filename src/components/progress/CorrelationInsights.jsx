@@ -12,14 +12,14 @@ export default function CorrelationInsights({ moodEntries, journalEntries, exerc
   const analyzeCorrelations = async () => {
     setIsAnalyzing(true);
     try {
-      const moodData = moodEntries.slice(0, 30).map(m => ({
+      const moodData = moodEntries.slice(0, 30).map((m) => ({
         date: m.date,
         mood: m.mood,
         emotions: m.emotions,
         intensity: m.intensity
       }));
 
-      const journalData = journalEntries.slice(0, 20).map(j => ({
+      const journalData = journalEntries.slice(0, 20).map((j) => ({
         date: new Date(j.created_date).toISOString().split('T')[0],
         emotion_intensity_before: j.emotion_intensity,
         emotion_intensity_after: j.outcome_emotion_intensity,
@@ -27,7 +27,7 @@ export default function CorrelationInsights({ moodEntries, journalEntries, exerc
         tags: j.tags
       }));
 
-      const exerciseData = exercises.filter(e => e.completed_count > 0).map(e => ({
+      const exerciseData = exercises.filter((e) => e.completed_count > 0).map((e) => ({
         title: e.title,
         category: e.category,
         completed_count: e.completed_count,
@@ -107,21 +107,21 @@ Provide insights on:
   if (!insights && !isAnalyzing) {
     return (
       <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
-        <CardContent className="p-8 text-center">
-          <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mx-auto mb-4">
-            <Activity className="w-8 h-8 text-primary" />
+        <CardContent className="bg-teal-50 p-8 text-center">
+          <div className="bg-teal-600 text-slate-50 mb-4 mx-auto rounded-full w-16 h-16 flex items-center justify-center">
+            <Activity className="text-slate-50 lucide lucide-activity w-8 h-8" />
           </div>
-          <h3 className="text-xl font-semibold text-foreground mb-2">Discover Your Patterns</h3>
-          <p className="text-muted-foreground mb-4 max-w-lg mx-auto">
-            AI will analyze correlations between your mood, journal entries, and exercises to reveal what works best for you.
+          <h3 className="text-teal-600 mb-2 text-xl font-semibold">Discover Your Patterns</h3>
+          <p className="text-teal-600 mb-4 mx-auto max-w-lg">AI will analyze correlations between your mood, journal entries, and exercises to reveal what works best for you.
+
           </p>
-          <Button onClick={analyzeCorrelations} className="bg-indigo-600 hover:bg-indigo-700">
+          <Button onClick={analyzeCorrelations} className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 hover:bg-indigo-700">
             <Sparkles className="w-4 h-4 mr-2" />
             Analyze Correlations
           </Button>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   if (isAnalyzing) {
@@ -132,8 +132,8 @@ Provide insights on:
           <h3 className="text-lg font-semibold text-gray-800 mb-2">Analyzing Your Data...</h3>
           <p className="text-sm text-gray-600">Finding patterns and correlations</p>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   const strengthColors = {
@@ -173,18 +173,18 @@ Provide insights on:
             </Badge>
           </div>
           <p className="text-sm text-gray-700 mb-3">{insights.mood_exercise_correlation.finding}</p>
-          {insights.mood_exercise_correlation.best_exercises?.length > 0 && (
-            <div>
+          {insights.mood_exercise_correlation.best_exercises?.length > 0 &&
+          <div>
               <p className="text-xs font-medium text-gray-600 mb-2">Most Effective Exercises:</p>
               <div className="flex flex-wrap gap-2">
-                {insights.mood_exercise_correlation.best_exercises.map((ex, i) => (
-                  <Badge key={i} variant="outline" className="bg-blue-50 text-blue-700">
+                {insights.mood_exercise_correlation.best_exercises.map((ex, i) =>
+              <Badge key={i} variant="outline" className="bg-blue-50 text-blue-700">
                     {ex}
                   </Badge>
-                ))}
+              )}
               </div>
             </div>
-          )}
+          }
         </div>
 
         {/* Journal-Mood Correlation */}
@@ -202,51 +202,51 @@ Provide insights on:
         </div>
 
         {/* Peak Patterns */}
-        {insights.peak_patterns?.length > 0 && (
-          <div className="p-4 rounded-xl border-2 border-green-200 bg-gradient-to-br from-white to-green-50">
+        {insights.peak_patterns?.length > 0 &&
+        <div className="p-4 rounded-xl border-2 border-green-200 bg-gradient-to-br from-white to-green-50">
             <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-green-600" />
               Your Success Patterns
             </h4>
             <ul className="space-y-2">
-              {insights.peak_patterns.map((pattern, i) => (
-                <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+              {insights.peak_patterns.map((pattern, i) =>
+            <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
                   <span className="text-green-600 mt-0.5">✓</span>
                   {pattern}
                 </li>
-              ))}
+            )}
             </ul>
           </div>
-        )}
+        }
 
         {/* Warning Signs */}
-        {insights.warning_signs?.length > 0 && (
-          <div className="p-4 rounded-xl border-2 border-orange-200 bg-gradient-to-br from-white to-orange-50">
+        {insights.warning_signs?.length > 0 &&
+        <div className="p-4 rounded-xl border-2 border-orange-200 bg-gradient-to-br from-white to-orange-50">
             <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
               <Lightbulb className="w-4 h-4 text-orange-600" />
               Early Warning Signs
             </h4>
             <ul className="space-y-2">
-              {insights.warning_signs.map((sign, i) => (
-                <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+              {insights.warning_signs.map((sign, i) =>
+            <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
                   <span className="text-orange-600 mt-0.5">!</span>
                   {sign}
                 </li>
-              ))}
+            )}
             </ul>
           </div>
-        )}
+        }
 
         {/* Recommendations */}
-        {insights.recommendations?.length > 0 && (
-          <div className="p-4 rounded-xl border-2 border-indigo-200 bg-gradient-to-br from-white to-indigo-50">
+        {insights.recommendations?.length > 0 &&
+        <div className="p-4 rounded-xl border-2 border-indigo-200 bg-gradient-to-br from-white to-indigo-50">
             <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
               <Target className="w-4 h-4 text-indigo-600" />
               Personalized Recommendations
             </h4>
             <div className="space-y-3">
-              {insights.recommendations.map((rec, i) => (
-                <div key={i} className="bg-white p-3 rounded-lg border border-indigo-200">
+              {insights.recommendations.map((rec, i) =>
+            <div key={i} className="bg-white p-3 rounded-lg border border-indigo-200">
                   <div className="flex items-start justify-between gap-2 mb-1">
                     <p className="font-medium text-gray-800 text-sm">{rec.action}</p>
                     <Badge className={priorityColors[rec.priority]} size="sm">
@@ -255,11 +255,11 @@ Provide insights on:
                   </div>
                   <p className="text-xs text-gray-600">{rec.reason}</p>
                 </div>
-              ))}
+            )}
             </div>
           </div>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }
