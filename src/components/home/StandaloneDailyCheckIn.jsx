@@ -432,7 +432,7 @@ export default function StandaloneDailyCheckIn() {
                   background: 'linear-gradient(180deg, rgba(49, 158, 136, 0.22) 0%, rgba(49, 158, 136, 0.34) 100%)',
                   boxShadow: '0 14px 28px rgba(38, 134, 116, 0.2)'
                 }}>
-                <Heart className="w-6 h-6 text-primary" />
+                <Heart className="text-teal-600 lucide lucide-heart w-6 h-6" />
               </div>
               <CardTitle className="text-teal-600 text-xl font-semibold tracking-[-0.012em]">{t('daily_check_in.title')}</CardTitle>
             </div>
