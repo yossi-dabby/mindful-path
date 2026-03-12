@@ -28,6 +28,7 @@ export default function CoachingChat({ session, onBack }) {
   const [showConsentBanner, setShowConsentBanner] = useState(false);
   const [showRiskPanel, setShowRiskPanel] = useState(false);
   const messagesEndRef = useRef(null);
+  const scrollContainerRef = useRef(null);
 
   // Check consent on mount
   React.useEffect(() => {
@@ -72,7 +73,7 @@ export default function CoachingChat({ session, onBack }) {
   }, [currentSession.agent_conversation_id]);
 
   useEffect(() => {
-    const container = document.querySelector('[data-testid="coach-chat-messages"]');
+    const container = scrollContainerRef.current;
     if (!container) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
       return;
@@ -200,9 +201,9 @@ export default function CoachingChat({ session, onBack }) {
 
       <div className="flex-1 min-h-0 flex">
         {/* Chat Area */}
-        <div className="flex-1 flex flex-col">
-          <div className="flex-1 min-h-0 overflow-y-auto p-4 bg-[hsl(var(--surface-tint))]" style={{ overscrollBehavior: 'none', WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
-            <div data-testid="coach-chat-messages" className="max-w-4xl mx-auto space-y-4">
+        <div className="flex-1 min-h-0 flex flex-col">
+          <div ref={scrollContainerRef} data-testid="coach-chat-messages" className="flex-1 min-h-0 overflow-y-auto p-4 bg-[hsl(var(--surface-tint))]" style={{ overscrollBehavior: 'none', WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
+            <div className="max-w-4xl mx-auto space-y-4">
               {/* Inline Consent Banner - Non-blocking */}
               {showConsentBanner && (
                 <InlineConsentBanner onAccept={() => {
