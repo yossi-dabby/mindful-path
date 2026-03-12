@@ -43,8 +43,8 @@ export default function Coach() {
     initialData: []
   });
 
-  const activeSessions = sessions.filter(s => s.status === 'active');
-  const completedSessions = sessions.filter(s => s.status === 'completed');
+  const activeSessions = sessions.filter((s) => s.status === 'active');
+  const completedSessions = sessions.filter((s) => s.status === 'completed');
 
   const handleStartSession = () => {
     setShowWizard(true);
@@ -85,22 +85,22 @@ export default function Coach() {
   // If session is selected, show chat
   if (selectedSession) {
     return (
-      <CoachingChat 
+      <CoachingChat
         session={selectedSession}
-        onBack={() => setSelectedSession(null)}
-      />
-    );
+        onBack={() => setSelectedSession(null)} />);
+
+
   }
 
   // Main coach page
   return (
     <div className="w-full min-h-[100dvh] bg-transparent">
       {/* Mobile Header - Matches web structure */}
-      <motion.div 
+      <motion.div
         className="md:hidden border-b border-border/70 bg-[hsl(var(--card)/0.9)] backdrop-blur-2xl p-4 shadow-[var(--shadow-sm)]"
         initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-      >
+        animate={{ y: 0, opacity: 1 }}>
+
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Button
@@ -108,15 +108,15 @@ export default function Coach() {
               size="icon"
               onClick={() => window.location.href = '/'}
               style={{ borderRadius: '50%', width: '36px', height: '36px' }}
-              aria-label={t('coach.go_back_aria')}
-            >
+              aria-label={t('coach.go_back_aria')}>
+
               <ArrowLeft className="w-5 h-5 rtl:scale-x-[-1]" />
             </Button>
-            <motion.div 
+            <motion.div
               className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-control)] bg-primary text-primary-foreground shadow-[var(--shadow-sm)]"
               whileHover={{ rotate: 360 }}
-              transition={{ duration: 0.5 }}
-            >
+              transition={{ duration: 0.5 }}>
+
               <Heart className="w-5 h-5 text-white" />
             </motion.div>
             <div>
@@ -134,8 +134,8 @@ export default function Coach() {
               onClick={handleStartSession}
               size="icon"
               className="rounded-full w-9 h-9 shadow-[var(--shadow-sm)]"
-              aria-label={t('coach.new_session_aria')}
-            >
+              aria-label={t('coach.new_session_aria')}>
+
               <Target className="w-5 h-5" />
             </Button>
           </div>
@@ -143,11 +143,11 @@ export default function Coach() {
       </motion.div>
 
       {/* Desktop Header - Hidden on mobile */}
-      <motion.div 
+      <motion.div
         className="hidden md:block border-b border-border/70 bg-[hsl(var(--card)/0.9)] backdrop-blur-2xl p-4 shadow-[var(--shadow-sm)]"
         initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-      >
+        animate={{ y: 0, opacity: 1 }}>
+
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button
@@ -155,33 +155,33 @@ export default function Coach() {
               size="icon"
               onClick={() => window.location.href = '/'}
               style={{ borderRadius: '50%' }}
-              aria-label={t('coach.go_back_aria')}
-            >
+              aria-label={t('coach.go_back_aria')} className="text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
+
               <ArrowLeft className="w-5 h-5 rtl:scale-x-[-1]" />
             </Button>
-            <motion.div 
-              className="w-12 h-12 flex items-center justify-center rounded-[var(--radius-card)] bg-primary text-primary-foreground shadow-[var(--shadow-md)]"
-              whileHover={{ rotate: 360 }}
-              transition={{ duration: 0.5 }}
-            >
+            <motion.div className="bg-teal-600 text-primary-foreground rounded-3xl w-12 h-12 flex items-center justify-center shadow-[var(--shadow-md)]"
+
+            whileHover={{ rotate: 360 }}
+            transition={{ duration: 0.5 }}>
+
               <Heart className="w-6 h-6 text-white" />
             </motion.div>
             <div>
-              <h1 className="text-xl font-semibold text-foreground">{t('coach.title')}</h1>
-              <p className="text-sm text-muted-foreground">{t('coach.subtitle')}</p>
+              <h1 className="text-teal-600 text-xl font-semibold">{t('coach.title')}</h1>
+              <p className="text-teal-600 text-sm">{t('coach.subtitle')}</p>
             </div>
           </div>
           <div className="flex gap-3">
             <Link to={createPageUrl('CoachingAnalytics')}>
-              <Button variant="outline" className="gap-2 shadow-sm" style={{ borderRadius: '24px' }}>
+              <Button variant="outline" className="bg-teal-600 text-slate-50 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 gap-2 shadow-sm" style={{ borderRadius: '24px' }}>
                 <BarChart3 className="w-4 h-4" />
                 {t('coach.analytics')}
               </Button>
             </Link>
             <Button
-              onClick={handleStartSession}
-              className="rounded-[var(--radius-card)]"
-            >
+              onClick={handleStartSession} className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0">
+
+
               <Target className="w-5 h-5 mr-2" />
               {t('coach.start_new_session')}
             </Button>
@@ -191,50 +191,50 @@ export default function Coach() {
 
       {/* Content */}
       <div className="max-w-7xl mx-auto p-4 md:p-6 pb-32 md:pb-24 w-full">
-        {sessions.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="mt-4 md:mt-12"
-          >
+        {sessions.length === 0 ?
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="mt-4 md:mt-12">
+
             <Card className="overflow-hidden border border-border/80 bg-card shadow-[var(--shadow-lg)]">
-              <CardContent className="p-6 md:p-12 text-center">
+              <CardContent className="bg-teal-50 p-6 text-center md:p-12">
                 {/* Animated Heart icon */}
-                <motion.div 
-                  className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center mx-auto mb-4 shadow-[var(--shadow-md)] rounded-full bg-primary text-primary-foreground"
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  <Heart className="w-8 h-8 md:w-10 md:h-10 text-white" />
+                <motion.div className="bg-teal-600 text-teal-100 mb-4 mx-auto rounded-full w-16 h-16 md:w-20 md:h-20 flex items-center justify-center shadow-[var(--shadow-md)]"
+
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}>
+
+                  <Heart className="bg-teal-600 text-white lucide lucide-heart w-8 h-8 md:w-10 md:h-10" />
                 </motion.div>
-                <h2 className="text-xl md:text-2xl font-bold mb-3 text-foreground">
-                  Welcome to AI Coaching! 👋
-                </h2>
-                <p className="text-sm md:text-base mb-6 max-w-lg mx-auto text-muted-foreground">
-                  Work step-by-step with your AI coach to clarify challenges, set focused goals, and move forward with confidence.
-                </p>
+                <h2 className="text-teal-600 mb-3 text-xl font-bold md:text-2xl">Welcome to AI Coaching! 👋
+
+              </h2>
+                <p className="text-teal-600 mb-6 mx-auto text-sm md:text-base max-w-lg">Work step-by-step with your AI coach to clarify challenges, set focused goals, and move forward with confidence.
+
+              </p>
                 <ul className="text-left text-sm md:text-base mb-6 max-w-lg mx-auto space-y-2 text-foreground/85">
-                  <li>• Break overwhelming thoughts into clear actions</li>
-                  <li>• Get structured guidance, not generic advice</li>
-                  <li>• Build momentum session by session</li>
+                  <li className="text-teal-600">• Break overwhelming thoughts into clear actions</li>
+                  <li className="text-teal-600">• Get structured guidance, not generic advice</li>
+                  <li className="text-teal-600">• Build momentum session by session</li>
                 </ul>
                 <Button
-                  onClick={handleStartSession}
-                  size="lg"
-                  className="shadow-[var(--shadow-lg)] transition-all w-full md:w-auto px-8 py-6 text-base md:text-lg rounded-[var(--radius-card)]"
-                >
+                onClick={handleStartSession}
+                size="lg" className="bg-teal-600 text-primary-foreground px-8 py-6 text-base font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-10 min-h-[44px] md:min-h-0 shadow-[var(--shadow-lg)] transition-all w-full md:w-auto md:text-lg">
+
+
                   <Target className="w-5 h-5 mr-2" />
                   Start Your First Session
                 </Button>
                 <ul className="text-left text-sm md:text-base mt-6 max-w-lg mx-auto space-y-2 text-foreground/85">
-                  <li>• Identify what matters most right now</li>
-                  <li>• Turn stress into an actionable plan</li>
+                  <li className="text-teal-600">• Identify what matters most right now</li>
+                  <li className="text-teal-600">• Turn stress into an actionable plan</li>
                 </ul>
               </CardContent>
             </Card>
-          </motion.div>
-        ) : (
-          <div className="space-y-6">
+          </motion.div> :
+
+        <div className="space-y-6">
             {/* Personalized Insights */}
             <div>
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-foreground">
@@ -257,38 +257,38 @@ export default function Coach() {
               </TabsList>
 
               <TabsContent value="active">
-                <CoachingSessionList 
-                  sessions={activeSessions}
-                  onSelectSession={handleSelectSession}
-                  onDeleteSession={handleDeleteSession}
-                />
+                <CoachingSessionList
+                sessions={activeSessions}
+                onSelectSession={handleSelectSession}
+                onDeleteSession={handleDeleteSession} />
+
               </TabsContent>
 
               <TabsContent value="completed">
-                <CoachingSessionList 
-                  sessions={completedSessions}
-                  onSelectSession={handleSelectSession}
-                  onDeleteSession={handleDeleteSession}
-                />
+                <CoachingSessionList
+                sessions={completedSessions}
+                onSelectSession={handleSelectSession}
+                onDeleteSession={handleDeleteSession} />
+
               </TabsContent>
             </Tabs>
           </div>
-        )}
+        }
 
         {/* Mobile FAB for Starting Session */}
-        {sessions.length > 0 && (
-          <Button
-            onClick={handleStartSession}
-            size="lg"
-            className="md:hidden fixed right-6 z-30 shadow-[var(--shadow-lg)] p-0 rounded-full w-14 h-14"
-            style={{
-              bottom: 'calc(env(safe-area-inset-bottom, 0px) + 96px)'
-            }}
-          >
+        {sessions.length > 0 &&
+        <Button
+          onClick={handleStartSession}
+          size="lg"
+          className="md:hidden fixed right-6 z-30 shadow-[var(--shadow-lg)] p-0 rounded-full w-14 h-14"
+          style={{
+            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 96px)'
+          }}>
+
             <Target className="w-6 h-6" />
           </Button>
-        )}
+        }
       </div>
-    </div>
-  );
+    </div>);
+
 }
