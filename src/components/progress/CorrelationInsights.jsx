@@ -106,7 +106,7 @@ Provide insights on:
 
   if (!insights && !isAnalyzing) {
     return (
-      <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
+      <Card className="bg-teal-50 text-card-foreground rounded-2xl backdrop-blur-[10px] border border-border/80 shadow-[var(--shadow-md)]">
         <CardContent className="bg-teal-50 p-8 text-center">
           <div className="bg-teal-600 text-slate-50 mb-4 mx-auto rounded-full w-16 h-16 flex items-center justify-center">
             <Activity className="text-slate-50 lucide lucide-activity w-8 h-8" />
