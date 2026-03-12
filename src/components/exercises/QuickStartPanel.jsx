@@ -37,23 +37,23 @@ const mediaIcons = {
 
 export default function QuickStartPanel({ exercises, onSelectExercise }) {
   // Get frequently used and favorite exercises
-  const frequentExercises = [...exercises]
-    .filter(e => e.completed_count > 0)
-    .sort((a, b) => (b.completed_count || 0) - (a.completed_count || 0))
-    .slice(0, 3);
+  const frequentExercises = [...exercises].
+  filter((e) => e.completed_count > 0).
+  sort((a, b) => (b.completed_count || 0) - (a.completed_count || 0)).
+  slice(0, 3);
 
-  const recentExercises = [...exercises]
-    .filter(e => e.last_completed)
-    .sort((a, b) => new Date(b.last_completed) - new Date(a.last_completed))
-    .slice(0, 3);
+  const recentExercises = [...exercises].
+  filter((e) => e.last_completed).
+  sort((a, b) => new Date(b.last_completed) - new Date(a.last_completed)).
+  slice(0, 3);
 
-  const favoriteExercises = exercises.filter(e => e.favorite).slice(0, 3);
+  const favoriteExercises = exercises.filter((e) => e.favorite).slice(0, 3);
 
   // Combine and deduplicate
   const quickStartExercises = [];
   const seen = new Set();
 
-  [...favoriteExercises, ...frequentExercises, ...recentExercises].forEach(ex => {
+  [...favoriteExercises, ...frequentExercises, ...recentExercises].forEach((ex) => {
     if (!seen.has(ex.id) && quickStartExercises.length < 4) {
       seen.add(ex.id);
       quickStartExercises.push(ex);
@@ -65,15 +65,15 @@ export default function QuickStartPanel({ exercises, onSelectExercise }) {
   return (
     <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)] mb-6">
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-foreground">
+        <CardTitle className="text-teal-600 text-base font-semibold tracking-[-0.012em] flex items-center gap-2 sm:text-lg">
           <motion.div
             animate={{ rotate: [0, 15, -15, 0] }}
-            transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
-          >
+            transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}>
+
             <Zap className="w-5 h-5 text-accent" />
           </motion.div>
           Quick Start
-          <Badge variant="warning" className="ml-2 text-xs">
+          <Badge variant="warning" className="bg-warning/16 text-teal-600 ml-2 px-2.5 py-1 text-xs font-medium tracking-[0.01em] rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-transparent">
             Your go-to exercises
           </Badge>
         </CardTitle>
@@ -84,7 +84,7 @@ export default function QuickStartPanel({ exercises, onSelectExercise }) {
             const Icon = categoryIcons[exercise.category] || Sparkles;
             const colors = categoryColors[exercise.category] || categoryColors.mindfulness;
             const MediaIcon = mediaIcons[exercise.media_type];
-            
+
             return (
               <motion.div
                 key={exercise.id}
@@ -92,26 +92,26 @@ export default function QuickStartPanel({ exercises, onSelectExercise }) {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ scale: 1.03, y: -4 }}
-                whileTap={{ scale: 0.98 }}
-              >
+                whileTap={{ scale: 0.98 }}>
+
                 <button
-                  onClick={() => onSelectExercise(exercise)}
-                  className="w-full text-left p-3 sm:p-4 rounded-2xl transition-all bg-secondary/45 border border-border/60 shadow-[var(--shadow-sm)]"
-                >
+                  onClick={() => onSelectExercise(exercise)} className="bg-teal-50 p-3 text-left rounded-2xl w-full sm:p-4 transition-all border border-border/60 shadow-[var(--shadow-sm)]">
+
+
                   <div className="flex items-start justify-between mb-2">
-                    <div 
+                    <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center"
-                      style={{ background: colors.bg }}
-                    >
+                      style={{ background: colors.bg }}>
+
                       <Icon className="w-5 h-5" style={{ color: colors.text }} />
                     </div>
                     <div className="flex items-center gap-1">
-                      {exercise.favorite && (
-                        <Heart className="w-3 h-3 fill-red-500 text-red-500" />
-                      )}
-                      {MediaIcon && (
-                        <MediaIcon className="w-3 h-3" style={{ color: '#7A9A92' }} />
-                      )}
+                      {exercise.favorite &&
+                      <Heart className="w-3 h-3 fill-red-500 text-red-500" />
+                      }
+                      {MediaIcon &&
+                      <MediaIcon className="w-3 h-3" style={{ color: '#7A9A92' }} />
+                      }
                     </div>
                   </div>
                   <h4 className="font-medium text-sm mb-1 line-clamp-1 text-foreground">
@@ -120,16 +120,16 @@ export default function QuickStartPanel({ exercises, onSelectExercise }) {
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Clock className="w-3 h-3" />
                     {exercise.duration_options?.[0] || 5} min
-                    {exercise.completed_count > 0 && (
-                      <span className="ml-auto">×{exercise.completed_count}</span>
-                    )}
+                    {exercise.completed_count > 0 &&
+                    <span className="ml-auto">×{exercise.completed_count}</span>
+                    }
                   </div>
                 </button>
-              </motion.div>
-            );
+              </motion.div>);
+
           })}
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }
