@@ -418,19 +418,19 @@ export default function StandaloneDailyCheckIn() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-      <Card className="border-0" style={{
+      <Card className="border border-border/70 overflow-hidden" style={{
         borderRadius: '36px',
-        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(232, 246, 243, 0.9) 100%)',
-        boxShadow: '0 16px 48px rgba(38, 166, 154, 0.15)'
+        background: 'linear-gradient(180deg, rgba(255, 252, 247, 0.98) 0%, rgba(235, 248, 243, 0.94) 62%, rgba(247, 251, 249, 0.98) 100%)',
+        boxShadow: '0 20px 56px rgba(77, 125, 111, 0.14), 0 8px 22px rgba(77, 125, 111, 0.08)'
       }}>
-        <CardHeader style={{ padding: '20px 24px' }}>
+        <CardHeader className="bg-[linear-gradient(180deg,rgba(255,255,255,0.42)_0%,rgba(238,247,243,0.52)_100%)] border-b border-border/50" style={{ padding: '20px 24px' }}>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 flex items-center justify-center" style={{
+              <div className="w-12 h-12 flex items-center justify-center shadow-[var(--shadow-sm)]" style={{
                 borderRadius: '18px',
-                backgroundColor: 'rgba(38, 166, 154, 0.15)'
+                background: 'linear-gradient(180deg, rgba(38, 166, 154, 0.16) 0%, rgba(38, 166, 154, 0.26) 100%)'
               }}>
-                <Heart className="w-6 h-6" style={{ color: '#26A69A' }} />
+                <Heart className="w-6 h-6 text-primary" />
               </div>
               <CardTitle className="text-xl">{t('daily_check_in.title')}</CardTitle>
             </div>
@@ -454,14 +454,14 @@ export default function StandaloneDailyCheckIn() {
                 width: '48px',
                 height: '48px',
                 borderRadius: '16px',
-                backgroundColor: 'rgba(38, 166, 154, 0.15)',
+                background: 'linear-gradient(180deg, rgba(38, 166, 154, 0.14) 0%, rgba(248, 191, 128, 0.16) 100%)',
                 border: 'none',
                 outline: 'none'
               }}
               aria-label={t('daily_check_in.aria_guided_video')}
               title={t('daily_check_in.aria_guided_video')}
             >
-              <User className="w-5 h-5" style={{ color: '#26A69A' }} strokeWidth={2} />
+              <User className="w-5 h-5 text-primary" strokeWidth={2} />
             </motion.button>
           </div>
           <div className="flex gap-2">
@@ -516,7 +516,9 @@ export default function StandaloneDailyCheckIn() {
                           : "border-border/40"
                       )}
                       style={{
-                        backgroundColor: 'rgba(189, 224, 217, 0.6)'
+                        background: formData.mood === mood.value
+                          ? 'linear-gradient(180deg, rgba(210, 239, 231, 0.98) 0%, rgba(247, 236, 222, 0.95) 100%)'
+                          : 'linear-gradient(180deg, rgba(224, 240, 234, 0.86) 0%, rgba(247, 244, 236, 0.82) 100%)'
                       }}
                     >
                       <span className="text-xl sm:text-2xl md:text-3xl">{mood.emoji}</span>
