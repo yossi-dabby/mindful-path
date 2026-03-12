@@ -41,9 +41,9 @@ export default function StreakWidget({ compact = false }) {
   // Compact display for Home grid
   if (compact) {
     return (
-      <Card className="surface-secondary rounded-[var(--radius-card)] hover:shadow-[var(--shadow-lg)] transition-calm border-border/80">
+      <Card className="rounded-[26px] border border-border/70 hover:shadow-[var(--shadow-lg)] transition-calm overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(255,249,239,0.96) 0%, rgba(244,251,247,0.94) 100%)', boxShadow: '0 18px 44px rgba(77, 125, 111, 0.1), 0 6px 16px rgba(77, 125, 111, 0.05)' }}>
         <CardContent className="p-5 text-center">
-          <div className="inline-flex mb-2 text-accent">
+          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-[18px] bg-accent/18 text-accent shadow-[var(--shadow-sm)]">
             <Flame className="w-8 h-8" strokeWidth={2} />
           </div>
           <p className="text-2xl font-bold mb-1 text-foreground">

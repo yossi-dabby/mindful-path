@@ -148,9 +148,10 @@ export default function QuickActions() {
         {/* AI Recommendations Card */}
         <div className="relative">
           <Card 
-              className="surface-primary rounded-[var(--radius-card)] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group h-full border-border/80"
-              onClick={() => setShowRecommendations(true)}
-            >
+          className="rounded-[var(--radius-card)] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group h-full border border-border/70 overflow-hidden"
+          style={{ background: 'linear-gradient(180deg, rgba(255,251,246,0.98) 0%, rgba(233,247,242,0.94) 100%)', boxShadow: '0 18px 44px rgba(77, 125, 111, 0.12), 0 6px 16px rgba(77, 125, 111, 0.06)' }}
+          onClick={() => setShowRecommendations(true)}
+          >
               <CardContent className="p-5">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-14 h-14 flex items-center justify-center rounded-[var(--radius-control)] bg-accent text-accent-foreground shadow-[var(--shadow-sm)]">
@@ -179,7 +180,8 @@ export default function QuickActions() {
         {!pathLoading && (
           <div className="relative">
               <Card
-                className="surface-primary rounded-[var(--radius-card)] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group h-full border-border/80"
+                className="rounded-[var(--radius-card)] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group h-full border border-border/70 overflow-hidden"
+                style={{ background: 'linear-gradient(180deg, rgba(250,247,241,0.98) 0%, rgba(236,248,244,0.94) 100%)', boxShadow: '0 18px 44px rgba(77, 125, 111, 0.12), 0 6px 16px rgba(77, 125, 111, 0.06)' }}
                 onClick={() => setStarterPathExpanded(v => !v)}
               >
                 <CardContent className="p-5">
@@ -266,7 +268,7 @@ export default function QuickActions() {
                             <>
                               <Link to={createPageUrl('StarterPath')} className="flex-1" onClick={e => e.stopPropagation()}>
                                 <Button
-                                  className="w-full px-4 py-2 font-medium transition-calm text-xs"
+                                  className="w-full px-4 py-2 font-medium transition-calm text-xs shadow-[var(--shadow-md)]"
                                 >
                                   {isCompleted ? t('starter_path.card_btn_review') : t('starter_path.card_btn_continue')}
                                   <ArrowRight className="w-3 h-3 ml-1" strokeWidth={2} />
@@ -289,7 +291,7 @@ export default function QuickActions() {
                             <Button
                               onClick={(e) => { e.stopPropagation(); startPathMutation.mutate(); }}
                               disabled={startPathMutation.isPending}
-                              className="w-full px-4 py-2 font-medium transition-calm text-xs"
+                              className="w-full px-4 py-2 font-medium transition-calm text-xs shadow-[var(--shadow-md)]"
                             >
                               {startPathMutation.isPending ? t('starter_path.card_btn_starting') : t('starter_path.card_btn_start')}
                               <ArrowRight className="w-3 h-3 ml-1" strokeWidth={2} />
@@ -313,7 +315,8 @@ export default function QuickActions() {
                 data-testid={action.testIds ? action.testIds[0] : undefined}
               >
                 <Card 
-                  className="surface-primary rounded-[var(--radius-card)] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group h-full border-border/80"
+                  className="rounded-[var(--radius-card)] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group h-full border border-border/70 overflow-hidden"
+                  style={{ background: 'linear-gradient(180deg, rgba(255,252,248,0.97) 0%, rgba(239,248,244,0.92) 100%)', boxShadow: '0 18px 44px rgba(77, 125, 111, 0.12), 0 6px 16px rgba(77, 125, 111, 0.06)' }}
                   data-testid={action.testIds ? action.testIds[1] : undefined}
                 >
                   <CardContent className="p-5">

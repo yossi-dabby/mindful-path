@@ -220,13 +220,27 @@ export default function Home() {
 
   return (
     <PullToRefresh queryKeys={['recentGoals', 'recentJournals', 'todayFlow', 'todayMood', 'todayExercise']}>
-      <div className="w-full min-h-[100dvh]">
-        <div className="page-container max-w-5xl mx-auto w-full pb-24">
+      <div className="relative w-full min-h-[100dvh] overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(110,193,174,0.18),transparent_34%),radial-gradient(circle_at_top_right,rgba(242,194,132,0.12),transparent_30%),linear-gradient(180deg,rgba(244,251,248,0.94)_0%,rgba(250,247,241,0.92)_52%,rgba(245,250,247,0.98)_100%)]" />
+        <div className="absolute -top-16 -left-16 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute top-24 right-0 h-48 w-48 rounded-full bg-accent/10 blur-3xl" />
+        <div className="page-container relative z-10 max-w-5xl mx-auto w-full pb-24">
         {/* Header */}
-        <div className="mb-6 mt-6">
-          <h1 className="text-2xl md:text-3xl font-semibold mb-2 text-foreground">
-            {greeting()}{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
-          </h1>
+        <div className="mb-6 mt-6 surface-primary rounded-[28px] px-6 py-6 md:px-8 md:py-8 border-border/70 shadow-[var(--shadow-lg)]">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-semibold mb-2 text-foreground">
+                {greeting()}{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
+              </h1>
+              <div className="inline-flex items-center gap-2 rounded-full bg-secondary/90 px-3 py-1 text-xs font-medium text-primary border border-border/60 shadow-[var(--shadow-sm)]">
+                <Sparkles className="w-3.5 h-3.5" />
+                Calm Oasis
+              </div>
+            </div>
+            <div className="hidden md:flex h-14 w-14 items-center justify-center rounded-[20px] bg-primary text-primary-foreground shadow-[var(--shadow-md)]">
+              <Sparkles className="w-6 h-6" />
+            </div>
+          </div>
         </div>
 
         {/* Daily Check-in - Primary CTA */}
@@ -243,7 +257,7 @@ export default function Home() {
         {/* Quick Stats */}
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="surface-secondary rounded-[var(--radius-card)] p-5 text-center relative">
+          <div className="relative overflow-hidden rounded-[26px] border border-border/70 bg-[linear-gradient(180deg,rgba(255,252,248,0.96)_0%,rgba(232,247,242,0.92)_100%)] p-5 text-center shadow-[var(--shadow-lg)]">
             <div className="flex items-center justify-center gap-2 mb-1">
               {latestGoal && (
                 <Link to={createPageUrl('Goals', `goal=${latestGoal.id}`)}>
@@ -285,7 +299,7 @@ export default function Home() {
               <Sparkles className="w-4 h-4 text-accent" strokeWidth={2} />
             </Button>
           </div>
-          <div className="surface-secondary rounded-[var(--radius-card)] p-5 text-center relative">
+          <div className="relative overflow-hidden rounded-[26px] border border-border/70 bg-[linear-gradient(180deg,rgba(250,247,240,0.96)_0%,rgba(238,249,245,0.92)_100%)] p-5 text-center shadow-[var(--shadow-lg)]">
             <div className="flex items-center justify-center gap-2 mb-1">
               {savedEntryId && (
                 <Link to={createPageUrl('Journal', `entry=${savedEntryId}`)}>
@@ -366,7 +380,7 @@ export default function Home() {
         )}
 
         {/* Quick Actions */}
-        <div className="mt-8">
+        <div className="mt-8 rounded-[30px] bg-[linear-gradient(180deg,rgba(255,253,249,0.82)_0%,rgba(236,247,243,0.86)_100%)] border border-border/60 p-4 md:p-5 shadow-[var(--shadow-md)]">
           <QuickActions />
         </div>
         </div>

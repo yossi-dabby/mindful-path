@@ -87,11 +87,11 @@ export default function GoalsDashboardWidget() {
   }
 
   return (
-    <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+    <Card className="rounded-[30px] border border-border/70 overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(255,252,248,0.98) 0%, rgba(236,248,244,0.94) 100%)', boxShadow: '0 20px 52px rgba(77, 125, 111, 0.12), 0 8px 20px rgba(77, 125, 111, 0.06)' }}>
+      <CardHeader className="border-b border-border/50 bg-[linear-gradient(180deg,rgba(255,255,255,0.38)_0%,rgba(238,247,243,0.52)_100%)]">
+        <CardTitle className="flex items-center justify-between text-foreground">
           <div className="flex items-center gap-2">
-            <Target className="w-5 h-5" />
+            <Target className="w-5 h-5 text-primary" />
             {t('goals_dashboard_widget.title')}
           </div>
           <button
@@ -115,11 +115,11 @@ export default function GoalsDashboardWidget() {
         {/* Overall Progress */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">{t('goals_dashboard_widget.overall_progress')}</span>
-            <span className="text-sm font-bold text-blue-600">{totalProgress}%</span>
+            <span className="text-sm font-medium text-foreground/85">{t('goals_dashboard_widget.overall_progress')}</span>
+            <span className="text-sm font-bold text-primary">{totalProgress}%</span>
           </div>
           <Progress value={totalProgress} className="h-2" />
-          <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+          <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
             <span>{t('goals_dashboard_widget.active', { count: activeGoals.length })}</span>
             <span>{t('goals_dashboard_widget.tasks_done', { completed: completedMilestones.length, total: allMilestones.length })}</span>
           </div>
@@ -127,12 +127,12 @@ export default function GoalsDashboardWidget() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+        <div className="rounded-2xl p-3 border border-emerald-200 bg-[linear-gradient(180deg,rgba(237,250,246,0.95)_0%,rgba(247,252,250,0.98)_100%)] shadow-[var(--shadow-sm)]">
             <div className="flex items-center gap-2 mb-1">
-              <CheckCircle2 className="w-4 h-4 text-green-600" />
-              <span className="text-xs text-gray-600">{t('goals_dashboard_widget.completed')}</span>
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span className="text-xs text-muted-foreground">{t('goals_dashboard_widget.completed')}</span>
             </div>
-            <p className="text-xl md:text-2xl font-bold text-green-700 truncate">
+            <p className="text-xl md:text-2xl font-bold text-emerald-700 truncate">
               {completedMilestones.length}/{allMilestones.length}
             </p>
           </div>
@@ -140,19 +140,19 @@ export default function GoalsDashboardWidget() {
           <div className={cn(
             "rounded-lg p-3 border",
             overdueGoals.length > 0 
-              ? "bg-red-50 border-red-200" 
-              : "bg-gray-50 border-gray-200"
+              ? "bg-[linear-gradient(180deg,rgba(255,243,241,0.96)_0%,rgba(255,250,249,0.98)_100%)] border-rose-200 shadow-[var(--shadow-sm)]" 
+              : "bg-[linear-gradient(180deg,rgba(246,250,248,0.96)_0%,rgba(252,253,252,0.98)_100%)] border-border/70 shadow-[var(--shadow-sm)]"
           )}>
             <div className="flex items-center gap-2 mb-1">
               <AlertCircle className={cn(
                 "w-4 h-4",
-                overdueGoals.length > 0 ? "text-red-600" : "text-gray-400"
+                overdueGoals.length > 0 ? "text-rose-600" : "text-muted-foreground"
               )} />
-              <span className="text-xs text-gray-600">{t('goals_dashboard_widget.overdue')}</span>
+              <span className="text-xs text-muted-foreground">{t('goals_dashboard_widget.overdue')}</span>
             </div>
             <p className={cn(
               "text-2xl font-bold",
-              overdueGoals.length > 0 ? "text-red-700" : "text-gray-400"
+              overdueGoals.length > 0 ? "text-rose-700" : "text-foreground/55"
             )}>
               {overdueGoals.length}
             </p>
@@ -161,7 +161,7 @@ export default function GoalsDashboardWidget() {
 
         {/* Overdue Goals Alert */}
         {overdueGoals.length > 0 && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+          <div className="rounded-2xl p-3 border border-rose-200 bg-[linear-gradient(180deg,rgba(255,244,242,0.96)_0%,rgba(255,250,249,0.98)_100%)] shadow-[var(--shadow-sm)]">
             <p className="text-sm font-medium text-red-800 mb-2">{t('goals_dashboard_widget.overdue_goals')}</p>
             <div className="space-y-2">
               {overdueGoals.slice(0, 3).map(goal => (
@@ -184,7 +184,7 @@ export default function GoalsDashboardWidget() {
 
         {/* Upcoming Deadlines */}
         {upcomingDeadlines.length > 0 && (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+          <div className="rounded-2xl p-3 border border-amber-200 bg-[linear-gradient(180deg,rgba(255,249,238,0.96)_0%,rgba(255,252,247,0.98)_100%)] shadow-[var(--shadow-sm)]">
             <p className="text-sm font-medium text-amber-800 mb-2">{t('goals_dashboard_widget.coming_up')}</p>
             <div className="space-y-2">
               {upcomingDeadlines.slice(0, 3).map(goal => (

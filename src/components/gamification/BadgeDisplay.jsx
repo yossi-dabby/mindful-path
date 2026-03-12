@@ -48,10 +48,10 @@ export default function BadgeDisplay({ compact = false }) {
 
   if (compact) {
     return (
-      <Card className="surface-secondary rounded-[var(--radius-card)] hover:shadow-[var(--shadow-lg)] transition-calm border-border/80">
+      <Card className="rounded-[26px] border border-border/70 hover:shadow-[var(--shadow-lg)] transition-calm overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(248,252,249,0.96) 0%, rgba(240,248,244,0.94) 100%)', boxShadow: '0 18px 44px rgba(77, 125, 111, 0.1), 0 6px 16px rgba(77, 125, 111, 0.05)' }}>
         <CardContent className="p-5 text-center">
-          <div className="text-accent">
-            <Award className="w-8 h-8 mx-auto mb-2" strokeWidth={2} />
+          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-[18px] bg-primary/12 text-primary shadow-[var(--shadow-sm)]">
+            <Award className="w-8 h-8 mx-auto" strokeWidth={2} />
           </div>
           <p className="text-2xl font-bold mb-1 text-foreground">{earnedBadges.length}</p>
           <p className="text-xs text-muted-foreground">Badges</p>

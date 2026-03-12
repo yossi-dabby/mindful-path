@@ -293,10 +293,10 @@ export default function StandaloneDailyCheckIn() {
   // If loading, show skeleton
   if (isLoading) {
     return (
-      <Card className="border-0" style={{
+      <Card className="border border-border/70 overflow-hidden" style={{
         borderRadius: '36px',
-        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(232, 246, 243, 0.9) 100%)',
-        boxShadow: '0 16px 48px rgba(38, 166, 154, 0.15)'
+        background: 'linear-gradient(180deg, rgba(255, 252, 247, 0.98) 0%, rgba(235, 248, 243, 0.94) 62%, rgba(247, 251, 249, 0.98) 100%)',
+        boxShadow: '0 20px 56px rgba(77, 125, 111, 0.14), 0 8px 22px rgba(77, 125, 111, 0.08)'
       }}>
         <CardContent className="p-7">
           <div className="animate-pulse space-y-4">
@@ -317,13 +317,13 @@ export default function StandaloneDailyCheckIn() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <Card className="border-0" style={{
+        <Card className="border border-border/70 overflow-hidden" style={{
           borderRadius: '36px',
-          background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(232, 246, 243, 0.9) 100%)',
-          boxShadow: '0 16px 48px rgba(38, 166, 154, 0.15)'
+          background: 'linear-gradient(180deg, rgba(255, 252, 247, 0.98) 0%, rgba(235, 248, 243, 0.94) 62%, rgba(247, 251, 249, 0.98) 100%)',
+          boxShadow: '0 20px 56px rgba(77, 125, 111, 0.14), 0 8px 22px rgba(77, 125, 111, 0.08)'
         }}>
           <CardHeader 
-            className="cursor-pointer hover:bg-gray-50/50 transition-colors"
+            className="cursor-pointer hover:bg-secondary/40 transition-colors bg-[linear-gradient(180deg,rgba(255,255,255,0.42)_0%,rgba(238,247,243,0.52)_100%)] border-b border-border/50"
             onClick={() => setIsCollapsed(!isCollapsed)}
             style={{ borderRadius: '36px 36px 0 0', padding: '20px 24px' }}
           >
@@ -371,7 +371,7 @@ export default function StandaloneDailyCheckIn() {
               >
                 <CardContent className="p-6 space-y-4">
                   <div>
-                    <p className="text-sm font-medium text-gray-500 mb-2">{t('daily_check_in.emotions_label')}</p>
+                    <p className="text-sm font-medium text-muted-foreground mb-2">{t('daily_check_in.emotions_label')}</p>
                     <div className="flex flex-wrap gap-2">
                       {todayMood.emotions?.map((emotion) => {
                         const category = Object.keys(emotionCategories).find(cat => 
@@ -388,7 +388,7 @@ export default function StandaloneDailyCheckIn() {
                   </div>
                   
                   <div>
-                    <p className="text-sm font-medium text-gray-500 mb-2">{t('daily_check_in.intensity_label')}</p>
+                    <p className="text-sm font-medium text-muted-foreground mb-2">{t('daily_check_in.intensity_label')}</p>
                     <div className="flex items-center gap-3">
                       <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
                         <div 
@@ -396,7 +396,7 @@ export default function StandaloneDailyCheckIn() {
                           style={{ width: `${todayMood.intensity}%` }}
                         />
                       </div>
-                      <span className="text-lg font-bold" style={{ color: '#26A69A' }}>
+                      <span className="text-lg font-bold text-primary">
                         {todayMood.intensity}
                       </span>
                     </div>
@@ -485,7 +485,7 @@ export default function StandaloneDailyCheckIn() {
               animate={{ opacity: 1, x: 0 }}
               className="space-y-4"
             >
-              <h3 className="text-base font-semibold text-gray-800">
+              <h3 className="text-base font-semibold text-foreground">
                 {t('daily_check_in.step1_question')}
               </h3>
               <div className="grid grid-cols-5 gap-1 sm:gap-2 md:gap-3">
@@ -512,8 +512,8 @@ export default function StandaloneDailyCheckIn() {
                       className={cn(
                         "w-11 h-11 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-1 sm:mb-2 border-2 transition-all",
                         formData.mood === mood.value
-                          ? "border-green-500 shadow-md"
-                          : "border-transparent"
+                          ? "border-primary shadow-[var(--shadow-md)]"
+                          : "border-border/40"
                       )}
                       style={{
                         backgroundColor: 'rgba(189, 224, 217, 0.6)'
@@ -521,7 +521,7 @@ export default function StandaloneDailyCheckIn() {
                     >
                       <span className="text-xl sm:text-2xl md:text-3xl">{mood.emoji}</span>
                     </div>
-                    <div className="text-[10px] sm:text-xs font-medium text-gray-700 text-center leading-tight">
+                    <div className="text-[10px] sm:text-xs font-medium text-foreground/85 text-center leading-tight">
                       {t(`daily_check_in.moods.${mood.value}`, { defaultValue: mood.label })}
                     </div>
                   </button>
@@ -537,7 +537,7 @@ export default function StandaloneDailyCheckIn() {
               animate={{ opacity: 1, x: 0 }}
               className="space-y-4"
             >
-              <h3 className="text-base font-semibold text-gray-800">
+              <h3 className="text-base font-semibold text-foreground">
                 {t('daily_check_in.step2_question')}
               </h3>
               
@@ -545,7 +545,7 @@ export default function StandaloneDailyCheckIn() {
                 const colors = categoryColors[category];
                 return (
                   <div key={category}>
-                    <p className="text-sm font-medium text-gray-600 mb-2 capitalize">
+                    <p className="text-sm font-medium text-muted-foreground mb-2 capitalize">
                       {t(`daily_check_in.category_${category}`)}
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -563,7 +563,7 @@ export default function StandaloneDailyCheckIn() {
                             "px-3 py-1.5 rounded-full text-xs font-medium transition-all border-2",
                             formData.emotions.includes(emotion)
                               ? cn(colors.selected, colors.text, "border-transparent scale-105")
-                              : "border-gray-300 text-gray-700 hover:border-gray-400"
+                              : "border-border/70 bg-white/55 text-foreground/85 hover:border-primary/30 hover:bg-secondary/70"
                           )}
                           aria-label={t(`daily_check_in.emotions.${emotion}`, { defaultValue: emotion })}
                           aria-pressed={formData.emotions.includes(emotion)}
@@ -585,16 +585,16 @@ export default function StandaloneDailyCheckIn() {
               animate={{ opacity: 1, x: 0 }}
               className="space-y-4"
             >
-              <h3 className="text-base font-semibold text-gray-800">
+              <h3 className="text-base font-semibold text-foreground">
                 {t('daily_check_in.step3_question')}
               </h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">{t('daily_check_in.intensity_low')}</span>
-                  <span className="text-3xl font-bold" style={{ color: '#26A69A' }}>
+                  <span className="text-sm text-muted-foreground">{t('daily_check_in.intensity_low')}</span>
+                  <span className="text-3xl font-bold text-primary">
                     {formData.intensity}
                   </span>
-                  <span className="text-sm text-gray-600">{t('daily_check_in.intensity_high')}</span>
+                  <span className="text-sm text-muted-foreground">{t('daily_check_in.intensity_high')}</span>
                 </div>
                 <input
                   type="range"
@@ -609,7 +609,7 @@ export default function StandaloneDailyCheckIn() {
                   aria-label="Emotion intensity level"
                   aria-valuetext={`${formData.intensity} out of 100`}
                 />
-                <div className="flex justify-between text-xs text-gray-500">
+                <div className="flex justify-between text-xs text-muted-foreground">
                   <span>1</span>
                   <span>25</span>
                   <span>50</span>
@@ -636,10 +636,9 @@ export default function StandaloneDailyCheckIn() {
             <Button
               onClick={handleContinue}
               disabled={step === 1 && !formData.mood}
-              className="flex-1 text-white"
+              className="flex-1 shadow-[var(--shadow-lg)]"
               style={{
-                borderRadius: '16px',
-                backgroundColor: '#26A69A'
+                borderRadius: '16px'
               }}
             >
               {step === 3 ? t('daily_check_in.btn_complete') : t('daily_check_in.btn_continue')}
