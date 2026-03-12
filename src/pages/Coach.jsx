@@ -108,32 +108,32 @@ export default function Coach() {
               size="icon"
               onClick={() => window.location.href = '/'}
               style={{ borderRadius: '50%', width: '36px', height: '36px' }}
-              aria-label={t('coach.go_back_aria')}>
+              aria-label={t('coach.go_back_aria')} className="text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
 
               <ArrowLeft className="w-5 h-5 rtl:scale-x-[-1]" />
             </Button>
-            <motion.div
-              className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-control)] bg-primary text-primary-foreground shadow-[var(--shadow-sm)]"
-              whileHover={{ rotate: 360 }}
-              transition={{ duration: 0.5 }}>
+            <motion.div className="bg-teal-600 text-primary-foreground rounded-[20px] w-9 h-9 flex items-center justify-center shadow-[var(--shadow-sm)]"
+
+            whileHover={{ rotate: 360 }}
+            transition={{ duration: 0.5 }}>
 
               <Heart className="w-5 h-5 text-white" />
             </motion.div>
             <div>
-              <h1 className="text-sm font-semibold text-foreground">{t('coach.title')}</h1>
-              <p className="text-xs text-muted-foreground">{t('coach.subtitle')}</p>
+              <h1 className="text-teal-600 text-sm font-semibold">{t('coach.title')}</h1>
+              <p className="text-teal-600 text-xs font-medium">{t('coach.subtitle')}</p>
             </div>
           </div>
           <div className="flex gap-2">
             <Link to={createPageUrl('CoachingAnalytics')}>
-              <Button variant="ghost" size="icon" style={{ borderRadius: '50%', width: '36px', height: '36px' }} aria-label={t('coach.analytics_aria')}>
+              <Button variant="ghost" size="icon" style={{ borderRadius: '50%', width: '36px', height: '36px' }} aria-label={t('coach.analytics_aria')} className="text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
                 <BarChart3 className="w-5 h-5" />
               </Button>
             </Link>
             <Button
               onClick={handleStartSession}
-              size="icon"
-              className="rounded-full w-9 h-9 shadow-[var(--shadow-sm)]"
+              size="icon" className="bg-teal-600 text-primary-foreground font-medium tracking-[0.005em] leading-none rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 w-9 h-9 shadow-[var(--shadow-sm)]"
+
               aria-label={t('coach.new_session_aria')}>
 
               <Target className="w-5 h-5" />
@@ -190,7 +190,7 @@ export default function Coach() {
       </motion.div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto p-4 md:p-6 pb-32 md:pb-24 w-full">
+      <div className="bg-teal-50 mx-auto pb-32 p-4 max-w-7xl md:p-6 md:pb-24 w-full">
         {sessions.length === 0 ?
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
