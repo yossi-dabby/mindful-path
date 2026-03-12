@@ -223,7 +223,7 @@ export default function Home() {
       <div className="relative w-full min-h-[100dvh] overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(215,235,228,0.92)_0%,rgba(228,241,235,0.94)_18%,rgba(238,245,240,0.96)_42%,rgba(245,243,237,0.98)_100%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(73,147,130,0.28),transparent_30%),radial-gradient(circle_at_85%_12%,rgba(236,183,120,0.18),transparent_26%),radial-gradient(circle_at_50%_36%,rgba(111,184,165,0.14),transparent_38%)]" />
-        <div className="bg-emerald-200 absolute inset-x-0 top-0 h-[420px]" />
+        <div className="bg-teal-50 absolute inset-x-0 top-0 h-[420px]" />
         <div className="absolute -top-20 -left-20 h-72 w-72 rounded-full bg-primary/16 blur-3xl" />
         <div className="absolute top-10 right-[-3rem] h-64 w-64 rounded-full bg-accent/14 blur-3xl" />
         <div className="absolute bottom-24 left-1/3 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
@@ -232,10 +232,10 @@ export default function Home() {
         <div className="mb-6 mt-6 rounded-[32px] border border-[rgba(125,173,160,0.38)] bg-[linear-gradient(180deg,rgba(255,253,250,0.86)_0%,rgba(237,247,242,0.82)_100%)] px-6 py-6 md:px-8 md:py-8 shadow-[0_28px_70px_rgba(68,108,96,0.18),0_12px_28px_rgba(68,108,96,0.1)] backdrop-blur-[18px]">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-semibold mb-2 text-foreground">
+              <h1 className="text-teal-600 mb-2 text-2xl font-semibold md:text-3xl">
                 {greeting()}{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
               </h1>
-              <div className="inline-flex items-center gap-2 rounded-full bg-[linear-gradient(180deg,rgba(214,239,231,0.96)_0%,rgba(242,235,223,0.92)_100%)] px-3 py-1 text-xs font-medium text-primary border border-[rgba(110,169,154,0.34)] shadow-[0_10px_24px_rgba(68,108,96,0.12)]">
+              <div className="bg-[linear-gradient(180deg,rgba(214,239,231,0.96)_0%,rgba(242,235,223,0.92)_100%)] text-teal-600 px-3 py-1 text-xs font-medium rounded-full inline-flex items-center gap-2 border border-[rgba(110,169,154,0.34)] shadow-[0_10px_24px_rgba(68,108,96,0.12)]">
                 <Sparkles className="w-3.5 h-3.5" />
                 Calm Oasis
               </div>
