@@ -119,34 +119,34 @@ export default function Exercises() {
     // Breathing exercises are handled by the new Interactive Breathing Tool
     if (exercise.category === 'breathing') return false;
     const matchesCategory = selectedCategory === 'all' || exercise.category === selectedCategory;
-    const matchesSearch = !searchQuery || 
-      (exercise.title && exercise.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (exercise.description && exercise.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (exercise.tags && exercise.tags.some(tag => tag && typeof tag === 'string' && tag.toLowerCase().includes(searchQuery.toLowerCase())));
+    const matchesSearch = !searchQuery ||
+    exercise.title && exercise.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    exercise.description && exercise.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    exercise.tags && exercise.tags.some((tag) => tag && typeof tag === 'string' && tag.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesFavorite = !showFavoritesOnly || exercise.favorite;
-    
+
     return matchesCategory && matchesSearch && matchesFavorite;
   });
 
   const categories = [
-    { value: 'all', label: t('exercises.categories.all') },
-    { value: 'breathing', label: t('exercises.categories.breathing') },
-    { value: 'grounding', label: t('exercises.categories.grounding') },
-    { value: 'cognitive_restructuring', label: t('exercises.categories.cognitive') },
-    { value: 'behavioral_activation', label: t('exercises.categories.behavioral') },
-    { value: 'mindfulness', label: t('exercises.categories.mindfulness') },
-    { value: 'exposure', label: t('exercises.categories.exposure') },
-    { value: 'sleep', label: t('exercises.categories.sleep') },
-    { value: 'relationships', label: t('exercises.categories.relationships') },
-    { value: 'stress_management', label: t('exercises.categories.stress') }
-  ];
+  { value: 'all', label: t('exercises.categories.all') },
+  { value: 'breathing', label: t('exercises.categories.breathing') },
+  { value: 'grounding', label: t('exercises.categories.grounding') },
+  { value: 'cognitive_restructuring', label: t('exercises.categories.cognitive') },
+  { value: 'behavioral_activation', label: t('exercises.categories.behavioral') },
+  { value: 'mindfulness', label: t('exercises.categories.mindfulness') },
+  { value: 'exposure', label: t('exercises.categories.exposure') },
+  { value: 'sleep', label: t('exercises.categories.sleep') },
+  { value: 'relationships', label: t('exercises.categories.relationships') },
+  { value: 'stress_management', label: t('exercises.categories.stress') }];
+
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-muted-foreground">{t('exercises.loading')}</p>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -158,14 +158,14 @@ export default function Exercises() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => window.location.href = '/'}
-              style={{ borderRadius: '50%' }}
-              aria-label={t('exercises.go_back_aria')}
-              className="flex-shrink-0"
-            >
-              <svg className="rtl:scale-x-[-1]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => window.location.href = '/'}
+                  style={{ borderRadius: '50%' }}
+                  aria-label={t('exercises.go_back_aria')}
+                  className="flex-shrink-0">
+
+              <svg className="rtl:scale-x-[-1]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
             </Button>
             <div className="min-w-0">
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-semibold break-words text-foreground">{t('exercises.page_title')}</h1>
@@ -174,26 +174,26 @@ export default function Exercises() {
           </div>
           <div className="flex gap-2 flex-wrap sm:flex-nowrap">
             <Button
-              onClick={() => setShowCoaching(true)}
-              variant="outline"
-              className="gap-2 hidden md:flex rounded-[var(--radius-card)]"
-            >
+                  onClick={() => setShowCoaching(true)}
+                  variant="outline"
+                  className="gap-2 hidden md:flex rounded-[var(--radius-card)]">
+
               <Sparkles className="w-4 h-4" />
               <span className="whitespace-nowrap">{t('exercises.ai_plan')}</span>
             </Button>
             <button
-              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-            className={cn(
-              "px-3 py-2 md:px-4 md:py-2 transition-all text-sm md:text-base whitespace-nowrap rounded-[var(--radius-card)] border shadow-[var(--shadow-sm)]",
-              showFavoritesOnly
-                ? "bg-destructive/10 border-destructive/20 text-destructive"
-                : "bg-secondary/60 border-border/70 text-muted-foreground hover:text-foreground"
-            )}
-          >
+                  onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                  className={cn(
+                    "px-3 py-2 md:px-4 md:py-2 transition-all text-sm md:text-base whitespace-nowrap rounded-[var(--radius-card)] border shadow-[var(--shadow-sm)]",
+                    showFavoritesOnly ?
+                    "bg-destructive/10 border-destructive/20 text-destructive" :
+                    "bg-secondary/60 border-border/70 text-muted-foreground hover:text-foreground"
+                  )}>
+
             <Star className={`w-4 h-4 inline mr-1 md:mr-2 ${showFavoritesOnly ? 'fill-current' : ''}`} />
             <span className="hidden md:inline">{t('exercises.favorites')}</span>
-            {showFavoritesOnly && <span className="md:hidden">({exercises.filter(e => e.favorite).length})</span>}
-            {showFavoritesOnly && <span className="hidden md:inline"> ({exercises.filter(e => e.favorite).length})</span>}
+            {showFavoritesOnly && <span className="md:hidden">({exercises.filter((e) => e.favorite).length})</span>}
+            {showFavoritesOnly && <span className="hidden md:inline"> ({exercises.filter((e) => e.favorite).length})</span>}
           </button>
           </div>
         </div>
@@ -205,54 +205,54 @@ export default function Exercises() {
         <div className="relative">
           <Search className="absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <Input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={t('exercises.search_placeholder')}
-            className="pl-10 rtl:pl-3 rtl:pr-10"
-            style={{ borderRadius: '28px' }}
-          />
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t('exercises.search_placeholder')} className="bg-teal-50 text-foreground pl-10 px-3 py-1 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-control)] flex h-9 w-full border border-input/90 shadow-[var(--shadow-sm)] transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 rtl:pl-3 rtl:pr-10"
+
+                style={{ borderRadius: '28px' }} />
+
         </div>
       </div>
 
       {/* Category Filter */}
       <div
-        id="exercises_category_switcher"
-        className="mb-6 overflow-x-auto"
-        style={{ overscrollBehaviorX: 'contain' }}
-      >
+            id="exercises_category_switcher"
+            className="mb-6 overflow-x-auto"
+            style={{ overscrollBehaviorX: 'contain' }}>
+
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
           <TabsList ref={tabsListRef} className="inline-flex w-auto min-w-full">
-            {categories.map((cat) => (
-              <TabsTrigger
-                key={cat.value}
-                value={cat.value}
-                className="whitespace-nowrap text-sm px-3"
-              >
+            {categories.map((cat) =>
+                <TabsTrigger
+                  key={cat.value}
+                  value={cat.value}
+                  className="whitespace-nowrap text-sm px-3">
+
                 {cat.label}
               </TabsTrigger>
-            ))}
+                )}
           </TabsList>
         </Tabs>
       </div>
 
       {/* Quick Start Panel */}
-      {!showFavoritesOnly && !searchQuery && selectedCategory === 'all' && (
-        <QuickStartPanel
-          exercises={exercises}
-          onSelectExercise={setSelectedExercise}
-        />
-      )}
+      {!showFavoritesOnly && !searchQuery && selectedCategory === 'all' &&
+          <QuickStartPanel
+            exercises={exercises}
+            onSelectExercise={setSelectedExercise} />
+
+          }
 
       {/* ── Interactive Breathing Tool Card ────────────────────────────── */}
-      {!showFavoritesOnly && (selectedCategory === 'all' || selectedCategory === 'breathing') && (
-        <div className="mb-6">
+      {!showFavoritesOnly && (selectedCategory === 'all' || selectedCategory === 'breathing') &&
+          <div className="mb-6">
           <button
-            onClick={() => setShowBreathingTool(true)}
-            className="w-full text-left transition-transform active:scale-[0.99]"
-            aria-label={t('breathing_tool.open_tool')}
-          >
+              onClick={() => setShowBreathingTool(true)}
+              className="w-full text-left transition-transform active:scale-[0.99]"
+              aria-label={t('breathing_tool.open_tool')}>
+
             <Card className="overflow-hidden border border-border/80 bg-primary text-primary-foreground shadow-[var(--shadow-lg)]">
-              <CardContent className="p-5 md:p-6">
+              <CardContent className="bg-teal-500 p-5 rounded-none md:p-6">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4 min-w-0">
                     <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center bg-white/15 border border-white/10">
@@ -273,15 +273,15 @@ export default function Exercises() {
             </Card>
           </button>
         </div>
-      )}
+          }
 
       {/* When breathing category tab is selected, show the tool directly */}
-      {selectedCategory === 'breathing' && !showBreathingTool && (
-        <div className="mb-6">
+      {selectedCategory === 'breathing' && !showBreathingTool &&
+          <div className="mb-6">
           <button
-            onClick={() => setShowBreathingTool(true)}
-            className="w-full text-left"
-          >
+              onClick={() => setShowBreathingTool(true)}
+              className="w-full text-left">
+
             <Card className="border border-border/80 bg-card shadow-[var(--shadow-lg)]">
               <CardContent className="p-12 text-center">
                 <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4 rounded-full bg-primary text-primary-foreground shadow-[var(--shadow-sm)]">
@@ -294,8 +294,8 @@ export default function Exercises() {
                   {t('breathing_tool.card_subtitle')}
                 </p>
                 <span
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-primary text-primary-foreground font-medium"
-                >
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-primary text-primary-foreground font-medium">
+
                   <Wind className="w-4 h-4" />
                   {t('breathing_tool.open_tool')}
                 </span>
@@ -303,21 +303,21 @@ export default function Exercises() {
             </Card>
           </button>
         </div>
-      )}
+          }
 
       {/* AI Recommendations */}
-      {!showFavoritesOnly && !searchQuery && selectedCategory === 'all' && (
-        <div className="mb-6">
-          <AiExerciseRecommendations 
-            exercises={exercises}
-            onSelectExercise={setSelectedExercise}
-          />
+      {!showFavoritesOnly && !searchQuery && selectedCategory === 'all' &&
+          <div className="mb-6">
+          <AiExerciseRecommendations
+              exercises={exercises}
+              onSelectExercise={setSelectedExercise} />
+
         </div>
-      )}
+          }
 
       {/* Exercises Grid */}
-      {filteredExercises.length === 0 ? (
-        <Card className="surface-secondary rounded-[var(--radius-card)] border-border/70 shadow-[var(--shadow-md)]">
+      {filteredExercises.length === 0 ?
+          <Card className="surface-secondary rounded-[var(--radius-card)] border-border/70 shadow-[var(--shadow-md)]">
           <CardContent className="p-12 text-center">
             <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4 rounded-full bg-secondary text-primary shadow-[var(--shadow-sm)]">
               <Sparkles className="w-10 h-10" />
@@ -326,51 +326,51 @@ export default function Exercises() {
               {showFavoritesOnly ? t('exercises.empty_state.favorites_title') : t('exercises.empty_state.no_results_title')}
             </h2>
             <p className="text-muted-foreground">
-              {showFavoritesOnly
-                ? t('exercises.empty_state.favorites_message')
-                : searchQuery
-                ? t('exercises.empty_state.search_message')
-                : t('exercises.empty_state.no_exercises_message')}
+              {showFavoritesOnly ?
+                t('exercises.empty_state.favorites_message') :
+                searchQuery ?
+                t('exercises.empty_state.search_message') :
+                t('exercises.empty_state.no_exercises_message')}
             </p>
           </CardContent>
-        </Card>
-      ) : (
-        <ExerciseLibrary
-          exercises={filteredExercises}
-          categoryIcons={categoryIcons}
-          categoryColors={categoryColors}
-          onSelectExercise={setSelectedExercise}
-          onToggleFavorite={(exercise) => toggleFavoriteMutation.mutate(exercise)}
-        />
-      )}
+        </Card> :
+
+          <ExerciseLibrary
+            exercises={filteredExercises}
+            categoryIcons={categoryIcons}
+            categoryColors={categoryColors}
+            onSelectExercise={setSelectedExercise}
+            onToggleFavorite={(exercise) => toggleFavoriteMutation.mutate(exercise)} />
+
+          }
 
         {/* Exercise Detail Modal */}
-        {selectedExercise && (
+        {selectedExercise &&
           <ExerciseDetail
             exercise={selectedExercise}
             onClose={() => setSelectedExercise(null)}
             onComplete={(duration) => completeMutation.mutate({ exercise: selectedExercise, duration })}
-            onToggleFavorite={(exercise) => toggleFavoriteMutation.mutate(exercise)}
-          />
-        )}
+            onToggleFavorite={(exercise) => toggleFavoriteMutation.mutate(exercise)} />
+
+          }
 
         {/* AI Exercise Coaching */}
-        {showCoaching && (
+        {showCoaching &&
           <AiExerciseCoaching
             onClose={() => setShowCoaching(false)}
-            onSelectExercise={(exercise) => setSelectedExercise(exercise)}
-          />
-        )}
+            onSelectExercise={(exercise) => setSelectedExercise(exercise)} />
+
+          }
 
         {/* Interactive Breathing Tool */}
-        {showBreathingTool && (
+        {showBreathingTool &&
           <InteractiveBreathingTool
             onClose={() => setShowBreathingTool(false)}
-            onComplete={() => setShowBreathingTool(false)}
-          />
-        )}
+            onComplete={() => setShowBreathingTool(false)} />
+
+          }
         </div>
       </div>
-    </PullToRefresh>
-  );
+    </PullToRefresh>);
+
 }
