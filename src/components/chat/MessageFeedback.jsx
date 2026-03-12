@@ -72,7 +72,7 @@ export default function MessageFeedback({ conversationId, messageIndex, agentNam
         <ThumbsDown className="w-3.5 h-3.5" />
       </button>
       {feedback &&
-      <span className="text-xs text-gray-500 ml-2">Thanks for your feedback!</span>
+      <span className="text-slate-50 ml-2 text-xs">Thanks for your feedback!</span>
       }
     </div>);
 
