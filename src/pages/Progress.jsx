@@ -49,7 +49,7 @@ export default function Progress() {
     initialData: []
   });
 
-  const filteredMoodEntries = moodEntries.filter(entry => {
+  const filteredMoodEntries = moodEntries.filter((entry) => {
     const entryDate = new Date(entry.date);
     const daysAgo = new Date();
     daysAgo.setDate(daysAgo.getDate() - parseInt(timeRange));
@@ -59,7 +59,7 @@ export default function Progress() {
   const [activeTab, setActiveTab] = useState('overview');
 
   return (
-    <div className="p-4 md:p-8 pb-32 md:pb-24 max-w-7xl mx-auto w-full min-h-[100dvh] bg-transparent">
+    <div className="bg-teal-50 text-teal-600 mx-auto pb-32 p-4 md:p-8 md:pb-24 max-w-7xl w-full min-h-[100dvh]">
       {/* Header */}
       <div className="mb-6 sm:mb-8 mt-4">
         <div className="flex items-center gap-3 mb-2">
@@ -68,9 +68,9 @@ export default function Progress() {
             size="icon"
             onClick={() => window.history.back()}
             style={{ borderRadius: '50%' }}
-            aria-label={t('common.go_back_aria')}
-          >
-            <svg className="rtl:scale-x-[-1]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            aria-label={t('common.go_back_aria')}>
+
+            <svg className="rtl:scale-x-[-1]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
           </Button>
           <div className="min-w-0">
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-semibold break-words text-foreground">{t('progress.page_title')}</h1>
@@ -121,21 +121,21 @@ export default function Progress() {
               </div>
             </CardHeader>
             <CardContent>
-              {loadingMoods ? (
-                <div className="h-64 flex items-center justify-center">
+              {loadingMoods ?
+              <div className="h-64 flex items-center justify-center">
                   <p className="text-muted-foreground">{t('mood_tracker.loading_chart')}</p>
-                </div>
-              ) : filteredMoodEntries.length === 0 ? (
-                <div className="h-64 flex items-center justify-center">
+                </div> :
+              filteredMoodEntries.length === 0 ?
+              <div className="h-64 flex items-center justify-center">
                   <div className="text-center">
                     <Calendar className="w-12 h-12 mx-auto mb-3 text-primary/30" />
                     <p className="text-muted-foreground">{t('mood_tracker.no_data')}</p>
                     <p className="text-sm mt-1 text-muted-foreground/80">{t('mood_tracker.no_data_subtitle')}</p>
                   </div>
-                </div>
-              ) : (
-                <EnhancedMoodChart data={filteredMoodEntries} />
-              )}
+                </div> :
+
+              <EnhancedMoodChart data={filteredMoodEntries} />
+              }
             </CardContent>
           </Card>
         </TabsContent>
@@ -167,15 +167,15 @@ export default function Progress() {
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
         <InsightsPanel
           moodEntries={filteredMoodEntries}
-          journalEntries={journalEntries}
-        />
+          journalEntries={journalEntries} />
+
         <CorrelationInsights
           moodEntries={moodEntries}
           journalEntries={journalEntries}
-          exercises={exercises}
-        />
+          exercises={exercises} />
+
       </div>
 
-    </div>
-  );
+    </div>);
+
 }
