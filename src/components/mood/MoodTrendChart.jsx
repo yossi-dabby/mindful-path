@@ -30,11 +30,11 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
   const chartData = React.useMemo(() => {
     const today = new Date();
     const data = [];
-    
+
     for (let i = dateRange - 1; i >= 0; i--) {
       const date = format(subDays(today, i), 'yyyy-MM-dd');
-      const entry = entries.find(e => e.date === date);
-      
+      const entry = entries.find((e) => e.date === date);
+
       data.push({
         date: format(subDays(today, i), 'MMM dd'),
         mood: entry ? moodValues[entry.mood] : null,
@@ -43,7 +43,7 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
         intensity: entry ? entry.intensity : null
       });
     }
-    
+
     return data;
   }, [entries, dateRange]);
 
@@ -52,22 +52,22 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
     if (validEntries.length === 0) return null;
 
     const avgMood = validEntries.reduce((sum, e) => sum + moodValues[e.mood], 0) / validEntries.length;
-    
+
     // Calculate stress average, handling missing data
-    const entriesWithStress = validEntries.filter(e => e.stress_level != null && !isNaN(e.stress_level));
-    const avgStress = entriesWithStress.length > 0
-      ? entriesWithStress.reduce((sum, e) => sum + e.stress_level, 0) / entriesWithStress.length
-      : null;
-    
-    const trend = validEntries.length >= 2 
-      ? moodValues[validEntries[0].mood] - moodValues[validEntries[validEntries.length - 1].mood]
-      : 0;
+    const entriesWithStress = validEntries.filter((e) => e.stress_level != null && !isNaN(e.stress_level));
+    const avgStress = entriesWithStress.length > 0 ?
+    entriesWithStress.reduce((sum, e) => sum + e.stress_level, 0) / entriesWithStress.length :
+    null;
+
+    const trend = validEntries.length >= 2 ?
+    moodValues[validEntries[0].mood] - moodValues[validEntries[validEntries.length - 1].mood] :
+    0;
 
     return { avgMood, avgStress, trend };
   }, [entries, dateRange]);
 
   return (
-    <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
+    <Card className="bg-teal-50 text-card-foreground rounded-[var(--radius-card)] backdrop-blur-[10px] border border-border/80 shadow-[var(--shadow-md)]">
       <CardHeader className="border-b border-border/70 bg-secondary/35">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
@@ -89,8 +89,8 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
       </CardHeader>
       <CardContent className="p-6">
         {/* Stats Cards */}
-        {stats && (
-          <div className="grid grid-cols-3 gap-4 mb-6">
+        {stats &&
+        <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="p-4 bg-secondary/45 border border-border/60 rounded-[var(--radius-control)]">
               <p className="text-xs font-medium text-muted-foreground mb-1">Average Mood</p>
               <p className="text-2xl font-bold text-foreground">{stats.avgMood.toFixed(1)}/5</p>
@@ -104,23 +104,23 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
             <div className="p-4 bg-secondary/45 border border-border/60 rounded-[var(--radius-control)]">
               <p className="text-xs font-medium text-muted-foreground mb-1">Trend</p>
               <div className="flex items-center justify-center gap-1">
-                {stats.trend > 0.5 ? (
-                  <>
+                {stats.trend > 0.5 ?
+              <>
                     <TrendingUp className="w-4 h-4 text-green-600 flex-shrink-0" />
                     <span className="text-lg font-bold text-green-700">Better</span>
-                  </>
-                ) : stats.trend < -0.5 ? (
-                  <>
+                  </> :
+              stats.trend < -0.5 ?
+              <>
                     <TrendingDown className="w-4 h-4 text-blue-600 flex-shrink-0" />
                     <span className="text-lg font-bold text-blue-700">Shift</span>
-                  </>
-                ) : (
-                  <span className="text-lg font-bold text-gray-700">Steady</span>
-                )}
+                  </> :
+
+              <span className="text-lg font-bold text-gray-700">Steady</span>
+              }
               </div>
             </div>
           </div>
-        )}
+        }
 
         {/* Mood Line Chart */}
         <div className="mb-6">
@@ -128,41 +128,41 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis 
-                dataKey="date" 
+              <XAxis
+                dataKey="date"
                 stroke="#6b7280"
-                style={{ fontSize: '12px' }}
-              />
-              <YAxis 
+                style={{ fontSize: '12px' }} />
+
+              <YAxis
                 stroke="#6b7280"
-                style={{ fontSize: '12px' }}
-              />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'white', 
+                style={{ fontSize: '12px' }} />
+
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'white',
                   border: '1px solid #e5e7eb',
                   borderRadius: '8px'
-                }}
-              />
+                }} />
+
               <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="mood" 
-                stroke="#8b5cf6" 
+              <Line
+                type="monotone"
+                dataKey="mood"
+                stroke="#8b5cf6"
                 strokeWidth={3}
                 name="Mood (1-5)"
                 dot={{ fill: '#8b5cf6', r: 4 }}
-                connectNulls
-              />
-              <Line 
-                type="monotone" 
-                dataKey="stress" 
-                stroke="#f97316" 
+                connectNulls />
+
+              <Line
+                type="monotone"
+                dataKey="stress"
+                stroke="#f97316"
                 strokeWidth={2}
                 name="Stress (1-10)"
                 dot={{ fill: '#f97316', r: 3 }}
-                connectNulls
-              />
+                connectNulls />
+
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -173,43 +173,43 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
           <ResponsiveContainer width="100%" height={200}>
             <AreaChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis 
-                dataKey="date" 
+              <XAxis
+                dataKey="date"
                 stroke="#6b7280"
-                style={{ fontSize: '12px' }}
-              />
-              <YAxis 
+                style={{ fontSize: '12px' }} />
+
+              <YAxis
                 stroke="#6b7280"
-                style={{ fontSize: '12px' }}
-              />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'white', 
+                style={{ fontSize: '12px' }} />
+
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'white',
                   border: '1px solid #e5e7eb',
                   borderRadius: '8px'
-                }}
-              />
+                }} />
+
               <Legend />
-              <Area 
-                type="monotone" 
-                dataKey="energy" 
-                stroke="#3b82f6" 
+              <Area
+                type="monotone"
+                dataKey="energy"
+                stroke="#3b82f6"
                 fill="#93c5fd"
                 name="Energy"
-                connectNulls
-              />
-              <Area 
-                type="monotone" 
-                dataKey="intensity" 
-                stroke="#ec4899" 
+                connectNulls />
+
+              <Area
+                type="monotone"
+                dataKey="intensity"
+                stroke="#ec4899"
                 fill="#f9a8d4"
                 name="Intensity"
-                connectNulls
-              />
+                connectNulls />
+
             </AreaChart>
           </ResponsiveContainer>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }
