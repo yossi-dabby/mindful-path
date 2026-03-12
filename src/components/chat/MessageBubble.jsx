@@ -157,7 +157,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                   </div>
                   </div>
       {isUser &&
-      <div className="bg-secondary rounded-2xl h-8 w-8 flex items-center justify-center flex-shrink-0">
+      <div className="bg-teal-600 rounded-2xl h-8 w-8 flex items-center justify-center flex-shrink-0">
           <span className="bg-teal-600 text-slate-50 text-sm font-medium">You</span>
         </div>
       }
