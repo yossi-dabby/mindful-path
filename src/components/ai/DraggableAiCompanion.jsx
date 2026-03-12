@@ -817,7 +817,7 @@ export default function DraggableAiCompanion() {
             <Button
                 data-testid="ai-companion-send"
                 onClick={sendMessage}
-                disabled={!message.trim() || isLoading} className="bg-primary text-teal-600 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 hover:bg-primary/94"
+                disabled={!message.trim() || isLoading} className="bg-teal-500 text-teal-800 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 hover:bg-primary/94"
 
                 aria-label="Send message">
 
@@ -830,8 +830,8 @@ export default function DraggableAiCompanion() {
             </p>
             }
           {!sendError &&
-            <p className="text-xs text-muted-foreground mt-2 text-center">
-              I remember our conversations and your wellness journey
+            <p className="text-teal-600 mt-2 text-xs text-center">I remember our conversations and your wellness journey
+
             </p>
             }
         </div>
