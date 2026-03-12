@@ -70,7 +70,7 @@ export default function Sidebar({ currentPageName }) {
 
                 <Icon className={cn("w-5 h-5 icon-default", isActive && "scale-110")} strokeWidth={2} />
                 <div className="flex-1">
-                  <p className={cn("text-[0.9375rem] font-medium leading-5", isActive && "font-semibold")}>{item.name}</p>
+                  <p className="bg-teal-50 text-[0.9375rem] font-semibold leading-5">{item.name}</p>
                   {item.description &&
                   <p className={cn("text-xs mt-0.5 leading-4", isActive ? "text-muted-foreground" : "text-muted-foreground")}>{item.description}</p>
                   }
