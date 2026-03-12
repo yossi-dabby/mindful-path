@@ -60,13 +60,13 @@ export default function Sidebar({ currentPageName }) {
               <Link
                 key={item.path}
                 to={createPageUrl(item.path)}
-                aria-current={isActive ? 'page' : undefined}
-                className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-[var(--radius-control)] transition-calm group border",
-                  isActive ?
-                  "border-border/70 bg-card text-foreground shadow-[var(--shadow-sm)]" :
-                  "border-transparent text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
-                )}>
+                aria-current={isActive ? 'page' : undefined} className="bg-teal-50 text-foreground px-4 py-3 rounded-[var(--radius-control)] flex items-center gap-3 transition-calm group border border-border/70 shadow-[var(--shadow-sm)]">
+
+
+
+
+
+
 
                 <Icon className={cn("w-5 h-5 icon-default", isActive && "scale-110")} strokeWidth={2} />
                 <div className="flex-1">
