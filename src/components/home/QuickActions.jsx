@@ -154,7 +154,7 @@ export default function QuickActions() {
 
               <CardContent className="p-5 rounded-[20px]">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-14 h-14 flex items-center justify-center rounded-[var(--radius-control)] bg-accent text-accent-foreground shadow-[var(--shadow-sm)]">
+                  <div className="bg-slate-50 text-accent-foreground rounded-[var(--radius-control)] w-14 h-14 flex items-center justify-center shadow-[var(--shadow-sm)]">
                     <Sparkles className="text-teal-600 lucide lucide-sparkles w-7 h-7" strokeWidth={2.5} />
                   </div>
                   <button
@@ -196,7 +196,7 @@ export default function QuickActions() {
                     e.preventDefault();
                     e.stopPropagation();
                     setShowStarterPathVideo(true);
-                  }} className="bg-teal-100 text-primary rounded-[var(--radius-control)] flex items-center justify-center cursor-pointer hover:scale-105 transition-transform flex-shrink-0 w-14 h-14 border-0 outline-none"
+                  }} className="bg-teal-100 text-teal-50 rounded-[var(--radius-control)] flex items-center justify-center cursor-pointer hover:scale-105 transition-transform flex-shrink-0 w-14 h-14 border-0 outline-none"
 
                   aria-label="Guided introduction video"
                   title="Guided introduction video">
