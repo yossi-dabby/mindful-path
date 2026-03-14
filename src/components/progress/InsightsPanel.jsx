@@ -44,7 +44,7 @@ export default function InsightsPanel({ moodEntries, journalEntries }) {
   return (
     <Card className="bg-card text-card-foreground rounded-2xl backdrop-blur-[10px] border border-border/80 shadow-[var(--shadow-md)]">
       <CardHeader className="bg-teal-50 p-6 flex flex-col space-y-1.5">
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="text-teal-600 font-semibold tracking-[-0.012em] leading-[1.3] flex items-center gap-2">
           <Lightbulb className="w-5 h-5 text-accent" />
           Insights
         </CardTitle>
@@ -53,30 +53,30 @@ export default function InsightsPanel({ moodEntries, journalEntries }) {
         {/* Average Mood */}
         {avgMood &&
         <div>
-            <p className="text-sm text-muted-foreground mb-2">Average Mood</p>
+            <p className="text-teal-600 mb-2 text-sm font-medium">Average Mood</p>
             <div className="flex items-center gap-2">
-              <div className="text-3xl font-bold text-foreground">{avgMood}</div>
-              <div className="text-sm text-muted-foreground">/ 5.0</div>
+              <div className="text-teal-600 text-3xl font-bold">{avgMood}</div>
+              <div className="text-teal-600 text-sm">/ 5.0</div>
             </div>
           </div>
         }
 
         {/* Mood Streak */}
         <div>
-          <p className="text-sm text-muted-foreground mb-2">Check-in Streak</p>
+          <p className="text-teal-600 mb-2 text-sm font-medium">Check-in Streak</p>
           <div className="flex items-center gap-2">
-            <div className="text-3xl font-bold text-primary">{moodEntries.length}</div>
-            <div className="text-sm text-muted-foreground">days</div>
+            <div className="text-teal-600 text-3xl font-bold">{moodEntries.length}</div>
+            <div className="text-teal-600 text-sm">days</div>
           </div>
         </div>
 
         {/* Common Emotions */}
         {commonEmotions.length > 0 &&
         <div>
-            <p className="text-sm text-muted-foreground mb-2">Common Emotions</p>
+            <p className="text-teal-600 mb-2 text-sm font-medium">Common Emotions</p>
             <div className="flex flex-wrap gap-2">
               {commonEmotions.map((emotion) =>
-            <Badge key={emotion} variant="secondary">
+            <Badge key={emotion} variant="secondary" className="bg-secondary/86 text-teal-600 px-2.5 py-1 font-medium tracking-[0.01em] leading-4 rounded-[20px] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/60">
                   {emotion}
                 </Badge>
             )}
