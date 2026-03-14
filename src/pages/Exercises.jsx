@@ -251,8 +251,8 @@ export default function Exercises() {
               className="w-full text-left transition-transform active:scale-[0.99]"
               aria-label={t('breathing_tool.open_tool')}>
 
-            <Card className="overflow-hidden border border-border/80 bg-primary text-primary-foreground shadow-[var(--shadow-lg)]">
-              <CardContent className="bg-teal-600 pt-5 pr-5 pb-5 pl-5 opacity-100 rounded md:p-6">
+            <Card className="bg-primary text-primary-foreground rounded-[48px] backdrop-blur-[10px] overflow-hidden border border-border/80 shadow-[var(--shadow-lg)]">
+              <CardContent className="bg-teal-600 pt-5 pr-5 pb-5 pl-5 p-6 opacity-100 rounded-[32px] md:p-6">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4 min-w-0">
                     <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center bg-white/15 border border-white/10">
