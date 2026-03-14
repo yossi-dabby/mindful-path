@@ -100,9 +100,9 @@ export default function InsightsPanel({ moodEntries, journalEntries }) {
         }
 
         {/* Encouragement */}
-        <div className="p-4 rounded-[var(--radius-control)] bg-secondary/45 border border-border/60">
+        <div className="bg-teal-300 p-4 rounded-3xl border border-border/60">
           <p className="text-sm font-medium text-foreground mb-1">Keep Going! 🌟</p>
-          <p className="text-muted-foreground text-sm font-medium">
+          <p className="text-slate-950 text-sm font-medium">
             {journalEntries.length > 5 ?
             "You're building great self-awareness through consistent practice." :
             "Every entry brings you closer to understanding your patterns."}
