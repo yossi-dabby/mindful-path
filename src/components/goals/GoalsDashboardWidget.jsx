@@ -79,7 +79,7 @@ export default function GoalsDashboardWidget() {
           <Target className="text-teal-600 mb-3 mx-auto lucide lucide-target w-12 h-12" />
           <p className="text-teal-600 mb-3 text-sm font-medium">{t('goals_dashboard_widget.no_goals_yet')}</p>
           <Link to={createPageUrl('Goals')}>
-            <Button size="sm" className="bg-teal-600 text-primary-foreground px-3 text-xs font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-8 min-h-[44px] md:min-h-0">{t('goals_dashboard_widget.create_first_goal')}</Button>
+            <Button size="sm" className="bg-teal-600 text-primary-foreground px-3 text-sm font-semibold tracking-[0.005em] rounded-[20px] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-8 min-h-[44px] md:min-h-0">{t('goals_dashboard_widget.create_first_goal')}</Button>
           </Link>
         </CardContent>
       </Card>);
