@@ -281,8 +281,8 @@ export default function Home() {
               <Button
                     onClick={() => setShowGoalsVideo(true)}
                     size="icon"
-                    variant="ghost"
-                    className="md:hidden p-0 h-6 w-6 rounded-full bg-accent/15 text-accent hover:bg-accent/20"
+                    variant="ghost" className="bg-teal-600 text-accent p-0 font-medium tracking-[0.005em] leading-none rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:text-foreground active:bg-secondary/88 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 md:hidden h-6 w-6 hover:bg-accent/20"
+
                     title="Watch help video"
                     aria-label="Watch goals help video">
 
@@ -294,8 +294,8 @@ export default function Home() {
             <Button
                   onClick={() => setShowGoalsVideo(true)}
                   size="icon"
-                  variant="ghost"
-                  className="hidden md:flex p-0 h-7 w-7 mt-2 mx-auto rounded-full bg-accent/15 text-accent hover:bg-accent/20"
+                  variant="ghost" className="bg-teal-600 text-accent mt-2 mx-auto p-0 font-medium tracking-[0.005em] leading-none rounded-full items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:text-foreground active:bg-secondary/88 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 hidden md:flex h-7 w-7 hover:bg-accent/20"
+
                   title="Watch help video"
                   aria-label="Watch goals help video">
 
@@ -323,8 +323,8 @@ export default function Home() {
               <Button
                     onClick={() => setShowJournalVideo(true)}
                     size="icon"
-                    variant="ghost"
-                    className="md:hidden p-0 h-6 w-6 rounded-full bg-accent/15 text-accent hover:bg-accent/20"
+                    variant="ghost" className="bg-teal-600 text-teal-600 p-0 font-medium tracking-[0.005em] leading-none rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:text-foreground active:bg-secondary/88 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 md:hidden h-6 w-6 hover:bg-accent/20"
+
                     title="Watch help video"
                     aria-label="Watch journal help video">
 
@@ -336,8 +336,8 @@ export default function Home() {
             <Button
                   onClick={() => setShowJournalVideo(true)}
                   size="icon"
-                  variant="ghost"
-                  className="hidden md:flex p-0 h-7 w-7 mt-2 mx-auto rounded-full bg-accent/15 text-accent hover:bg-accent/20"
+                  variant="ghost" className="bg-teal-600 text-accent mt-2 mx-auto p-0 font-medium tracking-[0.005em] leading-none rounded-full items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:text-foreground active:bg-secondary/88 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 hidden md:flex h-7 w-7 hover:bg-accent/20"
+
                   title="Watch help video"
                   aria-label="Watch journal help video">
 
