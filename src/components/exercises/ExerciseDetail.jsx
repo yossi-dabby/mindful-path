@@ -48,39 +48,39 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
         exercise={exercise}
         duration={selectedDuration}
         onClose={() => setShowBreathingVisual(false)}
-        onComplete={handleBreathingComplete}
-      />
-    );
+        onComplete={handleBreathingComplete} />);
+
+
   }
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 overflow-y-auto"
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6rem)'
-      }}
-    >
-      <div className="min-h-full flex items-center justify-center p-4 pb-24">
+      }}>
+
+      <div className="py-64 min-h-full flex items-center justify-center">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-4xl my-8"
-        style={{ maxHeight: 'calc(100vh - 160px)' }}
-      >
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-4xl my-8"
+          style={{ maxHeight: 'calc(100vh - 160px)' }}>
+
         <Card className="border-0 shadow-2xl">
-          <CardHeader className="border-b bg-gradient-to-r from-green-50 to-blue-50">
+          <CardHeader className="bg-gradient-to-r p-6 flex flex-col space-y-1.5 border-b from-green-50 to-blue-50">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <CardTitle className="text-2xl">{exercise.title || 'Untitled Exercise'}</CardTitle>
                   <button
-                    onClick={() => onToggleFavorite?.(exercise)}
-                    className="p-2 rounded-full hover:bg-white/50 transition-colors"
-                  >
+                      onClick={() => onToggleFavorite?.(exercise)}
+                      className="p-2 rounded-full hover:bg-white/50 transition-colors">
+
                     <Heart
-                      className={`w-5 h-5 ${exercise.favorite ? 'fill-red-500 text-red-500' : 'text-gray-400'}`}
-                    />
+                        className={`w-5 h-5 ${exercise.favorite ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
+
                   </button>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
@@ -89,23 +89,23 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                   </Badge>
                   {exercise.difficulty === 'advanced' && <PremiumBadge />}
                   <ExerciseMediaBadge mediaType={exercise.media_type} size="md" />
-                  {exercise.duration_options?.length > 0 ? (
+                  {exercise.duration_options?.length > 0 ?
                     <Badge variant="secondary" className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
                       {exercise.duration_options.join(', ')} min options
-                    </Badge>
-                  ) : exercise.duration_minutes && (
+                    </Badge> :
+                    exercise.duration_minutes &&
                     <Badge variant="secondary" className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
                       {exercise.duration_minutes} minutes
                     </Badge>
-                  )}
-                  {exercise.video_url && (
+                    }
+                  {exercise.video_url &&
                     <Badge className="flex items-center gap-1 bg-purple-100 text-purple-700">
                       <Video className="w-3 h-3" />
                       Video
                     </Badge>
-                  )}
+                    }
                 </div>
               </div>
               <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
@@ -127,12 +127,12 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                   <Play className="w-4 h-4 sm:mr-2" />
                   <span className="hidden sm:inline">Practice</span>
                 </TabsTrigger>
-                {audioContent.length > 0 && (
-                  <TabsTrigger value="audio">
+                {audioContent.length > 0 &&
+                      <TabsTrigger value="audio">
                     <Headphones className="w-4 h-4 sm:mr-2" />
                     <span className="hidden sm:inline">Audio</span>
                   </TabsTrigger>
-                )}
+                      }
                 <TabsTrigger value="benefits">
                   <Star className="w-4 h-4 sm:mr-2" />
                   <span className="hidden sm:inline">Benefits</span>
@@ -148,14 +148,14 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-2">About This Exercise</h3>
                   <p className="text-gray-600 leading-relaxed">{exercise.description || ''}</p>
-                  {exercise.detailed_description && (
-                    <p className="text-gray-600 leading-relaxed mt-3">{exercise.detailed_description}</p>
-                  )}
+                  {exercise.detailed_description &&
+                        <p className="text-gray-600 leading-relaxed mt-3">{exercise.detailed_description}</p>
+                        }
                 </div>
 
                 {/* Visualization Script */}
-                {exercise.media_type === 'visualization' && exercise.visualization_script && (
-                  <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-200">
+                {exercise.media_type === 'visualization' && exercise.visualization_script &&
+                      <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-200">
                     <div className="flex items-center gap-2 mb-3">
                       <Eye className="w-5 h-5 text-indigo-600" />
                       <h3 className="text-lg font-semibold text-gray-800">Guided Visualization</h3>
@@ -164,109 +164,109 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                       "{exercise.visualization_script}"
                     </p>
                   </div>
-                )}
+                      }
 
                 {/* Video Preview */}
-                {exercise.video_url && (
-                  <div>
+                {exercise.video_url &&
+                      <div>
                     <h3 className="text-lg font-semibold text-gray-800 mb-3">Video Demonstration</h3>
                     <div className="aspect-video rounded-xl overflow-hidden bg-gray-900">
                       <iframe
-                        src={exercise.video_url}
-                        className="w-full h-full"
-                        allowFullScreen
-                        title={exercise.title}
-                      />
+                            src={exercise.video_url}
+                            className="w-full h-full"
+                            allowFullScreen
+                            title={exercise.title} />
+
                     </div>
                   </div>
-                )}
+                      }
 
                 {/* Audio URL */}
-                {exercise.audio_url && (
-                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+                {exercise.audio_url &&
+                      <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
                     <div className="flex items-center gap-2 mb-3">
                       <Headphones className="w-5 h-5 text-purple-600" />
                       <h3 className="text-lg font-semibold text-gray-800">Audio Guide</h3>
                     </div>
-                    <audio 
-                      controls 
-                      className="w-full" 
-                      src={exercise.audio_url}
-                    >
+                    <audio
+                          controls
+                          className="w-full"
+                          src={exercise.audio_url}>
+
                       Your browser does not support the audio element.
                     </audio>
                   </div>
-                )}
+                      }
 
                 {/* Tags */}
-                {exercise.tags?.length > 0 && (
-                  <div>
+                {exercise.tags?.length > 0 &&
+                      <div>
                     <h3 className="text-sm font-medium text-gray-700 mb-2">Helps With</h3>
                     <div className="flex flex-wrap gap-2">
-                      {exercise.tags.filter(tag => tag && typeof tag === 'string').map((tag, i) => (
-                        <Badge key={i} variant="secondary" className="capitalize">
+                      {exercise.tags.filter((tag) => tag && typeof tag === 'string').map((tag, i) =>
+                          <Badge key={i} variant="secondary" className="capitalize">
                           {tag}
                         </Badge>
-                      ))}
+                          )}
                     </div>
                   </div>
-                )}
+                      }
               </TabsContent>
 
               {/* Audio Tab */}
-              {audioContent.length > 0 && (
-                <TabsContent value="audio" className="space-y-4 max-h-[50vh] overflow-y-auto">
+              {audioContent.length > 0 &&
+                    <TabsContent value="audio" className="space-y-4 max-h-[50vh] overflow-y-auto">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">Guided Audio</h3>
                     <p className="text-gray-600 mb-4">
                       Follow along with professionally narrated audio guidance for this exercise.
                     </p>
-                    {audioContent.map((audio) => (
-                      <div key={audio.id} className="mb-4">
-                        <AudioPlayer 
-                          audioContent={audio} 
-                          onComplete={handleComplete}
-                        />
+                    {audioContent.map((audio) =>
+                        <div key={audio.id} className="mb-4">
+                        <AudioPlayer
+                            audioContent={audio}
+                            onComplete={handleComplete} />
+
                       </div>
-                    ))}
+                        )}
                   </div>
                 </TabsContent>
-              )}
+                    }
 
               {/* Instructions Tab */}
               <TabsContent value="instructions" className="space-y-4 max-h-[50vh] overflow-y-auto">
-                {exercise.detailed_steps?.length > 0 ? (
-                  <div>
+                {exercise.detailed_steps?.length > 0 ?
+                      <div>
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">Step-by-Step Guide</h3>
                     <div className="space-y-4">
-                      {exercise.detailed_steps.map((step, i) => (
-                        <motion.div
-                          key={i}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.1 }}
-                          className="flex gap-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-4 border border-green-200"
-                        >
+                      {exercise.detailed_steps.map((step, i) =>
+                          <motion.div
+                            key={i}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: i * 0.1 }}
+                            className="flex gap-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-4 border border-green-200">
+
                           <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-semibold flex-shrink-0">
                             {step.step_number || i + 1}
                           </div>
                           <div className="flex-1">
-                            {step.title && (
+                            {step.title &&
                               <h4 className="font-semibold text-gray-800 mb-1">{step.title}</h4>
-                            )}
+                              }
                             <p className="text-gray-700">{step.description || ''}</p>
-                            {step.duration_seconds && (
+                            {step.duration_seconds &&
                               <p className="text-sm text-gray-500 mt-1">
                                 Duration: {step.duration_seconds} seconds
                               </p>
-                            )}
+                              }
                           </div>
                         </motion.div>
-                      ))}
+                          )}
                     </div>
-                  </div>
-                ) : (
-                  <div>
+                  </div> :
+
+                      <div>
                     <h3 className="text-lg font-semibold text-gray-800 mb-3">Instructions</h3>
                     <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                       <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
@@ -274,51 +274,51 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                       </p>
                     </div>
                   </div>
-                )}
+                      }
 
                 {/* Duration Options for Breathing Exercises */}
-                {exercise.category === 'breathing' && exercise.duration_options?.length > 0 && (
-                  <div>
+                {exercise.category === 'breathing' && exercise.duration_options?.length > 0 &&
+                      <div>
                     <h3 className="text-lg font-semibold text-gray-800 mb-3">Choose Duration</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {exercise.duration_options.map((duration) => (
-                        <Button
-                          key={duration}
-                          onClick={() => handleStartBreathing(duration)}
-                          className="bg-gradient-to-br from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 py-6 text-lg font-semibold"
-                        >
+                      {exercise.duration_options.map((duration) =>
+                          <Button
+                            key={duration}
+                            onClick={() => handleStartBreathing(duration)}
+                            className="bg-gradient-to-br from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 py-6 text-lg font-semibold">
+
                           {duration} min
                         </Button>
-                      ))}
+                          )}
                     </div>
                   </div>
-                )}
+                      }
               </TabsContent>
 
               {/* Benefits Tab */}
               <TabsContent value="benefits" className="space-y-4 max-h-[50vh] overflow-y-auto">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">Key Benefits</h3>
-                  {exercise.benefits?.length > 0 ? (
-                    <div className="space-y-3">
-                      {exercise.benefits.filter(benefit => benefit && typeof benefit === 'string').map((benefit, i) => (
-                        <motion.div
-                          key={i}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.1 }}
-                          className="flex items-start gap-3 bg-green-50 rounded-lg p-4 border border-green-200"
-                        >
+                  {exercise.benefits?.length > 0 ?
+                        <div className="space-y-3">
+                      {exercise.benefits.filter((benefit) => benefit && typeof benefit === 'string').map((benefit, i) =>
+                          <motion.div
+                            key={i}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: i * 0.1 }}
+                            className="flex items-start gap-3 bg-green-50 rounded-lg p-4 border border-green-200">
+
                           <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                           <p className="text-gray-700">{benefit}</p>
                         </motion.div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-gray-600">
+                          )}
+                    </div> :
+
+                        <p className="text-gray-600">
                       This exercise helps improve mental well-being, reduce stress, and enhance emotional regulation.
                     </p>
-                  )}
+                        }
                 </div>
               </TabsContent>
 
@@ -326,28 +326,28 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               <TabsContent value="tips" className="space-y-4 max-h-[50vh] overflow-y-auto">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">Helpful Tips</h3>
-                  {exercise.tips?.length > 0 ? (
-                    <div className="space-y-3">
-                      {exercise.tips.filter(tip => tip && typeof tip === 'string').map((tip, i) => (
-                        <motion.div
-                          key={i}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.1 }}
-                          className="flex items-start gap-3 bg-blue-50 rounded-lg p-4 border border-blue-200"
-                        >
+                  {exercise.tips?.length > 0 ?
+                        <div className="space-y-3">
+                      {exercise.tips.filter((tip) => tip && typeof tip === 'string').map((tip, i) =>
+                          <motion.div
+                            key={i}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: i * 0.1 }}
+                            className="flex items-start gap-3 bg-blue-50 rounded-lg p-4 border border-blue-200">
+
                           <Lightbulb className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                           <p className="text-gray-700">{tip}</p>
                         </motion.div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                          )}
+                    </div> :
+
+                        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                       <p className="text-gray-600">
                         Practice regularly for best results. Find a quiet space, start slowly, and be patient with yourself.
                       </p>
                     </div>
-                  )}
+                        }
                 </div>
               </TabsContent>
             </Tabs>
@@ -366,7 +366,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                         <p className="text-xs text-gray-600">Minutes Practiced</p>
                       </div>
                     </div>
-                    {exercise.last_completed && (
+                    {exercise.last_completed &&
                       <p className="text-xs text-gray-500 mt-3">
                         Last practiced: {new Date(exercise.last_completed).toLocaleDateString('en-US', {
                           weekday: 'short',
@@ -375,20 +375,20 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                           day: 'numeric'
                         })}
                       </p>
-                    )}
+                      }
                   </div>
                 </div>
 
                 {/* Mobile: Action Buttons */}
-                {exercise.category !== 'breathing' && (
+                {exercise.category !== 'breathing' &&
                   <div className="lg:hidden flex gap-3">
-                    {completed ? (
-                      <div className="flex-1 bg-green-100 border border-green-300 rounded-xl p-4 flex items-center justify-center gap-2 text-green-700 font-medium">
+                    {completed ?
+                    <div className="flex-1 bg-green-100 border border-green-300 rounded-xl p-4 flex items-center justify-center gap-2 text-green-700 font-medium">
                         <CheckCircle className="w-5 h-5" />
                         Exercise Completed!
-                      </div>
-                    ) : (
-                      <>
+                      </div> :
+
+                    <>
                         <Button variant="outline" onClick={onClose} className="flex-1">
                           Close
                         </Button>
@@ -397,9 +397,9 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                           Mark as Complete
                         </Button>
                       </>
-                    )}
+                    }
                   </div>
-                )}
+                  }
               </div>
 
               {/* Right Column: Progress & Actions (Desktop) */}
@@ -417,7 +417,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                       <p className="text-xs text-gray-600">Minutes Practiced</p>
                     </div>
                   </div>
-                  {exercise.last_completed && (
+                  {exercise.last_completed &&
                     <p className="text-xs text-gray-500 mt-3">
                       Last practiced: {new Date(exercise.last_completed).toLocaleDateString('en-US', {
                         weekday: 'short',
@@ -426,19 +426,19 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                         day: 'numeric'
                       })}
                     </p>
-                  )}
+                    }
                 </div>
 
                 {/* Action Buttons - Desktop */}
-                {exercise.category !== 'breathing' && (
+                {exercise.category !== 'breathing' &&
                   <div className="flex flex-col gap-3">
-                    {completed ? (
-                      <div className="bg-green-100 border border-green-300 rounded-xl p-4 flex items-center justify-center gap-2 text-green-700 font-medium">
+                    {completed ?
+                    <div className="bg-green-100 border border-green-300 rounded-xl p-4 flex items-center justify-center gap-2 text-green-700 font-medium">
                         <CheckCircle className="w-5 h-5" />
                         Exercise Completed!
-                      </div>
-                    ) : (
-                      <>
+                      </div> :
+
+                    <>
                         <Button onClick={handleComplete} className="w-full bg-green-600 hover:bg-green-700">
                           <Play className="w-4 h-4 mr-2" />
                           Mark as Complete
@@ -447,15 +447,15 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                           Close
                         </Button>
                       </>
-                    )}
+                    }
                   </div>
-                )}
+                  }
               </div>
             </div>
           </CardContent>
         </Card>
       </motion.div>
       </div>
-    </div>
-  );
+    </div>);
+
 }
