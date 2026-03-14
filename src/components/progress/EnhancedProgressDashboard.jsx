@@ -301,9 +301,9 @@ export default function EnhancedProgressDashboard() {
 
         {/* Journal Consistency */}
         <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
-          <CardHeader>
+          <CardHeader className="bg-orange-50 p-6 flex flex-col space-y-1.5">
             <CardTitle className="text-amber-600 text-base font-semibold tracking-[-0.012em] flex items-center gap-2 sm:text-lg">
-              <BookOpen className="w-5 h-5 text-accent" />
+              <BookOpen className="text-amber-600 lucide lucide-book-open w-5 h-5" />
               {t('progress.dashboard.charts.journal_consistency')}
             </CardTitle>
           </CardHeader>
