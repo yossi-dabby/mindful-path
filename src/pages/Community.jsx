@@ -148,13 +148,13 @@ export default function Community() {
             </Button>
             }
           {activeTab === 'groups' &&
-            <Button onClick={() => setShowGroupForm(true)} className="gap-2 flex-shrink-0 rounded-[var(--radius-card)]">
+            <Button onClick={() => setShowGroupForm(true)} className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[20px] inline-flex items-center justify-center whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 gap-2 flex-shrink-0">
               <Plus className="w-4 h-4" />
               {t('community.buttons.create_group')}
             </Button>
             }
           {activeTab === 'progress' &&
-            <Button onClick={() => setShowProgressForm(true)} className="gap-2 flex-shrink-0 rounded-[var(--radius-card)]">
+            <Button onClick={() => setShowProgressForm(true)} className="bg-teal-700 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[20px] inline-flex items-center justify-center whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 gap-2 flex-shrink-0">
               <Plus className="w-4 h-4" />
               {t('community.buttons.share_progress')}
             </Button>
@@ -230,7 +230,7 @@ export default function Community() {
               }
 
             <div>
-              <h3 className="font-semibold text-foreground mb-3">{t('community.discover_groups')}</h3>
+              <h3 className="text-teal-700 mb-3 font-semibold">{t('community.discover_groups')}</h3>
               {loadingGroups ?
                 <Card>
                   <CardContent className="p-12 text-center">
@@ -239,11 +239,11 @@ export default function Community() {
                 </Card> :
                 groups.filter((g) => !myGroupIds.includes(g.id)).length === 0 ?
                 <Card className="surface-secondary rounded-[var(--radius-card)] border-border/70 shadow-[var(--shadow-md)]">
-                  <CardContent className="p-12 text-center">
-                    <Users className="w-16 h-16 mx-auto mb-3 text-primary/40" />
-                    <h3 className="text-xl font-semibold mb-2 break-words text-foreground">{t('community.empty_state.no_groups_title')}</h3>
-                    <p className="mb-4 leading-relaxed break-words max-w-sm mx-auto text-muted-foreground">{t('community.empty_state.no_groups_message')}</p>
-                    <Button onClick={() => setShowGroupForm(true)} className="rounded-full shadow-[var(--shadow-md)]" data-testid="create-first-group-btn">
+                  <CardContent className="bg-teal-50 p-12 text-center">
+                    <Users className="text-teal-600 mb-3 mx-auto lucide lucide-users w-16 h-16" />
+                    <h3 className="text-teal-600 mb-2 text-xl font-semibold break-words">{t('community.empty_state.no_groups_title')}</h3>
+                    <p className="text-teal-600 mb-4 mx-auto font-medium leading-relaxed break-words max-w-sm">{t('community.empty_state.no_groups_message')}</p>
+                    <Button onClick={() => setShowGroupForm(true)} className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 shadow-[var(--shadow-md)]" data-testid="create-first-group-btn">
                       {t('community.empty_state.create_first_group')}
                     </Button>
                   </CardContent>
@@ -271,10 +271,10 @@ export default function Community() {
             {sharedProgress.length === 0 ?
               <Card className="surface-secondary rounded-[var(--radius-card)] border-border/70 shadow-[var(--shadow-md)]">
                 <CardContent className="p-12 text-center">
-                  <TrendingUp className="w-16 h-16 mx-auto mb-3 text-primary/40" />
-                  <h3 className="text-xl font-semibold mb-2 break-words text-foreground">{t('community.empty_state.no_stories_title')}</h3>
-                  <p className="mb-4 leading-relaxed break-words max-w-sm mx-auto text-muted-foreground">{t('community.empty_state.no_stories_message')}</p>
-                  <Button onClick={() => setShowProgressForm(true)} className="rounded-full shadow-[var(--shadow-md)]" data-testid="share-story-btn">
+                  <TrendingUp className="text-teal-700 mb-3 mx-auto lucide lucide-trending-up w-16 h-16" />
+                  <h3 className="text-teal-700 mb-2 text-xl font-semibold break-words">{t('community.empty_state.no_stories_title')}</h3>
+                  <p className="text-teal-700 mb-4 mx-auto leading-relaxed break-words max-w-sm">{t('community.empty_state.no_stories_message')}</p>
+                  <Button onClick={() => setShowProgressForm(true)} className="bg-teal-700 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 shadow-[var(--shadow-md)]" data-testid="share-story-btn">
                     {t('community.empty_state.share_your_story')}
                   </Button>
                 </CardContent>
