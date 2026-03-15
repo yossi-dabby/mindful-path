@@ -167,7 +167,7 @@ export default function TriggerAnalysis({ entries }) {
                     dataKey="value">
 
                       {analysis.topEmotions.map((entry, index) =>
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} className="my-1 recharts-text recharts-pie-label-text" />
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} className="recharts-text recharts-pie-label-text" />
                     )}
                     </Pie>
                     <Tooltip />
@@ -179,7 +179,7 @@ export default function TriggerAnalysis({ entries }) {
             </div>
             <div className="flex flex-col justify-center space-y-3">
               {analysis.topEmotions.map((emotion, index) =>
-              <div key={emotion.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div key={emotion.name} className="bg-orange-50 text-orange-500 p-3 rounded-lg flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div
                     className="w-4 h-4 rounded-full"
@@ -187,7 +187,7 @@ export default function TriggerAnalysis({ entries }) {
 
                     <span className="font-medium capitalize">{emotion.name}</span>
                   </div>
-                  <Badge variant="secondary">{emotion.value} times</Badge>
+                  <Badge variant="secondary" className="bg-secondary/86 text-orange-600 px-2.5 py-1 font-medium tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/60">{emotion.value} times</Badge>
                 </div>
               )}
             </div>
