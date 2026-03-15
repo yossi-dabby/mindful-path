@@ -125,25 +125,25 @@ export default function MoodCalendar({ entries, onEditEntry }) {
         <div className="mt-6 pt-6 border-t grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center">
             <p className="text-2xl font-bold text-purple-700">{entries.length}</p>
-            <p className="text-xs text-gray-500">Total Entries</p>
+            <p className="text-purple-700 text-xs font-medium">Total Entries</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-bold text-green-700">
               {entries.filter((e) => ['excellent', 'good'].includes(e.mood)).length}
             </p>
-            <p className="text-xs text-gray-500">Good Days</p>
+            <p className="text-green-700 text-xs font-medium">Good Days</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-bold text-yellow-700">
               {entries.filter((e) => e.mood === 'okay').length}
             </p>
-            <p className="text-xs text-gray-500">Okay Days</p>
+            <p className="text-yellow-700 text-xs font-medium">Okay Days</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-bold text-red-700">
               {entries.filter((e) => ['low', 'very_low'].includes(e.mood)).length}
             </p>
-            <p className="text-xs text-gray-500">Difficult Days</p>
+            <p className="text-red-700 text-xs font-medium">Difficult Days</p>
           </div>
         </div>
       </CardContent>
