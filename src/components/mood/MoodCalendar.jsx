@@ -34,7 +34,7 @@ export default function MoodCalendar({ entries, onEditEntry }) {
 
   const getEntryForDay = (day) => {
     const dateStr = format(day, 'yyyy-MM-dd');
-    return entries.find(e => e.date === dateStr);
+    return entries.find((e) => e.date === dateStr);
   };
 
   return (
@@ -50,8 +50,8 @@ export default function MoodCalendar({ entries, onEditEntry }) {
               variant="outline"
               size="icon"
               onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-              aria-label="Previous month"
-            >
+              aria-label="Previous month">
+
               <ChevronLeft className="w-4 h-4" />
             </Button>
             <span className="font-semibold text-lg px-4">
@@ -61,8 +61,8 @@ export default function MoodCalendar({ entries, onEditEntry }) {
               variant="outline"
               size="icon"
               onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-              aria-label="Next month"
-            >
+              aria-label="Next month">
+
               <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
@@ -71,53 +71,53 @@ export default function MoodCalendar({ entries, onEditEntry }) {
       <CardContent className="p-6">
         {/* Legend */}
         <div className="flex flex-wrap gap-3 mb-6 justify-center">
-          {Object.entries(moodEmojis).map(([mood, emoji]) => (
-            <Badge key={mood} variant="outline" className="gap-2">
-              <span>{emoji}</span>
+          {Object.entries(moodEmojis).map(([mood, emoji]) =>
+          <Badge key={mood} variant="outline" className="gap-2">
+              <span className="text-xl font-medium">{emoji}</span>
               <span className="capitalize">{mood.replace('_', ' ')}</span>
             </Badge>
-          ))}
+          )}
         </div>
 
         {/* Calendar Grid */}
         <div className="grid grid-cols-7 gap-1 sm:gap-2">
-          {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
-            <div key={day} className="text-center font-semibold text-xs sm:text-sm text-gray-600 py-1 sm:py-2">
+          {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((day) =>
+          <div key={day} className="text-center font-semibold text-xs sm:text-sm text-gray-600 py-1 sm:py-2">
               {day}
             </div>
-          ))}
+          )}
           
-          {emptyDays.map((_, index) => (
-            <div key={`empty-${index}`} className="aspect-square" />
-          ))}
+          {emptyDays.map((_, index) =>
+          <div key={`empty-${index}`} className="aspect-square" />
+          )}
           
-          {calendarDays.map(day => {
+          {calendarDays.map((day) => {
             const entry = getEntryForDay(day);
             const isToday = isSameDay(day, new Date());
-            
+
             return (
               <button
                 key={day.toString()}
                 onClick={() => entry && onEditEntry(entry)}
                 className={cn(
                   'aspect-square rounded-lg sm:rounded-xl border-2 transition-all p-0.5 sm:p-2 flex flex-col items-center justify-center gap-0 sm:gap-1',
-                  entry 
-                    ? 'border-purple-300 hover:border-purple-500 hover:shadow-lg cursor-pointer'
-                    : 'border-gray-200 hover:border-gray-300',
+                  entry ?
+                  'border-purple-300 hover:border-purple-500 hover:shadow-lg cursor-pointer' :
+                  'border-gray-200 hover:border-gray-300',
                   isToday && 'ring-2 ring-purple-400'
-                )}
-              >
+                )}>
+
                 <span className={cn('text-xs sm:text-sm font-medium', !isSameMonth(day, currentMonth) && 'text-gray-300')}>
                   {format(day, 'd')}
                 </span>
-                {entry && (
-                  <>
+                {entry &&
+                <>
                     <span className="text-sm sm:text-2xl leading-none">{moodEmojis[entry.mood]}</span>
                     <div className={cn('hidden sm:block w-2 h-2 rounded-full', moodColors[entry.mood])} />
                   </>
-                )}
-              </button>
-            );
+                }
+              </button>);
+
           })}
         </div>
 
@@ -129,24 +129,24 @@ export default function MoodCalendar({ entries, onEditEntry }) {
           </div>
           <div className="text-center">
             <p className="text-2xl font-bold text-green-700">
-              {entries.filter(e => ['excellent', 'good'].includes(e.mood)).length}
+              {entries.filter((e) => ['excellent', 'good'].includes(e.mood)).length}
             </p>
             <p className="text-xs text-gray-500">Good Days</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-bold text-yellow-700">
-              {entries.filter(e => e.mood === 'okay').length}
+              {entries.filter((e) => e.mood === 'okay').length}
             </p>
             <p className="text-xs text-gray-500">Okay Days</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-bold text-red-700">
-              {entries.filter(e => ['low', 'very_low'].includes(e.mood)).length}
+              {entries.filter((e) => ['low', 'very_low'].includes(e.mood)).length}
             </p>
             <p className="text-xs text-gray-500">Difficult Days</p>
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }
