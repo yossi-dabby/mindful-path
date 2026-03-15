@@ -215,7 +215,7 @@ Provide recommendations with:
 
   return (
     <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
-      <CardHeader className="bg-teal-50 p-6 flex flex-col space-y-1.5 border-b border-border/70">
+      <CardHeader className="bg-teal-200 p-6 flex flex-col space-y-1.5 border-b border-border/70">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Sparkles className="text-teal-600 lucide lucide-sparkles w-5 h-5" />
@@ -255,7 +255,7 @@ Provide recommendations with:
           </div>
         </div>
       </CardHeader>
-      <CardContent className="bg-teal-50 pt-0 p-6 overflow-x-hidden">
+      <CardContent className="bg-teal-300 p-6 overflow-x-hidden">
         {/* Mood/Goal Filters */}
         <AnimatePresence>
           {showFilters &&
