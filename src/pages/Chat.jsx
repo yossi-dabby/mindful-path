@@ -1221,8 +1221,8 @@ export default function Chat() {
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
       {/* Chat root: explicit dvh-based height so the flex-1/min-h-0 scroll chain works.
-                          `h-full` would resolve to `auto` because the parent motion.div uses min-h-full
-                          (not a fixed height), breaking the inner overflow-y-auto messages scroll. */}
+                            `h-full` would resolve to `auto` because the parent motion.div uses min-h-full
+                            (not a fixed height), breaking the inner overflow-y-auto messages scroll. */}
       <div
         className="flex relative bg-transparent"
         data-testid="chat-root"
@@ -1232,7 +1232,7 @@ export default function Chat() {
         }}>
 
         {/* On tablet/desktop (≥768px) there is no fixed mobile header or bottom nav,
-                            so we only subtract the safe-area insets (mirrors AppContent.jsx logic). */}
+                              so we only subtract the safe-area insets (mirrors AppContent.jsx logic). */}
         <style>{`
           @media (min-width: 768px) {
             [data-testid="chat-root"] {
@@ -1294,9 +1294,9 @@ export default function Chat() {
         </div>
 
         {/* Messages Area */}
-        <div className="flex-1 min-h-0 overflow-hidden flex flex-col" style={{ backgroundColor: 'transparent' }}>
+        <div className="bg-teal-100 px-4 flex-1 min-h-0 overflow-hidden flex flex-col" style={{ backgroundColor: 'transparent' }}>
           {!currentConversationId ?
-            <div className="h-full overflow-y-auto">
+            <div className="my-8 h-full overflow-y-auto">
               {/* Welcome Section - Separate container */}
               <div className="bg-teal-100 p-4 flex-1 flex items-center justify-center md:p-6">
                 <Card className="bg-teal-50 text-teal-600 p-8 text-center rounded-[var(--radius-card)] backdrop-blur-[10px] max-w-md border border-border/80 shadow-[var(--shadow-lg)]">
