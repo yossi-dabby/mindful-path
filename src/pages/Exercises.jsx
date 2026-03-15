@@ -152,7 +152,7 @@ export default function Exercises() {
   return (
     <PullToRefresh queryKeys={['exercises']}>
       <div className="min-h-dvh w-full bg-transparent">
-        <div className="p-4 md:p-8 pb-32 md:pb-24 max-w-6xl mx-auto w-full">
+        <div className="bg-teal-100 mx-auto pb-32 p-4 md:p-8 md:pb-24 max-w-6xl w-full">
       {/* Header */}
       <div className="mb-8 mt-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
@@ -203,11 +203,11 @@ export default function Exercises() {
       {/* Search Bar */}
       <div className="mb-4">
         <div className="relative">
-          <Search className="absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+          <Search className="text-teal-600 lucide lucide-search absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 w-5 h-5" />
           <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={t('exercises.search_placeholder')} className="bg-teal-50 text-foreground pl-10 px-3 py-1 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-control)] flex h-9 w-full border border-input/90 shadow-[var(--shadow-sm)] transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 rtl:pl-3 rtl:pr-10"
+                placeholder={t('exercises.search_placeholder')} className="bg-teal-50 text-foreground px-8 py-1 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-control)] flex h-9 w-full border border-input/90 shadow-[var(--shadow-sm)] transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 rtl:pl-3 rtl:pr-10"
 
                 style={{ borderRadius: '28px' }} />
 
