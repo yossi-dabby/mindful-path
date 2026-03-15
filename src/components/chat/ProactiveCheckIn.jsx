@@ -201,7 +201,7 @@ export default function ProactiveCheckIn({ onSendMessage }) {
   };
 
   return (
-    <div className="space-y-3 mb-4">
+    <div className="mb-4 pr-2 pl-3 space-y-3">
       <div className="text-violet-600 mb-3 flex items-center gap-2">
         <Sparkles className="w-4 h-4 text-purple-600" />
         <h3 className="text-purple-600 text-sm font-semibold">Personalized Check-ins</h3>
@@ -215,7 +215,7 @@ export default function ProactiveCheckIn({ onSendMessage }) {
 
             onClick={() => handleClick(suggestion)}>
 
-            <CardContent className="bg-teal-50 mx-auto px-4 py-4">
+            <CardContent className="bg-teal-50 px-4">
               <div className="flex items-start gap-3">
                 <div className={`w-10 h-10 rounded-full ${suggestion.color} flex items-center justify-center flex-shrink-0`}>
                   <Icon className="w-5 h-5" />
