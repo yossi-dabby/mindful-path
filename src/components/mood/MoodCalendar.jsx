@@ -39,7 +39,7 @@ export default function MoodCalendar({ entries, onEditEntry }) {
 
   return (
     <Card className="border-0 shadow-xl">
-      <CardHeader className="border-b">
+      <CardHeader className="bg-teal-100 p-6 flex flex-col space-y-1.5 border-b">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Calendar className="w-5 h-5 text-purple-600" />
@@ -68,7 +68,7 @@ export default function MoodCalendar({ entries, onEditEntry }) {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-6">
+      <CardContent className="bg-teal-100 p-6">
         {/* Legend */}
         <div className="flex flex-wrap gap-3 mb-6 justify-center">
           {Object.entries(moodEmojis).map(([mood, emoji]) =>
