@@ -217,7 +217,7 @@ export default function ProactiveCheckIn({ onSendMessage }) {
 
   const handleClick = (suggestion) => {
     if (suggestion.type === 'ai_reminder') {
-      completeReminderMutation.mutate(suggestion.id);
+      completeReminderMutation.mutate(suggestion.entityId);
     }
     onSendMessage(suggestion.prompt);
   };
