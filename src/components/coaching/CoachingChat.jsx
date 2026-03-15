@@ -181,8 +181,8 @@ export default function CoachingChat({ session, onBack }) {
           </div>
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-xl font-bold text-foreground mb-1">{currentSession.title}</h2>
-              <p className="text-sm text-muted-foreground">{currentSession.current_challenge}</p>
+              <h2 className="text-teal-600 mb-1 text-xl font-bold">{currentSession.title}</h2>
+              <p className="text-teal-600 text-sm">{currentSession.current_challenge}</p>
             </div>
             {totalActions > 0 &&
             <Button
@@ -241,7 +241,7 @@ export default function CoachingChat({ session, onBack }) {
 
           {/* Quick Prompts */}
           {quickPrompts[currentSession.stage] &&
-          <div className="bg-popover border-t border-border/70 px-4 py-3">
+          <div className="bg-teal-100 px-4 py-3 border-t border-border/70">
               <div className="max-w-4xl mx-auto">
                 <p className="text-teal-600 mb-2 text-sm font-medium">Quick prompts:</p>
                 <div className="flex flex-wrap gap-2">
@@ -250,8 +250,8 @@ export default function CoachingChat({ session, onBack }) {
                   key={i}
                   variant="outline"
                   size="sm"
-                  onClick={() => setInputMessage(prompt)}
-                  className="text-xs">
+                  onClick={() => setInputMessage(prompt)} className="bg-teal-400 text-secondary-foreground px-3 text-xs font-medium tracking-[0.005em] rounded-3xl inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0">
+
 
                       {prompt}
                     </Button>
