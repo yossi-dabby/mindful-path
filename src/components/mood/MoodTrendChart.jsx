@@ -126,7 +126,7 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
         <div className="mb-6">
           <h3 className="text-sm font-semibold text-gray-700 mb-3">Mood & Stress Levels</h3>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={chartData}>
+            <LineChart data={chartData} className="bg-teal-50 recharts-surface">
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis
                 dataKey="date"
