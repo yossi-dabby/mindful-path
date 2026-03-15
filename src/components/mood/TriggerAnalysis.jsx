@@ -167,7 +167,7 @@ export default function TriggerAnalysis({ entries }) {
                     dataKey="value">
 
                       {analysis.topEmotions.map((entry, index) =>
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} className="my-1 recharts-text recharts-pie-label-text" />
                     )}
                     </Pie>
                     <Tooltip />
