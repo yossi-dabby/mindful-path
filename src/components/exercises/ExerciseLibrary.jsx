@@ -30,11 +30,11 @@ export default function ExerciseLibrary({ exercises, categoryIcons, categoryColo
                 onClick={(e) => {
                   e.stopPropagation();
                   onToggleFavorite(exercise);
-                }} className="bg-card/90 mx-1 p-2 opacity-100 rounded-full absolute top-3 right-3 z-10 hover:bg-card shadow-[var(--shadow-sm)] transition-all border border-border/70">
+                }} className="bg-teal-300 mx-1 p-2 opacity-100 rounded-full absolute top-3 right-3 z-10 hover:bg-card shadow-[var(--shadow-sm)] transition-all border border-border/70">
 
 
-                <Heart
-                  className={`w-4 h-4 ${exercise.favorite ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
+                <Heart className="text-teal-600 lucide lucide-heart w-4 h-4" />
+
 
               </button>
 
@@ -58,8 +58,8 @@ export default function ExerciseLibrary({ exercises, categoryIcons, categoryColo
 
               <CardContent className="bg-teal-300 p-5 rounded-3xl">
                 <div className="mr-8 mb-2 flex items-start justify-between">
-                  <div className="bg-sky-100 text-sky-700 mx-3 opacity-90 rounded-xl w-10 h-10 border border-sky-200 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Icon className="w-5 h-5" />
+                  <div className="bg-teal-400 text-sky-700 mx-3 opacity-90 rounded-xl w-10 h-10 border border-sky-200 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Icon className="text-teal-600 lucide lucide-anchor w-5 h-5" />
                   </div>
                   {exercise.completed_count > 0 &&
                   <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">
@@ -80,7 +80,7 @@ export default function ExerciseLibrary({ exercises, categoryIcons, categoryColo
                 {exercise.tags?.length > 0 &&
                 <div className="flex flex-wrap gap-1 mb-3">
                     {exercise.tags.filter((tag) => tag && typeof tag === 'string').slice(0, 3).map((tag, i) =>
-                  <Badge key={i} variant="outline" className="text-xs px-2 py-0.5">
+                  <Badge key={i} variant="outline" className="bg-teal-100 text-muted-foreground px-2 py-0.5 text-xs font-medium tracking-[0.01em] rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70">
                         {tag}
                       </Badge>
                   )}
@@ -94,7 +94,7 @@ export default function ExerciseLibrary({ exercises, categoryIcons, categoryColo
                     `${exercise.duration_options[0]}-${exercise.duration_options[exercise.duration_options.length - 1]} ${t('common.minutes_short')}` :
                     t('exercises.library.flexible')}
                   </div>
-                  <Badge variant="outline" className="text-xs capitalize">
+                  <Badge variant="outline" className="bg-teal-100 text-muted-foreground px-2.5 py-1 text-xs font-medium capitalize tracking-[0.01em] rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70">
                     {exercise.difficulty || 'beginner'}
                   </Badge>
                 </div>
