@@ -202,7 +202,7 @@ export default function ProactiveCheckIn({ onSendMessage }) {
 
   return (
     <div className="space-y-3 mb-4">
-      <div className="text-violet-600 mb-2 flex items-center gap-2">
+      <div className="text-violet-600 mb-3 flex items-center gap-2">
         <Sparkles className="w-4 h-4 text-purple-600" />
         <h3 className="text-purple-600 text-sm font-semibold">Personalized Check-ins</h3>
       </div>
