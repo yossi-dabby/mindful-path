@@ -69,13 +69,13 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
   return (
     <Card className="bg-teal-50 text-card-foreground rounded-[var(--radius-card)] backdrop-blur-[10px] border border-border/80 shadow-[var(--shadow-md)]">
       <CardHeader className="bg-teal-50 p-6 flex flex-col space-y-1.5 border-b border-border/70">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Activity className="w-5 h-5 text-primary" />
+        <div className="text-teal-600 flex items-center justify-between">
+          <CardTitle className="text-teal-600 font-semibold tracking-[-0.012em] leading-[1.3] flex items-center gap-2">
+            <Activity className="text-teal-600 lucide lucide-activity w-5 h-5" />
             Mood Trends
           </CardTitle>
           <Select value={dateRange.toString()} onValueChange={(v) => onDateRangeChange(parseInt(v))}>
-            <SelectTrigger className="w-32">
+            <SelectTrigger className="bg-[hsl(var(--surface-nested)/0.92)] text-teal-600 px-3 py-2 text-sm rounded-[var(--radius-control)] flex h-9 items-center justify-between whitespace-nowrap border border-input/90 shadow-[var(--shadow-sm)] ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 w-32">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -91,18 +91,18 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
         {/* Stats Cards */}
         {stats &&
         <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="p-4 bg-secondary/45 border border-border/60 rounded-[var(--radius-control)]">
-              <p className="text-xs font-medium text-muted-foreground mb-1">Average Mood</p>
-              <p className="text-2xl font-bold text-foreground">{stats.avgMood.toFixed(1)}/5</p>
+            <div className="bg-teal-100 text-teal-600 p-4 rounded-[var(--radius-control)] border border-border/60">
+              <p className="text-teal-600 mb-1 text-xs font-medium">Average Mood</p>
+              <p className="text-teal-600 text-2xl font-bold">{stats.avgMood.toFixed(1)}/5</p>
             </div>
-            <div className="p-4 bg-secondary/45 border border-border/60 rounded-[var(--radius-control)]">
-              <p className="text-xs font-medium text-muted-foreground mb-1">Average Stress</p>
-              <p className="text-2xl font-bold text-foreground">
+            <div className="bg-teal-100 text-teal-600 p-4 rounded-[var(--radius-control)] border border-border/60">
+              <p className="text-teal-600 mb-1 text-xs font-semibold">Average Stress</p>
+              <p className="text-teal-600 text-xl font-semibold">
                 {stats.avgStress != null ? `${stats.avgStress.toFixed(1)}/10` : 'No data yet'}
               </p>
             </div>
-            <div className="p-4 bg-secondary/45 border border-border/60 rounded-[var(--radius-control)]">
-              <p className="text-xs font-medium text-muted-foreground mb-1">Trend</p>
+            <div className="bg-teal-100 p-4 rounded-[var(--radius-control)] border border-border/60">
+              <p className="text-teal-600 mb-1 text-sm font-semibold">Trend</p>
               <div className="flex items-center justify-center gap-1">
                 {stats.trend > 0.5 ?
               <>
@@ -115,7 +115,7 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
                     <span className="text-lg font-bold text-blue-700">Shift</span>
                   </> :
 
-              <span className="text-lg font-bold text-gray-700">Steady</span>
+              <span className="text-teal-600 text-lg font-bold">Steady</span>
               }
               </div>
             </div>
