@@ -27,19 +27,19 @@ const stageLabels = {
 export default function CoachingSessionList({ sessions, onSelectSession, onDeleteSession }) {
   if (sessions.length === 0) {
     return (
-      <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
+      <Card className="bg-teal-100 text-card-foreground rounded-[var(--radius-card)] backdrop-blur-[10px] border border-border/80 shadow-[var(--shadow-md)]">
         <CardContent className="p-12 text-center">
-          <Target className="w-12 h-12 text-primary/30 mx-auto mb-3" />
-          <p className="text-muted-foreground">No sessions yet</p>
+          <Target className="text-teal-600 mb-3 mx-auto lucide lucide-target w-12 h-12" />
+          <p className="text-teal-600 font-medium">No sessions yet</p>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {sessions.map((session, index) => {
-        const completedActions = session.action_plan?.filter(a => a.completed).length || 0;
+        const completedActions = session.action_plan?.filter((a) => a.completed).length || 0;
         const totalActions = session.action_plan?.length || 0;
 
         return (
@@ -47,11 +47,11 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
             key={session.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-          >
-            <Card 
-              className="border border-border/80 bg-card shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] transition-all group"
-            >
+            transition={{ delay: index * 0.1 }}>
+
+            <Card
+              className="border border-border/80 bg-card shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] transition-all group">
+
               <CardContent className="p-6 cursor-pointer" onClick={() => onSelectSession(session)}>
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-start gap-3 flex-1">
@@ -83,27 +83,27 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
                     </div>
                   </div>
 
-                  {totalActions > 0 && (
-                    <div>
+                  {totalActions > 0 &&
+                  <div>
                       <div className="flex items-center justify-between text-sm mb-2">
                         <span className="text-muted-foreground">Progress:</span>
                         <span className="font-medium text-foreground">{completedActions}/{totalActions} actions</span>
                       </div>
                       <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-primary transition-all"
-                          style={{ width: `${totalActions > 0 ? (completedActions / totalActions) * 100 : 0}%` }}
-                        />
+                        <div
+                        className="h-full bg-primary transition-all"
+                        style={{ width: `${totalActions > 0 ? completedActions / totalActions * 100 : 0}%` }} />
+
                       </div>
                     </div>
-                  )}
+                  }
 
-                  {session.status === 'completed' && (
-                    <div className="flex items-center gap-2 text-green-700 text-sm font-medium pt-2 border-t">
+                  {session.status === 'completed' &&
+                  <div className="flex items-center gap-2 text-green-700 text-sm font-medium pt-2 border-t">
                       <CheckCircle2 className="w-4 h-4" />
                       <span>Completed</span>
                     </div>
-                  )}
+                  }
                 </div>
               </CardContent>
               <div className="px-6 pb-4 flex justify-end border-t pt-3">
@@ -114,16 +114,16 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
                   onClick={(e) => {
                     e.stopPropagation();
                     onDeleteSession(session.id);
-                  }}
-                >
+                  }}>
+
                   <Trash2 className="w-4 h-4 mr-2" />
                   Delete
                 </Button>
               </div>
             </Card>
-          </motion.div>
-        );
+          </motion.div>);
+
       })}
-    </div>
-  );
+    </div>);
+
 }
