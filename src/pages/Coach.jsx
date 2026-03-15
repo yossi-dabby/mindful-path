@@ -237,10 +237,10 @@ export default function Coach() {
         <div className="space-y-6">
             {/* Personalized Insights */}
             <div>
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-foreground">
-                <Brain className="w-5 h-5 text-primary" />
-                Your Personalized Insights
-              </h3>
+              <h3 className="text-teal-600 mb-4 text-lg font-semibold flex items-center gap-2">Your Personalized Insights
+
+
+            </h3>
               <PersonalizedInsights onStartSession={handleStartSession} />
             </div>
 
