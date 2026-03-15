@@ -137,8 +137,8 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                   <Star className="w-4 h-4 sm:mr-2" />
                   <span className="hidden sm:inline">Benefits</span>
                 </TabsTrigger>
-                <TabsTrigger value="tips" className="bg-teal-300 text-gray-950 px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]">
-                  <Lightbulb className="text-gray-950 lucide lucide-lightbulb w-4 h-4 sm:mr-2" />
+                <TabsTrigger value="tips" className="bg-teal-300 text-slate-50 px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]">
+                  <Lightbulb className="text-gray-50 lucide lucide-lightbulb w-4 h-4 sm:mr-2" />
                   <span className="hidden sm:inline">Tips</span>
                 </TabsTrigger>
               </TabsList>
