@@ -41,8 +41,8 @@ export default function MoodCalendar({ entries, onEditEntry }) {
     <Card className="border-0 shadow-xl">
       <CardHeader className="bg-teal-100 p-6 flex flex-col space-y-1.5 border-b">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-purple-600" />
+          <CardTitle className="text-teal-600 font-semibold tracking-[-0.012em] leading-[1.3] flex items-center gap-2">
+            <Calendar className="text-teal-600 lucide lucide-calendar w-5 h-5" />
             Mood Calendar
           </CardTitle>
           <div className="flex items-center gap-2">
@@ -50,18 +50,18 @@ export default function MoodCalendar({ entries, onEditEntry }) {
               variant="outline"
               size="icon"
               onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-              aria-label="Previous month">
+              aria-label="Previous month" className="bg-[hsl(var(--card)/0.88)] text-teal-600 font-semibold tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
 
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <span className="font-semibold text-lg px-4">
+            <span className="text-teal-600 px-4 text-lg font-bold">
               {format(currentMonth, 'MMMM yyyy')}
             </span>
             <Button
               variant="outline"
               size="icon"
               onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-              aria-label="Next month">
+              aria-label="Next month" className="bg-[hsl(var(--card)/0.88)] text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
 
               <ChevronRight className="w-4 h-4" />
             </Button>
@@ -72,7 +72,7 @@ export default function MoodCalendar({ entries, onEditEntry }) {
         {/* Legend */}
         <div className="flex flex-wrap gap-3 mb-6 justify-center">
           {Object.entries(moodEmojis).map(([mood, emoji]) =>
-          <Badge key={mood} variant="outline" className="gap-2">
+          <Badge key={mood} variant="outline" className="bg-teal-600 text-slate-50 px-2.5 py-1 font-medium tracking-[0.01em] leading-4 rounded-3xl inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70 gap-2">
               <span className="text-xl font-medium">{emoji}</span>
               <span className="capitalize">{mood.replace('_', ' ')}</span>
             </Badge>
@@ -98,16 +98,16 @@ export default function MoodCalendar({ entries, onEditEntry }) {
             return (
               <button
                 key={day.toString()}
-                onClick={() => entry && onEditEntry(entry)}
-                className={cn(
-                  'aspect-square rounded-lg sm:rounded-xl border-2 transition-all p-0.5 sm:p-2 flex flex-col items-center justify-center gap-0 sm:gap-1',
-                  entry ?
-                  'border-purple-300 hover:border-purple-500 hover:shadow-lg cursor-pointer' :
-                  'border-gray-200 hover:border-gray-300',
-                  isToday && 'ring-2 ring-purple-400'
-                )}>
+                onClick={() => entry && onEditEntry(entry)} className="bg-teal-400 text-slate-50 p-0.5 text-base font-medium rounded-lg aspect-square sm:rounded-xl border-2 transition-all sm:p-2 flex flex-col items-center justify-center gap-0 sm:gap-1 border-purple-300 hover:border-purple-500 hover:shadow-lg cursor-pointer">
 
-                <span className={cn('text-xs sm:text-sm font-medium', !isSameMonth(day, currentMonth) && 'text-gray-300')}>
+
+
+
+
+
+
+
+                <span className="text-sm font-semibold sm:text-sm">
                   {format(day, 'd')}
                 </span>
                 {entry &&
