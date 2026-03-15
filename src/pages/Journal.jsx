@@ -227,7 +227,7 @@ export default function Journal() {
             <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={t('journal.search_placeholder')} className="bg-teal-100 text-foreground pl-10 px-3 py-1 font-normal tracking-[0.001em] leading-6 rounded-2xl flex h-9 w-full border border-input/90 shadow-[var(--shadow-sm)] transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 rtl:pl-3 rtl:pr-10"
+                placeholder={t('journal.search_placeholder')} className="bg-teal-100 text-foreground mx-3 px-8 py-1 font-normal tracking-[0.001em] leading-6 rounded-2xl flex h-9 w-full border border-input/90 shadow-[var(--shadow-sm)] transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 rtl:pl-3 rtl:pr-10"
 
                 style={{ borderRadius: '28px' }} />
 
