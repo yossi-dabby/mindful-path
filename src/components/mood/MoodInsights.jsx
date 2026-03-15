@@ -11,10 +11,10 @@ export default function MoodInsights({ entries }) {
 
   const generateInsights = async () => {
     setIsGenerating(true);
-    
+
     try {
       const recentEntries = entries.slice(0, 30);
-      const summaryData = recentEntries.map(e => ({
+      const summaryData = recentEntries.map((e) => ({
         date: e.date,
         mood: e.mood,
         emotions: e.emotions,
@@ -117,47 +117,47 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
             Track your mood for at least 5 days to get AI-powered insights about your emotional patterns
           </p>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
     <div className="space-y-6">
       {/* Generate Button */}
-      {!insights && (
-        <Card className="border border-border/80 bg-card shadow-[var(--shadow-lg)]">
-          <CardContent className="p-8 text-center">
-            <Brain className="w-16 h-16 text-primary mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-foreground mb-2">
-              Get AI-Powered Insights
-            </h3>
-            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+      {!insights &&
+      <Card className="border border-border/80 bg-card shadow-[var(--shadow-lg)]">
+          <CardContent className="bg-teal-100 p-8 text-center">
+            <Brain className="text-teal-600 mb-4 mx-auto lucide lucide-brain w-16 h-16" />
+            <h3 className="text-teal-600 mb-2 text-xl font-semibold">Get AI-Powered Insights
+
+          </h3>
+            <p className="text-teal-600 mb-6 mx-auto max-w-md">
               Let AI analyze your mood patterns and provide personalized recommendations based on your {entries.length} mood entries
             </p>
             <Button
-              onClick={generateInsights}
-              disabled={isGenerating}
-              className="px-8 py-6 text-lg rounded-[var(--radius-card)]"
-            >
-              {isGenerating ? (
-                <>
+            onClick={generateInsights}
+            disabled={isGenerating} className="bg-teal-600 text-primary-foreground px-8 py-6 text-lg font-medium tracking-[0.005em] rounded-3xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0">
+
+
+              {isGenerating ?
+            <>
                   <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                   Analyzing...
-                </>
-              ) : (
-                <>
+                </> :
+
+            <>
                   <Sparkles className="w-5 h-5 mr-2" />
                   Generate Insights
                 </>
-              )}
+            }
             </Button>
           </CardContent>
         </Card>
-      )}
+      }
 
       {/* Insights Display */}
-      {insights && (
-        <>
+      {insights &&
+      <>
           {/* Summary */}
           <Card className="border-0 shadow-xl">
             <CardHeader className="border-b bg-gradient-to-r from-purple-50 to-blue-50">
@@ -169,12 +169,12 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
             <CardContent className="p-6">
               <p className="text-gray-700 leading-relaxed">{insights.summary}</p>
               <Button
-                onClick={generateInsights}
-                variant="outline"
-                size="sm"
-                className="mt-4"
-                disabled={isGenerating}
-              >
+              onClick={generateInsights}
+              variant="outline"
+              size="sm"
+              className="mt-4"
+              disabled={isGenerating}>
+
                 <Sparkles className="w-4 h-4 mr-2" />
                 Regenerate
               </Button>
@@ -182,8 +182,8 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
           </Card>
 
           {/* Trends */}
-          {insights.trends?.length > 0 && (
-            <Card className="border-0 shadow-xl">
+          {insights.trends?.length > 0 &&
+        <Card className="border-0 shadow-xl">
               <CardHeader className="border-b">
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-green-600" />
@@ -191,11 +191,11 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
-                {insights.trends.map((trend, index) => (
-                  <div key={index} className="p-4 rounded-xl border-l-4" style={{
-                    borderColor: trend.type === 'positive' ? '#10b981' : trend.type === 'negative' ? '#ef4444' : '#6b7280',
-                    backgroundColor: trend.type === 'positive' ? '#f0fdf4' : trend.type === 'negative' ? '#fef2f2' : '#f9fafb'
-                  }}>
+                {insights.trends.map((trend, index) =>
+            <div key={index} className="p-4 rounded-xl border-l-4" style={{
+              borderColor: trend.type === 'positive' ? '#10b981' : trend.type === 'negative' ? '#ef4444' : '#6b7280',
+              backgroundColor: trend.type === 'positive' ? '#f0fdf4' : trend.type === 'negative' ? '#fef2f2' : '#f9fafb'
+            }}>
                     <div className="flex items-start gap-3">
                       <Badge variant={trend.type === 'positive' ? 'default' : 'secondary'} className="mt-1">
                         {trend.type}
@@ -206,14 +206,14 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
                       </div>
                     </div>
                   </div>
-                ))}
+            )}
               </CardContent>
             </Card>
-          )}
+        }
 
           {/* Key Triggers */}
-          {insights.key_triggers?.length > 0 && (
-            <Card className="border-0 shadow-xl">
+          {insights.key_triggers?.length > 0 &&
+        <Card className="border-0 shadow-xl">
               <CardHeader className="border-b">
                 <CardTitle className="flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5 text-orange-600" />
@@ -221,8 +221,8 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
-                {insights.key_triggers.map((item, index) => (
-                  <div key={index} className="p-4 bg-orange-50 rounded-xl border border-orange-200">
+                {insights.key_triggers.map((item, index) =>
+            <div key={index} className="p-4 bg-orange-50 rounded-xl border border-orange-200">
                     <h4 className="font-semibold text-orange-900 mb-2">{item.trigger}</h4>
                     <p className="text-sm text-gray-700 mb-2">{item.impact}</p>
                     <div className="flex items-start gap-2 mt-2 text-sm">
@@ -230,14 +230,14 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
                       <p className="text-gray-600 italic">{item.suggestion}</p>
                     </div>
                   </div>
-                ))}
+            )}
               </CardContent>
             </Card>
-          )}
+        }
 
           {/* Mood Boosters */}
-          {insights.mood_boosters?.length > 0 && (
-            <Card className="border-0 shadow-xl">
+          {insights.mood_boosters?.length > 0 &&
+        <Card className="border-0 shadow-xl">
               <CardHeader className="border-b">
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-green-600" />
@@ -246,20 +246,20 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
               </CardHeader>
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {insights.mood_boosters.map((item, index) => (
-                    <div key={index} className="p-4 bg-green-50 rounded-xl border border-green-200">
+                  {insights.mood_boosters.map((item, index) =>
+              <div key={index} className="p-4 bg-green-50 rounded-xl border border-green-200">
                       <h4 className="font-semibold text-green-900 mb-2">{item.activity}</h4>
                       <p className="text-sm text-gray-700">{item.benefit}</p>
                     </div>
-                  ))}
+              )}
                 </div>
               </CardContent>
             </Card>
-          )}
+        }
 
           {/* Recommendations */}
-          {insights.recommendations?.length > 0 && (
-            <Card className="border-0 shadow-xl">
+          {insights.recommendations?.length > 0 &&
+        <Card className="border-0 shadow-xl">
               <CardHeader className="border-b">
                 <CardTitle className="flex items-center gap-2">
                   <Lightbulb className="w-5 h-5 text-blue-600" />
@@ -267,20 +267,20 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
-                {insights.recommendations.map((rec, index) => (
-                  <div key={index} className="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                {insights.recommendations.map((rec, index) =>
+            <div key={index} className="p-4 bg-blue-50 rounded-xl border border-blue-200">
                     <Badge className="mb-2">{rec.category}</Badge>
                     <h4 className="font-semibold text-blue-900 mb-2">{rec.action}</h4>
                     <p className="text-sm text-gray-700">{rec.reason}</p>
                   </div>
-                ))}
+            )}
               </CardContent>
             </Card>
-          )}
+        }
 
           {/* Positive Progress */}
-          {insights.positive_progress?.length > 0 && (
-            <Card className="border-0 shadow-xl bg-gradient-to-br from-green-50 to-emerald-50">
+          {insights.positive_progress?.length > 0 &&
+        <Card className="border-0 shadow-xl bg-gradient-to-br from-green-50 to-emerald-50">
               <CardHeader className="border-b">
                 <CardTitle className="flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-green-600" />
@@ -289,20 +289,20 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
               </CardHeader>
               <CardContent className="p-6">
                 <ul className="space-y-2">
-                  {insights.positive_progress.map((item, index) => (
-                    <li key={index} className="flex items-start gap-2 text-gray-700">
+                  {insights.positive_progress.map((item, index) =>
+              <li key={index} className="flex items-start gap-2 text-gray-700">
                       <span className="text-green-600 mt-1">✓</span>
                       <span>{item}</span>
                     </li>
-                  ))}
+              )}
                 </ul>
               </CardContent>
             </Card>
-          )}
+        }
 
           {/* Concerns */}
-          {insights.concerns?.length > 0 && (
-            <Card className="border-0 shadow-xl bg-gradient-to-br from-red-50 to-orange-50">
+          {insights.concerns?.length > 0 &&
+        <Card className="border-0 shadow-xl bg-gradient-to-br from-red-50 to-orange-50">
               <CardHeader className="border-b">
                 <CardTitle className="flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5 text-red-600" />
@@ -311,21 +311,21 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
               </CardHeader>
               <CardContent className="p-6">
                 <ul className="space-y-2 mb-4">
-                  {insights.concerns.map((concern, index) => (
-                    <li key={index} className="flex items-start gap-2 text-gray-700">
+                  {insights.concerns.map((concern, index) =>
+              <li key={index} className="flex items-start gap-2 text-gray-700">
                       <span className="text-red-600 mt-1">⚠</span>
                       <span>{concern}</span>
                     </li>
-                  ))}
+              )}
                 </ul>
                 <p className="text-sm text-gray-600 italic border-t pt-4">
                   Consider reaching out to a mental health professional if these patterns persist or worsen.
                 </p>
               </CardContent>
             </Card>
-          )}
+        }
         </>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 }
