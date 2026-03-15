@@ -252,25 +252,25 @@ export default function Journal() {
         </div> :
         entries.length === 0 ?
         <Card className="border border-border/80 bg-card shadow-[var(--shadow-lg)]">
-          <CardContent className="p-12 text-center">
-            <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4 rounded-full bg-secondary text-primary shadow-[var(--shadow-sm)]">
-              <BookOpen className="w-10 h-10" />
+          <CardContent className="bg-teal-100 p-12 text-center">
+            <div className="bg-teal-100 text-primary mb-4 mx-auto rounded-full w-20 h-20 flex items-center justify-center shadow-[var(--shadow-sm)]">
+              <BookOpen className="bg-teal-100 text-teal-600 lucide lucide-book-open w-10 h-10" />
             </div>
-            <h2 className="text-2xl font-semibold mb-2 text-foreground">{t('journal.first_entry_title')}</h2>
-            <p className="mb-6 max-w-md mx-auto text-muted-foreground">
+            <h2 className="text-teal-600 mb-2 text-2xl font-medium">{t('journal.first_entry_title')}</h2>
+            <p className="text-teal-600 mb-6 mx-auto font-medium max-w-md">
               {t('journal.first_entry_description')}
             </p>
             <div className="flex flex-col gap-3 items-center max-w-md mx-auto">
               <Button
-                onClick={() => window.location.href = createPageUrl('Chat', 'intent=thought_work')}
-                className="px-8 py-6 text-lg w-full rounded-[var(--radius-card)]">
+                onClick={() => window.location.href = createPageUrl('Chat', 'intent=thought_work')} className="bg-teal-600 text-primary-foreground px-8 py-6 text-lg font-medium tracking-[0.005em] rounded-3xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 w-full">
+
 
                 {t('journal.create_entry')}
               </Button>
               <Button
                 onClick={() => setShowTemplateManager(true)}
-                variant="outline"
-                className="px-8 py-6 text-lg w-full"
+                variant="outline" className="bg-teal-600 text-slate-50 px-8 py-6 text-lg font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 w-full"
+
                 style={{ borderRadius: '32px' }}>
 
                 {t('journal.browse_templates')}
