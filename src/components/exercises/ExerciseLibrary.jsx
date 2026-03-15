@@ -56,7 +56,7 @@ export default function ExerciseLibrary({ exercises, categoryIcons, categoryColo
                 </div>
               }
 
-              <CardContent className="bg-teal-50 p-5">
+              <CardContent className="bg-teal-300 p-5 rounded-3xl">
                 <div className="mr-8 mb-2 flex items-start justify-between">
                   <div className="bg-sky-100 text-sky-700 mx-3 opacity-90 rounded-xl w-10 h-10 border border-sky-200 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Icon className="w-5 h-5" />
