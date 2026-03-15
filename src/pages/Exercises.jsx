@@ -71,9 +71,9 @@ export default function Exercises() {
   const applyLocalExerciseState = (exerciseList) => {
     const localFavorites = getStoredLocalFavorites();
     return exerciseList.map((exercise) =>
-      exercise.id?.startsWith('local-') ?
-      { ...exercise, favorite: localFavorites[exercise.id] ?? exercise.favorite ?? false } :
-      exercise
+    exercise.id?.startsWith('local-') ?
+    { ...exercise, favorite: localFavorites[exercise.id] ?? exercise.favorite ?? false } :
+    exercise
     );
   };
 
@@ -140,7 +140,7 @@ export default function Exercises() {
       const previousExercises = queryClient.getQueryData(['exercises']);
       const previousSelectedExercise = selectedExercise;
       queryClient.setQueryData(['exercises'], (current = []) =>
-        current.map((item) => item.id === exercise.id ? { ...item, favorite: !item.favorite } : item)
+      current.map((item) => item.id === exercise.id ? { ...item, favorite: !item.favorite } : item)
       );
       setSelectedExercise((current) => current?.id === exercise.id ? { ...current, favorite: !current.favorite } : current);
       return { previousExercises, previousSelectedExercise };
@@ -326,18 +326,18 @@ export default function Exercises() {
               className="w-full text-left">
 
             <Card className="border border-border/80 bg-card shadow-[var(--shadow-lg)]">
-              <CardContent className="p-12 text-center">
-                <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4 rounded-full bg-primary text-primary-foreground shadow-[var(--shadow-sm)]">
+              <CardContent className="bg-teal-300 p-12 text-center">
+                <div className="bg-teal-600 text-primary-foreground mb-4 mx-auto rounded-full w-20 h-20 flex items-center justify-center shadow-[var(--shadow-sm)]">
                   <Wind className="w-10 h-10 text-white" />
                 </div>
-                <h2 className="text-2xl font-semibold mb-2 text-foreground">
+                <h2 className="text-teal-600 mb-2 text-2xl font-semibold">
                   {t('breathing_tool.card_title')}
                 </h2>
-                <p className="mb-4 text-muted-foreground">
+                <p className="text-teal-600 mb-4 font-medium">
                   {t('breathing_tool.card_subtitle')}
                 </p>
-                <span
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-primary text-primary-foreground font-medium">
+                <span className="bg-teal-600 text-primary-foreground px-6 py-3 text-base font-semibold rounded-2xl inline-flex items-center gap-2">
+
 
                   <Wind className="w-4 h-4" />
                   {t('breathing_tool.open_tool')}
@@ -361,14 +361,14 @@ export default function Exercises() {
       {/* Exercises Grid */}
       {filteredExercises.length === 0 ?
           <Card className="surface-secondary rounded-[var(--radius-card)] border-border/70 shadow-[var(--shadow-md)]">
-          <CardContent className="p-12 text-center">
-            <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4 rounded-full bg-secondary text-primary shadow-[var(--shadow-sm)]">
+          <CardContent className="bg-teal-300 p-12 text-center">
+            <div className="bg-teal-600 text-slate-50 mb-4 mx-auto rounded-full w-20 h-20 flex items-center justify-center shadow-[var(--shadow-sm)]">
               <Sparkles className="w-10 h-10" />
             </div>
-            <h2 className="text-2xl font-semibold mb-2 text-foreground">
+            <h2 className="text-teal-600 mb-2 text-2xl font-semibold">
               {showFavoritesOnly ? t('exercises.empty_state.favorites_title') : t('exercises.empty_state.no_results_title')}
             </h2>
-            <p className="text-muted-foreground">
+            <p className="text-teal-800 text-lg font-medium">
               {showFavoritesOnly ?
                 t('exercises.empty_state.favorites_message') :
                 searchQuery ?
