@@ -96,10 +96,10 @@ export default function Coach() {
   return (
     <div className="w-full min-h-[100dvh] bg-transparent">
       {/* Mobile Header - Matches web structure */}
-      <motion.div
-        className="md:hidden border-b border-border/70 bg-[hsl(var(--card)/0.9)] backdrop-blur-2xl p-4 shadow-[var(--shadow-sm)]"
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}>
+      <motion.div className="bg-teal-50 p-4 md:hidden border-b border-border/70 backdrop-blur-2xl shadow-[var(--shadow-sm)]"
+
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}>
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
