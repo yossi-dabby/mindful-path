@@ -182,7 +182,7 @@ export default function Exercises() {
               <span className="whitespace-nowrap">{t('exercises.ai_plan')}</span>
             </Button>
             <button
-                  onClick={() => setShowFavoritesOnly(!showFavoritesOnly)} className="bg-teal-50 text-teal-600 px-3 py-2 text-sm rounded-[var(--radius-card)] md:px-4 md:py-2 transition-all md:text-base whitespace-nowrap border shadow-[var(--shadow-sm)] border-border/70 hover:text-foreground">
+                  onClick={() => setShowFavoritesOnly(!showFavoritesOnly)} className="bg-teal-100 text-teal-600 px-3 py-2 text-sm rounded-[var(--radius-card)] md:px-4 md:py-2 transition-all md:text-base whitespace-nowrap border shadow-[var(--shadow-sm)] border-border/70 hover:text-foreground">
 
 
 
@@ -190,7 +190,7 @@ export default function Exercises() {
 
 
 
-            <Star className={`w-4 h-4 inline mr-1 md:mr-2 ${showFavoritesOnly ? 'fill-current' : ''}`} />
+            <Star className="mr-1 lucide lucide-star w-4 h-4 inline md:mr-2" />
             <span className="hidden md:inline">{t('exercises.favorites')}</span>
             {showFavoritesOnly && <span className="md:hidden">({exercises.filter((e) => e.favorite).length})</span>}
             {showFavoritesOnly && <span className="hidden md:inline"> ({exercises.filter((e) => e.favorite).length})</span>}
