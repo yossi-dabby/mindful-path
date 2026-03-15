@@ -21,9 +21,9 @@ export default function ExerciseLibrary({ exercises, categoryIcons, categoryColo
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}>
 
-            <Card
-              className="border border-border/80 bg-card shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group relative overflow-hidden"
-              onClick={() => onSelectExercise(exercise)}>
+            <Card className="bg-card text-card-foreground rounded-[32px] backdrop-blur-[10px] border border-border/80 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group relative overflow-hidden"
+
+            onClick={() => onSelectExercise(exercise)}>
 
               {/* Favorite Button */}
               <button
