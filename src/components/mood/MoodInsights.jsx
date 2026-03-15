@@ -122,7 +122,7 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
   }
 
   return (
-    <div className="space-y-6">
+    <div className="bg-teal-50 space-y-6">
       {/* Generate Button */}
       {!insights &&
       <Card className="border border-border/80 bg-card shadow-[var(--shadow-lg)]">
@@ -160,13 +160,13 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
       <>
           {/* Summary */}
           <Card className="border-0 shadow-xl">
-            <CardHeader className="border-b bg-gradient-to-r from-purple-50 to-blue-50">
-              <CardTitle className="flex items-center gap-2">
-                <Brain className="w-5 h-5 text-purple-600" />
+            <CardHeader className="bg-teal-100 p-6 flex flex-col space-y-1.5 border-b from-purple-50 to-blue-50">
+              <CardTitle className="text-teal-600 font-semibold tracking-[-0.012em] leading-[1.3] flex items-center gap-2">
+                <Brain className="text-teal-600 lucide lucide-brain w-5 h-5" />
                 Overall Analysis
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6">
+            <CardContent className="bg-teal-100 p-6">
               <p className="text-gray-700 leading-relaxed">{insights.summary}</p>
               <Button
               onClick={generateInsights}
@@ -184,13 +184,13 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
           {/* Trends */}
           {insights.trends?.length > 0 &&
         <Card className="border-0 shadow-xl">
-              <CardHeader className="border-b">
+              <CardHeader className="bg-teal-100 p-6 flex flex-col space-y-1.5 border-b">
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-green-600" />
                   Identified Trends
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6 space-y-4">
+              <CardContent className="bg-teal-100 p-6 space-y-4">
                 {insights.trends.map((trend, index) =>
             <div key={index} className="p-4 rounded-xl border-l-4" style={{
               borderColor: trend.type === 'positive' ? '#10b981' : trend.type === 'negative' ? '#ef4444' : '#6b7280',
@@ -238,13 +238,13 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
           {/* Mood Boosters */}
           {insights.mood_boosters?.length > 0 &&
         <Card className="border-0 shadow-xl">
-              <CardHeader className="border-b">
+              <CardHeader className="bg-teal-100 p-6 flex flex-col space-y-1.5 border-b">
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-green-600" />
                   Your Mood Boosters
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
+              <CardContent className="bg-teal-100 p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {insights.mood_boosters.map((item, index) =>
               <div key={index} className="p-4 bg-green-50 rounded-xl border border-green-200">
@@ -260,13 +260,13 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
           {/* Recommendations */}
           {insights.recommendations?.length > 0 &&
         <Card className="border-0 shadow-xl">
-              <CardHeader className="border-b">
+              <CardHeader className="bg-teal-100 p-6 flex flex-col space-y-1.5 border-b">
                 <CardTitle className="flex items-center gap-2">
                   <Lightbulb className="w-5 h-5 text-blue-600" />
                   Personalized Recommendations
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6 space-y-4">
+              <CardContent className="bg-teal-100 p-6 space-y-4">
                 {insights.recommendations.map((rec, index) =>
             <div key={index} className="p-4 bg-blue-50 rounded-xl border border-blue-200">
                     <Badge className="mb-2">{rec.category}</Badge>
@@ -281,13 +281,13 @@ Be empathetic, insightful, and actionable. Format your response in a clear, stru
           {/* Positive Progress */}
           {insights.positive_progress?.length > 0 &&
         <Card className="border-0 shadow-xl bg-gradient-to-br from-green-50 to-emerald-50">
-              <CardHeader className="border-b">
+              <CardHeader className="bg-teal-100 p-6 flex flex-col space-y-1.5 border-b">
                 <CardTitle className="flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-green-600" />
                   Positive Progress
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
+              <CardContent className="bg-teal-100 p-6">
                 <ul className="space-y-2">
                   {insights.positive_progress.map((item, index) =>
               <li key={index} className="flex items-start gap-2 text-gray-700">
