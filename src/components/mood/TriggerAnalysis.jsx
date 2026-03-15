@@ -7,6 +7,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 const COLORS = ['#ef4444', '#f97316', '#fbbf24', '#84cc16', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
 
 export default function TriggerAnalysis({ entries }) {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+
   const analysis = React.useMemo(() => {
     const triggerImpact = {};
     const activityImpact = {};
@@ -150,24 +152,24 @@ export default function TriggerAnalysis({ entries }) {
           </CardTitle>
           <p className="text-teal-600 text-sm font-medium">Most frequently experienced emotions</p>
         </CardHeader>
-        <CardContent className="bg-orange-100 pt-6 pr-6 pb-6 pl-20">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="ml-2 px-2">
+        <CardContent className="bg-orange-100 p-4 sm:p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            <div className="min-w-0">
               {analysis.topEmotions.length > 0 ?
-              <ResponsiveContainer width="100%" height={250}>
-                  <PieChart className="mb-1 pr-12 pl-12 recharts-surface">
+              <ResponsiveContainer width="100%" height={isMobile ? 220 : 250}>
+                  <PieChart>
                     <Pie
                     data={analysis.topEmotions}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={80}
+                    label={isMobile ? false : ({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={isMobile ? 64 : 80}
                     fill="#8884d8"
                     dataKey="value">
 
                       {analysis.topEmotions.map((entry, index) =>
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} className="mx-6 my-6 recharts-text recharts-pie-label-text" />
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     )}
                     </Pie>
                     <Tooltip />
@@ -177,9 +179,9 @@ export default function TriggerAnalysis({ entries }) {
               <p className="text-center text-gray-500 py-12">No emotion data yet</p>
               }
             </div>
-            <div className="flex flex-col justify-center space-y-3">
+            <div className="flex flex-col justify-center space-y-3 min-w-0">
               {analysis.topEmotions.map((emotion, index) =>
-              <div key={emotion.name} className="bg-orange-50 text-orange-500 mx-8 px-3 py-3 rounded-lg flex items-center justify-between">
+              <div key={emotion.name} className="bg-orange-50 text-orange-500 px-3 py-3 rounded-lg flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div
                     className="w-4 h-4 rounded-full"
