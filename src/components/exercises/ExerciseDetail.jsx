@@ -244,8 +244,8 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                             key={i}
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.1 }}
-                            className="flex gap-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-4 border border-green-200">
+                            transition={{ delay: i * 0.1 }} className="bg-teal-200 p-4 rounded-xl flex gap-4 from-green-50 to-blue-50 border border-green-200">
+
 
                           <div className="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-semibold flex-shrink-0">
                             {step.step_number || i + 1}
