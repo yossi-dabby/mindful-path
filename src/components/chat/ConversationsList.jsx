@@ -20,7 +20,7 @@ export default function ConversationsList({
   return (
     <div className="h-full flex flex-col min-h-0">
       {/* Header */}
-      <div className="p-3 md:p-4 flex items-center justify-between flex-shrink-0 border-b border-border/70 bg-card/40">
+      <div className="bg-teal-100 p-3 md:p-4 flex items-center justify-between flex-shrink-0 border-b border-border/70">
         <h2 className="text-teal-600 text-base font-bold md:text-lg truncate">{t('chat.conversations_list.title')}</h2>
         <div className="flex gap-2">
           <Button
