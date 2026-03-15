@@ -73,24 +73,24 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
-                  <CardTitle className="text-2xl">{exercise.title || 'Untitled Exercise'}</CardTitle>
+                  <CardTitle className="text-teal-600 text-2xl font-semibold tracking-[-0.012em]">{exercise.title || 'Untitled Exercise'}</CardTitle>
                   <button
                       onClick={() => onToggleFavorite?.(exercise)}
                       className="p-2 rounded-full hover:bg-white/50 transition-colors">
 
-                    <Heart
-                        className={`w-5 h-5 ${exercise.favorite ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
+                    <Heart className="text-teal-600 lucide lucide-heart w-5 h-5" />
+
 
                   </button>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Badge variant="outline" className="bg-teal-200 text-muted-foreground px-2.5 py-1 font-medium capitalize tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70">
+                  <Badge variant="outline" className="bg-teal-200 text-teal-600 px-2.5 py-1 font-medium capitalize tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70">
                     {exercise.difficulty || 'beginner'}
                   </Badge>
                   {exercise.difficulty === 'advanced' && <PremiumBadge />}
                   <ExerciseMediaBadge mediaType={exercise.media_type} size="md" />
                   {exercise.duration_options?.length > 0 ?
-                    <Badge variant="secondary" className="flex items-center gap-1">
+                    <Badge variant="secondary" className="bg-secondary/86 text-teal-600 px-2.5 py-1 font-medium tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/60 flex items-center gap-1">
                       <Clock className="w-3 h-3" />
                       {exercise.duration_options.join(', ')} min options
                     </Badge> :
@@ -108,7 +108,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                     }
                 </div>
               </div>
-              <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
+              <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close" className="text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
                 <X className="w-5 h-5" />
               </Button>
             </div>
@@ -119,11 +119,11 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               <div className="flex flex-col space-y-4">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
               <TabsList className={`grid w-full ${audioContent.length > 0 ? 'grid-cols-5' : 'grid-cols-4'}`}>
-                <TabsTrigger value="overview">
+                <TabsTrigger value="overview" className="text-gray-950 px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]">
                   <BookOpen className="w-4 h-4 sm:mr-2" />
                   <span className="hidden sm:inline">Overview</span>
                 </TabsTrigger>
-                <TabsTrigger value="instructions">
+                <TabsTrigger value="instructions" className="text-gray-950 px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]">
                   <Play className="w-4 h-4 sm:mr-2" />
                   <span className="hidden sm:inline">Practice</span>
                 </TabsTrigger>
@@ -133,12 +133,12 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                     <span className="hidden sm:inline">Audio</span>
                   </TabsTrigger>
                       }
-                <TabsTrigger value="benefits">
+                <TabsTrigger value="benefits" className="text-gray-950 px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]">
                   <Star className="w-4 h-4 sm:mr-2" />
                   <span className="hidden sm:inline">Benefits</span>
                 </TabsTrigger>
-                <TabsTrigger value="tips">
-                  <Lightbulb className="w-4 h-4 sm:mr-2" />
+                <TabsTrigger value="tips" className="text-gray-950 px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]">
+                  <Lightbulb className="text-gray-950 lucide lucide-lightbulb w-4 h-4 sm:mr-2" />
                   <span className="hidden sm:inline">Tips</span>
                 </TabsTrigger>
               </TabsList>
