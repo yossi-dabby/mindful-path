@@ -253,8 +253,8 @@ export default function NotificationBell() {
     <>
       <button
         ref={buttonRef}
-        onClick={() => setOpen((o) => !o)}
-        className="relative w-10 h-10 flex items-center justify-center rounded-[var(--radius-control)] border border-transparent text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+        onClick={() => setOpen((o) => !o)} className="bg-teal-200 text-muted-foreground rounded-[var(--radius-control)] relative w-10 h-10 flex items-center justify-center border border-transparent transition-colors hover:bg-secondary hover:text-foreground"
+
         aria-label="Notifications"
         aria-expanded={open}
         aria-haspopup="true">
