@@ -61,7 +61,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
         paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6rem)'
       }}>
 
-      <div className="py-64 min-h-full flex items-center justify-center">
+      <div className="bg-teal-50 py-64 min-h-full flex items-center justify-center">
       <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -69,7 +69,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
           style={{ maxHeight: 'calc(100vh - 160px)' }}>
 
         <Card className="border-0 shadow-2xl">
-          <CardHeader className="bg-gradient-to-r p-6 flex flex-col space-y-1.5 border-b from-green-50 to-blue-50">
+          <CardHeader className="bg-teal-100 p-6 flex flex-col space-y-1.5 border-b from-green-50 to-blue-50">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
@@ -84,7 +84,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                   </button>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Badge variant="outline" className="capitalize">
+                  <Badge variant="outline" className="bg-teal-200 text-muted-foreground px-2.5 py-1 font-medium capitalize tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70">
                     {exercise.difficulty || 'beginner'}
                   </Badge>
                   {exercise.difficulty === 'advanced' && <PremiumBadge />}
@@ -113,7 +113,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="p-4 md:p-6">
+          <CardContent className="bg-teal-300 p-4 md:p-6">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6">
               {/* Left Column: Main Content */}
               <div className="flex flex-col space-y-4">
@@ -268,7 +268,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
 
                       <div>
                     <h3 className="text-lg font-semibold text-gray-800 mb-3">Instructions</h3>
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <div className="bg-teal-100 text-teal-600 p-4 rounded-xl border border-gray-200">
                       <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
                         {exercise.instructions || ''}
                       </p>
@@ -306,8 +306,8 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                             key={i}
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.1 }}
-                            className="flex items-start gap-3 bg-green-50 rounded-lg p-4 border border-green-200">
+                            transition={{ delay: i * 0.1 }} className="bg-teal-100 p-4 rounded-lg flex items-start gap-3 border border-green-200">
+
 
                           <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                           <p className="text-gray-700">{benefit}</p>
@@ -333,8 +333,8 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                             key={i}
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.1 }}
-                            className="flex items-start gap-3 bg-blue-50 rounded-lg p-4 border border-blue-200">
+                            transition={{ delay: i * 0.1 }} className="bg-teal-100 p-4 rounded-lg flex items-start gap-3 border border-blue-200">
+
 
                           <Lightbulb className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                           <p className="text-gray-700">{tip}</p>
@@ -405,7 +405,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               {/* Right Column: Progress & Actions (Desktop) */}
               <div className="hidden lg:flex lg:flex-col gap-4 self-start">
                 {/* Completion Stats */}
-                <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border-2 border-green-200">
+                <div className="bg-teal-100 p-6 rounded-xl from-green-50 to-blue-50 border-2 border-green-200">
                   <h3 className="text-sm font-semibold text-gray-700 mb-3">Your Progress</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -439,11 +439,11 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                       </div> :
 
                     <>
-                        <Button onClick={handleComplete} className="w-full bg-green-600 hover:bg-green-700">
+                        <Button onClick={handleComplete} className="bg-teal-500 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 w-full hover:bg-green-700">
                           <Play className="w-4 h-4 mr-2" />
                           Mark as Complete
                         </Button>
-                        <Button variant="outline" onClick={onClose} className="w-full">
+                        <Button variant="outline" onClick={onClose} className="bg-teal-100 text-secondary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 w-full">
                           Close
                         </Button>
                       </>
