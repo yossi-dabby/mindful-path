@@ -279,8 +279,8 @@ export default function Coach() {
         {sessions.length > 0 &&
         <Button
           onClick={handleStartSession}
-          size="lg"
-          className="md:hidden fixed right-6 z-30 shadow-[var(--shadow-lg)] p-0 rounded-full w-14 h-14"
+          size="lg" className="bg-teal-600 text-slate-50 p-0 font-medium tracking-[0.005em] leading-none rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 md:hidden fixed right-6 z-30 shadow-[var(--shadow-lg)] w-14 h-14"
+
           style={{
             bottom: 'calc(env(safe-area-inset-bottom, 0px) + 96px)'
           }}>
