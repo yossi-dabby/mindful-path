@@ -1221,18 +1221,18 @@ export default function Chat() {
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
       {/* Chat root: explicit dvh-based height so the flex-1/min-h-0 scroll chain works.
-          `h-full` would resolve to `auto` because the parent motion.div uses min-h-full
-          (not a fixed height), breaking the inner overflow-y-auto messages scroll. */}
+            `h-full` would resolve to `auto` because the parent motion.div uses min-h-full
+            (not a fixed height), breaking the inner overflow-y-auto messages scroll. */}
       <div
         className="flex relative bg-transparent"
         data-testid="chat-root"
         data-page-ready={isPageReady}
         style={{
-          height: `calc(100dvh - ${MOBILE_HEADER_HEIGHT}px - ${BOTTOM_NAV_HEIGHT}px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))`,
-        }}
-      >
+          height: `calc(100dvh - ${MOBILE_HEADER_HEIGHT}px - ${BOTTOM_NAV_HEIGHT}px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))`
+        }}>
+
         {/* On tablet/desktop (≥768px) there is no fixed mobile header or bottom nav,
-            so we only subtract the safe-area insets (mirrors AppContent.jsx logic). */}
+              so we only subtract the safe-area insets (mirrors AppContent.jsx logic). */}
         <style>{`
           @media (min-width: 768px) {
             [data-testid="chat-root"] {
@@ -1300,8 +1300,8 @@ export default function Chat() {
               {/* Welcome Section - Separate container */}
               <div className="flex-1 flex items-center justify-center p-4 md:p-6">
                 <Card className="bg-teal-50 text-teal-600 p-8 text-center rounded-[var(--radius-card)] backdrop-blur-[10px] max-w-md border border-border/80 shadow-[var(--shadow-lg)]">
-                  <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4 rounded-[var(--radius-card)] bg-secondary text-primary shadow-[var(--shadow-sm)]">
-                    <span className="text-2xl">👋</span>
+                  <div className="bg-teal-600 text-primary mr-24 ml-24 rounded-[40px] w-16 h-16 flex items-center justify-center shadow-[var(--shadow-sm)]">
+                    <span className="mx-1 my-1 text-4xl">👋</span>
                   </div>
                   <h2 className="text-teal-600 mb-2 text-2xl font-semibold">
                     {t('chat.welcome.title', 'Welcome to Therapy')}
