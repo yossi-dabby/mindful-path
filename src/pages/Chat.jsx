@@ -1296,7 +1296,7 @@ export default function Chat() {
         {/* Messages Area */}
         <div className="flex-1 min-h-0 overflow-hidden flex flex-col" style={{ backgroundColor: 'transparent' }}>
           {!currentConversationId ?
-            <div className="h-full flex flex-col">
+            <div className="h-full overflow-y-auto">
               {/* Welcome Section - Separate container */}
               <div className="bg-teal-100 p-4 flex-1 flex items-center justify-center md:p-6">
                 <Card className="bg-teal-50 text-teal-600 p-8 text-center rounded-[var(--radius-card)] backdrop-blur-[10px] max-w-md border border-border/80 shadow-[var(--shadow-lg)]">

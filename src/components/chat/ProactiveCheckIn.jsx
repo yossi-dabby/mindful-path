@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,7 +8,20 @@ import { TrendingUp, TrendingDown, Target, Sparkles, BookOpen, Dumbbell, Bell, X
 
 export default function ProactiveCheckIn({ onSendMessage }) {
   const queryClient = useQueryClient();
+  const [dismissedSuggestionIds, setDismissedSuggestionIds] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem('dismissed_proactive_checkins');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const today = new Date().toISOString().split('T')[0];
+
+  const persistDismissedIds = (ids) => {
+    setDismissedSuggestionIds(ids);
+    sessionStorage.setItem('dismissed_proactive_checkins', JSON.stringify(ids));
+  };
 
   const { data: goalsData } = useQuery({
     queryKey: ['activeGoals'],
@@ -103,7 +116,8 @@ export default function ProactiveCheckIn({ onSendMessage }) {
     }[reminder.reminder_type] || 'text-gray-600 bg-gray-100';
 
     suggestions.push({
-      id: reminder.id,
+      id: `ai-${reminder.id}`,
+      entityId: reminder.id,
       icon,
       color,
       title: reminder.title,
@@ -117,6 +131,7 @@ export default function ProactiveCheckIn({ onSendMessage }) {
   // Mood-based suggestions
   if (hasLowMoodTrend) {
     suggestions.push({
+      id: 'mood_trend',
       icon: TrendingDown,
       color: 'text-orange-600 bg-orange-100',
       title: 'Mood Check-in',
@@ -128,6 +143,7 @@ export default function ProactiveCheckIn({ onSendMessage }) {
 
   if (hasPositiveTrend) {
     suggestions.push({
+      id: 'positive_trend',
       icon: TrendingUp,
       color: 'text-green-600 bg-green-100',
       title: 'Positive Progress',
@@ -144,6 +160,7 @@ export default function ProactiveCheckIn({ onSendMessage }) {
 
     if (daysSinceCreated >= 7) {
       suggestions.push({
+        id: `goal_review-${oldestGoal.id}`,
         icon: Target,
         color: 'text-blue-600 bg-blue-100',
         title: 'Goal Progress Review',
@@ -158,6 +175,7 @@ export default function ProactiveCheckIn({ onSendMessage }) {
   // Journal insight patterns
   if (commonDistortion) {
     suggestions.push({
+      id: `journal_insight-${commonDistortion}`,
       icon: BookOpen,
       color: 'text-purple-600 bg-purple-100',
       title: 'Thinking Pattern Insight',
@@ -173,6 +191,7 @@ export default function ProactiveCheckIn({ onSendMessage }) {
 
     if (daysSinceLastPractice >= 3 && daysSinceLastPractice <= 7) {
       suggestions.push({
+        id: `exercise_followup-${practiceOpportunities.id}`,
         icon: Dumbbell,
         color: 'text-indigo-600 bg-indigo-100',
         title: 'Practice Follow-up',
@@ -184,12 +203,15 @@ export default function ProactiveCheckIn({ onSendMessage }) {
     }
   }
 
-  if (suggestions.length === 0) return null;
+  const visibleSuggestions = suggestions.filter((suggestion) => !dismissedSuggestionIds.includes(suggestion.id));
+
+  if (visibleSuggestions.length === 0) return null;
 
   const handleDismiss = (suggestion, e) => {
     e.stopPropagation();
+    persistDismissedIds([...dismissedSuggestionIds, suggestion.id]);
     if (suggestion.type === 'ai_reminder') {
-      dismissReminderMutation.mutate(suggestion.id);
+      dismissReminderMutation.mutate(suggestion.entityId);
     }
   };
 
@@ -207,11 +229,11 @@ export default function ProactiveCheckIn({ onSendMessage }) {
         <h3 className="text-purple-600 text-sm font-semibold">Personalized Check-ins</h3>
       </div>
       
-      {suggestions.map((suggestion, index) => {
+      {visibleSuggestions.map((suggestion) => {
         const Icon = suggestion.icon;
         return (
           <Card
-            key={index} className="bg-gradient-to-r text-card-foreground rounded-2xl shadow-[var(--shadow-md)] backdrop-blur-[10px] border-2 border-purple-200 from-purple-50 to-blue-50 hover:border-purple-300 transition-all cursor-pointer"
+            key={suggestion.id} className="bg-gradient-to-r text-card-foreground rounded-2xl shadow-[var(--shadow-md)] backdrop-blur-[10px] border-2 border-purple-200 from-purple-50 to-blue-50 hover:border-purple-300 transition-all cursor-pointer"
 
             onClick={() => handleClick(suggestion)}>
 
@@ -230,17 +252,15 @@ export default function ProactiveCheckIn({ onSendMessage }) {
                         </Badge>
                       }
                     </div>
-                    {suggestion.type === 'ai_reminder' &&
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6 -mt-1 -mr-1"
+                      className="h-6 w-6 -mt-1 -mr-1 flex-shrink-0"
                       onClick={(e) => handleDismiss(suggestion, e)}
-                      aria-label="Dismiss reminder">
+                      aria-label="Delete check-in">
 
                         <X className="w-3 h-3" />
                       </Button>
-                    }
                   </div>
                   <p className="text-sm text-gray-700 mb-2">{suggestion.message}</p>
                   {suggestion.reminder?.context?.insight &&
