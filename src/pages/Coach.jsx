@@ -245,13 +245,13 @@ export default function Coach() {
             </div>
 
             <Tabs defaultValue="active">
-              <TabsList>
-                <TabsTrigger value="active" className="gap-2">
+              <TabsList className="bg-teal-100 text-muted-foreground p-1 rounded-[var(--radius-control)] inline-flex min-h-[44px] items-center justify-center gap-1 border border-border/60 shadow-[var(--shadow-sm)] backdrop-blur-[8px]">
+                <TabsTrigger value="active" className="bg-teal-600 text-slate-50 px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)] gap-2">
                   <TrendingUp className="w-4 h-4" />
                   {t('coach.tabs.active', { count: activeSessions.length })}
                 </TabsTrigger>
-                <TabsTrigger value="completed" className="gap-2">
-                  <MessageCircle className="w-4 h-4" />
+                <TabsTrigger value="completed" className="bg-teal-600 text-slate-50 px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)] gap-2">
+                  <MessageCircle className="text-teal-600 lucide lucide-message-circle w-4 h-4" />
                   {t('coach.tabs.completed', { count: completedSessions.length })}
                 </TabsTrigger>
               </TabsList>
