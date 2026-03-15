@@ -33,7 +33,7 @@ export default function ExerciseLibrary({ exercises, categoryIcons, categoryColo
                 }} className="bg-teal-300 mx-1 px-3 py-2 opacity-100 rounded-full absolute top-3 right-3 z-10 hover:bg-card shadow-[var(--shadow-sm)] transition-all border border-border/70">
 
 
-                <Heart className="text-teal-600 lucide lucide-heart w-4 h-4" />
+                <Heart className={`w-4 h-4 ${exercise.favorite ? 'fill-red-500 text-red-500' : 'text-teal-600'}`} />
 
 
               </button>

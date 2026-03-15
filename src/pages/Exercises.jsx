@@ -110,6 +110,19 @@ export default function Exercises() {
         throw error;
       }
     },
+    onMutate: async (exercise) => {
+      const previousExercises = queryClient.getQueryData(['exercises']);
+      queryClient.setQueryData(['exercises'], (current = []) =>
+        current.map((item) => item.id === exercise.id ? { ...item, favorite: !item.favorite } : item)
+      );
+      setSelectedExercise((current) => current?.id === exercise.id ? { ...current, favorite: !current.favorite } : current);
+      return { previousExercises };
+    },
+    onError: (_error, _exercise, context) => {
+      if (context?.previousExercises) {
+        queryClient.setQueryData(['exercises'], context.previousExercises);
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['exercises'] });
     }

@@ -18,6 +18,19 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
   const [selectedDuration, setSelectedDuration] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
 
+  const instructionSteps = exercise.detailed_steps?.length > 0 ?
+  exercise.detailed_steps :
+  exercise.steps?.map((step, index) => ({
+    step_number: index + 1,
+    title: step.title,
+    description: step.description
+  })) || [];
+
+  const instructionText = exercise.instructions?.trim() ||
+  (instructionSteps.length > 0 ?
+  instructionSteps.map((step, index) => `${index + 1}. ${step.title ? `${step.title}: ` : ''}${step.description || ''}`).join('\n\n') :
+  [exercise.description, exercise.detailed_description].filter(Boolean).join('\n\n'));
+
   // Fetch linked audio content
   const { data: audioContent } = useQuery({
     queryKey: ['audioContent', exercise.id],
@@ -61,12 +74,12 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
         paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6rem)'
       }}>
 
-      <div className="bg-teal-50 py-64 min-h-full flex items-center justify-center">
+      <div className="min-h-full flex items-start justify-center p-4 pt-6 pb-24 md:items-center md:p-6">
       <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-4xl my-8"
-          style={{ maxHeight: 'calc(100vh - 160px)' }}>
+          className="w-full max-w-4xl my-0 md:my-8"
+          style={{ maxHeight: 'calc(100vh - 32px)' }}>
 
         <Card className="border-0 shadow-2xl">
           <CardHeader className="bg-teal-100 p-6 flex flex-col space-y-1.5 border-b from-green-50 to-blue-50">
@@ -78,7 +91,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                       onClick={() => onToggleFavorite?.(exercise)}
                       className="p-2 rounded-full hover:bg-white/50 transition-colors">
 
-                    <Heart className="text-teal-600 lucide lucide-heart w-5 h-5" />
+                    <Heart className={`w-5 h-5 ${exercise.favorite ? 'fill-red-500 text-red-500' : 'text-teal-600'}`} />
 
 
                   </button>
@@ -235,11 +248,11 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
 
               {/* Instructions Tab */}
               <TabsContent value="instructions" className="space-y-4 max-h-[50vh] overflow-y-auto">
-                {exercise.detailed_steps?.length > 0 ?
+                {instructionSteps.length > 0 ?
                       <div>
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">Step-by-Step Guide</h3>
                     <div className="space-y-4">
-                      {exercise.detailed_steps.map((step, i) =>
+                      {instructionSteps.map((step, i) =>
                           <motion.div
                             key={i}
                             initial={{ opacity: 0, x: -20 }}
@@ -270,7 +283,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                     <h3 className="text-lg font-semibold text-gray-800 mb-3">Instructions</h3>
                     <div className="bg-teal-100 text-teal-600 p-4 rounded-xl border border-gray-200">
                       <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                        {exercise.instructions || ''}
+                        {instructionText || 'Instructions will appear here soon.'}
                       </p>
                     </div>
                   </div>
