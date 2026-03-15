@@ -67,7 +67,7 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
                       </Badge>
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                  <ChevronRight className="text-teal-600 lucide lucide-chevron-right w-5 h-5 group-hover:text-primary transition-colors" />
                 </div>
 
                 <div className="space-y-3">
