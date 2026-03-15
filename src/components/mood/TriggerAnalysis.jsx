@@ -152,7 +152,7 @@ export default function TriggerAnalysis({ entries }) {
         </CardHeader>
         <CardContent className="bg-orange-100 pt-6 pr-6 pb-6 pl-20">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
+            <div className="ml-2 px-2">
               {analysis.topEmotions.length > 0 ?
               <ResponsiveContainer width="100%" height={250}>
                   <PieChart className="mb-1 pr-12 pl-12 recharts-surface">
@@ -167,7 +167,7 @@ export default function TriggerAnalysis({ entries }) {
                     dataKey="value">
 
                       {analysis.topEmotions.map((entry, index) =>
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} className="mx-4 my-4 px-3 py-2 recharts-sector recharts-text recharts-pie-label-text" />
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} className="mx-6 my-6 recharts-text recharts-pie-label-text" />
                     )}
                     </Pie>
                     <Tooltip />
