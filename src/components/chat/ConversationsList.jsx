@@ -44,12 +44,12 @@ export default function ConversationsList({
       </div>
 
       {/* Conversations List */}
-      <div className="bg-teal-50 p-2 flex-1 overflow-y-auto min-h-0" style={{ overscrollBehavior: 'none' }}>
+      <div className="bg-teal-100 p-2 flex-1 overflow-y-auto min-h-0" style={{ overscrollBehavior: 'none' }}>
         {safeConversations.length === 0 ?
         <div className="bg-teal-50 px-4 py-8 text-center rounded-2xl">
-            <MessageCircle className="w-12 h-12 mx-auto mb-3 text-primary/30" />
-            <p className="text-sm text-muted-foreground">{t('chat.conversations_list.empty_title')}</p>
-            <p className="text-xs mt-1 text-muted-foreground/80">{t('chat.conversations_list.empty_message')}</p>
+            <MessageCircle className="text-teal-600 mb-3 mx-auto lucide lucide-message-circle w-12 h-12" />
+            <p className="text-teal-600 text-sm font-medium">{t('chat.conversations_list.empty_title')}</p>
+            <p className="text-teal-600 mt-1 text-xs font-medium">{t('chat.conversations_list.empty_message')}</p>
           </div> :
 
         <div className="space-y-1">
