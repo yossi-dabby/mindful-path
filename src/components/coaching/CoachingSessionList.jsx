@@ -49,20 +49,20 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}>
 
-            <Card
-              className="border border-border/80 bg-card shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] transition-all group">
+            <Card className="bg-teal-100 text-card-foreground rounded-[var(--radius-card)] backdrop-blur-[10px] border border-border/80 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] transition-all group">
+
 
               <CardContent className="p-6 cursor-pointer" onClick={() => onSelectSession(session)}>
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-start gap-3 flex-1">
-                    <div className="w-12 h-12 rounded-[var(--radius-control)] bg-primary flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]">
-                      <Target className="w-6 h-6 text-primary-foreground" />
+                    <div className="bg-teal-100 rounded-[var(--radius-control)] w-12 h-12 flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]">
+                      <Target className="text-teal-600 lucide lucide-target w-6 h-6" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
+                      <h3 className="text-teal-600 mb-1 font-semibold group-hover:text-primary transition-colors">
                         {session.title}
                       </h3>
-                      <Badge variant="secondary" className="capitalize">
+                      <Badge variant="secondary" className="bg-secondary/86 text-teal-600 px-2.5 py-1 font-medium capitalize tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/60">
                         {session.focus_area.replace('_', ' ')}
                       </Badge>
                     </div>
@@ -72,14 +72,14 @@ export default function CoachingSessionList({ sessions, onSelectSession, onDelet
 
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Calendar className="w-4 h-4" />
-                    <span>Started {format(new Date(session.created_date), 'MMM dd, yyyy')}</span>
+                    <Calendar className="text-teal-600 lucide lucide-calendar w-4 h-4" />
+                    <span className="text-teal-600 font-medium">Started {format(new Date(session.created_date), 'MMM dd, yyyy')}</span>
                   </div>
 
                   <div>
                     <div className="flex items-center justify-between text-sm mb-2">
-                      <span className="text-muted-foreground">Stage:</span>
-                      <span className="font-medium text-primary">{stageLabels[session.stage]}</span>
+                      <span className="text-teal-600 font-medium">Stage:</span>
+                      <span className="text-teal-600 font-medium">{stageLabels[session.stage]}</span>
                     </div>
                   </div>
 
