@@ -68,7 +68,7 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
 
   return (
     <Card className="bg-teal-50 text-card-foreground rounded-[var(--radius-card)] backdrop-blur-[10px] border border-border/80 shadow-[var(--shadow-md)]">
-      <CardHeader className="border-b border-border/70 bg-secondary/35">
+      <CardHeader className="bg-teal-50 p-6 flex flex-col space-y-1.5 border-b border-border/70">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Activity className="w-5 h-5 text-primary" />
