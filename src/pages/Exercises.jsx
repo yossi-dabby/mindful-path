@@ -60,18 +60,35 @@ export default function Exercises() {
     }
   }, [selectedCategory]);
 
+  const getStoredLocalFavorites = () => {
+    try {
+      return JSON.parse(localStorage.getItem('local_exercise_favorites') || '{}');
+    } catch {
+      return {};
+    }
+  };
+
+  const applyLocalExerciseState = (exerciseList) => {
+    const localFavorites = getStoredLocalFavorites();
+    return exerciseList.map((exercise) =>
+      exercise.id?.startsWith('local-') ?
+      { ...exercise, favorite: localFavorites[exercise.id] ?? exercise.favorite ?? false } :
+      exercise
+    );
+  };
+
   const { data: exercises, isLoading } = useQuery({
     queryKey: ['exercises'],
     queryFn: async () => {
       try {
         const apiExercises = await base44.entities.Exercise.list();
-        return mergeExercises(apiExercises);
+        return applyLocalExerciseState(mergeExercises(apiExercises));
       } catch (error) {
         console.error('Error fetching exercises:', error);
-        return mergeExercises([]);
+        return applyLocalExerciseState(mergeExercises([]));
       }
     },
-    initialData: mergeExercises([])
+    initialData: applyLocalExerciseState(mergeExercises([]))
   });
 
   // Dev-only taxonomy validation — runs once after exercises data is ready
@@ -102,6 +119,15 @@ export default function Exercises() {
   const toggleFavoriteMutation = useMutation({
     mutationFn: async (exercise) => {
       try {
+        if (exercise.id?.startsWith('local-')) {
+          const localFavorites = getStoredLocalFavorites();
+          localStorage.setItem('local_exercise_favorites', JSON.stringify({
+            ...localFavorites,
+            [exercise.id]: !exercise.favorite
+          }));
+          return { ...exercise, favorite: !exercise.favorite };
+        }
+
         return await base44.entities.Exercise.update(exercise.id, {
           favorite: !exercise.favorite
         });
