@@ -50,7 +50,7 @@ export default function MoodTracker() {
 
   return (
     <PullToRefresh queryKeys={['moodEntries']}>
-    <div className="p-4 md:p-6 pb-32 md:pb-24 w-full min-h-[100dvh] bg-transparent">
+    <div className="bg-teal-50 pb-32 p-4 md:p-6 md:pb-24 w-full min-h-[100dvh]">
       <div className="max-w-7xl mx-auto w-full">
         {/* Header */}
         <motion.div
@@ -92,15 +92,15 @@ export default function MoodTracker() {
             window.history.replaceState({}, '', newUrl);
           }} className="space-y-6">
           <TabsList className="bg-emerald-50 text-muted-foreground p-1 rounded-full inline-flex min-h-[44px] items-center justify-center gap-1 border border-border/60 shadow-[var(--shadow-sm)] backdrop-blur-[8px]">
-            <TabsTrigger value="overview" className="bg-teal-600 text-muted-foreground px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-2xl inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)] gap-2">
-              <TrendingUp className="bg-slate-50 lucide lucide-trending-up w-4 h-4" />
+            <TabsTrigger value="overview" className="bg-teal-600 text-muted-foreground px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-3xl inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)] gap-2">
+              <TrendingUp className="bg-teal-600 text-slate-50 lucide lucide-trending-up w-4 h-4" />
               {t('mood_tracker.tabs.overview')}
             </TabsTrigger>
-            <TabsTrigger value="calendar" className="gap-2">
+            <TabsTrigger value="calendar" className="text-muted-foreground px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-3xl inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)] gap-2">
               <Calendar className="w-4 h-4" />
               {t('mood_tracker.tabs.calendar')}
             </TabsTrigger>
-            <TabsTrigger value="insights" className="gap-2">
+            <TabsTrigger value="insights" className="bg-teal-600 text-slate-50 px-3 py-1 font-medium tracking-[0.003em] leading-none rounded-3xl inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)] gap-2">
               <Brain className="w-4 h-4" />
               {t('mood_tracker.tabs.insights')}
             </TabsTrigger>
