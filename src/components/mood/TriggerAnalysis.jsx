@@ -150,7 +150,7 @@ export default function TriggerAnalysis({ entries }) {
           </CardTitle>
           <p className="text-teal-600 text-sm font-medium">Most frequently experienced emotions</p>
         </CardHeader>
-        <CardContent className="bg-orange-100 p-6">
+        <CardContent className="bg-orange-100 pt-6 pr-6 pb-6 pl-20">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               {analysis.topEmotions.length > 0 ?
@@ -167,7 +167,7 @@ export default function TriggerAnalysis({ entries }) {
                     dataKey="value">
 
                       {analysis.topEmotions.map((entry, index) =>
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} className="recharts-text recharts-pie-label-text" />
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} className="px-3 py-2 recharts-sector recharts-text recharts-pie-label-text" />
                     )}
                     </Pie>
                     <Tooltip />
@@ -179,7 +179,7 @@ export default function TriggerAnalysis({ entries }) {
             </div>
             <div className="flex flex-col justify-center space-y-3">
               {analysis.topEmotions.map((emotion, index) =>
-              <div key={emotion.name} className="bg-orange-50 text-orange-500 p-3 rounded-lg flex items-center justify-between">
+              <div key={emotion.name} className="bg-orange-50 text-orange-500 mx-8 px-3 py-3 rounded-lg flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div
                     className="w-4 h-4 rounded-full"
