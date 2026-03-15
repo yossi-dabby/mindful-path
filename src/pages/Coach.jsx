@@ -143,10 +143,10 @@ export default function Coach() {
       </motion.div>
 
       {/* Desktop Header - Hidden on mobile */}
-      <motion.div
-        className="hidden md:block border-b border-border/70 bg-[hsl(var(--card)/0.9)] backdrop-blur-2xl p-4 shadow-[var(--shadow-sm)]"
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}>
+      <motion.div className="bg-teal-100 p-4 hidden md:block border-b border-border/70 backdrop-blur-2xl shadow-[var(--shadow-sm)]"
+
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}>
 
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
