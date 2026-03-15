@@ -138,15 +138,19 @@ export default function Exercises() {
     },
     onMutate: async (exercise) => {
       const previousExercises = queryClient.getQueryData(['exercises']);
+      const previousSelectedExercise = selectedExercise;
       queryClient.setQueryData(['exercises'], (current = []) =>
         current.map((item) => item.id === exercise.id ? { ...item, favorite: !item.favorite } : item)
       );
       setSelectedExercise((current) => current?.id === exercise.id ? { ...current, favorite: !current.favorite } : current);
-      return { previousExercises };
+      return { previousExercises, previousSelectedExercise };
     },
     onError: (_error, _exercise, context) => {
       if (context?.previousExercises) {
         queryClient.setQueryData(['exercises'], context.previousExercises);
+      }
+      if (context?.previousSelectedExercise) {
+        setSelectedExercise(context.previousSelectedExercise);
       }
     },
     onSuccess: () => {
