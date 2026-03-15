@@ -354,16 +354,16 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
 
                 {/* Mobile: Progress Stats */}
                 <div className="lg:hidden">
-                  <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border-2 border-green-200">
+                  <div className="bg-teal-100 p-6 rounded-xl from-green-50 to-blue-50 border-2 border-green-200">
                     <h3 className="text-sm font-semibold text-gray-700 mb-3">Your Progress</h3>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-2xl font-bold text-green-600">{exercise.completed_count || 0}</p>
-                        <p className="text-xs text-gray-600">Times Completed</p>
+                        <p className="text-gray-950 text-xs">Times Completed</p>
                       </div>
                       <div>
                         <p className="text-2xl font-bold text-blue-600">{exercise.total_time_practiced || 0}</p>
-                        <p className="text-xs text-gray-600">Minutes Practiced</p>
+                        <p className="text-gray-950 text-xs">Minutes Practiced</p>
                       </div>
                     </div>
                     {exercise.last_completed &&
@@ -389,10 +389,10 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                       </div> :
 
                     <>
-                        <Button variant="outline" onClick={onClose} className="flex-1">
+                        <Button variant="outline" onClick={onClose} className="bg-teal-100 text-gray-950 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 flex-1">
                           Close
                         </Button>
-                        <Button onClick={handleComplete} className="flex-1 bg-green-600 hover:bg-green-700">
+                        <Button onClick={handleComplete} className="bg-teal-100 text-gray-950 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 flex-1 hover:bg-green-700">
                           <Play className="w-4 h-4 mr-2" />
                           Mark as Complete
                         </Button>
