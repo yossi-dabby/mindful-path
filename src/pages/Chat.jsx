@@ -1221,8 +1221,8 @@ export default function Chat() {
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
       {/* Chat root: explicit dvh-based height so the flex-1/min-h-0 scroll chain works.
-              `h-full` would resolve to `auto` because the parent motion.div uses min-h-full
-              (not a fixed height), breaking the inner overflow-y-auto messages scroll. */}
+                       `h-full` would resolve to `auto` because the parent motion.div uses min-h-full
+                       (not a fixed height), breaking the inner overflow-y-auto messages scroll. */}
       <div
         className="flex relative bg-transparent"
         data-testid="chat-root"
@@ -1232,7 +1232,7 @@ export default function Chat() {
         }}>
 
         {/* On tablet/desktop (≥768px) there is no fixed mobile header or bottom nav,
-                so we only subtract the safe-area insets (mirrors AppContent.jsx logic). */}
+                         so we only subtract the safe-area insets (mirrors AppContent.jsx logic). */}
         <style>{`
           @media (min-width: 768px) {
             [data-testid="chat-root"] {
@@ -1343,7 +1343,7 @@ export default function Chat() {
 
               {/* Insight Cards - Show if no flow active */}
               {messages.length === 0 && !showTherapyFlow &&
-              <div className="p-4 md:p-6 border-b border-border/70 bg-secondary/35">
+              <div className="bg-teal-50 p-4 md:p-6 border-b border-border/70">
                   <div className="max-w-3xl mx-auto">
                     <ErrorBoundary>
                       <ProactiveCheckIn onSendMessage={(prompt) => setInputMessage(prompt)} />
@@ -1353,7 +1353,7 @@ export default function Chat() {
               }
 
               {/* Active Chat Messages */}
-              <div className="p-4 md:p-6 pb-8 space-y-6">
+              <div className="bg-teal-50 pb-8 p-4 md:p-6 space-y-6">
                 {/* Inline Consent Banner - Non-blocking, dismissible */}
                 {showConsentBanner &&
                 <InlineConsentBanner onAccept={handleConsentAccept} />
@@ -1425,31 +1425,31 @@ export default function Chat() {
 
               {/* Summary Prompt Section - Separate container with border */}
               {showSummaryPrompt && !isLoading &&
-              <div className="p-4 md:p-6 border-t border-border/70 bg-secondary/35">
+              <div className="bg-teal-50 p-4 md:p-6 border-t border-border/70">
                   <div className="max-w-3xl mx-auto">
                     <Card className="p-4 border border-border/80 bg-card shadow-[var(--shadow-md)]">
                       <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 flex items-center justify-center flex-shrink-0 rounded-[var(--radius-control)] bg-secondary text-primary">
-                          <Sparkles className="w-5 h-5" />
+                        <div className="bg-teal-600 text-primary rounded-[var(--radius-control)] w-10 h-10 flex items-center justify-center flex-shrink-0">
+                          <Sparkles className="text-slate-50 lucide lucide-sparkles w-5 h-5" />
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-medium mb-1 text-foreground">
+                          <p className="text-teal-600 mb-1 text-sm font-medium">
                             {t('chat.summary_prompt.title')}
                           </p>
-                          <p className="text-xs mb-3 text-muted-foreground">
+                          <p className="text-teal-600 mb-3 text-xs">
                             {t('chat.summary_prompt.description')}
                           </p>
                           <div className="flex gap-2">
                             <Button
                             onClick={requestSummary}
-                            size="sm">
+                            size="sm" className="bg-teal-600 text-primary-foreground px-3 text-xs font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-8 min-h-[44px] md:min-h-0">
 
                               {t('chat.summary_prompt.yes')}
                             </Button>
                             <Button
                             onClick={() => setShowSummaryPrompt(false)}
                             size="sm"
-                            variant="outline">
+                            variant="outline" className="bg-teal-600 text-slate-50 px-3 text-xs font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0">
 
                               {t('chat.summary_prompt.not_now')}
                             </Button>
