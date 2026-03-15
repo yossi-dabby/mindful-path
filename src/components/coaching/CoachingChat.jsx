@@ -32,12 +32,12 @@ export default function CoachingChat({ session, onBack }) {
 
   // Check consent on mount
   React.useEffect(() => {
-    const isTestEnv = 
-      window.navigator.webdriver === true ||
-      window.Cypress !== undefined ||
-      window.playwright !== undefined ||
-      /HeadlessChrome/.test(window.navigator.userAgent);
-    
+    const isTestEnv =
+    window.navigator.webdriver === true ||
+    window.Cypress !== undefined ||
+    window.playwright !== undefined ||
+    /HeadlessChrome/.test(window.navigator.userAgent);
+
     if (isTestEnv) {
       localStorage.setItem('chat_consent_accepted', 'true');
       return;
@@ -88,8 +88,8 @@ export default function CoachingChat({ session, onBack }) {
   }, [messages, isLoading]);
 
   const updateStageMutation = useMutation({
-    mutationFn: (newStage) => 
-      base44.entities.CoachingSession.update(session.id, { stage: newStage }),
+    mutationFn: (newStage) =>
+    base44.entities.CoachingSession.update(session.id, { stage: newStage }),
     onSuccess: () => {
       refetchSession();
       queryClient.invalidateQueries({ queryKey: ['coachingSessions'] });
@@ -103,7 +103,7 @@ export default function CoachingChat({ session, onBack }) {
     const reasonCode = detectCrisisWithReason(inputMessage);
     if (reasonCode) {
       setShowRiskPanel(true);
-      
+
       // Log crisis alert (non-blocking)
       (async () => {
         try {
@@ -140,41 +140,41 @@ export default function CoachingChat({ session, onBack }) {
 
   const quickPrompts = {
     discovery: [
-      "Help me understand the root cause",
-      "What patterns should I look for?",
-      "Can you help me identify my triggers?"
-    ],
+    "Help me understand the root cause",
+    "What patterns should I look for?",
+    "Can you help me identify my triggers?"],
+
     planning: [
-      "Help me create an action plan",
-      "What are realistic first steps?",
-      "How can I break this down?"
-    ],
+    "Help me create an action plan",
+    "What are realistic first steps?",
+    "How can I break this down?"],
+
     action: [
-      "I completed an action, what's next?",
-      "I'm facing a challenge with my plan",
-      "Can you give me motivation?"
-    ],
+    "I completed an action, what's next?",
+    "I'm facing a challenge with my plan",
+    "Can you give me motivation?"],
+
     review: [
-      "Review my progress",
-      "What have I achieved?",
-      "What should I focus on next?"
-    ]
+    "Review my progress",
+    "What have I achieved?",
+    "What should I focus on next?"]
+
   };
 
-  const completedActions = currentSession.action_plan?.filter(a => a.completed).length || 0;
+  const completedActions = currentSession.action_plan?.filter((a) => a.completed).length || 0;
   const totalActions = currentSession.action_plan?.length || 0;
 
   return (
     <div className="flex flex-col bg-transparent" style={{ position: 'fixed', inset: 0, height: '100dvh', overflow: 'hidden', zIndex: 70, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       {/* Header */}
-      <div className="bg-[hsl(var(--card)/0.9)] backdrop-blur-xl border-b border-border/70 p-4 flex-shrink-0">
+      <div className="bg-teal-100 p-4 backdrop-blur-xl border-b border-border/70 flex-shrink-0">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-3">
-            <Button variant="ghost" onClick={onBack} className="gap-2">
+            <Button variant="ghost" onClick={onBack} className="text-teal-600 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 min-h-[44px] md:min-h-0 gap-2">
               <ChevronLeft className="w-4 h-4 rtl:scale-x-[-1]" />
               Back to Sessions
             </Button>
-            <Badge variant="outline" className="gap-2">
+            <Badge variant="outline" className="bg-[hsl(var(--card)/0.82)] text-teal-600 px-2.5 py-1 font-medium tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70 gap-2">
               <Target className="w-3 h-3" />
               {stageLabels[currentSession.stage]}
             </Badge>
@@ -184,17 +184,17 @@ export default function CoachingChat({ session, onBack }) {
               <h2 className="text-xl font-bold text-foreground mb-1">{currentSession.title}</h2>
               <p className="text-sm text-muted-foreground">{currentSession.current_challenge}</p>
             </div>
-            {totalActions > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowActionPanel(!showActionPanel)}
-                className="gap-2"
-              >
+            {totalActions > 0 &&
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowActionPanel(!showActionPanel)}
+              className="gap-2">
+
                 <CheckCircle2 className="w-4 h-4" />
                 {completedActions}/{totalActions}
               </Button>
-            )}
+            }
           </div>
         </div>
       </div>
@@ -205,28 +205,28 @@ export default function CoachingChat({ session, onBack }) {
           <div ref={scrollContainerRef} data-testid="coach-chat-messages" className="flex-1 min-h-0 overflow-y-auto p-4 bg-[hsl(var(--surface-tint))]" style={{ overscrollBehavior: 'none', WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
             <div className="max-w-4xl mx-auto space-y-4">
               {/* Inline Consent Banner - Non-blocking */}
-              {showConsentBanner && (
-                <InlineConsentBanner onAccept={() => {
-                  localStorage.setItem('chat_consent_accepted', 'true');
-                  setShowConsentBanner(false);
-                }} />
-              )}
+              {showConsentBanner &&
+              <InlineConsentBanner onAccept={() => {
+                localStorage.setItem('chat_consent_accepted', 'true');
+                setShowConsentBanner(false);
+              }} />
+              }
               {/* Inline Risk Panel - Non-blocking, shown when crisis language detected */}
-              {showRiskPanel && (
-                <InlineRiskPanel onDismiss={() => setShowRiskPanel(false)} />
+              {showRiskPanel &&
+              <InlineRiskPanel onDismiss={() => setShowRiskPanel(false)} />
+              }
+              {messages.filter((m) => m && m.content).map((message, index) =>
+              <MessageBubble
+                key={index}
+                message={message}
+                conversationId={currentSession.agent_conversation_id}
+                messageIndex={index}
+                agentName="ai_coach"
+                context="coach" />
+
               )}
-              {messages.filter(m => m && m.content).map((message, index) => (
-                <MessageBubble 
-                  key={index} 
-                  message={message}
-                  conversationId={currentSession.agent_conversation_id}
-                  messageIndex={index}
-                  agentName="ai_coach"
-                  context="coach"
-                />
-              ))}
-              {isLoading && (
-                <div data-testid="coach-loading" className="flex gap-3">
+              {isLoading &&
+              <div data-testid="coach-loading" className="flex gap-3">
                   <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center shadow-[var(--shadow-sm)]">
                     <Loader2 className="w-4 h-4 text-primary-foreground animate-spin" />
                   </div>
@@ -234,36 +234,36 @@ export default function CoachingChat({ session, onBack }) {
                     <p className="text-sm text-muted-foreground">Thinking...</p>
                   </div>
                 </div>
-              )}
+              }
               <div ref={messagesEndRef} />
             </div>
           </div>
 
           {/* Quick Prompts */}
-          {quickPrompts[currentSession.stage] && (
-            <div className="bg-popover border-t border-border/70 px-4 py-3">
+          {quickPrompts[currentSession.stage] &&
+          <div className="bg-popover border-t border-border/70 px-4 py-3">
               <div className="max-w-4xl mx-auto">
-                <p className="text-xs text-muted-foreground mb-2">Quick prompts:</p>
+                <p className="text-teal-600 mb-2 text-sm font-medium">Quick prompts:</p>
                 <div className="flex flex-wrap gap-2">
-                  {quickPrompts[currentSession.stage].map((prompt, i) => (
-                    <Button
-                      key={i}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setInputMessage(prompt)}
-                      className="text-xs"
-                    >
+                  {quickPrompts[currentSession.stage].map((prompt, i) =>
+                <Button
+                  key={i}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInputMessage(prompt)}
+                  className="text-xs">
+
                       {prompt}
                     </Button>
-                  ))}
+                )}
                 </div>
               </div>
             </div>
-          )}
+          }
 
           {/* Input Area */}
-          <div className="bg-popover border-t border-border/70 p-4 flex-shrink-0" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
-            <div className="max-w-4xl mx-auto flex gap-3">
+          <div className="bg-teal-100 p-4 border-t border-border/70 flex-shrink-0" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
+            <div className="text-teal-600 mx-auto max-w-4xl flex gap-3">
               <Textarea
                 data-testid="coach-chat-input"
                 value={inputMessage}
@@ -276,14 +276,14 @@ export default function CoachingChat({ session, onBack }) {
                 }}
                 placeholder="Share your thoughts, progress, or ask for guidance..."
                 className="flex-1 min-h-[60px] max-h-[200px] resize-none rounded-[var(--radius-card)]"
-                disabled={isLoading}
-              />
+                disabled={isLoading} />
+
               <Button
                 data-testid="coach-chat-send"
                 onClick={handleSendMessage}
-                disabled={!inputMessage.trim() || isLoading}
-                className="h-[60px] px-6 rounded-[var(--radius-card)]"
-              >
+                disabled={!inputMessage.trim() || isLoading} className="bg-teal-600 text-slate-50 px-6 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 h-[60px]">
+
+
                 <Send className="w-5 h-5" />
               </Button>
             </div>
@@ -291,14 +291,14 @@ export default function CoachingChat({ session, onBack }) {
         </div>
 
         {/* Action Plan Panel */}
-        {showActionPanel && (
-          <ActionPlanPanel 
-            session={currentSession}
-            onClose={() => setShowActionPanel(false)}
-            onUpdate={() => {}}
-          />
-        )}
+        {showActionPanel &&
+        <ActionPlanPanel
+          session={currentSession}
+          onClose={() => setShowActionPanel(false)}
+          onUpdate={() => {}} />
+
+        }
       </div>
-    </div>
-  );
+    </div>);
+
 }
