@@ -230,12 +230,14 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                 <div className="flex items-center gap-3 mb-2">
                   <CardTitle className="text-teal-600 text-2xl font-semibold tracking-[-0.012em]">{exercise.title || 'Untitled Exercise'}</CardTitle>
                   <button
-                      onClick={() => onToggleFavorite?.(exercise)} className="mr-2 mb-16 pt-2 pr-4 pl-3 text-base font-medium rounded-[48px] hover:bg-white/50 transition-colors">
-
-
-                    <Heart className="text-red-600 mb-2 lucide lucide-heart w-5 h-5" />
-
-
+                    type="button"
+                    aria-pressed={!!exercise.favorite}
+                    aria-label={exercise.favorite ? 'Remove from favorites' : 'Add to favorites'}
+                    title={exercise.favorite ? 'Remove from favorites' : 'Add to favorites'}
+                    onClick={() => onToggleFavorite?.(exercise)}
+                    className="mr-2 rounded-full p-2 hover:bg-white/50 transition-colors"
+                  >
+                    <Heart className={`w-5 h-5 ${exercise.favorite ? 'fill-red-500 text-red-500' : 'text-teal-600'}`} />
                   </button>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">

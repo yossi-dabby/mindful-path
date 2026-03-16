@@ -27,15 +27,18 @@ export default function ExerciseLibrary({ exercises, categoryIcons, categoryColo
 
               {/* Favorite Button */}
               <button
+                type="button"
+                aria-pressed={!!exercise.favorite}
+                aria-label={exercise.favorite ? 'Remove from favorites' : 'Add to favorites'}
+                title={exercise.favorite ? 'Remove from favorites' : 'Add to favorites'}
                 onClick={(e) => {
+                  e.preventDefault();
                   e.stopPropagation();
-                  onToggleFavorite(exercise);
-                }} className="bg-red-100 text-red-500 mx-1 px-3 py-2 opacity-100 rounded-full absolute top-3 right-3 z-10 hover:bg-card shadow-[var(--shadow-sm)] transition-all border border-border/70">
-
-
-                <Heart className="text-red-500 lucide lucide-heart w-4 h-4" />
-
-
+                  onToggleFavorite?.(exercise);
+                }}
+                className="mx-1 px-3 py-2 rounded-full absolute top-3 right-3 z-10 shadow-[var(--shadow-sm)] transition-all border border-border/70 bg-card/95 hover:bg-card"
+              >
+                <Heart className={`w-4 h-4 ${exercise.favorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
               </button>
 
               {/* Image/Video Thumbnail */}
