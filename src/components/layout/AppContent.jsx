@@ -30,16 +30,16 @@ export default function AppContent({ children }) {
       {/* Skip to main content link for keyboard users */}
       <a
         href="#app-scroll-container"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-[var(--radius-control)] focus:text-sm focus:font-medium focus:bg-primary focus:text-primary-foreground focus:shadow-[var(--shadow-md)]"
-      >
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-[var(--radius-control)] focus:text-sm focus:font-medium focus:bg-primary focus:text-primary-foreground focus:shadow-[var(--shadow-md)]">
+
         Skip to main content
       </a>
       <MobileHeader />
       <main
         id="app-scroll-container"
         ref={mainRef}
-        tabIndex="-1"
-        className="overflow-y-auto overflow-x-clip"
+        tabIndex="-1" className="opacity-100 overflow-y-auto overflow-x-clip"
+
         style={{
           overscrollBehavior: 'none',
           height: '100dvh',
@@ -47,9 +47,9 @@ export default function AppContent({ children }) {
           paddingTop: `calc(${MOBILE_HEADER_HEIGHT}px + env(safe-area-inset-top, 0))`,
           paddingBottom: `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0))`,
           paddingLeft: '0',
-          paddingRight: '0',
-        }}
-      >
+          paddingRight: '0'
+        }}>
+
       <style>{`
         @media (min-width: 768px) {
           #app-scroll-container {
@@ -64,6 +64,6 @@ export default function AppContent({ children }) {
       `}</style>
       {children}
       </main>
-    </>
-  );
+    </>);
+
 }
