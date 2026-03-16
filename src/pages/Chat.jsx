@@ -1221,9 +1221,9 @@ export default function Chat() {
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
       {/* Chat root: explicit dvh-based height so the flex-1/min-h-0 scroll chain works.
-                               `h-full` would resolve to `auto` because the parent motion.div uses min-h-full
-                               (not a fixed height), breaking the inner overflow-y-auto messages scroll. */}
-      <div className="bg-teal-100 flex relative"
+                                  `h-full` would resolve to `auto` because the parent motion.div uses min-h-full
+                                  (not a fixed height), breaking the inner overflow-y-auto messages scroll. */}
+      <div className="bg-teal-100 rounded-2xl flex relative"
 
       data-testid="chat-root"
       data-page-ready={isPageReady}
@@ -1232,7 +1232,7 @@ export default function Chat() {
       }}>
 
         {/* On tablet/desktop (≥768px) there is no fixed mobile header or bottom nav,
-                                 so we only subtract the safe-area insets (mirrors AppContent.jsx logic). */}
+                                    so we only subtract the safe-area insets (mirrors AppContent.jsx logic). */}
         <style>{`
           @media (min-width: 768px) {
             [data-testid="chat-root"] {
@@ -1268,7 +1268,7 @@ export default function Chat() {
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-h-0">
+      <div className="rounded-2xl flex-1 flex flex-col min-h-0">
         {/* Header */}
         <div className="bg-teal-50 px-4 py-4 rounded-2xl md:px-6 flex items-center gap-3 border-b border-border/70 backdrop-blur-xl">
           <Button
@@ -1299,7 +1299,7 @@ export default function Chat() {
             <div className="my-8 h-full overflow-y-auto">
               {/* Welcome Section - Separate container */}
               <div className="bg-teal-100 p-4 flex-1 flex items-center justify-center md:p-6">
-                <Card className="bg-teal-50 text-teal-600 p-8 text-center rounded-[var(--radius-card)] backdrop-blur-[10px] max-w-md border border-border/80 shadow-[var(--shadow-lg)]">
+                <Card className="bg-teal-50 text-teal-600 p-8 text-center rounded-2xl backdrop-blur-[10px] max-w-md border border-border/80 shadow-[var(--shadow-lg)]">
                   <div className="bg-teal-600 text-primary mr-20 ml-24 rounded-[40px] w-16 h-16 flex items-center justify-center shadow-[var(--shadow-sm)]">
                     <span className="mx-1 my-1 text-4xl">👋</span>
                   </div>
