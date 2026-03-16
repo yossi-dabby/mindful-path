@@ -615,12 +615,12 @@ export default function StandaloneDailyCheckIn() {
                   aria-label="Emotion intensity level"
                   aria-valuetext={`${formData.intensity} out of 100`} />
 
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>1</span>
-                  <span>25</span>
-                  <span>50</span>
-                  <span>75</span>
-                  <span>100</span>
+                <div className="text-gray-950 text-xs rounded-[20px] flex justify-between">
+                  <span className="text-lg font-medium">1</span>
+                  <span className="text-lg">25</span>
+                  <span className="text-lg">50</span>
+                  <span className="text-lg font-medium">75</span>
+                  <span className="text-lg">100</span>
                 </div>
               </div>
             </motion.div>
@@ -631,7 +631,7 @@ export default function StandaloneDailyCheckIn() {
             {step > 1 &&
               <Button
                 onClick={handleReturn}
-                variant="outline" className="bg-teal-200 text-secondary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 flex-1"
+                variant="outline" className="bg-teal-600 text-slate-50 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 flex-1"
 
                 style={{ borderRadius: '16px' }}>
 
@@ -641,7 +641,7 @@ export default function StandaloneDailyCheckIn() {
               }
             <Button
                 onClick={handleContinue}
-                disabled={step === 1 && !formData.mood} className="bg-teal-400 text-teal-600 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 flex-1 shadow-[var(--shadow-lg)]"
+                disabled={step === 1 && !formData.mood} className="bg-teal-600 text-slate-50 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 flex-1 shadow-[var(--shadow-lg)]"
 
                 style={{
                   borderRadius: '16px'
