@@ -617,10 +617,10 @@ export default function StandaloneDailyCheckIn() {
 
                 <div className="text-gray-950 text-xs rounded-[20px] flex justify-between">
                   <span className="text-lg font-medium">1</span>
-                  <span className="text-lg">25</span>
-                  <span className="text-lg">50</span>
+                  <span className="text-lg font-medium">25</span>
+                  <span className="text-lg font-medium">50</span>
                   <span className="text-lg font-medium">75</span>
-                  <span className="text-lg">100</span>
+                  <span className="text-lg font-medium">100</span>
                 </div>
               </div>
             </motion.div>
