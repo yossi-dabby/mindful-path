@@ -19,12 +19,12 @@ export default function HealthDashboard() {
 
   // Calculate averages
   const recentMetrics = healthMetrics.slice(0, 7);
-  const avgSleep = recentMetrics.reduce((sum, m) => sum + (m.sleep_hours || 0), 0) / recentMetrics.filter(m => m.sleep_hours).length || 0;
-  const avgSteps = recentMetrics.reduce((sum, m) => sum + (m.steps || 0), 0) / recentMetrics.filter(m => m.steps).length || 0;
-  const avgHeartRate = recentMetrics.reduce((sum, m) => sum + (m.heart_rate_avg || 0), 0) / recentMetrics.filter(m => m.heart_rate_avg).length || 0;
+  const avgSleep = recentMetrics.reduce((sum, m) => sum + (m.sleep_hours || 0), 0) / recentMetrics.filter((m) => m.sleep_hours).length || 0;
+  const avgSteps = recentMetrics.reduce((sum, m) => sum + (m.steps || 0), 0) / recentMetrics.filter((m) => m.steps).length || 0;
+  const avgHeartRate = recentMetrics.reduce((sum, m) => sum + (m.heart_rate_avg || 0), 0) / recentMetrics.filter((m) => m.heart_rate_avg).length || 0;
 
   // Prepare chart data
-  const chartData = healthMetrics.slice(0, 14).reverse().map(m => ({
+  const chartData = healthMetrics.slice(0, 14).reverse().map((m) => ({
     date: m.date.split('-').slice(1).join('/'),
     sleep: m.sleep_hours || null,
     steps: m.steps ? m.steps / 1000 : null,
@@ -45,9 +45,9 @@ export default function HealthDashboard() {
               Start logging your sleep, activity, and vital signs to unlock holistic insights about your well-being.
             </p>
             <Button
-              onClick={() => setShowForm(true)}
-              className="px-8 py-6 text-lg rounded-[var(--radius-card)]"
-            >
+                onClick={() => setShowForm(true)}
+                className="px-8 py-6 text-lg rounded-[var(--radius-card)]">
+
               <Plus className="w-5 h-5 mr-2" />
               Log Health Data
             </Button>
@@ -56,8 +56,8 @@ export default function HealthDashboard() {
 
         {showForm && <HealthDataForm onClose={() => setShowForm(false)} />}
       </div>
-      </PullToRefresh>
-    );
+      </PullToRefresh>);
+
   }
 
   return (
@@ -66,7 +66,7 @@ export default function HealthDashboard() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
-          <CardContent className="p-4">
+          <CardContent className="bg-orange-200 p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Avg Sleep (7 days)</p>
@@ -74,13 +74,13 @@ export default function HealthDashboard() {
                   {avgSleep.toFixed(1)}h
                 </p>
               </div>
-              <Moon className="w-8 h-8 text-primary" />
+              <Moon className="text-blue-700 lucide lucide-moon w-8 h-8" />
             </div>
           </CardContent>
         </Card>
 
         <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
-          <CardContent className="p-4">
+          <CardContent className="bg-teal-200 p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Avg Steps (7 days)</p>
@@ -94,7 +94,7 @@ export default function HealthDashboard() {
         </Card>
 
         <Card className="surface-secondary rounded-[var(--radius-card)] border-border/80">
-          <CardContent className="p-4">
+          <CardContent className="bg-red-300 p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Avg Heart Rate</p>
@@ -102,7 +102,7 @@ export default function HealthDashboard() {
                   {Math.round(avgHeartRate)} bpm
                 </p>
               </div>
-              <Heart className="w-8 h-8 text-accent" />
+              <Heart className="text-red-600 lucide lucide-heart w-8 h-8" />
             </div>
           </CardContent>
         </Card>
@@ -110,13 +110,13 @@ export default function HealthDashboard() {
 
       {/* Chart */}
       <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
-        <CardContent className="p-6">
+        <CardContent className="bg-orange-200 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-foreground flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              Health Trends (14 days)
-            </h3>
-            <Button onClick={() => setShowForm(true)} size="sm" className="gap-2">
+            <h3 className="text-orange-600 font-semibold flex items-center gap-2">Health Trends (14 days)
+
+
+              </h3>
+            <Button onClick={() => setShowForm(true)} size="sm" className="bg-orange-50 text-orange-600 px-3 text-xs font-medium tracking-[0.005em] rounded-3xl inline-flex items-center justify-center whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-8 min-h-[44px] md:min-h-0 gap-2">
               <Plus className="w-4 h-4" />
               Log Data
             </Button>
@@ -125,9 +125,9 @@ export default function HealthDashboard() {
             <LineChart data={chartData}>
               <XAxis dataKey="date" stroke="#9ca3af" style={{ fontSize: '12px' }} />
               <YAxis stroke="#9ca3af" style={{ fontSize: '12px' }} />
-              <Tooltip 
-                contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px', color: 'hsl(var(--foreground))' }}
-              />
+              <Tooltip
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px', color: 'hsl(var(--foreground))' }} />
+
               <Legend />
               <Line type="monotone" dataKey="sleep" stroke="#26A69A" name="Sleep (hrs)" strokeWidth={2} dot={{ r: 4 }} />
               <Line type="monotone" dataKey="steps" stroke="#68B39B" name="Steps (k)" strokeWidth={2} dot={{ r: 4 }} />
@@ -139,6 +139,6 @@ export default function HealthDashboard() {
 
       {showForm && <HealthDataForm onClose={() => setShowForm(false)} />}
     </div>
-    </PullToRefresh>
-  );
+    </PullToRefresh>);
+
 }
