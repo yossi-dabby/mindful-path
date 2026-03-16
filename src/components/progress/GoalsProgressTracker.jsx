@@ -166,7 +166,7 @@ export default function GoalsProgressTracker({ goals }) {
             <p className="text-orange-600 mb-2 text-lg font-medium">No active goals yet</p>
             <p className="text-orange-600 mb-4 text-sm font-medium">Set goals to track your progress and stay motivated</p>
             <Link to={createPageUrl('Goals')}>
-              <Button className="bg-orange-600 hover:bg-orange-700">
+              <Button className="bg-orange-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-3xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 hover:bg-orange-700">
                 <Target className="w-4 h-4 mr-2" />
                 Create Your First Goal
               </Button>
