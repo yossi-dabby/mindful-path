@@ -5,17 +5,17 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Dumbbell } from 'lucide-react';
 
 export default function ExerciseTracker({ exercises }) {
-  const completedExercises = exercises.filter(e => e.completed_count > 0);
+  const completedExercises = exercises.filter((e) => e.completed_count > 0);
   const totalCompletions = exercises.reduce((sum, e) => sum + (e.completed_count || 0), 0);
-  
-  const topExercises = [...exercises]
-    .sort((a, b) => (b.completed_count || 0) - (a.completed_count || 0))
-    .slice(0, 5)
-    .map(e => ({
-      name: e.title.length > 20 ? e.title.substring(0, 20) + '...' : e.title,
-      count: e.completed_count || 0,
-      category: e.category
-    }));
+
+  const topExercises = [...exercises].
+  sort((a, b) => (b.completed_count || 0) - (a.completed_count || 0)).
+  slice(0, 5).
+  map((e) => ({
+    name: e.title.length > 20 ? e.title.substring(0, 20) + '...' : e.title,
+    count: e.completed_count || 0,
+    category: e.category
+  }));
 
   const categoryColors = {
     breathing: '#3b82f6',
@@ -35,13 +35,13 @@ export default function ExerciseTracker({ exercises }) {
 
   return (
     <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
-      <CardHeader>
+      <CardHeader className="bg-green-50 p-6 flex flex-col space-y-1.5">
         <CardTitle className="flex items-center gap-2">
           <Dumbbell className="w-5 h-5 text-green-600" />
           Exercise Activity
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="bg-green-50 pt-0 p-6">
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="text-center p-4 bg-green-50 rounded-xl">
             <p className="text-3xl font-bold text-green-600">{completedExercises.length}</p>
@@ -57,8 +57,8 @@ export default function ExerciseTracker({ exercises }) {
           </div>
         </div>
 
-        {topExercises.length > 0 && (
-          <>
+        {topExercises.length > 0 &&
+        <>
             <h4 className="font-semibold text-gray-800 mb-3">Most Practiced</h4>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={topExercises}>
@@ -67,33 +67,33 @@ export default function ExerciseTracker({ exercises }) {
                 <YAxis />
                 <Tooltip />
                 <Bar dataKey="count" radius={[8, 8, 0, 0]}>
-                  {topExercises.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={categoryColors[entry.category] || '#6b7280'} />
-                  ))}
+                  {topExercises.map((entry, index) =>
+                <Cell key={`cell-${index}`} fill={categoryColors[entry.category] || '#6b7280'} />
+                )}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
 
             <div className="mt-4 space-y-2">
-              {Object.entries(categoryStats).map(([category, count]) => (
-                <div key={category} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-                  <span className="text-sm capitalize text-gray-700">{category.replace(/_/g, ' ')}</span>
-                  <Badge style={{ backgroundColor: categoryColors[category] }} className="text-white">
+              {Object.entries(categoryStats).map(([category, count]) =>
+            <div key={category} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                  <span className="text-gray-700 text-base font-medium capitalize">{category.replace(/_/g, ' ')}</span>
+                  <Badge style={{ backgroundColor: categoryColors[category] }} className="bg-primary/12 text-slate-950 px-2.5 py-1 font-medium tracking-[0.01em] leading-4 rounded-[var(--radius-chip)] inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-primary/18">
                     {count} sessions
                   </Badge>
                 </div>
-              ))}
+            )}
             </div>
           </>
-        )}
+        }
 
-        {totalCompletions === 0 && (
-          <div className="text-center py-8 text-gray-500">
+        {totalCompletions === 0 &&
+        <div className="text-center py-8 text-gray-500">
             <Dumbbell className="w-12 h-12 mx-auto mb-3 text-gray-300" />
             <p>Start practicing exercises to see your activity</p>
           </div>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }
