@@ -542,7 +542,7 @@ export default function StandaloneDailyCheckIn() {
               animate={{ opacity: 1, x: 0 }}
               className="space-y-4">
 
-              <h3 className="text-base font-semibold text-foreground">
+              <h3 className="text-teal-600 text-base font-semibold">
                 {t('daily_check_in.step2_question')}
               </h3>
               
@@ -550,7 +550,7 @@ export default function StandaloneDailyCheckIn() {
                 const colors = categoryColors[category];
                 return (
                   <div key={category}>
-                    <p className="text-sm font-medium text-muted-foreground mb-2 capitalize">
+                    <p className="text-teal-600 mb-2 text-sm font-medium capitalize">
                       {t(`daily_check_in.category_${category}`)}
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -563,13 +563,13 @@ export default function StandaloneDailyCheckIn() {
                             e.preventDefault();
                             toggleEmotion(emotion);
                           }
-                        }}
-                        className={cn(
-                          "px-3 py-1.5 rounded-full text-xs font-medium transition-all border-2",
-                          formData.emotions.includes(emotion) ?
-                          cn(colors.selected, colors.text, "border-transparent scale-105") :
-                          "border-border/70 bg-white/55 text-foreground/85 hover:border-primary/30 hover:bg-secondary/70"
-                        )}
+                        }} className="bg-teal-300 text-foreground/85 px-3 py-1.5 text-xs font-medium rounded-full transition-all border-2 border-border/70 hover:border-primary/30 hover:bg-secondary/70"
+
+
+
+
+
+
                         aria-label={t(`daily_check_in.emotions.${emotion}`, { defaultValue: emotion })}
                         aria-pressed={formData.emotions.includes(emotion)}>
 
@@ -627,12 +627,12 @@ export default function StandaloneDailyCheckIn() {
             }
 
           {/* Navigation */}
-          <div className="bg-teal-600 text-teal-800 mt-6 rounded-2xl flex gap-3">
+          <div className="bg-teal-500 text-teal-800 mt-6 rounded-2xl flex gap-3">
             {step > 1 &&
               <Button
                 onClick={handleReturn}
-                variant="outline"
-                className="flex-1"
+                variant="outline" className="bg-teal-200 text-secondary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 flex-1"
+
                 style={{ borderRadius: '16px' }}>
 
                 <ChevronLeft className="w-4 h-4 mr-2" />
@@ -641,7 +641,7 @@ export default function StandaloneDailyCheckIn() {
               }
             <Button
                 onClick={handleContinue}
-                disabled={step === 1 && !formData.mood} className="bg-teal-100 text-teal-600 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 flex-1 shadow-[var(--shadow-lg)]"
+                disabled={step === 1 && !formData.mood} className="bg-teal-400 text-teal-600 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 flex-1 shadow-[var(--shadow-lg)]"
 
                 style={{
                   borderRadius: '16px'
