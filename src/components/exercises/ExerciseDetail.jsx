@@ -36,7 +36,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
       minutes: 'min',
       progress: 'Your Progress',
       footer: 'For personal offline practice. Not a substitute for emergency or professional care.',
-      noInstructions: 'No instructions available for this exercise yet.',
+      noInstructions: 'No instructions available for this exercise yet.'
     },
     he: {
       download: 'הורדת PDF',
@@ -50,7 +50,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
       minutes: 'דק׳',
       progress: 'ההתקדמות שלך',
       footer: 'לשימוש אישי לא מקוון בלבד. אינו מהווה תחליף לטיפול מקצועי או חירום.',
-      noInstructions: 'עדיין אין הוראות זמינות לתרגיל זה.',
+      noInstructions: 'עדיין אין הוראות זמינות לתרגיל זה.'
     },
     es: {
       download: 'Descargar PDF',
@@ -64,7 +64,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
       minutes: 'min',
       progress: 'Tu progreso',
       footer: 'Para práctica personal sin conexión. No sustituye la atención profesional o de emergencia.',
-      noInstructions: 'Todavía no hay instrucciones disponibles para este ejercicio.',
+      noInstructions: 'Todavía no hay instrucciones disponibles para este ejercicio.'
     },
     fr: {
       download: 'Télécharger le PDF',
@@ -78,7 +78,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
       minutes: 'min',
       progress: 'Votre progression',
       footer: 'Pour une pratique personnelle hors ligne. Ne remplace pas une aide professionnelle ou d’urgence.',
-      noInstructions: 'Aucune instruction disponible pour cet exercice pour le moment.',
+      noInstructions: 'Aucune instruction disponible pour cet exercice pour le moment.'
     },
     de: {
       download: 'PDF herunterladen',
@@ -92,7 +92,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
       minutes: 'Min.',
       progress: 'Dein Fortschritt',
       footer: 'Für die persönliche Offline-Nutzung. Kein Ersatz für professionelle oder Notfallhilfe.',
-      noInstructions: 'Für diese Übung sind noch keine Anweisungen verfügbar.',
+      noInstructions: 'Für diese Übung sind noch keine Anweisungen verfügbar.'
     },
     it: {
       download: 'Scarica PDF',
@@ -106,7 +106,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
       minutes: 'min',
       progress: 'I tuoi progressi',
       footer: 'Per pratica personale offline. Non sostituisce assistenza professionale o di emergenza.',
-      noInstructions: 'Non ci sono ancora istruzioni disponibili per questo esercizio.',
+      noInstructions: 'Non ci sono ancora istruzioni disponibili per questo esercizio.'
     },
     pt: {
       download: 'Baixar PDF',
@@ -120,8 +120,8 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
       minutes: 'min',
       progress: 'Seu progresso',
       footer: 'Para prática pessoal offline. Não substitui cuidados profissionais ou de emergência.',
-      noInstructions: 'Ainda não há instruções disponíveis para este exercício.',
-    },
+      noInstructions: 'Ainda não há instruções disponíveis para este exercício.'
+    }
   };
 
   const pdfText = pdfTextByLanguage[i18n.language] || pdfTextByLanguage.en;
@@ -189,8 +189,8 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
           lastPracticed: t('exercises.detail.last_practiced', { date: new Date().toLocaleDateString(i18n.language || undefined) }).replace(/:.*$/, ''),
           footer: pdfText.footer,
           noInstructions: pdfText.noInstructions,
-          untitled: t('exercises.detail.untitled_exercise'),
-        },
+          untitled: t('exercises.detail.untitled_exercise')
+        }
       });
     } finally {
       setIsExportingPdf(false);
@@ -230,10 +230,10 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                 <div className="flex items-center gap-3 mb-2">
                   <CardTitle className="text-teal-600 text-2xl font-semibold tracking-[-0.012em]">{exercise.title || 'Untitled Exercise'}</CardTitle>
                   <button
-                      onClick={() => onToggleFavorite?.(exercise)}
-                      className="p-2 rounded-full hover:bg-white/50 transition-colors">
+                      onClick={() => onToggleFavorite?.(exercise)} className="pr-3 pl-3 rounded-full hover:bg-white/50 transition-colors">
 
-                    <Heart className={`w-5 h-5 ${exercise.favorite ? 'fill-red-500 text-red-500' : 'text-teal-600'}`} />
+
+                    <Heart className="text-red-600 mb-12 lucide lucide-heart w-5 h-5" />
 
 
                   </button>
@@ -265,11 +265,11 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
               </div>
               <div className="flex items-center gap-2">
                 <Button
-                  variant="outline"
-                  onClick={handleDownloadPdf}
-                  disabled={isExportingPdf}
-                  className="bg-white/80"
-                >
+                    variant="outline"
+                    onClick={handleDownloadPdf}
+                    disabled={isExportingPdf} className="bg-teal-600 text-gray-950 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0">
+
+
                   {isExportingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
                   <span className="hidden sm:inline">{isExportingPdf ? pdfText.downloading : pdfText.download}</span>
                 </Button>
