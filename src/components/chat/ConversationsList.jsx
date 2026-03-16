@@ -18,9 +18,9 @@ export default function ConversationsList({
   const safeConversations = Array.isArray(conversations) ? conversations : [];
 
   return (
-    <div className="h-full flex flex-col min-h-0">
+    <div className="rounded-2xl h-full flex flex-col min-h-0">
       {/* Header */}
-      <div className="bg-teal-100 p-3 md:p-4 flex items-center justify-between flex-shrink-0 border-b border-border/70">
+      <div className="bg-teal-100 p-3 rounded-2xl md:p-4 flex items-center justify-between flex-shrink-0 border-b border-border/70">
         <h2 className="text-teal-600 text-base font-bold md:text-lg truncate">{t('chat.conversations_list.title')}</h2>
         <div className="flex gap-2">
           <Button
@@ -44,7 +44,7 @@ export default function ConversationsList({
       </div>
 
       {/* Conversations List */}
-      <div className="bg-teal-100 p-2 flex-1 overflow-y-auto min-h-0" style={{ overscrollBehavior: 'none' }}>
+      <div className="bg-teal-100 p-2 rounded-2xl flex-1 overflow-y-auto min-h-0" style={{ overscrollBehavior: 'none' }}>
         {safeConversations.length === 0 ?
         <div className="bg-teal-200 px-4 py-8 text-center rounded-2xl">
             <MessageCircle className="text-teal-600 mb-3 mx-auto lucide lucide-message-circle w-12 h-12" />
