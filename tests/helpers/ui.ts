@@ -30,9 +30,21 @@ export async function spaNavigate(page: Page, path: string) {
     // ignore
   }
 
-  const targetUrl = `${baseUrl}${path.startsWith('/') ? path : '/' + path}`;
-  await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
-  await waitForAppHydration(page);
+  const normalizedPath = path.startsWith('/') ? path : '/' + path;
+  const targetUrl = `${baseUrl}${normalizedPath}`;
+  const isOffline = await page.context().isOffline?.() === true;
+  if (isOffline) {
+    // Use client-side navigation when offline to avoid ERR_INTERNET_DISCONNECTED.
+    // pushState + popstate triggers React Router without making any HTTP request.
+    await page.evaluate((p) => {
+      window.history.pushState({}, '', p);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }, normalizedPath);
+    await waitForAppHydration(page);
+  } else {
+    await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await waitForAppHydration(page);
+  }
 }
 
 export async function takeDebugScreenshot(page: Page, name: string) {
