@@ -25,34 +25,34 @@ const statusIcons = {
 };
 
 export default function GoalsProgressTracker({ goals }) {
-  const activeGoals = goals.filter(g => g.status === 'active');
-  const completedGoals = goals.filter(g => g.status === 'completed');
-  const avgProgress = activeGoals.length > 0 
-    ? activeGoals.reduce((sum, g) => sum + (g.progress || 0), 0) / activeGoals.length 
-    : 0;
+  const activeGoals = goals.filter((g) => g.status === 'active');
+  const completedGoals = goals.filter((g) => g.status === 'completed');
+  const avgProgress = activeGoals.length > 0 ?
+  activeGoals.reduce((sum, g) => sum + (g.progress || 0), 0) / activeGoals.length :
+  0;
 
   // Calculate milestones stats
   const totalMilestones = activeGoals.reduce((sum, g) => sum + (g.milestones?.length || 0), 0);
-  const completedMilestones = activeGoals.reduce((sum, g) => 
-    sum + (g.milestones?.filter(m => m.completed).length || 0), 0
+  const completedMilestones = activeGoals.reduce((sum, g) =>
+  sum + (g.milestones?.filter((m) => m.completed).length || 0), 0
   );
 
   return (
     <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
-      <CardHeader>
+      <CardHeader className="bg-orange-50 p-6 flex flex-col space-y-1.5">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="text-orange-600 font-semibold tracking-[-0.012em] leading-[1.3] flex items-center gap-2">
             <Target className="w-5 h-5 text-orange-600" />
             Goals Progress
           </CardTitle>
           <Link to={createPageUrl('Goals')}>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="bg-[hsl(var(--card)/0.88)] text-orange-600 px-3 text-xs font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0">
               Manage Goals
             </Button>
           </Link>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="bg-orange-50 pt-0 p-6">
         {/* Summary Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="text-center p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl">
@@ -74,45 +74,45 @@ export default function GoalsProgressTracker({ goals }) {
         </div>
 
         {/* Active Goals List */}
-        {activeGoals.length > 0 ? (
-          <div className="space-y-4">
+        {activeGoals.length > 0 ?
+        <div className="space-y-4">
             <h4 className="font-semibold text-gray-800 flex items-center gap-2">
               <TrendingUp className="w-4 h-4" />
               Your Active Goals
             </h4>
             {activeGoals.map((goal, idx) => {
-              const StatusIcon = statusIcons[goal.status];
-              const daysLeft = goal.target_date 
-                ? differenceInDays(new Date(goal.target_date), new Date())
-                : null;
+            const StatusIcon = statusIcons[goal.status];
+            const daysLeft = goal.target_date ?
+            differenceInDays(new Date(goal.target_date), new Date()) :
+            null;
 
-              return (
-                <motion.div
-                  key={goal.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.1 }}
-                  className="p-4 bg-gradient-to-r from-white to-gray-50 rounded-xl border border-gray-200 hover:shadow-md transition-all"
-                >
+            return (
+              <motion.div
+                key={goal.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                className="p-4 bg-gradient-to-r from-white to-gray-50 rounded-xl border border-gray-200 hover:shadow-md transition-all">
+
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                         <StatusIcon className="w-5 h-5 text-orange-600" />
                         <h5 className="font-semibold text-gray-800">{goal.title}</h5>
                       </div>
-                      {goal.description && (
-                        <p className="text-sm text-gray-600 mb-2 line-clamp-2">{goal.description}</p>
-                      )}
+                      {goal.description &&
+                    <p className="text-sm text-gray-600 mb-2 line-clamp-2">{goal.description}</p>
+                    }
                       <div className="flex flex-wrap items-center gap-2">
                         <Badge className={cn('text-xs', categoryColors[goal.category])}>
                           {goal.category}
                         </Badge>
-                        {goal.target_date && (
-                          <div className="flex items-center gap-1 text-xs text-gray-500">
+                        {goal.target_date &&
+                      <div className="flex items-center gap-1 text-xs text-gray-500">
                             <Calendar className="w-3 h-3" />
                             {daysLeft > 0 ? `${daysLeft} days left` : 'Overdue'}
                           </div>
-                        )}
+                      }
                       </div>
                     </div>
                   </div>
@@ -127,44 +127,44 @@ export default function GoalsProgressTracker({ goals }) {
                   </div>
 
                   {/* Milestones */}
-                  {goal.milestones && goal.milestones.length > 0 && (
-                    <div className="space-y-2">
+                  {goal.milestones && goal.milestones.length > 0 &&
+                <div className="space-y-2">
                       <p className="text-xs font-medium text-gray-600">
-                        Milestones ({goal.milestones.filter(m => m.completed).length}/{goal.milestones.length})
+                        Milestones ({goal.milestones.filter((m) => m.completed).length}/{goal.milestones.length})
                       </p>
                       <div className="space-y-1">
-                        {goal.milestones.slice(0, 3).map((milestone, mIdx) => (
-                          <div key={mIdx} className="flex items-center gap-2 text-sm">
-                            {milestone.completed ? (
-                              <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
-                            ) : (
-                              <Circle className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                            )}
+                        {goal.milestones.slice(0, 3).map((milestone, mIdx) =>
+                    <div key={mIdx} className="flex items-center gap-2 text-sm">
+                            {milestone.completed ?
+                      <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" /> :
+
+                      <Circle className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      }
                             <span className={cn(
-                              "text-xs",
-                              milestone.completed ? "text-gray-500 line-through" : "text-gray-700"
-                            )}>
+                        "text-xs",
+                        milestone.completed ? "text-gray-500 line-through" : "text-gray-700"
+                      )}>
                               {milestone.title}
                             </span>
                           </div>
-                        ))}
-                        {goal.milestones.length > 3 && (
-                          <p className="text-xs text-gray-500 ml-6">
+                    )}
+                        {goal.milestones.length > 3 &&
+                    <p className="text-xs text-gray-500 ml-6">
                             +{goal.milestones.length - 3} more
                           </p>
-                        )}
+                    }
                       </div>
                     </div>
-                  )}
-                </motion.div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="text-center py-12 text-gray-500">
-            <Target className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-            <p className="text-lg font-medium mb-2">No active goals yet</p>
-            <p className="text-sm mb-4">Set goals to track your progress and stay motivated</p>
+                }
+                </motion.div>);
+
+          })}
+          </div> :
+
+        <div className="text-center py-12 text-gray-500">
+            <Target className="text-orange-600 mb-4 mx-auto lucide lucide-target w-16 h-16" />
+            <p className="text-orange-600 mb-2 text-lg font-medium">No active goals yet</p>
+            <p className="text-orange-600 mb-4 text-sm font-medium">Set goals to track your progress and stay motivated</p>
             <Link to={createPageUrl('Goals')}>
               <Button className="bg-orange-600 hover:bg-orange-700">
                 <Target className="w-4 h-4 mr-2" />
@@ -172,18 +172,18 @@ export default function GoalsProgressTracker({ goals }) {
               </Button>
             </Link>
           </div>
-        )}
+        }
 
         {/* Recently Completed */}
-        {completedGoals.length > 0 && (
-          <div className="mt-6 pt-6 border-t">
+        {completedGoals.length > 0 &&
+        <div className="mt-6 pt-6 border-t">
             <h4 className="font-semibold text-gray-800 flex items-center gap-2 mb-3">
               <CheckCircle2 className="w-4 h-4 text-green-600" />
               Recently Completed
             </h4>
             <div className="space-y-2">
-              {completedGoals.slice(0, 3).map((goal) => (
-                <div key={goal.id} className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+              {completedGoals.slice(0, 3).map((goal) =>
+            <div key={goal.id} className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
                   <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
                   <div className="flex-1">
                     <p className="text-sm font-medium text-gray-800">{goal.title}</p>
@@ -192,11 +192,11 @@ export default function GoalsProgressTracker({ goals }) {
                     </p>
                   </div>
                 </div>
-              ))}
+            )}
             </div>
           </div>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }
