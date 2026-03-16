@@ -233,10 +233,10 @@ export default function Exercises() {
 
 
 
-            <Star className="mr-1 lucide lucide-star w-4 h-4 inline md:mr-2" />
-            <span className="hidden md:inline">{t('exercises.favorites')}</span>
+            <Star className="text-teal-600 mr-1 lucide lucide-star w-4 h-4 inline md:mr-2" />
+            <span className="text-teal-600 hidden md:inline">{t('exercises.favorites')}</span>
             {showFavoritesOnly && <span className="md:hidden">({exercises.filter((e) => e.favorite).length})</span>}
-            {showFavoritesOnly && <span className="hidden md:inline"> ({exercises.filter((e) => e.favorite).length})</span>}
+            {showFavoritesOnly && <span className="text-teal-600 hidden md:inline"> ({exercises.filter((e) => e.favorite).length})</span>}
           </button>
           </div>
         </div>
