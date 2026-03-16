@@ -37,8 +37,15 @@ jobs:
       - name: Wait for server
         run: npx wait-on http://localhost:4173 --timeout 60000
       
-      - name: Run tests
+      - name: Run tests (Node 20.x)
+        if: matrix.node-version == '20.x'
         run: npm test
+        env:
+          SMOKE_TEST_BASE_URL: http://localhost:4173
+      
+      - name: Run tests with coverage (Node 22.x)
+        if: matrix.node-version == '22.x'
+        run: npm run test:coverage
         env:
           SMOKE_TEST_BASE_URL: http://localhost:4173
       
@@ -57,5 +64,3 @@ jobs:
           name: coverage
           path: coverage/
           retention-days: 30
-
-

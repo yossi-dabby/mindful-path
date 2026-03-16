@@ -82,7 +82,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        project: [web-desktop, mobile-390x844]
+        # On pull_request: run only web-desktop to reduce CI time.
+        # On push to main/master/develop: run the full matrix.
+        project:
+          ${{ github.event_name == 'pull_request'
+            && fromJSON('["web-desktop"]')
+            || fromJSON('["web-desktop", "mobile-390x844"]') }}
 
     steps:
       - name: Checkout code
@@ -141,6 +146,7 @@ jobs:
           name: test-results-${{ matrix.project }}
           path: test-results/
           retention-days: 7
+
 
 
 
