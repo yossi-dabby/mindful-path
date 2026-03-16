@@ -29,7 +29,7 @@ export default function Sidebar({ currentPageName }) {
 
   return (
     <nav
-      aria-label="Main navigation" className="bg-teal-100 py-6 hidden md:flex fixed left-0 top-0 bottom-0 flex-col border-r border-border/70 backdrop-blur-2xl shadow-[var(--shadow-lg)]"
+      aria-label="Main navigation" className="bg-teal-100 py-6 rounded-2xl hidden md:flex fixed left-0 top-0 bottom-0 flex-col border-r border-border/70 backdrop-blur-2xl shadow-[var(--shadow-lg)]"
 
       style={{
         zIndex: 35,
@@ -60,7 +60,7 @@ export default function Sidebar({ currentPageName }) {
               <Link
                 key={item.path}
                 to={createPageUrl(item.path)}
-                aria-current={isActive ? 'page' : undefined} className="bg-teal-50 text-foreground px-4 py-3 rounded-[var(--radius-control)] flex items-center gap-3 transition-calm group border border-border/70 shadow-[var(--shadow-sm)]">
+                aria-current={isActive ? 'page' : undefined} className="bg-teal-50 text-foreground px-4 py-3 rounded-2xl flex items-center gap-3 transition-calm group border border-border/70 shadow-[var(--shadow-sm)]">
 
 
 
