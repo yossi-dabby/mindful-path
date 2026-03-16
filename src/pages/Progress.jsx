@@ -150,13 +150,13 @@ export default function Progress() {
 
         <TabsContent value="health">
           <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
-            <CardHeader>
+            <CardHeader className="bg-orange-50 p-6 flex flex-col space-y-1.5">
               <CardTitle className="flex items-center gap-2 text-foreground">
                 <Activity className="w-5 h-5 text-primary" />
                 {t('progress.health_wellness')}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="bg-orange-50 pt-0 p-6">
               <HealthDashboard />
             </CardContent>
           </Card>
