@@ -1221,8 +1221,8 @@ export default function Chat() {
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
       {/* Chat root: explicit dvh-based height so the flex-1/min-h-0 scroll chain works.
-                                     `h-full` would resolve to `auto` because the parent motion.div uses min-h-full
-                                     (not a fixed height), breaking the inner overflow-y-auto messages scroll. */}
+                                      `h-full` would resolve to `auto` because the parent motion.div uses min-h-full
+                                      (not a fixed height), breaking the inner overflow-y-auto messages scroll. */}
       <div className="bg-teal-100 rounded-2xl flex relative"
 
       data-testid="chat-root"
@@ -1232,7 +1232,7 @@ export default function Chat() {
       }}>
 
         {/* On tablet/desktop (≥768px) there is no fixed mobile header or bottom nav,
-                                       so we only subtract the safe-area insets (mirrors AppContent.jsx logic). */}
+                                        so we only subtract the safe-area insets (mirrors AppContent.jsx logic). */}
         <style>{`
           @media (min-width: 768px) {
             [data-testid="chat-root"] {
@@ -1294,7 +1294,7 @@ export default function Chat() {
         </div>
 
         {/* Messages Area */}
-        <div className="bg-teal-100 text-slate-50 px-3 rounded-3xl flex-1 min-h-0 overflow-hidden flex flex-col" style={{ backgroundColor: 'transparent' }}>
+        <div className="bg-teal-100 text-slate-50 rounded-3xl flex-1 min-h-0 overflow-hidden flex flex-col" style={{ backgroundColor: 'transparent' }}>
           {!currentConversationId ?
             <div className="my-8 h-full overflow-y-auto">
               {/* Welcome Section - Separate container */}
