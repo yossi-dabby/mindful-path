@@ -186,4 +186,79 @@ describe('translations', () => {
       }
     }
   });
+
+  it('all languages have mind_games memory_match title and moves keys', () => {
+    for (const lng of LANGUAGES) {
+      const mindGames = translations[lng].translation.mind_games;
+      expect(mindGames, `Missing mind_games for ${lng}`).toBeDefined();
+      expect(mindGames.memory_match?.title, `Missing mind_games.memory_match.title for ${lng}`).toBeTruthy();
+      expect(mindGames.memory_match?.moves, `Missing mind_games.memory_match.moves for ${lng}`).toBeTruthy();
+    }
+  });
+
+  it('all languages have mind_games focus_flow and number_sequence title keys', () => {
+    for (const lng of LANGUAGES) {
+      const mindGames = translations[lng].translation.mind_games;
+      expect(mindGames?.focus_flow?.title, `Missing mind_games.focus_flow.title for ${lng}`).toBeTruthy();
+      expect(mindGames?.number_sequence?.title, `Missing mind_games.number_sequence.title for ${lng}`).toBeTruthy();
+    }
+  });
+
+  it('Hebrew has translated mind_games memory_match, focus_flow and number_sequence keys', () => {
+    const he = translations.he.translation.mind_games;
+    expect(he.memory_match?.title).toBe('התאמת זיכרון');
+    expect(he.memory_match?.moves).toBeTruthy();
+    expect(he.focus_flow?.title).toBe('זרימת מיקוד');
+    expect(he.number_sequence?.title).toBe('רצף מספרים');
+  });
+
+  it('Spanish has translated mind_games memory_match, focus_flow and number_sequence keys', () => {
+    const es = translations.es.translation.mind_games;
+    expect(es.memory_match?.title).toBe('Emparejamiento de Memoria');
+    expect(es.memory_match?.moves).toBe('Movimientos');
+    expect(es.focus_flow?.title).toBe('Flujo de Enfoque');
+    expect(es.number_sequence?.title).toBe('Secuencia Numérica');
+  });
+
+  it('all languages have mind_games content section with all game content keys', () => {
+    const contentKeys = [
+      'thought_quiz', 'reframe_pick', 'value_compass', 'tiny_experiment',
+      'quick_win', 'calm_bingo', 'dbt_stop', 'opposite_action',
+      'urge_surfing', 'worry_time', 'evidence_balance', 'defusion_cards',
+      'tipp_skills', 'accepts', 'improve', 'self_soothe'
+    ];
+    for (const lng of LANGUAGES) {
+      const content = translations[lng].translation.mind_games?.content;
+      expect(content, `Missing mind_games.content for ${lng}`).toBeDefined();
+      for (const key of contentKeys) {
+        expect(content[key], `Missing mind_games.content.${key} for ${lng}`).toBeDefined();
+      }
+    }
+  });
+
+  it('all languages have mind_games content sub-keys (items/values/presets/tiles/etc.)', () => {
+    for (const lng of LANGUAGES) {
+      const content = translations[lng].translation.mind_games?.content;
+      expect(content?.thought_quiz?.items, `Missing mind_games.content.thought_quiz.items for ${lng}`).toBeTruthy();
+      expect(content?.thought_quiz?.advanced, `Missing mind_games.content.thought_quiz.advanced for ${lng}`).toBeTruthy();
+      expect(content?.reframe_pick?.items, `Missing mind_games.content.reframe_pick.items for ${lng}`).toBeTruthy();
+      expect(content?.value_compass?.values, `Missing mind_games.content.value_compass.values for ${lng}`).toBeTruthy();
+      expect(content?.tiny_experiment?.items, `Missing mind_games.content.tiny_experiment.items for ${lng}`).toBeTruthy();
+      expect(content?.quick_win?.presets, `Missing mind_games.content.quick_win.presets for ${lng}`).toBeTruthy();
+      expect(content?.calm_bingo?.tiles, `Missing mind_games.content.calm_bingo.tiles for ${lng}`).toBeTruthy();
+      expect(content?.dbt_stop?.prompts, `Missing mind_games.content.dbt_stop.prompts for ${lng}`).toBeTruthy();
+      expect(content?.opposite_action?.items, `Missing mind_games.content.opposite_action.items for ${lng}`).toBeTruthy();
+      expect(content?.urge_surfing?.beginner, `Missing mind_games.content.urge_surfing.beginner for ${lng}`).toBeTruthy();
+      expect(content?.urge_surfing?.advanced, `Missing mind_games.content.urge_surfing.advanced for ${lng}`).toBeTruthy();
+      expect(content?.worry_time?.items, `Missing mind_games.content.worry_time.items for ${lng}`).toBeTruthy();
+      expect(content?.evidence_balance?.items, `Missing mind_games.content.evidence_balance.items for ${lng}`).toBeTruthy();
+      expect(content?.defusion_cards?.cards, `Missing mind_games.content.defusion_cards.cards for ${lng}`).toBeTruthy();
+      expect(content?.tipp_skills?.situation, `Missing mind_games.content.tipp_skills.situation for ${lng}`).toBeTruthy();
+      expect(content?.tipp_skills?.skills, `Missing mind_games.content.tipp_skills.skills for ${lng}`).toBeTruthy();
+      expect(content?.tipp_skills?.actions, `Missing mind_games.content.tipp_skills.actions for ${lng}`).toBeTruthy();
+      expect(content?.accepts?.items, `Missing mind_games.content.accepts.items for ${lng}`).toBeTruthy();
+      expect(content?.improve?.items, `Missing mind_games.content.improve.items for ${lng}`).toBeTruthy();
+      expect(content?.self_soothe?.senses, `Missing mind_games.content.self_soothe.senses for ${lng}`).toBeTruthy();
+    }
+  });
 });
