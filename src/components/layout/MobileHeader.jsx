@@ -83,11 +83,11 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
               <ChevronLeft className="w-6 h-6 rtl:scale-x-[-1] text-primary" />
             </Button> :
 
-          <div className="bg-teal-600 text-primary-foreground rounded-3xl w-8 h-8 flex items-center justify-center shadow-[var(--shadow-sm)]"
+          <div className="bg-teal-600 text-primary-foreground mx-4 opacity-100 rounded-3xl w-8 h-8 flex items-center justify-center shadow-[var(--shadow-sm)]"
 
           aria-hidden="true">
 
-              <span className="text-white font-bold text-sm">M</span>
+              <span className="text-white text-sm font-bold uppercase">M</span>
             </div>
           }
         </div>
