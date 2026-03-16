@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -66,7 +67,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
 
   }
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 overflow-y-auto"
       style={{
@@ -469,6 +470,8 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
         </Card>
       </motion.div>
       </div>
-    </div>);
+    </div>,
+    document.body
+  );
 
 }
