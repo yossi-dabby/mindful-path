@@ -114,7 +114,7 @@ export default function QuickStartPanel({ exercises, onSelectExercise }) {
                       }
                     </div>
                   </div>
-                  <h4 className="font-medium text-sm mb-1 line-clamp-1 text-foreground">
+                  <h4 className="text-gray-950 mb-1 text-sm font-medium line-clamp-1">
                     {exercise.title}
                   </h4>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
