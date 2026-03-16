@@ -299,11 +299,12 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
                         {emotions.map((emotion) => (
                           <button
                             key={emotion}
+                            type="button"
                             onClick={() => toggleEmotion(emotion)}
                             className={cn(
-                              "px-4 py-2 rounded-full text-sm font-medium transition-all border-2",
+                              "px-4 py-2 rounded-full text-sm font-medium transition-all border-2 cursor-pointer",
                               formData.emotions.includes(emotion)
-                                ? cn(colors.selected, colors.text, "border-transparent scale-105")
+                                ? cn(colors.selected, colors.text, "border-transparent scale-105 shadow-[var(--shadow-sm)]")
                                 : "border-gray-300 text-gray-700 hover:border-gray-400"
                             )}
                           >

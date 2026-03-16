@@ -554,28 +554,32 @@ export default function StandaloneDailyCheckIn() {
                       {t(`daily_check_in.category_${category}`)}
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      {emotions.map((emotion) =>
+                      {emotions.map((emotion) => {
+                        const isSelected = formData.emotions.includes(emotion);
+                        return (
                       <button
                         key={emotion}
+                        type="button"
                         onClick={() => toggleEmotion(emotion)}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
                             toggleEmotion(emotion);
                           }
-                        }} className="bg-teal-300 text-foreground/85 px-3 py-1.5 text-xs font-medium rounded-full transition-all border-2 border-border/70 hover:border-primary/30 hover:bg-secondary/70"
-
-
-
-
-
-
+                        }}
+                        className={cn(
+                          "px-3 py-1.5 text-xs font-medium rounded-full transition-all border-2 cursor-pointer",
+                          isSelected
+                            ? cn(colors.selected, colors.text, "border-transparent scale-105 shadow-[var(--shadow-sm)]")
+                            : "bg-teal-50 text-foreground/85 border-border/70 hover:border-primary/30 hover:bg-secondary/70"
+                        )}
                         aria-label={t(`daily_check_in.emotions.${emotion}`, { defaultValue: emotion })}
-                        aria-pressed={formData.emotions.includes(emotion)}>
+                        aria-pressed={isSelected}>
 
                           {t(`daily_check_in.emotions.${emotion}`, { defaultValue: emotion })}
                         </button>
-                      )}
+                        );
+                      })}
                     </div>
                   </div>);
 
