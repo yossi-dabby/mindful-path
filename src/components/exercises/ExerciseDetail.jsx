@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { X, Play, CheckCircle, Clock, BookOpen, Lightbulb, Star, Video, Heart, Headphones, Eye } from 'lucide-react';
+import { X, Play, CheckCircle, Clock, BookOpen, Lightbulb, Star, Video, Heart, Headphones, Eye, Download, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import BreathingVisual from './BreathingVisual';
@@ -12,12 +13,118 @@ import AudioPlayer from '../audio/AudioPlayer';
 import { motion } from 'framer-motion';
 import PremiumBadge from '../subscription/PremiumBadge';
 import ExerciseMediaBadge from './ExerciseMediaBadge';
+import { exportExercisePdf } from './exportExercisePdfUtils';
 
 export default function ExerciseDetail({ exercise, onClose, onComplete, onToggleFavorite }) {
+  const { t, i18n } = useTranslation();
   const [completed, setCompleted] = useState(false);
   const [showBreathingVisual, setShowBreathingVisual] = useState(false);
   const [selectedDuration, setSelectedDuration] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
+
+  const pdfTextByLanguage = {
+    en: {
+      download: 'Download PDF',
+      downloading: 'Preparing PDF...',
+      subtitle: 'Printable exercise summary for offline practice',
+      generatedOn: 'Generated on',
+      details: 'Exercise Details',
+      category: 'Category',
+      difficulty: 'Difficulty',
+      duration: 'Duration',
+      minutes: 'min',
+      progress: 'Your Progress',
+      footer: 'For personal offline practice. Not a substitute for emergency or professional care.',
+      noInstructions: 'No instructions available for this exercise yet.',
+    },
+    he: {
+      download: 'הורדת PDF',
+      downloading: 'מכין PDF...',
+      subtitle: 'סיכום תרגיל להדפסה לשימוש לא מקוון',
+      generatedOn: 'נוצר בתאריך',
+      details: 'פרטי התרגיל',
+      category: 'קטגוריה',
+      difficulty: 'רמת קושי',
+      duration: 'משך',
+      minutes: 'דק׳',
+      progress: 'ההתקדמות שלך',
+      footer: 'לשימוש אישי לא מקוון בלבד. אינו מהווה תחליף לטיפול מקצועי או חירום.',
+      noInstructions: 'עדיין אין הוראות זמינות לתרגיל זה.',
+    },
+    es: {
+      download: 'Descargar PDF',
+      downloading: 'Preparando PDF...',
+      subtitle: 'Resumen imprimible del ejercicio para practicar sin conexión',
+      generatedOn: 'Generado el',
+      details: 'Detalles del ejercicio',
+      category: 'Categoría',
+      difficulty: 'Dificultad',
+      duration: 'Duración',
+      minutes: 'min',
+      progress: 'Tu progreso',
+      footer: 'Para práctica personal sin conexión. No sustituye la atención profesional o de emergencia.',
+      noInstructions: 'Todavía no hay instrucciones disponibles para este ejercicio.',
+    },
+    fr: {
+      download: 'Télécharger le PDF',
+      downloading: 'Préparation du PDF...',
+      subtitle: 'Résumé imprimable de l’exercice pour une pratique hors ligne',
+      generatedOn: 'Généré le',
+      details: 'Détails de l’exercice',
+      category: 'Catégorie',
+      difficulty: 'Difficulté',
+      duration: 'Durée',
+      minutes: 'min',
+      progress: 'Votre progression',
+      footer: 'Pour une pratique personnelle hors ligne. Ne remplace pas une aide professionnelle ou d’urgence.',
+      noInstructions: 'Aucune instruction disponible pour cet exercice pour le moment.',
+    },
+    de: {
+      download: 'PDF herunterladen',
+      downloading: 'PDF wird vorbereitet...',
+      subtitle: 'Druckbare Übungszusammenfassung für die Offline-Nutzung',
+      generatedOn: 'Erstellt am',
+      details: 'Übungsdetails',
+      category: 'Kategorie',
+      difficulty: 'Schwierigkeit',
+      duration: 'Dauer',
+      minutes: 'Min.',
+      progress: 'Dein Fortschritt',
+      footer: 'Für die persönliche Offline-Nutzung. Kein Ersatz für professionelle oder Notfallhilfe.',
+      noInstructions: 'Für diese Übung sind noch keine Anweisungen verfügbar.',
+    },
+    it: {
+      download: 'Scarica PDF',
+      downloading: 'Preparazione PDF...',
+      subtitle: 'Riepilogo stampabile dell’esercizio per l’uso offline',
+      generatedOn: 'Generato il',
+      details: 'Dettagli dell’esercizio',
+      category: 'Categoria',
+      difficulty: 'Difficoltà',
+      duration: 'Durata',
+      minutes: 'min',
+      progress: 'I tuoi progressi',
+      footer: 'Per pratica personale offline. Non sostituisce assistenza professionale o di emergenza.',
+      noInstructions: 'Non ci sono ancora istruzioni disponibili per questo esercizio.',
+    },
+    pt: {
+      download: 'Baixar PDF',
+      downloading: 'Preparando PDF...',
+      subtitle: 'Resumo imprimível do exercício para prática offline',
+      generatedOn: 'Gerado em',
+      details: 'Detalhes do exercício',
+      category: 'Categoria',
+      difficulty: 'Dificuldade',
+      duration: 'Duração',
+      minutes: 'min',
+      progress: 'Seu progresso',
+      footer: 'Para prática pessoal offline. Não substitui cuidados profissionais ou de emergência.',
+      noInstructions: 'Ainda não há instruções disponíveis para este exercício.',
+    },
+  };
+
+  const pdfText = pdfTextByLanguage[i18n.language] || pdfTextByLanguage.en;
 
   const instructionSteps = exercise.detailed_steps?.length > 0 ?
   exercise.detailed_steps :
@@ -54,6 +161,40 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
 
   const handleBreathingComplete = () => {
     handleComplete();
+  };
+
+  const handleDownloadPdf = async () => {
+    setIsExportingPdf(true);
+    try {
+      await exportExercisePdf({
+        exercise,
+        language: i18n.language,
+        labels: {
+          subtitle: pdfText.subtitle,
+          generatedOn: pdfText.generatedOn,
+          details: pdfText.details,
+          category: pdfText.category,
+          difficulty: pdfText.difficulty,
+          duration: pdfText.duration,
+          minutes: pdfText.minutes,
+          about: t('exercises.detail.about'),
+          instructions: t('exercises.detail.instructions'),
+          stepByStep: t('exercises.detail.step_by_step_guide'),
+          benefits: t('exercises.detail.key_benefits'),
+          tips: t('exercises.detail.helpful_tips'),
+          helpsWith: t('exercises.detail.helps_with'),
+          progress: pdfText.progress,
+          timesCompleted: t('exercises.detail.times_completed'),
+          minutesPracticed: t('exercises.detail.minutes_practiced'),
+          lastPracticed: t('exercises.detail.last_practiced', { date: new Date().toLocaleDateString(i18n.language || undefined) }).replace(/:.*$/, ''),
+          footer: pdfText.footer,
+          noInstructions: pdfText.noInstructions,
+          untitled: t('exercises.detail.untitled_exercise'),
+        },
+      });
+    } finally {
+      setIsExportingPdf(false);
+    }
   };
 
   if (showBreathingVisual && exercise.category === 'breathing') {
@@ -122,9 +263,20 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                     }
                 </div>
               </div>
-              <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close" className="text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
-                <X className="w-5 h-5" />
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  onClick={handleDownloadPdf}
+                  disabled={isExportingPdf}
+                  className="bg-white/80"
+                >
+                  {isExportingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                  <span className="hidden sm:inline">{isExportingPdf ? pdfText.downloading : pdfText.download}</span>
+                </Button>
+                <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close" className="text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="bg-teal-300 p-4 md:p-6">
