@@ -595,11 +595,11 @@ export default function StandaloneDailyCheckIn() {
               </h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">{t('daily_check_in.intensity_low')}</span>
+                  <span className="text-slate-950 text-base font-medium">{t('daily_check_in.intensity_low')}</span>
                   <span className="text-3xl font-bold text-primary">
                     {formData.intensity}
                   </span>
-                  <span className="text-sm text-muted-foreground">{t('daily_check_in.intensity_high')}</span>
+                  <span className="text-slate-950 text-base font-medium">{t('daily_check_in.intensity_high')}</span>
                 </div>
                 <input
                   type="range"
