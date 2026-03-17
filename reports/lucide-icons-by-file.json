@@ -1,6 +1,10 @@
 {
   "src/components/ai/AiCompanion.jsx": [
     {
+      "imported": "MessageCircle",
+      "local": "MessageCircle"
+    },
+    {
       "imported": "X",
       "local": "X"
     },
@@ -26,6 +30,10 @@
     }
   ],
   "src/components/ai/DraggableAiCompanion.jsx": [
+    {
+      "imported": "MessageCircle",
+      "local": "MessageCircle"
+    },
     {
       "imported": "X",
       "local": "X"
@@ -57,6 +65,10 @@
   ],
   "src/components/audio/AudioPlayer.jsx": [
     {
+      "imported": "Play",
+      "local": "Play"
+    },
+    {
       "imported": "Pause",
       "local": "Pause"
     },
@@ -87,6 +99,10 @@
   ],
   "src/components/chat/ConversationsList.jsx": [
     {
+      "imported": "Plus",
+      "local": "Plus"
+    },
+    {
       "imported": "MessageCircle",
       "local": "MessageCircle"
     },
@@ -101,6 +117,10 @@
   ],
   "src/components/chat/CrisisSafetyPanel.jsx": [
     {
+      "imported": "AlertTriangle",
+      "local": "AlertTriangle"
+    },
+    {
       "imported": "Phone",
       "local": "Phone"
     },
@@ -109,13 +129,27 @@
       "local": "X"
     }
   ],
+  "src/components/chat/InformedConsentModal.jsx": [
+    {
+      "imported": "AlertCircle",
+      "local": "AlertCircle"
+    }
+  ],
   "src/components/chat/InlineConsentBanner.jsx": [
+    {
+      "imported": "Info",
+      "local": "Info"
+    },
     {
       "imported": "ExternalLink",
       "local": "ExternalLink"
     }
   ],
   "src/components/chat/InlineRiskPanel.jsx": [
+    {
+      "imported": "AlertTriangle",
+      "local": "AlertTriangle"
+    },
     {
       "imported": "Phone",
       "local": "Phone"
@@ -127,11 +161,19 @@
   ],
   "src/components/chat/JournalAutoRun.jsx": [
     {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
       "imported": "CheckCircle2",
       "local": "CheckCircle2"
     }
   ],
   "src/components/chat/MessageFeedback.jsx": [
+    {
+      "imported": "ThumbsUp",
+      "local": "ThumbsUp"
+    },
     {
       "imported": "ThumbsDown",
       "local": "ThumbsDown"
@@ -139,12 +181,8 @@
   ],
   "src/components/chat/ProactiveCheckIn.jsx": [
     {
-      "imported": "useQuery",
-      "local": "useQuery"
-    },
-    {
-      "imported": "useMutation",
-      "local": "useMutation"
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
     },
     {
       "imported": "TrendingDown",
@@ -179,14 +217,16 @@
       "local": "ChevronRight"
     }
   ],
+  "src/components/chat/ProfileSpecificDisclaimer.jsx": [
+    {
+      "imported": "AlertCircle",
+      "local": "AlertCircle"
+    }
+  ],
   "src/components/chat/SessionSummary.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "FileText",
+      "local": "FileText"
     },
     {
       "imported": "Dumbbell",
@@ -207,6 +247,10 @@
   ],
   "src/components/chat/TherapyEntryOptions.jsx": [
     {
+      "imported": "Heart",
+      "local": "Heart"
+    },
+    {
       "imported": "Cloud",
       "local": "Cloud"
     },
@@ -223,13 +267,27 @@
       "local": "Leaf"
     }
   ],
+  "src/components/chat/TherapyFlowHandler.jsx": [
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    }
+  ],
   "src/components/chat/TherapyStateMachine.jsx": [
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
     {
       "imported": "CheckCircle2",
       "local": "CheckCircle2"
     }
   ],
   "src/components/chat/ThoughtWorkSaveHandler.jsx": [
+    {
+      "imported": "CheckCircle",
+      "local": "CheckCircle"
+    },
     {
       "imported": "Loader2",
       "local": "Loader2"
@@ -241,12 +299,8 @@
   ],
   "src/components/coaching/ActionPlanPanel.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "X",
+      "local": "X"
     },
     {
       "imported": "Plus",
@@ -263,8 +317,8 @@
   ],
   "src/components/coaching/CoachingChat.jsx": [
     {
-      "imported": "useQuery",
-      "local": "useQuery"
+      "imported": "ChevronLeft",
+      "local": "ChevronLeft"
     },
     {
       "imported": "Send",
@@ -285,8 +339,8 @@
   ],
   "src/components/coaching/CoachingSessionList.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
+      "imported": "Target",
+      "local": "Target"
     },
     {
       "imported": "Calendar",
@@ -307,8 +361,8 @@
   ],
   "src/components/coaching/CoachingSessionWizard.jsx": [
     {
-      "imported": "useQuery",
-      "local": "useQuery"
+      "imported": "X",
+      "local": "X"
     },
     {
       "imported": "ChevronRight",
@@ -332,6 +386,10 @@
     }
   ],
   "src/components/coaching/PersonalizedInsights.jsx": [
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
     {
       "imported": "TrendingUp",
       "local": "TrendingUp"
@@ -359,8 +417,8 @@
   ],
   "src/components/community/ForumPostCard.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
+      "imported": "MessageCircle",
+      "local": "MessageCircle"
     },
     {
       "imported": "ThumbsUp",
@@ -385,28 +443,8 @@
   ],
   "src/components/community/ForumPostForm.jsx": [
     {
-      "imported": "useQueryClient",
-      "local": "useQueryClient"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
-    },
-    {
-      "imported": "SelectContent",
-      "local": "SelectContent"
-    },
-    {
-      "imported": "SelectItem",
-      "local": "SelectItem"
-    },
-    {
-      "imported": "SelectTrigger",
-      "local": "SelectTrigger"
+      "imported": "X",
+      "local": "X"
     },
     {
       "imported": "Plus",
@@ -415,8 +453,8 @@
   ],
   "src/components/community/GroupCard.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
+      "imported": "Users",
+      "local": "Users"
     },
     {
       "imported": "Lock",
@@ -429,34 +467,14 @@
   ],
   "src/components/community/GroupForm.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
-    },
-    {
-      "imported": "SelectContent",
-      "local": "SelectContent"
-    },
-    {
-      "imported": "SelectItem",
-      "local": "SelectItem"
-    },
-    {
-      "imported": "SelectTrigger",
-      "local": "SelectTrigger"
+      "imported": "X",
+      "local": "X"
     }
   ],
   "src/components/community/ModerationTools.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Shield",
+      "local": "Shield"
     },
     {
       "imported": "Flag",
@@ -477,38 +495,14 @@
   ],
   "src/components/community/ProgressShareForm.jsx": [
     {
-      "imported": "useQueryClient",
-      "local": "useQueryClient"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
-    },
-    {
-      "imported": "SelectContent",
-      "local": "SelectContent"
-    },
-    {
-      "imported": "SelectItem",
-      "local": "SelectItem"
-    },
-    {
-      "imported": "SelectTrigger",
-      "local": "SelectTrigger"
+      "imported": "X",
+      "local": "X"
     }
   ],
   "src/components/exercises/AiExerciseCoaching.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Sparkles",
+      "local": "Sparkles"
     },
     {
       "imported": "Dumbbell",
@@ -529,32 +523,8 @@
   ],
   "src/components/exercises/AiExerciseRecommendations.jsx": [
     {
-      "imported": "useQuery",
-      "local": "useQuery"
-    },
-    {
-      "imported": "useMutation",
-      "local": "useMutation"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
-    },
-    {
-      "imported": "SelectContent",
-      "local": "SelectContent"
-    },
-    {
-      "imported": "SelectItem",
-      "local": "SelectItem"
-    },
-    {
-      "imported": "SelectTrigger",
-      "local": "SelectTrigger"
+      "imported": "Sparkles",
+      "local": "Sparkles"
     },
     {
       "imported": "Loader2",
@@ -599,6 +569,10 @@
   ],
   "src/components/exercises/BreathingVisual.jsx": [
     {
+      "imported": "Play",
+      "local": "Play"
+    },
+    {
       "imported": "Pause",
       "local": "Pause"
     },
@@ -621,20 +595,8 @@
   ],
   "src/components/exercises/ExerciseDetail.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
-    },
-    {
-      "imported": "TabsContent",
-      "local": "TabsContent"
-    },
-    {
-      "imported": "TabsList",
-      "local": "TabsList"
+      "imported": "X",
+      "local": "X"
     },
     {
       "imported": "Play",
@@ -687,8 +649,8 @@
   ],
   "src/components/exercises/ExerciseLibrary.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
+      "imported": "Clock",
+      "local": "Clock"
     },
     {
       "imported": "Play",
@@ -700,6 +662,10 @@
     }
   ],
   "src/components/exercises/ExerciseMediaBadge.jsx": [
+    {
+      "imported": "Headphones",
+      "local": "Headphones"
+    },
     {
       "imported": "Play",
       "local": "Play"
@@ -715,12 +681,8 @@
   ],
   "src/components/exercises/InteractiveBreathingTool.jsx": [
     {
-      "imported": "motion",
-      "local": "motion"
-    },
-    {
-      "imported": "AnimatePresence",
-      "local": "AnimatePresence"
+      "imported": "X",
+      "local": "X"
     },
     {
       "imported": "Play",
@@ -757,16 +719,8 @@
   ],
   "src/components/exercises/QuickStartPanel.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Zap",
+      "local": "Zap"
     },
     {
       "imported": "Clock",
@@ -817,7 +771,17 @@
       "local": "Activity"
     }
   ],
+  "src/components/experiential_games/CalmBingo.jsx": [
+    {
+      "imported": "CheckCircle",
+      "local": "CheckCircle"
+    }
+  ],
   "src/components/experiential_games/FocusFlow.jsx": [
+    {
+      "imported": "Zap",
+      "local": "Zap"
+    },
     {
       "imported": "Target",
       "local": "Target"
@@ -825,8 +789,8 @@
   ],
   "src/components/experiential_games/GameCard.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
+      "imported": "Puzzle",
+      "local": "Puzzle"
     },
     {
       "imported": "Info",
@@ -834,6 +798,10 @@
     }
   ],
   "src/components/experiential_games/GameInfoModal.jsx": [
+    {
+      "imported": "X",
+      "local": "X"
+    },
     {
       "imported": "Clock",
       "local": "Clock"
@@ -851,7 +819,23 @@
       "local": "Star"
     }
   ],
+  "src/components/experiential_games/MemoryMatch.jsx": [
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    }
+  ],
+  "src/components/experiential_games/MindGameRecommendations.jsx": [
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    }
+  ],
   "src/components/experiential_games/NumberSequence.jsx": [
+    {
+      "imported": "Hash",
+      "local": "Hash"
+    },
     {
       "imported": "Brain",
       "local": "Brain"
@@ -867,11 +851,25 @@
   ],
   "src/components/experiential_games/PatternShift.jsx": [
     {
+      "imported": "Shuffle",
+      "local": "Shuffle"
+    },
+    {
       "imported": "CheckCircle",
       "local": "CheckCircle"
     }
   ],
+  "src/components/experiential_games/QuickWin.jsx": [
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    }
+  ],
   "src/components/experiential_games/ReframePick.jsx": [
+    {
+      "imported": "CheckCircle",
+      "local": "CheckCircle"
+    },
     {
       "imported": "XCircle",
       "local": "XCircle"
@@ -879,11 +877,19 @@
   ],
   "src/components/experiential_games/ThoughtQuiz.jsx": [
     {
+      "imported": "CheckCircle",
+      "local": "CheckCircle"
+    },
+    {
       "imported": "XCircle",
       "local": "XCircle"
     }
   ],
   "src/components/experiential_games/WordAssociation.jsx": [
+    {
+      "imported": "Link",
+      "local": "Link"
+    },
     {
       "imported": "CheckCircle",
       "local": "CheckCircle"
@@ -891,11 +897,19 @@
   ],
   "src/components/feed/FeedFilters.jsx": [
     {
+      "imported": "Filter",
+      "local": "Filter"
+    },
+    {
       "imported": "X",
       "local": "X"
     }
   ],
   "src/components/feed/FeedPreferences.jsx": [
+    {
+      "imported": "Settings",
+      "local": "Settings"
+    },
     {
       "imported": "Check",
       "local": "Check"
@@ -903,12 +917,8 @@
   ],
   "src/components/gamification/BadgeDisplay.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Award",
+      "local": "Award"
     },
     {
       "imported": "Sparkles",
@@ -921,16 +931,8 @@
   ],
   "src/components/gamification/DailyChallenges.jsx": [
     {
-      "imported": "useMutation",
-      "local": "useMutation"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "CheckCircle2",
+      "local": "CheckCircle2"
     },
     {
       "imported": "Circle",
@@ -947,12 +949,8 @@
   ],
   "src/components/gamification/GamificationHub.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Flame",
+      "local": "Flame"
     },
     {
       "imported": "Award",
@@ -993,6 +991,10 @@
   ],
   "src/components/gamification/StreakWidget.jsx": [
     {
+      "imported": "Flame",
+      "local": "Flame"
+    },
+    {
       "imported": "TrendingUp",
       "local": "TrendingUp"
     },
@@ -1015,12 +1017,8 @@
   ],
   "src/components/goals/AiGoalAdjustment.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Sparkles",
+      "local": "Sparkles"
     },
     {
       "imported": "TrendingUp",
@@ -1041,6 +1039,10 @@
   ],
   "src/components/goals/AiGoalBreakdown.jsx": [
     {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
       "imported": "Target",
       "local": "Target"
     },
@@ -1055,12 +1057,8 @@
   ],
   "src/components/goals/AiGoalCoaching.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Sparkles",
+      "local": "Sparkles"
     },
     {
       "imported": "Target",
@@ -1081,6 +1079,10 @@
   ],
   "src/components/goals/AiGoalSuggestions.jsx": [
     {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
       "imported": "Loader2",
       "local": "Loader2"
     },
@@ -1099,16 +1101,8 @@
   ],
   "src/components/goals/EnhancedGoalCard.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Target",
+      "local": "Target"
     },
     {
       "imported": "Brain",
@@ -1137,16 +1131,8 @@
   ],
   "src/components/goals/GoalCalendar.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "ChevronLeft",
+      "local": "ChevronLeft"
     },
     {
       "imported": "ChevronRight",
@@ -1166,6 +1152,10 @@
     }
   ],
   "src/components/goals/GoalCard.jsx": [
+    {
+      "imported": "Edit",
+      "local": "Edit"
+    },
     {
       "imported": "Calendar",
       "local": "Calendar"
@@ -1208,6 +1198,10 @@
     }
   ],
   "src/components/goals/GoalCoachWizard.jsx": [
+    {
+      "imported": "X",
+      "local": "X"
+    },
     {
       "imported": "ChevronRight",
       "local": "ChevronRight"
@@ -1263,32 +1257,8 @@
   ],
   "src/components/goals/GoalForm.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
-    },
-    {
-      "imported": "SelectContent",
-      "local": "SelectContent"
-    },
-    {
-      "imported": "SelectItem",
-      "local": "SelectItem"
-    },
-    {
-      "imported": "SelectTrigger",
-      "local": "SelectTrigger"
-    },
-    {
-      "imported": "TabsContent",
-      "local": "TabsContent"
-    },
-    {
-      "imported": "TabsList",
-      "local": "TabsList"
+      "imported": "X",
+      "local": "X"
     },
     {
       "imported": "Plus",
@@ -1313,16 +1283,8 @@
   ],
   "src/components/goals/GoalKanbanBoard.jsx": [
     {
-      "imported": "Droppable",
-      "local": "Droppable"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Calendar",
+      "local": "Calendar"
     },
     {
       "imported": "GripVertical",
@@ -1330,6 +1292,10 @@
     }
   ],
   "src/components/goals/GoalMotivation.jsx": [
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
     {
       "imported": "Heart",
       "local": "Heart"
@@ -1349,36 +1315,8 @@
   ],
   "src/components/goals/GoalProgressChart.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
-    },
-    {
-      "imported": "Area",
-      "local": "Area"
-    },
-    {
-      "imported": "XAxis",
-      "local": "XAxis"
-    },
-    {
-      "imported": "YAxis",
-      "local": "YAxis"
-    },
-    {
-      "imported": "CartesianGrid",
-      "local": "CartesianGrid"
-    },
-    {
-      "imported": "Tooltip",
-      "local": "Tooltip"
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
     },
     {
       "imported": "Calendar",
@@ -1387,12 +1325,8 @@
   ],
   "src/components/goals/GoalsDashboardWidget.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Calendar",
+      "local": "Calendar"
     },
     {
       "imported": "Target",
@@ -1417,12 +1351,8 @@
   ],
   "src/components/goals/GoalTemplateLibrary.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "X",
+      "local": "X"
     },
     {
       "imported": "Target",
@@ -1455,12 +1385,8 @@
   ],
   "src/components/goals/GoalTrackingPanel.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Calendar",
+      "local": "Calendar"
     },
     {
       "imported": "TrendingUp",
@@ -1481,12 +1407,8 @@
   ],
   "src/components/goals/LinkedJournalEntries.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "BookOpen",
+      "local": "BookOpen"
     },
     {
       "imported": "Calendar",
@@ -1499,28 +1421,8 @@
   ],
   "src/components/goals/MilestonesTimeline.jsx": [
     {
-      "imported": "useQuery",
-      "local": "useQuery"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
-    },
-    {
-      "imported": "SelectContent",
-      "local": "SelectContent"
-    },
-    {
-      "imported": "SelectItem",
-      "local": "SelectItem"
-    },
-    {
-      "imported": "SelectTrigger",
-      "local": "SelectTrigger"
+      "imported": "Calendar",
+      "local": "Calendar"
     },
     {
       "imported": "CheckCircle2",
@@ -1541,28 +1443,8 @@
   ],
   "src/components/goals/ReminderSettings.jsx": [
     {
-      "imported": "useMutation",
-      "local": "useMutation"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
-    },
-    {
-      "imported": "SelectContent",
-      "local": "SelectContent"
-    },
-    {
-      "imported": "SelectItem",
-      "local": "SelectItem"
-    },
-    {
-      "imported": "SelectTrigger",
-      "local": "SelectTrigger"
+      "imported": "Bell",
+      "local": "Bell"
     },
     {
       "imported": "Trash2",
@@ -1587,28 +1469,8 @@
   ],
   "src/components/goals/SixStepGoalWizard.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
-    },
-    {
-      "imported": "CardTitle",
-      "local": "CardTitle"
-    },
-    {
-      "imported": "SelectContent",
-      "local": "SelectContent"
-    },
-    {
-      "imported": "SelectItem",
-      "local": "SelectItem"
-    },
-    {
-      "imported": "SelectTrigger",
-      "local": "SelectTrigger"
+      "imported": "ChevronLeft",
+      "local": "ChevronLeft"
     },
     {
       "imported": "ChevronRight",
@@ -1653,6 +1515,10 @@
   ],
   "src/components/health/HealthDashboard.jsx": [
     {
+      "imported": "Plus",
+      "local": "Plus"
+    },
+    {
       "imported": "Activity",
       "local": "Activity"
     },
@@ -1671,24 +1537,8 @@
   ],
   "src/components/health/HealthDataForm.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
-    },
-    {
-      "imported": "SelectContent",
-      "local": "SelectContent"
-    },
-    {
-      "imported": "SelectItem",
-      "local": "SelectItem"
-    },
-    {
-      "imported": "SelectTrigger",
-      "local": "SelectTrigger"
+      "imported": "X",
+      "local": "X"
     },
     {
       "imported": "Activity",
@@ -1708,6 +1558,10 @@
     }
   ],
   "src/components/health/HealthInsights.jsx": [
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
     {
       "imported": "Loader2",
       "local": "Loader2"
@@ -1731,12 +1585,8 @@
   ],
   "src/components/home/AiPersonalizedFeed.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Sparkles",
+      "local": "Sparkles"
     },
     {
       "imported": "BookOpen",
@@ -1765,12 +1615,8 @@
   ],
   "src/components/home/DailyProgram.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Play",
+      "local": "Play"
     },
     {
       "imported": "Clock",
@@ -1787,6 +1633,10 @@
   ],
   "src/components/home/DailyReflection.jsx": [
     {
+      "imported": "X",
+      "local": "X"
+    },
+    {
       "imported": "CheckCircle2",
       "local": "CheckCircle2"
     },
@@ -1801,16 +1651,8 @@
   ],
   "src/components/home/EnhancedMoodCheckIn.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "X",
+      "local": "X"
     },
     {
       "imported": "ChevronLeft",
@@ -1835,15 +1677,15 @@
   ],
   "src/components/home/MoodCheckIn.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "X",
+      "local": "X"
     }
   ],
   "src/components/home/PersonalizedContentFeed.jsx": [
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
     {
       "imported": "Loader2",
       "local": "Loader2"
@@ -1879,16 +1721,8 @@
   ],
   "src/components/home/PersonalizedFeed.jsx": [
     {
-      "imported": "useMutation",
-      "local": "useMutation"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Headphones",
+      "local": "Headphones"
     },
     {
       "imported": "Dumbbell",
@@ -1913,8 +1747,8 @@
   ],
   "src/components/home/ProactiveNudges.jsx": [
     {
-      "imported": "useMutation",
-      "local": "useMutation"
+      "imported": "Bell",
+      "local": "Bell"
     },
     {
       "imported": "X",
@@ -1942,6 +1776,10 @@
     }
   ],
   "src/components/home/QuickActions.jsx": [
+    {
+      "imported": "MessageCircle",
+      "local": "MessageCircle"
+    },
     {
       "imported": "BookOpen",
       "local": "BookOpen"
@@ -1985,12 +1823,8 @@
   ],
   "src/components/home/RecentProgress.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "ArrowRight",
+      "local": "ArrowRight"
     },
     {
       "imported": "Target",
@@ -1999,16 +1833,8 @@
   ],
   "src/components/home/StandaloneDailyCheckIn.jsx": [
     {
-      "imported": "useQueryClient",
-      "local": "useQueryClient"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "ChevronLeft",
+      "local": "ChevronLeft"
     },
     {
       "imported": "ChevronDown",
@@ -2037,8 +1863,8 @@
   ],
   "src/components/home/StarterPathCard.jsx": [
     {
-      "imported": "useMutation",
-      "local": "useMutation"
+      "imported": "Sparkles",
+      "local": "Sparkles"
     },
     {
       "imported": "ArrowRight",
@@ -2046,6 +1872,10 @@
     }
   ],
   "src/components/home/TodaysFocus.jsx": [
+    {
+      "imported": "CheckCircle2",
+      "local": "CheckCircle2"
+    },
     {
       "imported": "Heart",
       "local": "Heart"
@@ -2075,8 +1905,8 @@
   ],
   "src/components/journal/AiDistortionAnalysis.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
+      "imported": "AlertCircle",
+      "local": "AlertCircle"
     },
     {
       "imported": "Loader2",
@@ -2093,18 +1923,18 @@
   ],
   "src/components/journal/AiEntrySummary.jsx": [
     {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
       "imported": "Sparkles",
       "local": "Sparkles"
     }
   ],
   "src/components/journal/AiJournalPrompts.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Sparkles",
+      "local": "Sparkles"
     },
     {
       "imported": "Loader2",
@@ -2120,6 +1950,10 @@
     }
   ],
   "src/components/journal/AiJournalSuggestions.jsx": [
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
     {
       "imported": "Loader2",
       "local": "Loader2"
@@ -2150,6 +1984,10 @@
     }
   ],
   "src/components/journal/AiTrendsSummary.jsx": [
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
     {
       "imported": "TrendingDown",
       "local": "TrendingDown"
@@ -2183,10 +2021,16 @@
       "local": "X"
     }
   ],
+  "src/components/journal/JournalFilters.jsx": [
+    {
+      "imported": "X",
+      "local": "X"
+    }
+  ],
   "src/components/journal/JournalInsightsPanel.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
+      "imported": "Sparkles",
+      "local": "Sparkles"
     },
     {
       "imported": "Brain",
@@ -2199,28 +2043,8 @@
   ],
   "src/components/journal/ReminderManager.jsx": [
     {
-      "imported": "useMutation",
-      "local": "useMutation"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
-    },
-    {
-      "imported": "SelectContent",
-      "local": "SelectContent"
-    },
-    {
-      "imported": "SelectItem",
-      "local": "SelectItem"
-    },
-    {
-      "imported": "SelectTrigger",
-      "local": "SelectTrigger"
+      "imported": "X",
+      "local": "X"
     },
     {
       "imported": "Plus",
@@ -2245,20 +2069,8 @@
   ],
   "src/components/journal/SessionSummaryCard.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
-    },
-    {
-      "imported": "CardTitle",
-      "local": "CardTitle"
+      "imported": "Trash2",
+      "local": "Trash2"
     },
     {
       "imported": "Calendar",
@@ -2283,12 +2095,8 @@
   ],
   "src/components/journal/TemplateManager.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "X",
+      "local": "X"
     },
     {
       "imported": "Plus",
@@ -2320,6 +2128,10 @@
     }
   ],
   "src/components/journal/ThoughtCoachWizard.jsx": [
+    {
+      "imported": "X",
+      "local": "X"
+    },
     {
       "imported": "ChevronRight",
       "local": "ChevronRight"
@@ -2375,6 +2187,10 @@
   ],
   "src/components/journal/ThoughtRecordCard.jsx": [
     {
+      "imported": "ChevronDown",
+      "local": "ChevronDown"
+    },
+    {
       "imported": "ChevronUp",
       "local": "ChevronUp"
     },
@@ -2413,28 +2229,8 @@
   ],
   "src/components/journal/ThoughtRecordForm.jsx": [
     {
-      "imported": "useQuery",
-      "local": "useQuery"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
-    },
-    {
-      "imported": "SelectContent",
-      "local": "SelectContent"
-    },
-    {
-      "imported": "SelectItem",
-      "local": "SelectItem"
-    },
-    {
-      "imported": "SelectTrigger",
-      "local": "SelectTrigger"
+      "imported": "X",
+      "local": "X"
     },
     {
       "imported": "Image",
@@ -2479,16 +2275,8 @@
   ],
   "src/components/journeys/JourneyCard.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Calendar",
+      "local": "Calendar"
     },
     {
       "imported": "Target",
@@ -2500,6 +2288,10 @@
     }
   ],
   "src/components/journeys/JourneyDetail.jsx": [
+    {
+      "imported": "CheckCircle",
+      "local": "CheckCircle"
+    },
     {
       "imported": "Circle",
       "local": "Circle"
@@ -2515,8 +2307,8 @@
   ],
   "src/components/layout/BottomNav.jsx": [
     {
-      "imported": "Link",
-      "local": "Link"
+      "imported": "Home",
+      "local": "Home"
     },
     {
       "imported": "MessageCircle",
@@ -2541,11 +2333,15 @@
   ],
   "src/components/layout/MobileHeader.jsx": [
     {
-      "imported": "useNavigate",
-      "local": "useNavigate"
+      "imported": "ChevronLeft",
+      "local": "ChevronLeft"
     }
   ],
   "src/components/layout/MobileMenu.jsx": [
+    {
+      "imported": "Menu",
+      "local": "Menu"
+    },
     {
       "imported": "X",
       "local": "X"
@@ -2564,6 +2360,10 @@
     }
   ],
   "src/components/layout/Sidebar.jsx": [
+    {
+      "imported": "Home",
+      "local": "Home"
+    },
     {
       "imported": "MessageCircle",
       "local": "MessageCircle"
@@ -2595,12 +2395,8 @@
   ],
   "src/components/mood/DetailedMoodForm.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "X",
+      "local": "X"
     },
     {
       "imported": "Battery",
@@ -2617,16 +2413,8 @@
   ],
   "src/components/mood/MoodCalendar.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "ChevronLeft",
+      "local": "ChevronLeft"
     },
     {
       "imported": "ChevronRight",
@@ -2639,12 +2427,8 @@
   ],
   "src/components/mood/MoodInsights.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Brain",
+      "local": "Brain"
     },
     {
       "imported": "Sparkles",
@@ -2669,60 +2453,8 @@
   ],
   "src/components/mood/MoodTrendChart.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
-    },
-    {
-      "imported": "SelectContent",
-      "local": "SelectContent"
-    },
-    {
-      "imported": "SelectItem",
-      "local": "SelectItem"
-    },
-    {
-      "imported": "SelectTrigger",
-      "local": "SelectTrigger"
-    },
-    {
-      "imported": "Line",
-      "local": "Line"
-    },
-    {
-      "imported": "AreaChart",
-      "local": "AreaChart"
-    },
-    {
-      "imported": "Area",
-      "local": "Area"
-    },
-    {
-      "imported": "XAxis",
-      "local": "XAxis"
-    },
-    {
-      "imported": "YAxis",
-      "local": "YAxis"
-    },
-    {
-      "imported": "CartesianGrid",
-      "local": "CartesianGrid"
-    },
-    {
-      "imported": "Tooltip",
-      "local": "Tooltip"
-    },
-    {
-      "imported": "ResponsiveContainer",
-      "local": "ResponsiveContainer"
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
     },
     {
       "imported": "TrendingDown",
@@ -2735,16 +2467,8 @@
   ],
   "src/components/mood/TriggerAnalysis.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "AlertTriangle",
+      "local": "AlertTriangle"
     },
     {
       "imported": "TrendingUp",
@@ -2757,8 +2481,8 @@
   ],
   "src/components/notifications/NotificationBell.jsx": [
     {
-      "imported": "useMutation",
-      "local": "useMutation"
+      "imported": "Bell",
+      "local": "Bell"
     },
     {
       "imported": "X",
@@ -2807,8 +2531,8 @@
   ],
   "src/components/onboarding/OnboardingTour.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
+      "imported": "X",
+      "local": "X"
     },
     {
       "imported": "ChevronRight",
@@ -2824,6 +2548,10 @@
     }
   ],
   "src/components/onboarding/WelcomeWizard.jsx": [
+    {
+      "imported": "ChevronRight",
+      "local": "ChevronRight"
+    },
     {
       "imported": "ChevronLeft",
       "local": "ChevronLeft"
@@ -2847,16 +2575,8 @@
   ],
   "src/components/playlists/AddToPlaylistModal.jsx": [
     {
-      "imported": "useMutation",
-      "local": "useMutation"
-    },
-    {
-      "imported": "DialogContent",
-      "local": "DialogContent"
-    },
-    {
-      "imported": "DialogHeader",
-      "local": "DialogHeader"
+      "imported": "Plus",
+      "local": "Plus"
     },
     {
       "imported": "Check",
@@ -2869,12 +2589,8 @@
   ],
   "src/components/progress/AIInsights.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Sparkles",
+      "local": "Sparkles"
     },
     {
       "imported": "TrendingUp",
@@ -2903,12 +2619,8 @@
   ],
   "src/components/progress/CorrelationInsights.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Sparkles",
+      "local": "Sparkles"
     },
     {
       "imported": "Loader2",
@@ -2933,12 +2645,8 @@
   ],
   "src/components/progress/EnhancedProgressDashboard.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
     },
     {
       "imported": "TrendingDown",
@@ -2975,54 +2683,14 @@
   ],
   "src/components/progress/ExerciseTracker.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
-    },
-    {
-      "imported": "Bar",
-      "local": "Bar"
-    },
-    {
-      "imported": "XAxis",
-      "local": "XAxis"
-    },
-    {
-      "imported": "YAxis",
-      "local": "YAxis"
-    },
-    {
-      "imported": "CartesianGrid",
-      "local": "CartesianGrid"
-    },
-    {
-      "imported": "Tooltip",
-      "local": "Tooltip"
-    },
-    {
-      "imported": "ResponsiveContainer",
-      "local": "ResponsiveContainer"
+      "imported": "Dumbbell",
+      "local": "Dumbbell"
     }
   ],
   "src/components/progress/GoalsProgressTracker.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Target",
+      "local": "Target"
     },
     {
       "imported": "TrendingUp",
@@ -3047,50 +2715,14 @@
   ],
   "src/components/progress/InsightsPanel.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Lightbulb",
+      "local": "Lightbulb"
     }
   ],
   "src/components/progress/JournalTracker.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
-    },
-    {
-      "imported": "Line",
-      "local": "Line"
-    },
-    {
-      "imported": "XAxis",
-      "local": "XAxis"
-    },
-    {
-      "imported": "YAxis",
-      "local": "YAxis"
-    },
-    {
-      "imported": "CartesianGrid",
-      "local": "CartesianGrid"
-    },
-    {
-      "imported": "Tooltip",
-      "local": "Tooltip"
+      "imported": "BookOpen",
+      "local": "BookOpen"
     },
     {
       "imported": "Sparkles",
@@ -3103,8 +2735,8 @@
   ],
   "src/components/progress/StatsOverview.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
+      "imported": "Calendar",
+      "local": "Calendar"
     },
     {
       "imported": "BookOpen",
@@ -3121,12 +2753,8 @@
   ],
   "src/components/resources/AIResourceRecommendations.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Sparkles",
+      "local": "Sparkles"
     },
     {
       "imported": "Loader2",
@@ -3151,12 +2779,8 @@
   ],
   "src/components/resources/ResourceCard.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
+      "imported": "ExternalLink",
+      "local": "ExternalLink"
     },
     {
       "imported": "Bookmark",
@@ -3205,24 +2829,8 @@
   ],
   "src/components/settings/DataPrivacy.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
-    },
-    {
-      "imported": "SelectContent",
-      "local": "SelectContent"
-    },
-    {
-      "imported": "SelectItem",
-      "local": "SelectItem"
-    },
-    {
-      "imported": "SelectTrigger",
-      "local": "SelectTrigger"
+      "imported": "Shield",
+      "local": "Shield"
     },
     {
       "imported": "Download",
@@ -3247,12 +2855,8 @@
   ],
   "src/components/settings/LanguageSelector.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Languages",
+      "local": "Languages"
     },
     {
       "imported": "Check",
@@ -3261,16 +2865,8 @@
   ],
   "src/components/settings/NotificationSettings.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Bell",
+      "local": "Bell"
     },
     {
       "imported": "Mail",
@@ -3307,16 +2903,8 @@
   ],
   "src/components/settings/ThemeSelector.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Palette",
+      "local": "Palette"
     },
     {
       "imported": "Check",
@@ -3325,8 +2913,8 @@
   ],
   "src/components/starterpath/PersonalizationSetup.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
+      "imported": "Target",
+      "local": "Target"
     },
     {
       "imported": "Brain",
@@ -3351,11 +2939,19 @@
   ],
   "src/components/subscription/PremiumBadge.jsx": [
     {
+      "imported": "Crown",
+      "local": "Crown"
+    },
+    {
       "imported": "Lock",
       "local": "Lock"
     }
   ],
   "src/components/subscription/PremiumPaywall.jsx": [
+    {
+      "imported": "Crown",
+      "local": "Crown"
+    },
     {
       "imported": "Sparkles",
       "local": "Sparkles"
@@ -3376,6 +2972,10 @@
     }
   ],
   "src/components/ui/breadcrumb.jsx": [
+    {
+      "imported": "ChevronRight",
+      "local": "ChevronRight"
+    },
     {
       "imported": "MoreHorizontal",
       "local": "MoreHorizontal"
@@ -3407,6 +3007,12 @@
       "local": "Check"
     }
   ],
+  "src/components/ui/command.jsx": [
+    {
+      "imported": "Search",
+      "local": "Search"
+    }
+  ],
   "src/components/ui/context-menu.jsx": [
     {
       "imported": "Check",
@@ -3423,20 +3029,8 @@
   ],
   "src/components/ui/date-picker-mobile.jsx": [
     {
-      "imported": "DrawerContent",
-      "local": "DrawerContent"
-    },
-    {
-      "imported": "DrawerHeader",
-      "local": "DrawerHeader"
-    },
-    {
-      "imported": "DrawerTitle",
-      "local": "DrawerTitle"
-    },
-    {
-      "imported": "DrawerFooter",
-      "local": "DrawerFooter"
+      "imported": "Calendar",
+      "local": "CalendarIcon"
     }
   ],
   "src/components/ui/dialog.jsx": [
@@ -3461,8 +3055,8 @@
   ],
   "src/components/ui/input-otp.jsx": [
     {
-      "imported": "OTPInput",
-      "local": "OTPInput"
+      "imported": "Minus",
+      "local": "Minus"
     }
   ],
   "src/components/ui/menubar.jsx": [
@@ -3477,6 +3071,12 @@
     {
       "imported": "Circle",
       "local": "Circle"
+    }
+  ],
+  "src/components/ui/navigation-menu.jsx": [
+    {
+      "imported": "ChevronDown",
+      "local": "ChevronDown"
     }
   ],
   "src/components/ui/pagination.jsx": [
@@ -3519,66 +3119,52 @@
       "local": "ChevronUp"
     }
   ],
+  "src/components/ui/sheet.jsx": [
+    {
+      "imported": "X",
+      "local": "X"
+    }
+  ],
+  "src/components/ui/sidebar.jsx": [
+    {
+      "imported": "PanelLeft",
+      "local": "PanelLeft"
+    }
+  ],
+  "src/components/ui/toast.jsx": [
+    {
+      "imported": "X",
+      "local": "X"
+    }
+  ],
+  "src/components/utils/AgeGateModal.jsx": [
+    {
+      "imported": "ShieldCheck",
+      "local": "ShieldCheck"
+    }
+  ],
+  "src/components/utils/AgeRestrictedMessage.jsx": [
+    {
+      "imported": "ShieldAlert",
+      "local": "ShieldAlert"
+    }
+  ],
+  "src/components/utils/AuthErrorBanner.jsx": [
+    {
+      "imported": "AlertCircle",
+      "local": "AlertCircle"
+    }
+  ],
+  "src/components/utils/PullToRefresh.jsx": [
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    }
+  ],
   "src/pages/AdvancedAnalytics.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
-    },
-    {
-      "imported": "TabsContent",
-      "local": "TabsContent"
-    },
-    {
-      "imported": "TabsList",
-      "local": "TabsList"
-    },
-    {
-      "imported": "Line",
-      "local": "Line"
-    },
-    {
-      "imported": "BarChart",
-      "local": "BarChart"
-    },
-    {
-      "imported": "Bar",
-      "local": "Bar"
-    },
-    {
-      "imported": "PieChart",
-      "local": "PieChart"
-    },
-    {
-      "imported": "Pie",
-      "local": "Pie"
-    },
-    {
-      "imported": "Cell",
-      "local": "Cell"
-    },
-    {
-      "imported": "XAxis",
-      "local": "XAxis"
-    },
-    {
-      "imported": "YAxis",
-      "local": "YAxis"
-    },
-    {
-      "imported": "CartesianGrid",
-      "local": "CartesianGrid"
-    },
-    {
-      "imported": "Tooltip",
-      "local": "Tooltip"
-    },
-    {
-      "imported": "Legend",
-      "local": "Legend"
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
     },
     {
       "imported": "Brain",
@@ -3611,8 +3197,8 @@
   ],
   "src/pages/Chat.jsx": [
     {
-      "imported": "useMutation",
-      "local": "useMutation"
+      "imported": "Send",
+      "local": "Send"
     },
     {
       "imported": "Loader2",
@@ -3633,16 +3219,8 @@
   ],
   "src/pages/Coach.jsx": [
     {
-      "imported": "useMutation",
-      "local": "useMutation"
-    },
-    {
-      "imported": "TabsContent",
-      "local": "TabsContent"
-    },
-    {
-      "imported": "TabsList",
-      "local": "TabsList"
+      "imported": "Heart",
+      "local": "Heart"
     },
     {
       "imported": "Target",
@@ -3671,44 +3249,8 @@
   ],
   "src/pages/CoachingAnalytics.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
-    },
-    {
-      "imported": "Bar",
-      "local": "Bar"
-    },
-    {
-      "imported": "PieChart",
-      "local": "PieChart"
-    },
-    {
-      "imported": "Pie",
-      "local": "Pie"
-    },
-    {
-      "imported": "Cell",
-      "local": "Cell"
-    },
-    {
-      "imported": "XAxis",
-      "local": "XAxis"
-    },
-    {
-      "imported": "YAxis",
-      "local": "YAxis"
-    },
-    {
-      "imported": "CartesianGrid",
-      "local": "CartesianGrid"
-    },
-    {
-      "imported": "Tooltip",
-      "local": "Tooltip"
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
     },
     {
       "imported": "Target",
@@ -3729,16 +3271,8 @@
   ],
   "src/pages/Community.jsx": [
     {
-      "imported": "useMutation",
-      "local": "useMutation"
-    },
-    {
-      "imported": "TabsList",
-      "local": "TabsList"
-    },
-    {
-      "imported": "TabsTrigger",
-      "local": "TabsTrigger"
+      "imported": "Plus",
+      "local": "Plus"
     },
     {
       "imported": "Users",
@@ -3767,16 +3301,8 @@
   ],
   "src/pages/CrisisAlerts.jsx": [
     {
-      "imported": "SelectContent",
-      "local": "SelectContent"
-    },
-    {
-      "imported": "SelectItem",
-      "local": "SelectItem"
-    },
-    {
-      "imported": "SelectTrigger",
-      "local": "SelectTrigger"
+      "imported": "AlertTriangle",
+      "local": "AlertTriangle"
     },
     {
       "imported": "Filter",
@@ -3797,12 +3323,8 @@
   ],
   "src/pages/Exercises.jsx": [
     {
-      "imported": "useMutation",
-      "local": "useMutation"
-    },
-    {
-      "imported": "TabsList",
-      "local": "TabsList"
+      "imported": "Wind",
+      "local": "Wind"
     },
     {
       "imported": "Anchor",
@@ -3851,24 +3373,8 @@
   ],
   "src/pages/ExerciseView.jsx": [
     {
-      "imported": "useMutation",
-      "local": "useMutation"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
-    },
-    {
-      "imported": "TabsContent",
-      "local": "TabsContent"
-    },
-    {
-      "imported": "TabsList",
-      "local": "TabsList"
+      "imported": "ArrowLeft",
+      "local": "ArrowLeft"
     },
     {
       "imported": "Play",
@@ -3913,20 +3419,8 @@
   ],
   "src/pages/ExperientialGames.jsx": [
     {
-      "imported": "Dialog",
-      "local": "Dialog"
-    },
-    {
-      "imported": "DialogPortal",
-      "local": "DialogPortal"
-    },
-    {
-      "imported": "DialogOverlay",
-      "local": "DialogOverlay"
-    },
-    {
-      "imported": "DialogHeader",
-      "local": "DialogHeader"
+      "imported": "ArrowLeft",
+      "local": "ArrowLeft"
     },
     {
       "imported": "X",
@@ -3935,8 +3429,8 @@
   ],
   "src/pages/Goals.jsx": [
     {
-      "imported": "useMutation",
-      "local": "useMutation"
+      "imported": "Plus",
+      "local": "Plus"
     },
     {
       "imported": "Target",
@@ -3965,8 +3459,8 @@
   ],
   "src/pages/Home.jsx": [
     {
-      "imported": "useMutation",
-      "local": "useMutation"
+      "imported": "Sparkles",
+      "local": "Sparkles"
     },
     {
       "imported": "BookOpen",
@@ -3978,6 +3472,10 @@
     }
   ],
   "src/pages/Journal.jsx": [
+    {
+      "imported": "Plus",
+      "local": "Plus"
+    },
     {
       "imported": "BookOpen",
       "local": "BookOpen"
@@ -4005,60 +3503,8 @@
   ],
   "src/pages/JournalDashboard.jsx": [
     {
-      "imported": "Line",
-      "local": "Line"
-    },
-    {
-      "imported": "XAxis",
-      "local": "XAxis"
-    },
-    {
-      "imported": "YAxis",
-      "local": "YAxis"
-    },
-    {
-      "imported": "CartesianGrid",
-      "local": "CartesianGrid"
-    },
-    {
-      "imported": "Tooltip",
-      "local": "Tooltip"
-    },
-    {
-      "imported": "ResponsiveContainer",
-      "local": "ResponsiveContainer"
-    },
-    {
-      "imported": "AreaChart",
-      "local": "AreaChart"
-    },
-    {
-      "imported": "Area",
-      "local": "Area"
-    },
-    {
-      "imported": "BarChart",
-      "local": "BarChart"
-    },
-    {
-      "imported": "Bar",
-      "local": "Bar"
-    },
-    {
-      "imported": "Legend",
-      "local": "Legend"
-    },
-    {
-      "imported": "subDays",
-      "local": "subDays"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "ArrowLeft",
+      "local": "ArrowLeft"
     },
     {
       "imported": "TrendingDown",
@@ -4091,26 +3537,14 @@
   ],
   "src/pages/Journeys.jsx": [
     {
-      "imported": "useMutation",
-      "local": "useMutation"
-    },
-    {
-      "imported": "TabsContent",
-      "local": "TabsContent"
-    },
-    {
-      "imported": "TabsList",
-      "local": "TabsList"
+      "imported": "Compass",
+      "local": "Compass"
     }
   ],
   "src/pages/MoodTracker.jsx": [
     {
-      "imported": "TabsContent",
-      "local": "TabsContent"
-    },
-    {
-      "imported": "TabsList",
-      "local": "TabsList"
+      "imported": "Plus",
+      "local": "Plus"
     },
     {
       "imported": "TrendingUp",
@@ -4125,10 +3559,16 @@
       "local": "Calendar"
     }
   ],
+  "src/pages/PersonalizedFeed.jsx": [
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    }
+  ],
   "src/pages/PlaylistDetail.jsx": [
     {
-      "imported": "useMutation",
-      "local": "useMutation"
+      "imported": "ArrowLeft",
+      "local": "ArrowLeft"
     },
     {
       "imported": "Play",
@@ -4141,8 +3581,8 @@
   ],
   "src/pages/Playlists.jsx": [
     {
-      "imported": "useMutation",
-      "local": "useMutation"
+      "imported": "Plus",
+      "local": "Plus"
     },
     {
       "imported": "List",
@@ -4159,20 +3599,8 @@
   ],
   "src/pages/Progress.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
-    },
-    {
-      "imported": "TabsList",
-      "local": "TabsList"
-    },
-    {
-      "imported": "TabsTrigger",
-      "local": "TabsTrigger"
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
     },
     {
       "imported": "Calendar",
@@ -4189,12 +3617,8 @@
   ],
   "src/pages/Resources.jsx": [
     {
-      "imported": "useMutation",
-      "local": "useMutation"
-    },
-    {
-      "imported": "TabsList",
-      "local": "TabsList"
+      "imported": "Search",
+      "local": "Search"
     },
     {
       "imported": "Bookmark",
@@ -4207,40 +3631,8 @@
   ],
   "src/pages/Settings.jsx": [
     {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
-    },
-    {
-      "imported": "AlertDialogAction",
-      "local": "AlertDialogAction"
-    },
-    {
-      "imported": "AlertDialogCancel",
-      "local": "AlertDialogCancel"
-    },
-    {
-      "imported": "AlertDialogContent",
-      "local": "AlertDialogContent"
-    },
-    {
-      "imported": "AlertDialogDescription",
-      "local": "AlertDialogDescription"
-    },
-    {
-      "imported": "AlertDialogFooter",
-      "local": "AlertDialogFooter"
-    },
-    {
-      "imported": "AlertDialogHeader",
-      "local": "AlertDialogHeader"
-    },
-    {
-      "imported": "AlertDialogTitle",
-      "local": "AlertDialogTitle"
+      "imported": "User",
+      "local": "User"
     },
     {
       "imported": "CreditCard",
@@ -4269,8 +3661,8 @@
   ],
   "src/pages/StarterPath.jsx": [
     {
-      "imported": "useMutation",
-      "local": "useMutation"
+      "imported": "ArrowLeft",
+      "local": "ArrowLeft"
     },
     {
       "imported": "Sparkles",
@@ -4287,16 +3679,8 @@
   ],
   "src/pages/TestSetupGuide.jsx": [
     {
-      "imported": "Card",
-      "local": "Card"
-    },
-    {
-      "imported": "CardContent",
-      "local": "CardContent"
-    },
-    {
-      "imported": "CardHeader",
-      "local": "CardHeader"
+      "imported": "Copy",
+      "local": "Copy"
     },
     {
       "imported": "Check",
@@ -4316,6 +3700,10 @@
     }
   ],
   "src/pages/ThoughtCoach.jsx": [
+    {
+      "imported": "ArrowLeft",
+      "local": "ArrowLeft"
+    },
     {
       "imported": "ChevronRight",
       "local": "ChevronRight"
@@ -4367,11 +3755,15 @@
   ],
   "src/pages/VideoPlayer.jsx": [
     {
-      "imported": "useMutation",
-      "local": "useMutation"
+      "imported": "ArrowLeft",
+      "local": "ArrowLeft"
     }
   ],
   "src/pages/Videos.jsx": [
+    {
+      "imported": "Play",
+      "local": "Play"
+    },
     {
       "imported": "Plus",
       "local": "Plus"

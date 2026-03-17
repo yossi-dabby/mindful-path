@@ -8,7 +8,10 @@ const projectRoot = path.resolve(__dirname, '..');
 const srcDir = path.join(projectRoot, 'src');
 const reportsDir = path.join(projectRoot, 'reports');
 const allowedExtensions = new Set(['.js', '.jsx', '.ts', '.tsx']);
-const lucideImportRegex = /import\s*\{([\s\S]*?)\}\s*from\s*['\"]lucide-react['\"]/g;
+// Regex for named imports from lucide-react. Uses [^}]* (stops at first closing brace)
+// to avoid crossing adjacent import statements. Handles multi-line imports. Assumes
+// well-formed import syntax (no nested braces inside the import block).
+const lucideImportRegex = /import\s*\{([^}]*)\}\s*from\s*['\"]lucide-react['\"]/g;
 
 async function getSourceFiles(dir) {
   const entries = await fs.readdir(dir, { withFileTypes: true });
