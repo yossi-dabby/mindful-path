@@ -1,0 +1,4384 @@
+{
+  "src/components/ai/AiCompanion.jsx": [
+    {
+      "imported": "X",
+      "local": "X"
+    },
+    {
+      "imported": "Send",
+      "local": "Send"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "MinusCircle",
+      "local": "MinusCircle"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    }
+  ],
+  "src/components/ai/DraggableAiCompanion.jsx": [
+    {
+      "imported": "X",
+      "local": "X"
+    },
+    {
+      "imported": "Send",
+      "local": "Send"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "MinusCircle",
+      "local": "MinusCircle"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
+      "imported": "GripVertical",
+      "local": "GripVertical"
+    }
+  ],
+  "src/components/audio/AudioPlayer.jsx": [
+    {
+      "imported": "Pause",
+      "local": "Pause"
+    },
+    {
+      "imported": "SkipBack",
+      "local": "SkipBack"
+    },
+    {
+      "imported": "SkipForward",
+      "local": "SkipForward"
+    },
+    {
+      "imported": "Volume2",
+      "local": "Volume2"
+    },
+    {
+      "imported": "VolumeX",
+      "local": "VolumeX"
+    },
+    {
+      "imported": "Download",
+      "local": "Download"
+    },
+    {
+      "imported": "Heart",
+      "local": "Heart"
+    }
+  ],
+  "src/components/chat/ConversationsList.jsx": [
+    {
+      "imported": "MessageCircle",
+      "local": "MessageCircle"
+    },
+    {
+      "imported": "X",
+      "local": "X"
+    },
+    {
+      "imported": "Trash2",
+      "local": "Trash2"
+    }
+  ],
+  "src/components/chat/CrisisSafetyPanel.jsx": [
+    {
+      "imported": "Phone",
+      "local": "Phone"
+    },
+    {
+      "imported": "X",
+      "local": "X"
+    }
+  ],
+  "src/components/chat/InlineConsentBanner.jsx": [
+    {
+      "imported": "ExternalLink",
+      "local": "ExternalLink"
+    }
+  ],
+  "src/components/chat/InlineRiskPanel.jsx": [
+    {
+      "imported": "Phone",
+      "local": "Phone"
+    },
+    {
+      "imported": "MessageSquare",
+      "local": "MessageSquare"
+    }
+  ],
+  "src/components/chat/JournalAutoRun.jsx": [
+    {
+      "imported": "CheckCircle2",
+      "local": "CheckCircle2"
+    }
+  ],
+  "src/components/chat/MessageFeedback.jsx": [
+    {
+      "imported": "ThumbsDown",
+      "local": "ThumbsDown"
+    }
+  ],
+  "src/components/chat/ProactiveCheckIn.jsx": [
+    {
+      "imported": "useQuery",
+      "local": "useQuery"
+    },
+    {
+      "imported": "useMutation",
+      "local": "useMutation"
+    },
+    {
+      "imported": "TrendingDown",
+      "local": "TrendingDown"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    },
+    {
+      "imported": "Dumbbell",
+      "local": "Dumbbell"
+    },
+    {
+      "imported": "Bell",
+      "local": "Bell"
+    },
+    {
+      "imported": "X",
+      "local": "X"
+    },
+    {
+      "imported": "ChevronRight",
+      "local": "ChevronRight"
+    }
+  ],
+  "src/components/chat/SessionSummary.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Dumbbell",
+      "local": "Dumbbell"
+    },
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    },
+    {
+      "imported": "ExternalLink",
+      "local": "ExternalLink"
+    },
+    {
+      "imported": "CheckCircle",
+      "local": "CheckCircle"
+    }
+  ],
+  "src/components/chat/TherapyEntryOptions.jsx": [
+    {
+      "imported": "Cloud",
+      "local": "Cloud"
+    },
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "Leaf",
+      "local": "Leaf"
+    }
+  ],
+  "src/components/chat/TherapyStateMachine.jsx": [
+    {
+      "imported": "CheckCircle2",
+      "local": "CheckCircle2"
+    }
+  ],
+  "src/components/chat/ThoughtWorkSaveHandler.jsx": [
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
+      "imported": "AlertCircle",
+      "local": "AlertCircle"
+    }
+  ],
+  "src/components/coaching/ActionPlanPanel.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Plus",
+      "local": "Plus"
+    },
+    {
+      "imported": "CheckCircle2",
+      "local": "CheckCircle2"
+    },
+    {
+      "imported": "Circle",
+      "local": "Circle"
+    }
+  ],
+  "src/components/coaching/CoachingChat.jsx": [
+    {
+      "imported": "useQuery",
+      "local": "useQuery"
+    },
+    {
+      "imported": "Send",
+      "local": "Send"
+    },
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "CheckCircle2",
+      "local": "CheckCircle2"
+    }
+  ],
+  "src/components/coaching/CoachingSessionList.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "Calendar",
+      "local": "Calendar"
+    },
+    {
+      "imported": "ChevronRight",
+      "local": "ChevronRight"
+    },
+    {
+      "imported": "CheckCircle2",
+      "local": "CheckCircle2"
+    },
+    {
+      "imported": "Trash2",
+      "local": "Trash2"
+    }
+  ],
+  "src/components/coaching/CoachingSessionWizard.jsx": [
+    {
+      "imported": "useQuery",
+      "local": "useQuery"
+    },
+    {
+      "imported": "ChevronRight",
+      "local": "ChevronRight"
+    },
+    {
+      "imported": "ChevronLeft",
+      "local": "ChevronLeft"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "Lightbulb",
+      "local": "Lightbulb"
+    }
+  ],
+  "src/components/coaching/PersonalizedInsights.jsx": [
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "Book",
+      "local": "Book"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
+      "imported": "AlertCircle",
+      "local": "AlertCircle"
+    }
+  ],
+  "src/components/community/ForumPostCard.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "ThumbsUp",
+      "local": "ThumbsUp"
+    },
+    {
+      "imported": "Pin",
+      "local": "Pin"
+    },
+    {
+      "imported": "User",
+      "local": "User"
+    },
+    {
+      "imported": "Shield",
+      "local": "Shield"
+    },
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    }
+  ],
+  "src/components/community/ForumPostForm.jsx": [
+    {
+      "imported": "useQueryClient",
+      "local": "useQueryClient"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "SelectContent",
+      "local": "SelectContent"
+    },
+    {
+      "imported": "SelectItem",
+      "local": "SelectItem"
+    },
+    {
+      "imported": "SelectTrigger",
+      "local": "SelectTrigger"
+    },
+    {
+      "imported": "Plus",
+      "local": "Plus"
+    }
+  ],
+  "src/components/community/GroupCard.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "Lock",
+      "local": "Lock"
+    },
+    {
+      "imported": "MessageSquare",
+      "local": "MessageSquare"
+    }
+  ],
+  "src/components/community/GroupForm.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "SelectContent",
+      "local": "SelectContent"
+    },
+    {
+      "imported": "SelectItem",
+      "local": "SelectItem"
+    },
+    {
+      "imported": "SelectTrigger",
+      "local": "SelectTrigger"
+    }
+  ],
+  "src/components/community/ModerationTools.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Flag",
+      "local": "Flag"
+    },
+    {
+      "imported": "CheckCircle",
+      "local": "CheckCircle"
+    },
+    {
+      "imported": "XCircle",
+      "local": "XCircle"
+    },
+    {
+      "imported": "AlertTriangle",
+      "local": "AlertTriangle"
+    }
+  ],
+  "src/components/community/ProgressShareForm.jsx": [
+    {
+      "imported": "useQueryClient",
+      "local": "useQueryClient"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "SelectContent",
+      "local": "SelectContent"
+    },
+    {
+      "imported": "SelectItem",
+      "local": "SelectItem"
+    },
+    {
+      "imported": "SelectTrigger",
+      "local": "SelectTrigger"
+    }
+  ],
+  "src/components/exercises/AiExerciseCoaching.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Dumbbell",
+      "local": "Dumbbell"
+    },
+    {
+      "imported": "Calendar",
+      "local": "Calendar"
+    },
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    }
+  ],
+  "src/components/exercises/AiExerciseRecommendations.jsx": [
+    {
+      "imported": "useQuery",
+      "local": "useQuery"
+    },
+    {
+      "imported": "useMutation",
+      "local": "useMutation"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "SelectContent",
+      "local": "SelectContent"
+    },
+    {
+      "imported": "SelectItem",
+      "local": "SelectItem"
+    },
+    {
+      "imported": "SelectTrigger",
+      "local": "SelectTrigger"
+    },
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
+      "imported": "RefreshCw",
+      "local": "RefreshCw"
+    },
+    {
+      "imported": "Wind",
+      "local": "Wind"
+    },
+    {
+      "imported": "Anchor",
+      "local": "Anchor"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "Heart",
+      "local": "Heart"
+    },
+    {
+      "imported": "ThumbsUp",
+      "local": "ThumbsUp"
+    },
+    {
+      "imported": "ThumbsDown",
+      "local": "ThumbsDown"
+    },
+    {
+      "imported": "CheckCircle2",
+      "local": "CheckCircle2"
+    }
+  ],
+  "src/components/exercises/BreathingVisual.jsx": [
+    {
+      "imported": "Pause",
+      "local": "Pause"
+    },
+    {
+      "imported": "RotateCcw",
+      "local": "RotateCcw"
+    },
+    {
+      "imported": "X",
+      "local": "X"
+    },
+    {
+      "imported": "Volume2",
+      "local": "Volume2"
+    },
+    {
+      "imported": "VolumeX",
+      "local": "VolumeX"
+    }
+  ],
+  "src/components/exercises/ExerciseDetail.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "TabsContent",
+      "local": "TabsContent"
+    },
+    {
+      "imported": "TabsList",
+      "local": "TabsList"
+    },
+    {
+      "imported": "Play",
+      "local": "Play"
+    },
+    {
+      "imported": "CheckCircle",
+      "local": "CheckCircle"
+    },
+    {
+      "imported": "Clock",
+      "local": "Clock"
+    },
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    },
+    {
+      "imported": "Lightbulb",
+      "local": "Lightbulb"
+    },
+    {
+      "imported": "Star",
+      "local": "Star"
+    },
+    {
+      "imported": "Video",
+      "local": "Video"
+    },
+    {
+      "imported": "Heart",
+      "local": "Heart"
+    },
+    {
+      "imported": "Headphones",
+      "local": "Headphones"
+    },
+    {
+      "imported": "Eye",
+      "local": "Eye"
+    },
+    {
+      "imported": "Download",
+      "local": "Download"
+    },
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    }
+  ],
+  "src/components/exercises/ExerciseLibrary.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "Play",
+      "local": "Play"
+    },
+    {
+      "imported": "Heart",
+      "local": "Heart"
+    }
+  ],
+  "src/components/exercises/ExerciseMediaBadge.jsx": [
+    {
+      "imported": "Play",
+      "local": "Play"
+    },
+    {
+      "imported": "Eye",
+      "local": "Eye"
+    },
+    {
+      "imported": "FileText",
+      "local": "FileText"
+    }
+  ],
+  "src/components/exercises/InteractiveBreathingTool.jsx": [
+    {
+      "imported": "motion",
+      "local": "motion"
+    },
+    {
+      "imported": "AnimatePresence",
+      "local": "AnimatePresence"
+    },
+    {
+      "imported": "Play",
+      "local": "Play"
+    },
+    {
+      "imported": "Pause",
+      "local": "Pause"
+    },
+    {
+      "imported": "RotateCcw",
+      "local": "RotateCcw"
+    },
+    {
+      "imported": "Volume2",
+      "local": "Volume2"
+    },
+    {
+      "imported": "VolumeX",
+      "local": "VolumeX"
+    },
+    {
+      "imported": "Settings",
+      "local": "Settings"
+    },
+    {
+      "imported": "ChevronLeft",
+      "local": "ChevronLeft"
+    },
+    {
+      "imported": "ChevronRight",
+      "local": "ChevronRight"
+    }
+  ],
+  "src/components/exercises/QuickStartPanel.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Clock",
+      "local": "Clock"
+    },
+    {
+      "imported": "Heart",
+      "local": "Heart"
+    },
+    {
+      "imported": "Play",
+      "local": "Play"
+    },
+    {
+      "imported": "Headphones",
+      "local": "Headphones"
+    },
+    {
+      "imported": "Eye",
+      "local": "Eye"
+    },
+    {
+      "imported": "Wind",
+      "local": "Wind"
+    },
+    {
+      "imported": "Anchor",
+      "local": "Anchor"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "Moon",
+      "local": "Moon"
+    },
+    {
+      "imported": "Users",
+      "local": "Users"
+    },
+    {
+      "imported": "Activity",
+      "local": "Activity"
+    }
+  ],
+  "src/components/experiential_games/FocusFlow.jsx": [
+    {
+      "imported": "Target",
+      "local": "Target"
+    }
+  ],
+  "src/components/experiential_games/GameCard.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "Info",
+      "local": "Info"
+    }
+  ],
+  "src/components/experiential_games/GameInfoModal.jsx": [
+    {
+      "imported": "Clock",
+      "local": "Clock"
+    },
+    {
+      "imported": "Lightbulb",
+      "local": "Lightbulb"
+    },
+    {
+      "imported": "Play",
+      "local": "Play"
+    },
+    {
+      "imported": "Star",
+      "local": "Star"
+    }
+  ],
+  "src/components/experiential_games/NumberSequence.jsx": [
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "CheckCircle",
+      "local": "CheckCircle"
+    },
+    {
+      "imported": "XCircle",
+      "local": "XCircle"
+    }
+  ],
+  "src/components/experiential_games/PatternShift.jsx": [
+    {
+      "imported": "CheckCircle",
+      "local": "CheckCircle"
+    }
+  ],
+  "src/components/experiential_games/ReframePick.jsx": [
+    {
+      "imported": "XCircle",
+      "local": "XCircle"
+    }
+  ],
+  "src/components/experiential_games/ThoughtQuiz.jsx": [
+    {
+      "imported": "XCircle",
+      "local": "XCircle"
+    }
+  ],
+  "src/components/experiential_games/WordAssociation.jsx": [
+    {
+      "imported": "CheckCircle",
+      "local": "CheckCircle"
+    }
+  ],
+  "src/components/feed/FeedFilters.jsx": [
+    {
+      "imported": "X",
+      "local": "X"
+    }
+  ],
+  "src/components/feed/FeedPreferences.jsx": [
+    {
+      "imported": "Check",
+      "local": "Check"
+    }
+  ],
+  "src/components/gamification/BadgeDisplay.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "Trophy",
+      "local": "Trophy"
+    }
+  ],
+  "src/components/gamification/DailyChallenges.jsx": [
+    {
+      "imported": "useMutation",
+      "local": "useMutation"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Circle",
+      "local": "Circle"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "Trophy",
+      "local": "Trophy"
+    }
+  ],
+  "src/components/gamification/GamificationHub.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Award",
+      "local": "Award"
+    },
+    {
+      "imported": "Zap",
+      "local": "Zap"
+    },
+    {
+      "imported": "Trophy",
+      "local": "Trophy"
+    },
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    },
+    {
+      "imported": "Dumbbell",
+      "local": "Dumbbell"
+    },
+    {
+      "imported": "Heart",
+      "local": "Heart"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "Calendar",
+      "local": "Calendar"
+    },
+    {
+      "imported": "Lock",
+      "local": "Lock"
+    }
+  ],
+  "src/components/gamification/StreakWidget.jsx": [
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "Award",
+      "local": "Award"
+    },
+    {
+      "imported": "Heart",
+      "local": "Heart"
+    },
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    },
+    {
+      "imported": "Dumbbell",
+      "local": "Dumbbell"
+    }
+  ],
+  "src/components/goals/AiGoalAdjustment.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
+      "imported": "AlertCircle",
+      "local": "AlertCircle"
+    }
+  ],
+  "src/components/goals/AiGoalBreakdown.jsx": [
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "CheckCircle",
+      "local": "CheckCircle"
+    },
+    {
+      "imported": "Plus",
+      "local": "Plus"
+    }
+  ],
+  "src/components/goals/AiGoalCoaching.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "CheckCircle2",
+      "local": "CheckCircle2"
+    },
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    }
+  ],
+  "src/components/goals/AiGoalSuggestions.jsx": [
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "CheckCircle",
+      "local": "CheckCircle"
+    }
+  ],
+  "src/components/goals/EnhancedGoalCard.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "AlertTriangle",
+      "local": "AlertTriangle"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "Calendar",
+      "local": "Calendar"
+    },
+    {
+      "imported": "ChevronDown",
+      "local": "ChevronDown"
+    },
+    {
+      "imported": "ChevronUp",
+      "local": "ChevronUp"
+    }
+  ],
+  "src/components/goals/GoalCalendar.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "ChevronRight",
+      "local": "ChevronRight"
+    },
+    {
+      "imported": "Calendar",
+      "local": "Calendar"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "Flag",
+      "local": "Flag"
+    }
+  ],
+  "src/components/goals/GoalCard.jsx": [
+    {
+      "imported": "Calendar",
+      "local": "Calendar"
+    },
+    {
+      "imported": "CheckCircle2",
+      "local": "CheckCircle2"
+    },
+    {
+      "imported": "ChevronDown",
+      "local": "ChevronDown"
+    },
+    {
+      "imported": "ChevronUp",
+      "local": "ChevronUp"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    },
+    {
+      "imported": "Trash2",
+      "local": "Trash2"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "Bell",
+      "local": "Bell"
+    },
+    {
+      "imported": "LayoutGrid",
+      "local": "LayoutGrid"
+    }
+  ],
+  "src/components/goals/GoalCoachWizard.jsx": [
+    {
+      "imported": "ChevronRight",
+      "local": "ChevronRight"
+    },
+    {
+      "imported": "ChevronLeft",
+      "local": "ChevronLeft"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "HeartHandshake",
+      "local": "HeartHandshake"
+    },
+    {
+      "imported": "Users",
+      "local": "Users"
+    },
+    {
+      "imported": "ListChecks",
+      "local": "ListChecks"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "Shapes",
+      "local": "Shapes"
+    },
+    {
+      "imported": "GraduationCap",
+      "local": "GraduationCap"
+    },
+    {
+      "imported": "HeartPulse",
+      "local": "HeartPulse"
+    },
+    {
+      "imported": "Plus",
+      "local": "Plus"
+    },
+    {
+      "imported": "Minus",
+      "local": "Minus"
+    }
+  ],
+  "src/components/goals/GoalForm.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "SelectContent",
+      "local": "SelectContent"
+    },
+    {
+      "imported": "SelectItem",
+      "local": "SelectItem"
+    },
+    {
+      "imported": "SelectTrigger",
+      "local": "SelectTrigger"
+    },
+    {
+      "imported": "TabsContent",
+      "local": "TabsContent"
+    },
+    {
+      "imported": "TabsList",
+      "local": "TabsList"
+    },
+    {
+      "imported": "Plus",
+      "local": "Plus"
+    },
+    {
+      "imported": "Trash2",
+      "local": "Trash2"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "CheckCircle",
+      "local": "CheckCircle"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    }
+  ],
+  "src/components/goals/GoalKanbanBoard.jsx": [
+    {
+      "imported": "Droppable",
+      "local": "Droppable"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "GripVertical",
+      "local": "GripVertical"
+    }
+  ],
+  "src/components/goals/GoalMotivation.jsx": [
+    {
+      "imported": "Heart",
+      "local": "Heart"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "X",
+      "local": "X"
+    }
+  ],
+  "src/components/goals/GoalProgressChart.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Area",
+      "local": "Area"
+    },
+    {
+      "imported": "XAxis",
+      "local": "XAxis"
+    },
+    {
+      "imported": "YAxis",
+      "local": "YAxis"
+    },
+    {
+      "imported": "CartesianGrid",
+      "local": "CartesianGrid"
+    },
+    {
+      "imported": "Tooltip",
+      "local": "Tooltip"
+    },
+    {
+      "imported": "Calendar",
+      "local": "Calendar"
+    }
+  ],
+  "src/components/goals/GoalsDashboardWidget.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "AlertCircle",
+      "local": "AlertCircle"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "CheckCircle2",
+      "local": "CheckCircle2"
+    },
+    {
+      "imported": "User",
+      "local": "User"
+    }
+  ],
+  "src/components/goals/GoalTemplateLibrary.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "Heart",
+      "local": "Heart"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "Users",
+      "local": "Users"
+    },
+    {
+      "imported": "Briefcase",
+      "local": "Briefcase"
+    }
+  ],
+  "src/components/goals/GoalTrackingPanel.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "CheckCircle2",
+      "local": "CheckCircle2"
+    },
+    {
+      "imported": "Plus",
+      "local": "Plus"
+    },
+    {
+      "imported": "X",
+      "local": "X"
+    }
+  ],
+  "src/components/goals/LinkedJournalEntries.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Calendar",
+      "local": "Calendar"
+    },
+    {
+      "imported": "TrendingDown",
+      "local": "TrendingDown"
+    }
+  ],
+  "src/components/goals/MilestonesTimeline.jsx": [
+    {
+      "imported": "useQuery",
+      "local": "useQuery"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "SelectContent",
+      "local": "SelectContent"
+    },
+    {
+      "imported": "SelectItem",
+      "local": "SelectItem"
+    },
+    {
+      "imported": "SelectTrigger",
+      "local": "SelectTrigger"
+    },
+    {
+      "imported": "CheckCircle2",
+      "local": "CheckCircle2"
+    },
+    {
+      "imported": "AlertCircle",
+      "local": "AlertCircle"
+    },
+    {
+      "imported": "Clock",
+      "local": "Clock"
+    },
+    {
+      "imported": "Filter",
+      "local": "Filter"
+    }
+  ],
+  "src/components/goals/ReminderSettings.jsx": [
+    {
+      "imported": "useMutation",
+      "local": "useMutation"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "SelectContent",
+      "local": "SelectContent"
+    },
+    {
+      "imported": "SelectItem",
+      "local": "SelectItem"
+    },
+    {
+      "imported": "SelectTrigger",
+      "local": "SelectTrigger"
+    },
+    {
+      "imported": "Trash2",
+      "local": "Trash2"
+    },
+    {
+      "imported": "Plus",
+      "local": "Plus"
+    },
+    {
+      "imported": "Mail",
+      "local": "Mail"
+    },
+    {
+      "imported": "AppWindow",
+      "local": "AppWindow"
+    },
+    {
+      "imported": "Check",
+      "local": "Check"
+    }
+  ],
+  "src/components/goals/SixStepGoalWizard.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "CardTitle",
+      "local": "CardTitle"
+    },
+    {
+      "imported": "SelectContent",
+      "local": "SelectContent"
+    },
+    {
+      "imported": "SelectItem",
+      "local": "SelectItem"
+    },
+    {
+      "imported": "SelectTrigger",
+      "local": "SelectTrigger"
+    },
+    {
+      "imported": "ChevronRight",
+      "local": "ChevronRight"
+    },
+    {
+      "imported": "Check",
+      "local": "Check"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "AlertTriangle",
+      "local": "AlertTriangle"
+    },
+    {
+      "imported": "Map",
+      "local": "Map"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "RefreshCw",
+      "local": "RefreshCw"
+    },
+    {
+      "imported": "Lightbulb",
+      "local": "Lightbulb"
+    },
+    {
+      "imported": "X",
+      "local": "X"
+    }
+  ],
+  "src/components/health/HealthDashboard.jsx": [
+    {
+      "imported": "Activity",
+      "local": "Activity"
+    },
+    {
+      "imported": "Moon",
+      "local": "Moon"
+    },
+    {
+      "imported": "Heart",
+      "local": "Heart"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    }
+  ],
+  "src/components/health/HealthDataForm.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "SelectContent",
+      "local": "SelectContent"
+    },
+    {
+      "imported": "SelectItem",
+      "local": "SelectItem"
+    },
+    {
+      "imported": "SelectTrigger",
+      "local": "SelectTrigger"
+    },
+    {
+      "imported": "Activity",
+      "local": "Activity"
+    },
+    {
+      "imported": "Moon",
+      "local": "Moon"
+    },
+    {
+      "imported": "Heart",
+      "local": "Heart"
+    },
+    {
+      "imported": "Droplet",
+      "local": "Droplet"
+    }
+  ],
+  "src/components/health/HealthInsights.jsx": [
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "Activity",
+      "local": "Activity"
+    },
+    {
+      "imported": "Heart",
+      "local": "Heart"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    }
+  ],
+  "src/components/home/AiPersonalizedFeed.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "Play",
+      "local": "Play"
+    },
+    {
+      "imported": "ArrowRight",
+      "local": "ArrowRight"
+    },
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
+      "imported": "RefreshCw",
+      "local": "RefreshCw"
+    }
+  ],
+  "src/components/home/DailyProgram.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Clock",
+      "local": "Clock"
+    },
+    {
+      "imported": "Heart",
+      "local": "Heart"
+    },
+    {
+      "imported": "Headphones",
+      "local": "Headphones"
+    }
+  ],
+  "src/components/home/DailyReflection.jsx": [
+    {
+      "imported": "CheckCircle2",
+      "local": "CheckCircle2"
+    },
+    {
+      "imported": "Lightbulb",
+      "local": "Lightbulb"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    }
+  ],
+  "src/components/home/EnhancedMoodCheckIn.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "ChevronLeft",
+      "local": "ChevronLeft"
+    },
+    {
+      "imported": "ChevronDown",
+      "local": "ChevronDown"
+    },
+    {
+      "imported": "ChevronUp",
+      "local": "ChevronUp"
+    },
+    {
+      "imported": "Edit2",
+      "local": "Edit2"
+    },
+    {
+      "imported": "Trash2",
+      "local": "Trash2"
+    }
+  ],
+  "src/components/home/MoodCheckIn.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    }
+  ],
+  "src/components/home/PersonalizedContentFeed.jsx": [
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    },
+    {
+      "imported": "Dumbbell",
+      "local": "Dumbbell"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "ExternalLink",
+      "local": "ExternalLink"
+    },
+    {
+      "imported": "Quote",
+      "local": "Quote"
+    },
+    {
+      "imported": "Users",
+      "local": "Users"
+    },
+    {
+      "imported": "RefreshCw",
+      "local": "RefreshCw"
+    }
+  ],
+  "src/components/home/PersonalizedFeed.jsx": [
+    {
+      "imported": "useMutation",
+      "local": "useMutation"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Dumbbell",
+      "local": "Dumbbell"
+    },
+    {
+      "imported": "ThumbsUp",
+      "local": "ThumbsUp"
+    },
+    {
+      "imported": "ThumbsDown",
+      "local": "ThumbsDown"
+    },
+    {
+      "imported": "Clock",
+      "local": "Clock"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    }
+  ],
+  "src/components/home/ProactiveNudges.jsx": [
+    {
+      "imported": "useMutation",
+      "local": "useMutation"
+    },
+    {
+      "imported": "X",
+      "local": "X"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "Activity",
+      "local": "Activity"
+    },
+    {
+      "imported": "CheckCircle",
+      "local": "CheckCircle"
+    }
+  ],
+  "src/components/home/QuickActions.jsx": [
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "Dumbbell",
+      "local": "Dumbbell"
+    },
+    {
+      "imported": "Play",
+      "local": "Play"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "Puzzle",
+      "local": "Puzzle"
+    },
+    {
+      "imported": "User",
+      "local": "User"
+    },
+    {
+      "imported": "Compass",
+      "local": "Compass"
+    },
+    {
+      "imported": "RefreshCw",
+      "local": "RefreshCw"
+    },
+    {
+      "imported": "ArrowRight",
+      "local": "ArrowRight"
+    }
+  ],
+  "src/components/home/RecentProgress.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    }
+  ],
+  "src/components/home/StandaloneDailyCheckIn.jsx": [
+    {
+      "imported": "useQueryClient",
+      "local": "useQueryClient"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "ChevronDown",
+      "local": "ChevronDown"
+    },
+    {
+      "imported": "ChevronUp",
+      "local": "ChevronUp"
+    },
+    {
+      "imported": "Edit2",
+      "local": "Edit2"
+    },
+    {
+      "imported": "Trash2",
+      "local": "Trash2"
+    },
+    {
+      "imported": "Heart",
+      "local": "Heart"
+    },
+    {
+      "imported": "User",
+      "local": "User"
+    }
+  ],
+  "src/components/home/StarterPathCard.jsx": [
+    {
+      "imported": "useMutation",
+      "local": "useMutation"
+    },
+    {
+      "imported": "ArrowRight",
+      "local": "ArrowRight"
+    }
+  ],
+  "src/components/home/TodaysFocus.jsx": [
+    {
+      "imported": "Heart",
+      "local": "Heart"
+    },
+    {
+      "imported": "Dumbbell",
+      "local": "Dumbbell"
+    },
+    {
+      "imported": "Lightbulb",
+      "local": "Lightbulb"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "User",
+      "local": "User"
+    }
+  ],
+  "src/components/home/VideoModal.jsx": [
+    {
+      "imported": "X",
+      "local": "X"
+    }
+  ],
+  "src/components/journal/AiDistortionAnalysis.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
+      "imported": "Lightbulb",
+      "local": "Lightbulb"
+    },
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    }
+  ],
+  "src/components/journal/AiEntrySummary.jsx": [
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    }
+  ],
+  "src/components/journal/AiJournalPrompts.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
+      "imported": "RefreshCw",
+      "local": "RefreshCw"
+    },
+    {
+      "imported": "X",
+      "local": "X"
+    }
+  ],
+  "src/components/journal/AiJournalSuggestions.jsx": [
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
+      "imported": "Dumbbell",
+      "local": "Dumbbell"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "MessageSquare",
+      "local": "MessageSquare"
+    },
+    {
+      "imported": "BarChart3",
+      "local": "BarChart3"
+    },
+    {
+      "imported": "Lightbulb",
+      "local": "Lightbulb"
+    }
+  ],
+  "src/components/journal/AiTrendsSummary.jsx": [
+    {
+      "imported": "TrendingDown",
+      "local": "TrendingDown"
+    },
+    {
+      "imported": "Calendar",
+      "local": "Calendar"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "Heart",
+      "local": "Heart"
+    },
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
+      "imported": "BarChart3",
+      "local": "BarChart3"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "X",
+      "local": "X"
+    }
+  ],
+  "src/components/journal/JournalInsightsPanel.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    }
+  ],
+  "src/components/journal/ReminderManager.jsx": [
+    {
+      "imported": "useMutation",
+      "local": "useMutation"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "SelectContent",
+      "local": "SelectContent"
+    },
+    {
+      "imported": "SelectItem",
+      "local": "SelectItem"
+    },
+    {
+      "imported": "SelectTrigger",
+      "local": "SelectTrigger"
+    },
+    {
+      "imported": "Plus",
+      "local": "Plus"
+    },
+    {
+      "imported": "Bell",
+      "local": "Bell"
+    },
+    {
+      "imported": "Clock",
+      "local": "Clock"
+    },
+    {
+      "imported": "Trash2",
+      "local": "Trash2"
+    },
+    {
+      "imported": "Edit",
+      "local": "Edit"
+    }
+  ],
+  "src/components/journal/SessionSummaryCard.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "CardTitle",
+      "local": "CardTitle"
+    },
+    {
+      "imported": "Calendar",
+      "local": "Calendar"
+    },
+    {
+      "imported": "Lightbulb",
+      "local": "Lightbulb"
+    },
+    {
+      "imported": "ClipboardList",
+      "local": "ClipboardList"
+    },
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    },
+    {
+      "imported": "Download",
+      "local": "Download"
+    }
+  ],
+  "src/components/journal/TemplateManager.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Plus",
+      "local": "Plus"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "Heart",
+      "local": "Heart"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "FileText",
+      "local": "FileText"
+    },
+    {
+      "imported": "Edit",
+      "local": "Edit"
+    },
+    {
+      "imported": "Trash2",
+      "local": "Trash2"
+    }
+  ],
+  "src/components/journal/ThoughtCoachWizard.jsx": [
+    {
+      "imported": "ChevronRight",
+      "local": "ChevronRight"
+    },
+    {
+      "imported": "ChevronLeft",
+      "local": "ChevronLeft"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "Frown",
+      "local": "Frown"
+    },
+    {
+      "imported": "AlertCircle",
+      "local": "AlertCircle"
+    },
+    {
+      "imported": "Zap",
+      "local": "Zap"
+    },
+    {
+      "imported": "Flame",
+      "local": "Flame"
+    },
+    {
+      "imported": "Users",
+      "local": "Users"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "Cloud",
+      "local": "Cloud"
+    },
+    {
+      "imported": "HeartCrack",
+      "local": "HeartCrack"
+    },
+    {
+      "imported": "HelpCircle",
+      "local": "HelpCircle"
+    }
+  ],
+  "src/components/journal/ThoughtRecordCard.jsx": [
+    {
+      "imported": "ChevronUp",
+      "local": "ChevronUp"
+    },
+    {
+      "imported": "Edit",
+      "local": "Edit"
+    },
+    {
+      "imported": "Trash2",
+      "local": "Trash2"
+    },
+    {
+      "imported": "TrendingDown",
+      "local": "TrendingDown"
+    },
+    {
+      "imported": "Image",
+      "local": "ImageIcon"
+    },
+    {
+      "imported": "Mic",
+      "local": "Mic"
+    },
+    {
+      "imported": "Tag",
+      "local": "Tag"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "Download",
+      "local": "Download"
+    }
+  ],
+  "src/components/journal/ThoughtRecordForm.jsx": [
+    {
+      "imported": "useQuery",
+      "local": "useQuery"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "SelectContent",
+      "local": "SelectContent"
+    },
+    {
+      "imported": "SelectItem",
+      "local": "SelectItem"
+    },
+    {
+      "imported": "SelectTrigger",
+      "local": "SelectTrigger"
+    },
+    {
+      "imported": "Image",
+      "local": "ImageIcon"
+    },
+    {
+      "imported": "Mic",
+      "local": "Mic"
+    },
+    {
+      "imported": "Trash2",
+      "local": "Trash2"
+    },
+    {
+      "imported": "Plus",
+      "local": "Plus"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "Lightbulb",
+      "local": "Lightbulb"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
+      "imported": "Link2",
+      "local": "Link2"
+    }
+  ],
+  "src/components/journeys/JourneyCard.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    }
+  ],
+  "src/components/journeys/JourneyDetail.jsx": [
+    {
+      "imported": "Circle",
+      "local": "Circle"
+    },
+    {
+      "imported": "Lock",
+      "local": "Lock"
+    },
+    {
+      "imported": "Play",
+      "local": "Play"
+    }
+  ],
+  "src/components/layout/BottomNav.jsx": [
+    {
+      "imported": "Link",
+      "local": "Link"
+    },
+    {
+      "imported": "MessageCircle",
+      "local": "MessageCircle"
+    },
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    },
+    {
+      "imported": "Activity",
+      "local": "Activity"
+    },
+    {
+      "imported": "Dumbbell",
+      "local": "Dumbbell"
+    },
+    {
+      "imported": "Heart",
+      "local": "Heart"
+    }
+  ],
+  "src/components/layout/MobileHeader.jsx": [
+    {
+      "imported": "useNavigate",
+      "local": "useNavigate"
+    }
+  ],
+  "src/components/layout/MobileMenu.jsx": [
+    {
+      "imported": "X",
+      "local": "X"
+    },
+    {
+      "imported": "Users",
+      "local": "Users"
+    },
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    },
+    {
+      "imported": "Settings",
+      "local": "Settings"
+    }
+  ],
+  "src/components/layout/Sidebar.jsx": [
+    {
+      "imported": "MessageCircle",
+      "local": "MessageCircle"
+    },
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    },
+    {
+      "imported": "Activity",
+      "local": "Activity"
+    },
+    {
+      "imported": "Dumbbell",
+      "local": "Dumbbell"
+    },
+    {
+      "imported": "Heart",
+      "local": "Heart"
+    },
+    {
+      "imported": "Users",
+      "local": "Users"
+    },
+    {
+      "imported": "Settings",
+      "local": "Settings"
+    }
+  ],
+  "src/components/mood/DetailedMoodForm.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Battery",
+      "local": "Battery"
+    },
+    {
+      "imported": "Moon",
+      "local": "Moon"
+    },
+    {
+      "imported": "Zap",
+      "local": "Zap"
+    }
+  ],
+  "src/components/mood/MoodCalendar.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "ChevronRight",
+      "local": "ChevronRight"
+    },
+    {
+      "imported": "Calendar",
+      "local": "Calendar"
+    }
+  ],
+  "src/components/mood/MoodInsights.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "AlertTriangle",
+      "local": "AlertTriangle"
+    },
+    {
+      "imported": "Lightbulb",
+      "local": "Lightbulb"
+    },
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    }
+  ],
+  "src/components/mood/MoodTrendChart.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "SelectContent",
+      "local": "SelectContent"
+    },
+    {
+      "imported": "SelectItem",
+      "local": "SelectItem"
+    },
+    {
+      "imported": "SelectTrigger",
+      "local": "SelectTrigger"
+    },
+    {
+      "imported": "Line",
+      "local": "Line"
+    },
+    {
+      "imported": "AreaChart",
+      "local": "AreaChart"
+    },
+    {
+      "imported": "Area",
+      "local": "Area"
+    },
+    {
+      "imported": "XAxis",
+      "local": "XAxis"
+    },
+    {
+      "imported": "YAxis",
+      "local": "YAxis"
+    },
+    {
+      "imported": "CartesianGrid",
+      "local": "CartesianGrid"
+    },
+    {
+      "imported": "Tooltip",
+      "local": "Tooltip"
+    },
+    {
+      "imported": "ResponsiveContainer",
+      "local": "ResponsiveContainer"
+    },
+    {
+      "imported": "TrendingDown",
+      "local": "TrendingDown"
+    },
+    {
+      "imported": "Activity",
+      "local": "Activity"
+    }
+  ],
+  "src/components/mood/TriggerAnalysis.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "Activity",
+      "local": "Activity"
+    }
+  ],
+  "src/components/notifications/NotificationBell.jsx": [
+    {
+      "imported": "useMutation",
+      "local": "useMutation"
+    },
+    {
+      "imported": "X",
+      "local": "X"
+    },
+    {
+      "imported": "CheckCheck",
+      "local": "CheckCheck"
+    },
+    {
+      "imported": "ExternalLink",
+      "local": "ExternalLink"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "Dumbbell",
+      "local": "Dumbbell"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "Calendar",
+      "local": "Calendar"
+    },
+    {
+      "imported": "Flame",
+      "local": "Flame"
+    },
+    {
+      "imported": "FileText",
+      "local": "FileText"
+    },
+    {
+      "imported": "AtSign",
+      "local": "AtSign"
+    },
+    {
+      "imported": "Info",
+      "local": "Info"
+    }
+  ],
+  "src/components/onboarding/OnboardingTour.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "ChevronRight",
+      "local": "ChevronRight"
+    },
+    {
+      "imported": "ChevronLeft",
+      "local": "ChevronLeft"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    }
+  ],
+  "src/components/onboarding/WelcomeWizard.jsx": [
+    {
+      "imported": "ChevronLeft",
+      "local": "ChevronLeft"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    },
+    {
+      "imported": "Activity",
+      "local": "Activity"
+    }
+  ],
+  "src/components/playlists/AddToPlaylistModal.jsx": [
+    {
+      "imported": "useMutation",
+      "local": "useMutation"
+    },
+    {
+      "imported": "DialogContent",
+      "local": "DialogContent"
+    },
+    {
+      "imported": "DialogHeader",
+      "local": "DialogHeader"
+    },
+    {
+      "imported": "Check",
+      "local": "Check"
+    },
+    {
+      "imported": "List",
+      "local": "List"
+    }
+  ],
+  "src/components/progress/AIInsights.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "AlertTriangle",
+      "local": "AlertTriangle"
+    },
+    {
+      "imported": "Lightbulb",
+      "local": "Lightbulb"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
+      "imported": "RefreshCw",
+      "local": "RefreshCw"
+    }
+  ],
+  "src/components/progress/CorrelationInsights.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
+      "imported": "Activity",
+      "local": "Activity"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "Lightbulb",
+      "local": "Lightbulb"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    }
+  ],
+  "src/components/progress/EnhancedProgressDashboard.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "TrendingDown",
+      "local": "TrendingDown"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    },
+    {
+      "imported": "Dumbbell",
+      "local": "Dumbbell"
+    },
+    {
+      "imported": "Award",
+      "local": "Award"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "Flame",
+      "local": "Flame"
+    },
+    {
+      "imported": "Zap",
+      "local": "Zap"
+    }
+  ],
+  "src/components/progress/ExerciseTracker.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Bar",
+      "local": "Bar"
+    },
+    {
+      "imported": "XAxis",
+      "local": "XAxis"
+    },
+    {
+      "imported": "YAxis",
+      "local": "YAxis"
+    },
+    {
+      "imported": "CartesianGrid",
+      "local": "CartesianGrid"
+    },
+    {
+      "imported": "Tooltip",
+      "local": "Tooltip"
+    },
+    {
+      "imported": "ResponsiveContainer",
+      "local": "ResponsiveContainer"
+    }
+  ],
+  "src/components/progress/GoalsProgressTracker.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "Calendar",
+      "local": "Calendar"
+    },
+    {
+      "imported": "CheckCircle2",
+      "local": "CheckCircle2"
+    },
+    {
+      "imported": "Circle",
+      "local": "Circle"
+    },
+    {
+      "imported": "Clock",
+      "local": "Clock"
+    }
+  ],
+  "src/components/progress/InsightsPanel.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    }
+  ],
+  "src/components/progress/JournalTracker.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Line",
+      "local": "Line"
+    },
+    {
+      "imported": "XAxis",
+      "local": "XAxis"
+    },
+    {
+      "imported": "YAxis",
+      "local": "YAxis"
+    },
+    {
+      "imported": "CartesianGrid",
+      "local": "CartesianGrid"
+    },
+    {
+      "imported": "Tooltip",
+      "local": "Tooltip"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "TrendingDown",
+      "local": "TrendingDown"
+    }
+  ],
+  "src/components/progress/StatsOverview.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "MessageCircle",
+      "local": "MessageCircle"
+    }
+  ],
+  "src/components/resources/AIResourceRecommendations.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "ExternalLink",
+      "local": "ExternalLink"
+    },
+    {
+      "imported": "Bookmark",
+      "local": "Bookmark"
+    },
+    {
+      "imported": "BookmarkCheck",
+      "local": "BookmarkCheck"
+    }
+  ],
+  "src/components/resources/ResourceCard.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "Bookmark",
+      "local": "Bookmark"
+    },
+    {
+      "imported": "BookmarkCheck",
+      "local": "BookmarkCheck"
+    },
+    {
+      "imported": "FileText",
+      "local": "FileText"
+    },
+    {
+      "imported": "Video",
+      "local": "Video"
+    },
+    {
+      "imported": "Headphones",
+      "local": "Headphones"
+    },
+    {
+      "imported": "Smartphone",
+      "local": "Smartphone"
+    },
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    },
+    {
+      "imported": "Globe",
+      "local": "Globe"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "Users",
+      "local": "Users"
+    }
+  ],
+  "src/components/settings/DataPrivacy.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "SelectContent",
+      "local": "SelectContent"
+    },
+    {
+      "imported": "SelectItem",
+      "local": "SelectItem"
+    },
+    {
+      "imported": "SelectTrigger",
+      "local": "SelectTrigger"
+    },
+    {
+      "imported": "Download",
+      "local": "Download"
+    },
+    {
+      "imported": "Trash2",
+      "local": "Trash2"
+    },
+    {
+      "imported": "CheckCircle2",
+      "local": "CheckCircle2"
+    },
+    {
+      "imported": "AlertCircle",
+      "local": "AlertCircle"
+    },
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    }
+  ],
+  "src/components/settings/LanguageSelector.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Check",
+      "local": "Check"
+    }
+  ],
+  "src/components/settings/NotificationSettings.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Mail",
+      "local": "Mail"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "Dumbbell",
+      "local": "Dumbbell"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "Calendar",
+      "local": "Calendar"
+    },
+    {
+      "imported": "Flame",
+      "local": "Flame"
+    },
+    {
+      "imported": "AtSign",
+      "local": "AtSign"
+    },
+    {
+      "imported": "AlertCircle",
+      "local": "AlertCircle"
+    }
+  ],
+  "src/components/settings/ThemeSelector.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Check",
+      "local": "Check"
+    }
+  ],
+  "src/components/starterpath/PersonalizationSetup.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "Heart",
+      "local": "Heart"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "ArrowRight",
+      "local": "ArrowRight"
+    }
+  ],
+  "src/components/subscription/PremiumBadge.jsx": [
+    {
+      "imported": "Lock",
+      "local": "Lock"
+    }
+  ],
+  "src/components/subscription/PremiumPaywall.jsx": [
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "Check",
+      "local": "Check"
+    },
+    {
+      "imported": "X",
+      "local": "X"
+    }
+  ],
+  "src/components/ui/accordion.jsx": [
+    {
+      "imported": "ChevronDown",
+      "local": "ChevronDown"
+    }
+  ],
+  "src/components/ui/breadcrumb.jsx": [
+    {
+      "imported": "MoreHorizontal",
+      "local": "MoreHorizontal"
+    }
+  ],
+  "src/components/ui/calendar.jsx": [
+    {
+      "imported": "ChevronLeft",
+      "local": "ChevronLeft"
+    },
+    {
+      "imported": "ChevronRight",
+      "local": "ChevronRight"
+    }
+  ],
+  "src/components/ui/carousel.jsx": [
+    {
+      "imported": "ArrowLeft",
+      "local": "ArrowLeft"
+    },
+    {
+      "imported": "ArrowRight",
+      "local": "ArrowRight"
+    }
+  ],
+  "src/components/ui/checkbox.jsx": [
+    {
+      "imported": "Check",
+      "local": "Check"
+    }
+  ],
+  "src/components/ui/context-menu.jsx": [
+    {
+      "imported": "Check",
+      "local": "Check"
+    },
+    {
+      "imported": "ChevronRight",
+      "local": "ChevronRight"
+    },
+    {
+      "imported": "Circle",
+      "local": "Circle"
+    }
+  ],
+  "src/components/ui/date-picker-mobile.jsx": [
+    {
+      "imported": "DrawerContent",
+      "local": "DrawerContent"
+    },
+    {
+      "imported": "DrawerHeader",
+      "local": "DrawerHeader"
+    },
+    {
+      "imported": "DrawerTitle",
+      "local": "DrawerTitle"
+    },
+    {
+      "imported": "DrawerFooter",
+      "local": "DrawerFooter"
+    }
+  ],
+  "src/components/ui/dialog.jsx": [
+    {
+      "imported": "X",
+      "local": "X"
+    }
+  ],
+  "src/components/ui/dropdown-menu.jsx": [
+    {
+      "imported": "Check",
+      "local": "Check"
+    },
+    {
+      "imported": "ChevronRight",
+      "local": "ChevronRight"
+    },
+    {
+      "imported": "Circle",
+      "local": "Circle"
+    }
+  ],
+  "src/components/ui/input-otp.jsx": [
+    {
+      "imported": "OTPInput",
+      "local": "OTPInput"
+    }
+  ],
+  "src/components/ui/menubar.jsx": [
+    {
+      "imported": "Check",
+      "local": "Check"
+    },
+    {
+      "imported": "ChevronRight",
+      "local": "ChevronRight"
+    },
+    {
+      "imported": "Circle",
+      "local": "Circle"
+    }
+  ],
+  "src/components/ui/pagination.jsx": [
+    {
+      "imported": "ChevronLeft",
+      "local": "ChevronLeft"
+    },
+    {
+      "imported": "ChevronRight",
+      "local": "ChevronRight"
+    },
+    {
+      "imported": "MoreHorizontal",
+      "local": "MoreHorizontal"
+    }
+  ],
+  "src/components/ui/radio-group.jsx": [
+    {
+      "imported": "Circle",
+      "local": "Circle"
+    }
+  ],
+  "src/components/ui/resizable.jsx": [
+    {
+      "imported": "GripVertical",
+      "local": "GripVertical"
+    }
+  ],
+  "src/components/ui/select.jsx": [
+    {
+      "imported": "Check",
+      "local": "Check"
+    },
+    {
+      "imported": "ChevronDown",
+      "local": "ChevronDown"
+    },
+    {
+      "imported": "ChevronUp",
+      "local": "ChevronUp"
+    }
+  ],
+  "src/pages/AdvancedAnalytics.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "TabsContent",
+      "local": "TabsContent"
+    },
+    {
+      "imported": "TabsList",
+      "local": "TabsList"
+    },
+    {
+      "imported": "Line",
+      "local": "Line"
+    },
+    {
+      "imported": "BarChart",
+      "local": "BarChart"
+    },
+    {
+      "imported": "Bar",
+      "local": "Bar"
+    },
+    {
+      "imported": "PieChart",
+      "local": "PieChart"
+    },
+    {
+      "imported": "Pie",
+      "local": "Pie"
+    },
+    {
+      "imported": "Cell",
+      "local": "Cell"
+    },
+    {
+      "imported": "XAxis",
+      "local": "XAxis"
+    },
+    {
+      "imported": "YAxis",
+      "local": "YAxis"
+    },
+    {
+      "imported": "CartesianGrid",
+      "local": "CartesianGrid"
+    },
+    {
+      "imported": "Tooltip",
+      "local": "Tooltip"
+    },
+    {
+      "imported": "Legend",
+      "local": "Legend"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "Activity",
+      "local": "Activity"
+    },
+    {
+      "imported": "Download",
+      "local": "Download"
+    },
+    {
+      "imported": "Crown",
+      "local": "Crown"
+    },
+    {
+      "imported": "Lock",
+      "local": "Lock"
+    },
+    {
+      "imported": "ArrowLeft",
+      "local": "ArrowLeft"
+    }
+  ],
+  "src/pages/Chat.jsx": [
+    {
+      "imported": "useMutation",
+      "local": "useMutation"
+    },
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    },
+    {
+      "imported": "Menu",
+      "local": "Menu"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "ArrowLeft",
+      "local": "ArrowLeft"
+    }
+  ],
+  "src/pages/Coach.jsx": [
+    {
+      "imported": "useMutation",
+      "local": "useMutation"
+    },
+    {
+      "imported": "TabsContent",
+      "local": "TabsContent"
+    },
+    {
+      "imported": "TabsList",
+      "local": "TabsList"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "MessageCircle",
+      "local": "MessageCircle"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "BarChart3",
+      "local": "BarChart3"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "ArrowLeft",
+      "local": "ArrowLeft"
+    }
+  ],
+  "src/pages/CoachingAnalytics.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Bar",
+      "local": "Bar"
+    },
+    {
+      "imported": "PieChart",
+      "local": "PieChart"
+    },
+    {
+      "imported": "Pie",
+      "local": "Pie"
+    },
+    {
+      "imported": "Cell",
+      "local": "Cell"
+    },
+    {
+      "imported": "XAxis",
+      "local": "XAxis"
+    },
+    {
+      "imported": "YAxis",
+      "local": "YAxis"
+    },
+    {
+      "imported": "CartesianGrid",
+      "local": "CartesianGrid"
+    },
+    {
+      "imported": "Tooltip",
+      "local": "Tooltip"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "CheckCircle",
+      "local": "CheckCircle"
+    },
+    {
+      "imported": "Users",
+      "local": "Users"
+    },
+    {
+      "imported": "ArrowLeft",
+      "local": "ArrowLeft"
+    }
+  ],
+  "src/pages/Community.jsx": [
+    {
+      "imported": "useMutation",
+      "local": "useMutation"
+    },
+    {
+      "imported": "TabsList",
+      "local": "TabsList"
+    },
+    {
+      "imported": "TabsTrigger",
+      "local": "TabsTrigger"
+    },
+    {
+      "imported": "Users",
+      "local": "Users"
+    },
+    {
+      "imported": "MessageSquare",
+      "local": "MessageSquare"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "Search",
+      "local": "Search"
+    },
+    {
+      "imported": "ThumbsUp",
+      "local": "ThumbsUp"
+    },
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    }
+  ],
+  "src/pages/CrisisAlerts.jsx": [
+    {
+      "imported": "SelectContent",
+      "local": "SelectContent"
+    },
+    {
+      "imported": "SelectItem",
+      "local": "SelectItem"
+    },
+    {
+      "imported": "SelectTrigger",
+      "local": "SelectTrigger"
+    },
+    {
+      "imported": "Filter",
+      "local": "Filter"
+    },
+    {
+      "imported": "MessageCircle",
+      "local": "MessageCircle"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    }
+  ],
+  "src/pages/Exercises.jsx": [
+    {
+      "imported": "useMutation",
+      "local": "useMutation"
+    },
+    {
+      "imported": "TabsList",
+      "local": "TabsList"
+    },
+    {
+      "imported": "Anchor",
+      "local": "Anchor"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "Heart",
+      "local": "Heart"
+    },
+    {
+      "imported": "Search",
+      "local": "Search"
+    },
+    {
+      "imported": "Star",
+      "local": "Star"
+    },
+    {
+      "imported": "Moon",
+      "local": "Moon"
+    },
+    {
+      "imported": "Users",
+      "local": "Users"
+    },
+    {
+      "imported": "Zap",
+      "local": "Zap"
+    },
+    {
+      "imported": "ChevronRight",
+      "local": "ChevronRight"
+    }
+  ],
+  "src/pages/ExerciseView.jsx": [
+    {
+      "imported": "useMutation",
+      "local": "useMutation"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "TabsContent",
+      "local": "TabsContent"
+    },
+    {
+      "imported": "TabsList",
+      "local": "TabsList"
+    },
+    {
+      "imported": "Play",
+      "local": "Play"
+    },
+    {
+      "imported": "CheckCircle",
+      "local": "CheckCircle"
+    },
+    {
+      "imported": "Clock",
+      "local": "Clock"
+    },
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    },
+    {
+      "imported": "Lightbulb",
+      "local": "Lightbulb"
+    },
+    {
+      "imported": "Star",
+      "local": "Star"
+    },
+    {
+      "imported": "Video",
+      "local": "Video"
+    },
+    {
+      "imported": "Heart",
+      "local": "Heart"
+    },
+    {
+      "imported": "Headphones",
+      "local": "Headphones"
+    },
+    {
+      "imported": "Eye",
+      "local": "Eye"
+    }
+  ],
+  "src/pages/ExperientialGames.jsx": [
+    {
+      "imported": "Dialog",
+      "local": "Dialog"
+    },
+    {
+      "imported": "DialogPortal",
+      "local": "DialogPortal"
+    },
+    {
+      "imported": "DialogOverlay",
+      "local": "DialogOverlay"
+    },
+    {
+      "imported": "DialogHeader",
+      "local": "DialogHeader"
+    },
+    {
+      "imported": "X",
+      "local": "X"
+    }
+  ],
+  "src/pages/Goals.jsx": [
+    {
+      "imported": "useMutation",
+      "local": "useMutation"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "Calendar",
+      "local": "CalendarIcon"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "Lightbulb",
+      "local": "Lightbulb"
+    },
+    {
+      "imported": "Clock",
+      "local": "Clock"
+    },
+    {
+      "imported": "LayoutGrid",
+      "local": "LayoutGrid"
+    }
+  ],
+  "src/pages/Home.jsx": [
+    {
+      "imported": "useMutation",
+      "local": "useMutation"
+    },
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    }
+  ],
+  "src/pages/Journal.jsx": [
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    },
+    {
+      "imported": "Search",
+      "local": "Search"
+    },
+    {
+      "imported": "Settings",
+      "local": "Settings"
+    },
+    {
+      "imported": "Bell",
+      "local": "Bell"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "BarChart2",
+      "local": "BarChart2"
+    }
+  ],
+  "src/pages/JournalDashboard.jsx": [
+    {
+      "imported": "Line",
+      "local": "Line"
+    },
+    {
+      "imported": "XAxis",
+      "local": "XAxis"
+    },
+    {
+      "imported": "YAxis",
+      "local": "YAxis"
+    },
+    {
+      "imported": "CartesianGrid",
+      "local": "CartesianGrid"
+    },
+    {
+      "imported": "Tooltip",
+      "local": "Tooltip"
+    },
+    {
+      "imported": "ResponsiveContainer",
+      "local": "ResponsiveContainer"
+    },
+    {
+      "imported": "AreaChart",
+      "local": "AreaChart"
+    },
+    {
+      "imported": "Area",
+      "local": "Area"
+    },
+    {
+      "imported": "BarChart",
+      "local": "BarChart"
+    },
+    {
+      "imported": "Bar",
+      "local": "Bar"
+    },
+    {
+      "imported": "Legend",
+      "local": "Legend"
+    },
+    {
+      "imported": "subDays",
+      "local": "subDays"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "TrendingDown",
+      "local": "TrendingDown"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "Minus",
+      "local": "Minus"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "BookOpen",
+      "local": "BookOpen"
+    },
+    {
+      "imported": "BarChart2",
+      "local": "BarChart2"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    }
+  ],
+  "src/pages/Journeys.jsx": [
+    {
+      "imported": "useMutation",
+      "local": "useMutation"
+    },
+    {
+      "imported": "TabsContent",
+      "local": "TabsContent"
+    },
+    {
+      "imported": "TabsList",
+      "local": "TabsList"
+    }
+  ],
+  "src/pages/MoodTracker.jsx": [
+    {
+      "imported": "TabsContent",
+      "local": "TabsContent"
+    },
+    {
+      "imported": "TabsList",
+      "local": "TabsList"
+    },
+    {
+      "imported": "TrendingUp",
+      "local": "TrendingUp"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "Calendar",
+      "local": "Calendar"
+    }
+  ],
+  "src/pages/PlaylistDetail.jsx": [
+    {
+      "imported": "useMutation",
+      "local": "useMutation"
+    },
+    {
+      "imported": "Play",
+      "local": "Play"
+    },
+    {
+      "imported": "X",
+      "local": "X"
+    }
+  ],
+  "src/pages/Playlists.jsx": [
+    {
+      "imported": "useMutation",
+      "local": "useMutation"
+    },
+    {
+      "imported": "List",
+      "local": "List"
+    },
+    {
+      "imported": "Trash2",
+      "local": "Trash2"
+    },
+    {
+      "imported": "ArrowLeft",
+      "local": "ArrowLeft"
+    }
+  ],
+  "src/pages/Progress.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "TabsList",
+      "local": "TabsList"
+    },
+    {
+      "imported": "TabsTrigger",
+      "local": "TabsTrigger"
+    },
+    {
+      "imported": "Calendar",
+      "local": "Calendar"
+    },
+    {
+      "imported": "Activity",
+      "local": "Activity"
+    },
+    {
+      "imported": "Trophy",
+      "local": "Trophy"
+    }
+  ],
+  "src/pages/Resources.jsx": [
+    {
+      "imported": "useMutation",
+      "local": "useMutation"
+    },
+    {
+      "imported": "TabsList",
+      "local": "TabsList"
+    },
+    {
+      "imported": "Bookmark",
+      "local": "Bookmark"
+    },
+    {
+      "imported": "Library",
+      "local": "Library"
+    }
+  ],
+  "src/pages/Settings.jsx": [
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "AlertDialogAction",
+      "local": "AlertDialogAction"
+    },
+    {
+      "imported": "AlertDialogCancel",
+      "local": "AlertDialogCancel"
+    },
+    {
+      "imported": "AlertDialogContent",
+      "local": "AlertDialogContent"
+    },
+    {
+      "imported": "AlertDialogDescription",
+      "local": "AlertDialogDescription"
+    },
+    {
+      "imported": "AlertDialogFooter",
+      "local": "AlertDialogFooter"
+    },
+    {
+      "imported": "AlertDialogHeader",
+      "local": "AlertDialogHeader"
+    },
+    {
+      "imported": "AlertDialogTitle",
+      "local": "AlertDialogTitle"
+    },
+    {
+      "imported": "CreditCard",
+      "local": "CreditCard"
+    },
+    {
+      "imported": "LogOut",
+      "local": "LogOut"
+    },
+    {
+      "imported": "Crown",
+      "local": "Crown"
+    },
+    {
+      "imported": "Shield",
+      "local": "Shield"
+    },
+    {
+      "imported": "Layout",
+      "local": "LayoutIcon"
+    },
+    {
+      "imported": "Trash2",
+      "local": "Trash2"
+    }
+  ],
+  "src/pages/StarterPath.jsx": [
+    {
+      "imported": "useMutation",
+      "local": "useMutation"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "CheckCircle2",
+      "local": "CheckCircle2"
+    },
+    {
+      "imported": "Loader2",
+      "local": "Loader2"
+    }
+  ],
+  "src/pages/TestSetupGuide.jsx": [
+    {
+      "imported": "Card",
+      "local": "Card"
+    },
+    {
+      "imported": "CardContent",
+      "local": "CardContent"
+    },
+    {
+      "imported": "CardHeader",
+      "local": "CardHeader"
+    },
+    {
+      "imported": "Check",
+      "local": "Check"
+    },
+    {
+      "imported": "Terminal",
+      "local": "Terminal"
+    },
+    {
+      "imported": "Github",
+      "local": "Github"
+    },
+    {
+      "imported": "FileCode",
+      "local": "FileCode"
+    }
+  ],
+  "src/pages/ThoughtCoach.jsx": [
+    {
+      "imported": "ChevronRight",
+      "local": "ChevronRight"
+    },
+    {
+      "imported": "Sparkles",
+      "local": "Sparkles"
+    },
+    {
+      "imported": "Brain",
+      "local": "Brain"
+    },
+    {
+      "imported": "Frown",
+      "local": "Frown"
+    },
+    {
+      "imported": "AlertCircle",
+      "local": "AlertCircle"
+    },
+    {
+      "imported": "Zap",
+      "local": "Zap"
+    },
+    {
+      "imported": "Flame",
+      "local": "Flame"
+    },
+    {
+      "imported": "Users",
+      "local": "Users"
+    },
+    {
+      "imported": "Target",
+      "local": "Target"
+    },
+    {
+      "imported": "Cloud",
+      "local": "Cloud"
+    },
+    {
+      "imported": "HeartCrack",
+      "local": "HeartCrack"
+    },
+    {
+      "imported": "HelpCircle",
+      "local": "HelpCircle"
+    }
+  ],
+  "src/pages/VideoPlayer.jsx": [
+    {
+      "imported": "useMutation",
+      "local": "useMutation"
+    }
+  ],
+  "src/pages/Videos.jsx": [
+    {
+      "imported": "Plus",
+      "local": "Plus"
+    },
+    {
+      "imported": "List",
+      "local": "List"
+    }
+  ]
+}
