@@ -20,7 +20,8 @@
     "test:e2e:android": "playwright test -c playwright.android.config.ts",
     "android:build": "npm run build && npx cap sync android",
     "android:open": "npx cap open android",
-    "android:run": "npx cap run android"
+    "android:run": "npx cap run android",
+    "inventory:lucide": "node scripts/inventory-lucide-icons.mjs"
   },
   "dependencies": {
     "@base44/sdk": "^0.8.0",
