@@ -57,7 +57,7 @@ export default function Goals() {
     },
     initialData: [],
     refetchOnWindowFocus: false,
-    refetchOnMount: 'always', // Always fetch on mount to ensure fresh data
+    refetchOnMount: false,
     staleTime: 30000
   });
 
@@ -70,11 +70,25 @@ export default function Goals() {
 
   const deleteGoalMutation = useMutation({
     mutationFn: (goalId) => base44.entities.Goal.delete(goalId),
+    onMutate: async (goalId) => {
+      await queryClient.cancelQueries({ queryKey: ['allGoals'] });
+      await queryClient.cancelQueries({ queryKey: ['recentGoals'] });
+      const previousGoals = queryClient.getQueryData(['allGoals']);
+      const previousRecentGoals = queryClient.getQueryData(['recentGoals']);
+      queryClient.setQueryData(['allGoals'], (old = []) => old.filter((g) => g.id !== goalId));
+      queryClient.setQueryData(['recentGoals'], (old = []) => old.filter((g) => g.id !== goalId));
+      return { previousGoals, previousRecentGoals };
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allGoals'] });
       emitEntityChange('Goal', 'delete');
     },
-    onError: (error) => {
+    onError: (error, _goalId, context) => {
+      if (context?.previousGoals) {
+        queryClient.setQueryData(['allGoals'], context.previousGoals);
+      }
+      if (context?.previousRecentGoals) {
+        queryClient.setQueryData(['recentGoals'], context.previousRecentGoals);
+      }
       if (isAuthError(error) && shouldShowAuthError()) {
         setShowAuthError(true);
       } else {
