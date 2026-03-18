@@ -1,4 +1,5 @@
 import { test, expect, devices } from '@playwright/test';
+import { mockApi, spaNavigate } from '../helpers/ui';
 
 /**
  * Pull-to-Refresh Gesture Tests
@@ -13,67 +14,11 @@ import { test, expect, devices } from '@playwright/test';
 // Use a mobile device so that touch events fire and the PullToRefresh component activates
 test.use({ ...devices['Pixel 5'] });
 
-const BASE_URL = process.env.E2E_BASE_URL || 'http://localhost:5173';
-
-async function mockApis(page: import('@playwright/test').Page) {
-  await page.route('**/api/apps/**', async (route) => {
-    const url = route.request().url();
-    if (url.includes('/public-settings/')) {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ id: 'test-app-id', appId: 'test-app-id', appName: 'Test App', isPublic: true }),
-      });
-    } else if (url.includes('/entities/User')) {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          id: 'test-user-id',
-          email: 'test@example.com',
-          full_name: 'Test User',
-          role: 'user',
-          onboarding_completed: true,
-          preferences: {},
-        }),
-      });
-    } else {
-      await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
-    }
-  });
-
-  await page.route('**/api/auth/**', async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        id: 'test-user-id',
-        email: 'test@example.com',
-        full_name: 'Test User',
-        role: 'user',
-        onboarding_completed: true,
-        preferences: {},
-      }),
-    });
-  });
-
-  await page.route('**/api/entities/**', async (route) => {
-    await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
-  });
-
-  await page.route('**/analytics/**', async (route) => {
-    await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
-  });
-
-  await page.addInitScript(() => {
-    document.body.setAttribute('data-test-env', 'true');
-    (window as any).__TEST_APP_ID__ = 'test-app-id';
-    (window as any).__DISABLE_ANALYTICS__ = true;
-  });
-}
-
 /**
- * Dispatches touch events on the element at (x, y) to simulate a pull gesture.
+ * Dispatches touch events directly on the PullToRefresh container to simulate a pull gesture.
+ * Dispatching on the container itself (rather than a child via elementFromPoint) ensures
+ * the registered event listeners always receive the events regardless of page load state.
+ *
  * @param page - Playwright page
  * @param startY - Starting Y coordinate (clientY of touchstart)
  * @param endY   - Ending Y coordinate (clientY of the single touchmove)
@@ -89,7 +34,11 @@ async function simulatePull(
       if (main) main.scrollTop = 0;
 
       const x = 200;
-      const target = document.elementFromPoint(x, sx) ?? document.body;
+      // Dispatch directly on the PullToRefresh container so the registered
+      // addEventListener listeners always fire, regardless of what child
+      // element happens to be at the touch coordinates.
+      const container = document.querySelector<HTMLElement>('[data-testid="pull-to-refresh"]');
+      const target = container ?? document.elementFromPoint(x, sx) ?? document.body;
 
       target.dispatchEvent(
         new TouchEvent('touchstart', {
@@ -113,19 +62,15 @@ async function simulatePull(
 
 test.describe('PullToRefresh gesture handling', () => {
   test.beforeEach(async ({ page }) => {
-    await mockApis(page);
-    await page.goto(`${BASE_URL}/Home`, { waitUntil: 'domcontentloaded' });
-    await page.waitForFunction(
-      () => {
-        const root = document.querySelector('#root');
-        return root && root.children.length > 0;
-      },
-      { timeout: 10000 },
-    );
+    await mockApi(page);
+    await spaNavigate(page, '/Home');
+    // Wait for the PullToRefresh container to be present in the DOM, which
+    // confirms the component has mounted and its event listeners are registered.
+    await page.waitForSelector('[data-testid="pull-to-refresh"]', { timeout: 10000 });
   });
 
   test('pull indicator appears for distance within MAX_PULL', async ({ page }) => {
-    // Pull 90px down — past PULL_THRESHOLD (80) but below MAX_PULL (120)
+    // Pull 90px down — past PULL_THRESHOLD (60) but below MAX_PULL (120)
     await simulatePull(page, 200, 290);
 
     await expect(page.getByText('Release to refresh')).toBeVisible({ timeout: 2000 });

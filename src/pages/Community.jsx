@@ -144,7 +144,7 @@ export default function Community() {
           {activeTab === 'forum' &&
             <Button onClick={() => setShowPostForm(true)} className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 gap-2 flex-shrink-0">
               <Plus className="w-4 h-4" />
-              Create Post
+              New Post
             </Button>
             }
           {activeTab === 'groups' &&
