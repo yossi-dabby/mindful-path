@@ -49,6 +49,7 @@
  */
 import { lazy } from 'react';
 import __Layout from './Layout.jsx';
+import MoodTracker from './pages/MoodTracker';
 
 const AdvancedAnalytics = lazy(() => import('./pages/AdvancedAnalytics'));
 const Chat = lazy(() => import('./pages/Chat'));
@@ -65,7 +66,6 @@ const Home = lazy(() => import('./pages/Home'));
 const Journal = lazy(() => import('./pages/Journal'));
 const JournalDashboard = lazy(() => import('./pages/JournalDashboard'));
 const Journeys = lazy(() => import('./pages/Journeys'));
-const MoodTracker = lazy(() => import('./pages/MoodTracker'));
 const PersonalizedFeed = lazy(() => import('./pages/PersonalizedFeed'));
 const PlaylistDetail = lazy(() => import('./pages/PlaylistDetail'));
 const Playlists = lazy(() => import('./pages/Playlists'));
