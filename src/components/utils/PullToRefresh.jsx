@@ -82,22 +82,20 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
     setPullDistance(0);
   }, [queryClient, onRefresh]);
 
-  // Register touch listeners with { passive: false } so e.preventDefault() works
-  // without triggering browser warnings about passive event listeners.
-  // Capture `el` at setup time so the cleanup removes listeners from the same
-  // element they were added to, even if containerRef.current changes later.
+  // Register touch listeners on `document` rather than the container div so that
+  // events dispatched on elements outside the PullToRefresh subtree (e.g. a
+  // fixed-position loading overlay with pointer-events:none) are still captured.
+  // { passive: false } is required on touchmove so that e.preventDefault() can
+  // suppress native scroll during a pull gesture without browser warnings.
   useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    el.addEventListener('touchstart', handleTouchStart, { passive: true });
-    el.addEventListener('touchmove', handleTouchMove, { passive: false });
-    el.addEventListener('touchend', handleTouchEnd, { passive: true });
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
-      el.removeEventListener('touchstart', handleTouchStart);
-      el.removeEventListener('touchmove', handleTouchMove);
-      el.removeEventListener('touchend', handleTouchEnd);
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
     };
   }, [handleTouchStart, handleTouchMove, handleTouchEnd]);
 
