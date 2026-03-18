@@ -216,7 +216,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
         paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 6rem)'
       }}>
 
-      <div className="min-h-full flex items-start justify-center p-4 pt-6 pb-24 md:items-center md:p-6">
+      <div className="px-1 py-4 min-h-full flex items-start justify-center md:items-center md:p-6">
       <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -234,7 +234,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                       aria-pressed={!!exercise.favorite}
                       aria-label={exercise.favorite ? 'Remove from favorites' : 'Add to favorites'}
                       title={exercise.favorite ? 'Remove from favorites' : 'Add to favorites'}
-                      onClick={() => onToggleFavorite?.(exercise)} className="bg-red-50 mr-2 mb-16 ml-2 px-3 py-2 rounded-full hover:bg-white/50 transition-colors">
+                      onClick={() => onToggleFavorite?.(exercise)} className="bg-red-50 mb-5 px-3 py-3 rounded-full hover:bg-white/50 transition-colors">
 
 
                     <Heart className="bg-gray-50 text-red-500 lucide lucide-heart w-5 h-5" />
