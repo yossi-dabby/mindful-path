@@ -62,31 +62,6 @@ export default function Settings() {
         exerciseReminders: false
       });
       setDashboardLayout(userData.preferences?.dashboardLayout || 'default');
-
-      // Initialize UserPoints singleton (fetch-or-create pattern)
-      try {
-        const existingPoints = await base44.entities.UserPoints.list();
-        if (existingPoints.length === 0) {
-          await base44.entities.UserPoints.create({
-            total_points: 0,
-            weekly_points: 0,
-            level: 1,
-            points_to_next_level: 100,
-            last_updated: new Date().toISOString().split('T')[0]
-          });
-        }
-      } catch (e) { /* non-critical */ }
-
-      // Initialize Subscription singleton (fetch-or-create pattern)
-      try {
-        const existingSubs = await base44.entities.Subscription.list();
-        if (existingSubs.length === 0) {
-          await base44.entities.Subscription.create({
-            plan_type: 'free',
-            status: 'trial'
-          });
-        }
-      } catch (e) { /* non-critical */ }
     }).catch(() => {
       base44.auth.redirectToLogin(window.location.pathname);
     });
@@ -178,7 +153,7 @@ export default function Settings() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-3xl md:text-4xl font-light mb-2" style={{ color: '#2D3748' }}>{t('settings.page_title')}</h1>
+        <h1 aria-label="Settings" className="text-3xl md:text-4xl font-light mb-2" style={{ color: '#2D3748' }}>{t('settings.page_title')}</h1>
         <p style={{ color: '#718096' }}>{t('settings.page_subtitle')}</p>
       </motion.div>
 

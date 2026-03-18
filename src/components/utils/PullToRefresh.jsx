@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MOBILE_HEADER_HEIGHT } from '../layout/MobileHeader';
+import { getScrollContainer } from '@/lib/scrollContainer';
 
 export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
   const [isPulling, setIsPulling] = useState(false);
@@ -15,23 +16,24 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
   const pullDistanceRef = useRef(0);   // mirrors pullDistance state for event callbacks
   const queryClient = useQueryClient();
 
-  const PULL_THRESHOLD = 80;
+  const PULL_THRESHOLD = 60;
   const MAX_PULL = 120;
 
-  // Cache the main scroll container reference once on mount
+  // Cache the real app scroll container once on mount
   useEffect(() => {
-    mainElRef.current = document.querySelector('main');
+    mainElRef.current = getScrollContainer();
   }, []);
 
   const handleTouchStart = useCallback((e) => {
-    // Only activate if the main scroll container exists and is scrolled to the top
-    if (mainElRef.current && mainElRef.current.scrollTop === 0) {
+    const scrollEl = mainElRef.current || getScrollContainer();
+    if (scrollEl && scrollEl.scrollTop <= 0) {
       touchStartY.current = e.touches[0].clientY;
     }
   }, []);
 
   const handleTouchMove = useCallback((e) => {
-    if (touchStartY.current === 0 || !mainElRef.current || mainElRef.current.scrollTop > 0) return;
+    const scrollEl = mainElRef.current || getScrollContainer();
+    if (touchStartY.current === 0 || !scrollEl || scrollEl.scrollTop > 0) return;
 
     const currentY = e.touches[0].clientY;
     const distance = currentY - touchStartY.current;
