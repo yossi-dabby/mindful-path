@@ -26,7 +26,7 @@ const categoryColors = {
   lifestyle: 'bg-pink-100 text-pink-700'
 };
 
-export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
+function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
   const [showChart, setShowChart] = useState(false);
   const [showKanban, setShowKanban] = useState(false);
   const [showJournalEntries, setShowJournalEntries] = useState(false);

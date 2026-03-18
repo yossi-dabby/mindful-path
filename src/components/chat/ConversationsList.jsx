@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
-export default function ConversationsList({
+function ConversationsList({
   conversations = [],
   currentConversationId,
   onSelectConversation,
@@ -92,7 +92,7 @@ export default function ConversationsList({
                 e.stopPropagation();
                 onDeleteConversation(conversation.id);
               }}
-              className="absolute end-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-[var(--radius-nested)] flex-shrink-0 bg-destructive/10"
+              className="absolute end-2 top-1/2 -translate-y-1/2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-2 min-h-[44px] min-w-[44px] rounded-[var(--radius-nested)] flex-shrink-0 bg-destructive/10"
               aria-label={t('chat.conversations_list.delete_aria')}>
 
                   <Trash2 className="w-4 h-4 text-red-500" />

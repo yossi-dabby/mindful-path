@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { MessageCircle, ThumbsUp, Pin, User, Shield, Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
-export default function ForumPostCard({ post, onView, onUpvote, onModerate, isUpvoting }) {
+function ForumPostCard({ post, onView, onUpvote, onModerate, isUpvoting }) {
   const categoryColors = {
     general: 'bg-secondary text-secondary-foreground border border-border/60',
     goals: 'bg-teal-100 text-teal-700 border border-teal-200',
@@ -53,7 +53,7 @@ export default function ForumPostCard({ post, onView, onUpvote, onModerate, isUp
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-auto p-0 hover:bg-transparent"
+                className="h-auto min-h-[44px] min-w-[44px] px-2 hover:bg-transparent"
                 onClick={(e) => {
                   e.stopPropagation();
                   onUpvote(post);
@@ -75,7 +75,7 @@ export default function ForumPostCard({ post, onView, onUpvote, onModerate, isUp
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-auto p-0 hover:bg-transparent text-accent"
+                  className="h-auto min-h-[44px] min-w-[44px] px-2 hover:bg-transparent text-accent"
                   onClick={(e) => {
                     e.stopPropagation();
                     onModerate(post);

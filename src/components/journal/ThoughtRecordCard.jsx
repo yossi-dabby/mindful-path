@@ -19,7 +19,7 @@ const stripHtml = (html) => {
   return tmp.textContent || tmp.innerText || '';
 };
 
-export default function ThoughtRecordCard({ entry, onEdit }) {
+function ThoughtRecordCard({ entry, onEdit }) {
   const [expanded, setExpanded] = useState(false);
   const [showAiSuggestions, setShowAiSuggestions] = useState(false);
   const [hasSummary, setHasSummary] = useState(!!entry.ai_summary);

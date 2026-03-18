@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Users, Lock, MessageSquare } from 'lucide-react';
 
-export default function GroupCard({ group, isMember, onJoin, onView }) {
+function GroupCard({ group, isMember, onJoin, onView }) {
   return (
     <Card className="border border-border/80 bg-card shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-shadow">
       <CardContent className="p-4">
@@ -45,7 +45,7 @@ export default function GroupCard({ group, isMember, onJoin, onView }) {
                 </span>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => onView(group)}>
+                <Button variant="outline" size="sm" className="min-h-[44px]" onClick={() => onView(group)}>
                   View
                 </Button>
                 {!isMember && (

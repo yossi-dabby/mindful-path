@@ -135,7 +135,7 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
                     e.stopPropagation();
                     handleEdit();
                   }}
-                  className="h-8 w-8"
+                  className="h-8 w-8 min-h-[44px] min-w-[44px]"
                   aria-label="Edit check-in"
                 >
                   <Edit2 className="w-4 h-4" />
@@ -147,7 +147,7 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
                     e.stopPropagation();
                     handleDelete();
                   }}
-                  className="h-8 w-8"
+                  className="h-8 w-8 min-h-[44px] min-w-[44px]"
                   aria-label="Delete check-in"
                 >
                   <Trash2 className="w-4 h-4" />
