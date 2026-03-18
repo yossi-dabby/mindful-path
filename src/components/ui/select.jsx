@@ -102,30 +102,32 @@ const SelectContent = React.forwardRef(({ className, children, position = "poppe
 
   return (
     <SelectPrimitive.Portal>
-      {isMobile && <div className={mobileBackdropClasses} aria-hidden="true" />}
-      <SelectPrimitive.Content
-        ref={ref}
-        className={cn(
-          isMobile ? mobileClasses : desktopClasses,
-          !isMobile &&
-            position === "popper" &&
-            "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
-          className
-        )}
-        position={position}
-        {...props}>
-        {!isMobile && <SelectScrollUpButton />}
-        <SelectPrimitive.Viewport
+      <>
+        {isMobile && <div className={mobileBackdropClasses} aria-hidden="true" />}
+        <SelectPrimitive.Content
+          ref={ref}
           className={cn(
-            "p-1",
-            shouldUsePopperDimensions &&
-              "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]",
-            isMobile && "max-h-[75vh] px-2 pb-[calc(env(safe-area-inset-bottom,0px)+12px)] pt-2"
-          )}>
-          {children}
-        </SelectPrimitive.Viewport>
-        {!isMobile && <SelectScrollDownButton />}
-      </SelectPrimitive.Content>
+            isMobile ? mobileClasses : desktopClasses,
+            !isMobile &&
+              position === "popper" &&
+              "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
+            className
+          )}
+          position={position}
+          {...props}>
+          {!isMobile && <SelectScrollUpButton />}
+          <SelectPrimitive.Viewport
+            className={cn(
+              "p-1",
+              shouldUsePopperDimensions &&
+                "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]",
+              isMobile && "max-h-[75vh] px-2 pb-[calc(env(safe-area-inset-bottom,0px)+12px)] pt-2"
+            )}>
+            {children}
+          </SelectPrimitive.Viewport>
+          {!isMobile && <SelectScrollDownButton />}
+        </SelectPrimitive.Content>
+      </>
     </SelectPrimitive.Portal>
   );
 })
