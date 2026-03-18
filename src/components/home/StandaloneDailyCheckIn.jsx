@@ -711,6 +711,7 @@ function StandaloneDailyCheckIn() {
           }
       </AnimatePresence>
       </motion.div>
-    </>);
+      </>);
+      }
 
-}
+      export default React.memo(StandaloneDailyCheckIn);

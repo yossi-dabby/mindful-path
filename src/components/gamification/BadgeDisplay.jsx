@@ -177,5 +177,6 @@ function BadgeDisplay({ compact = false }) {
         </Card>
       }
     </div>);
+    }
 
-}
+    export default React.memo(BadgeDisplay);

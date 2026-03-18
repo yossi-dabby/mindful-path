@@ -456,5 +456,6 @@ function QuickActions() {
         </div>
       }
     </div>);
+    }
 
-}
+    export default React.memo(QuickActions);

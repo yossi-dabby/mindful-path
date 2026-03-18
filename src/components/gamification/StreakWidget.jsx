@@ -153,5 +153,6 @@ function StreakWidget({ compact = false }) {
         </CardContent>
       </Card>
     </motion.div>);
+    }
 
-}
+    export default React.memo(StreakWidget);
