@@ -35,9 +35,30 @@ export default function ForumPostForm({ onClose, groupId }) {
       };
       return base44.entities.ForumPost.create(postData);
     },
+    onMutate: async (data) => {
+      await queryClient.cancelQueries({ queryKey: ['forumPosts'] });
+      const previousPosts = queryClient.getQueryData(['forumPosts']);
+      const optimisticPost = {
+        ...data,
+        id: `temp-${Date.now()}`,
+        author_display_name: data.is_anonymous ? 'Anonymous User' : user?.full_name,
+        upvotes: 0,
+        comment_count: 0,
+        created_date: new Date().toISOString()
+      };
+      queryClient.setQueryData(['forumPosts'], (old = []) => [optimisticPost, ...old]);
+      return { previousPosts };
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['forumPosts'] });
       onClose();
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousPosts) {
+        queryClient.setQueryData(['forumPosts'], context.previousPosts);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['forumPosts'] });
     }
   });
 

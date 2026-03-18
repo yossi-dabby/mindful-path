@@ -22,12 +22,36 @@ export default function ReminderManager({ onClose }) {
 
   const toggleActiveMutation = useMutation({
     mutationFn: ({ id, active }) => base44.entities.JournalReminder.update(id, { active }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['journalReminders'] })
+    onMutate: async ({ id, active }) => {
+      await queryClient.cancelQueries({ queryKey: ['journalReminders'] });
+      const previousReminders = queryClient.getQueryData(['journalReminders']);
+      queryClient.setQueryData(['journalReminders'], (old = []) =>
+        old.map((reminder) => reminder.id === id ? { ...reminder, active } : reminder)
+      );
+      return { previousReminders };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousReminders) {
+        queryClient.setQueryData(['journalReminders'], context.previousReminders);
+      }
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['journalReminders'] })
   });
 
   const deleteReminderMutation = useMutation({
     mutationFn: (id) => base44.entities.JournalReminder.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['journalReminders'] })
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['journalReminders'] });
+      const previousReminders = queryClient.getQueryData(['journalReminders']);
+      queryClient.setQueryData(['journalReminders'], (old = []) => old.filter((reminder) => reminder.id !== id));
+      return { previousReminders };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousReminders) {
+        queryClient.setQueryData(['journalReminders'], context.previousReminders);
+      }
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['journalReminders'] })
   });
 
   return (
@@ -100,18 +124,18 @@ export default function ReminderManager({ onClose }) {
                               }
                             />
                             <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => setEditingReminder(reminder)}
-                              aria-label="Edit reminder"
+                             variant="ghost"
+                             size="icon"
+                             className="h-8 w-8 min-h-[44px] min-w-[44px]"
+                             onClick={() => setEditingReminder(reminder)}
+                             aria-label="Edit reminder"
                             >
                               <Edit className="w-4 h-4" />
                             </Button>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-red-500"
+                              className="h-8 w-8 min-h-[44px] min-w-[44px] text-red-500"
                               onClick={() => {
                                 if (confirm('Delete this reminder?')) {
                                   deleteReminderMutation.mutate(reminder.id);
@@ -150,6 +174,7 @@ export default function ReminderManager({ onClose }) {
 }
 
 function ReminderForm({ reminder, onClose, onSuccess }) {
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState(
     reminder || {
       title: '',
@@ -166,7 +191,33 @@ function ReminderForm({ reminder, onClose, onSuccess }) {
       reminder
         ? base44.entities.JournalReminder.update(reminder.id, data)
         : base44.entities.JournalReminder.create(data),
-    onSuccess
+    onMutate: async (data) => {
+      await queryClient.cancelQueries({ queryKey: ['journalReminders'] });
+      const previousReminders = queryClient.getQueryData(['journalReminders']);
+      const optimisticReminder = {
+        ...(reminder || {}),
+        ...data,
+        id: reminder?.id || `temp-${Date.now()}`
+      };
+      queryClient.setQueryData(['journalReminders'], (old = []) =>
+        reminder ? old.map((item) => item.id === reminder.id ? optimisticReminder : item) : [optimisticReminder, ...old]
+      );
+      return { previousReminders };
+    },
+    onSuccess: (savedReminder) => {
+      queryClient.setQueryData(['journalReminders'], (old = []) =>
+        reminder
+          ? old.map((item) => item.id === reminder.id ? savedReminder : item)
+          : [savedReminder, ...old.filter((item) => !String(item.id).startsWith('temp-'))]
+      );
+      onSuccess();
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousReminders) {
+        queryClient.setQueryData(['journalReminders'], context.previousReminders);
+      }
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['journalReminders'] })
   });
 
   return (

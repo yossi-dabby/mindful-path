@@ -22,7 +22,6 @@ export default function GroupForm({ onClose }) {
   const createMutation = useMutation({
     mutationFn: async (data) => {
       const group = await base44.entities.CommunityGroup.create(data);
-      // Auto-join as admin
       await base44.entities.GroupMembership.create({
         group_id: group.id,
         role: 'admin',
@@ -30,10 +29,41 @@ export default function GroupForm({ onClose }) {
       });
       return group;
     },
+    onMutate: async (data) => {
+      await queryClient.cancelQueries({ queryKey: ['communityGroups'] });
+      await queryClient.cancelQueries({ queryKey: ['groupMemberships'] });
+      const previousGroups = queryClient.getQueryData(['communityGroups']);
+      const previousMemberships = queryClient.getQueryData(['groupMemberships']);
+      const optimisticGroupId = `temp-${Date.now()}`;
+      queryClient.setQueryData(['communityGroups'], (old = []) => [{
+        ...data,
+        id: optimisticGroupId,
+        member_count: 1,
+        post_count: 0,
+        created_date: new Date().toISOString()
+      }, ...old]);
+      queryClient.setQueryData(['groupMemberships'], (old = []) => [{
+        id: `temp-membership-${Date.now()}`,
+        group_id: optimisticGroupId,
+        role: 'admin',
+        joined_date: new Date().toISOString()
+      }, ...old]);
+      return { previousGroups, previousMemberships };
+    },
     onSuccess: () => {
+      onClose();
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousGroups) {
+        queryClient.setQueryData(['communityGroups'], context.previousGroups);
+      }
+      if (context?.previousMemberships) {
+        queryClient.setQueryData(['groupMemberships'], context.previousMemberships);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['communityGroups'] });
       queryClient.invalidateQueries({ queryKey: ['groupMemberships'] });
-      onClose();
     }
   });
 

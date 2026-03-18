@@ -13,14 +13,25 @@ export default function SessionSummaryCard({ summary, onDelete }) {
 
   const deleteSummaryMutation = useMutation({
     mutationFn: (id) => base44.entities.SessionSummary.delete(id),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['sessionSummaries'] });
+      const previousSummaries = queryClient.getQueryData(['sessionSummaries']);
+      queryClient.setQueryData(['sessionSummaries'], (old = []) => old.filter((item) => item.id !== id));
+      return { previousSummaries };
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sessionSummaries'] });
       queryClient.invalidateQueries({ queryKey: ['journalCount'] });
       toast.success('Session summary deleted successfully!');
       onDelete && onDelete(summary.id);
     },
-    onError: (error) => {
+    onError: (error, _variables, context) => {
+      if (context?.previousSummaries) {
+        queryClient.setQueryData(['sessionSummaries'], context.previousSummaries);
+      }
       toast.error(`Failed to delete session summary: ${error.message}`);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['sessionSummaries'] });
     },
   });
 

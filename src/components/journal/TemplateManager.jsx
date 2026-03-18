@@ -22,7 +22,18 @@ export default function TemplateManager({ templates, onClose, onSelectTemplate }
 
   const deleteTemplateMutation = useMutation({
     mutationFn: (id) => base44.entities.JournalTemplate.delete(id),
-    onSuccess: () => {
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['journalTemplates'] });
+      const previousTemplates = queryClient.getQueryData(['journalTemplates']);
+      queryClient.setQueryData(['journalTemplates'], (old = []) => old.filter((template) => template.id !== id));
+      return { previousTemplates };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousTemplates) {
+        queryClient.setQueryData(['journalTemplates'], context.previousTemplates);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['journalTemplates'] });
     }
   });
@@ -150,7 +161,7 @@ function TemplateCard({ template, onSelect, onEdit, onDelete }) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 opacity-0 group-hover:opacity-100"
+                className="h-8 w-8 min-h-[44px] min-w-[44px] opacity-100 md:opacity-0 md:group-hover:opacity-100"
                 onClick={(e) => {
                   e.stopPropagation();
                   onEdit();
@@ -164,7 +175,7 @@ function TemplateCard({ template, onSelect, onEdit, onDelete }) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 opacity-0 group-hover:opacity-100 text-red-500"
+                className="h-8 w-8 min-h-[44px] min-w-[44px] opacity-100 md:opacity-0 md:group-hover:opacity-100 text-red-500"
                 onClick={(e) => {
                   e.stopPropagation();
                   if (confirm('Delete this template?')) onDelete();
@@ -191,6 +202,7 @@ function TemplateCard({ template, onSelect, onEdit, onDelete }) {
 }
 
 function TemplateForm({ template, onClose, onSuccess }) {
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState(
     template || {
       name: '',
@@ -205,7 +217,33 @@ function TemplateForm({ template, onClose, onSuccess }) {
       template
         ? base44.entities.JournalTemplate.update(template.id, data)
         : base44.entities.JournalTemplate.create(data),
-    onSuccess
+    onMutate: async (data) => {
+      await queryClient.cancelQueries({ queryKey: ['journalTemplates'] });
+      const previousTemplates = queryClient.getQueryData(['journalTemplates']);
+      const optimisticTemplate = {
+        ...(template || {}),
+        ...data,
+        id: template?.id || `temp-${Date.now()}`
+      };
+      queryClient.setQueryData(['journalTemplates'], (old = []) =>
+        template ? old.map((item) => item.id === template.id ? optimisticTemplate : item) : [optimisticTemplate, ...old]
+      );
+      return { previousTemplates };
+    },
+    onSuccess: (savedTemplate) => {
+      queryClient.setQueryData(['journalTemplates'], (old = []) =>
+        template
+          ? old.map((item) => item.id === template.id ? savedTemplate : item)
+          : [savedTemplate, ...old.filter((item) => !String(item.id).startsWith('temp-'))]
+      );
+      onSuccess();
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousTemplates) {
+        queryClient.setQueryData(['journalTemplates'], context.previousTemplates);
+      }
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['journalTemplates'] })
   });
 
   return (

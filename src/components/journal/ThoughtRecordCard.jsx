@@ -27,7 +27,18 @@ export default function ThoughtRecordCard({ entry, onEdit }) {
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.ThoughtJournal.delete(id),
-    onSuccess: () => {
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['thoughtJournals'] });
+      const previousJournals = queryClient.getQueryData(['thoughtJournals']);
+      queryClient.setQueryData(['thoughtJournals'], (old = []) => old.filter((journal) => journal.id !== id));
+      return { previousJournals };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousJournals) {
+        queryClient.setQueryData(['thoughtJournals'], context.previousJournals);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['thoughtJournals'] });
     }
   });

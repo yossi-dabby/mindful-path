@@ -32,9 +32,29 @@ export default function ProgressShareForm({ onClose }) {
       };
       return base44.entities.SharedProgress.create(postData);
     },
+    onMutate: async (data) => {
+      await queryClient.cancelQueries({ queryKey: ['sharedProgress'] });
+      const previousProgress = queryClient.getQueryData(['sharedProgress']);
+      const optimisticProgress = {
+        ...data,
+        id: `temp-${Date.now()}`,
+        author_display_name: data.is_anonymous ? 'Anonymous' : user?.full_name,
+        upvotes: 0,
+        created_date: new Date().toISOString()
+      };
+      queryClient.setQueryData(['sharedProgress'], (old = []) => [optimisticProgress, ...old]);
+      return { previousProgress };
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sharedProgress'] });
       onClose();
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousProgress) {
+        queryClient.setQueryData(['sharedProgress'], context.previousProgress);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['sharedProgress'] });
     }
   });
 
