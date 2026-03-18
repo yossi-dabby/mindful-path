@@ -11,7 +11,6 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const touchStartY = useRef(0);
   const mainElRef = useRef(null);
-  const containerRef = useRef(null);
   const isPullingRef = useRef(false);  // used in event callbacks to avoid stale closures
   const pullDistanceRef = useRef(0);   // mirrors pullDistance state for event callbacks
   const queryClient = useQueryClient();
@@ -82,12 +81,13 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
     setPullDistance(0);
   }, [queryClient, onRefresh]);
 
-  // Register touch listeners with { passive: false } so e.preventDefault() works
-  // without triggering browser warnings about passive event listeners.
-  // Capture `el` at setup time so the cleanup removes listeners from the same
-  // element they were added to, even if containerRef.current changes later.
+  // Register touch listeners on the app scroll container with { passive: false } so
+  // e.preventDefault() works without triggering browser warnings about passive event
+  // listeners. Attaching to the scroll container (rather than a child div) ensures
+  // events dispatched on any element within the viewport — including empty areas of
+  // the scroll container — are captured reliably.
   useEffect(() => {
-    const el = containerRef.current;
+    const el = mainElRef.current;
     if (!el) return;
 
     el.addEventListener('touchstart', handleTouchStart, { passive: true });
@@ -106,7 +106,6 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
 
   return (
     <div
-      ref={containerRef}
       className="relative"
     >
       {/* Pull indicator - fixed so it appears at the top of the viewport */}
