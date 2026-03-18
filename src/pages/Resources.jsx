@@ -8,6 +8,7 @@ import { Search, Bookmark, Library } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import ResourceCard from '../components/resources/ResourceCard';
 import AIResourceRecommendations from '../components/resources/AIResourceRecommendations';
+import PullToRefresh from '../components/utils/PullToRefresh';
 
 export default function Resources() {
   const { t } = useTranslation();
@@ -116,7 +117,8 @@ export default function Resources() {
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto min-h-[100dvh] bg-transparent">
+    <PullToRefresh queryKeys={['resources', 'savedResources', 'moodForResources', 'journalForResources', 'userForResources']}>
+      <div className="p-4 md:p-8 max-w-7xl mx-auto min-h-[100dvh] bg-transparent">
       {/* Header */}
       <div className="mb-8 mt-4">
         <h1 className="text-3xl md:text-4xl font-semibold mb-2 flex items-center gap-3 text-foreground">
@@ -228,5 +230,6 @@ export default function Resources() {
         </div>
       )}
     </div>
+    </PullToRefresh>
   );
 }
