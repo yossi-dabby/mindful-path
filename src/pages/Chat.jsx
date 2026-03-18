@@ -1086,7 +1086,6 @@ export default function Chat() {
 
   const deleteConversationMutation = useMutation({
     mutationFn: async (conversationId) => {
-      // Record deletion in UserDeletedConversations (soft delete)
       const conversation = conversations.find((c) => c.id === conversationId);
       await base44.entities.UserDeletedConversations.create({
         agent_conversation_id: conversationId,
@@ -1094,18 +1093,34 @@ export default function Chat() {
       });
       return conversationId;
     },
-    onSuccess: (deletedId) => {
-      if (currentConversationId === deletedId) {
+    onMutate: async (conversationId) => {
+      await queryClient.cancelQueries({ queryKey: ['conversations'] });
+      const previousConversations = queryClient.getQueryData(['conversations']);
+      const previousConversationId = currentConversationId;
+      const previousMessages = messages;
+      queryClient.setQueryData(['conversations'], (old = []) => old.filter((conversation) => conversation.id !== conversationId));
+      if (currentConversationId === conversationId) {
         setCurrentConversationId(null);
         setMessages([]);
       }
-      // Invalidate and refetch to ensure UI is updated
-      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      return { previousConversations, previousConversationId, previousMessages };
+    },
+    onSuccess: () => {
       refetchConversations();
     },
-    onError: (error) => {
+    onError: (error, _conversationId, context) => {
+      if (context?.previousConversations) {
+        queryClient.setQueryData(['conversations'], context.previousConversations);
+      }
+      if (context?.previousConversationId) {
+        setCurrentConversationId(context.previousConversationId);
+        setMessages(context.previousMessages || []);
+      }
       console.error('Delete error:', error);
       alert('Failed to delete session. Please try again.');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
     }
   });
 

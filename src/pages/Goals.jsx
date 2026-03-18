@@ -70,16 +70,27 @@ export default function Goals() {
 
   const deleteGoalMutation = useMutation({
     mutationFn: (goalId) => base44.entities.Goal.delete(goalId),
+    onMutate: async (goalId) => {
+      await queryClient.cancelQueries({ queryKey: ['allGoals'] });
+      const previousGoals = queryClient.getQueryData(['allGoals']);
+      queryClient.setQueryData(['allGoals'], (old = []) => old.filter((goal) => goal.id !== goalId));
+      return { previousGoals };
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allGoals'] });
       emitEntityChange('Goal', 'delete');
     },
-    onError: (error) => {
+    onError: (error, _goalId, context) => {
+      if (context?.previousGoals) {
+        queryClient.setQueryData(['allGoals'], context.previousGoals);
+      }
       if (isAuthError(error) && shouldShowAuthError()) {
         setShowAuthError(true);
       } else {
         alert('Failed to delete goal. Check your connection and try again.');
       }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['allGoals'] });
     }
   });
 
@@ -123,6 +134,14 @@ export default function Goals() {
 
   const updateGoalMutation = useMutation({
     mutationFn: ({ goalId, data }) => base44.entities.Goal.update(goalId, data),
+    onMutate: async ({ goalId, data }) => {
+      await queryClient.cancelQueries({ queryKey: ['allGoals'] });
+      const previousGoals = queryClient.getQueryData(['allGoals']);
+      queryClient.setQueryData(['allGoals'], (old = []) =>
+        old.map((g) => g.id === goalId ? { ...g, ...data, updated_date: new Date().toISOString() } : g)
+      );
+      return { previousGoals };
+    },
     onSuccess: (updatedGoal) => {
       if (updatedGoal?.id) {
         queryClient.setQueryData(['allGoals'], (old = []) =>
@@ -138,12 +157,18 @@ export default function Goals() {
       }
       emitEntityChange('Goal', 'update');
     },
-    onError: (error) => {
+    onError: (error, _variables, context) => {
+      if (context?.previousGoals) {
+        queryClient.setQueryData(['allGoals'], context.previousGoals);
+      }
       if (isAuthError(error) && shouldShowAuthError()) {
         setShowAuthError(true);
       } else {
         alert('Failed to update goal. Check your connection and try again.');
       }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['allGoals'] });
     }
   });
 

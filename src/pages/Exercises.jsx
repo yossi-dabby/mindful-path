@@ -111,7 +111,31 @@ export default function Exercises() {
         throw error;
       }
     },
-    onSuccess: () => {
+    onMutate: async ({ exercise, duration }) => {
+      await queryClient.cancelQueries({ queryKey: ['exercises'] });
+      const previousExercises = queryClient.getQueryData(['exercises']);
+      const previousSelectedExercise = selectedExercise;
+      const optimisticExercise = {
+        ...exercise,
+        completed_count: (exercise.completed_count || 0) + 1,
+        last_completed: new Date().toISOString(),
+        total_time_practiced: (exercise.total_time_practiced || 0) + (duration || 0)
+      };
+      queryClient.setQueryData(['exercises'], (current = []) =>
+        current.map((item) => item.id === exercise.id ? optimisticExercise : item)
+      );
+      setSelectedExercise((current) => current?.id === exercise.id ? optimisticExercise : current);
+      return { previousExercises, previousSelectedExercise };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousExercises) {
+        queryClient.setQueryData(['exercises'], context.previousExercises);
+      }
+      if (context?.previousSelectedExercise !== undefined) {
+        setSelectedExercise(context.previousSelectedExercise);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['exercises'] });
     }
   });

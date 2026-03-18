@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { isAuthError, shouldShowAuthError } from '../utils/authErrorHandler';
 import AuthErrorBanner from '../utils/AuthErrorBanner';
 import { Button } from '@/components/ui/button';
@@ -49,10 +49,10 @@ export default function GoalForm({ goal, prefilledData, onClose }) {
   const [saveError, setSaveError] = useState(null);
   const [showAuthError, setShowAuthError] = useState(false);
   const isSavingRef = useRef(false);
+  const queryClient = useQueryClient();
 
   const saveMutation = useMutation({
     mutationFn: (data) => {
-      // Validate progress range
       const validatedData = {
         ...data,
         progress: Math.max(0, Math.min(100, data.progress || 0))
@@ -61,17 +61,48 @@ export default function GoalForm({ goal, prefilledData, onClose }) {
         ? base44.entities.Goal.update(goal.id, validatedData)
         : base44.entities.Goal.create(validatedData);
     },
-    onSuccess: () => {
+    onMutate: async (data) => {
+      const validatedData = {
+        ...data,
+        progress: Math.max(0, Math.min(100, data.progress || 0))
+      };
+      await queryClient.cancelQueries({ queryKey: ['allGoals'] });
+      const previousGoals = queryClient.getQueryData(['allGoals']);
+      const optimisticGoal = {
+        ...(goal || {}),
+        ...validatedData,
+        id: goal?.id || `temp-${Date.now()}`,
+        created_date: goal?.created_date || new Date().toISOString(),
+        updated_date: new Date().toISOString(),
+        created_by: goal?.created_by
+      };
+      queryClient.setQueryData(['allGoals'], (old = []) =>
+        goal ? old.map((item) => item.id === goal.id ? optimisticGoal : item) : [optimisticGoal, ...old]
+      );
+      return { previousGoals };
+    },
+    onSuccess: (savedGoal) => {
       isSavingRef.current = false;
+      queryClient.setQueryData(['allGoals'], (old = []) =>
+        goal
+          ? old.map((item) => item.id === goal.id ? savedGoal : item)
+          : [savedGoal, ...old.filter((item) => !String(item.id).startsWith('temp-'))]
+      );
       onClose();
     },
-    onError: (error) => {
+    onError: (error, _data, context) => {
       isSavingRef.current = false;
+      if (context?.previousGoals) {
+        queryClient.setQueryData(['allGoals'], context.previousGoals);
+      }
       if (isAuthError(error) && shouldShowAuthError()) {
         setShowAuthError(true);
       } else {
         setSaveError(error.message || 'Failed to save goal');
       }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['allGoals'] });
     }
   });
 

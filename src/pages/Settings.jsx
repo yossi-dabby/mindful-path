@@ -92,8 +92,26 @@ export default function Settings() {
 
   const updateProfileMutation = useMutation({
     mutationFn: (data) => base44.auth.updateMe(data),
+    onMutate: async (data) => {
+      const previousUser = user;
+      const optimisticUser = {
+        ...user,
+        ...data,
+        preferences: {
+          ...(user?.preferences || {}),
+          ...(data?.preferences || {})
+        }
+      };
+      setUser(optimisticUser);
+      return { previousUser };
+    },
     onSuccess: (updatedUser) => {
       setUser(updatedUser);
+    },
+    onError: (_error, _data, context) => {
+      if (context?.previousUser) {
+        setUser(context.previousUser);
+      }
     }
   });
 
@@ -406,7 +424,13 @@ export default function Settings() {
             {t('settings.account.logout')}
           </Button>
           
-          <DeleteAccountFlow userRole={user.role} />
+          <div className="rounded-2xl border border-red-200 bg-red-50/70 p-4">
+            <h3 className="text-sm font-semibold text-red-900">Delete Account & Data</h3>
+            <p className="mt-1 text-sm text-red-800">This runs a full cleanup of your personal data before removing your account.</p>
+            <div className="mt-4">
+              <DeleteAccountFlow userRole={user.role} />
+            </div>
+          </div>
         </CardContent>
       </Card>
       </motion.div>

@@ -51,7 +51,7 @@ export default function DeleteAccountFlow({ userRole }) {
         className="w-full rounded-xl border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
       >
         <Trash2 className="w-4 h-4 mr-2" />
-        Delete account
+        Delete account & data
       </Button>
     );
   }
@@ -63,8 +63,8 @@ export default function DeleteAccountFlow({ userRole }) {
           <AlertTriangle className="w-4 h-4" />
         </div>
         <div>
-          <h4 className="font-semibold text-red-900">Delete your account</h4>
-          <p className="mt-1 text-sm text-red-800">This permanently removes your account and you will lose access immediately.</p>
+          <h4 className="font-semibold text-red-900">Delete your account and data</h4>
+          <p className="mt-1 text-sm text-red-800">This permanently removes your account, clears your personal data, and you will lose access immediately.</p>
         </div>
       </div>
 
