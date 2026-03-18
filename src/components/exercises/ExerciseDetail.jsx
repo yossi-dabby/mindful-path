@@ -234,7 +234,7 @@ export default function ExerciseDetail({ exercise, onClose, onComplete, onToggle
                       aria-pressed={!!exercise.favorite}
                       aria-label={exercise.favorite ? 'Remove from favorites' : 'Add to favorites'}
                       title={exercise.favorite ? 'Remove from favorites' : 'Add to favorites'}
-                      onClick={() => onToggleFavorite?.(exercise)} className="bg-red-50 mb-5 px-3 py-3 rounded-full hover:bg-white/50 transition-colors">
+                      onClick={() => onToggleFavorite?.(exercise)} className="bg-red-50 mr-1 mb-16 px-3 py-3 rounded-full hover:bg-white/50 transition-colors">
 
 
                     <Heart className="bg-gray-50 text-red-500 lucide lucide-heart w-5 h-5" />
