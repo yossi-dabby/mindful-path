@@ -163,7 +163,10 @@ export const translations = {
           delete_confirm_title: "Delete Account Permanently?",
           delete_confirm_description: "This action cannot be undone. All your data including goals, journals, mood entries, and conversations will be permanently deleted.",
           delete_confirm_button: "Delete My Account",
-          delete_error: "Failed to delete account. Please try again or contact support."
+          delete_error: "Failed to delete account. Please try again or contact support.",
+          email_confirm_label: "Confirm your email address",
+          email_confirm_hint: "Re-enter the email address linked to this account to verify your identity.",
+          verify_button: "Verify"
         },
         footer: {
           need_help: "Need help?",
@@ -1537,7 +1540,10 @@ export const translations = {
           delete_confirm_title: "למחוק את החשבון לצמיתות?",
           delete_confirm_description: "פעולה זו אינה הפיכה. כל הנתונים שלכם כולל מטרות, רשומות יומן, רשומות מצב רוח ושיחות יימחקו לצמיתות.",
           delete_confirm_button: "מחקו את החשבון שלי",
-          delete_error: "מחיקת החשבון נכשלה. נסו שוב או צרו קשר עם התמיכה."
+          delete_error: "מחיקת החשבון נכשלה. נסו שוב או צרו קשר עם התמיכה.",
+          email_confirm_label: "אשרו את כתובת האימייל שלכם",
+          email_confirm_hint: "הזינו מחדש את כתובת האימייל המקושרת לחשבון זה כדי לאמת את זהותכם.",
+          verify_button: "אימות"
         },
         footer: {
           need_help: "צריכים עזרה?",
@@ -2911,7 +2917,10 @@ export const translations = {
           delete_confirm_title: "¿Eliminar cuenta permanentemente?",
           delete_confirm_description: "Esta acción no se puede deshacer. Todos tus datos, incluidos objetivos, diarios, entradas de humor y conversaciones, se eliminarán permanentemente.",
           delete_confirm_button: "Eliminar Mi Cuenta",
-          delete_error: "Error al eliminar la cuenta. Por favor, inténtalo de nuevo o contacta con soporte."
+          delete_error: "Error al eliminar la cuenta. Por favor, inténtalo de nuevo o contacta con soporte.",
+          email_confirm_label: "Confirma tu dirección de correo electrónico",
+          email_confirm_hint: "Vuelve a introducir la dirección de correo electrónico vinculada a esta cuenta para verificar tu identidad.",
+          verify_button: "Verificar"
         },
         footer: {
           need_help: "¿Necesitas ayuda?",
@@ -4242,7 +4251,10 @@ export const translations = {
           delete_confirm_title: "Supprimer le compte définitivement ?",
           delete_confirm_description: "Cette action ne peut pas être annulée. Toutes vos données, y compris les objectifs, journaux, entrées d'humeur et conversations, seront définitivement supprimées.",
           delete_confirm_button: "Supprimer Mon Compte",
-          delete_error: "Échec de la suppression du compte. Veuillez réessayer ou contacter le support."
+          delete_error: "Échec de la suppression du compte. Veuillez réessayer ou contacter le support.",
+          email_confirm_label: "Confirmez votre adresse e-mail",
+          email_confirm_hint: "Ressaisissez l'adresse e-mail liée à ce compte pour vérifier votre identité.",
+          verify_button: "Vérifier"
         },
         footer: {
           need_help: "Besoin d'aide ?",
@@ -5573,7 +5585,10 @@ export const translations = {
           delete_confirm_title: "Konto dauerhaft löschen?",
           delete_confirm_description: "Diese Aktion kann nicht rückgängig gemacht werden. Alle Ihre Daten, einschließlich Ziele, Tagebücher, Stimmungseinträge und Gespräche, werden dauerhaft gelöscht.",
           delete_confirm_button: "Mein Konto Löschen",
-          delete_error: "Konto konnte nicht gelöscht werden. Bitte versuchen Sie es erneut oder wenden Sie sich an den Support."
+          delete_error: "Konto konnte nicht gelöscht werden. Bitte versuchen Sie es erneut oder wenden Sie sich an den Support.",
+          email_confirm_label: "Bestätigen Sie Ihre E-Mail-Adresse",
+          email_confirm_hint: "Geben Sie die mit diesem Konto verknüpfte E-Mail-Adresse erneut ein, um Ihre Identität zu bestätigen.",
+          verify_button: "Bestätigen"
         },
         footer: {
           need_help: "Brauchen Sie Hilfe?",
@@ -6904,7 +6919,10 @@ export const translations = {
           delete_confirm_title: "Eliminare l'account definitivamente?",
           delete_confirm_description: "Questa azione non può essere annullata. Tutti i tuoi dati, inclusi obiettivi, diari, voci di umore e conversazioni, saranno eliminati definitivamente.",
           delete_confirm_button: "Elimina il Mio Account",
-          delete_error: "Impossibile eliminare l'account. Riprova o contatta il supporto."
+          delete_error: "Impossibile eliminare l'account. Riprova o contatta il supporto.",
+          email_confirm_label: "Conferma il tuo indirizzo e-mail",
+          email_confirm_hint: "Reinserisci l'indirizzo e-mail associato a questo account per verificare la tua identità.",
+          verify_button: "Verifica"
         },
         footer: {
           need_help: "Hai bisogno di aiuto?",
@@ -8235,7 +8253,10 @@ export const translations = {
           delete_confirm_title: "Excluir conta permanentemente?",
           delete_confirm_description: "Esta ação não pode ser desfeita. Todos os seus dados, incluindo objetivos, diários, entradas de humor e conversas, serão permanentemente excluídos.",
           delete_confirm_button: "Excluir Minha Conta",
-          delete_error: "Falha ao excluir a conta. Por favor, tente novamente ou entre em contato com o suporte."
+          delete_error: "Falha ao excluir a conta. Por favor, tente novamente ou entre em contato com o suporte.",
+          email_confirm_label: "Confirme seu endereço de e-mail",
+          email_confirm_hint: "Digite novamente o endereço de e-mail vinculado a esta conta para verificar sua identidade.",
+          verify_button: "Verificar"
         },
         footer: {
           need_help: "Precisa de ajuda?",

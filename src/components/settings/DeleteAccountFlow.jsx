@@ -6,14 +6,19 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { performLogout } from '@/lib/platform';
 import { AlertTriangle, ChevronRight, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-export default function DeleteAccountFlow({ userRole }) {
+export default function DeleteAccountFlow({ userRole, userEmail }) {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [step, setStep] = useState(0);
+  // Step 1: data-loss warning → Step 2: email re-auth → Step 3: type DELETE
+  const [emailConfirm, setEmailConfirm] = useState('');
   const [confirmationText, setConfirmationText] = useState('');
 
   const resetFlow = () => {
     setStep(0);
+    setEmailConfirm('');
     setConfirmationText('');
   };
 
@@ -92,6 +97,34 @@ export default function DeleteAccountFlow({ userRole }) {
       {step === 2 && (
         <>
           <div>
+            <label className="mb-2 block text-sm font-medium text-gray-900">{t('settings.account.email_confirm_label')}</label>
+            <Input
+              type="email"
+              value={emailConfirm}
+              onChange={(e) => setEmailConfirm(e.target.value)}
+              placeholder={userEmail || 'your@email.com'}
+              className="rounded-xl bg-white"
+            />
+            <p className="mt-2 text-xs text-gray-600">{t('settings.account.email_confirm_hint')}</p>
+          </div>
+
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={() => setStep(1)} className="flex-1 rounded-xl">Back</Button>
+            <Button
+              onClick={() => setStep(3)}
+              disabled={!userEmail || emailConfirm.trim().toLowerCase() !== userEmail.trim().toLowerCase()}
+              className="flex-1 rounded-xl bg-red-600 hover:bg-red-700 text-white"
+            >
+              {t('settings.account.verify_button')}
+              <ChevronRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+        </>
+      )}
+
+      {step === 3 && (
+        <>
+          <div>
             <label className="mb-2 block text-sm font-medium text-gray-900">Type DELETE to confirm</label>
             <Input
               value={confirmationText}
@@ -103,7 +136,7 @@ export default function DeleteAccountFlow({ userRole }) {
           </div>
 
           <div className="flex gap-3">
-            <Button variant="outline" onClick={() => setStep(1)} disabled={deleteAccountMutation.isPending} className="flex-1 rounded-xl">Back</Button>
+            <Button variant="outline" onClick={() => setStep(2)} disabled={deleteAccountMutation.isPending} className="flex-1 rounded-xl">Back</Button>
             <Button
               onClick={() => deleteAccountMutation.mutate()}
               disabled={confirmationText.trim() !== 'DELETE' || deleteAccountMutation.isPending}

@@ -7,8 +7,72 @@ import BottomNav from './components/layout/BottomNav';
 import Sidebar from './components/layout/Sidebar';
 import AppContent from './components/layout/AppContent';
 import ScrollPreservation from './components/layout/ScrollPreservation';
-import { TabNavigationProvider } from './components/layout/TabNavigationProvider';
+import { TabNavigationProvider, useTabNavigation } from './components/layout/TabNavigationProvider';
 import i18n from './components/i18n/i18nConfig';
+import { App as CapacitorApp } from '@capacitor/app';
+import { isNativePlatform } from '@/lib/platform';
+
+const OVERLAY_SELECTOR =
+  '[role="dialog"][data-state="open"], [data-vaul-drawer-overlay][data-state="open"], [data-mobile-select-content="true"][data-state="open"]';
+
+/**
+ * Handles the Android hardware back button via Capacitor App API.
+ * Must be rendered *inside* TabNavigationProvider so it can access the tab
+ * navigation context.  Returns null (no visible output).
+ *
+ * Priority order:
+ *   1. Close any open overlay (dialog / drawer / select) via synthetic ESC.
+ *   2. Go back in the current tab navigation stack.
+ *   3. Exit the app.
+ */
+function AndroidBackHandler({ overlayHistoryPushed }) {
+  const tabNav = useTabNavigation();
+
+  React.useEffect(() => {
+    if (!isNativePlatform()) return;
+
+    let listenerHandle = null;
+
+    CapacitorApp.addListener('backButton', () => {
+      try {
+        const hasOpenOverlay = !!document.querySelector(OVERLAY_SELECTOR);
+
+        if (hasOpenOverlay) {
+          // Mark sentinel as consumed before ESC so the MutationObserver
+          // cleanup branch doesn't double-pop the history stack.
+          overlayHistoryPushed.current = false;
+          document.dispatchEvent(
+            new KeyboardEvent('keydown', {
+              key: 'Escape',
+              code: 'Escape',
+              bubbles: true,
+              cancelable: true
+            })
+          );
+          return;
+        }
+
+        if (tabNav?.canGoBack()) {
+          tabNav.goBackInTab();
+          return;
+        }
+
+        // At the root of the navigation stack — exit the app.
+        CapacitorApp.exitApp();
+      } catch (_err) {
+        // Swallow unexpected errors to keep the listener alive.
+      }
+    }).then((handle) => {
+      listenerHandle = handle;
+    });
+
+    return () => {
+      listenerHandle?.remove();
+    };
+  }, [tabNav, overlayHistoryPushed]);
+
+  return null;
+}
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
@@ -73,9 +137,6 @@ export default function Layout({ children, currentPageName }) {
 
   // Observe overlay open/close via MutationObserver and manage the sentinel entry.
   React.useEffect(() => {
-    const OVERLAY_SELECTOR =
-      '[role="dialog"][data-state="open"], [data-vaul-drawer-overlay][data-state="open"], [data-mobile-select-content="true"][data-state="open"]';
-
     const handleMutation = () => {
       const hasOpenOverlay = !!document.querySelector(OVERLAY_SELECTOR);
 
@@ -129,9 +190,6 @@ export default function Layout({ children, currentPageName }) {
   // The history.back() / swipe-back already moved history back, so we only need
   // to close the overlay UI — no history.go(1) required.
   React.useEffect(() => {
-    const OVERLAY_SELECTOR =
-      '[role="dialog"][data-state="open"], [data-vaul-drawer-overlay][data-state="open"], [data-mobile-select-content="true"][data-state="open"]';
-
     const handlePopState = () => {
       const hasOpenOverlay = !!document.querySelector(OVERLAY_SELECTOR);
 
@@ -224,6 +282,8 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <TabNavigationProvider currentPageName={currentPageName}>
+      {/* Android hardware back button handler (no-op on web/iOS) */}
+      <AndroidBackHandler overlayHistoryPushed={overlayHistoryPushed} />
       {/* overflow-x-clip (not overflow-hidden) so the horizontal clip for page-transition
           animations does not create an ancestor overflow:hidden that would prevent
           iOS WKWebView touch-scroll events from reaching #app-scroll-container. */}

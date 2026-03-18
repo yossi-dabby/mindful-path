@@ -381,7 +381,7 @@ export default function Settings() {
             {t('settings.account.logout')}
           </Button>
           
-          <DeleteAccountFlow userRole={user.role} />
+          <DeleteAccountFlow userRole={user.role} userEmail={user.email} />
         </CardContent>
       </Card>
       </motion.div>
