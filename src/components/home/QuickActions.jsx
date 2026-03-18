@@ -29,7 +29,8 @@ function QuickActions() {
       return paths[0] || null;
     },
     staleTime: 1000 * 60 * 10, // 10 minutes
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
+    refetchOnMount: false
   });
 
   const startPathMutation = useMutation({

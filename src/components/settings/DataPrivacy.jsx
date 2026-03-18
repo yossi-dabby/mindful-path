@@ -137,7 +137,12 @@ export default function DataPrivacy({ user }) {
       setActionMessage({ type: 'success', text: t('settings.data_privacy.delete_success') });
       setDeleteConfirming(false);
       setTimeout(() => setActionMessage(null), 3000);
-      queryClient.invalidateQueries();
+      queryClient.invalidateQueries({ queryKey: ['todayMood'] });
+      queryClient.invalidateQueries({ queryKey: ['todayFlow'] });
+      queryClient.invalidateQueries({ queryKey: ['thoughtJournals'] });
+      queryClient.invalidateQueries({ queryKey: ['sessionSummaries'] });
+      queryClient.invalidateQueries({ queryKey: ['recentGoals'] });
+      queryClient.invalidateQueries({ queryKey: ['allGoals'] });
     } catch (error) {
       console.error('Delete error:', error);
       setActionMessage({ type: 'error', text: t('settings.data_privacy.delete_failed') });

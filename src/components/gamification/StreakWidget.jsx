@@ -24,7 +24,8 @@ function StreakWidget({ compact = false }) {
     },
     initialData: [],
     staleTime: 1000 * 60 * 5, // 5 minutes
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
+    refetchOnMount: false
   });
   const streaksArr = Array.isArray(streaks) ? streaks : [];
   const overallStreak = streaksArr.find((s) => s.streak_type === 'overall');

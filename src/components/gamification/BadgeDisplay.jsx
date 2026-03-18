@@ -38,7 +38,8 @@ function BadgeDisplay({ compact = false }) {
     },
     initialData: [],
     staleTime: 1000 * 60 * 5, // 5 minutes
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
+    refetchOnMount: false
   });
   const badgesArr = Array.isArray(badges) ? badges : [];
   const earnedBadges = badgesArr.filter((b) => b.earned_date);

@@ -67,7 +67,8 @@ function StandaloneDailyCheckIn() {
       return moods[0] || null;
     },
     staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
+    refetchOnMount: false
   });
 
   const saveMutation = useMutation({
