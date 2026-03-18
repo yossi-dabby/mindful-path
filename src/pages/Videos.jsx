@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 import CreatePlaylistModal from '../components/playlists/CreatePlaylistModal';
 import AddToPlaylistModal from '../components/playlists/AddToPlaylistModal';
 import { useTranslation } from 'react-i18next';
+import PullToRefresh from '../components/utils/PullToRefresh';
 
 export default function Videos() {
   const { t } = useTranslation();
@@ -40,8 +41,9 @@ export default function Videos() {
   };
 
   return (
-    <div className="min-h-dvh bg-transparent">
-      <div className="page-container max-w-7xl">
+    <PullToRefresh queryKeys={['videos', 'allVideoProgress']}>
+      <div className="min-h-dvh bg-transparent">
+        <div className="page-container max-w-7xl">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 mt-6">
           <div>
@@ -201,7 +203,8 @@ export default function Videos() {
           onClose={() => setSelectedVideo(null)} 
           video={selectedVideo}
         />
+        </div>
       </div>
-    </div>
+    </PullToRefresh>
   );
 }

@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { Compass } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import PullToRefresh from '../components/utils/PullToRefresh';
 
 export default function JourneysPage() {
   const { t } = useTranslation();
@@ -87,8 +88,9 @@ export default function JourneysPage() {
   const availableJourneys = journeys.filter(j => !progressMap[j.id]);
 
   return (
-    <div className="min-h-dvh p-6 safe-bottom">
-      <div className="max-w-6xl mx-auto">
+    <PullToRefresh queryKeys={['journeys', 'journey_progress']}>
+      <div className="min-h-dvh p-6 safe-bottom">
+        <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <div className="flex items-center gap-2 sm:gap-3 mb-2 min-w-0">
             <Compass className="w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0" style={{ color: '#26A69A' }} />
@@ -188,5 +190,6 @@ export default function JourneysPage() {
         </Dialog>
       </div>
     </div>
+    </PullToRefresh>
   );
 }
