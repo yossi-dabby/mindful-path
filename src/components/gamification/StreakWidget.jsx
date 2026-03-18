@@ -7,7 +7,7 @@ import { Flame, TrendingUp, Award, Heart, BookOpen, Dumbbell } from 'lucide-reac
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-const StreakWidget = React.memo(function StreakWidget({ compact = false }) {
+export default function StreakWidget({ compact = false }) {
   const { data: streaks, isLoading } = useQuery({
     queryKey: ['userStreaks'],
     queryFn: async () => {
@@ -24,8 +24,7 @@ const StreakWidget = React.memo(function StreakWidget({ compact = false }) {
     },
     initialData: [],
     staleTime: 1000 * 60 * 5, // 5 minutes
-    refetchOnWindowFocus: false,
-    refetchOnMount: false
+    refetchOnWindowFocus: false
   });
   const streaksArr = Array.isArray(streaks) ? streaks : [];
   const overallStreak = streaksArr.find((s) => s.streak_type === 'overall');
@@ -154,6 +153,5 @@ const StreakWidget = React.memo(function StreakWidget({ compact = false }) {
         </CardContent>
       </Card>
     </motion.div>);
-    });
 
-    export default StreakWidget;
+}

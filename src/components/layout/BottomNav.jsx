@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { cn } from "@/lib/utils";
 import { Home, MessageCircle, BookOpen, Activity, Dumbbell, Heart } from 'lucide-react';
@@ -13,7 +13,6 @@ export const BOTTOM_NAV_HEIGHT = 80; // 20 * 4 = 80px (h-20)
 export default function BottomNav({ currentPageName }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
   const tabNav = useTabNavigation();
 
   const navItems = [
@@ -57,29 +56,23 @@ export default function BottomNav({ currentPageName }) {
       <div className="bg-teal-50 px-1 flex justify-around items-center h-full">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const targetPath = createPageUrl(item.path);
-          const isActive = currentPageName === item.path || location.pathname === targetPath || location.pathname === `/${item.path}`;
+          const isActive = currentPageName === item.path;
           return (
             <Link
               key={item.path}
               to={createPageUrl(item.path)}
               onClick={(e) => handleTabClick(e, item)}
               aria-current={isActive ? 'page' : undefined}
-              aria-label={item.name}
-              className={cn(
-                "px-2 py-2 rounded-3xl flex flex-col items-center justify-center gap-1 transition-calm border min-w-[52px] shadow-[var(--shadow-sm)]",
-                isActive
-                  ? "bg-teal-600 border-teal-700"
-                  : "bg-teal-400 border-border/70"
-              )}>
-              <Icon
-                className={cn(
-                  "w-5 h-5 icon-default scale-110",
-                  isActive ? "text-white" : "text-teal-700"
-                )}
-                strokeWidth={2}
-              />
-              <span className={cn("text-sm font-medium leading-none", isActive ? "text-white" : "text-teal-700")}>{item.name}</span>
+              aria-label={item.name} className="bg-teal-400 text-foreground px-2 py-2 rounded-3xl flex flex-col items-center justify-center gap-1 transition-calm border min-w-[52px] border-border/70 shadow-[var(--shadow-sm)]">
+
+
+
+
+
+
+
+              <Icon className="text-teal-700 lucide lucide-message-circle w-5 h-5 icon-default scale-110" strokeWidth={2} />
+              <span className="text-teal-700 text-sm font-medium leading-none">{item.name}</span>
             </Link>);
 
         })}

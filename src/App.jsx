@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -21,12 +20,6 @@ const AUTH_OVERLAY_Z_INDEX = 9999;
 const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
   : <>{children}</>;
-
-const RouteLoader = () => (
-  <div className="flex min-h-[40vh] items-center justify-center">
-    <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin" aria-hidden="true" />
-  </div>
-);
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -68,9 +61,7 @@ const AuthenticatedApp = () => {
       <Routes>
         <Route path="/" element={
           <LayoutWrapper currentPageName={mainPageKey}>
-            <Suspense fallback={<RouteLoader />}>
-              <MainPage />
-            </Suspense>
+            <MainPage />
           </LayoutWrapper>
         } />
         {Object.entries(Pages).map(([path, Page]) => (
@@ -79,9 +70,7 @@ const AuthenticatedApp = () => {
             path={`/${path}`}
             element={
               <LayoutWrapper currentPageName={path}>
-                <Suspense fallback={<RouteLoader />}>
-                  <Page />
-                </Suspense>
+                <Page />
               </LayoutWrapper>
             }
           />

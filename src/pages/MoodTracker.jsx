@@ -70,7 +70,7 @@ export default function MoodTracker() {
                 <svg className="rtl:scale-x-[-1]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
               </Button>
               <div className="min-w-0">
-                <h1 aria-label="Mood Tracker" className="text-teal-600 mb-1 text-2xl font-semibold md:text-3xl md:mb-2 break-words">{t('mood_tracker.page_title')}</h1>
+                <h1 className="text-teal-600 mb-1 text-2xl font-semibold md:text-3xl md:mb-2 break-words">{t('mood_tracker.page_title')}</h1>
                 <p className="text-teal-600 text-sm font-medium md:text-base break-words">{t('mood_tracker.page_subtitle')}</p>
               </div>
             </div>

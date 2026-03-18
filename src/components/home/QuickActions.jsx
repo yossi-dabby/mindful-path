@@ -12,7 +12,7 @@ import AiPersonalizedFeed from './AiPersonalizedFeed';
 import VideoModal from './VideoModal';
 import { useTranslation } from 'react-i18next';
 
-const QuickActions = React.memo(function QuickActions() {
+export default function QuickActions() {
   const { t } = useTranslation();
   const [activeVideo, setActiveVideo] = useState(null);
   const [showRecommendations, setShowRecommendations] = useState(false);
@@ -29,8 +29,7 @@ const QuickActions = React.memo(function QuickActions() {
       return paths[0] || null;
     },
     staleTime: 1000 * 60 * 10, // 10 minutes
-    refetchOnWindowFocus: false,
-    refetchOnMount: false
+    refetchOnWindowFocus: false
   });
 
   const startPathMutation = useMutation({
@@ -457,6 +456,5 @@ const QuickActions = React.memo(function QuickActions() {
         </div>
       }
     </div>);
-    });
 
-    export default QuickActions;
+}

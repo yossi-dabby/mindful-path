@@ -20,7 +20,7 @@ const rarityBgColors = {
   legendary: 'rgba(245, 158, 11, 0.15)'
 };
 
-const BadgeDisplay = React.memo(function BadgeDisplay({ compact = false }) {
+export default function BadgeDisplay({ compact = false }) {
   const { data: badges, isLoading } = useQuery({
     queryKey: ['userBadges'],
     queryFn: async () => {
@@ -38,8 +38,7 @@ const BadgeDisplay = React.memo(function BadgeDisplay({ compact = false }) {
     },
     initialData: [],
     staleTime: 1000 * 60 * 5, // 5 minutes
-    refetchOnWindowFocus: false,
-    refetchOnMount: false
+    refetchOnWindowFocus: false
   });
   const badgesArr = Array.isArray(badges) ? badges : [];
   const earnedBadges = badgesArr.filter((b) => b.earned_date);
@@ -178,6 +177,5 @@ const BadgeDisplay = React.memo(function BadgeDisplay({ compact = false }) {
         </Card>
       }
     </div>);
-    });
 
-    export default BadgeDisplay;
+}

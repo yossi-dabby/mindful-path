@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { cn } from "@/lib/utils";
 import { Home, MessageCircle, BookOpen, Activity, Dumbbell, Heart, Users, Settings } from 'lucide-react';
@@ -10,7 +10,6 @@ export const SIDEBAR_WIDTH = 288; // 72 * 4 = 288px (w-72)
 
 export default function Sidebar({ currentPageName }) {
   const { t } = useTranslation();
-  const location = useLocation();
 
   const navItems = [
   { name: t('sidebar.home.name'), icon: Home, path: 'Home', description: t('sidebar.home.description') },
@@ -56,19 +55,12 @@ export default function Sidebar({ currentPageName }) {
         <div className="space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const targetPath = createPageUrl(item.path);
-            const isActive = currentPageName === item.path || location.pathname === targetPath || location.pathname === `/${item.path}`;
+            const isActive = currentPageName === item.path;
             return (
               <Link
                 key={item.path}
-                to={targetPath}
-                aria-current={isActive ? 'page' : undefined}
-                className={cn(
-                  "px-4 py-3 rounded-2xl flex items-center gap-3 transition-calm group border shadow-[var(--shadow-sm)]",
-                  isActive
-                    ? "bg-teal-200 text-foreground border-teal-400"
-                    : "bg-teal-50 text-foreground border-border/70"
-                )}>
+                to={createPageUrl(item.path)}
+                aria-current={isActive ? 'page' : undefined} className="bg-teal-50 text-foreground px-4 py-3 rounded-2xl flex items-center gap-3 transition-calm group border border-border/70 shadow-[var(--shadow-sm)]">
 
 
 
@@ -96,12 +88,11 @@ export default function Sidebar({ currentPageName }) {
           <div className="space-y-1">
             {secondaryItems.map((item) => {
               const Icon = item.icon;
-              const targetPath = createPageUrl(item.path);
-              const isActive = currentPageName === item.path || location.pathname === targetPath || location.pathname === `/${item.path}`;
+              const isActive = currentPageName === item.path;
               return (
                 <Link
                   key={item.path}
-                  to={targetPath}
+                  to={createPageUrl(item.path)}
                   aria-current={isActive ? 'page' : undefined}
                   className={cn(
                     "flex items-center gap-3 px-4 py-2.5 rounded-[var(--radius-control)] border transition-calm",

@@ -5,18 +5,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { User, CreditCard, LogOut, Crown, Shield, Layout as LayoutIcon } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { User, CreditCard, LogOut, Crown, Shield, Layout as LayoutIcon, Trash2 } from 'lucide-react';
 import ThemeSelector from '../components/settings/ThemeSelector';
 import DataPrivacy from '../components/settings/DataPrivacy';
 import LanguageSelector from '../components/settings/LanguageSelector';
 import NotificationSettings from '../components/settings/NotificationSettings';
-import DeleteAccountFlow from '../components/settings/DeleteAccountFlow';
 import { performLogout } from '@/lib/platform';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function Settings() {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const [user, setUser] = useState(null);
   const [fullName, setFullName] = useState('');
   const [currentTheme, setCurrentTheme] = useState('default');
@@ -60,6 +62,31 @@ export default function Settings() {
         exerciseReminders: false
       });
       setDashboardLayout(userData.preferences?.dashboardLayout || 'default');
+
+      // Initialize UserPoints singleton (fetch-or-create pattern)
+      try {
+        const existingPoints = await base44.entities.UserPoints.list();
+        if (existingPoints.length === 0) {
+          await base44.entities.UserPoints.create({
+            total_points: 0,
+            weekly_points: 0,
+            level: 1,
+            points_to_next_level: 100,
+            last_updated: new Date().toISOString().split('T')[0]
+          });
+        }
+      } catch (e) { /* non-critical */ }
+
+      // Initialize Subscription singleton (fetch-or-create pattern)
+      try {
+        const existingSubs = await base44.entities.Subscription.list();
+        if (existingSubs.length === 0) {
+          await base44.entities.Subscription.create({
+            plan_type: 'free',
+            status: 'trial'
+          });
+        }
+      } catch (e) { /* non-critical */ }
     }).catch(() => {
       base44.auth.redirectToLogin(window.location.pathname);
     });
@@ -117,6 +144,39 @@ export default function Settings() {
     performLogout();
   };
 
+  const deleteAccountMutation = useMutation({
+    mutationFn: async () => {
+      // Delete all user data first
+      const entities = ['Goal', 'MoodEntry', 'ThoughtJournal', 'Conversation', 'Exercise', 
+                       'CoachingSession', 'HealthMetric', 'ForumPost', 'ForumComment', 
+                       'SharedProgress', 'UserStreak', 'Badge', 'ProactiveReminder', 
+                       'JournalReminder', 'SavedResource', 'SessionSummary'];
+      
+      for (const entityName of entities) {
+        try {
+          const records = await base44.entities[entityName].list();
+          for (const record of records) {
+            await base44.entities[entityName].delete(record.id);
+          }
+        } catch (err) {
+          console.error(`Failed to delete ${entityName}:`, err);
+        }
+      }
+      
+      // Delete the user account
+      await base44.entities.User.delete('me');
+    },
+    onSuccess: () => {
+      performLogout();
+    },
+    onError: (error) => {
+      toast({
+        title: t('settings.account.delete_error'),
+        variant: 'destructive',
+      });
+    }
+  });
+
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -134,7 +194,7 @@ export default function Settings() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 aria-label="Settings" className="text-3xl md:text-4xl font-light mb-2" style={{ color: '#2D3748' }}>{t('settings.page_title')}</h1>
+        <h1 className="text-3xl md:text-4xl font-light mb-2" style={{ color: '#2D3748' }}>{t('settings.page_title')}</h1>
         <p style={{ color: '#718096' }}>{t('settings.page_subtitle')}</p>
       </motion.div>
 
@@ -381,7 +441,46 @@ export default function Settings() {
             {t('settings.account.logout')}
           </Button>
           
-          <DeleteAccountFlow userRole={user.role} />
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full rounded-xl border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                {t('settings.account.delete_account')}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>{t('settings.account.delete_confirm_title')}</AlertDialogTitle>
+                <AlertDialogDescription className="space-y-2">
+                  <p>{t('settings.account.delete_confirm_description')}</p>
+                  <p className="font-semibold text-red-600 mt-3">
+                    {t('settings.account.delete_warning')}
+                  </p>
+                  <ul className="text-sm text-gray-600 list-disc list-inside mt-2 space-y-1">
+                    <li>{t('settings.account.delete_data_goals')}</li>
+                    <li>{t('settings.account.delete_data_journal')}</li>
+                    <li>{t('settings.account.delete_data_conversations')}</li>
+                    <li>{t('settings.account.delete_data_progress')}</li>
+                  </ul>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={deleteAccountMutation.isPending}>
+                  {t('common.cancel')}
+                </AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={() => deleteAccountMutation.mutate()}
+                  disabled={deleteAccountMutation.isPending}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  {deleteAccountMutation.isPending ? t('settings.account.deleting') : t('settings.account.delete_confirm_button')}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </CardContent>
       </Card>
       </motion.div>

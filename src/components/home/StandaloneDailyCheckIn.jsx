@@ -43,7 +43,7 @@ const categoryColors = {
   negative: { bg: 'bg-red-500', hover: 'hover:bg-red-600', selected: 'bg-red-600', text: 'text-white' }
 };
 
-const StandaloneDailyCheckIn = React.memo(function StandaloneDailyCheckIn() {
+export default function StandaloneDailyCheckIn() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [step, setStep] = useState(1);
@@ -67,8 +67,7 @@ const StandaloneDailyCheckIn = React.memo(function StandaloneDailyCheckIn() {
       return moods[0] || null;
     },
     staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false
+    refetchOnWindowFocus: false
   });
 
   const saveMutation = useMutation({
@@ -712,7 +711,6 @@ const StandaloneDailyCheckIn = React.memo(function StandaloneDailyCheckIn() {
           }
       </AnimatePresence>
       </motion.div>
-      </>);
-      });
+    </>);
 
-      export default StandaloneDailyCheckIn;
+}

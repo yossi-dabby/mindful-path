@@ -96,6 +96,9 @@ export default function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
       alert('Failed to update: ' + (err.message || 'Unknown error'));
     },
     onSettled: () => {
+      // Invalidate and refetch to ensure the cache reflects the true server state.
+      // This runs after both success and error, releasing the mutation lock.
+      queryClient.invalidateQueries({ queryKey: ['allGoals'] });
       isMutatingRef.current = false;
     }
   });

@@ -14,7 +14,6 @@ import GoalsProgressTracker from '../components/progress/GoalsProgressTracker';
 import HealthDashboard from '../components/health/HealthDashboard';
 import EnhancedProgressDashboard from '../components/progress/EnhancedProgressDashboard';
 import GamificationHub from '../components/gamification/GamificationHub';
-import PullToRefresh from '../components/utils/PullToRefresh';
 
 export default function Progress() {
   const { t } = useTranslation();
@@ -60,8 +59,7 @@ export default function Progress() {
   const [activeTab, setActiveTab] = useState('overview');
 
   return (
-    <PullToRefresh queryKeys={['moodEntries', 'journalEntries', 'goals', 'progressConversations', 'exercises']}>
-      <div className="bg-teal-50 text-teal-600 mx-auto pb-32 p-4 md:p-8 md:pb-24 max-w-7xl w-full min-h-[100dvh]">
+    <div className="bg-teal-50 text-teal-600 mx-auto pb-32 p-4 md:p-8 md:pb-24 max-w-7xl w-full min-h-[100dvh]">
       {/* Header */}
       <div className="mb-6 sm:mb-8 mt-4">
         <div className="flex items-center gap-3 mb-2">
@@ -178,7 +176,6 @@ export default function Progress() {
 
       </div>
 
-    </div>
-    </PullToRefresh>);
+    </div>);
 
 }

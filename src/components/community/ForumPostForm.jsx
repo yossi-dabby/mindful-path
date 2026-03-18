@@ -53,11 +53,11 @@ export default function ForumPostForm({ onClose, groupId }) {
   };
 
   return (
-    <div role="dialog" aria-modal="true" aria-labelledby="forum-post-form-title" className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
       <Card className="w-full max-w-2xl border-0 shadow-2xl my-8">
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">
-            <CardTitle id="forum-post-form-title">Create Post</CardTitle>
+            <CardTitle>Create Post</CardTitle>
             <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
               <X className="w-5 h-5" />
             </Button>
@@ -151,9 +151,8 @@ export default function ForumPostForm({ onClose, groupId }) {
                 onClick={() => createMutation.mutate(formData)}
                 disabled={!formData.title || !formData.content || createMutation.isPending}
                 className="flex-1 bg-blue-600 hover:bg-blue-700"
-                aria-label="Create Post"
               >
-                {createMutation.isPending ? 'Creating Post...' : 'Create Post'}
+                {createMutation.isPending ? 'Posting...' : 'Post'}
               </Button>
             </div>
           </div>

@@ -13,7 +13,6 @@ import CoachingSessionList from '../components/coaching/CoachingSessionList';
 import CoachingSessionWizard from '../components/coaching/CoachingSessionWizard';
 import CoachingChat from '../components/coaching/CoachingChat';
 import PersonalizedInsights from '../components/coaching/PersonalizedInsights';
-import PullToRefresh from '../components/utils/PullToRefresh';
 
 export default function Coach() {
   const { t } = useTranslation();
@@ -95,8 +94,7 @@ export default function Coach() {
 
   // Main coach page
   return (
-    <PullToRefresh queryKeys={['currentUser', 'coachingSessions']}>
-      <div className="w-full min-h-[100dvh] bg-transparent">
+    <div className="w-full min-h-[100dvh] bg-transparent">
       {/* Mobile Header - Matches web structure */}
       <motion.div className="bg-teal-50 p-4 md:hidden border-b border-border/70 backdrop-blur-2xl shadow-[var(--shadow-sm)]"
 
@@ -291,7 +289,6 @@ export default function Coach() {
           </Button>
         }
       </div>
-    </div>
-    </PullToRefresh>);
+    </div>);
 
 }
