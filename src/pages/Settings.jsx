@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,6 +22,7 @@ export default function Settings() {
   const [user, setUser] = useState(null);
   const [fullName, setFullName] = useState('');
   const [currentTheme, setCurrentTheme] = useState('default');
+  const [deleteIdentityInput, setDeleteIdentityInput] = useState('');
   const [notifications, setNotifications] = useState({
     dailyReminders: false,
     progressUpdates: false,
@@ -118,6 +119,10 @@ export default function Settings() {
   const handleLogout = () => {
     performLogout();
   };
+
+  const handleDeleteDialogOpenChange = useCallback((open) => {
+    if (!open) setDeleteIdentityInput('');
+  }, []);
 
   const deleteAccountMutation = useMutation({
     mutationFn: async () => {
@@ -400,7 +405,7 @@ export default function Settings() {
             {t('settings.account.logout')}
           </Button>
           
-          <AlertDialog>
+          <AlertDialog onOpenChange={handleDeleteDialogOpenChange}>
             <AlertDialogTrigger asChild>
               <Button
                 variant="outline"
@@ -424,6 +429,24 @@ export default function Settings() {
                     <li>{t('settings.account.delete_data_conversations')}</li>
                     <li>{t('settings.account.delete_data_progress')}</li>
                   </ul>
+                  <div className="mt-4 space-y-2">
+                    <p id="delete-identity-label" className="text-sm font-medium text-gray-700">
+                      {t('settings.account.delete_identity_prompt')}
+                    </p>
+                    <Input
+                      type="email"
+                      value={deleteIdentityInput}
+                      onChange={(e) => setDeleteIdentityInput(e.target.value)}
+                      placeholder={t('settings.account.delete_identity_placeholder')}
+                      className="rounded-lg"
+                      autoComplete="off"
+                      aria-labelledby="delete-identity-label"
+                      data-testid="delete-identity-input"
+                    />
+                    {deleteIdentityInput && deleteIdentityInput !== user?.email && (
+                      <p className="text-xs text-red-600">{t('settings.account.delete_identity_mismatch')}</p>
+                    )}
+                  </div>
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -432,7 +455,7 @@ export default function Settings() {
                 </AlertDialogCancel>
                 <AlertDialogAction 
                   onClick={() => deleteAccountMutation.mutate()}
-                  disabled={deleteAccountMutation.isPending}
+                  disabled={deleteAccountMutation.isPending || deleteIdentityInput !== user?.email}
                   className="bg-red-600 hover:bg-red-700 text-white"
                 >
                   {deleteAccountMutation.isPending ? t('settings.account.deleting') : t('settings.account.delete_confirm_button')}

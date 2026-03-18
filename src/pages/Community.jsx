@@ -54,7 +54,20 @@ export default function Community() {
     base44.entities.ForumPost.update(post.id, {
       upvotes: (post.upvotes || 0) + 1
     }),
-    onSuccess: () => {
+    onMutate: async (post) => {
+      await queryClient.cancelQueries({ queryKey: ['forumPosts'] });
+      const previous = queryClient.getQueryData(['forumPosts']);
+      queryClient.setQueryData(['forumPosts'], (old = []) =>
+        old.map((p) => p.id === post.id ? { ...p, upvotes: (p.upvotes || 0) + 1 } : p)
+      );
+      return { previous };
+    },
+    onError: (_err, _post, ctx) => {
+      if (ctx?.previous) {
+        queryClient.setQueryData(['forumPosts'], ctx.previous);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['forumPosts'] });
     }
   });
@@ -64,7 +77,20 @@ export default function Community() {
     base44.entities.SharedProgress.update(progress.id, {
       upvotes: (progress.upvotes || 0) + 1
     }),
-    onSuccess: () => {
+    onMutate: async (progress) => {
+      await queryClient.cancelQueries({ queryKey: ['sharedProgress'] });
+      const previous = queryClient.getQueryData(['sharedProgress']);
+      queryClient.setQueryData(['sharedProgress'], (old = []) =>
+        old.map((p) => p.id === progress.id ? { ...p, upvotes: (p.upvotes || 0) + 1 } : p)
+      );
+      return { previous };
+    },
+    onError: (_err, _progress, ctx) => {
+      if (ctx?.previous) {
+        queryClient.setQueryData(['sharedProgress'], ctx.previous);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['sharedProgress'] });
     }
   });

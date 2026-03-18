@@ -1,6 +1,6 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import DraggableAiCompanion from './components/ai/DraggableAiCompanion';
 import BottomNav from './components/layout/BottomNav';
@@ -12,6 +12,7 @@ import i18n from './components/i18n/i18nConfig';
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const [theme, setTheme] = React.useState('default');
   const [isOffline, setIsOffline] = React.useState(!navigator.onLine);
 
@@ -64,10 +65,11 @@ export default function Layout({ children, currentPageName }) {
   }, []);
 
   // Track whether we pushed a sentinel history entry for an open overlay.
-  // Using a sentinel push/pop pattern avoids calling history.go(1) from inside
-  // a popstate handler, which causes iOS WKWebView "Unified Navigation" warnings.
+  // Using React Router's navigate() with location state instead of raw
+  // window.history.pushState() keeps the history stack in sync with React Router
+  // and avoids iOS WKWebView "Unified Navigation" warnings.
   const overlayHistoryPushed = React.useRef(false);
-  // A unique ID stamped into each sentinel pushState so we can reliably
+  // A unique ID stamped into each sentinel navigate so we can reliably
   // identify it even when other navigations happened while the overlay was open.
   const overlayHistorySentinelId = React.useRef(null);
 
@@ -80,11 +82,14 @@ export default function Layout({ children, currentPageName }) {
       const hasOpenOverlay = !!document.querySelector(OVERLAY_SELECTOR);
 
       if (hasOpenOverlay && !overlayHistoryPushed.current) {
-        // Overlay just opened: push a sentinel entry so back gesture closes the overlay
-        // instead of navigating away from the page.
+        // Overlay just opened: push a sentinel entry via React Router so the back
+        // gesture closes the overlay instead of navigating away from the page.
         const sentinelId = Date.now();
         overlayHistorySentinelId.current = sentinelId;
-        window.history.pushState({ overlayOpen: true, sentinelId }, '');
+        navigate(location.pathname + location.search, {
+          replace: false,
+          state: { overlayOpen: true, sentinelId }
+        });
         overlayHistoryPushed.current = true;
       } else if (!hasOpenOverlay && overlayHistoryPushed.current) {
         // Overlay closed programmatically (X button, backdrop click, ESC key, etc.)
@@ -99,7 +104,7 @@ export default function Layout({ children, currentPageName }) {
           window.history.state?.overlayOpen &&
           window.history.state?.sentinelId === expectedId
         ) {
-          window.history.back();
+          navigate(-1);
         }
       }
     };
@@ -123,7 +128,7 @@ export default function Layout({ children, currentPageName }) {
       observer.disconnect();
       if (rafId !== null) cancelAnimationFrame(rafId);
     };
-  }, []);
+  }, [location.pathname, location.search]);
 
   // Handle back navigation: close any open overlay instead of navigating away.
   // The history.back() / swipe-back already moved history back, so we only need

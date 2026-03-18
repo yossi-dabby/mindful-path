@@ -27,14 +27,40 @@ export default function ProactiveNudges() {
 
   const dismissMutation = useMutation({
     mutationFn: (id) => base44.entities.ProactiveReminder.update(id, { status: 'dismissed' }),
-    onSuccess: () => {
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['proactiveReminders'] });
+      const previous = queryClient.getQueryData(['proactiveReminders']);
+      queryClient.setQueryData(['proactiveReminders'], (old = []) =>
+        old.filter((n) => n.id !== id)
+      );
+      return { previous };
+    },
+    onError: (_err, _id, ctx) => {
+      if (ctx?.previous) {
+        queryClient.setQueryData(['proactiveReminders'], ctx.previous);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['proactiveReminders'] });
     }
   });
 
   const completeMutation = useMutation({
     mutationFn: (id) => base44.entities.ProactiveReminder.update(id, { status: 'completed' }),
-    onSuccess: () => {
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['proactiveReminders'] });
+      const previous = queryClient.getQueryData(['proactiveReminders']);
+      queryClient.setQueryData(['proactiveReminders'], (old = []) =>
+        old.filter((n) => n.id !== id)
+      );
+      return { previous };
+    },
+    onError: (_err, _id, ctx) => {
+      if (ctx?.previous) {
+        queryClient.setQueryData(['proactiveReminders'], ctx.previous);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['proactiveReminders'] });
     }
   });
