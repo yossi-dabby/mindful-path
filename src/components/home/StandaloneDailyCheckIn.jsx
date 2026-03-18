@@ -43,7 +43,7 @@ const categoryColors = {
   negative: { bg: 'bg-red-500', hover: 'hover:bg-red-600', selected: 'bg-red-600', text: 'text-white' }
 };
 
-export default function StandaloneDailyCheckIn() {
+function StandaloneDailyCheckIn() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [step, setStep] = useState(1);

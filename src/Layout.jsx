@@ -74,7 +74,7 @@ export default function Layout({ children, currentPageName }) {
   // Observe overlay open/close via MutationObserver and manage the sentinel entry.
   React.useEffect(() => {
     const OVERLAY_SELECTOR =
-      '[role="dialog"][data-state="open"], [data-vaul-drawer-overlay][data-state="open"]';
+      '[role="dialog"][data-state="open"], [data-vaul-drawer-overlay][data-state="open"], [data-mobile-select-content="true"][data-state="open"]';
 
     const handleMutation = () => {
       const hasOpenOverlay = !!document.querySelector(OVERLAY_SELECTOR);
@@ -130,7 +130,7 @@ export default function Layout({ children, currentPageName }) {
   // to close the overlay UI — no history.go(1) required.
   React.useEffect(() => {
     const OVERLAY_SELECTOR =
-      '[role="dialog"][data-state="open"], [data-vaul-drawer-overlay][data-state="open"]';
+      '[role="dialog"][data-state="open"], [data-vaul-drawer-overlay][data-state="open"], [data-mobile-select-content="true"][data-state="open"]';
 
     const handlePopState = () => {
       const hasOpenOverlay = !!document.querySelector(OVERLAY_SELECTOR);

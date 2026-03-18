@@ -103,8 +103,9 @@ const SelectContent = React.forwardRef(({ className, children, position = "poppe
   return (
     <SelectPrimitive.Portal>
       <>
-        {isMobile && <div className={mobileBackdropClasses} aria-hidden="true" />}
+        {isMobile && <div data-mobile-select-overlay="true" className={mobileBackdropClasses} aria-hidden="true" />}
         <SelectPrimitive.Content
+          data-mobile-select-content={isMobile ? "true" : undefined}
           ref={ref}
           className={cn(
             isMobile ? mobileClasses : desktopClasses,

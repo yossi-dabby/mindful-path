@@ -12,7 +12,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import VideoModal from '../home/VideoModal';
 
-export default function GoalsDashboardWidget() {
+function GoalsDashboardWidget() {
   const { t } = useTranslation();
   const [showVideo, setShowVideo] = useState(false);
   const { data, isLoading } = useQuery({

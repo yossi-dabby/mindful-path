@@ -20,7 +20,7 @@ const rarityBgColors = {
   legendary: 'rgba(245, 158, 11, 0.15)'
 };
 
-export default function BadgeDisplay({ compact = false }) {
+function BadgeDisplay({ compact = false }) {
   const { data: badges, isLoading } = useQuery({
     queryKey: ['userBadges'],
     queryFn: async () => {

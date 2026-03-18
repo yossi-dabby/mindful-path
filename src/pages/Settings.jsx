@@ -5,20 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { User, CreditCard, LogOut, Crown, Shield, Layout as LayoutIcon, Trash2 } from 'lucide-react';
+import { User, CreditCard, LogOut, Crown, Shield, Layout as LayoutIcon } from 'lucide-react';
 import ThemeSelector from '../components/settings/ThemeSelector';
 import DataPrivacy from '../components/settings/DataPrivacy';
 import LanguageSelector from '../components/settings/LanguageSelector';
 import NotificationSettings from '../components/settings/NotificationSettings';
+import DeleteAccountFlow from '../components/settings/DeleteAccountFlow';
 import { performLogout } from '@/lib/platform';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { useToast } from '@/components/ui/use-toast';
 
 export default function Settings() {
   const { t } = useTranslation();
-  const { toast } = useToast();
   const [user, setUser] = useState(null);
   const [fullName, setFullName] = useState('');
   const [currentTheme, setCurrentTheme] = useState('default');
@@ -118,23 +116,6 @@ export default function Settings() {
   const handleLogout = () => {
     performLogout();
   };
-
-  const deleteAccountMutation = useMutation({
-    mutationFn: async () => {
-      const response = await base44.functions.invoke('deleteMyAccount', {});
-      return response.data;
-    },
-    onSuccess: () => {
-      performLogout();
-    },
-    onError: (error) => {
-      toast({
-        title: t('settings.account.delete_error'),
-        description: error?.response?.data?.error,
-        variant: 'destructive',
-      });
-    }
-  });
 
   if (!user) {
     return (
@@ -400,46 +381,7 @@ export default function Settings() {
             {t('settings.account.logout')}
           </Button>
           
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full rounded-xl border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                {t('settings.account.delete_account')}
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>{t('settings.account.delete_confirm_title')}</AlertDialogTitle>
-                <AlertDialogDescription className="space-y-2">
-                  <p>{t('settings.account.delete_confirm_description')}</p>
-                  <p className="font-semibold text-red-600 mt-3">
-                    {t('settings.account.delete_warning')}
-                  </p>
-                  <ul className="text-sm text-gray-600 list-disc list-inside mt-2 space-y-1">
-                    <li>{t('settings.account.delete_data_goals')}</li>
-                    <li>{t('settings.account.delete_data_journal')}</li>
-                    <li>{t('settings.account.delete_data_conversations')}</li>
-                    <li>{t('settings.account.delete_data_progress')}</li>
-                  </ul>
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel disabled={deleteAccountMutation.isPending}>
-                  {t('common.cancel')}
-                </AlertDialogCancel>
-                <AlertDialogAction 
-                  onClick={() => deleteAccountMutation.mutate()}
-                  disabled={deleteAccountMutation.isPending}
-                  className="bg-red-600 hover:bg-red-700 text-white"
-                >
-                  {deleteAccountMutation.isPending ? t('settings.account.deleting') : t('settings.account.delete_confirm_button')}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <DeleteAccountFlow userRole={user.role} />
         </CardContent>
       </Card>
       </motion.div>

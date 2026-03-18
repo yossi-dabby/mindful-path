@@ -7,7 +7,7 @@ import { Flame, TrendingUp, Award, Heart, BookOpen, Dumbbell } from 'lucide-reac
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-export default function StreakWidget({ compact = false }) {
+function StreakWidget({ compact = false }) {
   const { data: streaks, isLoading } = useQuery({
     queryKey: ['userStreaks'],
     queryFn: async () => {
