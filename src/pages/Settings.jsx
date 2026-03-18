@@ -146,30 +146,13 @@ export default function Settings() {
 
   const deleteAccountMutation = useMutation({
     mutationFn: async () => {
-      // Delete all user data first
-      const entities = ['Goal', 'MoodEntry', 'ThoughtJournal', 'Conversation', 'Exercise', 
-                       'CoachingSession', 'HealthMetric', 'ForumPost', 'ForumComment', 
-                       'SharedProgress', 'UserStreak', 'Badge', 'ProactiveReminder', 
-                       'JournalReminder', 'SavedResource', 'SessionSummary'];
-      
-      for (const entityName of entities) {
-        try {
-          const records = await base44.entities[entityName].list();
-          for (const record of records) {
-            await base44.entities[entityName].delete(record.id);
-          }
-        } catch (err) {
-          console.error(`Failed to delete ${entityName}:`, err);
-        }
-      }
-      
-      // Delete the user account
-      await base44.entities.User.delete('me');
+      const response = await base44.functions.invoke('deleteMyAccount', {});
+      return response.data;
     },
     onSuccess: () => {
       performLogout();
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: t('settings.account.delete_error'),
         variant: 'destructive',
