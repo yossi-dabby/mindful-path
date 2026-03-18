@@ -152,9 +152,10 @@ export default function Settings() {
     onSuccess: () => {
       performLogout();
     },
-    onError: () => {
+    onError: (error) => {
       toast({
         title: t('settings.account.delete_error'),
+        description: error?.response?.data?.error,
         variant: 'destructive',
       });
     }

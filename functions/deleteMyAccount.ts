@@ -43,6 +43,13 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    if (user.role === 'admin') {
+      return Response.json(
+        { error: 'Admin or app-owner accounts cannot be deleted from inside the app.' },
+        { status: 403 }
+      );
+    }
+
     for (const entityName of USER_OWNED_ENTITIES) {
       const entityApi = base44.asServiceRole.entities[entityName];
       if (!entityApi) continue;
