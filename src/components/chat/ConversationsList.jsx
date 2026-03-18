@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
-function ConversationsList({
+export default function ConversationsList({
   conversations = [],
   currentConversationId,
   onSelectConversation,
@@ -105,5 +105,3 @@ function ConversationsList({
     </div>);
 
 }
-
-export default React.memo(ConversationsList);
