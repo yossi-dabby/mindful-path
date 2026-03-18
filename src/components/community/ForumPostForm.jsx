@@ -151,9 +151,9 @@ export default function ForumPostForm({ onClose, groupId }) {
                 onClick={() => createMutation.mutate(formData)}
                 disabled={!formData.title || !formData.content || createMutation.isPending}
                 className="flex-1 bg-blue-600 hover:bg-blue-700"
-                aria-label="Create Post"
+                aria-label="Post"
               >
-                {createMutation.isPending ? 'Creating Post...' : 'Create Post'}
+                {createMutation.isPending ? 'Posting...' : 'Post'}
               </Button>
             </div>
           </div>
