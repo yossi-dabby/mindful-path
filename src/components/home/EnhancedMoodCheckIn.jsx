@@ -263,7 +263,7 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
                       key={mood.value}
                       onClick={() => handleMoodSelect(mood)}
                       className={cn(
-                        "p-2 sm:p-4 rounded-2xl border-2 transition-all hover:scale-105",
+                        "min-h-[44px] p-2 sm:p-4 rounded-2xl border-2 transition-all hover:scale-105",
                         formData.mood === mood.value
                           ? "border-green-500 bg-green-50 shadow-lg"
                           : "border-gray-200 bg-white hover:border-gray-300"
@@ -302,7 +302,7 @@ export default function EnhancedMoodCheckIn({ onClose, onComplete, existingData 
                             type="button"
                             onClick={() => toggleEmotion(emotion)}
                             className={cn(
-                              "px-4 py-2 rounded-full text-sm font-medium transition-all border-2 cursor-pointer",
+                              "min-h-[44px] px-4 py-2 rounded-full text-sm font-medium transition-all border-2 cursor-pointer",
                               formData.emotions.includes(emotion)
                                 ? cn(colors.selected, colors.text, "border-transparent scale-105 shadow-[var(--shadow-sm)]")
                                 : "border-gray-300 text-gray-700 hover:border-gray-400"
