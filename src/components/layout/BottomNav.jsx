@@ -57,7 +57,8 @@ export default function BottomNav({ currentPageName }) {
       <div className="bg-teal-50 px-1 flex justify-around items-center h-full">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = currentPageName === item.path;
+          const targetPath = createPageUrl(item.path);
+          const isActive = currentPageName === item.path || location.pathname === targetPath || location.pathname === `/${item.path}`;
           return (
             <Link
               key={item.path}
