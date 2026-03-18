@@ -89,21 +89,20 @@ SelectScrollDownButton.displayName =
 const SelectContent = React.forwardRef(({ className, children, position = "popper", ...props }, ref) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  // On mobile, use "popper" with side="bottom" so the content opens below the trigger.
-  // "item-aligned" ignores the `side` prop and its inline positioning conflicts with CSS
-  // classes that attempt to force the content to the bottom of the viewport.
+  const mobileBackdropClasses =
+    "fixed inset-0 z-50 bg-[hsl(var(--overlay)/0.16)] backdrop-blur-[6px]";
+
   const mobileClasses =
-    "relative z-50 max-h-[70vh] min-w-[8rem] overflow-hidden rounded-t-2xl border border-border/70 bg-[hsl(var(--popover)/0.98)] text-popover-foreground shadow-[var(--shadow-lg)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2";
+    "fixed z-[51] !inset-x-0 !bottom-0 !top-auto !left-0 !right-0 !translate-x-0 !translate-y-0 max-h-[75vh] w-full overflow-hidden rounded-t-[var(--radius-card)] border border-border/70 bg-[hsl(var(--popover)/0.98)] text-popover-foreground shadow-[var(--shadow-lg)] backdrop-blur-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-bottom-8 data-[state=open]:slide-in-from-bottom-8";
 
   const desktopClasses =
     "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-[var(--radius-control)] border border-border/70 bg-[hsl(var(--popover)/0.98)] text-popover-foreground shadow-[var(--shadow-lg)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2";
 
-  // Use "popper" on mobile so that side/sideOffset are respected by Radix.
-  const contentPosition = isMobile ? "popper" : position;
   const shouldUsePopperDimensions = !isMobile && position === "popper";
 
   return (
     <SelectPrimitive.Portal>
+      {isMobile && <div className={mobileBackdropClasses} aria-hidden="true" />}
       <SelectPrimitive.Content
         ref={ref}
         className={cn(
@@ -113,9 +112,7 @@ const SelectContent = React.forwardRef(({ className, children, position = "poppe
             "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
           className
         )}
-        position={contentPosition}
-        side={isMobile ? "bottom" : undefined}
-        sideOffset={isMobile ? 4 : undefined}
+        position={position}
         {...props}>
         {!isMobile && <SelectScrollUpButton />}
         <SelectPrimitive.Viewport
@@ -123,7 +120,7 @@ const SelectContent = React.forwardRef(({ className, children, position = "poppe
             "p-1",
             shouldUsePopperDimensions &&
               "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]",
-            isMobile && "max-h-[70vh]"
+            isMobile && "max-h-[75vh] px-2 pb-[calc(env(safe-area-inset-bottom,0px)+12px)] pt-2"
           )}>
           {children}
         </SelectPrimitive.Viewport>
