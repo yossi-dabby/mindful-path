@@ -92,3 +92,5 @@ function ForumPostCard({ post, onView, onUpvote, onModerate, isUpvoting }) {
     </Card>
   );
 }
+
+export default React.memo(ForumPostCard);

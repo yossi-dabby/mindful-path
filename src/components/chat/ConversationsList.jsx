@@ -105,3 +105,5 @@ function ConversationsList({
     </div>);
 
 }
+
+export default React.memo(ConversationsList);

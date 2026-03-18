@@ -51,6 +51,7 @@ function GroupCard({ group, isMember, onJoin, onView }) {
                 {!isMember && (
                   <Button
                     size="sm"
+                    className="min-h-[44px]"
                     onClick={() => onJoin(group)}
                   >
                     Join
@@ -64,3 +65,5 @@ function GroupCard({ group, isMember, onJoin, onView }) {
     </Card>
   );
 }
+
+export default React.memo(GroupCard);

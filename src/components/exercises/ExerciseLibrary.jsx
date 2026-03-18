@@ -127,3 +127,5 @@ function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExe
     </div>);
 
 }
+
+export default React.memo(ExerciseLibrary);

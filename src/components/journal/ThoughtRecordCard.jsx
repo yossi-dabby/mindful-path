@@ -260,3 +260,5 @@ function ThoughtRecordCard({ entry, onEdit }) {
     </Card>
   );
 }
+
+export default React.memo(ThoughtRecordCard);

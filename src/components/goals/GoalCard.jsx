@@ -513,3 +513,5 @@ function GoalCard({ goal, onEdit, onDelete, isDeleting }) {
     </Card>);
 
 }
+
+export default React.memo(GoalCard);
