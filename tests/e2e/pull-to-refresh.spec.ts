@@ -1,4 +1,5 @@
 import { test, expect, devices } from '@playwright/test';
+import { mockApi } from '../helpers/ui';
 
 /**
  * Pull-to-Refresh Gesture Tests
@@ -15,65 +16,10 @@ test.use({ ...devices['Pixel 5'] });
 
 const BASE_URL = process.env.E2E_BASE_URL || 'http://localhost:5173';
 
-async function mockApis(page: import('@playwright/test').Page) {
-  await page.route('**/api/apps/**', async (route) => {
-    const url = route.request().url();
-    if (url.includes('/public-settings/')) {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ id: 'test-app-id', appId: 'test-app-id', appName: 'Test App', isPublic: true }),
-      });
-    } else if (url.includes('/entities/User')) {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          id: 'test-user-id',
-          email: 'test@example.com',
-          full_name: 'Test User',
-          role: 'user',
-          onboarding_completed: true,
-          preferences: {},
-        }),
-      });
-    } else {
-      await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
-    }
-  });
-
-  await page.route('**/api/auth/**', async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        id: 'test-user-id',
-        email: 'test@example.com',
-        full_name: 'Test User',
-        role: 'user',
-        onboarding_completed: true,
-        preferences: {},
-      }),
-    });
-  });
-
-  await page.route('**/api/entities/**', async (route) => {
-    await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
-  });
-
-  await page.route('**/analytics/**', async (route) => {
-    await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
-  });
-
-  await page.addInitScript(() => {
-    document.body.setAttribute('data-test-env', 'true');
-    (window as any).__TEST_APP_ID__ = 'test-app-id';
-    (window as any).__DISABLE_ANALYTICS__ = true;
-  });
-}
-
 /**
- * Dispatches touch events on the element at (x, y) to simulate a pull gesture.
+ * Dispatches touch events on the PullToRefresh container to simulate a pull gesture.
+ * Targets the container directly (via data-testid) so events reliably reach the
+ * PullToRefresh event listeners regardless of what child element is at (x, startY).
  * @param page - Playwright page
  * @param startY - Starting Y coordinate (clientY of touchstart)
  * @param endY   - Ending Y coordinate (clientY of the single touchmove)
@@ -89,7 +35,12 @@ async function simulatePull(
       if (main) main.scrollTop = 0;
 
       const x = 200;
-      const target = document.elementFromPoint(x, sx) ?? document.body;
+      // Dispatch directly on the PullToRefresh container so the component's
+      // event listeners are always triggered, regardless of what child element
+      // happens to be at the touch coordinates.
+      const target =
+        document.querySelector<HTMLElement>('[data-testid="pull-to-refresh-container"]') ??
+        document.body;
 
       target.dispatchEvent(
         new TouchEvent('touchstart', {
@@ -113,15 +64,15 @@ async function simulatePull(
 
 test.describe('PullToRefresh gesture handling', () => {
   test.beforeEach(async ({ page }) => {
-    await mockApis(page);
+    await page.addInitScript(() => {
+      (window as any).__TEST_APP_ID__ = 'test-app-id';
+      (window as any).__DISABLE_ANALYTICS__ = true;
+    });
+    await mockApi(page);
     await page.goto(`${BASE_URL}/Home`, { waitUntil: 'domcontentloaded' });
-    await page.waitForFunction(
-      () => {
-        const root = document.querySelector('#root');
-        return root && root.children.length > 0;
-      },
-      { timeout: 10000 },
-    );
+    // Wait for the PullToRefresh container to be in the DOM, which confirms the
+    // Home page has mounted and PullToRefresh is ready to receive touch events.
+    await page.waitForSelector('[data-testid="pull-to-refresh-container"]', { timeout: 15000 });
   });
 
   test('pull indicator appears for distance within MAX_PULL', async ({ page }) => {
