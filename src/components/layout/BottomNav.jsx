@@ -13,6 +13,7 @@ export const BOTTOM_NAV_HEIGHT = 80; // 20 * 4 = 80px (h-20)
 export default function BottomNav({ currentPageName }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const tabNav = useTabNavigation();
 
   const navItems = [
