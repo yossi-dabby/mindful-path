@@ -8,6 +8,7 @@ import { Search, Bookmark, Library } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import ResourceCard from '../components/resources/ResourceCard';
 import AIResourceRecommendations from '../components/resources/AIResourceRecommendations';
+import PullToRefresh from '../components/utils/PullToRefresh';
 
 export default function Resources() {
   const { t } = useTranslation();
@@ -51,12 +52,35 @@ export default function Resources() {
 
   const saveResourceMutation = useMutation({
     mutationFn: (resourceId) => base44.entities.SavedResource.create({ resource_id: resourceId }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['savedResources'] })
+    onMutate: async (resourceId) => {
+      await queryClient.cancelQueries({ queryKey: ['savedResources'] });
+      const previous = queryClient.getQueryData(['savedResources']);
+      queryClient.setQueryData(['savedResources'], (old = []) => [
+        ...old,
+        { id: 'temp-' + crypto.randomUUID(), resource_id: resourceId }
+      ]);
+      return { previous };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(['savedResources'], ctx.previous);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['savedResources'] })
   });
 
   const unsaveResourceMutation = useMutation({
     mutationFn: (savedResourceId) => base44.entities.SavedResource.delete(savedResourceId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['savedResources'] })
+    onMutate: async (savedResourceId) => {
+      await queryClient.cancelQueries({ queryKey: ['savedResources'] });
+      const previous = queryClient.getQueryData(['savedResources']);
+      queryClient.setQueryData(['savedResources'], (old = []) =>
+        old.filter(sr => sr.id !== savedResourceId)
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(['savedResources'], ctx.previous);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['savedResources'] })
   });
 
   const [selectedType, setSelectedType] = useState('all');
@@ -116,7 +140,8 @@ export default function Resources() {
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto min-h-[100dvh] bg-transparent">
+    <PullToRefresh queryKeys={['resources', 'savedResources', 'moodForResources', 'journalForResources', 'userForResources']}>
+      <div className="p-4 md:p-8 max-w-7xl mx-auto min-h-[100dvh] bg-transparent">
       {/* Header */}
       <div className="mb-8 mt-4">
         <h1 className="text-3xl md:text-4xl font-semibold mb-2 flex items-center gap-3 text-foreground">
@@ -228,5 +253,6 @@ export default function Resources() {
         </div>
       )}
     </div>
+    </PullToRefresh>
   );
 }

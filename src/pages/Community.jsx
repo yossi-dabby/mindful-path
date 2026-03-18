@@ -54,9 +54,18 @@ export default function Community() {
     base44.entities.ForumPost.update(post.id, {
       upvotes: (post.upvotes || 0) + 1
     }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['forumPosts'] });
-    }
+    onMutate: async (post) => {
+      await queryClient.cancelQueries({ queryKey: ['forumPosts'] });
+      const previous = queryClient.getQueryData(['forumPosts']);
+      queryClient.setQueryData(['forumPosts'], (old = []) =>
+        old.map(p => p.id === post.id ? { ...p, upvotes: (p.upvotes || 0) + 1 } : p)
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(['forumPosts'], ctx.previous);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['forumPosts'] })
   });
 
   const upvoteProgressMutation = useMutation({
@@ -64,9 +73,18 @@ export default function Community() {
     base44.entities.SharedProgress.update(progress.id, {
       upvotes: (progress.upvotes || 0) + 1
     }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sharedProgress'] });
-    }
+    onMutate: async (progress) => {
+      await queryClient.cancelQueries({ queryKey: ['sharedProgress'] });
+      const previous = queryClient.getQueryData(['sharedProgress']);
+      queryClient.setQueryData(['sharedProgress'], (old = []) =>
+        old.map(p => p.id === progress.id ? { ...p, upvotes: (p.upvotes || 0) + 1 } : p)
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(['sharedProgress'], ctx.previous);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['sharedProgress'] })
   });
 
   const joinGroupMutation = useMutation({
@@ -80,7 +98,25 @@ export default function Community() {
         member_count: (group.member_count || 0) + 1
       });
     },
-    onSuccess: () => {
+    onMutate: async (group) => {
+      await queryClient.cancelQueries({ queryKey: ['communityGroups'] });
+      await queryClient.cancelQueries({ queryKey: ['groupMemberships'] });
+      const previousGroups = queryClient.getQueryData(['communityGroups']);
+      const previousMemberships = queryClient.getQueryData(['groupMemberships']);
+      queryClient.setQueryData(['communityGroups'], (old = []) =>
+        old.map(g => g.id === group.id ? { ...g, member_count: (g.member_count || 0) + 1 } : g)
+      );
+      queryClient.setQueryData(['groupMemberships'], (old = []) => [
+        ...old,
+        { id: 'temp-' + crypto.randomUUID(), group_id: group.id, role: 'member' }
+      ]);
+      return { previousGroups, previousMemberships };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.previousGroups) queryClient.setQueryData(['communityGroups'], ctx.previousGroups);
+      if (ctx?.previousMemberships) queryClient.setQueryData(['groupMemberships'], ctx.previousMemberships);
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['communityGroups'] });
       queryClient.invalidateQueries({ queryKey: ['groupMemberships'] });
     }

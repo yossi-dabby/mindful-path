@@ -11,6 +11,7 @@ import { Plus, List, Trash2, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import CreatePlaylistModal from '../components/playlists/CreatePlaylistModal';
 import { useTranslation } from 'react-i18next';
+import PullToRefresh from '../components/utils/PullToRefresh';
 
 export default function Playlists() {
   const { t } = useTranslation();
@@ -31,23 +32,31 @@ export default function Playlists() {
       await Promise.all(links.map(link => base44.entities.PlaylistVideo.delete(link.id)));
       await base44.entities.Playlist.delete(playlistId);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['playlists'] });
+    onMutate: async (playlistId) => {
+      await queryClient.cancelQueries({ queryKey: ['playlists'] });
+      const previous = queryClient.getQueryData(['playlists']);
+      queryClient.setQueryData(['playlists'], (old = []) =>
+        old.filter(p => p.id !== playlistId)
+      );
+      return { previous };
     },
-    onError: (error) => {
+    onError: (error, _vars, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(['playlists'], ctx.previous);
       if (isAuthError(error) && shouldShowAuthError()) {
         setShowAuthError(true);
       } else {
         alert(t('playlists.delete_error'));
       }
-    }
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['playlists'] })
   });
 
   return (
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
-      <div className="min-h-dvh" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
-        <div className="page-container max-w-7xl">
+      <PullToRefresh queryKeys={['playlists']}>
+        <div className="min-h-dvh" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
+          <div className="page-container max-w-7xl">
         {/* Header with Back Button */}
         <div className="mb-6 mt-6">
           <Button
@@ -212,8 +221,9 @@ export default function Playlists() {
           isOpen={showCreateModal} 
           onClose={() => setShowCreateModal(false)} 
         />
+          </div>
         </div>
-      </div>
+      </PullToRefresh>
     </>
   );
 }
