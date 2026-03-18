@@ -20,7 +20,7 @@ const rarityBgColors = {
   legendary: 'rgba(245, 158, 11, 0.15)'
 };
 
-function BadgeDisplay({ compact = false }) {
+const BadgeDisplay = React.memo(function BadgeDisplay({ compact = false }) {
   const { data: badges, isLoading } = useQuery({
     queryKey: ['userBadges'],
     queryFn: async () => {
@@ -178,6 +178,6 @@ function BadgeDisplay({ compact = false }) {
         </Card>
       }
     </div>);
-    }
+    });
 
-    export default React.memo(BadgeDisplay);
+    export default BadgeDisplay;

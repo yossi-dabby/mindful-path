@@ -43,7 +43,7 @@ const categoryColors = {
   negative: { bg: 'bg-red-500', hover: 'hover:bg-red-600', selected: 'bg-red-600', text: 'text-white' }
 };
 
-function StandaloneDailyCheckIn() {
+const StandaloneDailyCheckIn = React.memo(function StandaloneDailyCheckIn() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [step, setStep] = useState(1);
@@ -713,6 +713,6 @@ function StandaloneDailyCheckIn() {
       </AnimatePresence>
       </motion.div>
       </>);
-      }
+      });
 
-      export default React.memo(StandaloneDailyCheckIn);
+      export default StandaloneDailyCheckIn;

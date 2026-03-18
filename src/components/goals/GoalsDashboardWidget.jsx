@@ -12,7 +12,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import VideoModal from '../home/VideoModal';
 
-function GoalsDashboardWidget() {
+const GoalsDashboardWidget = React.memo(function GoalsDashboardWidget() {
   const { t } = useTranslation();
   const [showVideo, setShowVideo] = useState(false);
   const { data, isLoading } = useQuery({
@@ -191,6 +191,6 @@ function GoalsDashboardWidget() {
       </CardContent>
     </Card>
   );
-}
+});
 
-export default React.memo(GoalsDashboardWidget);
+export default GoalsDashboardWidget;

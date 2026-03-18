@@ -12,7 +12,7 @@ import AiPersonalizedFeed from './AiPersonalizedFeed';
 import VideoModal from './VideoModal';
 import { useTranslation } from 'react-i18next';
 
-function QuickActions() {
+const QuickActions = React.memo(function QuickActions() {
   const { t } = useTranslation();
   const [activeVideo, setActiveVideo] = useState(null);
   const [showRecommendations, setShowRecommendations] = useState(false);
@@ -457,6 +457,6 @@ function QuickActions() {
         </div>
       }
     </div>);
-    }
+    });
 
-    export default React.memo(QuickActions);
+    export default QuickActions;
