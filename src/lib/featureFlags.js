@@ -2,7 +2,7 @@
  * @file src/lib/featureFlags.js
  *
  * Therapist Upgrade — Stage 2 Feature Flag Registry
- * Preview rebuild marker: 2026-03-19T19:29Z
+ * Preview rebuild marker: 2026-03-19T21:40Z
  *
  * All flags default to false. The current default therapist path
  * (CBT_THERAPIST_WIRING_HYBRID via src/api/activeAgentWiring.js) is always
