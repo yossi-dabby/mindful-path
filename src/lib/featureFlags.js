@@ -47,7 +47,7 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
    * Phase 1 — Structured therapist memory layer.
    * Staging enablement: set VITE_THERAPIST_UPGRADE_MEMORY_ENABLED=true
    */
-  THERAPIST_UPGRADE_MEMORY_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_MEMORY_ENABLED === 'true',
+  THERAPIST_UPGRADE_MEMORY_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_MEMORY_ENABLED === 'true', // OPERATIONAL ATTEMPT — rebuild marker: 2026-03-19T22:05Z
 
   /**
    * Phase 2 — Session-end structured summarization.
