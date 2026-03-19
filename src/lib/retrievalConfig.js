@@ -145,4 +145,22 @@ export const RETRIEVAL_CONFIG = Object.freeze({
    * Prevents over-fetching even if per-source bounds are generous.
    */
   MAX_TOTAL_CONTEXT_ITEMS: 8,
+
+  /**
+   * Maximum number of live knowledge items from Phase 6 live retrieval.
+   * Kept very low (2) — live content is supplemental, not primary.
+   * Phase 6 addition.
+   */
+  MAX_LIVE_KNOWLEDGE_ITEMS: 2,
+
+  /**
+   * Minimum number of items that must be returned from internal sources
+   * (therapist_memory + session_context + internal_knowledge) before the
+   * Phase 6 live retrieval step is skipped.
+   *
+   * When internal sources return at least this many items, internal context
+   * is considered sufficient and live retrieval is not invoked.
+   * Phase 6 addition.
+   */
+  INTERNAL_SUFFICIENCY_MIN_ITEMS: 3,
 });

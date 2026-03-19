@@ -626,3 +626,100 @@ export const CBT_THERAPIST_WIRING_STAGE2_V3 = {
     },
   ],
 };
+
+// ─── Stage 2 V4 wiring config (Phase 6 — not yet active) ─────────────────────
+
+/**
+ * Stage 2 V4 wiring for the CBT Therapist agent.
+ *
+ * Phase 6 — Live Retrieval Wrapper + Allowlist Enforcement.
+ *
+ * This config extends CBT_THERAPIST_WIRING_STAGE2_V3 with live retrieval
+ * capability via the technical allowlist wrapper.  V4 is a strict superset
+ * of V3: all Phase 5 flags and entity tool_configs are preserved unchanged,
+ * and one new flag is added.
+ *
+ * New flags:
+ *   live_retrieval_enabled — signals Phase 6 live retrieval is available;
+ *                            workflowContextInjector will inject the Phase 6
+ *                            LIVE_RETRIEVAL_POLICY_INSTRUCTIONS section into
+ *                            the session-start content, and
+ *                            buildV4SessionStartContentAsync will execute
+ *                            live retrieval as step 5 when internal sources
+ *                            are insufficient and policy allows.
+ *
+ * Entity tool_configs: IDENTICAL to V3.  No new entity access is added.
+ * Live retrieval accesses only technically allowlisted external URLs via the
+ * backend fetchLiveResource function — it is not an entity access.
+ *
+ * ACTIVATION
+ * ----------
+ * This config is NOT the active config.  It becomes reachable only when
+ * resolveTherapistWiring() returns it, which requires BOTH flags to be true:
+ *   - THERAPIST_UPGRADE_ENABLED (master gate)
+ *   - THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED (Phase 6 gate)
+ * Both default to false.  ACTIVE_CBT_THERAPIST_WIRING remains
+ * CBT_THERAPIST_WIRING_HYBRID until the flags are explicitly enabled.
+ *
+ * ROLLBACK
+ * --------
+ * Set THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED to false to revert to V3
+ * with no other code changes.  Set THERAPIST_UPGRADE_ENABLED to false to
+ * revert to HYBRID entirely.
+ *
+ * Source of truth: docs/therapist-upgrade-stage2-plan.md — Phase 6
+ */
+export const CBT_THERAPIST_WIRING_STAGE2_V4 = {
+  name: 'cbt_therapist',
+  stage2: true,
+  stage2_phase: 6,
+  memory_context_injection: true,           // from V1 — structured memory layer
+  workflow_engine_enabled: true,            // from V2 — workflow engine active
+  workflow_context_injection: true,         // from V2 — inject workflow instructions
+  retrieval_orchestration_enabled: true,    // from V3 — Phase 5 retrieval orchestration
+  live_retrieval_enabled: true,             // Phase 6 — live retrieval wrapper active
+  tool_configs: [
+    // ── Step 1: Preferred entities (identical to V3 / V2 / V1 / Hybrid) ──
+    { entity_name: 'SessionSummary',  access_level: 'preferred',  source_order: 2 },
+    { entity_name: 'ThoughtJournal',  access_level: 'preferred',  source_order: 3 },
+    { entity_name: 'Goal',            access_level: 'preferred',  source_order: 4 },
+    { entity_name: 'CoachingSession', access_level: 'preferred',  source_order: 5 },
+    // ── Step 2: Allowed shared content pool (identical to V3 / V2 / V1 / Hybrid) ──
+    { entity_name: 'Exercise',        access_level: 'allowed',    source_order: 6 },
+    { entity_name: 'Resource',        access_level: 'allowed',    source_order: 7 },
+    { entity_name: 'AudioContent',    access_level: 'allowed',    source_order: 8 },
+    { entity_name: 'Journey',         access_level: 'allowed',    source_order: 9 },
+    // ── Step 3: Non-caution restricted entities (identical to V3 / V2 / V1 / Hybrid) ──
+    { entity_name: 'CompanionMemory', access_level: 'restricted', source_order: 10, read_only: true },
+    { entity_name: 'MoodEntry',       access_level: 'restricted', source_order: 11, calibration_only: true },
+    // ── Hybrid: Caution-layer entities (identical to V3 / V2 / V1 / Hybrid) ──
+    {
+      entity_name: 'CaseFormulation',
+      access_level: 'restricted',
+      source_order: 12,
+      read_only: true,
+      unrestricted: false,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    {
+      entity_name: 'Conversation',
+      access_level: 'restricted',
+      source_order: 13,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    // ── Phase 5: External trusted knowledge (identical to V3; lowest entity priority) ──
+    {
+      entity_name: 'ExternalKnowledgeChunk',
+      access_level: 'restricted',
+      source_order: 14,
+      read_only: true,
+      external_trusted: true,
+      caution_layer: false,
+    },
+    // NOTE: Live retrieval (Phase 6) is NOT an entity access — it goes through
+    // the technical allowlist wrapper (liveRetrievalWrapper.js) and the
+    // fetchLiveResource backend function.  No new entity is added here.
+  ],
+};

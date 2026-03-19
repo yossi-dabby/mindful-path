@@ -21,6 +21,8 @@
  *   V2 supersedes V1 when both flags are on (V2 is a superset of V1).
  * Phase 5 — CBT_THERAPIST_WIRING_STAGE2_V3 added as the retrieval-orchestration path.
  *   V3 supersedes V2 when both flags are on (V3 is a superset of V2).
+ * Phase 6 — CBT_THERAPIST_WIRING_STAGE2_V4 added as the live-retrieval path.
+ *   V4 supersedes V3 when both flags are on (V4 is a superset of V3).
  *
  * Analytics registration (Section B of Phase 0.1 spec) is performed lazily
  * via a dynamic import of base44Client.js so that test environments that lack
@@ -37,6 +39,7 @@ import {
   CBT_THERAPIST_WIRING_STAGE2_V1,
   CBT_THERAPIST_WIRING_STAGE2_V2,
   CBT_THERAPIST_WIRING_STAGE2_V3,
+  CBT_THERAPIST_WIRING_STAGE2_V4,
 } from './agentWiring.js';
 
 import {
@@ -77,18 +80,20 @@ import {
  *
  * Routing logic (evaluated in order):
  *   1. Master gate off  → CBT_THERAPIST_WIRING_HYBRID (current default)
- *   2. Master gate on, THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED on
+ *   2. Master gate on, THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED on
+ *                       → CBT_THERAPIST_WIRING_STAGE2_V4 (Phase 6 live retrieval)
+ *   3. Master gate on, THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V3 (Phase 5 retrieval orchestration)
- *   3. Master gate on, THERAPIST_UPGRADE_WORKFLOW_ENABLED on
+ *   4. Master gate on, THERAPIST_UPGRADE_WORKFLOW_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V2 (Phase 3 workflow engine)
- *   4. Master gate on, THERAPIST_UPGRADE_MEMORY_ENABLED on
+ *   5. Master gate on, THERAPIST_UPGRADE_MEMORY_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V1 (Phase 1 memory layer)
- *   5. Master gate on, no matching phase flag
+ *   6. Master gate on, no matching phase flag
  *                       → CBT_THERAPIST_WIRING_HYBRID (fall-through to current default)
  *
- * Phase 5 (V3) takes precedence over Phase 3 (V2) and Phase 1 (V1) when the
- * retrieval orchestration flag is on because V3 is a superset of V2, which is
- * a superset of V1.
+ * Phase 6 (V4) takes precedence over Phase 5 (V3) and all prior phases when
+ * the allowlist wrapper flag is on because V4 is a superset of V3, which is
+ * a superset of V2, which is a superset of V1.
  *
  * Phase 3 (V2) takes precedence over Phase 1 (V1) when both flags are on
  * because V2 is a superset of V1 — it includes the memory layer and adds
@@ -101,6 +106,16 @@ import {
  */
 export function resolveTherapistWiring() {
   if (isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')) {
+    // ── Phase 6 — Live retrieval wrapper (supersedes Phase 5 and earlier) ────
+    if (isUpgradeEnabled('THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED')) {
+      logUpgradeEvent('route_selected', {
+        flag: 'THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED',
+        path: 'stage2_v4',
+        phase: '6',
+      });
+      return CBT_THERAPIST_WIRING_STAGE2_V4;
+    }
+
     // ── Phase 5 — Retrieval orchestration (supersedes Phase 3 and Phase 1) ──
     if (isUpgradeEnabled('THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED')) {
       logUpgradeEvent('route_selected', {

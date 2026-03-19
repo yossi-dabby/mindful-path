@@ -59,6 +59,12 @@
 import { THERAPIST_WORKFLOW_INSTRUCTIONS } from './therapistWorkflowEngine.js';
 import { getRetrievalContextForWiring, buildBoundedContextPackage } from './retrievalOrchestrator.js';
 import { executeV3BoundedRetrieval } from './v3RetrievalExecutor.js';
+import {
+  LIVE_RETRIEVAL_POLICY_INSTRUCTIONS,
+  buildLiveContextSection,
+  LIVE_KNOWLEDGE_SOURCE_TYPE,
+} from './liveRetrievalWrapper.js';
+import { executeV4BoundedRetrieval } from './v4RetrievalExecutor.js';
 
 /**
  * Returns the workflow context instructions string when the supplied wiring
@@ -196,4 +202,151 @@ export async function buildV3SessionStartContentAsync(wiring, entities) {
     contextPackage +
     '\n=== END RETRIEVED CONTEXT ==='
   );
+}
+
+// ─── Phase 6 — V4 live retrieval context accessor ────────────────────────────
+
+/**
+ * Returns the Phase 6 live retrieval policy instructions string when the
+ * supplied wiring has live_retrieval_enabled set to true.
+ *
+ * This is the gating function for Phase 6 runtime injection of the live
+ * retrieval policy section.  It reads the wiring's own flag rather than
+ * evaluating the feature-flag registry directly, so the injection decision
+ * is always consistent with the wiring already resolved by
+ * resolveTherapistWiring().
+ *
+ * For all wirings without live_retrieval_enabled === true (which includes
+ * HYBRID, V1, V2, V3, and any unrecognised config), this function returns
+ * null — the current therapist path is completely unchanged.
+ *
+ * @param {object} wiring - The active therapist wiring config object
+ * @returns {string|null} LIVE_RETRIEVAL_POLICY_INSTRUCTIONS for V4; null otherwise
+ */
+export function getLiveRetrievalContextForWiring(wiring) {
+  if (wiring && wiring.live_retrieval_enabled === true) {
+    return LIVE_RETRIEVAL_POLICY_INSTRUCTIONS;
+  }
+  return null;
+}
+
+/**
+ * Builds the session-start message content for the V4 upgraded path,
+ * executing real bounded retrieval (sources 1–4 from Phase 5 + conditional
+ * live retrieval from Phase 6) and injecting retrieved context alongside
+ * the orchestration and live retrieval policy instructions.
+ *
+ * For all non-V4 wirings (HYBRID, V1, V2, V3, null, undefined):
+ *   Delegates to buildV3SessionStartContentAsync(wiring, entities) and
+ *   returns exactly the same result.  The default path is completely unchanged.
+ *
+ * For V4 (live_retrieval_enabled === true):
+ *   1. Builds the base session-start content (including Phase 5 instructions)
+ *      as V3 would.
+ *   2. Appends the Phase 6 live retrieval policy instructions section.
+ *   3. Executes V4 bounded retrieval:
+ *      (a) V3 sources 1–4 (internal-first)
+ *      (b) Live source 5 conditionally (only when internal sources are
+ *          insufficient and options.liveRetrievalAllowed is true)
+ *   4. Builds and appends the internal context package (sources 1–4).
+ *   5. Builds and appends the live context section (source 5, if any).
+ *
+ * FAIL-OPEN CONTRACT (internal retrieval)
+ * ----------------------------------------
+ * Same as buildV3SessionStartContentAsync: session start is never blocked
+ * by internal retrieval failure.
+ *
+ * FAIL-CLOSED CONTRACT (live retrieval)
+ * ---------------------------------------
+ * Live retrieval failure returns no live context — the session continues with
+ * internal sources only.  No exception propagates.
+ *
+ * @param {object} wiring       - The active therapist wiring config object
+ * @param {object} entities     - Base44 entity client map (e.g. base44.entities)
+ * @param {object|null} baseClient - Full base44 client (for live retrieval via
+ *                                   base44.functions.invoke); null disables live retrieval
+ * @param {object} [options]    - Options for Phase 6 live retrieval
+ * @param {boolean} [options.liveRetrievalAllowed=false] - Whether live retrieval is allowed
+ * @param {string}  [options.liveRetrievalUrl]            - URL to query for live retrieval
+ * @param {string}  [options.liveRetrievalQuery]          - Optional query context
+ * @returns {Promise<string>} The session-start message content
+ */
+export async function buildV4SessionStartContentAsync(
+  wiring,
+  entities,
+  baseClient,
+  options = {},
+) {
+  // For non-V4 wirings: delegate to V3 (no change to behavior)
+  if (!wiring || wiring.live_retrieval_enabled !== true) {
+    return buildV3SessionStartContentAsync(wiring, entities);
+  }
+
+  // ── V4 path ────────────────────────────────────────────────────────────────
+
+  // Step 1: Build the Phase 5 base content (workflow + retrieval orchestration instructions)
+  const phase5Base = buildSessionStartContent(wiring);
+
+  // Step 2: Append the Phase 6 live retrieval policy instructions
+  const livePolicy = getLiveRetrievalContextForWiring(wiring);
+  const contentWithLivePolicy = livePolicy
+    ? phase5Base + '\n\n' + livePolicy
+    : phase5Base;
+
+  // Step 3: Execute V4 bounded retrieval (sources 1–4 + conditional source 5)
+  let v4Result;
+  try {
+    v4Result = await executeV4BoundedRetrieval(
+      entities ?? {},
+      baseClient ?? null,
+      {
+        liveRetrievalAllowed: options.liveRetrievalAllowed ?? false,
+        liveRetrievalUrl: options.liveRetrievalUrl ?? '',
+        liveRetrievalQuery: options.liveRetrievalQuery ?? '',
+      },
+    );
+  } catch {
+    // Fail-open: V4 retrieval entirely failed — return content without context
+    return contentWithLivePolicy;
+  }
+
+  // Step 4: Build the internal context package from sources 1–4
+  const internalItems = (v4Result.items ?? []).filter(
+    (item) => item && item.source_type !== LIVE_KNOWLEDGE_SOURCE_TYPE,
+  );
+
+  let internalContextPackage = '';
+  try {
+    internalContextPackage = buildBoundedContextPackage(internalItems);
+  } catch {
+    internalContextPackage = '';
+  }
+
+  // Step 5: Build the live context section from source 5
+  const liveItems = (v4Result.items ?? []).filter(
+    (item) => item && item.source_type === LIVE_KNOWLEDGE_SOURCE_TYPE,
+  );
+
+  let liveContextSection = '';
+  try {
+    liveContextSection = buildLiveContextSection(liveItems);
+  } catch {
+    liveContextSection = '';
+  }
+
+  // Assemble the final content
+  let result = contentWithLivePolicy;
+
+  if (internalContextPackage && internalContextPackage.trim()) {
+    result +=
+      '\n\n=== RETRIEVED CONTEXT ===\n' +
+      internalContextPackage +
+      '\n=== END RETRIEVED CONTEXT ===';
+  }
+
+  if (liveContextSection && liveContextSection.trim()) {
+    result += '\n\n' + liveContextSection;
+  }
+
+  return result;
 }
