@@ -42,26 +42,47 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
    */
   THERAPIST_UPGRADE_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_ENABLED === 'true',
 
-  /** Phase 1 — Structured therapist memory layer */
-  THERAPIST_UPGRADE_MEMORY_ENABLED: false,
+  /**
+   * Phase 1 — Structured therapist memory layer.
+   * Staging enablement: set VITE_THERAPIST_UPGRADE_MEMORY_ENABLED=true
+   */
+  THERAPIST_UPGRADE_MEMORY_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_MEMORY_ENABLED === 'true',
 
-  /** Phase 2 — Session-end structured summarization */
-  THERAPIST_UPGRADE_SUMMARIZATION_ENABLED: false,
+  /**
+   * Phase 2 — Session-end structured summarization.
+   * Staging enablement: set VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED=true
+   */
+  THERAPIST_UPGRADE_SUMMARIZATION_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED === 'true',
 
-  /** Phase 3 — Therapist workflow engine */
-  THERAPIST_UPGRADE_WORKFLOW_ENABLED: false,
+  /**
+   * Phase 3 — Therapist workflow engine.
+   * Staging enablement: set VITE_THERAPIST_UPGRADE_WORKFLOW_ENABLED=true
+   */
+  THERAPIST_UPGRADE_WORKFLOW_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_WORKFLOW_ENABLED === 'true',
 
-  /** Phase 4 — External trusted knowledge ingestion */
-  THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED: false,
+  /**
+   * Phase 4 — External trusted knowledge ingestion.
+   * Staging enablement: set VITE_THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED=true
+   */
+  THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED === 'true',
 
-  /** Phase 5 — Retrieval orchestration (internal-first) */
-  THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED: false,
+  /**
+   * Phase 5 — Retrieval orchestration (internal-first).
+   * Staging enablement: set VITE_THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED=true
+   */
+  THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED === 'true',
 
-  /** Phase 6 — Live retrieval allowlist wrapper */
-  THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED: false,
+  /**
+   * Phase 6 — Live retrieval allowlist wrapper.
+   * Staging enablement: set VITE_THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED=true
+   */
+  THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED === 'true',
 
-  /** Phase 7 — Safety mode + emergency resource layer */
-  THERAPIST_UPGRADE_SAFETY_MODE_ENABLED: false,
+  /**
+   * Phase 7 — Safety mode + emergency resource layer.
+   * Staging enablement: set VITE_THERAPIST_UPGRADE_SAFETY_MODE_ENABLED=true
+   */
+  THERAPIST_UPGRADE_SAFETY_MODE_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_SAFETY_MODE_ENABLED === 'true',
 });
 
 /**
