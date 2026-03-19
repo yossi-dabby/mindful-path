@@ -530,3 +530,99 @@ export const CBT_THERAPIST_WIRING_STAGE2_V2 = {
     },
   ],
 };
+
+// ─── Stage 2 V3 wiring config (Phase 5 — not yet active) ─────────────────────
+
+/**
+ * Stage 2 V3 wiring for the CBT Therapist agent.
+ *
+ * Phase 5 — Retrieval Orchestration.
+ *
+ * This config extends CBT_THERAPIST_WIRING_STAGE2_V2 with retrieval
+ * orchestration flags and adds persisted external trusted knowledge as the
+ * lowest-priority retrieval source.
+ *
+ * New flags:
+ *   retrieval_orchestration_enabled  — signals Phase 5 retrieval orchestration
+ *                                      is active; workflowContextInjector will
+ *                                      append the retrieval context section to
+ *                                      the session-start content.
+ *
+ * New entity:
+ *   ExternalKnowledgeChunk (source_order 14) — persisted external trusted
+ *   knowledge from Phase 4.  Read-only, lowest-priority, always labeled as
+ *   external_trusted.  If this entity is empty (no ingested chunks), retrieval
+ *   returns an empty result and the session continues normally (fail-open).
+ *
+ * ACTIVATION
+ * ----------
+ * This config is NOT the active config.  It becomes reachable only when
+ * resolveTherapistWiring() returns it, which requires BOTH flags to be true:
+ *   - THERAPIST_UPGRADE_ENABLED (master gate)
+ *   - THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED (Phase 5 gate)
+ * Both default to false.  ACTIVE_CBT_THERAPIST_WIRING remains
+ * CBT_THERAPIST_WIRING_HYBRID until the flags are explicitly enabled.
+ *
+ * ROLLBACK
+ * --------
+ * Set THERAPIST_UPGRADE_ENABLED or THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED
+ * to false to revert to CBT_THERAPIST_WIRING_HYBRID with no other code changes.
+ *
+ * Source of truth: docs/therapist-upgrade-stage2-plan.md — Phase 5
+ */
+export const CBT_THERAPIST_WIRING_STAGE2_V3 = {
+  name: 'cbt_therapist',
+  stage2: true,
+  stage2_phase: 5,
+  memory_context_injection: true,            // from V1 — structured memory layer
+  workflow_engine_enabled: true,             // from V2 — workflow engine active
+  workflow_context_injection: true,          // from V2 — inject workflow instructions
+  retrieval_orchestration_enabled: true,     // Phase 5 — retrieval orchestration active
+  tool_configs: [
+    // ── Step 1: Preferred entities (identical to V2 / V1 / Hybrid) ──
+    { entity_name: 'SessionSummary',  access_level: 'preferred',  source_order: 2 },
+    { entity_name: 'ThoughtJournal',  access_level: 'preferred',  source_order: 3 },
+    { entity_name: 'Goal',            access_level: 'preferred',  source_order: 4 },
+    { entity_name: 'CoachingSession', access_level: 'preferred',  source_order: 5 },
+    // ── Step 2: Allowed shared content pool (identical to V2 / V1 / Hybrid) ──
+    { entity_name: 'Exercise',        access_level: 'allowed',    source_order: 6 },
+    { entity_name: 'Resource',        access_level: 'allowed',    source_order: 7 },
+    { entity_name: 'AudioContent',    access_level: 'allowed',    source_order: 8 },
+    { entity_name: 'Journey',         access_level: 'allowed',    source_order: 9 },
+    // ── Step 3: Non-caution restricted entities (identical to V2 / V1 / Hybrid) ──
+    { entity_name: 'CompanionMemory', access_level: 'restricted', source_order: 10, read_only: true },
+    { entity_name: 'MoodEntry',       access_level: 'restricted', source_order: 11, calibration_only: true },
+    // ── Hybrid: Caution-layer entities (identical to V2 / V1 / Hybrid) ──
+    {
+      entity_name: 'CaseFormulation',
+      access_level: 'restricted',
+      source_order: 12,
+      read_only: true,
+      unrestricted: false,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    {
+      entity_name: 'Conversation',
+      access_level: 'restricted',
+      source_order: 13,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    // ── Phase 5: External trusted knowledge (lowest priority; additive) ──
+    //
+    // ExternalKnowledgeChunk records were persisted in Phase 4.
+    // source_order 14 places this entity below all existing sources.
+    // read_only: true ensures no write access.
+    // external_trusted: true labels it for source-separation at retrieval time.
+    // If no chunks have been ingested, this entity returns empty results (fail-open).
+    {
+      entity_name: 'ExternalKnowledgeChunk',
+      access_level: 'restricted',
+      source_order: 14,
+      read_only: true,
+      external_trusted: true,
+      caution_layer: false,
+    },
+  ],
+};
