@@ -267,7 +267,15 @@ function splitIntoChunks(
 
 // ─── Source + chunk record builders ──────────────────────────────────────────
 
-function buildSourceRecord(approvedEntry: Record<string, unknown>, retrievalDate: string) {
+function buildSourceRecord(
+  approvedEntry: Record<string, unknown>,
+  retrievalDate: string,
+  chunkCount = 0,
+) {
+  const sourceStatus = approvedEntry.source_status ?? 'active';
+  const sourceId = typeof approvedEntry.source_id === 'string' ? approvedEntry.source_id : '';
+  const sourceUrl = typeof approvedEntry.url === 'string' ? approvedEntry.url : '';
+
   return {
     source_id:           approvedEntry.source_id,
     title:               approvedEntry.title,
@@ -277,11 +285,15 @@ function buildSourceRecord(approvedEntry: Record<string, unknown>, retrievalDate
     source_type:         approvedEntry.source_type,
     retrieval_date:      retrievalDate,
     publication_date:    approvedEntry.publication_date ?? null,
-    status:              'active',
-    ingestion_status:    'complete',
-    error_state:         null,
-    source_fingerprint:  null,
+    source_status:       sourceStatus,
+    status:              approvedEntry.status ?? sourceStatus,
+    ingestion_status:    approvedEntry.ingestion_status ?? 'complete',
+    error_state:         approvedEntry.error_state ?? null,
+    source_fingerprint:  approvedEntry.source_fingerprint ?? (sourceId && sourceUrl ? `${sourceId}::${sourceUrl}` : null),
     content_source_type: EXTERNAL_CONTENT_SOURCE_TYPE,
+    chunk_count:         chunkCount,
+    language:            'en',
+    version:             1,
   };
 }
 
@@ -292,24 +304,25 @@ function buildChunkRecords(
 ): object[] {
   const total = rawChunks.length;
   return rawChunks.map((text, index) => ({
-    chunk_id:            `${approvedEntry.source_id}::chunk_${index}`,
-    source_id:           approvedEntry.source_id,
-    source_url:          approvedEntry.url,
-    source_title:        approvedEntry.title,
-    publisher:           approvedEntry.publisher,
-    domain:              approvedEntry.domain,
-    retrieval_date:      retrievalDate,
-    publication_date:    approvedEntry.publication_date ?? null,
-    section_context:     null,
-    page_number:         null,
-    chunk_index:         index,
-    total_chunks:        total,
-    chunk_text:          text,
-    character_count:     text.length,
-    content_source_type: EXTERNAL_CONTENT_SOURCE_TYPE,
-    language:            'en',
-    version:             1,
-    metadata:            {
+    chunk_id:                  `${approvedEntry.source_id}::chunk_${index}`,
+    source_id:                 approvedEntry.source_id,
+    source_url:                approvedEntry.url,
+    source_title:              approvedEntry.title,
+    publisher:                 approvedEntry.publisher,
+    domain:                    approvedEntry.domain,
+    retrieval_date:            retrievalDate,
+    publication_date:          approvedEntry.publication_date ?? null,
+    section_context:           null,
+    page_number:               null,
+    chunk_index:               index,
+    total_chunks:              total,
+    chunk_text:                text,
+    character_count:           text.length,
+    content_source_type:       EXTERNAL_CONTENT_SOURCE_TYPE,
+    entity_type:               'ExternalKnowledgeChunk',
+    language:                  'en',
+    version:                   1,
+    metadata:                  {
       source_id:   approvedEntry.source_id,
       publisher:   approvedEntry.publisher,
       domain:      approvedEntry.domain,
@@ -511,7 +524,7 @@ Deno.serve(async (req: Request) => {
         return Response.json({
           success:      true,
           mode:         'pdf_unsupported',
-          source:       buildSourceRecord({ ...approvedEntry, ingestion_status: 'skipped' } as Record<string, unknown>, retrievalDate),
+          source:       buildSourceRecord({ ...approvedEntry, ingestion_status: 'skipped' } as Record<string, unknown>, retrievalDate, 0),
           chunks:       [],
           total_chunks: 0,
           note:         'PDF binary extraction is not yet available in Phase 4. Provide pre_extracted_text to ingest this source.',
@@ -528,7 +541,7 @@ Deno.serve(async (req: Request) => {
         );
       }
 
-      const source = buildSourceRecord(approvedEntry as Record<string, unknown>, retrievalDate);
+      const source = buildSourceRecord(approvedEntry as Record<string, unknown>, retrievalDate, rawChunks.length);
       const chunks = buildChunkRecords(rawChunks, approvedEntry as Record<string, unknown>, retrievalDate);
 
       // ── Phase 4.1: Persist to app storage (live mode only) ──────────────
