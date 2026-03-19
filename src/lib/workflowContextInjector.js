@@ -3,6 +3,8 @@
  *
  * Therapist Upgrade — Stage 2 Phase 3.1 — Workflow Context Injector
  * (Extended in Phase 5 to also inject retrieval orchestration context)
+ * (Extended in Phase 6 to also inject live retrieval context)
+ * (Extended in Phase 7 to also inject safety mode and emergency resources)
  *
  * This module closes the Phase 3 review gap: the workflow instructions were
  * defined and wired (therapistWorkflowEngine.js + CBT_THERAPIST_WIRING_STAGE2_V2)
@@ -65,6 +67,12 @@ import {
   LIVE_KNOWLEDGE_SOURCE_TYPE,
 } from './liveRetrievalWrapper.js';
 import { executeV4BoundedRetrieval } from './v4RetrievalExecutor.js';
+import {
+  determineSafetyMode,
+  getSafetyModeContextForWiring,
+  SAFETY_MODE_FAIL_CLOSED_RESULT,
+} from './therapistSafetyMode.js';
+import { buildEmergencyResourceSection } from './emergencyResourceLayer.js';
 
 /**
  * Returns the workflow context instructions string when the supplied wiring
@@ -346,6 +354,110 @@ export async function buildV4SessionStartContentAsync(
 
   if (liveContextSection && liveContextSection.trim()) {
     result += '\n\n' + liveContextSection;
+  }
+
+  return result;
+}
+
+// ─── Phase 7 — V5 safety mode context accessor ───────────────────────────────
+
+/**
+ * Builds the session-start message content for the V5 upgraded path,
+ * executing real bounded retrieval (same as V4) and additionally evaluating
+ * safety mode entry conditions.  When safety mode is active, SAFETY_MODE_INSTRUCTIONS
+ * and the emergency resource section are injected into the session context.
+ *
+ * For all non-V5 wirings (HYBRID, V1, V2, V3, V4, null, undefined):
+ *   Delegates to buildV4SessionStartContentAsync(wiring, entities, baseClient,
+ *   options) and returns exactly the same result.  The default path is completely
+ *   unchanged.
+ *
+ * For V5 (safety_mode_enabled === true):
+ *   1. Builds the V4 base content (workflow + retrieval + live policy + context).
+ *   2. Evaluates safety mode entry conditions using determineSafetyMode().
+ *   3. If safety mode is active: appends SAFETY_MODE_INSTRUCTIONS.
+ *   4. If safety mode is active: appends the emergency resource section for
+ *      the resolved locale.
+ *
+ * FAIL-CLOSED CONTRACT (safety mode)
+ * ------------------------------------
+ * If safety mode determination throws, this function treats the result as
+ * SAFETY_MODE_FAIL_CLOSED_RESULT (safety mode ON) — consistent with the
+ * fail-closed contract defined in therapistSafetyMode.js.
+ *
+ * PRIVACY
+ * -------
+ * message_text (if provided in options) is passed to determineSafetyMode()
+ * for in-memory pattern matching only.  It is never stored or logged.
+ *
+ * @param {object} wiring       - The active therapist wiring config object
+ * @param {object} entities     - Base44 entity client map (e.g. base44.entities)
+ * @param {object|null} baseClient - Full base44 client (for live retrieval)
+ * @param {object} [options]    - Options for V5 behavior
+ * @param {boolean} [options.liveRetrievalAllowed=false]  - Whether live retrieval is allowed
+ * @param {string}  [options.liveRetrievalUrl]            - URL for live retrieval
+ * @param {string}  [options.liveRetrievalQuery]          - Optional query context
+ * @param {boolean} [options.crisis_signal=false]         - Crisis signal from existing stack
+ * @param {boolean} [options.low_retrieval_confidence=false] - Low retrieval confidence
+ * @param {boolean} [options.allowlist_rejection=false]   - Allowlist rejection from Phase 6
+ * @param {boolean} [options.flag_override=false]         - Explicit safety mode override
+ * @param {string}  [options.message_text]                - Current user message (for pattern matching)
+ * @param {string}  [options.locale]                      - User locale for emergency resources
+ * @returns {Promise<string>} The session-start message content
+ */
+export async function buildV5SessionStartContentAsync(
+  wiring,
+  entities,
+  baseClient,
+  options = {},
+) {
+  // For non-V5 wirings: delegate to V4 (no change to behavior)
+  if (!wiring || wiring.safety_mode_enabled !== true) {
+    return buildV4SessionStartContentAsync(wiring, entities, baseClient, options);
+  }
+
+  // ── V5 path ────────────────────────────────────────────────────────────────
+
+  // Step 1: Build the V4 base content (same as V4 path)
+  const v4Base = await buildV4SessionStartContentAsync(
+    wiring,
+    entities,
+    baseClient,
+    options,
+  );
+
+  // Step 2: Evaluate safety mode entry conditions (fail-closed)
+  let safetyResult;
+  try {
+    safetyResult = determineSafetyMode({
+      crisis_signal: options.crisis_signal ?? false,
+      low_retrieval_confidence: options.low_retrieval_confidence ?? false,
+      allowlist_rejection: options.allowlist_rejection ?? false,
+      flag_override: options.flag_override ?? false,
+      message_text: options.message_text ?? '',
+    });
+  } catch {
+    // Fail-closed: if determination throws, default to safety mode
+    safetyResult = SAFETY_MODE_FAIL_CLOSED_RESULT;
+  }
+
+  // Step 3: Inject safety mode instructions if active
+  const safetyContext = getSafetyModeContextForWiring(wiring, safetyResult);
+  if (!safetyContext) {
+    // Safety mode not active — return V4 base content unchanged
+    return v4Base;
+  }
+
+  let result = v4Base + '\n\n' + safetyContext;
+
+  // Step 4: Inject emergency resources when safety mode is active
+  try {
+    const resourceSection = buildEmergencyResourceSection(options.locale ?? null);
+    if (resourceSection && resourceSection.trim()) {
+      result += '\n\n' + resourceSection;
+    }
+  } catch {
+    // Emergency resource injection failure must never block the session
   }
 
   return result;

@@ -142,6 +142,257 @@ const GOLDEN_SCENARIOS = [
       triggers_crisis: false,
       note: 'Hyperbolic expression, not actual crisis'
     }
+  },
+
+  // ── Stage 2 Phase 7 — Safety Mode + Emergency Resource Layer ───────────────
+  // These scenarios verify that the safety mode activation and emergency
+  // resource layer function correctly within the upgraded (V5) path.
+  // They do NOT assert LLM output — only deterministic activation conditions
+  // and resource resolution.
+
+  // Category 6: Safety Mode Activation (upgraded path only)
+  {
+    id: 'safety_mode_001',
+    category: 'stage2_safety_mode',
+    phase: 7,
+    description: 'Safety mode activates on crisis_signal from existing stack',
+    input_signals: { crisis_signal: true },
+    input_message: '',
+    expected: {
+      safety_mode: true,
+      trigger_category: 'crisis_signal',
+      pattern_match: false,
+      note: 'Stage 2 Phase 7 — Crisis signal entry condition'
+    }
+  },
+  {
+    id: 'safety_mode_002',
+    category: 'stage2_safety_mode',
+    phase: 7,
+    description: 'Safety mode activates on low_retrieval_confidence from Phase 5',
+    input_signals: { low_retrieval_confidence: true },
+    input_message: '',
+    expected: {
+      safety_mode: true,
+      trigger_category: 'low_retrieval_confidence',
+      pattern_match: false,
+      note: 'Stage 2 Phase 7 — Low retrieval confidence entry condition'
+    }
+  },
+  {
+    id: 'safety_mode_003',
+    category: 'stage2_safety_mode',
+    phase: 7,
+    description: 'Safety mode activates on allowlist_rejection from Phase 6',
+    input_signals: { allowlist_rejection: true },
+    input_message: '',
+    expected: {
+      safety_mode: true,
+      trigger_category: 'allowlist_rejection',
+      pattern_match: false,
+      note: 'Stage 2 Phase 7 — Allowlist rejection entry condition'
+    }
+  },
+  {
+    id: 'safety_mode_004',
+    category: 'stage2_safety_mode',
+    phase: 7,
+    description: 'Safety mode activates on explicit flag_override',
+    input_signals: { flag_override: true },
+    input_message: '',
+    expected: {
+      safety_mode: true,
+      trigger_category: 'flag_override',
+      pattern_match: false,
+      note: 'Stage 2 Phase 7 — Explicit flag override entry condition'
+    }
+  },
+  {
+    id: 'safety_mode_005',
+    category: 'stage2_safety_mode',
+    phase: 7,
+    description: 'Safety mode activates on severe hopelessness language',
+    input_signals: {},
+    input_message: 'I feel hopeless and nothing will ever get better',
+    expected: {
+      safety_mode: true,
+      pattern_match: true,
+      trigger_category: 'severe_hopelessness',
+      note: 'Stage 2 Phase 7 — Hopelessness language pattern activation'
+    }
+  },
+  {
+    id: 'safety_mode_006',
+    category: 'stage2_safety_mode',
+    phase: 7,
+    description: 'Safety mode activates on collapse/breakdown language',
+    input_signals: {},
+    input_message: "I'm completely collapsing and falling apart",
+    expected: {
+      safety_mode: true,
+      pattern_match: true,
+      note: 'Stage 2 Phase 7 — Collapse/breakdown language pattern activation'
+    }
+  },
+  {
+    id: 'safety_mode_007',
+    category: 'stage2_safety_mode',
+    phase: 7,
+    description: 'Safety mode does NOT activate for neutral language',
+    input_signals: {},
+    input_message: 'I want to work on my anxiety management skills',
+    expected: {
+      safety_mode: false,
+      pattern_match: false,
+      note: 'Stage 2 Phase 7 — Neutral language, safety mode off'
+    }
+  },
+  {
+    id: 'safety_mode_008',
+    category: 'stage2_safety_mode',
+    phase: 7,
+    description: 'Safety mode is fail-closed: null input defaults to safety mode ON',
+    input_signals: null,
+    input_message: null,
+    expected: {
+      safety_mode: true,
+      fail_closed: true,
+      note: 'Stage 2 Phase 7 — Fail-closed contract verified'
+    }
+  },
+
+  // Category 7: Emergency Resource Layer (locale resolution)
+  {
+    id: 'emergency_resource_001',
+    category: 'stage2_emergency_resources',
+    phase: 7,
+    description: 'Emergency resources resolve correctly for en locale',
+    locale: 'en',
+    expected: {
+      locale: 'en',
+      is_fallback: false,
+      has_contacts: true,
+      min_contacts: 2,
+      note: 'Stage 2 Phase 7 — English locale resource resolution'
+    }
+  },
+  {
+    id: 'emergency_resource_002',
+    category: 'stage2_emergency_resources',
+    phase: 7,
+    description: 'Emergency resources resolve correctly for he locale (ERAN 1201)',
+    locale: 'he',
+    expected: {
+      locale: 'he',
+      is_fallback: false,
+      has_contacts: true,
+      has_eran: true,
+      note: 'Stage 2 Phase 7 — Hebrew (Israel) locale resource resolution'
+    }
+  },
+  {
+    id: 'emergency_resource_003',
+    category: 'stage2_emergency_resources',
+    phase: 7,
+    description: 'Emergency resources resolve correctly for es locale',
+    locale: 'es',
+    expected: {
+      locale: 'es',
+      is_fallback: false,
+      has_contacts: true,
+      note: 'Stage 2 Phase 7 — Spanish locale resource resolution'
+    }
+  },
+  {
+    id: 'emergency_resource_004',
+    category: 'stage2_emergency_resources',
+    phase: 7,
+    description: 'Emergency resources resolve correctly for fr locale',
+    locale: 'fr',
+    expected: {
+      locale: 'fr',
+      is_fallback: false,
+      has_contacts: true,
+      note: 'Stage 2 Phase 7 — French locale resource resolution'
+    }
+  },
+  {
+    id: 'emergency_resource_005',
+    category: 'stage2_emergency_resources',
+    phase: 7,
+    description: 'Emergency resources resolve correctly for de locale',
+    locale: 'de',
+    expected: {
+      locale: 'de',
+      is_fallback: false,
+      has_contacts: true,
+      note: 'Stage 2 Phase 7 — German locale resource resolution'
+    }
+  },
+  {
+    id: 'emergency_resource_006',
+    category: 'stage2_emergency_resources',
+    phase: 7,
+    description: 'Emergency resources resolve correctly for it locale',
+    locale: 'it',
+    expected: {
+      locale: 'it',
+      is_fallback: false,
+      has_contacts: true,
+      note: 'Stage 2 Phase 7 — Italian locale resource resolution'
+    }
+  },
+  {
+    id: 'emergency_resource_007',
+    category: 'stage2_emergency_resources',
+    phase: 7,
+    description: 'Emergency resources resolve correctly for pt locale',
+    locale: 'pt',
+    expected: {
+      locale: 'pt',
+      is_fallback: false,
+      has_contacts: true,
+      note: 'Stage 2 Phase 7 — Portuguese locale resource resolution'
+    }
+  },
+  {
+    id: 'emergency_resource_008',
+    category: 'stage2_emergency_resources',
+    phase: 7,
+    description: 'Unknown locale falls back to en-international safely',
+    locale: 'xx-UNKNOWN',
+    expected: {
+      locale: 'en',
+      is_fallback: true,
+      has_contacts: true,
+      note: 'Stage 2 Phase 7 — Fail-safe: unknown locale → en fallback (never empty)'
+    }
+  },
+  {
+    id: 'emergency_resource_009',
+    category: 'stage2_emergency_resources',
+    phase: 7,
+    description: 'Null locale falls back to en-international safely',
+    locale: null,
+    expected: {
+      locale: 'en',
+      is_fallback: true,
+      has_contacts: true,
+      note: 'Stage 2 Phase 7 — Fail-safe: null locale → en fallback (never empty)'
+    }
+  },
+  {
+    id: 'emergency_resource_010',
+    category: 'stage2_emergency_resources',
+    phase: 7,
+    description: 'Regional locale code (en-US) resolves to en base locale',
+    locale: 'en-US',
+    expected: {
+      locale: 'en',
+      is_fallback: false,
+      has_contacts: true,
+      note: 'Stage 2 Phase 7 — Regional locale code (BCP-47) handled correctly'
+    }
   }
 ];
 
