@@ -87,6 +87,30 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
 });
 
 /**
+ * Returns true when the given hostname is an explicitly recognised
+ * preview/staging host where the `_s2` URL override is permitted.
+ *
+ * Recognised patterns:
+ *   - localhost       — local development server
+ *   - 127.0.0.1       — local development / CI runner
+ *   - *.base44.app    — Base44 platform hosts (preview and staging environments)
+ *   - base44.app      — Base44 root domain (edge case)
+ *
+ * Any other hostname (including custom production domains) returns false.
+ * An absent or non-string hostname always returns false (fail-closed).
+ *
+ * @param {string} hostname
+ * @returns {boolean}
+ */
+function _isPreviewStagingHost(hostname) {
+  if (!hostname || typeof hostname !== 'string') return false;
+  const h = hostname.toLowerCase();
+  if (h === 'localhost' || h === '127.0.0.1') return true;
+  if (h === 'base44.app' || h.endsWith('.base44.app')) return true;
+  return false;
+}
+
+/**
  * Reads staging-only runtime overrides from the URL query string.
  *
  * This is the fix for Base44 preview/staging builds where VITE_* environment
@@ -95,8 +119,10 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
  * without touching source code or triggering a new build.
  *
  * SAFETY RULES (non-negotiable):
- *   - PRODUCTION BUILDS ARE ALWAYS FAIL-CLOSED: returns {} when
- *     import.meta.env.PROD === true, with no fallthrough.
+ *   - UNRECOGNISED HOSTS ARE ALWAYS FAIL-CLOSED: returns {} unless the current
+ *     hostname is an explicitly recognised preview/staging host.  This replaces
+ *     the previous import.meta.env.PROD guard, which incorrectly blocked
+ *     Base44 preview environments that also run production builds.
  *   - SSR / Node.js / test environments (no window) return {} silently.
  *   - Unrecognised flag names are silently ignored; no unknown flags are accepted.
  *   - Any error during URL parsing returns {} (fail-closed).
@@ -104,23 +130,25 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
  * URL parameter format (staging/preview only):
  *   ?_s2=FLAG1,FLAG2,...
  *
- * Example — enable master gate + memory phase in staging:
- *   https://preview.app/?_s2=THERAPIST_UPGRADE_ENABLED,THERAPIST_UPGRADE_MEMORY_ENABLED
+ * Example — enable master gate + memory phase on a Base44 preview host:
+ *   https://myapp.base44.app/?_s2=THERAPIST_UPGRADE_ENABLED,THERAPIST_UPGRADE_MEMORY_ENABLED
  *
  * The override is additive: a flag set to true via the URL takes precedence
  * over the build-time value (which defaults to false).  There is no way to
  * force a flag to false via the URL — the URL can only enable, not disable.
  *
  * @returns {Record<string, boolean>} Flags that the URL has overridden to true.
- *   Always returns an empty object in production builds.
+ *   Always returns an empty object on unrecognised (production) hosts.
  */
 function _readStagingRuntimeOverrides() {
-  // Production is always fail-closed — no URL overrides ever.
-  if (import.meta.env?.PROD === true) return {};
-
   try {
     // Guard for non-browser environments (Node.js, SSR, test runners).
     if (typeof window === 'undefined') return {};
+
+    // Allow override only on explicitly recognised preview/staging hosts.
+    // Unknown hosts (including production custom domains) always fail-closed.
+    const hostname = window.location?.hostname ?? '';
+    if (!_isPreviewStagingHost(hostname)) return {};
 
     const search = window.location?.search ?? '';
     if (!search) return {};
@@ -148,8 +176,8 @@ function _readStagingRuntimeOverrides() {
  *
  * Evaluation order (first truthy wins):
  *   1. Build-time env var (import.meta.env.VITE_*) — the primary path.
- *   2. Staging runtime URL override (?_s2=...) — staging/preview only;
- *      never active in production builds (import.meta.env.PROD === true).
+ *   2. Staging runtime URL override (?_s2=...) — preview/staging hosts only;
+ *      never active on unrecognised (production) hosts.
  *
  * The master flag (THERAPIST_UPGRADE_ENABLED) must be true via either path,
  * and the specific per-phase flag must also be true via either path, before
@@ -172,7 +200,7 @@ export function isUpgradeEnabled(flagName) {
     return false;
   }
 
-  // Layer 2: staging-only runtime overrides (always {} in production builds).
+  // Layer 2: preview/staging-only runtime overrides (always {} on unrecognised hosts).
   const stagingOverrides = _readStagingRuntimeOverrides();
 
   // The master flag may be evaluated directly without the double-gate logic.
