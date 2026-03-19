@@ -41,7 +41,8 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
    * to enable in a staging build without changing source code.
    * The value defaults to false when the variable is absent or any other value.
    */
-  THERAPIST_UPGRADE_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_ENABLED === 'true',
+  // FORCED VALIDATION STEP 4 — revert after verification
+  THERAPIST_UPGRADE_ENABLED: true,
 
   /**
    * Phase 1 — Structured therapist memory layer.
@@ -59,7 +60,8 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
    * Phase 3 — Therapist workflow engine.
    * Staging enablement: set VITE_THERAPIST_UPGRADE_WORKFLOW_ENABLED=true
    */
-  THERAPIST_UPGRADE_WORKFLOW_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_WORKFLOW_ENABLED === 'true',
+  // FORCED VALIDATION STEP 4 — revert after verification
+  THERAPIST_UPGRADE_WORKFLOW_ENABLED: true,
 
   /**
    * Phase 4 — External trusted knowledge ingestion.
