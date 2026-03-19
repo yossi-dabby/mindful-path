@@ -70,13 +70,13 @@ export default function ForumPostForm({ onClose, groupId }) {
   };
 
   const removeTag = (tag) => {
-    setFormData({ ...formData, tags: formData.tags.filter(t => t !== tag) });
+    setFormData({ ...formData, tags: formData.tags.filter((t) => t !== tag) });
   };
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
       <Card className="w-full max-w-2xl border-0 shadow-2xl my-8">
-        <CardHeader className="border-b">
+        <CardHeader className="bg-teal-200 p-6 flex flex-col space-y-1.5 border-b">
           <div className="flex items-center justify-between">
             <CardTitle>Create Post</CardTitle>
             <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
@@ -84,7 +84,7 @@ export default function ForumPostForm({ onClose, groupId }) {
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="p-6">
+        <CardContent className="bg-teal-200 p-6">
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">Title</label>
@@ -92,8 +92,8 @@ export default function ForumPostForm({ onClose, groupId }) {
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="What's on your mind?"
-                className="rounded-xl"
-              />
+                className="rounded-xl" />
+              
             </div>
 
             <div>
@@ -102,16 +102,16 @@ export default function ForumPostForm({ onClose, groupId }) {
                 value={formData.content}
                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                 placeholder="Share your thoughts, experiences, or questions..."
-                className="rounded-xl h-32"
-              />
+                className="rounded-xl h-32" />
+              
             </div>
 
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">Category</label>
               <Select
                 value={formData.category}
-                onValueChange={(value) => setFormData({ ...formData, category: value })}
-              >
+                onValueChange={(value) => setFormData({ ...formData, category: value })}>
+                
                 <SelectTrigger className="rounded-xl">
                   <SelectValue />
                 </SelectTrigger>
@@ -130,14 +130,14 @@ export default function ForumPostForm({ onClose, groupId }) {
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">Tags</label>
               <div className="flex flex-wrap gap-2 mb-2">
-                {formData.tags.map((tag) => (
-                  <Badge key={tag} className="bg-blue-100 text-blue-700 pr-1">
+                {formData.tags.map((tag) =>
+                <Badge key={tag} className="bg-blue-100 text-blue-700 pr-1">
                     {tag}
                     <button type="button" aria-label={`Remove tag ${tag}`} onClick={() => removeTag(tag)} className="ml-1 hover:bg-blue-200 rounded-full p-0.5">
                       <X className="w-3 h-3" aria-hidden="true" />
                     </button>
                   </Badge>
-                ))}
+                )}
               </div>
               <div className="flex gap-2">
                 <Input
@@ -145,23 +145,23 @@ export default function ForumPostForm({ onClose, groupId }) {
                   onChange={(e) => setNewTag(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
                   placeholder="Add a tag..."
-                  className="rounded-xl"
-                />
+                  className="rounded-xl" />
+                
                 <Button onClick={addTag} variant="outline" size="icon" aria-label="Add tag">
                   <Plus className="w-4 h-4" />
                 </Button>
               </div>
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+            <div className="bg-teal-100 p-4 rounded-xl flex items-center justify-between">
               <div>
                 <p className="font-medium text-gray-800">Post Anonymously</p>
                 <p className="text-sm text-gray-500">Your name will be hidden</p>
               </div>
               <Switch
                 checked={formData.is_anonymous}
-                onCheckedChange={(checked) => setFormData({ ...formData, is_anonymous: checked })}
-              />
+                onCheckedChange={(checked) => setFormData({ ...formData, is_anonymous: checked })} className="bg-teal-400 text-teal-400 rounded-full peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center border-2 border-transparent shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input" />
+              
             </div>
 
             <div className="flex gap-3">
@@ -171,14 +171,14 @@ export default function ForumPostForm({ onClose, groupId }) {
               <Button
                 onClick={() => createMutation.mutate(formData)}
                 disabled={!formData.title || !formData.content || createMutation.isPending}
-                className="flex-1 bg-blue-600 hover:bg-blue-700"
-              >
+                className="flex-1 bg-blue-600 hover:bg-blue-700">
+                
                 {createMutation.isPending ? 'Posting...' : 'Post'}
               </Button>
             </div>
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 }
