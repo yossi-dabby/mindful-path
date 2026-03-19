@@ -163,7 +163,7 @@ function computeNextPhase(currentPhase, eventType, turnIndex) {
 
 // ─── Request handler ─────────────────────────────────────────────────────────
 
-export default async function handler(req) {
+Deno.serve(async (req) => {
   // ── Feature flag gate ────────────────────────────────────────────────────
   const masterEnabled = Deno.env.get('THERAPIST_UPGRADE_ENABLED') === 'true';
   const workflowEnabled = Deno.env.get('THERAPIST_UPGRADE_WORKFLOW_ENABLED') === 'true';
