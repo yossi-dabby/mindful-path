@@ -75,6 +75,18 @@ const THERAPIST_MEMORY_VERSION_KEY = 'therapist_memory_version';
 const THERAPIST_MEMORY_VERSION = '1';
 const THERAPIST_MEMORY_FLAG_ENV = 'THERAPIST_UPGRADE_MEMORY_ENABLED';
 
+/**
+ * The memory_type value used when writing therapist session records to
+ * CompanionMemory.  This value satisfies the required memory_type field
+ * in the live CompanionMemory schema and identifies records as therapist-
+ * generated clinical summaries (distinct from companion-generated records).
+ *
+ * NOTE: Therapist record identification at read time relies on the
+ * therapist_memory_version JSON marker in the content field, NOT on
+ * memory_type alone.  memory_type is only required to satisfy the schema.
+ */
+const THERAPIST_MEMORY_TYPE = 'therapist_session';
+
 const ALLOWED_ARRAY_FIELDS: string[] = [
   'core_patterns',
   'triggers',
@@ -176,7 +188,11 @@ Deno.serve(async (req) => {
     // companion memory records.
     // No Base44 entity schema change is required — this uses the existing
     // generic content field of CompanionMemory.
+    // memory_type is a required field on the live CompanionMemory schema.
+    // 'therapist_session' identifies these records as therapist-written clinical
+    // summaries and distinguishes them from companion-generated memory entries.
     const created = await base44.entities.CompanionMemory.create({
+      memory_type: THERAPIST_MEMORY_TYPE,
       content: JSON.stringify(memoryRecord),
     });
 

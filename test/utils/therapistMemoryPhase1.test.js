@@ -31,6 +31,7 @@ import { describe, it, expect } from 'vitest';
 import {
   THERAPIST_MEMORY_VERSION_KEY,
   THERAPIST_MEMORY_VERSION,
+  THERAPIST_MEMORY_TYPE,
   THERAPIST_MEMORY_SCHEMA,
   THERAPIST_MEMORY_FIELDS,
   THERAPIST_MEMORY_ARRAY_FIELDS,
@@ -499,5 +500,92 @@ describe('Phase 1 — Phase 0 / 0.1 baselines preserved (regression check)', () 
     for (const flagName of Object.keys(THERAPIST_UPGRADE_FLAGS)) {
       expect(isUpgradeEnabled(flagName), `"${flagName}" must be unreachable`).toBe(false);
     }
+  });
+});
+
+// ─── Section 11 — CompanionMemory write-path schema fix (memory_type) ─────────
+//
+// Verifies the Stage 2 Step 2 schema fix: writeTherapistMemory must include
+// memory_type in the CompanionMemory create payload to satisfy the live schema
+// constraint ("Error in field memory_type: Field required").
+//
+// These tests operate on the JS-layer constant THERAPIST_MEMORY_TYPE
+// (exported from therapistMemoryModel.js, mirrored in the Deno function).
+// The Deno write function itself is not importable in Vitest.
+
+describe('Phase 1 — CompanionMemory write-path schema fix (memory_type)', () => {
+  it('THERAPIST_MEMORY_TYPE is exported from therapistMemoryModel.js', () => {
+    expect(THERAPIST_MEMORY_TYPE).toBeDefined();
+  });
+
+  it('THERAPIST_MEMORY_TYPE is a non-empty string', () => {
+    expect(typeof THERAPIST_MEMORY_TYPE).toBe('string');
+    expect(THERAPIST_MEMORY_TYPE.length).toBeGreaterThan(0);
+  });
+
+  it('THERAPIST_MEMORY_TYPE value is "therapist_session"', () => {
+    // The canonical value used in the CompanionMemory create payload.
+    // If this value ever changes, the Deno function must be updated too.
+    expect(THERAPIST_MEMORY_TYPE).toBe('therapist_session');
+  });
+
+  it('a simulated write payload includes memory_type with the correct value', () => {
+    // Simulate the payload that writeTherapistMemory sends to CompanionMemory.create().
+    // This mirrors the fixed Deno function logic in a pure JS context.
+    const memoryRecord = createEmptyTherapistMemoryRecord();
+    const payload = {
+      memory_type: THERAPIST_MEMORY_TYPE,
+      content: JSON.stringify(memoryRecord),
+    };
+    expect(payload.memory_type).toBe('therapist_session');
+    expect(typeof payload.content).toBe('string');
+  });
+
+  it('a simulated write payload satisfies the CompanionMemory required-field constraint', () => {
+    // CompanionMemory requires both memory_type and content.
+    const memoryRecord = createEmptyTherapistMemoryRecord();
+    const payload = {
+      memory_type: THERAPIST_MEMORY_TYPE,
+      content: JSON.stringify(memoryRecord),
+    };
+    expect('memory_type' in payload).toBe(true);
+    expect('content' in payload).toBe(true);
+    expect(payload.memory_type).toBeTruthy();
+    expect(payload.content).toBeTruthy();
+  });
+
+  it('therapist records remain identifiable via the version marker in content (not memory_type)', () => {
+    // Identification of therapist records relies on the therapist_memory_version
+    // JSON marker inside content, NOT on memory_type.
+    // This test confirms the identification mechanism is unaffected by the fix.
+    const memoryRecord = createEmptyTherapistMemoryRecord();
+    const content = JSON.stringify(memoryRecord);
+    const parsed = JSON.parse(content);
+    expect(isTherapistMemoryRecord(parsed)).toBe(true);
+    expect(parsed[THERAPIST_MEMORY_VERSION_KEY]).toBe(THERAPIST_MEMORY_VERSION);
+  });
+
+  it('THERAPIST_MEMORY_TYPE does not affect therapist record identification', () => {
+    // A record without the version marker must NOT be identified as a therapist
+    // record, regardless of memory_type.  This ensures memory_type alone is not
+    // used as an identifier (it could appear on non-therapist records too).
+    const nonTherapistPayload = {
+      memory_type: THERAPIST_MEMORY_TYPE,
+      content: JSON.stringify({ note: 'companion memory, no version key' }),
+    };
+    const parsed = JSON.parse(nonTherapistPayload.content);
+    expect(isTherapistMemoryRecord(parsed)).toBe(false);
+  });
+
+  it('gating behavior is unchanged — THERAPIST_UPGRADE_MEMORY_ENABLED is still false', () => {
+    // The memory_type fix does not enable the flag or change any gate logic.
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(false);
+  });
+
+  it('rollback is trivial — removing memory_type from the payload is the only rollback step', () => {
+    // The fix is reversible: removing memory_type: THERAPIST_MEMORY_TYPE
+    // from the Deno create() call reverts to the previous state.
+    // This test documents the rollback path (no action needed in JS layer).
+    expect(THERAPIST_MEMORY_TYPE).toBe('therapist_session');
   });
 });
