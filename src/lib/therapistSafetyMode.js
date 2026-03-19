@@ -322,6 +322,116 @@ export function determineSafetyMode(signals) {
   }
 }
 
+// ─── Safety precedence order ──────────────────────────────────────────────────
+
+/**
+ * Explicit, deterministic precedence order for the safety and crisis systems
+ * operating in the upgraded therapist path.
+ *
+ * Layer 1 (regex crisis detector) and Layer 2 (LLM crisis detector) are both
+ * HARD_STOP authoritative — they return immediately when triggered and prevent
+ * the message from reaching the agent.  They are implemented in Chat.jsx and
+ * are completely independent of the upgraded safety mode.
+ *
+ * Layer 3 (upgraded safety mode) only executes after Layers 1 and 2 have
+ * passed.  It CONSTRAINS_ONLY — it modifies the instruction context for the
+ * LLM but does NOT stop or redirect the message.
+ *
+ * Layer 4 (post-LLM safety filter) runs on the agent's OUTPUT, not the input.
+ * It is always active regardless of upgrade state.
+ *
+ * This constant is the source of truth for precedence and must be preserved
+ * in all future changes.
+ *
+ * @type {ReadonlyArray<Readonly<object>>}
+ */
+export const SAFETY_PRECEDENCE_ORDER = Object.freeze([
+  Object.freeze({
+    layer: 1,
+    name: 'CRISIS_DETECTOR_REGEX',
+    description: 'Regex-based crisis detection (detectCrisisWithReason) — hard-stop, authoritative',
+    authority: 'HARD_STOP',
+    location: 'Chat.jsx — Layer 1',
+    overrides: 'all lower layers',
+    affects_default_path: true,
+  }),
+  Object.freeze({
+    layer: 2,
+    name: 'CRISIS_DETECTOR_LLM',
+    description: 'LLM-based enhanced crisis detection (enhancedCrisisDetector) — hard-stop, authoritative',
+    authority: 'HARD_STOP',
+    location: 'Chat.jsx — Layer 2',
+    overrides: 'layers 3 and 4',
+    affects_default_path: true,
+  }),
+  Object.freeze({
+    layer: 3,
+    name: 'UPGRADED_SAFETY_MODE',
+    description: 'Phase 7 per-turn safety mode (evaluateRuntimeSafetyMode / buildRuntimeSafetySupplement) — V5 path only',
+    authority: 'CONSTRAIN_ONLY',
+    location: 'Chat.jsx — Layer 3 (V5 path only, flag-gated)',
+    active_when: 'safety_mode_enabled === true in ACTIVE_CBT_THERAPIST_WIRING',
+    overridden_by: 'Layers 1 and 2 (HARD_STOP layers are authoritative)',
+    affects_default_path: false,
+  }),
+  Object.freeze({
+    layer: 4,
+    name: 'POST_LLM_SAFETY_FILTER',
+    description: 'Post-LLM output safety filter (postLlmSafetyFilter) — always active, sanitizes agent output',
+    authority: 'OUTPUT_FILTER',
+    location: 'functions/postLlmSafetyFilter.ts',
+    overridden_by: 'Not applicable — operates on output after LLM generation',
+    affects_default_path: true,
+  }),
+]);
+
+// ─── Per-turn runtime safety mode evaluator ───────────────────────────────────
+
+/**
+ * Evaluates safety mode entry conditions from the current turn's message text
+ * only (no session-level signals).
+ *
+ * This is the per-turn runtime evaluator, distinct from determineSafetyMode()
+ * which also accepts session-level signals (crisis_signal, low_retrieval_confidence,
+ * allowlist_rejection, flag_override) used at session-start.
+ *
+ * The per-turn evaluator uses ONLY message_text pattern matching, which is the
+ * only runtime signal available from actual user conversation content.
+ *
+ * This function is called per-turn in the V5 upgraded path (flag-gated) AFTER
+ * the existing HARD_STOP crisis layers (Layer 1 regex and Layer 2 LLM detectors)
+ * have passed.  It never runs in the default therapist path.
+ *
+ * Fail-closed: empty, null, or non-string input returns safety_mode: false
+ * (not fail-closed like the session-start evaluator, because a missing message
+ * text at per-turn time just means no distress signal was detected).
+ *
+ * PRIVACY: messageText is used only for in-memory pattern matching and is
+ * never stored, logged, or persisted by this function.
+ *
+ * @param {string|null|undefined} messageText - The user's message for this turn
+ * @returns {SafetyModeResult} The resolved safety mode result for this turn
+ */
+export function evaluateRuntimeSafetyMode(messageText) {
+  try {
+    if (!messageText || typeof messageText !== 'string' || !messageText.trim()) {
+      // No message text → safety mode off for this turn (not fail-closed)
+      return {
+        safety_mode: false,
+        trigger: null,
+        category: null,
+        pattern_match: false,
+      };
+    }
+    // Delegate to determineSafetyMode with only the message_text signal
+    // (no session-level signals — those are session-start only)
+    return determineSafetyMode({ message_text: messageText });
+  } catch (_e) {
+    // Fail-closed on unexpected exception
+    return SAFETY_MODE_FAIL_CLOSED_RESULT;
+  }
+}
+
 // ─── Context builder ─────────────────────────────────────────────────────────
 
 /**
