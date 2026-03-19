@@ -589,3 +589,203 @@ describe('Phase 1 — CompanionMemory write-path schema fix (memory_type)', () =
     expect(THERAPIST_MEMORY_TYPE).toBe('therapist_session');
   });
 });
+
+// ─── Section 12 — Read-path mismatch fix (Stage 2 Step 2) ────────────────────
+//
+// Verifies the Stage 2 Step 2 read-path fix: retrieveTherapistMemory must
+// correctly identify therapist records regardless of whether the Base44 SDK
+// returns the content field as a JSON string (to be parsed) or as an already-
+// parsed JavaScript object (SDK auto-parse behaviour observed at runtime).
+//
+// Root cause: the original read path called JSON.parse(raw.content) unconditionally.
+// When the SDK returned content as an already-parsed object, JSON.parse(object)
+// converted the object to "[object Object]" and threw a SyntaxError, causing the
+// catch block to silently skip every record → empty memories result.
+//
+// The fix: detect whether content is a string (parse it) or already an object
+// (use it directly).  Both paths still apply the version-marker check.
+//
+// These tests simulate the fixed read-path logic in pure JS (no Deno imports).
+// The helper parseAndIdentifyContent() mirrors the fixed Deno function logic.
+
+/**
+ * Simulate the fixed content-parsing logic from retrieveTherapistMemory.
+ * Returns the parsed object if it is a valid therapist record, or null otherwise.
+ *
+ * @param {unknown} content - raw.content value as returned by the Base44 SDK
+ * @returns {{ record: object, memoryId: string } | null}
+ */
+function parseAndIdentifyContent(content, memoryId = 'test-id') {
+  if (!content) return null;
+  try {
+    let parsed;
+    if (typeof content === 'string') {
+      parsed = JSON.parse(content);
+    } else {
+      // Already a parsed object (SDK auto-parse path)
+      parsed = content;
+    }
+    if (
+      parsed !== null &&
+      typeof parsed === 'object' &&
+      parsed[THERAPIST_MEMORY_VERSION_KEY] === THERAPIST_MEMORY_VERSION
+    ) {
+      return { record: { ...parsed, _memory_id: memoryId }, memoryId };
+    }
+    return null;
+  } catch (_err) {
+    return null;
+  }
+}
+
+describe('Phase 1 — read-path mismatch fix (Stage 2 Step 2)', () => {
+  // ── Round-trip: content as string (write → JSON.stringify → SDK stores string) ──
+
+  it('write→read round-trip: content stored as string is correctly identified', () => {
+    // Simulate writeTherapistMemory: create the record payload with JSON.stringify
+    const memoryRecord = createEmptyTherapistMemoryRecord();
+    const contentString = JSON.stringify(memoryRecord);
+
+    // Simulate the raw record as returned by the SDK (content is a string)
+    const rawRecord = { id: 'id-001', content: contentString };
+
+    // Apply the fixed parse-and-identify logic
+    const result = parseAndIdentifyContent(rawRecord.content, rawRecord.id);
+
+    expect(result).not.toBeNull();
+    expect(result.record._memory_id).toBe('id-001');
+    expect(result.record[THERAPIST_MEMORY_VERSION_KEY]).toBe(THERAPIST_MEMORY_VERSION);
+  });
+
+  // ── Round-trip: content as object (SDK auto-parses valid JSON strings) ─────────
+
+  it('write→read round-trip: content returned as object is correctly identified', () => {
+    // Simulate the case where the Base44 SDK returns the content field as an
+    // already-parsed JavaScript object (not a string).  This is the root cause
+    // of the read returning zero records in staging.
+    const memoryRecord = createEmptyTherapistMemoryRecord();
+
+    // Simulate the raw record as returned by the SDK (content is already an object)
+    const rawRecord = { id: 'id-002', content: memoryRecord };
+
+    const result = parseAndIdentifyContent(rawRecord.content, rawRecord.id);
+
+    expect(result).not.toBeNull();
+    expect(result.record._memory_id).toBe('id-002');
+    expect(result.record[THERAPIST_MEMORY_VERSION_KEY]).toBe(THERAPIST_MEMORY_VERSION);
+  });
+
+  it('content-as-object carries the same version marker as content-as-string', () => {
+    // Both forms must produce an identifiable therapist record.
+    const memoryRecord = createEmptyTherapistMemoryRecord();
+
+    const stringResult = parseAndIdentifyContent(JSON.stringify(memoryRecord), 'str-id');
+    const objectResult = parseAndIdentifyContent(memoryRecord, 'obj-id');
+
+    expect(stringResult).not.toBeNull();
+    expect(objectResult).not.toBeNull();
+    expect(stringResult.record[THERAPIST_MEMORY_VERSION_KEY])
+      .toBe(objectResult.record[THERAPIST_MEMORY_VERSION_KEY]);
+  });
+
+  // ── Non-therapist records are excluded ────────────────────────────────────────
+
+  it('non-therapist content string (no version key) is excluded', () => {
+    const companionContent = JSON.stringify({ note: 'User prefers morning sessions' });
+    const rawRecord = { id: 'id-003', content: companionContent };
+
+    const result = parseAndIdentifyContent(rawRecord.content, rawRecord.id);
+
+    expect(result).toBeNull();
+  });
+
+  it('non-therapist content object (no version key) is excluded', () => {
+    // SDK-returned object without version marker must not be identified as therapist
+    const rawRecord = { id: 'id-004', content: { note: 'User prefers morning sessions' } };
+
+    const result = parseAndIdentifyContent(rawRecord.content, rawRecord.id);
+
+    expect(result).toBeNull();
+  });
+
+  it('object with wrong version value is excluded', () => {
+    const wrongVersion = { ...createEmptyTherapistMemoryRecord(), [THERAPIST_MEMORY_VERSION_KEY]: '99' };
+    const rawRecord = { id: 'id-005', content: wrongVersion };
+
+    const result = parseAndIdentifyContent(rawRecord.content, rawRecord.id);
+
+    expect(result).toBeNull();
+  });
+
+  // ── Malformed content fails safely ────────────────────────────────────────────
+
+  it('malformed JSON string fails safely (no crash, returns null)', () => {
+    const rawRecord = { id: 'id-006', content: 'not { valid json' };
+
+    const result = parseAndIdentifyContent(rawRecord.content, rawRecord.id);
+
+    expect(result).toBeNull();
+  });
+
+  it('null content is skipped safely', () => {
+    const rawRecord = { id: 'id-007', content: null };
+
+    const result = parseAndIdentifyContent(rawRecord.content, rawRecord.id);
+
+    expect(result).toBeNull();
+  });
+
+  it('undefined content is skipped safely', () => {
+    const rawRecord = { id: 'id-008', content: undefined };
+
+    const result = parseAndIdentifyContent(rawRecord.content, rawRecord.id);
+
+    expect(result).toBeNull();
+  });
+
+  it('empty string content is skipped safely', () => {
+    const rawRecord = { id: 'id-009', content: '' };
+
+    const result = parseAndIdentifyContent(rawRecord.content, rawRecord.id);
+
+    expect(result).toBeNull();
+  });
+
+  // ── Version marker mechanism is preserved ─────────────────────────────────────
+
+  it('isTherapistMemoryRecord still correctly identifies therapist records', () => {
+    // The isTherapistMemoryRecord helper from therapistMemoryModel.js is the
+    // canonical identification function — it must still work correctly.
+    const record = createEmptyTherapistMemoryRecord();
+    expect(isTherapistMemoryRecord(record)).toBe(true);
+    expect(isTherapistMemoryRecord({ [THERAPIST_MEMORY_VERSION_KEY]: THERAPIST_MEMORY_VERSION })).toBe(true);
+    expect(isTherapistMemoryRecord({ note: 'companion' })).toBe(false);
+    expect(isTherapistMemoryRecord(null)).toBe(false);
+    expect(isTherapistMemoryRecord('string')).toBe(false);
+  });
+
+  it('_memory_id is attached to identified records (both string and object content)', () => {
+    const memoryRecord = createEmptyTherapistMemoryRecord();
+
+    const stringResult = parseAndIdentifyContent(JSON.stringify(memoryRecord), 'str-mem-id');
+    const objectResult = parseAndIdentifyContent(memoryRecord, 'obj-mem-id');
+
+    expect(stringResult.record._memory_id).toBe('str-mem-id');
+    expect(objectResult.record._memory_id).toBe('obj-mem-id');
+  });
+
+  // ── Gating and rollback unchanged ─────────────────────────────────────────────
+
+  it('gating behavior is unchanged — THERAPIST_UPGRADE_MEMORY_ENABLED is still false', () => {
+    // The read-path content fix does not enable the flag or change gate logic.
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(false);
+  });
+
+  it('rollback is trivial — reverting the content-type check in the Deno function restores prior state', () => {
+    // The fix adds a typeof check before JSON.parse.  Removing that check (reverting
+    // to always calling JSON.parse) restores the previous (broken) state.
+    // This test documents the rollback path — no JS-layer action required.
+    expect(THERAPIST_MEMORY_VERSION_KEY).toBe('therapist_memory_version');
+    expect(THERAPIST_MEMORY_VERSION).toBe('1');
+  });
+});

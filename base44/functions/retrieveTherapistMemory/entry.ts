@@ -102,8 +102,11 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ── Fetch CompanionMemory records ─────────────────────────────────────────
-    let rawRecords: Array<{ id: string; content?: string }> = [];
+    // ── Fetch CompanionMemory records ─────────────────────────────────────────────
+    // content is typed as unknown because the Base44 SDK may return JSON-string
+    // fields as already-parsed objects at runtime (observed in normalizeAgentMessage
+    // and other Deno functions).  The parsing step handles both shapes safely.
+    let rawRecords: Array<{ id: string; content?: unknown }> = [];
     try {
       rawRecords = await base44.entities.CompanionMemory.filter(
         { created_by: user.email },
@@ -122,7 +125,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ── Filter and parse therapist-structured records ─────────────────────────
+    // ── Filter and parse therapist-structured records ───────────────────────────────────────────
     const memories: object[] = [];
     for (const raw of rawRecords) {
       if (memories.length >= MAX_MEMORIES) {
@@ -132,15 +135,25 @@ Deno.serve(async (req) => {
         continue;
       }
       try {
-        const parsed = JSON.parse(raw.content);
+        // The Base44 SDK may return the content field as either a JSON string
+        // (requires JSON.parse) or as an already-parsed object (SDK auto-parses
+        // fields whose stored value is valid JSON).  Handle both shapes so the
+        // write→read round-trip succeeds regardless of which form the SDK returns.
+        let parsed: unknown;
+        if (typeof raw.content === 'string') {
+          parsed = JSON.parse(raw.content);
+        } else {
+          // Already a parsed object — use directly without JSON.parse
+          parsed = raw.content;
+        }
         // Only include records that carry the Phase 1 version marker
         if (
           parsed !== null &&
           typeof parsed === 'object' &&
-          parsed[THERAPIST_MEMORY_VERSION_KEY] === THERAPIST_MEMORY_VERSION
+          (parsed as Record<string, unknown>)[THERAPIST_MEMORY_VERSION_KEY] === THERAPIST_MEMORY_VERSION
         ) {
           // Attach the CompanionMemory record ID for reference (e.g. deduplication)
-          memories.push({ ...parsed, _memory_id: raw.id });
+          memories.push({ ...(parsed as Record<string, unknown>), _memory_id: raw.id });
         }
       } catch (_parseError) {
         // Skip unparseable records — do not block retrieval of valid records
