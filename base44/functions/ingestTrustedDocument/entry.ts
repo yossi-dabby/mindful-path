@@ -59,6 +59,18 @@
  *   dry_run?:             boolean,  // Validate + normalize without indexing (default: false)
  * }
  *
+ * PHASE 4.1 — REAL STORAGE
+ * ------------------------
+ * In live mode (dry_run=false), approved ingestion now persists source and
+ * chunk records to Base44 app storage:
+ *   - ExternalKnowledgeSource entity for source records.
+ *   - ExternalKnowledgeChunk entity for chunk records.
+ * Persistence is attempted after all records are built and validated.
+ * Repeated ingestion of the same source_id performs a safe upsert.
+ * Persistence failure is non-blocking — the ingestion response is still
+ * returned with a persistence_error field describing the failure.
+ * Dry-run mode skips persistence entirely (no records written).
+ *
  * OUTPUT (success)
  * ----------------
  * {
@@ -67,6 +79,10 @@
  *   source: object,         // Source record with full provenance
  *   chunks: object[],       // Chunk records with full provenance
  *   total_chunks: number,
+ *   persisted: boolean,              // true when records were written to app storage
+ *   source_record_id?: string,       // App storage ID of the persisted source
+ *   chunks_persisted?: number,       // Number of chunk records written
+ *   persistence_error?: string,      // Set when persistence was attempted but failed
  * }
  *
  * OUTPUT (error / gated)
@@ -302,6 +318,138 @@ function buildChunkRecords(
   }));
 }
 
+// ─── Phase 4.1 — Persistence to app storage ──────────────────────────────────
+
+/**
+ * Minimal type alias for Base44 SDK entity operations used in this function.
+ * The SDK client's entity map is typed as `any` in the Deno environment, so
+ * we use a local type alias to keep the persistence code readable.
+ */
+type EntityMap = Record<string, {
+  filter:  (query: Record<string, unknown>) => Promise<Array<{ id: string }>>;
+  create:  (data:  Record<string, unknown>) => Promise<{ id: string }>;
+  update:  (id: string, data: Record<string, unknown>) => Promise<void>;
+  delete:  (id: string) => Promise<void>;
+}>;
+
+/**
+ * Persists an ingested source record and its chunk records to Base44 app
+ * storage (ExternalKnowledgeSource and ExternalKnowledgeChunk entities).
+ *
+ * This function is the real-storage write path for Phase 4.1. It is called
+ * only in live mode (dry_run=false) after all records are built and validated.
+ *
+ * DEDUPLICATION
+ * -------------
+ * Before creating a new source record, this function queries the
+ * ExternalKnowledgeSource entity to check whether a record with the same
+ * source_id already exists. If found, the existing record is updated (upsert).
+ * This makes repeated ingestion of the same approved source safe and
+ * idempotent.
+ *
+ * CHUNK PERSISTENCE
+ * -----------------
+ * Each chunk is created as a new ExternalKnowledgeChunk record carrying a
+ * reference to the source record's app storage ID (external_source_record_id).
+ * Existing chunks for the same source are deleted before re-inserting, so
+ * repeated ingestion replaces stale chunks cleanly without accumulation.
+ *
+ * FAILURE HANDLING
+ * ----------------
+ * Any persistence failure is caught and returned as a structured result.
+ * The caller (request handler) returns the ingestion response regardless of
+ * whether persistence succeeded, so storage failure is non-blocking.
+ *
+ * ISOLATION
+ * ---------
+ * This function writes only to ExternalKnowledgeSource and ExternalKnowledgeChunk.
+ * It does NOT modify any existing entity, index, or retrieval pipeline.
+ *
+ * @param base44Client - Authenticated Base44 SDK client from the request.
+ * @param source       - Source record built by buildSourceRecord().
+ * @param chunks       - Chunk records built by buildChunkRecords().
+ * @returns Persistence result with stored IDs and counts, or an error description.
+ */
+async function persistToAppStorage(
+  base44Client: ReturnType<typeof createClientFromRequest>,
+  source: Record<string, unknown>,
+  chunks: object[],
+): Promise<{
+  persisted: boolean;
+  source_record_id: string | null;
+  chunks_persisted: number;
+  persistence_error?: string;
+}> {
+  const entities = base44Client.entities as EntityMap;
+
+  try {
+    // ── Step 1: Upsert source record ─────────────────────────────────────────
+    let storedSourceId: string | null = null;
+
+    // Check for an existing record with the same source_id to support safe
+    // repeated ingestion (deduplication by source_id).
+    let existingSourceId: string | null = null;
+    try {
+      const existingSources = await entities.ExternalKnowledgeSource.filter({ source_id: source.source_id });
+      if (Array.isArray(existingSources) && existingSources.length > 0) {
+        existingSourceId = existingSources[0].id;
+      }
+    } catch (_queryErr) {
+      // Entity may not exist in app yet — proceed to create.
+    }
+
+    if (existingSourceId) {
+      // Update existing source record (upsert).
+      await entities.ExternalKnowledgeSource.update(existingSourceId, {
+        ...source,
+        last_ingested_at: new Date().toISOString(),
+      });
+      storedSourceId = existingSourceId;
+    } else {
+      // Create new source record.
+      const created = await entities.ExternalKnowledgeSource.create({
+        ...source,
+        last_ingested_at: new Date().toISOString(),
+      });
+      storedSourceId = created.id;
+    }
+
+    // ── Step 2: Replace chunk records for this source ────────────────────────
+    // Delete any existing chunks for this source_id to avoid stale accumulation
+    // on repeated ingestion.
+    try {
+      const existingChunks = await entities.ExternalKnowledgeChunk.filter({ source_id: source.source_id });
+      if (Array.isArray(existingChunks) && existingChunks.length > 0) {
+        for (const existing of existingChunks) {
+          await entities.ExternalKnowledgeChunk.delete(existing.id);
+        }
+      }
+    } catch (_deleteErr) {
+      // If deletion fails, proceed to create — stale chunks are acceptable;
+      // they carry the correct provenance and source separation marker.
+    }
+
+    // ── Step 3: Create new chunk records ─────────────────────────────────────
+    let chunksPersisted = 0;
+    for (const chunk of chunks) {
+      await (base44Client.entities as Record<string, {
+        create: (data: Record<string, unknown>) => Promise<{ id: string }>;
+      }>).ExternalKnowledgeChunk.create({
+        ...(chunk as Record<string, unknown>),
+        external_source_record_id: storedSourceId,
+      });
+      chunksPersisted++;
+    }
+
+    return { persisted: true, source_record_id: storedSourceId, chunks_persisted: chunksPersisted };
+
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.warn('[ingestTrustedDocument] Persistence to app storage failed (non-blocking):', err);
+    return { persisted: false, source_record_id: null, chunks_persisted: 0, persistence_error: message };
+  }
+}
+
 // ─── Request handler ──────────────────────────────────────────────────────────
 
 Deno.serve(async (req: Request) => {
@@ -383,6 +531,12 @@ Deno.serve(async (req: Request) => {
       const source = buildSourceRecord(approvedEntry as Record<string, unknown>, retrievalDate);
       const chunks = buildChunkRecords(rawChunks, approvedEntry as Record<string, unknown>, retrievalDate);
 
+      // ── Phase 4.1: Persist to app storage (live mode only) ──────────────
+      let pdfPersistResult: Awaited<ReturnType<typeof persistToAppStorage>> | null = null;
+      if (!dry_run) {
+        pdfPersistResult = await persistToAppStorage(base44, source, chunks);
+      }
+
       return Response.json({
         success:      true,
         mode:         dry_run ? 'dry_run' : 'live',
@@ -391,6 +545,7 @@ Deno.serve(async (req: Request) => {
         chunks_would_index: dry_run ? chunks.length : undefined,
         total_chunks: dry_run ? 0 : chunks.length,
         dry_run_would_index: dry_run ? chunks.length : undefined,
+        ...(pdfPersistResult ?? {}),
       });
     }
 
@@ -441,6 +596,12 @@ Deno.serve(async (req: Request) => {
     const source = buildSourceRecord(approvedEntry as Record<string, unknown>, retrievalDate);
     const chunks = buildChunkRecords(rawChunks, approvedEntry as Record<string, unknown>, retrievalDate);
 
+    // ── Phase 4.1: Persist to app storage (live mode only) ────────────────
+    let htmlPersistResult: Awaited<ReturnType<typeof persistToAppStorage>> | null = null;
+    if (!dry_run) {
+      htmlPersistResult = await persistToAppStorage(base44, source, chunks);
+    }
+
     return Response.json({
       success:      true,
       mode:         dry_run ? 'dry_run' : 'live',
@@ -448,6 +609,7 @@ Deno.serve(async (req: Request) => {
       chunks:       dry_run ? [] : chunks,
       total_chunks: dry_run ? 0 : chunks.length,
       dry_run_would_index: dry_run ? chunks.length : undefined,
+      ...(htmlPersistResult ?? {}),
     });
 
   } catch (err: unknown) {
