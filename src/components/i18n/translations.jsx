@@ -274,6 +274,14 @@ export const translations = {
           helpful_resources: "Helpful Resources",
           reflect_button: "Reflect in Journal",
           view_exercises_button: "View All Exercises"
+        },
+        session_phase_indicator: {
+          label: "Structured CBT Session",
+          accessible_label: "Structured CBT session is active"
+        },
+        safety_mode_indicator: {
+          label: "Enhanced support mode",
+          description: "Your session is being guided with additional care"
         }
       },
       age_gate: {
@@ -1648,6 +1656,14 @@ export const translations = {
           helpful_resources: "משאבים מועילים",
           reflect_button: "שקף ביומן",
           view_exercises_button: "הצג את כל התרגילים"
+        },
+        session_phase_indicator: {
+          label: "מפגש CBT מובנה",
+          accessible_label: "מפגש CBT מובנה פעיל"
+        },
+        safety_mode_indicator: {
+          label: "מצב תמיכה מוגברת",
+          description: "המפגש שלך מנוהל עם תשומת לב נוספת"
         }
       },
       age_gate: {
@@ -3022,6 +3038,14 @@ export const translations = {
           helpful_resources: "Recursos Útiles",
           reflect_button: "Reflexionar en Diario",
           view_exercises_button: "Ver Todos los Ejercicios"
+        },
+        session_phase_indicator: {
+          label: "Sesión CBT Estructurada",
+          accessible_label: "La sesión CBT estructurada está activa"
+        },
+        safety_mode_indicator: {
+          label: "Modo de apoyo reforzado",
+          description: "Tu sesión se guía con atención adicional"
         }
       },
       age_gate: {
@@ -4353,6 +4377,14 @@ export const translations = {
           helpful_resources: "Ressources Utiles",
           reflect_button: "Réfléchir dans le Journal",
           view_exercises_button: "Voir Tous les Exercices"
+        },
+        session_phase_indicator: {
+          label: "Séance CBT Structurée",
+          accessible_label: "La séance CBT structurée est active"
+        },
+        safety_mode_indicator: {
+          label: "Mode de soutien renforcé",
+          description: "Votre séance est guidée avec une attention supplémentaire"
         }
       },
       age_gate: {
@@ -5684,6 +5716,14 @@ export const translations = {
           helpful_resources: "Hilfreiche Ressourcen",
           reflect_button: "Im Tagebuch Reflektieren",
           view_exercises_button: "Alle Übungen Anzeigen"
+        },
+        session_phase_indicator: {
+          label: "Strukturierte CBT-Sitzung",
+          accessible_label: "Strukturierte CBT-Sitzung ist aktiv"
+        },
+        safety_mode_indicator: {
+          label: "Erweiterter Unterstützungsmodus",
+          description: "Ihre Sitzung wird mit zusätzlicher Sorgfalt begleitet"
         }
       },
       age_gate: {
@@ -7015,6 +7055,14 @@ export const translations = {
           helpful_resources: "Risorse Utili",
           reflect_button: "Rifletti nel Diario",
           view_exercises_button: "Visualizza Tutti gli Esercizi"
+        },
+        session_phase_indicator: {
+          label: "Sessione CBT Strutturata",
+          accessible_label: "La sessione CBT strutturata è attiva"
+        },
+        safety_mode_indicator: {
+          label: "Modalità di supporto potenziata",
+          description: "La tua sessione è guidata con cura aggiuntiva"
         }
       },
       age_gate: {
@@ -8346,6 +8394,14 @@ export const translations = {
           helpful_resources: "Recursos Úteis",
           reflect_button: "Refletir no Diário",
           view_exercises_button: "Ver Todos os Exercícios"
+        },
+        session_phase_indicator: {
+          label: "Sessão CBT Estruturada",
+          accessible_label: "A sessão CBT estruturada está ativa"
+        },
+        safety_mode_indicator: {
+          label: "Modo de suporte aprimorado",
+          description: "Sua sessão está sendo guiada com cuidado adicional"
         }
       },
       age_gate: {

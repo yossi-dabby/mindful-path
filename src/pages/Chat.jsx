@@ -28,6 +28,9 @@ import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
 import { buildV4SessionStartContentAsync, buildRuntimeSafetySupplement } from '@/lib/workflowContextInjector.js';
 import { MOBILE_HEADER_HEIGHT } from '../components/layout/MobileHeader';
 import { BOTTOM_NAV_HEIGHT } from '../components/layout/BottomNav';
+// Phase 8 — Upgraded-path UI (flag-gated; hidden in default mode)
+import SessionPhaseIndicator from '../components/therapy/SessionPhaseIndicator';
+import SafetyModeIndicator from '../components/therapy/SafetyModeIndicator';
 
 export default function Chat() {
   const { t, i18n } = useTranslation();
@@ -46,6 +49,10 @@ export default function Chat() {
   const [isAgeRestricted, setIsAgeRestricted] = useState(false);
   const [showSavePrompt, setShowSavePrompt] = useState(false);
   const [savePromptData, setSavePromptData] = useState(null);
+  // Phase 8 — Upgraded-path UI state (only relevant when V5 wiring is active)
+  // safetyModeActive becomes true and stays true once the upgraded safety supplement
+  // fires for any turn in this session.  Resets when a new conversation starts.
+  const [safetyModeActive, setSafetyModeActive] = useState(false);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
   const location = useLocation();
@@ -789,6 +796,7 @@ export default function Chat() {
       setCurrentConversationId(conversation.id);
       setMessages([]);
       setShowSidebar(false);
+      setSafetyModeActive(false); // Phase 8: reset safety mode state on new session
       refetchConversations();
 
       // If there's an intent and initial message, send it
@@ -925,6 +933,11 @@ export default function Chat() {
       messageText,
       i18n?.language ?? 'en',
     );
+    // Phase 8: track safety mode activation for the upgraded UI indicator.
+    // Once triggered, the indicator persists for the rest of the session.
+    if (runtimeSupplement !== null) {
+      setSafetyModeActive(true);
+    }
 
     // CRITICAL: Add loading timeout failsafe (10s)
     if (loadingTimeoutRef.current) {
@@ -1397,6 +1410,21 @@ export default function Chat() {
                 }
                 {/* Profile-specific periodic disclaimer */}
                 <ProfileSpecificDisclaimer messageCount={messages.length} />
+                {/* Phase 8 — Upgraded-path UI indicators (flag-gated, hidden in default mode).
+                    SafetyModeIndicator is SUBORDINATE to InlineRiskPanel/CrisisSafetyPanel.
+                    Neither component renders when the upgrade flags are off. */}
+                <ErrorBoundary>
+                  <SafetyModeIndicator
+                    wiring={ACTIVE_CBT_THERAPIST_WIRING}
+                    isActive={safetyModeActive}
+                  />
+                </ErrorBoundary>
+                <ErrorBoundary>
+                  <SessionPhaseIndicator
+                    wiring={ACTIVE_CBT_THERAPIST_WIRING}
+                    hasActiveSession={!!currentConversationId}
+                  />
+                </ErrorBoundary>
                 {messages.filter((m) => m && m.role && m.content).map((message, index) =>
                 <MessageBubble
                   key={index}
