@@ -16,6 +16,10 @@
  * hybrid wiring is always returned. Flag-on at this stage also returns the hybrid
  * wiring because no upgraded path exists yet. Future phases attach here.
  *
+ * Phase 1 — CBT_THERAPIST_WIRING_STAGE2_V1 added as the memory-enabled path.
+ * Phase 3 — CBT_THERAPIST_WIRING_STAGE2_V2 added as the workflow-engine path.
+ *   V2 supersedes V1 when both flags are on (V2 is a superset of V1).
+ *
  * Analytics registration (Section B of Phase 0.1 spec) is performed lazily
  * via a dynamic import of base44Client.js so that test environments that lack
  * the browser context are unaffected.
@@ -29,6 +33,7 @@ import {
   CBT_THERAPIST_WIRING_HYBRID,
   AI_COMPANION_WIRING_HYBRID,
   CBT_THERAPIST_WIRING_STAGE2_V1,
+  CBT_THERAPIST_WIRING_STAGE2_V2,
 } from './agentWiring.js';
 
 import {
@@ -69,10 +74,16 @@ import {
  *
  * Routing logic (evaluated in order):
  *   1. Master gate off  → CBT_THERAPIST_WIRING_HYBRID (current default)
- *   2. Master gate on, THERAPIST_UPGRADE_MEMORY_ENABLED on
+ *   2. Master gate on, THERAPIST_UPGRADE_WORKFLOW_ENABLED on
+ *                       → CBT_THERAPIST_WIRING_STAGE2_V2 (Phase 3 workflow engine)
+ *   3. Master gate on, THERAPIST_UPGRADE_MEMORY_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V1 (Phase 1 memory layer)
- *   3. Master gate on, no matching phase flag
+ *   4. Master gate on, no matching phase flag
  *                       → CBT_THERAPIST_WIRING_HYBRID (fall-through to current default)
+ *
+ * Phase 3 (V2) takes precedence over Phase 1 (V1) when both flags are on
+ * because V2 is a superset of V1 — it includes the memory layer and adds
+ * the workflow engine on top.
  *
  * All flags default to false, so the current default path is always returned
  * in production until the flags are explicitly enabled.
@@ -81,6 +92,16 @@ import {
  */
 export function resolveTherapistWiring() {
   if (isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')) {
+    // ── Phase 3 — Workflow engine (supersedes Phase 1 when both flags are on) ──
+    if (isUpgradeEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED')) {
+      logUpgradeEvent('route_selected', {
+        flag: 'THERAPIST_UPGRADE_WORKFLOW_ENABLED',
+        path: 'stage2_v2',
+        phase: '3',
+      });
+      return CBT_THERAPIST_WIRING_STAGE2_V2;
+    }
+
     // ── Phase 1 — Structured memory layer ──────────────────────────────────
     if (isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')) {
       logUpgradeEvent('route_selected', {
