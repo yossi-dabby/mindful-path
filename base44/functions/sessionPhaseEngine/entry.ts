@@ -256,4 +256,4 @@ Deno.serve(async (req) => {
     }),
     { status: 200, headers: { 'Content-Type': 'application/json' } },
   );
-}
+});
