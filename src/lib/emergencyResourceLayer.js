@@ -205,6 +205,147 @@ export const SUPPORTED_LOCALES = Object.freeze(
   new Set(Object.keys(VERIFIED_EMERGENCY_RESOURCES))
 );
 
+// ─── Verified source basis ────────────────────────────────────────────────────
+
+/**
+ * Explicit documentation of the verified source basis for each supported
+ * locale's emergency resource set.
+ *
+ * Each entry lists the specific public sources used to verify the resources in
+ * VERIFIED_EMERGENCY_RESOURCES.  This makes the source basis explicit,
+ * auditable, and testable.
+ *
+ * Policy: Resources must be verified from publicly accessible national or
+ * organizational sources before production activation.  Unverified or
+ * uncertain resources must not be presented as authoritative.
+ *
+ * @type {Readonly<Record<string, Readonly<{locale: string, verified_sources: ReadonlyArray<string>, basis_note: string}>>>}
+ */
+export const RESOURCE_SOURCE_BASIS = Object.freeze({
+
+  en: Object.freeze({
+    locale: 'en',
+    verified_sources: Object.freeze([
+      '988 Suicide & Crisis Lifeline — official US federal crisis line (samhsa.gov / 988lifeline.org)',
+      'Crisis Text Line — publicly documented at crisistextline.org (US/CA, text HOME to 741741)',
+      'IASP Crisis Centres directory — iasp.info/resources/Crisis_Centres/ (global directory)',
+      'Befrienders Worldwide — befrienders.org (international support network)',
+    ]),
+    basis_note: 'US national resources verified from public federal and organizational sources. International directory links provided as fallback for non-US users.',
+  }),
+
+  he: Object.freeze({
+    locale: 'he',
+    verified_sources: Object.freeze([
+      'ERAN (ER"AN) 1201 — official national emotional first aid line, eran.org.il (publicly published)',
+      'SAHAR online crisis chat — sahar.org.il (publicly documented 24/7 service)',
+      'Natal trauma helpline 1-800-363-363 — natal.org.il (publicly documented)',
+      'MDA (Magen David Adom) emergency 101 — mda.org.il (official national emergency service)',
+    ]),
+    basis_note: 'Israeli national crisis resources verified from official Israeli organizational and emergency-service websites.',
+  }),
+
+  es: Object.freeze({
+    locale: 'es',
+    verified_sources: Object.freeze([
+      'Teléfono de la Esperanza 717 003 717 — telefonodelaesperanza.es (Spain, publicly documented)',
+      'Centro de Crisis Mexico 800-290-0024 — publicly documented through IMSS / Secretaría de Salud (Mexico)',
+      'IASP Crisis Centres directory — iasp.info (regional directory for Latin America fallback)',
+    ]),
+    basis_note: 'Spain primary, Mexico secondary. Resources verified from public organizational sources. Other Latin American countries: IASP directory used as regional fallback.',
+  }),
+
+  fr: Object.freeze({
+    locale: 'fr',
+    verified_sources: Object.freeze([
+      '3114 — official French national suicide prevention line, 3114.fr (established by French law, March 2021)',
+      'SOS Amitié 09 72 39 40 50 — sos-amitie.com (publicly documented 24/7 service)',
+      'ANPS preventionsuicide.fr — Association Nationale de Prévention du Suicide (publicly documented)',
+    ]),
+    basis_note: 'French national resources. 3114 is legislatively mandated (loi du 26 mars 2021). Verified from French government and official organizational sources.',
+  }),
+
+  de: Object.freeze({
+    locale: 'de',
+    verified_sources: Object.freeze([
+      'Telefonseelsorge 0800 111 0 111 — telefonseelsorge.de (official German crisis line, free 24/7)',
+      'Telefonseelsorge 0800 111 0 222 — telefonseelsorge.de (alternate number, same service)',
+      'Online-Beratung — onlineberatung-telefonseelsorge.de (chat and email, publicly documented)',
+    ]),
+    basis_note: 'German national crisis resources verified from the official Telefonseelsorge website.',
+  }),
+
+  it: Object.freeze({
+    locale: 'it',
+    verified_sources: Object.freeze([
+      'Telefono Amico 02 2327 2327 — telefonoamico.it (publicly documented 24/7 service)',
+      'Telefono Azzurro 19696 — azzurro.it (official free crisis line for minors, publicly documented)',
+      'Prevenzione Suicidio 800 274 274 — publicly documented free national crisis line',
+    ]),
+    basis_note: 'Italian national crisis resources verified from public organizational websites.',
+  }),
+
+  pt: Object.freeze({
+    locale: 'pt',
+    verified_sources: Object.freeze([
+      'SOS Voz Amiga 213 544 545 — sosvozamiga.pt (Portugal, publicly documented 24/7)',
+      'CVV (Centro de Valorização da Vida) 188 — cvv.org.br (Brazil, official free crisis line)',
+      'SOS Estudante 239 484 020 — publicly documented crisis support line (Portugal)',
+    ]),
+    basis_note: 'Portugal primary, Brazil secondary. Resources verified from official organizational and publicly available sources.',
+  }),
+});
+
+// ─── Locale verification helpers ─────────────────────────────────────────────
+
+/**
+ * Returns true if the given locale is in the verified resource set.
+ *
+ * Supports both exact locale codes ('en', 'he') and regional variants
+ * ('en-US', 'he-IL') by stripping the regional suffix.
+ *
+ * All 7 supported app locales (en, he, es, fr, de, it, pt) return true.
+ * Any other locale returns false (conservative — no unverified locales).
+ *
+ * @param {string|null|undefined} locale - BCP-47 locale code or base code
+ * @returns {boolean} Whether this locale has a verified resource mapping
+ */
+export function isLocaleVerified(locale) {
+  if (!locale || typeof locale !== 'string') return false;
+  try {
+    const normalized = locale.trim().toLowerCase().split('-')[0].split('_')[0];
+    return SUPPORTED_LOCALES.has(normalized);
+  } catch (_e) {
+    return false;
+  }
+}
+
+/**
+ * Returns the source basis documentation for the given locale.
+ *
+ * If the locale is not in RESOURCE_SOURCE_BASIS, returns the English
+ * fallback basis (conservative — always returns a defined basis).
+ *
+ * This function never throws.
+ *
+ * @param {string|null|undefined} locale - BCP-47 locale code or base code
+ * @returns {Readonly<{locale: string, verified_sources: ReadonlyArray<string>, basis_note: string}>}
+ */
+export function getResourceSourceBasis(locale) {
+  try {
+    if (!locale || typeof locale !== 'string') {
+      return RESOURCE_SOURCE_BASIS[FALLBACK_LOCALE];
+    }
+    const normalized = locale.trim().toLowerCase().split('-')[0].split('_')[0];
+    if (RESOURCE_SOURCE_BASIS[normalized]) {
+      return RESOURCE_SOURCE_BASIS[normalized];
+    }
+    return RESOURCE_SOURCE_BASIS[FALLBACK_LOCALE];
+  } catch (_e) {
+    return RESOURCE_SOURCE_BASIS[FALLBACK_LOCALE];
+  }
+}
+
 // ─── Resource resolver ────────────────────────────────────────────────────────
 
 /**

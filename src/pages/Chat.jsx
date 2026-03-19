@@ -25,7 +25,7 @@ import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
 import { validateAgentOutput, sanitizeConversationMessages, parseCounters } from '../components/utils/validateAgentOutput.jsx';
 import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
-import { buildV4SessionStartContentAsync } from '@/lib/workflowContextInjector.js';
+import { buildV4SessionStartContentAsync, buildRuntimeSafetySupplement } from '@/lib/workflowContextInjector.js';
 import { MOBILE_HEADER_HEIGHT } from '../components/layout/MobileHeader';
 import { BOTTOM_NAV_HEIGHT } from '../components/layout/BottomNav';
 
@@ -909,6 +909,23 @@ export default function Chat() {
     setShowSummaryPrompt(false);
     setIsLoading(true);
 
+    // Phase 7.1 — Explicit safety layer precedence (documented and enforced):
+    //   Layer 1 (regex crisis detector)  → HARD_STOP, already returned above if triggered
+    //   Layer 2 (LLM crisis detector)    → HARD_STOP, already returned above if triggered
+    //   Layer 3 (upgraded safety mode)   → CONSTRAIN_ONLY, V5 path only (see below)
+    //   Layer 4 (post-LLM safety filter) → OUTPUT_FILTER, always active on agent output
+    //
+    // Layer 3 only executes here because Layers 1 and 2 did NOT trigger a hard-stop.
+    // Layers 1 and 2 are authoritative — this layer is subordinate.
+
+    // Phase 7.1 Layer 3: Per-turn safety mode supplement (V5 wiring only, flag-gated).
+    // Returns null for default HYBRID wiring — no change to default behavior.
+    const runtimeSupplement = buildRuntimeSafetySupplement(
+      ACTIVE_CBT_THERAPIST_WIRING,
+      messageText,
+      i18n?.language ?? 'en',
+    );
+
     // CRITICAL: Add loading timeout failsafe (10s)
     if (loadingTimeoutRef.current) {
       clearTimeout(loadingTimeoutRef.current);
@@ -949,7 +966,7 @@ export default function Chat() {
 
       await base44.agents.addMessage(conversation, {
         role: 'user',
-        content: messageText
+        content: runtimeSupplement ? runtimeSupplement + '\n\n' + messageText : messageText
       });
 
       console.log('[Send] ✅ Message sent - starting authoritative polling');

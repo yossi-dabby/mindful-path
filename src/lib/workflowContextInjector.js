@@ -71,6 +71,7 @@ import {
   determineSafetyMode,
   getSafetyModeContextForWiring,
   SAFETY_MODE_FAIL_CLOSED_RESULT,
+  evaluateRuntimeSafetyMode,
 } from './therapistSafetyMode.js';
 import { buildEmergencyResourceSection } from './emergencyResourceLayer.js';
 
@@ -461,4 +462,82 @@ export async function buildV5SessionStartContentAsync(
   }
 
   return result;
+}
+
+// ─── Phase 7.1 — Per-turn runtime safety supplement ──────────────────────────
+
+/**
+ * Builds the per-turn safety mode supplement for the V5 upgraded path.
+ *
+ * This function is called once per user turn (not only at session-start)
+ * after the existing HARD_STOP crisis detectors (Layer 1 regex and Layer 2 LLM)
+ * have passed without triggering.
+ *
+ * The supplement — when non-null — is prepended to the user message content
+ * so that the LLM receives the safety constraints alongside the user's message
+ * for this specific turn.
+ *
+ * ISOLATION GUARANTEE
+ * -------------------
+ * - Returns null immediately for any wiring without safety_mode_enabled === true.
+ * - The default therapist path (HYBRID) is always unaffected.
+ * - Returns null when no distress patterns are detected in the message.
+ *
+ * PRECEDENCE
+ * ----------
+ * This function is called in Chat.jsx as Layer 3 — AFTER the HARD_STOP
+ * layers (Layer 1 regex crisis detector, Layer 2 LLM crisis detector) have
+ * passed.  The HARD_STOP layers are authoritative; this layer operates only
+ * when they did not block the message.
+ *
+ * FAIL-SAFE
+ * ---------
+ * This function never throws.  Returns null on any unexpected error, ensuring
+ * the message send is never blocked by the safety supplement computation.
+ *
+ * @param {object|null|undefined} wiring   - The active therapist wiring config
+ * @param {string|null|undefined} messageText - The user's current turn message
+ * @param {string|null|undefined} locale    - BCP-47 locale code for resources
+ * @returns {string|null} Safety mode supplement to prepend, or null if inactive
+ */
+export function buildRuntimeSafetySupplement(wiring, messageText, locale) {
+  try {
+    // Guard: only active for V5 wiring (safety_mode_enabled === true)
+    // Returns null for HYBRID, V1, V2, V3, V4, null, undefined, or any
+    // wiring without safety_mode_enabled === true.
+    if (!wiring || wiring.safety_mode_enabled !== true) {
+      return null;
+    }
+
+    // Per-turn runtime evaluation: only uses message text (no session signals)
+    const safetyResult = evaluateRuntimeSafetyMode(messageText);
+
+    if (!safetyResult || !safetyResult.safety_mode) {
+      // No distress pattern detected in this message — no supplement needed
+      return null;
+    }
+
+    // Safety mode is active for this turn — build the supplement
+    const safetyContext = getSafetyModeContextForWiring(wiring, safetyResult);
+    if (!safetyContext) {
+      return null;
+    }
+
+    let supplement = safetyContext;
+
+    // Append emergency resources (locale-specific, pre-stored, non-LLM)
+    try {
+      const resourceSection = buildEmergencyResourceSection(locale ?? null);
+      if (resourceSection && resourceSection.trim()) {
+        supplement += '\n\n' + resourceSection;
+      }
+    } catch {
+      // Emergency resource failure must never block the supplement
+    }
+
+    return supplement;
+  } catch (_e) {
+    // Fail-safe: never throw, never block the message send
+    return null;
+  }
 }
