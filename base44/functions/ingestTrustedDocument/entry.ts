@@ -140,9 +140,10 @@ function lookupApprovedSource(url: string) {
 function extractHtmlText(html: string): string {
   let text = html;
 
-  // Remove entire script and style blocks (including content)
-  text = text.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ' ');
-  text = text.replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ' ');
+  // Remove entire script and style blocks (including content).
+  // Use [^>]* before > in closing tags to match variants like </script > or </style anything>.
+  text = text.replace(/<script\b[^>]*>[\s\S]*?<\/script[^>]*>/gi, ' ');
+  text = text.replace(/<style\b[^>]*>[\s\S]*?<\/style[^>]*>/gi, ' ');
   text = text.replace(/<!--[\s\S]*?-->/g, ' ');
 
   // Remove structural noise elements (including their content)
@@ -160,15 +161,16 @@ function extractHtmlText(html: string): string {
   // Strip remaining HTML tags
   text = text.replace(/<[^>]+>/g, ' ');
 
-  // Decode common HTML entities
+  // Decode common HTML entities.
+  // &amp; is decoded last to avoid double-unescaping (e.g. &amp;lt; → &lt; → <).
   text = text
-    .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .replace(/&nbsp;/g, ' ')
-    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code, 10)));
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code, 10)))
+    .replace(/&amp;/g, '&');
 
   // Normalize whitespace: collapse runs of spaces/tabs, preserve paragraph breaks
   text = text.replace(/[ \t]+/g, ' ');

@@ -89,8 +89,8 @@ const INTERNAL_ALLOWED_ENTITY_TYPES = ['Exercise', 'Resource', 'JournalTemplate'
 
 function extractHtmlText(html) {
   let text = html;
-  text = text.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ' ');
-  text = text.replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ' ');
+  text = text.replace(/<script\b[^>]*>[\s\S]*?<\/script[^>]*>/gi, ' ');
+  text = text.replace(/<style\b[^>]*>[\s\S]*?<\/style[^>]*>/gi, ' ');
   text = text.replace(/<!--[\s\S]*?-->/g, ' ');
   text = text.replace(/<nav\b[^>]*>[\s\S]*?<\/nav>/gi, ' ');
   text = text.replace(/<header\b[^>]*>[\s\S]*?<\/header>/gi, ' ');
@@ -101,13 +101,14 @@ function extractHtmlText(html) {
   if (mainMatch) text = mainMatch[1];
   else if (articleMatch) text = articleMatch[1];
   text = text.replace(/<[^>]+>/g, ' ');
+  // &amp; is decoded last to avoid double-unescaping (e.g. &amp;lt; → &lt; → <).
   text = text
-    .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, ' ');
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&');
   text = text.replace(/[ \t]+/g, ' ');
   text = text.replace(/\n{3,}/g, '\n\n');
   return text.trim();
