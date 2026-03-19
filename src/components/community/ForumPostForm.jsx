@@ -91,12 +91,12 @@ export default function ForumPostForm({ onClose, groupId }) {
               <Input
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="What's on your mind?"
-                className="rounded-xl" />
+                placeholder="What's on your mind?" className="bg-slate-50 text-foreground px-3 py-1 font-normal tracking-[0.001em] leading-6 rounded-xl flex h-9 w-full border border-input/90 shadow-[var(--shadow-sm)] transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50" />
+              
               
             </div>
 
-            <div>
+            <div className="bg-slate-50">
               <label className="text-sm font-medium text-gray-700 mb-2 block">Content</label>
               <Textarea
                 value={formData.content}
