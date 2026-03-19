@@ -635,18 +635,27 @@ describe('Phase 7.1 — Section D: Default Mode + Rollback Safety', () => {
 
   // 56. evaluateRuntimeSafetyMode fail-closed on unexpected exception
   it('56. evaluateRuntimeSafetyMode fail-closed on exception (returns FAIL_CLOSED_RESULT)', () => {
-    // Test that the function handles the fail-closed case correctly
-    // The fail-closed path triggers when an unexpected exception is thrown internally.
-    // We verify the exported SAFETY_MODE_FAIL_CLOSED_RESULT has fail_closed: true
-    // and safety_mode: true, which is what would be returned on exception.
+    // For non-string inputs (null, undefined, numbers, objects):
+    // The function returns safety_mode: false (no distress signal = safe off state),
+    // NOT SAFETY_MODE_FAIL_CLOSED_RESULT. This is correct: missing message text
+    // means "no distress detected", not "uncertain state requiring restriction".
+    const noSignalInputs = [null, undefined, '', '   ', 42, {}, []];
+    for (const input of noSignalInputs) {
+      const result = evaluateRuntimeSafetyMode(input);
+      expect(result.safety_mode).toBe(false);
+      expect(result.trigger).toBeNull();
+      expect(result.pattern_match).toBe(false);
+    }
+
+    // The SAFETY_MODE_FAIL_CLOSED_RESULT is the value returned on UNEXPECTED
+    // INTERNAL EXCEPTIONS (the catch block). Its properties are:
     expect(SAFETY_MODE_FAIL_CLOSED_RESULT.safety_mode).toBe(true);
     expect(SAFETY_MODE_FAIL_CLOSED_RESULT.fail_closed).toBe(true);
 
-    // Verify evaluateRuntimeSafetyMode doesn't throw for unusual inputs
-    // (the internal fail-closed path is the catch block — it returns
-    //  SAFETY_MODE_FAIL_CLOSED_RESULT rather than letting the error propagate)
-    expect(() => evaluateRuntimeSafetyMode(null)).not.toThrow();
-    expect(() => evaluateRuntimeSafetyMode(42)).not.toThrow();
-    expect(() => evaluateRuntimeSafetyMode({})).not.toThrow();
+    // Verify evaluateRuntimeSafetyMode never throws (fail-closed catches all exceptions):
+    const edgeCases = [null, undefined, 42, {}, [], 'normal text', 'I feel hopeless'];
+    for (const input of edgeCases) {
+      expect(() => evaluateRuntimeSafetyMode(input)).not.toThrow();
+    }
   });
 });
