@@ -96,23 +96,68 @@ export function isUpgradeEnabled(flagName) {
 }
 
 /**
+ * Optional analytics tracker registered by the app at load time.
+ * When set, logUpgradeEvent forwards events to the app's analytics pipeline
+ * instead of (or in addition to) the console.
+ *
+ * Set via registerUpgradeAnalyticsTracker(). Never called directly outside
+ * this module.
+ *
+ * @type {((eventName: string, properties: object) => void) | null}
+ */
+let _upgradeTrack = null;
+
+/**
+ * Registers the app-level analytics tracker for upgrade observability events.
+ *
+ * Call once at app initialisation with base44.analytics.track (or a compatible
+ * function) to route upgrade events into the app's existing analytics pipeline.
+ * If never called, logUpgradeEvent falls back to console-only output.
+ *
+ * Logging failure must never break therapist routing — the tracker is always
+ * called inside a try-catch.
+ *
+ * Phase 0.1 — replaces console-only observability with the app's existing
+ * base44.analytics.track pattern (Section B of the Phase 0.1 spec).
+ *
+ * @param {(eventName: string, properties: object) => void} trackFn
+ *   A function with the same signature as base44.analytics.track.
+ */
+export function registerUpgradeAnalyticsTracker(trackFn) {
+  if (typeof trackFn === 'function') {
+    _upgradeTrack = trackFn;
+  } else {
+    // Passing null (or any non-function) resets the tracker to the console fallback.
+    _upgradeTrack = null;
+  }
+}
+
+/**
  * Baseline observability hook for upgrade path events.
  *
- * Emits console warnings for isolation failures (unknown flag names, unexpected
- * access attempts) so they surface in development and CI logs.
+ * When an analytics tracker has been registered via registerUpgradeAnalyticsTracker,
+ * events are forwarded to that tracker (the app's base44.analytics.track pipeline).
+ * Console output is retained as a fallback so events still surface in development
+ * and CI logs if no tracker is registered.
  *
- * Upgrade-path selection events (route_selected, route_not_selected) are
- * emitted as console.log entries to confirm routing behaviour during
- * development and testing. Future phases may route these to an analytics
- * pipeline without changing callers.
+ * Isolation failures (unknown flags) always emit a console.warn in addition to
+ * the analytics event so they are impossible to miss during development.
  *
- * This function is intentionally minimal for Phase 0. It must not be removed
- * or replaced — later phases extend it.
+ * This function must not throw — logging failure must never break routing.
  *
  * @param {string} event - Event identifier (e.g. 'flag_isolation_failure', 'route_selected')
  * @param {object} [context] - Additional diagnostic context
  */
 export function logUpgradeEvent(event, context = {}) {
+  // Always attempt analytics tracking first if a tracker is registered.
+  if (_upgradeTrack !== null) {
+    try {
+      _upgradeTrack('therapist_upgrade_' + event, context);
+    } catch (_e) {
+      // Analytics failure must never propagate — fall through to console.
+    }
+  }
+
   if (event === 'flag_isolation_failure') {
     console.warn('[TherapistUpgrade] Isolation failure —', event, context);
     return;
