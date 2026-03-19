@@ -2,7 +2,7 @@
  * @file src/lib/featureFlags.js
  *
  * Therapist Upgrade — Stage 2 Feature Flag Registry
- * Preview rebuild marker: 2026-03-19T19:16Z
+ * Preview rebuild marker: 2026-03-19T19:29Z
  *
  * All flags default to false. The current default therapist path
  * (CBT_THERAPIST_WIRING_HYBRID via src/api/activeAgentWiring.js) is always
@@ -87,15 +87,78 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
 });
 
 /**
+ * Reads staging-only runtime overrides from the URL query string.
+ *
+ * This is the fix for Base44 preview/staging builds where VITE_* environment
+ * variables are baked in at build time and may not be reliably picked up even
+ * after rebuilds.  The URL override layer allows flag enablement at runtime
+ * without touching source code or triggering a new build.
+ *
+ * SAFETY RULES (non-negotiable):
+ *   - PRODUCTION BUILDS ARE ALWAYS FAIL-CLOSED: returns {} when
+ *     import.meta.env.PROD === true, with no fallthrough.
+ *   - SSR / Node.js / test environments (no window) return {} silently.
+ *   - Unrecognised flag names are silently ignored; no unknown flags are accepted.
+ *   - Any error during URL parsing returns {} (fail-closed).
+ *
+ * URL parameter format (staging/preview only):
+ *   ?_s2=FLAG1,FLAG2,...
+ *
+ * Example — enable master gate + memory phase in staging:
+ *   https://preview.app/?_s2=THERAPIST_UPGRADE_ENABLED,THERAPIST_UPGRADE_MEMORY_ENABLED
+ *
+ * The override is additive: a flag set to true via the URL takes precedence
+ * over the build-time value (which defaults to false).  There is no way to
+ * force a flag to false via the URL — the URL can only enable, not disable.
+ *
+ * @returns {Record<string, boolean>} Flags that the URL has overridden to true.
+ *   Always returns an empty object in production builds.
+ */
+function _readStagingRuntimeOverrides() {
+  // Production is always fail-closed — no URL overrides ever.
+  if (import.meta.env?.PROD === true) return {};
+
+  try {
+    // Guard for non-browser environments (Node.js, SSR, test runners).
+    if (typeof window === 'undefined') return {};
+
+    const search = window.location?.search ?? '';
+    if (!search) return {};
+
+    const raw = new URLSearchParams(search).get('_s2');
+    if (!raw) return {};
+
+    const overrides = {};
+    for (const key of raw.split(',')) {
+      const trimmed = key.trim();
+      // Only accept keys that are recognised Stage 2 flag names.
+      if (trimmed && trimmed in THERAPIST_UPGRADE_FLAGS) {
+        overrides[trimmed] = true;
+      }
+    }
+    return overrides;
+  } catch (_e) {
+    // Parsing failure must never propagate — always fail-closed.
+    return {};
+  }
+}
+
+/**
  * Evaluates a Stage 2 feature flag by name.
  *
- * The master flag (THERAPIST_UPGRADE_ENABLED) must be true, and the specific
- * per-phase flag must also be true, before this returns true.
+ * Evaluation order (first truthy wins):
+ *   1. Build-time env var (import.meta.env.VITE_*) — the primary path.
+ *   2. Staging runtime URL override (?_s2=...) — staging/preview only;
+ *      never active in production builds (import.meta.env.PROD === true).
+ *
+ * The master flag (THERAPIST_UPGRADE_ENABLED) must be true via either path,
+ * and the specific per-phase flag must also be true via either path, before
+ * this returns true.
  *
  * Returns false (current default path) when:
  *   - The flag name is not a recognised Stage 2 flag key
- *   - THERAPIST_UPGRADE_ENABLED is false
- *   - The specific flag value is false
+ *   - THERAPIST_UPGRADE_ENABLED is false (build-time and runtime)
+ *   - The specific flag value is false (build-time and runtime)
  *
  * This function is the single routing guard for all Stage 2 upgrade paths.
  * Every future upgrade code branch must call this before executing.
@@ -109,17 +172,25 @@ export function isUpgradeEnabled(flagName) {
     return false;
   }
 
+  // Layer 2: staging-only runtime overrides (always {} in production builds).
+  const stagingOverrides = _readStagingRuntimeOverrides();
+
   // The master flag may be evaluated directly without the double-gate logic.
   if (flagName === 'THERAPIST_UPGRADE_ENABLED') {
-    return THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED;
+    return THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED ||
+      stagingOverrides.THERAPIST_UPGRADE_ENABLED === true;
   }
 
   // All per-phase flags require the master flag to also be enabled.
-  if (!THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED) {
+  const masterEnabled =
+    THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED ||
+    stagingOverrides.THERAPIST_UPGRADE_ENABLED === true;
+
+  if (!masterEnabled) {
     return false;
   }
 
-  return THERAPIST_UPGRADE_FLAGS[flagName];
+  return THERAPIST_UPGRADE_FLAGS[flagName] || stagingOverrides[flagName] === true;
 }
 
 /**
