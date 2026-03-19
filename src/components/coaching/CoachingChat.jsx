@@ -10,6 +10,7 @@ import InlineConsentBanner from '../chat/InlineConsentBanner';
 import InlineRiskPanel from '../chat/InlineRiskPanel';
 import { detectCrisisWithReason } from '../utils/crisisDetector';
 import ActionPlanPanel from './ActionPlanPanel';
+import { triggerSessionEndSummarization } from '../../lib/sessionEndSummarization.js';
 
 const stageLabels = {
   discovery: 'Discovery Phase',
@@ -90,9 +91,20 @@ export default function CoachingChat({ session, onBack }) {
   const updateStageMutation = useMutation({
     mutationFn: (newStage) =>
     base44.entities.CoachingSession.update(session.id, { stage: newStage }),
-    onSuccess: () => {
+    onSuccess: (_, newStage) => {
       refetchSession();
       queryClient.invalidateQueries({ queryKey: ['coachingSessions'] });
+      // Phase 2.1: non-blocking session-end summarization trigger.
+      // Fires only when stage transitions to 'completed'. Inert when flag is off.
+      // Merges newStage into currentSession so the payload reflects the
+      // completed stage, not the stale pre-update value.
+      if (newStage === 'completed') {
+        triggerSessionEndSummarization(
+          { ...currentSession, stage: newStage },
+          messages,
+          'stage_completed',
+        );
+      }
     }
   });
 
