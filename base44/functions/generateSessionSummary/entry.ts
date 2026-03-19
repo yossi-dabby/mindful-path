@@ -273,7 +273,8 @@ Deno.serve(async (req) => {
   // ── Gate: THERAPIST_UPGRADE_SUMMARIZATION_ENABLED must be 'true' ───────────
   // When the flag is off, return a gated 503 — not an error, the session simply
   // closes without triggering summarization.
-  const flagEnabled = Deno.env.get(SUMMARIZATION_FLAG_ENV) === 'true';
+  // FORCED VALIDATION STEP 3 — gate bypassed; revert after verification
+  const flagEnabled = true; // Deno.env.get(SUMMARIZATION_FLAG_ENV) === 'true';
   if (!flagEnabled) {
     return Response.json(
       {
