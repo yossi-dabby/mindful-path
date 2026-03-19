@@ -199,6 +199,46 @@ export const SafetyAndCrisis = {
 };
 
 // ============================================================
+// DOMAIN: Knowledge Infrastructure
+// Entities for trusted external knowledge ingestion and storage
+// (Phase 4.2 — Therapist Upgrade Stage 2).
+//
+// These entities are the real app-owned, first-class storage surfaces for
+// external trusted-knowledge source records and chunk records. They are
+// completely separate from internal app-authored content entities (Exercise,
+// Resource, JournalTemplate, Psychoeducation).
+//
+// SOURCE SEPARATION: Every record in these entities carries
+//   content_source_type = 'external_trusted'
+// which is the primary runtime separator between external and internal content.
+//
+// ISOLATION: These entities are NOT connected to the current therapist runtime,
+// agent wiring, or any retrieval pipeline. They are passive storage surfaces.
+// The flag gate lives at the ingestion call site (externalKnowledgePersistence.js).
+//
+// See src/api/entities/ExternalKnowledgeSource.js for field schema.
+// See src/api/entities/ExternalKnowledgeChunk.js for field schema.
+// ============================================================
+
+export const KnowledgeInfrastructure = {
+  /**
+   * ExternalKnowledgeSource — Durable storage for approved external trusted-knowledge
+   * source metadata. One record per approved source. Keyed by source_id.
+   * Phase 4.2 — Therapist Upgrade Stage 2.
+   */
+  get ExternalKnowledgeSource() { return base44.entities.ExternalKnowledgeSource; },
+
+  /**
+   * ExternalKnowledgeChunk — Durable storage for atomic text chunks extracted
+   * from approved external trusted-knowledge sources. Each chunk carries full
+   * provenance and links back to its parent ExternalKnowledgeSource via source_id
+   * and external_source_record_id.
+   * Phase 4.2 — Therapist Upgrade Stage 2.
+   */
+  get ExternalKnowledgeChunk() { return base44.entities.ExternalKnowledgeChunk; },
+};
+
+// ============================================================
 // DOMAIN: System and Supporting
 // Entities for subscriptions, data hygiene, and app infrastructure.
 // ============================================================
