@@ -2,6 +2,7 @@
  * @file src/lib/workflowContextInjector.js
  *
  * Therapist Upgrade — Stage 2 Phase 3.1 — Workflow Context Injector
+ * (Extended in Phase 5 to also inject retrieval orchestration context)
  *
  * This module closes the Phase 3 review gap: the workflow instructions were
  * defined and wired (therapistWorkflowEngine.js + CBT_THERAPIST_WIRING_STAGE2_V2)
@@ -14,8 +15,8 @@
  *
  *   getWorkflowContextForWiring(wiring)
  *     Returns the pre-built THERAPIST_WORKFLOW_INSTRUCTIONS string when the
- *     supplied wiring has workflow_context_injection === true (i.e. V2 is
- *     active).  Returns null for all other wirings (default path unchanged).
+ *     supplied wiring has workflow_context_injection === true (i.e. V2 or V3
+ *     is active).  Returns null for all other wirings (default path unchanged).
  *
  *   buildSessionStartContent(wiring)
  *     Returns the full [START_SESSION] content string for the given wiring.
@@ -24,6 +25,9 @@
  *     instructions appended as a clearly delimited section, so the agent
  *     receives the workflow structure in its context window from the very
  *     first turn.
+ *     For the V3 upgraded path (Phase 5) this is '[START_SESSION]' with
+ *     the workflow instructions AND the retrieval orchestration instructions
+ *     appended as clearly delimited sections.
  *
  * ISOLATION GUARANTEE
  * -------------------
@@ -34,8 +38,8 @@
  *
  * SAFETY COMPATIBILITY
  * --------------------
- * The injected workflow instructions are additive context.  They do NOT
- * replace, weaken, or bypass the existing safety stack
+ * The injected workflow and retrieval instructions are additive context.
+ * They do NOT replace, weaken, or bypass the existing safety stack
  * (postLlmSafetyFilter, sanitizeAgentOutput, sanitizeConversation,
  * enhancedCrisisDetector, risk panel flow).  The instruction text itself
  * explicitly defers to the existing safety system when a safety signal is
@@ -44,15 +48,16 @@
  * WHAT THIS MODULE MUST NOT DO
  * ----------------------------
  * - Alter the default therapist path in any way
- * - Introduce retrieval, live sources, or external knowledge
+ * - Make live API calls or network requests
  * - Add session-write or session-tracking side effects
  * - Override existing crisis handling or risk-panel behavior
  * - Weaken any existing safety filter
  *
- * Source of truth: docs/therapist-upgrade-stage2-plan.md — Phase 3.1
+ * Source of truth: docs/therapist-upgrade-stage2-plan.md — Phase 3.1 / Phase 5
  */
 
 import { THERAPIST_WORKFLOW_INSTRUCTIONS } from './therapistWorkflowEngine.js';
+import { getRetrievalContextForWiring } from './retrievalOrchestrator.js';
 
 /**
  * Returns the workflow context instructions string when the supplied wiring
@@ -88,13 +93,29 @@ export function getWorkflowContextForWiring(wiring) {
  *   instructions arrive in the agent's context window on the first turn,
  *   making the upgraded workflow path real and verifiable.
  *
+ * Upgraded V3 path (Phase 5 — workflow_context_injection AND
+ * retrieval_orchestration_enabled both true):
+ *   Returns '[START_SESSION]' with both the workflow context instructions
+ *   AND the retrieval orchestration instructions appended as clearly
+ *   delimited sections.  The '[START_SESSION]' token and the workflow
+ *   section are identical to V2.  The retrieval section is the additive
+ *   Phase 5 contribution.
+ *
  * @param {object} wiring - The active therapist wiring config object
  * @returns {string} The session-start message content
  */
 export function buildSessionStartContent(wiring) {
+  let content = '[START_SESSION]';
+
   const workflowContext = getWorkflowContextForWiring(wiring);
-  if (!workflowContext) {
-    return '[START_SESSION]';
+  if (workflowContext) {
+    content += '\n\n' + workflowContext;
   }
-  return '[START_SESSION]\n\n' + workflowContext;
+
+  const retrievalContext = getRetrievalContextForWiring(wiring);
+  if (retrievalContext) {
+    content += '\n\n' + retrievalContext;
+  }
+
+  return content;
 }
