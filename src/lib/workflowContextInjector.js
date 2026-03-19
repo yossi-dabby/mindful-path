@@ -57,7 +57,8 @@
  */
 
 import { THERAPIST_WORKFLOW_INSTRUCTIONS } from './therapistWorkflowEngine.js';
-import { getRetrievalContextForWiring } from './retrievalOrchestrator.js';
+import { getRetrievalContextForWiring, buildBoundedContextPackage } from './retrievalOrchestrator.js';
+import { executeV3BoundedRetrieval } from './v3RetrievalExecutor.js';
 
 /**
  * Returns the workflow context instructions string when the supplied wiring
@@ -118,4 +119,81 @@ export function buildSessionStartContent(wiring) {
   }
 
   return content;
+}
+
+/**
+ * Builds the session-start message content for the V3 upgraded path,
+ * executing real bounded retrieval against app data and injecting a
+ * retrieved context package alongside the orchestration instructions.
+ *
+ * This is the Phase 5.1 completion of buildSessionStartContent for V3.
+ * It replaces the gap where V3 received only retrieval instructions (text)
+ * but no actual retrieved data.  After Phase 5.1, V3 receives both:
+ *   1. The orchestration instructions (from Phase 5 — unchanged)
+ *   2. A real bounded retrieved context package built from app data
+ *
+ * For all non-V3 wirings (HYBRID, V1, V2, null, undefined):
+ *   Returns exactly the same result as buildSessionStartContent(wiring).
+ *   No retrieval is executed.  Default path is completely unchanged.
+ *
+ * For V3 (retrieval_orchestration_enabled === true):
+ *   1. Builds the base session-start content (instructions + orchestration
+ *      instructions) as before.
+ *   2. Executes real bounded retrieval against app entity stores in the
+ *      required internal-first order (therapist_memory → session_context →
+ *      internal_knowledge → external_knowledge).
+ *   3. Builds a bounded context package from the retrieved items using
+ *      buildBoundedContextPackage() (same function as Phase 5 tests verify).
+ *   4. If the context package is non-empty, appends it to the session-start
+ *      content as a clearly delimited section.
+ *
+ * FAIL-OPEN CONTRACT
+ * ------------------
+ * If retrieval fails entirely (entities unavailable, network error, etc.),
+ * this function returns the base session-start content unchanged — the
+ * orchestration instructions remain present, but the retrieved context
+ * package is simply absent.  Session start is never blocked.
+ *
+ * @param {object} wiring   - The active therapist wiring config object
+ * @param {object} entities - Base44 entity client map (e.g. base44.entities)
+ * @returns {Promise<string>} The session-start message content
+ */
+export async function buildV3SessionStartContentAsync(wiring, entities) {
+  // Build the base content (same as the synchronous version)
+  const baseContent = buildSessionStartContent(wiring);
+
+  // Only V3 gets real retrieval execution — all other wirings are unchanged
+  if (!wiring || wiring.retrieval_orchestration_enabled !== true) {
+    return baseContent;
+  }
+
+  // Execute real bounded retrieval against app entity stores
+  let retrievalResult;
+  try {
+    retrievalResult = await executeV3BoundedRetrieval(entities ?? {});
+  } catch {
+    // Fail-open: retrieval execution failed — return base content without context package
+    return baseContent;
+  }
+
+  // Build the bounded context package from real retrieved items
+  let contextPackage;
+  try {
+    contextPackage = buildBoundedContextPackage(retrievalResult.items);
+  } catch {
+    // Fail-open: package assembly failed — return base content
+    return baseContent;
+  }
+
+  // Inject the real context package only if it contains actual data
+  if (!contextPackage || !contextPackage.trim()) {
+    return baseContent;
+  }
+
+  return (
+    baseContent +
+    '\n\n=== RETRIEVED CONTEXT ===\n' +
+    contextPackage +
+    '\n=== END RETRIEVED CONTEXT ==='
+  );
 }
