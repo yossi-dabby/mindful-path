@@ -381,3 +381,74 @@ export const AI_COMPANION_WIRING_HYBRID = {
     },
   ],
 };
+
+// ─── Stage 2 wiring configs (Phase 1 — not yet active) ───────────────────────
+
+/**
+ * Stage 2 V1 wiring for the CBT Therapist agent.
+ *
+ * Phase 1 — Structured Memory Layer.
+ *
+ * This config is additive: it extends CBT_THERAPIST_WIRING_HYBRID with the
+ * memory_context_injection flag.  The entity list is identical to the Hybrid
+ * config — no new entities are added to the agent's retrieval scope in Phase 1.
+ *
+ * The memory_context_injection flag signals to the session-start orchestrator
+ * that structured therapist memory should be retrieved
+ * (via retrieveTherapistMemory) and prepended to the session context.
+ * In Phase 1 this is inert — no automatic retrieval is wired to sessions yet.
+ *
+ * ACTIVATION
+ * ----------
+ * This config is NOT the active config.  It becomes reachable only when
+ * resolveTherapistWiring() returns it, which requires BOTH flags to be true:
+ *   - THERAPIST_UPGRADE_ENABLED (master gate)
+ *   - THERAPIST_UPGRADE_MEMORY_ENABLED (Phase 1 gate)
+ * Both default to false.  ACTIVE_CBT_THERAPIST_WIRING remains
+ * CBT_THERAPIST_WIRING_HYBRID until the flags are explicitly enabled.
+ *
+ * ROLLBACK
+ * --------
+ * Set THERAPIST_UPGRADE_ENABLED or THERAPIST_UPGRADE_MEMORY_ENABLED to false
+ * to revert to CBT_THERAPIST_WIRING_HYBRID with no other code changes.
+ *
+ * Source of truth: docs/therapist-upgrade-stage2-plan.md — Task 1.3
+ */
+export const CBT_THERAPIST_WIRING_STAGE2_V1 = {
+  name: 'cbt_therapist',
+  stage2: true,
+  stage2_phase: 1,
+  memory_context_injection: true,
+  tool_configs: [
+    // ── Step 1: Preferred entities (unchanged from Hybrid) ──
+    { entity_name: 'SessionSummary',  access_level: 'preferred',  source_order: 2 },
+    { entity_name: 'ThoughtJournal',  access_level: 'preferred',  source_order: 3 },
+    { entity_name: 'Goal',            access_level: 'preferred',  source_order: 4 },
+    { entity_name: 'CoachingSession', access_level: 'preferred',  source_order: 5 },
+    // ── Step 2: Allowed shared content pool (unchanged from Hybrid) ──
+    { entity_name: 'Exercise',        access_level: 'allowed',    source_order: 6 },
+    { entity_name: 'Resource',        access_level: 'allowed',    source_order: 7 },
+    { entity_name: 'AudioContent',    access_level: 'allowed',    source_order: 8 },
+    { entity_name: 'Journey',         access_level: 'allowed',    source_order: 9 },
+    // ── Step 3: Non-caution restricted entities (unchanged from Hybrid) ──
+    { entity_name: 'CompanionMemory', access_level: 'restricted', source_order: 10, read_only: true },
+    { entity_name: 'MoodEntry',       access_level: 'restricted', source_order: 11, calibration_only: true },
+    // ── Hybrid: Caution-layer entities (unchanged from Hybrid) ──
+    {
+      entity_name: 'CaseFormulation',
+      access_level: 'restricted',
+      source_order: 12,
+      read_only: true,
+      unrestricted: false,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    {
+      entity_name: 'Conversation',
+      access_level: 'restricted',
+      source_order: 13,
+      secondary_only: true,
+      caution_layer: true,
+    },
+  ],
+};

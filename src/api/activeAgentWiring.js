@@ -28,6 +28,7 @@
 import {
   CBT_THERAPIST_WIRING_HYBRID,
   AI_COMPANION_WIRING_HYBRID,
+  CBT_THERAPIST_WIRING_STAGE2_V1,
 } from './agentWiring.js';
 
 import {
@@ -66,20 +67,32 @@ import {
  * It is called at module initialisation so the flag is evaluated as part of
  * the normal app load sequence — not only in tests.
  *
- * At Phase 0.1 the function always returns CBT_THERAPIST_WIRING_HYBRID:
- *   - Flag off  → current path (identical to Phase 0)
- *   - Flag on   → current path (no upgraded wiring exists yet)
+ * Routing logic (evaluated in order):
+ *   1. Master gate off  → CBT_THERAPIST_WIRING_HYBRID (current default)
+ *   2. Master gate on, THERAPIST_UPGRADE_MEMORY_ENABLED on
+ *                       → CBT_THERAPIST_WIRING_STAGE2_V1 (Phase 1 memory layer)
+ *   3. Master gate on, no matching phase flag
+ *                       → CBT_THERAPIST_WIRING_HYBRID (fall-through to current default)
  *
- * Future phases will add the upgraded wiring branch inside the flag-on block.
- * The hook is safe to attach to without touching any other file.
+ * All flags default to false, so the current default path is always returned
+ * in production until the flags are explicitly enabled.
  *
  * @returns {object} The active CBT Therapist wiring configuration
  */
 export function resolveTherapistWiring() {
   if (isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')) {
-    // Flag is on — no upgraded path exists yet; fall through to current default.
-    // Future phases will introduce the upgraded wiring here.
-    logUpgradeEvent('route_selected', {
+    // ── Phase 1 — Structured memory layer ──────────────────────────────────
+    if (isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')) {
+      logUpgradeEvent('route_selected', {
+        flag: 'THERAPIST_UPGRADE_MEMORY_ENABLED',
+        path: 'stage2_v1',
+        phase: '1',
+      });
+      return CBT_THERAPIST_WIRING_STAGE2_V1;
+    }
+
+    // ── Master gate on, no phase flag matched — fall through to current default ──
+    logUpgradeEvent('route_not_selected', {
       flag: 'THERAPIST_UPGRADE_ENABLED',
       path: 'current_default_fallback',
       phase: '0.1',
