@@ -56,6 +56,25 @@ export const THERAPIST_MEMORY_VERSION_KEY = 'therapist_memory_version';
  */
 export const THERAPIST_MEMORY_VERSION = '1';
 
+// ─── CompanionMemory write constants ─────────────────────────────────────────
+
+/**
+ * The value written to the memory_type field of CompanionMemory when
+ * writeTherapistMemory creates a therapist session record.
+ *
+ * The CompanionMemory entity requires memory_type as a required field.
+ * 'therapist_session' identifies these records as therapist-generated
+ * clinical summaries and distinguishes them from companion-generated entries.
+ *
+ * NOTE: Therapist record identification at read time relies on the
+ * therapist_memory_version JSON marker inside the content field, NOT on
+ * memory_type alone.  memory_type is required by the schema and provides
+ * a secondary human-readable label.
+ *
+ * @type {string}
+ */
+export const THERAPIST_MEMORY_TYPE = 'therapist_session';
+
 // ─── Schema definition ────────────────────────────────────────────────────────
 
 /**
