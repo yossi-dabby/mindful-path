@@ -41,7 +41,7 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
    * to enable in a staging build without changing source code.
    * The value defaults to false when the variable is absent or any other value.
    */
-  THERAPIST_UPGRADE_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_ENABLED === 'true',
+  THERAPIST_UPGRADE_ENABLED: true, // TEMP: hardcoded for Step 1 validation — revert after confirming logs
 
   /**
    * Phase 1 — Structured therapist memory layer.
