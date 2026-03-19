@@ -382,7 +382,7 @@ export const AI_COMPANION_WIRING_HYBRID = {
   ],
 };
 
-// ─── Stage 2 wiring configs (Phase 1 — not yet active) ───────────────────────
+// ─── Stage 2 wiring configs (Phase 1 and Phase 3 — not yet active) ───────────
 
 /**
  * Stage 2 V1 wiring for the CBT Therapist agent.
@@ -434,6 +434,84 @@ export const CBT_THERAPIST_WIRING_STAGE2_V1 = {
     { entity_name: 'CompanionMemory', access_level: 'restricted', source_order: 10, read_only: true },
     { entity_name: 'MoodEntry',       access_level: 'restricted', source_order: 11, calibration_only: true },
     // ── Hybrid: Caution-layer entities (unchanged from Hybrid) ──
+    {
+      entity_name: 'CaseFormulation',
+      access_level: 'restricted',
+      source_order: 12,
+      read_only: true,
+      unrestricted: false,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    {
+      entity_name: 'Conversation',
+      access_level: 'restricted',
+      source_order: 13,
+      secondary_only: true,
+      caution_layer: true,
+    },
+  ],
+};
+
+// ─── Stage 2 V2 wiring config (Phase 3 — not yet active) ─────────────────────
+
+/**
+ * Stage 2 V2 wiring for the CBT Therapist agent.
+ *
+ * Phase 3 — Therapist Workflow Engine.
+ *
+ * This config extends CBT_THERAPIST_WIRING_STAGE2_V1 with workflow engine
+ * flags.  The entity list is identical to V1 (and HYBRID) — no new entities
+ * are added to the agent's retrieval scope in Phase 3.
+ *
+ * New flags:
+ *   workflow_engine_enabled      — signals Phase 3 workflow engine is active
+ *   workflow_context_injection   — signals that buildWorkflowContextInstructions()
+ *                                  should be appended to the session context by
+ *                                  the session-start orchestrator
+ *
+ * Both flags are inert in the current app layer — no orchestrator reads them
+ * automatically in Phase 3.  They exist as the wiring contract that a future
+ * session-start orchestrator will read to enable context injection.
+ *
+ * ACTIVATION
+ * ----------
+ * This config is NOT the active config.  It becomes reachable only when
+ * resolveTherapistWiring() returns it, which requires BOTH flags to be true:
+ *   - THERAPIST_UPGRADE_ENABLED (master gate)
+ *   - THERAPIST_UPGRADE_WORKFLOW_ENABLED (Phase 3 gate)
+ * Both default to false.  ACTIVE_CBT_THERAPIST_WIRING remains
+ * CBT_THERAPIST_WIRING_HYBRID until the flags are explicitly enabled.
+ *
+ * ROLLBACK
+ * --------
+ * Set THERAPIST_UPGRADE_ENABLED or THERAPIST_UPGRADE_WORKFLOW_ENABLED to
+ * false to revert to CBT_THERAPIST_WIRING_HYBRID with no other code changes.
+ *
+ * Source of truth: docs/therapist-upgrade-stage2-plan.md — Task 3.2
+ */
+export const CBT_THERAPIST_WIRING_STAGE2_V2 = {
+  name: 'cbt_therapist',
+  stage2: true,
+  stage2_phase: 3,
+  memory_context_injection: true,   // from V1 — structured memory layer
+  workflow_engine_enabled: true,    // Phase 3 — workflow engine active
+  workflow_context_injection: true, // Phase 3 — inject workflow instructions
+  tool_configs: [
+    // ── Step 1: Preferred entities (identical to V1 / Hybrid) ──
+    { entity_name: 'SessionSummary',  access_level: 'preferred',  source_order: 2 },
+    { entity_name: 'ThoughtJournal',  access_level: 'preferred',  source_order: 3 },
+    { entity_name: 'Goal',            access_level: 'preferred',  source_order: 4 },
+    { entity_name: 'CoachingSession', access_level: 'preferred',  source_order: 5 },
+    // ── Step 2: Allowed shared content pool (identical to V1 / Hybrid) ──
+    { entity_name: 'Exercise',        access_level: 'allowed',    source_order: 6 },
+    { entity_name: 'Resource',        access_level: 'allowed',    source_order: 7 },
+    { entity_name: 'AudioContent',    access_level: 'allowed',    source_order: 8 },
+    { entity_name: 'Journey',         access_level: 'allowed',    source_order: 9 },
+    // ── Step 3: Non-caution restricted entities (identical to V1 / Hybrid) ──
+    { entity_name: 'CompanionMemory', access_level: 'restricted', source_order: 10, read_only: true },
+    { entity_name: 'MoodEntry',       access_level: 'restricted', source_order: 11, calibration_only: true },
+    // ── Hybrid: Caution-layer entities (identical to V1 / Hybrid) ──
     {
       entity_name: 'CaseFormulation',
       access_level: 'restricted',
