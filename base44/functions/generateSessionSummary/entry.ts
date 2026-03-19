@@ -318,6 +318,7 @@ Deno.serve(async (req) => {
     // The version marker in the JSON allows retrieveTherapistMemory to
     // recognise this as a structured therapist memory record.
     const created = await base44.entities.CompanionMemory.create({
+      memory_type: 'therapist_session',
       content: JSON.stringify(record),
     });
 
