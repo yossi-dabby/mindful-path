@@ -606,7 +606,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const source = buildSourceRecord(approvedEntry as Record<string, unknown>, retrievalDate);
+    const source = buildSourceRecord(approvedEntry as Record<string, unknown>, retrievalDate, rawChunks.length);
     const chunks = buildChunkRecords(rawChunks, approvedEntry as Record<string, unknown>, retrievalDate);
 
     // ── Phase 4.1: Persist to app storage (live mode only) ────────────────
