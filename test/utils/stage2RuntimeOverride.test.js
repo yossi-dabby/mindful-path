@@ -1,7 +1,7 @@
 /**
  * @file test/utils/stage2RuntimeOverride.test.js
  *
- * Stage 2 Staging Runtime Override — Verification Tests
+ * Stage 2 Preview/Staging Runtime Override — Verification Tests
  *
  * PURPOSE
  * -------
@@ -10,25 +10,29 @@
  * env vars to be reliably propagated on every rebuild.
  *
  * The override reads the `_s2` URL query parameter (e.g. ?_s2=FLAG1,FLAG2) and
- * treats listed flag names as true — but ONLY in non-production builds.
- * Production builds (import.meta.env.PROD === true) are always fail-closed.
+ * treats listed flag names as true — but ONLY on explicitly recognised
+ * preview/staging hosts (localhost, 127.0.0.1, *.base44.app).
+ * All other hosts (including production custom domains) are always fail-closed.
+ *
+ * NOTE: The previous guard was `import.meta.env.PROD === true` which incorrectly
+ * blocked Base44 preview environments that also run production builds.  The guard
+ * is now host-based, not build-mode-based.
  *
  * WHAT THIS FILE TESTS
  * --------------------
- * Section 1 — Default behavior: no window → override returns nothing
- * Section 2 — Window present but no _s2 param → override returns nothing
- * Section 3 — Window present with _s2 param → recognised flags enabled
- * Section 4 — Unknown flag names in _s2 param are silently ignored
- * Section 5 — isUpgradeEnabled integrates with the URL override (end-to-end)
- * Section 6 — Master gate requirement is preserved via the URL override path
- * Section 7 — THERAPIST_UPGRADE_FLAGS is still frozen; URL override is additive only
- * Section 8 — Rollback: removing _s2 from URL re-disables the override
- * Section 9 — Existing build-time tests are unaffected (all flags false by default)
+ * Section 1  — Default behavior: no window → override returns nothing
+ * Section 2  — Window present but no _s2 param → override returns nothing
+ * Section 3  — Window present with _s2 param on preview host → flags enabled
+ * Section 4  — Unknown flag names in _s2 param are silently ignored
+ * Section 5  — isUpgradeEnabled integrates with the URL override (end-to-end)
+ * Section 6  — Master gate requirement is preserved via the URL override path
+ * Section 7  — THERAPIST_UPGRADE_FLAGS is still frozen; URL override is additive only
+ * Section 8  — Rollback: removing _s2 from URL re-disables the override
+ * Section 9  — Existing build-time tests are unaffected (all flags false by default)
+ * Section 10 — Host-based preview/staging detection
  *
  * WHAT THIS FILE DOES NOT TEST
  * ----------------------------
- * - Production build guard (import.meta.env.PROD cannot be set to true in this
- *   test environment — it is always false/undefined in Vitest)
  * - Any Stage 2 logic beyond flag gating
  * - Any upgrade behavior (upgrade path remains off unless URL override is active)
  */
@@ -42,10 +46,16 @@ import {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-/** Stubs window.location.search with the given query string for the duration of a test. */
-function withWindowSearch(search, fn) {
+/**
+ * Stubs window.location with the given search string and hostname for the
+ * duration of a test.  Defaults hostname to 'localhost' (a recognised
+ * preview/staging host) so that tests which focus on _s2 param logic are not
+ * inadvertently blocked by host detection.  Pass an explicit hostname to test
+ * host-specific behaviour.
+ */
+function withWindowSearch(search, fn, hostname = 'localhost') {
   vi.stubGlobal('window', {
-    location: { search },
+    location: { search, hostname },
   });
   try {
     return fn();
@@ -110,9 +120,9 @@ describe('Stage 2 Runtime Override — window present, no _s2 param', () => {
   });
 });
 
-// ─── Section 3 — Window with _s2 param: recognised flags enabled ─────────────
+// ─── Section 3 — Window with _s2 param on preview host: recognised flags enabled
 
-describe('Stage 2 Runtime Override — _s2 param enables recognised flags', () => {
+describe('Stage 2 Runtime Override — _s2 param enables recognised flags on preview host', () => {
   it('master flag is enabled when THERAPIST_UPGRADE_ENABLED is in _s2', () => {
     withWindowSearch('?_s2=THERAPIST_UPGRADE_ENABLED', () => {
       expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
@@ -320,5 +330,89 @@ describe('Stage 2 Runtime Override — existing build-time behavior is unchanged
     expect('false' === 'true').toBe(false);
     expect(undefined === 'true').toBe(false);
     expect('' === 'true').toBe(false);
+  });
+});
+
+// ─── Section 10 — Host-based preview/staging detection ───────────────────────
+//
+// Verifies that the _s2 override is governed by hostname, not by build mode,
+// allowing recognised preview/staging hosts to use the override while blocking
+// all other (production) hosts regardless of build mode.
+
+describe('Stage 2 Runtime Override — host-based preview/staging detection', () => {
+  it('_s2 override works on localhost (local dev)', () => {
+    withWindowSearch('?_s2=THERAPIST_UPGRADE_ENABLED', () => {
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
+    }, 'localhost');
+  });
+
+  it('_s2 override works on 127.0.0.1 (local CI)', () => {
+    withWindowSearch('?_s2=THERAPIST_UPGRADE_ENABLED', () => {
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
+    }, '127.0.0.1');
+  });
+
+  it('_s2 override works on a *.base44.app subdomain (Base44 preview host)', () => {
+    withWindowSearch('?_s2=THERAPIST_UPGRADE_ENABLED', () => {
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
+    }, 'myapp.base44.app');
+  });
+
+  it('_s2 override works on another *.base44.app subdomain (Base44 preview host)', () => {
+    withWindowSearch(
+      '?_s2=THERAPIST_UPGRADE_ENABLED,THERAPIST_UPGRADE_MEMORY_ENABLED',
+      () => {
+        expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
+        expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(true);
+      },
+      'preview-v2.base44.app',
+    );
+  });
+
+  it('_s2 override is blocked on a non-preview production host', () => {
+    withWindowSearch('?_s2=THERAPIST_UPGRADE_ENABLED', () => {
+      // A custom production domain must not honour the _s2 override.
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
+    }, 'app.example.com');
+  });
+
+  it('_s2 override is blocked on a production-looking host', () => {
+    withWindowSearch('?_s2=THERAPIST_UPGRADE_ENABLED', () => {
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
+    }, 'mindfulpath.io');
+  });
+
+  it('_s2 override is blocked when hostname is an empty string (fail-closed)', () => {
+    withWindowSearch('?_s2=THERAPIST_UPGRADE_ENABLED', () => {
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
+    }, '');
+  });
+
+  it('_s2 override is blocked when window.location has no hostname property (fail-closed)', () => {
+    // Stub window with location that has search but no hostname.
+    vi.stubGlobal('window', { location: { search: '?_s2=THERAPIST_UPGRADE_ENABLED' } });
+    try {
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('non-preview host still returns false even with valid _s2 and all flags', () => {
+    const allFlags = Object.keys(THERAPIST_UPGRADE_FLAGS).join(',');
+    withWindowSearch(`?_s2=${allFlags}`, () => {
+      for (const flag of Object.keys(THERAPIST_UPGRADE_FLAGS)) {
+        expect(
+          isUpgradeEnabled(flag),
+          `isUpgradeEnabled("${flag}") must be false on a production host`,
+        ).toBe(false);
+      }
+    }, 'production.myapp.com');
+  });
+
+  it('base44.app root domain is recognised as a preview/staging host', () => {
+    withWindowSearch('?_s2=THERAPIST_UPGRADE_ENABLED', () => {
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
+    }, 'base44.app');
   });
 });
