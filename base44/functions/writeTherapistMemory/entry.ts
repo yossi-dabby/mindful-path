@@ -151,8 +151,7 @@ function buildMemoryRecord(input: Record<string, unknown>): Record<string, unkno
 
 Deno.serve(async (req) => {
   // ── Gate: THERAPIST_UPGRADE_MEMORY_ENABLED must be 'true' ──────────────────
-  // FORCED VALIDATION STEP 2 — gate bypassed; revert after verification
-  const flagEnabled = true; // Deno.env.get(THERAPIST_MEMORY_FLAG_ENV) === 'true';
+  const flagEnabled = Deno.env.get(THERAPIST_MEMORY_FLAG_ENV) === 'true';
   if (!flagEnabled) {
     return Response.json(
       {
