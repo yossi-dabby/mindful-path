@@ -34,8 +34,13 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
    * Master upgrade gate.
    * When false, all per-phase flags are treated as false regardless of their
    * individual values. This is the single rollback switch for all of Stage 2.
+   *
+   * Staging enablement: set the environment variable
+   *   VITE_THERAPIST_UPGRADE_ENABLED=true
+   * to enable in a staging build without changing source code.
+   * The value defaults to false when the variable is absent or any other value.
    */
-  THERAPIST_UPGRADE_ENABLED: false,
+  THERAPIST_UPGRADE_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_ENABLED === 'true',
 
   /** Phase 1 — Structured therapist memory layer */
   THERAPIST_UPGRADE_MEMORY_ENABLED: false,

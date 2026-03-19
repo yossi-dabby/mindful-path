@@ -66,16 +66,20 @@ Language context: ${language === 'he' ? 'Hebrew (translate if needed)' : 'Englis
       }
     });
 
-    // Log all crisis detections
+    // Log all crisis detections — guarded against unavailable analytics in backend runtime
     if (response.is_crisis) {
-      base44.analytics.track({
-        eventName: 'crisis_detected_llm',
-        properties: {
-          severity: response.severity,
-          confidence: response.confidence,
-          reason: response.reason
-        }
-      });
+      try {
+        base44.analytics?.track({
+          eventName: 'crisis_detected_llm',
+          properties: {
+            severity: response.severity,
+            confidence: response.confidence,
+            reason: response.reason
+          }
+        });
+      } catch (_e) {
+        // Analytics unavailable in this runtime — fail safely without affecting crisis detection
+      }
     }
 
     return Response.json(response);
