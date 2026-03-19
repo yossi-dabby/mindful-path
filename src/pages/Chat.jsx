@@ -25,6 +25,7 @@ import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
 import { validateAgentOutput, sanitizeConversationMessages, parseCounters } from '../components/utils/validateAgentOutput.jsx';
 import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
+import { buildSessionStartContent } from '@/lib/workflowContextInjector.js';
 import { MOBILE_HEADER_HEIGHT } from '../components/layout/MobileHeader';
 import { BOTTOM_NAV_HEIGHT } from '../components/layout/BottomNav';
 
@@ -366,7 +367,7 @@ export default function Chat() {
                 setIsLoading(true);
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
-                  content: '[START_SESSION]'
+                  content: buildSessionStartContent(ACTIVE_CBT_THERAPIST_WIRING)
                 });
                 inFlightIntentRef.current = false;
               }, 100);
@@ -407,7 +408,7 @@ export default function Chat() {
                 setIsLoading(true);
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
-                  content: '[START_SESSION]'
+                  content: buildSessionStartContent(ACTIVE_CBT_THERAPIST_WIRING)
                 });
                 inFlightIntentRef.current = false;
               }, 100);
