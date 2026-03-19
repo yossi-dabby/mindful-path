@@ -221,6 +221,112 @@ export function isUpgradeEnabled(flagName) {
   return THERAPIST_UPGRADE_FLAGS[flagName] || stagingOverrides[flagName] === true;
 }
 
+// ─── Diagnostic surface (temporary — remove after Base44 preview investigation) ─
+
+/**
+ * Returns a diagnostic snapshot of the Stage 2 flag evaluation state.
+ *
+ * DIAGNOSTIC-ONLY — gated by `?_s2debug=true` in the URL.
+ * Returns null when the gate param is absent (fail-closed).
+ *
+ * Works on any host so the hostname itself is observable (helps diagnose
+ * why a host is not being recognised as a preview/staging host).
+ * Never mutates flag state or changes routing behaviour.
+ *
+ * Remove together with logStage2Diagnostics() after diagnosis is complete.
+ *
+ * @returns {{ hostname: string|null, search: string|null,
+ *             isPreviewStagingHost: boolean, parsedS2Flags: string[],
+ *             computedFlags: Record<string, boolean>,
+ *             masterGateOn: boolean, routeHint: string } | null}
+ */
+export function getStage2DiagnosticPayload() {
+  try {
+    if (typeof window === 'undefined') return null;
+
+    const search = window.location?.search ?? '';
+    const params = new URLSearchParams(search);
+    if (params.get('_s2debug') !== 'true') return null;
+
+    const hostname = window.location?.hostname ?? null;
+
+    // Parse _s2 flags (may be absent or empty).
+    const rawS2 = params.get('_s2') ?? '';
+    const parsedS2Flags = rawS2
+      ? rawS2.split(',').map(k => k.trim()).filter(Boolean)
+      : [];
+
+    // Evaluate every Stage 2 flag through the live isUpgradeEnabled() evaluator.
+    const computedFlags = {};
+    for (const flagName of Object.keys(THERAPIST_UPGRADE_FLAGS)) {
+      computedFlags[flagName] = isUpgradeEnabled(flagName);
+    }
+
+    const masterGateOn = computedFlags['THERAPIST_UPGRADE_ENABLED'] === true;
+
+    // Route hint — mirrors resolveTherapistWiring() logic without importing it.
+    let routeHint;
+    if (!masterGateOn) {
+      routeHint = 'HYBRID (master gate off)';
+    } else if (computedFlags['THERAPIST_UPGRADE_SAFETY_MODE_ENABLED']) {
+      routeHint = 'STAGE2_V5 (safety mode)';
+    } else if (computedFlags['THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED']) {
+      routeHint = 'STAGE2_V4 (live retrieval)';
+    } else if (computedFlags['THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED']) {
+      routeHint = 'STAGE2_V3 (retrieval orchestration)';
+    } else if (computedFlags['THERAPIST_UPGRADE_WORKFLOW_ENABLED']) {
+      routeHint = 'STAGE2_V2 (workflow engine)';
+    } else if (computedFlags['THERAPIST_UPGRADE_MEMORY_ENABLED']) {
+      routeHint = 'STAGE2_V1 (memory layer)';
+    } else {
+      routeHint = 'HYBRID (master gate on, no phase flag matched)';
+    }
+
+    return {
+      hostname,
+      search,
+      isPreviewStagingHost: _isPreviewStagingHost(hostname ?? ''),
+      parsedS2Flags,
+      computedFlags,
+      masterGateOn,
+      routeHint,
+    };
+  } catch (_e) {
+    // Diagnostics must never propagate errors.
+    return null;
+  }
+}
+
+/**
+ * Logs the Stage 2 diagnostic payload to the console when `?_s2debug=true`
+ * is present in the URL.  No-op otherwise (fail-closed).
+ *
+ * Called once at module load.  Safe to remove together with
+ * getStage2DiagnosticPayload() after diagnosis is complete.
+ */
+export function logStage2Diagnostics() {
+  try {
+    const p = getStage2DiagnosticPayload();
+    if (!p) return;
+    console.group('[S2 Diagnostics] Stage 2 flag evaluation report');
+    console.log('hostname            :', p.hostname);
+    console.log('search              :', p.search);
+    console.log('isPreviewStagingHost:', p.isPreviewStagingHost);
+    console.log('parsedS2Flags       :', p.parsedS2Flags);
+    console.log('computedFlags       :', p.computedFlags);
+    console.log('masterGateOn        :', p.masterGateOn);
+    console.log('routeHint           :', p.routeHint);
+    console.groupEnd();
+  } catch (_e) {
+    // Diagnostics must never break the app.
+  }
+}
+
+// Emit diagnostics at module load when _s2debug=true is in the URL.
+logStage2Diagnostics();
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 /**
  * Optional analytics tracker registered by the app at load time.
  * When set, logUpgradeEvent forwards events to the app's analytics pipeline
