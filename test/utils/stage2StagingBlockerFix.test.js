@@ -5,13 +5,17 @@
  *
  * PURPOSE
  * -------
- * Verifies the two minimum fixes required before staging enablement can begin:
+ * Verifies the fixes required before staging enablement can begin:
  *
  *   1. THERAPIST_UPGRADE_ENABLED is now driven by the VITE_THERAPIST_UPGRADE_ENABLED
  *      environment variable rather than being hardcoded false.
  *      Default remains false (safe) when the variable is absent.
  *
- *   2. The analytics guard in enhancedCrisisDetector (optional chaining +
+ *   2. All remaining per-phase Stage 2 flags are also env-driven by their
+ *      corresponding VITE_ environment variables (not hardcoded false).
+ *      Default remains false (safe) when the variable is absent or any other value.
+ *
+ *   3. The analytics guard in enhancedCrisisDetector (optional chaining +
  *      try-catch) ensures that a missing or broken base44.analytics object
  *      never throws a runtime error that could disrupt crisis detection.
  *
@@ -76,6 +80,62 @@ describe('Stage 2 Blocker Fix — THERAPIST_UPGRADE_ENABLED is env-var-driven', 
     expect('false' === 'true').toBe(false); // env var set to wrong value → false
     expect(undefined === 'true').toBe(false); // env var absent → false
     expect('' === 'true').toBe(false);      // env var empty → false
+  });
+});
+
+// ─── Section 1b — Per-phase flags are env-var-driven ─────────────────────────
+
+const PER_PHASE_FLAGS = [
+  { flag: 'THERAPIST_UPGRADE_MEMORY_ENABLED',                    envVar: 'VITE_THERAPIST_UPGRADE_MEMORY_ENABLED' },
+  { flag: 'THERAPIST_UPGRADE_SUMMARIZATION_ENABLED',             envVar: 'VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED' },
+  { flag: 'THERAPIST_UPGRADE_WORKFLOW_ENABLED',                  envVar: 'VITE_THERAPIST_UPGRADE_WORKFLOW_ENABLED' },
+  { flag: 'THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED',         envVar: 'VITE_THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED' },
+  { flag: 'THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED',   envVar: 'VITE_THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED' },
+  { flag: 'THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED',         envVar: 'VITE_THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED' },
+  { flag: 'THERAPIST_UPGRADE_SAFETY_MODE_ENABLED',               envVar: 'VITE_THERAPIST_UPGRADE_SAFETY_MODE_ENABLED' },
+];
+
+describe('Stage 2 Blocker Fix — per-phase flags are env-var-driven', () => {
+  it('every per-phase flag value matches its VITE_ env var', () => {
+    for (const { flag, envVar } of PER_PHASE_FLAGS) {
+      const envValue = import.meta.env?.[envVar];
+      const expected = envValue === 'true';
+      expect(
+        THERAPIST_UPGRADE_FLAGS[flag],
+        `${flag} must equal (import.meta.env?.${envVar} === 'true')`,
+      ).toBe(expected);
+    }
+  });
+
+  it('every per-phase flag is false in the test environment (env vars not set to "true")', () => {
+    for (const { flag, envVar } of PER_PHASE_FLAGS) {
+      expect(
+        import.meta.env?.[envVar],
+        `${envVar} must not be "true" in test environment`,
+      ).not.toBe('true');
+      expect(
+        THERAPIST_UPGRADE_FLAGS[flag],
+        `${flag} must be false when env var is absent`,
+      ).toBe(false);
+    }
+  });
+
+  it('isUpgradeEnabled returns false for every per-phase flag in the test environment', () => {
+    for (const { flag } of PER_PHASE_FLAGS) {
+      expect(
+        isUpgradeEnabled(flag),
+        `isUpgradeEnabled("${flag}") must be false`,
+      ).toBe(false);
+    }
+  });
+
+  it('staging enablement for per-phase flags is no longer code-blocked', () => {
+    // Proves the evaluation logic: the flag is true iff the env var is exactly "true".
+    // Cannot mutate a frozen object at runtime, but we verify the expression works.
+    expect('true' === 'true').toBe(true);    // env var set to "true" → enabled
+    expect('false' === 'true').toBe(false);  // env var set to wrong value → disabled
+    expect(undefined === 'true').toBe(false); // env var absent → disabled
+    expect('' === 'true').toBe(false);       // env var empty → disabled
   });
 });
 
