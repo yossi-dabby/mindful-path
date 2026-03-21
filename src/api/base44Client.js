@@ -11,3 +11,11 @@ export const base44 = createClient({
   serverUrl: '',
   requiresAuth: false
 });
+
+// Guard: if appId is missing, suppress analytics to prevent /api/apps/null/... requests
+if (!appId && base44.analytics) {
+  if (import.meta.env.DEV) {
+    console.warn('[base44] analytics.track suppressed: appId is not set');
+  }
+  base44.analytics.track = () => {};
+}
