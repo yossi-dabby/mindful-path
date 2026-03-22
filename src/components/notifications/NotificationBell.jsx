@@ -137,7 +137,12 @@ export default function NotificationBell() {
     refetchOnWindowFocus: false
   });
 
-  const unreadCount = notifications.filter((n) => !n.is_read).length;
+  const safeNotifications = Array.isArray(notifications) ? notifications : [];
+  if (import.meta.env.DEV && !Array.isArray(notifications)) {
+    console.warn('[NotificationBell] notifications is not an array:', typeof notifications, notifications);
+  }
+
+  const unreadCount = safeNotifications.filter((n) => !n.is_read).length;
 
   const markReadMutation = useMutation({
     mutationFn: (id) => base44.entities.AppNotification.update(id, { is_read: true }),
@@ -146,7 +151,7 @@ export default function NotificationBell() {
 
   const markAllReadMutation = useMutation({
     mutationFn: async () => {
-      const unread = notifications.filter((n) => !n.is_read);
+      const unread = safeNotifications.filter((n) => !n.is_read);
       await Promise.all(unread.map((n) => base44.entities.AppNotification.update(n.id, { is_read: true })));
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] })
@@ -221,7 +226,7 @@ export default function NotificationBell() {
 
           {/* List */}
           <div className="overflow-y-auto" style={{ maxHeight: '380px' }}>
-            {notifications.length === 0 ?
+            {safeNotifications.length === 0 ?
         <div className="flex flex-col items-center justify-center py-12 text-center px-6">
                 <div className="w-12 h-12 rounded-[var(--radius-control)] bg-secondary flex items-center justify-center mb-3">
                   <Bell className="w-6 h-6 text-primary" />
@@ -232,7 +237,7 @@ export default function NotificationBell() {
 
         <div className="p-2 space-y-1">
                 <AnimatePresence>
-                  {notifications.map((n) =>
+                  {safeNotifications.map((n) =>
             <NotificationItem
               key={n.id}
               notification={n}
