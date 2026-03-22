@@ -25,6 +25,30 @@ if (!appId) {
 }
 
 // ---------------------------------------------------------------------------
+// Override auth.redirectToLogin to include app_id in the redirect URL.
+//
+// The SDK's redirectToLogin() builds the URL as:
+//   https://base44.app/login?from_url=<url>
+// — without app_id — so Base44 cannot identify which app to authenticate
+// for and returns "App not found".
+// We override it here to append &app_id=<appId> so the Base44 platform
+// can resolve the app context correctly on every login redirect.
+// ---------------------------------------------------------------------------
+if (appId) {
+  base44.auth.redirectToLogin = (nextUrl) => {
+    if (typeof window === 'undefined') return;
+    const redirectUrl = nextUrl
+      ? new URL(nextUrl, window.location.origin).toString()
+      : window.location.href;
+    const loginUrl =
+      `https://base44.app/login` +
+      `?from_url=${encodeURIComponent(redirectUrl)}` +
+      `&app_id=${encodeURIComponent(appId)}`;
+    window.location.href = loginUrl;
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Override auth.updateMe to use PATCH instead of PUT.
 //
 // The Base44 server returns HTTP 405 Method Not Allowed for PUT requests on
