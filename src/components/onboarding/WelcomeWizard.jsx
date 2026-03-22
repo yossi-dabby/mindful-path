@@ -27,11 +27,11 @@ export default function WelcomeWizard({ onComplete }) {
   });
   const queryClient = useQueryClient();
 
+  const [setupError, setSetupError] = useState(null);
+
   const completeMutation = useMutation({
     mutationFn: async (data) => {
-      const user = await base44.auth.me();
       await base44.auth.updateMe({
-        ...user,
         onboarding_completed: true,
         focus_areas: data.focus_areas,
         onboarding_goals: data.goals,
@@ -39,8 +39,21 @@ export default function WelcomeWizard({ onComplete }) {
       });
     },
     onSuccess: () => {
+      try {
+        const prev = JSON.parse(sessionStorage.getItem('user_prefs_loaded') || '{}');
+        sessionStorage.setItem('user_prefs_loaded', JSON.stringify({
+          ...prev,
+          onboarding_completed: true
+        }));
+      } catch {
+        // sessionStorage may be unavailable (private browsing); non-critical
+      }
       queryClient.invalidateQueries({ queryKey: ['currentUser'] });
       onComplete();
+    },
+    onError: (error) => {
+      console.error('Setup completion failed:', error);
+      setSetupError('Setup could not be saved. Please try again.');
     }
   });
 
@@ -61,6 +74,7 @@ export default function WelcomeWizard({ onComplete }) {
   };
 
   const handleComplete = () => {
+    setSetupError(null);
     completeMutation.mutate(formData);
   };
 
@@ -227,6 +241,9 @@ export default function WelcomeWizard({ onComplete }) {
                       ))}
                     </div>
 
+                    {setupError && (
+                      <p className="text-red-600 text-sm text-center mb-2">{setupError}</p>
+                    )}
                     <div className="flex gap-3">
                       <Button
                         variant="outline"
