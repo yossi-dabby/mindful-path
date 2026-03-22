@@ -23,7 +23,7 @@ const getAppParamValue = (paramName, { defaultValue = undefined, removeFromUrl =
 		storage.setItem(storageKey, searchParam);
 		return searchParam;
 	}
-	if (defaultValue) {
+	if (defaultValue !== undefined) {
 		storage.setItem(storageKey, defaultValue);
 		return defaultValue;
 	}
@@ -50,6 +50,16 @@ const getAppParams = () => {
 }
 
 
+const _params = getAppParams();
+
+if (import.meta.env.DEV && !_params.appId) {
+	console.warn(
+		'[app-params] appId resolved to null/empty. ' +
+		'Ensure VITE_BASE44_APP_ID is set at build time. ' +
+		'API requests will target /api/apps/null/... and will fail.'
+	);
+}
+
 export const appParams = {
-	...getAppParams()
+	..._params
 }
