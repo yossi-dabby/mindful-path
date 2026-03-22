@@ -21,13 +21,6 @@ export const base44 = createClient({
   appBaseUrl: 'https://base44.app',
 });
 
-// Prevent /api/apps/null/analytics/track/batch requests when appId is missing or falsy.
-// cleanup() stops the heartbeat processor and the internal batch flush loop.
-if (!appId) {
-  base44.analytics.cleanup();
-  base44.analytics = { track: () => {}, cleanup: () => {} };
-}
-
 // ---------------------------------------------------------------------------
 // Override auth.redirectToLogin to include app_id in the redirect URL.
 //
@@ -35,22 +28,20 @@ if (!appId) {
 //   https://base44.app/login?from_url=<url>
 // — without app_id — so Base44 cannot identify which app to authenticate
 // for and returns "App not found".
-// We override it here to append &app_id=<appId> so the Base44 platform
+// We override it here to append &app_id=<APP_ID> so the Base44 platform
 // can resolve the app context correctly on every login redirect.
 // ---------------------------------------------------------------------------
-if (appId) {
-  base44.auth.redirectToLogin = (nextUrl) => {
-    if (typeof window === 'undefined') return;
-    const redirectUrl = nextUrl
-      ? new URL(nextUrl, window.location.origin).toString()
-      : window.location.href;
-    const loginUrl =
-      `https://base44.app/login` +
-      `?from_url=${encodeURIComponent(redirectUrl)}` +
-      `&app_id=${encodeURIComponent(appId)}`;
-    window.location.href = loginUrl;
-  };
-}
+base44.auth.redirectToLogin = (nextUrl) => {
+  if (typeof window === 'undefined') return;
+  const redirectUrl = nextUrl
+    ? new URL(nextUrl, window.location.origin).toString()
+    : window.location.href;
+  const loginUrl =
+    `https://base44.app/login` +
+    `?from_url=${encodeURIComponent(redirectUrl)}` +
+    `&app_id=${encodeURIComponent(APP_ID)}`;
+  window.location.href = loginUrl;
+};
 
 // ---------------------------------------------------------------------------
 // Override auth.updateMe to use PATCH instead of PUT.
@@ -61,38 +52,36 @@ if (appId) {
 // replace the method here so every caller (WelcomeWizard, Settings, etc.)
 // benefits from the fix without any call-site changes.
 // ---------------------------------------------------------------------------
-if (appId) {
-  base44.auth.updateMe = async (data) => {
-    const token =
-      typeof window !== 'undefined'
-        ? (window.localStorage?.getItem('base44_access_token') ?? null)
-        : null;
+base44.auth.updateMe = async (data) => {
+  const token =
+    typeof window !== 'undefined'
+      ? (window.localStorage?.getItem('base44_access_token') ?? null)
+      : null;
 
-    const res = await fetch(`/api/apps/${encodeURIComponent(appId)}/entities/User/me`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify(data),
-    });
+  const res = await fetch(`/api/apps/${encodeURIComponent(APP_ID)}/entities/User/me`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(data),
+  });
 
-    if (!res.ok) {
-      const errData = await res.json().catch(() => ({}));
-      const msg =
-        errData.message || errData.detail || `Request failed with status code ${res.status}`;
-      const err = new Error(msg);
-      err.name = 'Base44Error';
-      err.status = res.status;
-      err.code = errData.code;
-      err.data = errData;
-      throw err;
-    }
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    const msg =
+      errData.message || errData.detail || `Request failed with status code ${res.status}`;
+    const err = new Error(msg);
+    err.name = 'Base44Error';
+    err.status = res.status;
+    err.code = errData.code;
+    err.data = errData;
+    throw err;
+  }
 
-    return res.json();
-  };
-}
+  return res.json();
+};
 
 // ---------------------------------------------------------------------------
 // Shared entity-response normalization
