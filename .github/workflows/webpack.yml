@@ -30,9 +30,13 @@ jobs:
       
       - name: Build application
         run: npm run build
+        env:
+          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID }}
       
       - name: Start preview server
         run: nohup npm run preview > preview-server.log 2>&1 &
+        env:
+          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID }}
       
       - name: Wait for server
         run: npx wait-on http://localhost:4173 --timeout 60000
