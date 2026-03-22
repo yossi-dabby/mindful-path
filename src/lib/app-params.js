@@ -61,17 +61,6 @@ const getAppParams = () => {
 	}
 }
 
-
-const _params = getAppParams();
-
-if (import.meta.env.DEV && !_params.appId) {
-	console.warn(
-		'[app-params] appId resolved to null/empty. ' +
-		'Ensure VITE_BASE44_APP_ID is set at build time. ' +
-		'API requests will target /api/apps/null/... and will fail.'
-	);
-}
-
 export const appParams = {
-	..._params
+	...getAppParams()
 }
