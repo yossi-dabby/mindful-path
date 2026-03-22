@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
 import { X, Image as ImageIcon, Mic, Trash2, Plus, Sparkles, Brain, Lightbulb, Target, Loader2, Link2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ReactQuill from 'react-quill';
