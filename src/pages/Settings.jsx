@@ -424,12 +424,12 @@ export default function Settings() {
             {t('settings.account.logout')}
           </Button>
           
-          <div className="rounded-2xl border border-red-200 bg-red-50/70 p-4">
-            <h3 className="text-sm font-semibold text-red-900">Delete Account & Data</h3>
-            <p className="mt-1 text-sm text-red-800">This runs a full cleanup of your personal data before removing your account.</p>
-            <div className="mt-4">
-              <DeleteAccountFlow userRole={user.role} />
+          <div className="rounded-2xl border border-red-200 bg-red-50/70 p-4 space-y-3">
+            <div>
+              <h3 className="text-sm font-semibold text-red-900">Delete Account &amp; Data</h3>
+              <p className="mt-1 text-xs text-red-700">Permanently removes your account and all personal data. This cannot be undone.</p>
             </div>
+            <DeleteAccountFlow userRole={user.role} />
           </div>
         </CardContent>
       </Card>
