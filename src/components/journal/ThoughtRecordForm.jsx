@@ -790,22 +790,16 @@ Provide:
                     <Link2 className="w-4 h-4" />
                     Link to Goal (optional)
                   </label>
-                  <Select
+                  <BottomSheetSelect
                     value={formData.linked_goal_id || 'none'}
                     onValueChange={(value) => setFormData({ ...formData, linked_goal_id: value === 'none' ? null : value })}
-                  >
-                    <SelectTrigger className="rounded-xl">
-                      <SelectValue placeholder="No goal linked" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">No goal linked</SelectItem>
-                      {goals.map((goal) => (
-                        <SelectItem key={goal.id} value={goal.id}>
-                          {goal.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={[
+                      { value: 'none', label: 'No goal linked' },
+                      ...goals.map((goal) => ({ value: goal.id, label: goal.title }))
+                    ]}
+                    placeholder="No goal linked"
+                    title="Link to a Goal"
+                  />
                   <p className="text-xs text-muted-foreground mt-1">
                     Connect this entry to a goal for context and tracking
                   </p>
