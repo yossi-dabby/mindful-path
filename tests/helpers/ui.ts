@@ -82,6 +82,16 @@ export async function mockApi(page: Page) {
       return;
     }
 
+    // app-logs (e.g. /api/app-logs/<appId>/log-user-in-app/<page>)
+    if (url.includes('/app-logs/')) {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: true }),
+      });
+      return;
+    }
+
     // public settings by id (often called with null during tests)
     if (url.includes('/public-settings/by-id/')) {
       await route.fulfill({

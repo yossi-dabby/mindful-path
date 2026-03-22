@@ -39,7 +39,9 @@ const getAppParams = () => {
 		storage.removeItem('base44_access_token');
 		storage.removeItem('token');
 	}
-	const envAppId = import.meta.env.VITE_BASE44_APP_ID || import.meta.env.BASE44_APP_ID;
+	// __TEST_APP_ID__ may be injected by Playwright addInitScript to prevent
+	// undefined from propagating into API URLs when no env var is present.
+	const envAppId = (!isNode && windowObj.__TEST_APP_ID__) || import.meta.env.VITE_BASE44_APP_ID || import.meta.env.BASE44_APP_ID;
 	const envFunctionsVersion = import.meta.env.VITE_BASE44_FUNCTIONS_VERSION || import.meta.env.BASE44_FUNCTIONS_VERSION;
 	return {
 		appId: getAppParamValue("app_id", { defaultValue: envAppId }),
