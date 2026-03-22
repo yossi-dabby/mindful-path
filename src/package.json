@@ -21,7 +21,8 @@
     "android:build": "npm run build && npx cap sync android",
     "android:open": "npx cap open android",
     "android:run": "npx cap run android",
-    "inventory:lucide": "node scripts/inventory-lucide-icons.mjs"
+    "inventory:lucide": "node scripts/inventory-lucide-icons.mjs",
+    "start": "serve dist --single --listen 3000"
   },
   "dependencies": {
     "@base44/sdk": "^0.8.0",
@@ -97,6 +98,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "serve": "^14.2.4",
     "@capacitor/cli": "^8.1.0",
     "@eslint/js": "^9.19.0",
     "@playwright/test": "^1.49.1",
