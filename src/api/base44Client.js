@@ -13,24 +13,35 @@ export const base44 = createClient({
   requiresAuth: false
 });
 
-// Wrap entity collection methods so callers always receive a plain array,
-// even when the SDK returns a paginated envelope { count, results: [...] }.
-const _entityProxy = new Proxy(base44.entities, {
-  get(target, entityName) {
-    const entity = target[entityName];
-    if (!entity || typeof entity !== 'object') return entity;
-    return new Proxy(entity, {
-      get(eTarget, method) {
-        if (method === 'list' || method === 'filter') {
-          const original = eTarget[method];
-          if (typeof original === 'function') {
-            return (...args) => original.apply(eTarget, args).then(normalizeEntityList);
-          }
-        }
-        return eTarget[method];
-      }
+// Prevent /api/apps/null/analytics/track/batch requests when appId is missing or falsy.
+// cleanup() stops the heartbeat processor and the internal batch flush loop.
+if (!appId) {
+  base44.analytics.cleanup();
+  base44.analytics = { track: () => {}, cleanup: () => {} };
+}
+
+// ---------------------------------------------------------------------------
+// Shared entity-response normalization
+//
+// Wrap every entity's .list() and .filter() methods so that paginated
+// envelopes ({ count, results }) are transparently converted to bare arrays.
+// All other entity methods (create, update, delete, get, …) are untouched.
+// See src/lib/entityListNormalizer.js for the normalizer logic and rationale.
+// ---------------------------------------------------------------------------
+try {
+  const entities = base44.entities;
+  if (entities && typeof entities === 'object') {
+    Object.keys(entities).forEach((entityName) => {
+      const entity = entities[entityName];
+      if (!entity || typeof entity !== 'object') return;
+      ['list', 'filter'].forEach((method) => {
+        const original = entity[method];
+        if (typeof original !== 'function') return;
+        entity[method] = (...args) =>
+          Promise.resolve(original.apply(entity, args)).then(normalizeEntityList);
+      });
     });
   }
-});
-
-base44.entities = _entityProxy;
+} catch (_) {
+  // Normalization patching is best-effort — never crash client initialization.
+}
