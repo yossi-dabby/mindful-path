@@ -306,7 +306,7 @@ export default function Settings() {
                 className={`p-4 rounded-xl border-2 transition-all ${
                   dashboardLayout === 'default'
                     ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300'
+                    : 'border-gray-200 active:border-gray-300 active:bg-gray-50'
                 }`}
               >
                 <h3 className="font-semibold text-gray-800 mb-1">{t('settings.dashboard_layout.default_title')}</h3>
@@ -317,7 +317,7 @@ export default function Settings() {
                 className={`p-4 rounded-xl border-2 transition-all ${
                   dashboardLayout === 'compact'
                     ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300'
+                    : 'border-gray-200 active:border-gray-300 active:bg-gray-50'
                 }`}
               >
                 <h3 className="font-semibold text-gray-800 mb-1">{t('settings.dashboard_layout.compact_title')}</h3>
@@ -418,7 +418,7 @@ export default function Settings() {
           <Button
             onClick={handleLogout}
             variant="outline"
-            className="w-full rounded-xl border-gray-300 text-gray-700 hover:bg-gray-50"
+            className="w-full rounded-xl border-gray-300 text-gray-700 active:bg-gray-100"
           >
             <LogOut className="w-4 h-4 mr-2" />
             {t('settings.account.logout')}
