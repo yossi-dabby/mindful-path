@@ -1233,7 +1233,10 @@ export default function Chat() {
 
     // Run retention cleanup on app start (non-blocking)
     (async () => {
-      if (!appParams.appId) return;
+      if (!appParams.appId) {
+        if (import.meta.env.DEV) console.warn('[Chat] Skipping retention cleanup: appId is missing (VITE_BASE44_APP_ID not set?)');
+        return;
+      }
       try {
         const lastCleanup = localStorage.getItem('last_retention_cleanup');
         const now = Date.now();

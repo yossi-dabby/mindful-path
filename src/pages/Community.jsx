@@ -122,8 +122,12 @@ export default function Community() {
     }
   });
 
-  const myGroupIds = memberships.map((m) => m.group_id);
-  const filteredPosts = forumPosts.filter((post) =>
+  const safeMemberships = Array.isArray(memberships) ? memberships : [];
+  const safeGroups = Array.isArray(groups) ? groups : [];
+  const safeForumPosts = Array.isArray(forumPosts) ? forumPosts : [];
+  const safeSharedProgress = Array.isArray(sharedProgress) ? sharedProgress : [];
+  const myGroupIds = safeMemberships.map((m) => m.group_id);
+  const filteredPosts = safeForumPosts.filter((post) =>
   !searchQuery ||
   (post.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
   (post.content || '').toLowerCase().includes(searchQuery.toLowerCase())
@@ -144,7 +148,7 @@ export default function Community() {
           <CardContent className="text-teal-600 p-4 flex items-center gap-3">
             <MessageSquare className="text-teal-600 lucide lucide-message-square w-8 h-8" />
             <div>
-              <p className="text-teal-600 text-2xl font-bold">{forumPosts.length}</p>
+              <p className="text-teal-600 text-2xl font-bold">{safeForumPosts.length}</p>
               <p className="text-teal-600 text-sm font-medium">{t('community.stats.forum_posts')}</p>
             </div>
           </CardContent>
@@ -153,7 +157,7 @@ export default function Community() {
           <CardContent className="p-4 flex items-center gap-3">
             <Users className="text-emerald-600 lucide lucide-users w-8 h-8" />
             <div>
-              <p className="text-emerald-600 text-2xl font-bold">{groups.length}</p>
+              <p className="text-emerald-600 text-2xl font-bold">{safeGroups.length}</p>
               <p className="text-emerald-600 text-sm font-medium">{t('community.stats.active_groups')}</p>
             </div>
           </CardContent>
@@ -162,7 +166,7 @@ export default function Community() {
           <CardContent className="p-4 flex items-center gap-3">
             <TrendingUp className="text-green-600 lucide lucide-trending-up w-8 h-8" />
             <div>
-              <p className="text-green-600 text-2xl font-bold">{sharedProgress.length}</p>
+              <p className="text-green-600 text-2xl font-bold">{safeSharedProgress.length}</p>
               <p className="text-green-600 text-sm font-medium">{t('community.stats.success_stories')}</p>
             </div>
           </CardContent>
@@ -248,11 +252,11 @@ export default function Community() {
         {/* Groups Tab */}
         <TabsContent value="groups">
           <div className="space-y-4">
-            {memberships.length > 0 &&
+            {safeMemberships.length > 0 &&
               <div>
                 <h3 className="font-semibold text-foreground mb-3">{t('community.your_groups')}</h3>
                 <div className="space-y-3 mb-6">
-                  {groups.filter((g) => myGroupIds.includes(g.id)).map((group) =>
+                  {safeGroups.filter((g) => myGroupIds.includes(g.id)).map((group) =>
                   <GroupCard
                     key={group.id}
                     group={group}
@@ -273,7 +277,7 @@ export default function Community() {
                     <p className="text-muted-foreground">{t('community.loading.groups')}</p>
                   </CardContent>
                 </Card> :
-                groups.filter((g) => !myGroupIds.includes(g.id)).length === 0 ?
+                safeGroups.filter((g) => !myGroupIds.includes(g.id)).length === 0 ?
                 <Card className="surface-secondary rounded-[var(--radius-card)] border-border/70 shadow-[var(--shadow-md)]">
                   <CardContent className="bg-teal-50 p-12 text-center">
                     <Users className="text-teal-600 mb-3 mx-auto lucide lucide-users w-16 h-16" />
@@ -286,7 +290,7 @@ export default function Community() {
                 </Card> :
 
                 <div className="space-y-3">
-                  {groups.filter((g) => !myGroupIds.includes(g.id)).map((group) =>
+                  {safeGroups.filter((g) => !myGroupIds.includes(g.id)).map((group) =>
                   <GroupCard
                     key={group.id}
                     group={group}
@@ -304,7 +308,7 @@ export default function Community() {
         {/* Progress Tab */}
         <TabsContent value="progress">
           <div className="space-y-4">
-            {sharedProgress.length === 0 ?
+            {safeSharedProgress.length === 0 ?
               <Card className="surface-secondary rounded-[var(--radius-card)] border-border/70 shadow-[var(--shadow-md)]">
                 <CardContent className="p-12 text-center">
                   <TrendingUp className="text-teal-700 mb-3 mx-auto lucide lucide-trending-up w-16 h-16" />
@@ -317,7 +321,7 @@ export default function Community() {
               </Card> :
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {sharedProgress.map((progress) =>
+                {safeSharedProgress.map((progress) =>
                 <Card key={progress.id} className="surface-primary rounded-[var(--radius-card)] border-border/70 hover:shadow-[var(--shadow-lg)] transition-shadow">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-2">
