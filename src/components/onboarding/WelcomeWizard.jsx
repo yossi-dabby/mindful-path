@@ -29,9 +29,7 @@ export default function WelcomeWizard({ onComplete }) {
 
   const completeMutation = useMutation({
     mutationFn: async (data) => {
-      const user = await base44.auth.me();
       await base44.auth.updateMe({
-        ...user,
         onboarding_completed: true,
         focus_areas: data.focus_areas,
         onboarding_goals: data.goals,
@@ -39,8 +37,17 @@ export default function WelcomeWizard({ onComplete }) {
       });
     },
     onSuccess: () => {
+      try {
+        const prev = JSON.parse(sessionStorage.getItem('user_prefs_loaded') || '{}');
+        sessionStorage.setItem('user_prefs_loaded', JSON.stringify({ ...prev, onboarding_completed: true }));
+      } catch (_) {
+        // Best-effort cache update — failure here does not affect the completion flow.
+      }
       queryClient.invalidateQueries({ queryKey: ['currentUser'] });
       onComplete();
+    },
+    onError: (error) => {
+      console.error('[WelcomeWizard] Setup completion failed:', error);
     }
   });
 
@@ -227,6 +234,11 @@ export default function WelcomeWizard({ onComplete }) {
                       ))}
                     </div>
 
+                    {completeMutation.isError && (
+                      <p className="text-sm text-red-500 text-center mb-2">
+                        Setup failed. Please try again.
+                      </p>
+                    )}
                     <div className="flex gap-3">
                       <Button
                         variant="outline"

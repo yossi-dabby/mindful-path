@@ -1,25 +1,39 @@
 /**
- * Normalizes a response from a Base44 entity list/filter call to always return
- * a plain array, regardless of whether the SDK returned:
- *   - a bare array  →  returned as-is
- *   - a paginated envelope { count, results: [...] }  →  results extracted
- *   - anything else (null, undefined, unexpected shape)  →  empty array
+ * entityListNormalizer.js
  *
- * This prevents "white screen" crashes on pages that call .filter()/.map()
- * directly on what they assume is an array.
+ * Shared utility for normalizing Base44 entity list/filter API responses.
+ *
+ * Root cause: when VITE_BASE44_APP_ID is missing at build time, requests are
+ * sent to /api/apps/null/... which can return paginated envelopes
+ * { count: N, results: [...] } instead of bare arrays.  Pages that call
+ * .filter() on the response then crash at runtime.
+ *
+ * Usage: imported by base44Client.js to patch entity list/filter methods.
  */
-export function normalizeEntityList(payload) {
-	if (Array.isArray(payload)) {
-		return payload;
-	}
-	if (payload && typeof payload === 'object' && Array.isArray(payload.results)) {
-		return payload.results;
-	}
-	if (import.meta.env.DEV && payload !== undefined && payload !== null) {
-		console.warn(
-			'[entityListNormalizer] Unexpected list response shape; returning []. Received:',
-			payload
-		);
-	}
-	return [];
+
+/**
+ * Converts a Base44 entity list/filter response to a bare array.
+ *
+ * @param {*} data - Raw response from entity.list() or entity.filter()
+ * @returns {Array} Always returns an array — never null/undefined/object.
+ */
+export function normalizeEntityList(data) {
+  // Happy path: already a bare array.
+  if (Array.isArray(data)) return data;
+
+  // Paginated envelope: { count: N, results: [...] }
+  if (data !== null && typeof data === 'object' && Array.isArray(data.results)) {
+    return data.results;
+  }
+
+  // Unexpected shape — warn in development so the root cause is obvious.
+  if (import.meta.env?.DEV && data !== undefined && data !== null) {
+    console.warn(
+      '[entityListNormalizer] Unexpected entity list response shape; returning []:',
+      typeof data,
+      data
+    );
+  }
+
+  return [];
 }
