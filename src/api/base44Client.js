@@ -6,7 +6,7 @@ const { appId, token, functionsVersion } = appParams;
 
 //Create a client with authentication required
 export const base44 = createClient({
-  appId,
+  appId: appId || undefined,
   token,
   functionsVersion,
   serverUrl: '',

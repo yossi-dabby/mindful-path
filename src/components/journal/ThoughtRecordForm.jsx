@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
 import { X, Image as ImageIcon, Mic, Trash2, Plus, Sparkles, Brain, Lightbulb, Target, Loader2, Link2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ReactQuill from 'react-quill';
@@ -378,11 +378,11 @@ Provide:
                   <label className="text-sm font-medium text-foreground mb-2 block">
                     Choose a Template (Optional)
                   </label>
-                  <Select
+                  <BottomSheetSelect
                     value={selectedTemplate?.id || 'none'}
                     onValueChange={(value) => {
                       const tmpl = templates.find(t => t.id === value);
-                      setSelectedTemplate(tmpl);
+                      setSelectedTemplate(tmpl || null);
                       if (tmpl) {
                         setFormData({
                           ...formData,
@@ -392,19 +392,13 @@ Provide:
                         });
                       }
                     }}
-                  >
-                    <SelectTrigger className="rounded-xl">
-                      <SelectValue placeholder="Standard CBT Format" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">Standard CBT Format</SelectItem>
-                      {templates.map((tmpl) => (
-                        <SelectItem key={tmpl.id} value={tmpl.id}>
-                          {tmpl.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={[
+                      { value: 'none', label: 'Standard CBT Format' },
+                      ...templates.map((tmpl) => ({ value: tmpl.id, label: tmpl.name }))
+                    ]}
+                    placeholder="Standard CBT Format"
+                    title="Choose a Template"
+                  />
                 </div>
               )}
 
@@ -796,22 +790,16 @@ Provide:
                     <Link2 className="w-4 h-4" />
                     Link to Goal (optional)
                   </label>
-                  <Select
+                  <BottomSheetSelect
                     value={formData.linked_goal_id || 'none'}
                     onValueChange={(value) => setFormData({ ...formData, linked_goal_id: value === 'none' ? null : value })}
-                  >
-                    <SelectTrigger className="rounded-xl">
-                      <SelectValue placeholder="No goal linked" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">No goal linked</SelectItem>
-                      {goals.map((goal) => (
-                        <SelectItem key={goal.id} value={goal.id}>
-                          {goal.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={[
+                      { value: 'none', label: 'No goal linked' },
+                      ...goals.map((goal) => ({ value: goal.id, label: goal.title }))
+                    ]}
+                    placeholder="No goal linked"
+                    title="Link to a Goal"
+                  />
                   <p className="text-xs text-muted-foreground mt-1">
                     Connect this entry to a goal for context and tracking
                   </p>

@@ -23,7 +23,7 @@ const getAppParamValue = (paramName, { defaultValue = undefined, removeFromUrl =
 		storage.setItem(storageKey, searchParam);
 		return searchParam;
 	}
-	if (defaultValue) {
+	if (defaultValue !== undefined) {
 		storage.setItem(storageKey, defaultValue);
 		return defaultValue;
 	}
@@ -60,7 +60,6 @@ const getAppParams = () => {
 		functionsVersion: getAppParamValue("functions_version", { defaultValue: envFunctionsVersion }),
 	}
 }
-
 
 export const appParams = {
 	...getAppParams()
