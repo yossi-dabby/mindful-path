@@ -378,11 +378,11 @@ Provide:
                   <label className="text-sm font-medium text-foreground mb-2 block">
                     Choose a Template (Optional)
                   </label>
-                  <Select
+                  <BottomSheetSelect
                     value={selectedTemplate?.id || 'none'}
                     onValueChange={(value) => {
                       const tmpl = templates.find(t => t.id === value);
-                      setSelectedTemplate(tmpl);
+                      setSelectedTemplate(tmpl || null);
                       if (tmpl) {
                         setFormData({
                           ...formData,
@@ -392,19 +392,13 @@ Provide:
                         });
                       }
                     }}
-                  >
-                    <SelectTrigger className="rounded-xl">
-                      <SelectValue placeholder="Standard CBT Format" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">Standard CBT Format</SelectItem>
-                      {templates.map((tmpl) => (
-                        <SelectItem key={tmpl.id} value={tmpl.id}>
-                          {tmpl.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={[
+                      { value: 'none', label: 'Standard CBT Format' },
+                      ...templates.map((tmpl) => ({ value: tmpl.id, label: tmpl.name }))
+                    ]}
+                    placeholder="Standard CBT Format"
+                    title="Choose a Template"
+                  />
                 </div>
               )}
 
