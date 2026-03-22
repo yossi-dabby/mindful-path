@@ -5,13 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { performLogout } from '@/lib/platform';
-import { AlertTriangle, ChevronRight, Trash2, X } from 'lucide-react';
+import { AlertTriangle, ChevronRight, Trash2, X, ShieldAlert } from 'lucide-react';
 
 export default function DeleteAccountFlow({ userRole }) {
   const { toast } = useToast();
   const [step, setStep] = useState(0);
   const [confirmationText, setConfirmationText] = useState('');
-  const isAdmin = userRole === 'admin';
 
   const reset = () => {
     setStep(0);
@@ -34,16 +33,14 @@ export default function DeleteAccountFlow({ userRole }) {
     },
   });
 
-  // Step 0 — entry button
+  // Step 0 — entry button (always shown, always enabled)
   if (step === 0) {
     return (
       <Button
         variant="outline"
         data-testid="delete-account-button"
-        onClick={() => !isAdmin && setStep(1)}
-        disabled={isAdmin}
-        className="w-full rounded-xl border-red-300 text-red-600 active:bg-red-100 disabled:opacity-60"
-        title={isAdmin ? 'Admin accounts cannot be deleted from inside the app' : undefined}
+        onClick={() => setStep(1)}
+        className="w-full rounded-xl border-red-300 text-red-600 active:bg-red-100"
       >
         <Trash2 className="w-4 h-4 mr-2" />
         Delete account &amp; all data
@@ -51,8 +48,25 @@ export default function DeleteAccountFlow({ userRole }) {
     );
   }
 
-  // Step 1 — warning
+  // Step 1 — show admin restriction OR warning for regular users
   if (step === 1) {
+    if (userRole === 'admin') {
+      return (
+        <div className="space-y-3" data-testid="delete-account-admin-block">
+          <div className="flex items-start gap-2 rounded-xl bg-amber-50 border border-amber-200 p-3">
+            <ShieldAlert className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-amber-800">
+              Admin accounts cannot be deleted from inside the app. Please contact support to remove your account.
+            </p>
+          </div>
+          <Button variant="outline" onClick={reset} className="w-full rounded-xl">
+            <X className="w-4 h-4 mr-1" />
+            Close
+          </Button>
+        </div>
+      );
+    }
+
     return (
       <div className="space-y-3" data-testid="delete-account-warning">
         <div className="flex items-start gap-2 rounded-xl bg-red-50 border border-red-200 p-3">
@@ -79,7 +93,7 @@ export default function DeleteAccountFlow({ userRole }) {
     );
   }
 
-  // Step 2 — type DELETE to confirm
+  // Step 2 — type DELETE to confirm (only reachable by non-admin users)
   return (
     <div className="space-y-3" data-testid="delete-account-confirm">
       <div>
