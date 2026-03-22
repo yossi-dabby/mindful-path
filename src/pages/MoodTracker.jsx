@@ -36,7 +36,12 @@ export default function MoodTracker() {
     initialData: []
   });
 
-  const todayEntry = moodEntries.find((e) => e.date === new Date().toISOString().split('T')[0]);
+  if (moodEntries !== undefined && !Array.isArray(moodEntries) && process.env.NODE_ENV === 'development') {
+    console.warn('[MoodTracker] moodEntries is not an array:', moodEntries);
+  }
+  const safeMoodEntries = Array.isArray(moodEntries) ? moodEntries : [];
+
+  const todayEntry = safeMoodEntries.find((e) => e.date === new Date().toISOString().split('T')[0]);
 
   const handleEdit = (entry) => {
     setEditingEntry(entry);
@@ -114,7 +119,7 @@ export default function MoodTracker() {
                 transition={{ delay: 0.1 }}>
 
               <MoodTrendChart
-                  entries={moodEntries}
+                  entries={safeMoodEntries}
                   dateRange={dateRange}
                   onDateRangeChange={setDateRange} />
 
@@ -126,7 +131,7 @@ export default function MoodTracker() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}>
 
-              <TriggerAnalysis entries={moodEntries} />
+              <TriggerAnalysis entries={safeMoodEntries} />
             </motion.div>
           </TabsContent>
 
@@ -135,7 +140,7 @@ export default function MoodTracker() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}>
 
-              <MoodCalendar entries={moodEntries} onEditEntry={handleEdit} />
+              <MoodCalendar entries={safeMoodEntries} onEditEntry={handleEdit} />
             </motion.div>
           </TabsContent>
 
@@ -144,7 +149,7 @@ export default function MoodTracker() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}>
 
-              <MoodInsights entries={moodEntries} />
+              <MoodInsights entries={safeMoodEntries} />
             </motion.div>
           </TabsContent>
         </Tabs>

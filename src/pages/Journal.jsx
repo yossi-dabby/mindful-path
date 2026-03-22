@@ -60,7 +60,16 @@ export default function Journal() {
     refetchOnWindowFocus: false
   });
 
-  const entries = [...thoughtJournals, ...sessionSummaries.map((s) => ({
+  if (thoughtJournals !== undefined && !Array.isArray(thoughtJournals) && process.env.NODE_ENV === 'development') {
+    console.warn('[Journal] thoughtJournals is not an array:', thoughtJournals);
+  }
+  if (sessionSummaries !== undefined && !Array.isArray(sessionSummaries) && process.env.NODE_ENV === 'development') {
+    console.warn('[Journal] sessionSummaries is not an array:', sessionSummaries);
+  }
+  const safeThoughtJournals = Array.isArray(thoughtJournals) ? thoughtJournals : [];
+  const safeSessionSummaries = Array.isArray(sessionSummaries) ? sessionSummaries : [];
+
+  const entries = [...safeThoughtJournals, ...safeSessionSummaries.map((s) => ({
     ...s,
     entry_type: 'session_summary',
     situation: `Session Summary: ${new Date(s.session_date).toLocaleDateString()}`,

@@ -50,7 +50,12 @@ export default function Progress() {
     initialData: []
   });
 
-  const filteredMoodEntries = moodEntries.filter((entry) => {
+  if (moodEntries !== undefined && !Array.isArray(moodEntries) && process.env.NODE_ENV === 'development') {
+    console.warn('[Progress] moodEntries is not an array:', moodEntries);
+  }
+  const safeMoodEntries = Array.isArray(moodEntries) ? moodEntries : [];
+
+  const filteredMoodEntries = safeMoodEntries.filter((entry) => {
     const entryDate = new Date(entry.date);
     const daysAgo = new Date();
     daysAgo.setDate(daysAgo.getDate() - parseInt(timeRange));

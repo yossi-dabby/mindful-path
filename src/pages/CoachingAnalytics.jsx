@@ -47,14 +47,19 @@ export default function CoachingAnalytics() {
   }
 
   // Calculate metrics
-  const activeSessions = sessions.filter(s => s.status === 'active');
-  const completedSessions = sessions.filter(s => s.status === 'completed');
-  const completionRate = sessions.length > 0 
-    ? Math.round((completedSessions.length / sessions.length) * 100) 
+  if (sessions !== undefined && !Array.isArray(sessions) && process.env.NODE_ENV === 'development') {
+    console.warn('[CoachingAnalytics] sessions is not an array:', sessions);
+  }
+  const safeSessions = Array.isArray(sessions) ? sessions : [];
+
+  const activeSessions = safeSessions.filter(s => s.status === 'active');
+  const completedSessions = safeSessions.filter(s => s.status === 'completed');
+  const completionRate = safeSessions.length > 0 
+    ? Math.round((completedSessions.length / safeSessions.length) * 100) 
     : 0;
 
   // Most common challenges (focus areas)
-  const focusAreaCounts = sessions.reduce((acc, session) => {
+  const focusAreaCounts = safeSessions.reduce((acc, session) => {
     const area = session.focus_area;
     acc[area] = (acc[area] || 0) + 1;
     return acc;
@@ -68,7 +73,7 @@ export default function CoachingAnalytics() {
     .sort((a, b) => b.value - a.value);
 
   // Stage distribution
-  const stageCounts = sessions.reduce((acc, session) => {
+  const stageCounts = safeSessions.reduce((acc, session) => {
     const stage = session.stage;
     acc[stage] = (acc[stage] || 0) + 1;
     return acc;
@@ -80,7 +85,7 @@ export default function CoachingAnalytics() {
   }));
 
   // Action plan completion rate
-  const sessionsWithActions = sessions.filter(s => s.action_plan?.length > 0);
+  const sessionsWithActions = safeSessions.filter(s => s.action_plan?.length > 0);
   const totalActions = sessionsWithActions.reduce((sum, s) => sum + (s.action_plan?.length || 0), 0);
   const completedActions = sessionsWithActions.reduce((sum, s) => 
     sum + (s.action_plan?.filter(a => a.completed).length || 0), 0);
@@ -109,7 +114,7 @@ export default function CoachingAnalytics() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 mb-1">{t('coaching_analytics.total_sessions')}</p>
-                <p className="text-3xl font-bold text-gray-800">{sessions.length}</p>
+                <p className="text-3xl font-bold text-gray-800">{safeSessions.length}</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
                 <Users className="w-6 h-6 text-purple-600" />
@@ -242,7 +247,7 @@ export default function CoachingAnalytics() {
                     <div
                       className="h-2 rounded-full"
                       style={{
-                        width: `${(item.value / sessions.length) * 100}%`,
+                        width: `${safeSessions.length > 0 ? (item.value / safeSessions.length) * 100 : 0}%`,
                         backgroundColor: COLORS[index % COLORS.length]
                       }}
                     />
