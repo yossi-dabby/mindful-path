@@ -41,8 +41,20 @@ const getAppParams = () => {
 	}
 	const envAppId = import.meta.env.VITE_BASE44_APP_ID || import.meta.env.BASE44_APP_ID;
 	const envFunctionsVersion = import.meta.env.VITE_BASE44_FUNCTIONS_VERSION || import.meta.env.BASE44_FUNCTIONS_VERSION;
+	const resolvedAppId = getAppParamValue("app_id", { defaultValue: envAppId });
+
+	// Dev-only diagnostic: missing VITE_BASE44_APP_ID causes requests to use
+	// /api/apps/null/... which produces unexpected API responses.
+	if (import.meta.env.DEV && !isNode && !resolvedAppId) {
+		console.warn(
+			'[app-params] VITE_BASE44_APP_ID is not set. ' +
+			'API requests will target /api/apps/null/... — ' +
+			'set this variable in your .env or Railway environment.'
+		);
+	}
+
 	return {
-		appId: getAppParamValue("app_id", { defaultValue: envAppId }),
+		appId: resolvedAppId,
 		token: getAppParamValue("access_token", { removeFromUrl: true }),
 		fromUrl: getAppParamValue("from_url", { defaultValue: window.location.href }),
 		functionsVersion: getAppParamValue("functions_version", { defaultValue: envFunctionsVersion }),
