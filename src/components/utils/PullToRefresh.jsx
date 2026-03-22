@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MOBILE_HEADER_HEIGHT } from '../layout/MobileHeader';
+import { MOBILE_HEADER_HEIGHT } from '@/components/layout/MobileHeader';
 
 export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
   const [isPulling, setIsPulling] = useState(false);
