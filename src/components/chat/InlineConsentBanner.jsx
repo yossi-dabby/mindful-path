@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { appParams } from '@/lib/app-params';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Info, ExternalLink } from 'lucide-react';
@@ -15,14 +16,16 @@ export default function InlineConsentBanner({ onAccept }) {
 
   const handleAccept = () => {
     // Track consent acceptance
-    base44.analytics.track({
-      eventName: 'consent_accepted',
-      properties: {
-        surface: 'chat',
-        safety_profile: safetyProfile,
-        timestamp: new Date().toISOString()
-      }
-    });
+    if (appParams.appId) {
+      base44.analytics.track({
+        eventName: 'consent_accepted',
+        properties: {
+          surface: 'chat',
+          safety_profile: safetyProfile,
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
     onAccept();
   };
 
