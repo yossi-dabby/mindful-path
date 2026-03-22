@@ -11,3 +11,10 @@ export const base44 = createClient({
   serverUrl: '',
   requiresAuth: false
 });
+
+// Prevent /api/apps/null/analytics/track/batch requests when appId is missing or falsy.
+// cleanup() stops the heartbeat processor and the internal batch flush loop.
+if (!appId) {
+  base44.analytics.cleanup();
+  base44.analytics = { track: () => {}, cleanup: () => {} };
+}
