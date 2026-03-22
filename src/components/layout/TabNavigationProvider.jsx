@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getScrollContainer } from '@/components/utils/scrollContainer';
+import { getScrollContainer } from '@/lib/scrollContainer';
 
 const TabNavigationContext = createContext();
 
