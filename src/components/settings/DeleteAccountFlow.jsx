@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
-import { performLogout } from '@/lib/platform';
+import { performLogout } from '@/components/utils/platform';
 import { AlertTriangle, ChevronRight, Trash2 } from 'lucide-react';
 
 export default function DeleteAccountFlow({ userRole }) {

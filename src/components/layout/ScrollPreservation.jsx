@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { getScrollContainer } from '@/lib/scrollContainer';
+import { getScrollContainer } from '@/components/utils/scrollContainer';
 
 // Store scroll positions for each page
 const scrollPositions = new Map();
