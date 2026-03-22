@@ -280,21 +280,13 @@ Provide SMART criteria answers and suggestions for milestones.`,
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-gray-700 mb-2 block">Category</label>
-                    <Select
+                    <BottomSheetSelect
                       value={formData.category}
                       onValueChange={(value) => setFormData({ ...formData, category: value })}
-                    >
-                      <SelectTrigger className="rounded-xl">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((cat) => (
-                          <SelectItem key={cat.value} value={cat.value}>
-                            {cat.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      options={categories}
+                      title="Select Category"
+                      placeholder="Choose category"
+                    />
                   </div>
 
                   <div>
