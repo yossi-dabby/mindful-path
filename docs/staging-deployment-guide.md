@@ -1,0 +1,217 @@
+# Staging Deployment Guide
+
+> **Status: Preparation only.**
+> Stage 2 flags are NOT enabled. App behavior is unchanged.
+> This document describes how an external staging deployment must be configured
+> so that Stage 2 flag enablement can be validated safely outside Base44 preview.
+
+---
+
+## 1. Branch Strategy
+
+| Branch    | Purpose                                           | Base44 status         |
+|-----------|---------------------------------------------------|-----------------------|
+| `main`    | Stable production branch — Base44 source of truth | Active (do not touch) |
+| `staging` | Rollout-validation branch — external staging only  | Separate from Base44  |
+
+**Key rule:** `staging` is intentionally separate from `main`. Changes merged to
+`staging` do not affect Base44 production until they are explicitly merged to `main`.
+
+---
+
+## 2. Platform
+
+This app is a **Vite + React SPA** backed by the **Base44 SDK**. There is no
+server-side runtime. The build output is a static bundle served from any static
+hosting provider.
+
+No specific deployment platform is prescribed. The build and serve commands are:
+
+```bash
+# Production-style build (set env vars before running)
+npm run build
+
+# Preview the built bundle locally
+npm run preview          # serves on http://localhost:4173
+```
+
+---
+
+## 3. Required Environment Variables — Staging
+
+All `VITE_*` variables are **build-time only**. They must be set in the build
+environment (CI secrets, platform build settings) **before** `npm run build`
+runs. They are baked into the static bundle at build time and cannot be changed
+at runtime without a rebuild.
+
+### 3.1 Core App Variables (Required)
+
+| Variable                       | Type        | Description                                                  | Staging value         |
+|-------------------------------|-------------|--------------------------------------------------------------|-----------------------|
+| `VITE_BASE44_APP_ID`           | Build-time  | Base44 application identifier. Must match the staging app.  | Set to staging app ID |
+| `VITE_BASE44_FUNCTIONS_VERSION`| Build-time  | Base44 functions version to use.                            | Omit or set explicitly |
+| `BASE44_APP_ID`                | Build-time  | Fallback if `VITE_BASE44_APP_ID` is absent.                 | Set to staging app ID |
+| `BASE44_FUNCTIONS_VERSION`     | Build-time  | Fallback if `VITE_BASE44_FUNCTIONS_VERSION` is absent.      | Omit or set explicitly |
+
+### 3.2 Stage 2 Feature Flag Variables (Frontend, Build-time)
+
+All flags default to `false` when the variable is absent or any value other than
+`'true'`. The current default therapist path is always active when all flags are
+`false`.
+
+> **Do NOT enable any of these flags until Phase 9 exit criteria are met.**
+> See `docs/therapist-upgrade-stage2-plan.md §Phase 9`.
+
+| Variable                                              | Phase | Description                                      | Staging default |
+|-------------------------------------------------------|-------|--------------------------------------------------|-----------------|
+| `VITE_THERAPIST_UPGRADE_ENABLED`                      | Gate  | Master rollback switch for all Stage 2 behavior  | `false`         |
+| `VITE_THERAPIST_UPGRADE_MEMORY_ENABLED`               | 1     | Structured therapist memory layer                | `false`         |
+| `VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED`        | 2     | Session-end structured summarization             | `false`         |
+| `VITE_THERAPIST_UPGRADE_WORKFLOW_ENABLED`             | 3     | Therapist workflow engine                        | `false`         |
+| `VITE_THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED`    | 4     | External trusted knowledge ingestion             | `false`         |
+| `VITE_THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED` | 5  | Internal-first retrieval orchestration           | `false`         |
+| `VITE_THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED`    | 6     | Live retrieval allowlist wrapper                 | `false`         |
+| `VITE_THERAPIST_UPGRADE_SAFETY_MODE_ENABLED`          | 7     | Safety mode + emergency resource layer           | `false`         |
+
+### 3.3 Build Behavior Variables (CI/CD)
+
+| Variable                      | Type        | Description                                              | Staging value |
+|-------------------------------|-------------|----------------------------------------------------------|---------------|
+| `CI`                          | Build-time  | Enables sourcemaps and disables minification in CI builds | `true`        |
+| `BASE44_LEGACY_SDK_IMPORTS`   | Build-time  | Enable legacy Base44 SDK import paths (default: `false`) | `false`       |
+
+---
+
+## 4. Runtime URL Overrides (Staging / Preview Hosts Only)
+
+The app includes a **safe runtime override layer** for recognised
+preview/staging hosts. This allows flags to be enabled without a rebuild,
+which is useful for iterative staging validation.
+
+**Recognised hosts where overrides are active:**
+- `localhost`
+- `127.0.0.1`
+- `*.base44.app`
+- `base44.app`
+
+**URL override format:**
+```
+https://<staging-host>/?_s2=FLAG1,FLAG2,...
+```
+
+**Example — enable master gate and memory phase on a Base44 staging host:**
+```
+https://myapp.base44.app/?_s2=THERAPIST_UPGRADE_ENABLED,THERAPIST_UPGRADE_MEMORY_ENABLED
+```
+
+**Safety rules:**
+- Unrecognised hosts (including any custom production domain) are **always
+  fail-closed** — overrides are silently ignored.
+- Overrides can only **enable** flags (set to `true`). They cannot disable a
+  flag that was enabled at build time.
+- Unknown flag names are silently ignored.
+
+**Diagnostic mode** (shows flag evaluation state in the browser console):
+```
+https://<staging-host>/?_s2debug=true
+```
+
+> **Note:** If the external staging deployment uses a custom domain that is NOT
+> a `*.base44.app` subdomain, URL overrides will not be active on that host.
+> In that case, all staging flag enablement must be done via build-time env vars
+> (`VITE_THERAPIST_UPGRADE_*`).
+
+---
+
+## 5. How Staging Remains Separate From Base44 / main
+
+1. **Branch isolation:** The `staging` branch is not merged to `main` without
+   explicit review. Base44 always pulls from `main`.
+
+2. **App ID isolation:** Use a separate `VITE_BASE44_APP_ID` for the staging
+   deployment. Do not point the staging build at the production Base44 app.
+
+3. **Flag defaults:** All Stage 2 flags default to `false` at build time. The
+   production build on `main` is unaffected by anything done on `staging`.
+
+4. **CI separation:** GitHub Actions workflows run independently on `staging`
+   pushes and PRs. A failing staging CI run does not block `main`.
+
+5. **No runtime routing changes:** The app does not change its Base44 routing
+   or auth based on the environment. The only staging-specific behavior is
+   flag evaluation.
+
+---
+
+## 6. Stage 2 Verification Steps (How to Validate in Staging)
+
+These steps verify that Stage 2 flag infrastructure is working correctly in the
+external staging environment, **without enabling any Stage 2 behavior in
+production**.
+
+### Step 1 — Verify flag system is wired (all flags off)
+
+1. Deploy the `staging` branch with all `VITE_THERAPIST_UPGRADE_*` vars absent
+   (or explicitly set to `false`).
+2. Open the app on the staging host.
+3. Add `?_s2debug=true` to the URL.
+4. Open the browser console.
+5. Confirm the `[S2 Diagnostics]` output shows:
+   - `masterGateOn: false`
+   - `routeHint: 'HYBRID (master gate off)'`
+   - All `computedFlags` values are `false`
+
+### Step 2 — Verify URL override layer (on recognised staging host only)
+
+1. Add `?_s2=THERAPIST_UPGRADE_ENABLED&_s2debug=true` to the staging URL.
+2. Confirm the console output shows:
+   - `masterGateOn: true`
+   - `routeHint: 'HYBRID (master gate on, no phase flag matched)'`
+   - `THERAPIST_UPGRADE_ENABLED: true` in `computedFlags`
+   - All per-phase flags remain `false`
+
+### Step 3 — Verify build-time flag injection
+
+1. Rebuild the staging deployment with
+   `VITE_THERAPIST_UPGRADE_ENABLED=true` set in the build environment.
+2. Add `?_s2debug=true` to the URL (no `_s2` param needed).
+3. Confirm:
+   - `masterGateOn: true`
+   - `THERAPIST_UPGRADE_ENABLED: true` in `computedFlags`
+
+> **Stop here.** Do not enable per-phase flags until the Phase 9 exit criteria
+> in `docs/therapist-upgrade-stage2-plan.md` are confirmed complete.
+
+---
+
+## 7. CI on the staging Branch
+
+The following workflows run automatically on every push to `staging` and on
+every pull request targeting `staging`:
+
+| Workflow              | File                                   | What it validates                           |
+|-----------------------|----------------------------------------|---------------------------------------------|
+| Test Suite            | `.github/workflows/webpack.yml`        | Unit tests + Vite build (Node 20 and 22)    |
+| Playwright E2E Tests  | `.github/workflows/playwright.yml`     | Smoke tests + web-desktop + mobile-390x844  |
+
+CI on `staging` is non-blocking for `main`. A failing `staging` CI run does not
+prevent merges to `main`.
+
+---
+
+## 8. What Must NOT Be Changed to Enable Staging
+
+The following are **frozen** regardless of staging work. Do not modify them as
+part of staging deployment preparation:
+
+- `src/api/entities/` — Base44 entity schemas
+- `src/api/agentWiring.js` — Agent wiring configuration
+- `src/api/activeAgentWiring.js` — Active agent routing
+- `src/api/base44Client.js` — SDK client configuration
+- `functions/` — Production backend functions
+- Any Stage 2 flag values in `src/lib/featureFlags.js`
+- Any therapist prompt or agent instruction
+
+---
+
+*Last updated: 2026-03-20 — Preparation only. Stage 2 not enabled.*

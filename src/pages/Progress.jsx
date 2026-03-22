@@ -50,7 +50,7 @@ export default function Progress() {
     initialData: []
   });
 
-  const filteredMoodEntries = moodEntries.filter((entry) => {
+  const filteredMoodEntries = (Array.isArray(moodEntries) ? moodEntries : []).filter((entry) => {
     const entryDate = new Date(entry.date);
     const daysAgo = new Date();
     daysAgo.setDate(daysAgo.getDate() - parseInt(timeRange));
@@ -143,11 +143,11 @@ export default function Progress() {
         </TabsContent>
 
         <TabsContent value="goals">
-          <GoalsProgressTracker goals={goals} />
+          <GoalsProgressTracker goals={Array.isArray(goals) ? goals : []} />
         </TabsContent>
 
         <TabsContent value="exercises">
-          <ExerciseTracker exercises={exercises} />
+          <ExerciseTracker exercises={Array.isArray(exercises) ? exercises : []} />
         </TabsContent>
 
         <TabsContent value="health">
@@ -169,12 +169,12 @@ export default function Progress() {
       <div className="mt-6 rounded-2xl grid grid-cols-1 lg:grid-cols-2 gap-6">
         <InsightsPanel
           moodEntries={filteredMoodEntries}
-          journalEntries={journalEntries} />
+          journalEntries={Array.isArray(journalEntries) ? journalEntries : []} />
 
         <CorrelationInsights
-          moodEntries={moodEntries}
-          journalEntries={journalEntries}
-          exercises={exercises} />
+          moodEntries={Array.isArray(moodEntries) ? moodEntries : []}
+          journalEntries={Array.isArray(journalEntries) ? journalEntries : []}
+          exercises={Array.isArray(exercises) ? exercises : []} />
 
       </div>
 
