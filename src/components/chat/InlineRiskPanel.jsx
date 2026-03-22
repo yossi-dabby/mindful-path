@@ -2,19 +2,22 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AlertTriangle, Phone, MessageSquare } from 'lucide-react';
+import { appParams } from '@/lib/app-params';
 
 export default function InlineRiskPanel({ onDismiss }) {
   const handleDismiss = () => {
     // Track risk panel dismissal
-    import('@/api/base44Client').then(({ base44 }) => {
-      base44.analytics.track({
-        eventName: 'risk_panel_dismissed',
-        properties: {
-          surface: 'chat',
-          timestamp: new Date().toISOString()
-        }
+    if (appParams.appId) {
+      import('@/api/base44Client').then(({ base44 }) => {
+        base44.analytics.track({
+          eventName: 'risk_panel_dismissed',
+          properties: {
+            surface: 'chat',
+            timestamp: new Date().toISOString()
+          }
+        });
       });
-    });
+    }
     onDismiss();
   };
 
