@@ -73,6 +73,17 @@ export async function mockApi(page: Page) {
 
     // ---- Base44 infrastructure endpoints (must not 404) ----
 
+    // app-logs (logUserInApp) — called by NavigationTracker on every route change;
+    // appId may be null/undefined in CI when VITE_BASE44_APP_ID is not set.
+    if (url.includes('/app-logs/')) {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: true }),
+      });
+      return;
+    }
+
     // analytics tracking (ignore)
     if (url.includes('/analytics/track/batch')) {
       await route.fulfill({
