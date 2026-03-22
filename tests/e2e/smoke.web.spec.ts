@@ -14,6 +14,7 @@ test.describe('Chat Smoke Test', () => {
     await page.addInitScript(() => {
       localStorage.setItem('chat_consent_accepted', 'true');
       localStorage.setItem('age_verified', 'true');
+      localStorage.setItem('base44_app_id', 'test-app-id');
       if (document.body) {
         document.body.setAttribute('data-test-env', 'true');
       }
