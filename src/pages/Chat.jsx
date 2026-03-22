@@ -28,6 +28,7 @@ import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
 import { buildV4SessionStartContentAsync, buildRuntimeSafetySupplement } from '@/lib/workflowContextInjector.js';
 import { MOBILE_HEADER_HEIGHT } from '../components/layout/MobileHeader';
 import { BOTTOM_NAV_HEIGHT } from '../components/layout/BottomNav';
+import { appParams } from '@/lib/app-params';
 // Phase 8 — Upgraded-path UI (flag-gated; hidden in default mode)
 import SessionPhaseIndicator from '../components/therapy/SessionPhaseIndicator';
 import SafetyModeIndicator from '../components/therapy/SafetyModeIndicator';
@@ -773,14 +774,16 @@ export default function Chat() {
       const agentName = `cbt_therapist_${safetyProfile}`;
 
       // Track agent profile usage
-      base44.analytics.track({
-        eventName: 'conversation_started',
-        properties: {
-          safety_profile: safetyProfile,
-          intent: intentParam || 'none',
-          agent_name: agentName
-        }
-      });
+      if (appParams.appId && !window.__DISABLE_ANALYTICS__) {
+        base44.analytics.track({
+          eventName: 'conversation_started',
+          properties: {
+            safety_profile: safetyProfile,
+            intent: intentParam || 'none',
+            agent_name: agentName
+          }
+        });
+      }
 
       const conversation = await base44.agents.createConversation({
         agent_name: agentName,
@@ -865,13 +868,15 @@ export default function Chat() {
         }).catch(() => {});
 
         // Analytics tracking
-        base44.analytics.track({
-          eventName: 'crisis_detected_regex',
-          properties: {
-            reason_code: reasonCode,
-            surface: 'chat'
-          }
-        });
+        if (appParams.appId && !window.__DISABLE_ANALYTICS__) {
+          base44.analytics.track({
+            eventName: 'crisis_detected_regex',
+            properties: {
+              reason_code: reasonCode,
+              surface: 'chat'
+            }
+          });
+        }
       }).
       catch(() => {});
       return;
@@ -897,14 +902,16 @@ export default function Chat() {
         }).catch(() => {});
 
         // Analytics tracking for LLM-detected crisis
-        base44.analytics.track({
-          eventName: 'crisis_detected_llm_layer2',
-          properties: {
-            severity: enhancedCheck.data.severity,
-            confidence: enhancedCheck.data.confidence,
-            surface: 'chat'
-          }
-        });
+        if (appParams.appId && !window.__DISABLE_ANALYTICS__) {
+          base44.analytics.track({
+            eventName: 'crisis_detected_llm_layer2',
+            properties: {
+              severity: enhancedCheck.data.severity,
+              confidence: enhancedCheck.data.confidence,
+              surface: 'chat'
+            }
+          });
+        }
         return;
       }
     } catch (error) {

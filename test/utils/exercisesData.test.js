@@ -145,6 +145,21 @@ describe('mergeExercises()', () => {
     const ids = merged.map(e => e.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
+
+  it('returns all local exercises when null is passed (not just undefined)', () => {
+    const merged = mergeExercises(null);
+    expect(merged).toHaveLength(LOCAL_EXERCISES.length);
+  });
+
+  it('returns all local exercises when undefined is passed', () => {
+    const merged = mergeExercises(undefined);
+    expect(merged).toHaveLength(LOCAL_EXERCISES.length);
+  });
+
+  it('returns all local exercises when a non-array object is passed', () => {
+    const merged = mergeExercises({ data: [] });
+    expect(merged).toHaveLength(LOCAL_EXERCISES.length);
+  });
 });
 
 describe('validateExercisesTaxonomy()', () => {

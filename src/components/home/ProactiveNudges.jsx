@@ -54,12 +54,14 @@ export default function ProactiveNudges() {
     }
   };
 
-  if (isLoading || nudges.length === 0) return null;
+  const safeNudges = Array.isArray(nudges) ? nudges : [];
+
+  if (isLoading || safeNudges.length === 0) return null;
 
   return (
     <div className="space-y-3">
       <AnimatePresence>
-        {nudges.slice(0, 2).map((nudge, index) => {
+        {safeNudges.slice(0, 2).map((nudge, index) => {
           const Icon = iconMap[nudge.reminder_type] || Bell;
           
           return (

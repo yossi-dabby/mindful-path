@@ -996,7 +996,8 @@ export function validateExercisesTaxonomy(allExercises) {
  * @returns {Array} merged and deduplicated exercise list
  */
 export function mergeExercises(apiExercises = []) {
+  const safeApiExercises = Array.isArray(apiExercises) ? apiExercises : [];
   const localIds = new Set(LOCAL_EXERCISES.map(e => e.id));
-  const uniqueApiExercises = apiExercises.filter(e => !localIds.has(e.id));
+  const uniqueApiExercises = safeApiExercises.filter(e => !localIds.has(e.id));
   return [...LOCAL_EXERCISES, ...uniqueApiExercises];
 }

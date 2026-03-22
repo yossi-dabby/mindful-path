@@ -48,19 +48,37 @@ export default function Journal() {
 
   const { data: thoughtJournals, isLoading: isLoadingJournals } = useQuery({
     queryKey: ['thoughtJournals'],
-    queryFn: () => base44.entities.ThoughtJournal.list('-created_date', 30),
+    queryFn: async () => {
+      try {
+        const result = await base44.entities.ThoughtJournal.list('-created_date', 30);
+        return Array.isArray(result) ? result : [];
+      } catch (error) {
+        console.error('Error fetching thought journals:', error);
+        return [];
+      }
+    },
     initialData: [],
     refetchOnWindowFocus: false
   });
 
   const { data: sessionSummaries, isLoading: isLoadingSummaries } = useQuery({
     queryKey: ['sessionSummaries'],
-    queryFn: () => base44.entities.SessionSummary.list('-session_date'),
+    queryFn: async () => {
+      try {
+        const result = await base44.entities.SessionSummary.list('-session_date');
+        return Array.isArray(result) ? result : [];
+      } catch (error) {
+        console.error('Error fetching session summaries:', error);
+        return [];
+      }
+    },
     initialData: [],
     refetchOnWindowFocus: false
   });
 
-  const entries = [...thoughtJournals, ...sessionSummaries.map((s) => ({
+  const safeThoughtJournals = Array.isArray(thoughtJournals) ? thoughtJournals : [];
+  const safeSessionSummaries = Array.isArray(sessionSummaries) ? sessionSummaries : [];
+  const entries = [...safeThoughtJournals, ...safeSessionSummaries.map((s) => ({
     ...s,
     entry_type: 'session_summary',
     situation: `Session Summary: ${new Date(s.session_date).toLocaleDateString()}`,

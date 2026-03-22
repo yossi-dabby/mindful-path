@@ -17,7 +17,7 @@ export default function SessionSummary({ conversation }) {
     initialData: []
   });
 
-  const suggestedExercises = exercises.filter(ex => 
+  const suggestedExercises = (Array.isArray(exercises) ? exercises : []).filter(ex => 
     conversation.suggested_exercises?.includes(ex.id)
   );
 

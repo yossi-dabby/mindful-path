@@ -30,10 +30,11 @@ export default function Coach() {
     queryFn: async () => {
       if (!user) return [];
       try {
-        return await base44.entities.CoachingSession.filter(
+        const result = await base44.entities.CoachingSession.filter(
           { created_by: user.email },
           '-created_date'
         );
+        return Array.isArray(result) ? result : [];
       } catch (error) {
         console.error('Error fetching coaching sessions:', error);
         return [];
@@ -43,8 +44,9 @@ export default function Coach() {
     initialData: []
   });
 
-  const activeSessions = sessions.filter((s) => s.status === 'active');
-  const completedSessions = sessions.filter((s) => s.status === 'completed');
+  const safeSessions = Array.isArray(sessions) ? sessions : [];
+  const activeSessions = safeSessions.filter((s) => s.status === 'active');
+  const completedSessions = safeSessions.filter((s) => s.status === 'completed');
 
   const handleStartSession = () => {
     setShowWizard(true);
@@ -191,7 +193,7 @@ export default function Coach() {
 
       {/* Content */}
       <div className="bg-teal-50 mx-auto pb-32 p-4 max-w-7xl md:p-6 md:pb-24 w-full">
-        {sessions.length === 0 ?
+        {safeSessions.length === 0 ?
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -276,7 +278,7 @@ export default function Coach() {
         }
 
         {/* Mobile FAB for Starting Session */}
-        {sessions.length > 0 &&
+        {safeSessions.length > 0 &&
         <Button
           onClick={handleStartSession}
           size="lg" className="bg-teal-600 text-slate-50 p-0 font-medium tracking-[0.005em] leading-none rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 md:hidden fixed right-6 z-30 shadow-[var(--shadow-lg)] w-14 h-14"

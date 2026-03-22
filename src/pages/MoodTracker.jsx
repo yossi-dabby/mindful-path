@@ -27,7 +27,8 @@ export default function MoodTracker() {
     queryKey: ['moodEntries', dateRange],
     queryFn: async () => {
       try {
-        return await base44.entities.MoodEntry.list('-date', dateRange * 2);
+        const result = await base44.entities.MoodEntry.list('-date', dateRange * 2);
+        return Array.isArray(result) ? result : [];
       } catch (error) {
         console.error('Error fetching mood entries:', error);
         return [];
@@ -36,7 +37,8 @@ export default function MoodTracker() {
     initialData: []
   });
 
-  const todayEntry = moodEntries.find((e) => e.date === new Date().toISOString().split('T')[0]);
+  const safeMoodEntries = Array.isArray(moodEntries) ? moodEntries : [];
+  const todayEntry = safeMoodEntries.find((e) => e.date === new Date().toISOString().split('T')[0]);
 
   const handleEdit = (entry) => {
     setEditingEntry(entry);
@@ -114,7 +116,7 @@ export default function MoodTracker() {
                 transition={{ delay: 0.1 }}>
 
               <MoodTrendChart
-                  entries={moodEntries}
+                  entries={safeMoodEntries}
                   dateRange={dateRange}
                   onDateRangeChange={setDateRange} />
 
@@ -126,7 +128,7 @@ export default function MoodTracker() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}>
 
-              <TriggerAnalysis entries={moodEntries} />
+              <TriggerAnalysis entries={safeMoodEntries} />
             </motion.div>
           </TabsContent>
 
@@ -135,7 +137,7 @@ export default function MoodTracker() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}>
 
-              <MoodCalendar entries={moodEntries} onEditEntry={handleEdit} />
+              <MoodCalendar entries={safeMoodEntries} onEditEntry={handleEdit} />
             </motion.div>
           </TabsContent>
 
@@ -144,7 +146,7 @@ export default function MoodTracker() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}>
 
-              <MoodInsights entries={moodEntries} />
+              <MoodInsights entries={safeMoodEntries} />
             </motion.div>
           </TabsContent>
         </Tabs>

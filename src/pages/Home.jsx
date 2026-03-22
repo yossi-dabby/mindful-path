@@ -148,10 +148,15 @@ export default function Home() {
       }
 
       // Select exercise based on recent mood data
-      const recentMoods = await base44.entities.MoodEntry.list('-created_date', 7);
+      const rawMoods = await base44.entities.MoodEntry.list('-created_date', 7);
+      const recentMoods = Array.isArray(rawMoods) ? rawMoods : [];
 
       // Use cached exercises from query instead of fetching again
-      const exercises = allExercises.length > 0 ? allExercises : await base44.entities.Exercise.list();
+      let exercises = (Array.isArray(allExercises) && allExercises.length > 0) ? allExercises : null;
+      if (!exercises) {
+        const fetched = await base44.entities.Exercise.list();
+        exercises = Array.isArray(fetched) ? fetched : [];
+      }
 
       // Simple scoring logic
       const anxietyCount = recentMoods.filter((m) =>
