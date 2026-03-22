@@ -6,6 +6,9 @@ const toSnakeCase = (str) => {
 	return str.replace(/([A-Z])/g, '_$1').toLowerCase();
 }
 
+// Strings that localStorage may contain as serialized null/undefined — treat as missing.
+const _INVALID_STORED_VALUES = new Set(['null', 'undefined', '']);
+
 const getAppParamValue = (paramName, { defaultValue = undefined, removeFromUrl = false } = {}) => {
 	if (isNode) {
 		return defaultValue;
@@ -19,16 +22,17 @@ const getAppParamValue = (paramName, { defaultValue = undefined, removeFromUrl =
 			}${window.location.hash}`;
 		window.history.replaceState({}, document.title, newUrl);
 	}
-	if (searchParam) {
+	if (searchParam && !_INVALID_STORED_VALUES.has(searchParam)) {
 		storage.setItem(storageKey, searchParam);
 		return searchParam;
 	}
-	if (defaultValue !== undefined) {
+	// Only use defaultValue when it is a non-empty, non-null meaningful string.
+	if (typeof defaultValue === 'string' && defaultValue !== '' && !_INVALID_STORED_VALUES.has(defaultValue)) {
 		storage.setItem(storageKey, defaultValue);
 		return defaultValue;
 	}
 	const storedValue = storage.getItem(storageKey);
-	if (storedValue) {
+	if (storedValue && !_INVALID_STORED_VALUES.has(storedValue)) {
 		return storedValue;
 	}
 	return null;
@@ -43,14 +47,27 @@ const getAppParams = () => {
 	const envFunctionsVersion = import.meta.env.VITE_BASE44_FUNCTIONS_VERSION || import.meta.env.BASE44_FUNCTIONS_VERSION;
 	const resolvedAppId = getAppParamValue("app_id", { defaultValue: envAppId });
 
-	// Dev-only diagnostic: missing VITE_BASE44_APP_ID causes requests to use
-	// /api/apps/null/... which produces unexpected API responses.
-	if (import.meta.env.DEV && !isNode && !resolvedAppId) {
-		console.warn(
-			'[app-params] VITE_BASE44_APP_ID is not set. ' +
-			'API requests will target /api/apps/null/... — ' +
-			'set this variable in your .env or Railway environment.'
-		);
+	// Dev-only diagnostic: log the resolved appId and its source so it is
+	// visible in the browser console on every cold-start.
+	if (import.meta.env.DEV && !isNode) {
+		const urlParam = new URLSearchParams(window.location.search).get('app_id');
+		const lsRaw = storage.getItem('base44_app_id');
+		const lsValue = lsRaw && !_INVALID_STORED_VALUES.has(lsRaw) ? lsRaw : null;
+		const source = urlParam   ? 'URL param (app_id)'
+		             : envAppId   ? 'env var (VITE_BASE44_APP_ID / BASE44_APP_ID)'
+		             : lsValue    ? 'localStorage (base44_app_id)'
+		             : 'none';
+		if (resolvedAppId) {
+			// eslint-disable-next-line no-console
+			console.debug(`[app-params] appId resolved: "${resolvedAppId}" (source: ${source})`);
+		} else {
+			// eslint-disable-next-line no-console
+			console.warn(
+				`[app-params] appId is null — checked ${source}. ` +
+				'Set VITE_BASE44_APP_ID at build time (Vite requires build-time env vars). ' +
+				'API requests will target /api/apps/null/... and will fail.'
+			);
+		}
 	}
 
 	return {

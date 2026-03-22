@@ -4,6 +4,17 @@ import { normalizeEntityList } from '@/lib/entityListNormalizer';
 
 const { appId, token, functionsVersion } = appParams;
 
+// Guard: surface a loud error in development when appId is missing so the
+// root cause is immediately visible instead of manifesting as obscure 404s.
+if (import.meta.env.DEV && !appId) {
+  // eslint-disable-next-line no-console
+  console.error(
+    '[base44Client] appId is null/empty — createClient will operate without a ' +
+    'valid app ID. All API requests will target /api/apps/null/... and fail. ' +
+    'Ensure VITE_BASE44_APP_ID is defined at Vite build time.'
+  );
+}
+
 //Create a client with authentication required
 export const base44 = createClient({
   appId: appId || undefined,

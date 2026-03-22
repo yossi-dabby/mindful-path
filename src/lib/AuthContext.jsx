@@ -21,7 +21,19 @@ export const AuthProvider = ({ children }) => {
     try {
       setIsLoadingPublicSettings(true);
       setAuthError(null);
-      
+
+      // Guard: if appId is missing, skip all network calls — they would target
+      // /api/apps/null/... and produce confusing errors.
+      if (!appParams.appId) {
+        setAuthError({
+          type: 'missing_app_id',
+          message: 'Application ID is not configured. Please contact support.'
+        });
+        setIsLoadingPublicSettings(false);
+        setIsLoadingAuth(false);
+        return;
+      }
+
       // First, check app public settings (with token if available)
       // This will tell us if auth is required, user not registered, etc.
       const appClient = createAxiosClient({
