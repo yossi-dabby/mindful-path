@@ -346,7 +346,7 @@ export default function Chat() {
             // Get safety profile from user settings or default to 'standard'
             const user = await base44.auth.me().catch(() => null);
             const safetyProfile = user?.preferences?.safety_profile || 'standard';
-            const agentName = `cbt_therapist_${safetyProfile}`;
+            const agentName = ACTIVE_CBT_THERAPIST_WIRING.name;
 
             const conversation = await base44.agents.createConversation({
               agent_name: agentName,
@@ -387,7 +387,7 @@ export default function Chat() {
             // Get safety profile from user settings or default to 'standard'
             const user = await base44.auth.me().catch(() => null);
             const safetyProfile = user?.preferences?.safety_profile || 'standard';
-            const agentName = `cbt_therapist_${safetyProfile}`;
+            const agentName = ACTIVE_CBT_THERAPIST_WIRING.name;
 
             const conversation = await base44.agents.createConversation({
               agent_name: agentName,
@@ -771,7 +771,7 @@ export default function Chat() {
       // Get safety profile from user settings or default to 'standard'
       const user = await base44.auth.me().catch(() => null);
       const safetyProfile = user?.preferences?.safety_profile || 'standard';
-      const agentName = `cbt_therapist_${safetyProfile}`;
+      const agentName = ACTIVE_CBT_THERAPIST_WIRING.name;
 
       // Track agent profile usage
       if (appParams.appId) {
@@ -964,7 +964,7 @@ export default function Chat() {
         // Get safety profile from user settings or default to 'standard'
         const user = await base44.auth.me().catch(() => null);
         const safetyProfile = user?.preferences?.safety_profile || 'standard';
-        const agentName = `cbt_therapist_${safetyProfile}`;
+        const agentName = ACTIVE_CBT_THERAPIST_WIRING.name;
 
         const conversation = await base44.agents.createConversation({
           agent_name: agentName,
