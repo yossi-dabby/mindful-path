@@ -18,9 +18,9 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
   const PULL_THRESHOLD = 80;
   const MAX_PULL = 120;
 
-  // Cache the main scroll container reference once on mount
+  // Cache the scroll container reference once on mount
   useEffect(() => {
-    mainElRef.current = document.querySelector('main');
+    mainElRef.current = document.getElementById('app-scroll-container') || document.querySelector('main');
   }, []);
 
   const handleTouchStart = useCallback((e) => {
