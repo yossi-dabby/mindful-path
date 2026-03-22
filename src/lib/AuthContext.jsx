@@ -16,28 +16,30 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const checkAuth = async () => {
+    setIsLoadingAuth(true);
+    setAuthError(null);
     try {
-      setIsLoadingAuth(true);
-      setAuthError(null);
       const currentUser = await base44.auth.me();
       setUser(currentUser);
       setIsAuthenticated(true);
+      setIsLoadingAuth(false);
     } catch (error) {
-      setIsAuthenticated(false);
       const status = error?.status || error?.response?.status;
 
       if (status === 401 || status === 403) {
-        // Not logged in — redirect to Base44 login
+        // Not authenticated — delegate to Base44 SDK login redirect.
+        // Keep isLoadingAuth true to avoid a flash of unauthenticated content
+        // while the browser navigates away.
         base44.auth.redirectToLogin(window.location.href);
         return;
       }
 
+      setIsAuthenticated(false);
       if (error?.data?.extra_data?.reason === 'user_not_registered') {
         setAuthError({ type: 'user_not_registered', message: 'User not registered for this app' });
       } else {
         setAuthError({ type: 'unknown', message: error.message || 'Failed to load app' });
       }
-    } finally {
       setIsLoadingAuth(false);
     }
   };
