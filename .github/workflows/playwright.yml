@@ -2,9 +2,9 @@ name: Playwright E2E Tests
 
 on:
   push:
-    branches: [ main, master, develop ]
+    branches: [ main, master, develop, staging ]
   pull_request:
-    branches: [ main, master, develop ]
+    branches: [ main, master, develop, staging ]
 
 jobs:
   smoke:
@@ -32,11 +32,15 @@ jobs:
 
       - name: Build application
         run: npm run build
+        env:
+          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID }}
 
       - name: Start dev server
         run: |
           nohup npm run dev -- --host 127.0.0.1 --port 5173 > devserver.log 2>&1 &
           echo "Dev server started (logging to devserver.log)"
+        env:
+          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID }}
 
       - name: Wait for server
         run: npx --yes wait-on http://127.0.0.1:5173 --timeout 60000
@@ -102,11 +106,15 @@ jobs:
 
       - name: Build application
         run: npm run build
+        env:
+          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID }}
 
       - name: Start dev server
         run: |
           nohup npm run dev -- --host 127.0.0.1 --port 5173 > devserver.log 2>&1 &
           echo "Dev server started (logging to devserver.log)"
+        env:
+          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID }}
 
       - name: Wait for server
         run: npx --yes wait-on http://127.0.0.1:5173 --timeout 60000
