@@ -9,7 +9,12 @@ export const base44 = createClient({
   appId: appId || undefined,
   token,
   functionsVersion,
-  requiresAuth: false
+  requiresAuth: false,
+  // appBaseUrl is required so that auth.redirectToLogin() and auth.logout()
+  // redirect to the real Base44 platform login page rather than constructing
+  // a relative `/login` URL that does not exist in this React app.
+  // Without this, unauthenticated users land on a 404 in Railway production.
+  appBaseUrl: 'https://base44.app',
 });
 
 // Prevent /api/apps/null/analytics/track/batch requests when appId is missing or falsy.
