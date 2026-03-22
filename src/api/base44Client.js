@@ -2,15 +2,11 @@ import { createClient } from '@base44/sdk';
 import { appParams } from '@/lib/app-params';
 import { normalizeEntityList } from '@/lib/entityListNormalizer';
 
-const { token, functionsVersion } = appParams;
-
-// App ID is hardcoded as a fallback to ensure login redirects always work
-// even when VITE_BASE44_APP_ID is not set at Railway build time.
-const APP_ID = import.meta.env.VITE_BASE44_APP_ID || '69504b725a07f5aa75aeaf7d';
+const { appId, token, functionsVersion } = appParams;
 
 //Create a client with authentication required
 export const base44 = createClient({
-  appId: APP_ID,
+  appId: appId || undefined,
   token,
   functionsVersion,
   requiresAuth: false
