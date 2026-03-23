@@ -42,7 +42,7 @@ if (appId) {
         ? (window.localStorage?.getItem('base44_access_token') ?? null)
         : null;
 
-    const res = await fetch(`/api/apps/${encodeURIComponent(appId)}/entities/User/me`, {
+    const res = await fetch(`${APP_BASE_URL}/api/apps/${encodeURIComponent(appId)}/entities/User/me`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
