@@ -125,8 +125,8 @@ export default function Community() {
   const myGroupIds = memberships.map((m) => m.group_id);
   const filteredPosts = forumPosts.filter((post) =>
   !searchQuery ||
-  post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  post.content.toLowerCase().includes(searchQuery.toLowerCase())
+  (post.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+  (post.content || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
