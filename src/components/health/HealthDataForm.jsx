@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
-import { useQueryClient } from '@tanstack/react-query';
 import { Textarea } from '@/components/ui/textarea';
 import { X, Activity, Moon, Heart, Droplet } from 'lucide-react';
 
