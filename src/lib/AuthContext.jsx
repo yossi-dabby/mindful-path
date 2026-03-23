@@ -27,8 +27,12 @@ export const AuthProvider = ({ children }) => {
       const status = error?.status || error?.response?.status;
 
       if (status === 401 || status === 403) {
-        // Not logged in — redirect to Base44 login
-        base44.auth.redirectToLogin(window.location.href);
+        // Not logged in — redirect to Base44 login.
+        // Pass only the pathname+search (not the full href) so the Base44 SDK
+        // can resolve the correct registered domain for the OAuth callback.
+        // Passing the full URL (including an unregistered deployment domain)
+        // causes Base44 to reject the callback with "Invalid redirect domain" (403).
+        base44.auth.redirectToLogin(window.location.pathname + window.location.search);
         return;
       }
 
@@ -53,7 +57,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const navigateToLogin = () => {
-    base44.auth.redirectToLogin(window.location.href);
+    base44.auth.redirectToLogin(window.location.pathname + window.location.search);
   };
 
   return (
