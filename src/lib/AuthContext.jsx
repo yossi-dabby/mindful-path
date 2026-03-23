@@ -50,7 +50,10 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setIsAuthenticated(false);
     if (shouldRedirect) {
-      base44.auth.logout(window.location.href);
+      // Use pathname+search (not the full href) so the Base44 SDK resolves
+      // the redirect against the registered app domain, avoiding
+      // "Invalid redirect domain" errors on non-registered deployment URLs.
+      base44.auth.logout(window.location.pathname + window.location.search);
     } else {
       base44.auth.logout();
     }
