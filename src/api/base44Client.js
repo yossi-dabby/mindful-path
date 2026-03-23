@@ -2,38 +2,92 @@ import { createClient } from '@base44/sdk';
 import { appParams } from '@/lib/app-params';
 import { normalizeEntityList } from '@/lib/entityListNormalizer';
 
-const { token, functionsVersion } = appParams;
-
-// App ID is hardcoded as a fallback to ensure login redirects always work
-// even when VITE_BASE44_APP_ID is not set at Railway build time.
-const APP_ID = import.meta.env.VITE_BASE44_APP_ID || '69504b725a07f5aa75aeaf7d';
+const { appId, token, functionsVersion } = appParams;
 
 //Create a client with authentication required
 export const base44 = createClient({
-  appId: APP_ID,
+  appId: appId || undefined,
   token,
   functionsVersion,
-  requiresAuth: false
+  requiresAuth: false,
+  // appBaseUrl is required so that auth.redirectToLogin() and auth.logout()
+  // redirect to the real Base44 platform login page rather than constructing
+  // a relative `/login` URL that does not exist in this React app.
+  // Without this, unauthenticated users land on a 404 in Railway production.
+  appBaseUrl: 'https://base44.app',
 });
 
-// Wrap entity collection methods so callers always receive a plain array,
-// even when the SDK returns a paginated envelope { count, results: [...] }.
-const _entityProxy = new Proxy(base44.entities, {
-  get(target, entityName) {
-    const entity = target[entityName];
-    if (!entity || typeof entity !== 'object') return entity;
-    return new Proxy(entity, {
-      get(eTarget, method) {
-        if (method === 'list' || method === 'filter') {
-          const original = eTarget[method];
-          if (typeof original === 'function') {
-            return (...args) => original.apply(eTarget, args).then(normalizeEntityList);
-          }
-        }
-        return eTarget[method];
-      }
+// Prevent /api/apps/null/analytics/track/batch requests when appId is missing or falsy.
+// cleanup() stops the heartbeat processor and the internal batch flush loop.
+if (!appId) {
+  base44.analytics.cleanup();
+  base44.analytics = { track: () => {}, cleanup: () => {} };
+}
+
+// ---------------------------------------------------------------------------
+// Override auth.updateMe to use PATCH instead of PUT.
+//
+// The Base44 server returns HTTP 405 Method Not Allowed for PUT requests on
+// /api/apps/{appId}/entities/User/me. The endpoint only accepts PATCH for
+// partial user profile updates. The SDK (v0.8.x) still sends PUT, so we
+// replace the method here so every caller (WelcomeWizard, Settings, etc.)
+// benefits from the fix without any call-site changes.
+// ---------------------------------------------------------------------------
+if (appId) {
+  base44.auth.updateMe = async (data) => {
+    const token =
+      typeof window !== 'undefined'
+        ? (window.localStorage?.getItem('base44_access_token') ?? null)
+        : null;
+
+    const res = await fetch(`/api/apps/${encodeURIComponent(appId)}/entities/User/me`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      const msg =
+        errData.message || errData.detail || `Request failed with status code ${res.status}`;
+      const err = new Error(msg);
+      err.name = 'Base44Error';
+      err.status = res.status;
+      err.code = errData.code;
+      err.data = errData;
+      throw err;
+    }
+
+    return res.json();
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Shared entity-response normalization
+//
+// Wrap every entity's .list() and .filter() methods so that paginated
+// envelopes ({ count, results }) are transparently converted to bare arrays.
+// All other entity methods (create, update, delete, get, …) are untouched.
+// See src/lib/entityListNormalizer.js for the normalizer logic and rationale.
+// ---------------------------------------------------------------------------
+try {
+  const entities = base44.entities;
+  if (entities && typeof entities === 'object') {
+    Object.keys(entities).forEach((entityName) => {
+      const entity = entities[entityName];
+      if (!entity || typeof entity !== 'object') return;
+      ['list', 'filter'].forEach((method) => {
+        const original = entity[method];
+        if (typeof original !== 'function') return;
+        entity[method] = (...args) =>
+          Promise.resolve(original.apply(entity, args)).then(normalizeEntityList);
+      });
     });
   }
-});
-
-base44.entities = _entityProxy;
+} catch (_) {
+  // Normalization patching is best-effort — never crash client initialization.
+}
