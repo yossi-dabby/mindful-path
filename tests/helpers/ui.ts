@@ -108,7 +108,8 @@ export async function mockApi(page: Page) {
     }
 
     // ---- Auth endpoints ----
-    // The Base44 SDK calls GET/PUT /api/apps/{appId}/entities/User/me for auth.me() and auth.updateMe().
+    // The Base44 SDK calls GET /api/apps/{appId}/entities/User/me for auth.me() and
+    // PATCH (overridden in base44Client.js) for auth.updateMe().
     // Returning onboarding_completed: true prevents the WelcomeWizard from rendering in tests.
     if (url.includes('/entities/User/me')) {
       await route.fulfill({
