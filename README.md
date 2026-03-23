@@ -1,5 +1,16 @@
 # Base44 App
 
+## Environment Variables
+
+The following environment variables can be set at build time (e.g., in Railway):
+
+| Variable | Fallback value | Description |
+|---|---|---|
+| `VITE_BASE44_APP_ID` | Hardcoded app ID | Base44 application ID |
+| `VITE_BASE44_APP_BASE_URL` | Hardcoded app base URL | Base44 application base URL (enables proxy and API routing) |
+
+Both variables have hardcoded fallbacks so the app remains functional even if they are not set at build time. Setting them explicitly in your deployment environment is strongly recommended for production.
+
 ## Running E2E Tests
 
 ### Smoke Tests (Production-critical, Read-only)

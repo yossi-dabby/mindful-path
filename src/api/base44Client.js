@@ -8,9 +8,14 @@ const { token, functionsVersion } = appParams;
 // even when VITE_BASE44_APP_ID is not set at Railway build time.
 const APP_ID = import.meta.env.VITE_BASE44_APP_ID || '69504b725a07f5aa75aeaf7d';
 
+// Base URL is hardcoded as a fallback to ensure the Base44 proxy is always
+// enabled, even when VITE_BASE44_APP_BASE_URL is not set at Railway build time.
+const APP_BASE_URL = import.meta.env.VITE_BASE44_APP_BASE_URL || 'https://mindful-path-75aeaf7d.base44.app';
+
 //Create a client with authentication required
 export const base44 = createClient({
   appId: APP_ID,
+  appBaseUrl: APP_BASE_URL,
   token,
   functionsVersion,
   requiresAuth: false
