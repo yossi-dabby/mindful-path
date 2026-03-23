@@ -4,12 +4,34 @@ import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
 import { Label } from '@/components/ui/label';
 import { Sparkles, Loader2, RefreshCw, Wind, Anchor, Brain, TrendingUp, Heart, ThumbsUp, ThumbsDown, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { normalizeExerciseRecommendations } from '@/components/utils/aiDataNormalizer';
+
+const MOOD_OPTIONS = [
+  { value: 'anxious', label: 'Anxious' },
+  { value: 'stressed', label: 'Stressed' },
+  { value: 'sad', label: 'Sad / Low' },
+  { value: 'overwhelmed', label: 'Overwhelmed' },
+  { value: 'angry', label: 'Angry / Irritable' },
+  { value: 'restless', label: 'Restless' },
+  { value: 'neutral', label: 'Neutral / Calm' },
+  { value: 'energized', label: 'Energized' },
+];
+
+const FOCUS_AREA_OPTIONS = [
+  { value: 'reduce_anxiety', label: 'Reduce Anxiety' },
+  { value: 'manage_stress', label: 'Manage Stress' },
+  { value: 'improve_mood', label: 'Improve Mood' },
+  { value: 'better_sleep', label: 'Better Sleep' },
+  { value: 'emotional_regulation', label: 'Emotional Regulation' },
+  { value: 'focus', label: 'Improve Focus' },
+  { value: 'self_compassion', label: 'Self-Compassion' },
+  { value: 'confidence', label: 'Build Confidence' },
+];
 
 const categoryIcons = {
   breathing: Wind,
@@ -268,39 +290,23 @@ Provide recommendations with:
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                 <div>
                   <Label className="text-sm font-medium mb-2">How are you feeling right now?</Label>
-                  <Select value={selectedMood} onValueChange={setSelectedMood}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select current mood..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="anxious">Anxious</SelectItem>
-                      <SelectItem value="stressed">Stressed</SelectItem>
-                      <SelectItem value="sad">Sad / Low</SelectItem>
-                      <SelectItem value="overwhelmed">Overwhelmed</SelectItem>
-                      <SelectItem value="angry">Angry / Irritable</SelectItem>
-                      <SelectItem value="restless">Restless</SelectItem>
-                      <SelectItem value="neutral">Neutral / Calm</SelectItem>
-                      <SelectItem value="energized">Energized</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <BottomSheetSelect
+                    value={selectedMood}
+                    onValueChange={setSelectedMood}
+                    options={MOOD_OPTIONS}
+                    placeholder="Select current mood…"
+                    title="Current Mood"
+                  />
                 </div>
                 <div>
                   <Label className="text-sm font-medium mb-2">What do you want to work on?</Label>
-                  <Select value={selectedGoal} onValueChange={setSelectedGoal}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select focus area..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="reduce_anxiety">Reduce Anxiety</SelectItem>
-                      <SelectItem value="manage_stress">Manage Stress</SelectItem>
-                      <SelectItem value="improve_mood">Improve Mood</SelectItem>
-                      <SelectItem value="better_sleep">Better Sleep</SelectItem>
-                      <SelectItem value="emotional_regulation">Emotional Regulation</SelectItem>
-                      <SelectItem value="focus">Improve Focus</SelectItem>
-                      <SelectItem value="self_compassion">Self-Compassion</SelectItem>
-                      <SelectItem value="confidence">Build Confidence</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <BottomSheetSelect
+                    value={selectedGoal}
+                    onValueChange={setSelectedGoal}
+                    options={FOCUS_AREA_OPTIONS}
+                    placeholder="Select focus area…"
+                    title="Focus Area"
+                  />
                 </div>
               </div>
               {(selectedMood || selectedGoal) &&

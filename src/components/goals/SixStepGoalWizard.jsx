@@ -5,11 +5,25 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ChevronLeft, ChevronRight, Check, Target, Brain, AlertTriangle, Map, TrendingUp, RefreshCw, Lightbulb, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+const GOAL_CATEGORY_OPTIONS = [
+  { value: 'behavioral', label: 'Behavioral' },
+  { value: 'emotional', label: 'Emotional' },
+  { value: 'social', label: 'Social' },
+  { value: 'cognitive', label: 'Cognitive' },
+  { value: 'lifestyle', label: 'Lifestyle' },
+];
+
+const REVIEW_SCHEDULE_OPTIONS = [
+  { value: 'weekly', label: 'Weekly' },
+  { value: 'biweekly', label: 'Every Two Weeks' },
+  { value: 'monthly', label: 'Monthly' },
+];
 
 const STEPS = [
   { 
@@ -290,21 +304,12 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
 
             <div className="space-y-2">
               <Label>Category</Label>
-              <Select
+              <BottomSheetSelect
                 value={goalData.category}
                 onValueChange={(value) => updateField('category', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="behavioral">Behavioral</SelectItem>
-                  <SelectItem value="emotional">Emotional</SelectItem>
-                  <SelectItem value="social">Social</SelectItem>
-                  <SelectItem value="cognitive">Cognitive</SelectItem>
-                  <SelectItem value="lifestyle">Lifestyle</SelectItem>
-                </SelectContent>
-              </Select>
+                options={GOAL_CATEGORY_OPTIONS}
+                title="Goal Category"
+              />
             </div>
 
             <div className="bg-blue-50 p-4 rounded-lg space-y-4">
@@ -825,19 +830,12 @@ export default function SixStepGoalWizard({ onComplete, onCancel, existingGoal =
           <div className="space-y-6">
             <div className="space-y-2">
               <Label>Review Schedule</Label>
-              <Select
+              <BottomSheetSelect
                 value={goalData.review_and_adjust.review_schedule}
                 onValueChange={(value) => updateField('review_and_adjust.review_schedule', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="weekly">Weekly</SelectItem>
-                  <SelectItem value="biweekly">Every Two Weeks</SelectItem>
-                  <SelectItem value="monthly">Monthly</SelectItem>
-                </SelectContent>
-              </Select>
+                options={REVIEW_SCHEDULE_OPTIONS}
+                title="Review Schedule"
+              />
             </div>
 
             <div className="bg-green-50 p-4 rounded-lg">

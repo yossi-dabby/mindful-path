@@ -5,9 +5,22 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
 import { Switch } from '@/components/ui/switch';
 import { X } from 'lucide-react';
+
+const GROUP_CATEGORY_OPTIONS = [
+  { value: 'anxiety', label: 'Anxiety Support' },
+  { value: 'depression', label: 'Depression Support' },
+  { value: 'stress_management', label: 'Stress Management' },
+  { value: 'goal_achievement', label: 'Goal Achievement' },
+  { value: 'mindfulness', label: 'Mindfulness' },
+  { value: 'fitness', label: 'Fitness & Health' },
+  { value: 'sleep', label: 'Sleep Improvement' },
+  { value: 'relationships', label: 'Relationships' },
+  { value: 'work_life_balance', label: 'Work-Life Balance' },
+  { value: 'other', label: 'Other' },
+];
 
 export default function GroupForm({ onClose }) {
   const queryClient = useQueryClient();
@@ -102,26 +115,12 @@ export default function GroupForm({ onClose }) {
 
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">Category</label>
-              <Select
+              <BottomSheetSelect
                 value={formData.category}
                 onValueChange={(value) => setFormData({ ...formData, category: value })}
-              >
-                <SelectTrigger className="rounded-xl">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="anxiety">Anxiety Support</SelectItem>
-                  <SelectItem value="depression">Depression Support</SelectItem>
-                  <SelectItem value="stress_management">Stress Management</SelectItem>
-                  <SelectItem value="goal_achievement">Goal Achievement</SelectItem>
-                  <SelectItem value="mindfulness">Mindfulness</SelectItem>
-                  <SelectItem value="fitness">Fitness & Health</SelectItem>
-                  <SelectItem value="sleep">Sleep Improvement</SelectItem>
-                  <SelectItem value="relationships">Relationships</SelectItem>
-                  <SelectItem value="work_life_balance">Work-Life Balance</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
+                options={GROUP_CATEGORY_OPTIONS}
+                title="Group Category"
+              />
             </div>
 
             <div>

@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
 import { AlertTriangle, Filter, MessageCircle, Brain, Target } from 'lucide-react';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
@@ -41,6 +41,23 @@ export default function CrisisAlerts() {
     immediate_danger: t('crisis_alerts.reasons.immediate_danger'),
     general_crisis: t('crisis_alerts.reasons.general_crisis')
   };
+
+  const surfaceOptions = [
+    { value: 'all', label: t('crisis_alerts.all_surfaces') },
+    { value: 'chat', label: t('crisis_alerts.therapist_chat') },
+    { value: 'companion', label: t('crisis_alerts.ai_companion') },
+    { value: 'coach', label: t('crisis_alerts.coach_chat') },
+  ];
+
+  const reasonOptions = [
+    { value: 'all', label: t('crisis_alerts.all_reasons') },
+    { value: 'self_harm', label: t('crisis_alerts.reasons.self_harm') },
+    { value: 'suicide', label: t('crisis_alerts.reasons.suicide') },
+    { value: 'overdose', label: t('crisis_alerts.reasons.overdose') },
+    { value: 'immediate_danger', label: t('crisis_alerts.reasons.immediate_danger') },
+    { value: 'general_crisis', label: t('crisis_alerts.reasons.general_crisis') },
+  ];
+
   const [surfaceFilter, setSurfaceFilter] = useState('all');
   const [reasonFilter, setReasonFilter] = useState('all');
   const [isAdminChecked, setIsAdminChecked] = useState(false);
@@ -124,31 +141,23 @@ export default function CrisisAlerts() {
                 <span className="text-sm font-medium text-gray-700">{t('crisis_alerts.filters_label')}</span>
               </div>
               
-              <Select value={surfaceFilter} onValueChange={setSurfaceFilter}>
-                <SelectTrigger data-testid="surface-filter" className="w-40">
-                  <SelectValue placeholder={t('crisis_alerts.all_surfaces')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t('crisis_alerts.all_surfaces')}</SelectItem>
-                  <SelectItem value="chat">{t('crisis_alerts.therapist_chat')}</SelectItem>
-                  <SelectItem value="companion">{t('crisis_alerts.ai_companion')}</SelectItem>
-                  <SelectItem value="coach">{t('crisis_alerts.coach_chat')}</SelectItem>
-                </SelectContent>
-              </Select>
+              <BottomSheetSelect
+                data-testid="surface-filter"
+                value={surfaceFilter}
+                onValueChange={setSurfaceFilter}
+                options={surfaceOptions}
+                title={t('crisis_alerts.all_surfaces')}
+                className="w-40"
+              />
 
-              <Select value={reasonFilter} onValueChange={setReasonFilter}>
-                <SelectTrigger data-testid="reason-filter" className="w-40">
-                  <SelectValue placeholder={t('crisis_alerts.all_reasons')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t('crisis_alerts.all_reasons')}</SelectItem>
-                  <SelectItem value="self_harm">{t('crisis_alerts.reasons.self_harm')}</SelectItem>
-                  <SelectItem value="suicide">{t('crisis_alerts.reasons.suicide')}</SelectItem>
-                  <SelectItem value="overdose">{t('crisis_alerts.reasons.overdose')}</SelectItem>
-                  <SelectItem value="immediate_danger">{t('crisis_alerts.reasons.immediate_danger')}</SelectItem>
-                  <SelectItem value="general_crisis">{t('crisis_alerts.reasons.general_crisis')}</SelectItem>
-                </SelectContent>
-              </Select>
+              <BottomSheetSelect
+                data-testid="reason-filter"
+                value={reasonFilter}
+                onValueChange={setReasonFilter}
+                options={reasonOptions}
+                title={t('crisis_alerts.all_reasons')}
+                className="w-40"
+              />
 
               <div className="ml-auto text-sm text-gray-500">
                 {t('crisis_alerts.alert_count', { count: alerts.length, unit: alerts.length === 1 ? t('crisis_alerts.alert_singular') : t('crisis_alerts.alert_plural') })}
