@@ -4,17 +4,19 @@ import { normalizeEntityList } from '@/lib/entityListNormalizer';
 
 const { appId, token, functionsVersion } = appParams;
 
+// Base URL is configurable via VITE_BASE44_APP_BASE_URL. The hardcoded fallback
+// ensures auth.redirectToLogin() and auth.logout() always redirect to the real
+// Base44 platform login page, even when the env var is not set at build time.
+// Without this, unauthenticated users land on a 404 in Railway production.
+const APP_BASE_URL = import.meta.env.VITE_BASE44_APP_BASE_URL || 'https://base44.app';
+
 //Create a client with authentication required
 export const base44 = createClient({
   appId: appId || undefined,
   token,
   functionsVersion,
   requiresAuth: false,
-  // appBaseUrl is required so that auth.redirectToLogin() and auth.logout()
-  // redirect to the real Base44 platform login page rather than constructing
-  // a relative `/login` URL that does not exist in this React app.
-  // Without this, unauthenticated users land on a 404 in Railway production.
-  appBaseUrl: 'https://base44.app',
+  appBaseUrl: APP_BASE_URL,
 });
 
 // Prevent /api/apps/null/analytics/track/batch requests when appId is missing or falsy.
