@@ -2,15 +2,11 @@ import { createClient } from '@base44/sdk';
 import { appParams } from '@/lib/app-params';
 import { normalizeEntityList } from '@/lib/entityListNormalizer';
 
-const { token, functionsVersion } = appParams;
-
-// App ID is hardcoded as a fallback to ensure login redirects always work
-// even when VITE_BASE44_APP_ID is not set at Railway build time.
-const APP_ID = import.meta.env.VITE_BASE44_APP_ID || '69504b725a07f5aa75aeaf7d';
+const { appId, token, functionsVersion } = appParams;
 
 //Create a client with authentication required
 export const base44 = createClient({
-  appId: APP_ID,
+  appId: appId || undefined,
   token,
   functionsVersion,
   requiresAuth: false,
@@ -21,27 +17,12 @@ export const base44 = createClient({
   appBaseUrl: 'https://base44.app',
 });
 
-// ---------------------------------------------------------------------------
-// Override auth.redirectToLogin to include app_id in the redirect URL.
-//
-// The SDK's redirectToLogin() builds the URL as:
-//   https://base44.app/login?from_url=<url>
-// — without app_id — so Base44 cannot identify which app to authenticate
-// for and returns "App not found".
-// We override it here to append &app_id=<APP_ID> so the Base44 platform
-// can resolve the app context correctly on every login redirect.
-// ---------------------------------------------------------------------------
-base44.auth.redirectToLogin = (nextUrl) => {
-  if (typeof window === 'undefined') return;
-  const redirectUrl = nextUrl
-    ? new URL(nextUrl, window.location.origin).toString()
-    : window.location.href;
-  const loginUrl =
-    `https://base44.app/login` +
-    `?from_url=${encodeURIComponent(redirectUrl)}` +
-    `&app_id=${encodeURIComponent(APP_ID)}`;
-  window.location.href = loginUrl;
-};
+// Prevent /api/apps/null/analytics/track/batch requests when appId is missing or falsy.
+// cleanup() stops the heartbeat processor and the internal batch flush loop.
+if (!appId) {
+  base44.analytics.cleanup();
+  base44.analytics = { track: () => {}, cleanup: () => {} };
+}
 
 // ---------------------------------------------------------------------------
 // Override auth.updateMe to use PATCH instead of PUT.
@@ -52,36 +33,38 @@ base44.auth.redirectToLogin = (nextUrl) => {
 // replace the method here so every caller (WelcomeWizard, Settings, etc.)
 // benefits from the fix without any call-site changes.
 // ---------------------------------------------------------------------------
-base44.auth.updateMe = async (data) => {
-  const token =
-    typeof window !== 'undefined'
-      ? (window.localStorage?.getItem('base44_access_token') ?? null)
-      : null;
+if (appId) {
+  base44.auth.updateMe = async (data) => {
+    const token =
+      typeof window !== 'undefined'
+        ? (window.localStorage?.getItem('base44_access_token') ?? null)
+        : null;
 
-  const res = await fetch(`/api/apps/${encodeURIComponent(APP_ID)}/entities/User/me`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(data),
-  });
+    const res = await fetch(`/api/apps/${encodeURIComponent(appId)}/entities/User/me`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(data),
+    });
 
-  if (!res.ok) {
-    const errData = await res.json().catch(() => ({}));
-    const msg =
-      errData.message || errData.detail || `Request failed with status code ${res.status}`;
-    const err = new Error(msg);
-    err.name = 'Base44Error';
-    err.status = res.status;
-    err.code = errData.code;
-    err.data = errData;
-    throw err;
-  }
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      const msg =
+        errData.message || errData.detail || `Request failed with status code ${res.status}`;
+      const err = new Error(msg);
+      err.name = 'Base44Error';
+      err.status = res.status;
+      err.code = errData.code;
+      err.data = errData;
+      throw err;
+    }
 
-  return res.json();
-};
+    return res.json();
+  };
+}
 
 // ---------------------------------------------------------------------------
 // Shared entity-response normalization
