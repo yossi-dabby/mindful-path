@@ -116,8 +116,8 @@ export default function Resources() {
 
   const filteredResources = resources.filter(resource => {
     const matchesSearch = searchQuery === '' || 
-      resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      resource.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (resource.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (resource.description || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       resource.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
     
     const matchesCategory = selectedCategory === 'all' || resource.category === selectedCategory;

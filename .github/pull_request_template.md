@@ -1,3 +1,13 @@
+## ⚠️ Branch Target Check
+<!-- STOP — confirm the base branch before opening this PR -->
+- [ ] This PR targets **`staging`** — for all rollout/preparation work
+- [ ] This PR targets **`main`** — only after staging validation has fully passed
+
+> **If you opened this PR against `main` by mistake, close it and reopen it targeting `staging`.**
+> See `CONTRIBUTING.md` and `docs/copilot-pr-workflow.md` (Section 0) for the full branch policy.
+
+---
+
 ## Description
 <!-- Provide a brief description of the changes in this PR -->
 

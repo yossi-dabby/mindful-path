@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
+import { appParams } from '@/lib/app-params';
 import { ThumbsUp, ThumbsDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -23,15 +24,17 @@ export default function MessageFeedback({ conversationId, messageIndex, agentNam
       });
 
       // Analytics tracking
-      base44.analytics.track({
-        eventName: 'message_feedback_given',
-        properties: {
-          feedback_type: type,
-          conversation_id: conversationId,
-          agent_name: agentName,
-          context: context
-        }
-      });
+      if (appParams.appId) {
+        base44.analytics.track({
+          eventName: 'message_feedback_given',
+          properties: {
+            feedback_type: type,
+            conversation_id: conversationId,
+            agent_name: agentName,
+            context: context
+          }
+        });
+      }
     } catch (error) {
       console.error('Failed to submit feedback:', error);
       setFeedback(null);
