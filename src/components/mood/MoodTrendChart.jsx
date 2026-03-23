@@ -1,9 +1,16 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { TrendingUp, TrendingDown, Activity } from 'lucide-react';
 import { format, subDays } from 'date-fns';
+
+const DATE_RANGE_OPTIONS = [
+  { value: '7', label: 'Last 7 days' },
+  { value: '14', label: 'Last 2 weeks' },
+  { value: '30', label: 'Last month' },
+  { value: '90', label: 'Last 3 months' },
+];
 
 const moodValues = {
   excellent: 5,
@@ -74,17 +81,13 @@ export default function MoodTrendChart({ entries, dateRange, onDateRangeChange }
             <Activity className="text-teal-600 lucide lucide-activity w-5 h-5" />
             Mood Trends
           </CardTitle>
-          <Select value={dateRange.toString()} onValueChange={(v) => onDateRangeChange(parseInt(v))}>
-            <SelectTrigger className="bg-[hsl(var(--surface-nested)/0.92)] text-teal-600 px-3 py-2 text-sm rounded-[var(--radius-control)] flex h-9 items-center justify-between whitespace-nowrap border border-input/90 shadow-[var(--shadow-sm)] ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7">Last 7 days</SelectItem>
-              <SelectItem value="14">Last 2 weeks</SelectItem>
-              <SelectItem value="30">Last month</SelectItem>
-              <SelectItem value="90">Last 3 months</SelectItem>
-            </SelectContent>
-          </Select>
+          <BottomSheetSelect
+            value={dateRange.toString()}
+            onValueChange={(v) => onDateRangeChange(parseInt(v))}
+            options={DATE_RANGE_OPTIONS}
+            title="Date Range"
+            className="w-32"
+          />
         </div>
       </CardHeader>
       <CardContent className="p-6">

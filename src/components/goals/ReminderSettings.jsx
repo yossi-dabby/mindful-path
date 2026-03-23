@@ -5,11 +5,31 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Bell, Trash2, Plus, Mail, AppWindow, Check } from 'lucide-react';
 import { format } from 'date-fns';
+
+const REMINDER_TYPE_OPTIONS = [
+  { value: 'goal_deadline', label: 'Goal Deadline' },
+  { value: 'milestone_deadline', label: 'Milestone Deadline' },
+  { value: 'weekly_checkin', label: 'Weekly Check-in' },
+  { value: 'custom', label: 'Custom' },
+];
+
+const NOTIFICATION_METHOD_OPTIONS = [
+  { value: 'both', label: 'Email + In-App' },
+  { value: 'email', label: 'Email Only' },
+  { value: 'in_app', label: 'In-App Only' },
+];
+
+const FREQUENCY_OPTIONS = [
+  { value: 'once', label: 'Once' },
+  { value: 'daily', label: 'Daily' },
+  { value: 'weekly', label: 'Weekly' },
+  { value: 'monthly', label: 'Monthly' },
+];
 
 export default function ReminderSettings({ goal, onClose }) {
   const [showAddForm, setShowAddForm] = useState(false);
@@ -219,22 +239,14 @@ export default function ReminderSettings({ goal, onClose }) {
                 <div className="border rounded-lg p-4 space-y-4 bg-gray-50">
                   <div className="space-y-2">
                     <Label>Reminder Type</Label>
-                    <Select
+                    <BottomSheetSelect
                       value={newReminder.reminder_type}
                       onValueChange={(value) => 
                         setNewReminder({ ...newReminder, reminder_type: value })
                       }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="goal_deadline">Goal Deadline</SelectItem>
-                        <SelectItem value="milestone_deadline">Milestone Deadline</SelectItem>
-                        <SelectItem value="weekly_checkin">Weekly Check-in</SelectItem>
-                        <SelectItem value="custom">Custom</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      options={REMINDER_TYPE_OPTIONS}
+                      title="Reminder Type"
+                    />
                   </div>
 
                   {(newReminder.reminder_type === 'goal_deadline' || 
@@ -255,23 +267,18 @@ export default function ReminderSettings({ goal, onClose }) {
                   {newReminder.reminder_type === 'milestone_deadline' && (
                     <div className="space-y-2">
                       <Label>Select Milestone</Label>
-                      <Select
+                      <BottomSheetSelect
                         value={newReminder.milestone_index?.toString()}
                         onValueChange={(value) => 
                           setNewReminder({ ...newReminder, milestone_index: parseInt(value) })
                         }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Choose milestone..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {goal.milestones?.map((m, idx) => (
-                            <SelectItem key={idx} value={idx.toString()}>
-                              {m.title || `Step ${idx + 1}`}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        options={(goal.milestones || []).map((m, idx) => ({
+                          value: idx.toString(),
+                          label: m.title || `Step ${idx + 1}`,
+                        }))}
+                        placeholder="Choose milestone…"
+                        title="Select Milestone"
+                      />
                     </div>
                   )}
 
@@ -290,42 +297,27 @@ export default function ReminderSettings({ goal, onClose }) {
 
                   <div className="space-y-2">
                     <Label>Send Via</Label>
-                    <Select
+                    <BottomSheetSelect
                       value={newReminder.notification_method}
                       onValueChange={(value) => 
                         setNewReminder({ ...newReminder, notification_method: value })
                       }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="both">Email + In-App</SelectItem>
-                        <SelectItem value="email">Email Only</SelectItem>
-                        <SelectItem value="in_app">In-App Only</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      options={NOTIFICATION_METHOD_OPTIONS}
+                      title="Notification Method"
+                    />
                   </div>
 
                   {newReminder.reminder_type !== 'weekly_checkin' && (
                     <div className="space-y-2">
                       <Label>Frequency</Label>
-                      <Select
+                      <BottomSheetSelect
                         value={newReminder.frequency}
                         onValueChange={(value) => 
                           setNewReminder({ ...newReminder, frequency: value })
                         }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="once">Once</SelectItem>
-                          <SelectItem value="daily">Daily</SelectItem>
-                          <SelectItem value="weekly">Weekly</SelectItem>
-                          <SelectItem value="monthly">Monthly</SelectItem>
-                        </SelectContent>
-                      </Select>
+                        options={FREQUENCY_OPTIONS}
+                        title="Reminder Frequency"
+                      />
                     </div>
                   )}
 
