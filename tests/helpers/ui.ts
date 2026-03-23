@@ -82,6 +82,16 @@ export async function mockApi(page: Page) {
       return;
     }
 
+    // app-logs (e.g. /api/app-logs/<appId>/log-user-in-app/<page>)
+    if (url.includes('/app-logs/')) {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: true }),
+      });
+      return;
+    }
+
     // public settings by id (often called with null during tests)
     if (url.includes('/public-settings/by-id/')) {
       await route.fulfill({
@@ -98,6 +108,24 @@ export async function mockApi(page: Page) {
     }
 
     // ---- Auth endpoints ----
+    // The Base44 SDK calls GET/PUT /api/apps/{appId}/entities/User/me for auth.me() and auth.updateMe().
+    // Returning onboarding_completed: true prevents the WelcomeWizard from rendering in tests.
+    if (url.includes('/entities/User/me')) {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          id: mockUserId,
+          email: mockUserEmail,
+          full_name: 'Test User',
+          role: 'user',
+          onboarding_completed: true,
+          created_date: new Date().toISOString(),
+        }),
+      });
+      return;
+    }
+
     if (url.includes('/auth/me') || url.includes('/auth/session')) {
       await route.fulfill({
         status: 200,
@@ -107,6 +135,7 @@ export async function mockApi(page: Page) {
           email: mockUserEmail,
           full_name: 'Test User',
           role: 'user',
+          onboarding_completed: true,
           created_date: new Date().toISOString(),
         }),
       });
