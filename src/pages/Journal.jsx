@@ -60,7 +60,7 @@ export default function Journal() {
     refetchOnWindowFocus: false
   });
 
-  const entries = [...thoughtJournals, ...sessionSummaries.map((s) => ({
+  const entries = [...(Array.isArray(thoughtJournals) ? thoughtJournals : []), ...(Array.isArray(sessionSummaries) ? sessionSummaries : []).map((s) => ({
     ...s,
     entry_type: 'session_summary',
     situation: `Session Summary: ${new Date(s.session_date).toLocaleDateString()}`,

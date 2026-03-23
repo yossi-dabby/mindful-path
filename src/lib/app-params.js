@@ -39,27 +39,30 @@ const getAppParams = () => {
 		storage.removeItem('base44_access_token');
 		storage.removeItem('token');
 	}
-	const envAppId = import.meta.env.VITE_BASE44_APP_ID || import.meta.env.BASE44_APP_ID;
+	// __TEST_APP_ID__ may be injected by Playwright addInitScript to prevent
+	// undefined from propagating into API URLs when no env var is present.
+	const envAppId = (!isNode && windowObj.__TEST_APP_ID__) || import.meta.env.VITE_BASE44_APP_ID || import.meta.env.BASE44_APP_ID;
 	const envFunctionsVersion = import.meta.env.VITE_BASE44_FUNCTIONS_VERSION || import.meta.env.BASE44_FUNCTIONS_VERSION;
+	const resolvedAppId = getAppParamValue("app_id", { defaultValue: envAppId });
+
+	// Dev-only diagnostic: missing VITE_BASE44_APP_ID causes requests to use
+	// /api/apps/null/... which produces unexpected API responses.
+	if (import.meta.env.DEV && !isNode && !resolvedAppId) {
+		console.warn(
+			'[app-params] VITE_BASE44_APP_ID is not set. ' +
+			'API requests will target /api/apps/null/... — ' +
+			'set this variable in your .env or Railway environment.'
+		);
+	}
+
 	return {
-		appId: getAppParamValue("app_id", { defaultValue: envAppId }),
+		appId: resolvedAppId,
 		token: getAppParamValue("access_token", { removeFromUrl: true }),
-		fromUrl: getAppParamValue("from_url", { defaultValue: window.location.href }),
+		fromUrl: getAppParamValue("from_url", { defaultValue: window.location.pathname + window.location.search }),
 		functionsVersion: getAppParamValue("functions_version", { defaultValue: envFunctionsVersion }),
 	}
 }
 
-
-const _params = getAppParams();
-
-if (import.meta.env.DEV && !_params.appId) {
-	console.warn(
-		'[app-params] appId resolved to null/empty. ' +
-		'Ensure VITE_BASE44_APP_ID is set at build time. ' +
-		'API requests will target /api/apps/null/... and will fail.'
-	);
-}
-
 export const appParams = {
-	..._params
+	...getAppParams()
 }
