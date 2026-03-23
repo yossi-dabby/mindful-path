@@ -150,6 +150,12 @@ export default function DataPrivacy({ user }) {
   };
 
   const handleDeleteAccount = async () => {
+    if (user?.role === 'admin') {
+      setActionMessage({ type: 'error', text: 'Admin accounts cannot be deleted from inside the app. Please contact support.' });
+      setTimeout(() => setActionMessage(null), 4000);
+      return;
+    }
+
     if (!deleteAccountConfirming) {
       setDeleteAccountConfirming(true);
       return;
@@ -157,7 +163,10 @@ export default function DataPrivacy({ user }) {
 
     setDeletingAccount(true);
     try {
-      await base44.entities.User.delete('me');
+      const response = await base44.functions.invoke('deleteMyAccount', {});
+      if (response?.data?.error) {
+        throw new Error(response.data.error);
+      }
       setActionMessage({ type: 'success', text: 'Account deleted successfully. Logging out...' });
       setTimeout(() => {
         performLogout();
