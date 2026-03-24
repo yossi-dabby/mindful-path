@@ -36,18 +36,23 @@ export default function WelcomeWizard({ onComplete }) {
         experience_level: data.experience_level
       });
     },
-    onSuccess: () => {
+    onMutate: () => {
+      // Optimistically mark onboarding done in session cache immediately.
+      // This prevents the wizard from re-appearing on slow connections or
+      // if the page re-renders before the server responds.
       try {
         const prev = JSON.parse(sessionStorage.getItem('user_prefs_loaded') || '{}');
         sessionStorage.setItem('user_prefs_loaded', JSON.stringify({ ...prev, onboarding_completed: true }));
-      } catch (_) {
-        // Best-effort cache update — failure here does not affect the completion flow.
-      }
-      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+      } catch (_) {}
       onComplete();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
     },
     onError: (error) => {
       console.error('[WelcomeWizard] Setup completion failed:', error);
+      // Note: onComplete was already called optimistically — user is in the app.
+      // The next page load will retry onboarding if the server truly failed.
     }
   });
 
