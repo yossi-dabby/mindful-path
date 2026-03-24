@@ -1,10 +1,11 @@
 # Production-Readiness Audit — Railway / Base44
 
-**Branch investigated:** `copilot/start-clean-production-investigation`
+**Branch investigated:** `copilot/clean-production-audit`
 **PR base:** `staging-fresh`
 **Audit date:** 2026-03-24
 **Prepared by:** GitHub Copilot Coding Agent
 **Scope:** Investigation only — no code changes made
+**History:** Supersedes the initial investigation in `copilot/start-clean-production-investigation` (PR #449, merged to `staging-fresh`). This branch merges `staging-fresh` and extends the audit with a second, deeper code inspection pass.
 
 ---
 
@@ -13,13 +14,14 @@
 | Check | Result |
 |-------|--------|
 | PR base branch | `staging-fresh` ✅ |
+| `staging-fresh` merged into this branch | ✅ Clean merge — no conflicts |
 | Merge base with `staging-fresh` | `24d281570b93e23221d534b96da58e25fa051a8c` |
 | Merge base with `main` | `24d281570b93e23221d534b96da58e25fa051a8c` |
 | Conflicts against `staging-fresh` | **None** ✅ |
 | Conflicts against `main` | **None** ✅ |
-| Current state of `staging-fresh` vs `main` | Identical — both point to the same commit |
+| Current state of `staging-fresh` vs `main` | `staging-fresh` is 3 commits ahead of `main` (two investigation commits + merge commit from PR #449) |
 
-`staging-fresh` and `main` are at the same commit at the time of this audit. This branch is 1 commit ahead of both (the initial plan commit only).
+`staging-fresh` is ahead of `main` by the PR #449 audit investigation commits. This branch has merged `staging-fresh` and adds the extended audit. It is ahead of both `staging-fresh` and `main`.
 
 ---
 
@@ -29,7 +31,9 @@ The app is **structurally sound** for Railway production deployment. The routing
 
 Feature flag infrastructure is fully built and safe — all Stage 2 AI capability flags default to `false` and require explicit opt-in via Railway environment variables. The basic HYBRID wiring (CBT Therapist + AI Companion) is active in production when appId is correctly configured.
 
-There are two minor code-level issues (AuthContext retry flash, silent ErrorBoundary) that are not blocking but should be addressed before a public launch.
+All 3124 unit tests pass on the `copilot/clean-production-audit` branch.
+
+There are two minor code-level issues (AuthContext retry flash, silent ErrorBoundary) that are not blocking but should be addressed before a public launch. A third issue was identified in this pass: the `vite.config.js` build configuration changes behavior when `CI=true` is set in Railway env vars — this should be explicitly excluded from Railway production builds.
 
 ---
 
@@ -300,7 +304,76 @@ THERAPIST_UPGRADE_MEMORY_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_MEMORY
 
 ---
 
-## 3. Production Blockers
+### 2.9 Vite Build Configuration — `vite.config.js` (New Finding)
+
+```javascript
+build: {
+  sourcemap: process.env.CI ? true : false,
+  minify: process.env.CI ? false : "esbuild",
+},
+```
+
+**Risk identified — `CI` environment variable in Railway:**
+
+The build configuration uses `process.env.CI` to toggle sourcemaps and minification. When `CI=true`:
+- Sourcemaps are **enabled** (bundle includes source mappings — larger file, exposes application source structure to anyone who inspects the bundle)
+- Minification is **disabled** (bundle contains human-readable code — slower page loads and exposes variable names, logic flow, and internal implementation details)
+
+**Security implication:** Enabled sourcemaps in production expose the full unobfuscated source code of the application to anyone with browser dev tools. This includes internal auth logic, API call patterns, agent wiring configurations, and any hardcoded fallback URLs — all of which could assist an attacker in fingerprinting the app or crafting targeted requests.
+
+The `env.staging.example` file explicitly recommends setting `CI=true` for staging builds because it makes debugging easier. However, if `CI=true` is also set in the Railway **production** environment (either intentionally or as a leftover), production bundles will be unminified with full sourcemaps.
+
+**Assessment:** 🟠 Medium risk. Must confirm `CI` is NOT set in the Railway production environment. If `CI` is set (common default in some CI/CD platforms), the production build will be unoptimized and expose source structure.
+
+**Verification:** In Railway dashboard → Variables → confirm `CI` is either unset or explicitly set to `false` for the production deployment.
+
+---
+
+### 2.10 Vite Plugin `appBaseUrl` vs Client `APP_BASE_URL` (New Finding)
+
+**`vite.config.js`:**
+```javascript
+base44({
+  appBaseUrl: process.env.VITE_BASE44_APP_BASE_URL || "https://mindful-path-75aeaf7d.base44.app",
+  hmrNotifier: true,
+  navigationNotifier: true,
+  visualEditAgent: true,
+})
+```
+
+**`src/api/base44Client.js`:**
+```javascript
+const APP_BASE_URL = import.meta.env.VITE_BASE44_APP_BASE_URL || 'https://base44.app';
+```
+
+These two URLs serve different purposes:
+- **vite plugin `appBaseUrl`**: Configures HMR notifier, navigation notifier, and visual edit agent — these are **development tools only** and have no effect in production builds.
+- **client `APP_BASE_URL`**: Used in auth redirects (`auth.redirectToLogin()`, `auth.logout()`) — **this is the production-relevant URL**.
+
+The hardcoded `https://mindful-path-75aeaf7d.base44.app` in `vite.config.js` is the specific Base44 preview app URL. It does not affect production auth redirects (which use `APP_BASE_URL`). The auth redirect fallback `https://base44.app` in `base44Client.js` is correct for production.
+
+**Assessment:** ✅ No production risk. The two fallback URLs serve different layers and both are correct.
+
+---
+
+### 2.11 Chat Conversation Creation Error Handling — `src/pages/Chat.jsx` (Confirmed)
+
+The `createConversation` call is wrapped in a `try/catch`:
+
+```javascript
+try {
+  const conversation = await base44.agents.createConversation({ ... });
+  // ... set state
+} catch (error) {
+  console.error('Error creating conversation:', error);
+}
+```
+
+On failure (agent not deployed, network error, etc.), the error is logged to console but not surfaced to the user. The chat page remains in a loading/empty state with no user-facing error message.
+
+**Assessment:** ⚠️ Moderate. Same as §2.7 — the `ErrorBoundary` + silent catch pattern makes production failures invisible to users.
+
+---
 
 ### BLOCKER-1: `VITE_BASE44_APP_ID` not set in Railway
 
@@ -377,6 +450,7 @@ These are not app-breaking but must be resolved to enable the advanced AI featur
 | `ErrorBoundary` returns `null` (no fallback UI) | Moderate | Hides errors but doesn't cause data loss; harder to debug prod issues |
 | Settings non-critical silently-caught failures | Low | UserPoints/Subscription init failures don't block usage |
 | `TODO: Show error UI to user` in `DraggableAiCompanion.jsx` | Low | AI companion still functions; error just disappears |
+| Chat `createConversation` silent catch | Moderate | Error logged to console; user sees empty/stuck state — not critical for initial validation |
 
 ---
 
@@ -389,12 +463,15 @@ These are not app-breaking but must be resolved to enable the advanced AI featur
 1. **Set `VITE_BASE44_APP_ID`** in Railway environment variables → trigger a new build
 2. **Confirm `VITE_BASE44_APP_BASE_URL`** is set (or accept the `https://base44.app` fallback — the fallback is correct for login redirects)
 3. **Verify `cbt_therapist` and `ai_companion` agents** are configured in the Base44 app instance
+4. **Confirm `CI` is NOT set to `true`** in the Railway production environment variables — if it is, the build will produce unminified bundles with sourcemaps (§2.9)
 
 **Estimated impact:** Resolves BLOCKER-1 and BLOCKER-2. App becomes fully functional.
 
 ---
 
 ### Step 2 — AuthContext Retry Fix (Small Code Change)
+
+> ⚠️ Proposed for a **future PR** — not applied in this audit branch.
 
 **File:** `src/lib/AuthContext.jsx`  
 **Change:** Restructure retry to avoid `finally` firing between attempts.
@@ -440,6 +517,8 @@ const checkAuth = async (retryCount = 0) => {
 ---
 
 ### Step 3 — ErrorBoundary Fallback UI (Small Code Change)
+
+> ⚠️ Proposed for a **future PR** — not applied in this audit branch.
 
 **File:** `src/components/utils/ErrorBoundary.jsx`  
 **Change:** Return a minimal error message instead of `null`.
@@ -496,7 +575,7 @@ Once Step 1 is verified working:
 | `src/App.jsx` | Route definitions, auth overlay | 🟢 Low — correct |
 | `src/pages/Home.jsx` | Onboarding trigger | 🟢 Low — correct |
 | `src/components/onboarding/WelcomeWizard.jsx` | Onboarding completion | 🟢 Low — depends on updateMe |
-| `src/pages/Chat.jsx` | AI entry path, conversation creation | 🟠 Medium — no agent check |
+| `src/pages/Chat.jsx` | AI entry path, conversation creation | 🟠 Medium — no agent check; silent catch |
 | `src/api/activeAgentWiring.js` | Agent wiring selection | 🟢 Low — HYBRID default is safe |
 | `src/api/agentWiring.js` | Agent configurations | 🟢 Low — read-only reference |
 | `src/lib/featureFlags.js` | Feature flag registry | 🟢 Low — all flags correctly default false |
@@ -505,6 +584,7 @@ Once Step 1 is verified working:
 | `railway.toml` | Deployment config | 🟢 Low — correct SPA mode |
 | `public/_redirects` | SPA routing fallback | 🟢 Low — correct |
 | `env.staging.example` | Required env vars reference | 🟢 Low — reference only |
+| `vite.config.js` | Build config, CI flag behavior | 🟠 Medium — `CI=true` disables minification in prod |
 
 ---
 
@@ -528,6 +608,7 @@ Before considering the app production-ready on Railway:
 
 - [ ] `VITE_BASE44_APP_ID` set in Railway environment variables
 - [ ] `VITE_BASE44_APP_BASE_URL` set (or confirm `https://base44.app` fallback is acceptable)
+- [ ] `CI` not set to `true` in Railway production env (when `CI=true`, build disables minification and enables sourcemaps — exposes source structure)
 - [ ] `cbt_therapist` agent confirmed in Base44 app admin
 - [ ] `ai_companion` agent confirmed in Base44 app admin
 - [ ] Login flow tested end-to-end on Railway domain (not just Base44 preview)
@@ -548,4 +629,4 @@ For AI capability rollout (after above is confirmed working):
 
 ---
 
-*Last updated: 2026-03-24 — investigation branch `copilot/start-clean-production-investigation`, base `staging-fresh`*
+*Last updated: 2026-03-24 — audit branch `copilot/clean-production-audit`, base `staging-fresh`. Extended audit pass — all 3124 unit tests verified passing.*
