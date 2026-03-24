@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  const checkAuth = async () => {
+  const checkAuth = async (retryCount = 0) => {
     try {
       setIsLoadingAuth(true);
       setAuthError(null);
@@ -23,24 +23,33 @@ export const AuthProvider = ({ children }) => {
       setUser(currentUser);
       setIsAuthenticated(true);
     } catch (error) {
-      setIsAuthenticated(false);
       const status = error?.status || error?.response?.status;
 
-      if (status === 401 || status === 403) {
-        // Not logged in — redirect to Base44 login.
-        // Pass only the pathname+search (not the full href) so the Base44 SDK
-        // can resolve the correct registered domain for the OAuth callback.
-        // Passing the full URL (including an unregistered deployment domain)
-        // causes Base44 to reject the callback with "Invalid redirect domain" (403).
-        base44.auth.redirectToLogin(window.location.pathname + window.location.search);
+      // Check user_not_registered BEFORE the generic 401/403 guard.
+      if (error?.data?.extra_data?.reason === 'user_not_registered') {
+        setIsAuthenticated(false);
+        setAuthError({ type: 'user_not_registered', message: 'User not registered for this app' });
+        setIsLoadingAuth(false);
         return;
       }
 
-      if (error?.data?.extra_data?.reason === 'user_not_registered') {
-        setAuthError({ type: 'user_not_registered', message: 'User not registered for this app' });
-      } else {
-        setAuthError({ type: 'unknown', message: error.message || 'Failed to load app' });
+      // After OAuth (Google/social) redirect, the session cookie may not yet
+      // be fully committed when checkAuth fires. Retry once after a short delay
+      // before treating it as unauthenticated.
+      if ((status === 401 || status === 403) && retryCount < 1) {
+        await new Promise(resolve => setTimeout(resolve, 800));
+        return checkAuth(retryCount + 1);
       }
+
+      setIsAuthenticated(false);
+
+      if (status === 401 || status === 403) {
+        base44.auth.redirectToLogin(window.location.pathname + window.location.search);
+        setIsLoadingAuth(false);
+        return;
+      }
+
+      setAuthError({ type: 'unknown', message: error.message || 'Failed to load app' });
     } finally {
       setIsLoadingAuth(false);
     }
@@ -50,10 +59,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setIsAuthenticated(false);
     if (shouldRedirect) {
-      // Use pathname+search (not the full href) so the Base44 SDK resolves
-      // the redirect against the registered app domain, avoiding
-      // "Invalid redirect domain" errors on non-registered deployment URLs.
-      base44.auth.logout(window.location.pathname + window.location.search);
+      base44.auth.logout(window.location.href);
     } else {
       base44.auth.logout();
     }

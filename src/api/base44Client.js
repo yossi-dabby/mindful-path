@@ -27,44 +27,16 @@ if (!appId) {
 }
 
 // ---------------------------------------------------------------------------
-// Override auth.updateMe to use PATCH instead of PUT.
+// Override base44.auth.updateMe to use the entity SDK instead of raw fetch.
 //
-// The Base44 server returns HTTP 405 Method Not Allowed for PUT requests on
-// /api/apps/{appId}/entities/User/me. The endpoint only accepts PATCH for
-// partial user profile updates. The SDK (v0.8.x) still sends PUT, so we
-// replace the method here so every caller (WelcomeWizard, Settings, etc.)
-// benefits from the fix without any call-site changes.
+// The Base44 SDK's updateMe convenience method sends a request that returns
+// 405 in this deployment. Using entities.User.update() with the current
+// user's ID is functionally equivalent and uses the SDK's own auth session.
 // ---------------------------------------------------------------------------
 if (appId) {
   base44.auth.updateMe = async (data) => {
-    const token =
-      typeof window !== 'undefined'
-        ? (window.localStorage?.getItem('base44_access_token') ?? null)
-        : null;
-
-    const res = await fetch(`${APP_BASE_URL}/api/apps/${encodeURIComponent(appId)}/entities/User/me`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify(data),
-    });
-
-    if (!res.ok) {
-      const errData = await res.json().catch(() => ({}));
-      const msg =
-        errData.message || errData.detail || `Request failed with status code ${res.status}`;
-      const err = new Error(msg);
-      err.name = 'Base44Error';
-      err.status = res.status;
-      err.code = errData.code;
-      err.data = errData;
-      throw err;
-    }
-
-    return res.json();
+    const me = await base44.auth.me();
+    return base44.entities.User.update(me.id, data);
   };
 }
 
