@@ -37,27 +37,37 @@ if (!appId) {
 // they reload the app.
 // ---------------------------------------------------------------------------
 if (appId) {
-  const _patchMeUrl = `${APP_BASE_URL}/api/apps/${appId}/entities/User/me`;
+  const _updateMeUrl = `${APP_BASE_URL}/api/apps/${appId}/entities/User/me`;
   base44.auth.updateMe = async (data) => {
+    // Try multiple token storage keys used by different SDK versions
     const storedToken =
-      localStorage.getItem('base44_access_token') || localStorage.getItem('token');
-    const response = await fetch(_patchMeUrl, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-App-Id': String(appId),
-        ...(storedToken ? { Authorization: `Bearer ${storedToken}` } : {}),
-      },
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw Object.assign(new Error(`updateMe PATCH failed: ${response.status}`), {
-        status: response.status,
-        data: errorData,
+      localStorage.getItem('base44_access_token') ||
+      localStorage.getItem('base44_token') ||
+      localStorage.getItem('b44_token') ||
+      localStorage.getItem('access_token') ||
+      localStorage.getItem('token');
+    // Try PATCH first, fall back to PUT if 405
+    for (const method of ['PATCH', 'PUT']) {
+      const response = await fetch(_updateMeUrl, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-App-Id': String(appId),
+          ...(storedToken ? { Authorization: `Bearer ${storedToken}` } : {}),
+        },
+        body: JSON.stringify(data),
       });
+      if (response.status === 405) continue; // try next method
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw Object.assign(new Error(`updateMe failed: ${response.status}`), {
+          status: response.status,
+          data: errorData,
+        });
+      }
+      return response.json();
     }
-    return response.json();
+    throw new Error('updateMe: both PATCH and PUT returned 405');
   };
 }
 
