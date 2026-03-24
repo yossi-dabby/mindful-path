@@ -10,6 +10,12 @@ const { appId, token, functionsVersion } = appParams;
 // Without this, unauthenticated users land on a 404 in Railway production.
 const APP_BASE_URL = import.meta.env.VITE_BASE44_APP_BASE_URL || 'https://base44.app';
 
+// [bootstrap-diag] Log resolved client config once at module init (fires in production too).
+console.log('[bootstrap:base44Client] config resolved — appId:', appId || '(missing)', '| baseUrl:', APP_BASE_URL);
+if (!appId) {
+  console.error('[bootstrap:base44Client] FATAL — appId is falsy. All API calls will fail with /api/apps/null/...');
+}
+
 //Create a client with authentication required
 export const base44 = createClient({
   appId: appId || undefined,

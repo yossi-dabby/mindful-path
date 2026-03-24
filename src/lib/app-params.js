@@ -45,14 +45,22 @@ const getAppParams = () => {
 	const envFunctionsVersion = import.meta.env.VITE_BASE44_FUNCTIONS_VERSION || import.meta.env.BASE44_FUNCTIONS_VERSION;
 	const resolvedAppId = getAppParamValue("app_id", { defaultValue: envAppId });
 
-	// Dev-only diagnostic: missing VITE_BASE44_APP_ID causes requests to use
-	// /api/apps/null/... which produces unexpected API responses.
-	if (import.meta.env.DEV && !isNode && !resolvedAppId) {
-		console.warn(
-			'[app-params] VITE_BASE44_APP_ID is not set. ' +
-			'API requests will target /api/apps/null/... — ' +
-			'set this variable in your .env or Railway environment.'
-		);
+	// [bootstrap-diag] Log appId resolution once at startup (fires in production too).
+	if (!isNode) {
+		const appIdSource = import.meta.env.VITE_BASE44_APP_ID ? 'VITE_BASE44_APP_ID'
+			: import.meta.env.BASE44_APP_ID ? 'BASE44_APP_ID'
+			: windowObj.__TEST_APP_ID__ ? 'window.__TEST_APP_ID__'
+			: storage.getItem('base44_app_id') ? 'localStorage'
+			: 'none';
+		if (resolvedAppId) {
+			console.log('[bootstrap:app-params] appId resolved:', resolvedAppId, '| source:', appIdSource);
+		} else {
+			console.error(
+				'[bootstrap:app-params] FATAL — appId is missing. ' +
+				'API requests will target /api/apps/null/... — ' +
+				'set VITE_BASE44_APP_ID in your Railway environment.'
+			);
+		}
 	}
 
 	return {
