@@ -27,47 +27,16 @@ if (!appId) {
 }
 
 // ---------------------------------------------------------------------------
-// Override base44.auth.updateMe to use PATCH instead of PUT.
+// Override base44.auth.updateMe to use the entity SDK instead of raw fetch.
 //
-// The Base44 SDK (v0.8.x) sends PUT to /api/apps/{appId}/entities/User/me,
-// but the Base44 server returns HTTP 405 for PUT — only PATCH is accepted.
-// Without this override, all updateMe() calls (onboarding completion, profile
-// updates, language/theme preferences) fail silently with 405, causing new
-// users to be stuck in the WelcomeWizard and returning to step 1 every time
-// they reload the app.
+// The Base44 SDK's updateMe convenience method sends a request that returns
+// 405 in this deployment. Using entities.User.update() with the current
+// user's ID is functionally equivalent and uses the SDK's own auth session.
 // ---------------------------------------------------------------------------
 if (appId) {
-  const _updateMeUrl = `${APP_BASE_URL}/api/apps/${appId}/entities/User/me`;
   base44.auth.updateMe = async (data) => {
-    // Try multiple token storage keys used by different SDK versions
-    const storedToken =
-      localStorage.getItem('base44_access_token') ||
-      localStorage.getItem('base44_token') ||
-      localStorage.getItem('b44_token') ||
-      localStorage.getItem('access_token') ||
-      localStorage.getItem('token');
-    // Try PATCH first, fall back to PUT if 405
-    for (const method of ['PATCH', 'PUT']) {
-      const response = await fetch(_updateMeUrl, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'X-App-Id': String(appId),
-          ...(storedToken ? { Authorization: `Bearer ${storedToken}` } : {}),
-        },
-        body: JSON.stringify(data),
-      });
-      if (response.status === 405) continue; // try next method
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw Object.assign(new Error(`updateMe failed: ${response.status}`), {
-          status: response.status,
-          data: errorData,
-        });
-      }
-      return response.json();
-    }
-    throw new Error('updateMe: both PATCH and PUT returned 405');
+    const me = await base44.auth.me();
+    return base44.entities.User.update(me.id, data);
   };
 }
 
