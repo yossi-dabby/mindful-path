@@ -26,6 +26,17 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(false);
       const status = error?.status || error?.response?.status;
 
+      // Check user_not_registered BEFORE the generic 401/403 guard.
+      // The Base44 server returns 403 for both "unauthenticated" and
+      // "user_not_registered" responses.  If we check the HTTP status first,
+      // a user_not_registered 403 incorrectly triggers redirectToLogin, putting
+      // new users (especially Google/OAuth registrants) into an infinite redirect
+      // loop instead of showing the proper "Access Restricted" error page.
+      if (error?.data?.extra_data?.reason === 'user_not_registered') {
+        setAuthError({ type: 'user_not_registered', message: 'User not registered for this app' });
+        return;
+      }
+
       if (status === 401 || status === 403) {
         // Not logged in — redirect to Base44 login.
         // Pass only the pathname+search (not the full href) so the Base44 SDK
@@ -36,11 +47,7 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
-      if (error?.data?.extra_data?.reason === 'user_not_registered') {
-        setAuthError({ type: 'user_not_registered', message: 'User not registered for this app' });
-      } else {
-        setAuthError({ type: 'unknown', message: error.message || 'Failed to load app' });
-      }
+      setAuthError({ type: 'unknown', message: error.message || 'Failed to load app' });
     } finally {
       setIsLoadingAuth(false);
     }
