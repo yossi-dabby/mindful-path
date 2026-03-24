@@ -3,22 +3,33 @@ import { base44 } from '@/api/base44Client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
 import { Shield, Download, Trash2, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { performLogout } from '@/lib/platform';
+
+const retentionOptions = [
+  { value: '30', label: null },
+  { value: '90', label: null },
+  { value: '365', label: null },
+  { value: '999999', label: null },
+];
 
 export default function DataPrivacy({ user }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [retentionDays, setRetentionDays] = useState(user?.preferences?.data_retention_days || 365);
   const [deleteConfirming, setDeleteConfirming] = useState(false);
-  const [deleteAccountConfirming, setDeleteAccountConfirming] = useState(false);
   const [exportingData, setExportingData] = useState(false);
   const [deletingData, setDeletingData] = useState(false);
-  const [deletingAccount, setDeletingAccount] = useState(false);
   const [actionMessage, setActionMessage] = useState(null);
+
+  const retentionOptions = [
+    { value: '30', label: t('settings.data_privacy.retention_30_days') },
+    { value: '90', label: t('settings.data_privacy.retention_90_days') },
+    { value: '365', label: t('settings.data_privacy.retention_1_year') },
+    { value: '999999', label: t('settings.data_privacy.retention_indefinite') },
+  ];
 
   const updateRetentionMutation = useMutation({
     mutationFn: (days) =>
@@ -149,28 +160,6 @@ export default function DataPrivacy({ user }) {
     }
   };
 
-  const handleDeleteAccount = async () => {
-    if (!deleteAccountConfirming) {
-      setDeleteAccountConfirming(true);
-      return;
-    }
-
-    setDeletingAccount(true);
-    try {
-      await base44.entities.User.delete('me');
-      setActionMessage({ type: 'success', text: 'Account deleted successfully. Logging out...' });
-      setTimeout(() => {
-        performLogout();
-      }, 2000);
-    } catch (error) {
-      console.error('Delete account error:', error);
-      setActionMessage({ type: 'error', text: 'Failed to delete account. Please try again.' });
-      setTimeout(() => setActionMessage(null), 3000);
-      setDeletingAccount(false);
-      setDeleteAccountConfirming(false);
-    }
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -225,17 +214,14 @@ export default function DataPrivacy({ user }) {
               {t('settings.data_privacy.retention_description')}
             </p>
             <div className="flex gap-3 items-center">
-              <Select value={retentionDays.toString()} onValueChange={handleRetentionChange}>
-                <SelectTrigger data-testid="retention-select" className="w-40 rounded-lg">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="30">{t('settings.data_privacy.retention_30_days')}</SelectItem>
-                  <SelectItem value="90">{t('settings.data_privacy.retention_90_days')}</SelectItem>
-                  <SelectItem value="365">{t('settings.data_privacy.retention_1_year')}</SelectItem>
-                  <SelectItem value="999999">{t('settings.data_privacy.retention_indefinite')}</SelectItem>
-                </SelectContent>
-              </Select>
+              <BottomSheetSelect
+                data-testid="retention-select"
+                value={retentionDays.toString()}
+                onValueChange={handleRetentionChange}
+                options={retentionOptions}
+                title={t('settings.data_privacy.retention_label')}
+                className="w-40"
+              />
               {updateRetentionMutation.isPending && (
                 <Loader2 className="w-4 h-4 animate-spin text-gray-500" />
               )}
@@ -332,71 +318,6 @@ export default function DataPrivacy({ user }) {
               >
                 <Trash2 className="w-4 h-4" />
                 {t('settings.data_privacy.delete_button')}
-              </Button>
-            )}
-          </div>
-
-          {/* Delete Account */}
-          <div className="border-t pt-6">
-            <label className="text-sm font-medium text-gray-700 mb-3 block">Delete Account</label>
-            <p className="text-sm text-gray-600 mb-4">
-              Permanently delete your account and all associated data. This action cannot be undone.
-            </p>
-
-            {/* Confirmation State */}
-            {deleteAccountConfirming && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4"
-                data-testid="delete-account-confirm-panel"
-              >
-                <p className="text-sm font-medium text-red-800 mb-3">
-                  Are you absolutely sure? This will permanently delete your account and all data.
-                </p>
-                <div className="flex gap-3">
-                  <Button
-                    onClick={handleDeleteAccount}
-                    disabled={deletingAccount}
-                    className="bg-red-600 hover:bg-red-700 text-white rounded-lg"
-                    data-testid="delete-account-confirm-btn"
-                  >
-                    {deletingAccount ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Deleting...
-                      </>
-                    ) : (
-                      <>
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Yes, Delete My Account
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    onClick={() => setDeleteAccountConfirming(false)}
-                    variant="outline"
-                    className="rounded-lg"
-                    data-testid="delete-account-cancel-btn"
-                    disabled={deletingAccount}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Initial Delete Account Button */}
-            {!deleteAccountConfirming && (
-              <Button
-                onClick={handleDeleteAccount}
-                disabled={deletingAccount}
-                variant="outline"
-                className="gap-2 rounded-lg border-red-300 text-red-700 hover:bg-red-100"
-                data-testid="delete-account-btn"
-              >
-                <Trash2 className="w-4 h-4" />
-                Delete Account
               </Button>
             )}
           </div>

@@ -4,9 +4,16 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
 import { Textarea } from '@/components/ui/textarea';
 import { X, Activity, Moon, Heart, Droplet } from 'lucide-react';
+
+const sleepQualityOptions = [
+  { value: 'poor', label: 'Poor' },
+  { value: 'fair', label: 'Fair' },
+  { value: 'good', label: 'Good' },
+  { value: 'excellent', label: 'Excellent' },
+];
 
 export default function HealthDataForm({ metric, onClose }) {
   const queryClient = useQueryClient();
@@ -37,9 +44,33 @@ export default function HealthDataForm({ metric, onClose }) {
         ? base44.entities.HealthMetric.update(metric.id, cleanData)
         : base44.entities.HealthMetric.create(cleanData);
     },
+    onMutate: async (data) => {
+      await queryClient.cancelQueries({ queryKey: ['healthMetrics'] });
+      const previousHealthMetrics = queryClient.getQueryData(['healthMetrics']);
+      const cleanData = Object.fromEntries(
+        Object.entries(data).filter(([_, v]) => v !== '' && v !== null)
+      );
+      const optimisticEntry = {
+        ...(metric || {}),
+        ...cleanData,
+        id: metric?.id || `temp-${Date.now()}`,
+        created_date: metric?.created_date || new Date().toISOString()
+      };
+      queryClient.setQueryData(['healthMetrics'], (old = []) =>
+        metric ? old.map((item) => item.id === metric.id ? optimisticEntry : item) : [optimisticEntry, ...old]
+      );
+      return { previousHealthMetrics };
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['healthMetrics'] });
       onClose();
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousHealthMetrics) {
+        queryClient.setQueryData(['healthMetrics'], context.previousHealthMetrics);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['healthMetrics'] });
     }
   });
 
@@ -86,20 +117,13 @@ export default function HealthDataForm({ metric, onClose }) {
                 </div>
                 <div>
                   <label className="text-sm text-gray-600 mb-1 block">Quality</label>
-                  <Select
-                    value={formData.sleep_quality}
-                    onValueChange={(value) => setFormData({ ...formData, sleep_quality: value })}
-                  >
-                    <SelectTrigger className="rounded-lg">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="poor">Poor</SelectItem>
-                      <SelectItem value="fair">Fair</SelectItem>
-                      <SelectItem value="good">Good</SelectItem>
-                      <SelectItem value="excellent">Excellent</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <BottomSheetSelect
+                   value={formData.sleep_quality}
+                   onValueChange={(value) => setFormData({ ...formData, sleep_quality: value })}
+                   options={sleepQualityOptions}
+                   title="Sleep Quality"
+                   placeholder="Select"
+                  />
                 </div>
               </div>
             </div>

@@ -5,10 +5,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { X, Plus } from 'lucide-react';
+
+const FORUM_CATEGORY_OPTIONS = [
+  { value: 'general', label: 'General Discussion' },
+  { value: 'goals', label: 'Goals & Achievements' },
+  { value: 'mental_health', label: 'Mental Health' },
+  { value: 'exercises', label: 'Exercises & Techniques' },
+  { value: 'success_stories', label: 'Success Stories' },
+  { value: 'questions', label: 'Questions' },
+  { value: 'tips', label: 'Tips & Advice' },
+];
 
 export default function ForumPostForm({ onClose, groupId }) {
   const queryClient = useQueryClient();
@@ -108,23 +118,12 @@ export default function ForumPostForm({ onClose, groupId }) {
 
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">Category</label>
-              <Select
+              <BottomSheetSelect
                 value={formData.category}
-                onValueChange={(value) => setFormData({ ...formData, category: value })}>
-                
-                <SelectTrigger className="rounded-xl">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="general">General Discussion</SelectItem>
-                  <SelectItem value="goals">Goals & Achievements</SelectItem>
-                  <SelectItem value="mental_health">Mental Health</SelectItem>
-                  <SelectItem value="exercises">Exercises & Techniques</SelectItem>
-                  <SelectItem value="success_stories">Success Stories</SelectItem>
-                  <SelectItem value="questions">Questions</SelectItem>
-                  <SelectItem value="tips">Tips & Advice</SelectItem>
-                </SelectContent>
-              </Select>
+                onValueChange={(value) => setFormData({ ...formData, category: value })}
+                options={FORUM_CATEGORY_OPTIONS}
+                title="Post Category"
+              />
             </div>
 
             <div>

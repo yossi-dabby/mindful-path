@@ -3,11 +3,18 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, CheckCircle2, AlertCircle, Clock, Filter } from 'lucide-react';
+import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
+import { Calendar, CheckCircle2, AlertCircle, Clock } from 'lucide-react';
 import { format, startOfDay, endOfDay, addDays } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { safeText } from '@/components/utils/aiDataNormalizer';
+
+const DATE_FILTER_OPTIONS = [
+  { value: 'all', label: 'All Dates' },
+  { value: 'overdue', label: 'Overdue' },
+  { value: 'week', label: 'Next 7 Days' },
+  { value: 'month', label: 'Next 30 Days' },
+];
 
 export default function MilestonesTimeline() {
   const queryClient = useQueryClient();
@@ -190,33 +197,26 @@ export default function MilestonesTimeline() {
           <CardTitle className="text-2xl font-bold">Milestones Timeline</CardTitle>
           
           <div className="flex flex-col md:flex-row gap-2">
-            <Select value={selectedGoalId} onValueChange={setSelectedGoalId}>
-              <SelectTrigger className="w-full md:w-[200px]">
-                <Filter className="w-4 h-4 mr-2" />
-                <SelectValue placeholder="Filter by goal" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Goals</SelectItem>
-                {activeGoals.map(goal => (
-                  <SelectItem key={goal.id} value={goal.id}>
-                    {goal.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <BottomSheetSelect
+              value={selectedGoalId}
+              onValueChange={setSelectedGoalId}
+              options={[
+                { value: 'all', label: 'All Goals' },
+                ...activeGoals.map((goal) => ({ value: goal.id, label: goal.title })),
+              ]}
+              placeholder="Filter by goal"
+              title="Filter by Goal"
+              className="w-full md:w-[200px]"
+            />
 
-            <Select value={dateFilter} onValueChange={setDateFilter}>
-              <SelectTrigger className="w-full md:w-[180px]">
-                <Calendar className="w-4 h-4 mr-2" />
-                <SelectValue placeholder="Date range" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Dates</SelectItem>
-                <SelectItem value="overdue">Overdue</SelectItem>
-                <SelectItem value="week">Next 7 Days</SelectItem>
-                <SelectItem value="month">Next 30 Days</SelectItem>
-              </SelectContent>
-            </Select>
+            <BottomSheetSelect
+              value={dateFilter}
+              onValueChange={setDateFilter}
+              options={DATE_FILTER_OPTIONS}
+              placeholder="Date range"
+              title="Date Range"
+              className="w-full md:w-[180px]"
+            />
           </div>
         </div>
 

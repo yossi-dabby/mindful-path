@@ -5,9 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
 import { Switch } from '@/components/ui/switch';
 import { X } from 'lucide-react';
+
+const PROGRESS_TYPE_OPTIONS = [
+  { value: 'goal_completed', label: 'Goal Completed' },
+  { value: 'milestone_reached', label: 'Milestone Reached' },
+  { value: 'streak_achievement', label: 'Streak Achievement' },
+  { value: 'mood_improvement', label: 'Mood Improvement' },
+  { value: 'exercise_completion', label: 'Exercise Completion' },
+  { value: 'general_update', label: 'General Update' },
+];
 
 export default function ProgressShareForm({ onClose }) {
   const queryClient = useQueryClient();
@@ -93,22 +102,12 @@ export default function ProgressShareForm({ onClose }) {
 
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">Progress Type</label>
-              <Select
+              <BottomSheetSelect
                 value={formData.progress_type}
                 onValueChange={(value) => setFormData({ ...formData, progress_type: value })}
-              >
-                <SelectTrigger className="rounded-xl">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="goal_completed">Goal Completed</SelectItem>
-                  <SelectItem value="milestone_reached">Milestone Reached</SelectItem>
-                  <SelectItem value="streak_achievement">Streak Achievement</SelectItem>
-                  <SelectItem value="mood_improvement">Mood Improvement</SelectItem>
-                  <SelectItem value="exercise_completion">Exercise Completion</SelectItem>
-                  <SelectItem value="general_update">General Update</SelectItem>
-                </SelectContent>
-              </Select>
+                options={PROGRESS_TYPE_OPTIONS}
+                title="Progress Type"
+              />
             </div>
 
             <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl">

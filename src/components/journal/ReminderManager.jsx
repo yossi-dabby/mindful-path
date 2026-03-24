@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import BottomSheetSelect from '@/components/ui/bottom-sheet-select';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { X, Plus, Bell, Clock, Trash2, Edit } from 'lucide-react';
@@ -235,37 +235,31 @@ function ReminderForm({ reminder, onClose, onSuccess }) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="text-sm font-medium text-gray-700 mb-2 block">Journal Type</label>
-          <Select
+          <BottomSheetSelect
             value={formData.entry_type}
             onValueChange={(value) => setFormData({ ...formData, entry_type: value })}
-          >
-            <SelectTrigger className="rounded-xl">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="any">Any Type</SelectItem>
-              <SelectItem value="cbt_standard">CBT Standard</SelectItem>
-              <SelectItem value="gratitude">Gratitude</SelectItem>
-              <SelectItem value="anxiety_log">Anxiety Log</SelectItem>
-              <SelectItem value="mood_journal">Mood Journal</SelectItem>
-            </SelectContent>
-          </Select>
+            options={[
+              { value: 'any', label: 'Any Type' },
+              { value: 'cbt_standard', label: 'CBT Standard' },
+              { value: 'gratitude', label: 'Gratitude' },
+              { value: 'anxiety_log', label: 'Anxiety Log' },
+              { value: 'mood_journal', label: 'Mood Journal' },
+            ]}
+            title="Journal Type"
+          />
         </div>
 
         <div>
           <label className="text-sm font-medium text-gray-700 mb-2 block">Frequency</label>
-          <Select
+          <BottomSheetSelect
             value={formData.frequency}
             onValueChange={(value) => setFormData({ ...formData, frequency: value })}
-          >
-            <SelectTrigger className="rounded-xl">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="daily">Daily</SelectItem>
-              <SelectItem value="weekly">Weekly</SelectItem>
-            </SelectContent>
-          </Select>
+            options={[
+              { value: 'daily', label: 'Daily' },
+              { value: 'weekly', label: 'Weekly' },
+            ]}
+            title="Frequency"
+          />
         </div>
       </div>
 
