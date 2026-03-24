@@ -27,6 +27,41 @@ if (!appId) {
 }
 
 // ---------------------------------------------------------------------------
+// Override base44.auth.updateMe to use PATCH instead of PUT.
+//
+// The Base44 SDK (v0.8.x) sends PUT to /api/apps/{appId}/entities/User/me,
+// but the Base44 server returns HTTP 405 for PUT — only PATCH is accepted.
+// Without this override, all updateMe() calls (onboarding completion, profile
+// updates, language/theme preferences) fail silently with 405, causing new
+// users to be stuck in the WelcomeWizard and returning to step 1 every time
+// they reload the app.
+// ---------------------------------------------------------------------------
+if (appId) {
+  const _patchMeUrl = `${APP_BASE_URL}/api/apps/${appId}/entities/User/me`;
+  base44.auth.updateMe = async (data) => {
+    const storedToken =
+      localStorage.getItem('base44_access_token') || localStorage.getItem('token');
+    const response = await fetch(_patchMeUrl, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-App-Id': String(appId),
+        ...(storedToken ? { Authorization: `Bearer ${storedToken}` } : {}),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw Object.assign(new Error(`updateMe PATCH failed: ${response.status}`), {
+        status: response.status,
+        data: errorData,
+      });
+    }
+    return response.json();
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Shared entity-response normalization
 //
 // Wrap every entity's .list() and .filter() methods so that paginated
