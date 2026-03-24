@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  const checkAuth = async () => {
+  const checkAuth = async (retryCount = 0) => {
     try {
       setIsLoadingAuth(true);
       setAuthError(null);
@@ -23,27 +23,29 @@ export const AuthProvider = ({ children }) => {
       setUser(currentUser);
       setIsAuthenticated(true);
     } catch (error) {
-      setIsAuthenticated(false);
       const status = error?.status || error?.response?.status;
 
       // Check user_not_registered BEFORE the generic 401/403 guard.
-      // The Base44 server returns 403 for both "unauthenticated" and
-      // "user_not_registered" responses.  If we check the HTTP status first,
-      // a user_not_registered 403 incorrectly triggers redirectToLogin, putting
-      // new users (especially Google/OAuth registrants) into an infinite redirect
-      // loop instead of showing the proper "Access Restricted" error page.
       if (error?.data?.extra_data?.reason === 'user_not_registered') {
+        setIsAuthenticated(false);
         setAuthError({ type: 'user_not_registered', message: 'User not registered for this app' });
+        setIsLoadingAuth(false);
         return;
       }
 
+      // After OAuth (Google/social) redirect, the session cookie may not yet
+      // be fully committed when checkAuth fires. Retry once after a short delay
+      // before treating it as unauthenticated.
+      if ((status === 401 || status === 403) && retryCount < 1) {
+        await new Promise(resolve => setTimeout(resolve, 800));
+        return checkAuth(retryCount + 1);
+      }
+
+      setIsAuthenticated(false);
+
       if (status === 401 || status === 403) {
-        // Not logged in — redirect to Base44 login.
-        // Pass only the pathname+search (not the full href) so the Base44 SDK
-        // can resolve the correct registered domain for the OAuth callback.
-        // Passing the full URL (including an unregistered deployment domain)
-        // causes Base44 to reject the callback with "Invalid redirect domain" (403).
         base44.auth.redirectToLogin(window.location.pathname + window.location.search);
+        setIsLoadingAuth(false);
         return;
       }
 
