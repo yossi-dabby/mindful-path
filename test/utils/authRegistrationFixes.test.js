@@ -1,7 +1,7 @@
 /**
  * test/utils/authRegistrationFixes.test.js
  *
- * Regression tests for the three production fixes applied to resolve:
+ * Regression tests for three production fixes (PR #446 — merged from staging):
  *   1. Email registration loop (updateMe via raw fetch returned 405 → wizard re-appeared)
  *   2. Google/OAuth blank screen (checkAuth fired before session cookie was committed → loop)
  *   3. WelcomeWizard onboarding loop on slow server (onComplete not called until server response)
