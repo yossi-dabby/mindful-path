@@ -55,7 +55,10 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(false);
 
       if (status === 401 || status === 403) {
-        safeRedirectToLogin(window.location.href);
+        const redirectAllowed = safeRedirectToLogin(window.location.href);
+        if (!redirectAllowed) {
+          console.warn('[AuthContext] Redirect to login suppressed by cooldown guard (loop prevention).');
+        }
         setIsLoadingAuth(false);
         return;
       }
