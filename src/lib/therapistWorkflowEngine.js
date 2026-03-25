@@ -39,7 +39,7 @@
 /** @type {string} */
 export const THERAPIST_WORKFLOW_VERSION = '3.0.0';
 
-// ─── Fixed 6-step response sequence ──────────────────────────────────────────
+// ─── Adaptive response framework ─────────────────────────────────────────────
 
 /**
  * The adaptive response framework for the upgraded therapist path.
@@ -193,6 +193,35 @@ export const THERAPIST_WORKFLOW_RESPONSE_RULES = Object.freeze({
     'Do not respond to confusion with another question. Offer a plain-language ' +
     'explanation of what you observe emotionally, then check whether it lands: ' +
     '"Does that feel right?" is more attuned than "What do you think about that?"',
+
+  /**
+   * Never ask for information the person has already given.  If the user's
+   * message already contains a clear trigger, situation, or context
+   * (e.g., "I have an important test tomorrow and I'm scared of failing"),
+   * do NOT ask "What happened?" or "What led to this feeling?" — that
+   * information has already been provided.  Instead, acknowledge and
+   * formulate directly from what was shared.
+   */
+  no_redundant_context_questions:
+    'If the person has already given a clear situation, trigger, or context ' +
+    'in their message, do NOT ask "What happened?", "What led to this?", or ' +
+    'any equivalent question — that information is already known. Build your ' +
+    'response from what the person has told you. Ask only for information that ' +
+    'is genuinely missing and clinically necessary.',
+
+  /**
+   * When the opening message is a minimal greeting (hi, hello, hey), respond
+   * with a warm, natural clinical opening — not a category menu or option list.
+   * Invite the person to share what is on their mind in one open but personal
+   * question.  If the first message already contains context, skip the generic
+   * opening entirely and formulate directly from what was shared.
+   */
+  opening_behavior:
+    'When the person says only "hi", "hello", or a minimal greeting, open ' +
+    'with a warm, natural clinical sentence — do not present a menu of ' +
+    'categories or options. Ask one open, inviting question (e.g., "What\'s ' +
+    'on your mind today?"). If the first message already contains a situation ' +
+    'or feeling, skip the generic opening and respond directly to what was shared.',
 
   /**
    * Move earlier from empathy to structure, but only after the person feels
@@ -404,6 +433,23 @@ export function buildWorkflowContextInstructions() {
     '',
     `3. Handle confusion empathically: ${THERAPIST_WORKFLOW_RESPONSE_RULES.handle_confusion_empathically}`,
     '',
+    `4. No redundant context questions: ${THERAPIST_WORKFLOW_RESPONSE_RULES.no_redundant_context_questions}`,
+    '',
+    `5. Opening behavior: ${THERAPIST_WORKFLOW_RESPONSE_RULES.opening_behavior}`,
+    '',
+    `6. Reduce open-ended questions: ${THERAPIST_WORKFLOW_RESPONSE_RULES.reduce_open_ended_questions}`,
+    '',
+    `7. Summarize over explore: ${THERAPIST_WORKFLOW_RESPONSE_RULES.summarize_over_explore}`,
+    '',
+    `8. Name the pattern: ${THERAPIST_WORKFLOW_RESPONSE_RULES.name_the_pattern}`,
+    '',
+    `9. Move to structure (turn-aware): ${THERAPIST_WORKFLOW_RESPONSE_RULES.move_to_structure_early}`,
+    '',
+    `10. End with something usable: ${THERAPIST_WORKFLOW_RESPONSE_RULES.end_with_something_usable}`,
+    '',
+    `11. Slow down for extreme language: ${THERAPIST_WORKFLOW_RESPONSE_RULES.slow_down_for_extreme_language}`,
+    '',
+    `12. Safety stack compatibility: ${THERAPIST_WORKFLOW_RESPONSE_RULES.safety_stack_compatibility}`,
     `4. Reduce open-ended questions: ${THERAPIST_WORKFLOW_RESPONSE_RULES.reduce_open_ended_questions}`,
     '',
     `5. Summarize over explore: ${THERAPIST_WORKFLOW_RESPONSE_RULES.summarize_over_explore}`,

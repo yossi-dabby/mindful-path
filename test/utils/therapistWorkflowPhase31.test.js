@@ -21,7 +21,7 @@
  * 7. Verify that the workflow instructions injected into V2 are the canonical
  *    THERAPIST_WORKFLOW_INSTRUCTIONS — not a stale copy or partial subset.
  * 8. Verify that V2 injection content includes all required workflow sections
- *    (FIXED RESPONSE SEQUENCE, RESPONSE-SHAPING RULES, EMOTION DIFFERENTIATION).
+ *    (ADAPTIVE RESPONSE FRAMEWORK, RESPONSE-SHAPING RULES, EMOTION DIFFERENTIATION).
  * 9. Verify that safety-profile routing (resolveTherapistWiring) is unchanged.
  * 10. Verify Phase 3 baselines are still intact (additive only).
  *
