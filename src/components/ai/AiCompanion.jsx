@@ -18,6 +18,7 @@ export default function AiCompanion() {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [shouldShow, setShouldShow] = useState(false);
+  const [sendError, setSendError] = useState(null);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -36,7 +37,7 @@ export default function AiCompanion() {
   useEffect(() => {
     if (isOpen && !conversation) {
       base44.agents.createConversation({
-        agent_name: 'ai_coach',
+        agent_name: ACTIVE_AI_COMPANION_WIRING.name,
         tool_configs: ACTIVE_AI_COMPANION_WIRING.tool_configs,
         metadata: {
           name: 'AI Companion Chat',
@@ -72,6 +73,7 @@ export default function AiCompanion() {
 
     const userMessage = message;
     setMessage('');
+    setSendError(null);
     setIsLoading(true);
 
     try {
@@ -83,6 +85,7 @@ export default function AiCompanion() {
     } catch (error) {
       console.error('Failed to send message:', error);
       setIsLoading(false);
+      setSendError('Failed to send message. Please try again.');
     }
   };
 
@@ -332,9 +335,13 @@ export default function AiCompanion() {
               <Send className="w-4 h-4" />
             </Button>
           </div>
-          <p className="text-xs text-gray-500 mt-2 text-center">
-            I remember our conversations and your wellness journey
-          </p>
+          {sendError ? (
+            <p className="text-xs text-red-500 mt-2 text-center">{sendError}</p>
+          ) : (
+            <p className="text-xs text-gray-500 mt-2 text-center">
+              I remember our conversations and your wellness journey
+            </p>
+          )}
         </div>
       </Card>
     </motion.div>

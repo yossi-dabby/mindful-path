@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { X, ChevronRight, ChevronLeft, Sparkles, Target, Lightbulb } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ACTIVE_AI_COMPANION_WIRING } from '@/api/activeAgentWiring.js';
 
 const focusAreas = [
 { value: 'mood_improvement', label: 'Improve Mood', icon: '😊', description: 'Work on feeling better daily' },
@@ -77,7 +78,8 @@ export default function CoachingSessionWizard({ onClose }) {
       // Create AI conversation
       try {
         const conversation = await base44.agents.createConversation({
-          agent_name: 'ai_coach',
+          agent_name: ACTIVE_AI_COMPANION_WIRING.name,
+          tool_configs: ACTIVE_AI_COMPANION_WIRING.tool_configs,
           metadata: {
             name: `Coaching: ${data.title}`,
             type: 'coaching_session',
