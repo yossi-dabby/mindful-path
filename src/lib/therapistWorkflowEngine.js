@@ -42,16 +42,14 @@ export const THERAPIST_WORKFLOW_VERSION = '3.0.0';
 // ─── Fixed 6-step response sequence ──────────────────────────────────────────
 
 /**
- * The fixed 6-step response sequence for the upgraded therapist path.
+ * The adaptive response framework for the upgraded therapist path.
  *
- * This sequence is advisory and shapes the structure of responses — it does
- * not enforce mechanical turn-by-turn execution.  The therapist must use
- * clinical judgment to determine which step is most relevant in each turn,
- * while the overall arc of the sequence orients every response.
- *
- * Steps may be collapsed (e.g., validation + organization in the same response)
- * when the clinical picture is clear.  No step should be artificially stretched
- * with open-ended exploration when the pattern is already known.
+ * These steps are a flexible internal clinical guide — not a mandatory
+ * visible sequence.  The therapist must always respond directly to what
+ * the user has actually said before applying this framework.  Steps may
+ * be skipped, reordered, combined, or deferred based on the user's state
+ * and message.  In the first 1–2 turns especially, attunement to the
+ * user's actual words takes priority over completing this sequence.
  *
  * @type {ReadonlyArray<{step: number, name: string, description: string}>}
  */
@@ -319,11 +317,14 @@ export function buildWorkflowContextInstructions() {
     'clinical guardrails, safety filters, or crisis-response behavior.',
     'All existing safety behavior takes strict precedence over this workflow.',
     '',
-    '--- FIXED RESPONSE SEQUENCE ---',
-    'Structure your responses around this 6-step sequence.',
-    'You may collapse adjacent steps when the clinical picture is clear.',
-    'Do not mechanically execute each step as a separate paragraph.',
-    'Use clinical judgment to determine the appropriate pace and scope.',
+    '--- ADAPTIVE RESPONSE FRAMEWORK ---',
+    'This is an internal clinical guide — not a visible script or a mandatory sequence.',
+    'Your first priority is always to respond directly to what the user has actually said.',
+    'In the first 1–2 turns especially, attunement to the user\'s actual words takes',
+    'priority over completing this framework. Steps may be skipped, reordered, combined,',
+    'or deferred based on the user\'s state and message. Do not force the sequence if the',
+    'user\'s response calls for a different focus. Use clinical judgment — the framework',
+    'orients you, it does not script you.',
     '',
     steps,
     '',

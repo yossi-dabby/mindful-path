@@ -2,9 +2,9 @@ name: Test Suite
 
 on:
   push:
-    branches: [ main, master, develop, staging ]
+    branches: [ main, master, develop, staging, staging-fresh ]
   pull_request:
-    branches: [ main, master, develop, staging ]
+    branches: [ main, master, develop, staging, staging-fresh ]
 
 jobs:
   test:
@@ -31,12 +31,14 @@ jobs:
       - name: Build application
         run: npm run build
         env:
-          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID }}
+          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || '69504b725a07f5aa75aeaf7d' }}
+          VITE_BASE44_APP_BASE_URL: ${{ secrets.VITE_BASE44_APP_BASE_URL || 'https://mindful-path-75aeaf7d.base44.app' }}
       
       - name: Start preview server
         run: nohup npm run preview > preview-server.log 2>&1 &
         env:
-          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID }}
+          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || '69504b725a07f5aa75aeaf7d' }}
+          VITE_BASE44_APP_BASE_URL: ${{ secrets.VITE_BASE44_APP_BASE_URL || 'https://mindful-path-75aeaf7d.base44.app' }}
       
       - name: Wait for server
         run: npx wait-on http://localhost:4173 --timeout 60000
