@@ -521,11 +521,17 @@ export default function Chat() {
           responseTimeoutId = null;
         }
 
-        // Clear loading timeout
-        if (loadingTimeoutRef.current) {
-          clearTimeout(loadingTimeoutRef.current);
-          loadingTimeoutRef.current = null;
-        }
+        // NOTE: loadingTimeoutRef.current is intentionally NOT cleared here.
+        // It is only cleared inside the `if (updated)` block below, once we have
+        // confirmed that a real state update occurred.  Clearing it here
+        // (unconditionally) would cancel the safety-net timeout even when the
+        // hard-gate fires early or safeUpdateMessages rejects a stale update —
+        // leaving isLoading permanently true if no other recovery path exists
+        // (e.g. requestSummary, which starts no polling).
+        // Root cause of Phase 2 chat stall (VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED):
+        // the agent returns JSON-shaped summaries which the hard-gate traps; the
+        // unconditional clear removed the only timeout that would have unblocked
+        // the input after the early return.
 
         // HARD RENDER GATE: Block unsafe messages BEFORE they reach React state
         let processedMessages = [];
@@ -602,6 +608,12 @@ export default function Chat() {
             console.log('[Subscription] ✅ Loading OFF');
             setIsLoading(false);
 
+            // Clear loading timeout — update was accepted, no longer needed.
+            if (loadingTimeoutRef.current) {
+              clearTimeout(loadingTimeoutRef.current);
+              loadingTimeoutRef.current = null;
+            }
+
             // Emit FINAL STABILITY SUMMARY for this send cycle
             emitStabilitySummary();
 
@@ -627,6 +639,10 @@ export default function Chat() {
           }
         } catch (err) {
           console.error('[Subscription] ❌ Processing error:', err);
+          if (loadingTimeoutRef.current) {
+            clearTimeout(loadingTimeoutRef.current);
+            loadingTimeoutRef.current = null;
+          }
           setIsLoading(false);
         }
       },
@@ -1095,6 +1111,25 @@ export default function Chat() {
     const conversation = await base44.agents.getConversation(currentConversationId);
     setIsLoading(true);
     setShowSummaryPrompt(false);
+
+    // Track expected message count so the subscription / loading-timeout path
+    // can determine when the summary reply has arrived.
+    expectedReplyCountRef.current = messages.length + 2;
+
+    // Phase 2 stall fix: requestSummary does not run the polling loop that
+    // handleSendMessage uses.  When Phase 2 is active the agent can return a
+    // structured-JSON summary which the HARD RENDER GATE traps, causing an early
+    // return in the subscription callback without calling setIsLoading(false).
+    // Without this timeout there is no recovery path and isLoading stays true
+    // permanently (up to the 60s subscription timeout).
+    if (loadingTimeoutRef.current) {
+      clearTimeout(loadingTimeoutRef.current);
+    }
+    loadingTimeoutRef.current = setTimeout(() => {
+      console.warn('[Summary] ⏱️ Loading timeout after 10s - forcing recovery');
+      setIsLoading(false);
+      loadingTimeoutRef.current = null;
+    }, 10000);
 
     // Build a language-aware summary request
     const userLang = i18n.language || 'en';
