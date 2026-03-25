@@ -808,16 +808,36 @@ export default function Chat() {
       setSafetyModeActive(false); // Phase 8: reset safety mode state on new session
       refetchConversations();
 
-      // If there's an intent and initial message, send it
-      if (initialMessage) {
-        setTimeout(async () => {
-          setIsLoading(true);
+      // Always send the session-start content to inject the active workflow context.
+      // When an intent message is also present (e.g. "daily_checkin"), append it
+      // after the session-start block so the agent receives both signals.
+      // When no intent is present (plain "New Session"), the session-start content
+      // alone triggers the AI's structured opening greeting.
+      // Fail-open: if buildV4SessionStartContentAsync throws, fall back to the
+      // intent message only (or skip entirely when there is no intent either).
+      setTimeout(async () => {
+        setIsLoading(true);
+        try {
+          const sessionStart = await buildV4SessionStartContentAsync(
+            ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44
+          );
           await base44.agents.addMessage(conversation, {
             role: 'user',
-            content: initialMessage
+            content: initialMessage ? sessionStart + '\n\n' + initialMessage : sessionStart
           });
-        }, 100);
-      }
+        } catch (err) {
+          console.error('[Session Start] Failed to build workflow context:', err);
+          // Fail-open: fall back to intent message only (or clear loading when no intent)
+          if (initialMessage) {
+            await base44.agents.addMessage(conversation, {
+              role: 'user',
+              content: initialMessage
+            });
+          } else {
+            setIsLoading(false);
+          }
+        }
+      }, 100);
     } catch (error) {
       console.error('Error creating conversation:', error);
     }
@@ -966,6 +986,11 @@ export default function Chat() {
 
     try {
       let convId = currentConversationId;
+      // When the user's first message implicitly creates a new conversation,
+      // capture session-start context so the workflow instructions reach the
+      // agent on this very first turn.  Fail-open: if the build throws, the
+      // message is sent without the context prefix.
+      let _firstMsgSessionStart = null;
       if (!convId) {
         // Get safety profile from user settings or default to 'standard'
         const user = await base44.auth.me().catch(() => null);
@@ -985,14 +1010,24 @@ export default function Chat() {
         setCurrentConversationId(convId);
         refetchConversations();
         setShowSidebar(false);
+
+        try {
+          _firstMsgSessionStart = await buildV4SessionStartContentAsync(
+            ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44
+          );
+        } catch (err) {
+          console.error('[First Message] Failed to build session-start context:', err);
+          _firstMsgSessionStart = null;
+        }
       }
 
       const conversation = await base44.agents.getConversation(convId);
       console.log('[Send] 📤 Adding message to conversation:', convId);
 
+      const _baseContent = runtimeSupplement ? runtimeSupplement + '\n\n' + messageText : messageText;
       await base44.agents.addMessage(conversation, {
         role: 'user',
-        content: runtimeSupplement ? runtimeSupplement + '\n\n' + messageText : messageText
+        content: _firstMsgSessionStart ? _firstMsgSessionStart + '\n\n' + _baseContent : _baseContent
       });
 
       console.log('[Send] ✅ Message sent - starting authoritative polling');
