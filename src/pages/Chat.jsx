@@ -557,7 +557,7 @@ export default function Chat() {
                 // Phase 2 fix: clear loading after refetch completes.  The subscription
                 // returned early (no setIsLoading call) when unsafe content was detected.
                 // The refetch is the recovery path — loading must always clear here so
-                // the chat is not stuck when a JSON-shaped agent reply is sanitised away.
+                // the chat is not stuck when a JSON-shaped agent reply is sanitized away.
                 setIsLoading(false);
                 isRefetchingRef.current = false;
               } catch (err) {
