@@ -341,6 +341,53 @@ export function sanitizeConversationMessages(messages) {
   if (!Array.isArray(messages)) return [];
   
   return messages.map(msg => {
+    // Strip session-start injection prefix from user messages so the actual
+    // user text is always visible in the chat history.
+    //
+    // When the upgraded workflow path prepends [START_SESSION] context to a
+    // user message (e.g. "[START_SESSION]...\n\n<user text>"), the render
+    // gate in isMessageRenderSafe blocks the whole message because it starts
+    // with "[".  Extract just the user's own text so it renders correctly.
+    //
+    // Session-start blocks for upgraded wirings always end with a marker of
+    // the form "=== END ... ===".  We find the last such marker and take
+    // everything after the following "\n\n" as the user's actual text.
+    // For the HYBRID wiring, there is no "===" marker — the entire content is
+    // "[START_SESSION]" optionally followed by "\n\n<user text>".
+    if (msg.role === 'user' && typeof msg.content === 'string' && msg.content.startsWith('[START_SESSION]')) {
+      const content = msg.content;
+
+      // Find the last "=== END ... ===" sentinel (V2+ upgraded wirings)
+      const lastEndMarkerMatch = content.match(/=== END [^\n]+ ===/g);
+      let splitPos = -1;
+
+      if (lastEndMarkerMatch) {
+        const lastMarker = lastEndMarkerMatch[lastEndMarkerMatch.length - 1];
+        const lastMarkerIdx = content.lastIndexOf(lastMarker);
+        // The "\n\n" between the session-start block and user text follows the marker
+        const sepIdx = content.indexOf('\n\n', lastMarkerIdx + lastMarker.length);
+        if (sepIdx !== -1) {
+          splitPos = sepIdx;
+        }
+      } else {
+        // HYBRID wiring: "[START_SESSION]" with no section headers — the first
+        // (and only) "\n\n" is the separator before user text
+        const firstSep = content.indexOf('\n\n');
+        if (firstSep !== -1) {
+          splitPos = firstSep;
+        }
+      }
+
+      if (splitPos !== -1) {
+        const userText = content.substring(splitPos + 2).trim();
+        if (userText) {
+          return { ...msg, content: userText };
+        }
+      }
+      // Pure session-start injection with no user text — hide from chat history
+      return null;
+    }
+
     if (msg.role === 'assistant' && msg.content) {
       const validated = validateAgentOutput(msg.content);
       
@@ -377,5 +424,5 @@ export function sanitizeConversationMessages(messages) {
       }
     }
     return msg;
-  });
+  }).filter(msg => msg !== null);
 }

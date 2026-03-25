@@ -167,8 +167,8 @@ describe('Phase 3.1 — Upgraded V2 path: buildSessionStartContent includes work
     expect(v2Content).toContain('=== END UPGRADED THERAPIST WORKFLOW ===');
   });
 
-  it('V2 content includes the FIXED RESPONSE SEQUENCE section', () => {
-    expect(v2Content).toContain('--- FIXED RESPONSE SEQUENCE ---');
+  it('V2 content includes the ADAPTIVE RESPONSE FRAMEWORK section', () => {
+    expect(v2Content).toContain('--- ADAPTIVE RESPONSE FRAMEWORK ---');
   });
 
   it('V2 content includes the RESPONSE-SHAPING RULES section', () => {
