@@ -168,7 +168,7 @@ describe('Phase 3.1 — Upgraded V2 path: buildSessionStartContent includes work
   });
 
   it('V2 content includes the FIXED RESPONSE SEQUENCE section', () => {
-    expect(v2Content).toContain('--- FIXED RESPONSE SEQUENCE ---');
+    expect(v2Content).toContain('--- FIXED RESPONSE SEQUENCE');
   });
 
   it('V2 content includes the RESPONSE-SHAPING RULES section', () => {

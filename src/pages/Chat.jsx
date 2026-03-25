@@ -924,6 +924,18 @@ export default function Chat() {
     setShowSummaryPrompt(false);
     setIsLoading(true);
 
+    // PART A FIX: Optimistic UI update — render the user's message immediately
+    // so it is visible during the API round-trip.  The message carries a
+    // temporary `id` (timestamp + random suffix) that is replaced when the
+    // authoritative server state arrives via the subscription/polling path.
+    // `lastConfirmedMessagesRef` is NOT updated here so that the subsequent
+    // safeUpdateMessages call can still detect new content and commit the real
+    // server state.
+    setMessages((prev) => [
+      ...prev,
+      { role: 'user', content: messageText, id: `opt-${Date.now()}-${Math.random().toString(36).slice(2, 7)}` },
+    ]);
+
     // Phase 7.1 — Explicit safety layer precedence (documented and enforced):
     //   Layer 1 (regex crisis detector)  → HARD_STOP, already returned above if triggered
     //   Layer 2 (LLM crisis detector)    → HARD_STOP, already returned above if triggered
