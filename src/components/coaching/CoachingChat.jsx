@@ -11,6 +11,7 @@ import InlineRiskPanel from '../chat/InlineRiskPanel';
 import { detectCrisisWithReason } from '../utils/crisisDetector';
 import ActionPlanPanel from './ActionPlanPanel';
 import { triggerSessionEndSummarization } from '../../lib/sessionEndSummarization.js';
+import { ACTIVE_AI_COMPANION_WIRING } from '@/api/activeAgentWiring.js';
 
 const stageLabels = {
   discovery: 'Discovery Phase',
@@ -25,6 +26,7 @@ export default function CoachingChat({ session, onBack }) {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [sendError, setSendError] = useState(null);
   const [showActionPanel, setShowActionPanel] = useState(false);
   const [showConsentBanner, setShowConsentBanner] = useState(false);
   const [showRiskPanel, setShowRiskPanel] = useState(false);
@@ -111,6 +113,8 @@ export default function CoachingChat({ session, onBack }) {
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || !currentSession.agent_conversation_id) return;
 
+    setSendError(null);
+
     // Crisis detection gate - check before sending
     const reasonCode = detectCrisisWithReason(inputMessage);
     if (reasonCode) {
@@ -146,7 +150,7 @@ export default function CoachingChat({ session, onBack }) {
     } catch (error) {
       console.error('Error sending message:', error);
       setIsLoading(false);
-      alert('Failed to send message. Please try again.');
+      setSendError('Failed to send message. Please try again.');
     }
   };
 
@@ -233,7 +237,7 @@ export default function CoachingChat({ session, onBack }) {
                 message={message}
                 conversationId={currentSession.agent_conversation_id}
                 messageIndex={index}
-                agentName="ai_coach"
+                agentName={ACTIVE_AI_COMPANION_WIRING.name}
                 context="coach" />
 
               )}
@@ -299,6 +303,9 @@ export default function CoachingChat({ session, onBack }) {
                 <Send className="w-5 h-5" />
               </Button>
             </div>
+            {sendError &&
+              <p className="text-xs text-red-500 mt-2 text-center">{sendError}</p>
+            }
           </div>
         </div>
 
