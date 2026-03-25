@@ -95,6 +95,10 @@ describe('checkAndArmRedirectGuard', () => {
   });
 
   it('COOLDOWN_MS is at least 5 seconds (loop-breaking minimum)', () => {
+    // This test enforces a minimum lower bound (5 s) rather than the exact
+    // implementation value (currently 10 s). The bound documents the
+    // loop-breaking requirement; the exact value may increase in future
+    // without this test needing to change.
     expect(AUTH_REDIRECT_COOLDOWN_MS).toBeGreaterThanOrEqual(5000);
   });
 });
