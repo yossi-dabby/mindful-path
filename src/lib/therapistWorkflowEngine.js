@@ -149,14 +149,65 @@ export const THERAPIST_WORKFLOW_RESPONSE_RULES = Object.freeze({
     'useful than a clear pattern label.',
 
   /**
-   * Move earlier from empathy to structure.  Empathy is necessary and must
-   * be present — but it is a foundation, not the whole response.  Once the
-   * person feels heard, move to organization and intervention.
+   * In early turns, empathy and emotional formulation come before structure.
+   * Follow a reflect → formulate → ask pattern: first reflect what was shared,
+   * then offer a brief emotional formulation of what seems to be happening
+   * internally, and only then (if needed) ask a single focused question.
+   * Jumping to structure before the person feels understood undermines the
+   * working alliance.  Reserve the shift to structure for turns 3+ or when
+   * the person has explicitly indicated they want to work rather than be heard.
+   */
+  reflect_then_formulate_ask:
+    'In the first two turns, prioritize reflecting and formulating over ' +
+    'advancing structure. Reflect what the person shared, offer a brief ' +
+    'emotional formulation ("It sounds like..."), and then — only if needed — ' +
+    'ask one focused question. Do not rush to organize the problem before the ' +
+    'person feels seen. Empathic attunement in early turns is not a delay — ' +
+    'it is the foundation that makes subsequent CBT work effective.',
+
+  /**
+   * When the person explicitly asks for empathy, emotional explanation, or
+   * says they did not understand — stop advancing the CBT sequence and provide
+   * what was asked for directly.  Explain the emotional process in plain
+   * language.  Do not fall back into a narrow CBT question when the person
+   * has signalled that they need to be understood first.
+   */
+  respond_to_empathy_requests:
+    'When the person explicitly asks for empathy, for an explanation of what ' +
+    'they are feeling emotionally, or says "I didn\'t understand" — pause the ' +
+    'structured sequence entirely. Provide a clear, warm explanation of the ' +
+    'emotional process you are observing (e.g., the connection between the ' +
+    'trigger, the feeling, and the response). Use plain language. Do not ' +
+    "deflect back into a CBT question. The person has told you what they need.",
+
+  /**
+   * When the person expresses confusion, misunderstanding, or asks "why" or
+   * "what does that mean" — respond with an empathic formulation, not a
+   * clarifying question.  Confusion is often a signal that the pace is too
+   * fast or the framing is not landing.  Slow down, restate in plain terms,
+   * and check whether the formulation resonates before continuing.
+   */
+  handle_confusion_empathically:
+    'When the person seems confused, asks for clarification, or questions the ' +
+    'therapeutic framing — slow down and restate in simple, warm language. ' +
+    'Do not respond to confusion with another question. Offer a plain-language ' +
+    'explanation of what you observe emotionally, then check whether it lands: ' +
+    '"Does that feel right?" is more attuned than "What do you think about that?"',
+
+  /**
+   * Move earlier from empathy to structure, but only after the person feels
+   * heard.  In early turns (turns 1–2), empathic reflection and emotional
+   * formulation take precedence.  From turn 3 onward — or once the person
+   * signals they are ready to work — shift to organizing the problem.
+   * Empathy and structure are not opposites: structure is most effective when
+   * built on a foundation of genuine attunement.
    */
   move_to_structure_early:
-    'After brief validation, shift to structure. Empathy without structure ' +
-    'does not advance the therapeutic arc. The person came to work — ' +
-    'provide the structure that makes the work possible.',
+    'In turns 1–2: reflect, validate, and offer a brief emotional formulation ' +
+    'before organizing the problem. From turn 3 onward (or when the person ' +
+    'signals readiness to work): shift to organizing and intervention. ' +
+    'Structure without adequate empathy in early turns risks rupture — ' +
+    'ensure the person feels understood before advancing the sequence.',
 
   /**
    * End with something usable.  Every response should leave the person with
@@ -317,32 +368,47 @@ export function buildWorkflowContextInstructions() {
     'clinical guardrails, safety filters, or crisis-response behavior.',
     'All existing safety behavior takes strict precedence over this workflow.',
     '',
+    '--- EARLY-TURN ATTUNEMENT (TURNS 1–2) ---',
+    'In the first two turns, prioritize empathic attunement over structural',
+    'advancement.  Follow this pattern: reflect what was shared → offer a',
+    'brief emotional formulation → ask at most one focused question.',
+    'Do not open a CBT sequence before the person feels heard.  If the',
+    'person explicitly asks for empathy, emotional explanation, or says they',
+    'did not understand — pause the sequence entirely and provide what was',
+    'asked for.  Explanation of the emotional process is a valid therapeutic',
+    'response, not a detour.',
+    '',
     '--- ADAPTIVE RESPONSE FRAMEWORK ---',
     'This is an internal clinical guide — not a visible script or a mandatory sequence.',
     'Your first priority is always to respond directly to what the user has actually said.',
-    'In the first 1–2 turns especially, attunement to the user\'s actual words takes',
-    'priority over completing this framework. Steps may be skipped, reordered, combined,',
-    'or deferred based on the user\'s state and message. Do not force the sequence if the',
-    'user\'s response calls for a different focus. Use clinical judgment — the framework',
-    'orients you, it does not script you.',
+    'From turn 3 onward (or when the person signals readiness to work): steps may be',
+    'skipped, reordered, combined, or deferred based on the user\'s state and message.',
+    'Do not force the sequence if the user\'s response calls for a different focus.',
+    'Use clinical judgment — the framework orients you, it does not script you.',
     '',
     steps,
     '',
     '--- RESPONSE-SHAPING RULES ---',
     '',
-    `1. Reduce open-ended questions: ${THERAPIST_WORKFLOW_RESPONSE_RULES.reduce_open_ended_questions}`,
+    `1. Reflect then formulate then ask: ${THERAPIST_WORKFLOW_RESPONSE_RULES.reflect_then_formulate_ask}`,
     '',
-    `2. Summarize over explore: ${THERAPIST_WORKFLOW_RESPONSE_RULES.summarize_over_explore}`,
+    `2. Respond to empathy requests: ${THERAPIST_WORKFLOW_RESPONSE_RULES.respond_to_empathy_requests}`,
     '',
-    `3. Name the pattern: ${THERAPIST_WORKFLOW_RESPONSE_RULES.name_the_pattern}`,
+    `3. Handle confusion empathically: ${THERAPIST_WORKFLOW_RESPONSE_RULES.handle_confusion_empathically}`,
     '',
-    `4. Move to structure early: ${THERAPIST_WORKFLOW_RESPONSE_RULES.move_to_structure_early}`,
+    `4. Reduce open-ended questions: ${THERAPIST_WORKFLOW_RESPONSE_RULES.reduce_open_ended_questions}`,
     '',
-    `5. End with something usable: ${THERAPIST_WORKFLOW_RESPONSE_RULES.end_with_something_usable}`,
+    `5. Summarize over explore: ${THERAPIST_WORKFLOW_RESPONSE_RULES.summarize_over_explore}`,
     '',
-    `6. Slow down for extreme language: ${THERAPIST_WORKFLOW_RESPONSE_RULES.slow_down_for_extreme_language}`,
+    `6. Name the pattern: ${THERAPIST_WORKFLOW_RESPONSE_RULES.name_the_pattern}`,
     '',
-    `7. Safety stack compatibility: ${THERAPIST_WORKFLOW_RESPONSE_RULES.safety_stack_compatibility}`,
+    `7. Move to structure (turn-aware): ${THERAPIST_WORKFLOW_RESPONSE_RULES.move_to_structure_early}`,
+    '',
+    `8. End with something usable: ${THERAPIST_WORKFLOW_RESPONSE_RULES.end_with_something_usable}`,
+    '',
+    `9. Slow down for extreme language: ${THERAPIST_WORKFLOW_RESPONSE_RULES.slow_down_for_extreme_language}`,
+    '',
+    `10. Safety stack compatibility: ${THERAPIST_WORKFLOW_RESPONSE_RULES.safety_stack_compatibility}`,
     '',
     '--- EMOTION DIFFERENTIATION ---',
     'Distinguish explicitly between these states — each requires a different',
