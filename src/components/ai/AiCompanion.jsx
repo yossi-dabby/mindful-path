@@ -36,7 +36,7 @@ export default function AiCompanion() {
   useEffect(() => {
     if (isOpen && !conversation) {
       base44.agents.createConversation({
-        agent_name: 'ai_coach',
+        agent_name: 'ai_companion',
         tool_configs: ACTIVE_AI_COMPANION_WIRING.tool_configs,
         metadata: {
           name: 'AI Companion Chat',

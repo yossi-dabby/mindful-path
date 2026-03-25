@@ -77,7 +77,7 @@ export default function CoachingSessionWizard({ onClose }) {
       // Create AI conversation
       try {
         const conversation = await base44.agents.createConversation({
-          agent_name: 'ai_coach',
+          agent_name: 'ai_companion',
           metadata: {
             name: `Coaching: ${data.title}`,
             type: 'coaching_session',
