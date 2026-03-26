@@ -1,0 +1,81 @@
+[
+  {
+    "title": "Coping with Panic Attacks: Grounding and Breathing",
+    "topic": "panic",
+    "subtopic": "grounding techniques",
+    "population": "adults experiencing panic attacks or acute anxiety",
+    "clinical_goal": "Reduce panic symptom intensity through immediate grounding and paced breathing",
+    "content": "Panic attacks involve a sudden surge of intense fear accompanied by physical symptoms such as racing heart, shortness of breath, dizziness, and chest tightness. These symptoms are caused by the body's fight-or-flight response and are not physically dangerous, even when they feel overwhelming.\n\nStep 1 — Paced breathing: Inhale slowly for 4 counts, hold for 1 count, exhale slowly for 6 counts. Breathing out longer than you breathe in activates the parasympathetic nervous system, which counteracts the stress response. Repeat for 2–3 minutes.\n\nStep 2 — 5-4-3-2-1 grounding: Name 5 things you can see, 4 things you can touch, 3 things you can hear, 2 things you can smell, 1 thing you can taste. This technique anchors attention to the present environment, interrupting the escalating cycle of anxious thoughts.\n\nStep 3 — Cognitive reappraisal: Remind yourself that panic symptoms, though uncomfortable, are time-limited and not dangerous. The thought 'I am having a panic attack and it will pass' can reduce catastrophic interpretation of physical sensations.\n\nPractice these skills when calm so they are available during panic. Consistency and repetition increase their effectiveness over time.",
+    "short_summary": "Paced breathing (4-1-6 ratio) and 5-4-3-2-1 grounding reduce panic intensity by activating the parasympathetic response and anchoring attention to the present.",
+    "tags": [
+      "panic",
+      "grounding",
+      "breathing",
+      "anxiety",
+      "5-4-3-2-1",
+      "paced breathing",
+      "acute anxiety"
+    ],
+    "source_name": "CBT Psychoeducation — Anxiety and Panic Management",
+    "source_type": "clinical_psychoeducation",
+    "license_status": "public_domain_educational",
+    "safety_notes": "These techniques are adjunctive coping skills, not a substitute for clinical assessment of panic disorder. If panic attacks are frequent or impairing, refer to a licensed mental health provider.",
+    "contraindications": "Not suitable as a standalone intervention for severe panic disorder with agoraphobia. Paced breathing is contraindicated for clients with certain respiratory conditions without medical clearance.",
+    "language": "en",
+    "priority_score": 9,
+    "is_active": false
+  },
+  {
+    "title": "Behavioral Activation for Depression: Scheduling Rewarding Activities",
+    "topic": "depression",
+    "subtopic": "behavioral activation",
+    "population": "adults with depressive symptoms, low mood, or anhedonia",
+    "clinical_goal": "Increase engagement with rewarding activities to interrupt the depression-inactivity cycle",
+    "content": "Behavioral Activation (BA) is a structured approach to treating depression that targets the withdrawal and inactivity cycle that maintains low mood. When depressed, people tend to reduce activities that previously gave them pleasure or a sense of achievement. This withdrawal leads to further lowering of mood, creating a self-perpetuating loop.\n\nCore principle: Mood follows behavior. Rather than waiting to feel motivated before acting, BA proposes that engaging in activities — even when motivation is low — can itself generate improved mood.\n\nStep 1 — Activity monitoring: Track daily activities and rate mood (0–10) and sense of pleasure (P) and achievement (A) for each. This identifies patterns between activities and mood states.\n\nStep 2 — Values clarification: Identify what matters most to the individual — relationships, work, health, creativity — to select meaningful activities.\n\nStep 3 — Activity scheduling: Schedule small, achievable activities each day based on P/A ratings. Start with 1–2 activities and gradually increase. Activities should be specific, timed, and graded in difficulty.\n\nStep 4 — Obstacle planning: Anticipate barriers (fatigue, negative thoughts) and plan responses. For example: 'If I think it won't help, I will remember that action comes before motivation in depression.'\n\nCommon pitfalls: Scheduling too many activities too soon, selecting activities that no longer provide pleasure (anhedonia), and excessive self-criticism when activities are missed.",
+    "short_summary": "Behavioral activation breaks the depression-inactivity cycle by scheduling small, meaningful activities before motivation returns, using activity monitoring, values clarification, and graded scheduling.",
+    "tags": [
+      "depression",
+      "behavioral activation",
+      "activity scheduling",
+      "anhedonia",
+      "low mood",
+      "values",
+      "pleasure",
+      "achievement"
+    ],
+    "source_name": "CBT Psychoeducation — Depression and Behavioral Interventions",
+    "source_type": "clinical_psychoeducation",
+    "license_status": "public_domain_educational",
+    "safety_notes": "For severe depression with suicidal ideation, behavioral activation should be integrated within a comprehensive safety plan and provided by a licensed clinician.",
+    "contraindications": "Not a standalone treatment for severe major depressive disorder with psychotic features or active suicidal planning. Activity scheduling should be paced carefully for clients with medical conditions affecting energy.",
+    "language": "en",
+    "priority_score": 9,
+    "is_active": false
+  },
+  {
+    "title": "Identifying and Challenging Catastrophic Thinking",
+    "topic": "anxiety",
+    "subtopic": "catastrophizing",
+    "population": "adults with anxiety, worry, or negative cognitive distortions",
+    "clinical_goal": "Reduce distress caused by catastrophic thoughts by evaluating evidence and generating balanced alternatives",
+    "content": "Catastrophizing is a cognitive distortion in which a person predicts the worst possible outcome and treats it as certain or highly likely, while minimizing their ability to cope. It is a key maintaining factor in anxiety disorders and a major source of unnecessary distress.\n\nExamples: 'If I fail this exam, my life is ruined,' 'That chest tightness must be a heart attack,' 'My colleague didn't reply — they must hate me.'\n\nStep 1 — Identify the catastrophic thought: Write down the thought in specific terms. Avoid vague statements; aim for precision.\n\nStep 2 — Evaluate the evidence: Ask: 'What evidence supports this thought? What evidence goes against it? Have I predicted disaster before and been wrong? What actually happened?' This process grounds evaluation in fact rather than emotion.\n\nStep 3 — Generate a balanced alternative: Construct a thought that acknowledges the concern but reflects actual probability. For example: 'It is possible I won't pass, but failing one exam is unlikely to ruin my life. I have options and resources.'\n\nStep 4 — Assess coping ability: Ask: 'Even if the worst happened, could I cope? What would I do? Who could help?' Catastrophizing often underestimates coping resources.\n\nStep 5 — De-catastrophizing scale: Rate the likelihood of the worst outcome (0–100%) and recalculate after evidence evaluation. Most clients report substantial drops after structured review.",
+    "short_summary": "Catastrophizing is challenged by identifying the thought, weighing evidence for and against, generating a balanced alternative, and reassessing coping capacity.",
+    "tags": [
+      "catastrophizing",
+      "cognitive distortion",
+      "anxiety",
+      "worry",
+      "cognitive restructuring",
+      "evidence checking",
+      "balanced thinking"
+    ],
+    "source_name": "CBT Psychoeducation — Cognitive Restructuring Techniques",
+    "source_type": "clinical_psychoeducation",
+    "license_status": "public_domain_educational",
+    "safety_notes": "Avoid challenging catastrophic thoughts related to genuine safety concerns (e.g., domestic violence, suicidal ideation) with cognitive restructuring alone — safety planning takes precedence.",
+    "contraindications": "Cognitive restructuring requires sufficient cognitive flexibility. Not recommended as the primary approach for clients in acute crisis or with significant cognitive impairment.",
+    "language": "en",
+    "priority_score": 8,
+    "is_active": false
+  }
+]
