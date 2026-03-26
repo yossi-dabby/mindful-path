@@ -42,7 +42,7 @@ describe('Phase 8 — feature flag baseline unchanged', () => {
     expect(Object.isFrozen(THERAPIST_UPGRADE_FLAGS)).toBe(true);
   });
 
-  it('THERAPIST_UPGRADE_FLAGS still contains exactly 9 flags (Phase 8 + Phase 10 flag)', () => {
+  it('THERAPIST_UPGRADE_FLAGS still contains exactly 9 flags (Phase 8 adds no new flag)', () => {
     expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(9);
   });
 

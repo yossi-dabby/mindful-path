@@ -101,6 +101,10 @@ import {
  *   8. Master gate on, no matching phase flag
  *                       → CBT_THERAPIST_WIRING_HYBRID (fall-through to current default)
  *
+ * Phase 10 (V6) takes precedence over Phase 7 (V5) and all prior phases when
+ * the formulation-led flag is on because V6 is a superset of V5, which is a
+ * superset of V4, which is a superset of V3, and so on.
+ *
  * Phase 7 (V5) takes precedence over Phase 6 (V4) and all prior phases when
  * the safety mode flag is on because V5 is a superset of V4, which is a
  * superset of V3, which is a superset of V2, which is a superset of V1.
@@ -120,7 +124,7 @@ import {
  */
 export function resolveTherapistWiring() {
   if (isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')) {
-    // ── Phase 10 — Formulation-led (supersedes Phase 7 and earlier) ──────
+    // ── Phase 10 — Formulation-led CBT (supersedes Phase 7 and earlier) ──────
     if (isUpgradeEnabled('THERAPIST_UPGRADE_FORMULATION_LED_ENABLED')) {
       logUpgradeEvent('route_selected', {
         flag: 'THERAPIST_UPGRADE_FORMULATION_LED_ENABLED',
@@ -183,7 +187,8 @@ export function resolveTherapistWiring() {
     // ── Master gate on, no phase flag matched — fall through to current default ──
     logUpgradeEvent('route_not_selected', {
       flag: 'THERAPIST_UPGRADE_ENABLED',
-      path: 'current_default_fallback',
+      path: 'hybrid',
+      reason: 'no_phase_flag_matched',
       phase: '0.1',
     });
     return CBT_THERAPIST_WIRING_HYBRID;
@@ -191,6 +196,8 @@ export function resolveTherapistWiring() {
 
   logUpgradeEvent('route_not_selected', {
     flag: 'THERAPIST_UPGRADE_ENABLED',
+    path: 'hybrid',
+    reason: 'master_gate_off',
     phase: '0.1',
   });
   return CBT_THERAPIST_WIRING_HYBRID;

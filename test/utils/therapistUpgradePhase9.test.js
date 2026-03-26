@@ -311,7 +311,7 @@ describe('Phase 9 — B. Flag isolation', () => {
     expect(Object.isFrozen(THERAPIST_UPGRADE_FLAGS)).toBe(true);
   });
 
-  it('THERAPIST_UPGRADE_FLAGS has exactly 9 flags (Phase 9 + Phase 10 flag)', () => {
+  it('THERAPIST_UPGRADE_FLAGS has exactly 9 flags (no new flags added by Phase 9)', () => {
     expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(9);
   });
 

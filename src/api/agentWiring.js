@@ -830,24 +830,30 @@ export const CBT_THERAPIST_WIRING_STAGE2_V5 = {
  * Phase 10 — Formulation-Led CBT Super Agent.
  *
  * This config extends CBT_THERAPIST_WIRING_STAGE2_V5 with formulation-led
- * capability.  V6 is a strict superset of V5: all Phase 7 flags and entity
- * tool_configs are preserved unchanged, and one new flag is added.
+ * response behavior.  V6 is a strict superset of V5: all Phase 7 flags and
+ * entity tool_configs are preserved unchanged, and one new flag is added.
  *
  * New flags:
- *   formulation_led_enabled — signals Phase 10 formulation-led mode is active;
- *                             workflowContextInjector will inject
+ *   formulation_led_enabled — signals Phase 10 formulation-led behavior is
+ *                             active; workflowContextInjector will inject
  *                             THERAPIST_FORMULATION_INSTRUCTIONS into the
- *                             session context alongside the existing workflow
- *                             instructions (V2 layer).
+ *                             session context on the first turn.
  *
  * Entity tool_configs: IDENTICAL to V5.  No new entity access is added.
- * Formulation-led mode refines response behavior at the context/instruction
+ * Formulation-led behavior constrains response quality at the instruction
  * layer — it does not add new entity access.
+ *
+ * What Phase 10 fixes:
+ *   1. Therapist opening too much like a generic intake/menu bot.
+ *   2. Redundant questioning when user context is already provided.
+ *   3. Falling back too quickly to rigid CBT questioning after empathy.
+ *   4. Overusing rituals (anxiety 0–10, evidence, balanced thought) too early.
+ *   5. Weak and untrustworthy handling of source/evidence requests.
  *
  * ACTIVATION
  * ----------
- * This config is NOT the active config.  It becomes reachable only when
- * resolveTherapistWiring() returns it, which requires BOTH flags to be true:
+ * This config is NOT the active config by default.  It becomes reachable only
+ * when resolveTherapistWiring() returns it, which requires BOTH flags to be true:
  *   - THERAPIST_UPGRADE_ENABLED (master gate)
  *   - THERAPIST_UPGRADE_FORMULATION_LED_ENABLED (Phase 10 gate)
  * Both default to false.  ACTIVE_CBT_THERAPIST_WIRING remains
@@ -859,7 +865,7 @@ export const CBT_THERAPIST_WIRING_STAGE2_V5 = {
  * no other code changes.  Set THERAPIST_UPGRADE_ENABLED to false to revert
  * to HYBRID entirely.
  *
- * Source of truth: docs/therapist-upgrade-stage2-plan.md — Phase 10
+ * Source of truth: therapist-upgrade Phase 10 — Formulation-Led CBT
  */
 export const CBT_THERAPIST_WIRING_STAGE2_V6 = {
   name: 'cbt_therapist',
@@ -870,8 +876,8 @@ export const CBT_THERAPIST_WIRING_STAGE2_V6 = {
   workflow_context_injection: true,         // from V2 — inject workflow instructions
   retrieval_orchestration_enabled: true,    // from V3 — Phase 5 retrieval orchestration
   live_retrieval_enabled: true,             // from V4 — Phase 6 live retrieval wrapper
-  safety_mode_enabled: true,               // from V5 — Phase 7 safety mode active
-  formulation_led_enabled: true,            // Phase 10 — formulation-led mode active
+  safety_mode_enabled: true,               // from V5 — Phase 7 safety mode
+  formulation_led_enabled: true,           // Phase 10 — formulation-led CBT instructions
   tool_configs: [
     // ── Step 1: Preferred entities (identical to V5 / V4 / V3 / V2 / V1 / Hybrid) ──
     { entity_name: 'SessionSummary',  access_level: 'preferred',  source_order: 2 },
@@ -917,7 +923,7 @@ export const CBT_THERAPIST_WIRING_STAGE2_V6 = {
     // fetchLiveResource backend function.  No new entity is added here.
     // NOTE: Safety mode (Phase 7) is NOT an entity access — it constrains
     // behavior at the context/instruction layer.  No new entity is added here.
-    // NOTE: Formulation-led mode (Phase 10) is NOT an entity access — it refines
-    // response behavior at the context/instruction layer.  No new entity is added here.
+    // NOTE: Formulation-led (Phase 10) is NOT an entity access — it shapes
+    // response quality at the instruction layer.  No new entity is added here.
   ],
 };
