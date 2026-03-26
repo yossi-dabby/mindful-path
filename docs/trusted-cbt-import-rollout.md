@@ -1,172 +1,150 @@
-# TrustedCBTChunk Import Rollout Guide
+# Trusted CBT Chunk — Smoke Import Rollout
 
-**File:** `docs/trusted-cbt-import-rollout.md`  
-**Branch:** `copilot/audit-and-refresh-trusted-cbt`  
-**Status:** Ready for admin review before activation
-
----
-
-## 1. Overview
-
-This document describes the safe rollout procedure for importing the first batch of `TrustedCBTChunk` records into the Base44 live entity store using the existing `/KnowledgeStudio → Bulk Import` admin flow.
-
-All records are prepared with `is_active: false`. No record will be retrievable by the CBT Therapist agent until an admin explicitly activates it after a successful Retrieval Preview.
+> **Audience:** Admins with access to `/KnowledgeStudio`.
+> **Risk level:** 🟢 Low — all records are imported as `is_active: false`. No live retrieval is affected until records are manually activated.
 
 ---
 
-## 2. Import Files
+## Overview
 
-| File | Records | Purpose |
-|------|---------|---------|
-| `src/data/trusted-cbt-batch-1.smoke.base44.json` | 3 | Smoke import — validates the end-to-end pipeline |
-| `src/data/trusted-cbt-batch-1.base44.json` | 10 | Full batch import |
+This document describes how to perform the smoke import of the first TrustedCBTChunk batch using the built-in **Bulk Import** tab in KnowledgeStudio. No repository files need to be opened or copied manually.
 
-Both files contain only fields from the Base44 `TrustedCBTChunk` schema:  
-`title`, `topic`, `subtopic`, `population`, `clinical_goal`, `content`, `short_summary`, `tags`, `source_name`, `source_type`, `license_status`, `safety_notes`, `contraindications`, `language`, `priority_score`, `is_active`
+Two bundled batches are available directly in the UI:
 
-No non-Base44 fields (`entity_type`, `content_source_type`, `chunk_index`, `evidence_level`) are present.
-
----
-
-## 3. Import Order — Smoke First, Then Full Batch
-
-### Step 1 — Smoke Import
-
-1. Navigate to `/KnowledgeStudio` (admin only).
-2. Click the **Bulk Import** tab.
-3. Open `src/data/trusted-cbt-batch-1.smoke.base44.json`, copy the entire contents.
-4. Paste into the JSON textarea.
-5. Click **Validate JSON** — all 3 records must show as valid (green ticks) with zero errors.
-6. Click **Import 3 valid record(s)**.
-7. Confirm the success toast: `Imported 3/3 records`.
-
-> **Do not proceed to Step 2 until Step 1 succeeds completely.**
-
-### Step 2 — Retrieval Preview Verification
-
-After the smoke import, verify retrieval works before activating any record:
-
-1. In KnowledgeStudio, switch to the **Retrieval Preview** tab.
-2. Run the three sample queries below (see Section 4).
-3. All three must return **0 results** (because `is_active: false`).
-4. Activate the 1–2 records most relevant to your test query (see Section 5).
-5. Re-run the preview — you should now see matched results for the activated records.
-
-### Step 3 — Full Batch Import
-
-1. After the smoke import is confirmed successful and at least one record has been Retrieval-Preview-verified:
-2. Open `src/data/trusted-cbt-batch-1.base44.json`, copy the entire contents.
-3. Paste into the BulkImport textarea.
-4. Click **Validate JSON** — all 10 records must show as valid.
-5. Click **Import 10 valid record(s)**.
-6. Confirm: `Imported 10/10 records`.
-
-> **Note:** The 3 smoke records will already exist. BulkImport creates new records; it does not deduplicate. If you imported the smoke file in Step 1, **delete the 3 smoke records from the Library tab before importing the full batch**. This is the recommended path. Do not import the full batch on top of the smoke import — you will have 13 records with 3 duplicates.
+| Button | File | Records |
+|---|---|---|
+| **Load Smoke Batch** | `trusted-cbt-batch-1.smoke.base44.json` | 3 records (anxiety, depression, catastrophizing) |
+| **Load Full Batch** | `trusted-cbt-batch-1.base44.json` | 10 records (full first batch) |
 
 ---
 
-## 4. Sample Retrieval Preview Payloads
+## Step-by-step: First Smoke Import
 
-Use these in the **Retrieval Preview** tab (`/KnowledgeStudio → Retrieval Preview`) to validate that the retrieval function returns relevant chunks after activation.
+### 1. Open Bulk Import
 
-### 4a — Panic
+Navigate to `/KnowledgeStudio` → click the **Bulk Import** tab.
+
+### 2. Load the Smoke Batch
+
+Click **Load Smoke Batch**.
+
+The textarea is automatically populated with the 3-record smoke batch JSON. No file copying or pasting required.
+
+### 3. Validate JSON
+
+Click **Validate JSON**.
+
+The Validation Report appears below. Confirm:
+- ✅ **3 valid** — no errors shown.
+- If any record shows errors, review the field values in the textarea before proceeding.
+
+### 4. Import
+
+Click **Import 3 valid record(s)**.
+
+The Import Results card appears. All 3 records should show a green ✅ (success).
+
+> **All records are imported as `is_active: false`.** They will **not** appear in live retrieval until explicitly activated.
+
+### 5. Verify in Library
+
+Switch to the **Library** tab. Confirm the 3 records appear with `is_active = false`.
+
+---
+
+## Activating Records (after Retrieval Preview verification)
+
+Keep all records inactive initially. Activate only **1–2 records** after verifying the Retrieval Preview returns expected results.
+
+### Activation Checklist
+
+- [ ] Run at least 3 Retrieval Preview queries (see samples below).
+- [ ] Confirm the target record appears in the results at an appropriate rank.
+- [ ] Open the record in the **Library** tab → click **Edit**.
+- [ ] Set `is_active` to **true**.
+- [ ] Save.
+- [ ] Re-run the Retrieval Preview to confirm the record is now returned.
+
+---
+
+## Sample Retrieval Preview Payloads
+
+Use these in the **Retrieval Preview** tab to verify retrieval quality before activating records.
+
+### 1. Panic / Anxiety
 
 ```json
 {
-  "userMessage": "I keep having panic attacks and I can't breathe. My heart is racing and I feel like I'm dying.",
-  "topicHint": "panic",
+  "userMessage": "I keep having panic attacks and I can't stop thinking about worst case scenarios",
+  "topicHint": "anxiety",
   "emotionalState": "panic",
-  "maxResults": 3
+  "maxResults": 5
 }
 ```
 
-**Expected results after activating relevant records:**
-- `Diaphragmatic Breathing for Panic Attacks` (topic: panic, tags: panic, breathing)
-- `Interoceptive Exposure for Panic Disorder` (topic: panic, tags: panic, interoceptive exposure)
+**Expected:** Records tagged with `anxiety`, `catastrophizing`, `automatic thoughts` should rank highly.
 
 ---
 
-### 4b — Behavioral Activation
+### 2. Behavioural Activation
 
 ```json
 {
-  "userMessage": "I have no motivation and I can't get myself to do anything. I just stay in bed all day.",
-  "topicHint": "behavioral activation",
-  "emotionalState": "depression",
-  "maxResults": 3
+  "userMessage": "I have no motivation to do anything and I've stopped doing the things I used to enjoy",
+  "topicHint": "depression",
+  "emotionalState": "low mood",
+  "maxResults": 5
 }
 ```
 
-**Expected results after activating relevant records:**
-- `Behavioral Activation: Scheduling Pleasant Activities` (topic: behavioral activation, tags: depression, behavioral activation)
-- `Values Clarification in CBT: Building a Meaningful Life` (tags: behavioral activation, motivation, depression)
+**Expected:** Records tagged with `behavioral activation`, `depression`, `activity scheduling` should rank highest.
 
 ---
 
-### 4c — Catastrophizing
+### 3. Catastrophizing
 
 ```json
 {
-  "userMessage": "Every time something goes wrong I immediately think it's a total disaster and the worst will happen.",
-  "topicHint": "catastrophizing",
-  "emotionalState": "anxiety",
-  "maxResults": 3
+  "userMessage": "Every time something goes wrong I assume the absolute worst is going to happen",
+  "topicHint": "cognitive distortions",
+  "emotionalState": "anxious",
+  "maxResults": 5
 }
 ```
 
-**Expected results after activating relevant records:**
-- `Cognitive Restructuring for Catastrophizing` (topic: catastrophizing, tags: catastrophizing, cognitive restructuring)
-- `The ABC Thought Record for Anxiety` (tags: thought record, automatic thoughts)
+**Expected:** The "Decatastrophizing" record tagged with `catastrophizing`, `coping` should rank highly.
 
 ---
 
-## 5. Activation Guidance
+## Loading the Full Batch (after smoke verification)
 
-> **Rule:** Keep all records at `is_active: false` initially. Only activate 1–2 records per Retrieval Preview test cycle.
+Once the smoke batch import has been verified:
 
-### Activation procedure (per record):
-
-1. In KnowledgeStudio, switch to the **Library** tab.
-2. Locate the record by title.
-3. Click **Edit**.
-4. Toggle `is_active` to **true**.
-5. Click **Save**.
-6. Switch to **Retrieval Preview** and run a query that should match this record.
-7. Confirm the record appears in results.
-8. If it does not appear, check: (a) the `is_active` toggle was saved, (b) the query tokens match the record's `tags` or `topic`.
-
-### Recommended initial activation order:
-
-1. `Diaphragmatic Breathing for Panic Attacks` (priority_score: 9) — test with panic query.
-2. `Behavioral Activation: Scheduling Pleasant Activities` (priority_score: 9) — test with depression/motivation query.
-3. `Cognitive Restructuring for Catastrophizing` (priority_score: 9) — test with catastrophizing/anxiety query.
-
-Only after all three Retrieval Previews pass, activate remaining records in descending priority_score order.
+1. Navigate to **Bulk Import** tab.
+2. Click **Load Full Batch**.
+3. Click **Validate JSON** — confirm **10 valid** records.
+4. Click **Import 10 valid record(s)**.
+5. Verify all 10 records appear in the Library as `is_active: false`.
+6. Activate records incrementally, re-running Retrieval Preview after each activation.
 
 ---
 
-## 6. Rollback
+## What Each File Does
 
-If the import causes any issues:
-
-1. Go to the **Library** tab in KnowledgeStudio.
-2. Delete the imported records one by one using the delete action.
-3. No other system state is affected — the import only creates `TrustedCBTChunk` entity records; it does not change agent wiring, routing, or any production flow.
-
-Because all records are imported with `is_active: false`, a partial rollback (deactivation without deletion) is also safe:
-- Toggle `is_active` back to `false` on any record to immediately remove it from retrieval results.
+| File | Purpose |
+|---|---|
+| `src/data/trusted-cbt-batch-1.smoke.base44.json` | 3-record smoke batch for initial import validation. Topics: anxiety, depression, catastrophizing. |
+| `src/data/trusted-cbt-batch-1.base44.json` | Full 10-record first batch covering anxiety, depression, cognitive distortions, relaxation, and core CBT techniques. |
+| `src/components/knowledge/BulkImport.jsx` | Admin UI component. Now includes **Load Smoke Batch** and **Load Full Batch** buttons that preload the textarea without requiring manual file access. Also validates non-array tags and extra non-Base44 fields. |
 
 ---
 
-## 7. Validation
+## Safety Notes
 
-Before importing, optionally run the local validation utility to confirm the files are Base44-compatible:
-
-```bash
-npm test -- --reporter=verbose test/utils/validateBase44Import.test.js
-```
-
-All 49 tests must pass. The integration tests directly parse and validate both import files.
+- All imported records have `is_active: false`. No live user sessions are affected by the import itself.
+- Do not activate more than 2 records at a time without running Retrieval Preview.
+- If a record returns unexpected results in retrieval, set it back to `is_active: false` immediately.
+- The `priority_score` field (0–10) affects retrieval ranking. Records with score ≥ 8 rank above lower-scored records when keyword overlap is equal.
 
 ---
 
