@@ -409,6 +409,15 @@ export default function Goals() {
           {/* Active Goals */}
           {activeGoals.length > 0 &&
             <div>
+              <video
+                src="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/Active%20Goals.mp4?alt=media&token=6679fb6d-1312-4742-b569-eb32053d5100"
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full rounded-2xl mb-4"
+                style={{ maxHeight: '260px', objectFit: 'cover' }}
+              />
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold text-gray-800">{t('goals.active_goals')}</h2>
                 {activeGoals.length > 0 &&
