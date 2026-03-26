@@ -26,7 +26,7 @@ import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
 import { validateAgentOutput, sanitizeConversationMessages, parseCounters } from '../components/utils/validateAgentOutput.jsx';
 import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
-import { buildV4SessionStartContentAsync, buildRuntimeSafetySupplement } from '@/lib/workflowContextInjector.js';
+import { buildV6SessionStartContentAsync, buildRuntimeSafetySupplement } from '@/lib/workflowContextInjector.js';
 import { MOBILE_HEADER_HEIGHT } from '../components/layout/MobileHeader';
 import { BOTTOM_NAV_HEIGHT } from '../components/layout/BottomNav';
 // Phase 8 — Upgraded-path UI (flag-gated; hidden in default mode)
@@ -375,7 +375,7 @@ export default function Chat() {
                 setIsLoading(true);
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
-                  content: await buildV4SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44)
+                  content: await buildV6SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44)
                 });
                 inFlightIntentRef.current = false;
               }, 100);
@@ -416,7 +416,7 @@ export default function Chat() {
                 setIsLoading(true);
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
-                  content: await buildV4SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44)
+                  content: await buildV6SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44)
                 });
                 inFlightIntentRef.current = false;
               }, 100);

@@ -58,7 +58,7 @@
  * Source of truth: docs/therapist-upgrade-stage2-plan.md — Phase 3.1 / Phase 5
  */
 
-import { THERAPIST_WORKFLOW_INSTRUCTIONS } from './therapistWorkflowEngine.js';
+import { THERAPIST_WORKFLOW_INSTRUCTIONS, THERAPIST_FORMULATION_INSTRUCTIONS } from './therapistWorkflowEngine.js';
 import { getRetrievalContextForWiring, buildBoundedContextPackage } from './retrievalOrchestrator.js';
 import { executeV3BoundedRetrieval } from './v3RetrievalExecutor.js';
 import {
@@ -540,4 +540,75 @@ export function buildRuntimeSafetySupplement(wiring, messageText, locale) {
     // Fail-safe: never throw, never block the message send
     return null;
   }
+}
+
+// ─── Phase 10 — V6 formulation-led session start ─────────────────────────────
+
+/**
+ * Builds the session-start message content for the V6 formulation-led path.
+ *
+ * V6 is the Phase 10 upgrade.  It extends V5 by unconditionally injecting
+ * the THERAPIST_FORMULATION_INSTRUCTIONS — a set of 7 clinical rules that
+ * suppress "worksheet-bot" behavior in the therapist agent:
+ *
+ *   1. No mood-menu opening when the user has already shared a concern
+ *   2. Answer the user's direct request first (highest priority per turn)
+ *   3. No premature CBT worksheet steps (anxiety scale, evidence for/against,
+ *      balanced thought) until formulation and attunement are established
+ *   4. Formulate the problem in depth before asking the next question
+ *   5. No robotic meta-language ("I'm here to guide you through CBT...")
+ *   6. No premature journal-save or exercise suggestions during exploration
+ *   7. Clinical attunement first — the user must feel heard before any
+ *      structured intervention is offered
+ *
+ * WHY UNCONDITIONAL INJECTION
+ * ---------------------------
+ * The formulation rules are injected regardless of the active wiring or
+ * feature flags because the worksheet-bot behavior originates in the agent's
+ * base instructions, not in the upgraded-path logic.  Gating the rules on
+ * feature flags would mean the default (HYBRID) path remains broken.
+ * V6 corrects this by ensuring the formulation rules are always present in
+ * the agent's context window from the very first turn.
+ *
+ * DELEGATION CHAIN
+ * ----------------
+ * For all other content (workflow engine instructions, retrieval context,
+ * live retrieval, safety mode):
+ *   V6 → V5 → V4 → V3 → buildSessionStartContent
+ *
+ * FAIL-OPEN CONTRACT
+ * ------------------
+ * If V5 (or any upstream step) fails, this function returns the formulation
+ * instructions alone — the session is never blocked.
+ *
+ * SAFETY COMPATIBILITY
+ * --------------------
+ * The formulation instructions are additive context.  They do NOT replace,
+ * weaken, or bypass the existing safety stack (postLlmSafetyFilter,
+ * sanitizeAgentOutput, sanitizeConversation, enhancedCrisisDetector,
+ * risk panel flow).  All existing safety behavior takes strict precedence.
+ *
+ * @param {object} wiring       - The active therapist wiring config object
+ * @param {object} entities     - Base44 entity client map (e.g. base44.entities)
+ * @param {object|null} baseClient - Full base44 client (for live retrieval)
+ * @param {object} [options]    - Options passed through to V5
+ * @returns {Promise<string>} The session-start message content
+ */
+export async function buildV6SessionStartContentAsync(
+  wiring,
+  entities,
+  baseClient,
+  options = {},
+) {
+  // Build the V5 base content (delegation chain: V5 → V4 → V3 → base)
+  let v5Base;
+  try {
+    v5Base = await buildV5SessionStartContentAsync(wiring, entities, baseClient, options);
+  } catch {
+    // Fail-open: V5 failed — start from bare '[START_SESSION]'
+    v5Base = '[START_SESSION]';
+  }
+
+  // Always append the formulation-led clinical rules (Phase 10 core)
+  return v5Base + '\n\n' + THERAPIST_FORMULATION_INSTRUCTIONS;
 }
