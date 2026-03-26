@@ -25,6 +25,8 @@
  *   V4 supersedes V3 when both flags are on (V4 is a superset of V3).
  * Phase 7 — CBT_THERAPIST_WIRING_STAGE2_V5 added as the safety-mode path.
  *   V5 supersedes V4 when both flags are on (V5 is a superset of V4).
+ * Phase 10 — CBT_THERAPIST_WIRING_STAGE2_V6 added as the formulation-led path.
+ *   V6 supersedes V5 when both flags are on (V6 is a superset of V5).
  *
  * Analytics registration (Section B of Phase 0.1 spec) is performed lazily
  * via a dynamic import of base44Client.js so that test environments that lack
@@ -43,6 +45,7 @@ import {
   CBT_THERAPIST_WIRING_STAGE2_V3,
   CBT_THERAPIST_WIRING_STAGE2_V4,
   CBT_THERAPIST_WIRING_STAGE2_V5,
+  CBT_THERAPIST_WIRING_STAGE2_V6,
 } from './agentWiring.js';
 
 import {
@@ -83,18 +86,24 @@ import {
  *
  * Routing logic (evaluated in order):
  *   1. Master gate off  → CBT_THERAPIST_WIRING_HYBRID (current default)
- *   2. Master gate on, THERAPIST_UPGRADE_SAFETY_MODE_ENABLED on
+ *   2. Master gate on, THERAPIST_UPGRADE_FORMULATION_LED_ENABLED on
+ *                       → CBT_THERAPIST_WIRING_STAGE2_V6 (Phase 10 formulation-led)
+ *   3. Master gate on, THERAPIST_UPGRADE_SAFETY_MODE_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V5 (Phase 7 safety mode)
- *   3. Master gate on, THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED on
+ *   4. Master gate on, THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V4 (Phase 6 live retrieval)
- *   4. Master gate on, THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED on
+ *   5. Master gate on, THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V3 (Phase 5 retrieval orchestration)
- *   5. Master gate on, THERAPIST_UPGRADE_WORKFLOW_ENABLED on
+ *   6. Master gate on, THERAPIST_UPGRADE_WORKFLOW_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V2 (Phase 3 workflow engine)
- *   6. Master gate on, THERAPIST_UPGRADE_MEMORY_ENABLED on
+ *   7. Master gate on, THERAPIST_UPGRADE_MEMORY_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V1 (Phase 1 memory layer)
- *   7. Master gate on, no matching phase flag
+ *   8. Master gate on, no matching phase flag
  *                       → CBT_THERAPIST_WIRING_HYBRID (fall-through to current default)
+ *
+ * Phase 10 (V6) takes precedence over Phase 7 (V5) and all prior phases when
+ * the formulation-led flag is on because V6 is a superset of V5, which is a
+ * superset of V4, which is a superset of V3, and so on.
  *
  * Phase 7 (V5) takes precedence over Phase 6 (V4) and all prior phases when
  * the safety mode flag is on because V5 is a superset of V4, which is a
@@ -115,6 +124,16 @@ import {
  */
 export function resolveTherapistWiring() {
   if (isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')) {
+    // ── Phase 10 — Formulation-led CBT (supersedes Phase 7 and earlier) ──────
+    if (isUpgradeEnabled('THERAPIST_UPGRADE_FORMULATION_LED_ENABLED')) {
+      logUpgradeEvent('route_selected', {
+        flag: 'THERAPIST_UPGRADE_FORMULATION_LED_ENABLED',
+        path: 'stage2_v6',
+        phase: '10',
+      });
+      return CBT_THERAPIST_WIRING_STAGE2_V6;
+    }
+
     // ── Phase 7 — Safety mode (supersedes Phase 6 and earlier) ───────────
     if (isUpgradeEnabled('THERAPIST_UPGRADE_SAFETY_MODE_ENABLED')) {
       logUpgradeEvent('route_selected', {

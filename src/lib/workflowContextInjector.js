@@ -58,7 +58,7 @@
  * Source of truth: docs/therapist-upgrade-stage2-plan.md — Phase 3.1 / Phase 5
  */
 
-import { THERAPIST_WORKFLOW_INSTRUCTIONS } from './therapistWorkflowEngine.js';
+import { THERAPIST_WORKFLOW_INSTRUCTIONS, THERAPIST_FORMULATION_INSTRUCTIONS } from './therapistWorkflowEngine.js';
 import { getRetrievalContextForWiring, buildBoundedContextPackage } from './retrievalOrchestrator.js';
 import { executeV3BoundedRetrieval } from './v3RetrievalExecutor.js';
 import {
@@ -462,6 +462,73 @@ export async function buildV5SessionStartContentAsync(
   }
 
   return result;
+}
+
+// ─── Phase 10 — V6 formulation-led context accessor ──────────────────────────
+
+/**
+ * Returns the formulation-led instructions string when the supplied wiring
+ * has the formulation_led_enabled flag set to true.
+ *
+ * @param {object} wiring - The active therapist wiring config object
+ * @returns {string|null} THERAPIST_FORMULATION_INSTRUCTIONS when the wiring
+ *   has formulation_led_enabled === true; null otherwise.
+ */
+export function getFormulationLedContextForWiring(wiring) {
+  if (wiring && wiring.formulation_led_enabled === true) {
+    return THERAPIST_FORMULATION_INSTRUCTIONS;
+  }
+  return null;
+}
+
+/**
+ * Builds the session-start message content for the V6 upgraded path,
+ * injecting formulation-led CBT instructions on top of the V5 base content.
+ *
+ * For all non-V6 wirings (HYBRID, V1, V2, V3, V4, V5, null, undefined):
+ *   Delegates to buildV5SessionStartContentAsync(wiring, entities, baseClient,
+ *   options) and returns exactly the same result.  The default path is completely
+ *   unchanged.
+ *
+ * For V6 (formulation_led_enabled === true):
+ *   1. Builds the V5 base content (workflow + retrieval + live policy + safety).
+ *   2. Appends the Phase 10 formulation-led instructions section.
+ *
+ * @param {object} wiring       - The active therapist wiring config object
+ * @param {object} entities     - Base44 entity client map (e.g. base44.entities)
+ * @param {object|null} baseClient - Full base44 client (for live retrieval)
+ * @param {object} [options]    - Options forwarded to V5 / V4 / V3
+ * @returns {Promise<string>} The session-start message content
+ */
+export async function buildV6SessionStartContentAsync(
+  wiring,
+  entities,
+  baseClient,
+  options = {},
+) {
+  // For non-V6 wirings: delegate to V5 (no change to behavior)
+  if (!wiring || wiring.formulation_led_enabled !== true) {
+    return buildV5SessionStartContentAsync(wiring, entities, baseClient, options);
+  }
+
+  // ── V6 path ────────────────────────────────────────────────────────────────
+
+  // Step 1: Build the V5 base content (safety mode + retrieval + workflow)
+  const v5Base = await buildV5SessionStartContentAsync(
+    wiring,
+    entities,
+    baseClient,
+    options,
+  );
+
+  // Step 2: Append the Phase 10 formulation-led instructions
+  const formulationContext = getFormulationLedContextForWiring(wiring);
+  if (!formulationContext) {
+    // Guard: formulation instructions unavailable — return V5 base content unchanged
+    return v5Base;
+  }
+
+  return v5Base + '\n\n' + formulationContext;
 }
 
 // ─── Phase 7.1 — Per-turn runtime safety supplement ──────────────────────────
