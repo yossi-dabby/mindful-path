@@ -48,6 +48,7 @@ export default function Chat() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [messages, setMessages] = useState([]);
