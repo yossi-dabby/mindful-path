@@ -363,3 +363,107 @@ export function buildWorkflowContextInstructions() {
  * @type {string}
  */
 export const THERAPIST_WORKFLOW_INSTRUCTIONS = buildWorkflowContextInstructions();
+
+// ─── Phase 10 — Formulation-Led CBT ──────────────────────────────────────────
+
+/**
+ * Phase 10 formulation response rules.
+ *
+ * Each rule captures a clinically specific behavior that the therapist agent
+ * must follow when formulation-led mode is active.  Rules are keyed by a
+ * short identifier and valued with the full instruction text.
+ *
+ * This object is frozen to prevent accidental mutation during testing or
+ * runtime evaluation.
+ *
+ * @type {Readonly<Record<string, string>>}
+ */
+export const THERAPIST_FORMULATION_RESPONSE_RULES = Object.freeze({
+  already_known_context:
+    'Do not ask the person to repeat or re-explain information they have already provided. ' +
+    'If the trigger, situation, or background is clear from prior turns, build on it — do not revisit it.',
+
+  formulation_before_questioning:
+    'Before asking any clarifying question, offer a brief clinical formulation: ' +
+    'reflect the pattern you observe, name the emotion or belief, and connect it to the situation. ' +
+    'A formulation is more useful than another question when the picture is already clear.',
+
+  no_early_protocol_rituals:
+    'In the first two turns, do not present intake menus, structured option lists, ' +
+    'or protocol steps. Respond to what the person actually said. ' +
+    'Empathic attunement in early turns is not a delay — it is the foundation.',
+
+  natural_clinical_opening:
+    'When the person opens with only a greeting (hi, hello, etc.), respond with a warm, ' +
+    'natural clinical sentence and one open inviting question. ' +
+    'Do not present a category menu. If the first message already contains a situation or feeling, ' +
+    'respond directly to that — skip the generic opener.',
+
+  confusion_handling:
+    'When the person seems confused, asks for clarification, or questions the therapeutic framing, ' +
+    'slow down. Restate in simple, warm language. Do not respond to confusion with another question. ' +
+    'Offer a plain-language explanation of what you observe emotionally, then check whether it lands.',
+
+  empathy_request_deepening:
+    'When the person explicitly asks for empathy, for an explanation of what they are feeling, ' +
+    'or says "I didn\'t understand" — pause the structured sequence entirely. ' +
+    'Provide a clear, warm explanation of the emotional process you are observing. ' +
+    'Do not deflect back into a CBT question.',
+
+  source_honesty:
+    'When drawing on retrieved knowledge or clinical frameworks, do not present them as ' +
+    'personal opinions or fabricate certainty. If the basis for a claim is a known clinical ' +
+    'framework or retrieved content, acknowledge that — briefly and naturally.',
+});
+
+/**
+ * Builds the Phase 10 formulation-led CBT instruction string.
+ *
+ * The returned string is a self-contained instruction block that is injected
+ * into the session-start content when the V6 wiring is active.  It extends
+ * the V2 workflow instructions (THERAPIST_WORKFLOW_INSTRUCTIONS) and the V5
+ * safety mode layer — neither is replaced.
+ *
+ * @returns {string} The formulation-led CBT instruction block
+ */
+export function buildFormulationLedInstructions() {
+  const ruleEntries = Object.entries(THERAPIST_FORMULATION_RESPONSE_RULES)
+    .map(([key, value]) => {
+      const label = {
+        already_known_context:        'Already-known context suppression',
+        formulation_before_questioning: 'Formulation before questioning',
+        no_early_protocol_rituals:    'No early protocol rituals',
+        natural_clinical_opening:     'Natural clinical opening',
+        confusion_handling:           'Confusion handling',
+        empathy_request_deepening:    'Empathy-request deepening',
+        source_honesty:               'Source and evidence honesty',
+      }[key] ?? key;
+      return `${label}: ${value}`;
+    })
+    .join('\n\n');
+
+  return [
+    '=== FORMULATION-LED CBT — PHASE 10 ===',
+    '',
+    'This session operates in formulation-led mode. In addition to the workflow',
+    'sequence above, apply the following formulation-specific response rules.',
+    'These rules refine how you engage — they do not replace the structured',
+    'workflow, safety filters, or crisis-response behavior.',
+    '',
+    '--- FORMULATION RESPONSE RULES ---',
+    '',
+    ruleEntries,
+    '',
+    '=== END FORMULATION-LED CBT ===',
+  ].join('\n');
+}
+
+/**
+ * Pre-built formulation-led CBT instruction string.
+ *
+ * Frozen at module load.  Injected into the session-start content when V6
+ * wiring is active via workflowContextInjector.js.
+ *
+ * @type {string}
+ */
+export const THERAPIST_FORMULATION_INSTRUCTIONS = buildFormulationLedInstructions();
