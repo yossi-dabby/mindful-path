@@ -63,16 +63,19 @@ export default function BottomNav({ currentPageName }) {
               to={createPageUrl(item.path)}
               onClick={(e) => handleTabClick(e, item)}
               aria-current={isActive ? 'page' : undefined}
-              aria-label={item.name} className="bg-teal-400 text-foreground px-2 py-2 rounded-3xl flex flex-col items-center justify-center gap-1 transition-calm border min-w-[52px] border-border/70 shadow-[var(--shadow-sm)]">
-
-
-
-
-
-
-
-              <Icon className="text-teal-700 lucide lucide-message-circle w-5 h-5 icon-default scale-110" strokeWidth={2} />
-              <span className="text-teal-700 text-sm font-medium leading-none">{item.name}</span>
+              aria-label={item.name}
+              className={cn(
+                'flex flex-col items-center justify-center gap-1 transition-calm px-2 py-2 rounded-3xl min-w-[52px] border',
+                isActive
+                  ? 'bg-primary/15 border-primary/30 shadow-[var(--shadow-sm)]'
+                  : 'bg-transparent border-transparent'
+              )}
+            >
+              <Icon
+                className={cn('w-5 h-5 icon-default', isActive ? 'text-primary scale-110' : 'text-muted-foreground')}
+                strokeWidth={isActive ? 2.5 : 2}
+              />
+              <span className={cn('text-xs font-medium leading-none', isActive ? 'text-primary' : 'text-muted-foreground')}>{item.name}</span>
             </Link>);
 
         })}
