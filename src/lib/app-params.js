@@ -58,7 +58,7 @@ const getAppParams = () => {
 	return {
 		appId: resolvedAppId,
 		token: getAppParamValue("access_token", { removeFromUrl: true }),
-		fromUrl: getAppParamValue("from_url", { defaultValue: window.location.pathname + window.location.search }),
+		fromUrl: getAppParamValue("from_url", { defaultValue: window.location.href }),
 		functionsVersion: getAppParamValue("functions_version", { defaultValue: envFunctionsVersion }),
 	}
 }

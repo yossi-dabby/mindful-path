@@ -1,7 +1,18 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { checkAndArmRedirectGuard } from '@/lib/authRedirectGuard';
 
 const AuthContext = createContext();
+
+// Wraps base44.auth.redirectToLogin with a loop guard that prevents the
+// "auth-fail → redirect → auth-fail" infinite cycle. See authRedirectGuard.js.
+function safeRedirectToLogin(nextUrl) {
+  if (!checkAndArmRedirectGuard()) {
+    return false;
+  }
+  base44.auth.redirectToLogin(nextUrl);
+  return true;
+}
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -44,7 +55,10 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(false);
 
       if (status === 401 || status === 403) {
-        base44.auth.redirectToLogin(window.location.pathname + window.location.search);
+        const redirectAllowed = safeRedirectToLogin(window.location.href);
+        if (!redirectAllowed) {
+          console.warn('[AuthContext] Redirect to login suppressed by cooldown guard (loop prevention).');
+        }
         setIsLoadingAuth(false);
         return;
       }
@@ -66,7 +80,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const navigateToLogin = () => {
-    base44.auth.redirectToLogin(window.location.pathname + window.location.search);
+    safeRedirectToLogin(window.location.href);
   };
 
   return (

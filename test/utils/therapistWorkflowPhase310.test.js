@@ -186,24 +186,24 @@ describe('Phase 3.1.0 — buildWorkflowContextInstructions content', () => {
     }
   });
 
-  it('includes no_redundant_questioning rule text', () => {
-    expect(instructions).toContain('No redundant questioning');
+  it('includes no_redundant_context_questions rule text (covering no_redundant_questioning)', () => {
+    expect(instructions).toContain('No redundant context questions');
   });
 
-  it('includes formulate_before_questioning rule text', () => {
-    expect(instructions).toContain('Formulate before questioning');
+  it('includes reflect_then_formulate_ask rule text (covering formulate_before_questioning)', () => {
+    expect(instructions).toContain('Reflect then formulate then ask');
   });
 
   it('includes one_targeted_question rule text', () => {
     expect(instructions).toContain('One targeted question');
   });
 
-  it('includes no_intake_menu rule text', () => {
-    expect(instructions).toContain('No intake menu');
+  it('includes opening_behavior rule text (covering no_intake_menu)', () => {
+    expect(instructions).toContain('Opening behavior');
   });
 
-  it('still includes the FIXED RESPONSE SEQUENCE section', () => {
-    expect(instructions).toContain('FIXED RESPONSE SEQUENCE');
+  it('still includes the ADAPTIVE RESPONSE FRAMEWORK section', () => {
+    expect(instructions).toContain('ADAPTIVE RESPONSE FRAMEWORK');
   });
 
   it('still includes the EMOTION DIFFERENTIATION section', () => {
