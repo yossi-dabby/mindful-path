@@ -21,7 +21,7 @@
  * 7. Verify that the workflow instructions injected into V2 are the canonical
  *    THERAPIST_WORKFLOW_INSTRUCTIONS — not a stale copy or partial subset.
  * 8. Verify that V2 injection content includes all required workflow sections
- *    (FIXED RESPONSE SEQUENCE, RESPONSE-SHAPING RULES, EMOTION DIFFERENTIATION).
+ *    (ADAPTIVE RESPONSE FRAMEWORK, RESPONSE-SHAPING RULES, EMOTION DIFFERENTIATION).
  * 9. Verify that safety-profile routing (resolveTherapistWiring) is unchanged.
  * 10. Verify Phase 3 baselines are still intact (additive only).
  *
@@ -167,8 +167,8 @@ describe('Phase 3.1 — Upgraded V2 path: buildSessionStartContent includes work
     expect(v2Content).toContain('=== END UPGRADED THERAPIST WORKFLOW ===');
   });
 
-  it('V2 content includes the FIXED RESPONSE SEQUENCE section', () => {
-    expect(v2Content).toContain('--- FIXED RESPONSE SEQUENCE ---');
+  it('V2 content includes the ADAPTIVE RESPONSE FRAMEWORK section', () => {
+    expect(v2Content).toContain('--- ADAPTIVE RESPONSE FRAMEWORK ---');
   });
 
   it('V2 content includes the RESPONSE-SHAPING RULES section', () => {
