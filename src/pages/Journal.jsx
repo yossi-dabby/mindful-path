@@ -221,17 +221,6 @@ export default function Journal() {
         </div>
       </div>
 
-      {/* Journal Entries Video */}
-      <video
-        src="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/Journal%20Entries.mp4?alt=media&token=f919537a-0f47-4696-a532-f81e1768a7b8"
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="w-full rounded-2xl mb-6"
-        style={{ maxHeight: '260px', objectFit: 'cover' }}
-      />
-
       {/* Search and Filters */}
       <div className="mb-6 space-y-4">
         <div className="flex gap-3">

@@ -427,13 +427,13 @@ export default function Home() {
       {/* Video Modals */}
       {showGoalsVideo &&
           <VideoModal
-            videoUrl="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%208.mp4?alt=media&token=cc85d70d-251f-41d9-a5a8-44a0b350f40b"
+            videoUrl="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/Active%20Goals.mp4?alt=media&token=6679fb6d-1312-4742-b569-eb32053d5100"
             onClose={() => setShowGoalsVideo(false)} />
 
           }
       {showJournalVideo &&
           <VideoModal
-            videoUrl="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/cbt%209.mp4?alt=media&token=4a8ae8b9-e803-4108-bc3e-26c4c25751f8"
+            videoUrl="https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/Journal%20Entries.mp4?alt=media&token=f919537a-0f47-4696-a532-f81e1768a7b8"
             onClose={() => setShowJournalVideo(false)} />
 
           }
