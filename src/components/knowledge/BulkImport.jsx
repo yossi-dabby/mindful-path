@@ -5,11 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Upload, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
+import { Upload, CheckCircle, XCircle, AlertTriangle, FlaskConical, Database } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import smokeBatch from '@/data/trusted-cbt-batch-1.smoke.base44.json';
+import fullBatch from '@/data/trusted-cbt-batch-1.base44.json';
 
 const REQUIRED = ['title', 'topic', 'content'];
 const LANGUAGES = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
+const BASE44_FIELDS = new Set([
+  'title', 'topic', 'subtopic', 'population', 'clinical_goal', 'content',
+  'short_summary', 'tags', 'source_name', 'source_type', 'license_status',
+  'safety_notes', 'contraindications', 'language', 'priority_score', 'is_active',
+]);
 
 function validateRecord(rec, index) {
   const errors = [];
@@ -20,6 +27,13 @@ function validateRecord(rec, index) {
   }
   if (rec.language && !LANGUAGES.includes(rec.language)) {
     errors.push(`"language" must be one of: ${LANGUAGES.join(', ')}`);
+  }
+  if (rec.tags !== undefined && !Array.isArray(rec.tags)) {
+    errors.push('"tags" must be an array');
+  }
+  const extra = Object.keys(rec).filter(k => !BASE44_FIELDS.has(k));
+  if (extra.length > 0) {
+    errors.push(`extra non-Base44 fields: ${extra.join(', ')}`);
   }
   return errors;
 }
@@ -56,6 +70,13 @@ export default function BulkImport() {
   const [parseError, setParseError] = useState('');
   const [importResults, setImportResults] = useState(null);
   const [importing, setImporting] = useState(false);
+
+  const loadBatch = (data) => {
+    setJson(JSON.stringify(data, null, 2));
+    setParsed(null);
+    setImportResults(null);
+    setParseError('');
+  };
 
   const handleParse = () => {
     setParseError('');
@@ -117,6 +138,14 @@ export default function BulkImport() {
           <p className="text-sm text-muted-foreground">
             Paste a JSON array of TrustedCBTChunk records. Required fields: <code className="text-xs bg-secondary px-1 rounded">title</code>, <code className="text-xs bg-secondary px-1 rounded">topic</code>, <code className="text-xs bg-secondary px-1 rounded">content</code>.
           </p>
+          <div className="flex gap-2 flex-wrap">
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => loadBatch(smokeBatch)}>
+              <FlaskConical className="w-4 h-4" />Load Smoke Batch
+            </Button>
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => loadBatch(fullBatch)}>
+              <Database className="w-4 h-4" />Load Full Batch
+            </Button>
+          </div>
           <Textarea
             value={json}
             onChange={e => { setJson(e.target.value); setParsed(null); setImportResults(null); setParseError(''); }}
