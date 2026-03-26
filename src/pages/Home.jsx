@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -21,6 +21,7 @@ import PullToRefresh from '../components/utils/PullToRefresh';
 
 export default function Home() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [showMoodCheckIn, setShowMoodCheckIn] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -183,7 +184,7 @@ export default function Home() {
 
   const handleStartCheckIn = () => {
     // Route to AI with daily_checkin intent instead of showing form
-    window.location.href = createPageUrl('Chat', 'intent=daily_checkin');
+    navigate('/Chat?intent=daily_checkin');
   };
 
   const handleCheckInComplete = () => {
