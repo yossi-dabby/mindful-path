@@ -55,12 +55,8 @@ export default function Chat() {
   // fires for any turn in this session.  Resets when a new conversation starts.
   const [safetyModeActive, setSafetyModeActive] = useState(false);
   const messagesEndRef = useRef(null);
-  const queryClient = useQueryClient();
-  const location = useLocation();
-  const processedIntentRef = useRef(null);
-  const inFlightIntentRef = useRef(false);
-  const sessionTriggeredRef = useRef(new Set());
-  const mountedRef = useRef(true);
+  const messagesContainerRef = useRef(null);
+  const [visibleCount, setVisibleCount] = useState(50);
   const subscriptionActiveRef = useRef(false);
   const loadingTimeoutRef = useRef(null);
   const pollingIntervalRef = useRef(null);
@@ -90,6 +86,24 @@ export default function Chat() {
   });
 
   const refetchDebounceRef = useRef(null);
+
+  // Reset visible window when conversation changes
+  useEffect(() => {
+    setVisibleCount(50);
+  }, [currentConversationId]);
+
+  // Load more messages when user scrolls to top
+  const handleMessagesScroll = (e) => {
+    const el = e.currentTarget;
+    if (el.scrollTop < 80 && visibleCount < messages.length) {
+      const prevScrollHeight = el.scrollHeight;
+      setVisibleCount(prev => Math.min(prev + 30, messages.length));
+      // Preserve scroll position after prepending older messages
+      requestAnimationFrame(() => {
+        el.scrollTop = el.scrollHeight - prevScrollHeight;
+      });
+    }
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -1387,7 +1401,7 @@ export default function Chat() {
               </div>
             </div> :
 
-            <div data-testid="chat-messages" className="flex-1 min-h-0 overflow-y-auto" style={{ backgroundColor: 'transparent', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
+            <div data-testid="chat-messages" ref={messagesContainerRef} onScroll={handleMessagesScroll} className="flex-1 min-h-0 overflow-y-auto" style={{ backgroundColor: 'transparent', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
               {/* Therapy State Machine */}
               {showTherapyFlow && messages.length === 0 &&
               <div className="p-4 md:p-6" style={{ background: 'transparent' }}>
@@ -1433,7 +1447,16 @@ export default function Chat() {
                     hasActiveSession={!!currentConversationId}
                   />
                 </ErrorBoundary>
-                {messages.filter((m) => m && m.role && m.content).map((message, index) =>
+                {messages.length > visibleCount && (
+                  <div className="text-center py-2">
+                    <button
+                      onClick={() => setVisibleCount(prev => Math.min(prev + 30, messages.length))}
+                      className="text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1 rounded-full border border-border/50">
+                      Load earlier messages
+                    </button>
+                  </div>
+                )}
+                {messages.slice(Math.max(0, messages.length - visibleCount)).filter((m) => m && m.role && m.content).map((message, index) =>
                 <MessageBubble
                   key={index}
                   message={message}
@@ -1541,7 +1564,7 @@ export default function Chat() {
           }
 
         {/* Input Area - Always visible, always on top */}
-        <div className="bg-teal-50 text-teal-600 px-3 py-1 rounded-2xl md:px-6 md:pt-3 md:pb-3 relative border-t border-border/70 backdrop-blur-xl shadow-[var(--shadow-md)]" style={{
+        <div className="bg-teal-50 text-teal-600 px-4 py-3 rounded-2xl md:px-6 md:pt-3 md:pb-3 relative border-t border-border/70 backdrop-blur-xl shadow-[var(--shadow-md)]" style={{
             zIndex: 50
           }}>
           <div className="text-teal-600 mx-auto max-w-4xl flex gap-2">
