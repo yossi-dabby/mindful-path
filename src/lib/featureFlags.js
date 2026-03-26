@@ -84,6 +84,12 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
    * Staging enablement: set VITE_THERAPIST_UPGRADE_SAFETY_MODE_ENABLED=true
    */
   THERAPIST_UPGRADE_SAFETY_MODE_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_SAFETY_MODE_ENABLED === 'true',
+
+  /**
+   * Phase 10 — Formulation-led CBT super agent.
+   * Staging enablement: set VITE_THERAPIST_UPGRADE_FORMULATION_LED_ENABLED=true
+   */
+  THERAPIST_UPGRADE_FORMULATION_LED_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_FORMULATION_LED_ENABLED === 'true',
 });
 
 /**
@@ -268,6 +274,8 @@ export function getStage2DiagnosticPayload() {
     let routeHint;
     if (!masterGateOn) {
       routeHint = 'HYBRID (master gate off)';
+    } else if (computedFlags['THERAPIST_UPGRADE_FORMULATION_LED_ENABLED']) {
+      routeHint = 'STAGE2_V6 (formulation-led CBT)';
     } else if (computedFlags['THERAPIST_UPGRADE_SAFETY_MODE_ENABLED']) {
       routeHint = 'STAGE2_V5 (safety mode)';
     } else if (computedFlags['THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED']) {
