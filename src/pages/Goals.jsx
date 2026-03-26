@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { useCrossTabInvalidation } from '../components/utils/useCrossTabInvalidation';
+import { useToast } from '@/components/ui/use-toast';
 import { emitEntityChange } from '../components/utils/crossTabSync';
 import { isAuthError, shouldShowAuthError } from '../components/utils/authErrorHandler';
 import AuthErrorBanner from '../components/utils/AuthErrorBanner';
@@ -24,6 +26,8 @@ import { useTranslation } from 'react-i18next';
 
 export default function Goals() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
   const [editingGoal, setEditingGoal] = useState(null);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -164,8 +168,9 @@ export default function Goals() {
       if (isAuthError(error) && shouldShowAuthError()) {
         setShowAuthError(true);
       } else {
-        alert('Failed to update goal. Check your connection and try again.');
+        toast({ title: t('goals.update_error', 'Failed to update goal'), description: t('goals.update_error_desc', 'Check your connection and try again.'), variant: 'destructive' });
       }
+      /* alert removed — was: alert('Failed to update goal...') */
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['allGoals'] });
@@ -261,7 +266,7 @@ export default function Goals() {
             <span className="hidden md:inline">{t('goals.ai_suggestions')}</span>
           </Button>
           <Button
-                onClick={() => window.location.href = createPageUrl('Chat', 'intent=goal_work')} className="bg-teal-600 text-white px-3 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-8 min-h-[44px] md:min-h-0 md:text-base"
+                onClick={() => navigate('/Chat?intent=goal_work')} className="bg-teal-600 text-white px-3 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-8 min-h-[44px] md:min-h-0 md:text-base"
 
                 size="sm"
                 style={{
@@ -349,7 +354,7 @@ export default function Goals() {
                 {t('goals.get_ai_suggestions')}
               </Button>
               <Button
-                  onClick={() => window.location.href = createPageUrl('Chat', 'intent=goal_work')}
+                  onClick={() => navigate('/Chat?intent=goal_work')}
                   variant="outline"
                   className="px-8 py-6 text-lg w-full"
                   style={{ borderRadius: '32px' }}>

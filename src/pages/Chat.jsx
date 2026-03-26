@@ -9,7 +9,18 @@ import AuthErrorBanner from '../components/utils/AuthErrorBanner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Loader2, Menu, Sparkles, ArrowLeft } from 'lucide-react';
+import { Send, Loader2, Menu, Sparkles, ArrowLeft, Trash2 } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import MessageBubble from '../components/chat/MessageBubble';
 import ConversationsList from '../components/chat/ConversationsList';
 import SessionSummary from '../components/chat/SessionSummary';
@@ -36,6 +47,8 @@ import SafetyModeIndicator from '../components/therapy/SafetyModeIndicator';
 export default function Chat() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -1170,7 +1183,7 @@ export default function Chat() {
         setMessages(context.previousMessages || []);
       }
       console.error('Delete error:', error);
-      alert('Failed to delete session. Please try again.');
+      toast({ title: t('chat.delete_error', 'Failed to delete session'), description: t('chat.delete_error_desc', 'Please try again.'), variant: 'destructive' });
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
@@ -1178,9 +1191,7 @@ export default function Chat() {
   });
 
   const handleDeleteConversation = (conversationId) => {
-    if (confirm('Delete this session? This action cannot be undone.')) {
-      deleteConversationMutation.mutate(conversationId);
-    }
+    setPendingDeleteId(conversationId);
   };
 
   const handleCheckInComplete = async (checkinData) => {
@@ -1288,6 +1299,18 @@ export default function Chat() {
 
   return (
     <>
+      <AlertDialog open={!!pendingDeleteId} onOpenChange={(open) => { if (!open) setPendingDeleteId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2"><Trash2 className="w-5 h-5 text-destructive" />{t('chat.delete_session_title', 'Delete this session?')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('chat.delete_session_desc', 'This action cannot be undone.')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel', 'Cancel')}</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground" onClick={() => { if (pendingDeleteId) deleteConversationMutation.mutate(pendingDeleteId); setPendingDeleteId(null); }}>{t('common.delete', 'Delete')}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
       {/* Chat root: explicit dvh-based height so the flex-1/min-h-0 scroll chain works.
                                        `h-full` would resolve to `auto` because the parent motion.div uses min-h-full
