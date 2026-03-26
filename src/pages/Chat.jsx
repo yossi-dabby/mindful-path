@@ -3,13 +3,24 @@ import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { isAuthError, shouldShowAuthError } from '../components/utils/authErrorHandler';
 import AuthErrorBanner from '../components/utils/AuthErrorBanner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Loader2, Menu, Sparkles, ArrowLeft } from 'lucide-react';
+import { Send, Loader2, Menu, Sparkles, ArrowLeft, Trash2 } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import MessageBubble from '../components/chat/MessageBubble';
 import ConversationsList from '../components/chat/ConversationsList';
 import SessionSummary from '../components/chat/SessionSummary';
@@ -35,6 +46,9 @@ import SafetyModeIndicator from '../components/therapy/SafetyModeIndicator';
 
 export default function Chat() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -55,12 +69,8 @@ export default function Chat() {
   // fires for any turn in this session.  Resets when a new conversation starts.
   const [safetyModeActive, setSafetyModeActive] = useState(false);
   const messagesEndRef = useRef(null);
-  const queryClient = useQueryClient();
-  const location = useLocation();
-  const processedIntentRef = useRef(null);
-  const inFlightIntentRef = useRef(false);
-  const sessionTriggeredRef = useRef(new Set());
-  const mountedRef = useRef(true);
+  const messagesContainerRef = useRef(null);
+  const [visibleCount, setVisibleCount] = useState(50);
   const subscriptionActiveRef = useRef(false);
   const loadingTimeoutRef = useRef(null);
   const pollingIntervalRef = useRef(null);
@@ -90,6 +100,24 @@ export default function Chat() {
   });
 
   const refetchDebounceRef = useRef(null);
+
+  // Reset visible window when conversation changes
+  useEffect(() => {
+    setVisibleCount(50);
+  }, [currentConversationId]);
+
+  // Load more messages when user scrolls to top
+  const handleMessagesScroll = (e) => {
+    const el = e.currentTarget;
+    if (el.scrollTop < 80 && visibleCount < messages.length) {
+      const prevScrollHeight = el.scrollHeight;
+      setVisibleCount(prev => Math.min(prev + 30, messages.length));
+      // Preserve scroll position after prepending older messages
+      requestAnimationFrame(() => {
+        el.scrollTop = el.scrollHeight - prevScrollHeight;
+      });
+    }
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -1228,7 +1256,7 @@ export default function Chat() {
         setMessages(context.previousMessages || []);
       }
       console.error('Delete error:', error);
-      alert('Failed to delete session. Please try again.');
+      toast({ title: t('chat.delete_error', 'Failed to delete session'), description: t('chat.delete_error_desc', 'Please try again.'), variant: 'destructive' });
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
@@ -1236,9 +1264,7 @@ export default function Chat() {
   });
 
   const handleDeleteConversation = (conversationId) => {
-    if (confirm('Delete this session? This action cannot be undone.')) {
-      deleteConversationMutation.mutate(conversationId);
-    }
+    setPendingDeleteId(conversationId);
   };
 
   const handleCheckInComplete = async (checkinData) => {
@@ -1346,6 +1372,18 @@ export default function Chat() {
 
   return (
     <>
+      <AlertDialog open={!!pendingDeleteId} onOpenChange={(open) => { if (!open) setPendingDeleteId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2"><Trash2 className="w-5 h-5 text-destructive" />{t('chat.delete_session_title', 'Delete this session?')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('chat.delete_session_desc', 'This action cannot be undone.')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel', 'Cancel')}</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground" onClick={() => { if (pendingDeleteId) deleteConversationMutation.mutate(pendingDeleteId); setPendingDeleteId(null); }}>{t('common.delete', 'Delete')}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
       {/* Chat root: explicit dvh-based height so the flex-1/min-h-0 scroll chain works.
                                        `h-full` would resolve to `auto` because the parent motion.div uses min-h-full
@@ -1401,7 +1439,7 @@ export default function Chat() {
           <Button
               variant="ghost"
               size="icon"
-              onClick={() => window.location.href = '/'}
+              onClick={() => navigate('/')}
               aria-label={t('chat.go_back_aria')} className="text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
 
             <ArrowLeft className="w-5 h-5 rtl:scale-x-[-1]" />
@@ -1460,7 +1498,7 @@ export default function Chat() {
               </div>
             </div> :
 
-            <div data-testid="chat-messages" className="flex-1 min-h-0 overflow-y-auto" style={{ backgroundColor: 'transparent', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
+            <div data-testid="chat-messages" ref={messagesContainerRef} onScroll={handleMessagesScroll} className="flex-1 min-h-0 overflow-y-auto" style={{ backgroundColor: 'transparent', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
               {/* Therapy State Machine */}
               {showTherapyFlow && messages.length === 0 &&
               <div className="p-4 md:p-6" style={{ background: 'transparent' }}>
@@ -1506,7 +1544,16 @@ export default function Chat() {
                     hasActiveSession={!!currentConversationId}
                   />
                 </ErrorBoundary>
-                {messages.filter((m) => m && m.role && m.content).map((message, index) =>
+                {messages.length > visibleCount && (
+                  <div className="text-center py-2">
+                    <button
+                      onClick={() => setVisibleCount(prev => Math.min(prev + 30, messages.length))}
+                      className="text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1 rounded-full border border-border/50">
+                      Load earlier messages
+                    </button>
+                  </div>
+                )}
+                {messages.slice(Math.max(0, messages.length - visibleCount)).filter((m) => m && m.role && m.content).map((message, index) =>
                 <MessageBubble
                   key={index}
                   message={message}
@@ -1614,7 +1661,7 @@ export default function Chat() {
           }
 
         {/* Input Area - Always visible, always on top */}
-        <div className="bg-teal-50 text-teal-600 px-3 py-1 rounded-2xl md:px-6 md:pt-3 md:pb-3 relative border-t border-border/70 backdrop-blur-xl shadow-[var(--shadow-md)]" style={{
+        <div className="bg-teal-50 text-teal-600 px-4 py-3 rounded-2xl md:px-6 md:pt-3 md:pb-3 relative border-t border-border/70 backdrop-blur-xl shadow-[var(--shadow-md)]" style={{
             zIndex: 50
           }}>
           <div className="text-teal-600 mx-auto max-w-4xl flex gap-2">

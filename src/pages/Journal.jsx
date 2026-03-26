@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,7 @@ import PullToRefresh from '../components/utils/PullToRefresh';
 
 export default function Journal() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
@@ -162,7 +164,7 @@ export default function Journal() {
         </div>
         <div className="flex gap-2 flex-wrap">
           <Button
-              onClick={() => window.location.href = createPageUrl('JournalDashboard')}
+              onClick={() => navigate('/JournalDashboard')}
               variant="outline" className="bg-teal-600 text-slate-50 px-3 text-sm font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 md:text-base"
 
               size="sm">
@@ -209,7 +211,7 @@ export default function Journal() {
             {t('journal.templates')}
           </Button>
           <Button
-              onClick={() => window.location.href = createPageUrl('Chat', 'intent=thought_work')} className="bg-teal-600 text-primary-foreground px-3 text-sm font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-8 min-h-[44px] md:min-h-0 md:text-base"
+              onClick={() => navigate('/Chat?intent=thought_work')} className="bg-teal-600 text-primary-foreground px-3 text-sm font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-8 min-h-[44px] md:min-h-0 md:text-base"
 
               size="sm">
 
@@ -262,7 +264,7 @@ export default function Journal() {
             </p>
             <div className="flex flex-col gap-3 items-center max-w-md mx-auto">
               <Button
-                onClick={() => window.location.href = createPageUrl('Chat', 'intent=thought_work')} className="bg-teal-600 text-primary-foreground px-8 py-6 text-lg font-medium tracking-[0.005em] rounded-3xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 w-full">
+                onClick={() => navigate('/Chat?intent=thought_work')} className="bg-teal-600 text-primary-foreground px-8 py-6 text-lg font-medium tracking-[0.005em] rounded-3xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 w-full">
 
 
                 {t('journal.create_entry')}

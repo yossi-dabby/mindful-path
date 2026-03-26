@@ -4,11 +4,12 @@ import { normalizeEntityList } from '@/lib/entityListNormalizer';
 
 const { appId, token, functionsVersion } = appParams;
 
-// Base URL is configurable via VITE_BASE44_APP_BASE_URL. The hardcoded fallback
-// ensures auth.redirectToLogin() and auth.logout() always redirect to the real
-// Base44 platform login page, even when the env var is not set at build time.
-// Without this, unauthenticated users land on a 404 in Railway production.
-const APP_BASE_URL = import.meta.env.VITE_BASE44_APP_BASE_URL || 'https://base44.app';
+// Base URL is configurable via VITE_BASE44_APP_BASE_URL.
+// Falls back to the current origin so that auth.redirectToLogin() always
+// redirects to THIS app's /login page (e.g. https://share--...base44.app/login)
+// rather than the platform root (https://base44.app/login) which returns 404.
+const APP_BASE_URL = import.meta.env.VITE_BASE44_APP_BASE_URL ||
+  (typeof window !== 'undefined' ? window.location.origin : 'https://base44.app');
 
 //Create a client with authentication required
 export const base44 = createClient({

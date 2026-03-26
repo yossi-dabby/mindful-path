@@ -5,6 +5,7 @@ import NavigationTracker from '@/lib/NavigationTracker'
 import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
+import KnowledgeStudio from './pages/KnowledgeStudio';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { ThemeProvider } from 'next-themes';
@@ -75,6 +76,7 @@ const AuthenticatedApp = () => {
             }
           />
         ))}
+        <Route path="/KnowledgeStudio" element={<LayoutWrapper currentPageName="KnowledgeStudio"><KnowledgeStudio /></LayoutWrapper>} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </>
