@@ -33,7 +33,9 @@ const USER_OWNED_ENTITIES = [
   'TherapyFeedback',
   'CrisisAlert',
   'CaseFormulation',
-  'MindGameActivity'
+  'MindGameActivity',
+  'DailyFlow',
+  'DailyChallenge'
 ];
 
 Deno.serve(async (req) => {
