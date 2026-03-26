@@ -20,10 +20,18 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
   // Prefer the prop; fall back to what the TabNavigationProvider knows
   const currentPageName = currentPageNameProp ?? tabNav?.currentPageName;
 
+  // Pages that are always treated as sub-routes (show back button regardless of path depth)
+  const ALWAYS_BACK_PAGES = new Set([
+    'ExerciseView', 'GoalCoach', 'ThoughtCoach', 'PersonalizedFeed',
+    'Journeys', 'PlaylistDetail', 'VideoPlayer', 'StarterPath',
+    'CoachingAnalytics', 'AdvancedAnalytics', 'CrisisAlerts', 'TestSetupGuide'
+  ]);
+
   // Show the Back button when the tab navigation stack has history to go back to,
-  // OR when the URL has more than one path segment (genuine sub-route).
+  // OR when the URL has more than one path segment (genuine sub-route),
+  // OR when the current page is always a sub-route (detail/child pages).
   const pathSegments = currentPath.split('/').filter(Boolean);
-  const isSubRoute = pathSegments.length > 1 || !!tabNav?.canGoBack();
+  const isSubRoute = pathSegments.length > 1 || !!tabNav?.canGoBack() || ALWAYS_BACK_PAGES.has(currentPageName);
 
   // Get page title based on current page
   const getPageTitle = () => {

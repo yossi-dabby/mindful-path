@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { isAuthError, shouldShowAuthError } from '../components/utils/authErrorHandler';
 import AuthErrorBanner from '../components/utils/AuthErrorBanner';
 import { Button } from '@/components/ui/button';
@@ -35,6 +35,7 @@ import SafetyModeIndicator from '../components/therapy/SafetyModeIndicator';
 
 export default function Chat() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -1342,7 +1343,7 @@ export default function Chat() {
           <Button
               variant="ghost"
               size="icon"
-              onClick={() => window.location.href = '/'}
+              onClick={() => navigate('/')}
               aria-label={t('chat.go_back_aria')} className="text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
 
             <ArrowLeft className="w-5 h-5 rtl:scale-x-[-1]" />
