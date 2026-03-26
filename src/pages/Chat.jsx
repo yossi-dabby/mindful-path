@@ -813,12 +813,12 @@ export default function Chat() {
       // after the session-start block so the agent receives both signals.
       // When no intent is present (plain "New Session"), the session-start content
       // alone triggers the AI's structured opening greeting.
-      // Fail-open: if buildV4SessionStartContentAsync throws, fall back to the
+      // Fail-open: if buildV6SessionStartContentAsync throws, fall back to the
       // intent message only (or skip entirely when there is no intent either).
       setTimeout(async () => {
         setIsLoading(true);
         try {
-          const sessionStart = await buildV4SessionStartContentAsync(
+          const sessionStart = await buildV6SessionStartContentAsync(
             ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44
           );
           await base44.agents.addMessage(conversation, {
@@ -1012,7 +1012,7 @@ export default function Chat() {
         setShowSidebar(false);
 
         try {
-          _firstMsgSessionStart = await buildV4SessionStartContentAsync(
+          _firstMsgSessionStart = await buildV6SessionStartContentAsync(
             ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44
           );
         } catch (err) {
