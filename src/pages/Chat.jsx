@@ -37,7 +37,7 @@ import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
 import { validateAgentOutput, sanitizeConversationMessages, parseCounters } from '../components/utils/validateAgentOutput.jsx';
 import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
-import { buildV4SessionStartContentAsync, buildRuntimeSafetySupplement } from '@/lib/workflowContextInjector.js';
+import { buildV6SessionStartContentAsync, buildRuntimeSafetySupplement } from '@/lib/workflowContextInjector.js';
 import { MOBILE_HEADER_HEIGHT } from '../components/layout/MobileHeader';
 import { BOTTOM_NAV_HEIGHT } from '../components/layout/BottomNav';
 // Phase 8 — Upgraded-path UI (flag-gated; hidden in default mode)
@@ -404,7 +404,7 @@ export default function Chat() {
                 setIsLoading(true);
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
-                  content: await buildV4SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44)
+                  content: await buildV6SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44)
                 });
                 inFlightIntentRef.current = false;
               }, 100);
@@ -445,7 +445,7 @@ export default function Chat() {
                 setIsLoading(true);
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
-                  content: await buildV4SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44)
+                  content: await buildV6SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44)
                 });
                 inFlightIntentRef.current = false;
               }, 100);
@@ -583,9 +583,15 @@ export default function Chat() {
                 const refetched = await base44.agents.getConversation(currentConversationId);
                 const sanitized = sanitizeConversationMessages(refetched.messages || []);
                 safeUpdateMessages(sanitized, 'Refetch');
+                // Phase 2 fix: clear loading after refetch completes.  The subscription
+                // returned early (no setIsLoading call) when unsafe content was detected.
+                // The refetch is the recovery path — loading must always clear here so
+                // the chat is not stuck when a JSON-shaped agent reply is sanitized away.
+                setIsLoading(false);
                 isRefetchingRef.current = false;
               } catch (err) {
                 console.error('[Refetch] Failed:', err);
+                setIsLoading(false);
                 isRefetchingRef.current = false;
               }
             }, 200);
@@ -831,16 +837,36 @@ export default function Chat() {
       setSafetyModeActive(false); // Phase 8: reset safety mode state on new session
       refetchConversations();
 
-      // If there's an intent and initial message, send it
-      if (initialMessage) {
-        setTimeout(async () => {
-          setIsLoading(true);
+      // Always send the session-start content to inject the active workflow context.
+      // When an intent message is also present (e.g. "daily_checkin"), append it
+      // after the session-start block so the agent receives both signals.
+      // When no intent is present (plain "New Session"), the session-start content
+      // alone triggers the AI's structured opening greeting.
+      // Fail-open: if buildV4SessionStartContentAsync throws, fall back to the
+      // intent message only (or skip entirely when there is no intent either).
+      setTimeout(async () => {
+        setIsLoading(true);
+        try {
+          const sessionStart = await buildV4SessionStartContentAsync(
+            ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44
+          );
           await base44.agents.addMessage(conversation, {
             role: 'user',
-            content: initialMessage
+            content: initialMessage ? sessionStart + '\n\n' + initialMessage : sessionStart
           });
-        }, 100);
-      }
+        } catch (err) {
+          console.error('[Session Start] Failed to build workflow context:', err);
+          // Fail-open: fall back to intent message only (or clear loading when no intent)
+          if (initialMessage) {
+            await base44.agents.addMessage(conversation, {
+              role: 'user',
+              content: initialMessage
+            });
+          } else {
+            setIsLoading(false);
+          }
+        }
+      }, 100);
     } catch (error) {
       console.error('Error creating conversation:', error);
     }
@@ -989,6 +1015,11 @@ export default function Chat() {
 
     try {
       let convId = currentConversationId;
+      // When the user's first message implicitly creates a new conversation,
+      // capture session-start context so the workflow instructions reach the
+      // agent on this very first turn.  Fail-open: if the build throws, the
+      // message is sent without the context prefix.
+      let _firstMsgSessionStart = null;
       if (!convId) {
         // Get safety profile from user settings or default to 'standard'
         const user = await base44.auth.me().catch(() => null);
@@ -1008,14 +1039,24 @@ export default function Chat() {
         setCurrentConversationId(convId);
         refetchConversations();
         setShowSidebar(false);
+
+        try {
+          _firstMsgSessionStart = await buildV4SessionStartContentAsync(
+            ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44
+          );
+        } catch (err) {
+          console.error('[First Message] Failed to build session-start context:', err);
+          _firstMsgSessionStart = null;
+        }
       }
 
       const conversation = await base44.agents.getConversation(convId);
       console.log('[Send] 📤 Adding message to conversation:', convId);
 
+      const _baseContent = runtimeSupplement ? runtimeSupplement + '\n\n' + messageText : messageText;
       await base44.agents.addMessage(conversation, {
         role: 'user',
-        content: runtimeSupplement ? runtimeSupplement + '\n\n' + messageText : messageText
+        content: _firstMsgSessionStart ? _firstMsgSessionStart + '\n\n' + _baseContent : _baseContent
       });
 
       console.log('[Send] ✅ Message sent - starting authoritative polling');
@@ -1046,10 +1087,28 @@ export default function Chat() {
               // CRITICAL: Safe update with validation
               const updated = safeUpdateMessages(sanitized, 'Polling');
 
+              // emitStabilitySummary is intentionally inside `if (updated)`: it
+              // reports a SUCCESSFUL message delivery cycle and should only fire
+              // when the state was actually updated (i.e., new content reached the
+              // UI).  If the update was rejected (safeUpdateMessages returned false),
+              // there is nothing meaningful to report for this cycle.
               if (updated) {
-                setIsLoading(false);
                 emitStabilitySummary();
               }
+
+              // Phase 2 fix: always clear loading when polling confirms enough messages
+              // exist, even if safeUpdateMessages rejected the update (e.g. because a
+              // JSON-shaped agent reply was blocked by the hard render gate and the
+              // refetch already advanced lastConfirmedMessagesRef).  Without this guard
+              // the loading timeout is cleared below while isLoading stays true, causing
+              // a perpetual stall until the 60-second subscription timeout fires.
+              //
+              // setIsLoading(false) is intentionally OUTSIDE `if (updated)`: clearing
+              // the loading spinner is a UX concern, not a data-integrity concern.
+              // The server has confirmed enough messages exist — the user's message was
+              // received and the agent responded.  We must unblock the input regardless
+              // of whether the reply could be rendered (it may be retried or shown later).
+              setIsLoading(false);
 
               if (pollingIntervalRef.current) {
                 clearTimeout(pollingIntervalRef.current);
@@ -1124,6 +1183,20 @@ export default function Chat() {
     const conversation = await base44.agents.getConversation(currentConversationId);
     setIsLoading(true);
     setShowSummaryPrompt(false);
+
+    // Phase 2 fix: requestSummary has no polling loop, so the only loading-recovery
+    // paths are the active subscription and the 60-second subscription timeout.
+    // When Phase 2 is enabled the agent may return a JSON-shaped summary that is
+    // blocked by the hard render gate, causing the subscription to return early
+    // without clearing isLoading.  Add a 10-second timeout as a safety net so the
+    // chat is never stuck for more than 10 seconds regardless of what the agent returns.
+    if (loadingTimeoutRef.current) {
+      clearTimeout(loadingTimeoutRef.current);
+    }
+    loadingTimeoutRef.current = setTimeout(() => {
+      setIsLoading(false);
+      loadingTimeoutRef.current = null;
+    }, 10000);
 
     // Build a language-aware summary request
     const userLang = i18n.language || 'en';

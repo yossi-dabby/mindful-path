@@ -144,6 +144,43 @@ export async function mockApi(page: Page) {
     }
 
     // ---- Agent conversations ----
+    // NOTE: the /messages POST check must come BEFORE the general /agents/conversations
+    // POST check, otherwise the broader substring match shadows this handler.
+
+    // Add message to conversation (echo back posted content)
+    if (
+      url.includes('/agents/conversations/') &&
+      url.includes('/messages') &&
+      method === 'POST'
+    ) {
+      let postedContent = 'Test message';
+      try {
+        const postData = route.request().postData();
+        if (postData) {
+          const json = JSON.parse(postData);
+          if (typeof json?.content === 'string' && json.content.trim()) {
+            postedContent = json.content.trim();
+          }
+          if (typeof json?.message === 'string' && json.message.trim()) {
+            postedContent = json.message.trim();
+          }
+        }
+      } catch {
+        // ignore parse errors
+      }
+
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          role: 'user',
+          content: postedContent,
+          created_date: new Date().toISOString(),
+        }),
+      });
+      return;
+    }
+
     if (url.includes('/agents/conversations') && method === 'GET') {
       await route.fulfill({
         status: 200,
@@ -177,40 +214,6 @@ export async function mockApi(page: Page) {
           agent_name: 'cbt_therapist',
           metadata: { name: 'Test Session', description: 'Test' },
           messages: [],
-          created_date: new Date().toISOString(),
-        }),
-      });
-      return;
-    }
-
-    // Add message to conversation (echo back posted content)
-    if (
-      url.includes('/agents/conversations/') &&
-      url.includes('/messages') &&
-      method === 'POST'
-    ) {
-      let postedContent = 'Test message';
-      try {
-        const postData = route.request().postData();
-        if (postData) {
-          const json = JSON.parse(postData);
-          if (typeof json?.content === 'string' && json.content.trim()) {
-            postedContent = json.content.trim();
-          }
-          if (typeof json?.message === 'string' && json.message.trim()) {
-            postedContent = json.message.trim();
-          }
-        }
-      } catch {
-        // ignore parse errors
-      }
-
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          role: 'user',
-          content: postedContent,
           created_date: new Date().toISOString(),
         }),
       });

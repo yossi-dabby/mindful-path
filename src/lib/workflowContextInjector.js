@@ -58,7 +58,7 @@
  * Source of truth: docs/therapist-upgrade-stage2-plan.md — Phase 3.1 / Phase 5
  */
 
-import { THERAPIST_WORKFLOW_INSTRUCTIONS } from './therapistWorkflowEngine.js';
+import { THERAPIST_WORKFLOW_INSTRUCTIONS, THERAPIST_FORMULATION_INSTRUCTIONS } from './therapistWorkflowEngine.js';
 import { getRetrievalContextForWiring, buildBoundedContextPackage } from './retrievalOrchestrator.js';
 import { executeV3BoundedRetrieval } from './v3RetrievalExecutor.js';
 import {
@@ -540,4 +540,88 @@ export function buildRuntimeSafetySupplement(wiring, messageText, locale) {
     // Fail-safe: never throw, never block the message send
     return null;
   }
+}
+
+// ─── Phase 10 — Formulation-led context accessor ─────────────────────────────
+
+/**
+ * Returns the Phase 10 formulation-led CBT instruction string when the
+ * supplied wiring has formulation_led_enabled set to true.
+ *
+ * This is the gating function for Phase 10 runtime injection of the
+ * formulation-led instruction block.  It reads the wiring's own flag rather
+ * than evaluating the feature-flag registry directly, so the injection
+ * decision is always consistent with the wiring already resolved by
+ * resolveTherapistWiring().
+ *
+ * For all wirings without formulation_led_enabled === true (which includes
+ * HYBRID, V1, V2, V3, V4, V5, and any unrecognised config), this function
+ * returns null — the current therapist path is completely unchanged.
+ *
+ * @param {object|null|undefined} wiring - The active therapist wiring config object
+ * @returns {string|null} THERAPIST_FORMULATION_INSTRUCTIONS for V6; null otherwise
+ */
+export function getFormulationLedContextForWiring(wiring) {
+  if (wiring && wiring.formulation_led_enabled === true) {
+    return THERAPIST_FORMULATION_INSTRUCTIONS;
+  }
+  return null;
+}
+
+/**
+ * Builds the session-start message content for the V6 upgraded path,
+ * executing the full V5 chain (safety mode, live retrieval, retrieval
+ * orchestration, workflow instructions) and appending the Phase 10
+ * formulation-led instruction block.
+ *
+ * For all non-V6 wirings (HYBRID, V1–V5, null, undefined):
+ *   Delegates to buildV5SessionStartContentAsync(wiring, entities, baseClient,
+ *   options) and returns exactly the same result.  The default path is
+ *   completely unchanged.
+ *
+ * For V6 (formulation_led_enabled === true):
+ *   1. Builds the V5 base content (same as V5 path — includes [START_SESSION],
+ *      workflow instructions, retrieval context, and any safety mode content).
+ *   2. Appends THERAPIST_FORMULATION_INSTRUCTIONS as a clearly delimited section.
+ *
+ * FAIL-SAFE
+ * ---------
+ * This function never throws.  If the V5 base content build fails, the
+ * session start is not blocked — the function returns '[START_SESSION]'.
+ *
+ * @param {object|null|undefined} wiring    - The active therapist wiring config object
+ * @param {object} entities                  - Base44 entity client map
+ * @param {object|null} baseClient           - Full base44 client (for live retrieval)
+ * @param {object} [options]                 - Options passed through to V5 path
+ * @returns {Promise<string>} The session-start message content
+ */
+export async function buildV6SessionStartContentAsync(
+  wiring,
+  entities,
+  baseClient,
+  options = {},
+) {
+  // For non-V6 wirings: delegate to V5 (no change to behavior)
+  if (!wiring || wiring.formulation_led_enabled !== true) {
+    return buildV5SessionStartContentAsync(wiring, entities, baseClient, options);
+  }
+
+  // ── V6 path ────────────────────────────────────────────────────────────────
+
+  // Step 1: Build the V5 base content (same as V5 path)
+  const v5Base = await buildV5SessionStartContentAsync(
+    wiring,
+    entities,
+    baseClient,
+    options,
+  );
+
+  // Step 2: Append formulation-led instructions
+  const formulationContext = getFormulationLedContextForWiring(wiring);
+  if (!formulationContext) {
+    // Should not happen for V6, but fail-open just in case
+    return v5Base;
+  }
+
+  return v5Base + '\n\n' + formulationContext;
 }
