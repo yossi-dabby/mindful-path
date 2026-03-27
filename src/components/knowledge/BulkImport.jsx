@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import BATCH_2_DATA from '../../data/trusted-cbt-batch-2.base44.json';
-import BATCH_3_DATA from '../../data/trusted-cbt-batch-3.base44.json';
+import { BATCH_2, BATCH_3 } from './bulkImportBatches';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -205,8 +204,7 @@ const FULL_BATCH = [
   }
 ];
 
-const BATCH_2 = BATCH_2_DATA.map(r => ({ ...r, is_active: false }));
-const BATCH_3 = BATCH_3_DATA.map(r => ({ ...r, is_active: false }));
+
 
 function validateRecord(rec, index) {
   const errors = [];
