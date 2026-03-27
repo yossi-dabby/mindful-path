@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
+import { ACTIVE_AI_COMPANION_WIRING } from '@/api/activeAgentWiring.js';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -77,7 +78,8 @@ export default function CoachingSessionWizard({ onClose }) {
       // Create AI conversation
       try {
         const conversation = await base44.agents.createConversation({
-          agent_name: 'ai_coach',
+          agent_name: ACTIVE_AI_COMPANION_WIRING.name,
+          tool_configs: ACTIVE_AI_COMPANION_WIRING.tool_configs,
           metadata: {
             name: `Coaching: ${data.title}`,
             type: 'coaching_session',
