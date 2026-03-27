@@ -95,7 +95,7 @@ export default function ConversationsList({
               className="absolute end-2 top-1/2 -translate-y-1/2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-2 min-h-[44px] min-w-[44px] rounded-[var(--radius-nested)] flex-shrink-0 bg-destructive/10"
               aria-label={t('chat.conversations_list.delete_aria')}>
 
-                  <Trash2 className="w-4 h-4 text-red-500" />
+                  <Trash2 className="text-red-500 mx-1 lucide lucide-trash2 w-4 h-4" />
                 </button>
               </div>
           )}
