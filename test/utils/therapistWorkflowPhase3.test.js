@@ -245,7 +245,7 @@ describe('Phase 3 — buildWorkflowContextInstructions()', () => {
 
   it('includes the workflow sequence section header', () => {
     const result = buildWorkflowContextInstructions();
-    expect(result).toContain('FIXED RESPONSE SEQUENCE');
+    expect(result).toContain('ADAPTIVE RESPONSE FRAMEWORK');
   });
 
   it('includes all 6 step names', () => {
