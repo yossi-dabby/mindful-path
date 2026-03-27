@@ -14,7 +14,7 @@ const REQUIRED = ['title', 'topic', 'content'];
 const LANGUAGES = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
 
 /** Canonical Base44 TrustedCBTChunk fields. Extra fields beyond this set are flagged.
- * Keep in sync with the TrustedCBTChunk entity definition in src/api/entities/. */
+ * Update only when a schema change is explicitly approved — entity definitions in src/api/entities/ are read-only. */
 const BASE44_FIELDS = new Set([
   'title', 'topic', 'subtopic', 'population', 'clinical_goal', 'content',
   'short_summary', 'tags', 'source_name', 'source_type', 'license_status',
