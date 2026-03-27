@@ -101,6 +101,10 @@ export default function Chat() {
   });
 
   const refetchDebounceRef = useRef(null);
+  const mountedRef = useRef(true);
+  const processedIntentRef = useRef(null);
+  const sessionTriggeredRef = useRef(new Set());
+  const inFlightIntentRef = useRef(false);
 
   // Reset visible window when conversation changes
   useEffect(() => {
