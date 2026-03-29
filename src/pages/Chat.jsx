@@ -97,7 +97,9 @@ export default function Chat() {
     PLACEHOLDER_BECAME_MESSAGE: 0,
     THINKING_OVER_10S: 0,
     UI_FLASHES_DETECTED: 0,
-    SAFE_UPDATES: 0
+    SAFE_UPDATES: 0,
+    TOTAL_MESSAGES_PROCESSED: 0,
+    STUCK_THINKING_TIMEOUTS: 0
   });
 
   const refetchDebounceRef = useRef(null);
