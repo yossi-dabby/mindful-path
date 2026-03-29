@@ -37,9 +37,13 @@ const EXPLICIT_SELF_HARM_PATTERNS = [
 
 const CRISIS_PATTERNS = [
   // Self-harm language
+  /\bcan'?t\s+take\s+this\s+anymore\b/i,
+  /\bcan'?t\s+do\s+it\s+anymore\b/i,
+  /\bcan'?t\s+go\s+on\b/i,
+  /\bcan'?t\s+(take|do)\s+(this|it)\s+anymore\b/i,
   /\b(kill|hurt|harm)\s+(myself|my\s*self)\b/i,
   /\bsuicide\b/i,
-  /\bend\s+(my|it\s+all)\b/i,
+  /\bend\s+(my\s+life|it\s+all)\b/i,
   /\bdon'?t\s+want\s+to\s+(live|be\s+alive)\b/i,
   /\bcut(ting)?\s+(myself|my\s*self)\b/i,
 
@@ -49,7 +53,6 @@ const CRISIS_PATTERNS = [
 
   // Immediate danger
   /\bgoodbye\s+(cruel\s+)?world\b/i,
-  /\bcan'?t\s+go\s+on\b/i,
   /\bbetter\s+off\s+(dead|without\s+me)\b/i,
 
   // Indirect/semantic patterns
@@ -57,6 +60,7 @@ const CRISIS_PATTERNS = [
   /\bwant\s+to\s+disappear\b/i,
   /\beveryone\s+(would\s+be\s+)?better\s+(off\s+)?without\s+me\b/i,
   /\bready\s+to\s+(die|end\s+it)\b/i,
+  /\b(don'?t|do\s+not)\s+want\s+to\s+(live|be\s+alive|exist)\b/i,
 
   // Hebrew self-harm / suicidal
   /\b(להרוג\s+את\s+עצמי|לפגוע\s+בעצמי|להתאבד|אני\s+רוצה\s+למות|חיי\s+לא\s+שווים)\b/i,
@@ -74,17 +78,26 @@ function normalizeForDetection(text) {
 
   let normalized = text.toLowerCase().trim();
 
+  // Strip trailing punctuation (.,!?...) so word boundaries match correctly
+  normalized = normalized.replace(/[.,!?;:]+$/g, '');
+  // Also strip punctuation mid-sentence that might block boundary matches
+  normalized = normalized.replace(/([a-z])[.,!?]+\s/g, '$1 ');
+
   const substitutions = {
     '1': 'i', '3': 'e', '0': 'o', '@': 'a', '$': 's',
     '!': 'i', '7': 't', '5': 's', '8': 'b', '4': 'a'
   };
 
   for (const [char, replacement] of Object.entries(substitutions)) {
-    normalized = normalized.replace(new RegExp(char, 'g'), replacement);
+    normalized = normalized.replace(new RegExp(char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), replacement);
   }
 
-  normalized = normalized.replace(/([a-z])[.\s_-]+([a-z])/g, '$1$2');
-  normalized = normalized.replace(/\s+/g, ' ');
+  // Collapse extra internal spaces between letters ("ki  ll" -> "kill")
+  normalized = normalized.replace(/([a-z])\s{2,}([a-z])/g, '$1 $2');
+  // Remove punctuation between letters ("k.i.l.l" -> "kill")
+  normalized = normalized.replace(/([a-z])[._-]+([a-z])/g, '$1$2');
+  // Normalize multiple spaces to single space
+  normalized = normalized.replace(/\s+/g, ' ').trim();
 
   return normalized;
 }
@@ -129,10 +142,12 @@ export function detectCrisisLanguage(message) {
   if (isExamContextFalsePositive(message)) return false;
 
   const original = message.toLowerCase().trim();
+  // Also test a punctuation-stripped version for boundary matching
+  const stripped = original.replace(/[.,!?;:]+/g, ' ').replace(/\s+/g, ' ').trim();
   const normalized = normalizeForDetection(message);
 
   return CRISIS_PATTERNS.some(pattern =>
-    pattern.test(original) || pattern.test(normalized)
+    pattern.test(original) || pattern.test(stripped) || pattern.test(normalized)
   );
 }
 
