@@ -135,8 +135,11 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
       )}
 
       {/* Content */}
+      {/* NOTE: Do NOT apply transform: 'translateY(0)' when idle — even a no-op transform creates
+          a new CSS containing block that breaks position:fixed descendants (e.g. full-screen overlays).
+          Only apply a transform during an active pull; remove it completely otherwise. */}
       <div style={{ 
-        transform: isPulling ? `translateY(${Math.min(pullDistance * 0.5, MAX_PULL * 0.5)}px)` : 'translateY(0)',
+        transform: isPulling ? `translateY(${Math.min(pullDistance * 0.5, MAX_PULL * 0.5)}px)` : undefined,
         transition: isPulling ? 'none' : 'transform 0.3s ease-out'
       }}>
         {children}
