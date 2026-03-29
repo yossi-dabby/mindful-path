@@ -44,10 +44,19 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
 
     if (distance > 0) {
       const clampedDistance = Math.min(distance, MAX_PULL);
-      isPullingRef.current = true;
       pullDistanceRef.current = clampedDistance;
-      setIsPulling(true);
       setPullDistance(clampedDistance);
+
+      // Set isPulling true as soon as the drag passes the release threshold,
+      // regardless of whether the movement was gradual or a fast swipe that
+      // jumped past MAX_PULL in a single touchmove event.
+      // Only call setState when the value actually changes to avoid unnecessary re-renders.
+      const shouldBePulling = distance >= PULL_THRESHOLD;
+      if (shouldBePulling !== isPullingRef.current) {
+        isPullingRef.current = shouldBePulling;
+        setIsPulling(shouldBePulling);
+      }
+
       // preventDefault requires a non-passive listener (registered via useEffect below)
       e.preventDefault();
     }
@@ -106,7 +115,6 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
   }, [handleTouchStart, handleTouchMove, handleTouchEnd]);
 
   const pullProgress = Math.min(pullDistance / PULL_THRESHOLD, 1);
-  const shouldTrigger = pullDistance >= PULL_THRESHOLD;
 
   return (
     <div
@@ -121,14 +129,14 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
         >
           <div className="bg-card/90 backdrop-blur-sm border border-border/60 rounded-full px-4 py-2 shadow-[var(--shadow-md)] flex items-center gap-2">
             <Loader2
-              className={`w-4 h-4 text-primary ${isRefreshing || shouldTrigger ? 'animate-spin' : ''}`}
+              className={`w-4 h-4 text-primary ${isRefreshing || isPulling ? 'animate-spin' : ''}`}
               style={{
                 transform: isRefreshing ? 'rotate(0deg)' : `rotate(${pullProgress * 360}deg)`,
                 transition: isRefreshing ? 'none' : 'transform 0.1s linear'
               }}
             />
             <span className="text-xs font-medium text-foreground">
-              {isRefreshing ? t('pull_to_refresh.refreshing', 'Refreshing…') : shouldTrigger ? t('pull_to_refresh.release', 'Release to refresh') : t('pull_to_refresh.pull', 'Pull to refresh')}
+              {isRefreshing ? t('pull_to_refresh.refreshing', 'Refreshing…') : t('pull_to_refresh.release', 'Release to refresh')}
             </span>
           </div>
         </div>
