@@ -187,8 +187,8 @@ export default function QuickActions() {
                 <CardContent className="p-5 rounded-[20px]">
                   {/* Always-visible header row — same layout as other cards */}
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="bg-teal-600 text-teal-500 rounded-[var(--radius-control)] w-14 h-14 flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]">
-                      <Sparkles className="w-7 h-7 text-white" strokeWidth={2.5} />
+                    <div className="bg-slate-50 text-teal-500 rounded-[var(--radius-control)] w-14 h-14 flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]">
+                      <Sparkles className="text-emerald-600 lucide lucide-sparkles w-7 h-7" strokeWidth={2.5} />
                     </div>
 
                     <button
@@ -196,12 +196,12 @@ export default function QuickActions() {
                     e.preventDefault();
                     e.stopPropagation();
                     setShowStarterPathVideo(true);
-                  }} className="bg-teal-100 text-teal-50 rounded-[var(--radius-control)] flex items-center justify-center cursor-pointer hover:scale-105 transition-transform flex-shrink-0 w-14 h-14 border-0 outline-none"
+                  }} className="bg-green-50 text-teal-50 rounded-[var(--radius-control)] flex items-center justify-center cursor-pointer hover:scale-105 transition-transform flex-shrink-0 w-14 h-14 border-0 outline-none"
 
                   aria-label="Guided introduction video"
                   title="Guided introduction video">
 
-                      <User className="bg-teal-100 text-teal-600 lucide lucide-user w-6 h-6 icon-default" strokeWidth={2} />
+                      <User className="bg-slate-50 text-teal-600 lucide lucide-user w-6 h-6 icon-default" strokeWidth={2} />
                     </button>
                   </div>
 
