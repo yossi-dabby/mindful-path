@@ -61,18 +61,18 @@ function getTabForPage(pageName) {
 }
 
 export function TabNavigationProvider({ children, currentPageName }) {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [tabStacks, setTabStacks] = useState({
-    Home: [{ path: '/Home', pageName: 'Home' }],
-    Chat: [{ path: '/Chat', pageName: 'Chat' }],
-    Coach: [{ path: '/Coach', pageName: 'Coach' }],
-    Journal: [{ path: '/Journal', pageName: 'Journal' }],
-    MoodTracker: [{ path: '/MoodTracker', pageName: 'MoodTracker' }],
-    Exercises: [{ path: '/Exercises', pageName: 'Exercises' }],
-    Progress: [{ path: '/Progress', pageName: 'Progress' }]
-  });
-  const [activeTab, setActiveTab] = useState('Home');
+  let location, navigate;
+  try {
+    location = useLocation();
+    navigate = useNavigate();
+  } catch {
+    // Rendered outside Router — provide no-op context
+    return (
+      <TabNavigationContext.Provider value={{ activeTab: 'Home', tabStacks: {}, switchToTab: () => {}, goBackInTab: () => false, canGoBack: () => false, currentPageName }}>
+        {children}
+      </TabNavigationContext.Provider>
+    );
+  }
   const isNavigatingRef = useRef(false);
 
   // Determine current tab from page name
