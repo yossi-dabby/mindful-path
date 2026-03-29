@@ -230,7 +230,7 @@ export default function Home() {
         <div className="absolute bottom-24 left-1/3 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
         <div className="bg-emerald-50 mx-auto pb-24 page-container relative z-10 max-w-5xl w-full">
         {/* Header */}
-        <div className="mb-6 mt-6 rounded-[32px] border border-[rgba(125,173,160,0.38)] bg-[linear-gradient(180deg,rgba(255,253,250,0.86)_0%,rgba(237,247,242,0.82)_100%)] px-6 py-6 md:px-8 md:py-8 shadow-[0_28px_70px_rgba(68,108,96,0.18),0_12px_28px_rgba(68,108,96,0.1)] backdrop-blur-[18px]">
+        <div className="bg-[linear-gradient(180deg,rgba(255,253,250,0.86)_0%,rgba(237,247,242,0.82)_100%)] my-12 px-6 py-6 rounded-[32px] border border-[rgba(125,173,160,0.38)] md:px-8 md:py-8 shadow-[0_28px_70px_rgba(68,108,96,0.18),0_12px_28px_rgba(68,108,96,0.1)] backdrop-blur-[18px]">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="text-teal-600 mb-2 text-2xl font-semibold md:text-3xl">
@@ -313,7 +313,7 @@ export default function Home() {
                       className="p-0 h-8 w-8 hover:bg-secondary/80 text-primary flex items-center justify-center rounded-full bg-secondary"
                       aria-label="View journal entry">
 
-                    <BookOpen className="w-4 h-4" />
+                    <BookOpen className="text-teal-600 lucide lucide-book-open w-4 h-4" />
                   </Button>
                 </Link>
                   }
