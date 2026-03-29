@@ -61,18 +61,18 @@ function getTabForPage(pageName) {
 }
 
 export function TabNavigationProvider({ children, currentPageName }) {
-  let location, navigate;
-  try {
-    location = useLocation();
-    navigate = useNavigate();
-  } catch {
-    // Rendered outside Router — provide no-op context
-    return (
-      <TabNavigationContext.Provider value={{ activeTab: 'Home', tabStacks: {}, switchToTab: () => {}, goBackInTab: () => false, canGoBack: () => false, currentPageName }}>
-        {children}
-      </TabNavigationContext.Provider>
-    );
-  }
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [tabStacks, setTabStacks] = useState({
+    Home: [{ path: '/Home', pageName: 'Home' }],
+    Chat: [{ path: '/Chat', pageName: 'Chat' }],
+    Coach: [{ path: '/Coach', pageName: 'Coach' }],
+    Journal: [{ path: '/Journal', pageName: 'Journal' }],
+    MoodTracker: [{ path: '/MoodTracker', pageName: 'MoodTracker' }],
+    Exercises: [{ path: '/Exercises', pageName: 'Exercises' }],
+    Progress: [{ path: '/Progress', pageName: 'Progress' }]
+  });
+  const [activeTab, setActiveTab] = useState('Home');
   const isNavigatingRef = useRef(false);
 
   // Determine current tab from page name
@@ -140,8 +140,6 @@ export function TabNavigationProvider({ children, currentPageName }) {
       // Avoid a no-op navigation warning when already at the root.
       if (currentPath !== rootPath) {
         isNavigatingRef.current = true;
-        // Replace current history entry: tab-switching should not accumulate
-        // history entries (iOS "Bottom Tabs & Stack Preservation" pattern).
         navigate(rootPath, { replace: true });
       }
 
@@ -183,10 +181,6 @@ export function TabNavigationProvider({ children, currentPageName }) {
       }));
       
       isNavigatingRef.current = true;
-      // Use the browser's own back navigation so the hardware / swipe-back
-      // gesture stays in sync with the JavaScript history stack.
-      // Fall back to an explicit navigate when there is no browser history to
-      // go back to (e.g. the user deep-linked directly to a sub-page).
       if (window.history.length > 1) {
         navigate(-1);
       } else {
