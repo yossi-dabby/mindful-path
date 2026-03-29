@@ -435,7 +435,7 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
       </div>
 
       {/* ── Main Area ───────────────────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col lg:flex-row items-center justify-start lg:justify-center gap-6 lg:gap-12 px-4 py-4 min-h-0 overflow-y-auto">
+      <div className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-12 px-4 py-4 min-h-0 overflow-y-auto">
 
         {/* ── Circle & Phase Info ──────────────────────────────────────────── */}
         <div className="flex flex-col items-center justify-center flex-shrink-0">
