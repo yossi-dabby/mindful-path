@@ -53,7 +53,7 @@ export default function BottomNav({ currentPageName }) {
         paddingBottom: 'env(safe-area-inset-bottom, 0px)'
       }}>
 
-      <div className="bg-teal-500 text-gray-950 px-1 flex justify-around items-center h-full">
+      <div className="px-1 flex justify-around items-center h-full">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentPageName === item.path;

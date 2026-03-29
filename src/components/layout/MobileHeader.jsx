@@ -77,7 +77,7 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
         paddingTop: 'env(safe-area-inset-top, 0px)'
       }}>
 
-      <div className="bg-teal-50 my-3 px-4 rounded-[28px] flex items-center justify-between h-full">
+      <div className="px-4 flex items-center justify-between h-full">
         {/* Start: Back button on child routes, logo on root */}
         <div className="w-12">
           {isSubRoute ?

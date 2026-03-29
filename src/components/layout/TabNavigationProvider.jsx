@@ -181,11 +181,11 @@ export function TabNavigationProvider({ children, currentPageName }) {
       }));
       
       isNavigatingRef.current = true;
-      if (window.history.length > 1) {
-        navigate(-1);
-      } else {
-        navigate(previousPage.path, { replace: true });
-      }
+      // Always navigate explicitly using the JS tab stack.
+      // Tab switches use replace:true so browser history is NOT a reliable
+      // representation of the in-tab stack — navigate(-1) can pop to a
+      // different tab's page instead of the correct previous page.
+      navigate(previousPage.path, { replace: true });
       return true;
     }
     return false; // Already at root
