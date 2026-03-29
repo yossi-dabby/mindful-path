@@ -1,7 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { MOBILE_HEADER_HEIGHT } from '../layout/MobileHeader';
 import { useTranslation } from 'react-i18next';
 
@@ -115,30 +114,25 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
       className="relative"
     >
       {/* Pull indicator - fixed so it appears at the top of the viewport */}
-      <AnimatePresence>
-        {(isPulling || isRefreshing) && (
-          <motion.div
-            initial={{ opacity: 0, y: -40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -40 }}
-            className="fixed left-0 right-0 flex justify-center items-center z-50"
-            style={{ top: `calc(${MOBILE_HEADER_HEIGHT}px + env(safe-area-inset-top, 0px) + 8px)`, pointerEvents: 'none' }}
-          >
-            <div className="bg-card/90 backdrop-blur-sm border border-border/60 rounded-full px-4 py-2 shadow-[var(--shadow-md)] flex items-center gap-2">
-              <Loader2
-                className={`w-4 h-4 text-primary ${isRefreshing || shouldTrigger ? 'animate-spin' : ''}`}
-                style={{
-                  transform: isRefreshing ? 'rotate(0deg)' : `rotate(${pullProgress * 360}deg)`,
-                  transition: isRefreshing ? 'none' : 'transform 0.1s linear'
-                }}
-              />
-              <span className="text-xs font-medium text-foreground">
-                {isRefreshing ? t('pull_to_refresh.refreshing', 'Refreshing…') : shouldTrigger ? t('pull_to_refresh.release', 'Release to refresh') : t('pull_to_refresh.pull', 'Pull to refresh')}
-              </span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {(isPulling || isRefreshing) && (
+        <div
+          className="fixed left-0 right-0 flex justify-center items-center z-50"
+          style={{ top: `calc(${MOBILE_HEADER_HEIGHT}px + env(safe-area-inset-top, 0px) + 8px)`, pointerEvents: 'none' }}
+        >
+          <div className="bg-card/90 backdrop-blur-sm border border-border/60 rounded-full px-4 py-2 shadow-[var(--shadow-md)] flex items-center gap-2">
+            <Loader2
+              className={`w-4 h-4 text-primary ${isRefreshing || shouldTrigger ? 'animate-spin' : ''}`}
+              style={{
+                transform: isRefreshing ? 'rotate(0deg)' : `rotate(${pullProgress * 360}deg)`,
+                transition: isRefreshing ? 'none' : 'transform 0.1s linear'
+              }}
+            />
+            <span className="text-xs font-medium text-foreground">
+              {isRefreshing ? t('pull_to_refresh.refreshing', 'Refreshing…') : shouldTrigger ? t('pull_to_refresh.release', 'Release to refresh') : t('pull_to_refresh.pull', 'Pull to refresh')}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Content */}
       <div style={{ 
