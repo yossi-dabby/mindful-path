@@ -1380,6 +1380,11 @@ export const translations = {
           no_resources_message: "Try adjusting your search or filters",
         },
       },
+      pull_to_refresh: {
+        pull: "Pull to refresh",
+        release: "Release to refresh",
+        refreshing: "Refreshing…",
+      },
     }
   },
   he: {
@@ -2762,6 +2767,11 @@ export const translations = {
           no_resources_message: "נסה להתאים את החיפוש או המסננים",
         },
       },
+      pull_to_refresh: {
+        pull: "משוך לרענון",
+        release: "שחרר לרענון",
+        refreshing: "מרענן…",
+      },
     }
   },
   es: {
@@ -4100,6 +4110,11 @@ export const translations = {
           no_resources_title: "No se encontraron recursos",
           no_resources_message: "Intenta ajustar tu búsqueda o filtros",
         },
+      },
+      pull_to_refresh: {
+        pull: "Desliza para actualizar",
+        release: "Suelta para actualizar",
+        refreshing: "Actualizando…",
       },
     }
   },
@@ -5440,6 +5455,11 @@ export const translations = {
           no_resources_message: "Essayez d\'ajuster votre recherche ou vos filtres",
         },
       },
+      pull_to_refresh: {
+        pull: "Tirer pour actualiser",
+        release: "Relâcher pour actualiser",
+        refreshing: "Actualisation…",
+      },
     }
   },
   de: {
@@ -6778,6 +6798,11 @@ export const translations = {
           no_resources_title: "Keine Ressourcen gefunden",
           no_resources_message: "Versuchen Sie, Ihre Suche oder Filter anzupassen",
         },
+      },
+      pull_to_refresh: {
+        pull: "Zum Aktualisieren ziehen",
+        release: "Zum Aktualisieren loslassen",
+        refreshing: "Aktualisierung…",
       },
     }
   },
@@ -8118,6 +8143,11 @@ export const translations = {
           no_resources_message: "Prova ad aggiustare la ricerca o i filtri",
         },
       },
+      pull_to_refresh: {
+        pull: "Trascina per aggiornare",
+        release: "Rilascia per aggiornare",
+        refreshing: "Aggiornamento…",
+      },
     }
   },
   pt: {
@@ -9456,6 +9486,11 @@ export const translations = {
           no_resources_title: "Nenhum recurso encontrado",
           no_resources_message: "Tente ajustar sua pesquisa ou filtros",
         },
+      },
+      pull_to_refresh: {
+        pull: "Puxe para atualizar",
+        release: "Solte para atualizar",
+        refreshing: "Atualizando…",
       },
     }
   }
