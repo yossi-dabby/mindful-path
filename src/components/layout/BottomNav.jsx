@@ -45,15 +45,15 @@ export default function BottomNav({ currentPageName }) {
 
   return (
     <nav
-      aria-label="Main navigation"
-      className="md:hidden fixed bottom-0 left-0 right-0 border-t border-border/70 bg-[hsl(var(--sidebar-background)/0.9)] backdrop-blur-2xl shadow-[var(--shadow-lg)]"
+      aria-label="Main navigation" className="bg-[hsl(var(--sidebar-background)/0.9)] mb-5 py-1 md:hidden fixed bottom-0 left-0 right-0 border-t border-border/70 backdrop-blur-2xl shadow-[var(--shadow-lg)]"
+
       style={{
         zIndex: 35,
         height: `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))`,
         paddingBottom: 'env(safe-area-inset-bottom, 0px)'
       }}>
 
-      <div className="bg-teal-50 px-1 flex justify-around items-center h-full">
+      <div className="bg-teal-50 mr-1 mb-1 pr-1 pb-48 pl-1 flex justify-around items-center h-full">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentPageName === item.path;
@@ -63,18 +63,18 @@ export default function BottomNav({ currentPageName }) {
               to={createPageUrl(item.path)}
               onClick={(e) => handleTabClick(e, item)}
               aria-current={isActive ? 'page' : undefined}
-              aria-label={item.name}
-              className={cn(
-                'flex flex-col items-center justify-center gap-1 transition-calm px-2 py-2 rounded-3xl min-w-[52px] border',
-                isActive
-                  ? 'bg-primary/15 border-primary/30 shadow-[var(--shadow-sm)]'
-                  : 'bg-transparent border-transparent'
-              )}
-            >
-              <Icon
-                className={cn('w-5 h-5 icon-default', isActive ? 'text-primary scale-110' : 'text-muted-foreground')}
-                strokeWidth={isActive ? 2.5 : 2}
-              />
+              aria-label={item.name} className="bg-teal-300 px-2 py-2 rounded-3xl flex flex-col items-center justify-center gap-1 transition-calm min-w-[52px] border border-primary/30 shadow-[var(--shadow-sm)]">
+
+
+
+
+
+
+              
+              <Icon className="text-teal-600 lucide lucide-house w-5 h-5 icon-default scale-110"
+
+              strokeWidth={isActive ? 2.5 : 2} />
+              
               <span className={cn('text-xs font-medium leading-none', isActive ? 'text-primary' : 'text-muted-foreground')}>{item.name}</span>
             </Link>);
 
