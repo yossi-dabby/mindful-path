@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { cn } from "@/lib/utils";
@@ -15,23 +15,24 @@ export default function BottomNav({ currentPageName }) {
   const navigate = useNavigate();
   const tabNav = useTabNavigation();
 
-  const navItems = [
-  { name: t('sidebar.home.name'), icon: Home, path: 'Home' },
-  { name: t('sidebar.chat.name'), icon: MessageCircle, path: 'Chat' },
-  { name: t('sidebar.coach.name'), icon: Heart, path: 'Coach' },
-  { name: t('sidebar.journal.name'), icon: BookOpen, path: 'Journal' },
-  { name: t('sidebar.mood.name'), icon: Activity, path: 'MoodTracker' },
-  { name: t('sidebar.exercises.name'), icon: Dumbbell, path: 'Exercises' }];
+  // Memoised so icon/label objects aren't recreated on every render.
+  const navItems = useMemo(() => [
+    { name: t('sidebar.home.name'),      icon: Home,          path: 'Home'        },
+    { name: t('sidebar.chat.name'),      icon: MessageCircle, path: 'Chat'        },
+    { name: t('sidebar.coach.name'),     icon: Heart,         path: 'Coach'       },
+    { name: t('sidebar.journal.name'),   icon: BookOpen,      path: 'Journal'     },
+    { name: t('sidebar.mood.name'),      icon: Activity,      path: 'MoodTracker' },
+    { name: t('sidebar.exercises.name'), icon: Dumbbell,      path: 'Exercises'   },
+  ], [t]);
 
 
-  const handleTabClick = (e, item) => {
+  // Stable callback — avoids re-creating the function and re-rendering all
+  // Link children on every parent render.
+  const handleTabClick = useCallback((e, item) => {
     e.preventDefault();
-
-    // Use tab navigation context for independent stacks
     if (tabNav) {
       tabNav.switchToTab(item.path);
     } else {
-      // Fallback behavior
       if (currentPageName === item.path) {
         navigate(createPageUrl(item.path), { replace: true });
         requestAnimationFrame(() => {
@@ -41,7 +42,7 @@ export default function BottomNav({ currentPageName }) {
         navigate(createPageUrl(item.path));
       }
     }
-  };
+  }, [tabNav, currentPageName, navigate]);
 
   return (
     <nav

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getScrollContainer } from '@/lib/scrollContainer';
 
@@ -16,186 +16,194 @@ const TAB_ROOTS = {
   Journal: 'Journal',
   MoodTracker: 'MoodTracker',
   Exercises: 'Exercises',
-  Progress: 'Progress'
+  Progress: 'Progress',
 };
 
-// Determine which tab a page belongs to based on naming convention
+// Pages that belong to specific tabs
+const TAB_MAPPING = {
+  StarterPath: 'Home',
+  Videos: 'Home',
+  VideoPlayer: 'Home',
+  Playlists: 'Home',
+  PlaylistDetail: 'Home',
+  Journeys: 'Home',
+  ExperientialGames: 'Home',
+  ThoughtCoach: 'Chat',
+  GoalCoach: 'Coach',
+  ExerciseView: 'Exercises',
+  Goals: 'Progress',
+  Community: 'Progress',
+  PersonalizedFeed: 'Progress',
+  AdvancedAnalytics: 'Progress',
+  Settings: null,
+  Resources: null,
+};
+
 function getTabForPage(pageName) {
   if (!pageName) return null;
-  
-  // Direct tab roots
   if (TAB_ROOTS[pageName]) return pageName;
-  
-  // Pages that belong to specific tabs based on prefix or context
-  const tabMapping = {
-    // Home tab pages
-    'StarterPath': 'Home',
-    'Videos': 'Home',
-    'VideoPlayer': 'Home',
-    'Playlists': 'Home',
-    'PlaylistDetail': 'Home',
-    'Journeys': 'Home',
-    'ExperientialGames': 'Home',
-    
-    // Chat tab pages (AI therapy)
-    'ThoughtCoach': 'Chat',
-    
-    // Coach tab pages
-    'GoalCoach': 'Coach',
-    
-    // Exercises tab pages
-    'ExerciseView': 'Exercises',
-    
-    // Progress tab pages
-    'Goals': 'Progress',
-    'Community': 'Progress',
-    'PersonalizedFeed': 'Progress',
-    'AdvancedAnalytics': 'Progress',
-    
-    // Settings and account (not in tabs, global)
-    'Settings': null,
-    'Resources': null
-  };
-  
-  return tabMapping[pageName] || null;
+  return TAB_MAPPING[pageName] ?? null;
 }
+
+// ─── Reducer ────────────────────────────────────────────────────────────────
+// Using useReducer batches all state mutations into a single re-render,
+// avoiding the double-render caused by separate setActiveTab + setTabStacks.
+
+const buildInitialStacks = () =>
+  Object.fromEntries(
+    Object.keys(TAB_ROOTS).map((tab) => [tab, [{ path: `/${tab}`, pageName: tab }]])
+  );
+
+const initialState = {
+  activeTab: 'Home',
+  tabStacks: buildInitialStacks(),
+};
+
+function tabReducer(state, action) {
+  switch (action.type) {
+    case 'SET_ACTIVE_TAB':
+      if (state.activeTab === action.tab) return state;
+      return { ...state, activeTab: action.tab };
+
+    case 'SWITCH_TAB': {
+      const { tab, resetStack, rootPath, rootPageName } = action;
+      const tabStacks = resetStack
+        ? { ...state.tabStacks, [tab]: [{ path: rootPath, pageName: rootPageName }] }
+        : state.tabStacks;
+      return { activeTab: tab, tabStacks };
+    }
+
+    case 'PUSH_PAGE': {
+      const { tab, path, pageName } = action;
+      const stack = state.tabStacks[tab];
+      if (stack[stack.length - 1]?.path === path) return state; // already top
+      return {
+        ...state,
+        tabStacks: { ...state.tabStacks, [tab]: [...stack, { path, pageName }] },
+      };
+    }
+
+    case 'POP_PAGE': {
+      const stack = state.tabStacks[action.tab];
+      if (stack.length <= 1) return state;
+      return {
+        ...state,
+        tabStacks: { ...state.tabStacks, [action.tab]: stack.slice(0, -1) },
+      };
+    }
+
+    default:
+      return state;
+  }
+}
+
+// ─── Provider ────────────────────────────────────────────────────────────────
 
 export function TabNavigationProvider({ children, currentPageName }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const [tabStacks, setTabStacks] = useState({
-    Home: [{ path: '/Home', pageName: 'Home' }],
-    Chat: [{ path: '/Chat', pageName: 'Chat' }],
-    Coach: [{ path: '/Coach', pageName: 'Coach' }],
-    Journal: [{ path: '/Journal', pageName: 'Journal' }],
-    MoodTracker: [{ path: '/MoodTracker', pageName: 'MoodTracker' }],
-    Exercises: [{ path: '/Exercises', pageName: 'Exercises' }],
-    Progress: [{ path: '/Progress', pageName: 'Progress' }]
-  });
-  const [activeTab, setActiveTab] = useState('Home');
-  const isNavigatingRef = useRef(false);
+  const [{ activeTab, tabStacks }, dispatch] = useReducer(tabReducer, initialState);
 
-  // Determine current tab from page name
+  // Counter-based flag: increment before each programmatic navigate,
+  // decrement in the tracking effect. Avoids the race where a second
+  // navigation clears a boolean flag before the first effect has consumed it.
+  const navFlagRef = useRef(0);
+
+  // ── Sync activeTab when location changes externally (deep-link, etc.) ──
   useEffect(() => {
     const currentTab = getTabForPage(currentPageName);
     if (currentTab && currentTab !== activeTab) {
-      setActiveTab(currentTab);
+      dispatch({ type: 'SET_ACTIVE_TAB', tab: currentTab });
     }
   }, [currentPageName, activeTab]);
 
-  // Track navigation within tabs
+  // ── Track in-tab push/pop from user navigations ──────────────────────────
   useEffect(() => {
-    if (isNavigatingRef.current) {
-      isNavigatingRef.current = false;
-      return;
+    if (navFlagRef.current > 0) {
+      navFlagRef.current -= 1;
+      return; // our own programmatic navigation — skip
     }
 
     const currentTab = getTabForPage(currentPageName);
-    if (!currentTab) return; // Not a tab page
+    if (!currentTab) return;
 
-    setTabStacks(prev => {
-      const newStacks = { ...prev };
-      const currentStack = [...newStacks[currentTab]];
-      const currentPath = location.pathname + location.search;
-      
-      // Check if this page is already at the top of the stack
-      const topOfStack = currentStack[currentStack.length - 1];
-      if (topOfStack?.path === currentPath) {
-        return prev; // No change needed
-      }
+    const currentPath = location.pathname + location.search;
+    const stack = tabStacks[currentTab];
+    const top = stack[stack.length - 1];
 
-      // Check if this matches the previous entry — browser back was used
-      if (currentStack.length > 1) {
-        const prevEntry = currentStack[currentStack.length - 2];
-        if (prevEntry?.path === currentPath) {
-          newStacks[currentTab] = currentStack.slice(0, -1);
-          return newStacks;
-        }
-      }
+    if (top?.path === currentPath) return; // already at top — no-op
 
-      // Add to stack (push navigation)
-      currentStack.push({ path: currentPath, pageName: currentPageName });
-      newStacks[currentTab] = currentStack;
-      
-      return newStacks;
-    });
+    // Detect OS/browser back: new location matches second-to-top → pop
+    if (stack.length > 1 && stack[stack.length - 2]?.path === currentPath) {
+      dispatch({ type: 'POP_PAGE', tab: currentTab });
+    } else {
+      dispatch({ type: 'PUSH_PAGE', tab: currentTab, path: currentPath, pageName: currentPageName });
+    }
   }, [location.pathname, location.search, currentPageName]);
 
-  // Handle tab switching
-  const switchToTab = (tabName) => {
+  // ── Switch tab ────────────────────────────────────────────────────────────
+  const switchToTab = useCallback((tabName) => {
     const currentPath = location.pathname + location.search;
 
     if (tabName === activeTab) {
-      // Switching to already active tab - reset to root
+      // Re-tapping the active tab: reset its stack to root and scroll to top.
       const rootPage = TAB_ROOTS[tabName];
       if (!rootPage) return;
       const rootPath = `/${rootPage}`;
 
-      // Clear stack and navigate to root
-      setTabStacks(prev => ({
-        ...prev,
-        [tabName]: [{ path: rootPath, pageName: rootPage }]
-      }));
+      dispatch({ type: 'SWITCH_TAB', tab: tabName, resetStack: true, rootPath, rootPageName: rootPage });
 
-      // Avoid a no-op navigation warning when already at the root.
       if (currentPath !== rootPath) {
-        isNavigatingRef.current = true;
+        navFlagRef.current += 1;
         navigate(rootPath, { replace: true });
       }
-
-      // Scroll to top
       getScrollContainer().scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      // Switching to different tab - restore its last state
+      // Switching to a different tab: restore its last known position.
       const targetStack = tabStacks[tabName];
-      let targetPath;
-      if (!targetStack || targetStack.length === 0) {
-        // Fallback: navigate to root for this tab
-        const rootPage = TAB_ROOTS[tabName] || tabName;
-        targetPath = `/${rootPage}`;
-      } else {
-        targetPath = targetStack[targetStack.length - 1].path;
-      }
+      const targetPath = targetStack?.length
+        ? targetStack[targetStack.length - 1].path
+        : `/${TAB_ROOTS[tabName] || tabName}`;
 
-      // Avoid a no-op navigation warning when already at the target path.
+      // Dispatch first so activeTab is correct before navigate fires.
+      dispatch({ type: 'SWITCH_TAB', tab: tabName, resetStack: false });
+
       if (currentPath !== targetPath) {
-        isNavigatingRef.current = true;
+        navFlagRef.current += 1;
         navigate(targetPath, { replace: true });
       }
+      // Jump scroll to top instantly when switching tabs (no animation —
+      // content is for a completely different tab).
+      getScrollContainer().scrollTo({ top: 0, behavior: 'instant' });
     }
+  }, [activeTab, tabStacks, location.pathname, location.search, navigate]);
 
-    setActiveTab(tabName);
-  };
-
-  // Handle back navigation within a tab.
-  // We rely on native browser history (navigate(-1)) so that the iOS swipe-back
-  // gesture and Android hardware back button both work correctly.
-  // The tracking effect already detects when the location reverts to a previous
-  // entry (prevEntry check) and pops our in-memory stack automatically — no
-  // manual setTabStacks needed here.
-  const goBackInTab = () => {
-    const currentStack = tabStacks[activeTab];
-    if (currentStack.length > 1) {
+  // ── Back navigation ───────────────────────────────────────────────────────
+  // Delegate to browser history so the iOS swipe-back gesture and Android
+  // hardware-back button both work correctly. The tracking effect above
+  // automatically pops our in-memory stack when the location changes.
+  const goBackInTab = useCallback(() => {
+    if (tabStacks[activeTab].length > 1) {
       navigate(-1);
       return true;
     }
-    return false; // Already at root
-  };
+    return false;
+  }, [activeTab, tabStacks, navigate]);
 
-  // Check if we can go back in current tab
-  const canGoBack = () => {
-    const currentStack = tabStacks[activeTab];
-    return currentStack.length > 1;
-  };
+  const canGoBack = useCallback(
+    () => tabStacks[activeTab].length > 1,
+    [activeTab, tabStacks]
+  );
 
-  const value = {
+  // ── Stable context value ──────────────────────────────────────────────────
+  const value = useMemo(() => ({
     activeTab,
     tabStacks,
     switchToTab,
     goBackInTab,
     canGoBack,
-    currentPageName
-  };
+    currentPageName,
+  }), [activeTab, tabStacks, switchToTab, goBackInTab, canGoBack, currentPageName]);
 
   return (
     <TabNavigationContext.Provider value={value}>
