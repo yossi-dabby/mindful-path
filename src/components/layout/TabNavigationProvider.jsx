@@ -167,25 +167,16 @@ export function TabNavigationProvider({ children, currentPageName }) {
     setActiveTab(tabName);
   };
 
-  // Handle back navigation within a tab
+  // Handle back navigation within a tab.
+  // We rely on native browser history (navigate(-1)) so that the iOS swipe-back
+  // gesture and Android hardware back button both work correctly.
+  // The tracking effect already detects when the location reverts to a previous
+  // entry (prevEntry check) and pops our in-memory stack automatically — no
+  // manual setTabStacks needed here.
   const goBackInTab = () => {
     const currentStack = tabStacks[activeTab];
     if (currentStack.length > 1) {
-      // Pop current page and navigate to previous
-      const newStack = currentStack.slice(0, -1);
-      const previousPage = newStack[newStack.length - 1];
-      
-      setTabStacks(prev => ({
-        ...prev,
-        [activeTab]: newStack
-      }));
-      
-      isNavigatingRef.current = true;
-      // Always navigate explicitly using the JS tab stack.
-      // Tab switches use replace:true so browser history is NOT a reliable
-      // representation of the in-tab stack — navigate(-1) can pop to a
-      // different tab's page instead of the correct previous page.
-      navigate(previousPage.path, { replace: true });
+      navigate(-1);
       return true;
     }
     return false; // Already at root

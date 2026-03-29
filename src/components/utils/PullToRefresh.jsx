@@ -3,8 +3,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MOBILE_HEADER_HEIGHT } from '../layout/MobileHeader';
+import { useTranslation } from 'react-i18next';
 
 export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
+  const { t } = useTranslation();
   const [isPulling, setIsPulling] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -117,17 +119,16 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
             className="fixed left-0 right-0 flex justify-center items-center z-50"
             style={{ top: `calc(${MOBILE_HEADER_HEIGHT}px + env(safe-area-inset-top, 0px) + 8px)`, pointerEvents: 'none' }}
           >
-            <div className="bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg flex items-center gap-2">
-              <Loader2 
-                className={`w-4 h-4 ${isRefreshing || shouldTrigger ? 'animate-spin' : ''}`}
-                style={{ 
-                  color: '#26A69A',
+            <div className="bg-card/90 backdrop-blur-sm border border-border/60 rounded-full px-4 py-2 shadow-[var(--shadow-md)] flex items-center gap-2">
+              <Loader2
+                className={`w-4 h-4 text-primary ${isRefreshing || shouldTrigger ? 'animate-spin' : ''}`}
+                style={{
                   transform: isRefreshing ? 'rotate(0deg)' : `rotate(${pullProgress * 360}deg)`,
                   transition: isRefreshing ? 'none' : 'transform 0.1s linear'
                 }}
               />
-              <span className="text-xs font-medium" style={{ color: '#1A3A34' }}>
-                {isRefreshing ? 'Refreshing...' : shouldTrigger ? 'Release to refresh' : 'Pull to refresh'}
+              <span className="text-xs font-medium text-foreground">
+                {isRefreshing ? t('pull_to_refresh.refreshing', 'Refreshing…') : shouldTrigger ? t('pull_to_refresh.release', 'Release to refresh') : t('pull_to_refresh.pull', 'Pull to refresh')}
               </span>
             </div>
           </motion.div>
