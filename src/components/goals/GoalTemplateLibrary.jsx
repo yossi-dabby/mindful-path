@@ -56,17 +56,16 @@ export default function GoalTemplateLibrary({ onSelectTemplate, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <Card className="w-full max-w-5xl max-h-[90vh] overflow-y-auto border-0" style={{
-        borderRadius: '32px',
-        background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(232, 246, 243, 0.95) 100%)'
+      <Card className="w-full max-w-5xl max-h-[90vh] overflow-y-auto border-0 bg-card" style={{
+        borderRadius: '32px'
       }}>
-        <CardHeader className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm" style={{ borderRadius: '32px 32px 0 0' }}>
+        <CardHeader className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm" style={{ borderRadius: '32px 32px 0 0' }}>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-2xl font-semibold" style={{ color: '#1A3A34' }}>
+              <CardTitle className="text-2xl font-semibold text-card-foreground">
                 Goal Template Library
               </CardTitle>
-              <p className="text-sm mt-1" style={{ color: '#5A7A72' }}>
+              <p className="text-sm mt-1 text-muted-foreground">
                 Choose a template to get started or customize your own
               </p>
             </div>
@@ -95,8 +94,8 @@ export default function GoalTemplateLibrary({ onSelectTemplate, onClose }) {
                   onClick={() => setSelectedCategory(cat.value)}
                   className="flex-shrink-0 whitespace-nowrap"
                   style={selectedCategory === cat.value ? {
-                    backgroundColor: '#26A69A',
-                    color: 'white'
+                    backgroundColor: 'hsl(var(--primary))',
+                    color: 'hsl(var(--primary-foreground))'
                   } : {}}
                 >
                   <Icon className="w-4 h-4 mr-2" />
@@ -110,8 +109,8 @@ export default function GoalTemplateLibrary({ onSelectTemplate, onClose }) {
           {selectedCategory === 'all' && popularTemplates.length > 0 && (
             <div className="mb-8">
               <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="w-5 h-5" style={{ color: '#26A69A' }} />
-                <h3 className="text-lg font-semibold" style={{ color: '#1A3A34' }}>
+                <Sparkles className="w-5 h-5 text-primary" />
+                <h3 className="text-lg font-semibold text-card-foreground">
                   Popular Templates
                 </h3>
               </div>
@@ -130,7 +129,7 @@ export default function GoalTemplateLibrary({ onSelectTemplate, onClose }) {
           {/* All Templates */}
           <div>
             {selectedCategory === 'all' && (
-              <h3 className="text-lg font-semibold mb-4" style={{ color: '#1A3A34' }}>
+              <h3 className="text-lg font-semibold mb-4 text-card-foreground">
                 All Templates
               </h3>
             )}
@@ -166,19 +165,16 @@ function TemplateCard({ template, onSelect }) {
   const Icon = categoryIcons[template.category] || Target;
   
   return (
-    <Card className="hover:shadow-lg transition-all cursor-pointer border-0" style={{
-      borderRadius: '24px',
-      background: 'white'
+    <Card className="hover:shadow-lg transition-all cursor-pointer border-0 bg-card" style={{
+      borderRadius: '24px'
     }} onClick={onSelect}>
       <CardContent className="p-6">
         <div className="flex items-start gap-3 mb-3">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{
-            background: 'rgba(38, 166, 154, 0.1)'
-          }}>
-            <Icon className="w-5 h-5" style={{ color: '#26A69A' }} />
+          <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-primary/10">
+            <Icon className="w-5 h-5 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <h4 className="font-semibold text-gray-900 mb-1 line-clamp-2">
+            <h4 className="font-semibold text-card-foreground mb-1 line-clamp-2">
               {template.title}
             </h4>
             <Badge className={categoryColors[template.category]} variant="outline">
@@ -187,11 +183,11 @@ function TemplateCard({ template, onSelect }) {
           </div>
         </div>
         
-        <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+        <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
           {template.description}
         </p>
 
-        <div className="flex items-center justify-between text-xs text-gray-500">
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span>{template.duration_weeks} weeks</span>
           <Badge variant="outline" className="text-xs">
             {template.difficulty}
@@ -199,7 +195,7 @@ function TemplateCard({ template, onSelect }) {
         </div>
 
         {template.is_popular && (
-          <div className="mt-3 flex items-center gap-1 text-xs" style={{ color: '#26A69A' }}>
+          <div className="mt-3 flex items-center gap-1 text-xs text-primary">
             <Sparkles className="w-3 h-3" />
             <span>Popular choice</span>
           </div>
