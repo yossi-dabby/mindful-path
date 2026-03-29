@@ -1,6 +1,40 @@
 // Conservative crisis language detection with bypass-resistant normalization
 // Returns true if message contains high-risk patterns
 
+/**
+ * FALSE-POSITIVE GUARD — exam/test/performance contexts.
+ * If the message is clearly about academic or performance anxiety without
+ * explicit self-harm language, block escalation immediately.
+ * Applies across all supported languages.
+ */
+const EXAM_CONTEXT_PATTERNS = [
+  // English
+  /\b(exam|test|quiz|finals?|midterm|assignment|deadline|grade|fail(ing)?|failing?\s+(the\s+)?(exam|test|class|course)|afraid\s+(i'?ll?|to)\s+fail|scared\s+(i'?ll?|to)\s+fail|performance\s+anxiety|job\s+interview|presentation)\b/i,
+  // Hebrew
+  /\b(מבחן|בחינה|בגרות|מבחנים|בחינות|להיכשל|כישלון|מחר\s+מבחן|מבחן\s+מחר|ציון|ציונים|הגשה|מטלה|סמסטר|אוניברסיטה|פחד\s+מכישלון)\b/i,
+  // Spanish
+  /\b(examen|prueba|reprobr?|reprobar|miedo\s+a\s+fracasar|fracasar\s+en|calificaci[oó]n|presentaci[oó]n|entrevista)\b/i,
+  // French
+  /\b(examen|test|[eé]chec|peur\s+de\s+rater|rater\s+(l'examen|le\s+test)|note|pr[eé]sentation)\b/i,
+  // German
+  /\b(pr[uü]fung|klausur|angst\s+(vor\s+der\s+pr[uü]fung|zu\s+versagen)|scheitern|note|abgabe|pr[äa]sentation)\b/i,
+  // Italian
+  /\b(esame|test|paura\s+di\s+fallire|fallire\s+l'esame|voto|presentazione)\b/i,
+  // Portuguese
+  /\b(exame|prova|medo\s+de\s+reprovar|reprovar|nota|apresenta[çc][aã]o)\b/i,
+];
+
+const EXPLICIT_SELF_HARM_PATTERNS = [
+  /\b(kill|hurt|harm|cut)\s+(myself|my\s*self)\b/i,
+  /\bsuicide\b/i,
+  /\boverdose\b/i,
+  /\b(end\s+(my\s+life|it\s+all)|ready\s+to\s+(die|end\s+it)|want\s+to\s+die)\b/i,
+  /\b(take\s+all\s+(my|the)\s+(pills|meds|medication))\b/i,
+  /\b(better\s+off\s+(dead|without\s+me)|everyone\s+(would\s+be\s+)?better\s+(off\s+)?without\s+me)\b/i,
+  // Hebrew self-harm / suicidal
+  /\b(להרוג\s+את\s+עצמי|לפגוע\s+בעצמי|להתאבד|אני\s+רוצה\s+למות|חיי\s+לא\s+שווים)\b/i,
+];
+
 const CRISIS_PATTERNS = [
   // Self-harm language
   /\b(kill|hurt|harm)\s+(myself|my\s*self)\b/i,
@@ -22,12 +56,14 @@ const CRISIS_PATTERNS = [
   /\bno\s+point\s+(in\s+)?(living|going\s+on|continuing)\b/i,
   /\bwant\s+to\s+disappear\b/i,
   /\beveryone\s+(would\s+be\s+)?better\s+(off\s+)?without\s+me\b/i,
-  /\bcan'?t\s+(take|do)\s+(this|it)\s+anymore\b/i,
   /\bready\s+to\s+(die|end\s+it)\b/i,
+
+  // Hebrew self-harm / suicidal
+  /\b(להרוג\s+את\s+עצמי|לפגוע\s+בעצמי|להתאבד|אני\s+רוצה\s+למות|חיי\s+לא\s+שווים)\b/i,
 ];
 
 /**
- * Aggressively normalize text to prevent bypass attempts:
+ * Normalize text to prevent bypass attempts:
  * - Remove spaces between letters (ki ll -> kill)
  * - Replace common character substitutions (1->i, 3->e, 0->o, @->a, $->s)
  * - Remove punctuation between letters (k.i.l.l -> kill)
@@ -76,16 +112,32 @@ function categorizeReason(message) {
   return testMessage(original) || testMessage(normalized) || 'general_crisis';
 }
 
+/**
+ * Returns true if message is clearly in an exam/performance/failure context
+ * without any explicit self-harm language.
+ * Used to block false-positive crisis escalation for academic distress.
+ */
+export function isExamContextFalsePositive(message) {
+  if (!message || typeof message !== 'string') return false;
+  const hasExamContext = EXAM_CONTEXT_PATTERNS.some(p => p.test(message));
+  if (!hasExamContext) return false;
+  // Only block if there is NO explicit self-harm language present
+  const hasExplicitHarm = EXPLICIT_SELF_HARM_PATTERNS.some(p => p.test(message));
+  return !hasExplicitHarm;
+}
+
 export function detectCrisisLanguage(message) {
   if (!message || typeof message !== 'string') {
     return false;
   }
-  
+
+  // False-positive guard: exam/performance context without self-harm → never escalate
+  if (isExamContextFalsePositive(message)) return false;
+
   // Check both original and aggressively normalized versions
   const original = message.toLowerCase().trim();
   const normalized = normalizeForDetection(message);
   
-  // Check against patterns on both versions for robustness
   return CRISIS_PATTERNS.some(pattern => 
     pattern.test(original) || pattern.test(normalized)
   );
