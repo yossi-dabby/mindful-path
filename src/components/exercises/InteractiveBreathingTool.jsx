@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Slider } from '@/components/ui/slider';
 import {
@@ -335,7 +336,10 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
       : t('breathing_tool.calm_ladder.stage_3')
     : null;
 
-  return (
+  // NOTE: Rendered via createPortal so that 'fixed inset-0' is positioned relative
+  // to the viewport, not to any ancestor element that has a CSS transform (e.g. the
+  // Layout page-transition motion.div). This mirrors the pattern in ExerciseDetail.jsx.
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex flex-col"
       style={{ background: theme.bgGradient }}
@@ -741,6 +745,7 @@ export default function InteractiveBreathingTool({ onClose, onComplete }) {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </div>,
+    document.body
   );
 }
