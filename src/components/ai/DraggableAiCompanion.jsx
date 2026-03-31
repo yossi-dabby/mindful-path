@@ -71,7 +71,7 @@ export default function DraggableAiCompanion() {
           // Fully clamp both axes so a position saved on a wider/taller screen
           // never places the bubble off-screen on the current (smaller) viewport.
           const clamped = constrainPosition(storedPos);
-          if (process.env.NODE_ENV === 'development') {
+          if (import.meta.env.DEV) {
             console.debug('[AI Companion] init | saved:', storedPos, '| clamped:', clamped);
           }
           setPosition(clamped);
@@ -319,7 +319,7 @@ export default function DraggableAiCompanion() {
       bottom: Math.max(bottomNavHeight + margin, Math.min(maxBottom, pos.bottom))
     };
 
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.debug(
         '[AI Companion] constrainPosition | viewport:', vpWidth, 'x', vpHeight,
         '| input:', pos, '| clamped:', clamped,

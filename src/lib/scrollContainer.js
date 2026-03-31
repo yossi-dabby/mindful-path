@@ -17,7 +17,7 @@ export function getScrollContainer() {
  *   - More than one element with overflow-y = auto/scroll → nested scroll containers
  */
 export function debugScrollChain() {
-  if (process.env.NODE_ENV === 'production') return;
+  if (import.meta.env.PROD) return;
 
   const sc = getScrollContainer();
   if (!sc) {

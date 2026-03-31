@@ -1,4 +1,3 @@
-
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
@@ -43,7 +42,7 @@ i18n
     // Warn on missing keys and return a human-readable fallback instead of raw key strings
     saveMissing: true,
     missingKeyHandler: (lngs, ns, key) => {
-      if (process.env.NODE_ENV !== 'production') {
+      if (!import.meta.env.PROD) {
         console.warn(`[i18n] Missing translation key: "${key}" (langs: ${lngs.join(', ')}, ns: ${ns})`);
       }
     },

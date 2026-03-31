@@ -949,7 +949,7 @@ export const REQUIRED_COGNITIVE_EXERCISE_IDS = [
  * @param {Array} allExercises - the merged array of exercises to validate
  */
 export function validateExercisesTaxonomy(allExercises) {
-  if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production') return;
+  if (import.meta.env.PROD) return;
 
   const errors = [];
 
