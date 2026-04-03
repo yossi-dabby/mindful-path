@@ -833,6 +833,7 @@ export default function Chat() {
 
       setCurrentConversationId(conversation.id);
       setMessages([]);
+      lastConfirmedMessagesRef.current = []; // Reset baseline for new conversation
       setShowSidebar(false);
       setSafetyModeActive(false); // Phase 8: reset safety mode state on new session
       refetchConversations();
@@ -861,12 +862,19 @@ export default function Chat() {
       const conversation = await base44.agents.getConversation(conversationId);
       setCurrentConversationId(conversationId);
 
+      // CRITICAL: Reset confirmed-messages baseline when switching conversations.
+      // Without this reset, safeUpdateMessages rejects the new conversation's messages
+      // if it has fewer messages than the previous conversation, causing replies to
+      // appear invisible (never rendered) on the newly loaded conversation.
+      lastConfirmedMessagesRef.current = [];
+
       // Process and sanitize messages before setting
       const sanitized = sanitizeConversationMessages(conversation.messages || []);
       safeUpdateMessages(sanitized, 'LoadConversation');
       setShowSidebar(false);
     } catch (error) {
       console.error('[Load Conversation Error]', error);
+      lastConfirmedMessagesRef.current = [];
       setMessages([]);
     }
   };
@@ -1175,6 +1183,7 @@ export default function Chat() {
       if (currentConversationId === conversationId) {
         setCurrentConversationId(null);
         setMessages([]);
+        lastConfirmedMessagesRef.current = []; // Reset baseline when deleting active conversation
       }
       return { previousConversations, previousConversationId, previousMessages };
     },
