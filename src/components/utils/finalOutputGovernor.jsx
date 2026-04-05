@@ -7,10 +7,12 @@
  * Rules enforced:
  *   A. Internal leakage hard block (tool names, schema labels, reasoning, mixed-language internal text)
  *   B. Directive-first enforcement (strip ask-back, worksheet drift, belief-rating requests)
- *   C. One bounded next step (trim runaway multi-menu responses)
- *   D. Session-type routing compression (panic->grounding, worry->action, social->micro-step, sleep->stop-trying)
- *   E. Fail-closed (strip violating content; if nothing remains, return language-appropriate failsafe)
- *   HE. Hebrew anti-worksheet compression (Hebrew sessions only)
+ *   C. One bounded next step
+ *   D. Session-type routing compression
+ *   E. Fail-closed
+ *   HE. Hebrew semantic anti-worksheet REWRITE (Hebrew sessions only)
+ *       — phrase stripping was insufficient; if worksheet drift is detected semantically,
+ *         the entire draft is DISCARDED and replaced with a clean directive-first Hebrew response.
  */
 
 import { sanitizeMessageContent } from './messageContentSanitizer';
@@ -117,49 +119,136 @@ const ROUTING_COMPRESSION_PATTERNS = [
   /\bDomain\s*[:=]\s*\[?\w+\]?/i,
 ];
 
-// --- Hebrew anti-worksheet patterns (Hebrew sessions only) ---
+// ============================================================
+// HEBREW SEMANTIC ANTI-WORKSHEET REWRITE SYSTEM
+// ============================================================
+//
+// Phrase-level stripping was insufficient because the model
+// produces worksheet behavior in new wording each time.
+// Solution: semantic drift detection + full draft replacement.
+//
+// Detection: any ONE of these signals triggers full rewrite.
+// Replacement: context-typed directive-first Hebrew output.
+// ============================================================
 
-const HEBREW_WORKSHEET_BANNED_LINE_PATTERNS = [
-  /בוא נבין מתי זה מופיע/,
-  /איזו תגובה התנהגותית/,
-  /מה הייתה התגובה ההתנהגותית/,
-  /אילו רגשות נוספים עלו/,
-  /מה הראיות(?! ההוו)/,
-  /ראיות נגד/,
-  /ראיות בעד/,
-  /מה התחשבויות שתומכות/,
-  /מה התחשבויות שסותרות/,
-  /בוא נמפה את המחשבה/,
-  /בוא נמפה את הדפוס/,
-  /בוא נזהה את הדפוס/,
-  /בוא נבדוק את הראיות/,
-  /נבדוק יחד את הראיות/,
-  /מה עוד עולה/,
-  /איזה עוד רגשות/,
-  /מעקב עצמי/,
-  /יומן מעקב/,
-  /לתעד כל פעם/,
-  /לרשום בכל פעם ש/,
-  /ניטור עצמי/,
+// Semantic worksheet drift signals (Hebrew)
+const HE_WORKSHEET_SEMANTIC_SIGNALS = [
+  // Belief / confidence rating tasks
+  /\d{1,3}\s*[-–]\s*\d{1,3}/,               // numeric range like 1-100 or 0–10
+  /(?:דרג|דרגי|ציון|אחוז|מ-?\d+\s+עד\s+\d+)/,
+  /(?:כמה\s+(?:אתה|את)\s+(?:מאמינ|מרגיש))/,
+  /(?:רמת\s+(?:האמונה|הביטחון|החרדה|הלחץ))/,
+  /(?:על\s+סקלה\s+של)/,
+
+  // Evidence-for / evidence-against loops
+  /(?:ראיות\s+(?:בעד|נגד|לכך|לטובת))/,
+  /(?:מה\s+(?:הראיות|העדויות|הסיבות|הסיבה))/,
+  /(?:מה\s+(?:מצביע|מלמד|מוכיח))/,
+  /(?:ראיות\s+ש)/,
+  /(?:ראיה\s+(?:ל|נגד|בעד))/,
+
+  // Self-monitoring / tracking homework as first step
+  /(?:(?:רשום|כתוב|תעד)\s+(?:בכל\s+פעם|כל\s+פעם\s+ש|מתי\s+ש))/,
+  /(?:(?:שעה|מתי|מה\s+קרה\s+לפני)\s*[\/,]\s*(?:שעה|מה\s+קרה|איפה\s+בגוף))/,
+  /(?:יומן\s+(?:מעקב|רגשות|מחשבות|לחץ))/,
+  /(?:מעקב\s+(?:עצמי|יומי|שבועי))/,
+  /(?:ניטור\s+(?:עצמי|מחשבות))/,
+  /(?:לאורך\s+(?:שבוע|שבועיים|חודש)\s+(?:הבא|הקרוב))/,
+
+  // Multi-option menus in Hebrew
+  /(?:אפשרות\s+(?:א|ב|ג|1|2|3))/,
+  /(?:^[1-3]\.\s+(?:לנשום|לרשום|לעשות|לנסות|לבחון))/m,
+
+  // Pattern-mapping / formulation chains
+  /(?:בוא\s+(?:נבין|נמפה|נזהה|נבדוק|נחקור)\s+(?:את\s+)?(?:הדפוס|המחשבה|הרגשות|הקשר|מתי))/,
+  /(?:מה\s+(?:הטריגר|הגורם|קרה\s+לפני|קדם\s+ל))/,
+  /(?:איזה\s+(?:מחשבה\s+אוטומטית|דפוס\s+חשיבה))/,
+
+  // Ask-back question at the end
+  /\?[\s\u200f]*$/,
 ];
 
+// Context classifier signals
+const HE_EMAIL_SIGNALS = /(?:מייל|אימייל|תיבת\s+(?:הדואר|דואר)|הודעה\s+(?:שלא\s+)?(?:ענית|השבת|טיפלת)|לא\s+(?:הגבת|ענית|השבת))/;
+const HE_DISAPPROVAL_SIGNALS = /(?:למה\s+לא\s+(?:ענית|חזרת|הגבת)|מה\s+יגידו|מה\s+(?:יחשבו|יאמרו|ידעו)|אכזב|אכזבתי|כישלת|כישלון|לא\s+מספיק|(?:לא\s+)?עמדתי\s+בציפיות)/;
+const HE_DISTRESS_SIGNALS = /(?:כובד|כבדות|לחץ|חרדה|מחנק|חזה|גוף|נשימה|עייפות|ריקנות|כאב|פחד)/;
+
+// Directive replacements by context type
+const HE_EMAIL_REWRITES = [
+  'בפעם הבאה שהלחץ סביב המיילים עולה, פתח מייל אחד בלבד ובדוק אם הוא באמת דורש מענה מיידי. עצור אחרי מייל אחד.',
+  'בחר עכשיו מייל אחד שממתין. קרא אותו בלבד ובדוק: האם הוא דחוף כרגע? סיים בתשובה של משפט אחד או בדחייה מודעת ל-30 דקות.',
+  'פתח את תיבת הדואר ובחר מייל אחד בלבד לטפל בו עכשיו. אחד, לא יותר. שאר המיילים יחכו.',
+];
+
+const HE_DISAPPROVAL_REWRITES = [
+  'רשום עכשיו משפט אחד בלבד: "יש מיילים שמחכים, וזה לא אומר שאני נכשל." ואז פתח מייל אחד בלבד וענה עליו.',
+  'קח 60 שניות ועשה בדיקת מציאות אחת: אנשים שלא מגיבים מיד לעיתים קרובות מגיבים מאוחר יותר בלי שאף אחד שם לב. שלח מייל אחד עכשיו בלי להתנצל.',
+  'בפעם הבאה שהמחשבה "למה לא חזרתי" עולה, עשה פעולה אחת בלבד: שלח מייל קצר עם "אחזור אליך בקרוב." זה מספיק.',
+];
+
+const HE_DISTRESS_REWRITES = [
+  'שים יד על החזה, קח שלוש נשימות איטיות לבטן. אחרי הנשימה השלישית, בחר פעולה אחת קטנה לעשות עכשיו.',
+  'עצור לרגע, הנח את הידיים, וקח נשימה אחת ארוכה. אחר כך, כתוב דבר אחד בלבד שאתה יכול לעשות בעשר הדקות הקרובות.',
+  'שים לב לאיפה הכובד יושב בגוף. נשום לתוכו פעמיים. ואז בחר פעולה אחת קטנה שאפשר לסיים בפחות מחמש דקות.',
+];
+
+let _heRewriteIndex = 0;
+function pickHeRewrite(arr) {
+  const pick = arr[_heRewriteIndex % arr.length];
+  _heRewriteIndex++;
+  return pick;
+}
+
 /**
- * Hebrew-specific anti-worksheet compression.
- * Runs only when Hebrew is detected.
- * Strips banned worksheet/pattern-mapping lines.
+ * Semantic Hebrew worksheet drift detector.
+ * Returns true if the draft exhibits worksheet-mode behavior semantically,
+ * regardless of exact phrasing used.
  */
-function applyHebrewAntiWorksheet(text) {
-  const lines = text.split('\n');
-  const cleaned = lines.filter(line => {
-    const trimmed = line.trim();
-    if (!trimmed) return true;
-    if (HEBREW_WORKSHEET_BANNED_LINE_PATTERNS.some(p => p.test(trimmed))) {
-      console.warn('[CP12-HE] Stripped Hebrew worksheet line:', trimmed.substring(0, 80));
-      return false;
+function detectHebrewWorksheetDriftSemantic(text) {
+  let signalCount = 0;
+  for (const pattern of HE_WORKSHEET_SEMANTIC_SIGNALS) {
+    if (pattern.test(text)) {
+      signalCount++;
+      if (signalCount >= 2) return true; // 2+ signals = worksheet drift confirmed
     }
-    return true;
-  });
-  return cleaned.join('\n').trim();
+  }
+  // Single strong signal: ends with a question (ask-back finale)
+  if (/\?[\s\u200f]*$/.test(text.trim())) return true;
+  return false;
+}
+
+/**
+ * Classify the Hebrew context type for targeted rewrite.
+ */
+function classifyHebrewContext(text) {
+  if (HE_EMAIL_SIGNALS.test(text)) return 'email';
+  if (HE_DISAPPROVAL_SIGNALS.test(text)) return 'disapproval';
+  if (HE_DISTRESS_SIGNALS.test(text)) return 'distress';
+  return 'distress'; // default to grounding
+}
+
+/**
+ * Hebrew semantic anti-worksheet pass.
+ * If worksheet drift is detected semantically, DISCARDS the draft entirely
+ * and returns a clean directive-first Hebrew replacement.
+ * If no drift, returns the original text unchanged.
+ */
+function applyHebrewSemanticAntiWorksheet(text) {
+  if (!detectHebrewWorksheetDriftSemantic(text)) return text;
+
+  console.warn('[CP12-HE] Semantic worksheet drift detected — replacing draft with directive rewrite');
+
+  const context = classifyHebrewContext(text);
+  let rewrite;
+  if (context === 'email') {
+    rewrite = pickHeRewrite(HE_EMAIL_REWRITES);
+  } else if (context === 'disapproval') {
+    rewrite = pickHeRewrite(HE_DISAPPROVAL_REWRITES);
+  } else {
+    rewrite = pickHeRewrite(HE_DISTRESS_REWRITES);
+  }
+
+  return rewrite;
 }
 
 // --- Helpers ---
@@ -246,11 +335,10 @@ export function applyFinalOutputGovernor(text, opts = {}) {
   if (!text || typeof text !== 'string') return getFailsafe(opts.lang || 'en');
 
   let result = text;
+  const lang = opts.lang || detectLanguage(result);
 
   // Pass 1: Leakage sanitization (existing layer, reused)
-  const lang = opts.lang || detectLanguage(result);
   result = sanitizeMessageContent(result, lang);
-
   if (!result || result.length < 3) {
     console.error('[CP12-A] Content empty after leakage sanitization — using failsafe');
     return getFailsafe(lang);
@@ -258,35 +346,34 @@ export function applyFinalOutputGovernor(text, opts = {}) {
 
   // Pass 2: Routing leakage phrases
   result = stripRoutingLeakage(result);
-
   if (!result || result.length < 3) {
     console.error('[CP12-D] Content empty after routing strip — using failsafe');
     return getFailsafe(lang);
   }
 
-  // Pass 3: Worksheet drift block (generic)
+  // Pass 3: Generic worksheet drift block
   if (hasWorksheetDrift(result)) {
     console.warn('[CP12-D] Worksheet drift detected — stripping worksheet blocks');
     result = stripWorksheetBlocks(result);
   }
-
   if (!result || result.length < 3) {
     console.error('[CP12-D] Content empty after worksheet strip — using failsafe');
     return getFailsafe(lang);
   }
 
-  // Pass 3b: Hebrew anti-worksheet compression (Hebrew only)
+  // Pass 3b: Hebrew semantic anti-worksheet REWRITE (Hebrew only)
+  // Phrase stripping was insufficient — if drift is detected semantically,
+  // the draft is discarded and replaced with a context-typed directive response.
   if (lang === 'he') {
-    result = applyHebrewAntiWorksheet(result);
+    result = applyHebrewSemanticAntiWorksheet(result);
     if (!result || result.length < 3) {
-      console.error('[CP12-HE] Content empty after Hebrew anti-worksheet pass — using failsafe');
+      console.error('[CP12-HE] Content empty after Hebrew semantic pass — using failsafe');
       return getFailsafe('he');
     }
   }
 
   // Pass 4: Trailing ask-back strip
   result = stripTrailingAskBack(result);
-
   if (!result || result.length < 3) {
     console.error('[CP12-B] Content empty after ask-back strip — using failsafe');
     return getFailsafe(lang);
@@ -311,6 +398,7 @@ export function auditCP12(text) {
   if (!text || typeof text !== 'string') return { passes: false, violations: ['empty'] };
 
   const violations = [];
+  const lang = detectLanguage(text);
 
   if (ROUTING_COMPRESSION_PATTERNS.some(p => p.test(text))) {
     violations.push('routing-leakage');
@@ -318,9 +406,8 @@ export function auditCP12(text) {
   if (hasWorksheetDrift(text)) {
     violations.push('worksheet-drift');
   }
-  const lang = detectLanguage(text);
-  if (lang === 'he' && HEBREW_WORKSHEET_BANNED_LINE_PATTERNS.some(p => p.test(text))) {
-    violations.push('hebrew-worksheet-drift');
+  if (lang === 'he' && detectHebrewWorksheetDriftSemantic(text)) {
+    violations.push('hebrew-semantic-worksheet-drift');
   }
   const lines = text.split('\n');
   const lastLine = [...lines].reverse().find(l => l.trim());
