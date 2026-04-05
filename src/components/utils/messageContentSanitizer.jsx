@@ -26,7 +26,9 @@ export function extractThinkingContent(text) {
 
 const FORBIDDEN_PATTERNS = [
   // Explicit reasoning markers (at start of line, case-insensitive)
+  /^\s*THOUGHT\b/mi,
   /^\s*THOUGHT\s*:/mi,
+  /^\s*THINKING\b/mi,
   /^\s*THINKING\s*:/mi,
   /^\s*ANALYSIS\s*:/mi,
   /^\s*REASONING\s*:/mi,
@@ -39,17 +41,20 @@ const FORBIDDEN_PATTERNS = [
   /^\s*NOTE\s*:/mi,
   /^\s*CONTEXT\s*:/mi,
   /^\s*OBSERVATION\s*:/mi,
-  
+  /^\s*LOCKED_DOMAIN/mi,
+  /^\s*RULE ZERO/mi,
+  /^\s*CP\d+\b/mi,
+
   // Planning/meta lines
   /^\s*Step\s+\d+\s*:/mi,
   /^\s*Phase\s+\d+/mi,
   /^Constraint\s+checklist/mi,
   /^Mental\s+sandbox/mi,
   /^Confidence\s+score/mi,
-  
+
   // Code blocks with reasoning
   /^```(thought|reasoning|analysis|debug)/mi,
-  
+
   // Meta planning phrases (start of line)
   /^(First\s+I'll|Then\s+I'll|I\s+should\b|I\s+need\s+to\b|My\s+goal\s+is\b)/mi,
   /^\[checking/mi,
@@ -59,7 +64,80 @@ const FORBIDDEN_PATTERNS = [
   /^\[protocol/mi,
   /^\[thinking/mi,
   /^\[reasoning/mi,
-  /^\[thought/mi
+  /^\[thought/mi,
+  /^\[THOUGHT/mi
+];
+
+// Patterns that must not appear ANYWHERE on a line (tool names, param labels, schema)
+const FORBIDDEN_INLINE_PATTERNS = [
+  // Tool names
+  /retrieveCurriculumUnit/i,
+  /retrieveTherapistMemory/i,
+  /writeTherapistMemory/i,
+  /retrieveTrustedCBTContent/i,
+  /retrieveRelevantContent/i,
+
+  // Curriculum / routing field names
+  /\bclinical_topic\b/i,
+  /\bunit_type\b/i,
+  /\blinked_hierarchy_level\b/i,
+  /\blinked_outcome_patterns\b/i,
+  /\bpriority_score\b/i,
+  /\bwhen_to_use\b/i,
+  /\bagent_usage_rules\b/i,
+  /\bdirective_rewrite_pattern\b/i,
+  /\bsource_chunk_ids\b/i,
+
+  // Internal label tokens
+  /\bblocker_resolution\b/i,
+  /\bmicro_step_ladder\b/i,
+  /\boutcome_interpretation\b/i,
+  /\bphrasing_pattern\b/i,
+  /\bmultilingual_response_pattern\b/i,
+  /\bformulation_to_action\b/i,
+  /\bgraded_exposure\b(?!\s+(exercise|technique|approach|practice|step|work))/i,
+  /\banxiety_cycle_mapping\b/i,
+  /\bgrounding_calming\b/i,
+  /\bbalanced_thought_work\b/i,
+  /\bbehavioral_activation\b/i,
+  /\bcoping_plan\b/i,
+  /\bproblem_solving\b/i,
+  /\bself_observation\b/i,
+  /\bsleep_intervention\b/i,
+
+  // Outcome pattern labels
+  /\bcompleted_step_with_distress\b/i,
+  /\bcompleted_step_with_learning\b/i,
+  /\bpartial_completion\b/i,
+  /\bavoidance_or_noncompletion\b/i,
+  /\bstep_too_hard\b/i,
+  /\bstep_too_easy\b/i,
+  /\bemotional_flooding\b/i,
+  /\bno_clear_change\b/i,
+  /\bincreased_confidence\b/i,
+  /\bnew_specific_fear_discovered\b/i,
+  /\breturn_after_two_steps\b/i,
+
+  // Hierarchy labels (standalone routing context)
+  /\bLOCKED_DOMAIN\b/i,
+  /\bINTERVENTION_MODE\b/i,
+
+  // Response schema structures
+  /A(?:→|->)B(?:→|->)C(?:→|->)D(?:→|->)E/,
+  /A\s*→\s*B\s*→\s*C/,
+  /A\s*->\s*B\s*->\s*C/,
+
+  // Memory field names
+  /\bcurrent_issue\b/i,
+  /\bnext_recommended_step\b/i,
+  /\bintervention_mode\b/i,
+  /\blatest_completed_step\b/i,
+  /\blatest_outcome_pattern\b/i,
+  /\bdifficulty_level\b/i,
+  /\bspecific_fear_discovered\b/i,
+  /\bunresolved_blocker\b/i,
+  /\bfollow_up_tasks\b/i,
+  /\btherapist_memory_version\b/i
 ];
 
 const HEBREW_FAILSAFE = "אני כאן איתך. מה הכי מטריד אותך כרגע?";
@@ -94,20 +172,25 @@ export function sanitizeMessageContent(text, language = 'en') {
 
   // Split into lines for precise filtering
   const lines = text.split('\n');
-  
-  // Filter out lines containing forbidden patterns
+
+  // Filter out lines containing forbidden patterns (line-start OR inline)
   const cleanedLines = lines.filter(line => {
     // Skip empty lines
     if (!line.trim()) return true;
-    
-    // Check if line matches any forbidden pattern
-    const isForbidden = FORBIDDEN_PATTERNS.some(pattern => pattern.test(line));
-    
-    if (isForbidden) {
-      console.warn('[Sanitizer] ⚠️ REMOVED reasoning line:', line.substring(0, 50));
+
+    // Check line-start forbidden patterns
+    if (FORBIDDEN_PATTERNS.some(pattern => pattern.test(line))) {
+      console.warn('[Sanitizer] ⚠️ REMOVED reasoning line (start-pattern):', line.substring(0, 60));
+      return false;
     }
-    
-    return !isForbidden;
+
+    // Check inline forbidden patterns (tool names, field names, schema labels)
+    if (FORBIDDEN_INLINE_PATTERNS.some(pattern => pattern.test(line))) {
+      console.warn('[Sanitizer] ⚠️ REMOVED leakage line (inline-pattern):', line.substring(0, 60));
+      return false;
+    }
+
+    return true;
   });
 
   // Join back and trim
