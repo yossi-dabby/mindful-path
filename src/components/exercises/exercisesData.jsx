@@ -949,6 +949,7 @@ export const REQUIRED_COGNITIVE_EXERCISE_IDS = [
  * @param {Array} allExercises - the merged array of exercises to validate
  */
 export function validateExercisesTaxonomy(allExercises) {
+  // eslint-disable-next-line no-undef
   if (import.meta.env.PROD) return;
 
   const errors = [];

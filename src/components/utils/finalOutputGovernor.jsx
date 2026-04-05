@@ -214,6 +214,15 @@ const HE_LONGTERM_DISTRESS_REWRITES = [
   'בחר היום רגע אחד שבו אתה בודק את הגוף שלך לדקה בלי לשנות כלום — רק לשים לב לנשימה ולמתח בכתפיים. עצור אחרי דקה.',
 ];
 
+const HE_POST_LEARNING_REWRITES = [
+  'טוב — עשה עוד חזרה אחת על אותו צעד היום, באותו מצב. חיזוק, לא ניתוח.',
+  'ההתקדמות אמיתית. הצעד הבא הוא חזרה אחת קטנה על מה שעבד — לא תוכנית גדולה יותר.',
+  'בנה על זה ידי לעשות את אותה פעולה עוד פעם אחת השבוע. חזרה אחת. עצור שם.',
+];
+
+// Hebrew post-learning turn signals
+const HE_POST_LEARNING_SIGNALS = /(?:האמונה\s+(?:עלתה|ירדה|השתנתה)|עזר\s+(?:קצת|מעט|לי)|הרגשתי\s+(?:טוב\s+יותר|פחות|שיפור)|זה\s+(?:עבד|עזר|הצליח)|ניסיתי\s+(?:את\s+ז|ו|ה)|עשיתי\s+(?:את\s+ז|ו|ה)|השלמתי\s+|פחות\s+(?:חרדה|לחץ|דאגה)\s+מ)/;
+
 let _heRewriteIndex = 0;
 function pickHeRewrite(arr) {
   const pick = arr[_heRewriteIndex % arr.length];
@@ -276,6 +285,9 @@ const EN_REFLECTION_TRAP_SIGNALS = [
   // Multi-question chains (3+ question marks in response body)
 ];
 
+// Post-learning turn signals (user reports partial success / belief shift)
+const EN_POST_LEARNING_SIGNALS = /(belief.{0,10}(rose|went up|increased|went from|changed)|helped a bit|felt better|worked a little|it worked|that helped|more confident|less anxious than|less worried than|did (the|it|that)|completed (it|the)|followed (through|up)|tried (it|that|the))/i;
+
 // Context signals for targeted English rewrites
 const EN_EMAIL_SIGNALS = /(email|inbox|reply|message|boss|professor|manager|colleague|unread|unanswered)/i;
 const EN_DISAPPROVAL_SIGNALS = /(disappoint|let.{0,5}(them|him|her|people|everyone) down|what (will|would|do) (they|people|everyone) think|judg(e|ing|ment)|fail(ed|ing|ure)|not good enough|expectations|letting people)/i;
@@ -304,6 +316,12 @@ const EN_LONGTERM_REWRITES = [
   'The next step is to use the same grounding move the next time this feeling starts — before trying to understand it. One repetition, not a new plan.',
   'Next time this comes up, use what already worked today. One repeat of the same step. That\'s the assignment.',
   'Do the same thing you just did, one more time this week, in the same situation. Repetition before expansion.',
+];
+
+const EN_POST_LEARNING_REWRITES = [
+  'Good — now do one more repetition of that same step today, in the same situation. Reinforcement, not analysis.',
+  'That progress is real. The next move is one small repeat of what just worked — not a bigger plan.',
+  'Build on that by doing the same action one more time this week. One repeat. Stop there.',
 ];
 
 const EN_GENERIC_REWRITES = [
@@ -336,13 +354,16 @@ function countEnReflectionTrapSignals(text) {
 
 /**
  * Classify English context for targeted rewrite.
+ * Priority order: longterm > post_learning > email > disapproval > heaviness > generic
  */
 function classifyEnglishContext(text) {
+  // Longterm / next-step queries take top priority — user has moved past immediate distress
+  if (/(next step|long.term|over time|going forward|from here|what now|what next|where do (we|I) go|what should (I|we) do now)/i.test(text)) return 'longterm';
+  // Post-learning turn — user reports partial success
+  if (EN_POST_LEARNING_SIGNALS.test(text)) return 'post_learning';
   if (EN_EMAIL_SIGNALS.test(text)) return 'email';
   if (EN_DISAPPROVAL_SIGNALS.test(text)) return 'disapproval';
   if (EN_HEAVINESS_SIGNALS.test(text)) return 'heaviness';
-  // Long-term / next-step query
-  if (/(next step|long.term|over time|going forward|from here|what now|what next)/i.test(text)) return 'longterm';
   return 'generic';
 }
 
@@ -360,14 +381,16 @@ function applyEnglishReflectionTrapPass(text) {
 
   const context = classifyEnglishContext(text);
   let rewrite;
-  if (context === 'email') {
+  if (context === 'longterm') {
+    rewrite = pickEnRewrite(EN_LONGTERM_REWRITES);
+  } else if (context === 'post_learning') {
+    rewrite = pickEnRewrite(EN_POST_LEARNING_REWRITES);
+  } else if (context === 'email') {
     rewrite = pickEnRewrite(EN_EMAIL_REWRITES);
   } else if (context === 'disapproval') {
     rewrite = pickEnRewrite(EN_DISAPPROVAL_REWRITES);
   } else if (context === 'heaviness') {
     rewrite = pickEnRewrite(EN_HEAVINESS_REWRITES);
-  } else if (context === 'longterm') {
-    rewrite = pickEnRewrite(EN_LONGTERM_REWRITES);
   } else {
     rewrite = pickEnRewrite(EN_GENERIC_REWRITES);
   }
@@ -404,9 +427,13 @@ function detectHebrewWorksheetDriftSemantic(text) {
 
 /**
  * Classify the Hebrew context type for targeted rewrite.
+ * Priority: longterm_distress > post_learning > email > disapproval > distress
  */
 function classifyHebrewContext(text) {
   if (detectHebrewLongtermHomeworkDrift(text)) return 'longterm_distress';
+  // Check for explicit next-step queries (longterm even without homework ban)
+  if (HE_LONGTERM_NEXT_STEP_SIGNALS.some(p => p.test(text))) return 'longterm_distress';
+  if (HE_POST_LEARNING_SIGNALS.test(text)) return 'post_learning';
   if (HE_EMAIL_SIGNALS.test(text)) return 'email';
   if (HE_DISAPPROVAL_SIGNALS.test(text)) return 'disapproval';
   if (HE_DISTRESS_SIGNALS.test(text)) return 'distress';
@@ -428,6 +455,8 @@ function applyHebrewSemanticAntiWorksheet(text) {
   let rewrite;
   if (context === 'longterm_distress') {
     rewrite = pickHeRewrite(HE_LONGTERM_DISTRESS_REWRITES);
+  } else if (context === 'post_learning') {
+    rewrite = pickHeRewrite(HE_POST_LEARNING_REWRITES);
   } else if (context === 'email') {
     rewrite = pickHeRewrite(HE_EMAIL_REWRITES);
   } else if (context === 'disapproval') {
