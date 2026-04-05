@@ -3,10 +3,13 @@
 ## Status
 **ACTIVE — Limited Release Phase**
 
-Baseline: CP11 + CP12 patch (social anxiety / sleep anxiety ask-back suppression) + CP12-HE Hebrew semantic anti-worksheet rewrite (email-pressure, fear-of-disapproval, long-term distress compression).
+Baseline: CP11 + CP12 patch (social anxiety / sleep anxiety ask-back suppression) + CP12-HE Hebrew semantic anti-worksheet rewrite (email-pressure, fear-of-disapproval, long-term distress compression) + CP13-EN English long-form reflection trap pass (worksheet drift / gather-info-first / over-explaining after initial calming).
 All therapist logic is frozen at this baseline.
 
-**Hold lifted: 2026-04-05.** CP12 Hebrew verification passed. Resuming live monitoring under standard Limited Release rules.
+**Hold lifted: 2026-04-05.** CP12 Hebrew verification passed.
+**CP13-EN status: Implemented 2026-04-05. Verification deferred — no QA round opened. Awaiting real-session evidence before further adjustment.**
+
+Resuming live monitoring under standard Limited Release rules. No new fixes unless a qualifying live regression appears.
 
 ---
 
@@ -57,6 +60,13 @@ All therapist logic is frozen at this baseline.
 - **Expected behavior:** One same-day bounded directive step, no worksheet, no rating, no question ending.
 - **Note:** CP12-HE semantic rewrite is now live. Remaining instances are monitoring data only.
 - **Threshold:** 2 independent confirmed instances of the same sub-pattern → micro-fix eligible.
+
+### 5. EN/HE long-form reflection trap (watchpoint only)
+- **Pattern:** After initial calming or partial progress, agent shifts into worksheet mode, multi-paragraph formulation, gather-info-first, or over-explanation instead of a single bounded action step.
+- **Expected behavior:** 1–3 sentences max. One concrete same-day action. No evidence loops, no distortion labeling, no multi-day tracking.
+- **Fix status:** CP13-EN implemented 2026-04-05. Verification deferred. Do NOT reopen from hypothetical concern.
+- **Reopen rule:** Only if repeated in real live sessions with 2+ independent confirmed instances (same regression_category + scenario_type).
+- **Threshold:** 2 independent confirmed real-session instances → micro-fix eligible.
 
 ---
 
