@@ -123,8 +123,8 @@ const FORBIDDEN_INLINE_PATTERNS = [
   /\bINTERVENTION_MODE\b/i,
 
   // Response schema structures
-  /A(?:→|->)B(?:→|->)C(?:→|->)D(?:→|->)E/,
-  /A\s*→\s*B\s*→\s*C/,
+  /A(?:\u2192|->)B(?:\u2192|->)C(?:\u2192|->)D(?:\u2192|->)E/,
+  /A\s*\u2192\s*B\s*\u2192\s*C/,
   /A\s*->\s*B\s*->\s*C/,
 
   // Memory field names
