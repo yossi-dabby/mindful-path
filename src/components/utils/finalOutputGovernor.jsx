@@ -173,6 +173,10 @@ const HE_WORKSHEET_SEMANTIC_SIGNALS = [
   /(?:מעקב\s+(?:עצמי|יומי|שבועי))/,
   /(?:ניטור\s+(?:עצמי|מחשבות))/,
   /(?:לאורך\s+(?:שבוע|שבועיים|חודש)\s+(?:הבא|הקרוב))/,
+  // Future-period observation homework ("in the coming days/weeks")
+  /(?:בימים|בשבועות|בחודשים)\s+(?:הבאים|הקרובים)/,
+  /(?:להמשיך\s+(?:לשים\s+לב|להתבונן|לעקוב|לפתח))/,
+  /(?:לשים\s+לב\s+(?:מתי|לאיך|לכך\s+ש|כש))/,
   // Multi-option menus
   /(?:אפשרות\s+(?:א|ב|ג|1|2|3))/,
   /(?:^[1-3]\.\s+(?:לנשום|לרשום|לעשות|לנסות|לבחן))/m,
@@ -220,8 +224,15 @@ const HE_POST_LEARNING_REWRITES = [
   'בנה על זה ידי לעשות את אותה פעולה עוד פעם אחת השבוע. חזרה אחת. עצור שם.',
 ];
 
-// Hebrew post-learning turn signals
-const HE_POST_LEARNING_SIGNALS = /(?:האמונה\s+(?:עלתה|ירדה|השתנתה)|עזר\s+(?:קצת|מעט|לי)|הרגשתי\s+(?:טוב\s+יותר|פחות|שיפור)|זה\s+(?:עבד|עזר|הצליח)|ניסיתי\s+(?:את\s+ז|ו|ה)|עשיתי\s+(?:את\s+ז|ו|ה)|השלמתי\s+|פחות\s+(?:חרדה|לחץ|דאגה)\s+מ)/;
+// Hebrew post-learning turn signals — match patterns in DRAFT text (model response echoes user's progress)
+const HE_POST_LEARNING_SIGNALS = /(?:האמונה.{0,15}(?:עלתה|ירדה|השתנתה|עלה)|עזר\s+(?:קצת|מעט|לי)|הרגשת(?:י|\s+)(?:טוב\s+יותר|פחות|שיפור|הקלה)|זה\s+(?:עבד|עזר|הצליח)|ניסיתי\s+(?:את\s+ז|ו|ה)|עשיתי\s+(?:את\s+ז|ו|ה)|השלמתי\s+|פחות\s+(?:חרדה|לחץ|דאגה)\s+מ|\d+%|(?:עלייה|ירידה)\s*(?:ל|ב)\s*\d|הקלה\s+(?:שה|ש|כ|לאחר)|קפיצה\s+בדופק|עדכון\s+שגרתי)/;
+
+// Hebrew post-learning rewrites when email context is present
+const HE_POST_LEARNING_EMAIL_REWRITES = [
+  'יפה. פתח עכשיו עוד מייל אחד בלבד ובדוק אם גם שם המציאות פחות מאיימת מהתחזית. עצור אחרי מייל אחד.',
+  'הצעד הבא הוא לחזור על אותו מהלך עם מייל אחד נוסף בלבד. סיים אחרי שבדקת מייל אחד.',
+  'פתח מייל אחד נוסף ובדוק: האם גם שם הפחד לפני ואחרי שונה? עצור אחרי מייל אחד.',
+];
 
 let _heRewriteIndex = 0;
 function pickHeRewrite(arr) {
@@ -251,6 +262,11 @@ const EN_REFLECTION_TRAP_SIGNALS = [
   /keep a (log|journal|record|diary|note)/i,
   /track (this|that|it|your|the) (over|for|across)/i,
   /daily (log|record|tracking|check.in)/i,
+  // Observation / mood-entry homework (catches "notice when / observe the pattern")
+  /notice (when|how|what|if) (it|this|the feeling|anxiety|that feeling).{0,40}(comes? up|happen|occur|trigger|arise)/i,
+  /(observe|monitor|watch for) (the )?(pattern|trigger|sensation|feeling|moment when)/i,
+  /mood (entry|log|tracking|journal|record)/i,
+  /how (often|frequently) (this|it|that|the feeling|these) (happens?|occurs?|comes? up|hits?)/i,
   // Evidence loops
   /evidence (for|against|that supports|that contradicts)/i,
   /what (is the )?evidence (for|against|that)/i,
@@ -277,20 +293,25 @@ const EN_REFLECTION_TRAP_SIGNALS = [
   /(the word |using )("should"|'should'|should)/i,
   /replace.{0,20}"should"/i,
   /challenge.{0,30}should/i,
-  // Pattern mapping homework
+  // Pattern mapping / reflection asks (catches disapproval-path drift)
   /map (out|the) (pattern|cycle|triggers)/i,
   /identify (the )?triggers? (for|of|behind)/i,
   /automatic thought (record|worksheet|log)/i,
   /thought (record|diary|log|worksheet)/i,
+  /name (the |your )?(exact |specific |automatic )?thought/i,
+  /what (is|was) (the |your )?automatic thought/i,
+  /can you (name|identify|describe|tell me) (the |your |what|which)/i,
+  /let.s (explore|understand|unpack|look at) (that|this|why|what)/i,
+  /tell me more about (that|this|what|how|why)/i,
   // Multi-question chains (3+ question marks in response body)
 ];
 
 // Post-learning turn signals (user reports partial success / belief shift)
-const EN_POST_LEARNING_SIGNALS = /(belief.{0,10}(rose|went up|increased|went from|changed)|helped a bit|felt better|worked a little|it worked|that helped|more confident|less anxious than|less worried than|did (the|it|that)|completed (it|the)|followed (through|up)|tried (it|that|the))/i;
+const EN_POST_LEARNING_SIGNALS = /(belief.{0,10}(rose|went up|increased|went from|changed)|helped a bit|felt better|worked a little|it worked|that helped|more confident|less anxious than|less worried than|did (the|it|that)|completed (it|the)|followed (through|up)|tried (it|that|the)|\d+%|relief (after|when|once)|belief (rose|climbed|increased|jumped))/i;
 
 // Context signals for targeted English rewrites
 const EN_EMAIL_SIGNALS = /(email|inbox|reply|message|boss|professor|manager|colleague|unread|unanswered)/i;
-const EN_DISAPPROVAL_SIGNALS = /(disappoint|let.{0,5}(them|him|her|people|everyone) down|what (will|would|do) (they|people|everyone) think|judg(e|ing|ment)|fail(ed|ing|ure)|not good enough|expectations|letting people)/i;
+const EN_DISAPPROVAL_SIGNALS = /(disappoint|let.{0,5}(them|him|her|people|everyone) down|what (will|would|do) (they|people|everyone) think|judg(e|ing|ment)|fail(ed|ing|ure)|not good enough|expectations|letting people|gotten back (to me|to you|to them)|why haven.t (you|I) (replied|gotten|responded)|why didn.t (you|I)|haven.t replied|late (reply|response|getting back)|behind on (emails?|messages?|replies?)|fear of (disappointing|letting|what))/i;
 const EN_HEAVINESS_SIGNALS = /(heaviness|heavy|weight (in|on|around)|tightness|chest|body|breathing|numb|hollow|empty|exhausted|drained|overwhelm)/i;
 
 // English directive rewrites by context
@@ -301,9 +322,9 @@ const EN_EMAIL_REWRITES = [
 ];
 
 const EN_DISAPPROVAL_REWRITES = [
-  'The next step is a small behavioral test: do one thing you\'ve been avoiding because of what others might think. Notice what actually happens — not what you predicted.',
-  'Do one small thing today that you\'d normally delay because of others\' judgment. Notice the actual reaction, not the imagined one.',
-  'Write one sentence right now: "I can handle being wrong about how people will react." Then do the thing you\'ve been holding back.',
+  'Choose one non-urgent email and delay your reply by 30 minutes. Start the timer now. Done when it\'s running.',
+  'Send one short holding reply: "Got it, I\'ll get back to you soon." Stop after sending that one line.',
+  'Pick one email you\'ve been avoiding. Open it. Either reply in one sentence or mark it for a specific time tomorrow. Stop after one.',
 ];
 
 const EN_HEAVINESS_REWRITES = [
@@ -346,9 +367,12 @@ function countEnReflectionTrapSignals(text) {
   for (const pattern of EN_REFLECTION_TRAP_SIGNALS) {
     if (pattern.test(text)) count++;
   }
-  // Also count multi-question chains as a signal
   const questionCount = (text.match(/\?/g) || []).length;
   if (questionCount >= 3) count++;
+  // Single trailing question + any 1 reflection signal = treat as trapped
+  // (catches disapproval/longterm paths that end with one ask-back + body drift)
+  const endsWithQuestion = /\?[\s]*$/.test(text.trim());
+  if (endsWithQuestion && count >= 1) count++;
   return count;
 }
 
@@ -427,13 +451,17 @@ function detectHebrewWorksheetDriftSemantic(text) {
 
 /**
  * Classify the Hebrew context type for targeted rewrite.
- * Priority: longterm_distress > post_learning > email > disapproval > distress
+ * Priority: longterm_distress > post_learning_email > post_learning > email > disapproval > distress
  */
 function classifyHebrewContext(text) {
   if (detectHebrewLongtermHomeworkDrift(text)) return 'longterm_distress';
   // Check for explicit next-step queries (longterm even without homework ban)
   if (HE_LONGTERM_NEXT_STEP_SIGNALS.some(p => p.test(text))) return 'longterm_distress';
-  if (HE_POST_LEARNING_SIGNALS.test(text)) return 'post_learning';
+  if (HE_POST_LEARNING_SIGNALS.test(text)) {
+    // Email-context post-learning gets a more specific reinforcement rewrite
+    if (HE_EMAIL_SIGNALS.test(text)) return 'post_learning_email';
+    return 'post_learning';
+  }
   if (HE_EMAIL_SIGNALS.test(text)) return 'email';
   if (HE_DISAPPROVAL_SIGNALS.test(text)) return 'disapproval';
   if (HE_DISTRESS_SIGNALS.test(text)) return 'distress';
@@ -455,6 +483,8 @@ function applyHebrewSemanticAntiWorksheet(text) {
   let rewrite;
   if (context === 'longterm_distress') {
     rewrite = pickHeRewrite(HE_LONGTERM_DISTRESS_REWRITES);
+  } else if (context === 'post_learning_email') {
+    rewrite = pickHeRewrite(HE_POST_LEARNING_EMAIL_REWRITES);
   } else if (context === 'post_learning') {
     rewrite = pickHeRewrite(HE_POST_LEARNING_REWRITES);
   } else if (context === 'email') {
