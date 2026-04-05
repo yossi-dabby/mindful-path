@@ -68,7 +68,7 @@ const FORBIDDEN_PATTERNS = [
   /^\[THOUGHT/mi
 ];
 
-// Patterns that must not appear ANYWHERE on a line (tool names, param labels, schema)
+// Patterns that must not appear ANYWHERE on a line (tool names, param labels, schema, entity names)
 const FORBIDDEN_INLINE_PATTERNS = [
   // Tool names
   /retrieveCurriculumUnit/i,
@@ -76,6 +76,18 @@ const FORBIDDEN_INLINE_PATTERNS = [
   /writeTherapistMemory/i,
   /retrieveTrustedCBTContent/i,
   /retrieveRelevantContent/i,
+
+  // Entity names exposed as tool targets
+  /\bThoughtJournal\b/,
+  /\bMoodEntry\b/,
+  /\bCompanionMemory\b/,
+  /\bSessionSummary\b/,
+  /\bDailyFlow\b/,
+  /\bCrisisAlert\b/,
+  /\bCaseFormulation\b/,
+  /\bTherapyFeedback\b/,
+  /\bCoachingSession\b/,
+  /\bProactiveReminder\b/,
 
   // Curriculum / routing field names
   /\bclinical_topic\b/i,
@@ -137,7 +149,28 @@ const FORBIDDEN_INLINE_PATTERNS = [
   /\bspecific_fear_discovered\b/i,
   /\bunresolved_blocker\b/i,
   /\bfollow_up_tasks\b/i,
-  /\btherapist_memory_version\b/i
+  /\btherapist_memory_version\b/i,
+
+  // English internal-analysis phrases (leak into non-English sessions)
+  /\bBased on (?:memory|stored data|prior session|the memory)\b/i,
+  /\bAccording to (?:stored|memory|my records)\b/i,
+  /\bMemory (?:indicates|shows|records|says)\b/i,
+  /\bThe system has\b/i,
+  /\bI(?:'ll| will) (?:now |classify |evaluate |check |apply |retrieve |call |use )(?:the |this )?(?:memory|curriculum|tool|unit|pattern|domain|gate|rule)/i,
+  /\bLet me (?:evaluate|check|classify|apply|retrieve|call|analyze|assess) (?:the |this )?(?:memory|domain|pattern|current|topic|message|gate)/i,
+  /\bNow I(?:'ll| need to| will) (?:check|evaluate|classify|apply|call|retrieve)/i,
+  /\bChecking (?:the |for )?(?:gate|domain|rule|condition|memory|pattern)/i,
+  /\bApplying (?:the |this )?(?:gate|rule|pattern|domain|CP\d|RULE ZERO|curriculum)/i,
+  /\bDomain (?:lock|classification|check|match):/i,
+  /\bLOCKED_DOMAIN\s*=/i,
+  /\bCurrent (?:message )?domain:/i,
+  /\bStored (?:domain|memory|current_issue):/i,
+  /\bGate (?:passes|fails|blocked|check)/i,
+  /\bContinuity (?:gate|opener|check|suppressed)/i,
+  /^\s*RULE ZERO/im,
+  /^\s*STEP \d+:/im,
+  /^\s*LINT \d+/im,
+  /^\s*CP\d+/im
 ];
 
 const HEBREW_FAILSAFE = "אני כאן איתך. מה הכי מטריד אותך כרגע?";
@@ -164,8 +197,11 @@ export function sanitizeMessageContent(text, language = 'en') {
     }
   }
 
-  // Quick check - if no forbidden patterns exist, return as-is (performance optimization)
-  const hasAnyForbiddenPattern = FORBIDDEN_PATTERNS.some(pattern => pattern.test(text));
+  // Quick check - if NO pattern of either type matches, skip processing (performance optimization)
+  // CRITICAL: Must check BOTH arrays — inline patterns are independent of line-start patterns
+  const hasAnyForbiddenPattern =
+    FORBIDDEN_PATTERNS.some(p => p.test(text)) ||
+    FORBIDDEN_INLINE_PATTERNS.some(p => p.test(text));
   if (!hasAnyForbiddenPattern) {
     return text;
   }

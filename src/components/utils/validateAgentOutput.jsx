@@ -56,13 +56,26 @@ const FORBIDDEN_REASONING_PATTERNS = [
   /\bconfidence score\b/i
 ];
 
-// Inline patterns — tool names, field names, schema labels — must not appear anywhere on a line
+// Inline patterns — tool names, entity names, field names, schema labels — must not appear anywhere on a line
 const FORBIDDEN_INLINE_REASONING_PATTERNS = [
   /retrieveCurriculumUnit/i,
   /retrieveTherapistMemory/i,
   /writeTherapistMemory/i,
   /retrieveTrustedCBTContent/i,
   /retrieveRelevantContent/i,
+
+  // Entity names exposed as tool targets
+  /\bThoughtJournal\b/,
+  /\bMoodEntry\b/,
+  /\bCompanionMemory\b/,
+  /\bSessionSummary\b/,
+  /\bDailyFlow\b/,
+  /\bCrisisAlert\b/,
+  /\bCaseFormulation\b/,
+  /\bTherapyFeedback\b/,
+  /\bCoachingSession\b/,
+  /\bProactiveReminder\b/,
+
   /\bclinical_topic\b/i,
   /\bunit_type\b/i,
   /\blinked_hierarchy_level\b/i,
@@ -108,7 +121,22 @@ const FORBIDDEN_INLINE_REASONING_PATTERNS = [
   /\bspecific_fear_discovered\b/i,
   /\bunresolved_blocker\b/i,
   /\bfollow_up_tasks\b/i,
-  /\btherapist_memory_version\b/i
+  /\btherapist_memory_version\b/i,
+
+  // English internal-analysis phrases (leak into non-English sessions)
+  /\bBased on (?:memory|stored data|prior session|the memory)\b/i,
+  /\bAccording to (?:stored|memory|my records)\b/i,
+  /\bMemory (?:indicates|shows|records|says)\b/i,
+  /\bThe system has\b/i,
+  /\bI(?:'ll| will) (?:now |classify |evaluate |check |apply |retrieve |call |use )(?:the |this )?(?:memory|curriculum|tool|unit|pattern|domain|gate|rule)/i,
+  /\bLet me (?:evaluate|check|classify|apply|retrieve|call|analyze|assess) (?:the |this )?(?:memory|domain|pattern|current|topic|message|gate)/i,
+  /\bNow I(?:'ll| need to| will) (?:check|evaluate|classify|apply|call|retrieve)/i,
+  /\bChecking (?:the |for )?(?:gate|domain|rule|condition|memory|pattern)/i,
+  /\bApplying (?:the |this )?(?:gate|rule|pattern|domain|CP\d|RULE ZERO|curriculum)/i,
+  /\bDomain (?:lock|classification|check|match):/i,
+  /\bLOCKED_DOMAIN\s*=/i,
+  /\bGate (?:passes|fails|blocked|check)/i,
+  /\bContinuity (?:gate|opener|check|suppressed)/i
 ];
 
 function sanitizeAssistantMessage(message) {
