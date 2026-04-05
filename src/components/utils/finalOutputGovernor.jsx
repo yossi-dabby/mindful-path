@@ -131,39 +131,55 @@ const ROUTING_COMPRESSION_PATTERNS = [
 // Replacement: context-typed directive-first Hebrew output.
 // ============================================================
 
+// Long-term distress path signals — triggers when user asks "what's next" / "long term"
+// and the draft returns tracking/logging homework instead of a same-day action.
+const HE_LONGTERM_NEXT_STEP_SIGNALS = [
+  /(?:מה\s+השלב\s+הבא|שלב\s+הבא\s+הוא|הצעד\s+הבא)/,
+  /(?:לאורך\s+זמן|לטווח\s+(?:ארוך|רחוק)|בטווח\s+(?:הארוך|הרחוק))/,
+  /(?:כלי\s+(?:קבוע|יומיומי|קבועים)|להמשיך\s+(?:לאורך|מעבר|הלאה))/,
+];
+
+// Hard-banned long-term homework patterns (Hebrew) — tracking/logging/rating
+const HE_LONGTERM_HOMEWORK_BANS = [
+  /(?:רשום|רשמי|תרשום|תרשמי)\s+(?:במשך\s+(?:כמה|\d+)\s+(?:ימים|שבועות))/,
+  /(?:התאריך\s+(?:וה)?(?:שעה|זמן)|שעה\s+(?:וה)?תאריך)/,
+  /(?:מה\s+עשית\s+(?:באותו|ברגע|לפני))/,
+  /(?:(?:מה|כמה)\s+(?:הייתה|הייתה\s+ה)(?:רמת|עוצמת|רמה\s+של))/,
+  /(?:יומן\s+(?:תסמינים|מעקב|רגשות|כאב|לחץ|חרדה))/,
+  /(?:לתעד|תיעוד)\s+(?:כל|את\s+ה)\s*(?:תסמין|תסמינים|פרק|פרקים)/,
+  /(?:טבלה|תבנית|טופס)\s+(?:מעקב|ניטור|יומי)/,
+  /(?:לשים\s+לב\s+ל)(?:תדירות|כמות|רמה|עוצמה)\s+(?:ואז\s+)?(?:לרשום|לתעד|לסמן)/,
+  /(?:סולם|סקאלה|דירוג)\s+(?:של|עוצמה|תסמינים)/,
+  /(?:\d+\s*-\s*\d+|אפס\s+עד\s+עשר?)\s+(?:כדי\s+)?(?:לדרג|למדוד|לבדוק)/,
+];
+
 // Semantic worksheet drift signals (Hebrew)
 const HE_WORKSHEET_SEMANTIC_SIGNALS = [
   // Belief / confidence rating tasks
-  /\d{1,3}\s*[-–]\s*\d{1,3}/,               // numeric range like 1-100 or 0–10
+  /\d{1,3}\s*[-–]\s*\d{1,3}/,
   /(?:דרג|דרגי|ציון|אחוז|מ-?\d+\s+עד\s+\d+)/,
   /(?:כמה\s+(?:אתה|את)\s+(?:מאמינ|מרגיש))/,
   /(?:רמת\s+(?:האמונה|הביטחון|החרדה|הלחץ))/,
   /(?:על\s+סקלה\s+של)/,
-
-  // Evidence-for / evidence-against loops
+  // Evidence loops
   /(?:ראיות\s+(?:בעד|נגד|לכך|לטובת))/,
   /(?:מה\s+(?:הראיות|העדויות|הסיבות|הסיבה))/,
   /(?:מה\s+(?:מצביע|מלמד|מוכיח))/,
-  /(?:ראיות\s+ש)/,
-  /(?:ראיה\s+(?:ל|נגד|בעד))/,
-
-  // Self-monitoring / tracking homework as first step
+  /(?:ראיה\s+ש)/,
+  // Self-monitoring homework
   /(?:(?:רשום|כתוב|תעד)\s+(?:בכל\s+פעם|כל\s+פעם\s+ש|מתי\s+ש))/,
   /(?:(?:שעה|מתי|מה\s+קרה\s+לפני)\s*[\/,]\s*(?:שעה|מה\s+קרה|איפה\s+בגוף))/,
   /(?:יומן\s+(?:מעקב|רגשות|מחשבות|לחץ))/,
   /(?:מעקב\s+(?:עצמי|יומי|שבועי))/,
   /(?:ניטור\s+(?:עצמי|מחשבות))/,
   /(?:לאורך\s+(?:שבוע|שבועיים|חודש)\s+(?:הבא|הקרוב))/,
-
-  // Multi-option menus in Hebrew
+  // Multi-option menus
   /(?:אפשרות\s+(?:א|ב|ג|1|2|3))/,
-  /(?:^[1-3]\.\s+(?:לנשום|לרשום|לעשות|לנסות|לבחון))/m,
-
-  // Pattern-mapping / formulation chains
-  /(?:בוא\s+(?:נבין|נמפה|נזהה|נבדוק|נחקור)\s+(?:את\s+)?(?:הדפוס|המחשבה|הרגשות|הקשר|מתי))/,
+  /(?:^[1-3]\.\s+(?:לנשום|לרשום|לעשות|לנסות|לבחן))/m,
+  // Pattern-mapping chains
+  /(?:בוא\s+(?:נבין|נמפה|נזהה|נבדוק|נחקור)\s+(?:את\s+)?ה(?:דפוס|מחשבה|רגשות|קשר|מתי))/,
   /(?:מה\s+(?:הטריגר|הגורם|קרה\s+לפני|קדם\s+ל))/,
   /(?:איזה\s+(?:מחשבה\s+אוטומטית|דפוס\s+חשיבה))/,
-
   // Ask-back question at the end
   /\?[\s\u200f]*$/,
 ];
@@ -192,6 +208,12 @@ const HE_DISTRESS_REWRITES = [
   'שים לב לאיפה הכובד יושב בגוף. נשום לתוכו פעמיים. ואז בחר פעולה אחת קטנה שאפשר לסיים בפחות מחמש דקות.',
 ];
 
+const HE_LONGTERM_DISTRESS_REWRITES = [
+  'בפעם הבאה שהמועקה עולה, עצור לדקה אחת ועשה שוב את אותו תרגיל קרקוע לפני שאתה ממשיך במה שעשית. זה הצעד הבא להיום.',
+  'הצעד הבא הוא לשמור את תרגיל הקרקוע הזה ככלי קבוע: בפעם הבאה שהמועקה מתחילה, השתמש בו מיד לפני כל ניסיון להבין למה זה קורה.',
+  'בחר היום רגע אחד שבו אתה בודק את הגוף שלך לדקה בלי לשנות כלום — רק לשים לב לנשימה ולמתח בכתפיים. עצור אחרי דקה.',
+];
+
 let _heRewriteIndex = 0;
 function pickHeRewrite(arr) {
   const pick = arr[_heRewriteIndex % arr.length];
@@ -200,19 +222,28 @@ function pickHeRewrite(arr) {
 }
 
 /**
+ * Detect Hebrew long-term distress homework drift.
+ * Returns true if the user is asking for a long-term next step
+ * AND the draft gives tracking/logging/rating homework.
+ */
+function detectHebrewLongtermHomeworkDrift(text) {
+  const asksForNext = HE_LONGTERM_NEXT_STEP_SIGNALS.some(p => p.test(text));
+  if (!asksForNext) return false;
+  return HE_LONGTERM_HOMEWORK_BANS.some(p => p.test(text));
+}
+
+/**
  * Semantic Hebrew worksheet drift detector.
- * Returns true if the draft exhibits worksheet-mode behavior semantically,
- * regardless of exact phrasing used.
+ * Returns true if the draft exhibits worksheet-mode behavior semantically.
  */
 function detectHebrewWorksheetDriftSemantic(text) {
   let signalCount = 0;
   for (const pattern of HE_WORKSHEET_SEMANTIC_SIGNALS) {
     if (pattern.test(text)) {
       signalCount++;
-      if (signalCount >= 2) return true; // 2+ signals = worksheet drift confirmed
+      if (signalCount >= 2) return true;
     }
   }
-  // Single strong signal: ends with a question (ask-back finale)
   if (/\?[\s\u200f]*$/.test(text.trim())) return true;
   return false;
 }
@@ -221,6 +252,7 @@ function detectHebrewWorksheetDriftSemantic(text) {
  * Classify the Hebrew context type for targeted rewrite.
  */
 function classifyHebrewContext(text) {
+  if (detectHebrewLongtermHomeworkDrift(text)) return 'longterm_distress';
   if (HE_EMAIL_SIGNALS.test(text)) return 'email';
   if (HE_DISAPPROVAL_SIGNALS.test(text)) return 'disapproval';
   if (HE_DISTRESS_SIGNALS.test(text)) return 'distress';
@@ -240,7 +272,9 @@ function applyHebrewSemanticAntiWorksheet(text) {
 
   const context = classifyHebrewContext(text);
   let rewrite;
-  if (context === 'email') {
+  if (context === 'longterm_distress') {
+    rewrite = pickHeRewrite(HE_LONGTERM_DISTRESS_REWRITES);
+  } else if (context === 'email') {
     rewrite = pickHeRewrite(HE_EMAIL_REWRITES);
   } else if (context === 'disapproval') {
     rewrite = pickHeRewrite(HE_DISAPPROVAL_REWRITES);
