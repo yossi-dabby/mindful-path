@@ -1,111 +1,121 @@
 # CBT Therapist — Limited Release Protocol
-## Version: 1.0 | Status: Active | Baseline: Release Candidate (post CP11 patch)
+
+## Status
+**ACTIVE — Limited Release Phase**
+
+Baseline: CP11 + CP12 patch (social anxiety / sleep anxiety ask-back suppression).
+All therapist logic is frozen at this baseline.
 
 ---
 
-## 1. BASELINE DECLARATION
+## Hard Rules
 
-The current therapist behavior (agents/cbt_therapist) as of the CP11 patch is the **release-candidate baseline**.
-No behavior changes are permitted during Limited Release unless the regression threshold below is crossed.
-
-Primary monitored languages: **English, Hebrew**
-Secondary monitored languages: Spanish, French, German (monitoring scope only — not blockers unless repeated)
-
----
-
-## 2. REGRESSION LOG TEMPLATE
-
-Log every observed regression immediately in the `RegressionLog` entity with these fields:
-
-| Field | What to record |
-|---|---|
-| **date** | Session date |
-| **language** | en / he / es / fr / de / other |
-| **scenario_type** | partial_completion / worry_overthinking / avoidance / panic / social_anxiety / sleep_anxiety / work_task / driving_anxiety / continuity_return / session_opener / other |
-| **user_prompt** | Paste the exact user message |
-| **model_reply** | Paste the exact model reply |
-| **regression_category** | See categories below |
-| **severity** | low / medium / high |
-| **repeated_regression** | yes/no — is this the 2nd+ independent confirmed instance? |
-| **notes** | Reviewer context, related prior log ID, or mitigation note |
-
-### Regression Categories
-- `hand-back / ask-back` — agent asked the user to define, describe, identify, or explain before acting
-- `gather-info-first` — agent deferred action to gather context first
-- `continuity contamination` — prior session topic bled into current session without explicit topic keyword
-- `domain contamination` — action, example, or step belonged to a different domain than the current message
-- `permission phrasing` — agent sought permission before acting ("would you like to...", "shall we...")
-- `ending with a question` — response ended with a question instead of a concrete action
-- `panic too long / not immediate` — panic response contained theory or delay before grounding
-- `social anxiety too theory-heavy` — social response was explanation-heavy without a direct action
-- `partial completion drift` — partial completion response asked for context instead of giving default micro-step
-- `worry not action-first` — worry response postponed action or handed selection back to user
-- `internal leakage` — field names, level labels, JSON, routing text, or curriculum IDs appeared in output
-- `other` — document clearly in notes
+| Rule | Detail |
+|------|--------|
+| Freeze therapist logic | No broad implementation changes during this phase |
+| No new layers | No new CP / C / L levels unless escalation criteria met |
+| No curriculum expansion | No new CBTCurriculumUnit records during this phase |
+| Log regressions only | Every observed regression goes into RegressionLog |
+| Single bad answer | Monitor only — no fix |
+| 2+ independent repetitions of same regression | One targeted micro-fix eligible (narrowest possible scope) |
+| Internal leakage | Immediate hold + escalate — do not wait for repetition |
 
 ---
 
-## 3. DECISION RULES
+## Primary Monitoring Languages
+- Hebrew
+- English
 
-### MONITOR ONLY
-**Condition:** Single instance of a regression, any category, any severity.
-**Action:** Log it. Do not change behavior. Do not alert.
-
-### MICRO-FIX ELIGIBLE
-**Condition:** 2 or more **independent** confirmed instances of the **same regression_category + scenario_type** combination, in the same primary monitored language (en or he).
-**Action:** Flag for review. Draft one targeted micro-fix scoped to that exact path only. No broad rewrites.
-
-### SAFE TO CONTINUE
-**Condition:** Zero repeated regressions across 20+ logged sessions in primary languages.
-**Action:** Document and proceed to next release stage.
-
-### HOLD — ESCALATE
-**Condition:** Any single instance of `internal leakage` (severity: high), or any crisis/safety path failure.
-**Action:** Immediate review. Do not wait for repetition threshold.
+## Secondary Monitoring Languages
+- Spanish
+- French
+- German
 
 ---
 
-## 4. WHAT IS NOT A REGRESSION
+## Active Watchpoints
 
-The following are expected and do not require logging:
-- Agent asks ONE short clarifying question when no real-world object is present in the message and CP11 conditions are not met
-- Hebrew response contains slightly different phrasing from English equivalent (multilingual adaptation is expected)
-- Response is 3–4 sentences instead of 1–2 when additional clinical context is present
-- Continuity opener used correctly after all 6 gate conditions pass
+### 1. Worry not action-first
+- **Pattern:** Agent responds to worry/rumination with exploration, reflection, or question instead of a bounded action step.
+- **Expected behavior:** Worry postponement window OR one concrete bounded action — no ask-back, no "tell me more".
+- **Threshold:** 2 independent confirmed instances → micro-fix eligible.
 
----
+### 2. Continuity contamination
+- **Pattern:** Agent references a prior session's topic/domain when current message does not contain an explicit topic keyword (RULE ZERO violation).
+- **Expected behavior:** Suppressed opener — no prior-topic mention whatsoever.
+- **Threshold:** 2 independent confirmed instances → micro-fix eligible.
 
-## 5. MICRO-FIX SCOPE RULES
-
-When a micro-fix is triggered:
-1. Fix **only** the exact path confirmed by the repeated regression (e.g. "worry + English + action-first")
-2. Do **not** modify: panic path, sleep anxiety, Hebrew behavior, continuity architecture, or any non-regressed path
-3. Do **not** add new layers
-4. Document the fix against the RegressionLog record IDs that triggered it
-5. Mark `fix_triggered: true` on the triggering log records
+### 3. Product-level disappearing replies
+- **Pattern:** Agent reply is sent but does not render in the chat UI, or arrives empty/truncated.
+- **Note:** Track separately from CBT logic regressions. This is a platform/rendering issue, not a prompt issue.
+- **Escalation:** Any confirmed instance → immediate platform-level investigation.
 
 ---
 
-## 6. RELEASE PHASES
+## Regression Logging
 
-| Phase | Trigger | Monitoring |
-|---|---|---|
-| **Limited Release** (current) | CP11 patch complete | All sessions logged manually or sampled |
-| **Expanded Release** | 0 repeated regressions across 20+ sessions | Sampling only, monthly review |
-| **General Availability** | 0 repeated regressions across 50+ sessions | Automated drift monitoring only |
+Use entity: `RegressionLog`
+
+Required fields per entry:
+- `date` — session date
+- `language` — session language
+- `scenario_type` — clinical scenario category
+- `user_prompt` — exact user message that triggered the regression
+- `model_reply` — exact agent reply that exhibited the regression
+- `regression_category` — one of the defined categories
+- `severity` — low / medium / high
+
+Optional but recommended:
+- `repeated_regression` — true if this is the 2nd+ independent confirmed instance
+- `fix_triggered` — true if a micro-fix was applied as a result
+- `notes` — reviewer context, mitigation, or resolution
 
 ---
 
-## 7. QUICK REFERENCE — WHAT TO LOG, WHAT TO SKIP
+## Severity Definitions
 
-**Log:**
-- Any response that asks for more context when CP11 should have fired
-- Any response that ends with a question
-- Any response that references a prior domain not named in the current message
-- Any response that uses a permission phrase
-- Any response that shows internal labels or JSON
+| Level | Meaning |
+|-------|---------|
+| low | Noticeable drift but recoverable within session |
+| medium | Clear regression — directive direction lost |
+| high | Safety failure, internal leakage, or major clinical failure |
 
-**Skip:**
-- Any response that gives a correct direct action
-- Any response that uses the continuity opener correctly
-- Any response where the agent asks one clarification because the message had no object or task signal
+---
+
+## Decision Rules
+
+| Observation | Action |
+|-------------|--------|
+| Single regression, severity low/medium | Log → monitor only |
+| Single regression, severity high | Log → immediate hold + escalate |
+| Internal leakage (any severity) | Immediate hold + escalate — no wait |
+| 2+ independent confirmed instances, same category + scenario | Log `repeated_regression: true` → micro-fix eligible |
+| Micro-fix applied | Log `fix_triggered: true` → re-run focused regression test on that prompt |
+
+---
+
+## Micro-Fix Rules
+
+- Scope: one isolated code path only — the confirmed regression pattern.
+- No collateral changes to unrelated CP/C/L rules.
+- No broad re-tuning.
+- Must pass focused regression test on the two triggering prompts before merge.
+- Document the fix in the RegressionLog entry.
+
+---
+
+## Release Stages
+
+| Stage | Criteria to advance |
+|-------|---------------------|
+| Limited Release (current) | Real sessions collected, no unresolved high-severity regressions, no internal leakage |
+| Expanded Release | 50+ sessions, ≤2 medium regressions unfixed, zero high/leakage |
+| General Availability | 200+ sessions, regression rate stable, all high-severity resolved |
+
+---
+
+## Notes
+
+- Do not modify this protocol during Limited Release without explicit sign-off.
+- All micro-fixes must be logged before deployment.
+- Disappearing-reply incidents are tracked in a separate incident log, not in RegressionLog.
