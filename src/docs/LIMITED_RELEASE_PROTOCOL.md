@@ -3,8 +3,10 @@
 ## Status
 **ACTIVE — Limited Release Phase**
 
-Baseline: CP11 + CP12 patch (social anxiety / sleep anxiety ask-back suppression).
+Baseline: CP11 + CP12 patch (social anxiety / sleep anxiety ask-back suppression) + CP12-HE Hebrew semantic anti-worksheet rewrite (email-pressure, fear-of-disapproval, long-term distress compression).
 All therapist logic is frozen at this baseline.
+
+**Hold lifted: 2026-04-05.** CP12 Hebrew verification passed. Resuming live monitoring under standard Limited Release rules.
 
 ---
 
@@ -49,6 +51,12 @@ All therapist logic is frozen at this baseline.
 - **Pattern:** Agent reply is sent but does not render in the chat UI, or arrives empty/truncated.
 - **Note:** Track separately from CBT logic regressions. This is a platform/rendering issue, not a prompt issue.
 - **Escalation:** Any confirmed instance → immediate platform-level investigation.
+
+### 4. Hebrew worksheet drift (watchpoint only)
+- **Pattern:** Hebrew response returns tracking homework, belief-rating, evidence loops, or multi-day logging as first move.
+- **Expected behavior:** One same-day bounded directive step, no worksheet, no rating, no question ending.
+- **Note:** CP12-HE semantic rewrite is now live. Remaining instances are monitoring data only.
+- **Threshold:** 2 independent confirmed instances of the same sub-pattern → micro-fix eligible.
 
 ---
 
