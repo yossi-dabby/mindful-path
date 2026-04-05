@@ -8,19 +8,20 @@
  *   A. Internal leakage hard block (tool names, schema labels, reasoning, mixed-language internal text)
  *   B. Directive-first enforcement (strip ask-back, worksheet drift, belief-rating requests)
  *   C. One bounded next step (trim runaway multi-menu responses)
- *   D. Session-type routing compression (panic→grounding, worry→action, social→micro-step, sleep→stop-trying)
+ *   D. Session-type routing compression (panic->grounding, worry->action, social->micro-step, sleep->stop-trying)
  *   E. Fail-closed (strip violating content; if nothing remains, return language-appropriate failsafe)
+ *   HE. Hebrew anti-worksheet compression (Hebrew sessions only)
  */
 
 import { sanitizeMessageContent } from './messageContentSanitizer';
 
-// ─── Failsafes ────────────────────────────────────────────────────────────────
+// --- Failsafes ---
 
 const FAILSAFE = {
   he: 'אני כאן איתך. מה הכי מטריד אותך כרגע?',
   en: "I'm here with you. What's on your mind right now?",
-  es: 'Estoy aquí contigo. ¿Qué tienes en mente ahora mismo?',
-  fr: 'Je suis là pour toi. Qu\'est-ce qui te préoccupe en ce moment?',
+  es: "Estoy aquí contigo. ¿Qué tienes en mente ahora mismo?",
+  fr: "Je suis là pour toi. Qu'est-ce qui te préoccupe en ce moment?",
   de: 'Ich bin hier für dich. Was beschäftigt dich gerade?',
   it: 'Sono qui con te. Cosa hai in mente in questo momento?',
   pt: 'Estou aqui com você. O que está em sua mente agora?',
@@ -30,9 +31,8 @@ function getFailsafe(lang) {
   return FAILSAFE[lang] || FAILSAFE['en'];
 }
 
-// ─── A: Ask-back / worksheet-drift patterns ───────────────────────────────────
+// --- Ask-back / worksheet-drift patterns ---
 
-// Lines or sentences that represent ask-back (user is asked to define/explain before action)
 const ASK_BACK_LINE_PATTERNS = [
   // English ask-back
   /what do you think\??$/i,
@@ -99,12 +99,8 @@ const ASK_BACK_LINE_PATTERNS = [
   /depende de você\.?$/i,
 ];
 
-// ─── B: Session-type routing compression patterns ─────────────────────────────
+// --- Session-type routing compression patterns ---
 
-// Panic/acute: if response is >8 sentences AND contains no grounding step → warn (don't strip, just log)
-const PANIC_KEYWORDS = /\b(panic attack?|heart racing|can't breathe|hyperventil|acute|overwhelm)\b/i;
-
-// Worksheet drift: if a non-worksheet session gets worksheet structure
 const WORKSHEET_BLOCK_PATTERNS = [
   /^evidence[- ]for\s*:/im,
   /^evidence[- ]against\s*:/im,
@@ -114,7 +110,6 @@ const WORKSHEET_BLOCK_PATTERNS = [
   /^situation\s*:\s+/im,
 ];
 
-// English internal planning phrases that are session-type routing leaks
 const ROUTING_COMPRESSION_PATTERNS = [
   /\bThis (?:is a|looks like|seems like) (?:a |an )?(?:WORK_TASK|DRIVING|SOCIAL|WORRY|SLEEP|PANIC|EXAM|GENERAL|MOOD) (?:domain|scenario|session|path)\b/i,
   /\bI(?:'ll| will) (?:route|classify|apply|use) (?:the |this )?(?:WORK_TASK|DRIVING|SOCIAL|WORRY|SLEEP|PANIC)/i,
@@ -122,11 +117,53 @@ const ROUTING_COMPRESSION_PATTERNS = [
   /\bDomain\s*[:=]\s*\[?\w+\]?/i,
 ];
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// --- Hebrew anti-worksheet patterns (Hebrew sessions only) ---
+
+const HEBREW_WORKSHEET_BANNED_LINE_PATTERNS = [
+  /בוא נבין מתי זה מופיע/,
+  /איזו תגובה התנהגותית/,
+  /מה הייתה התגובה ההתנהגותית/,
+  /אילו רגשות נוספים עלו/,
+  /מה הראיות(?! ההוו)/,
+  /ראיות נגד/,
+  /ראיות בעד/,
+  /מה התחשבויות שתומכות/,
+  /מה התחשבויות שסותרות/,
+  /בוא נמפה את המחשבה/,
+  /בוא נמפה את הדפוס/,
+  /בוא נזהה את הדפוס/,
+  /בוא נבדוק את הראיות/,
+  /נבדוק יחד את הראיות/,
+  /מה עוד עולה/,
+  /איזה עוד רגשות/,
+  /מעקב עצמי/,
+  /יומן מעקב/,
+  /לתעד כל פעם/,
+  /לרשום בכל פעם ש/,
+  /ניטור עצמי/,
+];
 
 /**
- * Detect language from content (simple heuristic — Hebrew script presence)
+ * Hebrew-specific anti-worksheet compression.
+ * Runs only when Hebrew is detected.
+ * Strips banned worksheet/pattern-mapping lines.
  */
+function applyHebrewAntiWorksheet(text) {
+  const lines = text.split('\n');
+  const cleaned = lines.filter(line => {
+    const trimmed = line.trim();
+    if (!trimmed) return true;
+    if (HEBREW_WORKSHEET_BANNED_LINE_PATTERNS.some(p => p.test(trimmed))) {
+      console.warn('[CP12-HE] Stripped Hebrew worksheet line:', trimmed.substring(0, 80));
+      return false;
+    }
+    return true;
+  });
+  return cleaned.join('\n').trim();
+}
+
+// --- Helpers ---
+
 function detectLanguage(text) {
   if (/[\u05D0-\u05EA]/.test(text)) return 'he';
   if (/[\u00C0-\u024F]/.test(text)) {
@@ -137,35 +174,21 @@ function detectLanguage(text) {
   return 'en';
 }
 
-/**
- * Split text into sentences (naive but sufficient for CBT output lengths)
- */
 function splitSentences(text) {
   return text.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 0);
 }
 
-/**
- * Check if a line is an ask-back or worksheet drift line
- */
 function isAskBackLine(line) {
   const trimmed = line.trim();
   return ASK_BACK_LINE_PATTERNS.some(p => p.test(trimmed));
 }
 
-/**
- * Check if text contains worksheet structure
- */
 function hasWorksheetDrift(text) {
   return WORKSHEET_BLOCK_PATTERNS.some(p => p.test(text));
 }
 
-/**
- * Strip trailing ask-back questions from text.
- * Keeps all content except ending question sentences / lines that match ask-back patterns.
- */
 function stripTrailingAskBack(text) {
   const lines = text.split('\n');
-  // Remove from the end while the last non-empty line is ask-back
   let i = lines.length - 1;
   let stripped = false;
   while (i >= 0) {
@@ -184,13 +207,8 @@ function stripTrailingAskBack(text) {
   return lines.join('\n').trim();
 }
 
-/**
- * Strip worksheet blocks (evidence-for / evidence-against / belief-rating flows)
- */
 function stripWorksheetBlocks(text) {
-  let result = text;
-  // Remove lines that start worksheet labels
-  const lines = result.split('\n');
+  const lines = text.split('\n');
   const cleaned = lines.filter(line => {
     const trimmed = line.trim();
     if (WORKSHEET_BLOCK_PATTERNS.some(p => p.test(trimmed))) {
@@ -202,9 +220,6 @@ function stripWorksheetBlocks(text) {
   return cleaned.join('\n').trim();
 }
 
-/**
- * Strip routing/compression leakage phrases
- */
 function stripRoutingLeakage(text) {
   const lines = text.split('\n');
   const cleaned = lines.filter(line => {
@@ -217,7 +232,7 @@ function stripRoutingLeakage(text) {
   return cleaned.join('\n').trim();
 }
 
-// ─── Main Governor ────────────────────────────────────────────────────────────
+// --- Main Governor ---
 
 /**
  * Apply the Final Output Governor to an assistant message before render.
@@ -232,7 +247,7 @@ export function applyFinalOutputGovernor(text, opts = {}) {
 
   let result = text;
 
-  // ── Pass 1: Leakage sanitization (existing layer, reused) ──────────────────
+  // Pass 1: Leakage sanitization (existing layer, reused)
   const lang = opts.lang || detectLanguage(result);
   result = sanitizeMessageContent(result, lang);
 
@@ -241,7 +256,7 @@ export function applyFinalOutputGovernor(text, opts = {}) {
     return getFailsafe(lang);
   }
 
-  // ── Pass 2: Routing leakage phrases ───────────────────────────────────────
+  // Pass 2: Routing leakage phrases
   result = stripRoutingLeakage(result);
 
   if (!result || result.length < 3) {
@@ -249,7 +264,7 @@ export function applyFinalOutputGovernor(text, opts = {}) {
     return getFailsafe(lang);
   }
 
-  // ── Pass 3: Worksheet drift block ─────────────────────────────────────────
+  // Pass 3: Worksheet drift block (generic)
   if (hasWorksheetDrift(result)) {
     console.warn('[CP12-D] Worksheet drift detected — stripping worksheet blocks');
     result = stripWorksheetBlocks(result);
@@ -260,7 +275,16 @@ export function applyFinalOutputGovernor(text, opts = {}) {
     return getFailsafe(lang);
   }
 
-  // ── Pass 4: Trailing ask-back strip ───────────────────────────────────────
+  // Pass 3b: Hebrew anti-worksheet compression (Hebrew only)
+  if (lang === 'he') {
+    result = applyHebrewAntiWorksheet(result);
+    if (!result || result.length < 3) {
+      console.error('[CP12-HE] Content empty after Hebrew anti-worksheet pass — using failsafe');
+      return getFailsafe('he');
+    }
+  }
+
+  // Pass 4: Trailing ask-back strip
   result = stripTrailingAskBack(result);
 
   if (!result || result.length < 3) {
@@ -268,8 +292,7 @@ export function applyFinalOutputGovernor(text, opts = {}) {
     return getFailsafe(lang);
   }
 
-  // ── Pass 5: Final structural check ────────────────────────────────────────
-  // If result is a pure question with nothing else, it's invalid
+  // Pass 5: Final structural check — pure question with nothing else is invalid
   const trimmed = result.trim();
   const sentences = splitSentences(trimmed);
   if (sentences.length === 1 && /\?$/.test(trimmed)) {
@@ -294,6 +317,10 @@ export function auditCP12(text) {
   }
   if (hasWorksheetDrift(text)) {
     violations.push('worksheet-drift');
+  }
+  const lang = detectLanguage(text);
+  if (lang === 'he' && HEBREW_WORKSHEET_BANNED_LINE_PATTERNS.some(p => p.test(text))) {
+    violations.push('hebrew-worksheet-drift');
   }
   const lines = text.split('\n');
   const lastLine = [...lines].reverse().find(l => l.trim());
