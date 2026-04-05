@@ -221,6 +221,160 @@ function pickHeRewrite(arr) {
   return pick;
 }
 
+// ============================================================
+// ENGLISH LONG-FORM REFLECTION TRAP DETECTOR (CP13-EN)
+// ============================================================
+//
+// Fires AFTER the draft is composed but BEFORE render.
+// If the draft has shifted into worksheet / formulation mode
+// from a non-worksheet context, the draft is discarded and
+// replaced with a short directive-first action response.
+//
+// Trigger: 2+ semantic trap signals in the draft text.
+// Scope: English sessions only.
+// ============================================================
+
+// Signals that indicate worksheet / formulation mode in English
+const EN_REFLECTION_TRAP_SIGNALS = [
+  // Multi-day tracking homework
+  /for the next (few|\d+) days?,?\s+(write|note|record|track|log)/i,
+  /over the next (week|few days?|couple of days?)/i,
+  /keep a (log|journal|record|diary|note)/i,
+  /track (this|that|it|your|the) (over|for|across)/i,
+  /daily (log|record|tracking|check.in)/i,
+  // Evidence loops
+  /evidence (for|against|that supports|that contradicts)/i,
+  /what (is the )?evidence (for|against|that)/i,
+  /evidence-based thought/i,
+  /evidence (column|list|side)/i,
+  // Balanced thought generation
+  /balanced (thought|perspective|view|alternative)/i,
+  /more balanced (thought|way of thinking|view)/i,
+  /alternative (thought|perspective|interpretation)/i,
+  /reframe (the thought|that thought|this thought)/i,
+  // Belief rating
+  /rate (your|this|that) belief/i,
+  /on a scale of (0|1) (to|-) (10|100)/i,
+  /belief rating/i,
+  /how strongly do you believe/i,
+  /rate (the|your) (thought|feeling|emotion|belief) (from|on|between)/i,
+  // Cognitive distortion labeling
+  /(all.or.nothing|catastrophi[sz]|overgenerali[sz]|mind reading|fortune.telling|personali[sz]|should.statement|magnif|minimiz|emotional reasoning|labeling|mental filter)/i,
+  /cognitive distortion/i,
+  /thinking (error|pattern|trap|style)/i,
+  /distorted (thinking|thought|pattern)/i,
+  // Should-statements analysis
+  /should.statement/i,
+  /(the word |using )("should"|'should'|should)/i,
+  /replace.{0,20}"should"/i,
+  /challenge.{0,30}should/i,
+  // Pattern mapping homework
+  /map (out|the) (pattern|cycle|triggers)/i,
+  /identify (the )?triggers? (for|of|behind)/i,
+  /automatic thought (record|worksheet|log)/i,
+  /thought (record|diary|log|worksheet)/i,
+  // Multi-question chains (3+ question marks in response body)
+];
+
+// Context signals for targeted English rewrites
+const EN_EMAIL_SIGNALS = /(email|inbox|reply|message|boss|professor|manager|colleague|unread|unanswered)/i;
+const EN_DISAPPROVAL_SIGNALS = /(disappoint|let.{0,5}(them|him|her|people|everyone) down|what (will|would|do) (they|people|everyone) think|judg(e|ing|ment)|fail(ed|ing|ure)|not good enough|expectations|letting people)/i;
+const EN_HEAVINESS_SIGNALS = /(heaviness|heavy|weight (in|on|around)|tightness|chest|body|breathing|numb|hollow|empty|exhausted|drained|overwhelm)/i;
+
+// English directive rewrites by context
+const EN_EMAIL_REWRITES = [
+  'Open one email now — just one — and write the first sentence of a reply. Done when that sentence exists.',
+  'Pick the email that feels most overdue. Open it. Write two sentences. Close the tab.',
+  'Open your inbox now and handle one email only: either reply in one sentence or mark it for a specific time tomorrow. Stop after one.',
+];
+
+const EN_DISAPPROVAL_REWRITES = [
+  'The next step is a small behavioral test: do one thing you\'ve been avoiding because of what others might think. Notice what actually happens — not what you predicted.',
+  'Do one small thing today that you\'d normally delay because of others\' judgment. Notice the actual reaction, not the imagined one.',
+  'Write one sentence right now: "I can handle being wrong about how people will react." Then do the thing you\'ve been holding back.',
+];
+
+const EN_HEAVINESS_REWRITES = [
+  'Place one hand on your chest. Take three slow breaths into your belly. After the third, pick one small thing you can do in the next ten minutes.',
+  'Stop for a moment. Notice where the heaviness sits in your body. Breathe toward it twice. Then choose one action — small enough to finish before you next eat or drink anything.',
+  'Name the one thing that feels most stuck right now. Write it down in one sentence. That sentence is your next action target.',
+];
+
+const EN_LONGTERM_REWRITES = [
+  'The next step is to use the same grounding move the next time this feeling starts — before trying to understand it. One repetition, not a new plan.',
+  'Next time this comes up, use what already worked today. One repeat of the same step. That\'s the assignment.',
+  'Do the same thing you just did, one more time this week, in the same situation. Repetition before expansion.',
+];
+
+const EN_GENERIC_REWRITES = [
+  'The next step is one small, concrete action on this — not a plan, not a worksheet. What\'s the single smallest thing you can do about this today?',
+  'Pick one thing from what you just shared that you can act on in the next hour. One thing only. Do that.',
+  'Take one concrete step on this today — something that creates a real-world trace. Write it, send it, or do it.',
+];
+
+let _enRewriteIndex = 0;
+function pickEnRewrite(arr) {
+  const pick = arr[_enRewriteIndex % arr.length];
+  _enRewriteIndex++;
+  return pick;
+}
+
+/**
+ * Count reflection trap signals in English draft text.
+ * Returns the count of matched signals.
+ */
+function countEnReflectionTrapSignals(text) {
+  let count = 0;
+  for (const pattern of EN_REFLECTION_TRAP_SIGNALS) {
+    if (pattern.test(text)) count++;
+  }
+  // Also count multi-question chains as a signal
+  const questionCount = (text.match(/\?/g) || []).length;
+  if (questionCount >= 3) count++;
+  return count;
+}
+
+/**
+ * Classify English context for targeted rewrite.
+ */
+function classifyEnglishContext(text) {
+  if (EN_EMAIL_SIGNALS.test(text)) return 'email';
+  if (EN_DISAPPROVAL_SIGNALS.test(text)) return 'disapproval';
+  if (EN_HEAVINESS_SIGNALS.test(text)) return 'heaviness';
+  // Long-term / next-step query
+  if (/(next step|long.term|over time|going forward|from here|what now|what next)/i.test(text)) return 'longterm';
+  return 'generic';
+}
+
+/**
+ * English long-form reflection trap pass (CP13-EN).
+ * If 2+ worksheet signals are detected, discard draft and return
+ * a short directive-first English replacement.
+ * If no trap, returns original text unchanged.
+ */
+function applyEnglishReflectionTrapPass(text) {
+  const signalCount = countEnReflectionTrapSignals(text);
+  if (signalCount < 2) return text;
+
+  console.warn('[CP13-EN] Reflection trap detected (' + signalCount + ' signals) — replacing draft with directive rewrite');
+
+  const context = classifyEnglishContext(text);
+  let rewrite;
+  if (context === 'email') {
+    rewrite = pickEnRewrite(EN_EMAIL_REWRITES);
+  } else if (context === 'disapproval') {
+    rewrite = pickEnRewrite(EN_DISAPPROVAL_REWRITES);
+  } else if (context === 'heaviness') {
+    rewrite = pickEnRewrite(EN_HEAVINESS_REWRITES);
+  } else if (context === 'longterm') {
+    rewrite = pickEnRewrite(EN_LONGTERM_REWRITES);
+  } else {
+    rewrite = pickEnRewrite(EN_GENERIC_REWRITES);
+  }
+
+  return rewrite;
+}
+
 /**
  * Detect Hebrew long-term distress homework drift.
  * Returns true if the user is asking for a long-term next step
@@ -403,6 +557,17 @@ export function applyFinalOutputGovernor(text, opts = {}) {
     if (!result || result.length < 3) {
       console.error('[CP12-HE] Content empty after Hebrew semantic pass — using failsafe');
       return getFailsafe('he');
+    }
+  }
+
+  // Pass 3c: English long-form reflection trap REWRITE (English only)
+  // If worksheet/formulation mode is detected semantically in English,
+  // the draft is discarded and replaced with a short directive-first response.
+  if (lang === 'en') {
+    result = applyEnglishReflectionTrapPass(result);
+    if (!result || result.length < 3) {
+      console.error('[CP13-EN] Content empty after English reflection trap pass — using failsafe');
+      return getFailsafe('en');
     }
   }
 
