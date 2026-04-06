@@ -1,28 +1,26 @@
 /**
- * FINAL USER-VISIBLE RESPONSE GOVERNOR (CP12)
+ * FINAL USER-VISIBLE RESPONSE GOVERNOR (CP12 + Release Hardening Pack)
  *
- * This is the LAST gate before any assistant message reaches the user.
- * No upstream path may bypass it.
- *
- * Rules enforced:
- *   A. Internal leakage hard block (tool names, schema labels, reasoning, mixed-language internal text)
- *   B. Directive-first enforcement (strip ask-back, worksheet drift, belief-rating requests)
- *   C. One bounded next step
- *   D. Session-type routing compression
- *   E. Fail-closed
- *   HE. Hebrew semantic anti-worksheet REWRITE (Hebrew sessions only)
- *       — phrase stripping was insufficient; if worksheet drift is detected semantically,
- *         the entire draft is DISCARDED and replaced with a clean directive-first Hebrew response.
+ * Components:
+ *   A. Final Output Fail-Closed (leakage/meta/tool names → never render → failsafe)
+ *   B. Directive-first enforcement (strip ask-back, worksheet drift)
+ *   C. No-response fallback (never blank, never stall)
+ *   D. Same-prompt stability (routing/worksheet strip)
+ *   E. Long-form reflection trap kill switch (HE + EN + secondary languages)
+ *   F. Multilingual purity + quality floor (ES/FR/DE/IT/PT)
+ *   G. Post-learning compression (no over-explanation after success turn)
+ *   HE. Hebrew semantic anti-worksheet REWRITE
+ *   EN. CP13-EN English reflection trap REWRITE
  */
 
 import { sanitizeMessageContent } from './messageContentSanitizer';
 
-// --- Failsafes ---
+// ─── Failsafes (all languages) ───────────────────────────────────────────────
 
 const FAILSAFE = {
   he: 'אני כאן איתך. מה הכי מטריד אותך כרגע?',
   en: "I'm here with you. What's on your mind right now?",
-  es: "Estoy aquí contigo. ¿Qué tienes en mente ahora mismo?",
+  es: 'Estoy aquí contigo. ¿Qué está en tu mente ahora mismo?',
   fr: "Je suis là pour toi. Qu'est-ce qui te préoccupe en ce moment?",
   de: 'Ich bin hier für dich. Was beschäftigt dich gerade?',
   it: 'Sono qui con te. Cosa hai in mente in questo momento?',
@@ -33,7 +31,90 @@ function getFailsafe(lang) {
   return FAILSAFE[lang] || FAILSAFE['en'];
 }
 
-// --- Ask-back / worksheet-drift patterns ---
+// ─── Secondary language quality floor (Component F) ──────────────────────────
+
+const SECONDARY_LANG_REWRITES = {
+  es: [
+    'Da un paso concreto ahora: elige una acción pequeña que puedas completar en los próximos diez minutos.',
+    'Escribe en una oración qué es lo que más te pesa ahora mismo. Eso es tu próximo paso.',
+    'Haz una respiración lenta y elige una sola cosa que puedas hacer hoy. Hazla.',
+  ],
+  fr: [
+    'Fais une seule chose concrète maintenant — quelque chose que tu peux finir en dix minutes.',
+    'Écris en une phrase ce qui te pèse le plus. C\'est ton prochain pas.',
+    'Prends une respiration lente et choisis une seule action pour aujourd\'hui. Fais-la.',
+  ],
+  de: [
+    'Mach jetzt einen einzigen konkreten Schritt — etwas, das du in zehn Minuten abschließen kannst.',
+    'Schreib in einem Satz auf, was dich gerade am meisten belastet. Das ist dein nächster Schritt.',
+    'Atme einmal tief durch und wähle eine einzige Sache für heute. Tu sie.',
+  ],
+  it: [
+    'Fai un solo passo concreto adesso — qualcosa che puoi finire in dieci minuti.',
+    'Scrivi in una frase ciò che ti pesa di più in questo momento. È il tuo prossimo passo.',
+    'Fai un respiro lento e scegli una sola cosa da fare oggi. Falla.',
+  ],
+  pt: [
+    'Dê um passo concreto agora — algo que você possa concluir em dez minutos.',
+    'Escreva em uma frase o que mais te pesa agora. Esse é o seu próximo passo.',
+    'Respire fundo e escolha uma única coisa para fazer hoje. Faça isso.',
+  ],
+};
+
+let _secondaryLangIndex = 0;
+function pickSecondaryLangRewrite(lang) {
+  const arr = SECONDARY_LANG_REWRITES[lang];
+  if (!arr) return getFailsafe(lang);
+  const pick = arr[_secondaryLangIndex % arr.length];
+  _secondaryLangIndex++;
+  return pick;
+}
+
+// ─── Language contamination detector (Component F) ───────────────────────────
+
+const LANG_SCRIPT_TESTS = {
+  he: /[\u05D0-\u05EA]/,
+  ar: /[\u0600-\u06FF]/,
+  zh: /[\u4E00-\u9FFF]/,
+  ja: /[\u3040-\u30FF]/,
+  ru: /[\u0400-\u04FF]/,
+};
+
+const LATIN_LANG_MARKERS = {
+  es: /\b(el|la|los|las|que|está|con|para|por|una|muy|pero|como|cuando)\b/gi,
+  fr: /\b(le|la|les|est|avec|que|pour|dans|sur|une|mais|comme|quand|très)\b/gi,
+  de: /\b(der|die|das|ist|und|mit|für|in|auf|ein|aber|wenn|sehr|auch)\b/gi,
+  it: /\b(il|la|le|gli|che|è|con|per|una|molto|ma|come|quando|anche)\b/gi,
+  pt: /\b(o|a|os|as|que|está|com|para|por|uma|muito|mas|como|quando)\b/gi,
+  en: /\b(the|is|are|was|were|and|with|for|you|your|that|this|have|will|can|not)\b/gi,
+};
+
+function hasLanguageContamination(text, lang) {
+  if (!text || !lang) return false;
+
+  // Script-based: Hebrew in non-Hebrew session or vice versa
+  const textHasHebrew = LANG_SCRIPT_TESTS.he.test(text);
+  if (lang !== 'he' && textHasHebrew) return true;
+  if (lang === 'he' && !textHasHebrew && text.length > 20) {
+    // Hebrew session with no Hebrew at all — likely contamination
+    const hasLatin = /[a-zA-Z]{3,}/.test(text);
+    if (hasLatin && text.replace(/[a-zA-Z\s]/g, '').length < 5) return true;
+  }
+
+  // Latin script: detect markers from a DIFFERENT language with high confidence
+  if (['es', 'fr', 'de', 'it', 'pt', 'en'].includes(lang)) {
+    for (const [otherLang, re] of Object.entries(LATIN_LANG_MARKERS)) {
+      if (otherLang === lang) continue;
+      const otherMatches = (text.match(re) || []).length;
+      const ownMatches = (text.match(LATIN_LANG_MARKERS[lang]) || []).length;
+      if (otherMatches >= 5 && otherMatches > ownMatches * 2) return true;
+    }
+  }
+
+  return false;
+}
+
+// ─── Ask-back / worksheet-drift patterns ────────────────────────────────────
 
 const ASK_BACK_LINE_PATTERNS = [
   // English ask-back
@@ -83,25 +164,32 @@ const ASK_BACK_LINE_PATTERNS = [
   /te (?:gustaría|animas a) intentar\??$/i,
   /depende de ti\.?$/i,
   /por dónde (?:quieres|vamos a) empezar\??$/i,
+  /qué (?:crees|sientes|preferirías)\??$/i,
 
   // French ask-back
   /qu['']est-ce que tu en penses\??$/i,
   /c['']est toi qui décides\.?$/i,
   /par où (?:veux-tu|on) commencer\??$/i,
+  /qu['']est-ce qui te semblerait le plus (?:utile|adapté|juste)\??$/i,
 
   // German ask-back
   /was denkst du\??$/i,
   /das liegt bei dir\.?$/i,
   /wo (?:sollen|willst du) (?:wir )?anfangen\??$/i,
+  /was (?:wäre|würde) dir am (?:meisten|besten) helfen\??$/i,
 
-  // Italian / Portuguese ask-back
+  // Italian ask-back
   /cosa ne pensi\??$/i,
   /dipende da te\.?$/i,
+  /da dove (?:vuoi|vogliamo) cominciare\??$/i,
+
+  // Portuguese ask-back
   /o que (?:você acha|pensa)\??$/i,
   /depende de você\.?$/i,
+  /por onde (?:quer|vamos) começar\??$/i,
 ];
 
-// --- Session-type routing compression patterns ---
+// ─── Session-type routing compression patterns ───────────────────────────────
 
 const WORKSHEET_BLOCK_PATTERNS = [
   /^evidence[- ]for\s*:/im,
@@ -119,27 +207,14 @@ const ROUTING_COMPRESSION_PATTERNS = [
   /\bDomain\s*[:=]\s*\[?\w+\]?/i,
 ];
 
-// ============================================================
-// HEBREW SEMANTIC ANTI-WORKSHEET REWRITE SYSTEM
-// ============================================================
-//
-// Phrase-level stripping was insufficient because the model
-// produces worksheet behavior in new wording each time.
-// Solution: semantic drift detection + full draft replacement.
-//
-// Detection: any ONE of these signals triggers full rewrite.
-// Replacement: context-typed directive-first Hebrew output.
-// ============================================================
+// ─── Hebrew semantic anti-worksheet system ───────────────────────────────────
 
-// Long-term distress path signals — triggers when user asks "what's next" / "long term"
-// and the draft returns tracking/logging homework instead of a same-day action.
 const HE_LONGTERM_NEXT_STEP_SIGNALS = [
   /(?:מה\s+השלב\s+הבא|שלב\s+הבא\s+הוא|הצעד\s+הבא)/,
   /(?:לאורך\s+זמן|לטווח\s+(?:ארוך|רחוק)|בטווח\s+(?:הארוך|הרחוק))/,
   /(?:כלי\s+(?:קבוע|יומיומי|קבועים)|להמשיך\s+(?:לאורך|מעבר|הלאה))/,
 ];
 
-// Hard-banned long-term homework patterns (Hebrew) — tracking/logging/rating
 const HE_LONGTERM_HOMEWORK_BANS = [
   /(?:רשום|רשמי|תרשום|תרשמי)\s+(?:במשך\s+(?:כמה|\d+)\s+(?:ימים|שבועות))/,
   /(?:התאריך\s+(?:וה)?(?:שעה|זמן)|שעה\s+(?:וה)?תאריך)/,
@@ -153,47 +228,37 @@ const HE_LONGTERM_HOMEWORK_BANS = [
   /(?:\d+\s*-\s*\d+|אפס\s+עד\s+עשר?)\s+(?:כדי\s+)?(?:לדרג|למדוד|לבדוק)/,
 ];
 
-// Semantic worksheet drift signals (Hebrew)
 const HE_WORKSHEET_SEMANTIC_SIGNALS = [
-  // Belief / confidence rating tasks
   /\d{1,3}\s*[-–]\s*\d{1,3}/,
   /(?:דרג|דרגי|ציון|אחוז|מ-?\d+\s+עד\s+\d+)/,
   /(?:כמה\s+(?:אתה|את)\s+(?:מאמינ|מרגיש))/,
   /(?:רמת\s+(?:האמונה|הביטחון|החרדה|הלחץ))/,
   /(?:על\s+סקלה\s+של)/,
-  // Evidence loops
   /(?:ראיות\s+(?:בעד|נגד|לכך|לטובת))/,
   /(?:מה\s+(?:הראיות|העדויות|הסיבות|הסיבה))/,
   /(?:מה\s+(?:מצביע|מלמד|מוכיח))/,
   /(?:ראיה\s+ש)/,
-  // Self-monitoring homework
   /(?:(?:רשום|כתוב|תעד)\s+(?:בכל\s+פעם|כל\s+פעם\s+ש|מתי\s+ש))/,
   /(?:(?:שעה|מתי|מה\s+קרה\s+לפני)\s*[\/,]\s*(?:שעה|מה\s+קרה|איפה\s+בגוף))/,
   /(?:יומן\s+(?:מעקב|רגשות|מחשבות|לחץ))/,
   /(?:מעקב\s+(?:עצמי|יומי|שבועי))/,
   /(?:ניטור\s+(?:עצמי|מחשבות))/,
   /(?:לאורך\s+(?:שבוע|שבועיים|חודש)\s+(?:הבא|הקרוב))/,
-  // Future-period observation homework ("in the coming days/weeks")
   /(?:בימים|בשבועות|בחודשים)\s+(?:הבאים|הקרובים)/,
   /(?:להמשיך\s+(?:לשים\s+לב|להתבונן|לעקוב|לפתח))/,
   /(?:לשים\s+לב\s+(?:מתי|לאיך|לכך\s+ש|כש))/,
-  // Multi-option menus
   /(?:אפשרות\s+(?:א|ב|ג|1|2|3))/,
   /(?:^[1-3]\.\s+(?:לנשום|לרשום|לעשות|לנסות|לבחן))/m,
-  // Pattern-mapping chains
   /(?:בוא\s+(?:נבין|נמפה|נזהה|נבדוק|נחקור)\s+(?:את\s+)?ה(?:דפוס|מחשבה|רגשות|קשר|מתי))/,
   /(?:מה\s+(?:הטריגר|הגורם|קרה\s+לפני|קדם\s+ל))/,
   /(?:איזה\s+(?:מחשבה\s+אוטומטית|דפוס\s+חשיבה))/,
-  // Ask-back question at the end
   /\?[\s\u200f]*$/,
 ];
 
-// Context classifier signals
 const HE_EMAIL_SIGNALS = /(?:מייל|אימייל|תיבת\s+(?:הדואר|דואר)|הודעה\s+(?:שלא\s+)?(?:ענית|השבת|טיפלת)|לא\s+(?:הגבת|ענית|השבת))/;
 const HE_DISAPPROVAL_SIGNALS = /(?:למה\s+לא\s+(?:ענית|חזרת|הגבת)|מה\s+יגידו|מה\s+(?:יחשבו|יאמרו|ידעו)|אכזב|אכזבתי|כישלת|כישלון|לא\s+מספיק|(?:לא\s+)?עמדתי\s+בציפיות)/;
 const HE_DISTRESS_SIGNALS = /(?:כובד|כבדות|לחץ|חרדה|מחנק|חזה|גוף|נשימה|עייפות|ריקנות|כאב|פחד)/;
 
-// Directive replacements by context type
 const HE_EMAIL_REWRITES = [
   'בפעם הבאה שהלחץ סביב המיילים עולה, פתח מייל אחד בלבד ובדוק אם הוא באמת דורש מענה מיידי. עצור אחרי מייל אחד.',
   'בחר עכשיו מייל אחד שממתין. קרא אותו בלבד ובדוק: האם הוא דחוף כרגע? סיים בתשובה של משפט אחד או בדחייה מודעת ל-30 דקות.',
@@ -224,10 +289,8 @@ const HE_POST_LEARNING_REWRITES = [
   'בנה על זה ידי לעשות את אותה פעולה עוד פעם אחת השבוע. חזרה אחת. עצור שם.',
 ];
 
-// Hebrew post-learning turn signals — match patterns in DRAFT text (model response echoes user's progress)
 const HE_POST_LEARNING_SIGNALS = /(?:האמונה.{0,15}(?:עלתה|ירדה|השתנתה|עלה)|עזר\s+(?:קצת|מעט|לי)|הרגשת(?:י|\s+)(?:טוב\s+יותר|פחות|שיפור|הקלה)|זה\s+(?:עבד|עזר|הצליח)|ניסיתי\s+(?:את\s+ז|ו|ה)|עשיתי\s+(?:את\s+ז|ו|ה)|השלמתי\s+|פחות\s+(?:חרדה|לחץ|דאגה)\s+מ|\d+%|(?:עלייה|ירידה)\s*(?:ל|ב)\s*\d|הקלה\s+(?:שה|ש|כ|לאחר)|קפיצה\s+בדופק|עדכון\s+שגרתי)/;
 
-// Hebrew post-learning rewrites when email context is present
 const HE_POST_LEARNING_EMAIL_REWRITES = [
   'יפה. פתח עכשיו עוד מייל אחד בלבד ובדוק אם גם שם המציאות פחות מאיימת מהתחזית. עצור אחרי מייל אחד.',
   'הצעד הבא הוא לחזור על אותו מהלך עם מייל אחד נוסף בלבד. סיים אחרי שבדקת מייל אחד.',
@@ -241,202 +304,12 @@ function pickHeRewrite(arr) {
   return pick;
 }
 
-// ============================================================
-// ENGLISH LONG-FORM REFLECTION TRAP DETECTOR (CP13-EN)
-// ============================================================
-//
-// Fires AFTER the draft is composed but BEFORE render.
-// If the draft has shifted into worksheet / formulation mode
-// from a non-worksheet context, the draft is discarded and
-// replaced with a short directive-first action response.
-//
-// Trigger: 2+ semantic trap signals in the draft text.
-// Scope: English sessions only.
-// ============================================================
-
-// Signals that indicate worksheet / formulation mode in English
-const EN_REFLECTION_TRAP_SIGNALS = [
-  // Multi-day tracking homework
-  /for the next (few|\d+) days?,?\s+(write|note|record|track|log)/i,
-  /over the next (week|few days?|couple of days?)/i,
-  /keep a (log|journal|record|diary|note)/i,
-  /track (this|that|it|your|the) (over|for|across)/i,
-  /daily (log|record|tracking|check.in)/i,
-  // Observation / mood-entry homework (catches "notice when / observe the pattern")
-  /notice (when|how|what|if) (it|this|the feeling|anxiety|that feeling).{0,40}(comes? up|happen|occur|trigger|arise)/i,
-  /(observe|monitor|watch for) (the )?(pattern|trigger|sensation|feeling|moment when)/i,
-  /mood (entry|log|tracking|journal|record)/i,
-  /how (often|frequently) (this|it|that|the feeling|these) (happens?|occurs?|comes? up|hits?)/i,
-  // Evidence loops
-  /evidence (for|against|that supports|that contradicts)/i,
-  /what (is the )?evidence (for|against|that)/i,
-  /evidence-based thought/i,
-  /evidence (column|list|side)/i,
-  // Balanced thought generation
-  /balanced (thought|perspective|view|alternative)/i,
-  /more balanced (thought|way of thinking|view)/i,
-  /alternative (thought|perspective|interpretation)/i,
-  /reframe (the thought|that thought|this thought)/i,
-  // Belief rating
-  /rate (your|this|that) belief/i,
-  /on a scale of (0|1) (to|-) (10|100)/i,
-  /belief rating/i,
-  /how strongly do you believe/i,
-  /rate (the|your) (thought|feeling|emotion|belief) (from|on|between)/i,
-  // Cognitive distortion labeling
-  /(all.or.nothing|catastrophi[sz]|overgenerali[sz]|mind reading|fortune.telling|personali[sz]|should.statement|magnif|minimiz|emotional reasoning|labeling|mental filter)/i,
-  /cognitive distortion/i,
-  /thinking (error|pattern|trap|style)/i,
-  /distorted (thinking|thought|pattern)/i,
-  // Should-statements analysis
-  /should.statement/i,
-  /(the word |using )("should"|'should'|should)/i,
-  /replace.{0,20}"should"/i,
-  /challenge.{0,30}should/i,
-  // Pattern mapping / reflection asks (catches disapproval-path drift)
-  /map (out|the) (pattern|cycle|triggers)/i,
-  /identify (the )?triggers? (for|of|behind)/i,
-  /automatic thought (record|worksheet|log)/i,
-  /thought (record|diary|log|worksheet)/i,
-  /name (the |your )?(exact |specific |automatic )?thought/i,
-  /what (is|was) (the |your )?automatic thought/i,
-  /can you (name|identify|describe|tell me) (the |your |what|which)/i,
-  /let.s (explore|understand|unpack|look at) (that|this|why|what)/i,
-  /tell me more about (that|this|what|how|why)/i,
-  // Multi-question chains (3+ question marks in response body)
-];
-
-// Post-learning turn signals (user reports partial success / belief shift)
-const EN_POST_LEARNING_SIGNALS = /(belief.{0,10}(rose|went up|increased|went from|changed)|helped a bit|felt better|worked a little|it worked|that helped|more confident|less anxious than|less worried than|did (the|it|that)|completed (it|the)|followed (through|up)|tried (it|that|the)|\d+%|relief (after|when|once)|belief (rose|climbed|increased|jumped))/i;
-
-// Context signals for targeted English rewrites
-const EN_EMAIL_SIGNALS = /(email|inbox|reply|message|boss|professor|manager|colleague|unread|unanswered)/i;
-const EN_DISAPPROVAL_SIGNALS = /(disappoint|let.{0,5}(them|him|her|people|everyone) down|what (will|would|do) (they|people|everyone) think|judg(e|ing|ment)|fail(ed|ing|ure)|not good enough|expectations|letting people|gotten back (to me|to you|to them)|why haven.t (you|I) (replied|gotten|responded)|why didn.t (you|I)|haven.t replied|late (reply|response|getting back)|behind on (emails?|messages?|replies?)|fear of (disappointing|letting|what))/i;
-const EN_HEAVINESS_SIGNALS = /(heaviness|heavy|weight (in|on|around)|tightness|chest|body|breathing|numb|hollow|empty|exhausted|drained|overwhelm)/i;
-
-// English directive rewrites by context
-const EN_EMAIL_REWRITES = [
-  'Open one email now — just one — and write the first sentence of a reply. Done when that sentence exists.',
-  'Pick the email that feels most overdue. Open it. Write two sentences. Close the tab.',
-  'Open your inbox now and handle one email only: either reply in one sentence or mark it for a specific time tomorrow. Stop after one.',
-];
-
-const EN_DISAPPROVAL_REWRITES = [
-  'Choose one non-urgent email and delay your reply by 30 minutes. Start the timer now. Done when it\'s running.',
-  'Send one short holding reply: "Got it, I\'ll get back to you soon." Stop after sending that one line.',
-  'Pick one email you\'ve been avoiding. Open it. Either reply in one sentence or mark it for a specific time tomorrow. Stop after one.',
-];
-
-const EN_HEAVINESS_REWRITES = [
-  'Place one hand on your chest. Take three slow breaths into your belly. After the third, pick one small thing you can do in the next ten minutes.',
-  'Stop for a moment. Notice where the heaviness sits in your body. Breathe toward it twice. Then choose one action — small enough to finish before you next eat or drink anything.',
-  'Name the one thing that feels most stuck right now. Write it down in one sentence. That sentence is your next action target.',
-];
-
-const EN_LONGTERM_REWRITES = [
-  'The next step is to use the same grounding move the next time this feeling starts — before trying to understand it. One repetition, not a new plan.',
-  'Next time this comes up, use what already worked today. One repeat of the same step. That\'s the assignment.',
-  'Do the same thing you just did, one more time this week, in the same situation. Repetition before expansion.',
-];
-
-const EN_POST_LEARNING_REWRITES = [
-  'Good — now do one more repetition of that same step today, in the same situation. Reinforcement, not analysis.',
-  'That progress is real. The next move is one small repeat of what just worked — not a bigger plan.',
-  'Build on that by doing the same action one more time this week. One repeat. Stop there.',
-];
-
-const EN_GENERIC_REWRITES = [
-  'The next step is one small, concrete action on this — not a plan, not a worksheet. What\'s the single smallest thing you can do about this today?',
-  'Pick one thing from what you just shared that you can act on in the next hour. One thing only. Do that.',
-  'Take one concrete step on this today — something that creates a real-world trace. Write it, send it, or do it.',
-];
-
-let _enRewriteIndex = 0;
-function pickEnRewrite(arr) {
-  const pick = arr[_enRewriteIndex % arr.length];
-  _enRewriteIndex++;
-  return pick;
-}
-
-/**
- * Count reflection trap signals in English draft text.
- * Returns the count of matched signals.
- */
-function countEnReflectionTrapSignals(text) {
-  let count = 0;
-  for (const pattern of EN_REFLECTION_TRAP_SIGNALS) {
-    if (pattern.test(text)) count++;
-  }
-  const questionCount = (text.match(/\?/g) || []).length;
-  if (questionCount >= 3) count++;
-  // Single trailing question + any 1 reflection signal = treat as trapped
-  // (catches disapproval/longterm paths that end with one ask-back + body drift)
-  const endsWithQuestion = /\?[\s]*$/.test(text.trim());
-  if (endsWithQuestion && count >= 1) count++;
-  return count;
-}
-
-/**
- * Classify English context for targeted rewrite.
- * Priority order: longterm > post_learning > email > disapproval > heaviness > generic
- */
-function classifyEnglishContext(text) {
-  // Longterm / next-step queries take top priority — user has moved past immediate distress
-  if (/(next step|long.term|over time|going forward|from here|what now|what next|where do (we|I) go|what should (I|we) do now)/i.test(text)) return 'longterm';
-  // Post-learning turn — user reports partial success
-  if (EN_POST_LEARNING_SIGNALS.test(text)) return 'post_learning';
-  if (EN_EMAIL_SIGNALS.test(text)) return 'email';
-  if (EN_DISAPPROVAL_SIGNALS.test(text)) return 'disapproval';
-  if (EN_HEAVINESS_SIGNALS.test(text)) return 'heaviness';
-  return 'generic';
-}
-
-/**
- * English long-form reflection trap pass (CP13-EN).
- * If 2+ worksheet signals are detected, discard draft and return
- * a short directive-first English replacement.
- * If no trap, returns original text unchanged.
- */
-function applyEnglishReflectionTrapPass(text) {
-  const signalCount = countEnReflectionTrapSignals(text);
-  if (signalCount < 2) return text;
-
-  console.warn('[CP13-EN] Reflection trap detected (' + signalCount + ' signals) — replacing draft with directive rewrite');
-
-  const context = classifyEnglishContext(text);
-  let rewrite;
-  if (context === 'longterm') {
-    rewrite = pickEnRewrite(EN_LONGTERM_REWRITES);
-  } else if (context === 'post_learning') {
-    rewrite = pickEnRewrite(EN_POST_LEARNING_REWRITES);
-  } else if (context === 'email') {
-    rewrite = pickEnRewrite(EN_EMAIL_REWRITES);
-  } else if (context === 'disapproval') {
-    rewrite = pickEnRewrite(EN_DISAPPROVAL_REWRITES);
-  } else if (context === 'heaviness') {
-    rewrite = pickEnRewrite(EN_HEAVINESS_REWRITES);
-  } else {
-    rewrite = pickEnRewrite(EN_GENERIC_REWRITES);
-  }
-
-  return rewrite;
-}
-
-/**
- * Detect Hebrew long-term distress homework drift.
- * Returns true if the user is asking for a long-term next step
- * AND the draft gives tracking/logging/rating homework.
- */
 function detectHebrewLongtermHomeworkDrift(text) {
   const asksForNext = HE_LONGTERM_NEXT_STEP_SIGNALS.some(p => p.test(text));
   if (!asksForNext) return false;
   return HE_LONGTERM_HOMEWORK_BANS.some(p => p.test(text));
 }
 
-/**
- * Semantic Hebrew worksheet drift detector.
- * Returns true if the draft exhibits worksheet-mode behavior semantically.
- */
 function detectHebrewWorksheetDriftSemantic(text) {
   let signalCount = 0;
   for (const pattern of HE_WORKSHEET_SEMANTIC_SIGNALS) {
@@ -449,63 +322,179 @@ function detectHebrewWorksheetDriftSemantic(text) {
   return false;
 }
 
-/**
- * Classify the Hebrew context type for targeted rewrite.
- * Priority: longterm_distress > post_learning_email > post_learning > email > disapproval > distress
- */
 function classifyHebrewContext(text) {
   if (detectHebrewLongtermHomeworkDrift(text)) return 'longterm_distress';
-  // Check for explicit next-step queries (longterm even without homework ban)
   if (HE_LONGTERM_NEXT_STEP_SIGNALS.some(p => p.test(text))) return 'longterm_distress';
   if (HE_POST_LEARNING_SIGNALS.test(text)) {
-    // Email-context post-learning gets a more specific reinforcement rewrite
     if (HE_EMAIL_SIGNALS.test(text)) return 'post_learning_email';
     return 'post_learning';
   }
   if (HE_EMAIL_SIGNALS.test(text)) return 'email';
   if (HE_DISAPPROVAL_SIGNALS.test(text)) return 'disapproval';
   if (HE_DISTRESS_SIGNALS.test(text)) return 'distress';
-  return 'distress'; // default to grounding
+  return 'distress';
 }
 
-/**
- * Hebrew semantic anti-worksheet pass.
- * If worksheet drift is detected semantically, DISCARDS the draft entirely
- * and returns a clean directive-first Hebrew replacement.
- * If no drift, returns the original text unchanged.
- */
 function applyHebrewSemanticAntiWorksheet(text) {
   if (!detectHebrewWorksheetDriftSemantic(text)) return text;
-
-  console.warn('[CP12-HE] Semantic worksheet drift detected — replacing draft with directive rewrite');
-
+  console.warn('[CP12-HE] Semantic worksheet drift — directive rewrite');
   const context = classifyHebrewContext(text);
-  let rewrite;
-  if (context === 'longterm_distress') {
-    rewrite = pickHeRewrite(HE_LONGTERM_DISTRESS_REWRITES);
-  } else if (context === 'post_learning_email') {
-    rewrite = pickHeRewrite(HE_POST_LEARNING_EMAIL_REWRITES);
-  } else if (context === 'post_learning') {
-    rewrite = pickHeRewrite(HE_POST_LEARNING_REWRITES);
-  } else if (context === 'email') {
-    rewrite = pickHeRewrite(HE_EMAIL_REWRITES);
-  } else if (context === 'disapproval') {
-    rewrite = pickHeRewrite(HE_DISAPPROVAL_REWRITES);
-  } else {
-    rewrite = pickHeRewrite(HE_DISTRESS_REWRITES);
-  }
-
-  return rewrite;
+  if (context === 'longterm_distress') return pickHeRewrite(HE_LONGTERM_DISTRESS_REWRITES);
+  if (context === 'post_learning_email') return pickHeRewrite(HE_POST_LEARNING_EMAIL_REWRITES);
+  if (context === 'post_learning') return pickHeRewrite(HE_POST_LEARNING_REWRITES);
+  if (context === 'email') return pickHeRewrite(HE_EMAIL_REWRITES);
+  if (context === 'disapproval') return pickHeRewrite(HE_DISAPPROVAL_REWRITES);
+  return pickHeRewrite(HE_DISTRESS_REWRITES);
 }
 
-// --- Helpers ---
+// ─── English CP13-EN reflection trap system ──────────────────────────────────
+
+const EN_REFLECTION_TRAP_SIGNALS = [
+  /for the next (few|\d+) days?,?\s+(write|note|record|track|log)/i,
+  /over the next (week|few days?|couple of days?)/i,
+  /keep a (log|journal|record|diary|note)/i,
+  /track (this|that|it|your|the) (over|for|across)/i,
+  /daily (log|record|tracking|check.in)/i,
+  /notice (when|how|what|if) (it|this|the feeling|anxiety|that feeling).{0,40}(comes? up|happen|occur|trigger|arise)/i,
+  /(observe|monitor|watch for) (the )?(pattern|trigger|sensation|feeling|moment when)/i,
+  /mood (entry|log|tracking|journal|record)/i,
+  /how (often|frequently) (this|it|that|the feeling|these) (happens?|occurs?|comes? up|hits?)/i,
+  /evidence (for|against|that supports|that contradicts)/i,
+  /what (is the )?evidence (for|against|that)/i,
+  /evidence-based thought/i,
+  /evidence (column|list|side)/i,
+  /balanced (thought|perspective|view|alternative)/i,
+  /more balanced (thought|way of thinking|view)/i,
+  /alternative (thought|perspective|interpretation)/i,
+  /reframe (the thought|that thought|this thought)/i,
+  /rate (your|this|that) belief/i,
+  /on a scale of (0|1) (to|-) (10|100)/i,
+  /belief rating/i,
+  /how strongly do you believe/i,
+  /rate (the|your) (thought|feeling|emotion|belief) (from|on|between)/i,
+  /(all.or.nothing|catastrophi[sz]|overgenerali[sz]|mind reading|fortune.telling|personali[sz]|should.statement|magnif|minimiz|emotional reasoning|labeling|mental filter)/i,
+  /cognitive distortion/i,
+  /thinking (error|pattern|trap|style)/i,
+  /distorted (thinking|thought|pattern)/i,
+  /should.statement/i,
+  /(the word |using )("should"|'should'|should)/i,
+  /replace.{0,20}"should"/i,
+  /challenge.{0,30}should/i,
+  /map (out|the) (pattern|cycle|triggers)/i,
+  /identify (the )?triggers? (for|of|behind)/i,
+  /automatic thought (record|worksheet|log)/i,
+  /thought (record|diary|log|worksheet)/i,
+  /name (the |your )?(exact |specific |automatic )?thought/i,
+  /what (is|was) (the |your )?automatic thought/i,
+  /can you (name|identify|describe|tell me) (the |your |what|which)/i,
+  /let.s (explore|understand|unpack|look at) (that|this|why|what)/i,
+  /tell me more about (that|this|what|how|why)/i,
+];
+
+const EN_POST_LEARNING_SIGNALS = /(belief.{0,10}(rose|went up|increased|went from|changed)|helped a bit|felt better|worked a little|it worked|that helped|more confident|less anxious than|less worried than|did (the|it|that)|completed (it|the)|followed (through|up)|tried (it|that|the)|\d+%|relief (after|when|once)|belief (rose|climbed|increased|jumped))/i;
+
+const EN_EMAIL_SIGNALS = /(email|inbox|reply|message|boss|professor|manager|colleague|unread|unanswered)/i;
+const EN_DISAPPROVAL_SIGNALS = /(disappoint|let.{0,5}(them|him|her|people|everyone) down|what (will|would|do) (they|people|everyone) think|judg(e|ing|ment)|fail(ed|ing|ure)|not good enough|expectations|letting people|gotten back (to me|to you|to them)|why haven.t (you|I) (replied|gotten|responded)|why didn.t (you|I)|haven.t replied|late (reply|response|getting back)|behind on (emails?|messages?|replies?)|fear of (disappointing|letting|what))/i;
+const EN_HEAVINESS_SIGNALS = /(heaviness|heavy|weight (in|on|around)|tightness|chest|body|breathing|numb|hollow|empty|exhausted|drained|overwhelm)/i;
+
+const EN_EMAIL_REWRITES = [
+  'Open one email now — just one — and write the first sentence of a reply. Done when that sentence exists.',
+  'Pick the email that feels most overdue. Open it. Write two sentences. Close the tab.',
+  'Open your inbox now and handle one email only: either reply in one sentence or mark it for a specific time tomorrow. Stop after one.',
+];
+const EN_DISAPPROVAL_REWRITES = [
+  "Choose one non-urgent email and delay your reply by 30 minutes. Start the timer now. Done when it's running.",
+  "Send one short holding reply: \"Got it, I'll get back to you soon.\" Stop after sending that one line.",
+  'Pick one email you\'ve been avoiding. Open it. Either reply in one sentence or mark it for a specific time tomorrow. Stop after one.',
+];
+const EN_HEAVINESS_REWRITES = [
+  'Place one hand on your chest. Take three slow breaths into your belly. After the third, pick one small thing you can do in the next ten minutes.',
+  'Stop for a moment. Notice where the heaviness sits in your body. Breathe toward it twice. Then choose one action — small enough to finish before you next eat or drink anything.',
+  'Name the one thing that feels most stuck right now. Write it down in one sentence. That sentence is your next action target.',
+];
+const EN_LONGTERM_REWRITES = [
+  'The next step is to use the same grounding move the next time this feeling starts — before trying to understand it. One repetition, not a new plan.',
+  "Next time this comes up, use what already worked today. One repeat of the same step. That's the assignment.",
+  'Do the same thing you just did, one more time this week, in the same situation. Repetition before expansion.',
+];
+const EN_POST_LEARNING_REWRITES = [
+  'Good — now do one more repetition of that same step today, in the same situation. Reinforcement, not analysis.',
+  'That progress is real. The next move is one small repeat of what just worked — not a bigger plan.',
+  'Build on that by doing the same action one more time this week. One repeat. Stop there.',
+];
+const EN_GENERIC_REWRITES = [
+  "The next step is one small, concrete action on this — not a plan, not a worksheet. Pick the single smallest thing you can do today and do it.",
+  'Pick one thing from what you just shared that you can act on in the next hour. One thing only. Do that.',
+  'Take one concrete step on this today — something that creates a real-world trace. Write it, send it, or do it.',
+];
+
+let _enRewriteIndex = 0;
+function pickEnRewrite(arr) {
+  const pick = arr[_enRewriteIndex % arr.length];
+  _enRewriteIndex++;
+  return pick;
+}
+
+function countEnReflectionTrapSignals(text) {
+  let count = 0;
+  for (const pattern of EN_REFLECTION_TRAP_SIGNALS) {
+    if (pattern.test(text)) count++;
+  }
+  const questionCount = (text.match(/\?/g) || []).length;
+  if (questionCount >= 3) count++;
+  const endsWithQuestion = /\?[\s]*$/.test(text.trim());
+  if (endsWithQuestion && count >= 1) count++;
+  return count;
+}
+
+function classifyEnglishContext(text) {
+  if (/(next step|long.term|over time|going forward|from here|what now|what next|where do (we|I) go|what should (I|we) do now)/i.test(text)) return 'longterm';
+  if (EN_POST_LEARNING_SIGNALS.test(text)) return 'post_learning';
+  if (EN_EMAIL_SIGNALS.test(text)) return 'email';
+  if (EN_DISAPPROVAL_SIGNALS.test(text)) return 'disapproval';
+  if (EN_HEAVINESS_SIGNALS.test(text)) return 'heaviness';
+  return 'generic';
+}
+
+function applyEnglishReflectionTrapPass(text) {
+  const signalCount = countEnReflectionTrapSignals(text);
+  if (signalCount < 2) return text;
+  console.warn('[CP13-EN] Reflection trap (' + signalCount + ' signals) — directive rewrite');
+  const context = classifyEnglishContext(text);
+  if (context === 'longterm') return pickEnRewrite(EN_LONGTERM_REWRITES);
+  if (context === 'post_learning') return pickEnRewrite(EN_POST_LEARNING_REWRITES);
+  if (context === 'email') return pickEnRewrite(EN_EMAIL_REWRITES);
+  if (context === 'disapproval') return pickEnRewrite(EN_DISAPPROVAL_REWRITES);
+  if (context === 'heaviness') return pickEnRewrite(EN_HEAVINESS_REWRITES);
+  return pickEnRewrite(EN_GENERIC_REWRITES);
+}
+
+// ─── Post-learning compression (Component G) ─────────────────────────────────
+
+const POST_LEARNING_SIGNALS_MULTILANG = [
+  /(belief.{0,10}(rose|went up|increased|changed)|helped a bit|felt better|worked a little|it worked|that helped|more confident|less anxious|less worried|did (the|it|that)|completed (it|the)|followed (through|up)|tried (it|that|the)|\d+%|relief (after|when|once))/i,
+  /(?:האמונה.{0,15}(?:עלתה|ירדה|השתנתה)|עזר\s+(?:קצת|מעט|לי)|הרגשתי\s+(?:טוב\s+יותר|שיפור|הקלה)|זה\s+(?:עבד|עזר)|ניסיתי|עשיתי|השלמתי|\d+%)/,
+  /(funcionó|mejoró|me\s+ayudó|me\s+siento\s+mejor|lo\s+intenté|lo\s+hice|sí\s+pude|\d+%)/i,
+  /(a\s+marché|m'a\s+aidé|je\s+me\s+sens\s+mieux|j'ai\s+essayé|j'ai\s+fait|\d+%)/i,
+  /(hat\s+geholfen|fühle\s+mich\s+besser|habe\s+es\s+versucht|habe\s+es\s+gemacht|\d+%)/i,
+  /(ha\s+funzionato|mi\s+ha\s+aiutato|mi\s+sento\s+meglio|ho\s+provato|l'ho\s+fatto|\d+%)/i,
+  /(funcionou|me\s+ajudou|me\s+sinto\s+melhor|tentei|fiz|\d+%)/i,
+];
+
+function isPostLearningTurn(text) {
+  return POST_LEARNING_SIGNALS_MULTILANG.some(p => p.test(text));
+}
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
 
 function detectLanguage(text) {
   if (/[\u05D0-\u05EA]/.test(text)) return 'he';
-  if (/[\u00C0-\u024F]/.test(text)) {
-    if (/\b(el|la|los|las|que|está|con)\b/i.test(text)) return 'es';
-    if (/\b(le|la|les|est|avec|que)\b/i.test(text)) return 'fr';
-    if (/\b(der|die|das|ist|und|mit)\b/i.test(text)) return 'de';
+  if (/[\u00C0-\u024F\u00A0-\u00FF]/.test(text)) {
+    if (/\b(el|la|los|las|que|está|con|para|pero)\b/i.test(text)) return 'es';
+    if (/\b(le|la|les|est|avec|que|pour|dans|très)\b/i.test(text)) return 'fr';
+    if (/\b(der|die|das|ist|und|mit|für|auch)\b/i.test(text)) return 'de';
+    if (/\b(il|la|le|gli|che|è|con|per|anche)\b/i.test(text)) return 'it';
+    if (/\b(o|a|os|as|que|está|com|para|muito)\b/i.test(text)) return 'pt';
   }
   return 'en';
 }
@@ -568,14 +557,15 @@ function stripRoutingLeakage(text) {
   return cleaned.join('\n').trim();
 }
 
-// --- Main Governor ---
+// ─── Main Governor ───────────────────────────────────────────────────────────
 
 /**
- * Apply the Final Output Governor to an assistant message before render.
+ * Apply the Final Output Governor (CP12 + Release Hardening Pack).
  *
  * @param {string} text - Raw assistant message content
  * @param {object} opts
- * @param {string} [opts.lang] - ISO language code ('he', 'en', etc.). Auto-detected if omitted.
+ * @param {string} [opts.lang] - ISO language code. Auto-detected if omitted.
+ * @param {string} [opts.userMessage] - The triggering user message (for G: post-learning compression)
  * @returns {string} - Governed, user-safe content
  */
 export function applyFinalOutputGovernor(text, opts = {}) {
@@ -584,64 +574,88 @@ export function applyFinalOutputGovernor(text, opts = {}) {
   let result = text;
   const lang = opts.lang || detectLanguage(result);
 
-  // Pass 1: Leakage sanitization (existing layer, reused)
+  // Pass 0a: Language contamination check (Component F)
+  if (hasLanguageContamination(result, lang)) {
+    console.warn('[CP12-F] Language contamination detected for lang:', lang);
+    if (SECONDARY_LANG_REWRITES[lang]) return pickSecondaryLangRewrite(lang);
+    return getFailsafe(lang);
+  }
+
+  // Pass 1: Leakage sanitization — Component A
   result = sanitizeMessageContent(result, lang);
   if (!result || result.length < 3) {
-    console.error('[CP12-A] Content empty after leakage sanitization — using failsafe');
+    console.error('[CP12-A] Empty after leakage sanitization — failsafe');
     return getFailsafe(lang);
   }
 
-  // Pass 2: Routing leakage phrases
+  // Pass 2: Routing leakage phrases — Component D
   result = stripRoutingLeakage(result);
   if (!result || result.length < 3) {
-    console.error('[CP12-D] Content empty after routing strip — using failsafe');
+    console.error('[CP12-D] Empty after routing strip — failsafe');
     return getFailsafe(lang);
   }
 
-  // Pass 3: Generic worksheet drift block
+  // Pass 3: Generic worksheet block strip — Component E
   if (hasWorksheetDrift(result)) {
-    console.warn('[CP12-D] Worksheet drift detected — stripping worksheet blocks');
     result = stripWorksheetBlocks(result);
   }
   if (!result || result.length < 3) {
-    console.error('[CP12-D] Content empty after worksheet strip — using failsafe');
+    console.error('[CP12-D] Empty after worksheet strip — failsafe');
     return getFailsafe(lang);
   }
 
-  // Pass 3b: Hebrew semantic anti-worksheet REWRITE (Hebrew only)
-  // Phrase stripping was insufficient — if drift is detected semantically,
-  // the draft is discarded and replaced with a context-typed directive response.
+  // Pass 3b: Hebrew semantic anti-worksheet REWRITE — Component E (HE)
   if (lang === 'he') {
     result = applyHebrewSemanticAntiWorksheet(result);
-    if (!result || result.length < 3) {
-      console.error('[CP12-HE] Content empty after Hebrew semantic pass — using failsafe');
-      return getFailsafe('he');
+    if (!result || result.length < 3) return getFailsafe('he');
+  }
+
+  // Pass 3c: Secondary language quality floor — Component F
+  if (['es', 'fr', 'de', 'it', 'pt'].includes(lang)) {
+    const signalCount = countEnReflectionTrapSignals(result);
+    if (signalCount >= 2) {
+      console.warn('[CP12-F] Secondary lang reflection trap (' + lang + ') — directive rewrite');
+      result = pickSecondaryLangRewrite(lang);
+      if (!result || result.length < 3) return getFailsafe(lang);
     }
   }
 
-  // Pass 3c: English long-form reflection trap REWRITE (English only)
-  // If worksheet/formulation mode is detected semantically in English,
-  // the draft is discarded and replaced with a short directive-first response.
+  // Pass 3d: English reflection trap REWRITE — Component E (EN)
   if (lang === 'en') {
     result = applyEnglishReflectionTrapPass(result);
-    if (!result || result.length < 3) {
-      console.error('[CP13-EN] Content empty after English reflection trap pass — using failsafe');
-      return getFailsafe('en');
-    }
+    if (!result || result.length < 3) return getFailsafe('en');
   }
 
-  // Pass 4: Trailing ask-back strip
+  // Pass 4: Trailing ask-back strip — Component B
   result = stripTrailingAskBack(result);
   if (!result || result.length < 3) {
-    console.error('[CP12-B] Content empty after ask-back strip — using failsafe');
+    console.error('[CP12-B] Empty after ask-back strip — failsafe');
     return getFailsafe(lang);
   }
 
-  // Pass 5: Final structural check — pure question with nothing else is invalid
+  // Pass 4b: Post-learning compression guard — Component G
+  if (opts.userMessage && isPostLearningTurn(opts.userMessage)) {
+    const trimmedResult = result.trim();
+    if (trimmedResult.length > 400) {
+      const sents = splitSentences(trimmedResult);
+      if (sents.length > 3) {
+        result = sents.slice(0, 2).join(' ');
+        console.warn('[CP12-G] Post-learning: compressed to 2 sentences');
+      }
+    }
+  }
+
+  // Pass 5: Pure-question check — Component B
   const trimmed = result.trim();
   const sentences = splitSentences(trimmed);
   if (sentences.length === 1 && /\?$/.test(trimmed)) {
-    console.error('[CP12-B] Response is only a question — using failsafe');
+    console.error('[CP12-B] Response is only a question — failsafe');
+    return getFailsafe(lang);
+  }
+
+  // Pass 5b: No-response failsafe — Component C
+  if (!trimmed || trimmed.length < 5) {
+    console.error('[CP12-C] Output too short — failsafe');
     return getFailsafe(lang);
   }
 
@@ -658,24 +672,18 @@ export function auditCP12(text) {
   const violations = [];
   const lang = detectLanguage(text);
 
-  if (ROUTING_COMPRESSION_PATTERNS.some(p => p.test(text))) {
-    violations.push('routing-leakage');
-  }
-  if (hasWorksheetDrift(text)) {
-    violations.push('worksheet-drift');
-  }
-  if (lang === 'he' && detectHebrewWorksheetDriftSemantic(text)) {
-    violations.push('hebrew-semantic-worksheet-drift');
-  }
+  if (hasLanguageContamination(text, lang)) violations.push('language-contamination');
+  if (ROUTING_COMPRESSION_PATTERNS.some(p => p.test(text))) violations.push('routing-leakage');
+  if (hasWorksheetDrift(text)) violations.push('worksheet-drift');
+  if (lang === 'he' && detectHebrewWorksheetDriftSemantic(text)) violations.push('hebrew-semantic-worksheet-drift');
+  if (['es', 'fr', 'de', 'it', 'pt'].includes(lang) && countEnReflectionTrapSignals(text) >= 2) violations.push('secondary-lang-reflection-trap');
+
   const lines = text.split('\n');
   const lastLine = [...lines].reverse().find(l => l.trim());
-  if (lastLine && isAskBackLine(lastLine)) {
-    violations.push('trailing-ask-back');
-  }
+  if (lastLine && isAskBackLine(lastLine)) violations.push('trailing-ask-back');
+
   const sentences = splitSentences(text.trim());
-  if (sentences.length === 1 && /\?$/.test(text.trim())) {
-    violations.push('pure-question');
-  }
+  if (sentences.length === 1 && /\?$/.test(text.trim())) violations.push('pure-question');
 
   return { passes: violations.length === 0, violations };
 }

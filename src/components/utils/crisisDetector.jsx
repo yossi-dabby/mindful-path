@@ -9,7 +9,7 @@
  */
 const EXAM_CONTEXT_PATTERNS = [
   // English
-  /\b(exam|test|quiz|finals?|midterm|assignment|deadline|grade|fail(ing)?|failing?\s+(the\s+)?(exam|test|class|course)|afraid\s+(i'?ll?|to)\s+fail|scared\s+(i'?ll?|to)\s+fail|performance\s+anxiety|job\s+interview|presentation)\b/i,
+  /\b(exam|test|quiz|finals?|midterm|assignment|deadline|grade|fail(ing)?|failing?\s+(the\s+)?(exam|test|class|course)|afraid\s+(i'?l?l?|to)\s+fail|scared\s+(i'?l?l?|to)\s+fail|performance\s+anxiety|job\s+interview|presentation)\b/i,
   // Hebrew
   /\b(מבחן|בחינה|בגרות|מבחנים|בחינות|להיכשל|כישלון|מחר\s+מבחן|מבחן\s+מחר|ציון|ציונים|הגשה|מטלה|סמסטר|אוניברסיטה|פחד\s+מכישלון)\b/i,
   // Spanish
@@ -22,6 +22,35 @@ const EXAM_CONTEXT_PATTERNS = [
   /\b(esame|test|paura\s+di\s+fallire|fallire\s+l'esame|voto|presentazione)\b/i,
   // Portuguese
   /\b(exame|prova|medo\s+de\s+reprovar|reprovar|nota|apresenta[çc][aã]o)\b/i,
+];
+
+/**
+ * GENERAL DISTRESS FALSE-POSITIVE GUARD
+ * Blocks crisis escalation for non-crisis distress: overwhelm, panic symptoms,
+ * email/work stress, fear of embarrassment, sleep anxiety, heaviness.
+ * Only suppresses if NO explicit self-harm language is present.
+ */
+const GENERAL_DISTRESS_CONTEXT_PATTERNS = [
+  // Overwhelm / panic symptoms / general anxiety (EN)
+  /\b(overwhelm(ed)?|panic\s+attack|palpitation|racing\s+(heart|thoughts)|can'?t\s+breathe|chest\s+tightness|anxious|burnout|drained|exhausted|heaviness|heavy\s+feeling|numb|hollow|empty\s+feeling)\b/i,
+  // Email / work / social distress (EN)
+  /\b(email|inbox|unanswered|unread|didn'?t\s+(reply|respond|get\s+back)|late\s+(reply|response)|work\s+stress|job\s+stress|boss|colleague|meeting|presentation\s+tomorrow)\b/i,
+  // Fear of social disapproval (EN)
+  /\b(embarrass(ed|ing|ment)?|what\s+(will|would|do)\s+(they|people|everyone)\s+think|disappoint|let\s+(them|everyone|him|her)\s+down|judg(e|ing|ment)|shame)\b/i,
+  // Sleep / fatigue distress (EN)
+  /\b(can'?t\s+sleep|insomnia|nightmares?|woke\s+up|restless\s+night|tired\s+all\s+the\s+time|sleep\s+anxiety)\b/i,
+  // Hebrew general distress
+  /(?:לחץ|חרדה|עייפות|עייף|מיילים|מייל|אימייל|בוס|עבודה|מבוכה|בושה|לא\s+ישנתי|שינה|כובד|מחנק|התקף\s+חרדה|קצב\s+לב|נשימה|ריקנות)/,
+  // Spanish general distress
+  /\b(agobiad|abrumad|ansiedad|ansiosa|pánico|estr[eé]s|cansad|agotad|correo|email|trabajo|jefe|vergüenza|insomnio|no\s+pude\s+dormir|miedo\s+al\s+qué\s+dirán)\b/i,
+  // French general distress
+  /\b(submergé|débordé|anxi[eé]|stress[eé]|panique|épuisé|email|travail|patron|honte|gêne|insomnie|ne\s+pas\s+dormir|peur\s+du\s+regard)\b/i,
+  // German general distress
+  /\b(überwältigt|ängstlich|gestresst|panik|erschöpft|email|arbeit|chef|peinlich|scham|schlaflosigkeit|nicht\s+schlafen)\b/i,
+  // Italian general distress
+  /\b(sopraffatt|ansios|stress|panic|esaurit|email|lavoro|capo|vergogna|imbarazzo|insonnia|non\s+riesco\s+a\s+dormire)\b/i,
+  // Portuguese general distress
+  /\b(sobrecarregad|ansios|estress|panico|esgotad|email|trabalho|chefe|vergonha|embaraço|insônia|não\s+consigo\s+dormir)\b/i,
 ];
 
 const EXPLICIT_SELF_HARM_PATTERNS = [
@@ -133,6 +162,20 @@ export function isExamContextFalsePositive(message) {
   return !hasExplicitHarm;
 }
 
+/**
+ * Returns true if the message is clearly in a general-distress (non-crisis) context
+ * without any explicit self-harm language.
+ * Blocks false-positive crisis escalation for: overwhelm, panic symptoms,
+ * email/work stress, fear of social disapproval, sleep anxiety, vague heaviness.
+ */
+export function isGeneralDistressFalsePositive(message) {
+  if (!message || typeof message !== 'string') return false;
+  const hasGeneralDistress = GENERAL_DISTRESS_CONTEXT_PATTERNS.some(p => p.test(message));
+  if (!hasGeneralDistress) return false;
+  const hasExplicitHarm = EXPLICIT_SELF_HARM_PATTERNS.some(p => p.test(message));
+  return !hasExplicitHarm;
+}
+
 export function detectCrisisLanguage(message) {
   if (!message || typeof message !== 'string') {
     return false;
@@ -140,6 +183,10 @@ export function detectCrisisLanguage(message) {
 
   // False-positive guard: exam/performance context without self-harm → never escalate
   if (isExamContextFalsePositive(message)) return false;
+
+  // False-positive guard: general distress context (overwhelm, panic symptoms, email
+  // stress, embarrassment, sleep anxiety, heaviness) without explicit harm → never escalate
+  if (isGeneralDistressFalsePositive(message)) return false;
 
   const original = message.toLowerCase().trim();
   // Also test a punctuation-stripped version for boundary matching

@@ -173,8 +173,22 @@ const FORBIDDEN_INLINE_PATTERNS = [
   /^\s*CP\d+/im
 ];
 
-const HEBREW_FAILSAFE = "אני כאן איתך. מה הכי מטריד אותך כרגע?";
-const ENGLISH_FAILSAFE = "I'm here with you. What's on your mind right now?";
+const LANGUAGE_FAILSAFES = {
+  he: 'אני כאן איתך. מה הכי מטריד אותך כרגע?',
+  en: "I'm here with you. What's on your mind right now?",
+  es: 'Estoy aquí contigo. ¿Qué está en tu mente ahora mismo?',
+  fr: "Je suis là pour toi. Qu'est-ce qui te préoccupe en ce moment?",
+  de: 'Ich bin hier für dich. Was beschäftigt dich gerade?',
+  it: 'Sono qui con te. Cosa hai in mente in questo momento?',
+  pt: 'Estou aqui com você. O que está em sua mente agora?',
+};
+
+function getLanguageFailsafe(language) {
+  return LANGUAGE_FAILSAFES[language] || LANGUAGE_FAILSAFES['en'];
+}
+
+const HEBREW_FAILSAFE = LANGUAGE_FAILSAFES.he;
+const ENGLISH_FAILSAFE = LANGUAGE_FAILSAFES.en;
 
 /**
  * Sanitize text by removing lines containing reasoning tokens
@@ -193,7 +207,7 @@ export function sanitizeMessageContent(text, language = 'en') {
     console.warn('[Sanitizer] ⚠️ Stripped <think> block from assistant message');
     if (!text || text.length < 5) {
       console.error('[Sanitizer] ⚠️ All content removed after <think> stripping - using failsafe');
-      return language === 'he' ? HEBREW_FAILSAFE : ENGLISH_FAILSAFE;
+      return getLanguageFailsafe(language);
     }
   }
 
@@ -235,7 +249,7 @@ export function sanitizeMessageContent(text, language = 'en') {
   // Failsafe: If cleaning removed everything, use language-appropriate fallback
   if (!cleaned || cleaned.length < 5) {
     console.error('[Sanitizer] ⚠️ All content removed - using failsafe');
-    cleaned = language === 'he' ? HEBREW_FAILSAFE : ENGLISH_FAILSAFE;
+    cleaned = getLanguageFailsafe(language);
   }
 
   return cleaned;
