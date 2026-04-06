@@ -6,8 +6,8 @@ import MessageFeedback from './MessageFeedback';
 import { sanitizeMessageContent, extractThinkingContent } from '../utils/messageContentSanitizer';
 import { applyFinalOutputGovernor } from '../utils/finalOutputGovernor';
 
-export default function MessageBubble({ message, conversationId, messageIndex, agentName = 'cbt_therapist', context = 'chat' }) {
-  const { t } = useTranslation();
+export default function MessageBubble({ message, conversationId, messageIndex, agentName = 'cbt_therapist', context = 'chat', userMessage }) {
+  const { t, i18n } = useTranslation();
   const [thinkingExpanded, setThinkingExpanded] = useState(false);
   // CRITICAL GATE 1: Strict null/undefined/empty gating
   if (!message || !message.role || !message.content) {
@@ -50,7 +50,10 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
     // CRITICAL: Apply Final Output Governor (CP12) — last gate before render
     // For assistant messages: runs full leakage + ask-back + worksheet-drift + routing-leakage passes
     // For user messages: pass through unchanged
-    const sanitized = isUser ? contentStr : applyFinalOutputGovernor(contentStr);
+    const sanitized = isUser ? contentStr : applyFinalOutputGovernor(contentStr, {
+      lang: i18n.language || 'en',
+      userMessage: userMessage || undefined,
+    });
     content = sanitized;
 
     // CRITICAL GATE 4: Final content validation
