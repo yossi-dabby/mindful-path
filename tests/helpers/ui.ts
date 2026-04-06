@@ -143,6 +143,32 @@ export async function mockApi(page: Page) {
       return;
     }
 
+    // ---- Base44 function invocations ----
+    // Mock ALL function invocations so they never reach the real backend.
+    // Without this, calls like enhancedCrisisDetector (called on every message send)
+    // fall through to route.continue() and may block or fail in CI, delaying the
+    // POST to /agents/conversations/*/messages past the waitForRequest timeout.
+    if (url.includes('/functions/')) {
+      // Return a safe "no crisis detected" default for crisis-detection functions
+      // and a generic success payload for all other function invocations.
+      let responseBody: Record<string, unknown> = { success: true, data: {} };
+      if (url.includes('enhancedCrisisDetector') || url.includes('crisisDetect')) {
+        responseBody = {
+          data: {
+            is_crisis: false,
+            severity: 'none',
+            confidence: 0,
+          },
+        };
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(responseBody),
+      });
+      return;
+    }
+
     // ---- Agent conversations ----
     if (url.includes('/agents/conversations') && method === 'GET') {
       await route.fulfill({
@@ -183,7 +209,9 @@ export async function mockApi(page: Page) {
       return;
     }
 
-    // Add message to conversation (echo back posted content)
+    // Add message to conversation (echo back posted content).
+    // This is the POST that smoke.spec.ts waits for with waitForRequest — it MUST
+    // be intercepted here so Playwright sees the request event even when mocked.
     if (
       url.includes('/agents/conversations/') &&
       url.includes('/messages') &&
