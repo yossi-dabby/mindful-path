@@ -58,7 +58,8 @@ export async function mockApi(page: Page) {
 
   // Inject a test app ID before the page loads so that API URLs are well-formed
   // even when VITE_BASE44_APP_ID is not set in the CI environment.
-  // app-params.js reads window.__TEST_APP_ID__ before falling back to the env var.
+  // src/lib/app-params.js reads window.__TEST_APP_ID__ first (before the
+  // build-time env var), so setting it here gives tests a predictable app ID.
   await page.addInitScript(() => {
     if (!(window as any).__TEST_APP_ID__) {
       (window as any).__TEST_APP_ID__ = 'test-app-id';

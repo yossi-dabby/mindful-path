@@ -12,7 +12,7 @@ function validateAppId() {
       const appId = process.env.VITE_BASE44_APP_ID || process.env.BASE44_APP_ID;
       if (!appId) {
         const msg =
-          'VITE_BASE44_APP_ID is not set. ' +
+          'VITE_BASE44_APP_ID (or BASE44_APP_ID) is not set. ' +
           'All Base44 API requests will fail with 404 (/api/apps/undefined/...). ' +
           'Add VITE_BASE44_APP_ID to your .env file or, in GitHub Actions, to ' +
           'Settings → Secrets and variables → Actions → New repository secret.';
