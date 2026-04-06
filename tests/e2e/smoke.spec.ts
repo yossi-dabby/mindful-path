@@ -74,9 +74,11 @@ test.describe('Chat Smoke Test (Mobile)', () => {
       // The old selectors fell through to broad fallbacks that could match
       // unrelated elements, especially on mobile where the DOM layout differs.
       // -----------------------------------------------------------------------
+      // Primary: exact testid used by Chat.jsx.  Fallback: first visible textarea
+      // (generic enough to survive minor DOM refactors, explicit enough to not
+      // silently match unrelated inputs).
       const messageInput = page
         .locator('textarea[data-testid="therapist-chat-input"]')
-        .or(page.locator('textarea[data-testid="chat-input"]'))
         .or(page.locator('textarea').first());
 
       await expect(messageInput).toBeVisible({ timeout: 20000 });
@@ -97,13 +99,10 @@ test.describe('Chat Smoke Test (Mobile)', () => {
         { timeout: 30000 }
       );
 
-      // FIX 5 — Correct send-button testid, with cascading fallbacks.
-      // The Button has data-testid="therapist-chat-send" and contains only a
-      // lucide <Send /> icon (no text), so role-name / aria-label lookups fail
-      // without the primary testid.
+      // Primary: exact testid used by Chat.jsx (Button contains only a lucide
+      // <Send /> icon — no text — so role/aria lookups are kept as fallback).
       const sendButton = page
         .locator('[data-testid="therapist-chat-send"]')
-        .or(page.locator('[data-testid="chat-send"]'))
         .or(page.getByRole('button', { name: /send/i }))
         .or(page.locator('button[aria-label*="Send" i]'))
         .first();
