@@ -56,6 +56,15 @@ export async function mockApi(page: Page) {
   const mockUserId = 'test-user-123';
   const mockUserEmail = 'test@example.com';
 
+  // Inject a test app ID before the page loads so that API URLs are well-formed
+  // even when VITE_BASE44_APP_ID is not set in the CI environment.
+  // app-params.js reads window.__TEST_APP_ID__ before falling back to the env var.
+  await page.addInitScript(() => {
+    if (!(window as any).__TEST_APP_ID__) {
+      (window as any).__TEST_APP_ID__ = 'test-app-id';
+    }
+  });
+
   await page.route('**/api/**', async (route) => {
     const req = route.request();
     const url = req.url();
@@ -307,6 +316,18 @@ export async function mockApi(page: Page) {
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify([]),
+      });
+      return;
+    }
+
+    // Backend function calls (e.g. enhancedCrisisDetector, sessionPhaseEngine).
+    // These are called during chat interactions. Return a safe no-op response so
+    // the UI can proceed without a real backend connection.
+    if (url.includes('/functions/')) {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ result: null }),
       });
       return;
     }

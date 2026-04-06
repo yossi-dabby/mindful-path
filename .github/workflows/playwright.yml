@@ -30,6 +30,16 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
+      - name: Validate required secrets
+        run: |
+          if [ -z "$VITE_BASE44_APP_ID" ]; then
+            echo "::error::VITE_BASE44_APP_ID secret is not configured. Add it to GitHub repository secrets: Settings → Secrets and variables → Actions → New repository secret. Without this variable the dev server serves the app with an undefined app ID, causing all Base44 API requests to return 404."
+            exit 1
+          fi
+          echo "✅ VITE_BASE44_APP_ID is set"
+        env:
+          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID }}
+
       - name: Build application
         run: npm run build
         env:
@@ -103,6 +113,16 @@ jobs:
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
+
+      - name: Validate required secrets
+        run: |
+          if [ -z "$VITE_BASE44_APP_ID" ]; then
+            echo "::error::VITE_BASE44_APP_ID secret is not configured. Add it to GitHub repository secrets: Settings → Secrets and variables → Actions → New repository secret. Without this variable the dev server serves the app with an undefined app ID, causing all Base44 API requests to return 404."
+            exit 1
+          fi
+          echo "✅ VITE_BASE44_APP_ID is set"
+        env:
+          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID }}
 
       - name: Build application
         run: npm run build

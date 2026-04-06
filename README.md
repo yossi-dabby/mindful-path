@@ -1,5 +1,32 @@
 # Base44 App
 
+## Required Environment Variables
+
+The following environment variables **must** be set for the app to work correctly.
+
+| Variable | Where to set | Description |
+|---|---|---|
+| `VITE_BASE44_APP_ID` | `.env` (local), GitHub Actions secret (CI) | Base44 application identifier. Without this, all API calls will target `/api/apps/undefined/...` and return 404. |
+
+### Setting up for CI (GitHub Actions)
+
+1. Go to your repository: **Settings → Secrets and variables → Actions**
+2. Click **New repository secret**
+3. Name: `VITE_BASE44_APP_ID`
+4. Value: your Base44 application ID
+5. Click **Add secret**
+
+The Playwright E2E workflow will fail at the "Validate required secrets" step with a clear error message if this secret is missing.
+
+### Setting up for local development
+
+Copy the example env file and fill in your values:
+
+```bash
+cp env.staging.example .env
+# Then edit .env and set VITE_BASE44_APP_ID=<your-app-id>
+```
+
 ## Running E2E Tests
 
 ### Smoke Tests (Production-critical, Read-only)
