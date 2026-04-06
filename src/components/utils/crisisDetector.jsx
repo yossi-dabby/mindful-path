@@ -62,6 +62,16 @@ const EXPLICIT_SELF_HARM_PATTERNS = [
   /\b(better\s+off\s+(dead|without\s+me)|everyone\s+(would\s+be\s+)?better\s+(off\s+)?without\s+me)\b/i,
   // Hebrew self-harm / suicidal
   /\b(להרוג\s+את\s+עצמי|לפגוע\s+בעצמי|להתאבד|אני\s+רוצה\s+למות|חיי\s+לא\s+שווים)\b/i,
+  // Spanish explicit self-harm / suicidal
+  /\b(matarme|hacerme\s+daño|cortarme|suicidio|suicidarme|quitarme\s+la\s+vida|acabar\s+con\s+mi\s+vida)\b/i,
+  // French explicit self-harm / suicidal
+  /\b(me\s+tuer|me\s+faire\s+du\s+mal|me\s+blesser|suicide|me\s+suicider|mettre\s+fin\s+à\s+ma\s+vie|en\s+finir\s+avec\s+ma\s+vie)\b/i,
+  // German explicit self-harm / suicidal
+  /\b(mich\s+umbringen|mir\s+etwas\s+antun|mich\s+verletzen|Selbstmord|mich\s+töten|mein\s+Leben\s+beenden)\b/i,
+  // Italian explicit self-harm / suicidal
+  /\b(uccidermi|farmi\s+del\s+male|tagliarmi|suicidio|suicidarmi|togliermi\s+la\s+vita|farla\s+finita)\b/i,
+  // Portuguese explicit self-harm / suicidal
+  /\b(me\s+matar|me\s+machucar|me\s+cortar|suicídio|me\s+suicidar|tirar\s+minha\s+vida|acabar\s+com\s+minha\s+vida)\b/i,
 ];
 
 const CRISIS_PATTERNS = [
@@ -93,6 +103,17 @@ const CRISIS_PATTERNS = [
 
   // Hebrew self-harm / suicidal
   /\b(להרוג\s+את\s+עצמי|לפגוע\s+בעצמי|להתאבד|אני\s+רוצה\s+למות|חיי\s+לא\s+שווים)\b/i,
+
+  // Spanish crisis threshold
+  /\b(matarme|hacerme\s+daño|cortarme|suicidarme|quitarme\s+la\s+vida|acabar\s+con\s+mi\s+vida|no\s+quiero\s+(seguir\s+)?(vivir|existir)|mejor\s+muerto|prefiero\s+morir)\b/i,
+  // French crisis threshold
+  /\b(me\s+tuer|me\s+faire\s+du\s+mal|me\s+suicider|mettre\s+fin\s+à\s+ma\s+vie|en\s+finir\s+avec\s+ma\s+vie|je\s+ne\s+veux\s+plus\s+vivre|mieux\s+vaut\s+mourir|je\s+veux\s+mourir)\b/i,
+  // German crisis threshold
+  /\b(mich\s+umbringen|mir\s+etwas\s+antun|mich\s+töten|Selbstmord|mein\s+Leben\s+beenden|ich\s+will\s+nicht\s+mehr\s+leben|lieber\s+tot|ich\s+möchte\s+sterben)\b/i,
+  // Italian crisis threshold
+  /\b(uccidermi|farmi\s+del\s+male|suicidarmi|togliermi\s+la\s+vita|farla\s+finita|non\s+voglio\s+più\s+vivere|meglio\s+morto|voglio\s+morire)\b/i,
+  // Portuguese crisis threshold
+  /\b(me\s+matar|me\s+machucar|me\s+suicidar|tirar\s+minha\s+vida|acabar\s+com\s+minha\s+vida|não\s+quero\s+mais\s+viver|melhor\s+morto|quero\s+morrer)\b/i,
 ];
 
 /**
