@@ -44,6 +44,15 @@ import { BOTTOM_NAV_HEIGHT } from '../components/layout/BottomNav';
 import SessionPhaseIndicator from '../components/therapy/SessionPhaseIndicator';
 import SafetyModeIndicator from '../components/therapy/SafetyModeIndicator';
 
+// ─── MF-7: Legacy variant-profile agent names — historical conversations under
+// these names must NOT receive new messages. Empty clinical stubs; fail-closed.
+// Do NOT derive this list dynamically. Do NOT infer from safetyProfile metadata.
+const LEGACY_VARIANT_PROFILES = Object.freeze([
+  'cbt_therapist_strict',
+  'cbt_therapist_standard',
+  'cbt_therapist_lenient',
+]);
+
 export default function Chat() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -65,6 +74,8 @@ export default function Chat() {
   const [isAgeRestricted, setIsAgeRestricted] = useState(false);
   const [showSavePrompt, setShowSavePrompt] = useState(false);
   const [savePromptData, setSavePromptData] = useState(null);
+  // MF-7: true when the loaded conversation belongs to a legacy variant-profile agent
+  const [variantProfileBlocked, setVariantProfileBlocked] = useState(false);
   // Phase 8 — Upgraded-path UI state (only relevant when V5 wiring is active)
   // safetyModeActive becomes true and stays true once the upgraded safety supplement
   // fires for any turn in this session.  Resets when a new conversation starts.
@@ -111,6 +122,7 @@ export default function Chat() {
   // Reset visible window when conversation changes
   useEffect(() => {
     setVisibleCount(50);
+    setVariantProfileBlocked(false); // MF-7: reset block state whenever conversation switches
   }, [currentConversationId]);
 
   // Load more messages when user scrolls to top
@@ -1025,6 +1037,22 @@ export default function Chat() {
       }
 
       const conversation = await base44.agents.getConversation(convId);
+
+      // MF-7: Fail-closed guard — block continuation of legacy variant-profile conversations.
+      // Rule 1: agent_name present and in LEGACY_VARIANT_PROFILES → block.
+      // Rule 2: agent_name absent (platform did not return it) → unknown identity → fail closed → block.
+      // Primary-agent conversations (agent_name === 'cbt_therapist') pass through unconditionally.
+      const conversationAgentName = conversation?.agent_name;
+      if (!conversationAgentName || LEGACY_VARIANT_PROFILES.includes(conversationAgentName)) {
+        if (loadingTimeoutRef.current) {
+          clearTimeout(loadingTimeoutRef.current);
+          loadingTimeoutRef.current = null;
+        }
+        setIsLoading(false);
+        setVariantProfileBlocked(true);
+        return;
+      }
+
       console.log('[Send] 📤 Adding message to conversation:', convId);
 
       await base44.agents.addMessage(conversation, {
@@ -1608,23 +1636,38 @@ export default function Chat() {
             zIndex: 50
           }}>
           <div className="text-teal-600 mx-auto max-w-4xl flex gap-2">
-            <Textarea
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={t('chat.message_placeholder')} className="bg-[hsl(var(--surface-nested)/0.9)] text-foreground px-3 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-card)] flex w-full border border-input/90 shadow-[var(--shadow-sm)] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 flex-1 min-h-[48px] max-h-[160px] resize-none"
+            {variantProfileBlocked ? (
+              <div className="flex-1 flex flex-col gap-3">
+                <div className="rounded-[var(--radius-card)] border border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
+                  {t('chat.variant_blocked.message', 'This past conversation can no longer be continued. You can still read it here.')}
+                </div>
+                <Button
+                  onClick={startNewConversation}
+                  className="bg-teal-600 text-primary-foreground font-medium rounded-[var(--radius-card)] border border-transparent transition-all duration-200 shadow-[var(--shadow-md)] hover:bg-primary/92 min-h-[44px] md:min-h-0 h-[48px] w-full">
+                  {t('chat.variant_blocked.start_new', 'Start a new conversation')}
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Textarea
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder={t('chat.message_placeholder')} className="bg-[hsl(var(--surface-nested)/0.9)] text-foreground px-3 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-card)] flex w-full border border-input/90 shadow-[var(--shadow-sm)] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 flex-1 min-h-[48px] max-h-[160px] resize-none"
 
-                data-testid="therapist-chat-input"
-                disabled={isLoading} />
+                    data-testid="therapist-chat-input"
+                    disabled={isLoading} />
 
-            <Button
-                onClick={handleSendMessage}
-                disabled={!inputMessage.trim() || isLoading}
-                data-testid="therapist-chat-send" className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 h-[48px] flex-shrink-0">
+                <Button
+                    onClick={handleSendMessage}
+                    disabled={!inputMessage.trim() || isLoading}
+                    data-testid="therapist-chat-send" className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 h-[48px] flex-shrink-0">
 
 
-              <Send className="w-5 h-5" />
-            </Button>
+                  <Send className="w-5 h-5" />
+                </Button>
+              </>
+            )}
           </div>
           {/* Compact disclaimer */}
           <p className="text-center mt-1 text-xs text-muted-foreground">
