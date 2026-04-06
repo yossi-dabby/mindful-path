@@ -311,6 +311,36 @@ export async function mockApi(page: Page) {
       return;
     }
 
+    // ---- Backend functions ----
+    // Stub the LLM-based crisis detector so it never reaches the real endpoint
+    // during tests (the real endpoint requires an authenticated Deno runtime and
+    // returns 405 when invoked outside that context).
+    if (url.includes('/functions/enhancedCrisisDetector')) {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          is_crisis: false,
+          severity: 'none',
+          reason: 'mocked_test_response',
+          confidence: 0,
+        }),
+      });
+      return;
+    }
+
+    // Generic fallback for any other backend function invocation so that
+    // fire-and-forget calls (e.g. generateSessionSummary, retentionCleanup)
+    // don't reach the live server during E2E tests.
+    if (url.includes('/functions/')) {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: true }),
+      });
+      return;
+    }
+
     // Default: pass through
     await route.continue();
   });
