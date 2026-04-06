@@ -61,10 +61,13 @@ Every review cycle produces exactly one of four decisions. No other decisions ar
 - Minimum session volume reached ✅
 
 **Action:**
-- Update LIMITED_RELEASE_PROTOCOL.md status to "FULL RELEASE"
+- Update protocol doc status to "FULL RELEASE"
 - Record graduation date and final baseline snapshot
-- Archive all open watchpoints as resolved or accepted
-- Disable Limited Release monitoring overhead
+- Archive Limited Release phase as complete
+- Carry all watchpoints forward as monitor-only under Full Release rules
+- Freeze therapist logic as production baseline
+
+**DECISION TAKEN: 2026-04-06 — Graduated to Full Release.**
 
 ---
 
@@ -84,4 +87,4 @@ All Full Release Gates pass + session volume met? ──YES──► GRADUATE TO
         │ NO
         ▼
 SAFE TO CONTINUE LIMITED RELEASE
-``
+`

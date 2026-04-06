@@ -1,7 +1,10 @@
 # Active Watchpoints
 
+## Status
+**FULL RELEASE — Graduated 2026-04-06. All watchpoints carried forward as monitor-only.**
+
 ## Purpose
-All active monitoring targets for the Limited Release phase.
+All active monitoring targets for the Full Release phase.
 Each watchpoint has a defined reopen rule — do not reopen from hypothetical concern.
 
 ---
@@ -105,3 +108,5 @@ Each watchpoint has a defined reopen rule — do not reopen from hypothetical co
 - Reopen only on real-session evidence meeting the stated reopen rule
 - Update status field after each weekly review cycle
 - A HIGH-risk watchpoint with a confirmed instance triggers HOLD — ESCALATE immediately
+- Therapist logic is production-frozen — micro-fixes remain the only permitted response to repeated regressions
+- Internal leakage or critical safety failure → Immediate hold + escalate (no wait for 2nd instance)

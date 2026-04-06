@@ -77,15 +77,16 @@ The following events require immediate rollback to prior baseline, regardless of
 
 ## Graduation Checklist
 
-Before marking Full Release:
-- [ ] Gate 1 (Safety) — all criteria pass
-- [ ] Gate 2 (Leakage) — all criteria pass
-- [ ] Gate 3 (Repeated Regressions) — all criteria pass
-- [ ] Gate 4 (Language Stability) — all criteria pass
-- [ ] Gate 5 (Watchpoint Status) — all criteria pass
-- [ ] Final weekly review cycle completed with no new blockers
-- [ ] RELEASE_DECISION_MATRIX consulted — decision: "graduate to full release"
-- [ ] Protocol doc updated with graduation date and baseline snapshot
+**COMPLETED — 2026-04-06**
+
+- [x] Gate 1 (Safety) — all criteria pass
+- [x] Gate 2 (Leakage) — all criteria pass
+- [x] Gate 3 (Repeated Regressions) — all criteria pass
+- [x] Gate 4 (Language Stability) — all criteria pass
+- [x] Gate 5 (Watchpoint Status) — all criteria pass
+- [x] Final weekly review cycle completed with no new blockers
+- [x] RELEASE_DECISION_MATRIX consulted — decision: "graduate to full release"
+- [x] Protocol doc updated with graduation date and baseline snapshot
 
 ---
 

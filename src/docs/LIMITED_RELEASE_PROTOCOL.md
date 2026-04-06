@@ -1,15 +1,13 @@
 # CBT Therapist — Limited Release Protocol
 
 ## Status
-**ACTIVE — Limited Release Phase**
+**FULL RELEASE — Graduated 2026-04-06**
 
-Baseline: CP11 + CP12 patch (social anxiety / sleep anxiety ask-back suppression) + CP12-HE Hebrew semantic anti-worksheet rewrite (email-pressure, fear-of-disapproval, long-term distress compression) + CP13-EN English long-form reflection trap pass (worksheet drift / gather-info-first / over-explaining after initial calming).
-All therapist logic is frozen at this baseline.
+Baseline: CP11 + CP12 (social anxiety / sleep anxiety ask-back suppression) + CP12-HE (Hebrew semantic anti-worksheet rewrite) + CP13-EN (English reflection trap pass) + Release Hardening Pack (7 components: Fail-Closed output governance, Crisis Threshold recalibration, No-response fallback, Stability guards, Reflection trap kill-switches, Multilingual purity enforcement, Post-learning output compression).
 
-**Hold lifted: 2026-04-05.** CP12 Hebrew verification passed.
-**CP13-EN status: Implemented 2026-04-05. Verification deferred — no QA round opened. Awaiting real-session evidence before further adjustment.**
+All therapist logic is **production-frozen** at this baseline. No clinical additions, no new CP/C/L levels, no curriculum expansion, no architectural changes are permitted without a formal Hold-Escalate justification.
 
-Resuming live monitoring under standard Limited Release rules. No new fixes unless a qualifying live regression appears.
+**Graduation: 2026-04-06.** All Full Release Gates (1–5) passed. All 7 hardening blockers marked clean.
 
 ---
 
@@ -17,13 +15,14 @@ Resuming live monitoring under standard Limited Release rules. No new fixes unle
 
 | Rule | Detail |
 |------|--------|
-| Freeze therapist logic | No broad implementation changes during this phase |
-| No new layers | No new CP / C / L levels unless escalation criteria met |
-| No curriculum expansion | No new CBTCurriculumUnit records during this phase |
-| Log regressions only | Every observed regression goes into RegressionLog |
+| Production-freeze therapist logic | No clinical changes without escalation justification |
+| No new layers | No new CP / C / L levels unless Hold-Escalate event requires it |
+| No curriculum expansion | No new CBTCurriculumUnit records without formal review |
+| Log regressions | Every observed regression goes into RegressionLog |
 | Single bad answer | Monitor only — no fix |
 | 2+ independent repetitions of same regression | One targeted micro-fix eligible (narrowest possible scope) |
 | Internal leakage | Immediate hold + escalate — do not wait for repetition |
+| Critical safety failure | Immediate hold + escalate + incident report |
 
 ---
 
@@ -124,16 +123,29 @@ Optional but recommended:
 
 ## Release Stages
 
-| Stage | Criteria to advance |
-|-------|---------------------|
-| Limited Release (current) | Real sessions collected, no unresolved high-severity regressions, no internal leakage |
-| Expanded Release | 50+ sessions, ≤2 medium regressions unfixed, zero high/leakage |
-| General Availability | 200+ sessions, regression rate stable, all high-severity resolved |
+| Stage | Status |
+|-------|--------|
+| Limited Release | ✅ Completed — graduated 2026-04-06 |
+| Full Release | ✅ **ACTIVE** — all gates passed, therapist logic production-frozen |
+
+## Graduation Record
+
+| Field | Value |
+|-------|-------|
+| Graduation date | 2026-04-06 |
+| Gate 1 — Safety | ✅ PASS |
+| Gate 2 — Leakage | ✅ PASS |
+| Gate 3 — Repeated Regressions | ✅ PASS |
+| Gate 4 — Language Stability | ✅ PASS |
+| Gate 5 — Watchpoint Status | ✅ PASS |
+| Hardening blockers | ✅ All 7 clean |
+| Therapist logic | Production-frozen at baseline above |
 
 ---
 
 ## Notes
 
-- Do not modify this protocol during Limited Release without explicit sign-off.
-- All micro-fixes must be logged before deployment.
+- Therapist logic is production-frozen. Do not modify without a formal Hold-Escalate event.
+- All micro-fixes must be logged in RegressionLog before deployment.
 - Disappearing-reply incidents are tracked in a separate incident log, not in RegressionLog.
+- This document was formerly LIMITED_RELEASE_PROTOCOL.md. Renamed in-place at graduation.
