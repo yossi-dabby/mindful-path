@@ -25,7 +25,7 @@ const CRISIS_STRINGS = {
     hotlineLabel: "קו עזרה למשבר (ערן)",
     hotlineNumber: "1201",
     textLabel: "קו חירום כללי",
-    textNumber: "101 (מד\"א) / 100 (משטרה)",
+    textNumber: '101 (מד"א) / 100 (משטרה)',
     emergencyLabel: "חירום",
     emergencyNumber: "101 / 112",
     button: "חזרה לצ'אט",
@@ -95,11 +95,10 @@ const CRISIS_STRINGS = {
 
 export default function InlineRiskPanel({ onDismiss }) {
   const { i18n } = useTranslation();
-  // Resolve to supported language; fall back to 'en' only if language not in set
+  const baseLang = i18n.language?.split('-')[0];
   const lang = CRISIS_STRINGS[i18n.language] ? i18n.language
-    : (i18n.language?.split('-')[0] && CRISIS_STRINGS[i18n.language.split('-')[0]])
-      ? i18n.language.split('-')[0]
-      : 'en';
+    : CRISIS_STRINGS[baseLang] ? baseLang
+    : 'en';
   const s = CRISIS_STRINGS[lang];
 
   const handleDismiss = () => {
@@ -145,7 +144,6 @@ export default function InlineRiskPanel({ onDismiss }) {
               {s.body}
             </p>
 
-            {/* Crisis Resources */}
             <div className="space-y-2 mb-4 text-sm">
               <div className="flex items-center gap-2 p-2 rounded-lg" style={{ backgroundColor: 'rgba(255, 255, 255, 0.6)' }}>
                 <Phone className="w-4 h-4 flex-shrink-0" style={{ color: '#DC2626' }} />
