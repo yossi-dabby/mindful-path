@@ -914,6 +914,10 @@ export default function Chat() {
       setShowRiskPanel(true);
       setInputMessage('');
       setIsLoading(false);
+      return;
+    }
+
+    // Layer 2: LLM-based crisis detection (nuanced, implicit patterns)
     try {
       const user = await base44.auth.me();
       const enhancedCheck = await base44.functions.invoke('enhancedCrisisDetector', {
