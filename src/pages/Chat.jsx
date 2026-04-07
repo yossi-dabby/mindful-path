@@ -762,13 +762,12 @@ export default function Chat() {
           return [];
         }
 
-        // Fetch conversations from all safety profile agents
-        const allConversations = await Promise.all([
-        base44.agents.listConversations({ agent_name: 'cbt_therapist_lenient' }).catch(() => []),
-        base44.agents.listConversations({ agent_name: 'cbt_therapist_standard' }).catch(() => []),
-        base44.agents.listConversations({ agent_name: 'cbt_therapist_strict' }).catch(() => []),
-        base44.agents.listConversations({ agent_name: 'cbt_therapist' }).catch(() => []) // Legacy
-        ]);
+        // Fetch conversations sequentially to avoid rate-limit bursts
+        const allConversations = [];
+        for (const agentName of ['cbt_therapist_lenient', 'cbt_therapist_standard', 'cbt_therapist_strict', 'cbt_therapist']) {
+          const result = await base44.agents.listConversations({ agent_name: agentName }).catch(() => []);
+          allConversations.push(result);
+        }
 
         const flatConversations = allConversations.flat();
         const deletedConversations = await base44.entities.UserDeletedConversations.list();
@@ -1541,8 +1540,6 @@ export default function Chat() {
                       userMessage={prevUserMessage} />
                   );
                 })}
-
-                )}
                 {isLoading && messages.length > 0 && (() => {
                   instrumentationRef.current.PLACEHOLDER_RENDERED++;
                   return (
