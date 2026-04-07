@@ -391,6 +391,145 @@ const EN_REFLECTION_TRAP_SIGNALS = [
   /tell me more about (that|this|what|how|why)/i,
 ];
 
+// ─── Secondary language worksheet / reflection-trap signals (Component F) ────
+
+const SECONDARY_LANG_WORKSHEET_SIGNALS = {
+  es: [
+    /evidencia\s+(?:a\s+favor|en\s+contra)/i,
+    /pensamiento\s+(?:autom[aá]tico|equilibrado|alternativo)/i,
+    /distorsi[oó]n\s+cognitiva/i,
+    /reestructuraci[oó]n\s+cognitiva/i,
+    /en\s+una\s+escala\s+del?\s+\d/i,
+    /nivel\s+de\s+creencia/i,
+    /di(?:a|á)rio\s+de\s+(?:pensamientos|emociones|estado|[aá]nimo|seguimiento)/i,
+    /registro\s+de\s+pensamientos/i,
+    /tarea\s+(?:para\s+casa|de\s+casa|conductual)/i,
+    /mapa\s+(?:del|de)\s+(?:patr[oó]n|ciclo)/i,
+    /identifica(?:r|mos)\s+(?:el\s+)?pensamiento\s+autom[aá]tico/i,
+  ],
+  fr: [
+    /preuves?\s+(?:pour|contre)/i,
+    /pens[eé]e\s+automatique/i,
+    /distorsion\s+cognitive/i,
+    /restructuration\s+cognitive/i,
+    /sur\s+une\s+[eé]chelle\s+de\s+\d/i,
+    /niveau\s+de\s+croyance/i,
+    /journal\s+(?:de\s+pens[eé]es|[eé]motionnel|d'humeur|de\s+suivi)/i,
+    /registre\s+de\s+pens[eé]es/i,
+    /t[âa]che\s+(?:comportementale|[àa]\s+faire)/i,
+    /pens[eé]e\s+(?:[eé]quilibr[eé]e|alternative)/i,
+    /identifier\s+(?:la\s+)?pens[eé]e\s+automatique/i,
+  ],
+  de: [
+    /Beweise?\s+(?:daf[üu]r|dagegen)/i,
+    /automatischer?\s+Gedanke/i,
+    /kognitive\s+Verzerrung/i,
+    /kognitive\s+Umstrukturierung/i,
+    /auf\s+einer\s+Skala\s+von\s+\d/i,
+    /[Üü]berzeugungsst[äa]rke/i,
+    /Tagebuch\s+(?:der\s+Gedanken|der\s+Emotionen|der\s+Stimmung)/i,
+    /Gedankenprotokoll/i,
+    /ausgewogener?\s+Gedanke/i,
+    /alternativer?\s+Gedanke/i,
+    /Hausaufgabe/i,
+    /automatischen\s+Gedanken\s+identifizieren/i,
+  ],
+  it: [
+    /prove?\s+a\s+favore/i,
+    /prove?\s+contro/i,
+    /pensiero\s+automatico/i,
+    /distorsione\s+cognitiva/i,
+    /ristrutturazione\s+cognitiva/i,
+    /su\s+una\s+scala\s+da\s+\d/i,
+    /livello\s+di\s+credenza/i,
+    /diario\s+(?:dei\s+pensieri|delle\s+emozioni|dell'umore)/i,
+    /pensiero\s+(?:equilibrato|alternativo)/i,
+    /identificare\s+il\s+pensiero\s+automatico/i,
+  ],
+  pt: [
+    /evid[eê]ncias?\s+a\s+favor/i,
+    /evid[eê]ncias?\s+contra/i,
+    /pensamento\s+autom[aá]tico/i,
+    /distor[cç][aã]o\s+cognitiva/i,
+    /reestrutura[cç][aã]o\s+cognitiva/i,
+    /em\s+uma\s+escala\s+de\s+\d/i,
+    /n[ií]vel\s+de\s+cren[cç]a/i,
+    /di[aá]rio\s+(?:de\s+pensamentos|emocional|de\s+humor|de\s+acompanhamento)/i,
+    /pensamento\s+(?:equilibrado|alternativo)/i,
+    /identificar\s+o\s+pensamento\s+autom[aá]tico/i,
+  ],
+};
+
+function countSecondaryLangWorksheetSignals(text, lang) {
+  const signals = SECONDARY_LANG_WORKSHEET_SIGNALS[lang];
+  if (!signals) return 0;
+  let count = 0;
+  for (const pattern of signals) {
+    if (pattern.test(text)) count++;
+  }
+  return count;
+}
+
+// ─── Secondary language social-anxiety / exploration-first signals (Component F) ─
+
+const SECONDARY_LANG_SOCIAL_ANXIETY_SIGNALS = {
+  es: [
+    /\b(vamos\s+a\s+explorar|exploremos)\b/i,
+    /\bprimero[,\s]+(entend(?:er|amos)|comprender|identif(?:icar|iquemos))\b/i,
+    /\bes\s+importante\s+(entender|explorar|identificar|analizar)\b/i,
+    /\bla\s+ansiedad\s+social\s+(surge|ocurre|aparece|es\s+causada|viene|est[aá]\s+relacionada)\b/i,
+    /\b(cu[eé]ntame|expl[ií]came|descr[ií]beme)\s+(m[aá]s|un\s+poco)\s+(sobre|acerca)\b/i,
+    /\bantes\s+de\s+(nada|empezar)[,\s]+(me\s+gustar[ií]a|quisiera)\s+(entender|saber)\b/i,
+    /\b(entendamos|comprendamos)\s+(primero|juntos|mejor)\s+(por\s+qu[eé]|qu[eé]|c[oó]mo)\b/i,
+  ],
+  fr: [
+    /\b(explorons|allons\s+explorer|nous\s+allons\s+explorer)\b/i,
+    /\bd'abord[,\s]+(comprenons|essayons\s+de\s+comprendre|il\s+(?:faut|est\s+important\s+de)\s+comprendre)\b/i,
+    /\bil\s+est\s+important\s+(?:de|d['\u2019])(explorer|comprendre|identifier|analyser)\b/i,
+    /\bl['\u2019]anxi[eé]t[eé]\s+sociale\s+(survient|appara[iî]t|se\s+manifeste|est\s+li[eé]e|provient)\b/i,
+    /\b(dis-moi|explique-moi|raconte-moi)\s+(plus|davantage)\s+(sur|[àa]\s+propos)\b/i,
+    /\bavant\s+(?:tout|de\s+commencer)[,\s]+j['\u2019]aimerais\s+(comprendre|savoir)\b/i,
+    /\b(comprenons|essayons\s+de\s+comprendre)\s+(ensemble|d'abord|pourquoi|ce\s+qui)\b/i,
+  ],
+  de: [
+    /\b(lass\s+uns\s+erkunden|erkunden\s+wir|wir\s+(?:k[oö]nnen|sollten)\s+erkunden)\b/i,
+    /\bzuerst[,\s]+(lass\s+uns\s+|m[uü]ssen\s+wir\s+)?(verstehen|herausfinden|identifizieren)\b/i,
+    /\bes\s+ist\s+wichtig[,\s]+(zu\s+)?(verstehen|erkunden|identifizieren|analysieren)\b/i,
+    /\bsoziale\s+Angst\s+(entsteht|tritt\s+auf|kommt\s+(?:von|aus)|h[aä]ngt\s+zusammen)\b/i,
+    /\b(erz[aä]hl\s+mir|erkl[aä]re\s+mir|beschreib\s+mir)\s+mehr\s+([uü]ber|dazu)\b/i,
+    /\bbevor\s+wir\s+(weitermachen|beginnen)[,\s]+(?:w[uü]rde\s+ich|m[oö]chte\s+ich)\s+(verstehen|wissen)\b/i,
+    /\b(verstehen\s+wir|versuchen\s+wir\s+zu\s+verstehen)\s+(zun[aä]chst|gemeinsam|warum|was)\b/i,
+  ],
+  it: [
+    /\b(esploriamo|andiamo\s+a\s+esplorare)\b/i,
+    /\bprima\s+(?:di\s+tutto[,\s]+|di\s+procedere[,\s]+)?(capiamo|cerchiamo\s+di\s+capire|identifichiamo)\b/i,
+    /\b[eè]\s+importante\s+(capire|esplorare|identificare|analizzare)\b/i,
+    /\bl['\u2019]ansia\s+sociale\s+(nasce|sorge|si\s+manifesta|[eè]\s+legata|deriva)\b/i,
+    /\b(raccontami|spiegami|descrivimi)\s+(?:di\s+)?pi[uù]\s+(di|su|riguardo)\b/i,
+    /\bprima\s+di\s+(tutto|procedere|andare\s+avanti)[,\s]+(?:vorrei|voglio)\s+(capire|sapere)\b/i,
+    /\b(capiamo|cerchiamo\s+di\s+capire)\s+(insieme|prima|perch[eé]|cosa|come)\b/i,
+  ],
+  pt: [
+    /\b(vamos\s+explorar|exploremos)\b/i,
+    /\bprimeiro[,\s]+(vamos\s+|precisamos\s+)?(entender|compreender|identificar)\b/i,
+    /\b[eé]\s+importante\s+(entender|explorar|identificar|analisar|compreender)\b/i,
+    /\ba\s+ansiedade\s+social\s+(surge|ocorre|aparece|[eé]\s+causada|vem\s+de|est[aá]\s+relacionada)\b/i,
+    /\b(me\s+conte|me\s+explique|me\s+descreva)\s+mais\s+(sobre|acerca)\b/i,
+    /\bantes\s+de\s+(tudo|come[cç]ar)[,\s]+(?:eu\s+gostaria|gostaria)\s+(entender|saber)\b/i,
+    /\b(entendamos|vamos\s+entender|precisamos\s+entender)\s+(juntos|primeiro|por\s+que|o\s+que)\b/i,
+  ],
+};
+
+function countSecondaryLangSocialAnxietySignals(text, lang) {
+  const signals = SECONDARY_LANG_SOCIAL_ANXIETY_SIGNALS[lang];
+  if (!signals) return 0;
+  let count = 0;
+  for (const pattern of signals) {
+    if (pattern.test(text)) count++;
+  }
+  return count;
+}
+
 const EN_POST_LEARNING_SIGNALS = /(belief.{0,10}(rose|went up|increased|went from|changed)|helped a bit|felt better|worked a little|it worked|that helped|more confident|less anxious than|less worried than|did (the|it|that)|completed (it|the)|followed (through|up)|tried (it|that|the)|\d+%|relief (after|when|once)|belief (rose|climbed|increased|jumped))/i;
 
 const EN_EMAIL_SIGNALS = /(email|inbox|reply|message|boss|professor|manager|colleague|unread|unanswered)/i;
@@ -610,11 +749,23 @@ export function applyFinalOutputGovernor(text, opts = {}) {
     if (!result || result.length < 3) return getFailsafe('he');
   }
 
-  // Pass 3c: Secondary language quality floor — Component F
+  // Pass 3c: Secondary language worksheet / reflection-trap — Component F
   if (['es', 'fr', 'de', 'it', 'pt'].includes(lang)) {
-    const signalCount = countEnReflectionTrapSignals(result);
+    const enSignalCount = countEnReflectionTrapSignals(result);
+    const nativeSignalCount = countSecondaryLangWorksheetSignals(result, lang);
+    const signalCount = enSignalCount + nativeSignalCount;
     if (signalCount >= 2) {
-      console.warn('[CP12-F] Secondary lang reflection trap (' + lang + ') — directive rewrite');
+      console.warn('[CP12-F] Secondary lang worksheet/reflection trap (' + lang + ') enSignals=' + enSignalCount + ' nativeSignals=' + nativeSignalCount + ' — directive rewrite');
+      result = pickSecondaryLangRewrite(lang);
+      if (!result || result.length < 3) return getFailsafe(lang);
+    }
+  }
+
+  // Pass 3c-SA: Secondary language social-anxiety / exploration-first — Component F
+  if (['es', 'fr', 'de', 'it', 'pt'].includes(lang)) {
+    const saSignalCount = countSecondaryLangSocialAnxietySignals(result, lang);
+    if (saSignalCount >= 2) {
+      console.warn('[CP12-F-SA] Secondary lang social-anxiety exploration-first (' + lang + ') signals=' + saSignalCount + ' — directive rewrite');
       result = pickSecondaryLangRewrite(lang);
       if (!result || result.length < 3) return getFailsafe(lang);
     }
@@ -676,7 +827,8 @@ export function auditCP12(text) {
   if (ROUTING_COMPRESSION_PATTERNS.some(p => p.test(text))) violations.push('routing-leakage');
   if (hasWorksheetDrift(text)) violations.push('worksheet-drift');
   if (lang === 'he' && detectHebrewWorksheetDriftSemantic(text)) violations.push('hebrew-semantic-worksheet-drift');
-  if (['es', 'fr', 'de', 'it', 'pt'].includes(lang) && countEnReflectionTrapSignals(text) >= 2) violations.push('secondary-lang-reflection-trap');
+  if (['es', 'fr', 'de', 'it', 'pt'].includes(lang) && (countEnReflectionTrapSignals(text) + countSecondaryLangWorksheetSignals(text, lang)) >= 2) violations.push('secondary-lang-reflection-trap');
+  if (['es', 'fr', 'de', 'it', 'pt'].includes(lang) && countSecondaryLangSocialAnxietySignals(text, lang) >= 2) violations.push('secondary-lang-social-anxiety-exploration');
 
   const lines = text.split('\n');
   const lastLine = [...lines].reverse().find(l => l.trim());
