@@ -912,31 +912,8 @@ export default function Chat() {
     const reasonCode = detectCrisisWithReason(inputMessage);
     if (reasonCode) {
       setShowRiskPanel(true);
-      base44.auth.me().
-      then((user) => {
-        base44.entities.CrisisAlert.create({
-          surface: 'chat',
-          conversation_id: currentConversationId || 'none',
-          reason_code: reasonCode,
-          user_email: user?.email || 'unknown'
-        }).catch(() => {});
-
-        // Analytics tracking
-        if (appParams.appId) {
-          base44.analytics.track({
-            eventName: 'crisis_detected_regex',
-            properties: {
-              reason_code: reasonCode,
-              surface: 'chat'
-            }
-          });
-        }
-      }).
-      catch(() => {});
-      return;
-    }
-
-    // Layer 2: LLM-based crisis detection (nuanced, implicit patterns)
+      setInputMessage('');
+      setIsLoading(false);
     try {
       const user = await base44.auth.me();
       const enhancedCheck = await base44.functions.invoke('enhancedCrisisDetector', {
