@@ -615,7 +615,7 @@ const POST_LEARNING_SIGNALS_MULTILANG = [
   /(?:האמונה.{0,15}(?:עלתה|ירדה|השתנתה)|עזר\s+(?:קצת|מעט|לי)|הרגשתי\s+(?:טוב\s+יותר|שיפור|הקלה)|זה\s+(?:עבד|עזר)|ניסיתי|עשיתי|השלמתי|\d+%)/,
   /(funcionó|mejoró|me\s+ayudó|me\s+siento\s+mejor|lo\s+intenté|lo\s+hice|sí\s+pude|\d+%)/i,
   /(a\s+marché|m'a\s+aidé|je\s+me\s+sens\s+mieux|j'ai\s+essayé|j'ai\s+fait|\d+%)/i,
-  /(hat\s+geholfen|fühle\s+mich\s+besser|habe\s+es\s+versucht|habe\s+es\s+gemacht|\d+%)/i,
+  /(hat\s+geholfen|fühle\s+mich\s+besser|habe\s+(?:es\s+)?versucht|habe\s+(?:es\s+)?gemacht|\d+%)/i,
   /(ha\s+funzionato|mi\s+ha\s+aiutato|mi\s+sento\s+meglio|ho\s+provato|l'ho\s+fatto|\d+%)/i,
   /(funcionou|me\s+ajudou|me\s+sinto\s+melhor|tentei|fiz|\d+%)/i,
 ];
