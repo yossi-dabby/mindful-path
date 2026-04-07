@@ -1409,6 +1409,13 @@ export default function Chat() {
           </div>
         </div>
 
+        {/* Risk Panel — rendered outside conversation gate so it shows even before a conversation is created */}
+        {showRiskPanel && !currentConversationId && (
+          <div className="px-4 md:px-6 pt-3">
+            <InlineRiskPanel onDismiss={() => setShowRiskPanel(false)} />
+          </div>
+        )}
+
         {/* Messages Area */}
         <div className="bg-teal-400 text-slate-50 rounded-3xl flex-1 min-h-0 overflow-hidden flex flex-col" style={{ backgroundColor: 'transparent' }}>
           {!currentConversationId ?
