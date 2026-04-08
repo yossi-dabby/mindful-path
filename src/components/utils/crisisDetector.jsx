@@ -60,8 +60,8 @@ const EXPLICIT_SELF_HARM_PATTERNS = [
   /\b(end\s+(my\s+life|it\s+all)|ready\s+to\s+(die|end\s+it)|want\s+to\s+die)\b/i,
   /\b(take\s+all\s+(my|the)\s+(pills|meds|medication))\b/i,
   /\b(better\s+off\s+(dead|without\s+me)|everyone\s+(would\s+be\s+)?better\s+(off\s+)?without\s+me)\b/i,
-  // Hebrew self-harm / suicidal
-  /\b(להרוג\s+את\s+עצמי|לפגוע\s+בעצמי|להתאבד|אני\s+רוצה\s+למות|חיי\s+לא\s+שווים)\b/i,
+  // Hebrew self-harm / suicidal — no \b: JS word boundaries require \w chars; Hebrew chars are \W so \b never matches Hebrew text
+  /(להרוג\s+את\s+עצמי|לפגוע\s+בעצמי|להתאבד|אני\s+רוצה\s+למות|חיי\s+לא\s+שווים)/i,
   // Spanish explicit self-harm / suicidal
   /\b(matarme|hacerme\s+daño|cortarme|suicidio|suicidarme|quitarme\s+la\s+vida|acabar\s+con\s+mi\s+vida)\b/i,
   // French explicit self-harm / suicidal
@@ -101,8 +101,8 @@ const CRISIS_PATTERNS = [
   /\bready\s+to\s+(die|end\s+it)\b/i,
   /\b(don'?t|do\s+not)\s+want\s+to\s+(live|be\s+alive|exist)\b/i,
 
-  // Hebrew self-harm / suicidal
-  /\b(להרוג\s+את\s+עצמי|לפגוע\s+בעצמי|להתאבד|אני\s+רוצה\s+למות|חיי\s+לא\s+שווים)\b/i,
+  // Hebrew self-harm / suicidal — no \b: JS word boundaries require \w chars; Hebrew chars are \W so \b never matches Hebrew text
+  /(להרוג\s+את\s+עצמי|לפגוע\s+בעצמי|להתאבד|אני\s+רוצה\s+למות|חיי\s+לא\s+שווים)/i,
 
   // Spanish crisis threshold
   /\b(matarme|hacerme\s+daño|cortarme|suicidarme|quitarme\s+la\s+vida|acabar\s+con\s+mi\s+vida|no\s+quiero\s+(seguir\s+)?(vivir|existir)|mejor\s+muerto|prefiero\s+morir)\b/i,
@@ -179,8 +179,14 @@ export function isExamContextFalsePositive(message) {
   if (!message || typeof message !== 'string') return false;
   const hasExamContext = EXAM_CONTEXT_PATTERNS.some(p => p.test(message));
   if (!hasExamContext) return false;
+  // Never suppress if explicit self-harm language is present
   const hasExplicitHarm = EXPLICIT_SELF_HARM_PATTERNS.some(p => p.test(message));
-  return !hasExplicitHarm;
+  if (hasExplicitHarm) return false;
+  // Never suppress if any direct crisis pattern is present — crisis phrases like
+  // "can't take this anymore" or "ich möchte sterben" are in CRISIS_PATTERNS but
+  // not in EXPLICIT_SELF_HARM_PATTERNS; without this check they would be wrongly suppressed
+  const hasCrisisPattern = CRISIS_PATTERNS.some(p => p.test(message));
+  return !hasCrisisPattern;
 }
 
 /**
@@ -193,8 +199,16 @@ export function isGeneralDistressFalsePositive(message) {
   if (!message || typeof message !== 'string') return false;
   const hasGeneralDistress = GENERAL_DISTRESS_CONTEXT_PATTERNS.some(p => p.test(message));
   if (!hasGeneralDistress) return false;
+  // Never suppress if explicit self-harm language is present
   const hasExplicitHarm = EXPLICIT_SELF_HARM_PATTERNS.some(p => p.test(message));
-  return !hasExplicitHarm;
+  if (hasExplicitHarm) return false;
+  // Never suppress if any direct crisis pattern is present — crisis phrases like
+  // "can't take this anymore", "want to disappear", "voglio morire", "quero morrer"
+  // are in CRISIS_PATTERNS but not in EXPLICIT_SELF_HARM_PATTERNS; without this
+  // check a message like "I'm overwhelmed and can't take this anymore" would be
+  // falsely suppressed and reach the agent instead of the crisis panel
+  const hasCrisisPattern = CRISIS_PATTERNS.some(p => p.test(message));
+  return !hasCrisisPattern;
 }
 
 export function detectCrisisLanguage(message) {
