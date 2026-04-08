@@ -282,6 +282,16 @@ export const translations = {
         safety_mode_indicator: {
           label: "Enhanced support mode",
           description: "Your session is being guided with additional care"
+        },
+        super_cbt_agent: {
+          label: "Super CBT Agent",
+          accessible_label: "Super CBT Agent is active",
+          mode_label: "Advanced CBT Mode",
+          protocol_label: "Evidence-Based CBT Protocol",
+          status_active: "Active",
+          status_inactive: "Inactive",
+          session_intro: "Your session is powered by the advanced CBT Agent with full multilingual support.",
+          multilingual_notice: "Full multilingual CBT support is active."
         }
       },
       age_gate: {
@@ -1669,6 +1679,16 @@ export const translations = {
         safety_mode_indicator: {
           label: "מצב תמיכה מוגברת",
           description: "המפגש שלך מנוהל עם תשומת לב נוספת"
+        },
+        super_cbt_agent: {
+          label: "סוכן CBT מתקדם",
+          accessible_label: "סוכן CBT מתקדם פעיל",
+          mode_label: "מצב CBT מתקדם",
+          protocol_label: "פרוטוקול CBT מבוסס-ראיות",
+          status_active: "פעיל",
+          status_inactive: "לא פעיל",
+          session_intro: "המפגש שלך מופעל על ידי סוכן ה-CBT המתקדם עם תמיכה רב-לשונית מלאה.",
+          multilingual_notice: "תמיכה מלאה ב-CBT רב-לשוני פעילה."
         }
       },
       age_gate: {
@@ -3056,6 +3076,16 @@ export const translations = {
         safety_mode_indicator: {
           label: "Modo de apoyo reforzado",
           description: "Tu sesión se guía con atención adicional"
+        },
+        super_cbt_agent: {
+          label: "Super Agente TCC",
+          accessible_label: "Super Agente TCC está activo",
+          mode_label: "Modo TCC Avanzado",
+          protocol_label: "Protocolo TCC basado en evidencia",
+          status_active: "Activo",
+          status_inactive: "Inactivo",
+          session_intro: "Tu sesión está impulsada por el agente TCC avanzado con soporte multilingüe completo.",
+          multilingual_notice: "El soporte TCC multilingüe completo está activo."
         }
       },
       age_gate: {
@@ -4400,6 +4430,16 @@ export const translations = {
         safety_mode_indicator: {
           label: "Mode de soutien renforcé",
           description: "Votre séance est guidée avec une attention supplémentaire"
+        },
+        super_cbt_agent: {
+          label: "Super Agent TCC",
+          accessible_label: "Super Agent TCC est actif",
+          mode_label: "Mode TCC Avancé",
+          protocol_label: "Protocole TCC basé sur les données probantes",
+          status_active: "Actif",
+          status_inactive: "Inactif",
+          session_intro: "Votre séance est alimentée par l'agent TCC avancé avec support multilingue complet.",
+          multilingual_notice: "Le support TCC multilingue complet est actif."
         }
       },
       age_gate: {
@@ -5744,6 +5784,16 @@ export const translations = {
         safety_mode_indicator: {
           label: "Erweiterter Unterstützungsmodus",
           description: "Ihre Sitzung wird mit zusätzlicher Sorgfalt begleitet"
+        },
+        super_cbt_agent: {
+          label: "Super-KVT-Agent",
+          accessible_label: "Super-KVT-Agent ist aktiv",
+          mode_label: "Erweiterter KVT-Modus",
+          protocol_label: "Evidenzbasiertes KVT-Protokoll",
+          status_active: "Aktiv",
+          status_inactive: "Inaktiv",
+          session_intro: "Ihre Sitzung wird vom erweiterten KVT-Agenten mit vollständiger mehrsprachiger Unterstützung gespeist.",
+          multilingual_notice: "Vollständige mehrsprachige KVT-Unterstützung ist aktiv."
         }
       },
       age_gate: {
@@ -7088,6 +7138,16 @@ export const translations = {
         safety_mode_indicator: {
           label: "Modalità di supporto potenziata",
           description: "La tua sessione è guidata con cura aggiuntiva"
+        },
+        super_cbt_agent: {
+          label: "Super Agente TCC",
+          accessible_label: "Super Agente TCC è attivo",
+          mode_label: "Modalità TCC Avanzata",
+          protocol_label: "Protocollo TCC basato sull'evidenza",
+          status_active: "Attivo",
+          status_inactive: "Inattivo",
+          session_intro: "La tua sessione è alimentata dall'agente TCC avanzato con supporto multilingue completo.",
+          multilingual_notice: "Il supporto TCC multilingue completo è attivo."
         }
       },
       age_gate: {
@@ -8432,6 +8492,16 @@ export const translations = {
         safety_mode_indicator: {
           label: "Modo de suporte aprimorado",
           description: "Sua sessão está sendo guiada com cuidado adicional"
+        },
+        super_cbt_agent: {
+          label: "Super Agente TCC",
+          accessible_label: "Super Agente TCC está ativo",
+          mode_label: "Modo TCC Avançado",
+          protocol_label: "Protocolo TCC baseado em evidências",
+          status_active: "Ativo",
+          status_inactive: "Inativo",
+          session_intro: "Sua sessão é alimentada pelo agente TCC avançado com suporte multilíngue completo.",
+          multilingual_notice: "O suporte TCC multilíngue completo está ativo."
         }
       },
       age_gate: {
