@@ -47,22 +47,24 @@ The SuperCbtAgent follows all existing safety constraints without exception:
 | Super-session continuity | Task 4 — Features + Language | 🔵 Planned |
 | Advanced workflow orchestration | Task 4 — Features + Language | 🔵 Planned |
 | E2E tests (EN + 1 other language) | Task 5 — E2E validation | 🔵 Planned |
-| Activation docs + guide | Task 6 — Docs | 🔵 Planned |
+| Activation docs + guide | Task 6 — Docs | ✅ Done |
 
 ---
 
-## Current State (This PR)
+## Current State (Tasks 1–6 Complete)
 
-This PR delivers **Task 2: Add Super CBT Agent Skeleton** from the six-task rollout plan:
+All six super agent tasks have been delivered in separate PRs:
 
-| File | Purpose |
-|------|---------|
-| `src/lib/superCbtAgent.js` | Scaffold module — wiring config + feature descriptor |
-| `test/utils/superCbtAgent.test.js` | Regression + inertia tests |
-| `docs/super-agent/README.md` | This file — overview and roadmap |
-| `docs/super-agent/architecture.md` | Composition approach |
+| Task | Content | Status |
+|------|---------|--------|
+| Task 1 | Repository inventory (`docs/analysis-super-agent.md`) | ✅ Merged |
+| Task 2 | Scaffold module (`src/lib/superCbtAgent.js`) | ✅ Merged |
+| Task 3 | i18n keys for all 7 languages | ✅ Merged |
+| Task 4 | Logic: locale resolution, i18n string resolution, session preamble | ✅ Merged |
+| Task 5 | E2E tests (`tests/e2e/super-cbt-agent.spec.ts`) | ✅ Merged |
+| Task 6 | Activation guide, FAQ, onboarding docs | ✅ This PR |
 
-**No existing file was modified.**
+**No existing file was modified beyond updating this status table.**
 
 ---
 
@@ -96,11 +98,15 @@ Activation must follow this exact sequence:
 
 | File | Role |
 |------|------|
-| `src/lib/superCbtAgent.js` | Scaffold module (this PR) |
+| `src/lib/superCbtAgent.js` | Scaffold module + logic (Tasks 2 and 4) |
+| `test/utils/superCbtAgent.test.js` | Scaffold inertia and regression tests |
+| `test/utils/superCbtAgentLogic.test.js` | Logic, locale, and preamble tests |
+| `test/utils/superCbtAgentI18n.test.js` | i18n completeness tests (all 7 languages) |
+| `tests/e2e/super-cbt-agent.spec.ts` | E2E tests (en + he) |
 | `src/api/agentWiring.js` | All wiring configs (read-only; super agent not yet added here) |
-| `src/api/activeAgentWiring.js` | Runtime routing (unchanged; super agent not yet wired) |
-| `src/lib/featureFlags.js` | Feature flag registry (unchanged; super agent flag not yet added) |
-| `src/components/i18n/translations.jsx` | i18n layer (will be extended in Task 3) |
+| `src/api/activeAgentWiring.js` | Runtime routing (super agent branch pending Task 4 activation PR) |
+| `src/lib/featureFlags.js` | Feature flag registry (super agent flag is in `src/lib/superCbtAgent.js`) |
+| `src/components/i18n/translations.jsx` | i18n layer (extended in Task 3) |
 
 ---
 
@@ -108,10 +114,14 @@ Activation must follow this exact sequence:
 
 - [`docs/analysis-super-agent.md`](../analysis-super-agent.md) — Full repo inventory (Task 1 output)
 - [`docs/super-agent/architecture.md`](./architecture.md) — Composition approach
+- [`docs/super-agent/activation-guide.md`](./activation-guide.md) — Step-by-step enable, test, and monitor guide
+- [`docs/super-agent/faq.md`](./faq.md) — Frequently asked questions
+- [`docs/super-agent-rollout-checklist.md`](../super-agent-rollout-checklist.md) — Phase-gate rollout checklist
+- [`docs/i18n-super-agent.md`](../i18n-super-agent.md) — i18n key documentation (all 7 languages)
 - [`docs/therapist-upgrade-stage2-plan.md`](../therapist-upgrade-stage2-plan.md) — Stage 2 plan
 - [`docs/ai-agent-access-policy.md`](../ai-agent-access-policy.md) — Agent entity access policy
 - [`docs/copilot-safety-rules.md`](../copilot-safety-rules.md) — Safety rules
 
 ---
 
-*Last updated: 2026-04-08 — Task 2 scaffold PR*
+*Last updated: 2026-04-08 — Task 6 (Docs and Activation Guide) PR*
