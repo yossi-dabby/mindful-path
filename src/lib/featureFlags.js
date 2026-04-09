@@ -350,6 +350,171 @@ logStage2Diagnostics();
  */
 let _upgradeTrack = null;
 
+// ─── AI Companion Upgrade — Phase 2 Feature Flag Registry ─────────────────────
+
+/**
+ * All AI Companion upgrade feature flags.
+ *
+ * Frozen at module load to prevent accidental runtime mutation.
+ * Every flag defaults to false (upgrade path disabled, legacy HYBRID path active).
+ *
+ * Routing is completely independent of THERAPIST_UPGRADE_FLAGS — the companion
+ * master gate and per-phase gates have no effect on therapist wiring, and vice
+ * versa.  This explicit separation prevents role ambiguity between agents.
+ *
+ * Rollback: set COMPANION_UPGRADE_ENABLED to false to disable all companion
+ * upgrade behavior in a single change.  No other code needs to be modified.
+ *
+ * @type {Readonly<Record<string, boolean>>}
+ */
+export const COMPANION_UPGRADE_FLAGS = Object.freeze({
+  /**
+   * Companion upgrade master gate.
+   * When false, all per-phase companion flags are treated as false regardless
+   * of their individual values.  This is the single kill-switch for all
+   * companion upgrade behavior.
+   *
+   * Staging enablement: set the environment variable
+   *   VITE_COMPANION_UPGRADE_ENABLED=true
+   */
+  COMPANION_UPGRADE_ENABLED: import.meta.env?.VITE_COMPANION_UPGRADE_ENABLED === 'true',
+
+  /**
+   * Phase 2 — Warmth and attuned response layer.
+   * Activates AI_COMPANION_WIRING_UPGRADE_V1: companion responses become
+   * warmer, more emotionally attuned, and less repetitive.
+   * Staging enablement: set VITE_COMPANION_UPGRADE_WARMTH_ENABLED=true
+   */
+  COMPANION_UPGRADE_WARMTH_ENABLED: import.meta.env?.VITE_COMPANION_UPGRADE_WARMTH_ENABLED === 'true',
+});
+
+/**
+ * Reads staging-only runtime overrides for companion flags from the URL.
+ *
+ * Uses the ?_c2=FLAG1,FLAG2,... parameter (parallel to ?_s2=... for therapist).
+ * All safety rules from _readStagingRuntimeOverrides() apply here:
+ *   - Fail-closed on unrecognised (production) hosts
+ *   - No unknown flag names accepted
+ *   - Any parsing error returns {}
+ *
+ * @returns {Record<string, boolean>}
+ */
+function _readCompanionStagingRuntimeOverrides() {
+  try {
+    if (typeof window === 'undefined') return {};
+    const hostname = window.location?.hostname ?? '';
+    if (!_isPreviewStagingHost(hostname)) return {};
+    const search = window.location?.search ?? '';
+    if (!search) return {};
+    const raw = new URLSearchParams(search).get('_c2');
+    if (!raw) return {};
+    const overrides = {};
+    for (const key of raw.split(',')) {
+      const trimmed = key.trim();
+      if (trimmed && trimmed in COMPANION_UPGRADE_FLAGS) {
+        overrides[trimmed] = true;
+      }
+    }
+    return overrides;
+  } catch (_e) {
+    return {};
+  }
+}
+
+/**
+ * Evaluates an AI Companion upgrade feature flag by name.
+ *
+ * Evaluation order (first truthy wins):
+ *   1. Build-time env var (import.meta.env.VITE_COMPANION_*) — the primary path.
+ *   2. Staging runtime URL override (?_c2=...) — preview/staging hosts only.
+ *
+ * The master flag (COMPANION_UPGRADE_ENABLED) must be true via either path,
+ * and the specific per-phase flag must also be true via either path, before
+ * this returns true.
+ *
+ * Returns false (legacy HYBRID path) when:
+ *   - The flag name is not a recognised companion upgrade flag key
+ *   - COMPANION_UPGRADE_ENABLED is false (build-time and runtime)
+ *   - The specific flag value is false (build-time and runtime)
+ *
+ * This is the single routing guard for all companion upgrade paths.
+ *
+ * @param {string} flagName - A key from COMPANION_UPGRADE_FLAGS
+ * @returns {boolean}
+ */
+export function isCompanionUpgradeEnabled(flagName) {
+  if (!(flagName in COMPANION_UPGRADE_FLAGS)) {
+    logCompanionUpgradeEvent('flag_isolation_failure', { flagName, reason: 'unknown_flag' });
+    return false;
+  }
+
+  const stagingOverrides = _readCompanionStagingRuntimeOverrides();
+
+  if (flagName === 'COMPANION_UPGRADE_ENABLED') {
+    return COMPANION_UPGRADE_FLAGS.COMPANION_UPGRADE_ENABLED ||
+      stagingOverrides.COMPANION_UPGRADE_ENABLED === true;
+  }
+
+  const masterEnabled =
+    COMPANION_UPGRADE_FLAGS.COMPANION_UPGRADE_ENABLED ||
+    stagingOverrides.COMPANION_UPGRADE_ENABLED === true;
+
+  if (!masterEnabled) {
+    return false;
+  }
+
+  return COMPANION_UPGRADE_FLAGS[flagName] || stagingOverrides[flagName] === true;
+}
+
+/**
+ * Optional analytics tracker for companion upgrade observability.
+ *
+ * @type {((eventName: string, properties: object) => void) | null}
+ */
+let _companionUpgradeTrack = null;
+
+/**
+ * Registers the app-level analytics tracker for companion upgrade events.
+ *
+ * @param {(eventName: string, properties: object) => void} trackFn
+ */
+export function registerCompanionUpgradeAnalyticsTracker(trackFn) {
+  if (typeof trackFn === 'function') {
+    _companionUpgradeTrack = trackFn;
+  } else {
+    _companionUpgradeTrack = null;
+  }
+}
+
+/**
+ * Observability hook for companion upgrade routing events.
+ *
+ * Mirrors logUpgradeEvent() for the companion agent.
+ * Must not throw — logging failure must never break routing.
+ *
+ * @param {string} event
+ * @param {object} [context]
+ */
+export function logCompanionUpgradeEvent(event, context = {}) {
+  if (_companionUpgradeTrack !== null) {
+    try {
+      _companionUpgradeTrack('companion_upgrade_' + event, context);
+    } catch (_e) {
+      // Analytics failure must never propagate — fall through to console.
+    }
+  }
+
+  if (event === 'flag_isolation_failure') {
+    console.warn('[CompanionUpgrade] Isolation failure —', event, context);
+    return;
+  }
+
+  if (event === 'route_selected' || event === 'route_not_selected') {
+    console.log('[CompanionUpgrade]', event, context);
+    return;
+  }
+}
+
 /**
  * Registers the app-level analytics tracker for upgrade observability events.
  *
