@@ -205,8 +205,8 @@ export const SUPER_CBT_AGENT_WIRING = {
  * phase-test assertions on flag count.  All flags default to false.
  *
  * Staging enablement:
- *   Set the environment variable VITE_SUPER_CBT_AGENT_ENABLED=true in a
- *   staging build to enable without changing source code.
+ *   Set window.SUPER_CBT_AGENT_ENABLED = true before the app script runs
+ *   (e.g. via a staging-only HTML snippet) to enable without changing source code.
  *
  * @type {Readonly<Record<string, boolean>>}
  */
@@ -215,9 +215,13 @@ export const SUPER_CBT_AGENT_FLAGS = Object.freeze({
    * Master gate for all SuperCbtAgent logic paths.
    * When false, isSuperAgentEnabled() returns false and all super agent
    * code paths are completely bypassed.  Default: false.
+   *
+   * Evaluated from window.SUPER_CBT_AGENT_ENABLED at module load time.
+   * Defaults to false in all environments (tests, CI, production) unless
+   * window.SUPER_CBT_AGENT_ENABLED is explicitly set to a truthy value.
    */
   SUPER_CBT_AGENT_ENABLED:
-    import.meta.env?.VITE_SUPER_CBT_AGENT_ENABLED === 'true',
+    typeof window !== 'undefined' ? !!window.SUPER_CBT_AGENT_ENABLED : false,
 });
 
 /**
