@@ -549,7 +549,7 @@ describe('Phase 1 Quality — new workflow engine rules', () => {
   });
 
   it('avoid_repetitive_questioning rule text references not repeating questions', () => {
-    const rule = THERAPIST_UPGRADE_RESPONSE_RULES_OR_ENGINE();
+    const rule = THERAPIST_WORKFLOW_RESPONSE_RULES.avoid_repetitive_questioning;
     expect(rule.toLowerCase()).toContain('never ask the same');
   });
 
@@ -610,11 +610,6 @@ describe('Phase 1 Quality — new workflow engine rules', () => {
     expect(instructions).toContain('Safety stack compatibility');
   });
 });
-
-// Helper for rule text access (avoids duplication in Socratic test)
-function THERAPIST_UPGRADE_RESPONSE_RULES_OR_ENGINE() {
-  return THERAPIST_WORKFLOW_RESPONSE_RULES.avoid_repetitive_questioning;
-}
 
 // ─── Section 7 — Continuity retrieval with CaseFormulation ────────────────────
 
