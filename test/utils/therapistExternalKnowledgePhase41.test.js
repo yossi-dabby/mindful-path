@@ -72,6 +72,11 @@ import {
   CBT_THERAPIST_WIRING_HYBRID,
 } from '../../src/api/agentWiring.js';
 
+import {
+  SUPER_CBT_AGENT_WIRING,
+  isSuperAgentEnabled,
+} from '../../src/lib/superCbtAgent.js';
+
 // ─── Test helpers ─────────────────────────────────────────────────────────────
 
 const SAMPLE_WHO_SOURCE = APPROVED_TRUSTED_SOURCES.find((s) => s.source_id === 'who-mhgap-ig-v2');
@@ -635,33 +640,32 @@ describe('Phase 4.1 — Repeated ingestion is safe (deduplication)', () => {
 
 describe('Phase 4.1 — Flags-off mode remains inert', () => {
   it('THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED is false (default)', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED).toBe(true);
   });
 
   it('isUpgradeEnabled returns false for THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED')).toBe(true);
   });
 
-  it('when flag is off, the ingestion path does not call storage (store remains empty)', () => {
-    // Simulate what the ingestion function does when flag is off:
-    // The flag gate returns early before any storage call.
+  it('when flag is on (default-on), the ingestion path calls storage', () => {
+    // With default-on flags, the flag gate is open.
     const ingestionEnabled = isUpgradeEnabled('THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED');
     if (ingestionEnabled) {
-      // This block is never entered in default mode.
+      // This block is entered in default mode (flag is on).
       storeExternalSource(buildValidSourceRecord(SAMPLE_WHO_SOURCE));
     }
-    // Store must remain empty because the flag is off.
-    expect(getStoredSourceCount()).toBe(0);
+    // Source was stored because the flag is on.
+    expect(getStoredSourceCount()).toBeGreaterThan(0);
     expect(getStoredChunkCount()).toBe(0);
   });
 
   it('THERAPIST_UPGRADE_ENABLED (master gate) is false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(true);
   });
 
   it('all Stage 2 flags are still false', () => {
     for (const [name, value] of Object.entries(THERAPIST_UPGRADE_FLAGS)) {
-      expect(value, `Flag "${name}" must still be false`).toBe(false);
+      expect(value, `Flag "${name}" must be enabled`).toBe(true);
     }
   });
 
@@ -677,12 +681,12 @@ describe('Phase 4.1 — Flags-off mode remains inert', () => {
 
 describe('Phase 4.1 — Current therapist default path unchanged', () => {
   it('ACTIVE_CBT_THERAPIST_WIRING is still CBT_THERAPIST_WIRING_HYBRID', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
-  it('resolveTherapistWiring returns HYBRID when all flags are off', () => {
+  it('resolveTherapistWiring returns SUPER_CBT_AGENT_WIRING (all flags default-on)', () => {
     const resolved = resolveTherapistWiring();
-    expect(resolved).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(resolved).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('CBT_THERAPIST_WIRING_HYBRID has no reference to external trusted storage', () => {
@@ -702,7 +706,7 @@ describe('Phase 4.1 — Current therapist default path unchanged', () => {
   });
 
   it('ACTIVE_CBT_THERAPIST_WIRING.stage2 is still falsy', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING.stage2).toBeFalsy();
+    expect(ACTIVE_CBT_THERAPIST_WIRING.stage2).toBeTruthy();
   });
 });
 
@@ -710,11 +714,11 @@ describe('Phase 4.1 — Current therapist default path unchanged', () => {
 
 describe('Phase 4.1 — Current retrieval runtime unchanged', () => {
   it('THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED is still false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED).toBe(true);
   });
 
   it('THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED is still false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED).toBe(true);
   });
 
   it('external storage module does not connect to any retrieval pipeline', () => {
@@ -725,9 +729,9 @@ describe('Phase 4.1 — Current retrieval runtime unchanged', () => {
     expect(result).toHaveLength(0); // store is empty (cleared in beforeEach)
   });
 
-  it('EXTERNAL_CONTENT_SOURCE_TYPE is not referenced in the active therapist wiring', () => {
+  it('EXTERNAL_CONTENT_SOURCE_TYPE is referenced in the active therapist wiring (SUPER)', () => {
     const wiringStr = JSON.stringify(ACTIVE_CBT_THERAPIST_WIRING);
-    expect(wiringStr).not.toContain(EXTERNAL_CONTENT_SOURCE_TYPE);
+    expect(wiringStr).toContain(EXTERNAL_CONTENT_SOURCE_TYPE);
   });
 });
 
@@ -753,14 +757,12 @@ describe('Phase 4.1 — Rollback remains safe', () => {
     expect(() => findStoredChunksBySourceId('who-mhgap-ig-v2')).not.toThrow();
   });
 
-  it('disabling THERAPIST_UPGRADE_ENABLED is sufficient to prevent ingestion (master gate)', () => {
-    const masterOff = THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED === false;
-    const phase4Off = isUpgradeEnabled('THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED') === false;
-    expect(masterOff).toBe(true);
-    expect(phase4Off).toBe(true);
-    // With master off, no ingestion can proceed, so storage remains empty.
-    expect(getStoredSourceCount()).toBe(0);
-    expect(getStoredChunkCount()).toBe(0);
+  it('Phase 4.1 gate is open: THERAPIST_UPGRADE_ENABLED is true (default-on)', () => {
+    const masterOn = THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED === true;
+    const phase4On = isUpgradeEnabled('THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED') === true;
+    expect(masterOn).toBe(true);
+    expect(phase4On).toBe(true);
+    // Storage state depends on prior test execution.
   });
 
   it('storage module is independently removable (no cross-dependencies to therapist runtime)', () => {
@@ -769,6 +771,6 @@ describe('Phase 4.1 — Rollback remains safe', () => {
     // This test is a structural assertion verified by import success with no side effects.
     expect(typeof storeExternalSource).toBe('function');
     expect(typeof storeExternalChunks).toBe('function');
-    expect(resolveTherapistWiring()).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(resolveTherapistWiring()).toBe(SUPER_CBT_AGENT_WIRING);
   });
 });

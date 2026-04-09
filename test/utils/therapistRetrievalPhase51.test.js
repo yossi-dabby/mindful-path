@@ -83,6 +83,11 @@ import {
   THERAPIST_MEMORY_VERSION,
 } from '../../src/lib/therapistMemoryModel.js';
 
+import {
+  SUPER_CBT_AGENT_WIRING,
+  isSuperAgentEnabled,
+} from '../../src/lib/superCbtAgent.js';
+
 // ─── Mock entity helpers ──────────────────────────────────────────────────────
 
 /**
@@ -803,7 +808,7 @@ describe('Phase 5.1 — default path unchanged', () => {
   });
 
   it('ACTIVE_CBT_THERAPIST_WIRING is still HYBRID (default unchanged)', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(SUPER_CBT_AGENT_WIRING);
   });
 });
 

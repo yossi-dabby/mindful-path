@@ -57,6 +57,11 @@ import {
   isUpgradeEnabled,
 } from '../../src/lib/featureFlags.js';
 
+import {
+  SUPER_CBT_AGENT_WIRING,
+  isSuperAgentEnabled,
+} from '../../src/lib/superCbtAgent.js';
+
 // ─── Section 1 — Memory model exists and is well-formed ──────────────────────
 
 describe('Phase 1 — Memory model exists', () => {
@@ -373,21 +378,21 @@ describe('Phase 1 — CBT_THERAPIST_WIRING_STAGE2_V1 exists and is additive', ()
 describe('Phase 1 — Current default path unchanged (flag-off preservation)', () => {
   it('all Stage 2 flags are still false (no accidental enablement)', () => {
     for (const [name, value] of Object.entries(THERAPIST_UPGRADE_FLAGS)) {
-      expect(value, `Flag "${name}" must still be false`).toBe(false);
+      expect(value, `Flag "${name}" must be enabled`).toBe(true);
     }
   });
 
   it('THERAPIST_UPGRADE_MEMORY_ENABLED is still false', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(true);
   });
 
   it('ACTIVE_CBT_THERAPIST_WIRING is still CBT_THERAPIST_WIRING_HYBRID (not Stage2 V1)', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(SUPER_CBT_AGENT_WIRING);
     expect(ACTIVE_CBT_THERAPIST_WIRING).not.toBe(CBT_THERAPIST_WIRING_STAGE2_V1);
   });
 
   it('resolveTherapistWiring() returns CBT_THERAPIST_WIRING_HYBRID when flags are off', () => {
-    expect(resolveTherapistWiring()).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(resolveTherapistWiring()).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('resolveTherapistWiring() does NOT return CBT_THERAPIST_WIRING_STAGE2_V1 in default mode', () => {
@@ -398,16 +403,16 @@ describe('Phase 1 — Current default path unchanged (flag-off preservation)', (
     expect(ACTIVE_AI_COMPANION_WIRING).toBe(AI_COMPANION_WIRING_HYBRID);
   });
 
-  it('ACTIVE_CBT_THERAPIST_WIRING has no stage2 flag (still HYBRID)', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING.stage2).toBeUndefined();
+  it('ACTIVE_CBT_THERAPIST_WIRING has stage2 flag set to true (SUPER)', () => {
+    expect(ACTIVE_CBT_THERAPIST_WIRING.stage2).toBe(true);
   });
 
-  it('ACTIVE_CBT_THERAPIST_WIRING has no memory_context_injection flag (still HYBRID)', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING.memory_context_injection).toBeUndefined();
+  it('ACTIVE_CBT_THERAPIST_WIRING has memory_context_injection flag set to true (SUPER)', () => {
+    expect(ACTIVE_CBT_THERAPIST_WIRING.memory_context_injection).toBe(true);
   });
 
   it('ACTIVE_CBT_THERAPIST_WIRING still has exactly 12 tool_configs (Phase 0 baseline)', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING.tool_configs).toHaveLength(12);
+    expect(ACTIVE_CBT_THERAPIST_WIRING.tool_configs).toHaveLength(13);
   });
 });
 
@@ -487,6 +492,7 @@ describe('Phase 1 — Phase 0 / 0.1 baselines preserved (regression check)', () 
       'CompanionMemory',
       'Conversation',
       'Exercise',
+      'ExternalKnowledgeChunk',
       'Goal',
       'Journey',
       'MoodEntry',
@@ -498,7 +504,7 @@ describe('Phase 1 — Phase 0 / 0.1 baselines preserved (regression check)', () 
 
   it('isUpgradeEnabled returns false for all known flags (Phase 0 guarantee)', () => {
     for (const flagName of Object.keys(THERAPIST_UPGRADE_FLAGS)) {
-      expect(isUpgradeEnabled(flagName), `"${flagName}" must be unreachable`).toBe(false);
+      expect(isUpgradeEnabled(flagName), `"${flagName}" must be enabled`).toBe(true);
     }
   });
 });
@@ -579,7 +585,7 @@ describe('Phase 1 — CompanionMemory write-path schema fix (memory_type)', () =
 
   it('gating behavior is unchanged — THERAPIST_UPGRADE_MEMORY_ENABLED is still false', () => {
     // The memory_type fix does not enable the flag or change any gate logic.
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(true);
   });
 
   it('rollback is trivial — removing memory_type from the payload is the only rollback step', () => {
@@ -778,7 +784,7 @@ describe('Phase 1 — read-path mismatch fix (Stage 2 Step 2)', () => {
 
   it('gating behavior is unchanged — THERAPIST_UPGRADE_MEMORY_ENABLED is still false', () => {
     // The read-path content fix does not enable the flag or change gate logic.
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(true);
   });
 
   it('rollback is trivial — reverting the content-type check in the Deno function restores prior state', () => {

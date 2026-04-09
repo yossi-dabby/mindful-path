@@ -44,6 +44,11 @@ import {
   AI_COMPANION_WIRING_HYBRID,
 } from '../../src/api/agentWiring.js';
 
+import {
+  SUPER_CBT_AGENT_WIRING,
+  isSuperAgentEnabled,
+} from '../../src/lib/superCbtAgent.js';
+
 // ─── Section 1 — resolveTherapistWiring is exported ──────────────────────────
 
 describe('Phase 0.1 — resolveTherapistWiring integration point', () => {
@@ -51,10 +56,10 @@ describe('Phase 0.1 — resolveTherapistWiring integration point', () => {
     expect(typeof resolveTherapistWiring).toBe('function');
   });
 
-  it('resolveTherapistWiring() returns CBT_THERAPIST_WIRING_HYBRID when all flags are false', () => {
-    // All flags are false (Phase 0 baseline), so flag-off path must be taken.
+  it('resolveTherapistWiring() returns SUPER_CBT_AGENT_WIRING (all flags default-on)', () => {
+    // All flags are on by default, so SUPER path is taken.
     const result = resolveTherapistWiring();
-    expect(result).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(result).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('resolveTherapistWiring() does not throw', () => {
@@ -63,9 +68,9 @@ describe('Phase 0.1 — resolveTherapistWiring integration point', () => {
 
   it('resolveTherapistWiring() evaluates isUpgradeEnabled — flag is false so current path is returned', () => {
     // isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED') must be false (Phase 0 default)
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
     // With the flag false, the resolver must return the hybrid wiring
-    expect(resolveTherapistWiring()).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(resolveTherapistWiring()).toBe(SUPER_CBT_AGENT_WIRING);
   });
 });
 
@@ -73,7 +78,7 @@ describe('Phase 0.1 — resolveTherapistWiring integration point', () => {
 
 describe('Phase 0.1 — Flag-off preserves exactly the current therapist path', () => {
   it('ACTIVE_CBT_THERAPIST_WIRING is still CBT_THERAPIST_WIRING_HYBRID (no regression from Phase 0)', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('ACTIVE_CBT_THERAPIST_WIRING equals the result of resolveTherapistWiring() (constant and resolver agree)', () => {
@@ -85,11 +90,11 @@ describe('Phase 0.1 — Flag-off preserves exactly the current therapist path', 
   });
 
   it('ACTIVE_AGENT_WIRINGS["cbt_therapist"] is still CBT_THERAPIST_WIRING_HYBRID', () => {
-    expect(ACTIVE_AGENT_WIRINGS['cbt_therapist']).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(ACTIVE_AGENT_WIRINGS['cbt_therapist']).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('CBT wiring still has exactly 12 tool_configs (baseline unchanged)', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING.tool_configs).toHaveLength(12);
+    expect(ACTIVE_CBT_THERAPIST_WIRING.tool_configs).toHaveLength(13);
   });
 
   it('CBT wiring still has agent name "cbt_therapist" (baseline unchanged)', () => {
@@ -100,13 +105,11 @@ describe('Phase 0.1 — Flag-off preserves exactly the current therapist path', 
 // ─── Section 3 — Flag-on at Phase 0.1 still returns current path ─────────────
 
 describe('Phase 0.1 — Flag-on does not activate any upgraded behavior', () => {
-  it('resolveTherapistWiring still returns CBT_THERAPIST_WIRING_HYBRID regardless of flag state', () => {
-    // Even if the master flag were true, no upgraded wiring exists yet.
-    // The function must still return the current default.
-    // We verify this by confirming the return value matches CBT_THERAPIST_WIRING_HYBRID.
+  it('resolveTherapistWiring returns SUPER_CBT_AGENT_WIRING (all flags default-on)', () => {
+    // With all flags on by default, SUPER path is taken.
     const result = resolveTherapistWiring();
-    expect(result).toBe(CBT_THERAPIST_WIRING_HYBRID);
-    // Confirm no Stage 2 entities are present
+    expect(result).toBe(SUPER_CBT_AGENT_WIRING);
+    // Confirm no invalid Stage 2 entities are present
     const names = result.tool_configs.map((tc) => tc.entity_name);
     expect(names).not.toContain('TherapistMemory');
     expect(names).not.toContain('TherapistSessionMemory');
@@ -114,7 +117,7 @@ describe('Phase 0.1 — Flag-on does not activate any upgraded behavior', () => 
 
   it('all flags are still false — upgrade path is unreachable', () => {
     for (const flagName of Object.keys(THERAPIST_UPGRADE_FLAGS)) {
-      expect(isUpgradeEnabled(flagName), `"${flagName}" must be unreachable`).toBe(false);
+      expect(isUpgradeEnabled(flagName), `"${flagName}" must be enabled`).toBe(true);
     }
   });
 });
@@ -180,7 +183,7 @@ describe('Phase 0.1 — registerUpgradeAnalyticsTracker and logUpgradeEvent', ()
 
   it('resolveTherapistWiring still returns correct wiring even when analytics tracker throws', () => {
     registerUpgradeAnalyticsTracker(() => { throw new Error('analytics failure'); });
-    expect(resolveTherapistWiring()).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(resolveTherapistWiring()).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('logUpgradeEvent works without a registered tracker (console-only fallback)', () => {
@@ -198,12 +201,12 @@ describe('Phase 0.1 — Phase 0 baseline preserved (regression check)', () => {
   });
 
   it('THERAPIST_UPGRADE_ENABLED is still false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(true);
   });
 
   it('isUpgradeEnabled returns false for all known flags', () => {
     for (const flagName of Object.keys(THERAPIST_UPGRADE_FLAGS)) {
-      expect(isUpgradeEnabled(flagName)).toBe(false);
+      expect(isUpgradeEnabled(flagName)).toBe(true);
     }
   });
 
@@ -220,6 +223,7 @@ describe('Phase 0.1 — Phase 0 baseline preserved (regression check)', () => {
       'CompanionMemory',
       'Conversation',
       'Exercise',
+      'ExternalKnowledgeChunk',
       'Goal',
       'Journey',
       'MoodEntry',

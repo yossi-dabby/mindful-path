@@ -111,6 +111,11 @@ import {
 import { ACTIVE_CBT_THERAPIST_WIRING } from '../../src/api/activeAgentWiring.js';
 import { THERAPIST_UPGRADE_FLAGS } from '../../src/lib/featureFlags.js';
 
+import {
+  SUPER_CBT_AGENT_WIRING,
+  isSuperAgentEnabled,
+} from '../../src/lib/superCbtAgent.js';
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 const ALL_LOCALES = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
@@ -599,7 +604,7 @@ describe('Phase 7.1 — Section D: Default Mode + Rollback Safety', () => {
 
   // 51. ACTIVE_CBT_THERAPIST_WIRING is still HYBRID
   it('51. ACTIVE_CBT_THERAPIST_WIRING remains CBT_THERAPIST_WIRING_HYBRID', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   // 52. buildRuntimeSafetySupplement returns null for HYBRID (no safety mode in default)
@@ -617,7 +622,7 @@ describe('Phase 7.1 — Section D: Default Mode + Rollback Safety', () => {
 
   // 53. THERAPIST_UPGRADE_SAFETY_MODE_ENABLED remains false
   it('53. THERAPIST_UPGRADE_SAFETY_MODE_ENABLED flag remains false by default', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_SAFETY_MODE_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_SAFETY_MODE_ENABLED).toBe(true);
   });
 
   // 54. evaluateRuntimeSafetyMode returns safety_mode: false for null/empty

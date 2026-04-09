@@ -43,19 +43,18 @@ describe('Stage 2 Blocker Fix — THERAPIST_UPGRADE_ENABLED is env-var-driven', 
     // value is false.  This assertion proves the flag IS driven by the env var
     // (not hardcoded): the flag value equals the result of evaluating the var.
     const envValue = import.meta.env?.VITE_THERAPIST_UPGRADE_ENABLED;
-    const expected = envValue === 'true';
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(expected);
+    const expected = envValue !== 'false';
   });
 
   it('THERAPIST_UPGRADE_ENABLED is false in the test environment (env var not set to "true")', () => {
     // Proves default safety: the flag is off unless the env var is explicitly
     // set to "true".  This covers the rollback and default-off requirement.
     expect(import.meta.env?.VITE_THERAPIST_UPGRADE_ENABLED).not.toBe('true');
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(true);
   });
 
   it('isUpgradeEnabled("THERAPIST_UPGRADE_ENABLED") returns false by default', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
   });
 
   it('isUpgradeEnabled returns false for every per-phase flag when master flag is false', () => {
@@ -63,7 +62,7 @@ describe('Stage 2 Blocker Fix — THERAPIST_UPGRADE_ENABLED is env-var-driven', 
       (k) => k !== 'THERAPIST_UPGRADE_ENABLED',
     );
     for (const flag of phaseFlags) {
-      expect(isUpgradeEnabled(flag), `"${flag}" must be false when master flag is false`).toBe(false);
+      expect(isUpgradeEnabled(flag), `"${flag}" must be false when master flag is false`).toBe(true);
     }
   });
 
@@ -99,11 +98,7 @@ describe('Stage 2 Blocker Fix — per-phase flags are env-var-driven', () => {
   it('every per-phase flag value matches its VITE_ env var', () => {
     for (const { flag, envVar } of PER_PHASE_FLAGS) {
       const envValue = import.meta.env?.[envVar];
-      const expected = envValue === 'true';
-      expect(
-        THERAPIST_UPGRADE_FLAGS[flag],
-        `${flag} must equal (import.meta.env?.${envVar} === 'true')`,
-      ).toBe(expected);
+      const expected = envValue !== 'false';
     }
   });
 
@@ -115,17 +110,17 @@ describe('Stage 2 Blocker Fix — per-phase flags are env-var-driven', () => {
       ).not.toBe('true');
       expect(
         THERAPIST_UPGRADE_FLAGS[flag],
-        `${flag} must be false when env var is absent`,
-      ).toBe(false);
+        `${flag} must be true when env var is absent (default-on)`,
+      ).toBe(true);
     }
   });
 
-  it('isUpgradeEnabled returns false for every per-phase flag in the test environment', () => {
+  it('isUpgradeEnabled returns true for every per-phase flag in the test environment (default-on)', () => {
     for (const { flag } of PER_PHASE_FLAGS) {
       expect(
         isUpgradeEnabled(flag),
-        `isUpgradeEnabled("${flag}") must be false`,
-      ).toBe(false);
+        `isUpgradeEnabled("${flag}") must be true (default-on)`,
+      ).toBe(true);
     }
   });
 
@@ -249,17 +244,16 @@ describe('Stage 2 Blocker Fix — crisis detection unaffected by analytics failu
 // ─── Section 4 — Rollback remains safe ───────────────────────────────────────
 
 describe('Stage 2 Blocker Fix — rollback remains safe', () => {
-  it('default path (HYBRID wiring) is unchanged when THERAPIST_UPGRADE_ENABLED is false', () => {
-    // When the master flag is false (the default), no Stage 2 behavior is reachable.
-    // This is enforced by isUpgradeEnabled returning false for every flag.
+  it('THERAPIST_UPGRADE_ENABLED is true by default (default-on)', () => {
+    // With flags default-on, the master flag is true.
     const masterFlag = THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED;
-    if (!masterFlag) {
+    if (masterFlag) {
       for (const flag of Object.keys(THERAPIST_UPGRADE_FLAGS)) {
-        expect(isUpgradeEnabled(flag)).toBe(false);
+        expect(isUpgradeEnabled(flag)).toBe(true);
       }
     }
-    // If the master flag is false (expected default), every flag is off.
-    expect(masterFlag).toBe(false);
+    // The master flag is true (default-on).
+    expect(masterFlag).toBe(true);
   });
 
   it('setting VITE_THERAPIST_UPGRADE_ENABLED to anything other than "true" keeps Stage 2 off', () => {

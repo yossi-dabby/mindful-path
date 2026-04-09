@@ -99,6 +99,11 @@ import {
   CBT_THERAPIST_WIRING_HYBRID,
 } from '../../src/api/agentWiring.js';
 
+import {
+  SUPER_CBT_AGENT_WIRING,
+  isSuperAgentEnabled,
+} from '../../src/lib/superCbtAgent.js';
+
 // ─── Mock entity client factory ───────────────────────────────────────────────
 
 /**
@@ -828,28 +833,28 @@ describe('Phase 4.2 — persistence failures are non-blocking', () => {
 
 describe('Phase 4.2 — flags-off mode remains inert', () => {
   it('THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED is still false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED).toBe(true);
   });
 
   it('THERAPIST_UPGRADE_ENABLED (master gate) is still false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(true);
   });
 
   it('isUpgradeEnabled returns false for the ingestion flag', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED')).toBe(true);
   });
 
-  it('persistence adapter functions exist but are never called when flags are off', () => {
-    // When the flag is off, the ingestion path never reaches persistIngestedDocument.
-    // This test confirms the adapter is importable with no side effects.
-    const flagOff = isUpgradeEnabled('THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED') === false;
-    expect(flagOff).toBe(true);
+  it('persistence adapter functions exist and are callable when flags are on (default-on)', () => {
+    // With default-on flags, the ingestion path can reach persistIngestedDocument.
+    // This test confirms the adapter is importable.
+    const flagOn = isUpgradeEnabled('THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED') === true;
+    expect(flagOn).toBe(true);
     expect(typeof persistIngestedDocument).toBe('function');
   });
 
   it('all Stage 2 flags are still false', () => {
     for (const [name, value] of Object.entries(THERAPIST_UPGRADE_FLAGS)) {
-      expect(value, `Flag "${name}" must still be false`).toBe(false);
+      expect(value, `Flag "${name}" must be enabled`).toBe(true);
     }
   });
 });
@@ -858,11 +863,11 @@ describe('Phase 4.2 — flags-off mode remains inert', () => {
 
 describe('Phase 4.2 — current therapist default path unchanged', () => {
   it('ACTIVE_CBT_THERAPIST_WIRING is still CBT_THERAPIST_WIRING_HYBRID', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('resolveTherapistWiring returns HYBRID when all flags are off', () => {
-    expect(resolveTherapistWiring()).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(resolveTherapistWiring()).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('CBT_THERAPIST_WIRING_HYBRID has no reference to external knowledge entity surfaces', () => {
@@ -873,15 +878,15 @@ describe('Phase 4.2 — current therapist default path unchanged', () => {
     expect(wiringStr).not.toContain('external_trusted');
   });
 
-  it('KnowledgeInfrastructure domain is not referenced in active therapist wiring', () => {
+  it('ExternalKnowledgeChunk is referenced in active therapist wiring (SUPER)', () => {
     const wiringStr = JSON.stringify(ACTIVE_CBT_THERAPIST_WIRING);
     expect(wiringStr).not.toContain('KnowledgeInfrastructure');
     expect(wiringStr).not.toContain('ExternalKnowledgeSource');
-    expect(wiringStr).not.toContain('ExternalKnowledgeChunk');
+    expect(wiringStr).toContain('ExternalKnowledgeChunk');
   });
 
   it('ACTIVE_CBT_THERAPIST_WIRING.stage2 is still falsy', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING.stage2).toBeFalsy();
+    expect(ACTIVE_CBT_THERAPIST_WIRING.stage2).toBeTruthy();
   });
 });
 
@@ -889,11 +894,11 @@ describe('Phase 4.2 — current therapist default path unchanged', () => {
 
 describe('Phase 4.2 — retrieval runtime unchanged', () => {
   it('THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED is still false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED).toBe(true);
   });
 
   it('THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED is still false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED).toBe(true);
   });
 
   it('persistence adapter does not connect to any retrieval pipeline', () => {
@@ -917,11 +922,11 @@ describe('Phase 4.2 — rollback remains safe', () => {
     expect(wiringStr).not.toContain('ExternalKnowledgeChunk');
   });
 
-  it('disabling THERAPIST_UPGRADE_ENABLED is sufficient to prevent all Phase 4.2 persistence', () => {
-    const masterOff = THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED === false;
-    const phase4Off = isUpgradeEnabled('THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED') === false;
-    expect(masterOff).toBe(true);
-    expect(phase4Off).toBe(true);
+  it('Phase 4.2 gate is open: THERAPIST_UPGRADE_ENABLED is true (default-on)', () => {
+    const masterOn = THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED === true;
+    const phase4On = isUpgradeEnabled('THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED') === true;
+    expect(masterOn).toBe(true);
+    expect(phase4On).toBe(true);
   });
 
   it('persistence adapter is independently importable (no side effects at import)', () => {
@@ -934,6 +939,6 @@ describe('Phase 4.2 — rollback remains safe', () => {
 
   it('resolveTherapistWiring still returns HYBRID after Phase 4.2 modules are imported', () => {
     // Importing Phase 4.2 modules must not change the active wiring.
-    expect(resolveTherapistWiring()).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(resolveTherapistWiring()).toBe(SUPER_CBT_AGENT_WIRING);
   });
 });

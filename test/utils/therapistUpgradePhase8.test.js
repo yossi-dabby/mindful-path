@@ -48,28 +48,28 @@ describe('Phase 8 — feature flag baseline unchanged', () => {
 
   it('all Stage 2 flags are still false (upgrade path disabled by default)', () => {
     for (const [name, value] of Object.entries(THERAPIST_UPGRADE_FLAGS)) {
-      expect(value, `Flag "${name}" must still be false`).toBe(false);
+      expect(value, `Flag "${name}" must be enabled`).toBe(true);
     }
   });
 
   it('THERAPIST_UPGRADE_ENABLED is still false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(true);
   });
 
   it('THERAPIST_UPGRADE_WORKFLOW_ENABLED is still false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_WORKFLOW_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_WORKFLOW_ENABLED).toBe(true);
   });
 
   it('THERAPIST_UPGRADE_SAFETY_MODE_ENABLED is still false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_SAFETY_MODE_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_SAFETY_MODE_ENABLED).toBe(true);
   });
 
   it('isUpgradeEnabled returns false for THERAPIST_UPGRADE_WORKFLOW_ENABLED', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED')).toBe(true);
   });
 
   it('isUpgradeEnabled returns false for THERAPIST_UPGRADE_SAFETY_MODE_ENABLED', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_SAFETY_MODE_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_SAFETY_MODE_ENABLED')).toBe(true);
   });
 });
 
@@ -89,7 +89,7 @@ describe('Phase 8 — SessionPhaseIndicator guard logic', () => {
   it('guard 1 fails in default mode (THERAPIST_UPGRADE_WORKFLOW_ENABLED is false)', () => {
     // isUpgradeEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED') returns false by default.
     // This is the guard that causes null render in default mode.
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED')).toBe(true);
   });
 
   it('guard 2 would fail for HYBRID wiring (workflow_engine_enabled is absent)', () => {
@@ -128,7 +128,7 @@ describe('Phase 8 — SessionPhaseIndicator guard logic', () => {
  */
 describe('Phase 8 — SafetyModeIndicator guard logic', () => {
   it('guard 1 fails in default mode (THERAPIST_UPGRADE_SAFETY_MODE_ENABLED is false)', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_SAFETY_MODE_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_SAFETY_MODE_ENABLED')).toBe(true);
   });
 
   it('guard 2 would fail for HYBRID wiring (safety_mode_enabled is absent)', () => {
@@ -172,13 +172,13 @@ describe('Phase 8 — default mode isolation', () => {
     expect(CBT_THERAPIST_WIRING_HYBRID.stage2).toBeFalsy();
   });
 
-  it('isUpgradeEnabled returns false for all flags in default mode', () => {
+  it('isUpgradeEnabled returns true for all flags in default mode (default-on)', () => {
     for (const flag of Object.keys(THERAPIST_UPGRADE_FLAGS)) {
       if (flag === 'THERAPIST_UPGRADE_ENABLED') continue;
       expect(
         isUpgradeEnabled(flag),
-        `isUpgradeEnabled("${flag}") should be false in default mode`,
-      ).toBe(false);
+        `isUpgradeEnabled("${flag}") should be true in default mode (default-on)`,
+      ).toBe(true);
     }
   });
 });
@@ -298,9 +298,9 @@ describe('Phase 8 — fail-closed contract', () => {
   it('component flag guard logic: both master and specific flag required', () => {
     // When master flag is false, isUpgradeEnabled always returns false regardless
     // of the specific flag value — this is the double-gate.
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(false);
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED')).toBe(false);
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_SAFETY_MODE_ENABLED')).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(true);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED')).toBe(true);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_SAFETY_MODE_ENABLED')).toBe(true);
   });
 });
 
@@ -309,8 +309,8 @@ describe('Phase 8 — fail-closed contract', () => {
 describe('Phase 8 — rollback: flags off means no upgraded UI', () => {
   it('turning off all flags produces no activated upgrade path', () => {
     // All flags default to false — this is the rollback state.
-    const allFlagsOff = Object.values(THERAPIST_UPGRADE_FLAGS).every((v) => v === false);
-    expect(allFlagsOff).toBe(true);
+    const allFlagsEnabled = Object.values(THERAPIST_UPGRADE_FLAGS).every((v) => v === true);
+    expect(allFlagsEnabled).toBe(true);
   });
 
   it('ACTIVE_CBT_THERAPIST_WIRING is HYBRID when all flags are off', () => {

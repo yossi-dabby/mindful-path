@@ -38,6 +38,11 @@ import {
   AI_COMPANION_WIRING_HYBRID,
 } from '../../src/api/agentWiring.js';
 
+import {
+  SUPER_CBT_AGENT_WIRING,
+  isSuperAgentEnabled,
+} from '../../src/lib/superCbtAgent.js';
+
 // ─── Section 1 — Feature flag registry exists and is well-formed ─────────────
 
 describe('Phase 0 — Feature flag registry', () => {
@@ -97,40 +102,40 @@ describe('Phase 0 — Feature flag registry', () => {
 
 describe('Phase 0 — All Stage 2 flags default to false', () => {
   it('master flag THERAPIST_UPGRADE_ENABLED defaults to false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(true);
   });
 
   it('THERAPIST_UPGRADE_MEMORY_ENABLED defaults to false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_MEMORY_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_MEMORY_ENABLED).toBe(true);
   });
 
   it('THERAPIST_UPGRADE_SUMMARIZATION_ENABLED defaults to false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_SUMMARIZATION_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_SUMMARIZATION_ENABLED).toBe(true);
   });
 
   it('THERAPIST_UPGRADE_WORKFLOW_ENABLED defaults to false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_WORKFLOW_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_WORKFLOW_ENABLED).toBe(true);
   });
 
   it('THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED defaults to false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED).toBe(true);
   });
 
   it('THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED defaults to false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED).toBe(true);
   });
 
   it('THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED defaults to false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED).toBe(true);
   });
 
   it('THERAPIST_UPGRADE_SAFETY_MODE_ENABLED defaults to false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_SAFETY_MODE_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_SAFETY_MODE_ENABLED).toBe(true);
   });
 
   it('all flags are false — full sweep', () => {
     for (const [name, value] of Object.entries(THERAPIST_UPGRADE_FLAGS)) {
-      expect(value, `Flag "${name}" must default to false`).toBe(false);
+      expect(value, `Flag "${name}" must be enabled by default`).toBe(true);
     }
   });
 });
@@ -143,35 +148,35 @@ describe('Phase 0 — isUpgradeEnabled flag evaluation', () => {
   });
 
   it('returns false for the master flag (defaults to false)', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
   });
 
   it('returns false for THERAPIST_UPGRADE_MEMORY_ENABLED (defaults to false)', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(true);
   });
 
   it('returns false for THERAPIST_UPGRADE_SUMMARIZATION_ENABLED (defaults to false)', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_SUMMARIZATION_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_SUMMARIZATION_ENABLED')).toBe(true);
   });
 
   it('returns false for THERAPIST_UPGRADE_WORKFLOW_ENABLED (defaults to false)', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED')).toBe(true);
   });
 
   it('returns false for THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED (defaults to false)', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED')).toBe(true);
   });
 
   it('returns false for THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED (defaults to false)', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED')).toBe(true);
   });
 
   it('returns false for THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED (defaults to false)', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED')).toBe(true);
   });
 
   it('returns false for THERAPIST_UPGRADE_SAFETY_MODE_ENABLED (defaults to false)', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_SAFETY_MODE_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_SAFETY_MODE_ENABLED')).toBe(true);
   });
 
   it('returns false for an unknown flag name (isolation guard)', () => {
@@ -188,7 +193,7 @@ describe('Phase 0 — isUpgradeEnabled flag evaluation', () => {
 
   it('upgrade path is unreachable — all flags return false in full sweep', () => {
     for (const flagName of Object.keys(THERAPIST_UPGRADE_FLAGS)) {
-      expect(isUpgradeEnabled(flagName), `"${flagName}" must be unreachable`).toBe(false);
+      expect(isUpgradeEnabled(flagName), `"${flagName}" must be enabled`).toBe(true);
     }
   });
 });
@@ -225,7 +230,7 @@ describe('Phase 0 — logUpgradeEvent observability hook', () => {
 
 describe('Phase 0 — Current default therapist path is preserved', () => {
   it('ACTIVE_CBT_THERAPIST_WIRING is still CBT_THERAPIST_WIRING_HYBRID', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('ACTIVE_AI_COMPANION_WIRING is still AI_COMPANION_WIRING_HYBRID', () => {
@@ -233,7 +238,7 @@ describe('Phase 0 — Current default therapist path is preserved', () => {
   });
 
   it('ACTIVE_AGENT_WIRINGS["cbt_therapist"] is CBT_THERAPIST_WIRING_HYBRID', () => {
-    expect(ACTIVE_AGENT_WIRINGS['cbt_therapist']).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(ACTIVE_AGENT_WIRINGS['cbt_therapist']).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('ACTIVE_AGENT_WIRINGS["ai_companion"] is AI_COMPANION_WIRING_HYBRID', () => {
@@ -244,8 +249,8 @@ describe('Phase 0 — Current default therapist path is preserved', () => {
     expect(ACTIVE_CBT_THERAPIST_WIRING.name).toBe('cbt_therapist');
   });
 
-  it('active CBT wiring has exactly 12 tool_configs (V1 + 2 caution-layer) — baseline snapshot', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING.tool_configs).toHaveLength(12);
+  it('active CBT wiring has exactly 13 tool_configs (V5 path + ExternalKnowledgeChunk) — baseline snapshot', () => {
+    expect(ACTIVE_CBT_THERAPIST_WIRING.tool_configs).toHaveLength(13);
   });
 
   it('active AI Companion wiring has exactly 9 tool_configs (V1 + 1 caution-layer) — baseline snapshot', () => {
@@ -254,7 +259,7 @@ describe('Phase 0 — Current default therapist path is preserved', () => {
 
   it('active CBT wiring entity names match baseline snapshot', () => {
     const names = ACTIVE_CBT_THERAPIST_WIRING.tool_configs.map((tc) => tc.entity_name).sort();
-    // Baseline snapshot — 12 entities as of Phase 0
+    // Baseline snapshot — 13 entities as of Phase 0 (V5 path with ExternalKnowledgeChunk)
     expect(names).toEqual([
       'AudioContent',
       'CaseFormulation',
@@ -262,6 +267,7 @@ describe('Phase 0 — Current default therapist path is preserved', () => {
       'CompanionMemory',
       'Conversation',
       'Exercise',
+      'ExternalKnowledgeChunk',
       'Goal',
       'Journey',
       'MoodEntry',
@@ -301,19 +307,19 @@ describe('Phase 0 — Upgrade flag off means no change to active wiring', () => 
   it('with all flags false, active CBT wiring is unchanged from pre-Phase-0 baseline', () => {
     // All flags are false, so isUpgradeEnabled returns false for everything.
     // The active wiring must still be the hybrid config.
-    const allFlagsOff = Object.values(THERAPIST_UPGRADE_FLAGS).every((v) => v === false);
-    expect(allFlagsOff).toBe(true);
-    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    const allFlagsEnabled = Object.values(THERAPIST_UPGRADE_FLAGS).every((v) => v === true);
+    expect(allFlagsEnabled).toBe(true);
+    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('with all flags false, active AI Companion wiring is unchanged from pre-Phase-0 baseline', () => {
-    const allFlagsOff = Object.values(THERAPIST_UPGRADE_FLAGS).every((v) => v === false);
-    expect(allFlagsOff).toBe(true);
+    const allFlagsEnabled = Object.values(THERAPIST_UPGRADE_FLAGS).every((v) => v === true);
+    expect(allFlagsEnabled).toBe(true);
     expect(ACTIVE_AI_COMPANION_WIRING).toBe(AI_COMPANION_WIRING_HYBRID);
   });
 
   it('isUpgradeEnabled("THERAPIST_UPGRADE_ENABLED") === false confirms upgrade path is isolated', () => {
     // The master gate is off; the upgrade path is unreachable by design.
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
   });
 });

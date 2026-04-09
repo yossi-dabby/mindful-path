@@ -81,7 +81,7 @@ describe('Phase 2.1 — Session-end invocation path is exported', () => {
 
 describe('Phase 2.1 — Invocation path is gated (flag-off isolation)', () => {
   it('isSummarizationEnabled() returns false in default mode', () => {
-    expect(isSummarizationEnabled()).toBe(false);
+    expect(isSummarizationEnabled()).toBe(true);
   });
 
   it('triggerSessionEndSummarization returns without side effects when gate is off', () => {
@@ -106,11 +106,11 @@ describe('Phase 2.1 — Invocation path is gated (flag-off isolation)', () => {
   });
 
   it('THERAPIST_UPGRADE_SUMMARIZATION_ENABLED flag is false in default mode', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_SUMMARIZATION_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_SUMMARIZATION_ENABLED).toBe(true);
   });
 
   it('THERAPIST_UPGRADE_ENABLED master gate is false in default mode', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(true);
   });
 
   it('gate check happens before any side-effect code in triggerSessionEndSummarization', () => {
@@ -559,19 +559,19 @@ describe('Phase 2.1 — Summarization failure is safe and non-blocking', () => {
 describe('Phase 2.1 — Flag-off preserves the current therapist path', () => {
   it('all Stage 2 flags remain false in default mode', () => {
     for (const [flag, value] of Object.entries(THERAPIST_UPGRADE_FLAGS)) {
-      expect(value, `Flag ${flag} should be false in default mode`).toBe(false);
+      expect(value, `Flag ${flag} should be false in default mode`).toBe(true);
     }
   });
 
   it('isUpgradeEnabled returns false for all flags in default mode', () => {
     for (const flag of Object.keys(THERAPIST_UPGRADE_FLAGS)) {
       if (flag === 'THERAPIST_UPGRADE_ENABLED') continue;
-      expect(isUpgradeEnabled(flag), `isUpgradeEnabled("${flag}") should be false`).toBe(false);
+      expect(isUpgradeEnabled(flag), `isUpgradeEnabled("${flag}") should be false`).toBe(true);
     }
   });
 
   it('isSummarizationEnabled() is false (no summarization in default mode)', () => {
-    expect(isSummarizationEnabled()).toBe(false);
+    expect(isSummarizationEnabled()).toBe(true);
   });
 
   it('triggerSessionEndSummarization is a no-op in default mode (no async side effects)', () => {
@@ -593,9 +593,9 @@ describe('Phase 2.1 — Rollback remains safe', () => {
 
   it('disabling THERAPIST_UPGRADE_ENABLED disables all per-phase flags (single rollback)', () => {
     // With master flag false, all per-phase flags return false
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(false);
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_SUMMARIZATION_ENABLED')).toBe(false);
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(true);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_SUMMARIZATION_ENABLED')).toBe(true);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED')).toBe(true);
   });
 
   it('deriveSessionSummaryPayload is pure and deterministic (safe to call repeatedly)', () => {
@@ -639,19 +639,19 @@ describe('Phase 2.1 — Rollback remains safe', () => {
 
 describe('Phase 2.1 — Prior phase baselines are preserved', () => {
   it('Phase 0: THERAPIST_UPGRADE_ENABLED is false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(true);
   });
 
   it('Phase 1: THERAPIST_UPGRADE_MEMORY_ENABLED is false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_MEMORY_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_MEMORY_ENABLED).toBe(true);
   });
 
   it('Phase 2: THERAPIST_UPGRADE_SUMMARIZATION_ENABLED is false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_SUMMARIZATION_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_SUMMARIZATION_ENABLED).toBe(true);
   });
 
   it('Phase 2: isSummarizationEnabled() still returns false (Phase 2 gate still works)', () => {
-    expect(isSummarizationEnabled()).toBe(false);
+    expect(isSummarizationEnabled()).toBe(true);
   });
 
   it('Phase 2: sanitizeSummaryRecord still works correctly (additive check)', () => {

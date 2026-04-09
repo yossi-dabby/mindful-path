@@ -103,6 +103,11 @@ import {
   resolveTherapistWiring,
 } from '../../src/api/activeAgentWiring.js';
 
+import {
+  SUPER_CBT_AGENT_WIRING,
+  isSuperAgentEnabled,
+} from '../../src/lib/superCbtAgent.js';
+
 // ─── Section 1 — retrievalConfig.js exports ──────────────────────────────────
 
 describe('Phase 5 — retrievalConfig exports', () => {
@@ -713,7 +718,7 @@ describe('Phase 5 — resolveTherapistWiring routing logic', () => {
 
   it('resolveTherapistWiring returns HYBRID when all flags are off', () => {
     // All flags default to false in this test environment
-    expect(resolveTherapistWiring()).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(resolveTherapistWiring()).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('resolveTherapistWiring source code contains a V3 routing branch', () => {
@@ -747,16 +752,16 @@ describe('Phase 5 — resolveTherapistWiring routing logic', () => {
 
 describe('Phase 5 — feature flags still off', () => {
   it('THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED is false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED).toBe(true);
   });
 
   it('isUpgradeEnabled returns false for the retrieval orchestration flag', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED')).toBe(true);
   });
 
   it('all Stage 2 flags are still false', () => {
     for (const [name, value] of Object.entries(THERAPIST_UPGRADE_FLAGS)) {
-      expect(value, `Flag "${name}" must still be false`).toBe(false);
+      expect(value, `Flag "${name}" must be enabled`).toBe(true);
     }
   });
 });
@@ -765,27 +770,27 @@ describe('Phase 5 — feature flags still off', () => {
 
 describe('Phase 5 — current therapist default path unchanged', () => {
   it('ACTIVE_CBT_THERAPIST_WIRING is still CBT_THERAPIST_WIRING_HYBRID', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('resolveTherapistWiring returns HYBRID when all flags are off', () => {
-    expect(resolveTherapistWiring()).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(resolveTherapistWiring()).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('ACTIVE_CBT_THERAPIST_WIRING.stage2 is still falsy', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING.stage2).toBeFalsy();
+    expect(ACTIVE_CBT_THERAPIST_WIRING.stage2).toBeTruthy();
   });
 
   it('HYBRID wiring has no retrieval_orchestration_enabled flag', () => {
     expect(CBT_THERAPIST_WIRING_HYBRID.retrieval_orchestration_enabled).toBeFalsy();
   });
 
-  it('buildSessionStartContent returns unchanged default for the active wiring', () => {
-    expect(buildSessionStartContent(ACTIVE_CBT_THERAPIST_WIRING)).toBe('[START_SESSION]');
+  it('buildSessionStartContent returns content containing [START_SESSION] for the active wiring (SUPER)', () => {
+    expect(buildSessionStartContent(ACTIVE_CBT_THERAPIST_WIRING)).toContain('[START_SESSION]');
   });
 
-  it('getRetrievalContextForWiring returns null for the active wiring', () => {
-    expect(getRetrievalContextForWiring(ACTIVE_CBT_THERAPIST_WIRING)).toBeNull();
+  it('getRetrievalContextForWiring returns non-null for the active wiring (SUPER has retrieval)', () => {
+    expect(getRetrievalContextForWiring(ACTIVE_CBT_THERAPIST_WIRING)).not.toBeNull();
   });
 });
 
@@ -874,11 +879,11 @@ describe('Phase 5 — rollback remains safe', () => {
     expect(wiringStr).not.toContain('retrievalOrchestrator');
   });
 
-  it('disabling THERAPIST_UPGRADE_ENABLED is sufficient to prevent all Phase 5 behavior', () => {
-    // With master flag off (the default), resolveTherapistWiring always returns HYBRID
+  it('resolveTherapistWiring returns SUPER_CBT_AGENT_WIRING with retrieval enabled (default-on)', () => {
+    // With all flags on (default-on), resolveTherapistWiring returns SUPER
     const result = resolveTherapistWiring();
-    expect(result).toBe(CBT_THERAPIST_WIRING_HYBRID);
-    expect(result.retrieval_orchestration_enabled).toBeFalsy();
+    expect(result).toBe(SUPER_CBT_AGENT_WIRING);
+    expect(result.retrieval_orchestration_enabled).toBeTruthy();
   });
 
   it('V3 is not the active wiring — rollback requires no code change', () => {

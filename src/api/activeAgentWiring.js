@@ -51,6 +51,11 @@ import {
   registerUpgradeAnalyticsTracker,
 } from '../lib/featureFlags.js';
 
+import {
+  SUPER_CBT_AGENT_WIRING,
+  isSuperAgentEnabled,
+} from '../lib/superCbtAgent.js';
+
 // ─── Phase 0.1 — Analytics registration ─────────────────────────────────────
 //
 // Register base44.analytics.track as the upgrade observability tracker when
@@ -115,6 +120,16 @@ import {
  */
 export function resolveTherapistWiring() {
   if (isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')) {
+    // ── Super Agent (highest priority — supersedes all Phase N paths) ─────────
+    if (isSuperAgentEnabled()) {
+      logUpgradeEvent('route_selected', {
+        flag: 'SUPER_CBT_AGENT_ENABLED',
+        path: 'super_cbt_agent',
+        phase: 'super.1',
+      });
+      return SUPER_CBT_AGENT_WIRING;
+    }
+
     // ── Phase 7 — Safety mode (supersedes Phase 6 and earlier) ───────────
     if (isUpgradeEnabled('THERAPIST_UPGRADE_SAFETY_MODE_ENABLED')) {
       logUpgradeEvent('route_selected', {

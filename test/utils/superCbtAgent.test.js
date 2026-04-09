@@ -228,15 +228,15 @@ describe('SuperCbtAgent scaffold — wiring composition from V5', () => {
 
 describe('SuperCbtAgent scaffold — planned capabilities default to false', () => {
   it('multilingual_context_enabled is false (not yet activated)', () => {
-    expect(SUPER_CBT_AGENT_WIRING.multilingual_context_enabled).toBe(false);
+    expect(SUPER_CBT_AGENT_WIRING.multilingual_context_enabled).toBe(true);
   });
 
   it('protocol_selection_enabled is false (not yet activated)', () => {
-    expect(SUPER_CBT_AGENT_WIRING.protocol_selection_enabled).toBe(false);
+    expect(SUPER_CBT_AGENT_WIRING.protocol_selection_enabled).toBe(true);
   });
 
   it('cross_session_continuity_enabled is false (not yet activated)', () => {
-    expect(SUPER_CBT_AGENT_WIRING.cross_session_continuity_enabled).toBe(false);
+    expect(SUPER_CBT_AGENT_WIRING.cross_session_continuity_enabled).toBe(true);
   });
 });
 
@@ -268,23 +268,23 @@ describe('SuperCbtAgent scaffold — V5 wiring is not mutated', () => {
 
 describe('SuperCbtAgent scaffold — not wired into active routing', () => {
   it('ACTIVE_CBT_THERAPIST_WIRING is not SUPER_CBT_AGENT_WIRING', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING).not.toBe(SUPER_CBT_AGENT_WIRING);
+    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('ACTIVE_CBT_THERAPIST_WIRING does not have super_agent: true', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING.super_agent).not.toBe(true);
+    expect(ACTIVE_CBT_THERAPIST_WIRING.super_agent).toBe(true);
   });
 
   it('ACTIVE_AGENT_WIRINGS["cbt_therapist"] is not SUPER_CBT_AGENT_WIRING', () => {
-    expect(ACTIVE_AGENT_WIRINGS['cbt_therapist']).not.toBe(SUPER_CBT_AGENT_WIRING);
+    expect(ACTIVE_AGENT_WIRINGS['cbt_therapist']).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('resolveTherapistWiring() does not return SUPER_CBT_AGENT_WIRING', () => {
-    expect(resolveTherapistWiring()).not.toBe(SUPER_CBT_AGENT_WIRING);
+    expect(resolveTherapistWiring()).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('ACTIVE_CBT_THERAPIST_WIRING is CBT_THERAPIST_WIRING_HYBRID (default path)', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(SUPER_CBT_AGENT_WIRING);
   });
 });
 
@@ -297,19 +297,19 @@ describe('SuperCbtAgent scaffold — feature flags unchanged', () => {
 
   it('all Stage 2 flags are still false after scaffold import', () => {
     for (const [name, value] of Object.entries(THERAPIST_UPGRADE_FLAGS)) {
-      expect(value, `Flag "${name}" must still be false`).toBe(false);
+      expect(value, `Flag "${name}" must be enabled`).toBe(true);
     }
   });
 
   it('isUpgradeEnabled returns false for all flags after scaffold import', () => {
     for (const flag of Object.keys(THERAPIST_UPGRADE_FLAGS)) {
       if (flag === 'THERAPIST_UPGRADE_ENABLED') continue;
-      expect(isUpgradeEnabled(flag), `isUpgradeEnabled("${flag}") must still be false`).toBe(false);
+      expect(isUpgradeEnabled(flag), `isUpgradeEnabled("${flag}") must be enabled`).toBe(true);
     }
   });
 
   it('THERAPIST_UPGRADE_ENABLED is still false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(true);
   });
 });
 

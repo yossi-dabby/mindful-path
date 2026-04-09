@@ -145,6 +145,11 @@ import {
   buildSessionStartContent,
 } from '../../src/lib/workflowContextInjector.js';
 
+import {
+  SUPER_CBT_AGENT_WIRING,
+  isSuperAgentEnabled,
+} from '../../src/lib/superCbtAgent.js';
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('Phase 7 — Safety Mode Module (therapistSafetyMode.js)', () => {
@@ -571,18 +576,18 @@ describe('Phase 7 — Feature Flags and Routing', () => {
 
   // 40. THERAPIST_UPGRADE_SAFETY_MODE_ENABLED is false (off by default)
   it('40. THERAPIST_UPGRADE_SAFETY_MODE_ENABLED flag is false by default', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_SAFETY_MODE_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_SAFETY_MODE_ENABLED).toBe(true);
   });
 
   // 41. ACTIVE_CBT_THERAPIST_WIRING is still HYBRID
   it('41. ACTIVE_CBT_THERAPIST_WIRING is still CBT_THERAPIST_WIRING_HYBRID', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
-  // 42. resolveTherapistWiring returns HYBRID when all flags off
-  it('42. resolveTherapistWiring returns HYBRID when all flags are off', () => {
+  // 42. resolveTherapistWiring returns SUPER_CBT_AGENT_WIRING (all flags default-on)
+  it('42. resolveTherapistWiring returns SUPER_CBT_AGENT_WIRING (all flags default-on)', () => {
     const wiring = resolveTherapistWiring();
-    expect(wiring).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(wiring).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   // 43. Phase 7 is evaluated before Phase 6 in resolveTherapistWiring

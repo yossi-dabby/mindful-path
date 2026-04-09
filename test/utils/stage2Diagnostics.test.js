@@ -207,7 +207,7 @@ describe('Stage 2 Diagnostics — payload field correctness', () => {
     withWindow('?_s2debug=true', () => {
       const p = getStage2DiagnosticPayload();
       for (const [name, value] of Object.entries(p.computedFlags)) {
-        expect(value, `computedFlags.${name} must be false by default`).toBe(false);
+        expect(value, `computedFlags.${name} must be false by default`).toBe(true);
       }
     });
   });
@@ -219,10 +219,10 @@ describe('Stage 2 Diagnostics — payload field correctness', () => {
     });
   });
 
-  it('masterGateOn is false by default', () => {
+  it('masterGateOn is true by default (default-on)', () => {
     withWindow('?_s2debug=true', () => {
       const p = getStage2DiagnosticPayload();
-      expect(p.masterGateOn).toBe(false);
+      expect(p.masterGateOn).toBe(true);
     });
   });
 
@@ -233,38 +233,36 @@ describe('Stage 2 Diagnostics — payload field correctness', () => {
     });
   });
 
-  it('routeHint is HYBRID when master gate is off', () => {
+  it('routeHint contains STAGE2_V5 (all flags default-on)', () => {
     withWindow('?_s2debug=true', () => {
       const p = getStage2DiagnosticPayload();
-      expect(p.routeHint).toContain('HYBRID');
-      expect(p.routeHint).toContain('master gate off');
+      expect(p.routeHint).toContain('STAGE2_V5');
     });
   });
 
-  it('routeHint is HYBRID (master on, no phase flag matched) when master is on but no phase flag', () => {
+  it('routeHint contains STAGE2_V5 when master in _s2 (all phase flags default-on)', () => {
     withWindow('?_s2debug=true&_s2=THERAPIST_UPGRADE_ENABLED', () => {
       const p = getStage2DiagnosticPayload();
-      expect(p.routeHint).toContain('HYBRID');
-      expect(p.routeHint).toContain('no phase flag');
+      expect(p.routeHint).toContain('STAGE2_V5');
     });
   });
 
-  it('routeHint is STAGE2_V1 when memory flag is in _s2 with master', () => {
+  it('routeHint contains STAGE2_V5 when memory flag is in _s2 with master (all flags default-on)', () => {
     withWindow(
       '?_s2debug=true&_s2=THERAPIST_UPGRADE_ENABLED,THERAPIST_UPGRADE_MEMORY_ENABLED',
       () => {
         const p = getStage2DiagnosticPayload();
-        expect(p.routeHint).toContain('STAGE2_V1');
+        expect(p.routeHint).toContain('STAGE2_V5');
       },
     );
   });
 
-  it('routeHint is STAGE2_V2 when workflow flag is in _s2 with master', () => {
+  it('routeHint contains STAGE2_V5 when workflow flag is in _s2 with master (all flags default-on)', () => {
     withWindow(
       '?_s2debug=true&_s2=THERAPIST_UPGRADE_ENABLED,THERAPIST_UPGRADE_WORKFLOW_ENABLED',
       () => {
         const p = getStage2DiagnosticPayload();
-        expect(p.routeHint).toContain('STAGE2_V2');
+        expect(p.routeHint).toContain('STAGE2_V5');
       },
     );
   });
@@ -300,7 +298,7 @@ describe('Stage 2 Diagnostics — _s2debug gate is host-agnostic', () => {
     withWindow('?_s2debug=true', () => {
       const p = getStage2DiagnosticPayload();
       for (const [name, value] of Object.entries(p.computedFlags)) {
-        expect(value, `${name} must be false on production host without _s2`).toBe(false);
+        expect(value, `${name} must be false on production host without _s2`).toBe(true);
       }
     }, 'app.myproduct.com');
   });
@@ -311,8 +309,8 @@ describe('Stage 2 Diagnostics — _s2debug gate is host-agnostic', () => {
     withWindow('?_s2debug=true&_s2=THERAPIST_UPGRADE_ENABLED', () => {
       const p = getStage2DiagnosticPayload();
       expect(p.parsedS2Flags).toContain('THERAPIST_UPGRADE_ENABLED');
-      // But the computed flag is false because the host is not a preview host.
-      expect(p.computedFlags['THERAPIST_UPGRADE_ENABLED']).toBe(false);
+      // The computed flag is true because flags are default-on.
+      expect(p.computedFlags['THERAPIST_UPGRADE_ENABLED']).toBe(true);
     }, 'app.myproduct.com');
   });
 
@@ -340,7 +338,7 @@ describe('Stage 2 Diagnostics — diagnostic does not mutate flag state', () => 
     withWindow('?_s2debug=true&_s2=THERAPIST_UPGRADE_ENABLED', () => {
       getStage2DiagnosticPayload();
       // The build-time flag must still be false — only isUpgradeEnabled() is true.
-      expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(false);
+      expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(true);
     });
   });
 });

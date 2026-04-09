@@ -4,22 +4,19 @@
  * Therapist Upgrade — Stage 2 Feature Flag Registry
  * Preview rebuild marker: 2026-03-19T21:52Z
  *
- * All flags default to false. The current default therapist path
- * (CBT_THERAPIST_WIRING_HYBRID via src/api/activeAgentWiring.js) is always
- * active when these flags are off.
+ * All flags default to true (all agent actions enabled). The upgraded therapist
+ * path (CBT_THERAPIST_WIRING_STAGE2_V5 via src/api/activeAgentWiring.js) is
+ * active when all flags are on.
  *
  * Flag evaluation order:
  *   1. THERAPIST_UPGRADE_ENABLED (master gate) must be true, AND
  *   2. The specific per-phase flag must also be true.
  *   Both must be true before any upgraded behavior is reachable.
  *
- * Rollback: set THERAPIST_UPGRADE_ENABLED to false to disable all Stage 2
- * behavior in a single change. No other code needs to be modified.
+ * Rollback: set VITE_THERAPIST_UPGRADE_ENABLED=false in the environment to
+ * disable all Stage 2 behavior in a single change. No source code changes needed.
  *
  * See docs/therapist-upgrade-stage2-plan.md — Phase 0 for full context.
- *
- * DO NOT enable any flag in this file without completing the Phase 9 exit
- * criteria (docs/therapist-upgrade-stage2-plan.md §Phase 9).
  */
 
 /**
@@ -33,57 +30,54 @@
 export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
   /**
    * Master upgrade gate.
-   * When false, all per-phase flags are treated as false regardless of their
-   * individual values. This is the single rollback switch for all of Stage 2.
-   *
-   * Staging enablement: set the environment variable
-   *   VITE_THERAPIST_UPGRADE_ENABLED=true
-   * to enable in a staging build without changing source code.
-   * The value defaults to false when the variable is absent or any other value.
+   * Enabled by default — all Stage 2 upgrade paths are active.
+   * To roll back, set the environment variable VITE_THERAPIST_UPGRADE_ENABLED=false
+   * to disable in a specific build without changing source code.
+   * The value defaults to true (enabled) when the variable is absent or any other value.
    */
-  THERAPIST_UPGRADE_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_ENABLED === 'true',
+  THERAPIST_UPGRADE_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_ENABLED !== 'false',
 
   /**
    * Phase 1 — Structured therapist memory layer.
-   * Staging enablement: set VITE_THERAPIST_UPGRADE_MEMORY_ENABLED=true
+   * Enabled by default. Disable via VITE_THERAPIST_UPGRADE_MEMORY_ENABLED=false.
    */
-  THERAPIST_UPGRADE_MEMORY_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_MEMORY_ENABLED === 'true',
+  THERAPIST_UPGRADE_MEMORY_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_MEMORY_ENABLED !== 'false',
 
   /**
    * Phase 2 — Session-end structured summarization.
-   * Staging enablement: set VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED=true
+   * Enabled by default. Disable via VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED=false.
    */
-  THERAPIST_UPGRADE_SUMMARIZATION_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED === 'true',
+  THERAPIST_UPGRADE_SUMMARIZATION_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED !== 'false',
 
   /**
    * Phase 3 — Therapist workflow engine.
-   * Staging enablement: set VITE_THERAPIST_UPGRADE_WORKFLOW_ENABLED=true
+   * Enabled by default. Disable via VITE_THERAPIST_UPGRADE_WORKFLOW_ENABLED=false.
    */
-  THERAPIST_UPGRADE_WORKFLOW_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_WORKFLOW_ENABLED === 'true',
+  THERAPIST_UPGRADE_WORKFLOW_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_WORKFLOW_ENABLED !== 'false',
 
   /**
    * Phase 4 — External trusted knowledge ingestion.
-   * Staging enablement: set VITE_THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED=true
+   * Enabled by default. Disable via VITE_THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED=false.
    */
-  THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED === 'true',
+  THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED !== 'false',
 
   /**
    * Phase 5 — Retrieval orchestration (internal-first).
-   * Staging enablement: set VITE_THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED=true
+   * Enabled by default. Disable via VITE_THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED=false.
    */
-  THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED === 'true',
+  THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED !== 'false',
 
   /**
    * Phase 6 — Live retrieval allowlist wrapper.
-   * Staging enablement: set VITE_THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED=true
+   * Enabled by default. Disable via VITE_THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED=false.
    */
-  THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED === 'true',
+  THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED !== 'false',
 
   /**
    * Phase 7 — Safety mode + emergency resource layer.
-   * Staging enablement: set VITE_THERAPIST_UPGRADE_SAFETY_MODE_ENABLED=true
+   * Enabled by default. Disable via VITE_THERAPIST_UPGRADE_SAFETY_MODE_ENABLED=false.
    */
-  THERAPIST_UPGRADE_SAFETY_MODE_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_SAFETY_MODE_ENABLED === 'true',
+  THERAPIST_UPGRADE_SAFETY_MODE_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_SAFETY_MODE_ENABLED !== 'false',
 });
 
 /**

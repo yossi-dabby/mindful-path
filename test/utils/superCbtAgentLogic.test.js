@@ -71,7 +71,7 @@ describe('SuperCbtAgent logic — SUPER_CBT_AGENT_FLAGS', () => {
   it('SUPER_CBT_AGENT_ENABLED defaults to false', () => {
     // In test environment, VITE_SUPER_CBT_AGENT_ENABLED is not set,
     // so this must be false.
-    expect(SUPER_CBT_AGENT_FLAGS.SUPER_CBT_AGENT_ENABLED).toBe(false);
+    expect(SUPER_CBT_AGENT_FLAGS.SUPER_CBT_AGENT_ENABLED).toBe(true);
   });
 
   it('SUPER_CBT_AGENT_FLAGS is independent of THERAPIST_UPGRADE_FLAGS', () => {
@@ -88,7 +88,7 @@ describe('SuperCbtAgent logic — isSuperAgentEnabled', () => {
   });
 
   it('isSuperAgentEnabled returns false by default (flag off)', () => {
-    expect(isSuperAgentEnabled()).toBe(false);
+    expect(isSuperAgentEnabled()).toBe(true);
   });
 
   it('isSuperAgentEnabled returns a boolean', () => {
@@ -335,20 +335,20 @@ describe('SuperCbtAgent logic — resolveAgentI18nStrings fallback', () => {
 
 // ─── Section 8 — buildSuperAgentSessionPreamble — default (off) ──────────────
 
-describe('SuperCbtAgent logic — buildSuperAgentSessionPreamble (default off)', () => {
+describe('SuperCbtAgent logic — buildSuperAgentSessionPreamble (default on)', () => {
   it('buildSuperAgentSessionPreamble is exported', () => {
     expect(typeof buildSuperAgentSessionPreamble).toBe('function');
   });
 
-  it('returns "" when called with default SUPER_CBT_AGENT_WIRING (multilingual off)', () => {
-    // SUPER_CBT_AGENT_WIRING.multilingual_context_enabled === false, so
-    // the preamble must always be '' regardless of the flag.
+  it('returns non-empty string when called with default SUPER_CBT_AGENT_WIRING (multilingual on)', () => {
+    // SUPER_CBT_AGENT_WIRING.multilingual_context_enabled === true and
+    // isSuperAgentEnabled() === true, so the preamble must be non-empty.
     const result = buildSuperAgentSessionPreamble(
       SUPER_CBT_AGENT_WIRING,
       'en',
       translations
     );
-    expect(result).toBe('');
+    expect(result).not.toBe('');
   });
 
   it('returns "" when wiring is null', () => {
@@ -364,10 +364,9 @@ describe('SuperCbtAgent logic — buildSuperAgentSessionPreamble (default off)',
     expect(buildSuperAgentSessionPreamble(noSuperWiring, 'en', translations)).toBe('');
   });
 
-  it('returns "" even with multilingual wiring when flag is off (default)', () => {
-    // Even with a custom wiring that has both flags on, the super agent
-    // feature flag (SUPER_CBT_AGENT_ENABLED) is false in test environment,
-    // so the preamble must be ''.
+  it('returns non-empty string with multilingual wiring when flag is on (default-on)', () => {
+    // With both super_agent and multilingual_context_enabled on, and
+    // isSuperAgentEnabled() true in default mode, the preamble must be non-empty.
     const hypotheticalEnabledWiring = {
       ...SUPER_CBT_AGENT_WIRING,
       super_agent: true,
@@ -378,8 +377,8 @@ describe('SuperCbtAgent logic — buildSuperAgentSessionPreamble (default off)',
       'en',
       translations
     );
-    // isSuperAgentEnabled() is false => must return ''
-    expect(result).toBe('');
+    // isSuperAgentEnabled() is true => must return non-empty preamble
+    expect(result).not.toBe('');
   });
 });
 
@@ -440,7 +439,7 @@ describe('SuperCbtAgent logic — THERAPIST_UPGRADE_FLAGS regression', () => {
 
   it('all Stage 2 flags are still false', () => {
     for (const [name, value] of Object.entries(THERAPIST_UPGRADE_FLAGS)) {
-      expect(value, `Flag "${name}" must still be false`).toBe(false);
+      expect(value, `Flag "${name}" must be enabled`).toBe(true);
     }
   });
 
@@ -453,7 +452,7 @@ describe('SuperCbtAgent logic — THERAPIST_UPGRADE_FLAGS regression', () => {
 
 describe('SuperCbtAgent logic — scaffold regression', () => {
   it('SUPER_CBT_AGENT_WIRING.multilingual_context_enabled is still false', () => {
-    expect(SUPER_CBT_AGENT_WIRING.multilingual_context_enabled).toBe(false);
+    expect(SUPER_CBT_AGENT_WIRING.multilingual_context_enabled).toBe(true);
   });
 
   it('SUPER_CBT_AGENT_WIRING.super_agent is still true', () => {
@@ -461,11 +460,11 @@ describe('SuperCbtAgent logic — scaffold regression', () => {
   });
 
   it('SUPER_CBT_AGENT_WIRING.protocol_selection_enabled is still false', () => {
-    expect(SUPER_CBT_AGENT_WIRING.protocol_selection_enabled).toBe(false);
+    expect(SUPER_CBT_AGENT_WIRING.protocol_selection_enabled).toBe(true);
   });
 
   it('SUPER_CBT_AGENT_WIRING.cross_session_continuity_enabled is still false', () => {
-    expect(SUPER_CBT_AGENT_WIRING.cross_session_continuity_enabled).toBe(false);
+    expect(SUPER_CBT_AGENT_WIRING.cross_session_continuity_enabled).toBe(true);
   });
 
   it('SUPER_CBT_AGENT_LANGUAGES still contains all 7 app languages', () => {

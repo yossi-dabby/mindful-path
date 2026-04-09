@@ -56,6 +56,11 @@ import {
   resolveTherapistWiring,
 } from '../../src/api/activeAgentWiring.js';
 
+import {
+  SUPER_CBT_AGENT_WIRING,
+  isSuperAgentEnabled,
+} from '../../src/lib/superCbtAgent.js';
+
 // ─── Section 1 — Injector exports exist ──────────────────────────────────────
 
 describe('Phase 3.1 — workflowContextInjector exports', () => {
@@ -140,9 +145,9 @@ describe('Phase 3.1 — Default path: buildSessionStartContent returns [START_SE
     expect(buildSessionStartContent(undefined)).toBe('[START_SESSION]');
   });
 
-  it('returns exactly "[START_SESSION]" for the resolved default wiring (all flags false)', () => {
+  it('returns content containing "[START_SESSION]" for the resolved default wiring (all flags on)', () => {
     const defaultWiring = resolveTherapistWiring();
-    expect(buildSessionStartContent(defaultWiring)).toBe('[START_SESSION]');
+    expect(buildSessionStartContent(defaultWiring)).toContain('[START_SESSION]');
   });
 });
 
@@ -209,11 +214,11 @@ describe('Phase 3.1 — Proof of effect: V2 session-start differs from default',
     expect(v1Content).not.toContain('UPGRADED THERAPIST WORKFLOW');
   });
 
-  it('resolved default wiring session-start is identical to HYBRID content', () => {
+  it('resolved default wiring session-start differs from HYBRID content (SUPER is active)', () => {
     const defaultWiring = resolveTherapistWiring();
     const resolvedContent = buildSessionStartContent(defaultWiring);
     const hybridContent = buildSessionStartContent(CBT_THERAPIST_WIRING_HYBRID);
-    expect(resolvedContent).toBe(hybridContent);
+    expect(resolvedContent).not.toBe(hybridContent);
   });
 });
 
@@ -256,7 +261,7 @@ describe('Phase 3.1 — Injected content quality checks', () => {
 
 describe('Phase 3.1 — Safety-profile routing remains unchanged', () => {
   it('resolveTherapistWiring() still returns HYBRID when all flags are false', () => {
-    expect(resolveTherapistWiring()).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(resolveTherapistWiring()).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('HYBRID wiring does not have workflow_context_injection', () => {

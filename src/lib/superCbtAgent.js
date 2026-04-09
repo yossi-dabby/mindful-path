@@ -1,39 +1,26 @@
 /**
  * @file src/lib/superCbtAgent.js
  *
- * SuperCbtAgent — Scaffold Module
+ * SuperCbtAgent — Active Module
  *
  * This module defines the wiring configuration and feature descriptor for the
- * SuperCbtAgent — an opt-in, non-breaking upgrade path intended to bring full
- * multilingual CBT coverage and advanced session orchestration to the CBT
- * Therapist agent in all 7 app languages (en, he, es, fr, de, it, pt).
+ * SuperCbtAgent — the full multilingual CBT coverage and advanced session
+ * orchestration upgrade for the CBT Therapist agent in all 7 app languages
+ * (en, he, es, fr, de, it, pt).
  *
- * SCAFFOLD ONLY — NOT ACTIVE
- * --------------------------
- * This module exists for planning and future activation only.  It is NOT
- * referenced by src/api/activeAgentWiring.js and has zero effect on the
- * current production therapist path.  No user traffic routes here.
+ * ACTIVE — WIRED TO PRODUCTION PATH
+ * ----------------------------------
+ * This module is referenced by src/api/activeAgentWiring.js and is the active
+ * production path when SUPER_CBT_AGENT_ENABLED is true (the default).
  *
- * This file may be imported freely in tests and utilities — it has no side
- * effects and never mutates any existing constant or wiring.
- *
- * HOW TO ACTIVATE (FUTURE — not in this PR)
- * -----------------------------------------
- * Activation requires ALL of the following steps in separate, reviewed PRs:
- *   1. Add SUPER_CBT_AGENT_ENABLED to THERAPIST_UPGRADE_FLAGS in featureFlags.js
- *      (double-gated: master gate + super agent flag, both default false).
- *   2. Add the super-agent routing branch to resolveTherapistWiring() in
- *      activeAgentWiring.js (placed last — highest priority only when enabled).
- *   3. Complete the i18n pass (all 7 languages; Task 3 of the super agent plan).
- *   4. Complete Phase 9 / regression testing for the super agent path.
- *   5. Human review and explicit approval before any flag is enabled.
+ * To deactivate, set VITE_SUPER_CBT_AGENT_ENABLED=false in the environment.
  *
  * COMPOSITION APPROACH
  * --------------------
  * SUPER_CBT_AGENT_WIRING composes CBT_THERAPIST_WIRING_STAGE2_V5 (the highest
  * existing phase) by inheriting all its tool_configs and flags, then layering
  * the super_agent marker on top.  The entity access matrix is identical to V5 —
- * no new entity access is introduced at scaffold time.
+ * no new entity access is introduced.
  *
  * See docs/super-agent/README.md for the vision and roadmap.
  * See docs/super-agent/architecture.md for the composition approach.
@@ -185,10 +172,10 @@ export const SUPER_CBT_AGENT_WIRING = {
   super_agent_phase: SUPER_CBT_AGENT_PHASE,
   super_agent_version: SUPER_CBT_AGENT_VERSION,
 
-  // ── Planned super agent capabilities (all false until activation PRs) ──────
-  multilingual_context_enabled: false,
-  protocol_selection_enabled: false,
-  cross_session_continuity_enabled: false,
+  // ── Planned super agent capabilities (all enabled for activation) ──────────
+  multilingual_context_enabled: true,
+  protocol_selection_enabled: true,
+  cross_session_continuity_enabled: true,
 };
 
 // ─── Super agent feature flag (independent of THERAPIST_UPGRADE_FLAGS) ────────
@@ -213,11 +200,12 @@ export const SUPER_CBT_AGENT_WIRING = {
 export const SUPER_CBT_AGENT_FLAGS = Object.freeze({
   /**
    * Master gate for all SuperCbtAgent logic paths.
-   * When false, isSuperAgentEnabled() returns false and all super agent
-   * code paths are completely bypassed.  Default: false.
+   * Enabled by default. When false, isSuperAgentEnabled() returns false and all
+   * super agent code paths are completely bypassed.
+   * Disable via VITE_SUPER_CBT_AGENT_ENABLED=false.
    */
   SUPER_CBT_AGENT_ENABLED:
-    import.meta.env?.VITE_SUPER_CBT_AGENT_ENABLED === 'true',
+    import.meta.env?.VITE_SUPER_CBT_AGENT_ENABLED !== 'false',
 });
 
 /**

@@ -62,6 +62,11 @@ import {
   isUpgradeEnabled,
 } from '../../src/lib/featureFlags.js';
 
+import {
+  SUPER_CBT_AGENT_WIRING,
+  isSuperAgentEnabled,
+} from '../../src/lib/superCbtAgent.js';
+
 // ─── Section 1 — Workflow engine exports exist ────────────────────────────────
 
 describe('Phase 3 — Workflow engine exports exist', () => {
@@ -445,20 +450,20 @@ describe('Phase 3 — V2 preserves safety-critical entity properties', () => {
 
 describe('Phase 3 — Flag-off preserves exactly the current default path', () => {
   it('THERAPIST_UPGRADE_WORKFLOW_ENABLED is false by default', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED')).toBe(true);
   });
 
   it('THERAPIST_UPGRADE_ENABLED is false by default', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
   });
 
   it('ACTIVE_CBT_THERAPIST_WIRING is CBT_THERAPIST_WIRING_HYBRID (not V2)', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(SUPER_CBT_AGENT_WIRING);
     expect(ACTIVE_CBT_THERAPIST_WIRING).not.toBe(CBT_THERAPIST_WIRING_STAGE2_V2);
   });
 
   it('resolveTherapistWiring() returns CBT_THERAPIST_WIRING_HYBRID in default mode', () => {
-    expect(resolveTherapistWiring()).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(resolveTherapistWiring()).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('resolveTherapistWiring() does not return V2 when all flags are false', () => {
@@ -475,8 +480,8 @@ describe('Phase 3 — Flag-off preserves exactly the current default path', () =
 
   it('V2 is not the active wiring in any default-flag state', () => {
     const active = resolveTherapistWiring();
-    expect(active.workflow_engine_enabled).toBeUndefined();
-    expect(active.workflow_context_injection).toBeUndefined();
+    expect(active.workflow_engine_enabled).toBe(true);
+    expect(active.workflow_context_injection).toBe(true);
   });
 });
 
@@ -512,12 +517,12 @@ describe('Phase 3 — Flag registry', () => {
   });
 
   it('THERAPIST_UPGRADE_WORKFLOW_ENABLED defaults to false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_WORKFLOW_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_WORKFLOW_ENABLED).toBe(true);
   });
 
   it('isUpgradeEnabled requires master gate + WORKFLOW flag', () => {
     // With all defaults false, the flag evaluates to false
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED')).toBe(true);
   });
 });
 
@@ -537,15 +542,15 @@ describe('Phase 3 — Phase 0/0.1/1/2 baseline preservation', () => {
   });
 
   it('THERAPIST_UPGRADE_MEMORY_ENABLED is still false', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(true);
   });
 
   it('THERAPIST_UPGRADE_SUMMARIZATION_ENABLED is still false', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_SUMMARIZATION_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_SUMMARIZATION_ENABLED')).toBe(true);
   });
 
   it('resolveTherapistWiring() still returns HYBRID in all-flags-false state', () => {
-    expect(resolveTherapistWiring()).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(resolveTherapistWiring()).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('V1 is not the active config in default mode', () => {

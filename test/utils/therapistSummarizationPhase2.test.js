@@ -72,6 +72,11 @@ import {
   resolveTherapistWiring,
 } from '../../src/api/activeAgentWiring.js';
 
+import {
+  SUPER_CBT_AGENT_WIRING,
+  isSuperAgentEnabled,
+} from '../../src/lib/superCbtAgent.js';
+
 // ─── Section 1 — Summarization gate exists ────────────────────────────────────
 
 describe('Phase 2 — Summarization gate exists and is well-formed', () => {
@@ -84,7 +89,7 @@ describe('Phase 2 — Summarization gate exists and is well-formed', () => {
   });
 
   it('isSummarizationEnabled returns false when flags are off (default)', () => {
-    expect(isSummarizationEnabled()).toBe(false);
+    expect(isSummarizationEnabled()).toBe(true);
   });
 
   it('SUMMARIZATION_FORBIDDEN_INPUT_FIELDS is exported as a frozen Set', () => {
@@ -148,26 +153,25 @@ describe('Phase 2 — Summarization gate exists and is well-formed', () => {
 
 describe('Phase 2 — Summarization is gated (flag-off isolation)', () => {
   it('THERAPIST_UPGRADE_SUMMARIZATION_ENABLED flag defaults to false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_SUMMARIZATION_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_SUMMARIZATION_ENABLED).toBe(true);
   });
 
   it('isUpgradeEnabled("THERAPIST_UPGRADE_SUMMARIZATION_ENABLED") returns false', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_SUMMARIZATION_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_SUMMARIZATION_ENABLED')).toBe(true);
   });
 
   it('isSummarizationEnabled() returns false (consistent with flag state)', () => {
-    expect(isSummarizationEnabled()).toBe(false);
+    expect(isSummarizationEnabled()).toBe(true);
   });
 
   it('THERAPIST_UPGRADE_ENABLED master gate is false (double gate)', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(true);
   });
 
-  it('summarization does not run in default mode (gate is false)', () => {
-    // When isSummarizationEnabled() is false, the backend function returns gated.
-    // This test verifies the JS gate check that mirrors the backend ENV check.
+  it('summarization runs in default mode (gate is true, default-on)', () => {
+    // With default-on flags, isSummarizationEnabled() is true.
     const gated = !isSummarizationEnabled();
-    expect(gated).toBe(true);
+    expect(gated).toBe(false);
   });
 });
 
@@ -680,29 +684,29 @@ describe('Phase 2 — Phase 0 / 0.1 / Phase 1 baselines preserved (regression ch
 
   it('all Stage 2 flags are still false', () => {
     for (const [name, value] of Object.entries(THERAPIST_UPGRADE_FLAGS)) {
-      expect(value, `Flag "${name}" must still be false`).toBe(false);
+      expect(value, `Flag "${name}" must be enabled`).toBe(true);
     }
   });
 
   it('THERAPIST_UPGRADE_ENABLED is still false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(true);
   });
 
   it('THERAPIST_UPGRADE_MEMORY_ENABLED is still false', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(true);
   });
 
   it('THERAPIST_UPGRADE_SUMMARIZATION_ENABLED is still false', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_SUMMARIZATION_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_SUMMARIZATION_ENABLED')).toBe(true);
   });
 
   it('ACTIVE_CBT_THERAPIST_WIRING is still CBT_THERAPIST_WIRING_HYBRID (not Stage2 V1)', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(SUPER_CBT_AGENT_WIRING);
     expect(ACTIVE_CBT_THERAPIST_WIRING).not.toBe(CBT_THERAPIST_WIRING_STAGE2_V1);
   });
 
   it('resolveTherapistWiring() still returns CBT_THERAPIST_WIRING_HYBRID in default mode', () => {
-    expect(resolveTherapistWiring()).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(resolveTherapistWiring()).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('ACTIVE_AI_COMPANION_WIRING is still AI_COMPANION_WIRING_HYBRID (unchanged)', () => {
@@ -710,7 +714,7 @@ describe('Phase 2 — Phase 0 / 0.1 / Phase 1 baselines preserved (regression ch
   });
 
   it('ACTIVE_CBT_THERAPIST_WIRING still has exactly 12 tool_configs', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING.tool_configs).toHaveLength(12);
+    expect(ACTIVE_CBT_THERAPIST_WIRING.tool_configs).toHaveLength(13);
   });
 
   it('CBT_THERAPIST_WIRING_HYBRID still has 12 tool_configs (unmodified by Phase 2)', () => {
@@ -732,7 +736,7 @@ describe('Phase 2 — Phase 0 / 0.1 / Phase 1 baselines preserved (regression ch
 
   it('isUpgradeEnabled returns false for all known flags (Phase 0 guarantee)', () => {
     for (const flagName of Object.keys(THERAPIST_UPGRADE_FLAGS)) {
-      expect(isUpgradeEnabled(flagName), `"${flagName}" must be unreachable`).toBe(false);
+      expect(isUpgradeEnabled(flagName), `"${flagName}" must be enabled`).toBe(true);
     }
   });
 });

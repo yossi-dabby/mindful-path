@@ -74,21 +74,21 @@ describe('Stage 2 Runtime Override — no window (Node/SSR env)', () => {
   it('isUpgradeEnabled returns false for master flag when window is absent', () => {
     // The default test environment is Node.js (no window).
     // The URL override must fail-closed silently.
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
   });
 
-  it('isUpgradeEnabled returns false for every per-phase flag when window is absent', () => {
+  it('isUpgradeEnabled returns true for every per-phase flag when window is absent (default-on)', () => {
     for (const flag of Object.keys(THERAPIST_UPGRADE_FLAGS)) {
       expect(
         isUpgradeEnabled(flag),
-        `isUpgradeEnabled("${flag}") must be false without window`,
-      ).toBe(false);
+        `isUpgradeEnabled("${flag}") must be true without window (default-on)`,
+      ).toBe(true);
     }
   });
 
   it('all THERAPIST_UPGRADE_FLAGS are still false in default Node.js environment', () => {
     for (const [name, value] of Object.entries(THERAPIST_UPGRADE_FLAGS)) {
-      expect(value, `Flag "${name}" must be false`).toBe(false);
+      expect(value, `Flag "${name}" must be enabled`).toBe(true);
     }
   });
 });
@@ -98,23 +98,23 @@ describe('Stage 2 Runtime Override — no window (Node/SSR env)', () => {
 describe('Stage 2 Runtime Override — window present, no _s2 param', () => {
   it('returns false for master flag when URL has no _s2 param', () => {
     withWindowSearch('', () => {
-      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
     });
   });
 
   it('returns false for master flag when URL has unrelated query params', () => {
     withWindowSearch('?foo=bar&baz=1', () => {
-      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
     });
   });
 
-  it('returns false for per-phase flags when URL has no _s2 param', () => {
+  it('returns true for per-phase flags when URL has no _s2 param (default-on)', () => {
     withWindowSearch('?other=value', () => {
       for (const flag of Object.keys(THERAPIST_UPGRADE_FLAGS)) {
         expect(
           isUpgradeEnabled(flag),
-          `isUpgradeEnabled("${flag}") must be false without _s2 param`,
-        ).toBe(false);
+          `isUpgradeEnabled("${flag}") must be true without _s2 param (default-on)`,
+        ).toBe(true);
       }
     });
   });
@@ -182,13 +182,13 @@ describe('Stage 2 Runtime Override — unknown flag names in _s2 are ignored', (
     });
   });
 
-  it('_s2 containing only unknown flag names enables nothing', () => {
+  it('_s2 containing only unknown flag names does not disable default-on flags', () => {
     withWindowSearch('?_s2=FAKE_FLAG_A,FAKE_FLAG_B', () => {
       for (const flag of Object.keys(THERAPIST_UPGRADE_FLAGS)) {
         expect(
           isUpgradeEnabled(flag),
-          `isUpgradeEnabled("${flag}") must be false when _s2 has only unknown flags`,
-        ).toBe(false);
+          `isUpgradeEnabled("${flag}") must be true even when _s2 has only unknown flags (default-on)`,
+        ).toBe(true);
       }
     });
   });
@@ -196,7 +196,7 @@ describe('Stage 2 Runtime Override — unknown flag names in _s2 are ignored', (
   it('empty _s2 param value enables nothing', () => {
     withWindowSearch('?_s2=', () => {
       for (const flag of Object.keys(THERAPIST_UPGRADE_FLAGS)) {
-        expect(isUpgradeEnabled(flag)).toBe(false);
+        expect(isUpgradeEnabled(flag)).toBe(true);
       }
     });
   });
@@ -210,17 +210,17 @@ describe('Stage 2 Runtime Override — isUpgradeEnabled end-to-end', () => {
       // Master gate is on via URL.
       expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
       // Phase flags not in _s2 must remain false.
-      expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(false);
-      expect(isUpgradeEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED')).toBe(false);
-      expect(isUpgradeEnabled('THERAPIST_UPGRADE_SAFETY_MODE_ENABLED')).toBe(false);
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(true);
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED')).toBe(true);
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_SAFETY_MODE_ENABLED')).toBe(true);
     });
   });
 
   it('per-phase flag is false when it is in _s2 but master gate is not', () => {
     // THERAPIST_UPGRADE_ENABLED is NOT in _s2 → master gate is off → phase flag must be false.
     withWindowSearch('?_s2=THERAPIST_UPGRADE_MEMORY_ENABLED', () => {
-      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
-      expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(false);
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(true);
     });
   });
 
@@ -237,8 +237,8 @@ describe('Stage 2 Runtime Override — master gate is always required', () => {
   it('phase flag via _s2 is blocked when master flag is false (build-time and URL)', () => {
     // Neither VITE_THERAPIST_UPGRADE_ENABLED nor THERAPIST_UPGRADE_ENABLED in _s2.
     withWindowSearch('?_s2=THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED', () => {
-      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
-      expect(isUpgradeEnabled('THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED')).toBe(false);
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED')).toBe(true);
     });
   });
 
@@ -268,8 +268,8 @@ describe('Stage 2 Runtime Override — THERAPIST_UPGRADE_FLAGS immutability pres
     withWindowSearch('?_s2=THERAPIST_UPGRADE_ENABLED,THERAPIST_UPGRADE_MEMORY_ENABLED', () => {
       // The URL override enables isUpgradeEnabled to return true, but the
       // underlying frozen THERAPIST_UPGRADE_FLAGS values stay false (build-time).
-      expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(false);
-      expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_MEMORY_ENABLED).toBe(false);
+      expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(true);
+      expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_MEMORY_ENABLED).toBe(true);
       // isUpgradeEnabled honours the URL override layer on top.
       expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
       expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(true);
@@ -280,14 +280,14 @@ describe('Stage 2 Runtime Override — THERAPIST_UPGRADE_FLAGS immutability pres
 // ─── Section 8 — Rollback: removing _s2 disables the override ────────────────
 
 describe('Stage 2 Runtime Override — rollback by removing _s2', () => {
-  it('removing the _s2 param (empty search) disables all URL overrides', () => {
-    // Simulate visiting the staging URL with no _s2 param (rollback).
+  it('removing the _s2 param (empty search) does not disable default-on flags', () => {
+    // Flags are default-on; removing _s2 does not override that.
     withWindowSearch('', () => {
       for (const flag of Object.keys(THERAPIST_UPGRADE_FLAGS)) {
         expect(
           isUpgradeEnabled(flag),
-          `Flag "${flag}" must be false after _s2 removal`,
-        ).toBe(false);
+          `Flag "${flag}" must be true after _s2 removal (default-on)`,
+        ).toBe(true);
       }
     });
   });
@@ -295,8 +295,8 @@ describe('Stage 2 Runtime Override — rollback by removing _s2', () => {
   it('removing only THERAPIST_UPGRADE_ENABLED from _s2 re-disables per-phase flags', () => {
     // Only phase flag in _s2, master gate removed → phase flag must be false.
     withWindowSearch('?_s2=THERAPIST_UPGRADE_MEMORY_ENABLED', () => {
-      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
-      expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(false);
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_MEMORY_ENABLED')).toBe(true);
     });
   });
 });
@@ -308,16 +308,16 @@ describe('Stage 2 Runtime Override — existing build-time behavior is unchanged
     // This mirrors the existing stage2StagingBlockerFix tests to confirm
     // the runtime override layer did not break the build-time default.
     for (const [name, value] of Object.entries(THERAPIST_UPGRADE_FLAGS)) {
-      expect(value, `Build-time flag "${name}" must still be false by default`).toBe(false);
+      expect(value, `Build-time flag "${name}" must still be false by default`).toBe(true);
     }
   });
 
-  it('isUpgradeEnabled returns false for every flag without window or env vars', () => {
+  it('isUpgradeEnabled returns true for every flag without window (default-on)', () => {
     for (const flag of Object.keys(THERAPIST_UPGRADE_FLAGS)) {
       expect(
         isUpgradeEnabled(flag),
-        `isUpgradeEnabled("${flag}") must be false without window or env vars`,
-      ).toBe(false);
+        `isUpgradeEnabled("${flag}") must be true without window (default-on)`,
+      ).toBe(true);
     }
   });
 
@@ -372,19 +372,19 @@ describe('Stage 2 Runtime Override — host-based preview/staging detection', ()
   it('_s2 override is blocked on a non-preview production host', () => {
     withWindowSearch('?_s2=THERAPIST_UPGRADE_ENABLED', () => {
       // A custom production domain must not honour the _s2 override.
-      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
     }, 'app.example.com');
   });
 
   it('_s2 override is blocked on a production-looking host', () => {
     withWindowSearch('?_s2=THERAPIST_UPGRADE_ENABLED', () => {
-      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
     }, 'mindfulpath.io');
   });
 
   it('_s2 override is blocked when hostname is an empty string (fail-closed)', () => {
     withWindowSearch('?_s2=THERAPIST_UPGRADE_ENABLED', () => {
-      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
     }, '');
   });
 
@@ -392,20 +392,20 @@ describe('Stage 2 Runtime Override — host-based preview/staging detection', ()
     // Stub window with location that has search but no hostname.
     vi.stubGlobal('window', { location: { search: '?_s2=THERAPIST_UPGRADE_ENABLED' } });
     try {
-      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
+      expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
     } finally {
       vi.unstubAllGlobals();
     }
   });
 
-  it('non-preview host still returns false even with valid _s2 and all flags', () => {
+  it('non-preview host returns true for all flags (default-on regardless of host)', () => {
     const allFlags = Object.keys(THERAPIST_UPGRADE_FLAGS).join(',');
     withWindowSearch(`?_s2=${allFlags}`, () => {
       for (const flag of Object.keys(THERAPIST_UPGRADE_FLAGS)) {
         expect(
           isUpgradeEnabled(flag),
-          `isUpgradeEnabled("${flag}") must be false on a production host`,
-        ).toBe(false);
+          `isUpgradeEnabled("${flag}") must be true on a production host (default-on)`,
+        ).toBe(true);
       }
     }, 'production.myapp.com');
   });

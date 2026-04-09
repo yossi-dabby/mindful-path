@@ -81,6 +81,11 @@ import {
   CBT_THERAPIST_WIRING_HYBRID,
 } from '../../src/api/agentWiring.js';
 
+import {
+  SUPER_CBT_AGENT_WIRING,
+  isSuperAgentEnabled,
+} from '../../src/lib/superCbtAgent.js';
+
 // ─── Re-implemented pure logic from ingestTrustedDocument/entry.ts ────────────
 // (Deno code cannot be imported in Vitest — mirrors the same pattern used in
 //  knowledgePipeline.allowList.test.js and knowledgePipeline.buildDocument.test.js)
@@ -954,23 +959,22 @@ describe('Phase 4 — Chunking and provenance preservation', () => {
 
 describe('Phase 4 — Ingestion is gated by feature flag', () => {
   it('THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED defaults to false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED).toBe(true);
   });
 
   it('isUpgradeEnabled returns false for THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED')).toBe(true);
   });
 
   it('THERAPIST_UPGRADE_ENABLED (master gate) is false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(true);
   });
 
-  it('ingestion gating simulation: when flag is off, ingestion path must not execute', () => {
-    // This simulates the guard at the ingestion call site.
+  it('ingestion gating simulation: when flag is on, ingestion path executes', () => {
+    // With default-on flags, the ingestion gate is open.
     const ingestionEnabled = isUpgradeEnabled('THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED');
-    expect(ingestionEnabled).toBe(false);
-    // When false, the ingestion pipeline should not be entered.
-    // This is enforced at the Deno function level via env var checks.
+    expect(ingestionEnabled).toBe(true);
+    // When true, the ingestion pipeline can be entered.
   });
 });
 
@@ -1026,13 +1030,13 @@ describe('Phase 4 — Ingestion failure is safe', () => {
 
 describe('Phase 4 — Current therapist default path unchanged', () => {
   it('ACTIVE_CBT_THERAPIST_WIRING is still CBT_THERAPIST_WIRING_HYBRID', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
-  it('resolveTherapistWiring returns HYBRID when all flags are off', () => {
-    // All flags are false, so resolveTherapistWiring must return the hybrid wiring.
+  it('resolveTherapistWiring returns SUPER_CBT_AGENT_WIRING (all flags default-on)', () => {
+    // All flags are on by default, so resolveTherapistWiring returns SUPER.
     const resolved = resolveTherapistWiring();
-    expect(resolved).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(resolved).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('ACTIVE_AI_COMPANION_WIRING is not null', () => {
@@ -1048,7 +1052,7 @@ describe('Phase 4 — Current therapist default path unchanged', () => {
   });
 
   it('ACTIVE_CBT_THERAPIST_WIRING has no stage2 flag that would activate Phase 4', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING.stage2).toBeFalsy();
+    expect(ACTIVE_CBT_THERAPIST_WIRING.stage2).toBeTruthy();
   });
 });
 
@@ -1056,24 +1060,24 @@ describe('Phase 4 — Current therapist default path unchanged', () => {
 
 describe('Phase 4 — Current retrieval behavior unchanged', () => {
   it('THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED is still false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED).toBe(true);
   });
 
   it('THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED is still false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED).toBe(true);
   });
 
   it('isUpgradeEnabled returns false for RETRIEVAL_ORCHESTRATION flag', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED')).toBe(true);
   });
 
   it('isUpgradeEnabled returns false for ALLOWLIST_WRAPPER flag', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED')).toBe(true);
   });
 
-  it('EXTERNAL_CONTENT_SOURCE_TYPE is not referenced in the active therapist wiring', () => {
+  it('EXTERNAL_CONTENT_SOURCE_TYPE is referenced in the active therapist wiring (SUPER)', () => {
     const wiringStr = JSON.stringify(ACTIVE_CBT_THERAPIST_WIRING);
-    expect(wiringStr).not.toContain(EXTERNAL_CONTENT_SOURCE_TYPE);
+    expect(wiringStr).toContain(EXTERNAL_CONTENT_SOURCE_TYPE);
   });
 });
 
@@ -1090,29 +1094,29 @@ describe('Phase 4 — Phase 0 / 0.1 / 1 / 2 / 3 baselines preserved (regression 
 
   it('all Stage 2 flags are still false', () => {
     for (const [name, value] of Object.entries(THERAPIST_UPGRADE_FLAGS)) {
-      expect(value, `Flag "${name}" must still be false`).toBe(false);
+      expect(value, `Flag "${name}" must be enabled`).toBe(true);
     }
   });
 
   it('THERAPIST_UPGRADE_ENABLED is still false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(true);
   });
 
   it('THERAPIST_UPGRADE_MEMORY_ENABLED is still false (Phase 1 baseline)', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_MEMORY_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_MEMORY_ENABLED).toBe(true);
   });
 
   it('THERAPIST_UPGRADE_SUMMARIZATION_ENABLED is still false (Phase 2 baseline)', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_SUMMARIZATION_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_SUMMARIZATION_ENABLED).toBe(true);
   });
 
   it('THERAPIST_UPGRADE_WORKFLOW_ENABLED is still false (Phase 3 baseline)', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_WORKFLOW_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_WORKFLOW_ENABLED).toBe(true);
   });
 
   it('isUpgradeEnabled returns false for every known flag', () => {
     for (const flagName of Object.keys(THERAPIST_UPGRADE_FLAGS)) {
-      expect(isUpgradeEnabled(flagName), `"${flagName}" must be unreachable`).toBe(false);
+      expect(isUpgradeEnabled(flagName), `"${flagName}" must be enabled`).toBe(true);
     }
   });
 
@@ -1121,17 +1125,14 @@ describe('Phase 4 — Phase 0 / 0.1 / 1 / 2 / 3 baselines preserved (regression 
   });
 
   it('resolveTherapistWiring still returns HYBRID in default mode', () => {
-    expect(resolveTherapistWiring()).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(resolveTherapistWiring()).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
-  it('rollback remains safe: disabling THERAPIST_UPGRADE_ENABLED disables Phase 4 gate', () => {
-    // The master flag is already false (the current default state).
-    // isUpgradeEnabled enforces that THERAPIST_UPGRADE_ENABLED must be true
-    // before any per-phase flag can return true. Since it is false, Phase 4
-    // ingestion is unreachable.
-    const masterOff = THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED === false;
-    const phase4Off = isUpgradeEnabled('THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED') === false;
-    expect(masterOff).toBe(true);
-    expect(phase4Off).toBe(true);
+  it('Phase 4 gate is open: THERAPIST_UPGRADE_ENABLED is true (default-on)', () => {
+    // All flags are now default-on.
+    const masterOn = THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED === true;
+    const phase4On = isUpgradeEnabled('THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED') === true;
+    expect(masterOn).toBe(true);
+    expect(phase4On).toBe(true);
   });
 });

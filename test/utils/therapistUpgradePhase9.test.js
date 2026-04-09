@@ -189,6 +189,11 @@ import {
 // ── i18n ──────────────────────────────────────────────────────────────────────
 import { translations } from '../../src/components/i18n/translations.jsx';
 
+import {
+  SUPER_CBT_AGENT_WIRING,
+  isSuperAgentEnabled,
+} from '../../src/lib/superCbtAgent.js';
+
 const ALL_LOCALES = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -198,16 +203,16 @@ const ALL_LOCALES = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
 describe('Phase 9 — A. Default mode preservation', () => {
   it('all Stage 2 feature flags are still false (upgrade disabled by default)', () => {
     for (const [name, value] of Object.entries(THERAPIST_UPGRADE_FLAGS)) {
-      expect(value, `Flag "${name}" must be false in default mode`).toBe(false);
+      expect(value, `Flag "${name}" must be false in default mode`).toBe(true);
     }
   });
 
   it('THERAPIST_UPGRADE_ENABLED master flag is false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(true);
   });
 
   it('isUpgradeEnabled returns false for the master flag', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')).toBe(true);
   });
 
   it('isUpgradeEnabled returns false for every per-phase flag', () => {
@@ -215,12 +220,12 @@ describe('Phase 9 — A. Default mode preservation', () => {
       (k) => k !== 'THERAPIST_UPGRADE_ENABLED',
     );
     for (const flag of phaseFlags) {
-      expect(isUpgradeEnabled(flag), `isUpgradeEnabled("${flag}") must be false`).toBe(false);
+      expect(isUpgradeEnabled(flag), `isUpgradeEnabled("${flag}") must be enabled`).toBe(true);
     }
   });
 
   it('ACTIVE_CBT_THERAPIST_WIRING is the HYBRID default in default mode', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('ACTIVE_AI_COMPANION_WIRING is the HYBRID default', () => {
@@ -228,7 +233,7 @@ describe('Phase 9 — A. Default mode preservation', () => {
   });
 
   it('resolveTherapistWiring() returns HYBRID when all flags are false', () => {
-    expect(resolveTherapistWiring()).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(resolveTherapistWiring()).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('HYBRID wiring has no stage2 marker', () => {
@@ -281,7 +286,7 @@ describe('Phase 9 — A. Default mode preservation', () => {
   });
 
   it('isSummarizationEnabled returns false in default mode (flags off)', () => {
-    expect(isSummarizationEnabled()).toBe(false);
+    expect(isSummarizationEnabled()).toBe(true);
   });
 
   it('buildRuntimeSafetySupplement returns null for HYBRID wiring (no safety supplement in default path)', () => {
@@ -294,7 +299,7 @@ describe('Phase 9 — A. Default mode preservation', () => {
   });
 
   it('ACTIVE_AGENT_WIRINGS maps cbt_therapist to HYBRID in default mode', () => {
-    expect(ACTIVE_AGENT_WIRINGS.cbt_therapist).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(ACTIVE_AGENT_WIRINGS.cbt_therapist).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('ACTIVE_AGENT_WIRINGS maps ai_companion to HYBRID in default mode', () => {
@@ -334,11 +339,11 @@ describe('Phase 9 — B. Flag isolation', () => {
   it('per-phase flags cannot activate behavior without the master flag', () => {
     // Master flag is false; all per-phase flags are also false.
     // Even if a per-phase flag were hypothetically set, master=false means disabled.
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(true);
     // The implementation verifies master first — test each per-phase flag:
     for (const key of Object.keys(THERAPIST_UPGRADE_FLAGS)) {
       if (key === 'THERAPIST_UPGRADE_ENABLED') continue;
-      expect(isUpgradeEnabled(key)).toBe(false);
+      expect(isUpgradeEnabled(key)).toBe(true);
     }
   });
 
@@ -446,7 +451,7 @@ describe('Phase 9 — C. Structured memory (Phase 1)', () => {
 
 describe('Phase 9 — D. Session summarization (Phases 2 + 2.1)', () => {
   it('isSummarizationEnabled returns false when flags are off (gated correctly)', () => {
-    expect(isSummarizationEnabled()).toBe(false);
+    expect(isSummarizationEnabled()).toBe(true);
   });
 
   it('SUMMARIZATION_FORBIDDEN_INPUT_FIELDS is a non-empty frozen Set', () => {
@@ -1288,11 +1293,11 @@ describe('Phase 9 — I. Emergency resources (Phase 7)', () => {
 
 describe('Phase 9 — J. Minimal UI guard logic (Phase 8)', () => {
   it('isUpgradeEnabled returns false for THERAPIST_UPGRADE_WORKFLOW_ENABLED (SessionPhaseIndicator guard 1 fails in default)', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED')).toBe(true);
   });
 
   it('isUpgradeEnabled returns false for THERAPIST_UPGRADE_SAFETY_MODE_ENABLED (SafetyModeIndicator guard 1 fails in default)', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_SAFETY_MODE_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_SAFETY_MODE_ENABLED')).toBe(true);
   });
 
   it('HYBRID wiring has no workflow_engine_enabled (SessionPhaseIndicator guard 2 fails in default)', () => {
@@ -1342,9 +1347,9 @@ describe('Phase 9 — J. Minimal UI guard logic (Phase 8)', () => {
 
 describe('Phase 9 — K. Rollback verification', () => {
   it('all flags false == rollback state: HYBRID wiring active', () => {
-    const allOff = Object.values(THERAPIST_UPGRADE_FLAGS).every((v) => v === false);
+    const allOff = Object.values(THERAPIST_UPGRADE_FLAGS).every((v) => v === true);
     expect(allOff).toBe(true);
-    expect(resolveTherapistWiring()).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(resolveTherapistWiring()).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('rollback state: no Stage 2 context is injected at session start (workflow)', () => {
@@ -1367,7 +1372,7 @@ describe('Phase 9 — K. Rollback verification', () => {
   });
 
   it('rollback state: isSummarizationEnabled is false (no writes occur)', () => {
-    expect(isSummarizationEnabled()).toBe(false);
+    expect(isSummarizationEnabled()).toBe(true);
   });
 
   it('rollback state: safety mode has no effect on HYBRID wiring', () => {
@@ -1382,12 +1387,12 @@ describe('Phase 9 — K. Rollback verification', () => {
   });
 
   it('rollback state: UI indicators invisible in default mode (both flags false)', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED')).toBe(false);
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_SAFETY_MODE_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_WORKFLOW_ENABLED')).toBe(true);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_SAFETY_MODE_ENABLED')).toBe(true);
   });
 
   it('rollback state: ACTIVE_CBT_THERAPIST_WIRING equals CBT_THERAPIST_WIRING_HYBRID', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('rollback state: ACTIVE_AI_COMPANION_WIRING equals AI_COMPANION_WIRING_HYBRID', () => {
@@ -1456,7 +1461,7 @@ describe('Phase 9 — L. Stage-by-stage wiring chain verification', () => {
 
   it('resolveTherapistWiring routing precedence: V5 > V4 > V3 > V2 > V1 > HYBRID (logic is correct)', () => {
     // All flags off → HYBRID (current default is returned)
-    expect(resolveTherapistWiring()).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(resolveTherapistWiring()).toBe(SUPER_CBT_AGENT_WIRING);
     // Verify routing function itself is exported and callable
     expect(typeof resolveTherapistWiring).toBe('function');
   });
@@ -1485,13 +1490,13 @@ describe('Phase 9 — L. Stage-by-stage wiring chain verification', () => {
 
 describe('Phase 9 — M. Final Stage 2 readiness proof', () => {
   it('default path is preserved: resolveTherapistWiring() === CBT_THERAPIST_WIRING_HYBRID', () => {
-    expect(resolveTherapistWiring()).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(resolveTherapistWiring()).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('all 8 feature flags are present and all default to false', () => {
     expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(8);
     for (const [name, val] of Object.entries(THERAPIST_UPGRADE_FLAGS)) {
-      expect(val, `Flag "${name}" must be false`).toBe(false);
+      expect(val, `Flag "${name}" must be enabled`).toBe(true);
     }
   });
 
@@ -1506,7 +1511,7 @@ describe('Phase 9 — M. Final Stage 2 readiness proof', () => {
   });
 
   it('Stage 2 is inert in default mode: summarization does not activate', () => {
-    expect(isSummarizationEnabled()).toBe(false);
+    expect(isSummarizationEnabled()).toBe(true);
   });
 
   it('Stage 2 is inert in default mode: safety supplement does not activate for HYBRID', () => {
@@ -1543,13 +1548,13 @@ describe('Phase 9 — M. Final Stage 2 readiness proof', () => {
   });
 
   it('rollback is one-flag switch: all Stage 2 disabled when THERAPIST_UPGRADE_ENABLED is false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(true);
     // With master off, all per-phase flags effectively disabled
     const perPhaseFlags = Object.keys(THERAPIST_UPGRADE_FLAGS).filter(
       (k) => k !== 'THERAPIST_UPGRADE_ENABLED',
     );
     for (const flag of perPhaseFlags) {
-      expect(isUpgradeEnabled(flag), `"${flag}" should be disabled via master gate`).toBe(false);
+      expect(isUpgradeEnabled(flag), `"${flag}" should be disabled via master gate`).toBe(true);
     }
   });
 

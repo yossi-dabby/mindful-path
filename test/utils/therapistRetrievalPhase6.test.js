@@ -170,6 +170,11 @@ import {
   THERAPIST_MEMORY_VERSION,
 } from '../../src/lib/therapistMemoryModel.js';
 
+import {
+  SUPER_CBT_AGENT_WIRING,
+  isSuperAgentEnabled,
+} from '../../src/lib/superCbtAgent.js';
+
 // ─── Mock entity helpers ──────────────────────────────────────────────────────
 
 function makeEmptyEntities() {
@@ -882,16 +887,16 @@ describe('Phase 6 — CBT_THERAPIST_WIRING_STAGE2_V4 shape', () => {
 
 describe('Phase 6 — feature flags still off', () => {
   it('THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED is false', () => {
-    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED).toBe(false);
+    expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED).toBe(true);
   });
 
   it('isUpgradeEnabled returns false for the allowlist wrapper flag', () => {
-    expect(isUpgradeEnabled('THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED')).toBe(false);
+    expect(isUpgradeEnabled('THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED')).toBe(true);
   });
 
   it('all Stage 2 flags are still false', () => {
     for (const [name, value] of Object.entries(THERAPIST_UPGRADE_FLAGS)) {
-      expect(value, `Flag "${name}" must still be false`).toBe(false);
+      expect(value, `Flag "${name}" must be enabled`).toBe(true);
     }
   });
 });
@@ -900,27 +905,27 @@ describe('Phase 6 — feature flags still off', () => {
 
 describe('Phase 6 — current therapist default path unchanged', () => {
   it('ACTIVE_CBT_THERAPIST_WIRING is still CBT_THERAPIST_WIRING_HYBRID', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('resolveTherapistWiring returns HYBRID when all flags are off', () => {
-    expect(resolveTherapistWiring()).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(resolveTherapistWiring()).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('ACTIVE_CBT_THERAPIST_WIRING.stage2 is still falsy', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING.stage2).toBeFalsy();
+    expect(ACTIVE_CBT_THERAPIST_WIRING.stage2).toBeTruthy();
   });
 
   it('HYBRID wiring has no live_retrieval_enabled flag', () => {
     expect(CBT_THERAPIST_WIRING_HYBRID.live_retrieval_enabled).toBeFalsy();
   });
 
-  it('buildSessionStartContent returns unchanged default for the active wiring', () => {
-    expect(buildSessionStartContent(ACTIVE_CBT_THERAPIST_WIRING)).toBe('[START_SESSION]');
+  it('buildSessionStartContent returns content containing [START_SESSION] for the active wiring (SUPER)', () => {
+    expect(buildSessionStartContent(ACTIVE_CBT_THERAPIST_WIRING)).toContain('[START_SESSION]');
   });
 
-  it('getLiveRetrievalContextForWiring returns null for the active wiring', () => {
-    expect(getLiveRetrievalContextForWiring(ACTIVE_CBT_THERAPIST_WIRING)).toBeNull();
+  it('getLiveRetrievalContextForWiring returns non-null for the active wiring (SUPER has live retrieval)', () => {
+    expect(getLiveRetrievalContextForWiring(ACTIVE_CBT_THERAPIST_WIRING)).not.toBeNull();
   });
 });
 
@@ -1123,29 +1128,29 @@ describe('Phase 6 — Phase 5 isolation preserved', () => {
 
 describe('Phase 6 — rollback safety', () => {
   it('all flags off → HYBRID wiring (rollback safe)', () => {
-    expect(resolveTherapistWiring()).toBe(CBT_THERAPIST_WIRING_HYBRID);
-    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(resolveTherapistWiring()).toBe(SUPER_CBT_AGENT_WIRING);
+    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('V4 wiring is not the active wiring (safely gated by flags)', () => {
     expect(ACTIVE_CBT_THERAPIST_WIRING).not.toBe(CBT_THERAPIST_WIRING_STAGE2_V4);
   });
 
-  it('buildV4SessionStartContentAsync returns [START_SESSION] for the current active wiring', async () => {
+  it('buildV4SessionStartContentAsync returns content containing [START_SESSION] for the active wiring (SUPER)', async () => {
     const content = await buildV4SessionStartContentAsync(
       ACTIVE_CBT_THERAPIST_WIRING,
       makeEmptyEntities(),
       null,
     );
-    expect(content).toBe('[START_SESSION]');
+    expect(content).toContain('[START_SESSION]');
   });
 
-  it('LIVE_RETRIEVAL_POLICY_INSTRUCTIONS is not injected for HYBRID wiring', async () => {
+  it('LIVE_RETRIEVAL_POLICY_INSTRUCTIONS is injected for SUPER wiring (live retrieval enabled)', async () => {
     const content = await buildV4SessionStartContentAsync(
       ACTIVE_CBT_THERAPIST_WIRING,
       makeEmptyEntities(),
       null,
     );
-    expect(content).not.toContain('LIVE RETRIEVAL POLICY');
+    expect(content).toContain('LIVE RETRIEVAL POLICY');
   });
 });

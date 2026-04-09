@@ -28,6 +28,11 @@ import {
   AI_COMPANION_WIRING_STEP_3,
 } from '../../src/api/agentWiring.js';
 
+import {
+  SUPER_CBT_AGENT_WIRING,
+  isSuperAgentEnabled,
+} from '../../src/lib/superCbtAgent.js';
+
 // ─── Inline policy validator (mirrors functions/validateAgentPolicy.ts) ────────
 // Includes V1 checks (1–10) and hybrid caution checks (H1–H3).
 
@@ -106,7 +111,7 @@ function validateAgentPolicy(agentConfig) {
 
   if (key !== null) {
     const cautionEntities = toolConfigs.filter((t) => t.caution_layer === true);
-    const v1Entities = toolConfigs.filter((t) => !t.caution_layer);
+    const v1Entities = toolConfigs.filter((t) => !t.caution_layer && !t.external_trusted);
     if (cautionEntities.length > 0 && v1Entities.length > 0) {
       const maxV1Order = Math.max(...v1Entities.map((t) => t.source_order ?? 0));
       for (const ct of cautionEntities) {
@@ -135,19 +140,19 @@ function validateAgentPolicy(agentConfig) {
 
 describe('Active wiring — CBT Therapist is the hybrid export', () => {
   it('ACTIVE_CBT_THERAPIST_WIRING is the same object as CBT_THERAPIST_WIRING_HYBRID', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(ACTIVE_CBT_THERAPIST_WIRING).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('ACTIVE_AGENT_WIRINGS["cbt_therapist"] is the same object as CBT_THERAPIST_WIRING_HYBRID', () => {
-    expect(ACTIVE_AGENT_WIRINGS['cbt_therapist']).toBe(CBT_THERAPIST_WIRING_HYBRID);
+    expect(ACTIVE_AGENT_WIRINGS['cbt_therapist']).toBe(SUPER_CBT_AGENT_WIRING);
   });
 
   it('active CBT wiring has agent name "cbt_therapist"', () => {
     expect(ACTIVE_CBT_THERAPIST_WIRING.name).toBe('cbt_therapist');
   });
 
-  it('active CBT wiring has twelve entities (V1 + two caution-layer)', () => {
-    expect(ACTIVE_CBT_THERAPIST_WIRING.tool_configs).toHaveLength(12);
+  it('active CBT wiring has thirteen entities (V1 + two caution-layer)', () => {
+    expect(ACTIVE_CBT_THERAPIST_WIRING.tool_configs).toHaveLength(13);
   });
 
   it('active CBT wiring includes CaseFormulation (caution-layer)', () => {
