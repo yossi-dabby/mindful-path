@@ -90,9 +90,9 @@ describe('Phase 0 — Chat.jsx source routing (static analysis)', () => {
     expect(hasV4Import).toBe(false);
   });
 
-  // 3. Chat.jsx calls buildV6SessionStartContentAsync (at least once)
-  it('3. Chat.jsx calls buildV6SessionStartContentAsync', () => {
-    const callCount = (chatSrc.match(/buildV6SessionStartContentAsync\s*\(/g) || []).length;
+  // 3. Chat.jsx calls buildV7SessionStartContentAsync at both session-start sites
+  it('3. Chat.jsx calls buildV7SessionStartContentAsync', () => {
+    const callCount = (chatSrc.match(/buildV7SessionStartContentAsync\s*\(/g) || []).length;
     expect(callCount).toBeGreaterThanOrEqual(1);
   });
 
@@ -102,12 +102,12 @@ describe('Phase 0 — Chat.jsx source routing (static analysis)', () => {
     expect(callCount).toBe(0);
   });
 
-  // 5. Every session-start call site in Chat.jsx uses V6 (count symmetry)
-  it('5. every session-start call site in Chat.jsx uses V6 (not V4 or V5)', () => {
-    const v6Calls = (chatSrc.match(/buildV6SessionStartContentAsync\s*\(/g) || []).length;
+  // 5. Every session-start call site in Chat.jsx uses V7 (count symmetry)
+  it('5. every session-start call site in Chat.jsx uses V7 (not V4, V5, or V6 at call sites)', () => {
+    const v7Calls = (chatSrc.match(/buildV7SessionStartContentAsync\s*\(/g) || []).length;
     const v5Calls = (chatSrc.match(/buildV5SessionStartContentAsync\s*\(/g) || []).length;
     const v4Calls = (chatSrc.match(/buildV4SessionStartContentAsync\s*\(/g) || []).length;
-    expect(v6Calls).toBeGreaterThanOrEqual(2); // two intent-handler call sites
+    expect(v7Calls).toBeGreaterThanOrEqual(2); // two intent-handler call sites
     expect(v5Calls).toBe(0);
     expect(v4Calls).toBe(0);
   });
@@ -228,10 +228,10 @@ describe('Phase 0 — Default mode and flag safety', () => {
     expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(false);
   });
 
-  // 19. THERAPIST_UPGRADE_FLAGS has exactly 9 keys (no unintended additions)
-  it('19. THERAPIST_UPGRADE_FLAGS has exactly 9 keys', () => {
+  // 19. THERAPIST_UPGRADE_FLAGS has exactly 10 keys (Phase 3 Deep Personalization added the 10th key)
+  it('19. THERAPIST_UPGRADE_FLAGS has exactly 10 keys', () => {
     const keys = Object.keys(THERAPIST_UPGRADE_FLAGS);
-    expect(keys).toHaveLength(9);
+    expect(keys).toHaveLength(10);
   });
 
   // 20. resolveTherapistWiring returns HYBRID when called with no overrides

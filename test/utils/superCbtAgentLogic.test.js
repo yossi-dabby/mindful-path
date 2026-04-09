@@ -431,7 +431,7 @@ describe('SuperCbtAgent logic — buildSuperAgentSessionPreamble (logic validati
 
 describe('SuperCbtAgent logic — THERAPIST_UPGRADE_FLAGS regression', () => {
   it('THERAPIST_UPGRADE_FLAGS contains exactly 9 flags', () => {
-    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(9);
+    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(10);
   });
 
   it('THERAPIST_UPGRADE_FLAGS does not contain SUPER_CBT_AGENT_ENABLED', () => {

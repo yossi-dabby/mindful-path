@@ -445,7 +445,7 @@ describe('Phase 1 — Phase 0 / 0.1 baselines preserved (regression check)', () 
   });
 
   it('THERAPIST_UPGRADE_FLAGS still contains exactly 8 flags', () => {
-    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(9);
+    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(10);
   });
 
   it('CBT_THERAPIST_WIRING_HYBRID still has 12 tool_configs (unmodified by Phase 1)', () => {
