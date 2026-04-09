@@ -287,6 +287,8 @@ export function getStage2DiagnosticPayload() {
     let routeHint;
     if (!masterGateOn) {
       routeHint = 'HYBRID (master gate off)';
+    } else if (computedFlags['THERAPIST_UPGRADE_CONTINUITY_ENABLED']) {
+      routeHint = 'STAGE2_V7 (continuity)';
     } else if (computedFlags['THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED']) {
       routeHint = 'STAGE2_V6 (formulation context)';
     } else if (computedFlags['THERAPIST_UPGRADE_SAFETY_MODE_ENABLED']) {
