@@ -21,9 +21,7 @@ export async function setupTestEnvironment(page: Page, lang = 'en') {
     (window as any).__DISABLE_ANALYTICS__ = true;
     localStorage.setItem('chat_consent_accepted', 'true');
     localStorage.setItem('age_verified', 'true');
-    if (language) {
-      localStorage.setItem('language', language);
-    }
+    localStorage.setItem('language', language);
     if (document.body) {
       document.body.setAttribute('data-test-env', 'true');
     }
