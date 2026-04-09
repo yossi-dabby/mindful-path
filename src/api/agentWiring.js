@@ -821,3 +821,109 @@ export const CBT_THERAPIST_WIRING_STAGE2_V5 = {
     // behavior at the context/instruction layer.  No new entity is added here.
   ],
 };
+
+// ─── Stage 2 V6 wiring config (Phase 1 Quality Gains) ────────────────────────
+
+/**
+ * Stage 2 V6 wiring for the CBT Therapist agent.
+ *
+ * Phase 1 Quality Gains — Formulation Context Injection + Socratic Patterns.
+ *
+ * This config extends CBT_THERAPIST_WIRING_STAGE2_V5 with formulation-context
+ * capability.  V6 is a strict superset of V5: all Phase 7 flags and entity
+ * tool_configs are preserved unchanged, and one new flag is added.
+ *
+ * New flags:
+ *   formulation_context_enabled — signals Phase 1 Quality Gains is active;
+ *                         workflowContextInjector will read CaseFormulation
+ *                         (read-only, caution layer) and inject its core
+ *                         fields into the session-start context to ground
+ *                         the therapist in the longitudinal clinical frame.
+ *                         The Socratic, non-repetitive, and formulation-
+ *                         aligned rules in the workflow engine are also active
+ *                         on this wiring.
+ *
+ * Entity tool_configs: IDENTICAL to V5.  No new entity access is added.
+ * Formulation context is read through the existing CaseFormulation tool_config
+ * (source_order 12, read_only: true, caution_layer: true) already in V5.
+ *
+ * ACTIVATION
+ * ----------
+ * This config is NOT the active config.  It becomes reachable only when
+ * resolveTherapistWiring() returns it, which requires BOTH flags to be true:
+ *   - THERAPIST_UPGRADE_ENABLED (master gate)
+ *   - THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED (Phase 1 Quality gate)
+ * Both default to false.  ACTIVE_CBT_THERAPIST_WIRING remains
+ * CBT_THERAPIST_WIRING_HYBRID until the flags are explicitly enabled.
+ *
+ * ROLLBACK
+ * --------
+ * Set THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED to false to revert to V5
+ * with no other code changes.  Set THERAPIST_UPGRADE_ENABLED to false to
+ * revert to HYBRID entirely.
+ *
+ * Source of truth: Problem statement — Phase 1 Highest-ROI Therapist Quality Gains
+ */
+export const CBT_THERAPIST_WIRING_STAGE2_V6 = {
+  name: 'cbt_therapist',
+  stage2: true,
+  stage2_phase: 10,
+  memory_context_injection: true,           // from V1 — structured memory layer
+  workflow_engine_enabled: true,            // from V2 — workflow engine active
+  workflow_context_injection: true,         // from V2 — inject workflow instructions
+  retrieval_orchestration_enabled: true,    // from V3 — Phase 5 retrieval orchestration
+  live_retrieval_enabled: true,             // from V4 — Phase 6 live retrieval wrapper
+  safety_mode_enabled: true,               // from V5 — Phase 7 safety mode
+  formulation_context_enabled: true,       // Phase 1 Quality — formulation context injection
+  tool_configs: [
+    // ── Step 1: Preferred entities (identical to V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    { entity_name: 'SessionSummary',  access_level: 'preferred',  source_order: 2 },
+    { entity_name: 'ThoughtJournal',  access_level: 'preferred',  source_order: 3 },
+    { entity_name: 'Goal',            access_level: 'preferred',  source_order: 4 },
+    { entity_name: 'CoachingSession', access_level: 'preferred',  source_order: 5 },
+    // ── Step 2: Allowed shared content pool (identical to V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    { entity_name: 'Exercise',        access_level: 'allowed',    source_order: 6 },
+    { entity_name: 'Resource',        access_level: 'allowed',    source_order: 7 },
+    { entity_name: 'AudioContent',    access_level: 'allowed',    source_order: 8 },
+    { entity_name: 'Journey',         access_level: 'allowed',    source_order: 9 },
+    // ── Step 3: Non-caution restricted entities (identical to V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    { entity_name: 'CompanionMemory', access_level: 'restricted', source_order: 10, read_only: true },
+    { entity_name: 'MoodEntry',       access_level: 'restricted', source_order: 11, calibration_only: true },
+    // ── Hybrid: Caution-layer entities (identical to V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    {
+      entity_name: 'CaseFormulation',
+      access_level: 'restricted',
+      source_order: 12,
+      read_only: true,
+      unrestricted: false,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    {
+      entity_name: 'Conversation',
+      access_level: 'restricted',
+      source_order: 13,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    // ── Phase 5: External trusted knowledge (identical to V5 / V4 / V3; lowest entity priority) ──
+    {
+      entity_name: 'ExternalKnowledgeChunk',
+      access_level: 'restricted',
+      source_order: 14,
+      read_only: true,
+      external_trusted: true,
+      caution_layer: false,
+    },
+    // NOTE: Live retrieval (Phase 6) is NOT an entity access — it goes through
+    // the technical allowlist wrapper (liveRetrievalWrapper.js) and the
+    // fetchLiveResource backend function.  No new entity is added here.
+    // NOTE: Safety mode (Phase 7) is NOT an entity access — it constrains
+    // behavior at the context/instruction layer.  No new entity is added here.
+    // NOTE: Formulation context (Phase 1 Quality) is NOT a new entity access
+    // — CaseFormulation is already present at source_order 12 (read_only:
+    // true, caution_layer: true).  The formulation_context_enabled flag only
+    // enables additional injection of CaseFormulation fields into the session-
+    // start context payload via workflowContextInjector.js.
+  ],
+};

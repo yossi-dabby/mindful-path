@@ -37,7 +37,7 @@
 // ─── Workflow version ─────────────────────────────────────────────────────────
 
 /** @type {string} */
-export const THERAPIST_WORKFLOW_VERSION = '3.0.0';
+export const THERAPIST_WORKFLOW_VERSION = '3.1.0';
 
 // ─── Fixed 6-step response sequence ──────────────────────────────────────────
 
@@ -193,6 +193,55 @@ export const THERAPIST_WORKFLOW_RESPONSE_RULES = Object.freeze({
     'present (crisis language, risk indicators, or any condition that would ' +
     'normally activate the existing safety or risk-panel flow). In those ' +
     'cases, defer entirely to the existing safety system.',
+
+  /**
+   * Socratic insight guidance — Phase 1 Quality Gains.
+   * When the person is on the verge of naming their own pattern or insight,
+   * use a single targeted question to help them articulate it themselves.
+   * Socratic questions here are precise, not exploratory — they follow
+   * directly from what has been shared and point toward a specific insight
+   * the person is close to reaching.  Do not use Socratic questions as a
+   * substitute for a clear formulation you already hold.
+   */
+  socratic_insight_guidance:
+    'When the person is close to naming their own automatic thought, belief, ' +
+    'or pattern, use one precise, targeted question to help them reach it ' +
+    'themselves rather than stating it for them. The question must follow ' +
+    'directly from what they have said — it must not introduce new content ' +
+    'or delay a formulation you already hold. If the insight is clear, name ' +
+    'it directly instead of asking.',
+
+  /**
+   * Non-repetitive questioning — Phase 1 Quality Gains.
+   * Never re-ask about something that has already been explored or answered
+   * within the session.  If the person has already described a pattern,
+   * thought, or situation, use that established information rather than
+   * asking about it again.  Repetitive questioning signals inattentiveness
+   * and erodes therapeutic alliance.
+   */
+  avoid_repetitive_questioning:
+    'Never ask the same question, or a functionally equivalent question, ' +
+    'twice in a session. If the person has already shared information about ' +
+    'a topic, reflect it back and build on it — do not re-explore it. Track ' +
+    'what has been established in each turn and use it to advance, not repeat.',
+
+  /**
+   * Formulation-aligned intervention — Phase 1 Quality Gains.
+   * When a CaseFormulation is available for this person, ensure that
+   * interventions and pattern-naming are consistent with the formulation's
+   * identified core beliefs, maintaining cycles, and treatment goals.
+   * The formulation is the longitudinal clinical frame — it should inform
+   * which pattern is named and which intervention point is chosen.
+   * When no formulation is available, proceed with session-level clinical
+   * judgment as normal.
+   */
+  formulation_aligned_intervention:
+    'When a case formulation is available for this person (core beliefs, ' +
+    'maintaining cycles, treatment goals), ensure that the pattern you name ' +
+    'and the intervention you deliver are consistent with it. The formulation ' +
+    'is the longitudinal frame — use it to anchor session-level interventions ' +
+    'to the broader clinical picture. When no formulation is available, apply ' +
+    'session-level clinical judgment.',
 });
 
 // ─── Emotion differentiation map ─────────────────────────────────────────────
@@ -342,6 +391,12 @@ export function buildWorkflowContextInstructions() {
     `6. Slow down for extreme language: ${THERAPIST_WORKFLOW_RESPONSE_RULES.slow_down_for_extreme_language}`,
     '',
     `7. Safety stack compatibility: ${THERAPIST_WORKFLOW_RESPONSE_RULES.safety_stack_compatibility}`,
+    '',
+    `8. Socratic insight guidance: ${THERAPIST_WORKFLOW_RESPONSE_RULES.socratic_insight_guidance}`,
+    '',
+    `9. Avoid repetitive questioning: ${THERAPIST_WORKFLOW_RESPONSE_RULES.avoid_repetitive_questioning}`,
+    '',
+    `10. Formulation-aligned intervention: ${THERAPIST_WORKFLOW_RESPONSE_RULES.formulation_aligned_intervention}`,
     '',
     '--- EMOTION DIFFERENTIATION ---',
     'Distinguish explicitly between these states — each requires a different',

@@ -15,7 +15,7 @@
  *      given locale; English and Hebrew coverage required.
  *   5. buildSuperAgentSessionPreamble() — returns '' when flag/wiring are off;
  *      returns language-aware preamble when activated via a custom test wiring.
- *   6. Regression: THERAPIST_UPGRADE_FLAGS still contains exactly 8 keys.
+ *   6. Regression: THERAPIST_UPGRADE_FLAGS contains exactly 9 keys.
  *   7. Regression: existing scaffold exports (SUPER_CBT_AGENT_WIRING etc.)
  *      are unchanged.
  *
@@ -430,8 +430,8 @@ describe('SuperCbtAgent logic — buildSuperAgentSessionPreamble (logic validati
 // ─── Section 10 — Regression: THERAPIST_UPGRADE_FLAGS unchanged ──────────────
 
 describe('SuperCbtAgent logic — THERAPIST_UPGRADE_FLAGS regression', () => {
-  it('THERAPIST_UPGRADE_FLAGS still contains exactly 8 flags', () => {
-    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(8);
+  it('THERAPIST_UPGRADE_FLAGS contains exactly 9 flags', () => {
+    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(9);
   });
 
   it('THERAPIST_UPGRADE_FLAGS does not contain SUPER_CBT_AGENT_ENABLED', () => {
