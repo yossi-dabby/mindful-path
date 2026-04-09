@@ -6,9 +6,50 @@ on:
   pull_request:
     branches: [ main, master, develop, staging ]
 
+# ─── Shared env block ────────────────────────────────────────────────────────
+# These are the VITE_* feature flags that must be set for E2E tests to reflect
+# the fully-enabled Super Agent and Stage 2 therapist upgrade states.
+# They are passed to BOTH the build step and the dev server step in every job.
+#
+# ROLLBACK: set any flag to 'false' here to disable it in CI without touching
+# source code.  All flags can also be individually disabled in production by
+# setting the corresponding env var to 'false' in the deployment environment.
+env:
+  # All Stage 2 therapist upgrade flags — enable full CBT upgrade path in CI
+  VITE_THERAPIST_UPGRADE_ENABLED: 'true'
+  VITE_THERAPIST_UPGRADE_MEMORY_ENABLED: 'true'
+  VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED: 'true'
+  VITE_THERAPIST_UPGRADE_WORKFLOW_ENABLED: 'true'
+  VITE_THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED: 'true'
+  VITE_THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED: 'true'
+  VITE_THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED: 'true'
+  VITE_THERAPIST_UPGRADE_SAFETY_MODE_ENABLED: 'true'
+  # Super Agent — enable multilingual CBT agent
+  VITE_SUPER_CBT_AGENT_ENABLED: 'true'
+
 jobs:
+  # ─── Pre-flight: fail fast if required secrets are missing ─────────────────
+  check-secrets:
+    name: Check required secrets
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Validate VITE_BASE44_APP_ID is set
+        run: |
+          if [ -z "${{ secrets.VITE_BASE44_APP_ID }}" ]; then
+            echo "::error::VITE_BASE44_APP_ID secret is not set."
+            echo "::error::This secret is required for the app to connect to the Base44 backend."
+            echo "::error::Without it, all API calls will fail with /api/apps/undefined/... URLs."
+            echo "::error::To fix: go to Settings > Secrets and variables > Actions > New repository secret"
+            echo "::error::and add VITE_BASE44_APP_ID with the Base44 app ID for this project."
+            exit 1
+          fi
+          echo "✅ VITE_BASE44_APP_ID is set"
+
   smoke:
     name: Smoke Tests (Production-critical)
+    needs: check-secrets
     timeout-minutes: 10
     runs-on: ubuntu-latest
     permissions:
@@ -78,6 +119,7 @@ jobs:
 
   test:
     name: E2E Tests
+    needs: check-secrets
     timeout-minutes: 20
     runs-on: ubuntu-latest
     permissions:
@@ -149,6 +191,7 @@ jobs:
           name: test-results-${{ matrix.project }}
           path: test-results/
           retention-days: 7
+
 
 
 
