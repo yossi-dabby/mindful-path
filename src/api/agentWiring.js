@@ -822,6 +822,85 @@ export const CBT_THERAPIST_WIRING_STAGE2_V5 = {
   ],
 };
 
+// ─── AI Companion Upgrade V1 wiring config (Phase 2 — not yet active) ────────
+
+/**
+ * Upgrade V1 wiring for the AI Companion agent.
+ *
+ * Phase 2 — Warmth and Attuned Response Layer.
+ *
+ * This config extends AI_COMPANION_WIRING_HYBRID with the companion upgrade
+ * flags.  The entity list is IDENTICAL to the Hybrid config — no new entity
+ * access is added in Phase 2.  The companion_upgrade and warmth_enabled flags
+ * signal to the session context layer that the warmer, more emotionally attuned
+ * response rules should be activated and that response variety tracking should
+ * be enabled to reduce repetition.
+ *
+ * New flags:
+ *   companion_upgrade  — master signal that this is an upgraded companion path
+ *   companion_upgrade_phase — phase identifier (2)
+ *   warmth_enabled     — activates warmer, more attuned response patterns and
+ *                        anti-repetition tracking in the companion context layer
+ *
+ * ACTIVATION
+ * ----------
+ * This config is NOT the active config.  It becomes reachable only when
+ * resolveCompanionWiring() returns it, which requires BOTH flags to be true:
+ *   - COMPANION_UPGRADE_ENABLED (master gate)
+ *   - COMPANION_UPGRADE_WARMTH_ENABLED (Phase 2 gate)
+ * Both default to false.  ACTIVE_AI_COMPANION_WIRING remains
+ * AI_COMPANION_WIRING_HYBRID until the flags are explicitly enabled.
+ *
+ * ROLLBACK
+ * --------
+ * Set COMPANION_UPGRADE_ENABLED or COMPANION_UPGRADE_WARMTH_ENABLED to false
+ * to revert to AI_COMPANION_WIRING_HYBRID with no other code changes.
+ * THERAPIST wiring is completely unaffected by this flag.
+ *
+ * ROLE SEPARATION
+ * ---------------
+ * This wiring is intentionally isolated from the CBT Therapist upgrade chain.
+ * The companion upgrade flags (COMPANION_UPGRADE_*) have no effect on
+ * resolveTherapistWiring(), and the therapist upgrade flags
+ * (THERAPIST_UPGRADE_*) have no effect on resolveCompanionWiring().
+ *
+ * Source of truth: Problem statement — Phase 2 AI Companion Upgrade Foundation
+ */
+export const AI_COMPANION_WIRING_UPGRADE_V1 = {
+  name: 'ai_companion',
+  companion_upgrade: true,
+  companion_upgrade_phase: 2,
+  warmth_enabled: true,             // Phase 2 — warmer, more attuned responses
+  tool_configs: [
+    // ── Step 1: Preferred entities (identical to Hybrid) ──
+    {
+      entity_name: 'CompanionMemory',
+      access_level: 'preferred',
+      source_order: 1,
+      use_for_clinical_reasoning: false,
+    },
+    { entity_name: 'MoodEntry',       access_level: 'preferred',   source_order: 2 },
+    // ── Step 2: Allowed shared content pool (identical to Hybrid) ──
+    { entity_name: 'Exercise',        access_level: 'allowed',     source_order: 3 },
+    { entity_name: 'Resource',        access_level: 'allowed',     source_order: 4 },
+    { entity_name: 'AudioContent',    access_level: 'allowed',     source_order: 5 },
+    { entity_name: 'Journey',         access_level: 'allowed',     source_order: 6 },
+    // ── Step 3: Non-caution restricted entities (identical to Hybrid) ──
+    { entity_name: 'Goal',            access_level: 'restricted',  source_order: 7, reference_only: true },
+    { entity_name: 'SessionSummary',  access_level: 'restricted',  source_order: 8, continuity_check_only: true },
+    // ── Hybrid: Caution-layer entity (identical to Hybrid) ──
+    {
+      entity_name: 'Conversation',
+      access_level: 'restricted',
+      source_order: 9,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    // NOTE: CaseFormulation remains PROHIBITED for AI Companion at all upgrade
+    // phases (enforcement spec §E).  No new prohibited entities are added here.
+  ],
+};
+
 // ─── Stage 2 V6 wiring config (Phase 1 Quality Gains) ────────────────────────
 
 /**

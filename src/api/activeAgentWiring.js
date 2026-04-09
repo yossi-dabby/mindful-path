@@ -44,12 +44,16 @@ import {
   CBT_THERAPIST_WIRING_STAGE2_V4,
   CBT_THERAPIST_WIRING_STAGE2_V5,
   CBT_THERAPIST_WIRING_STAGE2_V6,
+  AI_COMPANION_WIRING_UPGRADE_V1,
 } from './agentWiring.js';
 
 import {
   isUpgradeEnabled,
   logUpgradeEvent,
   registerUpgradeAnalyticsTracker,
+  isCompanionUpgradeEnabled,
+  logCompanionUpgradeEvent,
+  registerCompanionUpgradeAnalyticsTracker,
 } from '../lib/featureFlags.js';
 
 // ─── Phase 0.1 — Analytics registration ─────────────────────────────────────
@@ -65,9 +69,11 @@ import {
 (async () => {
   try {
     const { base44 } = await import('./base44Client.js');
-    registerUpgradeAnalyticsTracker((eventName, properties) => {
+    const trackFn = (eventName, properties) => {
       base44.analytics.track({ eventName, properties });
-    });
+    };
+    registerUpgradeAnalyticsTracker(trackFn);
+    registerCompanionUpgradeAnalyticsTracker(trackFn);
   } catch (_ignored) {
     // Analytics unavailable (e.g. test environment) — console fallback remains.
   }
@@ -203,6 +209,64 @@ export function resolveTherapistWiring() {
 // that the flag is evaluated at a real wiring decision point on every cold
 // module load.  The resulting value is still CBT_THERAPIST_WIRING_HYBRID while
 // all flags are false — existing behaviour is preserved exactly.
+//
+// ACTIVE_AI_COMPANION_WIRING is now computed via resolveCompanionWiring().
+// The resulting value is still AI_COMPANION_WIRING_HYBRID while all companion
+// flags are false — existing behaviour is preserved exactly.
+
+// ─── Phase 2 — AI Companion Upgrade Routing ──────────────────────────────────
+
+/**
+ * Resolves the active AI Companion wiring by evaluating the companion upgrade
+ * feature flags.
+ *
+ * This routing is COMPLETELY INDEPENDENT of the therapist upgrade flags.
+ * COMPANION_UPGRADE_* flags have no effect on resolveTherapistWiring(), and
+ * THERAPIST_UPGRADE_* flags have no effect on resolveCompanionWiring().
+ * This explicit separation prevents role ambiguity between the two agents.
+ *
+ * Routing logic (evaluated in order):
+ *   1. Master gate off → AI_COMPANION_WIRING_HYBRID (legacy default)
+ *   2. Master gate on, COMPANION_UPGRADE_WARMTH_ENABLED on
+ *                      → AI_COMPANION_WIRING_UPGRADE_V1 (Phase 2 warmth layer)
+ *   3. Master gate on, no matching phase flag
+ *                      → AI_COMPANION_WIRING_HYBRID (fall-through to legacy)
+ *
+ * All flags default to false, so the legacy default path is always returned
+ * in production until the flags are explicitly enabled.
+ *
+ * Rollback: set COMPANION_UPGRADE_ENABLED to false to instantly revert to
+ * AI_COMPANION_WIRING_HYBRID with no other code changes.
+ *
+ * @returns {object} The active AI Companion wiring configuration
+ */
+export function resolveCompanionWiring() {
+  if (isCompanionUpgradeEnabled('COMPANION_UPGRADE_ENABLED')) {
+    // ── Phase 2 — Warmth and attuned response layer ───────────────────────
+    if (isCompanionUpgradeEnabled('COMPANION_UPGRADE_WARMTH_ENABLED')) {
+      logCompanionUpgradeEvent('route_selected', {
+        flag: 'COMPANION_UPGRADE_WARMTH_ENABLED',
+        path: 'upgrade_v1',
+        phase: '2',
+      });
+      return AI_COMPANION_WIRING_UPGRADE_V1;
+    }
+
+    // ── Master gate on, no phase flag matched — fall through to legacy ────
+    logCompanionUpgradeEvent('route_not_selected', {
+      flag: 'COMPANION_UPGRADE_ENABLED',
+      path: 'legacy_fallback',
+      phase: '2',
+    });
+    return AI_COMPANION_WIRING_HYBRID;
+  }
+
+  logCompanionUpgradeEvent('route_not_selected', {
+    flag: 'COMPANION_UPGRADE_ENABLED',
+    phase: '2',
+  });
+  return AI_COMPANION_WIRING_HYBRID;
+}
 
 /**
  * Active wiring for the CBT Therapist agent.
@@ -212,9 +276,11 @@ export const ACTIVE_CBT_THERAPIST_WIRING = resolveTherapistWiring();
 
 /**
  * Active wiring for the AI Companion agent.
- * Currently wired to the hybrid configuration (V1 + caution layer).
+ * Resolved via resolveCompanionWiring() — evaluates the companion upgrade flags
+ * at load time.  Falls back to AI_COMPANION_WIRING_HYBRID (legacy) when all
+ * companion flags are false — no change to existing runtime behaviour.
  */
-export const ACTIVE_AI_COMPANION_WIRING = AI_COMPANION_WIRING_HYBRID;
+export const ACTIVE_AI_COMPANION_WIRING = resolveCompanionWiring();
 
 /**
  * Map of all active agent wirings, keyed by agent name.
