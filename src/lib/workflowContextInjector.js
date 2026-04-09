@@ -541,3 +541,139 @@ export function buildRuntimeSafetySupplement(wiring, messageText, locale) {
     return null;
   }
 }
+
+// ─── Phase 1 Quality Gains — V6 formulation context injection ─────────────────
+
+/**
+ * Maximum characters per CaseFormulation field injected into session context.
+ * Kept tight to avoid over-loading the context window with longitudinal data.
+ */
+const FORMULATION_INJECT_MAX_CHARS = 150;
+
+/**
+ * Builds a bounded, read-only CaseFormulation context block for injection into
+ * the session-start payload.
+ *
+ * Reads the most recent CaseFormulation record (read-only, caution layer).
+ * Extracts: presenting_problem, core_belief, maintaining_cycle, treatment_goals.
+ * Returns a formatted string section, or empty string when unavailable.
+ *
+ * FAIL-CLOSED CONTRACT
+ * Any error during read returns '' — the session start is never blocked.
+ * The injection is additive and supplemental — absence has no safety consequence.
+ *
+ * @param {object} entities - Base44 entity client map
+ * @returns {Promise<string>} Formatted CaseFormulation context block, or ''
+ */
+async function buildFormulationContextBlock(entities) {
+  try {
+    if (!entities || typeof entities !== 'object') return '';
+    if (!entities.CaseFormulation || typeof entities.CaseFormulation.list !== 'function') return '';
+
+    const formulations = await entities.CaseFormulation.list('-created_date', 1);
+    if (!Array.isArray(formulations) || formulations.length === 0) return '';
+
+    const cf = formulations[0];
+    const lines = [];
+
+    if (cf.presenting_problem && typeof cf.presenting_problem === 'string') {
+      lines.push('Presenting problem: ' + cf.presenting_problem.trim().slice(0, FORMULATION_INJECT_MAX_CHARS));
+    }
+    if (cf.core_belief && typeof cf.core_belief === 'string') {
+      lines.push('Core belief: ' + cf.core_belief.trim().slice(0, FORMULATION_INJECT_MAX_CHARS));
+    }
+    if (cf.maintaining_cycle && typeof cf.maintaining_cycle === 'string') {
+      lines.push('Maintaining cycle: ' + cf.maintaining_cycle.trim().slice(0, FORMULATION_INJECT_MAX_CHARS));
+    }
+    if (cf.treatment_goals && typeof cf.treatment_goals === 'string') {
+      lines.push('Treatment goals: ' + cf.treatment_goals.trim().slice(0, FORMULATION_INJECT_MAX_CHARS));
+    }
+
+    if (lines.length === 0) return '';
+
+    return [
+      '=== CASE FORMULATION CONTEXT (read-only) ===',
+      'Use the following longitudinal clinical frame to anchor session-level',
+      'interventions. Do not disclose this section verbatim to the person.',
+      '',
+      ...lines,
+      '',
+      '=== END CASE FORMULATION CONTEXT ===',
+    ].join('\n');
+  } catch {
+    // Fail-closed: formulation unavailable — never block session start
+    return '';
+  }
+}
+
+/**
+ * Builds the V6 session-start content string asynchronously.
+ *
+ * Phase 1 Quality Gains — Formulation Context Injection.
+ *
+ * For non-V6 wirings (formulation_context_enabled !== true):
+ *   Delegates directly to buildV5SessionStartContentAsync (no behavior change).
+ *
+ * For V6 wirings:
+ *   1. Builds the V5 base content (safety mode + live retrieval + retrieval
+ *      orchestration + workflow + memory context).
+ *   2. Reads CaseFormulation (read-only, caution layer, bounded to 1 record)
+ *      and builds the formulation context block.
+ *   3. Appends the formulation context block when available.
+ *
+ * FAIL-CLOSED CONTRACT
+ * Any failure in step 2 returns V5 base content unchanged.
+ * The session start is never blocked by formulation context unavailability.
+ *
+ * SAFETY NOTE
+ * The formulation context block is additive clinical context.  It does NOT
+ * replace, weaken, or bypass any existing safety filter or crisis handler.
+ * It is strictly structural guidance for grounding session-level interventions
+ * in the longitudinal clinical picture.
+ *
+ * ISOLATION GUARANTEE
+ * This function is ONLY called when wiring.formulation_context_enabled === true
+ * (V6 path).  All prior paths (HYBRID, V1–V5) are completely unaffected.
+ *
+ * @param {object} wiring - The active therapist wiring configuration
+ * @param {object} entities - Base44 entity client map
+ * @param {object} baseClient - Base44 SDK client (passed to V5 chain)
+ * @param {object} [options] - Optional options forwarded to V5 chain
+ * @returns {Promise<string>} The full session-start content string
+ */
+export async function buildV6SessionStartContentAsync(
+  wiring,
+  entities,
+  baseClient,
+  options = {},
+) {
+  // For non-V6 wirings: delegate to V5 (no change to behavior)
+  if (!wiring || wiring.formulation_context_enabled !== true) {
+    return buildV5SessionStartContentAsync(wiring, entities, baseClient, options);
+  }
+
+  // ── V6 path ────────────────────────────────────────────────────────────────
+
+  // Step 1: Build the V5 base content (safety mode + all prior layers)
+  const v5Base = await buildV5SessionStartContentAsync(
+    wiring,
+    entities,
+    baseClient,
+    options,
+  );
+
+  // Step 2: Inject CaseFormulation context (read-only, fail-closed)
+  let formulationBlock = '';
+  try {
+    formulationBlock = await buildFormulationContextBlock(entities);
+  } catch {
+    // Fail-closed: formulation injection failure must never block session start
+    formulationBlock = '';
+  }
+
+  if (!formulationBlock || !formulationBlock.trim()) {
+    return v5Base;
+  }
+
+  return v5Base + '\n\n' + formulationBlock;
+}

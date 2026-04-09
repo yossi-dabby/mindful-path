@@ -32,7 +32,7 @@
  * 13.  Verify that buildV5SessionStartContentAsync is a superset: result for
  *      any non-V5 wiring equals the result of buildV4SessionStartContentAsync.
  * 14.  Verify that the feature flag THERAPIST_UPGRADE_FLAGS object still has
- *      exactly 8 keys (no unintended additions or removals).
+ *      exactly 9 keys (Phase 1 Quality added the 9th flag).
  * 15.  Verify that resolveTherapistWiring returns CBT_THERAPIST_WIRING_STAGE2_V5
  *      when isUpgradeEnabled correctly simulates SAFETY_MODE_ENABLED=true.
  */
@@ -73,9 +73,9 @@ describe('Phase 0 — Chat.jsx source routing (static analysis)', () => {
 
   const chatSrc = readFileSync(resolve('src/pages/Chat.jsx'), 'utf8');
 
-  // 1. buildV5SessionStartContentAsync is imported in Chat.jsx
-  it('1. Chat.jsx imports buildV5SessionStartContentAsync', () => {
-    expect(chatSrc).toContain('buildV5SessionStartContentAsync');
+  // 1. buildV6SessionStartContentAsync is imported in Chat.jsx
+  it('1. Chat.jsx imports buildV6SessionStartContentAsync', () => {
+    expect(chatSrc).toContain('buildV6SessionStartContentAsync');
   });
 
   // 2. buildV4SessionStartContentAsync is NOT imported directly in Chat.jsx
@@ -90,9 +90,9 @@ describe('Phase 0 — Chat.jsx source routing (static analysis)', () => {
     expect(hasV4Import).toBe(false);
   });
 
-  // 3. Chat.jsx calls buildV5SessionStartContentAsync (at least once)
-  it('3. Chat.jsx calls buildV5SessionStartContentAsync', () => {
-    const callCount = (chatSrc.match(/buildV5SessionStartContentAsync\s*\(/g) || []).length;
+  // 3. Chat.jsx calls buildV6SessionStartContentAsync (at least once)
+  it('3. Chat.jsx calls buildV6SessionStartContentAsync', () => {
+    const callCount = (chatSrc.match(/buildV6SessionStartContentAsync\s*\(/g) || []).length;
     expect(callCount).toBeGreaterThanOrEqual(1);
   });
 
@@ -102,11 +102,13 @@ describe('Phase 0 — Chat.jsx source routing (static analysis)', () => {
     expect(callCount).toBe(0);
   });
 
-  // 5. Every session-start call site in Chat.jsx uses V5 (count symmetry)
-  it('5. every session-start call site in Chat.jsx uses V5 (not V4)', () => {
+  // 5. Every session-start call site in Chat.jsx uses V6 (count symmetry)
+  it('5. every session-start call site in Chat.jsx uses V6 (not V4 or V5)', () => {
+    const v6Calls = (chatSrc.match(/buildV6SessionStartContentAsync\s*\(/g) || []).length;
     const v5Calls = (chatSrc.match(/buildV5SessionStartContentAsync\s*\(/g) || []).length;
     const v4Calls = (chatSrc.match(/buildV4SessionStartContentAsync\s*\(/g) || []).length;
-    expect(v5Calls).toBeGreaterThanOrEqual(2); // two intent-handler call sites
+    expect(v6Calls).toBeGreaterThanOrEqual(2); // two intent-handler call sites
+    expect(v5Calls).toBe(0);
     expect(v4Calls).toBe(0);
   });
 });
@@ -226,10 +228,10 @@ describe('Phase 0 — Default mode and flag safety', () => {
     expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(false);
   });
 
-  // 19. THERAPIST_UPGRADE_FLAGS has exactly 8 keys (no unintended additions)
-  it('19. THERAPIST_UPGRADE_FLAGS has exactly 8 keys', () => {
+  // 19. THERAPIST_UPGRADE_FLAGS has exactly 9 keys (no unintended additions)
+  it('19. THERAPIST_UPGRADE_FLAGS has exactly 9 keys', () => {
     const keys = Object.keys(THERAPIST_UPGRADE_FLAGS);
-    expect(keys).toHaveLength(8);
+    expect(keys).toHaveLength(9);
   });
 
   // 20. resolveTherapistWiring returns HYBRID when called with no overrides

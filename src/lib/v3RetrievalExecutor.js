@@ -102,6 +102,12 @@ const MAX_SESSION_SUMMARY_CHARS = 150;
 const MAX_SUMMARY_TEXT_CHARS = 200;
 
 /**
+ * Maximum characters for a CaseFormulation text field (presenting problem,
+ * core belief, maintaining cycle).  Kept tight to avoid overloading context.
+ */
+const MAX_FORMULATION_FIELD_CHARS = 120;
+
+/**
  * Maximum characters for an external knowledge chunk's text.
  */
 const MAX_CHUNK_TEXT_CHARS = 250;
@@ -279,6 +285,43 @@ async function fetchSessionContextItems(entities, limit) {
     }
   } catch {
     // Fail-open: session summaries unavailable
+  }
+
+  // CaseFormulation — longitudinal clinical frame (Phase 1 Quality Gains)
+  // Read-only, caution layer.  Bounded to 1 item.  Fail-open.
+  // Only consulted when item slots remain after Goals and SessionSummary.
+  try {
+    if (count < limit) {
+      const formulations = await entities.CaseFormulation.list('-created_date', 1);
+      if (Array.isArray(formulations) && formulations.length > 0) {
+        const cf = formulations[0];
+        const parts = [];
+        if (cf.presenting_problem && typeof cf.presenting_problem === 'string') {
+          parts.push('presenting: ' + cf.presenting_problem.trim().slice(0, MAX_FORMULATION_FIELD_CHARS));
+        }
+        if (cf.core_belief && typeof cf.core_belief === 'string') {
+          parts.push('core belief: ' + cf.core_belief.trim().slice(0, MAX_FORMULATION_FIELD_CHARS));
+        }
+        if (cf.maintaining_cycle && typeof cf.maintaining_cycle === 'string') {
+          parts.push('maintaining cycle: ' + cf.maintaining_cycle.trim().slice(0, MAX_FORMULATION_FIELD_CHARS));
+        }
+        if (cf.treatment_goals && typeof cf.treatment_goals === 'string') {
+          parts.push('treatment goals: ' + cf.treatment_goals.trim().slice(0, MAX_FORMULATION_FIELD_CHARS));
+        }
+
+        const content = parts.join(' | ').trim();
+        if (content) {
+          items.push({
+            source_type: RETRIEVAL_SOURCE_TYPES.SESSION_CONTEXT,
+            content,
+            entity_name: 'CaseFormulation',
+          });
+          count++;
+        }
+      }
+    }
+  } catch {
+    // Fail-open: CaseFormulation unavailable — continue without it
   }
 
   return items;

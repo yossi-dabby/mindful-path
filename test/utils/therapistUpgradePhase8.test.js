@@ -14,7 +14,7 @@
  *   4. Both components return null when flags are off, regardless of props.
  *   5. Both components return null when wiring does not have the required flag.
  *   6. i18n keys for all 7 languages are present and non-empty.
- *   7. Phase 8 does not add a new feature flag (flag count remains 8).
+ *   7. Phase 8 does not add a new feature flag (was 8; Phase 1 Quality raised count to 9).
  *   8. All existing flags remain false (upgrade path still disabled by default).
  *   9. The feature flag module still exports isUpgradeEnabled correctly.
  *  10. Both components fail closed (return null) when wiring is null/undefined.
@@ -42,8 +42,8 @@ describe('Phase 8 — feature flag baseline unchanged', () => {
     expect(Object.isFrozen(THERAPIST_UPGRADE_FLAGS)).toBe(true);
   });
 
-  it('THERAPIST_UPGRADE_FLAGS still contains exactly 8 flags (Phase 8 adds no new flag)', () => {
-    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(8);
+  it('THERAPIST_UPGRADE_FLAGS contains exactly 9 flags (Phase 1 Quality added the 9th flag)', () => {
+    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(9);
   });
 
   it('all Stage 2 flags are still false (upgrade path disabled by default)', () => {
