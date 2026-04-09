@@ -25,6 +25,10 @@
  *   V4 supersedes V3 when both flags are on (V4 is a superset of V3).
  * Phase 7 — CBT_THERAPIST_WIRING_STAGE2_V5 added as the safety-mode path.
  *   V5 supersedes V4 when both flags are on (V5 is a superset of V4).
+ * Phase 1 Quality — CBT_THERAPIST_WIRING_STAGE2_V6 added as the formulation-context path.
+ *   V6 supersedes V5 when both flags are on (V6 is a superset of V5).
+ * Phase 3 Deep Personalization — CBT_THERAPIST_WIRING_STAGE2_V7 added as the continuity path.
+ *   V7 supersedes V6 when both flags are on (V7 is a superset of V6).
  *
  * Analytics registration (Section B of Phase 0.1 spec) is performed lazily
  * via a dynamic import of base44Client.js so that test environments that lack
@@ -44,7 +48,9 @@ import {
   CBT_THERAPIST_WIRING_STAGE2_V4,
   CBT_THERAPIST_WIRING_STAGE2_V5,
   CBT_THERAPIST_WIRING_STAGE2_V6,
+  CBT_THERAPIST_WIRING_STAGE2_V7,
   AI_COMPANION_WIRING_UPGRADE_V1,
+  AI_COMPANION_WIRING_UPGRADE_V2,
 } from './agentWiring.js';
 
 import {
@@ -90,20 +96,25 @@ import {
  *
  * Routing logic (evaluated in order):
  *   1. Master gate off  → CBT_THERAPIST_WIRING_HYBRID (current default)
- *   2. Master gate on, THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED on
+ *   2. Master gate on, THERAPIST_UPGRADE_CONTINUITY_ENABLED on
+ *                       → CBT_THERAPIST_WIRING_STAGE2_V7 (Phase 3 continuity)
+ *   3. Master gate on, THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V6 (Phase 1 Quality formulation context)
- *   3. Master gate on, THERAPIST_UPGRADE_SAFETY_MODE_ENABLED on
+ *   4. Master gate on, THERAPIST_UPGRADE_SAFETY_MODE_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V5 (Phase 7 safety mode)
- *   4. Master gate on, THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED on
+ *   5. Master gate on, THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V4 (Phase 6 live retrieval)
- *   5. Master gate on, THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED on
+ *   6. Master gate on, THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V3 (Phase 5 retrieval orchestration)
- *   6. Master gate on, THERAPIST_UPGRADE_WORKFLOW_ENABLED on
+ *   7. Master gate on, THERAPIST_UPGRADE_WORKFLOW_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V2 (Phase 3 workflow engine)
- *   7. Master gate on, THERAPIST_UPGRADE_MEMORY_ENABLED on
+ *   8. Master gate on, THERAPIST_UPGRADE_MEMORY_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V1 (Phase 1 memory layer)
- *   8. Master gate on, no matching phase flag
+ *   9. Master gate on, no matching phase flag
  *                       → CBT_THERAPIST_WIRING_HYBRID (fall-through to current default)
+ *
+ * Phase 3 Deep Personalization (V7) takes precedence over Phase 1 Quality (V6)
+ * and all prior phases because V7 is a strict superset of V6.
  *
  * Phase 1 Quality (V6) takes precedence over Phase 7 (V5) and all prior phases
  * when the formulation context flag is on because V6 is a strict superset of V5.
@@ -127,6 +138,16 @@ import {
  */
 export function resolveTherapistWiring() {
   if (isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')) {
+    // ── Phase 3 Deep Personalization — Continuity (supersedes Phase 1 Quality and earlier) ──
+    if (isUpgradeEnabled('THERAPIST_UPGRADE_CONTINUITY_ENABLED')) {
+      logUpgradeEvent('route_selected', {
+        flag: 'THERAPIST_UPGRADE_CONTINUITY_ENABLED',
+        path: 'stage2_v7',
+        phase: '3_deep_personalization',
+      });
+      return CBT_THERAPIST_WIRING_STAGE2_V7;
+    }
+
     // ── Phase 1 Quality — Formulation context (supersedes Phase 7 and earlier) ──
     if (isUpgradeEnabled('THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED')) {
       logUpgradeEvent('route_selected', {
@@ -242,6 +263,16 @@ export function resolveTherapistWiring() {
  */
 export function resolveCompanionWiring() {
   if (isCompanionUpgradeEnabled('COMPANION_UPGRADE_ENABLED')) {
+    // ── Phase 3 — Continuity layer (supersedes Phase 2 warmth layer) ─────
+    if (isCompanionUpgradeEnabled('COMPANION_UPGRADE_CONTINUITY_ENABLED')) {
+      logCompanionUpgradeEvent('route_selected', {
+        flag: 'COMPANION_UPGRADE_CONTINUITY_ENABLED',
+        path: 'upgrade_v2',
+        phase: '3',
+      });
+      return AI_COMPANION_WIRING_UPGRADE_V2;
+    }
+
     // ── Phase 2 — Warmth and attuned response layer ───────────────────────
     if (isCompanionUpgradeEnabled('COMPANION_UPGRADE_WARMTH_ENABLED')) {
       logCompanionUpgradeEvent('route_selected', {

@@ -37,12 +37,14 @@ import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
 import { validateAgentOutput, sanitizeConversationMessages, parseCounters } from '../components/utils/validateAgentOutput.jsx';
 import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
-import { buildV6SessionStartContentAsync, buildRuntimeSafetySupplement } from '@/lib/workflowContextInjector.js';
+import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildRuntimeSafetySupplement } from '@/lib/workflowContextInjector.js';
 import { MOBILE_HEADER_HEIGHT } from '../components/layout/MobileHeader';
 import { BOTTOM_NAV_HEIGHT } from '../components/layout/BottomNav';
 // Phase 8 — Upgraded-path UI (flag-gated; hidden in default mode)
 import SessionPhaseIndicator from '../components/therapy/SessionPhaseIndicator';
 import SafetyModeIndicator from '../components/therapy/SafetyModeIndicator';
+// Phase 3 Deep Personalization — Session continuity cue (flag-gated; hidden in default mode)
+import SessionContinuityCue from '../components/therapy/SessionContinuityCue';
 
 // ─── MF-7: Legacy variant-profile agent names — historical conversations under
 // these names must NOT receive new messages. Empty clinical stubs; fail-closed.
@@ -422,7 +424,7 @@ export default function Chat() {
                 setIsLoading(true);
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
-                  content: await buildV6SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44)
+                  content: await buildV7SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44)
                 });
                 inFlightIntentRef.current = false;
               }, 100);
@@ -463,7 +465,7 @@ export default function Chat() {
                 setIsLoading(true);
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
-                  content: await buildV6SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44)
+                  content: await buildV7SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44)
                 });
                 inFlightIntentRef.current = false;
               }, 100);
@@ -1500,6 +1502,14 @@ export default function Chat() {
                   <SessionPhaseIndicator
                     wiring={ACTIVE_CBT_THERAPIST_WIRING}
                     hasActiveSession={!!currentConversationId}
+                  />
+                </ErrorBoundary>
+                {/* Phase 3 Deep Personalization — Session continuity cue (flag-gated) */}
+                <ErrorBoundary>
+                  <SessionContinuityCue
+                    wiring={ACTIVE_CBT_THERAPIST_WIRING}
+                    hasActiveSession={!!currentConversationId}
+                    messageCount={messages.length}
                   />
                 </ErrorBoundary>
                 {messages.length > visibleCount && (

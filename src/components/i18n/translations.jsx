@@ -283,6 +283,10 @@ export const translations = {
           label: "Enhanced support mode",
           description: "Your session is being guided with additional care"
         },
+        session_continuity_cue: {
+          banner_text: "Continuing from your prior sessions",
+          accessible_label: "Session continuity is active — your history is informing this session"
+        },
         super_cbt_agent: {
           label: "Super CBT Agent",
           accessible_label: "Super CBT Agent is active",
@@ -1679,6 +1683,10 @@ export const translations = {
         safety_mode_indicator: {
           label: "מצב תמיכה מוגברת",
           description: "המפגש שלך מנוהל עם תשומת לב נוספת"
+        },
+        session_continuity_cue: {
+          banner_text: "ממשיך ממפגשים קודמים",
+          accessible_label: "רצף מפגשים פעיל — ההיסטוריה שלך מנחה מפגש זה"
         },
         super_cbt_agent: {
           label: "סוכן CBT מתקדם",
@@ -3077,6 +3085,10 @@ export const translations = {
           label: "Modo de apoyo reforzado",
           description: "Tu sesión se guía con atención adicional"
         },
+        session_continuity_cue: {
+          banner_text: "Continuando desde sesiones anteriores",
+          accessible_label: "Continuidad de sesión activa — tu historial está informando esta sesión"
+        },
         super_cbt_agent: {
           label: "Super Agente TCC",
           accessible_label: "Super Agente TCC está activo",
@@ -4430,6 +4442,10 @@ export const translations = {
         safety_mode_indicator: {
           label: "Mode de soutien renforcé",
           description: "Votre séance est guidée avec une attention supplémentaire"
+        },
+        session_continuity_cue: {
+          banner_text: "Suite de vos séances précédentes",
+          accessible_label: "Continuité de séance active — votre historique guide cette séance"
         },
         super_cbt_agent: {
           label: "Super Agent TCC",
@@ -5785,6 +5801,10 @@ export const translations = {
           label: "Erweiterter Unterstützungsmodus",
           description: "Ihre Sitzung wird mit zusätzlicher Sorgfalt begleitet"
         },
+        session_continuity_cue: {
+          banner_text: "Fortsetzung aus Ihren früheren Sitzungen",
+          accessible_label: "Sitzungskontinuität aktiv — Ihre Vorgeschichte fließt in diese Sitzung ein"
+        },
         super_cbt_agent: {
           label: "Super-KVT-Agent",
           accessible_label: "Super-KVT-Agent ist aktiv",
@@ -7139,6 +7159,10 @@ export const translations = {
           label: "Modalità di supporto potenziata",
           description: "La tua sessione è guidata con cura aggiuntiva"
         },
+        session_continuity_cue: {
+          banner_text: "Continuazione dalle sessioni precedenti",
+          accessible_label: "Continuità della sessione attiva — la tua cronologia informa questa sessione"
+        },
         super_cbt_agent: {
           label: "Super Agente TCC",
           accessible_label: "Super Agente TCC è attivo",
@@ -8492,6 +8516,10 @@ export const translations = {
         safety_mode_indicator: {
           label: "Modo de suporte aprimorado",
           description: "Sua sessão está sendo guiada com cuidado adicional"
+        },
+        session_continuity_cue: {
+          banner_text: "Continuando das suas sessões anteriores",
+          accessible_label: "Continuidade de sessão ativa — seu histórico está informando esta sessão"
         },
         super_cbt_agent: {
           label: "Super Agente TCC",

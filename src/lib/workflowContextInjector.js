@@ -677,3 +677,84 @@ export async function buildV6SessionStartContentAsync(
 
   return v5Base + '\n\n' + formulationBlock;
 }
+
+// ─── Phase 3 Deep Personalization — V7 cross-session continuity injection ─────
+
+/**
+ * Builds the V7 session-start content string asynchronously.
+ *
+ * Phase 3 Deep Personalization — Cross-Session Continuity Layer.
+ *
+ * For non-V7 wirings (continuity_layer_enabled !== true):
+ *   Delegates directly to buildV6SessionStartContentAsync (no behavior change).
+ *
+ * For V7 wirings:
+ *   1. Builds the V6 base content (formulation context + safety mode + live
+ *      retrieval + retrieval orchestration + workflow + memory context).
+ *   2. Reads the last N therapist memory records (read-only, fail-closed)
+ *      and builds the cross-session continuity block.
+ *   3. Appends the continuity block when available.
+ *
+ * FAIL-CLOSED CONTRACT
+ * Any failure in step 2 returns V6 base content unchanged.
+ * The session start is never blocked by continuity read failure.
+ *
+ * SAFETY NOTE
+ * The continuity block is additive clinical context.  It does NOT replace,
+ * weaken, or bypass any existing safety filter, crisis handler, or
+ * formulation context.  It is strictly longitudinal awareness for grounding
+ * session-level interactions in prior-session patterns.
+ *
+ * PRIVACY NOTE
+ * Continuity reads from CompanionMemory (private per-user entity).  Only
+ * structured summary fields are included — never raw transcripts.
+ * The block is injected into the per-user session payload only.
+ *
+ * ISOLATION GUARANTEE
+ * This function is ONLY called when wiring.continuity_layer_enabled === true
+ * (V7 path).  All prior paths (HYBRID, V1–V6) are completely unaffected.
+ *
+ * @param {object} wiring - The active therapist wiring configuration
+ * @param {object} entities - Base44 entity client map
+ * @param {object} baseClient - Base44 SDK client (passed to V6 chain)
+ * @param {object} [options] - Optional options forwarded to V6 chain
+ * @returns {Promise<string>} The full session-start content string
+ */
+export async function buildV7SessionStartContentAsync(
+  wiring,
+  entities,
+  baseClient,
+  options = {},
+) {
+  // For non-V7 wirings: delegate to V6 (no change to behavior)
+  if (!wiring || wiring.continuity_layer_enabled !== true) {
+    return buildV6SessionStartContentAsync(wiring, entities, baseClient, options);
+  }
+
+  // ── V7 path ────────────────────────────────────────────────────────────────
+
+  // Step 1: Build the V6 base content (formulation + safety mode + all prior layers)
+  const v6Base = await buildV6SessionStartContentAsync(
+    wiring,
+    entities,
+    baseClient,
+    options,
+  );
+
+  // Step 2: Build cross-session continuity block (read-only, fail-closed)
+  let continuityBlock = '';
+  try {
+    const { buildCrossSessionContinuityBlock } = await import('./crossSessionContinuity.js');
+    continuityBlock = await buildCrossSessionContinuityBlock(entities);
+  } catch {
+    // Fail-closed: continuity injection failure must never block session start
+    continuityBlock = '';
+  }
+
+  if (!continuityBlock || !continuityBlock.trim()) {
+    return v6Base;
+  }
+
+  return v6Base + '\n\n' + continuityBlock;
+}
+

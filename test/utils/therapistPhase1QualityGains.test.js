@@ -146,11 +146,11 @@ describe('Phase 1 Quality — feature flag', () => {
     expect(isUpgradeEnabled('THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED')).toBe(false);
   });
 
-  it('THERAPIST_UPGRADE_FLAGS now contains exactly 9 flags', () => {
-    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(9);
+  it('THERAPIST_UPGRADE_FLAGS now contains exactly 10 flags', () => {
+    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(10);
   });
 
-  it('all 9 flags default to false', () => {
+  it('all 10 flags default to false', () => {
     for (const [name, val] of Object.entries(THERAPIST_UPGRADE_FLAGS)) {
       expect(val, `Flag "${name}" must default to false`).toBe(false);
     }
@@ -769,14 +769,14 @@ describe('Phase 1 Quality — Chat.jsx import audit', () => {
     expect(chatSource).not.toContain('buildV5SessionStartContentAsync');
   });
 
-  it('Chat.jsx calls buildV6SessionStartContentAsync at both session-start sites', async () => {
+  it('Chat.jsx calls buildV7SessionStartContentAsync at both session-start sites', async () => {
     const fs = await import('fs');
     const path = await import('path');
     const chatSource = fs.default.readFileSync(
       path.default.resolve('src/pages/Chat.jsx'),
       'utf8',
     );
-    const count = (chatSource.match(/buildV6SessionStartContentAsync/g) || []).length;
+    const count = (chatSource.match(/buildV7SessionStartContentAsync/g) || []).length;
     // 1 import + 2 call sites = 3
     expect(count).toBeGreaterThanOrEqual(3);
   });

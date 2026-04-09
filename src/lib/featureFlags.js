@@ -93,6 +93,16 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
    * Staging enablement: set VITE_THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED=true
    */
   THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED === 'true',
+
+  /**
+   * Phase 3 Deep Personalization — Cross-session continuity layer.
+   * Activates V7 wiring: reads prior therapist memory records and injects a
+   * structured cross-session continuity block (recurring patterns, open
+   * follow-up tasks, prior interventions) into the session-start payload.
+   * Both agents are personalised using longitudinal memory when this flag is on.
+   * Staging enablement: set VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED=true
+   */
+  THERAPIST_UPGRADE_CONTINUITY_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED === 'true',
 });
 
 /**
@@ -386,6 +396,15 @@ export const COMPANION_UPGRADE_FLAGS = Object.freeze({
    * Staging enablement: set VITE_COMPANION_UPGRADE_WARMTH_ENABLED=true
    */
   COMPANION_UPGRADE_WARMTH_ENABLED: import.meta.env?.VITE_COMPANION_UPGRADE_WARMTH_ENABLED === 'true',
+
+  /**
+   * Phase 3 — Companion continuity layer.
+   * Activates AI_COMPANION_WIRING_UPGRADE_V2: companion draws on prior
+   * session summaries to surface session-to-session continuity cues and
+   * provide individually tailored responses grounded in the user's history.
+   * Staging enablement: set VITE_COMPANION_UPGRADE_CONTINUITY_ENABLED=true
+   */
+  COMPANION_UPGRADE_CONTINUITY_ENABLED: import.meta.env?.VITE_COMPANION_UPGRADE_CONTINUITY_ENABLED === 'true',
 });
 
 /**
