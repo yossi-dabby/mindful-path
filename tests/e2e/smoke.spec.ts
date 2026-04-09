@@ -1,5 +1,5 @@
 import { test, expect, devices } from '@playwright/test';
-import { spaNavigate, safeFill, safeClick, mockApi, logFailedRequests } from '../helpers/ui';
+import { spaNavigate, safeFill, safeClick, mockApi, logFailedRequests, setupTestEnvironment } from '../helpers/ui';
 
 // Use a mobile device. Adjust the device as needed.
 test.use({
@@ -10,12 +10,9 @@ test.describe('Chat Smoke Test (Mobile)', () => {
   test('should send a message and verify it appears (or at least the POST happens) on mobile', async ({ page }) => {
     test.setTimeout(90000);
 
-    // Inject test-environment globals before the app boots so that the Base44
-    // SDK constructs proper API URLs (avoids /api/apps/undefined/... paths).
-    await page.addInitScript(() => {
-      (window as any).__TEST_APP_ID__ = 'test-app-id';
-      (window as any).__DISABLE_ANALYTICS__ = true;
-    });
+    // setupTestEnvironment is called inside mockApi below, so no separate
+    // addInitScript is needed here.  It sets __TEST_APP_ID__, __DISABLE_ANALYTICS__,
+    // chat_consent_accepted, and age_verified before the app boots.
 
     const requestLogger = await logFailedRequests(page);
 

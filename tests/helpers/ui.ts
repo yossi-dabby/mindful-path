@@ -1,5 +1,33 @@
 import { Page, expect } from '@playwright/test';
 
+/**
+ * Injects all required test-environment globals and localStorage values
+ * before the app script runs.  Call this (or pass its options to page.addInitScript)
+ * BEFORE navigating to any page so the Base44 SDK and consent gates see the
+ * correct values at boot time.
+ *
+ * Sets:
+ *   - window.__TEST_APP_ID__        — prevents /api/apps/undefined/... URLs
+ *   - window.__DISABLE_ANALYTICS__  — suppresses analytics in CI
+ *   - localStorage.chat_consent_accepted — bypasses consent gate
+ *   - localStorage.age_verified          — bypasses age gate
+ *
+ * @param lang Optional language/locale to pre-seed (e.g. 'en', 'he').  Defaults
+ *   to 'en'.  Set a value to test multilingual flows.
+ */
+export async function setupTestEnvironment(page: Page, lang = 'en') {
+  await page.addInitScript((language: string) => {
+    (window as any).__TEST_APP_ID__ = 'test-app-id';
+    (window as any).__DISABLE_ANALYTICS__ = true;
+    localStorage.setItem('chat_consent_accepted', 'true');
+    localStorage.setItem('age_verified', 'true');
+    localStorage.setItem('language', language);
+    if (document.body) {
+      document.body.setAttribute('data-test-env', 'true');
+    }
+  }, lang);
+}
+
 export async function waitForAppHydration(page: Page, timeout = 10000) {
   await page.waitForFunction(
     () => {
@@ -50,8 +78,18 @@ export async function takeDebugScreenshot(page: Page, name: string) {
 /**
  * Mocks Base44-style API calls so the UI can render "happy path" without real backend.
  * Important: covers public-settings and analytics which otherwise 404 and can block UI flow.
+ *
+ * Also calls setupTestEnvironment() to pre-seed all required localStorage and window
+ * globals before the app boots — callers do NOT need a separate addInitScript for
+ * the standard consent/age/appId values.
+ *
+ * @param lang Optional language/locale to pre-seed (e.g. 'en', 'he').  Defaults to 'en'.
+ *   Pass a value when testing multilingual flows so the language is set exactly once,
+ *   preventing a second addInitScript from overwriting it with the default.
  */
-export async function mockApi(page: Page) {
+export async function mockApi(page: Page, lang = 'en') {
+  // Pre-seed all required env globals before the app boots.
+  await setupTestEnvironment(page, lang);
   const mockConversationId = 'test-conversation-123';
   const mockUserId = 'test-user-123';
   const mockUserEmail = 'test@example.com';
@@ -226,18 +264,93 @@ export async function mockApi(page: Page) {
     }
 
     // Mock Base44 function invocations so they don't reach the real server in CI.
-    // The enhancedCrisisDetector is called in handleSendMessage before the POST;
-    // without this mock it would either block on the network or fail slowly.
+    // IMPORTANT: Route specifics BEFORE the generic catch-all at the bottom.
+    //
+    // Known backend functions and their expected response shapes:
+    //   enhancedCrisisDetector     — crisis risk classifier (LLM-based)
+    //   sessionPhaseEngine         — workflow phase tracker
+    //   retrieveTherapistMemory    — memory retrieval
+    //   writeTherapistMemory       — memory write
+    //   normalizeAgentMessage      — message normalizer
+    //   summarizeSession           — session summarizer
+    //   ingestTrustedDocument      — knowledge ingestion
+    //   validateTrustedSource      — source validator
+    //   checkProactiveNudges       — nudge scheduler
+    //   postLlmSafetyFilter        — LLM output safety filter
+    //   sanitizeAgentOutput        — agent output sanitizer
+    //   sanitizeConversation       — conversation sanitizer
+    //   getSuperAgentSessionContext — super agent context builder
+    //   buildMultilingualPreamble  — multilingual preamble builder
+    //
+    // If new backend functions are added, add a specific stub here for speed and
+    // reliability — the generic catch-all at the bottom handles unknown functions.
     if (url.includes('/functions/') && method === 'POST') {
       if (url.includes('enhancedCrisisDetector')) {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify({ data: { is_crisis: false, severity: 'none', confidence: 0 } }),
+          body: JSON.stringify({ data: { is_crisis: false, severity: 'none', reason: 'test_mock', confidence: 0 } }),
         });
         return;
       }
-      // All other functions: return a generic success response.
+      if (url.includes('sessionPhaseEngine')) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ data: { phase: 'assessment', phase_label: 'Assessment', suggested_focus: 'Getting to know you', session_number: 1 } }),
+        });
+        return;
+      }
+      if (url.includes('retrieveTherapistMemory')) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ data: { memories: [], summary: '' } }),
+        });
+        return;
+      }
+      if (url.includes('writeTherapistMemory')) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ data: { success: true, memory_id: 'test-memory-id' } }),
+        });
+        return;
+      }
+      if (url.includes('summarizeSession') || url.includes('normalizeAgentMessage')) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ data: { success: true, content: '' } }),
+        });
+        return;
+      }
+      if (url.includes('postLlmSafetyFilter') || url.includes('sanitizeAgentOutput') || url.includes('sanitizeConversation')) {
+        // Safety filters: passthrough mock — returns the raw input as safe.
+        // WARNING: this mock bypasses real safety logic and must NOT be used in
+        // tests that need to verify safety filter behaviour. It is only
+        // appropriate for E2E tests that are testing non-safety UI flows.
+        let body = '{}';
+        try {
+          const postData = route.request().postData();
+          if (postData) body = postData;
+        } catch { /* ignore */ }
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ data: { safe: true, filtered: false, content: body } }),
+        });
+        return;
+      }
+      if (url.includes('getSuperAgentSessionContext') || url.includes('buildMultilingualPreamble')) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ data: { context: '', preamble: '', locale: 'en', success: true } }),
+        });
+        return;
+      }
+      // All other backend functions: return a generic success response.
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
