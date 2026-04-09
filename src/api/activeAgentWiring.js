@@ -25,6 +25,8 @@
  *   V4 supersedes V3 when both flags are on (V4 is a superset of V3).
  * Phase 7 — CBT_THERAPIST_WIRING_STAGE2_V5 added as the safety-mode path.
  *   V5 supersedes V4 when both flags are on (V5 is a superset of V4).
+ * SuperCbtAgent — SUPER_CBT_AGENT_WIRING added as the multilingual upgrade path.
+ *   Supersedes V5 when both the master gate and SUPER_CBT_AGENT_ENABLED are on.
  *
  * Analytics registration (Section B of Phase 0.1 spec) is performed lazily
  * via a dynamic import of base44Client.js so that test environments that lack
@@ -50,6 +52,11 @@ import {
   logUpgradeEvent,
   registerUpgradeAnalyticsTracker,
 } from '../lib/featureFlags.js';
+
+import {
+  SUPER_CBT_AGENT_WIRING,
+  isSuperAgentEnabled,
+} from '../lib/superCbtAgent.js';
 
 // ─── Phase 0.1 — Analytics registration ─────────────────────────────────────
 //
@@ -83,22 +90,28 @@ import {
  *
  * Routing logic (evaluated in order):
  *   1. Master gate off  → CBT_THERAPIST_WIRING_HYBRID (current default)
- *   2. Master gate on, THERAPIST_UPGRADE_SAFETY_MODE_ENABLED on
+ *   2. Master gate on, SUPER_CBT_AGENT_ENABLED on
+ *                       → SUPER_CBT_AGENT_WIRING (Super CBT Agent — multilingual V5 superset)
+ *   3. Master gate on, THERAPIST_UPGRADE_SAFETY_MODE_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V5 (Phase 7 safety mode)
- *   3. Master gate on, THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED on
+ *   4. Master gate on, THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V4 (Phase 6 live retrieval)
- *   4. Master gate on, THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED on
+ *   5. Master gate on, THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V3 (Phase 5 retrieval orchestration)
- *   5. Master gate on, THERAPIST_UPGRADE_WORKFLOW_ENABLED on
+ *   6. Master gate on, THERAPIST_UPGRADE_WORKFLOW_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V2 (Phase 3 workflow engine)
- *   6. Master gate on, THERAPIST_UPGRADE_MEMORY_ENABLED on
+ *   7. Master gate on, THERAPIST_UPGRADE_MEMORY_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V1 (Phase 1 memory layer)
- *   7. Master gate on, no matching phase flag
+ *   8. Master gate on, no matching phase flag
  *                       → CBT_THERAPIST_WIRING_HYBRID (fall-through to current default)
  *
  * Phase 7 (V5) takes precedence over Phase 6 (V4) and all prior phases when
  * the safety mode flag is on because V5 is a superset of V4, which is a
  * superset of V3, which is a superset of V2, which is a superset of V1.
+ *
+ * The SuperCbtAgent takes the highest precedence when both the master gate and
+ * SUPER_CBT_AGENT_ENABLED are on, because it is a superset of V5 with
+ * additional multilingual markers.  Its entity access matrix is identical to V5.
  *
  * Phase 6 (V4) takes precedence over Phase 5 (V3) and all prior phases when
  * the allowlist wrapper flag is on because V4 is a superset of V3, which is
@@ -115,6 +128,16 @@ import {
  */
 export function resolveTherapistWiring() {
   if (isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')) {
+    // ── SuperCbtAgent — multilingual upgrade (supersedes all Stage 2 phases) ──
+    if (isSuperAgentEnabled()) {
+      logUpgradeEvent('route_selected', {
+        flag: 'SUPER_CBT_AGENT_ENABLED',
+        path: 'super_cbt_agent',
+        phase: 'super.1',
+      });
+      return SUPER_CBT_AGENT_WIRING;
+    }
+
     // ── Phase 7 — Safety mode (supersedes Phase 6 and earlier) ───────────
     if (isUpgradeEnabled('THERAPIST_UPGRADE_SAFETY_MODE_ENABLED')) {
       logUpgradeEvent('route_selected', {
