@@ -185,12 +185,16 @@ describe('Phase 4 — deriveConversationMemoryPayload: session_summary derivatio
     expect(result.session_summary).toBe('');
   });
 
-  it('intent is truncated at 300 characters', () => {
+  it('intent is truncated at 300 characters before being used in session_summary', () => {
     const longIntent = 'a'.repeat(400);
     const result = deriveConversationMemoryPayload('conv-7', { intent: longIntent });
-    // The summary will be "Session focused on: " + truncated intent + "."
-    // The session_summary itself is limited to 2000 chars by sanitizeSummaryRecord
-    expect(result.session_summary.length).toBeLessThanOrEqual(2000);
+    // The summary will be "Session focused on: " + truncated-intent + "."
+    // The intent portion must not exceed CONVERSATION_META_MAX_CHARS (300 chars).
+    // Extract the intent portion: everything between "Session focused on: " and the trailing "."
+    const prefix = 'Session focused on: ';
+    expect(result.session_summary.startsWith(prefix)).toBe(true);
+    const intentPortion = result.session_summary.slice(prefix.length).replace(/\.$/, '');
+    expect(intentPortion.length).toBeLessThanOrEqual(300);
   });
 });
 
@@ -305,12 +309,17 @@ describe('Phase 4 — deriveConversationMemoryPayload: fail-safe for invalid inp
   });
 
   it('does not throw with an intent that looks like raw transcript content', () => {
-    // Even if intent accidentally matches a transcript pattern, sanitize clears it
+    // Even if intent accidentally matches a transcript pattern, sanitize clears it.
+    // The function call itself should not throw.
+    expect(() =>
+      deriveConversationMemoryPayload('conv-1', {
+        intent: 'User: how are you? Therapist: I am fine',
+      }),
+    ).not.toThrow();
     const result = deriveConversationMemoryPayload('conv-1', {
       intent: 'User: how are you? Therapist: I am fine',
     });
     // sanitizeSummaryRecord will clear the session_summary if it contains transcript
-    expect(() => result).not.toThrow();
     expect(typeof result.session_summary).toBe('string');
   });
 });
