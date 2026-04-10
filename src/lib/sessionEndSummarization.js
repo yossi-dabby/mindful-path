@@ -2,11 +2,19 @@
  * @file src/lib/sessionEndSummarization.js
  *
  * Therapist Upgrade — Phase 2.1 — Real Session-End Invocation Path
+ * Extended in Phase 4 — Chat.jsx Conversation Memory Write
  *
  * Phase 2.1 closes two gaps left open by Phase 2:
  *   1. There was no real, bounded session-end invocation path.
  *   2. The generateSessionSummary backend accepted only pre-shaped payloads;
  *      there was no step that derived structured output FROM session/conversation input.
+ *
+ * Phase 4 closes the Chat.jsx memory-write gap:
+ *   3. Chat.jsx free-form therapy conversations had no path to write structured
+ *      records to CompanionMemory, so the V7 cross-session continuity block read
+ *      empty memory on every session start. Phase 4 adds a lightweight write path
+ *      for Chat.jsx conversations, enabling V7 continuity to read prior session
+ *      context in future sessions.
  *
  * This module provides:
  *   A. deriveSessionSummaryPayload(session, boundedMessages)
@@ -16,37 +24,58 @@
  *        Returns a payload matching the Phase 1 therapist-memory contract.
  *
  *   B. triggerSessionEndSummarization(session, messages, invoker)
- *      — The REAL INVOCATION PATH. Checks isSummarizationEnabled(), derives the
- *        summary payload, then calls the generateSessionSummary backend function
- *        via base44.functions.invoke. Completely non-blocking (fire-and-forget).
- *        When flags are off it is entirely inert.
+ *      — The REAL INVOCATION PATH for CoachingSession completions. Checks
+ *        isSummarizationEnabled(), derives the summary payload, then calls the
+ *        generateSessionSummary backend function via base44.functions.invoke.
+ *        Completely non-blocking (fire-and-forget). When flags are off it is
+ *        entirely inert.
+ *
+ *   C. deriveConversationMemoryPayload(conversationId, conversationMeta)   [Phase 4]
+ *      — Lightweight counterpart of deriveSessionSummaryPayload for Chat.jsx
+ *        free-form therapy conversations. Derives a minimal therapist-memory
+ *        record from conversation identity metadata (no message content stored).
+ *        Produces a valid record matching the Phase 1 schema; session_summary
+ *        is populated when a meaningful intent or name is available.
+ *
+ *   D. triggerConversationEndSummarization(conversationId, conversationMeta, invoker)   [Phase 4]
+ *      — Non-blocking, gated memory-write trigger for Chat.jsx conversation ends.
+ *        Called from Chat.jsx's requestSummary function (the natural
+ *        end-of-chat boundary). Gated by the same isSummarizationEnabled() check.
+ *        Inert in default mode (flags off). Fail-closed.
  *
  * ACTIVATION
  * ----------
  * Gated by THERAPIST_UPGRADE_SUMMARIZATION_ENABLED (and master
  * THERAPIST_UPGRADE_ENABLED). Both flags default to false.
- * When flags are off, this module is imported safely but triggerSessionEndSummarization
- * returns immediately without side effects.
+ * When flags are off, this module is imported safely but all trigger functions
+ * return immediately without side effects.
  *
- * SESSION-END BOUNDARY
- * --------------------
+ * SESSION-END BOUNDARY (CoachingSession path)
+ * -------------------------------------------
  * triggerSessionEndSummarization is called from CoachingChat.jsx when the
  * session stage transitions to 'completed' via updateStageMutation.onSuccess.
  * This is a real, bounded, explicit session-completion surface — it fires once
  * per stage transition, not on every message. It is non-blocking: the session
  * close UX is unaffected whether summarization succeeds or fails.
  *
+ * CONVERSATION-END BOUNDARY (Chat.jsx path)   [Phase 4]
+ * -----------------------------------------------------
+ * triggerConversationEndSummarization is called from Chat.jsx's requestSummary
+ * function — the point where a user explicitly signals the end of a therapy
+ * conversation. This is the natural end-of-chat boundary in the free-form
+ * therapy interface. It fires once per requestSummary call, is non-blocking,
+ * and the Chat.jsx UI is completely unaffected whether it succeeds or fails.
+ *
  * BOUNDED INPUT
  * -------------
- * - Only the last SESSION_SUMMARIZATION_MAX_MESSAGES messages are included.
- * - Session metadata (title, focus_area, current_challenge, desired_outcome,
- *   action_plan, related_goals) is used for structured extraction.
- * - No full transcript is dumped; no raw message content is stored.
- * - Message content is used only for bounding, not for field population.
+ * - Only the last SESSION_SUMMARIZATION_MAX_MESSAGES messages are included
+ *   (CoachingSession path; no messages are read for the Conversation path).
+ * - Session/conversation metadata is used for structured extraction.
+ * - No full transcript is dumped; no raw message content is ever stored.
  *
  * PRIVACY
  * -------
- * - deriveSessionSummaryPayload does NOT store raw message content.
+ * - Neither derive function stores raw message content.
  * - session_summary is built from structured metadata fields only.
  * - The output is sanitized through the Phase 2 sanitizeSummaryRecord contract
  *   before any persistence.
@@ -54,15 +83,16 @@
  *
  * FAIL-SAFE
  * ---------
- * - All errors in triggerSessionEndSummarization are caught.
+ * - All errors in all trigger functions are caught.
  * - Summarization failure never propagates to the caller.
- * - The session-close UX is independent of this function.
+ * - The session/conversation UX is independent of these functions.
  *
- * This file contains no Deno APIs and no runtime side effects beyond an async
- * function that fires-and-forgets. It is safe to import in Vitest unit tests
- * (the base44 dependency is only imported lazily inside triggerSessionEndSummarization).
+ * This file contains no Deno APIs and no runtime side effects beyond async
+ * functions that fire-and-forget. It is safe to import in Vitest unit tests
+ * (the base44 dependency is only imported lazily inside the trigger functions).
  *
- * See docs/therapist-upgrade-stage2-plan.md — Phase 2.1 for context.
+ * See docs/therapist-upgrade-stage2-plan.md — Phase 2.1 for CoachingSession context.
+ * See Phase 4 for Chat.jsx conversation memory write context.
  */
 
 import { isSummarizationEnabled } from './summarizationGate.js';
@@ -267,6 +297,184 @@ export function triggerSessionEndSummarization(
       // Session close UX is independent of this function.
       console.warn(
         '[Phase 2.1] Session-end summarization failed (non-fatal) [' + invoker + ']:',
+        error instanceof Error ? error.message : String(error),
+      );
+    }
+  })();
+}
+
+// ─── Phase 4 — Chat.jsx Conversation Memory Write ────────────────────────────
+
+/**
+ * Diagnostic label for the conversation-end summarization trigger source.
+ * Exported so that call sites and tests can reference the canonical value.
+ *
+ * @type {string}
+ */
+export const CONVERSATION_END_SUMMARY_INVOKER = 'conversation_end';
+
+/**
+ * Maximum character length for a conversation name/intent used as session_summary.
+ * Matches the existing MAX_METADATA_FIELD_LENGTH used by deriveSessionSummaryPayload.
+ *
+ * @type {number}
+ */
+const CONVERSATION_META_MAX_CHARS = 300;
+
+/**
+ * Pattern that matches a generic auto-generated conversation name ("Session N")
+ * that carries no useful context for the continuity block.
+ * Matching names are excluded from session_summary to avoid writing empty context.
+ *
+ * @type {RegExp}
+ */
+const GENERIC_SESSION_NAME_PATTERN = /^Session\s+\d+$/i;
+
+/**
+ * Derives a minimal therapist-memory payload from Chat.jsx free-form
+ * conversation metadata.
+ *
+ * Phase 4 — Chat.jsx Conversation Memory Write.
+ *
+ * This is the lightweight counterpart of deriveSessionSummaryPayload for the
+ * Chat.jsx free-form therapy interface. It cannot extract clinical data from
+ * message content (privacy rule: no transcript storage), so all clinical arrays
+ * are empty. The session_summary is populated only when the conversation carries
+ * a meaningful intent or a non-generic name.
+ *
+ * PRIVACY CONTRACT
+ * No message content is read or stored. The record is derived solely from
+ * conversation identity metadata: conversationId and conversationMeta.
+ * All fields pass through sanitizeSummaryRecord before any downstream use.
+ *
+ * FAIL-SAFE
+ * Returns buildSafeStubRecord('', '') on any unexpected error.
+ *
+ * @param {string} conversationId - The Base44 conversation ID.
+ * @param {object} [conversationMeta={}]
+ *   The conversation's metadata object (e.g. conversation.metadata from the
+ *   Base44 agents API). Expected optional fields:
+ *     - intent {string} — The intent parameter used when the conversation was
+ *       created (e.g. 'anxiety management', 'sleep issues').
+ *     - name  {string} — The display name of the conversation
+ *       (e.g. 'Anxiety session', 'Session 3').
+ * @returns {object}
+ *   A sanitized summary record matching the Phase 1 therapist-memory schema.
+ *   Returns buildSafeStubRecord() if the conversationId argument is invalid.
+ */
+export function deriveConversationMemoryPayload(conversationId, conversationMeta = {}) {
+  try {
+    const sessionId = typeof conversationId === 'string' ? conversationId.trim() : '';
+    const sessionDate = new Date().toISOString();
+
+    // ── session_summary ─────────────────────────────────────────────────────
+    // Derived from conversation identity metadata only — no message content.
+    // Prefer intent (explicit topic) over name (may be generic "Session N").
+    const intent =
+      typeof conversationMeta?.intent === 'string'
+        ? conversationMeta.intent.trim().slice(0, CONVERSATION_META_MAX_CHARS)
+        : '';
+
+    const name =
+      typeof conversationMeta?.name === 'string'
+        ? conversationMeta.name.trim().slice(0, CONVERSATION_META_MAX_CHARS)
+        : '';
+
+    let sessionSummary = '';
+    if (intent) {
+      sessionSummary = `Session focused on: ${intent}.`;
+    } else if (name && !GENERIC_SESSION_NAME_PATTERN.test(name)) {
+      // Use name only when it's meaningful (not the auto-generated "Session N").
+      sessionSummary = `Session: ${name}.`;
+    }
+    // If neither intent nor a meaningful name is present, session_summary stays ''.
+    // An empty summary is safe — the record still establishes a session timestamp
+    // and conversationId in CompanionMemory, providing minimal continuity signal.
+
+    // ── Build raw payload (all clinical arrays empty — no content extraction) ─
+    const rawPayload = {
+      session_id: sessionId,
+      session_date: sessionDate,
+      session_summary: sessionSummary,
+      core_patterns: [],
+      triggers: [],
+      automatic_thoughts: [],
+      emotions: [],
+      urges: [],
+      actions: [],
+      consequences: [],
+      working_hypotheses: [],
+      interventions_used: [],
+      risk_flags: [],
+      safety_plan_notes: '',
+      follow_up_tasks: [],
+      goals_referenced: [],
+      last_summarized_date: sessionDate,
+    };
+
+    // Sanitize through the Phase 2 contract (validates all fields, enforces
+    // lengths, blocks transcript dumps, enforces version marker).
+    const { record } = sanitizeSummaryRecord(rawPayload);
+    return record;
+  } catch {
+    // Fail-safe: return a minimal valid stub on any unexpected error.
+    return buildSafeStubRecord('', '');
+  }
+}
+
+/**
+ * Triggers a non-blocking memory write for a Chat.jsx free-form therapy
+ * conversation end.
+ *
+ * Phase 4 — Chat.jsx Conversation Memory Write.
+ *
+ * Called from Chat.jsx's requestSummary function — the explicit end-of-chat
+ * boundary where a user signals they want a session summary. This is a
+ * natural, deliberate session-completion surface that fires at most once per
+ * conversation (since users typically request summaries once per session).
+ *
+ * The call is:
+ *   - Gated: checks isSummarizationEnabled() first; returns immediately if false.
+ *   - Non-blocking: fires-and-forgets; the Chat.jsx UI is never awaited or blocked.
+ *   - Safe: all errors are caught; the summary request UX is unaffected.
+ *   - Inert in default mode: when flags are off, this function is a no-op.
+ *   - Privacy-preserving: no message content is read or stored.
+ *
+ * WHY THIS MATTERS (Phase 4 gap closure)
+ * Chat.jsx's V7 session-start path (buildV7SessionStartContentAsync) reads
+ * CompanionMemory for cross-session continuity, but Chat.jsx conversations
+ * previously had no path to write to CompanionMemory. This function closes
+ * that gap: once a user requests a session summary, a minimal memory record is
+ * written, giving V7 something to read in future sessions.
+ *
+ * @param {string} conversationId - The Base44 conversation ID.
+ * @param {object} [conversationMeta={}] - The conversation's metadata object.
+ * @param {string} [invoker=CONVERSATION_END_SUMMARY_INVOKER] - Diagnostic label.
+ */
+export function triggerConversationEndSummarization(
+  conversationId,
+  conversationMeta = {},
+  invoker = CONVERSATION_END_SUMMARY_INVOKER,
+) {
+  // Gate check: if not enabled, return immediately — entirely inert
+  if (!isSummarizationEnabled()) {
+    return;
+  }
+
+  // Non-blocking: fire-and-forget; caller is never awaited or blocked
+  (async () => {
+    try {
+      const payload = deriveConversationMemoryPayload(conversationId, conversationMeta);
+
+      // Lazy import to avoid any bundler/module cost in default-off mode
+      const { base44 } = await import('../api/base44Client.js');
+
+      await base44.functions.invoke('generateSessionSummary', payload);
+    } catch (error) {
+      // Summarization failure must never propagate to the caller.
+      // Chat.jsx requestSummary UX is independent of this function.
+      console.warn(
+        '[Phase 4] Conversation-end summarization failed (non-fatal) [' + invoker + ']:',
         error instanceof Error ? error.message : String(error),
       );
     }

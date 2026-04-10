@@ -38,6 +38,8 @@ import ErrorBoundary from '../components/utils/ErrorBoundary';
 import { validateAgentOutput, sanitizeConversationMessages, parseCounters } from '../components/utils/validateAgentOutput.jsx';
 import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
 import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildRuntimeSafetySupplement } from '@/lib/workflowContextInjector.js';
+// Phase 4 — Conversation memory write for V7 continuity
+import { triggerConversationEndSummarization } from '@/lib/sessionEndSummarization.js';
 import { MOBILE_HEADER_HEIGHT } from '../components/layout/MobileHeader';
 import { BOTTOM_NAV_HEIGHT } from '../components/layout/BottomNav';
 // Phase 8 — Upgraded-path UI (flag-gated; hidden in default mode)
@@ -1167,6 +1169,17 @@ export default function Chat() {
     const conversation = await base44.agents.getConversation(currentConversationId);
     setIsLoading(true);
     setShowSummaryPrompt(false);
+
+    // Phase 4 — Trigger non-blocking conversation-end memory write for V7
+    // continuity. Gated by isSummarizationEnabled(); inert in default mode.
+    // The metadata lookup uses the in-memory conversations list to avoid an
+    // extra network round-trip; falls back to empty metadata when unavailable.
+    const convForMemory = conversations?.find((c) => c.id === currentConversationId);
+    triggerConversationEndSummarization(
+      currentConversationId,
+      convForMemory?.metadata || {},
+      'chat_request_summary',
+    );
 
     // Build a language-aware summary request
     const userLang = i18n.language || 'en';
