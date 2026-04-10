@@ -59,10 +59,26 @@ Omitting a variable is equivalent to `false`.
 | `VITE_THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED` | _(unset — do not add)_ |
 | `VITE_THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED` | _(unset — do not add)_ |
 | `VITE_THERAPIST_UPGRADE_SAFETY_MODE_ENABLED` | _(unset — do not add)_ |
+| `VITE_THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED` | _(unset — do not add)_ |
+| `VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED` | _(unset — do not add)_ |
 
 When all Stage 2 flags are absent (or `false`), the app routes every session through the current default therapist path (`CBT_THERAPIST_WIRING_HYBRID`). No Stage 2 code is reachable.
 
 See `src/lib/featureFlags.js` for the full flag registry and evaluation rules.
+
+### Backend Base44 secrets — all must be absent or explicitly `false`
+
+These are **not** VITE build-time variables. They are set in the **Base44 Application Secrets** panel
+and read by Deno backend functions. They must also be `false` in the initial deployment.
+
+| Secret name | Function | Initial value |
+|---|---|---|
+| `THERAPIST_UPGRADE_MEMORY_ENABLED` | `retrieveTherapistMemory` | _(unset — `false`)_ |
+| `THERAPIST_UPGRADE_SUMMARIZATION_ENABLED` | `generateSessionSummary` | _(unset — `false`)_ |
+
+> `THERAPIST_UPGRADE_CONTINUITY_ENABLED` and `THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED`
+> have **no backend equivalent** — they are frontend-only VITE flags. Do not create backend
+> secrets with those names.
 
 ---
 
@@ -104,6 +120,8 @@ computedFlags:
   THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED : false
   THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED       : false
   THERAPIST_UPGRADE_SAFETY_MODE_ENABLED             : false
+  THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED     : false
+  THERAPIST_UPGRADE_CONTINUITY_ENABLED              : false
 ```
 
 **Every flag must show `false`.** The `routeHint` must read `HYBRID (master gate off)`.

@@ -62,16 +62,25 @@ All flags default to `false` when the variable is absent or any value other than
 > **Do NOT enable any of these flags until Phase 9 exit criteria are met.**
 > See `docs/therapist-upgrade-stage2-plan.md §Phase 9`.
 
-| Variable                                              | Phase | Description                                      | Staging default |
-|-------------------------------------------------------|-------|--------------------------------------------------|-----------------|
-| `VITE_THERAPIST_UPGRADE_ENABLED`                      | Gate  | Master rollback switch for all Stage 2 behavior  | `false`         |
-| `VITE_THERAPIST_UPGRADE_MEMORY_ENABLED`               | 1     | Structured therapist memory layer                | `false`         |
-| `VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED`        | 2     | Session-end structured summarization             | `false`         |
-| `VITE_THERAPIST_UPGRADE_WORKFLOW_ENABLED`             | 3     | Therapist workflow engine                        | `false`         |
-| `VITE_THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED`    | 4     | External trusted knowledge ingestion             | `false`         |
-| `VITE_THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED` | 5  | Internal-first retrieval orchestration           | `false`         |
-| `VITE_THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED`    | 6     | Live retrieval allowlist wrapper                 | `false`         |
-| `VITE_THERAPIST_UPGRADE_SAFETY_MODE_ENABLED`          | 7     | Safety mode + emergency resource layer           | `false`         |
+| Variable                                                  | Phase            | Description                                          | Staging default |
+|-----------------------------------------------------------|------------------|------------------------------------------------------|-----------------|
+| `VITE_THERAPIST_UPGRADE_ENABLED`                          | Gate             | Master rollback switch for all Stage 2 behavior      | `false`         |
+| `VITE_THERAPIST_UPGRADE_MEMORY_ENABLED`                   | 1                | Structured therapist memory layer                    | `false`         |
+| `VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED`            | 2                | Session-end structured summarization (client gate)   | `false`         |
+| `VITE_THERAPIST_UPGRADE_WORKFLOW_ENABLED`                 | 3                | Therapist workflow engine                            | `false`         |
+| `VITE_THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED`        | 4                | External trusted knowledge ingestion                 | `false`         |
+| `VITE_THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED`  | 5                | Internal-first retrieval orchestration               | `false`         |
+| `VITE_THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED`        | 6                | Live retrieval allowlist wrapper                     | `false`         |
+| `VITE_THERAPIST_UPGRADE_SAFETY_MODE_ENABLED`              | 7                | Safety mode + emergency resource layer               | `false`         |
+| `VITE_THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED`      | Phase 1 Quality  | Case formulation context injection at session start (V6 wiring) | `false` |
+| `VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED`               | Phase 3 Deep     | Cross-session memory continuity injection at session start (V7 wiring, superset of V6) | `false` |
+
+> **Flag dependency for continuity read path:**
+> `VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED` activates the **read** path (session-start injection from CompanionMemory).
+> For that data to exist, `VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED` must also be enabled (and the matching
+> backend Base44 secret — see Section 3.4) so that memory write operations can populate CompanionMemory.
+> Enabling only the read flag without the write flag is safe (fail-closed: no data → empty block), but the
+> therapist will have no prior session context to inject until at least one write has completed.
 
 ### 3.3 Build Behavior Variables (CI/CD)
 
@@ -79,6 +88,27 @@ All flags default to `false` when the variable is absent or any value other than
 |-------------------------------|-------------|----------------------------------------------------------|---------------|
 | `CI`                          | Build-time  | Enables sourcemaps and disables minification in CI builds | `true`        |
 | `BASE44_LEGACY_SDK_IMPORTS`   | Build-time  | Enable legacy Base44 SDK import paths (default: `false`) | `false`       |
+
+### 3.4 Backend Runtime Secrets (Base44 Application Secrets)
+
+These are **not** VITE build-time variables. They are set in the **Base44 Application Secrets** panel
+and are read by Deno backend functions at request time via `Deno.env.get()`.
+
+The frontend `VITE_*` flags gate the client-side trigger; the backend secrets gate the Deno execution.
+Both must be `true` for a full memory write to succeed.
+
+| Secret name                              | Read by Deno function            | Purpose                                                   | Local / Preview | Staging | Production |
+|------------------------------------------|----------------------------------|-----------------------------------------------------------|-----------------|---------|------------|
+| `THERAPIST_UPGRADE_MEMORY_ENABLED`       | `retrieveTherapistMemory`        | Gates per-user structured memory retrieval                | `false`         | `false` | `false`    |
+| `THERAPIST_UPGRADE_SUMMARIZATION_ENABLED`| `generateSessionSummary`         | Gates session-end memory write to CompanionMemory         | `false`         | `false` | `false`    |
+
+> **Important:** `THERAPIST_UPGRADE_CONTINUITY_ENABLED` and
+> `THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED` are **frontend-only** VITE flags.
+> They have no backend Deno equivalent. The V7 read path (`readCrossSessionContinuity`)
+> reads CompanionMemory directly via the entity SDK — it does not call a backend function.
+
+> **Recommended initial values** (all environments): `false` — do not enable until the
+> Phase 9 exit criteria described in `docs/therapist-upgrade-stage2-plan.md` are met.
 
 ---
 
