@@ -398,9 +398,13 @@ describe('Phase 4 — Chat.jsx integration (static analysis)', () => {
   });
 
   it('Chat.jsx call to triggerConversationEndSummarization is inside requestSummary', () => {
-    // Find requestSummary function and check triggerConversationEndSummarization is inside it
+    // Find requestSummary function and check triggerConversationEndSummarization is inside it.
+    // Phase 5 adds a second call site (maybeTriggerEndWrite) that may appear
+    // earlier in the file. We therefore search for the call that uses the
+    // 'chat_request_summary' invoker label, which uniquely identifies the
+    // requestSummary call site.
     const requestSummaryIdx = chatSrc.indexOf('const requestSummary');
-    const callIdx = chatSrc.indexOf('triggerConversationEndSummarization(');
+    const callIdx = chatSrc.indexOf("'chat_request_summary'");
     expect(requestSummaryIdx).toBeGreaterThan(-1);
     expect(callIdx).toBeGreaterThan(requestSummaryIdx);
   });

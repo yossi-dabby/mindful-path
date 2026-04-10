@@ -314,6 +314,26 @@ export function triggerSessionEndSummarization(
 export const CONVERSATION_END_SUMMARY_INVOKER = 'conversation_end';
 
 /**
+ * Minimum number of messages a Chat.jsx conversation must contain before a
+ * conversation-switch memory write is attempted.
+ *
+ * Phase 5 — Conversation-Switch Memory Write Trigger.
+ *
+ * Rationale: the first message in every Chat.jsx session is the internal
+ * [START_SESSION] prompt (buildV7SessionStartContentAsync). The second is the
+ * agent's opening response. Only from message 3 onward has the user sent at
+ * least one real turn. Requiring >= 3 messages therefore filters out sessions
+ * that were opened and immediately abandoned before any real exchange occurred,
+ * while still writing a record for every session where the user engaged.
+ *
+ * This constant is exported so that Chat.jsx (which reads `messages` state) and
+ * test suites can reference the canonical threshold without hard-coding it.
+ *
+ * @type {number}
+ */
+export const CONVERSATION_MIN_MESSAGES_FOR_MEMORY = 3;
+
+/**
  * Maximum character length for a conversation name/intent used as session_summary.
  * Matches the existing MAX_METADATA_FIELD_LENGTH used by deriveSessionSummaryPayload.
  *
