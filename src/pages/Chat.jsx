@@ -38,8 +38,8 @@ import ErrorBoundary from '../components/utils/ErrorBoundary';
 import { validateAgentOutput, sanitizeConversationMessages, parseCounters } from '../components/utils/validateAgentOutput.jsx';
 import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
 import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildRuntimeSafetySupplement } from '@/lib/workflowContextInjector.js';
-// Phase 4 — Conversation memory write for V7 continuity
-import { triggerConversationEndSummarization } from '@/lib/sessionEndSummarization.js';
+// Phase 4 / Phase 5 — Conversation memory write for V7 continuity
+import { triggerConversationEndSummarization, CONVERSATION_MIN_MESSAGES_FOR_MEMORY } from '@/lib/sessionEndSummarization.js';
 import { MOBILE_HEADER_HEIGHT } from '../components/layout/MobileHeader';
 import { BOTTOM_NAV_HEIGHT } from '../components/layout/BottomNav';
 // Phase 8 — Upgraded-path UI (flag-gated; hidden in default mode)
@@ -122,6 +122,11 @@ export default function Chat() {
   const processedIntentRef = useRef(null);
   const sessionTriggeredRef = useRef(new Set());
   const inFlightIntentRef = useRef(false);
+  // Phase 5 — Dedup Set: tracks conversationIds that have already had a
+  // conversation-end memory write triggered (from any path: switch, requestSummary).
+  // Prevents double-writes when both a switch trigger and requestSummary fire for
+  // the same conversation.
+  const conversationMemoryWrittenRef = useRef(new Set());
 
   // Reset visible window when conversation changes
   useEffect(() => {
@@ -805,6 +810,14 @@ export default function Chat() {
 
   const startNewConversationWithIntent = async (intentParam) => {
     try {
+      // Phase 5 — Fire a non-blocking memory write for the conversation the user
+      // is leaving before starting a new one. Capture current id/meta/messages
+      // synchronously so values are stable. Inert when flags are off or messages
+      // are below the meaningful-exchange threshold.
+      const leavingId = currentConversationId;
+      const leavingMeta = conversations?.find((c) => c.id === leavingId)?.metadata || {};
+      maybeTriggerEndWrite(leavingId, leavingMeta, messages);
+
       const intentMessages = {
         'daily_checkin': 'User clicked: Daily Check-in. Start daily_checkin flow.',
         'thought_work': 'User clicked: Journal a thought. Start thought_work flow.',
@@ -879,6 +892,17 @@ export default function Chat() {
 
   const loadConversation = async (conversationId) => {
     try {
+      // Phase 5 — Fire a non-blocking memory write for the conversation the user
+      // is switching AWAY from before loading the new one. Capture the current
+      // id/meta/messages synchronously (before any state updates) so the correct
+      // values are used in the trigger call. Inert when flags are off or messages
+      // are below the meaningful-exchange threshold. Deduped via
+      // conversationMemoryWrittenRef to prevent double-writes if requestSummary
+      // was already called for the same conversation.
+      const leavingId = currentConversationId;
+      const leavingMeta = conversations?.find((c) => c.id === leavingId)?.metadata || {};
+      maybeTriggerEndWrite(leavingId, leavingMeta, messages);
+
       const conversation = await base44.agents.getConversation(conversationId);
       setCurrentConversationId(conversationId);
 
@@ -1163,6 +1187,22 @@ export default function Chat() {
     }
   };
 
+  // Phase 5 — Conversation-switch memory write trigger.
+  // Fires triggerConversationEndSummarization for `convId` if:
+  //   (a) convId is a non-empty string,
+  //   (b) messages had at least CONVERSATION_MIN_MESSAGES_FOR_MEMORY entries
+  //       (ensures a real exchange happened before the session ended),
+  //   (c) convId has NOT already been written (dedup via conversationMemoryWrittenRef).
+  // The call is non-blocking and fail-closed (errors are caught inside
+  // triggerConversationEndSummarization). Inert when flags are off.
+  const maybeTriggerEndWrite = (convId, convMeta, msgList) => {
+    if (!convId) return;
+    if (!Array.isArray(msgList) || msgList.length < CONVERSATION_MIN_MESSAGES_FOR_MEMORY) return;
+    if (conversationMemoryWrittenRef.current.has(convId)) return;
+    conversationMemoryWrittenRef.current.add(convId);
+    triggerConversationEndSummarization(convId, convMeta || {}, 'chat_conversation_switch');
+  };
+
   const requestSummary = async () => {
     if (!currentConversationId) return;
 
@@ -1175,6 +1215,9 @@ export default function Chat() {
     // The metadata lookup uses the in-memory conversations list to avoid an
     // extra network round-trip; falls back to empty metadata when unavailable.
     const convForMemory = conversations?.find((c) => c.id === currentConversationId);
+    // Phase 5 — Mark as written before calling so that any concurrent
+    // conversation-switch trigger (maybeTriggerEndWrite) de-dupes against it.
+    conversationMemoryWrittenRef.current.add(currentConversationId);
     triggerConversationEndSummarization(
       currentConversationId,
       convForMemory?.metadata || {},
