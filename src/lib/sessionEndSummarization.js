@@ -37,11 +37,22 @@
  *        Produces a valid record matching the Phase 1 schema; session_summary
  *        is populated when a meaningful intent or name is available.
  *
- *   D. triggerConversationEndSummarization(conversationId, conversationMeta, invoker)   [Phase 4]
+ *   D. triggerConversationEndSummarization(conversationId, conversationMeta, invoker, entities)   [Phase 4/Phase 3]
  *      — Non-blocking, gated memory-write trigger for Chat.jsx conversation ends.
  *        Called from Chat.jsx's requestSummary function (the natural
  *        end-of-chat boundary). Gated by the same isSummarizationEnabled() check.
  *        Inert in default mode (flags off). Fail-closed.
+ *        When `entities` is provided and THERAPIST_UPGRADE_CONTINUITY_ENABLED is
+ *        active, the base payload is enriched with structured Goal and
+ *        CaseFormulation data before persistence (Phase 3 enrichment).
+ *
+ *   E. enrichConversationMemoryPayload(basePayload, entities)   [Phase 3]
+ *      — Asynchronously enriches a base Chat.jsx memory payload with structured
+ *        data from the Goal and CaseFormulation entities (read-only).
+ *        Populates goals_referenced (goal IDs), follow_up_tasks (active goal
+ *        titles), and working_hypotheses (from CaseFormulation core_belief).
+ *        Fail-closed: any entity read failure returns the unmodified basePayload.
+ *        Only called when both isSummarizationEnabled() AND isContinuityEnabled().
  *
  * ACTIVATION
  * ----------
@@ -97,6 +108,7 @@
 
 import { isSummarizationEnabled } from './summarizationGate.js';
 import { sanitizeSummaryRecord, buildSafeStubRecord } from './summarizationGate.js';
+import { isUpgradeEnabled } from './featureFlags.js';
 
 // ─── Bounded input constants ──────────────────────────────────────────────────
 
@@ -333,6 +345,167 @@ export const CONVERSATION_END_SUMMARY_INVOKER = 'conversation_end';
  */
 export const CONVERSATION_MIN_MESSAGES_FOR_MEMORY = 3;
 
+// ─── Phase 3 — Conversation memory payload enrichment ────────────────────────
+
+/**
+ * Returns true if the Phase 3 conversation memory enrichment layer is active.
+ *
+ * Enrichment requires both:
+ *   - THERAPIST_UPGRADE_SUMMARIZATION_ENABLED (write path gate)
+ *   - THERAPIST_UPGRADE_CONTINUITY_ENABLED (continuity layer gate)
+ *
+ * Both default to false — enrichment is completely inert unless both are on.
+ *
+ * @returns {boolean}
+ */
+export function isContinuityEnrichmentEnabled() {
+  return (
+    isUpgradeEnabled('THERAPIST_UPGRADE_SUMMARIZATION_ENABLED') &&
+    isUpgradeEnabled('THERAPIST_UPGRADE_CONTINUITY_ENABLED')
+  );
+}
+
+/**
+ * Maximum number of active Goal records read during enrichment.
+ * Bounded to prevent large entity reads from slowing down the write path.
+ *
+ * @type {number}
+ */
+export const ENRICHMENT_MAX_GOALS = 5;
+
+/**
+ * Maximum character length for a single Goal title used as a follow_up_task.
+ *
+ * @type {number}
+ */
+export const ENRICHMENT_GOAL_TITLE_MAX_CHARS = 120;
+
+/**
+ * Maximum character length for CaseFormulation string fields used in enrichment.
+ *
+ * @type {number}
+ */
+export const ENRICHMENT_FORMULATION_FIELD_MAX_CHARS = 120;
+
+/**
+ * Asynchronously enriches a base Chat.jsx memory payload with structured data
+ * from the Goal and CaseFormulation entities.
+ *
+ * Phase 3 Deep Personalization — Conversation Memory Enrichment.
+ *
+ * The base payload produced by deriveConversationMemoryPayload has empty clinical
+ * arrays (core_patterns, follow_up_tasks, goals_referenced, working_hypotheses)
+ * because Chat.jsx conversations have no structured session metadata to extract
+ * from without reading message content. This function enriches those arrays using
+ * two entity reads that are read-only and structurally safe:
+ *
+ *   1. Goal (active only, max ENRICHMENT_MAX_GOALS):
+ *      - goals_referenced ← goal IDs
+ *      - follow_up_tasks  ← goal titles (active goals ARE the pending tasks)
+ *
+ *   2. CaseFormulation (most recent, 1 record):
+ *      - working_hypotheses ← core_belief (the core working hypothesis)
+ *
+ * PRIVACY CONTRACT
+ * - Only structured entity fields are read (id, title, status for Goal;
+ *   core_belief for CaseFormulation). No message content is accessed.
+ * - Goal and CaseFormulation are approved read-only entities in the CBT
+ *   Therapist access policy (docs/ai-agent-access-policy.md).
+ * - The enriched payload is sanitized through sanitizeSummaryRecord before
+ *   any persistence, so field-length and transcript-pattern guards apply.
+ *
+ * FAIL-CLOSED CONTRACT
+ * - Any entity read failure returns the base payload unchanged.
+ * - The caller's write path is never blocked by an enrichment failure.
+ *
+ * ISOLATION GUARANTEE
+ * - Only called when isContinuityEnrichmentEnabled() is true.
+ * - The companion flow is never affected: this function is only called from
+ *   triggerConversationEndSummarization (the therapist-only write path).
+ *
+ * @param {object} basePayload
+ *   The record returned by deriveConversationMemoryPayload. Must not be mutated
+ *   by the caller after being passed here.
+ * @param {object} entities
+ *   Base44 entity client map (base44.entities from Chat.jsx).
+ * @returns {Promise<object>}
+ *   An enriched copy of basePayload with goals_referenced, follow_up_tasks,
+ *   and working_hypotheses populated from entity data where available.
+ *   Returns basePayload unchanged on any error.
+ */
+export async function enrichConversationMemoryPayload(basePayload, entities) {
+  try {
+    if (!basePayload || typeof basePayload !== 'object') return basePayload;
+    if (!entities || typeof entities !== 'object') return basePayload;
+
+    // Start with a shallow copy so the base record is never mutated.
+    const enriched = { ...basePayload };
+
+    // ── 1. Goal enrichment ─────────────────────────────────────────────────────
+    // Read active goals (bounded to ENRICHMENT_MAX_GOALS).
+    // goals_referenced: goal IDs (existing schema field for goal identity).
+    // follow_up_tasks: goal titles as actionable continuity tasks.
+    try {
+      if (entities.Goal && typeof entities.Goal.filter === 'function') {
+        const activeGoals = await entities.Goal.filter(
+          { status: 'active' },
+          '-created_date',
+          ENRICHMENT_MAX_GOALS,
+        );
+        if (Array.isArray(activeGoals) && activeGoals.length > 0) {
+          const goalIds = [];
+          const followUpTasks = [];
+          for (const goal of activeGoals) {
+            if (!goal || typeof goal !== 'object') continue;
+            const id = typeof goal.id === 'string' ? goal.id.trim() : '';
+            const title =
+              typeof goal.title === 'string'
+                ? goal.title.trim().slice(0, ENRICHMENT_GOAL_TITLE_MAX_CHARS)
+                : '';
+            if (id) goalIds.push(id);
+            if (title) followUpTasks.push(title);
+          }
+          if (goalIds.length > 0) enriched.goals_referenced = goalIds;
+          if (followUpTasks.length > 0) enriched.follow_up_tasks = followUpTasks;
+        }
+      }
+    } catch {
+      // Goal read failed — leave goals_referenced and follow_up_tasks as-is.
+    }
+
+    // ── 2. CaseFormulation enrichment ─────────────────────────────────────────
+    // Read most recent formulation (bounded to 1 record).
+    // working_hypotheses: core_belief field (the core clinical hypothesis).
+    try {
+      if (
+        entities.CaseFormulation &&
+        typeof entities.CaseFormulation.list === 'function'
+      ) {
+        const formulations = await entities.CaseFormulation.list('-created_date', 1);
+        if (Array.isArray(formulations) && formulations.length > 0) {
+          const cf = formulations[0];
+          if (cf && typeof cf === 'object') {
+            const coreBelief =
+              typeof cf.core_belief === 'string'
+                ? cf.core_belief.trim().slice(0, ENRICHMENT_FORMULATION_FIELD_MAX_CHARS)
+                : '';
+            if (coreBelief) {
+              enriched.working_hypotheses = [coreBelief];
+            }
+          }
+        }
+      }
+    } catch {
+      // Formulation read failed — leave working_hypotheses as-is.
+    }
+
+    return enriched;
+  } catch {
+    // Any unexpected error: return the base payload unchanged (fail-closed).
+    return basePayload;
+  }
+}
+
 /**
  * Maximum character length for a conversation name/intent used as session_summary.
  * Matches the existing MAX_METADATA_FIELD_LENGTH used by deriveSessionSummaryPayload.
@@ -467,14 +640,24 @@ export function deriveConversationMemoryPayload(conversationId, conversationMeta
  * that gap: once a user requests a session summary, a minimal memory record is
  * written, giving V7 something to read in future sessions.
  *
+ * Phase 3 Deep Personalization extends this write path:
+ * When `entities` is provided AND isContinuityEnrichmentEnabled() is true,
+ * the base payload is enriched with Goal + CaseFormulation data before persistence.
+ * The enrichment is fail-closed: any read failure leaves the base payload intact.
+ *
  * @param {string} conversationId - The Base44 conversation ID.
  * @param {object} [conversationMeta={}] - The conversation's metadata object.
  * @param {string} [invoker=CONVERSATION_END_SUMMARY_INVOKER] - Diagnostic label.
+ * @param {object} [entities=null]
+ *   Optional Base44 entity client map (base44.entities from Chat.jsx).
+ *   When provided and isContinuityEnrichmentEnabled() is true, the payload is
+ *   enriched with Goal and CaseFormulation data before persistence.
  */
 export function triggerConversationEndSummarization(
   conversationId,
   conversationMeta = {},
   invoker = CONVERSATION_END_SUMMARY_INVOKER,
+  entities = null,
 ) {
   // Gate check: if not enabled, return immediately — entirely inert
   if (!isSummarizationEnabled()) {
@@ -484,17 +667,30 @@ export function triggerConversationEndSummarization(
   // Non-blocking: fire-and-forget; caller is never awaited or blocked
   (async () => {
     try {
-      const payload = deriveConversationMemoryPayload(conversationId, conversationMeta);
+      let payload = deriveConversationMemoryPayload(conversationId, conversationMeta);
+
+      // Phase 3 enrichment: Goal + CaseFormulation data (fail-closed).
+      // Only runs when both summarization AND continuity flags are active.
+      if (entities && isContinuityEnrichmentEnabled()) {
+        try {
+          payload = await enrichConversationMemoryPayload(payload, entities);
+        } catch {
+          // Enrichment failure: continue with base payload.
+        }
+      }
+
+      // Sanitize the (possibly enriched) payload before persistence.
+      const { record } = sanitizeSummaryRecord(payload);
 
       // Lazy import to avoid any bundler/module cost in default-off mode
       const { base44 } = await import('../api/base44Client.js');
 
-      await base44.functions.invoke('generateSessionSummary', payload);
+      await base44.functions.invoke('generateSessionSummary', record);
     } catch (error) {
       // Summarization failure must never propagate to the caller.
       // Chat.jsx requestSummary UX is independent of this function.
       console.warn(
-        '[Phase 4] Conversation-end summarization failed (non-fatal) [' + invoker + ']:',
+        '[Phase 3] Conversation-end summarization failed (non-fatal) [' + invoker + ']:',
         error instanceof Error ? error.message : String(error),
       );
     }

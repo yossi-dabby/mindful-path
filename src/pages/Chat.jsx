@@ -1200,7 +1200,7 @@ export default function Chat() {
     if (!Array.isArray(msgList) || msgList.length < CONVERSATION_MIN_MESSAGES_FOR_MEMORY) return;
     if (conversationMemoryWrittenRef.current.has(convId)) return;
     conversationMemoryWrittenRef.current.add(convId);
-    triggerConversationEndSummarization(convId, convMeta || {}, 'chat_conversation_switch');
+    triggerConversationEndSummarization(convId, convMeta || {}, 'chat_conversation_switch', base44.entities);
   };
 
   const requestSummary = async () => {
@@ -1222,6 +1222,7 @@ export default function Chat() {
       currentConversationId,
       convForMemory?.metadata || {},
       'chat_request_summary',
+      base44.entities,
     );
 
     // Build a language-aware summary request
