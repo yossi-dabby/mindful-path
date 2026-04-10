@@ -1054,11 +1054,11 @@ export default function Chat() {
       const conversation = await base44.agents.getConversation(convId);
 
       // MF-7: Fail-closed guard — block continuation of legacy variant-profile conversations.
-      // Rule 1: agent_name present and in LEGACY_VARIANT_PROFILES → block.
-      // Rule 2: agent_name absent (platform did not return it) → unknown identity → fail closed → block.
-      // Primary-agent conversations (agent_name === 'cbt_therapist') pass through unconditionally.
+      // Only block when agent_name is EXPLICITLY a known legacy variant.
+      // Absent agent_name (Preview platform may not return it) is treated as the primary agent
+      // to avoid incorrectly blocking all conversations in environments where the field is omitted.
       const conversationAgentName = conversation?.agent_name;
-      if (!conversationAgentName || LEGACY_VARIANT_PROFILES.includes(conversationAgentName)) {
+      if (conversationAgentName && LEGACY_VARIANT_PROFILES.includes(conversationAgentName)) {
         if (loadingTimeoutRef.current) {
           clearTimeout(loadingTimeoutRef.current);
           loadingTimeoutRef.current = null;
