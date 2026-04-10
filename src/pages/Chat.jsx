@@ -851,16 +851,21 @@ export default function Chat() {
       setSafetyModeActive(false); // Phase 8: reset safety mode state on new session
       refetchConversations();
 
-      // If there's an intent and initial message, send it
-      if (initialMessage) {
-        setTimeout(async () => {
-          setIsLoading(true);
-          await base44.agents.addMessage(conversation, {
-            role: 'user',
-            content: initialMessage
-          });
-        }, 100);
-      }
+      // Always send [START_SESSION] so the agent initialises correctly on all
+      // wiring paths (HYBRID and all upgrade phases).  If there is also an intent
+      // message, append it to the same turn so the agent handles both together.
+      setTimeout(async () => {
+        setIsLoading(true);
+        const sessionStartContent = await buildV7SessionStartContentAsync(
+          ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44
+        );
+        await base44.agents.addMessage(conversation, {
+          role: 'user',
+          content: initialMessage
+            ? sessionStartContent + '\n\n' + initialMessage
+            : sessionStartContent
+        });
+      }, 100);
     } catch (error) {
       console.error('Error creating conversation:', error);
     }
@@ -997,7 +1002,9 @@ export default function Chat() {
 
     try {
       let convId = currentConversationId;
+      let isNewConversation = false;
       if (!convId) {
+        isNewConversation = true;
         // Get safety profile from user settings or default to 'standard'
         const user = await base44.auth.me().catch(() => null);
         const safetyProfile = user?.preferences?.safety_profile || 'standard';
@@ -1037,9 +1044,21 @@ export default function Chat() {
 
       console.log('[Send] 📤 Adding message to conversation:', convId);
 
+      // When the user types their first message without clicking "Start Session",
+      // prepend the [START_SESSION] block so the agent initialises on all wiring paths.
+      let messageContent = runtimeSupplement
+        ? runtimeSupplement + '\n\n' + messageText
+        : messageText;
+      if (isNewConversation) {
+        const sessionStartContent = await buildV7SessionStartContentAsync(
+          ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44
+        );
+        messageContent = sessionStartContent + '\n\n' + messageContent;
+      }
+
       await base44.agents.addMessage(conversation, {
         role: 'user',
-        content: runtimeSupplement ? runtimeSupplement + '\n\n' + messageText : messageText
+        content: messageContent
       });
 
       console.log('[Send] ✅ Message sent - starting authoritative polling');
