@@ -63,8 +63,8 @@ function makeBasePayload(overrides = {}) {
 }
 
 /** Creates a mock Goal entity record. */
-function makeGoal(id, title, status = 'active') {
-  return { id, title, status };
+function makeGoal(id, title, goalStatus = 'active') {
+  return { id, title, status: goalStatus };
 }
 
 /** Creates a mock entities object with Goal and CaseFormulation. */

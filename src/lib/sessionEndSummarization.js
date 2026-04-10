@@ -667,20 +667,20 @@ export function triggerConversationEndSummarization(
   // Non-blocking: fire-and-forget; caller is never awaited or blocked
   (async () => {
     try {
-      let payload = deriveConversationMemoryPayload(conversationId, conversationMeta);
+      let memoryPayload = deriveConversationMemoryPayload(conversationId, conversationMeta);
 
       // Phase 3 enrichment: Goal + CaseFormulation data (fail-closed).
       // Only runs when both summarization AND continuity flags are active.
       if (entities && isContinuityEnrichmentEnabled()) {
         try {
-          payload = await enrichConversationMemoryPayload(payload, entities);
+          memoryPayload = await enrichConversationMemoryPayload(memoryPayload, entities);
         } catch {
           // Enrichment failure: continue with base payload.
         }
       }
 
       // Sanitize the (possibly enriched) payload before persistence.
-      const { record } = sanitizeSummaryRecord(payload);
+      const { record } = sanitizeSummaryRecord(memoryPayload);
 
       // Lazy import to avoid any bundler/module cost in default-off mode
       const { base44 } = await import('../api/base44Client.js');
