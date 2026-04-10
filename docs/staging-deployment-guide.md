@@ -82,6 +82,14 @@ All flags default to `false` when the variable is absent or any value other than
 > Enabling only the read flag without the write flag is safe (fail-closed: no data → empty block), but the
 > therapist will have no prior session context to inject until at least one write has completed.
 
+> **Phase 3 enrichment (conversation memory write enrichment):**
+> When _both_ `VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED` and `VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED`
+> are `true`, Chat.jsx session-end memory writes are automatically enriched with active Goal records
+> (→ `goals_referenced`, `follow_up_tasks`) and the most recent CaseFormulation (→ `working_hypotheses`)
+> before persistence. This produces richer cross-session continuity context for the next session start.
+> No additional flag is required — the enrichment reuses the two existing flags.
+> Enrichment is fail-closed: any entity read failure leaves the base payload unchanged.
+
 ### 3.3 Build Behavior Variables (CI/CD)
 
 | Variable                      | Type        | Description                                              | Staging value |
