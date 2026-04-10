@@ -29,8 +29,8 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
+import { readFileSync, readdirSync } from 'fs';
+import { resolve, join } from 'path';
 
 // ── Context injector ──────────────────────────────────────────────────────────
 import {
@@ -105,8 +105,7 @@ describe('Phase 0 Runtime Activation — static analysis of Chat.jsx call sites'
   it('7. only Chat.jsx in src/ uses buildV7SessionStartContentAsync', () => {
     // This is a documentation test — we assert Chat.jsx is the sole runtime user.
     // If another page starts using it, this test fails as an intentional tripwire.
-    const allSrc = chatSrc; // we already know only Chat.jsx matched in grep
-    const v7InChat = (allSrc.match(/buildV7SessionStartContentAsync/g) || []).length;
+    const v7InChat = (chatSrc.match(/buildV7SessionStartContentAsync/g) || []).length;
     expect(v7InChat).toBeGreaterThanOrEqual(4);
     // The companion agent path (Chat.jsx does not call buildV7 on companion wiring)
     // is verified behaviorally in Group 4 below.
@@ -272,14 +271,12 @@ describe('Phase 0 Runtime Activation — non-therapist flow isolation', () => {
 
   // 26. No non-Chat.jsx source file in src/pages/ imports buildV7SessionStartContentAsync
   it('26. no file in src/pages/ other than Chat.jsx imports buildV7SessionStartContentAsync', () => {
-    const { readdirSync, readFileSync: rfs, statSync } = require('fs');
-    const { join } = require('path');
     const pagesDir = resolve('src/pages');
     const files = readdirSync(pagesDir).filter(f => f.endsWith('.jsx') || f.endsWith('.js'));
     const violators = files.filter(f => {
       if (f === 'Chat.jsx') return false; // expected usage
       try {
-        const src = rfs(join(pagesDir, f), 'utf8');
+        const src = readFileSync(join(pagesDir, f), 'utf8');
         return src.includes('buildV7SessionStartContentAsync');
       } catch {
         return false;
