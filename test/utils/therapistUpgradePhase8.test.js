@@ -42,8 +42,8 @@ describe('Phase 8 — feature flag baseline unchanged', () => {
     expect(Object.isFrozen(THERAPIST_UPGRADE_FLAGS)).toBe(true);
   });
 
-  it('THERAPIST_UPGRADE_FLAGS contains exactly 10 flags (Phase 3 Deep Personalization added the 10th flag)', () => {
-    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(10);
+  it('THERAPIST_UPGRADE_FLAGS contains exactly 11 flags (Wave 2A scaffold added the 11th flag)', () => {
+    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(11);
   });
 
   it('all Stage 2 flags are still false (upgrade path disabled by default)', () => {

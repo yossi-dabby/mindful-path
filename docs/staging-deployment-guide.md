@@ -74,6 +74,7 @@ All flags default to `false` when the variable is absent or any value other than
 | `VITE_THERAPIST_UPGRADE_SAFETY_MODE_ENABLED`              | 7                | Safety mode + emergency resource layer               | `false`         |
 | `VITE_THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED`      | Phase 1 Quality  | Case formulation context injection at session start (V6 wiring) | `false` |
 | `VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED`               | Phase 3 Deep     | Cross-session memory continuity injection at session start (V7 wiring, superset of V6) | `false` |
+| `VITE_THERAPIST_UPGRADE_STRATEGY_ENABLED`                 | Wave 2A scaffold | Therapeutic Strategy Layer — registered for future wiring (Wave 2B). **No runtime effect in current codebase.** | `false` |
 
 > **Flag dependency for continuity read path:**
 > `VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED` activates the **read** path (session-start injection from CompanionMemory).

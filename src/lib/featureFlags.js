@@ -103,6 +103,23 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
    * Staging enablement: set VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED=true
    */
   THERAPIST_UPGRADE_CONTINUITY_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED === 'true',
+
+  /**
+   * Wave 2A — Therapeutic Strategy Layer scaffold.
+   * Gates future runtime injection of the TherapistStrategyState engine into
+   * the session-start content path.  In this PR (Wave 2A scaffold only), the
+   * engine module (src/lib/therapistStrategyEngine.js) is created as a pure
+   * deterministic module with no runtime wiring.  This flag is registered here
+   * so it is recognised by the staging override layer and can be enabled in a
+   * future wiring PR (Wave 2B) without changes to this file.
+   *
+   * SCAFFOLD STATE: This flag does NOT activate any runtime behavior in the
+   * current codebase.  No Chat.jsx, no V8 wiring, no agentWiring.js changes.
+   * Setting this flag to true currently has no effect.
+   *
+   * Staging enablement: set VITE_THERAPIST_UPGRADE_STRATEGY_ENABLED=true
+   */
+  THERAPIST_UPGRADE_STRATEGY_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_STRATEGY_ENABLED === 'true',
 });
 
 /**
