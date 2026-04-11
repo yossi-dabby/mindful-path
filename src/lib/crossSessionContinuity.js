@@ -69,6 +69,33 @@ export const CONTINUITY_INJECT_MAX_CHARS = 120;
  */
 export const CONTINUITY_MAX_ITEMS_PER_FIELD = 4;
 
+/**
+ * Minimum character length of session_summary to count toward the richness score.
+ * Records whose session_summary is shorter than this are considered to have no
+ * meaningful summary for scoring purposes.
+ * @type {number}
+ */
+export const CONTINUITY_MIN_SESSION_SUMMARY_LENGTH = 10;
+
+/**
+ * Minimum richness score for a therapist memory record to be considered "useful"
+ * for continuity injection.  Records scoring below this threshold are treated as
+ * thin/generic and are only included as a fallback when no useful records exist.
+ *
+ * Score breakdown (see scoreTherapistMemoryRecord):
+ *   risk_flags present       → +4 (always clinically relevant)
+ *   follow_up_tasks present  → +3 (open action items = high continuity value)
+ *   core_patterns present    → +3 (recurring patterns = high continuity value)
+ *   working_hypotheses       → +2
+ *   interventions_used       → +2
+ *   meaningful summary       → +2 (≥ CONTINUITY_MIN_SESSION_SUMMARY_LENGTH chars)
+ *
+ * A threshold of 1 suppresses only completely empty records (no clinical
+ * content whatsoever).  Any record with at least one non-trivial field passes.
+ * @type {number}
+ */
+export const CONTINUITY_MIN_USEFUL_SCORE = 1;
+
 // ─── Helper utilities ─────────────────────────────────────────────────────────
 
 /**
@@ -122,6 +149,46 @@ function dedupeAndTrim(items) {
   return result;
 }
 
+// ─── Record richness scoring ──────────────────────────────────────────────────
+
+/**
+ * Returns a numeric richness score for a parsed therapist memory record.
+ *
+ * Higher score = more clinically useful for continuity injection.
+ * Score reflects the presence of structured clinical content across key fields.
+ * Records with a score below CONTINUITY_MIN_USEFUL_SCORE are considered
+ * thin/generic and are only included when no richer records are available.
+ *
+ * Scoring rules (additive):
+ *   +4  risk_flags is non-empty        (safety-relevant; always high priority)
+ *   +3  follow_up_tasks is non-empty   (open action items = strong continuity signal)
+ *   +3  core_patterns is non-empty     (recurring patterns = strong continuity signal)
+ *   +2  working_hypotheses is non-empty
+ *   +2  interventions_used is non-empty
+ *   +2  session_summary length ≥ CONTINUITY_MIN_SESSION_SUMMARY_LENGTH chars
+ *
+ * Returns 0 for null/invalid input (fail-safe).
+ *
+ * @param {object|null} record - A parsed therapist memory record.
+ * @returns {number} Richness score ≥ 0.
+ */
+export function scoreTherapistMemoryRecord(record) {
+  if (!record || typeof record !== 'object') return 0;
+  let score = 0;
+  if (Array.isArray(record.risk_flags) && record.risk_flags.length > 0) score += 4;
+  if (Array.isArray(record.follow_up_tasks) && record.follow_up_tasks.length > 0) score += 3;
+  if (Array.isArray(record.core_patterns) && record.core_patterns.length > 0) score += 3;
+  if (Array.isArray(record.working_hypotheses) && record.working_hypotheses.length > 0) score += 2;
+  if (Array.isArray(record.interventions_used) && record.interventions_used.length > 0) score += 2;
+  if (
+    typeof record.session_summary === 'string' &&
+    record.session_summary.trim().length >= CONTINUITY_MIN_SESSION_SUMMARY_LENGTH
+  ) {
+    score += 2;
+  }
+  return score;
+}
+
 // ─── Primary export ───────────────────────────────────────────────────────────
 
 /**
@@ -156,15 +223,52 @@ export async function readCrossSessionContinuity(entities) {
 
     if (!Array.isArray(rawRecords) || rawRecords.length === 0) return null;
 
-    // Parse and filter to valid therapist memory records only
-    const memoryRecords = [];
+    // Parse all valid therapist memory records from the over-fetched list.
+    // Unlike the previous approach (break at CONTINUITY_MAX_PRIOR_SESSIONS),
+    // we collect all valid records first so we can score and rank them.
+    const allValidRecords = [];
     for (const raw of rawRecords) {
       const parsed = parseTherapistMemoryFromCompanionRecord(raw);
       if (parsed) {
-        memoryRecords.push(parsed);
-        if (memoryRecords.length >= CONTINUITY_MAX_PRIOR_SESSIONS) break;
+        allValidRecords.push(parsed);
       }
     }
+
+    if (allValidRecords.length === 0) return null;
+
+    // Score each record and separate into useful vs. weak in a single pass.
+    // Records are already in recency order (most-recent-first from CompanionMemory.list).
+    // We sort useful records by score (descending), using original list position
+    // as the tiebreaker so that among equally-scored records the most recent wins.
+    const { usefulScored, weakScored } = allValidRecords.reduce(
+      (acc, record, index) => {
+        const score = scoreTherapistMemoryRecord(record);
+        const entry = { record, score, index };
+        if (score >= CONTINUITY_MIN_USEFUL_SCORE) {
+          acc.usefulScored.push(entry);
+        } else {
+          acc.weakScored.push(entry);
+        }
+        return acc;
+      },
+      { usefulScored: [], weakScored: [] },
+    );
+
+    // Sort useful records: highest score first; equal scores preserve original recency order.
+    usefulScored.sort((a, b) => b.score - a.score || a.index - b.index);
+
+    // Select up to CONTINUITY_MAX_PRIOR_SESSIONS records.
+    // Prefer useful records; supplement with weak records (in recency order) when needed.
+    const selectedScored = usefulScored.slice(0, CONTINUITY_MAX_PRIOR_SESSIONS);
+    if (selectedScored.length < CONTINUITY_MAX_PRIOR_SESSIONS) {
+      const weakNeeded = CONTINUITY_MAX_PRIOR_SESSIONS - selectedScored.length;
+      selectedScored.push(...weakScored.slice(0, weakNeeded));
+    }
+
+    // Re-sort selected set into recency order (most-recent first) for aggregation.
+    // This ensures the recentSummary always comes from the most-recent session.
+    selectedScored.sort((a, b) => a.index - b.index);
+    const memoryRecords = selectedScored.map(r => r.record);
 
     if (memoryRecords.length === 0) return null;
 
