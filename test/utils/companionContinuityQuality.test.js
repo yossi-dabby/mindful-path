@@ -537,7 +537,7 @@ describe('L. buildCompanionContinuityBlock — privacy: no cross-user entity acc
   });
 });
 
-// ─── M. buildCompanionSessionStartContextAsync — no memories, flag off → ''
+// ─── M. buildCompanionSessionStartContextAsync — flag off + no useful memories → ''
 
 describe('M. buildCompanionSessionStartContextAsync — returns empty string when flag off and no memories', () => {
   it('returns empty string when wiring is null and no memories', async () => {
@@ -564,7 +564,9 @@ describe('M. buildCompanionSessionStartContextAsync — returns empty string whe
     expect(result).toBe('');
   });
 
-  it('returns memory context block for V1 wiring when rich memories exist (continuity_enabled absent)', async () => {
+  // When rich memories exist, they are returned even if continuity_enabled is absent —
+  // memory context is always injected when present (flag only gates the warmth fallback).
+  it('returns memory context block for V1 wiring when rich memories exist (continuity_enabled absent, memories present)', async () => {
     const result = await buildCompanionSessionStartContextAsync(
       makeEntities([makeRichCompanionMemory()]),
       AI_COMPANION_WIRING_UPGRADE_V1,
