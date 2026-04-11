@@ -330,12 +330,16 @@ describe('Section 1: deriveSessionSummaryPayload — stale/invalid session edge 
     expect(record.follow_up_tasks).not.toContain('   ');
   });
 
-  it('1.17 session.created_date is not a valid ISO string — fallback date is still valid ISO', () => {
+  it('1.17 session.created_date is not a valid ISO string — code uses the string as-is (type-safe passthrough)', () => {
+    // The implementation accepts any string for created_date without parsing it.
+    // This test documents the exact fallback contract: if created_date is a
+    // string (even non-ISO), that string is used directly as session_date.
     const session = { id: 's-bad-date', stage: 'active', created_date: 'not-a-date' };
     const record = deriveSessionSummaryPayload(session, []);
-    // The code accepts the string as-is; the important invariant is no throw
-    expect(typeof record.session_date).toBe('string');
-    expect(record.session_date.length).toBeGreaterThan(0);
+    // session_date equals the provided string value (passthrough, no re-parsing)
+    expect(record.session_date).toBe('not-a-date');
+    // last_summarized_date is always set to a fresh ISO timestamp (independent field)
+    expect(new Date(record.last_summarized_date).getTime()).not.toBeNaN();
   });
 });
 
@@ -652,23 +656,23 @@ describe('Section 4: Trigger functions — failure path analysis & gate-off guar
   it('4.1 triggerSessionEndSummarization has a try/catch that prevents error propagation', () => {
     // Static analysis: the async body is wrapped in try/catch.
     // The catch block must exist and must not re-throw.
-    const funcBody = sessionEndSrc.slice(
-      sessionEndSrc.indexOf('export function triggerSessionEndSummarization'),
-    );
+    const startIdx = sessionEndSrc.indexOf('export function triggerSessionEndSummarization');
+    expect(startIdx).not.toBe(-1); // guard: function must be present in the file
+    const funcBody = sessionEndSrc.slice(startIdx);
     // async IIFE is present
     expect(funcBody).toContain('async ()');
     // catch block exists
     expect(funcBody).toContain('} catch (error) {');
     // catch block uses console.warn (non-fatal signal) not throw
-    expect(funcBody.slice(0, funcBody.indexOf('export function triggerConversation'))).toContain(
-      'console.warn',
-    );
+    const endIdx = funcBody.indexOf('export function triggerConversation');
+    expect(endIdx).not.toBe(-1); // guard: next function boundary must be findable
+    expect(funcBody.slice(0, endIdx)).toContain('console.warn');
   });
 
   it('4.2 triggerConversationEndSummarization has a try/catch that prevents error propagation', () => {
-    const funcBody = sessionEndSrc.slice(
-      sessionEndSrc.indexOf('export function triggerConversationEndSummarization'),
-    );
+    const startIdx = sessionEndSrc.indexOf('export function triggerConversationEndSummarization');
+    expect(startIdx).not.toBe(-1); // guard: function must be present in the file
+    const funcBody = sessionEndSrc.slice(startIdx);
     expect(funcBody).toContain('async ()');
     expect(funcBody).toContain('} catch (error) {');
     expect(funcBody).toContain('console.warn');
@@ -878,13 +882,21 @@ describe('Section 7: Role isolation regression', () => {
 
   it('7.7 triggerConversationEndSummarization is not referenced in any companion source file', () => {
     // Static analysis: companion components must not call the therapist write path.
+    // These are the three entry points identified in PR #543 (companion routing consistency).
+    // If a companion file is renamed, update this list alongside the component itself.
     const companionFiles = [
       'src/components/ai/AiCompanion.jsx',
       'src/components/ai/DraggableAiCompanion.jsx',
       'src/components/coaching/CoachingSessionWizard.jsx',
     ];
     for (const filePath of companionFiles) {
-      const src = readFileSync(resolve(ROOT, filePath), 'utf8');
+      const fullPath = resolve(ROOT, filePath);
+      let src;
+      try {
+        src = readFileSync(fullPath, 'utf8');
+      } catch {
+        throw new Error(`Companion file not found: ${filePath}. Update the path list if the file was renamed.`);
+      }
       expect(src).not.toContain('triggerConversationEndSummarization');
     }
   });
