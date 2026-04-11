@@ -149,10 +149,14 @@ https://myapp.base44.app/?_s2=THERAPIST_UPGRADE_ENABLED,THERAPIST_UPGRADE_MEMORY
   flag that was enabled at build time.
 - Unknown flag names are silently ignored.
 
-**Diagnostic mode** (shows flag evaluation state in the browser console):
+**Diagnostic mode** (shows unified flag evaluation state for both Therapist and Companion in the browser console):
 ```
 https://<staging-host>/?_s2debug=true
 ```
+
+This opens two console groups:
+- `[Activation Diagnostics]` — Phase 4 unified surface covering Therapist (10 flags) + Companion (3 flags), with `routeHint` for each agent.
+- `[S2 Diagnostics]` — Legacy therapist-only group (unchanged, retained for compatibility).
 
 > **Note:** If the external staging deployment uses a custom domain that is NOT
 > a `*.base44.app` subdomain, URL overrides will not be active on that host.
@@ -189,33 +193,43 @@ production**.
 
 ### Step 1 — Verify flag system is wired (all flags off)
 
-1. Deploy the `staging` branch with all `VITE_THERAPIST_UPGRADE_*` vars absent
-   (or explicitly set to `false`).
+1. Deploy the `staging` branch with all `VITE_THERAPIST_UPGRADE_*` and
+   `VITE_COMPANION_UPGRADE_*` vars absent (or explicitly set to `false`).
 2. Open the app on the staging host.
 3. Add `?_s2debug=true` to the URL.
 4. Open the browser console.
-5. Confirm the `[S2 Diagnostics]` output shows:
-   - `masterGateOn: false`
-   - `routeHint: 'HYBRID (master gate off)'`
-   - All `computedFlags` values are `false`
+5. Confirm the `[Activation Diagnostics]` output shows (Phase 4 unified check):
+   - `[Therapist]` section: `masterGateOn: false`, `routeHint: 'HYBRID (master gate off)'`, all flags `false`
+   - `[Companion]` section: `masterGateOn: false`, `routeHint: 'HYBRID (master gate off)'`, all flags `false`
 
 ### Step 2 — Verify URL override layer (on recognised staging host only)
 
 1. Add `?_s2=THERAPIST_UPGRADE_ENABLED&_s2debug=true` to the staging URL.
-2. Confirm the console output shows:
+2. Confirm the `[Activation Diagnostics]` `[Therapist]` section shows:
    - `masterGateOn: true`
    - `routeHint: 'HYBRID (master gate on, no phase flag matched)'`
    - `THERAPIST_UPGRADE_ENABLED: true` in `computedFlags`
-   - All per-phase flags remain `false`
+   - All per-phase therapist flags remain `false`
+3. Confirm the `[Companion]` section is **unchanged** (all flags still `false`).
+
+### Step 2b — Verify Companion URL override layer
+
+1. Add `?_c2=COMPANION_UPGRADE_ENABLED&_s2debug=true` to the staging URL.
+2. Confirm the `[Activation Diagnostics]` `[Companion]` section shows:
+   - `masterGateOn: true`
+   - `routeHint: 'HYBRID (master gate on, no phase flag matched)'`
+   - `COMPANION_UPGRADE_ENABLED: true` in `computedFlags`
+3. Confirm the `[Therapist]` section is **unchanged** (all flags still `false`).
 
 ### Step 3 — Verify build-time flag injection
 
 1. Rebuild the staging deployment with
    `VITE_THERAPIST_UPGRADE_ENABLED=true` set in the build environment.
 2. Add `?_s2debug=true` to the URL (no `_s2` param needed).
-3. Confirm:
+3. Confirm in the `[Therapist]` section:
    - `masterGateOn: true`
    - `THERAPIST_UPGRADE_ENABLED: true` in `computedFlags`
+4. Confirm the `[Companion]` section remains all `false`.
 
 > **Stop here.** Do not enable per-phase flags until the Phase 9 exit criteria
 > in `docs/therapist-upgrade-stage2-plan.md` are confirmed complete.

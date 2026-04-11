@@ -348,6 +348,179 @@ export function logStage2Diagnostics() {
 // Emit diagnostics at module load when _s2debug=true is in the URL.
 logStage2Diagnostics();
 
+// ─── Phase 4 — Unified Activation Diagnostics ────────────────────────────────
+
+/**
+ * Returns a unified diagnostic snapshot covering the activation state of BOTH
+ * the Therapist upgrade (THERAPIST_UPGRADE_FLAGS) and the AI Companion upgrade
+ * (COMPANION_UPGRADE_FLAGS).
+ *
+ * DIAGNOSTIC-ONLY — gated by `?_s2debug=true` in the URL.
+ * Returns null when the gate param is absent (fail-closed).
+ *
+ * This is the Phase 4 replacement for the per-agent diagnostic helpers.
+ * It provides a single QA checkpoint for the full upgrade activation state
+ * before any broader production flag enablement.  Both agents are covered in
+ * one call so staging QA can validate Therapist and Companion state together.
+ *
+ * SAFETY RULES (non-negotiable):
+ *   - No private user data is included (no message content, no entity IDs,
+ *     no PII, no journal content, no conversation text).
+ *   - No routing behaviour is changed — purely observational.
+ *   - No flag state is mutated.
+ *   - Any error returns null (fail-closed).
+ *
+ * Agent separation is preserved:
+ *   - therapist.computedFlags contains only THERAPIST_UPGRADE_* keys.
+ *   - companion.computedFlags contains only COMPANION_UPGRADE_* keys.
+ *   - No cross-contamination between the two flag namespaces.
+ *
+ * @returns {{
+ *   hostname: string|null,
+ *   search: string|null,
+ *   isPreviewStagingHost: boolean,
+ *   snapshotTimestamp: string,
+ *   therapist: {
+ *     parsedS2Flags: string[],
+ *     computedFlags: Record<string, boolean>,
+ *     masterGateOn: boolean,
+ *     routeHint: string,
+ *   },
+ *   companion: {
+ *     parsedC2Flags: string[],
+ *     computedFlags: Record<string, boolean>,
+ *     masterGateOn: boolean,
+ *     routeHint: string,
+ *   },
+ * } | null}
+ */
+export function getActivationDiagnostics() {
+  try {
+    if (typeof window === 'undefined') return null;
+
+    const search = window.location?.search ?? '';
+    const params = new URLSearchParams(search);
+    if (params.get('_s2debug') !== 'true') return null;
+
+    const hostname = window.location?.hostname ?? null;
+
+    // ── Therapist section ──────────────────────────────────────────────────
+    const rawS2 = params.get('_s2') ?? '';
+    const parsedS2Flags = rawS2
+      ? rawS2.split(',').map(k => k.trim()).filter(Boolean)
+      : [];
+
+    const therapistComputedFlags = {};
+    for (const flagName of Object.keys(THERAPIST_UPGRADE_FLAGS)) {
+      therapistComputedFlags[flagName] = isUpgradeEnabled(flagName);
+    }
+
+    const therapistMasterOn = therapistComputedFlags['THERAPIST_UPGRADE_ENABLED'] === true;
+
+    let therapistRouteHint;
+    if (!therapistMasterOn) {
+      therapistRouteHint = 'HYBRID (master gate off)';
+    } else if (therapistComputedFlags['THERAPIST_UPGRADE_CONTINUITY_ENABLED']) {
+      therapistRouteHint = 'STAGE2_V7 (continuity)';
+    } else if (therapistComputedFlags['THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED']) {
+      therapistRouteHint = 'STAGE2_V6 (formulation context)';
+    } else if (therapistComputedFlags['THERAPIST_UPGRADE_SAFETY_MODE_ENABLED']) {
+      therapistRouteHint = 'STAGE2_V5 (safety mode)';
+    } else if (therapistComputedFlags['THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED']) {
+      therapistRouteHint = 'STAGE2_V4 (live retrieval)';
+    } else if (therapistComputedFlags['THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED']) {
+      therapistRouteHint = 'STAGE2_V3 (retrieval orchestration)';
+    } else if (therapistComputedFlags['THERAPIST_UPGRADE_WORKFLOW_ENABLED']) {
+      therapistRouteHint = 'STAGE2_V2 (workflow engine)';
+    } else if (therapistComputedFlags['THERAPIST_UPGRADE_MEMORY_ENABLED']) {
+      therapistRouteHint = 'STAGE2_V1 (memory layer)';
+    } else {
+      therapistRouteHint = 'HYBRID (master gate on, no phase flag matched)';
+    }
+
+    // ── Companion section ──────────────────────────────────────────────────
+    const rawC2 = params.get('_c2') ?? '';
+    const parsedC2Flags = rawC2
+      ? rawC2.split(',').map(k => k.trim()).filter(Boolean)
+      : [];
+
+    const companionComputedFlags = {};
+    for (const flagName of Object.keys(COMPANION_UPGRADE_FLAGS)) {
+      companionComputedFlags[flagName] = isCompanionUpgradeEnabled(flagName);
+    }
+
+    const companionMasterOn = companionComputedFlags['COMPANION_UPGRADE_ENABLED'] === true;
+
+    let companionRouteHint;
+    if (!companionMasterOn) {
+      companionRouteHint = 'HYBRID (master gate off)';
+    } else if (companionComputedFlags['COMPANION_UPGRADE_CONTINUITY_ENABLED']) {
+      companionRouteHint = 'UPGRADE_V2 (continuity)';
+    } else if (companionComputedFlags['COMPANION_UPGRADE_WARMTH_ENABLED']) {
+      companionRouteHint = 'UPGRADE_V1 (warmth)';
+    } else {
+      companionRouteHint = 'HYBRID (master gate on, no phase flag matched)';
+    }
+
+    return {
+      hostname,
+      search,
+      isPreviewStagingHost: _isPreviewStagingHost(hostname ?? ''),
+      snapshotTimestamp: new Date().toISOString(),
+      therapist: {
+        parsedS2Flags,
+        computedFlags: therapistComputedFlags,
+        masterGateOn: therapistMasterOn,
+        routeHint: therapistRouteHint,
+      },
+      companion: {
+        parsedC2Flags,
+        computedFlags: companionComputedFlags,
+        masterGateOn: companionMasterOn,
+        routeHint: companionRouteHint,
+      },
+    };
+  } catch (_e) {
+    // Diagnostics must never propagate errors.
+    return null;
+  }
+}
+
+/**
+ * Logs the unified activation diagnostic snapshot to the console when
+ * `?_s2debug=true` is present in the URL.  No-op otherwise (fail-closed).
+ *
+ * Covers both the Therapist upgrade and the AI Companion upgrade in a single
+ * console group so staging QA can validate both agents at the same time.
+ *
+ * Called once at module load alongside logStage2Diagnostics().
+ */
+export function logActivationDiagnostics() {
+  try {
+    const p = getActivationDiagnostics();
+    if (!p) return;
+    console.group('[Activation Diagnostics] Therapist + Companion upgrade state');
+    console.log('hostname             :', p.hostname);
+    console.log('isPreviewStagingHost :', p.isPreviewStagingHost);
+    console.log('snapshotTimestamp    :', p.snapshotTimestamp);
+    console.group('[Therapist]');
+    console.log('parsedS2Flags        :', p.therapist.parsedS2Flags);
+    console.log('computedFlags        :', p.therapist.computedFlags);
+    console.log('masterGateOn         :', p.therapist.masterGateOn);
+    console.log('routeHint            :', p.therapist.routeHint);
+    console.groupEnd();
+    console.group('[Companion]');
+    console.log('parsedC2Flags        :', p.companion.parsedC2Flags);
+    console.log('computedFlags        :', p.companion.computedFlags);
+    console.log('masterGateOn         :', p.companion.masterGateOn);
+    console.log('routeHint            :', p.companion.routeHint);
+    console.groupEnd();
+    console.groupEnd();
+  } catch (_e) {
+    // Diagnostics must never break the app.
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
@@ -600,3 +773,7 @@ export function logUpgradeEvent(event, context = {}) {
   // All other events are silent at Phase 0 to avoid production noise.
   // Later phases may expand this switch as needed.
 }
+
+// Emit unified activation diagnostics at module load when _s2debug=true is in the URL.
+// Called after all flag registries and evaluators are fully initialised.
+logActivationDiagnostics();
