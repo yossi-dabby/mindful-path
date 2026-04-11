@@ -236,13 +236,23 @@ export async function readCrossSessionContinuity(entities) {
 
     if (allValidRecords.length === 0) return null;
 
-    // Score each record and separate into useful vs. weak.
+    // Score each record and separate into useful vs. weak in a single pass.
     // Records are already in recency order (most-recent-first from CompanionMemory.list).
     // We sort useful records by score (descending), using original list position
     // as the tiebreaker so that among equally-scored records the most recent wins.
-    const scored = allValidRecords.map((record, index) => ({ record, score: scoreTherapistMemoryRecord(record), index }));
-    const usefulScored = scored.filter(r => r.score >= CONTINUITY_MIN_USEFUL_SCORE);
-    const weakScored = scored.filter(r => r.score < CONTINUITY_MIN_USEFUL_SCORE);
+    const { usefulScored, weakScored } = allValidRecords.reduce(
+      (acc, record, index) => {
+        const score = scoreTherapistMemoryRecord(record);
+        const entry = { record, score, index };
+        if (score >= CONTINUITY_MIN_USEFUL_SCORE) {
+          acc.usefulScored.push(entry);
+        } else {
+          acc.weakScored.push(entry);
+        }
+        return acc;
+      },
+      { usefulScored: [], weakScored: [] },
+    );
 
     // Sort useful records: highest score first; equal scores preserve original recency order.
     usefulScored.sort((a, b) => b.score - a.score || a.index - b.index);
