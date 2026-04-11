@@ -18,7 +18,7 @@ import MessageFeedback from '../chat/MessageFeedback';
 import { extractAssistantMessage } from '../utils/validateAgentOutput';
 import { BOTTOM_NAV_HEIGHT } from '../layout/BottomNav';
 import { ACTIVE_AI_COMPANION_WIRING } from '@/api/activeAgentWiring.js';
-import { buildCompanionContinuityBlock } from '@/lib/companionContinuity.js';
+import { buildCompanionSessionStartContextAsync } from '@/lib/companionContinuity.js';
 
 const STORAGE_KEY = 'ai_companion_position';
 const MOBILE_BREAKPOINT = 768;
@@ -44,7 +44,6 @@ export default function DraggableAiCompanion() {
   const [shouldShow, setShouldShow] = useState(false);
   const [position, setPosition] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [memoryError, setMemoryError] = useState(false);
   const [sendError, setSendError] = useState(null);
   const [showAuthError, setShowAuthError] = useState(false);
   const [showConsentBanner, setShowConsentBanner] = useState(false);
@@ -165,29 +164,12 @@ export default function DraggableAiCompanion() {
       let memoryContext = '';
 
       try {
-        if (ACTIVE_AI_COMPANION_WIRING.continuity_enabled === true) {
-          // Phase 3 continuity path: score/filter memories for warmth and richness.
-          // Thin/generic memories are suppressed; only personally meaningful records
-          // are injected.  buildCompanionContinuityBlock is fail-closed — it returns
-          // '' on any error without throwing, so memoryContext remains '' and the
-          // session starts cleanly.  No user-visible error is needed for this case.
-          memoryContext = await buildCompanionContinuityBlock(base44.entities);
-        } else {
-          // Default path: raw memory injection (unchanged from original behavior).
-          const memories = await base44.entities.CompanionMemory.filter(
-            { is_active: true },
-            '-importance',
-            10
-          );
-
-          memoryContext = memories.length > 0 ?
-          `\n\n[User Context from Previous Sessions]\n${memories.map((m) => `- ${m.content}`).join('\n')}` :
-          '';
-        }
-      } catch (error) {
-        console.error('Failed to fetch memories:', error);
-        if (!isCancelled) setMemoryError(true);
-        // Continue without memory context - graceful degradation
+        memoryContext = await buildCompanionSessionStartContextAsync(
+          base44.entities,
+          ACTIVE_AI_COMPANION_WIRING,
+        );
+      } catch {
+        // Fail-closed: session start continues without context
       }
 
       if (isCancelled) return;
@@ -200,8 +182,8 @@ export default function DraggableAiCompanion() {
             name: 'AI Companion Chat',
             type: 'companion',
             persistent: true,
-            memory_context: memoryContext
-          }
+            memory_context: memoryContext,
+          },
         });
 
         if (!isCancelled) {
