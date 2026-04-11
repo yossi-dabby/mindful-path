@@ -171,6 +171,14 @@ describe('C. Warmth fallback — weak/empty memory with continuity_enabled=true'
     expect(COMPANION_WARMTH_FALLBACK_CONTEXT.length).toBeGreaterThan(20);
   });
 
+  it('COMPANION_WARMTH_FALLBACK_CONTEXT contains expected key warmth phrases', () => {
+    // Verify the actual constant value matches its intent (warm, welcoming, non-clinical)
+    const lc = COMPANION_WARMTH_FALLBACK_CONTEXT.toLowerCase();
+    expect(lc).toContain('greet');
+    expect(lc).toContain('warm');
+    expect(lc).toContain('mind');
+  });
+
   it('COMPANION_WARMTH_FALLBACK_CONTEXT does not contain clinical/therapist content', () => {
     const clinical = ['diagnosis', 'CBT', 'formulation', 'clinical', 'therapy', 'therapist'];
     for (const term of clinical) {
@@ -314,6 +322,11 @@ describe('F. Role isolation: companion context does not inject therapist content
   it('buildCompanionSessionStartContextAsync is not exported from workflowContextInjector', async () => {
     const wci = await import('../../src/lib/workflowContextInjector.js');
     expect(wci.buildCompanionSessionStartContextAsync).toBeUndefined();
+  });
+
+  it('buildCompanionSessionStartContextAsync IS exported from companionContinuity.js', async () => {
+    const cc = await import('../../src/lib/companionContinuity.js');
+    expect(typeof cc.buildCompanionSessionStartContextAsync).toBe('function');
   });
 
   it('COMPANION_WARMTH_FALLBACK_CONTEXT does not contain therapist-specific terminology', () => {

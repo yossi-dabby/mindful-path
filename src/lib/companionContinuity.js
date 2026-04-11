@@ -54,6 +54,9 @@
 /**
  * Minimum character length for a CompanionMemory content field to be considered
  * useful for session-start context injection.
+ *
+ * Set to 10 chars — short enough to include brief but meaningful memories
+ * (e.g. "Stressed at work") while excluding one-word or empty entries.
  * @type {number}
  */
 export const COMPANION_MEMORY_MIN_CONTENT_LENGTH = 10;
@@ -90,6 +93,12 @@ export const COMPANION_WARMTH_FALLBACK_CONTEXT =
 
 /**
  * Scores a raw CompanionMemory entity record for usefulness as session context.
+ *
+ * This is the first (and only) companion-specific memory scorer — it is NOT
+ * derived from any previous scoring implementation.  Companion memories are
+ * free-form strings, unlike structured therapist memory records, so scoring
+ * is intentionally simple: meaningful content is the primary gate, and the
+ * stored importance field (set by the runtime) acts as the tiebreaker.
  *
  * Scoring rules (additive):
  *   +0  content absent or shorter than COMPANION_MEMORY_MIN_CONTENT_LENGTH
