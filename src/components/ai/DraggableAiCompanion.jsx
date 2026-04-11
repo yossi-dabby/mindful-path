@@ -18,6 +18,7 @@ import MessageFeedback from '../chat/MessageFeedback';
 import { extractAssistantMessage } from '../utils/validateAgentOutput';
 import { BOTTOM_NAV_HEIGHT } from '../layout/BottomNav';
 import { ACTIVE_AI_COMPANION_WIRING } from '@/api/activeAgentWiring.js';
+import { buildCompanionSessionStartContextAsync } from '@/lib/companionContinuity.js';
 
 const STORAGE_KEY = 'ai_companion_position';
 const MOBILE_BREAKPOINT = 768;
@@ -43,7 +44,6 @@ export default function DraggableAiCompanion() {
   const [shouldShow, setShouldShow] = useState(false);
   const [position, setPosition] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [memoryError, setMemoryError] = useState(false);
   const [sendError, setSendError] = useState(null);
   const [showAuthError, setShowAuthError] = useState(false);
   const [showConsentBanner, setShowConsentBanner] = useState(false);
@@ -164,20 +164,12 @@ export default function DraggableAiCompanion() {
       let memoryContext = '';
 
       try {
-        // Fetch recent memories to provide context
-        const memories = await base44.entities.CompanionMemory.filter(
-          { is_active: true },
-          '-importance',
-          10
+        memoryContext = await buildCompanionSessionStartContextAsync(
+          base44.entities,
+          ACTIVE_AI_COMPANION_WIRING,
         );
-
-        memoryContext = memories.length > 0 ?
-        `\n\n[User Context from Previous Sessions]\n${memories.map((m) => `- ${m.content}`).join('\n')}` :
-        '';
-      } catch (error) {
-        console.error('Failed to fetch memories:', error);
-        if (!isCancelled) setMemoryError(true);
-        // Continue without memory context - graceful degradation
+      } catch {
+        // Fail-closed: session start continues without context
       }
 
       if (isCancelled) return;
@@ -190,8 +182,8 @@ export default function DraggableAiCompanion() {
             name: 'AI Companion Chat',
             type: 'companion',
             persistent: true,
-            memory_context: memoryContext
-          }
+            memory_context: memoryContext,
+          },
         });
 
         if (!isCancelled) {
