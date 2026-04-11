@@ -551,12 +551,67 @@ export function buildRuntimeSafetySupplement(wiring, messageText, locale) {
 const FORMULATION_INJECT_MAX_CHARS = 150;
 
 /**
+ * Minimum character length for a CaseFormulation field to be considered useful.
+ * Fields shorter than this threshold are treated as placeholder/trivial and
+ * are suppressed from the injected context block.
+ *
+ * Score scale: any field value of 8+ chars is considered to carry clinical signal.
+ * Values shorter than this (e.g. "?", "ok", "N/A", "TBD") are noise.
+ *
+ * @type {number}
+ */
+export const FORMULATION_MIN_FIELD_LENGTH = 8;
+
+/**
+ * Minimum number of usable CaseFormulation fields required before the context
+ * block is injected.  A formulation record with fewer than this many fields
+ * that pass the FORMULATION_MIN_FIELD_LENGTH threshold is considered too thin
+ * to provide useful clinical grounding and is suppressed.
+ *
+ * A threshold of 2 ensures that at minimum a presenting problem AND one other
+ * clinical dimension (core belief, maintaining cycle, or treatment goal) are
+ * present before the block is injected.  A single-field block is not clinically
+ * coherent enough to justify the context overhead.
+ *
+ * @type {number}
+ */
+export const FORMULATION_MIN_USEFUL_FIELDS = 2;
+
+/**
+ * Returns the number of CaseFormulation fields that pass the
+ * FORMULATION_MIN_FIELD_LENGTH threshold.
+ *
+ * Only the four fields surfaced in the context block are scored:
+ *   presenting_problem, core_belief, maintaining_cycle, treatment_goals
+ *
+ * Returns 0 for null/invalid input (fail-safe).
+ *
+ * @param {object|null} cf - A CaseFormulation entity record.
+ * @returns {number} Count of usable fields (0–4).
+ */
+export function scoreFormulationRecord(cf) {
+  if (!cf || typeof cf !== 'object') return 0;
+  const fields = ['presenting_problem', 'core_belief', 'maintaining_cycle', 'treatment_goals'];
+  let score = 0;
+  for (const field of fields) {
+    if (typeof cf[field] === 'string' && cf[field].trim().length >= FORMULATION_MIN_FIELD_LENGTH) {
+      score += 1;
+    }
+  }
+  return score;
+}
+
+/**
  * Builds a bounded, read-only CaseFormulation context block for injection into
  * the session-start payload.
  *
- * Reads the most recent CaseFormulation record (read-only, caution layer).
- * Extracts: presenting_problem, core_belief, maintaining_cycle, treatment_goals.
- * Returns a formatted string section, or empty string when unavailable.
+ * Reads the two most recent CaseFormulation records (read-only, caution layer),
+ * selects the richest one (most usable fields), and extracts:
+ * presenting_problem, core_belief, maintaining_cycle, treatment_goals.
+ *
+ * Fields shorter than FORMULATION_MIN_FIELD_LENGTH chars are suppressed.
+ * The block is only injected when at least FORMULATION_MIN_USEFUL_FIELDS fields
+ * pass the threshold — a single thin field is not clinically useful enough.
  *
  * FAIL-CLOSED CONTRACT
  * Any error during read returns '' — the session start is never blocked.
@@ -570,26 +625,45 @@ async function buildFormulationContextBlock(entities) {
     if (!entities || typeof entities !== 'object') return '';
     if (!entities.CaseFormulation || typeof entities.CaseFormulation.list !== 'function') return '';
 
-    const formulations = await entities.CaseFormulation.list('-created_date', 1);
+    // Over-fetch 2 records so we can select the richer one when the most-recent
+    // is thin or placeholder-filled.
+    const formulations = await entities.CaseFormulation.list('-created_date', 2);
     if (!Array.isArray(formulations) || formulations.length === 0) return '';
 
-    const cf = formulations[0];
+    // Select the record with the highest quality score.
+    // Among equal-score records, the first (most-recent) wins.
+    let cf = formulations[0];
+    if (formulations.length > 1) {
+      const score0 = scoreFormulationRecord(formulations[0]);
+      const score1 = scoreFormulationRecord(formulations[1]);
+      if (score1 > score0) {
+        cf = formulations[1];
+      }
+    }
+
+    // Build lines — only include fields that pass the minimum length threshold.
     const lines = [];
 
-    if (cf.presenting_problem && typeof cf.presenting_problem === 'string') {
+    if (cf.presenting_problem && typeof cf.presenting_problem === 'string' &&
+        cf.presenting_problem.trim().length >= FORMULATION_MIN_FIELD_LENGTH) {
       lines.push('Presenting problem: ' + cf.presenting_problem.trim().slice(0, FORMULATION_INJECT_MAX_CHARS));
     }
-    if (cf.core_belief && typeof cf.core_belief === 'string') {
+    if (cf.core_belief && typeof cf.core_belief === 'string' &&
+        cf.core_belief.trim().length >= FORMULATION_MIN_FIELD_LENGTH) {
       lines.push('Core belief: ' + cf.core_belief.trim().slice(0, FORMULATION_INJECT_MAX_CHARS));
     }
-    if (cf.maintaining_cycle && typeof cf.maintaining_cycle === 'string') {
+    if (cf.maintaining_cycle && typeof cf.maintaining_cycle === 'string' &&
+        cf.maintaining_cycle.trim().length >= FORMULATION_MIN_FIELD_LENGTH) {
       lines.push('Maintaining cycle: ' + cf.maintaining_cycle.trim().slice(0, FORMULATION_INJECT_MAX_CHARS));
     }
-    if (cf.treatment_goals && typeof cf.treatment_goals === 'string') {
+    if (cf.treatment_goals && typeof cf.treatment_goals === 'string' &&
+        cf.treatment_goals.trim().length >= FORMULATION_MIN_FIELD_LENGTH) {
       lines.push('Treatment goals: ' + cf.treatment_goals.trim().slice(0, FORMULATION_INJECT_MAX_CHARS));
     }
 
-    if (lines.length === 0) return '';
+    // Suppress the block if the selected record doesn't meet the minimum
+    // useful-fields threshold — a single thin field is not clinically coherent.
+    if (lines.length < FORMULATION_MIN_USEFUL_FIELDS) return '';
 
     return [
       '=== CASE FORMULATION CONTEXT (read-only) ===',

@@ -471,7 +471,11 @@ describe('Phase 1 Quality — CaseFormulation context injection', () => {
     const longProblem = 'A'.repeat(200);
     const entities = buildMockEntities({
       CaseFormulation: {
-        list: vi.fn().mockResolvedValue([{ presenting_problem: longProblem }]),
+        // Include a second meaningful field so the record meets FORMULATION_MIN_USEFUL_FIELDS.
+        list: vi.fn().mockResolvedValue([{
+          presenting_problem: longProblem,
+          core_belief: 'I am not good enough',
+        }]),
       },
     });
     const result = await buildV6SessionStartContentAsync(
