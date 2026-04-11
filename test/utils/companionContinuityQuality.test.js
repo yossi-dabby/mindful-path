@@ -31,16 +31,17 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   scoreCompanionMemoryRecord,
   buildCompanionContinuityBlock,
+  buildCompanionSessionStartContextAsync,
   COMPANION_MEMORY_MIN_CONTENT_LENGTH,
   COMPANION_MEMORY_MIN_WARMTH_SCORE,
   COMPANION_MEMORY_MAX_INJECT,
   COMPANION_MEMORY_INJECT_MAX_CHARS,
+  COMPANION_WARMTH_FALLBACK_CONTEXT,
 } from '../../src/lib/companionContinuity.js';
 
 import { THERAPIST_MEMORY_TYPE } from '../../src/lib/therapistMemoryModel.js';
 
 import {
-  buildCompanionSessionStartContextAsync,
   buildV7SessionStartContentAsync,
 } from '../../src/lib/workflowContextInjector.js';
 
@@ -536,124 +537,124 @@ describe('L. buildCompanionContinuityBlock — privacy: no cross-user entity acc
   });
 });
 
-// ─── M. buildCompanionSessionStartContextAsync — flag-off returns [START_SESSION]
+// ─── M. buildCompanionSessionStartContextAsync — no memories, flag off → ''
 
-describe('M. buildCompanionSessionStartContextAsync — returns [START_SESSION] when flag off', () => {
-  it('returns [START_SESSION] when wiring is null', async () => {
-    const result = await buildCompanionSessionStartContextAsync(null, makeEntities([]));
-    expect(result).toBe('[START_SESSION]');
+describe('M. buildCompanionSessionStartContextAsync — returns empty string when flag off and no memories', () => {
+  it('returns empty string when wiring is null and no memories', async () => {
+    const result = await buildCompanionSessionStartContextAsync(makeEntities([]), null);
+    expect(result).toBe('');
   });
 
-  it('returns [START_SESSION] when wiring is undefined', async () => {
-    const result = await buildCompanionSessionStartContextAsync(undefined, makeEntities([]));
-    expect(result).toBe('[START_SESSION]');
+  it('returns empty string when wiring is undefined and no memories', async () => {
+    const result = await buildCompanionSessionStartContextAsync(makeEntities([]), undefined);
+    expect(result).toBe('');
   });
 
-  it('returns [START_SESSION] when continuity_enabled is absent', async () => {
+  it('returns empty string when continuity_enabled is absent and no memories', async () => {
     const result = await buildCompanionSessionStartContextAsync(
-      AI_COMPANION_WIRING_HYBRID,
       makeEntities([]),
+      AI_COMPANION_WIRING_HYBRID,
     );
-    expect(result).toBe('[START_SESSION]');
+    expect(result).toBe('');
   });
 
-  it('returns [START_SESSION] when continuity_enabled is false', async () => {
+  it('returns empty string when continuity_enabled is false and no memories', async () => {
     const wiring = { ...AI_COMPANION_WIRING_UPGRADE_V1, continuity_enabled: false };
-    const result = await buildCompanionSessionStartContextAsync(wiring, makeEntities([]));
-    expect(result).toBe('[START_SESSION]');
+    const result = await buildCompanionSessionStartContextAsync(makeEntities([]), wiring);
+    expect(result).toBe('');
   });
 
-  it('returns [START_SESSION] for V1 wiring (warmth only, no continuity)', async () => {
+  it('returns memory context block for V1 wiring when rich memories exist (continuity_enabled absent)', async () => {
     const result = await buildCompanionSessionStartContextAsync(
-      AI_COMPANION_WIRING_UPGRADE_V1,
       makeEntities([makeRichCompanionMemory()]),
+      AI_COMPANION_WIRING_UPGRADE_V1,
     );
-    expect(result).toBe('[START_SESSION]');
+    expect(result).toContain('[User Context from Previous Sessions]');
   });
 });
 
 // ─── N. buildCompanionSessionStartContextAsync — enriched when flag on ────────
 
 describe('N. buildCompanionSessionStartContextAsync — enriched content when flag on', () => {
-  it('returns a string starting with [START_SESSION] when V2 wiring and rich memories', async () => {
+  it('returns a string starting with [User Context from Previous Sessions] when V2 wiring and rich memories', async () => {
     const entities = makeEntities([makeRichCompanionMemory()]);
     const result = await buildCompanionSessionStartContextAsync(
-      AI_COMPANION_WIRING_UPGRADE_V2,
       entities,
+      AI_COMPANION_WIRING_UPGRADE_V2,
     );
-    expect(result.startsWith('[START_SESSION]')).toBe(true);
+    expect(result.startsWith('[User Context from Previous Sessions]')).toBe(true);
   });
 
-  it('appends companion continuity context block when V2 wiring and rich memories exist', async () => {
+  it('includes memory content when V2 wiring and rich memories exist', async () => {
     const memory = makeRichCompanionMemory({
       content: 'User finds outdoor exercise helpful for managing low mood.',
     });
     const entities = makeEntities([memory]);
     const result = await buildCompanionSessionStartContextAsync(
-      AI_COMPANION_WIRING_UPGRADE_V2,
       entities,
+      AI_COMPANION_WIRING_UPGRADE_V2,
     );
-    expect(result).toContain('COMPANION CONTINUITY CONTEXT');
+    expect(result).toContain('[User Context from Previous Sessions]');
     expect(result).toContain('User finds outdoor exercise helpful');
   });
 
-  it('result is longer than [START_SESSION] when rich memories exist', async () => {
+  it('result is non-empty when V2 wiring and rich memories exist', async () => {
     const entities = makeEntities([makeRichCompanionMemory()]);
     const result = await buildCompanionSessionStartContextAsync(
-      AI_COMPANION_WIRING_UPGRADE_V2,
       entities,
+      AI_COMPANION_WIRING_UPGRADE_V2,
     );
-    expect(result.length).toBeGreaterThan('[START_SESSION]'.length);
+    expect(result.length).toBeGreaterThan(0);
   });
 });
 
 // ─── O. buildCompanionSessionStartContextAsync — fallback when no memories ────
 
 describe('O. buildCompanionSessionStartContextAsync — fallback when no useful memories', () => {
-  it('returns [START_SESSION] when V2 wiring but no memories in store', async () => {
+  it('returns COMPANION_WARMTH_FALLBACK_CONTEXT when V2 wiring but no memories in store', async () => {
     const entities = makeEntities([]);
     const result = await buildCompanionSessionStartContextAsync(
-      AI_COMPANION_WIRING_UPGRADE_V2,
       entities,
+      AI_COMPANION_WIRING_UPGRADE_V2,
     );
-    expect(result).toBe('[START_SESSION]');
+    expect(result).toBe(COMPANION_WARMTH_FALLBACK_CONTEXT);
   });
 
-  it('returns [START_SESSION] when V2 wiring but all memories are thin/weak', async () => {
+  it('returns COMPANION_WARMTH_FALLBACK_CONTEXT when V2 wiring but all memories are thin/weak', async () => {
     const entities = makeEntities([
       makeThinCompanionMemory({ importance: 0, content: 'Hi' }),
     ]);
     const result = await buildCompanionSessionStartContextAsync(
-      AI_COMPANION_WIRING_UPGRADE_V2,
       entities,
+      AI_COMPANION_WIRING_UPGRADE_V2,
     );
-    expect(result).toBe('[START_SESSION]');
+    expect(result).toBe(COMPANION_WARMTH_FALLBACK_CONTEXT);
   });
 
-  it('returns [START_SESSION] when V2 wiring but only therapist records exist', async () => {
+  it('returns COMPANION_WARMTH_FALLBACK_CONTEXT when V2 wiring but only therapist records exist', async () => {
     const entities = makeEntities([makeTherapistSessionRecord()]);
     const result = await buildCompanionSessionStartContextAsync(
-      AI_COMPANION_WIRING_UPGRADE_V2,
       entities,
+      AI_COMPANION_WIRING_UPGRADE_V2,
     );
-    expect(result).toBe('[START_SESSION]');
+    expect(result).toBe(COMPANION_WARMTH_FALLBACK_CONTEXT);
   });
 });
 
 // ─── P. buildCompanionSessionStartContextAsync — fail-closed on errors ────────
 
 describe('P. buildCompanionSessionStartContextAsync — fail-closed on continuity errors', () => {
-  it('returns [START_SESSION] when entities.CompanionMemory.filter rejects', async () => {
+  it('returns empty string when entities.CompanionMemory.filter rejects', async () => {
     const entities = {
       CompanionMemory: {
         filter: vi.fn().mockRejectedValue(new Error('network failure')),
       },
     };
     const result = await buildCompanionSessionStartContextAsync(
-      AI_COMPANION_WIRING_UPGRADE_V2,
       entities,
+      AI_COMPANION_WIRING_UPGRADE_V2,
     );
-    expect(result).toBe('[START_SESSION]');
+    expect(result).toBe('');
   });
 
   it('never throws — always resolves', async () => {
@@ -663,8 +664,8 @@ describe('P. buildCompanionSessionStartContextAsync — fail-closed on continuit
       },
     };
     await expect(
-      buildCompanionSessionStartContextAsync(AI_COMPANION_WIRING_UPGRADE_V2, entities),
-    ).resolves.toBe('[START_SESSION]');
+      buildCompanionSessionStartContextAsync(entities, AI_COMPANION_WIRING_UPGRADE_V2),
+    ).resolves.toBe('');
   });
 });
 
@@ -697,7 +698,7 @@ describe('Q. Regression — therapist session-start unaffected', () => {
         filter: caseFormulationSpy,
       },
     };
-    await buildCompanionSessionStartContextAsync(AI_COMPANION_WIRING_UPGRADE_V2, entities);
+    await buildCompanionSessionStartContextAsync(entities, AI_COMPANION_WIRING_UPGRADE_V2);
     expect(caseFormulationSpy).not.toHaveBeenCalled();
   });
 });

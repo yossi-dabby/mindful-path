@@ -862,7 +862,7 @@ export async function buildV7SessionStartContentAsync(
  * @param {object} entities - Base44 entity client map
  * @returns {Promise<string>} Session-start content string
  */
-export async function buildCompanionSessionStartContextAsync(wiring, entities) {
+async function buildCompanionSessionStartContextAsync(wiring, entities) {
   if (!wiring || wiring.continuity_enabled !== true) {
     return '[START_SESSION]';
   }
