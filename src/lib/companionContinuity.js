@@ -207,7 +207,7 @@ export async function buildCompanionContinuityBlock(entities) {
 
     return [
       '=== COMPANION CONTINUITY CONTEXT (read-only) ===',
-      'The following personal context helps you provide warm, personalised support.',
+      'The following personal context helps you provide warm, personalized support.',
       'Use this to acknowledge what you already know about this person.',
       'Do not reference this section verbatim. Keep your tone warm and non-clinical.',
       '',

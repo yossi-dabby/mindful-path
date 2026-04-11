@@ -168,7 +168,9 @@ export default function DraggableAiCompanion() {
         if (ACTIVE_AI_COMPANION_WIRING.continuity_enabled === true) {
           // Phase 3 continuity path: score/filter memories for warmth and richness.
           // Thin/generic memories are suppressed; only personally meaningful records
-          // are injected.  Fails closed — graceful degradation on any error.
+          // are injected.  buildCompanionContinuityBlock is fail-closed — it returns
+          // '' on any error without throwing, so memoryContext remains '' and the
+          // session starts cleanly.  No user-visible error is needed for this case.
           memoryContext = await buildCompanionContinuityBlock(base44.entities);
         } else {
           // Default path: raw memory injection (unchanged from original behavior).
