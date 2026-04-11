@@ -758,3 +758,54 @@ export async function buildV7SessionStartContentAsync(
   return v6Base + '\n\n' + continuityBlock;
 }
 
+// ─── AI Companion Upgrade V2 — Companion session-start context ───────────────
+
+/**
+ * Builds the session-start message content for the AI Companion V2 upgraded path.
+ *
+ * For non-V2 wirings (continuity_enabled absent or false):
+ *   Returns '[START_SESSION]' unchanged — identical to the default companion path.
+ *
+ * For V2 (continuity_enabled === true):
+ *   1. Reads native CompanionMemory records via buildCompanionContinuityBlock.
+ *   2. Scores/filters records for warmth/richness — thin/generic memories are
+ *      suppressed; only personally meaningful records are injected.
+ *   3. Returns '[START_SESSION]' with the warm context block appended.
+ *   4. If the block is empty (no useful memories), returns '[START_SESSION]'
+ *      unchanged — the fallback is always a clean warm session start.
+ *
+ * ROLE BOUNDARY
+ * -------------
+ * This function is the companion equivalent of buildV7SessionStartContentAsync.
+ * It is completely independent of the therapist upgrade chain:
+ *   - Never reads CaseFormulation or ThoughtJournal (prohibited for Companion).
+ *   - Uses buildCompanionContinuityBlock, not buildCrossSessionContinuityBlock.
+ *   - Therapist UPGRADE_* flags have no effect here.
+ *
+ * FAIL-CLOSED: never throws; never blocks session start.
+ *
+ * @param {object} wiring   - The active AI Companion wiring config object
+ * @param {object} entities - Base44 entity client map
+ * @returns {Promise<string>} Session-start content string
+ */
+export async function buildCompanionSessionStartContextAsync(wiring, entities) {
+  if (!wiring || wiring.continuity_enabled !== true) {
+    return '[START_SESSION]';
+  }
+
+  let continuityBlock = '';
+  try {
+    const { buildCompanionContinuityBlock } = await import('./companionContinuity.js');
+    continuityBlock = await buildCompanionContinuityBlock(entities);
+  } catch {
+    // Fail-closed: continuity injection failure must never block session start
+    continuityBlock = '';
+  }
+
+  if (!continuityBlock || !continuityBlock.trim()) {
+    return '[START_SESSION]';
+  }
+
+  return '[START_SESSION]\n\n' + continuityBlock;
+}
+
