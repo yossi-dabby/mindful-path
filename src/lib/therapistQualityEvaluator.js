@@ -15,6 +15,12 @@
  * is applied in Wave 5B.  The extractor is inert: it is not called from any
  * runtime path and emits no diagnostics.
  *
+ * Wave 5C: Adds the deterministic scoring engine.  buildQualityEvaluatorSnapshot()
+ * now internally calls extractEvaluatorFeatures() and scores each of the 7 active
+ * structural dimensions, derives a bounded aggregate band, and derives bounded
+ * risk_flags from scored structural issues.  Everything remains inert: no runtime
+ * call site, no diagnostics emission, no rollout gating.
+ *
  * ISOLATION GUARANTEE
  * -------------------
  * This module has NO imports from any other app module. It does NOT import
@@ -36,15 +42,15 @@
  * - All public functions never throw — they catch all exceptions and return
  *   the fail-safe snapshot.
  *
- * NOT WIRED YET (Wave 5A / Wave 5B)
- * ----------------------------------
+ * NOT WIRED YET (Wave 5A / Wave 5B / Wave 5C)
+ * --------------------------------------------
  * - Not called from Chat.jsx.
  * - Not called from workflowContextInjector.js.
  * - Not emitting diagnostics.
  * - Not gated by QUALITY_EVALUATOR_FLAGS at runtime (flag added in featureFlags.js
- *   but this file does not import it; the scaffold is callable in isolation).
- * - Wave 5B extractEvaluatorFeatures() is inert: no runtime call site, no
- *   diagnostics emission, no rollout gating.  Real scoring belongs to Wave 5C.
+ *   but this file does not import it; the evaluator is callable in isolation).
+ * - Wave 5C scoring is inert: no runtime call site, no diagnostics emission,
+ *   no rollout gating.  Runtime wiring belongs to Wave 5D.
  *
  * DIMENSIONS (Wave 5A — structural/objective only)
  * -------------------------------------------------
@@ -93,7 +99,7 @@
  *
  * @type {string}
  */
-export const EVALUATOR_VERSION = '5B.0.0';
+export const EVALUATOR_VERSION = '5C.0.0';
 
 // ─── Quality Dimensions ───────────────────────────────────────────────────────
 
@@ -245,6 +251,12 @@ export const EVALUATOR_FAIL_SAFE_SNAPSHOT = Object.freeze({
       ACTIVE_QUALITY_DIMENSIONS.map((dim) => [dim, EVALUATOR_SCORE_BANDS.UNKNOWN])
     )
   ),
+  dimension_evidence: Object.freeze(
+    Object.fromEntries(
+      ACTIVE_QUALITY_DIMENSIONS.map((dim) => [dim, 'not_scored'])
+    )
+  ),
+  risk_flags: Object.freeze([]),
   deferred_dimensions: Object.freeze([
     QUALITY_DIMENSIONS.DEFERRED_GENERICNESS_RISK,
     QUALITY_DIMENSIONS.DEFERRED_OVER_DIRECTIVENESS_RISK,
@@ -289,13 +301,15 @@ export const EVALUATOR_FAIL_SAFE_SNAPSHOT = Object.freeze({
  * OUTPUT CONTRACT
  * ---------------
  * @returns {Readonly<object>} Frozen quality evaluator snapshot with shape:
- *   - evaluator_version {string}         — EVALUATOR_VERSION
- *   - aggregate_band {string}            — one of EVALUATOR_AGGREGATE_BANDS values
- *   - is_fail_safe {boolean}             — true only for fail-safe/bad-inputs path
- *   - fail_safe_reason {string|null}     — non-null only on fail-safe path
- *   - dimensions {Record<string,string>} — active dimension keys → score band
- *   - deferred_dimensions {string[]}     — deferred dimension keys (not yet scored)
- *   - scored_at {string|null}            — ISO timestamp or null (null in scaffold)
+ *   - evaluator_version {string}          — EVALUATOR_VERSION
+ *   - aggregate_band {string}             — one of EVALUATOR_AGGREGATE_BANDS values
+ *   - is_fail_safe {boolean}              — true only for fail-safe/bad-inputs path
+ *   - fail_safe_reason {string|null}      — non-null only on fail-safe path
+ *   - dimensions {Record<string,string>}  — active dimension keys → score band
+ *   - dimension_evidence {Record<string,string>} — active dimension keys → evidence label
+ *   - risk_flags {string[]}               — bounded structural risk flag tokens
+ *   - deferred_dimensions {string[]}      — deferred dimension keys (not yet scored)
+ *   - scored_at {null}                    — null (inert evaluator; no timestamp)
  */
 export function buildQualityEvaluatorSnapshot(inputs) {
   try {
@@ -303,18 +317,49 @@ export function buildQualityEvaluatorSnapshot(inputs) {
       return EVALUATOR_FAIL_SAFE_SNAPSHOT;
     }
 
-    // Wave 5A scaffold: valid inputs produce an UNKNOWN snapshot.
-    // No scoring logic is implemented at this stage.
+    const features = extractEvaluatorFeatures(inputs);
+
+    if (features.is_fail_safe) {
+      return EVALUATOR_FAIL_SAFE_SNAPSHOT;
+    }
+
+    // Wave 5C: score each active structural dimension.
+    const dimensionResults = {
+      [QUALITY_DIMENSIONS.STRATEGY_ALIGNMENT]:
+        _scoreStrategyAlignment(features.strategy_alignment),
+      [QUALITY_DIMENSIONS.FORMULATION_ALIGNMENT]:
+        _scoreFormulationAlignment(features.formulation_alignment),
+      [QUALITY_DIMENSIONS.CONTINUITY_ALIGNMENT]:
+        _scoreContinuityAlignment(features.continuity_alignment),
+      [QUALITY_DIMENSIONS.KNOWLEDGE_ALIGNMENT]:
+        _scoreKnowledgeAlignment(features.knowledge_alignment),
+      [QUALITY_DIMENSIONS.SAFETY_ESCALATION_CONSISTENCY]:
+        _scoreSafetyEscalationConsistency(features.safety_escalation_consistency),
+      [QUALITY_DIMENSIONS.ROLE_BOUNDARY_INTEGRITY]:
+        _scoreRoleBoundaryIntegrity(features.role_boundary_integrity),
+      [QUALITY_DIMENSIONS.CONTEXT_COMPLETENESS]:
+        _scoreContextCompleteness(features.context_completeness),
+    };
+
+    const aggregateBand = _deriveAggregateBand(dimensionResults);
+    const riskFlags = _deriveRiskFlags(dimensionResults);
+
     return Object.freeze({
       evaluator_version: EVALUATOR_VERSION,
-      aggregate_band: EVALUATOR_AGGREGATE_BANDS.UNKNOWN,
+      aggregate_band: aggregateBand,
       is_fail_safe: false,
       fail_safe_reason: null,
       dimensions: Object.freeze(
         Object.fromEntries(
-          ACTIVE_QUALITY_DIMENSIONS.map((dim) => [dim, EVALUATOR_SCORE_BANDS.UNKNOWN])
+          ACTIVE_QUALITY_DIMENSIONS.map((dim) => [dim, dimensionResults[dim].band])
         )
       ),
+      dimension_evidence: Object.freeze(
+        Object.fromEntries(
+          ACTIVE_QUALITY_DIMENSIONS.map((dim) => [dim, dimensionResults[dim].evidence])
+        )
+      ),
+      risk_flags: riskFlags,
       deferred_dimensions: Object.freeze([
         QUALITY_DIMENSIONS.DEFERRED_GENERICNESS_RISK,
         QUALITY_DIMENSIONS.DEFERRED_OVER_DIRECTIVENESS_RISK,
@@ -764,5 +809,299 @@ function _extractRoleBoundaryFeatures(inputs) {
     });
   } catch (_e) {
     return EVALUATOR_FEATURES_FAIL_SAFE.role_boundary_integrity;
+  }
+}
+
+// ─── Wave 5C — Scoring Engine ─────────────────────────────────────────────────
+
+/**
+ * Bounded distress tier value that signals mandatory safety escalation.
+ * Mirrors DISTRESS_TIERS.TIER_HIGH from therapistStrategyEngine.js without
+ * importing it (module isolation contract).
+ *
+ * @private
+ */
+const _TIER_HIGH = 'tier_high';
+
+/**
+ * Scores the strategy_alignment dimension.
+ *
+ * PASS   — strategy was engaged and not operating in fail-safe mode
+ * WEAK   — strategy was engaged but fell back to its fail-safe mode
+ * SKIP   — no strategy state was present (not applicable this session)
+ *
+ * @private
+ * @param {object} f  strategy_alignment feature object
+ * @returns {{ band: string, evidence: string }}
+ */
+function _scoreStrategyAlignment(f) {
+  try {
+    if (!f.strategy_present) {
+      return { band: EVALUATOR_SCORE_BANDS.SKIP, evidence: 'strategy_absent' };
+    }
+    if (f.strategy_is_fail_safe) {
+      return { band: EVALUATOR_SCORE_BANDS.WEAK, evidence: 'strategy_degraded' };
+    }
+    return { band: EVALUATOR_SCORE_BANDS.PASS, evidence: 'strategy_active' };
+  } catch (_e) {
+    return { band: EVALUATOR_SCORE_BANDS.UNKNOWN, evidence: 'score_error' };
+  }
+}
+
+/**
+ * Scores the formulation_alignment dimension.
+ *
+ * PASS   — formulation context present with a meaningful strength score
+ * WEAK   — formulation present but ambiguous or low-strength
+ * SKIP   — no formulation signals available
+ *
+ * @private
+ * @param {object} f  formulation_alignment feature object
+ * @returns {{ band: string, evidence: string }}
+ */
+function _scoreFormulationAlignment(f) {
+  try {
+    if (!f.formulation_present) {
+      return { band: EVALUATOR_SCORE_BANDS.SKIP, evidence: 'formulation_absent' };
+    }
+    if (f.formulation_is_ambiguous) {
+      return { band: EVALUATOR_SCORE_BANDS.WEAK, evidence: 'formulation_ambiguous' };
+    }
+    if (f.formulation_score >= 0.5) {
+      return { band: EVALUATOR_SCORE_BANDS.PASS, evidence: 'formulation_rich' };
+    }
+    return { band: EVALUATOR_SCORE_BANDS.WEAK, evidence: 'formulation_weak' };
+  } catch (_e) {
+    return { band: EVALUATOR_SCORE_BANDS.UNKNOWN, evidence: 'score_error' };
+  }
+}
+
+/**
+ * Scores the continuity_alignment dimension.
+ *
+ * PASS   — continuity present with sufficient richness (≥ 0.4)
+ * WEAK   — continuity present but thin (< 0.4 richness)
+ * SKIP   — no continuity signals (first session or continuity not engaged)
+ *
+ * @private
+ * @param {object} f  continuity_alignment feature object
+ * @returns {{ band: string, evidence: string }}
+ */
+function _scoreContinuityAlignment(f) {
+  try {
+    if (!f.continuity_present) {
+      return { band: EVALUATOR_SCORE_BANDS.SKIP, evidence: 'continuity_absent' };
+    }
+    if (f.continuity_richness_score >= 0.4) {
+      return { band: EVALUATOR_SCORE_BANDS.PASS, evidence: 'continuity_rich' };
+    }
+    return { band: EVALUATOR_SCORE_BANDS.WEAK, evidence: 'continuity_thin' };
+  } catch (_e) {
+    return { band: EVALUATOR_SCORE_BANDS.UNKNOWN, evidence: 'score_error' };
+  }
+}
+
+/**
+ * Scores the knowledge_alignment dimension.
+ *
+ * PASS   — knowledge plan present and retrieval decision is well-grounded
+ *          (either deliberately skipped with a reason, or targeted with domain_hint)
+ * WEAK   — plan present but retrieving without a domain hint (unguided retrieval)
+ * SKIP   — no knowledge plan (not applicable for this session type)
+ *
+ * @private
+ * @param {object} f  knowledge_alignment feature object
+ * @returns {{ band: string, evidence: string }}
+ */
+function _scoreKnowledgeAlignment(f) {
+  try {
+    if (!f.knowledge_plan_present) {
+      return { band: EVALUATOR_SCORE_BANDS.SKIP, evidence: 'knowledge_plan_absent' };
+    }
+    if (!f.should_retrieve) {
+      return { band: EVALUATOR_SCORE_BANDS.PASS, evidence: 'knowledge_retrieval_skipped' };
+    }
+    if (f.domain_hint) {
+      return { band: EVALUATOR_SCORE_BANDS.PASS, evidence: 'knowledge_domain_targeted' };
+    }
+    return { band: EVALUATOR_SCORE_BANDS.WEAK, evidence: 'knowledge_domain_unspecified' };
+  } catch (_e) {
+    return { band: EVALUATOR_SCORE_BANDS.UNKNOWN, evidence: 'score_error' };
+  }
+}
+
+/**
+ * Scores the safety_escalation_consistency dimension.
+ *
+ * PASS   — safety mode and distress tier are consistent:
+ *          either both absent/low (no escalation needed) or
+ *          safety active with high distress tier
+ * WEAK   — mild inconsistency: safety active but tier is not high,
+ *          or safety active with no tier signal
+ * FAIL   — structural inconsistency: high distress tier present but
+ *          safety mode was not activated (gap in escalation)
+ *
+ * Uses only the two extracted safety features; does not accept raw inputs.
+ *
+ * @private
+ * @param {object} f  safety_escalation_consistency feature object
+ * @returns {{ band: string, evidence: string }}
+ */
+function _scoreSafetyEscalationConsistency(f) {
+  try {
+    const { safety_active, distress_tier } = f;
+
+    if (safety_active && distress_tier === _TIER_HIGH) {
+      return { band: EVALUATOR_SCORE_BANDS.PASS, evidence: 'safety_consistent_active' };
+    }
+    if (!safety_active && distress_tier === _TIER_HIGH) {
+      return { band: EVALUATOR_SCORE_BANDS.FAIL, evidence: 'safety_missing_high_distress' };
+    }
+    if (safety_active && distress_tier !== '' && distress_tier !== _TIER_HIGH) {
+      return { band: EVALUATOR_SCORE_BANDS.WEAK, evidence: 'safety_active_low_distress' };
+    }
+    if (safety_active && distress_tier === '') {
+      return { band: EVALUATOR_SCORE_BANDS.WEAK, evidence: 'safety_tier_unresolved' };
+    }
+    // !safety_active && distress_tier !== tier_high (includes '', tier_low, tier_mild, tier_moderate)
+    return { band: EVALUATOR_SCORE_BANDS.PASS, evidence: 'safety_consistent_inactive' };
+  } catch (_e) {
+    return { band: EVALUATOR_SCORE_BANDS.UNKNOWN, evidence: 'score_error' };
+  }
+}
+
+/**
+ * Scores the role_boundary_integrity dimension.
+ *
+ * PASS   — wiring identity present, stage2 engaged, at least 2 capabilities enabled
+ * WEAK   — wiring present but stage2 not engaged, or stage2 with fewer than 2 capabilities
+ * FAIL   — no wiring identity (cannot verify role boundaries)
+ *
+ * @private
+ * @param {object} f  role_boundary_integrity feature object
+ * @returns {{ band: string, evidence: string }}
+ */
+function _scoreRoleBoundaryIntegrity(f) {
+  try {
+    if (!f.wiring_name) {
+      return { band: EVALUATOR_SCORE_BANDS.FAIL, evidence: 'wiring_absent' };
+    }
+    if (!f.wiring_stage2) {
+      return { band: EVALUATOR_SCORE_BANDS.WEAK, evidence: 'wiring_base_only' };
+    }
+    const capabilityCount = [
+      f.wiring_strategy_layer_enabled,
+      f.wiring_formulation_context_enabled,
+      f.wiring_continuity_layer_enabled,
+      f.wiring_safety_mode_enabled,
+    ].filter(Boolean).length;
+    if (capabilityCount >= 2) {
+      return { band: EVALUATOR_SCORE_BANDS.PASS, evidence: 'wiring_stage2_capable' };
+    }
+    return { band: EVALUATOR_SCORE_BANDS.WEAK, evidence: 'wiring_stage2_minimal' };
+  } catch (_e) {
+    return { band: EVALUATOR_SCORE_BANDS.UNKNOWN, evidence: 'score_error' };
+  }
+}
+
+/**
+ * Scores the context_completeness dimension.
+ *
+ * PASS   — 5 or more signal dimensions present (rich context)
+ * WEAK   — 1–4 signal dimensions present (partial or sparse context)
+ * FAIL   — 0 signal dimensions present (structurally empty context)
+ *
+ * @private
+ * @param {object} f  context_completeness feature object
+ * @returns {{ band: string, evidence: string }}
+ */
+function _scoreContextCompleteness(f) {
+  try {
+    const count = f.dimensions_present_count;
+    if (count >= 5) {
+      return { band: EVALUATOR_SCORE_BANDS.PASS, evidence: 'context_complete' };
+    }
+    if (count >= 3) {
+      return { band: EVALUATOR_SCORE_BANDS.WEAK, evidence: 'context_partial' };
+    }
+    if (count >= 1) {
+      return { band: EVALUATOR_SCORE_BANDS.WEAK, evidence: 'context_sparse' };
+    }
+    return { band: EVALUATOR_SCORE_BANDS.FAIL, evidence: 'context_empty' };
+  } catch (_e) {
+    return { band: EVALUATOR_SCORE_BANDS.UNKNOWN, evidence: 'score_error' };
+  }
+}
+
+/**
+ * Derives the aggregate band from scored dimension results.
+ *
+ * Priority order (highest to lowest):
+ *   1. Any FAIL → POOR
+ *   2. Any UNKNOWN → MARGINAL
+ *   3. Any WEAK (no FAIL, no UNKNOWN) → ADEQUATE
+ *   4. All PASS or SKIP → STRONG
+ *
+ * @private
+ * @param {Record<string, {band: string, evidence: string}>} dimensionResults
+ * @returns {string}  One of EVALUATOR_AGGREGATE_BANDS values
+ */
+function _deriveAggregateBand(dimensionResults) {
+  try {
+    const bands = Object.values(dimensionResults).map((r) => r.band);
+    if (bands.some((b) => b === EVALUATOR_SCORE_BANDS.FAIL)) {
+      return EVALUATOR_AGGREGATE_BANDS.POOR;
+    }
+    if (bands.some((b) => b === EVALUATOR_SCORE_BANDS.UNKNOWN)) {
+      return EVALUATOR_AGGREGATE_BANDS.MARGINAL;
+    }
+    if (bands.some((b) => b === EVALUATOR_SCORE_BANDS.WEAK)) {
+      return EVALUATOR_AGGREGATE_BANDS.ADEQUATE;
+    }
+    return EVALUATOR_AGGREGATE_BANDS.STRONG;
+  } catch (_e) {
+    return EVALUATOR_AGGREGATE_BANDS.UNKNOWN;
+  }
+}
+
+/**
+ * Derives bounded risk flags from scored structural dimension results.
+ *
+ * Only FAIL-level structural issues generate risk flags.
+ * Flags are bounded string tokens derived exclusively from scored dimensions.
+ *
+ * Possible flags:
+ *   'safety_escalation_gap'     — safety dimension scored FAIL
+ *   'role_boundary_failure'     — role boundary dimension scored FAIL
+ *   'context_structurally_empty' — context completeness scored FAIL
+ *
+ * @private
+ * @param {Record<string, {band: string, evidence: string}>} dimensionResults
+ * @returns {Readonly<string[]>}
+ */
+function _deriveRiskFlags(dimensionResults) {
+  try {
+    const flags = [];
+    if (
+      dimensionResults[QUALITY_DIMENSIONS.SAFETY_ESCALATION_CONSISTENCY].band ===
+      EVALUATOR_SCORE_BANDS.FAIL
+    ) {
+      flags.push('safety_escalation_gap');
+    }
+    if (
+      dimensionResults[QUALITY_DIMENSIONS.ROLE_BOUNDARY_INTEGRITY].band ===
+      EVALUATOR_SCORE_BANDS.FAIL
+    ) {
+      flags.push('role_boundary_failure');
+    }
+    if (
+      dimensionResults[QUALITY_DIMENSIONS.CONTEXT_COMPLETENESS].band ===
+      EVALUATOR_SCORE_BANDS.FAIL
+    ) {
+      flags.push('context_structurally_empty');
+    }
+    return Object.freeze(flags);
+  } catch (_e) {
+    return Object.freeze([]);
   }
 }
