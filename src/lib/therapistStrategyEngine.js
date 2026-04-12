@@ -1115,6 +1115,95 @@ export const STRATEGY_DIAGNOSTIC_SAFE_FIELDS = Object.freeze([
   'lts_trajectory', // Wave 3D
 ]);
 
+// ─── Wave 3E — LTS diagnostic snapshot ───────────────────────────────────────
+
+/**
+ * Safe LTS signal field names that are safe to include in diagnostic payloads.
+ *
+ * Every field here is a boolean, number, or bounded string label.
+ * No raw user text, no private entity content, no PII.
+ *
+ * DELIBERATELY EXCLUDED
+ * ---------------------
+ * - lts_stalled_interventions: an array of label strings.  Excluded as a
+ *   precaution — the aggregate boolean (lts_has_stalled_interventions) is
+ *   sufficient for observability and carries no label content risk.
+ *
+ * @type {ReadonlyArray<string>}
+ */
+export const LTS_DIAGNOSTIC_SAFE_FIELDS = Object.freeze([
+  'lts_valid',
+  'lts_session_count',
+  'lts_trajectory',
+  'lts_has_risk_history',
+  'lts_is_stagnating',
+  'lts_is_progressing',
+  'lts_is_fluctuating',
+  'lts_has_stalled_interventions',
+]);
+
+/**
+ * Builds a safe, sanitized diagnostic snapshot from LTS strategy inputs.
+ *
+ * PURPOSE (Wave 3E)
+ * -----------------
+ * Makes the active LTS signals observable without exposing raw user content or
+ * private clinical text.  The snapshot is suitable for inclusion in diagnostic
+ * payloads, console logs (when _s2debug=true), and test assertions.
+ *
+ * SAFETY CONTRACT
+ * ---------------
+ * - lts_stalled_interventions is deliberately excluded (see LTS_DIAGNOSTIC_SAFE_FIELDS).
+ * - No raw message content, no entity IDs, no user PII.
+ * - Never throws — returns a fail-safe snapshot on any error or absent input.
+ * - Output is a frozen plain object (no mutations after creation).
+ *
+ * DIAGNOSTIC-ONLY
+ * ---------------
+ * This function is intended for staging/debug surfaces only (gated by
+ * ?_s2debug=true in the URL).  It MUST NOT be used to alter routing or
+ * therapeutic behavior in any way.
+ *
+ * @param {object|null|undefined} ltsInputs - LTSStrategyInputs from extractLTSStrategyInputs()
+ * @returns {Readonly<{
+ *   lts_valid: boolean,
+ *   lts_session_count: number,
+ *   lts_trajectory: string,
+ *   lts_has_risk_history: boolean,
+ *   lts_is_stagnating: boolean,
+ *   lts_is_progressing: boolean,
+ *   lts_is_fluctuating: boolean,
+ *   lts_has_stalled_interventions: boolean,
+ * }>}
+ */
+export function buildLTSDiagnosticSnapshot(ltsInputs) {
+  try {
+    const li = ltsInputs && typeof ltsInputs === 'object' ? ltsInputs : {};
+    return Object.freeze({
+      lts_valid: li.lts_valid === true,
+      lts_session_count: typeof li.lts_session_count === 'number' ? li.lts_session_count : 0,
+      lts_trajectory: typeof li.lts_trajectory === 'string' ? li.lts_trajectory : '',
+      lts_has_risk_history: li.lts_has_risk_history === true,
+      lts_is_stagnating: li.lts_is_stagnating === true,
+      lts_is_progressing: li.lts_is_progressing === true,
+      lts_is_fluctuating: li.lts_is_fluctuating === true,
+      lts_has_stalled_interventions: li.lts_has_stalled_interventions === true,
+      // lts_stalled_interventions deliberately omitted — see LTS_DIAGNOSTIC_SAFE_FIELDS.
+    });
+  } catch (_e) {
+    return Object.freeze({
+      lts_valid: false,
+      lts_session_count: 0,
+      lts_trajectory: '',
+      lts_has_risk_history: false,
+      lts_is_stagnating: false,
+      lts_is_progressing: false,
+      lts_is_fluctuating: false,
+      lts_has_stalled_interventions: false,
+    });
+  }
+}
+
 /**
  * Builds a safe, sanitized diagnostic snapshot from a TherapistStrategyState.
  *

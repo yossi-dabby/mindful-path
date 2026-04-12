@@ -537,6 +537,11 @@ export function getActivationDiagnostics() {
           version: STRATEGY_VERSION,
           availableModes: Object.values(STRATEGY_INTERVENTION_MODES),
         },
+        // Wave 3E — LTS layer activation status (boolean flags only, no runtime state).
+        ltsLayer: {
+          ltsLayerActive: isUpgradeEnabled('THERAPIST_UPGRADE_LONGITUDINAL_ENABLED'),
+          strategyLayerActive: isUpgradeEnabled('THERAPIST_UPGRADE_STRATEGY_ENABLED'),
+        },
       },
       companion: {
         parsedC2Flags,
@@ -574,6 +579,7 @@ export function logActivationDiagnostics() {
     console.log('masterGateOn         :', p.therapist.masterGateOn);
     console.log('routeHint            :', p.therapist.routeHint);
     console.log('strategyEngine       :', p.therapist.strategyEngine);
+    console.log('ltsLayer             :', p.therapist.ltsLayer); // Wave 3E
     console.groupEnd();
     console.group('[Companion]');
     console.log('parsedC2Flags        :', p.companion.parsedC2Flags);
