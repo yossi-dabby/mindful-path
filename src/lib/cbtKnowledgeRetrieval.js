@@ -72,7 +72,7 @@ import { CBT_DISTRESS_SUITABILITY } from './cbtCurriculumUnitSchema.js';
  *
  * @type {string}
  */
-export const CBT_KNOWLEDGE_RETRIEVAL_VERSION = '1.0.0';
+export const CBT_KNOWLEDGE_RETRIEVAL_VERSION = '1.1.0';
 
 // ─── Bounds ───────────────────────────────────────────────────────────────────
 
@@ -129,6 +129,33 @@ const CBT_EVIDENCE_LEVEL_FIRST_WAVE_ALLOWED = Object.freeze(
 const CBT_SAFETY_TAG_EXCLUDE_FIRST_WAVE = Object.freeze(
   new Set(['not_for_crisis', 'not_for_high_distress'])
 );
+
+// ─── Wave 4D — Unit type preference → entity unit_type mapping ────────────────
+
+/**
+ * Maps abstract planner unit type preferences to concrete entity `unit_type`
+ * values used in CBTCurriculumUnit records.
+ *
+ * The planner emits abstract preferences (technique, worksheet, case_example);
+ * this module maps them to the bounded set of entity unit_type strings to
+ * enable deterministic preference-based ranking after filtering.
+ *
+ * Mapping rationale:
+ *   technique    → 'intervention'      (CBT techniques are intervention units)
+ *   worksheet    → 'blocker_resolution' (structured practice for stagnating arcs)
+ *   case_example → 'outcome_interpretation' (closest entity type for consolidation)
+ *   psychoeducation → 'psychoeducation' (direct 1:1 match)
+ *   any          → '' (no preference; skip ranking)
+ *
+ * @private
+ * @type {Readonly<Record<string, string>>}
+ */
+const _UNIT_TYPE_PREF_TO_ENTITY_TYPE = Object.freeze({
+  technique: 'intervention',
+  worksheet: 'blocker_resolution',
+  case_example: 'outcome_interpretation',
+  psychoeducation: 'psychoeducation',
+});
 
 // ─── Formulation hints extractor ─────────────────────────────────────────────
 
@@ -291,6 +318,62 @@ function _isUnitEligible(unit, plan) {
   return true;
 }
 
+// ─── Wave 4D — Unit type preference ranking ───────────────────────────────────
+
+/**
+ * Returns a copy of the eligible units array ranked by the planner's
+ * unitTypePreference signal, using the _UNIT_TYPE_PREF_TO_ENTITY_TYPE mapping.
+ *
+ * Ranking order (first = preferred):
+ *   1. Units whose entity unit_type matches the mapped preference.
+ *   2. Units with no unit_type or unit_type 'any' (arc-agnostic filler).
+ *   3. All remaining units.
+ *
+ * Within each group, the original priority_score-based order is preserved.
+ * When unitTypePreference is 'any', the original order is returned unchanged.
+ *
+ * This is a soft-preference ranking only — all returned units have already
+ * passed every Wave 4A.2 eligibility filter.  The cap (CBT_KNOWLEDGE_RETRIEVAL_MAX_UNITS)
+ * is applied AFTER ranking, so preferred units are more likely to be included.
+ *
+ * FAIL-OPEN: returns units unchanged on any error.
+ *
+ * @private
+ * @param {object[]} units             - Eligible CBTCurriculumUnit records.
+ * @param {string}   unitTypePreference - Planner output (one of CBT_UNIT_TYPE_PREFERENCES).
+ * @returns {object[]} Ranked copy of the input array.
+ */
+function _rankByUnitTypePreference(units, unitTypePreference) {
+  try {
+    if (!Array.isArray(units)) return units;
+    // 'any' preference means no ranking — return original order.
+    if (!unitTypePreference || unitTypePreference === 'any') return units;
+
+    const mappedEntityType = _UNIT_TYPE_PREF_TO_ENTITY_TYPE[unitTypePreference] ?? null;
+    // No mapping found → return original order (safe default).
+    if (!mappedEntityType) return units;
+
+    const preferred = [];
+    const neutral = [];
+    const other = [];
+
+    for (const unit of units) {
+      const uType = typeof unit.unit_type === 'string' ? unit.unit_type : '';
+      if (uType === mappedEntityType) {
+        preferred.push(unit);
+      } else if (!uType || uType === 'any') {
+        neutral.push(unit);
+      } else {
+        other.push(unit);
+      }
+    }
+
+    return [...preferred, ...neutral, ...other];
+  } catch {
+    return units;
+  }
+}
+
 // ─── Knowledge block formatter ────────────────────────────────────────────────
 
 /**
@@ -446,8 +529,13 @@ export async function retrieveBoundedCBTKnowledgeBlock(entities, plan) {
     const eligible = rawUnits.filter(u => u && typeof u === 'object' && _isUnitEligible(u, plan));
     if (eligible.length === 0) return '';
 
+    // Step 5b (Wave 4D): Rank by unit type preference before capping.
+    // Preferred unit_type units rise to the top so the hard cap favours them.
+    // Ranking is deterministic; within each rank group the priority_score order is preserved.
+    const ranked = _rankByUnitTypePreference(eligible, plan.unitTypePreference);
+
     // Step 6: Hard cap
-    const capped = eligible.slice(0, CBT_KNOWLEDGE_RETRIEVAL_MAX_UNITS);
+    const capped = ranked.slice(0, CBT_KNOWLEDGE_RETRIEVAL_MAX_UNITS);
 
     // Step 7: Sanitize
     const sanitized = capped.map(_sanitizeUnit);
