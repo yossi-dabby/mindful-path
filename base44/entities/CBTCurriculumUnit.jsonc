@@ -175,6 +175,68 @@
     "admin_notes": {
       "type": "string",
       "description": "Internal admin notes \u2014 never retrieved by agent"
+    },
+    "planner_domain": {
+      "type": "string",
+      "enum": [
+        "anxiety",
+        "depression",
+        "trauma",
+        "anger",
+        "relationship",
+        "ocd",
+        "grief",
+        "self_esteem",
+        "panic",
+        "social_anxiety",
+        "phobia",
+        "general"
+      ],
+      "description": "Wave 4 planner domain \u2014 maps clinical_topic to a CBT_KNOWLEDGE_DOMAINS value for retrieval scoping. Must be set to activate runtime retrieval for this unit."
+    },
+    "distress_suitability": {
+      "type": "string",
+      "enum": [
+        "any",
+        "low_only",
+        "not_in_crisis"
+      ],
+      "default": "any",
+      "description": "Which distress levels this unit is suitable for. 'low_only' = retrieve only when distress is tier_low. 'not_in_crisis' = suitable unless containment is active. 'any' = no distress-level restriction."
+    },
+    "evidence_level": {
+      "type": "string",
+      "enum": [
+        "anecdotal",
+        "emerging",
+        "established",
+        "gold_standard"
+      ],
+      "default": "established",
+      "description": "Clinical evidence quality for this unit's content. Only 'established' and 'gold_standard' units are eligible for Wave 4 runtime retrieval."
+    },
+    "safety_tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "contraindicated_in_crisis",
+          "requires_therapist_supervision",
+          "not_for_acute_trauma",
+          "not_for_active_suicidality",
+          "not_for_psychosis",
+          "not_for_bipolar_acute",
+          "cardiac_precaution",
+          "respiratory_precaution",
+          "safe_for_self_guided"
+        ]
+      },
+      "description": "Bounded set of import-time safety tags. Checked at ingest; influences retrieval eligibility. An empty array means no specific safety restrictions beyond standard CBT contraindications."
+    },
+    "runtime_eligible_first_wave": {
+      "type": "boolean",
+      "default": false,
+      "description": "Explicit Wave 4 first-wave activation gate. Must be true AND planner_domain must be in the allowed first-wave domain set for this unit to be retrieved at runtime. Always false for deferred/high-risk domains. Set by admin after ingest validation."
     }
   },
   "required": [
