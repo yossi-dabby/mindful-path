@@ -87,6 +87,7 @@ import {
   extractLTSStrategyInputs,
   buildStrategyContextSection,
   buildStrategyDiagnosticSnapshot,
+  buildLTSDiagnosticSnapshot,
 } from './therapistStrategyEngine.js';
 
 /**
@@ -857,6 +858,8 @@ export async function buildV7SessionStartContentAsync(
  * - Only called in the V8 strategy path (strategy_layer_enabled === true).
  * - Uses buildStrategyDiagnosticSnapshot() which strips message_signals and
  *   never includes raw user text or private entity content.
+ * - Wave 3E: when ltsInputs is provided, also emits an LTS signal group via
+ *   buildLTSDiagnosticSnapshot().  Gated behind the same _s2debug flag.
  * - Gated by window.location.search containing `_s2debug=true` — fail-closed
  *   on any error, on missing window, or on any unexpected input.
  * - Does NOT change any routing decision or therapeutic behavior.
@@ -864,8 +867,9 @@ export async function buildV7SessionStartContentAsync(
  *
  * @private
  * @param {object} strategyState - TherapistStrategyState from determineTherapistStrategy()
+ * @param {object|null} [ltsInputs] - Optional LTSStrategyInputs from extractLTSStrategyInputs()
  */
-function _emitStrategyDiagnosticIfEnabled(strategyState) {
+function _emitStrategyDiagnosticIfEnabled(strategyState, ltsInputs) {
   try {
     if (typeof window === 'undefined') return;
     const search = window.location?.search ?? '';
@@ -888,6 +892,20 @@ function _emitStrategyDiagnosticIfEnabled(strategyState) {
     console.log('lts_trajectory           :', snapshot.lts_trajectory);
     console.log('strategy_version         :', snapshot.strategy_version);
     console.log('fail_safe                :', snapshot.fail_safe);
+    // Wave 3E — LTS signal group (emitted only when LTS inputs are available)
+    if (ltsInputs != null) {
+      const ltsSnap = buildLTSDiagnosticSnapshot(ltsInputs);
+      console.group('[Wave 3E] LTS signals active');
+      console.log('lts_valid                :', ltsSnap.lts_valid);
+      console.log('lts_session_count        :', ltsSnap.lts_session_count);
+      console.log('lts_trajectory           :', ltsSnap.lts_trajectory);
+      console.log('lts_has_risk_history     :', ltsSnap.lts_has_risk_history);
+      console.log('lts_is_stagnating        :', ltsSnap.lts_is_stagnating);
+      console.log('lts_is_progressing       :', ltsSnap.lts_is_progressing);
+      console.log('lts_is_fluctuating       :', ltsSnap.lts_is_fluctuating);
+      console.log('lts_has_stalled_interventions:', ltsSnap.lts_has_stalled_interventions);
+      console.groupEnd();
+    }
     console.groupEnd();
   } catch (_e) {
     // Diagnostic emission must never propagate — fail silently.
@@ -1053,7 +1071,8 @@ export async function buildV8SessionStartContentAsync(
     // Wave 2D — Emit safe strategy diagnostic when _s2debug=true is in the URL.
     // Gated, additive, no effect on routing or therapeutic behavior.
     // Never logs raw message content — only the sanitized diagnostic snapshot.
-    _emitStrategyDiagnosticIfEnabled(strategyState);
+    // Wave 3E: pass ltsInputs so the LTS signal group is also emitted.
+    _emitStrategyDiagnosticIfEnabled(strategyState, ltsInputs);
 
     // Step 8: Build strategy context section
     const strategySection = buildStrategyContextSection(strategyState);
