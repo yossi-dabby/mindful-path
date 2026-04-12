@@ -34,6 +34,9 @@
  * Wave 3C — CBT_THERAPIST_WIRING_STAGE2_V9 added as the LTS injection path.
  *   V9 supersedes V8 when STRATEGY_ENABLED + LONGITUDINAL_ENABLED are both on.
  *   V9 is a strict superset of V8.
+ * Wave 4C — CBT_THERAPIST_WIRING_STAGE2_V10 added as the CBT knowledge retrieval path.
+ *   V10 supersedes V9 when STRATEGY_ENABLED + LONGITUDINAL_ENABLED + KNOWLEDGE_ENABLED
+ *   are all on.  V10 is a strict superset of V9.
  *
  * Analytics registration (Section B of Phase 0.1 spec) is performed lazily
  * via a dynamic import of base44Client.js so that test environments that lack
@@ -56,6 +59,7 @@ import {
   CBT_THERAPIST_WIRING_STAGE2_V7,
   CBT_THERAPIST_WIRING_STAGE2_V8,
   CBT_THERAPIST_WIRING_STAGE2_V9,
+  CBT_THERAPIST_WIRING_STAGE2_V10,
   AI_COMPANION_WIRING_UPGRADE_V1,
   AI_COMPANION_WIRING_UPGRADE_V2,
 } from './agentWiring.js';
@@ -104,9 +108,13 @@ import {
  * Routing logic (evaluated in order):
  *   1. Master gate off  → CBT_THERAPIST_WIRING_HYBRID (current default)
  *   2. Master gate on, THERAPIST_UPGRADE_STRATEGY_ENABLED on,
+ *      THERAPIST_UPGRADE_LONGITUDINAL_ENABLED on,
+ *      THERAPIST_UPGRADE_KNOWLEDGE_ENABLED on
+ *                       → CBT_THERAPIST_WIRING_STAGE2_V10 (Wave 4C CBT knowledge retrieval)
+ *   3. Master gate on, THERAPIST_UPGRADE_STRATEGY_ENABLED on,
  *      THERAPIST_UPGRADE_LONGITUDINAL_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V9 (Wave 3C LTS injection)
- *   3. Master gate on, THERAPIST_UPGRADE_STRATEGY_ENABLED on
+ *   4. Master gate on, THERAPIST_UPGRADE_STRATEGY_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V8 (Wave 2B strategy layer)
  *   4. Master gate on, THERAPIST_UPGRADE_CONTINUITY_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V7 (Phase 3 continuity)
@@ -124,6 +132,10 @@ import {
  *                       → CBT_THERAPIST_WIRING_STAGE2_V1 (Phase 1 memory layer)
  *  11. Master gate on, no matching phase flag
  *                       → CBT_THERAPIST_WIRING_HYBRID (fall-through to current default)
+ *
+ * Wave 4C (V10) takes precedence over Wave 3C (V9) and all prior phases because
+ * V10 is a strict superset of V9.  V10 requires STRATEGY_ENABLED +
+ * LONGITUDINAL_ENABLED + KNOWLEDGE_ENABLED.
  *
  * Wave 3C (V9) takes precedence over Wave 2B (V8) and all prior phases because
  * V9 is a strict superset of V8.  V9 requires both STRATEGY_ENABLED and
@@ -157,6 +169,20 @@ import {
  */
 export function resolveTherapistWiring() {
   if (isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')) {
+    // ── Wave 4C — CBT knowledge retrieval (supersedes Wave 3C LTS and earlier) ──
+    if (
+      isUpgradeEnabled('THERAPIST_UPGRADE_STRATEGY_ENABLED') &&
+      isUpgradeEnabled('THERAPIST_UPGRADE_LONGITUDINAL_ENABLED') &&
+      isUpgradeEnabled('THERAPIST_UPGRADE_KNOWLEDGE_ENABLED')
+    ) {
+      logUpgradeEvent('route_selected', {
+        flag: 'THERAPIST_UPGRADE_KNOWLEDGE_ENABLED',
+        path: 'stage2_v10',
+        phase: 'wave4c_knowledge_retrieval',
+      });
+      return CBT_THERAPIST_WIRING_STAGE2_V10;
+    }
+
     // ── Wave 3C — LTS injection (supersedes Wave 2B strategy layer and earlier) ──
     if (
       isUpgradeEnabled('THERAPIST_UPGRADE_STRATEGY_ENABLED') &&

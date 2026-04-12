@@ -37,7 +37,7 @@ import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
 import { validateAgentOutput, sanitizeConversationMessages, parseCounters } from '../components/utils/validateAgentOutput.jsx';
 import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
-import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildV8SessionStartContentAsync, buildV9SessionStartContentAsync, buildRuntimeSafetySupplement } from '@/lib/workflowContextInjector.js';
+import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildV8SessionStartContentAsync, buildV9SessionStartContentAsync, buildV10SessionStartContentAsync, buildRuntimeSafetySupplement } from '@/lib/workflowContextInjector.js';
 // Phase 4 / Phase 5 — Conversation memory write for V7 continuity
 import { triggerConversationEndSummarization, CONVERSATION_MIN_MESSAGES_FOR_MEMORY } from '@/lib/sessionEndSummarization.js';
 import { MOBILE_HEADER_HEIGHT } from '../components/layout/MobileHeader';
@@ -431,7 +431,7 @@ export default function Chat() {
                 setIsLoading(true);
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
-                  content: await buildV9SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44)
+                  content: await buildV10SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44)
                 });
                 inFlightIntentRef.current = false;
               }, 100);
@@ -472,7 +472,7 @@ export default function Chat() {
                 setIsLoading(true);
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
-                  content: await buildV9SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44)
+                  content: await buildV10SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44)
                 });
                 inFlightIntentRef.current = false;
               }, 100);
@@ -871,7 +871,7 @@ export default function Chat() {
       // message, append it to the same turn so the agent handles both together.
       setTimeout(async () => {
         setIsLoading(true);
-        const sessionStartContent = await buildV9SessionStartContentAsync(
+        const sessionStartContent = await buildV10SessionStartContentAsync(
           ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44
         );
         await base44.agents.addMessage(conversation, {
@@ -1076,7 +1076,7 @@ export default function Chat() {
         ? runtimeSupplement + '\n\n' + messageText
         : messageText;
       if (isNewConversation) {
-        const sessionStartContent = await buildV9SessionStartContentAsync(
+        const sessionStartContent = await buildV10SessionStartContentAsync(
           ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44
         );
         messageContent = sessionStartContent + '\n\n' + messageContent;

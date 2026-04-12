@@ -159,26 +159,35 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
   THERAPIST_UPGRADE_LONGITUDINAL_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_LONGITUDINAL_ENABLED === 'true',
 
   /**
-   * Wave 4A — CBT Knowledge Planner scaffold.
+   * Wave 4A / 4C — CBT Knowledge Retrieval.
    *
-   * Gates the CBT knowledge planner module (src/lib/cbtKnowledgePlanner.js).
-   * When enabled together with the master gate, the pure deterministic planner
-   * can be called to decide whether CBT knowledge retrieval should occur and
-   * what bounded retrieval plan should be used.
+   * Wave 4A.1 (scaffold): Gates the CBT knowledge planner module
+   * (src/lib/cbtKnowledgePlanner.js).  The planner is a standalone pure
+   * library; enabling this flag alone has zero effect on any live session.
    *
-   * SCAFFOLD ONLY (Wave 4A.1):
-   *   - No runtime retrieval is activated.
-   *   - No CBTCurriculumUnit schema changes are required.
-   *   - No Chat.jsx or workflowContextInjector changes are included.
-   *   - No Base44 backend secret is required for this inert scaffold.
-   *   - The planner module is a standalone pure library with no imports.
-   *   - Enabling this flag with all other flags false has zero effect on any
-   *     live session, agent, or user-facing behavior.
+   * Wave 4C (read path): When enabled together with STRATEGY_ENABLED,
+   * LONGITUDINAL_ENABLED, and the master gate, resolveTherapistWiring()
+   * returns CBT_THERAPIST_WIRING_STAGE2_V10 and
+   * buildV10SessionStartContentAsync appends a bounded CBT knowledge block
+   * to the session-start payload.
    *
-   * Frontend VITE env only for this scaffold PR.
-   * No backend Deno equivalent required until retrieval is wired (Wave 4B+).
+   * The knowledge block is:
+   *   - Appended last (after LTS, strategy, formulation, continuity).
+   *   - Supporting reference only; does NOT override any clinical signal.
+   *   - Hard-capped at CBT_KNOWLEDGE_RETRIEVAL_MAX_UNITS (3) units.
+   *   - Gated by the CBT knowledge planner (safety, distress, strategy,
+   *     domain, evidence_level, distress_suitability, safety_tags,
+   *     runtime_eligible_first_wave filters).
+   *
+   * Fail-open: any retrieval error returns exact V9 output unchanged.
+   * Production behavior is EXACTLY preserved when this flag is off.
+   *
+   * Frontend VITE env only — no backend Deno equivalent is required for
+   * the client-side entity read path.
    *
    * Staging enablement: set VITE_THERAPIST_UPGRADE_KNOWLEDGE_ENABLED=true
+   * (also requires THERAPIST_UPGRADE_ENABLED, THERAPIST_UPGRADE_STRATEGY_ENABLED,
+   * and THERAPIST_UPGRADE_LONGITUDINAL_ENABLED to all be true).
    */
   THERAPIST_UPGRADE_KNOWLEDGE_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_KNOWLEDGE_ENABLED === 'true',
 });
