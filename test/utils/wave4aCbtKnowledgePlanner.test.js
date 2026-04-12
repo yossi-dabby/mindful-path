@@ -147,6 +147,8 @@ import {
   planCBTKnowledgeRetrieval,
   CBT_KNOWLEDGE_PLANNER_VERSION,
   CBT_KNOWLEDGE_DOMAINS,
+  CBT_KNOWLEDGE_DEFERRED_DOMAINS,
+  CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE,
   CBT_KNOWLEDGE_SKIP_REASONS,
   CBT_UNIT_TYPE_PREFERENCES,
   CBT_TREATMENT_ARC_FILTERS,
@@ -1341,5 +1343,147 @@ describe('Wave 4A.1 — additional edge cases', () => {
     // Explicit phase takes priority — should be 'early', not 'late'
     expect(result.treatmentArcFilter).toBe(CBT_TREATMENT_ARC_FILTERS.EARLY);
     expect(result.unitTypePreference).toBe(CBT_UNIT_TYPE_PREFERENCES.PSYCHOEDUCATION);
+  });
+});
+
+// ─── Wave 4A.2 — Domain scope alignment ──────────────────────────────────────
+
+/**
+ * First-wave domains that must be present in CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE.
+ * These are standard CBT focus areas with well-validated protocols and lower clinical risk.
+ */
+const _FIRST_WAVE_DOMAINS = [
+  'anxiety',
+  'depression',
+  'self_esteem',
+  'grief',
+  'panic',
+  'social_anxiety',
+  'phobia',
+  'general',
+];
+
+/**
+ * Domains explicitly deferred to later Wave 4 stages due to higher clinical risk
+ * or the requirement for specialised protocols (trauma-informed CBT, ERP, etc.).
+ */
+const _DEFERRED_DOMAINS = [
+  'trauma',
+  'anger',
+  'relationship',
+  'ocd',
+];
+
+describe('Wave 4A.2 — Domain scope alignment (CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE)', () => {
+  it('exports CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE as a Set', () => {
+    expect(CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE).toBeInstanceOf(Set);
+  });
+
+  it('CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE is frozen', () => {
+    expect(Object.isFrozen(CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE)).toBe(true);
+  });
+
+  it('CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE is non-empty', () => {
+    expect(CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE.size).toBeGreaterThan(0);
+  });
+
+  it.each(_FIRST_WAVE_DOMAINS)(
+    'first-wave domain "%s" is present in CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE',
+    (domain) => {
+      expect(CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE.has(domain)).toBe(true);
+    }
+  );
+
+  it.each(_DEFERRED_DOMAINS)(
+    'deferred domain "%s" is NOT present in CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE',
+    (domain) => {
+      expect(CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE.has(domain)).toBe(false);
+    }
+  );
+
+  it.each(_FIRST_WAVE_DOMAINS)(
+    'first-wave allowed domain "%s" is also present in CBT_KNOWLEDGE_DOMAINS',
+    (domain) => {
+      const allDomains = Object.values(CBT_KNOWLEDGE_DOMAINS);
+      expect(allDomains).toContain(domain);
+    }
+  );
+
+  it.each(_DEFERRED_DOMAINS)(
+    'deferred domain "%s" remains in CBT_KNOWLEDGE_DOMAINS (full registry unchanged)',
+    (domain) => {
+      const allDomains = Object.values(CBT_KNOWLEDGE_DOMAINS);
+      expect(allDomains).toContain(domain);
+    }
+  );
+
+  it('CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE and deferred domains together cover all CBT_KNOWLEDGE_DOMAINS values', () => {
+    const allDomains = new Set(Object.values(CBT_KNOWLEDGE_DOMAINS));
+    const covered = new Set([
+      ...CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE,
+      ...CBT_KNOWLEDGE_DEFERRED_DOMAINS,
+    ]);
+    for (const domain of allDomains) {
+      expect(covered.has(domain)).toBe(true);
+    }
+  });
+
+  it('first-wave and deferred sets are disjoint (no domain appears in both)', () => {
+    for (const domain of CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE) {
+      expect(CBT_KNOWLEDGE_DEFERRED_DOMAINS.has(domain)).toBe(false);
+    }
+  });
+});
+
+describe('Wave 4A.2 — CBT_KNOWLEDGE_DEFERRED_DOMAINS', () => {
+  it('exports CBT_KNOWLEDGE_DEFERRED_DOMAINS as a Set', () => {
+    expect(CBT_KNOWLEDGE_DEFERRED_DOMAINS).toBeInstanceOf(Set);
+  });
+
+  it('CBT_KNOWLEDGE_DEFERRED_DOMAINS is frozen', () => {
+    expect(Object.isFrozen(CBT_KNOWLEDGE_DEFERRED_DOMAINS)).toBe(true);
+  });
+
+  it.each(_DEFERRED_DOMAINS)(
+    'deferred domain "%s" is present in CBT_KNOWLEDGE_DEFERRED_DOMAINS',
+    (domain) => {
+      expect(CBT_KNOWLEDGE_DEFERRED_DOMAINS.has(domain)).toBe(true);
+    }
+  );
+
+  it.each(_FIRST_WAVE_DOMAINS)(
+    'first-wave domain "%s" is NOT in CBT_KNOWLEDGE_DEFERRED_DOMAINS',
+    (domain) => {
+      expect(CBT_KNOWLEDGE_DEFERRED_DOMAINS.has(domain)).toBe(false);
+    }
+  );
+});
+
+describe('Wave 4A.2 — No runtime behavior impact (planner scaffold unchanged)', () => {
+  it('planCBTKnowledgeRetrieval produces shouldRetrieve: true for a first-wave domain', () => {
+    const result = planCBTKnowledgeRetrieval(_makeRetrievableInputs({
+      formulationHints: { domain: 'anxiety', treatment_phase: 'middle', has_formulation: true, is_ambiguous: false },
+    }));
+    expect(result.shouldRetrieve).toBe(true);
+    expect(result.domainHint).toBe('anxiety');
+  });
+
+  it('planCBTKnowledgeRetrieval does not throw for a deferred domain as domainHint (no planner-level gate)', () => {
+    // The planner scaffold does not enforce the first-wave set — that is Wave 4B retrieval wiring's job.
+    expect(() => planCBTKnowledgeRetrieval(_makeRetrievableInputs({
+      formulationHints: { domain: 'trauma', treatment_phase: 'middle', has_formulation: true, is_ambiguous: false },
+    }))).not.toThrow();
+  });
+
+  it('planCBTKnowledgeRetrieval with flag off still returns skip for any domain (deferred or not)', () => {
+    const result = planCBTKnowledgeRetrieval({
+      flagEnabled: false,
+      formulationHints: { domain: 'ocd', treatment_phase: 'middle', has_formulation: true, is_ambiguous: false },
+      strategyState: { intervention_mode: 'structured_exploration', distress_tier: 'tier_low', safety_mode_active: false },
+      distressTier: 'tier_low',
+      safetyActive: false,
+    });
+    expect(result.shouldRetrieve).toBe(false);
+    expect(result.skipReason).toBe('flag_off');
   });
 });

@@ -110,6 +110,17 @@ All flags default to `false` when the variable is absent or any value other than
 > Enabling this flag in isolation has **zero effect** on any live session, agent, user-facing behavior,
 > entity schema, or retrieval pipeline. The planner is a standalone pure library with no imports.
 > Runtime retrieval wiring is deferred to Wave 4B+.
+>
+> **Wave 4A.2 — Domain scope alignment (first-wave runtime gate):**
+> `CBT_KNOWLEDGE_DOMAINS` is the full planning registry (12 domains).
+> `CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE` is the authoritative gate for Wave 4B retrieval wiring
+> — it contains only the 8 first-wave safe domains: anxiety, depression, self_esteem, grief, panic,
+> social_anxiety, phobia, general.
+> `CBT_KNOWLEDGE_DEFERRED_DOMAINS` explicitly names the 4 higher-risk / specialised domains deferred to
+> Wave 4C+: trauma (trauma-informed CBT), anger (risk-assessment complexity), relationship (interpersonal
+> CBT protocol), ocd (ERP required). Any Wave 4B retrieval wiring layer **must** check
+> `CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE` before activating retrieval for a given domain.
+> No schema changes, no runtime wiring changes, no Chat.jsx changes are made in this pass.
 
 ### 3.3 Build Behavior Variables (CI/CD)
 

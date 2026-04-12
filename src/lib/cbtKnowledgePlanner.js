@@ -113,6 +113,63 @@ export const CBT_KNOWLEDGE_DOMAINS = Object.freeze({
   GENERAL: 'general',
 });
 
+// ─── First-wave runtime domain scope ─────────────────────────────────────────
+
+/**
+ * Domains deferred to later Wave 4 stages due to higher clinical risk or
+ * the requirement for specialised protocols not yet supported by this planner.
+ *
+ * RATIONALE
+ * ---------
+ * - TRAUMA     — Trauma-informed CBT (CPT, PE) requires specialised handling and
+ *                distinct clinical safeguards; not appropriate for first-wave activation.
+ * - ANGER      — Anger management has risk-assessment components and behavioural
+ *                complexity beyond standard CBT scope; deferred to Wave 4C+.
+ * - RELATIONSHIP — Interpersonal / couples-focus protocols differ substantially from
+ *                  standard CBT; deferred until a dedicated protocol is designed.
+ * - OCD        — ERP (Exposure and Response Prevention) is a specialised protocol;
+ *                standard CBT retrieval content is not appropriate; deferred to Wave 4C+.
+ *
+ * NOTE: These domains remain in CBT_KNOWLEDGE_DOMAINS for completeness.  They are
+ * NOT activated for runtime retrieval in Wave 4B.  Any retrieval wiring layer
+ * must check CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE before proceeding.
+ *
+ * @type {ReadonlySet<string>}
+ */
+export const CBT_KNOWLEDGE_DEFERRED_DOMAINS = Object.freeze(
+  new Set([
+    'trauma',
+    'anger',
+    'relationship',
+    'ocd',
+  ])
+);
+
+/**
+ * Approved domain scope for first-wave runtime retrieval activation (Wave 4B).
+ *
+ * Only domains in this set may be used in live retrieval during Wave 4B.
+ * Domains in CBT_KNOWLEDGE_DOMAINS that are NOT in this set are deferred —
+ * see CBT_KNOWLEDGE_DEFERRED_DOMAINS for the list and clinical rationale.
+ *
+ * This set is the authoritative gate for Wave 4B retrieval wiring.
+ * Do NOT expand it without explicit Wave 4 scope approval.
+ *
+ * @type {ReadonlySet<string>}
+ */
+export const CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE = Object.freeze(
+  new Set([
+    'anxiety',
+    'depression',
+    'self_esteem',
+    'grief',
+    'panic',
+    'social_anxiety',
+    'phobia',
+    'general',
+  ])
+);
+
 // ─── Skip reasons ─────────────────────────────────────────────────────────────
 
 /**
