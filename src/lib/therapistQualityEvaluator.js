@@ -1,7 +1,7 @@
 /**
  * @file src/lib/therapistQualityEvaluator.js
  *
- * Therapist Upgrade — Wave 5A / Wave 5B — Quality Evaluator (Scaffold + Feature Extractor)
+ * Therapist Upgrade — Wave 5A–5E — Quality Evaluator
  *
  * PURPOSE
  * -------
@@ -20,6 +20,13 @@
  * structural dimensions, derives a bounded aggregate band, and derives bounded
  * risk_flags from scored structural issues.  Everything remains inert: no runtime
  * call site, no diagnostics emission, no rollout gating.
+ *
+ * Wave 5E: Adds getEvaluatorRolloutSignal(snapshot), a pure function that derives
+ * a bounded, deterministic rollout-gate signal from a quality evaluator snapshot.
+ * The signal is informational only — it does not block or modify any live session.
+ * Exports: ROLLOUT_SIGNAL_VERSION, ROLLOUT_BLOCKING_FLAG_TOKENS,
+ * ROLLOUT_WARNING_FLAG_TOKENS, EVALUATOR_ROLLOUT_SIGNAL_FAIL_SAFE,
+ * getEvaluatorRolloutSignal.
  *
  * ISOLATION GUARANTEE
  * -------------------
@@ -677,6 +684,162 @@ export function computeEvaluatorDiagnosticSnapshot(inputs) {
       agent_role: '',
       wiring_version: 0,
     });
+  }
+}
+
+// ─── Wave 5E — Rollout-Gate Signal ────────────────────────────────────────────
+
+/**
+ * Semantic version of the rollout-gate signal format.
+ * Independent of EVALUATOR_VERSION so the signal shape can evolve separately.
+ *
+ * @type {string}
+ */
+export const ROLLOUT_SIGNAL_VERSION = '5E.0.0';
+
+/**
+ * Risk flag tokens that indicate a blocking issue in the rollout signal.
+ *
+ * A flag is blocking when the underlying dimension failure represents a
+ * safety or role-integrity gap that should be surfaced prominently in QA /
+ * golden-scenario reviews.  In Wave 5E this set is informational only; it
+ * does not gate or modify any live session.
+ *
+ * Blocking tokens (derived from FAIL-level structural dimensions):
+ *   'safety_escalation_gap'  — safety dimension scored FAIL
+ *   'role_boundary_failure'  — role boundary dimension scored FAIL
+ *
+ * @type {Readonly<Set<string>>}
+ */
+export const ROLLOUT_BLOCKING_FLAG_TOKENS = Object.freeze(
+  new Set(['safety_escalation_gap', 'role_boundary_failure'])
+);
+
+/**
+ * Risk flag tokens that indicate a warning-level issue in the rollout signal.
+ *
+ * A flag is a warning when it reflects a structural gap that is notable but
+ * does not indicate a safety or role-integrity failure.  Informational only.
+ *
+ * Warning tokens (derived from FAIL-level structural dimensions):
+ *   'context_structurally_empty' — context completeness dimension scored FAIL
+ *
+ * @type {Readonly<Set<string>>}
+ */
+export const ROLLOUT_WARNING_FLAG_TOKENS = Object.freeze(
+  new Set(['context_structurally_empty'])
+);
+
+/**
+ * Stable fail-safe rollout signal returned by getEvaluatorRolloutSignal()
+ * when the input snapshot is absent, null, malformed, or already fail-safe.
+ *
+ * Shape:
+ *   evaluator_version   {string}    — EVALUATOR_VERSION
+ *   signal_version      {string}    — ROLLOUT_SIGNAL_VERSION
+ *   aggregate_band      {string}    — EVALUATOR_AGGREGATE_BANDS.FAIL_SAFE
+ *   rollout_ready       {boolean}   — false (never ready on fail-safe path)
+ *   blocking_risk_flags {string[]}  — empty frozen array
+ *   warning_risk_flags  {string[]}  — empty frozen array
+ *   is_fail_safe        {boolean}   — true
+ *
+ * @type {Readonly<object>}
+ */
+export const EVALUATOR_ROLLOUT_SIGNAL_FAIL_SAFE = Object.freeze({
+  evaluator_version: EVALUATOR_VERSION,
+  signal_version: ROLLOUT_SIGNAL_VERSION,
+  aggregate_band: EVALUATOR_AGGREGATE_BANDS.FAIL_SAFE,
+  rollout_ready: false,
+  blocking_risk_flags: Object.freeze([]),
+  warning_risk_flags: Object.freeze([]),
+  is_fail_safe: true,
+});
+
+/**
+ * Derives a bounded, deterministic rollout-gate signal from a quality evaluator
+ * snapshot produced by buildQualityEvaluatorSnapshot().
+ *
+ * Wave 5E contract — INFORMATIONAL ONLY
+ * --------------------------------------
+ * The returned signal is a read-only metadata object for QA / staging review.
+ * It MUST NOT be used to block, alter, or gate any live user session.
+ * No LLM calls, no entity access, no async, no side effects.
+ *
+ * Signal shape:
+ *   evaluator_version   {string}   — version string from the input snapshot
+ *   signal_version      {string}   — ROLLOUT_SIGNAL_VERSION ('5E.0.0')
+ *   aggregate_band      {string}   — aggregate_band from the input snapshot
+ *   rollout_ready       {boolean}  — true when band is 'strong' or 'adequate'
+ *   blocking_risk_flags {string[]} — subset of snapshot.risk_flags classified as blocking
+ *   warning_risk_flags  {string[]} — subset of snapshot.risk_flags classified as warnings
+ *   is_fail_safe        {boolean}  — true only on fail-safe path
+ *
+ * Fail-safe path:
+ *   - Returns EVALUATOR_ROLLOUT_SIGNAL_FAIL_SAFE when snapshot is null, undefined,
+ *     not a plain object, is_fail_safe: true, has an unrecognised aggregate_band,
+ *     or has a non-array risk_flags.
+ *   - Never throws.
+ *
+ * @param {Readonly<object>|null|undefined} snapshot
+ *   A frozen snapshot produced by buildQualityEvaluatorSnapshot().
+ *   Must not contain raw user message text.
+ * @returns {Readonly<object>} Frozen rollout-gate signal.
+ */
+export function getEvaluatorRolloutSignal(snapshot) {
+  try {
+    if (!snapshot || typeof snapshot !== 'object' || Array.isArray(snapshot)) {
+      return EVALUATOR_ROLLOUT_SIGNAL_FAIL_SAFE;
+    }
+
+    if (snapshot.is_fail_safe === true) {
+      return EVALUATOR_ROLLOUT_SIGNAL_FAIL_SAFE;
+    }
+
+    const band = snapshot.aggregate_band;
+    if (
+      !band ||
+      typeof band !== 'string' ||
+      !Object.values(EVALUATOR_AGGREGATE_BANDS).includes(band)
+    ) {
+      return EVALUATOR_ROLLOUT_SIGNAL_FAIL_SAFE;
+    }
+
+    const riskFlags = snapshot.risk_flags;
+    if (!Array.isArray(riskFlags)) {
+      return EVALUATOR_ROLLOUT_SIGNAL_FAIL_SAFE;
+    }
+
+    const evalVersion =
+      snapshot.evaluator_version && typeof snapshot.evaluator_version === 'string'
+        ? snapshot.evaluator_version
+        : EVALUATOR_VERSION;
+
+    const rolloutReady =
+      band === EVALUATOR_AGGREGATE_BANDS.STRONG ||
+      band === EVALUATOR_AGGREGATE_BANDS.ADEQUATE;
+
+    const blockingFlags = [];
+    const warningFlags = [];
+    for (const flag of riskFlags) {
+      if (typeof flag !== 'string') continue;
+      if (ROLLOUT_BLOCKING_FLAG_TOKENS.has(flag)) {
+        blockingFlags.push(flag);
+      } else if (ROLLOUT_WARNING_FLAG_TOKENS.has(flag)) {
+        warningFlags.push(flag);
+      }
+    }
+
+    return Object.freeze({
+      evaluator_version: evalVersion,
+      signal_version: ROLLOUT_SIGNAL_VERSION,
+      aggregate_band: band,
+      rollout_ready: rolloutReady,
+      blocking_risk_flags: Object.freeze(blockingFlags),
+      warning_risk_flags: Object.freeze(warningFlags),
+      is_fail_safe: false,
+    });
+  } catch (_err) {
+    return EVALUATOR_ROLLOUT_SIGNAL_FAIL_SAFE;
   }
 }
 
