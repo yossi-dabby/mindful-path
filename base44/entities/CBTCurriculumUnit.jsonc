@@ -172,6 +172,66 @@
       },
       "description": "Optional: IDs of TrustedCBTChunk records this unit was derived from, for traceability"
     },
+    "distress_suitability": {
+      "type": "string",
+      "enum": [
+        "any",
+        "low_only",
+        "mild_and_below"
+      ],
+      "default": "any",
+      "description": "Wave 4A.2 — Maximum distress level at which this unit is clinically appropriate. any = no distress constraint. mild_and_below = TIER_MILD or lower only. low_only = TIER_LOW only."
+    },
+    "intervention_family": {
+      "type": "string",
+      "enum": [
+        "cognitive",
+        "behavioral",
+        "acceptance",
+        "psychoeducation",
+        "mixed",
+        "other"
+      ],
+      "description": "Wave 4A.2 — Primary CBT intervention family this unit belongs to. Used to match retrieval context to appropriate technique type."
+    },
+    "evidence_level": {
+      "type": "string",
+      "enum": [
+        "established",
+        "emerging",
+        "expert_consensus",
+        "unclassified"
+      ],
+      "default": "unclassified",
+      "description": "Wave 4A.2 — Strength of evidence supporting this unit. established = RCT/meta-analytic support. emerging = promising but preliminary. expert_consensus = clinical consensus without formal trials. unclassified = not yet assessed."
+    },
+    "treatment_arc_position": {
+      "type": "string",
+      "enum": [
+        "early",
+        "middle",
+        "late",
+        "any"
+      ],
+      "default": "any",
+      "description": "Wave 4A.2 — Optimal position in the treatment arc for this unit. Mirrors CBT_TREATMENT_ARC_FILTERS. any = arc-agnostic."
+    },
+    "safety_tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "not_for_crisis",
+          "requires_rapport",
+          "psychoeducation_safe",
+          "validated_protocol",
+          "not_for_high_distress",
+          "exposure_adjacent"
+        ]
+      },
+      "default": [],
+      "description": "Wave 4A.2 — Bounded machine-readable safety tags for retrieval filtering. not_for_crisis = skip during safety mode. requires_rapport = only after rapport is established. psychoeducation_safe = suitable for first-contact psychoeducation. validated_protocol = part of a formal evidence-based protocol. not_for_high_distress = skip when distress tier is HIGH. exposure_adjacent = requires careful handling; not for early arc."
+    },
     "admin_notes": {
       "type": "string",
       "description": "Internal admin notes \u2014 never retrieved by agent"
