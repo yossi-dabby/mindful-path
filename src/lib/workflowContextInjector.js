@@ -850,6 +850,7 @@ export async function buildV7SessionStartContentAsync(
  *
  * FAIL-CLOSED: returns null on any error.
  *
+ * @private
  * @param {object} entities - Base44 entity client map
  * @returns {Promise<object|null>} The best CaseFormulation record, or null
  */

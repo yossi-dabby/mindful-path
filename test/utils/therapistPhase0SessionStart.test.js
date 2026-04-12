@@ -94,7 +94,7 @@ describe('Phase 0 — Chat.jsx source routing (static analysis)', () => {
   //    Wave 2B: updated from V7 to V8 (highest builder in the chain).
   it('3. Chat.jsx calls buildV8SessionStartContentAsync', () => {
     const callCount = (chatSrc.match(/buildV8SessionStartContentAsync\s*\(/g) || []).length;
-    expect(callCount).toBeGreaterThanOrEqual(1);
+    expect(callCount).toBeGreaterThanOrEqual(4); // 4 call sites: 2 intent-handler + startNewConversationWithIntent + sendMessage
   });
 
   // 4. Chat.jsx does NOT call buildV4SessionStartContentAsync
