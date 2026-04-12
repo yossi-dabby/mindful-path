@@ -91,7 +91,7 @@ export const CBT_DISTRESS_SUITABILITY_DEFAULT = CBT_DISTRESS_SUITABILITY.ANY;
  * Used by Wave 4B/4C retrieval to match context to technique type.
  *
  * - COGNITIVE        → cognitive restructuring, thought records, appraisal work.
- * - BEHAVIORAL       → behavioural activation, graded tasks, habit scheduling.
+ * - BEHAVIORAL       → behavioral activation, graded tasks, habit scheduling.
  * - ACCEPTANCE       → ACT-aligned acceptance/defusion techniques.
  * - PSYCHOEDUCATION  → introductory educational content about the model.
  * - MIXED            → combines two or more families.

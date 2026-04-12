@@ -2,6 +2,7 @@
  * @file test/utils/wave4bCbtCurriculumUnitSchema.test.js
  *
  * Wave 4A.2 — CBTCurriculumUnit Extended Schema Tests
+ * (file named wave4b* because these constants underpin Wave 4B retrieval)
  *
  * PURPOSE
  * -------
