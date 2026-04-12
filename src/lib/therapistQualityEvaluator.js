@@ -601,7 +601,9 @@ export function computeEvaluatorDiagnosticSnapshot(inputs) {
       evaluator_version: snapshot.evaluator_version,
       active_dimensions: Object.freeze(ACTIVE_QUALITY_DIMENSIONS.slice()),
       dimensions: snapshot.dimensions,
-      aggregate_band: snapshot.aggregate_band,
+      aggregate_band: snapshot.is_fail_safe
+        ? EVALUATOR_AGGREGATE_BANDS.FAIL_SAFE
+        : EVALUATOR_AGGREGATE_BANDS.UNKNOWN,
       risk_flags: Object.freeze({
         safety_active: features.safety_escalation_consistency.safety_active,
         distress_tier: features.safety_escalation_consistency.distress_tier,
