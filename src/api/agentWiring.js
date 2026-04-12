@@ -1122,6 +1122,108 @@ export const CBT_THERAPIST_WIRING_STAGE2_V7 = {
   ],
 };
 
+// ─── Wave 2B — Stage 2 V8 wiring config (Therapeutic Strategy Layer) ──────────
+
+/**
+ * Stage 2 V8 wiring for the CBT Therapist agent.
+ *
+ * Wave 2B — Therapeutic Strategy Layer.
+ *
+ * This config extends CBT_THERAPIST_WIRING_STAGE2_V7 with the strategy layer
+ * capability.  V8 is a strict superset of V7: all Phase 3 Deep Personalization
+ * and prior phase flags and entity tool_configs are preserved unchanged, and
+ * one new flag is added.
+ *
+ * New flags:
+ *   strategy_layer_enabled — activates the therapeutic strategy guidance
+ *                       section injected into the session-start payload by
+ *                       buildV8SessionStartContentAsync.  The strategy engine
+ *                       (therapistStrategyEngine.js) is pure deterministic and
+ *                       consumes only bounded inputs already present in the
+ *                       V7 chain (continuity data, formulation data, safety
+ *                       result, message signals).  No new entity access.
+ *
+ * Entity tool_configs: IDENTICAL to V7.  No new entity access is added.
+ * The strategy layer reads from inputs already available in the V7 chain
+ * (CompanionMemory at source_order 10, CaseFormulation at source_order 12).
+ *
+ * ACTIVATION
+ * ----------
+ * This config is NOT the active config.  It becomes reachable only when
+ * resolveTherapistWiring() returns it, which requires BOTH flags to be true:
+ *   - THERAPIST_UPGRADE_ENABLED (master gate)
+ *   - THERAPIST_UPGRADE_STRATEGY_ENABLED (Wave 2B strategy gate)
+ * Both default to false.  ACTIVE_CBT_THERAPIST_WIRING remains
+ * CBT_THERAPIST_WIRING_HYBRID until the flags are explicitly enabled.
+ *
+ * ROLLBACK
+ * --------
+ * Set THERAPIST_UPGRADE_STRATEGY_ENABLED to false to revert to V7
+ * with no other code changes.  Set THERAPIST_UPGRADE_ENABLED to false to
+ * revert to HYBRID entirely.
+ *
+ * Source of truth: Wave 2B problem statement — Therapeutic Strategy Layer.
+ */
+export const CBT_THERAPIST_WIRING_STAGE2_V8 = {
+  name: 'cbt_therapist',
+  stage2: true,
+  stage2_phase: 12,
+  memory_context_injection: true,           // from V1 — structured memory layer
+  workflow_engine_enabled: true,            // from V2 — workflow engine active
+  workflow_context_injection: true,         // from V2 — inject workflow instructions
+  retrieval_orchestration_enabled: true,    // from V3 — Phase 5 retrieval orchestration
+  live_retrieval_enabled: true,             // from V4 — Phase 6 live retrieval wrapper
+  safety_mode_enabled: true,               // from V5 — Phase 7 safety mode
+  formulation_context_enabled: true,       // from V6 — Phase 1 Quality formulation context
+  continuity_layer_enabled: true,          // from V7 — Phase 3 cross-session continuity injection
+  strategy_layer_enabled: true,            // Wave 2B — therapeutic strategy guidance injection
+  tool_configs: [
+    // ── Step 1: Preferred entities (identical to V7 / V6 / V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    { entity_name: 'SessionSummary',  access_level: 'preferred',  source_order: 2 },
+    { entity_name: 'ThoughtJournal',  access_level: 'preferred',  source_order: 3 },
+    { entity_name: 'Goal',            access_level: 'preferred',  source_order: 4 },
+    { entity_name: 'CoachingSession', access_level: 'preferred',  source_order: 5 },
+    // ── Step 2: Allowed shared content pool (identical to V7 / V6 / V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    { entity_name: 'Exercise',        access_level: 'allowed',    source_order: 6 },
+    { entity_name: 'Resource',        access_level: 'allowed',    source_order: 7 },
+    { entity_name: 'AudioContent',    access_level: 'allowed',    source_order: 8 },
+    { entity_name: 'Journey',         access_level: 'allowed',    source_order: 9 },
+    // ── Step 3: Non-caution restricted entities (identical to V7 / V6 / V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    { entity_name: 'CompanionMemory', access_level: 'restricted', source_order: 10, read_only: true },
+    { entity_name: 'MoodEntry',       access_level: 'restricted', source_order: 11, calibration_only: true },
+    // ── Hybrid: Caution-layer entities (identical to V7 / V6 / V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    {
+      entity_name: 'CaseFormulation',
+      access_level: 'restricted',
+      source_order: 12,
+      read_only: true,
+      unrestricted: false,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    {
+      entity_name: 'Conversation',
+      access_level: 'restricted',
+      source_order: 13,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    // ── Phase 5: External trusted knowledge (identical to V7 / V6 / V5 / V4 / V3; lowest entity priority) ──
+    {
+      entity_name: 'ExternalKnowledgeChunk',
+      access_level: 'restricted',
+      source_order: 14,
+      read_only: true,
+      external_trusted: true,
+      caution_layer: false,
+    },
+    // NOTE: Strategy layer (Wave 2B) is NOT a new entity access — it reads
+    // from CompanionMemory (source_order 10) and CaseFormulation (source_order 12)
+    // which are already present.  The strategy_layer_enabled flag only enables
+    // the strategy guidance section injection via workflowContextInjector.js.
+  ],
+};
+
 // ─── Phase 3 — AI Companion Upgrade V2 (Continuity layer) ────────────────────
 
 /**

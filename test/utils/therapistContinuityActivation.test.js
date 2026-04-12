@@ -627,21 +627,25 @@ describe('Section 10: Rollback safety — prior-phase exports are not affected',
 
 // ─── Section 11: Chat.jsx static analysis — session-start call sites ───────────
 
-describe('Section 11: Chat.jsx static analysis — V7 called at all session-start sites', () => {
+describe('Section 11: Chat.jsx static analysis — V8 called at all session-start sites', () => {
   const chatSrc = readFileSync(resolve('src/pages/Chat.jsx'), 'utf8');
 
-  it('Chat.jsx imports buildV7SessionStartContentAsync', () => {
+  it('Chat.jsx imports buildV7SessionStartContentAsync (still present in import)', () => {
     expect(chatSrc).toContain('buildV7SessionStartContentAsync');
   });
 
-  it('Chat.jsx calls buildV7SessionStartContentAsync at every session-start site', () => {
-    // Count all call sites — there should be at least 4
-    const callCount = (chatSrc.match(/buildV7SessionStartContentAsync\(/g) || []).length;
+  it('Chat.jsx imports buildV8SessionStartContentAsync (Wave 2B: highest session-start builder)', () => {
+    expect(chatSrc).toContain('buildV8SessionStartContentAsync');
+  });
+
+  it('Chat.jsx calls buildV8SessionStartContentAsync at every session-start site', () => {
+    // Count all call sites — there should be at least 4 (Wave 2B: upgraded from V7 to V8)
+    const callCount = (chatSrc.match(/buildV8SessionStartContentAsync\(/g) || []).length;
     expect(callCount).toBeGreaterThanOrEqual(4);
   });
 
-  it('Chat.jsx does NOT call buildV6SessionStartContentAsync directly (delegates through V7)', () => {
-    // V6 is only an internal step in the V7 chain — Chat.jsx must not call it directly
+  it('Chat.jsx does NOT call buildV6SessionStartContentAsync directly (delegates through V8→V7 chain)', () => {
+    // V6 is only an internal step in the V8 chain — Chat.jsx must not call it directly
     const directV6Calls = (chatSrc.match(/await buildV6SessionStartContentAsync\(/g) || []).length;
     expect(directV6Calls).toBe(0);
   });

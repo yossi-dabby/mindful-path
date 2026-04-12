@@ -74,6 +74,12 @@ import {
   evaluateRuntimeSafetyMode,
 } from './therapistSafetyMode.js';
 import { buildEmergencyResourceSection } from './emergencyResourceLayer.js';
+import {
+  extractMessageSignals,
+  scoreDistressTier,
+  determineTherapistStrategy,
+  buildStrategyContextSection,
+} from './therapistStrategyEngine.js';
 
 /**
  * Returns the workflow context instructions string when the supplied wiring
@@ -830,6 +836,173 @@ export async function buildV7SessionStartContentAsync(
   }
 
   return v6Base + '\n\n' + continuityBlock;
+}
+
+// ─── Wave 2B — V8 therapeutic strategy layer ─────────────────────────────────
+
+/**
+ * Reads the single best CaseFormulation record from the entity store.
+ *
+ * Private helper for buildV8SessionStartContentAsync.  Uses the same bounded
+ * over-fetch-and-select logic as buildFormulationContextBlock (V6) but returns
+ * the raw entity object rather than a formatted string.  The returned object
+ * is passed to determineTherapistStrategy() as formulationData.
+ *
+ * FAIL-CLOSED: returns null on any error.
+ *
+ * @private
+ * @param {object} entities - Base44 entity client map
+ * @returns {Promise<object|null>} The best CaseFormulation record, or null
+ */
+async function readBestFormulationRecord(entities) {
+  try {
+    if (!entities || typeof entities !== 'object') return null;
+    if (!entities.CaseFormulation || typeof entities.CaseFormulation.list !== 'function') return null;
+
+    const formulations = await entities.CaseFormulation.list('-created_date', 2);
+    if (!Array.isArray(formulations) || formulations.length === 0) return null;
+
+    if (formulations.length === 1) return formulations[0];
+
+    // Select the richer record using the same scoring logic as buildFormulationContextBlock
+    return scoreFormulationRecord(formulations[1]) > scoreFormulationRecord(formulations[0])
+      ? formulations[1]
+      : formulations[0];
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Builds the V8 session-start content string asynchronously.
+ *
+ * Wave 2B — Therapeutic Strategy Layer.
+ *
+ * For non-V8 wirings (strategy_layer_enabled !== true):
+ *   Delegates directly to buildV7SessionStartContentAsync (no behavior change).
+ *
+ * For V8 wirings:
+ *   1. Builds the V7 base content (continuity + formulation + safety mode +
+ *      live retrieval + retrieval orchestration + workflow + memory context).
+ *   2. Reads the best CaseFormulation record (read-only, fail-closed).
+ *   3. Reads cross-session continuity data (read-only, fail-closed).
+ *   4. Evaluates safety mode from options (same inputs as V5).
+ *   5. Extracts message signals from options.message_text.
+ *   6. Scores the distress tier.
+ *   7. Determines the therapeutic strategy.
+ *   8. Builds the strategy guidance section and appends it.
+ *
+ * FAIL-OPEN CONTRACT
+ * ------------------
+ * Any error during strategy computation (steps 2–8) returns the V7 base
+ * content unchanged.  Session start is never blocked.  The V7 behavior is
+ * EXACTLY preserved on any failure.
+ *
+ * PRIVACY
+ * -------
+ * - Only structured summary fields and field presence flags are passed to
+ *   the strategy engine — never raw transcript content.
+ * - message_text (if provided in options) is passed to extractMessageSignals()
+ *   for in-memory pattern matching only.  It is never stored or logged.
+ *
+ * SAFETY NOTE
+ * -----------
+ * The strategy guidance section is additive context labeled as guidance.
+ * It does NOT replace, weaken, or bypass any existing safety filter or
+ * crisis handler.  When safety mode is active (CONTAINMENT mode), the
+ * guidance section explicitly reinforces the safety-first constraint.
+ *
+ * ISOLATION GUARANTEE
+ * -------------------
+ * This function is ONLY called when wiring.strategy_layer_enabled === true
+ * (V8 path).  All prior paths (HYBRID, V1–V7) are completely unaffected.
+ *
+ * @param {object} wiring - The active therapist wiring configuration
+ * @param {object} entities - Base44 entity client map
+ * @param {object} baseClient - Base44 SDK client (passed to V7 chain)
+ * @param {object} [options] - Optional options forwarded to V7 chain
+ * @param {boolean} [options.crisis_signal=false]           - Crisis signal
+ * @param {boolean} [options.low_retrieval_confidence=false] - Low retrieval confidence
+ * @param {boolean} [options.allowlist_rejection=false]      - Allowlist rejection
+ * @param {boolean} [options.flag_override=false]            - Safety mode override
+ * @param {string}  [options.message_text]                   - Current user message
+ * @param {string}  [options.locale]                         - User locale
+ * @returns {Promise<string>} The full session-start content string
+ */
+export async function buildV8SessionStartContentAsync(
+  wiring,
+  entities,
+  baseClient,
+  options = {},
+) {
+  // For non-V8 wirings: delegate to V7 (no change to behavior)
+  if (!wiring || wiring.strategy_layer_enabled !== true) {
+    return buildV7SessionStartContentAsync(wiring, entities, baseClient, options);
+  }
+
+  // ── V8 path ────────────────────────────────────────────────────────────────
+
+  // Step 1: Build the V7 base content (all prior layers)
+  const v7Base = await buildV7SessionStartContentAsync(
+    wiring,
+    entities,
+    baseClient,
+    options,
+  );
+
+  // Steps 2–8: Compute the strategy section (fail-open: any error returns v7Base)
+  try {
+    // Step 2: Read the best CaseFormulation record (read-only, bounded)
+    const formulationRecord = await readBestFormulationRecord(entities);
+
+    // Step 3: Read cross-session continuity data (read-only, bounded)
+    let continuityData = null;
+    try {
+      const { readCrossSessionContinuity } = await import('./crossSessionContinuity.js');
+      continuityData = await readCrossSessionContinuity(entities);
+    } catch {
+      continuityData = null;
+    }
+
+    // Step 4: Evaluate safety mode (same inputs as V5 — fail-closed to safety on error)
+    let safetyResult;
+    try {
+      safetyResult = determineSafetyMode({
+        crisis_signal: options.crisis_signal ?? false,
+        low_retrieval_confidence: options.low_retrieval_confidence ?? false,
+        allowlist_rejection: options.allowlist_rejection ?? false,
+        flag_override: options.flag_override ?? false,
+        message_text: options.message_text ?? '',
+      });
+    } catch {
+      safetyResult = SAFETY_MODE_FAIL_CLOSED_RESULT;
+    }
+
+    // Step 5: Extract message-level signals from current turn text
+    const messageSignals = extractMessageSignals(options.message_text ?? '');
+
+    // Step 6: Score distress tier
+    const distressTier = scoreDistressTier(safetyResult, messageSignals);
+
+    // Step 7: Determine therapeutic strategy
+    const strategyState = determineTherapistStrategy(
+      continuityData,
+      formulationRecord,
+      distressTier,
+      messageSignals,
+    );
+
+    // Step 8: Build strategy context section
+    const strategySection = buildStrategyContextSection(strategyState);
+    if (!strategySection || !strategySection.trim()) {
+      return v7Base;
+    }
+
+    return v7Base + '\n\n' + strategySection;
+  } catch {
+    // Fail-open: strategy computation failed — return V7 base content unchanged
+    return v7Base;
+  }
 }
 
 // ─── AI Companion Upgrade V2 — Companion session-start context ───────────────
