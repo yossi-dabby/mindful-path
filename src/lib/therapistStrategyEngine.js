@@ -48,7 +48,7 @@
  *
  * @type {string}
  */
-export const STRATEGY_VERSION = '1.0.0';
+export const STRATEGY_VERSION = '1.1.0';
 
 // ─── Distress tiers ───────────────────────────────────────────────────────────
 
@@ -129,6 +129,44 @@ export const STRATEGY_INTERVENTION_MODES = Object.freeze({
    * to the CBT process without assuming any prior clinical picture.
    */
   PSYCHOEDUCATION: 'psychoeducation',
+});
+
+// ─── Wave 2C — Continuity richness thresholds ─────────────────────────────────
+
+/**
+ * Numeric thresholds for the continuity richness score produced by
+ * scoreContinuityRichness().  Higher score = more clinically useful context.
+ *
+ * Score bands:
+ *   MINIMAL  — at least 1 prior session exists; minimal structured data.
+ *   MODERATE — 2+ sessions OR at least one of: follow-up tasks / patterns.
+ *   RICH     — 2+ sessions AND follow-up tasks AND patterns present.
+ *
+ * @type {Readonly<Record<string, number>>}
+ */
+export const CONTINUITY_RICHNESS_THRESHOLDS = Object.freeze({
+  MINIMAL: 2,
+  MODERATE: 4,
+  RICH: 7,
+});
+
+// ─── Wave 2C — Formulation strength thresholds ────────────────────────────────
+
+/**
+ * Numeric thresholds for the formulation strength score produced by
+ * scoreFormulationStrength().  Higher score = more clinical anchoring.
+ *
+ * Score bands:
+ *   THIN     — 1 usable field (e.g. only a hypothesis).
+ *   MODERATE — 2 usable fields.
+ *   STRONG   — 3+ usable fields (presenting problem + core belief + at least one more).
+ *
+ * @type {Readonly<Record<string, number>>}
+ */
+export const FORMULATION_STRENGTH_THRESHOLDS = Object.freeze({
+  THIN: 1,
+  MODERATE: 2,
+  STRONG: 3,
 });
 
 // ─── Signal keys ─────────────────────────────────────────────────────────────
@@ -310,6 +348,184 @@ export function scoreDistressTier(safetyResult, messageSignals) {
   }
 }
 
+// ─── Wave 2C — Private continuity-signal extractor ────────────────────────────
+
+/**
+ * Extracts structured clinical signals from a continuityData argument.
+ *
+ * Handles two input shapes:
+ *
+ *   Aggregated shape (from readCrossSessionContinuity):
+ *     { sessionCount, recurringPatterns, openFollowUpTasks, interventionsUsed,
+ *       riskFlags, recentSummary }
+ *
+ *   Records shape (test fixtures / legacy):
+ *     { records: Array<{ risk_flags?, follow_up_tasks?, core_patterns?,
+ *                        interventions_used? }> }
+ *
+ * Generic non-null object (fallback): treated as 1 session with no detail.
+ *
+ * SAFETY: Never throws.  Returns zero-value signals on any error.
+ *
+ * @private
+ * @param {any} continuityData
+ * @returns {{ sessionCount: number, hasRiskFlags: boolean,
+ *             hasOpenFollowUpTasks: boolean, hasRecurringPatterns: boolean,
+ *             hasInterventionsUsed: boolean, interventionsUsedList: string[] }}
+ */
+function _extractContinuitySignals(continuityData) {
+  try {
+    if (!continuityData || typeof continuityData !== 'object') {
+      return _ZERO_CONTINUITY_SIGNALS;
+    }
+
+    // Aggregated shape: { sessionCount: number, ... }
+    if (typeof continuityData.sessionCount === 'number') {
+      return {
+        sessionCount: continuityData.sessionCount,
+        hasRiskFlags:
+          Array.isArray(continuityData.riskFlags) && continuityData.riskFlags.length > 0,
+        hasOpenFollowUpTasks:
+          Array.isArray(continuityData.openFollowUpTasks) &&
+          continuityData.openFollowUpTasks.length > 0,
+        hasRecurringPatterns:
+          Array.isArray(continuityData.recurringPatterns) &&
+          continuityData.recurringPatterns.length > 0,
+        hasInterventionsUsed:
+          Array.isArray(continuityData.interventionsUsed) &&
+          continuityData.interventionsUsed.length > 0,
+        interventionsUsedList: Array.isArray(continuityData.interventionsUsed)
+          ? continuityData.interventionsUsed
+          : [],
+      };
+    }
+
+    // Records shape: { records: [...] }
+    if (Array.isArray(continuityData.records)) {
+      const records = continuityData.records;
+      const sessionCount = records.length;
+      const allRiskFlags = records.flatMap(r =>
+        Array.isArray(r?.risk_flags) ? r.risk_flags : [],
+      );
+      const allFollowUps = records.flatMap(r =>
+        Array.isArray(r?.follow_up_tasks) ? r.follow_up_tasks : [],
+      );
+      const allPatterns = records.flatMap(r =>
+        Array.isArray(r?.core_patterns) ? r.core_patterns : [],
+      );
+      const allInterventions = records.flatMap(r =>
+        Array.isArray(r?.interventions_used) ? r.interventions_used : [],
+      );
+      return {
+        sessionCount,
+        hasRiskFlags: allRiskFlags.length > 0,
+        hasOpenFollowUpTasks: allFollowUps.length > 0,
+        hasRecurringPatterns: allPatterns.length > 0,
+        hasInterventionsUsed: allInterventions.length > 0,
+        interventionsUsedList: [...new Set(allInterventions)],
+      };
+    }
+
+    // Generic object fallback: treat as 1 session with no structured detail.
+    const hasAnyValue = Object.values(continuityData).some(
+      v => v !== null && v !== undefined && v !== '',
+    );
+    return {
+      sessionCount: hasAnyValue ? 1 : 0,
+      hasRiskFlags: false,
+      hasOpenFollowUpTasks: false,
+      hasRecurringPatterns: false,
+      hasInterventionsUsed: false,
+      interventionsUsedList: [],
+    };
+  } catch (_e) {
+    return _ZERO_CONTINUITY_SIGNALS;
+  }
+}
+
+// ─── Wave 2C — Public scoring functions ───────────────────────────────────────
+
+/**
+ * Scores the clinical richness of continuityData on a numeric scale.
+ *
+ * Higher score = more longitudinal clinical context available.
+ *
+ * Scoring rules (additive):
+ *   +2  sessionCount >= 1   (at least one prior session)
+ *   +2  sessionCount >= 2   (multiple sessions = stronger longitudinal picture)
+ *   +3  openFollowUpTasks non-empty (pending action items = direct continuity hook)
+ *   +2  recurringPatterns non-empty (behavioural patterns identified)
+ *   +1  interventionsUsed non-empty (prior work was done)
+ *   +2  riskFlags non-empty         (clinically significant; always weights high)
+ *
+ * Returns 0 for null / invalid input (fail-safe).
+ *
+ * Compare against CONTINUITY_RICHNESS_THRESHOLDS:
+ *   score >= RICH     (7)  — multiple sessions + tasks + patterns
+ *   score >= MODERATE (4)  — 2+ sessions or open tasks
+ *   score >= MINIMAL  (2)  — at least 1 prior session
+ *
+ * @param {any} continuityData
+ * @returns {number} Richness score ≥ 0.
+ */
+export function scoreContinuityRichness(continuityData) {
+  try {
+    const sigs = _extractContinuitySignals(continuityData);
+    let score = 0;
+    if (sigs.sessionCount >= 1) score += 2;
+    if (sigs.sessionCount >= 2) score += 2;
+    if (sigs.hasOpenFollowUpTasks) score += 3;
+    if (sigs.hasRecurringPatterns) score += 2;
+    if (sigs.hasInterventionsUsed) score += 1;
+    if (sigs.hasRiskFlags) score += 2;
+    return score;
+  } catch (_e) {
+    return 0;
+  }
+}
+
+/**
+ * Scores the clinical strength of a CaseFormulation record on a numeric scale.
+ *
+ * Checks five fields: presenting_problem, core_belief, maintaining_cycle,
+ * treatment_goals, and working_hypotheses (each worth 1 point when non-empty).
+ * Arrays count as present when non-empty.  Strings count when length >= 8 chars.
+ *
+ * Returns 0 for null / invalid input (fail-safe).
+ *
+ * Compare against FORMULATION_STRENGTH_THRESHOLDS:
+ *   score >= STRONG   (3) — presenting + core belief + ≥1 more field
+ *   score >= MODERATE (2) — 2 usable fields
+ *   score >= THIN     (1) — 1 usable field
+ *
+ * @param {any} formulationData
+ * @returns {number} Strength score ≥ 0.
+ */
+export function scoreFormulationStrength(formulationData) {
+  try {
+    if (!formulationData || typeof formulationData !== 'object') return 0;
+    const SCORED_FIELDS = [
+      'presenting_problem',
+      'core_belief',
+      'maintaining_cycle',
+      'treatment_goals',
+      'working_hypotheses',
+    ];
+    let score = 0;
+    for (const field of SCORED_FIELDS) {
+      const v = formulationData[field];
+      if (Array.isArray(v) && v.length > 0) {
+        score += 1;
+      } else if (typeof v === 'string' && v.trim().length >= 8) {
+        score += 1;
+      }
+    }
+    return score;
+  } catch (_e) {
+    return 0;
+  }
+}
+
 /**
  * Determines the full therapeutic strategy from session context inputs.
  *
@@ -346,18 +562,29 @@ export function determineTherapistStrategy(continuityData, formulationData, dist
 
     // ── Safety-first: TIER_HIGH → always CONTAINMENT ─────────────────────────
     if (tier === DISTRESS_TIERS.TIER_HIGH) {
+      const contSigs = _extractContinuitySignals(continuityData);
       return _buildStrategyState(STRATEGY_INTERVENTION_MODES.CONTAINMENT, {
         distress_tier: tier,
         continuity_present: _hasContinuity(continuityData),
         formulation_present: _hasFormulation(formulationData),
         message_signals: _normaliseSignals(messageSignals),
         rationale: 'tier_high_containment_mandatory',
+        session_count: contSigs.sessionCount,
+        has_risk_flags: contSigs.hasRiskFlags,
+        has_open_tasks: contSigs.hasOpenFollowUpTasks,
+        intervention_saturated: false,
+        continuity_richness_score: scoreContinuityRichness(continuityData),
+        formulation_strength_score: scoreFormulationStrength(formulationData),
       });
     }
 
     const hasContinuity = _hasContinuity(continuityData);
     const hasFormulation = _hasFormulation(formulationData);
     const ms = _normaliseSignals(messageSignals);
+    const contSigs = _extractContinuitySignals(continuityData);
+    const continuityRichnessScore = scoreContinuityRichness(continuityData);
+    const formulationStrengthScore = scoreFormulationStrength(formulationData);
+    const isLowOrMild = tier === DISTRESS_TIERS.TIER_LOW || tier === DISTRESS_TIERS.TIER_MILD;
 
     // ── TIER_MODERATE → STABILISATION ────────────────────────────────────────
     if (tier === DISTRESS_TIERS.TIER_MODERATE) {
@@ -367,6 +594,12 @@ export function determineTherapistStrategy(continuityData, formulationData, dist
         formulation_present: hasFormulation,
         message_signals: ms,
         rationale: 'tier_moderate_stabilisation',
+        session_count: contSigs.sessionCount,
+        has_risk_flags: contSigs.hasRiskFlags,
+        has_open_tasks: contSigs.hasOpenFollowUpTasks,
+        intervention_saturated: false,
+        continuity_richness_score: continuityRichnessScore,
+        formulation_strength_score: formulationStrengthScore,
       });
     }
 
@@ -380,17 +613,111 @@ export function determineTherapistStrategy(continuityData, formulationData, dist
         formulation_present: false,
         message_signals: ms,
         rationale: 'no_context_psychoeducation',
+        session_count: 0,
+        has_risk_flags: false,
+        has_open_tasks: false,
+        intervention_saturated: false,
+        continuity_richness_score: 0,
+        formulation_strength_score: formulationStrengthScore,
+      });
+    }
+
+    // ── Wave 2C rule 1: Risk flags in continuity → STABILISATION ─────────────
+    // Active risk flags in prior session records signal that this client has
+    // known safety-relevant history.  Even at low/mild distress, lean toward
+    // stabilisation rather than exploratory or deepening modes.
+    if (contSigs.hasRiskFlags && isLowOrMild) {
+      return _buildStrategyState(STRATEGY_INTERVENTION_MODES.STABILISATION, {
+        distress_tier: tier,
+        continuity_present: hasContinuity,
+        formulation_present: hasFormulation,
+        message_signals: ms,
+        rationale: 'risk_flags_present_stabilisation',
+        session_count: contSigs.sessionCount,
+        has_risk_flags: true,
+        has_open_tasks: contSigs.hasOpenFollowUpTasks,
+        intervention_saturated: false,
+        continuity_richness_score: continuityRichnessScore,
+        formulation_strength_score: formulationStrengthScore,
+      });
+    }
+
+    // ── Wave 2C rule 2: Intervention saturation → STRUCTURED_EXPLORATION ─────
+    // When 3+ sessions have all used only a single unique intervention type,
+    // the same cognitive approach is being repeated without broadening.
+    // Prefer STRUCTURED_EXPLORATION to introduce variety rather than deepening
+    // into an already-saturated formulation thread.
+    const isInterventionSaturated = _detectInterventionSaturation(contSigs);
+    if (isInterventionSaturated && hasContinuity && hasFormulation && isLowOrMild) {
+      return _buildStrategyState(STRATEGY_INTERVENTION_MODES.STRUCTURED_EXPLORATION, {
+        distress_tier: tier,
+        continuity_present: hasContinuity,
+        formulation_present: hasFormulation,
+        message_signals: ms,
+        rationale: 'intervention_saturated_structured_exploration',
+        session_count: contSigs.sessionCount,
+        has_risk_flags: false,
+        has_open_tasks: contSigs.hasOpenFollowUpTasks,
+        intervention_saturated: true,
+        continuity_richness_score: continuityRichnessScore,
+        formulation_strength_score: formulationStrengthScore,
+      });
+    }
+
+    // ── Wave 2C rule 3: Returning user + open tasks + formulation ────────────
+    // A returning client with open follow-up action items and an active
+    // formulation is best served by formulation-led deepening that explicitly
+    // picks up where they left off.
+    if (hasContinuity && hasFormulation && contSigs.hasOpenFollowUpTasks && isLowOrMild) {
+      return _buildStrategyState(STRATEGY_INTERVENTION_MODES.FORMULATION_DEEPENING, {
+        distress_tier: tier,
+        continuity_present: true,
+        formulation_present: true,
+        message_signals: ms,
+        rationale: 'returning_user_open_tasks_formulation_deepening',
+        session_count: contSigs.sessionCount,
+        has_risk_flags: false,
+        has_open_tasks: true,
+        intervention_saturated: false,
+        continuity_richness_score: continuityRichnessScore,
+        formulation_strength_score: formulationStrengthScore,
       });
     }
 
     // Formulation present + prior continuity + low/mild → FORMULATION_DEEPENING.
-    if (hasFormulation && hasContinuity && (tier === DISTRESS_TIERS.TIER_LOW || tier === DISTRESS_TIERS.TIER_MILD)) {
+    if (hasFormulation && hasContinuity && isLowOrMild) {
       return _buildStrategyState(STRATEGY_INTERVENTION_MODES.FORMULATION_DEEPENING, {
         distress_tier: tier,
         continuity_present: true,
         formulation_present: true,
         message_signals: ms,
         rationale: 'formulation_and_continuity_deepening',
+        session_count: contSigs.sessionCount,
+        has_risk_flags: false,
+        has_open_tasks: contSigs.hasOpenFollowUpTasks,
+        intervention_saturated: false,
+        continuity_richness_score: continuityRichnessScore,
+        formulation_strength_score: formulationStrengthScore,
+      });
+    }
+
+    // ── Wave 2C rule 4: Returning user + open tasks (no formulation) ──────────
+    // A returning client with open follow-up tasks is in an active work arc.
+    // Even without a formal formulation, prioritise continuity-explicit
+    // structured exploration over the generic partial-context path.
+    if (hasContinuity && contSigs.hasOpenFollowUpTasks && isLowOrMild) {
+      return _buildStrategyState(STRATEGY_INTERVENTION_MODES.STRUCTURED_EXPLORATION, {
+        distress_tier: tier,
+        continuity_present: hasContinuity,
+        formulation_present: hasFormulation,
+        message_signals: ms,
+        rationale: 'open_tasks_continuity_structured',
+        session_count: contSigs.sessionCount,
+        has_risk_flags: false,
+        has_open_tasks: true,
+        intervention_saturated: false,
+        continuity_richness_score: continuityRichnessScore,
+        formulation_strength_score: formulationStrengthScore,
       });
     }
 
@@ -402,6 +729,12 @@ export function determineTherapistStrategy(continuityData, formulationData, dist
         formulation_present: hasFormulation,
         message_signals: ms,
         rationale: 'partial_context_structured_exploration',
+        session_count: contSigs.sessionCount,
+        has_risk_flags: false,
+        has_open_tasks: contSigs.hasOpenFollowUpTasks,
+        intervention_saturated: false,
+        continuity_richness_score: continuityRichnessScore,
+        formulation_strength_score: formulationStrengthScore,
       });
     }
 
@@ -413,6 +746,12 @@ export function determineTherapistStrategy(continuityData, formulationData, dist
       formulation_present: hasFormulation,
       message_signals: ms,
       rationale: 'fallback_stabilisation',
+      session_count: contSigs.sessionCount,
+      has_risk_flags: contSigs.hasRiskFlags,
+      has_open_tasks: contSigs.hasOpenFollowUpTasks,
+      intervention_saturated: false,
+      continuity_richness_score: continuityRichnessScore,
+      formulation_strength_score: formulationStrengthScore,
     });
   } catch (_e) {
     return STRATEGY_FAIL_SAFE_STATE;
@@ -441,23 +780,38 @@ export function buildStrategyContextSection(strategyState) {
     const version = typeof ss.strategy_version === 'string' ? ss.strategy_version : STRATEGY_VERSION;
     const contPresent = ss.continuity_present === true;
     const formPresent = ss.formulation_present === true;
+    const sessionCount = typeof ss.session_count === 'number' ? ss.session_count : 0;
+    const hasRiskFlags = ss.has_risk_flags === true;
+    const hasOpenTasks = ss.has_open_tasks === true;
+    const isSaturated = ss.intervention_saturated === true;
 
     const lines = [
-      `=== THERAPEUTIC STRATEGY — WAVE 2A v${version} ===`,
+      `=== THERAPEUTIC STRATEGY — WAVE 2C v${version} ===`,
       '',
       `Intervention mode : ${mode}`,
       `Distress tier     : ${tier}`,
       `Prior continuity  : ${contPresent ? 'yes' : 'no'}`,
       `Formulation active: ${formPresent ? 'yes' : 'no'}`,
-      '',
-      _getModeGuidance(mode),
-      '',
-      '=== END THERAPEUTIC STRATEGY ===',
     ];
+
+    // Context signals block — only emitted when there is meaningful session context.
+    if (sessionCount > 0 || hasRiskFlags || hasOpenTasks || isSaturated) {
+      lines.push('');
+      lines.push('Context signals:');
+      if (sessionCount > 0) lines.push(`  Sessions         : ${sessionCount}`);
+      if (hasRiskFlags)     lines.push('  Risk flags       : active');
+      if (hasOpenTasks)     lines.push('  Open tasks       : pending');
+      if (isSaturated)      lines.push('  Intervention sat.: flagged');
+    }
+
+    lines.push('');
+    lines.push(_getModeGuidance(mode));
+    lines.push('');
+    lines.push('=== END THERAPEUTIC STRATEGY ===');
 
     return lines.join('\n');
   } catch (_e) {
-    return `=== THERAPEUTIC STRATEGY — WAVE 2A v${STRATEGY_VERSION} ===\nIntervention mode : ${STRATEGY_INTERVENTION_MODES.STABILISATION}\n=== END THERAPEUTIC STRATEGY ===`;
+    return `=== THERAPEUTIC STRATEGY — WAVE 2C v${STRATEGY_VERSION} ===\nIntervention mode : ${STRATEGY_INTERVENTION_MODES.STABILISATION}\n=== END THERAPEUTIC STRATEGY ===`;
   }
 }
 
@@ -488,6 +842,13 @@ export const STRATEGY_FAIL_SAFE_STATE = Object.freeze({
   }),
   rationale: 'fail_safe',
   fail_safe: true,
+  // Wave 2C enrichment fields
+  session_count: 0,
+  has_risk_flags: false,
+  has_open_tasks: false,
+  intervention_saturated: false,
+  continuity_richness_score: 0,
+  formulation_strength_score: 0,
 });
 
 // ─── Private helpers ──────────────────────────────────────────────────────────
@@ -503,6 +864,16 @@ const _EMPTY_SIGNALS = Object.freeze({
   [MESSAGE_SIGNAL_KEYS.HAS_SHUTDOWN_LANGUAGE]: false,
   [MESSAGE_SIGNAL_KEYS.HAS_EMOTIONAL_LANGUAGE]: false,
   [MESSAGE_SIGNAL_KEYS.IS_EMPTY_OR_SHORT]: true,
+});
+
+/** Zero-value continuity signal set returned on error or absent data. */
+const _ZERO_CONTINUITY_SIGNALS = Object.freeze({
+  sessionCount: 0,
+  hasRiskFlags: false,
+  hasOpenFollowUpTasks: false,
+  hasRecurringPatterns: false,
+  hasInterventionsUsed: false,
+  interventionsUsedList: Object.freeze([]),
 });
 
 /**
@@ -577,7 +948,11 @@ function _normaliseSignals(signals) {
  * @param {string} mode
  * @param {{ distress_tier: string, continuity_present: boolean,
  *            formulation_present: boolean, message_signals: object,
- *            rationale: string }} meta
+ *            rationale: string, session_count: number,
+ *            has_risk_flags: boolean, has_open_tasks: boolean,
+ *            intervention_saturated: boolean,
+ *            continuity_richness_score: number,
+ *            formulation_strength_score: number }} meta
  * @returns {Readonly<TherapistStrategyState>}
  */
 function _buildStrategyState(mode, meta) {
@@ -590,7 +965,47 @@ function _buildStrategyState(mode, meta) {
     message_signals: meta.message_signals,
     rationale: meta.rationale,
     fail_safe: false,
+    // Wave 2C enrichment fields
+    session_count: typeof meta.session_count === 'number' ? meta.session_count : 0,
+    has_risk_flags: meta.has_risk_flags === true,
+    has_open_tasks: meta.has_open_tasks === true,
+    intervention_saturated: meta.intervention_saturated === true,
+    continuity_richness_score:
+      typeof meta.continuity_richness_score === 'number' ? meta.continuity_richness_score : 0,
+    formulation_strength_score:
+      typeof meta.formulation_strength_score === 'number' ? meta.formulation_strength_score : 0,
   });
+}
+
+/**
+ * Detects whether a client's intervention history shows saturation.
+ *
+ * Saturation is defined conservatively as: sessionCount >= 3 (at least three
+ * prior sessions) AND only 1 unique intervention type has been used across all
+ * of them.  This indicates the same single approach has been applied repeatedly
+ * without broadening the therapeutic repertoire.
+ *
+ * Requires at least 3 sessions to avoid false positives in early therapy arcs
+ * where limited interventions are normal.
+ *
+ * SAFETY: Never throws.  Returns false on any error.
+ *
+ * @private
+ * @param {{ sessionCount: number, hasInterventionsUsed: boolean,
+ *           interventionsUsedList: string[] }} continuitySignals
+ * @returns {boolean}
+ */
+function _detectInterventionSaturation(continuitySignals) {
+  try {
+    if (!continuitySignals) return false;
+    return (
+      continuitySignals.sessionCount >= 3 &&
+      continuitySignals.hasInterventionsUsed &&
+      continuitySignals.interventionsUsedList.length === 1
+    );
+  } catch (_e) {
+    return false;
+  }
 }
 
 /**
@@ -626,4 +1041,10 @@ function _getModeGuidance(mode) {
  * @property {object} message_signals     - Signal flags from extractMessageSignals().
  * @property {string} rationale           - Short internal rationale key.
  * @property {boolean} fail_safe          - True only when the fail-safe default was used.
+ * @property {number} session_count       - Wave 2C: number of prior sessions (0 if unknown).
+ * @property {boolean} has_risk_flags     - Wave 2C: true when risk flags are active in continuity.
+ * @property {boolean} has_open_tasks     - Wave 2C: true when open follow-up tasks exist.
+ * @property {boolean} intervention_saturated - Wave 2C: true when intervention saturation detected.
+ * @property {number} continuity_richness_score  - Wave 2C: continuity richness score (0–12+).
+ * @property {number} formulation_strength_score - Wave 2C: formulation strength score (0–5).
  */
