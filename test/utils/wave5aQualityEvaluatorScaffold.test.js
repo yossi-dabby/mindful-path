@@ -197,8 +197,8 @@ describe('B. EVALUATOR_VERSION', () => {
     expect(EVALUATOR_VERSION.length).toBeGreaterThan(0);
   });
 
-  it("B2. Matches '5B.0.0' (version stability)", () => {
-    expect(EVALUATOR_VERSION).toBe('5B.0.0');
+  it("B2. Matches '5C.0.0' (version stability)", () => {
+    expect(EVALUATOR_VERSION).toBe('5C.0.0');
   });
 });
 
@@ -506,9 +506,9 @@ describe('H. buildQualityEvaluatorSnapshot — fail-safe on bad inputs', () => {
   });
 });
 
-// ─── I. buildQualityEvaluatorSnapshot — valid inputs produce UNKNOWN scaffold ─
+// ─── I. buildQualityEvaluatorSnapshot — valid inputs produce scored snapshot ──
 
-describe('I. buildQualityEvaluatorSnapshot — valid inputs produce UNKNOWN scaffold snapshot', () => {
+describe('I. buildQualityEvaluatorSnapshot — valid inputs produce scored snapshot', () => {
   const validInputs = {
     strategyState: { intervention_mode: 'exploration', distress_tier: 'tier_low' },
     formulationHints: { domain: 'anxiety', has_formulation: true },
@@ -520,16 +520,19 @@ describe('I. buildQualityEvaluatorSnapshot — valid inputs produce UNKNOWN scaf
     expect(snapshot.is_fail_safe).toBe(false);
   });
 
-  it('I2. Valid inputs object → aggregate_band: UNKNOWN', () => {
+  it('I2. Valid inputs object → aggregate_band is a scored band (not fail_safe, not unknown)', () => {
     const snapshot = buildQualityEvaluatorSnapshot(validInputs);
-    expect(snapshot.aggregate_band).toBe(EVALUATOR_AGGREGATE_BANDS.UNKNOWN);
+    expect(snapshot.aggregate_band).not.toBe(EVALUATOR_AGGREGATE_BANDS.FAIL_SAFE);
+    expect(snapshot.aggregate_band).not.toBe(EVALUATOR_AGGREGATE_BANDS.UNKNOWN);
+    expect(Object.values(EVALUATOR_AGGREGATE_BANDS)).toContain(snapshot.aggregate_band);
   });
 
-  it('I3. Valid inputs object → all 7 dimension scores are UNKNOWN', () => {
+  it('I3. Valid inputs object → all 7 dimensions have bounded score bands', () => {
     const snapshot = buildQualityEvaluatorSnapshot(validInputs);
     expect(Object.keys(snapshot.dimensions)).toHaveLength(7);
+    const knownBands = Object.values(EVALUATOR_SCORE_BANDS);
     for (const [dim, score] of Object.entries(snapshot.dimensions)) {
-      expect(score, `dimension: ${dim}`).toBe(EVALUATOR_SCORE_BANDS.UNKNOWN);
+      expect(knownBands, `dimension: ${dim}`).toContain(score);
     }
   });
 
@@ -538,7 +541,7 @@ describe('I. buildQualityEvaluatorSnapshot — valid inputs produce UNKNOWN scaf
     expect(snapshot.evaluator_version).toBe(EVALUATOR_VERSION);
   });
 
-  it('I5. Valid inputs object → scored_at === null (no scoring in Wave 5A)', () => {
+  it('I5. Valid inputs object → scored_at === null (inert evaluator — no timestamp)', () => {
     const snapshot = buildQualityEvaluatorSnapshot(validInputs);
     expect(snapshot.scored_at).toBeNull();
   });
@@ -566,11 +569,12 @@ describe('I. buildQualityEvaluatorSnapshot — valid inputs produce UNKNOWN scaf
     expect(Object.isFrozen(snapshot.dimensions)).toBe(true);
   });
 
-  it('I10. Valid inputs with only one recognised key still produces UNKNOWN (not fail-safe)', () => {
+  it('I10. Valid inputs with only one recognised key produce a scored (not fail-safe) snapshot', () => {
     const minimalInputs = { safetyActive: false };
     const snapshot = buildQualityEvaluatorSnapshot(minimalInputs);
     expect(snapshot.is_fail_safe).toBe(false);
-    expect(snapshot.aggregate_band).toBe(EVALUATOR_AGGREGATE_BANDS.UNKNOWN);
+    expect(snapshot.aggregate_band).not.toBe(EVALUATOR_AGGREGATE_BANDS.FAIL_SAFE);
+    expect(snapshot.aggregate_band).not.toBe(EVALUATOR_AGGREGATE_BANDS.UNKNOWN);
   });
 });
 
@@ -602,14 +606,13 @@ describe('J. buildQualityEvaluatorSnapshot — deterministic repeatability', () 
     expect(r1).toBe(r2);
   });
 
-  it('J4. Different valid inputs produce structurally identical UNKNOWN snapshots', () => {
+  it('J4. buildQualityEvaluatorSnapshot is deterministic for the same valid inputs', () => {
     const inputsA = { strategyState: { intervention_mode: 'exploration' } };
-    const inputsB = { formulationHints: { domain: 'anxiety' }, safetyActive: true };
-    const sA = buildQualityEvaluatorSnapshot(inputsA);
-    const sB = buildQualityEvaluatorSnapshot(inputsB);
-    expect(sA.aggregate_band).toBe(sB.aggregate_band);
-    expect(JSON.stringify(sA.dimensions)).toBe(JSON.stringify(sB.dimensions));
-    expect(sA.is_fail_safe).toBe(sB.is_fail_safe);
+    const s1 = buildQualityEvaluatorSnapshot(inputsA);
+    const s2 = buildQualityEvaluatorSnapshot(inputsA);
+    expect(s1.aggregate_band).toBe(s2.aggregate_band);
+    expect(JSON.stringify(s1.dimensions)).toBe(JSON.stringify(s2.dimensions));
+    expect(s1.is_fail_safe).toBe(s2.is_fail_safe);
   });
 });
 

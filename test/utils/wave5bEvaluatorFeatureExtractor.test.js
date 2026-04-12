@@ -839,11 +839,11 @@ describe('extractEvaluatorFeatures – safety and isolation', () => {
   });
 });
 
-// ─── K. EVALUATOR_VERSION updated to 5B ──────────────────────────────────────
+// ─── K. EVALUATOR_VERSION updated to 5C ──────────────────────────────────────
 
-describe('EVALUATOR_VERSION — Wave 5B', () => {
-  it('K1. EVALUATOR_VERSION matches "5B.0.0"', () => {
-    expect(EVALUATOR_VERSION).toBe('5B.0.0');
+describe('EVALUATOR_VERSION — Wave 5C', () => {
+  it('K1. EVALUATOR_VERSION matches "5C.0.0"', () => {
+    expect(EVALUATOR_VERSION).toBe('5C.0.0');
   });
 
   it('K2. extractor_version in valid output === EVALUATOR_VERSION', () => {
