@@ -231,13 +231,15 @@ export const EVALUATOR_AGGREGATE_BANDS = Object.freeze({
  * are absent, null, undefined, or malformed.
  *
  * Shape contract:
- *   - evaluator_version {string}        — EVALUATOR_VERSION
- *   - aggregate_band {string}           — EVALUATOR_AGGREGATE_BANDS.FAIL_SAFE
- *   - is_fail_safe {boolean}            — true (distinguishes fail-safe from scored)
- *   - fail_safe_reason {string}         — human-readable reason
- *   - dimensions {Record<string,string>}— all active dimension keys → UNKNOWN
- *   - deferred_dimensions {string[]}    — keys of deferred (not-yet-scored) dimensions
- *   - scored_at {null}                  — no scoring occurred
+ *   - evaluator_version {string}               — EVALUATOR_VERSION
+ *   - aggregate_band {string}                  — EVALUATOR_AGGREGATE_BANDS.FAIL_SAFE
+ *   - is_fail_safe {boolean}                   — true (distinguishes fail-safe from scored)
+ *   - fail_safe_reason {string}                — human-readable reason
+ *   - dimensions {Record<string,string>}       — all active dimension keys → UNKNOWN
+ *   - dimension_evidence {Record<string,string>} — all active dimension keys → 'not_scored'
+ *   - risk_flags {string[]}                    — empty array (no scoring occurred)
+ *   - deferred_dimensions {string[]}           — keys of deferred (not-yet-scored) dimensions
+ *   - scored_at {null}                         — no scoring occurred
  *
  * @type {Readonly<object>}
  */
