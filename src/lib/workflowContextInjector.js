@@ -89,6 +89,8 @@ import {
   buildStrategyDiagnosticSnapshot,
   buildLTSDiagnosticSnapshot,
 } from './therapistStrategyEngine.js';
+// Wave 5D — Quality Evaluator diagnostic integration (diagnostics-only, no runtime effect).
+import { computeEvaluatorDiagnosticSnapshot } from './therapistQualityEvaluator.js';
 
 /**
  * Returns the workflow context instructions string when the supplied wiring
@@ -847,6 +849,86 @@ export async function buildV7SessionStartContentAsync(
   return v6Base + '\n\n' + continuityBlock;
 }
 
+// ─── Wave 5D — Quality Evaluator diagnostic helpers ───────────────────────────
+
+/**
+ * Extracts safe bounded wiring identity metadata from a wiring config for
+ * the Quality Evaluator.  Only structural flag fields are included.
+ * Never includes tool_configs, agent_instructions, system_prompt, or any
+ * content arrays.
+ *
+ * FAIL-CLOSED: returns null when wiring is absent or non-object.
+ *
+ * @private
+ * @param {object|null|undefined} wiring
+ * @returns {object|null}
+ */
+function _buildWiringIdentityForEvaluator(wiring) {
+  if (!wiring || typeof wiring !== 'object') return null;
+  return {
+    name: typeof wiring.name === 'string' ? wiring.name : '',
+    stage2: wiring.stage2 === true,
+    stage2_phase: typeof wiring.stage2_phase === 'number' ? wiring.stage2_phase : 0,
+    strategy_layer_enabled: wiring.strategy_layer_enabled === true,
+    formulation_context_enabled: wiring.formulation_context_enabled === true,
+    continuity_layer_enabled: wiring.continuity_layer_enabled === true,
+    safety_mode_enabled: wiring.safety_mode_enabled === true,
+  };
+}
+
+/**
+ * Emits a Quality Evaluator diagnostic to the console when both
+ * `?_s2debug=true` is present in the URL AND the QUALITY_EVALUATOR_ENABLED
+ * env flag is set.  No-op in all other environments (production, CI, Node.js).
+ *
+ * Wave 5D — Evaluator Diagnostics Integration.
+ *
+ * SAFETY CONTRACT
+ * ---------------
+ * - Gated by BOTH `_s2debug=true` in the URL AND VITE_QUALITY_EVALUATOR_ENABLED.
+ * - Only emits bounded evaluator metadata (version, bands, risk flags, wiring
+ *   identity).  Never emits raw user text, raw assistant text, or private
+ *   entity content.
+ * - Does NOT change any routing decision, session content, or therapeutic
+ *   behavior.  The evaluator result is ONLY used for console output here.
+ * - Does NOT store the snapshot — console output only.
+ * - Fail-closed on any error (never propagates).
+ * - evaluatorInputs must contain ONLY pre-processed structured signals, never
+ *   raw message text or private entity fields.
+ *
+ * @private
+ * @param {object} evaluatorInputs
+ *   Bounded structured signals: strategyState, ltsInputs, safetyResult,
+ *   distressTier, wiringIdentity.  Raw text must NOT be included.
+ */
+function _emitEvaluatorDiagnosticIfEnabled(evaluatorInputs) {
+  try {
+    if (typeof window === 'undefined') return;
+    const search = window.location?.search ?? '';
+    if (!search) return;
+    const params = new URLSearchParams(search);
+    if (params.get('_s2debug') !== 'true') return;
+    // Secondary gate: QUALITY_EVALUATOR_ENABLED env flag.
+    // Checked directly here to avoid importing featureFlags (no cycle risk,
+    // but keeps this file's dependency surface minimal).
+    if (import.meta.env?.VITE_QUALITY_EVALUATOR_ENABLED !== 'true') return;
+
+    const snap = computeEvaluatorDiagnosticSnapshot(evaluatorInputs);
+    console.group('[Wave 5D] Quality Evaluator diagnostic');
+    console.log('evaluator_version :', snap.evaluator_version);
+    console.log('aggregate_band    :', snap.aggregate_band);
+    console.log('fail_safe         :', snap.fail_safe);
+    console.log('agent_role        :', snap.agent_role);
+    console.log('wiring_version    :', snap.wiring_version);
+    console.log('active_dimensions :', snap.active_dimensions);
+    console.log('dimensions        :', snap.dimensions);
+    console.log('risk_flags        :', snap.risk_flags);
+    console.groupEnd();
+  } catch (_e) {
+    // Diagnostic emission must never propagate — fail silently.
+  }
+}
+
 // ─── Wave 2D — Strategy diagnostic emission ───────────────────────────────────
 
 /**
@@ -1073,6 +1155,17 @@ export async function buildV8SessionStartContentAsync(
     // Never logs raw message content — only the sanitized diagnostic snapshot.
     // Wave 3E: pass ltsInputs so the LTS signal group is also emitted.
     _emitStrategyDiagnosticIfEnabled(strategyState, ltsInputs);
+
+    // Wave 5D — Emit Quality Evaluator diagnostic when _s2debug=true and
+    // QUALITY_EVALUATOR_ENABLED is set.  Additive only; no effect on routing or
+    // therapeutic behavior.  Never includes raw text or private entity content.
+    _emitEvaluatorDiagnosticIfEnabled({
+      strategyState,
+      ltsInputs,
+      safetyResult,
+      distressTier,
+      wiringIdentity: _buildWiringIdentityForEvaluator(wiring),
+    });
 
     // Step 8: Build strategy context section
     const strategySection = buildStrategyContextSection(strategyState);

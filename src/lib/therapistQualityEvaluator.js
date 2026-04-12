@@ -597,6 +597,89 @@ export function extractEvaluatorFeatures(inputs) {
   }
 }
 
+// ─── Wave 5D — Evaluator Diagnostic Snapshot ─────────────────────────────────
+
+/**
+ * Computes a bounded diagnostic payload for the Quality Evaluator.
+ *
+ * Wave 5D — Evaluator Diagnostics Integration.
+ *
+ * PURPOSE
+ * -------
+ * Wraps extractEvaluatorFeatures() + buildQualityEvaluatorSnapshot() into a
+ * single diagnostic call that emits only the approved bounded fields listed
+ * in the Wave 5D spec.  Never emits raw user text, raw assistant text, or
+ * private entity content.
+ *
+ * SAFETY CONTRACT
+ * ---------------
+ * - Never throws. All exceptions return a fail-safe diagnostic payload.
+ * - No raw user message text accepted or preserved.
+ * - No LLM calls, no entity access, no async, no side effects.
+ * - Deterministic: same inputs always produce an identical output.
+ * - Output is always a frozen plain object.
+ * - DIAGNOSTIC USE ONLY: must only be called from _s2debug-gated paths.
+ *   Must never influence session content, routing, or user-visible output.
+ *
+ * EMITTED FIELDS (approved by Wave 5D spec)
+ * ------------------------------------------
+ * - evaluator_version    {string}   — EVALUATOR_VERSION
+ * - active_dimensions    {string[]} — ACTIVE_QUALITY_DIMENSIONS (frozen copy)
+ * - dimensions           {object}   — per-dimension score band map
+ * - aggregate_band       {string}   — overall quality band
+ * - risk_flags           {object}   — safety_active, distress_tier,
+ *                                     has_risk_flags, lts_has_risk_history
+ * - fail_safe            {boolean}  — true when snapshot is in fail-safe state
+ * - agent_role           {string}   — wiring_name from normalized features (or '')
+ * - wiring_version       {number}   — wiring_stage2_phase from features (or 0)
+ *
+ * @param {object|null|undefined} inputs
+ *   Bounded structured signals derived from session-start processing.
+ *   Same input contract as extractEvaluatorFeatures(). Raw text must NOT
+ *   be passed.
+ * @returns {Readonly<object>} Frozen diagnostic payload with the approved fields.
+ */
+export function computeEvaluatorDiagnosticSnapshot(inputs) {
+  try {
+    const features = extractEvaluatorFeatures(inputs);
+    const snapshot = buildQualityEvaluatorSnapshot(inputs);
+
+    return Object.freeze({
+      evaluator_version: snapshot.evaluator_version,
+      active_dimensions: Object.freeze(ACTIVE_QUALITY_DIMENSIONS.slice()),
+      dimensions: snapshot.dimensions,
+      aggregate_band: snapshot.is_fail_safe
+        ? EVALUATOR_AGGREGATE_BANDS.FAIL_SAFE
+        : EVALUATOR_AGGREGATE_BANDS.UNKNOWN,
+      risk_flags: Object.freeze({
+        safety_active: features.safety_escalation_consistency.safety_active,
+        distress_tier: features.safety_escalation_consistency.distress_tier,
+        has_risk_flags: features.continuity_alignment.has_risk_flags,
+        lts_has_risk_history: features.strategy_alignment.lts_has_risk_history,
+      }),
+      fail_safe: snapshot.is_fail_safe,
+      agent_role: features.role_boundary_integrity.wiring_name,
+      wiring_version: features.role_boundary_integrity.wiring_stage2_phase,
+    });
+  } catch (_err) {
+    return Object.freeze({
+      evaluator_version: EVALUATOR_VERSION,
+      active_dimensions: Object.freeze(ACTIVE_QUALITY_DIMENSIONS.slice()),
+      dimensions: EVALUATOR_FAIL_SAFE_SNAPSHOT.dimensions,
+      aggregate_band: EVALUATOR_AGGREGATE_BANDS.FAIL_SAFE,
+      risk_flags: Object.freeze({
+        safety_active: false,
+        distress_tier: '',
+        has_risk_flags: false,
+        lts_has_risk_history: false,
+      }),
+      fail_safe: true,
+      agent_role: '',
+      wiring_version: 0,
+    });
+  }
+}
+
 // ─── Wave 5B — Internal Feature Extractors ────────────────────────────────────
 
 /**

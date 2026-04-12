@@ -595,6 +595,10 @@ export function getActivationDiagnostics() {
         masterGateOn: companionMasterOn,
         routeHint: companionRouteHint,
       },
+      // Wave 5D — Quality Evaluator activation status (boolean flags only, no runtime state).
+      evaluatorLayer: {
+        evaluatorEnabled: isQualityEvaluatorEnabled('QUALITY_EVALUATOR_ENABLED'),
+      },
     };
   } catch (_e) {
     // Diagnostics must never propagate errors.
@@ -633,6 +637,9 @@ export function logActivationDiagnostics() {
     console.log('computedFlags        :', p.companion.computedFlags);
     console.log('masterGateOn         :', p.companion.masterGateOn);
     console.log('routeHint            :', p.companion.routeHint);
+    console.groupEnd();
+    console.group('[Evaluator]'); // Wave 5D
+    console.log('evaluatorEnabled     :', p.evaluatorLayer.evaluatorEnabled);
     console.groupEnd();
     console.groupEnd();
   } catch (_e) {
@@ -935,3 +942,27 @@ export const QUALITY_EVALUATOR_FLAGS = Object.freeze({
    */
   QUALITY_EVALUATOR_ENABLED: import.meta.env?.VITE_QUALITY_EVALUATOR_ENABLED === 'true',
 });
+
+/**
+ * Evaluates the Quality Evaluator master gate flag.
+ *
+ * Returns true when QUALITY_EVALUATOR_ENABLED is set to 'true' via the
+ * VITE_QUALITY_EVALUATOR_ENABLED build-time environment variable.
+ *
+ * The evaluator flag registry is intentionally isolated from
+ * THERAPIST_UPGRADE_FLAGS and COMPANION_UPGRADE_FLAGS so that the evaluator
+ * can be deployed, tested, and rolled back independently of agent upgrade
+ * rollouts.  This function is the single read point for the evaluator gate.
+ *
+ * Returns false when:
+ *   - The flag name is not a key in QUALITY_EVALUATOR_FLAGS
+ *   - QUALITY_EVALUATOR_ENABLED is false (build-time env absent or not 'true')
+ *
+ * @param {string} [flagName='QUALITY_EVALUATOR_ENABLED']
+ *   A key from QUALITY_EVALUATOR_FLAGS.  Defaults to the master gate.
+ * @returns {boolean}
+ */
+export function isQualityEvaluatorEnabled(flagName = 'QUALITY_EVALUATOR_ENABLED') {
+  if (!(flagName in QUALITY_EVALUATOR_FLAGS)) return false;
+  return QUALITY_EVALUATOR_FLAGS[flagName] === true;
+}
