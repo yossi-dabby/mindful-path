@@ -1,17 +1,19 @@
 /**
  * @file src/lib/therapistQualityEvaluator.js
  *
- * Therapist Upgrade — Wave 5A — Quality Evaluator (Scaffold)
+ * Therapist Upgrade — Wave 5A / Wave 5B — Quality Evaluator (Scaffold + Feature Extractor)
  *
  * PURPOSE
  * -------
- * Pure deterministic scaffold that defines the Quality Evaluator contract:
+ * Wave 5A: Pure deterministic scaffold that defines the Quality Evaluator contract:
  * dimensions, score bands, aggregate bands, fail-safe snapshot shape, and the
  * buildQualityEvaluatorSnapshot() factory.
  *
- * This module contains ZERO runtime scoring logic. It establishes the contract
- * so that tests can validate stability, shape, and fail-safe behaviour before
- * any session-start wiring is introduced in a later wave.
+ * Wave 5B: Adds extractEvaluatorFeatures(inputs), a pure deterministic feature
+ * extractor that normalises structured session-start signals into a stable
+ * evaluator input contract for each active quality dimension.  No scoring logic
+ * is applied in Wave 5B.  The extractor is inert: it is not called from any
+ * runtime path and emits no diagnostics.
  *
  * ISOLATION GUARANTEE
  * -------------------
@@ -34,13 +36,15 @@
  * - All public functions never throw — they catch all exceptions and return
  *   the fail-safe snapshot.
  *
- * NOT WIRED YET (Wave 5A only)
- * ----------------------------
+ * NOT WIRED YET (Wave 5A / Wave 5B)
+ * ----------------------------------
  * - Not called from Chat.jsx.
  * - Not called from workflowContextInjector.js.
  * - Not emitting diagnostics.
  * - Not gated by QUALITY_EVALUATOR_FLAGS at runtime (flag added in featureFlags.js
  *   but this file does not import it; the scaffold is callable in isolation).
+ * - Wave 5B extractEvaluatorFeatures() is inert: no runtime call site, no
+ *   diagnostics emission, no rollout gating.  Real scoring belongs to Wave 5C.
  *
  * DIMENSIONS (Wave 5A — structural/objective only)
  * -------------------------------------------------
@@ -89,7 +93,7 @@
  *
  * @type {string}
  */
-export const EVALUATOR_VERSION = '5A.0.0';
+export const EVALUATOR_VERSION = '5B.0.0';
 
 // ─── Quality Dimensions ───────────────────────────────────────────────────────
 
@@ -339,4 +343,426 @@ function _isValidInputs(inputs) {
   if (typeof inputs !== 'object' || Array.isArray(inputs)) return false;
   if (Object.keys(inputs).length === 0) return false;
   return true;
+}
+
+// ─── Wave 5B — Feature Extractor ─────────────────────────────────────────────
+
+/**
+ * Stable fail-safe feature set returned by extractEvaluatorFeatures() when
+ * inputs are absent, null, undefined, malformed, or carry no recognisable keys.
+ *
+ * Every dimension entry is present with canonical absent/unknown defaults so
+ * that downstream Wave 5C scoring can always expect a complete, fixed shape.
+ *
+ * Shape:
+ *   extractor_version          {string}  — EVALUATOR_VERSION
+ *   is_fail_safe               {boolean} — true (distinguishes fail-safe from valid)
+ *   fail_safe_reason           {string}  — human-readable reason token
+ *   strategy_alignment         {object}  — strategy dimension features
+ *   formulation_alignment      {object}  — formulation dimension features
+ *   continuity_alignment       {object}  — continuity dimension features
+ *   knowledge_alignment        {object}  — knowledge retrieval dimension features
+ *   safety_escalation_consistency {object} — safety/distress dimension features
+ *   role_boundary_integrity    {object}  — wiring/role dimension features
+ *   context_completeness       {object}  — overall context availability features
+ *
+ * @type {Readonly<object>}
+ */
+export const EVALUATOR_FEATURES_FAIL_SAFE = Object.freeze({
+  extractor_version: EVALUATOR_VERSION,
+  is_fail_safe: true,
+  fail_safe_reason: 'bad_inputs',
+  strategy_alignment: Object.freeze({
+    strategy_present: false,
+    intervention_mode: '',
+    distress_tier: '',
+    strategy_is_fail_safe: true,
+    lts_present: false,
+    lts_trajectory: '',
+    lts_is_stagnating: false,
+    lts_is_progressing: false,
+    lts_is_fluctuating: false,
+    lts_has_risk_history: false,
+    lts_has_stalled_interventions: false,
+  }),
+  formulation_alignment: Object.freeze({
+    formulation_present: false,
+    formulation_score: 0,
+    has_formulation_hints: false,
+    formulation_domain: '',
+    formulation_treatment_phase: '',
+    formulation_is_ambiguous: false,
+  }),
+  continuity_alignment: Object.freeze({
+    continuity_present: false,
+    continuity_richness_score: 0,
+    session_count: 0,
+    has_open_tasks: false,
+    has_risk_flags: false,
+    intervention_saturated: false,
+  }),
+  knowledge_alignment: Object.freeze({
+    knowledge_plan_present: false,
+    should_retrieve: false,
+    skip_reason: '',
+    domain_hint: '',
+    lts_influenced_arc: false,
+  }),
+  safety_escalation_consistency: Object.freeze({
+    safety_active: false,
+    distress_tier: '',
+  }),
+  role_boundary_integrity: Object.freeze({
+    wiring_name: '',
+    wiring_stage2: false,
+    wiring_stage2_phase: 0,
+    wiring_strategy_layer_enabled: false,
+    wiring_formulation_context_enabled: false,
+    wiring_continuity_layer_enabled: false,
+    wiring_safety_mode_enabled: false,
+  }),
+  context_completeness: Object.freeze({
+    has_strategy: false,
+    has_lts: false,
+    has_formulation: false,
+    has_continuity: false,
+    has_knowledge_plan: false,
+    has_safety_result: false,
+    has_wiring_identity: false,
+    dimensions_present_count: 0,
+  }),
+});
+
+/**
+ * Extracts a normalised, bounded feature set from structured session-start
+ * signals for the Quality Evaluator.
+ *
+ * Wave 5B — Feature Extraction Layer.
+ *
+ * PURPOSE
+ * -------
+ * Accepts the same bounded structured signals that the session-start pipeline
+ * already produces and normalises them into a stable, dimension-keyed feature
+ * object.  Each dimension entry captures exactly the structural metadata
+ * required by Wave 5C scoring — no more, no less.
+ *
+ * ISOLATION GUARANTEE
+ * -------------------
+ * This function has zero side effects, no LLM calls, no entity access, and is
+ * fully synchronous.  It never throws.  It is inert at runtime — not called
+ * from any live code path as of Wave 5B.
+ *
+ * SAFETY CONTRACT
+ * ---------------
+ * - Never throws. All exceptions return EVALUATOR_FEATURES_FAIL_SAFE.
+ * - No raw user message text accepted or preserved.
+ * - No LLM calls, no entity access, no async, no side effects.
+ * - Deterministic: same inputs always produce an identical output.
+ * - Fail-safe defaults for every absent or malformed field.
+ * - Output is always a frozen plain object with a fixed shape.
+ * - No user-visible output.
+ * - No control path over any runtime behaviour.
+ *
+ * INPUT CONTRACT
+ * --------------
+ * @param {object|null|undefined} inputs
+ *   Bounded structured signals derived from session-start processing.
+ *   Raw user message text must NOT be passed.
+ *
+ *   Recognised input keys (all optional):
+ *     strategyState    {object|null}  — TherapistStrategyState (therapistStrategyEngine.js)
+ *     ltsInputs        {object|null}  — LTSStrategyInputs (extractLTSStrategyInputs output)
+ *     formulationHints {object|null}  — Bounded formulation hints (extractFormulationHintsForPlanner output)
+ *     formulationScore {number|null}  — formulation_strength_score from strategyState (0–1 range)
+ *     continuityRichness {number|null} — continuity_richness_score from strategyState (0–1 range)
+ *     knowledgePlan    {object|null}  — CBTKnowledgePlan (planCBTKnowledgeRetrieval output)
+ *     safetyResult     {object|null}  — SafetyModeResult (determineSafetyMode output)
+ *     distressTier     {string|null}  — One of DISTRESS_TIERS values
+ *     wiringIdentity   {object|null}  — Active wiring config identity (name/stage/flags only)
+ *
+ * OUTPUT CONTRACT
+ * ---------------
+ * @returns {Readonly<object>} Frozen feature set with shape matching
+ *   EVALUATOR_FEATURES_FAIL_SAFE, plus:
+ *   - is_fail_safe: false for valid inputs
+ *   - fail_safe_reason: null for valid inputs
+ *   - One entry per active quality dimension key (see QUALITY_DIMENSIONS)
+ */
+export function extractEvaluatorFeatures(inputs) {
+  try {
+    if (!_isValidInputs(inputs)) {
+      return EVALUATOR_FEATURES_FAIL_SAFE;
+    }
+
+    const strategyAlignment = _extractStrategyAlignmentFeatures(inputs);
+    const formulationAlignment = _extractFormulationAlignmentFeatures(inputs);
+    const continuityAlignment = _extractContinuityAlignmentFeatures(inputs);
+    const knowledgeAlignment = _extractKnowledgeAlignmentFeatures(inputs);
+    const safetyEscalationConsistency = _extractSafetyEscalationFeatures(inputs);
+    const roleBoundaryIntegrity = _extractRoleBoundaryFeatures(inputs);
+
+    const hasStrategy = strategyAlignment.strategy_present;
+    const hasLts = strategyAlignment.lts_present;
+    const hasFormulation = formulationAlignment.formulation_present || formulationAlignment.has_formulation_hints;
+    const hasContinuity = continuityAlignment.continuity_present;
+    const hasKnowledgePlan = knowledgeAlignment.knowledge_plan_present;
+    const hasSafetyResult = !!(
+      inputs.safetyResult &&
+      typeof inputs.safetyResult === 'object'
+    );
+    const hasWiringIdentity = roleBoundaryIntegrity.wiring_name !== '';
+
+    const dimensionsPresentCount = [
+      hasStrategy,
+      hasLts,
+      hasFormulation,
+      hasContinuity,
+      hasKnowledgePlan,
+      hasSafetyResult,
+      hasWiringIdentity,
+    ].filter(Boolean).length;
+
+    const contextCompleteness = Object.freeze({
+      has_strategy: hasStrategy,
+      has_lts: hasLts,
+      has_formulation: hasFormulation,
+      has_continuity: hasContinuity,
+      has_knowledge_plan: hasKnowledgePlan,
+      has_safety_result: hasSafetyResult,
+      has_wiring_identity: hasWiringIdentity,
+      dimensions_present_count: dimensionsPresentCount,
+    });
+
+    return Object.freeze({
+      extractor_version: EVALUATOR_VERSION,
+      is_fail_safe: false,
+      fail_safe_reason: null,
+      strategy_alignment: strategyAlignment,
+      formulation_alignment: formulationAlignment,
+      continuity_alignment: continuityAlignment,
+      knowledge_alignment: knowledgeAlignment,
+      safety_escalation_consistency: safetyEscalationConsistency,
+      role_boundary_integrity: roleBoundaryIntegrity,
+      context_completeness: contextCompleteness,
+    });
+  } catch (_err) {
+    return EVALUATOR_FEATURES_FAIL_SAFE;
+  }
+}
+
+// ─── Wave 5B — Internal Feature Extractors ────────────────────────────────────
+
+/**
+ * Extracts strategy alignment features from strategyState and ltsInputs.
+ *
+ * @private
+ * @param {object} inputs
+ * @returns {Readonly<object>}
+ */
+function _extractStrategyAlignmentFeatures(inputs) {
+  try {
+    const ss = inputs.strategyState && typeof inputs.strategyState === 'object'
+      ? inputs.strategyState
+      : null;
+    const li = inputs.ltsInputs && typeof inputs.ltsInputs === 'object'
+      ? inputs.ltsInputs
+      : null;
+
+    if (!ss) {
+      return EVALUATOR_FEATURES_FAIL_SAFE.strategy_alignment;
+    }
+
+    const ltsPresent = !!(li && li.lts_valid === true);
+
+    return Object.freeze({
+      strategy_present: true,
+      intervention_mode: typeof ss.intervention_mode === 'string' ? ss.intervention_mode : '',
+      distress_tier: typeof ss.distress_tier === 'string' ? ss.distress_tier : '',
+      strategy_is_fail_safe: ss.fail_safe === true,
+      lts_present: ltsPresent,
+      lts_trajectory: ltsPresent && typeof li.lts_trajectory === 'string' ? li.lts_trajectory : '',
+      lts_is_stagnating: ltsPresent && li.lts_is_stagnating === true,
+      lts_is_progressing: ltsPresent && li.lts_is_progressing === true,
+      lts_is_fluctuating: ltsPresent && li.lts_is_fluctuating === true,
+      lts_has_risk_history: ltsPresent && li.lts_has_risk_history === true,
+      lts_has_stalled_interventions: ltsPresent && li.lts_has_stalled_interventions === true,
+    });
+  } catch (_e) {
+    return EVALUATOR_FEATURES_FAIL_SAFE.strategy_alignment;
+  }
+}
+
+/**
+ * Extracts formulation alignment features from formulationHints and formulationScore.
+ *
+ * @private
+ * @param {object} inputs
+ * @returns {Readonly<object>}
+ */
+function _extractFormulationAlignmentFeatures(inputs) {
+  try {
+    const ss = inputs.strategyState && typeof inputs.strategyState === 'object'
+      ? inputs.strategyState
+      : null;
+    const fh = inputs.formulationHints && typeof inputs.formulationHints === 'object'
+      ? inputs.formulationHints
+      : null;
+
+    const formulationPresentFromStrategy = !!(ss && ss.formulation_present === true);
+    const formulationScore = typeof inputs.formulationScore === 'number'
+      ? inputs.formulationScore
+      : (ss && typeof ss.formulation_strength_score === 'number'
+          ? ss.formulation_strength_score
+          : 0);
+
+    const hasFormulationHints = !!(fh && fh.has_formulation === true);
+
+    return Object.freeze({
+      formulation_present: formulationPresentFromStrategy || hasFormulationHints,
+      formulation_score: formulationScore,
+      has_formulation_hints: hasFormulationHints,
+      formulation_domain: fh && typeof fh.domain === 'string' ? fh.domain : '',
+      formulation_treatment_phase: fh && typeof fh.treatment_phase === 'string' ? fh.treatment_phase : '',
+      formulation_is_ambiguous: !!(fh && fh.is_ambiguous === true),
+    });
+  } catch (_e) {
+    return EVALUATOR_FEATURES_FAIL_SAFE.formulation_alignment;
+  }
+}
+
+/**
+ * Extracts continuity alignment features from strategyState and continuityRichness.
+ *
+ * @private
+ * @param {object} inputs
+ * @returns {Readonly<object>}
+ */
+function _extractContinuityAlignmentFeatures(inputs) {
+  try {
+    const ss = inputs.strategyState && typeof inputs.strategyState === 'object'
+      ? inputs.strategyState
+      : null;
+
+    if (!ss) {
+      return EVALUATOR_FEATURES_FAIL_SAFE.continuity_alignment;
+    }
+
+    const continuityRichness = typeof inputs.continuityRichness === 'number'
+      ? inputs.continuityRichness
+      : (typeof ss.continuity_richness_score === 'number'
+          ? ss.continuity_richness_score
+          : 0);
+
+    return Object.freeze({
+      continuity_present: ss.continuity_present === true,
+      continuity_richness_score: continuityRichness,
+      session_count: typeof ss.session_count === 'number' ? ss.session_count : 0,
+      has_open_tasks: ss.has_open_tasks === true,
+      has_risk_flags: ss.has_risk_flags === true,
+      intervention_saturated: ss.intervention_saturated === true,
+    });
+  } catch (_e) {
+    return EVALUATOR_FEATURES_FAIL_SAFE.continuity_alignment;
+  }
+}
+
+/**
+ * Extracts knowledge alignment features from knowledgePlan.
+ *
+ * @private
+ * @param {object} inputs
+ * @returns {Readonly<object>}
+ */
+function _extractKnowledgeAlignmentFeatures(inputs) {
+  try {
+    const kp = inputs.knowledgePlan && typeof inputs.knowledgePlan === 'object'
+      ? inputs.knowledgePlan
+      : null;
+
+    if (!kp) {
+      return EVALUATOR_FEATURES_FAIL_SAFE.knowledge_alignment;
+    }
+
+    return Object.freeze({
+      knowledge_plan_present: true,
+      should_retrieve: kp.shouldRetrieve === true,
+      skip_reason: typeof kp.skipReason === 'string' ? kp.skipReason : '',
+      domain_hint: typeof kp.domainHint === 'string' ? kp.domainHint : '',
+      lts_influenced_arc: kp.ltsInfluencedArc === true,
+    });
+  } catch (_e) {
+    return EVALUATOR_FEATURES_FAIL_SAFE.knowledge_alignment;
+  }
+}
+
+/**
+ * Extracts safety escalation consistency features from safetyResult and distressTier.
+ *
+ * @private
+ * @param {object} inputs
+ * @returns {Readonly<object>}
+ */
+function _extractSafetyEscalationFeatures(inputs) {
+  try {
+    const sr = inputs.safetyResult && typeof inputs.safetyResult === 'object'
+      ? inputs.safetyResult
+      : null;
+
+    const safetyActive = !!(sr && sr.safety_mode === true);
+
+    // distressTier: explicit override > from safetyResult inference > strategyState > ''
+    let distressTier = '';
+    if (typeof inputs.distressTier === 'string' && inputs.distressTier) {
+      distressTier = inputs.distressTier;
+    } else if (
+      inputs.strategyState &&
+      typeof inputs.strategyState === 'object' &&
+      typeof inputs.strategyState.distress_tier === 'string'
+    ) {
+      distressTier = inputs.strategyState.distress_tier;
+    } else if (safetyActive) {
+      distressTier = 'tier_high';
+    }
+
+    return Object.freeze({
+      safety_active: safetyActive,
+      distress_tier: distressTier,
+    });
+  } catch (_e) {
+    return EVALUATOR_FEATURES_FAIL_SAFE.safety_escalation_consistency;
+  }
+}
+
+/**
+ * Extracts role boundary integrity features from wiringIdentity.
+ *
+ * Only safe metadata fields are extracted (name, stage flags).
+ * No entity lists, no tool_configs arrays, no raw wiring content.
+ *
+ * @private
+ * @param {object} inputs
+ * @returns {Readonly<object>}
+ */
+function _extractRoleBoundaryFeatures(inputs) {
+  try {
+    const wi = inputs.wiringIdentity && typeof inputs.wiringIdentity === 'object'
+      ? inputs.wiringIdentity
+      : null;
+
+    if (!wi) {
+      return EVALUATOR_FEATURES_FAIL_SAFE.role_boundary_integrity;
+    }
+
+    return Object.freeze({
+      wiring_name: typeof wi.name === 'string' ? wi.name : '',
+      wiring_stage2: wi.stage2 === true,
+      wiring_stage2_phase: typeof wi.stage2_phase === 'number' ? wi.stage2_phase : 0,
+      wiring_strategy_layer_enabled: wi.strategy_layer_enabled === true,
+      wiring_formulation_context_enabled: wi.formulation_context_enabled === true,
+      wiring_continuity_layer_enabled: wi.continuity_layer_enabled === true,
+      wiring_safety_mode_enabled: wi.safety_mode_enabled === true,
+    });
+  } catch (_e) {
+    return EVALUATOR_FEATURES_FAIL_SAFE.role_boundary_integrity;
+  }
 }
