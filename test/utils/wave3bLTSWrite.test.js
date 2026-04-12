@@ -110,6 +110,13 @@ function makeMockBase44({
 /**
  * Waits for all pending microtasks and macrotasks to flush (allows
  * fire-and-forget async IIFEs to complete within the same test).
+ *
+ * This uses a real 10ms setTimeout rather than fake timers because the
+ * production code under test uses async IIFEs that fire and forget without
+ * any timer-based scheduling — they simply enqueue microtasks. A short real
+ * delay reliably drains those microtasks without introducing meaningful
+ * test overhead. `vi.runAllTimersAsync()` with fake timers cannot be used
+ * here because the async IIFEs are not triggered by timers.
  */
 async function flushAsync() {
   await new Promise(resolve => setTimeout(resolve, 10));

@@ -776,6 +776,7 @@ export function isLongitudinalEnabled() {
  *
  * @param {object} base44 - The Base44 SDK client instance.
  * @param {string} [invoker='lts_write_after_session_memory'] - Diagnostic label.
+ * @private
  */
 function _fireLTSWrite(base44, invoker = LTS_WRITE_INVOKER) {
   // This is always fire-and-forget — never awaited by the caller.

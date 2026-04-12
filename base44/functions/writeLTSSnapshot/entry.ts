@@ -264,8 +264,10 @@ Deno.serve(async (req) => {
             existingLTSId = raw.id;
             break;
           }
-        } catch {
-          // Skip unparseable records.
+        } catch (parseError) {
+          // Skip unparseable records — log to aid debugging if records become malformed.
+          const msg = parseError instanceof Error ? parseError.message : String(parseError);
+          console.warn('[writeLTSSnapshot] Skipping unparseable CompanionMemory record:', msg);
           continue;
         }
       }
