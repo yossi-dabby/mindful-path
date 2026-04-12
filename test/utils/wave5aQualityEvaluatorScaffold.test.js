@@ -27,7 +27,7 @@
  *
  * B. EVALUATOR_VERSION
  *    B1.  Is a non-empty string
- *    B2.  Matches '5A.0.0' (version stability)
+ *    B2.  Matches '5B.0.0' (version stability)
  *
  * C. QUALITY_DIMENSIONS
  *    C1.  Is a frozen object
@@ -197,8 +197,8 @@ describe('B. EVALUATOR_VERSION', () => {
     expect(EVALUATOR_VERSION.length).toBeGreaterThan(0);
   });
 
-  it("B2. Matches '5A.0.0' (version stability)", () => {
-    expect(EVALUATOR_VERSION).toBe('5A.0.0');
+  it("B2. Matches '5B.0.0' (version stability)", () => {
+    expect(EVALUATOR_VERSION).toBe('5B.0.0');
   });
 });
 
