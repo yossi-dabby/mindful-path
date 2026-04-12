@@ -8,10 +8,10 @@
  * Validates the Wave 4C implementation across three areas:
  *
  *   1. cbtKnowledgeRetrieval.js — extractFormulationHintsForPlanner() and
- *      retrieveBoundedCBTKnowledgeBlock() contracts and behaviour.
+ *      retrieveBoundedCBTKnowledgeBlock() contracts and behavior.
  *
  *   2. workflowContextInjector.js — buildV10SessionStartContentAsync() contracts,
- *      flag gating, V9 delegation, and fail-open behaviour.
+ *      flag gating, V9 delegation, and fail-open behavior.
  *
  *   3. Static analysis — agentWiring.js V10 export, activeAgentWiring.js routing,
  *      and Chat.jsx call site audit.
