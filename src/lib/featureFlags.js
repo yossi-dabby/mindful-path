@@ -22,6 +22,13 @@
  * criteria (docs/therapist-upgrade-stage2-plan.md §Phase 9).
  */
 
+// Wave 2D — strategy engine metadata for diagnostics (read-only constants, no runtime state).
+// therapistStrategyEngine.js has no imports of its own, so this cannot create a cycle.
+import {
+  STRATEGY_VERSION,
+  STRATEGY_INTERVENTION_MODES,
+} from './therapistStrategyEngine.js';
+
 /**
  * All Stage 2 feature flags.
  *
@@ -329,6 +336,11 @@ export function getStage2DiagnosticPayload() {
       computedFlags,
       masterGateOn,
       routeHint,
+      // Wave 2D — static strategy engine metadata (no runtime state, purely from constants).
+      strategyEngine: {
+        version: STRATEGY_VERSION,
+        availableModes: Object.values(STRATEGY_INTERVENTION_MODES),
+      },
     };
   } catch (_e) {
     // Diagnostics must never propagate errors.
@@ -355,6 +367,7 @@ export function logStage2Diagnostics() {
     console.log('computedFlags       :', p.computedFlags);
     console.log('masterGateOn        :', p.masterGateOn);
     console.log('routeHint           :', p.routeHint);
+    console.log('strategyEngine      :', p.strategyEngine);
     console.groupEnd();
   } catch (_e) {
     // Diagnostics must never break the app.
@@ -488,6 +501,11 @@ export function getActivationDiagnostics() {
         computedFlags: therapistComputedFlags,
         masterGateOn: therapistMasterOn,
         routeHint: therapistRouteHint,
+        // Wave 2D — static strategy engine metadata (no runtime state, purely from constants).
+        strategyEngine: {
+          version: STRATEGY_VERSION,
+          availableModes: Object.values(STRATEGY_INTERVENTION_MODES),
+        },
       },
       companion: {
         parsedC2Flags,
@@ -524,6 +542,7 @@ export function logActivationDiagnostics() {
     console.log('computedFlags        :', p.therapist.computedFlags);
     console.log('masterGateOn         :', p.therapist.masterGateOn);
     console.log('routeHint            :', p.therapist.routeHint);
+    console.log('strategyEngine       :', p.therapist.strategyEngine);
     console.groupEnd();
     console.group('[Companion]');
     console.log('parsedC2Flags        :', p.companion.parsedC2Flags);
