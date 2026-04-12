@@ -604,7 +604,7 @@ describe('Section 10: Rollback safety — prior-phase exports are not affected',
     expect(typeof resolveTherapistWiring).toBe('function');
   });
 
-  it('THERAPIST_UPGRADE_FLAGS still has exactly 12 keys (Wave 4A added the 13th key, prior count was 12)', () => {
+  it('THERAPIST_UPGRADE_FLAGS now has exactly 13 keys (Wave 4A added the 13th key)', () => {
     expect(Object.keys(THERAPIST_UPGRADE_FLAGS).length).toBe(13);
   });
 

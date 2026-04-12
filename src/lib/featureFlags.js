@@ -148,7 +148,7 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
    * Prerequisite: THERAPIST_UPGRADE_SUMMARIZATION_ENABLED must also be true
    * for the session memory write to run (and thus for the LTS to have data).
    * Enabling this flag alone without SUMMARIZATION_ENABLED is safe (LTS will
-   * compute from whatever records exists) but unlikely to produce useful output.
+   * compute from whatever records exist) but unlikely to produce useful output.
    *
    * Backend: also requires the THERAPIST_UPGRADE_LONGITUDINAL_ENABLED Deno
    * secret to be set to 'true' in Base44 Application Secrets for the
