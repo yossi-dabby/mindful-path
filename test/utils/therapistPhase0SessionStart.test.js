@@ -231,10 +231,10 @@ describe('Phase 0 — Default mode and flag safety', () => {
     expect(THERAPIST_UPGRADE_FLAGS.THERAPIST_UPGRADE_ENABLED).toBe(false);
   });
 
-  // 19. THERAPIST_UPGRADE_FLAGS has exactly 11 keys (Wave 2A scaffold added the 11th key)
-  it('19. THERAPIST_UPGRADE_FLAGS has exactly 11 keys', () => {
+  // 19. THERAPIST_UPGRADE_FLAGS has exactly 12 keys (Wave 3B added the 12th key)
+  it('19. THERAPIST_UPGRADE_FLAGS has exactly 12 keys', () => {
     const keys = Object.keys(THERAPIST_UPGRADE_FLAGS);
-    expect(keys).toHaveLength(11);
+    expect(keys).toHaveLength(12);
   });
 
   // 20. resolveTherapistWiring returns HYBRID when called with no overrides
