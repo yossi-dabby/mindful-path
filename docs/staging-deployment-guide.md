@@ -76,6 +76,7 @@ All flags default to `false` when the variable is absent or any value other than
 | `VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED`               | Phase 3 Deep     | Cross-session memory continuity injection at session start (V7 wiring, superset of V6) | `false` |
 | `VITE_THERAPIST_UPGRADE_STRATEGY_ENABLED`                 | Wave 2A scaffold | Therapeutic Strategy Layer — registered for future wiring (Wave 2B). **No runtime effect in current codebase.** | `false` |
 | `VITE_THERAPIST_UPGRADE_LONGITUDINAL_ENABLED`             | Wave 3B          | Longitudinal Therapeutic State (LTS) write path — recomputes and upserts LTS snapshot after each session memory write. **No LTS read path or session-start wiring yet.** Requires `VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED` to also be `true`. | `false` |
+| `VITE_THERAPIST_UPGRADE_KNOWLEDGE_ENABLED`                | Wave 4A scaffold | CBT Knowledge Planner scaffold — gates the pure deterministic planner contract (`src/lib/cbtKnowledgePlanner.js`). **Frontend VITE env only. No backend secret required. No runtime retrieval, no schema changes, no Chat.jsx changes. Zero effect on any live session.** | `false` |
 
 > **Flag dependency for continuity read path:**
 > `VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED` activates the **read** path (session-start injection from CompanionMemory).
@@ -102,6 +103,14 @@ All flags default to `false` when the variable is absent or any value other than
 > must also be set in Base44 Application Secrets.
 > **This flag does not activate any LTS read path or session-start wiring.** Those are deferred to Wave 3C.
 
+> **Wave 4A — CBT Knowledge Planner scaffold:**
+> `VITE_THERAPIST_UPGRADE_KNOWLEDGE_ENABLED` gates the pure deterministic CBT knowledge planner
+> (`src/lib/cbtKnowledgePlanner.js`). This is a **frontend VITE env only** flag — no backend Base44
+> secret is required and no Deno function is called by this scaffold.
+> Enabling this flag in isolation has **zero effect** on any live session, agent, user-facing behavior,
+> entity schema, or retrieval pipeline. The planner is a standalone pure library with no imports.
+> Runtime retrieval wiring is deferred to Wave 4B+.
+
 ### 3.3 Build Behavior Variables (CI/CD)
 
 | Variable                      | Type        | Description                                              | Staging value |
@@ -123,10 +132,12 @@ Both must be `true` for a full memory write to succeed.
 | `THERAPIST_UPGRADE_SUMMARIZATION_ENABLED`| `generateSessionSummary`         | Gates session-end memory write to CompanionMemory         | `false`         | `false` | `false`    |
 | `THERAPIST_UPGRADE_LONGITUDINAL_ENABLED` | `writeLTSSnapshot`               | Gates LTS upsert write to CompanionMemory (Wave 3B)       | `false`         | `false` | `false`    |
 
-> **Important:** `THERAPIST_UPGRADE_CONTINUITY_ENABLED` and
-> `THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED` are **frontend-only** VITE flags.
-> They have no backend Deno equivalent. The V7 read path (`readCrossSessionContinuity`)
-> reads CompanionMemory directly via the entity SDK — it does not call a backend function.
+> **Important:** `THERAPIST_UPGRADE_CONTINUITY_ENABLED`, `THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED`,
+> and `THERAPIST_UPGRADE_KNOWLEDGE_ENABLED` are **frontend-only** VITE flags.
+> They have no backend Deno equivalent. `THERAPIST_UPGRADE_KNOWLEDGE_ENABLED` activates only the
+> pure deterministic planner scaffold — no Deno function is required at this stage (Wave 4A.1).
+> The V7 read path (`readCrossSessionContinuity`) reads CompanionMemory directly via the entity SDK
+> — it does not call a backend function.
 
 > **Recommended initial values** (all environments): `false` — do not enable until the
 > Phase 9 exit criteria described in `docs/therapist-upgrade-stage2-plan.md` are met.

@@ -157,6 +157,30 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
    * Staging enablement: set VITE_THERAPIST_UPGRADE_LONGITUDINAL_ENABLED=true
    */
   THERAPIST_UPGRADE_LONGITUDINAL_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_LONGITUDINAL_ENABLED === 'true',
+
+  /**
+   * Wave 4A — CBT Knowledge Planner scaffold.
+   *
+   * Gates the CBT knowledge planner module (src/lib/cbtKnowledgePlanner.js).
+   * When enabled together with the master gate, the pure deterministic planner
+   * can be called to decide whether CBT knowledge retrieval should occur and
+   * what bounded retrieval plan should be used.
+   *
+   * SCAFFOLD ONLY (Wave 4A.1):
+   *   - No runtime retrieval is activated.
+   *   - No CBTCurriculumUnit schema changes are required.
+   *   - No Chat.jsx or workflowContextInjector changes are included.
+   *   - No Base44 backend secret is required for this inert scaffold.
+   *   - The planner module is a standalone pure library with no imports.
+   *   - Enabling this flag with all other flags false has zero effect on any
+   *     live session, agent, or user-facing behavior.
+   *
+   * Frontend VITE env only for this scaffold PR.
+   * No backend Deno equivalent required until retrieval is wired (Wave 4B+).
+   *
+   * Staging enablement: set VITE_THERAPIST_UPGRADE_KNOWLEDGE_ENABLED=true
+   */
+  THERAPIST_UPGRADE_KNOWLEDGE_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_KNOWLEDGE_ENABLED === 'true',
 });
 
 /**
