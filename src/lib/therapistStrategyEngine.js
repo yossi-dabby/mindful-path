@@ -48,7 +48,7 @@
  *
  * @type {string}
  */
-export const STRATEGY_VERSION = '1.1.0';
+export const STRATEGY_VERSION = '1.2.0';
 
 // ─── Distress tiers ───────────────────────────────────────────────────────────
 
@@ -243,6 +243,138 @@ const _EMOTIONAL_LANGUAGE_PATTERNS = Object.freeze([
 
 /** Minimum message length to not be considered empty/short. @type {number} */
 const _EMPTY_OR_SHORT_THRESHOLD = 10;
+
+// ─── Wave 3D — LTS strategy input constants and extractor ─────────────────────
+
+/**
+ * Inline LTS schema constants.
+ *
+ * These mirror the values from therapistMemoryModel.js so that this module
+ * retains its zero-import isolation guarantee.  If the upstream constants
+ * change, these must be updated to match.
+ *
+ * Canonical source: src/lib/therapistMemoryModel.js
+ *   LTS_VERSION              → _LTS_VERSION_VALUE
+ *   LTS_MEMORY_TYPE          → _LTS_MEMORY_TYPE_VALUE
+ *   LTS_MIN_SESSIONS_FOR_SIGNALS → _LTS_MIN_SESSIONS_VALUE
+ *   LTS_TRAJECTORIES.*       → _LTS_TRAJ_* constants below
+ *
+ * @private
+ */
+const _LTS_VERSION_VALUE = '1';
+const _LTS_MEMORY_TYPE_VALUE = 'lts';
+const _LTS_MIN_SESSIONS_VALUE = 2;
+
+/** @private LTS trajectory label constants (mirrors LTS_TRAJECTORIES). */
+const _LTS_TRAJ_PROGRESSING = 'progressing';
+const _LTS_TRAJ_STAGNATING = 'stagnating';
+const _LTS_TRAJ_FLUCTUATING = 'fluctuating';
+
+/**
+ * Fail-safe LTS strategy inputs returned when the LTS record is absent,
+ * invalid, or too weak to use.
+ *
+ * When lts_valid is false, all LTS-aware rules in determineTherapistStrategy
+ * are skipped and the exact Wave 2C behavior is preserved.
+ *
+ * @type {Readonly<LTSStrategyInputs>}
+ */
+const _LTS_STRATEGY_INPUTS_ABSENT = Object.freeze({
+  lts_valid: false,
+  lts_session_count: 0,
+  lts_trajectory: '',
+  lts_stalled_interventions: Object.freeze([]),
+  lts_has_risk_history: false,
+  lts_is_stagnating: false,
+  lts_is_progressing: false,
+  lts_is_fluctuating: false,
+  lts_has_stalled_interventions: false,
+});
+
+/**
+ * Returns true when the given LTS record is structurally valid and has enough
+ * session data to be used as strategy input.
+ *
+ * Mirrors the isLTSRecord + isLTSWeak checks from therapistMemoryModel.js /
+ * workflowContextInjector.js without requiring any imports.
+ *
+ * @private
+ * @param {unknown} ltsRecord
+ * @returns {boolean}
+ */
+function _isValidLTSForStrategy(ltsRecord) {
+  if (!ltsRecord || typeof ltsRecord !== 'object') return false;
+  if (ltsRecord.lts_version !== _LTS_VERSION_VALUE) return false;
+  if (ltsRecord.memory_type !== _LTS_MEMORY_TYPE_VALUE) return false;
+  const trajectory = ltsRecord.trajectory;
+  if (typeof trajectory !== 'string' || !trajectory) return false;
+  if (trajectory === 'unknown' || trajectory === 'insufficient_data') return false;
+  const sessionCount = typeof ltsRecord.session_count === 'number' ? ltsRecord.session_count : 0;
+  if (sessionCount < _LTS_MIN_SESSIONS_VALUE) return false;
+  return true;
+}
+
+/**
+ * Extracts safe, bounded LTS strategy inputs from a raw LTS record.
+ *
+ * PURPOSE (Wave 3D)
+ * -----------------
+ * Validates and normalises a parsed LTS record into a plain struct that is
+ * safe to pass into determineTherapistStrategy() as its optional 5th argument.
+ * All values are primitive (booleans, numbers, strings, frozen arrays) — no
+ * entity references, no raw user content.
+ *
+ * FAIL-SAFE CONTRACT
+ * ------------------
+ * Returns _LTS_STRATEGY_INPUTS_ABSENT (lts_valid: false) for any input that:
+ *   - is null / undefined / not an object
+ *   - fails the LTS schema check (lts_version / memory_type mismatch)
+ *   - has trajectory === 'unknown' or 'insufficient_data'
+ *   - has session_count < LTS_MIN_SESSIONS_FOR_SIGNALS
+ * Never throws — any error returns _LTS_STRATEGY_INPUTS_ABSENT.
+ *
+ * ISOLATION GUARANTEE
+ * -------------------
+ * Validation logic is inlined — this function has no imports and no side
+ * effects.  It is a pure data normaliser.
+ *
+ * @param {unknown} ltsRecord - A parsed LTS snapshot from workflowContextInjector.
+ * @returns {Readonly<LTSStrategyInputs>}
+ */
+export function extractLTSStrategyInputs(ltsRecord) {
+  try {
+    if (!_isValidLTSForStrategy(ltsRecord)) {
+      return _LTS_STRATEGY_INPUTS_ABSENT;
+    }
+
+    const trajectory = ltsRecord.trajectory;
+
+    const stalledInterventions = Array.isArray(ltsRecord.stalled_interventions)
+      ? ltsRecord.stalled_interventions
+          .filter(v => typeof v === 'string' && v.trim().length > 0)
+          .slice(0, 8) // LTS_ARRAY_MAX bound
+      : [];
+
+    const riskFlagHistory = Array.isArray(ltsRecord.risk_flag_history)
+      ? ltsRecord.risk_flag_history.filter(v => typeof v === 'string' && v.trim().length > 0)
+      : [];
+
+    return Object.freeze({
+      lts_valid: true,
+      lts_session_count:
+        typeof ltsRecord.session_count === 'number' ? ltsRecord.session_count : 0,
+      lts_trajectory: trajectory,
+      lts_stalled_interventions: Object.freeze(stalledInterventions),
+      lts_has_risk_history: riskFlagHistory.length > 0,
+      lts_is_stagnating: trajectory === _LTS_TRAJ_STAGNATING,
+      lts_is_progressing: trajectory === _LTS_TRAJ_PROGRESSING,
+      lts_is_fluctuating: trajectory === _LTS_TRAJ_FLUCTUATING,
+      lts_has_stalled_interventions: stalledInterventions.length > 0,
+    });
+  } catch (_e) {
+    return _LTS_STRATEGY_INPUTS_ABSENT;
+  }
+}
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
@@ -539,11 +671,22 @@ export function scoreFormulationStrength(formulationData) {
  *
  * SAFETY CONTRACT (non-negotiable):
  *   - If distressTier is TIER_HIGH, intervention_mode MUST be CONTAINMENT.
+ *     LTS inputs NEVER override this rule.
  *   - If inputs are null / missing, default to STABILISATION (safe middle mode).
  *   - If continuity AND formulation are both absent, default to PSYCHOEDUCATION
  *     for low/mild distress tiers.
  *   - FORMULATION_DEEPENING requires: formulation present + at least one prior
  *     session record + distress tier is TIER_LOW or TIER_MILD.
+ *
+ * WAVE 3D — LTS-AWARE STRATEGY INTEGRATION
+ * -----------------------------------------
+ * An optional 5th parameter ltsInputs (from extractLTSStrategyInputs) provides
+ * safe, bounded LTS-derived signals.  All LTS rules are FAIL-OPEN:
+ *   - When ltsInputs is absent, invalid, or lts_valid === false, the exact
+ *     Wave 2C behavior is preserved in every branch.
+ *   - LTS signals are soft guidance, not hard overrides, except where they
+ *     reinforce existing safety/containment logic (D1, D2).
+ *   - CONTAINMENT and TIER_MODERATE STABILISATION are never overridden by LTS.
  *
  * @param {object|null|undefined} continuityData
  *   Cross-session continuity output from crossSessionContinuity.js (may be null
@@ -556,15 +699,26 @@ export function scoreFormulationStrength(formulationData) {
  *   One of the DISTRESS_TIERS values, typically from scoreDistressTier().
  * @param {object|null|undefined} messageSignals
  *   Output of extractMessageSignals().
+ * @param {object|null|undefined} [ltsInputs]
+ *   Optional Wave 3D LTS strategy inputs from extractLTSStrategyInputs().
+ *   When absent or invalid (lts_valid !== true), exact Wave 2C behavior is
+ *   preserved.  Never throws — any error falls back to Wave 2C behavior.
  * @returns {Readonly<TherapistStrategyState>}
  */
-export function determineTherapistStrategy(continuityData, formulationData, distressTier, messageSignals) {
+export function determineTherapistStrategy(
+  continuityData,
+  formulationData,
+  distressTier,
+  messageSignals,
+  ltsInputs,
+) {
   try {
     const tier = (typeof distressTier === 'string' && _DISTRESS_TIER_VALUES.has(distressTier))
       ? distressTier
       : DISTRESS_TIERS.TIER_LOW;
 
     // ── Safety-first: TIER_HIGH → always CONTAINMENT ─────────────────────────
+    // LTS NEVER overrides CONTAINMENT.  Exact same as Wave 2C.
     if (tier === DISTRESS_TIERS.TIER_HIGH) {
       const contSigs = _extractContinuitySignals(continuityData);
       return _buildStrategyState(STRATEGY_INTERVENTION_MODES.CONTAINMENT, {
@@ -591,6 +745,8 @@ export function determineTherapistStrategy(continuityData, formulationData, dist
     const isLowOrMild = tier === DISTRESS_TIERS.TIER_LOW || tier === DISTRESS_TIERS.TIER_MILD;
 
     // ── TIER_MODERATE → STABILISATION ────────────────────────────────────────
+    // LTS NEVER overrides STABILISATION forced by TIER_MODERATE.  Exact same
+    // as Wave 2C.
     if (tier === DISTRESS_TIERS.TIER_MODERATE) {
       return _buildStrategyState(STRATEGY_INTERVENTION_MODES.STABILISATION, {
         distress_tier: tier,
@@ -610,6 +766,8 @@ export function determineTherapistStrategy(continuityData, formulationData, dist
     // ── Low / mild distress — context-driven selection ────────────────────────
 
     // No continuity, no formulation → PSYCHOEDUCATION (first-session safe default).
+    // LTS does not change this rule — without in-scope clinical data, structured
+    // exploration cannot be safely anchored.
     if (!hasContinuity && !hasFormulation) {
       return _buildStrategyState(STRATEGY_INTERVENTION_MODES.PSYCHOEDUCATION, {
         distress_tier: tier,
@@ -626,6 +784,26 @@ export function determineTherapistStrategy(continuityData, formulationData, dist
       });
     }
 
+    // ── Wave 3D — Normalise LTS inputs ────────────────────────────────────────
+    // All LTS rules below are gated on ltsActive.  When ltsActive is false
+    // (LTS absent, invalid, or weak) the exact Wave 2C logic is preserved in
+    // every branch.  No LTS rule can change CONTAINMENT or TIER_MODERATE paths
+    // (handled above before LTS is evaluated).
+    const lts = (ltsInputs && ltsInputs.lts_valid === true)
+      ? ltsInputs
+      : _LTS_STRATEGY_INPUTS_ABSENT;
+    const ltsActive = lts.lts_valid;
+
+    // Effective session count — use the LTS total when it covers more sessions
+    // than the short cross-session window.  Purely for output reporting; does
+    // not alter mode selection logic.
+    const effectiveSessionCount = (ltsActive && lts.lts_session_count > contSigs.sessionCount)
+      ? lts.lts_session_count
+      : contSigs.sessionCount;
+
+    // LTS trajectory label for strategy state observability ('' when absent).
+    const activeLTSTrajectory = ltsActive ? lts.lts_trajectory : '';
+
     // ── Wave 2C rule 1: Risk flags in continuity → STABILISATION ─────────────
     // Active risk flags in prior session records signal that this client has
     // known safety-relevant history.  Even at low/mild distress, lean toward
@@ -637,12 +815,65 @@ export function determineTherapistStrategy(continuityData, formulationData, dist
         formulation_present: hasFormulation,
         message_signals: ms,
         rationale: 'risk_flags_present_stabilisation',
-        session_count: contSigs.sessionCount,
+        session_count: effectiveSessionCount,
         has_risk_flags: true,
         has_open_tasks: contSigs.hasOpenFollowUpTasks,
         intervention_saturated: false,
         continuity_richness_score: continuityRichnessScore,
         formulation_strength_score: formulationStrengthScore,
+        lts_trajectory: activeLTSTrajectory,
+      });
+    }
+
+    // ── Wave 3D rule D1: LTS fluctuating arc → STABILISATION ─────────────────
+    // A fluctuating trajectory (mixed improvement / elevated-risk signals
+    // across sessions) warrants stabilisation rather than exploration.
+    // Applied only at low/mild distress; high/moderate are already handled.
+    // FAIL-OPEN: skipped when ltsActive is false (exact Wave 2C behavior).
+    if (ltsActive && lts.lts_is_fluctuating && isLowOrMild) {
+      return _buildStrategyState(STRATEGY_INTERVENTION_MODES.STABILISATION, {
+        distress_tier: tier,
+        continuity_present: hasContinuity,
+        formulation_present: hasFormulation,
+        message_signals: ms,
+        rationale: 'lts_fluctuating_arc_stabilisation',
+        session_count: effectiveSessionCount,
+        has_risk_flags: false,
+        has_open_tasks: contSigs.hasOpenFollowUpTasks,
+        intervention_saturated: false,
+        continuity_richness_score: continuityRichnessScore,
+        formulation_strength_score: formulationStrengthScore,
+        lts_trajectory: activeLTSTrajectory,
+      });
+    }
+
+    // ── Wave 3D rule D2: LTS risk history without current flags → STABILISATION
+    // Risk flags in the longitudinal history (even if absent from the recent
+    // short window) are a soft caution signal when the arc is not clearly
+    // progressing.  The progressing exemption prevents penalising clients who
+    // have genuinely recovered.
+    // SOFT CAUTION — not a diagnosis; never escalates the distress tier.
+    // FAIL-OPEN: skipped when ltsActive is false.
+    if (
+      ltsActive &&
+      lts.lts_has_risk_history &&
+      !contSigs.hasRiskFlags &&
+      !lts.lts_is_progressing &&
+      isLowOrMild
+    ) {
+      return _buildStrategyState(STRATEGY_INTERVENTION_MODES.STABILISATION, {
+        distress_tier: tier,
+        continuity_present: hasContinuity,
+        formulation_present: hasFormulation,
+        message_signals: ms,
+        rationale: 'lts_risk_history_stabilisation',
+        session_count: effectiveSessionCount,
+        has_risk_flags: false,
+        has_open_tasks: contSigs.hasOpenFollowUpTasks,
+        intervention_saturated: false,
+        continuity_richness_score: continuityRichnessScore,
+        formulation_strength_score: formulationStrengthScore,
+        lts_trajectory: activeLTSTrajectory,
       });
     }
 
@@ -659,49 +890,74 @@ export function determineTherapistStrategy(continuityData, formulationData, dist
         formulation_present: hasFormulation,
         message_signals: ms,
         rationale: 'intervention_saturated_structured_exploration',
-        session_count: contSigs.sessionCount,
+        session_count: effectiveSessionCount,
         has_risk_flags: false,
         has_open_tasks: contSigs.hasOpenFollowUpTasks,
         intervention_saturated: true,
         continuity_richness_score: continuityRichnessScore,
         formulation_strength_score: formulationStrengthScore,
+        lts_trajectory: activeLTSTrajectory,
       });
     }
 
+    // ── Wave 3D: Stagnation deepening guard ───────────────────────────────────
+    // When the longitudinal arc is stagnating OR stalled interventions have been
+    // identified, avoid deepening further into an already-stuck formulation
+    // thread.  The FORMULATION_DEEPENING rules below use STRUCTURED_EXPLORATION
+    // instead when this guard is true.
+    // FAIL-OPEN: ltsBlocksDeepening is false when ltsActive is false, so the
+    // exact Wave 2C FORMULATION_DEEPENING behavior is preserved.
+    const ltsBlocksDeepening =
+      ltsActive && (lts.lts_is_stagnating || lts.lts_has_stalled_interventions);
+
     // ── Wave 2C rule 3: Returning user + open tasks + formulation ────────────
     // A returning client with open follow-up action items and an active
-    // formulation is best served by formulation-led deepening that explicitly
-    // picks up where they left off.
+    // formulation is best served by formulation-led deepening — unless the LTS
+    // stagnation guard fires (Wave 3D D3/D4), in which case STRUCTURED_EXPLORATION
+    // provides variety without deepening into a stalled arc.
     if (hasContinuity && hasFormulation && contSigs.hasOpenFollowUpTasks && isLowOrMild) {
-      return _buildStrategyState(STRATEGY_INTERVENTION_MODES.FORMULATION_DEEPENING, {
+      const mode = ltsBlocksDeepening
+        ? STRATEGY_INTERVENTION_MODES.STRUCTURED_EXPLORATION
+        : STRATEGY_INTERVENTION_MODES.FORMULATION_DEEPENING;
+      return _buildStrategyState(mode, {
         distress_tier: tier,
         continuity_present: true,
         formulation_present: true,
         message_signals: ms,
-        rationale: 'returning_user_open_tasks_formulation_deepening',
-        session_count: contSigs.sessionCount,
+        rationale: ltsBlocksDeepening
+          ? 'lts_stagnation_blocks_deepening'
+          : 'returning_user_open_tasks_formulation_deepening',
+        session_count: effectiveSessionCount,
         has_risk_flags: false,
         has_open_tasks: true,
         intervention_saturated: false,
         continuity_richness_score: continuityRichnessScore,
         formulation_strength_score: formulationStrengthScore,
+        lts_trajectory: activeLTSTrajectory,
       });
     }
 
     // Formulation present + prior continuity + low/mild → FORMULATION_DEEPENING.
+    // Wave 3D: downgraded to STRUCTURED_EXPLORATION when ltsBlocksDeepening.
     if (hasFormulation && hasContinuity && isLowOrMild) {
-      return _buildStrategyState(STRATEGY_INTERVENTION_MODES.FORMULATION_DEEPENING, {
+      const mode = ltsBlocksDeepening
+        ? STRATEGY_INTERVENTION_MODES.STRUCTURED_EXPLORATION
+        : STRATEGY_INTERVENTION_MODES.FORMULATION_DEEPENING;
+      return _buildStrategyState(mode, {
         distress_tier: tier,
         continuity_present: true,
         formulation_present: true,
         message_signals: ms,
-        rationale: 'formulation_and_continuity_deepening',
-        session_count: contSigs.sessionCount,
+        rationale: ltsBlocksDeepening
+          ? 'lts_stagnation_blocks_deepening'
+          : 'formulation_and_continuity_deepening',
+        session_count: effectiveSessionCount,
         has_risk_flags: false,
         has_open_tasks: contSigs.hasOpenFollowUpTasks,
         intervention_saturated: false,
         continuity_richness_score: continuityRichnessScore,
         formulation_strength_score: formulationStrengthScore,
+        lts_trajectory: activeLTSTrajectory,
       });
     }
 
@@ -716,12 +972,13 @@ export function determineTherapistStrategy(continuityData, formulationData, dist
         formulation_present: hasFormulation,
         message_signals: ms,
         rationale: 'open_tasks_continuity_structured',
-        session_count: contSigs.sessionCount,
+        session_count: effectiveSessionCount,
         has_risk_flags: false,
         has_open_tasks: true,
         intervention_saturated: false,
         continuity_richness_score: continuityRichnessScore,
         formulation_strength_score: formulationStrengthScore,
+        lts_trajectory: activeLTSTrajectory,
       });
     }
 
@@ -733,12 +990,13 @@ export function determineTherapistStrategy(continuityData, formulationData, dist
         formulation_present: hasFormulation,
         message_signals: ms,
         rationale: 'partial_context_structured_exploration',
-        session_count: contSigs.sessionCount,
+        session_count: effectiveSessionCount,
         has_risk_flags: false,
         has_open_tasks: contSigs.hasOpenFollowUpTasks,
         intervention_saturated: false,
         continuity_richness_score: continuityRichnessScore,
         formulation_strength_score: formulationStrengthScore,
+        lts_trajectory: activeLTSTrajectory,
       });
     }
 
@@ -750,12 +1008,13 @@ export function determineTherapistStrategy(continuityData, formulationData, dist
       formulation_present: hasFormulation,
       message_signals: ms,
       rationale: 'fallback_stabilisation',
-      session_count: contSigs.sessionCount,
+      session_count: effectiveSessionCount,
       has_risk_flags: contSigs.hasRiskFlags,
       has_open_tasks: contSigs.hasOpenFollowUpTasks,
       intervention_saturated: false,
       continuity_richness_score: continuityRichnessScore,
       formulation_strength_score: formulationStrengthScore,
+      lts_trajectory: activeLTSTrajectory,
     });
   } catch (_e) {
     return STRATEGY_FAIL_SAFE_STATE;
@@ -788,6 +1047,7 @@ export function buildStrategyContextSection(strategyState) {
     const hasRiskFlags = ss.has_risk_flags === true;
     const hasOpenTasks = ss.has_open_tasks === true;
     const isSaturated = ss.intervention_saturated === true;
+    const ltsTrajectory = typeof ss.lts_trajectory === 'string' ? ss.lts_trajectory : '';
 
     const lines = [
       `=== THERAPEUTIC STRATEGY — WAVE 2C v${version} ===`,
@@ -806,6 +1066,12 @@ export function buildStrategyContextSection(strategyState) {
       if (hasRiskFlags) lines.push('  Risk flags       : active');
       if (hasOpenTasks) lines.push('  Open tasks       : pending');
       if (isSaturated) lines.push('  Intervention sat.: flagged');
+    }
+
+    // Wave 3D: LTS trajectory line (emitted only when a meaningful signal is present).
+    if (ltsTrajectory && ltsTrajectory !== 'unknown' && ltsTrajectory !== 'insufficient_data') {
+      lines.push('');
+      lines.push(`LTS arc           : ${ltsTrajectory}`);
     }
 
     lines.push('');
@@ -846,6 +1112,7 @@ export const STRATEGY_DIAGNOSTIC_SAFE_FIELDS = Object.freeze([
   'intervention_saturated',
   'continuity_richness_score',
   'formulation_strength_score',
+  'lts_trajectory', // Wave 3D
 ]);
 
 /**
@@ -912,6 +1179,7 @@ export function buildStrategyDiagnosticSnapshot(strategyState) {
         typeof ss.continuity_richness_score === 'number' ? ss.continuity_richness_score : 0,
       formulation_strength_score:
         typeof ss.formulation_strength_score === 'number' ? ss.formulation_strength_score : 0,
+      lts_trajectory: typeof ss.lts_trajectory === 'string' ? ss.lts_trajectory : '', // Wave 3D
       // message_signals deliberately omitted — inferred from raw user text.
     });
   } catch (_e) {
@@ -929,6 +1197,7 @@ export function buildStrategyDiagnosticSnapshot(strategyState) {
       intervention_saturated: false,
       continuity_richness_score: 0,
       formulation_strength_score: 0,
+      lts_trajectory: '', // Wave 3D
     });
   }
 }
@@ -967,6 +1236,8 @@ export const STRATEGY_FAIL_SAFE_STATE = Object.freeze({
   intervention_saturated: false,
   continuity_richness_score: 0,
   formulation_strength_score: 0,
+  // Wave 3D enrichment field
+  lts_trajectory: '',
 });
 
 // ─── Private helpers ──────────────────────────────────────────────────────────
@@ -1070,7 +1341,8 @@ function _normaliseSignals(signals) {
  *            has_risk_flags: boolean, has_open_tasks: boolean,
  *            intervention_saturated: boolean,
  *            continuity_richness_score: number,
- *            formulation_strength_score: number }} meta
+ *            formulation_strength_score: number,
+ *            lts_trajectory?: string }} meta
  * @returns {Readonly<TherapistStrategyState>}
  */
 function _buildStrategyState(mode, meta) {
@@ -1092,6 +1364,8 @@ function _buildStrategyState(mode, meta) {
       typeof meta.continuity_richness_score === 'number' ? meta.continuity_richness_score : 0,
     formulation_strength_score:
       typeof meta.formulation_strength_score === 'number' ? meta.formulation_strength_score : 0,
+    // Wave 3D enrichment field — '' when LTS is absent or not active
+    lts_trajectory: typeof meta.lts_trajectory === 'string' ? meta.lts_trajectory : '',
   });
 }
 
@@ -1159,10 +1433,24 @@ function _getModeGuidance(mode) {
  * @property {object} message_signals     - Signal flags from extractMessageSignals().
  * @property {string} rationale           - Short internal rationale key.
  * @property {boolean} fail_safe          - True only when the fail-safe default was used.
- * @property {number} session_count       - Wave 2C: number of prior sessions (0 if unknown).
+ * @property {number} session_count       - Wave 2C/3D: number of prior sessions (0 if unknown).
  * @property {boolean} has_risk_flags     - Wave 2C: true when risk flags are active in continuity.
  * @property {boolean} has_open_tasks     - Wave 2C: true when open follow-up tasks exist.
  * @property {boolean} intervention_saturated - Wave 2C: true when intervention saturation detected.
  * @property {number} continuity_richness_score  - Wave 2C: continuity richness score (0–12+).
  * @property {number} formulation_strength_score - Wave 2C: formulation strength score (0–5).
+ * @property {string} lts_trajectory      - Wave 3D: LTS trajectory label ('' when LTS absent).
+ */
+
+/**
+ * @typedef {object} LTSStrategyInputs
+ * @property {boolean} lts_valid                 - True when the LTS record is valid and usable.
+ * @property {number}  lts_session_count         - Total session count from LTS (0 when invalid).
+ * @property {string}  lts_trajectory            - LTS trajectory label ('' when invalid).
+ * @property {ReadonlyArray<string>} lts_stalled_interventions - Bounded stalled intervention labels.
+ * @property {boolean} lts_has_risk_history      - True when risk_flag_history is non-empty.
+ * @property {boolean} lts_is_stagnating         - True when trajectory === 'stagnating'.
+ * @property {boolean} lts_is_progressing        - True when trajectory === 'progressing'.
+ * @property {boolean} lts_is_fluctuating        - True when trajectory === 'fluctuating'.
+ * @property {boolean} lts_has_stalled_interventions - True when stalled_interventions non-empty.
  */

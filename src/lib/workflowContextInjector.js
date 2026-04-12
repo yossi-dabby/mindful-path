@@ -84,6 +84,7 @@ import {
   extractMessageSignals,
   scoreDistressTier,
   determineTherapistStrategy,
+  extractLTSStrategyInputs,
   buildStrategyContextSection,
   buildStrategyDiagnosticSnapshot,
 } from './therapistStrategyEngine.js';
@@ -884,6 +885,7 @@ function _emitStrategyDiagnosticIfEnabled(strategyState) {
     console.log('intervention_saturated   :', snapshot.intervention_saturated);
     console.log('continuity_richness_score:', snapshot.continuity_richness_score);
     console.log('formulation_strength_score:', snapshot.formulation_strength_score);
+    console.log('lts_trajectory           :', snapshot.lts_trajectory);
     console.log('strategy_version         :', snapshot.strategy_version);
     console.log('fail_safe                :', snapshot.fail_safe);
     console.groupEnd();
@@ -1038,12 +1040,14 @@ export async function buildV8SessionStartContentAsync(
     // Step 6: Score distress tier
     const distressTier = scoreDistressTier(safetyResult, messageSignals);
 
-    // Step 7: Determine therapeutic strategy
+    // Step 7: Determine therapeutic strategy (Wave 3D: with LTS inputs when available)
+    const ltsInputs = extractLTSStrategyInputs(options.lts_record ?? null);
     const strategyState = determineTherapistStrategy(
       continuityData,
       formulationRecord,
       distressTier,
       messageSignals,
+      ltsInputs,
     );
 
     // Wave 2D — Emit safe strategy diagnostic when _s2debug=true is in the URL.
@@ -1248,23 +1252,28 @@ export function buildLTSContextBlock(ltsRecord) {
  *
  * Wave 3C — Longitudinal Therapeutic State (LTS) read path and bounded
  * session-start injection.
+ * Wave 3D — LTS strategy integration: LTS inputs are now passed to the
+ * strategy engine via buildV8SessionStartContentAsync options.
  *
  * For non-V9 wirings (longitudinal_layer_enabled !== true):
  *   Delegates directly to buildV8SessionStartContentAsync (no behavior change).
  *
  * For V9 wirings:
- *   1. Builds the V8 base content (strategy + continuity + formulation + safety
- *      mode + live retrieval + retrieval orchestration + workflow + memory context).
- *   2. Reads the canonical LTS snapshot from CompanionMemory (read-only,
+ *   1. Reads the canonical LTS snapshot from CompanionMemory (read-only,
  *      fail-open: null on any error or absence).
- *   3. Checks whether the LTS is weak/noisy (isLTSWeak) — suppresses if so.
- *   4. Builds the bounded LTS context block (buildLTSContextBlock).
+ *   2. When the LTS is valid (non-weak), passes it to V8 via options.lts_record
+ *      so determineTherapistStrategy() can apply LTS-aware strategy rules
+ *      (Wave 3D).  When null or weak, V8 options are passed unchanged — exact
+ *      Wave 2C strategy behavior is preserved.
+ *   3. Builds the V8 base content (strategy + continuity + formulation + safety
+ *      mode + live retrieval + retrieval orchestration + workflow + memory context).
+ *   4. Builds the bounded LTS context block (Wave 3C injection).
  *   5. Appends the LTS block to the V8 base when the block is non-empty.
  *
  * FAIL-OPEN CONTRACT
  * ------------------
- * Any error or absence at steps 2–4 returns the V8 base content UNCHANGED.
- * Session start is never blocked.  V8 behavior is EXACTLY preserved on any
+ * Any error or absence at any step returns the V8 base content UNCHANGED.
+ * Session start is never blocked.  V8/2C behavior is EXACTLY preserved on any
  * failure, when the flag is off, when no valid LTS exists, or when the LTS is
  * stale/weak.
  *
@@ -1278,20 +1287,15 @@ export function buildLTSContextBlock(ltsRecord) {
  *
  * SAFETY NOTE
  * -----------
- * The LTS block is additive context.  It does NOT replace, weaken, or bypass
- * any existing safety filter, crisis handler, strategy guidance, or continuity
- * block.  All prior layers remain fully active.
+ * The LTS block and LTS-aware strategy inputs are additive context.  They do
+ * NOT replace, weaken, or bypass any existing safety filter, crisis handler,
+ * strategy guidance, or continuity block.  All prior layers remain fully active.
+ * CONTAINMENT and TIER_MODERATE STABILISATION are never overridden by LTS.
  *
  * ISOLATION GUARANTEE
  * -------------------
  * This function is ONLY active when wiring.longitudinal_layer_enabled === true
  * (V9 path).  All prior paths (HYBRID, V1–V8) are completely unaffected.
- *
- * NO STRATEGY ENGINE INTEGRATION
- * --------------------------------
- * The LTS record is NOT passed to the strategy engine.  Wave 3C adds only the
- * read/injection slice.  Strategy engine integration is explicitly out of scope
- * and will require a separate approval-gated PR.
  *
  * @param {object} wiring - The active therapist wiring configuration
  * @param {object} entities - Base44 entity client map
@@ -1312,33 +1316,44 @@ export async function buildV9SessionStartContentAsync(
 
   // ── V9 path ────────────────────────────────────────────────────────────────
 
-  // Step 1: Build the V8 base content (all prior layers)
+  // Wave 3C+3D: Read the LTS snapshot first so it can be passed both to the
+  // strategy engine (Wave 3D) and used for context block injection (Wave 3C).
+  // Fail-open: null on any error.
+  let ltsRecord = null;
+  try {
+    ltsRecord = await readLTSSnapshot(entities);
+  } catch {
+    ltsRecord = null;
+  }
+
+  // Wave 3D: Pass a valid (non-weak) LTS record to the V8 strategy engine via
+  // the options bag.  buildV8SessionStartContentAsync extracts LTS strategy
+  // inputs from options.lts_record and passes them to determineTherapistStrategy.
+  // When ltsRecord is null or weak, options is passed unchanged (exact V8/2C
+  // behavior is preserved).
+  const v8Options = !isLTSWeak(ltsRecord)
+    ? { ...options, lts_record: ltsRecord }
+    : options;
+
+  // Step 1: Build the V8 base content (with LTS strategy inputs when available)
   const v8Base = await buildV8SessionStartContentAsync(
     wiring,
     entities,
     baseClient,
-    options,
+    v8Options,
   );
 
-  // Steps 2–4: Read and build LTS block (fail-open: any error returns v8Base)
+  // Wave 3C: Inject LTS context block (fail-open: any error returns v8Base)
   try {
-    // Step 2: Read the canonical LTS snapshot (fail-open → null)
-    const ltsRecord = await readLTSSnapshot(entities);
-
-    // Step 3: Suppress weak/noisy LTS — return V8 base unchanged
-    if (isLTSWeak(ltsRecord)) {
-      return v8Base;
+    if (!isLTSWeak(ltsRecord)) {
+      const ltsBlock = buildLTSContextBlock(ltsRecord);
+      if (ltsBlock && ltsBlock.trim()) {
+        return v8Base + '\n\n' + ltsBlock;
+      }
     }
-
-    // Step 4: Build the bounded LTS context block
-    const ltsBlock = buildLTSContextBlock(ltsRecord);
-    if (!ltsBlock || !ltsBlock.trim()) {
-      return v8Base;
-    }
-
-    return v8Base + '\n\n' + ltsBlock;
+    return v8Base;
   } catch {
-    // Fail-open: LTS read/build failed — return V8 base content unchanged
+    // Fail-open: LTS block injection failed — return V8 base content unchanged
     return v8Base;
   }
 }
