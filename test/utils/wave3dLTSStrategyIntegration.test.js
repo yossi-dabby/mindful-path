@@ -245,10 +245,12 @@ describe('extractLTSStrategyInputs — invalid / absent inputs', () => {
     expect(inputs.lts_has_stalled_interventions).toBe(false);
   });
 
-  it('never throws on any input', () => {
+  it('never throws on any input and returns lts_valid:false for all', () => {
     const weirdInputs = [Symbol('x'), function () {}, new Date(), Infinity, NaN];
     for (const v of weirdInputs) {
-      expect(() => extractLTSStrategyInputs(v)).not.toThrow();
+      let result;
+      expect(() => { result = extractLTSStrategyInputs(v); }).not.toThrow();
+      expect(result.lts_valid).toBe(false);
     }
   });
 });
@@ -1116,12 +1118,8 @@ describe('buildV9SessionStartContentAsync — LTS strategy integration (W/X/Y)',
     const formulationRecord = FORMULATION_PRESENT;
     const entities = makeEntities(stagnatingLTS, formulationRecord);
 
-    // Mock cross-session continuity so the formulation deepening path is reached
-    const { buildV9SessionStartContentAsync: bv9 } = await import(
-      '../../src/lib/workflowContextInjector.js'
-    );
     // The strategy section should appear in the output and contain STRUCTURED_EXPLORATION
-    const result = await bv9(V9_WIRING, entities, {});
+    const result = await buildV9SessionStartContentAsync(V9_WIRING, entities, {});
     // Result must be a string; LTS block or strategy section expected
     expect(typeof result).toBe('string');
     // The output must NOT contain 'FORMULATION_DEEPENING' guidance when stagnating

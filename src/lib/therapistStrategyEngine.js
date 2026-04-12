@@ -253,6 +253,12 @@ const _EMPTY_OR_SHORT_THRESHOLD = 10;
  * retains its zero-import isolation guarantee.  If the upstream constants
  * change, these must be updated to match.
  *
+ * Canonical source: src/lib/therapistMemoryModel.js
+ *   LTS_VERSION              → _LTS_VERSION_VALUE
+ *   LTS_MEMORY_TYPE          → _LTS_MEMORY_TYPE_VALUE
+ *   LTS_MIN_SESSIONS_FOR_SIGNALS → _LTS_MIN_SESSIONS_VALUE
+ *   LTS_TRAJECTORIES.*       → _LTS_TRAJ_* constants below
+ *
  * @private
  */
 const _LTS_VERSION_VALUE = '1';
