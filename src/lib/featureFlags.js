@@ -896,3 +896,42 @@ export function logUpgradeEvent(event, context = {}) {
 // Emit unified activation diagnostics at module load when _s2debug=true is in the URL.
 // Called after all flag registries and evaluators are fully initialised.
 logActivationDiagnostics();
+
+// ─── Wave 5A — Quality Evaluator Feature Flag Registry ────────────────────────
+
+/**
+ * Quality Evaluator feature flags.
+ *
+ * Kept in a separate registry from THERAPIST_UPGRADE_FLAGS and
+ * COMPANION_UPGRADE_FLAGS so that the evaluator can be deployed, tested,
+ * and rolled back independently of agent upgrade rollouts.
+ *
+ * Wave 5A: Only VITE_QUALITY_EVALUATOR_ENABLED is present.  Wiring flags
+ * will be added in later waves as each integration surface is approved.
+ *
+ * Frozen at module load to prevent accidental runtime mutation.
+ * All flags default to false.
+ *
+ * @type {Readonly<Record<string, boolean>>}
+ */
+export const QUALITY_EVALUATOR_FLAGS = Object.freeze({
+  /**
+   * Wave 5A — Quality Evaluator master gate.
+   *
+   * When false (the default), the evaluator scaffold exists in source but is
+   * never called by any runtime path.  Enabling this flag alone in Wave 5A
+   * has zero effect on live session behaviour because the evaluator is not yet
+   * wired into any session-start, diagnostics, or rollout path.  The flag is
+   * added now so the registry contract is stable and testable before wiring.
+   *
+   * Staging enablement: set the environment variable
+   *   VITE_QUALITY_EVALUATOR_ENABLED=true
+   * in a staging build.  Defaults to false when the variable is absent or
+   * set to any other value.
+   *
+   * Do NOT add this flag into THERAPIST_UPGRADE_FLAGS.
+   * Do NOT add this flag into COMPANION_UPGRADE_FLAGS.
+   * It is intentionally isolated in its own registry.
+   */
+  QUALITY_EVALUATOR_ENABLED: import.meta.env?.VITE_QUALITY_EVALUATOR_ENABLED === 'true',
+});

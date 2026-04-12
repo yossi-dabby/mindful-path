@@ -77,6 +77,7 @@ All flags default to `false` when the variable is absent or any value other than
 | `VITE_THERAPIST_UPGRADE_STRATEGY_ENABLED`                 | Wave 2A scaffold | Therapeutic Strategy Layer — registered for future wiring (Wave 2B). **No runtime effect in current codebase.** | `false` |
 | `VITE_THERAPIST_UPGRADE_LONGITUDINAL_ENABLED`             | Wave 3B          | Longitudinal Therapeutic State (LTS) write path — recomputes and upserts LTS snapshot after each session memory write. **No LTS read path or session-start wiring yet.** Requires `VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED` to also be `true`. | `false` |
 | `VITE_THERAPIST_UPGRADE_KNOWLEDGE_ENABLED`                | Wave 4A scaffold | CBT Knowledge Planner scaffold — gates the pure deterministic planner contract (`src/lib/cbtKnowledgePlanner.js`). **Frontend VITE env only. No backend secret required. No runtime retrieval, no schema changes, no Chat.jsx changes. Zero effect on any live session.** | `false` |
+| `VITE_QUALITY_EVALUATOR_ENABLED`                          | Wave 5A scaffold | Quality Evaluator scaffold — gates the pure deterministic evaluator contract (`src/lib/therapistQualityEvaluator.js`). **Isolated registry (QUALITY_EVALUATOR_FLAGS), NOT part of THERAPIST_UPGRADE_FLAGS or COMPANION_UPGRADE_FLAGS. Frontend VITE env only. No runtime wiring, no session-start changes, no diagnostics emission, no Chat.jsx changes. Zero effect on any live session.** | `false` |
 
 > **Flag dependency for continuity read path:**
 > `VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED` activates the **read** path (session-start injection from CompanionMemory).
@@ -149,6 +150,17 @@ Both must be `true` for a full memory write to succeed.
 > pure deterministic planner scaffold — no Deno function is required at this stage (Wave 4A.1).
 > The V7 read path (`readCrossSessionContinuity`) reads CompanionMemory directly via the entity SDK
 > — it does not call a backend function.
+
+> **Wave 5A — Quality Evaluator scaffold:**
+> `VITE_QUALITY_EVALUATOR_ENABLED` gates the pure deterministic Quality Evaluator scaffold
+> (`src/lib/therapistQualityEvaluator.js`). This flag lives in an **isolated registry**
+> (`QUALITY_EVALUATOR_FLAGS`) that is completely separate from `THERAPIST_UPGRADE_FLAGS` and
+> `COMPANION_UPGRADE_FLAGS`. Enabling this flag in Wave 5A has **zero effect** on any live
+> session: the evaluator is not called from any session-start path, diagnostics path, or rollout
+> surface. The scaffold exists to validate the contract before wiring begins in a later wave.
+> **Frontend VITE env only. No backend Deno equivalent required. No runtime wiring, no Chat.jsx
+> changes, no diagnostics emission, no entity changes.**
+> Default: `false`. Keep `false` in all environments until Wave 5B wiring is explicitly approved.
 
 > **Recommended initial values** (all environments): `false` — do not enable until the
 > Phase 9 exit criteria described in `docs/therapist-upgrade-stage2-plan.md` are met.
@@ -301,4 +313,4 @@ part of staging deployment preparation:
 
 ---
 
-*Last updated: 2026-03-20 — Preparation only. Stage 2 not enabled.*
+*Last updated: 2026-04-12 — Wave 5A Quality Evaluator scaffold added. Stage 2 not enabled.*
