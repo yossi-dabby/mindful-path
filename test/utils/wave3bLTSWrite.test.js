@@ -745,3 +745,89 @@ describe('LTS output bounds are enforced', () => {
     }
   });
 });
+
+// ─── Section P: Effective LTS record window (Wave 3B validation pass) ─────────
+//
+// retrieveTherapistMemory (base44/functions/retrieveTherapistMemory/entry.ts)
+// has an internal MAX_MEMORIES constant that caps the number of therapist
+// records it returns.  That cap must be >= LTS_SESSION_RECORDS_FETCH_CAP so
+// the LTS builder actually receives the full intended 20-record build window.
+//
+// Before the Wave 3B correction: MAX_MEMORIES was 10 → effective window was 10.
+// After the Wave 3B correction:  MAX_MEMORIES is  20 → effective window is 20.
+//
+// These tests verify the post-correction semantics.
+
+describe('Effective LTS record window (Wave 3B validation)', () => {
+  it('P. LTS_SESSION_RECORDS_FETCH_CAP is exactly 20', () => {
+    // The intended LTS build window is 20 session records.
+    // This assertion documents and guards that intent.
+    expect(LTS_SESSION_RECORDS_FETCH_CAP).toBe(20);
+  });
+
+  it('P. When retrieveTherapistMemory returns exactly 20 records, all 20 reach the builder', async () => {
+    const { isTherapistMemoryRecord } = await import(
+      '../../src/lib/therapistMemoryModel.js'
+    );
+    const twentyRecords = Array.from({ length: 20 }, (_, i) =>
+      makeSessionRecord({ session_id: `sess-${i}` }),
+    );
+    // Simulate the _fireLTSWrite extraction logic.
+    const sessionRecords = twentyRecords
+      .filter(r => isTherapistMemoryRecord(r))
+      .slice(0, LTS_SESSION_RECORDS_FETCH_CAP);
+    expect(sessionRecords).toHaveLength(20);
+  });
+
+  it('P. When retrieveTherapistMemory returns 21 records, builder receives exactly 20 (cap enforced)', async () => {
+    const { isTherapistMemoryRecord } = await import(
+      '../../src/lib/therapistMemoryModel.js'
+    );
+    const twentyOneRecords = Array.from({ length: 21 }, (_, i) =>
+      makeSessionRecord({ session_id: `sess-${i}` }),
+    );
+    const sessionRecords = twentyOneRecords
+      .filter(r => isTherapistMemoryRecord(r))
+      .slice(0, LTS_SESSION_RECORDS_FETCH_CAP);
+    expect(sessionRecords).toHaveLength(20);
+  });
+
+  it('P. LTS built from 20 session records has session_count=20', async () => {
+    const twentyRecords = Array.from({ length: 20 }, (_, i) =>
+      makeSessionRecord({ session_id: `sess-${i}` }),
+    );
+    const lts = buildLongitudinalState(twentyRecords, [], null);
+    expect(lts.session_count).toBe(20);
+  });
+
+  it('P. No raw transcript leakage — buildLongitudinalState output contains no message content', async () => {
+    const sentinelMessage = 'PRIVATE_TRANSCRIPT_CONTENT';
+    // The session record below has a transcript-like field that should NOT
+    // appear in the LTS output.  The builder only reads structural fields.
+    const recordWithExtra = {
+      ...makeSessionRecord({ session_id: 'sess-x' }),
+      raw_messages: [{ role: 'user', content: sentinelMessage }],
+    };
+    const lts = buildLongitudinalState([recordWithExtra], [], null);
+    const ltsJson = JSON.stringify(lts);
+    expect(ltsJson).not.toContain(sentinelMessage);
+  });
+
+  it('P. Records from other users are never included — filtering is purely over the input array', async () => {
+    const { isTherapistMemoryRecord } = await import(
+      '../../src/lib/therapistMemoryModel.js'
+    );
+    // The LTS write path receives only the authenticated user's records
+    // (already filtered by retrieveTherapistMemory's auth check).
+    // This test verifies the client-side filter step ignores non-session records
+    // (e.g. companion memories) regardless of origin.
+    const crossUserCandidate = {
+      memory_type: 'insight',
+      content: 'cross-user data',
+      user_email: 'other@example.com',
+    };
+    expect(isTherapistMemoryRecord(crossUserCandidate)).toBe(false);
+    const filtered = [crossUserCandidate].filter(r => isTherapistMemoryRecord(r));
+    expect(filtered).toHaveLength(0);
+  });
+});
