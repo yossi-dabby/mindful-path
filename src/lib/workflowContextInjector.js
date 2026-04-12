@@ -1383,6 +1383,7 @@ export async function buildV9SessionStartContentAsync(
  * Builds the V10 session-start content string asynchronously.
  *
  * Wave 4C — CBT Knowledge Retrieval read path.
+ * Wave 4D — Strategy-knowledge alignment.
  *
  * For non-V10 wirings (knowledge_layer_enabled !== true):
  *   Delegates directly to buildV9SessionStartContentAsync (no behavior change).
@@ -1398,13 +1399,16 @@ export async function buildV9SessionStartContentAsync(
  *      NEVER analyses free-text fields.
  *   4. Evaluates the safety mode from options flags (no extra entity read).
  *   5. Scores the distress tier from safety result + message signals.
- *   6. Determines the therapeutic strategy state using only the formulation
- *      record and computed signals (continuityData=null is intentional — avoids
- *      a duplicate CompanionMemory read; strategy engine returns
- *      STRUCTURED_EXPLORATION when formulation is present without continuity).
- *   7. Runs planCBTKnowledgeRetrieval() with the above bounded inputs.
- *   8. If shouldRetrieve: retrieves ≤ CBT_KNOWLEDGE_RETRIEVAL_MAX_UNITS units.
- *   9. Appends the knowledge block (last, always) when non-empty.
+ *   6. (Wave 4D) Reads the LTS snapshot for knowledge planner alignment
+ *      (fail-open: null on any error).  Extracts bounded LTS strategy inputs.
+ *   7. Determines the therapeutic strategy state with LTS-aware inputs
+ *      (continuityData=null is intentional — avoids a duplicate CompanionMemory
+ *      full-window read; LTS inputs provide trajectory signals instead).
+ *   8. Runs planCBTKnowledgeRetrieval() with the above bounded inputs, including
+ *      ltsInputs so the planner can refine unit type preference from trajectory.
+ *   9. If shouldRetrieve: retrieves ≤ CBT_KNOWLEDGE_RETRIEVAL_MAX_UNITS units,
+ *      ranked by unit type preference (Wave 4D).
+ *  10. Appends the knowledge block (last, always) when non-empty.
  *
  * FAIL-OPEN CONTRACT
  * ------------------
@@ -1486,38 +1490,53 @@ export async function buildV10SessionStartContentAsync(
     const messageSignals = extractMessageSignals(options.message_text ?? '');
     const distressTier = scoreDistressTier(safetyResult, messageSignals);
 
-    // Step 6: Determine strategy state.
+    // Step 6 (Wave 4D): Read LTS snapshot for knowledge planner alignment.
+    // This bounded read (CompanionMemory, LTS records only) is separate from V9's
+    // LTS read and provides trajectory signals to the planner so that unit type
+    // preference reflects the user's current arc (stagnating → worksheet;
+    // progressing late → case example).  Fail-open: null on any error.
     // continuityData = null (intentional): avoids a duplicate CompanionMemory
-    // read since the full V7/V8 chain already performed that read.
-    // The strategy engine correctly returns STRUCTURED_EXPLORATION when a
-    // formulation is present and continuity is absent (partial_context path),
-    // which is the primary V10 activation scenario.
-    // ltsInputs = null (intentional): no duplicate LTS read; arc filter is
-    // derived from formulationHints.treatment_phase or defaults to 'any'.
+    // read for the full cross-session window; the strategy engine returns
+    // STRUCTURED_EXPLORATION when a formulation is present without continuity.
+    let ltsRecord = null;
+    try {
+      ltsRecord = await readLTSSnapshot(entities);
+    } catch {
+      // Fail-open: LTS read error must never block session start.
+      // The outer try/catch will return v9Base unchanged on any downstream error.
+      ltsRecord = null;
+    }
+    const ltsInputsForPlanner = extractLTSStrategyInputs(ltsRecord);
+
+    // Step 7: Determine strategy state.
+    // ltsInputsForPlanner is passed so that stagnation/fluctuation guards in the
+    // strategy engine are LTS-aware for this knowledge path.  When the LTS record
+    // is absent or weak, extractLTSStrategyInputs returns lts_valid: false and
+    // the strategy engine falls back to exact Wave 2C behavior.
     const strategyState = determineTherapistStrategy(
-      null,            // continuityData — no re-read (see above)
+      null,                  // continuityData — no re-read (see above)
       formulationRecord,
       distressTier,
       messageSignals,
-      null,            // ltsInputs — no re-read (see above)
+      ltsInputsForPlanner,   // Wave 4D: LTS-aware strategy for knowledge path
     );
 
-    // Step 7: Run the CBT knowledge planner with bounded structured inputs.
+    // Step 8: Run the CBT knowledge planner with bounded structured inputs.
     // flagEnabled is true because we only reach V10 when knowledge_layer_enabled
     // === true (the wiring gate already confirmed the flag state).
     const plan = planCBTKnowledgeRetrieval({
       flagEnabled: true,
       strategyState,
-      ltsInputs: null,
+      ltsInputs: ltsInputsForPlanner, // Wave 4D: LTS arc + unit type preference
       formulationHints,
       distressTier,
       safetyActive,
     });
 
-    // Step 8: Short-circuit when planner says skip
+    // Step 9: Short-circuit when planner says skip
     if (!plan.shouldRetrieve) return v9Base;
 
-    // Step 9: Retrieve bounded knowledge block and append when non-empty.
+    // Step 10: Retrieve bounded knowledge block and append when non-empty.
     // retrieveBoundedCBTKnowledgeBlock is fully fail-open (returns '' on error).
     const knowledgeBlock = await retrieveBoundedCBTKnowledgeBlock(entities, plan);
     if (knowledgeBlock && knowledgeBlock.trim()) {

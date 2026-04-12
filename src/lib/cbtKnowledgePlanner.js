@@ -86,7 +86,7 @@
  *
  * @type {string}
  */
-export const CBT_KNOWLEDGE_PLANNER_VERSION = '1.0.0';
+export const CBT_KNOWLEDGE_PLANNER_VERSION = '1.1.0';
 
 // ─── CBT knowledge domains ───────────────────────────────────────────────────
 
@@ -452,29 +452,61 @@ function _deriveTreatmentArcFilter(hints, ltsInputs) {
 }
 
 /**
- * Derives the unit type preference from the intervention mode and treatment arc.
+ * Derives the unit type preference from the intervention mode, treatment arc,
+ * and optional LTS trajectory signals.
+ *
+ * Wave 4D: LTS signals are used as bounded planner inputs to better align
+ * retrieved unit type with the user's current therapeutic trajectory.
+ * They do NOT promote retrieval — that decision was made upstream.
+ * They do NOT override safety, containment, distress, or strategy gates.
  *
  * Rules (ordered by priority):
- *   1. Early arc → PSYCHOEDUCATION (introductory content).
- *   2. FORMULATION_DEEPENING mode → TECHNIQUE (focused advanced work).
- *   3. STRUCTURED_EXPLORATION mode → TECHNIQUE (skill-building focus).
- *   4. Default → ANY.
+ *   1. Early arc → PSYCHOEDUCATION (introductory content regardless of LTS).
+ *   2. LTS stagnating or stalled interventions → WORKSHEET (blocker resolution).
+ *   3. LTS progressing + late arc → CASE_EXAMPLE (consolidation/generalisation).
+ *   4. FORMULATION_DEEPENING mode → TECHNIQUE (focused advanced work).
+ *   5. STRUCTURED_EXPLORATION mode → TECHNIQUE (skill-building focus).
+ *   6. Default → ANY.
+ *
+ * FAIL-OPEN: invalid/absent ltsInputs are treated as lts_valid: false (no effect).
  *
  * @private
  * @param {string} interventionMode
  * @param {string} treatmentArcFilter
+ * @param {object|null} [ltsInputs] - Output of extractLTSStrategyInputs(); may be null.
  * @returns {string}
  */
-function _deriveUnitTypePreference(interventionMode, treatmentArcFilter) {
+function _deriveUnitTypePreference(interventionMode, treatmentArcFilter, ltsInputs) {
+  // Rule 1: Early arc → psychoeducation (introductory content; LTS not relevant here).
   if (treatmentArcFilter === CBT_TREATMENT_ARC_FILTERS.EARLY) {
     return CBT_UNIT_TYPE_PREFERENCES.PSYCHOEDUCATION;
   }
+
+  // Wave 4D: normalise LTS inputs — only used when lts_valid is strictly true.
+  const lts = (ltsInputs && ltsInputs.lts_valid === true) ? ltsInputs : null;
+
+  // Rule 2: LTS stagnating or stalled interventions → worksheet (blocker resolution).
+  // Rationale: when the therapeutic arc is stuck, structured practice/blocker-resolution
+  // content is more useful than more technique instruction or psychoeducation.
+  if (lts && (lts.lts_is_stagnating || lts.lts_has_stalled_interventions)) {
+    return CBT_UNIT_TYPE_PREFERENCES.WORKSHEET;
+  }
+
+  // Rule 3: LTS progressing + late arc → case example (consolidation/generalisation).
+  // Rationale: a progressing user in the late arc is consolidating skills; illustrative
+  // case examples help them apply learning broadly.
+  if (lts && lts.lts_is_progressing && treatmentArcFilter === CBT_TREATMENT_ARC_FILTERS.LATE) {
+    return CBT_UNIT_TYPE_PREFERENCES.CASE_EXAMPLE;
+  }
+
+  // Rule 4–5: Formulation deepening or structured exploration → technique.
   if (
     interventionMode === _MODE_FORMULATION_DEEPENING ||
     interventionMode === _MODE_STRUCTURED_EXPLORATION
   ) {
     return CBT_UNIT_TYPE_PREFERENCES.TECHNIQUE;
   }
+
   return CBT_UNIT_TYPE_PREFERENCES.ANY;
 }
 
@@ -582,7 +614,8 @@ export function planCBTKnowledgeRetrieval({
     const treatmentArcFilter = _deriveTreatmentArcFilter(hints, ltsInputs);
     const unitTypePreference = _deriveUnitTypePreference(
       interventionMode,
-      treatmentArcFilter
+      treatmentArcFilter,
+      ltsInputs, // Wave 4D: LTS trajectory signals align unit type preference
     );
 
     return _makePlan(
