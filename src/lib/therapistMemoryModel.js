@@ -259,3 +259,292 @@ export function isTherapistMemoryRecord(record) {
   }
   return record[THERAPIST_MEMORY_VERSION_KEY] === THERAPIST_MEMORY_VERSION;
 }
+
+// ─── Wave 3A — Longitudinal Therapeutic State (LTS) ──────────────────────────
+//
+// Additive scaffold only.  No read path, no write path, no session-start wiring.
+// The LTS schema helpers and builder live here + in longitudinalStateBuilder.js.
+// Nothing in the existing runtime references these exports.
+//
+// PRIVACY
+// -------
+// LTS records are derived from structured session records only.  The builder
+// must never receive or store raw transcript content, user quotes, or any
+// free-text that has not been pre-classified into a bounded label.
+//
+// ACTIVATION
+// ----------
+// These exports are inert in the default runtime.  Integration with any write
+// or read path is explicitly out of scope for Wave 3A and will require a
+// separate approval-gated PR.
+
+/**
+ * The JSON key embedded in every LTS record.
+ * Analogous to THERAPIST_MEMORY_VERSION_KEY for the LTS layer.
+ *
+ * @type {string}
+ */
+export const LTS_MEMORY_TYPE = 'lts';
+
+/**
+ * The version string for Wave 3A LTS records.
+ *
+ * @type {string}
+ */
+export const LTS_VERSION = '1';
+
+/**
+ * Hard cap: maximum number of entries in any LTS array field.
+ * Prevents unbounded growth even when many sessions are processed.
+ *
+ * @type {number}
+ */
+export const LTS_ARRAY_MAX = 8;
+
+/**
+ * Hard cap: maximum character length of any LTS string field value
+ * (excluding the version marker).
+ *
+ * @type {number}
+ */
+export const LTS_STRING_MAX_CHARS = 64;
+
+/**
+ * Minimum number of session records required before any non-default LTS
+ * signal is populated.  Below this threshold the builder returns a safe
+ * early/insufficient-data record.
+ *
+ * @type {number}
+ */
+export const LTS_MIN_SESSIONS_FOR_SIGNALS = 2;
+
+/**
+ * Minimum number of sessions in which a pattern must appear before it is
+ * promoted to recurring_patterns.
+ *
+ * @type {number}
+ */
+export const LTS_RECURRING_PATTERN_MIN_COUNT = 2;
+
+/**
+ * Minimum number of sessions in which a follow-up task must remain open
+ * before it is added to persistent_open_tasks.
+ *
+ * @type {number}
+ */
+export const LTS_PERSISTENT_TASK_MIN_COUNT = 2;
+
+/**
+ * Minimum number of consecutive sessions with no risk_flags required before
+ * the trajectory can be set to 'progressing'.
+ *
+ * @type {number}
+ */
+export const LTS_PROGRESSING_MIN_CLEAN_SESSIONS = 3;
+
+/**
+ * Minimum number of sessions with a repeated blocker label required to set
+ * trajectory to 'stagnating'.
+ *
+ * @type {number}
+ */
+export const LTS_STAGNATING_MIN_REPEATED_BLOCKERS = 2;
+
+/**
+ * Canonical schema/shape for a Longitudinal Therapeutic State record.
+ *
+ * FIELD DESIGN CONSTRAINTS (enforced by the builder)
+ * --------------------------------------------------
+ * - Every string field is bounded to LTS_STRING_MAX_CHARS characters.
+ * - Every array field is hard-capped to LTS_ARRAY_MAX entries.
+ * - No free-text paragraphs.
+ * - No raw user quotes.
+ * - No diagnosis or prognosis fields.
+ * - Operational signals only.
+ * - Deterministic, empty-safe defaults.
+ *
+ * Frozen to prevent accidental mutation.  Use createEmptyLTSRecord() for
+ * mutable instances.
+ *
+ * @type {Readonly<object>}
+ */
+export const LTS_SCHEMA = Object.freeze({
+  /**
+   * Version marker — always LTS_VERSION ('1').
+   * Used by isLTSRecord() for identification.
+   */
+  lts_version: LTS_VERSION,
+
+  /**
+   * Memory type tag.  Always LTS_MEMORY_TYPE ('lts').
+   */
+  memory_type: LTS_MEMORY_TYPE,
+
+  /**
+   * Total number of session records processed to produce this LTS.
+   * @type {number}
+   */
+  session_count: 0,
+
+  /**
+   * Bounded trajectory label.
+   * One of: 'unknown' | 'insufficient_data' | 'progressing' |
+   *         'stable' | 'stagnating' | 'fluctuating'
+   * @type {string}
+   */
+  trajectory: 'unknown',
+
+  /**
+   * Patterns that appear in at least LTS_RECURRING_PATTERN_MIN_COUNT sessions.
+   * Bounded array of short labels (no free-text quotes).
+   * @type {string[]}
+   */
+  recurring_patterns: [],
+
+  /**
+   * Follow-up tasks that appear open across at least
+   * LTS_PERSISTENT_TASK_MIN_COUNT sessions.
+   * Bounded array of short labels.
+   * @type {string[]}
+   */
+  persistent_open_tasks: [],
+
+  /**
+   * Goal IDs that appear in at least LTS_RECURRING_PATTERN_MIN_COUNT sessions.
+   * @type {string[]}
+   */
+  active_goal_ids: [],
+
+  /**
+   * Interventions that co-occur with sessions that had no risk_flags and
+   * positive follow-up task completion.  Conservative heuristic only.
+   * These are OPERATIONAL SIGNALS — do not imply causal certainty.
+   * Bounded array of short labels.
+   * @type {string[]}
+   */
+  helpful_interventions: [],
+
+  /**
+   * Interventions that appear in sessions where risk_flags or blockers
+   * recur across consecutive sessions.  Conservative heuristic only.
+   * These are OPERATIONAL SIGNALS — do not imply causal certainty.
+   * Bounded array of short labels.
+   * @type {string[]}
+   */
+  stalled_interventions: [],
+
+  /**
+   * Unique risk flag labels seen across all sessions.
+   * Bounded array of classification labels (no user quotes).
+   * @type {string[]}
+   */
+  risk_flag_history: [],
+
+  /**
+   * ISO 8601 date of the most recent session processed.
+   * @type {string}
+   */
+  last_session_date: '',
+
+  /**
+   * ISO 8601 date when this LTS record was computed.
+   * @type {string}
+   */
+  computed_at: '',
+});
+
+/**
+ * The set of all valid top-level keys in an LTS record.
+ *
+ * @type {ReadonlySet<string>}
+ */
+export const LTS_FIELDS = Object.freeze(new Set(Object.keys(LTS_SCHEMA)));
+
+/**
+ * Field names whose values must be arrays of strings in an LTS record.
+ *
+ * @type {ReadonlyArray<string>}
+ */
+export const LTS_ARRAY_FIELDS = Object.freeze([
+  'recurring_patterns',
+  'persistent_open_tasks',
+  'active_goal_ids',
+  'helpful_interventions',
+  'stalled_interventions',
+  'risk_flag_history',
+]);
+
+/**
+ * Field names whose values must be strings in an LTS record.
+ *
+ * @type {ReadonlyArray<string>}
+ */
+export const LTS_STRING_FIELDS = Object.freeze([
+  'lts_version',
+  'memory_type',
+  'trajectory',
+  'last_session_date',
+  'computed_at',
+]);
+
+/**
+ * Approved bounded set of trajectory values.
+ *
+ * @type {Readonly<Record<string, string>>}
+ */
+export const LTS_TRAJECTORIES = Object.freeze({
+  /** Default — LTS has not been computed or trajectory is indeterminate. */
+  UNKNOWN: 'unknown',
+  /** Too few sessions to derive a meaningful trajectory. */
+  INSUFFICIENT_DATA: 'insufficient_data',
+  /** Risk flags are decreasing and sessions are completing with fewer blockers. */
+  PROGRESSING: 'progressing',
+  /** Consistent engagement with no strong deterioration or improvement signal. */
+  STABLE: 'stable',
+  /** Repeated blockers and/or consistent risk flags across multiple sessions. */
+  STAGNATING: 'stagnating',
+  /** Mixed signals — some sessions improving, some with elevated risk. */
+  FLUCTUATING: 'fluctuating',
+});
+
+/**
+ * Creates a new empty LTS record.
+ *
+ * Array fields are fresh empty arrays (never shared with the schema).
+ * Numeric fields are set to their schema defaults.
+ * The version marker and memory_type are always set correctly.
+ *
+ * @returns {object} A plain mutable object matching the LTS schema.
+ */
+export function createEmptyLTSRecord() {
+  const record = {};
+  for (const [key, value] of Object.entries(LTS_SCHEMA)) {
+    if (Array.isArray(value)) {
+      record[key] = [];
+    } else if (typeof value === 'number') {
+      record[key] = value;
+    } else {
+      record[key] = value;
+    }
+  }
+  return record;
+}
+
+/**
+ * Returns true if the given value is a valid LTS record.
+ *
+ * An LTS record is any plain object whose `lts_version` equals LTS_VERSION
+ * and whose `memory_type` equals LTS_MEMORY_TYPE.
+ *
+ * @param {unknown} record - Any value.
+ * @returns {boolean}
+ */
+export function isLTSRecord(record) {
+  if (record === null || typeof record !== 'object') {
+    return false;
+  }
+  return (
+    record.lts_version === LTS_VERSION &&
+    record.memory_type === LTS_MEMORY_TYPE
+  );
+}
