@@ -537,6 +537,15 @@ export function normalizeCBTCurriculumUnit(record) {
   const runtime_eligible_first_wave =
     inputEligible && domainAllowed && evidenceEligible;
 
+  // Normalize version — must be a positive integer, default 1
+  const rawVersion = record.version;
+  const version =
+    typeof rawVersion === 'number' &&
+    Number.isInteger(rawVersion) &&
+    rawVersion >= 1
+      ? rawVersion
+      : 1;
+
   // Build normalized record — only include defined optional fields
   const normalized = {
     unit_type: record.unit_type?.trim() || '',
@@ -548,9 +557,7 @@ export function normalizeCBTCurriculumUnit(record) {
     agent_usage_rules: record.agent_usage_rules?.trim() || '',
     priority_score,
     is_active: Boolean(record.is_active ?? true),
-    version: typeof record.version === 'number' && record.version >= 1
-      ? record.version
-      : 1,
+    version,
     runtime_eligible_first_wave,
     distress_suitability,
     evidence_level,
@@ -582,7 +589,8 @@ export function normalizeCBTCurriculumUnit(record) {
     normalized.planner_domain = planner_domain;
   }
 
-  // Optional language_variants — pass through as-is (plain object)
+  // Optional language_variants — pass through as-is (plain object).
+  // This field is trusted admin-supplied input; its structure is not validated here.
   if (record.language_variants && typeof record.language_variants === 'object') {
     normalized.language_variants = record.language_variants;
   }

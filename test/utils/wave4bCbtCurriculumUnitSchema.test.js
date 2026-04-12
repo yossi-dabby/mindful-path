@@ -294,6 +294,7 @@ describe('Wave 4B — CBTCurriculumUnit Schema Validator / Normalizer', () => {
     it('D. VALID_CLINICAL_TOPICS is a frozen non-empty Set', () => {
       expect(VALID_CLINICAL_TOPICS instanceof Set).toBe(true);
       expect(VALID_CLINICAL_TOPICS.size).toBeGreaterThan(0);
+      expect(Object.isFrozen(VALID_CLINICAL_TOPICS)).toBe(true);
     });
 
     it('E. VALID_HIERARCHY_LEVELS is a frozen non-empty Set', () => {
@@ -1052,14 +1053,14 @@ describe('Wave 4B — CBTCurriculumUnit Schema Validator / Normalizer', () => {
       expect(Array.isArray(seedRecords)).toBe(true);
       seedRecords.forEach((rec, i) => {
         const result = validateCBTCurriculumUnit(rec);
-        expect(result.valid, `Seed record [${i}] "${rec.title}": ${result.errors.join('; ')}`).toBe(true);
+        expect(result.valid, `Seed record [${i}] "${rec.title || '<untitled>'}": ${result.errors.join('; ')}`).toBe(true);
       });
     });
 
     it('DJ. all seed records normalize without throwing', () => {
       expect(seedRecords).not.toBeNull();
       seedRecords.forEach((rec, i) => {
-        expect(() => normalizeCBTCurriculumUnit(rec), `Seed record [${i}] "${rec.title}" threw on normalize`).not.toThrow();
+        expect(() => normalizeCBTCurriculumUnit(rec), `Seed record [${i}] "${rec.title || '<untitled>'}" threw on normalize`).not.toThrow();
       });
     });
 
