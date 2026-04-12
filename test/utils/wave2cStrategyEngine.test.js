@@ -98,8 +98,8 @@ describe('Wave 2C — New exports exist and have correct shapes', () => {
     expect(typeof scoreFormulationStrength).toBe('function');
   });
 
-  it('STRATEGY_VERSION is 1.1.0 (Wave 2C bump)', () => {
-    expect(STRATEGY_VERSION).toBe('1.1.0');
+  it('STRATEGY_VERSION is 1.2.0 (Wave 3D bump)', () => {
+    expect(STRATEGY_VERSION).toBe('1.2.0');
   });
 });
 
@@ -1128,8 +1128,8 @@ describe('Wave 2C — No regression to Wave 2A / 2B assumptions', () => {
     expect(result.rationale).toBe('formulation_and_continuity_deepening');
   });
 
-  it('STRATEGY_VERSION is now 1.1.0 (Wave 2C bump from 1.0.0)', () => {
-    expect(STRATEGY_VERSION).toBe('1.1.0');
+  it('STRATEGY_VERSION is now 1.2.0 (Wave 3D bump from 1.1.0)', () => {
+    expect(STRATEGY_VERSION).toBe('1.2.0');
   });
 
   it('STRATEGY_FAIL_SAFE_STATE.strategy_version matches STRATEGY_VERSION', () => {
