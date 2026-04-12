@@ -66,7 +66,6 @@ describe('Phase 0 Runtime Activation — static analysis of Chat.jsx call sites'
     expect(hasV7).toBe(true);
     expect(hasV8).toBe(true);
   });
-
   // 2. Chat.jsx does NOT import buildV4SessionStartContentAsync or
   //    buildV5SessionStartContentAsync directly
   it('2. Chat.jsx does not directly import buildV4 or buildV5', () => {
@@ -77,11 +76,11 @@ describe('Phase 0 Runtime Activation — static analysis of Chat.jsx call sites'
     expect(hasV5).toBe(false);
   });
 
-  // 3. Chat.jsx has at least 4 buildV8SessionStartContentAsync call sites
+  // 3. Chat.jsx has at least 4 buildV9SessionStartContentAsync call sites
   //    (2 original intent-handler sites + 1 startNewConversationWithIntent + 1 sendMessage)
-  //    Wave 2B: all session-start call sites now use V8 (highest builder in the chain).
-  it('3. Chat.jsx has at least 4 buildV8SessionStartContentAsync call sites', () => {
-    const calls = (chatSrc.match(/buildV8SessionStartContentAsync\s*\(/g) || []).length;
+  //    Wave 3C: all session-start call sites now use V9 (highest builder in the chain).
+  it('3. Chat.jsx has at least 4 buildV9SessionStartContentAsync call sites', () => {
+    const calls = (chatSrc.match(/buildV9SessionStartContentAsync\s*\(/g) || []).length;
     expect(calls).toBeGreaterThanOrEqual(4);
   });
 
@@ -97,22 +96,22 @@ describe('Phase 0 Runtime Activation — static analysis of Chat.jsx call sites'
     expect(calls).toBe(0);
   });
 
-  // 6. The startNewConversationWithIntent path uses buildV8 (always, not
+  // 6. The startNewConversationWithIntent path uses buildV9 (always, not
   //    conditionally) — verified by the sessionStartContent variable pattern.
-  //    Wave 2B: updated from V7 to V8.
-  it('6. startNewConversationWithIntent path uses sessionStartContent variable from buildV8', () => {
-    expect(chatSrc).toMatch(/sessionStartContent\s*=\s*await\s+buildV8SessionStartContentAsync/);
+  //    Wave 3C: updated from V8 to V9.
+  it('6. startNewConversationWithIntent path uses sessionStartContent variable from buildV9', () => {
+    expect(chatSrc).toMatch(/sessionStartContent\s*=\s*await\s+buildV9SessionStartContentAsync/);
   });
 
   // 7. No other page or component besides Chat.jsx uses session-start builders
   //    (isolation: companion and other pages are unaffected)
-  //    Wave 2B: updated to check for V8 as the highest-level session-start builder.
-  it('7. only Chat.jsx in src/ uses buildV8SessionStartContentAsync', () => {
+  //    Wave 3C: updated to check for V9 as the highest-level session-start builder.
+  it('7. only Chat.jsx in src/ uses buildV9SessionStartContentAsync', () => {
     // This is a documentation test — we assert Chat.jsx is the sole runtime user.
     // If another page starts using it, this test fails as an intentional tripwire.
-    const v8InChat = (chatSrc.match(/buildV8SessionStartContentAsync/g) || []).length;
-    expect(v8InChat).toBeGreaterThanOrEqual(4);
-    // The companion agent path (Chat.jsx does not call buildV8 on companion wiring)
+    const v9InChat = (chatSrc.match(/buildV9SessionStartContentAsync/g) || []).length;
+    expect(v9InChat).toBeGreaterThanOrEqual(4);
+    // The companion agent path (Chat.jsx does not call buildV9 on companion wiring)
     // is verified behaviorally in Group 4 below.
   });
 });
