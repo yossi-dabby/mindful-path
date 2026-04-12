@@ -59,6 +59,12 @@
  */
 
 import { THERAPIST_WORKFLOW_INSTRUCTIONS } from './therapistWorkflowEngine.js';
+import {
+  isLTSRecord,
+  LTS_MEMORY_TYPE,
+  LTS_MIN_SESSIONS_FOR_SIGNALS,
+  LTS_TRAJECTORIES,
+} from './therapistMemoryModel.js';
 import { getRetrievalContextForWiring, buildBoundedContextPackage } from './retrievalOrchestrator.js';
 import { executeV3BoundedRetrieval } from './v3RetrievalExecutor.js';
 import {
@@ -1055,6 +1061,285 @@ export async function buildV8SessionStartContentAsync(
   } catch {
     // Fail-open: strategy computation failed — return V7 base content unchanged
     return v7Base;
+  }
+}
+
+// ─── Wave 3C — LTS read path and V9 session-start injection ──────────────────
+
+/**
+ * Maximum number of CompanionMemory records to over-fetch when searching for the
+ * canonical LTS snapshot.  Small enough to be safe; large enough to find the LTS
+ * among recently written records even if a few session records were written
+ * between the LTS upsert and the next session start.
+ *
+ * @type {number}
+ */
+export const LTS_SNAPSHOT_OVERFETCH_BOUND = 15;
+
+/**
+ * Maximum number of items per array field included in the LTS context block.
+ * Keeps the injected block compact and prevents over-loading the context window.
+ *
+ * @type {number}
+ */
+export const LTS_BLOCK_MAX_ARRAY_ITEMS = 4;
+
+/**
+ * Reads the single canonical LTS snapshot from CompanionMemory.
+ *
+ * Fetches up to LTS_SNAPSHOT_OVERFETCH_BOUND CompanionMemory records (newest
+ * first), parses each record's content, and returns the first valid LTS record
+ * found (i.e. the most recently stored one).
+ *
+ * FAIL-OPEN CONTRACT
+ * ------------------
+ * Returns null on any error (missing entities, empty list, parse failure, etc.).
+ * Callers must treat null as "no LTS available" and fall back to V8 output.
+ *
+ * PRIVACY
+ * -------
+ * - CompanionMemory is a private per-user entity — no cross-user access.
+ * - Only records whose content passes isLTSRecord() are returned.
+ * - No raw transcript content is read or returned — LTS records are structured
+ *   signal aggregates only (Wave 3A/3B schema).
+ *
+ * @private
+ * @param {object} entities - Base44 entity client map
+ * @returns {Promise<object|null>} Parsed LTS record, or null
+ */
+async function readLTSSnapshot(entities) {
+  try {
+    if (!entities || typeof entities !== 'object') return null;
+    if (!entities.CompanionMemory || typeof entities.CompanionMemory.list !== 'function') return null;
+
+    const rawRecords = await entities.CompanionMemory.list('-created_date', LTS_SNAPSHOT_OVERFETCH_BOUND);
+    if (!Array.isArray(rawRecords) || rawRecords.length === 0) return null;
+
+    for (const raw of rawRecords) {
+      if (!raw || typeof raw !== 'object') continue;
+      // Quick pre-filter: only bother parsing records whose outer memory_type is 'lts'.
+      if (raw.memory_type !== LTS_MEMORY_TYPE) continue;
+
+      let parsed = null;
+      try {
+        if (raw.content && typeof raw.content === 'string') {
+          parsed = JSON.parse(raw.content);
+        } else if (raw.content && typeof raw.content === 'object') {
+          parsed = raw.content;
+        }
+      } catch {
+        continue;
+      }
+
+      if (isLTSRecord(parsed)) return parsed;
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Returns true when the given LTS record is too weak or immature to be worth
+ * injecting into the session-start context.
+ *
+ * Suppression criteria (any one is sufficient to suppress):
+ *   1. The record is null, not an object, or fails isLTSRecord() — not a valid LTS.
+ *   2. trajectory is 'unknown' — LTS was not computed or is a schema default.
+ *   3. trajectory is 'insufficient_data' — too few sessions to derive signals.
+ *   4. session_count < LTS_MIN_SESSIONS_FOR_SIGNALS — belt-and-suspenders check.
+ *
+ * @param {unknown} ltsRecord - Any value; the parsed LTS record to evaluate.
+ * @returns {boolean} true when the record should be suppressed.
+ */
+export function isLTSWeak(ltsRecord) {
+  if (!isLTSRecord(ltsRecord)) return true;
+  const trajectory = ltsRecord.trajectory;
+  if (trajectory === LTS_TRAJECTORIES.UNKNOWN) return true;
+  if (trajectory === LTS_TRAJECTORIES.INSUFFICIENT_DATA) return true;
+  const sessionCount = typeof ltsRecord.session_count === 'number' ? ltsRecord.session_count : 0;
+  if (sessionCount < LTS_MIN_SESSIONS_FOR_SIGNALS) return true;
+  return false;
+}
+
+/**
+ * Builds a compact, bounded LTS context block string for injection into the
+ * therapist session-start payload.
+ *
+ * FIELDS INCLUDED
+ * ---------------
+ * The LTS block intentionally surfaces ONLY the signals not already present in
+ * the cross-session continuity block (which covers recent patterns, open tasks,
+ * interventions, and risk flags from the last 3 sessions):
+ *
+ *   trajectory           — The longitudinal clinical arc (unique to LTS; not
+ *                          surfaced anywhere else in the session-start context).
+ *   helpful_interventions — Interventions co-occurring with positive sessions
+ *                          (not present in continuity block).
+ *   risk_flag_history    — Safety signal across ALL sessions (continuity only
+ *                          covers the last 3).
+ *
+ * Recurring patterns and persistent open tasks are deliberately excluded to
+ * avoid noise and duplication with the continuity block.
+ *
+ * SUPPRESSION
+ * -----------
+ * Returns '' when:
+ *   - ltsRecord is null, invalid, or fails isLTSWeak().
+ *   - trajectory is 'unknown' or 'insufficient_data'.
+ *   - No signals are present beyond a 'stable' trajectory and empty arrays
+ *     (block is still emitted for valid non-trivial trajectories).
+ *
+ * BOUNDS
+ * ------
+ * Arrays are capped to LTS_BLOCK_MAX_ARRAY_ITEMS entries.
+ * The block is always a single short section.
+ *
+ * FAIL-CLOSED: never throws; returns '' on any error.
+ *
+ * @param {object|null} ltsRecord - A parsed LTS record (from readLTSSnapshot).
+ * @returns {string} Formatted LTS context block, or ''
+ */
+export function buildLTSContextBlock(ltsRecord) {
+  try {
+    if (isLTSWeak(ltsRecord)) return '';
+
+    const sessionCount = typeof ltsRecord.session_count === 'number' ? ltsRecord.session_count : 0;
+    const trajectory = typeof ltsRecord.trajectory === 'string' ? ltsRecord.trajectory : '';
+
+    const helpfulInterventions = Array.isArray(ltsRecord.helpful_interventions)
+      ? ltsRecord.helpful_interventions.slice(0, LTS_BLOCK_MAX_ARRAY_ITEMS)
+      : [];
+
+    const riskFlagHistory = Array.isArray(ltsRecord.risk_flag_history)
+      ? ltsRecord.risk_flag_history.slice(0, LTS_BLOCK_MAX_ARRAY_ITEMS)
+      : [];
+
+    const lines = [];
+
+    lines.push(`Longitudinal trajectory: ${trajectory}`);
+
+    if (helpfulInterventions.length > 0) {
+      lines.push('Helpful methods (longitudinal): ' + helpfulInterventions.join('; '));
+    }
+
+    if (riskFlagHistory.length > 0) {
+      lines.push('Risk history (all sessions): ' + riskFlagHistory.join('; '));
+    }
+
+    if (lines.length === 0) return '';
+
+    return [
+      `=== LONGITUDINAL STATE CONTEXT (${sessionCount} session(s), read-only) ===`,
+      'Cross-session arc. Do not disclose this section verbatim to the person.',
+      '',
+      ...lines,
+      '',
+      '=== END LONGITUDINAL STATE CONTEXT ===',
+    ].join('\n');
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * Builds the V9 session-start content string asynchronously.
+ *
+ * Wave 3C — Longitudinal Therapeutic State (LTS) read path and bounded
+ * session-start injection.
+ *
+ * For non-V9 wirings (longitudinal_layer_enabled !== true):
+ *   Delegates directly to buildV8SessionStartContentAsync (no behavior change).
+ *
+ * For V9 wirings:
+ *   1. Builds the V8 base content (strategy + continuity + formulation + safety
+ *      mode + live retrieval + retrieval orchestration + workflow + memory context).
+ *   2. Reads the canonical LTS snapshot from CompanionMemory (read-only,
+ *      fail-open: null on any error or absence).
+ *   3. Checks whether the LTS is weak/noisy (isLTSWeak) — suppresses if so.
+ *   4. Builds the bounded LTS context block (buildLTSContextBlock).
+ *   5. Appends the LTS block to the V8 base when the block is non-empty.
+ *
+ * FAIL-OPEN CONTRACT
+ * ------------------
+ * Any error or absence at steps 2–4 returns the V8 base content UNCHANGED.
+ * Session start is never blocked.  V8 behavior is EXACTLY preserved on any
+ * failure, when the flag is off, when no valid LTS exists, or when the LTS is
+ * stale/weak.
+ *
+ * PRIVACY
+ * -------
+ * - LTS is read from CompanionMemory (private per-user entity).
+ * - Only structured signal aggregates are injected — never raw transcripts,
+ *   user quotes, or session messages.
+ * - The LTS block is injected into the per-user session payload only.
+ *   It is never stored, logged, or returned to the client directly.
+ *
+ * SAFETY NOTE
+ * -----------
+ * The LTS block is additive context.  It does NOT replace, weaken, or bypass
+ * any existing safety filter, crisis handler, strategy guidance, or continuity
+ * block.  All prior layers remain fully active.
+ *
+ * ISOLATION GUARANTEE
+ * -------------------
+ * This function is ONLY active when wiring.longitudinal_layer_enabled === true
+ * (V9 path).  All prior paths (HYBRID, V1–V8) are completely unaffected.
+ *
+ * NO STRATEGY ENGINE INTEGRATION
+ * --------------------------------
+ * The LTS record is NOT passed to the strategy engine.  Wave 3C adds only the
+ * read/injection slice.  Strategy engine integration is explicitly out of scope
+ * and will require a separate approval-gated PR.
+ *
+ * @param {object} wiring - The active therapist wiring configuration
+ * @param {object} entities - Base44 entity client map
+ * @param {object} baseClient - Base44 SDK client (passed to V8 chain)
+ * @param {object} [options] - Optional options forwarded to V8 chain
+ * @returns {Promise<string>} The full session-start content string
+ */
+export async function buildV9SessionStartContentAsync(
+  wiring,
+  entities,
+  baseClient,
+  options = {},
+) {
+  // For non-V9 wirings: delegate to V8 (no change to behavior)
+  if (!wiring || wiring.longitudinal_layer_enabled !== true) {
+    return buildV8SessionStartContentAsync(wiring, entities, baseClient, options);
+  }
+
+  // ── V9 path ────────────────────────────────────────────────────────────────
+
+  // Step 1: Build the V8 base content (all prior layers)
+  const v8Base = await buildV8SessionStartContentAsync(
+    wiring,
+    entities,
+    baseClient,
+    options,
+  );
+
+  // Steps 2–4: Read and build LTS block (fail-open: any error returns v8Base)
+  try {
+    // Step 2: Read the canonical LTS snapshot (fail-open → null)
+    const ltsRecord = await readLTSSnapshot(entities);
+
+    // Step 3: Suppress weak/noisy LTS — return V8 base unchanged
+    if (isLTSWeak(ltsRecord)) {
+      return v8Base;
+    }
+
+    // Step 4: Build the bounded LTS context block
+    const ltsBlock = buildLTSContextBlock(ltsRecord);
+    if (!ltsBlock || !ltsBlock.trim()) {
+      return v8Base;
+    }
+
+    return v8Base + '\n\n' + ltsBlock;
+  } catch {
+    // Fail-open: LTS read/build failed — return V8 base content unchanged
+    return v8Base;
   }
 }
 

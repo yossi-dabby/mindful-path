@@ -31,6 +31,9 @@
  *   V7 supersedes V6 when both flags are on (V7 is a superset of V6).
  * Wave 2B — CBT_THERAPIST_WIRING_STAGE2_V8 added as the strategy layer path.
  *   V8 supersedes V7 when both flags are on (V8 is a superset of V7).
+ * Wave 3C — CBT_THERAPIST_WIRING_STAGE2_V9 added as the LTS injection path.
+ *   V9 supersedes V8 when STRATEGY_ENABLED + LONGITUDINAL_ENABLED are both on.
+ *   V9 is a strict superset of V8.
  *
  * Analytics registration (Section B of Phase 0.1 spec) is performed lazily
  * via a dynamic import of base44Client.js so that test environments that lack
@@ -52,6 +55,7 @@ import {
   CBT_THERAPIST_WIRING_STAGE2_V6,
   CBT_THERAPIST_WIRING_STAGE2_V7,
   CBT_THERAPIST_WIRING_STAGE2_V8,
+  CBT_THERAPIST_WIRING_STAGE2_V9,
   AI_COMPANION_WIRING_UPGRADE_V1,
   AI_COMPANION_WIRING_UPGRADE_V2,
 } from './agentWiring.js';
@@ -99,24 +103,31 @@ import {
  *
  * Routing logic (evaluated in order):
  *   1. Master gate off  → CBT_THERAPIST_WIRING_HYBRID (current default)
- *   2. Master gate on, THERAPIST_UPGRADE_STRATEGY_ENABLED on
+ *   2. Master gate on, THERAPIST_UPGRADE_STRATEGY_ENABLED on,
+ *      THERAPIST_UPGRADE_LONGITUDINAL_ENABLED on
+ *                       → CBT_THERAPIST_WIRING_STAGE2_V9 (Wave 3C LTS injection)
+ *   3. Master gate on, THERAPIST_UPGRADE_STRATEGY_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V8 (Wave 2B strategy layer)
- *   3. Master gate on, THERAPIST_UPGRADE_CONTINUITY_ENABLED on
+ *   4. Master gate on, THERAPIST_UPGRADE_CONTINUITY_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V7 (Phase 3 continuity)
- *   4. Master gate on, THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED on
+ *   5. Master gate on, THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V6 (Phase 1 Quality formulation context)
- *   5. Master gate on, THERAPIST_UPGRADE_SAFETY_MODE_ENABLED on
+ *   6. Master gate on, THERAPIST_UPGRADE_SAFETY_MODE_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V5 (Phase 7 safety mode)
- *   6. Master gate on, THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED on
+ *   7. Master gate on, THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V4 (Phase 6 live retrieval)
- *   7. Master gate on, THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED on
+ *   8. Master gate on, THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V3 (Phase 5 retrieval orchestration)
- *   8. Master gate on, THERAPIST_UPGRADE_WORKFLOW_ENABLED on
+ *   9. Master gate on, THERAPIST_UPGRADE_WORKFLOW_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V2 (Phase 3 workflow engine)
- *   9. Master gate on, THERAPIST_UPGRADE_MEMORY_ENABLED on
+ *  10. Master gate on, THERAPIST_UPGRADE_MEMORY_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V1 (Phase 1 memory layer)
- *  10. Master gate on, no matching phase flag
+ *  11. Master gate on, no matching phase flag
  *                       → CBT_THERAPIST_WIRING_HYBRID (fall-through to current default)
+ *
+ * Wave 3C (V9) takes precedence over Wave 2B (V8) and all prior phases because
+ * V9 is a strict superset of V8.  V9 requires both STRATEGY_ENABLED and
+ * LONGITUDINAL_ENABLED.
  *
  * Wave 2B (V8) takes precedence over Phase 3 Deep Personalization (V7) and all
  * prior phases because V8 is a strict superset of V7.
@@ -146,6 +157,19 @@ import {
  */
 export function resolveTherapistWiring() {
   if (isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')) {
+    // ── Wave 3C — LTS injection (supersedes Wave 2B strategy layer and earlier) ──
+    if (
+      isUpgradeEnabled('THERAPIST_UPGRADE_STRATEGY_ENABLED') &&
+      isUpgradeEnabled('THERAPIST_UPGRADE_LONGITUDINAL_ENABLED')
+    ) {
+      logUpgradeEvent('route_selected', {
+        flag: 'THERAPIST_UPGRADE_LONGITUDINAL_ENABLED',
+        path: 'stage2_v9',
+        phase: 'wave3c_lts',
+      });
+      return CBT_THERAPIST_WIRING_STAGE2_V9;
+    }
+
     // ── Wave 2B — Strategy layer (supersedes Phase 3 Deep Personalization and earlier) ──
     if (isUpgradeEnabled('THERAPIST_UPGRADE_STRATEGY_ENABLED')) {
       logUpgradeEvent('route_selected', {

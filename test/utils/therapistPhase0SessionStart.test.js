@@ -90,10 +90,10 @@ describe('Phase 0 — Chat.jsx source routing (static analysis)', () => {
     expect(hasV4Import).toBe(false);
   });
 
-  // 3. Chat.jsx calls buildV8SessionStartContentAsync at all session-start sites
-  //    Wave 2B: updated from V7 to V8 (highest builder in the chain).
-  it('3. Chat.jsx calls buildV8SessionStartContentAsync', () => {
-    const callCount = (chatSrc.match(/buildV8SessionStartContentAsync\s*\(/g) || []).length;
+  // 3. Chat.jsx calls buildV9SessionStartContentAsync at all session-start sites
+  //    Wave 3C: updated from V8 to V9 (highest builder in the chain).
+  it('3. Chat.jsx calls buildV9SessionStartContentAsync', () => {
+    const callCount = (chatSrc.match(/buildV9SessionStartContentAsync\s*\(/g) || []).length;
     expect(callCount).toBeGreaterThanOrEqual(4); // 4 call sites: 2 intent-handler + startNewConversationWithIntent + sendMessage
   });
 
@@ -103,13 +103,15 @@ describe('Phase 0 — Chat.jsx source routing (static analysis)', () => {
     expect(callCount).toBe(0);
   });
 
-  // 5. Every session-start call site in Chat.jsx uses V8 (Wave 2B: not V4, V5, V6, or V7 at call sites)
-  it('5. every session-start call site in Chat.jsx uses V8 (not V4, V5, V6, or V7 at call sites)', () => {
+  // 5. Every session-start call site in Chat.jsx uses V9 (Wave 3C: not V4, V5, V6, V7, or V8 at call sites)
+  it('5. every session-start call site in Chat.jsx uses V9 (not V4, V5, V6, V7, or V8 at call sites)', () => {
+    const v9Calls = (chatSrc.match(/buildV9SessionStartContentAsync\s*\(/g) || []).length;
     const v8Calls = (chatSrc.match(/buildV8SessionStartContentAsync\s*\(/g) || []).length;
     const v7Calls = (chatSrc.match(/buildV7SessionStartContentAsync\s*\(/g) || []).length;
     const v5Calls = (chatSrc.match(/buildV5SessionStartContentAsync\s*\(/g) || []).length;
     const v4Calls = (chatSrc.match(/buildV4SessionStartContentAsync\s*\(/g) || []).length;
-    expect(v8Calls).toBeGreaterThanOrEqual(2); // two intent-handler call sites
+    expect(v9Calls).toBeGreaterThanOrEqual(4); // all four session-start call sites
+    expect(v8Calls).toBe(0);
     expect(v7Calls).toBe(0);
     expect(v5Calls).toBe(0);
     expect(v4Calls).toBe(0);
