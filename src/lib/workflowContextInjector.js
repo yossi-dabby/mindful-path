@@ -1502,6 +1502,8 @@ export async function buildV10SessionStartContentAsync(
     try {
       ltsRecord = await readLTSSnapshot(entities);
     } catch {
+      // Fail-open: LTS read error must never block session start.
+      // The outer try/catch will return v9Base unchanged on any downstream error.
       ltsRecord = null;
     }
     const ltsInputsForPlanner = extractLTSStrategyInputs(ltsRecord);

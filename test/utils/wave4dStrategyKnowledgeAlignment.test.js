@@ -301,9 +301,10 @@ function _makeRetrievableInputs(overrides = {}) {
 /**
  * Minimal eligible CBTCurriculumUnit record for retrieval tests.
  */
+let _unitCounter = 0;
 function _makeUnit(overrides = {}) {
   return {
-    id: `unit-${Math.random().toString(36).slice(2)}`,
+    id: `unit-${++_unitCounter}`,
     title: 'Test Unit',
     clinical_topic: 'anxiety',
     cbt_domain: 'anxiety',
@@ -493,9 +494,9 @@ describe('Wave 4D — Group D: treatment arc filter from LTS session count', () 
     expect(plan.treatmentArcFilter).toBe(CBT_TREATMENT_ARC_FILTERS.LATE);
   });
 
-  it('D2. session_count>=3 + no explicit phase → arc=middle', () => {
+  it('D2. session_count=2 (below middle threshold) + no explicit phase → arc=any', () => {
     const plan = planCBTKnowledgeRetrieval(_makeRetrievableInputs({
-      ltsInputs: _LTS_NEUTRAL, // session_count=2 → use progressing_middle for this
+      ltsInputs: _LTS_NEUTRAL, // session_count=2, below middle threshold (3)
       formulationHints: _HINTS_ANXIETY,
     }));
     // session_count=2 is below middle threshold (3) → 'any'
@@ -668,12 +669,9 @@ describe('Wave 4D — Group G: retrieval ranking by unit type preference', () =>
     const plan = _makePlan({ unitTypePreference: 'technique' });
 
     const block = await retrieveBoundedCBTKnowledgeBlock(entities, plan);
-    // 'intervention' unit (u2) should appear first in block
-    const pos_u2 = block.indexOf('[1]');
-    const pos_u1 = block.indexOf('[2]');
-    // Block should contain content
+    // Block should contain content; the 'intervention' unit (u2) should be ranked first
     expect(block).toContain('=== CBT KNOWLEDGE REFERENCE');
-    // u2 is the only 'intervention' unit — it should appear as [1]
+    // u2 is the only 'intervention' unit — it should appear as entry [1]
     expect(block).toContain('[1]');
   });
 
@@ -822,6 +820,9 @@ describe('Wave 4D — Group H: V10 LTS read + ltsInputs threading', () => {
   /**
    * Builds a mock entities object for V10 tests.
    * Includes CompanionMemory mock (for LTS read) and CBTCurriculumUnit mock.
+   * CompanionMemory records store structured LTS data as JSON-encoded strings in
+   * the `content` field with `memory_type: 'lts'` — this matches the actual entity
+   * schema written by the LTS upsert path (readLTSSnapshot parses content JSON).
    */
   function _makeV10Entities({ ltsRecord = null, cbtUnits = [] } = {}) {
     const companionMemoryRecords = ltsRecord

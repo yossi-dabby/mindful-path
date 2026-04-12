@@ -141,10 +141,13 @@ const CBT_SAFETY_TAG_EXCLUDE_FIRST_WAVE = Object.freeze(
  * enable deterministic preference-based ranking after filtering.
  *
  * Mapping rationale:
- *   technique    → 'intervention'      (CBT techniques are intervention units)
- *   worksheet    → 'blocker_resolution' (structured practice for stagnating arcs)
- *   case_example → 'outcome_interpretation' (closest entity type for consolidation)
- *   psychoeducation → 'psychoeducation' (direct 1:1 match)
+ *   technique    → 'intervention'       (CBT techniques are intervention units)
+ *   worksheet    → 'blocker_resolution'  (structured practice for stagnating arcs)
+ *   case_example → 'outcome_interpretation' (closest entity type for consolidation;
+ *                  outcome interpretation units present how gains were achieved,
+ *                  serving the same clinical role as illustrative case examples
+ *                  in late-arc consolidation work)
+ *   psychoeducation → 'psychoeducation'  (direct 1:1 match)
  *   any          → '' (no preference; skip ranking)
  *
  * @private
