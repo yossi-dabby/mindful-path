@@ -367,6 +367,10 @@ export function scoreDistressTier(safetyResult, messageSignals) {
  *
  * SAFETY: Never throws.  Returns zero-value signals on any error.
  *
+ * INTERNAL USE ONLY: This function is a private helper for
+ * determineTherapistStrategy() and scoreContinuityRichness().  Its return
+ * shape is an implementation detail and may change without notice.
+ *
  * @private
  * @param {any} continuityData
  * @returns {{ sessionCount: number, hasRiskFlags: boolean,
@@ -799,9 +803,9 @@ export function buildStrategyContextSection(strategyState) {
       lines.push('');
       lines.push('Context signals:');
       if (sessionCount > 0) lines.push(`  Sessions         : ${sessionCount}`);
-      if (hasRiskFlags)     lines.push('  Risk flags       : active');
-      if (hasOpenTasks)     lines.push('  Open tasks       : pending');
-      if (isSaturated)      lines.push('  Intervention sat.: flagged');
+      if (hasRiskFlags) lines.push('  Risk flags       : active');
+      if (hasOpenTasks) lines.push('  Open tasks       : pending');
+      if (isSaturated) lines.push('  Intervention sat.: flagged');
     }
 
     lines.push('');
