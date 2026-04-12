@@ -819,6 +819,120 @@ export function buildStrategyContextSection(strategyState) {
   }
 }
 
+// ─── Wave 2D — Safe strategy diagnostic snapshot ──────────────────────────────
+
+/**
+ * The set of TherapistStrategyState field names that are safe to include in
+ * diagnostic and observability output.
+ *
+ * OMITTED: message_signals — contains boolean pattern-match flags derived from
+ * raw user message text.  Including them in a diagnostic snapshot could leak
+ * inferences about message content.  All other fields are clinical labels,
+ * numeric scores, or boolean context flags that carry no raw user text.
+ *
+ * @type {ReadonlyArray<string>}
+ */
+export const STRATEGY_DIAGNOSTIC_SAFE_FIELDS = Object.freeze([
+  'strategy_version',
+  'intervention_mode',
+  'distress_tier',
+  'continuity_present',
+  'formulation_present',
+  'rationale',
+  'fail_safe',
+  'session_count',
+  'has_risk_flags',
+  'has_open_tasks',
+  'intervention_saturated',
+  'continuity_richness_score',
+  'formulation_strength_score',
+]);
+
+/**
+ * Builds a safe, sanitized diagnostic snapshot from a TherapistStrategyState.
+ *
+ * PURPOSE (Wave 2D)
+ * -----------------
+ * Makes the active strategy decision observable without exposing raw user
+ * content or private clinical text.  The snapshot is suitable for inclusion
+ * in diagnostic payloads, console logs (when _s2debug=true), and test
+ * assertions.
+ *
+ * SAFETY CONTRACT
+ * ---------------
+ * - message_signals is deliberately excluded (inferred from raw user text).
+ * - No raw message content, no entity IDs, no user PII.
+ * - Never throws — returns a fail-safe snapshot on any error.
+ * - Output is a frozen plain object (no mutations after creation).
+ *
+ * DIAGNOSTIC-ONLY
+ * ---------------
+ * This function is intended for staging/debug surfaces only (gated by
+ * ?_s2debug=true in the URL).  It MUST NOT be used to alter routing or
+ * therapeutic behavior in any way.
+ *
+ * @param {object|null|undefined} strategyState - A TherapistStrategyState
+ * @returns {Readonly<{
+ *   strategy_version: string,
+ *   intervention_mode: string,
+ *   distress_tier: string,
+ *   continuity_present: boolean,
+ *   formulation_present: boolean,
+ *   rationale: string,
+ *   fail_safe: boolean,
+ *   session_count: number,
+ *   has_risk_flags: boolean,
+ *   has_open_tasks: boolean,
+ *   intervention_saturated: boolean,
+ *   continuity_richness_score: number,
+ *   formulation_strength_score: number,
+ * }>}
+ */
+export function buildStrategyDiagnosticSnapshot(strategyState) {
+  try {
+    const ss = strategyState && typeof strategyState === 'object' ? strategyState : {};
+    return Object.freeze({
+      strategy_version:
+        typeof ss.strategy_version === 'string' ? ss.strategy_version : STRATEGY_VERSION,
+      intervention_mode:
+        typeof ss.intervention_mode === 'string'
+          ? ss.intervention_mode
+          : STRATEGY_INTERVENTION_MODES.STABILISATION,
+      distress_tier:
+        typeof ss.distress_tier === 'string' ? ss.distress_tier : DISTRESS_TIERS.TIER_LOW,
+      continuity_present: ss.continuity_present === true,
+      formulation_present: ss.formulation_present === true,
+      rationale: typeof ss.rationale === 'string' ? ss.rationale : 'unknown',
+      fail_safe: ss.fail_safe === true,
+      session_count: typeof ss.session_count === 'number' ? ss.session_count : 0,
+      has_risk_flags: ss.has_risk_flags === true,
+      has_open_tasks: ss.has_open_tasks === true,
+      intervention_saturated: ss.intervention_saturated === true,
+      continuity_richness_score:
+        typeof ss.continuity_richness_score === 'number' ? ss.continuity_richness_score : 0,
+      formulation_strength_score:
+        typeof ss.formulation_strength_score === 'number' ? ss.formulation_strength_score : 0,
+      // message_signals deliberately omitted — inferred from raw user text.
+    });
+  } catch (_e) {
+    return Object.freeze({
+      strategy_version: STRATEGY_VERSION,
+      intervention_mode: STRATEGY_INTERVENTION_MODES.STABILISATION,
+      distress_tier: DISTRESS_TIERS.TIER_LOW,
+      continuity_present: false,
+      formulation_present: false,
+      rationale: 'diagnostic_error',
+      fail_safe: true,
+      session_count: 0,
+      has_risk_flags: false,
+      has_open_tasks: false,
+      intervention_saturated: false,
+      continuity_richness_score: 0,
+      formulation_strength_score: 0,
+    });
+  }
+}
+
 // ─── Fail-safe state ──────────────────────────────────────────────────────────
 
 /**

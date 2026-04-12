@@ -79,6 +79,7 @@ import {
   scoreDistressTier,
   determineTherapistStrategy,
   buildStrategyContextSection,
+  buildStrategyDiagnosticSnapshot,
 } from './therapistStrategyEngine.js';
 
 /**
@@ -838,6 +839,53 @@ export async function buildV7SessionStartContentAsync(
   return v6Base + '\n\n' + continuityBlock;
 }
 
+// ─── Wave 2D — Strategy diagnostic emission ───────────────────────────────────
+
+/**
+ * Emits a safe strategy diagnostic to the console when `?_s2debug=true` is
+ * present in the URL.  No-op in all other environments (production, CI, Node.js).
+ *
+ * SAFETY CONTRACT
+ * ---------------
+ * - Only called in the V8 strategy path (strategy_layer_enabled === true).
+ * - Uses buildStrategyDiagnosticSnapshot() which strips message_signals and
+ *   never includes raw user text or private entity content.
+ * - Gated by window.location.search containing `_s2debug=true` — fail-closed
+ *   on any error, on missing window, or on any unexpected input.
+ * - Does NOT change any routing decision or therapeutic behavior.
+ * - Does NOT store the snapshot — console output only.
+ *
+ * @private
+ * @param {object} strategyState - TherapistStrategyState from determineTherapistStrategy()
+ */
+function _emitStrategyDiagnosticIfEnabled(strategyState) {
+  try {
+    if (typeof window === 'undefined') return;
+    const search = window.location?.search ?? '';
+    if (!search) return;
+    const params = new URLSearchParams(search);
+    if (params.get('_s2debug') !== 'true') return;
+    const snapshot = buildStrategyDiagnosticSnapshot(strategyState);
+    console.group('[Wave 2D] Therapist strategy decision');
+    console.log('intervention_mode        :', snapshot.intervention_mode);
+    console.log('distress_tier            :', snapshot.distress_tier);
+    console.log('rationale                :', snapshot.rationale);
+    console.log('continuity_present       :', snapshot.continuity_present);
+    console.log('formulation_present      :', snapshot.formulation_present);
+    console.log('session_count            :', snapshot.session_count);
+    console.log('has_risk_flags           :', snapshot.has_risk_flags);
+    console.log('has_open_tasks           :', snapshot.has_open_tasks);
+    console.log('intervention_saturated   :', snapshot.intervention_saturated);
+    console.log('continuity_richness_score:', snapshot.continuity_richness_score);
+    console.log('formulation_strength_score:', snapshot.formulation_strength_score);
+    console.log('strategy_version         :', snapshot.strategy_version);
+    console.log('fail_safe                :', snapshot.fail_safe);
+    console.groupEnd();
+  } catch (_e) {
+    // Diagnostic emission must never propagate — fail silently.
+  }
+}
+
 // ─── Wave 2B — V8 therapeutic strategy layer ─────────────────────────────────
 
 /**
@@ -991,6 +1039,11 @@ export async function buildV8SessionStartContentAsync(
       distressTier,
       messageSignals,
     );
+
+    // Wave 2D — Emit safe strategy diagnostic when _s2debug=true is in the URL.
+    // Gated, additive, no effect on routing or therapeutic behavior.
+    // Never logs raw message content — only the sanitized diagnostic snapshot.
+    _emitStrategyDiagnosticIfEnabled(strategyState);
 
     // Step 8: Build strategy context section
     const strategySection = buildStrategyContextSection(strategyState);
