@@ -75,6 +75,7 @@ All flags default to `false` when the variable is absent or any value other than
 | `VITE_THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED`      | Phase 1 Quality  | Case formulation context injection at session start (V6 wiring) | `false` |
 | `VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED`               | Phase 3 Deep     | Cross-session memory continuity injection at session start (V7 wiring, superset of V6) | `false` |
 | `VITE_THERAPIST_UPGRADE_STRATEGY_ENABLED`                 | Wave 2A scaffold | Therapeutic Strategy Layer — registered for future wiring (Wave 2B). **No runtime effect in current codebase.** | `false` |
+| `VITE_THERAPIST_UPGRADE_LONGITUDINAL_ENABLED`             | Wave 3B          | Longitudinal Therapeutic State (LTS) write path — recomputes and upserts LTS snapshot after each session memory write. **No LTS read path or session-start wiring yet.** Requires `VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED` to also be `true`. | `false` |
 
 > **Flag dependency for continuity read path:**
 > `VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED` activates the **read** path (session-start injection from CompanionMemory).
@@ -90,6 +91,16 @@ All flags default to `false` when the variable is absent or any value other than
 > before persistence. This produces richer cross-session continuity context for the next session start.
 > No additional flag is required — the enrichment reuses the two existing flags.
 > Enrichment is fail-closed: any entity read failure leaves the base payload unchanged.
+
+> **Wave 3B — LTS write path:**
+> `VITE_THERAPIST_UPGRADE_LONGITUDINAL_ENABLED` activates the **LTS write path** (fire-and-forget after each
+> session memory write). It requires `VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED` as a prerequisite (the
+> session memory write must run before the LTS can be computed from existing records).
+> The matching backend secret (`THERAPIST_UPGRADE_LONGITUDINAL_ENABLED=true` in Base44 Application Secrets)
+> must also be set or the `writeLTSSnapshot` Deno function will gate the write with a 503.
+> For `retrieveTherapistMemory` to return session records for LTS computation, `THERAPIST_UPGRADE_MEMORY_ENABLED`
+> must also be set in Base44 Application Secrets.
+> **This flag does not activate any LTS read path or session-start wiring.** Those are deferred to Wave 3C.
 
 ### 3.3 Build Behavior Variables (CI/CD)
 
@@ -110,6 +121,7 @@ Both must be `true` for a full memory write to succeed.
 |------------------------------------------|----------------------------------|-----------------------------------------------------------|-----------------|---------|------------|
 | `THERAPIST_UPGRADE_MEMORY_ENABLED`       | `retrieveTherapistMemory`        | Gates per-user structured memory retrieval                | `false`         | `false` | `false`    |
 | `THERAPIST_UPGRADE_SUMMARIZATION_ENABLED`| `generateSessionSummary`         | Gates session-end memory write to CompanionMemory         | `false`         | `false` | `false`    |
+| `THERAPIST_UPGRADE_LONGITUDINAL_ENABLED` | `writeLTSSnapshot`               | Gates LTS upsert write to CompanionMemory (Wave 3B)       | `false`         | `false` | `false`    |
 
 > **Important:** `THERAPIST_UPGRADE_CONTINUITY_ENABLED` and
 > `THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED` are **frontend-only** VITE flags.

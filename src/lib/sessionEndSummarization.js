@@ -109,6 +109,7 @@
 import { isSummarizationEnabled } from './summarizationGate.js';
 import { sanitizeSummaryRecord, buildSafeStubRecord } from './summarizationGate.js';
 import { isUpgradeEnabled } from './featureFlags.js';
+import { isTherapistMemoryRecord } from './therapistMemoryModel.js';
 
 // ─── Bounded input constants ──────────────────────────────────────────────────
 
@@ -304,6 +305,13 @@ export function triggerSessionEndSummarization(
       const { base44 } = await import('../api/base44Client.js');
 
       await base44.functions.invoke('generateSessionSummary', payload);
+
+      // Wave 3B: recompute and upsert the LTS snapshot after the session memory
+      // write has succeeded.  Fire-and-forget — failure here never affects the
+      // session close path.
+      if (isLongitudinalEnabled()) {
+        _fireLTSWrite(base44, invoker);
+      }
     } catch (error) {
       // Summarization failure must never propagate to the caller.
       // Session close UX is independent of this function.
@@ -686,11 +694,114 @@ export function triggerConversationEndSummarization(
       const { base44 } = await import('../api/base44Client.js');
 
       await base44.functions.invoke('generateSessionSummary', record);
+
+      // Wave 3B: recompute and upsert the LTS snapshot after the conversation
+      // memory write has succeeded.  Fire-and-forget — failure here never
+      // affects the Chat.jsx requestSummary path.
+      if (isLongitudinalEnabled()) {
+        _fireLTSWrite(base44, invoker);
+      }
     } catch (error) {
       // Summarization failure must never propagate to the caller.
       // Chat.jsx requestSummary UX is independent of this function.
       console.warn(
         '[Phase 3] Conversation-end summarization failed (non-fatal) [' + invoker + ']:',
+        error instanceof Error ? error.message : String(error),
+      );
+    }
+  })();
+}
+
+// ─── Wave 3B — Longitudinal Therapeutic State (LTS) write path ───────────────
+
+/**
+ * Maximum number of therapist session records fetched for LTS recomputation.
+ *
+ * The LTS builder is already bounded internally; this cap limits the network
+ * payload from retrieveTherapistMemory to a predictable size.
+ *
+ * @type {number}
+ */
+export const LTS_SESSION_RECORDS_FETCH_CAP = 20;
+
+/**
+ * Diagnostic label for the LTS write trigger invoker.
+ *
+ * @type {string}
+ */
+export const LTS_WRITE_INVOKER = 'lts_write_after_session_memory';
+
+/**
+ * Returns true if the Wave 3B LTS write path is active.
+ *
+ * Requires both:
+ *   - THERAPIST_UPGRADE_SUMMARIZATION_ENABLED (session memory write gate)
+ *   - THERAPIST_UPGRADE_LONGITUDINAL_ENABLED  (LTS write gate)
+ *
+ * Both default to false — the LTS write path is completely inert unless both
+ * are on.
+ *
+ * @returns {boolean}
+ */
+export function isLongitudinalEnabled() {
+  return (
+    isUpgradeEnabled('THERAPIST_UPGRADE_SUMMARIZATION_ENABLED') &&
+    isUpgradeEnabled('THERAPIST_UPGRADE_LONGITUDINAL_ENABLED')
+  );
+}
+
+/**
+ * Fires and forgets the LTS recompute-and-upsert step.
+ *
+ * This is the Wave 3B inner LTS write helper.  It must ONLY be called after
+ * a successful therapist session memory write (i.e. after a successful
+ * `generateSessionSummary` invocation resolves without throwing).
+ *
+ * Steps:
+ *   1. Invokes retrieveTherapistMemory to fetch the bounded set of prior
+ *      session records (capped at LTS_SESSION_RECORDS_FETCH_CAP).
+ *   2. Filters returned records to therapist session records only.
+ *   3. Calls buildLongitudinalState() to recompute the LTS.
+ *   4. Invokes writeLTSSnapshot to upsert the new LTS snapshot.
+ *
+ * FAIL-CLOSED CONTRACT
+ * - Any error at any step is caught and logged as a non-fatal warning.
+ * - The caller's session memory write result is NEVER affected.
+ * - No raw message content is read or written.
+ * - No cross-user entity access: retrieval is per-user via auth.
+ *
+ * GATE
+ * - isLongitudinalEnabled() must be true before calling this function.
+ * - Callers must check the gate before invoking.
+ *
+ * @param {object} base44 - The Base44 SDK client instance.
+ * @param {string} [invoker='lts_write_after_session_memory'] - Diagnostic label.
+ */
+function _fireLTSWrite(base44, invoker = LTS_WRITE_INVOKER) {
+  // This is always fire-and-forget — never awaited by the caller.
+  (async () => {
+    try {
+      // 1. Fetch bounded session records from CompanionMemory.
+      const memResult = await base44.functions.invoke('retrieveTherapistMemory', {});
+
+      // 2. Extract and filter to therapist session records only.
+      //    Cap to LTS_SESSION_RECORDS_FETCH_CAP before passing to the builder.
+      const rawMemories = Array.isArray(memResult?.memories) ? memResult.memories : [];
+      const sessionRecords = rawMemories
+        .filter((r) => isTherapistMemoryRecord(r))
+        .slice(0, LTS_SESSION_RECORDS_FETCH_CAP);
+
+      // 3. Build the LTS (pure, deterministic, no side effects).
+      //    Lazy import — only loads if the flag path is actually reached.
+      const { buildLongitudinalState } = await import('./longitudinalStateBuilder.js');
+      const ltsSnapshot = buildLongitudinalState(sessionRecords, [], null);
+
+      // 4. Upsert the LTS snapshot via the writeLTSSnapshot backend function.
+      await base44.functions.invoke('writeLTSSnapshot', ltsSnapshot);
+    } catch (error) {
+      // LTS write failure must never propagate to or affect the session memory write.
+      console.warn(
+        '[Wave 3B] LTS snapshot write failed (non-fatal) [' + invoker + ']:',
         error instanceof Error ? error.message : String(error),
       );
     }

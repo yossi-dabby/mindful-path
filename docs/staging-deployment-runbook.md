@@ -61,6 +61,7 @@ Omitting a variable is equivalent to `false`.
 | `VITE_THERAPIST_UPGRADE_SAFETY_MODE_ENABLED` | _(unset — do not add)_ |
 | `VITE_THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED` | _(unset — do not add)_ |
 | `VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED` | _(unset — do not add)_ |
+| `VITE_THERAPIST_UPGRADE_LONGITUDINAL_ENABLED` | _(unset — do not add)_ |
 
 When all Stage 2 flags are absent (or `false`), the app routes every session through the current default therapist path (`CBT_THERAPIST_WIRING_HYBRID`). No Stage 2 code is reachable.
 
@@ -75,6 +76,7 @@ and read by Deno backend functions. They must also be `false` in the initial dep
 |---|---|---|
 | `THERAPIST_UPGRADE_MEMORY_ENABLED` | `retrieveTherapistMemory` | _(unset — `false`)_ |
 | `THERAPIST_UPGRADE_SUMMARIZATION_ENABLED` | `generateSessionSummary` | _(unset — `false`)_ |
+| `THERAPIST_UPGRADE_LONGITUDINAL_ENABLED` | `writeLTSSnapshot` | _(unset — `false`)_ |
 
 > `THERAPIST_UPGRADE_CONTINUITY_ENABLED` and `THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED`
 > have **no backend equivalent** — they are frontend-only VITE flags. Do not create backend

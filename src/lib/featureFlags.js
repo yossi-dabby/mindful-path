@@ -126,6 +126,37 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
    * Staging enablement: set VITE_THERAPIST_UPGRADE_STRATEGY_ENABLED=true
    */
   THERAPIST_UPGRADE_STRATEGY_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_STRATEGY_ENABLED === 'true',
+
+  /**
+   * Wave 3B — Longitudinal Therapeutic State (LTS) write path.
+   *
+   * When enabled together with THERAPIST_UPGRADE_SUMMARIZATION_ENABLED and the
+   * master gate, a second fire-and-forget step runs after each successful
+   * therapist session memory write:
+   *   1. The most recent bounded set of session records is fetched from
+   *      CompanionMemory via retrieveTherapistMemory.
+   *   2. buildLongitudinalState() recomputes the LTS from those records.
+   *   3. writeLTSSnapshot upserts one canonical LTS snapshot record.
+   *
+   * The LTS write is fully additive and fail-closed:
+   *   - It never runs before the session memory write.
+   *   - Failure of the LTS write never affects the session memory write result.
+   *   - When this flag is off, no LTS records are read or written.
+   *   - No LTS read path, no session-start wiring, and no strategy-engine
+   *     integration is activated by this flag.
+   *
+   * Prerequisite: THERAPIST_UPGRADE_SUMMARIZATION_ENABLED must also be true
+   * for the session memory write to run (and thus for the LTS to have data).
+   * Enabling this flag alone without SUMMARIZATION_ENABLED is safe (LTS will
+   * compute from whatever records exist) but unlikely to produce useful output.
+   *
+   * Backend: also requires the THERAPIST_UPGRADE_LONGITUDINAL_ENABLED Deno
+   * secret to be set to 'true' in Base44 Application Secrets for the
+   * writeLTSSnapshot function to accept the write request.
+   *
+   * Staging enablement: set VITE_THERAPIST_UPGRADE_LONGITUDINAL_ENABLED=true
+   */
+  THERAPIST_UPGRADE_LONGITUDINAL_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_LONGITUDINAL_ENABLED === 'true',
 });
 
 /**
