@@ -65,9 +65,15 @@ const FETCH_LIMIT = 50;
 
 /**
  * Maximum number of therapist memory records to return per request.
- * Limits the context payload size for future session-start injection.
+ *
+ * Must be >= LTS_SESSION_RECORDS_FETCH_CAP (currently 20, defined in
+ * src/lib/sessionEndSummarization.js) so that the Wave 3B LTS write path
+ * actually receives the full intended 20-record build window.
+ *
+ * FETCH_LIMIT (50) is always larger, so increasing this value does not
+ * require any change to the raw CompanionMemory fetch.
  */
-const MAX_MEMORIES = 10;
+const MAX_MEMORIES = 20;
 
 // ─── Structured response constants ───────────────────────────────────────────
 
