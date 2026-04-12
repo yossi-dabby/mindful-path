@@ -29,6 +29,8 @@
  *   V6 supersedes V5 when both flags are on (V6 is a superset of V5).
  * Phase 3 Deep Personalization — CBT_THERAPIST_WIRING_STAGE2_V7 added as the continuity path.
  *   V7 supersedes V6 when both flags are on (V7 is a superset of V6).
+ * Wave 2B — CBT_THERAPIST_WIRING_STAGE2_V8 added as the strategy layer path.
+ *   V8 supersedes V7 when both flags are on (V8 is a superset of V7).
  *
  * Analytics registration (Section B of Phase 0.1 spec) is performed lazily
  * via a dynamic import of base44Client.js so that test environments that lack
@@ -49,6 +51,7 @@ import {
   CBT_THERAPIST_WIRING_STAGE2_V5,
   CBT_THERAPIST_WIRING_STAGE2_V6,
   CBT_THERAPIST_WIRING_STAGE2_V7,
+  CBT_THERAPIST_WIRING_STAGE2_V8,
   AI_COMPANION_WIRING_UPGRADE_V1,
   AI_COMPANION_WIRING_UPGRADE_V2,
 } from './agentWiring.js';
@@ -96,22 +99,27 @@ import {
  *
  * Routing logic (evaluated in order):
  *   1. Master gate off  → CBT_THERAPIST_WIRING_HYBRID (current default)
- *   2. Master gate on, THERAPIST_UPGRADE_CONTINUITY_ENABLED on
+ *   2. Master gate on, THERAPIST_UPGRADE_STRATEGY_ENABLED on
+ *                       → CBT_THERAPIST_WIRING_STAGE2_V8 (Wave 2B strategy layer)
+ *   3. Master gate on, THERAPIST_UPGRADE_CONTINUITY_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V7 (Phase 3 continuity)
- *   3. Master gate on, THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED on
+ *   4. Master gate on, THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V6 (Phase 1 Quality formulation context)
- *   4. Master gate on, THERAPIST_UPGRADE_SAFETY_MODE_ENABLED on
+ *   5. Master gate on, THERAPIST_UPGRADE_SAFETY_MODE_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V5 (Phase 7 safety mode)
- *   5. Master gate on, THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED on
+ *   6. Master gate on, THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V4 (Phase 6 live retrieval)
- *   6. Master gate on, THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED on
+ *   7. Master gate on, THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V3 (Phase 5 retrieval orchestration)
- *   7. Master gate on, THERAPIST_UPGRADE_WORKFLOW_ENABLED on
+ *   8. Master gate on, THERAPIST_UPGRADE_WORKFLOW_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V2 (Phase 3 workflow engine)
- *   8. Master gate on, THERAPIST_UPGRADE_MEMORY_ENABLED on
+ *   9. Master gate on, THERAPIST_UPGRADE_MEMORY_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V1 (Phase 1 memory layer)
- *   9. Master gate on, no matching phase flag
+ *  10. Master gate on, no matching phase flag
  *                       → CBT_THERAPIST_WIRING_HYBRID (fall-through to current default)
+ *
+ * Wave 2B (V8) takes precedence over Phase 3 Deep Personalization (V7) and all
+ * prior phases because V8 is a strict superset of V7.
  *
  * Phase 3 Deep Personalization (V7) takes precedence over Phase 1 Quality (V6)
  * and all prior phases because V7 is a strict superset of V6.
@@ -138,6 +146,16 @@ import {
  */
 export function resolveTherapistWiring() {
   if (isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')) {
+    // ── Wave 2B — Strategy layer (supersedes Phase 3 Deep Personalization and earlier) ──
+    if (isUpgradeEnabled('THERAPIST_UPGRADE_STRATEGY_ENABLED')) {
+      logUpgradeEvent('route_selected', {
+        flag: 'THERAPIST_UPGRADE_STRATEGY_ENABLED',
+        path: 'stage2_v8',
+        phase: 'wave2b_strategy',
+      });
+      return CBT_THERAPIST_WIRING_STAGE2_V8;
+    }
+
     // ── Phase 3 Deep Personalization — Continuity (supersedes Phase 1 Quality and earlier) ──
     if (isUpgradeEnabled('THERAPIST_UPGRADE_CONTINUITY_ENABLED')) {
       logUpgradeEvent('route_selected', {
