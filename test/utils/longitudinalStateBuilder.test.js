@@ -83,9 +83,9 @@ function makeSession(overrides = {}) {
 /**
  * Returns an array of N clean sessions (no risk, no tasks, no patterns).
  */
-function makeCleanSessions(n, baseDate = '2026-01-0') {
+function makeCleanSessions(n) {
   return Array.from({ length: n }, (_, i) =>
-    makeSession({ session_date: `2026-0${Math.floor(i / 28) + 1}-${String((i % 28) + 1).padStart(2, '0')}T00:00:00.000Z` })
+    makeSession({ session_date: `2026-01-${String(i + 1).padStart(2, '0')}T00:00:00.000Z` })
   );
 }
 
@@ -1247,7 +1247,7 @@ describe('Wave 3A — LTS output shape completeness', () => {
     const lts = buildLongitudinalState([makeSession(), makeSession()], [], null);
     expect(typeof lts.computed_at).toBe('string');
     expect(lts.computed_at.length).toBeGreaterThan(0);
-    expect(() => new Date(lts.computed_at)).not.toThrow();
+    expect(isNaN(new Date(lts.computed_at).getTime())).toBe(false);
   });
 });
 
