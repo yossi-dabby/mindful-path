@@ -638,7 +638,9 @@ export function logActivationDiagnostics() {
     console.log('masterGateOn         :', p.companion.masterGateOn);
     console.log('routeHint            :', p.companion.routeHint);
     console.groupEnd();
-    console.log('evaluatorLayer       :', p.evaluatorLayer); // Wave 5D
+    console.group('[Evaluator]'); // Wave 5D
+    console.log('evaluatorEnabled     :', p.evaluatorLayer.evaluatorEnabled);
+    console.groupEnd();
     console.groupEnd();
   } catch (_e) {
     // Diagnostics must never break the app.
