@@ -1377,6 +1377,159 @@ export async function buildV9SessionStartContentAsync(
   }
 }
 
+// ─── Wave 4C — CBT Knowledge Retrieval read path and V10 session-start injection
+
+/**
+ * Builds the V10 session-start content string asynchronously.
+ *
+ * Wave 4C — CBT Knowledge Retrieval read path.
+ *
+ * For non-V10 wirings (knowledge_layer_enabled !== true):
+ *   Delegates directly to buildV9SessionStartContentAsync (no behavior change).
+ *
+ * For V10 wirings:
+ *   1. Builds the V9 base content (LTS block + strategy + formulation + all
+ *      prior layers) by delegating to buildV9SessionStartContentAsync.
+ *   2. Reads the best CaseFormulation record (same bounded read V8 performs;
+ *      fail-open: null on any error).
+ *   3. Extracts structured formulationHints for the planner using the
+ *      extractFormulationHintsForPlanner() helper from cbtKnowledgeRetrieval.js
+ *      — reads only the structured cbt_domain and treatment_phase fields;
+ *      NEVER analyses free-text fields.
+ *   4. Evaluates the safety mode from options flags (no extra entity read).
+ *   5. Scores the distress tier from safety result + message signals.
+ *   6. Determines the therapeutic strategy state using only the formulation
+ *      record and computed signals (continuityData=null is intentional — avoids
+ *      a duplicate CompanionMemory read; strategy engine returns
+ *      STRUCTURED_EXPLORATION when formulation is present without continuity).
+ *   7. Runs planCBTKnowledgeRetrieval() with the above bounded inputs.
+ *   8. If shouldRetrieve: retrieves ≤ CBT_KNOWLEDGE_RETRIEVAL_MAX_UNITS units.
+ *   9. Appends the knowledge block (last, always) when non-empty.
+ *
+ * FAIL-OPEN CONTRACT
+ * ------------------
+ * Any error after building v9Base returns v9Base unchanged.
+ * The knowledge block is NEVER the first thing in the content — it is always
+ * appended last as a supplementary reference block.
+ *
+ * PRECEDENCE
+ * ----------
+ * Safety → distress → strategy → formulation domain → retrieval.
+ * Retrieved knowledge does NOT override safety, formulation, continuity,
+ * strategy, or LTS blocks.  It is supporting context only.
+ *
+ * COMPANION ISOLATION
+ * -------------------
+ * This function is never called for AI Companion wirings.
+ * The knowledge_layer_enabled flag only exists on CBT Therapist V10 wiring.
+ *
+ * @param {object}  wiring          - The active CBT Therapist wiring config.
+ * @param {object}  entities        - Base44 entity client map.
+ * @param {object}  baseClient      - Base44 SDK client (passed through to V9/V8).
+ * @param {object}  [options={}]    - Session-start options (crisis_signal, message_text, etc.)
+ * @returns {Promise<string>} The full session-start content string.
+ */
+export async function buildV10SessionStartContentAsync(
+  wiring,
+  entities,
+  baseClient,
+  options = {},
+) {
+  // For non-V10 wirings: delegate to V9 (no change to behavior)
+  if (!wiring || wiring.knowledge_layer_enabled !== true) {
+    return buildV9SessionStartContentAsync(wiring, entities, baseClient, options);
+  }
+
+  // ── V10 path ────────────────────────────────────────────────────────────────
+
+  // Step 1: Build the V9 base content (LTS injection + all prior layers).
+  // V9 reads the LTS snapshot and passes it to V8's strategy engine internally.
+  // V10 inherits the full V9 output as its base and only ever appends to it.
+  const v9Base = await buildV9SessionStartContentAsync(
+    wiring,
+    entities,
+    baseClient,
+    options,
+  );
+
+  // Steps 2–9: Compute knowledge retrieval decision and append block (fail-open)
+  try {
+    // Step 2: Read CaseFormulation (bounded, read-only, fail-open — same entity
+    // that V8 reads; no new entity type introduced here).
+    const formulationRecord = await readBestFormulationRecord(entities);
+
+    // Step 3: Import helpers (dynamic import — only needed on V10 path)
+    const [{ extractFormulationHintsForPlanner, retrieveBoundedCBTKnowledgeBlock }, { planCBTKnowledgeRetrieval }] =
+      await Promise.all([
+        import('./cbtKnowledgeRetrieval.js'),
+        import('./cbtKnowledgePlanner.js'),
+      ]);
+
+    const formulationHints = extractFormulationHintsForPlanner(formulationRecord);
+
+    // Step 4: Evaluate safety mode from options (no entity read — options-only)
+    let safetyResult;
+    try {
+      safetyResult = determineSafetyMode({
+        crisis_signal: options.crisis_signal ?? false,
+        low_retrieval_confidence: options.low_retrieval_confidence ?? false,
+        allowlist_rejection: options.allowlist_rejection ?? false,
+        flag_override: options.flag_override ?? false,
+        message_text: options.message_text ?? '',
+      });
+    } catch {
+      safetyResult = SAFETY_MODE_FAIL_CLOSED_RESULT;
+    }
+    const safetyActive = !!(safetyResult && safetyResult.safety_mode === true);
+
+    // Step 5: Score distress tier
+    const messageSignals = extractMessageSignals(options.message_text ?? '');
+    const distressTier = scoreDistressTier(safetyResult, messageSignals);
+
+    // Step 6: Determine strategy state.
+    // continuityData = null (intentional): avoids a duplicate CompanionMemory
+    // read since the full V7/V8 chain already performed that read.
+    // The strategy engine correctly returns STRUCTURED_EXPLORATION when a
+    // formulation is present and continuity is absent (partial_context path),
+    // which is the primary V10 activation scenario.
+    // ltsInputs = null (intentional): no duplicate LTS read; arc filter is
+    // derived from formulationHints.treatment_phase or defaults to 'any'.
+    const strategyState = determineTherapistStrategy(
+      null,            // continuityData — no re-read (see above)
+      formulationRecord,
+      distressTier,
+      messageSignals,
+      null,            // ltsInputs — no re-read (see above)
+    );
+
+    // Step 7: Run the CBT knowledge planner with bounded structured inputs.
+    // flagEnabled is true because we only reach V10 when knowledge_layer_enabled
+    // === true (the wiring gate already confirmed the flag state).
+    const plan = planCBTKnowledgeRetrieval({
+      flagEnabled: true,
+      strategyState,
+      ltsInputs: null,
+      formulationHints,
+      distressTier,
+      safetyActive,
+    });
+
+    // Step 8: Short-circuit when planner says skip
+    if (!plan.shouldRetrieve) return v9Base;
+
+    // Step 9: Retrieve bounded knowledge block and append when non-empty.
+    // retrieveBoundedCBTKnowledgeBlock is fully fail-open (returns '' on error).
+    const knowledgeBlock = await retrieveBoundedCBTKnowledgeBlock(entities, plan);
+    if (knowledgeBlock && knowledgeBlock.trim()) {
+      return v9Base + '\n\n' + knowledgeBlock;
+    }
+    return v9Base;
+  } catch {
+    // Fail-open: any error returns V9 base content unchanged
+    return v9Base;
+  }
+}
+
 // ─── AI Companion Upgrade V2 — Companion session-start context ───────────────
 
 /**

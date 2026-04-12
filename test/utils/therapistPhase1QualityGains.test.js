@@ -773,15 +773,15 @@ describe('Phase 1 Quality — Chat.jsx import audit', () => {
     expect(chatSource).not.toContain('buildV5SessionStartContentAsync');
   });
 
-  it('Chat.jsx calls buildV9SessionStartContentAsync at all session-start sites', async () => {
+  it('Chat.jsx calls buildV10SessionStartContentAsync at all session-start sites', async () => {
     const fs = await import('fs');
     const path = await import('path');
     const chatSource = fs.default.readFileSync(
       path.default.resolve('src/pages/Chat.jsx'),
       'utf8',
     );
-    const count = (chatSource.match(/buildV9SessionStartContentAsync/g) || []).length;
-    // 1 import + 4 call sites = 5 (Wave 3C: upgraded from V8 to V9)
+    const count = (chatSource.match(/buildV10SessionStartContentAsync/g) || []).length;
+    // 1 import + 4 call sites = 5 (Wave 4C: upgraded from V9 to V10)
     expect(count).toBeGreaterThanOrEqual(3);
   });
 });

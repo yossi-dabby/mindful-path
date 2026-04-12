@@ -1335,6 +1335,124 @@ export const CBT_THERAPIST_WIRING_STAGE2_V9 = {
   ],
 };
 
+// ─── Wave 4C — Stage 2 V10 wiring config (CBT Knowledge Retrieval) ───────────
+
+/**
+ * Stage 2 V10 wiring for the CBT Therapist agent.
+ *
+ * Wave 4C — CBT Knowledge Retrieval read path.
+ *
+ * V10 is a strict superset of V9.  All V9 capabilities are preserved unchanged.
+ * The single addition is the `knowledge_layer_enabled` flag and the read-only
+ * CBTCurriculumUnit entity access (source_order 15).
+ *
+ * New flag:
+ *   knowledge_layer_enabled — activates the bounded CBT curriculum unit retrieval
+ *                             path injected via workflowContextInjector.js
+ *                             (buildV10SessionStartContentAsync).  The retrieval
+ *                             result is appended last as a supporting reference
+ *                             block and does NOT override safety, formulation,
+ *                             continuity, strategy, or LTS signals.
+ *
+ * New entity:
+ *   CBTCurriculumUnit — shared therapist content (non-private, non-user-owned).
+ *     access_level: 'allowed', read_only: true, source_order: 15.
+ *     This entity contains structured CBT curriculum knowledge authored by
+ *     the app team.  It is NOT a private user entity and may never contain
+ *     ThoughtJournal, Conversation, CaseFormulation, MoodEntry, or
+ *     CompanionMemory data.
+ *
+ * ACTIVATION
+ * ----------
+ * This config is only active when resolveTherapistWiring() selects it, which
+ * requires THERAPIST_UPGRADE_ENABLED + THERAPIST_UPGRADE_STRATEGY_ENABLED +
+ * THERAPIST_UPGRADE_LONGITUDINAL_ENABLED + THERAPIST_UPGRADE_KNOWLEDGE_ENABLED
+ * to all be true.  All four default to false.
+ *
+ * ROLLBACK
+ * --------
+ * Set THERAPIST_UPGRADE_KNOWLEDGE_ENABLED=false to revert to V9 with no other
+ * code changes.  The knowledge block is never injected when this flag is off.
+ *
+ * SAFETY
+ * ------
+ * The knowledge_layer_enabled flag does not weaken any safety layer.
+ * buildV10SessionStartContentAsync is fully fail-open: any error returns the
+ * V9 base content unchanged.  The planner gates on safety_active / distress /
+ * containment mode before retrieval is attempted.
+ *
+ * Source of truth: Wave 4C problem statement (CBT knowledge retrieval read path).
+ */
+export const CBT_THERAPIST_WIRING_STAGE2_V10 = {
+  name: 'cbt_therapist',
+  stage2: true,
+  stage2_phase: 14,
+  memory_context_injection: true,           // from V1 — structured memory layer
+  workflow_engine_enabled: true,            // from V2 — workflow engine active
+  workflow_context_injection: true,         // from V2 — inject workflow instructions
+  retrieval_orchestration_enabled: true,    // from V3 — Phase 5 retrieval orchestration
+  live_retrieval_enabled: true,             // from V4 — Phase 6 live retrieval wrapper
+  safety_mode_enabled: true,               // from V5 — Phase 7 safety mode
+  formulation_context_enabled: true,       // from V6 — Phase 1 Quality formulation context
+  continuity_layer_enabled: true,          // from V7 — Phase 3 cross-session continuity injection
+  strategy_layer_enabled: true,            // from V8 — Wave 2B therapeutic strategy guidance
+  longitudinal_layer_enabled: true,        // from V9 — Wave 3C LTS context block injection
+  knowledge_layer_enabled: true,           // Wave 4C — bounded CBT knowledge retrieval
+  tool_configs: [
+    // ── Step 1: Preferred entities (identical to V9 / V8 / … / V1 / Hybrid) ──
+    { entity_name: 'SessionSummary',  access_level: 'preferred',  source_order: 2 },
+    { entity_name: 'ThoughtJournal',  access_level: 'preferred',  source_order: 3 },
+    { entity_name: 'Goal',            access_level: 'preferred',  source_order: 4 },
+    { entity_name: 'CoachingSession', access_level: 'preferred',  source_order: 5 },
+    // ── Step 2: Allowed shared content pool (identical to V9 / V8 / … / V1 / Hybrid) ──
+    { entity_name: 'Exercise',        access_level: 'allowed',    source_order: 6 },
+    { entity_name: 'Resource',        access_level: 'allowed',    source_order: 7 },
+    { entity_name: 'AudioContent',    access_level: 'allowed',    source_order: 8 },
+    { entity_name: 'Journey',         access_level: 'allowed',    source_order: 9 },
+    // ── Step 3: Non-caution restricted entities (identical to V9 / V8 / … / V1 / Hybrid) ──
+    { entity_name: 'CompanionMemory', access_level: 'restricted', source_order: 10, read_only: true },
+    { entity_name: 'MoodEntry',       access_level: 'restricted', source_order: 11, calibration_only: true },
+    // ── Hybrid: Caution-layer entities (identical to V9 / V8 / … / V1 / Hybrid) ──
+    {
+      entity_name: 'CaseFormulation',
+      access_level: 'restricted',
+      source_order: 12,
+      read_only: true,
+      unrestricted: false,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    {
+      entity_name: 'Conversation',
+      access_level: 'restricted',
+      source_order: 13,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    // ── Phase 5: External trusted knowledge (identical to V9 / V8 / … / V3) ──
+    {
+      entity_name: 'ExternalKnowledgeChunk',
+      access_level: 'restricted',
+      source_order: 14,
+      read_only: true,
+      external_trusted: true,
+      caution_layer: false,
+    },
+    // ── Wave 4C: CBT Curriculum knowledge (new in V10) ──
+    // CBTCurriculumUnit is a shared therapist content entity (non-private).
+    // It contains structured CBT curriculum units authored by the app team.
+    // Access is read-only and allowed; lowest entity priority (source_order 15).
+    // The knowledge_layer_enabled flag enables the bounded retrieval path via
+    // buildV10SessionStartContentAsync.
+    {
+      entity_name: 'CBTCurriculumUnit',
+      access_level: 'allowed',
+      source_order: 15,
+      read_only: true,
+    },
+  ],
+};
+
 /**
  * Stage 3 upgrade V2 wiring for the AI Companion agent.
  *
