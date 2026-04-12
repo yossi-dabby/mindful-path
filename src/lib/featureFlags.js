@@ -29,6 +29,12 @@ import {
   STRATEGY_INTERVENTION_MODES,
 } from './therapistStrategyEngine.js';
 
+// Wave 4E — CBT knowledge planner version for diagnostics (static constant, no runtime state).
+// cbtKnowledgePlanner.js has zero imports of its own, so this cannot create a cycle.
+import {
+  CBT_KNOWLEDGE_PLANNER_VERSION,
+} from './cbtKnowledgePlanner.js';
+
 /**
  * All Stage 2 feature flags.
  *
@@ -575,6 +581,13 @@ export function getActivationDiagnostics() {
           ltsLayerActive: isUpgradeEnabled('THERAPIST_UPGRADE_LONGITUDINAL_ENABLED'),
           strategyLayerActive: isUpgradeEnabled('THERAPIST_UPGRADE_STRATEGY_ENABLED'),
         },
+        // Wave 4E — CBT knowledge layer activation status (boolean flags + static version).
+        knowledgeLayer: {
+          knowledgeLayerActive: isUpgradeEnabled('THERAPIST_UPGRADE_KNOWLEDGE_ENABLED'),
+          strategyLayerActive: isUpgradeEnabled('THERAPIST_UPGRADE_STRATEGY_ENABLED'),
+          ltsLayerActive: isUpgradeEnabled('THERAPIST_UPGRADE_LONGITUDINAL_ENABLED'),
+          plannerVersion: CBT_KNOWLEDGE_PLANNER_VERSION,
+        },
       },
       companion: {
         parsedC2Flags,
@@ -613,6 +626,7 @@ export function logActivationDiagnostics() {
     console.log('routeHint            :', p.therapist.routeHint);
     console.log('strategyEngine       :', p.therapist.strategyEngine);
     console.log('ltsLayer             :', p.therapist.ltsLayer); // Wave 3E
+    console.log('knowledgeLayer       :', p.therapist.knowledgeLayer); // Wave 4E
     console.groupEnd();
     console.group('[Companion]');
     console.log('parsedC2Flags        :', p.companion.parsedC2Flags);

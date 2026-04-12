@@ -74,6 +74,9 @@
  * @property {string}  unitTypePreference   - One of CBT_UNIT_TYPE_PREFERENCES.
  * @property {string}  distressFilter       - One of CBT_DISTRESS_FILTERS.
  * @property {string}  treatmentArcFilter   - One of CBT_TREATMENT_ARC_FILTERS.
+ * @property {boolean} ltsInfluencedArc     - True when the treatmentArcFilter was derived from LTS signals
+ *                                            rather than from an explicit formulation treatment_phase.
+ *                                            Always false when shouldRetrieve is false.
  *
  * Source of truth: Wave 4A.1 problem statement (CBT Knowledge Planner scaffold)
  */
@@ -282,6 +285,7 @@ export const CBT_KNOWLEDGE_PLAN_FAIL_SAFE = Object.freeze({
   unitTypePreference: CBT_UNIT_TYPE_PREFERENCES.ANY,
   distressFilter: CBT_DISTRESS_FILTERS.NONE,
   treatmentArcFilter: CBT_TREATMENT_ARC_FILTERS.ANY,
+  ltsInfluencedArc: false,
 });
 
 // ─── Inlined mirror constants ─────────────────────────────────────────────────
@@ -350,6 +354,7 @@ const _LTS_MIDDLE_ARC_SESSION_THRESHOLD = 3;
  * @param {string}  unitTypePreference
  * @param {string}  distressFilter
  * @param {string}  treatmentArcFilter
+ * @param {boolean} ltsInfluencedArc
  * @returns {Readonly<CBTKnowledgePlan>}
  */
 function _makePlan(
@@ -358,7 +363,8 @@ function _makePlan(
   domainHint,
   unitTypePreference,
   distressFilter,
-  treatmentArcFilter
+  treatmentArcFilter,
+  ltsInfluencedArc
 ) {
   return Object.freeze({
     shouldRetrieve,
@@ -367,6 +373,7 @@ function _makePlan(
     unitTypePreference,
     distressFilter,
     treatmentArcFilter,
+    ltsInfluencedArc,
   });
 }
 
@@ -385,7 +392,8 @@ function _skipPlan(skipReason) {
     '',
     CBT_UNIT_TYPE_PREFERENCES.ANY,
     CBT_DISTRESS_FILTERS.NONE,
-    CBT_TREATMENT_ARC_FILTERS.ANY
+    CBT_TREATMENT_ARC_FILTERS.ANY,
+    false
   );
 }
 
@@ -417,10 +425,16 @@ function _deriveDistressFilter(tier) {
  * LTS inputs may only narrow the arc (i.e., they cannot promote retrieval;
  * that decision was made upstream).
  *
+ * Returns an object `{ arc, ltsInfluenced }` where `ltsInfluenced` is true
+ * when the arc was derived from LTS signals rather than an explicit
+ * treatment_phase in formulationHints.  This is the diagnostic signal
+ * exposed via `ltsInfluencedArc` in CBTKnowledgePlan and
+ * `buildCBTKnowledgeDiagnosticSnapshot`.
+ *
  * @private
  * @param {object} hints   - Normalised formulationHints (never null here).
  * @param {object|null} ltsInputs
- * @returns {string}
+ * @returns {{ arc: string, ltsInfluenced: boolean }}
  */
 function _deriveTreatmentArcFilter(hints, ltsInputs) {
   // Formulation hints take the highest priority.
@@ -432,7 +446,7 @@ function _deriveTreatmentArcFilter(hints, ltsInputs) {
     phase === CBT_TREATMENT_ARC_FILTERS.MIDDLE ||
     phase === CBT_TREATMENT_ARC_FILTERS.LATE
   ) {
-    return phase;
+    return { arc: phase, ltsInfluenced: false };
   }
 
   // Infer from LTS when available.
@@ -441,14 +455,14 @@ function _deriveTreatmentArcFilter(hints, ltsInputs) {
     const sessionCount =
       typeof lts.lts_session_count === 'number' ? lts.lts_session_count : 0;
     if (lts.lts_is_progressing && sessionCount >= _LTS_LATE_ARC_SESSION_THRESHOLD) {
-      return CBT_TREATMENT_ARC_FILTERS.LATE;
+      return { arc: CBT_TREATMENT_ARC_FILTERS.LATE, ltsInfluenced: true };
     }
     if (sessionCount >= _LTS_MIDDLE_ARC_SESSION_THRESHOLD) {
-      return CBT_TREATMENT_ARC_FILTERS.MIDDLE;
+      return { arc: CBT_TREATMENT_ARC_FILTERS.MIDDLE, ltsInfluenced: true };
     }
   }
 
-  return CBT_TREATMENT_ARC_FILTERS.ANY;
+  return { arc: CBT_TREATMENT_ARC_FILTERS.ANY, ltsInfluenced: false };
 }
 
 /**
@@ -611,7 +625,7 @@ export function planCBTKnowledgeRetrieval({
     // ─ 7. Build retrieval plan ────────────────────────────────────────────────
     // All gates have passed.  Derive the bounded plan parameters.
     const distressFilter = _deriveDistressFilter(effectiveTier);
-    const treatmentArcFilter = _deriveTreatmentArcFilter(hints, ltsInputs);
+    const { arc: treatmentArcFilter, ltsInfluenced: ltsInfluencedArc } = _deriveTreatmentArcFilter(hints, ltsInputs);
     const unitTypePreference = _deriveUnitTypePreference(
       interventionMode,
       treatmentArcFilter,
@@ -624,10 +638,116 @@ export function planCBTKnowledgeRetrieval({
       domain,
       unitTypePreference,
       distressFilter,
-      treatmentArcFilter
+      treatmentArcFilter,
+      ltsInfluencedArc
     );
   } catch (_e) {
     // Never throw — return the maximally conservative fail-safe on any error.
     return CBT_KNOWLEDGE_PLAN_FAIL_SAFE;
+  }
+}
+
+// ─── Wave 4E — CBT Knowledge Diagnostics ─────────────────────────────────────
+
+/**
+ * Safe CBT knowledge diagnostic field names that may appear in diagnostic payloads.
+ *
+ * Every field here is a boolean, number, or bounded string label.
+ * No raw user text, no private entity content, no PII, no curriculum unit content.
+ *
+ * DELIBERATELY EXCLUDED
+ * ---------------------
+ * - No free-text fields (no unit titles, no summaries, no clinical text).
+ * - No entity IDs, no chunk IDs, no user references.
+ * Only structured metadata safe for logging and staging QA surfaces.
+ *
+ * @type {ReadonlyArray<string>}
+ */
+export const CBT_KNOWLEDGE_DIAGNOSTIC_SAFE_FIELDS = Object.freeze([
+  'knowledge_planner_version', // static version string
+  'knowledge_retrieval_fired', // boolean: shouldRetrieve
+  'skip_reason',               // bounded label string (one of CBT_KNOWLEDGE_SKIP_REASONS values)
+  'selected_domain',           // bounded label string (one of CBT_KNOWLEDGE_DOMAINS values, or '')
+  'preferred_unit_type',       // bounded label string (one of CBT_UNIT_TYPE_PREFERENCES values)
+  'distress_filter',           // bounded label string (one of CBT_DISTRESS_FILTERS values)
+  'treatment_arc_filter',      // bounded label string (one of CBT_TREATMENT_ARC_FILTERS values)
+  'lts_influenced_arc',        // boolean: whether LTS signals drove the arc filter
+  'returned_count',            // number: units returned by retrieval (0 when skipped)
+]);
+
+/**
+ * Builds a safe, sanitized diagnostic snapshot from a CBTKnowledgePlan.
+ *
+ * PURPOSE (Wave 4E)
+ * -----------------
+ * Makes the CBT knowledge retrieval decision observable without exposing raw
+ * user content, private clinical text, or any curriculum unit content.
+ * The snapshot is suitable for inclusion in diagnostic payloads,
+ * console logs (when _s2debug=true), and test assertions.
+ *
+ * SAFETY CONTRACT
+ * ---------------
+ * - No raw message content, no entity IDs, no user PII.
+ * - No curriculum unit content (titles, summaries, clinical text).
+ * - All string values are bounded classification labels.
+ * - Never throws — returns a fail-safe snapshot on any error or absent input.
+ * - Output is a frozen plain object (no mutations after creation).
+ *
+ * DIAGNOSTIC-ONLY
+ * ---------------
+ * This function is intended for staging/debug surfaces only (gated by
+ * ?_s2debug=true in the URL).  It MUST NOT be used to alter routing or
+ * therapeutic behavior in any way.
+ *
+ * @param {object|null|undefined} plan         - CBTKnowledgePlan from planCBTKnowledgeRetrieval().
+ * @param {number}                [returnedCount=0] - Number of units returned by retrieval.
+ *   Caller supplies this from the retrieval result; 0 when retrieval was skipped or failed.
+ * @returns {Readonly<{
+ *   knowledge_planner_version: string,
+ *   knowledge_retrieval_fired: boolean,
+ *   skip_reason: string,
+ *   selected_domain: string,
+ *   preferred_unit_type: string,
+ *   distress_filter: string,
+ *   treatment_arc_filter: string,
+ *   lts_influenced_arc: boolean,
+ *   returned_count: number,
+ * }>}
+ */
+export function buildCBTKnowledgeDiagnosticSnapshot(plan, returnedCount = 0) {
+  try {
+    const p = plan && typeof plan === 'object' ? plan : {};
+    const safeCount =
+      typeof returnedCount === 'number' && Number.isFinite(returnedCount) && returnedCount >= 0
+        ? Math.trunc(returnedCount)
+        : 0;
+    return Object.freeze({
+      knowledge_planner_version: CBT_KNOWLEDGE_PLANNER_VERSION,
+      knowledge_retrieval_fired: p.shouldRetrieve === true,
+      skip_reason:
+        typeof p.skipReason === 'string' ? p.skipReason : CBT_KNOWLEDGE_SKIP_REASONS.BAD_INPUTS,
+      selected_domain:
+        typeof p.domainHint === 'string' ? p.domainHint : '',
+      preferred_unit_type:
+        typeof p.unitTypePreference === 'string' ? p.unitTypePreference : CBT_UNIT_TYPE_PREFERENCES.ANY,
+      distress_filter:
+        typeof p.distressFilter === 'string' ? p.distressFilter : CBT_DISTRESS_FILTERS.NONE,
+      treatment_arc_filter:
+        typeof p.treatmentArcFilter === 'string' ? p.treatmentArcFilter : CBT_TREATMENT_ARC_FILTERS.ANY,
+      lts_influenced_arc: p.ltsInfluencedArc === true,
+      returned_count: safeCount,
+    });
+  } catch (_e) {
+    return Object.freeze({
+      knowledge_planner_version: CBT_KNOWLEDGE_PLANNER_VERSION,
+      knowledge_retrieval_fired: false,
+      skip_reason: CBT_KNOWLEDGE_SKIP_REASONS.BAD_INPUTS,
+      selected_domain: '',
+      preferred_unit_type: CBT_UNIT_TYPE_PREFERENCES.ANY,
+      distress_filter: CBT_DISTRESS_FILTERS.NONE,
+      treatment_arc_filter: CBT_TREATMENT_ARC_FILTERS.ANY,
+      lts_influenced_arc: false,
+      returned_count: 0,
+    });
   }
 }

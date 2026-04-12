@@ -1254,7 +1254,7 @@ describe('Wave 4A.1 — no regression to companion / private entity flows', () =
   });
 
   // Bonus: output has exactly the expected field set
-  it('output has exactly the 6 expected fields — no extras', () => {
+  it('output has exactly the 7 expected fields — no extras', () => {
     const result = planCBTKnowledgeRetrieval(_makeRetrievableInputs());
     const expectedFields = [
       'shouldRetrieve',
@@ -1263,6 +1263,7 @@ describe('Wave 4A.1 — no regression to companion / private entity flows', () =
       'unitTypePreference',
       'distressFilter',
       'treatmentArcFilter',
+      'ltsInfluencedArc',
     ];
     expect(Object.keys(result).sort()).toEqual(expectedFields.sort());
   });
