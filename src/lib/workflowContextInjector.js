@@ -862,9 +862,9 @@ function _emitStrategyDiagnosticIfEnabled(strategyState) {
   try {
     if (typeof window === 'undefined') return;
     const search = window.location?.search ?? '';
-    if (!search || !new URLSearchParams(search).get('_s2debug') === 'true') return;
-    // Extra guard: explicit string comparison to prevent any truthy bypass.
-    if (new URLSearchParams(search).get('_s2debug') !== 'true') return;
+    if (!search) return;
+    const params = new URLSearchParams(search);
+    if (params.get('_s2debug') !== 'true') return;
     const snapshot = buildStrategyDiagnosticSnapshot(strategyState);
     console.group('[Wave 2D] Therapist strategy decision');
     console.log('intervention_mode        :', snapshot.intervention_mode);
