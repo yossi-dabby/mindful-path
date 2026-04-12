@@ -604,8 +604,8 @@ describe('Section 10: Rollback safety — prior-phase exports are not affected',
     expect(typeof resolveTherapistWiring).toBe('function');
   });
 
-  it('THERAPIST_UPGRADE_FLAGS still has exactly 10 keys (no accidental additions)', () => {
-    expect(Object.keys(THERAPIST_UPGRADE_FLAGS).length).toBe(10);
+  it('THERAPIST_UPGRADE_FLAGS still has exactly 11 keys (no accidental additions)', () => {
+    expect(Object.keys(THERAPIST_UPGRADE_FLAGS).length).toBe(11);
   });
 
   it('THERAPIST_UPGRADE_ENABLED master gate is still present and defaults to false', () => {

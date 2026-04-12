@@ -1084,8 +1084,8 @@ describe('Phase 4 — Phase 0 / 0.1 / 1 / 2 / 3 baselines preserved (regression 
     expect(Object.isFrozen(THERAPIST_UPGRADE_FLAGS)).toBe(true);
   });
 
-  it('THERAPIST_UPGRADE_FLAGS still contains exactly 10 flags', () => {
-    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(10);
+  it('THERAPIST_UPGRADE_FLAGS still contains exactly 11 flags', () => {
+    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(11);
   });
 
   it('all Stage 2 flags are still false', () => {
