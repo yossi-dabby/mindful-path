@@ -72,8 +72,10 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
     return null;
   }
 
+  const dir = i18n.language === 'he' ? 'rtl' : 'ltr';
+
   return (
-    <div className="bg-teal-50 flex gap-3 justify-start" dir="ltr">
+    <div className="bg-teal-50 flex gap-3 justify-start" dir={dir}>
       {!isUser &&
       <div className="bg-teal-600 rounded-full h-8 w-8 flex items-center justify-center flex-shrink-0 shadow-[var(--shadow-sm)]">
           <span className="bg-teal-600 text-primary-foreground text-sm">AI</span>

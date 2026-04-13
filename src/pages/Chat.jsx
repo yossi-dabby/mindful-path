@@ -57,6 +57,28 @@ const LEGACY_VARIANT_PROFILES = Object.freeze([
   'cbt_therapist_lenient',
 ]);
 
+// Maps ISO language codes to full names injected into the session-start directive.
+// English is intentionally absent — the agent defaults to English with no directive.
+const LANG_FULL_NAMES = {
+  he: 'Hebrew',
+  es: 'Spanish',
+  fr: 'French',
+  de: 'German',
+  it: 'Italian',
+  pt: 'Portuguese',
+};
+
+/**
+ * Appends a language directive to a session-start content string.
+ * When the language is English (or unknown), returns the content unchanged.
+ * This tells the agent which language to use for its opening turn.
+ */
+function addLangDirective(sessionContent, lang) {
+  const name = LANG_FULL_NAMES[lang];
+  if (!name) return sessionContent;
+  return sessionContent + `\n[SESSION_LANGUAGE: ${lang}. Open and respond entirely in ${name} for this session. Do not use English.]`;
+}
+
 export default function Chat() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -445,7 +467,7 @@ export default function Chat() {
                 setIsLoading(true);
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
-                  content: await buildV10SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44)
+                  content: addLangDirective(await buildV10SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44), i18n.language)
                 });
                 inFlightIntentRef.current = false;
               }, 100);
@@ -486,7 +508,7 @@ export default function Chat() {
                 setIsLoading(true);
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
-                  content: await buildV10SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44)
+                  content: addLangDirective(await buildV10SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44), i18n.language)
                 });
                 inFlightIntentRef.current = false;
               }, 100);
@@ -894,8 +916,9 @@ export default function Chat() {
       // message, append it to the same turn so the agent handles both together.
       setTimeout(async () => {
         setIsLoading(true);
-        const sessionStartContent = await buildV10SessionStartContentAsync(
-          ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44
+        const sessionStartContent = addLangDirective(
+          await buildV10SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44),
+          i18n.language
         );
         await base44.agents.addMessage(conversation, {
           role: 'user',
@@ -1101,8 +1124,9 @@ export default function Chat() {
         ? runtimeSupplement + '\n\n' + messageText
         : messageText;
       if (isNewConversation) {
-        const sessionStartContent = await buildV10SessionStartContentAsync(
-          ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44
+        const sessionStartContent = addLangDirective(
+          await buildV10SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44),
+          i18n.language
         );
         messageContent = sessionStartContent + '\n\n' + messageContent;
       }

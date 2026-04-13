@@ -944,12 +944,12 @@ export const REQUIRED_COGNITIVE_EXERCISE_IDS = [
 ];
 
 /**
- * Dev-only validation. Runs at exercises page mount when not in production.
+ * Dev-only validation. Runs at exercises page mount in non-production environments.
  * Asserts: 5 exercises per category, 4 required CBT exercises exist under Cognitive, no duplicate IDs.
  * @param {Array} allExercises - the merged array of exercises to validate
  */
 export function validateExercisesTaxonomy(allExercises) {
-  // Dev-only validation — skip when not in a development context
+  // Skip in server-side or non-browser contexts
   if (typeof window === 'undefined') return;
 
   const errors = [];
@@ -981,11 +981,11 @@ export function validateExercisesTaxonomy(allExercises) {
   }
 
   if (errors.length > 0) {
-    console.group('%c[Exercises Taxonomy Validation] ⚠️ Issues found', 'color: orange; font-weight: bold');
-    errors.forEach(e => console.warn('•', e));
+    console.group('%c[Exercises Taxonomy Validation] Issues found', 'color: orange; font-weight: bold');
+    errors.forEach(e => console.warn('*', e));
     console.groupEnd();
   } else {
-    console.log('%c[Exercises Taxonomy Validation] ✅ All checks passed', 'color: green; font-weight: bold');
+    console.log('%c[Exercises Taxonomy Validation] All checks passed', 'color: green; font-weight: bold');
   }
 }
 
