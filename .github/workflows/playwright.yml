@@ -2,9 +2,9 @@ name: Playwright E2E Tests
 
 on:
   push:
-    branches: [ main, master, develop, staging ]
+    branches: [ main, master, develop, staging, staging-fresh ]
   pull_request:
-    branches: [ main, master, develop, staging ]
+    branches: [ main, master, develop, staging, staging-fresh ]
 
 jobs:
   smoke:
@@ -21,7 +21,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '22.x'
           cache: 'npm'
 
       - name: Install dependencies
@@ -33,14 +33,16 @@ jobs:
       - name: Build application
         run: npm run build
         env:
-          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID }}
+          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || '69504b725a07f5aa75aeaf7d' }}
+          VITE_BASE44_APP_BASE_URL: ${{ secrets.VITE_BASE44_APP_BASE_URL || 'https://mindful-path-75aeaf7d.base44.app' }}
 
       - name: Start dev server
         run: |
           nohup npm run dev -- --host 127.0.0.1 --port 5173 > devserver.log 2>&1 &
           echo "Dev server started (logging to devserver.log)"
         env:
-          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID }}
+          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || '69504b725a07f5aa75aeaf7d' }}
+          VITE_BASE44_APP_BASE_URL: ${{ secrets.VITE_BASE44_APP_BASE_URL || 'https://mindful-path-75aeaf7d.base44.app' }}
 
       - name: Wait for server
         run: npx --yes wait-on http://127.0.0.1:5173 --timeout 60000
@@ -51,6 +53,7 @@ jobs:
           CI: true
           BASE_URL: http://127.0.0.1:5173
           PLAYWRIGHT_TEST_BASE_URL: http://127.0.0.1:5173
+          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || '69504b725a07f5aa75aeaf7d' }}
 
       - name: Upload dev server log
         uses: actions/upload-artifact@v4
@@ -95,7 +98,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '22.x'
           cache: 'npm'
 
       - name: Install dependencies
@@ -107,14 +110,16 @@ jobs:
       - name: Build application
         run: npm run build
         env:
-          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID }}
+          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || '69504b725a07f5aa75aeaf7d' }}
+          VITE_BASE44_APP_BASE_URL: ${{ secrets.VITE_BASE44_APP_BASE_URL || 'https://mindful-path-75aeaf7d.base44.app' }}
 
       - name: Start dev server
         run: |
           nohup npm run dev -- --host 127.0.0.1 --port 5173 > devserver.log 2>&1 &
           echo "Dev server started (logging to devserver.log)"
         env:
-          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID }}
+          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || '69504b725a07f5aa75aeaf7d' }}
+          VITE_BASE44_APP_BASE_URL: ${{ secrets.VITE_BASE44_APP_BASE_URL || 'https://mindful-path-75aeaf7d.base44.app' }}
 
       - name: Wait for server
         run: npx --yes wait-on http://127.0.0.1:5173 --timeout 60000
@@ -125,6 +130,7 @@ jobs:
           CI: true
           BASE_URL: http://127.0.0.1:5173
           PLAYWRIGHT_TEST_BASE_URL: http://127.0.0.1:5173
+          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || '69504b725a07f5aa75aeaf7d' }}
 
       - name: Upload dev server log
         uses: actions/upload-artifact@v4

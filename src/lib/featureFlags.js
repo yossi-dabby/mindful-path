@@ -108,6 +108,14 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
   THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED === 'true',
 
   /**
+   * Phase 10 — Formulation-Led CBT.
+   * Activates formulation-led response rules (THERAPIST_FORMULATION_INSTRUCTIONS)
+   * injected via getFormulationLedContextForWiring into the V6 session-start path.
+   * Staging enablement: set VITE_THERAPIST_UPGRADE_FORMULATION_LED_ENABLED=true
+   */
+  THERAPIST_UPGRADE_FORMULATION_LED_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_FORMULATION_LED_ENABLED === 'true',
+
+  /**
    * Phase 3 Deep Personalization — Cross-session continuity layer.
    * Activates V7 wiring: reads prior therapist memory records and injects a
    * structured cross-session continuity block (recurring patterns, open

@@ -58,7 +58,7 @@
  * Source of truth: docs/therapist-upgrade-stage2-plan.md — Phase 3.1 / Phase 5
  */
 
-import { THERAPIST_WORKFLOW_INSTRUCTIONS } from './therapistWorkflowEngine.js';
+import { THERAPIST_WORKFLOW_INSTRUCTIONS, THERAPIST_FORMULATION_INSTRUCTIONS } from './therapistWorkflowEngine.js';
 import {
   isLTSRecord,
   LTS_MEMORY_TYPE,
@@ -698,9 +698,29 @@ async function buildFormulationContextBlock(entities) {
 }
 
 /**
+ * Returns the formulation-led instruction block for the given wiring, or null.
+ *
+ * Phase 10 — Formulation-Led CBT.
+ *
+ * Returns THERAPIST_FORMULATION_INSTRUCTIONS when the wiring has
+ * formulation_led_enabled === true (V6+).  Returns null for all other wirings,
+ * including null/undefined input.
+ *
+ * @param {object|null|undefined} wiring - The active therapist wiring configuration
+ * @returns {string|null} THERAPIST_FORMULATION_INSTRUCTIONS or null
+ */
+export function getFormulationLedContextForWiring(wiring) {
+  if (!wiring || wiring.formulation_led_enabled !== true) {
+    return null;
+  }
+  return THERAPIST_FORMULATION_INSTRUCTIONS;
+}
+
+/**
  * Builds the V6 session-start content string asynchronously.
  *
  * Phase 1 Quality Gains — Formulation Context Injection.
+ * Phase 10 — Formulation-Led CBT Instructions.
  *
  * For non-V6 wirings (formulation_context_enabled !== true):
  *   Delegates directly to buildV5SessionStartContentAsync (no behavior change).
@@ -711,6 +731,7 @@ async function buildFormulationContextBlock(entities) {
  *   2. Reads CaseFormulation (read-only, caution layer, bounded to 1 record)
  *      and builds the formulation context block.
  *   3. Appends the formulation context block when available.
+ *   4. Appends THERAPIST_FORMULATION_INSTRUCTIONS (formulation_led_enabled).
  *
  * FAIL-CLOSED CONTRACT
  * Any failure in step 2 returns V5 base content unchanged.
@@ -762,11 +783,17 @@ export async function buildV6SessionStartContentAsync(
     formulationBlock = '';
   }
 
-  if (!formulationBlock || !formulationBlock.trim()) {
-    return v5Base;
-  }
+  // Step 3: Inject formulation-led instructions (Phase 10, fail-closed)
+  const formulationLedBlock = getFormulationLedContextForWiring(wiring);
 
-  return v5Base + '\n\n' + formulationBlock;
+  let result = v5Base;
+  if (formulationBlock && formulationBlock.trim()) {
+    result = result + '\n\n' + formulationBlock;
+  }
+  if (formulationLedBlock) {
+    result = result + '\n\n' + formulationLedBlock;
+  }
+  return result;
 }
 
 // ─── Phase 3 Deep Personalization — V7 cross-session continuity injection ─────
