@@ -916,10 +916,8 @@ export default function Chat() {
       // message, append it to the same turn so the agent handles both together.
       setTimeout(async () => {
         setIsLoading(true);
-        const sessionStartContent = addLangDirective(
-          await buildV10SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44),
-          i18n.language
-        );
+        let sessionStartContent = await buildV10SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44);
+        sessionStartContent = addLangDirective(sessionStartContent, i18n.language);
         await base44.agents.addMessage(conversation, {
           role: 'user',
           content: initialMessage
@@ -1124,10 +1122,8 @@ export default function Chat() {
         ? runtimeSupplement + '\n\n' + messageText
         : messageText;
       if (isNewConversation) {
-        const sessionStartContent = addLangDirective(
-          await buildV10SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44),
-          i18n.language
-        );
+        let sessionStartContent = await buildV10SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44);
+        sessionStartContent = addLangDirective(sessionStartContent, i18n.language);
         messageContent = sessionStartContent + '\n\n' + messageContent;
       }
 
