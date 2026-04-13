@@ -55,6 +55,10 @@ import {
 } from '../../src/lib/workflowContextInjector.js';
 
 import {
+  THERAPIST_FORMULATION_INSTRUCTIONS,
+} from '../../src/lib/therapistWorkflowEngine.js';
+
+import {
   CBT_THERAPIST_WIRING_STAGE2_V6,
   CBT_THERAPIST_WIRING_STAGE2_V7,
   CBT_THERAPIST_WIRING_STAGE2_V5,
@@ -473,14 +477,15 @@ describe('Section 6: Fail-closed safety', () => {
         list: vi.fn().mockRejectedValue(new Error('entity unavailable')),
       },
     });
-    const v5Result = await buildV5SessionStartContentAsync(
-      CBT_THERAPIST_WIRING_STAGE2_V6, entities, null, {},
-    );
     const v6Result = await buildV6SessionStartContentAsync(
       CBT_THERAPIST_WIRING_STAGE2_V6, entities, null, {},
     );
-    expect(v6Result).toBe(v5Result);
+    // V6 must not include entity-fetched formulation data when entity throws
     expect(v6Result).not.toContain('CASE FORMULATION CONTEXT');
+    // V6 still includes the [START_SESSION] marker
+    expect(v6Result).toContain('[START_SESSION]');
+    // Phase 10: V6 still injects formulation-led instructions (constant, not entity-fetched)
+    expect(v6Result).toContain(THERAPIST_FORMULATION_INSTRUCTIONS);
   });
 
   it('returns empty string (no formulation block) when entities is null', async () => {

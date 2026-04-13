@@ -69,6 +69,7 @@ import {
 import {
   THERAPIST_WORKFLOW_RESPONSE_RULES,
   THERAPIST_WORKFLOW_VERSION,
+  THERAPIST_FORMULATION_INSTRUCTIONS,
   buildWorkflowContextInstructions,
 } from '../../src/lib/therapistWorkflowEngine.js';
 
@@ -147,7 +148,7 @@ describe('Phase 1 Quality — feature flag', () => {
   });
 
   it('THERAPIST_UPGRADE_FLAGS now contains exactly 13 flags', () => {
-    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(13);
+    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(14);
   });
 
   it('all 13 flags default to false', () => {
@@ -435,36 +436,33 @@ describe('Phase 1 Quality — CaseFormulation context injection', () => {
         list: vi.fn().mockRejectedValue(new Error('entity unavailable')),
       },
     });
-    const v5Result = await buildV5SessionStartContentAsync(
-      CBT_THERAPIST_WIRING_STAGE2_V6,
-      entities,
-      null,
-      {},
-    );
     const v6Result = await buildV6SessionStartContentAsync(
       CBT_THERAPIST_WIRING_STAGE2_V6,
       entities,
       null,
       {},
     );
-    // V6 should return V5 content (without formulation block) when entity throws
-    expect(v6Result).toBe(v5Result);
+    // V6 must not include entity-fetched formulation data when entity throws
+    expect(v6Result).not.toContain('CASE FORMULATION CONTEXT');
+    // V6 still includes the [START_SESSION] marker
+    expect(v6Result).toContain('[START_SESSION]');
+    // Phase 10: V6 still injects formulation-led instructions (constant, not entity-fetched)
+    expect(v6Result).toContain(THERAPIST_FORMULATION_INSTRUCTIONS);
   });
 
   it('returns V5 base content when entities is null (fail-closed)', async () => {
-    const v5Result = await buildV5SessionStartContentAsync(
-      CBT_THERAPIST_WIRING_STAGE2_V6,
-      null,
-      null,
-      {},
-    );
     const v6Result = await buildV6SessionStartContentAsync(
       CBT_THERAPIST_WIRING_STAGE2_V6,
       null,
       null,
       {},
     );
-    expect(v6Result).toBe(v5Result);
+    // V6 must not include entity-fetched formulation data when entities is null
+    expect(v6Result).not.toContain('CASE FORMULATION CONTEXT');
+    // V6 still includes the [START_SESSION] marker
+    expect(v6Result).toContain('[START_SESSION]');
+    // Phase 10: V6 still injects formulation-led instructions (constant, not entity-fetched)
+    expect(v6Result).toContain(THERAPIST_FORMULATION_INSTRUCTIONS);
   });
 
   it('truncates presenting_problem to 150 chars', async () => {

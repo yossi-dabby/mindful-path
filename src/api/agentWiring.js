@@ -954,6 +954,7 @@ export const CBT_THERAPIST_WIRING_STAGE2_V6 = {
   live_retrieval_enabled: true,             // from V4 — Phase 6 live retrieval wrapper
   safety_mode_enabled: true,               // from V5 — Phase 7 safety mode
   formulation_context_enabled: true,       // Phase 1 Quality — formulation context injection
+  formulation_led_enabled: true,           // Phase 10 — formulation-led CBT
   tool_configs: [
     // ── Step 1: Preferred entities (identical to V5 / V4 / V3 / V2 / V1 / Hybrid) ──
     { entity_name: 'SessionSummary',  access_level: 'preferred',  source_order: 2 },

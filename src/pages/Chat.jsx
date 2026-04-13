@@ -1055,15 +1055,6 @@ export default function Chat() {
         setCurrentConversationId(convId);
         refetchConversations();
         setShowSidebar(false);
-
-        try {
-          _firstMsgSessionStart = await buildV4SessionStartContentAsync(
-            ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44
-          );
-        } catch (err) {
-          console.error('[First Message] Failed to build session-start context:', err);
-          _firstMsgSessionStart = null;
-        }
       }
 
       const conversation = await base44.agents.getConversation(convId);

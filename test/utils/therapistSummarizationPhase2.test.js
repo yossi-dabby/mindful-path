@@ -675,7 +675,7 @@ describe('Phase 2 — Phase 0 / 0.1 / Phase 1 baselines preserved (regression ch
   });
 
   it('THERAPIST_UPGRADE_FLAGS still contains exactly 13 flags', () => {
-    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(13);
+    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(14);
   });
 
   it('all Stage 2 flags are still false', () => {
