@@ -18,7 +18,7 @@ export default function ConversationsList({
   const safeConversations = Array.isArray(conversations) ? conversations : [];
 
   return (
-    <div className="rounded-2xl h-full flex flex-col min-h-0">
+    <div className="bg-teal-100 rounded-2xl h-full flex flex-col min-h-0">
       {/* Header */}
       <div className="bg-teal-100 p-3 rounded-2xl md:p-4 flex items-center justify-between flex-shrink-0 border-b border-border/70">
         <h2 className="text-teal-600 text-base font-bold md:text-lg truncate">{t('chat.conversations_list.title')}</h2>
