@@ -17,13 +17,13 @@ export default function BottomNav({ currentPageName }) {
 
   // Memoised so icon/label objects aren't recreated on every render.
   const navItems = useMemo(() => [
-    { name: t('sidebar.home.name'),      icon: Home,          path: 'Home'        },
-    { name: t('sidebar.chat.name'),      icon: MessageCircle, path: 'Chat'        },
-    { name: t('sidebar.coach.name'),     icon: Heart,         path: 'Coach'       },
-    { name: t('sidebar.journal.name'),   icon: BookOpen,      path: 'Journal'     },
-    { name: t('sidebar.mood.name'),      icon: Activity,      path: 'MoodTracker' },
-    { name: t('sidebar.exercises.name'), icon: Dumbbell,      path: 'Exercises'   },
-  ], [t]);
+  { name: t('sidebar.home.name'), icon: Home, path: 'Home' },
+  { name: t('sidebar.chat.name'), icon: MessageCircle, path: 'Chat' },
+  { name: t('sidebar.coach.name'), icon: Heart, path: 'Coach' },
+  { name: t('sidebar.journal.name'), icon: BookOpen, path: 'Journal' },
+  { name: t('sidebar.mood.name'), icon: Activity, path: 'MoodTracker' },
+  { name: t('sidebar.exercises.name'), icon: Dumbbell, path: 'Exercises' }],
+  [t]);
 
 
   // Stable callback — avoids re-creating the function and re-rendering all
@@ -54,7 +54,7 @@ export default function BottomNav({ currentPageName }) {
         paddingBottom: 'env(safe-area-inset-bottom, 0px)'
       }}>
 
-      <div className="px-1 flex justify-around items-center h-full">
+      <div className="bg-emerald-300 px-1 flex justify-around items-center h-full">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentPageName === item.path;
