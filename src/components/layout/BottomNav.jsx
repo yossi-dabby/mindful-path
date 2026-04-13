@@ -78,9 +78,9 @@ export default function BottomNav({ currentPageName }) {
 
 
               
-              <Icon
-                className={cn('w-5 h-5 icon-default', isActive ? 'text-primary scale-110' : 'text-muted-foreground')}
-                strokeWidth={isActive ? 2.5 : 2} />
+              <Icon className="text-teal-700 lucide lucide-message-circle w-5 h-5 icon-default scale-110"
+
+              strokeWidth={isActive ? 2.5 : 2} />
               
               <span className={cn('text-xs font-medium leading-none', isActive ? 'text-primary' : 'text-muted-foreground')}>{item.name}</span>
             </Link>);
