@@ -949,7 +949,8 @@ export const REQUIRED_COGNITIVE_EXERCISE_IDS = [
  * @param {Array} allExercises - the merged array of exercises to validate
  */
 export function validateExercisesTaxonomy(allExercises) {
-  if (import.meta.env.PROD) return;
+  // Dev-only validation — skip when not in a development context
+  if (typeof window === 'undefined') return;
 
   const errors = [];
 

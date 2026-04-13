@@ -96,6 +96,9 @@ export default function Chat() {
   const currentTurnIdRef = useRef(0);
   const isRefetchingRef = useRef(false);
   const thinkingPlaceholderRef = useRef(null);
+  // Tracks whether the subscription already delivered a confirmed final response for
+  // the current send cycle. When true, polling must not overwrite subscription content.
+  const subscriptionSucceededRef = useRef(false);
 
   // INSTRUMENTATION: Track hard render gate enforcement + send cycle proof
   const instrumentationRef = useRef({
@@ -342,6 +345,17 @@ export default function Chat() {
 
       if (oldContent === newContent && sanitized.length === lastConfirmedMessagesRef.current.length) {
         console.log(`[${source}] ⚠️ Rejecting update - no new content detected`);
+        return false;
+      }
+
+      // CONTENT REGRESSION GUARD: reject any update where the new assistant
+      // message is materially shorter than the already-confirmed one.
+      // This prevents polling snapshots (which may be a stored/processed version
+      // shorter than what was streamed) from overwriting the full response.
+      const oldLen = oldContent.length;
+      const newLen = newContent.length;
+      if (oldLen > 80 && newLen < oldLen * 0.75) {
+        console.warn(`[${source}] ⚠️ CONTENT REGRESSION BLOCKED: new(${newLen}) < old(${oldLen})*0.75 — rejecting`);
         return false;
       }
     }
@@ -662,6 +676,9 @@ export default function Chat() {
           if (updated) {
             // CRITICAL: Always reset loading when safe update succeeds
             console.log('[Subscription] ✅ Loading OFF');
+            // Mark subscription as having delivered confirmed content for this send
+            // cycle. Polling must not overwrite subscription-confirmed content.
+            subscriptionSucceededRef.current = true;
             setIsLoading(false);
 
             // Emit FINAL STABILITY SUMMARY for this send cycle
@@ -943,6 +960,8 @@ export default function Chat() {
     // Increment send counter for this cycle
     instrumentationRef.current.SEND_COUNT++;
     console.log('[Send] 📤 Starting send #', instrumentationRef.current.SEND_COUNT);
+    // Reset subscription-confirmed flag for this new send cycle.
+    subscriptionSucceededRef.current = false;
 
     // Track expected message count for deterministic verification
     expectedReplyCountRef.current = messages.length + 2; // user message + assistant reply
@@ -1119,7 +1138,14 @@ export default function Chat() {
               console.log('[Polling] ✅ Reply found - stopping polling');
 
               // CRITICAL: Safe update with validation
-              const updated = safeUpdateMessages(sanitized, 'Polling');
+              // Skip overwrite if subscription already confirmed content — polling
+              // snapshot can be shorter than the streamed response and must not win.
+              const updated = subscriptionSucceededRef.current
+                ? false
+                : safeUpdateMessages(sanitized, 'Polling');
+              if (subscriptionSucceededRef.current) {
+                console.log('[Polling] ⏭️ Skipping overwrite — subscription already confirmed content');
+              }
 
               // emitStabilitySummary is intentionally inside `if (updated)`: it
               // reports a SUCCESSFUL message delivery cycle and should only fire

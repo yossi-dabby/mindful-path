@@ -146,8 +146,8 @@ export default function BulkImport() {
             Paste a JSON array of TrustedCBTChunk records. Required fields: <code className="text-xs bg-secondary px-1 rounded">title</code>, <code className="text-xs bg-secondary px-1 rounded">topic</code>, <code className="text-xs bg-secondary px-1 rounded">content</code>.
           </p>
           <div className="flex gap-2 flex-wrap">
-            <Button variant="outline" size="sm" onClick={() => loadBatch(SMOKE_BATCH)}>Load Smoke Batch (3)</Button>
-            <Button variant="outline" size="sm" onClick={() => loadBatch(FULL_BATCH)}>Load Full Batch (10)</Button>
+            <Button variant="outline" size="sm" onClick={() => loadBatch(smokeBatch, 'Smoke Batch')}>Load Smoke Batch (3)</Button>
+            <Button variant="outline" size="sm" onClick={() => loadBatch(fullBatch, 'Full Batch')}>Load Full Batch (10)</Button>
             <Button variant="outline" size="sm" onClick={() => loadBatch(BATCH_2)}>Load Batch 2 (25)</Button>
             <Button variant="outline" size="sm" onClick={() => loadBatch(BATCH_3)}>Load Batch 3 (50)</Button>
           </div>

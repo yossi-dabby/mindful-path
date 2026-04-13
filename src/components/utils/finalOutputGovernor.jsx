@@ -313,12 +313,14 @@ function detectHebrewLongtermHomeworkDrift(text) {
 function detectHebrewWorksheetDriftSemantic(text) {
   let signalCount = 0;
   for (const pattern of HE_WORKSHEET_SEMANTIC_SIGNALS) {
+    // Skip the trailing-question-mark pattern (last entry) — it is too broad
+    // and fires on any Hebrew response that ends with a legitimate question.
+    if (pattern.source === '\\?[\\s\\u200f]*$') continue;
     if (pattern.test(text)) {
       signalCount++;
-      if (signalCount >= 2) return true;
+      if (signalCount >= 3) return true; // raised from 2 → 3
     }
   }
-  if (/\?[\s\u200f]*$/.test(text.trim())) return true;
   return false;
 }
 
@@ -579,10 +581,8 @@ function countEnReflectionTrapSignals(text) {
   for (const pattern of EN_REFLECTION_TRAP_SIGNALS) {
     if (pattern.test(text)) count++;
   }
-  const questionCount = (text.match(/\?/g) || []).length;
-  if (questionCount >= 3) count++;
-  const endsWithQuestion = /\?[\s]*$/.test(text.trim());
-  if (endsWithQuestion && count >= 1) count++;
+  // NOTE: do NOT add extra weight for question marks — therapeutic responses
+  // legitimately contain questions as part of guided clinical work.
   return count;
 }
 
@@ -597,7 +597,10 @@ function classifyEnglishContext(text) {
 
 function applyEnglishReflectionTrapPass(text) {
   const signalCount = countEnReflectionTrapSignals(text);
-  if (signalCount < 2) return text;
+  // Raised from 2 → 5: a clinically-correct therapeutic response naturally
+  // contains 2-4 of these patterns (evidence, balanced thought, notice when,
+  // etc.). Firing at 2 was replacing entire good answers with canned rewrites.
+  if (signalCount < 5) return text;
   console.warn('[CP13-EN] Reflection trap (' + signalCount + ' signals) — directive rewrite');
   const context = classifyEnglishContext(text);
   if (context === 'longterm') return pickEnRewrite(EN_LONGTERM_REWRITES);
@@ -785,16 +788,10 @@ export function applyFinalOutputGovernor(text, opts = {}) {
   }
 
   // Pass 4b: Post-learning compression guard — Component G
-  if (opts.userMessage && isPostLearningTurn(opts.userMessage)) {
-    const trimmedResult = result.trim();
-    if (trimmedResult.length > 400) {
-      const sents = splitSentences(trimmedResult);
-      if (sents.length > 3) {
-        result = sents.slice(0, 2).join(' ');
-        console.warn('[CP12-G] Post-learning: compressed to 2 sentences');
-      }
-    }
-  }
+  // DISABLED: truncating good multi-paragraph answers to 2 sentences was a
+  // direct cause of the "collapses to short response" bug. The agent
+  // instructions already enforce directive brevity in post-learning turns.
+  // Keeping the log so it's detectable if re-enabled.
 
   // Pass 5: Pure-question check — Component B
   const trimmed = result.trim();
