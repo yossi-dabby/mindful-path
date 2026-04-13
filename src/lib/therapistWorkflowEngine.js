@@ -41,41 +41,6 @@ export const THERAPIST_WORKFLOW_VERSION = '3.1.0';
 
 // ─── Early-turn sequence ──────────────────────────────────────────────────────
 
-/**
- * The prescribed 3-turn early-session sequence for the higher-attunement CBT
- * formulator upgrade (Phase 3.1.0).
- *
- * These turns apply to the opening exchanges of a session, before the main
- * 6-step workflow sequence takes over.  The early-turn sequence ensures that
- * the therapist does not open with an intake menu, reflects context that is
- * already known, formulates early, and asks only one targeted question.
- *
- * @type {ReadonlyArray<{turn: number, name: string, description: string}>}
- */
-export const THERAPIST_EARLY_TURN_SEQUENCE = Object.freeze([
-  Object.freeze({
-    turn: 1,
-    name: 'reflect_what_is_already_known',
-    description:
-      'Restate/rephrase what is already known, without introducing a menu ' +
-      'or category selection.',
-  }),
-  Object.freeze({
-    turn: 2,
-    name: 'produce_a_brief_formulation',
-    description:
-      'Briefly formulate the underlying concern, using the word ' +
-      "'formulation' or a synonym.",
-  }),
-  Object.freeze({
-    turn: 3,
-    name: 'one_targeted_question',
-    description:
-      'Ask one and only one targeted question, tightly focused on the main ' +
-      'concern.',
-  }),
-]);
-
 // ─── Adaptive response framework ─────────────────────────────────────────────
 
 /**
@@ -583,7 +548,7 @@ export function buildWorkflowContextInstructions() {
     'understand — pause the sequence entirely and provide what was asked for.',
     'Explanation of the emotional process is a valid therapeutic response, not a detour.',
     '',
-    earlyTurnSteps,
+    earlyTurns,
     '',
     '--- ADAPTIVE RESPONSE FRAMEWORK ---',
     'This is an internal clinical guide — not a visible script or a mandatory sequence.',
