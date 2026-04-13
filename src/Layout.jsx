@@ -74,7 +74,7 @@ export default function Layout({ children, currentPageName }) {
   // Observe overlay open/close via MutationObserver and manage the sentinel entry.
   React.useEffect(() => {
     const OVERLAY_SELECTOR =
-      '[role="dialog"][data-state="open"], [data-vaul-drawer-overlay][data-state="open"]';
+    '[role="dialog"][data-state="open"], [data-vaul-drawer-overlay][data-state="open"]';
 
     const handleMutation = () => {
       const hasOpenOverlay = !!document.querySelector(OVERLAY_SELECTOR);
@@ -96,9 +96,9 @@ export default function Layout({ children, currentPageName }) {
         // the unique sentinelId — so that any navigation that occurred while the
         // overlay was open is not accidentally reverted.
         if (
-          window.history.state?.overlayOpen &&
-          window.history.state?.sentinelId === expectedId
-        ) {
+        window.history.state?.overlayOpen &&
+        window.history.state?.sentinelId === expectedId)
+        {
           window.history.back();
         }
       }
@@ -130,7 +130,7 @@ export default function Layout({ children, currentPageName }) {
   // to close the overlay UI — no history.go(1) required.
   React.useEffect(() => {
     const OVERLAY_SELECTOR =
-      '[role="dialog"][data-state="open"], [data-vaul-drawer-overlay][data-state="open"]';
+    '[role="dialog"][data-state="open"], [data-vaul-drawer-overlay][data-state="open"]';
 
     const handlePopState = () => {
       const hasOpenOverlay = !!document.querySelector(OVERLAY_SELECTOR);
@@ -172,7 +172,7 @@ export default function Layout({ children, currentPageName }) {
       if (savedLang && savedLang !== i18n.language) {
         i18n.changeLanguage(savedLang);
       }
-      
+
       // Apply theme colors
       const themeColors = {
         default: { primary: '104 176 162', secondary: '142 189 179', accent: '238 181 92' },
@@ -182,7 +182,7 @@ export default function Layout({ children, currentPageName }) {
         lavender: { primary: '137 146 180', secondary: '164 171 198', accent: '235 183 104' },
         minimal: { primary: '104 124 128', secondary: '145 158 160', accent: '226 176 94' }
       };
-      
+
       const colors = themeColors[userTheme] || themeColors.default;
       document.documentElement.style.setProperty('--color-primary', colors.primary);
       document.documentElement.style.setProperty('--color-secondary', colors.secondary);
@@ -195,12 +195,12 @@ export default function Layout({ children, currentPageName }) {
         }));
       } catch (_) {}
     }).catch(() => {
-      // User not logged in, use default theme
-    });
-    }, []);
 
-    // Detect offline/online status
-    React.useEffect(() => {
+      // User not logged in, use default theme
+    });}, []);
+
+  // Detect offline/online status
+  React.useEffect(() => {
     const handleOffline = () => setIsOffline(true);
     const handleOnline = () => setIsOffline(false);
 
@@ -208,12 +208,12 @@ export default function Layout({ children, currentPageName }) {
     window.addEventListener('online', handleOnline);
 
     return () => {
-    window.removeEventListener('offline', handleOffline);
-    window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', handleOnline);
     };
-    }, []);
+  }, []);
 
-    const themeBackgrounds = {
+  const themeBackgrounds = {
     default: 'bg-warm-gradient',
     ocean: 'bg-calm-gradient',
     sunset: 'bg-warm-gradient',
@@ -225,18 +225,18 @@ export default function Layout({ children, currentPageName }) {
   return (
     <TabNavigationProvider currentPageName={currentPageName}>
       {/* overflow-x-clip (not overflow-hidden) so the horizontal clip for page-transition
-          animations does not create an ancestor overflow:hidden that would prevent
-          iOS WKWebView touch-scroll events from reaching #app-scroll-container. */}
-      <div className={`min-h-dvh overflow-x-clip text-foreground ${themeBackgrounds[theme] || themeBackgrounds.default}`}>
+           animations does not create an ancestor overflow:hidden that would prevent
+           iOS WKWebView touch-scroll events from reaching #app-scroll-container. */}
+      <div className="bg-slate-50 text-foreground min-h-dvh overflow-x-clip">
         {/* Preserve scroll position between tab switches */}
         <ScrollPreservation />
 
         {/* Offline Banner - Global */}
-        {isOffline && (
-          <div className="fixed top-0 left-0 right-0 border-b border-border/70 bg-accent text-accent-foreground px-4 py-2 text-center text-sm font-medium shadow-[var(--shadow-md)]" style={{ zIndex: 100 }}>
+        {isOffline &&
+        <div className="fixed top-0 left-0 right-0 border-b border-border/70 bg-accent text-accent-foreground px-4 py-2 text-center text-sm font-medium shadow-[var(--shadow-md)]" style={{ zIndex: 100 }}>
             {i18n.t('offline_banner', "You're offline. Check your connection.")}
           </div>
-        )}
+        }
 
         {/* AI Companion Widget - Draggable across all pages */}
         <DraggableAiCompanion />
@@ -248,17 +248,17 @@ export default function Layout({ children, currentPageName }) {
       <AppContent>
         <AnimatePresence mode="wait" initial={false}>
           {/* min-h-full (not h-full): lets page content taller than the viewport
-              drive #app-scroll-container's scrollHeight. With h-full the wrapper
-              was capped at exactly 100dvh-padding and Safari/WebKit excluded
-              the visual overflow from the scrollable area. */}
+                 drive #app-scroll-container's scrollHeight. With h-full the wrapper
+                 was capped at exactly 100dvh-padding and Safari/WebKit excluded
+                 the visual overflow from the scrollable area. */}
           <motion.div
-            key={location.pathname}
-            variants={pageVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            className="w-full min-h-full"
-          >
+              key={location.pathname}
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="w-full min-h-full">
+              
             {children}
           </motion.div>
         </AnimatePresence>
@@ -267,6 +267,6 @@ export default function Layout({ children, currentPageName }) {
         {/* Bottom Navigation - Mobile only */}
         <BottomNav currentPageName={currentPageName} />
       </div>
-    </TabNavigationProvider>
-  );
+    </TabNavigationProvider>);
+
 }
