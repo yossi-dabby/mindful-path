@@ -50,8 +50,11 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
     // CRITICAL: Apply Final Output Governor (CP12) — last gate before render
     // For assistant messages: runs full leakage + ask-back + worksheet-drift + routing-leakage passes
     // For user messages: pass through unchanged
+    // NOTE: do NOT pass lang from i18n.language (UI locale) — the governor must
+    // auto-detect language from the message content itself. Passing the UI locale
+    // causes Hebrew/Portuguese responses to be flagged as "contamination" when the
+    // UI language is English, nuking the entire response to the English failsafe.
     const sanitized = isUser ? contentStr : applyFinalOutputGovernor(contentStr, {
-      lang: i18n.language || 'en',
       userMessage: userMessage || undefined,
     });
     content = sanitized;
