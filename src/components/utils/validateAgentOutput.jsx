@@ -17,7 +17,9 @@ const UNSAFE_PATTERNS = [
 
 // CRITICAL: Forbidden reasoning patterns (NO REASONING LEAKAGE)
 const FORBIDDEN_REASONING_PATTERNS = [
+  /^\s*THOUGHT\b/mi,
   /^\s*THOUGHT\s*:/mi,
+  /^\s*THINKING\b/mi,
   /^\s*THINKING\s*:/mi,
   /^\s*ANALYSIS\s*:/mi,
   /^\s*REASONING\s*:/mi,
@@ -31,6 +33,9 @@ const FORBIDDEN_REASONING_PATTERNS = [
   /^\s*NOTE\s*:/mi,
   /^\s*CONTEXT\s*:/mi,
   /^\s*OBSERVATION\s*:/mi,
+  /^\s*LOCKED_DOMAIN/mi,
+  /^\s*RULE ZERO/mi,
+  /^\s*CP\d+\b/mi,
   /^I should\b/mi,
   /^I need to\b/mi,
   /^First I'll\b/mi,
@@ -45,9 +50,93 @@ const FORBIDDEN_REASONING_PATTERNS = [
   /^\[thinking/mi,
   /^\[reasoning/mi,
   /^\[thought/mi,
+  /^\[THOUGHT/mi,
   /\bconstraint checklist\b/i,
   /\bmental sandbox\b/i,
   /\bconfidence score\b/i
+];
+
+// Inline patterns — tool names, entity names, field names, schema labels — must not appear anywhere on a line
+const FORBIDDEN_INLINE_REASONING_PATTERNS = [
+  /retrieveCurriculumUnit/i,
+  /retrieveTherapistMemory/i,
+  /writeTherapistMemory/i,
+  /retrieveTrustedCBTContent/i,
+  /retrieveRelevantContent/i,
+
+  // Entity names exposed as tool targets
+  /\bThoughtJournal\b/,
+  /\bMoodEntry\b/,
+  /\bCompanionMemory\b/,
+  /\bSessionSummary\b/,
+  /\bDailyFlow\b/,
+  /\bCrisisAlert\b/,
+  /\bCaseFormulation\b/,
+  /\bTherapyFeedback\b/,
+  /\bCoachingSession\b/,
+  /\bProactiveReminder\b/,
+
+  /\bclinical_topic\b/i,
+  /\bunit_type\b/i,
+  /\blinked_hierarchy_level\b/i,
+  /\blinked_outcome_patterns\b/i,
+  /\bpriority_score\b/i,
+  /\bwhen_to_use\b/i,
+  /\bagent_usage_rules\b/i,
+  /\bdirective_rewrite_pattern\b/i,
+  /\bsource_chunk_ids\b/i,
+  /\bblocker_resolution\b/i,
+  /\bmicro_step_ladder\b/i,
+  /\boutcome_interpretation\b/i,
+  /\bphrasing_pattern\b/i,
+  /\bmultilingual_response_pattern\b/i,
+  /\bformulation_to_action\b/i,
+  /\banxiety_cycle_mapping\b/i,
+  /\bgrounding_calming\b/i,
+  /\bbalanced_thought_work\b/i,
+  /\bcoping_plan\b/i,
+  /\bself_observation\b/i,
+  /\bsleep_intervention\b/i,
+  /\bcompleted_step_with_distress\b/i,
+  /\bcompleted_step_with_learning\b/i,
+  /\bpartial_completion\b/i,
+  /\bavoidance_or_noncompletion\b/i,
+  /\bstep_too_hard\b/i,
+  /\bstep_too_easy\b/i,
+  /\bemotional_flooding\b/i,
+  /\bno_clear_change\b/i,
+  /\bnew_specific_fear_discovered\b/i,
+  /\breturn_after_two_steps\b/i,
+  /\bLOCKED_DOMAIN\b/i,
+  /\bINTERVENTION_MODE\b/i,
+  /A(?:\u2192|->)B(?:\u2192|->)C(?:\u2192|->)D(?:\u2192|->)E/,
+  /A\s*\u2192\s*B\s*\u2192\s*C/,
+  /A\s*->\s*B\s*->\s*C/,
+  /\bcurrent_issue\b/i,
+  /\bnext_recommended_step\b/i,
+  /\bintervention_mode\b/i,
+  /\blatest_completed_step\b/i,
+  /\blatest_outcome_pattern\b/i,
+  /\bdifficulty_level\b/i,
+  /\bspecific_fear_discovered\b/i,
+  /\bunresolved_blocker\b/i,
+  /\bfollow_up_tasks\b/i,
+  /\btherapist_memory_version\b/i,
+
+  // English internal-analysis phrases (leak into non-English sessions)
+  /\bBased on (?:memory|stored data|prior session|the memory)\b/i,
+  /\bAccording to (?:stored|memory|my records)\b/i,
+  /\bMemory (?:indicates|shows|records|says)\b/i,
+  /\bThe system has\b/i,
+  /\bI(?:'ll| will) (?:now |classify |evaluate |check |apply |retrieve |call |use )(?:the |this )?(?:memory|curriculum|tool|unit|pattern|domain|gate|rule)/i,
+  /\bLet me (?:evaluate|check|classify|apply|retrieve|call|analyze|assess) (?:the |this )?(?:memory|domain|pattern|current|topic|message|gate)/i,
+  /\bNow I(?:'ll| need to| will) (?:check|evaluate|classify|apply|call|retrieve)/i,
+  /\bChecking (?:the |for )?(?:gate|domain|rule|condition|memory|pattern)/i,
+  /\bApplying (?:the |this )?(?:gate|rule|pattern|domain|CP\d|RULE ZERO|curriculum)/i,
+  /\bDomain (?:lock|classification|check|match):/i,
+  /\bLOCKED_DOMAIN\s*=/i,
+  /\bGate (?:passes|fails|blocked|check)/i,
+  /\bContinuity (?:gate|opener|check|suppressed)/i
 ];
 
 function sanitizeAssistantMessage(message) {
@@ -55,21 +144,27 @@ function sanitizeAssistantMessage(message) {
   
   let sanitized = message;
   
-  // CRITICAL: Strip forbidden reasoning patterns line-by-line
+  // CRITICAL: Strip forbidden reasoning patterns line-by-line (start-pattern + inline)
   const lines = sanitized.split('\n');
   const cleanedLines = lines.filter(line => {
     const trimmed = line.trim();
     if (!trimmed) return true; // Keep empty lines
-    
-    // Check if line contains forbidden reasoning
-    const isForbidden = FORBIDDEN_REASONING_PATTERNS.some(pattern => pattern.test(line));
-    if (isForbidden) {
-      console.warn(`[Reasoning Filter] Blocked: "${line.substring(0, 50)}..."`);
+
+    // Line-start forbidden reasoning
+    if (FORBIDDEN_REASONING_PATTERNS.some(pattern => pattern.test(line))) {
+      console.warn(`[Reasoning Filter] Blocked (start): "${line.substring(0, 60)}..."`);
       return false;
     }
+
+    // Inline forbidden: tool names, field names, schema labels
+    if (FORBIDDEN_INLINE_REASONING_PATTERNS.some(pattern => pattern.test(line))) {
+      console.warn(`[Reasoning Filter] Blocked (inline): "${line.substring(0, 60)}..."`);
+      return false;
+    }
+
     return true;
   });
-  
+
   sanitized = cleanedLines.join('\n').trim();
   
   // Failsafe: If we removed everything, use safe fallback

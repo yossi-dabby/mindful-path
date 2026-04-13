@@ -59,10 +59,28 @@ Omitting a variable is equivalent to `false`.
 | `VITE_THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED` | _(unset — do not add)_ |
 | `VITE_THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED` | _(unset — do not add)_ |
 | `VITE_THERAPIST_UPGRADE_SAFETY_MODE_ENABLED` | _(unset — do not add)_ |
+| `VITE_THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED` | _(unset — do not add)_ |
+| `VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED` | _(unset — do not add)_ |
+| `VITE_THERAPIST_UPGRADE_LONGITUDINAL_ENABLED` | _(unset — do not add)_ |
 
 When all Stage 2 flags are absent (or `false`), the app routes every session through the current default therapist path (`CBT_THERAPIST_WIRING_HYBRID`). No Stage 2 code is reachable.
 
 See `src/lib/featureFlags.js` for the full flag registry and evaluation rules.
+
+### Backend Base44 secrets — all must be absent or explicitly `false`
+
+These are **not** VITE build-time variables. They are set in the **Base44 Application Secrets** panel
+and read by Deno backend functions. They must also be `false` in the initial deployment.
+
+| Secret name | Function | Initial value |
+|---|---|---|
+| `THERAPIST_UPGRADE_MEMORY_ENABLED` | `retrieveTherapistMemory` | _(unset — `false`)_ |
+| `THERAPIST_UPGRADE_SUMMARIZATION_ENABLED` | `generateSessionSummary` | _(unset — `false`)_ |
+| `THERAPIST_UPGRADE_LONGITUDINAL_ENABLED` | `writeLTSSnapshot` | _(unset — `false`)_ |
+
+> `THERAPIST_UPGRADE_CONTINUITY_ENABLED` and `THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED`
+> have **no backend equivalent** — they are frontend-only VITE flags. Do not create backend
+> secrets with those names.
 
 ---
 
@@ -89,24 +107,30 @@ Open the staging URL in a browser and append `?_s2debug=true` to the address:
 https://<your-staging-url>/?_s2debug=true
 ```
 
-Open the browser developer console. You should see a `[S2 Diagnostics]` group with output similar to:
+Open the browser developer console. You should see an `[Activation Diagnostics]` group
+(Phase 4 unified surface) with output similar to:
 
 ```
-hostname              : <your-staging-url>
-masterGateOn          : false
-routeHint             : HYBRID (master gate off)
-computedFlags:
-  THERAPIST_UPGRADE_ENABLED                         : false
-  THERAPIST_UPGRADE_MEMORY_ENABLED                  : false
-  THERAPIST_UPGRADE_SUMMARIZATION_ENABLED           : false
-  THERAPIST_UPGRADE_WORKFLOW_ENABLED                : false
-  THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED       : false
-  THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED : false
-  THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED       : false
-  THERAPIST_UPGRADE_SAFETY_MODE_ENABLED             : false
+[Activation Diagnostics] Therapist + Companion upgrade state
+  hostname              : <your-staging-url>
+  isPreviewStagingHost  : true
+  snapshotTimestamp     : 2026-...
+
+  [Therapist]
+    computedFlags       : { THERAPIST_UPGRADE_ENABLED: false, ... }
+    masterGateOn        : false
+    routeHint           : HYBRID (master gate off)
+
+  [Companion]
+    computedFlags       : { COMPANION_UPGRADE_ENABLED: false, ... }
+    masterGateOn        : false
+    routeHint           : HYBRID (master gate off)
 ```
 
-**Every flag must show `false`.** The `routeHint` must read `HYBRID (master gate off)`.
+You will also see the legacy `[S2 Diagnostics]` group (therapist-only, unchanged).
+
+**Every flag in both sections must show `false`.** Both `routeHint` values must
+read `HYBRID (master gate off)`.
 If any flag shows `true`, stop and recheck the environment variable configuration before continuing.
 
 ---
@@ -141,9 +165,9 @@ Validation criteria for Phase 1 are defined in `docs/therapist-upgrade-stage2-pl
 
 If anything is wrong after deploying staging:
 
-1. **Remove all `VITE_THERAPIST_UPGRADE_*` environment variables** from the staging environment (or set every one explicitly to `false`).
+1. **Remove all `VITE_THERAPIST_UPGRADE_*` and `VITE_COMPANION_UPGRADE_*` environment variables** from the staging environment (or set every one explicitly to `false`).
 2. Trigger a redeploy of the `staging` branch with the clean env configuration.
-3. Re-run the smoke tests and the `?_s2debug=true` check to confirm all flags are `false`.
+3. Re-run the smoke tests and the `?_s2debug=true` check to confirm all flags are `false` in both Therapist and Companion sections.
 4. **Never touch `main` or the Base44 production environment as a rollback step.** Rollback is always limited to the staging deployment only.
 
 ---
@@ -158,7 +182,7 @@ Before declaring staging ready:
 - [ ] Staging value of `VITE_BASE44_APP_ID` configured
 - [ ] No `VITE_THERAPIST_UPGRADE_*` variable is set (or all are explicitly `false`)
 - [ ] Smoke tests passed: `BASE_URL=<staging-url> npm run test:e2e -- --project=smoke-production-critical`
-- [ ] `?_s2debug=true` check confirms all flags `false` and `routeHint` is `HYBRID (master gate off)`
+- [ ] `?_s2debug=true` check confirms all flags `false` and both `routeHint` values are `HYBRID (master gate off)` (Therapist + Companion sections)
 - [ ] `main` branch and Base44 production environment are untouched
 
 ---

@@ -24,7 +24,7 @@
     "inventory:lucide": "node scripts/inventory-lucide-icons.mjs"
   },
   "dependencies": {
-    "@base44/sdk": "^0.8.23",
+    "@base44/sdk": "^0.8.25",
     "@base44/vite-plugin": "^1.0.6",
     "@capacitor/android": "^8.1.0",
     "@capacitor/core": "^8.1.0",

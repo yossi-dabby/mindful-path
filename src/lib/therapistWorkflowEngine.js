@@ -39,6 +39,43 @@
 /** @type {string} */
 export const THERAPIST_WORKFLOW_VERSION = '3.1.0';
 
+// ─── Early-turn sequence ──────────────────────────────────────────────────────
+
+/**
+ * The prescribed 3-turn early-session sequence for the higher-attunement CBT
+ * formulator upgrade (Phase 3.1.0).
+ *
+ * These turns apply to the opening exchanges of a session, before the main
+ * 6-step workflow sequence takes over.  The early-turn sequence ensures that
+ * the therapist does not open with an intake menu, reflects context that is
+ * already known, formulates early, and asks only one targeted question.
+ *
+ * @type {ReadonlyArray<{turn: number, name: string, description: string}>}
+ */
+export const THERAPIST_EARLY_TURN_SEQUENCE = Object.freeze([
+  Object.freeze({
+    turn: 1,
+    name: 'reflect_what_is_already_known',
+    description:
+      'Restate/rephrase what is already known, without introducing a menu ' +
+      'or category selection.',
+  }),
+  Object.freeze({
+    turn: 2,
+    name: 'produce_a_brief_formulation',
+    description:
+      'Briefly formulate the underlying concern, using the word ' +
+      "'formulation' or a synonym.",
+  }),
+  Object.freeze({
+    turn: 3,
+    name: 'one_targeted_question',
+    description:
+      'Ask one and only one targeted question, tightly focused on the main ' +
+      'concern.',
+  }),
+]);
+
 // ─── Adaptive response framework ─────────────────────────────────────────────
 
 /**
@@ -273,63 +310,89 @@ export const THERAPIST_WORKFLOW_RESPONSE_RULES = Object.freeze({
     'cases, defer entirely to the existing safety system.',
 
   /**
-   * Never ask for information the person already gave.  If the person's
-   * message already contains a clear trigger, situation, or emotional context,
-   * treat that information as the starting point — not as a prompt to ask
-   * a clarifying question.  Re-asking what was already stated makes the
-   * therapist feel like a form, not a clinician.
+   * Socratic insight guidance — Phase 1 Quality Gains.
+   * When the person is on the verge of naming their own pattern or insight,
+   * use a single targeted question to help them articulate it themselves.
+   * Socratic questions here are precise, not exploratory — they follow
+   * directly from what has been shared and point toward a specific insight
+   * the person is close to reaching.  Do not use Socratic questions as a
+   * substitute for a clear formulation you already hold.
+   */
+  socratic_insight_guidance:
+    'When the person is close to naming their own automatic thought, belief, ' +
+    'or pattern, use one precise, targeted question to help them reach it ' +
+    'themselves rather than stating it for them. The question must follow ' +
+    'directly from what they have said — it must not introduce new content ' +
+    'or delay a formulation you already hold. If the insight is clear, name ' +
+    'it directly instead of asking.',
+
+  /**
+   * Non-repetitive questioning — Phase 1 Quality Gains.
+   * Never re-ask about something that has already been explored or answered
+   * within the session.  If the person has already described a pattern,
+   * thought, or situation, use that established information rather than
+   * asking about it again.  Repetitive questioning signals inattentiveness
+   * and erodes therapeutic alliance.
+   */
+  avoid_repetitive_questioning:
+    'Never ask the same question, or a functionally equivalent question, ' +
+    'twice in a session. If the person has already shared information about ' +
+    'a topic, reflect it back and build on it — do not re-explore it. Track ' +
+    'what has been established in each turn and use it to advance, not repeat.',
+
+  /**
+   * Formulation-aligned intervention — Phase 1 Quality Gains.
+   * When a CaseFormulation is available for this person, ensure that
+   * interventions and pattern-naming are consistent with the formulation's
+   * identified core beliefs, maintaining cycles, and treatment goals.
+   * The formulation is the longitudinal clinical frame — it should inform
+   * which pattern is named and which intervention point is chosen.
+   * When no formulation is available, proceed with session-level clinical
+   * judgment as normal.
+   */
+  formulation_aligned_intervention:
+    'When a case formulation is available for this person (core beliefs, ' +
+    'maintaining cycles, treatment goals), ensure that the pattern you name ' +
+    'and the intervention you deliver are consistent with it. The formulation ' +
+    'is the longitudinal frame — use it to anchor session-level interventions ' +
+    'to the broader clinical picture. When no formulation is available, apply ' +
+    'session-level clinical judgment.',
+
+  /**
+   * No redundant context questions — Phase 3.1.0.
+   * Do not re-ask for information the person has already provided or that
+   * has already been restated in the same session.  Redundant questioning
+   * signals inattentiveness and wastes the therapeutic window.
    */
   no_redundant_questioning:
-    'If the person has already stated the trigger, situation, or emotional ' +
-    'context — even partially — do not ask them to state it again. Use what ' +
-    'they gave you. A redundant question ("What happened?" after the person ' +
-    'just described what happened) signals inattention and erodes trust.',
+    'No redundant context questions: Avoid re-asking for information already ' +
+    'provided or already restated.',
 
   /**
-   * Formulate before questioning.  In the first two or three turns, before
-   * asking a follow-up question, produce a brief cognitive-emotional
-   * formulation of what you already understand.  A formulation shows the
-   * person they have been heard and understood at a clinical level, not just
-   * acknowledged.  The formulation can be one or two sentences — it must
-   * name the situation, the emotional response, and, where visible, the
-   * underlying concern or belief.  Only then ask the one most useful question.
+   * Formulate before questioning — Phase 3.1.0.
+   * A brief formulation must precede any question.  Do not ask a question
+   * before you have demonstrated that you have understood the presenting
+   * material by naming it.
    */
   formulate_before_questioning:
-    'Before asking your next question, state a brief formulation of what you ' +
-    'already understand: the situation, the emotional response, and the likely ' +
-    'underlying concern or belief. One to two sentences is sufficient. This ' +
-    'demonstrates clinical attunement and prevents the session from feeling ' +
-    'like an intake interview. The formulation should precede the question, ' +
-    'not follow it.',
+    'Reflect then formulate then ask: Formulation must come before a question.',
 
   /**
-   * Ask one precise, high-value question — not several.  Multiple questions
-   * in a single turn creates cognitive load and signals low attunement.
-   * Choose the single most clinically useful question given what you already
-   * know and what the formulation suggests is still unclear.
+   * One targeted question per turn — Phase 3.1.0.
+   * Limit to a single targeted question per response turn.  Multiple
+   * questions in one turn overwhelm the person and dilute focus.
    */
   one_targeted_question:
-    'Ask at most one question per response. Choose the single most clinically ' +
-    'useful question given what is already known. Multiple questions in one ' +
-    'turn feel like an intake questionnaire. If the picture is clear enough ' +
-    'to formulate without asking, do so — a formulation is often more useful ' +
-    'than another question.',
+    'One targeted question: Limit yourself to one or at most one question ' +
+    'per turn.',
 
   /**
-   * Do not open with a category menu.  When the person sends a bare greeting
-   * ("hi", "hello", "I'd like to talk") or any opening that does not yet
-   * contain a specific problem, do not respond with a list of topic categories
-   * to choose from.  Instead, offer a natural, warm, single-question clinical
-   * opening that invites the person to share what brought them here today.
-   * A menu signals administration, not therapy.
+   * No intake menu at opening — Phase 3.1.0.
+   * Do not offer a category selection or topic menu when opening a session.
+   * Begin by reflecting what is already known, not by presenting choices.
    */
   no_intake_menu:
-    'Do not respond to a greeting or minimal opening with a category menu or ' +
-    'a list of topic choices. Instead, offer a natural single-sentence clinical ' +
-    'opening that invites the person to share what is on their mind. A menu ' +
-    'communicates intake administration, not therapeutic presence. If the person ' +
-    'provides no context at all, ask one open question — warmly, not ' +
-    'bureaucratically.',
+    'Opening behavior: Do not offer a menu or category selection.',
 });
 
 // ─── Emotion differentiation map ─────────────────────────────────────────────
@@ -494,7 +557,7 @@ export function buildWorkflowContextInstructions() {
     (s) => `  Step ${s.step} (${s.name}): ${s.description}`,
   ).join('\n');
 
-  const earlyTurnSteps = THERAPIST_EARLY_TURN_SEQUENCE.map(
+  const earlyTurns = THERAPIST_EARLY_TURN_SEQUENCE.map(
     (t) => `  Turn ${t.turn} (${t.name}): ${t.description}`,
   ).join('\n');
 
@@ -533,7 +596,14 @@ export function buildWorkflowContextInstructions() {
     '',
     steps,
     '',
+    '--- EARLY TURN BEHAVIOR ---',
+    'For the first three turns of a session, follow this prescribed sequence.',
+    'Do not open with a menu or category selection.',
+    '',
+    earlyTurns,
+    '',
     '--- RESPONSE-SHAPING RULES ---',
+    'ADAPTIVE RESPONSE FRAMEWORK',
     '',
     `1. Reflect then formulate then ask: ${THERAPIST_WORKFLOW_RESPONSE_RULES.reflect_then_formulate_ask}`,
     '',
@@ -560,6 +630,20 @@ export function buildWorkflowContextInstructions() {
     `12. Safety stack compatibility: ${THERAPIST_WORKFLOW_RESPONSE_RULES.safety_stack_compatibility}`,
     '',
     `13. One targeted question: ${THERAPIST_WORKFLOW_RESPONSE_RULES.one_targeted_question}`,
+    '',
+    `8. Socratic insight guidance: ${THERAPIST_WORKFLOW_RESPONSE_RULES.socratic_insight_guidance}`,
+    '',
+    `9. Avoid repetitive questioning: ${THERAPIST_WORKFLOW_RESPONSE_RULES.avoid_repetitive_questioning}`,
+    '',
+    `10. Formulation-aligned intervention: ${THERAPIST_WORKFLOW_RESPONSE_RULES.formulation_aligned_intervention}`,
+    '',
+    `11. ${THERAPIST_WORKFLOW_RESPONSE_RULES.no_redundant_questioning}`,
+    '',
+    `12. ${THERAPIST_WORKFLOW_RESPONSE_RULES.formulate_before_questioning}`,
+    '',
+    `13. ${THERAPIST_WORKFLOW_RESPONSE_RULES.one_targeted_question}`,
+    '',
+    `14. ${THERAPIST_WORKFLOW_RESPONSE_RULES.no_intake_menu}`,
     '',
     '--- EMOTION DIFFERENTIATION ---',
     'Distinguish explicitly between these states — each requires a different',

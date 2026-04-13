@@ -26,7 +26,9 @@ export function extractThinkingContent(text) {
 
 const FORBIDDEN_PATTERNS = [
   // Explicit reasoning markers (at start of line, case-insensitive)
+  /^\s*THOUGHT\b/mi,
   /^\s*THOUGHT\s*:/mi,
+  /^\s*THINKING\b/mi,
   /^\s*THINKING\s*:/mi,
   /^\s*ANALYSIS\s*:/mi,
   /^\s*REASONING\s*:/mi,
@@ -39,17 +41,20 @@ const FORBIDDEN_PATTERNS = [
   /^\s*NOTE\s*:/mi,
   /^\s*CONTEXT\s*:/mi,
   /^\s*OBSERVATION\s*:/mi,
-  
+  /^\s*LOCKED_DOMAIN/mi,
+  /^\s*RULE ZERO/mi,
+  /^\s*CP\d+\b/mi,
+
   // Planning/meta lines
   /^\s*Step\s+\d+\s*:/mi,
   /^\s*Phase\s+\d+/mi,
   /^Constraint\s+checklist/mi,
   /^Mental\s+sandbox/mi,
   /^Confidence\s+score/mi,
-  
+
   // Code blocks with reasoning
   /^```(thought|reasoning|analysis|debug)/mi,
-  
+
   // Meta planning phrases (start of line)
   /^(First\s+I'll|Then\s+I'll|I\s+should\b|I\s+need\s+to\b|My\s+goal\s+is\b)/mi,
   /^\[checking/mi,
@@ -59,11 +64,131 @@ const FORBIDDEN_PATTERNS = [
   /^\[protocol/mi,
   /^\[thinking/mi,
   /^\[reasoning/mi,
-  /^\[thought/mi
+  /^\[thought/mi,
+  /^\[THOUGHT/mi
 ];
 
-const HEBREW_FAILSAFE = "אני כאן איתך. מה הכי מטריד אותך כרגע?";
-const ENGLISH_FAILSAFE = "I'm here with you. What's on your mind right now?";
+// Patterns that must not appear ANYWHERE on a line (tool names, param labels, schema, entity names)
+const FORBIDDEN_INLINE_PATTERNS = [
+  // Tool names
+  /retrieveCurriculumUnit/i,
+  /retrieveTherapistMemory/i,
+  /writeTherapistMemory/i,
+  /retrieveTrustedCBTContent/i,
+  /retrieveRelevantContent/i,
+
+  // Entity names exposed as tool targets
+  /\bThoughtJournal\b/,
+  /\bMoodEntry\b/,
+  /\bCompanionMemory\b/,
+  /\bSessionSummary\b/,
+  /\bDailyFlow\b/,
+  /\bCrisisAlert\b/,
+  /\bCaseFormulation\b/,
+  /\bTherapyFeedback\b/,
+  /\bCoachingSession\b/,
+  /\bProactiveReminder\b/,
+
+  // Curriculum / routing field names
+  /\bclinical_topic\b/i,
+  /\bunit_type\b/i,
+  /\blinked_hierarchy_level\b/i,
+  /\blinked_outcome_patterns\b/i,
+  /\bpriority_score\b/i,
+  /\bwhen_to_use\b/i,
+  /\bagent_usage_rules\b/i,
+  /\bdirective_rewrite_pattern\b/i,
+  /\bsource_chunk_ids\b/i,
+
+  // Internal label tokens
+  /\bblocker_resolution\b/i,
+  /\bmicro_step_ladder\b/i,
+  /\boutcome_interpretation\b/i,
+  /\bphrasing_pattern\b/i,
+  /\bmultilingual_response_pattern\b/i,
+  /\bformulation_to_action\b/i,
+  /\bgraded_exposure\b(?!\s+(exercise|technique|approach|practice|step|work))/i,
+  /\banxiety_cycle_mapping\b/i,
+  /\bgrounding_calming\b/i,
+  /\bbalanced_thought_work\b/i,
+  /\bbehavioral_activation\b/i,
+  /\bcoping_plan\b/i,
+  /\bproblem_solving\b/i,
+  /\bself_observation\b/i,
+  /\bsleep_intervention\b/i,
+
+  // Outcome pattern labels
+  /\bcompleted_step_with_distress\b/i,
+  /\bcompleted_step_with_learning\b/i,
+  /\bpartial_completion\b/i,
+  /\bavoidance_or_noncompletion\b/i,
+  /\bstep_too_hard\b/i,
+  /\bstep_too_easy\b/i,
+  /\bemotional_flooding\b/i,
+  /\bno_clear_change\b/i,
+  /\bincreased_confidence\b/i,
+  /\bnew_specific_fear_discovered\b/i,
+  /\breturn_after_two_steps\b/i,
+
+  // Hierarchy labels (standalone routing context)
+  /\bLOCKED_DOMAIN\b/i,
+  /\bINTERVENTION_MODE\b/i,
+
+  // Response schema structures
+  /A(?:\u2192|->)B(?:\u2192|->)C(?:\u2192|->)D(?:\u2192|->)E/,
+  /A\s*\u2192\s*B\s*\u2192\s*C/,
+  /A\s*->\s*B\s*->\s*C/,
+
+  // Memory field names
+  /\bcurrent_issue\b/i,
+  /\bnext_recommended_step\b/i,
+  /\bintervention_mode\b/i,
+  /\blatest_completed_step\b/i,
+  /\blatest_outcome_pattern\b/i,
+  /\bdifficulty_level\b/i,
+  /\bspecific_fear_discovered\b/i,
+  /\bunresolved_blocker\b/i,
+  /\bfollow_up_tasks\b/i,
+  /\btherapist_memory_version\b/i,
+
+  // English internal-analysis phrases (leak into non-English sessions)
+  /\bBased on (?:memory|stored data|prior session|the memory)\b/i,
+  /\bAccording to (?:stored|memory|my records)\b/i,
+  /\bMemory (?:indicates|shows|records|says)\b/i,
+  /\bThe system has\b/i,
+  /\bI(?:'ll| will) (?:now |classify |evaluate |check |apply |retrieve |call |use )(?:the |this )?(?:memory|curriculum|tool|unit|pattern|domain|gate|rule)/i,
+  /\bLet me (?:evaluate|check|classify|apply|retrieve|call|analyze|assess) (?:the |this )?(?:memory|domain|pattern|current|topic|message|gate)/i,
+  /\bNow I(?:'ll| need to| will) (?:check|evaluate|classify|apply|call|retrieve)/i,
+  /\bChecking (?:the |for )?(?:gate|domain|rule|condition|memory|pattern)/i,
+  /\bApplying (?:the |this )?(?:gate|rule|pattern|domain|CP\d|RULE ZERO|curriculum)/i,
+  /\bDomain (?:lock|classification|check|match):/i,
+  /\bLOCKED_DOMAIN\s*=/i,
+  /\bCurrent (?:message )?domain:/i,
+  /\bStored (?:domain|memory|current_issue):/i,
+  /\bGate (?:passes|fails|blocked|check)/i,
+  /\bContinuity (?:gate|opener|check|suppressed)/i,
+  /^\s*RULE ZERO/im,
+  /^\s*STEP \d+:/im,
+  /^\s*LINT \d+/im,
+  /^\s*CP\d+/im
+];
+
+const LANGUAGE_FAILSAFES = {
+  he: 'אני כאן איתך. מה הכי מטריד אותך כרגע?',
+  en: "I'm here with you. What's on your mind right now?",
+  es: 'Estoy aquí contigo. ¿Qué está en tu mente ahora mismo?',
+  fr: "Je suis là pour toi. Qu'est-ce qui te préoccupe en ce moment?",
+  de: 'Ich bin hier für dich. Was beschäftigt dich gerade?',
+  it: 'Sono qui con te. Cosa hai in mente in questo momento?',
+  pt: 'Estou aqui com você. O que está em sua mente agora?',
+};
+
+function getLanguageFailsafe(language) {
+  return LANGUAGE_FAILSAFES[language] || LANGUAGE_FAILSAFES['en'];
+}
+
+const HEBREW_FAILSAFE = LANGUAGE_FAILSAFES.he;
+const ENGLISH_FAILSAFE = LANGUAGE_FAILSAFES.en;
 
 /**
  * Sanitize text by removing lines containing reasoning tokens
@@ -82,32 +207,40 @@ export function sanitizeMessageContent(text, language = 'en') {
     console.warn('[Sanitizer] ⚠️ Stripped <think> block from assistant message');
     if (!text || text.length < 5) {
       console.error('[Sanitizer] ⚠️ All content removed after <think> stripping - using failsafe');
-      return language === 'he' ? HEBREW_FAILSAFE : ENGLISH_FAILSAFE;
+      return getLanguageFailsafe(language);
     }
   }
 
-  // Quick check - if no forbidden patterns exist, return as-is (performance optimization)
-  const hasAnyForbiddenPattern = FORBIDDEN_PATTERNS.some(pattern => pattern.test(text));
+  // Quick check - if NO pattern of either type matches, skip processing (performance optimization)
+  // CRITICAL: Must check BOTH arrays — inline patterns are independent of line-start patterns
+  const hasAnyForbiddenPattern =
+    FORBIDDEN_PATTERNS.some(p => p.test(text)) ||
+    FORBIDDEN_INLINE_PATTERNS.some(p => p.test(text));
   if (!hasAnyForbiddenPattern) {
     return text;
   }
 
   // Split into lines for precise filtering
   const lines = text.split('\n');
-  
-  // Filter out lines containing forbidden patterns
+
+  // Filter out lines containing forbidden patterns (line-start OR inline)
   const cleanedLines = lines.filter(line => {
     // Skip empty lines
     if (!line.trim()) return true;
-    
-    // Check if line matches any forbidden pattern
-    const isForbidden = FORBIDDEN_PATTERNS.some(pattern => pattern.test(line));
-    
-    if (isForbidden) {
-      console.warn('[Sanitizer] ⚠️ REMOVED reasoning line:', line.substring(0, 50));
+
+    // Check line-start forbidden patterns
+    if (FORBIDDEN_PATTERNS.some(pattern => pattern.test(line))) {
+      console.warn('[Sanitizer] ⚠️ REMOVED reasoning line (start-pattern):', line.substring(0, 60));
+      return false;
     }
-    
-    return !isForbidden;
+
+    // Check inline forbidden patterns (tool names, field names, schema labels)
+    if (FORBIDDEN_INLINE_PATTERNS.some(pattern => pattern.test(line))) {
+      console.warn('[Sanitizer] ⚠️ REMOVED leakage line (inline-pattern):', line.substring(0, 60));
+      return false;
+    }
+
+    return true;
   });
 
   // Join back and trim
@@ -116,7 +249,7 @@ export function sanitizeMessageContent(text, language = 'en') {
   // Failsafe: If cleaning removed everything, use language-appropriate fallback
   if (!cleaned || cleaned.length < 5) {
     console.error('[Sanitizer] ⚠️ All content removed - using failsafe');
-    cleaned = language === 'he' ? HEBREW_FAILSAFE : ENGLISH_FAILSAFE;
+    cleaned = getLanguageFailsafe(language);
   }
 
   return cleaned;

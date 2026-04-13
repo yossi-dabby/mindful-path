@@ -22,6 +22,19 @@
  * criteria (docs/therapist-upgrade-stage2-plan.md §Phase 9).
  */
 
+// Wave 2D — strategy engine metadata for diagnostics (read-only constants, no runtime state).
+// therapistStrategyEngine.js has no imports of its own, so this cannot create a cycle.
+import {
+  STRATEGY_VERSION,
+  STRATEGY_INTERVENTION_MODES,
+} from './therapistStrategyEngine.js';
+
+// Wave 4E — CBT knowledge planner version for diagnostics (static constant, no runtime state).
+// cbtKnowledgePlanner.js has zero imports of its own, so this cannot create a cycle.
+import {
+  CBT_KNOWLEDGE_PLANNER_VERSION,
+} from './cbtKnowledgePlanner.js';
+
 /**
  * All Stage 2 feature flags.
  *
@@ -86,10 +99,103 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
   THERAPIST_UPGRADE_SAFETY_MODE_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_SAFETY_MODE_ENABLED === 'true',
 
   /**
-   * Phase 10 — Formulation-led CBT super agent.
-   * Staging enablement: set VITE_THERAPIST_UPGRADE_FORMULATION_LED_ENABLED=true
+   * Phase 1 Quality Gains — Formulation context injection + Socratic patterns.
+   * Activates V6 wiring: injects CaseFormulation context into the session-start
+   * payload and enables the Socratic / non-repetitive / formulation-aligned
+   * response rules in the workflow engine.
+   * Staging enablement: set VITE_THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED=true
    */
-  THERAPIST_UPGRADE_FORMULATION_LED_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_FORMULATION_LED_ENABLED === 'true',
+  THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED === 'true',
+
+  /**
+   * Phase 3 Deep Personalization — Cross-session continuity layer.
+   * Activates V7 wiring: reads prior therapist memory records and injects a
+   * structured cross-session continuity block (recurring patterns, open
+   * follow-up tasks, prior interventions) into the session-start payload.
+   * Both agents are personalised using longitudinal memory when this flag is on.
+   * Staging enablement: set VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED=true
+   */
+  THERAPIST_UPGRADE_CONTINUITY_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED === 'true',
+
+  /**
+   * Wave 2B — Therapeutic Strategy Layer.
+   * Gates runtime injection of the TherapistStrategyState engine into the
+   * session-start content path.  When enabled together with the master gate,
+   * resolveTherapistWiring() returns CBT_THERAPIST_WIRING_STAGE2_V8 and
+   * buildV8SessionStartContentAsync appends a strategy guidance section to
+   * the session-start payload.  The section is clearly labeled as guidance
+   * and does NOT replace or weaken any existing safety filter.
+   *
+   * Fail-open: any strategy computation error returns the V7 base content
+   * unchanged.  Production behavior is EXACTLY preserved when this flag is off.
+   *
+   * Staging enablement: set VITE_THERAPIST_UPGRADE_STRATEGY_ENABLED=true
+   */
+  THERAPIST_UPGRADE_STRATEGY_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_STRATEGY_ENABLED === 'true',
+
+  /**
+   * Wave 3B — Longitudinal Therapeutic State (LTS) write path.
+   *
+   * When enabled together with THERAPIST_UPGRADE_SUMMARIZATION_ENABLED and the
+   * master gate, a second fire-and-forget step runs after each successful
+   * therapist session memory write:
+   *   1. The most recent bounded set of session records is fetched from
+   *      CompanionMemory via retrieveTherapistMemory.
+   *   2. buildLongitudinalState() recomputes the LTS from those records.
+   *   3. writeLTSSnapshot upserts one canonical LTS snapshot record.
+   *
+   * The LTS write is fully additive and fail-closed:
+   *   - It never runs before the session memory write.
+   *   - Failure of the LTS write never affects the session memory write result.
+   *   - When this flag is off, no LTS records are read or written.
+   *   - No LTS read path, no session-start wiring, and no strategy-engine
+   *     integration is activated by this flag.
+   *
+   * Prerequisite: THERAPIST_UPGRADE_SUMMARIZATION_ENABLED must also be true
+   * for the session memory write to run (and thus for the LTS to have data).
+   * Enabling this flag alone without SUMMARIZATION_ENABLED is safe (LTS will
+   * compute from whatever records exist) but unlikely to produce useful output.
+   *
+   * Backend: also requires the THERAPIST_UPGRADE_LONGITUDINAL_ENABLED Deno
+   * secret to be set to 'true' in Base44 Application Secrets for the
+   * writeLTSSnapshot function to accept the write request.
+   *
+   * Staging enablement: set VITE_THERAPIST_UPGRADE_LONGITUDINAL_ENABLED=true
+   */
+  THERAPIST_UPGRADE_LONGITUDINAL_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_LONGITUDINAL_ENABLED === 'true',
+
+  /**
+   * Wave 4A / 4C — CBT Knowledge Retrieval.
+   *
+   * Wave 4A.1 (scaffold): Gates the CBT knowledge planner module
+   * (src/lib/cbtKnowledgePlanner.js).  The planner is a standalone pure
+   * library; enabling this flag alone has zero effect on any live session.
+   *
+   * Wave 4C (read path): When enabled together with STRATEGY_ENABLED,
+   * LONGITUDINAL_ENABLED, and the master gate, resolveTherapistWiring()
+   * returns CBT_THERAPIST_WIRING_STAGE2_V10 and
+   * buildV10SessionStartContentAsync appends a bounded CBT knowledge block
+   * to the session-start payload.
+   *
+   * The knowledge block is:
+   *   - Appended last (after LTS, strategy, formulation, continuity).
+   *   - Supporting reference only; does NOT override any clinical signal.
+   *   - Hard-capped at CBT_KNOWLEDGE_RETRIEVAL_MAX_UNITS (3) units.
+   *   - Gated by the CBT knowledge planner (safety, distress, strategy,
+   *     domain, evidence_level, distress_suitability, safety_tags,
+   *     runtime_eligible_first_wave filters).
+   *
+   * Fail-open: any retrieval error returns exact V9 output unchanged.
+   * Production behavior is EXACTLY preserved when this flag is off.
+   *
+   * Frontend VITE env only — no backend Deno equivalent is required for
+   * the client-side entity read path.
+   *
+   * Staging enablement: set VITE_THERAPIST_UPGRADE_KNOWLEDGE_ENABLED=true
+   * (also requires THERAPIST_UPGRADE_ENABLED, THERAPIST_UPGRADE_STRATEGY_ENABLED,
+   * and THERAPIST_UPGRADE_LONGITUDINAL_ENABLED to all be true).
+   */
+  THERAPIST_UPGRADE_KNOWLEDGE_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_KNOWLEDGE_ENABLED === 'true',
 });
 
 /**
@@ -274,8 +380,10 @@ export function getStage2DiagnosticPayload() {
     let routeHint;
     if (!masterGateOn) {
       routeHint = 'HYBRID (master gate off)';
-    } else if (computedFlags['THERAPIST_UPGRADE_FORMULATION_LED_ENABLED']) {
-      routeHint = 'STAGE2_V6 (formulation-led CBT)';
+    } else if (computedFlags['THERAPIST_UPGRADE_CONTINUITY_ENABLED']) {
+      routeHint = 'STAGE2_V7 (continuity)';
+    } else if (computedFlags['THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED']) {
+      routeHint = 'STAGE2_V6 (formulation context)';
     } else if (computedFlags['THERAPIST_UPGRADE_SAFETY_MODE_ENABLED']) {
       routeHint = 'STAGE2_V5 (safety mode)';
     } else if (computedFlags['THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED']) {
@@ -298,6 +406,11 @@ export function getStage2DiagnosticPayload() {
       computedFlags,
       masterGateOn,
       routeHint,
+      // Wave 2D — static strategy engine metadata (no runtime state, purely from constants).
+      strategyEngine: {
+        version: STRATEGY_VERSION,
+        availableModes: Object.values(STRATEGY_INTERVENTION_MODES),
+      },
     };
   } catch (_e) {
     // Diagnostics must never propagate errors.
@@ -324,6 +437,7 @@ export function logStage2Diagnostics() {
     console.log('computedFlags       :', p.computedFlags);
     console.log('masterGateOn        :', p.masterGateOn);
     console.log('routeHint           :', p.routeHint);
+    console.log('strategyEngine      :', p.strategyEngine);
     console.groupEnd();
   } catch (_e) {
     // Diagnostics must never break the app.
@@ -332,6 +446,206 @@ export function logStage2Diagnostics() {
 
 // Emit diagnostics at module load when _s2debug=true is in the URL.
 logStage2Diagnostics();
+
+// ─── Phase 4 — Unified Activation Diagnostics ────────────────────────────────
+
+/**
+ * Returns a unified diagnostic snapshot covering the activation state of BOTH
+ * the Therapist upgrade (THERAPIST_UPGRADE_FLAGS) and the AI Companion upgrade
+ * (COMPANION_UPGRADE_FLAGS).
+ *
+ * DIAGNOSTIC-ONLY — gated by `?_s2debug=true` in the URL.
+ * Returns null when the gate param is absent (fail-closed).
+ *
+ * This is the Phase 4 replacement for the per-agent diagnostic helpers.
+ * It provides a single QA checkpoint for the full upgrade activation state
+ * before any broader production flag enablement.  Both agents are covered in
+ * one call so staging QA can validate Therapist and Companion state together.
+ *
+ * SAFETY RULES (non-negotiable):
+ *   - No private user data is included (no message content, no entity IDs,
+ *     no PII, no journal content, no conversation text).
+ *   - No routing behaviour is changed — purely observational.
+ *   - No flag state is mutated.
+ *   - Any error returns null (fail-closed).
+ *
+ * Agent separation is preserved:
+ *   - therapist.computedFlags contains only THERAPIST_UPGRADE_* keys.
+ *   - companion.computedFlags contains only COMPANION_UPGRADE_* keys.
+ *   - No cross-contamination between the two flag namespaces.
+ *
+ * @returns {{
+ *   hostname: string|null,
+ *   search: string|null,
+ *   isPreviewStagingHost: boolean,
+ *   snapshotTimestamp: string,
+ *   therapist: {
+ *     parsedS2Flags: string[],
+ *     computedFlags: Record<string, boolean>,
+ *     masterGateOn: boolean,
+ *     routeHint: string,
+ *   },
+ *   companion: {
+ *     parsedC2Flags: string[],
+ *     computedFlags: Record<string, boolean>,
+ *     masterGateOn: boolean,
+ *     routeHint: string,
+ *   },
+ * } | null}
+ */
+export function getActivationDiagnostics() {
+  try {
+    if (typeof window === 'undefined') return null;
+
+    const search = window.location?.search ?? '';
+    const params = new URLSearchParams(search);
+    if (params.get('_s2debug') !== 'true') return null;
+
+    const hostname = window.location?.hostname ?? null;
+
+    // ── Therapist section ──────────────────────────────────────────────────
+    const rawS2 = params.get('_s2') ?? '';
+    const parsedS2Flags = rawS2
+      ? rawS2.split(',').map(k => k.trim()).filter(Boolean)
+      : [];
+
+    const therapistComputedFlags = {};
+    for (const flagName of Object.keys(THERAPIST_UPGRADE_FLAGS)) {
+      therapistComputedFlags[flagName] = isUpgradeEnabled(flagName);
+    }
+
+    const therapistMasterOn = therapistComputedFlags['THERAPIST_UPGRADE_ENABLED'] === true;
+
+    let therapistRouteHint;
+    if (!therapistMasterOn) {
+      therapistRouteHint = 'HYBRID (master gate off)';
+    } else if (therapistComputedFlags['THERAPIST_UPGRADE_CONTINUITY_ENABLED']) {
+      therapistRouteHint = 'STAGE2_V7 (continuity)';
+    } else if (therapistComputedFlags['THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED']) {
+      therapistRouteHint = 'STAGE2_V6 (formulation context)';
+    } else if (therapistComputedFlags['THERAPIST_UPGRADE_SAFETY_MODE_ENABLED']) {
+      therapistRouteHint = 'STAGE2_V5 (safety mode)';
+    } else if (therapistComputedFlags['THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED']) {
+      therapistRouteHint = 'STAGE2_V4 (live retrieval)';
+    } else if (therapistComputedFlags['THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED']) {
+      therapistRouteHint = 'STAGE2_V3 (retrieval orchestration)';
+    } else if (therapistComputedFlags['THERAPIST_UPGRADE_WORKFLOW_ENABLED']) {
+      therapistRouteHint = 'STAGE2_V2 (workflow engine)';
+    } else if (therapistComputedFlags['THERAPIST_UPGRADE_MEMORY_ENABLED']) {
+      therapistRouteHint = 'STAGE2_V1 (memory layer)';
+    } else {
+      therapistRouteHint = 'HYBRID (master gate on, no phase flag matched)';
+    }
+
+    // ── Companion section ──────────────────────────────────────────────────
+    const rawC2 = params.get('_c2') ?? '';
+    const parsedC2Flags = rawC2
+      ? rawC2.split(',').map(k => k.trim()).filter(Boolean)
+      : [];
+
+    const companionComputedFlags = {};
+    for (const flagName of Object.keys(COMPANION_UPGRADE_FLAGS)) {
+      companionComputedFlags[flagName] = isCompanionUpgradeEnabled(flagName);
+    }
+
+    const companionMasterOn = companionComputedFlags['COMPANION_UPGRADE_ENABLED'] === true;
+
+    let companionRouteHint;
+    if (!companionMasterOn) {
+      companionRouteHint = 'HYBRID (master gate off)';
+    } else if (companionComputedFlags['COMPANION_UPGRADE_CONTINUITY_ENABLED']) {
+      companionRouteHint = 'UPGRADE_V2 (continuity)';
+    } else if (companionComputedFlags['COMPANION_UPGRADE_WARMTH_ENABLED']) {
+      companionRouteHint = 'UPGRADE_V1 (warmth)';
+    } else {
+      companionRouteHint = 'HYBRID (master gate on, no phase flag matched)';
+    }
+
+    return {
+      hostname,
+      search,
+      isPreviewStagingHost: _isPreviewStagingHost(hostname ?? ''),
+      snapshotTimestamp: new Date().toISOString(),
+      therapist: {
+        parsedS2Flags,
+        computedFlags: therapistComputedFlags,
+        masterGateOn: therapistMasterOn,
+        routeHint: therapistRouteHint,
+        // Wave 2D — static strategy engine metadata (no runtime state, purely from constants).
+        strategyEngine: {
+          version: STRATEGY_VERSION,
+          availableModes: Object.values(STRATEGY_INTERVENTION_MODES),
+        },
+        // Wave 3E — LTS layer activation status (boolean flags only, no runtime state).
+        ltsLayer: {
+          ltsLayerActive: isUpgradeEnabled('THERAPIST_UPGRADE_LONGITUDINAL_ENABLED'),
+          strategyLayerActive: isUpgradeEnabled('THERAPIST_UPGRADE_STRATEGY_ENABLED'),
+        },
+        // Wave 4E — CBT knowledge layer activation status (boolean flags + static version).
+        knowledgeLayer: {
+          knowledgeLayerActive: isUpgradeEnabled('THERAPIST_UPGRADE_KNOWLEDGE_ENABLED'),
+          strategyLayerActive: isUpgradeEnabled('THERAPIST_UPGRADE_STRATEGY_ENABLED'),
+          ltsLayerActive: isUpgradeEnabled('THERAPIST_UPGRADE_LONGITUDINAL_ENABLED'),
+          plannerVersion: CBT_KNOWLEDGE_PLANNER_VERSION,
+        },
+      },
+      companion: {
+        parsedC2Flags,
+        computedFlags: companionComputedFlags,
+        masterGateOn: companionMasterOn,
+        routeHint: companionRouteHint,
+      },
+      // Wave 5D — Quality Evaluator activation status (boolean flags only, no runtime state).
+      evaluatorLayer: {
+        evaluatorEnabled: isQualityEvaluatorEnabled('QUALITY_EVALUATOR_ENABLED'),
+      },
+    };
+  } catch (_e) {
+    // Diagnostics must never propagate errors.
+    return null;
+  }
+}
+
+/**
+ * Logs the unified activation diagnostic snapshot to the console when
+ * `?_s2debug=true` is present in the URL.  No-op otherwise (fail-closed).
+ *
+ * Covers both the Therapist upgrade and the AI Companion upgrade in a single
+ * console group so staging QA can validate both agents at the same time.
+ *
+ * Called once at module load alongside logStage2Diagnostics().
+ */
+export function logActivationDiagnostics() {
+  try {
+    const p = getActivationDiagnostics();
+    if (!p) return;
+    console.group('[Activation Diagnostics] Therapist + Companion upgrade state');
+    console.log('hostname             :', p.hostname);
+    console.log('isPreviewStagingHost :', p.isPreviewStagingHost);
+    console.log('snapshotTimestamp    :', p.snapshotTimestamp);
+    console.group('[Therapist]');
+    console.log('parsedS2Flags        :', p.therapist.parsedS2Flags);
+    console.log('computedFlags        :', p.therapist.computedFlags);
+    console.log('masterGateOn         :', p.therapist.masterGateOn);
+    console.log('routeHint            :', p.therapist.routeHint);
+    console.log('strategyEngine       :', p.therapist.strategyEngine);
+    console.log('ltsLayer             :', p.therapist.ltsLayer); // Wave 3E
+    console.log('knowledgeLayer       :', p.therapist.knowledgeLayer); // Wave 4E
+    console.groupEnd();
+    console.group('[Companion]');
+    console.log('parsedC2Flags        :', p.companion.parsedC2Flags);
+    console.log('computedFlags        :', p.companion.computedFlags);
+    console.log('masterGateOn         :', p.companion.masterGateOn);
+    console.log('routeHint            :', p.companion.routeHint);
+    console.groupEnd();
+    console.group('[Evaluator]'); // Wave 5D
+    console.log('evaluatorEnabled     :', p.evaluatorLayer.evaluatorEnabled);
+    console.groupEnd();
+    console.groupEnd();
+  } catch (_e) {
+    // Diagnostics must never break the app.
+  }
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -346,6 +660,180 @@ logStage2Diagnostics();
  * @type {((eventName: string, properties: object) => void) | null}
  */
 let _upgradeTrack = null;
+
+// ─── AI Companion Upgrade — Phase 2 Feature Flag Registry ─────────────────────
+
+/**
+ * All AI Companion upgrade feature flags.
+ *
+ * Frozen at module load to prevent accidental runtime mutation.
+ * Every flag defaults to false (upgrade path disabled, legacy HYBRID path active).
+ *
+ * Routing is completely independent of THERAPIST_UPGRADE_FLAGS — the companion
+ * master gate and per-phase gates have no effect on therapist wiring, and vice
+ * versa.  This explicit separation prevents role ambiguity between agents.
+ *
+ * Rollback: set COMPANION_UPGRADE_ENABLED to false to disable all companion
+ * upgrade behavior in a single change.  No other code needs to be modified.
+ *
+ * @type {Readonly<Record<string, boolean>>}
+ */
+export const COMPANION_UPGRADE_FLAGS = Object.freeze({
+  /**
+   * Companion upgrade master gate.
+   * When false, all per-phase companion flags are treated as false regardless
+   * of their individual values.  This is the single kill-switch for all
+   * companion upgrade behavior.
+   *
+   * Staging enablement: set the environment variable
+   *   VITE_COMPANION_UPGRADE_ENABLED=true
+   */
+  COMPANION_UPGRADE_ENABLED: import.meta.env?.VITE_COMPANION_UPGRADE_ENABLED === 'true',
+
+  /**
+   * Phase 2 — Warmth and attuned response layer.
+   * Activates AI_COMPANION_WIRING_UPGRADE_V1: companion responses become
+   * warmer, more emotionally attuned, and less repetitive.
+   * Staging enablement: set VITE_COMPANION_UPGRADE_WARMTH_ENABLED=true
+   */
+  COMPANION_UPGRADE_WARMTH_ENABLED: import.meta.env?.VITE_COMPANION_UPGRADE_WARMTH_ENABLED === 'true',
+
+  /**
+   * Phase 3 — Companion continuity layer.
+   * Activates AI_COMPANION_WIRING_UPGRADE_V2: companion draws on prior
+   * session summaries to surface session-to-session continuity cues and
+   * provide individually tailored responses grounded in the user's history.
+   * Staging enablement: set VITE_COMPANION_UPGRADE_CONTINUITY_ENABLED=true
+   */
+  COMPANION_UPGRADE_CONTINUITY_ENABLED: import.meta.env?.VITE_COMPANION_UPGRADE_CONTINUITY_ENABLED === 'true',
+});
+
+/**
+ * Reads staging-only runtime overrides for companion flags from the URL.
+ *
+ * Uses the ?_c2=FLAG1,FLAG2,... parameter (parallel to ?_s2=... for therapist).
+ * All safety rules from _readStagingRuntimeOverrides() apply here:
+ *   - Fail-closed on unrecognised (production) hosts
+ *   - No unknown flag names accepted
+ *   - Any parsing error returns {}
+ *
+ * @returns {Record<string, boolean>}
+ */
+function _readCompanionStagingRuntimeOverrides() {
+  try {
+    if (typeof window === 'undefined') return {};
+    const hostname = window.location?.hostname ?? '';
+    if (!_isPreviewStagingHost(hostname)) return {};
+    const search = window.location?.search ?? '';
+    if (!search) return {};
+    const raw = new URLSearchParams(search).get('_c2');
+    if (!raw) return {};
+    const overrides = {};
+    for (const key of raw.split(',')) {
+      const trimmed = key.trim();
+      if (trimmed && trimmed in COMPANION_UPGRADE_FLAGS) {
+        overrides[trimmed] = true;
+      }
+    }
+    return overrides;
+  } catch (_e) {
+    return {};
+  }
+}
+
+/**
+ * Evaluates an AI Companion upgrade feature flag by name.
+ *
+ * Evaluation order (first truthy wins):
+ *   1. Build-time env var (import.meta.env.VITE_COMPANION_*) — the primary path.
+ *   2. Staging runtime URL override (?_c2=...) — preview/staging hosts only.
+ *
+ * The master flag (COMPANION_UPGRADE_ENABLED) must be true via either path,
+ * and the specific per-phase flag must also be true via either path, before
+ * this returns true.
+ *
+ * Returns false (legacy HYBRID path) when:
+ *   - The flag name is not a recognised companion upgrade flag key
+ *   - COMPANION_UPGRADE_ENABLED is false (build-time and runtime)
+ *   - The specific flag value is false (build-time and runtime)
+ *
+ * This is the single routing guard for all companion upgrade paths.
+ *
+ * @param {string} flagName - A key from COMPANION_UPGRADE_FLAGS
+ * @returns {boolean}
+ */
+export function isCompanionUpgradeEnabled(flagName) {
+  if (!(flagName in COMPANION_UPGRADE_FLAGS)) {
+    logCompanionUpgradeEvent('flag_isolation_failure', { flagName, reason: 'unknown_flag' });
+    return false;
+  }
+
+  const stagingOverrides = _readCompanionStagingRuntimeOverrides();
+
+  if (flagName === 'COMPANION_UPGRADE_ENABLED') {
+    return COMPANION_UPGRADE_FLAGS.COMPANION_UPGRADE_ENABLED ||
+      stagingOverrides.COMPANION_UPGRADE_ENABLED === true;
+  }
+
+  const masterEnabled =
+    COMPANION_UPGRADE_FLAGS.COMPANION_UPGRADE_ENABLED ||
+    stagingOverrides.COMPANION_UPGRADE_ENABLED === true;
+
+  if (!masterEnabled) {
+    return false;
+  }
+
+  return COMPANION_UPGRADE_FLAGS[flagName] || stagingOverrides[flagName] === true;
+}
+
+/**
+ * Optional analytics tracker for companion upgrade observability.
+ *
+ * @type {((eventName: string, properties: object) => void) | null}
+ */
+let _companionUpgradeTrack = null;
+
+/**
+ * Registers the app-level analytics tracker for companion upgrade events.
+ *
+ * @param {(eventName: string, properties: object) => void} trackFn
+ */
+export function registerCompanionUpgradeAnalyticsTracker(trackFn) {
+  if (typeof trackFn === 'function') {
+    _companionUpgradeTrack = trackFn;
+  } else {
+    _companionUpgradeTrack = null;
+  }
+}
+
+/**
+ * Observability hook for companion upgrade routing events.
+ *
+ * Mirrors logUpgradeEvent() for the companion agent.
+ * Must not throw — logging failure must never break routing.
+ *
+ * @param {string} event
+ * @param {object} [context]
+ */
+export function logCompanionUpgradeEvent(event, context = {}) {
+  if (_companionUpgradeTrack !== null) {
+    try {
+      _companionUpgradeTrack('companion_upgrade_' + event, context);
+    } catch (_e) {
+      // Analytics failure must never propagate — fall through to console.
+    }
+  }
+
+  if (event === 'flag_isolation_failure') {
+    console.warn('[CompanionUpgrade] Isolation failure —', event, context);
+    return;
+  }
+
+  if (event === 'route_selected' || event === 'route_not_selected') {
+    console.log('[CompanionUpgrade]', event, context);
+    return;
+  }
+}
 
 /**
  * Registers the app-level analytics tracker for upgrade observability events.
@@ -410,4 +898,71 @@ export function logUpgradeEvent(event, context = {}) {
 
   // All other events are silent at Phase 0 to avoid production noise.
   // Later phases may expand this switch as needed.
+}
+
+// Emit unified activation diagnostics at module load when _s2debug=true is in the URL.
+// Called after all flag registries and evaluators are fully initialised.
+logActivationDiagnostics();
+
+// ─── Wave 5A — Quality Evaluator Feature Flag Registry ────────────────────────
+
+/**
+ * Quality Evaluator feature flags.
+ *
+ * Kept in a separate registry from THERAPIST_UPGRADE_FLAGS and
+ * COMPANION_UPGRADE_FLAGS so that the evaluator can be deployed, tested,
+ * and rolled back independently of agent upgrade rollouts.
+ *
+ * Wave 5A: Only VITE_QUALITY_EVALUATOR_ENABLED is present.  Wiring flags
+ * will be added in later waves as each integration surface is approved.
+ *
+ * Frozen at module load to prevent accidental runtime mutation.
+ * All flags default to false.
+ *
+ * @type {Readonly<Record<string, boolean>>}
+ */
+export const QUALITY_EVALUATOR_FLAGS = Object.freeze({
+  /**
+   * Wave 5A — Quality Evaluator master gate.
+   *
+   * When false (the default), the evaluator scaffold exists in source but is
+   * never called by any runtime path.  Enabling this flag alone in Wave 5A
+   * has zero effect on live session behaviour because the evaluator is not yet
+   * wired into any session-start, diagnostics, or rollout path.  The flag is
+   * added now so the registry contract is stable and testable before wiring.
+   *
+   * Staging enablement: set the environment variable
+   *   VITE_QUALITY_EVALUATOR_ENABLED=true
+   * in a staging build.  Defaults to false when the variable is absent or
+   * set to any other value.
+   *
+   * Do NOT add this flag into THERAPIST_UPGRADE_FLAGS.
+   * Do NOT add this flag into COMPANION_UPGRADE_FLAGS.
+   * It is intentionally isolated in its own registry.
+   */
+  QUALITY_EVALUATOR_ENABLED: import.meta.env?.VITE_QUALITY_EVALUATOR_ENABLED === 'true',
+});
+
+/**
+ * Evaluates the Quality Evaluator master gate flag.
+ *
+ * Returns true when QUALITY_EVALUATOR_ENABLED is set to 'true' via the
+ * VITE_QUALITY_EVALUATOR_ENABLED build-time environment variable.
+ *
+ * The evaluator flag registry is intentionally isolated from
+ * THERAPIST_UPGRADE_FLAGS and COMPANION_UPGRADE_FLAGS so that the evaluator
+ * can be deployed, tested, and rolled back independently of agent upgrade
+ * rollouts.  This function is the single read point for the evaluator gate.
+ *
+ * Returns false when:
+ *   - The flag name is not a key in QUALITY_EVALUATOR_FLAGS
+ *   - QUALITY_EVALUATOR_ENABLED is false (build-time env absent or not 'true')
+ *
+ * @param {string} [flagName='QUALITY_EVALUATOR_ENABLED']
+ *   A key from QUALITY_EVALUATOR_FLAGS.  Defaults to the master gate.
+ * @returns {boolean}
+ */
+export function isQualityEvaluatorEnabled(flagName = 'QUALITY_EVALUATOR_ENABLED') {
+  if (!(flagName in QUALITY_EVALUATOR_FLAGS)) return false;
+  return QUALITY_EVALUATOR_FLAGS[flagName] === true;
 }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { ACTIVE_AI_COMPANION_WIRING } from '@/api/activeAgentWiring.js';
+import { buildCompanionSessionStartContextAsync } from '@/lib/companionContinuity.js';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -77,13 +78,24 @@ export default function CoachingSessionWizard({ onClose }) {
 
       // Create AI conversation
       try {
+        let memoryContext = '';
+        try {
+          memoryContext = await buildCompanionSessionStartContextAsync(
+            base44.entities,
+            ACTIVE_AI_COMPANION_WIRING,
+          );
+        } catch {
+          // Fail-closed: session start continues without context
+        }
+
         const conversation = await base44.agents.createConversation({
-          agent_name: ACTIVE_AI_COMPANION_WIRING.name,
+          agent_name: 'ai_coach',
           tool_configs: ACTIVE_AI_COMPANION_WIRING.tool_configs,
           metadata: {
             name: `Coaching: ${data.title}`,
             type: 'coaching_session',
-            session_id: session.id
+            session_id: session.id,
+            memory_context: memoryContext,
           }
         });
 
@@ -158,9 +170,9 @@ Please help me create a structured plan to work through this.`
   };
 
   return (
-    <div className="flex flex-col bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 w-full" style={{ position: 'fixed', inset: 0, height: '100dvh', overflow: 'hidden', zIndex: 70, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+    <div className="flex flex-col bg-background w-full" style={{ position: 'fixed', inset: 0, height: '100dvh', overflow: 'hidden', zIndex: 70, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       {/* Header */}
-      <div className="bg-white border-b shadow-sm flex-shrink-0" style={{ zIndex: 10 }}>
+      <div className="bg-card border-b border-border/70 shadow-sm flex-shrink-0" style={{ zIndex: 10 }}>
         <div className="max-w-2xl mx-auto p-4 w-full">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -168,8 +180,8 @@ Please help me create a structured plan to work through this.`
                 <Target className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-gray-800">Start New Session</h1>
-                <p className="text-sm text-gray-500">Step {step} of 3</p>
+                <h1 className="text-xl font-semibold text-foreground">Start New Session</h1>
+                <p className="text-sm text-muted-foreground">Step {step} of 3</p>
               </div>
             </div>
             <Button variant="ghost" size="icon" onClick={step > 1 ? () => setStep(step - 1) : onClose} aria-label={step > 1 ? "Go back" : "Close"} className="text-slate-950 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
@@ -190,14 +202,14 @@ Please help me create a structured plan to work through this.`
           {step === 1 &&
           <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">What would you like to work on?</h3>
-                <p className="text-sm text-gray-600 mb-4">Choose the area you want to focus on</p>
+                <h3 className="text-lg font-semibold text-foreground mb-2">What would you like to work on?</h3>
+                <p className="text-sm text-muted-foreground mb-4">Choose the area you want to focus on</p>
               </div>
 
               {moodInsight &&
-            <div className="p-4 bg-orange-50 border border-orange-200 rounded-xl flex items-start gap-3">
-                  <Lightbulb className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-sm text-orange-800">{moodInsight}</p>
+            <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-start gap-3">
+                  <Lightbulb className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-amber-800 dark:text-amber-300">{moodInsight}</p>
                 </div>
             }
 
@@ -209,15 +221,15 @@ Please help me create a structured plan to work through this.`
                 className={cn(
                   'p-4 rounded-xl border-2 text-left transition-all hover:shadow-lg',
                   formData.focus_area === area.value ?
-                  'border-purple-400 bg-purple-50 shadow-md' :
-                  'border-gray-200 hover:border-gray-300'
+                  'border-primary bg-primary/8 shadow-md' :
+                  'border-border hover:border-border/80'
                 )}>
 
                     <div className="flex items-start gap-3">
                       <span className="text-3xl">{area.icon}</span>
                       <div>
-                        <h4 className="font-semibold text-gray-800">{area.label}</h4>
-                        <p className="text-xs text-gray-600 mt-1">{area.description}</p>
+                        <h4 className="font-semibold text-foreground">{area.label}</h4>
+                        <p className="text-xs text-muted-foreground mt-1">{area.description}</p>
                       </div>
                     </div>
                   </button>
@@ -230,12 +242,12 @@ Please help me create a structured plan to work through this.`
           {step === 2 &&
           <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Tell me more</h3>
-                <p className="text-sm text-gray-600 mb-4">Help me understand what you're facing</p>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Tell me more</h3>
+                <p className="text-sm text-muted-foreground mb-4">Help me understand what you're facing</p>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   What's the specific challenge you're facing?
                 </label>
                 <Textarea
@@ -247,7 +259,7 @@ Please help me create a structured plan to work through this.`
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   What would you like to achieve or how would you like things to be different?
                 </label>
                 <Textarea
@@ -260,7 +272,7 @@ Please help me create a structured plan to work through this.`
 
               {goals.length > 0 &&
             <div>
-                  <label className="text-sm font-medium text-gray-700 mb-3 block">
+                  <label className="text-sm font-medium text-foreground mb-3 block">
                     Related to any existing goals? (Optional)
                   </label>
                   <div className="space-y-2">
@@ -271,19 +283,19 @@ Please help me create a structured plan to work through this.`
                   className={cn(
                     'p-3 rounded-xl border-2 cursor-pointer transition-all',
                     formData.related_goals.includes(goal.id) ?
-                    'border-purple-400 bg-purple-50' :
-                    'border-gray-200 hover:border-gray-300'
+                    'border-primary bg-primary/8' :
+                    'border-border hover:border-border/80'
                   )}>
 
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                              <Target className="w-4 h-4 text-blue-600" />
+                            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                              <Target className="w-4 h-4 text-primary" />
                             </div>
-                            <span className="font-medium text-gray-800">{goal.title}</span>
+                            <span className="font-medium text-foreground">{goal.title}</span>
                           </div>
                           {formData.related_goals.includes(goal.id) &&
-                    <Badge className="bg-purple-600">Selected</Badge>
+                    <Badge className="bg-primary">Selected</Badge>
                     }
                         </div>
                       </div>
@@ -298,12 +310,12 @@ Please help me create a structured plan to work through this.`
           {step === 3 &&
           <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Almost there!</h3>
-                <p className="text-sm text-gray-600 mb-4">Give your coaching session a name</p>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Almost there!</h3>
+                <p className="text-sm text-muted-foreground mb-4">Give your coaching session a name</p>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   Session Title
                 </label>
                 <Input
@@ -314,19 +326,19 @@ Please help me create a structured plan to work through this.`
 
               </div>
 
-              <Card className="border-2 border-blue-200 bg-blue-50">
+              <Card className="border-2 border-primary/20 bg-primary/5">
                 <CardContent className="p-4 space-y-3">
-                  <h4 className="font-semibold text-blue-900">Session Overview</h4>
+                  <h4 className="font-semibold text-foreground">Session Overview</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Focus:</span>
-                      <span className="font-medium text-gray-800">
+                      <span className="text-muted-foreground">Focus:</span>
+                      <span className="font-medium text-foreground">
                         {focusAreas.find((a) => a.value === formData.focus_area)?.label}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Related Goals:</span>
-                      <span className="font-medium text-gray-800">
+                      <span className="text-muted-foreground">Related Goals:</span>
+                      <span className="font-medium text-foreground">
                         {formData.related_goals.length}
                       </span>
                     </div>
@@ -334,12 +346,12 @@ Please help me create a structured plan to work through this.`
                 </CardContent>
               </Card>
 
-              <div className="p-4 bg-purple-50 border border-purple-200 rounded-xl">
+              <div className="p-4 bg-secondary/50 border border-border/70 rounded-xl">
                 <div className="flex items-start gap-3">
-                  <Sparkles className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
+                  <Sparkles className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-sm text-purple-900 font-medium mb-1">What happens next?</p>
-                    <p className="text-sm text-purple-700">
+                    <p className="text-sm text-foreground font-medium mb-1">What happens next?</p>
+                    <p className="text-sm text-muted-foreground">
                       Your AI coach will guide you through structured steps: understanding your challenge, 
                       setting clear goals, creating an action plan, and providing ongoing support.
                     </p>
@@ -353,7 +365,7 @@ Please help me create a structured plan to work through this.`
       </div>
 
       {/* Navigation - Sticky at bottom of fixed container */}
-      <div className="bg-white border-t shadow-lg flex-shrink-0 safe-bottom-nav" style={{ zIndex: 10 }}>
+      <div className="bg-card border-t border-border/70 shadow-lg flex-shrink-0 safe-bottom-nav" style={{ zIndex: 10 }}>
         <div className="max-w-2xl mx-auto p-4">
           <div className="flex gap-3">
             {step > 1 &&
@@ -399,8 +411,8 @@ Please help me create a structured plan to work through this.`
           
           {/* Error Display */}
           {createSessionMutation.isError &&
-          <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-800">
+          <div className="mt-3 p-3 bg-destructive/10 border border-destructive/30 rounded-lg">
+              <p className="text-sm text-destructive">
                 Failed to create session. Please try again.
               </p>
             </div>

@@ -356,9 +356,9 @@ export default function StandaloneDailyCheckIn() {
                   className="h-9 w-9"
                   aria-label={t('daily_check_in.aria_delete')}>
 
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="text-[hsl(var(--destructive))] lucide lucide-trash2 w-4 h-4" />
                 </Button>
-                {isCollapsed ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                {isCollapsed ? <ChevronUp className="text-[hsl(var(--chart-2))] lucide lucide-chevron-up w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
               </div>
             </div>
           </CardHeader>
@@ -557,28 +557,28 @@ export default function StandaloneDailyCheckIn() {
                       {emotions.map((emotion) => {
                         const isSelected = formData.emotions.includes(emotion);
                         return (
-                      <button
-                        key={emotion}
-                        type="button"
-                        onClick={() => toggleEmotion(emotion)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            toggleEmotion(emotion);
-                          }
-                        }}
-                        className={cn(
-                          "px-3 py-1.5 text-xs font-medium rounded-full transition-all border-2 cursor-pointer",
-                          isSelected
-                            ? cn(colors.selected, colors.text, "border-transparent scale-105 shadow-[var(--shadow-sm)]")
-                            : "bg-teal-50 text-foreground/85 border-border/70 hover:border-primary/30 hover:bg-secondary/70"
-                        )}
-                        aria-label={t(`daily_check_in.emotions.${emotion}`, { defaultValue: emotion })}
-                        aria-pressed={isSelected}>
+                          <button
+                            key={emotion}
+                            type="button"
+                            onClick={() => toggleEmotion(emotion)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                toggleEmotion(emotion);
+                              }
+                            }}
+                            className={cn(
+                              "px-3 py-1.5 text-xs font-medium rounded-full transition-all border-2 cursor-pointer",
+                              isSelected ?
+                              cn(colors.selected, colors.text, "border-transparent scale-105 shadow-[var(--shadow-sm)]") :
+                              "bg-teal-50 text-foreground/85 border-border/70 hover:border-primary/30 hover:bg-secondary/70"
+                            )}
+                            aria-label={t(`daily_check_in.emotions.${emotion}`, { defaultValue: emotion })}
+                            aria-pressed={isSelected}>
 
                           {t(`daily_check_in.emotions.${emotion}`, { defaultValue: emotion })}
-                        </button>
-                        );
+                        </button>);
+
                       })}
                     </div>
                   </div>);

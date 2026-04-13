@@ -100,6 +100,10 @@ const ALLOWED_ARRAY_FIELDS: string[] = [
   'risk_flags',
   'follow_up_tasks',
   'goals_referenced',
+  // Therapeutic Progress Memory fields (v2)
+  'repeated_obstacles',
+  'what_helped',
+  'what_did_not_help',
 ];
 
 const ALLOWED_STRING_FIELDS: string[] = [
@@ -108,6 +112,15 @@ const ALLOWED_STRING_FIELDS: string[] = [
   'session_summary',
   'safety_plan_notes',
   'last_summarized_date',
+  // Therapeutic Progress Memory fields (v2)
+  'current_issue',
+  'intervention_mode',
+  'latest_completed_step',
+  'latest_outcome_pattern',
+  'difficulty_level',
+  'next_recommended_step',
+  'current_working_goal',
+  'user_work_preferences',
 ];
 
 // ─── Input sanitizer / record builder ────────────────────────────────────────

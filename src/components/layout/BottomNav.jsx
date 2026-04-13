@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { cn } from "@/lib/utils";
@@ -15,23 +15,24 @@ export default function BottomNav({ currentPageName }) {
   const navigate = useNavigate();
   const tabNav = useTabNavigation();
 
-  const navItems = [
-  { name: t('sidebar.home.name'), icon: Home, path: 'Home' },
-  { name: t('sidebar.chat.name'), icon: MessageCircle, path: 'Chat' },
-  { name: t('sidebar.coach.name'), icon: Heart, path: 'Coach' },
-  { name: t('sidebar.journal.name'), icon: BookOpen, path: 'Journal' },
-  { name: t('sidebar.mood.name'), icon: Activity, path: 'MoodTracker' },
-  { name: t('sidebar.exercises.name'), icon: Dumbbell, path: 'Exercises' }];
+  // Memoised so icon/label objects aren't recreated on every render.
+  const navItems = useMemo(() => [
+    { name: t('sidebar.home.name'),      icon: Home,          path: 'Home'        },
+    { name: t('sidebar.chat.name'),      icon: MessageCircle, path: 'Chat'        },
+    { name: t('sidebar.coach.name'),     icon: Heart,         path: 'Coach'       },
+    { name: t('sidebar.journal.name'),   icon: BookOpen,      path: 'Journal'     },
+    { name: t('sidebar.mood.name'),      icon: Activity,      path: 'MoodTracker' },
+    { name: t('sidebar.exercises.name'), icon: Dumbbell,      path: 'Exercises'   },
+  ], [t]);
 
 
-  const handleTabClick = (e, item) => {
+  // Stable callback — avoids re-creating the function and re-rendering all
+  // Link children on every parent render.
+  const handleTabClick = useCallback((e, item) => {
     e.preventDefault();
-
-    // Use tab navigation context for independent stacks
     if (tabNav) {
       tabNav.switchToTab(item.path);
     } else {
-      // Fallback behavior
       if (currentPageName === item.path) {
         navigate(createPageUrl(item.path), { replace: true });
         requestAnimationFrame(() => {
@@ -41,7 +42,7 @@ export default function BottomNav({ currentPageName }) {
         navigate(createPageUrl(item.path));
       }
     }
-  };
+  }, [tabNav, currentPageName, navigate]);
 
   return (
     <nav
@@ -53,7 +54,7 @@ export default function BottomNav({ currentPageName }) {
         paddingBottom: 'env(safe-area-inset-bottom, 0px)'
       }}>
 
-      <div className="bg-teal-50 px-1 flex justify-around items-center h-full">
+      <div className="px-1 flex justify-around items-center h-full">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentPageName === item.path;
@@ -66,15 +67,21 @@ export default function BottomNav({ currentPageName }) {
               aria-label={item.name}
               className={cn(
                 'flex flex-col items-center justify-center gap-1 transition-calm px-2 py-2 rounded-3xl min-w-[52px] border',
-                isActive
-                  ? 'bg-primary/15 border-primary/30 shadow-[var(--shadow-sm)]'
-                  : 'bg-transparent border-transparent'
-              )}
-            >
+                isActive ?
+                'bg-primary/15 border-primary/30 shadow-[var(--shadow-sm)]' :
+                'bg-transparent border-transparent'
+              )}>
+
+
+
+
+
+
+              
               <Icon
                 className={cn('w-5 h-5 icon-default', isActive ? 'text-primary scale-110' : 'text-muted-foreground')}
-                strokeWidth={isActive ? 2.5 : 2}
-              />
+                strokeWidth={isActive ? 2.5 : 2} />
+              
               <span className={cn('text-xs font-medium leading-none', isActive ? 'text-primary' : 'text-muted-foreground')}>{item.name}</span>
             </Link>);
 

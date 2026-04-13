@@ -37,12 +37,25 @@ import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
 import { validateAgentOutput, sanitizeConversationMessages, parseCounters } from '../components/utils/validateAgentOutput.jsx';
 import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
-import { buildV6SessionStartContentAsync, buildRuntimeSafetySupplement } from '@/lib/workflowContextInjector.js';
+import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildV8SessionStartContentAsync, buildV9SessionStartContentAsync, buildV10SessionStartContentAsync, buildRuntimeSafetySupplement } from '@/lib/workflowContextInjector.js';
+// Phase 4 / Phase 5 — Conversation memory write for V7 continuity
+import { triggerConversationEndSummarization, CONVERSATION_MIN_MESSAGES_FOR_MEMORY } from '@/lib/sessionEndSummarization.js';
 import { MOBILE_HEADER_HEIGHT } from '../components/layout/MobileHeader';
 import { BOTTOM_NAV_HEIGHT } from '../components/layout/BottomNav';
 // Phase 8 — Upgraded-path UI (flag-gated; hidden in default mode)
 import SessionPhaseIndicator from '../components/therapy/SessionPhaseIndicator';
 import SafetyModeIndicator from '../components/therapy/SafetyModeIndicator';
+// Phase 3 Deep Personalization — Session continuity cue (flag-gated; hidden in default mode)
+import SessionContinuityCue from '../components/therapy/SessionContinuityCue';
+
+// ─── MF-7: Legacy variant-profile agent names — historical conversations under
+// these names must NOT receive new messages. Empty clinical stubs; fail-closed.
+// Do NOT derive this list dynamically. Do NOT infer from safetyProfile metadata.
+const LEGACY_VARIANT_PROFILES = Object.freeze([
+  'cbt_therapist_strict',
+  'cbt_therapist_standard',
+  'cbt_therapist_lenient',
+]);
 
 export default function Chat() {
   const { t, i18n } = useTranslation();
@@ -65,6 +78,8 @@ export default function Chat() {
   const [isAgeRestricted, setIsAgeRestricted] = useState(false);
   const [showSavePrompt, setShowSavePrompt] = useState(false);
   const [savePromptData, setSavePromptData] = useState(null);
+  // MF-7: true when the loaded conversation belongs to a legacy variant-profile agent
+  const [variantProfileBlocked, setVariantProfileBlocked] = useState(false);
   // Phase 8 — Upgraded-path UI state (only relevant when V5 wiring is active)
   // safetyModeActive becomes true and stays true once the upgraded safety supplement
   // fires for any turn in this session.  Resets when a new conversation starts.
@@ -97,14 +112,26 @@ export default function Chat() {
     PLACEHOLDER_BECAME_MESSAGE: 0,
     THINKING_OVER_10S: 0,
     UI_FLASHES_DETECTED: 0,
-    SAFE_UPDATES: 0
+    SAFE_UPDATES: 0,
+    TOTAL_MESSAGES_PROCESSED: 0,
+    STUCK_THINKING_TIMEOUTS: 0
   });
 
   const refetchDebounceRef = useRef(null);
+  const mountedRef = useRef(true);
+  const processedIntentRef = useRef(null);
+  const sessionTriggeredRef = useRef(new Set());
+  const inFlightIntentRef = useRef(false);
+  // Phase 5 — Dedup Set: tracks conversationIds that have already had a
+  // conversation-end memory write triggered (from any path: switch, requestSummary).
+  // Prevents double-writes when both a switch trigger and requestSummary fire for
+  // the same conversation.
+  const conversationMemoryWrittenRef = useRef(new Set());
 
   // Reset visible window when conversation changes
   useEffect(() => {
     setVisibleCount(50);
+    setVariantProfileBlocked(false); // MF-7: reset block state whenever conversation switches
   }, [currentConversationId]);
 
   // Load more messages when user scrolls to top
@@ -404,7 +431,7 @@ export default function Chat() {
                 setIsLoading(true);
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
-                  content: await buildV6SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44)
+                  content: await buildV10SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44)
                 });
                 inFlightIntentRef.current = false;
               }, 100);
@@ -445,7 +472,7 @@ export default function Chat() {
                 setIsLoading(true);
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
-                  content: await buildV6SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44)
+                  content: await buildV10SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44)
                 });
                 inFlightIntentRef.current = false;
               }, 100);
@@ -750,13 +777,12 @@ export default function Chat() {
           return [];
         }
 
-        // Fetch conversations from all safety profile agents
-        const allConversations = await Promise.all([
-        base44.agents.listConversations({ agent_name: 'cbt_therapist_lenient' }).catch(() => []),
-        base44.agents.listConversations({ agent_name: 'cbt_therapist_standard' }).catch(() => []),
-        base44.agents.listConversations({ agent_name: 'cbt_therapist_strict' }).catch(() => []),
-        base44.agents.listConversations({ agent_name: 'cbt_therapist' }).catch(() => []) // Legacy
-        ]);
+        // Fetch conversations sequentially to avoid rate-limit bursts
+        const allConversations = [];
+        for (const agentName of ['cbt_therapist_lenient', 'cbt_therapist_standard', 'cbt_therapist_strict', 'cbt_therapist']) {
+          const result = await base44.agents.listConversations({ agent_name: agentName }).catch(() => []);
+          allConversations.push(result);
+        }
 
         const flatConversations = allConversations.flat();
         const deletedConversations = await base44.entities.UserDeletedConversations.list();
@@ -790,6 +816,14 @@ export default function Chat() {
 
   const startNewConversationWithIntent = async (intentParam) => {
     try {
+      // Phase 5 — Fire a non-blocking memory write for the conversation the user
+      // is leaving before starting a new one. Capture current id/meta/messages
+      // synchronously so values are stable. Inert when flags are off or messages
+      // are below the meaningful-exchange threshold.
+      const leavingId = currentConversationId;
+      const leavingMeta = conversations?.find((c) => c.id === leavingId)?.metadata || {};
+      maybeTriggerEndWrite(leavingId, leavingMeta, messages);
+
       const intentMessages = {
         'daily_checkin': 'User clicked: Daily Check-in. Start daily_checkin flow.',
         'thought_work': 'User clicked: Journal a thought. Start thought_work flow.',
@@ -833,39 +867,25 @@ export default function Chat() {
 
       setCurrentConversationId(conversation.id);
       setMessages([]);
+      lastConfirmedMessagesRef.current = []; // Reset baseline for new conversation
       setShowSidebar(false);
       setSafetyModeActive(false); // Phase 8: reset safety mode state on new session
       refetchConversations();
 
-      // Always send the session-start content to inject the active workflow context.
-      // When an intent message is also present (e.g. "daily_checkin"), append it
-      // after the session-start block so the agent receives both signals.
-      // When no intent is present (plain "New Session"), the session-start content
-      // alone triggers the AI's structured opening greeting.
-      // Fail-open: if buildV4SessionStartContentAsync throws, fall back to the
-      // intent message only (or skip entirely when there is no intent either).
+      // Always send [START_SESSION] so the agent initialises correctly on all
+      // wiring paths (HYBRID and all upgrade phases).  If there is also an intent
+      // message, append it to the same turn so the agent handles both together.
       setTimeout(async () => {
         setIsLoading(true);
-        try {
-          const sessionStart = await buildV4SessionStartContentAsync(
-            ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44
-          );
-          await base44.agents.addMessage(conversation, {
-            role: 'user',
-            content: initialMessage ? sessionStart + '\n\n' + initialMessage : sessionStart
-          });
-        } catch (err) {
-          console.error('[Session Start] Failed to build workflow context:', err);
-          // Fail-open: fall back to intent message only (or clear loading when no intent)
-          if (initialMessage) {
-            await base44.agents.addMessage(conversation, {
-              role: 'user',
-              content: initialMessage
-            });
-          } else {
-            setIsLoading(false);
-          }
-        }
+        const sessionStartContent = await buildV10SessionStartContentAsync(
+          ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44
+        );
+        await base44.agents.addMessage(conversation, {
+          role: 'user',
+          content: initialMessage
+            ? sessionStartContent + '\n\n' + initialMessage
+            : sessionStartContent
+        });
       }, 100);
     } catch (error) {
       console.error('Error creating conversation:', error);
@@ -878,8 +898,25 @@ export default function Chat() {
 
   const loadConversation = async (conversationId) => {
     try {
+      // Phase 5 — Fire a non-blocking memory write for the conversation the user
+      // is switching AWAY from before loading the new one. Capture the current
+      // id/meta/messages synchronously (before any state updates) so the correct
+      // values are used in the trigger call. Inert when flags are off or messages
+      // are below the meaningful-exchange threshold. Deduped via
+      // conversationMemoryWrittenRef to prevent double-writes if requestSummary
+      // was already called for the same conversation.
+      const leavingId = currentConversationId;
+      const leavingMeta = conversations?.find((c) => c.id === leavingId)?.metadata || {};
+      maybeTriggerEndWrite(leavingId, leavingMeta, messages);
+
       const conversation = await base44.agents.getConversation(conversationId);
       setCurrentConversationId(conversationId);
+
+      // CRITICAL: Reset confirmed-messages baseline when switching conversations.
+      // Without this reset, safeUpdateMessages rejects the new conversation's messages
+      // if it has fewer messages than the previous conversation, causing replies to
+      // appear invisible (never rendered) on the newly loaded conversation.
+      lastConfirmedMessagesRef.current = [];
 
       // Process and sanitize messages before setting
       const sanitized = sanitizeConversationMessages(conversation.messages || []);
@@ -887,6 +924,7 @@ export default function Chat() {
       setShowSidebar(false);
     } catch (error) {
       console.error('[Load Conversation Error]', error);
+      lastConfirmedMessagesRef.current = [];
       setMessages([]);
     }
   };
@@ -913,27 +951,8 @@ export default function Chat() {
     const reasonCode = detectCrisisWithReason(inputMessage);
     if (reasonCode) {
       setShowRiskPanel(true);
-      base44.auth.me().
-      then((user) => {
-        base44.entities.CrisisAlert.create({
-          surface: 'chat',
-          conversation_id: currentConversationId || 'none',
-          reason_code: reasonCode,
-          user_email: user?.email || 'unknown'
-        }).catch(() => {});
-
-        // Analytics tracking
-        if (appParams.appId) {
-          base44.analytics.track({
-            eventName: 'crisis_detected_regex',
-            properties: {
-              reason_code: reasonCode,
-              surface: 'chat'
-            }
-          });
-        }
-      }).
-      catch(() => {});
+      setInputMessage('');
+      setIsLoading(false);
       return;
     }
 
@@ -1015,12 +1034,9 @@ export default function Chat() {
 
     try {
       let convId = currentConversationId;
-      // When the user's first message implicitly creates a new conversation,
-      // capture session-start context so the workflow instructions reach the
-      // agent on this very first turn.  Fail-open: if the build throws, the
-      // message is sent without the context prefix.
-      let _firstMsgSessionStart = null;
+      let isNewConversation = false;
       if (!convId) {
+        isNewConversation = true;
         // Get safety profile from user settings or default to 'standard'
         const user = await base44.auth.me().catch(() => null);
         const safetyProfile = user?.preferences?.safety_profile || 'standard';
@@ -1051,12 +1067,39 @@ export default function Chat() {
       }
 
       const conversation = await base44.agents.getConversation(convId);
+
+      // MF-7: Fail-closed guard — block continuation of legacy variant-profile conversations.
+      // Only block when agent_name is EXPLICITLY a known legacy variant.
+      // Absent agent_name (Preview platform may not return it) is treated as the primary agent
+      // to avoid incorrectly blocking all conversations in environments where the field is omitted.
+      const conversationAgentName = conversation?.agent_name;
+      if (conversationAgentName && LEGACY_VARIANT_PROFILES.includes(conversationAgentName)) {
+        if (loadingTimeoutRef.current) {
+          clearTimeout(loadingTimeoutRef.current);
+          loadingTimeoutRef.current = null;
+        }
+        setIsLoading(false);
+        setVariantProfileBlocked(true);
+        return;
+      }
+
       console.log('[Send] 📤 Adding message to conversation:', convId);
 
-      const _baseContent = runtimeSupplement ? runtimeSupplement + '\n\n' + messageText : messageText;
+      // When the user types their first message without clicking "Start Session",
+      // prepend the [START_SESSION] block so the agent initialises on all wiring paths.
+      let messageContent = runtimeSupplement
+        ? runtimeSupplement + '\n\n' + messageText
+        : messageText;
+      if (isNewConversation) {
+        const sessionStartContent = await buildV10SessionStartContentAsync(
+          ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44
+        );
+        messageContent = sessionStartContent + '\n\n' + messageContent;
+      }
+
       await base44.agents.addMessage(conversation, {
         role: 'user',
-        content: _firstMsgSessionStart ? _firstMsgSessionStart + '\n\n' + _baseContent : _baseContent
+        content: messageContent
       });
 
       console.log('[Send] ✅ Message sent - starting authoritative polling');
@@ -1177,6 +1220,22 @@ export default function Chat() {
     }
   };
 
+  // Phase 5 — Conversation-switch memory write trigger.
+  // Fires triggerConversationEndSummarization for `convId` if:
+  //   (a) convId is a non-empty string,
+  //   (b) messages had at least CONVERSATION_MIN_MESSAGES_FOR_MEMORY entries
+  //       (ensures a real exchange happened before the session ended),
+  //   (c) convId has NOT already been written (dedup via conversationMemoryWrittenRef).
+  // The call is non-blocking and fail-closed (errors are caught inside
+  // triggerConversationEndSummarization). Inert when flags are off.
+  const maybeTriggerEndWrite = (convId, convMeta, msgList) => {
+    if (!convId) return;
+    if (!Array.isArray(msgList) || msgList.length < CONVERSATION_MIN_MESSAGES_FOR_MEMORY) return;
+    if (conversationMemoryWrittenRef.current.has(convId)) return;
+    conversationMemoryWrittenRef.current.add(convId);
+    triggerConversationEndSummarization(convId, convMeta || {}, 'chat_conversation_switch', base44.entities);
+  };
+
   const requestSummary = async () => {
     if (!currentConversationId) return;
 
@@ -1184,19 +1243,20 @@ export default function Chat() {
     setIsLoading(true);
     setShowSummaryPrompt(false);
 
-    // Phase 2 fix: requestSummary has no polling loop, so the only loading-recovery
-    // paths are the active subscription and the 60-second subscription timeout.
-    // When Phase 2 is enabled the agent may return a JSON-shaped summary that is
-    // blocked by the hard render gate, causing the subscription to return early
-    // without clearing isLoading.  Add a 10-second timeout as a safety net so the
-    // chat is never stuck for more than 10 seconds regardless of what the agent returns.
-    if (loadingTimeoutRef.current) {
-      clearTimeout(loadingTimeoutRef.current);
-    }
-    loadingTimeoutRef.current = setTimeout(() => {
-      setIsLoading(false);
-      loadingTimeoutRef.current = null;
-    }, 10000);
+    // Phase 4 — Trigger non-blocking conversation-end memory write for V7
+    // continuity. Gated by isSummarizationEnabled(); inert in default mode.
+    // The metadata lookup uses the in-memory conversations list to avoid an
+    // extra network round-trip; falls back to empty metadata when unavailable.
+    const convForMemory = conversations?.find((c) => c.id === currentConversationId);
+    // Phase 5 — Mark as written before calling so that any concurrent
+    // conversation-switch trigger (maybeTriggerEndWrite) de-dupes against it.
+    conversationMemoryWrittenRef.current.add(currentConversationId);
+    triggerConversationEndSummarization(
+      currentConversationId,
+      convForMemory?.metadata || {},
+      'chat_request_summary',
+      base44.entities,
+    );
 
     // Build a language-aware summary request
     const userLang = i18n.language || 'en';
@@ -1242,6 +1302,7 @@ export default function Chat() {
       if (currentConversationId === conversationId) {
         setCurrentConversationId(null);
         setMessages([]);
+        lastConfirmedMessagesRef.current = []; // Reset baseline when deleting active conversation
       }
       return { previousConversations, previousConversationId, previousMessages };
     },
@@ -1459,6 +1520,13 @@ export default function Chat() {
           </div>
         </div>
 
+        {/* Risk Panel — rendered outside conversation gate so it shows even before a conversation is created */}
+        {showRiskPanel && !currentConversationId && (
+          <div className="px-4 md:px-6 pt-3">
+            <InlineRiskPanel onDismiss={() => setShowRiskPanel(false)} />
+          </div>
+        )}
+
         {/* Messages Area */}
         <div className="bg-teal-400 text-slate-50 rounded-3xl flex-1 min-h-0 overflow-hidden flex flex-col" style={{ backgroundColor: 'transparent' }}>
           {!currentConversationId ?
@@ -1545,6 +1613,14 @@ export default function Chat() {
                     hasActiveSession={!!currentConversationId}
                   />
                 </ErrorBoundary>
+                {/* Phase 3 Deep Personalization — Session continuity cue (flag-gated) */}
+                <ErrorBoundary>
+                  <SessionContinuityCue
+                    wiring={ACTIVE_CBT_THERAPIST_WIRING}
+                    hasActiveSession={!!currentConversationId}
+                    messageCount={messages.length}
+                  />
+                </ErrorBoundary>
                 {messages.length > visibleCount && (
                   <div className="text-center py-2">
                     <button
@@ -1554,16 +1630,23 @@ export default function Chat() {
                     </button>
                   </div>
                 )}
-                {messages.slice(Math.max(0, messages.length - visibleCount)).filter((m) => m && m.role && m.content).map((message, index) =>
-                <MessageBubble
-                  key={index}
-                  message={message}
-                  conversationId={currentConversationId}
-                  messageIndex={index}
-                  agentName="cbt_therapist"
-                  context="chat" />
-
-                )}
+                {messages.slice(Math.max(0, messages.length - visibleCount)).filter((m) => m && m.role && m.content).map((message, index, arr) => {
+                  // For assistant messages, find the immediately preceding user message
+                  // to enable CP12-G post-learning compression in the governor.
+                  const prevUserMessage = message.role === 'assistant'
+                    ? (arr[index - 1]?.role === 'user' ? arr[index - 1]?.content : undefined)
+                    : undefined;
+                  return (
+                    <MessageBubble
+                      key={index}
+                      message={message}
+                      conversationId={currentConversationId}
+                      messageIndex={index}
+                      agentName="cbt_therapist"
+                      context="chat"
+                      userMessage={prevUserMessage} />
+                  );
+                })}
                 {isLoading && messages.length > 0 && (() => {
                   instrumentationRef.current.PLACEHOLDER_RENDERED++;
                   return (
@@ -1666,23 +1749,38 @@ export default function Chat() {
             zIndex: 50
           }}>
           <div className="text-teal-600 mx-auto max-w-4xl flex gap-2">
-            <Textarea
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={t('chat.message_placeholder')} className="bg-[hsl(var(--surface-nested)/0.9)] text-foreground px-3 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-card)] flex w-full border border-input/90 shadow-[var(--shadow-sm)] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 flex-1 min-h-[48px] max-h-[160px] resize-none"
+            {variantProfileBlocked ? (
+              <div className="flex-1 flex flex-col gap-3">
+                <div className="rounded-[var(--radius-card)] border border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
+                  {t('chat.variant_blocked.message', 'This past conversation can no longer be continued. You can still read it here.')}
+                </div>
+                <Button
+                  onClick={startNewConversation}
+                  className="bg-teal-600 text-primary-foreground font-medium rounded-[var(--radius-card)] border border-transparent transition-all duration-200 shadow-[var(--shadow-md)] hover:bg-primary/92 min-h-[44px] md:min-h-0 h-[48px] w-full">
+                  {t('chat.variant_blocked.start_new', 'Start a new conversation')}
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Textarea
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder={t('chat.message_placeholder')} className="bg-[hsl(var(--surface-nested)/0.9)] text-foreground px-3 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-card)] flex w-full border border-input/90 shadow-[var(--shadow-sm)] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 flex-1 min-h-[48px] max-h-[160px] resize-none"
 
-                data-testid="therapist-chat-input"
-                disabled={isLoading} />
+                    data-testid="therapist-chat-input"
+                    disabled={isLoading} />
 
-            <Button
-                onClick={handleSendMessage}
-                disabled={!inputMessage.trim() || isLoading}
-                data-testid="therapist-chat-send" className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 h-[48px] flex-shrink-0">
+                <Button
+                    onClick={handleSendMessage}
+                    disabled={!inputMessage.trim() || isLoading}
+                    data-testid="therapist-chat-send" className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 h-[48px] flex-shrink-0">
 
 
-              <Send className="w-5 h-5" />
-            </Button>
+                  <Send className="w-5 h-5" />
+                </Button>
+              </>
+            )}
           </div>
           {/* Compact disclaimer */}
           <p className="text-center mt-1 text-xs text-muted-foreground">

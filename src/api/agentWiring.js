@@ -822,50 +822,126 @@ export const CBT_THERAPIST_WIRING_STAGE2_V5 = {
   ],
 };
 
-// ─── Stage 2 V6 wiring config (Phase 10 — Formulation-Led CBT) ───────────────
+// ─── AI Companion Upgrade V1 wiring config (Phase 2 — not yet active) ────────
+
+/**
+ * Upgrade V1 wiring for the AI Companion agent.
+ *
+ * Phase 2 — Warmth and Attuned Response Layer.
+ *
+ * This config extends AI_COMPANION_WIRING_HYBRID with the companion upgrade
+ * flags.  The entity list is IDENTICAL to the Hybrid config — no new entity
+ * access is added in Phase 2.  The companion_upgrade and warmth_enabled flags
+ * signal to the session context layer that the warmer, more emotionally attuned
+ * response rules should be activated and that response variety tracking should
+ * be enabled to reduce repetition.
+ *
+ * New flags:
+ *   companion_upgrade  — master signal that this is an upgraded companion path
+ *   companion_upgrade_phase — phase identifier (2)
+ *   warmth_enabled     — activates warmer, more attuned response patterns and
+ *                        anti-repetition tracking in the companion context layer
+ *
+ * ACTIVATION
+ * ----------
+ * This config is NOT the active config.  It becomes reachable only when
+ * resolveCompanionWiring() returns it, which requires BOTH flags to be true:
+ *   - COMPANION_UPGRADE_ENABLED (master gate)
+ *   - COMPANION_UPGRADE_WARMTH_ENABLED (Phase 2 gate)
+ * Both default to false.  ACTIVE_AI_COMPANION_WIRING remains
+ * AI_COMPANION_WIRING_HYBRID until the flags are explicitly enabled.
+ *
+ * ROLLBACK
+ * --------
+ * Set COMPANION_UPGRADE_ENABLED or COMPANION_UPGRADE_WARMTH_ENABLED to false
+ * to revert to AI_COMPANION_WIRING_HYBRID with no other code changes.
+ * THERAPIST wiring is completely unaffected by this flag.
+ *
+ * ROLE SEPARATION
+ * ---------------
+ * This wiring is intentionally isolated from the CBT Therapist upgrade chain.
+ * The companion upgrade flags (COMPANION_UPGRADE_*) have no effect on
+ * resolveTherapistWiring(), and the therapist upgrade flags
+ * (THERAPIST_UPGRADE_*) have no effect on resolveCompanionWiring().
+ *
+ * Source of truth: Problem statement — Phase 2 AI Companion Upgrade Foundation
+ */
+export const AI_COMPANION_WIRING_UPGRADE_V1 = {
+  name: 'ai_companion',
+  companion_upgrade: true,
+  companion_upgrade_phase: 2,
+  warmth_enabled: true,             // Phase 2 — warmer, more attuned responses
+  tool_configs: [
+    // ── Step 1: Preferred entities (identical to Hybrid) ──
+    {
+      entity_name: 'CompanionMemory',
+      access_level: 'preferred',
+      source_order: 1,
+      use_for_clinical_reasoning: false,
+    },
+    { entity_name: 'MoodEntry',       access_level: 'preferred',   source_order: 2 },
+    // ── Step 2: Allowed shared content pool (identical to Hybrid) ──
+    { entity_name: 'Exercise',        access_level: 'allowed',     source_order: 3 },
+    { entity_name: 'Resource',        access_level: 'allowed',     source_order: 4 },
+    { entity_name: 'AudioContent',    access_level: 'allowed',     source_order: 5 },
+    { entity_name: 'Journey',         access_level: 'allowed',     source_order: 6 },
+    // ── Step 3: Non-caution restricted entities (identical to Hybrid) ──
+    { entity_name: 'Goal',            access_level: 'restricted',  source_order: 7, reference_only: true },
+    { entity_name: 'SessionSummary',  access_level: 'restricted',  source_order: 8, continuity_check_only: true },
+    // ── Hybrid: Caution-layer entity (identical to Hybrid) ──
+    {
+      entity_name: 'Conversation',
+      access_level: 'restricted',
+      source_order: 9,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    // NOTE: CaseFormulation remains PROHIBITED for AI Companion at all upgrade
+    // phases (enforcement spec §E).  No new prohibited entities are added here.
+  ],
+};
+
+// ─── Stage 2 V6 wiring config (Phase 1 Quality Gains) ────────────────────────
 
 /**
  * Stage 2 V6 wiring for the CBT Therapist agent.
  *
- * Phase 10 — Formulation-Led CBT Super Agent.
+ * Phase 1 Quality Gains — Formulation Context Injection + Socratic Patterns.
  *
- * This config extends CBT_THERAPIST_WIRING_STAGE2_V5 with formulation-led
- * response behavior.  V6 is a strict superset of V5: all Phase 7 flags and
- * entity tool_configs are preserved unchanged, and one new flag is added.
+ * This config extends CBT_THERAPIST_WIRING_STAGE2_V5 with formulation-context
+ * capability.  V6 is a strict superset of V5: all Phase 7 flags and entity
+ * tool_configs are preserved unchanged, and one new flag is added.
  *
  * New flags:
- *   formulation_led_enabled — signals Phase 10 formulation-led behavior is
- *                             active; workflowContextInjector will inject
- *                             THERAPIST_FORMULATION_INSTRUCTIONS into the
- *                             session context on the first turn.
+ *   formulation_context_enabled — signals Phase 1 Quality Gains is active;
+ *                         workflowContextInjector will read CaseFormulation
+ *                         (read-only, caution layer) and inject its core
+ *                         fields into the session-start context to ground
+ *                         the therapist in the longitudinal clinical frame.
+ *                         The Socratic, non-repetitive, and formulation-
+ *                         aligned rules in the workflow engine are also active
+ *                         on this wiring.
  *
  * Entity tool_configs: IDENTICAL to V5.  No new entity access is added.
- * Formulation-led behavior constrains response quality at the instruction
- * layer — it does not add new entity access.
- *
- * What Phase 10 fixes:
- *   1. Therapist opening too much like a generic intake/menu bot.
- *   2. Redundant questioning when user context is already provided.
- *   3. Falling back too quickly to rigid CBT questioning after empathy.
- *   4. Overusing rituals (anxiety 0–10, evidence, balanced thought) too early.
- *   5. Weak and untrustworthy handling of source/evidence requests.
+ * Formulation context is read through the existing CaseFormulation tool_config
+ * (source_order 12, read_only: true, caution_layer: true) already in V5.
  *
  * ACTIVATION
  * ----------
- * This config is NOT the active config by default.  It becomes reachable only
- * when resolveTherapistWiring() returns it, which requires BOTH flags to be true:
+ * This config is NOT the active config.  It becomes reachable only when
+ * resolveTherapistWiring() returns it, which requires BOTH flags to be true:
  *   - THERAPIST_UPGRADE_ENABLED (master gate)
- *   - THERAPIST_UPGRADE_FORMULATION_LED_ENABLED (Phase 10 gate)
+ *   - THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED (Phase 1 Quality gate)
  * Both default to false.  ACTIVE_CBT_THERAPIST_WIRING remains
  * CBT_THERAPIST_WIRING_HYBRID until the flags are explicitly enabled.
  *
  * ROLLBACK
  * --------
- * Set THERAPIST_UPGRADE_FORMULATION_LED_ENABLED to false to revert to V5 with
- * no other code changes.  Set THERAPIST_UPGRADE_ENABLED to false to revert
- * to HYBRID entirely.
+ * Set THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED to false to revert to V5
+ * with no other code changes.  Set THERAPIST_UPGRADE_ENABLED to false to
+ * revert to HYBRID entirely.
  *
- * Source of truth: therapist-upgrade Phase 10 — Formulation-Led CBT
+ * Source of truth: Problem statement — Phase 1 Highest-ROI Therapist Quality Gains
  */
 export const CBT_THERAPIST_WIRING_STAGE2_V6 = {
   name: 'cbt_therapist',
@@ -877,7 +953,7 @@ export const CBT_THERAPIST_WIRING_STAGE2_V6 = {
   retrieval_orchestration_enabled: true,    // from V3 — Phase 5 retrieval orchestration
   live_retrieval_enabled: true,             // from V4 — Phase 6 live retrieval wrapper
   safety_mode_enabled: true,               // from V5 — Phase 7 safety mode
-  formulation_led_enabled: true,           // Phase 10 — formulation-led CBT instructions
+  formulation_context_enabled: true,       // Phase 1 Quality — formulation context injection
   tool_configs: [
     // ── Step 1: Preferred entities (identical to V5 / V4 / V3 / V2 / V1 / Hybrid) ──
     { entity_name: 'SessionSummary',  access_level: 'preferred',  source_order: 2 },
@@ -923,7 +999,529 @@ export const CBT_THERAPIST_WIRING_STAGE2_V6 = {
     // fetchLiveResource backend function.  No new entity is added here.
     // NOTE: Safety mode (Phase 7) is NOT an entity access — it constrains
     // behavior at the context/instruction layer.  No new entity is added here.
-    // NOTE: Formulation-led (Phase 10) is NOT an entity access — it shapes
-    // response quality at the instruction layer.  No new entity is added here.
+    // NOTE: Formulation context (Phase 1 Quality) is NOT a new entity access
+    // — CaseFormulation is already present at source_order 12 (read_only:
+    // true, caution_layer: true).  The formulation_context_enabled flag only
+    // enables additional injection of CaseFormulation fields into the session-
+    // start context payload via workflowContextInjector.js.
+    // NOTE: Continuity layer (Phase 3) is NOT a new entity access — it reads
+    // from CompanionMemory (source_order 10, read_only: true) which is already
+    // present.  The continuity_layer_enabled flag enables cross-session memory
+    // injection via crossSessionContinuity.js and workflowContextInjector.js.
+  ],
+};
+
+// ─── Stage 2 V7 wiring config (Phase 3 Deep Personalization) ─────────────────
+
+/**
+ * Stage 2 V7 wiring for the CBT Therapist agent.
+ *
+ * Phase 3 Deep Personalization — Cross-Session Continuity Layer.
+ *
+ * This config extends CBT_THERAPIST_WIRING_STAGE2_V6 with cross-session
+ * continuity capability.  V7 is a strict superset of V6: all Phase 1 Quality
+ * and prior phase flags and entity tool_configs are preserved unchanged, and
+ * one new flag is added.
+ *
+ * New flags:
+ *   continuity_layer_enabled — activates cross-session memory injection;
+ *                         workflowContextInjector reads the last N therapist
+ *                         memory records from CompanionMemory (read-only,
+ *                         bounded) and injects a structured continuity block
+ *                         into the session-start payload so the therapist
+ *                         agent can provide session-to-session awareness.
+ *
+ * Entity tool_configs: IDENTICAL to V6.  No new entity access is added.
+ * Continuity reads from the existing CompanionMemory tool_config
+ * (source_order 10, read_only: true) already present in V6.
+ *
+ * ACTIVATION
+ * ----------
+ * This config is NOT the active config.  It becomes reachable only when
+ * resolveTherapistWiring() returns it, which requires BOTH flags to be true:
+ *   - THERAPIST_UPGRADE_ENABLED (master gate)
+ *   - THERAPIST_UPGRADE_CONTINUITY_ENABLED (Phase 3 continuity gate)
+ * Both default to false.  ACTIVE_CBT_THERAPIST_WIRING remains
+ * CBT_THERAPIST_WIRING_HYBRID until the flags are explicitly enabled.
+ *
+ * ROLLBACK
+ * --------
+ * Set THERAPIST_UPGRADE_CONTINUITY_ENABLED to false to revert to V6
+ * with no other code changes.  Set THERAPIST_UPGRADE_ENABLED to false to
+ * revert to HYBRID entirely.
+ *
+ * Source of truth: Problem statement — Phase 3 Deep Personalization, Continuity,
+ * Formulation Quality.
+ */
+export const CBT_THERAPIST_WIRING_STAGE2_V7 = {
+  name: 'cbt_therapist',
+  stage2: true,
+  stage2_phase: 11,
+  memory_context_injection: true,           // from V1 — structured memory layer
+  workflow_engine_enabled: true,            // from V2 — workflow engine active
+  workflow_context_injection: true,         // from V2 — inject workflow instructions
+  retrieval_orchestration_enabled: true,    // from V3 — Phase 5 retrieval orchestration
+  live_retrieval_enabled: true,             // from V4 — Phase 6 live retrieval wrapper
+  safety_mode_enabled: true,               // from V5 — Phase 7 safety mode
+  formulation_context_enabled: true,       // from V6 — Phase 1 Quality formulation context
+  continuity_layer_enabled: true,          // Phase 3 — cross-session continuity injection
+  tool_configs: [
+    // ── Step 1: Preferred entities (identical to V6 / V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    { entity_name: 'SessionSummary',  access_level: 'preferred',  source_order: 2 },
+    { entity_name: 'ThoughtJournal',  access_level: 'preferred',  source_order: 3 },
+    { entity_name: 'Goal',            access_level: 'preferred',  source_order: 4 },
+    { entity_name: 'CoachingSession', access_level: 'preferred',  source_order: 5 },
+    // ── Step 2: Allowed shared content pool (identical to V6 / V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    { entity_name: 'Exercise',        access_level: 'allowed',    source_order: 6 },
+    { entity_name: 'Resource',        access_level: 'allowed',    source_order: 7 },
+    { entity_name: 'AudioContent',    access_level: 'allowed',    source_order: 8 },
+    { entity_name: 'Journey',         access_level: 'allowed',    source_order: 9 },
+    // ── Step 3: Non-caution restricted entities (identical to V6 / V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    { entity_name: 'CompanionMemory', access_level: 'restricted', source_order: 10, read_only: true },
+    { entity_name: 'MoodEntry',       access_level: 'restricted', source_order: 11, calibration_only: true },
+    // ── Hybrid: Caution-layer entities (identical to V6 / V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    {
+      entity_name: 'CaseFormulation',
+      access_level: 'restricted',
+      source_order: 12,
+      read_only: true,
+      unrestricted: false,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    {
+      entity_name: 'Conversation',
+      access_level: 'restricted',
+      source_order: 13,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    // ── Phase 5: External trusted knowledge (identical to V6 / V5 / V4 / V3; lowest entity priority) ──
+    {
+      entity_name: 'ExternalKnowledgeChunk',
+      access_level: 'restricted',
+      source_order: 14,
+      read_only: true,
+      external_trusted: true,
+      caution_layer: false,
+    },
+    // NOTE: Live retrieval (Phase 6) is NOT an entity access — it goes through
+    // the technical allowlist wrapper (liveRetrievalWrapper.js) and the
+    // fetchLiveResource backend function.  No new entity is added here.
+    // NOTE: Safety mode (Phase 7) is NOT an entity access — it constrains
+    // behavior at the context/instruction layer.  No new entity is added here.
+    // NOTE: Formulation context (Phase 1 Quality) is NOT a new entity access
+    // — CaseFormulation is already present at source_order 12 (read_only:
+    // true, caution_layer: true).  The formulation_context_enabled flag only
+    // enables additional injection of CaseFormulation fields into the session-
+    // start context payload via workflowContextInjector.js.
+    // NOTE: Continuity layer (Phase 3) is NOT a new entity access — it reads
+    // from CompanionMemory (source_order 10, read_only: true) which is already
+    // present.  The continuity_layer_enabled flag enables cross-session memory
+    // injection via crossSessionContinuity.js and workflowContextInjector.js.
+  ],
+};
+
+// ─── Wave 2B — Stage 2 V8 wiring config (Therapeutic Strategy Layer) ──────────
+
+/**
+ * Stage 2 V8 wiring for the CBT Therapist agent.
+ *
+ * Wave 2B — Therapeutic Strategy Layer.
+ *
+ * This config extends CBT_THERAPIST_WIRING_STAGE2_V7 with the strategy layer
+ * capability.  V8 is a strict superset of V7: all Phase 3 Deep Personalization
+ * and prior phase flags and entity tool_configs are preserved unchanged, and
+ * one new flag is added.
+ *
+ * New flags:
+ *   strategy_layer_enabled — activates the therapeutic strategy guidance
+ *                       section injected into the session-start payload by
+ *                       buildV8SessionStartContentAsync.  The strategy engine
+ *                       (therapistStrategyEngine.js) is pure deterministic and
+ *                       consumes only bounded inputs already present in the
+ *                       V7 chain (continuity data, formulation data, safety
+ *                       result, message signals).  No new entity access.
+ *
+ * Entity tool_configs: IDENTICAL to V7.  No new entity access is added.
+ * The strategy layer reads from inputs already available in the V7 chain
+ * (CompanionMemory at source_order 10, CaseFormulation at source_order 12).
+ *
+ * ACTIVATION
+ * ----------
+ * This config is NOT the active config.  It becomes reachable only when
+ * resolveTherapistWiring() returns it, which requires BOTH flags to be true:
+ *   - THERAPIST_UPGRADE_ENABLED (master gate)
+ *   - THERAPIST_UPGRADE_STRATEGY_ENABLED (Wave 2B strategy gate)
+ * Both default to false.  ACTIVE_CBT_THERAPIST_WIRING remains
+ * CBT_THERAPIST_WIRING_HYBRID until the flags are explicitly enabled.
+ *
+ * ROLLBACK
+ * --------
+ * Set THERAPIST_UPGRADE_STRATEGY_ENABLED to false to revert to V7
+ * with no other code changes.  Set THERAPIST_UPGRADE_ENABLED to false to
+ * revert to HYBRID entirely.
+ *
+ * Source of truth: Wave 2B problem statement — Therapeutic Strategy Layer.
+ */
+export const CBT_THERAPIST_WIRING_STAGE2_V8 = {
+  name: 'cbt_therapist',
+  stage2: true,
+  stage2_phase: 12,
+  memory_context_injection: true,           // from V1 — structured memory layer
+  workflow_engine_enabled: true,            // from V2 — workflow engine active
+  workflow_context_injection: true,         // from V2 — inject workflow instructions
+  retrieval_orchestration_enabled: true,    // from V3 — Phase 5 retrieval orchestration
+  live_retrieval_enabled: true,             // from V4 — Phase 6 live retrieval wrapper
+  safety_mode_enabled: true,               // from V5 — Phase 7 safety mode
+  formulation_context_enabled: true,       // from V6 — Phase 1 Quality formulation context
+  continuity_layer_enabled: true,          // from V7 — Phase 3 cross-session continuity injection
+  strategy_layer_enabled: true,            // Wave 2B — therapeutic strategy guidance injection
+  tool_configs: [
+    // ── Step 1: Preferred entities (identical to V7 / V6 / V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    { entity_name: 'SessionSummary',  access_level: 'preferred',  source_order: 2 },
+    { entity_name: 'ThoughtJournal',  access_level: 'preferred',  source_order: 3 },
+    { entity_name: 'Goal',            access_level: 'preferred',  source_order: 4 },
+    { entity_name: 'CoachingSession', access_level: 'preferred',  source_order: 5 },
+    // ── Step 2: Allowed shared content pool (identical to V7 / V6 / V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    { entity_name: 'Exercise',        access_level: 'allowed',    source_order: 6 },
+    { entity_name: 'Resource',        access_level: 'allowed',    source_order: 7 },
+    { entity_name: 'AudioContent',    access_level: 'allowed',    source_order: 8 },
+    { entity_name: 'Journey',         access_level: 'allowed',    source_order: 9 },
+    // ── Step 3: Non-caution restricted entities (identical to V7 / V6 / V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    { entity_name: 'CompanionMemory', access_level: 'restricted', source_order: 10, read_only: true },
+    { entity_name: 'MoodEntry',       access_level: 'restricted', source_order: 11, calibration_only: true },
+    // ── Hybrid: Caution-layer entities (identical to V7 / V6 / V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    {
+      entity_name: 'CaseFormulation',
+      access_level: 'restricted',
+      source_order: 12,
+      read_only: true,
+      unrestricted: false,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    {
+      entity_name: 'Conversation',
+      access_level: 'restricted',
+      source_order: 13,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    // ── Phase 5: External trusted knowledge (identical to V7 / V6 / V5 / V4 / V3; lowest entity priority) ──
+    {
+      entity_name: 'ExternalKnowledgeChunk',
+      access_level: 'restricted',
+      source_order: 14,
+      read_only: true,
+      external_trusted: true,
+      caution_layer: false,
+    },
+    // NOTE: Strategy layer (Wave 2B) is NOT a new entity access — it reads
+    // from CompanionMemory (source_order 10) and CaseFormulation (source_order 12)
+    // which are already present.  The strategy_layer_enabled flag only enables
+    // the strategy guidance section injection via workflowContextInjector.js.
+  ],
+};
+
+// ─── Wave 3C — Stage 2 V9 wiring config (Longitudinal Therapeutic State) ──────
+
+/**
+ * Stage 2 V9 wiring for the CBT Therapist agent.
+ *
+ * Wave 3C — Longitudinal Therapeutic State (LTS) read path and session-start
+ * injection.
+ *
+ * This config extends CBT_THERAPIST_WIRING_STAGE2_V8 with the longitudinal
+ * layer capability.  V9 is a strict superset of V8: all Wave 2B strategy
+ * layer flags and entity tool_configs are preserved unchanged, and one new
+ * flag is added.
+ *
+ * New flags:
+ *   longitudinal_layer_enabled — activates the LTS context block injected
+ *                       into the session-start payload by
+ *                       buildV9SessionStartContentAsync.  The LTS reader
+ *                       (readLTSSnapshot) is pure read-only and fail-open:
+ *                       any absence or error returns exact V8 output.
+ *
+ * Entity tool_configs: IDENTICAL to V8.  No new entity access is added.
+ * The LTS read path reads from CompanionMemory (source_order 10) which is
+ * already present in V8.
+ *
+ * ACTIVATION
+ * ----------
+ * This config is NOT the active config.  It becomes reachable only when
+ * resolveTherapistWiring() returns it, which requires ALL of:
+ *   - THERAPIST_UPGRADE_ENABLED (master gate)
+ *   - THERAPIST_UPGRADE_STRATEGY_ENABLED (Wave 2B strategy gate)
+ *   - THERAPIST_UPGRADE_LONGITUDINAL_ENABLED (Wave 3C LTS gate)
+ * All default to false.  ACTIVE_CBT_THERAPIST_WIRING remains
+ * CBT_THERAPIST_WIRING_HYBRID until the flags are explicitly enabled.
+ *
+ * ROLLBACK
+ * --------
+ * Set THERAPIST_UPGRADE_LONGITUDINAL_ENABLED to false to revert to V8
+ * with no other code changes.  V8 behavior is EXACTLY preserved.
+ *
+ * HARD CONSTRAINTS (Wave 3C)
+ * --------------------------
+ * - LTS is NOT integrated into the strategy engine in this wave.
+ * - Companion code is NOT changed.
+ * - Safety-critical backend filters/sanitizers are NOT touched.
+ * - Raw transcript/message content is NEVER stored or injected.
+ * - No LLM calls are added.
+ * - No destructive cleanup logic is added.
+ *
+ * Source of truth: Wave 3C problem statement — LTS read path and injection.
+ */
+export const CBT_THERAPIST_WIRING_STAGE2_V9 = {
+  name: 'cbt_therapist',
+  stage2: true,
+  stage2_phase: 13,
+  memory_context_injection: true,           // from V1 — structured memory layer
+  workflow_engine_enabled: true,            // from V2 — workflow engine active
+  workflow_context_injection: true,         // from V2 — inject workflow instructions
+  retrieval_orchestration_enabled: true,    // from V3 — Phase 5 retrieval orchestration
+  live_retrieval_enabled: true,             // from V4 — Phase 6 live retrieval wrapper
+  safety_mode_enabled: true,               // from V5 — Phase 7 safety mode
+  formulation_context_enabled: true,       // from V6 — Phase 1 Quality formulation context
+  continuity_layer_enabled: true,          // from V7 — Phase 3 cross-session continuity injection
+  strategy_layer_enabled: true,            // from V8 — Wave 2B therapeutic strategy guidance
+  longitudinal_layer_enabled: true,        // Wave 3C — LTS context block injection
+  tool_configs: [
+    // ── Step 1: Preferred entities (identical to V8 / V7 / V6 / V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    { entity_name: 'SessionSummary',  access_level: 'preferred',  source_order: 2 },
+    { entity_name: 'ThoughtJournal',  access_level: 'preferred',  source_order: 3 },
+    { entity_name: 'Goal',            access_level: 'preferred',  source_order: 4 },
+    { entity_name: 'CoachingSession', access_level: 'preferred',  source_order: 5 },
+    // ── Step 2: Allowed shared content pool (identical to V8 / V7 / V6 / V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    { entity_name: 'Exercise',        access_level: 'allowed',    source_order: 6 },
+    { entity_name: 'Resource',        access_level: 'allowed',    source_order: 7 },
+    { entity_name: 'AudioContent',    access_level: 'allowed',    source_order: 8 },
+    { entity_name: 'Journey',         access_level: 'allowed',    source_order: 9 },
+    // ── Step 3: Non-caution restricted entities (identical to V8 / V7 / V6 / V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    { entity_name: 'CompanionMemory', access_level: 'restricted', source_order: 10, read_only: true },
+    { entity_name: 'MoodEntry',       access_level: 'restricted', source_order: 11, calibration_only: true },
+    // ── Hybrid: Caution-layer entities (identical to V8 / V7 / V6 / V5 / V4 / V3 / V2 / V1 / Hybrid) ──
+    {
+      entity_name: 'CaseFormulation',
+      access_level: 'restricted',
+      source_order: 12,
+      read_only: true,
+      unrestricted: false,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    {
+      entity_name: 'Conversation',
+      access_level: 'restricted',
+      source_order: 13,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    // ── Phase 5: External trusted knowledge (identical to V8 / V7 / V6 / V5 / V4 / V3; lowest entity priority) ──
+    {
+      entity_name: 'ExternalKnowledgeChunk',
+      access_level: 'restricted',
+      source_order: 14,
+      read_only: true,
+      external_trusted: true,
+      caution_layer: false,
+    },
+    // NOTE: Longitudinal layer (Wave 3C) is NOT a new entity access — it reads
+    // from CompanionMemory (source_order 10) which is already present.
+    // The longitudinal_layer_enabled flag only enables the LTS context block
+    // injection via workflowContextInjector.js (buildV9SessionStartContentAsync).
+  ],
+};
+
+// ─── Wave 4C — Stage 2 V10 wiring config (CBT Knowledge Retrieval) ───────────
+
+/**
+ * Stage 2 V10 wiring for the CBT Therapist agent.
+ *
+ * Wave 4C — CBT Knowledge Retrieval read path.
+ *
+ * V10 is a strict superset of V9.  All V9 capabilities are preserved unchanged.
+ * The single addition is the `knowledge_layer_enabled` flag and the read-only
+ * CBTCurriculumUnit entity access (source_order 15).
+ *
+ * New flag:
+ *   knowledge_layer_enabled — activates the bounded CBT curriculum unit retrieval
+ *                             path injected via workflowContextInjector.js
+ *                             (buildV10SessionStartContentAsync).  The retrieval
+ *                             result is appended last as a supporting reference
+ *                             block and does NOT override safety, formulation,
+ *                             continuity, strategy, or LTS signals.
+ *
+ * New entity:
+ *   CBTCurriculumUnit — shared therapist content (non-private, non-user-owned).
+ *     access_level: 'allowed', read_only: true, source_order: 15.
+ *     This entity contains structured CBT curriculum knowledge authored by
+ *     the app team.  It is NOT a private user entity and may never contain
+ *     ThoughtJournal, Conversation, CaseFormulation, MoodEntry, or
+ *     CompanionMemory data.
+ *
+ * ACTIVATION
+ * ----------
+ * This config is only active when resolveTherapistWiring() selects it, which
+ * requires THERAPIST_UPGRADE_ENABLED + THERAPIST_UPGRADE_STRATEGY_ENABLED +
+ * THERAPIST_UPGRADE_LONGITUDINAL_ENABLED + THERAPIST_UPGRADE_KNOWLEDGE_ENABLED
+ * to all be true.  All four default to false.
+ *
+ * ROLLBACK
+ * --------
+ * Set THERAPIST_UPGRADE_KNOWLEDGE_ENABLED=false to revert to V9 with no other
+ * code changes.  The knowledge block is never injected when this flag is off.
+ *
+ * SAFETY
+ * ------
+ * The knowledge_layer_enabled flag does not weaken any safety layer.
+ * buildV10SessionStartContentAsync is fully fail-open: any error returns the
+ * V9 base content unchanged.  The planner gates on safety_active / distress /
+ * containment mode before retrieval is attempted.
+ *
+ * Source of truth: Wave 4C problem statement (CBT knowledge retrieval read path).
+ */
+export const CBT_THERAPIST_WIRING_STAGE2_V10 = {
+  name: 'cbt_therapist',
+  stage2: true,
+  stage2_phase: 14,
+  memory_context_injection: true,           // from V1 — structured memory layer
+  workflow_engine_enabled: true,            // from V2 — workflow engine active
+  workflow_context_injection: true,         // from V2 — inject workflow instructions
+  retrieval_orchestration_enabled: true,    // from V3 — Phase 5 retrieval orchestration
+  live_retrieval_enabled: true,             // from V4 — Phase 6 live retrieval wrapper
+  safety_mode_enabled: true,               // from V5 — Phase 7 safety mode
+  formulation_context_enabled: true,       // from V6 — Phase 1 Quality formulation context
+  continuity_layer_enabled: true,          // from V7 — Phase 3 cross-session continuity injection
+  strategy_layer_enabled: true,            // from V8 — Wave 2B therapeutic strategy guidance
+  longitudinal_layer_enabled: true,        // from V9 — Wave 3C LTS context block injection
+  knowledge_layer_enabled: true,           // Wave 4C — bounded CBT knowledge retrieval
+  tool_configs: [
+    // ── Step 1: Preferred entities (identical to V9 / V8 / … / V1 / Hybrid) ──
+    { entity_name: 'SessionSummary',  access_level: 'preferred',  source_order: 2 },
+    { entity_name: 'ThoughtJournal',  access_level: 'preferred',  source_order: 3 },
+    { entity_name: 'Goal',            access_level: 'preferred',  source_order: 4 },
+    { entity_name: 'CoachingSession', access_level: 'preferred',  source_order: 5 },
+    // ── Step 2: Allowed shared content pool (identical to V9 / V8 / … / V1 / Hybrid) ──
+    { entity_name: 'Exercise',        access_level: 'allowed',    source_order: 6 },
+    { entity_name: 'Resource',        access_level: 'allowed',    source_order: 7 },
+    { entity_name: 'AudioContent',    access_level: 'allowed',    source_order: 8 },
+    { entity_name: 'Journey',         access_level: 'allowed',    source_order: 9 },
+    // ── Step 3: Non-caution restricted entities (identical to V9 / V8 / … / V1 / Hybrid) ──
+    { entity_name: 'CompanionMemory', access_level: 'restricted', source_order: 10, read_only: true },
+    { entity_name: 'MoodEntry',       access_level: 'restricted', source_order: 11, calibration_only: true },
+    // ── Hybrid: Caution-layer entities (identical to V9 / V8 / … / V1 / Hybrid) ──
+    {
+      entity_name: 'CaseFormulation',
+      access_level: 'restricted',
+      source_order: 12,
+      read_only: true,
+      unrestricted: false,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    {
+      entity_name: 'Conversation',
+      access_level: 'restricted',
+      source_order: 13,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    // ── Phase 5: External trusted knowledge (identical to V9 / V8 / … / V3) ──
+    {
+      entity_name: 'ExternalKnowledgeChunk',
+      access_level: 'restricted',
+      source_order: 14,
+      read_only: true,
+      external_trusted: true,
+      caution_layer: false,
+    },
+    // ── Wave 4C: CBT Curriculum knowledge (new in V10) ──
+    // CBTCurriculumUnit is a shared therapist content entity (non-private).
+    // It contains structured CBT curriculum units authored by the app team.
+    // Access is read-only and allowed; lowest entity priority (source_order 15).
+    // The knowledge_layer_enabled flag enables the bounded retrieval path via
+    // buildV10SessionStartContentAsync.
+    {
+      entity_name: 'CBTCurriculumUnit',
+      access_level: 'allowed',
+      source_order: 15,
+      read_only: true,
+    },
+  ],
+};
+
+/**
+ * Stage 3 upgrade V2 wiring for the AI Companion agent.
+ *
+ * Phase 3 Deep Personalization — Companion Continuity Layer.
+ *
+ * This config extends AI_COMPANION_WIRING_UPGRADE_V1 with a continuity flag
+ * that signals the companion session-context layer should surface prior
+ * session summaries for individually tailored responses.
+ *
+ * New flags:
+ *   continuity_enabled — signals the companion should use session continuity
+ *                        cues; SessionSummary restricted access (already present
+ *                        at source_order 8) is leveraged to provide warm,
+ *                        personalized continuity greetings and follow-up.
+ *
+ * Entity tool_configs: IDENTICAL to V1.  No new entity access is added.
+ * Continuity is surfaced through the existing SessionSummary restricted
+ * tool_config (source_order 8, continuity_check_only: true) already in V1.
+ *
+ * ACTIVATION
+ * ----------
+ * This config is NOT the active config.  It becomes reachable only when
+ * resolveCompanionWiring() returns it, which requires BOTH flags to be true:
+ *   - COMPANION_UPGRADE_ENABLED (master gate)
+ *   - COMPANION_UPGRADE_CONTINUITY_ENABLED (Phase 3 gate)
+ * Both default to false.  ACTIVE_AI_COMPANION_WIRING remains
+ * AI_COMPANION_WIRING_HYBRID until the flags are explicitly enabled.
+ *
+ * ROLLBACK
+ * --------
+ * Set COMPANION_UPGRADE_CONTINUITY_ENABLED to false to revert to V1
+ * with no other code changes.  Set COMPANION_UPGRADE_ENABLED to false to
+ * revert to AI_COMPANION_WIRING_HYBRID entirely.
+ *
+ * Source of truth: Problem statement — Phase 3 Deep Personalization, Continuity,
+ * Formulation Quality.
+ */
+export const AI_COMPANION_WIRING_UPGRADE_V2 = {
+  name: 'ai_companion',
+  companion_upgrade: true,
+  companion_upgrade_phase: 3,
+  warmth_enabled: true,             // from V1 — Phase 2 warmer, more attuned responses
+  continuity_enabled: true,         // Phase 3 — continuity-aware personalised responses
+  tool_configs: [
+    // ── Step 1: Preferred entities (identical to V1 / Hybrid) ──
+    {
+      entity_name: 'CompanionMemory',
+      access_level: 'preferred',
+      source_order: 1,
+      use_for_clinical_reasoning: false,
+    },
+    { entity_name: 'MoodEntry',       access_level: 'preferred',   source_order: 2 },
+    // ── Step 2: Allowed shared content pool (identical to V1 / Hybrid) ──
+    { entity_name: 'Exercise',        access_level: 'allowed',     source_order: 3 },
+    { entity_name: 'Resource',        access_level: 'allowed',     source_order: 4 },
+    { entity_name: 'AudioContent',    access_level: 'allowed',     source_order: 5 },
+    { entity_name: 'Journey',         access_level: 'allowed',     source_order: 6 },
+    // ── Step 3: Non-caution restricted entities (identical to V1 / Hybrid) ──
+    { entity_name: 'Goal',            access_level: 'restricted',  source_order: 7, reference_only: true },
+    { entity_name: 'SessionSummary',  access_level: 'restricted',  source_order: 8, continuity_check_only: true },
+    // ── Hybrid: Caution-layer entity (identical to V1 / Hybrid) ──
+    {
+      entity_name: 'Conversation',
+      access_level: 'restricted',
+      source_order: 9,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    // NOTE: CaseFormulation remains PROHIBITED for AI Companion at all upgrade
+    // phases (enforcement spec §E).  No new prohibited entities are added here.
   ],
 };

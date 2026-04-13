@@ -144,10 +144,12 @@ export async function mockApi(page: Page) {
     }
 
     // ---- Agent conversations ----
-    // NOTE: the /messages POST check must come BEFORE the general /agents/conversations
-    // POST check, otherwise the broader substring match shadows this handler.
+    // IMPORTANT: More-specific patterns must be checked before less-specific ones so that
+    // requests to /agents/conversations/{id}/messages and /agents/conversations/{id}
+    // are not accidentally swallowed by the broader /agents/conversations list rules.
 
-    // Add message to conversation (echo back posted content)
+    // Add message to conversation (echo back posted content) — checked first because
+    // url.includes('/agents/conversations') also matches this URL.
     if (
       url.includes('/agents/conversations/') &&
       url.includes('/messages') &&
@@ -181,6 +183,23 @@ export async function mockApi(page: Page) {
       return;
     }
 
+    // Get specific conversation by ID — must come before the list GET below.
+    if (url.includes('/agents/conversations/') && method === 'GET') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          id: mockConversationId,
+          agent_name: 'cbt_therapist',
+          metadata: { name: 'Test Session', description: 'Test' },
+          messages: [],
+          created_date: new Date().toISOString(),
+        }),
+      });
+      return;
+    }
+
+    // List conversations (no trailing slash / ID in the URL segment).
     if (url.includes('/agents/conversations') && method === 'GET') {
       await route.fulfill({
         status: 200,
@@ -190,6 +209,7 @@ export async function mockApi(page: Page) {
       return;
     }
 
+    // Create new conversation.
     if (url.includes('/agents/conversations') && method === 'POST') {
       await route.fulfill({
         status: 200,
@@ -205,17 +225,23 @@ export async function mockApi(page: Page) {
       return;
     }
 
-    if (url.includes('/agents/conversations/') && method === 'GET') {
+    // Mock Base44 function invocations so they don't reach the real server in CI.
+    // The enhancedCrisisDetector is called in handleSendMessage before the POST;
+    // without this mock it would either block on the network or fail slowly.
+    if (url.includes('/functions/') && method === 'POST') {
+      if (url.includes('enhancedCrisisDetector')) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ data: { is_crisis: false, severity: 'none', confidence: 0 } }),
+        });
+        return;
+      }
+      // All other functions: return a generic success response.
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({
-          id: mockConversationId,
-          agent_name: 'cbt_therapist',
-          metadata: { name: 'Test Session', description: 'Test' },
-          messages: [],
-          created_date: new Date().toISOString(),
-        }),
+        body: JSON.stringify({ data: { success: true } }),
       });
       return;
     }

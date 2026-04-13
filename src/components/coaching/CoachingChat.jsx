@@ -11,6 +11,8 @@ import InlineRiskPanel from '../chat/InlineRiskPanel';
 import { detectCrisisWithReason } from '../utils/crisisDetector';
 import ActionPlanPanel from './ActionPlanPanel';
 import { triggerSessionEndSummarization } from '../../lib/sessionEndSummarization.js';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 
 const stageLabels = {
   discovery: 'Discovery Phase',
@@ -22,6 +24,7 @@ const stageLabels = {
 
 export default function CoachingChat({ session, onBack }) {
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -302,14 +305,27 @@ export default function CoachingChat({ session, onBack }) {
           </div>
         </div>
 
-        {/* Action Plan Panel */}
-        {showActionPanel &&
-        <ActionPlanPanel
-          session={currentSession}
-          onClose={() => setShowActionPanel(false)}
-          onUpdate={() => {}} />
-
-        }
+        {/* Action Plan Panel - drawer on mobile, side panel on desktop */}
+        {isMobile ? (
+          <Drawer open={showActionPanel} onOpenChange={setShowActionPanel}>
+            <DrawerContent>
+              <DrawerHeader className="sr-only">
+                <DrawerTitle>Action Plan</DrawerTitle>
+              </DrawerHeader>
+              <ActionPlanPanel
+                session={currentSession}
+                onClose={() => setShowActionPanel(false)}
+                onUpdate={() => {}}
+                className="w-full border-0 rounded-none shadow-none h-auto max-h-[70vh] overflow-y-auto" />
+            </DrawerContent>
+          </Drawer>
+        ) : (
+          showActionPanel &&
+          <ActionPlanPanel
+            session={currentSession}
+            onClose={() => setShowActionPanel(false)}
+            onUpdate={() => {}} />
+        )}
       </div>
     </div>);
 

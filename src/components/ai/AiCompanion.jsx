@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { ACTIVE_AI_COMPANION_WIRING } from '@/api/activeAgentWiring.js';
+import { buildCompanionSessionStartContextAsync } from '@/lib/companionContinuity.js';
 
 export default function AiCompanion() {
   const [isOpen, setIsOpen] = useState(false);
@@ -32,21 +33,36 @@ export default function AiCompanion() {
     }
   }, []);
 
-  // Create or get companion conversation
+  // Create or get companion conversation with memory context
   useEffect(() => {
     if (isOpen && !conversation) {
-      base44.agents.createConversation({
-        agent_name: ACTIVE_AI_COMPANION_WIRING.name,
-        tool_configs: ACTIVE_AI_COMPANION_WIRING.tool_configs,
-        metadata: {
-          name: 'AI Companion Chat',
-          type: 'companion',
-          persistent: true
+      (async () => {
+        let memoryContext = '';
+        try {
+          memoryContext = await buildCompanionSessionStartContextAsync(
+            base44.entities,
+            ACTIVE_AI_COMPANION_WIRING,
+          );
+        } catch {
+          // Fail-closed: session start continues without context
         }
-      }).then((conv) => {
-        setConversation(conv);
-        setMessages(conv.messages || []);
-      });
+        try {
+          const conv = await base44.agents.createConversation({
+            agent_name: 'ai_coach',
+            tool_configs: ACTIVE_AI_COMPANION_WIRING.tool_configs,
+            metadata: {
+              name: 'AI Companion Chat',
+              type: 'companion',
+              persistent: true,
+              memory_context: memoryContext,
+            },
+          });
+          setConversation(conv);
+          setMessages(conv.messages || []);
+        } catch (error) {
+          console.error('Failed to create conversation:', error);
+        }
+      })();
     }
   }, [isOpen, conversation]);
 

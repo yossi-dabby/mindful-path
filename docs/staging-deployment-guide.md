@@ -62,16 +62,66 @@ All flags default to `false` when the variable is absent or any value other than
 > **Do NOT enable any of these flags until Phase 9 exit criteria are met.**
 > See `docs/therapist-upgrade-stage2-plan.md §Phase 9`.
 
-| Variable                                              | Phase | Description                                      | Staging default |
-|-------------------------------------------------------|-------|--------------------------------------------------|-----------------|
-| `VITE_THERAPIST_UPGRADE_ENABLED`                      | Gate  | Master rollback switch for all Stage 2 behavior  | `false`         |
-| `VITE_THERAPIST_UPGRADE_MEMORY_ENABLED`               | 1     | Structured therapist memory layer                | `false`         |
-| `VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED`        | 2     | Session-end structured summarization             | `false`         |
-| `VITE_THERAPIST_UPGRADE_WORKFLOW_ENABLED`             | 3     | Therapist workflow engine                        | `false`         |
-| `VITE_THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED`    | 4     | External trusted knowledge ingestion             | `false`         |
-| `VITE_THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED` | 5  | Internal-first retrieval orchestration           | `false`         |
-| `VITE_THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED`    | 6     | Live retrieval allowlist wrapper                 | `false`         |
-| `VITE_THERAPIST_UPGRADE_SAFETY_MODE_ENABLED`          | 7     | Safety mode + emergency resource layer           | `false`         |
+| Variable                                                  | Phase            | Description                                          | Staging default |
+|-----------------------------------------------------------|------------------|------------------------------------------------------|-----------------|
+| `VITE_THERAPIST_UPGRADE_ENABLED`                          | Gate             | Master rollback switch for all Stage 2 behavior      | `false`         |
+| `VITE_THERAPIST_UPGRADE_MEMORY_ENABLED`                   | 1                | Structured therapist memory layer                    | `false`         |
+| `VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED`            | 2                | Session-end structured summarization (client gate)   | `false`         |
+| `VITE_THERAPIST_UPGRADE_WORKFLOW_ENABLED`                 | 3                | Therapist workflow engine                            | `false`         |
+| `VITE_THERAPIST_UPGRADE_TRUSTED_INGESTION_ENABLED`        | 4                | External trusted knowledge ingestion                 | `false`         |
+| `VITE_THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED`  | 5                | Internal-first retrieval orchestration               | `false`         |
+| `VITE_THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED`        | 6                | Live retrieval allowlist wrapper                     | `false`         |
+| `VITE_THERAPIST_UPGRADE_SAFETY_MODE_ENABLED`              | 7                | Safety mode + emergency resource layer               | `false`         |
+| `VITE_THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED`      | Phase 1 Quality  | Case formulation context injection at session start (V6 wiring) | `false` |
+| `VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED`               | Phase 3 Deep     | Cross-session memory continuity injection at session start (V7 wiring, superset of V6) | `false` |
+| `VITE_THERAPIST_UPGRADE_STRATEGY_ENABLED`                 | Wave 2A scaffold | Therapeutic Strategy Layer — registered for future wiring (Wave 2B). **No runtime effect in current codebase.** | `false` |
+| `VITE_THERAPIST_UPGRADE_LONGITUDINAL_ENABLED`             | Wave 3B          | Longitudinal Therapeutic State (LTS) write path — recomputes and upserts LTS snapshot after each session memory write. **No LTS read path or session-start wiring yet.** Requires `VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED` to also be `true`. | `false` |
+| `VITE_THERAPIST_UPGRADE_KNOWLEDGE_ENABLED`                | Wave 4A scaffold | CBT Knowledge Planner scaffold — gates the pure deterministic planner contract (`src/lib/cbtKnowledgePlanner.js`). **Frontend VITE env only. No backend secret required. No runtime retrieval, no schema changes, no Chat.jsx changes. Zero effect on any live session.** | `false` |
+| `VITE_QUALITY_EVALUATOR_ENABLED`                          | Wave 5A scaffold | Quality Evaluator scaffold — gates the pure deterministic evaluator contract (`src/lib/therapistQualityEvaluator.js`). **Isolated registry (QUALITY_EVALUATOR_FLAGS), NOT part of THERAPIST_UPGRADE_FLAGS or COMPANION_UPGRADE_FLAGS. Frontend VITE env only. No runtime wiring, no session-start changes, no diagnostics emission, no Chat.jsx changes. Zero effect on any live session.** | `false` |
+
+> **Flag dependency for continuity read path:**
+> `VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED` activates the **read** path (session-start injection from CompanionMemory).
+> For that data to exist, `VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED` must also be enabled (and the matching
+> backend Base44 secret — see Section 3.4) so that memory write operations can populate CompanionMemory.
+> Enabling only the read flag without the write flag is safe (fail-closed: no data → empty block), but the
+> therapist will have no prior session context to inject until at least one write has completed.
+
+> **Phase 3 enrichment (conversation memory write enrichment):**
+> When _both_ `VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED` and `VITE_THERAPIST_UPGRADE_CONTINUITY_ENABLED`
+> are `true`, Chat.jsx session-end memory writes are automatically enriched with active Goal records
+> (→ `goals_referenced`, `follow_up_tasks`) and the most recent CaseFormulation (→ `working_hypotheses`)
+> before persistence. This produces richer cross-session continuity context for the next session start.
+> No additional flag is required — the enrichment reuses the two existing flags.
+> Enrichment is fail-closed: any entity read failure leaves the base payload unchanged.
+
+> **Wave 3B — LTS write path:**
+> `VITE_THERAPIST_UPGRADE_LONGITUDINAL_ENABLED` activates the **LTS write path** (fire-and-forget after each
+> session memory write). It requires `VITE_THERAPIST_UPGRADE_SUMMARIZATION_ENABLED` as a prerequisite (the
+> session memory write must run before the LTS can be computed from existing records).
+> The matching backend secret (`THERAPIST_UPGRADE_LONGITUDINAL_ENABLED=true` in Base44 Application Secrets)
+> must also be set or the `writeLTSSnapshot` Deno function will gate the write with a 503.
+> For `retrieveTherapistMemory` to return session records for LTS computation, `THERAPIST_UPGRADE_MEMORY_ENABLED`
+> must also be set in Base44 Application Secrets.
+> **This flag does not activate any LTS read path or session-start wiring.** Those are deferred to Wave 3C.
+
+> **Wave 4A — CBT Knowledge Planner scaffold:**
+> `VITE_THERAPIST_UPGRADE_KNOWLEDGE_ENABLED` gates the pure deterministic CBT knowledge planner
+> (`src/lib/cbtKnowledgePlanner.js`). This is a **frontend VITE env only** flag — no backend Base44
+> secret is required and no Deno function is called by this scaffold.
+> Enabling this flag in isolation has **zero effect** on any live session, agent, user-facing behavior,
+> entity schema, or retrieval pipeline. The planner is a standalone pure library with no imports.
+> Runtime retrieval wiring is deferred to Wave 4B+.
+>
+> **Wave 4A.2 — Domain scope alignment (first-wave runtime gate):**
+> `CBT_KNOWLEDGE_DOMAINS` is the full planning registry (12 domains).
+> `CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE` is the authoritative gate for Wave 4B retrieval wiring
+> — it contains only the 8 first-wave safe domains: anxiety, depression, self_esteem, grief, panic,
+> social_anxiety, phobia, general.
+> `CBT_KNOWLEDGE_DEFERRED_DOMAINS` explicitly names the 4 higher-risk / specialised domains deferred to
+> Wave 4C+: trauma (trauma-informed CBT), anger (risk-assessment complexity), relationship (interpersonal
+> CBT protocol), ocd (ERP required). Any Wave 4B retrieval wiring layer **must** check
+> `CBT_KNOWLEDGE_RUNTIME_ALLOWED_DOMAINS_FIRST_WAVE` before activating retrieval for a given domain.
+> No schema changes, no runtime wiring changes, no Chat.jsx changes are made in this pass.
 
 ### 3.3 Build Behavior Variables (CI/CD)
 
@@ -79,6 +129,41 @@ All flags default to `false` when the variable is absent or any value other than
 |-------------------------------|-------------|----------------------------------------------------------|---------------|
 | `CI`                          | Build-time  | Enables sourcemaps and disables minification in CI builds | `true`        |
 | `BASE44_LEGACY_SDK_IMPORTS`   | Build-time  | Enable legacy Base44 SDK import paths (default: `false`) | `false`       |
+
+### 3.4 Backend Runtime Secrets (Base44 Application Secrets)
+
+These are **not** VITE build-time variables. They are set in the **Base44 Application Secrets** panel
+and are read by Deno backend functions at request time via `Deno.env.get()`.
+
+The frontend `VITE_*` flags gate the client-side trigger; the backend secrets gate the Deno execution.
+Both must be `true` for a full memory write to succeed.
+
+| Secret name                              | Read by Deno function            | Purpose                                                   | Local / Preview | Staging | Production |
+|------------------------------------------|----------------------------------|-----------------------------------------------------------|-----------------|---------|------------|
+| `THERAPIST_UPGRADE_MEMORY_ENABLED`       | `retrieveTherapistMemory`        | Gates per-user structured memory retrieval                | `false`         | `false` | `false`    |
+| `THERAPIST_UPGRADE_SUMMARIZATION_ENABLED`| `generateSessionSummary`         | Gates session-end memory write to CompanionMemory         | `false`         | `false` | `false`    |
+| `THERAPIST_UPGRADE_LONGITUDINAL_ENABLED` | `writeLTSSnapshot`               | Gates LTS upsert write to CompanionMemory (Wave 3B)       | `false`         | `false` | `false`    |
+
+> **Important:** `THERAPIST_UPGRADE_CONTINUITY_ENABLED`, `THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED`,
+> and `THERAPIST_UPGRADE_KNOWLEDGE_ENABLED` are **frontend-only** VITE flags.
+> They have no backend Deno equivalent. `THERAPIST_UPGRADE_KNOWLEDGE_ENABLED` activates only the
+> pure deterministic planner scaffold — no Deno function is required at this stage (Wave 4A.1).
+> The V7 read path (`readCrossSessionContinuity`) reads CompanionMemory directly via the entity SDK
+> — it does not call a backend function.
+
+> **Wave 5A — Quality Evaluator scaffold:**
+> `VITE_QUALITY_EVALUATOR_ENABLED` gates the pure deterministic Quality Evaluator scaffold
+> (`src/lib/therapistQualityEvaluator.js`). This flag lives in an **isolated registry**
+> (`QUALITY_EVALUATOR_FLAGS`) that is completely separate from `THERAPIST_UPGRADE_FLAGS` and
+> `COMPANION_UPGRADE_FLAGS`. Enabling this flag in Wave 5A has **zero effect** on any live
+> session: the evaluator is not called from any session-start path, diagnostics path, or rollout
+> surface. The scaffold exists to validate the contract before wiring begins in a later wave.
+> **Frontend VITE env only. No backend Deno equivalent required. No runtime wiring, no Chat.jsx
+> changes, no diagnostics emission, no entity changes.**
+> Default: `false`. Keep `false` in all environments until Wave 5B wiring is explicitly approved.
+
+> **Recommended initial values** (all environments): `false` — do not enable until the
+> Phase 9 exit criteria described in `docs/therapist-upgrade-stage2-plan.md` are met.
 
 ---
 
@@ -111,10 +196,14 @@ https://myapp.base44.app/?_s2=THERAPIST_UPGRADE_ENABLED,THERAPIST_UPGRADE_MEMORY
   flag that was enabled at build time.
 - Unknown flag names are silently ignored.
 
-**Diagnostic mode** (shows flag evaluation state in the browser console):
+**Diagnostic mode** (shows unified flag evaluation state for both Therapist and Companion in the browser console):
 ```
 https://<staging-host>/?_s2debug=true
 ```
+
+This opens two console groups:
+- `[Activation Diagnostics]` — Phase 4 unified surface covering Therapist (10 flags) + Companion (3 flags), with `routeHint` for each agent.
+- `[S2 Diagnostics]` — Legacy therapist-only group (unchanged, retained for compatibility).
 
 > **Note:** If the external staging deployment uses a custom domain that is NOT
 > a `*.base44.app` subdomain, URL overrides will not be active on that host.
@@ -151,33 +240,43 @@ production**.
 
 ### Step 1 — Verify flag system is wired (all flags off)
 
-1. Deploy the `staging` branch with all `VITE_THERAPIST_UPGRADE_*` vars absent
-   (or explicitly set to `false`).
+1. Deploy the `staging` branch with all `VITE_THERAPIST_UPGRADE_*` and
+   `VITE_COMPANION_UPGRADE_*` vars absent (or explicitly set to `false`).
 2. Open the app on the staging host.
 3. Add `?_s2debug=true` to the URL.
 4. Open the browser console.
-5. Confirm the `[S2 Diagnostics]` output shows:
-   - `masterGateOn: false`
-   - `routeHint: 'HYBRID (master gate off)'`
-   - All `computedFlags` values are `false`
+5. Confirm the `[Activation Diagnostics]` output shows (Phase 4 unified check):
+   - `[Therapist]` section: `masterGateOn: false`, `routeHint: 'HYBRID (master gate off)'`, all flags `false`
+   - `[Companion]` section: `masterGateOn: false`, `routeHint: 'HYBRID (master gate off)'`, all flags `false`
 
 ### Step 2 — Verify URL override layer (on recognised staging host only)
 
 1. Add `?_s2=THERAPIST_UPGRADE_ENABLED&_s2debug=true` to the staging URL.
-2. Confirm the console output shows:
+2. Confirm the `[Activation Diagnostics]` `[Therapist]` section shows:
    - `masterGateOn: true`
    - `routeHint: 'HYBRID (master gate on, no phase flag matched)'`
    - `THERAPIST_UPGRADE_ENABLED: true` in `computedFlags`
-   - All per-phase flags remain `false`
+   - All per-phase therapist flags remain `false`
+3. Confirm the `[Companion]` section is **unchanged** (all flags still `false`).
+
+### Step 2b — Verify Companion URL override layer
+
+1. Add `?_c2=COMPANION_UPGRADE_ENABLED&_s2debug=true` to the staging URL.
+2. Confirm the `[Activation Diagnostics]` `[Companion]` section shows:
+   - `masterGateOn: true`
+   - `routeHint: 'HYBRID (master gate on, no phase flag matched)'`
+   - `COMPANION_UPGRADE_ENABLED: true` in `computedFlags`
+3. Confirm the `[Therapist]` section is **unchanged** (all flags still `false`).
 
 ### Step 3 — Verify build-time flag injection
 
 1. Rebuild the staging deployment with
    `VITE_THERAPIST_UPGRADE_ENABLED=true` set in the build environment.
 2. Add `?_s2debug=true` to the URL (no `_s2` param needed).
-3. Confirm:
+3. Confirm in the `[Therapist]` section:
    - `masterGateOn: true`
    - `THERAPIST_UPGRADE_ENABLED: true` in `computedFlags`
+4. Confirm the `[Companion]` section remains all `false`.
 
 > **Stop here.** Do not enable per-phase flags until the Phase 9 exit criteria
 > in `docs/therapist-upgrade-stage2-plan.md` are confirmed complete.
@@ -214,4 +313,4 @@ part of staging deployment preparation:
 
 ---
 
-*Last updated: 2026-03-20 — Preparation only. Stage 2 not enabled.*
+*Last updated: 2026-04-12 — Wave 5A Quality Evaluator scaffold added. Stage 2 not enabled.*

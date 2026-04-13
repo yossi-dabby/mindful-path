@@ -22,10 +22,10 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
 
   // Pages that are always treated as sub-routes (show back button regardless of path depth)
   const ALWAYS_BACK_PAGES = new Set([
-    'ExerciseView', 'GoalCoach', 'ThoughtCoach', 'PersonalizedFeed',
-    'Journeys', 'PlaylistDetail', 'VideoPlayer', 'StarterPath',
-    'CoachingAnalytics', 'AdvancedAnalytics', 'CrisisAlerts', 'TestSetupGuide'
-  ]);
+  'ExerciseView', 'GoalCoach', 'ThoughtCoach', 'PersonalizedFeed',
+  'Journeys', 'PlaylistDetail', 'VideoPlayer', 'StarterPath',
+  'CoachingAnalytics', 'AdvancedAnalytics', 'CrisisAlerts', 'TestSetupGuide']
+  );
 
   // Show the Back button when the tab navigation stack has history to go back to,
   // OR when the URL has more than one path segment (genuine sub-route),
@@ -77,7 +77,7 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
         paddingTop: 'env(safe-area-inset-top, 0px)'
       }}>
 
-      <div className="bg-teal-50 px-4 flex items-center justify-between h-full">
+      <div className="px-4 flex items-center justify-between h-full">
         {/* Start: Back button on child routes, logo on root */}
         <div className="w-12">
           {isSubRoute ?

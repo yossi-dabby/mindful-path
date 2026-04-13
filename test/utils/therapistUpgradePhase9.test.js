@@ -311,8 +311,8 @@ describe('Phase 9 — B. Flag isolation', () => {
     expect(Object.isFrozen(THERAPIST_UPGRADE_FLAGS)).toBe(true);
   });
 
-  it('THERAPIST_UPGRADE_FLAGS has exactly 9 flags (no new flags added by Phase 9)', () => {
-    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(9);
+  it('THERAPIST_UPGRADE_FLAGS has exactly 13 flags (Wave 4A added the 13th flag)', () => {
+    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(13);
   });
 
   it('isUpgradeEnabled returns false for an unknown flag name (fail-closed)', () => {
@@ -1488,8 +1488,8 @@ describe('Phase 9 — M. Final Stage 2 readiness proof', () => {
     expect(resolveTherapistWiring()).toBe(CBT_THERAPIST_WIRING_HYBRID);
   });
 
-  it('all 9 feature flags are present and all default to false', () => {
-    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(9);
+  it('all 13 feature flags are present and all default to false', () => {
+    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(13);
     for (const [name, val] of Object.entries(THERAPIST_UPGRADE_FLAGS)) {
       expect(val, `Flag "${name}" must be false`).toBe(false);
     }

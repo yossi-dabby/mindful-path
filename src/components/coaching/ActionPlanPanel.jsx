@@ -8,7 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { X, Plus, CheckCircle2, Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export default function ActionPlanPanel({ session, onClose, onUpdate }) {
+export default function ActionPlanPanel({ session, onClose, onUpdate, className }) {
   const [newAction, setNewAction] = useState({ action: '', timeline: '' });
   const [isAdding, setIsAdding] = useState(false);
 
@@ -44,7 +44,7 @@ export default function ActionPlanPanel({ session, onClose, onUpdate }) {
   const totalCount = session.action_plan?.length || 0;
 
   return (
-    <Card className="w-96 border-l border-border/70 rounded-none h-full overflow-y-auto bg-card shadow-[var(--shadow-md)]">
+    <Card className={cn("w-96 border-l border-border/70 rounded-none h-full overflow-y-auto bg-card shadow-[var(--shadow-md)]", className)}>
       <CardHeader className="border-b border-border/70 sticky top-0 bg-popover z-10">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">

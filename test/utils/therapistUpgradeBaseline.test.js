@@ -82,8 +82,8 @@ describe('Phase 0 — Feature flag registry', () => {
     expect('THERAPIST_UPGRADE_SAFETY_MODE_ENABLED' in THERAPIST_UPGRADE_FLAGS).toBe(true);
   });
 
-  it('registry contains exactly 9 flags (1 master + 8 per-phase)', () => {
-    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(9);
+  it('registry contains exactly 13 flags (1 master + 12 per-phase)', () => {
+    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(13);
   });
 
   it('every flag value is a boolean', () => {

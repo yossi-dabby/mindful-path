@@ -282,6 +282,20 @@ export const translations = {
         safety_mode_indicator: {
           label: "Enhanced support mode",
           description: "Your session is being guided with additional care"
+        },
+        session_continuity_cue: {
+          banner_text: "Continuing from your prior sessions",
+          accessible_label: "Session continuity is active — your history is informing this session"
+        },
+        super_cbt_agent: {
+          label: "Super CBT Agent",
+          accessible_label: "Super CBT Agent is active",
+          mode_label: "Advanced CBT Mode",
+          protocol_label: "Evidence-Based CBT Protocol",
+          status_active: "Active",
+          status_inactive: "Inactive",
+          session_intro: "Your session is powered by the advanced CBT Agent with full multilingual support.",
+          multilingual_notice: "Full multilingual CBT support is active."
         }
       },
       age_gate: {
@@ -1380,6 +1394,11 @@ export const translations = {
           no_resources_message: "Try adjusting your search or filters",
         },
       },
+      pull_to_refresh: {
+        pull: "Pull to refresh",
+        release: "Release to refresh",
+        refreshing: "Refreshing…",
+      },
     }
   },
   he: {
@@ -1664,6 +1683,20 @@ export const translations = {
         safety_mode_indicator: {
           label: "מצב תמיכה מוגברת",
           description: "המפגש שלך מנוהל עם תשומת לב נוספת"
+        },
+        session_continuity_cue: {
+          banner_text: "ממשיך ממפגשים קודמים",
+          accessible_label: "רצף מפגשים פעיל — ההיסטוריה שלך מנחה מפגש זה"
+        },
+        super_cbt_agent: {
+          label: "סוכן CBT מתקדם",
+          accessible_label: "סוכן CBT מתקדם פעיל",
+          mode_label: "מצב CBT מתקדם",
+          protocol_label: "פרוטוקול CBT מבוסס-ראיות",
+          status_active: "פעיל",
+          status_inactive: "לא פעיל",
+          session_intro: "המפגש שלך מופעל על ידי סוכן ה-CBT המתקדם עם תמיכה רב-לשונית מלאה.",
+          multilingual_notice: "תמיכה מלאה ב-CBT רב-לשוני פעילה."
         }
       },
       age_gate: {
@@ -2762,6 +2795,11 @@ export const translations = {
           no_resources_message: "נסה להתאים את החיפוש או המסננים",
         },
       },
+      pull_to_refresh: {
+        pull: "משוך לרענון",
+        release: "שחרר לרענון",
+        refreshing: "מרענן…",
+      },
     }
   },
   es: {
@@ -3046,6 +3084,20 @@ export const translations = {
         safety_mode_indicator: {
           label: "Modo de apoyo reforzado",
           description: "Tu sesión se guía con atención adicional"
+        },
+        session_continuity_cue: {
+          banner_text: "Continuando desde sesiones anteriores",
+          accessible_label: "Continuidad de sesión activa — tu historial está informando esta sesión"
+        },
+        super_cbt_agent: {
+          label: "Super Agente TCC",
+          accessible_label: "Super Agente TCC está activo",
+          mode_label: "Modo TCC Avanzado",
+          protocol_label: "Protocolo TCC basado en evidencia",
+          status_active: "Activo",
+          status_inactive: "Inactivo",
+          session_intro: "Tu sesión está impulsada por el agente TCC avanzado con soporte multilingüe completo.",
+          multilingual_notice: "El soporte TCC multilingüe completo está activo."
         }
       },
       age_gate: {
@@ -4101,6 +4153,11 @@ export const translations = {
           no_resources_message: "Intenta ajustar tu búsqueda o filtros",
         },
       },
+      pull_to_refresh: {
+        pull: "Desliza para actualizar",
+        release: "Suelta para actualizar",
+        refreshing: "Actualizando…",
+      },
     }
   },
   fr: {
@@ -4385,6 +4442,20 @@ export const translations = {
         safety_mode_indicator: {
           label: "Mode de soutien renforcé",
           description: "Votre séance est guidée avec une attention supplémentaire"
+        },
+        session_continuity_cue: {
+          banner_text: "Suite de vos séances précédentes",
+          accessible_label: "Continuité de séance active — votre historique guide cette séance"
+        },
+        super_cbt_agent: {
+          label: "Super Agent TCC",
+          accessible_label: "Super Agent TCC est actif",
+          mode_label: "Mode TCC Avancé",
+          protocol_label: "Protocole TCC basé sur les données probantes",
+          status_active: "Actif",
+          status_inactive: "Inactif",
+          session_intro: "Votre séance est alimentée par l'agent TCC avancé avec support multilingue complet.",
+          multilingual_notice: "Le support TCC multilingue complet est actif."
         }
       },
       age_gate: {
@@ -5440,6 +5511,11 @@ export const translations = {
           no_resources_message: "Essayez d\'ajuster votre recherche ou vos filtres",
         },
       },
+      pull_to_refresh: {
+        pull: "Tirer pour actualiser",
+        release: "Relâcher pour actualiser",
+        refreshing: "Actualisation…",
+      },
     }
   },
   de: {
@@ -5724,6 +5800,20 @@ export const translations = {
         safety_mode_indicator: {
           label: "Erweiterter Unterstützungsmodus",
           description: "Ihre Sitzung wird mit zusätzlicher Sorgfalt begleitet"
+        },
+        session_continuity_cue: {
+          banner_text: "Fortsetzung aus Ihren früheren Sitzungen",
+          accessible_label: "Sitzungskontinuität aktiv — Ihre Vorgeschichte fließt in diese Sitzung ein"
+        },
+        super_cbt_agent: {
+          label: "Super-KVT-Agent",
+          accessible_label: "Super-KVT-Agent ist aktiv",
+          mode_label: "Erweiterter KVT-Modus",
+          protocol_label: "Evidenzbasiertes KVT-Protokoll",
+          status_active: "Aktiv",
+          status_inactive: "Inaktiv",
+          session_intro: "Ihre Sitzung wird vom erweiterten KVT-Agenten mit vollständiger mehrsprachiger Unterstützung gespeist.",
+          multilingual_notice: "Vollständige mehrsprachige KVT-Unterstützung ist aktiv."
         }
       },
       age_gate: {
@@ -6779,6 +6869,11 @@ export const translations = {
           no_resources_message: "Versuchen Sie, Ihre Suche oder Filter anzupassen",
         },
       },
+      pull_to_refresh: {
+        pull: "Zum Aktualisieren ziehen",
+        release: "Zum Aktualisieren loslassen",
+        refreshing: "Aktualisierung…",
+      },
     }
   },
   it: {
@@ -7063,6 +7158,20 @@ export const translations = {
         safety_mode_indicator: {
           label: "Modalità di supporto potenziata",
           description: "La tua sessione è guidata con cura aggiuntiva"
+        },
+        session_continuity_cue: {
+          banner_text: "Continuazione dalle sessioni precedenti",
+          accessible_label: "Continuità della sessione attiva — la tua cronologia informa questa sessione"
+        },
+        super_cbt_agent: {
+          label: "Super Agente TCC",
+          accessible_label: "Super Agente TCC è attivo",
+          mode_label: "Modalità TCC Avanzata",
+          protocol_label: "Protocollo TCC basato sull'evidenza",
+          status_active: "Attivo",
+          status_inactive: "Inattivo",
+          session_intro: "La tua sessione è alimentata dall'agente TCC avanzato con supporto multilingue completo.",
+          multilingual_notice: "Il supporto TCC multilingue completo è attivo."
         }
       },
       age_gate: {
@@ -8118,6 +8227,11 @@ export const translations = {
           no_resources_message: "Prova ad aggiustare la ricerca o i filtri",
         },
       },
+      pull_to_refresh: {
+        pull: "Trascina per aggiornare",
+        release: "Rilascia per aggiornare",
+        refreshing: "Aggiornamento…",
+      },
     }
   },
   pt: {
@@ -8402,6 +8516,20 @@ export const translations = {
         safety_mode_indicator: {
           label: "Modo de suporte aprimorado",
           description: "Sua sessão está sendo guiada com cuidado adicional"
+        },
+        session_continuity_cue: {
+          banner_text: "Continuando das suas sessões anteriores",
+          accessible_label: "Continuidade de sessão ativa — seu histórico está informando esta sessão"
+        },
+        super_cbt_agent: {
+          label: "Super Agente TCC",
+          accessible_label: "Super Agente TCC está ativo",
+          mode_label: "Modo TCC Avançado",
+          protocol_label: "Protocolo TCC baseado em evidências",
+          status_active: "Ativo",
+          status_inactive: "Inativo",
+          session_intro: "Sua sessão é alimentada pelo agente TCC avançado com suporte multilíngue completo.",
+          multilingual_notice: "O suporte TCC multilíngue completo está ativo."
         }
       },
       age_gate: {
@@ -9456,6 +9584,11 @@ export const translations = {
           no_resources_title: "Nenhum recurso encontrado",
           no_resources_message: "Tente ajustar sua pesquisa ou filtros",
         },
+      },
+      pull_to_refresh: {
+        pull: "Puxe para atualizar",
+        release: "Solte para atualizar",
+        refreshing: "Atualizando…",
       },
     }
   }

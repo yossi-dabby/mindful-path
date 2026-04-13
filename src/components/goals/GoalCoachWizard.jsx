@@ -270,7 +270,7 @@ export default function GoalCoachWizard({ onClose }) {
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-orange-50 via-yellow-50 to-green-50" style={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden', zIndex: 70, paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       {/* Header - Fixed */}
-      <div className="bg-white border-b shadow-sm flex-shrink-0">
+      <div className="bg-card border-b shadow-sm flex-shrink-0">
         <div className="max-w-2xl mx-auto p-4 w-full">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -325,7 +325,7 @@ export default function GoalCoachWizard({ onClose }) {
                       className={cn(
                         'p-4 rounded-xl border-2 text-left transition-all hover:shadow-lg',
                         isSelected
-                          ? 'border-orange-400 bg-orange-50 shadow-md'
+                          ? 'border-orange-400 bg-orange-500/10 shadow-md'
                           : 'border-gray-200 hover:border-gray-300'
                       )}
                     >
@@ -357,7 +357,7 @@ export default function GoalCoachWizard({ onClose }) {
               </div>
 
               {selectedCategory && (
-                <Card className="border-2 border-orange-200 bg-orange-50">
+                <Card className="border-2 border-orange-500/25 bg-orange-500/10">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
                       <div 
@@ -434,7 +434,7 @@ export default function GoalCoachWizard({ onClose }) {
               </div>
 
               {selectedCategory && (
-                <Card className="border-2 border-orange-200 bg-orange-50">
+                <Card className="border-2 border-orange-500/25 bg-orange-500/10">
                   <CardContent className="p-3">
                     <div className="flex items-center gap-3">
                       <div 
@@ -618,7 +618,7 @@ export default function GoalCoachWizard({ onClose }) {
               </div>
 
               {selectedCategory && (
-                <Card className="border-2 border-orange-200 bg-orange-50">
+                <Card className="border-2 border-orange-500/25 bg-orange-500/10">
                   <CardContent className="p-3">
                     <div className="flex items-center gap-2.5 mb-2.5">
                       <div 
@@ -660,7 +660,7 @@ export default function GoalCoachWizard({ onClose }) {
                           <span className="text-gray-600 font-medium">{t('goal_coach_wizard.review_milestones_label')}</span>
                           <ul className="mt-1 space-y-1.5">
                             {formData.milestones.filter(m => m.title.trim()).map((milestone, index) => (
-                              <li key={index} className="text-gray-800 bg-white p-1.5 rounded-lg">
+                              <li key={index} className="text-gray-800 bg-card p-1.5 rounded-lg">
                                 <div className="font-medium">• {milestone.title}</div>
                                 {milestone.description && (
                                   <div className="text-[10px] text-gray-600 ml-3 mt-0.5">{milestone.description}</div>
@@ -688,7 +688,7 @@ export default function GoalCoachWizard({ onClose }) {
                       {(formData.smart_criteria.specific || formData.smart_criteria.measurable || formData.smart_criteria.achievable || formData.smart_criteria.time_bound) && (
                         <div>
                           <span className="text-gray-600 font-medium">{t('goal_coach_wizard.review_smart_label')}</span>
-                          <div className="mt-1 space-y-0.5 bg-white p-1.5 rounded-lg text-[10px]">
+                          <div className="mt-1 space-y-0.5 bg-card p-1.5 rounded-lg text-[10px]">
                             {formData.smart_criteria.specific && (
                               <div><span className="font-medium">S:</span> {formData.smart_criteria.specific}</div>
                             )}
@@ -727,7 +727,7 @@ export default function GoalCoachWizard({ onClose }) {
       </div>
 
       {/* Navigation - Sticky at bottom with safe area */}
-      <div className="sticky bottom-0 bg-white border-t shadow-lg flex-shrink-0" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)', zIndex: 10 }}>
+      <div className="sticky bottom-0 bg-card border-t shadow-lg flex-shrink-0" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)', zIndex: 10 }}>
         <div className="max-w-2xl mx-auto px-3 py-3 w-full">
           <div className="flex gap-2.5">
             {step > 1 && (
