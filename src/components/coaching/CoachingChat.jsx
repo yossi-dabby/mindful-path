@@ -236,7 +236,7 @@ export default function CoachingChat({ session, onBack }) {
                 message={message}
                 conversationId={currentSession.agent_conversation_id}
                 messageIndex={index}
-                agentName="ai_coach"
+                agentName="ai_companion"
                 context="coach" />
 
               )}
