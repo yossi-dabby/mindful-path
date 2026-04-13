@@ -610,9 +610,15 @@ export default function Chat() {
                 const refetched = await base44.agents.getConversation(currentConversationId);
                 const sanitized = sanitizeConversationMessages(refetched.messages || []);
                 safeUpdateMessages(sanitized, 'Refetch');
+                // Phase 2 fix: clear loading after refetch completes.  The subscription
+                // returned early (no setIsLoading call) when unsafe content was detected.
+                // The refetch is the recovery path — loading must always clear here so
+                // the chat is not stuck when a JSON-shaped agent reply is sanitized away.
+                setIsLoading(false);
                 isRefetchingRef.current = false;
               } catch (err) {
                 console.error('[Refetch] Failed:', err);
+                setIsLoading(false);
                 isRefetchingRef.current = false;
               }
             }, 200);
@@ -1049,6 +1055,15 @@ export default function Chat() {
         setCurrentConversationId(convId);
         refetchConversations();
         setShowSidebar(false);
+
+        try {
+          _firstMsgSessionStart = await buildV4SessionStartContentAsync(
+            ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44
+          );
+        } catch (err) {
+          console.error('[First Message] Failed to build session-start context:', err);
+          _firstMsgSessionStart = null;
+        }
       }
 
       const conversation = await base44.agents.getConversation(convId);
@@ -1115,10 +1130,28 @@ export default function Chat() {
               // CRITICAL: Safe update with validation
               const updated = safeUpdateMessages(sanitized, 'Polling');
 
+              // emitStabilitySummary is intentionally inside `if (updated)`: it
+              // reports a SUCCESSFUL message delivery cycle and should only fire
+              // when the state was actually updated (i.e., new content reached the
+              // UI).  If the update was rejected (safeUpdateMessages returned false),
+              // there is nothing meaningful to report for this cycle.
               if (updated) {
-                setIsLoading(false);
                 emitStabilitySummary();
               }
+
+              // Phase 2 fix: always clear loading when polling confirms enough messages
+              // exist, even if safeUpdateMessages rejected the update (e.g. because a
+              // JSON-shaped agent reply was blocked by the hard render gate and the
+              // refetch already advanced lastConfirmedMessagesRef).  Without this guard
+              // the loading timeout is cleared below while isLoading stays true, causing
+              // a perpetual stall until the 60-second subscription timeout fires.
+              //
+              // setIsLoading(false) is intentionally OUTSIDE `if (updated)`: clearing
+              // the loading spinner is a UX concern, not a data-integrity concern.
+              // The server has confirmed enough messages exist — the user's message was
+              // received and the agent responded.  We must unblock the input regardless
+              // of whether the reply could be rendered (it may be retried or shown later).
+              setIsLoading(false);
 
               if (pollingIntervalRef.current) {
                 clearTimeout(pollingIntervalRef.current);

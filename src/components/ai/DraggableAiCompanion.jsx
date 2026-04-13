@@ -176,7 +176,7 @@ export default function DraggableAiCompanion() {
 
       try {
         const conv = await base44.agents.createConversation({
-          agent_name: 'ai_coach',
+          agent_name: ACTIVE_AI_COMPANION_WIRING.name,
           tool_configs: ACTIVE_AI_COMPANION_WIRING.tool_configs,
           metadata: {
             name: 'AI Companion Chat',
@@ -764,7 +764,7 @@ export default function DraggableAiCompanion() {
                   <MessageFeedback
                     conversationId={conversation.id}
                     messageIndex={i}
-                    agentName="ai_coach"
+                    agentName={ACTIVE_AI_COMPANION_WIRING.name}
                     context="companion" />
 
                   }

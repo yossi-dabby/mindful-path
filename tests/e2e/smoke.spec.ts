@@ -30,10 +30,12 @@ test.describe('Chat Smoke Test (Mobile)', () => {
     try {
       await mockApi(page);
 
+      console.log('[smoke] Navigating to /Chat...');
       await spaNavigate(page, '/Chat');
       await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
       const startSessionButton = page.getByText('Start Your First Session');
       if (await startSessionButton.isVisible({ timeout: 2000 }).catch(() => false)) {
+        console.log('[smoke] Clicking "Start Your First Session"...');
         await safeClick(startSessionButton);
         await page.waitForTimeout(800);
       }
@@ -43,6 +45,8 @@ test.describe('Chat Smoke Test (Mobile)', () => {
         .or(page.locator('textarea[data-testid="chat-input"]'))
         .or(page.locator('textarea').first());
       await expect(messageInput).toBeVisible({ timeout: 20000 });
+
+      console.log('[smoke] Filling message input...');
       await safeFill(messageInput, testMessage);
 
       // Set up the request interceptor BEFORE triggering the send action so no
@@ -63,14 +67,19 @@ test.describe('Chat Smoke Test (Mobile)', () => {
         .or(page.locator('button[aria-label*="Send" i]')).first();
 
       if (await sendButton.isVisible({ timeout: 3000 }).catch(() => false)) {
+        console.log('[smoke] Send button found — clicking...');
         await expect(sendButton).toBeVisible({ timeout: 20000 });
         await expect(sendButton).toBeEnabled({ timeout: 20000 });
         await safeClick(sendButton);
       } else {
+        console.log('[smoke] Send button not found — pressing Enter...');
         await messageInput.press('Enter');
       }
 
-      await waitForPost;
+      const postResult = await waitForPost;
+      if (postResult) {
+        console.log('[smoke] POST request observed:', postResult.url());
+      }
 
       await expect(page.getByText(testMessage).first()).toBeVisible({ timeout: 15000 }).catch(() => {});
     } catch (error) {

@@ -279,7 +279,8 @@ export function resolveTherapistWiring() {
     // ── Master gate on, no phase flag matched — fall through to current default ──
     logUpgradeEvent('route_not_selected', {
       flag: 'THERAPIST_UPGRADE_ENABLED',
-      path: 'current_default_fallback',
+      path: 'hybrid',
+      reason: 'no_phase_flag_matched',
       phase: '0.1',
     });
     return CBT_THERAPIST_WIRING_HYBRID;
@@ -287,6 +288,8 @@ export function resolveTherapistWiring() {
 
   logUpgradeEvent('route_not_selected', {
     flag: 'THERAPIST_UPGRADE_ENABLED',
+    path: 'hybrid',
+    reason: 'master_gate_off',
     phase: '0.1',
   });
   return CBT_THERAPIST_WIRING_HYBRID;
