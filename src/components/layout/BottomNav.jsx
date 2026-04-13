@@ -64,13 +64,13 @@ export default function BottomNav({ currentPageName }) {
               to={createPageUrl(item.path)}
               onClick={(e) => handleTabClick(e, item)}
               aria-current={isActive ? 'page' : undefined}
-              aria-label={item.name}
-              className={cn(
-                'flex flex-col items-center justify-center gap-1 transition-calm px-2 py-2 rounded-3xl min-w-[52px] border',
-                isActive ?
-                'bg-primary/15 border-primary/30 shadow-[var(--shadow-sm)]' :
-                'bg-transparent border-transparent'
-              )}>
+              aria-label={item.name} className="bg-teal-100 px-2 py-2 rounded-3xl flex flex-col items-center justify-center gap-1 transition-calm min-w-[52px] border border-transparent">
+
+
+
+
+
+              
 
 
 
