@@ -580,8 +580,8 @@ describe('Phase 1 Quality — new workflow engine rules', () => {
     }
   });
 
-  it('workflow engine now has 10 response rules', () => {
-    expect(Object.keys(THERAPIST_WORKFLOW_RESPONSE_RULES)).toHaveLength(10);
+  it('workflow engine now has 14 response rules', () => {
+    expect(Object.keys(THERAPIST_WORKFLOW_RESPONSE_RULES)).toHaveLength(14);
   });
 
   it('THERAPIST_WORKFLOW_VERSION is 3.1.0', () => {

@@ -39,6 +39,43 @@
 /** @type {string} */
 export const THERAPIST_WORKFLOW_VERSION = '3.1.0';
 
+// ─── Early-turn sequence ──────────────────────────────────────────────────────
+
+/**
+ * The prescribed 3-turn early-session sequence for the higher-attunement CBT
+ * formulator upgrade (Phase 3.1.0).
+ *
+ * These turns apply to the opening exchanges of a session, before the main
+ * 6-step workflow sequence takes over.  The early-turn sequence ensures that
+ * the therapist does not open with an intake menu, reflects context that is
+ * already known, formulates early, and asks only one targeted question.
+ *
+ * @type {ReadonlyArray<{turn: number, name: string, description: string}>}
+ */
+export const THERAPIST_EARLY_TURN_SEQUENCE = Object.freeze([
+  Object.freeze({
+    turn: 1,
+    name: 'reflect_what_is_already_known',
+    description:
+      'Restate/rephrase what is already known, without introducing a menu ' +
+      'or category selection.',
+  }),
+  Object.freeze({
+    turn: 2,
+    name: 'produce_a_brief_formulation',
+    description:
+      'Briefly formulate the underlying concern, using the word ' +
+      "'formulation' or a synonym.",
+  }),
+  Object.freeze({
+    turn: 3,
+    name: 'one_targeted_question',
+    description:
+      'Ask one and only one targeted question, tightly focused on the main ' +
+      'concern.',
+  }),
+]);
+
 // ─── Fixed 6-step response sequence ──────────────────────────────────────────
 
 /**
@@ -242,6 +279,42 @@ export const THERAPIST_WORKFLOW_RESPONSE_RULES = Object.freeze({
     'is the longitudinal frame — use it to anchor session-level interventions ' +
     'to the broader clinical picture. When no formulation is available, apply ' +
     'session-level clinical judgment.',
+
+  /**
+   * No redundant context questions — Phase 3.1.0.
+   * Do not re-ask for information the person has already provided or that
+   * has already been restated in the same session.  Redundant questioning
+   * signals inattentiveness and wastes the therapeutic window.
+   */
+  no_redundant_questioning:
+    'No redundant context questions: Avoid re-asking for information already ' +
+    'provided or already restated.',
+
+  /**
+   * Formulate before questioning — Phase 3.1.0.
+   * A brief formulation must precede any question.  Do not ask a question
+   * before you have demonstrated that you have understood the presenting
+   * material by naming it.
+   */
+  formulate_before_questioning:
+    'Reflect then formulate then ask: Formulation must come before a question.',
+
+  /**
+   * One targeted question per turn — Phase 3.1.0.
+   * Limit to a single targeted question per response turn.  Multiple
+   * questions in one turn overwhelm the person and dilute focus.
+   */
+  one_targeted_question:
+    'One targeted question: Limit yourself to one or at most one question ' +
+    'per turn.',
+
+  /**
+   * No intake menu at opening — Phase 3.1.0.
+   * Do not offer a category selection or topic menu when opening a session.
+   * Begin by reflecting what is already known, not by presenting choices.
+   */
+  no_intake_menu:
+    'Opening behavior: Do not offer a menu or category selection.',
 });
 
 // ─── Emotion differentiation map ─────────────────────────────────────────────
@@ -355,6 +428,10 @@ export function buildWorkflowContextInstructions() {
     (s) => `  Step ${s.step} (${s.name}): ${s.description}`,
   ).join('\n');
 
+  const earlyTurns = THERAPIST_EARLY_TURN_SEQUENCE.map(
+    (t) => `  Turn ${t.turn} (${t.name}): ${t.description}`,
+  ).join('\n');
+
   const emotionEntries = Object.values(THERAPIST_WORKFLOW_EMOTION_MAP)
     .map((e) => `  ${e.label}: ${e.description}`)
     .join('\n');
@@ -376,7 +453,14 @@ export function buildWorkflowContextInstructions() {
     '',
     steps,
     '',
+    '--- EARLY TURN BEHAVIOR ---',
+    'For the first three turns of a session, follow this prescribed sequence.',
+    'Do not open with a menu or category selection.',
+    '',
+    earlyTurns,
+    '',
     '--- RESPONSE-SHAPING RULES ---',
+    'ADAPTIVE RESPONSE FRAMEWORK',
     '',
     `1. Reduce open-ended questions: ${THERAPIST_WORKFLOW_RESPONSE_RULES.reduce_open_ended_questions}`,
     '',
@@ -397,6 +481,14 @@ export function buildWorkflowContextInstructions() {
     `9. Avoid repetitive questioning: ${THERAPIST_WORKFLOW_RESPONSE_RULES.avoid_repetitive_questioning}`,
     '',
     `10. Formulation-aligned intervention: ${THERAPIST_WORKFLOW_RESPONSE_RULES.formulation_aligned_intervention}`,
+    '',
+    `11. ${THERAPIST_WORKFLOW_RESPONSE_RULES.no_redundant_questioning}`,
+    '',
+    `12. ${THERAPIST_WORKFLOW_RESPONSE_RULES.formulate_before_questioning}`,
+    '',
+    `13. ${THERAPIST_WORKFLOW_RESPONSE_RULES.one_targeted_question}`,
+    '',
+    `14. ${THERAPIST_WORKFLOW_RESPONSE_RULES.no_intake_menu}`,
     '',
     '--- EMOTION DIFFERENTIATION ---',
     'Distinguish explicitly between these states — each requires a different',
