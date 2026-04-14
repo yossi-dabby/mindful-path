@@ -969,11 +969,13 @@ export default function Chat() {
       lastConfirmedMessagesRef.current = [];
 
       // Lock session language for this conversation.
-      // Prefer the SESSION_LANGUAGE directive embedded in the first user message;
-      // fall back to the current UI locale so the governor never defaults to English
+      // Prefer the SESSION_LANGUAGE directive embedded in the first user message.
+      // Directive format (injected by addLangDirective in Chat.jsx):
+      //   "[SESSION_LANGUAGE: <iso2>. Open and respond entirely in <name> ...]"
+      // Fall back to the current UI locale so the governor never defaults to English
       // for a non-English session loaded from history.
       const firstUserMsg = (conversation.messages || []).find(m => m.role === 'user' && m.content);
-      const embeddedLang = firstUserMsg?.content?.match(/\[SESSION_LANGUAGE:\s*([a-z]{2})\b/i)?.[1];
+      const embeddedLang = firstUserMsg?.content?.match(/\[SESSION_LANGUAGE:\s*([a-zA-Z]{2})\b/)?.[1]?.toLowerCase();
       sessionLanguageRef.current = embeddedLang || i18n.language || 'en';
 
       // Process and sanitize messages before setting

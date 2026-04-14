@@ -277,8 +277,11 @@ describe('Governor — clean responses pass through unmodified', () => {
   });
 });
 
-// ─── 7. Mid-conversation language switch ─────────────────────────────────────
-
+/**
+ * Mid-conversation language switch — each session uses its own locked language.
+ * The sessionLanguage is set at conversation start and survives UI-locale changes.
+ * On an explicit language switch (new session), the new locale is used.
+ */
 describe('Mid-conversation language switch', () => {
   it('switching from pt to es: es session uses Spanish failsafe', () => {
     const ptResult = applyFinalOutputGovernor('?', { lang: 'pt' });
