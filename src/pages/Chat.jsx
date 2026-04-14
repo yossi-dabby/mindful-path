@@ -106,6 +106,11 @@ export default function Chat() {
   // safetyModeActive becomes true and stays true once the upgraded safety supplement
   // fires for any turn in this session.  Resets when a new conversation starts.
   const [safetyModeActive, setSafetyModeActive] = useState(false);
+  // Session language — locked at conversation start from the active UI locale.
+  // Separate from i18n.language (UI locale) so that UI locale changes mid-session
+  // do not corrupt the response language used by the Final Output Governor.
+  // Stored as a ref so MessageBubble renders do not trigger on locale changes.
+  const sessionLanguageRef = useRef(i18n.language || 'en');
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const [visibleCount, setVisibleCount] = useState(50);
@@ -458,6 +463,8 @@ export default function Chat() {
             setCurrentConversationId(conversation.id);
             setMessages([]);
             setShowSidebar(false);
+            // Lock session language at conversation start (separate from UI locale).
+            sessionLanguageRef.current = i18n.language || 'en';
             refetchConversations();
 
             // Trigger AI to send opening message based on intent (one-time only)
@@ -500,6 +507,8 @@ export default function Chat() {
             setCurrentConversationId(conversation.id);
             setMessages([]);
             setShowSidebar(false);
+            // Lock session language at conversation start (separate from UI locale).
+            sessionLanguageRef.current = i18n.language || 'en';
             refetchConversations();
 
             // Trigger AI to send opening message (one-time only)
@@ -911,6 +920,8 @@ export default function Chat() {
       lastConfirmedMessagesRef.current = []; // Reset baseline for new conversation
       setShowSidebar(false);
       setSafetyModeActive(false); // Phase 8: reset safety mode state on new session
+      // Lock session language at conversation start (separate from UI locale).
+      sessionLanguageRef.current = i18n.language || 'en';
       refetchConversations();
 
       // Always send [START_SESSION] so the agent initialises correctly on all
@@ -956,6 +967,14 @@ export default function Chat() {
       // if it has fewer messages than the previous conversation, causing replies to
       // appear invisible (never rendered) on the newly loaded conversation.
       lastConfirmedMessagesRef.current = [];
+
+      // Lock session language for this conversation.
+      // Prefer the SESSION_LANGUAGE directive embedded in the first user message;
+      // fall back to the current UI locale so the governor never defaults to English
+      // for a non-English session loaded from history.
+      const firstUserMsg = (conversation.messages || []).find(m => m.role === 'user' && m.content);
+      const embeddedLang = firstUserMsg?.content?.match(/\[SESSION_LANGUAGE:\s*([a-z]{2})\b/i)?.[1];
+      sessionLanguageRef.current = embeddedLang || i18n.language || 'en';
 
       // Process and sanitize messages before setting
       const sanitized = sanitizeConversationMessages(conversation.messages || []);
@@ -1684,7 +1703,8 @@ export default function Chat() {
                       messageIndex={index}
                       agentName="cbt_therapist"
                       context="chat"
-                      userMessage={prevUserMessage} />
+                      userMessage={prevUserMessage}
+                      sessionLanguage={sessionLanguageRef.current} />
                   );
                 })}
                 {isLoading && messages.length > 0 && (() => {

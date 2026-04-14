@@ -6,7 +6,7 @@ import MessageFeedback from './MessageFeedback';
 import { sanitizeMessageContent, extractThinkingContent } from '../utils/messageContentSanitizer';
 import { applyFinalOutputGovernor } from '../utils/finalOutputGovernor';
 
-export default function MessageBubble({ message, conversationId, messageIndex, agentName = 'cbt_therapist', context = 'chat', userMessage }) {
+export default function MessageBubble({ message, conversationId, messageIndex, agentName = 'cbt_therapist', context = 'chat', userMessage, sessionLanguage }) {
   const { t, i18n } = useTranslation();
   const [thinkingExpanded, setThinkingExpanded] = useState(false);
   // CRITICAL GATE 1: Strict null/undefined/empty gating
@@ -50,11 +50,13 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
     // CRITICAL: Apply Final Output Governor (CP12) — last gate before render
     // For assistant messages: runs full leakage + ask-back + worksheet-drift + routing-leakage passes
     // For user messages: pass through unchanged
-    // NOTE: do NOT pass lang from i18n.language (UI locale) — the governor must
-    // auto-detect language from the message content itself. Passing the UI locale
-    // causes Hebrew/Portuguese responses to be flagged as "contamination" when the
-    // UI language is English, nuking the entire response to the English failsafe.
+    // NOTE: pass sessionLanguage (locked at conversation start) as opts.lang so the
+    // governor uses the correct session language rather than auto-detecting from content.
+    // Auto-detection alone is unreliable for Latin-script languages that share vocabulary
+    // (e.g. Portuguese/Spanish).  If sessionLanguage is not provided, the governor falls
+    // back to content-based detection.
     const sanitized = isUser ? contentStr : applyFinalOutputGovernor(contentStr, {
+      lang: sessionLanguage || undefined,
       userMessage: userMessage || undefined,
     });
     content = sanitized;
