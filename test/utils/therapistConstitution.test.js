@@ -10,7 +10,7 @@
  * in the therapist behavior architecture task:
  *
  * SECTION A — VERSION
- *   1.  Version bumped to 3.2.0
+ *   1.  Version bumped to 3.3.0
  *
  * SECTION B — THERAPIST CONSTITUTION
  *   2.  THERAPIST_CONSTITUTION is exported and well-formed (7 principles)
@@ -122,8 +122,8 @@ try {
 // ─── Section A — Version ──────────────────────────────────────────────────────
 
 describe('Therapist Constitution — Section A: Version', () => {
-  it('THERAPIST_WORKFLOW_VERSION is "3.2.0"', () => {
-    expect(THERAPIST_WORKFLOW_VERSION).toBe('3.2.0');
+  it('THERAPIST_WORKFLOW_VERSION is "3.3.0"', () => {
+    expect(THERAPIST_WORKFLOW_VERSION).toBe('3.3.0');
   });
 });
 
@@ -687,8 +687,8 @@ describe('Therapist Constitution — Section H: Injected instruction scenario co
   });
 
   // Additional: version header in injected instructions
-  it('injected instructions carry Phase 3.2 header', () => {
-    expect(injected).toContain('3.2');
+  it('injected instructions carry Phase 3.3 header', () => {
+    expect(injected).toContain('3.3');
   });
 
   // Additional: injected instructions still contain prior phase components
