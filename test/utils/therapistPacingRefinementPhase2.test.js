@@ -61,7 +61,7 @@
  *   33. R6 prohibits collapsing into "next step is..." mode after switch
  *   34. R6 states that clinical identity is language-independent
  *
- * SECTION I — BUILDPACINGRETINEMENTINSTRUCTIONS / EXPORTED STRING
+ * SECTION I — BUILDPACINGREFINEMENTINSTRUCTIONS / EXPORTED STRING
  *   35. buildPacingRefinementInstructions() is exported and callable
  *   36. THERAPIST_PACING_REFINEMENT_INSTRUCTIONS is a non-empty string
  *   37. Instructions include all 6 refinement rule labels
@@ -745,8 +745,8 @@ describe('Phase 2 Refinement — Section S: ADHD overwhelm scenario', () => {
 
   it('R1 pacing ladder requires holding before next step in overwhelm cases', () => {
     const r1 = THERAPIST_PACING_REFINEMENT_RULES.pacing_ladder;
-    // R1 applies to "emotionally heavy" cases — ADHD overwhelm qualifies
-    expect(r1.label.toLowerCase()).toMatch(/emotionally loaded|emotionally heavy/);
+    // R1 applies to "emotionally loaded" cases which includes ADHD overwhelm
+    expect(r1.label.toLowerCase()).toMatch(/emotionally loaded/);
     expect(r1.description.toLowerCase()).toMatch(/emotional holding/);
   });
 });
