@@ -582,8 +582,8 @@ describe('Phase 1 Quality — new workflow engine rules', () => {
     expect(Object.keys(THERAPIST_WORKFLOW_RESPONSE_RULES)).toHaveLength(14);
   });
 
-  it('THERAPIST_WORKFLOW_VERSION is 3.1.0', () => {
-    expect(THERAPIST_WORKFLOW_VERSION).toBe('3.1.0');
+  it('THERAPIST_WORKFLOW_VERSION is 3.2.0', () => {
+    expect(THERAPIST_WORKFLOW_VERSION).toBe('3.2.0');
   });
 
   it('buildWorkflowContextInstructions includes socratic insight guidance text', () => {
