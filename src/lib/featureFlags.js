@@ -204,6 +204,36 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
    * and THERAPIST_UPGRADE_LONGITUDINAL_ENABLED to all be true).
    */
   THERAPIST_UPGRADE_KNOWLEDGE_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_KNOWLEDGE_ENABLED === 'true',
+
+  /**
+   * Phase 3 Competence Architecture — Three-Pillar Competence Layer.
+   *
+   * When enabled together with the master gate and all V10 prerequisites
+   * (STRATEGY_ENABLED + LONGITUDINAL_ENABLED + KNOWLEDGE_ENABLED),
+   * resolveTherapistWiring() returns CBT_THERAPIST_WIRING_STAGE2_V11 and
+   * buildV11SessionStartContentAsync appends the Phase 3 Competence
+   * Architecture instruction block to the session-start payload.
+   *
+   * The competence block implements the three global competence pillars:
+   *   A. Clinical Skills (C1, C2, C3, C4, C8)
+   *   B. Deep Theoretical Knowledge (C7, C9)
+   *   C. Interpersonal Abilities (C5, C6, C10)
+   *
+   * The block is appended after V10 content and does NOT override safety,
+   * formulation, continuity, strategy, LTS, or knowledge blocks.
+   *
+   * Fail-open: any error returns the V10 base content unchanged.
+   * Production behavior is EXACTLY preserved when this flag is off.
+   *
+   * Frontend VITE env only — no backend Deno equivalent is required for
+   * the client-side instruction injection path.
+   *
+   * Staging enablement: set VITE_THERAPIST_UPGRADE_COMPETENCE_ENABLED=true
+   * (also requires THERAPIST_UPGRADE_ENABLED, THERAPIST_UPGRADE_STRATEGY_ENABLED,
+   * THERAPIST_UPGRADE_LONGITUDINAL_ENABLED, and THERAPIST_UPGRADE_KNOWLEDGE_ENABLED
+   * to all be true).
+   */
+  THERAPIST_UPGRADE_COMPETENCE_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_COMPETENCE_ENABLED === 'true',
 });
 
 /**

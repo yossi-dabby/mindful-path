@@ -1669,6 +1669,80 @@ export async function buildV10SessionStartContentAsync(
   }
 }
 
+// ─── Phase 3 Competence Architecture — V11 session-start injection ────────────
+
+/**
+ * Builds the V11 session-start content string asynchronously.
+ *
+ * Phase 3 Competence Architecture — three-pillar competence injection.
+ *
+ * For non-V11 wirings (competence_layer_enabled !== true):
+ *   Delegates directly to buildV10SessionStartContentAsync (no behavior change).
+ *
+ * For V11 wirings:
+ *   1. Builds the V10 base content (knowledge block + LTS + strategy + formulation +
+ *      all prior layers) by delegating to buildV10SessionStartContentAsync.
+ *   2. Appends the Phase 3 Competence Architecture instruction block
+ *      (THERAPIST_COMPETENCE_INSTRUCTIONS from therapistWorkflowEngine.js).
+ *
+ * FAIL-OPEN CONTRACT
+ * ------------------
+ * Any error after building v10Base returns v10Base unchanged.
+ * The competence block is NEVER the first thing in the content — it is always
+ * appended last as a supplementary instruction block.
+ *
+ * PRECEDENCE
+ * ----------
+ * Safety → distress → strategy → formulation → continuity → knowledge → competence.
+ * The competence block does NOT override safety, formulation, continuity,
+ * strategy, LTS, or knowledge blocks.  It is additive instruction context only.
+ *
+ * COMPANION ISOLATION
+ * -------------------
+ * This function is never called for AI Companion wirings.
+ * The competence_layer_enabled flag only exists on CBT Therapist V11 wiring.
+ *
+ * @param {object}  wiring          - The active CBT Therapist wiring config.
+ * @param {object}  entities        - Base44 entity client map.
+ * @param {object}  baseClient      - Base44 SDK client (passed through to V10/V9/V8).
+ * @param {object}  [options={}]    - Session-start options (crisis_signal, message_text, etc.)
+ * @returns {Promise<string>} The full session-start content string.
+ */
+export async function buildV11SessionStartContentAsync(
+  wiring,
+  entities,
+  baseClient,
+  options = {},
+) {
+  // For non-V11 wirings: delegate to V10 (no change to behavior)
+  if (!wiring || wiring.competence_layer_enabled !== true) {
+    return buildV10SessionStartContentAsync(wiring, entities, baseClient, options);
+  }
+
+  // ── V11 path ─────────────────────────────────────────────────────────────────
+
+  // Step 1: Build the V10 base content (knowledge + LTS + strategy + all prior layers).
+  // V11 inherits the full V10 output as its base and only ever appends to it.
+  const v10Base = await buildV10SessionStartContentAsync(
+    wiring,
+    entities,
+    baseClient,
+    options,
+  );
+
+  // Step 2: Append competence instruction block (fail-open)
+  try {
+    const { THERAPIST_COMPETENCE_INSTRUCTIONS } = await import('./therapistWorkflowEngine.js');
+    if (THERAPIST_COMPETENCE_INSTRUCTIONS && THERAPIST_COMPETENCE_INSTRUCTIONS.trim()) {
+      return v10Base + '\n\n' + THERAPIST_COMPETENCE_INSTRUCTIONS;
+    }
+    return v10Base;
+  } catch {
+    // Fail-open: any error returns V10 base content unchanged
+    return v10Base;
+  }
+}
+
 // ─── AI Companion Upgrade V2 — Companion session-start context ───────────────
 
 /**
