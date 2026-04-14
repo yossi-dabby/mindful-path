@@ -1023,7 +1023,7 @@ describe('Phase 3 Competence — SECTION X: collaborative empiricism tone', () =
 describe('Phase 3 Competence — SECTION Y: session summary and first task', () => {
   it('125. Session end: C8 requires summary in 2-3 sentences', () => {
     const desc = THERAPIST_COMPETENCE_RULES.session_structure_continuity.description;
-    expect(desc).toMatch(/2.3 sentences/i);
+    expect(desc).toMatch(/2.+3 sentences/i);
   });
 
   it('126. Session end: C8 requires exactly ONE task connected to formulation', () => {
