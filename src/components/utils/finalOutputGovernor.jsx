@@ -691,6 +691,9 @@ export function detectLanguage(text) {
     //       tamb[eé]m  — 'm' at end is ASCII so \b works: /\btamb[eé]m\b/
     //       n[aã]o, s[aã]o, ent[aã]o — trailing 'o' is ASCII \w → \b after 'o' works
     //       isso, esse, essa, nosso, nossa — all-ASCII, normal \b ✓
+    //     Additional PT-only all-ASCII markers (absent from Spanish):
+    //       tudo, aqui, agora, fazer, poder, muito, nosso, mesmo, ainda, sempre
+    //       combined with at least one other PT marker for disambiguation.
     if (
       /\bvoc[eê]/i.test(text) ||
       /\btamb[eé]m\b/i.test(text) ||
@@ -701,7 +704,11 @@ export function detectLanguage(text) {
       /\besse\b/i.test(text) ||
       /\bessa\b/i.test(text) ||
       /\bnosso\b/i.test(text) ||
-      /\bnossa\b/i.test(text)
+      /\bnossa\b/i.test(text) ||
+      // PT-only ASCII pairs: 'tudo' + 'fazer', 'aqui' + 'agora', 'ainda' + 'sempre'
+      (/\btudo\b/i.test(text) && /\bfazer\b/i.test(text)) ||
+      (/\bainda\b/i.test(text) && /\bsempre\b/i.test(text)) ||
+      (/\bprecisa\b/i.test(text) && /\bpoder\b/i.test(text))
     ) return 'pt';
 
     // 4d. Spanish — last among Romance languages.
@@ -787,7 +794,7 @@ function stripRoutingLeakage(text) {
  *
  * @param {string} text - Raw assistant message content
  * @param {object} opts
- * @param {string} [opts.lang] - ISO language code. Auto-detected if omitted.
+ * @param {string} [opts.lang] - ISO language code locked at session start. AUTHORITATIVE — never auto-detected when provided.
  * @param {string} [opts.userMessage] - The triggering user message (for G: post-learning compression)
  * @returns {string} - Governed, user-safe content
  */
@@ -795,10 +802,19 @@ export function applyFinalOutputGovernor(text, opts = {}) {
   if (!text || typeof text !== 'string') return getFailsafe(opts.lang || 'en');
 
   let result = text;
+  // CRITICAL: opts.lang is the session-locked language (set at conversation start).
+  // It is AUTHORITATIVE. detectLanguage() is ONLY used as last-resort when no
+  // session language is known. UI locale must NEVER be passed here as opts.lang.
   const lang = opts.lang || detectLanguage(result);
 
   // Pass 0a: Language contamination check (Component F)
-  if (hasLanguageContamination(result, lang)) {
+  // ONLY run contamination detection when the session language was NOT explicitly
+  // provided. When opts.lang is set (locked at conversation start), the session
+  // language is authoritative and content-based detection is unreliable — especially
+  // for Romance languages (PT/IT/ES) that share high-frequency vocabulary.
+  // Running contamination detection on known-language sessions was the root cause
+  // of Portuguese and Italian sessions being misidentified as Spanish.
+  if (!opts.lang && hasLanguageContamination(result, lang)) {
     console.warn('[CP12-F] Language contamination detected for lang:', lang);
     if (SECONDARY_LANG_REWRITES[lang]) return pickSecondaryLangRewrite(lang);
     return getFailsafe(lang);
@@ -834,26 +850,32 @@ export function applyFinalOutputGovernor(text, opts = {}) {
   }
 
   // Pass 3c: Secondary language worksheet / reflection-trap — Component F
+  // Threshold raised from 2→4: a clinically-correct therapeutic response in PT/IT/FR/DE/ES
+  // naturally contains 2-3 of these patterns. Firing at 2 was replacing entire valid answers
+  // with canned rewrites in the correct language — and if lang was mis-detected as 'es'
+  // (root cause of the repeated Spanish fallback bug), the rewrite would be in Spanish.
+  // Only fire when there are 4+ clear worksheet signals — a threshold that legitimate
+  // therapeutic responses cannot reach.
   if (['es', 'fr', 'de', 'it', 'pt'].includes(lang)) {
     const enSignalCount = countEnReflectionTrapSignals(result);
     const nativeSignalCount = countSecondaryLangWorksheetSignals(result, lang);
     const signalCount = enSignalCount + nativeSignalCount;
-    if (signalCount >= 2) {
+    if (signalCount >= 4) {
       console.warn('[CP12-F] Secondary lang worksheet/reflection trap (' + lang + ') enSignals=' + enSignalCount + ' nativeSignals=' + nativeSignalCount + ' — directive rewrite');
       result = pickSecondaryLangRewrite(lang);
       if (!result || result.length < 3) return getFailsafe(lang);
     }
   }
 
-  // Pass 3c-SA: Secondary language social-anxiety / exploration-first — Component F
-  if (['es', 'fr', 'de', 'it', 'pt'].includes(lang)) {
-    const saSignalCount = countSecondaryLangSocialAnxietySignals(result, lang);
-    if (saSignalCount >= 2) {
-      console.warn('[CP12-F-SA] Secondary lang social-anxiety exploration-first (' + lang + ') signals=' + saSignalCount + ' — directive rewrite');
-      result = pickSecondaryLangRewrite(lang);
-      if (!result || result.length < 3) return getFailsafe(lang);
-    }
-  }
+  // Pass 3c-SA: Secondary language social-anxiety / exploration-first — DISABLED
+  // This pass was firing on normal therapeutic Portuguese/Italian/French responses
+  // (e.g. "Vamos explorar isso juntos" = "Let's explore this together" — a standard
+  // therapeutic opener) and replacing them with Spanish fallback lines.
+  // Root cause: the SA signal patterns match common therapeutic vocabulary in ALL
+  // Romance languages, making false positives inevitable at threshold=2.
+  // Resolution: the session language directive injected at conversation start
+  // already instructs the agent to stay in the session language. Client-side
+  // social-anxiety detection is redundant and harmful for non-English sessions.
 
   // Pass 3d: English reflection trap REWRITE — Component E (EN)
   if (lang === 'en') {
@@ -905,8 +927,8 @@ export function auditCP12(text) {
   if (ROUTING_COMPRESSION_PATTERNS.some(p => p.test(text))) violations.push('routing-leakage');
   if (hasWorksheetDrift(text)) violations.push('worksheet-drift');
   if (lang === 'he' && detectHebrewWorksheetDriftSemantic(text)) violations.push('hebrew-semantic-worksheet-drift');
-  if (['es', 'fr', 'de', 'it', 'pt'].includes(lang) && (countEnReflectionTrapSignals(text) + countSecondaryLangWorksheetSignals(text, lang)) >= 2) violations.push('secondary-lang-reflection-trap');
-  if (['es', 'fr', 'de', 'it', 'pt'].includes(lang) && countSecondaryLangSocialAnxietySignals(text, lang) >= 2) violations.push('secondary-lang-social-anxiety-exploration');
+  if (['es', 'fr', 'de', 'it', 'pt'].includes(lang) && (countEnReflectionTrapSignals(text) + countSecondaryLangWorksheetSignals(text, lang)) >= 4) violations.push('secondary-lang-reflection-trap');
+  // social-anxiety-exploration audit removed — pass disabled (see Pass 3c-SA comment above)
 
   const lines = text.split('\n');
   const lastLine = [...lines].reverse().find(l => l.trim());
