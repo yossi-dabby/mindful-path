@@ -204,6 +204,38 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
    * and THERAPIST_UPGRADE_LONGITUDINAL_ENABLED to all be true).
    */
   THERAPIST_UPGRADE_KNOWLEDGE_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_KNOWLEDGE_ENABLED === 'true',
+
+  /**
+   * Phase 3 Competence Architecture — Clinical skills, theoretical knowledge,
+   * and interpersonal abilities upgrade layer.
+   *
+   * When enabled together with the master gate, resolveTherapistWiring()
+   * returns CBT_THERAPIST_WIRING_STAGE2_V11 and
+   * buildV11SessionStartContentAsync appends the Phase 3 competence
+   * instruction block to the session-start payload.
+   *
+   * The competence block adds fifteen rules across three pillars:
+   *   Pillar A (Clinical Skills): C1–C5 — formulation building, maintaining
+   *     cycle identification, intervention selection, Socratic questioning,
+   *     and natural session management.
+   *   Pillar B (Theoretical Knowledge): C6–C10 — CBT chain clarity,
+   *     accessible psychoeducation, theory-to-practice translation,
+   *     CBT fidelity without academia, no technique dumping.
+   *   Pillar C (Interpersonal Abilities): C11–C15 — collaborative empiricism,
+   *     cultural/religious sensitivity, non-defensive stuckness handling,
+   *     alliance with structure, no didactic lecturing.
+   *
+   * V11 is a strict superset of V10: all prior capabilities are preserved.
+   * No new entity access is added.
+   *
+   * Fail-open: any competence block injection error returns the V10 base
+   * content unchanged. Production behavior is EXACTLY preserved when this
+   * flag is off.
+   *
+   * Staging enablement: set VITE_THERAPIST_UPGRADE_COMPETENCE_ENABLED=true
+   * (also requires THERAPIST_UPGRADE_ENABLED to be true).
+   */
+  THERAPIST_UPGRADE_COMPETENCE_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_COMPETENCE_ENABLED === 'true',
 });
 
 /**
