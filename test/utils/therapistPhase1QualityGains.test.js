@@ -148,7 +148,7 @@ describe('Phase 1 Quality — feature flag', () => {
   });
 
   it('THERAPIST_UPGRADE_FLAGS now contains exactly 13 flags', () => {
-    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(14);
+    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(15);
   });
 
   it('all 13 flags default to false', () => {
@@ -583,7 +583,7 @@ describe('Phase 1 Quality — new workflow engine rules', () => {
   });
 
   it('THERAPIST_WORKFLOW_VERSION is 3.3.0', () => {
-    expect(THERAPIST_WORKFLOW_VERSION).toBe('3.3.0');
+    expect(THERAPIST_WORKFLOW_VERSION).toBe('3.4.0');
   });
 
   it('buildWorkflowContextInstructions includes socratic insight guidance text', () => {
@@ -778,8 +778,8 @@ describe('Phase 1 Quality — Chat.jsx import audit', () => {
       path.default.resolve('src/pages/Chat.jsx'),
       'utf8',
     );
-    const count = (chatSource.match(/buildV10SessionStartContentAsync/g) || []).length;
-    // 1 import + 4 call sites = 5 (Wave 4C: upgraded from V9 to V10)
+    const count = (chatSource.match(/buildV11SessionStartContentAsync/g) || []).length;
+    // 1 import + 4 call sites = 5 (Phase 3 Competence: upgraded from V10 to V11)
     expect(count).toBeGreaterThanOrEqual(3);
   });
 });

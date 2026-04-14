@@ -775,8 +775,10 @@ describe('Group H — Chat.jsx static analysis', () => {
   });
 
   it('H2. Chat.jsx has at least 4 buildV10SessionStartContentAsync call sites', () => {
-    const calls = (chatSrc.match(/buildV10SessionStartContentAsync\s*\(/g) || []).length;
-    expect(calls).toBeGreaterThanOrEqual(4);
+    // Phase 3 Competence: V10 is no longer called directly; V11 is used at runtime
+    // Chat.jsx still imports V10 (for the chain) but calls V11 at runtime
+    const v11Calls = (chatSrc.match(/buildV11SessionStartContentAsync\s*\(/g) || []).length;
+    expect(v11Calls).toBeGreaterThanOrEqual(4);
   });
 
   it('H3. Chat.jsx does not call buildV9SessionStartContentAsync at runtime call sites', () => {

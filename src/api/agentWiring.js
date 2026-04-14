@@ -1454,6 +1454,130 @@ export const CBT_THERAPIST_WIRING_STAGE2_V10 = {
   ],
 };
 
+// ─── Phase 3 Competence Architecture — Stage 2 V11 wiring config ─────────────
+
+/**
+ * Stage 2 V11 wiring for the CBT Therapist agent.
+ *
+ * Phase 3 Competence Architecture — Clinical skills, theoretical knowledge,
+ * and interpersonal abilities upgrade layer.
+ *
+ * V11 is a strict superset of V10.  All V10 capabilities are preserved unchanged.
+ * The single addition is the `competence_layer_enabled` flag, which activates the
+ * Phase 3 competence instruction block injected via
+ * workflowContextInjector.js (buildV11SessionStartContentAsync).
+ *
+ * The competence block adds fifteen rules across three pillars:
+ *   Pillar A (Clinical Skills): case formulation building, maintaining cycle
+ *     identification, intervention selection accuracy, Socratic questioning
+ *     quality, and natural session management.
+ *   Pillar B (Theoretical Knowledge): CBT chain clarity, accessible and
+ *     tailored psychoeducation, theory-to-practice translation, CBT fidelity
+ *     without sounding academic, no technique dumping.
+ *   Pillar C (Interpersonal Abilities): collaborative empiricism and shared
+ *     inquiry, cultural and religious sensitivity, non-defensive handling of
+ *     resistance and stuckness, maintaining alliance while providing structure,
+ *     not didactic or lecture-style.
+ *
+ * New flag:
+ *   competence_layer_enabled — activates the Phase 3 competence instruction
+ *     block injected via buildV11SessionStartContentAsync.  The block is
+ *     appended last after all prior layers and does NOT override safety,
+ *     formulation, continuity, strategy, LTS, or knowledge signals.
+ *
+ * Entity tool_configs: IDENTICAL to V10.  No new entity access is added.
+ *
+ * ACTIVATION
+ * ----------
+ * This config is only active when resolveTherapistWiring() selects it, which
+ * requires THERAPIST_UPGRADE_ENABLED + THERAPIST_UPGRADE_COMPETENCE_ENABLED
+ * to both be true.  When THERAPIST_UPGRADE_COMPETENCE_ENABLED is true and
+ * all V10 prerequisites (STRATEGY_ENABLED + LONGITUDINAL_ENABLED +
+ * KNOWLEDGE_ENABLED) are also true, V11 supersedes V10.
+ *
+ * ROLLBACK
+ * --------
+ * Set THERAPIST_UPGRADE_COMPETENCE_ENABLED to false to revert to V10 with no
+ * other code changes.  The competence block is never injected when this flag
+ * is off.
+ *
+ * SAFETY
+ * ------
+ * The competence_layer_enabled flag does not weaken any safety layer.
+ * buildV11SessionStartContentAsync is fully fail-open: any error returns the
+ * V10 base content unchanged.
+ *
+ * Source of truth: Phase 3 Competence Architecture problem statement.
+ */
+export const CBT_THERAPIST_WIRING_STAGE2_V11 = {
+  name: 'cbt_therapist',
+  stage2: true,
+  stage2_phase: 15,
+  memory_context_injection: true,           // from V1 — structured memory layer
+  workflow_engine_enabled: true,            // from V2 — workflow engine active
+  workflow_context_injection: true,         // from V2 — inject workflow instructions
+  retrieval_orchestration_enabled: true,    // from V3 — Phase 5 retrieval orchestration
+  live_retrieval_enabled: true,             // from V4 — Phase 6 live retrieval wrapper
+  safety_mode_enabled: true,               // from V5 — Phase 7 safety mode
+  formulation_context_enabled: true,       // from V6 — Phase 1 Quality formulation context
+  continuity_layer_enabled: true,          // from V7 — Phase 3 cross-session continuity injection
+  strategy_layer_enabled: true,            // from V8 — Wave 2B therapeutic strategy guidance
+  longitudinal_layer_enabled: true,        // from V9 — Wave 3C LTS context block injection
+  knowledge_layer_enabled: true,           // from V10 — Wave 4C bounded CBT knowledge retrieval
+  competence_layer_enabled: true,          // Phase 3 Competence Architecture
+  tool_configs: [
+    // ── Step 1: Preferred entities (identical to V10 / V9 / … / V1 / Hybrid) ──
+    { entity_name: 'SessionSummary',  access_level: 'preferred',  source_order: 2 },
+    { entity_name: 'ThoughtJournal',  access_level: 'preferred',  source_order: 3 },
+    { entity_name: 'Goal',            access_level: 'preferred',  source_order: 4 },
+    { entity_name: 'CoachingSession', access_level: 'preferred',  source_order: 5 },
+    // ── Step 2: Allowed shared content pool (identical to V10 / V9 / … / V1 / Hybrid) ──
+    { entity_name: 'Exercise',        access_level: 'allowed',    source_order: 6 },
+    { entity_name: 'Resource',        access_level: 'allowed',    source_order: 7 },
+    { entity_name: 'AudioContent',    access_level: 'allowed',    source_order: 8 },
+    { entity_name: 'Journey',         access_level: 'allowed',    source_order: 9 },
+    // ── Step 3: Non-caution restricted entities (identical to V10 / V9 / … / V1 / Hybrid) ──
+    { entity_name: 'CompanionMemory', access_level: 'restricted', source_order: 10, read_only: true },
+    { entity_name: 'MoodEntry',       access_level: 'restricted', source_order: 11, calibration_only: true },
+    // ── Hybrid: Caution-layer entities (identical to V10 / V9 / … / V1 / Hybrid) ──
+    {
+      entity_name: 'CaseFormulation',
+      access_level: 'restricted',
+      source_order: 12,
+      read_only: true,
+      unrestricted: false,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    {
+      entity_name: 'Conversation',
+      access_level: 'restricted',
+      source_order: 13,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    // ── Phase 5: External trusted knowledge (identical to V10 / V9 / … / V3) ──
+    {
+      entity_name: 'ExternalKnowledgeChunk',
+      access_level: 'restricted',
+      source_order: 14,
+      read_only: true,
+      external_trusted: true,
+      caution_layer: false,
+    },
+    // ── Wave 4C: CBT Curriculum knowledge (identical to V10) ──
+    {
+      entity_name: 'CBTCurriculumUnit',
+      access_level: 'allowed',
+      source_order: 15,
+      read_only: true,
+    },
+    // NOTE: Phase 3 Competence Architecture does NOT add any new entity access.
+    // The competence_layer_enabled flag only enables the competence instruction
+    // block injection via workflowContextInjector.js (buildV11SessionStartContentAsync).
+  ],
+};
+
 /**
  * Stage 3 upgrade V2 wiring for the AI Companion agent.
  *

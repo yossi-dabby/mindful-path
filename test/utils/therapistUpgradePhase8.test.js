@@ -43,7 +43,7 @@ describe('Phase 8 — feature flag baseline unchanged', () => {
   });
 
   it('THERAPIST_UPGRADE_FLAGS contains exactly 13 flags (Wave 4A added the 13th flag)', () => {
-    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(14);
+    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(15);
   });
 
   it('all Stage 2 flags are still false (upgrade path disabled by default)', () => {

@@ -605,7 +605,7 @@ describe('Section 10: Rollback safety — prior-phase exports are not affected',
   });
 
   it('THERAPIST_UPGRADE_FLAGS now has exactly 13 keys (Wave 4A added the 13th key)', () => {
-    expect(Object.keys(THERAPIST_UPGRADE_FLAGS).length).toBe(14);
+    expect(Object.keys(THERAPIST_UPGRADE_FLAGS).length).toBe(15);
   });
 
   it('THERAPIST_UPGRADE_ENABLED master gate is still present and defaults to false', () => {
@@ -647,8 +647,9 @@ describe('Section 11: Chat.jsx static analysis — V10 called at all session-sta
   });
 
   it('Chat.jsx calls buildV10SessionStartContentAsync at every session-start site', () => {
-    // Count all call sites — there should be at least 4 (Wave 4C: upgraded from V9 to V10)
-    const callCount = (chatSrc.match(/buildV10SessionStartContentAsync\(/g) || []).length;
+    // Phase 3 Competence: V10 is no longer called directly; V11 is used instead
+    // This test now verifies V11 is called at all session-start sites
+    const callCount = (chatSrc.match(/buildV11SessionStartContentAsync\(/g) || []).length;
     expect(callCount).toBeGreaterThanOrEqual(4);
   });
 
