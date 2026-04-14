@@ -101,10 +101,17 @@ function hasLanguageContamination(text, lang) {
     if (hasLatin && text.replace(/[a-zA-Z\s]/g, '').length < 5) return true;
   }
 
-  // Latin script: detect markers from a DIFFERENT language with high confidence
+  // Latin script: detect markers from a DIFFERENT language with high confidence.
+  // IMPORTANT: Skip cross-checks between closely-related Romance language pairs
+  // (PT↔ES, IT↔ES) — they share so much high-frequency vocabulary that the marker
+  // counts are unreliable and will produce false-positive "contamination" signals
+  // on genuinely correct output.  The detectLanguage() ordering above is the
+  // authoritative disambiguation for these pairs.
+  const LATIN_CONTAMINATION_SKIP = new Set(['pt-es', 'es-pt', 'it-es', 'es-it']);
   if (['es', 'fr', 'de', 'it', 'pt', 'en'].includes(lang)) {
     for (const [otherLang, re] of Object.entries(LATIN_LANG_MARKERS)) {
       if (otherLang === lang) continue;
+      if (LATIN_CONTAMINATION_SKIP.has(`${lang}-${otherLang}`)) continue;
       const otherMatches = (text.match(re) || []).length;
       const ownMatches = (text.match(LATIN_LANG_MARKERS[lang]) || []).length;
       if (otherMatches >= 5 && otherMatches > ownMatches * 2) return true;
@@ -629,15 +636,89 @@ function isPostLearningTurn(text) {
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-function detectLanguage(text) {
+/**
+ * Detect the language of a text string.
+ *
+ * ORDERING RULES — must be strictly observed:
+ *   1. Hebrew: script-level check first (unambiguous).
+ *   2. German: umlauts (ä/ö/ü/ß) are unambiguous; fallback to paired keywords.
+ *   3. Italian (pre-gate): anche/sono/questo are all-ASCII and absent from Spanish/PT.
+ *      Must be checked BEFORE the extended-Latin gate so Italian text with no
+ *      accented characters (e.g. "Sono qui con te.") is correctly identified.
+ *   4. Extended-Latin gate (any accented char present):
+ *      4a. French: je/nous/vous are absent from ES/PT/IT.
+ *      4b. Italian: accented-char markers (però, perché) as a supplement.
+ *      4c. Portuguese: MUST be checked before Spanish.  PT shares high-frequency
+ *          words (que/está/para/por/como) with Spanish, so checking Spanish first
+ *          causes all Portuguese responses to be misidentified as Spanish.
+ *          PT-exclusive markers: você/também/não/são/então/isso/esse.
+ *          JS \b word boundary does not work with non-ASCII chars (ê, ã, etc.);
+ *          leading \b only is used where the word ends in a non-ASCII character.
+ *      4d. Spanish: checked last.  Add 'estoy' (all-ASCII, appears in failsafe)
+ *          so that the Spanish failsafe itself is correctly detected.
+ *   5. Broader fallbacks for accented text with no exclusive markers.
+ *   6. Default: English.
+ */
+export function detectLanguage(text) {
+  if (!text) return 'en';
+
+  // 1. Hebrew — Unicode script block (unambiguous)
   if (/[\u05D0-\u05EA]/.test(text)) return 'he';
+
+  // 2. German — umlauts (ä/ö/ü/ß) are diagnostic; fallback to paired ASCII keywords
+  if (/[äöüßÄÖÜ]/.test(text)) return 'de';
+  if (/\b(der|die|das)\b/i.test(text) && /\b(und|f[üu]r|aber|auch|nicht)\b/i.test(text)) return 'de';
+
+  // 3. Italian (pre-gate) — anche/sono/questo/questa are all-ASCII and absent from
+  //    Spanish and Portuguese.  Must run before the extended-Latin gate because
+  //    Italian therapy text often contains no accented characters at all.
+  if (/\b(anche|sono|questo|questa|quello)\b/i.test(text)) return 'it';
+
   if (/[\u00C0-\u024F\u00A0-\u00FF]/.test(text)) {
-    if (/\b(el|la|los|las|que|está|con|para|pero)\b/i.test(text)) return 'es';
-    if (/\b(le|la|les|est|avec|que|pour|dans|très)\b/i.test(text)) return 'fr';
-    if (/\b(der|die|das|ist|und|mit|für|auch)\b/i.test(text)) return 'de';
-    if (/\b(il|la|le|gli|che|è|con|per|anche)\b/i.test(text)) return 'it';
-    if (/\b(o|a|os|as|que|está|com|para|muito)\b/i.test(text)) return 'pt';
+    // 4a. French — je/nous/vous are absent from Spanish/Portuguese/Italian
+    //     très ends in ASCII 's' so \b after 's' works correctly.
+    //     c'est / j'ai: use .est/.ai to tolerate both straight and curly apostrophe.
+    if (/\b(je|nous|vous)\b/i.test(text)) return 'fr';
+    if (/\btr[eè]s\b/i.test(text) || /\bc.est\b/i.test(text) || /\bj.ai\b/i.test(text)) return 'fr';
+
+    // 4b. Italian (extended-Latin supplement) — però/perché end in non-ASCII chars;
+    //     JS \b fails after them so use pattern without trailing \b.
+    if (/per[oò]/i.test(text) || /perch[eé]/i.test(text)) return 'it';
+
+    // 4c. Portuguese — BEFORE Spanish.
+    //     JS \b fails after non-ASCII chars (ê, ã).  Strategy per marker:
+    //       \bvoc[eê]  — leading \b only; 'você' is unique enough without trailing \b
+    //       tamb[eé]m  — 'm' at end is ASCII so \b works: /\btamb[eé]m\b/
+    //       n[aã]o, s[aã]o, ent[aã]o — trailing 'o' is ASCII \w → \b after 'o' works
+    //       isso, esse, essa, nosso, nossa — all-ASCII, normal \b ✓
+    if (
+      /\bvoc[eê]/i.test(text) ||
+      /\btamb[eé]m\b/i.test(text) ||
+      /\bn[aã]o\b/i.test(text) ||
+      /\bs[aã]o\b/i.test(text) ||
+      /\bent[aã]o\b/i.test(text) ||
+      /\bisso\b/i.test(text) ||
+      /\besse\b/i.test(text) ||
+      /\bessa\b/i.test(text) ||
+      /\bnosso\b/i.test(text) ||
+      /\bnossa\b/i.test(text)
+    ) return 'pt';
+
+    // 4d. Spanish — last among Romance languages.
+    //     'estoy' is all-ASCII and present in the Spanish failsafe text.
+    //     'está' ends in 'á' (non-ASCII); trailing \b unreliable — match without it.
+    //     'aquí' ends in 'í' (non-ASCII); same approach.
+    if (
+      /\b(el|la|los|las|que|con|para|pero|estoy|muy|tienes?|vamos)\b/i.test(text) ||
+      /\best[aá](?=[\s.,!?;:\u00BF\u00A1]|$)/i.test(text)
+    ) return 'es';
+
+    // 5. Broader fallbacks for accented text with no exclusive markers
+    if (/\b(avec|une|mais|dans|sur|chez)\b/i.test(text)) return 'fr';
+    if (/\b(della|dello|degli|alla|nelle)\b/i.test(text)) return 'it';
+    if (/\bcom\b/i.test(text) && /\b(uma|muito|mas|aqui|agora)\b/i.test(text)) return 'pt';
   }
+
   return 'en';
 }
 

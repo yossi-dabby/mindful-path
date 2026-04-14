@@ -167,10 +167,12 @@ function sanitizeAssistantMessage(message) {
 
   sanitized = cleanedLines.join('\n').trim();
   
-  // Failsafe: If we removed everything, use safe fallback
+  // Failsafe: If we removed everything, use safe fallback.
+  // Use English — this function has no language context and Hebrew is not appropriate
+  // as a session-agnostic fallback for non-Hebrew sessions.
   if (!sanitized || sanitized.length < 10) {
     console.error('[Reasoning Filter] Message empty after filtering, using failsafe');
-    return 'אני כאן איתך. מה הכי מטריד אותך כרגע?';
+    return "I'm here with you. What's on your mind right now?";
   }
   
   // Strip unsafe medical patterns

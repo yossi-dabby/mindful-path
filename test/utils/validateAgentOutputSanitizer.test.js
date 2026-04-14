@@ -245,12 +245,13 @@ describe('validateAgentOutput — failsafe behavior when content is stripped', (
     }
   });
 
-  it('uses Hebrew failsafe text when reasoning filter removes all content', () => {
+  it('uses a non-empty failsafe string when reasoning filter removes all content', () => {
     const raw = makeStructuredOutput('THOUGHT: everything internal\nNOTE: metadata only');
     const result = validateAgentOutput(raw);
     if (result !== null) {
-      // Failsafe is the Hebrew string defined in validateAgentOutput.jsx
-      expect(result.assistant_message).toBe('אני כאן איתך. מה הכי מטריד אותך כרגע?');
+      // Failsafe must be non-empty and language-agnostic (English, not Hebrew)
+      expect(result.assistant_message.length).toBeGreaterThan(0);
+      expect(result.assistant_message).toBe("I'm here with you. What's on your mind right now?");
     }
   });
 });
