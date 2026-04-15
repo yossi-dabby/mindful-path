@@ -1529,8 +1529,8 @@ export default function Chat() {
       </AlertDialog>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
       {/* Chat root: explicit dvh-based height so the flex-1/min-h-0 scroll chain works.
-                                              `h-full` would resolve to `auto` because the parent motion.div uses min-h-full
-                                              (not a fixed height), breaking the inner overflow-y-auto messages scroll. */}
+                                               `h-full` would resolve to `auto` because the parent motion.div uses min-h-full
+                                               (not a fixed height), breaking the inner overflow-y-auto messages scroll. */}
       <div className="bg-teal-100 rounded-2xl flex relative"
 
       data-testid="chat-root"
@@ -1540,7 +1540,7 @@ export default function Chat() {
       }}>
 
         {/* On tablet/desktop (≥768px) there is no fixed mobile header or bottom nav,
-                                                so we only subtract the safe-area insets (mirrors AppContent.jsx logic). */}
+                                                 so we only subtract the safe-area insets (mirrors AppContent.jsx logic). */}
         <style>{`
           @media (min-width: 768px) {
             [data-testid="chat-root"] {
@@ -1680,8 +1680,8 @@ export default function Chat() {
                 {/* Profile-specific periodic disclaimer */}
                 <ProfileSpecificDisclaimer messageCount={messages.length} />
                 {/* Phase 8 — Upgraded-path UI indicators (flag-gated, hidden in default mode).
-                           SafetyModeIndicator is SUBORDINATE to InlineRiskPanel/CrisisSafetyPanel.
-                           Neither component renders when the upgrade flags are off. */}
+                            SafetyModeIndicator is SUBORDINATE to InlineRiskPanel/CrisisSafetyPanel.
+                            Neither component renders when the upgrade flags are off. */}
                 <ErrorBoundary>
                   <SafetyModeIndicator
                     wiring={ACTIVE_CBT_THERAPIST_WIRING}
@@ -1827,7 +1827,7 @@ export default function Chat() {
           }
 
         {/* Input Area - Always visible, always on top */}
-        <div className="bg-teal-50 text-teal-600 px-4 py-2 rounded-2xl md:px-6 md:pt-3 md:pb-3 relative border-t border-border/70 backdrop-blur-xl shadow-[var(--shadow-md)]" style={{
+        <div className="bg-teal-50 text-teal-600 pr-4 pl-4 rounded-2xl md:px-6 md:pt-3 md:pb-3 relative border-t border-border/70 backdrop-blur-xl shadow-[var(--shadow-md)]" style={{
             zIndex: 50
           }}>
           <div className="text-teal-600 mx-auto max-w-4xl flex gap-2">
