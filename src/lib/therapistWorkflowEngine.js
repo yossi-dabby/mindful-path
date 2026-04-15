@@ -37,7 +37,7 @@
 // ─── Workflow version ─────────────────────────────────────────────────────────
 
 /** @type {string} */
-export const THERAPIST_WORKFLOW_VERSION = '3.5.0';
+export const THERAPIST_WORKFLOW_VERSION = '3.6.0';
 
 // ─── Therapist constitution ───────────────────────────────────────────────────
 
@@ -2396,6 +2396,7 @@ const _PACING_SENSITIVE_CASE_TYPES = Object.freeze(
     'ocd',
     'adhd_overwhelm',
     'nothing_helps',
+    'social_anxiety',  // Added: social anxiety requires holding/formulation before action (not direct action)
   ])
 );
 

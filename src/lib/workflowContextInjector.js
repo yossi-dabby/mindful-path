@@ -865,8 +865,9 @@ export function buildPlannerContext(formulationRecord, safetyResult, distressTie
  * PROTECTED CASE TYPES (trigger PACING_SENSITIVITY level 3)
  * ─────────────────────────────────────────────────────────────────────────────
  * teen_shame, grief_loss, trauma, scrupulosity, ocd_checking, ocd, adhd_overwhelm,
- * nothing_helps → social_anxiety_direct_action and domain_to_intervention_template
- * gates are both blocked at level 3; mode override to stabilisation fires.
+ * nothing_helps, social_anxiety → social_anxiety_direct_action and
+ * domain_to_intervention_template gates are both blocked at level 3; mode
+ * override to stabilisation fires.
  *
  * UNREADY SESSIONS (trigger FORMULATION_FIRST level 2)
  * ─────────────────────────────────────────────────────────────────────────────

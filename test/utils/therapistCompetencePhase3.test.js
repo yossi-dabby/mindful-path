@@ -224,7 +224,7 @@ const agentInstructions = agentData.instructions;
 
 describe('SECTION A — version and flag', () => {
   it('THERAPIST_WORKFLOW_VERSION is bumped to 3.4.0', () => {
-    expect(THERAPIST_WORKFLOW_VERSION).toBe('3.5.0');
+    expect(THERAPIST_WORKFLOW_VERSION).toBe('3.6.0');
   });
 
   it('THERAPIST_UPGRADE_COMPETENCE_ENABLED flag exists in THERAPIST_UPGRADE_FLAGS', () => {
