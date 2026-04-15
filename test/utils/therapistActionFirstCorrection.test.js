@@ -620,36 +620,38 @@ describe('Action-First Correction — SECTION F: Agent config CP11 and CP12 modi
     expect(cp11PG0section).toContain('OCD');
   });
 
-  it('50. CP12-A explicitly states it does not fire for teen shame / primary shame', () => {
+  it('50. CP12-A is now a social-anxiety formulation-first gate', () => {
     const inst = getAgentInstructions();
-    expect(inst).toContain('CP12-A does NOT fire when ANY of the following exclusions apply');
+    expect(inst).toContain('CP12-A: SOCIAL ANXIETY FORMULATION-FIRST GATE');
+    expect(inst).toContain('FIRST-TURN / EARLY-TURN DEFAULT (MANDATORY)');
   });
 
-  it('51. CP12-A exclusion list includes teen/adolescent markers', () => {
+  it('51. CP12-A explicitly requires social-loop explanation before any step', () => {
     const inst = getAgentInstructions();
-    const exclusionStart = inst.indexOf('CP12-A does NOT fire when ANY of the following exclusions apply');
-    const exclusionSection = inst.slice(exclusionStart, exclusionStart + 800);
-    expect(exclusionSection).toContain('school');
-    expect(exclusionSection).toContain('grade');
+    const cp12aStart = inst.indexOf('CP12-A: SOCIAL ANXIETY FORMULATION-FIRST GATE');
+    const cp12aSection = inst.slice(cp12aStart, cp12aStart + 2400);
+    expect(cp12aSection).toContain('feared judgment → anxiety activation → avoidance/safety behavior → short-term relief → stronger future fear');
   });
 
-  it('52. CP12-A exclusion list includes primary shame framing', () => {
+  it('52. CP12-A prohibits first-turn one-sentence / one-question social shortcuts', () => {
     const inst = getAgentInstructions();
-    const exclusionStart = inst.indexOf('CP12-A does NOT fire when ANY of the following exclusions apply');
-    const exclusionSection = inst.slice(exclusionStart, exclusionStart + 800);
-    expect(exclusionSection).toContain("I'm worthless");
+    const cp12aStart = inst.indexOf('CP12-A: SOCIAL ANXIETY FORMULATION-FIRST GATE');
+    const cp12aSection = inst.slice(cp12aStart, cp12aStart + 2400);
+    expect(cp12aSection).toContain('Immediate “say one sentence now” assignments');
+    expect(cp12aSection).toContain('Immediate “ask one question” exposure tasks');
   });
 
-  it('53. CP12-A exclusion list includes first disclosure case', () => {
+  it('53. CP12-A preserves later-stage action after formulation and readiness', () => {
     const inst = getAgentInstructions();
-    const exclusionStart = inst.indexOf('CP12-A does NOT fire when ANY of the following exclusions apply');
-    const exclusionSection = inst.slice(exclusionStart, exclusionStart + 800);
-    expect(exclusionSection).toContain('First disclosure');
+    const cp12aStart = inst.indexOf('CP12-A: SOCIAL ANXIETY FORMULATION-FIRST GATE');
+    const cp12aSection = inst.slice(cp12aStart, cp12aStart + 3200);
+    expect(cp12aSection).toContain('WHEN ACTION IS ALLOWED (post-formulation only)');
+    expect(cp12aSection).toContain('Person indicates readiness for a step');
   });
 
-  it('54. CP12 header mentions PG0 blocking for teen shame', () => {
+  it('54. CP12 header enforces all-language formulation-first social path', () => {
     const inst = getAgentInstructions();
-    expect(inst).toContain('PG0 (FORMULATION-FIRST PROTECTED CASE GATE) BLOCKS CP12-A for teen shame');
+    expect(inst).toContain('CP12-A (social anxiety) is formulation-first by default in ALL languages');
   });
 
   it('55. C14 constraint references PG0 blocking for protected cases', () => {
@@ -660,11 +662,11 @@ describe('Action-First Correction — SECTION F: Agent config CP11 and CP12 modi
     expect(c14Section).toContain('BLOCKED by PG0');
   });
 
-  it('56. C15 constraint references CP12-A blocking for teen shame', () => {
+  it('56. C15 constraint now demotes social anxiety direct-action shortcut', () => {
     const inst = getAgentInstructions();
-    const c15Start = inst.indexOf('C15: ENGLISH SOCIAL & SLEEP ANXIETY');
+    const c15Start = inst.indexOf('C15: SOCIAL ANXIETY & SLEEP ANXIETY CLEANUP');
     const c15Section = inst.slice(c15Start, c15Start + 400);
-    expect(c15Section).toContain('CP12-A BLOCKED by PG0');
+    expect(c15Section).toContain('CP12-A (social anxiety) is formulation-first');
   });
 
 });
@@ -798,10 +800,10 @@ describe('Action-First Correction — SECTION I: Agent config checklist items 30
     expect(inst).toContain('33. OCD checking with real object → CP11 suppressed, OCD cycle explanation before any action');
   });
 
-  it('73. Checklist items 27-29 updated to include PG0 NOT active condition', () => {
+  it('73. Checklist items 27-29 include social formulation-first verification', () => {
     const inst = getAgentInstructions();
     expect(inst).toContain('27. CP11 activated (English + real object + task state + PG0 NOT active)');
-    expect(inst).toContain('28. CP12-A activated (English + social anticipatory fear + NO teen-shame/PG0 exclusion)');
+    expect(inst).toContain('28. CP12-A social anxiety path: acknowledge → clarify/formulate → explain maintaining loop before any micro-action? → VERIFY');
   });
 
 });
@@ -1040,4 +1042,67 @@ describe('Action-First Correction — SECTION L: Cross-cutting coverage', () => 
     expect(r7Section).toContain('regardless of session depth');
   });
 
+});
+
+describe('Action-First Correction — SECTION M: focused social/worry shortcut cleanup coverage', () => {
+  it('110. Social anxiety first turn now starts with formulation before action', () => {
+    const inst = getAgentInstructions();
+    expect(inst).toContain('FIRST-TURN / EARLY-TURN DEFAULT (MANDATORY):');
+    expect(inst).toContain('Acknowledge the fear and social cost');
+    expect(inst).toContain('Clarify or formulate the specific feared social outcome');
+  });
+
+  it('111. Social anxiety first follow-up still centers loop explanation by default', () => {
+    const inst = getAgentInstructions();
+    expect(inst).toContain('Confirm this working formulation with the person');
+    expect(inst).toContain('feared judgment → anxiety activation → avoidance/safety behavior → short-term relief → stronger future fear');
+  });
+
+  it('112. Social anxiety later-stage action is available only after formulation confirmation', () => {
+    const inst = getAgentInstructions();
+    expect(inst).toContain('Only then, if readiness is present, offer ONE concrete next step');
+    expect(inst).toContain('WHEN ACTION IS ALLOWED (post-formulation only)');
+  });
+
+  it('113. Generalized anxiety first turn is loop-first (no immediate worry technique)', () => {
+    const inst = getAgentInstructions();
+    expect(inst).toContain('LOCKED_DOMAIN = [WORRY]:');
+    expect(inst).toContain('Forbidden on first turn: immediate worry window assignment');
+  });
+
+  it('114. Generalized anxiety first follow-up defaults to loop clarification before tools', () => {
+    const inst = getAgentInstructions();
+    expect(inst).toContain('First default: explain and confirm the worry-maintaining loop');
+    expect(inst).toContain('Only after formulation is confirmed: consider ONE tool');
+  });
+
+  it('115. Anxiety context honors explicit “understand before deciding” preference', () => {
+    const inst = getAgentInstructions();
+    expect(inst).toContain('If the user says they want to understand what is happening before deciding what to do, remain in formulation mode and do NOT assign a tool on that turn');
+  });
+
+  it('116. Preserved gains remain active for ADHD/low-self-worth signals and protected-case handling', () => {
+    const inst = getAgentInstructions();
+    expect(inst).toContain('ADHD');
+    expect(inst).toContain('low-confidence');
+    expect(inst).toContain('TEEN SHAME / SOCIAL AVOIDANCE WITH PRIMARY SHAME');
+    expect(inst).toContain('R2: TEEN AND SHAME-SENSITIVE PACING');
+  });
+
+  it('117. Cross-language parity for social anxiety formulation-first is explicit', () => {
+    const inst = getAgentInstructions();
+    expect(inst).toContain('APPLIES TO ALL LANGUAGES (not English-only).');
+    expect(inst).toContain('CP12-A (social anxiety) is formulation-first by default in ALL languages');
+  });
+
+  it('118. Social anxiety guidance enforces loop explanation before step suggestion by order', () => {
+    const inst = getAgentInstructions();
+    const cp12aStart = inst.indexOf('CP12-A: SOCIAL ANXIETY FORMULATION-FIRST GATE');
+    const cp12a = inst.slice(cp12aStart, cp12aStart + 3600);
+    const loopIdx = cp12a.indexOf('feared judgment → anxiety activation → avoidance/safety behavior → short-term relief → stronger future fear');
+    const stepIdx = cp12a.indexOf('offer ONE concrete next step');
+    expect(loopIdx).toBeGreaterThan(-1);
+    expect(stepIdx).toBeGreaterThan(-1);
+    expect(loopIdx).toBeLessThan(stepIdx);
+  });
 });
