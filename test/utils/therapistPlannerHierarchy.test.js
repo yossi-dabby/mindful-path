@@ -28,6 +28,11 @@
  *  10.  Mid-session language switch — hierarchy remains intact
  *  11.  Leakage-informed regression — planner no longer emits legacy shortcut reasoning
  *  12.  Preserved-gains tests — warmth/pacing/alliance/competence don't regress
+ *
+ * SECTION F — Runtime call-site enforcement tests (added in enforcement pass):
+ *  Prove that applyStrategyPrecedenceGuard (wired into V8/V10 in
+ *  workflowContextInjector.js) actually overrides strategy modes at call-site
+ *  level — not just that the utility functions return the right values.
  */
 
 import { describe, it, expect } from 'vitest';
@@ -47,6 +52,19 @@ import {
   getCaseProtectionLevel,
   checkInterventionReadiness,
 } from '../../src/lib/cbtKnowledgePlanner.js';
+
+import {
+  buildPlannerContext,
+  applyStrategyPrecedenceGuard,
+  buildPrecedenceEnforcementBlock,
+  scoreFormulationRecord,
+  FORMULATION_MIN_USEFUL_FIELDS,
+} from '../../src/lib/workflowContextInjector.js';
+
+import {
+  determineTherapistStrategy,
+  STRATEGY_INTERVENTION_MODES,
+} from '../../src/lib/therapistStrategyEngine.js';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -999,5 +1017,678 @@ describe('Regression 12: Preserved-gains — prior gains are not regressed', () 
     for (const input of inputs) {
       expect(() => evaluatePlannerPrecedence(input)).not.toThrow();
     }
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SECTION F: Runtime call-site enforcement
+//
+// These tests prove that applyStrategyPrecedenceGuard (wired into V8/V10
+// decision paths in workflowContextInjector.js) ACTUALLY blocks legacy
+// shortcuts at the call-site level — not just that the utility functions
+// return the right values.
+//
+// Each test:
+//   1. Builds a strategy state using the real determineTherapistStrategy()
+//   2. Builds a planner context using buildPlannerContext()
+//   3. Passes both through applyStrategyPrecedenceGuard()
+//   4. Asserts that action-capable modes (structured_exploration,
+//      formulation_deepening) are overridden to stabilisation when a legacy
+//      gate is blocked, and that enforcement metadata is correct.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ─── Section F helpers ────────────────────────────────────────────────────────
+
+/**
+ * Builds a minimal CaseFormulation record that passes the FORMULATION_MIN_USEFUL_FIELDS
+ * threshold so the strategy engine sees a real formulation.
+ */
+function makeFormulationRecord() {
+  return {
+    presenting_problem: 'Recurring social anxiety with avoidance of public situations (40+ chars).',
+    core_belief: 'I am fundamentally unacceptable to others — they will see through me (40+ chars).',
+    maintaining_cycle: 'Avoidance → no disconfirmation → belief strengthened → more avoidance (40+ chars).',
+    treatment_goals: 'Reduce avoidance, build tolerance for uncertainty, test threat appraisals (40+ chars).',
+  };
+}
+
+/**
+ * Builds a thin (below-threshold) formulation record so the planner sees no formulation.
+ */
+function makeThinFormulationRecord() {
+  return { presenting_problem: 'short', core_belief: '', maintaining_cycle: null, treatment_goals: undefined };
+}
+
+/** Minimal safe-mode result (no safety flags) */
+const noSafetyResult = Object.freeze({ safety_mode_active: false });
+
+/** Minimal continuity data representing a returning user with 1 prior session */
+const returningUserContinuity = Object.freeze({
+  session_count: 1,
+  has_open_follow_up_tasks: false,
+  has_patterns: false,
+  has_risk_flags: false,
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SECTION F.1 — buildPlannerContext
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('buildPlannerContext — context builder', () => {
+  it('returns a plain object with all required precedence fields', () => {
+    const ctx = buildPlannerContext(null, null, null, {});
+    expect(typeof ctx).toBe('object');
+    expect('safety_mode_active' in ctx).toBe(true);
+    expect('distress_tier' in ctx).toBe(true);
+    expect('formulation_in_place' in ctx).toBe(true);
+    expect('has_been_understood' in ctx).toBe(true);
+    expect('case_type' in ctx).toBe(true);
+    expect('is_first_disclosure' in ctx).toBe(true);
+    expect('intervention_ready' in ctx).toBe(true);
+  });
+
+  it('formulation_in_place is true when record has enough usable fields', () => {
+    const record = makeFormulationRecord();
+    expect(scoreFormulationRecord(record)).toBeGreaterThanOrEqual(FORMULATION_MIN_USEFUL_FIELDS);
+    const ctx = buildPlannerContext(record, null, 'tier_low', {});
+    expect(ctx.formulation_in_place).toBe(true);
+  });
+
+  it('formulation_in_place is false for null record', () => {
+    const ctx = buildPlannerContext(null, null, 'tier_low', {});
+    expect(ctx.formulation_in_place).toBe(false);
+  });
+
+  it('formulation_in_place is false for thin record below threshold', () => {
+    const ctx = buildPlannerContext(makeThinFormulationRecord(), null, 'tier_low', {});
+    expect(ctx.formulation_in_place).toBe(false);
+  });
+
+  it('safety_mode_active propagates from safetyResult', () => {
+    const ctx = buildPlannerContext(null, { safety_mode_active: true }, 'tier_low', {});
+    expect(ctx.safety_mode_active).toBe(true);
+  });
+
+  it('case_type propagates from sessionOptions', () => {
+    const ctx = buildPlannerContext(null, null, 'tier_low', { case_type: 'grief_loss' });
+    expect(ctx.case_type).toBe('grief_loss');
+  });
+
+  it('is_first_disclosure propagates from sessionOptions', () => {
+    const ctx = buildPlannerContext(null, null, 'tier_low', { is_first_disclosure: true });
+    expect(ctx.is_first_disclosure).toBe(true);
+  });
+
+  it('never throws for any input combination', () => {
+    const inputs = [null, undefined, {}, [], 'string', 42];
+    for (const input of inputs) {
+      expect(() => buildPlannerContext(input, input, input, input)).not.toThrow();
+    }
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SECTION F.2 — applyStrategyPrecedenceGuard — core enforcement
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('applyStrategyPrecedenceGuard — core enforcement', () => {
+  it('returns an object with enforcement metadata fields', () => {
+    const raw = determineTherapistStrategy(null, null, 'tier_low', null, null);
+    const result = applyStrategyPrecedenceGuard(raw, {});
+    expect('precedence_enforced' in result).toBe(true);
+    expect('active_precedence_level' in result).toBe(true);
+    expect('active_precedence_name' in result).toBe(true);
+    expect('precedence_rationale' in result).toBe(true);
+    expect('blocked_gates' in result).toBe(true);
+  });
+
+  it('does NOT override containment mode (always safe)', () => {
+    const raw = { intervention_mode: 'containment' };
+    const ctx = buildPlannerContext(null, null, 'tier_low', {});
+    const result = applyStrategyPrecedenceGuard(raw, ctx);
+    expect(result.intervention_mode).toBe('containment');
+  });
+
+  it('does NOT override stabilisation mode', () => {
+    const raw = { intervention_mode: 'stabilisation' };
+    const ctx = buildPlannerContext(null, null, 'tier_low', {});
+    const result = applyStrategyPrecedenceGuard(raw, ctx);
+    expect(result.intervention_mode).toBe('stabilisation');
+  });
+
+  it('does NOT override psychoeducation mode', () => {
+    const raw = { intervention_mode: 'psychoeducation' };
+    const ctx = buildPlannerContext(null, null, 'tier_low', {});
+    const result = applyStrategyPrecedenceGuard(raw, ctx);
+    expect(result.intervention_mode).toBe('psychoeducation');
+  });
+
+  it('does NOT override structured_exploration when no gate is blocked (fully ready non-pacing case)', () => {
+    const record = makeFormulationRecord();
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
+      case_type: 'anxiety',
+      has_been_understood: true,
+      intervention_ready: true,
+    });
+    const raw = { intervention_mode: 'structured_exploration' };
+    const result = applyStrategyPrecedenceGuard(raw, ctx);
+    expect(result.intervention_mode).toBe('structured_exploration');
+    expect(result.precedence_enforced).toBe(false);
+  });
+
+  it('never throws for any input combination', () => {
+    const inputs = [null, undefined, {}, [], 'string', 42];
+    for (const input of inputs) {
+      expect(() => applyStrategyPrecedenceGuard(input, input)).not.toThrow();
+    }
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RUNTIME ENFORCEMENT REGRESSION 1:
+// Social anxiety — direct-action shortcut blocked by higher-priority rules
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Runtime Enforcement 1: Social anxiety — direct-action shortcut blocked', () => {
+  it('social_anxiety_direct_action gate is blocked when formulation is missing', () => {
+    const ctx = buildPlannerContext(null, noSafetyResult, 'tier_low', {
+      case_type: 'social_anxiety',
+    });
+    expect(isLegacyGateBlocked('social_anxiety_direct_action', ctx)).toBe(true);
+  });
+
+  it('applyStrategyPrecedenceGuard overrides structured_exploration → stabilisation when formulation missing', () => {
+    const ctx = buildPlannerContext(null, noSafetyResult, 'tier_low', { case_type: 'social_anxiety' });
+    const raw = { intervention_mode: STRATEGY_INTERVENTION_MODES.STRUCTURED_EXPLORATION };
+    const result = applyStrategyPrecedenceGuard(raw, ctx);
+    expect(result.intervention_mode).toBe('stabilisation');
+    expect(result.precedence_enforced).toBe(true);
+  });
+
+  it('applyStrategyPrecedenceGuard overrides formulation_deepening → stabilisation when formulation missing', () => {
+    const ctx = buildPlannerContext(null, noSafetyResult, 'tier_low', { case_type: 'social_anxiety' });
+    const raw = { intervention_mode: STRATEGY_INTERVENTION_MODES.FORMULATION_DEEPENING };
+    const result = applyStrategyPrecedenceGuard(raw, ctx);
+    expect(result.intervention_mode).toBe('stabilisation');
+    expect(result.precedence_enforced).toBe(true);
+  });
+
+  it('full pipeline: determineTherapistStrategy → applyStrategyPrecedenceGuard blocks direct action when formulation missing', () => {
+    const rawStrategy = determineTherapistStrategy(null, null, 'tier_low', null, null);
+    // No formulation → psychoeducation (safe default already) but test enforcement path
+    // with a thin formulation that looks like partial context
+    const ctx = buildPlannerContext(null, noSafetyResult, 'tier_low', {
+      case_type: 'social_anxiety',
+    });
+    // social_anxiety_direct_action is blocked by PACING_SENSITIVITY (level 3)
+    // But without formulation, FORMULATION_FIRST (level 2) is active, which is higher priority
+    // and also blocks skip_clarification and domain_to_intervention_template
+    expect(isLegacyGateBlocked('social_anxiety_direct_action', ctx)).toBe(true);
+    const raw = { intervention_mode: 'structured_exploration' };
+    const enforced = applyStrategyPrecedenceGuard(raw, ctx);
+    expect(enforced.intervention_mode).toBe('stabilisation');
+    expect(enforced.precedence_enforced).toBe(true);
+    expect(enforced.blocked_gates).toContain('skip_clarification');
+  });
+
+  it('full pipeline: social_anxiety with formulation is blocked at INTERVENTION_READINESS level', () => {
+    const record = makeFormulationRecord();
+    const rawStrategy = determineTherapistStrategy(
+      returningUserContinuity,
+      record,
+      'tier_low',
+      null,
+      null,
+    );
+    // Without enforcement this would be formulation_deepening or structured_exploration
+    expect(['structured_exploration', 'formulation_deepening']).toContain(rawStrategy.intervention_mode);
+
+    // social_anxiety is NOT pacing-sensitive (not in _PACING_SENSITIVE_CASE_TYPES)
+    // With formulation in place + understood, precedence is INTERVENTION_READINESS (level 5)
+    // micro_step_defaulting is blocked at level 5 — but level 5 does NOT trigger mode override
+    // (only levels 1-4 override mode; level 5 only adds enforcement text)
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
+      case_type: 'social_anxiety',
+      has_been_understood: true,
+      // intervention_ready not set → false → micro_step_defaulting blocked (text only)
+    });
+    const enforced = applyStrategyPrecedenceGuard(rawStrategy, ctx);
+    // Mode is NOT overridden (level 5 is text-only enforcement)
+    expect(enforced.intervention_mode).toBe(rawStrategy.intervention_mode);
+    // But precedence IS enforced in the sense that blocked_gates is populated
+    expect(enforced.blocked_gates).toContain('micro_step_defaulting');
+    // The active level is INTERVENTION_READINESS (5)
+    expect(enforced.active_precedence_name).toBe('INTERVENTION_READINESS');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RUNTIME ENFORCEMENT REGRESSION 2:
+// Teen social shame — sensitivity outranks social-action gate
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Runtime Enforcement 2: Teen social shame — sensitivity wins over direct-action gate', () => {
+  it('social_anxiety_direct_action is blocked for teen_shame even with formulation in place', () => {
+    const record = makeFormulationRecord();
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
+      case_type: 'teen_shame',
+      has_been_understood: true,
+    });
+    expect(isLegacyGateBlocked('social_anxiety_direct_action', ctx)).toBe(true);
+  });
+
+  it('applyStrategyPrecedenceGuard overrides formulation_deepening → stabilisation for teen_shame', () => {
+    const record = makeFormulationRecord();
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
+      case_type: 'teen_shame',
+      has_been_understood: true,
+    });
+    const raw = { intervention_mode: 'formulation_deepening' };
+    const result = applyStrategyPrecedenceGuard(raw, ctx);
+    expect(result.intervention_mode).toBe('stabilisation');
+    expect(result.precedence_enforced).toBe(true);
+    expect(result.active_precedence_name).toBe('PACING_SENSITIVITY');
+  });
+
+  it('full pipeline: teen_shame does not collapse into action mode', () => {
+    const record = makeFormulationRecord();
+    const rawStrategy = determineTherapistStrategy(returningUserContinuity, record, 'tier_low', null, null);
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
+      case_type: 'teen_shame',
+    });
+    const enforced = applyStrategyPrecedenceGuard(rawStrategy, ctx);
+    expect(enforced.intervention_mode).toBe('stabilisation');
+    expect(enforced.precedence_enforced).toBe(true);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RUNTIME ENFORCEMENT REGRESSION 3:
+// OCD checking — formulation must precede ERP-like move
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Runtime Enforcement 3: OCD checking — formulation precedes ERP', () => {
+  it('domain_to_intervention_template is blocked for ocd_checking', () => {
+    const record = makeFormulationRecord();
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
+      case_type: 'ocd_checking',
+    });
+    expect(isLegacyGateBlocked('domain_to_intervention_template', ctx)).toBe(true);
+  });
+
+  it('applyStrategyPrecedenceGuard overrides structured_exploration → stabilisation for ocd_checking', () => {
+    const record = makeFormulationRecord();
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', { case_type: 'ocd_checking' });
+    const raw = { intervention_mode: 'structured_exploration' };
+    const result = applyStrategyPrecedenceGuard(raw, ctx);
+    expect(result.intervention_mode).toBe('stabilisation');
+    expect(result.precedence_enforced).toBe(true);
+  });
+
+  it('full pipeline: ocd_checking does not collapse into ERP-like action mode', () => {
+    const record = makeFormulationRecord();
+    const rawStrategy = determineTherapistStrategy(returningUserContinuity, record, 'tier_low', null, null);
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', { case_type: 'ocd_checking' });
+    const enforced = applyStrategyPrecedenceGuard(rawStrategy, ctx);
+    expect(enforced.intervention_mode).toBe('stabilisation');
+    expect(enforced.blocked_gates).toContain('domain_to_intervention_template');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RUNTIME ENFORCEMENT REGRESSION 4:
+// Scrupulosity — cycle/process wins before behavioral suggestion
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Runtime Enforcement 4: Scrupulosity — cycle understanding before suggestion', () => {
+  it('social_anxiety_direct_action and domain_to_intervention_template blocked for scrupulosity', () => {
+    const record = makeFormulationRecord();
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', { case_type: 'scrupulosity' });
+    expect(isLegacyGateBlocked('social_anxiety_direct_action', ctx)).toBe(true);
+    expect(isLegacyGateBlocked('domain_to_intervention_template', ctx)).toBe(true);
+  });
+
+  it('full pipeline: scrupulosity does not collapse into early behavioral suggestion', () => {
+    const record = makeFormulationRecord();
+    const rawStrategy = determineTherapistStrategy(returningUserContinuity, record, 'tier_low', null, null);
+    // With has_been_understood: true, scrupulosity triggers PACING_SENSITIVITY level 3
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
+      case_type: 'scrupulosity',
+      has_been_understood: true,
+    });
+    const enforced = applyStrategyPrecedenceGuard(rawStrategy, ctx);
+    expect(enforced.intervention_mode).toBe('stabilisation');
+    expect(enforced.precedence_enforced).toBe(true);
+    expect(enforced.active_precedence_name).toBe('PACING_SENSITIVITY');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RUNTIME ENFORCEMENT REGRESSION 5:
+// Grief/loss — holding wins before behavioral activation
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Runtime Enforcement 5: Grief/loss — holding wins before activation', () => {
+  it('all action gates are blocked for grief_loss', () => {
+    const record = makeFormulationRecord();
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', { case_type: 'grief_loss' });
+    expect(isLegacyGateBlocked('social_anxiety_direct_action', ctx)).toBe(true);
+    expect(isLegacyGateBlocked('domain_to_intervention_template', ctx)).toBe(true);
+    expect(isLegacyGateBlocked('micro_step_defaulting', ctx)).toBe(true);
+  });
+
+  it('full pipeline: grief_loss does not collapse into behavioral activation', () => {
+    const record = makeFormulationRecord();
+    const rawStrategy = determineTherapistStrategy(returningUserContinuity, record, 'tier_low', null, null);
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', { case_type: 'grief_loss' });
+    const enforced = applyStrategyPrecedenceGuard(rawStrategy, ctx);
+    expect(enforced.intervention_mode).toBe('stabilisation');
+    expect(enforced.precedence_enforced).toBe(true);
+    expect(enforced.blocked_gates.length).toBeGreaterThanOrEqual(2);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RUNTIME ENFORCEMENT REGRESSION 6:
+// Trauma — stabilization wins before exposure/action
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Runtime Enforcement 6: Trauma — stabilization wins before exposure', () => {
+  it('all action gates are blocked for trauma', () => {
+    const record = makeFormulationRecord();
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', { case_type: 'trauma' });
+    expect(isLegacyGateBlocked('social_anxiety_direct_action', ctx)).toBe(true);
+    expect(isLegacyGateBlocked('domain_to_intervention_template', ctx)).toBe(true);
+  });
+
+  it('full pipeline: trauma does not collapse into exposure or action mode', () => {
+    const record = makeFormulationRecord();
+    const rawStrategy = determineTherapistStrategy(returningUserContinuity, record, 'tier_low', null, null);
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', { case_type: 'trauma' });
+    const enforced = applyStrategyPrecedenceGuard(rawStrategy, ctx);
+    expect(enforced.intervention_mode).toBe('stabilisation');
+    expect(enforced.precedence_enforced).toBe(true);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RUNTIME ENFORCEMENT REGRESSION 7:
+// ADHD overwhelm — understanding wins before micro-step
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Runtime Enforcement 7: ADHD overwhelm — understanding wins before micro-step', () => {
+  it('micro_step_defaulting is blocked for adhd_overwhelm even with formulation', () => {
+    const record = makeFormulationRecord();
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
+      case_type: 'adhd_overwhelm',
+      has_been_understood: true,
+    });
+    expect(isLegacyGateBlocked('micro_step_defaulting', ctx)).toBe(true);
+  });
+
+  it('full pipeline: adhd_overwhelm does not collapse into micro-step assignment', () => {
+    const record = makeFormulationRecord();
+    const rawStrategy = determineTherapistStrategy(returningUserContinuity, record, 'tier_low', null, null);
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', { case_type: 'adhd_overwhelm' });
+    const enforced = applyStrategyPrecedenceGuard(rawStrategy, ctx);
+    expect(enforced.intervention_mode).toBe('stabilisation');
+    expect(enforced.precedence_enforced).toBe(true);
+    expect(enforced.blocked_gates).toContain('micro_step_defaulting');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RUNTIME ENFORCEMENT REGRESSION 8:
+// "Nothing helps" — clarification wins before another intervention
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Runtime Enforcement 8: "Nothing helps" — clarification wins before intervention', () => {
+  it('pacing-level action gates are blocked for nothing_helps (with understanding present)', () => {
+    const record = makeFormulationRecord();
+    // has_been_understood: true → formulation complete → PACING_SENSITIVITY (level 3) active
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
+      case_type: 'nothing_helps',
+      has_been_understood: true,
+    });
+    // skip_clarification blocked at FORMULATION_FIRST (level 2) → NOT blocked when level is 3
+    expect(isLegacyGateBlocked('skip_clarification', ctx)).toBe(false);
+    // pacing-level gates ARE blocked
+    expect(isLegacyGateBlocked('social_anxiety_direct_action', ctx)).toBe(true); // pacing level active
+    expect(isLegacyGateBlocked('domain_to_intervention_template', ctx)).toBe(true); // pacing level active
+  });
+
+  it('full pipeline: nothing_helps does not collapse into another intervention', () => {
+    const record = makeFormulationRecord();
+    const rawStrategy = determineTherapistStrategy(returningUserContinuity, record, 'tier_low', null, null);
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', { case_type: 'nothing_helps' });
+    const enforced = applyStrategyPrecedenceGuard(rawStrategy, ctx);
+    expect(enforced.intervention_mode).toBe('stabilisation');
+    expect(enforced.precedence_enforced).toBe(true);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RUNTIME ENFORCEMENT REGRESSION 9:
+// First disclosure — no-task rule wins in runtime execution
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Runtime Enforcement 9: First disclosure — no-task rule wins', () => {
+  it('micro_step_defaulting is blocked for first_disclosure', () => {
+    const record = makeFormulationRecord();
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
+      case_type: 'first_disclosure',
+      is_first_disclosure: true,
+    });
+    expect(isLegacyGateBlocked('micro_step_defaulting', ctx)).toBe(true);
+  });
+
+  it('applyStrategyPrecedenceGuard enforces stabilisation for first_disclosure with action-capable mode', () => {
+    const record = makeFormulationRecord();
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
+      case_type: 'first_disclosure',
+      is_first_disclosure: true,
+      has_been_understood: true,
+    });
+    const raw = { intervention_mode: 'structured_exploration' };
+    const result = applyStrategyPrecedenceGuard(raw, ctx);
+    expect(result.intervention_mode).toBe('stabilisation');
+    expect(result.precedence_enforced).toBe(true);
+    expect(result.blocked_gates.length).toBeGreaterThan(0);
+  });
+
+  it('full pipeline: first_disclosure no-task rule wins', () => {
+    const record = makeFormulationRecord();
+    const rawStrategy = determineTherapistStrategy(returningUserContinuity, record, 'tier_low', null, null);
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
+      case_type: 'first_disclosure',
+      is_first_disclosure: true,
+    });
+    const enforced = applyStrategyPrecedenceGuard(rawStrategy, ctx);
+    expect(enforced.intervention_mode).toBe('stabilisation');
+    expect(enforced.precedence_enforced).toBe(true);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RUNTIME ENFORCEMENT REGRESSION 10:
+// Cross-language runtime parity — all 7 languages get same enforcement
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Runtime Enforcement 10: Cross-language parity — enforcement equal across all 7 languages', () => {
+  const languages = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
+
+  for (const lang of languages) {
+    it(`teen_shame action-mode override fires in lang=${lang}`, () => {
+      const record = makeFormulationRecord();
+      const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
+        case_type: 'teen_shame',
+        language: lang,
+      });
+      const raw = { intervention_mode: 'formulation_deepening' };
+      const result = applyStrategyPrecedenceGuard(raw, ctx);
+      expect(result.intervention_mode).toBe('stabilisation');
+      expect(result.precedence_enforced).toBe(true);
+    });
+
+    it(`grief_loss action-mode override fires in lang=${lang}`, () => {
+      const record = makeFormulationRecord();
+      const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
+        case_type: 'grief_loss',
+        language: lang,
+      });
+      const raw = { intervention_mode: 'structured_exploration' };
+      const result = applyStrategyPrecedenceGuard(raw, ctx);
+      expect(result.intervention_mode).toBe('stabilisation');
+      expect(result.precedence_enforced).toBe(true);
+    });
+
+    it(`unready session skip_clarification blocked in lang=${lang}`, () => {
+      const ctx = buildPlannerContext(null, noSafetyResult, 'tier_low', { language: lang });
+      expect(isLegacyGateBlocked('skip_clarification', ctx)).toBe(true);
+      const raw = { intervention_mode: 'structured_exploration' };
+      const result = applyStrategyPrecedenceGuard(raw, ctx);
+      expect(result.intervention_mode).toBe('stabilisation');
+    });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RUNTIME ENFORCEMENT REGRESSION 11:
+// Leakage-informed — full pipeline no longer reasons through legacy shortcuts
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Runtime Enforcement 11: Leakage-informed — legacy shortcut sequence is intercepted', () => {
+  it('classify-domain-then-act sequence: pacing-sensitive domain routes to stabilisation via enforcement', () => {
+    // Simulate: domain=grief_loss (pacing-sensitive) + formulation present + returning user
+    // Old leakage path: domain → domain_to_intervention_template → action output
+    // New enforced path: domain_to_intervention_template BLOCKED (PACING_SENSITIVITY level 3) → stabilisation
+    const record = makeFormulationRecord();
+    const rawStrategy = determineTherapistStrategy(returningUserContinuity, record, 'tier_low', null, null);
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
+      case_type: 'grief_loss',
+      has_been_understood: true,
+    });
+    const enforced = applyStrategyPrecedenceGuard(rawStrategy, ctx);
+    expect(enforced.intervention_mode).toBe('stabilisation');
+    expect(enforced.blocked_gates).toContain('social_anxiety_direct_action');
+    expect(enforced.blocked_gates).toContain('domain_to_intervention_template');
+  });
+
+  it('skip-clarification-then-action sequence is intercepted for unready session', () => {
+    // Simulate: no formulation yet + trying to jump to action via skip_clarification
+    const ctx = buildPlannerContext(null, noSafetyResult, 'tier_low', { case_type: 'anxiety' });
+    const raw = { intervention_mode: 'structured_exploration' };
+    const result = applyStrategyPrecedenceGuard(raw, ctx);
+    expect(result.intervention_mode).toBe('stabilisation');
+    expect(result.blocked_gates).toContain('skip_clarification');
+  });
+
+  it('micro-step-without-formulation sequence is intercepted', () => {
+    const ctx = buildPlannerContext(null, noSafetyResult, 'tier_low', {});
+    const raw = { intervention_mode: 'structured_exploration' };
+    const result = applyStrategyPrecedenceGuard(raw, ctx);
+    expect(result.intervention_mode).toBe('stabilisation');
+    expect(result.blocked_gates).toContain('micro_step_defaulting');
+  });
+
+  it('buildPrecedenceEnforcementBlock produces non-empty text when enforcement fired', () => {
+    const record = makeFormulationRecord();
+    const rawStrategy = determineTherapistStrategy(returningUserContinuity, record, 'tier_low', null, null);
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', { case_type: 'grief_loss' });
+    const enforced = applyStrategyPrecedenceGuard(rawStrategy, ctx);
+    const block = buildPrecedenceEnforcementBlock(enforced);
+    expect(typeof block).toBe('string');
+    expect(block.length).toBeGreaterThan(0);
+    expect(block).toContain('PRECEDENCE ENFORCEMENT');
+    expect(block).toContain('BLOCKED');
+  });
+
+  it('buildPrecedenceEnforcementBlock returns empty string when no enforcement fired', () => {
+    const record = makeFormulationRecord();
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
+      case_type: 'anxiety',
+      has_been_understood: true,
+      intervention_ready: true,
+    });
+    const raw = { intervention_mode: 'structured_exploration', precedence_enforced: false, blocked_gates: [] };
+    const block = buildPrecedenceEnforcementBlock(raw);
+    expect(block).toBe('');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RUNTIME ENFORCEMENT REGRESSION 12:
+// Preserved gains — warmth/pacing/alliance/competence no regression
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('Runtime Enforcement 12: Preserved gains — prior gains are not regressed', () => {
+  it('fully-ready non-pacing session: structured_exploration is NOT overridden', () => {
+    const record = makeFormulationRecord();
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
+      case_type: 'anxiety',
+      has_been_understood: true,
+      intervention_ready: true,
+    });
+    const raw = { intervention_mode: 'structured_exploration' };
+    const result = applyStrategyPrecedenceGuard(raw, ctx);
+    expect(result.intervention_mode).toBe('structured_exploration');
+    expect(result.precedence_enforced).toBe(false);
+  });
+
+  it('fully-ready non-pacing session: formulation_deepening is NOT overridden', () => {
+    const record = makeFormulationRecord();
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
+      case_type: 'depression',
+      has_been_understood: true,
+      intervention_ready: true,
+    });
+    const raw = { intervention_mode: 'formulation_deepening' };
+    const result = applyStrategyPrecedenceGuard(raw, ctx);
+    expect(result.intervention_mode).toBe('formulation_deepening');
+    expect(result.precedence_enforced).toBe(false);
+  });
+
+  it('applyStrategyPrecedenceGuard is a pure function (same input → same output)', () => {
+    const record = makeFormulationRecord();
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', { case_type: 'teen_shame' });
+    const raw = { intervention_mode: 'formulation_deepening' };
+    const r1 = applyStrategyPrecedenceGuard(raw, ctx);
+    const r2 = applyStrategyPrecedenceGuard(raw, ctx);
+    expect(r1.intervention_mode).toBe(r2.intervention_mode);
+    expect(r1.precedence_enforced).toBe(r2.precedence_enforced);
+    expect(r1.active_precedence_level).toBe(r2.active_precedence_level);
+  });
+
+  it('psychoeducation (first-session safe default) is never changed', () => {
+    const ctx = buildPlannerContext(null, noSafetyResult, 'tier_low', {});
+    const raw = { intervention_mode: 'psychoeducation' };
+    const result = applyStrategyPrecedenceGuard(raw, ctx);
+    expect(result.intervention_mode).toBe('psychoeducation');
+  });
+
+  it('containment (highest urgency) is never changed', () => {
+    const ctx = buildPlannerContext(null, { safety_mode_active: true }, 'tier_high', {});
+    const raw = { intervention_mode: 'containment' };
+    const result = applyStrategyPrecedenceGuard(raw, ctx);
+    expect(result.intervention_mode).toBe('containment');
+  });
+
+  it('buildPrecedenceEnforcementBlock never throws for any input', () => {
+    const inputs = [null, undefined, {}, [], 'string', 42];
+    for (const input of inputs) {
+      expect(() => buildPrecedenceEnforcementBlock(input)).not.toThrow();
+    }
+  });
+
+  it('enforcement metadata includes all required fields on blocked case', () => {
+    const record = makeFormulationRecord();
+    const rawStrategy = determineTherapistStrategy(returningUserContinuity, record, 'tier_low', null, null);
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', { case_type: 'grief_loss' });
+    const enforced = applyStrategyPrecedenceGuard(rawStrategy, ctx);
+    expect(typeof enforced.active_precedence_level).toBe('number');
+    expect(typeof enforced.active_precedence_name).toBe('string');
+    expect(typeof enforced.precedence_rationale).toBe('string');
+    expect(Array.isArray(enforced.blocked_gates)).toBe(true);
+    expect(enforced.precedence_enforced).toBe(true);
   });
 });

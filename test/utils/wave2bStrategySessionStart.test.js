@@ -331,13 +331,18 @@ describe('Wave 2B — Strategy mode selection reflects available context', () =>
     expect(result).toContain(STRATEGY_INTERVENTION_MODES.STRUCTURED_EXPLORATION);
   });
 
-  it('continuity present only → STRUCTURED_EXPLORATION mode', async () => {
+  it('continuity present only → STABILISATION mode (planner-first: no formulation = stabilisation first)', async () => {
+    // Pre-enforcement behavior was STRUCTURED_EXPLORATION for "continuity only" sessions.
+    // Post-enforcement: without a CaseFormulation, the precedence model fires FORMULATION_FIRST
+    // (level 2) which overrides any action-capable mode to STABILISATION.
+    // This is the intended planner-first behavior: formulate before exploring.
     const { entities } = makeEntitiesWithContinuity();
     const baseClient = makeMockBaseClient();
 
     const result = await buildV8SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V8, entities, baseClient);
 
-    expect(result).toContain(STRATEGY_INTERVENTION_MODES.STRUCTURED_EXPLORATION);
+    expect(result).toContain(STRATEGY_INTERVENTION_MODES.STABILISATION);
+    expect(result).not.toContain(STRATEGY_INTERVENTION_MODES.STRUCTURED_EXPLORATION);
   });
 
   it('both formulation and continuity present → FORMULATION_DEEPENING mode', async () => {

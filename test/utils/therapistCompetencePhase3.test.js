@@ -1085,15 +1085,25 @@ describe('SECTION K — Chat.jsx import audit', () => {
     expect(chatSource).toContain('buildV11SessionStartContentAsync');
   });
 
-  it('Chat.jsx uses buildV11SessionStartContentAsync (not V10) as the session-start caller', () => {
+  it('Chat.jsx imports buildV12SessionStartContentAsync', () => {
     const chatSource = readFileSync(
       resolve(process.cwd(), 'src/pages/Chat.jsx'),
       'utf-8',
     );
-    // All session-start calls should use V11
-    const v11Calls = (chatSource.match(/buildV11SessionStartContentAsync/g) || []).length;
+    expect(chatSource).toContain('buildV12SessionStartContentAsync');
+  });
+
+  it('Chat.jsx uses buildV12SessionStartContentAsync (not V11) as the session-start caller', () => {
+    const chatSource = readFileSync(
+      resolve(process.cwd(), 'src/pages/Chat.jsx'),
+      'utf-8',
+    );
+    // All session-start call sites should now use V12 (planner-first enforcement)
+    const v12Calls = (chatSource.match(/buildV12SessionStartContentAsync/g) || []).length;
+    const v11Calls = (chatSource.match(/await buildV11SessionStartContentAsync/g) || []).length;
     const v10Calls = (chatSource.match(/await buildV10SessionStartContentAsync/g) || []).length;
-    expect(v11Calls).toBeGreaterThanOrEqual(3); // at least 3 call sites
+    expect(v12Calls).toBeGreaterThanOrEqual(4); // at least 4 call sites (import + 4 calls)
+    expect(v11Calls).toBe(0); // V11 no longer called directly at call sites
     expect(v10Calls).toBe(0); // V10 no longer called directly
   });
 });
