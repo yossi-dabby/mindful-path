@@ -19,8 +19,8 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+  AlertDialogTitle } from
+'@/components/ui/alert-dialog';
 import MessageBubble from '../components/chat/MessageBubble';
 import ConversationsList from '../components/chat/ConversationsList';
 import SessionSummary from '../components/chat/SessionSummary';
@@ -52,10 +52,10 @@ import SessionContinuityCue from '../components/therapy/SessionContinuityCue';
 // these names must NOT receive new messages. Empty clinical stubs; fail-closed.
 // Do NOT derive this list dynamically. Do NOT infer from safetyProfile metadata.
 const LEGACY_VARIANT_PROFILES = Object.freeze([
-  'cbt_therapist_strict',
-  'cbt_therapist_standard',
-  'cbt_therapist_lenient',
-]);
+'cbt_therapist_strict',
+'cbt_therapist_standard',
+'cbt_therapist_lenient']
+);
 
 // Maps ISO language codes to full names injected into the session-start directive.
 // English is intentionally absent — the agent defaults to English with no directive.
@@ -65,7 +65,7 @@ const LANG_FULL_NAMES = {
   fr: 'French',
   de: 'German',
   it: 'Italian',
-  pt: 'Portuguese',
+  pt: 'Portuguese'
 };
 
 /**
@@ -169,7 +169,7 @@ export default function Chat() {
     const el = e.currentTarget;
     if (el.scrollTop < 80 && visibleCount < messages.length) {
       const prevScrollHeight = el.scrollHeight;
-      setVisibleCount(prev => Math.min(prev + 30, messages.length));
+      setVisibleCount((prev) => Math.min(prev + 30, messages.length));
       // Preserve scroll position after prepending older messages
       requestAnimationFrame(() => {
         el.scrollTop = el.scrollHeight - prevScrollHeight;
@@ -393,8 +393,8 @@ export default function Chat() {
       // primary gate is isSameMessageCount — a growing batch always bypasses
       // the guard regardless of ids.
       const isSameMessageId =
-        !lastConfirmedAssistant.id || !newAssistant.id ||
-        lastConfirmedAssistant.id === newAssistant.id;
+      !lastConfirmedAssistant.id || !newAssistant.id ||
+      lastConfirmedAssistant.id === newAssistant.id;
       const isSameTurn = isSameMessageCount && isSameMessageId;
       const oldLen = oldContent.length;
       const newLen = newContent.length;
@@ -949,9 +949,9 @@ export default function Chat() {
         const sessionStartContent = await buildV11SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44);
         await base44.agents.addMessage(conversation, {
           role: 'user',
-          content: initialMessage
-            ? addLangDirective(sessionStartContent, i18n.language) + '\n\n' + initialMessage
-            : addLangDirective(sessionStartContent, i18n.language)
+          content: initialMessage ?
+          addLangDirective(sessionStartContent, i18n.language) + '\n\n' + initialMessage :
+          addLangDirective(sessionStartContent, i18n.language)
         });
       }, 100);
     } catch (error) {
@@ -991,7 +991,7 @@ export default function Chat() {
       //   "[SESSION_LANGUAGE: <iso2>. Open and respond entirely in <name> ...]"
       // Fall back to the current UI locale so the governor never defaults to English
       // for a non-English session loaded from history.
-      const firstUserMsg = (conversation.messages || []).find(m => m.role === 'user' && m.content);
+      const firstUserMsg = (conversation.messages || []).find((m) => m.role === 'user' && m.content);
       const embeddedLang = firstUserMsg?.content?.match(/\[SESSION_LANGUAGE:\s*([a-zA-Z]{2})\b/)?.[1]?.toLowerCase();
       sessionLanguageRef.current = embeddedLang || i18n.language || 'en';
 
@@ -1094,7 +1094,7 @@ export default function Chat() {
     const runtimeSupplement = buildRuntimeSafetySupplement(
       ACTIVE_CBT_THERAPIST_WIRING,
       messageText,
-      i18n?.language ?? 'en',
+      i18n?.language ?? 'en'
     );
     // Phase 8: track safety mode activation for the upgraded UI indicator.
     // Once triggered, the indicator persists for the rest of the session.
@@ -1160,9 +1160,9 @@ export default function Chat() {
 
       // When the user types their first message without clicking "Start Session",
       // prepend the [START_SESSION] block so the agent initialises on all wiring paths.
-      let messageContent = runtimeSupplement
-        ? runtimeSupplement + '\n\n' + messageText
-        : messageText;
+      let messageContent = runtimeSupplement ?
+      runtimeSupplement + '\n\n' + messageText :
+      messageText;
       if (isNewConversation) {
         const sessionStartContent = addLangDirective(
           await buildV11SessionStartContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44),
@@ -1204,9 +1204,9 @@ export default function Chat() {
               // CRITICAL: Safe update with validation
               // Skip overwrite if subscription already confirmed content — polling
               // snapshot can be shorter than the streamed response and must not win.
-              const updated = subscriptionSucceededRef.current
-                ? false
-                : safeUpdateMessages(sanitized, 'Polling');
+              const updated = subscriptionSucceededRef.current ?
+              false :
+              safeUpdateMessages(sanitized, 'Polling');
               if (subscriptionSucceededRef.current) {
                 console.log('[Polling] ⏭️ Skipping overwrite — subscription already confirmed content');
               }
@@ -1336,7 +1336,7 @@ export default function Chat() {
       currentConversationId,
       convForMemory?.metadata || {},
       'chat_request_summary',
-      base44.entities,
+      base44.entities
     );
 
     // Build a language-aware summary request
@@ -1515,7 +1515,7 @@ export default function Chat() {
 
   return (
     <>
-      <AlertDialog open={!!pendingDeleteId} onOpenChange={(open) => { if (!open) setPendingDeleteId(null); }}>
+      <AlertDialog open={!!pendingDeleteId} onOpenChange={(open) => {if (!open) setPendingDeleteId(null);}}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2"><Trash2 className="w-5 h-5 text-destructive" />{t('chat.delete_session_title', 'Delete this session?')}</AlertDialogTitle>
@@ -1523,14 +1523,14 @@ export default function Chat() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t('common.cancel', 'Cancel')}</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive text-destructive-foreground" onClick={() => { if (pendingDeleteId) deleteConversationMutation.mutate(pendingDeleteId); setPendingDeleteId(null); }}>{t('common.delete', 'Delete')}</AlertDialogAction>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground" onClick={() => {if (pendingDeleteId) deleteConversationMutation.mutate(pendingDeleteId);setPendingDeleteId(null);}}>{t('common.delete', 'Delete')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
       {/* Chat root: explicit dvh-based height so the flex-1/min-h-0 scroll chain works.
-                                       `h-full` would resolve to `auto` because the parent motion.div uses min-h-full
-                                       (not a fixed height), breaking the inner overflow-y-auto messages scroll. */}
+                                        `h-full` would resolve to `auto` because the parent motion.div uses min-h-full
+                                        (not a fixed height), breaking the inner overflow-y-auto messages scroll. */}
       <div className="bg-teal-100 rounded-2xl flex relative"
 
       data-testid="chat-root"
@@ -1540,7 +1540,7 @@ export default function Chat() {
       }}>
 
         {/* On tablet/desktop (≥768px) there is no fixed mobile header or bottom nav,
-                                         so we only subtract the safe-area insets (mirrors AppContent.jsx logic). */}
+                                          so we only subtract the safe-area insets (mirrors AppContent.jsx logic). */}
         <style>{`
           @media (min-width: 768px) {
             [data-testid="chat-root"] {
@@ -1602,11 +1602,11 @@ export default function Chat() {
         </div>
 
         {/* Risk Panel — rendered outside conversation gate so it shows even before a conversation is created */}
-        {showRiskPanel && !currentConversationId && (
+        {showRiskPanel && !currentConversationId &&
           <div className="px-4 md:px-6 pt-3">
             <InlineRiskPanel onDismiss={() => setShowRiskPanel(false)} />
           </div>
-        )}
+          }
 
         {/* Messages Area */}
         <div className="bg-teal-400 text-slate-50 rounded-3xl flex-1 min-h-0 overflow-hidden flex flex-col" style={{ backgroundColor: 'transparent' }}>
@@ -1648,7 +1648,7 @@ export default function Chat() {
               </div>
             </div> :
 
-            <div data-testid="chat-messages" ref={messagesContainerRef} onScroll={handleMessagesScroll} className="flex-1 min-h-0 overflow-y-auto" style={{ backgroundColor: 'transparent', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
+            <div data-testid="chat-messages" ref={messagesContainerRef} onScroll={handleMessagesScroll} className="my-3 flex-1 min-h-0 overflow-y-auto" style={{ backgroundColor: 'transparent', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
               {/* Therapy State Machine */}
               {showTherapyFlow && messages.length === 0 &&
               <div className="p-4 md:p-6" style={{ background: 'transparent' }}>
@@ -1680,43 +1680,43 @@ export default function Chat() {
                 {/* Profile-specific periodic disclaimer */}
                 <ProfileSpecificDisclaimer messageCount={messages.length} />
                 {/* Phase 8 — Upgraded-path UI indicators (flag-gated, hidden in default mode).
-                    SafetyModeIndicator is SUBORDINATE to InlineRiskPanel/CrisisSafetyPanel.
-                    Neither component renders when the upgrade flags are off. */}
+                     SafetyModeIndicator is SUBORDINATE to InlineRiskPanel/CrisisSafetyPanel.
+                     Neither component renders when the upgrade flags are off. */}
                 <ErrorBoundary>
                   <SafetyModeIndicator
                     wiring={ACTIVE_CBT_THERAPIST_WIRING}
-                    isActive={safetyModeActive}
-                  />
+                    isActive={safetyModeActive} />
+                  
                 </ErrorBoundary>
                 <ErrorBoundary>
                   <SessionPhaseIndicator
                     wiring={ACTIVE_CBT_THERAPIST_WIRING}
-                    hasActiveSession={!!currentConversationId}
-                  />
+                    hasActiveSession={!!currentConversationId} />
+                  
                 </ErrorBoundary>
                 {/* Phase 3 Deep Personalization — Session continuity cue (flag-gated) */}
                 <ErrorBoundary>
                   <SessionContinuityCue
                     wiring={ACTIVE_CBT_THERAPIST_WIRING}
                     hasActiveSession={!!currentConversationId}
-                    messageCount={messages.length}
-                  />
+                    messageCount={messages.length} />
+                  
                 </ErrorBoundary>
-                {messages.length > visibleCount && (
-                  <div className="text-center py-2">
+                {messages.length > visibleCount &&
+                <div className="text-center py-2">
                     <button
-                      onClick={() => setVisibleCount(prev => Math.min(prev + 30, messages.length))}
-                      className="text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1 rounded-full border border-border/50">
+                    onClick={() => setVisibleCount((prev) => Math.min(prev + 30, messages.length))}
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1 rounded-full border border-border/50">
                       Load earlier messages
                     </button>
                   </div>
-                )}
+                }
                 {messages.slice(Math.max(0, messages.length - visibleCount)).filter((m) => m && m.role && m.content).map((message, index, arr) => {
                   // For assistant messages, find the immediately preceding user message
                   // to enable CP12-G post-learning compression in the governor.
-                  const prevUserMessage = message.role === 'assistant'
-                    ? (arr[index - 1]?.role === 'user' ? arr[index - 1]?.content : undefined)
-                    : undefined;
+                  const prevUserMessage = message.role === 'assistant' ?
+                  arr[index - 1]?.role === 'user' ? arr[index - 1]?.content : undefined :
+                  undefined;
                   return (
                     <MessageBubble
                       key={index}
@@ -1726,8 +1726,8 @@ export default function Chat() {
                       agentName="cbt_therapist"
                       context="chat"
                       userMessage={prevUserMessage}
-                      sessionLanguage={sessionLanguageRef.current} />
-                  );
+                      sessionLanguage={sessionLanguageRef.current} />);
+
                 })}
                 {isLoading && messages.length > 0 && (() => {
                   instrumentationRef.current.PLACEHOLDER_RENDERED++;
@@ -1831,7 +1831,7 @@ export default function Chat() {
             zIndex: 50
           }}>
           <div className="text-teal-600 mx-auto max-w-4xl flex gap-2">
-            {variantProfileBlocked ? (
+            {variantProfileBlocked ?
               <div className="flex-1 flex flex-col gap-3">
                 <div className="rounded-[var(--radius-card)] border border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
                   {t('chat.variant_blocked.message', 'This past conversation can no longer be continued. You can still read it here.')}
@@ -1841,28 +1841,28 @@ export default function Chat() {
                   className="bg-teal-600 text-primary-foreground font-medium rounded-[var(--radius-card)] border border-transparent transition-all duration-200 shadow-[var(--shadow-md)] hover:bg-primary/92 min-h-[44px] md:min-h-0 h-[48px] w-full">
                   {t('chat.variant_blocked.start_new', 'Start a new conversation')}
                 </Button>
-              </div>
-            ) : (
+              </div> :
+
               <>
                 <Textarea
-                    value={inputMessage}
-                    onChange={(e) => setInputMessage(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder={t('chat.message_placeholder')} className="bg-[hsl(var(--surface-nested)/0.9)] text-foreground px-3 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-card)] flex w-full border border-input/90 shadow-[var(--shadow-sm)] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 flex-1 min-h-[48px] max-h-[160px] resize-none"
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder={t('chat.message_placeholder')} className="bg-[hsl(var(--surface-nested)/0.9)] text-foreground px-3 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-card)] flex w-full border border-input/90 shadow-[var(--shadow-sm)] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 flex-1 min-h-[48px] max-h-[160px] resize-none"
 
-                    data-testid="therapist-chat-input"
-                    disabled={isLoading} />
+                  data-testid="therapist-chat-input"
+                  disabled={isLoading} />
 
                 <Button
-                    onClick={handleSendMessage}
-                    disabled={!inputMessage.trim() || isLoading}
-                    data-testid="therapist-chat-send" className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 h-[48px] flex-shrink-0">
+                  onClick={handleSendMessage}
+                  disabled={!inputMessage.trim() || isLoading}
+                  data-testid="therapist-chat-send" className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 h-[48px] flex-shrink-0">
 
 
                   <Send className="w-5 h-5" />
                 </Button>
               </>
-            )}
+              }
           </div>
           {/* Compact disclaimer */}
           <p className="text-center mt-1 text-xs text-muted-foreground">
