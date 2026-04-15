@@ -1231,7 +1231,7 @@ describe('Runtime Enforcement 1: Social anxiety — direct-action shortcut block
     expect(enforced.blocked_gates).toContain('skip_clarification');
   });
 
-  it('full pipeline: social_anxiety with formulation is blocked at INTERVENTION_READINESS level', () => {
+  it('full pipeline: social_anxiety with formulation is blocked at PACING_SENSITIVITY level', () => {
     const record = makeFormulationRecord();
     const rawStrategy = determineTherapistStrategy(
       returningUserContinuity,
@@ -1243,22 +1243,25 @@ describe('Runtime Enforcement 1: Social anxiety — direct-action shortcut block
     // Without enforcement this would be formulation_deepening or structured_exploration
     expect(['structured_exploration', 'formulation_deepening']).toContain(rawStrategy.intervention_mode);
 
-    // social_anxiety is NOT pacing-sensitive (not in _PACING_SENSITIVE_CASE_TYPES)
-    // With formulation in place + understood, precedence is INTERVENTION_READINESS (level 5)
-    // micro_step_defaulting is blocked at level 5 — but level 5 does NOT trigger mode override
-    // (only levels 1-4 override mode; level 5 only adds enforcement text)
+    // social_anxiety IS NOW pacing-sensitive (added to _PACING_SENSITIVE_CASE_TYPES in v3.6.0
+    // as part of the action-first runtime correction).
+    // With formulation in place + understood, precedence is PACING_SENSITIVITY (level 3),
+    // not INTERVENTION_READINESS (level 5).
+    // Level 3 IS <= threshold (4), so mode IS overridden to stabilisation.
     const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
       case_type: 'social_anxiety',
       has_been_understood: true,
-      // intervention_ready not set → false → micro_step_defaulting blocked (text only)
+      // intervention_ready not set → false → micro_step_defaulting also blocked
     });
     const enforced = applyStrategyPrecedenceGuard(rawStrategy, ctx);
-    // Mode is NOT overridden (level 5 is text-only enforcement)
-    expect(enforced.intervention_mode).toBe(rawStrategy.intervention_mode);
-    // But precedence IS enforced in the sense that blocked_gates is populated
-    expect(enforced.blocked_gates).toContain('micro_step_defaulting');
-    // The active level is INTERVENTION_READINESS (5)
-    expect(enforced.active_precedence_name).toBe('INTERVENTION_READINESS');
+    // Mode IS overridden to stabilisation (PACING_SENSITIVITY level 3 triggers mode override)
+    expect(enforced.intervention_mode).toBe('stabilisation');
+    // Precedence is enforced
+    expect(enforced.precedence_enforced).toBe(true);
+    // The active level is PACING_SENSITIVITY (3)
+    expect(enforced.active_precedence_name).toBe('PACING_SENSITIVITY');
+    // social_anxiety_direct_action gate is blocked
+    expect(enforced.blocked_gates).toContain('social_anxiety_direct_action');
   });
 });
 

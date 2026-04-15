@@ -121,7 +121,7 @@
  *  95. buildV12SessionStartContentAsync never throws for null/undefined wiring
  *  96. THERAPIST_WORKFLOW_INSTRUCTIONS is still exported and unchanged
  *  97. Existing V11 still has same entity set as V12
- *  98. THERAPIST_WORKFLOW_VERSION is '3.5.0'
+ *  98. THERAPIST_WORKFLOW_VERSION is '3.6.0'
  *
  * SECTION J — CLINICAL REGRESSION SCENARIOS
  *  99.  Anxiety: planner builds formulation before action (common_error describes avoidance/cycle first)
@@ -693,8 +693,8 @@ describe('Wave 5 — SECTION I: backward compatibility', () => {
     expect(v12Names).toEqual(v11Names);
   });
 
-  it('98. THERAPIST_WORKFLOW_VERSION is 3.5.0', () => {
-    expect(THERAPIST_WORKFLOW_VERSION).toBe('3.5.0');
+  it('98. THERAPIST_WORKFLOW_VERSION is 3.6.0', () => {
+    expect(THERAPIST_WORKFLOW_VERSION).toBe('3.6.0');
   });
 });
 
