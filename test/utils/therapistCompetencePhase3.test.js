@@ -1098,11 +1098,12 @@ describe('SECTION K — Chat.jsx import audit', () => {
       resolve(process.cwd(), 'src/pages/Chat.jsx'),
       'utf-8',
     );
-    // All session-start call sites should now use V12 (planner-first enforcement)
-    const v12Calls = (chatSource.match(/buildV12SessionStartContentAsync/g) || []).length;
+    // All session-start call sites now use buildActionFirstDemotedSessionContentAsync
+    // (action-first demotion pass: wrapper injects formulation-first block for all wirings)
+    const demoedCalls = (chatSource.match(/buildActionFirstDemotedSessionContentAsync/g) || []).length;
     const v11Calls = (chatSource.match(/await buildV11SessionStartContentAsync/g) || []).length;
     const v10Calls = (chatSource.match(/await buildV10SessionStartContentAsync/g) || []).length;
-    expect(v12Calls).toBeGreaterThanOrEqual(4); // at least 4 call sites (import + 4 calls)
+    expect(demoedCalls).toBeGreaterThanOrEqual(4); // at least 4 call sites (import + 4 calls)
     expect(v11Calls).toBe(0); // V11 no longer called directly at call sites
     expect(v10Calls).toBe(0); // V10 no longer called directly
   });

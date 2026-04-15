@@ -2068,6 +2068,101 @@ export async function buildV12SessionStartContentAsync(wiring, entities, baseCli
   }
 }
 
+// ─── Action-First Demotion — Universal formulation-first default ──────────────
+
+/**
+ * Builds the session-start content with action-first demotion applied
+ * unconditionally to ALL wiring paths.
+ *
+ * BACKGROUND
+ * ----------
+ * buildV12SessionStartContentAsync injects THERAPIST_PLANNER_FIRST_INSTRUCTIONS
+ * only when wiring.planner_first_enabled === true (V12 path).  The HYBRID path
+ * and all intermediate wirings (V1–V11) return their content without the block,
+ * which means action-first / exercise-first behavior remains a possible LLM
+ * default on those paths — because no instruction explicitly demotes it.
+ *
+ * ACTION-FIRST DEMOTION
+ * ---------------------
+ * This function closes that gap.  It calls buildV12SessionStartContentAsync and,
+ * if the result does not already contain THERAPIST_PLANNER_FIRST_INSTRUCTIONS,
+ * appends the block unconditionally.  Every session — regardless of the active
+ * wiring — therefore receives the formulation-first planner policy instructions.
+ *
+ * The policy instructs the LLM:
+ *   "Intervention selection and micro-step assignment must NEVER be the default
+ *    first output. They are the last resort, reached only after understanding,
+ *    formulation, target identification, and move-type selection are complete."
+ *
+ * This makes formulation-first the runtime default for all session paths.
+ * The action/exercise path remains available but only after formulation readiness
+ * gates are satisfied (as defined in THERAPIST_INTERVENTION_READINESS_GATES).
+ *
+ * DEFAULT ROUTE (enforced for all wirings after this change)
+ * ----------------------------------------------------------
+ *   1. acknowledge
+ *   2. hold briefly
+ *   3. clarify
+ *   4. formulate
+ *   5. identify target
+ *   6. decide move type
+ * Only after all six steps may action / exercise / micro-step / homework /
+ * direct behavioral suggestion be offered.
+ *
+ * ACTION PATH ACTIVATION CONDITIONS (required before any action)
+ * --------------------------------------------------------------
+ *   • enough understanding established
+ *   • explicit or implicit formulation in place
+ *   • treatment target identified
+ *   • readiness for action signal present
+ *   • no active higher-priority holding/clarification condition
+ * (Defined in THERAPIST_INTERVENTION_READINESS_GATES and THERAPIST_PLANNER_FIRST_INSTRUCTIONS.)
+ *
+ * No domain label alone (social anxiety, ADHD, OCD, grief, trauma, etc.) may
+ * trigger action.  Domain classification never skips the formulation-first sequence.
+ *
+ * SAFETY CONTRACT
+ * ---------------
+ * - Fail-open: any error returns the base V12 output unchanged (session never blocked).
+ * - Additive only: appends the block after existing content; never replaces.
+ * - Does NOT weaken any existing safety filter, wiring config, or entity access rule.
+ * - All prior layers (safety, formulation, continuity, strategy, knowledge) are preserved.
+ *
+ * PRESERVED GAINS
+ * ---------------
+ * - V12 and other upgraded-path content is fully preserved (no duplication).
+ * - Cross-language parity: THERAPIST_PLANNER_FIRST_INSTRUCTIONS contains no
+ *   language-specific restrictions — the policy applies in all 7 supported languages.
+ * - Warmth, alliance, pacing, and competence instructions are unaffected.
+ * - All prior planner, precedence, and safety-mode layers remain active.
+ *
+ * @param {object}  wiring     - The active CBT Therapist wiring config object
+ * @param {object}  entities   - Base44 entity client map
+ * @param {object}  baseClient - Base44 SDK client
+ * @param {object}  [options]  - Optional bag passed through to V12 chain
+ * @returns {Promise<string>} Session-start content with formulation-first policy enforced
+ */
+export async function buildActionFirstDemotedSessionContentAsync(
+  wiring,
+  entities,
+  baseClient,
+  options,
+) {
+  const base = await buildV12SessionStartContentAsync(wiring, entities, baseClient, options);
+  try {
+    const block = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
+    // Guard: block must be a non-empty string
+    if (typeof block !== 'string' || !block.trim()) return base;
+    // If V12 already injected the block (planner_first_enabled === true), do not duplicate.
+    if (base.includes(block)) return base;
+    // For HYBRID / V1–V11 paths: append the formulation-first planner policy block.
+    return base + '\n\n' + block;
+  } catch {
+    // Fail-open: any error returns the V12 base unchanged so the session is never blocked.
+    return base;
+  }
+}
+
 // ─── AI Companion Upgrade V2 — Companion session-start context ───────────────
 
 /**

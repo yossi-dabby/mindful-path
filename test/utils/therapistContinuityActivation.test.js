@@ -647,9 +647,9 @@ describe('Section 11: Chat.jsx static analysis — V10 called at all session-sta
   });
 
   it('Chat.jsx calls buildV10SessionStartContentAsync at every session-start site', () => {
-    // Enforcement pass: V11 is no longer called directly; V12 is used instead
-    // This test now verifies V12 is called at all session-start sites
-    const callCount = (chatSrc.match(/buildV12SessionStartContentAsync\(/g) || []).length;
+    // Enforcement pass: action-first demotion — all session-start sites now use
+    // buildActionFirstDemotedSessionContentAsync (wrapper over V12).
+    const callCount = (chatSrc.match(/buildActionFirstDemotedSessionContentAsync\(/g) || []).length;
     expect(callCount).toBeGreaterThanOrEqual(4);
   });
 

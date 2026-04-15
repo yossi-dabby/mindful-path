@@ -90,10 +90,11 @@ describe('Phase 0 — Chat.jsx source routing (static analysis)', () => {
     expect(hasV4Import).toBe(false);
   });
 
-  // 3. Chat.jsx calls buildV12SessionStartContentAsync at all session-start sites
-  //    Enforcement pass: updated from V11 to V12 (planner-first enforcement).
+  // 3. Chat.jsx calls buildActionFirstDemotedSessionContentAsync at all session-start sites
+  //    Enforcement pass: updated from V12 to buildActionFirstDemotedSessionContentAsync
+  //    (action-first demotion — formulation-first is now the unconditional default).
   it('3. Chat.jsx calls buildV10SessionStartContentAsync', () => {
-    const callCount = (chatSrc.match(/buildV12SessionStartContentAsync\s*\(/g) || []).length;
+    const callCount = (chatSrc.match(/buildActionFirstDemotedSessionContentAsync\s*\(/g) || []).length;
     expect(callCount).toBeGreaterThanOrEqual(4); // 4 call sites: 2 intent-handler + startNewConversationWithIntent + sendMessage
   });
 
@@ -103,16 +104,17 @@ describe('Phase 0 — Chat.jsx source routing (static analysis)', () => {
     expect(callCount).toBe(0);
   });
 
-  // 5. Every session-start call site in Chat.jsx uses V12 (enforcement pass: not V4-V11 at call sites)
+  // 5. Every session-start call site in Chat.jsx uses buildActionFirstDemotedSessionContentAsync
+  //    (action-first demotion enforcement pass: updated from V12 to demoted wrapper).
   it('5. every session-start call site in Chat.jsx uses V10 (not V4, V5, V6, V7, V8, or V9 at call sites)', () => {
-    const v12Calls = (chatSrc.match(/buildV12SessionStartContentAsync\s*\(/g) || []).length;
+    const demoedCalls = (chatSrc.match(/buildActionFirstDemotedSessionContentAsync\s*\(/g) || []).length;
     const v11Calls = (chatSrc.match(/await buildV11SessionStartContentAsync\s*\(/g) || []).length;
     const v10Calls = (chatSrc.match(/await buildV10SessionStartContentAsync\s*\(/g) || []).length;
     const v8Calls = (chatSrc.match(/buildV8SessionStartContentAsync\s*\(/g) || []).length;
     const v7Calls = (chatSrc.match(/buildV7SessionStartContentAsync\s*\(/g) || []).length;
     const v5Calls = (chatSrc.match(/buildV5SessionStartContentAsync\s*\(/g) || []).length;
     const v4Calls = (chatSrc.match(/buildV4SessionStartContentAsync\s*\(/g) || []).length;
-    expect(v12Calls).toBeGreaterThanOrEqual(4); // all four session-start call sites
+    expect(demoedCalls).toBeGreaterThanOrEqual(4); // all four session-start call sites
     expect(v11Calls).toBe(0); // V11 no longer called directly
     expect(v10Calls).toBe(0); // V10 no longer called directly
     expect(v8Calls).toBe(0);
