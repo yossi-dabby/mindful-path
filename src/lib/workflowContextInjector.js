@@ -58,7 +58,7 @@
  * Source of truth: docs/therapist-upgrade-stage2-plan.md — Phase 3.1 / Phase 5
  */
 
-import { THERAPIST_WORKFLOW_INSTRUCTIONS, THERAPIST_FORMULATION_INSTRUCTIONS, THERAPIST_PLANNER_FIRST_INSTRUCTIONS } from './therapistWorkflowEngine.js';
+import { THERAPIST_WORKFLOW_INSTRUCTIONS, THERAPIST_FORMULATION_INSTRUCTIONS, THERAPIST_PLANNER_FIRST_INSTRUCTIONS, PRECEDENCE_LEVELS, evaluatePlannerPrecedence, isLegacyGateBlocked, LEGACY_GATE_OVERRIDES } from './therapistWorkflowEngine.js';
 import {
   isLTSRecord,
   LTS_MEMORY_TYPE,
@@ -716,6 +716,262 @@ export function getFormulationLedContextForWiring(wiring) {
   return THERAPIST_FORMULATION_INSTRUCTIONS;
 }
 
+// ─── Planner Precedence Enforcement ──────────────────────────────────────────
+//
+// These functions wire the evaluatePlannerPrecedence / isLegacyGateBlocked
+// utilities (defined in therapistWorkflowEngine.js) into the live strategy
+// decision paths (V8 and V10).  They are the "runtime enforcement pass" that
+// ensures legacy shortcuts are actually blocked — not merely documented.
+//
+// HOW IT WORKS
+// ─────────────────────────────────────────────────────────────────────────────
+// 1. buildPlannerContext() constructs the context object needed by the
+//    precedence evaluator from the data already available at call sites.
+// 2. applyStrategyPrecedenceGuard() takes the raw strategy state produced by
+//    determineTherapistStrategy() and overrides the intervention_mode to
+//    STABILISATION whenever any action-enabling legacy gate is blocked.
+//    It is the SINGLE enforcement gate in the runtime planner.
+// 3. buildPrecedenceEnforcementBlock() produces a human-readable text block
+//    that is appended to the session-start context when enforcement fires,
+//    making the LLM explicitly aware of which gates are blocked.
+//
+// FAIL-OPEN CONTRACT
+// ─────────────────────────────────────────────────────────────────────────────
+// Both buildPlannerContext() and applyStrategyPrecedenceGuard() never throw.
+// On any error, they return safe defaults that preserve prior behavior.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Action-capable strategy modes that legacy shortcuts can exploit.
+ * Only these modes need precedence enforcement; safe modes are left unchanged.
+ *
+ * @private
+ */
+const _ACTION_CAPABLE_MODES = Object.freeze(
+  new Set(['structured_exploration', 'formulation_deepening'])
+);
+
+/**
+ * Legacy gates that, when blocked, require mode override to STABILISATION.
+ * These are gates at PACING_SENSITIVITY level (3) or higher-priority levels
+ * (1-2 SAFETY/FORMULATION_FIRST) — not INTERVENTION_READINESS (level 5).
+ *
+ * micro_step_defaulting (level 5) only generates an enforcement text block;
+ * it does NOT override the strategy mode.  Formulation deepening and
+ * structured exploration can still proceed — the LLM is instructed that
+ * micro-step assignment specifically is blocked.
+ *
+ * @private
+ */
+const _ACTION_BLOCKING_GATES = Object.freeze([
+  'skip_clarification',
+  'social_anxiety_direct_action',
+  'domain_to_intervention_template',
+  'micro_step_defaulting',
+]);
+
+/**
+ * Maximum active precedence level that triggers a strategy mode override to
+ * STABILISATION.  Levels 1-4 cover SAFETY, FORMULATION_FIRST, PACING_SENSITIVITY,
+ * and FIRST_DISCLOSURE — all of which require holding/stabilisation.
+ * INTERVENTION_READINESS (level 5) and higher do NOT override mode; those levels
+ * only generate enforcement text (the micro-step gate blocks micro-step assignment
+ * without preventing formulation deepening or structured exploration).
+ *
+ * @private
+ */
+const _MODE_OVERRIDE_PRECEDENCE_THRESHOLD = PRECEDENCE_LEVELS.FIRST_DISCLOSURE; // level 4
+
+/**
+ * Builds the planner context object required by evaluatePlannerPrecedence()
+ * from the inputs already available at the V8 and V10 call sites.
+ *
+ * All fields are optional — missing fields bias toward higher-priority
+ * precedence levels (fail-closed: unknown state → extra caution).
+ *
+ * SAFETY: Never throws.  Returns a minimal safe context on any error.
+ *
+ * @param {object|null} formulationRecord - Best CaseFormulation record, or null
+ * @param {object|null} safetyResult      - Output of determineSafetyMode(), or null
+ * @param {string|null} distressTier      - One of DISTRESS_TIERS values, or null
+ * @param {object}      [sessionOptions]  - Options bag from the session call site
+ *   Optional fields:
+ *     case_type            {string}  - One of THERAPIST_CASE_TYPE_POSTURES ids
+ *     is_first_disclosure  {boolean} - Person is making a first disclosure
+ *     has_been_understood  {boolean} - Person has felt genuinely understood
+ *     intervention_ready   {boolean} - All intervention readiness gates passed
+ * @returns {object} Planner context for evaluatePlannerPrecedence()
+ */
+export function buildPlannerContext(formulationRecord, safetyResult, distressTier, sessionOptions) {
+  try {
+    const opts = sessionOptions && typeof sessionOptions === 'object' ? sessionOptions : {};
+    const formulationInPlace = scoreFormulationRecord(formulationRecord) >= FORMULATION_MIN_USEFUL_FIELDS;
+    // has_been_understood: when explicitly provided in options, use that value.
+    // Otherwise: if formulation is in place (from prior sessions), infer that
+    // understanding was established in the prior session where the formulation was built.
+    // At session start, prior formulation implies prior understanding.
+    // This prevents FORMULATION_FIRST level from over-blocking session-start contexts
+    // where formulation legitimately exists from prior sessions.
+    const hasBeenUnderstood =
+      typeof opts.has_been_understood === 'boolean'
+        ? opts.has_been_understood
+        : formulationInPlace;
+    return {
+      safety_mode_active: safetyResult?.safety_mode_active === true,
+      distress_tier: typeof distressTier === 'string' && distressTier ? distressTier : 'tier_low',
+      // Formulation is "in place" only when the record has enough usable content.
+      formulation_in_place: formulationInPlace,
+      has_been_understood: hasBeenUnderstood,
+      case_type: typeof opts.case_type === 'string' ? opts.case_type.trim().toLowerCase() : '',
+      is_first_disclosure: opts.is_first_disclosure === true,
+      intervention_ready: opts.intervention_ready === true,
+    };
+  } catch (_e) {
+    // Fail-closed: unknown state → highest caution (formulation not in place)
+    return {
+      safety_mode_active: false,
+      distress_tier: 'tier_low',
+      formulation_in_place: false,
+      has_been_understood: false,
+      case_type: '',
+      is_first_disclosure: false,
+      intervention_ready: false,
+    };
+  }
+}
+
+/**
+ * Applies the planner precedence hierarchy to a raw strategy state.
+ *
+ * This is the single runtime enforcement gate.  It is called AFTER
+ * determineTherapistStrategy() in the V8 and V10 session-start paths.
+ *
+ * WHAT IT DOES
+ * ─────────────────────────────────────────────────────────────────────────────
+ * 1. Evaluates the active precedence level for the current session context.
+ * 2. Checks each of the four action-enabling legacy gates via isLegacyGateBlocked().
+ * 3. If any blocked gate would allow a legacy shortcut to fire AND the current
+ *    intervention_mode is action-capable (structured_exploration / formulation_deepening),
+ *    overrides the mode to stabilisation — the safest non-containment mode.
+ * 4. Returns an augmented strategy state that includes enforcement metadata
+ *    (precedence_enforced, active_precedence_level, blocked_gates, etc.).
+ *
+ * MODES AFFECTED
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Only structured_exploration and formulation_deepening are overridden.
+ * containment, stabilisation, and psychoeducation are already safe and are
+ * NEVER modified by this function.
+ *
+ * PROTECTED CASE TYPES (trigger PACING_SENSITIVITY level 3)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * teen_shame, grief_loss, trauma, scrupulosity, ocd_checking, ocd, adhd_overwhelm,
+ * nothing_helps → social_anxiety_direct_action and domain_to_intervention_template
+ * gates are both blocked at level 3; mode override to stabilisation fires.
+ *
+ * UNREADY SESSIONS (trigger FORMULATION_FIRST level 2)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * When formulation_in_place is false or has_been_understood is false →
+ * skip_clarification gate is blocked; mode override to stabilisation fires.
+ *
+ * FAIL-OPEN CONTRACT
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Never throws.  On any error, returns the original strategy state unchanged
+ * so the session is never blocked.
+ *
+ * @param {object|null} strategyState  - Output of determineTherapistStrategy()
+ * @param {object|null} plannerContext - Output of buildPlannerContext()
+ * @returns {object} Augmented strategy state with enforcement metadata
+ */
+export function applyStrategyPrecedenceGuard(strategyState, plannerContext) {
+  try {
+    const ss = strategyState && typeof strategyState === 'object' ? strategyState : {};
+    const currentMode = typeof ss.intervention_mode === 'string' ? ss.intervention_mode : 'stabilisation';
+
+    // Evaluate active precedence level
+    const precedence = evaluatePlannerPrecedence(plannerContext);
+
+    // Check all action-blocking gates
+    const blockedGates = _ACTION_BLOCKING_GATES.filter(
+      (gate) => isLegacyGateBlocked(gate, plannerContext)
+    );
+
+    const hasBlockedGates = blockedGates.length > 0;
+    const modeIsActionCapable = _ACTION_CAPABLE_MODES.has(currentMode);
+
+    // Mode override fires when active precedence level is <= threshold (levels 1-4:
+    // SAFETY, FORMULATION_FIRST, PACING_SENSITIVITY, FIRST_DISCLOSURE).
+    // INTERVENTION_READINESS (level 5) does NOT override mode — it only adds the
+    // enforcement text block so the LLM knows micro-step assignment is blocked.
+    const shouldEnforceMode =
+      hasBlockedGates &&
+      precedence.level <= _MODE_OVERRIDE_PRECEDENCE_THRESHOLD &&
+      modeIsActionCapable;
+    const enforcedMode = shouldEnforceMode ? 'stabilisation' : currentMode;
+    // precedence_enforced is true when ANY gate is blocked (for enforcement block text)
+    const precedenceEnforced = hasBlockedGates;
+
+    return Object.assign({}, ss, {
+      intervention_mode: enforcedMode,
+      precedence_enforced: precedenceEnforced,
+      active_precedence_level: precedence.level,
+      active_precedence_name: precedence.name,
+      precedence_rationale: precedence.reason,
+      blocked_gates: Object.freeze(blockedGates),
+    });
+  } catch (_e) {
+    // Fail-open: return original state unchanged
+    return strategyState && typeof strategyState === 'object' ? strategyState : {};
+  }
+}
+
+/**
+ * Builds a human-readable precedence enforcement block for injection into the
+ * session-start context when the precedence guard overrides the strategy mode.
+ *
+ * The block makes the LLM explicitly aware of which legacy shortcuts are blocked
+ * and why, reinforcing the planner-first rule at the instruction level.
+ *
+ * Returns '' (empty string) when no enforcement fired (precedence_enforced !== true).
+ * Never throws.
+ *
+ * @param {object|null} guardResult - Augmented strategy state from applyStrategyPrecedenceGuard()
+ * @returns {string} Enforcement text block, or ''
+ */
+export function buildPrecedenceEnforcementBlock(guardResult) {
+  try {
+    if (!guardResult || guardResult.precedence_enforced !== true) return '';
+    const level = guardResult.active_precedence_level ?? '?';
+    const name = guardResult.active_precedence_name ?? 'UNKNOWN';
+    const reason = guardResult.precedence_rationale ?? 'unknown';
+    const blockedGates = Array.isArray(guardResult.blocked_gates) ? guardResult.blocked_gates : [];
+
+    const gateLines = blockedGates.map((gate) => {
+      const def = LEGACY_GATE_OVERRIDES[gate];
+      const desc = def ? def.description : gate;
+      return `  — ${gate}: BLOCKED — ${desc}`;
+    });
+
+    return [
+      '=== PLANNER PRECEDENCE ENFORCEMENT — ACTIVE ===',
+      '',
+      `Active Level  : ${name} (level ${level})`,
+      `Reason        : ${reason}`,
+      `Enforced Mode : stabilisation`,
+      '',
+      'The following legacy shortcuts are blocked in this session:',
+      ...gateLines,
+      '',
+      'Planner-first order is MANDATORY:',
+      '  understand → hold → clarify → formulate → select target → decide move type',
+      '  → THEN consider intervention (only when all readiness gates pass)',
+      '',
+      '=== END PRECEDENCE ENFORCEMENT ===',
+    ].join('\n');
+  } catch (_e) {
+    return '';
+  }
+}
+
 /**
  * Builds the V6 session-start content string asynchronously.
  *
@@ -1169,13 +1425,20 @@ export async function buildV8SessionStartContentAsync(
 
     // Step 7: Determine therapeutic strategy (Wave 3D: with LTS inputs when available)
     const ltsInputs = extractLTSStrategyInputs(options.lts_record ?? null);
-    const strategyState = determineTherapistStrategy(
+    const rawStrategyState = determineTherapistStrategy(
       continuityData,
       formulationRecord,
       distressTier,
       messageSignals,
       ltsInputs,
     );
+
+    // Precedence enforcement pass — blocks legacy shortcuts when higher-priority
+    // planner rules are active.  buildPlannerContext derives the precedence
+    // context from already-available V8 inputs; applyStrategyPrecedenceGuard
+    // overrides the mode to stabilisation if any action-enabling gate is blocked.
+    const plannerCtx = buildPlannerContext(formulationRecord, safetyResult, distressTier, options);
+    const strategyState = applyStrategyPrecedenceGuard(rawStrategyState, plannerCtx);
 
     // Wave 2D — Emit safe strategy diagnostic when _s2debug=true is in the URL.
     // Gated, additive, no effect on routing or therapeutic behavior.
@@ -1200,7 +1463,11 @@ export async function buildV8SessionStartContentAsync(
       return v7Base;
     }
 
-    return v7Base + '\n\n' + strategySection;
+    // Append precedence enforcement block when any legacy gate was blocked.
+    const enforcementBlock = buildPrecedenceEnforcementBlock(strategyState);
+    const sections = [v7Base, strategySection];
+    if (enforcementBlock) sections.push(enforcementBlock);
+    return sections.join('\n\n');
   } catch {
     // Fail-open: strategy computation failed — return V7 base content unchanged
     return v7Base;
@@ -1633,13 +1900,23 @@ export async function buildV10SessionStartContentAsync(
     // strategy engine are LTS-aware for this knowledge path.  When the LTS record
     // is absent or weak, extractLTSStrategyInputs returns lts_valid: false and
     // the strategy engine falls back to exact Wave 2C behavior.
-    const strategyState = determineTherapistStrategy(
+    const rawStrategyState = determineTherapistStrategy(
       null,                  // continuityData — no re-read (see above)
       formulationRecord,
       distressTier,
       messageSignals,
       ltsInputsForPlanner,   // Wave 4D: LTS-aware strategy for knowledge path
     );
+
+    // Precedence enforcement pass — block legacy shortcuts before knowledge
+    // retrieval routing.  applyStrategyPrecedenceGuard overrides the mode to
+    // stabilisation when any action-enabling gate is blocked, which causes
+    // planCBTKnowledgeRetrieval (step 8) to return a skip plan because
+    // stabilisation is not in the retrieval-allowed modes list.
+    // This prevents domain_to_intervention_template and micro_step_defaulting
+    // from triggering domain-based retrieval prematurely.
+    const plannerCtxForKnowledge = buildPlannerContext(formulationRecord, safetyResult, distressTier, options);
+    const strategyState = applyStrategyPrecedenceGuard(rawStrategyState, plannerCtxForKnowledge);
 
     // Step 8: Run the CBT knowledge planner with bounded structured inputs.
     // flagEnabled is true because we only reach V10 when knowledge_layer_enabled

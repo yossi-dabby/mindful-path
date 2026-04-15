@@ -76,12 +76,12 @@ describe('Phase 0 Runtime Activation — static analysis of Chat.jsx call sites'
     expect(hasV5).toBe(false);
   });
 
-  // 3. Chat.jsx has at least 4 buildV11SessionStartContentAsync call sites
+  // 3. Chat.jsx now has at least 4 buildV12SessionStartContentAsync call sites
   //    (2 original intent-handler sites + 1 startNewConversationWithIntent + 1 sendMessage)
-  //    Phase 3 Competence: all session-start call sites now use V11 (highest builder in the chain).
+  //    Enforcement pass: all session-start call sites now use V12 (planner-first enforcement).
   it('3. Chat.jsx has at least 4 buildV11SessionStartContentAsync call sites', () => {
-    const calls = (chatSrc.match(/buildV11SessionStartContentAsync\s*\(/g) || []).length;
-    expect(calls).toBeGreaterThanOrEqual(4);
+    const v12Calls = (chatSrc.match(/buildV12SessionStartContentAsync\s*\(/g) || []).length;
+    expect(v12Calls).toBeGreaterThanOrEqual(4);
   });
 
   // 4. Chat.jsx has zero buildV4SessionStartContentAsync call sites (routing bypass absent)
@@ -96,22 +96,22 @@ describe('Phase 0 Runtime Activation — static analysis of Chat.jsx call sites'
     expect(calls).toBe(0);
   });
 
-  // 6. The startNewConversationWithIntent path uses buildV11 (always, not
+  // 6. The startNewConversationWithIntent path uses buildV12 (always, not
   //    conditionally) — verified by the sessionStartContent variable pattern.
-  //    Phase 3 Competence: updated from V10 to V11.
+  //    Enforcement pass: updated from V11 to V12.
   it('6. startNewConversationWithIntent path uses sessionStartContent variable from buildV11', () => {
-    expect(chatSrc).toMatch(/sessionStartContent\s*=\s*await\s+buildV11SessionStartContentAsync/);
+    expect(chatSrc).toMatch(/sessionStartContent\s*=\s*await\s+buildV12SessionStartContentAsync/);
   });
 
   // 7. No other page or component besides Chat.jsx uses session-start builders
   //    (isolation: companion and other pages are unaffected)
-  //    Phase 3 Competence: updated to check for V11 as the highest-level session-start builder.
+  //    Enforcement pass: updated to check for V12 as the highest-level session-start builder.
   it('7. only Chat.jsx in src/ uses buildV11SessionStartContentAsync', () => {
-    // This is a documentation test — we assert Chat.jsx is the sole runtime user.
+    // This is a documentation test — we assert Chat.jsx is the sole runtime user of V12.
     // If another page starts using it, this test fails as an intentional tripwire.
-    const v11InChat = (chatSrc.match(/buildV11SessionStartContentAsync/g) || []).length;
-    expect(v11InChat).toBeGreaterThanOrEqual(4);
-    // The companion agent path (Chat.jsx does not call buildV11 on companion wiring)
+    const v12InChat = (chatSrc.match(/buildV12SessionStartContentAsync/g) || []).length;
+    expect(v12InChat).toBeGreaterThanOrEqual(4);
+    // The companion agent path (Chat.jsx does not call buildV12 on companion wiring)
     // is verified behaviorally in Group 4 below.
   });
 });
