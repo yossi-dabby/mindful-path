@@ -39,6 +39,8 @@
  *   are all on.  V10 is a strict superset of V9.
  * Phase 3 Competence Architecture — CBT_THERAPIST_WIRING_STAGE2_V11 added.
  *   V11 supersedes V10 when COMPETENCE_ENABLED is also on.  V11 is a strict superset of V10.
+ * Wave 5 — CBT_THERAPIST_WIRING_STAGE2_V12 added as the formulation-first planner policy path.
+ *   V12 supersedes V11 when PLANNER_FIRST_ENABLED is on.  V12 is a strict superset of V11.
  *
  * Analytics registration (Section B of Phase 0.1 spec) is performed lazily
  * via a dynamic import of base44Client.js so that test environments that lack
@@ -63,6 +65,7 @@ import {
   CBT_THERAPIST_WIRING_STAGE2_V9,
   CBT_THERAPIST_WIRING_STAGE2_V10,
   CBT_THERAPIST_WIRING_STAGE2_V11,
+  CBT_THERAPIST_WIRING_STAGE2_V12,
   AI_COMPANION_WIRING_UPGRADE_V1,
   AI_COMPANION_WIRING_UPGRADE_V2,
 } from './agentWiring.js';
@@ -110,33 +113,39 @@ import {
  *
  * Routing logic (evaluated in order):
  *   1. Master gate off  → CBT_THERAPIST_WIRING_HYBRID (current default)
- *   2. Master gate on, THERAPIST_UPGRADE_COMPETENCE_ENABLED on
+ *   2. Master gate on, THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED on
+ *                       → CBT_THERAPIST_WIRING_STAGE2_V12 (Wave 5 Planner-First Policy)
+ *   3. Master gate on, THERAPIST_UPGRADE_COMPETENCE_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V11 (Phase 3 Competence Architecture)
- *   3. Master gate on, THERAPIST_UPGRADE_STRATEGY_ENABLED on,
+ *   4. Master gate on, THERAPIST_UPGRADE_STRATEGY_ENABLED on,
  *      THERAPIST_UPGRADE_LONGITUDINAL_ENABLED on,
  *      THERAPIST_UPGRADE_KNOWLEDGE_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V10 (Wave 4C CBT knowledge retrieval)
- *   4. Master gate on, THERAPIST_UPGRADE_STRATEGY_ENABLED on,
+ *   5. Master gate on, THERAPIST_UPGRADE_STRATEGY_ENABLED on,
  *      THERAPIST_UPGRADE_LONGITUDINAL_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V9 (Wave 3C LTS injection)
- *   5. Master gate on, THERAPIST_UPGRADE_STRATEGY_ENABLED on
+ *   6. Master gate on, THERAPIST_UPGRADE_STRATEGY_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V8 (Wave 2B strategy layer)
- *   6. Master gate on, THERAPIST_UPGRADE_CONTINUITY_ENABLED on
+ *   7. Master gate on, THERAPIST_UPGRADE_CONTINUITY_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V7 (Phase 3 continuity)
- *   7. Master gate on, THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED on
+ *   8. Master gate on, THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V6 (Phase 1 Quality formulation context)
- *   8. Master gate on, THERAPIST_UPGRADE_SAFETY_MODE_ENABLED on
+ *   9. Master gate on, THERAPIST_UPGRADE_SAFETY_MODE_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V5 (Phase 7 safety mode)
- *   9. Master gate on, THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED on
+ *  10. Master gate on, THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V4 (Phase 6 live retrieval)
- *  10. Master gate on, THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED on
+ *  11. Master gate on, THERAPIST_UPGRADE_RETRIEVAL_ORCHESTRATION_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V3 (Phase 5 retrieval orchestration)
- *  11. Master gate on, THERAPIST_UPGRADE_WORKFLOW_ENABLED on
+ *  12. Master gate on, THERAPIST_UPGRADE_WORKFLOW_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V2 (Phase 3 workflow engine)
- *  12. Master gate on, THERAPIST_UPGRADE_MEMORY_ENABLED on
+ *  13. Master gate on, THERAPIST_UPGRADE_MEMORY_ENABLED on
  *                       → CBT_THERAPIST_WIRING_STAGE2_V1 (Phase 1 memory layer)
- *  13. Master gate on, no matching phase flag
+ *  14. Master gate on, no matching phase flag
  *                       → CBT_THERAPIST_WIRING_HYBRID (fall-through to current default)
+ *
+ * Wave 5 Planner-First (V12) takes precedence over all prior phases because V12
+ * is a strict superset of V11.  V12 requires only PLANNER_FIRST_ENABLED (plus
+ * the master gate).
  *
  * Phase 3 Competence (V11) takes precedence over all prior phases because V11
  * is a strict superset of V10.  V11 requires only COMPETENCE_ENABLED (plus
@@ -178,6 +187,16 @@ import {
  */
 export function resolveTherapistWiring() {
   if (isUpgradeEnabled('THERAPIST_UPGRADE_ENABLED')) {
+    // ── Wave 5 — Formulation-First Planner Policy (supersedes all prior phases) ──
+    if (isUpgradeEnabled('THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED')) {
+      logUpgradeEvent('route_selected', {
+        flag: 'THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED',
+        path: 'stage2_v12',
+        phase: 'wave5_planner_first',
+      });
+      return CBT_THERAPIST_WIRING_STAGE2_V12;
+    }
+
     // ── Phase 3 Competence Architecture (supersedes all prior phases) ────────
     if (isUpgradeEnabled('THERAPIST_UPGRADE_COMPETENCE_ENABLED')) {
       logUpgradeEvent('route_selected', {

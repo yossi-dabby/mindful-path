@@ -224,7 +224,7 @@ const agentInstructions = agentData.instructions;
 
 describe('SECTION A — version and flag', () => {
   it('THERAPIST_WORKFLOW_VERSION is bumped to 3.4.0', () => {
-    expect(THERAPIST_WORKFLOW_VERSION).toBe('3.4.0');
+    expect(THERAPIST_WORKFLOW_VERSION).toBe('3.5.0');
   });
 
   it('THERAPIST_UPGRADE_COMPETENCE_ENABLED flag exists in THERAPIST_UPGRADE_FLAGS', () => {
@@ -236,7 +236,7 @@ describe('SECTION A — version and flag', () => {
   });
 
   it('THERAPIST_UPGRADE_FLAGS now contains exactly 15 flags', () => {
-    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(15);
+    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(16);
   });
 
   it('all 15 flags default to false', () => {

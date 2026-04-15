@@ -148,7 +148,7 @@ describe('Phase 1 Quality — feature flag', () => {
   });
 
   it('THERAPIST_UPGRADE_FLAGS now contains exactly 13 flags', () => {
-    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(15);
+    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(16);
   });
 
   it('all 13 flags default to false', () => {
@@ -583,7 +583,7 @@ describe('Phase 1 Quality — new workflow engine rules', () => {
   });
 
   it('THERAPIST_WORKFLOW_VERSION is 3.3.0', () => {
-    expect(THERAPIST_WORKFLOW_VERSION).toBe('3.4.0');
+    expect(THERAPIST_WORKFLOW_VERSION).toBe('3.5.0');
   });
 
   it('buildWorkflowContextInstructions includes socratic insight guidance text', () => {

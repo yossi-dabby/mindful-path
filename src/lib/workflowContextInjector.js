@@ -58,7 +58,7 @@
  * Source of truth: docs/therapist-upgrade-stage2-plan.md — Phase 3.1 / Phase 5
  */
 
-import { THERAPIST_WORKFLOW_INSTRUCTIONS, THERAPIST_FORMULATION_INSTRUCTIONS } from './therapistWorkflowEngine.js';
+import { THERAPIST_WORKFLOW_INSTRUCTIONS, THERAPIST_FORMULATION_INSTRUCTIONS, THERAPIST_PLANNER_FIRST_INSTRUCTIONS } from './therapistWorkflowEngine.js';
 import {
   isLTSRecord,
   LTS_MEMORY_TYPE,
@@ -1722,6 +1722,71 @@ export async function buildV11SessionStartContentAsync(wiring, entities, baseCli
   } catch {
     // Fail-open: any error returns V10 base content unchanged
     return v10Base;
+  }
+}
+
+// ─── Wave 5 — Formulation-First Planner Policy — V12 session-start injection ─
+
+/**
+ * Returns the Wave 5 formulation-first planner policy instruction block when
+ * the wiring has planner_first_enabled === true, otherwise null.
+ *
+ * @param {object|null} wiring - The active therapist wiring configuration
+ * @returns {string|null} The planner-first instruction string, or null
+ */
+export function getPlannerFirstContextForWiring(wiring) {
+  if (!wiring || wiring.planner_first_enabled !== true) {
+    return null;
+  }
+  return THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
+}
+
+/**
+ * Builds the V12 session-start content string asynchronously.
+ *
+ * Wave 5 — Formulation-First Planner Policy.
+ *
+ * For non-V12 wirings (planner_first_enabled !== true):
+ *   Delegates directly to buildV11SessionStartContentAsync (no behavior change).
+ *
+ * For V12 wirings:
+ *   1. Builds the V11 base content (competence + knowledge + LTS + strategy +
+ *      formulation + all prior layers) by delegating to buildV11.
+ *   2. Imports THERAPIST_PLANNER_FIRST_INSTRUCTIONS from therapistWorkflowEngine.js.
+ *   3. Appends the planner-first block when non-empty.
+ *
+ * FAIL-OPEN: any error at any step returns the V11 base content unchanged.
+ * The V11 base content itself is fail-open through its own chain.
+ *
+ * The planner_first_enabled flag only exists on CBT Therapist V12 wiring.
+ * All prior wirings (HYBRID, V1–V11) are completely unaffected by this function.
+ *
+ * @param {object}  wiring          - The active therapist wiring configuration
+ * @param {object}  entities        - Base44 entity client map
+ * @param {object}  baseClient      - Base44 SDK client (passed through to V11/V10)
+ * @param {object}  [options]       - Optional bag (passed through to V11/V10 chain)
+ * @returns {Promise<string>} The full session-start content string
+ */
+export async function buildV12SessionStartContentAsync(wiring, entities, baseClient, options) {
+  // For non-V12 wirings: delegate to V11 (no change to behavior)
+  if (!wiring || wiring.planner_first_enabled !== true) {
+    return buildV11SessionStartContentAsync(wiring, entities, baseClient, options);
+  }
+
+  // ── V12 path ────────────────────────────────────────────────────────────────
+
+  // Step 1: Build V11 base content (fail-open chain handles all errors internally)
+  const v11Base = await buildV11SessionStartContentAsync(wiring, entities, baseClient, options);
+
+  try {
+    // Step 2: Append the planner-first block when non-empty (synchronous import)
+    if (THERAPIST_PLANNER_FIRST_INSTRUCTIONS && THERAPIST_PLANNER_FIRST_INSTRUCTIONS.trim()) {
+      return v11Base + '\n\n' + THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
+    }
+    return v11Base;
+  } catch {
+    // Fail-open: any error returns V11 base content unchanged
+    return v11Base;
   }
 }
 
