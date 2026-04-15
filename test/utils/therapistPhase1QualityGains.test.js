@@ -778,8 +778,8 @@ describe('Phase 1 Quality — Chat.jsx import audit', () => {
       path.default.resolve('src/pages/Chat.jsx'),
       'utf8',
     );
-    const count = (chatSource.match(/buildV12SessionStartContentAsync/g) || []).length;
-    // 1 import + 4 call sites = 5 (Enforcement pass: upgraded from V11 to V12)
+    const count = (chatSource.match(/buildActionFirstDemotedSessionContentAsync/g) || []).length;
+    // 1 import + 4 call sites = 5 (Enforcement pass: updated from V12 to demoted wrapper)
     expect(count).toBeGreaterThanOrEqual(3);
   });
 });

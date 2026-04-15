@@ -775,10 +775,11 @@ describe('Group H — Chat.jsx static analysis', () => {
   });
 
   it('H2. Chat.jsx has at least 4 buildV10SessionStartContentAsync call sites', () => {
-    // Enforcement pass: V11 is no longer called directly; V12 is used at runtime
-    // Chat.jsx still imports V11 (for the chain) but calls V12 at runtime
-    const v12Calls = (chatSrc.match(/buildV12SessionStartContentAsync\s*\(/g) || []).length;
-    expect(v12Calls).toBeGreaterThanOrEqual(4);
+    // Enforcement pass: action-first demotion — buildActionFirstDemotedSessionContentAsync
+    // is now used at all session-start call sites (wraps V12 + unconditionally injects
+    // the formulation-first planner block for all wirings including HYBRID).
+    const demoedCalls = (chatSrc.match(/buildActionFirstDemotedSessionContentAsync\s*\(/g) || []).length;
+    expect(demoedCalls).toBeGreaterThanOrEqual(4);
   });
 
   it('H3. Chat.jsx does not call buildV9SessionStartContentAsync at runtime call sites', () => {
