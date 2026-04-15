@@ -375,7 +375,7 @@ describe('Section G — Agent config: CP1 FORMULATION-FIRST EXCEPTION', () => {
   it('CP1 FORMULATION-FIRST EXCEPTION is limited to early session turns (first 1–3)', () => {
     const idx = agentInstructions.indexOf('FORMULATION-FIRST EXCEPTION — CP1 does NOT apply');
     const block = agentInstructions.slice(idx, idx + 800);
-    expect(block).toMatch(/first 1.3 turns/i);
+    expect(block).toMatch(/first 1[–-]3 turns/i);
   });
 });
 
