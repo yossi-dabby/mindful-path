@@ -605,7 +605,7 @@ describe('Section 10: Rollback safety — prior-phase exports are not affected',
   });
 
   it('THERAPIST_UPGRADE_FLAGS now has exactly 13 keys (Wave 4A added the 13th key)', () => {
-    expect(Object.keys(THERAPIST_UPGRADE_FLAGS).length).toBe(15);
+    expect(Object.keys(THERAPIST_UPGRADE_FLAGS).length).toBe(16);
   });
 
   it('THERAPIST_UPGRADE_ENABLED master gate is still present and defaults to false', () => {

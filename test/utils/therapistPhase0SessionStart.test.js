@@ -238,7 +238,7 @@ describe('Phase 0 — Default mode and flag safety', () => {
   // 19. THERAPIST_UPGRADE_FLAGS has exactly 13 keys (Wave 4A added the 13th key)
   it('19. THERAPIST_UPGRADE_FLAGS has exactly 14 keys', () => {
     const keys = Object.keys(THERAPIST_UPGRADE_FLAGS);
-    expect(keys).toHaveLength(15);
+    expect(keys).toHaveLength(16);
   });
 
   // 20. resolveTherapistWiring returns HYBRID when called with no overrides

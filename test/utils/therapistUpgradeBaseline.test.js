@@ -83,7 +83,7 @@ describe('Phase 0 — Feature flag registry', () => {
   });
 
   it('registry contains exactly 13 flags (1 master + 12 per-phase)', () => {
-    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(15);
+    expect(Object.keys(THERAPIST_UPGRADE_FLAGS)).toHaveLength(16);
   });
 
   it('every flag value is a boolean', () => {

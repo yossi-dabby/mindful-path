@@ -236,6 +236,35 @@ export const THERAPIST_UPGRADE_FLAGS = Object.freeze({
    * (also requires THERAPIST_UPGRADE_ENABLED to be true).
    */
   THERAPIST_UPGRADE_COMPETENCE_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_COMPETENCE_ENABLED === 'true',
+
+  /**
+   * Wave 5 — Formulation-First Planner Policy.
+   *
+   * When enabled, activates the Wave 5 planner-first instruction block injected
+   * via workflowContextInjector.js (buildV12SessionStartContentAsync).
+   *
+   * The planner-first block adds four policy layers to the therapist's reasoning:
+   *   1. An 8-step planner constitution governing the ORDER of reasoning.
+   *   2. A treatment target taxonomy with 10 target types.
+   *   3. Case-type reasoning postures for 9 clinical presentations.
+   *   4. Intervention readiness gates that must ALL be satisfied before any
+   *      behavioral micro-step, homework, or task assignment.
+   *
+   * This policy directly addresses intervention-first bias by making the
+   * reasoning sequence — understand → formulate → maintain cycle → target →
+   * move type → intervention (when justified) → micro-step (last resort) —
+   * explicit and enforced as the default reasoning path.
+   *
+   * V12 is a strict superset of V11: all prior capabilities are preserved.
+   * No new entity access is added.
+   *
+   * Fail-open: any planner block injection error returns the V11 base content
+   * unchanged. Production behavior is EXACTLY preserved when this flag is off.
+   *
+   * Staging enablement: set VITE_THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED=true
+   * (also requires THERAPIST_UPGRADE_ENABLED to be true).
+   */
+  THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED: import.meta.env?.VITE_THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED === 'true',
 });
 
 /**

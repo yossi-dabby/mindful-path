@@ -1578,6 +1578,109 @@ export const CBT_THERAPIST_WIRING_STAGE2_V11 = {
   ],
 };
 
+// ─── Wave 5 — Formulation-First Planner Policy — Stage 2 V12 wiring config ──
+
+/**
+ * Stage 2 V12 wiring for the CBT Therapist agent.
+ *
+ * Wave 5 — Formulation-First Planner Policy.
+ *
+ * V12 is a strict superset of V11.  All V11 capabilities are preserved unchanged.
+ * The single addition is the `planner_first_enabled` flag, which activates the
+ * Wave 5 formulation-first planner policy instruction block injected via
+ * workflowContextInjector.js (buildV12SessionStartContentAsync).
+ *
+ * The planner-first block adds four policy layers:
+ *   planner_constitution     — 8-step formulation-first reasoning order
+ *   treatment_target_taxonomy — 10 treatment target types to choose from
+ *   case_type_postures       — differentiated reasoning for 9 clinical presentations
+ *   intervention_readiness_gates — all must be satisfied before micro-step/task
+ *
+ * New flags:
+ *   planner_first_enabled — activates the Wave 5 formulation-first planner policy
+ *     instruction block injected via buildV12SessionStartContentAsync.  The block
+ *     governs the ORDER of reasoning — understand → formulate → maintaining cycle
+ *     → treatment target → move type → intervention (when justified) → micro-step
+ *     (last resort).
+ *
+ * Entity tool_configs: IDENTICAL to V11.  No new entity access is added.
+ * Activation: THERAPIST_UPGRADE_ENABLED (master gate) AND
+ * THERAPIST_UPGRADE_PLANNER_FIRST_ENABLED must both be true.
+ * When COMPETENCE_ENABLED is also true, V12 supersedes V11
+ * (V12 is a strict superset of V11).
+ *
+ * buildV12SessionStartContentAsync is fully fail-open: any error returns the
+ * V11 base content unchanged.
+ *
+ * The planner_first_enabled flag does not weaken any safety layer.
+ *
+ * @type {object}
+ */
+export const CBT_THERAPIST_WIRING_STAGE2_V12 = {
+  name: 'cbt_therapist',
+  stage2: true,
+  stage2_phase: 16,
+  memory_context_injection: true,           // from V1
+  workflow_engine_enabled: true,            // from V2
+  workflow_context_injection: true,         // from V2
+  retrieval_orchestration_enabled: true,    // from V3
+  live_retrieval_enabled: true,             // from V4
+  safety_mode_enabled: true,               // from V5
+  formulation_context_enabled: true,       // from V6
+  continuity_layer_enabled: true,          // from V7
+  strategy_layer_enabled: true,            // from V8
+  longitudinal_layer_enabled: true,        // from V9
+  knowledge_layer_enabled: true,           // from V10
+  competence_layer_enabled: true,          // from V11
+  planner_first_enabled: true,             // Wave 5 — Formulation-First Planner Policy
+  tool_configs: [
+    // Entity access is IDENTICAL to V11. No new entities added.
+    { entity_name: 'SessionSummary',  access_level: 'preferred',  source_order: 2 },
+    { entity_name: 'ThoughtJournal',  access_level: 'preferred',  source_order: 3 },
+    { entity_name: 'Goal',            access_level: 'preferred',  source_order: 4 },
+    { entity_name: 'CoachingSession', access_level: 'preferred',  source_order: 5 },
+    { entity_name: 'Exercise',        access_level: 'allowed',    source_order: 6 },
+    { entity_name: 'Resource',        access_level: 'allowed',    source_order: 7 },
+    { entity_name: 'AudioContent',    access_level: 'allowed',    source_order: 8 },
+    { entity_name: 'Journey',         access_level: 'allowed',    source_order: 9 },
+    { entity_name: 'CompanionMemory', access_level: 'restricted', source_order: 10, read_only: true },
+    { entity_name: 'MoodEntry',       access_level: 'restricted', source_order: 11, calibration_only: true },
+    {
+      entity_name: 'CaseFormulation',
+      access_level: 'restricted',
+      source_order: 12,
+      read_only: true,
+      unrestricted: false,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    {
+      entity_name: 'Conversation',
+      access_level: 'restricted',
+      source_order: 13,
+      secondary_only: true,
+      caution_layer: true,
+    },
+    {
+      entity_name: 'ExternalKnowledgeChunk',
+      access_level: 'restricted',
+      source_order: 14,
+      read_only: true,
+      external_trusted: true,
+      caution_layer: false,
+    },
+    {
+      entity_name: 'CBTCurriculumUnit',
+      access_level: 'allowed',
+      source_order: 15,
+      read_only: true,
+    },
+    // NOTE: Wave 5 Planner-First Policy does NOT add any new entity access.
+    // The planner_first_enabled flag only enables the planner instruction block
+    // injection via workflowContextInjector.js (buildV12SessionStartContentAsync).
+  ],
+};
+
 /**
  * Stage 3 upgrade V2 wiring for the AI Companion agent.
  *
