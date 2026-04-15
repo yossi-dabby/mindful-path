@@ -418,8 +418,8 @@ export function extractAssistantMessage(rawContent) {
       }
     }
     
-    // Plain text - return as-is
-    return rawContent;
+    // Plain text — sanitize before returning to block any planner/reasoning leakage
+    return sanitizeAssistantMessage(rawContent);
   }
   
   // Object without assistant_message - use deterministic fallback
@@ -518,6 +518,13 @@ export function sanitizeConversationMessages(messages) {
         } catch (e) {
           console.warn('[Sanitize] Failed to extract from JSON-like content:', msg.content?.substring(0, 100));
         }
+      }
+
+      // Plain-text assistant message — sanitize before returning to prevent
+      // planner/composer/reasoning text from leaking into visible state
+      if (typeof msg.content === 'string') {
+        const cleaned = sanitizeAssistantMessage(msg.content);
+        return { ...msg, content: cleaned };
       }
     }
     return msg;

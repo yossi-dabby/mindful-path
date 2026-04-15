@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { ACTIVE_AI_COMPANION_WIRING } from '@/api/activeAgentWiring.js';
 import { buildCompanionSessionStartContextAsync } from '@/lib/companionContinuity.js';
+import { extractAssistantMessage } from '../utils/validateAgentOutput';
 
 export default function AiCompanion() {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,6 +22,24 @@ export default function AiCompanion() {
   const [shouldShow, setShouldShow] = useState(false);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
+
+  /**
+   * Extract, normalize and sanitize assistant message content before setting
+   * React state. Prevents internal planner/composer/reasoning text from
+   * reaching the render layer by running every assistant message through
+   * extractAssistantMessage (which applies sanitizeAssistantMessage internally).
+   * User messages are passed through unchanged.
+   * @param {Array<object>} msgs - Raw message array from the agent API
+   * @returns {Array<object>} Message array safe for render state
+   */
+  const processMessages = (msgs) =>
+    (msgs || []).map((msg) => {
+      if (msg.role === 'assistant' && msg.content) {
+        const cleaned = extractAssistantMessage(msg.content);
+        return { ...msg, content: cleaned };
+      }
+      return msg;
+    });
 
   // Delay showing the button on Videos page
   useEffect(() => {
@@ -58,7 +77,7 @@ export default function AiCompanion() {
             },
           });
           setConversation(conv);
-          setMessages(conv.messages || []);
+          setMessages(processMessages(conv.messages || []));
         } catch (error) {
           console.error('Failed to create conversation:', error);
         }
@@ -71,7 +90,7 @@ export default function AiCompanion() {
     if (!conversation?.id) return;
 
     const unsubscribe = base44.agents.subscribeToConversation(conversation.id, (data) => {
-      setMessages(data.messages);
+      setMessages(processMessages(data.messages));
       setIsLoading(false);
     });
 
