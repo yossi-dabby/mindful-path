@@ -377,9 +377,9 @@ describe('Wave 3E — backward compat: strategy diagnostics unchanged (T–V)', 
     expect(snap.lts_trajectory).toBe('');
   });
 
-  it('V.3. STRATEGY_VERSION is unchanged from Wave 3D (1.2.0)', () => {
-    // Wave 3E adds diagnostics only — no new rules, no version bump.
-    expect(STRATEGY_VERSION).toBe('1.2.0');
+  it('V.3. STRATEGY_VERSION reflects the clarification-default routing change (1.3.0)', () => {
+    // Version bumped to 1.3.0 to reflect the promotion of clarification/formulation to default runtime path.
+    expect(STRATEGY_VERSION).toBe('1.3.0');
   });
 });
 

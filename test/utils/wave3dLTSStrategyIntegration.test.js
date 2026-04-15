@@ -991,11 +991,11 @@ describe('STRATEGY_DIAGNOSTIC_SAFE_FIELDS — lts_trajectory (V)', () => {
   });
 });
 
-// ─── AD. STRATEGY_VERSION bumped to 1.2.0 ────────────────────────────────────
+// ─── AD. STRATEGY_VERSION bumped to 1.3.0 ────────────────────────────────────
 
-describe('STRATEGY_VERSION — Wave 3D bump (AD)', () => {
-  it('STRATEGY_VERSION is 1.2.0', () => {
-    expect(STRATEGY_VERSION).toBe('1.2.0');
+describe('STRATEGY_VERSION — clarification-default routing change (AD)', () => {
+  it('STRATEGY_VERSION is 1.3.0', () => {
+    expect(STRATEGY_VERSION).toBe('1.3.0');
   });
 });
 

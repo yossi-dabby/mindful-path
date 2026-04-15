@@ -48,7 +48,7 @@
  *
  * @type {string}
  */
-export const STRATEGY_VERSION = '1.2.0';
+export const STRATEGY_VERSION = '1.3.0';
 
 // ─── Distress tiers ───────────────────────────────────────────────────────────
 
@@ -1500,13 +1500,13 @@ function _getModeGuidance(mode) {
     case STRATEGY_INTERVENTION_MODES.CONTAINMENT:
       return 'Guidance: Short, grounding responses. One question at a time. No exploratory breadth while high distress is unresolved.';
     case STRATEGY_INTERVENTION_MODES.STABILISATION:
-      return 'Guidance: Support emotional stabilisation before deeper CBT work. Validate, orient, ground.';
+      return 'Guidance: Emotional stabilisation before any CBT work. Validate, orient, ground. Do not attempt formulation building, exercise assignment, or task discussion until the person has stabilised. Understanding the pattern can wait — emotional footing comes first.';
     case STRATEGY_INTERVENTION_MODES.STRUCTURED_EXPLORATION:
-      return 'Guidance: Engage the CBT framework with structured session focus. Use thought records and cognitive restructuring as appropriate.';
+      return 'Guidance: Begin from understanding before selecting any intervention. Formulation-first sequence: check in and understand the current state → clarify what has been happening → update or confirm the formulation → only then determine what clinical move type fits this session. Thought records, cognitive restructuring, and behavioral tasks are tools to apply AFTER the formulation for this session is explicit — not as default opening moves. The maintaining cycle must be named or confirmed before any technique is proposed.';
     case STRATEGY_INTERVENTION_MODES.FORMULATION_DEEPENING:
-      return 'Guidance: Prioritise formulation hypotheses and longitudinal patterns. Reference prior session themes where clinically relevant.';
+      return 'Guidance: Begin by checking in with the person before advancing to new clinical material. Acknowledge what has happened since the last session before formulation deepening. Prioritise formulation hypotheses and longitudinal patterns. Confirm or update the formulation before introducing any new intervention. Reference prior session themes where clinically relevant. New action assignment is secondary to formulation update — the formulation moves first.';
     case STRATEGY_INTERVENTION_MODES.PSYCHOEDUCATION:
-      return 'Guidance: Orient the client to the CBT process. Do not assume any prior clinical picture. Focus on psychoeducation and engagement.';
+      return 'Guidance: This is a first session or new clinical context — no prior formulation exists. Default reasoning sequence: listen → understand what is happening → acknowledge and hold → clarify the maintaining pattern → name the cognitive-behavioral cycle → only then consider whether any concrete next step is appropriate. Do NOT introduce exercises, homework, or CBT techniques before a working formulation has been explicitly stated and the person has felt genuinely understood. Psychoeducation about the CBT model, when needed, follows after the pattern has been named — not before.';
     default:
       return 'Guidance: Apply standard CBT engagement with clinical judgment.';
   }
