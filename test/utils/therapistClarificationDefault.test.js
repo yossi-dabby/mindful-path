@@ -410,16 +410,27 @@ describe('Section I — Agent config: CP11/CP12 reference PG0 signal 6', () => {
     );
   });
 
-  it('CP12-A note references PG0 signal 6', () => {
+  it('CP12-A note keeps unformulated early-session safeguard active', () => {
     expect(agentInstructions).toContain(
-      'When PG0 signal 6 (unformulated early session) is active: CP12-A does NOT fire',
+      'PG0 (FORMULATION-FIRST PROTECTED CASE GATE) BLOCKS social and sleep shortcut behavior in protected and unformulated early-session cases.',
     );
   });
 
-  it('CP12-A note says understand the pattern before direct-action shortcut', () => {
-    const idx = agentInstructions.indexOf('When PG0 signal 6 (unformulated early session) is active: CP12-A does NOT fire');
-    const block = agentInstructions.slice(idx, idx + 300);
-    expect(block).toMatch(/understand the pattern before any direct-action shortcut/i);
+  it('CP12-A note says social anxiety must stay formulation-first before action', () => {
+    const idx = agentInstructions.indexOf('─── CP12: SOCIAL & SLEEP ANXIETY SHORTCUT CLEANUP');
+    const block = agentInstructions.slice(idx, idx + 1200);
+    expect(block).toMatch(/CP12-A \(social anxiety\) is formulation-first by default in ALL languages/i);
+    expect(block).toMatch(/acknowledge → clarify\/formulate → explain/i);
+  });
+
+  it('CP12-A sequence order is formulation/loop before action', () => {
+    const idx = agentInstructions.indexOf('CP12-A: SOCIAL ANXIETY FORMULATION-FIRST GATE');
+    const block = agentInstructions.slice(idx, idx + 3200);
+    const loopIdx = block.indexOf('feared judgment → anxiety activation → avoidance/safety behavior → short-term relief → stronger future fear');
+    const stepIdx = block.indexOf('offer ONE concrete next step');
+    expect(loopIdx).toBeGreaterThan(-1);
+    expect(stepIdx).toBeGreaterThan(-1);
+    expect(loopIdx).toBeLessThan(stepIdx);
   });
 });
 
@@ -497,7 +508,7 @@ describe('Section K — Preserved gains: warmth, pacing, alliance, competence no
 
   it('CP11 and CP12 still present and functional (not deleted)', () => {
     expect(agentInstructions).toContain('CP11: ENGLISH DIRECTIVE OVERRIDE');
-    expect(agentInstructions).toContain('CP12: ENGLISH SOCIAL ANXIETY');
+    expect(agentInstructions).toContain('CP12: SOCIAL & SLEEP ANXIETY SHORTCUT CLEANUP');
   });
 
   it('CONTAINMENT mode guidance (high distress / safety) is unchanged', () => {
