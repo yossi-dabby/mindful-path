@@ -379,9 +379,26 @@ export default function Chat() {
       // message is materially shorter than the already-confirmed one.
       // This prevents polling snapshots (which may be a stored/processed version
       // shorter than what was streamed) from overwriting the full response.
+      //
+      // CRITICAL: Only apply this guard when the incoming batch has the SAME
+      // message count as the confirmed baseline AND the message IDs agree (when
+      // available).  If the new batch contains MORE messages, the last assistant
+      // entry is a genuinely new reply from a different turn — not a shorter
+      // overwrite of the previous reply.  Applying the guard in that case would
+      // silently block the new reply and cause the stuck-response bug (reply
+      // stored in the backend but never shown live without exit/re-entry).
+      const isSameMessageCount = sanitized.length === lastConfirmedMessagesRef.current.length;
+      // When either message lacks an id we conservatively assume they could be
+      // the same message (fail-closed: keep protection when uncertain).  The
+      // primary gate is isSameMessageCount — a growing batch always bypasses
+      // the guard regardless of ids.
+      const isSameMessageId =
+        !lastConfirmedAssistant.id || !newAssistant.id ||
+        lastConfirmedAssistant.id === newAssistant.id;
+      const isSameTurn = isSameMessageCount && isSameMessageId;
       const oldLen = oldContent.length;
       const newLen = newContent.length;
-      if (oldLen > 80 && newLen < oldLen * 0.75) {
+      if (isSameTurn && oldLen > 80 && newLen < oldLen * 0.75) {
         console.warn(`[${source}] ⚠️ CONTENT REGRESSION BLOCKED: new(${newLen}) < old(${oldLen})*0.75 — rejecting`);
         return false;
       }
