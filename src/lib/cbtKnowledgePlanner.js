@@ -751,3 +751,136 @@ export function buildCBTKnowledgeDiagnosticSnapshot(plan, returnedCount = 0) {
     });
   }
 }
+
+// ─── Planner Hierarchy Enforcement ────────────────────────────────────────────
+
+/**
+ * Formulation-first gates — planner prerequisites that must be satisfied
+ * before any intervention is selected.
+ *
+ * Maps to the first six steps of the Wave 5 planner constitution:
+ * understand → hold → clarify → formulate → select target → decide move type.
+ *
+ * @type {ReadonlyArray<string>}
+ */
+export const FORMULATION_FIRST_GATES = Object.freeze([
+  'understand_presenting_problem',
+  'identify_emotional_significance',
+  'clarify_maintaining_cycle',
+  'build_working_formulation',
+  'identify_treatment_target',
+  'decide_move_type',
+]);
+
+/**
+ * Intervention readiness checklist — all six criteria must be met before any
+ * behavioral micro-step, homework, exposure framing, activation task, or
+ * monitoring task is clinically appropriate.
+ *
+ * @type {ReadonlyArray<string>}
+ */
+export const INTERVENTION_READINESS_CHECKLIST = Object.freeze([
+  'formulation_in_place',
+  'person_feels_understood',
+  'readiness_signal',
+  'rationale_is_clear',
+  'distress_allows_task',
+  'not_grief_trauma_acute_shame',
+]);
+
+/**
+ * Protected case types that require extended holding, formulation, or pacing
+ * before any behavioral task assignment is appropriate.
+ *
+ * @type {ReadonlyArray<string>}
+ */
+export const PROTECTED_CASE_TYPES = Object.freeze([
+  'teen_shame',
+  'grief_loss',
+  'trauma',
+  'scrupulosity',
+  'first_disclosure',
+  'adhd_overwhelm',
+  'nothing_helps',
+  'ocd_checking',
+]);
+
+/** @private */
+const _HIGH_PROTECTION = Object.freeze(new Set(['grief_loss', 'trauma', 'first_disclosure']));
+/** @private */
+const _STANDARD_PROTECTION = Object.freeze(new Set(['teen_shame', 'scrupulosity', 'ocd_checking', 'adhd_overwhelm', 'nothing_helps']));
+
+/**
+ * Returns the protection level for a given session context.
+ *
+ * 'high'     — grief_loss, trauma, first_disclosure: extended holding required.
+ * 'standard' — teen_shame, scrupulosity, ocd_checking, adhd_overwhelm, nothing_helps.
+ * 'none'     — all other case types or unknown context.
+ *
+ * SAFETY: Never throws. Returns 'none' on any error.
+ *
+ * @param {object|null|undefined} context
+ * @returns {'high' | 'standard' | 'none'}
+ */
+export function getCaseProtectionLevel(context) {
+  try {
+    const ctx =
+      context && typeof context === 'object' && !Array.isArray(context) ? context : {};
+    const caseType =
+      typeof ctx.case_type === 'string' ? ctx.case_type.trim().toLowerCase() : '';
+    if (_HIGH_PROTECTION.has(caseType)) return 'high';
+    if (_STANDARD_PROTECTION.has(caseType)) return 'standard';
+    return 'none';
+  } catch (_e) {
+    return 'none';
+  }
+}
+
+/**
+ * Validates whether the intervention readiness checklist has been satisfied.
+ *
+ * Pure, synchronous, deterministic. Fail-closed — missing fields treated as
+ * NOT satisfied. Never throws.
+ *
+ * Context fields:
+ *   formulation_in_place    {boolean}
+ *   person_feels_understood  {boolean}
+ *   readiness_signal         {boolean}
+ *   rationale_is_clear       {boolean}
+ *   distress_allows_task     {boolean}
+ *   holding_complete         {boolean} — required for HIGH-protection case types only
+ *   case_type                {string}
+ *
+ * @param {object|null|undefined} context
+ * @returns {Readonly<{ready: boolean, unmetCriteria: ReadonlyArray<string>, protectionLevel: 'high'|'standard'|'none'}>}
+ */
+export function checkInterventionReadiness(context) {
+  try {
+    const ctx =
+      context && typeof context === 'object' && !Array.isArray(context) ? context : {};
+    const unmet = [];
+
+    if (ctx.formulation_in_place !== true) unmet.push('formulation_in_place');
+    if (ctx.person_feels_understood !== true) unmet.push('person_feels_understood');
+    if (ctx.readiness_signal !== true) unmet.push('readiness_signal');
+    if (ctx.rationale_is_clear !== true) unmet.push('rationale_is_clear');
+    if (ctx.distress_allows_task !== true) unmet.push('distress_allows_task');
+
+    const protectionLevel = getCaseProtectionLevel(ctx);
+    if (protectionLevel === 'high' && ctx.holding_complete !== true) {
+      unmet.push('not_grief_trauma_acute_shame');
+    }
+
+    return Object.freeze({
+      ready: unmet.length === 0,
+      unmetCriteria: Object.freeze(unmet),
+      protectionLevel,
+    });
+  } catch (_e) {
+    return Object.freeze({
+      ready: false,
+      unmetCriteria: Object.freeze(INTERVENTION_READINESS_CHECKLIST.slice()),
+      protectionLevel: 'none',
+    });
+  }
+}

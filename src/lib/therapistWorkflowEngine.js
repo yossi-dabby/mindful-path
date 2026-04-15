@@ -2362,3 +2362,176 @@ export function buildPlannerFirstInstructions() {
  * @type {string}
  */
 export const THERAPIST_PLANNER_FIRST_INSTRUCTIONS = buildPlannerFirstInstructions();
+
+// ─── Planner Precedence Model ─────────────────────────────────────────────────
+
+/**
+ * Explicit precedence levels for the therapist planner hierarchy.
+ *
+ * Lower number = higher priority. A level with a lower number always governs
+ * over a level with a higher number. Legacy direct-action gates and
+ * domain-specific shortcuts are at level 7 (lowest priority) and must never
+ * override any of levels 1–6.
+ *
+ * @type {Readonly<Record<string, number>>}
+ */
+export const PRECEDENCE_LEVELS = Object.freeze({
+  SAFETY: 1,
+  FORMULATION_FIRST: 2,
+  PACING_SENSITIVITY: 3,
+  FIRST_DISCLOSURE: 4,
+  INTERVENTION_READINESS: 5,
+  COMPETENCE_PLANNER: 6,
+  DOMAIN_HEURISTICS: 7,
+});
+
+/** @private */
+const _PACING_SENSITIVE_CASE_TYPES = Object.freeze(
+  new Set([
+    'teen_shame',
+    'grief_loss',
+    'trauma',
+    'scrupulosity',
+    'ocd_checking',
+    'ocd',
+    'adhd_overwhelm',
+    'nothing_helps',
+  ])
+);
+
+/**
+ * Known legacy gate shortcuts that must NOT override the precedence hierarchy.
+ *
+ * A gate is blocked when the active precedence level is less than or equal to
+ * the gate's blockedBy value:
+ *   active_level <= gate.blockedBy  →  gate is blocked
+ *
+ * @type {Readonly<Record<string, Readonly<{gateName: string, description: string, blockedBy: number, blockedByName: string}>>>}
+ */
+export const LEGACY_GATE_OVERRIDES = Object.freeze({
+  micro_step_defaulting: Object.freeze({
+    gateName: 'micro_step_defaulting',
+    description:
+      '"just do one small thing now" — default to behavioral micro-step without formulation. ' +
+      'Blocked unless all intervention readiness gates have been passed.',
+    blockedBy: PRECEDENCE_LEVELS.INTERVENTION_READINESS,
+    blockedByName: 'INTERVENTION_READINESS',
+  }),
+  skip_clarification: Object.freeze({
+    gateName: 'skip_clarification',
+    description:
+      '"skip clarification" / zero-question mode — bypasses the formulation step by assuming ' +
+      'the pattern is obvious and moving directly to intervention.',
+    blockedBy: PRECEDENCE_LEVELS.FORMULATION_FIRST,
+    blockedByName: 'FORMULATION_FIRST',
+  }),
+  social_anxiety_direct_action: Object.freeze({
+    gateName: 'social_anxiety_direct_action',
+    description:
+      '"social anxiety = direct action" — domain classification forces immediate behavioral ' +
+      'assignment without pacing, holding, or formulation steps.',
+    blockedBy: PRECEDENCE_LEVELS.PACING_SENSITIVITY,
+    blockedByName: 'PACING_SENSITIVITY',
+  }),
+  domain_to_intervention_template: Object.freeze({
+    gateName: 'domain_to_intervention_template',
+    description:
+      '"domain → intervention template" — classifying the presenting problem by domain ' +
+      'immediately forces a pre-selected intervention template without formulation.',
+    blockedBy: PRECEDENCE_LEVELS.PACING_SENSITIVITY,
+    blockedByName: 'PACING_SENSITIVITY',
+  }),
+});
+
+/**
+ * The therapist planner precedence model.
+ *
+ * @type {Readonly<{version: string, description: string, precedence_levels: typeof PRECEDENCE_LEVELS, legacy_gate_overrides: typeof LEGACY_GATE_OVERRIDES}>}
+ */
+export const THERAPIST_PLANNER_PRECEDENCE_MODEL = Object.freeze({
+  version: '1.0.0',
+  description:
+    'Defines the explicit precedence order for the therapist planner hierarchy. ' +
+    'Legacy direct-action gates must never override levels 1–6. ' +
+    'Safety containment is always the highest priority (level 1). ' +
+    'Domain-specific heuristics are the lowest priority (level 7).',
+  precedence_levels: PRECEDENCE_LEVELS,
+  legacy_gate_overrides: LEGACY_GATE_OVERRIDES,
+});
+
+/**
+ * Evaluates which precedence level should govern the current therapist response.
+ *
+ * Returns the highest-priority (lowest-numbered) level that applies.
+ * Fail-closed: returns SAFETY on any error.
+ *
+ * Context fields evaluated (all optional — missing fields bias toward higher priority):
+ *   safety_mode_active  {boolean} — explicit safety/crisis mode active
+ *   distress_tier       {string}  — one of DISTRESS_TIERS values
+ *   formulation_in_place {boolean} — working formulation has been stated
+ *   has_been_understood  {boolean} — person has felt genuinely understood
+ *   case_type           {string}  — one of THERAPIST_CASE_TYPE_POSTURES ids
+ *   is_first_disclosure  {boolean} — person is making a first disclosure
+ *   intervention_ready   {boolean} — all intervention readiness gates passed
+ *
+ * @param {object|null|undefined} context
+ * @returns {Readonly<{level: number, name: string, reason: string}>}
+ */
+export function evaluatePlannerPrecedence(context) {
+  try {
+    const ctx =
+      context && typeof context === 'object' && !Array.isArray(context) ? context : {};
+
+    // Level 1: SAFETY
+    if (ctx.safety_mode_active === true || ctx.distress_tier === 'tier_high') {
+      return Object.freeze({ level: PRECEDENCE_LEVELS.SAFETY, name: 'SAFETY', reason: 'safety_containment_active' });
+    }
+
+    // Level 2: FORMULATION_FIRST — missing fields bias toward this level
+    if (ctx.formulation_in_place !== true || ctx.has_been_understood !== true) {
+      return Object.freeze({ level: PRECEDENCE_LEVELS.FORMULATION_FIRST, name: 'FORMULATION_FIRST', reason: 'formulation_not_yet_complete' });
+    }
+
+    // Level 3: PACING_SENSITIVITY
+    const caseType =
+      typeof ctx.case_type === 'string' ? ctx.case_type.trim().toLowerCase() : '';
+    if (_PACING_SENSITIVE_CASE_TYPES.has(caseType)) {
+      return Object.freeze({ level: PRECEDENCE_LEVELS.PACING_SENSITIVITY, name: 'PACING_SENSITIVITY', reason: `case_type_requires_pacing: ${caseType}` });
+    }
+
+    // Level 4: FIRST_DISCLOSURE
+    if (ctx.is_first_disclosure === true) {
+      return Object.freeze({ level: PRECEDENCE_LEVELS.FIRST_DISCLOSURE, name: 'FIRST_DISCLOSURE', reason: 'first_disclosure_holding_required' });
+    }
+
+    // Level 5: INTERVENTION_READINESS
+    if (ctx.intervention_ready !== true) {
+      return Object.freeze({ level: PRECEDENCE_LEVELS.INTERVENTION_READINESS, name: 'INTERVENTION_READINESS', reason: 'intervention_readiness_gate_not_passed' });
+    }
+
+    // Level 6: COMPETENCE_PLANNER (all higher gates passed)
+    return Object.freeze({ level: PRECEDENCE_LEVELS.COMPETENCE_PLANNER, name: 'COMPETENCE_PLANNER', reason: 'all_higher_gates_passed' });
+  } catch (_e) {
+    return Object.freeze({ level: PRECEDENCE_LEVELS.SAFETY, name: 'SAFETY', reason: 'precedence_evaluation_error_safety_fallback' });
+  }
+}
+
+/**
+ * Returns true when a higher-precedence rule blocks the named legacy gate.
+ *
+ * Fail-closed: unknown gate names return false; errors return true (block).
+ *
+ * @param {string} gateName - Key from LEGACY_GATE_OVERRIDES
+ * @param {object|null|undefined} context
+ * @returns {boolean}
+ */
+export function isLegacyGateBlocked(gateName, context) {
+  try {
+    const gate = LEGACY_GATE_OVERRIDES[gateName];
+    if (!gate) return false;
+    const precedence = evaluatePlannerPrecedence(context);
+    return precedence.level <= gate.blockedBy;
+  } catch (_e) {
+    return true;
+  }
+}
