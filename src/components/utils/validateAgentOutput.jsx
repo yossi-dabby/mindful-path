@@ -524,7 +524,7 @@ export function sanitizeConversationMessages(messages) {
       // planner/composer/reasoning text from leaking into visible state
       if (typeof msg.content === 'string') {
         const cleaned = sanitizeAssistantMessage(msg.content);
-        return cleaned !== msg.content ? { ...msg, content: cleaned } : msg;
+        return { ...msg, content: cleaned };
       }
     }
     return msg;

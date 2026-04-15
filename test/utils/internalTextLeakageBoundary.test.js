@@ -60,7 +60,7 @@ const PLANNER_TOKENS = [
   'current_issue',
 ];
 
-function containsPlannerToken(text, tokens = PLANNER_TOKENS) {
+function containsPlannerTokens(text, tokens = PLANNER_TOKENS) {
   return tokens.some((tok) => text.includes(tok));
 }
 
@@ -294,7 +294,7 @@ describe('leakage boundary — combined planner block cannot reach visible outpu
 
   it('extractAssistantMessage strips the full planner block and preserves clean line', () => {
     const result = extractAssistantMessage(FULL_PLANNER_BLOCK);
-    expect(containsPlannerToken(result)).toBe(false);
+    expect(containsPlannerTokens(result)).toBe(false);
     expect(result).toContain('work situations feel really overwhelming');
   });
 
@@ -305,7 +305,7 @@ describe('leakage boundary — combined planner block cannot reach visible outpu
     ];
     const result = sanitizeConversationMessages(msgs);
     const assistantMsg = result.find((m) => m.role === 'assistant');
-    expect(containsPlannerToken(assistantMsg.content)).toBe(false);
+    expect(containsPlannerTokens(assistantMsg.content)).toBe(false);
     expect(assistantMsg.content).toContain('work situations feel really overwhelming');
   });
 
