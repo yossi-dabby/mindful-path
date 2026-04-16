@@ -1038,13 +1038,15 @@ export default function Chat() {
     // Layer 2: LLM-based crisis detection (nuanced, implicit patterns)
     try {
       const user = await base44.auth.me().catch(() => null);
-      const enhancedCheck = await base44.functions.invoke('enhancedCrisisDetector', {
-        message: inputMessage,
-        language: user?.preferences?.language || 'en'
-      }).catch((err) => {
+      let enhancedCheck = { data: { is_crisis: false, severity: 'none', confidence: 0 } };
+      try {
+        enhancedCheck = await base44.functions.invoke('enhancedCrisisDetector', {
+          message: inputMessage,
+          language: user?.preferences?.language || 'en'
+        });
+      } catch (err) {
         console.warn('[Enhanced Crisis Detection] Function invoke failed:', err?.message);
-        return { data: { is_crisis: false, severity: 'none', confidence: 0 } };
-      });
+      }
 
       if (enhancedCheck.data?.is_crisis && (
       enhancedCheck.data.severity === 'severe' || enhancedCheck.data.severity === 'high') &&
