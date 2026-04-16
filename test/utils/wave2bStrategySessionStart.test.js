@@ -322,13 +322,14 @@ describe('Wave 2B — Strategy mode selection reflects available context', () =>
     expect(result).toContain(STRATEGY_INTERVENTION_MODES.PSYCHOEDUCATION);
   });
 
-  it('formulation present only → STRUCTURED_EXPLORATION mode', async () => {
+  it('formulation present only → STABILISATION mode until readiness is explicit', async () => {
     const { entities } = makeEntitiesWithFormulation();
     const baseClient = makeMockBaseClient();
 
     const result = await buildV8SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V8, entities, baseClient);
 
-    expect(result).toContain(STRATEGY_INTERVENTION_MODES.STRUCTURED_EXPLORATION);
+    expect(result).toContain(STRATEGY_INTERVENTION_MODES.STABILISATION);
+    expect(result).not.toContain(STRATEGY_INTERVENTION_MODES.STRUCTURED_EXPLORATION);
   });
 
   it('continuity present only → STABILISATION mode (planner-first: no formulation = stabilisation first)', async () => {
@@ -345,13 +346,14 @@ describe('Wave 2B — Strategy mode selection reflects available context', () =>
     expect(result).not.toContain(STRATEGY_INTERVENTION_MODES.STRUCTURED_EXPLORATION);
   });
 
-  it('both formulation and continuity present → FORMULATION_DEEPENING mode', async () => {
+  it('both formulation and continuity present → STABILISATION mode when readiness is not explicitly passed', async () => {
     const entities = makeEntitiesWithBothContexts();
     const baseClient = makeMockBaseClient();
 
     const result = await buildV8SessionStartContentAsync(CBT_THERAPIST_WIRING_STAGE2_V8, entities, baseClient);
 
-    expect(result).toContain(STRATEGY_INTERVENTION_MODES.FORMULATION_DEEPENING);
+    expect(result).toContain(STRATEGY_INTERVENTION_MODES.STABILISATION);
+    expect(result).not.toContain(STRATEGY_INTERVENTION_MODES.FORMULATION_DEEPENING);
   });
 
   it('safety mode active (crisis_signal) → CONTAINMENT mode', async () => {
@@ -685,7 +687,7 @@ describe('Wave 2B — Safety-mode-active inputs produce conservative strategy ou
     expect(result).toContain(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
   });
 
-  it('low-distress session with both contexts → non-containment mode (no safety active)', async () => {
+  it('low-distress session with both contexts → stabilisation (not containment) when readiness is not explicit', async () => {
     const entities = makeEntitiesWithBothContexts();
     const baseClient = makeMockBaseClient();
 
@@ -696,8 +698,9 @@ describe('Wave 2B — Safety-mode-active inputs produce conservative strategy ou
       { message_text: 'I would like to continue working on my goals today.' },
     );
 
-    // With both contexts + low distress → FORMULATION_DEEPENING
-    expect(result).toContain(STRATEGY_INTERVENTION_MODES.FORMULATION_DEEPENING);
+    // With both contexts + low distress but no explicit readiness signal passed
+    // the precedence guard keeps the session in formulation-hold mode.
+    expect(result).toContain(STRATEGY_INTERVENTION_MODES.STABILISATION);
     expect(result).not.toContain(STRATEGY_INTERVENTION_MODES.CONTAINMENT);
   });
 });

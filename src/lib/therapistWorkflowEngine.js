@@ -434,8 +434,9 @@ export const THERAPIST_WORKFLOW_RESPONSE_RULES = Object.freeze({
    */
   end_with_something_usable:
     'End each response with something the person can use: a reframe, an ' +
-    'observation about their pattern, or a specific action. Do not end with ' +
-    'an open question when a concrete takeaway is already available.',
+    'observation about their pattern, a loop explanation, or (only when readiness is clear) a specific action. ' +
+    'When the user asks to understand before deciding, asks for no exercise yet, or readiness is unclear, ' +
+    'end in explanation/formulation mode and do not force a task close.',
 
   /**
    * Slow down for extreme, catastrophic, or hopeless language.  When the
@@ -678,9 +679,10 @@ export const THERAPIST_EARLY_TURN_SEQUENCE = Object.freeze([
     name: 'one_targeted_question',
     description:
       'Ask at most one precise, high-value question per turn. Choose the ' +
-      'question whose answer most advances the clinical picture. If the ' +
-      'picture is already clear enough to move to intervention, do so — a ' +
-      'good formulation is often more useful than another question.',
+      'question whose answer most advances the clinical picture. If the person ' +
+      'has asked to understand first (or explicitly asked for no exercise yet), ' +
+      'stay in formulation/loop explanation mode for this turn. Move to intervention ' +
+      'only after readiness is clearly present.',
   }),
 ]);
 
