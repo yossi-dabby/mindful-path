@@ -172,7 +172,7 @@ export default function Settings() {
     <div className="min-h-dvh p-4 md:p-8 max-w-4xl mx-auto" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
       {/* Header */}
       <motion.div 
-        className="mb-8 mt-4"
+        className="mb-10 mt-4"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -199,7 +199,7 @@ export default function Settings() {
             {t('settings.profile.title')}
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-6 space-y-4">
+        <CardContent className="p-6 space-y-5">
           <div>
             <label className="text-sm font-medium text-gray-700 mb-2 block">{t('settings.profile.full_name')}</label>
             <Input
@@ -245,7 +245,7 @@ export default function Settings() {
           <Button
             onClick={() => updateProfileMutation.mutate({ full_name: fullName })}
             disabled={updateProfileMutation.isPending || fullName === user.full_name}
-            className="text-white px-6 py-5"
+            className="text-white px-6 py-5 w-full md:w-auto md:self-end"
             style={{ 
               borderRadius: '9999px',
               backgroundColor: '#26A69A',

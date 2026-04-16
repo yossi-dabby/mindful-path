@@ -230,7 +230,7 @@ export default function Home() {
         <div className="absolute bottom-24 left-1/3 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
         <div className="bg-emerald-50 mx-auto pb-24 page-container relative z-10 max-w-5xl w-full">
         {/* Header */}
-        <div className="bg-[linear-gradient(180deg,rgba(255,253,250,0.86)_0%,rgba(237,247,242,0.82)_100%)] my-12 px-6 py-6 rounded-[32px] border border-[rgba(125,173,160,0.38)] md:px-8 md:py-8 shadow-[0_28px_70px_rgba(68,108,96,0.18),0_12px_28px_rgba(68,108,96,0.1)] backdrop-blur-[18px]">
+        <div className="bg-[linear-gradient(180deg,rgba(255,253,250,0.86)_0%,rgba(237,247,242,0.82)_100%)] mt-6 mb-8 px-6 py-6 rounded-[32px] border border-[rgba(125,173,160,0.38)] md:px-8 md:py-8 shadow-[0_28px_70px_rgba(68,108,96,0.18),0_12px_28px_rgba(68,108,96,0.1)] backdrop-blur-[18px]">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="text-teal-600 mb-2 text-2xl font-semibold md:text-3xl">
@@ -248,12 +248,12 @@ export default function Home() {
         </div>
 
         {/* Daily Check-in - Primary CTA */}
-        <div className="space-y-4">
+        <div className="space-y-4 mb-2">
           <StandaloneDailyCheckIn />
           </div>
 
           {/* Secondary Content - Below the fold */}
-        <div className="bg-teal-50 text-emerald-200 mt-8 p-4 rounded-[40px] space-y-4 border border-[rgba(125,173,160,0.24)] md:p-5 shadow-[0_20px_52px_rgba(68,108,96,0.08)] backdrop-blur-[10px]">
+        <div className="bg-teal-50 text-emerald-200 mt-10 p-4 rounded-[40px] space-y-5 border border-[rgba(125,173,160,0.24)] md:p-5 shadow-[0_20px_52px_rgba(68,108,96,0.08)] backdrop-blur-[10px]">
         
         {/* Goals Dashboard Widget */}
         <GoalsDashboardWidget />
@@ -384,7 +384,7 @@ export default function Home() {
             }
 
         {/* Quick Actions */}
-        <div className="bg-teal-50 mt-8 p-4 rounded-[64px] border border-[rgba(116,169,154,0.28)] md:p-5 shadow-[0_24px_58px_rgba(68,108,96,0.12),0_8px_22px_rgba(68,108,96,0.07)] backdrop-blur-[12px]">
+        <div className="bg-teal-50 mt-6 p-4 rounded-[64px] border border-[rgba(116,169,154,0.28)] md:p-5 shadow-[0_24px_58px_rgba(68,108,96,0.12),0_8px_22px_rgba(68,108,96,0.07)] backdrop-blur-[12px]">
           <QuickActions />
         </div>
         </div>
