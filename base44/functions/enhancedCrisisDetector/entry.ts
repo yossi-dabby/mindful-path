@@ -16,7 +16,14 @@ const SAFE_FALLBACK = {
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
+
+    let user;
+    try {
+      user = await base44.auth.me();
+    } catch (authError) {
+      console.warn('[Enhanced Crisis Detector] Auth unavailable, returning safe fallback:', authError.message);
+      return Response.json(SAFE_FALLBACK);
+    }
 
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
