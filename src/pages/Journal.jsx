@@ -35,6 +35,8 @@ export default function Journal() {
   const [focusedEntryId, setFocusedEntryId] = useState(null);
   const [focusedSummaryId, setFocusedSummaryId] = useState(null);
   const queryClient = useQueryClient();
+  const primaryHeaderActionClass = "bg-teal-600 text-primary-foreground px-4 text-sm font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-10 min-h-[44px] md:h-8 md:min-h-0 md:text-base md:w-auto w-full";
+  const secondaryHeaderActionClass = "bg-teal-600 text-slate-50 px-3 text-xs font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 md:text-sm";
 
   // Check URL for entry or summary parameters
   React.useEffect(() => {
@@ -127,7 +129,7 @@ export default function Journal() {
     <PullToRefresh queryKeys={['thoughtJournals', 'sessionSummaries', 'journalTemplates']}>
       <div className="bg-teal-50 mx-auto pb-32 p-4 md:p-8 md:pb-24 max-w-5xl w-full min-h-[100dvh]">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 mt-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 mt-4">
         <div className="flex items-center gap-3">
           <Button
               variant="ghost"
@@ -162,10 +164,19 @@ export default function Journal() {
               }
           </div>
         </div>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex w-full md:w-auto flex-col gap-2 md:items-end">
+          <Button
+              onClick={() => navigate('/Chat?intent=thought_work')} className={primaryHeaderActionClass}
+
+              size="sm">
+
+            <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
+            {t('journal.new_entry')}
+          </Button>
+          <div className="flex gap-2 flex-wrap md:justify-end">
           <Button
               onClick={() => navigate('/JournalDashboard')}
-              variant="outline" className="bg-teal-600 text-slate-50 px-3 text-sm font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 md:text-base"
+              variant="outline" className={secondaryHeaderActionClass}
 
               size="sm">
 
@@ -174,7 +185,7 @@ export default function Journal() {
           </Button>
           <Button
               onClick={() => setShowTrendsSummary(true)}
-              variant="outline" className="bg-teal-600 text-slate-50 px-3 text-sm font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 md:text-base"
+              variant="outline" className={secondaryHeaderActionClass}
 
               size="sm">
 
@@ -183,7 +194,7 @@ export default function Journal() {
           </Button>
           <Button
               onClick={() => setShowAiPrompts(true)}
-              variant="outline" className="bg-teal-600 text-slate-50 px-3 text-sm font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-8 min-h-[44px] md:min-h-0 md:text-base"
+              variant="outline" className={secondaryHeaderActionClass}
 
               size="sm">
 
@@ -208,16 +219,9 @@ export default function Journal() {
               style={{ borderRadius: '24px' }}>
 
             <Settings className="w-4 h-4 mr-2" />
-            {t('journal.templates')}
-          </Button>
-          <Button
-              onClick={() => navigate('/Chat?intent=thought_work')} className="bg-teal-600 text-primary-foreground px-3 text-sm font-medium tracking-[0.005em] rounded-2xl inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-8 min-h-[44px] md:min-h-0 md:text-base"
-
-              size="sm">
-
-            <Plus className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
-            {t('journal.new_entry')}
-          </Button>
+                {t('journal.templates')}
+              </Button>
+          </div>
         </div>
       </div>
 
@@ -271,7 +275,7 @@ export default function Journal() {
               </Button>
               <Button
                 onClick={() => setShowTemplateManager(true)}
-                variant="outline" className="bg-teal-600 text-slate-50 px-8 py-6 text-lg font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 w-full"
+                variant="outline" className="bg-teal-600 text-slate-50 px-6 py-5 text-base font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 w-full md:w-auto"
 
                 style={{ borderRadius: '32px' }}>
 

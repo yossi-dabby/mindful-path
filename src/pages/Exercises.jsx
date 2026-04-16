@@ -221,7 +221,7 @@ export default function Exercises() {
       <div className="min-h-dvh w-full bg-transparent">
         <div className="bg-teal-100 mx-auto pb-32 p-4 md:p-8 md:pb-24 max-w-6xl w-full">
       {/* Header */}
-      <div className="mb-8 mt-4">
+      <div className="mb-10 mt-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Button
@@ -239,7 +239,7 @@ export default function Exercises() {
               <p className="text-sm md:text-base md:hidden break-words text-muted-foreground">{t('exercises.page_subtitle')}</p>
             </div>
           </div>
-          <div className="flex gap-2 flex-wrap sm:flex-nowrap">
+          <div className="flex gap-2 flex-wrap sm:flex-nowrap items-start">
             <Button
                   onClick={() => setShowCoaching(true)}
                   variant="outline" className="bg-teal-50 text-teal-600 px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] items-center justify-center whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 gap-2 hidden md:flex">
@@ -268,7 +268,7 @@ export default function Exercises() {
       </div>
 
       {/* Search Bar */}
-      <div className="mb-4">
+      <div className="mb-5">
         <div className="relative">
           <Search className="text-teal-600 lucide lucide-search absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 w-5 h-5" />
           <Input
@@ -284,7 +284,7 @@ export default function Exercises() {
       {/* Category Filter */}
       <div
             id="exercises_category_switcher"
-            className="mb-6 overflow-x-auto"
+            className="mb-7 overflow-x-auto"
             style={{ overscrollBehaviorX: 'contain' }}>
 
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>

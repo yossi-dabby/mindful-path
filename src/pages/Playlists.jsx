@@ -69,8 +69,8 @@ export default function Playlists() {
             <ArrowLeft className="w-4 h-4 mr-1" />
             {t('playlists.back_to_videos')}
           </Button>
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="max-w-2xl">
               <h1 className="text-3xl font-semibold mb-2" style={{ color: '#2D3748' }}>
                 {t('playlists.title')}
               </h1>
@@ -81,7 +81,7 @@ export default function Playlists() {
             <Button
               type="button"
               onClick={() => setShowCreateModal(true)}
-              className="text-white px-6 py-5"
+              className="text-white px-6 py-5 w-full md:w-auto"
               style={{ 
                 borderRadius: '9999px',
                 backgroundColor: '#26A69A',
@@ -142,6 +142,7 @@ export default function Playlists() {
             </p>
             <Button
               onClick={() => setShowCreateModal(true)}
+              className="w-full sm:w-auto"
               style={{ 
                 backgroundColor: 'rgb(var(--theme-accent))',
                 color: 'rgb(var(--accent-contrast))'

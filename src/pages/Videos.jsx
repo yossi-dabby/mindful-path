@@ -54,24 +54,24 @@ export default function Videos() {
               {t('videos.subtitle')}
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setShowCreatePlaylist(true)}
-              className="text-sm px-5 py-5"
-              style={{ borderRadius: '9999px' }}
-            >
-              <Plus className="w-4 h-4 mr-1" />
-              {t('videos.new_button')}
-            </Button>
+          <div className="flex gap-2 flex-wrap md:flex-nowrap">
             <Link to={createPageUrl('Playlists')}>
               <Button
-                className="text-sm font-medium px-6 py-5 rounded-full"
+                className="text-sm font-medium px-6 py-5 rounded-full w-full md:w-auto"
               >
                 <List className="w-4 h-4 mr-1" />
                 {t('videos.my_playlists')}
               </Button>
             </Link>
+            <Button
+              variant="outline"
+              onClick={() => setShowCreatePlaylist(true)}
+              className="text-sm px-5 py-5 w-full md:w-auto"
+              style={{ borderRadius: '9999px' }}
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              {t('videos.new_button')}
+            </Button>
           </div>
         </div>
 
@@ -176,7 +176,7 @@ export default function Videos() {
                           e.preventDefault();
                           setSelectedVideo(video);
                         }}
-                        className="w-full h-8 text-xs font-medium text-white"
+                        className="w-full h-7 text-xs font-medium text-white"
                         style={{ 
                           backgroundColor: '#26A69A',
                           borderRadius: '8px'
