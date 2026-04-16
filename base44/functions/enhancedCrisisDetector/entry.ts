@@ -6,6 +6,13 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
  * Returns: { is_crisis: boolean, severity: string, reason: string, confidence: number }
  */
 
+const SAFE_FALLBACK = {
+  is_crisis: false,
+  severity: 'none',
+  reason: 'detection_unavailable',
+  confidence: 0
+};
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -27,8 +34,11 @@ Deno.serve(async (req) => {
     }
 
     // Use LLM to classify crisis risk with structured output
-    const response = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are a mental health crisis detection system. Your job is to detect ONLY genuine, immediate safety risks — NOT general emotional distress.
+    // Wrapped in its own try/catch so LLM unavailability never blocks chat
+    let response;
+    try {
+      response = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are a mental health crisis detection system. Your job is to detect ONLY genuine, immediate safety risks — NOT general emotional distress.
 
 User message: "${message}"
 
@@ -59,28 +69,36 @@ Return ONLY this JSON:
 }
 
 is_crisis must be true ONLY for SEVERE. Never true for high, medium, or none.`,
-      response_json_schema: {
-        type: "object",
-        properties: {
-          is_crisis: { type: "boolean" },
-          severity: { 
-            type: "string", 
-            enum: ["severe", "high", "medium", "none"] 
+        response_json_schema: {
+          type: "object",
+          properties: {
+            is_crisis: { type: "boolean" },
+            severity: { 
+              type: "string", 
+              enum: ["severe", "high", "medium", "none"] 
+            },
+            reason: { type: "string" },
+            confidence: { 
+              type: "number",
+              minimum: 0,
+              maximum: 1
+            }
           },
-          reason: { type: "string" },
-          confidence: { 
-            type: "number",
-            minimum: 0,
-            maximum: 1
-          }
-        },
-        required: ["is_crisis", "severity", "reason", "confidence"]
-      }
-    });
+          required: ["is_crisis", "severity", "reason", "confidence"]
+        }
+      });
+    } catch (llmError) {
+      console.warn('[Enhanced Crisis Detector] LLM unavailable, returning safe fallback:', llmError.message);
+      return Response.json(SAFE_FALLBACK);
+    }
 
     // Hard enforcement: is_crisis can only be true for severe
-    if (response.severity !== 'severe') {
+    if (response && response.severity !== 'severe') {
       response.is_crisis = false;
+    }
+
+    if (!response) {
+      return Response.json(SAFE_FALLBACK);
     }
 
     // Log all crisis detections — guarded against unavailable analytics in backend runtime
@@ -95,22 +113,16 @@ is_crisis must be true ONLY for SEVERE. Never true for high, medium, or none.`,
           }
         });
       } catch (_e) {
-        // Analytics unavailable in this runtime — fail safely without affecting crisis detection
+        // Analytics unavailable — fail safely
       }
     }
 
     return Response.json(response);
 
   } catch (error) {
-    console.error('[Enhanced Crisis Detector] Error:', error);
+    console.error('[Enhanced Crisis Detector] Error:', error.message);
     
-    // Fail-safe: default to non-crisis but log error
-    return Response.json({
-      is_crisis: false,
-      severity: 'none',
-      reason: 'detection_error',
-      confidence: 0,
-      error: error.message
-    }, { status: 200 }); // Return 200 to avoid breaking chat flow
+    // Fail-safe: default to non-crisis so chat is never blocked
+    return Response.json(SAFE_FALLBACK, { status: 200 });
   }
 });
