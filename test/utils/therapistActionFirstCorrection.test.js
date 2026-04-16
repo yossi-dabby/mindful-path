@@ -745,7 +745,7 @@ describe('Action-First Correction — SECTION H: Agent config C6, C7, C9 modific
 
   it('65. C7 requires formulation before micro-step assignment', () => {
     const inst = getAgentInstructions();
-    expect(inst).toContain('FORMULATE THE AVOIDANCE PATTERN FIRST, THEN one direct micro-step');
+    expect(inst).toContain('FORMULATE THE AVOIDANCE PATTERN FIRST, clarify the exact target behavior, then consider one micro-step only if readiness is present');
   });
 
   it('66. C7 has exception for OCD checking, grief, trauma, teen shame avoidance', () => {
@@ -757,11 +757,9 @@ describe('Action-First Correction — SECTION H: Agent config C6, C7, C9 modific
     expect(c7Section).toContain('teen-shame avoidance');
   });
 
-  it('67. C9 clarification ceiling is now max 3 turns (was 2)', () => {
+  it('67. C9 clarification ceiling avoids forced action after fixed turn count', () => {
     const inst = getAgentInstructions();
-    expect(inst).toContain('max 3 consecutive clarification turns');
-    // Old text should NOT be present
-    expect(inst).not.toContain('max 2 consecutive clarification turns');
+    expect(inst).toContain('do NOT force action after a fixed count');
   });
 
   it('68. C9 has protected-case exception (no forced ceiling for protected types)', () => {
@@ -1078,7 +1076,7 @@ describe('Action-First Correction — SECTION M: focused social/worry shortcut c
 
   it('115. Anxiety context honors explicit “understand before deciding” preference', () => {
     const inst = getAgentInstructions();
-    expect(inst).toContain('If the user says they want to understand what is happening before deciding what to do, remain in formulation mode and do NOT assign a tool on that turn');
+    expect(inst).toContain('If the user says they want to understand what is happening before deciding what to do OR says "Don\'t give me an exercise yet": remain in explanation/formulation mode and do NOT assign a tool on that turn');
   });
 
   it('116. Preserved gains remain active for ADHD/low-self-worth signals and protected-case handling', () => {
@@ -1104,5 +1102,41 @@ describe('Action-First Correction — SECTION M: focused social/worry shortcut c
     expect(loopIdx).toBeGreaterThan(-1);
     expect(stepIdx).toBeGreaterThan(-1);
     expect(loopIdx).toBeLessThan(stepIdx);
+  });
+
+  it('119. Social anxiety follow-up requires target clarification before exposure-style action', () => {
+    const inst = getAgentInstructions();
+    const cp12aStart = inst.indexOf('CP12-A: SOCIAL ANXIETY FORMULATION-FIRST GATE');
+    const cp12a = inst.slice(cp12aStart, cp12aStart + 4200);
+    expect(cp12a).toContain('Clarify the precise target behavior (which avoidance/safety behavior changes first) before suggesting exposure-style action');
+    expect(cp12a).toContain('Immediate "what must change first is the avoidance behavior" framing before target clarification');
+  });
+
+  it('120. GAD follow-up keeps mental problem-solving loop as first default', () => {
+    const inst = getAgentInstructions();
+    expect(inst).toContain('uncertainty → mental problem-solving/what-if attempts → temporary control feeling → more worry');
+    expect(inst).toContain('Only after formulation is confirmed: consider ONE tool');
+  });
+
+  it('121. Explicit no-exercise request keeps the turn in explanation/formulation mode', () => {
+    const inst = getAgentInstructions();
+    expect(inst).toContain('If the user says they want to understand what is happening before deciding what to do OR says "Don\'t give me an exercise yet": remain in explanation/formulation mode and do NOT assign a tool on that turn');
+    expect(inst).toContain('CP14. Explicit understand-first / "don\'t give me an exercise yet" request stayed in explanation mode for that turn? → VERIFY');
+  });
+
+  it('122. Ordinary anxiety/worry cross-language parity is explicit', () => {
+    const inst = getAgentInstructions();
+    expect(inst).toContain('APPLIES TO ALL LANGUAGES (not English-only). First default: explain and confirm the worry-maintaining loop');
+  });
+
+  it('123. Explanation mode is explicitly available before action mode in the response selector', () => {
+    const inst = getAgentInstructions();
+    const selectorStart = inst.indexOf('========== RESPONSE MODE SELECTOR (FORMULATION-FIRST) ==========');
+    const selector = inst.slice(selectorStart, selectorStart + 2600);
+    const modeAIdx = selector.indexOf('MODE A — EXPLANATION / FORMULATION HOLD');
+    const modeBIdx = selector.indexOf('MODE B — ACTION');
+    expect(modeAIdx).toBeGreaterThan(-1);
+    expect(modeBIdx).toBeGreaterThan(-1);
+    expect(modeAIdx).toBeLessThan(modeBIdx);
   });
 });
