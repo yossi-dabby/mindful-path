@@ -753,13 +753,8 @@ const _ACTION_CAPABLE_MODES = Object.freeze(
 
 /**
  * Legacy gates that, when blocked, require mode override to STABILISATION.
- * These are gates at PACING_SENSITIVITY level (3) or higher-priority levels
- * (1-2 SAFETY/FORMULATION_FIRST) — not INTERVENTION_READINESS (level 5).
- *
- * micro_step_defaulting (level 5) only generates an enforcement text block;
- * it does NOT override the strategy mode.  Formulation deepening and
- * structured exploration can still proceed — the LLM is instructed that
- * micro-step assignment specifically is blocked.
+ * These gates now include INTERVENTION_READINESS (level 5) protection, so
+ * sessions that are not ready for action cannot remain in action-capable modes.
  *
  * @private
  */
@@ -772,11 +767,10 @@ const _ACTION_BLOCKING_GATES = Object.freeze([
 
 /**
  * Maximum active precedence level that triggers a strategy mode override to
- * STABILISATION.  Levels 1-4 cover SAFETY, FORMULATION_FIRST, PACING_SENSITIVITY,
- * and FIRST_DISCLOSURE — all of which require holding/stabilisation.
- * INTERVENTION_READINESS (level 5) and higher do NOT override mode; those levels
- * only generate enforcement text (the micro-step gate blocks micro-step assignment
- * without preventing formulation deepening or structured exploration).
+ * STABILISATION.  Levels 1-5 cover SAFETY, FORMULATION_FIRST,
+ * PACING_SENSITIVITY, FIRST_DISCLOSURE, and INTERVENTION_READINESS.
+ * This keeps non-ready sessions in formulation hold rather than action-capable
+ * modes.
  *
  * @private
  */
