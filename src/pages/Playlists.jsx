@@ -140,13 +140,13 @@ export default function Playlists() {
             <p className="mb-6" style={{ color: 'rgb(var(--theme-muted))' }}>
               {t('playlists.no_playlists_description')}
             </p>
-              <Button
-                onClick={() => setShowCreateModal(true)}
-                className="w-full sm:w-auto"
-                style={{ 
-                  backgroundColor: 'rgb(var(--theme-accent))',
-                  color: 'rgb(var(--accent-contrast))'
-                }}
+            <Button
+              onClick={() => setShowCreateModal(true)}
+              className="w-full sm:w-auto"
+              style={{ 
+                backgroundColor: 'rgb(var(--theme-accent))',
+                color: 'rgb(var(--accent-contrast))'
+              }}
             >
               <Plus className="w-4 h-4 mr-2" />
               {t('playlists.create_playlist')}
