@@ -1176,6 +1176,20 @@ describe('applyStrategyPrecedenceGuard — core enforcement', () => {
     expect(result.precedence_enforced).toBe(false);
   });
 
+  it('overrides structured_exploration to stabilisation when intervention readiness is not met', () => {
+    const record = makeFormulationRecord();
+    const ctx = buildPlannerContext(record, noSafetyResult, 'tier_low', {
+      case_type: 'anxiety',
+      has_been_understood: true,
+      intervention_ready: false,
+    });
+    const raw = { intervention_mode: 'structured_exploration' };
+    const result = applyStrategyPrecedenceGuard(raw, ctx);
+    expect(result.active_precedence_name).toBe('INTERVENTION_READINESS');
+    expect(result.intervention_mode).toBe('stabilisation');
+    expect(result.blocked_gates).toContain('micro_step_defaulting');
+  });
+
   it('never throws for any input combination', () => {
     const inputs = [null, undefined, {}, [], 'string', 42];
     for (const input of inputs) {

@@ -753,13 +753,8 @@ const _ACTION_CAPABLE_MODES = Object.freeze(
 
 /**
  * Legacy gates that, when blocked, require mode override to STABILISATION.
- * These are gates at PACING_SENSITIVITY level (3) or higher-priority levels
- * (1-2 SAFETY/FORMULATION_FIRST) — not INTERVENTION_READINESS (level 5).
- *
- * micro_step_defaulting (level 5) only generates an enforcement text block;
- * it does NOT override the strategy mode.  Formulation deepening and
- * structured exploration can still proceed — the LLM is instructed that
- * micro-step assignment specifically is blocked.
+ * These gates now include INTERVENTION_READINESS (level 5) protection, so
+ * sessions that are not ready for action cannot remain in action-capable modes.
  *
  * @private
  */
@@ -772,15 +767,14 @@ const _ACTION_BLOCKING_GATES = Object.freeze([
 
 /**
  * Maximum active precedence level that triggers a strategy mode override to
- * STABILISATION.  Levels 1-4 cover SAFETY, FORMULATION_FIRST, PACING_SENSITIVITY,
- * and FIRST_DISCLOSURE — all of which require holding/stabilisation.
- * INTERVENTION_READINESS (level 5) and higher do NOT override mode; those levels
- * only generate enforcement text (the micro-step gate blocks micro-step assignment
- * without preventing formulation deepening or structured exploration).
+ * STABILISATION.  Levels 1-5 cover SAFETY, FORMULATION_FIRST,
+ * PACING_SENSITIVITY, FIRST_DISCLOSURE, and INTERVENTION_READINESS.
+ * This keeps non-ready sessions in formulation hold rather than action-capable
+ * modes.
  *
  * @private
  */
-const _MODE_OVERRIDE_PRECEDENCE_THRESHOLD = PRECEDENCE_LEVELS.FIRST_DISCLOSURE; // level 4
+const _MODE_OVERRIDE_PRECEDENCE_THRESHOLD = PRECEDENCE_LEVELS.INTERVENTION_READINESS; // level 5
 
 /**
  * Builds the planner context object required by evaluatePlannerPrecedence()
@@ -899,10 +893,10 @@ export function applyStrategyPrecedenceGuard(strategyState, plannerContext) {
     const hasBlockedGates = blockedGates.length > 0;
     const modeIsActionCapable = _ACTION_CAPABLE_MODES.has(currentMode);
 
-    // Mode override fires when active precedence level is <= threshold (levels 1-4:
-    // SAFETY, FORMULATION_FIRST, PACING_SENSITIVITY, FIRST_DISCLOSURE).
-    // INTERVENTION_READINESS (level 5) does NOT override mode — it only adds the
-    // enforcement text block so the LLM knows micro-step assignment is blocked.
+    // Mode override fires when active precedence level is <= threshold (levels 1-5:
+    // SAFETY, FORMULATION_FIRST, PACING_SENSITIVITY, FIRST_DISCLOSURE,
+    // INTERVENTION_READINESS).  This ensures "not ready yet" sessions cannot stay
+    // in an action-capable mode while readiness gates are unmet.
     const shouldEnforceMode =
       hasBlockedGates &&
       precedence.level <= _MODE_OVERRIDE_PRECEDENCE_THRESHOLD &&
@@ -2213,4 +2207,3 @@ async function buildCompanionSessionStartContextAsync(wiring, entities) {
 
   return '[START_SESSION]\n\n' + continuityBlock;
 }
-

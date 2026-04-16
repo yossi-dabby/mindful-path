@@ -1139,4 +1139,36 @@ describe('Action-First Correction — SECTION M: focused social/worry shortcut c
     expect(modeBIdx).toBeGreaterThan(-1);
     expect(modeAIdx).toBeLessThan(modeBIdx);
   });
+
+  it('124. Social anxiety follow-up holds formulation before exposure-style action', () => {
+    const inst = getAgentInstructions();
+    const cp12aStart = inst.indexOf('CP12-A: SOCIAL ANXIETY FORMULATION-FIRST GATE');
+    const cp12a = inst.slice(cp12aStart, cp12aStart + 4600);
+    expect(cp12a).toContain('Hold formulation briefly: confirm the agreed target and readiness before moving into exposure-style action');
+  });
+
+  it('125. GAD follow-up phrase keeps loop explanation first before tools', () => {
+    const inst = getAgentInstructions();
+    expect(inst).toContain('If the user says "I keep trying to solve everything in my head," treat it as the worry loop signal');
+    expect(inst).toContain('deepen uncertainty→mental problem-solving→temporary control→more worry explanation before suggesting any tool');
+  });
+
+  it('126. Understand-first / no-exercise turn blocks mapping-journaling-homework shortcuts', () => {
+    const inst = getAgentInstructions();
+    expect(inst).toContain('On that turn do NOT switch to mapping tasks, journaling prompts, or "describe one example" homework unless the user explicitly asks for it.');
+    expect(inst).toContain('EXPLANATION-MODE EXCEPTION: when the turn is explicitly in understand/formulation hold mode');
+  });
+
+  it('127. Cross-language parity remains explicit for both social anxiety and worry cleanup', () => {
+    const inst = getAgentInstructions();
+    expect(inst).toContain('CP12-A (social anxiety) is formulation-first by default in ALL languages');
+    expect(inst).toContain('APPLIES TO ALL LANGUAGES (not English-only). First default: explain and confirm the worry-maintaining loop');
+  });
+
+  it('128. Preserved gains still include ADHD and protected-case pacing anchors', () => {
+    const inst = getAgentInstructions();
+    expect(inst).toContain('ADHD');
+    expect(inst).toContain('nothing helps');
+    expect(inst).toContain('R2: TEEN AND SHAME-SENSITIVE PACING');
+  });
 });
