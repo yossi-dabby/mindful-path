@@ -24,7 +24,7 @@ export default defineConfig({
   plugins: [
     base44({
       legacySDKImports: process.env.BASE44_LEGACY_SDK_IMPORTS === "true",
-      appBaseUrl: process.env.VITE_BASE44_APP_BASE_URL || "https://mindful-path-75aeaf7d.base44.app",
+      appBaseUrl: process.env.VITE_BASE44_APP_BASE_URL || undefined,
       hmrNotifier: true,
       navigationNotifier: true,
       visualEditAgent: true,
