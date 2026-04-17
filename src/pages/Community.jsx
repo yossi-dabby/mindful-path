@@ -128,6 +128,24 @@ export default function Community() {
   (post.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
   (post.content || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
+  const tabActionConfig = {
+    forum: {
+      onClick: () => setShowPostForm(true),
+      label: t('community.buttons.new_post'),
+      className: 'bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 gap-2 w-full sm:w-auto'
+    },
+    groups: {
+      onClick: () => setShowGroupForm(true),
+      label: t('community.buttons.create_group'),
+      className: 'bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[20px] inline-flex items-center justify-center whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 gap-2 w-full sm:w-auto'
+    },
+    progress: {
+      onClick: () => setShowProgressForm(true),
+      label: t('community.buttons.share_progress'),
+      className: 'bg-teal-700 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[20px] inline-flex items-center justify-center whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 gap-2 w-full sm:w-auto'
+    }
+  };
+  const activeTabAction = tabActionConfig[activeTab];
 
   return (
     <PullToRefresh queryKeys={['forumPosts', 'communityGroups', 'groupMemberships', 'sharedProgress']}>
@@ -171,46 +189,34 @@ export default function Community() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <div className="flex flex-wrap items-center gap-3 mb-6">
-          <TabsList className="flex-shrink-0">
+        <div className="surface-secondary rounded-[var(--radius-card)] border border-border/70 shadow-[var(--shadow-sm)] p-3 md:p-4 mb-6 space-y-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <TabsList className="flex-shrink-0 w-full sm:w-auto">
             <TabsTrigger value="forum" className="text-teal-600 px-3 py-1 text-sm font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]">{t('community.tabs.forum')}</TabsTrigger>
             <TabsTrigger value="groups" className="text-teal-600 px-3 py-1 text-sm font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]">{t('community.tabs.groups')}</TabsTrigger>
             <TabsTrigger value="progress" className="text-teal-600 px-3 py-1 text-sm font-medium tracking-[0.003em] leading-none rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center whitespace-nowrap min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)]">{t('community.tabs.progress')}</TabsTrigger>
           </TabsList>
-          {activeTab === 'forum' &&
-            <Button onClick={() => setShowPostForm(true)} className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 gap-2 flex-shrink-0">
+            <Button onClick={activeTabAction.onClick} className={activeTabAction.className}>
               <Plus className="w-4 h-4" />
-              {t('community.buttons.new_post')}
+              {activeTabAction.label}
             </Button>
-            }
-          {activeTab === 'groups' &&
-            <Button onClick={() => setShowGroupForm(true)} className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[20px] inline-flex items-center justify-center whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 gap-2 flex-shrink-0">
-              <Plus className="w-4 h-4" />
-              {t('community.buttons.create_group')}
-            </Button>
-            }
-          {activeTab === 'progress' &&
-            <Button onClick={() => setShowProgressForm(true)} className="bg-teal-700 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[20px] inline-flex items-center justify-center whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 gap-2 flex-shrink-0">
-              <Plus className="w-4 h-4" />
-              {t('community.buttons.share_progress')}
-            </Button>
-            }
+          </div>
+
+          {activeTab === 'forum' && (
+            <div className="relative">
+              <Search className="text-teal-600 lucide lucide-search absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 w-5 h-5" />
+              <Input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t('community.search_placeholder')} className="bg-[hsl(var(--surface-nested)/0.92)] text-emerald-700 pl-10 px-3 py-1 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-control)] flex h-9 w-full border border-input/90 shadow-[var(--shadow-sm)] transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 rtl:pl-3 rtl:pr-10"
+                style={{ borderRadius: '28px' }} />
+            </div>
+          )}
         </div>
 
         {/* Forum Tab */}
         <TabsContent value="forum">
           <div className="space-y-4">
-            <div className="relative">
-              <Search className="text-teal-600 lucide lucide-search absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 w-5 h-5" />
-              <Input
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={t('community.search_placeholder')} className="bg-[hsl(var(--surface-nested)/0.92)] text-emerald-700 pl-10 px-3 py-1 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-control)] flex h-9 w-full border border-input/90 shadow-[var(--shadow-sm)] transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 rtl:pl-3 rtl:pr-10"
-
-                  style={{ borderRadius: '28px' }} />
-
-            </div>
-
             {loadingPosts ?
               <Card>
                 <CardContent className="p-12 text-center">
@@ -247,11 +253,11 @@ export default function Community() {
 
         {/* Groups Tab */}
         <TabsContent value="groups">
-          <div className="space-y-4">
+          <div className="space-y-6">
             {memberships.length > 0 &&
-              <div>
-                <h3 className="font-semibold text-foreground mb-3">{t('community.your_groups')}</h3>
-                <div className="space-y-3 mb-6">
+              <section className="space-y-3">
+                <h3 className="font-semibold text-foreground">{t('community.your_groups')}</h3>
+                <div className="space-y-3">
                   {groups.filter((g) => myGroupIds.includes(g.id)).map((group) =>
                   <GroupCard
                     key={group.id}
@@ -262,11 +268,11 @@ export default function Community() {
 
                   )}
                 </div>
-              </div>
+              </section>
               }
 
-            <div>
-              <h3 className="text-teal-700 mb-3 font-semibold">{t('community.discover_groups')}</h3>
+            <section className="space-y-3">
+              <h3 className="text-teal-700 font-semibold">{t('community.discover_groups')}</h3>
               {loadingGroups ?
                 <Card>
                   <CardContent className="p-12 text-center">
@@ -297,7 +303,7 @@ export default function Community() {
                   )}
                 </div>
                 }
-            </div>
+            </section>
           </div>
         </TabsContent>
 

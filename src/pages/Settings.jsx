@@ -164,6 +164,11 @@ export default function Settings() {
   const handleLogout = () => {
     performLogout();
   };
+  const sectionMotion = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.4 }
+  };
 
   if (!user) {
     return (
@@ -188,13 +193,13 @@ export default function Settings() {
         <p style={{ color: '#718096' }}>{t('settings.page_subtitle')}</p>
       </motion.div>
 
+      <div className="space-y-6">
       {/* Profile Section */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
+        {...sectionMotion}
+        transition={{ ...sectionMotion.transition, delay: 0.1 }}
       >
-        <Card className="border-0 mb-6" style={{ 
+        <Card className="border-0" style={{ 
           borderRadius: '24px',
           background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.5) 0%, rgba(255, 255, 255, 0.8) 100%)',
           backdropFilter: 'blur(10px)',
@@ -249,7 +254,12 @@ export default function Settings() {
             </div>
           </div>
 
-          <div className="flex flex-col items-center md:items-end gap-2">
+          <div className="pt-2 border-t border-gray-200/80 flex flex-col items-center md:flex-row md:items-center md:justify-between gap-2">
+            {showProfileSaved && !updateProfileMutation.isPending ? (
+              <p className="text-xs text-gray-500">{t('common.saved')}</p>
+            ) : (
+              <div />
+            )}
             <Button
               onClick={() => updateProfileMutation.mutate({ full_name: fullName })}
               disabled={updateProfileMutation.isPending || fullName === user.full_name}
@@ -262,9 +272,6 @@ export default function Settings() {
             >
               {updateProfileMutation.isPending ? t('settings.profile.saving') : t('settings.profile.save_changes')}
             </Button>
-            {showProfileSaved && !updateProfileMutation.isPending && (
-              <p className="text-xs text-gray-500">{t('common.saved')}</p>
-            )}
           </div>
         </CardContent>
       </Card>
@@ -272,31 +279,26 @@ export default function Settings() {
 
       {/* Language Section */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.2 }}
-        className="mb-6"
+        {...sectionMotion}
+        transition={{ ...sectionMotion.transition, delay: 0.2 }}
       >
         <LanguageSelector />
       </motion.div>
 
       {/* Theme Section */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.25 }}
-        className="mb-6"
+        {...sectionMotion}
+        transition={{ ...sectionMotion.transition, delay: 0.25 }}
       >
         <ThemeSelector currentTheme={currentTheme} onThemeChange={handleThemeChange} />
       </motion.div>
 
       {/* Dashboard Layout */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.3 }}
+        {...sectionMotion}
+        transition={{ ...sectionMotion.transition, delay: 0.3 }}
       >
-        <Card className="border-0 mb-6" style={{ 
+        <Card className="border-0" style={{ 
           borderRadius: '24px',
           background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.5) 0%, rgba(255, 255, 255, 0.8) 100%)',
           backdropFilter: 'blur(10px)',
@@ -342,11 +344,10 @@ export default function Settings() {
 
       {/* Subscription Section */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.4 }}
+        {...sectionMotion}
+        transition={{ ...sectionMotion.transition, delay: 0.4 }}
       >
-      <Card className="border-0 mb-6" style={{ 
+      <Card className="border-0" style={{ 
         borderRadius: '24px',
         background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.5) 0%, rgba(255, 255, 255, 0.8) 100%)',
         backdropFilter: 'blur(10px)',
@@ -388,20 +389,16 @@ export default function Settings() {
 
       {/* Data & Privacy Section */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.5 }}
-        className="mb-6"
+        {...sectionMotion}
+        transition={{ ...sectionMotion.transition, delay: 0.5 }}
       >
         <DataPrivacy user={user} />
       </motion.div>
 
       {/* Notifications Section */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.6 }}
-        className="mb-6"
+        {...sectionMotion}
+        transition={{ ...sectionMotion.transition, delay: 0.6 }}
       >
         <NotificationSettings
           notifications={notifications}
@@ -413,9 +410,8 @@ export default function Settings() {
 
       {/* Account Actions */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.7 }}
+        {...sectionMotion}
+        transition={{ ...sectionMotion.transition, delay: 0.7 }}
       >
         <Card className="border-0" style={{ 
           borderRadius: '24px',
@@ -426,11 +422,11 @@ export default function Settings() {
         <CardHeader className="border-b">
           <CardTitle>{t('settings.account.title')}</CardTitle>
         </CardHeader>
-        <CardContent className="p-6 space-y-3">
+        <CardContent className="p-6 space-y-4">
           <Button
             onClick={handleLogout}
             variant="outline"
-            className="w-full rounded-xl border-gray-300 text-gray-700 active:bg-gray-100"
+            className="w-full md:w-auto rounded-xl border-gray-300 text-gray-700 active:bg-gray-100"
           >
             <LogOut className="w-4 h-4 mr-2" />
             {t('settings.account.logout')}
@@ -446,6 +442,7 @@ export default function Settings() {
         </CardContent>
       </Card>
       </motion.div>
+      </div>
 
       {/* Footer */}
       <div className="mt-8 text-center">
