@@ -208,7 +208,7 @@ export default function Playlists() {
                         }}
                         disabled={deleteMutation.isPending}
                         aria-label={t('playlists.delete_aria')}
-                        className="shrink-0"
+                        className="shrink-0 opacity-40 group-hover:opacity-100 transition-opacity"
                       >
                         <Trash2 className="w-4 h-4 text-red-500" />
                       </Button>
