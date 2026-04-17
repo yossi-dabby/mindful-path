@@ -47,7 +47,7 @@ export default function Videos() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 mt-6">
           <div>
-            <h1 className="text-2xl md:text-3xl font-semibold mb-1 text-foreground">
+            <h1 className="text-teal-600 mb-1 text-2xl font-semibold md:text-3xl">
               {t('videos.title')}
             </h1>
             <p className="text-sm text-muted-foreground">
