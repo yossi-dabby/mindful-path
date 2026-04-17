@@ -161,7 +161,7 @@ export default function Videos() {
 
                     {/* Video Info */}
                     <div className="p-3 flex flex-col" style={{ minHeight: '120px' }}>
-                      <h3 className="text-sm font-semibold mb-1.5 line-clamp-2 leading-tight text-foreground" style={{ minHeight: '2.5rem' }}>
+                      <h3 className="text-teal-600 mb-1.5 text-sm font-semibold leading-tight line-clamp-2" style={{ minHeight: '2.5rem' }}>
                         {video.title}
                       </h3>
                       {video.category &&
