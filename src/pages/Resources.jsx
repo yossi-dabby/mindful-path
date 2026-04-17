@@ -141,7 +141,7 @@ export default function Resources() {
 
   return (
     <PullToRefresh queryKeys={['resources', 'savedResources', 'moodForResources', 'journalForResources', 'userForResources']}>
-      <div className="p-4 md:p-8 max-w-7xl mx-auto min-h-[100dvh] bg-transparent">
+      <div className="w-full box-border p-4 md:p-8 max-w-7xl mx-auto min-h-[100dvh] bg-transparent">
       {/* Header */}
       <div className="mb-8 mt-4">
         <h1 className="text-3xl md:text-4xl font-semibold mb-2 flex items-center gap-3 text-foreground">
@@ -179,7 +179,7 @@ export default function Resources() {
             <p className="text-sm font-medium mb-2 text-foreground">{t('resources.category_label')}</p>
             <div
               data-testid="category-chips"
-              className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide"
+              className="flex w-full max-w-full min-w-0 box-border gap-2 overflow-x-auto pb-1 scrollbar-hide"
               style={{ WebkitOverflowScrolling: 'touch', cursor: 'pointer' }}
             >
               {categories.map((cat) => (
@@ -199,7 +199,7 @@ export default function Resources() {
             <p className="text-sm font-medium mb-2 text-foreground">{t('resources.content_type_label')}</p>
             <div
               data-testid="type-chips"
-              className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide"
+              className="flex w-full max-w-full min-w-0 box-border gap-2 overflow-x-auto pb-1 scrollbar-hide"
               style={{ WebkitOverflowScrolling: 'touch', cursor: 'pointer' }}
             >
               {contentTypes.map((type) => (
