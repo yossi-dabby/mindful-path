@@ -1,11 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Play, Plus, List, Dumbbell, ArrowRight } from 'lucide-react';
+import { Play, Plus, List } from 'lucide-react';
 import { motion } from 'framer-motion';
 import CreatePlaylistModal from '../components/playlists/CreatePlaylistModal';
 import AddToPlaylistModal from '../components/playlists/AddToPlaylistModal';
@@ -40,22 +40,6 @@ export default function Videos() {
     return allProgress.find(p => p.video_id === videoId);
   };
 
-  const getVideoMetaBadge = (video) => {
-    const parts = [];
-    if (video.duration_minutes) parts.push(`${video.duration_minutes}m`);
-    if (video.difficulty) parts.push(video.difficulty.substring(0, 3));
-    return parts.join(' · ');
-  };
-
-  const inProgressVideo = useMemo(
-    () =>
-      videos.find((video) => {
-        const progress = getVideoProgress(video.id);
-        return progress && progress.progress > 0 && !progress.completed;
-      }),
-    [videos, allProgress]
-  );
-
   return (
     <PullToRefresh queryKeys={['videos', 'allVideoProgress']}>
       <div className="min-h-dvh bg-transparent">
@@ -70,10 +54,10 @@ export default function Videos() {
               {t('videos.subtitle')}
             </p>
           </div>
-          <div className="flex gap-2 flex-wrap md:flex-nowrap md:items-center">
+          <div className="flex gap-2 flex-wrap md:flex-nowrap">
             <Link to={createPageUrl('Playlists')}>
               <Button
-                className="text-sm font-medium px-5 py-4 rounded-full w-full md:w-auto"
+                className="text-sm font-medium px-6 py-5 rounded-full w-full md:w-auto"
               >
                 <List className="w-4 h-4 mr-1" />
                 {t('videos.my_playlists')}
@@ -82,7 +66,7 @@ export default function Videos() {
             <Button
               variant="outline"
               onClick={() => setShowCreatePlaylist(true)}
-              className="text-sm px-4 py-4 w-full md:w-auto"
+              className="text-sm px-5 py-5 w-full md:w-auto"
               style={{ borderRadius: '9999px' }}
             >
               <Plus className="w-4 h-4 mr-1" />
@@ -91,71 +75,24 @@ export default function Videos() {
           </div>
         </div>
 
-        {!isLoading && videos.length > 0 && (
-          <Card className="surface-secondary rounded-[var(--radius-card)] border-border/70 shadow-[var(--shadow-sm)] mb-6">
-            <CardContent className="p-4 md:p-5">
-              <div className="flex flex-wrap gap-2.5">
-                {inProgressVideo && (
-                  <Link
-                    to={`${createPageUrl('VideoPlayer')}?videoUrl=${encodeURIComponent(inProgressVideo.videoUrl)}&title=${encodeURIComponent(inProgressVideo.title)}&videoId=${inProgressVideo.id}`}
-                  >
-                    <Button className="text-sm">
-                      {t('common.continue')}
-                      <ArrowRight className="w-4 h-4 ml-1" />
-                    </Button>
-                  </Link>
-                )}
-                <Link to={createPageUrl('Playlists')}>
-                  <Button variant="outline" className="text-sm">
-                    <List className="w-4 h-4 mr-1" />
-                    {t('videos.my_playlists')}
-                  </Button>
-                </Link>
-                <Link to={createPageUrl('Exercises')}>
-                  <Button variant="outline" className="text-sm">
-                    <Dumbbell className="w-4 h-4 mr-1" />
-                    {t('quick_actions.exercises_library.title')}
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Loading State */}
         {isLoading && (
-          <div className="py-12">
-            <div className="mx-auto max-w-2xl text-center space-y-2">
-              <p className="text-sm font-medium text-muted-foreground">{t('videos.loading')}</p>
-            </div>
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">{t('videos.loading')}</p>
           </div>
         )}
 
         {/* Empty State */}
         {!isLoading && videos.length === 0 && (
-          <div className="py-12">
-            <div className="mx-auto max-w-2xl text-center space-y-2">
-              <p className="text-lg text-foreground">{t('videos.no_videos_title')}</p>
-              <p className="text-muted-foreground">{t('videos.no_videos_description')}</p>
-            </div>
-            <div className="mt-6 flex max-w-md mx-auto flex-col sm:flex-row items-center justify-center gap-2.5">
-              <Button onClick={() => setShowCreatePlaylist(true)} className="w-full sm:w-auto">
-                <Plus className="w-4 h-4 mr-1" />
-                {t('playlists.create_playlist')}
-              </Button>
-              <Link to={createPageUrl('Exercises')} className="w-full sm:w-auto">
-                <Button variant="outline" className="w-full sm:w-auto">
-                  <Dumbbell className="w-4 h-4 mr-1" />
-                  {t('quick_actions.exercises_library.title')}
-                </Button>
-              </Link>
-            </div>
+          <div className="text-center py-12">
+            <p className="text-lg mb-2 text-foreground">{t('videos.no_videos_title')}</p>
+            <p className="text-muted-foreground">{t('videos.no_videos_description')}</p>
           </div>
         )}
 
         {/* Video Grid */}
         {!isLoading && videos.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {videos.map((video, index) => (
               <motion.div
                 key={video.id}
@@ -207,49 +144,47 @@ export default function Videos() {
                         })()}
                         
                         {/* Metadata Badges */}
-                        {getVideoMetaBadge(video) && (
-                          <div className="absolute bottom-1.5 right-1.5">
+                        <div className="absolute bottom-1.5 right-1.5 flex gap-1">
+                          {video.duration_minutes && (
                             <div className="bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded text-xs font-medium">
-                              {getVideoMetaBadge(video)}
+                              {video.duration_minutes}m
                             </div>
-                          </div>
-                        )}
+                          )}
+                          {video.difficulty && (
+                            <div className="bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded text-xs font-medium capitalize">
+                              {video.difficulty.substring(0, 3)}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </Link>
 
                     {/* Video Info */}
-                    <div className="flex flex-1 flex-col">
-                      <div className="p-3 pb-2">
-                        <h3 className="text-sm font-semibold mb-1 line-clamp-2 leading-tight text-foreground" style={{ minHeight: '2.5rem' }}>
-                          {video.title}
-                        </h3>
-                        {getVideoMetaBadge(video) && (
-                          <p className="text-[11px] text-muted-foreground mb-2">{getVideoMetaBadge(video)}</p>
-                        )}
-                        {video.category && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-primary border border-border/60 w-fit">
-                            {video.category}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="mt-auto border-t border-border/60 px-3 pt-2.5 pb-3">
-                        <Button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setSelectedVideo(video);
-                          }}
-                          className="w-full h-8 text-xs font-medium text-white"
-                          style={{ 
-                            backgroundColor: '#26A69A',
-                            borderRadius: '8px'
-                          }}
-                        >
-                          <Plus className="w-3.5 h-3.5 mr-1" />
-                          {t('videos.add_to_list')}
-                        </Button>
-                      </div>
+                    <div className="p-3 flex flex-col" style={{ minHeight: '120px' }}>
+                      <h3 className="text-sm font-semibold mb-1.5 line-clamp-2 leading-tight text-foreground" style={{ minHeight: '2.5rem' }}>
+                        {video.title}
+                      </h3>
+                      {video.category && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-primary border border-border/60 w-fit mb-2">
+                          {video.category}
+                        </span>
+                      )}
+                      <div className="flex-1"></div>
+                      <Button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setSelectedVideo(video);
+                        }}
+                        className="w-full h-7 text-xs font-medium text-white"
+                        style={{ 
+                          backgroundColor: '#26A69A',
+                          borderRadius: '8px'
+                        }}
+                      >
+                        <Plus className="w-3.5 h-3.5 mr-1" />
+                        {t('videos.add_to_list')}
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
