@@ -82,8 +82,8 @@ export default function ResourceCard({ resource, isSaved, onSaveToggle }) {
         <h3 className="font-semibold text-foreground line-clamp-2 mb-2">{resource.title}</h3>
         <p className="text-sm text-muted-foreground line-clamp-3">{resource.description}</p>
       </CardHeader>
-      <CardContent className="pt-0">
-        <div className="flex flex-wrap gap-2 mb-4">
+      <CardContent className="pt-0 flex flex-col gap-4">
+        <div className="flex flex-wrap gap-2">
           <Badge variant="outline" className={cn('text-xs', categoryColors[resource.category])}>
             {resource.category}
           </Badge>
@@ -100,7 +100,7 @@ export default function ResourceCard({ resource, isSaved, onSaveToggle }) {
         </div>
 
         {resource.tags?.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-4">
+          <div className="flex flex-wrap gap-1">
             {resource.tags.slice(0, 3).map((tag, i) => (
               <span key={i} className="text-xs text-muted-foreground bg-secondary/80 px-2 py-0.5 rounded-[var(--radius-chip)] border border-border/50">
                 {tag}
@@ -112,29 +112,33 @@ export default function ResourceCard({ resource, isSaved, onSaveToggle }) {
           </div>
         )}
 
-        {resource.url ? (
-          <a
-            href={resource.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block"
-          >
-            <Button className="w-full group/btn">
-              <span>View Resource</span>
-              <ExternalLink className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-            </Button>
-          </a>
-        ) : resource.content ? (
-          <Button 
-            className="w-full"
-            onClick={() => {
-              // Open content in modal or new view
-              window.open(`/resources/${resource.id}`, '_blank');
-            }}
-          >
-            <span>View Content</span>
-          </Button>
-        ) : null}
+        {(resource.url || resource.content) && (
+          <div className="mt-auto pt-3">
+            {resource.url ? (
+              <a
+                href={resource.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block"
+              >
+                <Button className="w-full group/btn">
+                  <span>View Resource</span>
+                  <ExternalLink className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                </Button>
+              </a>
+            ) : (
+              <Button
+                className="w-full"
+                onClick={() => {
+                  // Open content in modal or new view
+                  window.open(`/resources/${resource.id}`, '_blank');
+                }}
+              >
+                <span>View Content</span>
+              </Button>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

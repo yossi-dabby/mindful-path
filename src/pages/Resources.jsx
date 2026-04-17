@@ -161,8 +161,18 @@ export default function Resources() {
         userInterests={user?.preferences?.interests || []}
       />
 
-      {/* Search & Filters */}
-      <div className="mb-6 space-y-4">
+      {/* Browse Controls */}
+      <div className="mb-6 rounded-[var(--radius-card)] p-4 md:p-5 space-y-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList>
+            <TabsTrigger value="all">{t('resources.tabs.all')} ({filteredResources.length})</TabsTrigger>
+            <TabsTrigger value="saved" className="flex items-center gap-2">
+              <Bookmark className="w-4 h-4" />
+              {t('resources.tabs.saved')} ({savedResources.length})
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+
         <div className="relative">
           <Search className="absolute left-3 rtl:left-auto rtl:right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <Input
@@ -174,7 +184,7 @@ export default function Resources() {
           />
         </div>
 
-        <div className="space-y-3">
+        <div className="grid gap-4 lg:grid-cols-2">
           <div>
             <p className="text-sm font-medium mb-2 text-foreground">{t('resources.category_label')}</p>
             <div
@@ -217,17 +227,6 @@ export default function Resources() {
           </div>
         </div>
       </div>
-
-      {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <TabsList>
-          <TabsTrigger value="all">{t('resources.tabs.all')}</TabsTrigger>
-          <TabsTrigger value="saved" className="flex items-center gap-2">
-            <Bookmark className="w-4 h-4" />
-            {t('resources.tabs.saved')} ({savedResources.length})
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
 
       {/* Resources Grid */}
       {isLoading ? (

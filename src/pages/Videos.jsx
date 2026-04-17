@@ -219,21 +219,23 @@ export default function Videos() {
 
                     {/* Video Info */}
                     <div className="flex flex-1 flex-col">
-                      <div className="p-3 pb-2">
+                      <div className="p-3 pb-3">
                         <h3 className="text-sm font-semibold mb-1 line-clamp-2 leading-tight text-foreground" style={{ minHeight: '2.5rem' }}>
                           {video.title}
                         </h3>
-                        {getVideoMetaBadge(video) && (
-                          <p className="text-[11px] text-muted-foreground mb-2">{getVideoMetaBadge(video)}</p>
-                        )}
-                        {video.category && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-primary border border-border/60 w-fit">
-                            {video.category}
-                          </span>
-                        )}
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {getVideoMetaBadge(video) && (
+                            <span className="text-[11px] text-muted-foreground">{getVideoMetaBadge(video)}</span>
+                          )}
+                          {video.category && (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-primary border border-border/60 w-fit">
+                              {video.category}
+                            </span>
+                          )}
+                        </div>
                       </div>
 
-                      <div className="mt-auto border-t border-border/60 px-3 pt-2.5 pb-3">
+                      <div className="mt-auto border-t border-border/60 px-3 pt-3 pb-3">
                         <Button
                           type="button"
                           onClick={(e) => {

@@ -276,39 +276,62 @@ export default function Exercises() {
         <p className="text-teal-600 ml-0 text-sm md:text-base md:ml-12 hidden md:block">{t('exercises.page_subtitle_full')}</p>
       </div>
 
-      {/* Search Bar */}
-      <div className="mb-5">
+      {/* Search and Filters */}
+      <div className="mb-7 rounded-[var(--radius-card)] p-3 md:p-4 space-y-3">
         <div className="relative">
           <Search className="text-teal-600 lucide lucide-search absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 w-5 h-5" />
           <Input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={t('exercises.search_placeholder')} className="bg-teal-50 text-foreground px-8 py-1 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-control)] flex h-9 w-full border border-input/90 shadow-[var(--shadow-sm)] transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 rtl:pl-3 rtl:pr-10"
-
-                style={{ borderRadius: '28px' }} />
-
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={t('exercises.search_placeholder')}
+            className="bg-teal-50 text-foreground px-8 py-1 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-control)] flex h-9 w-full border border-input/90 shadow-[var(--shadow-sm)] transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 rtl:pl-3 rtl:pr-10"
+            style={{ borderRadius: '28px' }}
+          />
         </div>
-      </div>
 
-      {/* Category Filter */}
-      <div
-            id="exercises_category_switcher"
-            className="mb-7 overflow-x-auto"
-            style={{ overscrollBehaviorX: 'contain' }}>
-
-        <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-          <TabsList ref={tabsListRef} className="inline-flex w-auto min-w-full">
-            {categories.map((cat) =>
+        <div
+          id="exercises_category_switcher"
+          className="overflow-x-auto"
+          style={{ overscrollBehaviorX: 'contain' }}
+        >
+          <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
+            <TabsList ref={tabsListRef} className="inline-flex w-auto min-w-full">
+              {categories.map((cat) =>
                 <TabsTrigger
                   key={cat.value}
-                  value={cat.value} className="text-teal-600 px-3 py-1 text-sm font-medium tracking-[0.003em] rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)] whitespace-nowrap">
+                  value={cat.value}
+                  className="text-teal-600 px-3 py-1 text-sm font-medium tracking-[0.003em] rounded-[calc(var(--radius-control)-2px)] inline-flex items-center justify-center min-h-[44px] md:min-h-0 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-45 hover:bg-secondary/65 hover:text-foreground data-[state=active]:border data-[state=active]:border-primary/12 data-[state=active]:bg-[hsl(var(--card)/0.96)] data-[state=active]:text-primary data-[state=active]:shadow-[var(--shadow-sm)] whitespace-nowrap"
+                >
+                  {cat.label}
+                </TabsTrigger>
+              )}
+            </TabsList>
+          </Tabs>
+        </div>
 
-
-                {cat.label}
-              </TabsTrigger>
-                )}
-          </TabsList>
-        </Tabs>
+        <div className="flex flex-wrap items-center gap-2">
+          {showFavoritesOnly && (
+            <span className="text-xs text-muted-foreground">
+              {t('exercises.favorites')}
+            </span>
+          )}
+          {selectedCategory !== 'all' && (
+            <span className="text-xs text-muted-foreground">
+              {categories.find((cat) => cat.value === selectedCategory)?.label}
+            </span>
+          )}
+          {searchQuery && (
+            <span className="text-xs text-muted-foreground max-w-[180px] truncate">
+              {searchQuery}
+            </span>
+          )}
+          <span className="ml-auto text-xs text-muted-foreground">{filteredExercises.length}</span>
+          {(showFavoritesOnly || searchQuery || selectedCategory !== 'all') && (
+            <Button variant="ghost" size="sm" onClick={resetFilters} className="h-7 px-2 text-xs">
+              {t('exercises.categories.all')}
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Quick Start Panel */}
