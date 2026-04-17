@@ -144,8 +144,7 @@ export default function QuickActions() {
   return (
     <div className="mb-6">
       <h2 className="text-emerald-600 mb-4 text-lg font-semibold truncate">{t('quick_actions.title')}</h2>
-      <div className="space-y-4 w-full overflow-x-hidden">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="rounded-3xl grid grid-cols-2 md:grid-cols-3 gap-4 w-full overflow-x-hidden">
         {/* AI Recommendations Card */}
         <div className="rounded-lg relative">
           <Card className="bg-[hsl(var(--card)/0.94)] text-card-foreground rounded-[20px] border-border/60 shadow-[var(--shadow-md)] backdrop-blur-[10px] hover:shadow-[var(--shadow-lg)] transition-all cursor-pointer group h-full border overflow-hidden"
@@ -306,9 +305,7 @@ export default function QuickActions() {
               </Card>
           </div>
         }
-        </div>
 
-        <div className="rounded-3xl grid grid-cols-2 md:grid-cols-3 gap-4">
         {actions.map((action, index) => {
           const Icon = action.icon;
           return (
@@ -322,13 +319,13 @@ export default function QuickActions() {
                 style={{ borderColor: 'rgba(118, 170, 156, 0.34)', background: 'linear-gradient(180deg, rgba(255,252,248,0.99) 0%, rgba(230,244,238,0.96) 100%)', boxShadow: '0 24px 56px rgba(68, 108, 96, 0.16), 0 10px 22px rgba(68, 108, 96, 0.08)' }}
                 data-testid={action.testIds ? action.testIds[1] : undefined}>
 
-                  <CardContent className="p-4 rounded-2xl">
-                    <div className="flex items-center gap-2.5 mb-3">
+                  <CardContent className="p-5 rounded-2xl">
+                    <div className="flex items-center gap-3 mb-4">
                       <div
-                        className="w-12 h-12 flex items-center justify-center rounded-[var(--radius-control)]"
+                        className="w-14 h-14 flex items-center justify-center rounded-[var(--radius-control)]"
                         style={{ background: `linear-gradient(180deg, ${action.color} 0%, ${action.color}dd 100%)`, boxShadow: '0 16px 30px rgba(68, 108, 96, 0.16)' }}>
 
-                        <Icon className="w-6 h-6 text-white" strokeWidth={2.5} />
+                        <Icon className="w-7 h-7 text-white" strokeWidth={2.5} />
                       </div>
                       
                       {/* Angel Button - next to icon */}
@@ -338,15 +335,15 @@ export default function QuickActions() {
                           e.stopPropagation();
                           setActiveVideo(action.videoUrl);
                         }}
-                        className="flex items-center justify-center cursor-pointer hover:scale-105 transition-transform w-12 h-12 rounded-[var(--radius-control)] border-0 outline-none"
+                        className="flex items-center justify-center cursor-pointer hover:scale-105 transition-transform w-14 h-14 rounded-[var(--radius-control)] border-0 outline-none"
                         style={{ backgroundColor: action.bgColor }}
                         aria-label="Guided introduction video"
                         title="Guided introduction video">
 
-                        <User className="w-5 h-5 icon-default" style={{ color: action.color }} strokeWidth={2} />
+                        <User className="w-6 h-6 icon-default" style={{ color: action.color }} strokeWidth={2} />
                       </button>
                     </div>
-                    <h3 className="text-teal-600 mb-1 text-sm font-semibold break-words leading-snug">{action.title}</h3>
+                    <h3 className="text-teal-600 mb-1 text-sm font-semibold break-words">{action.title}</h3>
                     <p className="text-teal-600 text-xs line-clamp-2 break-words">{action.description}</p>
                   </CardContent>
                 </Card>
@@ -354,7 +351,6 @@ export default function QuickActions() {
             </div>);
 
         })}
-        </div>
       </div>
 
       {/* Video Modal */}
