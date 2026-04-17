@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Play, Heart } from 'lucide-react';
+import { Clock, Play, Heart, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import ExerciseMediaBadge from './ExerciseMediaBadge';
@@ -71,13 +71,20 @@ function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExe
                   }
                 </div>
 
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <h3 className="font-semibold text-foreground text-lg group-hover:text-primary transition-colors line-clamp-1 break-words">
+                <div className="mb-2">
+                  <h3 className="font-semibold text-foreground text-lg leading-snug group-hover:text-primary transition-colors line-clamp-2 break-words">
                     {exercise.title || t('exercises.detail.untitled_exercise')}
                   </h3>
-                  <ExerciseMediaBadge mediaType={exercise.media_type} />
                 </div>
-                <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{exercise.description || ''}</p>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <ExerciseMediaBadge mediaType={exercise.media_type} />
+                  {exercise.completed_count > 0 &&
+                  <span className="text-[11px] text-muted-foreground font-medium">
+                    {exercise.total_time_practiced || 0} {t('common.minutes_short')}
+                  </span>
+                  }
+                </div>
+                <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{exercise.description || ''}</p>
 
                 {/* Tags */}
                 {exercise.tags?.length > 0 &&
@@ -97,9 +104,14 @@ function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExe
                     `${exercise.duration_options[0]}-${exercise.duration_options[exercise.duration_options.length - 1]} ${t('common.minutes_short')}` :
                     t('exercises.library.flexible')}
                   </div>
-                  <Badge variant="outline" className="bg-teal-100 text-muted-foreground px-2 py-0.5 text-[11px] font-medium capitalize tracking-[0.01em] rounded-3xl inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70">
-                    {exercise.difficulty || 'beginner'}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="bg-teal-100 text-muted-foreground px-2 py-0.5 text-[11px] font-medium capitalize tracking-[0.01em] rounded-3xl inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70">
+                      {exercise.difficulty || 'beginner'}
+                    </Badge>
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-border/70 bg-card/85">
+                      <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                    </span>
+                  </div>
                 </div>
 
                 {/* Progress Bar */}
