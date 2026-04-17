@@ -311,21 +311,21 @@ export default function Exercises() {
 
         <div className="flex flex-wrap items-center gap-2">
           {showFavoritesOnly && (
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs">
               {t('exercises.favorites')}
             </span>
           )}
           {selectedCategory !== 'all' && (
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs">
               {categories.find((cat) => cat.value === selectedCategory)?.label}
             </span>
           )}
           {searchQuery && (
-            <span className="text-xs text-muted-foreground max-w-[180px] truncate">
+            <span className="text-xs max-w-[180px] truncate">
               {searchQuery}
             </span>
           )}
-          <span className="ml-auto text-xs text-muted-foreground">{filteredExercises.length}</span>
+          <span className="ml-auto text-xs">{filteredExercises.length}</span>
           {(showFavoritesOnly || searchQuery || selectedCategory !== 'all') && (
             <Button variant="ghost" size="sm" onClick={resetFilters} className="h-7 px-2 text-xs">
               {t('exercises.categories.all')}
