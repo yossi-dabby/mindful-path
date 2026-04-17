@@ -65,8 +65,8 @@ export default function Videos() {
             </Link>
             <Button
                 variant="outline"
-                onClick={() => setShowCreatePlaylist(true)}
-                className="text-sm px-5 py-5 w-full md:w-auto"
+                onClick={() => setShowCreatePlaylist(true)} className="bg-teal-600 text-secondary-foreground px-5 py-5 text-sm font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-10 min-h-[44px] md:min-h-0 w-full md:w-auto"
+
                 style={{ borderRadius: '9999px' }}>
                 
               <Plus className="w-4 h-4 mr-1" />
