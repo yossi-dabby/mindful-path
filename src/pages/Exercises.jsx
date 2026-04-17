@@ -1,13 +1,14 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Wind, Anchor, Brain, TrendingUp, Sparkles, Heart, Search, Star, Moon, Users, Zap, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { cn } from '@/lib/utils';
+import { createPageUrl } from '../utils';
 import ExerciseDetail from '../components/exercises/ExerciseDetail';
 import ExerciseLibrary from '../components/exercises/ExerciseLibrary';
 import AiExerciseRecommendations from '../components/exercises/AiExerciseRecommendations';
@@ -207,6 +208,12 @@ export default function Exercises() {
   { value: 'relationships', label: t('exercises.categories.relationships') },
   { value: 'stress_management', label: t('exercises.categories.stress') }];
 
+  const resetFilters = useCallback(() => {
+    setShowFavoritesOnly(false);
+    setSearchQuery('');
+    setSelectedCategory('all');
+  }, []);
+
 
   if (isLoading) {
     return (
@@ -399,6 +406,18 @@ export default function Exercises() {
                 t('exercises.empty_state.search_message') :
                 t('exercises.empty_state.no_exercises_message')}
             </p>
+            <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-2.5">
+              {(showFavoritesOnly || searchQuery || selectedCategory !== 'all') && (
+                <Button variant="outline" onClick={resetFilters} className="w-full sm:w-auto">
+                  {t('exercises.categories.all')}
+                </Button>
+              )}
+              <Link to={createPageUrl('Videos')} className="w-full sm:w-auto">
+                <Button variant="outline" className="w-full sm:w-auto">
+                  {t('quick_actions.video_library.title')}
+                </Button>
+              </Link>
+            </div>
           </CardContent>
         </Card> :
 
