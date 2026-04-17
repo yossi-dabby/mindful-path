@@ -165,7 +165,7 @@ export default function Videos() {
                         {video.title}
                       </h3>
                       {video.category &&
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-primary border border-border/60 w-fit mb-2">
+                    <span className="bg-secondary text-teal-700 mb-2 px-2 py-0.5 text-xs rounded-full border border-border/60 w-fit">
                           {video.category}
                         </span>
                     }
