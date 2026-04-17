@@ -88,7 +88,7 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
 
             aria-label={t('common.back')}>
 
-              <ChevronLeft className="w-6 h-6 rtl:scale-x-[-1] text-primary" />
+              <ChevronLeft className="text-teal-700 lucide lucide-chevron-left w-6 h-6 rtl:scale-x-[-1]" />
             </Button> :
 
           <div className="bg-teal-600 text-primary-foreground mx-4 opacity-100 rounded-3xl w-8 h-8 flex items-center justify-center shadow-[var(--shadow-sm)]"
