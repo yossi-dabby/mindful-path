@@ -96,12 +96,12 @@ export default function Playlists() {
 
         {/* Error State */}
         {isError && (
-          <Card className="border-0" style={{
+          <Card className="border-0 max-w-2xl mx-auto" style={{
             borderRadius: '32px',
             background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(254, 242, 242, 0.9) 100%)',
             boxShadow: '0 12px 40px rgba(239, 68, 68, 0.12)'
           }}>
-            <CardContent className="p-12 text-center">
+            <CardContent className="p-10 md:p-12 text-center">
               <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4" style={{
                 borderRadius: '50%',
                 background: 'rgba(239, 68, 68, 0.1)'
@@ -110,37 +110,43 @@ export default function Playlists() {
               </div>
               <h2 className="text-2xl font-semibold mb-2 text-gray-800">{t('playlists.error_title')}</h2>
               <p className="mb-6 text-gray-600">{t('playlists.error_description')}</p>
-              <Button
-                onClick={() => refetch()}
-                className="text-white px-8 py-6"
-                style={{
-                  borderRadius: '24px',
-                  backgroundColor: '#26A69A',
-                  boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
-                }}
-              >
-                {t('playlists.retry')}
-              </Button>
+              <div className="flex justify-center">
+                <Button
+                  onClick={() => refetch()}
+                  className="text-white px-8 py-6"
+                  style={{
+                    borderRadius: '24px',
+                    backgroundColor: '#26A69A',
+                    boxShadow: '0 4px 12px rgba(38, 166, 154, 0.3)'
+                  }}
+                >
+                  {t('playlists.retry')}
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}
 
         {/* Loading State */}
         {!isError && isLoading && (
-          <div className="text-center py-12">
-            <p style={{ color: 'rgb(var(--theme-muted))' }}>{t('playlists.loading')}</p>
+          <div className="py-12">
+            <div className="mx-auto max-w-2xl text-center space-y-2">
+              <p className="text-sm font-medium" style={{ color: 'rgb(var(--theme-muted))' }}>{t('playlists.loading')}</p>
+            </div>
           </div>
         )}
 
         {/* Empty State */}
         {!isError && !isLoading && playlists.length === 0 && (
-          <div className="text-center py-12">
-            <List className="w-16 h-16 mx-auto mb-4" style={{ color: 'rgb(var(--theme-muted))' }} />
-            <p className="text-lg mb-2" style={{ color: 'rgb(var(--text))' }}>{t('playlists.no_playlists_title')}</p>
-            <p className="mb-6" style={{ color: 'rgb(var(--theme-muted))' }}>
-              {t('playlists.no_playlists_description')}
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5">
+          <div className="py-12">
+            <div className="mx-auto max-w-2xl text-center">
+              <List className="w-16 h-16 mx-auto mb-4" style={{ color: 'rgb(var(--theme-muted))' }} />
+              <p className="text-lg mb-2" style={{ color: 'rgb(var(--text))' }}>{t('playlists.no_playlists_title')}</p>
+              <p className="mb-6" style={{ color: 'rgb(var(--theme-muted))' }}>
+                {t('playlists.no_playlists_description')}
+              </p>
+            </div>
+            <div className="flex max-w-md mx-auto flex-col sm:flex-row items-center justify-center gap-2.5">
               <Button
                 onClick={() => setShowCreateModal(true)}
                 className="w-full sm:w-auto"
