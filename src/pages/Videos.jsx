@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Play, Plus, List } from 'lucide-react';
+import { Play, Plus, List, Dumbbell, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import CreatePlaylistModal from '../components/playlists/CreatePlaylistModal';
 import AddToPlaylistModal from '../components/playlists/AddToPlaylistModal';
@@ -47,6 +47,11 @@ export default function Videos() {
     return parts.join(' · ');
   };
 
+  const inProgressVideo = videos.find((video) => {
+    const progress = getVideoProgress(video.id);
+    return progress && progress.progress > 0 && !progress.completed;
+  });
+
   return (
     <PullToRefresh queryKeys={['videos', 'allVideoProgress']}>
       <div className="min-h-dvh bg-transparent">
@@ -82,6 +87,37 @@ export default function Videos() {
           </div>
         </div>
 
+        {!isLoading && videos.length > 0 && (
+          <Card className="surface-secondary rounded-[var(--radius-card)] border-border/70 shadow-[var(--shadow-sm)] mb-6">
+            <CardContent className="p-4 md:p-5">
+              <div className="flex flex-wrap gap-2.5">
+                {inProgressVideo && (
+                  <Link
+                    to={`${createPageUrl('VideoPlayer')}?videoUrl=${encodeURIComponent(inProgressVideo.videoUrl)}&title=${encodeURIComponent(inProgressVideo.title)}&videoId=${inProgressVideo.id}`}
+                  >
+                    <Button className="text-sm">
+                      {t('common.continue')}
+                      <ArrowRight className="w-4 h-4 ml-1" />
+                    </Button>
+                  </Link>
+                )}
+                <Link to={createPageUrl('Playlists')}>
+                  <Button variant="outline" className="text-sm">
+                    <List className="w-4 h-4 mr-1" />
+                    {t('videos.my_playlists')}
+                  </Button>
+                </Link>
+                <Link to={createPageUrl('Exercises')}>
+                  <Button variant="outline" className="text-sm">
+                    <Dumbbell className="w-4 h-4 mr-1" />
+                    {t('quick_actions.exercises_library.title')}
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Loading State */}
         {isLoading && (
           <div className="text-center py-12">
@@ -94,6 +130,18 @@ export default function Videos() {
           <div className="text-center py-12">
             <p className="text-lg mb-2 text-foreground">{t('videos.no_videos_title')}</p>
             <p className="text-muted-foreground">{t('videos.no_videos_description')}</p>
+            <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-2.5">
+              <Button onClick={() => setShowCreatePlaylist(true)} className="w-full sm:w-auto">
+                <Plus className="w-4 h-4 mr-1" />
+                {t('playlists.create_playlist')}
+              </Button>
+              <Link to={createPageUrl('Exercises')} className="w-full sm:w-auto">
+                <Button variant="outline" className="w-full sm:w-auto">
+                  <Dumbbell className="w-4 h-4 mr-1" />
+                  {t('quick_actions.exercises_library.title')}
+                </Button>
+              </Link>
+            </div>
           </div>
         )}
 

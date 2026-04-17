@@ -7,7 +7,7 @@ import { isAuthError, shouldShowAuthError } from '../components/utils/authErrorH
 import AuthErrorBanner from '../components/utils/AuthErrorBanner';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, List, Trash2, ArrowLeft } from 'lucide-react';
+import { Plus, List, Trash2, ArrowLeft, Dumbbell } from 'lucide-react';
 import { motion } from 'framer-motion';
 import CreatePlaylistModal from '../components/playlists/CreatePlaylistModal';
 import { useTranslation } from 'react-i18next';
@@ -140,84 +140,111 @@ export default function Playlists() {
             <p className="mb-6" style={{ color: 'rgb(var(--theme-muted))' }}>
               {t('playlists.no_playlists_description')}
             </p>
-            <Button
-              onClick={() => setShowCreateModal(true)}
-              className="w-full sm:w-auto"
-              style={{ 
-                backgroundColor: 'rgb(var(--theme-accent))',
-                color: 'rgb(var(--accent-contrast))'
-              }}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              {t('playlists.create_playlist')}
-            </Button>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5">
+              <Button
+                onClick={() => setShowCreateModal(true)}
+                className="w-full sm:w-auto"
+                style={{ 
+                  backgroundColor: 'rgb(var(--theme-accent))',
+                  color: 'rgb(var(--accent-contrast))'
+                }}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                {t('playlists.create_playlist')}
+              </Button>
+              <Link to={createPageUrl('Videos')} className="w-full sm:w-auto">
+                <Button variant="outline" className="w-full sm:w-auto">
+                  {t('playlist_detail.browse_videos')}
+                </Button>
+              </Link>
+            </div>
           </div>
         )}
 
         {/* Playlist Grid */}
         {!isError && !isLoading && playlists.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-            {playlists.map((playlist, index) => (
-              <motion.div
-                key={playlist.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-              >
-                <Card className="border-0 hover:shadow-lg transition-calm group" style={{ 
-                  borderRadius: '20px',
-                  background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.5) 0%, rgba(255, 255, 255, 0.8) 100%)',
-                  backdropFilter: 'blur(10px)',
-                  boxShadow: '0 3px 12px rgba(38, 166, 154, 0.1), 0 1px 3px rgba(0,0,0,0.04)'
-                }}>
-                  <CardContent className="p-5 h-full flex flex-col">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold mb-1.5" style={{ color: '#2D3748' }}>
-                        {playlist.name}
-                      </h3>
-                      {playlist.description && (
-                        <p className="text-sm line-clamp-2 mb-3" style={{ color: '#718096' }}>
-                          {playlist.description}
-                        </p>
-                      )}
-                      <div className="inline-flex items-center gap-1.5 text-xs font-medium" style={{ color: '#26A69A' }}>
-                        <List className="w-3.5 h-3.5" />
-                        {t('playlists.video_count', { count: playlist.video_count || 0 })}
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+              {playlists.map((playlist, index) => (
+                <motion.div
+                  key={playlist.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                >
+                  <Card className="border-0 hover:shadow-lg transition-calm group" style={{ 
+                    borderRadius: '20px',
+                    background: 'linear-gradient(135deg, rgba(224, 242, 241, 0.5) 0%, rgba(255, 255, 255, 0.8) 100%)',
+                    backdropFilter: 'blur(10px)',
+                    boxShadow: '0 3px 12px rgba(38, 166, 154, 0.1), 0 1px 3px rgba(0,0,0,0.04)'
+                  }}>
+                    <CardContent className="p-5 h-full flex flex-col">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold mb-1.5" style={{ color: '#2D3748' }}>
+                          {playlist.name}
+                        </h3>
+                        {playlist.description && (
+                          <p className="text-sm line-clamp-2 mb-3" style={{ color: '#718096' }}>
+                            {playlist.description}
+                          </p>
+                        )}
+                        <div className="inline-flex items-center gap-1.5 text-xs font-medium" style={{ color: '#26A69A' }}>
+                          <List className="w-3.5 h-3.5" />
+                          {t('playlists.video_count', { count: playlist.video_count || 0 })}
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="mt-4 pt-3 border-t border-border/60 flex items-center gap-2">
-                      <Link to={`${createPageUrl('PlaylistDetail')}?id=${playlist.id}`} className="flex-1">
+                      <div className="mt-4 pt-3 border-t border-border/60 flex items-center gap-2">
+                        <Link to={`${createPageUrl('PlaylistDetail')}?id=${playlist.id}`} className="flex-1">
+                          <Button
+                            className="w-full px-4 h-9 text-sm"
+                            variant="outline"
+                            style={{ borderRadius: '9999px' }}
+                          >
+                            {t('playlists.view_playlist')}
+                          </Button>
+                        </Link>
                         <Button
-                          className="w-full px-4 h-9 text-sm"
-                          variant="outline"
-                          style={{ borderRadius: '9999px' }}
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (deleteMutation.isPending) return;
+                            if (confirm(t('playlists.delete_confirm'))) {
+                              deleteMutation.mutate(playlist.id);
+                            }
+                          }}
+                          disabled={deleteMutation.isPending}
+                          aria-label={t('playlists.delete_aria')}
+                          className="shrink-0 opacity-40 group-hover:opacity-100 transition-opacity"
                         >
-                          {t('playlists.view_playlist')}
+                          <Trash2 className="w-4 h-4 text-red-500" />
                         </Button>
-                      </Link>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          if (deleteMutation.isPending) return;
-                          if (confirm(t('playlists.delete_confirm'))) {
-                            deleteMutation.mutate(playlist.id);
-                          }
-                        }}
-                        disabled={deleteMutation.isPending}
-                        aria-label={t('playlists.delete_aria')}
-                        className="shrink-0 opacity-40 group-hover:opacity-100 transition-opacity"
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+
+            <Card className="mt-6 border border-border/70 shadow-[var(--shadow-sm)]">
+              <CardContent className="p-4 md:p-5">
+                <div className="flex flex-wrap gap-2.5">
+                  <Link to={createPageUrl('Videos')}>
+                    <Button variant="outline">
+                      {t('playlist_detail.browse_videos')}
+                    </Button>
+                  </Link>
+                  <Link to={createPageUrl('Exercises')}>
+                    <Button variant="outline">
+                      <Dumbbell className="w-4 h-4 mr-1" />
+                      {t('quick_actions.exercises_library.title')}
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </>
         )}
 
         <CreatePlaylistModal 

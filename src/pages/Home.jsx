@@ -252,8 +252,13 @@ export default function Home() {
           <StandaloneDailyCheckIn />
           </div>
 
+        {/* Immediate Follow-up Actions */}
+        <div className="bg-teal-50 mt-6 p-4 rounded-[64px] border border-[rgba(116,169,154,0.28)] md:p-5 shadow-[0_24px_58px_rgba(68,108,96,0.12),0_8px_22px_rgba(68,108,96,0.07)] backdrop-blur-[12px]">
+          <QuickActions />
+        </div>
+
           {/* Secondary Content - Below the fold */}
-        <div className="bg-teal-50 text-emerald-200 mt-10 p-4 rounded-[40px] space-y-5 border border-[rgba(125,173,160,0.24)] md:p-5 shadow-[0_20px_52px_rgba(68,108,96,0.08)] backdrop-blur-[10px]">
+        <div className="bg-teal-50 text-emerald-200 mt-8 p-4 rounded-[40px] space-y-5 border border-[rgba(125,173,160,0.24)] md:p-5 shadow-[0_20px_52px_rgba(68,108,96,0.08)] backdrop-blur-[10px]">
         
         {/* Goals Dashboard Widget */}
         <GoalsDashboardWidget />
@@ -359,10 +364,6 @@ export default function Home() {
           </Card>
             }
 
-        {/* Quick Actions */}
-        <div className="bg-teal-50 mt-8 p-4 rounded-[64px] border border-[rgba(116,169,154,0.28)] md:p-5 shadow-[0_24px_58px_rgba(68,108,96,0.12),0_8px_22px_rgba(68,108,96,0.07)] backdrop-blur-[12px]">
-          <QuickActions />
-        </div>
         </div>
 
 
