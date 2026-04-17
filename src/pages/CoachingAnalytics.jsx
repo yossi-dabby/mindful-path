@@ -87,6 +87,36 @@ export default function CoachingAnalytics() {
   const actionCompletionRate = totalActions > 0 
     ? Math.round((completedActions / totalActions) * 100) 
     : 0;
+  const hasSessionData = sessions.length > 0;
+
+  if (!hasSessionData) {
+    return (
+      <div className="min-h-dvh p-4 md:p-8 max-w-7xl mx-auto">
+        <div className="mb-8 mt-4">
+          <Link to={createPageUrl('Coach')}>
+            <Button variant="ghost" className="mb-4">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              {t('coaching_analytics.back_to_coaching')}
+            </Button>
+          </Link>
+          <h1 className="text-3xl md:text-4xl font-light text-gray-800 mb-2">{t('coaching_analytics.title')}</h1>
+          <p className="text-gray-500">{t('coaching_analytics.subtitle')}</p>
+        </div>
+
+        <Card className="border-0 shadow-lg">
+          <CardContent className="p-8 md:p-12 text-center space-y-4">
+            <p className="text-gray-500">{t('coaching_analytics.no_data')}</p>
+            <Link to={createPageUrl('Coach')}>
+              <Button variant="outline">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                {t('coaching_analytics.back_to_coaching')}
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-dvh p-4 md:p-8 max-w-7xl mx-auto">
@@ -227,33 +257,37 @@ export default function CoachingAnalytics() {
           <CardTitle>{t('coaching_analytics.challenge_breakdown')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {focusAreaData.slice(0, 5).map((item, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <div className="flex items-center gap-3 flex-1">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold`} 
-                       style={{ backgroundColor: COLORS[index % COLORS.length] }}>
-                    {index + 1}
+          {focusAreaData.length > 0 ? (
+            <div className="space-y-4">
+              {focusAreaData.slice(0, 5).map((item, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold`} 
+                         style={{ backgroundColor: COLORS[index % COLORS.length] }}>
+                      {index + 1}
+                    </div>
+                    <span className="text-gray-700 font-medium">{item.name}</span>
                   </div>
-                  <span className="text-gray-700 font-medium">{item.name}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-32 bg-gray-200 rounded-full h-2">
-                    <div
-                      className="h-2 rounded-full"
-                      style={{
-                        width: `${(item.value / sessions.length) * 100}%`,
-                        backgroundColor: COLORS[index % COLORS.length]
-                      }}
-                    />
+                  <div className="flex items-center gap-3">
+                    <div className="w-32 bg-gray-200 rounded-full h-2">
+                      <div
+                        className="h-2 rounded-full"
+                        style={{
+                          width: `${(item.value / sessions.length) * 100}%`,
+                          backgroundColor: COLORS[index % COLORS.length]
+                        }}
+                      />
+                    </div>
+                    <span className="text-gray-600 font-semibold w-16 text-right">
+                      {item.value} {item.value === 1 ? t('coaching_analytics.session_singular') : t('coaching_analytics.session_plural')}
+                    </span>
                   </div>
-                  <span className="text-gray-600 font-semibold w-16 text-right">
-                    {item.value} {item.value === 1 ? t('coaching_analytics.session_singular') : t('coaching_analytics.session_plural')}
-                  </span>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-gray-500 py-8">{t('coaching_analytics.no_data')}</p>
+          )}
         </CardContent>
       </Card>
     </div>
