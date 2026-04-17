@@ -162,31 +162,38 @@ export default function Videos() {
                     </Link>
 
                     {/* Video Info */}
-                    <div className="p-3 flex flex-col" style={{ minHeight: '112px' }}>
-                      <h3 className="text-sm font-semibold mb-1 line-clamp-2 leading-tight text-foreground" style={{ minHeight: '2.5rem' }}>
-                        {video.title}
-                      </h3>
-                      {video.category && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-primary border border-border/60 w-fit mb-1.5">
-                          {video.category}
-                        </span>
-                      )}
-                      <div className="flex-1"></div>
-                      <Button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setSelectedVideo(video);
-                        }}
-                        className="w-full h-8 text-xs font-medium text-white"
-                        style={{ 
-                          backgroundColor: '#26A69A',
-                          borderRadius: '8px'
-                        }}
-                      >
-                        <Plus className="w-3.5 h-3.5 mr-1" />
-                        {t('videos.add_to_list')}
-                      </Button>
+                    <div className="flex flex-1 flex-col">
+                      <div className="p-3 pb-2">
+                        <h3 className="text-sm font-semibold mb-1 line-clamp-2 leading-tight text-foreground" style={{ minHeight: '2.5rem' }}>
+                          {video.title}
+                        </h3>
+                        {getVideoMetaBadge(video) && (
+                          <p className="text-[11px] text-muted-foreground mb-2">{getVideoMetaBadge(video)}</p>
+                        )}
+                        {video.category && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-primary border border-border/60 w-fit">
+                            {video.category}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="mt-auto border-t border-border/60 px-3 pt-2.5 pb-3">
+                        <Button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setSelectedVideo(video);
+                          }}
+                          className="w-full h-8 text-xs font-medium text-white"
+                          style={{ 
+                            backgroundColor: '#26A69A',
+                            borderRadius: '8px'
+                          }}
+                        >
+                          <Plus className="w-3.5 h-3.5 mr-1" />
+                          {t('videos.add_to_list')}
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

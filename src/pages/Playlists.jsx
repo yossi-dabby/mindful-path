@@ -170,21 +170,32 @@ export default function Playlists() {
                   backdropFilter: 'blur(10px)',
                   boxShadow: '0 3px 12px rgba(38, 166, 154, 0.1), 0 1px 3px rgba(0,0,0,0.04)'
                 }}>
-                  <CardContent className="p-5">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold mb-1" style={{ color: '#2D3748' }}>
-                          {playlist.name}
-                        </h3>
-                        {playlist.description && (
-                          <p className="text-sm line-clamp-2 mb-2" style={{ color: '#718096' }}>
-                            {playlist.description}
-                          </p>
-                        )}
-                        <p className="text-xs font-medium" style={{ color: '#26A69A' }}>
-                          {t('playlists.video_count', { count: playlist.video_count || 0 })}
+                  <CardContent className="p-5 h-full flex flex-col">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold mb-1.5" style={{ color: '#2D3748' }}>
+                        {playlist.name}
+                      </h3>
+                      {playlist.description && (
+                        <p className="text-sm line-clamp-2 mb-3" style={{ color: '#718096' }}>
+                          {playlist.description}
                         </p>
+                      )}
+                      <div className="inline-flex items-center gap-1.5 text-xs font-medium" style={{ color: '#26A69A' }}>
+                        <List className="w-3.5 h-3.5" />
+                        {t('playlists.video_count', { count: playlist.video_count || 0 })}
                       </div>
+                    </div>
+
+                    <div className="mt-4 pt-3 border-t border-border/60 flex items-center gap-2">
+                      <Link to={`${createPageUrl('PlaylistDetail')}?id=${playlist.id}`} className="flex-1">
+                        <Button
+                          className="w-full px-4 h-9 text-sm"
+                          variant="outline"
+                          style={{ borderRadius: '9999px' }}
+                        >
+                          {t('playlists.view_playlist')}
+                        </Button>
+                      </Link>
                       <Button
                         variant="ghost"
                         size="icon"
@@ -196,21 +207,12 @@ export default function Playlists() {
                           }
                         }}
                         disabled={deleteMutation.isPending}
-                        className="opacity-40 group-hover:opacity-100 transition-opacity"
                         aria-label={t('playlists.delete_aria')}
+                        className="shrink-0 opacity-40 group-hover:opacity-100 transition-opacity"
                       >
                         <Trash2 className="w-4 h-4 text-red-500" />
                       </Button>
                     </div>
-                    <Link to={`${createPageUrl('PlaylistDetail')}?id=${playlist.id}`}>
-                      <Button 
-                        className="w-full px-4 h-9 text-sm"
-                        variant="outline"
-                        style={{ borderRadius: '9999px' }}
-                      >
-                        {t('playlists.view_playlist')}
-                      </Button>
-                    </Link>
                   </CardContent>
                 </Card>
               </motion.div>
