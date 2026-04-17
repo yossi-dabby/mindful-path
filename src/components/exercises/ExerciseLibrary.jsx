@@ -9,7 +9,7 @@ import ExerciseMediaBadge from './ExerciseMediaBadge';
 function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExercise, onToggleFavorite }) {
   const { t } = useTranslation();
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7">
       {exercises.map((exercise, index) => {
         const Icon = categoryIcons[exercise.category] || Play;
         const colorClass = categoryColors[exercise.category] || 'bg-gray-100 text-gray-700';
@@ -59,9 +59,9 @@ function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExe
                 </div>
               }
 
-              <CardContent className="bg-teal-300 p-5 rounded-3xl">
-                <div className="mr-8 mb-2 flex items-start justify-between">
-                  <div className="bg-teal-400 text-sky-700 mx-3 opacity-90 rounded-xl w-10 h-10 border border-sky-200 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <CardContent className="bg-teal-300 p-4 md:p-5 rounded-3xl">
+                <div className="mr-8 mb-3 flex items-start justify-between">
+                  <div className="bg-teal-400 text-sky-700 opacity-90 rounded-xl w-9 h-9 border border-sky-200 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Icon className="text-teal-800 lucide lucide-trending-up lucide-anchor w-5 h-5" />
                   </div>
                   {exercise.completed_count > 0 &&
@@ -82,7 +82,7 @@ function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExe
                 {/* Tags */}
                 {exercise.tags?.length > 0 &&
                 <div className="flex flex-wrap gap-1 mb-3">
-                    {exercise.tags.filter((tag) => tag && typeof tag === 'string').slice(0, 3).map((tag, i) =>
+                    {exercise.tags.filter((tag) => tag && typeof tag === 'string').slice(0, 2).map((tag, i) =>
                   <Badge key={i} variant="outline" className="bg-teal-100 text-muted-foreground px-2 py-0.5 text-xs font-medium tracking-[0.01em] rounded-3xl inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70">
                         {tag}
                       </Badge>
@@ -97,14 +97,14 @@ function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExe
                     `${exercise.duration_options[0]}-${exercise.duration_options[exercise.duration_options.length - 1]} ${t('common.minutes_short')}` :
                     t('exercises.library.flexible')}
                   </div>
-                  <Badge variant="outline" className="bg-teal-100 text-muted-foreground px-2.5 py-1 text-xs font-medium capitalize tracking-[0.01em] rounded-3xl inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70">
+                  <span className="text-[11px] font-medium capitalize">
                     {exercise.difficulty || 'beginner'}
-                  </Badge>
+                  </span>
                 </div>
 
                 {/* Progress Bar */}
                 {exercise.completed_count > 0 &&
-                <div className="mt-3">
+                <div className="mt-2.5">
                     <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
                       <span>{t('journeys.card.progress')}</span>
                       <span>{exercise.total_time_practiced || 0} {t('common.minutes_short')}</span>

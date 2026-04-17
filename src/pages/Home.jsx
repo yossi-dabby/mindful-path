@@ -260,7 +260,7 @@ export default function Home() {
         
         {/* Quick Stats */}
         
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
           <div className="relative overflow-hidden rounded-[28px] border border-[rgba(116,169,154,0.34)] bg-[linear-gradient(180deg,rgba(255,253,250,0.98)_0%,rgba(227,244,238,0.96)_100%)] p-5 text-center shadow-[0_24px_54px_rgba(68,108,96,0.14),0_8px_18px_rgba(68,108,96,0.08)]">
             <div className="flex items-center justify-center gap-2 mb-1">
               {latestGoal &&
@@ -278,24 +278,12 @@ export default function Home() {
               <p className="text-teal-600 text-2xl font-bold">{recentGoals.length}</p>
             </div>
             <div className="flex items-center justify-center gap-2">
-              {/* Help Video Button - MOBILE: LEFT of text */}
-              <Button
-                    onClick={() => setShowGoalsVideo(true)}
-                    size="icon"
-                    variant="ghost" className="bg-teal-600 text-accent p-0 font-medium tracking-[0.005em] leading-none rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:text-foreground active:bg-secondary/88 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 md:hidden h-6 w-6 hover:bg-accent/20"
-
-                    title="Watch help video"
-                    aria-label="Watch goals help video">
-
-                <Sparkles className="w-3 h-3 text-accent" strokeWidth={2} />
-              </Button>
               <p className="text-teal-600 text-xs">{t('home.active_goals')}</p>
             </div>
-            {/* Help Video Button - WEB: Below text */}
             <Button
                   onClick={() => setShowGoalsVideo(true)}
                   size="icon"
-                  variant="ghost" className="bg-teal-600 text-accent mt-2 mx-auto p-0 font-medium tracking-[0.005em] leading-none rounded-full items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:text-foreground active:bg-secondary/88 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 hidden md:flex h-7 w-7 hover:bg-accent/20"
+                  variant="ghost" className="bg-teal-600 text-accent mt-2 mx-auto p-0 font-medium tracking-[0.005em] leading-none rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:text-foreground active:bg-secondary/88 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 h-6 w-6 md:h-7 md:w-7 hover:bg-accent/20"
 
                   title="Watch help video"
                   aria-label="Watch goals help video">
@@ -320,24 +308,12 @@ export default function Home() {
               <p className="text-teal-600 text-2xl font-bold">{journalCount}</p>
             </div>
             <div className="flex items-center justify-center gap-2">
-              {/* Help Video Button - MOBILE: LEFT of text */}
-              <Button
-                    onClick={() => setShowJournalVideo(true)}
-                    size="icon"
-                    variant="ghost" className="bg-teal-600 text-teal-600 p-0 font-medium tracking-[0.005em] leading-none rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:text-foreground active:bg-secondary/88 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 md:hidden h-6 w-6 hover:bg-accent/20"
-
-                    title="Watch help video"
-                    aria-label="Watch journal help video">
-
-                <Sparkles className="w-3 h-3 text-accent" strokeWidth={2} />
-              </Button>
               <p className="text-teal-600 text-xs">{t('home.journal_entries')}</p>
             </div>
-            {/* Help Video Button - WEB: Below text */}
             <Button
                   onClick={() => setShowJournalVideo(true)}
                   size="icon"
-                  variant="ghost" className="bg-teal-600 text-accent mt-2 mx-auto p-0 font-medium tracking-[0.005em] leading-none rounded-full items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:text-foreground active:bg-secondary/88 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 hidden md:flex h-7 w-7 hover:bg-accent/20"
+                  variant="ghost" className="bg-teal-600 text-accent mt-2 mx-auto p-0 font-medium tracking-[0.005em] leading-none rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:text-foreground active:bg-secondary/88 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 h-6 w-6 md:h-7 md:w-7 hover:bg-accent/20"
 
                   title="Watch help video"
                   aria-label="Watch journal help video">
@@ -384,7 +360,7 @@ export default function Home() {
             }
 
         {/* Quick Actions */}
-        <div className="bg-teal-50 mt-6 p-4 rounded-[64px] border border-[rgba(116,169,154,0.28)] md:p-5 shadow-[0_24px_58px_rgba(68,108,96,0.12),0_8px_22px_rgba(68,108,96,0.07)] backdrop-blur-[12px]">
+        <div className="bg-teal-50 mt-8 p-4 rounded-[64px] border border-[rgba(116,169,154,0.28)] md:p-5 shadow-[0_24px_58px_rgba(68,108,96,0.12),0_8px_22px_rgba(68,108,96,0.07)] backdrop-blur-[12px]">
           <QuickActions />
         </div>
         </div>

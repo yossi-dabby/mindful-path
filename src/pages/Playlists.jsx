@@ -156,7 +156,7 @@ export default function Playlists() {
 
         {/* Playlist Grid */}
         {!isError && !isLoading && playlists.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
             {playlists.map((playlist, index) => (
               <motion.div
                 key={playlist.id}
@@ -171,7 +171,7 @@ export default function Playlists() {
                   boxShadow: '0 3px 12px rgba(38, 166, 154, 0.1), 0 1px 3px rgba(0,0,0,0.04)'
                 }}>
                   <CardContent className="p-5">
-                    <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <h3 className="text-lg font-semibold mb-1" style={{ color: '#2D3748' }}>
                           {playlist.name}
@@ -181,7 +181,7 @@ export default function Playlists() {
                             {playlist.description}
                           </p>
                         )}
-                        <p className="text-sm font-medium" style={{ color: '#26A69A' }}>
+                        <p className="text-xs font-medium" style={{ color: '#26A69A' }}>
                           {t('playlists.video_count', { count: playlist.video_count || 0 })}
                         </p>
                       </div>
@@ -196,7 +196,7 @@ export default function Playlists() {
                           }
                         }}
                         disabled={deleteMutation.isPending}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="opacity-40 group-hover:opacity-100 transition-opacity"
                         aria-label={t('playlists.delete_aria')}
                       >
                         <Trash2 className="w-4 h-4 text-red-500" />
@@ -204,7 +204,7 @@ export default function Playlists() {
                     </div>
                     <Link to={`${createPageUrl('PlaylistDetail')}?id=${playlist.id}`}>
                       <Button 
-                        className="w-full px-5 py-5"
+                        className="w-full px-4 h-9 text-sm"
                         variant="outline"
                         style={{ borderRadius: '9999px' }}
                       >
