@@ -128,24 +128,34 @@ export default function Community() {
   (post.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
   (post.content || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
+  const baseTabActionClassName = [
+    'text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none',
+    'inline-flex items-center justify-center whitespace-nowrap',
+    'border border-transparent transition-all duration-200',
+    'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
+    'disabled:pointer-events-none disabled:opacity-45',
+    '[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+    'shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95',
+    'h-9 min-h-[44px] md:min-h-0 gap-2 w-full sm:w-auto'
+  ].join(' ');
   const tabActionConfig = {
     forum: {
       onClick: () => setShowPostForm(true),
       label: t('community.buttons.new_post'),
-      className: 'bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 gap-2 w-full sm:w-auto'
+      className: `${baseTabActionClassName} bg-teal-600 rounded-[var(--radius-card)]`
     },
     groups: {
       onClick: () => setShowGroupForm(true),
       label: t('community.buttons.create_group'),
-      className: 'bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[20px] inline-flex items-center justify-center whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 gap-2 w-full sm:w-auto'
+      className: `${baseTabActionClassName} bg-teal-600 rounded-[20px]`
     },
     progress: {
       onClick: () => setShowProgressForm(true),
       label: t('community.buttons.share_progress'),
-      className: 'bg-teal-700 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[20px] inline-flex items-center justify-center whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 gap-2 w-full sm:w-auto'
+      className: `${baseTabActionClassName} bg-teal-700 rounded-[20px]`
     }
   };
-  const activeTabAction = tabActionConfig[activeTab];
+  const activeTabAction = tabActionConfig[activeTab] || tabActionConfig.forum;
 
   return (
     <PullToRefresh queryKeys={['forumPosts', 'communityGroups', 'groupMemberships', 'sharedProgress']}>

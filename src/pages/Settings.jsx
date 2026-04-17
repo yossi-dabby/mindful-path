@@ -169,6 +169,7 @@ export default function Settings() {
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.4 }
   };
+  const profileActionRowClassName = 'pt-2 border-t border-gray-200/80 flex flex-col items-center gap-2 md:flex-row md:items-center md:justify-between';
 
   if (!user) {
     return (
@@ -254,16 +255,14 @@ export default function Settings() {
             </div>
           </div>
 
-          <div className="pt-2 border-t border-gray-200/80 flex flex-col items-center md:flex-row md:items-center md:justify-between gap-2">
-            {showProfileSaved && !updateProfileMutation.isPending ? (
+          <div className={profileActionRowClassName}>
+            {showProfileSaved && !updateProfileMutation.isPending && (
               <p className="text-xs text-gray-500">{t('common.saved')}</p>
-            ) : (
-              <div />
             )}
             <Button
               onClick={() => updateProfileMutation.mutate({ full_name: fullName })}
               disabled={updateProfileMutation.isPending || fullName === user.full_name}
-              className="text-white px-6 py-5 w-full md:w-auto md:self-end"
+              className="text-white px-6 py-5 w-full md:w-auto md:ml-auto md:self-end"
               style={{ 
                 borderRadius: '9999px',
                 backgroundColor: '#26A69A',
