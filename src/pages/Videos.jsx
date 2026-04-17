@@ -37,7 +37,7 @@ export default function Videos() {
   });
 
   const getVideoProgress = (videoId) => {
-    return allProgress.find(p => p.video_id === videoId);
+    return allProgress.find((p) => p.video_id === videoId);
   };
 
   return (
@@ -56,19 +56,19 @@ export default function Videos() {
           </div>
           <div className="flex gap-2 flex-wrap md:flex-nowrap">
             <Link to={createPageUrl('Playlists')}>
-              <Button
-                className="text-sm font-medium px-6 py-5 rounded-full w-full md:w-auto"
-              >
+              <Button className="bg-teal-600 text-primary-foreground px-6 py-5 text-sm font-medium tracking-[0.005em] rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-10 min-h-[44px] md:min-h-0 w-full md:w-auto">
+
+                  
                 <List className="w-4 h-4 mr-1" />
                 {t('videos.my_playlists')}
               </Button>
             </Link>
             <Button
-              variant="outline"
-              onClick={() => setShowCreatePlaylist(true)}
-              className="text-sm px-5 py-5 w-full md:w-auto"
-              style={{ borderRadius: '9999px' }}
-            >
+                variant="outline"
+                onClick={() => setShowCreatePlaylist(true)}
+                className="text-sm px-5 py-5 w-full md:w-auto"
+                style={{ borderRadius: '9999px' }}>
+                
               <Plus className="w-4 h-4 mr-1" />
               {t('videos.new_button')}
             </Button>
@@ -76,85 +76,85 @@ export default function Videos() {
         </div>
 
         {/* Loading State */}
-        {isLoading && (
+        {isLoading &&
           <div className="text-center py-12">
             <p className="text-muted-foreground">{t('videos.loading')}</p>
           </div>
-        )}
+          }
 
         {/* Empty State */}
-        {!isLoading && videos.length === 0 && (
+        {!isLoading && videos.length === 0 &&
           <div className="text-center py-12">
             <p className="text-lg mb-2 text-foreground">{t('videos.no_videos_title')}</p>
             <p className="text-muted-foreground">{t('videos.no_videos_description')}</p>
           </div>
-        )}
+          }
 
         {/* Video Grid */}
-        {!isLoading && videos.length > 0 && (
+        {!isLoading && videos.length > 0 &&
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {videos.map((video, index) => (
-              <motion.div
-                key={video.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-              >
+            {videos.map((video, index) =>
+            <motion.div
+              key={video.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.05 }}>
+              
                 <Card className="surface-primary rounded-[var(--radius-card)] hover:shadow-[var(--shadow-lg)] transition-calm overflow-hidden group flex flex-col h-full">
                   <CardContent className="p-0 flex flex-col" style={{ height: '100%' }}>
-                    <Link 
-                      to={`${createPageUrl('VideoPlayer')}?videoUrl=${encodeURIComponent(video.videoUrl)}&title=${encodeURIComponent(video.title)}&videoId=${video.id}`}
-                    >
+                    <Link
+                    to={`${createPageUrl('VideoPlayer')}?videoUrl=${encodeURIComponent(video.videoUrl)}&title=${encodeURIComponent(video.title)}&videoId=${video.id}`}>
+                    
                       {/* Thumbnail with Play Overlay */}
                       <div className="relative bg-secondary/40" style={{ aspectRatio: '16/10' }}>
                         <img
-                          src={video.thumbnailUrl}
-                          alt={video.title}
-                          className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
-                        />
+                        src={video.thumbnailUrl}
+                        alt={video.title}
+                        className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105" />
+                      
                         <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent group-hover:from-black/40 transition-colors flex items-center justify-center">
-                          <div 
-                            className="w-10 h-10 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform bg-white/20 backdrop-blur-sm"
-                            style={{ 
-                              borderRadius: 'var(--r-lg)'
-                            }}
-                          >
+                          <div
+                          className="w-10 h-10 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform bg-white/20 backdrop-blur-sm"
+                          style={{
+                            borderRadius: 'var(--r-lg)'
+                          }}>
+                          
                             <Play className="w-5 h-5 text-white fill-white ml-0.5" />
                           </div>
                         </div>
                         {(() => {
-                          const progress = getVideoProgress(video.id);
-                          return progress && progress.progress > 0 && (
-                            <>
-                              {progress.completed && (
-                                <div className="absolute top-1.5 left-1.5 bg-green-500 text-white px-1.5 py-0.5 rounded-full text-xs font-medium">
+                        const progress = getVideoProgress(video.id);
+                        return progress && progress.progress > 0 &&
+                        <>
+                              {progress.completed &&
+                          <div className="absolute top-1.5 left-1.5 bg-green-500 text-white px-1.5 py-0.5 rounded-full text-xs font-medium">
                                   ✓
                                 </div>
-                              )}
+                          }
                               <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
-                                <div 
-                                  className="h-full transition-all duration-300 bg-green-500"
-                                  style={{ 
-                                    width: `${progress.progress}%`
-                                  }}
-                                />
+                                <div
+                              className="h-full transition-all duration-300 bg-green-500"
+                              style={{
+                                width: `${progress.progress}%`
+                              }} />
+                            
                               </div>
-                            </>
-                          );
-                        })()}
+                            </>;
+
+                      })()}
                         
                         {/* Metadata Badges */}
                         <div className="absolute bottom-1.5 right-1.5 flex gap-1">
-                          {video.duration_minutes && (
-                            <div className="bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded text-xs font-medium">
+                          {video.duration_minutes &&
+                        <div className="bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded text-xs font-medium">
                               {video.duration_minutes}m
                             </div>
-                          )}
-                          {video.difficulty && (
-                            <div className="bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded text-xs font-medium capitalize">
+                        }
+                          {video.difficulty &&
+                        <div className="bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded text-xs font-medium capitalize">
                               {video.difficulty.substring(0, 3)}
                             </div>
-                          )}
+                        }
                         </div>
                       </div>
                     </Link>
@@ -164,24 +164,24 @@ export default function Videos() {
                       <h3 className="text-sm font-semibold mb-1.5 line-clamp-2 leading-tight text-foreground" style={{ minHeight: '2.5rem' }}>
                         {video.title}
                       </h3>
-                      {video.category && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-primary border border-border/60 w-fit mb-2">
+                      {video.category &&
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-primary border border-border/60 w-fit mb-2">
                           {video.category}
                         </span>
-                      )}
+                    }
                       <div className="flex-1"></div>
                       <Button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setSelectedVideo(video);
-                        }}
-                        className="w-full h-7 text-xs font-medium text-white"
-                        style={{ 
-                          backgroundColor: '#26A69A',
-                          borderRadius: '8px'
-                        }}
-                      >
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setSelectedVideo(video);
+                      }}
+                      className="w-full h-7 text-xs font-medium text-white"
+                      style={{
+                        backgroundColor: '#26A69A',
+                        borderRadius: '8px'
+                      }}>
+                      
                         <Plus className="w-3.5 h-3.5 mr-1" />
                         {t('videos.add_to_list')}
                       </Button>
@@ -189,22 +189,22 @@ export default function Videos() {
                   </CardContent>
                 </Card>
               </motion.div>
-            ))}
+            )}
           </div>
-        )}
+          }
 
-        <CreatePlaylistModal 
-          isOpen={showCreatePlaylist} 
-          onClose={() => setShowCreatePlaylist(false)} 
-        />
+        <CreatePlaylistModal
+            isOpen={showCreatePlaylist}
+            onClose={() => setShowCreatePlaylist(false)} />
+          
         
-        <AddToPlaylistModal 
-          isOpen={!!selectedVideo} 
-          onClose={() => setSelectedVideo(null)} 
-          video={selectedVideo}
-        />
+        <AddToPlaylistModal
+            isOpen={!!selectedVideo}
+            onClose={() => setSelectedVideo(null)}
+            video={selectedVideo} />
+          
         </div>
       </div>
-    </PullToRefresh>
-  );
+    </PullToRefresh>);
+
 }
