@@ -40,6 +40,13 @@ export default function Videos() {
     return allProgress.find(p => p.video_id === videoId);
   };
 
+  const getVideoMetaBadge = (video) => {
+    const parts = [];
+    if (video.duration_minutes) parts.push(`${video.duration_minutes}m`);
+    if (video.difficulty) parts.push(video.difficulty.substring(0, 3));
+    return parts.join(' · ');
+  };
+
   return (
     <PullToRefresh queryKeys={['videos', 'allVideoProgress']}>
       <div className="min-h-dvh bg-transparent">
@@ -144,12 +151,10 @@ export default function Videos() {
                         })()}
                         
                         {/* Metadata Badges */}
-                        {(video.duration_minutes || video.difficulty) && (
+                        {getVideoMetaBadge(video) && (
                           <div className="absolute bottom-1.5 right-1.5">
                             <div className="bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded text-xs font-medium">
-                              {video.duration_minutes ? `${video.duration_minutes}m` : ''}
-                              {video.duration_minutes && video.difficulty ? ' · ' : ''}
-                              {video.difficulty ? video.difficulty.substring(0, 3) : ''}
+                              {getVideoMetaBadge(video)}
                             </div>
                           </div>
                         )}
@@ -173,7 +178,7 @@ export default function Videos() {
                           e.preventDefault();
                           setSelectedVideo(video);
                         }}
-                        className="w-full h-8 text-[11px] font-medium text-white"
+                        className="w-full h-8 text-xs font-medium text-white"
                         style={{ 
                           backgroundColor: '#26A69A',
                           borderRadius: '8px'
