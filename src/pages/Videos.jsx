@@ -40,6 +40,13 @@ export default function Videos() {
     return allProgress.find(p => p.video_id === videoId);
   };
 
+  const getVideoMetaBadge = (video) => {
+    const parts = [];
+    if (video.duration_minutes) parts.push(`${video.duration_minutes}m`);
+    if (video.difficulty) parts.push(video.difficulty.substring(0, 3));
+    return parts.join(' · ');
+  };
+
   return (
     <PullToRefresh queryKeys={['videos', 'allVideoProgress']}>
       <div className="min-h-dvh bg-transparent">
@@ -54,10 +61,10 @@ export default function Videos() {
               {t('videos.subtitle')}
             </p>
           </div>
-          <div className="flex gap-2 flex-wrap md:flex-nowrap">
+          <div className="flex gap-2 flex-wrap md:flex-nowrap md:items-center">
             <Link to={createPageUrl('Playlists')}>
               <Button
-                className="text-sm font-medium px-6 py-5 rounded-full w-full md:w-auto"
+                className="text-sm font-medium px-5 py-4 rounded-full w-full md:w-auto"
               >
                 <List className="w-4 h-4 mr-1" />
                 {t('videos.my_playlists')}
@@ -66,7 +73,7 @@ export default function Videos() {
             <Button
               variant="outline"
               onClick={() => setShowCreatePlaylist(true)}
-              className="text-sm px-5 py-5 w-full md:w-auto"
+              className="text-sm px-4 py-4 w-full md:w-auto"
               style={{ borderRadius: '9999px' }}
             >
               <Plus className="w-4 h-4 mr-1" />
@@ -92,7 +99,7 @@ export default function Videos() {
 
         {/* Video Grid */}
         {!isLoading && videos.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
             {videos.map((video, index) => (
               <motion.div
                 key={video.id}
@@ -144,28 +151,23 @@ export default function Videos() {
                         })()}
                         
                         {/* Metadata Badges */}
-                        <div className="absolute bottom-1.5 right-1.5 flex gap-1">
-                          {video.duration_minutes && (
+                        {getVideoMetaBadge(video) && (
+                          <div className="absolute bottom-1.5 right-1.5">
                             <div className="bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded text-xs font-medium">
-                              {video.duration_minutes}m
+                              {getVideoMetaBadge(video)}
                             </div>
-                          )}
-                          {video.difficulty && (
-                            <div className="bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded text-xs font-medium capitalize">
-                              {video.difficulty.substring(0, 3)}
-                            </div>
-                          )}
-                        </div>
+                          </div>
+                        )}
                       </div>
                     </Link>
 
                     {/* Video Info */}
-                    <div className="p-3 flex flex-col" style={{ minHeight: '120px' }}>
-                      <h3 className="text-sm font-semibold mb-1.5 line-clamp-2 leading-tight text-foreground" style={{ minHeight: '2.5rem' }}>
+                    <div className="p-3 flex flex-col" style={{ minHeight: '112px' }}>
+                      <h3 className="text-sm font-semibold mb-1 line-clamp-2 leading-tight text-foreground" style={{ minHeight: '2.5rem' }}>
                         {video.title}
                       </h3>
                       {video.category && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-primary border border-border/60 w-fit mb-2">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-primary border border-border/60 w-fit mb-1.5">
                           {video.category}
                         </span>
                       )}
@@ -176,7 +178,7 @@ export default function Videos() {
                           e.preventDefault();
                           setSelectedVideo(video);
                         }}
-                        className="w-full h-7 text-xs font-medium text-white"
+                        className="w-full h-8 text-xs font-medium text-white"
                         style={{ 
                           backgroundColor: '#26A69A',
                           borderRadius: '8px'
