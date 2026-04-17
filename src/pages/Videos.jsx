@@ -42,7 +42,7 @@ export default function Videos() {
 
   return (
     <PullToRefresh queryKeys={['videos', 'allVideoProgress']}>
-      <div className="min-h-dvh bg-transparent">
+      <div className="min-h-dvh bg-transparent safe-bottom">
         <div className="page-container max-w-7xl">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 mt-6">

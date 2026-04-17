@@ -55,7 +55,7 @@ export default function Playlists() {
     <>
       {showAuthError && <AuthErrorBanner onDismiss={() => setShowAuthError(false)} />}
       <PullToRefresh queryKeys={['playlists']}>
-        <div className="min-h-dvh" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
+        <div className="min-h-dvh safe-bottom" style={{ background: 'linear-gradient(to bottom, #F0F9F8 0%, #E8F5F3 50%, #E0F2F1 100%)' }}>
           <div className="page-container max-w-7xl">
         {/* Header with Back Button */}
         <div className="mb-6 mt-6">
