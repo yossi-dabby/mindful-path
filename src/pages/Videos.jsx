@@ -69,7 +69,7 @@ export default function Videos() {
 
                 style={{ borderRadius: '9999px' }}>
                 
-              <Plus className="w-4 h-4 mr-1" />
+              <Plus className="text-slate-50 mr-1 lucide lucide-plus w-4 h-4" />
               {t('videos.new_button')}
             </Button>
           </div>
