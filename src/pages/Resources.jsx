@@ -141,7 +141,7 @@ export default function Resources() {
 
   return (
     <PullToRefresh queryKeys={['resources', 'savedResources', 'moodForResources', 'journalForResources', 'userForResources']}>
-      <div className="w-full box-border p-4 md:p-8 max-w-7xl mx-auto min-h-[100dvh] bg-transparent">
+      <div className="w-full box-border p-4 md:p-8 max-w-7xl mx-auto min-h-dvh bg-transparent safe-bottom">
       {/* Header */}
       <div className="mb-8 mt-4">
         <h1 className="text-3xl md:text-4xl font-semibold mb-2 flex items-center gap-3 text-foreground">

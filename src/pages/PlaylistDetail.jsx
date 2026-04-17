@@ -86,7 +86,7 @@ export default function PlaylistDetail() {
 
   if (!playlist) {
     return (
-      <div className="min-h-dvh bg-warm-gradient">
+      <div className="min-h-dvh bg-warm-gradient safe-bottom">
         <div className="page-container max-w-7xl">
           <div className="text-center py-12">
             <p style={{ color: 'rgb(var(--theme-muted))' }}>{t('playlist_detail.loading')}</p>
@@ -97,7 +97,7 @@ export default function PlaylistDetail() {
   }
 
   return (
-    <div className="min-h-dvh bg-warm-gradient">
+    <div className="min-h-dvh bg-warm-gradient safe-bottom">
       <div className="page-container max-w-7xl">
         {/* Header */}
         <div className="mb-8 mt-6">
