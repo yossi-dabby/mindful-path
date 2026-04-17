@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -208,11 +208,11 @@ export default function Exercises() {
   { value: 'relationships', label: t('exercises.categories.relationships') },
   { value: 'stress_management', label: t('exercises.categories.stress') }];
 
-  const resetFilters = () => {
+  const resetFilters = useCallback(() => {
     setShowFavoritesOnly(false);
     setSearchQuery('');
     setSelectedCategory('all');
-  };
+  }, []);
 
 
   if (isLoading) {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -47,10 +47,14 @@ export default function Videos() {
     return parts.join(' · ');
   };
 
-  const inProgressVideo = videos.find((video) => {
-    const progress = getVideoProgress(video.id);
-    return progress && progress.progress > 0 && !progress.completed;
-  });
+  const inProgressVideo = useMemo(
+    () =>
+      videos.find((video) => {
+        const progress = getVideoProgress(video.id);
+        return progress && progress.progress > 0 && !progress.completed;
+      }),
+    [videos, allProgress]
+  );
 
   return (
     <PullToRefresh queryKeys={['videos', 'allVideoProgress']}>
