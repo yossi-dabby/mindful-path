@@ -84,8 +84,8 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={handleBack}
-            className="rounded-full"
+            onClick={handleBack} className="text-teal-600 font-medium tracking-[0.005em] leading-none rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-10 w-10 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0"
+
             aria-label={t('common.back')}>
 
               <ChevronLeft className="w-6 h-6 rtl:scale-x-[-1] text-primary" />
