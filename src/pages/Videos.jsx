@@ -50,7 +50,7 @@ export default function Videos() {
             <h1 className="text-teal-600 mb-1 text-2xl font-semibold md:text-3xl">
               {t('videos.title')}
             </h1>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-teal-600 text-sm">
               {t('videos.subtitle')}
             </p>
           </div>
