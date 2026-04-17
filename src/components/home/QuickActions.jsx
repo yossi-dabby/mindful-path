@@ -346,7 +346,7 @@ export default function QuickActions() {
                         <User className="w-5 h-5 icon-default" style={{ color: action.color }} strokeWidth={2} />
                       </button>
                     </div>
-                    <h3 className="text-teal-600 mb-1 text-[13px] font-semibold break-words leading-snug">{action.title}</h3>
+                    <h3 className="text-teal-600 mb-1 text-sm font-semibold break-words leading-snug">{action.title}</h3>
                     <p className="text-teal-600 text-xs line-clamp-2 break-words">{action.description}</p>
                   </CardContent>
                 </Card>

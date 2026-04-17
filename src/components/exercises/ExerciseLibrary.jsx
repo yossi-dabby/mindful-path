@@ -79,7 +79,7 @@ function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExe
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <ExerciseMediaBadge mediaType={exercise.media_type} />
                   {exercise.completed_count > 0 &&
-                  <span className="text-[11px] text-muted-foreground font-medium">
+                  <span className="text-xs text-muted-foreground font-medium">
                     {exercise.total_time_practiced || 0} {t('common.minutes_short')}
                   </span>
                   }
