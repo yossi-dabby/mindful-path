@@ -97,9 +97,9 @@ function ExerciseLibrary({ exercises, categoryIcons, categoryColors, onSelectExe
                     `${exercise.duration_options[0]}-${exercise.duration_options[exercise.duration_options.length - 1]} ${t('common.minutes_short')}` :
                     t('exercises.library.flexible')}
                   </div>
-                  <span className="text-[11px] font-medium capitalize">
+                  <Badge variant="outline" className="bg-teal-100 text-muted-foreground px-2 py-0.5 text-[11px] font-medium capitalize tracking-[0.01em] rounded-3xl inline-flex items-center border transition-colors focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1 border-border/70">
                     {exercise.difficulty || 'beginner'}
-                  </span>
+                  </Badge>
                 </div>
 
                 {/* Progress Bar */}
