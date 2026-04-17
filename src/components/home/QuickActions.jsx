@@ -267,7 +267,7 @@ export default function QuickActions() {
                           {isStarted ?
                     <>
                               <Link to={createPageUrl('StarterPath')} className="flex-1" onClick={(e) => e.stopPropagation()}>
-                                <Button className="bg-teal-600 text-primary-foreground px-4 py-2 text-xs font-medium tracking-[0.005em] rounded-[28px] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-10 min-h-[44px] md:min-h-0 w-full transition-calm shadow-[var(--shadow-md)]">
+                                <Button className="bg-teal-600 text-primary-foreground px-4 py-2 text-sm font-medium tracking-[0.005em] rounded-[28px] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-10 min-h-[44px] md:min-h-0 w-full transition-calm shadow-[var(--shadow-md)]">
                           
 
                                   {isCompleted ? t('starter_path.card_btn_review') : t('starter_path.card_btn_continue')}
