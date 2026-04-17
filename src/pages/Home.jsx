@@ -330,39 +330,41 @@ export default function Home() {
           <BadgeDisplay compact />
         </div>
 
-        {/* Error State for Goals */}
-        {goalsError &&
-            <Card className="mt-6 border border-destructive/20 bg-destructive/5">
-            <CardContent className="p-4 text-center">
-              <p className="text-sm text-foreground mb-2">{t('home.error.goals_load')}</p>
-              <Button
-                  onClick={() => refetchGoals()}
-                  size="sm"
-                  variant="outline"
-                  className="text-xs">
-
-                {t('common.retry')}
-              </Button>
-            </CardContent>
-          </Card>
+        {(goalsError || journalsError) &&
+          <div className="mt-6 space-y-3">
+            {/* Error State for Goals */}
+            {goalsError &&
+              <Card className="border border-destructive/20 bg-destructive/5">
+                <CardContent className="p-4 text-center space-y-3">
+                  <p className="text-sm text-foreground">{t('home.error.goals_load')}</p>
+                  <Button
+                    onClick={() => refetchGoals()}
+                    size="sm"
+                    variant="outline"
+                    className="text-xs">
+                    {t('common.retry')}
+                  </Button>
+                </CardContent>
+              </Card>
             }
 
-        {/* Error State for Journal */}
-        {journalsError &&
-            <Card className="mt-6 border border-destructive/20 bg-destructive/5">
-            <CardContent className="p-4 text-center">
-              <p className="text-sm text-foreground mb-2">{t('home.error.journal_load')}</p>
-              <Button
-                  onClick={() => refetchJournals()}
-                  size="sm"
-                  variant="outline"
-                  className="text-xs">
-
-                {t('common.retry')}
-              </Button>
-            </CardContent>
-          </Card>
+            {/* Error State for Journal */}
+            {journalsError &&
+              <Card className="border border-destructive/20 bg-destructive/5">
+                <CardContent className="p-4 text-center space-y-3">
+                  <p className="text-sm text-foreground">{t('home.error.journal_load')}</p>
+                  <Button
+                    onClick={() => refetchJournals()}
+                    size="sm"
+                    variant="outline"
+                    className="text-xs">
+                    {t('common.retry')}
+                  </Button>
+                </CardContent>
+              </Card>
             }
+          </div>
+        }
 
         </div>
 

@@ -217,8 +217,10 @@ export default function Exercises() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">{t('exercises.loading')}</p>
+      <div className="min-h-dvh flex items-center justify-center p-4">
+        <div className="w-full max-w-2xl text-center space-y-2">
+          <p className="text-sm font-medium text-muted-foreground">{t('exercises.loading')}</p>
+        </div>
       </div>);
 
   }

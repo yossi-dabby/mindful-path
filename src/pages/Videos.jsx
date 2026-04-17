@@ -124,17 +124,21 @@ export default function Videos() {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">{t('videos.loading')}</p>
+          <div className="py-12">
+            <div className="mx-auto max-w-2xl text-center space-y-2">
+              <p className="text-sm font-medium text-muted-foreground">{t('videos.loading')}</p>
+            </div>
           </div>
         )}
 
         {/* Empty State */}
         {!isLoading && videos.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-lg mb-2 text-foreground">{t('videos.no_videos_title')}</p>
-            <p className="text-muted-foreground">{t('videos.no_videos_description')}</p>
-            <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-2.5">
+          <div className="py-12">
+            <div className="mx-auto max-w-2xl text-center space-y-2">
+              <p className="text-lg text-foreground">{t('videos.no_videos_title')}</p>
+              <p className="text-muted-foreground">{t('videos.no_videos_description')}</p>
+            </div>
+            <div className="mt-6 flex max-w-md mx-auto flex-col sm:flex-row items-center justify-center gap-2.5">
               <Button onClick={() => setShowCreatePlaylist(true)} className="w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-1" />
                 {t('playlists.create_playlist')}

@@ -253,8 +253,10 @@ export default function Journal() {
 
       {/* Entries List */}
       {isLoadingJournals || isLoadingSummaries ?
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">{t('journal.loading')}</p>
+        <div className="py-12">
+          <div className="mx-auto max-w-2xl text-center space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">{t('journal.loading')}</p>
+          </div>
         </div> :
         entries.length === 0 ?
         <Card className="border border-border/80 bg-card shadow-[var(--shadow-lg)]">
@@ -289,18 +291,23 @@ export default function Journal() {
           {filteredEntries.length === 0 ?
           <Card className="border border-border/80 bg-card shadow-[var(--shadow-md)]">
               <CardContent className="p-12 text-center">
-                <p className="text-muted-foreground">{t('journal.no_entries_match')}</p>
-                <Button
-                onClick={() => {
-                  setSearchQuery('');
-                  setSelectedTags([]);
-                  setSelectedType('all');
-                }}
-                variant="outline"
-                className="mt-4">
+                <p className="text-muted-foreground max-w-md mx-auto">{t('journal.no_entries_match')}</p>
+                <div className="mt-4 flex max-w-md mx-auto flex-col sm:flex-row items-center justify-center gap-2.5">
+                  <Button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSelectedTags([]);
+                      setSelectedType('all');
+                    }}
+                    variant="outline"
+                    className="w-full sm:w-auto">
 
-                  {t('journal.clear_filters')}
-                </Button>
+                    {t('journal.clear_filters')}
+                  </Button>
+                  <Button onClick={() => navigate('/Chat?intent=thought_work')} className="w-full sm:w-auto">
+                    {t('journal.new_entry')}
+                  </Button>
+                </div>
               </CardContent>
             </Card> :
 

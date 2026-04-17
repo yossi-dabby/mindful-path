@@ -19,6 +19,7 @@ export default function Settings() {
   const { t } = useTranslation();
   const [user, setUser] = useState(null);
   const [fullName, setFullName] = useState('');
+  const [showProfileSaved, setShowProfileSaved] = useState(false);
   const [currentTheme, setCurrentTheme] = useState('default');
   const [notifications, setNotifications] = useState({
     dailyReminders: false,
@@ -105,8 +106,12 @@ export default function Settings() {
       setUser(optimisticUser);
       return { previousUser };
     },
-    onSuccess: (updatedUser) => {
+    onSuccess: (updatedUser, variables) => {
       setUser(updatedUser);
+      if (variables && Object.prototype.hasOwnProperty.call(variables, 'full_name')) {
+        setShowProfileSaved(true);
+        setTimeout(() => setShowProfileSaved(false), 2500);
+      }
     },
     onError: (_error, _data, context) => {
       if (context?.previousUser) {
@@ -162,8 +167,10 @@ export default function Settings() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">{t('common.loading')}</p>
+      <div className="min-h-dvh flex items-center justify-center p-4">
+        <div className="w-full max-w-sm text-center space-y-2">
+          <p className="text-sm font-medium text-gray-500">{t('common.loading')}</p>
+        </div>
       </div>
     );
   }
@@ -242,18 +249,23 @@ export default function Settings() {
             </div>
           </div>
 
-          <Button
-            onClick={() => updateProfileMutation.mutate({ full_name: fullName })}
-            disabled={updateProfileMutation.isPending || fullName === user.full_name}
-            className="text-white px-6 py-5 w-full md:w-auto md:self-end"
-            style={{ 
-              borderRadius: '9999px',
-              backgroundColor: '#26A69A',
-              boxShadow: '0 2px 8px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.06)'
-            }}
-          >
-            {updateProfileMutation.isPending ? t('settings.profile.saving') : t('settings.profile.save_changes')}
-          </Button>
+          <div className="flex flex-col items-center md:items-end gap-2">
+            <Button
+              onClick={() => updateProfileMutation.mutate({ full_name: fullName })}
+              disabled={updateProfileMutation.isPending || fullName === user.full_name}
+              className="text-white px-6 py-5 w-full md:w-auto md:self-end"
+              style={{ 
+                borderRadius: '9999px',
+                backgroundColor: '#26A69A',
+                boxShadow: '0 2px 8px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.06)'
+              }}
+            >
+              {updateProfileMutation.isPending ? t('settings.profile.saving') : t('settings.profile.save_changes')}
+            </Button>
+            {showProfileSaved && !updateProfileMutation.isPending && (
+              <p className="text-xs text-gray-500">{t('common.saved')}</p>
+            )}
+          </div>
         </CardContent>
       </Card>
       </motion.div>
