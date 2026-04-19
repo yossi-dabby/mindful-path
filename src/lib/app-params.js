@@ -6,6 +6,20 @@ const toSnakeCase = (str) => {
 	return str.replace(/([A-Z])/g, '_$1').toLowerCase();
 }
 
+export const resolveAppId = ({
+	testAppId,
+	viteAppId,
+	legacyAppId,
+	queryAppId,
+	storedAppId,
+} = {}) => {
+	const envAppId = testAppId || viteAppId || legacyAppId;
+	if (envAppId) return envAppId;
+	if (queryAppId) return queryAppId;
+	if (storedAppId) return storedAppId;
+	return null;
+}
+
 const getAppParamValue = (paramName, { defaultValue = undefined, removeFromUrl = false } = {}) => {
 	if (isNode) {
 		return defaultValue;
@@ -41,9 +55,23 @@ const getAppParams = () => {
 	}
 	// __TEST_APP_ID__ may be injected by Playwright addInitScript to prevent
 	// undefined from propagating into API URLs when no env var is present.
-	const envAppId = (!isNode && windowObj.__TEST_APP_ID__) || import.meta.env.VITE_BASE44_APP_ID || import.meta.env.BASE44_APP_ID;
+	const testAppId = !isNode ? windowObj.__TEST_APP_ID__ : null;
+	const viteAppId = import.meta.env.VITE_BASE44_APP_ID;
+	const legacyAppId = import.meta.env.BASE44_APP_ID;
 	const envFunctionsVersion = import.meta.env.VITE_BASE44_FUNCTIONS_VERSION || import.meta.env.BASE44_FUNCTIONS_VERSION;
-	const resolvedAppId = getAppParamValue("app_id", { defaultValue: envAppId });
+	const queryAppId = !isNode ? new URLSearchParams(window.location.search).get("app_id") : null;
+	const storedAppId = !isNode ? storage.getItem('base44_app_id') : null;
+	const resolvedAppId = resolveAppId({
+		testAppId,
+		viteAppId,
+		legacyAppId,
+		queryAppId,
+		storedAppId,
+	});
+
+	if (resolvedAppId) {
+		storage.setItem('base44_app_id', resolvedAppId);
+	}
 
 	// Dev-only diagnostic: missing VITE_BASE44_APP_ID causes requests to use
 	// /api/apps/null/... which produces unexpected API responses.
@@ -58,7 +86,7 @@ const getAppParams = () => {
 	return {
 		appId: resolvedAppId,
 		token: getAppParamValue("access_token", { removeFromUrl: true }),
-		fromUrl: getAppParamValue("from_url", { defaultValue: window.location.href }),
+		fromUrl: getAppParamValue("from_url", { defaultValue: !isNode ? window.location.href : null }),
 		functionsVersion: getAppParamValue("functions_version", { defaultValue: envFunctionsVersion }),
 	}
 }
