@@ -104,6 +104,11 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   const attachment = isUser ?
   normalizeAttachment(message.metadata?.attachment || message.attachment) :
   detectAssistantAttachment(message);
+
+  // Resolve PDF full-text: prefer metadata field (set at send time),
+  // fall back to scanning content for the [PDF_TEXT] marker (set by sanitizeConversationMessages).
+  const pdfFullText = message.metadata?.pdf_extracted_text || null;
+  const pdfPageCount = message.metadata?.pdf_page_count || null;
   const attachmentType = attachment?.type;
   const attachmentUrl = typeof attachment?.url === 'string' ? attachment.url : null;
   const attachmentName = typeof attachment?.name === 'string' && attachment.name.trim() ? attachment.name : null;
@@ -125,7 +130,12 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   let thinkingContent = null;
   try {
     const rawContent = typeof message.content === 'string' ? message.content : '';
-    const contentStr = rawContent.trim();
+    // Strip [ATTACHMENT_CONTEXT] block from user messages — it's an AI-facing context
+    // block that must never appear in the visible chat. Strip everything from the marker
+    // to end-of-string (the block is always appended after the human-visible text).
+    const contentStr = isUser
+      ? rawContent.replace(/\n?\[ATTACHMENT_CONTEXT\][\s\S]*$/, '').trim()
+      : rawContent.trim();
 
     // IMMEDIATE REJECT: Any sign of structured data
     if (contentStr.includes('"assistant_message"') ||
@@ -254,9 +264,9 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                 {content ?
             <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{content}</p> :
             null}
-                {/* Collapsible full PDF text — stored in metadata during extraction */}
-                {isPdfAttachment && message.metadata?.pdf_extracted_text &&
-            <PdfFullTextCard text={message.metadata.pdf_extracted_text} pageCount={message.metadata.pdf_page_count} />
+                {/* Collapsible full PDF text — stored in metadata.pdf_extracted_text at send time */}
+                {isPdfAttachment && pdfFullText &&
+            <PdfFullTextCard text={pdfFullText} pageCount={pdfPageCount} />
             }
               </> :
 
