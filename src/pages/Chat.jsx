@@ -1412,6 +1412,10 @@ export default function Chat() {
     setPendingDeleteId(conversationId);
   };
 
+  const handleBulkDeleteConversations = (ids) => {
+    ids.forEach(id => deleteConversationMutation.mutate(id));
+  };
+
   const handleCheckInComplete = async (checkinData) => {
     if (!currentConversationId) return;
 
@@ -1572,6 +1576,7 @@ export default function Chat() {
               onSelectConversation={loadConversation}
               onNewConversation={startNewConversation}
               onDeleteConversation={handleDeleteConversation}
+              onBulkDeleteConversations={handleBulkDeleteConversations}
               onClose={() => setShowSidebar(false)} />
 
         </ErrorBoundary>

@@ -21,6 +21,7 @@ export default function ConversationsList({
   onSelectConversation,
   onNewConversation,
   onDeleteConversation,
+  onBulkDeleteConversations,
   onClose
 }) {
   const { t } = useTranslation();
@@ -51,9 +52,16 @@ export default function ConversationsList({
   };
 
   const handleBulkDelete = () => {
-    selected.forEach(id => onDeleteConversation(id));
+    // Capture the full set synchronously before clearing state
+    const idsToDelete = Array.from(selected);
     setSelected(new Set());
     setShowBulkConfirm(false);
+    // Use bulk handler if provided, otherwise fall back to individual deletes
+    if (onBulkDeleteConversations) {
+      onBulkDeleteConversations(idsToDelete);
+    } else {
+      idsToDelete.forEach(id => onDeleteConversation(id));
+    }
   };
 
   return (
