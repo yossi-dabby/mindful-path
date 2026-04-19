@@ -2165,7 +2165,7 @@ export async function buildActionFirstDemotedSessionContentAsync(
     }
     if (
       wiring?.name === 'cbt_therapist' &&
-      wiring?.attachment_context_enabled === true &&
+      (wiring?.attachment_context_enabled === true || wiring?.attachment_context_enabled === undefined) &&
       !content.includes(THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS)
     ) {
       content += '\n\n' + THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS;

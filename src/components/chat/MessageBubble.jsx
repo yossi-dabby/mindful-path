@@ -8,7 +8,7 @@ import MessageFeedback from './MessageFeedback';
 import { extractThinkingContent } from '../utils/messageContentSanitizer';
 import { applyFinalOutputGovernor } from '../utils/finalOutputGovernor';
 
-const ASSISTANT_ATTACHMENT_URL_REGEX = /https?:\/\/[^\s<>"'`)\]]+/gi;
+const ASSISTANT_ATTACHMENT_URL_REGEX = /https?:\/\/\S+/gi;
 
 function inferAttachmentTypeFromUrl(rawUrl) {
   if (typeof rawUrl !== 'string' || !rawUrl.trim()) return null;
@@ -144,7 +144,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
     try {
       const signed = await base44.integrations.Core.CreateFileSignedUrl({ file_url: attachmentUrl });
       const signedUrl = signed?.signed_url || signed?.url || signed?.file_url;
-      if (!signedUrl) throw new Error('missing signed url');
+      if (!signedUrl) throw new Error('Failed to generate secure URL for PDF');
       window.open(signedUrl, '_blank', 'noopener,noreferrer');
     } catch (error) {
       console.error('[MessageBubble] Failed to create signed PDF URL:', error);

@@ -1337,7 +1337,10 @@ export default function Chat() {
       if (uploadedAttachment) {
         const attachmentOwner = await base44.auth.me().catch(() => null);
         const createdDate = new Date().toISOString();
-        const createdByEmail = typeof attachmentOwner?.email === 'string' && attachmentOwner.email.trim() ? attachmentOwner.email.trim() : 'unknown';
+        const createdByEmail = typeof attachmentOwner?.email === 'string' && attachmentOwner.email.trim() ? attachmentOwner.email.trim() : 'email_unavailable';
+        if (createdByEmail === 'email_unavailable') {
+          console.warn('[Send] Attachment metadata email unavailable for created_by_email');
+        }
         outboundMetadata = {
           attachment: uploadedAttachment,
           created_date: createdDate,

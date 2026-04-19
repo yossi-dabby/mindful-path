@@ -297,6 +297,7 @@ export const AI_COMPANION_WIRING_STEP_3 = {
  */
 export const CBT_THERAPIST_WIRING_HYBRID = {
   name: 'cbt_therapist',
+  attachment_context_enabled: true,
   tool_configs: [
     // ── Step 1: Preferred entities (unchanged) ──
     { entity_name: 'SessionSummary',  access_level: 'preferred',  source_order: 2 },
