@@ -16,7 +16,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   }
 
   const isUser = message.role === 'user';
-  const attachmentPayloadPath = isUser && message.metadata?.attachment && typeof message.metadata.attachment === 'object' ?
+  const attachmentFieldLocation = isUser && message.metadata?.attachment && typeof message.metadata.attachment === 'object' ?
   'metadata.attachment' :
   isUser && message.attachment && typeof message.attachment === 'object' ?
   'attachment' :
@@ -139,7 +139,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
             {isUser ?
           <>
                 <div className="mb-2 rounded border border-slate-300 bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-800">
-                  ATTACHMENT_FIELD_PATH_CHECK: metadata.attachment → attachment | DETECTED: {attachmentPayloadPath}
+                  ATTACHMENT_FIELD_PATH_CHECK: metadata.attachment → attachment | DETECTED: {attachmentFieldLocation}
                 </div>
                 {attachment &&
             <div className="mb-2 rounded border border-green-700 bg-green-100 px-2 py-1 text-[10px] font-extrabold text-green-900">

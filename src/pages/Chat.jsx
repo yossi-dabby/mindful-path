@@ -2021,6 +2021,7 @@ export default function Chat() {
                 </div>
 
                 <div className="flex-1 flex flex-col gap-2">
+                  {/* TEMP DIAGNOSTIC PROBE: remove after runtime path verification is completed. */}
                   <div className="rounded border border-red-600 bg-red-100 px-2 py-1 text-xs font-extrabold text-red-900">
                     ATTACHMENT_RUNTIME_PROBE_V1
                   </div>
