@@ -2005,39 +2005,52 @@ export default function Chat() {
                   className="hidden"
                   aria-hidden="true" />
 
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => attachmentInputRef.current?.click()}
-                  disabled={isLoading}
-                  className="min-h-[44px] md:min-h-0 h-[48px] px-3 flex-shrink-0"
-                  aria-label={t('chat.attachments.attach_button_aria')}>
-                  <Paperclip className="w-5 h-5" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => attachmentInputRef.current?.click()}
+                    disabled={isLoading}
+                    className="min-h-[44px] md:min-h-0 h-[48px] px-3 flex-shrink-0"
+                    aria-label={t('chat.attachments.attach_button_aria')}>
+                    <Paperclip className="w-5 h-5" />
+                  </Button>
+                  <div className="rounded border border-amber-600 bg-amber-100 px-2 py-1 text-[10px] font-bold text-amber-900">
+                    PICKER_ACTIVE
+                  </div>
+                </div>
 
                 <div className="flex-1 flex flex-col gap-2">
+                  <div className="rounded border border-red-600 bg-red-100 px-2 py-1 text-xs font-extrabold text-red-900">
+                    ATTACHMENT_RUNTIME_PROBE_V1
+                  </div>
                   {selectedAttachment &&
-                  <div className="bg-[hsl(var(--surface-nested)/0.9)] border border-input/80 rounded-[var(--radius-card)] p-2 flex items-center justify-between gap-2">
-                      <div className="min-w-0 flex items-center gap-2">
-                        {selectedAttachment.type === 'image' && selectedAttachment.previewUrl ?
-                        <img
-                          src={selectedAttachment.previewUrl}
-                          alt={t('chat.attachments.image_preview_alt')}
-                          className="w-10 h-10 rounded object-cover shrink-0" /> :
-
-                        <FileText className="w-4 h-4 shrink-0" />
-                        }
-                        <span className="text-xs text-foreground truncate">{selectedAttachment.name}</span>
+                  <div className="bg-[hsl(var(--surface-nested)/0.9)] border border-input/80 rounded-[var(--radius-card)] p-2 flex flex-col gap-2">
+                      <div className="rounded border border-blue-600 bg-blue-100 px-2 py-1 text-[10px] font-bold text-blue-900">
+                        FILE_SELECTED
                       </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 shrink-0"
-                        onClick={removeSelectedAttachment}
-                        aria-label={t('chat.attachments.remove_button_aria')}>
-                        <X className="w-4 h-4" />
-                      </Button>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="min-w-0 flex items-center gap-2">
+                          {selectedAttachment.type === 'image' && selectedAttachment.previewUrl ?
+                          <img
+                            src={selectedAttachment.previewUrl}
+                            alt={t('chat.attachments.image_preview_alt')}
+                            className="w-10 h-10 rounded object-cover shrink-0" /> :
+
+                          <FileText className="w-4 h-4 shrink-0" />
+                          }
+                          <span className="text-xs text-foreground truncate">{selectedAttachment.name}</span>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 shrink-0"
+                          onClick={removeSelectedAttachment}
+                          aria-label={t('chat.attachments.remove_button_aria')}>
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   }
                   <Textarea
