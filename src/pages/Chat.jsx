@@ -47,6 +47,7 @@ import SessionPhaseIndicator from '../components/therapy/SessionPhaseIndicator';
 import SafetyModeIndicator from '../components/therapy/SafetyModeIndicator';
 // Phase 3 Deep Personalization — Session continuity cue (flag-gated; hidden in default mode)
 import SessionContinuityCue from '../components/therapy/SessionContinuityCue';
+import { emitStabilitySummary as _emitStability, printFinalStabilityReport as _printReport } from '../lib/chatStabilityReport.js';
 
 // ─── MF-7: Legacy variant-profile agent names — historical conversations under
 // these names must NOT receive new messages. Empty clinical stubs; fail-closed.
@@ -103,21 +104,20 @@ function hasUserAttachment(message) {
   return !!attachment;
 }
 
-function buildAttachmentContextFromMetadata(metadata) {
+function buildAttachmentContextFromMetadata(metadata, pdfExtractedText) {
   const attachment = metadata?.attachment && typeof metadata.attachment === 'object' ? metadata.attachment : null;
   const attachmentUrl = typeof attachment?.url === 'string' && attachment.url.trim() ? attachment.url.trim() : null;
   if (!attachmentUrl) return '';
   const attachmentType = attachment?.type === 'pdf' ? 'pdf' : 'image';
   const attachmentName = typeof attachment?.name === 'string' && attachment.name.trim() ? attachment.name.trim() : null;
-  const lines = [
-  '[ATTACHMENT_CONTEXT]',
-  `type: ${attachmentType}`,
-  `url: ${attachmentUrl}`,
-  'instruction: Use this URL as the user-provided attachment context for this turn. If image, inspect visual content. If PDF, read the document content before responding.'];
-
-  if (attachmentName) {
-    lines.splice(2, 0, `name: ${attachmentName}`);
+  if (attachmentType === 'pdf' && pdfExtractedText) {
+    const lines = ['[ATTACHMENT_CONTEXT]', 'type: pdf'];
+    if (attachmentName) lines.push(`name: ${attachmentName}`);
+    lines.push(`url: ${attachmentUrl}`, 'instruction: The user uploaded a PDF. Read the extracted text below and respond based on its content.', `extracted_text:\n${pdfExtractedText}`);
+    return lines.join('\n');
   }
+  const lines = ['[ATTACHMENT_CONTEXT]', `type: ${attachmentType}`, `url: ${attachmentUrl}`, 'instruction: Use this URL as the user-provided attachment context for this turn. If image, inspect visual content. If PDF, read the document content before responding.'];
+  if (attachmentName) lines.splice(2, 0, `name: ${attachmentName}`);
   return lines.join('\n');
 }
 
@@ -185,24 +185,7 @@ export default function Chat() {
   const subscriptionSucceededRef = useRef(false);
 
   // INSTRUMENTATION: Track hard render gate enforcement + send cycle proof
-  const instrumentationRef = useRef({
-    SEND_COUNT: 0,
-    WEB_SENDS_PASS: 0,
-    MOBILE_SENDS_PASS: 0,
-    HARD_GATE_BLOCKED_OBJECT: 0,
-    HARD_GATE_BLOCKED_JSON_STRING: 0,
-    HARD_GATE_FALSE_POSITIVE_PREVENTED: 0,
-    REFETCH_TRIGGERED: 0,
-    DUPLICATE_BLOCKED: 0,
-    DUPLICATE_OCCURRED: 0,
-    PLACEHOLDER_RENDERED: 0,
-    PLACEHOLDER_BECAME_MESSAGE: 0,
-    THINKING_OVER_10S: 0,
-    UI_FLASHES_DETECTED: 0,
-    SAFE_UPDATES: 0,
-    TOTAL_MESSAGES_PROCESSED: 0,
-    STUCK_THINKING_TIMEOUTS: 0
-  });
+  const instrumentationRef = useRef({ SEND_COUNT: 0, WEB_SENDS_PASS: 0, MOBILE_SENDS_PASS: 0, HARD_GATE_BLOCKED_OBJECT: 0, HARD_GATE_BLOCKED_JSON_STRING: 0, HARD_GATE_FALSE_POSITIVE_PREVENTED: 0, REFETCH_TRIGGERED: 0, DUPLICATE_BLOCKED: 0, DUPLICATE_OCCURRED: 0, PLACEHOLDER_RENDERED: 0, PLACEHOLDER_BECAME_MESSAGE: 0, THINKING_OVER_10S: 0, UI_FLASHES_DETECTED: 0, SAFE_UPDATES: 0, TOTAL_MESSAGES_PROCESSED: 0, STUCK_THINKING_TIMEOUTS: 0 });
 
   const refetchDebounceRef = useRef(null);
   const mountedRef = useRef(true);
@@ -302,48 +285,8 @@ export default function Chat() {
     event.target.value = '';
   };
 
-  // Emit mandatory one-line stability proof after each send cycle
-  const emitStabilitySummary = () => {
-    const counters = instrumentationRef.current;
-    console.log(
-      `FINAL STABILITY SUMMARY | send=${counters.SEND_COUNT} | ` +
-      `parse_failed=${parseCounters.PARSE_FAILED} | ` +
-      `dup_occurred=${counters.DUPLICATE_OCCURRED} | ` +
-      `placeholder_became_msg=${counters.PLACEHOLDER_BECAME_MESSAGE} | ` +
-      `thinking_over_10s=${counters.THINKING_OVER_10S}`
-    );
-  };
-
-  // Print final stability report
-  const printFinalStabilityReport = () => {
-    const counters = instrumentationRef.current;
-    const parseErrors = parseCounters.PARSE_FAILED;
-    const duplicates = counters.DUPLICATE_OCCURRED;
-    const placeholderIssues = counters.PLACEHOLDER_BECAME_MESSAGE;
-    const thinkingIssues = counters.THINKING_OVER_10S;
-
-    console.log('\n═══════════════════════════════════════════════════');
-    console.log('[CHAT STABILITY REPORT]');
-    console.log('═══════════════════════════════════════════════════');
-    console.log(`Web sends: ${counters.WEB_SENDS_PASS}/30 ${counters.WEB_SENDS_PASS >= 30 ? 'PASS' : 'FAIL'}`);
-    console.log(`Mobile sends: ${counters.MOBILE_SENDS_PASS}/15 ${counters.MOBILE_SENDS_PASS >= 15 ? 'PASS' : 'FAIL'}`);
-    console.log(`UI flashes detected: ${counters.UI_FLASHES_DETECTED === 0 ? 'PASS' : 'FAIL'}`);
-    console.log(`Parse errors: ${parseErrors === 0 ? 'PASS' : 'FAIL'} (${parseErrors})`);
-    console.log(`Duplicates occurred: ${duplicates === 0 ? 'PASS' : 'FAIL'} (${duplicates})`);
-    console.log(`Placeholder became message: ${placeholderIssues === 0 ? 'PASS' : 'FAIL'} (${placeholderIssues})`);
-    console.log(`Thinking >10s: ${thinkingIssues === 0 ? 'PASS' : 'FAIL'} (${thinkingIssues})`);
-    console.log('───────────────────────────────────────────────────');
-    console.log('Summary counters:');
-    console.log(`  PARSE_ATTEMPTS: ${parseCounters.PARSE_ATTEMPTS}`);
-    console.log(`  PARSE_SKIPPED_NOT_JSON: ${parseCounters.PARSE_SKIPPED_NOT_JSON}`);
-    console.log(`  SANITIZE_EXTRACT_OK: ${parseCounters.SANITIZE_EXTRACT_OK}`);
-    console.log(`  HARD_GATE_BLOCKED_OBJECT: ${counters.HARD_GATE_BLOCKED_OBJECT}`);
-    console.log(`  HARD_GATE_BLOCKED_JSON_STRING: ${counters.HARD_GATE_BLOCKED_JSON_STRING}`);
-    console.log(`  HARD_GATE_FALSE_POSITIVE_PREVENTED: ${counters.HARD_GATE_FALSE_POSITIVE_PREVENTED}`);
-    console.log(`  REFETCH_TRIGGERED: ${counters.REFETCH_TRIGGERED}`);
-    console.log(`  DUPLICATE_BLOCKED: ${counters.DUPLICATE_BLOCKED}`);
-    console.log('═══════════════════════════════════════════════════\n');
-  };
+  const emitStabilitySummary = () => _emitStability(instrumentationRef, parseCounters);
+  const printFinalStabilityReport = () => _printReport(instrumentationRef, parseCounters);
 
   // CRITICAL: HARD RENDER GATE - validate message is 100% render-safe (NO FALSE POSITIVES)
   const isMessageRenderSafe = (msg) => {
@@ -1334,21 +1277,20 @@ export default function Chat() {
       }
 
       let outboundMetadata = undefined;
+      let pdfExtractedText = null;
       if (uploadedAttachment) {
         const attachmentOwner = await base44.auth.me().catch(() => null);
-        const createdDate = new Date().toISOString();
         const createdByEmail = typeof attachmentOwner?.email === 'string' && attachmentOwner.email.trim() ? attachmentOwner.email.trim() : 'email_unavailable';
-        if (createdByEmail === 'email_unavailable') {
-          console.warn('[Send] Attachment metadata email unavailable for created_by_email');
+        outboundMetadata = { attachment: uploadedAttachment, created_date: new Date().toISOString(), created_by_email: createdByEmail };
+        if (uploadedAttachment.type === 'pdf') {
+          try {
+            const r = await base44.functions.invoke('extractPdfText', { file_url: uploadedAttachment.url });
+            if (r?.data?.success && r.data.text) pdfExtractedText = r.data.text;
+            else console.warn('[Send] PDF extraction returned no text:', r?.data?.error);
+          } catch (e) { console.warn('[Send] PDF extraction failed (non-blocking):', e?.message); }
         }
-        outboundMetadata = {
-          attachment: uploadedAttachment,
-          created_date: createdDate,
-          created_by_email: createdByEmail
-        };
       }
-
-      const attachmentContextBlock = outboundMetadata ? buildAttachmentContextFromMetadata(outboundMetadata) : '';
+      const attachmentContextBlock = outboundMetadata ? buildAttachmentContextFromMetadata(outboundMetadata, pdfExtractedText) : '';
       const attachmentMarker = outboundMetadata?.attachment ? serializeAttachmentMetadataMarker(outboundMetadata.attachment) : '';
       const outboundMessageContent = [messageContent, attachmentContextBlock, attachmentMarker].filter(Boolean).join('\n');
 
@@ -1359,110 +1301,39 @@ export default function Chat() {
       });
 
       console.log('[Send] ✅ Message sent - starting authoritative polling');
-
-      // CRITICAL: Start authoritative polling with exponential backoff
-      // This ensures we get the reply even if subscription fails
       let pollAttempts = 0;
       const maxPollAttempts = 5;
-      const pollDelays = [500, 1000, 2000, 4000, 8000]; // Exponential backoff
-
+      const pollDelays = [500, 1000, 2000, 4000, 8000];
       const pollWithBackoff = (attemptIndex) => {
         const delay = pollDelays[Math.min(attemptIndex, pollDelays.length - 1)];
-
         pollingIntervalRef.current = setTimeout(async () => {
           pollAttempts++;
-          console.log(`[Polling] Attempt ${pollAttempts}/${maxPollAttempts} (delay: ${delay}ms, hidden: ${document.hidden})`);
-
           try {
             const updatedConv = await base44.agents.getConversation(convId);
             const sanitized = sanitizeConversationMessages(updatedConv.messages || []);
-
-            console.log(`[Polling] Retrieved ${sanitized.length} messages, expected ${expectedReplyCountRef.current}`);
-
-            // Check if we have the expected reply
             if (sanitized.length >= expectedReplyCountRef.current) {
-              console.log('[Polling] ✅ Reply found - stopping polling');
-
-              // CRITICAL: Safe update with validation
-              // Skip overwrite if subscription already confirmed content — polling
-              // snapshot can be shorter than the streamed response and must not win.
-              const updated = subscriptionSucceededRef.current ?
-              false :
-              safeUpdateMessages(sanitized, 'Polling');
-              if (subscriptionSucceededRef.current) {
-                console.log('[Polling] ⏭️ Skipping overwrite — subscription already confirmed content');
-              }
-
-              // emitStabilitySummary is intentionally inside `if (updated)`: it
-              // reports a SUCCESSFUL message delivery cycle and should only fire
-              // when the state was actually updated (i.e., new content reached the
-              // UI).  If the update was rejected (safeUpdateMessages returned false),
-              // there is nothing meaningful to report for this cycle.
-              if (updated) {
-                emitStabilitySummary();
-              }
-
-              // Phase 2 fix: always clear loading when polling confirms enough messages
-              // exist, even if safeUpdateMessages rejected the update (e.g. because a
-              // JSON-shaped agent reply was blocked by the hard render gate and the
-              // refetch already advanced lastConfirmedMessagesRef).  Without this guard
-              // the loading timeout is cleared below while isLoading stays true, causing
-              // a perpetual stall until the 60-second subscription timeout fires.
-              //
-              // setIsLoading(false) is intentionally OUTSIDE `if (updated)`: clearing
-              // the loading spinner is a UX concern, not a data-integrity concern.
-              // The server has confirmed enough messages exist — the user's message was
-              // received and the agent responded.  We must unblock the input regardless
-              // of whether the reply could be rendered (it may be retried or shown later).
+              const updated = subscriptionSucceededRef.current ? false : safeUpdateMessages(sanitized, 'Polling');
+              if (updated) emitStabilitySummary();
               setIsLoading(false);
-
-              if (pollingIntervalRef.current) {
-                clearTimeout(pollingIntervalRef.current);
-                pollingIntervalRef.current = null;
-              }
-              if (loadingTimeoutRef.current) {
-                clearTimeout(loadingTimeoutRef.current);
-                loadingTimeoutRef.current = null;
-              }
+              if (pollingIntervalRef.current) { clearTimeout(pollingIntervalRef.current); pollingIntervalRef.current = null; }
+              if (loadingTimeoutRef.current) { clearTimeout(loadingTimeoutRef.current); loadingTimeoutRef.current = null; }
             } else if (pollAttempts >= maxPollAttempts) {
-              console.error('[Polling] ⏱️ Timeout - no reply after max attempts');
               instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
-
-              // CRITICAL: Safe update with validation
               safeUpdateMessages(sanitized, 'Polling-Timeout');
               setIsLoading(false);
               emitStabilitySummary();
-
-              if (pollingIntervalRef.current) {
-                clearTimeout(pollingIntervalRef.current);
-                pollingIntervalRef.current = null;
-              }
-              if (loadingTimeoutRef.current) {
-                clearTimeout(loadingTimeoutRef.current);
-                loadingTimeoutRef.current = null;
-              }
+              if (pollingIntervalRef.current) { clearTimeout(pollingIntervalRef.current); pollingIntervalRef.current = null; }
+              if (loadingTimeoutRef.current) { clearTimeout(loadingTimeoutRef.current); loadingTimeoutRef.current = null; }
             } else {
-              // Continue polling with next backoff delay
               pollWithBackoff(pollAttempts);
             }
           } catch (err) {
             console.error('[Polling] ❌ Error:', err);
-            if (pollAttempts >= maxPollAttempts) {
-              instrumentationRef.current.THINKING_OVER_10S++;
-              setIsLoading(false);
-              emitStabilitySummary();
-              if (pollingIntervalRef.current) {
-                clearTimeout(pollingIntervalRef.current);
-                pollingIntervalRef.current = null;
-              }
-            } else {
-              // Retry with next backoff delay
-              pollWithBackoff(pollAttempts);
-            }
+            if (pollAttempts >= maxPollAttempts) { instrumentationRef.current.THINKING_OVER_10S++; setIsLoading(false); emitStabilitySummary(); if (pollingIntervalRef.current) { clearTimeout(pollingIntervalRef.current); pollingIntervalRef.current = null; } }
+            else pollWithBackoff(pollAttempts);
           }
         }, delay);
       };
-
       pollWithBackoff(0);
     } catch (error) {
       console.error('[Send] ❌ SEND ERROR:', error);
