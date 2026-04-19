@@ -91,7 +91,46 @@ function PdfFullTextCard({ text, pageCount }) {
   );
 }
 
-export default function MessageBubble({ message, conversationId, messageIndex, agentName = 'cbt_therapist', context = 'chat', userMessage, sessionLanguage }) {
+// Collapsible card for the overflow portion of a long PDF analysis response.
+// Shown below the short acknowledgment in the assistant bubble.
+function PdfAnalysisOverflowCard({ overflow }) {
+  const [expanded, setExpanded] = useState(false);
+  if (!overflow) return null;
+  return (
+    <div className="mt-3 rounded-lg border border-primary-foreground/20 overflow-hidden text-sm">
+      <button
+        onClick={() => setExpanded(v => !v)}
+        className="w-full flex items-center gap-2 px-3 py-2 bg-primary-foreground/10 hover:bg-primary-foreground/15 transition-colors text-left"
+      >
+        <FileText className="w-4 h-4 shrink-0 opacity-80" />
+        <span className="flex-1 font-medium opacity-90">View full PDF analysis</span>
+        {expanded ? <ChevronUp className="w-4 h-4 opacity-70" /> : <ChevronDown className="w-4 h-4 opacity-70" />}
+      </button>
+      {expanded && (
+        <div className="px-3 py-3 max-h-[480px] overflow-y-auto bg-primary-foreground/5">
+          <ReactMarkdown
+            className="prose prose-sm max-w-none text-primary-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+            components={{
+              p: ({ children }) => <p className="my-2 leading-relaxed text-[14px]">{children}</p>,
+              ul: ({ children }) => <ul className="my-2 ml-4 list-disc space-y-1">{children}</ul>,
+              ol: ({ children }) => <ol className="my-2 ml-4 list-decimal space-y-1">{children}</ol>,
+              li: ({ children }) => <li className="my-1">{children}</li>,
+              strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+            }}
+          >
+            {overflow}
+          </ReactMarkdown>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// How many characters of assistant content to show inline before overflowing to card.
+// Enough for 1 sentence + 2-4 bullets in most languages.
+const PDF_INLINE_CHAR_LIMIT = 600;
+
+export default function MessageBubble({ message, conversationId, messageIndex, agentName = 'cbt_therapist', context = 'chat', userMessage, sessionLanguage, hasPdfContext }) {
   const { t, i18n } = useTranslation();
   const [thinkingExpanded, setThinkingExpanded] = useState(false);
   const [isSigningPdf, setIsSigningPdf] = useState(false);
@@ -183,6 +222,32 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   } catch (e) {
     console.error('[MessageBubble] ⛔ Fatal error:', e);
     return null;
+  }
+
+  // PDF overflow split: when this assistant message follows a PDF upload,
+  // show only the first PDF_INLINE_CHAR_LIMIT chars inline; put the rest
+  // in a collapsible card so the main bubble stays short.
+  let inlineContent = content;
+  let pdfOverflow = null;
+  if (!isUser && hasPdfContext && content.length > PDF_INLINE_CHAR_LIMIT) {
+    // Find a clean split point: end of a sentence or bullet line near the limit
+    let splitAt = PDF_INLINE_CHAR_LIMIT;
+    // Try to break at a newline after a bullet or sentence near the limit
+    const newlineIdx = content.indexOf('\n', PDF_INLINE_CHAR_LIMIT - 120);
+    if (newlineIdx !== -1 && newlineIdx <= PDF_INLINE_CHAR_LIMIT + 200) {
+      splitAt = newlineIdx;
+    } else {
+      // Fall back to last sentence-end before the limit
+      const sentenceEnd = content.lastIndexOf('. ', PDF_INLINE_CHAR_LIMIT);
+      if (sentenceEnd > PDF_INLINE_CHAR_LIMIT / 2) splitAt = sentenceEnd + 1;
+    }
+    inlineContent = content.slice(0, splitAt).trim();
+    pdfOverflow = content.slice(splitAt).trim();
+    // Don't split if the overflow is trivially short
+    if (!pdfOverflow || pdfOverflow.length < 80) {
+      inlineContent = content;
+      pdfOverflow = null;
+    }
   }
 
   const dir = i18n.language === 'he' ? 'rtl' : 'ltr';
@@ -294,7 +359,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
               }
                   </div>
             }
-                {content ?
+                {inlineContent ?
             <ReactMarkdown
             className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
             components={{
@@ -361,11 +426,14 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
 
             }}>
 
-                  {content}
+                  {inlineContent}
                   </ReactMarkdown> :
-            null}
-              </>
-          }
+                  null}
+                  {/* PDF analysis overflow — only shown when the assistant response was
+                   truncated because it follows a PDF upload and was too long */}
+                  {pdfOverflow && <PdfAnalysisOverflowCard overflow={pdfOverflow} />}
+                  </>
+                  }
                   
                   {/* Feedback for assistant messages */}
                   {!isUser && conversationId && messageIndex !== undefined &&

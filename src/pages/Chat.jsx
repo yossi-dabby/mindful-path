@@ -22,6 +22,7 @@ import {
   AlertDialogTitle } from
 '@/components/ui/alert-dialog';
 import MessageBubble from '../components/chat/MessageBubble';
+import MessageList from '../components/chat/MessageList';
 import ConversationsList from '../components/chat/ConversationsList';
 import SessionSummary from '../components/chat/SessionSummary';
 import ProactiveCheckIn from '../components/chat/ProactiveCheckIn';
@@ -1776,24 +1777,7 @@ export default function Chat() {
                     </button>
                   </div>
                 }
-                {messages.slice(Math.max(0, messages.length - visibleCount)).filter((m) => m && m.role && (m.content || hasUserAttachment(m))).map((message, index, arr) => {
-                  // For assistant messages, find the immediately preceding user message
-                  // to enable CP12-G post-learning compression in the governor.
-                  const prevUserMessage = message.role === 'assistant' ?
-                  arr[index - 1]?.role === 'user' ? arr[index - 1]?.content : undefined :
-                  undefined;
-                  return (
-                    <MessageBubble
-                      key={index}
-                      message={message}
-                      conversationId={currentConversationId}
-                      messageIndex={index}
-                      agentName="cbt_therapist"
-                      context="chat"
-                      userMessage={prevUserMessage}
-                      sessionLanguage={sessionLanguageRef.current} />);
-
-                })}
+                <MessageList messages={messages} visibleCount={visibleCount} conversationId={currentConversationId} sessionLanguage={sessionLanguageRef.current} />
                 {isLoading && messages.length > 0 && (() => {
                   instrumentationRef.current.PLACEHOLDER_RENDERED++;
                   return (
