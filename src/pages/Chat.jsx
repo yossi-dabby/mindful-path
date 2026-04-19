@@ -93,6 +93,16 @@ function resolveAttachmentType(file) {
   return { type: 'image', mimeType: mimeType || `image/${extension === 'jpg' ? 'jpeg' : extension}` };
 }
 
+function hasUserAttachment(message) {
+  if (!message || message.role !== 'user') return false;
+  const attachment = message.metadata?.attachment && typeof message.metadata.attachment === 'object' ?
+  message.metadata.attachment :
+  message.attachment && typeof message.attachment === 'object' ?
+  message.attachment :
+  null;
+  return !!attachment;
+}
+
 /**
  * Appends a language directive to a session-start content string.
  * When the language is English (or unknown), returns the content unchanged.
@@ -319,7 +329,12 @@ export default function Chat() {
 
   // CRITICAL: HARD RENDER GATE - validate message is 100% render-safe (NO FALSE POSITIVES)
   const isMessageRenderSafe = (msg) => {
-    if (!msg || !msg.role || !msg.content) {
+    if (!msg || !msg.role) {
+      return false;
+    }
+
+    const hasAttachment = hasUserAttachment(msg);
+    if (!msg.content && !hasAttachment) {
       return false;
     }
 
@@ -1102,7 +1117,10 @@ export default function Chat() {
   };
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim()) {
+    const hasTextInput = !!inputMessage.trim();
+    const hasAttachmentInput = !!selectedAttachment?.file;
+
+    if (!hasTextInput && !hasAttachmentInput) {
       console.log('[Send] ❌ Blocked - empty message');
       return;
     }
@@ -1122,7 +1140,7 @@ export default function Chat() {
     expectedReplyCountRef.current = messages.length + 2; // user message + assistant reply
 
     // Layer 1: Regex-based crisis detection (fast, explicit patterns)
-    const reasonCode = detectCrisisWithReason(inputMessage);
+    const reasonCode = hasTextInput ? detectCrisisWithReason(inputMessage) : null;
     if (reasonCode) {
       setShowRiskPanel(true);
       setInputMessage('');
@@ -1132,6 +1150,7 @@ export default function Chat() {
 
     // Layer 2: LLM-based crisis detection (nuanced, implicit patterns)
     try {
+      if (hasTextInput) {
       const user = await base44.auth.me().catch(() => null);
       let enhancedCheck = { data: { is_crisis: false, severity: 'none', confidence: 0 } };
       try {
@@ -1167,6 +1186,7 @@ export default function Chat() {
         }
         return;
       }
+      }
     } catch (error) {
       console.warn('[Enhanced Crisis Detection] Failed, continuing with message:', error);
       // Non-blocking: if enhanced detection fails, continue with message send
@@ -1190,11 +1210,12 @@ export default function Chat() {
 
     // Phase 7.1 Layer 3: Per-turn safety mode supplement (V5 wiring only, flag-gated).
     // Returns null for default HYBRID wiring — no change to default behavior.
-    const runtimeSupplement = buildRuntimeSafetySupplement(
+    const runtimeSupplement = hasTextInput ? buildRuntimeSafetySupplement(
       ACTIVE_CBT_THERAPIST_WIRING,
       messageText,
       i18n?.language ?? 'en'
-    );
+    ) :
+    null;
     // Phase 8: track safety mode activation for the upgraded UI indicator.
     // Once triggered, the indicator persists for the rest of the session.
     if (runtimeSupplement !== null) {
@@ -1843,7 +1864,7 @@ export default function Chat() {
                     </button>
                   </div>
                 }
-                {messages.slice(Math.max(0, messages.length - visibleCount)).filter((m) => m && m.role && m.content).map((message, index, arr) => {
+                {messages.slice(Math.max(0, messages.length - visibleCount)).filter((m) => m && m.role && (m.content || hasUserAttachment(m))).map((message, index, arr) => {
                   // For assistant messages, find the immediately preceding user message
                   // to enable CP12-G post-learning compression in the governor.
                   const prevUserMessage = message.role === 'assistant' ?
@@ -2033,7 +2054,7 @@ export default function Chat() {
 
                 <Button
                   onClick={handleSendMessage}
-                  disabled={!inputMessage.trim() || isLoading}
+                  disabled={(!inputMessage.trim() && !selectedAttachment) || isLoading}
                   data-testid="therapist-chat-send" className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 h-[48px] flex-shrink-0">
                   <Send className="w-5 h-5" />
                 </Button>
