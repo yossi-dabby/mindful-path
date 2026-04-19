@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils';
 import MessageFeedback from './MessageFeedback';
 import { extractThinkingContent } from '../utils/messageContentSanitizer';
 import { applyFinalOutputGovernor } from '../utils/finalOutputGovernor';
-import { PDF_ANALYSIS_OVERFLOW_METADATA_KEY } from '../utils/validateAgentOutput.jsx';
 
 const ASSISTANT_ATTACHMENT_URL_REGEX = /https?:\/\/\S+/gi;
 
@@ -92,42 +91,7 @@ function PdfFullTextCard({ text, pageCount }) {
   );
 }
 
-// Collapsible card for the overflow portion of a long PDF analysis response.
-// Shown below the short acknowledgment in the assistant bubble.
-function PdfAnalysisOverflowCard({ overflow }) {
-  const [expanded, setExpanded] = useState(false);
-  if (!overflow) return null;
-  return (
-    <div className="mt-3 rounded-lg border border-primary-foreground/20 overflow-hidden text-sm">
-      <button
-        onClick={() => setExpanded(v => !v)}
-        className="w-full flex items-center gap-2 px-3 py-2 bg-primary-foreground/10 hover:bg-primary-foreground/15 transition-colors text-left"
-      >
-        <FileText className="w-4 h-4 shrink-0 opacity-80" />
-        <span className="flex-1 font-medium opacity-90">View full PDF analysis</span>
-        {expanded ? <ChevronUp className="w-4 h-4 opacity-70" /> : <ChevronDown className="w-4 h-4 opacity-70" />}
-      </button>
-      {expanded && (
-        <div className="px-3 py-3 max-h-[480px] overflow-y-auto bg-primary-foreground/5">
-          <ReactMarkdown
-            className="prose prose-sm max-w-none text-primary-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
-            components={{
-              p: ({ children }) => <p className="my-2 leading-relaxed text-[14px]">{children}</p>,
-              ul: ({ children }) => <ul className="my-2 ml-4 list-disc space-y-1">{children}</ul>,
-              ol: ({ children }) => <ol className="my-2 ml-4 list-decimal space-y-1">{children}</ol>,
-              li: ({ children }) => <li className="my-1">{children}</li>,
-              strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
-            }}
-          >
-            {overflow}
-          </ReactMarkdown>
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default function MessageBubble({ message, conversationId, messageIndex, agentName = 'cbt_therapist', context = 'chat', userMessage, sessionLanguage, hasPdfContext }) {
+export default function MessageBubble({ message, conversationId, messageIndex, agentName = 'cbt_therapist', context = 'chat', userMessage, sessionLanguage }) {
   // Stage 1 runtime-path lock:
   // Shared bubble renderer used by multiple surfaces.
   // Therapist /Chat runtime reaches this component via pages/Chat.jsx -> MessageList.jsx.
@@ -223,13 +187,6 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
     console.error('[MessageBubble] ⛔ Fatal error:', e);
     return null;
   }
-
-  const pdfOverflow = !isUser &&
-  hasPdfContext &&
-  typeof message?.metadata?.[PDF_ANALYSIS_OVERFLOW_METADATA_KEY] === 'string' &&
-  message.metadata[PDF_ANALYSIS_OVERFLOW_METADATA_KEY].trim() ?
-  message.metadata[PDF_ANALYSIS_OVERFLOW_METADATA_KEY].trim() :
-  null;
 
   const dir = i18n.language === 'he' ? 'rtl' : 'ltr';
   const handleAssistantPdfDownload = async () => {
@@ -410,9 +367,6 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                   {content}
                   </ReactMarkdown> :
                   null}
-                  {/* PDF analysis overflow — only shown when the assistant response was
-                   truncated because it follows a PDF upload and was too long */}
-                  {pdfOverflow && <PdfAnalysisOverflowCard overflow={pdfOverflow} />}
                   </>
                   }
                   

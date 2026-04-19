@@ -142,6 +142,10 @@ const FORBIDDEN_INLINE_REASONING_PATTERNS = [
 export const ATTACHMENT_METADATA_MARKER_PREFIX = '[ATTACHMENT_METADATA]';
 export const PDF_ANALYSIS_OVERFLOW_METADATA_KEY = 'pdf_analysis_overflow';
 const PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT = 420;
+const IMAGE_ASSISTANT_SHORT_REPLY_CHAR_LIMIT = 320;
+const IMAGE_ASSISTANT_MAX_SENTENCES = 3;
+const PDF_ASSISTANT_MAX_PARAGRAPH_SENTENCES = 3;
+const PDF_ASSISTANT_MAX_BULLETS = 4;
 // Search near the split target for a natural line break so the short chat reply
 // ends cleanly (usually after a bullet or sentence) instead of mid-phrase.
 const PDF_SPLIT_NEWLINE_LOOKBACK = 100;
@@ -199,15 +203,84 @@ function stripAttachmentContextBlock(content) {
   return content.replace(/\n?\[ATTACHMENT_CONTEXT\][\s\S]*$/, '').trim();
 }
 
-function hasPdfAttachmentContext(message) {
-  if (!message || message.role !== 'user') return false;
+function getAttachmentContextType(message) {
+  if (!message || message.role !== 'user') return null;
   const attachmentType = message?.metadata?.attachment?.type;
-  if (attachmentType === 'pdf') return true;
-  if (typeof message?.metadata?.pdf_extracted_text === 'string' && message.metadata.pdf_extracted_text.trim()) return true;
+  if (attachmentType === 'pdf' || attachmentType === 'image') return attachmentType;
   if (typeof message?.content === 'string') {
-    return message.content.includes('[ATTACHMENT_CONTEXT]') && message.content.includes('type: pdf');
+    if (message.content.includes('[ATTACHMENT_CONTEXT]') && /type:\s*pdf/i.test(message.content)) return 'pdf';
+    if (message.content.includes('[ATTACHMENT_CONTEXT]') && /type:\s*image/i.test(message.content)) return 'image';
   }
-  return false;
+  return null;
+}
+
+function splitSentences(text) {
+  if (typeof text !== 'string') return [];
+  return text
+    .replace(/\s+/g, ' ')
+    .trim()
+    .match(/[^.!?]+[.!?]?/g)?.map((s) => s.trim()).filter(Boolean) || [];
+}
+
+function clampTextBySentences(text, maxSentences, maxChars) {
+  const normalized = typeof text === 'string' ? text.trim() : '';
+  if (!normalized) return '';
+  const sentences = splitSentences(normalized);
+  let compact = sentences.length > 0 ? sentences.slice(0, maxSentences).join(' ').trim() : normalized;
+  if (compact.length > maxChars) {
+    compact = compact.slice(0, maxChars).trim().replace(/[,:;\s-]+$/g, '');
+    if (compact && !/[.!?…]$/.test(compact)) compact += '…';
+  }
+  return compact;
+}
+
+function keepSingleFollowUpPrompt(text) {
+  const sentences = splitSentences(text);
+  if (sentences.length <= 1) return typeof text === 'string' ? text.trim() : '';
+  const next = [];
+  let questionUsed = false;
+  for (const sentence of sentences) {
+    const isQuestion = /\?$/.test(sentence);
+    if (isQuestion) {
+      if (questionUsed) continue;
+      questionUsed = true;
+    }
+    next.push(sentence);
+  }
+  return next.join(' ').trim();
+}
+
+function shapeImageAssistantReply(content) {
+  const compact = clampTextBySentences(content, IMAGE_ASSISTANT_MAX_SENTENCES, IMAGE_ASSISTANT_SHORT_REPLY_CHAR_LIMIT);
+  return keepSingleFollowUpPrompt(compact);
+}
+
+function shapePdfAssistantReply(content) {
+  const normalized = typeof content === 'string' ? content.trim() : '';
+  if (!normalized) return '';
+
+  const lines = normalized
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .filter((line) => !/^extracted_text\s*:/i.test(line) && !/^\[PDF_TEXT\]/i.test(line));
+  const bulletLines = lines.filter((line) => /^[-*•]\s+/.test(line));
+
+  if (bulletLines.length > 0) {
+    const introLine = lines.find((line) => !/^[-*•]\s+/.test(line));
+    const compactIntro = introLine ? clampTextBySentences(introLine, 1, 180) : '';
+    const compactBullets = bulletLines.slice(0, PDF_ASSISTANT_MAX_BULLETS);
+    const merged = [compactIntro, ...compactBullets].filter(Boolean).join('\n').trim();
+    return keepSingleFollowUpPrompt(clampTextBySentences(merged, 10, PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT));
+  }
+
+  const asParagraph = lines.join(' ').trim();
+  const compactParagraph = clampTextBySentences(
+    asParagraph,
+    PDF_ASSISTANT_MAX_PARAGRAPH_SENTENCES,
+    PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT
+  );
+  return keepSingleFollowUpPrompt(compactParagraph);
 }
 
 function splitAssistantPdfMessageIfNeeded(message, assistantContent, previousMessage) {
@@ -218,14 +291,18 @@ function splitAssistantPdfMessageIfNeeded(message, assistantContent, previousMes
   if (!normalizedContent) {
     return { content: normalizedContent, overflow: existingOverflow || null };
   }
-  if (!hasPdfAttachmentContext(previousMessage)) {
+  const attachmentType = getAttachmentContextType(previousMessage);
+  if (attachmentType === 'image') {
+    return { content: shapeImageAssistantReply(normalizedContent), overflow: null };
+  }
+  if (attachmentType !== 'pdf') {
     return { content: normalizedContent, overflow: existingOverflow || null };
   }
   if (existingOverflow) {
-    return { content: normalizedContent, overflow: existingOverflow };
+    return { content: shapePdfAssistantReply(normalizedContent), overflow: existingOverflow };
   }
   if (normalizedContent.length <= PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT + PDF_MIN_OVERFLOW_LENGTH) {
-    return { content: normalizedContent, overflow: null };
+    return { content: shapePdfAssistantReply(normalizedContent), overflow: null };
   }
 
   let splitAt = PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT;
@@ -245,7 +322,7 @@ function splitAssistantPdfMessageIfNeeded(message, assistantContent, previousMes
     return { content: normalizedContent, overflow: null };
   }
 
-  return { content: shortContent, overflow };
+  return { content: shapePdfAssistantReply(shortContent), overflow };
 }
 
 function sanitizeAssistantMessage(message) {

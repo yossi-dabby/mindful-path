@@ -2,9 +2,7 @@ import React from 'react';
 import MessageBubble from './MessageBubble';
 
 /**
- * Renders the list of chat messages, passing hasPdfContext to assistant bubbles
- * that immediately follow a PDF upload so they can split long content into a
- * collapsible overflow card.
+ * Renders the list of chat messages for the active therapist chat runtime.
  *
  * Stage 1 runtime-path lock:
  * Active therapist-chat message-list renderer for pages/Chat.jsx (/Chat route).
@@ -19,13 +17,6 @@ export default function MessageList({ messages, visibleCount, conversationId, se
         message.role === 'assistant' && prevMsg?.role === 'user'
           ? prevMsg?.content
           : undefined;
-      const hasPdfContext =
-        message.role === 'assistant' &&
-        prevMsg?.role === 'user' &&
-        !!(
-          prevMsg?.metadata?.attachment?.type === 'pdf' ||
-          prevMsg?.metadata?.pdf_extracted_text
-        );
       return (
         <MessageBubble
           key={index}
@@ -36,7 +27,6 @@ export default function MessageList({ messages, visibleCount, conversationId, se
           context="chat"
           userMessage={prevUserMessage}
           sessionLanguage={sessionLanguage}
-          hasPdfContext={hasPdfContext}
         />
       );
     });
