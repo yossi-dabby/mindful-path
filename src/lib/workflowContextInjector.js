@@ -92,6 +92,16 @@ import {
 // Wave 5D — Quality Evaluator diagnostic integration (diagnostics-only, no runtime effect).
 import { computeEvaluatorDiagnosticSnapshot } from './therapistQualityEvaluator.js';
 
+const THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS = [
+'[ATTACHMENT_HANDLING_POLICY]',
+'When the current user turn includes attachment metadata, read the attachment context block and use its URL as source material for this turn.',
+'Attachment metadata key: metadata.attachment',
+'Extract and use: metadata.attachment.url',
+'If metadata.attachment.type is "image", inspect/describe visual content from the image URL before responding.',
+'If metadata.attachment.type is "pdf", read/summarize the document content from the PDF URL before responding.',
+'Reference document details only when grounded in the provided attachment URL; do not invent unseen content.']
+.join('\n');
+
 /**
  * Returns the workflow context instructions string when the supplied wiring
  * has the workflow_context_injection flag set to true.
@@ -2147,10 +2157,20 @@ export async function buildActionFirstDemotedSessionContentAsync(
     const block = THERAPIST_PLANNER_FIRST_INSTRUCTIONS;
     // Guard: block must be a non-empty string
     if (typeof block !== 'string' || !block.trim()) return base;
+    let content = base;
     // If V12 already injected the block (planner_first_enabled === true), do not duplicate.
-    if (base.includes(block)) return base;
-    // For HYBRID / V1–V11 paths: append the formulation-first planner policy block.
-    return base + '\n\n' + block;
+    if (!content.includes(block)) {
+      // For HYBRID / V1–V11 paths: append the formulation-first planner policy block.
+      content += '\n\n' + block;
+    }
+    if (
+      wiring?.name === 'cbt_therapist' &&
+      (wiring?.attachment_context_enabled === true || wiring?.attachment_context_enabled === undefined) &&
+      !content.includes(THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS)
+    ) {
+      content += '\n\n' + THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS;
+    }
+    return content;
   } catch {
     // Fail-open: any error returns the V12 base unchanged so the session is never blocked.
     return base;

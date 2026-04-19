@@ -103,6 +103,24 @@ function hasUserAttachment(message) {
   return !!attachment;
 }
 
+function buildAttachmentContextFromMetadata(metadata) {
+  const attachment = metadata?.attachment && typeof metadata.attachment === 'object' ? metadata.attachment : null;
+  const attachmentUrl = typeof attachment?.url === 'string' && attachment.url.trim() ? attachment.url.trim() : null;
+  if (!attachmentUrl) return '';
+  const attachmentType = attachment?.type === 'pdf' ? 'pdf' : 'image';
+  const attachmentName = typeof attachment?.name === 'string' && attachment.name.trim() ? attachment.name.trim() : null;
+  const lines = [
+  '[ATTACHMENT_CONTEXT]',
+  `type: ${attachmentType}`,
+  `url: ${attachmentUrl}`,
+  'instruction: Use this URL as the user-provided attachment context for this turn. If image, inspect visual content. If PDF, read the document content before responding.'];
+
+  if (attachmentName) {
+    lines.splice(2, 0, `name: ${attachmentName}`);
+  }
+  return lines.join('\n');
+}
+
 /**
  * Appends a language directive to a session-start content string.
  * When the language is English (or unknown), returns the content unchanged.
@@ -1315,13 +1333,29 @@ export default function Chat() {
         }
       }
 
-      const attachmentMarker = uploadedAttachment ? serializeAttachmentMetadataMarker(uploadedAttachment) : '';
-      const outboundMessageContent = attachmentMarker ? `${messageContent}\n${attachmentMarker}` : messageContent;
+      let outboundMetadata = undefined;
+      if (uploadedAttachment) {
+        const attachmentOwner = await base44.auth.me().catch(() => null);
+        const createdDate = new Date().toISOString();
+        const createdByEmail = typeof attachmentOwner?.email === 'string' && attachmentOwner.email.trim() ? attachmentOwner.email.trim() : 'email_unavailable';
+        if (createdByEmail === 'email_unavailable') {
+          console.warn('[Send] Attachment metadata email unavailable for created_by_email');
+        }
+        outboundMetadata = {
+          attachment: uploadedAttachment,
+          created_date: createdDate,
+          created_by_email: createdByEmail
+        };
+      }
+
+      const attachmentContextBlock = outboundMetadata ? buildAttachmentContextFromMetadata(outboundMetadata) : '';
+      const attachmentMarker = outboundMetadata?.attachment ? serializeAttachmentMetadataMarker(outboundMetadata.attachment) : '';
+      const outboundMessageContent = [messageContent, attachmentContextBlock, attachmentMarker].filter(Boolean).join('\n');
 
       await base44.agents.addMessage(conversation, {
         role: 'user',
         content: outboundMessageContent,
-        metadata: uploadedAttachment ? { attachment: uploadedAttachment } : undefined
+        metadata: outboundMetadata
       });
 
       console.log('[Send] ✅ Message sent - starting authoritative polling');
