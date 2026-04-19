@@ -146,6 +146,8 @@ const IMAGE_ASSISTANT_SHORT_REPLY_CHAR_LIMIT = 320;
 const IMAGE_ASSISTANT_MAX_SENTENCES = 3;
 const PDF_ASSISTANT_MAX_PARAGRAPH_SENTENCES = 3;
 const PDF_ASSISTANT_MAX_BULLETS = 4;
+const PDF_ASSISTANT_INTRO_CHAR_LIMIT = 180;
+const PDF_ASSISTANT_BULLET_MODE_SENTENCE_CAP = 10;
 // Search near the split target for a natural line break so the short chat reply
 // ends cleanly (usually after a bullet or sentence) instead of mid-phrase.
 const PDF_SPLIT_NEWLINE_LOOKBACK = 100;
@@ -268,10 +270,12 @@ function shapePdfAssistantReply(content) {
 
   if (bulletLines.length > 0) {
     const introLine = lines.find((line) => !/^[-*•]\s+/.test(line));
-    const compactIntro = introLine ? clampTextBySentences(introLine, 1, 180) : '';
+    const compactIntro = introLine ? clampTextBySentences(introLine, 1, PDF_ASSISTANT_INTRO_CHAR_LIMIT) : '';
     const compactBullets = bulletLines.slice(0, PDF_ASSISTANT_MAX_BULLETS);
     const merged = [compactIntro, ...compactBullets].filter(Boolean).join('\n').trim();
-    return keepSingleFollowUpPrompt(clampTextBySentences(merged, 10, PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT));
+    return keepSingleFollowUpPrompt(
+      clampTextBySentences(merged, PDF_ASSISTANT_BULLET_MODE_SENTENCE_CAP, PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT)
+    );
   }
 
   const asParagraph = lines.join(' ').trim();
