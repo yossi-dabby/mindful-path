@@ -149,6 +149,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
+import stripJsonComments from 'strip-json-comments';
 import { fileURLToPath } from 'url';
 
 import {
@@ -171,7 +172,7 @@ const CBT_AGENT_PATH = fileURLToPath(
 
 function readAgentInstructions() {
   const raw = readFileSync(CBT_AGENT_PATH, 'utf-8');
-  const cleaned = raw.replace(/^\s*\/\/.*$/gm, '');
+  const cleaned = stripJsonComments(raw);
   return JSON.parse(cleaned).instructions;
 }
 

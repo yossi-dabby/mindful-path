@@ -87,6 +87,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
+import stripJsonComments from 'strip-json-comments';
 import { fileURLToPath } from 'url';
 
 import {
@@ -110,8 +111,7 @@ const CBT_THERAPIST_PATH = fileURLToPath(
 let agentInstructions = '';
 try {
   const raw = readFileSync(CBT_THERAPIST_PATH, 'utf8');
-  // Strip single-line comments before parsing
-  const cleaned = raw.replace(/^\s*\/\/.*$/gm, '');
+  const cleaned = stripJsonComments(raw);
   const parsed = JSON.parse(cleaned);
   agentInstructions = parsed.instructions || '';
 } catch (e) {
