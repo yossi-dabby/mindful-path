@@ -26,7 +26,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { sanitizeConversationMessages } from '../../src/components/utils/validateAgentOutput.jsx';
+import { sanitizeConversationMessages, serializeAttachmentMetadataMarker } from '../../src/components/utils/validateAgentOutput.jsx';
 
 // ─── PURE JSON-EXTRACTION LOGIC (mirrors functions/sanitizeConversation.ts) ───
 
@@ -240,6 +240,49 @@ describe('sanitizeConversationMessages — exported frontend function', () => {
     ];
     const result = sanitizeConversationMessages(messages);
     expect(result[0].role).toBe('assistant');
+  });
+
+  it('extracts attachment metadata marker from a user message and keeps clean content', () => {
+    const marker = serializeAttachmentMetadataMarker({
+      type: 'image',
+      url: 'https://files.example.com/photo.jpg',
+      name: 'photo.jpg',
+      size: 1234
+    });
+    const messages = [
+      { role: 'user', content: `Here is the photo\n${marker}` },
+    ];
+    const result = sanitizeConversationMessages(messages);
+    expect(result).toHaveLength(1);
+    expect(result[0].content).toBe('Here is the photo');
+    expect(result[0].metadata?.attachment).toEqual({
+      type: 'image',
+      url: 'https://files.example.com/photo.jpg',
+      name: 'photo.jpg',
+      size: 1234
+    });
+  });
+
+  it('extracts attachment metadata marker when message starts with [START_SESSION] wrapper', () => {
+    const marker = serializeAttachmentMetadataMarker({
+      type: 'pdf',
+      url: 'https://files.example.com/file.pdf',
+      name: 'file.pdf'
+    });
+    const messages = [
+      {
+        role: 'user',
+        content: `[START_SESSION]\n\nI attached the PDF\n${marker}`
+      },
+    ];
+    const result = sanitizeConversationMessages(messages);
+    expect(result).toHaveLength(1);
+    expect(result[0].content).toBe('I attached the PDF');
+    expect(result[0].metadata?.attachment).toEqual({
+      type: 'pdf',
+      url: 'https://files.example.com/file.pdf',
+      name: 'file.pdf'
+    });
   });
 });
 

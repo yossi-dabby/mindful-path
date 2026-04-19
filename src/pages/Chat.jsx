@@ -35,7 +35,7 @@ import { detectCrisisWithReason } from '../components/utils/crisisDetector';
 import AgeGateModal from '../components/utils/AgeGateModal';
 import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
-import { validateAgentOutput, sanitizeConversationMessages, parseCounters } from '../components/utils/validateAgentOutput.jsx';
+import { validateAgentOutput, sanitizeConversationMessages, parseCounters, serializeAttachmentMetadataMarker } from '../components/utils/validateAgentOutput.jsx';
 import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
 import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildV8SessionStartContentAsync, buildV9SessionStartContentAsync, buildV10SessionStartContentAsync, buildV11SessionStartContentAsync, buildV12SessionStartContentAsync, buildActionFirstDemotedSessionContentAsync, buildRuntimeSafetySupplement } from '@/lib/workflowContextInjector.js';
 // Phase 4 / Phase 5 — Conversation memory write for V7 continuity
@@ -71,6 +71,27 @@ const LANG_FULL_NAMES = {
 const CHAT_ATTACHMENT_ACCEPT = '.jpg,.jpeg,.png,.pdf';
 const CHAT_ATTACHMENT_MAX_SIZE_BYTES = 5 * 1024 * 1024;
 const CHAT_ATTACHMENT_ALLOWED_TYPES = new Set(['image/jpeg', 'image/jpg', 'image/png', 'application/pdf']);
+const CHAT_ATTACHMENT_ALLOWED_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'pdf']);
+
+function resolveAttachmentType(file) {
+  const mimeType = String(file?.type || '').toLowerCase();
+  if (mimeType === 'application/pdf') {
+    return { type: 'pdf', mimeType: mimeType || 'application/pdf' };
+  }
+  if (mimeType === 'image/jpeg' || mimeType === 'image/jpg' || mimeType === 'image/png') {
+    return { type: 'image', mimeType };
+  }
+
+  const fileName = String(file?.name || '').toLowerCase();
+  const extension = fileName.includes('.') ? fileName.split('.').pop() : '';
+  if (!CHAT_ATTACHMENT_ALLOWED_EXTENSIONS.has(extension)) {
+    return null;
+  }
+  if (extension === 'pdf') {
+    return { type: 'pdf', mimeType: mimeType || 'application/pdf' };
+  }
+  return { type: 'image', mimeType: mimeType || `image/${extension === 'jpg' ? 'jpeg' : extension}` };
+}
 
 /**
  * Appends a language directive to a session-start content string.
@@ -215,14 +236,23 @@ export default function Chat() {
     if (!file) return;
 
     setAttachmentError('');
+    const resolvedAttachment = resolveAttachmentType(file);
 
-    if (!CHAT_ATTACHMENT_ALLOWED_TYPES.has(file.type)) {
+    if (!resolvedAttachment || (file.type && !CHAT_ATTACHMENT_ALLOWED_TYPES.has(file.type.toLowerCase()) && !CHAT_ATTACHMENT_ALLOWED_EXTENSIONS.has(file.name?.split('.').pop()?.toLowerCase()))) {
+      if (selectedAttachment?.previewUrl) {
+        URL.revokeObjectURL(selectedAttachment.previewUrl);
+      }
+      setSelectedAttachment(null);
       setAttachmentError(t('chat.attachments.invalid_type'));
       event.target.value = '';
       return;
     }
 
     if (file.size > CHAT_ATTACHMENT_MAX_SIZE_BYTES) {
+      if (selectedAttachment?.previewUrl) {
+        URL.revokeObjectURL(selectedAttachment.previewUrl);
+      }
+      setSelectedAttachment(null);
       setAttachmentError(t('chat.attachments.max_size_error', { sizeMB: 5 }));
       event.target.value = '';
       return;
@@ -232,14 +262,13 @@ export default function Chat() {
       URL.revokeObjectURL(selectedAttachment.previewUrl);
     }
 
-    const isImage = file.type.startsWith('image/');
     setSelectedAttachment({
       file,
-      type: isImage ? 'image' : 'pdf',
-      mimeType: file.type,
+      type: resolvedAttachment.type,
+      mimeType: resolvedAttachment.mimeType,
       name: file.name,
       size: file.size,
-      previewUrl: isImage ? URL.createObjectURL(file) : null
+      previewUrl: resolvedAttachment.type === 'image' ? URL.createObjectURL(file) : null
     });
 
     event.target.value = '';
@@ -784,6 +813,8 @@ export default function Chat() {
           }).
           filter((msg) => msg !== null);
 
+          processedMessages = sanitizeConversationMessages(processedMessages);
+
           // CRITICAL: Safe update with validation + deduplication
           const updated = safeUpdateMessages(processedMessages, 'Subscription');
 
@@ -1263,9 +1294,12 @@ export default function Chat() {
         }
       }
 
+      const attachmentMarker = uploadedAttachment ? serializeAttachmentMetadataMarker(uploadedAttachment) : '';
+      const outboundMessageContent = attachmentMarker ? `${messageContent}\n${attachmentMarker}` : messageContent;
+
       await base44.agents.addMessage(conversation, {
         role: 'user',
-        content: messageContent,
+        content: outboundMessageContent,
         metadata: uploadedAttachment ? { attachment: uploadedAttachment } : undefined
       });
 
