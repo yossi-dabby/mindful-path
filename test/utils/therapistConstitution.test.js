@@ -111,6 +111,7 @@ const CBT_THERAPIST_PATH = join(
 );
 
 let agentInstructions = '';
+const JOINING_SNIPPET_LENGTH = 400;
 try {
   const raw = readFileSync(CBT_THERAPIST_PATH, 'utf8');
   // Strip full-line JSONC comments without touching '//' inside strings.
@@ -529,7 +530,10 @@ describe('Therapist Constitution — Section F: cbt_therapist.jsonc agent instru
     const joiningIdx = agentInstructions.indexOf('brief_joining_before_guiding');
     expect(joiningIdx).toBeGreaterThan(-1);
     // Joining exception should reference warm acknowledgment
-    const snippet = agentInstructions.substring(joiningIdx, joiningIdx + 400);
+    const snippet = agentInstructions.substring(
+      joiningIdx,
+      joiningIdx + JOINING_SNIPPET_LENGTH,
+    );
     expect(snippet.toLowerCase()).toMatch(/warm|contain|acknowledg/);
   });
 

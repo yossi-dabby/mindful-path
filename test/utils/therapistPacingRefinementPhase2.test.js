@@ -532,12 +532,12 @@ describe('Phase 2 Refinement — Section K: cbt_therapist.jsonc content', () => 
 
   it('cbt_therapist.jsonc contains R1 five-step pacing ladder language', () => {
     // Check for the 5 steps
-    expect(instructions).toMatch(/Step 1.*[Aa]cknowledg|\(1\).*[Aa]cknowledg/);
+    expect(instructions).toMatch(/(?:Step 1|\(1\)).*[Aa]cknowledg/);
     expect(instructions).toMatch(
-      /Step 2.*[Ee]motional holding|\(2\).*[Ee]motional holding/,
+      /(?:Step 2|\(2\)).*[Ee]motional holding/,
     );
     expect(instructions).toMatch(
-      /Step 5.*[Oo]ne concrete next step|\(5\).*[Oo]ne concrete next step/,
+      /(?:Step 5|\(5\)).*[Oo]ne concrete next step/,
     );
   });
 
