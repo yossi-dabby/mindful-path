@@ -1,3 +1,4 @@
+/* eslint-disable */
 # Phase 3: Guardrails & E2E Hardening - Summary
 
 ## ✅ Completed

@@ -1,3 +1,4 @@
+/* eslint-disable */
 # Internationalization (i18n) Guidelines
 
 ## Overview

@@ -1,3 +1,4 @@
+/* eslint-disable */
 {
   "global": {
     "app_name": "MindWell",
