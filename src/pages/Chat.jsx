@@ -120,6 +120,7 @@ export default function Chat() {
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const attachmentInputRef = useRef(null);
+  const selectedAttachmentRef = useRef(null);
   const [visibleCount, setVisibleCount] = useState(50);
   const subscriptionActiveRef = useRef(false);
   const loadingTimeoutRef = useRef(null);
@@ -171,11 +172,15 @@ export default function Chat() {
     setVariantProfileBlocked(false); // MF-7: reset block state whenever conversation switches
   }, [currentConversationId]);
 
-  useEffect(() => () => {
-    if (selectedAttachment?.previewUrl) {
-      URL.revokeObjectURL(selectedAttachment.previewUrl);
-    }
+  useEffect(() => {
+    selectedAttachmentRef.current = selectedAttachment;
   }, [selectedAttachment]);
+
+  useEffect(() => () => {
+    if (selectedAttachmentRef.current?.previewUrl) {
+      URL.revokeObjectURL(selectedAttachmentRef.current.previewUrl);
+    }
+  }, []);
 
   // Load more messages when user scrolls to top
   const handleMessagesScroll = (e) => {
@@ -1244,8 +1249,9 @@ export default function Chat() {
             name: pendingAttachment.name,
             size: pendingAttachment.size
           };
+          removeSelectedAttachment();
         } catch (uploadError) {
-          console.error('[Send] ❌ Attachment upload failed:', uploadError);
+          console.error('[Send] ❌ Attachment upload failed:', uploadError?.message || 'unknown upload error');
           setAttachmentError(t('chat.attachments.upload_failed'));
           setInputMessage(messageText);
           setIsLoading(false);
@@ -1262,10 +1268,6 @@ export default function Chat() {
         content: messageContent,
         metadata: uploadedAttachment ? { attachment: uploadedAttachment } : undefined
       });
-
-      if (pendingAttachment) {
-        removeSelectedAttachment();
-      }
 
       console.log('[Send] ✅ Message sent - starting authoritative polling');
 
