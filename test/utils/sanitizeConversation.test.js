@@ -357,6 +357,8 @@ describe('sanitizeConversationMessages — exported frontend function', () => {
     expect(result[1].content.length).toBeLessThan(longAssistantReply.length);
     expect(result[1].metadata?.pdf_analysis_overflow).toBeTruthy();
     expect(result[1].metadata.pdf_analysis_overflow.length).toBeGreaterThan(80);
+    expect(result[1].content.endsWith('\n')).toBe(false);
+    expect(result[1].metadata.pdf_analysis_overflow.startsWith('\n')).toBe(false);
     expect(result[1].content + result[1].metadata.pdf_analysis_overflow).toContain('Additional detail line from the document.');
   });
 

@@ -142,6 +142,13 @@ const FORBIDDEN_INLINE_REASONING_PATTERNS = [
 export const ATTACHMENT_METADATA_MARKER_PREFIX = '[ATTACHMENT_METADATA]';
 export const PDF_ANALYSIS_OVERFLOW_METADATA_KEY = 'pdf_analysis_overflow';
 const PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT = 420;
+// Search near the split target for a natural line break so the short chat reply
+// ends cleanly (usually after a bullet or sentence) instead of mid-phrase.
+const PDF_SPLIT_NEWLINE_LOOKBACK = 100;
+const PDF_SPLIT_NEWLINE_LOOKAHEAD = 120;
+// Do not split when the remainder would be tiny; tiny tails feel like truncation
+// noise and are better kept inline with the short response.
+const PDF_MIN_OVERFLOW_LENGTH = 80;
 
 function normalizeAttachmentMetadata(candidate) {
   if (!candidate || typeof candidate !== 'object') return null;
@@ -217,22 +224,24 @@ function splitAssistantPdfMessageIfNeeded(message, assistantContent, previousMes
   if (existingOverflow) {
     return { content: normalizedContent, overflow: existingOverflow };
   }
-  if (normalizedContent.length <= PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT) {
+  if (normalizedContent.length <= PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT + PDF_MIN_OVERFLOW_LENGTH) {
     return { content: normalizedContent, overflow: null };
   }
 
   let splitAt = PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT;
-  const newlineIdx = normalizedContent.indexOf('\n', PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT - 100);
-  if (newlineIdx !== -1 && newlineIdx <= PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT + 120) {
-    splitAt = newlineIdx;
+  const splitWindowStart = Math.max(0, PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT - PDF_SPLIT_NEWLINE_LOOKBACK);
+  const splitWindowEnd = Math.min(normalizedContent.length - 1, PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT + PDF_SPLIT_NEWLINE_LOOKAHEAD);
+  const newlineIdx = normalizedContent.lastIndexOf('\n', splitWindowEnd);
+  if (newlineIdx >= splitWindowStart) {
+    splitAt = newlineIdx + 1;
   } else {
-    const sentenceEnd = normalizedContent.lastIndexOf('. ', PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT);
-    if (sentenceEnd > PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT / 2) splitAt = sentenceEnd + 1;
+    const sentenceEnd = normalizedContent.lastIndexOf('. ', splitWindowEnd);
+    if (sentenceEnd >= splitWindowStart) splitAt = sentenceEnd + 1;
   }
 
   const shortContent = normalizedContent.slice(0, splitAt).trim();
   const overflow = normalizedContent.slice(splitAt).trim();
-  if (!overflow || overflow.length < 80) {
+  if (!overflow || overflow.length < PDF_MIN_OVERFLOW_LENGTH) {
     return { content: normalizedContent, overflow: null };
   }
 
