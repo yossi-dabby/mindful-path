@@ -9,7 +9,7 @@ import AuthErrorBanner from '../components/utils/AuthErrorBanner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Loader2, Menu, Sparkles, ArrowLeft, Trash2 } from 'lucide-react';
+import { Send, Loader2, Menu, Sparkles, ArrowLeft, Trash2, Paperclip, X, FileText } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import {
   AlertDialog,
@@ -68,6 +68,10 @@ const LANG_FULL_NAMES = {
   pt: 'Portuguese'
 };
 
+const CHAT_ATTACHMENT_ACCEPT = '.jpg,.jpeg,.png,.pdf';
+const CHAT_ATTACHMENT_MAX_SIZE_BYTES = 5 * 1024 * 1024;
+const CHAT_ATTACHMENT_ALLOWED_TYPES = new Set(['image/jpeg', 'image/jpg', 'image/png', 'application/pdf']);
+
 /**
  * Appends a language directive to a session-start content string.
  * When the language is English (or unknown), returns the content unchanged.
@@ -88,6 +92,8 @@ export default function Chat() {
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
+  const [selectedAttachment, setSelectedAttachment] = useState(null);
+  const [attachmentError, setAttachmentError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [showSummaryPrompt, setShowSummaryPrompt] = useState(false);
@@ -113,6 +119,7 @@ export default function Chat() {
   const sessionLanguageRef = useRef(i18n.language || 'en');
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
+  const attachmentInputRef = useRef(null);
   const [visibleCount, setVisibleCount] = useState(50);
   const subscriptionActiveRef = useRef(false);
   const loadingTimeoutRef = useRef(null);
@@ -164,6 +171,12 @@ export default function Chat() {
     setVariantProfileBlocked(false); // MF-7: reset block state whenever conversation switches
   }, [currentConversationId]);
 
+  useEffect(() => () => {
+    if (selectedAttachment?.previewUrl) {
+      URL.revokeObjectURL(selectedAttachment.previewUrl);
+    }
+  }, [selectedAttachment]);
+
   // Load more messages when user scrolls to top
   const handleMessagesScroll = (e) => {
     const el = e.currentTarget;
@@ -179,6 +192,52 @@ export default function Chat() {
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const removeSelectedAttachment = () => {
+    if (selectedAttachment?.previewUrl) {
+      URL.revokeObjectURL(selectedAttachment.previewUrl);
+    }
+    setSelectedAttachment(null);
+    setAttachmentError('');
+    if (attachmentInputRef.current) {
+      attachmentInputRef.current.value = '';
+    }
+  };
+
+  const handleAttachmentChange = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setAttachmentError('');
+
+    if (!CHAT_ATTACHMENT_ALLOWED_TYPES.has(file.type)) {
+      setAttachmentError(t('chat.attachments.invalid_type'));
+      event.target.value = '';
+      return;
+    }
+
+    if (file.size > CHAT_ATTACHMENT_MAX_SIZE_BYTES) {
+      setAttachmentError(t('chat.attachments.max_size_error', { sizeMB: 5 }));
+      event.target.value = '';
+      return;
+    }
+
+    if (selectedAttachment?.previewUrl) {
+      URL.revokeObjectURL(selectedAttachment.previewUrl);
+    }
+
+    const isImage = file.type.startsWith('image/');
+    setSelectedAttachment({
+      file,
+      type: isImage ? 'image' : 'pdf',
+      mimeType: file.type,
+      name: file.name,
+      size: file.size,
+      previewUrl: isImage ? URL.createObjectURL(file) : null
+    });
+
+    event.target.value = '';
   };
 
   // Emit mandatory one-line stability proof after each send cycle
@@ -1078,9 +1137,11 @@ export default function Chat() {
     }
 
     const messageText = inputMessage;
+    const pendingAttachment = selectedAttachment;
     setInputMessage('');
     setShowSummaryPrompt(false);
     setIsLoading(true);
+    setAttachmentError('');
 
     // Phase 7.1 — Explicit safety layer precedence (documented and enforced):
     //   Layer 1 (regex crisis detector)  → HARD_STOP, already returned above if triggered
@@ -1173,10 +1234,38 @@ export default function Chat() {
         messageContent = sessionStartContent + '\n\n' + messageContent;
       }
 
+      let uploadedAttachment = null;
+      if (pendingAttachment?.file) {
+        try {
+          const { file_url } = await base44.integrations.Core.UploadFile({ file: pendingAttachment.file });
+          uploadedAttachment = {
+            type: pendingAttachment.type,
+            url: file_url,
+            name: pendingAttachment.name,
+            size: pendingAttachment.size
+          };
+        } catch (uploadError) {
+          console.error('[Send] ❌ Attachment upload failed:', uploadError);
+          setAttachmentError(t('chat.attachments.upload_failed'));
+          setInputMessage(messageText);
+          setIsLoading(false);
+          if (loadingTimeoutRef.current) {
+            clearTimeout(loadingTimeoutRef.current);
+            loadingTimeoutRef.current = null;
+          }
+          return;
+        }
+      }
+
       await base44.agents.addMessage(conversation, {
         role: 'user',
-        content: messageContent
+        content: messageContent,
+        metadata: uploadedAttachment ? { attachment: uploadedAttachment } : undefined
       });
+
+      if (pendingAttachment) {
+        removeSelectedAttachment();
+      }
 
       console.log('[Send] ✅ Message sent - starting authoritative polling');
 
@@ -1851,21 +1940,65 @@ export default function Chat() {
               </div> :
 
               <>
-                <Textarea
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder={t('chat.message_placeholder')} className="bg-[hsl(var(--surface-nested)/0.9)] text-foreground px-3 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-card)] flex w-full border border-input/90 shadow-[var(--shadow-sm)] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 flex-1 min-h-[48px] max-h-[160px] resize-none"
+                <input
+                  ref={attachmentInputRef}
+                  type="file"
+                  accept={CHAT_ATTACHMENT_ACCEPT}
+                  onChange={handleAttachmentChange}
+                  className="hidden"
+                  aria-hidden="true" />
 
-                  data-testid="therapist-chat-input"
-                  disabled={isLoading} />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => attachmentInputRef.current?.click()}
+                  disabled={isLoading}
+                  className="min-h-[44px] md:min-h-0 h-[48px] px-3 flex-shrink-0"
+                  aria-label={t('chat.attachments.attach_button_aria')}>
+                  <Paperclip className="w-5 h-5" />
+                </Button>
+
+                <div className="flex-1 flex flex-col gap-2">
+                  {selectedAttachment &&
+                  <div className="bg-[hsl(var(--surface-nested)/0.9)] border border-input/80 rounded-[var(--radius-card)] p-2 flex items-center justify-between gap-2">
+                      <div className="min-w-0 flex items-center gap-2">
+                        {selectedAttachment.type === 'image' && selectedAttachment.previewUrl ?
+                        <img
+                          src={selectedAttachment.previewUrl}
+                          alt={t('chat.attachments.image_preview_alt')}
+                          className="w-10 h-10 rounded object-cover shrink-0" /> :
+
+                        <FileText className="w-4 h-4 shrink-0" />
+                        }
+                        <span className="text-xs text-foreground truncate">{selectedAttachment.name}</span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 shrink-0"
+                        onClick={removeSelectedAttachment}
+                        aria-label={t('chat.attachments.remove_button_aria')}>
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  }
+                  <Textarea
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder={t('chat.message_placeholder')} className="bg-[hsl(var(--surface-nested)/0.9)] text-foreground px-3 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-card)] flex w-full border border-input/90 shadow-[var(--shadow-sm)] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 flex-1 min-h-[48px] max-h-[160px] resize-none"
+                    data-testid="therapist-chat-input"
+                    disabled={isLoading} />
+                  {attachmentError &&
+                  <p className="text-xs text-destructive">{attachmentError}</p>
+                  }
+                </div>
 
                 <Button
                   onClick={handleSendMessage}
                   disabled={!inputMessage.trim() || isLoading}
                   data-testid="therapist-chat-send" className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 h-[48px] flex-shrink-0">
-
-
                   <Send className="w-5 h-5" />
                 </Button>
               </>
