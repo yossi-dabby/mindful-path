@@ -149,7 +149,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { fileURLToPath } from 'url';
 
 import {
   THERAPIST_WORKFLOW_VERSION,
@@ -165,12 +165,13 @@ import {
   THERAPIST_FORMULATION_INSTRUCTIONS,
 } from '../../src/lib/therapistWorkflowEngine.js';
 
-const REPO_ROOT = join(new URL(import.meta.url).pathname, '..', '..', '..');
-const CBT_AGENT_PATH = join(REPO_ROOT, 'base44', 'agents', 'cbt_therapist.jsonc');
+const CBT_AGENT_PATH = fileURLToPath(
+  new URL('../../base44/agents/cbt_therapist.jsonc', import.meta.url),
+);
 
 function readAgentInstructions() {
   const raw = readFileSync(CBT_AGENT_PATH, 'utf-8');
-  const cleaned = raw.replace(/\/\/.*$/gm, '');
+  const cleaned = raw.replace(/^\s*\/\/.*$/gm, '');
   return JSON.parse(cleaned).instructions;
 }
 

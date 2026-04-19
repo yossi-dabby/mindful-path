@@ -87,7 +87,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { fileURLToPath } from 'url';
 
 import {
   THERAPIST_WORKFLOW_VERSION,
@@ -103,16 +103,15 @@ import {
 
 // ─── Load cbt_therapist.jsonc ─────────────────────────────────────────────────
 
-const CBT_THERAPIST_PATH = join(
-  import.meta.dirname,
-  '../../base44/agents/cbt_therapist.jsonc',
+const CBT_THERAPIST_PATH = fileURLToPath(
+  new URL('../../base44/agents/cbt_therapist.jsonc', import.meta.url),
 );
 
 let agentInstructions = '';
 try {
   const raw = readFileSync(CBT_THERAPIST_PATH, 'utf8');
   // Strip single-line comments before parsing
-  const cleaned = raw.replace(/\/\/[^\n]*/g, '');
+  const cleaned = raw.replace(/^\s*\/\/.*$/gm, '');
   const parsed = JSON.parse(cleaned);
   agentInstructions = parsed.instructions || '';
 } catch (e) {
