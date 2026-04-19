@@ -185,6 +185,11 @@ export function extractAttachmentMetadataFromUserContent(content) {
   }
 }
 
+function stripAttachmentContextBlock(content) {
+  if (typeof content !== 'string') return content;
+  return content.replace(/\n?\[ATTACHMENT_CONTEXT\][\s\S]*$/, '').trim();
+}
+
 function sanitizeAssistantMessage(message) {
   if (!message || typeof message !== 'string') return message;
   
@@ -525,12 +530,13 @@ export function sanitizeConversationMessages(messages) {
         const userText = content.substring(splitPos + 2).trim();
         const { content: cleanedUserText, attachment } = extractAttachmentMetadataFromUserContent(userText);
         if (userText) {
+          const visibleUserText = stripAttachmentContextBlock(cleanedUserText);
           const pdfMetaSession = {};
           if (msg.metadata?.pdf_extracted_text) pdfMetaSession.pdf_extracted_text = msg.metadata.pdf_extracted_text;
           if (msg.metadata?.pdf_page_count) pdfMetaSession.pdf_page_count = msg.metadata.pdf_page_count;
           return {
             ...msg,
-            content: cleanedUserText,
+            content: visibleUserText,
             metadata: { ...(msg.metadata || {}), ...(attachment ? { attachment } : {}), ...pdfMetaSession }
           };
         }
@@ -541,6 +547,7 @@ export function sanitizeConversationMessages(messages) {
 
     if (msg.role === 'user' && typeof msg.content === 'string') {
       const { content, attachment } = extractAttachmentMetadataFromUserContent(msg.content);
+      const visibleUserText = stripAttachmentContextBlock(content);
       // Preserve pdf_extracted_text / pdf_page_count from incoming metadata so the
       // collapsible card in MessageBubble always has the data available, regardless
       // of whether the SDK round-trips custom metadata fields.
@@ -550,7 +557,7 @@ export function sanitizeConversationMessages(messages) {
       if (attachment || Object.keys(pdfMeta).length > 0) {
         return {
           ...msg,
-          content,
+          content: visibleUserText,
           metadata: { ...(msg.metadata || {}), ...(attachment ? { attachment } : {}), ...pdfMeta }
         };
       }

@@ -289,6 +289,50 @@ describe('sanitizeConversationMessages — exported frontend function', () => {
       name: 'file.pdf'
     });
   });
+
+  it('strips [ATTACHMENT_CONTEXT] block while preserving attachment metadata', () => {
+    const marker = serializeAttachmentMetadataMarker({
+      type: 'image',
+      url: 'https://files.example.com/image.png',
+      name: 'image.png'
+    });
+    const messages = [
+      {
+        role: 'user',
+        content: `Please review this\n[ATTACHMENT_CONTEXT]\ntype: image\nurl: https://files.example.com/image.png\n${marker}`
+      },
+    ];
+    const result = sanitizeConversationMessages(messages);
+    expect(result).toHaveLength(1);
+    expect(result[0].content).toBe('Please review this');
+    expect(result[0].metadata?.attachment).toEqual({
+      type: 'image',
+      url: 'https://files.example.com/image.png',
+      name: 'image.png'
+    });
+  });
+
+  it('keeps attachment-only user messages render-safe after sanitization', () => {
+    const marker = serializeAttachmentMetadataMarker({
+      type: 'pdf',
+      url: 'https://files.example.com/doc.pdf',
+      name: 'doc.pdf'
+    });
+    const messages = [
+      {
+        role: 'user',
+        content: `[ATTACHMENT_CONTEXT]\ntype: pdf\nurl: https://files.example.com/doc.pdf\n${marker}`
+      },
+    ];
+    const result = sanitizeConversationMessages(messages);
+    expect(result).toHaveLength(1);
+    expect(result[0].content).toBe('');
+    expect(result[0].metadata?.attachment).toEqual({
+      type: 'pdf',
+      url: 'https://files.example.com/doc.pdf',
+      name: 'doc.pdf'
+    });
+  });
 });
 
 // ─── TESTS — sanitization boundaries (no internal/system data leaks) ──────────
