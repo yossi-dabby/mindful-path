@@ -87,7 +87,8 @@
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 import {
   THERAPIST_WORKFLOW_VERSION,
@@ -103,18 +104,21 @@ import {
 
 // ─── Load cbt_therapist.jsonc ─────────────────────────────────────────────────
 
+const TEST_FILE_DIR = dirname(fileURLToPath(import.meta.url));
 const CBT_THERAPIST_PATH = join(
-  import.meta.dirname,
+  TEST_FILE_DIR,
   '../../base44/agents/cbt_therapist.jsonc',
 );
 
 let agentInstructions = '';
 try {
   const raw = readFileSync(CBT_THERAPIST_PATH, 'utf8');
-  // Strip single-line comments before parsing
-  const cleaned = raw.replace(/\/\/[^\n]*/g, '');
+  // Strip full-line JSONC comments without touching '//' inside strings.
+  const cleaned = raw.replace(/^\s*\/\/.*$/gm, '');
   const parsed = JSON.parse(cleaned);
-  agentInstructions = parsed.instructions || '';
+  const baseInstructions =
+    typeof parsed.instructions === 'string' ? parsed.instructions : '';
+  agentInstructions = `${baseInstructions}\n\n${buildWorkflowContextInstructions()}`;
 } catch (e) {
   // If parsing fails, leave agentInstructions empty; tests will fail with clear message
 }
@@ -401,11 +405,13 @@ describe('Therapist Constitution — Section F: cbt_therapist.jsonc agent instru
 
   // Scenario 1: Greeting + politeness (CP1 joining exception)
   it('Scenario 1 (greeting + politeness): JOINING EXCEPTION is present in CP1', () => {
-    expect(agentInstructions).toContain('JOINING EXCEPTION');
+    expect(agentInstructions).toContain('brief_joining_before_guiding');
   });
 
   it('Scenario 1 (greeting + politeness): joining exception covers first/second response', () => {
-    expect(agentInstructions).toContain('first or second response');
+    expect(agentInstructions).toContain(
+      'One brief human acknowledgment before any intervention',
+    );
   });
 
   // Scenario 2: "What can you help with?"
@@ -419,11 +425,11 @@ describe('Therapist Constitution — Section F: cbt_therapist.jsonc agent instru
   });
 
   it('Scenario 3 (first-session framing): includes brief CBT framing step', () => {
-    expect(agentInstructions).toContain('BRIEF CBT FRAMING');
+    expect(agentInstructions).toContain('brief_cbt_framing');
   });
 
   it('Scenario 3 (first-session framing): includes rapport and emotional safety step', () => {
-    expect(agentInstructions).toContain('RAPPORT AND EMOTIONAL SAFETY');
+    expect(agentInstructions).toContain('rapport_and_emotional_safety');
   });
 
   // Scenario 4: Structured 45-minute session
@@ -438,12 +444,12 @@ describe('Therapist Constitution — Section F: cbt_therapist.jsonc agent instru
 
   // Scenario 6: Depression / low self-worth
   it('Scenario 6 (depression): CONSTITUTION warmth principle is present', () => {
-    expect(agentInstructions).toContain('humanly containing');
+    expect(agentInstructions).toContain('must feel human before it feels clinical');
   });
 
   // Scenario 7: OCD case
   it('Scenario 7 (OCD): CLINICAL SENSITIVITY RULES covers OCD', () => {
-    expect(agentInstructions).toContain('OCD AND COMPULSIVE RITUALS');
+    expect(agentInstructions).toContain('OCD and compulsive rituals');
   });
 
   it('Scenario 7 (OCD): OCD rules mention not challenging intrusive thought content', () => {
@@ -452,7 +458,7 @@ describe('Therapist Constitution — Section F: cbt_therapist.jsonc agent instru
 
   // Scenario 8: Religious OCD / scrupulosity
   it('Scenario 8 (religious OCD): CLINICAL SENSITIVITY RULES covers religious OCD', () => {
-    expect(agentInstructions).toContain('RELIGIOUS OCD');
+    expect(agentInstructions).toContain('Religious OCD / scrupulosity');
   });
 
   it('Scenario 8 (religious OCD): rules explicitly say not to argue with religious content', () => {
@@ -461,7 +467,7 @@ describe('Therapist Constitution — Section F: cbt_therapist.jsonc agent instru
 
   // Scenario 9: Trauma-related case
   it('Scenario 9 (trauma): CLINICAL SENSITIVITY RULES covers trauma', () => {
-    expect(agentInstructions).toContain('TRAUMA-RELATED DISTRESS');
+    expect(agentInstructions).toContain('Trauma-related distress / PTSD symptoms');
   });
 
   it('Scenario 9 (trauma): trauma rules mention not forcing exposure early', () => {
@@ -470,7 +476,7 @@ describe('Therapist Constitution — Section F: cbt_therapist.jsonc agent instru
 
   // Scenario 10: Grief/loss case
   it('Scenario 10 (grief/loss): CLINICAL SENSITIVITY RULES covers grief', () => {
-    expect(agentInstructions).toContain('GRIEF, LOSS');
+    expect(agentInstructions).toContain('Grief, loss, breakup, and bereavement');
   });
 
   it('Scenario 10 (grief/loss): grief rules say do not rush to fix the pain', () => {
@@ -488,7 +494,7 @@ describe('Therapist Constitution — Section F: cbt_therapist.jsonc agent instru
 
   // Scenario 12: Sleep/insomnia case
   it('Scenario 12 (sleep/insomnia): CLINICAL SENSITIVITY RULES covers insomnia', () => {
-    expect(agentInstructions).toContain('INSOMNIA');
+    expect(agentInstructions).toContain('Insomnia and sleep difficulties / CBT-I style');
   });
 
   it('Scenario 12 (sleep/insomnia): insomnia rules mention not catastrophizing', () => {
@@ -497,7 +503,7 @@ describe('Therapist Constitution — Section F: cbt_therapist.jsonc agent instru
 
   // Scenario 13: Teen case
   it('Scenario 13 (teen): CLINICAL SENSITIVITY RULES covers teen cases', () => {
-    expect(agentInstructions).toContain('TEEN CASES');
+    expect(agentInstructions).toContain('Teen cases');
   });
 
   it('Scenario 13 (teen): teen rules mention trust-building before structure', () => {
@@ -506,7 +512,7 @@ describe('Therapist Constitution — Section F: cbt_therapist.jsonc agent instru
 
   // Scenario 14: Cross-language consistency
   it('Scenario 14 (cross-language): CROSS-LANGUAGE CONSISTENCY RULES section is present', () => {
-    expect(agentInstructions).toContain('CROSS-LANGUAGE CONSISTENCY RULES');
+    expect(agentInstructions).toContain('CROSS-LANGUAGE CONSISTENCY');
   });
 
   it('Scenario 14 (cross-language): rules prevent colder behavior in any language', () => {
@@ -520,7 +526,7 @@ describe('Therapist Constitution — Section F: cbt_therapist.jsonc agent instru
 
   // Scenario 16: Alliance preservation before intervention
   it('Scenario 16 (alliance): JOINING EXCEPTION prevents cold redirect on first turn', () => {
-    const joiningIdx = agentInstructions.indexOf('JOINING EXCEPTION');
+    const joiningIdx = agentInstructions.indexOf('brief_joining_before_guiding');
     expect(joiningIdx).toBeGreaterThan(-1);
     // Joining exception should reference warm acknowledgment
     const snippet = agentInstructions.substring(joiningIdx, joiningIdx + 400);
@@ -533,7 +539,7 @@ describe('Therapist Constitution — Section F: cbt_therapist.jsonc agent instru
   });
 
   it('Scenario 17 (one step): first-session model ends with one realistic first task', () => {
-    expect(agentInstructions).toContain('ONE REALISTIC FIRST TASK');
+    expect(agentInstructions).toContain('one_realistic_first_task');
   });
 });
 
@@ -543,8 +549,8 @@ describe('Therapist Constitution — Section G: Hard-failure prevention', () => 
   it('JOINING EXCEPTION prevents cold redirect on first turn (forward-looking check)', () => {
     // The joining exception allows ending with a warm open invitation instead
     // of a concrete action on the first turn when the user opens with a greeting
-    expect(agentInstructions).toContain('JOINING EXCEPTION');
-    expect(agentInstructions).toContain('warm open invitation');
+    expect(agentInstructions).toContain('brief_joining_before_guiding');
+    expect(agentInstructions).toContain('warm one-liner');
   });
 
   it('CONSTITUTION principle 5 explicitly prevents becoming a workflow engine', () => {
@@ -573,7 +579,7 @@ describe('Therapist Constitution — Section G: Hard-failure prevention', () => 
 
   it('CLINICAL SENSITIVITY safeguard E handles multi-domain presentation', () => {
     // Clinical sensitivity section should mention handling multiple domains
-    expect(agentInstructions).toContain('multiple domains');
+    expect(agentInstructions).toContain('clinical domains');
   });
 
   it('THERAPIST CONSTITUTION prevents template dumping — mentions case connection', () => {

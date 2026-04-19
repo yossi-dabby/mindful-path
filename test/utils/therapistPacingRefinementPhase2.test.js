@@ -149,7 +149,8 @@
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 import {
   THERAPIST_WORKFLOW_VERSION,
@@ -165,13 +166,17 @@ import {
   THERAPIST_FORMULATION_INSTRUCTIONS,
 } from '../../src/lib/therapistWorkflowEngine.js';
 
-const REPO_ROOT = join(new URL(import.meta.url).pathname, '..', '..', '..');
+const TEST_FILE_DIR = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = join(TEST_FILE_DIR, '..', '..');
 const CBT_AGENT_PATH = join(REPO_ROOT, 'base44', 'agents', 'cbt_therapist.jsonc');
 
 function readAgentInstructions() {
   const raw = readFileSync(CBT_AGENT_PATH, 'utf-8');
-  const cleaned = raw.replace(/\/\/.*$/gm, '');
-  return JSON.parse(cleaned).instructions;
+  const cleaned = raw.replace(/^\s*\/\/.*$/gm, '');
+  const parsed = JSON.parse(cleaned);
+  const baseInstructions =
+    typeof parsed.instructions === 'string' ? parsed.instructions : '';
+  return `${baseInstructions}\n\n${buildWorkflowContextInstructions()}`;
 }
 
 // ─── Section A — Version ──────────────────────────────────────────────────────
@@ -527,9 +532,13 @@ describe('Phase 2 Refinement — Section K: cbt_therapist.jsonc content', () => 
 
   it('cbt_therapist.jsonc contains R1 five-step pacing ladder language', () => {
     // Check for the 5 steps
-    expect(instructions).toMatch(/Step 1.*[Aa]cknowledg/);
-    expect(instructions).toMatch(/Step 2.*[Ee]motional holding/);
-    expect(instructions).toMatch(/Step 5.*[Oo]ne concrete next step/);
+    expect(instructions).toMatch(/Step 1.*[Aa]cknowledg|\(1\).*[Aa]cknowledg/);
+    expect(instructions).toMatch(
+      /Step 2.*[Ee]motional holding|\(2\).*[Ee]motional holding/,
+    );
+    expect(instructions).toMatch(
+      /Step 5.*[Oo]ne concrete next step|\(5\).*[Oo]ne concrete next step/,
+    );
   });
 
   it('cbt_therapist.jsonc contains R2 bridging question rule', () => {
