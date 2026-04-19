@@ -41,6 +41,20 @@ function detectAssistantAttachment(message) {
   const metadataAttachment = normalizeAttachment(message?.metadata?.attachment || message?.attachment);
   if (metadataAttachment) return metadataAttachment;
   const content = typeof message?.content === 'string' ? message.content : '';
+  // Check for markdown image syntax: ![alt](url)
+  const mdImageMatch = content.match(/!\[([^\]]*)\]\((https?:\/\/[^)]+)\)/);
+  if (mdImageMatch) {
+    const url = mdImageMatch[2];
+    if (inferAttachmentTypeFromUrl(url) === 'image') return { type: 'image', url, name: mdImageMatch[1] || undefined };
+  }
+  // Check for markdown link syntax to a file: [text](url)
+  const mdLinkMatch = content.match(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/);
+  if (mdLinkMatch) {
+    const url = mdLinkMatch[2];
+    const type = inferAttachmentTypeFromUrl(url);
+    if (type) return { type, url, name: mdLinkMatch[1] || undefined };
+  }
+  // Fallback: bare URLs
   const matches = content.match(ASSISTANT_ATTACHMENT_URL_REGEX);
   if (!matches || matches.length === 0) return null;
   for (const candidate of matches) {
@@ -256,7 +270,37 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                   <pre className="bg-secondary rounded-lg p-3 my-2 overflow-x-auto">
                         <code className={safeClassName}>{safeChildren}</code>
                       </pre>);
-
+              },
+              // Render inline images from the AI (e.g. ![alt](url))
+              img: ({ src, alt }) => {
+                if (!src) return null;
+                return (
+                  <a href={src} target="_blank" rel="noopener noreferrer" className="inline-block my-2">
+                    <img src={src} alt={alt || ''} className="max-w-[260px] max-h-[260px] rounded-lg object-cover border border-primary-foreground/20" />
+                  </a>
+                );
+              },
+              // Render links — detect file links and show appropriate UI
+              a: ({ href, children }) => {
+                if (!href) return <span>{children}</span>;
+                const fileType = inferAttachmentTypeFromUrl(href);
+                if (fileType === 'image') {
+                  return (
+                    <a href={href} target="_blank" rel="noopener noreferrer" className="inline-block my-2">
+                      <img src={href} alt={String(children || '')} className="max-w-[260px] max-h-[260px] rounded-lg object-cover border border-primary-foreground/20" />
+                    </a>
+                  );
+                }
+                if (fileType === 'pdf') {
+                  return (
+                    <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-primary-foreground/20 px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors my-1">
+                      <FileText className="w-4 h-4 flex-shrink-0" />
+                      <span className="max-w-[200px] truncate">{String(children || href)}</span>
+                      <ExternalLink className="w-3.5 h-3.5 opacity-80 flex-shrink-0" />
+                    </a>
+                  );
+                }
+                return <a href={href} target="_blank" rel="noopener noreferrer" className="underline hover:opacity-80 transition-opacity">{children}</a>;
               },
               p: ({ children }) =>
               <p className="my-2 leading-relaxed text-[15px]">{children || ''}</p>,
