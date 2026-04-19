@@ -16,8 +16,12 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   }
 
   const isUser = message.role === 'user';
-  const attachment = isUser && message.metadata?.attachment && typeof message.metadata.attachment === 'object' ?
-  message.metadata.attachment :
+  const attachment = isUser ?
+  (
+    message.metadata?.attachment && typeof message.metadata.attachment === 'object' ? message.metadata.attachment :
+    message.attachment && typeof message.attachment === 'object' ? message.attachment :
+    null
+  ) :
   null;
   const attachmentType = attachment?.type;
   const attachmentUrl = typeof attachment?.url === 'string' ? attachment.url : null;

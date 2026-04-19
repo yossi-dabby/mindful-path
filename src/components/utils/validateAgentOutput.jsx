@@ -139,6 +139,52 @@ const FORBIDDEN_INLINE_REASONING_PATTERNS = [
   /\bContinuity (?:gate|opener|check|suppressed)/i
 ];
 
+export const ATTACHMENT_METADATA_MARKER_PREFIX = '[ATTACHMENT_METADATA]';
+
+function normalizeAttachmentMetadata(candidate) {
+  if (!candidate || typeof candidate !== 'object') return null;
+  const type = candidate.type === 'image' || candidate.type === 'pdf' ? candidate.type : null;
+  const url = typeof candidate.url === 'string' && candidate.url.trim() ? candidate.url.trim() : null;
+  if (!type || !url) return null;
+  return {
+    type,
+    url,
+    name: typeof candidate.name === 'string' && candidate.name.trim() ? candidate.name.trim() : undefined,
+    size: typeof candidate.size === 'number' && Number.isFinite(candidate.size) && candidate.size >= 0 ? candidate.size : undefined
+  };
+}
+
+export function serializeAttachmentMetadataMarker(attachment) {
+  const normalized = normalizeAttachmentMetadata(attachment);
+  if (!normalized) return '';
+  return `${ATTACHMENT_METADATA_MARKER_PREFIX}${JSON.stringify(normalized)}`;
+}
+
+export function extractAttachmentMetadataFromUserContent(content) {
+  if (typeof content !== 'string') {
+    return { content, attachment: null };
+  }
+
+  const markerIndex = content.lastIndexOf(ATTACHMENT_METADATA_MARKER_PREFIX);
+  if (markerIndex === -1) {
+    return { content, attachment: null };
+  }
+
+  const beforeMarker = content.slice(0, markerIndex).replace(/\n+$/, '');
+  const rawPayload = content.slice(markerIndex + ATTACHMENT_METADATA_MARKER_PREFIX.length).trim();
+  if (!rawPayload) {
+    return { content: beforeMarker, attachment: null };
+  }
+
+  try {
+    const parsed = JSON.parse(rawPayload);
+    const normalized = normalizeAttachmentMetadata(parsed);
+    return { content: beforeMarker, attachment: normalized };
+  } catch (_) {
+    return { content, attachment: null };
+  }
+}
+
 function sanitizeAssistantMessage(message) {
   if (!message || typeof message !== 'string') return message;
   
@@ -477,12 +523,28 @@ export function sanitizeConversationMessages(messages) {
 
       if (splitPos !== -1) {
         const userText = content.substring(splitPos + 2).trim();
+        const { content: cleanedUserText, attachment } = extractAttachmentMetadataFromUserContent(userText);
         if (userText) {
-          return { ...msg, content: userText };
+          return {
+            ...msg,
+            content: cleanedUserText,
+            metadata: attachment ? { ...(msg.metadata || {}), attachment } : msg.metadata
+          };
         }
       }
       // Pure session-start injection with no user text — hide from chat history
       return null;
+    }
+
+    if (msg.role === 'user' && typeof msg.content === 'string') {
+      const { content, attachment } = extractAttachmentMetadataFromUserContent(msg.content);
+      if (attachment) {
+        return {
+          ...msg,
+          content,
+          metadata: { ...(msg.metadata || {}), attachment }
+        };
+      }
     }
 
     if (msg.role === 'assistant' && msg.content) {
