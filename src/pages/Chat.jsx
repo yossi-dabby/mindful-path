@@ -113,7 +113,11 @@ function buildAttachmentContextFromMetadata(metadata, pdfExtractedText) {
   if (attachmentType === 'pdf' && pdfExtractedText) {
     const lines = ['[ATTACHMENT_CONTEXT]', 'type: pdf'];
     if (attachmentName) lines.push(`name: ${attachmentName}`);
-    lines.push(`url: ${attachmentUrl}`, 'instruction: The user uploaded a PDF. Read the extracted text below and respond based on its content.', `extracted_text:\n${pdfExtractedText}`);
+    lines.push(
+      `url: ${attachmentUrl}`,
+      'instruction: The user uploaded a PDF. Read the extracted text below. Respond with: (1) one sentence acknowledging the PDF was read, (2) 2–4 concise bullet points covering the most important content. Do NOT reproduce the full document. Do NOT write a long report. Keep the chat response short and conversational.',
+      `extracted_text:\n${pdfExtractedText}`
+    );
     return lines.join('\n');
   }
   const lines = ['[ATTACHMENT_CONTEXT]', `type: ${attachmentType}`, `url: ${attachmentUrl}`, 'instruction: Use this URL as the user-provided attachment context for this turn. If image, inspect visual content. If PDF, read the document content before responding.'];
@@ -1285,8 +1289,11 @@ export default function Chat() {
         if (uploadedAttachment.type === 'pdf') {
           try {
             const r = await base44.functions.invoke('extractPdfText', { file_url: uploadedAttachment.url });
-            if (r?.data?.success && r.data.text) pdfExtractedText = r.data.text;
-            else console.warn('[Send] PDF extraction returned no text:', r?.data?.error);
+            if (r?.data?.success && r.data.text) {
+              pdfExtractedText = r.data.text;
+              outboundMetadata.pdf_extracted_text = pdfExtractedText;
+              if (r.data.page_count) outboundMetadata.pdf_page_count = r.data.page_count;
+            } else console.warn('[Send] PDF extraction returned no text:', r?.data?.error);
           } catch (e) { console.warn('[Send] PDF extraction failed (non-blocking):', e?.message); }
         }
       }

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
-import { FileText, ExternalLink } from 'lucide-react';
+import { FileText, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { cn } from '@/lib/utils';
 import MessageFeedback from './MessageFeedback';
@@ -65,6 +65,30 @@ function detectAssistantAttachment(message) {
     }
   }
   return null;
+}
+
+function PdfFullTextCard({ text, pageCount }) {
+  const [expanded, setExpanded] = useState(false);
+  if (!text) return null;
+  return (
+    <div className="mt-2 rounded-lg border border-primary-foreground/20 overflow-hidden text-sm">
+      <button
+        onClick={() => setExpanded(v => !v)}
+        className="w-full flex items-center gap-2 px-3 py-2 bg-primary-foreground/10 hover:bg-primary-foreground/15 transition-colors text-left"
+      >
+        <FileText className="w-4 h-4 shrink-0 opacity-80" />
+        <span className="flex-1 font-medium opacity-90">
+          View full document{pageCount ? ` (${pageCount} page${pageCount !== 1 ? 's' : ''})` : ''}
+        </span>
+        {expanded ? <ChevronUp className="w-4 h-4 opacity-70" /> : <ChevronDown className="w-4 h-4 opacity-70" />}
+      </button>
+      {expanded && (
+        <div className="px-3 py-3 max-h-96 overflow-y-auto bg-primary-foreground/5">
+          <pre className="whitespace-pre-wrap text-xs leading-relaxed opacity-90 font-sans">{text}</pre>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function MessageBubble({ message, conversationId, messageIndex, agentName = 'cbt_therapist', context = 'chat', userMessage, sessionLanguage }) {
@@ -230,6 +254,10 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                 {content ?
             <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{content}</p> :
             null}
+                {/* Collapsible full PDF text — stored in metadata during extraction */}
+                {isPdfAttachment && message.metadata?.pdf_extracted_text &&
+            <PdfFullTextCard text={message.metadata.pdf_extracted_text} pageCount={message.metadata.pdf_page_count} />
+            }
               </> :
 
           <>
