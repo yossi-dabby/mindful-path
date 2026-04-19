@@ -14,6 +14,11 @@ function safeRedirectToLogin(nextUrl) {
   return true;
 }
 
+function getSafeReturnPath() {
+  if (typeof window === 'undefined') return '/';
+  return `${window.location.pathname}${window.location.search}${window.location.hash}` || '/';
+}
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -55,7 +60,7 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(false);
 
       if (status === 401 || status === 403) {
-        const redirectAllowed = safeRedirectToLogin(window.location.href);
+        const redirectAllowed = safeRedirectToLogin(getSafeReturnPath());
         if (!redirectAllowed) {
           console.warn('[AuthContext] Redirect to login suppressed by cooldown guard (loop prevention).');
         }
@@ -80,7 +85,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const navigateToLogin = () => {
-    safeRedirectToLogin(window.location.href);
+    safeRedirectToLogin(getSafeReturnPath());
   };
 
   return (
