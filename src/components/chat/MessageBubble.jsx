@@ -11,7 +11,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   const { t, i18n } = useTranslation();
   const [thinkingExpanded, setThinkingExpanded] = useState(false);
   // CRITICAL GATE 1: Strict null/undefined/empty gating
-  if (!message || !message.role || !message.content) {
+  if (!message || !message.role) {
     return null;
   }
 
@@ -28,9 +28,13 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   const attachmentName = typeof attachment?.name === 'string' && attachment.name.trim() ? attachment.name : null;
   const isImageAttachment = attachmentType === 'image' && !!attachmentUrl;
   const isPdfAttachment = attachmentType === 'pdf' && !!attachmentUrl;
+  const hasRenderableAttachment = isImageAttachment || isPdfAttachment;
+  if (!message.content && !(isUser && hasRenderableAttachment)) {
+    return null;
+  }
 
   // CRITICAL GATE 2: TYPE CHECK - Content MUST be a string
-  if (typeof message.content !== 'string') {
+  if (typeof message.content !== 'string' && !(isUser && hasRenderableAttachment)) {
     console.error('[MessageBubble] ⛔ FATAL: Content is not a string, type:', typeof message.content);
     return null;
   }
@@ -39,7 +43,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   let content = '';
   let thinkingContent = null;
   try {
-    const rawContent = message.content;
+    const rawContent = typeof message.content === 'string' ? message.content : '';
     const contentStr = rawContent.trim();
 
     // IMMEDIATE REJECT: Any sign of structured data
@@ -75,7 +79,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
     content = sanitized;
 
     // CRITICAL GATE 4: Final content validation
-    if (!content || content.length < 1) {
+    if ((!content || content.length < 1) && !(isUser && hasRenderableAttachment)) {
       return null;
     }
 
@@ -152,7 +156,9 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
               }
                   </div>
             }
-                <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{content}</p>
+                {content ?
+            <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{content}</p> :
+            null}
               </> :
 
           <ReactMarkdown
