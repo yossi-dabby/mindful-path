@@ -13,6 +13,8 @@ export default function ConversationsList({
   onDeleteConversation,
   onClose
 }) {
+  // Stage 1 runtime-path lock:
+  // Active therapist-chat conversation/session list UI for pages/Chat.jsx (/Chat route).
   const { t } = useTranslation();
   // Ensure conversations is always an array
   const safeConversations = Array.isArray(conversations) ? conversations : [];

@@ -138,6 +138,15 @@ function addLangDirective(sessionContent, lang) {
 }
 
 export default function Chat() {
+  /**
+   * Stage 1 runtime-path lock:
+   * This component is the active therapist chat runtime for route "Chat" (/Chat).
+   * Future therapist-chat feature work should start here, then follow:
+   * - composer/input: this file (Textarea + handleSendMessage)
+   * - send flow + persistence: this file (base44.agents.* calls)
+   * - message list render: components/chat/MessageList.jsx
+   * - message bubble render: components/chat/MessageBubble.jsx
+   */
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { toast } = useToast();

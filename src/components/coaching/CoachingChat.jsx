@@ -23,6 +23,8 @@ const stageLabels = {
 };
 
 export default function CoachingChat({ session, onBack }) {
+  // Stage 1 runtime-path clarification:
+  // This is the Coach surface chat (route: /Coach), not the therapist /Chat runtime path.
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const [messages, setMessages] = useState([]);

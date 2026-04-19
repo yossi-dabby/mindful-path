@@ -35,6 +35,8 @@ const getViewportSize = () => {
 };
 
 export default function DraggableAiCompanion() {
+  // Stage 1 runtime-path clarification:
+  // This is the AI Companion widget chat surface, not the therapist /Chat runtime path.
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [message, setMessage] = useState('');
