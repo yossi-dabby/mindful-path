@@ -2,14 +2,61 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import { FileText, ExternalLink } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 import { cn } from '@/lib/utils';
 import MessageFeedback from './MessageFeedback';
 import { extractThinkingContent } from '../utils/messageContentSanitizer';
 import { applyFinalOutputGovernor } from '../utils/finalOutputGovernor';
 
+const ASSISTANT_ATTACHMENT_URL_REGEX = /https?:\/\/[^\s<>"'`)\]]+/gi;
+
+function inferAttachmentTypeFromUrl(rawUrl) {
+  if (typeof rawUrl !== 'string' || !rawUrl.trim()) return null;
+  try {
+    const parsed = new URL(rawUrl.trim());
+    const pathname = String(parsed.pathname || '').toLowerCase();
+    if (/\.(png|jpe?g|gif|webp|bmp|svg)$/.test(pathname)) return 'image';
+    if (pathname.endsWith('.pdf')) return 'pdf';
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function stripTrailingUrlPunctuation(rawUrl) {
+  if (typeof rawUrl !== 'string') return '';
+  return rawUrl.replace(/[),.;!?]+$/g, '');
+}
+
+function normalizeAttachment(attachment) {
+  if (!attachment || typeof attachment !== 'object') return null;
+  const type = attachment.type === 'image' || attachment.type === 'pdf' ? attachment.type : null;
+  const url = typeof attachment.url === 'string' && attachment.url.trim() ? attachment.url.trim() : null;
+  if (!type || !url) return null;
+  const name = typeof attachment.name === 'string' && attachment.name.trim() ? attachment.name.trim() : undefined;
+  return { type, url, name };
+}
+
+function detectAssistantAttachment(message) {
+  const metadataAttachment = normalizeAttachment(message?.metadata?.attachment || message?.attachment);
+  if (metadataAttachment) return metadataAttachment;
+  const content = typeof message?.content === 'string' ? message.content : '';
+  const matches = content.match(ASSISTANT_ATTACHMENT_URL_REGEX);
+  if (!matches || matches.length === 0) return null;
+  for (const candidate of matches) {
+    const url = stripTrailingUrlPunctuation(candidate);
+    const type = inferAttachmentTypeFromUrl(url);
+    if (type) {
+      return { type, url };
+    }
+  }
+  return null;
+}
+
 export default function MessageBubble({ message, conversationId, messageIndex, agentName = 'cbt_therapist', context = 'chat', userMessage, sessionLanguage }) {
   const { t, i18n } = useTranslation();
   const [thinkingExpanded, setThinkingExpanded] = useState(false);
+  const [isSigningPdf, setIsSigningPdf] = useState(false);
   // CRITICAL GATE 1: Strict null/undefined/empty gating
   if (!message || !message.role) {
     return null;
@@ -17,12 +64,8 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
 
   const isUser = message.role === 'user';
   const attachment = isUser ?
-  (
-    message.metadata?.attachment && typeof message.metadata.attachment === 'object' ? message.metadata.attachment :
-    message.attachment && typeof message.attachment === 'object' ? message.attachment :
-    null
-  ) :
-  null;
+  normalizeAttachment(message.metadata?.attachment || message.attachment) :
+  detectAssistantAttachment(message);
   const attachmentType = attachment?.type;
   const attachmentUrl = typeof attachment?.url === 'string' ? attachment.url : null;
   const attachmentName = typeof attachment?.name === 'string' && attachment.name.trim() ? attachment.name : null;
@@ -95,6 +138,20 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   }
 
   const dir = i18n.language === 'he' ? 'rtl' : 'ltr';
+  const handleAssistantPdfDownload = async () => {
+    if (isUser || !isPdfAttachment || !attachmentUrl || isSigningPdf) return;
+    setIsSigningPdf(true);
+    try {
+      const signed = await base44.integrations.Core.CreateFileSignedUrl({ file_url: attachmentUrl });
+      const signedUrl = signed?.signed_url || signed?.url || signed?.file_url;
+      if (!signedUrl) throw new Error('missing signed url');
+      window.open(signedUrl, '_blank', 'noopener,noreferrer');
+    } catch (error) {
+      console.error('[MessageBubble] Failed to create signed PDF URL:', error);
+    } finally {
+      setIsSigningPdf(false);
+    }
+  };
 
   return (
     <div className="bg-teal-50 flex gap-3 justify-start" dir={dir}>
@@ -161,7 +218,32 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
             null}
               </> :
 
-          <ReactMarkdown
+          <>
+                {hasRenderableAttachment &&
+            <div className="mb-3">
+                    {isImageAttachment &&
+              <a href={attachmentUrl} target="_blank" rel="noopener noreferrer" className="inline-block">
+                        <img
+                  src={attachmentUrl}
+                  alt={t('chat.attachments.image_preview_alt')}
+                  className="max-w-[220px] max-h-[220px] rounded-lg object-cover border border-primary-foreground/20" />
+                      </a>
+              }
+                    {isPdfAttachment &&
+              <button
+                type="button"
+                onClick={handleAssistantPdfDownload}
+                disabled={isSigningPdf}
+                className="inline-flex items-center gap-2 rounded-lg border border-primary-foreground/20 px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors disabled:opacity-70">
+                        <FileText className="w-4 h-4" />
+                        <span className="max-w-[220px] truncate">{isSigningPdf ? t('chat.attachments.opening_pdf', 'Opening PDF...') : attachmentName || t('chat.attachments.pdf_chip_label')}</span>
+                        <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+                      </button>
+              }
+                  </div>
+            }
+                {content ?
+            <ReactMarkdown
             className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
             components={{
               code: ({ inline, className, children }) => {
@@ -198,7 +280,9 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
             }}>
 
                   {content}
-                  </ReactMarkdown>
+                  </ReactMarkdown> :
+            null}
+              </>
           }
                   
                   {/* Feedback for assistant messages */}

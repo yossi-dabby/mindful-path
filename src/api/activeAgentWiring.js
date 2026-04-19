@@ -333,6 +333,14 @@ export function resolveTherapistWiring() {
   return CBT_THERAPIST_WIRING_HYBRID;
 }
 
+function withTherapistAttachmentContext(wiring) {
+  if (!wiring || wiring.name !== 'cbt_therapist') return wiring;
+  return {
+    ...wiring,
+    attachment_context_enabled: true,
+  };
+}
+
 // ─── Exported wiring constants ───────────────────────────────────────────────
 //
 // ACTIVE_CBT_THERAPIST_WIRING is now computed via resolveTherapistWiring() so
@@ -412,7 +420,7 @@ export function resolveCompanionWiring() {
  * Active wiring for the CBT Therapist agent.
  * Resolved via resolveTherapistWiring() — evaluates the upgrade flag at load time.
  */
-export const ACTIVE_CBT_THERAPIST_WIRING = resolveTherapistWiring();
+export const ACTIVE_CBT_THERAPIST_WIRING = withTherapistAttachmentContext(resolveTherapistWiring());
 
 /**
  * Active wiring for the AI Companion agent.
