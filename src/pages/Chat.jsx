@@ -1260,7 +1260,10 @@ export default function Chat() {
       let uploadedAttachment = null;
       if (pendingAttachment?.file) {
         try {
-          const { file_url } = await base44.integrations.Core.UploadFile({ file: pendingAttachment.file });
+          const uploadForm = new FormData();
+          uploadForm.append('file', pendingAttachment.file);
+          const uploadResp = await base44.functions.invoke('uploadAttachment', uploadForm);
+          const { file_url } = uploadResp.data;
           uploadedAttachment = {
             type: pendingAttachment.type,
             url: file_url,
