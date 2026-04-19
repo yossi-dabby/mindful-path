@@ -131,6 +131,9 @@ function PdfAnalysisOverflowCard({ overflow }) {
 const PDF_INLINE_CHAR_LIMIT = 600;
 
 export default function MessageBubble({ message, conversationId, messageIndex, agentName = 'cbt_therapist', context = 'chat', userMessage, sessionLanguage, hasPdfContext }) {
+  // Stage 1 runtime-path lock:
+  // Shared bubble renderer used by multiple surfaces.
+  // Therapist /Chat runtime reaches this component via pages/Chat.jsx -> MessageList.jsx.
   const { t, i18n } = useTranslation();
   const [thinkingExpanded, setThinkingExpanded] = useState(false);
   const [isSigningPdf, setIsSigningPdf] = useState(false);

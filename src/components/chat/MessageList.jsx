@@ -5,6 +5,9 @@ import MessageBubble from './MessageBubble';
  * Renders the list of chat messages, passing hasPdfContext to assistant bubbles
  * that immediately follow a PDF upload so they can split long content into a
  * collapsible overflow card.
+ *
+ * Stage 1 runtime-path lock:
+ * Active therapist-chat message-list renderer for pages/Chat.jsx (/Chat route).
  */
 export default function MessageList({ messages, visibleCount, conversationId, sessionLanguage }) {
   return messages
