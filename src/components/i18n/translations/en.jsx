@@ -475,58 +475,6 @@
     "your_groups": "Your Groups",
     "discover_groups": "Discover Groups"
   },
-  "chat": {
-    "title": "AI Therapist",
-    "subtitle": "Your safe space to talk",
-    "message_placeholder": "Type your message...",
-    "thinking": "Thinking...",
-    "go_back_aria": "Go back",
-    "open_sidebar_aria": "Open sessions list",
-    "close_sidebar_aria": "Close sessions list",
-    "delete_session_title": "Delete this session?",
-    "delete_session_desc": "This action cannot be undone.",
-    "delete_error": "Failed to delete session",
-    "delete_error_desc": "Please try again.",
-    "welcome": {
-      "title": "Welcome to Therapy",
-      "message": "This is a safe, judgment-free space. Share what's on your mind, and let's work through it together.",
-      "start_session": "Start Your First Session"
-    },
-    "summary_prompt": {
-      "title": "Would you like a session summary?",
-      "description": "Get a summary of key insights and next steps from this session.",
-      "yes": "Yes, summarize",
-      "not_now": "Not now"
-    },
-    "disclaimer": {
-      "title": "AI Wellness Support",
-      "message": "Not a substitute for professional mental health care."
-    },
-    "variant_blocked": {
-      "message": "This past conversation can no longer be continued. You can still read it here.",
-      "start_new": "Start a new conversation"
-    },
-    "ai_thinking": {
-      "label": "AI thinking process"
-    },
-    "attachments": {
-      "attach_button_aria": "Attach a file",
-      "remove_button_aria": "Remove attachment",
-      "image_preview_alt": "Image attachment",
-      "pdf_chip_label": "PDF Document",
-      "invalid_type": "Only JPG, PNG, and PDF files are supported.",
-      "max_size_error": "File is too large. Maximum size is {{sizeMB}} MB.",
-      "upload_failed": "File upload failed. Please try again."
-    },
-    "conversations_list": {
-      "title": "Sessions",
-      "new_conversation_aria": "New session",
-      "close_list_aria": "Close sessions list",
-      "session_prefix": "Session",
-      "empty_title": "No sessions yet",
-      "empty_message": "Start a new session to begin."
-    }
-  },
   "resources": {
     "page_title": "Resource Library",
     "page_subtitle": "Curated mental health resources for your journey",
