@@ -140,6 +140,8 @@ const FORBIDDEN_INLINE_REASONING_PATTERNS = [
 ];
 
 export const ATTACHMENT_METADATA_MARKER_PREFIX = '[ATTACHMENT_METADATA]';
+export const PDF_ANALYSIS_OVERFLOW_METADATA_KEY = 'pdf_analysis_overflow';
+const PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT = 420;
 
 function normalizeAttachmentMetadata(candidate) {
   if (!candidate || typeof candidate !== 'object') return null;
@@ -188,6 +190,53 @@ export function extractAttachmentMetadataFromUserContent(content) {
 function stripAttachmentContextBlock(content) {
   if (typeof content !== 'string') return content;
   return content.replace(/\n?\[ATTACHMENT_CONTEXT\][\s\S]*$/, '').trim();
+}
+
+function hasPdfAttachmentContext(message) {
+  if (!message || message.role !== 'user') return false;
+  const attachmentType = message?.metadata?.attachment?.type;
+  if (attachmentType === 'pdf') return true;
+  if (typeof message?.metadata?.pdf_extracted_text === 'string' && message.metadata.pdf_extracted_text.trim()) return true;
+  if (typeof message?.content === 'string') {
+    return message.content.includes('[ATTACHMENT_CONTEXT]') && message.content.includes('type: pdf');
+  }
+  return false;
+}
+
+function splitAssistantPdfMessageIfNeeded(message, assistantContent, previousMessage) {
+  const normalizedContent = typeof assistantContent === 'string' ? assistantContent.trim() : '';
+  const existingOverflow = typeof message?.metadata?.[PDF_ANALYSIS_OVERFLOW_METADATA_KEY] === 'string' ?
+    message.metadata[PDF_ANALYSIS_OVERFLOW_METADATA_KEY].trim() :
+    '';
+  if (!normalizedContent) {
+    return { content: normalizedContent, overflow: existingOverflow || null };
+  }
+  if (!hasPdfAttachmentContext(previousMessage)) {
+    return { content: normalizedContent, overflow: existingOverflow || null };
+  }
+  if (existingOverflow) {
+    return { content: normalizedContent, overflow: existingOverflow };
+  }
+  if (normalizedContent.length <= PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT) {
+    return { content: normalizedContent, overflow: null };
+  }
+
+  let splitAt = PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT;
+  const newlineIdx = normalizedContent.indexOf('\n', PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT - 100);
+  if (newlineIdx !== -1 && newlineIdx <= PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT + 120) {
+    splitAt = newlineIdx;
+  } else {
+    const sentenceEnd = normalizedContent.lastIndexOf('. ', PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT);
+    if (sentenceEnd > PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT / 2) splitAt = sentenceEnd + 1;
+  }
+
+  const shortContent = normalizedContent.slice(0, splitAt).trim();
+  const overflow = normalizedContent.slice(splitAt).trim();
+  if (!overflow || overflow.length < 80) {
+    return { content: normalizedContent, overflow: null };
+  }
+
+  return { content: shortContent, overflow };
 }
 
 function sanitizeAssistantMessage(message) {
@@ -487,8 +536,9 @@ export function extractAssistantMessage(rawContent) {
  */
 export function sanitizeConversationMessages(messages) {
   if (!Array.isArray(messages)) return [];
-  
-  return messages.map(msg => {
+
+  return messages.map((msg, index, sourceMessages) => {
+    const previousMessage = index > 0 ? sourceMessages[index - 1] : null;
     // Strip session-start injection prefix from user messages so the actual
     // user text is always visible in the chat history.
     //
@@ -567,14 +617,19 @@ export function sanitizeConversationMessages(messages) {
       const validated = validateAgentOutput(msg.content);
       
       if (validated) {
+        const separated = splitAssistantPdfMessageIfNeeded(msg, validated.assistant_message, previousMessage);
+        const nextMetadata = {
+          ...(msg.metadata || {}),
+          structured_data: validated,
+          sanitized: true
+        };
+        if (separated.overflow) {
+          nextMetadata[PDF_ANALYSIS_OVERFLOW_METADATA_KEY] = separated.overflow;
+        }
         return {
           ...msg,
-          content: validated.assistant_message,
-          metadata: {
-            ...(msg.metadata || {}),
-            structured_data: validated,
-            sanitized: true
-          }
+          content: separated.content,
+          metadata: nextMetadata
         };
       }
       
@@ -583,14 +638,19 @@ export function sanitizeConversationMessages(messages) {
         try {
           const parsed = JSON.parse(msg.content);
           if (parsed.assistant_message) {
+            const separated = splitAssistantPdfMessageIfNeeded(msg, parsed.assistant_message, previousMessage);
+            const nextMetadata = {
+              ...(msg.metadata || {}),
+              structured_data: parsed,
+              sanitized: true
+            };
+            if (separated.overflow) {
+              nextMetadata[PDF_ANALYSIS_OVERFLOW_METADATA_KEY] = separated.overflow;
+            }
             return {
               ...msg,
-              content: parsed.assistant_message,
-              metadata: {
-                ...(msg.metadata || {}),
-                structured_data: parsed,
-                sanitized: true
-              }
+              content: separated.content,
+              metadata: nextMetadata
             };
           }
         } catch (e) {
@@ -602,7 +662,12 @@ export function sanitizeConversationMessages(messages) {
       // planner/composer/reasoning text from leaking into visible state
       if (typeof msg.content === 'string') {
         const cleaned = sanitizeAssistantMessage(msg.content);
-        return { ...msg, content: cleaned };
+        const separated = splitAssistantPdfMessageIfNeeded(msg, cleaned, previousMessage);
+        const nextMetadata = { ...(msg.metadata || {}) };
+        if (separated.overflow) {
+          nextMetadata[PDF_ANALYSIS_OVERFLOW_METADATA_KEY] = separated.overflow;
+        }
+        return { ...msg, content: separated.content, metadata: nextMetadata };
       }
     }
     return msg;

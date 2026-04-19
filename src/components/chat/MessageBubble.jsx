@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import MessageFeedback from './MessageFeedback';
 import { extractThinkingContent } from '../utils/messageContentSanitizer';
 import { applyFinalOutputGovernor } from '../utils/finalOutputGovernor';
+import { PDF_ANALYSIS_OVERFLOW_METADATA_KEY } from '../utils/validateAgentOutput.jsx';
 
 const ASSISTANT_ATTACHMENT_URL_REGEX = /https?:\/\/\S+/gi;
 
@@ -126,10 +127,6 @@ function PdfAnalysisOverflowCard({ overflow }) {
   );
 }
 
-// How many characters of assistant content to show inline before overflowing to card.
-// Enough for 1 sentence + 2-4 bullets in most languages.
-const PDF_INLINE_CHAR_LIMIT = 600;
-
 export default function MessageBubble({ message, conversationId, messageIndex, agentName = 'cbt_therapist', context = 'chat', userMessage, sessionLanguage, hasPdfContext }) {
   // Stage 1 runtime-path lock:
   // Shared bubble renderer used by multiple surfaces.
@@ -227,31 +224,12 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
     return null;
   }
 
-  // PDF overflow split: when this assistant message follows a PDF upload,
-  // show only the first PDF_INLINE_CHAR_LIMIT chars inline; put the rest
-  // in a collapsible card so the main bubble stays short.
-  let inlineContent = content;
-  let pdfOverflow = null;
-  if (!isUser && hasPdfContext && content.length > PDF_INLINE_CHAR_LIMIT) {
-    // Find a clean split point: end of a sentence or bullet line near the limit
-    let splitAt = PDF_INLINE_CHAR_LIMIT;
-    // Try to break at a newline after a bullet or sentence near the limit
-    const newlineIdx = content.indexOf('\n', PDF_INLINE_CHAR_LIMIT - 120);
-    if (newlineIdx !== -1 && newlineIdx <= PDF_INLINE_CHAR_LIMIT + 200) {
-      splitAt = newlineIdx;
-    } else {
-      // Fall back to last sentence-end before the limit
-      const sentenceEnd = content.lastIndexOf('. ', PDF_INLINE_CHAR_LIMIT);
-      if (sentenceEnd > PDF_INLINE_CHAR_LIMIT / 2) splitAt = sentenceEnd + 1;
-    }
-    inlineContent = content.slice(0, splitAt).trim();
-    pdfOverflow = content.slice(splitAt).trim();
-    // Don't split if the overflow is trivially short
-    if (!pdfOverflow || pdfOverflow.length < 80) {
-      inlineContent = content;
-      pdfOverflow = null;
-    }
-  }
+  const pdfOverflow = !isUser &&
+  hasPdfContext &&
+  typeof message?.metadata?.[PDF_ANALYSIS_OVERFLOW_METADATA_KEY] === 'string' &&
+  message.metadata[PDF_ANALYSIS_OVERFLOW_METADATA_KEY].trim() ?
+  message.metadata[PDF_ANALYSIS_OVERFLOW_METADATA_KEY].trim() :
+  null;
 
   const dir = i18n.language === 'he' ? 'rtl' : 'ltr';
   const handleAssistantPdfDownload = async () => {
@@ -362,7 +340,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
               }
                   </div>
             }
-                {inlineContent ?
+                {content ?
             <ReactMarkdown
             className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
             components={{
@@ -429,7 +407,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
 
             }}>
 
-                  {inlineContent}
+                  {content}
                   </ReactMarkdown> :
                   null}
                   {/* PDF analysis overflow — only shown when the assistant response was
