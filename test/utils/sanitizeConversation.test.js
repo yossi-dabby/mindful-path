@@ -26,7 +26,12 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { sanitizeConversationMessages, serializeAttachmentMetadataMarker } from '../../src/components/utils/validateAgentOutput.jsx';
+import {
+  sanitizeConversationMessages,
+  serializeAttachmentMetadataMarker,
+  extractAttachmentMetadataFromUserContent,
+  ATTACHMENT_METADATA_MARKER_PREFIX,
+} from '../../src/components/utils/validateAgentOutput.jsx';
 
 // ─── PURE JSON-EXTRACTION LOGIC (mirrors functions/sanitizeConversation.ts) ───
 
@@ -328,5 +333,61 @@ describe('sanitizeConversationMessages — no internal/system data leaks through
     ];
     const result = sanitizeConversationMessages(messages);
     expect(result.map(m => m.role)).toEqual(['user', 'assistant', 'user']);
+  });
+});
+
+describe('attachment metadata marker helpers', () => {
+  it('serializeAttachmentMetadataMarker returns empty string for invalid input', () => {
+    expect(serializeAttachmentMetadataMarker(null)).toBe('');
+    expect(serializeAttachmentMetadataMarker({})).toBe('');
+    expect(serializeAttachmentMetadataMarker({ type: 'image' })).toBe('');
+    expect(serializeAttachmentMetadataMarker({ type: 'pdf', url: '' })).toBe('');
+  });
+
+  it('serializeAttachmentMetadataMarker serializes valid payloads and keeps optional fields optional', () => {
+    const withOptional = serializeAttachmentMetadataMarker({
+      type: 'image',
+      url: 'https://files.example.com/image.png',
+      name: 'image.png',
+      size: 2048,
+    });
+    expect(withOptional.startsWith(ATTACHMENT_METADATA_MARKER_PREFIX)).toBe(true);
+
+    const withoutOptional = serializeAttachmentMetadataMarker({
+      type: 'pdf',
+      url: 'https://files.example.com/a.pdf',
+    });
+    const parsedWithoutOptional = JSON.parse(withoutOptional.slice(ATTACHMENT_METADATA_MARKER_PREFIX.length));
+    expect(parsedWithoutOptional).toEqual({
+      type: 'pdf',
+      url: 'https://files.example.com/a.pdf',
+    });
+  });
+
+  it('extractAttachmentMetadataFromUserContent handles non-string and no-marker inputs', () => {
+    expect(extractAttachmentMetadataFromUserContent(null)).toEqual({ content: null, attachment: null });
+    expect(extractAttachmentMetadataFromUserContent('plain text')).toEqual({ content: 'plain text', attachment: null });
+  });
+
+  it('extractAttachmentMetadataFromUserContent ignores malformed marker JSON', () => {
+    const input = `hello\n${ATTACHMENT_METADATA_MARKER_PREFIX}{invalid-json`;
+    expect(extractAttachmentMetadataFromUserContent(input)).toEqual({
+      content: input,
+      attachment: null,
+    });
+  });
+
+  it('extractAttachmentMetadataFromUserContent uses the last marker occurrence and trims trailing newlines before it', () => {
+    const badMarker = `${ATTACHMENT_METADATA_MARKER_PREFIX}{"type":"image","url":"https://files.example.com/old.png"}\n`;
+    const goodMarker = `${ATTACHMENT_METADATA_MARKER_PREFIX}{"type":"pdf","url":"https://files.example.com/new.pdf","name":"new.pdf"}`;
+    const input = `Body text\n${badMarker}\n${goodMarker}`;
+    const result = extractAttachmentMetadataFromUserContent(input);
+    expect(result.content).toContain('Body text');
+    expect(result.content).toContain('https://files.example.com/old.png');
+    expect(result.attachment).toEqual({
+      type: 'pdf',
+      url: 'https://files.example.com/new.pdf',
+      name: 'new.pdf',
+    });
   });
 });
