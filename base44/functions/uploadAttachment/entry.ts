@@ -14,12 +14,20 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const formData = await req.formData();
-    const file = formData.get('file');
+    const body = await req.json();
+    const { file_base64, file_name, file_type } = body;
 
-    if (!file) {
+    if (!file_base64 || !file_name || !file_type) {
       return Response.json({ error: 'No file provided' }, { status: 400 });
     }
+
+    // Decode base64 → Uint8Array → Blob
+    const binaryStr = atob(file_base64);
+    const bytes = new Uint8Array(binaryStr.length);
+    for (let i = 0; i < binaryStr.length; i++) {
+      bytes[i] = binaryStr.charCodeAt(i);
+    }
+    const file = new File([bytes], file_name, { type: file_type });
 
     const result = await base44.integrations.Core.UploadFile({ file });
 

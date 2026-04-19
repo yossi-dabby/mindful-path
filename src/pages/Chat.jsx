@@ -1260,9 +1260,17 @@ export default function Chat() {
       let uploadedAttachment = null;
       if (pendingAttachment?.file) {
         try {
-          const uploadForm = new FormData();
-          uploadForm.append('file', pendingAttachment.file);
-          const uploadResp = await base44.functions.invoke('uploadAttachment', uploadForm);
+          // Read file as base64 and send as JSON (base44.functions.invoke uses JSON transport)
+          const arrayBuffer = await pendingAttachment.file.arrayBuffer();
+          const bytes = new Uint8Array(arrayBuffer);
+          let binary = '';
+          for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+          const file_base64 = btoa(binary);
+          const uploadResp = await base44.functions.invoke('uploadAttachment', {
+            file_base64,
+            file_name: pendingAttachment.name,
+            file_type: pendingAttachment.mimeType,
+          });
           const { file_url } = uploadResp.data;
           uploadedAttachment = {
             type: pendingAttachment.type,
