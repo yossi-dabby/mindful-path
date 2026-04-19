@@ -228,6 +228,15 @@ export const translations = {
           strict: "Reminder: This AI cannot diagnose conditions or prescribe treatments. For medical concerns, consult a licensed professional.",
           standard: "Reminder: This is AI-assisted support, not professional therapy. Emergency situations require immediate professional help."
         },
+        attachments: {
+          attach_button_aria: "Attach a file",
+          remove_button_aria: "Remove attachment",
+          invalid_type: "Only JPG, PNG, or PDF files are allowed.",
+          max_size_error: "File is too large. Maximum size is {{sizeMB}}MB.",
+          upload_failed: "Attachment upload failed. Please try again.",
+          image_preview_alt: "Attached image",
+          pdf_chip_label: "PDF file"
+        },
         delete_session_failed: "Failed to delete session. Please try again.",
         confirm_delete_session: "Delete this session? This action cannot be undone.",
         daily_checkin_message: "I've completed my Daily Check-in.",
@@ -1628,6 +1637,15 @@ export const translations = {
           message: "לא יכול לאבחן או לרשום. משבר? התקשרו 988 (ארה\"ב) או לשירותי חירום מקומיים.",
           strict: "תזכורת: AI זה אינו יכול לאבחן מצבים או לרשום טיפולים. לבעיות רפואיות, התייעצו עם מקצוען מורשה.",
           standard: "תזכורת: זוהי תמיכה בסיוע AI, לא טיפול מקצועי. מצבי חירום דורשים עזרה מקצועית מיידית."
+        },
+        attachments: {
+          attach_button_aria: "צרף קובץ",
+          remove_button_aria: "הסר קובץ מצורף",
+          invalid_type: "ניתן לצרף רק קבצי JPG, PNG או PDF.",
+          max_size_error: "הקובץ גדול מדי. הגודל המרבי הוא {{sizeMB}}MB.",
+          upload_failed: "העלאת הקובץ נכשלה. נסו שוב.",
+          image_preview_alt: "תמונה מצורפת",
+          pdf_chip_label: "קובץ PDF"
         },
         delete_session_failed: "מחיקת המפגש נכשלה. נסו שוב.",
         confirm_delete_session: "למחוק את המפגש? פעולה זו אינה הפיכה.",
@@ -3030,6 +3048,15 @@ export const translations = {
           strict: "Recordatorio: Esta IA no puede diagnosticar condiciones ni prescribir tratamientos. Para preocupaciones médicas, consulta a un profesional licenciado.",
           standard: "Recordatorio: Este es soporte asistido por IA, no terapia profesional. Las situaciones de emergencia requieren ayuda profesional inmediata."
         },
+        attachments: {
+          attach_button_aria: "Adjuntar un archivo",
+          remove_button_aria: "Quitar archivo adjunto",
+          invalid_type: "Solo se permiten archivos JPG, PNG o PDF.",
+          max_size_error: "El archivo es demasiado grande. El tamaño máximo es {{sizeMB}}MB.",
+          upload_failed: "La carga del archivo adjunto falló. Inténtalo de nuevo.",
+          image_preview_alt: "Imagen adjunta",
+          pdf_chip_label: "Archivo PDF"
+        },
         delete_session_failed: "Error al eliminar la sesión. Por favor, inténtalo de nuevo.",
         confirm_delete_session: "¿Eliminar esta sesión? Esta acción no se puede deshacer.",
         daily_checkin_message: "He completado mi Check-in Diario.",
@@ -4387,6 +4414,15 @@ export const translations = {
           message: "Ne peut pas diagnostiquer ni prescrire. Crise ? Appelez le 988 (États-Unis) ou vos services d'urgence locaux.",
           strict: "Rappel : Cette IA ne peut pas diagnostiquer de conditions ni prescrire de traitements. Pour les préoccupations médicales, consultez un professionnel agréé.",
           standard: "Rappel : Il s'agit d'un soutien assisté par IA, pas d'une thérapie professionnelle. Les situations d'urgence nécessitent une aide professionnelle immédiate."
+        },
+        attachments: {
+          attach_button_aria: "Joindre un fichier",
+          remove_button_aria: "Supprimer la pièce jointe",
+          invalid_type: "Seuls les fichiers JPG, PNG ou PDF sont autorisés.",
+          max_size_error: "Le fichier est trop volumineux. La taille maximale est de {{sizeMB}}MB.",
+          upload_failed: "Échec de l'envoi de la pièce jointe. Veuillez réessayer.",
+          image_preview_alt: "Image jointe",
+          pdf_chip_label: "Fichier PDF"
         },
         delete_session_failed: "Échec de la suppression de la session. Veuillez réessayer.",
         confirm_delete_session: "Supprimer cette session ? Cette action ne peut pas être annulée.",
@@ -5746,6 +5782,15 @@ export const translations = {
           strict: "Erinnerung: Diese KI kann keine Zustände diagnostizieren oder Behandlungen verschreiben. Bei medizinischen Bedenken konsultieren Sie einen zugelassenen Fachmann.",
           standard: "Erinnerung: Dies ist KI-unterstützte Unterstützung, keine professionelle Therapie. Notsituationen erfordern sofortige professionelle Hilfe."
         },
+        attachments: {
+          attach_button_aria: "Datei anhängen",
+          remove_button_aria: "Anhang entfernen",
+          invalid_type: "Nur JPG-, PNG- oder PDF-Dateien sind erlaubt.",
+          max_size_error: "Die Datei ist zu groß. Die maximale Größe beträgt {{sizeMB}}MB.",
+          upload_failed: "Der Upload des Anhangs ist fehlgeschlagen. Bitte erneut versuchen.",
+          image_preview_alt: "Angehängtes Bild",
+          pdf_chip_label: "PDF-Datei"
+        },
         delete_session_failed: "Sitzung konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
         confirm_delete_session: "Diese Sitzung löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
         daily_checkin_message: "Ich habe meinen täglichen Check-in abgeschlossen.",
@@ -7104,6 +7149,15 @@ export const translations = {
           strict: "Promemoria: Questa IA non può diagnosticare condizioni né prescrivere trattamenti. Per preoccupazioni mediche, consulta un professionista autorizzato.",
           standard: "Promemoria: Questo è supporto assistito da IA, non terapia professionale. Le situazioni di emergenza richiedono aiuto professionale immediato."
         },
+        attachments: {
+          attach_button_aria: "Allega un file",
+          remove_button_aria: "Rimuovi allegato",
+          invalid_type: "Sono consentiti solo file JPG, PNG o PDF.",
+          max_size_error: "Il file è troppo grande. La dimensione massima è {{sizeMB}}MB.",
+          upload_failed: "Caricamento dell'allegato non riuscito. Riprova.",
+          image_preview_alt: "Immagine allegata",
+          pdf_chip_label: "File PDF"
+        },
         delete_session_failed: "Impossibile eliminare la sessione. Riprova.",
         confirm_delete_session: "Eliminare questa sessione? Questa azione non può essere annullata.",
         daily_checkin_message: "Ho completato il mio Check-in Giornaliero.",
@@ -8461,6 +8515,15 @@ export const translations = {
           message: "Não pode diagnosticar nem prescrever. Crise? Ligue 988 (EUA) ou seus serviços de emergência locais.",
           strict: "Lembrete: Esta IA não pode diagnosticar condições nem prescrever tratamentos. Para preocupações médicas, consulte um profissional licenciado.",
           standard: "Lembrete: Este é suporte assistido por IA, não terapia profissional. Situações de emergência requerem ajuda profissional imediata."
+        },
+        attachments: {
+          attach_button_aria: "Anexar arquivo",
+          remove_button_aria: "Remover anexo",
+          invalid_type: "Somente arquivos JPG, PNG ou PDF são permitidos.",
+          max_size_error: "O arquivo é muito grande. O tamanho máximo é {{sizeMB}}MB.",
+          upload_failed: "Falha no upload do anexo. Tente novamente.",
+          image_preview_alt: "Imagem anexada",
+          pdf_chip_label: "Arquivo PDF"
         },
         delete_session_failed: "Falha ao excluir a sessão. Por favor, tente novamente.",
         confirm_delete_session: "Excluir esta sessão? Esta ação não pode ser desfeita.",

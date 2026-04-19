@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
+import { FileText, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import MessageFeedback from './MessageFeedback';
-import { sanitizeMessageContent, extractThinkingContent } from '../utils/messageContentSanitizer';
+import { extractThinkingContent } from '../utils/messageContentSanitizer';
 import { applyFinalOutputGovernor } from '../utils/finalOutputGovernor';
 
 export default function MessageBubble({ message, conversationId, messageIndex, agentName = 'cbt_therapist', context = 'chat', userMessage, sessionLanguage }) {
@@ -15,6 +16,14 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   }
 
   const isUser = message.role === 'user';
+  const attachment = isUser && message.metadata?.attachment && typeof message.metadata.attachment === 'object' ?
+  message.metadata.attachment :
+  null;
+  const attachmentType = attachment?.type;
+  const attachmentUrl = typeof attachment?.url === 'string' ? attachment.url : null;
+  const attachmentName = typeof attachment?.name === 'string' && attachment.name.trim() ? attachment.name : null;
+  const isImageAttachment = attachmentType === 'image' && !!attachmentUrl;
+  const isPdfAttachment = attachmentType === 'pdf' && !!attachmentUrl;
 
   // CRITICAL GATE 2: TYPE CHECK - Content MUST be a string
   if (typeof message.content !== 'string') {
@@ -115,7 +124,32 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
 
 
             {isUser ?
-          <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{content}</p> :
+          <>
+                {(isImageAttachment || isPdfAttachment) &&
+            <div className="mb-3">
+                    {isImageAttachment &&
+              <a href={attachmentUrl} target="_blank" rel="noopener noreferrer" className="inline-block">
+                        <img
+                  src={attachmentUrl}
+                  alt={t('chat.attachments.image_preview_alt')}
+                  className="max-w-[180px] max-h-[180px] rounded-lg object-cover border border-primary-foreground/20" />
+                      </a>
+              }
+                    {isPdfAttachment &&
+              <a
+                href={attachmentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg border border-primary-foreground/20 px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors">
+                        <FileText className="w-4 h-4" />
+                        <span className="max-w-[180px] truncate">{attachmentName || t('chat.attachments.pdf_chip_label')}</span>
+                        <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+                      </a>
+              }
+                  </div>
+            }
+                <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{content}</p>
+              </> :
 
           <ReactMarkdown
             className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
