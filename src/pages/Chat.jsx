@@ -514,7 +514,7 @@ export default function Chat() {
                 const sessionStartContent = await buildActionFirstDemotedSessionContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44);
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
-                  content: addLangDirective(sessionStartContent, i18n.language)
+                  content: addLangDirective(sessionStartContent, sessionLanguageRef.current)
                 });
                 inFlightIntentRef.current = false;
               }, 100);
@@ -558,7 +558,7 @@ export default function Chat() {
                 const sessionStartContent = await buildActionFirstDemotedSessionContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44);
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
-                  content: addLangDirective(sessionStartContent, i18n.language)
+                  content: addLangDirective(sessionStartContent, sessionLanguageRef.current)
                 });
                 inFlightIntentRef.current = false;
               }, 100);
@@ -972,8 +972,8 @@ export default function Chat() {
         await base44.agents.addMessage(conversation, {
           role: 'user',
           content: initialMessage ?
-          addLangDirective(sessionStartContent, i18n.language) + '\n\n' + initialMessage :
-          addLangDirective(sessionStartContent, i18n.language)
+          addLangDirective(sessionStartContent, sessionLanguageRef.current) + '\n\n' + initialMessage :
+          addLangDirective(sessionStartContent, sessionLanguageRef.current)
         });
       }, 100);
     } catch (error) {
@@ -1197,7 +1197,7 @@ export default function Chat() {
       if (isNewConversation) {
         const sessionStartContent = addLangDirective(
           await buildActionFirstDemotedSessionContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44),
-          i18n.language
+          sessionLanguageRef.current
         );
         messageContent = sessionStartContent + '\n\n' + messageContent;
       }
