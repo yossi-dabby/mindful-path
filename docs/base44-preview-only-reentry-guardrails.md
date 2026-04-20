@@ -18,16 +18,16 @@ Prevent Base44/GitHub sync confusion by making edit authority explicit:
 
 ### i18n runtime source
 
-- Runtime i18n initialization: `src/components/i18n/i18nConfig.jsx`
-- Canonical translation object: `src/components/i18n/translations.jsx`
-- Runtime merge helper invoked by i18n init (not a separate source of truth): `src/components/i18n/translationsBuilder.jsx`
+- Verified runtime i18n initialization path: `src/components/i18n/i18nConfig.jsx`
+- Verified canonical translation object path: `src/components/i18n/translations.jsx`
+- Verified runtime merge helper invoked by i18n init (not a separate source of truth): `src/components/i18n/translationsBuilder.jsx`
 
 ### Therapist chat runtime source
 
-- Active route key: `Chat` in `src/pages.config.js`
-- Runtime page component: `src/pages/Chat.jsx`
-- Route wiring: `src/App.jsx` maps `Pages.Chat` to `"/Chat"`
-- Active message list path for therapist chat runtime: `src/components/chat/MessageList.jsx`
+- Verified active route key: `Chat` in `src/pages.config.js`
+- Verified runtime page component path: `src/pages/Chat.jsx`
+- Verified route wiring path: `src/App.jsx` maps `Pages.Chat` to `"/Chat"`
+- Verified active message-list path for therapist chat runtime: `src/components/chat/MessageList.jsx`
 
 ## Ambiguity Guardrail
 
