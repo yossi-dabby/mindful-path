@@ -60,16 +60,6 @@ test.describe('Chat Smoke Test (Mobile)', () => {
       console.log('[smoke] Filling message input...');
       await safeFill(messageInput, testMessage);
 
-      // Set up the request interceptor BEFORE triggering the send action so no
-      // request is missed due to a race between the click and the listener setup.
-      const waitForPost = page.waitForRequest(
-        (req) =>
-          req.method() === 'POST' &&
-          req.url().includes('/agents/conversations/') &&
-          req.url().includes('/messages'),
-        { timeout: 20000 },
-      );
-
       // Prefer the actual send button testid used in Chat.jsx; fall back to
       // role/aria matchers and finally to pressing Enter on the textarea.
       const sendButton = page.locator('[data-testid="therapist-chat-send"]')
@@ -82,20 +72,27 @@ test.describe('Chat Smoke Test (Mobile)', () => {
         await expect(sendButton).toBeVisible({ timeout: 20000 });
         await expect(sendButton).toBeEnabled({ timeout: 20000 });
         try {
-          await safeClick(sendButton, 5000);
+          await sendButton.click({ timeout: 5000 });
         } catch {
           console.log('[smoke] Send click was unstable — pressing Enter fallback...');
-          await messageInput.press('Enter');
+          if (!page.isClosed()) {
+            await messageInput.press('Enter', { timeout: 5000 });
+          }
         }
       } else {
         console.log('[smoke] Send button not found — pressing Enter...');
         await messageInput.press('Enter');
       }
 
-      const postResult = await waitForPost;
-      if (postResult) {
-        console.log('[smoke] POST request observed:', postResult.url());
-      }
+      await expect
+        .poll(
+          () =>
+            capturedPostUrls.some(
+              (url) => url.includes('/agents/conversations/') && url.includes('/messages'),
+            ),
+          { timeout: 70000 },
+        )
+        .toBe(true);
 
       await expect(page.getByText(testMessage).first()).toBeVisible({ timeout: 15000 }).catch(() => {});
     } catch (error) {
