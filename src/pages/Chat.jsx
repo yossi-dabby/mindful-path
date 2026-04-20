@@ -9,7 +9,7 @@ import AuthErrorBanner from '../components/utils/AuthErrorBanner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Loader2, Menu, Sparkles, ArrowLeft, Trash2, Paperclip, Mic, Square, AudioLines } from 'lucide-react';
+import { Send, Loader2, Menu, Sparkles, ArrowLeft, Trash2, Paperclip, Mic, Square, Play } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import {
   AlertDialog,
@@ -120,15 +120,16 @@ export default function Chat() {
   const [savePromptData, setSavePromptData] = useState(null);
   const [attachedFile, setAttachedFile] = useState(null);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
+  const [audioDraftStatus, setAudioDraftStatus] = useState('idle');
+  const [audioDraftUrl, setAudioDraftUrl] = useState(null);
   const [audioDraftFile, setAudioDraftFile] = useState(null);
-  const [audioDraftUrl, setAudioDraftUrl] = useState('');
-  const [isRecordingAudio, setIsRecordingAudio] = useState(false);
   const [isTranscribingAudio, setIsTranscribingAudio] = useState(false);
   const fileInputRef = useRef(null);
   const mediaRecorderRef = useRef(null);
-  const mediaRecorderChunksRef = useRef([]);
-  const mediaRecorderStreamRef = useRef(null);
-  const audioDraftUrlRef = useRef('');
+  const mediaStreamRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const audioDraftPlayerRef = useRef(null);
+  const audioDraftUrlRef = useRef(null);
   // MF-7: true when the loaded conversation belongs to a legacy variant-profile agent
   const [variantProfileBlocked, setVariantProfileBlocked] = useState(false);
   // Phase 8 — Upgraded-path UI state (only relevant when V5 wiring is active)
@@ -189,9 +190,48 @@ export default function Chat() {
 
   // Reset visible window when conversation changes
   useEffect(() => {
+    if (mediaRecorderRef.current?.state === 'recording') {
+      mediaRecorderRef.current.ondataavailable = null;
+      mediaRecorderRef.current.onstop = null;
+      mediaRecorderRef.current.stop();
+    }
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+      mediaStreamRef.current = null;
+    }
+    audioChunksRef.current = [];
     setVisibleCount(50);
     setVariantProfileBlocked(false); // MF-7: reset block state whenever conversation switches
+    setAudioDraftStatus('idle');
+    setAudioDraftFile(null);
+    setAudioDraftUrl((prevUrl) => {
+      if (prevUrl) {
+        URL.revokeObjectURL(prevUrl);
+      }
+      return null;
+    });
   }, [currentConversationId]);
+
+  useEffect(() => {
+    audioDraftUrlRef.current = audioDraftUrl;
+  }, [audioDraftUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (mediaRecorderRef.current?.state === 'recording') {
+        mediaRecorderRef.current.ondataavailable = null;
+        mediaRecorderRef.current.onstop = null;
+        mediaRecorderRef.current.stop();
+      }
+      if (mediaStreamRef.current) {
+        mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+        mediaStreamRef.current = null;
+      }
+      if (audioDraftUrlRef.current) {
+        URL.revokeObjectURL(audioDraftUrlRef.current);
+      }
+    };
+  }, []);
 
   // Load more messages when user scrolls to top
   const handleMessagesScroll = (e) => {
@@ -467,18 +507,7 @@ export default function Chat() {
 
   // Cleanup on unmount
   useEffect(() => {
-    audioDraftUrlRef.current = audioDraftUrl;
-  }, [audioDraftUrl]);
-
-  useEffect(() => {
     return () => {
-      if (audioDraftUrlRef.current) {
-        URL.revokeObjectURL(audioDraftUrlRef.current);
-      }
-      if (mediaRecorderStreamRef.current) {
-        mediaRecorderStreamRef.current.getTracks().forEach((track) => track.stop());
-        mediaRecorderStreamRef.current = null;
-      }
       mountedRef.current = false;
     };
   }, []);
@@ -1065,102 +1094,145 @@ export default function Chat() {
     e.target.value = '';
   };
 
-  const clearAudioDraft = () => {
-    if (audioDraftUrl) {
-      URL.revokeObjectURL(audioDraftUrl);
+  const clearLocalAudioDraft = () => {
+    if (audioDraftPlayerRef.current) {
+      audioDraftPlayerRef.current.pause();
+      audioDraftPlayerRef.current.currentTime = 0;
     }
+    setAudioDraftUrl((prevUrl) => {
+      if (prevUrl) {
+        URL.revokeObjectURL(prevUrl);
+      }
+      return null;
+    });
+    setAudioDraftStatus('idle');
     setAudioDraftFile(null);
-    setAudioDraftUrl('');
+    audioChunksRef.current = [];
   };
 
-  const handleStartAudioRecording = async () => {
-    try {
-      if (!navigator?.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
-        toast({
-          title: 'Audio recording is not supported on this device.',
-          variant: 'destructive'
-        });
-        return;
-      }
-
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderStreamRef.current = stream;
-      mediaRecorderChunksRef.current = [];
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data && event.data.size > 0) {
-          mediaRecorderChunksRef.current.push(event.data);
-        }
-      };
-
-      mediaRecorder.onstop = () => {
-        const blobType = mediaRecorder.mimeType || 'audio/webm';
-        const blob = new Blob(mediaRecorderChunksRef.current, { type: blobType });
-        const extension = blobType.includes('ogg') ? 'ogg' : blobType.includes('mp4') ? 'm4a' : 'webm';
-        const file = new File([blob], `voice-draft-${Date.now()}.${extension}`, { type: blobType });
-        const objectUrl = URL.createObjectURL(blob);
-
-        clearAudioDraft();
-        setAudioDraftFile(file);
-        setAudioDraftUrl(objectUrl);
-        setIsRecordingAudio(false);
-
-        if (mediaRecorderStreamRef.current) {
-          mediaRecorderStreamRef.current.getTracks().forEach((track) => track.stop());
-          mediaRecorderStreamRef.current = null;
-        }
-      };
-
-      mediaRecorder.onerror = () => {
-        setIsRecordingAudio(false);
-        if (mediaRecorderStreamRef.current) {
-          mediaRecorderStreamRef.current.getTracks().forEach((track) => track.stop());
-          mediaRecorderStreamRef.current = null;
-        }
-        toast({
-          title: 'Audio recording failed. Please try again.',
-          variant: 'destructive'
-        });
-      };
-
-      mediaRecorderRef.current = mediaRecorder;
-      mediaRecorder.start();
-      setIsRecordingAudio(true);
-    } catch (error) {
-      setIsRecordingAudio(false);
-      if (mediaRecorderStreamRef.current) {
-        mediaRecorderStreamRef.current.getTracks().forEach((track) => track.stop());
-        mediaRecorderStreamRef.current = null;
-      }
+  const handleStartRecording = async () => {
+    if (!navigator?.mediaDevices?.getUserMedia || typeof window.MediaRecorder === 'undefined') {
       toast({
-        title: 'Microphone access is required to record audio.',
+        title: 'Voice recording is unavailable',
+        description: 'Your browser does not support local audio recording.',
         variant: 'destructive'
       });
-      console.error('[Audio] Recording start failed:', error);
+      return;
+    }
+
+    try {
+      clearLocalAudioDraft();
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaStreamRef.current = stream;
+      audioChunksRef.current = [];
+
+      const recorder = new window.MediaRecorder(stream);
+      mediaRecorderRef.current = recorder;
+      setAudioDraftStatus('recording');
+
+      recorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      recorder.onerror = () => {
+        if (mediaStreamRef.current) {
+          mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+          mediaStreamRef.current = null;
+        }
+        setAudioDraftStatus('idle');
+        toast({
+          title: 'Voice recording failed',
+          description: 'Please try again.',
+          variant: 'destructive'
+        });
+      };
+
+      recorder.onstop = () => {
+        if (mediaStreamRef.current) {
+          mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+          mediaStreamRef.current = null;
+        }
+
+        if (audioChunksRef.current.length === 0) {
+          setAudioDraftStatus('idle');
+          return;
+        }
+
+        const blobType = recorder.mimeType || 'audio/webm';
+        const audioBlob = new Blob(audioChunksRef.current, { type: blobType });
+        const extension = blobType.includes('ogg') ? 'ogg' : blobType.includes('mp4') ? 'm4a' : 'webm';
+        const file = new File([audioBlob], `voice-draft-${Date.now()}.${extension}`, { type: blobType });
+        const localAudioUrl = URL.createObjectURL(audioBlob);
+        setAudioDraftUrl((prevUrl) => {
+          if (prevUrl) {
+            URL.revokeObjectURL(prevUrl);
+          }
+          return localAudioUrl;
+        });
+        setAudioDraftFile(file);
+        setAudioDraftStatus('recorded');
+      };
+
+      recorder.start();
+    } catch (err) {
+      console.error('[Voice Draft] start recording failed:', err);
+      if (mediaStreamRef.current) {
+        mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+        mediaStreamRef.current = null;
+      }
+      setAudioDraftStatus('idle');
+      toast({
+        title: 'Microphone access needed',
+        description: 'Allow microphone access to record a local voice draft.',
+        variant: 'destructive'
+      });
     }
   };
 
-  const handleStopAudioRecording = () => {
-    const recorder = mediaRecorderRef.current;
-    if (!recorder || recorder.state === 'inactive') {
-      return;
+  const handleStopRecording = () => {
+    if (mediaRecorderRef.current?.state === 'recording') {
+      mediaRecorderRef.current.stop();
     }
-    recorder.stop();
   };
 
-  const handleTranscribeAudioDraft = async () => {
-    if (!audioDraftFile || isTranscribingAudio) {
-      return;
+  const handlePlayRecording = async () => {
+    if (!audioDraftUrl || !audioDraftPlayerRef.current) return;
+    try {
+      audioDraftPlayerRef.current.currentTime = 0;
+      await audioDraftPlayerRef.current.play();
+    } catch (err) {
+      console.error('[Voice Draft] playback failed:', err);
+      toast({
+        title: 'Playback failed',
+        description: 'Unable to play this local voice draft.',
+        variant: 'destructive'
+      });
     }
+  };
+
+  const handleDeleteRecording = () => {
+    if (mediaRecorderRef.current?.state === 'recording') {
+      mediaRecorderRef.current.ondataavailable = null;
+      mediaRecorderRef.current.onstop = null;
+      mediaRecorderRef.current.stop();
+    }
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+      mediaStreamRef.current = null;
+    }
+    clearLocalAudioDraft();
+  };
+
+  const handleTranscribeRecording = async () => {
+    if (!audioDraftFile || isTranscribingAudio) return;
 
     setIsTranscribingAudio(true);
     try {
       const uploadResult = await base44.integrations.Core.UploadFile({ file: audioDraftFile });
       const file_url = uploadResult?.file_url;
-      if (!file_url) {
-        throw new Error('Upload returned no file_url');
-      }
+      if (!file_url) throw new Error('Upload returned no file_url');
 
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: 'Transcribe this audio to plain text. Return exactly what was said without summaries. Keep punctuation natural.',
@@ -1175,9 +1247,7 @@ export default function Chat() {
       });
 
       const transcript = typeof result?.transcript === 'string' ? result.transcript.trim() : '';
-      if (!transcript) {
-        throw new Error('No transcript returned');
-      }
+      if (!transcript) throw new Error('No transcript returned');
 
       setInputMessage((prev) => {
         if (!prev.trim()) return transcript;
@@ -2093,45 +2163,6 @@ export default function Chat() {
                   onChange={handleFileSelect}
                 />
                 <div className="flex flex-col flex-1 gap-1">
-                  {(audioDraftFile || isRecordingAudio) && (
-                    <div className="flex flex-col gap-2 px-2 py-2 rounded-lg bg-teal-50 border border-teal-200 text-xs text-teal-700">
-                      {isRecordingAudio ? (
-                        <div className="flex items-center gap-2">
-                          <span className="inline-flex h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-                          <span>Recording audio draft…</span>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="flex items-center gap-2">
-                            <AudioLines className="w-3 h-3 flex-shrink-0" />
-                            <span className="truncate">Audio draft ready</span>
-                          </div>
-                          {audioDraftUrl && <audio controls src={audioDraftUrl} className="w-full" />}
-                          <div className="flex items-center gap-2">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={handleTranscribeAudioDraft}
-                              disabled={isTranscribingAudio || isLoading}
-                              className="h-8 text-xs">
-                              {isTranscribingAudio ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : null}
-                              {isTranscribingAudio ? 'Transcribing...' : 'Transcribe'}
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={clearAudioDraft}
-                              disabled={isTranscribingAudio || isLoading}
-                              className="h-8 text-xs">
-                              Delete
-                            </Button>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  )}
                   {attachedFile && (
                     <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-teal-50 border border-teal-200 text-xs text-teal-700">
                       <Paperclip className="w-3 h-3 flex-shrink-0" />
@@ -2146,19 +2177,83 @@ export default function Chat() {
                     placeholder={t('chat.message_placeholder')} className="bg-[hsl(var(--surface-nested)/0.9)] text-foreground px-3 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-card)] flex w-full border border-input/90 shadow-[var(--shadow-sm)] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-h-[48px] max-h-[160px] resize-none"
                     data-testid="therapist-chat-input"
                     disabled={isLoading || isUploadingFile} />
+                  <div className="flex items-center gap-2 px-1 py-1">
+                    {audioDraftStatus === 'idle' &&
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleStartRecording}
+                          disabled={isLoading || isUploadingFile || isTranscribingAudio}
+                          aria-label="Record voice draft"
+                          className="text-teal-700 hover:bg-teal-100">
+                        <Mic className="w-4 h-4 mr-1" />
+                        Record
+                      </Button>
+                    }
+                    {audioDraftStatus === 'recording' &&
+                      <>
+                        <span className="inline-flex items-center gap-2 text-xs text-red-700 bg-red-50 border border-red-200 px-2 py-1 rounded-full">
+                          <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                          Recording
+                        </span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleStopRecording}
+                          aria-label="Stop recording"
+                          className="text-red-700 hover:bg-red-100">
+                          <Square className="w-4 h-4 mr-1" />
+                          Stop
+                        </Button>
+                      </>
+                    }
+                    {audioDraftStatus === 'recorded' && audioDraftUrl &&
+                      <>
+                        <span className="inline-flex items-center gap-1 text-xs text-teal-700 bg-teal-50 border border-teal-200 px-2 py-1 rounded-full">
+                          Voice draft ready
+                        </span>
+                        <audio ref={audioDraftPlayerRef} src={audioDraftUrl} className="hidden" />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handlePlayRecording}
+                          disabled={isLoading || isUploadingFile || isTranscribingAudio}
+                          aria-label="Play recording"
+                          className="text-teal-700 hover:bg-teal-100">
+                          <Play className="w-4 h-4 mr-1" />
+                          Play
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleTranscribeRecording}
+                          disabled={isLoading || isUploadingFile || isTranscribingAudio}
+                          aria-label="Transcribe recording"
+                          className="text-teal-700 hover:bg-teal-100">
+                          {isTranscribingAudio ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : null}
+                          {isTranscribingAudio ? 'Transcribing...' : 'Transcribe'}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleDeleteRecording}
+                          disabled={isLoading || isUploadingFile || isTranscribingAudio}
+                          aria-label="Delete recording"
+                          className="text-red-700 hover:bg-red-100">
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          Delete
+                        </Button>
+                      </>
+                    }
+                  </div>
                 </div>
 
                 <div className="flex flex-col gap-1 flex-shrink-0">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={isRecordingAudio ? handleStopAudioRecording : handleStartAudioRecording}
-                    disabled={isLoading || isUploadingFile || isTranscribingAudio}
-                    aria-label={isRecordingAudio ? 'Stop recording' : 'Record audio draft'}
-                    className="text-teal-600 h-[48px] w-[48px] min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 hover:bg-teal-50">
-                    {isRecordingAudio ? <Square className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-                  </Button>
                   <Button
                     type="button"
                     variant="ghost"
