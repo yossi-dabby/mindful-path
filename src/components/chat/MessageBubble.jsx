@@ -371,6 +371,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                 {assistantAttachments.length > 0 &&
              <div className="mb-3">
                     {assistantAttachments.map((assistantAttachment, index) => {
+                  const attachmentKey = `assistant-attachment-${assistantAttachment.url}-${index}`;
                   const isAttachmentImage = assistantAttachment.type === 'image';
                   const isAttachmentPdf = assistantAttachment.type === 'pdf';
                   const isAttachmentFile = assistantAttachment.type === 'file';
@@ -378,7 +379,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
 
                   if (isAttachmentImage) {
                     return (
-                      <a key={`assistant-attachment-${assistantAttachment.url}-${index}`} href={assistantAttachment.url} target="_blank" rel="noopener noreferrer" className="inline-block my-1">
+                      <a key={attachmentKey} href={assistantAttachment.url} target="_blank" rel="noopener noreferrer" className="inline-block my-1">
                         <img
                   src={assistantAttachment.url}
                   alt={assistantAttachment.name || t('chat.attachments.image_preview_alt')}
@@ -391,7 +392,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                     const chipLabel = assistantAttachment.name || t('chat.attachments.pdf_chip_label');
                     return (
                       <button
-                key={`assistant-attachment-${assistantAttachment.url}-${index}`}
+                key={attachmentKey}
                 type="button"
                 onClick={() => handleAssistantPdfDownload(assistantAttachment.url)}
                 disabled={!!signingPdfUrl}
@@ -404,10 +405,10 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                   }
 
                   if (isAttachmentFile) {
-                    const chipLabel = assistantAttachment.name || t('chat.attachments.file_chip_label', 'Open file');
+                    const chipLabel = assistantAttachment.name || assistantAttachment.url;
                     return (
                       <a
-                key={`assistant-attachment-${assistantAttachment.url}-${index}`}
+                key={attachmentKey}
                 href={assistantAttachment.url}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -471,7 +472,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                   return (
                     <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-primary-foreground/20 px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors my-1">
                       <FileText className="w-4 h-4 flex-shrink-0" />
-                      <span className="max-w-[200px] truncate">{String(children || t('chat.attachments.file_chip_label', 'Open file'))}</span>
+                      <span className="max-w-[200px] truncate">{String(children || href)}</span>
                       <ExternalLink className="w-3.5 h-3.5 opacity-80 flex-shrink-0" />
                     </a>
                   );
