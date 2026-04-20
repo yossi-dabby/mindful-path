@@ -1168,7 +1168,8 @@ export default function Chat() {
       };
 
       recorder.start();
-    } catch {
+    } catch (err) {
+      console.error('[Voice Draft] start recording failed:', err);
       if (mediaStreamRef.current) {
         mediaStreamRef.current.getTracks().forEach((track) => track.stop());
         mediaStreamRef.current = null;
@@ -1193,7 +1194,8 @@ export default function Chat() {
     try {
       audioDraftPlayerRef.current.currentTime = 0;
       await audioDraftPlayerRef.current.play();
-    } catch {
+    } catch (err) {
+      console.error('[Voice Draft] playback failed:', err);
       toast({
         title: 'Playback failed',
         description: 'Unable to play this local voice draft.',
