@@ -28,6 +28,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import {
   validateAgentOutput,
   extractAssistantMessage,
+  sanitizeConversationMessages,
   parseCounters,
 } from '../../src/components/utils/validateAgentOutput.jsx';
 
@@ -347,4 +348,25 @@ describe('validateAgentOutput — regression lock: all forbidden patterns remain
       }
     });
   }
+});
+
+describe('sanitizeConversationMessages — user attachment metadata recovery', () => {
+  it('recovers audio attachment metadata from marker and preserves transcript text', () => {
+    const messages = [
+      {
+        role: 'user',
+        content:
+          'this is my transcript\n[ATTACHMENT_CONTEXT]\ntype: audio\nurl: https://files.example.com/voice-note.webm\n[ATTACHMENT_METADATA]{"type":"audio","url":"https://files.example.com/voice-note.webm","name":"voice-note.webm"}',
+      },
+    ];
+
+    const sanitized = sanitizeConversationMessages(messages);
+    expect(sanitized).toHaveLength(1);
+    expect(sanitized[0].content).toBe('this is my transcript');
+    expect(sanitized[0].metadata?.attachment).toEqual({
+      type: 'audio',
+      url: 'https://files.example.com/voice-note.webm',
+      name: 'voice-note.webm',
+    });
+  });
 });
