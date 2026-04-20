@@ -346,8 +346,12 @@ export default function Chat() {
       return false;
     }
 
-    // CRITICAL TYPE CHECK: Content MUST be a string
+    // Backward compatibility: allow historical user attachment messages with
+    // null/legacy non-string content to render via attachment surfaces.
     if (typeof msg.content !== 'string') {
+      if (hasAttachment) {
+        return true;
+      }
       console.error('[HARD GATE] ⛔ Object blocked');
       instrumentationRef.current.HARD_GATE_BLOCKED_OBJECT++;
       return false;
@@ -1500,6 +1504,7 @@ export default function Chat() {
       const previousMessages = messages;
       queryClient.setQueryData(['conversations'], (old = []) => old.filter((conversation) => conversation.id !== conversationId));
       if (currentConversationId === conversationId) {
+        removeSelectedAttachment();
         setCurrentConversationId(null);
         setMessages([]);
         lastConfirmedMessagesRef.current = []; // Reset baseline when deleting active conversation
@@ -1529,7 +1534,7 @@ export default function Chat() {
     setPendingDeleteId(conversationId);
   };
 
-  const handleBulkDeleteConversations = async (ids) => { if (!ids?.length) return; queryClient.setQueryData(['conversations'], (old = []) => old.filter(c => !ids.includes(c.id))); if (ids.includes(currentConversationId)) { setCurrentConversationId(null); setMessages([]); lastConfirmedMessagesRef.current = []; } await Promise.all(ids.map(id => base44.entities.UserDeletedConversations.create({ agent_conversation_id: id, conversation_title: conversations.find(c => c.id === id)?.metadata?.name || 'Deleted Session' }).catch(() => {}))); refetchConversations(); };
+  const handleBulkDeleteConversations = async (ids) => { if (!ids?.length) return; queryClient.setQueryData(['conversations'], (old = []) => old.filter(c => !ids.includes(c.id))); if (ids.includes(currentConversationId)) { removeSelectedAttachment(); setCurrentConversationId(null); setMessages([]); lastConfirmedMessagesRef.current = []; } await Promise.all(ids.map(id => base44.entities.UserDeletedConversations.create({ agent_conversation_id: id, conversation_title: conversations.find(c => c.id === id)?.metadata?.name || 'Deleted Session' }).catch(() => {}))); refetchConversations(); };
 
   const handleCheckInComplete = async (checkinData) => {
     if (!currentConversationId) return;
