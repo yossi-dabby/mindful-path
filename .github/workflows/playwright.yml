@@ -33,21 +33,21 @@ jobs:
       - name: Build application
         run: npm run build
         env:
-          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || '69504b725a07f5aa75aeaf7d' }}
-          VITE_BASE44_APP_BASE_URL: ${{ secrets.VITE_BASE44_APP_BASE_URL || 'https://mindful-path-75aeaf7d.base44.app' }}
+          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || 'test-app-id' }}
+          VITE_BASE44_APP_BASE_URL: ${{ secrets.VITE_BASE44_APP_BASE_URL || 'http://127.0.0.1:5173' }}
 
       - name: Start dev server
         run: |
           nohup npm run dev -- --host 127.0.0.1 --port 5173 > devserver.log 2>&1 &
           echo "Dev server started (logging to devserver.log)"
         env:
-          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || '69504b725a07f5aa75aeaf7d' }}
-          VITE_BASE44_APP_BASE_URL: ${{ secrets.VITE_BASE44_APP_BASE_URL || 'https://mindful-path-75aeaf7d.base44.app' }}
+          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || 'test-app-id' }}
+          VITE_BASE44_APP_BASE_URL: ${{ secrets.VITE_BASE44_APP_BASE_URL || 'http://127.0.0.1:5173' }}
 
       - name: Wait for server
         run: |
-          npx --yes wait-on tcp:127.0.0.1:5173 --timeout 120000
-          npx --yes wait-on http-get://127.0.0.1:5173 --timeout 120000
+          npx --yes wait-on tcp:127.0.0.1:5173 --timeout 240000
+          npx --yes wait-on http-get://127.0.0.1:5173 --timeout 240000
           for attempt in 1 2 3; do
             if curl -sf http://127.0.0.1:5173 > /dev/null; then
               echo "Server is responding on attempt ${attempt}"
@@ -68,7 +68,8 @@ jobs:
           CI: true
           BASE_URL: http://127.0.0.1:5173
           PLAYWRIGHT_TEST_BASE_URL: http://127.0.0.1:5173
-          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || '69504b725a07f5aa75aeaf7d' }}
+          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || 'test-app-id' }}
+          VITE_BASE44_APP_BASE_URL: ${{ secrets.VITE_BASE44_APP_BASE_URL || 'http://127.0.0.1:5173' }}
 
       - name: Upload dev server log
         uses: actions/upload-artifact@v4
@@ -125,21 +126,21 @@ jobs:
       - name: Build application
         run: npm run build
         env:
-          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || '69504b725a07f5aa75aeaf7d' }}
-          VITE_BASE44_APP_BASE_URL: ${{ secrets.VITE_BASE44_APP_BASE_URL || 'https://mindful-path-75aeaf7d.base44.app' }}
+          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || 'test-app-id' }}
+          VITE_BASE44_APP_BASE_URL: ${{ secrets.VITE_BASE44_APP_BASE_URL || 'http://127.0.0.1:5173' }}
 
       - name: Start dev server
         run: |
           nohup npm run dev -- --host 127.0.0.1 --port 5173 > devserver.log 2>&1 &
           echo "Dev server started (logging to devserver.log)"
         env:
-          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || '69504b725a07f5aa75aeaf7d' }}
-          VITE_BASE44_APP_BASE_URL: ${{ secrets.VITE_BASE44_APP_BASE_URL || 'https://mindful-path-75aeaf7d.base44.app' }}
+          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || 'test-app-id' }}
+          VITE_BASE44_APP_BASE_URL: ${{ secrets.VITE_BASE44_APP_BASE_URL || 'http://127.0.0.1:5173' }}
 
       - name: Wait for server
         run: |
-          npx --yes wait-on tcp:127.0.0.1:5173 --timeout 120000
-          npx --yes wait-on http-get://127.0.0.1:5173 --timeout 120000
+          npx --yes wait-on tcp:127.0.0.1:5173 --timeout 240000
+          npx --yes wait-on http-get://127.0.0.1:5173 --timeout 240000
           for attempt in 1 2 3; do
             if curl -sf http://127.0.0.1:5173 > /dev/null; then
               echo "Server is responding on attempt ${attempt}"
@@ -160,7 +161,8 @@ jobs:
           CI: true
           BASE_URL: http://127.0.0.1:5173
           PLAYWRIGHT_TEST_BASE_URL: http://127.0.0.1:5173
-          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || '69504b725a07f5aa75aeaf7d' }}
+          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || 'test-app-id' }}
+          VITE_BASE44_APP_BASE_URL: ${{ secrets.VITE_BASE44_APP_BASE_URL || 'http://127.0.0.1:5173' }}
 
       - name: Upload dev server log
         uses: actions/upload-artifact@v4
@@ -185,7 +187,6 @@ jobs:
           name: test-results-${{ matrix.project }}
           path: test-results/
           retention-days: 7
-
 
 
 

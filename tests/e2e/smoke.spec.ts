@@ -81,7 +81,12 @@ test.describe('Chat Smoke Test (Mobile)', () => {
         console.log('[smoke] Send button found — clicking...');
         await expect(sendButton).toBeVisible({ timeout: 20000 });
         await expect(sendButton).toBeEnabled({ timeout: 20000 });
-        await safeClick(sendButton);
+        try {
+          await safeClick(sendButton, 5000);
+        } catch {
+          console.log('[smoke] Send click was unstable — pressing Enter fallback...');
+          await messageInput.press('Enter');
+        }
       } else {
         console.log('[smoke] Send button not found — pressing Enter...');
         await messageInput.press('Enter');

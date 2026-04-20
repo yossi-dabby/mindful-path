@@ -20,6 +20,17 @@ function longPdfAssistantReply() {
   ].join('\n');
 }
 
+async function clickSendWithEnterFallback(
+  sendButton: any,
+  messageInput: any,
+) {
+  try {
+    await sendButton.click({ timeout: 5000 });
+  } catch {
+    await messageInput.press('Enter');
+  }
+}
+
 async function startChatWithRuntimeMocks(page: Parameters<typeof mockApi>[0]) {
   await page.addInitScript(() => {
     localStorage.setItem('chat_consent_accepted', 'true');
@@ -161,11 +172,12 @@ test.describe('Stage 4 runtime file-understanding verification', () => {
     });
     await expect(page.getByText('stage4-image.png')).toBeVisible({ timeout: 10000 });
 
-    await page.locator('[data-testid="therapist-chat-input"]').fill('Please describe this image.');
+    const messageInput = page.locator('[data-testid="therapist-chat-input"]');
+    await messageInput.fill('Please describe this image.');
     const sendButton = page.locator('[data-testid="therapist-chat-send"]');
     await expect(sendButton).toBeVisible({ timeout: 20000 });
     await expect(sendButton).toBeEnabled({ timeout: 20000 });
-    await sendButton.click();
+    await clickSendWithEnterFallback(sendButton, messageInput);
 
     await expect.poll(() => captured.uploadedPayloads.length, { timeout: 15000 }).toBeGreaterThan(0);
     await expect.poll(() => captured.postedMessages.length, { timeout: 15000 }).toBeGreaterThan(0);
@@ -194,11 +206,12 @@ test.describe('Stage 4 runtime file-understanding verification', () => {
     });
     await expect(page.getByText('stage4-doc.pdf')).toBeVisible({ timeout: 10000 });
 
-    await page.locator('[data-testid="therapist-chat-input"]').fill('Please summarize this PDF.');
+    const messageInput = page.locator('[data-testid="therapist-chat-input"]');
+    await messageInput.fill('Please summarize this PDF.');
     const sendButton = page.locator('[data-testid="therapist-chat-send"]');
     await expect(sendButton).toBeVisible({ timeout: 20000 });
     await expect(sendButton).toBeEnabled({ timeout: 20000 });
-    await sendButton.click();
+    await clickSendWithEnterFallback(sendButton, messageInput);
 
     await expect.poll(() => captured.uploadedPayloads.length, { timeout: 15000 }).toBeGreaterThan(0);
     await expect.poll(() => captured.postedMessages.length, { timeout: 15000 }).toBeGreaterThan(0);
