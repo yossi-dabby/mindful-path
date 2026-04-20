@@ -206,6 +206,7 @@ export default function Chat() {
     setVariantProfileBlocked(false); // MF-7: reset block state whenever conversation switches
     setAudioDraftStatus('idle');
     setAudioDraftFile(null);
+    setIsTranscribingAudio(false);
     setAudioDraftUrl((prevUrl) => {
       if (prevUrl) {
         URL.revokeObjectURL(prevUrl);
@@ -1109,21 +1110,38 @@ export default function Chat() {
     });
     setAudioDraftStatus('idle');
     setAudioDraftFile(null);
+    setIsTranscribingAudio(false);
     audioChunksRef.current = [];
+  };
+
+  const stopLocalRecordingStream = () => {
+    if (mediaRecorderRef.current?.state === 'recording') {
+      mediaRecorderRef.current.ondataavailable = null;
+      mediaRecorderRef.current.onerror = null;
+      mediaRecorderRef.current.onstop = null;
+      mediaRecorderRef.current.stop();
+    }
+    mediaRecorderRef.current = null;
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+      mediaStreamRef.current = null;
+    }
   };
 
   const handleStartRecording = async () => {
     if (!navigator?.mediaDevices?.getUserMedia || typeof window.MediaRecorder === 'undefined') {
       toast({
         title: 'Voice recording is unavailable',
-        description: 'Your browser does not support local audio recording.',
+        description: 'This browser or device does not support local microphone recording in Chat.',
         variant: 'destructive'
       });
+      clearLocalAudioDraft();
       return;
     }
 
     try {
       clearLocalAudioDraft();
+      stopLocalRecordingStream();
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaStreamRef.current = stream;
       audioChunksRef.current = [];
@@ -1138,27 +1156,22 @@ export default function Chat() {
         }
       };
 
-      recorder.onerror = () => {
-        if (mediaStreamRef.current) {
-          mediaStreamRef.current.getTracks().forEach((track) => track.stop());
-          mediaStreamRef.current = null;
-        }
-        setAudioDraftStatus('idle');
+      recorder.onerror = (event) => {
+        console.error('[Voice Draft] recorder error:', event);
+        stopLocalRecordingStream();
+        clearLocalAudioDraft();
         toast({
           title: 'Voice recording failed',
-          description: 'Please try again.',
+          description: 'Recording stopped unexpectedly. Please retry.',
           variant: 'destructive'
         });
       };
 
       recorder.onstop = () => {
-        if (mediaStreamRef.current) {
-          mediaStreamRef.current.getTracks().forEach((track) => track.stop());
-          mediaStreamRef.current = null;
-        }
+        stopLocalRecordingStream();
 
         if (audioChunksRef.current.length === 0) {
-          setAudioDraftStatus('idle');
+          clearLocalAudioDraft();
           return;
         }
 
@@ -1180,14 +1193,14 @@ export default function Chat() {
       recorder.start();
     } catch (err) {
       console.error('[Voice Draft] start recording failed:', err);
-      if (mediaStreamRef.current) {
-        mediaStreamRef.current.getTracks().forEach((track) => track.stop());
-        mediaStreamRef.current = null;
-      }
-      setAudioDraftStatus('idle');
+      stopLocalRecordingStream();
+      clearLocalAudioDraft();
+      const denied = err?.name === 'NotAllowedError' || err?.name === 'SecurityError';
       toast({
-        title: 'Microphone access needed',
-        description: 'Allow microphone access to record a local voice draft.',
+        title: denied ? 'Microphone permission denied' : 'Microphone access failed',
+        description: denied ?
+        'Microphone permission is blocked. Allow microphone access in your browser/device settings and retry.' :
+        'Unable to start local recording on this device. Please retry.',
         variant: 'destructive'
       });
     }
@@ -1195,7 +1208,18 @@ export default function Chat() {
 
   const handleStopRecording = () => {
     if (mediaRecorderRef.current?.state === 'recording') {
-      mediaRecorderRef.current.stop();
+      try {
+        mediaRecorderRef.current.stop();
+      } catch (error) {
+        console.error('[Voice Draft] stop recording failed:', error);
+        stopLocalRecordingStream();
+        clearLocalAudioDraft();
+        toast({
+          title: 'Voice recording failed',
+          description: 'Could not stop recording cleanly. Please retry.',
+          variant: 'destructive'
+        });
+      }
     }
   };
 
@@ -1215,15 +1239,7 @@ export default function Chat() {
   };
 
   const handleDeleteRecording = () => {
-    if (mediaRecorderRef.current?.state === 'recording') {
-      mediaRecorderRef.current.ondataavailable = null;
-      mediaRecorderRef.current.onstop = null;
-      mediaRecorderRef.current.stop();
-    }
-    if (mediaStreamRef.current) {
-      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
-      mediaStreamRef.current = null;
-    }
+    stopLocalRecordingStream();
     clearLocalAudioDraft();
   };
 
@@ -1232,21 +1248,43 @@ export default function Chat() {
 
     setIsTranscribingAudio(true);
     try {
-      const uploadResult = await base44.integrations.Core.UploadFile({ file: audioDraftFile });
-      const file_url = uploadResult?.file_url;
-      if (!file_url) throw new Error('Upload returned no file_url');
+      let file_url = '';
+      try {
+        const uploadResult = await base44.integrations.Core.UploadFile({ file: audioDraftFile });
+        file_url = uploadResult?.file_url;
+        if (!file_url) throw new Error('Upload returned no file_url');
+      } catch (uploadError) {
+        console.error('[Audio] Upload failed before transcription:', uploadError);
+        toast({
+          title: 'Audio upload failed',
+          description: 'Could not upload this voice draft. Retry transcription or delete the draft.',
+          variant: 'destructive'
+        });
+        return;
+      }
 
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt: 'Transcribe this audio to plain text. Return exactly what was said without summaries. Keep punctuation natural.',
-        file_urls: [file_url],
-        response_json_schema: {
-          type: 'object',
-          properties: {
-            transcript: { type: 'string' }
-          },
-          required: ['transcript']
-        }
-      });
+      let result;
+      try {
+        result = await base44.integrations.Core.InvokeLLM({
+          prompt: 'Transcribe this audio to plain text. Return exactly what was said without summaries. Keep punctuation natural.',
+          file_urls: [file_url],
+          response_json_schema: {
+            type: 'object',
+            properties: {
+              transcript: { type: 'string' }
+            },
+            required: ['transcript']
+          }
+        });
+      } catch (transcriptionError) {
+        console.error('[Audio] Transcription request failed:', transcriptionError);
+        toast({
+          title: 'Audio transcription failed',
+          description: 'The upload succeeded, but transcription failed. Retry or delete this draft.',
+          variant: 'destructive'
+        });
+        return;
+      }
 
       const transcript = typeof result?.transcript === 'string' ? result.transcript.trim() : '';
       if (!transcript) throw new Error('No transcript returned');
@@ -1259,7 +1297,8 @@ export default function Chat() {
     } catch (error) {
       console.error('[Audio] Transcription failed:', error);
       toast({
-        title: 'Audio transcription failed. Please retry the draft upload/transcription.',
+        title: 'Audio transcription failed',
+        description: 'No transcript text was returned. Retry or delete this draft.',
         variant: 'destructive'
       });
     } finally {
@@ -1466,6 +1505,11 @@ export default function Chat() {
           }
         } catch (err) {
           console.error('[Upload] File upload failed:', err);
+          toast({
+            title: 'File upload failed',
+            description: 'Attachment upload failed. You can retry sending or remove the file.',
+            variant: 'destructive'
+          });
         } finally {
           setIsUploadingFile(false);
           setAttachedFile(null);
@@ -1491,6 +1535,11 @@ export default function Chat() {
           }
         } catch (err) {
           console.error('[Upload] Audio draft upload failed:', err);
+          toast({
+            title: 'Audio upload failed',
+            description: 'Voice draft upload failed. You can retry sending or delete the recording.',
+            variant: 'destructive'
+          });
         } finally {
           setIsUploadingFile(false);
         }
@@ -2213,7 +2262,7 @@ export default function Chat() {
                     placeholder={t('chat.message_placeholder')} className="bg-[hsl(var(--surface-nested)/0.9)] text-foreground px-3 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-card)] flex w-full border border-input/90 shadow-[var(--shadow-sm)] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-h-[48px] max-h-[160px] resize-none"
                     data-testid="therapist-chat-input"
                     disabled={isLoading || isUploadingFile} />
-                  <div className="flex items-center gap-2 px-1 py-1">
+                  <div className="flex items-center flex-wrap gap-2 px-1 py-1">
                     {audioDraftStatus === 'idle' &&
                         <Button
                           type="button"
@@ -2222,7 +2271,7 @@ export default function Chat() {
                           onClick={handleStartRecording}
                           disabled={isLoading || isUploadingFile || isTranscribingAudio}
                           aria-label="Record voice draft"
-                          className="text-teal-700 hover:bg-teal-100">
+                          className="text-teal-700 hover:bg-teal-100 min-h-[44px] min-w-[44px] px-3">
                         <Mic className="w-4 h-4 mr-1" />
                         Record
                       </Button>
@@ -2239,7 +2288,7 @@ export default function Chat() {
                           size="sm"
                           onClick={handleStopRecording}
                           aria-label="Stop recording"
-                          className="text-red-700 hover:bg-red-100">
+                          className="text-red-700 hover:bg-red-100 min-h-[44px] min-w-[44px] px-3">
                           <Square className="w-4 h-4 mr-1" />
                           Stop
                         </Button>
@@ -2258,7 +2307,7 @@ export default function Chat() {
                           onClick={handlePlayRecording}
                           disabled={isLoading || isUploadingFile || isTranscribingAudio}
                           aria-label="Play recording"
-                          className="text-teal-700 hover:bg-teal-100">
+                          className="text-teal-700 hover:bg-teal-100 min-h-[44px] min-w-[44px] px-3">
                           <Play className="w-4 h-4 mr-1" />
                           Play
                         </Button>
@@ -2269,7 +2318,7 @@ export default function Chat() {
                           onClick={handleTranscribeRecording}
                           disabled={isLoading || isUploadingFile || isTranscribingAudio}
                           aria-label="Transcribe recording"
-                          className="text-teal-700 hover:bg-teal-100">
+                          className="text-teal-700 hover:bg-teal-100 min-h-[44px] min-w-[44px] px-3">
                           {isTranscribingAudio ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : null}
                           {isTranscribingAudio ? 'Transcribing...' : 'Transcribe'}
                         </Button>
@@ -2280,7 +2329,7 @@ export default function Chat() {
                           onClick={handleDeleteRecording}
                           disabled={isLoading || isUploadingFile || isTranscribingAudio}
                           aria-label="Delete recording"
-                          className="text-red-700 hover:bg-red-100">
+                          className="text-red-700 hover:bg-red-100 min-h-[44px] min-w-[44px] px-3">
                           <Trash2 className="w-4 h-4 mr-1" />
                           Delete
                         </Button>
