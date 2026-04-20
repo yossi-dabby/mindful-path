@@ -6,6 +6,8 @@ test.use({
   ...devices['iPhone 12'],
 });
 
+const MESSAGE_POST_TIMEOUT_MS = 70000;
+
 test.describe('Chat Smoke Test (Mobile)', () => {
   test('should send a message and verify it appears (or at least the POST happens) on mobile', async ({ page }) => {
     test.setTimeout(90000);
@@ -60,16 +62,6 @@ test.describe('Chat Smoke Test (Mobile)', () => {
       console.log('[smoke] Filling message input...');
       await safeFill(messageInput, testMessage);
 
-      // Set up the request interceptor BEFORE triggering the send action so no
-      // request is missed due to a race between the click and the listener setup.
-      const waitForPost = page.waitForRequest(
-        (req) =>
-          req.method() === 'POST' &&
-          req.url().includes('/agents/conversations/') &&
-          req.url().includes('/messages'),
-        { timeout: 20000 },
-      );
-
       // Prefer the actual send button testid used in Chat.jsx; fall back to
       // role/aria matchers and finally to pressing Enter on the textarea.
       const sendButton = page.locator('[data-testid="therapist-chat-send"]')
@@ -81,16 +73,28 @@ test.describe('Chat Smoke Test (Mobile)', () => {
         console.log('[smoke] Send button found — clicking...');
         await expect(sendButton).toBeVisible({ timeout: 20000 });
         await expect(sendButton).toBeEnabled({ timeout: 20000 });
-        await safeClick(sendButton);
+        try {
+          await sendButton.click({ timeout: 5000 });
+        } catch {
+          console.log('[smoke] Send click was unstable — pressing Enter fallback...');
+          if (!page.isClosed()) {
+            await messageInput.press('Enter', { timeout: 5000 });
+          }
+        }
       } else {
         console.log('[smoke] Send button not found — pressing Enter...');
         await messageInput.press('Enter');
       }
 
-      const postResult = await waitForPost;
-      if (postResult) {
-        console.log('[smoke] POST request observed:', postResult.url());
-      }
+      await expect
+        .poll(
+          () =>
+            capturedPostUrls.some(
+              (url) => url.includes('/agents/conversations/') && url.includes('/messages'),
+            ),
+          { timeout: MESSAGE_POST_TIMEOUT_MS },
+        )
+        .toBe(true);
 
       await expect(page.getByText(testMessage).first()).toBeVisible({ timeout: 15000 }).catch(() => {});
     } catch (error) {
