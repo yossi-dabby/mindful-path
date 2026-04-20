@@ -9,7 +9,7 @@ import AuthErrorBanner from '../components/utils/AuthErrorBanner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Loader2, Menu, Sparkles, ArrowLeft, Trash2, Paperclip, X, FileText } from 'lucide-react';
+import { Send, Loader2, Menu, Sparkles, ArrowLeft, Trash2, Paperclip, X, FileText, AlertCircle } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import {
   AlertDialog,
@@ -135,6 +135,12 @@ function addLangDirective(sessionContent, lang) {
   const name = LANG_FULL_NAMES[lang];
   if (!name) return sessionContent;
   return sessionContent + `\n[SESSION_LANGUAGE: ${lang}. Open and respond entirely in ${name} for this session. Do not use English.]`;
+}
+
+function formatAttachmentSize(bytes) {
+  if (!Number.isFinite(bytes) || bytes <= 0) return '';
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  return `${Math.max(1, Math.round(bytes / 1024))} KB`;
 }
 
 export default function Chat() {
@@ -1897,7 +1903,7 @@ export default function Chat() {
         <div className="bg-teal-50 text-teal-600 pr-4 pl-2 rounded-2xl md:px-6 md:pt-3 md:pb-3 relative border-t border-border/70 backdrop-blur-xl shadow-[var(--shadow-md)]" style={{
             zIndex: 50
           }}>
-          <div className="text-teal-600 mx-auto max-w-4xl flex gap-2">
+          <div className="text-teal-600 mx-auto max-w-4xl flex items-end gap-2 md:gap-3">
             {variantProfileBlocked ?
               <div className="flex-1 flex flex-col gap-3">
                 <div className="rounded-[var(--radius-card)] border border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
@@ -1924,30 +1930,34 @@ export default function Chat() {
                   variant="outline"
                   onClick={() => attachmentInputRef.current?.click()}
                   disabled={isLoading}
-                  className="min-h-[44px] md:min-h-0 h-[48px] px-3 flex-shrink-0"
+                  className="min-h-[44px] h-[48px] min-w-[44px] px-3 flex-shrink-0 inline-flex items-center gap-2"
                   aria-label={t('chat.attachments.attach_button_aria')}>
                   <Paperclip className="w-5 h-5" />
+                  <span className="hidden sm:inline text-xs font-medium">{t('chat.attachments.attach_button_aria')}</span>
                 </Button>
 
                 <div className="flex-1 flex flex-col gap-2">
                   {selectedAttachment &&
-                  <div className="bg-[hsl(var(--surface-nested)/0.9)] border border-input/80 rounded-[var(--radius-card)] p-2 flex items-center justify-between gap-2">
-                      <div className="min-w-0 flex items-center gap-2">
+                  <div className="bg-[hsl(var(--surface-nested)/0.9)] border border-input/80 rounded-[var(--radius-card)] p-2.5 flex items-center justify-between gap-3">
+                      <div className="min-w-0 flex items-center gap-3">
                         {selectedAttachment.type === 'image' && selectedAttachment.previewUrl ?
                         <img
                           src={selectedAttachment.previewUrl}
                           alt={t('chat.attachments.image_preview_alt')}
-                          className="w-10 h-10 rounded object-cover shrink-0" /> :
+                          className="w-11 h-11 rounded object-cover shrink-0" /> :
 
-                        <FileText className="w-4 h-4 shrink-0" />
+                        <FileText className="w-5 h-5 shrink-0" />
                         }
-                        <span className="text-xs text-foreground truncate">{selectedAttachment.name}</span>
+                        <div className="min-w-0">
+                          <p className="text-xs text-foreground truncate font-medium" title={selectedAttachment.name}>{selectedAttachment.name}</p>
+                          <p className="text-[11px] text-muted-foreground">{formatAttachmentSize(selectedAttachment.size)}</p>
+                        </div>
                       </div>
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 shrink-0"
+                        className="h-10 w-10 min-h-[44px] min-w-[44px] shrink-0"
                         onClick={removeSelectedAttachment}
                         aria-label={t('chat.attachments.remove_button_aria')}>
                         <X className="w-4 h-4" />
@@ -1962,7 +1972,10 @@ export default function Chat() {
                     data-testid="therapist-chat-input"
                     disabled={isLoading} />
                   {attachmentError &&
-                  <p className="text-xs text-destructive">{attachmentError}</p>
+                  <div role="alert" aria-live="polite" className="rounded-[var(--radius-nested)] border border-destructive/35 bg-destructive/10 px-2.5 py-2 text-xs text-destructive flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                      <p>{attachmentError}</p>
+                    </div>
                   }
                 </div>
 
@@ -1970,7 +1983,7 @@ export default function Chat() {
                   onClick={handleSendMessage}
                   disabled={(!inputMessage.trim() && !selectedAttachment) || isLoading}
                   data-testid="therapist-chat-send" className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 h-[48px] flex-shrink-0">
-                  <Send className="w-5 h-5" />
+                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                 </Button>
               </>
               }
