@@ -9,7 +9,7 @@ import AuthErrorBanner from '../components/utils/AuthErrorBanner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Loader2, Menu, Sparkles, ArrowLeft, Trash2, Paperclip, X, FileText, AlertCircle } from 'lucide-react';
+import { Send, Loader2, Menu, Sparkles, ArrowLeft, Trash2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import {
   AlertDialog,
@@ -22,7 +22,6 @@ import {
   AlertDialogTitle } from
 '@/components/ui/alert-dialog';
 import MessageBubble from '../components/chat/MessageBubble';
-import MessageList from '../components/chat/MessageList';
 import ConversationsList from '../components/chat/ConversationsList';
 import SessionSummary from '../components/chat/SessionSummary';
 import ProactiveCheckIn from '../components/chat/ProactiveCheckIn';
@@ -36,7 +35,7 @@ import { detectCrisisWithReason } from '../components/utils/crisisDetector';
 import AgeGateModal from '../components/utils/AgeGateModal';
 import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
-import { validateAgentOutput, sanitizeConversationMessages, parseCounters, serializeAttachmentMetadataMarker } from '../components/utils/validateAgentOutput.jsx';
+import { validateAgentOutput, sanitizeConversationMessages, parseCounters } from '../components/utils/validateAgentOutput.jsx';
 import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
 import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildV8SessionStartContentAsync, buildV9SessionStartContentAsync, buildV10SessionStartContentAsync, buildV11SessionStartContentAsync, buildV12SessionStartContentAsync, buildActionFirstDemotedSessionContentAsync, buildRuntimeSafetySupplement } from '@/lib/workflowContextInjector.js';
 // Phase 4 / Phase 5 — Conversation memory write for V7 continuity
@@ -48,7 +47,6 @@ import SessionPhaseIndicator from '../components/therapy/SessionPhaseIndicator';
 import SafetyModeIndicator from '../components/therapy/SafetyModeIndicator';
 // Phase 3 Deep Personalization — Session continuity cue (flag-gated; hidden in default mode)
 import SessionContinuityCue from '../components/therapy/SessionContinuityCue';
-import { emitStabilitySummary as _emitStability, printFinalStabilityReport as _printReport } from '../lib/chatStabilityReport.js';
 
 // ─── MF-7: Legacy variant-profile agent names — historical conversations under
 // these names must NOT receive new messages. Empty clinical stubs; fail-closed.
@@ -70,89 +68,6 @@ const LANG_FULL_NAMES = {
   pt: 'Portuguese'
 };
 
-const CHAT_ATTACHMENT_ACCEPT = '.jpg,.jpeg,.png,.pdf';
-const CHAT_ATTACHMENT_MAX_SIZE_BYTES = 5 * 1024 * 1024;
-const CHAT_ATTACHMENT_ALLOWED_TYPES = new Set(['image/jpeg', 'image/jpg', 'image/png', 'application/pdf']);
-const CHAT_ATTACHMENT_ALLOWED_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'pdf']);
-const PDF_ATTACHMENT_MAIN_CHAT_INSTRUCTION = [
-  'The user uploaded a PDF.',
-  'Read the extracted text below and answer the user\'s file question directly (for example: "what does this document say?").',
-  'Keep main chat concise and conversational: brief acknowledgement + short grounded summary (max 2–4 bullets or up to 3 short sentences).',
-  'Do not dump or paste raw extracted text.',
-  'If extraction is partial, unclear, or low-confidence, say that clearly and avoid certainty.',
-  'Ask at most one short follow-up only when it helps the user take a next step.',
-].join(' ');
-const IMAGE_ATTACHMENT_CONTEXT_INSTRUCTION = [
-  'The user uploaded an image.',
-  'Briefly acknowledge it and answer the user\'s image question directly (for example: "what do you see?").',
-  'Describe only details grounded in what is actually visible.',
-  'Do not guess or overclaim unseen details.',
-  'If visibility is limited or unclear, say so clearly.',
-  'Keep the response short and conversational, and ask at most one short follow-up only when helpful.',
-].join(' ');
-const PDF_ATTACHMENT_CONTEXT_INSTRUCTION = [
-  'The user uploaded a PDF.',
-  'Read the document from this URL and answer the user\'s document question directly (for example: "what does this document say?").',
-  'Keep main chat concise with a short grounded summary only.',
-  'Do not dump raw extracted text.',
-  'If the document is unclear, partial, or low-confidence, state that clearly and avoid certainty.',
-  'Ask at most one short follow-up only when helpful.',
-].join(' ');
-
-function resolveAttachmentType(file) {
-  const mimeType = String(file?.type || '').toLowerCase();
-  if (mimeType === 'application/pdf') {
-    return { type: 'pdf', mimeType: mimeType || 'application/pdf' };
-  }
-  if (mimeType === 'image/jpeg' || mimeType === 'image/jpg' || mimeType === 'image/png') {
-    return { type: 'image', mimeType };
-  }
-
-  const fileName = String(file?.name || '').toLowerCase();
-  const extension = fileName.includes('.') ? fileName.split('.').pop() : '';
-  if (!CHAT_ATTACHMENT_ALLOWED_EXTENSIONS.has(extension)) {
-    return null;
-  }
-  if (extension === 'pdf') {
-    return { type: 'pdf', mimeType: mimeType || 'application/pdf' };
-  }
-  return { type: 'image', mimeType: mimeType || `image/${extension === 'jpg' ? 'jpeg' : extension}` };
-}
-
-function hasUserAttachment(message) {
-  if (!message || message.role !== 'user') return false;
-  const attachment = message.metadata?.attachment && typeof message.metadata.attachment === 'object' ?
-  message.metadata.attachment :
-  message.attachment && typeof message.attachment === 'object' ?
-  message.attachment :
-  null;
-  return !!attachment;
-}
-
-function buildAttachmentContextFromMetadata(metadata, pdfExtractedText) {
-  const attachment = metadata?.attachment && typeof metadata.attachment === 'object' ? metadata.attachment : null;
-  const attachmentUrl = typeof attachment?.url === 'string' && attachment.url.trim() ? attachment.url.trim() : null;
-  if (!attachmentUrl) return '';
-  const attachmentType = attachment?.type === 'pdf' ? 'pdf' : 'image';
-  const attachmentName = typeof attachment?.name === 'string' && attachment.name.trim() ? attachment.name.trim() : null;
-  if (attachmentType === 'pdf' && pdfExtractedText) {
-    const lines = ['[ATTACHMENT_CONTEXT]', 'type: pdf'];
-    if (attachmentName) lines.push(`name: ${attachmentName}`);
-    lines.push(
-      `url: ${attachmentUrl}`,
-      `instruction: ${PDF_ATTACHMENT_MAIN_CHAT_INSTRUCTION}`,
-      `extracted_text:\n${pdfExtractedText}`
-    );
-    return lines.join('\n');
-  }
-  const instruction = attachmentType === 'image' ?
-    `instruction: ${IMAGE_ATTACHMENT_CONTEXT_INSTRUCTION}` :
-    `instruction: ${PDF_ATTACHMENT_CONTEXT_INSTRUCTION}`;
-  const lines = ['[ATTACHMENT_CONTEXT]', `type: ${attachmentType}`, `url: ${attachmentUrl}`, instruction];
-  if (attachmentName) lines.splice(2, 0, `name: ${attachmentName}`);
-  return lines.join('\n');
-}
-
 /**
  * Appends a language directive to a session-start content string.
  * When the language is English (or unknown), returns the content unchanged.
@@ -164,22 +79,7 @@ function addLangDirective(sessionContent, lang) {
   return sessionContent + `\n[SESSION_LANGUAGE: ${lang}. Open and respond entirely in ${name} for this session. Do not use English.]`;
 }
 
-function formatAttachmentSize(bytes) {
-  if (!Number.isFinite(bytes) || bytes <= 0) return '';
-  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  return `${Math.max(1, Math.round(bytes / 1024))} KB`;
-}
-
 export default function Chat() {
-  /**
-   * Stage 1 runtime-path lock:
-   * This component is the active therapist chat runtime for route "Chat" (/Chat).
-   * Future therapist-chat feature work should start here, then follow:
-   * - composer/input: this file (Textarea + handleSendMessage)
-   * - send flow + persistence: this file (base44.agents.* calls)
-   * - message list render: components/chat/MessageList.jsx
-   * - message bubble render: components/chat/MessageBubble.jsx
-   */
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -188,8 +88,6 @@ export default function Chat() {
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
-  const [selectedAttachment, setSelectedAttachment] = useState(null);
-  const [attachmentError, setAttachmentError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [showSummaryPrompt, setShowSummaryPrompt] = useState(false);
@@ -215,8 +113,6 @@ export default function Chat() {
   const sessionLanguageRef = useRef(i18n.language || 'en');
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
-  const attachmentInputRef = useRef(null);
-  const selectedAttachmentRef = useRef(null);
   const [visibleCount, setVisibleCount] = useState(50);
   const subscriptionActiveRef = useRef(false);
   const loadingTimeoutRef = useRef(null);
@@ -232,7 +128,24 @@ export default function Chat() {
   const subscriptionSucceededRef = useRef(false);
 
   // INSTRUMENTATION: Track hard render gate enforcement + send cycle proof
-  const instrumentationRef = useRef({ SEND_COUNT: 0, WEB_SENDS_PASS: 0, MOBILE_SENDS_PASS: 0, HARD_GATE_BLOCKED_OBJECT: 0, HARD_GATE_BLOCKED_JSON_STRING: 0, HARD_GATE_FALSE_POSITIVE_PREVENTED: 0, REFETCH_TRIGGERED: 0, DUPLICATE_BLOCKED: 0, DUPLICATE_OCCURRED: 0, PLACEHOLDER_RENDERED: 0, PLACEHOLDER_BECAME_MESSAGE: 0, THINKING_OVER_10S: 0, UI_FLASHES_DETECTED: 0, SAFE_UPDATES: 0, TOTAL_MESSAGES_PROCESSED: 0, STUCK_THINKING_TIMEOUTS: 0 });
+  const instrumentationRef = useRef({
+    SEND_COUNT: 0,
+    WEB_SENDS_PASS: 0,
+    MOBILE_SENDS_PASS: 0,
+    HARD_GATE_BLOCKED_OBJECT: 0,
+    HARD_GATE_BLOCKED_JSON_STRING: 0,
+    HARD_GATE_FALSE_POSITIVE_PREVENTED: 0,
+    REFETCH_TRIGGERED: 0,
+    DUPLICATE_BLOCKED: 0,
+    DUPLICATE_OCCURRED: 0,
+    PLACEHOLDER_RENDERED: 0,
+    PLACEHOLDER_BECAME_MESSAGE: 0,
+    THINKING_OVER_10S: 0,
+    UI_FLASHES_DETECTED: 0,
+    SAFE_UPDATES: 0,
+    TOTAL_MESSAGES_PROCESSED: 0,
+    STUCK_THINKING_TIMEOUTS: 0
+  });
 
   const refetchDebounceRef = useRef(null);
   const mountedRef = useRef(true);
@@ -251,16 +164,6 @@ export default function Chat() {
     setVariantProfileBlocked(false); // MF-7: reset block state whenever conversation switches
   }, [currentConversationId]);
 
-  useEffect(() => {
-    selectedAttachmentRef.current = selectedAttachment;
-  }, [selectedAttachment]);
-
-  useEffect(() => () => {
-    if (selectedAttachmentRef.current?.previewUrl) {
-      URL.revokeObjectURL(selectedAttachmentRef.current.previewUrl);
-    }
-  }, []);
-
   // Load more messages when user scrolls to top
   const handleMessagesScroll = (e) => {
     const el = e.currentTarget;
@@ -278,71 +181,52 @@ export default function Chat() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const removeSelectedAttachment = () => {
-    if (selectedAttachment?.previewUrl) {
-      URL.revokeObjectURL(selectedAttachment.previewUrl);
-    }
-    setSelectedAttachment(null);
-    setAttachmentError('');
-    if (attachmentInputRef.current) {
-      attachmentInputRef.current.value = '';
-    }
+  // Emit mandatory one-line stability proof after each send cycle
+  const emitStabilitySummary = () => {
+    const counters = instrumentationRef.current;
+    console.log(
+      `FINAL STABILITY SUMMARY | send=${counters.SEND_COUNT} | ` +
+      `parse_failed=${parseCounters.PARSE_FAILED} | ` +
+      `dup_occurred=${counters.DUPLICATE_OCCURRED} | ` +
+      `placeholder_became_msg=${counters.PLACEHOLDER_BECAME_MESSAGE} | ` +
+      `thinking_over_10s=${counters.THINKING_OVER_10S}`
+    );
   };
 
-  const handleAttachmentChange = (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  // Print final stability report
+  const printFinalStabilityReport = () => {
+    const counters = instrumentationRef.current;
+    const parseErrors = parseCounters.PARSE_FAILED;
+    const duplicates = counters.DUPLICATE_OCCURRED;
+    const placeholderIssues = counters.PLACEHOLDER_BECAME_MESSAGE;
+    const thinkingIssues = counters.THINKING_OVER_10S;
 
-    setAttachmentError('');
-    const resolvedAttachment = resolveAttachmentType(file);
-
-    if (!resolvedAttachment || (file.type && !CHAT_ATTACHMENT_ALLOWED_TYPES.has(file.type.toLowerCase()) && !CHAT_ATTACHMENT_ALLOWED_EXTENSIONS.has(file.name?.split('.').pop()?.toLowerCase()))) {
-      if (selectedAttachment?.previewUrl) {
-        URL.revokeObjectURL(selectedAttachment.previewUrl);
-      }
-      setSelectedAttachment(null);
-      setAttachmentError(t('chat.attachments.invalid_type'));
-      event.target.value = '';
-      return;
-    }
-
-    if (file.size > CHAT_ATTACHMENT_MAX_SIZE_BYTES) {
-      if (selectedAttachment?.previewUrl) {
-        URL.revokeObjectURL(selectedAttachment.previewUrl);
-      }
-      setSelectedAttachment(null);
-      setAttachmentError(t('chat.attachments.max_size_error', { sizeMB: 5 }));
-      event.target.value = '';
-      return;
-    }
-
-    if (selectedAttachment?.previewUrl) {
-      URL.revokeObjectURL(selectedAttachment.previewUrl);
-    }
-
-    setSelectedAttachment({
-      file,
-      type: resolvedAttachment.type,
-      mimeType: resolvedAttachment.mimeType,
-      name: file.name,
-      size: file.size,
-      previewUrl: resolvedAttachment.type === 'image' ? URL.createObjectURL(file) : null
-    });
-
-    event.target.value = '';
+    console.log('\n═══════════════════════════════════════════════════');
+    console.log('[CHAT STABILITY REPORT]');
+    console.log('═══════════════════════════════════════════════════');
+    console.log(`Web sends: ${counters.WEB_SENDS_PASS}/30 ${counters.WEB_SENDS_PASS >= 30 ? 'PASS' : 'FAIL'}`);
+    console.log(`Mobile sends: ${counters.MOBILE_SENDS_PASS}/15 ${counters.MOBILE_SENDS_PASS >= 15 ? 'PASS' : 'FAIL'}`);
+    console.log(`UI flashes detected: ${counters.UI_FLASHES_DETECTED === 0 ? 'PASS' : 'FAIL'}`);
+    console.log(`Parse errors: ${parseErrors === 0 ? 'PASS' : 'FAIL'} (${parseErrors})`);
+    console.log(`Duplicates occurred: ${duplicates === 0 ? 'PASS' : 'FAIL'} (${duplicates})`);
+    console.log(`Placeholder became message: ${placeholderIssues === 0 ? 'PASS' : 'FAIL'} (${placeholderIssues})`);
+    console.log(`Thinking >10s: ${thinkingIssues === 0 ? 'PASS' : 'FAIL'} (${thinkingIssues})`);
+    console.log('───────────────────────────────────────────────────');
+    console.log('Summary counters:');
+    console.log(`  PARSE_ATTEMPTS: ${parseCounters.PARSE_ATTEMPTS}`);
+    console.log(`  PARSE_SKIPPED_NOT_JSON: ${parseCounters.PARSE_SKIPPED_NOT_JSON}`);
+    console.log(`  SANITIZE_EXTRACT_OK: ${parseCounters.SANITIZE_EXTRACT_OK}`);
+    console.log(`  HARD_GATE_BLOCKED_OBJECT: ${counters.HARD_GATE_BLOCKED_OBJECT}`);
+    console.log(`  HARD_GATE_BLOCKED_JSON_STRING: ${counters.HARD_GATE_BLOCKED_JSON_STRING}`);
+    console.log(`  HARD_GATE_FALSE_POSITIVE_PREVENTED: ${counters.HARD_GATE_FALSE_POSITIVE_PREVENTED}`);
+    console.log(`  REFETCH_TRIGGERED: ${counters.REFETCH_TRIGGERED}`);
+    console.log(`  DUPLICATE_BLOCKED: ${counters.DUPLICATE_BLOCKED}`);
+    console.log('═══════════════════════════════════════════════════\n');
   };
-
-  const emitStabilitySummary = () => _emitStability(instrumentationRef, parseCounters);
-  const printFinalStabilityReport = () => _printReport(instrumentationRef, parseCounters);
 
   // CRITICAL: HARD RENDER GATE - validate message is 100% render-safe (NO FALSE POSITIVES)
   const isMessageRenderSafe = (msg) => {
-    if (!msg || !msg.role) {
-      return false;
-    }
-
-    const hasAttachment = hasUserAttachment(msg);
-    if (!msg.content && !hasAttachment) {
+    if (!msg || !msg.role || !msg.content) {
       return false;
     }
 
@@ -570,7 +454,6 @@ export default function Chat() {
 
         try {
           console.log(`[Intent Detected] ${intentParam}`);
-          removeSelectedAttachment();
 
           if (!currentConversationId) {
             // No active conversation - start new one with intent in metadata
@@ -837,8 +720,6 @@ export default function Chat() {
           }).
           filter((msg) => msg !== null);
 
-          processedMessages = sanitizeConversationMessages(processedMessages);
-
           // CRITICAL: Safe update with validation + deduplication
           const updated = safeUpdateMessages(processedMessages, 'Subscription');
 
@@ -1002,7 +883,6 @@ export default function Chat() {
 
   const startNewConversationWithIntent = async (intentParam) => {
     try {
-      removeSelectedAttachment();
       // Phase 5 — Fire a non-blocking memory write for the conversation the user
       // is leaving before starting a new one. Capture current id/meta/messages
       // synchronously so values are stable. Inert when flags are off or messages
@@ -1085,9 +965,6 @@ export default function Chat() {
 
   const loadConversation = async (conversationId) => {
     try {
-      if (conversationId !== currentConversationId) {
-        removeSelectedAttachment();
-      }
       // Phase 5 — Fire a non-blocking memory write for the conversation the user
       // is switching AWAY from before loading the new one. Capture the current
       // id/meta/messages synchronously (before any state updates) so the correct
@@ -1130,10 +1007,7 @@ export default function Chat() {
   };
 
   const handleSendMessage = async () => {
-    const hasTextInput = !!inputMessage.trim();
-    const hasAttachmentInput = !!selectedAttachment?.file;
-
-    if (!hasTextInput && !hasAttachmentInput) {
+    if (!inputMessage.trim()) {
       console.log('[Send] ❌ Blocked - empty message');
       return;
     }
@@ -1153,7 +1027,7 @@ export default function Chat() {
     expectedReplyCountRef.current = messages.length + 2; // user message + assistant reply
 
     // Layer 1: Regex-based crisis detection (fast, explicit patterns)
-    const reasonCode = hasTextInput ? detectCrisisWithReason(inputMessage) : null;
+    const reasonCode = detectCrisisWithReason(inputMessage);
     if (reasonCode) {
       setShowRiskPanel(true);
       setInputMessage('');
@@ -1163,7 +1037,6 @@ export default function Chat() {
 
     // Layer 2: LLM-based crisis detection (nuanced, implicit patterns)
     try {
-      if (hasTextInput) {
       const user = await base44.auth.me().catch(() => null);
       let enhancedCheck = { data: { is_crisis: false, severity: 'none', confidence: 0 } };
       try {
@@ -1199,18 +1072,15 @@ export default function Chat() {
         }
         return;
       }
-      }
     } catch (error) {
       console.warn('[Enhanced Crisis Detection] Failed, continuing with message:', error);
       // Non-blocking: if enhanced detection fails, continue with message send
     }
 
     const messageText = inputMessage;
-    const pendingAttachment = selectedAttachment;
     setInputMessage('');
     setShowSummaryPrompt(false);
     setIsLoading(true);
-    setAttachmentError('');
 
     // Phase 7.1 — Explicit safety layer precedence (documented and enforced):
     //   Layer 1 (regex crisis detector)  → HARD_STOP, already returned above if triggered
@@ -1223,12 +1093,11 @@ export default function Chat() {
 
     // Phase 7.1 Layer 3: Per-turn safety mode supplement (V5 wiring only, flag-gated).
     // Returns null for default HYBRID wiring — no change to default behavior.
-    const runtimeSupplement = hasTextInput ? buildRuntimeSafetySupplement(
+    const runtimeSupplement = buildRuntimeSafetySupplement(
       ACTIVE_CBT_THERAPIST_WIRING,
       messageText,
       i18n?.language ?? 'en'
-    ) :
-    null;
+    );
     // Phase 8: track safety mode activation for the upgraded UI indicator.
     // Once triggered, the indicator persists for the rest of the session.
     if (runtimeSupplement !== null) {
@@ -1304,102 +1173,116 @@ export default function Chat() {
         messageContent = sessionStartContent + '\n\n' + messageContent;
       }
 
-      let uploadedAttachment = null;
-      if (pendingAttachment?.file) {
-        try {
-          // Read file as base64 and send as JSON (base44.functions.invoke uses JSON transport)
-          const arrayBuffer = await pendingAttachment.file.arrayBuffer();
-          const bytes = new Uint8Array(arrayBuffer);
-          let binary = '';
-          for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-          const file_base64 = btoa(binary);
-          const uploadResp = await base44.functions.invoke('uploadAttachment', {
-            file_base64,
-            file_name: pendingAttachment.name,
-            file_type: pendingAttachment.mimeType,
-          });
-          const { file_url } = uploadResp.data;
-          uploadedAttachment = {
-            type: pendingAttachment.type,
-            url: file_url,
-            name: pendingAttachment.name,
-            size: pendingAttachment.size
-          };
-          removeSelectedAttachment();
-        } catch (uploadError) {
-          console.error('[Send] ❌ Attachment upload failed:', uploadError?.message || 'unknown upload error');
-          setAttachmentError(t('chat.attachments.upload_failed'));
-          setInputMessage(messageText);
-          setIsLoading(false);
-          if (loadingTimeoutRef.current) {
-            clearTimeout(loadingTimeoutRef.current);
-            loadingTimeoutRef.current = null;
-          }
-          return;
-        }
-      }
-
-      let outboundMetadata = undefined;
-      let pdfExtractedText = null;
-      if (uploadedAttachment) {
-        const attachmentOwner = await base44.auth.me().catch(() => null);
-        const createdByEmail = typeof attachmentOwner?.email === 'string' && attachmentOwner.email.trim() ? attachmentOwner.email.trim() : 'email_unavailable';
-        outboundMetadata = { attachment: uploadedAttachment, created_date: new Date().toISOString(), created_by_email: createdByEmail };
-        if (uploadedAttachment.type === 'pdf') {
-          try {
-            const r = await base44.functions.invoke('extractPdfText', { file_url: uploadedAttachment.url });
-            if (r?.data?.success && r.data.text) {
-              pdfExtractedText = r.data.text;
-              outboundMetadata.pdf_extracted_text = pdfExtractedText;
-              if (r.data.page_count) outboundMetadata.pdf_page_count = r.data.page_count;
-            } else console.warn('[Send] PDF extraction returned no text:', r?.data?.error);
-          } catch (e) { console.warn('[Send] PDF extraction failed (non-blocking):', e?.message); }
-        }
-      }
-      const attachmentContextBlock = outboundMetadata ? buildAttachmentContextFromMetadata(outboundMetadata, pdfExtractedText) : '';
-      const attachmentMarker = outboundMetadata?.attachment ? serializeAttachmentMetadataMarker(outboundMetadata.attachment) : '';
-      const outboundMessageContent = [messageContent, attachmentContextBlock, attachmentMarker].filter(Boolean).join('\n');
-
       await base44.agents.addMessage(conversation, {
         role: 'user',
-        content: outboundMessageContent,
-        metadata: outboundMetadata
+        content: messageContent
       });
 
       console.log('[Send] ✅ Message sent - starting authoritative polling');
+
+      // CRITICAL: Start authoritative polling with exponential backoff
+      // This ensures we get the reply even if subscription fails
       let pollAttempts = 0;
       const maxPollAttempts = 5;
-      const pollDelays = [500, 1000, 2000, 4000, 8000];
+      const pollDelays = [500, 1000, 2000, 4000, 8000]; // Exponential backoff
+
       const pollWithBackoff = (attemptIndex) => {
         const delay = pollDelays[Math.min(attemptIndex, pollDelays.length - 1)];
+
         pollingIntervalRef.current = setTimeout(async () => {
           pollAttempts++;
+          console.log(`[Polling] Attempt ${pollAttempts}/${maxPollAttempts} (delay: ${delay}ms, hidden: ${document.hidden})`);
+
           try {
             const updatedConv = await base44.agents.getConversation(convId);
             const sanitized = sanitizeConversationMessages(updatedConv.messages || []);
+
+            console.log(`[Polling] Retrieved ${sanitized.length} messages, expected ${expectedReplyCountRef.current}`);
+
+            // Check if we have the expected reply
             if (sanitized.length >= expectedReplyCountRef.current) {
-              const updated = subscriptionSucceededRef.current ? false : safeUpdateMessages(sanitized, 'Polling');
-              if (updated) emitStabilitySummary();
+              console.log('[Polling] ✅ Reply found - stopping polling');
+
+              // CRITICAL: Safe update with validation
+              // Skip overwrite if subscription already confirmed content — polling
+              // snapshot can be shorter than the streamed response and must not win.
+              const updated = subscriptionSucceededRef.current ?
+              false :
+              safeUpdateMessages(sanitized, 'Polling');
+              if (subscriptionSucceededRef.current) {
+                console.log('[Polling] ⏭️ Skipping overwrite — subscription already confirmed content');
+              }
+
+              // emitStabilitySummary is intentionally inside `if (updated)`: it
+              // reports a SUCCESSFUL message delivery cycle and should only fire
+              // when the state was actually updated (i.e., new content reached the
+              // UI).  If the update was rejected (safeUpdateMessages returned false),
+              // there is nothing meaningful to report for this cycle.
+              if (updated) {
+                emitStabilitySummary();
+              }
+
+              // Phase 2 fix: always clear loading when polling confirms enough messages
+              // exist, even if safeUpdateMessages rejected the update (e.g. because a
+              // JSON-shaped agent reply was blocked by the hard render gate and the
+              // refetch already advanced lastConfirmedMessagesRef).  Without this guard
+              // the loading timeout is cleared below while isLoading stays true, causing
+              // a perpetual stall until the 60-second subscription timeout fires.
+              //
+              // setIsLoading(false) is intentionally OUTSIDE `if (updated)`: clearing
+              // the loading spinner is a UX concern, not a data-integrity concern.
+              // The server has confirmed enough messages exist — the user's message was
+              // received and the agent responded.  We must unblock the input regardless
+              // of whether the reply could be rendered (it may be retried or shown later).
               setIsLoading(false);
-              if (pollingIntervalRef.current) { clearTimeout(pollingIntervalRef.current); pollingIntervalRef.current = null; }
-              if (loadingTimeoutRef.current) { clearTimeout(loadingTimeoutRef.current); loadingTimeoutRef.current = null; }
+
+              if (pollingIntervalRef.current) {
+                clearTimeout(pollingIntervalRef.current);
+                pollingIntervalRef.current = null;
+              }
+              if (loadingTimeoutRef.current) {
+                clearTimeout(loadingTimeoutRef.current);
+                loadingTimeoutRef.current = null;
+              }
             } else if (pollAttempts >= maxPollAttempts) {
+              console.error('[Polling] ⏱️ Timeout - no reply after max attempts');
               instrumentationRef.current.STUCK_THINKING_TIMEOUTS++;
+
+              // CRITICAL: Safe update with validation
               safeUpdateMessages(sanitized, 'Polling-Timeout');
               setIsLoading(false);
               emitStabilitySummary();
-              if (pollingIntervalRef.current) { clearTimeout(pollingIntervalRef.current); pollingIntervalRef.current = null; }
-              if (loadingTimeoutRef.current) { clearTimeout(loadingTimeoutRef.current); loadingTimeoutRef.current = null; }
+
+              if (pollingIntervalRef.current) {
+                clearTimeout(pollingIntervalRef.current);
+                pollingIntervalRef.current = null;
+              }
+              if (loadingTimeoutRef.current) {
+                clearTimeout(loadingTimeoutRef.current);
+                loadingTimeoutRef.current = null;
+              }
             } else {
+              // Continue polling with next backoff delay
               pollWithBackoff(pollAttempts);
             }
           } catch (err) {
             console.error('[Polling] ❌ Error:', err);
-            if (pollAttempts >= maxPollAttempts) { instrumentationRef.current.THINKING_OVER_10S++; setIsLoading(false); emitStabilitySummary(); if (pollingIntervalRef.current) { clearTimeout(pollingIntervalRef.current); pollingIntervalRef.current = null; } }
-            else pollWithBackoff(pollAttempts);
+            if (pollAttempts >= maxPollAttempts) {
+              instrumentationRef.current.THINKING_OVER_10S++;
+              setIsLoading(false);
+              emitStabilitySummary();
+              if (pollingIntervalRef.current) {
+                clearTimeout(pollingIntervalRef.current);
+                pollingIntervalRef.current = null;
+              }
+            } else {
+              // Retry with next backoff delay
+              pollWithBackoff(pollAttempts);
+            }
           }
         }, delay);
       };
+
       pollWithBackoff(0);
     } catch (error) {
       console.error('[Send] ❌ SEND ERROR:', error);
@@ -1528,8 +1411,6 @@ export default function Chat() {
   const handleDeleteConversation = (conversationId) => {
     setPendingDeleteId(conversationId);
   };
-
-  const handleBulkDeleteConversations = async (ids) => { if (!ids?.length) return; queryClient.setQueryData(['conversations'], (old = []) => old.filter(c => !ids.includes(c.id))); if (ids.includes(currentConversationId)) { setCurrentConversationId(null); setMessages([]); lastConfirmedMessagesRef.current = []; } await Promise.all(ids.map(id => base44.entities.UserDeletedConversations.create({ agent_conversation_id: id, conversation_title: conversations.find(c => c.id === id)?.metadata?.name || 'Deleted Session' }).catch(() => {}))); refetchConversations(); };
 
   const handleCheckInComplete = async (checkinData) => {
     if (!currentConversationId) return;
@@ -1691,7 +1572,6 @@ export default function Chat() {
               onSelectConversation={loadConversation}
               onNewConversation={startNewConversation}
               onDeleteConversation={handleDeleteConversation}
-              onBulkDeleteConversations={handleBulkDeleteConversations}
               onClose={() => setShowSidebar(false)} />
 
         </ErrorBoundary>
@@ -1833,7 +1713,24 @@ export default function Chat() {
                     </button>
                   </div>
                 }
-                <MessageList messages={messages} visibleCount={visibleCount} conversationId={currentConversationId} sessionLanguage={sessionLanguageRef.current} />
+                {messages.slice(Math.max(0, messages.length - visibleCount)).filter((m) => m && m.role && m.content).map((message, index, arr) => {
+                  // For assistant messages, find the immediately preceding user message
+                  // to enable CP12-G post-learning compression in the governor.
+                  const prevUserMessage = message.role === 'assistant' ?
+                  arr[index - 1]?.role === 'user' ? arr[index - 1]?.content : undefined :
+                  undefined;
+                  return (
+                    <MessageBubble
+                      key={index}
+                      message={message}
+                      conversationId={currentConversationId}
+                      messageIndex={index}
+                      agentName="cbt_therapist"
+                      context="chat"
+                      userMessage={prevUserMessage}
+                      sessionLanguage={sessionLanguageRef.current} />);
+
+                })}
                 {isLoading && messages.length > 0 && (() => {
                   instrumentationRef.current.PLACEHOLDER_RENDERED++;
                   return (
@@ -1935,7 +1832,7 @@ export default function Chat() {
         <div className="bg-teal-50 text-teal-600 pr-4 pl-2 rounded-2xl md:px-6 md:pt-3 md:pb-3 relative border-t border-border/70 backdrop-blur-xl shadow-[var(--shadow-md)]" style={{
             zIndex: 50
           }}>
-          <div className="text-teal-600 mx-auto max-w-4xl flex items-end gap-2 md:gap-3">
+          <div className="text-teal-600 mx-auto max-w-4xl flex gap-2">
             {variantProfileBlocked ?
               <div className="flex-1 flex flex-col gap-3">
                 <div className="rounded-[var(--radius-card)] border border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
@@ -1949,73 +1846,22 @@ export default function Chat() {
               </div> :
 
               <>
-                <input
-                  ref={attachmentInputRef}
-                  type="file"
-                  accept={CHAT_ATTACHMENT_ACCEPT}
-                  onChange={handleAttachmentChange}
-                  className="hidden"
-                  aria-hidden="true" />
+                <Textarea
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder={t('chat.message_placeholder')} className="bg-[hsl(var(--surface-nested)/0.9)] text-foreground px-3 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-card)] flex w-full border border-input/90 shadow-[var(--shadow-sm)] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 flex-1 min-h-[48px] max-h-[160px] resize-none"
 
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => attachmentInputRef.current?.click()}
-                  disabled={isLoading}
-                  className="min-h-[44px] h-[48px] min-w-[44px] px-3 flex-shrink-0 inline-flex items-center gap-2"
-                  aria-label={t('chat.attachments.attach_button_aria')}>
-                  <Paperclip className="w-5 h-5" />
-                  <span className="hidden sm:inline text-xs font-medium">{t('chat.attachments.attach_button_label')}</span>
-                </Button>
-
-                <div className="flex-1 flex flex-col gap-2">
-                  {selectedAttachment &&
-                  <div className="bg-[hsl(var(--surface-nested)_/_0.9)] border border-input/80 rounded-[var(--radius-card)] p-2.5 flex items-center justify-between gap-3">
-                      <div className="min-w-0 flex items-center gap-3">
-                        {selectedAttachment.type === 'image' && selectedAttachment.previewUrl ?
-                        <img
-                          src={selectedAttachment.previewUrl}
-                          alt={t('chat.attachments.image_preview_alt')}
-                          className="w-11 h-11 rounded object-cover shrink-0" /> :
-
-                        <FileText className="w-5 h-5 shrink-0" />
-                        }
-                        <div className="min-w-0">
-                          <p className="text-xs text-foreground truncate font-medium" title={selectedAttachment.name}>{selectedAttachment.name}</p>
-                          <p className="text-xs text-muted-foreground">{formatAttachmentSize(selectedAttachment.size)}</p>
-                        </div>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="h-[44px] w-[44px] shrink-0"
-                        onClick={removeSelectedAttachment}
-                        aria-label={t('chat.attachments.remove_button_aria')}>
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  }
-                  <Textarea
-                    value={inputMessage}
-                    onChange={(e) => setInputMessage(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder={t('chat.message_placeholder')} className="bg-[hsl(var(--surface-nested)_/_0.9)] text-foreground px-3 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-card)] flex w-full border border-input/90 shadow-[var(--shadow-sm)] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 flex-1 min-h-[48px] max-h-[160px] resize-none"
-                    data-testid="therapist-chat-input"
-                    disabled={isLoading} />
-                  {attachmentError &&
-                  <div role="alert" aria-live="polite" className="rounded-[var(--radius-nested)] border border-destructive/35 bg-destructive/10 px-2.5 py-2 text-xs text-destructive flex items-start gap-2">
-                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                      <p>{attachmentError}</p>
-                    </div>
-                  }
-                </div>
+                  data-testid="therapist-chat-input"
+                  disabled={isLoading} />
 
                 <Button
                   onClick={handleSendMessage}
-                  disabled={(!inputMessage.trim() && !selectedAttachment) || isLoading}
+                  disabled={!inputMessage.trim() || isLoading}
                   data-testid="therapist-chat-send" className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 h-[48px] flex-shrink-0">
-                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+
+
+                  <Send className="w-5 h-5" />
                 </Button>
               </>
               }
