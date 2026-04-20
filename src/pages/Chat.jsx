@@ -1793,7 +1793,31 @@ export default function Chat() {
     setPendingDeleteId(conversationId);
   };
 
-  const handleBulkDeleteConversations = async (ids) => { if (!ids?.length) return; queryClient.setQueryData(['conversations'], (old = []) => old.filter(c => !ids.includes(c.id))); if (ids.includes(currentConversationId)) { setAttachedFile(null); clearLocalAudioDraft(); setCurrentConversationId(null); setMessages([]); lastConfirmedMessagesRef.current = []; } await Promise.all(ids.map(id => base44.entities.UserDeletedConversations.create({ agent_conversation_id: id, conversation_title: conversations.find(c => c.id === id)?.metadata?.name || 'Deleted Session' }).catch(() => {}))); refetchConversations(); };
+  const handleBulkDeleteConversations = async (ids) => {
+    if (!ids?.length) return;
+
+    queryClient.setQueryData(['conversations'], (old = []) =>
+      old.filter((c) => !ids.includes(c.id))
+    );
+
+    if (ids.includes(currentConversationId)) {
+      setAttachedFile(null);
+      clearLocalAudioDraft();
+      setCurrentConversationId(null);
+      setMessages([]);
+      lastConfirmedMessagesRef.current = [];
+    }
+
+    await Promise.all(
+      ids.map((id) =>
+        base44.entities.UserDeletedConversations.create({
+          agent_conversation_id: id,
+          conversation_title: conversations.find((c) => c.id === id)?.metadata?.name || 'Deleted Session'
+        }).catch(() => {})
+      )
+    );
+    refetchConversations();
+  };
   const handleCheckInComplete = async (checkinData) => {
     if (!currentConversationId) return;
 
