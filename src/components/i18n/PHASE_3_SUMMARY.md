@@ -43,7 +43,7 @@ See `I18N_GUIDELINES.md` for:
 ## 🎯 Next Steps
 
 ### For New Components
-1. Define keys in `en.json`
+1. Define keys in `src/components/i18n/translations.jsx`
 2. Add to all language files
 3. Use `t()` function
 4. Add `data-testid` to interactive elements
@@ -71,7 +71,7 @@ See `I18N_GUIDELINES.md` for:
 ## 🔧 Tools Available
 - Language Selector: Settings page
 - i18n config: `components/i18n/i18nConfig.js`
-- Translations: `components/i18n/translations/*.json`
+- Runtime translations: `src/components/i18n/translations.jsx`
 
 ## Support
 - Guidelines: `I18N_GUIDELINES.md`

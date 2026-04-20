@@ -2,6 +2,7 @@
 
 ## Overview
 This application supports multi-language functionality using `react-i18next`. All user-facing text must be externalized to translation files.
+Runtime source-of-truth is `src/components/i18n/translations.jsx` (via `i18nConfig.jsx`).
 
 ## Supported Languages
 - English (en) - Default
@@ -23,7 +24,8 @@ Use dot notation: `page.section.element`
 Examples: `settings.profile.title`, `exercises.categories.breathing`
 
 ### 3. Add Keys to ALL Language Files
-When adding to `en.json`, also add to: `he.json`, `es.json`, `fr.json`, `de.json`, `it.json`, `pt.json`
+When adding new keys, add them in all 7 language blocks in `translations.jsx`:
+`en`, `he`, `es`, `fr`, `de`, `it`, `pt`.
 
 ## Component Pattern
 ```jsx
@@ -50,6 +52,6 @@ Use `data-testid` instead of text selectors:
 - Modal triggers
 
 ## Resources
-- Translation files: `components/i18n/translations/`
+- Runtime translations: `src/components/i18n/translations.jsx`
 - Language selector: Settings page
 - RTL: Auto-applied for Hebrew
