@@ -559,6 +559,7 @@ export default function Chat() {
 
             setCurrentConversationId(conversation.id);
             setMessages([]);
+            clearLocalAudioDraft();
             setShowSidebar(false);
             // Lock session language at conversation start (separate from UI locale).
             sessionLanguageRef.current = i18n.language || 'en';
@@ -603,6 +604,7 @@ export default function Chat() {
 
             setCurrentConversationId(conversation.id);
             setMessages([]);
+            clearLocalAudioDraft();
             setShowSidebar(false);
             // Lock session language at conversation start (separate from UI locale).
             sessionLanguageRef.current = i18n.language || 'en';
@@ -1017,6 +1019,7 @@ export default function Chat() {
 
       setCurrentConversationId(conversation.id);
       setMessages([]);
+      clearLocalAudioDraft();
       lastConfirmedMessagesRef.current = []; // Reset baseline for new conversation
       setShowSidebar(false);
       setSafetyModeActive(false); // Phase 8: reset safety mode state on new session
@@ -1058,6 +1061,7 @@ export default function Chat() {
       const leavingId = currentConversationId;
       const leavingMeta = conversations?.find((c) => c.id === leavingId)?.metadata || {};
       maybeTriggerEndWrite(leavingId, leavingMeta, messages);
+      clearLocalAudioDraft();
 
       const conversation = await base44.agents.getConversation(conversationId);
       setCurrentConversationId(conversationId);
@@ -1159,6 +1163,11 @@ export default function Chat() {
 
         if (audioChunksRef.current.length === 0) {
           setAudioDraftStatus('idle');
+          toast({
+            title: 'No audio captured',
+            description: 'Please record again and make sure your microphone is picking up sound.',
+            variant: 'destructive'
+          });
           return;
         }
 
@@ -1466,6 +1475,11 @@ export default function Chat() {
           }
         } catch (err) {
           console.error('[Upload] File upload failed:', err);
+          toast({
+            title: 'File upload failed',
+            description: 'Please retry sending your attachment.',
+            variant: 'destructive'
+          });
         } finally {
           setIsUploadingFile(false);
           setAttachedFile(null);
@@ -1491,6 +1505,11 @@ export default function Chat() {
           }
         } catch (err) {
           console.error('[Upload] Audio draft upload failed:', err);
+          toast({
+            title: 'Audio upload failed',
+            description: 'Please retry sending or re-transcribing your voice draft.',
+            variant: 'destructive'
+          });
         } finally {
           setIsUploadingFile(false);
         }
@@ -1653,6 +1672,12 @@ export default function Chat() {
 
       if (isAuthError(error) && shouldShowAuthError()) {
         setShowAuthError(true);
+      } else {
+        toast({
+          title: 'Message send failed',
+          description: 'Please retry sending your message.',
+          variant: 'destructive'
+        });
       }
     }
   };
@@ -1738,6 +1763,7 @@ export default function Chat() {
       queryClient.setQueryData(['conversations'], (old = []) => old.filter((conversation) => conversation.id !== conversationId));
       if (currentConversationId === conversationId) {
         setAttachedFile(null);
+        clearLocalAudioDraft();
         setCurrentConversationId(null);
         setMessages([]);
         lastConfirmedMessagesRef.current = []; // Reset baseline when deleting active conversation
@@ -1767,7 +1793,7 @@ export default function Chat() {
     setPendingDeleteId(conversationId);
   };
 
-  const handleBulkDeleteConversations = async (ids) => { if (!ids?.length) return; queryClient.setQueryData(['conversations'], (old = []) => old.filter(c => !ids.includes(c.id))); if (ids.includes(currentConversationId)) { setAttachedFile(null); setCurrentConversationId(null); setMessages([]); lastConfirmedMessagesRef.current = []; } await Promise.all(ids.map(id => base44.entities.UserDeletedConversations.create({ agent_conversation_id: id, conversation_title: conversations.find(c => c.id === id)?.metadata?.name || 'Deleted Session' }).catch(() => {}))); refetchConversations(); };
+  const handleBulkDeleteConversations = async (ids) => { if (!ids?.length) return; queryClient.setQueryData(['conversations'], (old = []) => old.filter(c => !ids.includes(c.id))); if (ids.includes(currentConversationId)) { setAttachedFile(null); clearLocalAudioDraft(); setCurrentConversationId(null); setMessages([]); lastConfirmedMessagesRef.current = []; } await Promise.all(ids.map(id => base44.entities.UserDeletedConversations.create({ agent_conversation_id: id, conversation_title: conversations.find(c => c.id === id)?.metadata?.name || 'Deleted Session' }).catch(() => {}))); refetchConversations(); };
   const handleCheckInComplete = async (checkinData) => {
     if (!currentConversationId) return;
 
