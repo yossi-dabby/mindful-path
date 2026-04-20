@@ -34,7 +34,13 @@ function stripTrailingUrlPunctuation(rawUrl) {
 
 function normalizeAttachment(attachment) {
   if (!attachment || typeof attachment !== 'object') return null;
-  const type = attachment.type === 'image' || attachment.type === 'pdf' || attachment.type === 'file' ? attachment.type : null;
+  const type =
+    attachment.type === 'image' ||
+    attachment.type === 'pdf' ||
+    attachment.type === 'file' ||
+    attachment.type === 'audio'
+      ? attachment.type
+      : null;
   const url = typeof attachment.url === 'string' && attachment.url.trim() ? attachment.url.trim() : null;
   if (!type || !url) return null;
   const name = typeof attachment.name === 'string' && attachment.name.trim() ? attachment.name.trim() : undefined;
@@ -168,7 +174,8 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   const isImageAttachment = attachmentType === 'image' && !!attachmentUrl;
   const isPdfAttachment = attachmentType === 'pdf' && !!attachmentUrl;
   const isGenericFileAttachment = attachmentType === 'file' && !!attachmentUrl;
-  const hasRenderableAttachment = isImageAttachment || isPdfAttachment || isGenericFileAttachment;
+  const isAudioAttachment = attachmentType === 'audio' && !!attachmentUrl;
+  const hasRenderableAttachment = isImageAttachment || isPdfAttachment || isGenericFileAttachment || isAudioAttachment;
   if (!message.content && !hasRenderableAttachment) {
     return null;
   }
@@ -292,7 +299,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
 
             {isUser ?
           <>
-                {(isImageAttachment || isPdfAttachment) &&
+                {(isImageAttachment || isPdfAttachment || isAudioAttachment) &&
             <div className="mb-3">
                     {isImageAttachment &&
               <a href={attachmentUrl} target="_blank" rel="noopener noreferrer" className="inline-block">
@@ -313,6 +320,11 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                         <ExternalLink className="w-3.5 h-3.5 opacity-80" />
                       </a>
               }
+                    {isAudioAttachment &&
+              <div className="rounded-lg border border-primary-foreground/20 px-3 py-2">
+                        <audio controls preload="none" src={attachmentUrl} className="w-full max-w-[220px]" />
+                      </div>
+              }
                   </div>
             }
                 {content ?
@@ -332,6 +344,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                   const isAttachmentImage = assistantAttachment.type === 'image';
                   const isAttachmentPdf = assistantAttachment.type === 'pdf';
                   const isAttachmentFile = assistantAttachment.type === 'file';
+                  const isAttachmentAudio = assistantAttachment.type === 'audio';
                   const isThisPdfSigning = signingPdfUrl === assistantAttachment.url;
 
                   if (isAttachmentImage) {
@@ -374,6 +387,14 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                         <span className="max-w-[220px] truncate">{chipLabel}</span>
                         <ExternalLink className="w-3.5 h-3.5 opacity-80 flex-shrink-0" />
                       </a>
+                    );
+                  }
+
+                  if (isAttachmentAudio) {
+                    return (
+                      <div key={attachmentKey} className="rounded-lg border border-primary-foreground/20 px-3 py-2 my-1">
+                        <audio controls preload="none" src={assistantAttachment.url} className="w-full max-w-[220px]" />
+                      </div>
                     );
                   }
 

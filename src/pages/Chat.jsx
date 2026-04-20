@@ -68,6 +68,7 @@ const LANG_FULL_NAMES = {
   pt: 'Portuguese'
 };
 const IMAGE_ATTACHMENT_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg']);
+const AUDIO_ATTACHMENT_EXTENSIONS = new Set(['mp3', 'wav', 'ogg', 'm4a', 'aac', 'webm']);
 
 function hasUserAttachment(message) {
   if (!message || message.role !== 'user') return false;
@@ -94,6 +95,7 @@ function resolveAttachmentType(fileName) {
   const extension = typeof fileName === 'string' ? fileName.split('.').pop()?.toLowerCase() : '';
   if (IMAGE_ATTACHMENT_EXTENSIONS.has(extension)) return 'image';
   if (extension === 'pdf') return 'pdf';
+  if (AUDIO_ATTACHMENT_EXTENSIONS.has(extension)) return 'audio';
   return 'file';
 }
 
@@ -1266,7 +1268,8 @@ export default function Chat() {
   };
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() && !attachedFile) {
+    const attachmentToUpload = attachedFile || audioDraftFile;
+    if (!inputMessage.trim() && !attachmentToUpload) {
       console.log('[Send] ❌ Blocked - empty message');
       return;
     }
@@ -1435,18 +1438,20 @@ export default function Chat() {
       // Upload file attachment if present
       let attachmentMeta = undefined;
       let pdfAttachmentMetadata = {};
-      if (attachedFile) {
+      let usedAudioDraftAttachment = false;
+      if (attachmentToUpload) {
         setIsUploadingFile(true);
         try {
-          const { file_url } = await base44.integrations.Core.UploadFile({ file: attachedFile });
-          const type = resolveAttachmentType(attachedFile.name);
-          attachmentMeta = { type, url: file_url, name: attachedFile.name };
+          const { file_url } = await base44.integrations.Core.UploadFile({ file: attachmentToUpload });
+          const type = attachmentToUpload === audioDraftFile ? 'audio' : resolveAttachmentType(attachmentToUpload.name);
+          attachmentMeta = { type, url: file_url, name: attachmentToUpload.name };
+          usedAudioDraftAttachment = attachmentToUpload === audioDraftFile;
 
           if (type === 'pdf') {
             try {
               const extractionResult = await base44.functions.invoke('extractPdfText', {
                 file_url,
-                file_name: attachedFile.name
+                file_name: attachmentToUpload.name
               });
               const extractionData = extractionResult?.data || extractionResult || {};
               if (typeof extractionData.text === 'string' && extractionData.text.trim()) {
@@ -1519,6 +1524,9 @@ export default function Chat() {
           file_urls: [attachmentMeta.url]
         } : {})
       });
+      if (usedAudioDraftAttachment) {
+        clearLocalAudioDraft();
+      }
 
       if (shouldClearAudioDraftAfterSend) {
         clearLocalAudioDraft();
