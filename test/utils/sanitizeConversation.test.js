@@ -588,6 +588,18 @@ describe('attachment metadata marker helpers', () => {
       type: 'pdf',
       url: 'https://files.example.com/a.pdf',
     });
+
+    const fileMarker = serializeAttachmentMetadataMarker({
+      type: 'file',
+      url: 'https://files.example.com/notes.txt',
+      name: 'notes.txt',
+    });
+    const parsedFileMarker = JSON.parse(fileMarker.slice(ATTACHMENT_METADATA_MARKER_PREFIX.length));
+    expect(parsedFileMarker).toEqual({
+      type: 'file',
+      url: 'https://files.example.com/notes.txt',
+      name: 'notes.txt',
+    });
   });
 
   it('extractAttachmentMetadataFromUserContent handles non-string and no-marker inputs', () => {
