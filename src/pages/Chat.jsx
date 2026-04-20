@@ -35,7 +35,7 @@ import { detectCrisisWithReason } from '../components/utils/crisisDetector';
 import AgeGateModal from '../components/utils/AgeGateModal';
 import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
-import { validateAgentOutput, sanitizeConversationMessages, parseCounters } from '../components/utils/validateAgentOutput.jsx';
+import { validateAgentOutput, sanitizeConversationMessages, parseCounters, serializeAttachmentMetadataMarker } from '../components/utils/validateAgentOutput.jsx';
 import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
 import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildV8SessionStartContentAsync, buildV9SessionStartContentAsync, buildV10SessionStartContentAsync, buildV11SessionStartContentAsync, buildV12SessionStartContentAsync, buildActionFirstDemotedSessionContentAsync, buildRuntimeSafetySupplement } from '@/lib/workflowContextInjector.js';
 // Phase 4 / Phase 5 — Conversation memory write for V7 continuity
@@ -1220,10 +1220,17 @@ export default function Chat() {
         }
       }
 
+      // Embed attachment metadata as a serialized marker in content so it
+      // survives the round-trip (API rejects custom metadata fields).
+      // sanitizeConversationMessages() will parse the marker back out and
+      // restore it as metadata.attachment for the MessageBubble to display.
+      const marker = attachmentMeta ? '\n' + serializeAttachmentMetadataMarker(attachmentMeta) : '';
+      const finalContent = messageContent + marker;
+
       await base44.agents.addMessage(conversation, {
         role: 'user',
-        content: messageContent,
-        ...(attachmentMeta ? { metadata: { attachment: attachmentMeta } } : {})
+        content: finalContent,
+        ...(attachmentMeta ? { file_urls: [attachmentMeta.url] } : {})
       });
 
       console.log('[Send] ✅ Message sent - starting authoritative polling');
