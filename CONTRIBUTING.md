@@ -47,6 +47,7 @@ For the full safety rule set, see `docs/copilot-safety-rules.md`.
 
 ## Further Reading
 
+- `docs/base44-preview-only-reentry-guardrails.md` — Recovery Stage 4 guardrails (GitHub source-of-truth + Base44 preview-only)
 - `.github/copilot-instructions.md` — master Copilot instruction set
 - `docs/copilot-pr-workflow.md` — full PR and review workflow (including branch policy)
 - `docs/copilot-safety-rules.md` — safety rules quick reference
