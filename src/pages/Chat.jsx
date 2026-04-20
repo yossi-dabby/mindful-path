@@ -74,6 +74,30 @@ const CHAT_ATTACHMENT_ACCEPT = '.jpg,.jpeg,.png,.pdf';
 const CHAT_ATTACHMENT_MAX_SIZE_BYTES = 5 * 1024 * 1024;
 const CHAT_ATTACHMENT_ALLOWED_TYPES = new Set(['image/jpeg', 'image/jpg', 'image/png', 'application/pdf']);
 const CHAT_ATTACHMENT_ALLOWED_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'pdf']);
+const PDF_ATTACHMENT_MAIN_CHAT_INSTRUCTION = [
+  'The user uploaded a PDF.',
+  'Read the extracted text below and answer the user\'s file question directly (for example: "what does this document say?").',
+  'Keep main chat concise and conversational: brief acknowledgement + short grounded summary (max 2–4 bullets or up to 3 short sentences).',
+  'Do not dump or paste raw extracted text.',
+  'If extraction is partial, unclear, or low-confidence, say that clearly and avoid certainty.',
+  'Ask at most one short follow-up only when it helps the user take a next step.',
+].join(' ');
+const IMAGE_ATTACHMENT_CONTEXT_INSTRUCTION = [
+  'The user uploaded an image.',
+  'Briefly acknowledge it and answer the user\'s image question directly (for example: "what do you see?").',
+  'Describe only details grounded in what is actually visible.',
+  'Do not guess or overclaim unseen details.',
+  'If visibility is limited or unclear, say so clearly.',
+  'Keep the response short and conversational, and ask at most one short follow-up only when helpful.',
+].join(' ');
+const PDF_ATTACHMENT_CONTEXT_INSTRUCTION = [
+  'The user uploaded a PDF.',
+  'Read the document from this URL and answer the user\'s document question directly (for example: "what does this document say?").',
+  'Keep main chat concise with a short grounded summary only.',
+  'Do not dump raw extracted text.',
+  'If the document is unclear, partial, or low-confidence, state that clearly and avoid certainty.',
+  'Ask at most one short follow-up only when helpful.',
+].join(' ');
 
 function resolveAttachmentType(file) {
   const mimeType = String(file?.type || '').toLowerCase();
@@ -116,12 +140,15 @@ function buildAttachmentContextFromMetadata(metadata, pdfExtractedText) {
     if (attachmentName) lines.push(`name: ${attachmentName}`);
     lines.push(
       `url: ${attachmentUrl}`,
-      'instruction: The user uploaded a PDF. Read the extracted text below. Respond with: (1) one sentence acknowledging the PDF was read, (2) 2–4 concise bullet points covering the most important content. Do NOT reproduce the full document. Do NOT write a long report. Keep the chat response short and conversational.',
+      `instruction: ${PDF_ATTACHMENT_MAIN_CHAT_INSTRUCTION}`,
       `extracted_text:\n${pdfExtractedText}`
     );
     return lines.join('\n');
   }
-  const lines = ['[ATTACHMENT_CONTEXT]', `type: ${attachmentType}`, `url: ${attachmentUrl}`, 'instruction: Use this URL as the user-provided attachment context for this turn. If image, inspect visual content. If PDF, read the document content before responding.'];
+  const instruction = attachmentType === 'image' ?
+    `instruction: ${IMAGE_ATTACHMENT_CONTEXT_INSTRUCTION}` :
+    `instruction: ${PDF_ATTACHMENT_CONTEXT_INSTRUCTION}`;
+  const lines = ['[ATTACHMENT_CONTEXT]', `type: ${attachmentType}`, `url: ${attachmentUrl}`, instruction];
   if (attachmentName) lines.splice(2, 0, `name: ${attachmentName}`);
   return lines.join('\n');
 }

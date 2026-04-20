@@ -155,6 +155,9 @@ const PDF_SPLIT_NEWLINE_LOOKAHEAD = 120;
 // Do not split when the remainder would be tiny; tiny tails feel like truncation
 // noise and are better kept inline with the short response.
 const PDF_MIN_OVERFLOW_LENGTH = 80;
+// OCR/extraction dumps often produce very long, punctuation-free lines.
+// This threshold suppresses those lines in main chat while keeping normal prose.
+const PDF_RAW_LINE_MIN_WORDS = 28;
 
 function normalizeAttachmentMetadata(candidate) {
   if (!candidate || typeof candidate !== 'object') return null;
@@ -257,6 +260,17 @@ function shapeImageAssistantReply(content) {
   return keepSingleFollowUpPrompt(compact);
 }
 
+function isLikelyRawPdfExtractionLine(line) {
+  if (typeof line !== 'string') return false;
+  const normalized = line.trim();
+  if (!normalized) return false;
+  if (/^page\s+\d+(\s+of\s+\d+)?$/i.test(normalized)) return true;
+  if (/^[-_=]{3,}$/.test(normalized)) return true;
+  const words = normalized.split(/\s+/).filter(Boolean);
+  const punctuationCount = (normalized.match(/[.!?]/g) || []).length;
+  return words.length >= PDF_RAW_LINE_MIN_WORDS && punctuationCount === 0;
+}
+
 function shapePdfAssistantReply(content) {
   const normalized = typeof content === 'string' ? content.trim() : '';
   if (!normalized) return '';
@@ -265,8 +279,12 @@ function shapePdfAssistantReply(content) {
     .split('\n')
     .map((line) => line.trim())
     .filter(Boolean)
-    .filter((line) => !/^extracted_text\s*:/i.test(line) && !/^\[PDF_TEXT\]/i.test(line));
+    .filter((line) => !/^extracted_text\s*:/i.test(line) && !/^\[PDF_TEXT\]/i.test(line))
+    .filter((line) => !isLikelyRawPdfExtractionLine(line));
   const bulletLines = lines.filter((line) => /^[-*•]\s+/.test(line));
+  if (lines.length === 0) {
+    return "I'm here with you. What's on your mind right now?";
+  }
 
   if (bulletLines.length > 0) {
     const introLine = lines.find((line) => !/^[-*•]\s+/.test(line));

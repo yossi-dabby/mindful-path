@@ -460,6 +460,61 @@ describe('sanitizeConversationMessages — exported frontend function', () => {
     expect(result[1].content).not.toMatch(/extracted_text\s*:/i);
     expect(result[1].content.length).toBeLessThanOrEqual(420);
   });
+
+  it('limits PDF-turn assistant replies to one follow-up question', () => {
+    const messages = [
+      {
+        role: 'user',
+        content: 'What does this document say?',
+        metadata: {
+          attachment: {
+            type: 'pdf',
+            url: 'https://files.example.com/doc.pdf',
+            name: 'doc.pdf',
+          },
+          pdf_extracted_text: 'Document content',
+        },
+      },
+      {
+        role: 'assistant',
+        content: 'I read your PDF. It outlines three key themes. Would you like a quick summary of section one? Would you also like a separate action plan?',
+      },
+    ];
+
+    const result = sanitizeConversationMessages(messages);
+    expect(result).toHaveLength(2);
+    const questionCount = (result[1].content.match(/\?/g) || []).length;
+    expect(questionCount).toBeLessThanOrEqual(1);
+  });
+
+  it('filters likely raw OCR/page-dump lines from PDF-turn assistant replies', () => {
+    const rawLine = 'PAGE 2 OF 6';
+    const messages = [
+      {
+        role: 'user',
+        content: 'Summarize the attached file.',
+        metadata: {
+          attachment: {
+            type: 'pdf',
+            url: 'https://files.example.com/raw.pdf',
+            name: 'raw.pdf',
+          },
+          pdf_extracted_text: 'Document content',
+        },
+      },
+      {
+        role: 'assistant',
+        // Intentionally punctuation-free and long enough to cross the raw-line
+        // threshold used by PDF sanitizer heuristics.
+        content: `I reviewed your PDF.\n${rawLine}\nThis line has many words but no punctuation and should be treated as likely extraction output from OCR text blocks that do not belong in concise chat responses`,
+      },
+    ];
+
+    const result = sanitizeConversationMessages(messages);
+    expect(result).toHaveLength(2);
+    expect(result[1].content).not.toContain(rawLine);
+    expect(result[1].content).not.toContain('OCR text blocks');
+  });
 });
 
 // ─── TESTS — sanitization boundaries (no internal/system data leaks) ──────────
