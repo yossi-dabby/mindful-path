@@ -20,7 +20,7 @@ Prevent Base44/GitHub sync confusion by making edit authority explicit:
 
 - Runtime i18n initialization: `src/components/i18n/i18nConfig.jsx`
 - Canonical translation object: `src/components/i18n/translations.jsx`
-- Runtime merge helper used by i18n init: `src/components/i18n/translationsBuilder.jsx`
+- Runtime merge helper invoked by i18n init (not a separate source of truth): `src/components/i18n/translationsBuilder.jsx`
 
 ### Therapist chat runtime source
 
