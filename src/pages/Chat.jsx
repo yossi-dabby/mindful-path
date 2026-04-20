@@ -1132,7 +1132,7 @@ export default function Chat() {
     if (!navigator?.mediaDevices?.getUserMedia || typeof window.MediaRecorder === 'undefined') {
       toast({
         title: 'Voice recording is unavailable',
-        description: 'This browser or device does not support local microphone recording in Chat.',
+        description: 'This browser or device does not support local microphone recording.',
         variant: 'destructive'
       });
       clearLocalAudioDraft();
@@ -1162,7 +1162,7 @@ export default function Chat() {
         clearLocalAudioDraft();
         toast({
           title: 'Voice recording failed',
-          description: 'Recording stopped unexpectedly. Please retry.',
+          description: 'Recording stopped unexpectedly. Please retry and check microphone/browser permissions.',
           variant: 'destructive'
         });
       };
@@ -1257,7 +1257,7 @@ export default function Chat() {
         console.error('[Audio] Upload failed before transcription:', uploadError);
         toast({
           title: 'Audio upload failed',
-          description: 'Could not upload this voice draft. Retry transcription or delete the draft.',
+          description: 'Could not upload this voice draft. Retry or delete the draft.',
           variant: 'destructive'
         });
         return;
