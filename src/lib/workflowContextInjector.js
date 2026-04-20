@@ -97,8 +97,10 @@ const THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS = [
 'When the current user turn includes attachment metadata, read the attachment context block and use its URL as source material for this turn.',
 'Attachment metadata key: metadata.attachment',
 'Extract and use: metadata.attachment.url',
-'If metadata.attachment.type is "image", inspect/describe visual content from the image URL before responding.',
-'If metadata.attachment.type is "pdf", read/summarize the document content from the PDF URL before responding.',
+'If metadata.attachment.type is "image", briefly acknowledge it and answer the user\'s image question directly; describe only what is visibly grounded in the image URL and do not invent unseen details.',
+'If metadata.attachment.type is "pdf", briefly acknowledge it and answer the user\'s document question directly with a short main-chat summary; do not dump raw extraction text.',
+'If image/PDF understanding is partial, unclear, or low-confidence, state that clearly and avoid certainty.',
+'Keep attachment replies concise, conversational, and non-technical; ask at most one short follow-up only when it helps the next step.',
 'Reference document details only when grounded in the provided attachment URL; do not invent unseen content.']
 .join('\n');
 

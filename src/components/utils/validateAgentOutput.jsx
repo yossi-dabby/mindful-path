@@ -257,6 +257,17 @@ function shapeImageAssistantReply(content) {
   return keepSingleFollowUpPrompt(compact);
 }
 
+function isLikelyRawPdfExtractionLine(line) {
+  if (typeof line !== 'string') return false;
+  const normalized = line.trim();
+  if (!normalized) return false;
+  if (/^page\s+\d+(\s+of\s+\d+)?$/i.test(normalized)) return true;
+  if (/^[-_=]{3,}$/.test(normalized)) return true;
+  const words = normalized.split(/\s+/).filter(Boolean);
+  const punctuationCount = (normalized.match(/[.!?]/g) || []).length;
+  return words.length >= 28 && punctuationCount === 0;
+}
+
 function shapePdfAssistantReply(content) {
   const normalized = typeof content === 'string' ? content.trim() : '';
   if (!normalized) return '';
@@ -265,8 +276,12 @@ function shapePdfAssistantReply(content) {
     .split('\n')
     .map((line) => line.trim())
     .filter(Boolean)
-    .filter((line) => !/^extracted_text\s*:/i.test(line) && !/^\[PDF_TEXT\]/i.test(line));
+    .filter((line) => !/^extracted_text\s*:/i.test(line) && !/^\[PDF_TEXT\]/i.test(line))
+    .filter((line) => !isLikelyRawPdfExtractionLine(line));
   const bulletLines = lines.filter((line) => /^[-*•]\s+/.test(line));
+  if (lines.length === 0) {
+    return 'I reviewed your PDF and can share a brief summary based on what I could read.';
+  }
 
   if (bulletLines.length > 0) {
     const introLine = lines.find((line) => !/^[-*•]\s+/.test(line));
