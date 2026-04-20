@@ -950,7 +950,7 @@ export const REQUIRED_COGNITIVE_EXERCISE_IDS = [
  */
 export function validateExercisesTaxonomy(allExercises) {
   // Skip in server-side or non-browser contexts
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined' || (typeof globalThis !== 'undefined' && globalThis.process?.versions?.node)) return;
 
   const errors = [];
 
