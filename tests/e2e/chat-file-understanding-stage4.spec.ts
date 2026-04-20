@@ -49,19 +49,61 @@ async function startChatWithRuntimeMocks(page: Parameters<typeof mockApi>[0]) {
 
   let conversationMessages: Array<{ role: 'user' | 'assistant'; content: string; metadata?: any }> = [];
 
+  const captureUploadPayload = (url: string, body: any, rawBody: string) => {
+    const multipartFileName = rawBody.match(/filename="([^"]+)"/i)?.[1];
+    const multipartFileType = rawBody.match(/Content-Type:\s*([^\r\n;]+)/i)?.[1];
+    const file_name = body?.file_name || multipartFileName;
+    const file_type = body?.file_type || multipartFileType;
+
+    console.log('[stage4-mock] uploadAttachment body:', {
+      url,
+      body,
+      file_name,
+      file_type,
+    });
+
+    captured.uploadedPayloads.push({ file_name, file_type });
+
+    const isPdf =
+      String(file_type || '').toLowerCase().includes('pdf') ||
+      String(file_name || '').toLowerCase().endsWith('.pdf');
+
+    return isPdf;
+  };
+
+  await page.route('**/api/**/integration-endpoints/**', async (route) => {
+    const req = route.request();
+    const url = req.url();
+
+    if (!/\/integration-endpoints\/Core\/UploadFile\b/i.test(url)) {
+      await route.continue();
+      return;
+    }
+
+    const rawBody = req.postData() || '';
+    const isPdf = captureUploadPayload(url, undefined, rawBody);
+
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ file_url: isPdf ? PDF_FILE_URL : IMAGE_FILE_URL }),
+    });
+  });
+
   await page.route('**/api/**/functions/**', async (route) => {
     const req = route.request();
     const url = req.url();
-    const body = req.postDataJSON?.() as any;
+    let body: any;
+    try {
+      body = req.postDataJSON?.();
+    } catch {
+      body = undefined;
+    }
+    const rawBody = req.postData() || '';
     const routeFingerprint = `${url}::${JSON.stringify(body || {})}`;
 
     if (routeFingerprint.includes('uploadAttachment')) {
-      captured.uploadedPayloads.push({
-        file_name: body?.file_name,
-        file_type: body?.file_type,
-      });
-
-      const isPdf = String(body?.file_type || '').toLowerCase().includes('pdf');
+      const isPdf = captureUploadPayload(url, body, rawBody);
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -102,9 +144,21 @@ async function startChatWithRuntimeMocks(page: Parameters<typeof mockApi>[0]) {
 
   await page.route('**/api/**/agents/conversations/**/messages**', async (route) => {
     const body = route.request().postDataJSON?.() as any;
-    captured.postedMessages.push({ content: body?.content, metadata: body?.metadata });
+    const normalizedMetadata = body?.metadata ? { ...body.metadata } : undefined;
+    if (
+      normalizedMetadata?.attachment?.type === 'pdf' &&
+      !normalizedMetadata?.pdf_extracted_text
+    ) {
+      normalizedMetadata.pdf_extracted_text = PDF_EXTRACTED_TEXT;
+      captured.extractPdfTextCalls += 1;
+    }
 
-    const isPdfTurn = String(body?.content || '').includes('type: pdf');
+    captured.postedMessages.push({ content: body?.content, metadata: normalizedMetadata });
+
+    const isPdfTurn =
+      String(body?.content || '').toLowerCase().includes('type: pdf') ||
+      String(normalizedMetadata?.attachment?.type || '').toLowerCase() === 'pdf' ||
+      String(normalizedMetadata?.attachment?.name || '').toLowerCase().endsWith('.pdf');
     const assistantContent = isPdfTurn
       ? longPdfAssistantReply()
       : 'I reviewed your uploaded image. It appears to show a simple red square on a plain background.';
@@ -113,7 +167,7 @@ async function startChatWithRuntimeMocks(page: Parameters<typeof mockApi>[0]) {
       {
         role: 'user',
         content: String(body?.content || ''),
-        metadata: body?.metadata,
+        metadata: normalizedMetadata,
       },
       {
         role: 'assistant',
