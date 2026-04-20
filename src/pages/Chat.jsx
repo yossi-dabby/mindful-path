@@ -128,6 +128,7 @@ export default function Chat() {
   const mediaRecorderRef = useRef(null);
   const mediaRecorderChunksRef = useRef([]);
   const mediaRecorderStreamRef = useRef(null);
+  const audioDraftUrlRef = useRef('');
   // MF-7: true when the loaded conversation belongs to a legacy variant-profile agent
   const [variantProfileBlocked, setVariantProfileBlocked] = useState(false);
   // Phase 8 — Upgraded-path UI state (only relevant when V5 wiring is active)
@@ -466,9 +467,13 @@ export default function Chat() {
 
   // Cleanup on unmount
   useEffect(() => {
+    audioDraftUrlRef.current = audioDraftUrl;
+  }, [audioDraftUrl]);
+
+  useEffect(() => {
     return () => {
-      if (audioDraftUrl) {
-        URL.revokeObjectURL(audioDraftUrl);
+      if (audioDraftUrlRef.current) {
+        URL.revokeObjectURL(audioDraftUrlRef.current);
       }
       if (mediaRecorderStreamRef.current) {
         mediaRecorderStreamRef.current.getTracks().forEach((track) => track.stop());
@@ -476,7 +481,7 @@ export default function Chat() {
       }
       mountedRef.current = false;
     };
-  }, [audioDraftUrl]);
+  }, []);
 
   // Handle intent from URL parameters - create conversation with intent metadata
   useEffect(() => {
@@ -1151,7 +1156,12 @@ export default function Chat() {
 
     setIsTranscribingAudio(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file: audioDraftFile });
+      const uploadResult = await base44.integrations.Core.UploadFile({ file: audioDraftFile });
+      const file_url = uploadResult?.file_url;
+      if (!file_url) {
+        throw new Error('Upload returned no file_url');
+      }
+
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: 'Transcribe this audio to plain text. Return exactly what was said without summaries. Keep punctuation natural.',
         file_urls: [file_url],
@@ -1177,7 +1187,7 @@ export default function Chat() {
     } catch (error) {
       console.error('[Audio] Transcription failed:', error);
       toast({
-        title: 'Audio upload or transcription failed. Please try again.',
+        title: 'Audio transcription failed. Please retry the draft upload/transcription.',
         variant: 'destructive'
       });
     } finally {
