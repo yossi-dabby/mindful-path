@@ -1252,6 +1252,34 @@ export default function Chat() {
     clearLocalAudioDraft();
   };
 
+  const extractTranscriptText = (result) => {
+    if (typeof result === 'string') return result.trim();
+    if (!result || typeof result !== 'object') return '';
+
+    const directCandidates = [
+    result.transcript,
+    result.transcription,
+    result.text,
+    result.output_text,
+    result.content];
+
+    for (const value of directCandidates) {
+      if (typeof value === 'string' && value.trim()) {
+        return value.trim();
+      }
+    }
+
+    if (Array.isArray(result.output)) {
+      for (const item of result.output) {
+        if (typeof item?.text === 'string' && item.text.trim()) {
+          return item.text.trim();
+        }
+      }
+    }
+
+    return '';
+  };
+
   const handleTranscribeRecording = async () => {
     if (!audioDraftFile || isTranscribingAudio) return;
 
@@ -1273,20 +1301,48 @@ export default function Chat() {
       }
 
       let result;
+      const modelsToTry = ['gpt_5_4', 'gemini_3_flash'];
+      const basePrompt = 'Transcribe this audio to plain text. Return only the spoken words with natural punctuation.';
       try {
-        result = await base44.integrations.Core.InvokeLLM({
-          prompt: 'Transcribe this audio to plain text. Return exactly what was said without summaries. Keep punctuation natural.',
-          file_urls: [file_url],
-          response_json_schema: {
-            type: 'object',
-            properties: {
-              transcript: { type: 'string' }
-            },
-            required: ['transcript']
-          }
+        console.log('[Audio] Transcription request payload:', {
+          file_url,
+          file_name: audioDraftFile.name,
+          mime_type: audioDraftFile.type || 'unknown',
+          file_size: typeof audioDraftFile.size === 'number' ? audioDraftFile.size : null,
+          models: modelsToTry
         });
+
+        let lastTranscriptionError = null;
+        for (const model of modelsToTry) {
+          try {
+            result = await base44.integrations.Core.InvokeLLM({
+              model,
+              prompt: basePrompt,
+              file_urls: [file_url]
+            });
+            lastTranscriptionError = null;
+            break;
+          } catch (transcriptionModelError) {
+            lastTranscriptionError = transcriptionModelError;
+            console.error(`[Audio] Transcription request failed for model ${model}:`, {
+              message: transcriptionModelError?.message,
+              status: transcriptionModelError?.status,
+              code: transcriptionModelError?.code,
+              data: transcriptionModelError?.data
+            });
+          }
+        }
+
+        if (lastTranscriptionError) {
+          throw lastTranscriptionError;
+        }
       } catch (transcriptionError) {
-        console.error('[Audio] Transcription request failed:', transcriptionError);
+        console.error('[Audio] Transcription request failed:', {
+          message: transcriptionError?.message,
+          status: transcriptionError?.status,
+          code: transcriptionError?.code,
+          data: transcriptionError?.data
+        });
         toast({
           title: 'Audio transcription failed',
           description: 'The upload succeeded, but transcription failed. Retry or delete this draft.',
@@ -1295,7 +1351,7 @@ export default function Chat() {
         return;
       }
 
-      const transcript = typeof result?.transcript === 'string' ? result.transcript.trim() : '';
+      const transcript = extractTranscriptText(result);
       if (!transcript) throw new Error('No transcript returned');
 
       setInputMessage((prev) => {
