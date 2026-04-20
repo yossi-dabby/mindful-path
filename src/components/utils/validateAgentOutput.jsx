@@ -161,7 +161,10 @@ const PDF_RAW_LINE_MIN_WORDS = 28;
 
 function normalizeAttachmentMetadata(candidate) {
   if (!candidate || typeof candidate !== 'object') return null;
-  const type = candidate.type === 'image' || candidate.type === 'pdf' ? candidate.type : null;
+  const type =
+    candidate.type === 'image' || candidate.type === 'pdf' || candidate.type === 'file'
+      ? candidate.type
+      : null;
   const url = typeof candidate.url === 'string' && candidate.url.trim() ? candidate.url.trim() : null;
   if (!type || !url) return null;
   return {

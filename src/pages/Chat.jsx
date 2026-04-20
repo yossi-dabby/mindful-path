@@ -67,6 +67,7 @@ const LANG_FULL_NAMES = {
   it: 'Italian',
   pt: 'Portuguese'
 };
+const IMAGE_ATTACHMENT_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg']);
 
 function hasUserAttachment(message) {
   if (!message || message.role !== 'user') return false;
@@ -87,6 +88,13 @@ function addLangDirective(sessionContent, lang) {
   const name = LANG_FULL_NAMES[lang];
   if (!name) return sessionContent;
   return sessionContent + `\n[SESSION_LANGUAGE: ${lang}. Open and respond entirely in ${name} for this session. Do not use English.]`;
+}
+
+function resolveAttachmentType(fileName) {
+  const extension = typeof fileName === 'string' ? fileName.split('.').pop()?.toLowerCase() : '';
+  if (IMAGE_ATTACHMENT_EXTENSIONS.has(extension)) return 'image';
+  if (extension === 'pdf') return 'pdf';
+  return 'file';
 }
 
 export default function Chat() {
@@ -1204,14 +1212,31 @@ export default function Chat() {
 
       // Upload file attachment if present
       let attachmentMeta = undefined;
+      let pdfAttachmentMetadata = {};
       if (attachedFile) {
         setIsUploadingFile(true);
         try {
           const { file_url } = await base44.integrations.Core.UploadFile({ file: attachedFile });
-          const ext = attachedFile.name.split('.').pop().toLowerCase();
-          const imgExts = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg'];
-          const type = imgExts.includes(ext) ? 'image' : ext === 'pdf' ? 'pdf' : 'file';
+          const type = resolveAttachmentType(attachedFile.name);
           attachmentMeta = { type, url: file_url, name: attachedFile.name };
+
+          if (type === 'pdf') {
+            try {
+              const extractionResult = await base44.functions.invoke('extractPdfText', {
+                file_url,
+                file_name: attachedFile.name
+              });
+              const extractionData = extractionResult?.data || extractionResult || {};
+              if (typeof extractionData.text === 'string' && extractionData.text.trim()) {
+                pdfAttachmentMetadata.pdf_extracted_text = extractionData.text;
+              }
+              if (Number.isFinite(extractionData.page_count) && extractionData.page_count > 0) {
+                pdfAttachmentMetadata.pdf_page_count = extractionData.page_count;
+              }
+            } catch (err) {
+              console.warn('[Upload] PDF text extraction failed:', err?.message || err);
+            }
+          }
         } catch (err) {
           console.error('[Upload] File upload failed:', err);
         } finally {
@@ -1226,13 +1251,17 @@ export default function Chat() {
       // restore it as metadata.attachment for the MessageBubble to display.
       const marker = attachmentMeta ? '\n' + serializeAttachmentMetadataMarker(attachmentMeta) : '';
       const finalContent = messageContent + marker;
+      const attachmentContractMetadata = attachmentMeta ? {
+        attachment: { type: attachmentMeta.type, url: attachmentMeta.url, name: attachmentMeta.name },
+        ...pdfAttachmentMetadata
+      } : undefined;
 
       await base44.agents.addMessage(conversation, {
         role: 'user',
         content: finalContent,
         ...(attachmentMeta ? {
           file_urls: [attachmentMeta.url],
-          metadata: { attachment: { type: attachmentMeta.type, url: attachmentMeta.url, name: attachmentMeta.name } }
+          metadata: attachmentContractMetadata
         } : {})
       });
 
