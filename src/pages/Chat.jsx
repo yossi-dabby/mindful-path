@@ -1245,23 +1245,32 @@ export default function Chat() {
         }
       }
 
-      // Embed attachment metadata as a serialized marker in content so it
-      // survives the round-trip (API rejects custom metadata fields).
-      // sanitizeConversationMessages() will parse the marker back out and
-      // restore it as metadata.attachment for the MessageBubble to display.
+      // Runtime-safe attachment contract for addMessage:
+      // - AI delivery fields go in [ATTACHMENT_CONTEXT] within content.
+      // - Round-trip recovery stays in [ATTACHMENT_METADATA] marker.
+      // - Do not send custom metadata fields (runtime 422s on attachment metadata).
+      const attachmentContextBlock = attachmentMeta ? (() => {
+        const lines = [
+        '[ATTACHMENT_CONTEXT]',
+        `type: ${attachmentMeta.type}`,
+        `url: ${attachmentMeta.url}`];
+        if (attachmentMeta.name) lines.push(`name: ${attachmentMeta.name}`);
+        if (typeof pdfAttachmentMetadata.pdf_page_count === 'number') {
+          lines.push(`pdf_page_count: ${pdfAttachmentMetadata.pdf_page_count}`);
+        }
+        if (typeof pdfAttachmentMetadata.pdf_extracted_text === 'string' && pdfAttachmentMetadata.pdf_extracted_text.trim()) {
+          lines.push(`pdf_extracted_text: ${pdfAttachmentMetadata.pdf_extracted_text.replace(/\s+/g, ' ').trim()}`);
+        }
+        return '\n' + lines.join('\n');
+      })() : '';
       const marker = attachmentMeta ? '\n' + serializeAttachmentMetadataMarker(attachmentMeta) : '';
-      const finalContent = messageContent + marker;
-      const attachmentContractMetadata = attachmentMeta ? {
-        attachment: { type: attachmentMeta.type, url: attachmentMeta.url, name: attachmentMeta.name },
-        ...pdfAttachmentMetadata
-      } : undefined;
+      const finalContent = messageContent + attachmentContextBlock + marker;
 
       await base44.agents.addMessage(conversation, {
         role: 'user',
         content: finalContent,
         ...(attachmentMeta ? {
-          file_urls: [attachmentMeta.url],
-          metadata: attachmentContractMetadata
+          file_urls: [attachmentMeta.url]
         } : {})
       });
 
