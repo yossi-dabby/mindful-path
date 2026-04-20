@@ -537,6 +537,7 @@ export default function Chat() {
 
         try {
           console.log(`[Intent Detected] ${intentParam}`);
+          removeSelectedAttachment();
 
           if (!currentConversationId) {
             // No active conversation - start new one with intent in metadata
@@ -968,6 +969,7 @@ export default function Chat() {
 
   const startNewConversationWithIntent = async (intentParam) => {
     try {
+      removeSelectedAttachment();
       // Phase 5 — Fire a non-blocking memory write for the conversation the user
       // is leaving before starting a new one. Capture current id/meta/messages
       // synchronously so values are stable. Inert when flags are off or messages
@@ -1050,6 +1052,9 @@ export default function Chat() {
 
   const loadConversation = async (conversationId) => {
     try {
+      if (conversationId !== currentConversationId) {
+        removeSelectedAttachment();
+      }
       // Phase 5 — Fire a non-blocking memory write for the conversation the user
       // is switching AWAY from before loading the new one. Capture the current
       // id/meta/messages synchronously (before any state updates) so the correct
