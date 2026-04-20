@@ -68,6 +68,16 @@ const LANG_FULL_NAMES = {
   pt: 'Portuguese'
 };
 
+function hasUserAttachment(message) {
+  if (!message || message.role !== 'user') return false;
+  const attachment = message.metadata?.attachment && typeof message.metadata.attachment === 'object' ?
+  message.metadata.attachment :
+  message.attachment && typeof message.attachment === 'object' ?
+  message.attachment :
+  null;
+  return !!attachment;
+}
+
 /**
  * Appends a language directive to a session-start content string.
  * When the language is English (or unknown), returns the content unchanged.
@@ -229,7 +239,12 @@ export default function Chat() {
 
   // CRITICAL: HARD RENDER GATE - validate message is 100% render-safe (NO FALSE POSITIVES)
   const isMessageRenderSafe = (msg) => {
-    if (!msg || !msg.role || !msg.content) {
+    if (!msg || !msg.role) {
+      return false;
+    }
+
+    const hasAttachment = hasUserAttachment(msg);
+    if (!msg.content && !hasAttachment) {
       return false;
     }
 
@@ -1416,7 +1431,7 @@ export default function Chat() {
       const previousMessages = messages;
       queryClient.setQueryData(['conversations'], (old = []) => old.filter((conversation) => conversation.id !== conversationId));
       if (currentConversationId === conversationId) {
-        removeSelectedAttachment();
+        setAttachedFile(null);
         setCurrentConversationId(null);
         setMessages([]);
         lastConfirmedMessagesRef.current = []; // Reset baseline when deleting active conversation
@@ -1446,7 +1461,7 @@ export default function Chat() {
     setPendingDeleteId(conversationId);
   };
 
-  const handleBulkDeleteConversations = async (ids) => { if (!ids?.length) return; queryClient.setQueryData(['conversations'], (old = []) => old.filter(c => !ids.includes(c.id))); if (ids.includes(currentConversationId)) { removeSelectedAttachment(); setCurrentConversationId(null); setMessages([]); lastConfirmedMessagesRef.current = []; } await Promise.all(ids.map(id => base44.entities.UserDeletedConversations.create({ agent_conversation_id: id, conversation_title: conversations.find(c => c.id === id)?.metadata?.name || 'Deleted Session' }).catch(() => {}))); refetchConversations(); };
+  const handleBulkDeleteConversations = async (ids) => { if (!ids?.length) return; queryClient.setQueryData(['conversations'], (old = []) => old.filter(c => !ids.includes(c.id))); if (ids.includes(currentConversationId)) { setAttachedFile(null); setCurrentConversationId(null); setMessages([]); lastConfirmedMessagesRef.current = []; } await Promise.all(ids.map(id => base44.entities.UserDeletedConversations.create({ agent_conversation_id: id, conversation_title: conversations.find(c => c.id === id)?.metadata?.name || 'Deleted Session' }).catch(() => {}))); refetchConversations(); };
   const handleCheckInComplete = async (checkinData) => {
     if (!currentConversationId) return;
 
@@ -1607,6 +1622,7 @@ export default function Chat() {
               onSelectConversation={loadConversation}
               onNewConversation={startNewConversation}
               onDeleteConversation={handleDeleteConversation}
+              onBulkDeleteConversations={handleBulkDeleteConversations}
               onClose={() => setShowSidebar(false)} />
 
         </ErrorBoundary>
