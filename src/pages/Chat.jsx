@@ -1933,12 +1933,12 @@ export default function Chat() {
                   className="min-h-[44px] h-[48px] min-w-[44px] px-3 flex-shrink-0 inline-flex items-center gap-2"
                   aria-label={t('chat.attachments.attach_button_aria')}>
                   <Paperclip className="w-5 h-5" />
-                  <span className="hidden sm:inline text-xs font-medium">{t('chat.attachments.attach_button_aria')}</span>
+                  <span className="hidden sm:inline text-xs font-medium">{t('chat.attachments.attach_button_label')}</span>
                 </Button>
 
                 <div className="flex-1 flex flex-col gap-2">
                   {selectedAttachment &&
-                  <div className="bg-[hsl(var(--surface-nested)/0.9)] border border-input/80 rounded-[var(--radius-card)] p-2.5 flex items-center justify-between gap-3">
+                  <div className="bg-[hsl(var(--surface-nested)_/_0.9)] border border-input/80 rounded-[var(--radius-card)] p-2.5 flex items-center justify-between gap-3">
                       <div className="min-w-0 flex items-center gap-3">
                         {selectedAttachment.type === 'image' && selectedAttachment.previewUrl ?
                         <img
@@ -1950,14 +1950,14 @@ export default function Chat() {
                         }
                         <div className="min-w-0">
                           <p className="text-xs text-foreground truncate font-medium" title={selectedAttachment.name}>{selectedAttachment.name}</p>
-                          <p className="text-[11px] text-muted-foreground">{formatAttachmentSize(selectedAttachment.size)}</p>
+                          <p className="text-xs text-muted-foreground">{formatAttachmentSize(selectedAttachment.size)}</p>
                         </div>
                       </div>
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="h-10 w-10 min-h-[44px] min-w-[44px] shrink-0"
+                        className="h-[44px] w-[44px] shrink-0"
                         onClick={removeSelectedAttachment}
                         aria-label={t('chat.attachments.remove_button_aria')}>
                         <X className="w-4 h-4" />
@@ -1968,7 +1968,7 @@ export default function Chat() {
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder={t('chat.message_placeholder')} className="bg-[hsl(var(--surface-nested)/0.9)] text-foreground px-3 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-card)] flex w-full border border-input/90 shadow-[var(--shadow-sm)] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 flex-1 min-h-[48px] max-h-[160px] resize-none"
+                    placeholder={t('chat.message_placeholder')} className="bg-[hsl(var(--surface-nested)_/_0.9)] text-foreground px-3 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-card)] flex w-full border border-input/90 shadow-[var(--shadow-sm)] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 flex-1 min-h-[48px] max-h-[160px] resize-none"
                     data-testid="therapist-chat-input"
                     disabled={isLoading} />
                   {attachmentError &&

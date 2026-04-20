@@ -230,6 +230,7 @@ export const translations = {
         },
         attachments: {
           attach_button_aria: "Attach a file",
+          attach_button_label: "Attach",
           remove_button_aria: "Remove attachment",
           invalid_type: "Only JPG, PNG, or PDF files are allowed.",
           max_size_error: "File is too large. Maximum size is {{sizeMB}}MB.",
@@ -1640,6 +1641,7 @@ export const translations = {
         },
         attachments: {
           attach_button_aria: "צרף קובץ",
+          attach_button_label: "צרף",
           remove_button_aria: "הסר קובץ מצורף",
           invalid_type: "ניתן לצרף רק קבצי JPG, PNG או PDF.",
           max_size_error: "הקובץ גדול מדי. הגודל המרבי הוא {{sizeMB}}MB.",
@@ -3050,6 +3052,7 @@ export const translations = {
         },
         attachments: {
           attach_button_aria: "Adjuntar un archivo",
+          attach_button_label: "Adjuntar",
           remove_button_aria: "Quitar archivo adjunto",
           invalid_type: "Solo se permiten archivos JPG, PNG o PDF.",
           max_size_error: "El archivo es demasiado grande. El tamaño máximo es {{sizeMB}}MB.",
@@ -4417,6 +4420,7 @@ export const translations = {
         },
         attachments: {
           attach_button_aria: "Joindre un fichier",
+          attach_button_label: "Joindre",
           remove_button_aria: "Supprimer la pièce jointe",
           invalid_type: "Seuls les fichiers JPG, PNG ou PDF sont autorisés.",
           max_size_error: "Le fichier est trop volumineux. La taille maximale est de {{sizeMB}}MB.",
@@ -5784,6 +5788,7 @@ export const translations = {
         },
         attachments: {
           attach_button_aria: "Datei anhängen",
+          attach_button_label: "Anhängen",
           remove_button_aria: "Anhang entfernen",
           invalid_type: "Nur JPG-, PNG- oder PDF-Dateien sind erlaubt.",
           max_size_error: "Die Datei ist zu groß. Die maximale Größe beträgt {{sizeMB}}MB.",
@@ -7151,6 +7156,7 @@ export const translations = {
         },
         attachments: {
           attach_button_aria: "Allega un file",
+          attach_button_label: "Allega",
           remove_button_aria: "Rimuovi allegato",
           invalid_type: "Sono consentiti solo file JPG, PNG o PDF.",
           max_size_error: "Il file è troppo grande. La dimensione massima è {{sizeMB}}MB.",
@@ -8518,6 +8524,7 @@ export const translations = {
         },
         attachments: {
           attach_button_aria: "Anexar arquivo",
+          attach_button_label: "Anexar",
           remove_button_aria: "Remover anexo",
           invalid_type: "Somente arquivos JPG, PNG ou PDF são permitidos.",
           max_size_error: "O arquivo é muito grande. O tamanho máximo é {{sizeMB}}MB.",
