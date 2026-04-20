@@ -1467,6 +1467,30 @@ export default function Chat() {
         }
       }
 
+      // Stage 4 voice send contract:
+      // If no regular file is attached, persist the recorded audio draft as the
+      // user attachment while keeping the edited transcript as message text.
+      let shouldClearAudioDraftAfterSend = false;
+      if (!attachmentMeta && audioDraftStatus === 'recorded' && audioDraftFile) {
+        setIsUploadingFile(true);
+        try {
+          const { file_url } = await base44.integrations.Core.UploadFile({ file: audioDraftFile });
+          if (file_url) {
+            attachmentMeta = {
+              type: 'audio',
+              url: file_url,
+              name: audioDraftFile.name,
+              size: typeof audioDraftFile.size === 'number' ? audioDraftFile.size : undefined
+            };
+            shouldClearAudioDraftAfterSend = true;
+          }
+        } catch (err) {
+          console.error('[Upload] Audio draft upload failed:', err);
+        } finally {
+          setIsUploadingFile(false);
+        }
+      }
+
       // Runtime-safe attachment contract for addMessage:
       // - AI delivery fields go in [ATTACHMENT_CONTEXT] within content.
       // - Round-trip recovery stays in [ATTACHMENT_METADATA] marker.
@@ -1495,6 +1519,10 @@ export default function Chat() {
           file_urls: [attachmentMeta.url]
         } : {})
       });
+
+      if (shouldClearAudioDraftAfterSend) {
+        clearLocalAudioDraft();
+      }
 
       console.log('[Send] ✅ Message sent - starting authoritative polling');
 
