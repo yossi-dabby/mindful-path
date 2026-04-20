@@ -368,8 +368,6 @@ export default function Home() {
           <QuickActions />
         </div>
 
-
-
       {/* Mood Check-in Modal */}
       {showMoodCheckIn &&
           <MoodCheckIn onClose={handleCheckInComplete} />
