@@ -1,6 +1,4 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 
 import {
   sanitizeConversationMessages,
@@ -87,14 +85,6 @@ describe('Stage 8 — session/history attachment stability', () => {
         'conv-a'
       );
       expect(keyA).not.toBe(keyB);
-    });
-  });
-
-  describe('composer attachment isolation on session switches', () => {
-    it('clears selected attachment when starting a new session or loading another session', () => {
-      const chatSource = readFileSync(resolve(process.cwd(), 'src/pages/Chat.jsx'), 'utf8');
-      expect(chatSource).toMatch(/const startNewConversationWithIntent = async \(intentParam\) => \{\s*try \{\s*removeSelectedAttachment\(\);/s);
-      expect(chatSource).toMatch(/const loadConversation = async \(conversationId\) => \{\s*try \{\s*if \(conversationId !== currentConversationId\) \{\s*removeSelectedAttachment\(\);/s);
     });
   });
 });

@@ -1,3 +1,5 @@
+const CONTENT_PREVIEW_LENGTH = 48;
+
 export function getMessageRenderKey(message, index, conversationId) {
   const convKey = conversationId || 'no-conversation';
   const roleKey = typeof message?.role === 'string' ? message.role : 'unknown';
@@ -13,10 +15,10 @@ export function getMessageRenderKey(message, index, conversationId) {
   const attachmentUrl =
     (typeof message?.metadata?.attachment?.url === 'string' && message.metadata.attachment.url) ||
     (typeof message?.attachment?.url === 'string' && message.attachment.url) ||
-    'no-attachment';
+    '';
   const contentPreview =
     typeof message?.content === 'string' && message.content
-      ? message.content.slice(0, 48)
+      ? message.content.slice(0, CONTENT_PREVIEW_LENGTH)
       : 'no-content';
 
   if (createdKey) return `${convKey}:ts:${createdKey}:${roleKey}:${attachmentUrl}:${index}`;
