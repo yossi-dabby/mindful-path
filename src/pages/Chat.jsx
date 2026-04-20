@@ -9,7 +9,7 @@ import AuthErrorBanner from '../components/utils/AuthErrorBanner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Loader2, Menu, Sparkles, ArrowLeft, Trash2 } from 'lucide-react';
+import { Send, Loader2, Menu, Sparkles, ArrowLeft, Trash2, Paperclip } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import {
   AlertDialog,
@@ -100,6 +100,9 @@ export default function Chat() {
   const [isAgeRestricted, setIsAgeRestricted] = useState(false);
   const [showSavePrompt, setShowSavePrompt] = useState(false);
   const [savePromptData, setSavePromptData] = useState(null);
+  const [attachedFile, setAttachedFile] = useState(null);
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
+  const fileInputRef = useRef(null);
   // MF-7: true when the loaded conversation belongs to a legacy variant-profile agent
   const [variantProfileBlocked, setVariantProfileBlocked] = useState(false);
   // Phase 8 — Upgraded-path UI state (only relevant when V5 wiring is active)
@@ -1006,6 +1009,13 @@ export default function Chat() {
     }
   };
 
+  const handleFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAttachedFile(file);
+    e.target.value = '';
+  };
+
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) {
       console.log('[Send] ❌ Blocked - empty message');
@@ -1173,9 +1183,28 @@ export default function Chat() {
         messageContent = sessionStartContent + '\n\n' + messageContent;
       }
 
+      // Upload file attachment if present
+      let attachmentMeta = undefined;
+      if (attachedFile) {
+        setIsUploadingFile(true);
+        try {
+          const { file_url } = await base44.integrations.Core.UploadFile({ file: attachedFile });
+          const ext = attachedFile.name.split('.').pop().toLowerCase();
+          const imgExts = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg'];
+          const type = imgExts.includes(ext) ? 'image' : ext === 'pdf' ? 'pdf' : 'file';
+          attachmentMeta = { type, url: file_url, name: attachedFile.name };
+        } catch (err) {
+          console.error('[Upload] File upload failed:', err);
+        } finally {
+          setIsUploadingFile(false);
+          setAttachedFile(null);
+        }
+      }
+
       await base44.agents.addMessage(conversation, {
         role: 'user',
-        content: messageContent
+        content: messageContent,
+        ...(attachmentMeta ? { metadata: { attachment: attachmentMeta } } : {})
       });
 
       console.log('[Send] ✅ Message sent - starting authoritative polling');
@@ -1846,23 +1875,48 @@ export default function Chat() {
               </div> :
 
               <>
-                <Textarea
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder={t('chat.message_placeholder')} className="bg-[hsl(var(--surface-nested)/0.9)] text-foreground px-3 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-card)] flex w-full border border-input/90 shadow-[var(--shadow-sm)] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 flex-1 min-h-[48px] max-h-[160px] resize-none"
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*,.pdf,.doc,.docx,.txt,.csv"
+                  className="hidden"
+                  onChange={handleFileSelect}
+                />
+                <div className="flex flex-col flex-1 gap-1">
+                  {attachedFile && (
+                    <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-teal-50 border border-teal-200 text-xs text-teal-700">
+                      <Paperclip className="w-3 h-3 flex-shrink-0" />
+                      <span className="truncate max-w-[160px]">{attachedFile.name}</span>
+                      <button onClick={() => setAttachedFile(null)} className="ml-auto text-teal-500 hover:text-teal-700 flex-shrink-0">✕</button>
+                    </div>
+                  )}
+                  <Textarea
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder={t('chat.message_placeholder')} className="bg-[hsl(var(--surface-nested)/0.9)] text-foreground px-3 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-card)] flex w-full border border-input/90 shadow-[var(--shadow-sm)] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-h-[48px] max-h-[160px] resize-none"
+                    data-testid="therapist-chat-input"
+                    disabled={isLoading || isUploadingFile} />
+                </div>
 
-                  data-testid="therapist-chat-input"
-                  disabled={isLoading} />
-
-                <Button
-                  onClick={handleSendMessage}
-                  disabled={!inputMessage.trim() || isLoading}
-                  data-testid="therapist-chat-send" className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 h-[48px] flex-shrink-0">
-
-
-                  <Send className="w-5 h-5" />
-                </Button>
+                <div className="flex flex-col gap-1 flex-shrink-0">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isLoading || isUploadingFile}
+                    aria-label="Attach file"
+                    className="text-teal-600 h-[48px] w-[48px] min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 hover:bg-teal-50">
+                    <Paperclip className="w-5 h-5" />
+                  </Button>
+                  <Button
+                    onClick={handleSendMessage}
+                    disabled={(!inputMessage.trim() && !attachedFile) || isLoading || isUploadingFile}
+                    data-testid="therapist-chat-send" className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 h-[48px] flex-shrink-0">
+                    {isUploadingFile ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                  </Button>
+                </div>
               </>
               }
           </div>
