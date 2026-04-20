@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Locator } from '@playwright/test';
 import { mockApi, spaNavigate } from '../helpers/ui';
 
 const IMAGE_FILE_URL = 'https://files.example.com/stage4-image.png';
@@ -21,8 +21,8 @@ function longPdfAssistantReply() {
 }
 
 async function clickSendWithEnterFallback(
-  sendButton: any,
-  messageInput: any,
+  sendButton: Locator,
+  messageInput: Locator,
 ) {
   try {
     await sendButton.click({ timeout: 5000 });

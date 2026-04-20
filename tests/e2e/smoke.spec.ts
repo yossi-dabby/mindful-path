@@ -6,6 +6,8 @@ test.use({
   ...devices['iPhone 12'],
 });
 
+const MESSAGE_POST_TIMEOUT_MS = 70000;
+
 test.describe('Chat Smoke Test (Mobile)', () => {
   test('should send a message and verify it appears (or at least the POST happens) on mobile', async ({ page }) => {
     test.setTimeout(90000);
@@ -90,7 +92,7 @@ test.describe('Chat Smoke Test (Mobile)', () => {
             capturedPostUrls.some(
               (url) => url.includes('/agents/conversations/') && url.includes('/messages'),
             ),
-          { timeout: 70000 },
+          { timeout: MESSAGE_POST_TIMEOUT_MS },
         )
         .toBe(true);
 
