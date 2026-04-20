@@ -1,5 +1,5 @@
 import { test, expect, devices } from '@playwright/test';
-import { spaNavigate, safeFill, safeClick, mockApi, logFailedRequests } from '../helpers/ui';
+import { spaNavigate, safeFill, safeClick, mockApi, logFailedRequests, takeDebugScreenshot } from '../helpers/ui';
 
 // Use a mobile device. Adjust the device as needed.
 test.use({
@@ -18,6 +18,17 @@ test.describe('Chat Smoke Test (Mobile)', () => {
     });
 
     const requestLogger = await logFailedRequests(page);
+    const consoleErrors: string[] = [];
+    const pageErrors: string[] = [];
+
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') {
+        consoleErrors.push(msg.text());
+      }
+    });
+    page.on('pageerror', (error) => {
+      pageErrors.push(String(error));
+    });
 
     // Collect all POST requests made during the test for diagnostics.
     const capturedPostUrls: string[] = [];
@@ -90,7 +101,15 @@ test.describe('Chat Smoke Test (Mobile)', () => {
       } else {
         console.log('\n⚠️  No POST requests were captured during the test.');
       }
-      await page.screenshot({ path: `test-results/chat-mobile-smoke-failed-${Date.now()}.png`, fullPage: true });
+      if (consoleErrors.length > 0) {
+        console.log('\n🧾 Browser console errors (first 10):');
+        consoleErrors.slice(0, 10).forEach((entry) => console.log(`  - ${entry}`));
+      }
+      if (pageErrors.length > 0) {
+        console.log('\n🧾 Page runtime errors (first 10):');
+        pageErrors.slice(0, 10).forEach((entry) => console.log(`  - ${entry}`));
+      }
+      await takeDebugScreenshot(page, `chat-mobile-smoke-failed-${Date.now()}`);
       throw error;
     }
   });

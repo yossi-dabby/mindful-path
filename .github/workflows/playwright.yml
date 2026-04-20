@@ -45,7 +45,22 @@ jobs:
           VITE_BASE44_APP_BASE_URL: ${{ secrets.VITE_BASE44_APP_BASE_URL || 'https://mindful-path-75aeaf7d.base44.app' }}
 
       - name: Wait for server
-        run: npx --yes wait-on http://127.0.0.1:5173 --timeout 60000
+        run: |
+          npx --yes wait-on tcp:127.0.0.1:5173 --timeout 120000
+          npx --yes wait-on http-get://127.0.0.1:5173 --timeout 120000
+          for attempt in 1 2 3; do
+            if curl -sf http://127.0.0.1:5173 > /dev/null; then
+              echo "Server is responding on attempt ${attempt}"
+              break
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "Server did not become responsive after retries"
+              tail -n 200 devserver.log || true
+              exit 1
+            fi
+            echo "Server not responsive yet (attempt ${attempt}), retrying..."
+            sleep 5
+          done
 
       - name: Run Smoke Tests
         run: npm run test:e2e -- --project=smoke-production-critical
@@ -122,7 +137,22 @@ jobs:
           VITE_BASE44_APP_BASE_URL: ${{ secrets.VITE_BASE44_APP_BASE_URL || 'https://mindful-path-75aeaf7d.base44.app' }}
 
       - name: Wait for server
-        run: npx --yes wait-on http://127.0.0.1:5173 --timeout 60000
+        run: |
+          npx --yes wait-on tcp:127.0.0.1:5173 --timeout 120000
+          npx --yes wait-on http-get://127.0.0.1:5173 --timeout 120000
+          for attempt in 1 2 3; do
+            if curl -sf http://127.0.0.1:5173 > /dev/null; then
+              echo "Server is responding on attempt ${attempt}"
+              break
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "Server did not become responsive after retries"
+              tail -n 200 devserver.log || true
+              exit 1
+            fi
+            echo "Server not responsive yet (attempt ${attempt}), retrying..."
+            sleep 5
+          done
 
       - name: Run Playwright tests
         run: npm run test:e2e -- --project=${{ matrix.project }}
@@ -155,7 +185,6 @@ jobs:
           name: test-results-${{ matrix.project }}
           path: test-results/
           retention-days: 7
-
 
 
 
