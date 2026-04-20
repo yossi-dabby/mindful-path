@@ -504,6 +504,8 @@ describe('sanitizeConversationMessages — exported frontend function', () => {
       },
       {
         role: 'assistant',
+        // Intentionally punctuation-free and long enough to cross the raw-line
+        // threshold used by PDF sanitizer heuristics.
         content: `I reviewed your PDF.\n${rawLine}\nThis line has many words but no punctuation and should be treated as likely extraction output from OCR text blocks that do not belong in concise chat responses`,
       },
     ];
