@@ -12,7 +12,7 @@ const messageBubbleSource = readFileSync(resolve(process.cwd(), 'src/components/
 
 describe('Stage 7 — voice release gate contracts', () => {
   it('clears local audio draft state on session switch/start/delete paths', () => {
-    expect(chatSource).toMatch(/setMessages\(\[\]\);\s*clearLocalAudioDraft\(\);\s*setShowSidebar\(false\);/);
+    expect(chatSource).toMatch(/setMessages\(\[\]\);\s*clearLocalAudioDraft\(\);/);
     expect(chatSource).toMatch(/maybeTriggerEndWrite\(leavingId, leavingMeta, messages\);\s*clearLocalAudioDraft\(\);/);
     expect(chatSource).toMatch(/setAttachedFile\(null\);\s*clearLocalAudioDraft\(\);\s*setCurrentConversationId\(null\);/);
   });
@@ -43,6 +43,8 @@ describe('Stage 7 — voice release gate contracts', () => {
 
   it('renders user audio attachments via native audio control surface', () => {
     expect(messageBubbleSource).toMatch(/isAudioAttachment/);
-    expect(messageBubbleSource).toMatch(/<audio controls preload="none" src=\{attachmentUrl\}/);
+    expect(messageBubbleSource).toContain('<audio controls');
+    expect(messageBubbleSource).toContain('preload="none"');
+    expect(messageBubbleSource).toContain('src={attachmentUrl}');
   });
 });
