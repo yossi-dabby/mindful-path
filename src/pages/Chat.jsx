@@ -1230,7 +1230,10 @@ export default function Chat() {
       await base44.agents.addMessage(conversation, {
         role: 'user',
         content: finalContent,
-        ...(attachmentMeta ? { file_urls: [attachmentMeta.url] } : {})
+        ...(attachmentMeta ? {
+          file_urls: [attachmentMeta.url],
+          metadata: { attachment: { type: attachmentMeta.type, url: attachmentMeta.url, name: attachmentMeta.name } }
+        } : {})
       });
 
       console.log('[Send] ✅ Message sent - starting authoritative polling');
