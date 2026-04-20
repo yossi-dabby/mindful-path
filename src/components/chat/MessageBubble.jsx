@@ -9,6 +9,7 @@ import { extractThinkingContent } from '../utils/messageContentSanitizer';
 import { applyFinalOutputGovernor } from '../utils/finalOutputGovernor';
 
 const ASSISTANT_ATTACHMENT_URL_REGEX = /https?:\/\/\S+/gi;
+const FILE_EXTENSIONS = new Set(['doc', 'docx', 'txt', 'csv', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'json', 'md', 'rtf']);
 
 function inferAttachmentTypeFromUrl(rawUrl) {
   if (typeof rawUrl !== 'string' || !rawUrl.trim()) return null;
@@ -17,6 +18,9 @@ function inferAttachmentTypeFromUrl(rawUrl) {
     const pathname = String(parsed.pathname || '').toLowerCase();
     if (/\.(png|jpe?g|gif|webp|bmp|svg)$/.test(pathname)) return 'image';
     if (pathname.endsWith('.pdf')) return 'pdf';
+    const extensionMatch = pathname.match(/\.([a-z0-9]+)$/);
+    const extension = extensionMatch?.[1] || '';
+    if (FILE_EXTENSIONS.has(extension)) return 'file';
     return null;
   } catch {
     return null;
@@ -30,41 +34,86 @@ function stripTrailingUrlPunctuation(rawUrl) {
 
 function normalizeAttachment(attachment) {
   if (!attachment || typeof attachment !== 'object') return null;
-  const type = attachment.type === 'image' || attachment.type === 'pdf' ? attachment.type : null;
+  const type = attachment.type === 'image' || attachment.type === 'pdf' || attachment.type === 'file' ? attachment.type : null;
   const url = typeof attachment.url === 'string' && attachment.url.trim() ? attachment.url.trim() : null;
   if (!type || !url) return null;
   const name = typeof attachment.name === 'string' && attachment.name.trim() ? attachment.name.trim() : undefined;
   return { type, url, name };
 }
 
-function detectAssistantAttachment(message) {
+function detectAssistantAttachments(message) {
+  const found = [];
+  const seen = new Set();
+  const addAttachment = (candidate) => {
+    if (!candidate || !candidate.type || !candidate.url) return;
+    const normalizedUrl = stripTrailingUrlPunctuation(String(candidate.url || '').trim());
+    if (!normalizedUrl) return;
+    const key = `${candidate.type}:${normalizedUrl}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    found.push({
+      type: candidate.type,
+      url: normalizedUrl,
+      name: typeof candidate.name === 'string' && candidate.name.trim() ? candidate.name.trim() : undefined,
+    });
+  };
+
   const metadataAttachment = normalizeAttachment(message?.metadata?.attachment || message?.attachment);
-  if (metadataAttachment) return metadataAttachment;
+  if (metadataAttachment) addAttachment(metadataAttachment);
+
   const content = typeof message?.content === 'string' ? message.content : '';
-  // Check for markdown image syntax: ![alt](url)
-  const mdImageMatch = content.match(/!\[([^\]]*)\]\((https?:\/\/[^)]+)\)/);
-  if (mdImageMatch) {
-    const url = mdImageMatch[2];
-    if (inferAttachmentTypeFromUrl(url) === 'image') return { type: 'image', url, name: mdImageMatch[1] || undefined };
-  }
-  // Check for markdown link syntax to a file: [text](url)
-  const mdLinkMatch = content.match(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/);
-  if (mdLinkMatch) {
-    const url = mdLinkMatch[2];
+  for (const match of content.matchAll(/!\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)/gi)) {
+    const url = match[2];
     const type = inferAttachmentTypeFromUrl(url);
-    if (type) return { type, url, name: mdLinkMatch[1] || undefined };
+    if (type === 'image') {
+      addAttachment({ type: 'image', url, name: match[1] || undefined });
+    }
   }
-  // Fallback: bare URLs
+
+  for (const match of content.matchAll(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/gi)) {
+    const url = match[2];
+    const type = inferAttachmentTypeFromUrl(url);
+    if (type) {
+      addAttachment({ type, url, name: match[1] || undefined });
+    }
+  }
+
   const matches = content.match(ASSISTANT_ATTACHMENT_URL_REGEX);
-  if (!matches || matches.length === 0) return null;
+  if (!matches || matches.length === 0) return found;
   for (const candidate of matches) {
     const url = stripTrailingUrlPunctuation(candidate);
     const type = inferAttachmentTypeFromUrl(url);
     if (type) {
-      return { type, url };
+      addAttachment({ type, url });
     }
   }
-  return null;
+  return found;
+}
+
+function sanitizeAssistantContentForAttachmentSurfaces(content, attachments) {
+  if (typeof content !== 'string' || !content || !Array.isArray(attachments) || attachments.length === 0) {
+    return content;
+  }
+  const attachmentUrls = new Set(
+    attachments
+      .map((attachment) => stripTrailingUrlPunctuation(String(attachment?.url || '').trim()))
+      .filter(Boolean)
+  );
+  if (attachmentUrls.size === 0) return content;
+
+  const keptLines = content.split('\n').filter((line) => {
+    const trimmed = line.trim();
+    if (!trimmed) return true;
+
+    const imageMatch = trimmed.match(/^!\[[^\]]*\]\((https?:\/\/[^)\s]+)\)$/i);
+    const linkMatch = trimmed.match(/^\[[^\]]+\]\((https?:\/\/[^)\s]+)\)$/i);
+    if (imageMatch && attachmentUrls.has(stripTrailingUrlPunctuation(imageMatch[1]))) return false;
+    if (linkMatch && attachmentUrls.has(stripTrailingUrlPunctuation(linkMatch[1]))) return false;
+    if (attachmentUrls.has(stripTrailingUrlPunctuation(trimmed))) return false;
+    return true;
+  });
+
+  return keptLines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 
 function PdfFullTextCard({ text, pageCount }) {
@@ -97,16 +146,17 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   // Therapist /Chat runtime reaches this component via pages/Chat.jsx -> MessageList.jsx.
   const { t, i18n } = useTranslation();
   const [thinkingExpanded, setThinkingExpanded] = useState(false);
-  const [isSigningPdf, setIsSigningPdf] = useState(false);
+  const [signingPdfUrl, setSigningPdfUrl] = useState(null);
   // CRITICAL GATE 1: Strict null/undefined/empty gating
   if (!message || !message.role) {
     return null;
   }
 
   const isUser = message.role === 'user';
+  const assistantAttachments = isUser ? [] : detectAssistantAttachments(message);
   const attachment = isUser ?
   normalizeAttachment(message.metadata?.attachment || message.attachment) :
-  detectAssistantAttachment(message);
+  assistantAttachments[0] || null;
 
   // Resolve PDF full-text: prefer metadata field (set at send time),
   // fall back to scanning content for the [PDF_TEXT] marker (set by sanitizeConversationMessages).
@@ -117,13 +167,14 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   const attachmentName = typeof attachment?.name === 'string' && attachment.name.trim() ? attachment.name : null;
   const isImageAttachment = attachmentType === 'image' && !!attachmentUrl;
   const isPdfAttachment = attachmentType === 'pdf' && !!attachmentUrl;
-  const hasRenderableAttachment = isImageAttachment || isPdfAttachment;
-  if (!message.content && !(isUser && hasRenderableAttachment)) {
+  const isGenericFileAttachment = attachmentType === 'file' && !!attachmentUrl;
+  const hasRenderableAttachment = isImageAttachment || isPdfAttachment || isGenericFileAttachment;
+  if (!message.content && !hasRenderableAttachment) {
     return null;
   }
 
   // CRITICAL GATE 2: TYPE CHECK - Content MUST be a string
-  if (typeof message.content !== 'string' && !(isUser && hasRenderableAttachment)) {
+  if (typeof message.content !== 'string' && !hasRenderableAttachment) {
     console.error('[MessageBubble] ⛔ FATAL: Content is not a string, type:', typeof message.content);
     return null;
   }
@@ -170,10 +221,10 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
       lang: sessionLanguage || undefined,
       userMessage: userMessage || undefined,
     });
-    content = sanitized;
+    content = !isUser ? sanitizeAssistantContentForAttachmentSurfaces(sanitized, assistantAttachments) : sanitized;
 
     // CRITICAL GATE 4: Final content validation
-    if ((!content || content.length < 1) && !(isUser && hasRenderableAttachment)) {
+    if ((!content || content.length < 1) && !hasRenderableAttachment) {
       return null;
     }
 
@@ -189,18 +240,18 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   }
 
   const dir = i18n.language === 'he' ? 'rtl' : 'ltr';
-  const handleAssistantPdfDownload = async () => {
-    if (isUser || !isPdfAttachment || !attachmentUrl || isSigningPdf) return;
-    setIsSigningPdf(true);
+  const handleAssistantPdfDownload = async (url) => {
+    if (isUser || !url || signingPdfUrl) return;
+    setSigningPdfUrl(url);
     try {
-      const signed = await base44.integrations.Core.CreateFileSignedUrl({ file_url: attachmentUrl });
+      const signed = await base44.integrations.Core.CreateFileSignedUrl({ file_url: url });
       const signedUrl = signed?.signed_url || signed?.url || signed?.file_url;
       if (!signedUrl) throw new Error('Failed to generate secure URL for PDF');
       window.open(signedUrl, '_blank', 'noopener,noreferrer');
     } catch (error) {
       console.error('[MessageBubble] Failed to create signed PDF URL:', error);
     } finally {
-      setIsSigningPdf(false);
+      setSigningPdfUrl(null);
     }
   };
 
@@ -274,29 +325,62 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
               </> :
 
           <>
-                {hasRenderableAttachment &&
-            <div className="mb-3">
-                    {isImageAttachment &&
-              <a href={attachmentUrl} target="_blank" rel="noopener noreferrer" className="inline-block">
+                {assistantAttachments.length > 0 &&
+             <div className="mb-3">
+                    {assistantAttachments.map((assistantAttachment, index) => {
+                  const attachmentKey = `assistant-attachment-${assistantAttachment.url}-${index}`;
+                  const isAttachmentImage = assistantAttachment.type === 'image';
+                  const isAttachmentPdf = assistantAttachment.type === 'pdf';
+                  const isAttachmentFile = assistantAttachment.type === 'file';
+                  const isThisPdfSigning = signingPdfUrl === assistantAttachment.url;
+
+                  if (isAttachmentImage) {
+                    return (
+                      <a key={attachmentKey} href={assistantAttachment.url} target="_blank" rel="noopener noreferrer" className="inline-block my-1">
                         <img
-                  src={attachmentUrl}
-                  alt={t('chat.attachments.image_preview_alt')}
+                  src={assistantAttachment.url}
+                  alt={assistantAttachment.name || t('chat.attachments.image_preview_alt')}
                   className="max-w-[220px] max-h-[220px] rounded-lg object-cover border border-primary-foreground/20" />
                       </a>
-              }
-                    {isPdfAttachment &&
-              <button
+                    );
+                  }
+
+                  if (isAttachmentPdf) {
+                    const chipLabel = assistantAttachment.name || t('chat.attachments.pdf_chip_label');
+                    return (
+                      <button
+                key={attachmentKey}
                 type="button"
-                onClick={handleAssistantPdfDownload}
-                disabled={isSigningPdf}
-                className="inline-flex items-center gap-2 rounded-lg border border-primary-foreground/20 px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors disabled:opacity-70">
+                onClick={() => handleAssistantPdfDownload(assistantAttachment.url)}
+                disabled={!!signingPdfUrl}
+                className="inline-flex items-center gap-2 rounded-lg border border-primary-foreground/20 px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors disabled:opacity-70 my-1">
                         <FileText className="w-4 h-4" />
-                        <span className="max-w-[220px] truncate">{isSigningPdf ? t('chat.attachments.opening_pdf', 'Opening PDF...') : attachmentName || t('chat.attachments.pdf_chip_label')}</span>
+                        <span className="max-w-[220px] truncate">{isThisPdfSigning ? t('chat.attachments.opening_pdf', 'Opening PDF...') : chipLabel}</span>
                         <ExternalLink className="w-3.5 h-3.5 opacity-80" />
                       </button>
-              }
-                  </div>
-            }
+                    );
+                  }
+
+                  if (isAttachmentFile) {
+                    const chipLabel = assistantAttachment.name || assistantAttachment.url;
+                    return (
+                      <a
+                key={attachmentKey}
+                href={assistantAttachment.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg border border-primary-foreground/20 px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors my-1">
+                        <FileText className="w-4 h-4 flex-shrink-0" />
+                        <span className="max-w-[220px] truncate">{chipLabel}</span>
+                        <ExternalLink className="w-3.5 h-3.5 opacity-80 flex-shrink-0" />
+                      </a>
+                    );
+                  }
+
+                  return null;
+                })}
+                   </div>
+             }
                 {content ?
             <ReactMarkdown
             className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
@@ -333,6 +417,15 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                   );
                 }
                 if (fileType === 'pdf') {
+                  return (
+                    <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-primary-foreground/20 px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors my-1">
+                      <FileText className="w-4 h-4 flex-shrink-0" />
+                      <span className="max-w-[200px] truncate">{String(children || href)}</span>
+                      <ExternalLink className="w-3.5 h-3.5 opacity-80 flex-shrink-0" />
+                    </a>
+                  );
+                }
+                if (fileType === 'file') {
                   return (
                     <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-primary-foreground/20 px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors my-1">
                       <FileText className="w-4 h-4 flex-shrink-0" />
