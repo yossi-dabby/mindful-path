@@ -374,6 +374,92 @@ describe('sanitizeConversationMessages — exported frontend function', () => {
     expect(result[1].content).toBe(longAssistantReply);
     expect(result[1].metadata?.pdf_analysis_overflow).toBeUndefined();
   });
+
+  it('keeps image-turn assistant replies short and limits follow-up to one prompt', () => {
+    const messages = [
+      {
+        role: 'user',
+        content: 'Can you describe this image?',
+        metadata: {
+          attachment: {
+            type: 'image',
+            url: 'https://files.example.com/photo.jpg',
+            name: 'photo.jpg',
+          },
+        },
+      },
+      {
+        role: 'assistant',
+        content: 'I can see a person sitting near a window with soft lighting and a calm posture. The scene looks quiet and reflective, and the facial expression seems thoughtful. You might be feeling emotionally heavy but still grounded in the moment. Would you like to explore what this moment reminds you of? Would you like me to suggest a short grounding step based on this image?',
+      },
+    ];
+
+    const result = sanitizeConversationMessages(messages);
+    expect(result).toHaveLength(2);
+    expect(result[1].content.length).toBeLessThanOrEqual(320);
+    const questionCount = (result[1].content.match(/\?/g) || []).length;
+    expect(questionCount).toBeLessThanOrEqual(1);
+  });
+
+  it('limits PDF-turn assistant replies to max 4 concise bullets in main chat', () => {
+    const messages = [
+      {
+        role: 'user',
+        content: 'Please summarize this PDF.',
+        metadata: {
+          attachment: {
+            type: 'pdf',
+            url: 'https://files.example.com/summary.pdf',
+            name: 'summary.pdf',
+          },
+          pdf_extracted_text: 'Document content',
+        },
+      },
+      {
+        role: 'assistant',
+        content: [
+          'I reviewed your PDF.',
+          '- First key point',
+          '- Second key point',
+          '- Third key point',
+          '- Fourth key point',
+          '- Fifth key point',
+          '- Sixth key point',
+        ].join('\n'),
+      },
+    ];
+
+    const result = sanitizeConversationMessages(messages);
+    expect(result).toHaveLength(2);
+    const bullets = result[1].content.match(/^[-*•]\s+/gm) || [];
+    expect(bullets.length).toBeLessThanOrEqual(4);
+  });
+
+  it('removes raw PDF extraction markers from assistant main chat output', () => {
+    const messages = [
+      {
+        role: 'user',
+        content: 'Can you summarize the file?',
+        metadata: {
+          attachment: {
+            type: 'pdf',
+            url: 'https://files.example.com/report.pdf',
+            name: 'report.pdf',
+          },
+          pdf_extracted_text: 'Very long extracted source document text',
+        },
+      },
+      {
+        role: 'assistant',
+        content: `I read your PDF.\nextracted_text: This is a direct raw extraction dump that should not appear in the main chat.\n${'Raw source line from document. '.repeat(35)}`,
+      },
+    ];
+
+    const result = sanitizeConversationMessages(messages);
+    expect(result).toHaveLength(2);
+    expect(result[1].content).not.toMatch(/extracted_text\s*:/i);
+    expect(result[1].content.length).toBeLessThanOrEqual(420);
+  });
 });
 
 // ─── TESTS — sanitization boundaries (no internal/system data leaks) ──────────
