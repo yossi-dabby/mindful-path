@@ -1076,8 +1076,8 @@ export const THERAPIST_FORMULATION_RESPONSE_RULES = Object.freeze({
     'with a warm, containing opener that signals safety, shared pace, and ' +
     'clinical presence. Do not present a category menu or a list of session ' +
     'types. The default opener should be fuller and containing (typically 2–4 ' +
-    'warm sentences), not a thin one-line ask-back. If an ' +
-    'invitation is needed, use one grounded sentence only after the containing ' +
+    'warm sentences), not a thin one-line ask-back. If an invitation is needed, ' +
+    'use one grounded sentence only after the containing ' +
     'opening. If the person opens with a detailed situation, skip the invitation ' +
     'and move directly to reflecting and formulating. Apply this opening standard ' +
     'consistently across all supported languages with native-sounding warmth.',
@@ -2300,7 +2300,7 @@ export function buildPlannerFirstInstructions() {
     .join('\n\n');
 
   const stage9QualityStabilizers = [
-    '  • First-turn default opener: long, warm, and containing (usually 2–4 sentences), not a thin one-line ask-back.',
+    '  • First-turn default opener: long, warm, and containing (typically 2–4 warm sentences), not a thin one-line ask-back.',
     '  • Therapeutic container before technique: communicate safety, shared pace, and emotional holding first.',
     '  • Question restraint: default to no question; ask at most one targeted question only when a genuine clinical gap remains.',
     '  • Do NOT end turns with generic intake/mapping prompts ("can you say more?", "what else is happening?") when enough context is already present.',
