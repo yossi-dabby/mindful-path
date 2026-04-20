@@ -122,6 +122,8 @@ export default function Chat() {
   const [isUploadingFile, setIsUploadingFile] = useState(false);
   const [audioDraftStatus, setAudioDraftStatus] = useState('idle');
   const [audioDraftUrl, setAudioDraftUrl] = useState(null);
+  const [audioDraftFile, setAudioDraftFile] = useState(null);
+  const [isTranscribingAudio, setIsTranscribingAudio] = useState(false);
   const fileInputRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const mediaStreamRef = useRef(null);
@@ -201,6 +203,7 @@ export default function Chat() {
     setVisibleCount(50);
     setVariantProfileBlocked(false); // MF-7: reset block state whenever conversation switches
     setAudioDraftStatus('idle');
+    setAudioDraftFile(null);
     setAudioDraftUrl((prevUrl) => {
       if (prevUrl) {
         URL.revokeObjectURL(prevUrl);
@@ -1103,6 +1106,7 @@ export default function Chat() {
       return null;
     });
     setAudioDraftStatus('idle');
+    setAudioDraftFile(null);
     audioChunksRef.current = [];
   };
 
@@ -1156,7 +1160,10 @@ export default function Chat() {
           return;
         }
 
-        const audioBlob = new Blob(audioChunksRef.current, { type: recorder.mimeType || 'audio/webm' });
+        const blobType = recorder.mimeType || 'audio/webm';
+        const audioBlob = new Blob(audioChunksRef.current, { type: blobType });
+        const extension = blobType.includes('ogg') ? 'ogg' : blobType.includes('mp4') ? 'm4a' : 'webm';
+        const file = new File([audioBlob], `voice-draft-${Date.now()}.${extension}`, { type: blobType });
         const localAudioUrl = URL.createObjectURL(audioBlob);
         setAudioDraftUrl((prevUrl) => {
           if (prevUrl) {
@@ -1164,6 +1171,7 @@ export default function Chat() {
           }
           return localAudioUrl;
         });
+        setAudioDraftFile(file);
         setAudioDraftStatus('recorded');
       };
 
@@ -1215,6 +1223,46 @@ export default function Chat() {
       mediaStreamRef.current = null;
     }
     clearLocalAudioDraft();
+  };
+
+  const handleTranscribeRecording = async () => {
+    if (!audioDraftFile || isTranscribingAudio) return;
+
+    setIsTranscribingAudio(true);
+    try {
+      const uploadResult = await base44.integrations.Core.UploadFile({ file: audioDraftFile });
+      const file_url = uploadResult?.file_url;
+      if (!file_url) throw new Error('Upload returned no file_url');
+
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: 'Transcribe this audio to plain text. Return exactly what was said without summaries. Keep punctuation natural.',
+        file_urls: [file_url],
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            transcript: { type: 'string' }
+          },
+          required: ['transcript']
+        }
+      });
+
+      const transcript = typeof result?.transcript === 'string' ? result.transcript.trim() : '';
+      if (!transcript) throw new Error('No transcript returned');
+
+      setInputMessage((prev) => {
+        if (!prev.trim()) return transcript;
+        return `${prev}${prev.endsWith('\n') ? '' : '\n'}${transcript}`;
+      });
+      toast({ title: 'Transcript added to composer.' });
+    } catch (error) {
+      console.error('[Audio] Transcription failed:', error);
+      toast({
+        title: 'Audio transcription failed. Please retry the draft upload/transcription.',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsTranscribingAudio(false);
+    }
   };
 
   const handleSendMessage = async () => {
@@ -2131,14 +2179,14 @@ export default function Chat() {
                     disabled={isLoading || isUploadingFile} />
                   <div className="flex items-center gap-2 px-1 py-1">
                     {audioDraftStatus === 'idle' &&
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleStartRecording}
-                        disabled={isLoading || isUploadingFile}
-                        aria-label="Record voice draft"
-                        className="text-teal-700 hover:bg-teal-100">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleStartRecording}
+                          disabled={isLoading || isUploadingFile || isTranscribingAudio}
+                          aria-label="Record voice draft"
+                          className="text-teal-700 hover:bg-teal-100">
                         <Mic className="w-4 h-4 mr-1" />
                         Record
                       </Button>
@@ -2172,6 +2220,7 @@ export default function Chat() {
                           variant="ghost"
                           size="sm"
                           onClick={handlePlayRecording}
+                          disabled={isLoading || isUploadingFile || isTranscribingAudio}
                           aria-label="Play recording"
                           className="text-teal-700 hover:bg-teal-100">
                           <Play className="w-4 h-4 mr-1" />
@@ -2181,7 +2230,19 @@ export default function Chat() {
                           type="button"
                           variant="ghost"
                           size="sm"
+                          onClick={handleTranscribeRecording}
+                          disabled={isLoading || isUploadingFile || isTranscribingAudio}
+                          aria-label="Transcribe recording"
+                          className="text-teal-700 hover:bg-teal-100">
+                          {isTranscribingAudio ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : null}
+                          {isTranscribingAudio ? 'Transcribing...' : 'Transcribe'}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
                           onClick={handleDeleteRecording}
+                          disabled={isLoading || isUploadingFile || isTranscribingAudio}
                           aria-label="Delete recording"
                           className="text-red-700 hover:bg-red-100">
                           <Trash2 className="w-4 h-4 mr-1" />
@@ -2198,14 +2259,14 @@ export default function Chat() {
                     variant="ghost"
                     size="icon"
                     onClick={() => fileInputRef.current?.click()}
-                    disabled={isLoading || isUploadingFile}
+                    disabled={isLoading || isUploadingFile || isTranscribingAudio}
                     aria-label="Attach file"
                     className="text-teal-600 h-[48px] w-[48px] min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 hover:bg-teal-50">
                     <Paperclip className="w-5 h-5" />
                   </Button>
                   <Button
                     onClick={handleSendMessage}
-                    disabled={(!inputMessage.trim() && !attachedFile) || isLoading || isUploadingFile}
+                    disabled={(!inputMessage.trim() && !attachedFile) || isLoading || isUploadingFile || isTranscribingAudio}
                     data-testid="therapist-chat-send" className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 h-[48px] flex-shrink-0">
                     {isUploadingFile ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                   </Button>
