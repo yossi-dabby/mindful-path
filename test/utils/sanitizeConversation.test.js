@@ -600,6 +600,20 @@ describe('attachment metadata marker helpers', () => {
       url: 'https://files.example.com/notes.txt',
       name: 'notes.txt',
     });
+
+    const audioMarker = serializeAttachmentMetadataMarker({
+      type: 'audio',
+      url: 'https://files.example.com/voice.webm',
+      name: 'voice.webm',
+      size: 4096,
+    });
+    const parsedAudioMarker = JSON.parse(audioMarker.slice(ATTACHMENT_METADATA_MARKER_PREFIX.length));
+    expect(parsedAudioMarker).toEqual({
+      type: 'audio',
+      url: 'https://files.example.com/voice.webm',
+      name: 'voice.webm',
+      size: 4096,
+    });
   });
 
   it('extractAttachmentMetadataFromUserContent handles non-string and no-marker inputs', () => {

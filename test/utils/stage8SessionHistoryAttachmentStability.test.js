@@ -62,6 +62,29 @@ describe('Stage 8 — session/history attachment stability', () => {
       expect(sanitized[0].metadata?.attachment?.type).toBe('pdf');
       expect(sanitized[0].metadata?.attachment?.url).toBe(attachment.url);
     });
+
+    it('restores audio attachment metadata from marker content while keeping transcript text visible', () => {
+      const attachment = {
+        type: 'audio',
+        url: 'https://files.example.com/history.webm',
+        name: 'history.webm',
+      };
+      const marker = serializeAttachmentMetadataMarker(attachment);
+      const messages = [
+        {
+          id: 'u-audio-marker',
+          role: 'user',
+          content: `This is the reviewed transcript.\n[ATTACHMENT_CONTEXT]\ntype: audio\nurl: ${attachment.url}\n${marker}`,
+          metadata: {},
+        },
+      ];
+
+      const sanitized = sanitizeConversationMessages(messages);
+      expect(sanitized).toHaveLength(1);
+      expect(sanitized[0].content).toBe('This is the reviewed transcript.');
+      expect(sanitized[0].metadata?.attachment?.type).toBe('audio');
+      expect(sanitized[0].metadata?.attachment?.url).toBe(attachment.url);
+    });
   });
 
   describe('message identity stability across sessions', () => {
