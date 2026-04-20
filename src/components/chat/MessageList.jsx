@@ -1,5 +1,6 @@
 import React from 'react';
 import MessageBubble from './MessageBubble';
+import { getMessageRenderKey } from './utils/messageRenderKey';
 
 /**
  * Renders the list of chat messages for the active therapist chat runtime.
@@ -19,7 +20,7 @@ export default function MessageList({ messages, visibleCount, conversationId, se
           : undefined;
       return (
         <MessageBubble
-          key={index}
+          key={getMessageRenderKey(message, index, conversationId)}
           message={message}
           conversationId={conversationId}
           messageIndex={index}
