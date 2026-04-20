@@ -1268,8 +1268,8 @@ export default function Chat() {
   };
 
   const handleSendMessage = async () => {
-    const pendingAttachmentFile = attachedFile || audioDraftFile;
-    if (!inputMessage.trim() && !pendingAttachmentFile) {
+    const attachmentToUpload = attachedFile || audioDraftFile;
+    if (!inputMessage.trim() && !attachmentToUpload) {
       console.log('[Send] ❌ Blocked - empty message');
       return;
     }
@@ -1439,19 +1439,19 @@ export default function Chat() {
       let attachmentMeta = undefined;
       let pdfAttachmentMetadata = {};
       let usedAudioDraftAttachment = false;
-      if (pendingAttachmentFile) {
+      if (attachmentToUpload) {
         setIsUploadingFile(true);
         try {
-          const { file_url } = await base44.integrations.Core.UploadFile({ file: pendingAttachmentFile });
-          const type = pendingAttachmentFile === audioDraftFile ? 'audio' : resolveAttachmentType(pendingAttachmentFile.name);
-          attachmentMeta = { type, url: file_url, name: pendingAttachmentFile.name };
-          usedAudioDraftAttachment = pendingAttachmentFile === audioDraftFile && type === 'audio';
+          const { file_url } = await base44.integrations.Core.UploadFile({ file: attachmentToUpload });
+          const type = attachmentToUpload === audioDraftFile ? 'audio' : resolveAttachmentType(attachmentToUpload.name);
+          attachmentMeta = { type, url: file_url, name: attachmentToUpload.name };
+          usedAudioDraftAttachment = attachmentToUpload === audioDraftFile;
 
           if (type === 'pdf') {
             try {
               const extractionResult = await base44.functions.invoke('extractPdfText', {
                 file_url,
-                file_name: pendingAttachmentFile.name
+                file_name: attachmentToUpload.name
               });
               const extractionData = extractionResult?.data || extractionResult || {};
               if (typeof extractionData.text === 'string' && extractionData.text.trim()) {
