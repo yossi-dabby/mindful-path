@@ -162,7 +162,10 @@ test.describe('Stage 4 runtime file-understanding verification', () => {
     await expect(page.getByText('stage4-image.png')).toBeVisible({ timeout: 10000 });
 
     await page.locator('[data-testid="therapist-chat-input"]').fill('Please describe this image.');
-    await page.locator('[data-testid="therapist-chat-send"]').click();
+    const sendButton = page.locator('[data-testid="therapist-chat-send"]');
+    await expect(sendButton).toBeVisible({ timeout: 20000 });
+    await expect(sendButton).toBeEnabled({ timeout: 20000 });
+    await sendButton.click();
 
     await expect.poll(() => captured.uploadedPayloads.length, { timeout: 15000 }).toBeGreaterThan(0);
     await expect.poll(() => captured.postedMessages.length, { timeout: 15000 }).toBeGreaterThan(0);
@@ -192,7 +195,10 @@ test.describe('Stage 4 runtime file-understanding verification', () => {
     await expect(page.getByText('stage4-doc.pdf')).toBeVisible({ timeout: 10000 });
 
     await page.locator('[data-testid="therapist-chat-input"]').fill('Please summarize this PDF.');
-    await page.locator('[data-testid="therapist-chat-send"]').click();
+    const sendButton = page.locator('[data-testid="therapist-chat-send"]');
+    await expect(sendButton).toBeVisible({ timeout: 20000 });
+    await expect(sendButton).toBeEnabled({ timeout: 20000 });
+    await sendButton.click();
 
     await expect.poll(() => captured.uploadedPayloads.length, { timeout: 15000 }).toBeGreaterThan(0);
     await expect.poll(() => captured.postedMessages.length, { timeout: 15000 }).toBeGreaterThan(0);
