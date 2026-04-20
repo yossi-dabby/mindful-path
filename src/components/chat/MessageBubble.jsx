@@ -10,7 +10,7 @@ import { applyFinalOutputGovernor } from '../utils/finalOutputGovernor';
 import { PDF_ANALYSIS_OVERFLOW_METADATA_KEY } from '../utils/validateAgentOutput.jsx';
 
 const ASSISTANT_ATTACHMENT_URL_REGEX = /https?:\/\/\S+/gi;
-const FILE_EXTENSIONS = new Set(['pdf', 'doc', 'docx', 'txt', 'csv', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'json', 'md', 'rtf']);
+const FILE_EXTENSIONS = new Set(['doc', 'docx', 'txt', 'csv', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'json', 'md', 'rtf']);
 
 function inferAttachmentTypeFromUrl(rawUrl) {
   if (typeof rawUrl !== 'string' || !rawUrl.trim()) return null;
@@ -21,7 +21,7 @@ function inferAttachmentTypeFromUrl(rawUrl) {
     if (pathname.endsWith('.pdf')) return 'pdf';
     const extensionMatch = pathname.match(/\.([a-z0-9]+)$/);
     const extension = extensionMatch?.[1] || '';
-    if (FILE_EXTENSIONS.has(extension)) return extension === 'pdf' ? 'pdf' : 'file';
+    if (FILE_EXTENSIONS.has(extension)) return 'file';
     return null;
   } catch {
     return null;
@@ -375,7 +375,6 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                   const isAttachmentPdf = assistantAttachment.type === 'pdf';
                   const isAttachmentFile = assistantAttachment.type === 'file';
                   const isThisPdfSigning = signingPdfUrl === assistantAttachment.url;
-                  const chipLabel = assistantAttachment.name || (isAttachmentPdf ? t('chat.attachments.pdf_chip_label') : t('chat.attachments.file_chip_label', 'Open file'));
 
                   if (isAttachmentImage) {
                     return (
@@ -389,6 +388,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                   }
 
                   if (isAttachmentPdf) {
+                    const chipLabel = assistantAttachment.name || t('chat.attachments.pdf_chip_label');
                     return (
                       <button
                 key={`assistant-attachment-${assistantAttachment.url}-${index}`}
@@ -404,6 +404,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                   }
 
                   if (isAttachmentFile) {
+                    const chipLabel = assistantAttachment.name || t('chat.attachments.file_chip_label', 'Open file');
                     return (
                       <a
                 key={`assistant-attachment-${assistantAttachment.url}-${index}`}
