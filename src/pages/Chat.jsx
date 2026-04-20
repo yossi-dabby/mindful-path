@@ -9,7 +9,7 @@ import AuthErrorBanner from '../components/utils/AuthErrorBanner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Loader2, Menu, Sparkles, ArrowLeft, Trash2, Paperclip } from 'lucide-react';
+import { Send, Loader2, Menu, Sparkles, ArrowLeft, Trash2, Paperclip, Mic, Square, AudioLines } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import {
   AlertDialog,
@@ -120,7 +120,14 @@ export default function Chat() {
   const [savePromptData, setSavePromptData] = useState(null);
   const [attachedFile, setAttachedFile] = useState(null);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
+  const [audioDraftFile, setAudioDraftFile] = useState(null);
+  const [audioDraftUrl, setAudioDraftUrl] = useState('');
+  const [isRecordingAudio, setIsRecordingAudio] = useState(false);
+  const [isTranscribingAudio, setIsTranscribingAudio] = useState(false);
   const fileInputRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const mediaRecorderChunksRef = useRef([]);
+  const mediaRecorderStreamRef = useRef(null);
   // MF-7: true when the loaded conversation belongs to a legacy variant-profile agent
   const [variantProfileBlocked, setVariantProfileBlocked] = useState(false);
   // Phase 8 — Upgraded-path UI state (only relevant when V5 wiring is active)
@@ -460,9 +467,16 @@ export default function Chat() {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      if (audioDraftUrl) {
+        URL.revokeObjectURL(audioDraftUrl);
+      }
+      if (mediaRecorderStreamRef.current) {
+        mediaRecorderStreamRef.current.getTracks().forEach((track) => track.stop());
+        mediaRecorderStreamRef.current = null;
+      }
       mountedRef.current = false;
     };
-  }, []);
+  }, [audioDraftUrl]);
 
   // Handle intent from URL parameters - create conversation with intent metadata
   useEffect(() => {
@@ -1044,6 +1058,131 @@ export default function Chat() {
     if (!file) return;
     setAttachedFile(file);
     e.target.value = '';
+  };
+
+  const clearAudioDraft = () => {
+    if (audioDraftUrl) {
+      URL.revokeObjectURL(audioDraftUrl);
+    }
+    setAudioDraftFile(null);
+    setAudioDraftUrl('');
+  };
+
+  const handleStartAudioRecording = async () => {
+    try {
+      if (!navigator?.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
+        toast({
+          title: 'Audio recording is not supported on this device.',
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderStreamRef.current = stream;
+      mediaRecorderChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+          mediaRecorderChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const blobType = mediaRecorder.mimeType || 'audio/webm';
+        const blob = new Blob(mediaRecorderChunksRef.current, { type: blobType });
+        const extension = blobType.includes('ogg') ? 'ogg' : blobType.includes('mp4') ? 'm4a' : 'webm';
+        const file = new File([blob], `voice-draft-${Date.now()}.${extension}`, { type: blobType });
+        const objectUrl = URL.createObjectURL(blob);
+
+        clearAudioDraft();
+        setAudioDraftFile(file);
+        setAudioDraftUrl(objectUrl);
+        setIsRecordingAudio(false);
+
+        if (mediaRecorderStreamRef.current) {
+          mediaRecorderStreamRef.current.getTracks().forEach((track) => track.stop());
+          mediaRecorderStreamRef.current = null;
+        }
+      };
+
+      mediaRecorder.onerror = () => {
+        setIsRecordingAudio(false);
+        if (mediaRecorderStreamRef.current) {
+          mediaRecorderStreamRef.current.getTracks().forEach((track) => track.stop());
+          mediaRecorderStreamRef.current = null;
+        }
+        toast({
+          title: 'Audio recording failed. Please try again.',
+          variant: 'destructive'
+        });
+      };
+
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.start();
+      setIsRecordingAudio(true);
+    } catch (error) {
+      setIsRecordingAudio(false);
+      if (mediaRecorderStreamRef.current) {
+        mediaRecorderStreamRef.current.getTracks().forEach((track) => track.stop());
+        mediaRecorderStreamRef.current = null;
+      }
+      toast({
+        title: 'Microphone access is required to record audio.',
+        variant: 'destructive'
+      });
+      console.error('[Audio] Recording start failed:', error);
+    }
+  };
+
+  const handleStopAudioRecording = () => {
+    const recorder = mediaRecorderRef.current;
+    if (!recorder || recorder.state === 'inactive') {
+      return;
+    }
+    recorder.stop();
+  };
+
+  const handleTranscribeAudioDraft = async () => {
+    if (!audioDraftFile || isTranscribingAudio) {
+      return;
+    }
+
+    setIsTranscribingAudio(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file: audioDraftFile });
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: 'Transcribe this audio to plain text. Return exactly what was said without summaries. Keep punctuation natural.',
+        file_urls: [file_url],
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            transcript: { type: 'string' }
+          },
+          required: ['transcript']
+        }
+      });
+
+      const transcript = typeof result?.transcript === 'string' ? result.transcript.trim() : '';
+      if (!transcript) {
+        throw new Error('No transcript returned');
+      }
+
+      setInputMessage((prev) => {
+        if (!prev.trim()) return transcript;
+        return `${prev}${prev.endsWith('\n') ? '' : '\n'}${transcript}`;
+      });
+      toast({ title: 'Transcript added to composer.' });
+    } catch (error) {
+      console.error('[Audio] Transcription failed:', error);
+      toast({
+        title: 'Audio upload or transcription failed. Please try again.',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsTranscribingAudio(false);
+    }
   };
 
   const handleSendMessage = async () => {
@@ -1944,6 +2083,45 @@ export default function Chat() {
                   onChange={handleFileSelect}
                 />
                 <div className="flex flex-col flex-1 gap-1">
+                  {(audioDraftFile || isRecordingAudio) && (
+                    <div className="flex flex-col gap-2 px-2 py-2 rounded-lg bg-teal-50 border border-teal-200 text-xs text-teal-700">
+                      {isRecordingAudio ? (
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+                          <span>Recording audio draft…</span>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-2">
+                            <AudioLines className="w-3 h-3 flex-shrink-0" />
+                            <span className="truncate">Audio draft ready</span>
+                          </div>
+                          {audioDraftUrl && <audio controls src={audioDraftUrl} className="w-full" />}
+                          <div className="flex items-center gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={handleTranscribeAudioDraft}
+                              disabled={isTranscribingAudio || isLoading}
+                              className="h-8 text-xs">
+                              {isTranscribingAudio ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : null}
+                              {isTranscribingAudio ? 'Transcribing...' : 'Transcribe'}
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={clearAudioDraft}
+                              disabled={isTranscribingAudio || isLoading}
+                              className="h-8 text-xs">
+                              Delete
+                            </Button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
                   {attachedFile && (
                     <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-teal-50 border border-teal-200 text-xs text-teal-700">
                       <Paperclip className="w-3 h-3 flex-shrink-0" />
@@ -1965,15 +2143,25 @@ export default function Chat() {
                     type="button"
                     variant="ghost"
                     size="icon"
+                    onClick={isRecordingAudio ? handleStopAudioRecording : handleStartAudioRecording}
+                    disabled={isLoading || isUploadingFile || isTranscribingAudio}
+                    aria-label={isRecordingAudio ? 'Stop recording' : 'Record audio draft'}
+                    className="text-teal-600 h-[48px] w-[48px] min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 hover:bg-teal-50">
+                    {isRecordingAudio ? <Square className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => fileInputRef.current?.click()}
-                    disabled={isLoading || isUploadingFile}
+                    disabled={isLoading || isUploadingFile || isTranscribingAudio}
                     aria-label="Attach file"
                     className="text-teal-600 h-[48px] w-[48px] min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 hover:bg-teal-50">
                     <Paperclip className="w-5 h-5" />
                   </Button>
                   <Button
                     onClick={handleSendMessage}
-                    disabled={(!inputMessage.trim() && !attachedFile) || isLoading || isUploadingFile}
+                    disabled={(!inputMessage.trim() && !attachedFile) || isLoading || isUploadingFile || isTranscribingAudio}
                     data-testid="therapist-chat-send" className="bg-teal-600 text-primary-foreground px-4 py-2 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 min-h-[44px] md:min-h-0 h-[48px] flex-shrink-0">
                     {isUploadingFile ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                   </Button>
