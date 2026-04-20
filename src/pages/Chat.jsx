@@ -721,8 +721,11 @@ export default function Chat() {
             return;
           }
 
-          // Second pass: process only safe messages
-          processedMessages = (data.messages || []).
+          // Second pass: process only safe messages.
+          // IMPORTANT: run the full conversation sanitizer first so user attachment
+          // metadata is recovered from the send-contract marker during live updates.
+          const sanitizedIncomingMessages = sanitizeConversationMessages(data.messages || []);
+          processedMessages = sanitizedIncomingMessages.
           map((msg) => {
             if (msg.role === 'assistant' && msg.content) {
               // Skip if not render-safe
