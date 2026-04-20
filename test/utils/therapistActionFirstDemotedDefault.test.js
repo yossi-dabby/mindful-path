@@ -334,6 +334,34 @@ describe('Action-First Demotion — SECTION D: required regression scenarios', (
   });
 });
 
+// ─── SECTION D2 — Stage 9 response quality stabilizers ────────────────────────
+
+describe('Action-First Demotion — SECTION D2: Stage 9 response quality stabilizers', () => {
+  it('30.1 Planner block includes the Stage 9 response quality stabilizers section', () => {
+    expect(THERAPIST_PLANNER_FIRST_INSTRUCTIONS).toContain('STAGE 9 RESPONSE QUALITY STABILIZERS');
+  });
+
+  it('30.2 Stage 9 enforces a long warm containing default first-turn opener', () => {
+    expect(THERAPIST_PLANNER_FIRST_INSTRUCTIONS).toContain('First-turn default opener: long, warm, and containing');
+  });
+
+  it('30.3 Stage 9 enforces question-restraint and suppresses generic intake/mapping endings', () => {
+    expect(THERAPIST_PLANNER_FIRST_INSTRUCTIONS).toContain('Question restraint: default to no question');
+    expect(THERAPIST_PLANNER_FIRST_INSTRUCTIONS).toContain('Do NOT end turns with generic intake/mapping prompts');
+  });
+
+  it('30.4 Stage 9 enforces explanation-first hold for social anxiety, GAD/worry loops, and trauma/hyperarousal', () => {
+    expect(THERAPIST_PLANNER_FIRST_INSTRUCTIONS).toContain('Explanation-first hold for social anxiety');
+    expect(THERAPIST_PLANNER_FIRST_INSTRUCTIONS).toContain('Explanation-first hold for GAD/worry loops');
+    expect(THERAPIST_PLANNER_FIRST_INSTRUCTIONS).toContain('Explanation-first hold for trauma/hyperarousal');
+  });
+
+  it('30.5 Stage 9 enforces therapist voice over teacher voice and cross-language parity', () => {
+    expect(THERAPIST_PLANNER_FIRST_INSTRUCTIONS).toContain('Therapist voice over teacher voice');
+    expect(THERAPIST_PLANNER_FIRST_INSTRUCTIONS).toContain('Cross-language parity');
+  });
+});
+
 // ─── SECTION E — Action path still available when conditions are met ──────────
 
 describe('Action-First Demotion — SECTION E: action path availability when formulation conditions met', () => {
