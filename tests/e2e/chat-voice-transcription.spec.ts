@@ -50,7 +50,76 @@ const installFakeMediaRecording = async (page: any, mimeType = 'audio/webm') => 
   }, mimeType);
 };
 
+const installFakeSpeechRecognition = async (page: any, transcript: string) => {
+  await page.addInitScript((spokenText: string) => {
+    class FakeSpeechRecognition {
+      continuous = true;
+      interimResults = true;
+      lang = 'en';
+      onresult: ((event: any) => void) | null = null;
+      onerror: ((event: any) => void) | null = null;
+      onend: (() => void) | null = null;
+
+      start() {}
+
+      stop() {
+        this.onresult?.({
+          resultIndex: 0,
+          results: [{
+            0: { transcript: spokenText },
+            isFinal: true,
+            length: 1,
+          }],
+        });
+        this.onend?.();
+      }
+
+      abort() {
+        this.onend?.();
+      }
+    }
+
+    Object.defineProperty(window, 'SpeechRecognition', {
+      configurable: true,
+      writable: true,
+      value: FakeSpeechRecognition,
+    });
+  }, transcript);
+};
+
 test.describe('Chat voice transcription runtime flow', () => {
+  test('uses browser speech recognition transcript and skips unsupported audio file transcription endpoint', async ({ page }) => {
+    await installFakeMediaRecording(page, 'audio/webm');
+    await installFakeSpeechRecognition(page, 'Transcript from browser speech recognition.');
+    await mockApi(page);
+
+    let uploadCount = 0;
+    let invokeCount = 0;
+
+    await page.route('**/api/**/integration-endpoints/**', async (route) => {
+      const url = route.request().url();
+      if (/\/integration-endpoints\/Core\/UploadFile\b/i.test(url)) uploadCount += 1;
+      if (/\/integration-endpoints\/Core\/InvokeLLM\b/i.test(url)) invokeCount += 1;
+      await route.continue();
+    });
+
+    await spaNavigate(page, '/Chat');
+    await expect(page.locator('[data-testid="therapist-chat-input"]')).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('button', { name: 'Record' }).click();
+    await expect(page.getByRole('button', { name: 'Stop' })).toBeVisible({ timeout: 5000 });
+    await page.getByRole('button', { name: 'Stop' }).click();
+
+    await expect(page.getByText('Voice draft ready')).toBeVisible({ timeout: 10000 });
+    await page.getByRole('button', { name: 'Transcribe' }).click();
+
+    const composer = page.locator('[data-testid="therapist-chat-input"]');
+    await expect(composer).toHaveValue('Transcript from browser speech recognition.', { timeout: 10000 });
+    await expect(page.getByText('Transcript added to composer.')).toBeVisible({ timeout: 10000 });
+    expect(uploadCount).toBe(0);
+    expect(invokeCount).toBe(0);
+  });
+
   test('transcribes uploaded recording and inserts transcript into composer without auto-send', async ({ page }) => {
     await installFakeMediaRecording(page, 'audio/webm');
 
