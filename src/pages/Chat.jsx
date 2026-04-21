@@ -1280,6 +1280,29 @@ export default function Chat() {
     return '';
   };
 
+  const buildNormalizedAudioDraftForTranscriptionRetry = (file) => {
+    if (!file) return null;
+    const originalType = typeof file.type === 'string' ? file.type : '';
+    if (!originalType) return null;
+
+    const sanitizedType = originalType.split(';')[0].trim().toLowerCase();
+    if (!sanitizedType) return null;
+
+    let normalizedType = sanitizedType;
+    if (sanitizedType.startsWith('video/')) {
+      normalizedType = sanitizedType.replace(/^video\//, 'audio/');
+    }
+
+    if (normalizedType === originalType.toLowerCase()) return null;
+
+    const baseName = typeof file.name === 'string' && file.name.trim()
+      ? file.name.replace(/\.[^.]+$/, '')
+      : `voice-draft-${Date.now()}`;
+    const extension = normalizedType.includes('ogg') ? 'ogg' : normalizedType.includes('wav') ? 'wav' : normalizedType.includes('mp4') ? 'm4a' : 'webm';
+
+    return new File([file], `${baseName}.${extension}`, { type: normalizedType });
+  };
+
   const handleTranscribeRecording = async () => {
     if (!audioDraftFile || isTranscribingAudio) return;
 
@@ -1302,34 +1325,69 @@ export default function Chat() {
 
       let result;
       const basePrompt = 'Transcribe this audio to plain text. Return only the spoken words with natural punctuation.';
-      try {
+      const runTranscription = async (targetFileUrl) => {
         const transcriptionRequest = {
           prompt: basePrompt,
-          file_urls: [file_url]
+          file_urls: [targetFileUrl]
         };
 
         console.log('[Audio] Transcription request payload:', {
-          file_url,
+          file_url: targetFileUrl,
           file_name: audioDraftFile.name,
           mime_type: audioDraftFile.type || 'unknown',
           file_size: typeof audioDraftFile.size === 'number' ? audioDraftFile.size : null,
           request: transcriptionRequest
         });
 
-        result = await base44.integrations.Core.InvokeLLM(transcriptionRequest);
+        return await base44.integrations.Core.InvokeLLM(transcriptionRequest);
+      };
+
+      try {
+        result = await runTranscription(file_url);
       } catch (transcriptionError) {
-        console.error('[Audio] Transcription request failed:', {
+        const normalizedRetryFile = buildNormalizedAudioDraftForTranscriptionRetry(audioDraftFile);
+        if (normalizedRetryFile) {
+          try {
+            const retryUploadResult = await base44.integrations.Core.UploadFile({ file: normalizedRetryFile });
+            const retryFileUrl = retryUploadResult?.file_url;
+            if (!retryFileUrl) throw new Error('Retry upload returned no file_url');
+            result = await runTranscription(retryFileUrl);
+          } catch (retryError) {
+            console.error('[Audio] Transcription retry failed:', {
+              first_attempt: {
+                message: transcriptionError?.message,
+                status: transcriptionError?.status,
+                code: transcriptionError?.code,
+                data: transcriptionError?.data
+              },
+              retry_attempt: {
+                message: retryError?.message,
+                status: retryError?.status,
+                code: retryError?.code,
+                data: retryError?.data
+              }
+            });
+            toast({
+              title: 'Audio transcription failed',
+              description: 'The upload succeeded, but transcription failed. Retry or delete this draft.',
+              variant: 'destructive'
+            });
+            return;
+          }
+        } else {
+          console.error('[Audio] Transcription request failed:', {
           message: transcriptionError?.message,
           status: transcriptionError?.status,
           code: transcriptionError?.code,
           data: transcriptionError?.data
-        });
-        toast({
-          title: 'Audio transcription failed',
-          description: 'The upload succeeded, but transcription failed. Retry or delete this draft.',
-          variant: 'destructive'
-        });
-        return;
+          });
+          toast({
+            title: 'Audio transcription failed',
+            description: 'The upload succeeded, but transcription failed. Retry or delete this draft.',
+            variant: 'destructive'
+          });
+          return;
+        }
       }
 
       const transcript = extractTranscriptText(result);
