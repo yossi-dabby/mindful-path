@@ -222,4 +222,74 @@ test.describe('Chat voice transcription runtime flow', () => {
     expect(captured.invokePayloads.every((payload) => payload?.model === undefined)).toBe(true);
     expect(captured.invokePayloads.every((payload) => payload?.response_json_schema === undefined)).toBe(true);
   });
+
+  test('falls back to file-only transcription payload when prompt-based payload is rejected', async ({ page }) => {
+    await installFakeMediaRecording(page, 'audio/webm');
+    await mockApi(page);
+
+    const captured = {
+      invokePayloads: [] as Array<Record<string, any>>,
+      invokeCount: 0,
+    };
+
+    await page.route('**/api/**/integration-endpoints/**', async (route) => {
+      const req = route.request();
+      const url = req.url();
+
+      if (/\/integration-endpoints\/Core\/UploadFile\b/i.test(url)) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ file_url: 'https://files.example.com/voice-draft.webm' }),
+        });
+        return;
+      }
+
+      if (/\/integration-endpoints\/Core\/InvokeLLM\b/i.test(url)) {
+        captured.invokeCount += 1;
+        const body = (req.postDataJSON?.() as Record<string, any>) || {};
+        captured.invokePayloads.push(body);
+
+        if (captured.invokeCount === 1 && typeof body?.prompt === 'string') {
+          await route.fulfill({
+            status: 400,
+            contentType: 'application/json',
+            body: JSON.stringify({ message: 'prompt is not supported for this transcription path' }),
+          });
+          return;
+        }
+
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify('Transcribed using file-only fallback payload.'),
+        });
+        return;
+      }
+
+      await route.continue();
+    });
+
+    await spaNavigate(page, '/Chat');
+    await expect(page.locator('[data-testid="therapist-chat-input"]')).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('button', { name: 'Record' }).click();
+    await expect(page.getByRole('button', { name: 'Stop' })).toBeVisible({ timeout: 5000 });
+    await page.getByRole('button', { name: 'Stop' }).click();
+
+    await expect(page.getByText('Voice draft ready')).toBeVisible({ timeout: 10000 });
+    await page.getByRole('button', { name: 'Transcribe' }).click();
+
+    const composer = page.locator('[data-testid="therapist-chat-input"]');
+    await expect(composer).toHaveValue('Transcribed using file-only fallback payload.', { timeout: 10000 });
+    await expect(page.getByText('Transcript added to composer.')).toBeVisible({ timeout: 10000 });
+
+    expect(captured.invokeCount).toBe(2);
+    expect(typeof captured.invokePayloads[0]?.prompt).toBe('string');
+    expect(captured.invokePayloads[0]?.file_urls).toEqual(['https://files.example.com/voice-draft.webm']);
+    expect(captured.invokePayloads[1]?.prompt).toBeUndefined();
+    expect(captured.invokePayloads[1]?.file_urls).toEqual(['https://files.example.com/voice-draft.webm']);
+    expect(captured.invokePayloads.every((payload) => payload?.model === undefined)).toBe(true);
+    expect(captured.invokePayloads.every((payload) => payload?.response_json_schema === undefined)).toBe(true);
+  });
 });
