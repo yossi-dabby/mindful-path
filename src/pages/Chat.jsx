@@ -1185,10 +1185,7 @@ export default function Chat() {
               }
             }
             if (nextFinalSegments.length > 0) {
-              const joined = [speechTranscriptRef.current, ...nextFinalSegments]
-              .filter(Boolean)
-              .join(' ')
-              .trim();
+              const joined = [speechTranscriptRef.current, ...nextFinalSegments].filter(Boolean).join(' ').trim();
               speechTranscriptRef.current = joined;
               setAudioDraftTranscript(joined);
             }
