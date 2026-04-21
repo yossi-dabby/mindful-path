@@ -1516,7 +1516,9 @@ export default function Chat() {
   };
 
   const handleSendMessage = async () => {
-    const attachmentToUpload = attachedFile || audioDraftFile;
+    const hasRecordedAudioDraft = audioDraftStatus === 'recorded' && !!audioDraftFile;
+    const isVoiceDerivedSend = !attachedFile && hasRecordedAudioDraft && !!inputMessage.trim();
+    const attachmentToUpload = attachedFile || (!isVoiceDerivedSend ? audioDraftFile : null);
     if (!inputMessage.trim() && !attachmentToUpload) {
       console.log('[Send] ❌ Blocked - empty message');
       return;
@@ -1729,7 +1731,7 @@ export default function Chat() {
       // If no regular file is attached, persist the recorded audio draft as the
       // user attachment while keeping the edited transcript as message text.
       let shouldClearAudioDraftAfterSend = false;
-      if (!attachmentMeta && audioDraftStatus === 'recorded' && audioDraftFile) {
+      if (!isVoiceDerivedSend && !attachmentMeta && audioDraftStatus === 'recorded' && audioDraftFile) {
         setIsUploadingFile(true);
         try {
           const { file_url } = await base44.integrations.Core.UploadFile({ file: audioDraftFile });
@@ -1782,6 +1784,9 @@ export default function Chat() {
           file_urls: [attachmentMeta.url]
         } : {})
       });
+      if (isVoiceDerivedSend) {
+        clearLocalAudioDraft();
+      }
       if (usedAudioDraftAttachment) {
         clearLocalAudioDraft();
       }
