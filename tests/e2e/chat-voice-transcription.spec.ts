@@ -219,7 +219,7 @@ test.describe('Chat voice transcription runtime flow', () => {
     expect(captured.uploadContentTypes[1]).toBe('audio/webm');
     expect(captured.invokePayloads[0]?.file_urls).toEqual(['https://files.example.com/voice-draft-1.webm']);
     expect(captured.invokePayloads[1]?.file_urls).toEqual(['https://files.example.com/voice-draft-2.webm']);
-    expect(captured.invokePayloads.every((payload) => payload?.model === undefined)).toBeTruthy();
-    expect(captured.invokePayloads.every((payload) => payload?.response_json_schema === undefined)).toBeTruthy();
+    expect(captured.invokePayloads.every((payload) => payload?.model === undefined)).toBe(true);
+    expect(captured.invokePayloads.every((payload) => payload?.response_json_schema === undefined)).toBe(true);
   });
 });

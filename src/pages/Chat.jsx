@@ -1297,8 +1297,16 @@ export default function Chat() {
 
     const baseName = typeof file.name === 'string' && file.name.trim()
       ? file.name.replace(/\.[^.]+$/, '')
-      : `voice-draft-${Date.now()}`;
-    const extension = normalizedType.includes('ogg') ? 'ogg' : normalizedType.includes('wav') ? 'wav' : normalizedType.includes('mp4') ? 'm4a' : 'webm';
+      : `voice-draft-${Math.random().toString(36).slice(2, 10)}`;
+
+    let extension = 'webm';
+    if (normalizedType.includes('ogg')) {
+      extension = 'ogg';
+    } else if (normalizedType.includes('wav')) {
+      extension = 'wav';
+    } else if (normalizedType.includes('mp4')) {
+      extension = 'm4a';
+    }
 
     return new File([file], `${baseName}.${extension}`, { type: normalizedType });
   };
