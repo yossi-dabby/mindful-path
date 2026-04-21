@@ -87,6 +87,14 @@ test.describe('Chat voice transcription runtime flow', () => {
           });
           return;
         }
+        if (body?.model) {
+          await route.fulfill({
+            status: 400,
+            contentType: 'application/json',
+            body: JSON.stringify({ message: 'model override is not supported for this audio transcription path' }),
+          });
+          return;
+        }
 
         await route.fulfill({
           status: 200,
@@ -131,6 +139,7 @@ test.describe('Chat voice transcription runtime flow', () => {
     expect(captured.uploadMimeType).toBe('audio/webm');
     expect(captured.invokePayload).not.toBeNull();
     expect(captured.invokePayload?.file_urls).toEqual(['https://files.example.com/voice-draft.webm']);
+    expect(captured.invokePayload?.model).toBeUndefined();
     expect(captured.invokePayload?.response_json_schema).toBeUndefined();
     expect(captured.messagePostCount).toBe(0);
   });

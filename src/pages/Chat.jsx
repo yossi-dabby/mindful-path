@@ -1301,41 +1301,22 @@ export default function Chat() {
       }
 
       let result;
-      const modelsToTry = ['gpt_5_4', 'gemini_3_flash'];
       const basePrompt = 'Transcribe this audio to plain text. Return only the spoken words with natural punctuation.';
       try {
+        const transcriptionRequest = {
+          prompt: basePrompt,
+          file_urls: [file_url]
+        };
+
         console.log('[Audio] Transcription request payload:', {
           file_url,
           file_name: audioDraftFile.name,
           mime_type: audioDraftFile.type || 'unknown',
           file_size: typeof audioDraftFile.size === 'number' ? audioDraftFile.size : null,
-          models: modelsToTry
+          request: transcriptionRequest
         });
 
-        let lastTranscriptionError = null;
-        for (const model of modelsToTry) {
-          try {
-            result = await base44.integrations.Core.InvokeLLM({
-              model,
-              prompt: basePrompt,
-              file_urls: [file_url]
-            });
-            lastTranscriptionError = null;
-            break;
-          } catch (transcriptionModelError) {
-            lastTranscriptionError = transcriptionModelError;
-            console.error(`[Audio] Transcription request failed for model ${model}:`, {
-              message: transcriptionModelError?.message,
-              status: transcriptionModelError?.status,
-              code: transcriptionModelError?.code,
-              data: transcriptionModelError?.data
-            });
-          }
-        }
-
-        if (lastTranscriptionError) {
-          throw lastTranscriptionError;
-        }
+        result = await base44.integrations.Core.InvokeLLM(transcriptionRequest);
       } catch (transcriptionError) {
         console.error('[Audio] Transcription request failed:', {
           message: transcriptionError?.message,
