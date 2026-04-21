@@ -69,6 +69,7 @@ const LANG_FULL_NAMES = {
 };
 const IMAGE_ATTACHMENT_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg']);
 const AUDIO_ATTACHMENT_EXTENSIONS = new Set(['mp3', 'wav', 'ogg', 'm4a', 'aac', 'webm']);
+const getSpeechRecognitionConstructor = () => window.SpeechRecognition || window.webkitSpeechRecognition || null;
 
 function hasUserAttachment(message) {
   if (!message || message.role !== 'user') return false;
@@ -125,6 +126,7 @@ export default function Chat() {
   const [audioDraftStatus, setAudioDraftStatus] = useState('idle');
   const [audioDraftUrl, setAudioDraftUrl] = useState(null);
   const [audioDraftFile, setAudioDraftFile] = useState(null);
+  const [audioDraftTranscript, setAudioDraftTranscript] = useState('');
   const [isTranscribingAudio, setIsTranscribingAudio] = useState(false);
   const fileInputRef = useRef(null);
   const mediaRecorderRef = useRef(null);
@@ -132,6 +134,8 @@ export default function Chat() {
   const audioChunksRef = useRef([]);
   const audioDraftPlayerRef = useRef(null);
   const audioDraftUrlRef = useRef(null);
+  const speechRecognitionRef = useRef(null);
+  const speechTranscriptRef = useRef('');
   // MF-7: true when the loaded conversation belongs to a legacy variant-profile agent
   const [variantProfileBlocked, setVariantProfileBlocked] = useState(false);
   // Phase 8 — Upgraded-path UI state (only relevant when V5 wiring is active)
@@ -206,6 +210,8 @@ export default function Chat() {
     setVariantProfileBlocked(false); // MF-7: reset block state whenever conversation switches
     setAudioDraftStatus('idle');
     setAudioDraftFile(null);
+    setAudioDraftTranscript('');
+    speechTranscriptRef.current = '';
     setIsTranscribingAudio(false);
     setAudioDraftUrl((prevUrl) => {
       if (prevUrl) {
@@ -1102,6 +1108,15 @@ export default function Chat() {
   };
 
   const clearLocalAudioDraft = () => {
+    if (speechRecognitionRef.current) {
+      try {
+        speechRecognitionRef.current.onresult = null;
+        speechRecognitionRef.current.onerror = null;
+        speechRecognitionRef.current.onend = null;
+        speechRecognitionRef.current.abort();
+      } catch (_) {}
+      speechRecognitionRef.current = null;
+    }
     if (audioDraftPlayerRef.current) {
       audioDraftPlayerRef.current.pause();
       audioDraftPlayerRef.current.currentTime = 0;
@@ -1114,6 +1129,8 @@ export default function Chat() {
     });
     setAudioDraftStatus('idle');
     setAudioDraftFile(null);
+    setAudioDraftTranscript('');
+    speechTranscriptRef.current = '';
     setIsTranscribingAudio(false);
     audioChunksRef.current = [];
   };
@@ -1149,6 +1166,40 @@ export default function Chat() {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaStreamRef.current = stream;
       audioChunksRef.current = [];
+      speechTranscriptRef.current = '';
+      setAudioDraftTranscript('');
+
+      const SpeechRecognitionCtor = getSpeechRecognitionConstructor();
+      if (SpeechRecognitionCtor) {
+        try {
+          const speechRecognition = new SpeechRecognitionCtor();
+          speechRecognition.continuous = true;
+          speechRecognition.interimResults = true;
+          speechRecognition.lang = i18n.language || 'en';
+          speechRecognition.onresult = (event) => {
+            const nextFinalSegments = [];
+            for (let i = event.resultIndex; i < event.results.length; i += 1) {
+              const result = event.results[i];
+              if (result?.isFinal && typeof result?.[0]?.transcript === 'string') {
+                nextFinalSegments.push(result[0].transcript.trim());
+              }
+            }
+            if (nextFinalSegments.length > 0) {
+              const joined = [speechTranscriptRef.current, ...nextFinalSegments].filter(Boolean).join(' ').trim();
+              speechTranscriptRef.current = joined;
+              setAudioDraftTranscript(joined);
+            }
+          };
+          speechRecognition.onerror = (event) => {
+            console.warn('[Voice Draft] speech recognition error:', event);
+          };
+          speechRecognitionRef.current = speechRecognition;
+          speechRecognition.start();
+        } catch (speechError) {
+          console.warn('[Voice Draft] speech recognition unavailable:', speechError);
+          speechRecognitionRef.current = null;
+        }
+      }
 
       const recorder = new window.MediaRecorder(stream);
       mediaRecorderRef.current = recorder;
@@ -1216,6 +1267,13 @@ export default function Chat() {
   };
 
   const handleStopRecording = () => {
+    if (speechRecognitionRef.current) {
+      try {
+        speechRecognitionRef.current.stop();
+      } catch (error) {
+        console.warn('[Voice Draft] speech recognition stop failed:', error);
+      }
+    }
     if (mediaRecorderRef.current?.state === 'recording') {
       try {
         mediaRecorderRef.current.stop();
@@ -1313,6 +1371,15 @@ export default function Chat() {
 
   const handleTranscribeRecording = async () => {
     if (!audioDraftFile || isTranscribingAudio) return;
+    const localTranscript = typeof audioDraftTranscript === 'string' ? audioDraftTranscript.trim() : '';
+    if (localTranscript) {
+      setInputMessage((prev) => {
+        if (!prev.trim()) return localTranscript;
+        return `${prev}${prev.endsWith('\n') ? '' : '\n'}${localTranscript}`;
+      });
+      toast({ title: 'Transcript added to composer.' });
+      return;
+    }
 
     setIsTranscribingAudio(true);
     try {
