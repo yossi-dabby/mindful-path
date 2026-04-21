@@ -1334,20 +1334,41 @@ export default function Chat() {
       let result;
       const basePrompt = 'Transcribe this audio to plain text. Return only the spoken words with natural punctuation.';
       const runTranscription = async (targetFileUrl) => {
-        const transcriptionRequest = {
+        const transcriptionRequests = [
+        {
           prompt: basePrompt,
           file_urls: [targetFileUrl]
-        };
+        },
+        {
+          file_urls: [targetFileUrl]
+        }];
 
-        console.log('[Audio] Transcription request payload:', {
-          file_url: targetFileUrl,
-          file_name: audioDraftFile.name,
-          mime_type: audioDraftFile.type || 'unknown',
-          file_size: typeof audioDraftFile.size === 'number' ? audioDraftFile.size : null,
-          request: transcriptionRequest
-        });
+        let lastError = null;
+        for (let index = 0; index < transcriptionRequests.length; index += 1) {
+          const transcriptionRequest = transcriptionRequests[index];
+          try {
+            console.log('[Audio] Transcription request payload:', {
+              file_url: targetFileUrl,
+              file_name: audioDraftFile.name,
+              mime_type: audioDraftFile.type || 'unknown',
+              file_size: typeof audioDraftFile.size === 'number' ? audioDraftFile.size : null,
+              request: transcriptionRequest
+            });
+            return await base44.integrations.Core.InvokeLLM(transcriptionRequest);
+          } catch (requestError) {
+            lastError = requestError;
+            const hasFallback = index < transcriptionRequests.length - 1;
+            if (!hasFallback) break;
+            console.warn('[Audio] Primary transcription payload rejected, retrying with fallback payload.', {
+              message: requestError?.message,
+              status: requestError?.status,
+              code: requestError?.code,
+              data: requestError?.data
+            });
+          }
+        }
 
-        return await base44.integrations.Core.InvokeLLM(transcriptionRequest);
+        throw lastError || new Error('Audio transcription request failed');
       };
 
       try {
