@@ -1334,6 +1334,14 @@ export default function Chat() {
       let result;
       const basePrompt = 'Transcribe this audio to plain text. Return only the spoken words with natural punctuation.';
       const runTranscription = async (targetFileUrl) => {
+        const canRetryWithoutPrompt = (requestError) => {
+          const haystack = [requestError?.message, requestError?.statusText, requestError?.data ? JSON.stringify(requestError.data) : '']
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
+          return haystack.includes('prompt') && (haystack.includes('not supported') || haystack.includes('unsupported') || haystack.includes('invalid'));
+        };
+
         const transcriptionRequests = [
         {
           prompt: basePrompt,
@@ -1359,6 +1367,7 @@ export default function Chat() {
             lastError = requestError;
             const hasFallback = index < transcriptionRequests.length - 1;
             if (!hasFallback) break;
+            if (!canRetryWithoutPrompt(requestError)) break;
             console.warn('[Audio] Primary transcription payload rejected, retrying with fallback payload.', {
               message: requestError?.message,
               status: requestError?.status,
