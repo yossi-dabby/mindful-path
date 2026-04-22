@@ -50,6 +50,72 @@ const installFakeMediaRecording = async (page: any, mimeType = 'audio/webm') => 
   }, mimeType);
 };
 
+const installFakeAndroidMediaRecording = async (page: any, supportedMimeType = 'audio/mp4') => {
+  await page.addInitScript((chosenSupportedMimeType: string) => {
+    localStorage.setItem('chat_consent_accepted', 'true');
+    localStorage.setItem('age_verified', 'true');
+    (window as any).__TEST_APP_ID__ = 'test-app-id';
+    (window as any).__DISABLE_ANALYTICS__ = true;
+
+    Object.defineProperty(window.navigator, 'userAgent', {
+      configurable: true,
+      get: () => 'Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+    });
+
+    (window as any).Capacitor = {
+      getPlatform: () => 'android',
+    };
+
+    class FakeMediaRecorder {
+      stream: any;
+      state: 'inactive' | 'recording' = 'inactive';
+      mimeType: string;
+      ondataavailable: ((event: { data: Blob }) => void) | null = null;
+      onerror: ((event: any) => void) | null = null;
+      onstop: (() => void) | null = null;
+
+      constructor(stream: any, options: { mimeType?: string } = {}) {
+        this.stream = stream;
+        if (options?.mimeType !== chosenSupportedMimeType) {
+          throw new DOMException('Unsupported MediaRecorder mimeType on Android runtime', 'NotSupportedError');
+        }
+        this.mimeType = options.mimeType;
+      }
+
+      static isTypeSupported(candidate: string) {
+        return candidate === chosenSupportedMimeType;
+      }
+
+      start() {
+        this.state = 'recording';
+      }
+
+      stop() {
+        if (this.state !== 'recording') return;
+        this.state = 'inactive';
+        const blob = new Blob([new Uint8Array([1, 2, 3, 4])], { type: this.mimeType });
+        this.ondataavailable?.({ data: blob });
+        this.onstop?.();
+      }
+    }
+
+    Object.defineProperty(window, 'MediaRecorder', {
+      configurable: true,
+      writable: true,
+      value: FakeMediaRecorder,
+    });
+
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: {
+        getUserMedia: async () => ({
+          getTracks: () => [{ stop() {} }],
+        }),
+      },
+    });
+  }, supportedMimeType);
+};
+
 const installFakeSpeechRecognition = async (page: any, transcript: string) => {
   await page.addInitScript((spokenText: string) => {
     class FakeSpeechRecognition {
@@ -360,5 +426,97 @@ test.describe('Chat voice transcription runtime flow', () => {
     expect(captured.invokePayloads[1]?.file_urls).toEqual(['https://files.example.com/voice-draft.webm']);
     expect(captured.invokePayloads.every((payload) => payload?.model === undefined)).toBe(true);
     expect(captured.invokePayloads.every((payload) => payload?.response_json_schema === undefined)).toBe(true);
+  });
+
+  test('records and transcribes in Android runtime when recorder requires explicit supported mime type', async ({ page }) => {
+    await installFakeAndroidMediaRecording(page, 'audio/mp4');
+    await mockApi(page);
+
+    const captured = {
+      uploadFileName: '',
+      uploadMimeType: '',
+    };
+
+    await page.route('**/api/**/integration-endpoints/**', async (route) => {
+      const req = route.request();
+      const url = req.url();
+
+      if (/\/integration-endpoints\/Core\/UploadFile\b/i.test(url)) {
+        const rawBody = req.postData() || '';
+        captured.uploadFileName = rawBody.match(/filename="([^"]+)"/i)?.[1] || '';
+        captured.uploadMimeType = rawBody.match(/Content-Type:\s*([^\r\n;]+)/i)?.[1] || '';
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ file_url: 'https://files.example.com/voice-draft.m4a' }),
+        });
+        return;
+      }
+
+      if (/\/integration-endpoints\/Core\/InvokeLLM\b/i.test(url)) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify('Android runtime transcript.'),
+        });
+        return;
+      }
+
+      await route.continue();
+    });
+
+    await spaNavigate(page, '/Chat');
+    await expect(page.locator('[data-testid="therapist-chat-input"]')).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('button', { name: 'Record' }).click();
+    await expect(page.getByRole('button', { name: 'Stop' })).toBeVisible({ timeout: 5000 });
+    await page.getByRole('button', { name: 'Stop' }).click();
+
+    await expect(page.getByText('Voice draft ready')).toBeVisible({ timeout: 10000 });
+    await page.getByRole('button', { name: 'Transcribe' }).click();
+
+    const composer = page.locator('[data-testid="therapist-chat-input"]');
+    await expect(composer).toHaveValue('Android runtime transcript.', { timeout: 10000 });
+    expect(captured.uploadMimeType).toBe('audio/mp4');
+    expect(captured.uploadFileName).toMatch(/^voice-draft-\d+\.m4a$/);
+  });
+
+  test('toast close button dismisses and mobile toast layout is less intrusive', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await installFakeMediaRecording(page, 'audio/webm');
+    await installFakeSpeechRecognition(page, 'Transcript from browser speech recognition.');
+    await mockApi(page);
+
+    await spaNavigate(page, '/Chat');
+    await expect(page.locator('[data-testid="therapist-chat-input"]')).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('button', { name: 'Record' }).click();
+    await expect(page.getByRole('button', { name: 'Stop' })).toBeVisible({ timeout: 5000 });
+    await page.getByRole('button', { name: 'Stop' }).click();
+
+    await expect(page.getByText('Voice draft ready')).toBeVisible({ timeout: 10000 });
+    await page.getByRole('button', { name: 'Transcribe' }).click();
+    const toastMessage = page.getByText('Transcript added to composer.');
+    await expect(toastMessage).toBeVisible({ timeout: 10000 });
+
+    const toastMetrics = await page.locator('button[toast-close]').first().evaluate((button) => {
+      const toastElement = button.closest('.group');
+      if (!toastElement) return null;
+      const rect = toastElement.getBoundingClientRect();
+      return {
+        width: rect.width,
+        top: rect.top,
+        height: rect.height,
+      };
+    });
+    const viewport = page.viewportSize();
+    expect(toastMetrics).not.toBeNull();
+    expect(viewport).not.toBeNull();
+    expect(toastMetrics!.width).toBeLessThan(viewport!.width - 8);
+    expect(toastMetrics!.top).toBeGreaterThan(viewport!.height * 0.45);
+    expect(toastMetrics!.height).toBeLessThan(viewport!.height * 0.3);
+
+    await page.locator('button[toast-close]').first().click();
+    await expect(toastMessage).not.toBeVisible({ timeout: 5000 });
   });
 });

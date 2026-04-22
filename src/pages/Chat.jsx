@@ -70,6 +70,31 @@ const LANG_FULL_NAMES = {
 const IMAGE_ATTACHMENT_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg']);
 const AUDIO_ATTACHMENT_EXTENSIONS = new Set(['mp3', 'wav', 'ogg', 'm4a', 'aac', 'webm']);
 const getSpeechRecognitionConstructor = () => window.SpeechRecognition || window.webkitSpeechRecognition || null;
+const ANDROID_MEDIA_RECORDER_MIME_CANDIDATES = Object.freeze([
+'audio/mp4',
+'audio/webm;codecs=opus',
+'audio/webm',
+'audio/ogg;codecs=opus',
+'audio/ogg']
+);
+
+function isAndroidRuntime() {
+  if (typeof window === 'undefined') return false;
+  const capacitorPlatform = typeof window.Capacitor?.getPlatform === 'function' ? window.Capacitor.getPlatform() : null;
+  if (capacitorPlatform === 'android') return true;
+  return /android/i.test(navigator?.userAgent || '');
+}
+
+function getAndroidMediaRecorderOptions() {
+  if (!isAndroidRuntime() || typeof window?.MediaRecorder?.isTypeSupported !== 'function') {
+    return null;
+  }
+
+  const supportedMimeType = ANDROID_MEDIA_RECORDER_MIME_CANDIDATES.find((mimeType) =>
+  window.MediaRecorder.isTypeSupported(mimeType)
+  );
+  return supportedMimeType ? { mimeType: supportedMimeType } : null;
+}
 
 function hasUserAttachment(message) {
   if (!message || message.role !== 'user') return false;
@@ -1201,7 +1226,10 @@ export default function Chat() {
         }
       }
 
-      const recorder = new window.MediaRecorder(stream);
+      const androidMediaRecorderOptions = getAndroidMediaRecorderOptions();
+      const recorder = androidMediaRecorderOptions ?
+      new window.MediaRecorder(stream, androidMediaRecorderOptions) :
+      new window.MediaRecorder(stream);
       mediaRecorderRef.current = recorder;
       setAudioDraftStatus('recording');
 
