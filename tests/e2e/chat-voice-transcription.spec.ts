@@ -487,6 +487,7 @@ test.describe('Chat voice transcription runtime flow', () => {
 
     const captured = {
       sentMessages: [] as Array<Record<string, any>>,
+      uploadCount: 0,
     };
 
     await page.route('**/api/**/integration-endpoints/**', async (route) => {
@@ -494,6 +495,7 @@ test.describe('Chat voice transcription runtime flow', () => {
       const url = req.url();
 
       if (/\/integration-endpoints\/Core\/UploadFile\b/i.test(url)) {
+        captured.uploadCount += 1;
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -541,8 +543,7 @@ test.describe('Chat voice transcription runtime flow', () => {
     const composer = page.locator('[data-testid="therapist-chat-input"]');
     await expect(composer).toHaveValue('Android transcript only send body.', { timeout: 10000 });
 
-    await composer.focus();
-    await page.keyboard.press('Enter');
+    await page.locator('[data-testid="therapist-chat-send"]').tap();
 
     await expect.poll(() => captured.sentMessages.length).toBe(1);
 
@@ -550,7 +551,9 @@ test.describe('Chat voice transcription runtime flow', () => {
     expect(sent.role).toBe('user');
     expect(String(sent.content || '')).toContain('Android transcript only send body.');
     expect(String(sent.content || '')).not.toContain('[ATTACHMENT_CONTEXT]');
+    expect(String(sent.content || '')).not.toContain('[ATTACHMENT_METADATA]');
     expect(sent.file_urls).toBeUndefined();
+    expect(captured.uploadCount).toBe(1);
   });
 
   test('toast close button dismisses and mobile toast layout is less intrusive', async ({ page }) => {
@@ -588,7 +591,7 @@ test.describe('Chat voice transcription runtime flow', () => {
     expect(toastMetrics!.top).toBeGreaterThan(viewport!.height * 0.45);
     expect(toastMetrics!.height).toBeLessThan(viewport!.height * 0.3);
 
-    await page.locator('button[toast-close]').first().click();
+    await page.locator('button[toast-close]').first().tap();
     await expect(toastMessage).not.toBeVisible({ timeout: 5000 });
   });
 });

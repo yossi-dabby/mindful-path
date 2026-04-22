@@ -3,7 +3,6 @@ import {
   Toast,
   ToastClose,
   ToastDescription,
-  ToastProvider,
   ToastTitle,
   ToastViewport } from
 "@/components/ui/toast";
@@ -12,8 +11,13 @@ export function Toaster() {
   const { toasts, dismiss } = useToast();
 
   return (
-    <ToastProvider>
+    <ToastViewport>
       {toasts.filter((t) => t.open !== false).map(function ({ id, title, description, action, ...props }) {
+        const handleDismiss = (event) => {
+          event?.preventDefault?.();
+          event?.stopPropagation?.();
+          dismiss(id);
+        };
         return (
           <Toast key={id} {...props}>
             <div className="grid gap-1">
@@ -25,14 +29,13 @@ export function Toaster() {
             {action}
             <ToastClose
               aria-label="Close notification"
-              onClick={() => dismiss(id)}
-              onPointerUp={() => dismiss(id)}
-              onTouchEnd={() => dismiss(id)}
+              onClick={handleDismiss}
+              onPointerDown={handleDismiss}
+              onTouchStart={handleDismiss}
             />
           </Toast>);
 
       })}
-      <ToastViewport />
-    </ToastProvider>);
+    </ToastViewport>);
 
 }

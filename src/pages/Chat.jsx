@@ -161,6 +161,8 @@ export default function Chat() {
   const audioDraftUrlRef = useRef(null);
   const speechRecognitionRef = useRef(null);
   const speechTranscriptRef = useRef('');
+  const inputMessageRef = useRef('');
+  const androidTranscriptReadyRef = useRef(false);
   // MF-7: true when the loaded conversation belongs to a legacy variant-profile agent
   const [variantProfileBlocked, setVariantProfileBlocked] = useState(false);
   // Phase 8 — Upgraded-path UI state (only relevant when V5 wiring is active)
@@ -219,6 +221,14 @@ export default function Chat() {
   // the same conversation.
   const conversationMemoryWrittenRef = useRef(new Set());
 
+  const setComposerMessage = (valueOrUpdater) => {
+    const nextValue = typeof valueOrUpdater === 'function' ? valueOrUpdater(inputMessageRef.current) : valueOrUpdater;
+    const normalizedValue = typeof nextValue === 'string' ? nextValue : '';
+    inputMessageRef.current = normalizedValue;
+    setInputMessage(normalizedValue);
+    return normalizedValue;
+  };
+
   // Reset visible window when conversation changes
   useEffect(() => {
     if (mediaRecorderRef.current?.state === 'recording') {
@@ -236,6 +246,7 @@ export default function Chat() {
     setAudioDraftStatus('idle');
     setAudioDraftFile(null);
     setAudioDraftTranscript('');
+    androidTranscriptReadyRef.current = false;
     speechTranscriptRef.current = '';
     setIsTranscribingAudio(false);
     setAudioDraftUrl((prevUrl) => {
@@ -1155,6 +1166,7 @@ export default function Chat() {
     setAudioDraftStatus('idle');
     setAudioDraftFile(null);
     setAudioDraftTranscript('');
+    androidTranscriptReadyRef.current = false;
     speechTranscriptRef.current = '';
     setIsTranscribingAudio(false);
     audioChunksRef.current = [];
@@ -1401,10 +1413,11 @@ export default function Chat() {
     if (!audioDraftFile || isTranscribingAudio) return;
     const localTranscript = typeof audioDraftTranscript === 'string' ? audioDraftTranscript.trim() : '';
     if (localTranscript) {
-      setInputMessage((prev) => {
+      setComposerMessage((prev) => {
         if (!prev.trim()) return localTranscript;
         return `${prev}${prev.endsWith('\n') ? '' : '\n'}${localTranscript}`;
       });
+      androidTranscriptReadyRef.current = true;
       toast({ title: 'Transcript added to composer.' });
       return;
     }
@@ -1526,10 +1539,11 @@ export default function Chat() {
       const transcript = extractTranscriptText(result);
       if (!transcript) throw new Error('No transcript returned');
 
-      setInputMessage((prev) => {
+      setComposerMessage((prev) => {
         if (!prev.trim()) return transcript;
         return `${prev}${prev.endsWith('\n') ? '' : '\n'}${transcript}`;
       });
+      androidTranscriptReadyRef.current = true;
       toast({ title: 'Transcript added to composer.' });
     } catch (error) {
       console.error('[Audio] Transcription failed:', error);
@@ -1544,12 +1558,17 @@ export default function Chat() {
   };
 
   const handleSendMessage = async () => {
+    const composerText = inputMessageRef.current;
+    const trimmedComposerText = composerText.trim();
+    const shouldForceAndroidTranscriptOnly = isAndroidRuntime() && androidTranscriptReadyRef.current && !attachedFile;
     const hasRecordedAudioDraft = audioDraftStatus === 'recorded' && !!audioDraftFile;
     const isAndroidVoiceDraftSend =
-    isAndroidRuntime() && !attachedFile && !!audioDraftFile && !!inputMessage.trim();
-    const isVoiceDerivedSend = !attachedFile && !!inputMessage.trim() && (hasRecordedAudioDraft || isAndroidVoiceDraftSend);
-    const attachmentToUpload = attachedFile || (!isVoiceDerivedSend ? audioDraftFile : null);
-    if (!inputMessage.trim() && !attachmentToUpload) {
+    isAndroidRuntime() && !attachedFile && !!audioDraftFile && !!trimmedComposerText;
+    const isVoiceDerivedSend =
+    !attachedFile &&
+    (shouldForceAndroidTranscriptOnly || !!trimmedComposerText && (hasRecordedAudioDraft || isAndroidVoiceDraftSend));
+    const attachmentToUpload = attachedFile || (!(isVoiceDerivedSend || shouldForceAndroidTranscriptOnly) ? audioDraftFile : null);
+    if (!trimmedComposerText && !attachmentToUpload) {
       console.log('[Send] ❌ Blocked - empty message');
       return;
     }
@@ -1569,23 +1588,23 @@ export default function Chat() {
     expectedReplyCountRef.current = messages.length + 2; // user message + assistant reply
 
     // Layer 1: Regex-based crisis detection (fast, explicit patterns)
-    const reasonCode = detectCrisisWithReason(inputMessage);
+    const reasonCode = detectCrisisWithReason(composerText);
     if (reasonCode) {
       setShowRiskPanel(true);
-      setInputMessage('');
+      setComposerMessage('');
       setIsLoading(false);
       return;
     }
 
     // Layer 2: LLM-based crisis detection (nuanced, implicit patterns)
     try {
-      const user = await base44.auth.me().catch(() => null);
-      let enhancedCheck = { data: { is_crisis: false, severity: 'none', confidence: 0 } };
-      try {
-        enhancedCheck = await base44.functions.invoke('enhancedCrisisDetector', {
-          message: inputMessage,
-          language: user?.preferences?.language || 'en'
-        });
+        const user = await base44.auth.me().catch(() => null);
+        let enhancedCheck = { data: { is_crisis: false, severity: 'none', confidence: 0 } };
+        try {
+          enhancedCheck = await base44.functions.invoke('enhancedCrisisDetector', {
+            message: composerText,
+            language: user?.preferences?.language || 'en'
+          });
       } catch (err) {
         console.warn('[Enhanced Crisis Detection] Function invoke failed:', err?.message);
       }
@@ -1619,8 +1638,8 @@ export default function Chat() {
       // Non-blocking: if enhanced detection fails, continue with message send
     }
 
-    const messageText = inputMessage;
-    setInputMessage('');
+    const messageText = composerText;
+    setComposerMessage('');
     setShowSummaryPrompt(false);
     setIsLoading(true);
 
@@ -1761,7 +1780,7 @@ export default function Chat() {
       // If no regular file is attached, persist the recorded audio draft as the
       // user attachment while keeping the edited transcript as message text.
       let shouldClearAudioDraftAfterSend = false;
-      if (!isVoiceDerivedSend && !attachmentMeta && audioDraftStatus === 'recorded' && audioDraftFile) {
+      if (!isVoiceDerivedSend && !shouldForceAndroidTranscriptOnly && !attachmentMeta && audioDraftStatus === 'recorded' && audioDraftFile) {
         setIsUploadingFile(true);
         try {
           const { file_url } = await base44.integrations.Core.UploadFile({ file: audioDraftFile });
@@ -2323,7 +2342,7 @@ export default function Chat() {
                     <ProactiveCheckIn onSendMessage={async (prompt) => {
                       await startNewConversation();
                       setTimeout(() => {
-                        setInputMessage(prompt);
+                        setComposerMessage(prompt);
                       }, 500);
                     }} />
                   </ErrorBoundary>
@@ -2344,7 +2363,7 @@ export default function Chat() {
               <div className="bg-teal-50 p-4 md:p-6 border-b border-border/70">
                   <div className="max-w-3xl mx-auto">
                     <ErrorBoundary>
-                      <ProactiveCheckIn onSendMessage={(prompt) => setInputMessage(prompt)} />
+                      <ProactiveCheckIn onSendMessage={(prompt) => setComposerMessage(prompt)} />
                     </ErrorBoundary>
                   </div>
                 </div>
@@ -2532,7 +2551,7 @@ export default function Chat() {
                   )}
                   <Textarea
                     value={inputMessage}
-                    onChange={(e) => setInputMessage(e.target.value)}
+                    onChange={(e) => setComposerMessage(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder={t('chat.message_placeholder')} className="bg-[hsl(var(--surface-nested)/0.9)] text-foreground px-3 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-card)] flex w-full border border-input/90 shadow-[var(--shadow-sm)] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-h-[48px] max-h-[160px] resize-none"
                     data-testid="therapist-chat-input"
