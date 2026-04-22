@@ -481,9 +481,81 @@ test.describe('Chat voice transcription runtime flow', () => {
     expect(captured.uploadFileName).toMatch(/^voice-draft-\d+\.m4a$/);
   });
 
+  test('android voice-derived send posts transcript-only payload without audio attachment fields', async ({ page }) => {
+    await installFakeAndroidMediaRecording(page, 'audio/mp4');
+    await mockApi(page);
+
+    const captured = {
+      sentMessages: [] as Array<Record<string, any>>,
+    };
+
+    await page.route('**/api/**/integration-endpoints/**', async (route) => {
+      const req = route.request();
+      const url = req.url();
+
+      if (/\/integration-endpoints\/Core\/UploadFile\b/i.test(url)) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ file_url: 'https://files.example.com/voice-draft.m4a' }),
+        });
+        return;
+      }
+
+      if (/\/integration-endpoints\/Core\/InvokeLLM\b/i.test(url)) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify('Android transcript only send body.'),
+        });
+        return;
+      }
+
+      await route.continue();
+    });
+
+    await page.route('**/api/**/agents/conversations/**/messages**', async (route) => {
+      const body = (route.request().postDataJSON?.() as Record<string, any>) || {};
+      captured.sentMessages.push(body);
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          role: 'user',
+          content: String(body?.content || ''),
+          created_date: new Date().toISOString(),
+        }),
+      });
+    });
+
+    await spaNavigate(page, '/Chat');
+    await expect(page.locator('[data-testid="therapist-chat-input"]')).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('button', { name: 'Record' }).click();
+    await expect(page.getByRole('button', { name: 'Stop' })).toBeVisible({ timeout: 5000 });
+    await page.getByRole('button', { name: 'Stop' }).click();
+
+    await expect(page.getByText('Voice draft ready')).toBeVisible({ timeout: 10000 });
+    await page.getByRole('button', { name: 'Transcribe' }).click();
+
+    const composer = page.locator('[data-testid="therapist-chat-input"]');
+    await expect(composer).toHaveValue('Android transcript only send body.', { timeout: 10000 });
+
+    await composer.focus();
+    await page.keyboard.press('Enter');
+
+    await expect.poll(() => captured.sentMessages.length).toBe(1);
+
+    const sent = captured.sentMessages[0] || {};
+    expect(sent.role).toBe('user');
+    expect(String(sent.content || '')).toContain('Android transcript only send body.');
+    expect(String(sent.content || '')).not.toContain('[ATTACHMENT_CONTEXT]');
+    expect(sent.file_urls).toBeUndefined();
+  });
+
   test('toast close button dismisses and mobile toast layout is less intrusive', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await installFakeMediaRecording(page, 'audio/webm');
+    await installFakeAndroidMediaRecording(page, 'audio/mp4');
     await installFakeSpeechRecognition(page, 'Transcript from browser speech recognition.');
     await mockApi(page);
 

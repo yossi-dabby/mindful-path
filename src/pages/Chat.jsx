@@ -1545,7 +1545,9 @@ export default function Chat() {
 
   const handleSendMessage = async () => {
     const hasRecordedAudioDraft = audioDraftStatus === 'recorded' && !!audioDraftFile;
-    const isVoiceDerivedSend = !attachedFile && hasRecordedAudioDraft && !!inputMessage.trim();
+    const isAndroidVoiceDraftSend =
+    isAndroidRuntime() && !attachedFile && !!audioDraftFile && !!inputMessage.trim();
+    const isVoiceDerivedSend = !attachedFile && !!inputMessage.trim() && (hasRecordedAudioDraft || isAndroidVoiceDraftSend);
     const attachmentToUpload = attachedFile || (!isVoiceDerivedSend ? audioDraftFile : null);
     if (!inputMessage.trim() && !attachmentToUpload) {
       console.log('[Send] ❌ Blocked - empty message');
