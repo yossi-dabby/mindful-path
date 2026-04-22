@@ -96,6 +96,24 @@ function getAndroidMediaRecorderOptions() {
   return supportedMimeType ? { mimeType: supportedMimeType } : null;
 }
 
+function resolveRecordedAudioMimeType({ chunkMimeType, recorderMimeType, requestedMimeType }) {
+  const normalizeMimeType = (mimeType) => {
+    if (typeof mimeType !== 'string') return '';
+    return mimeType.trim().toLowerCase();
+  };
+
+  const chunkType = normalizeMimeType(chunkMimeType);
+  if (chunkType) return chunkType;
+
+  const recorderType = normalizeMimeType(recorderMimeType);
+  if (recorderType) return recorderType;
+
+  const requestedType = normalizeMimeType(requestedMimeType);
+  if (requestedType) return requestedType;
+
+  return 'audio/webm';
+}
+
 function hasUserAttachment(message) {
   if (!message || message.role !== 'user') return false;
   const attachment = message.metadata?.attachment && typeof message.metadata.attachment === 'object' ?
@@ -1263,7 +1281,14 @@ export default function Chat() {
           return;
         }
 
-        const blobType = recorder.mimeType || 'audio/webm';
+        const firstChunkMimeType = audioChunksRef.current.find((chunk) =>
+          typeof chunk?.type === 'string' && chunk.type.trim()
+        )?.type;
+        const blobType = resolveRecordedAudioMimeType({
+          chunkMimeType: firstChunkMimeType,
+          recorderMimeType: recorder.mimeType,
+          requestedMimeType: androidMediaRecorderOptions?.mimeType
+        });
         const audioBlob = new Blob(audioChunksRef.current, { type: blobType });
         const extension = blobType.includes('ogg') ? 'ogg' : blobType.includes('mp4') ? 'm4a' : 'webm';
         const file = new File([audioBlob], `voice-draft-${Date.now()}.${extension}`, { type: blobType });

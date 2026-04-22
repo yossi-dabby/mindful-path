@@ -116,6 +116,71 @@ const installFakeAndroidMediaRecording = async (page: any, supportedMimeType = '
   }, supportedMimeType);
 };
 
+const installFakeAndroidMediaRecordingWithEmptyRecorderMimeType = async (page: any, supportedMimeType = 'audio/mp4') => {
+  await page.addInitScript((chosenSupportedMimeType: string) => {
+    localStorage.setItem('chat_consent_accepted', 'true');
+    localStorage.setItem('age_verified', 'true');
+    (window as any).__TEST_APP_ID__ = 'test-app-id';
+    (window as any).__DISABLE_ANALYTICS__ = true;
+
+    Object.defineProperty(window.navigator, 'userAgent', {
+      configurable: true,
+      get: () => 'Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+    });
+
+    (window as any).Capacitor = {
+      getPlatform: () => 'android',
+    };
+
+    class FakeMediaRecorder {
+      stream: any;
+      state: 'inactive' | 'recording' = 'inactive';
+      mimeType = '';
+      ondataavailable: ((event: { data: Blob }) => void) | null = null;
+      onerror: ((event: any) => void) | null = null;
+      onstop: (() => void) | null = null;
+
+      constructor(stream: any, options: { mimeType?: string } = {}) {
+        this.stream = stream;
+        if (options?.mimeType !== chosenSupportedMimeType) {
+          throw new DOMException('Unsupported MediaRecorder mimeType on Android runtime', 'NotSupportedError');
+        }
+      }
+
+      static isTypeSupported(candidate: string) {
+        return candidate === chosenSupportedMimeType;
+      }
+
+      start() {
+        this.state = 'recording';
+      }
+
+      stop() {
+        if (this.state !== 'recording') return;
+        this.state = 'inactive';
+        const blob = new Blob([new Uint8Array([1, 2, 3, 4])], { type: chosenSupportedMimeType });
+        this.ondataavailable?.({ data: blob });
+        this.onstop?.();
+      }
+    }
+
+    Object.defineProperty(window, 'MediaRecorder', {
+      configurable: true,
+      writable: true,
+      value: FakeMediaRecorder,
+    });
+
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: {
+        getUserMedia: async () => ({
+          getTracks: () => [{ stop() {} }],
+        }),
+      },
+    });
+  }, supportedMimeType);
+};
+
 const installFakeSpeechRecognition = async (page: any, transcript: string) => {
   await page.addInitScript((spokenText: string) => {
     class FakeSpeechRecognition {
@@ -477,6 +542,60 @@ test.describe('Chat voice transcription runtime flow', () => {
 
     const composer = page.locator('[data-testid="therapist-chat-input"]');
     await expect(composer).toHaveValue('Android runtime transcript.', { timeout: 10000 });
+    expect(captured.uploadMimeType).toBe('audio/mp4');
+    expect(captured.uploadFileName).toMatch(/^voice-draft-\d+\.m4a$/);
+  });
+
+  test('uses chunk mime type for Android transcription when recorder mimeType is empty', async ({ page }) => {
+    await installFakeAndroidMediaRecordingWithEmptyRecorderMimeType(page, 'audio/mp4');
+    await mockApi(page);
+
+    const captured = {
+      uploadFileName: '',
+      uploadMimeType: '',
+    };
+
+    await page.route('**/api/**/integration-endpoints/**', async (route) => {
+      const req = route.request();
+      const url = req.url();
+
+      if (/\/integration-endpoints\/Core\/UploadFile\b/i.test(url)) {
+        const rawBody = req.postData() || '';
+        captured.uploadFileName = rawBody.match(/filename="([^"]+)"/i)?.[1] || '';
+        captured.uploadMimeType = rawBody.match(/Content-Type:\s*([^\r\n;]+)/i)?.[1] || '';
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ file_url: 'https://files.example.com/voice-draft.m4a' }),
+        });
+        return;
+      }
+
+      if (/\/integration-endpoints\/Core\/InvokeLLM\b/i.test(url)) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify('Android transcript from empty recorder mime type runtime.'),
+        });
+        return;
+      }
+
+      await route.continue();
+    });
+
+    await spaNavigate(page, '/Chat');
+    await expect(page.locator('[data-testid="therapist-chat-input"]')).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('button', { name: 'Record' }).click();
+    await expect(page.getByRole('button', { name: 'Stop' })).toBeVisible({ timeout: 5000 });
+    await page.getByRole('button', { name: 'Stop' }).click();
+
+    await expect(page.getByText('Voice draft ready')).toBeVisible({ timeout: 10000 });
+    await page.getByRole('button', { name: 'Transcribe' }).click();
+
+    const composer = page.locator('[data-testid="therapist-chat-input"]');
+    await expect(composer).toHaveValue('Android transcript from empty recorder mime type runtime.', { timeout: 10000 });
+    await expect(page.getByText('Transcript added to composer.')).toBeVisible({ timeout: 10000 });
     expect(captured.uploadMimeType).toBe('audio/mp4');
     expect(captured.uploadFileName).toMatch(/^voice-draft-\d+\.m4a$/);
   });
