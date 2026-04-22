@@ -13,26 +13,31 @@ export function Toaster() {
 
   return (
     <ToastProvider>
-      {toasts.filter((t) => t.open !== false).map(function ({ id, title, description, action, ...props }) {
-        return (
-          <Toast key={id} {...props}>
-            <div className="grid gap-1">
-              {title && <ToastTitle>{title}</ToastTitle>}
-              {description && (
-                <ToastDescription>{description}</ToastDescription>
-              )}
-            </div>
-            {action}
-            <ToastClose
-              aria-label="Close notification"
-              onClick={() => dismiss(id)}
-              onPointerUp={() => dismiss(id)}
-              onTouchEnd={() => dismiss(id)}
-            />
-          </Toast>);
+      <ToastViewport>
+        {toasts.filter((t) => t.open !== false).map(function ({ id, title, description, action, ...props }) {
+          const handleDismiss = (event) => {
+            event?.preventDefault?.();
+            event?.stopPropagation?.();
+            dismiss(id);
+          };
+          return (
+            <Toast key={id} {...props}>
+              <div className="grid gap-1">
+                {title && <ToastTitle>{title}</ToastTitle>}
+                {description && (
+                  <ToastDescription>{description}</ToastDescription>
+                )}
+              </div>
+              {action}
+              <ToastClose
+                aria-label="Close notification"
+                onClick={handleDismiss}
+                onPointerUp={handleDismiss}
+              />
+            </Toast>);
 
-      })}
-      <ToastViewport />
+        })}
+      </ToastViewport>
     </ToastProvider>);
 
 }

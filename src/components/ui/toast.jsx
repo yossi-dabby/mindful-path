@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 const ToastProvider = React.forwardRef(({ ...props }, ref) => (
   <div
     ref={ref}
-    className="pointer-events-none fixed bottom-[max(0.5rem,env(safe-area-inset-bottom))] left-1/2 z-[100] flex max-h-[35dvh] w-[min(22rem,calc(100%-1.5rem))] -translate-x-1/2 flex-col gap-1.5 p-0 sm:bottom-4 sm:left-auto sm:right-4 sm:w-[22rem] sm:translate-x-0"
+    className="contents"
     {...props}
   />
 ));
@@ -15,7 +15,7 @@ ToastProvider.displayName = "ToastProvider";
 const ToastViewport = React.forwardRef(({ ...props }, ref) => (
   <div
     ref={ref}
-    className="pointer-events-none fixed bottom-[max(0.5rem,env(safe-area-inset-bottom))] left-1/2 z-[100] flex max-h-[35dvh] w-[min(22rem,calc(100%-1.5rem))] -translate-x-1/2 flex-col gap-1.5 p-0 sm:bottom-4 sm:left-auto sm:right-4 sm:w-[22rem] sm:translate-x-0"
+    className="pointer-events-none fixed bottom-[max(0.5rem,env(safe-area-inset-bottom))] left-1/2 z-[100] flex max-h-[24dvh] w-[min(22rem,calc(100%-1.5rem))] -translate-x-1/2 flex-col gap-1.5 p-0 sm:bottom-4 sm:left-auto sm:right-4 sm:w-[22rem] sm:translate-x-0"
     {...props}
   />
 ));

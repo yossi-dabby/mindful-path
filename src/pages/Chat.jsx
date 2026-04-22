@@ -1405,6 +1405,9 @@ export default function Chat() {
         if (!prev.trim()) return localTranscript;
         return `${prev}${prev.endsWith('\n') ? '' : '\n'}${localTranscript}`;
       });
+      if (isAndroidRuntime()) {
+        clearLocalAudioDraft();
+      }
       toast({ title: 'Transcript added to composer.' });
       return;
     }
@@ -1530,6 +1533,9 @@ export default function Chat() {
         if (!prev.trim()) return transcript;
         return `${prev}${prev.endsWith('\n') ? '' : '\n'}${transcript}`;
       });
+      if (isAndroidRuntime()) {
+        clearLocalAudioDraft();
+      }
       toast({ title: 'Transcript added to composer.' });
     } catch (error) {
       console.error('[Audio] Transcription failed:', error);
@@ -1579,13 +1585,13 @@ export default function Chat() {
 
     // Layer 2: LLM-based crisis detection (nuanced, implicit patterns)
     try {
-      const user = await base44.auth.me().catch(() => null);
-      let enhancedCheck = { data: { is_crisis: false, severity: 'none', confidence: 0 } };
-      try {
-        enhancedCheck = await base44.functions.invoke('enhancedCrisisDetector', {
-          message: inputMessage,
-          language: user?.preferences?.language || 'en'
-        });
+        const user = await base44.auth.me().catch(() => null);
+        let enhancedCheck = { data: { is_crisis: false, severity: 'none', confidence: 0 } };
+        try {
+          enhancedCheck = await base44.functions.invoke('enhancedCrisisDetector', {
+            message: inputMessage,
+            language: user?.preferences?.language || 'en'
+          });
       } catch (err) {
         console.warn('[Enhanced Crisis Detection] Function invoke failed:', err?.message);
       }
