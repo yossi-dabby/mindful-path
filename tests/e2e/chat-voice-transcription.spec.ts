@@ -142,7 +142,7 @@ const installFakeAndroidMediaRecordingWithEmptyRecorderMimeType = async (page: a
 
       constructor(stream: any, options: { mimeType?: string } = {}) {
         this.stream = stream;
-        if (options?.mimeType !== chosenSupportedMimeType) {
+        if (typeof options?.mimeType === 'string' && options.mimeType !== chosenSupportedMimeType) {
           throw new DOMException('Unsupported MediaRecorder mimeType on Android runtime', 'NotSupportedError');
         }
       }

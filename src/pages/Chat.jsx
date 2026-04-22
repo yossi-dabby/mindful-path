@@ -1282,7 +1282,7 @@ export default function Chat() {
         }
 
         const firstChunkMimeType = audioChunksRef.current.find((chunk) =>
-          typeof chunk?.type === 'string' && chunk.type.trim()
+          typeof chunk?.type === 'string' && chunk.type.trim() !== ''
         )?.type;
         const blobType = resolveRecordedAudioMimeType({
           chunkMimeType: firstChunkMimeType,
