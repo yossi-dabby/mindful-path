@@ -543,7 +543,8 @@ test.describe('Chat voice transcription runtime flow', () => {
     const composer = page.locator('[data-testid="therapist-chat-input"]');
     await expect(composer).toHaveValue('Android transcript only send body.', { timeout: 10000 });
 
-    await page.locator('[data-testid="therapist-chat-send"]').tap();
+    await composer.focus();
+    await page.keyboard.press('Enter');
 
     await expect.poll(() => captured.sentMessages.length).toBe(1);
 
