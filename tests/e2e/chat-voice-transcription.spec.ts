@@ -557,7 +557,7 @@ test.describe('Chat voice transcription runtime flow', () => {
     expect(captured.uploadCount).toBe(1);
   });
 
-  test('toast close button dismisses and mobile toast layout is less intrusive', async ({ page }) => {
+  test('toast close button dismisses and mobile toast layout is less intrusive', async ({ page }, testInfo) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await installFakeAndroidMediaRecording(page, 'audio/mp4');
     await installFakeSpeechRecognition(page, 'Transcript from browser speech recognition.');
@@ -592,7 +592,13 @@ test.describe('Chat voice transcription runtime flow', () => {
     expect(toastMetrics!.top).toBeGreaterThan(viewport!.height * 0.45);
     expect(toastMetrics!.height).toBeLessThan(viewport!.height * 0.3);
 
-    await page.locator('button[toast-close]').first().tap();
+    const closeButton = page.locator('button[toast-close]').first();
+    const hasTouch = Boolean((testInfo.project.use as { hasTouch?: boolean } | undefined)?.hasTouch);
+    if (hasTouch) {
+      await closeButton.tap();
+    } else {
+      await closeButton.click();
+    }
     await expect(toastMessage).not.toBeVisible({ timeout: 5000 });
   });
 });
