@@ -26,6 +26,8 @@ export function Toaster() {
             <ToastClose
               aria-label="Close notification"
               onClick={() => dismiss(id)}
+              onPointerUp={() => dismiss(id)}
+              onTouchEnd={() => dismiss(id)}
             />
           </Toast>);
 
