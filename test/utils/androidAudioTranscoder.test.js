@@ -4,9 +4,11 @@ import {
   isMp4File,
   resolveRecordedAudioMimeType,
   audioBufferToWavBlob,
+  audioBufferToMonoWavBlob,
   decodeAudioDataAsync,
   MIN_WAV_SAMPLE_RATE,
   DEFAULT_WAV_SAMPLE_RATE,
+  SPEECH_WAV_SAMPLE_RATE,
 } from '../../src/utils/androidAudioTranscoder.js';
 
 // ─── isWebmFile ───────────────────────────────────────────────────────────────
@@ -309,5 +311,104 @@ describe('androidAudioTranscoder constants', () => {
 
   it('DEFAULT_WAV_SAMPLE_RATE is 44100', () => {
     expect(DEFAULT_WAV_SAMPLE_RATE).toBe(44100);
+  });
+
+  it('SPEECH_WAV_SAMPLE_RATE is 16000', () => {
+    expect(SPEECH_WAV_SAMPLE_RATE).toBe(16000);
+  });
+});
+
+// ─── audioBufferToMonoWavBlob ─────────────────────────────────────────────────
+
+describe('audioBufferToMonoWavBlob', () => {
+  it('returns a Blob with type audio/wav', () => {
+    const blob = audioBufferToMonoWavBlob(makeFakeAudioBuffer());
+    expect(blob).toBeInstanceOf(Blob);
+    expect(blob.type).toBe('audio/wav');
+  });
+
+  it('always produces a mono (1-channel) WAV regardless of source channels', async () => {
+    const blob = audioBufferToMonoWavBlob(makeFakeAudioBuffer({ numberOfChannels: 2, length: 8 }));
+    const buf = await blob.arrayBuffer();
+    const view = new DataView(buf);
+    // WAV channel count field is at offset 22
+    expect(view.getUint16(22, true)).toBe(1);
+  });
+
+  it('produces exactly 44 + frameCount * 2 bytes for a mono source', () => {
+    const frameCount = 10;
+    const blob = audioBufferToMonoWavBlob(makeFakeAudioBuffer({ numberOfChannels: 1, length: frameCount }));
+    expect(blob.size).toBe(44 + frameCount * 2);
+  });
+
+  it('produces exactly 44 + frameCount * 2 bytes for a stereo source (mixed to mono)', () => {
+    const frameCount = 10;
+    const blob = audioBufferToMonoWavBlob(makeFakeAudioBuffer({ numberOfChannels: 2, length: frameCount }));
+    // Output is always mono so data section = frameCount * 1 channel * 2 bytes
+    expect(blob.size).toBe(44 + frameCount * 2);
+  });
+
+  it('writes RIFF header signature at offset 0', async () => {
+    const blob = audioBufferToMonoWavBlob(makeFakeAudioBuffer({ length: 4 }));
+    const buf = await blob.arrayBuffer();
+    const view = new DataView(buf);
+    const riff = String.fromCharCode(view.getUint8(0), view.getUint8(1), view.getUint8(2), view.getUint8(3));
+    expect(riff).toBe('RIFF');
+  });
+
+  it('writes WAVE format identifier at offset 8', async () => {
+    const blob = audioBufferToMonoWavBlob(makeFakeAudioBuffer({ length: 4 }));
+    const buf = await blob.arrayBuffer();
+    const view = new DataView(buf);
+    const wave = String.fromCharCode(view.getUint8(8), view.getUint8(9), view.getUint8(10), view.getUint8(11));
+    expect(wave).toBe('WAVE');
+  });
+
+  it('writes PCM audio format code 1 at offset 20', async () => {
+    const blob = audioBufferToMonoWavBlob(makeFakeAudioBuffer({ length: 4 }));
+    const buf = await blob.arrayBuffer();
+    const view = new DataView(buf);
+    expect(view.getUint16(20, true)).toBe(1);
+  });
+
+  it('writes correct sample rate into the WAV header', async () => {
+    const blob = audioBufferToMonoWavBlob(makeFakeAudioBuffer({ sampleRate: 16000, length: 4 }));
+    const buf = await blob.arrayBuffer();
+    const view = new DataView(buf);
+    expect(view.getUint32(24, true)).toBe(16000);
+  });
+
+  it('mixes two identical stereo channels to the same mono value', async () => {
+    // Both channels carry the same signal; mono mix should equal that signal.
+    const samples = new Float32Array([0.5, -0.5, 0.25]);
+    const blob = audioBufferToMonoWavBlob({
+      numberOfChannels: 2,
+      sampleRate: 16000,
+      length: 3,
+      getChannelData: () => samples,
+    });
+    const buf = await blob.arrayBuffer();
+    const view = new DataView(buf);
+    const s0 = view.getInt16(44, true);
+    const s1 = view.getInt16(46, true);
+    // 0.5 → Math.round(0.5 * 0x7FFF) = 16383 (0x3FFF)
+    expect(s0).toBe(Math.round(0.5 * 0x7FFF));
+    // -0.5 → Math.round(-0.5 * 0x8000) = -16384
+    expect(s1).toBe(Math.round(-0.5 * 0x8000));
+  });
+
+  it('clamps mixed float samples to Int16 PCM range without overflow', async () => {
+    const samples = new Float32Array([1.5, -1.5]);
+    const blob = audioBufferToMonoWavBlob(makeFakeAudioBuffer({ length: 2, samples }));
+    const buf = await blob.arrayBuffer();
+    const view = new DataView(buf);
+    expect(view.getInt16(44, true)).toBe(0x7FFF);   // 1.5 clamped to 1.0 → 32767
+    expect(view.getInt16(46, true)).toBe(-0x8000);  // -1.5 clamped to -1.0 → -32768
+  });
+
+  it('handles a null audioBuffer gracefully by producing a minimal 44+2-byte header blob', () => {
+    const blob = audioBufferToMonoWavBlob(null);
+    expect(blob).toBeInstanceOf(Blob);
+    expect(blob.size).toBe(44 + 1 * 2); // 1 frame minimum, mono, 2 bytes/sample
   });
 });
