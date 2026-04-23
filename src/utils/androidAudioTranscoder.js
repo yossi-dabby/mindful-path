@@ -182,6 +182,10 @@ export function audioBufferToWavBlob(audioBuffer) {
  *   - Speech-to-text services are optimised for (and often require) mono input.
  *   - Halving the channel count halves the file size, keeping uploads well within API size limits.
  *
+ * Mono mixing uses arithmetic mean: each output sample is the average of the corresponding
+ * samples across all source channels. This is appropriate for voice recordings where all
+ * channels carry the same speech content.
+ *
  * @param {AudioBuffer} audioBuffer
  * @returns {Blob}  A Blob with type `"audio/wav"`
  */
@@ -226,7 +230,7 @@ export function audioBufferToMonoWavBlob(audioBuffer) {
     channels.push(samples instanceof Float32Array ? samples : new Float32Array(frameCount));
   }
 
-  // Mix all channels to mono (equal-power average) and write as Int16 PCM.
+  // Mix all channels to mono (arithmetic mean) and write as Int16 PCM.
   let writeOffset = 44;
   for (let frame = 0; frame < frameCount; frame += 1) {
     let sum = 0;

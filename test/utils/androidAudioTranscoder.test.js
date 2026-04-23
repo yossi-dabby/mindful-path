@@ -411,4 +411,10 @@ describe('audioBufferToMonoWavBlob', () => {
     expect(blob).toBeInstanceOf(Blob);
     expect(blob.size).toBe(44 + 1 * 2); // 1 frame minimum, mono, 2 bytes/sample
   });
+
+  it('handles an undefined audioBuffer gracefully by producing a minimal 44+2-byte header blob', () => {
+    const blob = audioBufferToMonoWavBlob(undefined);
+    expect(blob).toBeInstanceOf(Blob);
+    expect(blob.size).toBe(44 + 1 * 2);
+  });
 });
