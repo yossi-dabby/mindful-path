@@ -143,6 +143,14 @@ function isWebmFile(file) {
   return fileName.endsWith('.webm');
 }
 
+function isMp4File(file) {
+  if (!file || typeof file !== 'object') return false;
+  const mimeType = typeof file.type === 'string' ? file.type.toLowerCase() : '';
+  if (mimeType.startsWith('audio/mp4')) return true;
+  const fileName = typeof file.name === 'string' ? file.name.toLowerCase() : '';
+  return fileName.endsWith('.m4a');
+}
+
 /**
  * Normalizes legacy callback-style and modern promise-style decodeAudioData APIs.
  */
@@ -220,11 +228,11 @@ function audioBufferToWavBlob(audioBuffer) {
 }
 
 /**
- * Converts Android WebM voice drafts to WAV for transcription compatibility.
- * Non-Android or non-WebM files are passed through unchanged.
+ * Converts Android WebM and MP4/M4A voice drafts to WAV for transcription compatibility.
+ * Non-Android or non-WebM/MP4 files are passed through unchanged.
  */
 async function convertAndroidWebmDraftToWav(file) {
-  if (!isAndroidRuntime() || !isWebmFile(file)) return file;
+  if (!isAndroidRuntime() || (!isWebmFile(file) && !isMp4File(file))) return file;
   const AudioContextCtor = getAudioContextConstructor();
   if (!AudioContextCtor) {
     throw new Error('Audio conversion is unavailable on this Android runtime');
@@ -1630,7 +1638,7 @@ export default function Chat() {
         transcriptionSourceFile = await convertAndroidWebmDraftToWav(audioDraftFile);
       } catch (convertErr) {
         conversionError = convertErr;
-        console.error('[Audio] WebM→WAV conversion failed, falling back to original file:', convertErr);
+        console.error('[Audio] WebM/M4A→WAV conversion failed, falling back to original file:', convertErr);
         transcriptionSourceFile = audioDraftFile;
       }
 
