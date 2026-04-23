@@ -223,6 +223,41 @@ const installFakeSpeechRecognition = async (page: any, transcript: string) => {
   }, transcript);
 };
 
+const installFakeAudioTranscodeSupport = async (page: any) => {
+  await page.addInitScript(() => {
+    const FAKE_AUDIO_SAMPLES = new Float32Array([0.1, -0.1, 0.2, -0.2]);
+
+    class FakeAudioContext {
+      sampleRate = 16000;
+
+      decodeAudioData() {
+        return Promise.resolve({
+          numberOfChannels: 1,
+          sampleRate: 16000,
+          length: FAKE_AUDIO_SAMPLES.length,
+          getChannelData: () => FAKE_AUDIO_SAMPLES,
+        });
+      }
+
+      close() {
+        return Promise.resolve();
+      }
+    }
+
+    Object.defineProperty(window, 'AudioContext', {
+      configurable: true,
+      writable: true,
+      value: FakeAudioContext,
+    });
+
+    Object.defineProperty(window, 'webkitAudioContext', {
+      configurable: true,
+      writable: true,
+      value: FakeAudioContext,
+    });
+  });
+};
+
 test.describe('Chat voice transcription runtime flow', () => {
   test('uses browser speech recognition transcript and skips unsupported audio file transcription endpoint', async ({ page }) => {
     await installFakeMediaRecording(page, 'audio/webm');
@@ -603,6 +638,61 @@ test.describe('Chat voice transcription runtime flow', () => {
     await expect(page.getByText('Transcript added to composer.')).toBeVisible({ timeout: 10000 });
     expect(captured.uploadMimeType).toBe('audio/mp4');
     expect(captured.uploadFileName).toMatch(/^voice-draft-\d+\.m4a$/);
+  });
+
+  test('transcodes Android webm recording to wav for transcription when local transcript is unavailable', async ({ page }) => {
+    await installFakeAndroidMediaRecording(page, 'audio/webm');
+    await installFakeAudioTranscodeSupport(page);
+    await mockApi(page);
+
+    const captured = {
+      uploadFileName: '',
+      uploadMimeType: '',
+    };
+
+    await page.route('**/api/**/integration-endpoints/**', async (route) => {
+      const req = route.request();
+      const url = req.url();
+
+      if (/\/integration-endpoints\/Core\/UploadFile\b/i.test(url)) {
+        const rawBody = req.postData() || '';
+        captured.uploadFileName = rawBody.match(/filename="([^"]+)"/i)?.[1] || '';
+        captured.uploadMimeType = rawBody.match(/Content-Type:\s*([^\r\n;]+)/i)?.[1] || '';
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ file_url: 'https://files.example.com/voice-draft.wav' }),
+        });
+        return;
+      }
+
+      if (/\/integration-endpoints\/Core\/InvokeLLM\b/i.test(url)) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify('Android runtime transcript from transcoded wav.'),
+        });
+        return;
+      }
+
+      await route.continue();
+    });
+
+    await spaNavigate(page, '/Chat');
+    await expect(page.locator('[data-testid="therapist-chat-input"]')).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('button', { name: 'Record' }).click();
+    await expect(page.getByRole('button', { name: 'Stop' })).toBeVisible({ timeout: 5000 });
+    await page.getByRole('button', { name: 'Stop' }).click();
+
+    await expect(page.getByText('Voice draft ready')).toBeVisible({ timeout: 10000 });
+    await page.getByRole('button', { name: 'Transcribe' }).click();
+
+    const composer = page.locator('[data-testid="therapist-chat-input"]');
+    await expect(composer).toHaveValue('Android runtime transcript from transcoded wav.', { timeout: 10000 });
+    await expect(page.getByText('Transcript added to composer.')).toBeVisible({ timeout: 10000 });
+    expect(captured.uploadMimeType).toBe('audio/wav');
+    expect(captured.uploadFileName).toMatch(/^voice-draft-\d+\.wav$/);
   });
 
   test('android voice-derived send posts transcript-only payload without audio attachment fields', async ({ page }) => {

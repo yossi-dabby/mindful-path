@@ -70,6 +70,9 @@ const LANG_FULL_NAMES = {
 const IMAGE_ATTACHMENT_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg']);
 const AUDIO_ATTACHMENT_EXTENSIONS = new Set(['mp3', 'wav', 'ogg', 'm4a', 'aac', 'webm']);
 const getSpeechRecognitionConstructor = () => window.SpeechRecognition || window.webkitSpeechRecognition || null;
+const getAudioContextConstructor = () => window.AudioContext || window.webkitAudioContext || null;
+const MIN_WAV_SAMPLE_RATE = 8000;
+const DEFAULT_WAV_SAMPLE_RATE = 44100;
 const ANDROID_MEDIA_RECORDER_MIME_CANDIDATES = Object.freeze([
 'audio/mp4',
 'audio/webm;codecs=opus',
@@ -112,6 +115,120 @@ function resolveRecordedAudioMimeType({ chunkMimeType, recorderMimeType, request
   if (requestedType) return requestedType;
 
   return 'audio/webm';
+}
+
+function isWebmFile(file) {
+  if (!file || typeof file !== 'object') return false;
+  const mimeType = typeof file.type === 'string' ? file.type.toLowerCase() : '';
+  if (mimeType.includes('webm')) return true;
+  const fileName = typeof file.name === 'string' ? file.name.toLowerCase() : '';
+  return fileName.endsWith('.webm');
+}
+
+/**
+ * Normalizes legacy callback-style and modern promise-style decodeAudioData APIs.
+ */
+function decodeAudioDataAsync(audioContext, arrayBuffer) {
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const settle = (fn, value) => {
+      if (settled) return;
+      settled = true;
+      fn(value);
+    };
+
+    const onSuccess = (audioBuffer) => settle(resolve, audioBuffer);
+    const onError = (error) => settle(reject, error || new Error('Audio decode failed'));
+
+    try {
+      const maybePromise = audioContext.decodeAudioData(arrayBuffer, onSuccess, onError);
+      if (maybePromise && typeof maybePromise.then === 'function') {
+        maybePromise.then(onSuccess).catch(onError);
+      }
+    } catch (error) {
+      onError(error);
+    }
+  });
+}
+
+function audioBufferToWavBlob(audioBuffer) {
+  const numberOfChannels = Math.max(1, Number(audioBuffer?.numberOfChannels) || 1);
+  const sampleRate = Math.max(MIN_WAV_SAMPLE_RATE, Number(audioBuffer?.sampleRate) || DEFAULT_WAV_SAMPLE_RATE);
+  const frameCount = Math.max(1, Number(audioBuffer?.length) || 0);
+  const bytesPerSample = 2;
+  const blockAlign = numberOfChannels * bytesPerSample;
+  const byteRate = sampleRate * blockAlign;
+  const dataByteLength = frameCount * blockAlign;
+  const wavBuffer = new ArrayBuffer(44 + dataByteLength);
+  const view = new DataView(wavBuffer);
+
+  const writeAscii = (offset, text) => {
+    for (let i = 0; i < text.length; i += 1) {
+      view.setUint8(offset + i, text.charCodeAt(i));
+    }
+  };
+
+  writeAscii(0, 'RIFF');
+  view.setUint32(4, 36 + dataByteLength, true);
+  writeAscii(8, 'WAVE');
+  writeAscii(12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, numberOfChannels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, byteRate, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, 16, true);
+  writeAscii(36, 'data');
+  view.setUint32(40, dataByteLength, true);
+
+  const channels = [];
+  for (let channel = 0; channel < numberOfChannels; channel += 1) {
+    const samples = audioBuffer?.getChannelData?.(channel);
+    channels.push(samples instanceof Float32Array ? samples : new Float32Array(frameCount));
+  }
+
+  let writeOffset = 44;
+  for (let frame = 0; frame < frameCount; frame += 1) {
+    for (let channel = 0; channel < numberOfChannels; channel += 1) {
+      const sample = Math.max(-1, Math.min(1, channels[channel][frame] || 0));
+      const pcmValue = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+      view.setInt16(writeOffset, Math.round(pcmValue), true);
+      writeOffset += bytesPerSample;
+    }
+  }
+
+  return new Blob([wavBuffer], { type: 'audio/wav' });
+}
+
+/**
+ * Converts Android WebM voice drafts to WAV for transcription compatibility.
+ * Non-Android or non-WebM files are passed through unchanged.
+ */
+async function convertAndroidWebmDraftToWav(file) {
+  if (!isAndroidRuntime() || !isWebmFile(file)) return file;
+  const AudioContextCtor = getAudioContextConstructor();
+  if (!AudioContextCtor) {
+    throw new Error('Audio conversion is unavailable on this Android runtime');
+  }
+
+  const audioContext = new AudioContextCtor();
+  try {
+    const audioBuffer = await decodeAudioDataAsync(audioContext, await file.arrayBuffer());
+    const wavBlob = audioBufferToWavBlob(audioBuffer);
+    const baseName = typeof file.name === 'string' && file.name.trim() ?
+      file.name.replace(/\.[^.]+$/, '') :
+      `voice-draft-${Date.now()}`;
+    return new File([wavBlob], `${baseName}.wav`, { type: 'audio/wav' });
+  } finally {
+    if (typeof audioContext.close === 'function') {
+      try {
+        await audioContext.close();
+      } catch {
+        // no-op
+      }
+    }
+  }
 }
 
 function hasUserAttachment(message) {
@@ -1454,9 +1571,10 @@ export default function Chat() {
 
     setIsTranscribingAudio(true);
     try {
+      const transcriptionSourceFile = await convertAndroidWebmDraftToWav(audioDraftFile);
       let file_url = '';
       try {
-        const uploadResult = await base44.integrations.Core.UploadFile({ file: audioDraftFile });
+        const uploadResult = await base44.integrations.Core.UploadFile({ file: transcriptionSourceFile });
         file_url = uploadResult?.file_url;
         if (!file_url) throw new Error('Upload returned no file_url');
       } catch (uploadError) {
@@ -1495,9 +1613,9 @@ export default function Chat() {
           try {
             console.log('[Audio] Transcription request payload:', {
               file_url: targetFileUrl,
-              file_name: audioDraftFile.name,
-              mime_type: audioDraftFile.type || 'unknown',
-              file_size: typeof audioDraftFile.size === 'number' ? audioDraftFile.size : null,
+              file_name: transcriptionSourceFile.name,
+              mime_type: transcriptionSourceFile.type || 'unknown',
+              file_size: typeof transcriptionSourceFile.size === 'number' ? transcriptionSourceFile.size : null,
               request: transcriptionRequest
             });
             return await base44.integrations.Core.InvokeLLM(transcriptionRequest);
@@ -1521,7 +1639,7 @@ export default function Chat() {
       try {
         result = await runTranscription(file_url);
       } catch (transcriptionError) {
-        const normalizedRetryFile = buildNormalizedAudioDraftForTranscriptionRetry(audioDraftFile);
+        const normalizedRetryFile = buildNormalizedAudioDraftForTranscriptionRetry(transcriptionSourceFile);
         if (normalizedRetryFile) {
           try {
             const retryUploadResult = await base44.integrations.Core.UploadFile({ file: normalizedRetryFile });
