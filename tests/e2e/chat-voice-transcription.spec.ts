@@ -7,6 +7,11 @@ const installFakeMediaRecording = async (page: any, mimeType = 'audio/webm') => 
     localStorage.setItem('age_verified', 'true');
     (window as any).__TEST_APP_ID__ = 'test-app-id';
     (window as any).__DISABLE_ANALYTICS__ = true;
+    Object.defineProperty(window.navigator, 'userAgent', {
+      configurable: true,
+      get: () => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    });
+    (window as any).Capacitor = undefined;
 
     class FakeMediaRecorder {
       stream: any;
