@@ -52,6 +52,13 @@ import {
   extractBackendTranscriptionErrorReason,
   buildTranscriptionFailureDescription,
 } from '@/utils/audioTranscriptionDiagnostics.js';
+import {
+  isWebmFile,
+  isMp4File,
+  resolveRecordedAudioMimeType,
+  decodeAudioDataAsync,
+  audioBufferToWavBlob,
+} from '@/utils/androidAudioTranscoder.js';
 
 // ─── MF-7: Legacy variant-profile agent names — historical conversations under
 // these names must NOT receive new messages. Empty clinical stubs; fail-closed.
@@ -76,8 +83,6 @@ const IMAGE_ATTACHMENT_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp'
 const AUDIO_ATTACHMENT_EXTENSIONS = new Set(['mp3', 'wav', 'ogg', 'm4a', 'aac', 'webm']);
 const getSpeechRecognitionConstructor = () => window.SpeechRecognition || window.webkitSpeechRecognition || null;
 const getAudioContextConstructor = () => window.AudioContext || window.webkitAudioContext || null;
-const MIN_WAV_SAMPLE_RATE = 8000;
-const DEFAULT_WAV_SAMPLE_RATE = 44100;
 const ANDROID_MEDIA_RECORDER_MIME_CANDIDATES = Object.freeze([
 'audio/mp4',
 'audio/ogg;codecs=opus',
@@ -115,116 +120,6 @@ function getAndroidMediaRecorderMimeCandidates() {
   );
 
   return supportedMimeTypes.length > 0 ? supportedMimeTypes : [...ANDROID_MEDIA_RECORDER_MIME_CANDIDATES];
-}
-
-function resolveRecordedAudioMimeType({ chunkMimeType, recorderMimeType, requestedMimeType }) {
-  const normalizeMimeType = (mimeType) => {
-    if (typeof mimeType !== 'string') return '';
-    return mimeType.trim().toLowerCase();
-  };
-
-  const chunkType = normalizeMimeType(chunkMimeType);
-  if (chunkType) return chunkType;
-
-  const recorderType = normalizeMimeType(recorderMimeType);
-  if (recorderType) return recorderType;
-
-  const requestedType = normalizeMimeType(requestedMimeType);
-  if (requestedType) return requestedType;
-
-  return 'audio/webm';
-}
-
-function isWebmFile(file) {
-  if (!file || typeof file !== 'object') return false;
-  const mimeType = typeof file.type === 'string' ? file.type.toLowerCase() : '';
-  if (mimeType.includes('webm')) return true;
-  const fileName = typeof file.name === 'string' ? file.name.toLowerCase() : '';
-  return fileName.endsWith('.webm');
-}
-
-function isMp4File(file) {
-  if (!file || typeof file !== 'object') return false;
-  const mimeType = typeof file.type === 'string' ? file.type.toLowerCase() : '';
-  if (mimeType.startsWith('audio/mp4')) return true;
-  const fileName = typeof file.name === 'string' ? file.name.toLowerCase() : '';
-  return fileName.endsWith('.m4a');
-}
-
-/**
- * Normalizes legacy callback-style and modern promise-style decodeAudioData APIs.
- */
-function decodeAudioDataAsync(audioContext, arrayBuffer) {
-  return new Promise((resolve, reject) => {
-    let settled = false;
-    const settle = (fn, value) => {
-      if (settled) return;
-      settled = true;
-      fn(value);
-    };
-
-    const onSuccess = (audioBuffer) => settle(resolve, audioBuffer);
-    const onError = (error) => settle(reject, error || new Error('Audio decode failed'));
-
-    try {
-      const maybePromise = audioContext.decodeAudioData(arrayBuffer, onSuccess, onError);
-      if (maybePromise && typeof maybePromise.then === 'function') {
-        maybePromise.then(onSuccess).catch(onError);
-      }
-    } catch (error) {
-      onError(error);
-    }
-  });
-}
-
-function audioBufferToWavBlob(audioBuffer) {
-  const numberOfChannels = Math.max(1, Number(audioBuffer?.numberOfChannels) || 1);
-  const sampleRate = Math.max(MIN_WAV_SAMPLE_RATE, Number(audioBuffer?.sampleRate) || DEFAULT_WAV_SAMPLE_RATE);
-  const frameCount = Math.max(1, Number(audioBuffer?.length) || 0);
-  const bytesPerSample = 2;
-  const blockAlign = numberOfChannels * bytesPerSample;
-  const byteRate = sampleRate * blockAlign;
-  const dataByteLength = frameCount * blockAlign;
-  const wavBuffer = new ArrayBuffer(44 + dataByteLength);
-  const view = new DataView(wavBuffer);
-
-  const writeAscii = (offset, text) => {
-    for (let i = 0; i < text.length; i += 1) {
-      view.setUint8(offset + i, text.charCodeAt(i));
-    }
-  };
-
-  writeAscii(0, 'RIFF');
-  view.setUint32(4, 36 + dataByteLength, true);
-  writeAscii(8, 'WAVE');
-  writeAscii(12, 'fmt ');
-  view.setUint32(16, 16, true);
-  view.setUint16(20, 1, true);
-  view.setUint16(22, numberOfChannels, true);
-  view.setUint32(24, sampleRate, true);
-  view.setUint32(28, byteRate, true);
-  view.setUint16(32, blockAlign, true);
-  view.setUint16(34, 16, true);
-  writeAscii(36, 'data');
-  view.setUint32(40, dataByteLength, true);
-
-  const channels = [];
-  for (let channel = 0; channel < numberOfChannels; channel += 1) {
-    const samples = audioBuffer?.getChannelData?.(channel);
-    channels.push(samples instanceof Float32Array ? samples : new Float32Array(frameCount));
-  }
-
-  let writeOffset = 44;
-  for (let frame = 0; frame < frameCount; frame += 1) {
-    for (let channel = 0; channel < numberOfChannels; channel += 1) {
-      const sample = Math.max(-1, Math.min(1, channels[channel][frame] || 0));
-      const pcmValue = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
-      view.setInt16(writeOffset, Math.round(pcmValue), true);
-      writeOffset += bytesPerSample;
-    }
-  }
-
-  return new Blob([wavBuffer], { type: 'audio/wav' });
 }
 
 /**
