@@ -75,10 +75,10 @@ const MIN_WAV_SAMPLE_RATE = 8000;
 const DEFAULT_WAV_SAMPLE_RATE = 44100;
 const ANDROID_MEDIA_RECORDER_MIME_CANDIDATES = Object.freeze([
 'audio/mp4',
-'audio/webm;codecs=opus',
-'audio/webm',
 'audio/ogg;codecs=opus',
-'audio/ogg']
+'audio/ogg',
+'audio/webm;codecs=opus',
+'audio/webm']
 );
 
 function isAndroidRuntime() {
@@ -88,15 +88,18 @@ function isAndroidRuntime() {
   return /android/i.test(navigator?.userAgent || '');
 }
 
-function getAndroidMediaRecorderOptions() {
-  if (!isAndroidRuntime() || typeof window?.MediaRecorder?.isTypeSupported !== 'function') {
-    return null;
+function getAndroidMediaRecorderMimeCandidates() {
+  if (!isAndroidRuntime()) return [];
+
+  if (typeof window?.MediaRecorder?.isTypeSupported !== 'function') {
+    return [...ANDROID_MEDIA_RECORDER_MIME_CANDIDATES];
   }
 
-  const supportedMimeType = ANDROID_MEDIA_RECORDER_MIME_CANDIDATES.find((mimeType) =>
+  const supportedMimeTypes = ANDROID_MEDIA_RECORDER_MIME_CANDIDATES.filter((mimeType) =>
   window.MediaRecorder.isTypeSupported(mimeType)
   );
-  return supportedMimeType ? { mimeType: supportedMimeType } : null;
+
+  return supportedMimeTypes.length > 0 ? supportedMimeTypes : [...ANDROID_MEDIA_RECORDER_MIME_CANDIDATES];
 }
 
 function resolveRecordedAudioMimeType({ chunkMimeType, recorderMimeType, requestedMimeType }) {
@@ -1361,10 +1364,23 @@ export default function Chat() {
         }
       }
 
-      const androidMediaRecorderOptions = getAndroidMediaRecorderOptions();
-      const recorder = androidMediaRecorderOptions ?
-      new window.MediaRecorder(stream, androidMediaRecorderOptions) :
-      new window.MediaRecorder(stream);
+      const androidMediaRecorderMimeCandidates = getAndroidMediaRecorderMimeCandidates();
+      let requestedAndroidMimeType = null;
+      let recorder = null;
+
+      for (const mimeType of androidMediaRecorderMimeCandidates) {
+        try {
+          recorder = new window.MediaRecorder(stream, { mimeType });
+          requestedAndroidMimeType = mimeType;
+          break;
+        } catch (error) {
+          console.warn('[Voice Draft] MediaRecorder mime candidate rejected:', { mimeType, error });
+        }
+      }
+
+      if (!recorder) {
+        recorder = new window.MediaRecorder(stream);
+      }
       mediaRecorderRef.current = recorder;
       setAudioDraftStatus('recording');
 
@@ -1404,7 +1420,7 @@ export default function Chat() {
         const blobType = resolveRecordedAudioMimeType({
           chunkMimeType: firstChunkMimeType,
           recorderMimeType: recorder.mimeType,
-          requestedMimeType: androidMediaRecorderOptions?.mimeType
+          requestedMimeType: requestedAndroidMimeType
         });
         const audioBlob = new Blob(audioChunksRef.current, { type: blobType });
         const extension = blobType.includes('ogg') ? 'ogg' : blobType.includes('mp4') ? 'm4a' : 'webm';
