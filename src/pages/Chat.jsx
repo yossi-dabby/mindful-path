@@ -47,6 +47,11 @@ import SessionPhaseIndicator from '../components/therapy/SessionPhaseIndicator';
 import SafetyModeIndicator from '../components/therapy/SafetyModeIndicator';
 // Phase 3 Deep Personalization — Session continuity cue (flag-gated; hidden in default mode)
 import SessionContinuityCue from '../components/therapy/SessionContinuityCue';
+import {
+  buildMobileAudioDiagnosticInfo,
+  extractBackendTranscriptionErrorReason,
+  buildTranscriptionFailureDescription,
+} from '@/utils/audioTranscriptionDiagnostics.js';
 
 // ─── MF-7: Legacy variant-profile agent names — historical conversations under
 // these names must NOT receive new messages. Empty clinical stubs; fail-closed.
@@ -86,6 +91,16 @@ function isAndroidRuntime() {
   const capacitorPlatform = typeof window.Capacitor?.getPlatform === 'function' ? window.Capacitor.getPlatform() : null;
   if (capacitorPlatform === 'android') return true;
   return /android/i.test(navigator?.userAgent || '');
+}
+
+/**
+ * Returns true on mobile browsers and in-app WebView environments.
+ * Used to gate enhanced transcription diagnostics to mobile code paths only.
+ */
+function isMobileBrowser() {
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  return /android|iphone|ipad|ipod|mobile|webos|blackberry|windows\s?phone/i.test(ua);
 }
 
 function getAndroidMediaRecorderMimeCandidates() {
@@ -1585,9 +1600,51 @@ export default function Chat() {
       return;
     }
 
+    // Early guard: 0-byte file cannot be transcribed — surface a clear error immediately.
+    if (typeof audioDraftFile.size === 'number' && audioDraftFile.size === 0) {
+      console.error('[Audio] Transcription blocked: audio draft is 0 bytes.', {
+        name: audioDraftFile.name,
+        type: audioDraftFile.type,
+        ua: typeof navigator !== 'undefined' ? navigator.userAgent : '(unknown)',
+      });
+      toast({
+        title: 'No audio captured',
+        description: 'The recording is empty (0 bytes). Check microphone permissions and speak clearly before stopping.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsTranscribingAudio(true);
+
+    // Collect diagnostic info on mobile to enrich failure messages.
+    // Fired eagerly (before upload) so the DOM canPlayType check and UA read run in parallel
+    // with the conversion/upload steps. The promise is only awaited when a failure path is reached.
+    const onMobile = isMobileBrowser();
+    const diagInfoPromise = onMobile ? buildMobileAudioDiagnosticInfo(audioDraftFile) : Promise.resolve(null);
+    let conversionError = null;
+
     try {
-      const transcriptionSourceFile = await convertAndroidWebmDraftToWav(audioDraftFile);
+      let transcriptionSourceFile;
+      try {
+        transcriptionSourceFile = await convertAndroidWebmDraftToWav(audioDraftFile);
+      } catch (convertErr) {
+        conversionError = convertErr;
+        console.error('[Audio] WebM→WAV conversion failed, falling back to original file:', convertErr);
+        transcriptionSourceFile = audioDraftFile;
+      }
+
+      if (onMobile) {
+        const diagInfo = await diagInfoPromise;
+        console.log('[Audio] Mobile transcription diagnostic (pre-upload):', {
+          original: { name: audioDraftFile.name, type: audioDraftFile.type, size: audioDraftFile.size },
+          source: { name: transcriptionSourceFile.name, type: transcriptionSourceFile.type, size: transcriptionSourceFile.size },
+          canPlayType: diagInfo?.canPlayType,
+          conversionError: conversionError?.message ?? null,
+          ua: diagInfo?.ua,
+        });
+      }
+
       let file_url = '';
       try {
         const uploadResult = await base44.integrations.Core.UploadFile({ file: transcriptionSourceFile });
@@ -1663,6 +1720,9 @@ export default function Chat() {
             if (!retryFileUrl) throw new Error('Retry upload returned no file_url');
             result = await runTranscription(retryFileUrl);
           } catch (retryError) {
+            const diagInfo = onMobile ? await diagInfoPromise : null;
+            const backendReason = extractBackendTranscriptionErrorReason(retryError) ||
+              extractBackendTranscriptionErrorReason(transcriptionError);
             console.error('[Audio] Transcription retry failed:', {
               first_attempt: {
                 message: transcriptionError?.message,
@@ -1675,25 +1735,35 @@ export default function Chat() {
                 status: retryError?.status,
                 code: retryError?.code,
                 data: retryError?.data
-              }
+              },
+              ...(onMobile && { diagnostic: { ...diagInfo, conversionError: conversionError?.message ?? null, backendReason } }),
             });
+            const description = onMobile
+              ? buildTranscriptionFailureDescription({ diagInfo, backendReason, conversionError })
+              : 'The upload succeeded, but transcription failed. Retry or delete this draft.';
             toast({
               title: 'Audio transcription failed',
-              description: 'The upload succeeded, but transcription failed. Retry or delete this draft.',
+              description,
               variant: 'destructive'
             });
             return;
           }
         } else {
+          const diagInfo = onMobile ? await diagInfoPromise : null;
+          const backendReason = extractBackendTranscriptionErrorReason(transcriptionError);
           console.error('[Audio] Transcription request failed:', {
-          message: transcriptionError?.message,
-          status: transcriptionError?.status,
-          code: transcriptionError?.code,
-          data: transcriptionError?.data
+            message: transcriptionError?.message,
+            status: transcriptionError?.status,
+            code: transcriptionError?.code,
+            data: transcriptionError?.data,
+            ...(onMobile && { diagnostic: { ...diagInfo, conversionError: conversionError?.message ?? null, backendReason } }),
           });
+          const description = onMobile
+            ? buildTranscriptionFailureDescription({ diagInfo, backendReason, conversionError })
+            : 'The upload succeeded, but transcription failed. Retry or delete this draft.';
           toast({
             title: 'Audio transcription failed',
-            description: 'The upload succeeded, but transcription failed. Retry or delete this draft.',
+            description,
             variant: 'destructive'
           });
           return;
@@ -1712,10 +1782,15 @@ export default function Chat() {
       }
       toast({ title: 'Transcript added to composer.' });
     } catch (error) {
-      console.error('[Audio] Transcription failed:', error);
+      const diagInfo = onMobile ? await diagInfoPromise : null;
+      const backendReason = extractBackendTranscriptionErrorReason(error);
+      console.error('[Audio] Transcription failed:', error, onMobile ? { diagnostic: diagInfo, backendReason } : {});
+      const description = onMobile
+        ? buildTranscriptionFailureDescription({ diagInfo, backendReason, conversionError })
+        : 'No transcript text was returned. Retry or delete this draft.';
       toast({
         title: 'Audio transcription failed',
-        description: 'No transcript text was returned. Retry or delete this draft.',
+        description,
         variant: 'destructive'
       });
     } finally {
