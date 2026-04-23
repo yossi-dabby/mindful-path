@@ -1364,7 +1364,12 @@ export default function Chat() {
   };
 
   const extractTranscriptText = (result) => {
-    if (typeof result === 'string') return result.trim();
+    const getTranscriptCandidate = (value) => {
+      if (typeof value !== 'string') return '';
+      return value.trim() ? value : '';
+    };
+
+    if (typeof result === 'string') return getTranscriptCandidate(result);
     if (!result || typeof result !== 'object') return '';
 
     const directCandidates = [
@@ -1375,17 +1380,20 @@ export default function Chat() {
     result.content];
 
     for (const value of directCandidates) {
-      if (typeof value === 'string' && value.trim()) {
-        return value.trim();
-      }
+      const candidate = getTranscriptCandidate(value);
+      if (candidate) return candidate;
     }
 
     if (Array.isArray(result.output)) {
       for (const item of result.output) {
-        if (typeof item?.text === 'string' && item.text.trim()) {
-          return item.text.trim();
-        }
+        const candidate = getTranscriptCandidate(item?.text);
+        if (candidate) return candidate;
       }
+    }
+
+    if (result.data && result.data !== result) {
+      const nestedTranscript = extractTranscriptText(result.data);
+      if (nestedTranscript) return nestedTranscript;
     }
 
     return '';
