@@ -220,16 +220,17 @@ const installFakeSpeechRecognition = async (page: any, transcript: string) => {
 
 const installFakeAudioTranscodeSupport = async (page: any) => {
   await page.addInitScript(() => {
+    const FAKE_AUDIO_SAMPLES = new Float32Array([0.1, -0.1, 0.2, -0.2]);
+
     class FakeAudioContext {
       sampleRate = 16000;
 
       decodeAudioData() {
-        const samples = new Float32Array([0.1, -0.1, 0.2, -0.2]);
         return Promise.resolve({
           numberOfChannels: 1,
           sampleRate: 16000,
-          length: samples.length,
-          getChannelData: () => samples,
+          length: FAKE_AUDIO_SAMPLES.length,
+          getChannelData: () => FAKE_AUDIO_SAMPLES,
         });
       }
 

@@ -71,6 +71,8 @@ const IMAGE_ATTACHMENT_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp'
 const AUDIO_ATTACHMENT_EXTENSIONS = new Set(['mp3', 'wav', 'ogg', 'm4a', 'aac', 'webm']);
 const getSpeechRecognitionConstructor = () => window.SpeechRecognition || window.webkitSpeechRecognition || null;
 const getAudioContextConstructor = () => window.AudioContext || window.webkitAudioContext || null;
+const MIN_WAV_SAMPLE_RATE = 8000;
+const DEFAULT_WAV_SAMPLE_RATE = 44100;
 const ANDROID_MEDIA_RECORDER_MIME_CANDIDATES = Object.freeze([
 'audio/mp4',
 'audio/webm;codecs=opus',
@@ -115,7 +117,7 @@ function resolveRecordedAudioMimeType({ chunkMimeType, recorderMimeType, request
   return 'audio/webm';
 }
 
-function isWebmAudioFile(file) {
+function isWebmFile(file) {
   if (!file || typeof file !== 'object') return false;
   const mimeType = typeof file.type === 'string' ? file.type.toLowerCase() : '';
   if (mimeType.includes('webm')) return true;
@@ -123,6 +125,9 @@ function isWebmAudioFile(file) {
   return fileName.endsWith('.webm');
 }
 
+/**
+ * Normalizes legacy callback-style and modern promise-style decodeAudioData APIs.
+ */
 function decodeAudioDataAsync(audioContext, arrayBuffer) {
   return new Promise((resolve, reject) => {
     let settled = false;
@@ -148,7 +153,7 @@ function decodeAudioDataAsync(audioContext, arrayBuffer) {
 
 function audioBufferToWavBlob(audioBuffer) {
   const numberOfChannels = Math.max(1, Number(audioBuffer?.numberOfChannels) || 1);
-  const sampleRate = Math.max(8000, Number(audioBuffer?.sampleRate) || 44100);
+  const sampleRate = Math.max(MIN_WAV_SAMPLE_RATE, Number(audioBuffer?.sampleRate) || DEFAULT_WAV_SAMPLE_RATE);
   const frameCount = Math.max(1, Number(audioBuffer?.length) || 0);
   const bytesPerSample = 2;
   const blockAlign = numberOfChannels * bytesPerSample;
@@ -196,8 +201,12 @@ function audioBufferToWavBlob(audioBuffer) {
   return new Blob([wavBuffer], { type: 'audio/wav' });
 }
 
+/**
+ * Converts Android WebM voice drafts to WAV for transcription compatibility.
+ * Non-Android or non-WebM files are passed through unchanged.
+ */
 async function convertAndroidWebmDraftToWav(file) {
-  if (!isAndroidRuntime() || !isWebmAudioFile(file)) return file;
+  if (!isAndroidRuntime() || !isWebmFile(file)) return file;
   const AudioContextCtor = getAudioContextConstructor();
   if (!AudioContextCtor) {
     throw new Error('Audio conversion is unavailable on this Android runtime');
