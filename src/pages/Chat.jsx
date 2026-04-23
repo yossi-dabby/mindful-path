@@ -57,7 +57,7 @@ import {
   isMp4File,
   resolveRecordedAudioMimeType,
   decodeAudioDataAsync,
-  audioBufferToWavBlob,
+  audioBufferToMonoWavBlob,
 } from '@/utils/androidAudioTranscoder.js';
 
 // ─── MF-7: Legacy variant-profile agent names — historical conversations under
@@ -125,6 +125,19 @@ function getAndroidMediaRecorderMimeCandidates() {
 /**
  * Converts Android WebM and MP4/M4A voice drafts to WAV for transcription compatibility.
  * Non-Android or non-WebM/MP4 files are passed through unchanged.
+ *
+ * Produces a 16-bit mono PCM WAV file at 16 kHz — the universally accepted speech-recognition
+ * format that is small (≈32 KB/s), avoids large uncompressed stereo uploads, and is supported
+ * by every major transcription backend.
+ *
+ * Two key hardening steps beyond a plain decode+encode:
+ *   1. AudioContext is created with { sampleRate: 16000 } so the Web Audio API resamples on
+ *      decode, keeping the WAV at speech-optimised 16 kHz even on devices that default to 48 kHz.
+ *      Falls back to the device default rate on older WebViews that ignore the option.
+ *   2. The decoded AudioBuffer length is validated. On some Android WebViews, decodeAudioData can
+ *      succeed but return an empty (length = 0) buffer for audio/mp4;codecs=opus. Uploading such
+ *      a near-empty WAV causes "unsupported file type" rejections from transcription services.
+ *      A length-0 result now throws so the outer handler can surface a clear error.
  */
 async function convertAndroidWebmDraftToWav(file) {
   if (!isAndroidRuntime() || (!isWebmFile(file) && !isMp4File(file))) return file;
@@ -133,10 +146,25 @@ async function convertAndroidWebmDraftToWav(file) {
     throw new Error('Audio conversion is unavailable on this Android runtime');
   }
 
-  const audioContext = new AudioContextCtor();
+  // Request 16 kHz so the AudioContext resamples on decode.
+  // Falls back gracefully on WebViews that do not support the sampleRate option.
+  let audioContext;
+  try {
+    audioContext = new AudioContextCtor({ sampleRate: 16000 });
+  } catch {
+    audioContext = new AudioContextCtor();
+  }
+
   try {
     const audioBuffer = await decodeAudioDataAsync(audioContext, await file.arrayBuffer());
-    const wavBlob = audioBufferToWavBlob(audioBuffer);
+
+    if (!audioBuffer || audioBuffer.length === 0) {
+      throw new Error(
+        'Decoded audio buffer is empty — the codec may not be fully supported on this runtime'
+      );
+    }
+
+    const wavBlob = audioBufferToMonoWavBlob(audioBuffer);
     const baseName = typeof file.name === 'string' && file.name.trim() ?
       file.name.replace(/\.[^.]+$/, '') :
       `voice-draft-${Date.now()}`;

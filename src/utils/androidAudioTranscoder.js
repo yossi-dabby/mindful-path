@@ -15,6 +15,14 @@ export const MIN_WAV_SAMPLE_RATE = 8000;
 export const DEFAULT_WAV_SAMPLE_RATE = 44100;
 
 /**
+ * Target sample rate for speech-recognition-optimised WAV output.
+ * 16 kHz mono PCM is the format that all major speech-to-text services support.
+ * Using it avoids large uncompressed files at 44.1 / 48 kHz and eliminates
+ * transcription rejections caused by high sample rates or stereo audio.
+ */
+export const SPEECH_WAV_SAMPLE_RATE = 16000;
+
+/**
  * Returns true when the file is a WebM audio recording (by MIME type or file extension).
  *
  * @param {File|Blob|{type?: string, name?: string}} file
@@ -160,6 +168,79 @@ export function audioBufferToWavBlob(audioBuffer) {
       view.setInt16(writeOffset, Math.round(pcmValue), true);
       writeOffset += bytesPerSample;
     }
+  }
+
+  return new Blob([wavBuffer], { type: 'audio/wav' });
+}
+
+/**
+ * Encodes an `AudioBuffer` as a 16-bit **mono** PCM WAV blob, mixing all channels down to a
+ * single channel.
+ *
+ * Why mono instead of preserving the original channel count:
+ *   - Voice recordings captured by a mobile MediaRecorder are inherently single-speaker audio.
+ *   - Speech-to-text services are optimised for (and often require) mono input.
+ *   - Halving the channel count halves the file size, keeping uploads well within API size limits.
+ *
+ * Mono mixing uses arithmetic mean: each output sample is the average of the corresponding
+ * samples across all source channels. This is appropriate for voice recordings where all
+ * channels carry the same speech content.
+ *
+ * @param {AudioBuffer} audioBuffer
+ * @returns {Blob}  A Blob with type `"audio/wav"`
+ */
+export function audioBufferToMonoWavBlob(audioBuffer) {
+  const numberOfChannels = Math.max(1, Number(audioBuffer?.numberOfChannels) || 1);
+  const sampleRate = Math.max(MIN_WAV_SAMPLE_RATE, Number(audioBuffer?.sampleRate) || DEFAULT_WAV_SAMPLE_RATE);
+  const frameCount = Math.max(1, Number(audioBuffer?.length) || 0);
+  const bytesPerSample = 2;
+
+  // Always output a single (mono) channel regardless of the source channel count.
+  const outputChannels = 1;
+  const blockAlign = outputChannels * bytesPerSample;
+  const byteRate = sampleRate * blockAlign;
+  const dataByteLength = frameCount * blockAlign;
+  const wavBuffer = new ArrayBuffer(44 + dataByteLength);
+  const view = new DataView(wavBuffer);
+
+  const writeAscii = (offset, text) => {
+    for (let i = 0; i < text.length; i += 1) {
+      view.setUint8(offset + i, text.charCodeAt(i));
+    }
+  };
+
+  writeAscii(0, 'RIFF');
+  view.setUint32(4, 36 + dataByteLength, true);
+  writeAscii(8, 'WAVE');
+  writeAscii(12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);             // PCM format
+  view.setUint16(22, outputChannels, true); // always 1 (mono)
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, byteRate, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, 16, true);            // bits per sample
+  writeAscii(36, 'data');
+  view.setUint32(40, dataByteLength, true);
+
+  // Collect source channel data arrays.
+  const channels = [];
+  for (let channel = 0; channel < numberOfChannels; channel += 1) {
+    const samples = audioBuffer?.getChannelData?.(channel);
+    channels.push(samples instanceof Float32Array ? samples : new Float32Array(frameCount));
+  }
+
+  // Mix all channels to mono (arithmetic mean) and write as Int16 PCM.
+  let writeOffset = 44;
+  for (let frame = 0; frame < frameCount; frame += 1) {
+    let sum = 0;
+    for (let channel = 0; channel < numberOfChannels; channel += 1) {
+      sum += channels[channel][frame] || 0;
+    }
+    const monoSample = Math.max(-1, Math.min(1, sum / numberOfChannels));
+    const pcmValue = monoSample < 0 ? monoSample * 0x8000 : monoSample * 0x7FFF;
+    view.setInt16(writeOffset, Math.round(pcmValue), true);
+    writeOffset += bytesPerSample;
   }
 
   return new Blob([wavBuffer], { type: 'audio/wav' });
