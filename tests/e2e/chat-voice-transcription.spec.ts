@@ -287,9 +287,13 @@ const installFakeAndroidMediaRecordingWithMp4CodecsMimeType = async (page: any) 
 
       constructor(stream: any, options: { mimeType?: string } = {}) {
         this.stream = stream;
+        // Accepts 'audio/mp4' or no mimeType (matches Android MediaRecorder default-type behavior).
+        // Any other explicit mimeType is unsupported, mirroring the real Android WebView API.
         if (options?.mimeType && options.mimeType !== 'audio/mp4') {
           throw new DOMException('Unsupported MediaRecorder mimeType on Android runtime', 'NotSupportedError');
         }
+        // Even when constructed with 'audio/mp4', the real recorder reports the negotiated
+        // codec in its .mimeType property — e.g. 'audio/mp4;codecs=opus'.
       }
 
       static isTypeSupported(candidate: string) {
