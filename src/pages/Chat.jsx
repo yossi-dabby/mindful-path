@@ -114,7 +114,7 @@ function resolveRecordedAudioMimeType({ chunkMimeType, recorderMimeType, request
   return 'audio/webm';
 }
 
-function isWebmAudioDraft(file) {
+function isWebmFile(file) {
   if (!file) return false;
   const mimeType = typeof file.type === 'string' ? file.type.trim().toLowerCase() : '';
   if (mimeType.includes('webm')) return true;
@@ -1432,8 +1432,10 @@ export default function Chat() {
 
   const handleTranscribeRecording = async () => {
     if (!audioDraftFile || isTranscribingAudio) return;
-    const localTranscript = [audioDraftTranscript, speechTranscriptRef.current].
-    find((candidate) => typeof candidate === 'string' && candidate.trim())?.trim() || '';
+    const localTranscriptCandidates = [audioDraftTranscript, speechTranscriptRef.current];
+    const localTranscript = localTranscriptCandidates.find((candidate) =>
+    typeof candidate === 'string' && candidate.trim()
+    )?.trim() || '';
     if (localTranscript) {
       setInputMessage((prev) => {
         if (!prev.trim()) return localTranscript;
@@ -1446,10 +1448,10 @@ export default function Chat() {
       return;
     }
 
-    if (isAndroidRuntime() && isWebmAudioDraft(audioDraftFile)) {
+    if (isAndroidRuntime() && isWebmFile(audioDraftFile)) {
       toast({
         title: 'Transcription unavailable for this recording format',
-        description: 'Android recorded WebM without local speech transcript is not supported for server transcription on this device/browser. Please retry with speech recognition enabled, type your message, or attach a supported audio format.',
+        description: 'This recording format cannot be transcribed on this Android/browser combination. Enable speech recognition before recording or type your message instead.',
         variant: 'destructive'
       });
       return;
