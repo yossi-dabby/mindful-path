@@ -1369,34 +1369,41 @@ export default function Chat() {
       return value.trim() ? value : '';
     };
 
+    const extractFromObjectShape = (value) => {
+      if (!value || typeof value !== 'object') return '';
+
+      const directCandidates = [
+        value.transcript,
+        value.transcription,
+        value.text,
+        value.output_text,
+        value.content
+      ];
+
+      for (const directValue of directCandidates) {
+        const candidate = getTranscriptCandidate(directValue);
+        if (candidate) return candidate;
+      }
+
+      if (Array.isArray(value.output)) {
+        for (const item of value.output) {
+          const candidate = getTranscriptCandidate(item?.text);
+          if (candidate) return candidate;
+        }
+      }
+
+      return '';
+    };
+
     if (typeof result === 'string') return getTranscriptCandidate(result);
     if (!result || typeof result !== 'object') return '';
 
-    const directCandidates = [
-    result.transcript,
-    result.transcription,
-    result.text,
-    result.output_text,
-    result.content];
-
-    for (const value of directCandidates) {
-      const candidate = getTranscriptCandidate(value);
-      if (candidate) return candidate;
-    }
-
-    if (Array.isArray(result.output)) {
-      for (const item of result.output) {
-        const candidate = getTranscriptCandidate(item?.text);
-        if (candidate) return candidate;
-      }
-    }
-
-    if (result.data && result.data !== result) {
-      const nestedTranscript = extractTranscriptText(result.data);
-      if (nestedTranscript) return nestedTranscript;
-    }
-
-    return '';
+    return (
+      extractFromObjectShape(result) ||
+      getTranscriptCandidate(result.data) ||
+      extractFromObjectShape(result.data) ||
+      ''
+    );
   };
 
   const buildNormalizedAudioDraftForTranscriptionRetry = (file) => {
