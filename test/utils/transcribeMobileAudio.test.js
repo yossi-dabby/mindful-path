@@ -176,8 +176,8 @@ describe('transcribeMobileAudio — backend function contract', () => {
     // and file_urls are not called. The comments explain why InvokeLLM isn't used;
     // the executable code must not reference them.
     const withoutComments = entry
-      .replace(/\/\*[\s\S]*?\*\//g, '')      // strip /* … */ blocks
-      .replace(/\/\/[^\n]*/g, '');           // strip // … lines
+      .replace(/\/\*[\s\S]*?\*\//g, '') // strip /* … */ blocks
+      .replace(/\/\/[^\n]*/g, '');      // strip // … lines
     expect(withoutComments).not.toContain('InvokeLLM');
     expect(withoutComments).not.toContain('file_urls');
   });

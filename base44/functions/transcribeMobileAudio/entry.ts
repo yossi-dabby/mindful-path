@@ -40,6 +40,16 @@ const WHISPER_MODEL = 'whisper-1';
 /** Whisper API hard limit: 25 MB per request */
 const MAX_FILE_SIZE_BYTES = 25 * 1024 * 1024;
 
+type TranscribeRequestBody = {
+  file_base64?: unknown;
+  file_name?: unknown;
+  file_type?: unknown;
+};
+
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
 Deno.serve(async (req) => {
   // ── Auth ──────────────────────────────────────────────────────────────────────
   let user: { email?: string } | null = null;
@@ -66,7 +76,7 @@ Deno.serve(async (req) => {
   }
 
   // ── Parse body ────────────────────────────────────────────────────────────────
-  let body: { file_base64?: unknown; file_name?: unknown; file_type?: unknown };
+  let body: TranscribeRequestBody;
   try {
     body = await req.json();
   } catch {
@@ -130,10 +140,9 @@ Deno.serve(async (req) => {
       body: form,
     });
   } catch (fetchError) {
-    const msg = fetchError instanceof Error ? fetchError.message : String(fetchError);
-    console.error('[transcribeMobileAudio] Whisper API fetch failed:', msg);
+    console.error('[transcribeMobileAudio] Whisper API fetch failed:', getErrorMessage(fetchError));
     return Response.json(
-      { error: `Failed to reach transcription service: ${msg.slice(0, 120)}` },
+      { error: `Failed to reach transcription service: ${getErrorMessage(fetchError).slice(0, 120)}` },
       { status: 502 },
     );
   }
