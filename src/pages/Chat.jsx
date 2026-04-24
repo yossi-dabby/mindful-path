@@ -1548,6 +1548,50 @@ export default function Chat() {
 
     setIsTranscribingAudio(true);
 
+    // ── MOBILE-ONLY: dedicated backend transcription path ──────────────────────
+    // On Android, MediaRecorder produces audio/mp4;codecs=opus which cannot be
+    // reliably decoded by AudioContext in Android WebViews, and is not accepted by
+    // Core.InvokeLLM + file_urls.  The transcribeMobileAudio backend function calls
+    // OpenAI Whisper directly, which natively supports these formats.
+    // The web path below is preserved exactly and is NOT entered on Android.
+    if (isAndroidRuntime()) {
+      try {
+        const arrayBuffer = await audioDraftFile.arrayBuffer();
+        const bytes = new Uint8Array(arrayBuffer);
+        let binary = '';
+        for (let i = 0; i < bytes.byteLength; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        const file_base64 = btoa(binary);
+        const mobileResult = await base44.functions.invoke('transcribeMobileAudio', {
+          file_base64,
+          file_name: audioDraftFile.name,
+          file_type: audioDraftFile.type || 'audio/mp4',
+        });
+        const mobileTranscript = extractTranscriptText(mobileResult?.data) || extractTranscriptText(mobileResult) || '';
+        if (!mobileTranscript) throw new Error('No transcript returned from server');
+        setInputMessage((prev) => {
+          if (!prev.trim()) return mobileTranscript;
+          return `${prev}${prev.endsWith('\n') ? '' : '\n'}${mobileTranscript}`;
+        });
+        clearLocalAudioDraft();
+        toast({ title: 'Transcript added to composer.' });
+      } catch (mobileError) {
+        console.error('[Audio] Mobile backend transcription failed:', mobileError);
+        const backendReason = extractBackendTranscriptionErrorReason(mobileError);
+        const diagInfo = await buildMobileAudioDiagnosticInfo(audioDraftFile);
+        toast({
+          title: 'Audio transcription failed',
+          description: buildTranscriptionFailureDescription({ diagInfo, backendReason, conversionError: null }),
+          variant: 'destructive',
+        });
+      } finally {
+        setIsTranscribingAudio(false);
+      }
+      return;
+    }
+
+    // ── WEB PATH: existing behavior preserved exactly ───────────────────────────
     // Collect diagnostic info on mobile to enrich failure messages.
     // Fired eagerly (before upload) so the DOM canPlayType check and UA read run in parallel
     // with the conversion/upload steps. The promise is only awaited when a failure path is reached.
