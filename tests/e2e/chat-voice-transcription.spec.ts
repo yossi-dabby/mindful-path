@@ -702,15 +702,18 @@ test.describe('Chat voice transcription runtime flow', () => {
         return;
       }
 
-      if (/\/integration-endpoints\/Core\/InvokeLLM\b/i.test(url)) {
+      await route.continue();
+    });
+
+    await page.route('**/api/**/functions/**', async (route) => {
+      if (/\/functions\/transcribeMobileAudio\b/i.test(route.request().url())) {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify('Android runtime transcript.'),
+          body: JSON.stringify({ data: { transcription: 'Android runtime transcript.' } }),
         });
         return;
       }
-
       await route.continue();
     });
 
@@ -755,15 +758,18 @@ test.describe('Chat voice transcription runtime flow', () => {
         return;
       }
 
-      if (/\/integration-endpoints\/Core\/InvokeLLM\b/i.test(url)) {
+      await route.continue();
+    });
+
+    await page.route('**/api/**/functions/**', async (route) => {
+      if (/\/functions\/transcribeMobileAudio\b/i.test(route.request().url())) {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify('Android transcript from empty recorder mime type runtime.'),
+          body: JSON.stringify({ data: { transcription: 'Android transcript from empty recorder mime type runtime.' } }),
         });
         return;
       }
-
       await route.continue();
     });
 
@@ -810,15 +816,18 @@ test.describe('Chat voice transcription runtime flow', () => {
         return;
       }
 
-      if (/\/integration-endpoints\/Core\/InvokeLLM\b/i.test(url)) {
+      await route.continue();
+    });
+
+    await page.route('**/api/**/functions/**', async (route) => {
+      if (/\/functions\/transcribeMobileAudio\b/i.test(route.request().url())) {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify('Android runtime transcript from transcoded wav.'),
+          body: JSON.stringify({ data: { transcription: 'Android runtime transcript from transcoded wav.' } }),
         });
         return;
       }
-
       await route.continue();
     });
 
@@ -865,15 +874,18 @@ test.describe('Chat voice transcription runtime flow', () => {
         return;
       }
 
-      if (/\/integration-endpoints\/Core\/InvokeLLM\b/i.test(url)) {
+      await route.continue();
+    });
+
+    await page.route('**/api/**/functions/**', async (route) => {
+      if (/\/functions\/transcribeMobileAudio\b/i.test(route.request().url())) {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify('Android runtime transcript from transcoded mp4 wav.'),
+          body: JSON.stringify({ data: { transcription: 'Android runtime transcript from transcoded mp4 wav.' } }),
         });
         return;
       }
-
       await route.continue();
     });
 
@@ -905,7 +917,7 @@ test.describe('Chat voice transcription runtime flow', () => {
     const captured = {
       uploadFileName: '',
       uploadMimeType: '',
-      invokePayloads: [] as Array<Record<string, any>>,
+      transcribeFileUrl: '',
     };
 
     await page.route('**/api/**/integration-endpoints/**', async (route) => {
@@ -924,26 +936,22 @@ test.describe('Chat voice transcription runtime flow', () => {
         return;
       }
 
-      if (/\/integration-endpoints\/Core\/InvokeLLM\b/i.test(url)) {
-        const payload = (req.postDataJSON?.() as Record<string, any>) || {};
-        captured.invokePayloads.push(payload);
-        const fileUrl = Array.isArray(payload?.file_urls) ? payload.file_urls[0] : '';
-        if (typeof fileUrl === 'string' && fileUrl.endsWith('.webm')) {
-          await route.fulfill({
-            status: 400,
-            contentType: 'application/json',
-            body: JSON.stringify({ message: 'unsupported .webm in mobile production transcription path' }),
-          });
-          return;
-        }
+      await route.continue();
+    });
+
+    await page.route('**/api/**/functions/**', async (route) => {
+      if (/\/functions\/transcribeMobileAudio\b/i.test(route.request().url())) {
+        try {
+          const body = route.request().postDataJSON() as Record<string, any>;
+          captured.transcribeFileUrl = typeof body?.file_url === 'string' ? body.file_url : '';
+        } catch { /* ignore */ }
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify('Android runtime transcript from ogg fallback path.'),
+          body: JSON.stringify({ data: { transcription: 'Android runtime transcript from ogg fallback path.' } }),
         });
         return;
       }
-
       await route.continue();
     });
 
@@ -962,7 +970,7 @@ test.describe('Chat voice transcription runtime flow', () => {
     await expect(page.getByText('Transcript added to composer.')).toBeVisible({ timeout: 10000 });
     expect(captured.uploadMimeType).toBe('audio/ogg');
     expect(captured.uploadFileName).toMatch(/^voice-draft-\d+\.ogg$/);
-    expect(captured.invokePayloads[0]?.file_urls).toEqual(['https://files.example.com/voice-draft.ogg']);
+    expect(captured.transcribeFileUrl).toBe('https://files.example.com/voice-draft.ogg');
   });
 
   test('android voice-derived send posts transcript-only payload without audio attachment fields', async ({ page }) => {
@@ -988,15 +996,18 @@ test.describe('Chat voice transcription runtime flow', () => {
         return;
       }
 
-      if (/\/integration-endpoints\/Core\/InvokeLLM\b/i.test(url)) {
+      await route.continue();
+    });
+
+    await page.route('**/api/**/functions/**', async (route) => {
+      if (/\/functions\/transcribeMobileAudio\b/i.test(route.request().url())) {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify('Android transcript only send body.'),
+          body: JSON.stringify({ data: { transcription: 'Android transcript only send body.' } }),
         });
         return;
       }
-
       await route.continue();
     });
 
