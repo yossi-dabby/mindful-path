@@ -1592,51 +1592,27 @@ export default function Chat() {
       }
 
       let result;
-      const basePrompt = 'Transcribe this audio to plain text. Return only the spoken words with natural punctuation.';
+      // Mobile: dedicated Whisper backend (avoids Base44 InvokeLLM format restrictions on Android)
+      // Web: InvokeLLM unchanged
       const runTranscription = async (targetFileUrl) => {
-        const canRetryWithoutPrompt = (requestError) => {
-          const haystack = [requestError?.message, requestError?.statusText, requestError?.data ? JSON.stringify(requestError.data) : '']
-          .filter(Boolean)
-          .join(' ')
-          .toLowerCase();
-          return haystack.includes('prompt') && (haystack.includes('not supported') || haystack.includes('unsupported') || haystack.includes('invalid'));
-        };
-
-        const transcriptionRequests = [
-        {
-          prompt: basePrompt,
-          file_urls: [targetFileUrl]
-        },
-        {
-          file_urls: [targetFileUrl]
-        }];
-
+        if (onMobile) {
+          const r = await base44.functions.invoke('transcribeMobileAudio', { file_url: targetFileUrl });
+          const t = r?.data?.transcription;
+          if (!t) throw new Error('No transcription returned from backend');
+          return t;
+        }
+        const basePrompt = 'Transcribe this audio to plain text. Return only the spoken words with natural punctuation.';
+        const reqs = [{ prompt: basePrompt, file_urls: [targetFileUrl] }, { file_urls: [targetFileUrl] }];
         let lastError = null;
-        for (let index = 0; index < transcriptionRequests.length; index += 1) {
-          const transcriptionRequest = transcriptionRequests[index];
-          try {
-            console.log('[Audio] Transcription request payload:', {
-              file_url: targetFileUrl,
-              file_name: transcriptionSourceFile.name,
-              mime_type: transcriptionSourceFile.type || 'unknown',
-              file_size: typeof transcriptionSourceFile.size === 'number' ? transcriptionSourceFile.size : null,
-              request: transcriptionRequest
-            });
-            return await base44.integrations.Core.InvokeLLM(transcriptionRequest);
-          } catch (requestError) {
-            lastError = requestError;
-            const hasFallback = index < transcriptionRequests.length - 1;
-            if (!hasFallback) break;
-            if (!canRetryWithoutPrompt(requestError)) break;
-            console.warn('[Audio] Primary transcription payload rejected, retrying with fallback payload.', {
-              message: requestError?.message,
-              status: requestError?.status,
-              code: requestError?.code,
-              data: requestError?.data
-            });
+        for (let i = 0; i < reqs.length; i++) {
+          try { return await base44.integrations.Core.InvokeLLM(reqs[i]); }
+          catch (e) {
+            lastError = e;
+            if (i >= reqs.length - 1) break;
+            const h = [e?.message, e?.data ? JSON.stringify(e.data) : ''].join(' ').toLowerCase();
+            if (!(h.includes('prompt') && (h.includes('not supported') || h.includes('unsupported')))) break;
           }
         }
-
         throw lastError || new Error('Audio transcription request failed');
       };
 
