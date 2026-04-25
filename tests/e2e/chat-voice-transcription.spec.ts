@@ -710,7 +710,7 @@ test.describe('Chat voice transcription runtime flow', () => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify({ data: { transcription: 'Android runtime transcript.' } }),
+          body: JSON.stringify({ transcription: 'Android runtime transcript.' }),
         });
         return;
       }
@@ -766,7 +766,7 @@ test.describe('Chat voice transcription runtime flow', () => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify({ data: { transcription: 'Android transcript from empty recorder mime type runtime.' } }),
+          body: JSON.stringify({ transcription: 'Android transcript from empty recorder mime type runtime.' }),
         });
         return;
       }
@@ -824,7 +824,7 @@ test.describe('Chat voice transcription runtime flow', () => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify({ data: { transcription: 'Android runtime transcript from transcoded wav.' } }),
+          body: JSON.stringify({ transcription: 'Android runtime transcript from transcoded wav.' }),
         });
         return;
       }
@@ -882,7 +882,7 @@ test.describe('Chat voice transcription runtime flow', () => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify({ data: { transcription: 'Android runtime transcript from transcoded mp4 wav.' } }),
+          body: JSON.stringify({ transcription: 'Android runtime transcript from transcoded mp4 wav.' }),
         });
         return;
       }
@@ -948,7 +948,7 @@ test.describe('Chat voice transcription runtime flow', () => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify({ data: { transcription: 'Android runtime transcript from ogg fallback path.' } }),
+          body: JSON.stringify({ transcription: 'Android runtime transcript from ogg fallback path.' }),
         });
         return;
       }
@@ -1004,7 +1004,7 @@ test.describe('Chat voice transcription runtime flow', () => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify({ data: { transcription: 'Android transcript only send body.' } }),
+          body: JSON.stringify({ transcription: 'Android transcript only send body.' }),
         });
         return;
       }
