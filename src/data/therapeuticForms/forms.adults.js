@@ -6,11 +6,11 @@
  * Phase 1B update:
  *   Real PDF assets now exist for cbt-thought-record and behavioral-activation-plan.
  *   Those entries carry `approved: true` with valid file_url values.
- *   Remaining entries stay `approved: false` until their assets are ready.
  *
- * Phase 4A/4B update:
- *   Approved cognitive-distortions-worksheet.
- *   Added values-and-goals-worksheet, mood-tracking-sheet, weekly-coping-plan.
+ * Phase 4A update:
+ *   Real PDF assets added for cognitive-distortions-worksheet,
+ *   values-and-goals-worksheet, mood-tracking-sheet, and weekly-coping-plan.
+ *   All six adults entries are now approved.
  */
 
 /** @type {import('./types.js').TherapeuticForm[]} */
@@ -38,35 +38,6 @@ export const FORMS_ADULTS = [
         file_url: '/forms/he/adults/cbt-thought-record.pdf',
         file_type: 'pdf',
         file_name: 'cbt-thought-record.pdf',
-        rtl: true,
-      },
-    },
-    created_at: '2025-04-27T00:00:00.000Z',
-    updated_at: '2025-04-27T00:00:00.000Z',
-  },
-  {
-    id: 'tf-adults-cognitive-distortions-worksheet',
-    slug: 'adults-cognitive-distortions-worksheet',
-    audience: 'adults',
-    category: 'cognitive_distortions',
-    therapeutic_use: 'Helps adults identify common cognitive distortions in their thinking patterns.',
-    approved: true,
-    tags: ['cognitive-distortions', 'cbt', 'adults', 'thinking-patterns'],
-    languages: {
-      en: {
-        title: 'Cognitive Distortions Worksheet',
-        description: 'A reference and reflection sheet listing common cognitive distortions with space to identify personal examples.',
-        file_url: '/forms/en/adults/cognitive-distortions-worksheet.pdf',
-        file_type: 'pdf',
-        file_name: 'cognitive-distortions-worksheet.pdf',
-        rtl: false,
-      },
-      he: {
-        title: 'דף עבודה לעיוותי חשיבה',
-        description: 'דף עיון ורפלקציה המפרט עיוותי חשיבה נפוצים עם מקום לדוגמאות אישיות.',
-        file_url: '/forms/he/adults/cognitive-distortions-worksheet.pdf',
-        file_type: 'pdf',
-        file_name: 'cognitive-distortions-worksheet.pdf',
         rtl: true,
       },
     },
@@ -103,25 +74,54 @@ export const FORMS_ADULTS = [
     updated_at: '2025-04-27T00:00:00.000Z',
   },
   {
+    id: 'tf-adults-cognitive-distortions-worksheet',
+    slug: 'adults-cognitive-distortions-worksheet',
+    audience: 'adults',
+    category: 'cognitive_distortions',
+    therapeutic_use: 'Helps adults identify common cognitive distortions in their thinking patterns.',
+    approved: true,
+    tags: ['cognitive-distortions', 'cbt', 'adults', 'thinking-patterns'],
+    languages: {
+      en: {
+        title: 'Cognitive Distortions Worksheet',
+        description: 'A reference and reflection sheet listing common cognitive distortions with space to identify personal examples.',
+        file_url: '/forms/en/adults/cognitive-distortions-worksheet.pdf',
+        file_type: 'pdf',
+        file_name: 'cognitive-distortions-worksheet.pdf',
+        rtl: false,
+      },
+      he: {
+        title: 'דף עבודה לעיוותי חשיבה',
+        description: 'דף עיון ורפלקציה המפרט עיוותי חשיבה נפוצים עם מקום לדוגמאות אישיות.',
+        file_url: '/forms/he/adults/cognitive-distortions-worksheet.pdf',
+        file_type: 'pdf',
+        file_name: 'cognitive-distortions-worksheet.pdf',
+        rtl: true,
+      },
+    },
+    created_at: '2025-04-27T00:00:00.000Z',
+    updated_at: '2025-04-27T00:00:00.000Z',
+  },
+  {
     id: 'tf-adults-values-and-goals-worksheet',
     slug: 'adults-values-and-goals-worksheet',
     audience: 'adults',
     category: 'goals_and_values',
-    therapeutic_use: 'Helps adults clarify personal values and translate them into meaningful goals.',
+    therapeutic_use: 'Helps adults clarify personal values and set meaningful, values-aligned goals.',
     approved: true,
-    tags: ['values', 'goals', 'cbt', 'adults', 'goal-setting'],
+    tags: ['values', 'goals', 'adults', 'meaning', 'act'],
     languages: {
       en: {
         title: 'Values and Goals Worksheet',
-        description: 'A reflective worksheet to identify personal values and set aligned goals.',
+        description: 'A reflective worksheet for identifying personal values and setting meaningful goals.',
         file_url: '/forms/en/adults/values-and-goals-worksheet.pdf',
         file_type: 'pdf',
         file_name: 'values-and-goals-worksheet.pdf',
         rtl: false,
       },
       he: {
-        title: 'דף עבודה לערכים ומטרות',
-        description: 'דף עבודה להבהרת ערכים אישיים וקביעת מטרות תואמות.',
+        title: 'דף ערכים ומטרות',
+        description: 'דף עבודה לרפלקציה לזיהוי ערכים אישיים וקביעת מטרות משמעותיות.',
         file_url: '/forms/he/adults/values-and-goals-worksheet.pdf',
         file_type: 'pdf',
         file_name: 'values-and-goals-worksheet.pdf',
@@ -135,22 +135,22 @@ export const FORMS_ADULTS = [
     id: 'tf-adults-mood-tracking-sheet',
     slug: 'adults-mood-tracking-sheet',
     audience: 'adults',
-    category: 'reflection_journal',
-    therapeutic_use: 'Supports adults in tracking daily mood patterns to identify triggers and trends.',
+    category: 'depression_tools',
+    therapeutic_use: 'Supports adults in tracking daily mood patterns and identifying factors that influence wellbeing.',
     approved: true,
-    tags: ['mood', 'tracking', 'reflection', 'adults', 'daily'],
+    tags: ['mood', 'tracking', 'depression', 'adults', 'daily'],
     languages: {
       en: {
         title: 'Mood Tracking Sheet',
-        description: 'A daily sheet to log mood ratings, triggers, and brief notes.',
+        description: 'A daily tracking sheet to monitor mood patterns and identify factors that influence wellbeing.',
         file_url: '/forms/en/adults/mood-tracking-sheet.pdf',
         file_type: 'pdf',
         file_name: 'mood-tracking-sheet.pdf',
         rtl: false,
       },
       he: {
-        title: 'גיליון מעקב מצב רוח',
-        description: 'גיליון יומי לרישום דירוגי מצב רוח, טריגרים והערות קצרות.',
+        title: 'דף מעקב מצב רוח',
+        description: 'דף מעקב יומי לניטור דפוסי מצב רוח וזיהוי גורמים המשפיעים על רווחה.',
         file_url: '/forms/he/adults/mood-tracking-sheet.pdf',
         file_type: 'pdf',
         file_name: 'mood-tracking-sheet.pdf',
@@ -164,14 +164,14 @@ export const FORMS_ADULTS = [
     id: 'tf-adults-weekly-coping-plan',
     slug: 'adults-weekly-coping-plan',
     audience: 'adults',
-    category: 'coping_tools',
-    therapeutic_use: 'Helps adults build a structured weekly plan for applying coping strategies.',
+    category: 'weekly_practice',
+    therapeutic_use: 'Helps adults plan and review their weekly coping strategies with structured mid-week and end-of-week reflection.',
     approved: true,
-    tags: ['coping', 'weekly', 'plan', 'adults', 'strategy'],
+    tags: ['coping', 'weekly', 'plan', 'adults', 'stress'],
     languages: {
       en: {
         title: 'Weekly Coping Plan',
-        description: 'A structured weekly planner to schedule and reflect on coping strategies.',
+        description: 'A structured weekly plan for building and using personal coping strategies.',
         file_url: '/forms/en/adults/weekly-coping-plan.pdf',
         file_type: 'pdf',
         file_name: 'weekly-coping-plan.pdf',
@@ -179,7 +179,7 @@ export const FORMS_ADULTS = [
       },
       he: {
         title: 'תוכנית התמודדות שבועית',
-        description: 'מתכנן שבועי מובנה לתזמון ורפלקציה על אסטרטגיות התמודדות.',
+        description: 'תכנית שבועית מובנית לבניית אסטרטגיות התמודדות אישיות ושימוש בהן.',
         file_url: '/forms/he/adults/weekly-coping-plan.pdf',
         file_type: 'pdf',
         file_name: 'weekly-coping-plan.pdf',

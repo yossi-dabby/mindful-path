@@ -494,29 +494,29 @@ describe('Phase 4B — Children: Grounding Exercise (child/children wording requ
 // ─── 15. Children: Parent-Guided Coping Card ─────────────────────────────────
 
 describe('Phase 4B — Children: Parent-Guided Coping Card (child/parent-guided wording required)', () => {
-  it('resolves by canonical form ID (tf-children-coping-card)', () => {
-    const meta = resolveFormIntent('tf-children-coping-card', 'en');
+  it('resolves by canonical form ID (tf-children-parent-guided-coping-card)', () => {
+    const meta = resolveFormIntent('tf-children-parent-guided-coping-card', 'en');
     expect(meta).not.toBeNull();
-    expect(meta.form_id).toBe('tf-children-coping-card');
+    expect(meta.form_id).toBe('tf-children-parent-guided-coping-card');
     expect(meta.audience).toBe('children');
   });
 
   it('resolves via tf-children-parent-guided-coping-card slug alias', () => {
     const meta = resolveFormIntent('tf-children-parent-guided-coping-card', 'en');
     expect(meta).not.toBeNull();
-    expect(meta.form_id).toBe('tf-children-coping-card');
+    expect(meta.form_id).toBe('tf-children-parent-guided-coping-card');
   });
 
   it('resolves via parent-guided-coping alias', () => {
     const meta = resolveFormIntent('parent-guided-coping', 'en');
     expect(meta).not.toBeNull();
-    expect(meta.form_id).toBe('tf-children-coping-card');
+    expect(meta.form_id).toBe('tf-children-parent-guided-coping-card');
   });
 
   it('resolves via child-coping-card alias', () => {
     const meta = resolveFormIntent('child-coping-card', 'en');
     expect(meta).not.toBeNull();
-    expect(meta.form_id).toBe('tf-children-coping-card');
+    expect(meta.form_id).toBe('tf-children-parent-guided-coping-card');
   });
 
   it('returns Hebrew URL when lang=he', () => {

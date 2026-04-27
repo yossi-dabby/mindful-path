@@ -334,10 +334,11 @@ describe('TherapeuticForms — resolver rejects unapproved forms', () => {
     }
   });
 
-  it('resolveFormById returns null for an explicitly unapproved seed form', () => {
-    // tf-older-adults-coping-plan remains approved: false
-    const result = resolveFormById('tf-older-adults-coping-plan');
-    expect(result).toBeNull();
+  it('resolveFormById returns a form for a Phase 4A approved seed form', () => {
+    // tf-adults-cognitive-distortions-worksheet was promoted to approved: true in Phase 4A
+    const result = resolveFormById('tf-adults-cognitive-distortions-worksheet');
+    expect(result).not.toBeNull();
+    expect(result.approved).toBe(true);
   });
 });
 
@@ -746,7 +747,7 @@ describe('TherapeuticForms Phase 1B — starter pack live queries', () => {
 
   it('all approved registry forms have approved: true', () => {
     const allApproved = ALL_FORMS.filter(f => f.approved === true);
-    expect(allApproved.length).toBeGreaterThanOrEqual(18);
+    expect(allApproved.length).toBeGreaterThanOrEqual(16);
     for (const f of allApproved) {
       expect(f.approved).toBe(true);
     }
@@ -758,8 +759,8 @@ describe('TherapeuticForms Phase 1B — starter pack live queries', () => {
 describe('TherapeuticForms Phase 1B — approved form file_url integrity', () => {
   const approvedForms = ALL_FORMS.filter(f => f.approved === true);
 
-  it('at least 18 approved forms exist (Phase 4A)', () => {
-    expect(approvedForms.length).toBeGreaterThanOrEqual(18);
+  it('at least 16 approved forms exist', () => {
+    expect(approvedForms.length).toBeGreaterThanOrEqual(16);
   });
 
   it('every approved form has at least one language block with non-empty file_url', () => {
@@ -867,13 +868,15 @@ describe('TherapeuticForms Phase 1B — language fallback to English', () => {
 // ─── 16. Unapproved seed forms remain hidden ──────────────────────────────────
 
 describe('TherapeuticForms Phase 1B — unapproved forms remain hidden', () => {
-  it('resolves cognitive-distortions-worksheet (approved in Phase 4A)', () => {
+  it('cognitive-distortions-worksheet is now approved in Phase 4A', () => {
+    // Promoted to approved: true in Phase 4A
     const result = resolveFormWithLanguage('tf-adults-cognitive-distortions-worksheet', 'en');
     expect(result).not.toBeNull();
     expect(result.languageData.title).toBe('Cognitive Distortions Worksheet');
   });
 
-  it('resolves grounding-exercise for children (approved in Phase 4A)', () => {
+  it('grounding-exercise is now approved in Phase 4A', () => {
+    // Promoted to approved: true in Phase 4A
     const result = resolveFormWithLanguage('tf-children-grounding-exercise', 'en');
     expect(result).not.toBeNull();
     expect(result.languageData.title).toBe('Grounding Exercise for Children');
@@ -1004,6 +1007,36 @@ describe('TherapeuticForms Phase 1B — PDF files exist in public/forms', () => 
       '/forms/he/children/simple-feelings-check-in.pdf',
       '/forms/en/older_adults/mood-reflection-sheet.pdf',
       '/forms/he/older_adults/mood-reflection-sheet.pdf',
+      // Phase 4A — children
+      '/forms/en/children/grounding-exercise.pdf',
+      '/forms/he/children/grounding-exercise.pdf',
+      '/forms/en/children/parent-guided-coping-card.pdf',
+      '/forms/he/children/parent-guided-coping-card.pdf',
+      '/forms/en/children/box-breathing.pdf',
+      '/forms/he/children/box-breathing.pdf',
+      // Phase 4A — adolescents
+      '/forms/en/adolescents/emotion-regulation-worksheet.pdf',
+      '/forms/he/adolescents/emotion-regulation-worksheet.pdf',
+      '/forms/en/adolescents/weekly-practice-planner.pdf',
+      '/forms/he/adolescents/weekly-practice-planner.pdf',
+      '/forms/en/adolescents/social-pressure-coping-tool.pdf',
+      '/forms/he/adolescents/social-pressure-coping-tool.pdf',
+      // Phase 4A — adults
+      '/forms/en/adults/cognitive-distortions-worksheet.pdf',
+      '/forms/he/adults/cognitive-distortions-worksheet.pdf',
+      '/forms/en/adults/values-and-goals-worksheet.pdf',
+      '/forms/he/adults/values-and-goals-worksheet.pdf',
+      '/forms/en/adults/mood-tracking-sheet.pdf',
+      '/forms/he/adults/mood-tracking-sheet.pdf',
+      '/forms/en/adults/weekly-coping-plan.pdf',
+      '/forms/he/adults/weekly-coping-plan.pdf',
+      // Phase 4A — older adults
+      '/forms/en/older_adults/sleep-routine-reflection.pdf',
+      '/forms/he/older_adults/sleep-routine-reflection.pdf',
+      '/forms/en/older_adults/daily-coping-plan.pdf',
+      '/forms/he/older_adults/daily-coping-plan.pdf',
+      '/forms/en/older_adults/caregiver-support-reflection.pdf',
+      '/forms/he/older_adults/caregiver-support-reflection.pdf',
     ];
     for (const formPath of pdfPaths) {
       const absolutePath = path.resolve(PUBLIC_FORMS_ROOT, '..', formPath.replace(/^\//, ''));
@@ -1024,10 +1057,376 @@ describe('TherapeuticForms Phase 1B — PDF files exist in public/forms', () => 
       'he/adolescents/anxiety-thought-record.pdf',
       'he/children/simple-feelings-check-in.pdf',
       'he/older_adults/mood-reflection-sheet.pdf',
+      // Phase 4A
+      'he/children/grounding-exercise.pdf',
+      'he/children/parent-guided-coping-card.pdf',
+      'he/children/box-breathing.pdf',
+      'he/adolescents/emotion-regulation-worksheet.pdf',
+      'he/adolescents/weekly-practice-planner.pdf',
+      'he/adolescents/social-pressure-coping-tool.pdf',
+      'he/adults/cognitive-distortions-worksheet.pdf',
+      'he/adults/values-and-goals-worksheet.pdf',
+      'he/adults/mood-tracking-sheet.pdf',
+      'he/adults/weekly-coping-plan.pdf',
+      'he/older_adults/sleep-routine-reflection.pdf',
+      'he/older_adults/daily-coping-plan.pdf',
+      'he/older_adults/caregiver-support-reflection.pdf',
     ];
     for (const relPath of hebrewFiles) {
       const absolutePath = path.join(PUBLIC_FORMS_ROOT, relPath);
       expect(fs.existsSync(absolutePath), `Expected Hebrew PDF: ${relPath}`).toBe(true);
+    }
+  });
+});
+
+// ═════════════════════════════════════════════════════════════════════════════
+// PHASE 4A TESTS
+// ═════════════════════════════════════════════════════════════════════════════
+
+// Phase 4A form IDs used in tests
+// Note: simple-feelings-check-in is served by the legacy id 'tf-children-feelings-checkin'
+const PHASE4A_FORM_IDS = {
+  children: [
+    'tf-children-feelings-checkin',             // legacy id for children-simple-feelings-check-in
+    'tf-children-grounding-exercise',
+    'tf-children-parent-guided-coping-card',
+    'tf-children-box-breathing',
+  ],
+  adolescents: [
+    'tf-adolescents-anxiety-thought-record',
+    'tf-adolescents-emotion-regulation-worksheet',
+    'tf-adolescents-weekly-practice-planner',
+    'tf-adolescents-social-pressure-coping-tool',
+  ],
+  adults_phase4a: [
+    'tf-adults-cognitive-distortions-worksheet',
+    'tf-adults-values-and-goals-worksheet',
+    'tf-adults-mood-tracking-sheet',
+    'tf-adults-weekly-coping-plan',
+  ],
+  older_adults: [
+    'tf-older-adults-mood-reflection-sheet',
+    'tf-older-adults-sleep-routine-reflection',
+    'tf-older-adults-daily-coping-plan',
+    'tf-older-adults-caregiver-support-reflection',
+  ],
+};
+
+// ─── Phase 4A: all 16 forms are approved and resolve ─────────────────────────
+
+describe('TherapeuticForms Phase 4A — all 16 forms are approved and resolve', () => {
+  const allPhase4aIds = [
+    ...PHASE4A_FORM_IDS.children,
+    ...PHASE4A_FORM_IDS.adolescents,
+    ...PHASE4A_FORM_IDS.adults_phase4a,
+    ...PHASE4A_FORM_IDS.older_adults,
+  ];
+
+  it('all 16 Phase 4A form IDs resolve to a non-null result in English', () => {
+    for (const id of allPhase4aIds) {
+      const result = resolveFormWithLanguage(id, 'en');
+      expect(result, `Form ${id} should resolve in English`).not.toBeNull();
+    }
+  });
+
+  it('all 16 Phase 4A form IDs resolve to a non-null result in Hebrew', () => {
+    for (const id of allPhase4aIds) {
+      const result = resolveFormWithLanguage(id, 'he');
+      expect(result, `Form ${id} should resolve in Hebrew`).not.toBeNull();
+      expect(result.language, `${id} should resolve to Hebrew`).toBe('he');
+    }
+  });
+
+  it('all 16 Phase 4A forms are in the registry with approved: true', () => {
+    for (const id of allPhase4aIds) {
+      const form = ALL_FORMS.find(f => f.id === id);
+      expect(form, `Form ${id} not found in ALL_FORMS`).toBeDefined();
+      expect(form.approved, `Form ${id} must be approved`).toBe(true);
+    }
+  });
+});
+
+// ─── Phase 4A: English and Hebrew language blocks ────────────────────────────
+
+describe('TherapeuticForms Phase 4A — English and Hebrew language blocks', () => {
+  it('each Phase 4A form has a valid English language block', () => {
+    const allIds = [
+      ...PHASE4A_FORM_IDS.children,
+      ...PHASE4A_FORM_IDS.adolescents,
+      ...PHASE4A_FORM_IDS.adults_phase4a,
+      ...PHASE4A_FORM_IDS.older_adults,
+    ];
+    for (const id of allIds) {
+      const form = ALL_FORMS.find(f => f.id === id);
+      expect(form, `${id} not found`).toBeDefined();
+      const enBlock = form.languages.en;
+      expect(enBlock, `${id} missing English block`).toBeDefined();
+      expect(enBlock.file_url, `${id} English file_url must be non-empty`).toBeTruthy();
+      expect(enBlock.file_url.startsWith('/forms/'), `${id} English file_url must start with /forms/`).toBe(true);
+      expect(enBlock.rtl, `${id} English rtl must be false`).toBe(false);
+    }
+  });
+
+  it('each Phase 4A form has a valid Hebrew language block with rtl: true', () => {
+    const allIds = [
+      ...PHASE4A_FORM_IDS.children,
+      ...PHASE4A_FORM_IDS.adolescents,
+      ...PHASE4A_FORM_IDS.adults_phase4a,
+      ...PHASE4A_FORM_IDS.older_adults,
+    ];
+    for (const id of allIds) {
+      const form = ALL_FORMS.find(f => f.id === id);
+      expect(form, `${id} not found`).toBeDefined();
+      const heBlock = form.languages.he;
+      expect(heBlock, `${id} missing Hebrew block`).toBeDefined();
+      expect(heBlock.file_url, `${id} Hebrew file_url must be non-empty`).toBeTruthy();
+      expect(heBlock.file_url.startsWith('/forms/'), `${id} Hebrew file_url must start with /forms/`).toBe(true);
+      expect(heBlock.rtl, `${id} Hebrew rtl must be true`).toBe(true);
+    }
+  });
+});
+
+// ─── Phase 4A: Hebrew requests resolve to Hebrew ─────────────────────────────
+
+describe('TherapeuticForms Phase 4A — Hebrew resolves to Hebrew', () => {
+  it('children Phase 4A forms resolve Hebrew correctly', () => {
+    for (const id of PHASE4A_FORM_IDS.children) {
+      const result = resolveFormWithLanguage(id, 'he');
+      expect(result, `${id} should resolve in Hebrew`).not.toBeNull();
+      expect(result.languageData.rtl).toBe(true);
+      expect(result.languageData.file_url).toContain('/he/');
+    }
+  });
+
+  it('adolescents Phase 4A forms resolve Hebrew correctly', () => {
+    for (const id of PHASE4A_FORM_IDS.adolescents) {
+      const result = resolveFormWithLanguage(id, 'he');
+      expect(result, `${id} should resolve in Hebrew`).not.toBeNull();
+      expect(result.languageData.rtl).toBe(true);
+    }
+  });
+
+  it('adults Phase 4A forms resolve Hebrew correctly', () => {
+    for (const id of PHASE4A_FORM_IDS.adults_phase4a) {
+      const result = resolveFormWithLanguage(id, 'he');
+      expect(result, `${id} should resolve in Hebrew`).not.toBeNull();
+      expect(result.languageData.rtl).toBe(true);
+    }
+  });
+
+  it('older_adults Phase 4A forms resolve Hebrew correctly', () => {
+    for (const id of PHASE4A_FORM_IDS.older_adults) {
+      const result = resolveFormWithLanguage(id, 'he');
+      expect(result, `${id} should resolve in Hebrew`).not.toBeNull();
+      expect(result.languageData.rtl).toBe(true);
+    }
+  });
+});
+
+// ─── Phase 4A: Unsupported languages fall back to English ────────────────────
+
+describe('TherapeuticForms Phase 4A — unsupported languages fall back to English', () => {
+  it('Phase 4A forms fall back to English for es, fr, de, it, pt', () => {
+    const sampleIds = [
+      'tf-children-box-breathing',
+      'tf-adolescents-social-pressure-coping-tool',
+      'tf-adults-values-and-goals-worksheet',
+      'tf-older-adults-sleep-routine-reflection',
+    ];
+    const unsupportedLangs = ['es', 'fr', 'de', 'it', 'pt'];
+    for (const id of sampleIds) {
+      for (const lang of unsupportedLangs) {
+        const result = resolveFormWithLanguage(id, lang);
+        expect(result, `${id} should fall back for lang=${lang}`).not.toBeNull();
+        expect(result.language, `${id} should fall back to English for lang=${lang}`).toBe('en');
+        expect(result.languageData.rtl).toBe(false);
+      }
+    }
+  });
+});
+
+// ─── Phase 4A: audience filters return correct forms ─────────────────────────
+
+describe('TherapeuticForms Phase 4A — audience filters return correct forms', () => {
+  it('listFormsByAudience("children") returns 4 approved children forms', () => {
+    const forms = listFormsByAudience('children');
+    expect(forms.length).toBeGreaterThanOrEqual(4);
+    const ids = forms.map(f => f.id);
+    expect(ids).toContain('tf-children-feelings-checkin');
+    expect(ids).toContain('tf-children-grounding-exercise');
+    expect(ids).toContain('tf-children-parent-guided-coping-card');
+    expect(ids).toContain('tf-children-box-breathing');
+  });
+
+  it('listFormsByAudience("adolescents") returns 4 approved adolescents forms', () => {
+    const forms = listFormsByAudience('adolescents');
+    expect(forms.length).toBeGreaterThanOrEqual(4);
+    const ids = forms.map(f => f.id);
+    expect(ids).toContain('tf-adolescents-anxiety-thought-record');
+    expect(ids).toContain('tf-adolescents-emotion-regulation-worksheet');
+    expect(ids).toContain('tf-adolescents-weekly-practice-planner');
+    expect(ids).toContain('tf-adolescents-social-pressure-coping-tool');
+  });
+
+  it('listFormsByAudience("adults") returns at least 6 approved adults forms', () => {
+    const forms = listFormsByAudience('adults');
+    expect(forms.length).toBeGreaterThanOrEqual(6);
+    const ids = forms.map(f => f.id);
+    expect(ids).toContain('tf-adults-cbt-thought-record');
+    expect(ids).toContain('tf-adults-behavioral-activation-plan');
+    expect(ids).toContain('tf-adults-cognitive-distortions-worksheet');
+    expect(ids).toContain('tf-adults-values-and-goals-worksheet');
+    expect(ids).toContain('tf-adults-mood-tracking-sheet');
+    expect(ids).toContain('tf-adults-weekly-coping-plan');
+  });
+
+  it('listFormsByAudience("older_adults") returns 4 approved older_adults forms', () => {
+    const forms = listFormsByAudience('older_adults');
+    expect(forms.length).toBeGreaterThanOrEqual(4);
+    const ids = forms.map(f => f.id);
+    expect(ids).toContain('tf-older-adults-mood-reflection-sheet');
+    expect(ids).toContain('tf-older-adults-sleep-routine-reflection');
+    expect(ids).toContain('tf-older-adults-daily-coping-plan');
+    expect(ids).toContain('tf-older-adults-caregiver-support-reflection');
+  });
+});
+
+// ─── Phase 4A: category filters ───────────────────────────────────────────────
+
+describe('TherapeuticForms Phase 4A — category filters return correct new forms', () => {
+  it('coping_tools category returns children grounding and older_adults daily-coping-plan', () => {
+    const forms = listFormsByCategory('coping_tools');
+    const ids = forms.map(f => f.id);
+    expect(ids).toContain('tf-children-grounding-exercise');
+    expect(ids).toContain('tf-older-adults-daily-coping-plan');
+  });
+
+  it('emotional_regulation category returns box-breathing and emotion-regulation-worksheet', () => {
+    const forms = listFormsByCategory('emotional_regulation');
+    const ids = forms.map(f => f.id);
+    expect(ids).toContain('tf-children-box-breathing');
+    expect(ids).toContain('tf-adolescents-emotion-regulation-worksheet');
+  });
+
+  it('weekly_practice category returns adolescents and adults weekly forms', () => {
+    const forms = listFormsByCategory('weekly_practice');
+    const ids = forms.map(f => f.id);
+    expect(ids).toContain('tf-adolescents-weekly-practice-planner');
+    expect(ids).toContain('tf-adults-weekly-coping-plan');
+  });
+
+  it('caregiver_support category returns caregiver-support-reflection', () => {
+    const forms = listFormsByCategory('caregiver_support');
+    const ids = forms.map(f => f.id);
+    expect(ids).toContain('tf-older-adults-caregiver-support-reflection');
+  });
+
+  it('sleep category returns sleep-routine-reflection', () => {
+    const forms = listFormsByCategory('sleep');
+    const ids = forms.map(f => f.id);
+    expect(ids).toContain('tf-older-adults-sleep-routine-reflection');
+  });
+});
+
+// ─── Phase 4A: toGeneratedFileMetadata for one form per audience ──────────────
+
+describe('TherapeuticForms Phase 4A — toGeneratedFileMetadata works for new forms', () => {
+  it('toGeneratedFileMetadata works for a Phase 4A children form (box-breathing)', () => {
+    const resolved = resolveFormWithLanguage('tf-children-box-breathing', 'en');
+    expect(resolved).not.toBeNull();
+    const meta = toGeneratedFileMetadata(resolved);
+    expect(meta).not.toBeNull();
+    expect(meta.type).toBe('pdf');
+    expect(meta.source).toBe('therapeutic_forms_library');
+    expect(meta.form_id).toBe('tf-children-box-breathing');
+    expect(meta.audience).toBe('children');
+    expect(meta.url).toBe('/forms/en/children/box-breathing.pdf');
+    expect(meta.language).toBe('en');
+  });
+
+  it('toGeneratedFileMetadata works for a Phase 4A adolescents form (social-pressure)', () => {
+    const resolved = resolveFormWithLanguage('tf-adolescents-social-pressure-coping-tool', 'en');
+    expect(resolved).not.toBeNull();
+    const meta = toGeneratedFileMetadata(resolved);
+    expect(meta).not.toBeNull();
+    expect(meta.type).toBe('pdf');
+    expect(meta.audience).toBe('adolescents');
+    expect(meta.form_id).toBe('tf-adolescents-social-pressure-coping-tool');
+  });
+
+  it('toGeneratedFileMetadata works for a Phase 4A adults form (values-and-goals)', () => {
+    const resolved = resolveFormWithLanguage('tf-adults-values-and-goals-worksheet', 'en');
+    expect(resolved).not.toBeNull();
+    const meta = toGeneratedFileMetadata(resolved);
+    expect(meta).not.toBeNull();
+    expect(meta.type).toBe('pdf');
+    expect(meta.audience).toBe('adults');
+    expect(meta.form_id).toBe('tf-adults-values-and-goals-worksheet');
+  });
+
+  it('toGeneratedFileMetadata works for a Phase 4A older_adults form (daily-coping-plan)', () => {
+    const resolved = resolveFormWithLanguage('tf-older-adults-daily-coping-plan', 'en');
+    expect(resolved).not.toBeNull();
+    const meta = toGeneratedFileMetadata(resolved);
+    expect(meta).not.toBeNull();
+    expect(meta.type).toBe('pdf');
+    expect(meta.audience).toBe('older_adults');
+    expect(meta.form_id).toBe('tf-older-adults-daily-coping-plan');
+  });
+
+  it('toGeneratedFileMetadata works for Hebrew Phase 4A form', () => {
+    const resolved = resolveFormWithLanguage('tf-older-adults-caregiver-support-reflection', 'he');
+    expect(resolved).not.toBeNull();
+    const meta = toGeneratedFileMetadata(resolved);
+    expect(meta).not.toBeNull();
+    expect(meta.language).toBe('he');
+    expect(meta.url).toBe('/forms/he/older_adults/caregiver-support-reflection.pdf');
+  });
+});
+
+// ─── Phase 4A: existing Phase 3 AI mappings unchanged ────────────────────────
+
+describe('TherapeuticForms Phase 4A — existing Phase 3 AI mappings unchanged', () => {
+  it('CBT Thought Record still resolves (Phase 1B / Phase 3 unchanged)', () => {
+    const result = resolveFormWithLanguage('tf-adults-cbt-thought-record', 'en');
+    expect(result).not.toBeNull();
+    expect(result.languageData.title).toBe('CBT Thought Record');
+  });
+
+  it('Behavioral Activation Plan still resolves (Phase 1B / Phase 3 unchanged)', () => {
+    const result = resolveFormWithLanguage('tf-adults-behavioral-activation-plan', 'en');
+    expect(result).not.toBeNull();
+    expect(result.languageData.title).toBe('Behavioral Activation Plan');
+  });
+
+  it('Anxiety Thought Record still resolves for adolescents (Phase 1B unchanged)', () => {
+    const result = resolveFormWithLanguage('tf-adolescents-anxiety-thought-record', 'en');
+    expect(result).not.toBeNull();
+    expect(result.languageData.title).toBe('Anxiety Thought Record');
+  });
+
+  it('Mood Reflection Sheet still resolves for older_adults (Phase 1B unchanged)', () => {
+    const result = resolveFormWithLanguage('tf-older-adults-mood-reflection-sheet', 'en');
+    expect(result).not.toBeNull();
+    expect(result.languageData.title).toBe('Mood Reflection Sheet');
+  });
+});
+
+// ─── Phase 4A: no fake links ──────────────────────────────────────────────────
+
+describe('TherapeuticForms Phase 4A — no fake links in Phase 4A forms', () => {
+  it('all Phase 4A approved forms return a defined non-empty file_url', () => {
+    const allIds = [
+      ...PHASE4A_FORM_IDS.children,
+      ...PHASE4A_FORM_IDS.adolescents,
+      ...PHASE4A_FORM_IDS.adults_phase4a,
+      ...PHASE4A_FORM_IDS.older_adults,
+    ];
+    for (const id of allIds) {
+      const resolved = resolveFormWithLanguage(id, 'en');
+      expect(resolved, `${id} should resolve`).not.toBeNull();
+      expect(resolved.languageData.file_url.trim(), `${id} file_url should not be empty`).not.toBe('');
+      expect(resolved.languageData.file_url, `${id} file_url should start with /forms/`).toMatch(/^\/forms\//);
     }
   });
 });

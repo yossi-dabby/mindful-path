@@ -162,11 +162,11 @@ export const APPROVED_FORM_INTENT_MAP = Object.freeze({
   'grounding-for-children':                          'tf-children-grounding-exercise',
 
   // ── Children: Parent-Guided Coping Card ──────────────────────────────────
-  'tf-children-coping-card':                         'tf-children-coping-card',
-  'tf-children-parent-guided-coping-card':           'tf-children-coping-card',
-  'children-parent-guided-coping-card':              'tf-children-coping-card',
-  'parent-guided-coping':                            'tf-children-coping-card',
-  'child-coping-card':                               'tf-children-coping-card',
+  
+  'tf-children-parent-guided-coping-card':           'tf-children-parent-guided-coping-card',
+  'children-parent-guided-coping-card':              'tf-children-parent-guided-coping-card',
+  'parent-guided-coping':                            'tf-children-parent-guided-coping-card',
+  'child-coping-card':                               'tf-children-parent-guided-coping-card',
 
   // ── Children: Box Breathing ───────────────────────────────────────────────
   'tf-children-box-breathing':                       'tf-children-box-breathing',

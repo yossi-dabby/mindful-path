@@ -6,7 +6,11 @@
  * Phase 1B update:
  *   Real PDF assets now exist for anxiety-thought-record.
  *   That entry carries `approved: true` with valid file_url values.
- *   Remaining entries stay `approved: false` until their assets are ready.
+ *
+ * Phase 4A update:
+ *   Real PDF assets added for emotion-regulation-worksheet,
+ *   weekly-practice-planner, and social-pressure-coping-tool.
+ *   All four adolescents entries are now approved.
  */
 
 /** @type {import('./types.js').TherapeuticForm[]} */
@@ -15,7 +19,7 @@ export const FORMS_ADOLESCENTS = [
     id: 'tf-adolescents-anxiety-thought-record',
     slug: 'adolescents-anxiety-thought-record',
     audience: 'adolescents',
-    category: 'thought_records',
+    category: 'anxiety_tools',
     therapeutic_use: 'Guides adolescents through identifying anxious thoughts and examining the evidence for and against them.',
     approved: true,
     tags: ['anxiety', 'thought-record', 'cbt', 'adolescents'],
@@ -33,7 +37,7 @@ export const FORMS_ADOLESCENTS = [
         rtl: false,
       },
       he: {
-        title: 'רשומת מחשבות חרדה',
+        title: 'רשומת מחשבות לחרדה',
         description: 'דף עבודה מובנה לבחינה ואתגור מחשבות חרדה.',
         file_url: '/forms/he/adolescents/anxiety-thought-record.pdf',
         file_type: 'pdf',
@@ -114,10 +118,10 @@ export const FORMS_ADOLESCENTS = [
     id: 'tf-adolescents-social-pressure-coping-tool',
     slug: 'adolescents-social-pressure-coping-tool',
     audience: 'adolescents',
-    category: 'coping_tools',
-    therapeutic_use: 'Supports adolescents in identifying and responding to social and peer pressure situations.',
+    category: 'social_skills',
+    therapeutic_use: 'Helps adolescents identify social pressures and practise assertive, values-based responses.',
     approved: true,
-    tags: ['social-pressure', 'peer-pressure', 'coping', 'adolescents', 'assertiveness'],
+    tags: ['social-pressure', 'assertiveness', 'adolescents', 'coping', 'peers'],
     recommended_for: ['adolescents_ages_13_to_17'],
     minimum_age: 13,
     maximum_age: 17,
@@ -125,7 +129,7 @@ export const FORMS_ADOLESCENTS = [
     languages: {
       en: {
         title: 'Social Pressure Coping Tool',
-        description: 'A worksheet to identify social pressure situations and plan assertive, healthy responses.',
+        description: 'A worksheet to help adolescents identify social pressures and practise assertive responses.',
         file_url: '/forms/en/adolescents/social-pressure-coping-tool.pdf',
         file_type: 'pdf',
         file_name: 'social-pressure-coping-tool.pdf',
@@ -133,7 +137,7 @@ export const FORMS_ADOLESCENTS = [
       },
       he: {
         title: 'כלי התמודדות עם לחץ חברתי',
-        description: 'דף עבודה לזיהוי מצבי לחץ חברתי ותכנון תגובות אסרטיביות ובריאות.',
+        description: 'דף עבודה לסיוע למתבגרים לזהות לחצים חברתיים ולתרגל תגובות אסרטיביות.',
         file_url: '/forms/he/adolescents/social-pressure-coping-tool.pdf',
         file_type: 'pdf',
         file_name: 'social-pressure-coping-tool.pdf',
