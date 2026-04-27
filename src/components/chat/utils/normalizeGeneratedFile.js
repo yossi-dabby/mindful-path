@@ -1,5 +1,5 @@
 /**
- * Normalises and validates a message.metadata.generated_file object.
+ * Normalizes and validates a message.metadata.generated_file object.
  *
  * Contract:
  *   {

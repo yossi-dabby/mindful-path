@@ -1659,6 +1659,7 @@ export const translations = {
           download_button: "הורד דף עבודה",
           opening: "פותח..."
         },
+        delete_session_failed: "מחיקת המפגש נכשלה. נסו שוב.",
         confirm_delete_session: "למחוק את המפגש? פעולה זו אינה הפיכה.",
         daily_checkin_message: "השלמתי את הצ'ק-אין היומי שלי.",
         consent: {
@@ -3074,6 +3075,7 @@ export const translations = {
           download_button: "Descargar hoja de trabajo",
           opening: "Abriendo..."
         },
+        delete_session_failed: "Error al eliminar la sesión. Por favor, inténtalo de nuevo.",
         confirm_delete_session: "¿Eliminar esta sesión? Esta acción no se puede deshacer.",
         daily_checkin_message: "He completado mi Check-in Diario.",
         consent: {
@@ -4446,8 +4448,8 @@ export const translations = {
           download_button: "Télécharger la feuille de travail",
           opening: "Ouverture..."
         },
+        delete_session_failed: "Échec de la suppression de la session. Veuillez réessayer.",
         confirm_delete_session: "Supprimer cette session ? Cette action ne peut pas être annulée.",
-        daily_checkin_message: "J'ai terminé mon Check-in Quotidien.",
         consent: {
           lenient: {
             title: "Support de Bien-être IA - Mode Permissif",
@@ -5818,8 +5820,8 @@ export const translations = {
           download_button: "Arbeitsblatt herunterladen",
           opening: "Öffnen..."
         },
+        delete_session_failed: "Sitzung konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
         confirm_delete_session: "Diese Sitzung löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
-        daily_checkin_message: "Ich habe meinen täglichen Check-in abgeschlossen.",
         consent: {
           lenient: {
             title: "KI-Wellness-Unterstützung - Nachsichtiger Modus",
@@ -7190,8 +7192,8 @@ export const translations = {
           download_button: "Scarica il foglio di lavoro",
           opening: "Apertura in corso..."
         },
+        delete_session_failed: "Impossibile eliminare la sessione. Riprova.",
         confirm_delete_session: "Eliminare questa sessione? Questa azione non può essere annullata.",
-        daily_checkin_message: "Ho completato il mio Check-in Giornaliero.",
         consent: {
           lenient: {
             title: "Supporto Benessere IA - Modalità Permissiva",
@@ -8562,8 +8564,8 @@ export const translations = {
           download_button: "Baixar folha de trabalho",
           opening: "Abrindo..."
         },
+        delete_session_failed: "Falha ao excluir a sessão. Por favor, tente novamente.",
         confirm_delete_session: "Excluir esta sessão? Esta ação não pode ser desfeita.",
-        daily_checkin_message: "Concluí meu Check-in Diário.",
         consent: {
           lenient: {
             title: "Suporte de Bem-estar IA - Modo Permissivo",
