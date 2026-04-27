@@ -138,20 +138,23 @@ describe('Phase 3 — resolveFormIntent: unsupported intents return null', () =>
 
 // ─── 4. Unapproved form cannot be selected ────────────────────────────────────
 
-describe('Phase 3 — unapproved forms cannot be selected', () => {
-  it('resolveFormIntent does not return unapproved forms even if slug is known', () => {
-    // tf-adults-cognitive-distortions-worksheet is in the registry with approved: false
-    // It must never appear in APPROVED_FORM_INTENT_MAP
-    expect(APPROVED_FORM_INTENT_MAP['tf-adults-cognitive-distortions-worksheet']).toBeUndefined();
-    expect(APPROVED_FORM_INTENT_MAP['adults-cognitive-distortions-worksheet']).toBeUndefined();
-    expect(APPROVED_FORM_INTENT_MAP['cognitive-distortions-worksheet']).toBeUndefined();
+describe('Phase 3/4B — unapproved forms cannot be selected', () => {
+  it('resolveFormIntent does not return truly unapproved forms', () => {
+    // tf-older-adults-coping-plan remains approved: false and must not be in the map
+    expect(APPROVED_FORM_INTENT_MAP['tf-older-adults-coping-plan']).toBeUndefined();
+    expect(APPROVED_FORM_INTENT_MAP['older-adults-coping-plan']).toBeUndefined();
   });
 
   it('resolveFormIntent for an unapproved-form slug returns null', () => {
-    // Even if we pass the form's own ID directly, it must be blocked
-    // (the resolver only approves forms marked approved: true with valid file_url)
-    const result = resolveFormIntent('tf-adults-cognitive-distortions-worksheet', 'en');
+    // A form that remains unapproved must return null
+    const result = resolveFormIntent('tf-older-adults-coping-plan', 'en');
     expect(result).toBeNull();
+  });
+
+  it('cognitive-distortions-worksheet now resolves (approved in Phase 4A)', () => {
+    const result = resolveFormIntent('cognitive-distortions', 'en');
+    expect(result).not.toBeNull();
+    expect(result.form_id).toBe('tf-adults-cognitive-distortions-worksheet');
   });
 });
 
@@ -579,16 +582,17 @@ describe('Phase 3 — user messages with [FORM:...] text are not processed', () 
 
 // ─── 20. APPROVED_FORM_INTENT_MAP structure ───────────────────────────────────
 
-describe('Phase 3 — APPROVED_FORM_INTENT_MAP structure', () => {
-  it('contains the two initial approved adult forms as values', () => {
+describe('Phase 3/4B — APPROVED_FORM_INTENT_MAP structure', () => {
+  it('contains the approved adult forms as values', () => {
     const values = new Set(Object.values(APPROVED_FORM_INTENT_MAP));
     expect(values.has('tf-adults-cbt-thought-record')).toBe(true);
     expect(values.has('tf-adults-behavioral-activation-plan')).toBe(true);
+    expect(values.has('tf-adults-cognitive-distortions-worksheet')).toBe(true);
   });
 
-  it('does not contain unapproved forms as values', () => {
+  it('does not contain truly unapproved forms as values', () => {
     const values = new Set(Object.values(APPROVED_FORM_INTENT_MAP));
-    expect(values.has('tf-adults-cognitive-distortions-worksheet')).toBe(false);
+    expect(values.has('tf-older-adults-coping-plan')).toBe(false);
   });
 
   it('is a frozen (immutable) object', () => {

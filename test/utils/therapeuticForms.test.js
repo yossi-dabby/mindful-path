@@ -335,8 +335,8 @@ describe('TherapeuticForms — resolver rejects unapproved forms', () => {
   });
 
   it('resolveFormById returns null for an explicitly unapproved seed form', () => {
-    // tf-adults-cognitive-distortions-worksheet remains approved: false in Phase 1B
-    const result = resolveFormById('tf-adults-cognitive-distortions-worksheet');
+    // tf-older-adults-coping-plan remains approved: false
+    const result = resolveFormById('tf-older-adults-coping-plan');
     expect(result).toBeNull();
   });
 });
@@ -746,7 +746,7 @@ describe('TherapeuticForms Phase 1B — starter pack live queries', () => {
 
   it('all approved registry forms have approved: true', () => {
     const allApproved = ALL_FORMS.filter(f => f.approved === true);
-    expect(allApproved.length).toBeGreaterThanOrEqual(5);
+    expect(allApproved.length).toBeGreaterThanOrEqual(18);
     for (const f of allApproved) {
       expect(f.approved).toBe(true);
     }
@@ -758,8 +758,8 @@ describe('TherapeuticForms Phase 1B — starter pack live queries', () => {
 describe('TherapeuticForms Phase 1B — approved form file_url integrity', () => {
   const approvedForms = ALL_FORMS.filter(f => f.approved === true);
 
-  it('at least 5 approved forms exist', () => {
-    expect(approvedForms.length).toBeGreaterThanOrEqual(5);
+  it('at least 18 approved forms exist (Phase 4A)', () => {
+    expect(approvedForms.length).toBeGreaterThanOrEqual(18);
   });
 
   it('every approved form has at least one language block with non-empty file_url', () => {
@@ -867,14 +867,16 @@ describe('TherapeuticForms Phase 1B — language fallback to English', () => {
 // ─── 16. Unapproved seed forms remain hidden ──────────────────────────────────
 
 describe('TherapeuticForms Phase 1B — unapproved forms remain hidden', () => {
-  it('returns null for an unapproved seed form (cognitive-distortions-worksheet)', () => {
+  it('resolves cognitive-distortions-worksheet (approved in Phase 4A)', () => {
     const result = resolveFormWithLanguage('tf-adults-cognitive-distortions-worksheet', 'en');
-    expect(result).toBeNull();
+    expect(result).not.toBeNull();
+    expect(result.languageData.title).toBe('Cognitive Distortions Worksheet');
   });
 
-  it('returns null for an unapproved seed form (grounding-exercise)', () => {
+  it('resolves grounding-exercise for children (approved in Phase 4A)', () => {
     const result = resolveFormWithLanguage('tf-children-grounding-exercise', 'en');
-    expect(result).toBeNull();
+    expect(result).not.toBeNull();
+    expect(result.languageData.title).toBe('Grounding Exercise for Children');
   });
 
   it('listFormsByAudience does not include any unapproved forms', () => {
