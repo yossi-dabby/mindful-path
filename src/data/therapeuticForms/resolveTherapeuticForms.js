@@ -191,7 +191,7 @@ export function resolveFormWithLanguage(idOrSlug, lang = 'en') {
   const { block, code } = resolved;
 
   // Ensure RTL metadata is preserved for RTL languages regardless of what the block says
-  const rtl = RTL_LANGUAGES.has(code) ? true : (block.rtl === true ? true : false);
+  const rtl = RTL_LANGUAGES.has(code) || block.rtl === true;
 
   return {
     form,

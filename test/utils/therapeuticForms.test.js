@@ -169,7 +169,7 @@ function resolveWithLanguage(forms, idOrSlug, lang = 'en') {
 
   if (!block) return null;
 
-  const rtl = RTL_LANGUAGES.has(code) ? true : (block.rtl === true);
+  const rtl = RTL_LANGUAGES.has(code) || block.rtl === true;
 
   return {
     form,
@@ -473,6 +473,7 @@ describe('TherapeuticForms — toGeneratedFileMetadata returns expected shape', 
     expect(meta.name).toBe(FIXTURE_APPROVED_FORM.languages.en.file_name);
     expect(meta.title).toBe(FIXTURE_APPROVED_FORM.languages.en.title);
     expect(typeof meta.created_at).toBe('string');
+    expect(meta.created_at).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
     expect(meta.type).toBe('pdf');
   });
 
