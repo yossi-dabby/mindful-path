@@ -104,6 +104,46 @@ const THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS = [
 'Reference document details only when grounded in the provided attachment URL; do not invent unseen content.']
 .join('\n');
 
+// ─── Phase 3 — TherapeuticForms library selection instructions ───────────────
+//
+// These instructions tell the CBT Therapist how to attach an approved form
+// from the TherapeuticForms library when the user requests a worksheet or form.
+//
+// KEY SAFETY RULES (enforced on the client side too):
+//   - The AI MUST only use the exact form IDs listed below — never invent IDs.
+//   - The AI MUST NOT provide a URL or file path — the client resolves it.
+//   - The marker [FORM:form-id] is stripped from visible chat content.
+//   - An unapproved or unknown ID produces no card (silently ignored).
+//
+// The AI instruction format: embed [FORM:form-id] (or [FORM:form-id:lang]) once
+// anywhere in the assistant message. The client will:
+//   1. Strip the marker from visible content.
+//   2. Resolve the approved form from the TherapeuticForms library.
+//   3. Attach it as a downloadable file card below the message.
+
+const THERAPIST_FORM_LIBRARY_INSTRUCTIONS = [
+'[THERAPEUTIC_FORMS_POLICY]',
+'You have access to a curated library of approved therapeutic worksheet forms.',
+'When a user requests a worksheet, CBT form, thought record, behavioral activation sheet, homework sheet, or similar structured exercise, you SHOULD attach the most relevant approved form.',
+'',
+'To attach a form, embed EXACTLY ONE marker of the form [FORM:form-id] or [FORM:form-id:lang] anywhere in your reply.',
+'The marker will NOT be visible to the user — the system converts it to a downloadable form card automatically.',
+'',
+'CURRENTLY APPROVED FORMS (use only these exact IDs):',
+'  [FORM:tf-adults-cbt-thought-record]       — CBT Thought Record (seven-column thought diary)',
+'  [FORM:tf-adults-behavioral-activation-plan] — Behavioral Activation Plan (mood-lifting activity planner)',
+'',
+'Language: If the session language is not English, add the language code: [FORM:tf-adults-cbt-thought-record:he] for Hebrew.',
+'',
+'RULES:',
+'  - Use only the exact form IDs listed above. Do not invent form IDs, file names, or URLs.',
+'  - Do not tell the user you are embedding a marker — say "I\'ve attached a worksheet" instead.',
+'  - Attach a form only when therapeutically appropriate — never as a default filler response.',
+'  - Keep your chat reply SHORT when attaching a form (1–3 sentences max).',
+'  - If no form matches the request, do NOT attach anything — do not fabricate.',
+'  - Existing safety-handling, crisis flow, and clinical boundaries are not affected by this policy.']
+.join('\n');
+
 /**
  * Returns the workflow context instructions string when the supplied wiring
  * has the workflow_context_injection flag set to true.
@@ -2171,6 +2211,13 @@ export async function buildActionFirstDemotedSessionContentAsync(
       !content.includes(THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS)
     ) {
       content += '\n\n' + THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS;
+    }
+    // Phase 3 — TherapeuticForms library: inject form selection instructions for all CBT Therapist sessions.
+    if (
+      wiring?.name === 'cbt_therapist' &&
+      !content.includes(THERAPIST_FORM_LIBRARY_INSTRUCTIONS)
+    ) {
+      content += '\n\n' + THERAPIST_FORM_LIBRARY_INSTRUCTIONS;
     }
     return content;
   } catch {

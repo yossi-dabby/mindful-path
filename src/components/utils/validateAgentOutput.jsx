@@ -6,7 +6,15 @@
  * - Strips any medical/diagnostic language from assistant_message
  * - Blocks responses with harmful advice patterns
  * - Ensures no raw JSON or metadata leaks
+ *
+ * Phase 3 — TherapeuticForms chat integration:
+ * - Detects [FORM:slug] and [FORM:slug:lang] markers in assistant messages.
+ * - Strips markers from visible content.
+ * - Resolves approved forms via resolveFormIntent and injects generated_file metadata.
+ * - No arbitrary URL from model input is ever accepted.
  */
+
+import { resolveFormIntent, FORM_INTENT_MARKER_PATTERN } from '../../utils/resolveFormIntent.js';
 
 // Safety patterns to detect and strip
 const UNSAFE_PATTERNS = [
@@ -641,6 +649,60 @@ export function extractAssistantMessage(rawContent) {
   return 'I received your message. Please rephrase in one sentence what you want me to do next.';
 }
 
+// ─── Phase 3: TherapeuticForms form intent extraction ────────────────────────
+
+/**
+ * Extracts a `[FORM:slug]` or `[FORM:slug:lang]` marker from assistant message
+ * content and resolves it to `generated_file` metadata via the safe form intent
+ * resolver.
+ *
+ * Safety contract:
+ *   - Only the intent slug from the marker is passed to resolveFormIntent.
+ *   - No URL or filename from the model is ever accepted.
+ *   - Returns null for unknown intents, unapproved forms, or missing file_url.
+ *   - Fail-open: any unexpected error returns { cleanedContent: content, generatedFile: null }.
+ *
+ * @param {string} content  - Raw assistant message content.
+ * @param {string} [lang]   - Session language code (ISO 639-1). Optional.
+ * @returns {{ cleanedContent: string, generatedFile: object|null }}
+ */
+function extractAndResolveFormIntent(content, lang) {
+  if (typeof content !== 'string' || !content) {
+    return { cleanedContent: content, generatedFile: null };
+  }
+
+  try {
+    // Reset regex lastIndex before each use (global flag)
+    FORM_INTENT_MARKER_PATTERN.lastIndex = 0;
+
+    let resolvedGeneratedFile = null;
+    let cleanedContent = content;
+
+    // Replace all [FORM:slug] / [FORM:slug:lang] markers found in the content.
+    // Only the FIRST resolved marker becomes the generated_file (one card per message).
+    cleanedContent = content.replace(FORM_INTENT_MARKER_PATTERN, (match, slug, markerLang) => {
+      if (!resolvedGeneratedFile) {
+        // Prefer the language explicitly in the marker, then the session language
+        const effectiveLang = markerLang || lang || 'en';
+        const metadata = resolveFormIntent(slug, effectiveLang);
+        if (metadata) {
+          resolvedGeneratedFile = metadata;
+        }
+      }
+      // Always strip the marker from visible content regardless of resolution
+      return '';
+    });
+
+    // Clean up any whitespace artifacts left by marker removal
+    cleanedContent = cleanedContent.replace(/\n{3,}/g, '\n\n').trim();
+
+    return { cleanedContent, generatedFile: resolvedGeneratedFile };
+  } catch (_err) {
+    // Fail-open: return original content unchanged, no generated file
+    return { cleanedContent: content, generatedFile: null };
+  }
+}
+
 /**
  * Sanitize corrupted conversation history (recovery utility).
  * Processes all messages and extracts assistant_message from any JSON content.
@@ -772,11 +834,24 @@ export function sanitizeConversationMessages(messages) {
       // Plain-text assistant message — sanitize before returning to prevent
       // planner/composer/reasoning text from leaking into visible state
       if (typeof msg.content === 'string') {
-        const cleaned = sanitizeAssistantMessage(msg.content);
+        // Phase 3: extract [FORM:slug] markers from the original model content
+        // before applying text sanitization. The marker is stripped from the
+        // visible content string, and the resolved form is injected as metadata.
+        const sessionLang = msg.metadata?.session_language || undefined;
+        const { cleanedContent: contentAfterFormExtract, generatedFile } =
+          extractAndResolveFormIntent(msg.content, sessionLang);
+
+        const cleaned = sanitizeAssistantMessage(contentAfterFormExtract);
         const separated = splitAssistantPdfMessageIfNeeded(msg, cleaned, previousMessage);
         const nextMetadata = { ...(msg.metadata || {}) };
         if (separated.overflow) {
           nextMetadata[PDF_ANALYSIS_OVERFLOW_METADATA_KEY] = separated.overflow;
+        }
+        // Inject generated_file only when:
+        //   1. The form resolved successfully (non-null)
+        //   2. No generated_file is already present (do not overwrite existing metadata)
+        if (generatedFile && !nextMetadata.generated_file) {
+          nextMetadata.generated_file = generatedFile;
         }
         return { ...msg, content: separated.content, metadata: nextMetadata };
       }
