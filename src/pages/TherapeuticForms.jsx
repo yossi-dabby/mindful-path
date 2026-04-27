@@ -57,8 +57,8 @@ function ScrollableChipRow({ children, testId, isRtl }) {
     scrollRef.current = node;
     if (node) {
       updateArrows();
-      // Use a short timeout to let the layout settle.
-      setTimeout(updateArrows, 100);
+      // Use requestAnimationFrame to re-check after the layout has fully rendered.
+      requestAnimationFrame(updateArrows);
     }
   }, [updateArrows]);
 

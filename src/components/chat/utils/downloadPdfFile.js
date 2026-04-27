@@ -41,8 +41,10 @@ export async function downloadPdfFile(url, filename) {
   try {
     _triggerAnchorDownload(blobUrl, safeFilename);
   } finally {
-    // Revoke after a short tick so the browser has time to start the download.
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+    // Revoke after 30 seconds to give the browser ample time to start the download
+    // while still freeing the object URL. The HTML spec requires the URL to stay
+    // alive until the download has been initiated; 30 s is a safe conservative bound.
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 30_000);
   }
 }
 
