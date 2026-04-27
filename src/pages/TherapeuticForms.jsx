@@ -67,7 +67,7 @@ export default function TherapeuticForms() {
           <ClipboardList className="w-8 h-8 text-primary" />
           {t('therapeutic_forms.page_title')}
         </h1>
-        <p className="text-gray-950 font-medium">{t('therapeutic_forms.page_subtitle')}</p>
+        <p className="text-gray-950">{t('therapeutic_forms.page_subtitle')}</p>
       </div>
 
       {/* Audience Filter */}
@@ -154,7 +154,7 @@ export default function TherapeuticForms() {
 
                 {/* Description */}
                 {languageData.description &&
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-gray-950 text-sm leading-relaxed">
                     {languageData.description}
                   </p>
             }
