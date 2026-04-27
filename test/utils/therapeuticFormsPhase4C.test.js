@@ -85,7 +85,8 @@ function decodeEnglishPdfContent(buffer) {
       const decompressed = zlib.inflateSync(compressed);
       decoded.push(decompressed.toString('latin1'));
     } catch {
-      // Skip malformed streams
+      // Intentionally skipped: malformed or non-FlateDecode streams (e.g. CIDFont CMap streams)
+      // do not contain readable worksheet text and can be safely ignored for content audit.
     }
   }
   return decoded.join('\n');
@@ -391,7 +392,9 @@ describe('Phase 4C — Safety: no AI mapping points to an unapproved form', () =
 
 describe('Phase 4C — Safety: no former-placeholder/unapproved form IDs resolve', () => {
   // These are known IDs from previous versions that either never had real assets
-  // or were de-approved during the Phase 4B audit. They must not resolve.
+  // or were de-approved during the Phase 4B audit because they referenced placeholder
+  // PDFs. They must never appear in the intent map or resolve via the live registry,
+  // regardless of whether they look like valid form slugs.
   const FORMER_PLACEHOLDER_IDS = [
     'tf-adults-anger-management-template',
     'tf-adults-depression-tool-template',
