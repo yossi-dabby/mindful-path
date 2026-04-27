@@ -767,11 +767,10 @@ export default function Chat() {
           try {
             const conversation = await base44.agents.getConversation(currentConversationId);
             const sanitized = sanitizeConversationMessages(conversation.messages || [], sessionLanguageRef.current);
-              const updated = safeUpdateMessages(sanitized, 'VisibilityRefetch');
-              if (updated) {
-                setIsLoading(false);
-                emitStabilitySummary();
-              }
+            const updated = safeUpdateMessages(sanitized, 'VisibilityRefetch');
+            if (updated) {
+              setIsLoading(false);
+              emitStabilitySummary();
             }
           } catch (err) {
             console.error('[Visibility] Refetch failed:', err);
