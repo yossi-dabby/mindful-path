@@ -6,7 +6,12 @@
  * Phase 1B update:
  *   Real PDF assets now exist for mood-reflection-sheet.
  *   That entry carries `approved: true` with valid file_url values.
- *   Remaining entries stay `approved: false` until their assets are ready.
+ *
+ * Phase 4A update:
+ *   Real PDF assets added for sleep-routine-reflection, daily-coping-plan,
+ *   and caregiver-support-reflection. All four older_adults entries are now approved.
+ *   Legacy placeholder entries (coping-plan, sleep-reflection-worksheet) are retained
+ *   as unapproved stubs to avoid data loss; they are superseded by the Phase 4A entries.
  */
 
 /** @type {import('./types.js').TherapeuticForm[]} */
@@ -29,7 +34,7 @@ export const FORMS_OLDER_ADULTS = [
         rtl: false,
       },
       he: {
-        title: 'דף רפלקציה על מצב רוח',
+        title: 'דף התבוננות במצב הרוח',
         description: 'דף רפלקציה יומי עדין לעקיבה אחר מצב הרוח ולהבחנה במה שתומך ברווחה.',
         file_url: '/forms/he/older_adults/mood-reflection-sheet.pdf',
         file_type: 'pdf',
@@ -41,28 +46,28 @@ export const FORMS_OLDER_ADULTS = [
     updated_at: '2025-04-27T00:00:00.000Z',
   },
   {
-    id: 'tf-older-adults-coping-plan',
-    slug: 'older-adults-coping-plan',
+    id: 'tf-older-adults-sleep-routine-reflection',
+    slug: 'older-adults-sleep-routine-reflection',
     audience: 'older_adults',
-    category: 'coping_tools',
-    therapeutic_use: 'Helps older adults create a personalized plan for managing difficult moments.',
-    approved: false,
-    tags: ['coping', 'plan', 'older-adults', 'support'],
+    category: 'sleep',
+    therapeutic_use: 'Guides older adults in reflecting on sleep patterns and identifying habits that support better rest.',
+    approved: true,
+    tags: ['sleep', 'routine', 'reflection', 'older-adults', 'habits'],
     languages: {
       en: {
-        title: 'Coping Plan',
-        description: 'A personal coping plan with space to list helpful strategies, supportive contacts, and calming activities.',
-        file_url: '',
+        title: 'Sleep and Routine Reflection',
+        description: 'A gentle reflection sheet to track sleep quality and explore habits that promote restful sleep.',
+        file_url: '/forms/en/older_adults/sleep-routine-reflection.pdf',
         file_type: 'pdf',
-        file_name: 'coping-plan-older-adults-en.pdf',
+        file_name: 'sleep-routine-reflection.pdf',
         rtl: false,
       },
       he: {
-        title: 'תכנית התמודדות',
-        description: 'תכנית התמודדות אישית עם מקום לרשימת אסטרטגיות מועילות, אנשי קשר תומכים ופעילויות מרגיעות.',
-        file_url: '',
+        title: 'דף שינה והרגלים',
+        description: 'דף רפלקציה עדין לעקיבה אחר איכות השינה ובחינת הרגלים המקדמים שינה טובה.',
+        file_url: '/forms/he/older_adults/sleep-routine-reflection.pdf',
         file_type: 'pdf',
-        file_name: 'coping-plan-older-adults-he.pdf',
+        file_name: 'sleep-routine-reflection.pdf',
         rtl: true,
       },
     },
@@ -70,28 +75,28 @@ export const FORMS_OLDER_ADULTS = [
     updated_at: '2025-04-27T00:00:00.000Z',
   },
   {
-    id: 'tf-older-adults-sleep-reflection-worksheet',
-    slug: 'older-adults-sleep-reflection-worksheet',
+    id: 'tf-older-adults-daily-coping-plan',
+    slug: 'older-adults-daily-coping-plan',
     audience: 'older_adults',
-    category: 'sleep',
-    therapeutic_use: 'Guides older adults in reflecting on sleep patterns and identifying habits that support better rest.',
-    approved: false,
-    tags: ['sleep', 'reflection', 'older-adults', 'habits', 'rest'],
+    category: 'coping_tools',
+    therapeutic_use: 'Helps older adults build a personalised daily plan for managing difficult moments.',
+    approved: true,
+    tags: ['coping', 'daily', 'plan', 'older-adults', 'support'],
     languages: {
       en: {
-        title: 'Sleep Reflection Worksheet',
-        description: 'A gentle reflection sheet to track sleep quality and explore habits that promote restful sleep.',
-        file_url: '',
+        title: 'Daily Coping Plan',
+        description: 'A personal daily coping plan with space to list helpful strategies, supportive contacts, and calming activities.',
+        file_url: '/forms/en/older_adults/daily-coping-plan.pdf',
         file_type: 'pdf',
-        file_name: 'sleep-reflection-worksheet-older-adults-en.pdf',
+        file_name: 'daily-coping-plan.pdf',
         rtl: false,
       },
       he: {
-        title: 'דף עבודה לרפלקציה על שינה',
-        description: 'דף רפלקציה עדין לעקיבה אחר איכות השינה ובחינת הרגלים המקדמים שינה טובה.',
-        file_url: '',
+        title: 'תוכנית התמודדות יומית',
+        description: 'תכנית התמודדות יומית אישית עם מקום לרשימת אסטרטגיות מועילות, אנשי קשר תומכים ופעילויות מרגיעות.',
+        file_url: '/forms/he/older_adults/daily-coping-plan.pdf',
         file_type: 'pdf',
-        file_name: 'sleep-reflection-worksheet-older-adults-he.pdf',
+        file_name: 'daily-coping-plan.pdf',
         rtl: true,
       },
     },
@@ -104,23 +109,23 @@ export const FORMS_OLDER_ADULTS = [
     audience: 'older_adults',
     category: 'caregiver_support',
     therapeutic_use: 'Provides a structured reflection space for older adults who are also caregivers, supporting their own wellbeing.',
-    approved: false,
+    approved: true,
     tags: ['caregiver', 'support', 'reflection', 'older-adults', 'wellbeing'],
     languages: {
       en: {
-        title: 'Caregiver Support Reflection Form',
-        description: 'A reflection form for older adults who are caregivers, focusing on their own needs and support resources.',
-        file_url: '',
+        title: 'Caregiver Support Reflection',
+        description: 'A reflection form for those in a caregiving role, focusing on their own needs and support resources.',
+        file_url: '/forms/en/older_adults/caregiver-support-reflection.pdf',
         file_type: 'pdf',
-        file_name: 'caregiver-support-reflection-older-adults-en.pdf',
+        file_name: 'caregiver-support-reflection.pdf',
         rtl: false,
       },
       he: {
-        title: 'טופס רפלקציה לתמיכה במטפל',
-        description: 'טופס רפלקציה למבוגרים שהם גם מטפלים, המתמקד בצרכיהם שלהם ובמשאבי תמיכה.',
-        file_url: '',
+        title: 'דף תמיכה למטפל או בן משפחה',
+        description: 'טופס רפלקציה למי שנמצא בתפקיד מטפל, המתמקד בצרכיו שלו ובמשאבי תמיכה.',
+        file_url: '/forms/he/older_adults/caregiver-support-reflection.pdf',
         file_type: 'pdf',
-        file_name: 'caregiver-support-reflection-older-adults-he.pdf',
+        file_name: 'caregiver-support-reflection.pdf',
         rtl: true,
       },
     },
