@@ -6,7 +6,11 @@
  * Phase 1B update:
  *   Real PDF assets now exist for anxiety-thought-record.
  *   That entry carries `approved: true` with valid file_url values.
- *   Remaining entries stay `approved: false` until their assets are ready.
+ *
+ * Phase 4A update:
+ *   Real PDF assets added for emotion-regulation-worksheet,
+ *   weekly-practice-planner, and social-pressure-coping-tool.
+ *   All four adolescents entries are now approved.
  */
 
 /** @type {import('./types.js').TherapeuticForm[]} */
@@ -15,7 +19,7 @@ export const FORMS_ADOLESCENTS = [
     id: 'tf-adolescents-anxiety-thought-record',
     slug: 'adolescents-anxiety-thought-record',
     audience: 'adolescents',
-    category: 'thought_records',
+    category: 'anxiety_tools',
     therapeutic_use: 'Guides adolescents through identifying anxious thoughts and examining the evidence for and against them.',
     approved: true,
     tags: ['anxiety', 'thought-record', 'cbt', 'adolescents'],
@@ -33,7 +37,7 @@ export const FORMS_ADOLESCENTS = [
         rtl: false,
       },
       he: {
-        title: 'רשומת מחשבות חרדה',
+        title: 'רשומת מחשבות לחרדה',
         description: 'דף עבודה מובנה לבחינה ואתגור מחשבות חרדה.',
         file_url: '/forms/he/adolescents/anxiety-thought-record.pdf',
         file_type: 'pdf',
@@ -50,7 +54,7 @@ export const FORMS_ADOLESCENTS = [
     audience: 'adolescents',
     category: 'emotional_regulation',
     therapeutic_use: 'Helps adolescents recognize emotional triggers, intensity, and healthy response strategies.',
-    approved: false,
+    approved: true,
     tags: ['emotions', 'regulation', 'cbt', 'adolescents', 'triggers'],
     recommended_for: ['adolescents_ages_13_to_17'],
     minimum_age: 13,
@@ -60,17 +64,17 @@ export const FORMS_ADOLESCENTS = [
       en: {
         title: 'Emotion Regulation Worksheet',
         description: 'A worksheet to track emotional triggers, intensity, and healthy responses.',
-        file_url: '',
+        file_url: '/forms/en/adolescents/emotion-regulation-worksheet.pdf',
         file_type: 'pdf',
-        file_name: 'emotion-regulation-worksheet-adolescents-en.pdf',
+        file_name: 'emotion-regulation-worksheet.pdf',
         rtl: false,
       },
       he: {
         title: 'דף עבודה לוויסות רגשי',
         description: 'דף לעקיבה אחר טריגרים רגשיים, עוצמה ותגובות בריאות.',
-        file_url: '',
+        file_url: '/forms/he/adolescents/emotion-regulation-worksheet.pdf',
         file_type: 'pdf',
-        file_name: 'emotion-regulation-worksheet-adolescents-he.pdf',
+        file_name: 'emotion-regulation-worksheet.pdf',
         rtl: true,
       },
     },
@@ -83,7 +87,7 @@ export const FORMS_ADOLESCENTS = [
     audience: 'adolescents',
     category: 'weekly_practice',
     therapeutic_use: 'Supports adolescents in planning and tracking weekly therapeutic practice activities.',
-    approved: false,
+    approved: true,
     tags: ['planning', 'weekly', 'practice', 'adolescents', 'tracking'],
     recommended_for: ['adolescents_ages_13_to_17'],
     minimum_age: 13,
@@ -93,17 +97,50 @@ export const FORMS_ADOLESCENTS = [
       en: {
         title: 'Weekly Practice Planner',
         description: 'A weekly planner to schedule and reflect on therapeutic activities.',
-        file_url: '',
+        file_url: '/forms/en/adolescents/weekly-practice-planner.pdf',
         file_type: 'pdf',
-        file_name: 'weekly-practice-planner-adolescents-en.pdf',
+        file_name: 'weekly-practice-planner.pdf',
         rtl: false,
       },
       he: {
         title: 'מתכנן תרגול שבועי',
         description: 'מתכנן שבועי לתזמון ורפלקציה על פעילויות טיפוליות.',
-        file_url: '',
+        file_url: '/forms/he/adolescents/weekly-practice-planner.pdf',
         file_type: 'pdf',
-        file_name: 'weekly-practice-planner-adolescents-he.pdf',
+        file_name: 'weekly-practice-planner.pdf',
+        rtl: true,
+      },
+    },
+    created_at: '2025-04-27T00:00:00.000Z',
+    updated_at: '2025-04-27T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adolescents-social-pressure-coping-tool',
+    slug: 'adolescents-social-pressure-coping-tool',
+    audience: 'adolescents',
+    category: 'social_skills',
+    therapeutic_use: 'Helps adolescents identify social pressures and practise assertive, values-based responses.',
+    approved: true,
+    tags: ['social-pressure', 'assertiveness', 'adolescents', 'coping', 'peers'],
+    recommended_for: ['adolescents_ages_13_to_17'],
+    minimum_age: 13,
+    maximum_age: 17,
+    requires_parent_guidance: false,
+    languages: {
+      en: {
+        title: 'Social Pressure Coping Tool',
+        description: 'A worksheet to help adolescents identify social pressures and practise assertive responses.',
+        file_url: '/forms/en/adolescents/social-pressure-coping-tool.pdf',
+        file_type: 'pdf',
+        file_name: 'social-pressure-coping-tool.pdf',
+        rtl: false,
+      },
+      he: {
+        title: 'כלי התמודדות עם לחץ חברתי',
+        description: 'דף עבודה לסיוע למתבגרים לזהות לחצים חברתיים ולתרגל תגובות אסרטיביות.',
+        file_url: '/forms/he/adolescents/social-pressure-coping-tool.pdf',
+        file_type: 'pdf',
+        file_name: 'social-pressure-coping-tool.pdf',
         rtl: true,
       },
     },
