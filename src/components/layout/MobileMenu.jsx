@@ -96,7 +96,7 @@ export default function MobileMenu() {
                       }}>
                       
                       <Icon className="w-5 h-5 flex-shrink-0" strokeWidth={2} />
-                      <span className="text-sm font-medium truncate">{item.name}</span>
+                      <span className="text-gray-950 text-sm font-medium truncate">{item.name}</span>
                     </Link>);
 
                 })}
