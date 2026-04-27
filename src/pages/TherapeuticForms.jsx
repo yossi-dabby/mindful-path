@@ -173,8 +173,8 @@ export default function TherapeuticForms() {
               {/* Open / Download button */}
               <div className="px-5 pb-5">
                 <Button
-              onClick={() => handleOpenForm(languageData.file_url, languageData.file_name)}
-              className="w-full"
+              onClick={() => handleOpenForm(languageData.file_url, languageData.file_name)} className="bg-teal-600 text-[0.875rem] px-3 font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 w-full"
+
               size="sm"
               aria-label={`${t('therapeutic_forms.open_form')} — ${languageData.title}`}>
               
