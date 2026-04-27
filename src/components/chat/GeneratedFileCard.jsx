@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FileText, Download, Loader2 } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { FileText, ExternalLink, Download, Loader2 } from 'lucide-react';
 import { normalizeGeneratedFile } from './utils/normalizeGeneratedFile';
+import { downloadPdfFile } from './utils/downloadPdfFile';
 
 export { normalizeGeneratedFile };
 
 export default function GeneratedFileCard({ generatedFile }) {
   const { t } = useTranslation();
-  const [isSigning, setIsSigning] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const normalized = normalizeGeneratedFile(generatedFile);
   if (!normalized) return null;
@@ -16,18 +16,20 @@ export default function GeneratedFileCard({ generatedFile }) {
   const displayTitle = normalized.title || normalized.name;
   const description = normalized.description;
 
+  const handleOpen = () => {
+    window.open(normalized.url, '_blank', 'noopener,noreferrer');
+  };
+
   const handleDownload = async () => {
-    if (isSigning) return;
-    setIsSigning(true);
+    if (isDownloading) return;
+    setIsDownloading(true);
     try {
-      const signed = await base44.integrations.Core.CreateFileSignedUrl({ file_url: normalized.url });
-      const signedUrl = signed?.signed_url || signed?.url || signed?.file_url;
-      if (!signedUrl) throw new Error('Failed to generate secure URL for generated file');
-      window.open(signedUrl, '_blank', 'noopener,noreferrer');
+      await downloadPdfFile(normalized.url, normalized.name);
     } catch (error) {
-      console.error('[GeneratedFileCard] Failed to open generated file:', error);
+      console.error('[GeneratedFileCard] Download failed, opening in new tab:', error);
+      window.open(normalized.url, '_blank', 'noopener,noreferrer');
     } finally {
-      setIsSigning(false);
+      setIsDownloading(false);
     }
   };
 
@@ -52,25 +54,35 @@ export default function GeneratedFileCard({ generatedFile }) {
           </p>
         </div>
       </div>
-      {/* Download button */}
-      <button
-        type="button"
-        onClick={handleDownload}
-        disabled={isSigning}
-        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-foreground/15 hover:bg-primary-foreground/20 transition-colors text-sm font-medium text-primary-foreground disabled:opacity-60 border-t border-primary-foreground/20"
-      >
-        {isSigning ? (
-          <>
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            <span>{t('chat.generated_file.opening', 'Opening...')}</span>
-          </>
-        ) : (
-          <>
-            <Download className="w-3.5 h-3.5" />
-            <span>{t('chat.generated_file.download_button', 'Download Worksheet')}</span>
-          </>
-        )}
-      </button>
+      {/* Action buttons */}
+      <div className="flex border-t border-primary-foreground/20">
+        <button
+          type="button"
+          onClick={handleOpen}
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-foreground/15 hover:bg-primary-foreground/20 transition-colors text-sm font-medium text-primary-foreground border-e border-primary-foreground/20"
+        >
+          <ExternalLink className="w-3.5 h-3.5" />
+          <span>{t('chat.generated_file.open_button', 'Open')}</span>
+        </button>
+        <button
+          type="button"
+          onClick={handleDownload}
+          disabled={isDownloading}
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-foreground/15 hover:bg-primary-foreground/20 transition-colors text-sm font-medium text-primary-foreground disabled:opacity-60"
+        >
+          {isDownloading ? (
+            <>
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <span>{t('chat.generated_file.downloading', 'Downloading...')}</span>
+            </>
+          ) : (
+            <>
+              <Download className="w-3.5 h-3.5" />
+              <span>{t('chat.generated_file.download_button', 'Download')}</span>
+            </>
+          )}
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { ClipboardList } from 'lucide-react';
+import { ClipboardList, ChevronLeft, ChevronRight, Download, ExternalLink } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
   AUDIENCE_GROUPS,
@@ -8,6 +8,7 @@ import {
   ALL_FORMS,
   resolveFormWithLanguage } from
 '@/data/therapeuticForms/index.js';
+import { downloadPdfFile } from '@/components/chat/utils/downloadPdfFile';
 
 // ─── UI adapter ────────────────────────────────────────────────────────────────
 // Returns all approved forms that match the given filters and are resolvable in lang.
@@ -23,10 +24,92 @@ function getFilteredForms({ audience, category, lang }) {
   }, []);
 }
 
+// ─── ScrollableChipRow ─────────────────────────────────────────────────────────
+// Renders a horizontally scrollable chip row with visible left/right arrow buttons.
+// Arrows are hidden when there is nothing to scroll in that direction.
+// RTL-aware: in RTL layouts the scroll direction is naturally mirrored by the browser.
+function ScrollableChipRow({ children, testId, isRtl }) {
+  const scrollRef = useRef(null);
+  const [canScrollStart, setCanScrollStart] = useState(false);
+  const [canScrollEnd, setCanScrollEnd] = useState(false);
+
+  const updateArrows = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    // In RTL the browser may use negative or positive scrollLeft depending on implementation.
+    const absLeft = Math.abs(scrollLeft);
+    setCanScrollStart(absLeft > 2);
+    setCanScrollEnd(absLeft + clientWidth < scrollWidth - 2);
+  }, []);
+
+  const scrollBy = (direction) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const amount = 180;
+    // In RTL, logical "forward" scrolls in the negative direction on some browsers.
+    const delta = isRtl ? -direction * amount : direction * amount;
+    el.scrollBy({ left: delta, behavior: 'smooth' });
+  };
+
+  // Initialise arrow state once after first render.
+  const onRefReady = useCallback((node) => {
+    scrollRef.current = node;
+    if (node) {
+      updateArrows();
+      // Use a short timeout to let the layout settle.
+      setTimeout(updateArrows, 100);
+    }
+  }, [updateArrows]);
+
+  const BackIcon  = isRtl ? ChevronRight : ChevronLeft;
+  const ForwIcon  = isRtl ? ChevronLeft  : ChevronRight;
+
+  return (
+    <div className="relative flex items-center gap-1">
+      {/* Back arrow */}
+      {canScrollStart && (
+        <button
+          type="button"
+          onClick={() => scrollBy(-1)}
+          aria-label="Scroll back"
+          className="flex-shrink-0 rounded-full p-1 bg-background/80 border border-border/60 shadow-sm hover:bg-muted transition-colors z-10"
+        >
+          <BackIcon className="w-3.5 h-3.5 text-foreground/70" />
+        </button>
+      )}
+
+      {/* Scrollable row */}
+      <div
+        ref={onRefReady}
+        data-testid={testId}
+        onScroll={updateArrows}
+        className="flex flex-1 min-w-0 gap-2 overflow-x-auto pb-1 scrollbar-hide"
+        style={{ WebkitOverflowScrolling: 'touch' }}
+      >
+        {children}
+      </div>
+
+      {/* Forward arrow */}
+      {canScrollEnd && (
+        <button
+          type="button"
+          onClick={() => scrollBy(1)}
+          aria-label="Scroll forward"
+          className="flex-shrink-0 rounded-full p-1 bg-background/80 border border-border/60 shadow-sm hover:bg-muted transition-colors z-10"
+        >
+          <ForwIcon className="w-3.5 h-3.5 text-foreground/70" />
+        </button>
+      )}
+    </div>
+  );
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function TherapeuticForms() {
   const { t, i18n } = useTranslation();
   const lang = i18n.language || 'en';
+  const isRtl = i18n.dir ? i18n.dir() === 'rtl' : lang === 'he';
 
   const [selectedAudience, setSelectedAudience] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -55,8 +138,17 @@ export default function TherapeuticForms() {
   }))];
 
 
-  const handleOpenForm = (fileUrl, fileName) => {
+  const handleOpenForm = (fileUrl) => {
     window.open(fileUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleDownloadForm = async (fileUrl, fileName) => {
+    try {
+      await downloadPdfFile(fileUrl, fileName);
+    } catch (error) {
+      console.error('[TherapeuticForms] Download failed, opening in new tab:', error);
+      window.open(fileUrl, '_blank', 'noopener,noreferrer');
+    }
   };
 
   return (
@@ -76,11 +168,7 @@ export default function TherapeuticForms() {
           <p className="text-sm font-medium mb-2 text-foreground">
             {t('therapeutic_forms.filter_audience')}
           </p>
-          <div
-            data-testid="audience-filter"
-            className="flex w-full max-w-full min-w-0 box-border gap-2 overflow-x-auto pb-1 scrollbar-hide"
-            style={{ WebkitOverflowScrolling: 'touch' }}>
-            
+          <ScrollableChipRow testId="audience-filter" isRtl={isRtl}>
             {audienceOptions.map((opt) =>
             <Button
               key={opt.value}
@@ -93,7 +181,7 @@ export default function TherapeuticForms() {
                 {opt.label}
               </Button>
             )}
-          </div>
+          </ScrollableChipRow>
         </div>
 
         {/* Category Filter */}
@@ -101,11 +189,7 @@ export default function TherapeuticForms() {
           <p className="text-sm font-medium mb-2 text-foreground">
             {t('therapeutic_forms.filter_category')}
           </p>
-          <div
-            data-testid="category-filter"
-            className="flex w-full max-w-full min-w-0 box-border gap-2 overflow-x-auto pb-1 scrollbar-hide"
-            style={{ WebkitOverflowScrolling: 'touch' }}>
-            
+          <ScrollableChipRow testId="category-filter" isRtl={isRtl}>
             {categoryOptions.map((opt) =>
             <Button
               key={opt.value}
@@ -118,7 +202,7 @@ export default function TherapeuticForms() {
                 {opt.label}
               </Button>
             )}
-          </div>
+          </ScrollableChipRow>
         </div>
       </div>
 
@@ -139,7 +223,7 @@ export default function TherapeuticForms() {
         data-testid="forms-grid"
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         
-          {forms.map(({ form, language, languageData }) =>
+          {forms.map(({ form, languageData }) =>
         <div
           key={form.id}
           data-testid={`form-card-${form.id}`}
@@ -170,16 +254,25 @@ export default function TherapeuticForms() {
                 </div>
               </div>
 
-              {/* Open / Download button */}
-              <div className="bg-teal-400 pb-5 px-5">
+              {/* Open / Download buttons */}
+              <div className="bg-teal-400 pb-5 px-5 flex gap-2">
                 <Button
-              onClick={() => handleOpenForm(languageData.file_url, languageData.file_name)} className="bg-teal-600 text-[0.875rem] px-3 font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0 w-full"
-
-              size="sm"
-              aria-label={`${t('therapeutic_forms.open_form')} — ${languageData.title}`}>
-              
-                  <ClipboardList className="w-4 h-4 me-2" />
+                  onClick={() => handleOpenForm(languageData.file_url)}
+                  className="flex-1 bg-teal-600 text-[0.875rem] px-3 font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0"
+                  size="sm"
+                  data-testid={`open-form-${form.id}`}
+                  aria-label={`${t('therapeutic_forms.open_form')} — ${languageData.title}`}>
+                  <ExternalLink className="w-4 h-4" />
                   {t('therapeutic_forms.open_form')}
+                </Button>
+                <Button
+                  onClick={() => handleDownloadForm(languageData.file_url, languageData.file_name)}
+                  className="flex-1 bg-teal-700 text-[0.875rem] px-3 font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0"
+                  size="sm"
+                  data-testid={`download-form-${form.id}`}
+                  aria-label={`${t('therapeutic_forms.download_form')} — ${languageData.title}`}>
+                  <Download className="w-4 h-4" />
+                  {t('therapeutic_forms.download_form')}
                 </Button>
               </div>
             </div>
