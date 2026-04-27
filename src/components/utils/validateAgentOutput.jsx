@@ -834,9 +834,9 @@ export function sanitizeConversationMessages(messages) {
       // Plain-text assistant message — sanitize before returning to prevent
       // planner/composer/reasoning text from leaking into visible state
       if (typeof msg.content === 'string') {
-        // Phase 3: extract [FORM:slug] markers BEFORE sanitizing, so the form
-        // intent is resolved from the original model content, not from a
-        // partially-cleaned string. The marker is stripped from visible content.
+        // Phase 3: extract [FORM:slug] markers from the original model content
+        // before applying text sanitization. The marker is stripped from the
+        // visible content string, and the resolved form is injected as metadata.
         const sessionLang = msg.metadata?.session_language || undefined;
         const { cleanedContent: contentAfterFormExtract, generatedFile } =
           extractAndResolveFormIntent(msg.content, sessionLang);

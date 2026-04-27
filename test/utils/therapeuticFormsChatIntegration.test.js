@@ -648,4 +648,23 @@ describe('Phase 3 — FORM_INTENT_MARKER_PATTERN regex', () => {
     const m2 = '[form:tf-adults-cbt-thought-record]'.match(FORM_INTENT_MARKER_PATTERN); // lowercase FORM
     expect(m2).toBeNull(); // Pattern is uppercase FORM only
   });
+
+  it('does not match [FORM:UPPERCASE-SLUG] — slugs must be lowercase in the marker', () => {
+    // The regex requires lowercase slug characters [a-z0-9_-].
+    // AI instructions specify exact lowercase IDs; uppercase slugs in markers are
+    // intentionally not matched (strict pattern prevents unexpected matches).
+    FORM_INTENT_MARKER_PATTERN.lastIndex = 0;
+    const m = '[FORM:TF-ADULTS-CBT-THOUGHT-RECORD]'.match(FORM_INTENT_MARKER_PATTERN);
+    expect(m).toBeNull();
+  });
+
+  it('resolveFormIntent normalizes slug to lowercase for lookup', () => {
+    // If a slug somehow reaches resolveFormIntent with uppercase letters,
+    // the function normalizes it to lowercase before looking it up.
+    // The real-world path is: marker regex fails → resolveFormIntent never called.
+    // But resolveFormIntent is robust: it also normalizes for direct callers.
+    const meta = resolveFormIntent('TF-ADULTS-CBT-THOUGHT-RECORD', 'en');
+    expect(meta).not.toBeNull();
+    expect(meta.form_id).toBe('tf-adults-cbt-thought-record');
+  });
 });
