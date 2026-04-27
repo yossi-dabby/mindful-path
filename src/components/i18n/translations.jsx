@@ -1419,6 +1419,7 @@ export const translations = {
         filter_category: "Category",
         filter_all: "All",
         open_form: "Open",
+        download_form: "Download",
         empty_state: {
           title: "No forms available",
           message: "No therapeutic forms match your selected filters",
@@ -2875,6 +2876,7 @@ export const translations = {
         filter_category: "קטגוריה",
         filter_all: "הכל",
         open_form: "פתח",
+        download_form: "הורד",
         empty_state: {
           title: "אין טפסים זמינים",
           message: "לא נמצאו טפסים טיפוליים התואמים לסינון שנבחר",
@@ -4288,6 +4290,7 @@ export const translations = {
         filter_category: "Categoría",
         filter_all: "Todos",
         open_form: "Abrir",
+        download_form: "Descargar",
         empty_state: {
           title: "No hay formularios disponibles",
           message: "Ningún formulario terapéutico coincide con los filtros seleccionados",
@@ -5700,6 +5703,7 @@ export const translations = {
         filter_category: "Catégorie",
         filter_all: "Tout",
         open_form: "Ouvrir",
+        download_form: "Télécharger",
         empty_state: {
           title: "Aucun formulaire disponible",
           message: "Aucun formulaire thérapeutique ne correspond aux filtres sélectionnés",
@@ -7112,6 +7116,7 @@ export const translations = {
         filter_category: "Kategorie",
         filter_all: "Alle",
         open_form: "Öffnen",
+        download_form: "Herunterladen",
         empty_state: {
           title: "Keine Formulare verfügbar",
           message: "Keine therapeutischen Formulare entsprechen den ausgewählten Filtern",
@@ -8524,6 +8529,7 @@ export const translations = {
         filter_category: "Categoria",
         filter_all: "Tutti",
         open_form: "Apri",
+        download_form: "Scarica",
         empty_state: {
           title: "Nessun modulo disponibile",
           message: "Nessun modulo terapeutico corrisponde ai filtri selezionati",
@@ -9936,6 +9942,7 @@ export const translations = {
         filter_category: "Categoria",
         filter_all: "Todos",
         open_form: "Abrir",
+        download_form: "Baixar",
         empty_state: {
           title: "Nenhum formulário disponível",
           message: "Nenhum formulário terapêutico corresponde aos filtros selecionados",
