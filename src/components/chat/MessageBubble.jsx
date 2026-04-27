@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils';
 import MessageFeedback from './MessageFeedback';
 import { extractThinkingContent } from '../utils/messageContentSanitizer';
 import { applyFinalOutputGovernor } from '../utils/finalOutputGovernor';
+import GeneratedFileCard from './GeneratedFileCard';
+import { normalizeGeneratedFile } from './utils/normalizeGeneratedFile';
 
 const ASSISTANT_ATTACHMENT_URL_REGEX = /https?:\/\/\S+/gi;
 const FILE_EXTENSIONS = new Set(['doc', 'docx', 'txt', 'csv', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'json', 'md', 'rtf']);
@@ -484,6 +486,11 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                   </>
                   }
                   
+                  {/* Assistant-generated downloadable file card */}
+                  {!isUser && normalizeGeneratedFile(message?.metadata?.generated_file) &&
+          <GeneratedFileCard generatedFile={message.metadata.generated_file} />
+          }
+
                   {/* Feedback for assistant messages */}
                   {!isUser && conversationId && messageIndex !== undefined &&
           <MessageFeedback
