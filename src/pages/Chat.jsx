@@ -766,10 +766,7 @@ export default function Chat() {
           console.log('[Visibility] Still loading - forcing refetch');
           try {
             const conversation = await base44.agents.getConversation(currentConversationId);
-            const sanitized = sanitizeConversationMessages(conversation.messages || []);
-
-            // Check if we have new messages
-            if (sanitized.length > messages.length) {
+            const sanitized = sanitizeConversationMessages(conversation.messages || [], sessionLanguageRef.current);
               const updated = safeUpdateMessages(sanitized, 'VisibilityRefetch');
               if (updated) {
                 setIsLoading(false);
@@ -870,7 +867,7 @@ export default function Chat() {
             refetchDebounceRef.current = setTimeout(async () => {
               try {
                 const refetched = await base44.agents.getConversation(currentConversationId);
-                const sanitized = sanitizeConversationMessages(refetched.messages || []);
+                const sanitized = sanitizeConversationMessages(refetched.messages || [], sessionLanguageRef.current);
                 safeUpdateMessages(sanitized, 'Refetch');
                 // Phase 2 fix: clear loading after refetch completes.  The subscription
                 // returned early (no setIsLoading call) when unsafe content was detected.
@@ -892,7 +889,7 @@ export default function Chat() {
           // Second pass: process only safe messages.
           // IMPORTANT: run the full conversation sanitizer first so user attachment
           // metadata is recovered from the send-contract marker during live updates.
-          const sanitizedIncomingMessages = sanitizeConversationMessages(data.messages || []);
+          const sanitizedIncomingMessages = sanitizeConversationMessages(data.messages || [], sessionLanguageRef.current);
           processedMessages = sanitizedIncomingMessages.
           map((msg) => {
             if (msg.role === 'assistant' && msg.content) {
@@ -1199,7 +1196,7 @@ export default function Chat() {
       sessionLanguageRef.current = embeddedLang || i18n.language || 'en';
 
       // Process and sanitize messages before setting
-      const sanitized = sanitizeConversationMessages(conversation.messages || []);
+      const sanitized = sanitizeConversationMessages(conversation.messages || [], sessionLanguageRef.current);
       safeUpdateMessages(sanitized, 'LoadConversation');
       setShowSidebar(false);
     } catch (error) {
@@ -2004,7 +2001,7 @@ export default function Chat() {
 
           try {
             const updatedConv = await base44.agents.getConversation(convId);
-            const sanitized = sanitizeConversationMessages(updatedConv.messages || []);
+            const sanitized = sanitizeConversationMessages(updatedConv.messages || [], sessionLanguageRef.current);
 
             console.log(`[Polling] Retrieved ${sanitized.length} messages, expected ${expectedReplyCountRef.current}`);
 

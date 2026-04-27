@@ -141,6 +141,85 @@ const FORBIDDEN_INLINE_REASONING_PATTERNS = [
 
 export const ATTACHMENT_METADATA_MARKER_PREFIX = '[ATTACHMENT_METADATA]';
 export const PDF_ANALYSIS_OVERFLOW_METADATA_KEY = 'pdf_analysis_overflow';
+
+// ─── Phase 3B: Session language + [FORM:] marker resolution ──────────────────
+
+import { resolveFormWithLanguage, toGeneratedFileMetadata, SUPPORTED_LANGUAGES } from '../../data/therapeuticForms/index.js';
+
+/** ISO language codes supported by the TherapeuticForms library. */
+const SUPPORTED_LANG_SET = new Set(SUPPORTED_LANGUAGES);
+
+/**
+ * Normalizes a language code to a supported app language code.
+ * Returns 'en' if the value is missing, unsupported, or not a string.
+ *
+ * @param {*} lang
+ * @returns {'en'|'he'|'es'|'fr'|'de'|'it'|'pt'}
+ */
+export function normalizeSessionLanguage(lang) {
+  if (typeof lang !== 'string' || !lang.trim()) return 'en';
+  const code = lang.trim().toLowerCase().split('-')[0]; // handle e.g. "he-IL"
+  return SUPPORTED_LANG_SET.has(code) ? code : 'en';
+}
+
+/**
+ * Regex for `[FORM:slug]` or `[FORM:slug:lang]` markers embedded in AI output.
+ * Captured groups:
+ *   1. slug
+ *   2. explicit language code (optional)
+ */
+const FORM_MARKER_RE = /\[FORM:([A-Za-z0-9_-]+)(?::([a-zA-Z]{2,5}))?\]/;
+
+/**
+ * Extracts a [FORM:slug] or [FORM:slug:lang] marker from assistant message content,
+ * resolves it against the therapeutic forms library, and returns the resolved
+ * generated_file metadata along with the cleaned content (marker stripped).
+ *
+ * Language resolution priority:
+ *   1. Explicit language in marker (e.g. `[FORM:slug:he]`)
+ *   2. `msg.metadata.session_language`
+ *   3. `previousMsgSessionLanguage` (from preceding user message metadata)
+ *   4. `sessionLanguage` parameter (caller-supplied session language)
+ *   5. 'en' (hard default)
+ *
+ * Returns null when no marker is found or the form cannot be resolved.
+ *
+ * @param {string} content
+ * @param {object|null} msgMetadata
+ * @param {string|undefined} previousMsgSessionLanguage
+ * @param {string} sessionLanguage
+ * @returns {{ cleanContent: string, generatedFile: object } | null}
+ */
+function resolveFormMarker(content, msgMetadata, previousMsgSessionLanguage, sessionLanguage) {
+  if (typeof content !== 'string') return null;
+  const match = FORM_MARKER_RE.exec(content);
+  if (!match) return null;
+
+  const slug = match[1];
+  const explicitLang = match[2] ? normalizeSessionLanguage(match[2]) : null;
+
+  // Build priority chain — only use a level when the source value is actually a
+  // non-empty string so we don't inadvertently promote the 'en' fallback from an
+  // earlier level over a valid explicit language at a later level.
+  function pickLang(raw) {
+    if (typeof raw !== 'string' || !raw.trim()) return null;
+    return normalizeSessionLanguage(raw);
+  }
+
+  const lang =
+    (explicitLang) ||
+    (pickLang(msgMetadata?.session_language)) ||
+    (pickLang(previousMsgSessionLanguage)) ||
+    (pickLang(sessionLanguage)) ||
+    'en';
+
+  const resolved = resolveFormWithLanguage(slug, lang);
+  const generatedFile = toGeneratedFileMetadata(resolved);
+  if (!generatedFile) return null;
+
+  const cleanContent = content.replace(FORM_MARKER_RE, '').replace(/\n{3,}/g, '\n\n').trim();
+  return { cleanContent, generatedFile };
+}
 const PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT = 420;
 const IMAGE_ASSISTANT_SHORT_REPLY_CHAR_LIMIT = 320;
 const IMAGE_ASSISTANT_MAX_SENTENCES = 3;
@@ -644,9 +723,26 @@ export function extractAssistantMessage(rawContent) {
 /**
  * Sanitize corrupted conversation history (recovery utility).
  * Processes all messages and extracts assistant_message from any JSON content.
+ *
+ * Phase 3B: accepts an optional `sessionLanguage` parameter (e.g. from
+ * `sessionLanguageRef.current` in Chat.jsx) used to:
+ *   1. Stamp `metadata.session_language` on user messages (normalized).
+ *   2. Resolve `[FORM:slug]` / `[FORM:slug:lang]` markers in assistant messages
+ *      and inject `metadata.generated_file`.
+ *
+ * The language resolution chain for FORM markers is:
+ *   explicit marker lang > msg.metadata.session_language
+ *   > previous user message metadata.session_language
+ *   > sessionLanguage parameter > 'en'
+ *
+ * @param {object[]} messages
+ * @param {string} [sessionLanguage='en'] - Current app/session language code.
+ * @returns {object[]}
  */
-export function sanitizeConversationMessages(messages) {
+export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
   if (!Array.isArray(messages)) return [];
+
+  const normalizedSessionLang = normalizeSessionLanguage(sessionLanguage);
 
   return messages.map((msg, index, sourceMessages) => {
     const previousMessage = index > 0 ? sourceMessages[index - 1] : null;
@@ -695,10 +791,15 @@ export function sanitizeConversationMessages(messages) {
           const pdfMetaSession = {};
           if (msg.metadata?.pdf_extracted_text) pdfMetaSession.pdf_extracted_text = msg.metadata.pdf_extracted_text;
           if (msg.metadata?.pdf_page_count) pdfMetaSession.pdf_page_count = msg.metadata.pdf_page_count;
+          // Phase 3B: stamp session_language on user message metadata (do not override existing)
+          const sessionLangMetaSession = {};
+          if (!msg.metadata?.session_language) {
+            sessionLangMetaSession.session_language = normalizedSessionLang;
+          }
           return {
             ...msg,
             content: visibleUserText,
-            metadata: { ...(msg.metadata || {}), ...(attachment ? { attachment } : {}), ...pdfMetaSession }
+            metadata: { ...(msg.metadata || {}), ...(attachment ? { attachment } : {}), ...pdfMetaSession, ...sessionLangMetaSession }
           };
         }
       }
@@ -715,17 +816,32 @@ export function sanitizeConversationMessages(messages) {
       const pdfMeta = {};
       if (msg.metadata?.pdf_extracted_text) pdfMeta.pdf_extracted_text = msg.metadata.pdf_extracted_text;
       if (msg.metadata?.pdf_page_count) pdfMeta.pdf_page_count = msg.metadata.pdf_page_count;
-      if (attachment || Object.keys(pdfMeta).length > 0) {
-        return {
-          ...msg,
-          content: visibleUserText,
-          metadata: { ...(msg.metadata || {}), ...(attachment ? { attachment } : {}), ...pdfMeta }
-        };
-      }
+      // Phase 3B: stamp session_language on user message metadata (do not override existing).
+      // Always return a new object so session_language is present for downstream FORM resolution.
+      const sessionLangMeta = msg.metadata?.session_language ? {} : { session_language: normalizedSessionLang };
+      return {
+        ...msg,
+        content: visibleUserText,
+        metadata: { ...(msg.metadata || {}), ...(attachment ? { attachment } : {}), ...pdfMeta, ...sessionLangMeta }
+      };
     }
 
     if (msg.role === 'assistant' && msg.content) {
-      const validated = validateAgentOutput(msg.content);
+      // Phase 3B: resolve [FORM:slug] / [FORM:slug:lang] marker before other processing.
+      // Language resolution: explicit marker lang > msg.metadata.session_language
+      //   > previous user message metadata.session_language > sessionLanguage param > 'en'.
+      // Do not override an existing generated_file already present in metadata.
+      const prevMsgSessionLang = previousMessage?.metadata?.session_language;
+      const formResult = !msg.metadata?.generated_file
+        ? resolveFormMarker(
+            typeof msg.content === 'string' ? msg.content : '',
+            msg.metadata,
+            prevMsgSessionLang,
+            normalizedSessionLang
+          )
+        : null;
+
+      const validated = validateAgentOutput(formResult ? formResult.cleanContent : msg.content);
       
       if (validated) {
         const separated = splitAssistantPdfMessageIfNeeded(msg, validated.assistant_message, previousMessage);
@@ -734,6 +850,7 @@ export function sanitizeConversationMessages(messages) {
           structured_data: validated,
           sanitized: true
         };
+        if (formResult) nextMetadata.generated_file = formResult.generatedFile;
         if (separated.overflow) {
           nextMetadata[PDF_ANALYSIS_OVERFLOW_METADATA_KEY] = separated.overflow;
         }
@@ -745,9 +862,10 @@ export function sanitizeConversationMessages(messages) {
       }
       
       // Additional fallback for malformed JSON
-      if (typeof msg.content === 'string' && msg.content.includes('"assistant_message"')) {
+      const rawContentForJson = formResult ? formResult.cleanContent : msg.content;
+      if (typeof rawContentForJson === 'string' && rawContentForJson.includes('"assistant_message"')) {
         try {
-          const parsed = JSON.parse(msg.content);
+          const parsed = JSON.parse(rawContentForJson);
           if (parsed.assistant_message) {
             const separated = splitAssistantPdfMessageIfNeeded(msg, parsed.assistant_message, previousMessage);
             const nextMetadata = {
@@ -755,6 +873,7 @@ export function sanitizeConversationMessages(messages) {
               structured_data: parsed,
               sanitized: true
             };
+            if (formResult) nextMetadata.generated_file = formResult.generatedFile;
             if (separated.overflow) {
               nextMetadata[PDF_ANALYSIS_OVERFLOW_METADATA_KEY] = separated.overflow;
             }
@@ -771,10 +890,12 @@ export function sanitizeConversationMessages(messages) {
 
       // Plain-text assistant message — sanitize before returning to prevent
       // planner/composer/reasoning text from leaking into visible state
-      if (typeof msg.content === 'string') {
-        const cleaned = sanitizeAssistantMessage(msg.content);
+      const plainContent = formResult ? formResult.cleanContent : msg.content;
+      if (typeof plainContent === 'string') {
+        const cleaned = sanitizeAssistantMessage(plainContent);
         const separated = splitAssistantPdfMessageIfNeeded(msg, cleaned, previousMessage);
         const nextMetadata = { ...(msg.metadata || {}) };
+        if (formResult) nextMetadata.generated_file = formResult.generatedFile;
         if (separated.overflow) {
           nextMetadata[PDF_ANALYSIS_OVERFLOW_METADATA_KEY] = separated.overflow;
         }
