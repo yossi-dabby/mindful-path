@@ -238,6 +238,11 @@ export const translations = {
           image_preview_alt: "Attached image",
           pdf_chip_label: "PDF file"
         },
+        generated_file: {
+          type_label: "PDF",
+          download_button: "Download Worksheet",
+          opening: "Opening..."
+        },
         delete_session_failed: "Failed to delete session. Please try again.",
         confirm_delete_session: "Delete this session? This action cannot be undone.",
         daily_checkin_message: "I've completed my Daily Check-in.",
@@ -1649,7 +1654,11 @@ export const translations = {
           image_preview_alt: "תמונה מצורפת",
           pdf_chip_label: "קובץ PDF"
         },
-        delete_session_failed: "מחיקת המפגש נכשלה. נסו שוב.",
+        generated_file: {
+          type_label: "PDF",
+          download_button: "הורד דף עבודה",
+          opening: "פותח..."
+        },
         confirm_delete_session: "למחוק את המפגש? פעולה זו אינה הפיכה.",
         daily_checkin_message: "השלמתי את הצ'ק-אין היומי שלי.",
         consent: {
@@ -3060,7 +3069,11 @@ export const translations = {
           image_preview_alt: "Imagen adjunta",
           pdf_chip_label: "Archivo PDF"
         },
-        delete_session_failed: "Error al eliminar la sesión. Por favor, inténtalo de nuevo.",
+        generated_file: {
+          type_label: "PDF",
+          download_button: "Descargar hoja de trabajo",
+          opening: "Abriendo..."
+        },
         confirm_delete_session: "¿Eliminar esta sesión? Esta acción no se puede deshacer.",
         daily_checkin_message: "He completado mi Check-in Diario.",
         consent: {
@@ -4428,7 +4441,11 @@ export const translations = {
           image_preview_alt: "Image jointe",
           pdf_chip_label: "Fichier PDF"
         },
-        delete_session_failed: "Échec de la suppression de la session. Veuillez réessayer.",
+        generated_file: {
+          type_label: "PDF",
+          download_button: "Télécharger la feuille de travail",
+          opening: "Ouverture..."
+        },
         confirm_delete_session: "Supprimer cette session ? Cette action ne peut pas être annulée.",
         daily_checkin_message: "J'ai terminé mon Check-in Quotidien.",
         consent: {
@@ -5796,7 +5813,11 @@ export const translations = {
           image_preview_alt: "Angehängtes Bild",
           pdf_chip_label: "PDF-Datei"
         },
-        delete_session_failed: "Sitzung konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
+        generated_file: {
+          type_label: "PDF",
+          download_button: "Arbeitsblatt herunterladen",
+          opening: "Öffnen..."
+        },
         confirm_delete_session: "Diese Sitzung löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
         daily_checkin_message: "Ich habe meinen täglichen Check-in abgeschlossen.",
         consent: {
@@ -7164,7 +7185,11 @@ export const translations = {
           image_preview_alt: "Immagine allegata",
           pdf_chip_label: "File PDF"
         },
-        delete_session_failed: "Impossibile eliminare la sessione. Riprova.",
+        generated_file: {
+          type_label: "PDF",
+          download_button: "Scarica il foglio di lavoro",
+          opening: "Apertura in corso..."
+        },
         confirm_delete_session: "Eliminare questa sessione? Questa azione non può essere annullata.",
         daily_checkin_message: "Ho completato il mio Check-in Giornaliero.",
         consent: {
@@ -8532,7 +8557,11 @@ export const translations = {
           image_preview_alt: "Imagem anexada",
           pdf_chip_label: "Arquivo PDF"
         },
-        delete_session_failed: "Falha ao excluir a sessão. Por favor, tente novamente.",
+        generated_file: {
+          type_label: "PDF",
+          download_button: "Baixar folha de trabalho",
+          opening: "Abrindo..."
+        },
         confirm_delete_session: "Excluir esta sessão? Esta ação não pode ser desfeita.",
         daily_checkin_message: "Concluí meu Check-in Diário.",
         consent: {
