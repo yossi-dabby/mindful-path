@@ -111,8 +111,8 @@ export default function TherapeuticForms() {
               key={opt.value}
               onClick={() => setSelectedCategory(opt.value)}
               variant={selectedCategory === opt.value ? 'default' : 'outline'}
-              size="sm"
-              className="whitespace-nowrap flex-shrink-0 text-xs sm:text-sm rounded-[var(--radius-card)]"
+              size="sm" className="bg-teal-600 text-secondary-foreground px-3 text-xs font-medium tracking-[0.005em] rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 whitespace-nowrap flex-shrink-0 sm:text-sm"
+
               aria-pressed={selectedCategory === opt.value}>
               
                 {opt.label}
