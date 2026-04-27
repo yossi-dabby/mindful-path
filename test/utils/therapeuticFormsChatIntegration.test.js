@@ -138,21 +138,24 @@ describe('Phase 3 — resolveFormIntent: unsupported intents return null', () =>
 
 // ─── 4. Unapproved form cannot be selected ────────────────────────────────────
 
-describe('Phase 3 — unapproved forms cannot be selected', () => {
-  it('resolveFormIntent does not return forms not in APPROVED_FORM_INTENT_MAP', () => {
-    // tf-adults-cognitive-distortions-worksheet is approved in the registry (Phase 4A),
-    // but it is NOT in APPROVED_FORM_INTENT_MAP — AI cannot send it via [FORM:] marker.
-    expect(APPROVED_FORM_INTENT_MAP['tf-adults-cognitive-distortions-worksheet']).toBeUndefined();
-    expect(APPROVED_FORM_INTENT_MAP['adults-cognitive-distortions-worksheet']).toBeUndefined();
-    expect(APPROVED_FORM_INTENT_MAP['cognitive-distortions-worksheet']).toBeUndefined();
+describe('Phase 3/4B — unapproved forms cannot be selected', () => {
+  it('resolveFormIntent does not return truly unapproved/unmapped forms', () => {
+    // tf-older-adults-coping-plan remains approved: false and is not in APPROVED_FORM_INTENT_MAP
+    expect(APPROVED_FORM_INTENT_MAP['tf-older-adults-coping-plan']).toBeUndefined();
+    expect(APPROVED_FORM_INTENT_MAP['older-adults-coping-plan']).toBeUndefined();
   });
 
   it('resolveFormIntent for a form not in the intent map returns null', () => {
-    // Even if a form is approved in the registry, it cannot be resolved through
-    // resolveFormIntent unless it is in APPROVED_FORM_INTENT_MAP.
-    // Phase 4A deliberately leaves AI mappings unchanged.
-    const result = resolveFormIntent('tf-adults-cognitive-distortions-worksheet', 'en');
+    // A form not in APPROVED_FORM_INTENT_MAP cannot be resolved through resolveFormIntent
+    const result = resolveFormIntent('tf-older-adults-coping-plan', 'en');
     expect(result).toBeNull();
+  });
+
+  it('cognitive-distortions-worksheet is now in APPROVED_FORM_INTENT_MAP (Phase 4B)', () => {
+    // Phase 4B added cognitive-distortions to the AI intent map
+    expect(APPROVED_FORM_INTENT_MAP['tf-adults-cognitive-distortions-worksheet']).toBe('tf-adults-cognitive-distortions-worksheet');
+    const result = resolveFormIntent('tf-adults-cognitive-distortions-worksheet', 'en');
+    expect(result).not.toBeNull();
   });
 });
 
@@ -580,17 +583,17 @@ describe('Phase 3 — user messages with [FORM:...] text are not processed', () 
 
 // ─── 20. APPROVED_FORM_INTENT_MAP structure ───────────────────────────────────
 
-describe('Phase 3 — APPROVED_FORM_INTENT_MAP structure', () => {
+describe('Phase 3/4B — APPROVED_FORM_INTENT_MAP structure', () => {
   it('contains the two initial approved adult forms as values', () => {
     const values = new Set(Object.values(APPROVED_FORM_INTENT_MAP));
     expect(values.has('tf-adults-cbt-thought-record')).toBe(true);
     expect(values.has('tf-adults-behavioral-activation-plan')).toBe(true);
   });
 
-  it('does not contain forms not in the AI-approved map as values', () => {
+  it('contains Phase 4B expanded forms including cognitive-distortions-worksheet', () => {
     const values = new Set(Object.values(APPROVED_FORM_INTENT_MAP));
-    // cognitive-distortions-worksheet is approved in Phase 4A registry but NOT in AI intent map
-    expect(values.has('tf-adults-cognitive-distortions-worksheet')).toBe(false);
+    // Phase 4B added cognitive-distortions to the AI intent map
+    expect(values.has('tf-adults-cognitive-distortions-worksheet')).toBe(true);
   });
 
   it('is a frozen (immutable) object', () => {

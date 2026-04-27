@@ -1,7 +1,7 @@
 /**
  * @file src/utils/resolveFormIntent.js
  *
- * TherapeuticForms Phase 3 — Safe AI-Facing Form Intent Resolver
+ * TherapeuticForms Phase 4B — Expanded AI Form Intent Resolver
  *
  * This module is the ONLY path through which the AI chat assistant may attach
  * a TherapeuticForms library file to a message.
@@ -17,20 +17,18 @@
  * - Language falls back to English when the requested language is unavailable.
  * - Hebrew RTL metadata is preserved by the underlying resolver.
  *
- * APPROVED INITIAL INTENT MAP (Phase 3)
- * --------------------------------------
- * Currently maps two intent families to the approved adult forms.
- * Expand this map when additional approved forms are added to the registry.
- *
- * Intent families → form IDs:
- *   thought-record   → tf-adults-cbt-thought-record
- *   behavioral-activation → tf-adults-behavioral-activation-plan
+ * APPROVED INTENT MAP (Phase 4B)
+ * --------------------------------
+ * Maps intent families to all currently approved forms across all audiences.
+ * Audience-specific forms (children / adolescents) require audience-specific
+ * alias wording — generic aliases are intentionally omitted to prevent
+ * age-inappropriate form delivery.
  *
  * AUDIENCE POLICY
  * ---------------
- * The default audience is 'adults'.  Children / adolescent / older-adult forms
- * MUST NOT be sent unless the audience is explicitly known and safe to infer.
- * This initial implementation only maps adult forms.
+ * Children / adolescent forms MUST NOT be sent unless the audience is
+ * explicitly known. Aliases for these forms require child/teen/adolescent
+ * wording to guard against accidental delivery to adult users.
  *
  * This module is imported by src/components/utils/validateAgentOutput.jsx
  * and is designed to be test-importable (no browser globals required).
@@ -51,17 +49,130 @@ import {
 // and valid file_url values in the registry before enabling.
 
 export const APPROVED_FORM_INTENT_MAP = Object.freeze({
-  // ── Thought Records / CBT worksheets ───────────────────────────────────────
-  'tf-adults-cbt-thought-record':          'tf-adults-cbt-thought-record',
-  'adults-cbt-thought-record':             'tf-adults-cbt-thought-record',
-  'cbt-thought-record':                    'tf-adults-cbt-thought-record',
-  'thought-record':                        'tf-adults-cbt-thought-record',
+  // ── Adults: Thought Records / CBT worksheets ───────────────────────────────
+  'tf-adults-cbt-thought-record':                    'tf-adults-cbt-thought-record',
+  'adults-cbt-thought-record':                       'tf-adults-cbt-thought-record',
+  'cbt-thought-record':                              'tf-adults-cbt-thought-record',
+  'thought-record':                                  'tf-adults-cbt-thought-record',
 
-  // ── Behavioral Activation ──────────────────────────────────────────────────
-  'tf-adults-behavioral-activation-plan':  'tf-adults-behavioral-activation-plan',
-  'adults-behavioral-activation-plan':     'tf-adults-behavioral-activation-plan',
-  'behavioral-activation-plan':            'tf-adults-behavioral-activation-plan',
-  'behavioral-activation':                 'tf-adults-behavioral-activation-plan',
+  // ── Adults: Behavioral Activation ─────────────────────────────────────────
+  'tf-adults-behavioral-activation-plan':            'tf-adults-behavioral-activation-plan',
+  'adults-behavioral-activation-plan':               'tf-adults-behavioral-activation-plan',
+  'behavioral-activation-plan':                      'tf-adults-behavioral-activation-plan',
+  'behavioral-activation':                           'tf-adults-behavioral-activation-plan',
+
+  // ── Adults: Cognitive Distortions ─────────────────────────────────────────
+  'tf-adults-cognitive-distortions-worksheet':       'tf-adults-cognitive-distortions-worksheet',
+  'adults-cognitive-distortions-worksheet':          'tf-adults-cognitive-distortions-worksheet',
+  'cognitive-distortions-worksheet':                 'tf-adults-cognitive-distortions-worksheet',
+  'cognitive-distortions':                           'tf-adults-cognitive-distortions-worksheet',
+  'thinking-traps':                                  'tf-adults-cognitive-distortions-worksheet',
+  'distorted-thinking':                              'tf-adults-cognitive-distortions-worksheet',
+
+  // ── Adults: Values & Goals ─────────────────────────────────────────────────
+  'tf-adults-values-and-goals-worksheet':            'tf-adults-values-and-goals-worksheet',
+  'adults-values-and-goals-worksheet':               'tf-adults-values-and-goals-worksheet',
+  'values-and-goals-worksheet':                      'tf-adults-values-and-goals-worksheet',
+  'values-and-goals':                                'tf-adults-values-and-goals-worksheet',
+  'goal-setting':                                    'tf-adults-values-and-goals-worksheet',
+  'values-worksheet':                                'tf-adults-values-and-goals-worksheet',
+
+  // ── Adults: Mood Tracking ──────────────────────────────────────────────────
+  'tf-adults-mood-tracking-sheet':                   'tf-adults-mood-tracking-sheet',
+  'adults-mood-tracking-sheet':                      'tf-adults-mood-tracking-sheet',
+  'mood-tracking-sheet':                             'tf-adults-mood-tracking-sheet',
+  'mood-tracking':                                   'tf-adults-mood-tracking-sheet',
+  'mood-tracker':                                    'tf-adults-mood-tracking-sheet',
+  'track-my-mood':                                   'tf-adults-mood-tracking-sheet',
+
+  // ── Adults: Weekly Coping Plan ────────────────────────────────────────────
+  'tf-adults-weekly-coping-plan':                    'tf-adults-weekly-coping-plan',
+  'adults-weekly-coping-plan':                       'tf-adults-weekly-coping-plan',
+  'weekly-coping-plan':                              'tf-adults-weekly-coping-plan',
+  'weekly-coping':                                   'tf-adults-weekly-coping-plan',
+  'coping-plan':                                     'tf-adults-weekly-coping-plan',
+  'weekly-plan':                                     'tf-adults-weekly-coping-plan',
+
+  // ── Older Adults: Mood Reflection ─────────────────────────────────────────
+  'tf-older-adults-mood-reflection-sheet':           'tf-older-adults-mood-reflection-sheet',
+  'older-adults-mood-reflection-sheet':              'tf-older-adults-mood-reflection-sheet',
+  'mood-reflection-sheet':                           'tf-older-adults-mood-reflection-sheet',
+  'mood-reflection':                                 'tf-older-adults-mood-reflection-sheet',
+  'reflection-sheet':                                'tf-older-adults-mood-reflection-sheet',
+
+  // ── Older Adults: Sleep Routine Reflection ────────────────────────────────
+  'tf-older-adults-sleep-routine-reflection':        'tf-older-adults-sleep-routine-reflection',
+  'older-adults-sleep-routine-reflection':           'tf-older-adults-sleep-routine-reflection',
+  'sleep-routine-reflection':                        'tf-older-adults-sleep-routine-reflection',
+  'sleep-routine':                                   'tf-older-adults-sleep-routine-reflection',
+  'sleep-reflection':                                'tf-older-adults-sleep-routine-reflection',
+
+  // ── Older Adults: Daily Coping Plan ──────────────────────────────────────
+  'tf-older-adults-daily-coping-plan':               'tf-older-adults-daily-coping-plan',
+  'older-adults-daily-coping-plan':                  'tf-older-adults-daily-coping-plan',
+  'daily-coping-plan':                               'tf-older-adults-daily-coping-plan',
+  'daily-coping':                                    'tf-older-adults-daily-coping-plan',
+
+  // ── Older Adults: Caregiver Support Reflection ───────────────────────────
+  'tf-older-adults-caregiver-support-reflection':    'tf-older-adults-caregiver-support-reflection',
+  'older-adults-caregiver-support-reflection':       'tf-older-adults-caregiver-support-reflection',
+  'caregiver-support-reflection':                    'tf-older-adults-caregiver-support-reflection',
+  'caregiver-support':                               'tf-older-adults-caregiver-support-reflection',
+  'caregiver-reflection':                            'tf-older-adults-caregiver-support-reflection',
+
+  // ── Adolescents: Anxiety Thought Record ──────────────────────────────────
+  // Aliases MUST include adolescent/teen wording — generic anxiety terms are not mapped
+  'tf-adolescents-anxiety-thought-record':           'tf-adolescents-anxiety-thought-record',
+  'adolescents-anxiety-thought-record':              'tf-adolescents-anxiety-thought-record',
+  'adolescent-anxiety-thought-record':               'tf-adolescents-anxiety-thought-record',
+  'teen-anxiety-worksheet':                          'tf-adolescents-anxiety-thought-record',
+
+  // ── Adolescents: Emotion Regulation ──────────────────────────────────────
+  'tf-adolescents-emotion-regulation-worksheet':     'tf-adolescents-emotion-regulation-worksheet',
+  'adolescents-emotion-regulation-worksheet':        'tf-adolescents-emotion-regulation-worksheet',
+  'teen-emotion-regulation':                         'tf-adolescents-emotion-regulation-worksheet',
+  'adolescent-emotion-regulation':                   'tf-adolescents-emotion-regulation-worksheet',
+  'adolescent-emotion-worksheet':                    'tf-adolescents-emotion-regulation-worksheet',
+
+  // ── Adolescents: Weekly Practice Planner ─────────────────────────────────
+  'tf-adolescents-weekly-practice-planner':          'tf-adolescents-weekly-practice-planner',
+  'adolescents-weekly-practice-planner':             'tf-adolescents-weekly-practice-planner',
+  'teen-weekly-practice':                            'tf-adolescents-weekly-practice-planner',
+  'adolescent-weekly-planner':                       'tf-adolescents-weekly-practice-planner',
+  'teen-weekly-planner':                             'tf-adolescents-weekly-practice-planner',
+
+  // ── Adolescents: Social Pressure Coping Tool ─────────────────────────────
+  'tf-adolescents-social-pressure-coping-tool':      'tf-adolescents-social-pressure-coping-tool',
+  'adolescents-social-pressure-coping-tool':         'tf-adolescents-social-pressure-coping-tool',
+  'social-pressure-coping':                          'tf-adolescents-social-pressure-coping-tool',
+  'peer-pressure-coping':                            'tf-adolescents-social-pressure-coping-tool',
+
+  // ── Children: Simple Feelings Check-In ───────────────────────────────────
+  // Aliases MUST include child/children — generic feeling terms are not mapped
+  'tf-children-feelings-checkin':                    'tf-children-feelings-checkin',
+  'tf-children-simple-feelings-check-in':            'tf-children-feelings-checkin',
+  'children-simple-feelings-check-in':               'tf-children-feelings-checkin',
+  'child-feelings-check-in':                         'tf-children-feelings-checkin',
+  'children-feelings-check-in':                      'tf-children-feelings-checkin',
+
+  // ── Children: Grounding Exercise ─────────────────────────────────────────
+  'tf-children-grounding-exercise':                  'tf-children-grounding-exercise',
+  'children-grounding-exercise':                     'tf-children-grounding-exercise',
+  'child-grounding':                                 'tf-children-grounding-exercise',
+  'grounding-for-children':                          'tf-children-grounding-exercise',
+
+  // ── Children: Parent-Guided Coping Card ──────────────────────────────────
+  
+  'tf-children-parent-guided-coping-card':           'tf-children-parent-guided-coping-card',
+  'children-parent-guided-coping-card':              'tf-children-parent-guided-coping-card',
+  'parent-guided-coping':                            'tf-children-parent-guided-coping-card',
+  'child-coping-card':                               'tf-children-parent-guided-coping-card',
+
+  // ── Children: Box Breathing ───────────────────────────────────────────────
+  'tf-children-box-breathing':                       'tf-children-box-breathing',
+  'children-box-breathing':                          'tf-children-box-breathing',
+  'child-box-breathing':                             'tf-children-box-breathing',
+  'box-breathing-for-children':                      'tf-children-box-breathing',
 });
 
 // ─── Marker format ────────────────────────────────────────────────────────────
