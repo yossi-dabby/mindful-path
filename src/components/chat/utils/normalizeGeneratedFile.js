@@ -1,15 +1,26 @@
 /**
  * Normalizes and validates a message.metadata.generated_file object.
  *
- * Contract:
+ * Contract (required fields):
  *   {
  *     type:                 'pdf',   // REQUIRED — only 'pdf' is supported in v1
- *     url:                  string,  // REQUIRED — Base44 file URL
+ *     url:                  string,  // REQUIRED — file URL (Base44 or /forms/ path)
  *     name:                 string,  // REQUIRED — file name (default: 'worksheet.pdf')
+ *   }
+ *
+ * Optional fields (passed through when present and valid):
+ *   {
  *     title?:               string,
  *     description?:         string,
  *     therapeutic_purpose?: string,
  *     created_at?:          string,
+ *     // TherapeuticForms library fields (Phase 3) — preserved as-is:
+ *     source?:              string,  // e.g. 'therapeutic_forms_library'
+ *     form_id?:             string,
+ *     form_slug?:           string,
+ *     audience?:            string,
+ *     category?:            string,
+ *     language?:            string,
  *   }
  *
  * Returns null when the object is absent, invalid, or has an unsupported type.
@@ -28,7 +39,19 @@ export function normalizeGeneratedFile(raw) {
   const therapeuticPurpose = typeof raw.therapeutic_purpose === 'string' && raw.therapeutic_purpose.trim()
     ? raw.therapeutic_purpose.trim()
     : null;
-  return {
+
+  // ── TherapeuticForms library fields (Phase 3) ─────────────────────────────
+  // These are passed through unchanged when present and string-valued.
+  // Preserving them allows downstream consumers (analytics, logging) to
+  // distinguish library-sourced forms from dynamically generated files.
+  const source     = typeof raw.source === 'string' && raw.source.trim() ? raw.source.trim() : null;
+  const formId     = typeof raw.form_id === 'string' && raw.form_id.trim() ? raw.form_id.trim() : null;
+  const formSlug   = typeof raw.form_slug === 'string' && raw.form_slug.trim() ? raw.form_slug.trim() : null;
+  const audience   = typeof raw.audience === 'string' && raw.audience.trim() ? raw.audience.trim() : null;
+  const category   = typeof raw.category === 'string' && raw.category.trim() ? raw.category.trim() : null;
+  const language   = typeof raw.language === 'string' && raw.language.trim() ? raw.language.trim() : null;
+
+  const result = {
     type: 'pdf',
     url,
     name,
@@ -36,4 +59,15 @@ export function normalizeGeneratedFile(raw) {
     description,
     therapeutic_purpose: therapeuticPurpose,
   };
+
+  // Only include library fields when at least one is present (keeps the
+  // normalized object lean for non-library generated files)
+  if (source)   result.source    = source;
+  if (formId)   result.form_id   = formId;
+  if (formSlug) result.form_slug = formSlug;
+  if (audience) result.audience  = audience;
+  if (category) result.category  = category;
+  if (language) result.language  = language;
+
+  return result;
 }
