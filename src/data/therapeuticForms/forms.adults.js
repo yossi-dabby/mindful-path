@@ -1,11 +1,12 @@
 /**
  * TherapeuticForms — Adults (audience: "adults")
  *
- * Seed registry for the adults audience group.
+ * Registry for the adults audience group.
  *
- * Phase 1 note:
- *   No real PDF assets exist yet. All forms carry `approved: false`.
- *   When real assets are available, update file_url and set `approved: true`.
+ * Phase 1B update:
+ *   Real PDF assets now exist for cbt-thought-record and behavioral-activation-plan.
+ *   Those entries carry `approved: true` with valid file_url values.
+ *   Remaining entries stay `approved: false` until their assets are ready.
  */
 
 /** @type {import('./types.js').TherapeuticForm[]} */
@@ -16,23 +17,23 @@ export const FORMS_ADULTS = [
     audience: 'adults',
     category: 'thought_records',
     therapeutic_use: 'Standard CBT thought record for identifying, examining, and reframing automatic thoughts.',
-    approved: false,
+    approved: true,
     tags: ['cbt', 'thought-record', 'cognitive', 'adults'],
     languages: {
       en: {
         title: 'CBT Thought Record',
         description: 'A seven-column CBT thought record for examining automatic thoughts and developing balanced responses.',
-        file_url: '',
+        file_url: '/forms/en/adults/cbt-thought-record.pdf',
         file_type: 'pdf',
-        file_name: 'cbt-thought-record-adults-en.pdf',
+        file_name: 'cbt-thought-record.pdf',
         rtl: false,
       },
       he: {
         title: 'רשומת מחשבות CBT',
         description: 'רשומת מחשבות CBT בשבעה עמודות לבחינת מחשבות אוטומטיות ופיתוח תגובות מאוזנות.',
-        file_url: '',
+        file_url: '/forms/he/adults/cbt-thought-record.pdf',
         file_type: 'pdf',
-        file_name: 'cbt-thought-record-adults-he.pdf',
+        file_name: 'cbt-thought-record.pdf',
         rtl: true,
       },
     },
@@ -74,52 +75,23 @@ export const FORMS_ADULTS = [
     audience: 'adults',
     category: 'behavioral_activation',
     therapeutic_use: 'Supports adults in scheduling pleasurable and meaningful activities to counter low mood.',
-    approved: false,
-    tags: ['behavioral-activation', 'depression', 'mood', 'adults', 'activities'],
+    approved: true,
+    tags: ['behavioral-activation', 'mood', 'activity', 'adults'],
     languages: {
       en: {
         title: 'Behavioral Activation Plan',
-        description: 'A structured plan for scheduling activities that bring pleasure and a sense of achievement.',
-        file_url: '',
+        description: 'A practical worksheet for scheduling enjoyable or meaningful activities to gradually lift mood.',
+        file_url: '/forms/en/adults/behavioral-activation-plan.pdf',
         file_type: 'pdf',
-        file_name: 'behavioral-activation-plan-adults-en.pdf',
+        file_name: 'behavioral-activation-plan.pdf',
         rtl: false,
       },
       he: {
-        title: 'תכנית הפעלה התנהגותית',
-        description: 'תכנית מובנית לתזמון פעילויות המביאות הנאה ותחושת הישג.',
-        file_url: '',
+        title: 'תוכנית הפעלה התנהגותית',
+        description: 'דף עבודה מעשי לתזמון פעילויות מהנות או משמעותיות לשיפור הדרגתי של מצב הרוח.',
+        file_url: '/forms/he/adults/behavioral-activation-plan.pdf',
         file_type: 'pdf',
-        file_name: 'behavioral-activation-plan-adults-he.pdf',
-        rtl: true,
-      },
-    },
-    created_at: '2025-04-27T00:00:00.000Z',
-    updated_at: '2025-04-27T00:00:00.000Z',
-  },
-  {
-    id: 'tf-adults-values-and-goals-worksheet',
-    slug: 'adults-values-and-goals-worksheet',
-    audience: 'adults',
-    category: 'goals_and_values',
-    therapeutic_use: 'Guides adults through clarifying personal values and setting aligned goals.',
-    approved: false,
-    tags: ['values', 'goals', 'adults', 'meaning', 'direction'],
-    languages: {
-      en: {
-        title: 'Values and Goals Worksheet',
-        description: 'A worksheet to clarify personal values and set meaningful, values-aligned goals.',
-        file_url: '',
-        file_type: 'pdf',
-        file_name: 'values-and-goals-worksheet-adults-en.pdf',
-        rtl: false,
-      },
-      he: {
-        title: 'דף עבודה לערכים ומטרות',
-        description: 'דף עבודה להבהרת ערכים אישיים ולהגדרת מטרות משמעותיות המתואמות לערכים.',
-        file_url: '',
-        file_type: 'pdf',
-        file_name: 'values-and-goals-worksheet-adults-he.pdf',
+        file_name: 'behavioral-activation-plan.pdf',
         rtl: true,
       },
     },

@@ -1,11 +1,12 @@
 /**
  * TherapeuticForms — Older Adults (audience: "older_adults")
  *
- * Seed registry for the older adults audience group.
+ * Registry for the older adults audience group.
  *
- * Phase 1 note:
- *   No real PDF assets exist yet. All forms carry `approved: false`.
- *   When real assets are available, update file_url and set `approved: true`.
+ * Phase 1B update:
+ *   Real PDF assets now exist for mood-reflection-sheet.
+ *   That entry carries `approved: true` with valid file_url values.
+ *   Remaining entries stay `approved: false` until their assets are ready.
  */
 
 /** @type {import('./types.js').TherapeuticForm[]} */
@@ -16,23 +17,23 @@ export const FORMS_OLDER_ADULTS = [
     audience: 'older_adults',
     category: 'reflection_journal',
     therapeutic_use: 'Supports older adults in reflecting on daily mood patterns and identifying wellbeing factors.',
-    approved: false,
+    approved: true,
     tags: ['mood', 'reflection', 'older-adults', 'wellbeing', 'daily'],
     languages: {
       en: {
         title: 'Mood Reflection Sheet',
         description: 'A gentle daily reflection sheet to track mood and notice what supports wellbeing.',
-        file_url: '',
+        file_url: '/forms/en/older_adults/mood-reflection-sheet.pdf',
         file_type: 'pdf',
-        file_name: 'mood-reflection-sheet-older-adults-en.pdf',
+        file_name: 'mood-reflection-sheet.pdf',
         rtl: false,
       },
       he: {
         title: 'דף רפלקציה על מצב רוח',
         description: 'דף רפלקציה יומי עדין לעקיבה אחר מצב הרוח ולהבחנה במה שתומך ברווחה.',
-        file_url: '',
+        file_url: '/forms/he/older_adults/mood-reflection-sheet.pdf',
         file_type: 'pdf',
-        file_name: 'mood-reflection-sheet-older-adults-he.pdf',
+        file_name: 'mood-reflection-sheet.pdf',
         rtl: true,
       },
     },

@@ -1,11 +1,12 @@
 /**
  * TherapeuticForms — Adolescents (audience: "adolescents")
  *
- * Seed registry for the adolescents audience group.
+ * Registry for the adolescents audience group.
  *
- * Phase 1 note:
- *   No real PDF assets exist yet. All forms carry `approved: false`.
- *   When real assets are available, update file_url and set `approved: true`.
+ * Phase 1B update:
+ *   Real PDF assets now exist for anxiety-thought-record.
+ *   That entry carries `approved: true` with valid file_url values.
+ *   Remaining entries stay `approved: false` until their assets are ready.
  */
 
 /** @type {import('./types.js').TherapeuticForm[]} */
@@ -16,7 +17,7 @@ export const FORMS_ADOLESCENTS = [
     audience: 'adolescents',
     category: 'thought_records',
     therapeutic_use: 'Guides adolescents through identifying anxious thoughts and examining the evidence for and against them.',
-    approved: false,
+    approved: true,
     tags: ['anxiety', 'thought-record', 'cbt', 'adolescents'],
     recommended_for: ['adolescents_ages_13_to_17'],
     minimum_age: 13,
@@ -26,17 +27,17 @@ export const FORMS_ADOLESCENTS = [
       en: {
         title: 'Anxiety Thought Record',
         description: 'A structured worksheet to examine and challenge anxious thoughts.',
-        file_url: '',
+        file_url: '/forms/en/adolescents/anxiety-thought-record.pdf',
         file_type: 'pdf',
-        file_name: 'anxiety-thought-record-adolescents-en.pdf',
+        file_name: 'anxiety-thought-record.pdf',
         rtl: false,
       },
       he: {
         title: 'רשומת מחשבות חרדה',
         description: 'דף עבודה מובנה לבחינה ואתגור מחשבות חרדה.',
-        file_url: '',
+        file_url: '/forms/he/adolescents/anxiety-thought-record.pdf',
         file_type: 'pdf',
-        file_name: 'anxiety-thought-record-adolescents-he.pdf',
+        file_name: 'anxiety-thought-record.pdf',
         rtl: true,
       },
     },

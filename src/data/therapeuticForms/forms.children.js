@@ -1,13 +1,12 @@
 /**
  * TherapeuticForms — Children (audience: "children")
  *
- * Seed registry for the children audience group.
+ * Registry for the children audience group.
  *
- * Phase 1 note:
- *   No real PDF assets exist yet for these entries. All forms carry
- *   `approved: false` so the resolver will NOT return them as downloadable.
- *   When real assets become available, update the relevant language blocks
- *   and set `approved: true`.
+ * Phase 1B update:
+ *   Real PDF assets now exist for simple-feelings-check-in.
+ *   That entry carries `approved: true` with valid file_url values.
+ *   Remaining entries stay `approved: false` until their assets are ready.
  */
 
 /** @type {import('./types.js').TherapeuticForm[]} */
@@ -18,7 +17,7 @@ export const FORMS_CHILDREN = [
     audience: 'children',
     category: 'emotional_regulation',
     therapeutic_use: 'Helps children identify and name basic emotions using simple visual cues.',
-    approved: false,
+    approved: true,
     tags: ['emotions', 'feelings', 'check-in', 'children', 'visual'],
     recommended_for: ['children_ages_5_to_10'],
     minimum_age: 5,
@@ -28,17 +27,17 @@ export const FORMS_CHILDREN = [
       en: {
         title: 'Simple Feelings Check-In',
         description: 'A child-friendly worksheet to identify and name feelings each day.',
-        file_url: '',
+        file_url: '/forms/en/children/simple-feelings-check-in.pdf',
         file_type: 'pdf',
-        file_name: 'simple-feelings-check-in-en.pdf',
+        file_name: 'simple-feelings-check-in.pdf',
         rtl: false,
       },
       he: {
         title: 'בדיקת רגשות יומית',
         description: 'דף עבודה ידידותי לילדים לזיהוי ושמות הרגשות בכל יום.',
-        file_url: '',
+        file_url: '/forms/he/children/simple-feelings-check-in.pdf',
         file_type: 'pdf',
-        file_name: 'simple-feelings-check-in-he.pdf',
+        file_name: 'simple-feelings-check-in.pdf',
         rtl: true,
       },
     },
@@ -93,7 +92,7 @@ export const FORMS_CHILDREN = [
     languages: {
       en: {
         title: 'Parent-Guided Coping Card',
-        description: 'Completed together with a parent, this card lists the child\'s personal calming strategies.',
+        description: "Completed together with a parent, this card lists the child's personal calming strategies.",
         file_url: '',
         file_type: 'pdf',
         file_name: 'parent-guided-coping-card-en.pdf',

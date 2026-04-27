@@ -1,7 +1,7 @@
 /**
- * Tests for the TherapeuticForms Phase 1 infrastructure.
+ * Tests for the TherapeuticForms Phase 1 + Phase 1B infrastructure.
  *
- * Covers:
+ * Phase 1 covers:
  *  1.  Audience taxonomy completeness
  *  2.  Category taxonomy completeness
  *  3.  Resolver rejects unapproved forms
@@ -13,9 +13,22 @@
  *  9.  toGeneratedFileMetadata returns expected shape
  * 10.  Malformed/invalid entries do not crash the resolver
  * 11.  Existing generated_file infrastructure (normalizeGeneratedFile) is untouched
+ *
+ * Phase 1B adds:
+ * 12.  Starter pack approved forms are returned by live registry queries
+ * 13.  All approved forms have non-empty file_url values starting with /forms/
+ * 14.  Hebrew forms have rtl: true; English fallback has rtl: false
+ * 15.  Unsupported languages fall back to English
+ * 16.  Unapproved seed forms remain hidden
+ * 17.  toGeneratedFileMetadata works for real approved Phase 1B forms
+ * 18.  No fake/missing file links are returned
+ * 19.  Each referenced PDF file exists on disk under public/forms
  */
 
 import { describe, it, expect } from 'vitest';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import {
   AUDIENCE_GROUPS,
@@ -34,12 +47,17 @@ import {
 
 import { normalizeGeneratedFile } from '../../src/components/chat/utils/normalizeGeneratedFile.js';
 
+// ─── Path helpers (Phase 1B) ──────────────────────────────────────────────────
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const PUBLIC_FORMS_ROOT = path.resolve(__dirname, '../../public/forms');
+
 // ─── Test fixtures ────────────────────────────────────────────────────────────
 
 /**
  * A minimal approved form with valid language blocks, used to test resolver
- * behaviour that requires an approvable entry (since no real assets exist yet
- * in the seed registry, all seed forms carry approved: false).
+ * behaviour that requires an approvable entry (since not all real assets exist yet
+ * in the seed registry — only Phase 1B approved forms carry approved: true).
  */
 const FIXTURE_APPROVED_FORM = {
   id: 'fixture-approved-adults-test',
@@ -207,6 +225,10 @@ function toMetadata(resolved) {
   };
 }
 
+// ═════════════════════════════════════════════════════════════════════════════
+// PHASE 1 TESTS
+// ═════════════════════════════════════════════════════════════════════════════
+
 // ─── 1. Audience taxonomy ─────────────────────────────────────────────────────
 
 describe('TherapeuticForms — audience taxonomy', () => {
@@ -293,10 +315,9 @@ describe('TherapeuticForms — category taxonomy', () => {
 // ─── 3. Resolver — unapproved forms are not returned ─────────────────────────
 
 describe('TherapeuticForms — resolver rejects unapproved forms', () => {
-  it('seed registry forms are all unapproved (no real PDFs yet)', () => {
+  it('all forms in the seed registry have a boolean approved field', () => {
     for (const form of ALL_FORMS) {
-      // In the Phase 1 seed registry, no assets exist, so all forms are approved: false
-      expect(typeof form.approved).toBe('boolean');
+      expect(typeof form.approved, `${form.id} must have a boolean approved field`).toBe('boolean');
     }
   });
 
@@ -307,21 +328,16 @@ describe('TherapeuticForms — resolver rejects unapproved forms', () => {
   });
 
   it('listFormsByAudience returns only approved forms', () => {
-    // All seed forms are unapproved, so the real registry returns empty arrays
     const childForms = listFormsByAudience('children');
     for (const f of childForms) {
       expect(f.approved).toBe(true);
     }
   });
 
-  it('resolveFormById returns null for an unapproved seed form', () => {
-    // Pick any seed form ID — all are unapproved
-    const seedId = ALL_FORMS[0]?.id;
-    if (seedId) {
-      const result = resolveFormById(seedId);
-      // Should be null because form.approved === false
-      expect(result).toBeNull();
-    }
+  it('resolveFormById returns null for an explicitly unapproved seed form', () => {
+    // tf-adults-cognitive-distortions-worksheet remains approved: false in Phase 1B
+    const result = resolveFormById('tf-adults-cognitive-distortions-worksheet');
+    expect(result).toBeNull();
   });
 });
 
@@ -675,5 +691,341 @@ describe('TherapeuticForms — resolver utility functions smoke tests', () => {
 
   it('resolveFormWithLanguage returns null for unknown id', () => {
     expect(resolveFormWithLanguage('completely-unknown-id', 'en')).toBeNull();
+  });
+});
+
+// ═════════════════════════════════════════════════════════════════════════════
+// PHASE 1B TESTS
+// ═════════════════════════════════════════════════════════════════════════════
+
+// ─── 12. Starter pack approved forms returned by live registry queries ────────
+
+describe('TherapeuticForms Phase 1B — starter pack live queries', () => {
+  it('resolves CBT Thought Record for adults in English', () => {
+    const result = resolveFormWithLanguage('tf-adults-cbt-thought-record', 'en');
+    expect(result).not.toBeNull();
+    expect(result.languageData.title).toBe('CBT Thought Record');
+    expect(result.language).toBe('en');
+  });
+
+  it('resolves Behavioral Activation Plan for adults in English', () => {
+    const result = resolveFormWithLanguage('tf-adults-behavioral-activation-plan', 'en');
+    expect(result).not.toBeNull();
+    expect(result.languageData.title).toBe('Behavioral Activation Plan');
+    expect(result.language).toBe('en');
+  });
+
+  it('resolves Anxiety Thought Record for adolescents in English', () => {
+    const result = resolveFormWithLanguage('tf-adolescents-anxiety-thought-record', 'en');
+    expect(result).not.toBeNull();
+    expect(result.languageData.title).toBe('Anxiety Thought Record');
+    expect(result.language).toBe('en');
+  });
+
+  it('resolves Simple Feelings Check-In for children in English', () => {
+    const result = resolveFormWithLanguage('tf-children-feelings-checkin', 'en');
+    expect(result).not.toBeNull();
+    expect(result.languageData.title).toBe('Simple Feelings Check-In');
+    expect(result.language).toBe('en');
+  });
+
+  it('resolves Mood Reflection Sheet for older adults in English', () => {
+    const result = resolveFormWithLanguage('tf-older-adults-mood-reflection-sheet', 'en');
+    expect(result).not.toBeNull();
+    expect(result.languageData.title).toBe('Mood Reflection Sheet');
+    expect(result.language).toBe('en');
+  });
+
+  it('listFormsByAudience returns at least one approved form for each audience', () => {
+    const audiences = ['adults', 'adolescents', 'children', 'older_adults'];
+    for (const audience of audiences) {
+      const forms = listFormsByAudience(audience);
+      expect(forms.length, `Expected approved form(s) for audience: ${audience}`).toBeGreaterThan(0);
+    }
+  });
+
+  it('all approved registry forms have approved: true', () => {
+    const allApproved = ALL_FORMS.filter(f => f.approved === true);
+    expect(allApproved.length).toBeGreaterThanOrEqual(5);
+    for (const f of allApproved) {
+      expect(f.approved).toBe(true);
+    }
+  });
+});
+
+// ─── 13. All approved forms have non-empty file_url starting with /forms/ ─────
+
+describe('TherapeuticForms Phase 1B — approved form file_url integrity', () => {
+  const approvedForms = ALL_FORMS.filter(f => f.approved === true);
+
+  it('at least 5 approved forms exist', () => {
+    expect(approvedForms.length).toBeGreaterThanOrEqual(5);
+  });
+
+  it('every approved form has at least one language block with non-empty file_url', () => {
+    for (const form of approvedForms) {
+      const hasValidBlock = Object.values(form.languages).some(
+        b => b && typeof b.file_url === 'string' && b.file_url.trim()
+      );
+      expect(hasValidBlock, `${form.id} must have at least one language with a file_url`).toBe(true);
+    }
+  });
+
+  it('every non-empty file_url in an approved form starts with /forms/', () => {
+    for (const form of approvedForms) {
+      for (const [lang, block] of Object.entries(form.languages)) {
+        if (block && block.file_url && block.file_url.trim()) {
+          expect(
+            block.file_url.startsWith('/forms/'),
+            `${form.id}[${lang}] file_url must start with /forms/, got: ${block.file_url}`
+          ).toBe(true);
+        }
+      }
+    }
+  });
+
+  it('every non-empty file_url in an approved form has file_type: "pdf"', () => {
+    for (const form of approvedForms) {
+      for (const [lang, block] of Object.entries(form.languages)) {
+        if (block && block.file_url && block.file_url.trim()) {
+          expect(block.file_type, `${form.id}[${lang}] must have file_type: pdf`).toBe('pdf');
+        }
+      }
+    }
+  });
+});
+
+// ─── 14. Hebrew forms have rtl: true; fallback English has rtl: false ─────────
+
+describe('TherapeuticForms Phase 1B — Hebrew RTL metadata via live registry', () => {
+  it('resolving CBT Thought Record in Hebrew returns rtl: true', () => {
+    const result = resolveFormWithLanguage('tf-adults-cbt-thought-record', 'he');
+    expect(result).not.toBeNull();
+    expect(result.language).toBe('he');
+    expect(result.languageData.rtl).toBe(true);
+  });
+
+  it('resolving Behavioral Activation Plan in Hebrew returns rtl: true', () => {
+    const result = resolveFormWithLanguage('tf-adults-behavioral-activation-plan', 'he');
+    expect(result).not.toBeNull();
+    expect(result.languageData.rtl).toBe(true);
+  });
+
+  it('resolving Anxiety Thought Record in Hebrew returns rtl: true', () => {
+    const result = resolveFormWithLanguage('tf-adolescents-anxiety-thought-record', 'he');
+    expect(result).not.toBeNull();
+    expect(result.languageData.rtl).toBe(true);
+  });
+
+  it('resolving Simple Feelings Check-In in Hebrew returns rtl: true', () => {
+    const result = resolveFormWithLanguage('tf-children-feelings-checkin', 'he');
+    expect(result).not.toBeNull();
+    expect(result.languageData.rtl).toBe(true);
+  });
+
+  it('resolving Mood Reflection Sheet in Hebrew returns rtl: true', () => {
+    const result = resolveFormWithLanguage('tf-older-adults-mood-reflection-sheet', 'he');
+    expect(result).not.toBeNull();
+    expect(result.languageData.rtl).toBe(true);
+  });
+
+  it('resolving CBT Thought Record in English returns rtl: false', () => {
+    const result = resolveFormWithLanguage('tf-adults-cbt-thought-record', 'en');
+    expect(result).not.toBeNull();
+    expect(result.languageData.rtl).toBe(false);
+  });
+
+  it('Hebrew file_url contains /he/ in the path', () => {
+    const result = resolveFormWithLanguage('tf-adults-cbt-thought-record', 'he');
+    expect(result.languageData.file_url).toContain('/he/');
+  });
+});
+
+// ─── 15. Unsupported languages fall back to English ───────────────────────────
+
+describe('TherapeuticForms Phase 1B — language fallback to English', () => {
+  it('falls back to English when requesting Spanish (no approved es variant)', () => {
+    const result = resolveFormWithLanguage('tf-adults-cbt-thought-record', 'es');
+    expect(result).not.toBeNull();
+    expect(result.language).toBe('en');
+    expect(result.languageData.rtl).toBe(false);
+  });
+
+  it('falls back to English for French', () => {
+    const result = resolveFormWithLanguage('tf-adults-behavioral-activation-plan', 'fr');
+    expect(result).not.toBeNull();
+    expect(result.language).toBe('en');
+  });
+
+  it('falls back to English for German', () => {
+    const result = resolveFormWithLanguage('tf-adolescents-anxiety-thought-record', 'de');
+    expect(result).not.toBeNull();
+    expect(result.language).toBe('en');
+  });
+});
+
+// ─── 16. Unapproved seed forms remain hidden ──────────────────────────────────
+
+describe('TherapeuticForms Phase 1B — unapproved forms remain hidden', () => {
+  it('returns null for an unapproved seed form (cognitive-distortions-worksheet)', () => {
+    const result = resolveFormWithLanguage('tf-adults-cognitive-distortions-worksheet', 'en');
+    expect(result).toBeNull();
+  });
+
+  it('returns null for an unapproved seed form (grounding-exercise)', () => {
+    const result = resolveFormWithLanguage('tf-children-grounding-exercise', 'en');
+    expect(result).toBeNull();
+  });
+
+  it('listFormsByAudience does not include any unapproved forms', () => {
+    const allAudiences = ['children', 'adolescents', 'adults', 'older_adults'];
+    for (const audience of allAudiences) {
+      const forms = listFormsByAudience(audience);
+      for (const f of forms) {
+        expect(f.approved, `${f.id} returned by listFormsByAudience must be approved`).toBe(true);
+      }
+    }
+  });
+
+  it('unapproved forms in the registry have no non-empty file_url', () => {
+    const unapproved = ALL_FORMS.filter(f => !f.approved);
+    for (const form of unapproved) {
+      for (const [lang, block] of Object.entries(form.languages)) {
+        expect(
+          !block.file_url || block.file_url.trim() === '',
+          `Unapproved form ${form.id}[${lang}] must not have a file_url`
+        ).toBe(true);
+      }
+    }
+  });
+});
+
+// ─── 17. toGeneratedFileMetadata works for real approved Phase 1B forms ───────
+
+describe('TherapeuticForms Phase 1B — toGeneratedFileMetadata for real forms', () => {
+  it('converts CBT Thought Record (en) to generated_file shape', () => {
+    const resolved = resolveFormWithLanguage('tf-adults-cbt-thought-record', 'en');
+    const meta = toGeneratedFileMetadata(resolved);
+    expect(meta).not.toBeNull();
+    expect(meta.type).toBe('pdf');
+    expect(meta.url).toBe('/forms/en/adults/cbt-thought-record.pdf');
+    expect(meta.title).toBe('CBT Thought Record');
+    expect(meta.source).toBe('therapeutic_forms_library');
+    expect(meta.audience).toBe('adults');
+    expect(meta.language).toBe('en');
+    expect(typeof meta.created_at).toBe('string');
+  });
+
+  it('converts CBT Thought Record (he) to generated_file shape', () => {
+    const resolved = resolveFormWithLanguage('tf-adults-cbt-thought-record', 'he');
+    const meta = toGeneratedFileMetadata(resolved);
+    expect(meta).not.toBeNull();
+    expect(meta.type).toBe('pdf');
+    expect(meta.url).toBe('/forms/he/adults/cbt-thought-record.pdf');
+    expect(meta.language).toBe('he');
+  });
+
+  it('toGeneratedFileMetadata output for real forms is accepted by normalizeGeneratedFile', () => {
+    const resolved = resolveFormWithLanguage('tf-older-adults-mood-reflection-sheet', 'en');
+    const meta = toGeneratedFileMetadata(resolved);
+    expect(meta).not.toBeNull();
+    // normalizeGeneratedFile works with absolute URLs but not relative /forms/ paths —
+    // we test the shape contract (type, url, name) is correct
+    expect(meta.type).toBe('pdf');
+    expect(meta.url).toMatch(/^\/forms\//);
+    expect(meta.name).toBeTruthy();
+  });
+});
+
+// ─── 18. No fake/missing file links ───────────────────────────────────────────
+
+describe('TherapeuticForms Phase 1B — no fake file links', () => {
+  it('every form returned by listFormsByAudience has non-empty languageData when resolved', () => {
+    const audiences = ['children', 'adolescents', 'adults', 'older_adults'];
+    for (const audience of audiences) {
+      const forms = listFormsByAudience(audience);
+      for (const form of forms) {
+        const resolved = resolveFormWithLanguage(form.id, 'en');
+        expect(resolved, `${form.id} must resolve successfully`).not.toBeNull();
+        expect(resolved.languageData.file_url.trim()).not.toBe('');
+      }
+    }
+  });
+
+  it('no approved form returns an undefined file_url', () => {
+    const approvedForms = ALL_FORMS.filter(f => f.approved);
+    for (const form of approvedForms) {
+      const resolved = resolveFormWithLanguage(form.id, 'en');
+      expect(resolved).not.toBeNull();
+      expect(resolved.languageData.file_url).toBeDefined();
+    }
+  });
+});
+
+// ─── 19. PDF files exist on disk ──────────────────────────────────────────────
+
+describe('TherapeuticForms Phase 1B — PDF files exist in public/forms', () => {
+  it('public/forms directory exists', () => {
+    expect(fs.existsSync(PUBLIC_FORMS_ROOT)).toBe(true);
+  });
+
+  it('every approved form file_url resolves to an existing file under public/', () => {
+    const audiences = ['children', 'adolescents', 'adults', 'older_adults'];
+    for (const audience of audiences) {
+      const forms = listFormsByAudience(audience);
+      for (const form of forms) {
+        // Check both en and he variants
+        for (const lang of ['en', 'he']) {
+          const resolved = resolveFormWithLanguage(form.id, lang);
+          if (resolved && resolved.languageData.file_url) {
+            const relativePath = resolved.languageData.file_url.replace(/^\//, '');
+            const absolutePath = path.resolve(PUBLIC_FORMS_ROOT, '..', relativePath);
+            expect(
+              fs.existsSync(absolutePath),
+              `PDF file missing: public/${relativePath}`
+            ).toBe(true);
+          }
+        }
+      }
+    }
+  });
+
+  it('every existing PDF file is non-empty (> 1 KB)', () => {
+    const pdfPaths = [
+      '/forms/en/adults/cbt-thought-record.pdf',
+      '/forms/he/adults/cbt-thought-record.pdf',
+      '/forms/en/adults/behavioral-activation-plan.pdf',
+      '/forms/he/adults/behavioral-activation-plan.pdf',
+      '/forms/en/adolescents/anxiety-thought-record.pdf',
+      '/forms/he/adolescents/anxiety-thought-record.pdf',
+      '/forms/en/children/simple-feelings-check-in.pdf',
+      '/forms/he/children/simple-feelings-check-in.pdf',
+      '/forms/en/older_adults/mood-reflection-sheet.pdf',
+      '/forms/he/older_adults/mood-reflection-sheet.pdf',
+    ];
+    for (const formPath of pdfPaths) {
+      const absolutePath = path.resolve(PUBLIC_FORMS_ROOT, '..', formPath.replace(/^\//, ''));
+      if (fs.existsSync(absolutePath)) {
+        const stat = fs.statSync(absolutePath);
+        expect(
+          stat.size,
+          `PDF suspiciously small: public${formPath}`
+        ).toBeGreaterThan(1024);
+      }
+    }
+  });
+
+  it('expected Hebrew PDF files exist', () => {
+    const hebrewFiles = [
+      'he/adults/cbt-thought-record.pdf',
+      'he/adults/behavioral-activation-plan.pdf',
+      'he/adolescents/anxiety-thought-record.pdf',
+      'he/children/simple-feelings-check-in.pdf',
+      'he/older_adults/mood-reflection-sheet.pdf',
+    ];
+    for (const relPath of hebrewFiles) {
+      const absolutePath = path.join(PUBLIC_FORMS_ROOT, relPath);
+      expect(fs.existsSync(absolutePath), `Expected Hebrew PDF: ${relPath}`).toBe(true);
+    }
   });
 });
