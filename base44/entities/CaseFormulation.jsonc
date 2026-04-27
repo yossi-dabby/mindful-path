@@ -1,0 +1,147 @@
+{
+  "name": "CaseFormulation",
+  "type": "object",
+  "properties": {
+    "conversation_id": {
+      "type": "string",
+      "description": "Reference to agent conversation"
+    },
+    "presenting_themes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "User's own language for presenting concerns"
+    },
+    "triggers_situations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Identified trigger situations"
+    },
+    "automatic_thought_themes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Common automatic thought patterns (non-diagnostic)"
+    },
+    "cognitive_distortions_observed": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Thinking patterns noticed (working hypothesis)"
+    },
+    "maintaining_behaviors": {
+      "type": "object",
+      "properties": {
+        "avoidance": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "safety_behaviors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reassurance_seeking": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Behaviors that may maintain difficulties"
+    },
+    "core_belief_hypotheses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "belief": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "working_hypothesis",
+              "supported",
+              "revised"
+            ]
+          }
+        }
+      },
+      "description": "Working hypotheses about core beliefs (non-diagnostic)"
+    },
+    "strengths_resources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Identified strengths and resources"
+    },
+    "goals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Therapy goals in user's language"
+    },
+    "risk_flags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Safety considerations (non-diagnostic tracking)"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last formulation update"
+    },
+    "update_log": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "change": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Audit trail of formulation changes"
+    }
+  },
+  "required": [
+    "conversation_id"
+  ],
+  "rls": {
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

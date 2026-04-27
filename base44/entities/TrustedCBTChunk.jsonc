@@ -1,0 +1,92 @@
+{
+  "name": "TrustedCBTChunk",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Short title for this content chunk"
+    },
+    "topic": {
+      "type": "string",
+      "description": "Primary CBT topic (e.g., anxiety, depression, cognitive restructuring)"
+    },
+    "subtopic": {
+      "type": "string",
+      "description": "More specific subtopic (e.g., catastrophizing, safety behaviors)"
+    },
+    "population": {
+      "type": "string",
+      "description": "Target population (e.g., adults, adolescents, general)"
+    },
+    "clinical_goal": {
+      "type": "string",
+      "description": "Therapeutic goal this chunk supports (e.g., reduce avoidance, challenge distortions)"
+    },
+    "content": {
+      "type": "string",
+      "description": "Full clinical content of this chunk"
+    },
+    "short_summary": {
+      "type": "string",
+      "description": "Brief AI-optimized summary for retrieval injection"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Keywords for retrieval matching (e.g., worry, rumination, sleep)"
+    },
+    "source_name": {
+      "type": "string",
+      "description": "Name of the source (e.g., Beck Institute, NICE Guidelines)"
+    },
+    "source_type": {
+      "type": "string",
+      "description": "Type of source (e.g., clinical_manual, research_paper, guidelines, original)"
+    },
+    "license_status": {
+      "type": "string",
+      "description": "License or usage rights (e.g., open, proprietary, adapted)"
+    },
+    "safety_notes": {
+      "type": "string",
+      "description": "Any safety considerations when using this content"
+    },
+    "contraindications": {
+      "type": "string",
+      "description": "Conditions or states where this content should NOT be used"
+    },
+    "language": {
+      "type": "string",
+      "enum": [
+        "en",
+        "he",
+        "es",
+        "fr",
+        "de",
+        "it",
+        "pt"
+      ],
+      "default": "en",
+      "description": "Language of this content chunk"
+    },
+    "priority_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10,
+      "default": 5,
+      "description": "Manual priority score for ranking (0-10, higher = more preferred)"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this chunk should be included in retrieval"
+    }
+  },
+  "required": [
+    "title",
+    "topic",
+    "content"
+  ]
+}

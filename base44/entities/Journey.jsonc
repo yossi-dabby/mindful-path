@@ -1,0 +1,86 @@
+{
+  "name": "Journey",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Journey title"
+    },
+    "description": {
+      "type": "string",
+      "description": "What this journey helps with"
+    },
+    "duration_days": {
+      "type": "number",
+      "description": "Expected duration in days"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "anxiety",
+        "depression",
+        "stress",
+        "distress_tolerance",
+        "emotion_regulation",
+        "mindfulness"
+      ],
+      "description": "Primary focus area"
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "default": "beginner",
+      "description": "Recommended skill level"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "game_id": {
+            "type": "string"
+          },
+          "game_slug": {
+            "type": "string"
+          },
+          "reflection_prompt": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Ordered sequence of games"
+    },
+    "outcomes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Expected benefits"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether journey is available"
+    }
+  },
+  "required": [
+    "title",
+    "description",
+    "duration_days",
+    "category",
+    "steps"
+  ]
+}

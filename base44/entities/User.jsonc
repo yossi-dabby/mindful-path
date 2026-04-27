@@ -1,0 +1,25 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "onboarding_completed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether user has completed the onboarding tour"
+    },
+    "preferences": {
+      "type": "object",
+      "properties": {
+        "theme": {
+          "type": "string",
+          "default": "default"
+        },
+        "notifications_enabled": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    }
+  },
+  "required": []
+}
