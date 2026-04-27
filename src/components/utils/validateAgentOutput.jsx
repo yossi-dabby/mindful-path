@@ -6,7 +6,15 @@
  * - Strips any medical/diagnostic language from assistant_message
  * - Blocks responses with harmful advice patterns
  * - Ensures no raw JSON or metadata leaks
+ *
+ * Phase 3 — TherapeuticForms chat integration:
+ * - Detects [FORM:slug] and [FORM:slug:lang] markers in assistant messages.
+ * - Strips markers from visible content.
+ * - Resolves approved forms via resolveFormIntent and injects generated_file metadata.
+ * - No arbitrary URL from model input is ever accepted.
  */
+
+import { resolveFormIntent, FORM_INTENT_MARKER_PATTERN } from '../../utils/resolveFormIntent.js';
 
 // Safety patterns to detect and strip
 const UNSAFE_PATTERNS = [
@@ -142,9 +150,9 @@ const FORBIDDEN_INLINE_REASONING_PATTERNS = [
 export const ATTACHMENT_METADATA_MARKER_PREFIX = '[ATTACHMENT_METADATA]';
 export const PDF_ANALYSIS_OVERFLOW_METADATA_KEY = 'pdf_analysis_overflow';
 
-// ─── Phase 3B: Session language + [FORM:] marker resolution ──────────────────
+// ─── Phase 3B: Session language normalization ─────────────────────────────────
 
-import { resolveFormWithLanguage, toGeneratedFileMetadata, SUPPORTED_LANGUAGES } from '../../data/therapeuticForms/index.js';
+import { SUPPORTED_LANGUAGES } from '../../data/therapeuticForms/index.js';
 
 /** ISO language codes supported by the TherapeuticForms library. */
 const SUPPORTED_LANG_SET = new Set(SUPPORTED_LANGUAGES);
@@ -162,64 +170,6 @@ export function normalizeSessionLanguage(lang) {
   return SUPPORTED_LANG_SET.has(code) ? code : 'en';
 }
 
-/**
- * Regex for `[FORM:slug]` or `[FORM:slug:lang]` markers embedded in AI output.
- * Captured groups:
- *   1. slug
- *   2. explicit language code (optional)
- */
-const FORM_MARKER_RE = /\[FORM:([A-Za-z0-9_-]+)(?::([a-zA-Z]{2,5}))?\]/;
-
-/**
- * Extracts a [FORM:slug] or [FORM:slug:lang] marker from assistant message content,
- * resolves it against the therapeutic forms library, and returns the resolved
- * generated_file metadata along with the cleaned content (marker stripped).
- *
- * Language resolution priority:
- *   1. Explicit language in marker (e.g. `[FORM:slug:he]`)
- *   2. `msg.metadata.session_language`
- *   3. `previousMsgSessionLanguage` (from preceding user message metadata)
- *   4. `sessionLanguage` parameter (caller-supplied session language)
- *   5. 'en' (hard default)
- *
- * Returns null when no marker is found or the form cannot be resolved.
- *
- * @param {string} content
- * @param {object|null} msgMetadata
- * @param {string|undefined} previousMsgSessionLanguage
- * @param {string} sessionLanguage
- * @returns {{ cleanContent: string, generatedFile: object } | null}
- */
-function resolveFormMarker(content, msgMetadata, previousMsgSessionLanguage, sessionLanguage) {
-  if (typeof content !== 'string') return null;
-  const match = FORM_MARKER_RE.exec(content);
-  if (!match) return null;
-
-  const slug = match[1];
-  const explicitLang = match[2] ? normalizeSessionLanguage(match[2]) : null;
-
-  // Build priority chain — only use a level when the source value is actually a
-  // non-empty string so we don't inadvertently promote the 'en' fallback from an
-  // earlier level over a valid explicit language at a later level.
-  function pickLang(raw) {
-    if (typeof raw !== 'string' || !raw.trim()) return null;
-    return normalizeSessionLanguage(raw);
-  }
-
-  const lang =
-    (explicitLang) ||
-    (pickLang(msgMetadata?.session_language)) ||
-    (pickLang(previousMsgSessionLanguage)) ||
-    (pickLang(sessionLanguage)) ||
-    'en';
-
-  const resolved = resolveFormWithLanguage(slug, lang);
-  const generatedFile = toGeneratedFileMetadata(resolved);
-  if (!generatedFile) return null;
-
-  const cleanContent = content.replace(FORM_MARKER_RE, '').replace(/\n{3,}/g, '\n\n').trim();
-  return { cleanContent, generatedFile };
-}
 const PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT = 420;
 const IMAGE_ASSISTANT_SHORT_REPLY_CHAR_LIMIT = 320;
 const IMAGE_ASSISTANT_MAX_SENTENCES = 3;
@@ -720,6 +670,60 @@ export function extractAssistantMessage(rawContent) {
   return 'I received your message. Please rephrase in one sentence what you want me to do next.';
 }
 
+// ─── Phase 3: TherapeuticForms form intent extraction ────────────────────────
+
+/**
+ * Extracts a `[FORM:slug]` or `[FORM:slug:lang]` marker from assistant message
+ * content and resolves it to `generated_file` metadata via the safe form intent
+ * resolver.
+ *
+ * Safety contract:
+ *   - Only the intent slug from the marker is passed to resolveFormIntent.
+ *   - No URL or filename from the model is ever accepted.
+ *   - Returns null for unknown intents, unapproved forms, or missing file_url.
+ *   - Fail-open: any unexpected error returns { cleanedContent: content, generatedFile: null }.
+ *
+ * @param {string} content  - Raw assistant message content.
+ * @param {string} [lang]   - Session language code (ISO 639-1). Optional.
+ * @returns {{ cleanedContent: string, generatedFile: object|null }}
+ */
+function extractAndResolveFormIntent(content, lang) {
+  if (typeof content !== 'string' || !content) {
+    return { cleanedContent: content, generatedFile: null };
+  }
+
+  try {
+    // Reset regex lastIndex before each use (global flag)
+    FORM_INTENT_MARKER_PATTERN.lastIndex = 0;
+
+    let resolvedGeneratedFile = null;
+    let cleanedContent = content;
+
+    // Replace all [FORM:slug] / [FORM:slug:lang] markers found in the content.
+    // Only the FIRST resolved marker becomes the generated_file (one card per message).
+    cleanedContent = content.replace(FORM_INTENT_MARKER_PATTERN, (match, slug, markerLang) => {
+      if (!resolvedGeneratedFile) {
+        // Prefer the language explicitly in the marker, then the session language
+        const effectiveLang = markerLang || lang || 'en';
+        const metadata = resolveFormIntent(slug, effectiveLang);
+        if (metadata) {
+          resolvedGeneratedFile = metadata;
+        }
+      }
+      // Always strip the marker from visible content regardless of resolution
+      return '';
+    });
+
+    // Clean up any whitespace artifacts left by marker removal
+    cleanedContent = cleanedContent.replace(/\n{3,}/g, '\n\n').trim();
+
+    return { cleanedContent, generatedFile: resolvedGeneratedFile };
+  } catch (_err) {
+    // Fail-open: return original content unchanged, no generated file
+    return { cleanedContent: content, generatedFile: null };
+  }
+}
+
 /**
  * Sanitize corrupted conversation history (recovery utility).
  * Processes all messages and extracts assistant_message from any JSON content.
@@ -827,30 +831,35 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
     }
 
     if (msg.role === 'assistant' && msg.content) {
-      // Phase 3B: resolve [FORM:slug] / [FORM:slug:lang] marker before other processing.
-      // Language resolution: explicit marker lang > msg.metadata.session_language
-      //   > previous user message metadata.session_language > sessionLanguage param > 'en'.
-      // Do not override an existing generated_file already present in metadata.
+      // Phase 3B: compute the effective session language for FORM resolution.
+      // Priority chain: msg.session_language > prev user msg session_language
+      //   > sessionLanguage param > 'en'.
+      // Explicit language in the [FORM:slug:lang] marker is handled inside
+      // extractAndResolveFormIntent itself (markerLang wins over all).
       const prevMsgSessionLang = previousMessage?.metadata?.session_language;
-      const formResult = !msg.metadata?.generated_file
-        ? resolveFormMarker(
-            typeof msg.content === 'string' ? msg.content : '',
-            msg.metadata,
-            prevMsgSessionLang,
-            normalizedSessionLang
-          )
-        : null;
+      function pickNonEmptyLang(raw) {
+        if (typeof raw !== 'string' || !raw.trim()) return null;
+        return normalizeSessionLanguage(raw);
+      }
+      const effectiveLang =
+        pickNonEmptyLang(msg.metadata?.session_language) ||
+        pickNonEmptyLang(prevMsgSessionLang) ||
+        normalizedSessionLang;
 
-      const validated = validateAgentOutput(formResult ? formResult.cleanContent : msg.content);
+      const validated = validateAgentOutput(msg.content);
       
       if (validated) {
-        const separated = splitAssistantPdfMessageIfNeeded(msg, validated.assistant_message, previousMessage);
+        // Phase 3: extract [FORM:] marker from the validated assistant_message
+        // (the marker is placed inside the assistant_message field, not the JSON wrapper).
+        const { cleanedContent: cleanedAssistantMsg, generatedFile } =
+          extractAndResolveFormIntent(validated.assistant_message || '', effectiveLang);
+        const separated = splitAssistantPdfMessageIfNeeded(msg, cleanedAssistantMsg, previousMessage);
         const nextMetadata = {
           ...(msg.metadata || {}),
           structured_data: validated,
           sanitized: true
         };
-        if (formResult) nextMetadata.generated_file = formResult.generatedFile;
+        if (generatedFile && !nextMetadata.generated_file) nextMetadata.generated_file = generatedFile;
         if (separated.overflow) {
           nextMetadata[PDF_ANALYSIS_OVERFLOW_METADATA_KEY] = separated.overflow;
         }
@@ -862,18 +871,19 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
       }
       
       // Additional fallback for malformed JSON
-      const rawContentForJson = formResult ? formResult.cleanContent : msg.content;
-      if (typeof rawContentForJson === 'string' && rawContentForJson.includes('"assistant_message"')) {
+      if (typeof msg.content === 'string' && msg.content.includes('"assistant_message"')) {
         try {
-          const parsed = JSON.parse(rawContentForJson);
+          const parsed = JSON.parse(msg.content);
           if (parsed.assistant_message) {
-            const separated = splitAssistantPdfMessageIfNeeded(msg, parsed.assistant_message, previousMessage);
+            const { cleanedContent: cleanedAssistantMsg, generatedFile } =
+              extractAndResolveFormIntent(parsed.assistant_message, effectiveLang);
+            const separated = splitAssistantPdfMessageIfNeeded(msg, cleanedAssistantMsg, previousMessage);
             const nextMetadata = {
               ...(msg.metadata || {}),
               structured_data: parsed,
               sanitized: true
             };
-            if (formResult) nextMetadata.generated_file = formResult.generatedFile;
+            if (generatedFile && !nextMetadata.generated_file) nextMetadata.generated_file = generatedFile;
             if (separated.overflow) {
               nextMetadata[PDF_ANALYSIS_OVERFLOW_METADATA_KEY] = separated.overflow;
             }
@@ -889,13 +899,16 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
       }
 
       // Plain-text assistant message — sanitize before returning to prevent
-      // planner/composer/reasoning text from leaking into visible state
-      const plainContent = formResult ? formResult.cleanContent : msg.content;
-      if (typeof plainContent === 'string') {
-        const cleaned = sanitizeAssistantMessage(plainContent);
+      // planner/composer/reasoning text from leaking into visible state.
+      // Phase 3: extract [FORM:slug] markers from the original model content
+      // before applying text sanitization.
+      if (typeof msg.content === 'string') {
+        const { cleanedContent: contentAfterFormExtract, generatedFile } =
+          extractAndResolveFormIntent(msg.content, effectiveLang);
+        const cleaned = sanitizeAssistantMessage(contentAfterFormExtract);
         const separated = splitAssistantPdfMessageIfNeeded(msg, cleaned, previousMessage);
         const nextMetadata = { ...(msg.metadata || {}) };
-        if (formResult) nextMetadata.generated_file = formResult.generatedFile;
+        if (generatedFile && !nextMetadata.generated_file) nextMetadata.generated_file = generatedFile;
         if (separated.overflow) {
           nextMetadata[PDF_ANALYSIS_OVERFLOW_METADATA_KEY] = separated.overflow;
         }
