@@ -77,6 +77,7 @@ const TestSetupGuide = lazy(() => import('./pages/TestSetupGuide'));
 const ThoughtCoach = lazy(() => import('./pages/ThoughtCoach'));
 const VideoPlayer = lazy(() => import('./pages/VideoPlayer'));
 const Videos = lazy(() => import('./pages/Videos'));
+const TherapeuticForms = lazy(() => import('./pages/TherapeuticForms'));
 
 
 export const PAGES = {
@@ -107,6 +108,7 @@ export const PAGES = {
     "ThoughtCoach": ThoughtCoach,
     "VideoPlayer": VideoPlayer,
     "Videos": Videos,
+    "TherapeuticForms": TherapeuticForms,
 }
 
 export const pagesConfig = {

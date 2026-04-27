@@ -4,7 +4,7 @@ import { createPageUrl } from '../../utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MessageCircle, BookOpen, Target, Dumbbell, Play, Sparkles, Puzzle, User, Compass, RefreshCw, ArrowRight } from 'lucide-react';
+import { MessageCircle, BookOpen, Target, Dumbbell, Play, Sparkles, Puzzle, User, Compass, RefreshCw, ArrowRight, ClipboardList } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion'; // motion used for StarterPath expand, AnimatePresence for video modal
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
@@ -136,6 +136,16 @@ export default function QuickActions() {
     color: '#ED8936',
     bgColor: 'rgba(237, 137, 54, 0.15)',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/my-cbt-therapy.firebasestorage.app/o/CBT%20Video%20Library.mp4?alt=media&token=3e7a4ce8-5b61-4398-8579-dd2c42c83687'
+  },
+  {
+    title: t('quick_actions.therapeutic_forms.title'),
+    description: t('quick_actions.therapeutic_forms.description'),
+    icon: ClipboardList,
+    page: 'TherapeuticForms',
+    color: '#6B7280',
+    bgColor: 'rgba(107, 114, 128, 0.15)',
+    videoUrl: null,
+    testIds: ['quickaction-therapeutic-forms'],
   }];
 
 
@@ -329,6 +339,7 @@ export default function QuickActions() {
                       </div>
                       
                       {/* Angel Button - next to icon */}
+                      {action.videoUrl && (
                       <button
                         onClick={(e) => {
                           e.preventDefault();
@@ -337,11 +348,12 @@ export default function QuickActions() {
                         }}
                         className="flex items-center justify-center cursor-pointer hover:scale-105 transition-transform w-14 h-14 rounded-[var(--radius-control)] border-0 outline-none"
                         style={{ backgroundColor: action.bgColor }}
-                        aria-label="Guided introduction video"
-                        title="Guided introduction video">
+                        aria-label={t('quick_actions.aria.guided_intro_video')}
+                        title={t('quick_actions.aria.guided_intro_video')}>
 
                         <User className="w-6 h-6 icon-default" style={{ color: action.color }} strokeWidth={2} />
                       </button>
+                      )}
                     </div>
                     <h3 className="text-teal-600 mb-1 text-sm font-semibold break-words">{action.title}</h3>
                     <p className="text-teal-600 text-xs line-clamp-2 break-words">{action.description}</p>
