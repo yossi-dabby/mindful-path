@@ -146,7 +146,7 @@ export default function TherapeuticForms() {
           className="relative overflow-hidden rounded-[var(--radius-card)] border border-border/70 bg-[hsl(var(--card))] shadow-[var(--shadow-md)] flex flex-col"
           dir={languageData.rtl ? 'rtl' : 'ltr'}>
           
-              <div className="p-5 flex flex-col gap-3 flex-1">
+              <div className="bg-teal-200 p-5 flex flex-col gap-3 flex-1">
                 {/* Title */}
                 <h3 className="text-base font-semibold text-foreground leading-snug">
                   {languageData.title}
