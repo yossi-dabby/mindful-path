@@ -62,22 +62,22 @@ function ScrollableChipRow({ children, testId, isRtl }) {
     }
   }, [updateArrows]);
 
-  const BackIcon  = isRtl ? ChevronRight : ChevronLeft;
-  const ForwIcon  = isRtl ? ChevronLeft  : ChevronRight;
+  const BackIcon = isRtl ? ChevronRight : ChevronLeft;
+  const ForwIcon = isRtl ? ChevronLeft : ChevronRight;
 
   return (
     <div className="relative flex items-center gap-1">
       {/* Back arrow */}
-      {canScrollStart && (
-        <button
-          type="button"
-          onClick={() => scrollBy(-1)}
-          aria-label="Scroll back"
-          className="flex-shrink-0 rounded-full p-1 bg-background/80 border border-border/60 shadow-sm hover:bg-muted transition-colors z-10"
-        >
-          <BackIcon className="w-3.5 h-3.5 text-foreground/70" />
+      {canScrollStart &&
+      <button
+        type="button"
+        onClick={() => scrollBy(-1)}
+        aria-label="Scroll back"
+        className="flex-shrink-0 rounded-full p-1 bg-background/80 border border-border/60 shadow-sm hover:bg-muted transition-colors z-10">
+        
+          <BackIcon className="text-emerald-700 lucide lucide-chevron-right w-3.5 h-3.5" />
         </button>
-      )}
+      }
 
       {/* Scrollable row */}
       <div
@@ -85,24 +85,24 @@ function ScrollableChipRow({ children, testId, isRtl }) {
         data-testid={testId}
         onScroll={updateArrows}
         className="flex flex-1 min-w-0 gap-2 overflow-x-auto pb-1 scrollbar-hide"
-        style={{ WebkitOverflowScrolling: 'touch' }}
-      >
+        style={{ WebkitOverflowScrolling: 'touch' }}>
+        
         {children}
       </div>
 
       {/* Forward arrow */}
-      {canScrollEnd && (
-        <button
-          type="button"
-          onClick={() => scrollBy(1)}
-          aria-label="Scroll forward"
-          className="flex-shrink-0 rounded-full p-1 bg-background/80 border border-border/60 shadow-sm hover:bg-muted transition-colors z-10"
-        >
+      {canScrollEnd &&
+      <button
+        type="button"
+        onClick={() => scrollBy(1)}
+        aria-label="Scroll forward"
+        className="flex-shrink-0 rounded-full p-1 bg-background/80 border border-border/60 shadow-sm hover:bg-muted transition-colors z-10">
+        
           <ForwIcon className="w-3.5 h-3.5 text-foreground/70" />
         </button>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -257,20 +257,20 @@ export default function TherapeuticForms() {
               {/* Open / Download buttons */}
               <div className="bg-teal-400 pb-5 px-5 flex gap-2">
                 <Button
-                  onClick={() => handleOpenForm(languageData.file_url)}
-                  className="flex-1 bg-teal-600 text-[0.875rem] px-3 font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0"
-                  size="sm"
-                  data-testid={`open-form-${form.id}`}
-                  aria-label={`${t('therapeutic_forms.open_form')} — ${languageData.title}`}>
+              onClick={() => handleOpenForm(languageData.file_url)}
+              className="flex-1 bg-teal-600 text-[0.875rem] px-3 font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0"
+              size="sm"
+              data-testid={`open-form-${form.id}`}
+              aria-label={`${t('therapeutic_forms.open_form')} — ${languageData.title}`}>
                   <ExternalLink className="w-4 h-4" />
                   {t('therapeutic_forms.open_form')}
                 </Button>
                 <Button
-                  onClick={() => handleDownloadForm(languageData.file_url, languageData.file_name)}
-                  className="flex-1 bg-teal-700 text-[0.875rem] px-3 font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0"
-                  size="sm"
-                  data-testid={`download-form-${form.id}`}
-                  aria-label={`${t('therapeutic_forms.download_form')} — ${languageData.title}`}>
+              onClick={() => handleDownloadForm(languageData.file_url, languageData.file_name)}
+              className="flex-1 bg-teal-700 text-[0.875rem] px-3 font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0"
+              size="sm"
+              data-testid={`download-form-${form.id}`}
+              aria-label={`${t('therapeutic_forms.download_form')} — ${languageData.title}`}>
                   <Download className="w-4 h-4" />
                   {t('therapeutic_forms.download_form')}
                 </Button>
