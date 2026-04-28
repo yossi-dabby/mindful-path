@@ -98,7 +98,7 @@ function ScrollableChipRow({ children, testId, isRtl }) {
         aria-label="Scroll forward"
         className="flex-shrink-0 rounded-full p-1 bg-background/80 border border-border/60 shadow-sm hover:bg-muted transition-colors z-10">
         
-          <ForwIcon className="w-3.5 h-3.5 text-foreground/70" />
+          <ForwIcon className="text-emerald-700 lucide lucide-chevron-left w-3.5 h-3.5" />
         </button>
       }
     </div>);
