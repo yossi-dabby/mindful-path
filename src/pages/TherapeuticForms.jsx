@@ -95,8 +95,8 @@ function ScrollableChipRow({ children, testId, isRtl }) {
       <button
         type="button"
         onClick={() => scrollBy(1)}
-        aria-label="Scroll forward"
-        className="flex-shrink-0 rounded-full p-1 bg-background/80 border border-border/60 shadow-sm hover:bg-muted transition-colors z-10">
+        aria-label="Scroll forward" className="bg-background/80 p-1 rounded-full flex-shrink-0 border border-border/60 shadow-sm hover:bg-muted transition-colors z-10">
+        
         
           <ForwIcon className="text-emerald-700 lucide lucide-chevron-left w-3.5 h-3.5" />
         </button>
