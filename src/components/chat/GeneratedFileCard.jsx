@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { FileText, ExternalLink, Download, Loader2 } from 'lucide-react';
 import { normalizeGeneratedFile } from './utils/normalizeGeneratedFile';
 import { downloadPdfFile } from './utils/downloadPdfFile';
+import { openFile } from './utils/openFile';
 
 export { normalizeGeneratedFile };
 
@@ -17,7 +18,7 @@ export default function GeneratedFileCard({ generatedFile }) {
   const description = normalized.description;
 
   const handleOpen = () => {
-    window.open(normalized.url, '_blank', 'noopener,noreferrer');
+    openFile(normalized.url);
   };
 
   const handleDownload = async () => {

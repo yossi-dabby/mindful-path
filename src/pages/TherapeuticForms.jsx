@@ -8,6 +8,7 @@ import {
   ALL_FORMS,
   resolveFormWithLanguage } from
 '@/data/therapeuticForms/index.js';
+import { openFile } from '@/components/chat/utils/openFile';
 import { downloadPdfFile } from '@/components/chat/utils/downloadPdfFile';
 
 // ─── UI adapter ────────────────────────────────────────────────────────────────
@@ -139,7 +140,7 @@ export default function TherapeuticForms() {
 
 
   const handleOpenForm = (fileUrl) => {
-    window.open(fileUrl, '_blank', 'noopener,noreferrer');
+    openFile(fileUrl);
   };
 
   const handleDownloadForm = async (fileUrl, fileName) => {
