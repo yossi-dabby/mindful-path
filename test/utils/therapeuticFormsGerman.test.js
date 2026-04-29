@@ -234,10 +234,10 @@ describe('German integration — fallback behavior', () => {
     }
   });
 
-  it('17. Unsupported language (pt) still falls back to English for all 18 forms (duplicate check)', () => {
+  it('17. Unsupported language (zh) still falls back to English for all 18 forms', () => {
     for (const form of APPROVED_FORMS) {
-      const resolved = resolveFormWithLanguage(form.id, 'pt');
-      expect(resolved, `Form ${form.id} failed to resolve with pt fallback`).not.toBeNull();
+      const resolved = resolveFormWithLanguage(form.id, 'zh');
+      expect(resolved, `Form ${form.id} failed to resolve with zh fallback`).not.toBeNull();
       expect(resolved.language).toBe('en');
     }
   });
