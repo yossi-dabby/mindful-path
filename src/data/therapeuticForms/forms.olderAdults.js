@@ -24,7 +24,9 @@
  *
  * Phase 8 (Italian) update:
  *   Italian (it) language blocks added for all four older_adults entries.
- */
+ *
+ * Phase 9 (Portuguese) update:
+ *   Portuguese (pt) language blocks added for all four older_adults entries.
 
 /** @type {import('./types.js').TherapeuticForm[]} */
 export const FORMS_OLDER_ADULTS = [
@@ -81,6 +83,14 @@ export const FORMS_OLDER_ADULTS = [
         title: 'Foglio di Riflessione sull\'Umore',
         description: 'Un delicato foglio di riflessione quotidiana per monitorare l\'umore e notare cosa sostiene il benessere.',
         file_url: '/forms/it/older_adults/mood-reflection-sheet.pdf',
+        file_type: 'pdf',
+        file_name: 'mood-reflection-sheet.pdf',
+        rtl: false,
+      },
+      pt: {
+        title: 'Folha de Reflexão sobre o Humor',
+        description: 'Uma suave folha de reflexão diária para acompanhar o humor e perceber o que apoia o bem-estar.',
+        file_url: '/forms/pt/older_adults/mood-reflection-sheet.pdf',
         file_type: 'pdf',
         file_name: 'mood-reflection-sheet.pdf',
         rtl: false,
@@ -146,6 +156,14 @@ export const FORMS_OLDER_ADULTS = [
         file_name: 'sleep-routine-reflection.pdf',
         rtl: false,
       },
+      pt: {
+        title: 'Reflexão sobre Sono e Rotina',
+        description: 'Uma suave folha de reflexão para acompanhar a qualidade do sono e explorar hábitos que promovem o descanso.',
+        file_url: '/forms/pt/older_adults/sleep-routine-reflection.pdf',
+        file_type: 'pdf',
+        file_name: 'sleep-routine-reflection.pdf',
+        rtl: false,
+      },
     },
     created_at: '2025-04-27T00:00:00.000Z',
     updated_at: '2025-04-27T00:00:00.000Z',
@@ -207,6 +225,14 @@ export const FORMS_OLDER_ADULTS = [
         file_name: 'daily-coping-plan.pdf',
         rtl: false,
       },
+      pt: {
+        title: 'Plano de Enfrentamento Diário',
+        description: 'Um plano de enfrentamento diário pessoal com espaço para estratégias úteis, contatos de apoio e atividades calmantes.',
+        file_url: '/forms/pt/older_adults/daily-coping-plan.pdf',
+        file_type: 'pdf',
+        file_name: 'daily-coping-plan.pdf',
+        rtl: false,
+      },
     },
     created_at: '2025-04-27T00:00:00.000Z',
     updated_at: '2025-04-27T00:00:00.000Z',
@@ -264,6 +290,14 @@ export const FORMS_OLDER_ADULTS = [
         title: 'Riflessione di Supporto per Caregiver',
         description: 'Un modulo di riflessione per chi svolge un ruolo di cura, focalizzato sui propri bisogni e risorse di supporto.',
         file_url: '/forms/it/older_adults/caregiver-support-reflection.pdf',
+        file_type: 'pdf',
+        file_name: 'caregiver-support-reflection.pdf',
+        rtl: false,
+      },
+      pt: {
+        title: 'Reflexão de Apoio ao Cuidador',
+        description: 'Um formulário de reflexão para quem está em um papel de cuidador, focado em suas próprias necessidades e recursos de apoio.',
+        file_url: '/forms/pt/older_adults/caregiver-support-reflection.pdf',
         file_type: 'pdf',
         file_name: 'caregiver-support-reflection.pdf',
         rtl: false,

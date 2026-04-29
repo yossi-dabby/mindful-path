@@ -508,11 +508,13 @@ describe('Phase 4C — Language: unsupported languages fall back to English', ()
     }
   });
 
-  it('resolveFormIntent resolves Italian for it, falls back to English for unsupported pt', () => {
+  it('resolveFormIntent resolves Italian for it, Portuguese for pt, falls back to English for unsupported zh', () => {
     expect(resolveFormIntent('thought-record', 'it')?.language).toBe('it');
     expect(resolveFormIntent('cognitive-distortions', 'it')?.language).toBe('it');
-    expect(resolveFormIntent('teen-emotion-regulation', 'pt')?.language).toBe('en');
-    expect(resolveFormIntent('child-grounding', 'pt')?.language).toBe('en');
+    expect(resolveFormIntent('teen-emotion-regulation', 'pt')?.language).toBe('pt');
+    expect(resolveFormIntent('child-grounding', 'pt')?.language).toBe('pt');
+    expect(resolveFormIntent('teen-emotion-regulation', 'zh')?.language).toBe('en');
+    expect(resolveFormIntent('child-grounding', 'zh')?.language).toBe('en');
   });
 });
 
