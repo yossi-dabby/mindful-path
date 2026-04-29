@@ -16,6 +16,9 @@
  *
  * Phase 6 (French) update:
  *   French (fr) language blocks added for all four children entries.
+ *
+ * Phase 7 (German) update:
+ *   German (de) language blocks added for all four children entries.
  */
 
 /** @type {import('./types.js').TherapeuticForm[]} */
@@ -61,6 +64,14 @@ export const FORMS_CHILDREN = [
         title: 'Bilan des Émotions Simple',
         description: 'Une fiche de travail conviviale pour aider les enfants à identifier et nommer leurs émotions chaque jour.',
         file_url: '/forms/fr/children/simple-feelings-check-in.pdf',
+        file_type: 'pdf',
+        file_name: 'simple-feelings-check-in.pdf',
+        rtl: false,
+      },
+      de: {
+        title: 'Einfaches Gefühls-Check-in',
+        description: 'Ein kinderfreundliches Arbeitsblatt, um jeden Tag Gefühle zu erkennen und zu benennen.',
+        file_url: '/forms/de/children/simple-feelings-check-in.pdf',
         file_type: 'pdf',
         file_name: 'simple-feelings-check-in.pdf',
         rtl: false,
@@ -114,6 +125,14 @@ export const FORMS_CHILDREN = [
         file_name: 'grounding-exercise.pdf',
         rtl: false,
       },
+      de: {
+        title: 'Erdungsübung für Kinder',
+        description: 'Eine einfache 5-Sinne-Erdungsübung, um Kindern zu helfen, sich ruhig und sicher zu fühlen.',
+        file_url: '/forms/de/children/grounding-exercise.pdf',
+        file_type: 'pdf',
+        file_name: 'grounding-exercise.pdf',
+        rtl: false,
+      },
     },
     created_at: '2025-04-27T00:00:00.000Z',
     updated_at: '2025-04-27T00:00:00.000Z',
@@ -163,6 +182,14 @@ export const FORMS_CHILDREN = [
         file_name: 'parent-guided-coping-card.pdf',
         rtl: false,
       },
+      de: {
+        title: 'Bewältigungskarte mit Elternbegleitung',
+        description: 'Gemeinsam mit einem Elternteil ausgefüllt, listet diese Karte die persönlichen Beruhigungsstrategien des Kindes auf.',
+        file_url: '/forms/de/children/parent-guided-coping-card.pdf',
+        file_type: 'pdf',
+        file_name: 'parent-guided-coping-card.pdf',
+        rtl: false,
+      },
     },
     created_at: '2025-04-27T00:00:00.000Z',
     updated_at: '2025-04-27T00:00:00.000Z',
@@ -208,6 +235,14 @@ export const FORMS_CHILDREN = [
         title: 'Respiration en Carré pour Enfants',
         description: 'Un exercice de respiration calme et progressif pour aider les enfants à gérer les émotions intenses.',
         file_url: '/forms/fr/children/box-breathing.pdf',
+        file_type: 'pdf',
+        file_name: 'box-breathing.pdf',
+        rtl: false,
+      },
+      de: {
+        title: 'Kastenatemübung für Kinder',
+        description: 'Eine ruhige, schrittweise Atemübung, die Kindern hilft, mit starken Gefühlen umzugehen.',
+        file_url: '/forms/de/children/box-breathing.pdf',
         file_type: 'pdf',
         file_name: 'box-breathing.pdf',
         rtl: false,

@@ -676,10 +676,10 @@ describe('Phase 4B — Unsupported language falls back to English', () => {
     expect(meta.language).toBe('es');
   });
 
-  it('teen-weekly-practice in German falls back to English', () => {
+  it('teen-weekly-practice in German resolves to German', () => {
     const meta = resolveFormIntent('teen-weekly-practice', 'de');
     expect(meta).not.toBeNull();
-    expect(meta.language).toBe('en');
+    expect(meta.language).toBe('de');
   });
 });
 

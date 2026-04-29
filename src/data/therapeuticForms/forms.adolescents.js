@@ -17,6 +17,9 @@
  *
  * Phase 6 (French) update:
  *   French (fr) language blocks added for all four adolescents entries.
+ *
+ * Phase 7 (German) update:
+ *   German (de) language blocks added for all four adolescents entries.
  */
 
 /** @type {import('./types.js').TherapeuticForm[]} */
@@ -62,6 +65,14 @@ export const FORMS_ADOLESCENTS = [
         title: 'Journal des Pensées Anxieuses',
         description: 'Une fiche de travail structurée pour examiner et challenger les pensées anxieuses.',
         file_url: '/forms/fr/adolescents/anxiety-thought-record.pdf',
+        file_type: 'pdf',
+        file_name: 'anxiety-thought-record.pdf',
+        rtl: false,
+      },
+      de: {
+        title: 'Angst-Gedankenprotokoll',
+        description: 'Ein strukturiertes Arbeitsblatt zur Untersuchung und Herausforderung ängstlicher Gedanken.',
+        file_url: '/forms/de/adolescents/anxiety-thought-record.pdf',
         file_type: 'pdf',
         file_name: 'anxiety-thought-record.pdf',
         rtl: false,
@@ -115,6 +126,14 @@ export const FORMS_ADOLESCENTS = [
         file_name: 'emotion-regulation-worksheet.pdf',
         rtl: false,
       },
+      de: {
+        title: 'Arbeitsblatt zur Emotionsregulation',
+        description: 'Ein Arbeitsblatt zur Erfassung emotionaler Auslöser, Intensität und gesunder Reaktionen.',
+        file_url: '/forms/de/adolescents/emotion-regulation-worksheet.pdf',
+        file_type: 'pdf',
+        file_name: 'emotion-regulation-worksheet.pdf',
+        rtl: false,
+      },
     },
     created_at: '2025-04-27T00:00:00.000Z',
     updated_at: '2025-04-27T00:00:00.000Z',
@@ -164,6 +183,14 @@ export const FORMS_ADOLESCENTS = [
         file_name: 'weekly-practice-planner.pdf',
         rtl: false,
       },
+      de: {
+        title: 'Wöchentlicher Übungsplaner',
+        description: 'Ein Wochenplaner zum Planen und Reflektieren therapeutischer Aktivitäten.',
+        file_url: '/forms/de/adolescents/weekly-practice-planner.pdf',
+        file_type: 'pdf',
+        file_name: 'weekly-practice-planner.pdf',
+        rtl: false,
+      },
     },
     created_at: '2025-04-27T00:00:00.000Z',
     updated_at: '2025-04-27T00:00:00.000Z',
@@ -209,6 +236,14 @@ export const FORMS_ADOLESCENTS = [
         title: 'Outil de Gestion de la Pression Sociale',
         description: 'Une fiche de travail pour aider les adolescents à identifier les pressions sociales et pratiquer des réponses assertives.',
         file_url: '/forms/fr/adolescents/social-pressure-coping-tool.pdf',
+        file_type: 'pdf',
+        file_name: 'social-pressure-coping-tool.pdf',
+        rtl: false,
+      },
+      de: {
+        title: 'Bewältigungstool für sozialen Druck',
+        description: 'Ein Arbeitsblatt, das Jugendlichen hilft, sozialen Druck zu erkennen und selbstbewusste Reaktionen zu üben.',
+        file_url: '/forms/de/adolescents/social-pressure-coping-tool.pdf',
         file_type: 'pdf',
         file_name: 'social-pressure-coping-tool.pdf',
         rtl: false,

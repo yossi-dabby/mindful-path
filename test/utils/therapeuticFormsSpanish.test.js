@@ -232,10 +232,10 @@ describe('Spanish integration — fallback behavior', () => {
     }
   });
 
-  it('17. Unsupported language (de) still falls back to English for all 18 forms', () => {
+  it('17. Unsupported language (pt) still falls back to English for all 18 forms', () => {
     for (const form of APPROVED_FORMS) {
-      const resolved = resolveFormWithLanguage(form.id, 'de');
-      expect(resolved, `Form ${form.id} failed to resolve with de fallback`).not.toBeNull();
+      const resolved = resolveFormWithLanguage(form.id, 'pt');
+      expect(resolved, `Form ${form.id} failed to resolve with pt fallback`).not.toBeNull();
       expect(resolved.language).toBe('en');
     }
   });
