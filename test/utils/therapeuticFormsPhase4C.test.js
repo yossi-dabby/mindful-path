@@ -480,11 +480,13 @@ describe('Phase 4C — Safety: no fake/missing URL can resolve', () => {
 // ─── 12. Unsupported languages fall back to English for all approved forms ─────
 
 describe('Phase 4C — Language: unsupported languages fall back to English', () => {
-  it('all approved forms fall back to English for French requests', () => {
+  it('all approved forms resolve in French (fr now has real assets)', () => {
     for (const form of approvedForms) {
       const result = resolveFormWithLanguage(form.id, 'fr');
-      expect(result, `${form.id} should resolve in French via English fallback`).not.toBeNull();
-      expect(result.language, `${form.id} should fall back to English for French`).toBe('en');
+      expect(result, `${form.id} should resolve in French`).not.toBeNull();
+      expect(result.language, `${form.id} should resolve to French`).toBe('fr');
+      expect(result.languageData.rtl).toBe(false);
+      expect(result.languageData.file_url).toMatch(/^\/forms\/fr\//);
     }
   });
 
@@ -507,7 +509,7 @@ describe('Phase 4C — Language: unsupported languages fall back to English', ()
   });
 
   it('resolveFormIntent falls back to English for unsupported language', () => {
-    expect(resolveFormIntent('thought-record', 'fr')?.language).toBe('en');
+    expect(resolveFormIntent('thought-record', 'it')?.language).toBe('en');
     expect(resolveFormIntent('cognitive-distortions', 'it')?.language).toBe('en');
     expect(resolveFormIntent('teen-emotion-regulation', 'de')?.language).toBe('en');
     expect(resolveFormIntent('child-grounding', 'pt')?.language).toBe('en');

@@ -206,10 +206,16 @@ describe('Phase 3 — Hebrew language returns Hebrew file metadata', () => {
 // ─── 7. Unsupported language falls back to English ────────────────────────────
 
 describe('Phase 3 — unsupported language falls back to English', () => {
-  it('CBT Thought Record in unsupported language (fr) falls back to English', () => {
+  it('CBT Thought Record in French resolves in French (fr now has real assets)', () => {
     const meta = resolveFormIntent('tf-adults-cbt-thought-record', 'fr');
     expect(meta).not.toBeNull();
-    // No French asset exists — must fall back to English
+    expect(meta.language).toBe('fr');
+    expect(meta.url).toContain('/fr/');
+  });
+
+  it('CBT Thought Record in Italian falls back to English (it has no assets)', () => {
+    const meta = resolveFormIntent('tf-adults-cbt-thought-record', 'it');
+    expect(meta).not.toBeNull();
     expect(meta.language).toBe('en');
     expect(meta.url).toContain('/en/');
   });

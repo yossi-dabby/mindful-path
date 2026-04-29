@@ -656,8 +656,15 @@ describe('Phase 4B — Hebrew language resolves correctly for newly approved for
 // ─── 21. Unsupported language falls back to English ──────────────────────────
 
 describe('Phase 4B — Unsupported language falls back to English', () => {
-  it('cognitive-distortions in French falls back to English', () => {
+  it('cognitive-distortions in French resolves in French (fr now has real assets)', () => {
     const meta = resolveFormIntent('cognitive-distortions', 'fr');
+    expect(meta).not.toBeNull();
+    expect(meta.language).toBe('fr');
+    expect(meta.url).toContain('/fr/');
+  });
+
+  it('cognitive-distortions in Italian falls back to English', () => {
+    const meta = resolveFormIntent('cognitive-distortions', 'it');
     expect(meta).not.toBeNull();
     expect(meta.language).toBe('en');
     expect(meta.url).toContain('/en/');

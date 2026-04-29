@@ -854,8 +854,14 @@ describe('TherapeuticForms Phase 1B — language fallback to English', () => {
     expect(result.languageData.file_url).toMatch(/^\/forms\/es\//);
   });
 
-  it('falls back to English for French', () => {
+  it('resolves in French (fr now has real assets)', () => {
     const result = resolveFormWithLanguage('tf-adults-behavioral-activation-plan', 'fr');
+    expect(result).not.toBeNull();
+    expect(result.language).toBe('fr');
+  });
+
+  it('falls back to English for Italian (it has no assets)', () => {
+    const result = resolveFormWithLanguage('tf-adults-behavioral-activation-plan', 'it');
     expect(result).not.toBeNull();
     expect(result.language).toBe('en');
   });
@@ -1228,14 +1234,29 @@ describe('TherapeuticForms Phase 4A — Hebrew resolves to Hebrew', () => {
 // ─── Phase 4A: Unsupported languages fall back to English ────────────────────
 
 describe('TherapeuticForms Phase 4A — unsupported languages fall back to English', () => {
-  it('Phase 4A forms fall back to English for fr, de, it, pt (es now has real assets)', () => {
+  it('Phase 4A forms resolve in French (fr now has real assets)', () => {
     const sampleIds = [
       'tf-children-box-breathing',
       'tf-adolescents-social-pressure-coping-tool',
       'tf-adults-values-and-goals-worksheet',
       'tf-older-adults-sleep-routine-reflection',
     ];
-    const unsupportedLangs = ['fr', 'de', 'it', 'pt'];
+    for (const id of sampleIds) {
+      const result = resolveFormWithLanguage(id, 'fr');
+      expect(result, `${id} should resolve in French`).not.toBeNull();
+      expect(result.language, `${id} should resolve to French`).toBe('fr');
+      expect(result.languageData.rtl).toBe(false);
+    }
+  });
+
+  it('Phase 4A forms fall back to English for de, it, pt (no assets for these)', () => {
+    const sampleIds = [
+      'tf-children-box-breathing',
+      'tf-adolescents-social-pressure-coping-tool',
+      'tf-adults-values-and-goals-worksheet',
+      'tf-older-adults-sleep-routine-reflection',
+    ];
+    const unsupportedLangs = ['de', 'it', 'pt'];
     for (const id of sampleIds) {
       for (const lang of unsupportedLangs) {
         const result = resolveFormWithLanguage(id, lang);
