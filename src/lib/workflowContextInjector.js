@@ -91,6 +91,7 @@ import {
 } from './therapistStrategyEngine.js';
 // Wave 5D — Quality Evaluator diagnostic integration (diagnostics-only, no runtime effect).
 import { computeEvaluatorDiagnosticSnapshot } from './therapistQualityEvaluator.js';
+import { ALL_FORMS } from '../data/therapeuticForms/index.js';
 
 const THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS = [
 '[ATTACHMENT_HANDLING_POLICY]',
@@ -121,26 +122,88 @@ const THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS = [
 //   2. Resolve the approved form from the TherapeuticForms library.
 //   3. Attach it as a downloadable file card below the message.
 
+// Audience display order and labels used when building the catalog.
+const _FORM_CATALOG_AUDIENCE_ORDER = ['adults', 'older_adults', 'adolescents', 'children'];
+const _FORM_CATALOG_AUDIENCE_LABELS = Object.freeze({
+  adults:       'Adults',
+  older_adults: 'Older Adults',
+  adolescents:  'Adolescents (ages 13-17)',
+  children:     'Children (ages 6-12)',
+});
+const _FORM_CATALOG_AUDIENCE_SAFETY_NOTES = Object.freeze({
+  adolescents: ' — use ONLY when user is explicitly adolescent/teen',
+  children:    ' — use ONLY when user is explicitly a child; all require parent guidance',
+});
+
+/**
+ * Builds the compact AI-facing form catalog from the approved TherapeuticForms registry.
+ *
+ * Called at module load time to produce the catalog text injected into the CBT Therapist
+ * context.  Accepts the full forms list so the function is pure and test-importable
+ * without mocking the registry.
+ *
+ * Output format per form: [FORM:id]  — English title (category)
+ * Forms are grouped by audience with safety notes for child/adolescent audiences.
+ * No file URLs are included — the client resolves those from the form ID.
+ *
+ * @param {readonly object[]} forms  - ALL_FORMS from the TherapeuticForms registry
+ * @returns {string}  Compact multi-line catalog, grouped by audience
+ */
+export function buildTherapistFormCatalog(forms) {
+  const approvedForms = forms.filter(f => f.approved === true);
+
+  // Group by audience
+  const byAudience = {};
+  for (const form of approvedForms) {
+    const aud = form.audience || 'unknown';
+    if (!byAudience[aud]) byAudience[aud] = [];
+    byAudience[aud].push(form);
+  }
+
+  const total = approvedForms.length;
+  const audienceCount = Object.keys(byAudience).length;
+  const lines = [`CURRENTLY APPROVED FORMS — ${total} forms across ${audienceCount} audiences (use only these exact IDs):`];
+
+  for (const audience of _FORM_CATALOG_AUDIENCE_ORDER) {
+    const audienceForms = byAudience[audience];
+    if (!audienceForms || audienceForms.length === 0) continue;
+
+    const label = _FORM_CATALOG_AUDIENCE_LABELS[audience] || audience;
+    const safetyNote = _FORM_CATALOG_AUDIENCE_SAFETY_NOTES[audience] || '';
+    lines.push('');
+    lines.push(`[${label}${safetyNote}]`);
+    for (const form of audienceForms) {
+      const enTitle = form.languages?.en?.title || form.id;
+      lines.push(`  [FORM:${form.id}]  — ${enTitle} (${form.category})`);
+    }
+  }
+
+  return lines.join('\n');
+}
+
 const THERAPIST_FORM_LIBRARY_INSTRUCTIONS = [
 '[THERAPEUTIC_FORMS_POLICY]',
-'You have access to a curated library of approved therapeutic worksheet forms.',
-'When a user requests a worksheet, CBT form, thought record, behavioral activation sheet, homework sheet, or similar structured exercise, you SHOULD attach the most relevant approved form.',
+'You have access to a curated library of approved therapeutic worksheet forms across multiple audience groups.',
+'When a user requests a worksheet, CBT form, thought record, mood tracker, homework sheet, or similar structured exercise, you SHOULD attach the most relevant approved form.',
 '',
 'To attach a form, embed EXACTLY ONE marker of the form [FORM:form-id] or [FORM:form-id:lang] anywhere in your reply.',
 'The marker will NOT be visible to the user — the system converts it to a downloadable form card automatically.',
 '',
-'CURRENTLY APPROVED FORMS (use only these exact IDs):',
-'  [FORM:tf-adults-cbt-thought-record]       — CBT Thought Record (seven-column thought diary)',
-'  [FORM:tf-adults-behavioral-activation-plan] — Behavioral Activation Plan (mood-lifting activity planner)',
+buildTherapistFormCatalog(ALL_FORMS),
 '',
-'Language: If the session language is not English, add the language code: [FORM:tf-adults-cbt-thought-record:he] for Hebrew.',
+'Language: Append the language code for the session language, e.g. [FORM:tf-adults-cbt-thought-record:he] for Hebrew, :es for Spanish, :fr for French, :de for German, :it for Italian, :pt for Portuguese.',
 '',
 'RULES:',
+'  - Do NOT claim you only have two forms — you have the full catalog listed above.',
 '  - Use only the exact form IDs listed above. Do not invent form IDs, file names, or URLs.',
+'  - If the user asks what forms are available, summarize by audience/category.',
+'  - Choose the most clinically appropriate form for the user\'s audience and presenting need.',
+'  - For adolescent and child forms: send ONLY when the user\'s age group is explicitly known or safely inferred.',
 '  - Do not tell the user you are embedding a marker — say "I\'ve attached a worksheet" instead.',
 '  - Attach a form only when therapeutically appropriate — never as a default filler response.',
 '  - Keep your chat reply SHORT when attaching a form (1–3 sentences max).',
 '  - If no form matches the request, do NOT attach anything — do not fabricate.',
+'  - Do not use forms as a substitute for crisis or safety handling.',
 '  - Existing safety-handling, crisis flow, and clinical boundaries are not affected by this policy.']
 .join('\n');
 
