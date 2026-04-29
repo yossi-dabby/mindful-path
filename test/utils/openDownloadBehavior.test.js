@@ -204,14 +204,18 @@ describe('Open/Download — 18 approved forms regression', () => {
 
 describe('Open/Download — 7-language PDF URL registry', () => {
   for (const lang of APP_LANGUAGES) {
-    it(`25. All approved forms have a valid file_url for language "${lang}"`, () => {
+    it(`25. Approved forms with a file_url for language "${lang}" point to existing files with valid paths`, () => {
       for (const form of APPROVED_FORMS) {
         const langData = form.languages?.[lang];
         // Not all forms are required to support every language, but if a URL is present
-        // it must be a non-empty string and the file must exist on disk.
+        // it must be a non-empty string matching the expected path pattern, and the file
+        // must exist on disk.
         if (langData?.file_url) {
           expect(typeof langData.file_url).toBe('string');
           expect(langData.file_url.trim().length).toBeGreaterThan(0);
+          // URL must follow the /forms/{lang}/{audience}/{form-id}.pdf pattern
+          expect(langData.file_url, `Form ${form.id} [${lang}] has unexpected URL format: ${langData.file_url}`)
+            .toMatch(/^\/forms\/[a-z]{2}\/[a-z_]+\/.+\.pdf$/);
           const diskPath = path.join(PUBLIC, langData.file_url);
           expect(fs.existsSync(diskPath), `Missing on disk: ${diskPath}`).toBe(true);
         }
