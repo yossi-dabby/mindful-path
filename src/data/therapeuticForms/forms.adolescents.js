@@ -11,6 +11,9 @@
  *   Real PDF assets added for emotion-regulation-worksheet,
  *   weekly-practice-planner, and social-pressure-coping-tool.
  *   All four adolescents entries are now approved.
+ *
+ * Phase 5 (Spanish) update:
+ *   Spanish (es) language blocks added for all four adolescents entries.
  */
 
 /** @type {import('./types.js').TherapeuticForm[]} */
@@ -43,6 +46,14 @@ export const FORMS_ADOLESCENTS = [
         file_type: 'pdf',
         file_name: 'anxiety-thought-record.pdf',
         rtl: true,
+      },
+      es: {
+        title: 'Registro de Pensamientos Ansiosos',
+        description: 'Una hoja de trabajo estructurada para examinar y desafiar pensamientos ansiosos.',
+        file_url: '/forms/es/adolescents/anxiety-thought-record.pdf',
+        file_type: 'pdf',
+        file_name: 'anxiety-thought-record.pdf',
+        rtl: false,
       },
     },
     created_at: '2025-04-27T00:00:00.000Z',
@@ -77,6 +88,14 @@ export const FORMS_ADOLESCENTS = [
         file_name: 'emotion-regulation-worksheet.pdf',
         rtl: true,
       },
+      es: {
+        title: 'Hoja de Regulación Emocional',
+        description: 'Una hoja para registrar desencadenantes emocionales, intensidad y respuestas saludables.',
+        file_url: '/forms/es/adolescents/emotion-regulation-worksheet.pdf',
+        file_type: 'pdf',
+        file_name: 'emotion-regulation-worksheet.pdf',
+        rtl: false,
+      },
     },
     created_at: '2025-04-27T00:00:00.000Z',
     updated_at: '2025-04-27T00:00:00.000Z',
@@ -110,6 +129,14 @@ export const FORMS_ADOLESCENTS = [
         file_name: 'weekly-practice-planner.pdf',
         rtl: true,
       },
+      es: {
+        title: 'Planificador de Práctica Semanal',
+        description: 'Un planificador semanal para programar y reflexionar sobre actividades terapéuticas.',
+        file_url: '/forms/es/adolescents/weekly-practice-planner.pdf',
+        file_type: 'pdf',
+        file_name: 'weekly-practice-planner.pdf',
+        rtl: false,
+      },
     },
     created_at: '2025-04-27T00:00:00.000Z',
     updated_at: '2025-04-27T00:00:00.000Z',
@@ -142,6 +169,14 @@ export const FORMS_ADOLESCENTS = [
         file_type: 'pdf',
         file_name: 'social-pressure-coping-tool.pdf',
         rtl: true,
+      },
+      es: {
+        title: 'Herramienta para Afrontar la Presión Social',
+        description: 'Una hoja de trabajo para ayudar a los adolescentes a identificar presiones sociales y practicar respuestas asertivas.',
+        file_url: '/forms/es/adolescents/social-pressure-coping-tool.pdf',
+        file_type: 'pdf',
+        file_name: 'social-pressure-coping-tool.pdf',
+        rtl: false,
       },
     },
     created_at: '2025-04-27T00:00:00.000Z',

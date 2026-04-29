@@ -488,11 +488,13 @@ describe('Phase 4C — Language: unsupported languages fall back to English', ()
     }
   });
 
-  it('all approved forms fall back to English for Spanish requests', () => {
+  it('all approved forms resolve in Spanish (es now has real assets)', () => {
     for (const form of approvedForms) {
       const result = resolveFormWithLanguage(form.id, 'es');
-      expect(result, `${form.id} should resolve in Spanish via English fallback`).not.toBeNull();
-      expect(result.language).toBe('en');
+      expect(result, `${form.id} should resolve in Spanish`).not.toBeNull();
+      expect(result.language).toBe('es');
+      expect(result.languageData.rtl).toBe(false);
+      expect(result.languageData.file_url).toMatch(/^\/forms\/es\//);
     }
   });
 
@@ -506,7 +508,7 @@ describe('Phase 4C — Language: unsupported languages fall back to English', ()
 
   it('resolveFormIntent falls back to English for unsupported language', () => {
     expect(resolveFormIntent('thought-record', 'fr')?.language).toBe('en');
-    expect(resolveFormIntent('cognitive-distortions', 'es')?.language).toBe('en');
+    expect(resolveFormIntent('cognitive-distortions', 'it')?.language).toBe('en');
     expect(resolveFormIntent('teen-emotion-regulation', 'de')?.language).toBe('en');
     expect(resolveFormIntent('child-grounding', 'pt')?.language).toBe('en');
   });

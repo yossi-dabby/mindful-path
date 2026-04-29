@@ -11,6 +11,9 @@
  *   Real PDF assets added for cognitive-distortions-worksheet,
  *   values-and-goals-worksheet, mood-tracking-sheet, and weekly-coping-plan.
  *   All six adults entries are now approved.
+ *
+ * Phase 5 (Spanish) update:
+ *   Spanish (es) language blocks added for all six adults entries.
  */
 
 /** @type {import('./types.js').TherapeuticForm[]} */
@@ -39,6 +42,14 @@ export const FORMS_ADULTS = [
         file_type: 'pdf',
         file_name: 'cbt-thought-record.pdf',
         rtl: true,
+      },
+      es: {
+        title: 'Registro de Pensamientos TCC',
+        description: 'Un registro de pensamientos TCC de siete columnas para examinar pensamientos automáticos y desarrollar respuestas equilibradas.',
+        file_url: '/forms/es/adults/cbt-thought-record.pdf',
+        file_type: 'pdf',
+        file_name: 'cbt-thought-record.pdf',
+        rtl: false,
       },
     },
     created_at: '2025-04-27T00:00:00.000Z',
@@ -69,6 +80,14 @@ export const FORMS_ADULTS = [
         file_name: 'behavioral-activation-plan.pdf',
         rtl: true,
       },
+      es: {
+        title: 'Plan de Activación Conductual',
+        description: 'Una hoja de trabajo práctica para programar actividades agradables o significativas y mejorar gradualmente el estado de ánimo.',
+        file_url: '/forms/es/adults/behavioral-activation-plan.pdf',
+        file_type: 'pdf',
+        file_name: 'behavioral-activation-plan.pdf',
+        rtl: false,
+      },
     },
     created_at: '2025-04-27T00:00:00.000Z',
     updated_at: '2025-04-27T00:00:00.000Z',
@@ -97,6 +116,14 @@ export const FORMS_ADULTS = [
         file_type: 'pdf',
         file_name: 'cognitive-distortions-worksheet.pdf',
         rtl: true,
+      },
+      es: {
+        title: 'Hoja de Distorsiones Cognitivas',
+        description: 'Una hoja de referencia y reflexión que enumera las distorsiones cognitivas comunes con espacio para ejemplos personales.',
+        file_url: '/forms/es/adults/cognitive-distortions-worksheet.pdf',
+        file_type: 'pdf',
+        file_name: 'cognitive-distortions-worksheet.pdf',
+        rtl: false,
       },
     },
     created_at: '2025-04-27T00:00:00.000Z',
@@ -127,6 +154,14 @@ export const FORMS_ADULTS = [
         file_name: 'values-and-goals-worksheet.pdf',
         rtl: true,
       },
+      es: {
+        title: 'Hoja de Valores y Metas',
+        description: 'Una hoja de trabajo reflexiva para identificar valores personales y establecer metas significativas.',
+        file_url: '/forms/es/adults/values-and-goals-worksheet.pdf',
+        file_type: 'pdf',
+        file_name: 'values-and-goals-worksheet.pdf',
+        rtl: false,
+      },
     },
     created_at: '2025-04-27T00:00:00.000Z',
     updated_at: '2025-04-27T00:00:00.000Z',
@@ -156,6 +191,14 @@ export const FORMS_ADULTS = [
         file_name: 'mood-tracking-sheet.pdf',
         rtl: true,
       },
+      es: {
+        title: 'Hoja de Seguimiento del Estado de Ánimo',
+        description: 'Una hoja de seguimiento diario para monitorear los patrones de estado de ánimo e identificar factores que influyen en el bienestar.',
+        file_url: '/forms/es/adults/mood-tracking-sheet.pdf',
+        file_type: 'pdf',
+        file_name: 'mood-tracking-sheet.pdf',
+        rtl: false,
+      },
     },
     created_at: '2025-04-27T00:00:00.000Z',
     updated_at: '2025-04-27T00:00:00.000Z',
@@ -184,6 +227,14 @@ export const FORMS_ADULTS = [
         file_type: 'pdf',
         file_name: 'weekly-coping-plan.pdf',
         rtl: true,
+      },
+      es: {
+        title: 'Plan de Afrontamiento Semanal',
+        description: 'Un plan semanal estructurado para construir y utilizar estrategias personales de afrontamiento.',
+        file_url: '/forms/es/adults/weekly-coping-plan.pdf',
+        file_type: 'pdf',
+        file_name: 'weekly-coping-plan.pdf',
+        rtl: false,
       },
     },
     created_at: '2025-04-27T00:00:00.000Z',

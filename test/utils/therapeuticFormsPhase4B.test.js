@@ -663,10 +663,10 @@ describe('Phase 4B — Unsupported language falls back to English', () => {
     expect(meta.url).toContain('/en/');
   });
 
-  it('sleep-routine in Spanish falls back to English', () => {
+  it('sleep-routine in Spanish resolves in Spanish (es now has real assets)', () => {
     const meta = resolveFormIntent('sleep-routine', 'es');
     expect(meta).not.toBeNull();
-    expect(meta.language).toBe('en');
+    expect(meta.language).toBe('es');
   });
 
   it('teen-weekly-practice in German falls back to English', () => {

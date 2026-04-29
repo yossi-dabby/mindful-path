@@ -846,10 +846,12 @@ describe('TherapeuticForms Phase 1B — Hebrew RTL metadata via live registry', 
 
 describe('TherapeuticForms Phase 1B — language fallback to English', () => {
   it('falls back to English when requesting Spanish (no approved es variant)', () => {
+    // Spanish now has real assets; requesting es resolves to Spanish directly.
     const result = resolveFormWithLanguage('tf-adults-cbt-thought-record', 'es');
     expect(result).not.toBeNull();
-    expect(result.language).toBe('en');
+    expect(result.language).toBe('es');
     expect(result.languageData.rtl).toBe(false);
+    expect(result.languageData.file_url).toMatch(/^\/forms\/es\//);
   });
 
   it('falls back to English for French', () => {
@@ -1226,14 +1228,14 @@ describe('TherapeuticForms Phase 4A — Hebrew resolves to Hebrew', () => {
 // ─── Phase 4A: Unsupported languages fall back to English ────────────────────
 
 describe('TherapeuticForms Phase 4A — unsupported languages fall back to English', () => {
-  it('Phase 4A forms fall back to English for es, fr, de, it, pt', () => {
+  it('Phase 4A forms fall back to English for fr, de, it, pt (es now has real assets)', () => {
     const sampleIds = [
       'tf-children-box-breathing',
       'tf-adolescents-social-pressure-coping-tool',
       'tf-adults-values-and-goals-worksheet',
       'tf-older-adults-sleep-routine-reflection',
     ];
-    const unsupportedLangs = ['es', 'fr', 'de', 'it', 'pt'];
+    const unsupportedLangs = ['fr', 'de', 'it', 'pt'];
     for (const id of sampleIds) {
       for (const lang of unsupportedLangs) {
         const result = resolveFormWithLanguage(id, lang);

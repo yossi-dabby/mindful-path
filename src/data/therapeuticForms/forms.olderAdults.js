@@ -12,6 +12,9 @@
  *   and caregiver-support-reflection. All four older_adults entries are now approved.
  *   Legacy placeholder entries (coping-plan, sleep-reflection-worksheet) are retained
  *   as unapproved stubs to avoid data loss; they are superseded by the Phase 4A entries.
+ *
+ * Phase 5 (Spanish) update:
+ *   Spanish (es) language blocks added for all four older_adults entries.
  */
 
 /** @type {import('./types.js').TherapeuticForm[]} */
@@ -40,6 +43,14 @@ export const FORMS_OLDER_ADULTS = [
         file_type: 'pdf',
         file_name: 'mood-reflection-sheet.pdf',
         rtl: true,
+      },
+      es: {
+        title: 'Hoja de Reflexión del Estado de Ánimo',
+        description: 'Una suave hoja de reflexión diaria para registrar el estado de ánimo y observar lo que apoya el bienestar.',
+        file_url: '/forms/es/older_adults/mood-reflection-sheet.pdf',
+        file_type: 'pdf',
+        file_name: 'mood-reflection-sheet.pdf',
+        rtl: false,
       },
     },
     created_at: '2025-04-27T00:00:00.000Z',
@@ -70,6 +81,14 @@ export const FORMS_OLDER_ADULTS = [
         file_name: 'sleep-routine-reflection.pdf',
         rtl: true,
       },
+      es: {
+        title: 'Reflexión sobre el Sueño y la Rutina',
+        description: 'Una suave hoja de reflexión para registrar la calidad del sueño y explorar hábitos que promueven el descanso.',
+        file_url: '/forms/es/older_adults/sleep-routine-reflection.pdf',
+        file_type: 'pdf',
+        file_name: 'sleep-routine-reflection.pdf',
+        rtl: false,
+      },
     },
     created_at: '2025-04-27T00:00:00.000Z',
     updated_at: '2025-04-27T00:00:00.000Z',
@@ -99,6 +118,14 @@ export const FORMS_OLDER_ADULTS = [
         file_name: 'daily-coping-plan.pdf',
         rtl: true,
       },
+      es: {
+        title: 'Plan de Afrontamiento Diario',
+        description: 'Un plan de afrontamiento diario personal con espacio para estrategias útiles, contactos de apoyo y actividades calmantes.',
+        file_url: '/forms/es/older_adults/daily-coping-plan.pdf',
+        file_type: 'pdf',
+        file_name: 'daily-coping-plan.pdf',
+        rtl: false,
+      },
     },
     created_at: '2025-04-27T00:00:00.000Z',
     updated_at: '2025-04-27T00:00:00.000Z',
@@ -127,6 +154,14 @@ export const FORMS_OLDER_ADULTS = [
         file_type: 'pdf',
         file_name: 'caregiver-support-reflection.pdf',
         rtl: true,
+      },
+      es: {
+        title: 'Reflexión de Apoyo al Cuidador',
+        description: 'Un formulario de reflexión para quienes están en un rol de cuidado, enfocado en sus propias necesidades y recursos de apoyo.',
+        file_url: '/forms/es/older_adults/caregiver-support-reflection.pdf',
+        file_type: 'pdf',
+        file_name: 'caregiver-support-reflection.pdf',
+        rtl: false,
       },
     },
     created_at: '2025-04-27T00:00:00.000Z',
