@@ -10,6 +10,9 @@
  * Phase 4A update:
  *   Real PDF assets added for grounding-exercise, parent-guided-coping-card,
  *   and box-breathing. All four children entries are now approved.
+ *
+ * Phase 5 (Spanish) update:
+ *   Spanish (es) language blocks added for all four children entries.
  */
 
 /** @type {import('./types.js').TherapeuticForm[]} */
@@ -42,6 +45,14 @@ export const FORMS_CHILDREN = [
         file_type: 'pdf',
         file_name: 'simple-feelings-check-in.pdf',
         rtl: true,
+      },
+      es: {
+        title: 'Revisión Simple de Sentimientos',
+        description: 'Una hoja de trabajo amigable para que los niños identifiquen y nombren sus sentimientos cada día.',
+        file_url: '/forms/es/children/simple-feelings-check-in.pdf',
+        file_type: 'pdf',
+        file_name: 'simple-feelings-check-in.pdf',
+        rtl: false,
       },
     },
     created_at: '2025-04-27T00:00:00.000Z',
@@ -76,6 +87,14 @@ export const FORMS_CHILDREN = [
         file_name: 'grounding-exercise.pdf',
         rtl: true,
       },
+      es: {
+        title: 'Ejercicio de Anclaje para Niños',
+        description: 'Una actividad de anclaje con los cinco sentidos para ayudar a los niños a sentirse tranquilos y seguros.',
+        file_url: '/forms/es/children/grounding-exercise.pdf',
+        file_type: 'pdf',
+        file_name: 'grounding-exercise.pdf',
+        rtl: false,
+      },
     },
     created_at: '2025-04-27T00:00:00.000Z',
     updated_at: '2025-04-27T00:00:00.000Z',
@@ -109,6 +128,14 @@ export const FORMS_CHILDREN = [
         file_name: 'parent-guided-coping-card.pdf',
         rtl: true,
       },
+      es: {
+        title: 'Tarjeta de Afrontamiento con Guía de Padres',
+        description: 'Completada junto con un padre, esta tarjeta enumera las estrategias personales de calma del niño.',
+        file_url: '/forms/es/children/parent-guided-coping-card.pdf',
+        file_type: 'pdf',
+        file_name: 'parent-guided-coping-card.pdf',
+        rtl: false,
+      },
     },
     created_at: '2025-04-27T00:00:00.000Z',
     updated_at: '2025-04-27T00:00:00.000Z',
@@ -141,6 +168,14 @@ export const FORMS_CHILDREN = [
         file_type: 'pdf',
         file_name: 'box-breathing.pdf',
         rtl: true,
+      },
+      es: {
+        title: 'Respiración de Caja para Niños',
+        description: 'Un ejercicio de respiración tranquilo y paso a paso para ayudar a los niños a manejar emociones intensas.',
+        file_url: '/forms/es/children/box-breathing.pdf',
+        file_type: 'pdf',
+        file_name: 'box-breathing.pdf',
+        rtl: false,
       },
     },
     created_at: '2025-04-27T00:00:00.000Z',
