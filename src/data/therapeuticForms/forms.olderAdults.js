@@ -18,6 +18,9 @@
  *
  * Phase 6 (French) update:
  *   French (fr) language blocks added for all four older_adults entries.
+ *
+ * Phase 7 (German) update:
+ *   German (de) language blocks added for all four older_adults entries.
  */
 
 /** @type {import('./types.js').TherapeuticForm[]} */
@@ -59,6 +62,14 @@ export const FORMS_OLDER_ADULTS = [
         title: "Fiche de Réflexion sur l'Humeur",
         description: "Une douce fiche de réflexion quotidienne pour suivre l'humeur et noter ce qui soutient le bien-être.",
         file_url: '/forms/fr/older_adults/mood-reflection-sheet.pdf',
+        file_type: 'pdf',
+        file_name: 'mood-reflection-sheet.pdf',
+        rtl: false,
+      },
+      de: {
+        title: 'Stimmungsreflexionsblatt',
+        description: 'Ein sanftes tägliches Reflexionsblatt zur Verfolgung der Stimmung und zur Wahrnehmung dessen, was das Wohlbefinden fördert.',
+        file_url: '/forms/de/older_adults/mood-reflection-sheet.pdf',
         file_type: 'pdf',
         file_name: 'mood-reflection-sheet.pdf',
         rtl: false,
@@ -108,6 +119,14 @@ export const FORMS_OLDER_ADULTS = [
         file_name: 'sleep-routine-reflection.pdf',
         rtl: false,
       },
+      de: {
+        title: 'Schlaf- und Routinereflexion',
+        description: 'Ein sanftes Reflexionsblatt zur Verfolgung der Schlafqualität und zur Erkundung von Gewohnheiten, die einen erholsamen Schlaf fördern.',
+        file_url: '/forms/de/older_adults/sleep-routine-reflection.pdf',
+        file_type: 'pdf',
+        file_name: 'sleep-routine-reflection.pdf',
+        rtl: false,
+      },
     },
     created_at: '2025-04-27T00:00:00.000Z',
     updated_at: '2025-04-27T00:00:00.000Z',
@@ -153,6 +172,14 @@ export const FORMS_OLDER_ADULTS = [
         file_name: 'daily-coping-plan.pdf',
         rtl: false,
       },
+      de: {
+        title: 'Täglicher Bewältigungsplan',
+        description: 'Ein persönlicher täglicher Bewältigungsplan mit Platz für hilfreiche Strategien, unterstützende Kontakte und beruhigende Aktivitäten.',
+        file_url: '/forms/de/older_adults/daily-coping-plan.pdf',
+        file_type: 'pdf',
+        file_name: 'daily-coping-plan.pdf',
+        rtl: false,
+      },
     },
     created_at: '2025-04-27T00:00:00.000Z',
     updated_at: '2025-04-27T00:00:00.000Z',
@@ -194,6 +221,14 @@ export const FORMS_OLDER_ADULTS = [
         title: 'Réflexion de Soutien aux Aidants',
         description: "Un formulaire de réflexion pour les personnes jouant un rôle d'aidant, centré sur leurs propres besoins et ressources de soutien.",
         file_url: '/forms/fr/older_adults/caregiver-support-reflection.pdf',
+        file_type: 'pdf',
+        file_name: 'caregiver-support-reflection.pdf',
+        rtl: false,
+      },
+      de: {
+        title: 'Reflexion zur Unterstützung von Pflegepersonen',
+        description: 'Ein Reflexionsbogen für Pflegepersonen, der sich auf ihre eigenen Bedürfnisse und Unterstützungsressourcen konzentriert.',
+        file_url: '/forms/de/older_adults/caregiver-support-reflection.pdf',
         file_type: 'pdf',
         file_name: 'caregiver-support-reflection.pdf',
         rtl: false,

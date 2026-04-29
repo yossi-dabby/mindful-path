@@ -500,18 +500,18 @@ describe('Phase 4C — Language: unsupported languages fall back to English', ()
     }
   });
 
-  it('all approved forms fall back to English for German requests', () => {
+  it('all approved forms resolve in German when lang=de', () => {
     for (const form of approvedForms) {
       const result = resolveFormWithLanguage(form.id, 'de');
-      expect(result, `${form.id} should resolve in German via English fallback`).not.toBeNull();
-      expect(result.language).toBe('en');
+      expect(result, `${form.id} should resolve in German`).not.toBeNull();
+      expect(result.language).toBe('de');
     }
   });
 
   it('resolveFormIntent falls back to English for unsupported language', () => {
     expect(resolveFormIntent('thought-record', 'it')?.language).toBe('en');
     expect(resolveFormIntent('cognitive-distortions', 'it')?.language).toBe('en');
-    expect(resolveFormIntent('teen-emotion-regulation', 'de')?.language).toBe('en');
+    expect(resolveFormIntent('teen-emotion-regulation', 'pt')?.language).toBe('en');
     expect(resolveFormIntent('child-grounding', 'pt')?.language).toBe('en');
   });
 });

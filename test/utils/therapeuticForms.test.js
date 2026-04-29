@@ -869,7 +869,7 @@ describe('TherapeuticForms Phase 1B — language fallback to English', () => {
   it('falls back to English for German', () => {
     const result = resolveFormWithLanguage('tf-adolescents-anxiety-thought-record', 'de');
     expect(result).not.toBeNull();
-    expect(result.language).toBe('en');
+    expect(result.language).toBe('de');
   });
 });
 
@@ -1249,14 +1249,14 @@ describe('TherapeuticForms Phase 4A — unsupported languages fall back to Engli
     }
   });
 
-  it('Phase 4A forms fall back to English for de, it, pt (no assets for these)', () => {
+  it('Phase 4A forms fall back to English for it, pt (no assets for these)', () => {
     const sampleIds = [
       'tf-children-box-breathing',
       'tf-adolescents-social-pressure-coping-tool',
       'tf-adults-values-and-goals-worksheet',
       'tf-older-adults-sleep-routine-reflection',
     ];
-    const unsupportedLangs = ['de', 'it', 'pt'];
+    const unsupportedLangs = ['it', 'pt'];
     for (const id of sampleIds) {
       for (const lang of unsupportedLangs) {
         const result = resolveFormWithLanguage(id, lang);

@@ -17,6 +17,9 @@
  *
  * Phase 6 (French) update:
  *   French (fr) language blocks added for all six adults entries.
+ *
+ * Phase 7 (German) update:
+ *   German (de) language blocks added for all six adults entries.
  */
 
 /** @type {import('./types.js').TherapeuticForm[]} */
@@ -58,6 +61,14 @@ export const FORMS_ADULTS = [
         title: 'Journal des Pensées TCC',
         description: 'Un journal des pensées TCC en sept colonnes pour examiner les pensées automatiques et développer des réponses équilibrées.',
         file_url: '/forms/fr/adults/cbt-thought-record.pdf',
+        file_type: 'pdf',
+        file_name: 'cbt-thought-record.pdf',
+        rtl: false,
+      },
+      de: {
+        title: 'KVT-Gedankenprotokoll',
+        description: 'Ein siebenspaltige KVT-Gedankenprotokoll zur Untersuchung automatischer Gedanken und Entwicklung ausgewogener Reaktionen.',
+        file_url: '/forms/de/adults/cbt-thought-record.pdf',
         file_type: 'pdf',
         file_name: 'cbt-thought-record.pdf',
         rtl: false,
@@ -107,6 +118,14 @@ export const FORMS_ADULTS = [
         file_name: 'behavioral-activation-plan.pdf',
         rtl: false,
       },
+      de: {
+        title: 'Verhaltensaktivierungsplan',
+        description: 'Ein praktisches Arbeitsblatt zur Planung angenehmer oder bedeutungsvoller Aktivitäten zur schrittweisen Stimmungsaufhellung.',
+        file_url: '/forms/de/adults/behavioral-activation-plan.pdf',
+        file_type: 'pdf',
+        file_name: 'behavioral-activation-plan.pdf',
+        rtl: false,
+      },
     },
     created_at: '2025-04-27T00:00:00.000Z',
     updated_at: '2025-04-27T00:00:00.000Z',
@@ -148,6 +167,14 @@ export const FORMS_ADULTS = [
         title: 'Fiche des Distorsions Cognitives',
         description: 'Une fiche de référence et de réflexion listant les distorsions cognitives courantes avec un espace pour des exemples personnels.',
         file_url: '/forms/fr/adults/cognitive-distortions-worksheet.pdf',
+        file_type: 'pdf',
+        file_name: 'cognitive-distortions-worksheet.pdf',
+        rtl: false,
+      },
+      de: {
+        title: 'Arbeitsblatt zu kognitiven Verzerrungen',
+        description: 'Ein Nachschlage- und Reflexionsblatt mit häufigen kognitiven Verzerrungen und Platz für persönliche Beispiele.',
+        file_url: '/forms/de/adults/cognitive-distortions-worksheet.pdf',
         file_type: 'pdf',
         file_name: 'cognitive-distortions-worksheet.pdf',
         rtl: false,
@@ -197,6 +224,14 @@ export const FORMS_ADULTS = [
         file_name: 'values-and-goals-worksheet.pdf',
         rtl: false,
       },
+      de: {
+        title: 'Werte- und Ziel-Arbeitsblatt',
+        description: 'Ein reflektives Arbeitsblatt zur Identifizierung persönlicher Werte und zum Setzen bedeutungsvoller Ziele.',
+        file_url: '/forms/de/adults/values-and-goals-worksheet.pdf',
+        file_type: 'pdf',
+        file_name: 'values-and-goals-worksheet.pdf',
+        rtl: false,
+      },
     },
     created_at: '2025-04-27T00:00:00.000Z',
     updated_at: '2025-04-27T00:00:00.000Z',
@@ -242,6 +277,14 @@ export const FORMS_ADULTS = [
         file_name: 'mood-tracking-sheet.pdf',
         rtl: false,
       },
+      de: {
+        title: 'Stimmungsverfolgungsblatt',
+        description: 'Ein tägliches Verfolgungsblatt zur Überwachung von Stimmungsmustern und Identifizierung von Faktoren, die das Wohlbefinden beeinflussen.',
+        file_url: '/forms/de/adults/mood-tracking-sheet.pdf',
+        file_type: 'pdf',
+        file_name: 'mood-tracking-sheet.pdf',
+        rtl: false,
+      },
     },
     created_at: '2025-04-27T00:00:00.000Z',
     updated_at: '2025-04-27T00:00:00.000Z',
@@ -283,6 +326,14 @@ export const FORMS_ADULTS = [
         title: 'Plan de Gestion Hebdomadaire',
         description: 'Un plan hebdomadaire structuré pour construire et utiliser des stratégies personnelles de gestion du stress.',
         file_url: '/forms/fr/adults/weekly-coping-plan.pdf',
+        file_type: 'pdf',
+        file_name: 'weekly-coping-plan.pdf',
+        rtl: false,
+      },
+      de: {
+        title: 'Wöchentlicher Bewältigungsplan',
+        description: 'Ein strukturierter Wochenplan zum Aufbau und zur Nutzung persönlicher Bewältigungsstrategien.',
+        file_url: '/forms/de/adults/weekly-coping-plan.pdf',
         file_type: 'pdf',
         file_name: 'weekly-coping-plan.pdf',
         rtl: false,
