@@ -663,11 +663,11 @@ describe('Phase 4B — Unsupported language falls back to English', () => {
     expect(meta.url).toContain('/fr/');
   });
 
-  it('cognitive-distortions in Italian falls back to English', () => {
+  it('cognitive-distortions in Italian resolves to Italian (it now has assets)', () => {
     const meta = resolveFormIntent('cognitive-distortions', 'it');
     expect(meta).not.toBeNull();
-    expect(meta.language).toBe('en');
-    expect(meta.url).toContain('/en/');
+    expect(meta.language).toBe('it');
+    expect(meta.url).toContain('/it/');
   });
 
   it('sleep-routine in Spanish resolves in Spanish (es now has real assets)', () => {
