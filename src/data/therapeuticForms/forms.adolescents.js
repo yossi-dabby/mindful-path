@@ -21,9 +21,11 @@
  * Phase 7 (German) update:
  *   German (de) language blocks added for all four adolescents entries.
  *
- * Phase 8 (Portuguese) update:
+ * Phase 8 (Italian) update:
+ *   Italian (it) language blocks added for all four adolescents entries.
+ *
+ * Phase 9 (Portuguese) update:
  *   Portuguese (pt) language blocks added for all four adolescents entries.
- */
 
 /** @type {import('./types.js').TherapeuticForm[]} */
 export const FORMS_ADOLESCENTS = [
@@ -76,6 +78,14 @@ export const FORMS_ADOLESCENTS = [
         title: 'Angst-Gedankenprotokoll',
         description: 'Ein strukturiertes Arbeitsblatt zur Untersuchung und Herausforderung ängstlicher Gedanken.',
         file_url: '/forms/de/adolescents/anxiety-thought-record.pdf',
+        file_type: 'pdf',
+        file_name: 'anxiety-thought-record.pdf',
+        rtl: false,
+      },
+      it: {
+        title: 'Registro dei Pensieri d\'Ansia',
+        description: 'Un foglio di lavoro strutturato per esaminare e sfidare i pensieri ansiosi.',
+        file_url: '/forms/it/adolescents/anxiety-thought-record.pdf',
         file_type: 'pdf',
         file_name: 'anxiety-thought-record.pdf',
         rtl: false,
@@ -145,6 +155,14 @@ export const FORMS_ADOLESCENTS = [
         file_name: 'emotion-regulation-worksheet.pdf',
         rtl: false,
       },
+      it: {
+        title: 'Foglio di Lavoro per la Regolazione Emotiva',
+        description: 'Un foglio per tracciare i fattori scatenanti emotivi, l\'intensità e le risposte sane.',
+        file_url: '/forms/it/adolescents/emotion-regulation-worksheet.pdf',
+        file_type: 'pdf',
+        file_name: 'emotion-regulation-worksheet.pdf',
+        rtl: false,
+      },
       pt: {
         title: 'Folha de Regulação Emocional',
         description: 'Uma folha para registrar gatilhos emocionais, intensidade e respostas saudáveis.',
@@ -210,6 +228,14 @@ export const FORMS_ADOLESCENTS = [
         file_name: 'weekly-practice-planner.pdf',
         rtl: false,
       },
+      it: {
+        title: 'Pianificatore di Pratica Settimanale',
+        description: 'Un pianificatore settimanale per programmare e riflettere sulle attività terapeutiche.',
+        file_url: '/forms/it/adolescents/weekly-practice-planner.pdf',
+        file_type: 'pdf',
+        file_name: 'weekly-practice-planner.pdf',
+        rtl: false,
+      },
       pt: {
         title: 'Planejador de Prática Semanal',
         description: 'Um planejador semanal para organizar e refletir sobre atividades terapêuticas.',
@@ -271,6 +297,14 @@ export const FORMS_ADOLESCENTS = [
         title: 'Bewältigungstool für sozialen Druck',
         description: 'Ein Arbeitsblatt, das Jugendlichen hilft, sozialen Druck zu erkennen und selbstbewusste Reaktionen zu üben.',
         file_url: '/forms/de/adolescents/social-pressure-coping-tool.pdf',
+        file_type: 'pdf',
+        file_name: 'social-pressure-coping-tool.pdf',
+        rtl: false,
+      },
+      it: {
+        title: 'Strumento per Affrontare la Pressione Sociale',
+        description: 'Un foglio di lavoro per aiutare gli adolescenti a identificare le pressioni sociali e praticare risposte assertive.',
+        file_url: '/forms/it/adolescents/social-pressure-coping-tool.pdf',
         file_type: 'pdf',
         file_name: 'social-pressure-coping-tool.pdf',
         rtl: false,

@@ -213,11 +213,11 @@ describe('Phase 3 — unsupported language falls back to English', () => {
     expect(meta.url).toContain('/fr/');
   });
 
-  it('CBT Thought Record in Italian falls back to English (it has no assets)', () => {
+  it('CBT Thought Record in Italian resolves to Italian (it now has assets)', () => {
     const meta = resolveFormIntent('tf-adults-cbt-thought-record', 'it');
     expect(meta).not.toBeNull();
-    expect(meta.language).toBe('en');
-    expect(meta.url).toContain('/en/');
+    expect(meta.language).toBe('it');
+    expect(meta.url).toContain('/it/');
   });
 
   it('falls back to English when lang is omitted', () => {

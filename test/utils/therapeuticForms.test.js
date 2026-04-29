@@ -860,10 +860,10 @@ describe('TherapeuticForms Phase 1B — language fallback to English', () => {
     expect(result.language).toBe('fr');
   });
 
-  it('falls back to English for Italian (it has no assets)', () => {
+  it('falls back to English for Italian (it now has real assets)', () => {
     const result = resolveFormWithLanguage('tf-adults-behavioral-activation-plan', 'it');
     expect(result).not.toBeNull();
-    expect(result.language).toBe('en');
+    expect(result.language).toBe('it');
   });
 
   it('falls back to English for German', () => {
@@ -1249,21 +1249,18 @@ describe('TherapeuticForms Phase 4A — unsupported languages fall back to Engli
     }
   });
 
-  it('Phase 4A forms fall back to English for it (no assets for these)', () => {
+  it('Phase 4A forms fall back to English for zh (no assets for zh)', () => {
     const sampleIds = [
       'tf-children-box-breathing',
       'tf-adolescents-social-pressure-coping-tool',
       'tf-adults-values-and-goals-worksheet',
       'tf-older-adults-sleep-routine-reflection',
     ];
-    const unsupportedLangs = ['it'];
     for (const id of sampleIds) {
-      for (const lang of unsupportedLangs) {
-        const result = resolveFormWithLanguage(id, lang);
-        expect(result, `${id} should fall back for lang=${lang}`).not.toBeNull();
-        expect(result.language, `${id} should fall back to English for lang=${lang}`).toBe('en');
-        expect(result.languageData.rtl).toBe(false);
-      }
+      const result = resolveFormWithLanguage(id, 'zh');
+      expect(result, `${id} should fall back for lang=zh`).not.toBeNull();
+      expect(result.language, `${id} should fall back to English for lang=zh`).toBe('en');
+      expect(result.languageData.rtl).toBe(false);
     }
   });
 });
