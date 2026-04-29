@@ -223,10 +223,10 @@ describe('Spanish integration — toGeneratedFileMetadata works for Spanish', ()
 });
 
 describe('Spanish integration — fallback behavior', () => {
-  it('16. Unsupported language (fr) still falls back to English for all 18 forms', () => {
+  it('16. Unsupported language (it) still falls back to English for all 18 forms', () => {
     for (const form of APPROVED_FORMS) {
-      const resolved = resolveFormWithLanguage(form.id, 'fr');
-      expect(resolved, `Form ${form.id} failed to resolve with fr fallback`).not.toBeNull();
+      const resolved = resolveFormWithLanguage(form.id, 'it');
+      expect(resolved, `Form ${form.id} failed to resolve with it fallback`).not.toBeNull();
       expect(resolved.language).toBe('en');
       expect(resolved.languageData.file_url).toMatch(/^\/forms\/en\//);
     }
