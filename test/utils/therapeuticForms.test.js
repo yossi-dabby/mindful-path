@@ -1249,14 +1249,14 @@ describe('TherapeuticForms Phase 4A — unsupported languages fall back to Engli
     }
   });
 
-  it('Phase 4A forms fall back to English for it, pt (no assets for these)', () => {
+  it('Phase 4A forms fall back to English for it (no assets for these)', () => {
     const sampleIds = [
       'tf-children-box-breathing',
       'tf-adolescents-social-pressure-coping-tool',
       'tf-adults-values-and-goals-worksheet',
       'tf-older-adults-sleep-routine-reflection',
     ];
-    const unsupportedLangs = ['it', 'pt'];
+    const unsupportedLangs = ['it'];
     for (const id of sampleIds) {
       for (const lang of unsupportedLangs) {
         const result = resolveFormWithLanguage(id, lang);

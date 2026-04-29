@@ -511,8 +511,8 @@ describe('Phase 4C — Language: unsupported languages fall back to English', ()
   it('resolveFormIntent falls back to English for unsupported language', () => {
     expect(resolveFormIntent('thought-record', 'it')?.language).toBe('en');
     expect(resolveFormIntent('cognitive-distortions', 'it')?.language).toBe('en');
-    expect(resolveFormIntent('teen-emotion-regulation', 'pt')?.language).toBe('en');
-    expect(resolveFormIntent('child-grounding', 'pt')?.language).toBe('en');
+    expect(resolveFormIntent('teen-emotion-regulation', 'zh')?.language).toBe('en');
+    expect(resolveFormIntent('child-grounding', 'zh')?.language).toBe('en');
   });
 });
 
