@@ -52,6 +52,7 @@ const DOWNLOAD_UTIL_SRC = fs.readFileSync(path.join(ROOT, 'src/components/chat/u
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const APPROVED_FORMS = ALL_FORMS.filter((f) => f.approved);
+const STANDARD_FORMS = APPROVED_FORMS.filter((f) => f.type !== 'therapeutic_workbook');
 const APP_LANGUAGES  = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -193,7 +194,8 @@ describe('Phase 5 — i18n: download_form key in all 7 languages', () => {
   });
 });
 
-describe('Phase 5 — PDF assets: 36 PDFs exist and are non-empty', () => {
+describe('Phase 5 — PDF assets: 36 standard PDFs + 7 workbook PDFs exist and are non-empty', () => {
+  // Standard forms have both EN and HE; workbooks have HE only.
   const expectedPdfs = APPROVED_FORMS.flatMap((form) => {
     const entries = [];
     const enData = form.languages?.en;
@@ -203,8 +205,21 @@ describe('Phase 5 — PDF assets: 36 PDFs exist and are non-empty', () => {
     return entries;
   });
 
-  it('27. Exactly 36 PDF paths are referenced by approved forms (18 EN + 18 HE)', () => {
-    expect(expectedPdfs.length).toBe(36);
+  it('27. Exactly 36 PDF paths are referenced by standard forms (18 EN + 18 HE)', () => {
+    // Standard forms only (18 × 2 = 36)
+    const standardPdfs = STANDARD_FORMS.flatMap((form) => {
+      const entries = [];
+      if (form.languages?.en?.file_url) entries.push(form.languages.en.file_url);
+      if (form.languages?.he?.file_url) entries.push(form.languages.he.file_url);
+      return entries;
+    });
+    expect(standardPdfs.length).toBe(36);
+  });
+
+  it('27b. Exactly 7 additional Hebrew PDF paths are referenced by workbooks', () => {
+    const workbookPdfs = APPROVED_FORMS.filter(f => f.type === 'therapeutic_workbook')
+      .flatMap(f => f.languages?.he?.file_url ? [f.languages.he.file_url] : []);
+    expect(workbookPdfs.length).toBe(7);
   });
 
   for (const { lang, url } of expectedPdfs) {
@@ -222,19 +237,23 @@ describe('Phase 5 — PDF assets: 36 PDFs exist and are non-empty', () => {
   }
 });
 
-describe('Phase 5 — Regression: 18 approved forms still resolve', () => {
-  it('30. Exactly 18 forms are approved', () => {
-    expect(APPROVED_FORMS.length).toBe(18);
+describe('Phase 5 — Regression: 18 standard forms + 7 workbooks still resolve', () => {
+  it('30. Exactly 18 standard forms are approved', () => {
+    expect(STANDARD_FORMS.length).toBe(18);
   });
 
-  it('31. All 18 approved forms resolve in English', () => {
-    for (const form of APPROVED_FORMS) {
+  it('30b. Exactly 25 total forms are approved (18 standard + 7 Hebrew workbooks)', () => {
+    expect(APPROVED_FORMS.length).toBe(25);
+  });
+
+  it('31. All 18 standard forms resolve in English', () => {
+    for (const form of STANDARD_FORMS) {
       const resolved = resolveFormWithLanguage(form.id, 'en');
       expect(resolved, `Form ${form.id} failed to resolve in English`).not.toBeNull();
     }
   });
 
-  it('32. All 18 approved forms resolve in Hebrew', () => {
+  it('32. All approved forms resolve in Hebrew', () => {
     for (const form of APPROVED_FORMS) {
       const resolved = resolveFormWithLanguage(form.id, 'he');
       expect(resolved, `Form ${form.id} failed to resolve in Hebrew`).not.toBeNull();

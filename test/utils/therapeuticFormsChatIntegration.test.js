@@ -37,6 +37,8 @@ import {
   FORM_INTENT_MARKER_PATTERN,
 } from '../../src/utils/resolveFormIntent.js';
 
+import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
+
 import { normalizeGeneratedFile } from '../../src/components/chat/utils/normalizeGeneratedFile.js';
 
 import { sanitizeConversationMessages } from '../../src/components/utils/validateAgentOutput.jsx';
@@ -163,11 +165,13 @@ describe('Phase 3/4B — unapproved forms cannot be selected', () => {
 
 describe('Phase 3 — forms with missing file_url cannot be selected', () => {
   it('APPROVED_FORM_INTENT_MAP only maps forms with real approved assets', () => {
-    // All values in the intent map should resolve to non-null metadata
-    // (which requires approved: true AND valid file_url)
+    // All values in the intent map should resolve to non-null metadata in their primary language
+    // Standard forms resolve in English; Hebrew workbooks resolve in Hebrew only.
+    const WORKBOOK_IDS = new Set(ALL_FORMS.filter(f => f.type === 'therapeutic_workbook').map(f => f.id));
     const uniqueFormIds = new Set(Object.values(APPROVED_FORM_INTENT_MAP));
     for (const formId of uniqueFormIds) {
-      const meta = resolveFormIntent(formId, 'en');
+      const lang = WORKBOOK_IDS.has(formId) ? 'he' : 'en';
+      const meta = resolveFormIntent(formId, lang);
       expect(meta, `${formId} must resolve with valid file_url`).not.toBeNull();
       expect(meta.url, `${formId} url must not be empty`).toBeTruthy();
     }
@@ -610,9 +614,12 @@ describe('Phase 3/4B — APPROVED_FORM_INTENT_MAP structure', () => {
 // ─── 21. All APPROVED_FORM_INTENT_MAP values resolve from live registry ───────
 
 describe('Phase 3 — all APPROVED_FORM_INTENT_MAP values resolve from live registry', () => {
-  it('every mapped form ID resolves successfully in English', () => {
+  const WORKBOOK_IDS = new Set(ALL_FORMS.filter(f => f.type === 'therapeutic_workbook').map(f => f.id));
+
+  it('every mapped standard form ID resolves successfully in English', () => {
     const uniqueFormIds = new Set(Object.values(APPROVED_FORM_INTENT_MAP));
     for (const formId of uniqueFormIds) {
+      if (WORKBOOK_IDS.has(formId)) continue; // Hebrew-only workbooks only resolve in Hebrew
       const meta = resolveFormIntent(formId, 'en');
       expect(meta, `${formId} must resolve`).not.toBeNull();
       expect(meta.url, `${formId} must have url`).toBeTruthy();

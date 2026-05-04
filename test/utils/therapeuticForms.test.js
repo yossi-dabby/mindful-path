@@ -953,10 +953,10 @@ describe('TherapeuticForms Phase 1B — toGeneratedFileMetadata for real forms',
 // ─── 18. No fake/missing file links ───────────────────────────────────────────
 
 describe('TherapeuticForms Phase 1B — no fake file links', () => {
-  it('every form returned by listFormsByAudience has non-empty languageData when resolved', () => {
+  it('every standard form returned by listFormsByAudience has non-empty languageData when resolved in English', () => {
     const audiences = ['children', 'adolescents', 'adults', 'older_adults'];
     for (const audience of audiences) {
-      const forms = listFormsByAudience(audience);
+      const forms = listFormsByAudience(audience).filter(f => f.type !== 'therapeutic_workbook');
       for (const form of forms) {
         const resolved = resolveFormWithLanguage(form.id, 'en');
         expect(resolved, `${form.id} must resolve successfully`).not.toBeNull();
@@ -965,8 +965,18 @@ describe('TherapeuticForms Phase 1B — no fake file links', () => {
     }
   });
 
-  it('no approved form returns an undefined file_url', () => {
-    const approvedForms = ALL_FORMS.filter(f => f.approved);
+  it('every workbook form returned by listFormsByAudience has non-empty Hebrew languageData', () => {
+    const forms = listFormsByAudience('adults').filter(f => f.type === 'therapeutic_workbook');
+    expect(forms.length).toBe(7);
+    for (const form of forms) {
+      const resolved = resolveFormWithLanguage(form.id, 'he');
+      expect(resolved, `${form.id} must resolve in Hebrew`).not.toBeNull();
+      expect(resolved.languageData.file_url.trim()).not.toBe('');
+    }
+  });
+
+  it('no approved standard form returns an undefined file_url in English', () => {
+    const approvedForms = ALL_FORMS.filter(f => f.approved && f.type !== 'therapeutic_workbook');
     for (const form of approvedForms) {
       const resolved = resolveFormWithLanguage(form.id, 'en');
       expect(resolved).not.toBeNull();

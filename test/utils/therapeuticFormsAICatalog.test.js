@@ -58,14 +58,14 @@ describe('Phase 4D — buildTherapistFormCatalog: basic output', () => {
   });
 });
 
-// ─── 2–4. All 18 approved form IDs present ────────────────────────────────────
+// ─── 2–4. All 25 approved form IDs present ────────────────────────────────────
 
-describe('Phase 4D — buildTherapistFormCatalog: all 18 approved forms present', () => {
-  it('registry has exactly 18 approved forms', () => {
-    expect(approvedForms.length).toBe(18);
+describe('Phase 4D — buildTherapistFormCatalog: all 25 approved forms present', () => {
+  it('registry has exactly 25 approved forms (18 standard + 7 Hebrew workbooks)', () => {
+    expect(approvedForms.length).toBe(25);
   });
 
-  it('catalog contains all 18 approved form ID markers', () => {
+  it('catalog contains all 25 approved form ID markers', () => {
     for (const form of approvedForms) {
       expect(catalog, `Catalog must include [FORM:${form.id}]`).toContain(`[FORM:${form.id}]`);
     }
@@ -76,9 +76,9 @@ describe('Phase 4D — buildTherapistFormCatalog: all 18 approved forms present'
     expect(markerCount).toBeGreaterThan(2);
   });
 
-  it('catalog total form count is 18', () => {
+  it('catalog total form count is 25', () => {
     const markerCount = (catalog.match(/\[FORM:[a-z0-9_-]+\]/g) || []).length;
-    expect(markerCount).toBe(18);
+    expect(markerCount).toBe(25);
   });
 });
 
@@ -124,7 +124,7 @@ describe('Phase 4D — buildTherapistFormCatalog: no URLs (client resolves file 
 
 // ─── 9–12. Audience-specific form lists ──────────────────────────────────────
 
-describe('Phase 4D — buildTherapistFormCatalog: 6 adult forms present', () => {
+describe('Phase 4D — buildTherapistFormCatalog: 13 adult forms present (6 standard + 7 workbooks)', () => {
   it('includes tf-adults-cbt-thought-record', () => {
     expect(catalog).toContain('[FORM:tf-adults-cbt-thought-record]');
   });
@@ -147,6 +147,34 @@ describe('Phase 4D — buildTherapistFormCatalog: 6 adult forms present', () => 
 
   it('includes tf-adults-weekly-coping-plan', () => {
     expect(catalog).toContain('[FORM:tf-adults-weekly-coping-plan]');
+  });
+
+  it('includes tf-adults-formulation-mapping-premium-he', () => {
+    expect(catalog).toContain('[FORM:tf-adults-formulation-mapping-premium-he]');
+  });
+
+  it('includes tf-adults-awareness-identification-premium-he', () => {
+    expect(catalog).toContain('[FORM:tf-adults-awareness-identification-premium-he]');
+  });
+
+  it('includes tf-adults-cognitive-flexibility-premium-he', () => {
+    expect(catalog).toContain('[FORM:tf-adults-cognitive-flexibility-premium-he]');
+  });
+
+  it('includes tf-adults-emotional-regulation-premium-he', () => {
+    expect(catalog).toContain('[FORM:tf-adults-emotional-regulation-premium-he]');
+  });
+
+  it('includes tf-adults-coping-change-premium-he', () => {
+    expect(catalog).toContain('[FORM:tf-adults-coping-change-premium-he]');
+  });
+
+  it('includes tf-adults-strengths-resilience-premium-he', () => {
+    expect(catalog).toContain('[FORM:tf-adults-strengths-resilience-premium-he]');
+  });
+
+  it('includes tf-adults-treatment-summary-custom-forms-premium-he', () => {
+    expect(catalog).toContain('[FORM:tf-adults-treatment-summary-custom-forms-premium-he]');
   });
 });
 

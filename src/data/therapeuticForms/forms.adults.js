@@ -26,6 +26,11 @@
  *
  * Phase 9 (Portuguese) update:
  *   Portuguese (pt) language blocks added for all six adults entries.
+ *
+ * Phase 10 (Hebrew workbooks) update:
+ *   Seven Hebrew premium therapeutic workbook entries added.
+ *   These are Hebrew-only (he block only); they carry type: 'therapeutic_workbook'
+ *   and category: 'workbook_series'.
 
 /** @type {import('./types.js').TherapeuticForm[]} */
 export const FORMS_ADULTS = [
@@ -442,5 +447,160 @@ export const FORMS_ADULTS = [
     },
     created_at: '2025-04-27T00:00:00.000Z',
     updated_at: '2025-04-27T00:00:00.000Z',
+  },
+  // ─── Hebrew Premium Therapeutic Workbooks ────────────────────────────────────
+  {
+    id: 'tf-adults-formulation-mapping-premium-he',
+    slug: 'adults-formulation-mapping-premium-he',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full therapeutic workbook for case formulation and mapping — understanding the full picture of the presenting problem.',
+    approved: true,
+    tags: ['workbook', 'formulation', 'mapping', 'adults', 'he'],
+    languages: {
+      he: {
+        title: 'קונטרס מיפוי והמשגה',
+        description: 'קונטרס טיפולי מלא לניסוח מקרה והמשגה — מיפוי התמונה הכוללת של הקושי.',
+        file_url: '/forms/he/adults/adults-formulation-mapping-premium-he.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-formulation-mapping-premium-he.pdf',
+        rtl: true,
+      },
+    },
+    created_at: '2025-05-04T00:00:00.000Z',
+    updated_at: '2025-05-04T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-awareness-identification-premium-he',
+    slug: 'adults-awareness-identification-premium-he',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full therapeutic workbook for identifying thoughts, emotions, sensations, and behaviors.',
+    approved: true,
+    tags: ['workbook', 'awareness', 'identification', 'thoughts', 'emotions', 'adults', 'he'],
+    languages: {
+      he: {
+        title: 'קונטרס זיהוי מחשבות, רגשות, תחושות והתנהגות',
+        description: 'קונטרס טיפולי מלא לזיהוי וניטור מחשבות, רגשות, תחושות גוף והתנהגות.',
+        file_url: '/forms/he/adults/adults-awareness-identification-premium-he.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-awareness-identification-premium-he.pdf',
+        rtl: true,
+      },
+    },
+    created_at: '2025-05-04T00:00:00.000Z',
+    updated_at: '2025-05-04T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-cognitive-flexibility-premium-he',
+    slug: 'adults-cognitive-flexibility-premium-he',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full therapeutic workbook for challenging automatic thoughts and developing cognitive flexibility.',
+    approved: true,
+    tags: ['workbook', 'cognitive', 'flexibility', 'challenging-thoughts', 'adults', 'he'],
+    languages: {
+      he: {
+        title: 'קונטרס הפרכת מחשבות וגמישות מחשבתית',
+        description: 'קונטרס טיפולי מלא לערעור מחשבות אוטומטיות ופיתוח גמישות מחשבתית.',
+        file_url: '/forms/he/adults/adults-cognitive-flexibility-premium-he.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-cognitive-flexibility-premium-he.pdf',
+        rtl: true,
+      },
+    },
+    created_at: '2025-05-04T00:00:00.000Z',
+    updated_at: '2025-05-04T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-emotional-regulation-premium-he',
+    slug: 'adults-emotional-regulation-premium-he',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full therapeutic workbook for identifying and regulating strong emotions.',
+    approved: true,
+    tags: ['workbook', 'emotional-regulation', 'emotions', 'adults', 'he'],
+    languages: {
+      he: {
+        title: 'קונטרס זיהוי וויסות רגשי',
+        description: 'קונטרס טיפולי מלא לזיהוי רגשות חזקים וויסות רגשי.',
+        file_url: '/forms/he/adults/adults-emotional-regulation-premium-he.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-emotional-regulation-premium-he.pdf',
+        rtl: true,
+      },
+    },
+    created_at: '2025-05-04T00:00:00.000Z',
+    updated_at: '2025-05-04T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-coping-change-premium-he',
+    slug: 'adults-coping-change-premium-he',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full therapeutic workbook for coping strategies and behavior change.',
+    approved: true,
+    tags: ['workbook', 'coping', 'change', 'behavior', 'adults', 'he'],
+    languages: {
+      he: {
+        title: 'קונטרס התמודדות ושינוי',
+        description: 'קונטרס טיפולי מלא לפיתוח מיומנויות התמודדות ושינוי התנהגות.',
+        file_url: '/forms/he/adults/adults-coping-change-premium-he.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-coping-change-premium-he.pdf',
+        rtl: true,
+      },
+    },
+    created_at: '2025-05-04T00:00:00.000Z',
+    updated_at: '2025-05-04T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-strengths-resilience-premium-he',
+    slug: 'adults-strengths-resilience-premium-he',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full therapeutic workbook for building on personal strengths and resilience.',
+    approved: true,
+    tags: ['workbook', 'strengths', 'resilience', 'adults', 'he'],
+    languages: {
+      he: {
+        title: 'קונטרס כוחות וחוסן',
+        description: 'קונטרס טיפולי מלא לחיזוק כוחות אישיים ובניית חוסן.',
+        file_url: '/forms/he/adults/adults-strengths-resilience-premium-he.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-strengths-resilience-premium-he.pdf',
+        rtl: true,
+      },
+    },
+    created_at: '2025-05-04T00:00:00.000Z',
+    updated_at: '2025-05-04T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-treatment-summary-custom-forms-premium-he',
+    slug: 'adults-treatment-summary-custom-forms-premium-he',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full therapeutic workbook for treatment summary and personalized custom forms.',
+    approved: true,
+    tags: ['workbook', 'treatment-summary', 'custom-forms', 'adults', 'he'],
+    languages: {
+      he: {
+        title: 'קונטרס סיכום טיפול וטפסים אישיים',
+        description: 'קונטרס טיפולי מלא לסיכום תהליך הטיפול ובניית טפסים מותאמים אישית.',
+        file_url: '/forms/he/adults/adults-treatment-summary-custom-forms-premium-he.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-treatment-summary-custom-forms-premium-he.pdf',
+        rtl: true,
+      },
+    },
+    created_at: '2025-05-04T00:00:00.000Z',
+    updated_at: '2025-05-04T00:00:00.000Z',
   },
 ];
