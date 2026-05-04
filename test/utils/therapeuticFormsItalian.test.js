@@ -52,7 +52,9 @@ function resolvePublicPath(fileUrl) {
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
-const APPROVED_FORMS = ALL_FORMS.filter((f) => f.approved === true);
+const APPROVED_FORMS = ALL_FORMS.filter((f) => f.approved === true && f.type !== 'therapeutic_workbook');
+// Hebrew premium workbooks are Hebrew-only; they are tested separately in therapeuticFormsWorkbooks.test.js.
+const WORKBOOK_FORM_IDS = new Set(ALL_FORMS.filter(f => f.type === 'therapeutic_workbook').map(f => f.id));
 
 // Expected Italian PDF paths keyed by form id
 const EXPECTED_ITALIAN_PATHS = {
@@ -393,8 +395,9 @@ describe('Italian integration — AI mappings unchanged', () => {
     expect(Object.keys(APPROVED_FORM_INTENT_MAP).length).toBeGreaterThan(0);
   });
 
-  it('33. Every AI mapping intent resolves to an approved form', () => {
+  it('33. Every AI mapping intent resolves to an approved standard form', () => {
     for (const [intent, formId] of Object.entries(APPROVED_FORM_INTENT_MAP)) {
+      if (WORKBOOK_FORM_IDS.has(formId)) continue; // Hebrew-only workbooks only resolve in Hebrew
       const resolved = resolveFormWithLanguage(formId, 'en');
       expect(
         resolved,
@@ -403,8 +406,9 @@ describe('Italian integration — AI mappings unchanged', () => {
     }
   });
 
-  it('34. Every AI mapping intent still resolves in Italian after the update', () => {
+  it('34. Every AI mapping intent still resolves in Italian after the update (standard forms)', () => {
     for (const [intent, formId] of Object.entries(APPROVED_FORM_INTENT_MAP)) {
+      if (WORKBOOK_FORM_IDS.has(formId)) continue; // Hebrew-only workbooks only resolve in Hebrew
       const resolved = resolveFormWithLanguage(formId, 'it');
       expect(
         resolved,

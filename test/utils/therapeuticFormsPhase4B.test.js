@@ -36,6 +36,8 @@ import {
   FORM_INTENT_MARKER_PATTERN,
 } from '../../src/utils/resolveFormIntent.js';
 
+import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
+
 // ─── 1. Adults: Cognitive Distortions ────────────────────────────────────────
 
 describe('Phase 4B — Adults: Cognitive Distortions Worksheet', () => {
@@ -761,10 +763,12 @@ describe('Phase 4B — No arbitrary URL injection is possible', () => {
 // ─── 25. All APPROVED_FORM_INTENT_MAP values resolve from live registry ───────
 
 describe('Phase 4B — All APPROVED_FORM_INTENT_MAP values resolve from live registry', () => {
-  it('every value in the map resolves to valid metadata', () => {
+  it('every value in the map resolves to valid metadata in its primary language', () => {
+    const WORKBOOK_IDS = new Set(ALL_FORMS.filter(f => f.type === 'therapeutic_workbook').map(f => f.id));
     const uniqueFormIds = new Set(Object.values(APPROVED_FORM_INTENT_MAP));
     for (const formId of uniqueFormIds) {
-      const meta = resolveFormIntent(formId, 'en');
+      const lang = WORKBOOK_IDS.has(formId) ? 'he' : 'en';
+      const meta = resolveFormIntent(formId, lang);
       expect(meta, `${formId} must resolve with valid file_url`).not.toBeNull();
       expect(meta.url, `${formId} url must not be empty`).toBeTruthy();
       expect(meta.source).toBe('therapeutic_forms_library');

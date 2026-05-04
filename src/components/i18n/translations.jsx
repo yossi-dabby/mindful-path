@@ -1448,6 +1448,7 @@ export const translations = {
           coping_tools: "Coping Tools",
           weekly_practice: "Weekly Practice",
           reflection_journal: "Reflection Journal",
+          workbook_series: "Therapeutic Workbooks",
         },
       },
       pull_to_refresh: {
@@ -2905,6 +2906,7 @@ export const translations = {
           coping_tools: "כלי התמודדות",
           weekly_practice: "תרגול שבועי",
           reflection_journal: "יומן רפלקציה",
+          workbook_series: "קונטרסים טיפוליים",
         },
       },
       pull_to_refresh: {
@@ -4319,6 +4321,7 @@ export const translations = {
           coping_tools: "Herramientas de afrontamiento",
           weekly_practice: "Práctica semanal",
           reflection_journal: "Diario de reflexión",
+          workbook_series: "Cuadernos terapéuticos",
         },
       },
       pull_to_refresh: {
@@ -5732,6 +5735,7 @@ export const translations = {
           coping_tools: "Outils d'adaptation",
           weekly_practice: "Pratique hebdomadaire",
           reflection_journal: "Journal de réflexion",
+          workbook_series: "Cahiers thérapeutiques",
         },
       },
       pull_to_refresh: {
@@ -7145,6 +7149,7 @@ export const translations = {
           coping_tools: "Bewältigungswerkzeuge",
           weekly_practice: "Wöchentliche Praxis",
           reflection_journal: "Reflexionstagebuch",
+          workbook_series: "Therapeutische Arbeitsbücher",
         },
       },
       pull_to_refresh: {
@@ -8558,6 +8563,7 @@ export const translations = {
           coping_tools: "Strumenti di coping",
           weekly_practice: "Pratica settimanale",
           reflection_journal: "Diario di riflessione",
+          workbook_series: "Quaderni terapeutici",
         },
       },
       pull_to_refresh: {
@@ -9971,6 +9977,7 @@ export const translations = {
           coping_tools: "Ferramentas de enfrentamento",
           weekly_practice: "Prática semanal",
           reflection_journal: "Diário de reflexão",
+          workbook_series: "Cadernos terapêuticos",
         },
       },
       pull_to_refresh: {

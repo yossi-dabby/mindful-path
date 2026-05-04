@@ -95,12 +95,15 @@ function decodeEnglishPdfContent(buffer) {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const approvedForms = ALL_FORMS.filter(f => f.approved === true);
+// Standard forms have multi-language assets; workbooks are Hebrew-only.
+const standardForms = approvedForms.filter(f => f.type !== 'therapeutic_workbook');
+const workbookForms = approvedForms.filter(f => f.type === 'therapeutic_workbook');
 
-// ─── 1. Every approved form has BOTH English AND Hebrew PDF assets ─────────────
+// ─── 1. Approved forms asset audit ────────────────────────────────────────────
 
-describe('Phase 4C — Asset Audit: every approved form has both EN and HE assets', () => {
-  it('all approved forms have an English language block with a non-empty file_url', () => {
-    for (const form of approvedForms) {
+describe('Phase 4C — Asset Audit: standard forms have both EN and HE assets', () => {
+  it('all approved standard forms have an English language block with a non-empty file_url', () => {
+    for (const form of standardForms) {
       const enBlock = form.languages?.en;
       expect(
         enBlock && typeof enBlock.file_url === 'string' && enBlock.file_url.trim() !== '',
@@ -119,8 +122,8 @@ describe('Phase 4C — Asset Audit: every approved form has both EN and HE asset
     }
   });
 
-  it('all English file_urls start with /forms/en/', () => {
-    for (const form of approvedForms) {
+  it('all standard form English file_urls start with /forms/en/', () => {
+    for (const form of standardForms) {
       const enUrl = form.languages?.en?.file_url;
       expect(
         enUrl?.startsWith('/forms/en/'),
@@ -162,13 +165,28 @@ describe('Phase 4C — Asset Audit: every approved form has both EN and HE asset
       }
     }
   });
+
+  it('all 7 Hebrew workbooks have only a Hebrew language block (no English block)', () => {
+    expect(workbookForms.length).toBe(7);
+    for (const form of workbookForms) {
+      expect(
+        form.languages?.en,
+        `Workbook "${form.id}" must not have an English block (Hebrew-only)`
+      ).toBeUndefined();
+      const heBlock = form.languages?.he;
+      expect(
+        heBlock && typeof heBlock.file_url === 'string' && heBlock.file_url.trim() !== '',
+        `Workbook "${form.id}" must have a valid Hebrew file_url`
+      ).toBe(true);
+    }
+  });
 });
 
 // ─── 2. Every approved form references a real file under public/forms ──────────
 
 describe('Phase 4C — Asset Audit: all approved form file_urls reference valid paths', () => {
-  it('every English file_url is a non-empty PDF path', () => {
-    for (const form of approvedForms) {
+  it('every standard form English file_url is a non-empty PDF path', () => {
+    for (const form of standardForms) {
       const url = form.languages?.en?.file_url;
       expect(url, `Form "${form.id}" English file_url must be a string`).toMatch(/^\/forms\/en\/.+\.pdf$/);
     }
@@ -181,8 +199,8 @@ describe('Phase 4C — Asset Audit: all approved form file_urls reference valid 
     }
   });
 
-  it('every approved form English block has file_type: "pdf"', () => {
-    for (const form of approvedForms) {
+  it('every approved standard form English block has file_type: "pdf"', () => {
+    for (const form of standardForms) {
       const enBlock = form.languages?.en;
       expect(enBlock?.file_type, `Form "${form.id}" English block must have file_type: pdf`).toBe('pdf');
     }
@@ -325,14 +343,14 @@ describe('Phase 4C — Safety: every AI-sendable form is approved in the registr
   });
 });
 
-// ─── 7. Every AI-sendable form has real English and Hebrew assets on disk ───────
+// ─── 7. Every AI-sendable form has real assets on disk ────────────────────────
 
 describe('Phase 4C — Safety: every AI-sendable form has real assets on disk', () => {
-  it('every AI-sendable form has an English PDF file on disk', () => {
+  it('every AI-sendable standard form has an English PDF file on disk', () => {
     const uniqueFormIds = new Set(Object.values(APPROVED_FORM_INTENT_MAP));
     for (const formId of uniqueFormIds) {
       const form = ALL_FORMS.find(f => f.id === formId);
-      if (!form) continue;
+      if (!form || form.type === 'therapeutic_workbook') continue; // workbooks are Hebrew-only
       const enUrl = form.languages?.en?.file_url;
       expect(enUrl, `Form "${formId}" must have an English file_url`).toBeTruthy();
       const filePath = resolvePublicPath(enUrl);
@@ -375,10 +393,13 @@ describe('Phase 4C — Safety: no AI mapping points to an unapproved form', () =
 
   it('every alias in APPROVED_FORM_INTENT_MAP resolves via resolveFormIntent', () => {
     for (const [alias, formId] of Object.entries(APPROVED_FORM_INTENT_MAP)) {
-      const meta = resolveFormIntent(alias, 'en');
+      // Workbooks are Hebrew-only; aliases resolve in Hebrew. Standard forms resolve in English.
+      const isWorkbook = formId.endsWith('-premium-he');
+      const lang = isWorkbook ? 'he' : 'en';
+      const meta = resolveFormIntent(alias, lang);
       expect(
         meta,
-        `Alias "${alias}" → "${formId}" must resolve to valid metadata`
+        `Alias "${alias}" → "${formId}" must resolve to valid metadata (lang=${lang})`
       ).not.toBeNull();
       expect(
         meta?.form_id,
@@ -433,17 +454,26 @@ describe('Phase 4C — Safety: no former-placeholder/unapproved form IDs resolve
     }
   });
 
-  it('listFormsByAudience returns only approved forms with real file_urls', () => {
+  it('listFormsByAudience returns only approved forms with real file_urls in their primary language', () => {
     const audiences = ['children', 'adolescents', 'adults', 'older_adults'];
     for (const audience of audiences) {
       const forms = listFormsByAudience(audience);
       for (const form of forms) {
         expect(form.approved, `${form.id} from listFormsByAudience must be approved`).toBe(true);
-        const enUrl = form.languages?.en?.file_url;
-        expect(
-          enUrl && enUrl.trim() !== '',
-          `${form.id} from listFormsByAudience must have a non-empty English file_url`
-        ).toBe(true);
+        if (form.type === 'therapeutic_workbook') {
+          // Hebrew-only workbooks have Hebrew file_url, not English
+          const heUrl = form.languages?.he?.file_url;
+          expect(
+            heUrl && heUrl.trim() !== '',
+            `${form.id} workbook must have a non-empty Hebrew file_url`
+          ).toBe(true);
+        } else {
+          const enUrl = form.languages?.en?.file_url;
+          expect(
+            enUrl && enUrl.trim() !== '',
+            `${form.id} from listFormsByAudience must have a non-empty English file_url`
+          ).toBe(true);
+        }
       }
     }
   });
@@ -477,11 +507,11 @@ describe('Phase 4C — Safety: no fake/missing URL can resolve', () => {
   });
 });
 
-// ─── 12. Unsupported languages fall back to English for all approved forms ─────
+// ─── 12. Language resolution: standard forms support all 7 languages; workbooks Hebrew-only ──
 
-describe('Phase 4C — Language: unsupported languages fall back to English', () => {
-  it('all approved forms resolve in French (fr now has real assets)', () => {
-    for (const form of approvedForms) {
+describe('Phase 4C — Language: unsupported languages fall back to English (standard forms)', () => {
+  it('all approved standard forms resolve in French (fr now has real assets)', () => {
+    for (const form of standardForms) {
       const result = resolveFormWithLanguage(form.id, 'fr');
       expect(result, `${form.id} should resolve in French`).not.toBeNull();
       expect(result.language, `${form.id} should resolve to French`).toBe('fr');
@@ -490,8 +520,8 @@ describe('Phase 4C — Language: unsupported languages fall back to English', ()
     }
   });
 
-  it('all approved forms resolve in Spanish (es now has real assets)', () => {
-    for (const form of approvedForms) {
+  it('all approved standard forms resolve in Spanish (es now has real assets)', () => {
+    for (const form of standardForms) {
       const result = resolveFormWithLanguage(form.id, 'es');
       expect(result, `${form.id} should resolve in Spanish`).not.toBeNull();
       expect(result.language).toBe('es');
@@ -500,8 +530,8 @@ describe('Phase 4C — Language: unsupported languages fall back to English', ()
     }
   });
 
-  it('all approved forms resolve in German when lang=de', () => {
-    for (const form of approvedForms) {
+  it('all approved standard forms resolve in German when lang=de', () => {
+    for (const form of standardForms) {
       const result = resolveFormWithLanguage(form.id, 'de');
       expect(result, `${form.id} should resolve in German`).not.toBeNull();
       expect(result.language).toBe('de');
@@ -515,6 +545,15 @@ describe('Phase 4C — Language: unsupported languages fall back to English', ()
     expect(resolveFormIntent('child-grounding', 'pt')?.language).toBe('pt');
     expect(resolveFormIntent('teen-emotion-regulation', 'zh')?.language).toBe('en');
     expect(resolveFormIntent('child-grounding', 'zh')?.language).toBe('en');
+  });
+
+  it('Hebrew-only workbooks return null for non-Hebrew language requests', () => {
+    for (const form of workbookForms) {
+      const resultFr = resolveFormWithLanguage(form.id, 'fr');
+      expect(resultFr, `Workbook "${form.id}" must return null for fr (Hebrew-only)`).toBeNull();
+      const resultEn = resolveFormWithLanguage(form.id, 'en');
+      expect(resultEn, `Workbook "${form.id}" must return null for en (Hebrew-only)`).toBeNull();
+    }
   });
 });
 
@@ -809,8 +848,16 @@ describe('Phase 4C — Regression: GeneratedFileCard normalizeGeneratedFile is u
 // ─── 20. Final approved form count and audience coverage ─────────────────────
 
 describe('Phase 4C — Final state: approved form count and audience coverage', () => {
-  it('exactly 18 forms are approved (full Phase 4C library)', () => {
-    expect(approvedForms.length).toBe(18);
+  it('exactly 25 forms are approved (18 standard + 7 Hebrew workbooks)', () => {
+    expect(approvedForms.length).toBe(25);
+  });
+
+  it('exactly 18 standard forms are approved (original library)', () => {
+    expect(standardForms.length).toBe(18);
+  });
+
+  it('exactly 7 workbooks are approved (Hebrew premium series)', () => {
+    expect(workbookForms.length).toBe(7);
   });
 
   it('exactly 4 children forms are approved', () => {
@@ -823,9 +870,9 @@ describe('Phase 4C — Final state: approved form count and audience coverage', 
     expect(adolescents.length).toBe(4);
   });
 
-  it('exactly 6 adults forms are approved', () => {
+  it('exactly 13 adults forms are approved (6 standard + 7 workbooks)', () => {
     const adults = approvedForms.filter(f => f.audience === 'adults');
-    expect(adults.length).toBe(6);
+    expect(adults.length).toBe(13);
   });
 
   it('exactly 4 older_adults forms are approved', () => {
@@ -863,17 +910,43 @@ describe('Phase 4C — Final state: approved form count and audience coverage', 
   });
 });
 
-// ─── 21. All APPROVED_FORM_INTENT_MAP values resolve in both EN and HE ─────────
+// ─── 21. All APPROVED_FORM_INTENT_MAP values resolve correctly by type ──────────
 
-describe('Phase 4C — Full map: all APPROVED_FORM_INTENT_MAP values resolve in EN and HE', () => {
-  it('every unique form ID in the map resolves in English', () => {
+describe('Phase 4C — Full map: all APPROVED_FORM_INTENT_MAP values resolve in their primary language', () => {
+  const WORKBOOK_IDS = new Set([
+    'tf-adults-formulation-mapping-premium-he',
+    'tf-adults-awareness-identification-premium-he',
+    'tf-adults-cognitive-flexibility-premium-he',
+    'tf-adults-emotional-regulation-premium-he',
+    'tf-adults-coping-change-premium-he',
+    'tf-adults-strengths-resilience-premium-he',
+    'tf-adults-treatment-summary-custom-forms-premium-he',
+  ]);
+
+  it('every unique standard form ID in the map resolves in English', () => {
     const uniqueFormIds = new Set(Object.values(APPROVED_FORM_INTENT_MAP));
-    for (const formId of uniqueFormIds) {
+    const standardIds = [...uniqueFormIds].filter(id => !WORKBOOK_IDS.has(id));
+    for (const formId of standardIds) {
       const meta = resolveFormIntent(formId, 'en');
       expect(meta, `${formId} must resolve in English`).not.toBeNull();
       expect(meta.url, `${formId} English URL must not be empty`).toBeTruthy();
       expect(meta.url, `${formId} English URL must start with /forms/en/`).toMatch(/^\/forms\/en\//);
       expect(meta.source).toBe('therapeutic_forms_library');
+    }
+  });
+
+  it('every unique workbook form ID in the map resolves in Hebrew (Hebrew-only)', () => {
+    const uniqueFormIds = new Set(Object.values(APPROVED_FORM_INTENT_MAP));
+    const workbookIds = [...uniqueFormIds].filter(id => WORKBOOK_IDS.has(id));
+    expect(workbookIds.length).toBe(7);
+    for (const formId of workbookIds) {
+      const metaHe = resolveFormIntent(formId, 'he');
+      expect(metaHe, `${formId} must resolve in Hebrew`).not.toBeNull();
+      expect(metaHe.language, `${formId} must return Hebrew`).toBe('he');
+      expect(metaHe.url, `${formId} Hebrew URL must start with /forms/he/`).toMatch(/^\/forms\/he\//);
+      // Workbooks must NOT resolve in English (no fallback)
+      const metaEn = resolveFormIntent(formId, 'en');
+      expect(metaEn, `${formId} must return null for English (Hebrew-only workbook)`).toBeNull();
     }
   });
 
@@ -887,8 +960,8 @@ describe('Phase 4C — Full map: all APPROVED_FORM_INTENT_MAP values resolve in 
     }
   });
 
-  it('map contains all 18 approved form IDs', () => {
+  it('map contains all 25 approved form IDs (18 standard + 7 workbooks)', () => {
     const mappedFormIds = new Set(Object.values(APPROVED_FORM_INTENT_MAP));
-    expect(mappedFormIds.size).toBe(18);
+    expect(mappedFormIds.size).toBe(25);
   });
 });

@@ -64,6 +64,7 @@ export const THERAPEUTIC_CATEGORIES = [
   { value: 'coping_tools',            label_en: 'Coping Tools' },
   { value: 'weekly_practice',         label_en: 'Weekly Practice' },
   { value: 'reflection_journal',      label_en: 'Reflection Journal' },
+  { value: 'workbook_series',         label_en: 'Therapeutic Workbooks' },
 ];
 
 /** Set of valid category values for fast lookup. */

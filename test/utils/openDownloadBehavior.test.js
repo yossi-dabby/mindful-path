@@ -39,6 +39,8 @@ const OPEN_UTIL_SRC = fs.readFileSync(path.join(ROOT, 'src/components/chat/utils
 const DOWNLOAD_UTIL_SRC = fs.readFileSync(path.join(ROOT, 'src/components/chat/utils/downloadPdfFile.js'), 'utf8');
 
 const APPROVED_FORMS = ALL_FORMS.filter((f) => f.approved);
+const STANDARD_FORMS = APPROVED_FORMS.filter((f) => f.type !== 'therapeutic_workbook');
+const WORKBOOK_FORM_IDS = new Set(ALL_FORMS.filter(f => f.type === 'therapeutic_workbook').map(f => f.id));
 const APP_LANGUAGES = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
 
 // ─── 1–3: TherapeuticForms Open/Download action behavior ─────────────────────
@@ -178,21 +180,25 @@ describe('Open/Download — Hebrew labels', () => {
   });
 });
 
-// ─── 8: 18 approved forms still resolve ──────────────────────────────────────
+// ─── 8: approved forms regression ────────────────────────────────────────────
 
-describe('Open/Download — 18 approved forms regression', () => {
-  it('22. Exactly 18 forms are approved', () => {
-    expect(APPROVED_FORMS.length).toBe(18);
+describe('Open/Download — 18 standard forms + 7 workbooks regression', () => {
+  it('22. Exactly 18 standard forms are approved (original library)', () => {
+    expect(STANDARD_FORMS.length).toBe(18);
   });
 
-  it('23. All 18 approved forms resolve in English', () => {
-    for (const form of APPROVED_FORMS) {
+  it('22b. Exactly 25 total forms are approved (18 standard + 7 Hebrew workbooks)', () => {
+    expect(APPROVED_FORMS.length).toBe(25);
+  });
+
+  it('23. All 18 standard forms resolve in English', () => {
+    for (const form of STANDARD_FORMS) {
       const resolved = resolveFormWithLanguage(form.id, 'en');
       expect(resolved, `Form ${form.id} failed to resolve in English`).not.toBeNull();
     }
   });
 
-  it('24. All 18 approved forms resolve in Hebrew', () => {
+  it('24. All approved forms resolve in Hebrew', () => {
     for (const form of APPROVED_FORMS) {
       const resolved = resolveFormWithLanguage(form.id, 'he');
       expect(resolved, `Form ${form.id} failed to resolve in Hebrew`).not.toBeNull();
@@ -223,10 +229,17 @@ describe('Open/Download — 7-language PDF URL registry', () => {
     });
   }
 
-  it('26. Each approved form has at least en and he language blocks with a file_url', () => {
-    for (const form of APPROVED_FORMS) {
+  it('26. Each standard form has at least en and he language blocks with a file_url', () => {
+    for (const form of STANDARD_FORMS) {
       expect(form.languages?.en?.file_url, `Form ${form.id} missing English file_url`).toBeTruthy();
       expect(form.languages?.he?.file_url, `Form ${form.id} missing Hebrew file_url`).toBeTruthy();
+    }
+  });
+
+  it('26b. Each Hebrew workbook has a Hebrew language block with a file_url (Hebrew-only)', () => {
+    for (const formId of WORKBOOK_FORM_IDS) {
+      const form = ALL_FORMS.find(f => f.id === formId);
+      expect(form?.languages?.he?.file_url, `Workbook ${formId} missing Hebrew file_url`).toBeTruthy();
     }
   });
 });
