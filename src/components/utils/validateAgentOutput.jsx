@@ -15,6 +15,7 @@
  */
 
 import { resolveFormIntent, FORM_INTENT_MARKER_PATTERN } from '../../utils/resolveFormIntent.js';
+import { resolveWorkbookIntentWithContext } from '../../utils/resolveWorkbookIntent.js';
 
 // Safety patterns to detect and strip
 const UNSAFE_PATTERNS = [
@@ -677,17 +678,27 @@ export function extractAssistantMessage(rawContent) {
  * content and resolves it to `generated_file` metadata via the safe form intent
  * resolver.
  *
+ * Workbook routing priority (Phase 10):
+ *   When the AI resolves an individual worksheet but the user's triggering message
+ *   contains explicit workbook-trigger language (e.g. "קונטרס", "חוברת"), the
+ *   resolved form is upgraded to the matching workbook via
+ *   `resolveWorkbookIntentWithContext`.  This preserves the AI's choice for plain
+ *   worksheet requests while correcting workbook-language follow-ups.
+ *
  * Safety contract:
  *   - Only the intent slug from the marker is passed to resolveFormIntent.
  *   - No URL or filename from the model is ever accepted.
  *   - Returns null for unknown intents, unapproved forms, or missing file_url.
  *   - Fail-open: any unexpected error returns { cleanedContent: content, generatedFile: null }.
  *
- * @param {string} content  - Raw assistant message content.
- * @param {string} [lang]   - Session language code (ISO 639-1). Optional.
+ * @param {string}      content              - Raw assistant message content.
+ * @param {string}      [lang]               - Session language code (ISO 639-1). Optional.
+ * @param {string|null} [userQuery]          - The user message that triggered this response.
+ *                                             Used for workbook routing priority override.
+ * @param {string|null} [previousUserContext] - Earlier user message text for anaphoric context.
  * @returns {{ cleanedContent: string, generatedFile: object|null }}
  */
-function extractAndResolveFormIntent(content, lang) {
+function extractAndResolveFormIntent(content, lang, userQuery, previousUserContext) {
   if (typeof content !== 'string' || !content) {
     return { cleanedContent: content, generatedFile: null };
   }
@@ -713,6 +724,35 @@ function extractAndResolveFormIntent(content, lang) {
       // Always strip the marker from visible content regardless of resolution
       return '';
     });
+
+    // Workbook routing priority override:
+    // If the AI resolved an individual worksheet but the user's current message
+    // contains workbook-trigger language (קונטרס / חוברת / …), attempt to
+    // upgrade the resolved form to the matching workbook.
+    // resolveWorkbookIntentWithContext returns null when no workbook trigger is
+    // present or when no workbook matches, so this is a safe no-op for all
+    // plain worksheet requests.
+    if (
+      resolvedGeneratedFile &&
+      resolvedGeneratedFile.category !== 'workbook_series' &&
+      typeof userQuery === 'string' && userQuery.trim()
+    ) {
+      try {
+        const effectiveLangForWorkbook = lang || 'he';
+        const workbookOverride = resolveWorkbookIntentWithContext(
+          userQuery,
+          typeof previousUserContext === 'string' && previousUserContext.trim()
+            ? previousUserContext
+            : null,
+          effectiveLangForWorkbook
+        );
+        if (workbookOverride) {
+          resolvedGeneratedFile = workbookOverride;
+        }
+      } catch (_overrideErr) {
+        // Fail-open: keep the original resolved form if the override throws
+      }
+    }
 
     // Clean up any whitespace artifacts left by marker removal
     cleanedContent = cleanedContent.replace(/\n{3,}/g, '\n\n').trim();
@@ -846,13 +886,30 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
         pickNonEmptyLang(prevMsgSessionLang) ||
         normalizedSessionLang;
 
+      // Workbook routing priority context:
+      // The user message at index-1 is the triggering query for this assistant response.
+      // Collect older user messages for anaphoric context (e.g. "קונטרס אחר לזה?").
+      const triggeringUserMsg =
+        previousMessage?.role === 'user' && typeof previousMessage?.content === 'string'
+          ? previousMessage.content
+          : null;
+      const previousUserContext =
+        // Space-joining is sufficient: workbook routing only does substring matching
+        // against Hebrew keywords, so word boundaries between joined messages are fine.
+        sourceMessages
+          .slice(0, index - 1)
+          .filter(m => m.role === 'user' && typeof m.content === 'string')
+          .map(m => m.content)
+          .slice(-2)
+          .join(' ') || null;
+
       const validated = validateAgentOutput(msg.content);
       
       if (validated) {
         // Phase 3: extract [FORM:] marker from the validated assistant_message
         // (the marker is placed inside the assistant_message field, not the JSON wrapper).
         const { cleanedContent: cleanedAssistantMsg, generatedFile } =
-          extractAndResolveFormIntent(validated.assistant_message || '', effectiveLang);
+          extractAndResolveFormIntent(validated.assistant_message || '', effectiveLang, triggeringUserMsg, previousUserContext);
         const separated = splitAssistantPdfMessageIfNeeded(msg, cleanedAssistantMsg, previousMessage);
         const nextMetadata = {
           ...(msg.metadata || {}),
@@ -876,7 +933,7 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
           const parsed = JSON.parse(msg.content);
           if (parsed.assistant_message) {
             const { cleanedContent: cleanedAssistantMsg, generatedFile } =
-              extractAndResolveFormIntent(parsed.assistant_message, effectiveLang);
+              extractAndResolveFormIntent(parsed.assistant_message, effectiveLang, triggeringUserMsg, previousUserContext);
             const separated = splitAssistantPdfMessageIfNeeded(msg, cleanedAssistantMsg, previousMessage);
             const nextMetadata = {
               ...(msg.metadata || {}),
@@ -904,7 +961,7 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
       // before applying text sanitization.
       if (typeof msg.content === 'string') {
         const { cleanedContent: contentAfterFormExtract, generatedFile } =
-          extractAndResolveFormIntent(msg.content, effectiveLang);
+          extractAndResolveFormIntent(msg.content, effectiveLang, triggeringUserMsg, previousUserContext);
         const cleaned = sanitizeAssistantMessage(contentAfterFormExtract);
         const separated = splitAssistantPdfMessageIfNeeded(msg, cleaned, previousMessage);
         const nextMetadata = { ...(msg.metadata || {}) };
