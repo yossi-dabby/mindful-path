@@ -450,3 +450,294 @@ export function getLowerPriorityIndividualForms() {
   }
   return ids;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// English Workbook Content Metadata — Phase 11
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Topic keywords are English words/phrases used for scoring user queries.
+// Routing rules mirror the Hebrew implementation:
+//   - Explicit workbook trigger + ≥1 topic keyword  → return matching workbook
+//   - ≥2 topic keywords from same workbook (multi-topic) → return matching workbook
+//   - No sufficient match → return null
+
+/** @type {WorkbookMeta[]} */
+export const WORKBOOK_CONTENT_METADATA_EN = [
+  // ── 1. Formulation & Mapping ─────────────────────────────────────────────────
+  {
+    id: 'tf-adults-formulation-mapping-premium-en',
+    slug: 'adults-formulation-mapping-premium-en',
+    internalForms: [
+      'initial situation snapshot',
+      'thoughts, emotions, and behavior map',
+      'identifying the core difficulty',
+      'strengths and resources',
+      'expectations for therapy',
+      'hopes, wishes, and goals',
+      'self-image / how I see myself',
+      'summary and next steps',
+    ],
+    topicKeywords: [
+      'case formulation',
+      'formulation',
+      'mapping the problem',
+      'understanding what is happening',
+      'getting an overview',
+      'therapy goals',
+      'initial assessment',
+      'repeated patterns',
+      'treatment direction',
+      'understanding the difficulty',
+      'what is happening',
+      'core difficulty',
+      'case mapping',
+    ],
+    lowerPriorityIndividualForms: [],
+  },
+
+  // ── 2. Awareness & Identification ────────────────────────────────────────────
+  {
+    id: 'tf-adults-awareness-identification-premium-en',
+    slug: 'adults-awareness-identification-premium-en',
+    internalForms: [
+      'identifying an event and first thought',
+      'automatic thoughts log',
+      'identifying emotions and intensity',
+      'body sensations map',
+      'actual response and behavior',
+      'situation-thought-emotion-body-behavior chain',
+      'repeated patterns and triggers',
+      'initial summary for further work',
+    ],
+    topicKeywords: [
+      'identifying thoughts',
+      'identifying emotions',
+      'body sensations',
+      'behavior patterns',
+      'tracking thoughts',
+      'tracking emotions',
+      'triggers',
+      'automatic thoughts',
+      'understanding reactions',
+      'cbt chain',
+      'situation thought emotion behavior',
+      'thought log',
+      'emotion log',
+    ],
+    lowerPriorityIndividualForms: [
+      'tf-adults-cbt-thought-record',
+    ],
+  },
+
+  // ── 3. Cognitive Flexibility ─────────────────────────────────────────────────
+  {
+    id: 'tf-adults-cognitive-flexibility-premium-en',
+    slug: 'adults-cognitive-flexibility-premium-en',
+    internalForms: [
+      'identifying an automatic thought and core assumption',
+      'evidence for and against the thought',
+      'Socratic questions for thought challenging',
+      'cognitive distortions and rewording',
+      'proportion and risk reappraisal',
+      'alternative perspectives',
+      'mediating thought between extremes',
+      'supportive self-talk',
+      'challenging limiting beliefs',
+      'behavioral experiment for a thought',
+      'trigger response script',
+      'balanced thought and next plan',
+    ],
+    topicKeywords: [
+      'negative thoughts',
+      'thought challenging',
+      'challenging automatic thoughts',
+      'cognitive distortions',
+      'unhelpful thoughts',
+      'evidence for and against',
+      'socratic questions',
+      'balanced thinking',
+      'cognitive flexibility',
+      'self-talk',
+      'limiting beliefs',
+      'perspective',
+      'catastrophizing',
+      'all-or-nothing thinking',
+      'automatic thoughts',
+      'thought record',
+    ],
+    // When user asks for a workbook about negative thoughts, do NOT attach only
+    // cbt-thought-record or cognitive-distortions-worksheet — attach this workbook.
+    lowerPriorityIndividualForms: [
+      'tf-adults-cbt-thought-record',
+      'tf-adults-cognitive-distortions-worksheet',
+    ],
+  },
+
+  // ── 4. Emotional Regulation ──────────────────────────────────────────────────
+  {
+    id: 'tf-adults-emotional-regulation-premium-en',
+    slug: 'adults-emotional-regulation-premium-en',
+    internalForms: [
+      'initial emotion map',
+      'emotion intensity over time',
+      'fear and anxiety',
+      'sadness, low mood, and heaviness',
+      'anger and frustration',
+      'shame and guilt',
+      'events that activate emotions',
+      'body sensations and action urges',
+      'emotional reaction versus regulated response',
+      'real-time regulation tools',
+      'before, during, and after an event',
+      'mixed emotions and inner conflict',
+      'calming inner conversation',
+      'personal regulation plan',
+    ],
+    topicKeywords: [
+      'emotional regulation',
+      'strong emotions',
+      'emotional overwhelm',
+      'anxiety',
+      'fear',
+      'sadness',
+      'low mood',
+      'anger',
+      'frustration',
+      'shame',
+      'guilt',
+      'urges',
+      'emotional triggers',
+      'mixed emotions',
+      'calming down',
+      'regulation tools',
+    ],
+    lowerPriorityIndividualForms: [
+      'tf-adults-mood-tracking-sheet',
+    ],
+  },
+
+  // ── 5. Coping & Change ────────────────────────────────────────────────────────
+  {
+    id: 'tf-adults-coping-change-premium-en',
+    slug: 'adults-coping-change-premium-en',
+    internalForms: [
+      'personal coping map',
+      'avoidance and gradual steps',
+      'procrastination and starting action',
+      'difficult habit and alternative habit',
+      'basic social skills',
+      'assertive communication',
+      'personal boundaries',
+      'practical problem solving',
+      'managing load and routine',
+      'coping with criticism',
+      'impulse regulation before action',
+      'maintaining change and preventing relapse',
+    ],
+    topicKeywords: [
+      'procrastination',
+      'avoidance',
+      'difficult habits',
+      'behavior change',
+      'coping skills',
+      'social skills',
+      'assertiveness',
+      'boundaries',
+      'problem solving',
+      'routine',
+      'overload',
+      'criticism',
+      'impulses',
+      'relapse prevention',
+      'changing patterns',
+    ],
+    // When user asks for a workbook about procrastination/avoidance/difficult habits,
+    // do NOT attach behavioral-activation-plan — attach this workbook instead.
+    lowerPriorityIndividualForms: [
+      'tf-adults-behavioral-activation-plan',
+      'tf-adults-weekly-coping-plan',
+    ],
+  },
+
+  // ── 6. Strengths & Resilience ────────────────────────────────────────────────
+  {
+    id: 'tf-adults-strengths-resilience-premium-en',
+    slug: 'adults-strengths-resilience-premium-en',
+    internalForms: [
+      'personal strengths map',
+      'past successes as resources',
+      'values as a therapeutic anchor',
+      'support network and resources',
+      'self-efficacy',
+      'strengthening inner voice',
+      'strengths in relationships',
+      'resilience under stress',
+      'realistic hope',
+      'identity beyond the difficulty',
+      'using strengths in therapy',
+    ],
+    topicKeywords: [
+      'strengths',
+      'resilience',
+      'self-confidence',
+      'self-efficacy',
+      'resources',
+      'hope',
+      'values',
+      'support network',
+      'empowering inner voice',
+      'identity beyond the problem',
+      'protective factors',
+      'coping resources',
+    ],
+    lowerPriorityIndividualForms: [
+      'tf-adults-values-and-goals-worksheet',
+    ],
+  },
+
+  // ── 7. Treatment Summary & Custom Forms ──────────────────────────────────────
+  {
+    id: 'tf-adults-treatment-summary-custom-forms-premium-en',
+    slug: 'adults-treatment-summary-custom-forms-premium-en',
+    internalForms: [
+      'therapeutic journey summary',
+      'achievements and change processes',
+      'tools I am taking from therapy',
+      'what I learned about myself',
+      'therapeutic relationship and feedback',
+      'post-treatment continuation plan',
+      'custom form built together',
+      'blank weekly tracking form',
+      'blank significant event form',
+      'blank therapeutic experiment form',
+      'open personal page',
+      'final personal summary',
+    ],
+    topicKeywords: [
+      'treatment summary',
+      'ending therapy',
+      'reviewing therapy',
+      'therapy feedback',
+      'continuation plan',
+      'what I learned in therapy',
+      'custom form',
+      'blank form',
+      'personalized worksheet',
+      'build a form with my therapist',
+      'weekly tracking',
+      'therapeutic experiment',
+    ],
+    lowerPriorityIndividualForms: [],
+  },
+];
+
+/**
+ * Quickly look up English workbook metadata by form ID.
+ * Returns undefined when not found.
+ *
+ * @param {string} formId
+ * @returns {WorkbookMeta|undefined}
+ */
+export function getWorkbookMetaByIdEn(formId) {
+  return WORKBOOK_CONTENT_METADATA_EN.find(wb => wb.id === formId);
+}

@@ -187,8 +187,8 @@ describe('Open/Download — 18 standard forms + 7 workbooks regression', () => {
     expect(STANDARD_FORMS.length).toBe(18);
   });
 
-  it('22b. Exactly 25 total forms are approved (18 standard + 7 Hebrew workbooks)', () => {
-    expect(APPROVED_FORMS.length).toBe(25);
+  it('22b. Exactly 32 total forms are approved (18 standard + 7 Hebrew workbooks + 7 English workbooks)', () => {
+    expect(APPROVED_FORMS.length).toBe(32);
   });
 
   it('23. All 18 standard forms resolve in English', () => {
@@ -237,7 +237,8 @@ describe('Open/Download — 7-language PDF URL registry', () => {
   });
 
   it('26b. Each Hebrew workbook has a Hebrew language block with a file_url (Hebrew-only)', () => {
-    for (const formId of WORKBOOK_FORM_IDS) {
+    const heWorkbookIds = [...WORKBOOK_FORM_IDS].filter(id => id.endsWith('-premium-he'));
+    for (const formId of heWorkbookIds) {
       const form = ALL_FORMS.find(f => f.id === formId);
       expect(form?.languages?.he?.file_url, `Workbook ${formId} missing Hebrew file_url`).toBeTruthy();
     }

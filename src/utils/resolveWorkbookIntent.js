@@ -41,9 +41,9 @@
  */
 
 import { resolveFormIntent } from './resolveFormIntent.js';
-import { WORKBOOK_CONTENT_METADATA } from './workbookContentMetadata.js';
+import { WORKBOOK_CONTENT_METADATA, WORKBOOK_CONTENT_METADATA_EN } from './workbookContentMetadata.js';
 
-// ─── Workbook-trigger language ────────────────────────────────────────────────
+// ─── Hebrew workbook-trigger language ─────────────────────────────────────────
 //
 // Explicit Hebrew terms that signal the user wants a full workbook (קונטרס)
 // rather than a single worksheet.
@@ -238,4 +238,220 @@ export function getHebrewFormLabel(metadata) {
   if (!metadata || typeof metadata !== 'object') return 'דף עבודה';
   if (metadata.category === 'workbook_series') return 'קונטרס טיפולי מלא';
   return 'דף עבודה';
+}
+
+// ─── English workbook routing ─────────────────────────────────────────────────
+
+/**
+ * English terms that signal the user wants a full workbook rather than
+ * a single worksheet.
+ */
+const WORKBOOK_TRIGGER_KEYWORDS_EN = [
+  'workbook',
+  'booklet',
+  'full workbook',
+  'complete workbook',
+  'workbook set',
+  'set of worksheets',
+  'series of forms',
+  'series of worksheets',
+  'full set',
+  'more comprehensive',
+  'not just a worksheet',
+  'not a single worksheet',
+  'therapeutic workbook',
+  'workbook for this',
+  'another workbook for this',
+];
+
+/**
+ * English terms that signal the user wants an individual worksheet/form
+ * rather than a full workbook.
+ */
+const INDIVIDUAL_FORM_TRIGGER_KEYWORDS_EN = [
+  'worksheet',
+  'single worksheet',
+  'worksheet form',
+  'handout',
+];
+
+/**
+ * Returns true when the English query contains at least one explicit
+ * workbook-trigger keyword.
+ *
+ * @param {string} query
+ * @returns {boolean}
+ */
+function hasExplicitEnglishWorkbookTrigger(query) {
+  const lower = query.toLowerCase();
+  return WORKBOOK_TRIGGER_KEYWORDS_EN.some(kw => lower.includes(kw));
+}
+
+/**
+ * Returns true when the English query contains individual-form language
+ * (worksheet / handout / single worksheet) but NOT workbook language.
+ * Used to preserve individual-form routing priority.
+ *
+ * @param {string} query
+ * @returns {boolean}
+ */
+function hasIndividualFormTrigger(query) {
+  const lower = query.toLowerCase();
+  // If the query also has workbook language, workbook wins
+  if (hasExplicitEnglishWorkbookTrigger(lower)) return false;
+  return INDIVIDUAL_FORM_TRIGGER_KEYWORDS_EN.some(kw => lower.includes(kw));
+}
+
+/**
+ * Scores an English workbook against the query using its topic keywords.
+ *
+ * @param {string}   lowerQuery  - Lowercased query.
+ * @param {string[]} topicKeywords
+ * @returns {number}
+ */
+function scoreEnglishWorkbook(lowerQuery, topicKeywords) {
+  let score = 0;
+  for (const kw of topicKeywords) {
+    if (lowerQuery.includes(kw.toLowerCase())) score++;
+  }
+  return score;
+}
+
+/**
+ * Resolves an English natural-language user query to the correct therapeutic
+ * workbook slug, applying the routing priority rules from the problem statement.
+ *
+ * Routing priority:
+ *   1. Individual-form language (worksheet/handout) without workbook trigger
+ *      → return null (let resolveFormIntent handle individual forms).
+ *   2. Explicit workbook trigger + ≥1 topic keyword → return matching workbook.
+ *   3. ≥2 topic keywords from same workbook (multi-topic, no trigger) → return matching workbook.
+ *   4. Generic workbook trigger, no topic keywords → return null.
+ *   5. No file request → return null (therapeutic conversation, no forced attachment).
+ *
+ * @param {string} query   - The user's natural-language English query.
+ * @returns {object|null}  - Generated-file metadata or null.
+ */
+export function resolveEnglishWorkbookIntent(query) {
+  if (typeof query !== 'string' || !query.trim()) return null;
+
+  const lowerQuery = query.toLowerCase();
+
+  // Priority 1 — individual-form language without workbook trigger: return null
+  // to let the individual-form resolver handle it.
+  if (hasIndividualFormTrigger(lowerQuery)) return null;
+
+  const hasWorkbookTrigger = hasExplicitEnglishWorkbookTrigger(lowerQuery);
+
+  // Score every English workbook
+  let bestWorkbook = null;
+  let bestScore = 0;
+
+  for (const wb of WORKBOOK_CONTENT_METADATA_EN) {
+    const score = scoreEnglishWorkbook(lowerQuery, wb.topicKeywords);
+    if (score > bestScore) {
+      bestScore = score;
+      bestWorkbook = wb;
+    }
+    // Ties: first in array wins (already assigned, no overwrite on equal)
+  }
+
+  const threshold = hasWorkbookTrigger
+    ? EXPLICIT_TRIGGER_THRESHOLD
+    : MULTI_TOPIC_THRESHOLD;
+
+  if (bestWorkbook && bestScore >= threshold) {
+    return resolveFormIntent(bestWorkbook.slug, 'en');
+  }
+
+  return null;
+}
+
+/**
+ * Returns the list of English workbook-trigger keywords.
+ * Exported for testing.
+ *
+ * @returns {string[]}
+ */
+export function getEnglishWorkbookTriggerKeywords() {
+  return [...WORKBOOK_TRIGGER_KEYWORDS_EN];
+}
+
+/**
+ * Returns the list of English individual-form trigger keywords.
+ * Exported for testing.
+ *
+ * @returns {string[]}
+ */
+export function getEnglishIndividualFormTriggerKeywords() {
+  return [...INDIVIDUAL_FORM_TRIGGER_KEYWORDS_EN];
+}
+
+/**
+ * Context-aware English workbook resolver.
+ *
+ * Extends `resolveEnglishWorkbookIntent` by also considering the previous
+ * conversation context when the current query is anaphoric (e.g.
+ * "Do you have a workbook for this?") and does not itself contain enough topic
+ * keywords.
+ *
+ * Algorithm:
+ *   1. Try `resolveEnglishWorkbookIntent(currentQuery)`.  Return if result found.
+ *   2. If current query has an explicit workbook trigger AND a previous context
+ *      string is provided, score that context for workbooks.
+ *   3. If the context scores ≥ EXPLICIT_TRIGGER_THRESHOLD on any workbook, return it.
+ *   4. Return null otherwise.
+ *
+ * @param {string}      currentQuery     - The user's current message.
+ * @param {string|null} [previousContext] - Recent prior conversation text.
+ * @returns {object|null} Generated-file metadata or null.
+ */
+export function resolveEnglishWorkbookIntentWithContext(currentQuery, previousContext) {
+  if (typeof currentQuery !== 'string' || !currentQuery.trim()) return null;
+
+  // Step 1 — try current query alone.
+  const directResult = resolveEnglishWorkbookIntent(currentQuery);
+  if (directResult !== null) return directResult;
+
+  // Step 2 — if the current query has a workbook trigger, try inheriting from context.
+  const hasCurrentTrigger = hasExplicitEnglishWorkbookTrigger(currentQuery.toLowerCase());
+  if (!hasCurrentTrigger) return null;
+  if (typeof previousContext !== 'string' || !previousContext.trim()) return null;
+
+  const lowerContext = previousContext.toLowerCase();
+
+  let bestWorkbook = null;
+  let bestScore = 0;
+
+  for (const wb of WORKBOOK_CONTENT_METADATA_EN) {
+    const score = scoreEnglishWorkbook(lowerContext, wb.topicKeywords);
+    if (score > bestScore) {
+      bestScore = score;
+      bestWorkbook = wb;
+    }
+  }
+
+  if (bestWorkbook && bestScore >= EXPLICIT_TRIGGER_THRESHOLD) {
+    return resolveFormIntent(bestWorkbook.slug, 'en');
+  }
+
+  return null;
+}
+
+/**
+ * Returns the appropriate English label for a resolved generated-file metadata
+ * object based on its `category` field.
+ *
+ * | category        | label                        |
+ * |-----------------|------------------------------|
+ * | workbook_series | 'full therapeutic workbook'  |
+ * | (anything else) | 'worksheet'                  |
+ *
+ * @param {object|null} metadata - Object with at least a `category` string field.
+ * @returns {string} English label.
+ */
+export function getEnglishFormLabel(metadata) {
+  if (!metadata || typeof metadata !== 'object') return 'worksheet';
+  if (metadata.category === 'workbook_series') return 'full therapeutic workbook';
+  return 'worksheet';
 }

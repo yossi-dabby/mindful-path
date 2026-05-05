@@ -629,9 +629,10 @@ describe('Phase 3 — all APPROVED_FORM_INTENT_MAP values resolve from live regi
     }
   });
 
-  it('every mapped form ID resolves in Hebrew', () => {
+  it('every mapped standard and Hebrew-workbook form ID resolves in Hebrew', () => {
     const uniqueFormIds = new Set(Object.values(APPROVED_FORM_INTENT_MAP));
     for (const formId of uniqueFormIds) {
+      if (formId.endsWith('-premium-en')) continue; // English-only workbooks resolve in English (no Hebrew block)
       const meta = resolveFormIntent(formId, 'he');
       expect(meta, `${formId} must resolve in Hebrew`).not.toBeNull();
       // Hebrew forms must use Hebrew URL path

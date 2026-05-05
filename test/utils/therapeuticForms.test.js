@@ -965,12 +965,14 @@ describe('TherapeuticForms Phase 1B — no fake file links', () => {
     }
   });
 
-  it('every workbook form returned by listFormsByAudience has non-empty Hebrew languageData', () => {
+  it('every workbook form returned by listFormsByAudience has non-empty languageData in its primary language', () => {
     const forms = listFormsByAudience('adults').filter(f => f.type === 'therapeutic_workbook');
-    expect(forms.length).toBe(7);
+    expect(forms.length).toBe(14);
     for (const form of forms) {
-      const resolved = resolveFormWithLanguage(form.id, 'he');
-      expect(resolved, `${form.id} must resolve in Hebrew`).not.toBeNull();
+      // Hebrew workbooks resolve in Hebrew; English workbooks resolve in English
+      const primaryLang = form.languages?.he ? 'he' : 'en';
+      const resolved = resolveFormWithLanguage(form.id, primaryLang);
+      expect(resolved, `${form.id} must resolve in its primary language (${primaryLang})`).not.toBeNull();
       expect(resolved.languageData.file_url.trim()).not.toBe('');
     }
   });

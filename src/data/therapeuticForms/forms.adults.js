@@ -31,6 +31,11 @@
  *   Seven Hebrew premium therapeutic workbook entries added.
  *   These are Hebrew-only (he block only); they carry type: 'therapeutic_workbook'
  *   and category: 'workbook_series'.
+ *
+ * Phase 11 (English workbooks) update:
+ *   Seven English premium therapeutic workbook entries added (mirror of Phase 10).
+ *   These are English-only (en block only); they carry type: 'therapeutic_workbook'
+ *   and category: 'workbook_series'.
 
 /** @type {import('./types.js').TherapeuticForm[]} */
 export const FORMS_ADULTS = [
@@ -602,5 +607,160 @@ export const FORMS_ADULTS = [
     },
     created_at: '2025-05-04T00:00:00.000Z',
     updated_at: '2025-05-04T00:00:00.000Z',
+  },
+  // ─── English Premium Therapeutic Workbooks ───────────────────────────────────
+  {
+    id: 'tf-adults-formulation-mapping-premium-en',
+    slug: 'adults-formulation-mapping-premium-en',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full adult workbook for mapping difficulties, patterns, strengths, and treatment direction.',
+    approved: true,
+    tags: ['workbook', 'formulation', 'mapping', 'adults', 'en'],
+    languages: {
+      en: {
+        title: 'Formulation & Case Mapping Workbook',
+        description: 'A full adult workbook for mapping difficulties, patterns, strengths, and treatment direction.',
+        file_url: '/forms/en/adults/adults-formulation-mapping-premium-en.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-formulation-mapping-premium-en.pdf',
+        rtl: false,
+      },
+    },
+    created_at: '2025-05-05T00:00:00.000Z',
+    updated_at: '2025-05-05T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-awareness-identification-premium-en',
+    slug: 'adults-awareness-identification-premium-en',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full workbook for noticing thoughts, emotions, body signals, behaviors, triggers, and patterns.',
+    approved: true,
+    tags: ['workbook', 'awareness', 'identification', 'thoughts', 'emotions', 'adults', 'en'],
+    languages: {
+      en: {
+        title: 'Thoughts, Emotions, Body Sensations & Behavior Identification Workbook',
+        description: 'A full workbook for noticing thoughts, emotions, body signals, behaviors, triggers, and patterns.',
+        file_url: '/forms/en/adults/adults-awareness-identification-premium-en.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-awareness-identification-premium-en.pdf',
+        rtl: false,
+      },
+    },
+    created_at: '2025-05-05T00:00:00.000Z',
+    updated_at: '2025-05-05T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-cognitive-flexibility-premium-en',
+    slug: 'adults-cognitive-flexibility-premium-en',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full workbook for challenging automatic thoughts, checking evidence, identifying cognitive distortions, and developing balanced thinking.',
+    approved: true,
+    tags: ['workbook', 'cognitive', 'flexibility', 'challenging-thoughts', 'adults', 'en'],
+    languages: {
+      en: {
+        title: 'Cognitive Flexibility & Thought Challenging Workbook',
+        description: 'A full workbook for challenging automatic thoughts, checking evidence, identifying cognitive distortions, and developing balanced thinking.',
+        file_url: '/forms/en/adults/adults-cognitive-flexibility-premium-en.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-cognitive-flexibility-premium-en.pdf',
+        rtl: false,
+      },
+    },
+    created_at: '2025-05-05T00:00:00.000Z',
+    updated_at: '2025-05-05T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-emotional-regulation-premium-en',
+    slug: 'adults-emotional-regulation-premium-en',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full workbook for emotions, intensity, triggers, body sensations, urges, and regulation tools.',
+    approved: true,
+    tags: ['workbook', 'emotional-regulation', 'emotions', 'adults', 'en'],
+    languages: {
+      en: {
+        title: 'Emotional Awareness & Regulation Workbook',
+        description: 'A full workbook for emotions, intensity, triggers, body sensations, urges, and regulation tools.',
+        file_url: '/forms/en/adults/adults-emotional-regulation-premium-en.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-emotional-regulation-premium-en.pdf',
+        rtl: false,
+      },
+    },
+    created_at: '2025-05-05T00:00:00.000Z',
+    updated_at: '2025-05-05T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-coping-change-premium-en',
+    slug: 'adults-coping-change-premium-en',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full workbook for avoidance, procrastination, habits, social skills, boundaries, problem solving, and behavior change.',
+    approved: true,
+    tags: ['workbook', 'coping', 'change', 'behavior', 'adults', 'en'],
+    languages: {
+      en: {
+        title: 'Coping & Change Workbook',
+        description: 'A full workbook for avoidance, procrastination, habits, social skills, boundaries, problem solving, and behavior change.',
+        file_url: '/forms/en/adults/adults-coping-change-premium-en.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-coping-change-premium-en.pdf',
+        rtl: false,
+      },
+    },
+    created_at: '2025-05-05T00:00:00.000Z',
+    updated_at: '2025-05-05T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-strengths-resilience-premium-en',
+    slug: 'adults-strengths-resilience-premium-en',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full workbook for strengths, resources, self-efficacy, hope, identity, and resilience factors.',
+    approved: true,
+    tags: ['workbook', 'strengths', 'resilience', 'adults', 'en'],
+    languages: {
+      en: {
+        title: 'Strengths & Resilience Workbook',
+        description: 'A full workbook for strengths, resources, self-efficacy, hope, identity, and resilience factors.',
+        file_url: '/forms/en/adults/adults-strengths-resilience-premium-en.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-strengths-resilience-premium-en.pdf',
+        rtl: false,
+      },
+    },
+    created_at: '2025-05-05T00:00:00.000Z',
+    updated_at: '2025-05-05T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-treatment-summary-custom-forms-premium-en',
+    slug: 'adults-treatment-summary-custom-forms-premium-en',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full workbook for treatment summary, client perspective, continuation planning, and custom forms.',
+    approved: true,
+    tags: ['workbook', 'treatment-summary', 'custom-forms', 'adults', 'en'],
+    languages: {
+      en: {
+        title: 'Treatment Summary & Custom Forms Workbook',
+        description: 'A full workbook for treatment summary, client perspective, continuation planning, and custom forms.',
+        file_url: '/forms/en/adults/adults-treatment-summary-custom-forms-premium-en.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-treatment-summary-custom-forms-premium-en.pdf',
+        rtl: false,
+      },
+    },
+    created_at: '2025-05-05T00:00:00.000Z',
+    updated_at: '2025-05-05T00:00:00.000Z',
   },
 ];
