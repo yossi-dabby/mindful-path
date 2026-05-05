@@ -17,6 +17,20 @@
  * 4. Generic workbook request (explicit trigger, no topic keywords)
  *    → return null; caller should present the full workbook catalogue
  *
+ * CONTEXT-AWARE ROUTING (resolveWorkbookIntentWithContext)
+ * --------------------------------------------------------
+ * When the user's current query is anaphoric ("לזה" / "אחר לזה" / "לאותו נושא")
+ * without sufficient topic keywords, the resolver also scores the previous
+ * conversation context.  If the previous context points to a workbook and the
+ * current query contains an explicit workbook-trigger word, the matching workbook
+ * from context is returned.
+ *
+ * RESPONSE WORDING (getHebrewFormLabel)
+ * --------------------------------------
+ * Returns the correct Hebrew label for a resolved form based on its category.
+ * Workbooks (category: workbook_series) must be labelled "קונטרס טיפולי מלא".
+ * Individual worksheets must NOT be labelled as workbooks.
+ *
  * SAFETY CONTRACT
  * ---------------
  * - Only returns forms approved in the TherapeuticForms registry.
@@ -142,4 +156,86 @@ export function resolveWorkbookIntent(query, lang = 'he') {
  */
 export function getWorkbookTriggerKeywords() {
   return [...WORKBOOK_TRIGGER_KEYWORDS];
+}
+
+/**
+ * Context-aware workbook resolver.
+ *
+ * Extends `resolveWorkbookIntent` by also considering the previous conversation
+ * context when the current query is anaphoric (e.g. "קונטרס אחר לזה?" / "לאותו
+ * נושא" / "יש לך עוד?") and does not itself contain enough topic keywords.
+ *
+ * Algorithm:
+ *   1. Try `resolveWorkbookIntent(currentQuery)`.  If it returns a result, return it.
+ *   2. If current query contains an explicit workbook trigger AND a previous context
+ *      string is provided, score that context for workbooks.
+ *   3. If the previous context scores ≥ EXPLICIT_TRIGGER_THRESHOLD on any workbook,
+ *      return that workbook.
+ *   4. Return null otherwise.
+ *
+ * This ensures that "קונטרס אחר לזה?" after a negative-thoughts conversation
+ * correctly resolves to adults-cognitive-flexibility-premium-he, while still
+ * refusing to guess when there is no prior context or no trigger word.
+ *
+ * @param {string}      currentQuery     - The user's current message.
+ * @param {string|null} [previousContext] - Recent prior conversation text (may be
+ *                                          the previous user message, a topic
+ *                                          summary, or a concatenated recent
+ *                                          window).  Pass null/undefined to skip.
+ * @param {string}      [lang='he']       - Target language for the resolved form.
+ * @returns {object|null} Generated-file metadata or null.
+ */
+export function resolveWorkbookIntentWithContext(currentQuery, previousContext, lang = 'he') {
+  if (typeof currentQuery !== 'string' || !currentQuery.trim()) return null;
+
+  // Step 1 — try current query alone (existing logic).
+  const directResult = resolveWorkbookIntent(currentQuery, lang);
+  if (directResult !== null) return directResult;
+
+  // Step 2 — if the current query has a workbook trigger but no topic match,
+  // try to inherit the topic from the previous context.
+  const hasCurrentTrigger = hasExplicitWorkbookTrigger(currentQuery);
+  if (!hasCurrentTrigger) return null;
+  if (typeof previousContext !== 'string' || !previousContext.trim()) return null;
+
+  const resolvedLang = typeof lang === 'string' && lang.trim() ? lang.trim() : 'he';
+
+  // Step 3 — score the previous context.
+  let bestWorkbook = null;
+  let bestScore = 0;
+
+  for (const wb of WORKBOOK_CONTENT_METADATA) {
+    const score = scoreWorkbook(previousContext, wb.topicKeywords);
+    if (score > bestScore) {
+      bestScore = score;
+      bestWorkbook = wb;
+    }
+  }
+
+  if (bestWorkbook && bestScore >= EXPLICIT_TRIGGER_THRESHOLD) {
+    return resolveFormIntent(bestWorkbook.slug, resolvedLang);
+  }
+
+  return null;
+}
+
+/**
+ * Returns the appropriate Hebrew label for a resolved generated-file metadata
+ * object based on its `category` field.
+ *
+ * The AI must use the label returned by this function when introducing a form
+ * to the user — it must NEVER call a workbook "דף עבודה" or "טופס בודד".
+ *
+ * | category        | label                          |
+ * |-----------------|-------------------------------|
+ * | workbook_series | 'קונטרס טיפולי מלא'           |
+ * | (anything else) | 'דף עבודה'                    |
+ *
+ * @param {object|null} metadata - Object with at least a `category` string field.
+ * @returns {string} Hebrew label.
+ */
+export function getHebrewFormLabel(metadata) {
+  if (!metadata || typeof metadata !== 'object') return 'דף עבודה';
+  if (metadata.category === 'workbook_series') return 'קונטרס טיפולי מלא';
+  return 'דף עבודה';
 }
