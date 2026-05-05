@@ -36,6 +36,11 @@
  *   Seven English premium therapeutic workbook entries added (mirror of Phase 10).
  *   These are English-only (en block only); they carry type: 'therapeutic_workbook'
  *   and category: 'workbook_series'.
+ *
+ * Phase 12 (Spanish workbooks) update:
+ *   Seven Spanish premium therapeutic workbook entries added (mirror of Phase 10/11).
+ *   These are Spanish-only (es block only); they carry type: 'therapeutic_workbook'
+ *   and category: 'workbook_series'.
 
 /** @type {import('./types.js').TherapeuticForm[]} */
 export const FORMS_ADULTS = [
@@ -757,6 +762,161 @@ export const FORMS_ADULTS = [
         file_url: '/forms/en/adults/adults-treatment-summary-custom-forms-premium-en.pdf',
         file_type: 'pdf',
         file_name: 'adults-treatment-summary-custom-forms-premium-en.pdf',
+        rtl: false,
+      },
+    },
+    created_at: '2025-05-05T00:00:00.000Z',
+    updated_at: '2025-05-05T00:00:00.000Z',
+  },
+  // ─── Spanish Premium Therapeutic Workbooks ───────────────────────────────────
+  {
+    id: 'tf-adults-formulation-mapping-premium-es',
+    slug: 'adults-formulation-mapping-premium-es',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full adult workbook for mapping difficulties, patterns, strengths, and therapeutic direction.',
+    approved: true,
+    tags: ['workbook', 'formulation', 'mapping', 'adults', 'es'],
+    languages: {
+      es: {
+        title: 'Cuaderno de formulación y mapeo del caso',
+        description: 'Un cuaderno para mapear dificultades, patrones, fortalezas y dirección terapéutica.',
+        file_url: '/forms/es/adults/adults-formulation-mapping-premium-es.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-formulation-mapping-premium-es.pdf',
+        rtl: false,
+      },
+    },
+    created_at: '2025-05-05T00:00:00.000Z',
+    updated_at: '2025-05-05T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-awareness-identification-premium-es',
+    slug: 'adults-awareness-identification-premium-es',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full workbook for noticing thoughts, emotions, body signals, behaviors, triggers, and patterns.',
+    approved: true,
+    tags: ['workbook', 'awareness', 'identification', 'thoughts', 'emotions', 'adults', 'es'],
+    languages: {
+      es: {
+        title: 'Cuaderno de identificación de pensamientos, emociones, cuerpo y conducta',
+        description: 'Un cuaderno para notar pensamientos, emociones, señales corporales, conductas y disparadores.',
+        file_url: '/forms/es/adults/adults-awareness-identification-premium-es.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-awareness-identification-premium-es.pdf',
+        rtl: false,
+      },
+    },
+    created_at: '2025-05-05T00:00:00.000Z',
+    updated_at: '2025-05-05T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-cognitive-flexibility-premium-es',
+    slug: 'adults-cognitive-flexibility-premium-es',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full workbook for challenging automatic thoughts, checking evidence, identifying cognitive distortions, and developing balanced thinking.',
+    approved: true,
+    tags: ['workbook', 'cognitive', 'flexibility', 'challenging-thoughts', 'adults', 'es'],
+    languages: {
+      es: {
+        title: 'Cuaderno de flexibilidad cognitiva y cuestionamiento de pensamientos',
+        description: 'Un cuaderno para desafiar pensamientos automáticos, revisar evidencias, identificar distorsiones cognitivas y construir pensamiento equilibrado.',
+        file_url: '/forms/es/adults/adults-cognitive-flexibility-premium-es.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-cognitive-flexibility-premium-es.pdf',
+        rtl: false,
+      },
+    },
+    created_at: '2025-05-05T00:00:00.000Z',
+    updated_at: '2025-05-05T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-emotional-regulation-premium-es',
+    slug: 'adults-emotional-regulation-premium-es',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full workbook for emotions, intensity, triggers, body sensations, urges, and regulation tools.',
+    approved: true,
+    tags: ['workbook', 'emotional-regulation', 'emotions', 'adults', 'es'],
+    languages: {
+      es: {
+        title: 'Cuaderno de conciencia y regulación emocional',
+        description: 'Un cuaderno sobre emociones, intensidad, disparadores, cuerpo, impulsos y herramientas de regulación.',
+        file_url: '/forms/es/adults/adults-emotional-regulation-premium-es.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-emotional-regulation-premium-es.pdf',
+        rtl: false,
+      },
+    },
+    created_at: '2025-05-05T00:00:00.000Z',
+    updated_at: '2025-05-05T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-coping-change-premium-es',
+    slug: 'adults-coping-change-premium-es',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full workbook for avoidance, procrastination, habits, social skills, boundaries, problem solving, and behavior change.',
+    approved: true,
+    tags: ['workbook', 'coping', 'change', 'behavior', 'adults', 'es'],
+    languages: {
+      es: {
+        title: 'Cuaderno de afrontamiento y cambio',
+        description: 'Un cuaderno para evitación, procrastinación, hábitos, habilidades sociales, límites, resolución de problemas y cambio conductual.',
+        file_url: '/forms/es/adults/adults-coping-change-premium-es.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-coping-change-premium-es.pdf',
+        rtl: false,
+      },
+    },
+    created_at: '2025-05-05T00:00:00.000Z',
+    updated_at: '2025-05-05T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-strengths-resilience-premium-es',
+    slug: 'adults-strengths-resilience-premium-es',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full workbook for strengths, resources, self-efficacy, hope, identity, and resilience factors.',
+    approved: true,
+    tags: ['workbook', 'strengths', 'resilience', 'adults', 'es'],
+    languages: {
+      es: {
+        title: 'Cuaderno de fortalezas y resiliencia',
+        description: 'Un cuaderno sobre fortalezas, recursos, autoeficacia, esperanza, identidad y factores de resiliencia.',
+        file_url: '/forms/es/adults/adults-strengths-resilience-premium-es.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-strengths-resilience-premium-es.pdf',
+        rtl: false,
+      },
+    },
+    created_at: '2025-05-05T00:00:00.000Z',
+    updated_at: '2025-05-05T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-treatment-summary-custom-forms-premium-es',
+    slug: 'adults-treatment-summary-custom-forms-premium-es',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full workbook for treatment summary, client perspective, continuation planning, and custom forms.',
+    approved: true,
+    tags: ['workbook', 'treatment-summary', 'custom-forms', 'adults', 'es'],
+    languages: {
+      es: {
+        title: 'Cuaderno de resumen terapéutico y formularios personalizados',
+        description: 'Un cuaderno para resumen del tratamiento, mirada del paciente, continuidad y formularios a medida.',
+        file_url: '/forms/es/adults/adults-treatment-summary-custom-forms-premium-es.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-treatment-summary-custom-forms-premium-es.pdf',
         rtl: false,
       },
     },

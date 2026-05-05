@@ -288,7 +288,7 @@ describe('Regression — Test F: all workbooks and individual forms remain senda
 
   it('final approved workbook count is exactly 14 (7 Hebrew + 7 English)', () => {
     const workbooks = ALL_FORMS.filter(f => f.approved && f.category === 'workbook_series');
-    expect(workbooks.length).toBe(14);
+    expect(workbooks.length).toBe(21);
   });
 });
 

@@ -764,10 +764,12 @@ describe('Phase 4B — No arbitrary URL injection is possible', () => {
 
 describe('Phase 4B — All APPROVED_FORM_INTENT_MAP values resolve from live registry', () => {
   it('every value in the map resolves to valid metadata in its primary language', () => {
-    const WORKBOOK_IDS = new Set(ALL_FORMS.filter(f => f.type === 'therapeutic_workbook').map(f => f.id));
     const uniqueFormIds = new Set(Object.values(APPROVED_FORM_INTENT_MAP));
     for (const formId of uniqueFormIds) {
-      const lang = WORKBOOK_IDS.has(formId) ? 'he' : 'en';
+      // Hebrew workbooks → he, Spanish workbooks → es, all others → en
+      const lang = formId.endsWith('-premium-he') ? 'he'
+        : formId.endsWith('-premium-es') ? 'es'
+        : 'en';
       const meta = resolveFormIntent(formId, lang);
       expect(meta, `${formId} must resolve with valid file_url`).not.toBeNull();
       expect(meta.url, `${formId} url must not be empty`).toBeTruthy();
@@ -775,9 +777,10 @@ describe('Phase 4B — All APPROVED_FORM_INTENT_MAP values resolve from live reg
     }
   });
 
-  it('every value in the map also resolves in Hebrew', () => {
+  it('every value in the map also resolves in Hebrew (Spanish-only and English-only workbooks are skipped)', () => {
     const uniqueFormIds = new Set(Object.values(APPROVED_FORM_INTENT_MAP));
     for (const formId of uniqueFormIds) {
+      if (formId.endsWith('-premium-en') || formId.endsWith('-premium-es')) continue;
       const meta = resolveFormIntent(formId, 'he');
       expect(meta, `${formId} must resolve in Hebrew`).not.toBeNull();
     }
