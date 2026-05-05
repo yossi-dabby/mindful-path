@@ -372,8 +372,8 @@ describe('Phase 4C — Safety: every AI-sendable form has real assets on disk', 
     for (const formId of uniqueFormIds) {
       const form = ALL_FORMS.find(f => f.id === formId);
       if (!form) continue;
-      const heUrl = form.languages?.he?.file_url;
-      if (!heUrl) continue; // English-only workbooks have no Hebrew asset — skip
+      if (!form.languages?.he) continue; // English-only workbooks have no Hebrew block — skip
+      const heUrl = form.languages.he.file_url;
       expect(heUrl, `Form "${formId}" must have a Hebrew file_url`).toBeTruthy();
       const filePath = resolvePublicPath(heUrl);
       expect(
