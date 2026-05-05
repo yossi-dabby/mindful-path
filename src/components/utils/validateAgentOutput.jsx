@@ -894,6 +894,8 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
           ? previousMessage.content
           : null;
       const previousUserContext =
+        // Space-joining is sufficient: workbook routing only does substring matching
+        // against Hebrew keywords, so word boundaries between joined messages are fine.
         sourceMessages
           .slice(0, index - 1)
           .filter(m => m.role === 'user' && typeof m.content === 'string')

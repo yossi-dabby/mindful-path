@@ -112,15 +112,6 @@ describe('Workbook follow-up routing — "קונטרס אחר לזה?" after neg
   // Simulate the AI returning the wrong (individual) form
   const aiWrongMarker = '[FORM:cognitive-distortions-worksheet:he]';
 
-  let result;
-  let assistantMsg;
-
-  beforeTestSetup: {
-    const msgs = buildConversation(triggeringQuery, aiWrongMarker, priorContext);
-    result = sanitizeConversationMessages(msgs, 'he');
-    assistantMsg = result[result.length - 1];
-  }
-
   it('upgrades to adults-cognitive-flexibility-premium-he', () => {
     const msgs = buildConversation(triggeringQuery, aiWrongMarker, priorContext);
     const res = sanitizeConversationMessages(msgs, 'he');
@@ -253,7 +244,8 @@ describe('Regression — 18 individual forms still resolve via [FORM:slug:he/en]
   });
 
   for (const form of INDIVIDUAL_FORMS) {
-    // Individual forms may only have Hebrew or English; try both
+    // Pick a language the form is known to have; fall back to 'en' if Hebrew is absent.
+    // All approved forms must have at least one valid language block.
     const testLang = form.languages?.he ? 'he' : 'en';
     it(`[FORM:${form.slug}:${testLang}] still resolves (no workbook upgrade without trigger)`, () => {
       // Neutral user query with no workbook trigger language
