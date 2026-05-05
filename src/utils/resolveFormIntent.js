@@ -54,6 +54,8 @@ export const APPROVED_FORM_INTENT_MAP = Object.freeze({
   'adults-cbt-thought-record':                       'tf-adults-cbt-thought-record',
   'cbt-thought-record':                              'tf-adults-cbt-thought-record',
   'thought-record':                                  'tf-adults-cbt-thought-record',
+  // Hebrew title alias — normalised to lowercase by resolveFormIntent
+  'רשומת מחשבות cbt':                               'tf-adults-cbt-thought-record',
 
   // ── Adults: Behavioral Activation ─────────────────────────────────────────
   'tf-adults-behavioral-activation-plan':            'tf-adults-behavioral-activation-plan',
