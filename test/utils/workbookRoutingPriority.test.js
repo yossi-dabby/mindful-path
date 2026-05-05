@@ -323,6 +323,92 @@ describe('Workbook Routing — Test 11: WORKBOOK_CONTENT_METADATA integrity', ()
   });
 });
 
+// ─── 12. Explicit קונטרס + הפרכת מחשבות → cognitive-flexibility ─────────────
+
+describe('Workbook Routing — Test 12: explicit קונטרס + הפרכת מחשבות (short query)', () => {
+  const query = 'יש לך קונטרס בנושא הפרכת מחשבות?';
+
+  it('resolves to adults-cognitive-flexibility-premium-he', () => {
+    const meta = resolveWorkbookIntent(query, 'he');
+    expect(meta, `Query "${query}" must resolve`).not.toBeNull();
+    expect(meta?.form_id).toBe('tf-adults-cognitive-flexibility-premium-he');
+  });
+
+  it('does NOT resolve to cbt-thought-record', () => {
+    const meta = resolveWorkbookIntent(query, 'he');
+    expect(meta?.form_id).not.toBe('tf-adults-cbt-thought-record');
+  });
+
+  it('does NOT resolve to cognitive-distortions-worksheet', () => {
+    const meta = resolveWorkbookIntent(query, 'he');
+    expect(meta?.form_id).not.toBe('tf-adults-cognitive-distortions-worksheet');
+  });
+
+  it('returns workbook_series category', () => {
+    const meta = resolveWorkbookIntent(query, 'he');
+    expect(meta?.category).toBe('workbook_series');
+  });
+});
+
+// ─── 13. "לא טופס בודד" trigger → workbook routing ───────────────────────────
+
+describe('Workbook Routing — Test 13: "לא טופס בודד" is a workbook trigger keyword', () => {
+  it('getWorkbookTriggerKeywords includes "לא טופס בודד"', () => {
+    const kws = getWorkbookTriggerKeywords();
+    expect(kws).toContain('לא טופס בודד');
+  });
+
+  it('"לא טופס בודד" + מחשבות שליליות → cognitive-flexibility (problem-statement query 2)', () => {
+    const query = 'יש לי מחשבות שליליות ואני רוצה ללמוד להפריך אותן, יש לך קונטרס לזה? לא טופס בודד';
+    const meta = resolveWorkbookIntent(query, 'he');
+    expect(meta, `Query "${query}" must resolve`).not.toBeNull();
+    expect(meta?.form_id).toBe('tf-adults-cognitive-flexibility-premium-he');
+  });
+
+  it('"לא טופס בודד" alone + topic keyword resolves to workbook', () => {
+    const query = 'אני רוצה ללמוד להפריך מחשבות שליליות, לא טופס בודד';
+    const meta = resolveWorkbookIntent(query, 'he');
+    expect(meta, `"לא טופס בודד" with topic keyword must resolve`).not.toBeNull();
+    expect(meta?.form_id).toBe('tf-adults-cognitive-flexibility-premium-he');
+  });
+
+  it('"לא טופס בודד" does NOT resolve when no topic keyword matches', () => {
+    const meta = resolveWorkbookIntent('אני צריך עזרה, לא טופס בודד', 'he');
+    // Trigger present but no topic keyword — must return null (no specific match)
+    expect(meta).toBeNull();
+  });
+});
+
+// ─── 14. חוברת עבודה trigger keyword ─────────────────────────────────────────
+
+describe('Workbook Routing — Test 14: "חוברת עבודה" is a workbook trigger keyword', () => {
+  it('getWorkbookTriggerKeywords includes "חוברת עבודה"', () => {
+    const kws = getWorkbookTriggerKeywords();
+    expect(kws).toContain('חוברת עבודה');
+  });
+
+  it('"חוברת עבודה" + דחיינות → coping-change workbook', () => {
+    const meta = resolveWorkbookIntent('יש לך חוברת עבודה בנושא דחיינות והימנעות?', 'he');
+    expect(meta).not.toBeNull();
+    expect(meta?.form_id).toBe('tf-adults-coping-change-premium-he');
+  });
+});
+
+// ─── 15. Regression: "שלח לי תוכנית הפעלה התנהגותית" stays on individual path ─
+
+describe('Workbook Routing — Test 15: individual form direct request not hijacked', () => {
+  it('"שלח לי תוכנית הפעלה התנהגותית" → resolveWorkbookIntent returns null', () => {
+    const meta = resolveWorkbookIntent('שלח לי תוכנית הפעלה התנהגותית', 'he');
+    expect(meta).toBeNull();
+  });
+
+  it('"behavioral-activation-plan" still resolves via resolveFormIntent', () => {
+    const meta = resolveFormIntent('behavioral-activation-plan', 'he');
+    expect(meta, 'behavioral-activation-plan must still resolve').not.toBeNull();
+    expect(meta?.form_id).toBe('tf-adults-behavioral-activation-plan');
+  });
+});
+
 // ─── Additional routing edge cases ────────────────────────────────────────────
 
 describe('Workbook Routing — additional edge cases', () => {
