@@ -242,8 +242,8 @@ describe('Phase 5 — Regression: 18 standard forms + 7 workbooks still resolve'
     expect(STANDARD_FORMS.length).toBe(18);
   });
 
-  it('30b. Exactly 25 total forms are approved (18 standard + 7 Hebrew workbooks)', () => {
-    expect(APPROVED_FORMS.length).toBe(25);
+  it('30b. Exactly 32 total forms are approved (18 standard + 7 Hebrew workbooks + 7 English workbooks)', () => {
+    expect(APPROVED_FORMS.length).toBe(32);
   });
 
   it('31. All 18 standard forms resolve in English', () => {

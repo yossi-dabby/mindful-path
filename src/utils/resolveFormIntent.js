@@ -295,6 +295,34 @@ export const APPROVED_FORM_INTENT_MAP = Object.freeze({
   'משוב על הטיפול':                                        'tf-adults-treatment-summary-custom-forms-premium-he',
   'קונטרס סיכום':                                          'tf-adults-treatment-summary-custom-forms-premium-he',
   'קונטרס טפסים אישיים':                                   'tf-adults-treatment-summary-custom-forms-premium-he',
+
+  // ── English Premium Workbooks: Formulation & Mapping ──────────────────────
+  'tf-adults-formulation-mapping-premium-en':              'tf-adults-formulation-mapping-premium-en',
+  'adults-formulation-mapping-premium-en':                 'tf-adults-formulation-mapping-premium-en',
+
+  // ── English Premium Workbooks: Awareness & Identification ─────────────────
+  'tf-adults-awareness-identification-premium-en':         'tf-adults-awareness-identification-premium-en',
+  'adults-awareness-identification-premium-en':            'tf-adults-awareness-identification-premium-en',
+
+  // ── English Premium Workbooks: Cognitive Flexibility ──────────────────────
+  'tf-adults-cognitive-flexibility-premium-en':            'tf-adults-cognitive-flexibility-premium-en',
+  'adults-cognitive-flexibility-premium-en':               'tf-adults-cognitive-flexibility-premium-en',
+
+  // ── English Premium Workbooks: Emotional Regulation ───────────────────────
+  'tf-adults-emotional-regulation-premium-en':             'tf-adults-emotional-regulation-premium-en',
+  'adults-emotional-regulation-premium-en':                'tf-adults-emotional-regulation-premium-en',
+
+  // ── English Premium Workbooks: Coping & Change ────────────────────────────
+  'tf-adults-coping-change-premium-en':                    'tf-adults-coping-change-premium-en',
+  'adults-coping-change-premium-en':                       'tf-adults-coping-change-premium-en',
+
+  // ── English Premium Workbooks: Strengths & Resilience ────────────────────
+  'tf-adults-strengths-resilience-premium-en':             'tf-adults-strengths-resilience-premium-en',
+  'adults-strengths-resilience-premium-en':                'tf-adults-strengths-resilience-premium-en',
+
+  // ── English Premium Workbooks: Treatment Summary & Custom Forms ───────────
+  'tf-adults-treatment-summary-custom-forms-premium-en':   'tf-adults-treatment-summary-custom-forms-premium-en',
+  'adults-treatment-summary-custom-forms-premium-en':      'tf-adults-treatment-summary-custom-forms-premium-en',
 });
 
 // ─── Marker format ────────────────────────────────────────────────────────────
