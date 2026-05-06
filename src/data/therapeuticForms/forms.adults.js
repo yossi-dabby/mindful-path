@@ -962,7 +962,7 @@ export const FORMS_ADULTS = [
     tags: ['workbook', 'awareness', 'identification', 'thoughts', 'emotions', 'adults', 'fr'],
     languages: {
       fr: {
-        title: 'Cahier d\'identification des pensées, émotions, corps et comportements',
+        title: "Cahier d'identification des pensées, émotions, corps et comportements",
         description: 'Un cahier pour observer pensées, émotions, signaux corporels, comportements et déclencheurs.',
         file_url: '/forms/fr/adults/adults-awareness-identification-premium-fr.pdf',
         file_type: 'pdf',
@@ -1028,7 +1028,7 @@ export const FORMS_ADULTS = [
     tags: ['workbook', 'coping', 'change', 'behavior', 'adults', 'fr'],
     languages: {
       fr: {
-        title: 'Cahier d\'adaptation et de changement',
+        title: "Cahier d'adaptation et de changement",
         description: 'Un cahier pour évitement, procrastination, habitudes, compétences sociales, limites, résolution de problèmes et changement comportemental.',
         file_url: '/forms/fr/adults/adults-coping-change-premium-fr.pdf',
         file_type: 'pdf',
