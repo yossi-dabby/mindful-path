@@ -41,6 +41,11 @@
  *   Seven Spanish premium therapeutic workbook entries added (mirror of Phase 10/11).
  *   These are Spanish-only (es block only); they carry type: 'therapeutic_workbook'
  *   and category: 'workbook_series'.
+ *
+ * Phase 13 (French workbooks) update:
+ *   Seven French premium therapeutic workbook entries added (mirror of Phase 10/11/12).
+ *   These are French-only (fr block only); they carry type: 'therapeutic_workbook'
+ *   and category: 'workbook_series'.
 
 /** @type {import('./types.js').TherapeuticForm[]} */
 export const FORMS_ADULTS = [
@@ -922,5 +927,160 @@ export const FORMS_ADULTS = [
     },
     created_at: '2025-05-05T00:00:00.000Z',
     updated_at: '2025-05-05T00:00:00.000Z',
+  },
+  // ─── French Premium Therapeutic Workbooks ────────────────────────────────────
+  {
+    id: 'tf-adults-formulation-mapping-premium-fr',
+    slug: 'adults-formulation-mapping-premium-fr',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full adult workbook for mapping difficulties, patterns, strengths, and therapeutic direction.',
+    approved: true,
+    tags: ['workbook', 'formulation', 'mapping', 'adults', 'fr'],
+    languages: {
+      fr: {
+        title: 'Cahier de formulation et cartographie du cas',
+        description: 'Un cahier pour cartographier difficultés, schémas, forces et direction thérapeutique.',
+        file_url: '/forms/fr/adults/adults-formulation-mapping-premium-fr.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-formulation-mapping-premium-fr.pdf',
+        rtl: false,
+      },
+    },
+    created_at: '2025-05-06T00:00:00.000Z',
+    updated_at: '2025-05-06T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-awareness-identification-premium-fr',
+    slug: 'adults-awareness-identification-premium-fr',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full workbook for noticing thoughts, emotions, body signals, behaviors, triggers, and patterns.',
+    approved: true,
+    tags: ['workbook', 'awareness', 'identification', 'thoughts', 'emotions', 'adults', 'fr'],
+    languages: {
+      fr: {
+        title: "Cahier d'identification des pensées, émotions, corps et comportements",
+        description: 'Un cahier pour observer pensées, émotions, signaux corporels, comportements et déclencheurs.',
+        file_url: '/forms/fr/adults/adults-awareness-identification-premium-fr.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-awareness-identification-premium-fr.pdf',
+        rtl: false,
+      },
+    },
+    created_at: '2025-05-06T00:00:00.000Z',
+    updated_at: '2025-05-06T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-cognitive-flexibility-premium-fr',
+    slug: 'adults-cognitive-flexibility-premium-fr',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full workbook for challenging automatic thoughts, checking evidence, identifying cognitive distortions, and developing balanced thinking.',
+    approved: true,
+    tags: ['workbook', 'cognitive', 'flexibility', 'challenging-thoughts', 'adults', 'fr'],
+    languages: {
+      fr: {
+        title: 'Cahier de flexibilité cognitive et questionnement des pensées',
+        description: 'Un cahier pour questionner les pensées automatiques, vérifier les preuves, identifier les distorsions cognitives et construire une pensée équilibrée.',
+        file_url: '/forms/fr/adults/adults-cognitive-flexibility-premium-fr.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-cognitive-flexibility-premium-fr.pdf',
+        rtl: false,
+      },
+    },
+    created_at: '2025-05-06T00:00:00.000Z',
+    updated_at: '2025-05-06T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-emotional-regulation-premium-fr',
+    slug: 'adults-emotional-regulation-premium-fr',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full workbook for emotions, intensity, triggers, body sensations, urges, and regulation tools.',
+    approved: true,
+    tags: ['workbook', 'emotional-regulation', 'emotions', 'adults', 'fr'],
+    languages: {
+      fr: {
+        title: 'Cahier de conscience et régulation émotionnelle',
+        description: 'Un cahier sur émotions, intensité, déclencheurs, corps, impulsions et outils de régulation.',
+        file_url: '/forms/fr/adults/adults-emotional-regulation-premium-fr.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-emotional-regulation-premium-fr.pdf',
+        rtl: false,
+      },
+    },
+    created_at: '2025-05-06T00:00:00.000Z',
+    updated_at: '2025-05-06T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-coping-change-premium-fr',
+    slug: 'adults-coping-change-premium-fr',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full workbook for avoidance, procrastination, habits, social skills, boundaries, problem solving, and behavior change.',
+    approved: true,
+    tags: ['workbook', 'coping', 'change', 'behavior', 'adults', 'fr'],
+    languages: {
+      fr: {
+        title: "Cahier d'adaptation et de changement",
+        description: 'Un cahier pour évitement, procrastination, habitudes, compétences sociales, limites, résolution de problèmes et changement comportemental.',
+        file_url: '/forms/fr/adults/adults-coping-change-premium-fr.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-coping-change-premium-fr.pdf',
+        rtl: false,
+      },
+    },
+    created_at: '2025-05-06T00:00:00.000Z',
+    updated_at: '2025-05-06T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-strengths-resilience-premium-fr',
+    slug: 'adults-strengths-resilience-premium-fr',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full workbook for strengths, resources, self-efficacy, hope, identity, and resilience factors.',
+    approved: true,
+    tags: ['workbook', 'strengths', 'resilience', 'adults', 'fr'],
+    languages: {
+      fr: {
+        title: 'Cahier des forces et de la résilience',
+        description: 'Un cahier sur forces, ressources, auto-efficacité, espoir, identité et facteurs de résilience.',
+        file_url: '/forms/fr/adults/adults-strengths-resilience-premium-fr.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-strengths-resilience-premium-fr.pdf',
+        rtl: false,
+      },
+    },
+    created_at: '2025-05-06T00:00:00.000Z',
+    updated_at: '2025-05-06T00:00:00.000Z',
+  },
+  {
+    id: 'tf-adults-treatment-summary-custom-forms-premium-fr',
+    slug: 'adults-treatment-summary-custom-forms-premium-fr',
+    audience: 'adults',
+    category: 'workbook_series',
+    type: 'therapeutic_workbook',
+    therapeutic_use: 'Full workbook for treatment summary, client perspective, continuation planning, and custom forms.',
+    approved: true,
+    tags: ['workbook', 'treatment-summary', 'custom-forms', 'adults', 'fr'],
+    languages: {
+      fr: {
+        title: 'Cahier de synthèse thérapeutique et fiches personnalisées',
+        description: 'Un cahier pour résumé du traitement, point de vue du patient, continuité et fiches sur mesure.',
+        file_url: '/forms/fr/adults/adults-treatment-summary-custom-forms-premium-fr.pdf',
+        file_type: 'pdf',
+        file_name: 'adults-treatment-summary-custom-forms-premium-fr.pdf',
+        rtl: false,
+      },
+    },
+    created_at: '2025-05-06T00:00:00.000Z',
+    updated_at: '2025-05-06T00:00:00.000Z',
   },
 ];

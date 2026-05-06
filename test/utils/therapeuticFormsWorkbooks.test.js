@@ -228,14 +228,14 @@ describe('Phase 10 — Workbooks: all 7 entries appear in the registry', () => {
     }
   });
 
-  it('listFormsByAudience("adults") returns exactly 27 forms (6 standard + 7 Hebrew workbooks + 7 English workbooks + 7 Spanish workbooks)', () => {
+  it('listFormsByAudience("adults") returns exactly 34 forms (6 standard + 7 Hebrew workbooks + 7 English workbooks + 7 Spanish workbooks + 7 French workbooks)', () => {
     const adultForms = listFormsByAudience('adults');
-    expect(adultForms.length).toBe(27);
+    expect(adultForms.length).toBe(34);
   });
 
-  it('total approved forms count is 39 (18 standard + 7 Hebrew workbooks + 7 English workbooks + 7 Spanish workbooks)', () => {
+  it('total approved forms count is 46 (18 standard + 7 Hebrew workbooks + 7 English workbooks + 7 Spanish workbooks + 7 French workbooks)', () => {
     const approvedForms = ALL_FORMS.filter(f => f.approved === true);
-    expect(approvedForms.length).toBe(39);
+    expect(approvedForms.length).toBe(46);
   });
 });
 

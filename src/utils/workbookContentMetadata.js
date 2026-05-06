@@ -1076,3 +1076,349 @@ export const WORKBOOK_CONTENT_METADATA_ES = [
 export function getWorkbookMetaByIdEs(formId) {
   return WORKBOOK_CONTENT_METADATA_ES.find(wb => wb.id === formId);
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// French Workbook Content Metadata — Phase 13
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Topic keywords are French words/phrases used for scoring user queries.
+// Routing rules mirror the Hebrew, English, and Spanish implementations:
+//   - Explicit workbook trigger + ≥1 topic keyword  → return matching workbook
+//   - ≥2 topic keywords from same workbook (multi-topic) → return matching workbook
+//   - No sufficient match → return null
+
+/** @type {WorkbookMeta[]} */
+export const WORKBOOK_CONTENT_METADATA_FR = [
+  // ── 1. Formulation & Mapping ─────────────────────────────────────────────────
+  {
+    id: 'tf-adults-formulation-mapping-premium-fr',
+    slug: 'adults-formulation-mapping-premium-fr',
+    internalForms: [
+      'vue d\'ensemble initiale de la situation',
+      'carte pensées, émotions et comportement',
+      'identifier la difficulté centrale',
+      'forces et ressources',
+      'attentes pour la thérapie',
+      'espoirs, souhaits et objectifs',
+      'image de soi / comment je me vois',
+      'résumé et prochaines étapes',
+    ],
+    topicKeywords: [
+      'formulation du cas',
+      'formulation',
+      'cartographie du problème',
+      'carte du problème',
+      'comprendre le problème',
+      'comprendre ce qui m\'arrive',
+      'vue d\'ensemble',
+      'évaluation initiale',
+      'objectifs thérapeutiques',
+      'buts thérapeutiques',
+      'schémas répétés',
+      'direction du traitement',
+      'comprendre la difficulté',
+      'cahier de formulation',
+      'cahier de cartographie',
+    ],
+    lowerPriorityIndividualForms: [],
+  },
+
+  // ── 2. Awareness & Identification ────────────────────────────────────────────
+  {
+    id: 'tf-adults-awareness-identification-premium-fr',
+    slug: 'adults-awareness-identification-premium-fr',
+    internalForms: [
+      'identifier un événement et la première pensée',
+      'journal des pensées automatiques',
+      'identifier les émotions et leur intensité',
+      'carte des sensations corporelles',
+      'réponse et comportement réels',
+      'chaîne situation-pensée-émotion-corps-comportement',
+      'schémas répétés et déclencheurs',
+      'résumé initial pour poursuivre le travail',
+    ],
+    topicKeywords: [
+      'identifier les pensées',
+      'identifier mes pensées',
+      'identifier les émotions',
+      'identifier mes émotions',
+      'sensations corporelles',
+      'signaux corporels',
+      'pensées automatiques',
+      'journal des pensées',
+      'suivi des pensées',
+      'suivi émotionnel',
+      'déclencheurs',
+      'schémas de comportement',
+      'chaîne cbt',
+      'chaîne pensée émotion comportement',
+      'comprendre mes réactions',
+      'cahier d\'identification',
+    ],
+    lowerPriorityIndividualForms: [
+      'tf-adults-cbt-thought-record',
+    ],
+  },
+
+  // ── 3. Cognitive Flexibility ─────────────────────────────────────────────────
+  {
+    id: 'tf-adults-cognitive-flexibility-premium-fr',
+    slug: 'adults-cognitive-flexibility-premium-fr',
+    internalForms: [
+      'identifier une pensée automatique et une croyance de base',
+      'preuves pour et contre la pensée',
+      'questions socratiques pour questionner les pensées',
+      'distorsions cognitives et reformulation',
+      'proportion et réévaluation du risque',
+      'perspectives alternatives',
+      'pensée médiatrice entre les extrêmes',
+      'dialogue intérieur de soutien',
+      'questionner une croyance limitante',
+      'expérience comportementale pour une pensée',
+      'script de réponse aux déclencheurs',
+      'pensée équilibrée et plan suivant',
+    ],
+    topicKeywords: [
+      'pensées négatives',
+      'pensées automatiques',
+      'questionner les pensées',
+      'remettre en question les pensées',
+      'contester les pensées',
+      'challenger les pensées',
+      'défier les pensées',
+      'distorsions cognitives',
+      'preuves pour et contre',
+      'preuves pour',
+      'preuves contre',
+      'questions socratiques',
+      'pensée équilibrée',
+      'pensée alternative',
+      'flexibilité cognitive',
+      'dialogue intérieur',
+      'auto-dialogue',
+      'croyances limitantes',
+      'croyance limitante',
+      'catastrophisation',
+      'tout ou rien',
+      'lecture de pensée',
+      'perspective',
+      'proportion',
+      'cahier de pensées',
+      'cahier de flexibilité cognitive',
+    ],
+    // When user asks for a cahier about negative thoughts, do NOT attach only
+    // cbt-thought-record or cognitive-distortions-worksheet — attach this workbook.
+    lowerPriorityIndividualForms: [
+      'tf-adults-cbt-thought-record',
+      'tf-adults-cognitive-distortions-worksheet',
+    ],
+  },
+
+  // ── 4. Emotional Regulation ──────────────────────────────────────────────────
+  {
+    id: 'tf-adults-emotional-regulation-premium-fr',
+    slug: 'adults-emotional-regulation-premium-fr',
+    internalForms: [
+      'carte émotionnelle initiale',
+      'intensité émotionnelle dans le temps',
+      'peur et anxiété',
+      'tristesse, humeur basse et lourdeur',
+      'colère et frustration',
+      'honte et culpabilité',
+      'événements qui activent les émotions',
+      'sensations corporelles et envies d\'agir',
+      'réaction émotionnelle ou réponse régulée',
+      'outils de régulation en temps réel',
+      'avant, pendant et après un événement',
+      'émotions mélangées et conflit intérieur',
+      'conversation intérieure apaisante',
+      'plan personnel de régulation',
+    ],
+    topicKeywords: [
+      'régulation émotionnelle',
+      'émotions fortes',
+      'débordement émotionnel',
+      'intensité émotionnelle',
+      'anxiété',
+      'peur',
+      'tristesse',
+      'humeur basse',
+      'colère',
+      'frustration',
+      'honte',
+      'culpabilité',
+      'impulsions',
+      'envies d\'agir',
+      'déclencheurs émotionnels',
+      'émotions mélangées',
+      'me calmer',
+      'calmer mes émotions',
+      'outils de régulation',
+      'gérer les émotions',
+      'contrôler les émotions',
+      'cahier de régulation émotionnelle',
+    ],
+    lowerPriorityIndividualForms: [
+      'tf-adults-mood-tracking-sheet',
+    ],
+  },
+
+  // ── 5. Coping & Change ────────────────────────────────────────────────────────
+  {
+    id: 'tf-adults-coping-change-premium-fr',
+    slug: 'adults-coping-change-premium-fr',
+    internalForms: [
+      'carte personnelle d\'adaptation',
+      'évitement et étapes graduelles',
+      'procrastination et mise en action',
+      'habitude difficile et habitude alternative',
+      'compétences sociales de base',
+      'communication assertive',
+      'limites personnelles',
+      'résolution pratique de problèmes',
+      'gestion de la charge et de la routine',
+      'faire face à la critique',
+      'régulation des impulsions avant l\'action',
+      'maintenir le changement et prévenir la rechute',
+    ],
+    topicKeywords: [
+      'procrastination',
+      'remettre à plus tard',
+      'évitement',
+      'éviter',
+      'habitudes difficiles',
+      'habitudes problématiques',
+      'changer les habitudes',
+      'changement de comportement',
+      'adaptation',
+      'stratégies d\'adaptation',
+      'compétences sociales',
+      'assertivité',
+      'communication assertive',
+      'limites personnelles',
+      'poser des limites',
+      'résolution de problèmes',
+      'routine',
+      'surcharge',
+      'charge mentale',
+      'critique',
+      'impulsions',
+      'prévention de la rechute',
+      'rechute',
+      'changer des schémas',
+      'cahier d\'adaptation',
+      'cahier de changement',
+    ],
+    // When user asks for a cahier about procrastination/avoidance/difficult habits,
+    // do NOT attach behavioral-activation-plan — attach this workbook instead.
+    lowerPriorityIndividualForms: [
+      'tf-adults-behavioral-activation-plan',
+      'tf-adults-weekly-coping-plan',
+    ],
+  },
+
+  // ── 6. Strengths & Resilience ────────────────────────────────────────────────
+  {
+    id: 'tf-adults-strengths-resilience-premium-fr',
+    slug: 'adults-strengths-resilience-premium-fr',
+    internalForms: [
+      'carte des forces personnelles',
+      'réussites passées comme ressources',
+      'valeurs comme ancre thérapeutique',
+      'réseau de soutien et ressources',
+      'auto-efficacité',
+      'renforcer la voix intérieure',
+      'forces dans les relations',
+      'résilience sous stress',
+      'espoir réaliste',
+      'identité au-delà de la difficulté',
+      'utiliser les forces en thérapie',
+    ],
+    topicKeywords: [
+      'forces',
+      'forces personnelles',
+      'points forts',
+      'résilience',
+      'confiance',
+      'confiance en moi',
+      'confiance en soi',
+      'estime de soi',
+      'auto-efficacité',
+      'sentiment de capacité',
+      'ressources',
+      'espoir',
+      'valeurs',
+      'réseau de soutien',
+      'soutien',
+      'voix intérieure',
+      'dialogue intérieur positif',
+      'identité au-delà du problème',
+      'facteurs protecteurs',
+      'facteurs de résilience',
+      'cahier des forces',
+      'cahier de résilience',
+    ],
+    lowerPriorityIndividualForms: [
+      'tf-adults-values-and-goals-worksheet',
+    ],
+  },
+
+  // ── 7. Treatment Summary & Custom Forms ──────────────────────────────────────
+  {
+    id: 'tf-adults-treatment-summary-custom-forms-premium-fr',
+    slug: 'adults-treatment-summary-custom-forms-premium-fr',
+    internalForms: [
+      'résumé du parcours thérapeutique',
+      'réussites et processus de changement',
+      'outils que j\'emporte de la thérapie',
+      'ce que j\'ai appris sur moi',
+      'relation thérapeutique et retour d\'expérience',
+      'plan de continuité après le traitement',
+      'fiche personnalisée construite ensemble',
+      'fiche hebdomadaire vierge',
+      'fiche pour événement significatif',
+      'fiche pour expérience thérapeutique',
+      'page personnelle ouverte',
+      'résumé personnel final',
+    ],
+    topicKeywords: [
+      'résumé de thérapie',
+      'résumé thérapeutique',
+      'résumé du traitement',
+      'fin de thérapie',
+      'terminer la thérapie',
+      'clôture de thérapie',
+      'revoir la thérapie',
+      'retour d\'expérience',
+      'feedback thérapeutique',
+      'plan de continuité',
+      'ce que j\'ai appris en thérapie',
+      'fiche personnalisée',
+      'fiches personnalisées',
+      'formulaire personnalisé',
+      'formulaires personnalisés',
+      'fiche vierge',
+      'formulaire vierge',
+      'feuille personnalisée',
+      'créer une fiche avec mon thérapeute',
+      'construire une fiche avec mon thérapeute',
+      'suivi hebdomadaire',
+      'expérience thérapeutique',
+      'page personnelle',
+      'cahier de synthèse',
+      'cahier de fiches personnalisées',
+    ],
+    lowerPriorityIndividualForms: [],
+  },
+];
+
+/**
+ * Quickly look up French workbook metadata by form ID.
+ * Returns undefined when not found.
+ *
+ * @param {string} formId
+ * @returns {WorkbookMeta|undefined}
+ */
+export function getWorkbookMetaByIdFr(formId) {
+  return WORKBOOK_CONTENT_METADATA_FR.find(wb => wb.id === formId);
+}
