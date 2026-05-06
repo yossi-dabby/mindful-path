@@ -15,7 +15,11 @@
  */
 
 import { resolveFormIntent, FORM_INTENT_MARKER_PATTERN } from '../../utils/resolveFormIntent.js';
-import { resolveWorkbookIntentWithContext } from '../../utils/resolveWorkbookIntent.js';
+import {
+  resolveWorkbookIntentWithContext,
+  resolveEnglishWorkbookIntentWithContext,
+  resolveSpanishWorkbookIntentWithContext,
+} from '../../utils/resolveWorkbookIntent.js';
 
 // Safety patterns to detect and strip
 const UNSAFE_PATTERNS = [
@@ -727,9 +731,9 @@ function extractAndResolveFormIntent(content, lang, userQuery, previousUserConte
 
     // Workbook routing priority override:
     // If the AI resolved an individual worksheet but the user's current message
-    // contains workbook-trigger language (קונטרס / חוברת / …), attempt to
-    // upgrade the resolved form to the matching workbook.
-    // resolveWorkbookIntentWithContext returns null when no workbook trigger is
+    // contains workbook-trigger language (קונטרס / חוברת / cuaderno / workbook …),
+    // attempt to upgrade the resolved form to the matching workbook.
+    // Each language-specific resolver returns null when no workbook trigger is
     // present or when no workbook matches, so this is a safe no-op for all
     // plain worksheet requests.
     if (
@@ -739,13 +743,25 @@ function extractAndResolveFormIntent(content, lang, userQuery, previousUserConte
     ) {
       try {
         const effectiveLangForWorkbook = lang || 'he';
-        const workbookOverride = resolveWorkbookIntentWithContext(
-          userQuery,
-          typeof previousUserContext === 'string' && previousUserContext.trim()
-            ? previousUserContext
-            : null,
-          effectiveLangForWorkbook
-        );
+        const prevCtx = typeof previousUserContext === 'string' && previousUserContext.trim()
+          ? previousUserContext
+          : null;
+
+        // Dispatch to the language-appropriate workbook resolver.
+        // Spanish and English each have dedicated resolver functions with their own
+        // trigger-keyword lists and workbook metadata; they do not accept a lang
+        // parameter.  Hebrew (and any other languages without a dedicated resolver)
+        // fall through to the general resolveWorkbookIntentWithContext, which accepts
+        // a lang parameter so it can target the correct workbook registry.
+        let workbookOverride = null;
+        if (effectiveLangForWorkbook === 'es') {
+          workbookOverride = resolveSpanishWorkbookIntentWithContext(userQuery, prevCtx);
+        } else if (effectiveLangForWorkbook === 'en') {
+          workbookOverride = resolveEnglishWorkbookIntentWithContext(userQuery, prevCtx);
+        } else {
+          workbookOverride = resolveWorkbookIntentWithContext(userQuery, prevCtx, effectiveLangForWorkbook);
+        }
+
         if (workbookOverride) {
           resolvedGeneratedFile = workbookOverride;
         }

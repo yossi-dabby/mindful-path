@@ -278,3 +278,211 @@ describe('Context-aware routing — coping topic + workbook trigger', () => {
     expect(last.metadata.generated_file.category).toBe('workbook_series');
   });
 });
+
+// ─── Spanish workbook routing via sanitizeConversationMessages ────────────────
+//
+// These tests verify that the language-dispatched workbook routing override
+// in extractAndResolveFormIntent correctly upgrades individual worksheets to
+// the matching Spanish workbook when the user's message contains Spanish
+// workbook-trigger language (cuaderno / cuaderno de trabajo / …).
+
+/**
+ * Build a minimal Spanish conversation for testing.
+ */
+function buildSpanishConversation(userQuery, aiFormMarker, priorUserMsgs = []) {
+  const msgs = [];
+  for (const prior of priorUserMsgs) {
+    msgs.push({ role: 'user', content: prior, metadata: { session_language: 'es' } });
+    msgs.push({ role: 'assistant', content: 'Entendido.' });
+  }
+  msgs.push({ role: 'user', content: userQuery, metadata: { session_language: 'es' } });
+  msgs.push({ role: 'assistant', content: `Te adjunto algo útil. ${aiFormMarker}` });
+  return msgs;
+}
+
+describe('Spanish workbook routing — "cuaderno" for negative thoughts', () => {
+  const query = '¿Tienes un cuaderno para pensamientos negativos?';
+  const aiWrongMarker = '[FORM:cbt-thought-record:es]';
+
+  it('upgrades cbt-thought-record to adults-cognitive-flexibility-premium-es', () => {
+    const msgs = buildSpanishConversation(query, aiWrongMarker);
+    const result = sanitizeConversationMessages(msgs, 'es');
+    const last = result[result.length - 1];
+    expect(last.metadata?.generated_file).toBeDefined();
+    expect(last.metadata.generated_file.form_id).toBe('tf-adults-cognitive-flexibility-premium-es');
+  });
+
+  it('does NOT resolve to cbt-thought-record', () => {
+    const msgs = buildSpanishConversation(query, aiWrongMarker);
+    const result = sanitizeConversationMessages(msgs, 'es');
+    const last = result[result.length - 1];
+    expect(last.metadata.generated_file.form_id).not.toBe('tf-adults-cbt-thought-record');
+  });
+
+  it('does NOT resolve to cognitive-distortions-worksheet', () => {
+    const msgs = buildSpanishConversation(query, '[FORM:cognitive-distortions-worksheet:es]');
+    const result = sanitizeConversationMessages(msgs, 'es');
+    const last = result[result.length - 1];
+    expect(last.metadata.generated_file.form_id).not.toBe('tf-adults-cognitive-distortions-worksheet');
+  });
+
+  it('returns workbook_series category in Spanish', () => {
+    const msgs = buildSpanishConversation(query, aiWrongMarker);
+    const result = sanitizeConversationMessages(msgs, 'es');
+    const last = result[result.length - 1];
+    expect(last.metadata.generated_file.category).toBe('workbook_series');
+    expect(last.metadata.generated_file.language).toBe('es');
+  });
+});
+
+describe('Spanish workbook routing — "cuaderno" for procrastination/avoidance/habits', () => {
+  const query = '¿Tienes un cuaderno para procrastinación, evitación y hábitos difíciles?';
+  const aiWrongMarker = '[FORM:behavioral-activation-plan:es]';
+
+  it('upgrades behavioral-activation-plan to adults-coping-change-premium-es', () => {
+    const msgs = buildSpanishConversation(query, aiWrongMarker);
+    const result = sanitizeConversationMessages(msgs, 'es');
+    const last = result[result.length - 1];
+    expect(last.metadata?.generated_file?.form_id).toBe('tf-adults-coping-change-premium-es');
+  });
+
+  it('does NOT resolve to behavioral-activation-plan', () => {
+    const msgs = buildSpanishConversation(query, aiWrongMarker);
+    const result = sanitizeConversationMessages(msgs, 'es');
+    const last = result[result.length - 1];
+    expect(last.metadata.generated_file.form_id).not.toBe('tf-adults-behavioral-activation-plan');
+  });
+
+  it('returns workbook_series in Spanish', () => {
+    const msgs = buildSpanishConversation(query, aiWrongMarker);
+    const result = sanitizeConversationMessages(msgs, 'es');
+    const last = result[result.length - 1];
+    expect(last.metadata.generated_file.category).toBe('workbook_series');
+    expect(last.metadata.generated_file.language).toBe('es');
+  });
+});
+
+describe('Spanish workbook routing — "cuaderno" for emotional regulation', () => {
+  it('upgrades mood-tracking-sheet to adults-emotional-regulation-premium-es', () => {
+    const query = '¿Tienes un cuaderno para regulación emocional y emociones fuertes?';
+    const msgs = buildSpanishConversation(query, '[FORM:mood-tracking-sheet:es]');
+    const result = sanitizeConversationMessages(msgs, 'es');
+    const last = result[result.length - 1];
+    expect(last.metadata?.generated_file?.form_id).toBe('tf-adults-emotional-regulation-premium-es');
+    expect(last.metadata.generated_file.category).toBe('workbook_series');
+  });
+});
+
+describe('Spanish workbook routing — "cuaderno" for strengths/resilience/self-efficacy', () => {
+  it('upgrades values-and-goals-worksheet to adults-strengths-resilience-premium-es', () => {
+    const query = '¿Tienes un cuaderno para fortalezas, resiliencia, confianza y autoeficacia?';
+    const msgs = buildSpanishConversation(query, '[FORM:values-and-goals-worksheet:es]');
+    const result = sanitizeConversationMessages(msgs, 'es');
+    const last = result[result.length - 1];
+    expect(last.metadata?.generated_file?.form_id).toBe('tf-adults-strengths-resilience-premium-es');
+    expect(last.metadata.generated_file.category).toBe('workbook_series');
+  });
+});
+
+describe('Spanish workbook routing — "cuaderno" for treatment summary', () => {
+  it('resolves to adults-treatment-summary-custom-forms-premium-es', () => {
+    const query = 'Estoy terminando terapia y quiero un cuaderno de resumen del tratamiento y formularios personalizados';
+    const msgs = buildSpanishConversation(query, '[FORM:cbt-thought-record:es]');
+    const result = sanitizeConversationMessages(msgs, 'es');
+    const last = result[result.length - 1];
+    expect(last.metadata?.generated_file?.form_id).toBe('tf-adults-treatment-summary-custom-forms-premium-es');
+    expect(last.metadata.generated_file.category).toBe('workbook_series');
+  });
+});
+
+describe('Spanish workbook routing — no forced attachment for therapeutic conversation', () => {
+  it('"Quiero trabajar pensamientos negativos" with no form marker → no generated_file', () => {
+    const msgs = [
+      { role: 'user', content: 'Quiero trabajar pensamientos negativos', metadata: { session_language: 'es' } },
+      { role: 'assistant', content: 'Vamos a trabajar en eso juntos.' }
+    ];
+    const result = sanitizeConversationMessages(msgs, 'es');
+    const last = result[result.length - 1];
+    expect(last.metadata?.generated_file).toBeUndefined();
+  });
+});
+
+describe('Spanish workbook routing — "hoja de trabajo" keeps individual worksheet', () => {
+  it('"¿Tienes una hoja de trabajo para pensamientos negativos?" keeps cbt-thought-record', () => {
+    const msgs = buildSpanishConversation(
+      '¿Tienes una hoja de trabajo para pensamientos negativos?',
+      '[FORM:cbt-thought-record:es]'
+    );
+    const result = sanitizeConversationMessages(msgs, 'es');
+    const last = result[result.length - 1];
+    expect(last.metadata?.generated_file?.form_id).toBe('tf-adults-cbt-thought-record');
+    // Must NOT be upgraded to a workbook
+    expect(last.metadata.generated_file.category).not.toBe('workbook_series');
+  });
+});
+
+describe('Spanish workbook routing — direct named individual form requests preserved', () => {
+  it('"Envíame el Registro de Pensamientos TCC" keeps cbt-thought-record', () => {
+    const msgs = buildSpanishConversation(
+      'Envíame el Registro de Pensamientos TCC',
+      '[FORM:cbt-thought-record:es]'
+    );
+    const result = sanitizeConversationMessages(msgs, 'es');
+    const last = result[result.length - 1];
+    expect(last.metadata?.generated_file?.form_id).toBe('tf-adults-cbt-thought-record');
+    expect(last.metadata.generated_file.category).not.toBe('workbook_series');
+  });
+
+  it('"Envíame el Plan de Activación Conductual" keeps behavioral-activation-plan', () => {
+    const msgs = buildSpanishConversation(
+      'Envíame el Plan de Activación Conductual',
+      '[FORM:behavioral-activation-plan:es]'
+    );
+    const result = sanitizeConversationMessages(msgs, 'es');
+    const last = result[result.length - 1];
+    expect(last.metadata?.generated_file?.form_id).toBe('tf-adults-behavioral-activation-plan');
+    expect(last.metadata.generated_file.category).not.toBe('workbook_series');
+  });
+});
+
+describe('Spanish workbook routing — workbook card must not be labeled as worksheet', () => {
+  it('Spanish workbook metadata has category workbook_series (not individual form)', () => {
+    const msgs = buildSpanishConversation(
+      '¿Tienes un cuaderno para pensamientos negativos?',
+      '[FORM:cbt-thought-record:es]'
+    );
+    const result = sanitizeConversationMessages(msgs, 'es');
+    const last = result[result.length - 1];
+    // After override, category must be workbook_series (not individual worksheet)
+    expect(last.metadata?.generated_file?.category).toBe('workbook_series');
+  });
+});
+
+describe('Regression — Hebrew workbook routing unaffected', () => {
+  it('"קונטרס לזה?" after negative thoughts context still resolves to Hebrew workbook', () => {
+    const msgs = buildConversation(
+      'יש לך קונטרס לזה?',
+      '[FORM:cbt-thought-record:he]',
+      ['מחשבות שליליות הפרכת מחשבות']
+    );
+    const result = sanitizeConversationMessages(msgs, 'he');
+    const last = result[result.length - 1];
+    expect(last.metadata?.generated_file?.form_id).toBe('tf-adults-cognitive-flexibility-premium-he');
+    expect(last.metadata.generated_file.language).toBe('he');
+  });
+});
+
+describe('Regression — English workbook routing unaffected', () => {
+  it('"Do you have a workbook for negative thoughts?" upgrades to English workbook', () => {
+    const msgs = [
+      { role: 'user', content: 'Do you have a workbook for negative thoughts?', metadata: { session_language: 'en' } },
+      { role: 'assistant', content: `Here you go. [FORM:cbt-thought-record:en]` }
+    ];
+    const result = sanitizeConversationMessages(msgs, 'en');
+    const last = result[result.length - 1];
+    expect(last.metadata?.generated_file?.form_id).toBe('tf-adults-cognitive-flexibility-premium-en');
+    expect(last.metadata.generated_file.category).toBe('workbook_series');
+    expect(last.metadata.generated_file.language).toBe('en');
+  });
+});
+
