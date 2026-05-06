@@ -323,6 +323,73 @@ export const APPROVED_FORM_INTENT_MAP = Object.freeze({
   // ── English Premium Workbooks: Treatment Summary & Custom Forms ───────────
   'tf-adults-treatment-summary-custom-forms-premium-en':   'tf-adults-treatment-summary-custom-forms-premium-en',
   'adults-treatment-summary-custom-forms-premium-en':      'tf-adults-treatment-summary-custom-forms-premium-en',
+
+  // ── Spanish Premium Workbooks: Formulation & Mapping ──────────────────────
+  'tf-adults-formulation-mapping-premium-es':              'tf-adults-formulation-mapping-premium-es',
+  'adults-formulation-mapping-premium-es':                 'tf-adults-formulation-mapping-premium-es',
+  'formulación del caso':                                  'tf-adults-formulation-mapping-premium-es',
+  'formulación':                                           'tf-adults-formulation-mapping-premium-es',
+  'mapeo del caso':                                        'tf-adults-formulation-mapping-premium-es',
+  'cuaderno de formulación':                               'tf-adults-formulation-mapping-premium-es',
+  'cuaderno de mapeo':                                     'tf-adults-formulation-mapping-premium-es',
+  'entender qué me pasa':                                  'tf-adults-formulation-mapping-premium-es',
+  'evaluación inicial es':                                 'tf-adults-formulation-mapping-premium-es',
+  'metas terapéuticas es':                                 'tf-adults-formulation-mapping-premium-es',
+
+  // ── Spanish Premium Workbooks: Awareness & Identification ─────────────────
+  'tf-adults-awareness-identification-premium-es':         'tf-adults-awareness-identification-premium-es',
+  'adults-awareness-identification-premium-es':            'tf-adults-awareness-identification-premium-es',
+  'cuaderno de identificación':                            'tf-adults-awareness-identification-premium-es',
+  'identificar pensamientos emociones cuerpo conducta':    'tf-adults-awareness-identification-premium-es',
+  'cadena pensamiento emoción conducta':                   'tf-adults-awareness-identification-premium-es',
+  'cadena cbt es':                                         'tf-adults-awareness-identification-premium-es',
+
+  // ── Spanish Premium Workbooks: Cognitive Flexibility ──────────────────────
+  'tf-adults-cognitive-flexibility-premium-es':            'tf-adults-cognitive-flexibility-premium-es',
+  'adults-cognitive-flexibility-premium-es':               'tf-adults-cognitive-flexibility-premium-es',
+  'cuaderno de pensamientos':                              'tf-adults-cognitive-flexibility-premium-es',
+  'cuaderno de flexibilidad cognitiva':                    'tf-adults-cognitive-flexibility-premium-es',
+  'desafiar pensamientos':                                 'tf-adults-cognitive-flexibility-premium-es',
+  'cuestionar pensamientos':                               'tf-adults-cognitive-flexibility-premium-es',
+  'pensamientos negativos es':                             'tf-adults-cognitive-flexibility-premium-es',
+  'distorsiones cognitivas es':                            'tf-adults-cognitive-flexibility-premium-es',
+  'flexibilidad cognitiva es':                             'tf-adults-cognitive-flexibility-premium-es',
+
+  // ── Spanish Premium Workbooks: Emotional Regulation ───────────────────────
+  'tf-adults-emotional-regulation-premium-es':             'tf-adults-emotional-regulation-premium-es',
+  'adults-emotional-regulation-premium-es':                'tf-adults-emotional-regulation-premium-es',
+  'cuaderno de regulación emocional':                      'tf-adults-emotional-regulation-premium-es',
+  'regulación emocional es':                               'tf-adults-emotional-regulation-premium-es',
+  'emociones fuertes es':                                  'tf-adults-emotional-regulation-premium-es',
+  'desborde emocional es':                                 'tf-adults-emotional-regulation-premium-es',
+
+  // ── Spanish Premium Workbooks: Coping & Change ────────────────────────────
+  'tf-adults-coping-change-premium-es':                    'tf-adults-coping-change-premium-es',
+  'adults-coping-change-premium-es':                       'tf-adults-coping-change-premium-es',
+  'cuaderno de afrontamiento':                             'tf-adults-coping-change-premium-es',
+  'cuaderno de cambio':                                    'tf-adults-coping-change-premium-es',
+  'afrontamiento es':                                      'tf-adults-coping-change-premium-es',
+  'procrastinación es':                                    'tf-adults-coping-change-premium-es',
+  'evitación es':                                          'tf-adults-coping-change-premium-es',
+  'hábitos difíciles es':                                  'tf-adults-coping-change-premium-es',
+
+  // ── Spanish Premium Workbooks: Strengths & Resilience ────────────────────
+  'tf-adults-strengths-resilience-premium-es':             'tf-adults-strengths-resilience-premium-es',
+  'adults-strengths-resilience-premium-es':                'tf-adults-strengths-resilience-premium-es',
+  'cuaderno de fortalezas':                                'tf-adults-strengths-resilience-premium-es',
+  'cuaderno de resiliencia':                               'tf-adults-strengths-resilience-premium-es',
+  'fortalezas es':                                         'tf-adults-strengths-resilience-premium-es',
+  'resiliencia es':                                        'tf-adults-strengths-resilience-premium-es',
+  'autoeficacia es':                                       'tf-adults-strengths-resilience-premium-es',
+
+  // ── Spanish Premium Workbooks: Treatment Summary & Custom Forms ───────────
+  'tf-adults-treatment-summary-custom-forms-premium-es':   'tf-adults-treatment-summary-custom-forms-premium-es',
+  'adults-treatment-summary-custom-forms-premium-es':      'tf-adults-treatment-summary-custom-forms-premium-es',
+  'cuaderno de resumen':                                   'tf-adults-treatment-summary-custom-forms-premium-es',
+  'cuaderno de formularios personalizados':                'tf-adults-treatment-summary-custom-forms-premium-es',
+  'resumen del tratamiento es':                            'tf-adults-treatment-summary-custom-forms-premium-es',
+  'terminar terapia es':                                   'tf-adults-treatment-summary-custom-forms-premium-es',
+  'formulario personalizado es':                           'tf-adults-treatment-summary-custom-forms-premium-es',
 });
 
 // ─── Marker format ────────────────────────────────────────────────────────────

@@ -242,8 +242,8 @@ describe('Phase 5 — Regression: 18 standard forms + 7 workbooks still resolve'
     expect(STANDARD_FORMS.length).toBe(18);
   });
 
-  it('30b. Exactly 32 total forms are approved (18 standard + 7 Hebrew workbooks + 7 English workbooks)', () => {
-    expect(APPROVED_FORMS.length).toBe(32);
+  it('30b. Exactly 39 total forms are approved (18 standard + 7 Hebrew workbooks + 7 English workbooks + 7 Spanish workbooks)', () => {
+    expect(APPROVED_FORMS.length).toBe(39);
   });
 
   it('31. All 18 standard forms resolve in English', () => {
@@ -253,8 +253,9 @@ describe('Phase 5 — Regression: 18 standard forms + 7 workbooks still resolve'
     }
   });
 
-  it('32. All approved forms resolve in Hebrew', () => {
+  it('32. All approved forms that have a Hebrew or English block resolve in Hebrew', () => {
     for (const form of APPROVED_FORMS) {
+      if (!form.languages?.he && !form.languages?.en) continue;
       const resolved = resolveFormWithLanguage(form.id, 'he');
       expect(resolved, `Form ${form.id} failed to resolve in Hebrew`).not.toBeNull();
     }
