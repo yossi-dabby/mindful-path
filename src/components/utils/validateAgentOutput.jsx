@@ -747,8 +747,12 @@ function extractAndResolveFormIntent(content, lang, userQuery, previousUserConte
           ? previousUserContext
           : null;
 
-        // Dispatch to the language-appropriate workbook resolver so that
-        // Spanish and English trigger keywords score correctly.
+        // Dispatch to the language-appropriate workbook resolver.
+        // Spanish and English each have dedicated resolver functions with their own
+        // trigger-keyword lists and workbook metadata; they do not accept a lang
+        // parameter.  Hebrew (and any other languages without a dedicated resolver)
+        // fall through to the general resolveWorkbookIntentWithContext, which accepts
+        // a lang parameter so it can target the correct workbook registry.
         let workbookOverride = null;
         if (effectiveLangForWorkbook === 'es') {
           workbookOverride = resolveSpanishWorkbookIntentWithContext(userQuery, prevCtx);
