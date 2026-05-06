@@ -79,7 +79,11 @@ export default function GeneratedFileCard({ generatedFile }) {
           ) : (
             <>
               <Download className="w-3.5 h-3.5" />
-              <span>{t('chat.generated_file.download_button', 'Download')}</span>
+              <span>{
+                normalized.category === 'workbook_series'
+                  ? t('chat.generated_file.download_workbook_button', 'Download Workbook')
+                  : t('chat.generated_file.download_button', 'Download')
+              }</span>
             </>
           )}
         </button>

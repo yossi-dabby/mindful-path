@@ -242,6 +242,7 @@ export const translations = {
         generated_file: {
           type_label: "PDF",
           download_button: "Download Worksheet",
+          download_workbook_button: "Download Workbook",
           opening: "Opening..."
         },
         delete_session_failed: "Failed to delete session. Please try again.",
@@ -1700,6 +1701,7 @@ export const translations = {
         generated_file: {
           type_label: "PDF",
           download_button: "הורד דף עבודה",
+          download_workbook_button: "הורד קונטרס",
           opening: "פותח..."
         },
         delete_session_failed: "מחיקת המפגש נכשלה. נסו שוב.",
@@ -3158,6 +3160,7 @@ export const translations = {
         generated_file: {
           type_label: "PDF",
           download_button: "Descargar hoja de trabajo",
+          download_workbook_button: "Descargar cuaderno",
           opening: "Abriendo..."
         },
         delete_session_failed: "Error al eliminar la sesión. Por favor, inténtalo de nuevo.",
@@ -4573,6 +4576,7 @@ export const translations = {
         generated_file: {
           type_label: "PDF",
           download_button: "Télécharger la feuille de travail",
+          download_workbook_button: "Télécharger le cahier de travail",
           opening: "Ouverture..."
         },
         delete_session_failed: "Échec de la suppression de la session. Veuillez réessayer.",
@@ -5987,6 +5991,7 @@ export const translations = {
         generated_file: {
           type_label: "PDF",
           download_button: "Arbeitsblatt herunterladen",
+          download_workbook_button: "Arbeitsheft herunterladen",
           opening: "Öffnen..."
         },
         delete_session_failed: "Sitzung konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
@@ -7401,6 +7406,7 @@ export const translations = {
         generated_file: {
           type_label: "PDF",
           download_button: "Scarica il foglio di lavoro",
+          download_workbook_button: "Scarica il quaderno di lavoro",
           opening: "Apertura in corso..."
         },
         delete_session_failed: "Impossibile eliminare la sessione. Riprova.",
@@ -8815,6 +8821,7 @@ export const translations = {
         generated_file: {
           type_label: "PDF",
           download_button: "Baixar folha de trabalho",
+          download_workbook_button: "Baixar caderno de exercícios",
           opening: "Abrindo..."
         },
         delete_session_failed: "Falha ao excluir a sessão. Por favor, tente novamente.",
