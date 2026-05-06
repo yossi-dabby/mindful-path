@@ -390,6 +390,69 @@ export const APPROVED_FORM_INTENT_MAP = Object.freeze({
   'resumen del tratamiento es':                            'tf-adults-treatment-summary-custom-forms-premium-es',
   'terminar terapia es':                                   'tf-adults-treatment-summary-custom-forms-premium-es',
   'formulario personalizado es':                           'tf-adults-treatment-summary-custom-forms-premium-es',
+
+  // ── French Premium Workbooks: Formulation & Mapping ───────────────────────
+  'tf-adults-formulation-mapping-premium-fr':              'tf-adults-formulation-mapping-premium-fr',
+  'adults-formulation-mapping-premium-fr':                 'tf-adults-formulation-mapping-premium-fr',
+  'cahier de formulation':                                 'tf-adults-formulation-mapping-premium-fr',
+  'cahier de cartographie':                                'tf-adults-formulation-mapping-premium-fr',
+  'formulation du cas fr':                                 'tf-adults-formulation-mapping-premium-fr',
+  'cartographie du problème fr':                           'tf-adults-formulation-mapping-premium-fr',
+  'évaluation initiale fr':                                'tf-adults-formulation-mapping-premium-fr',
+  'objectifs thérapeutiques fr':                           'tf-adults-formulation-mapping-premium-fr',
+
+  // ── French Premium Workbooks: Awareness & Identification ──────────────────
+  'tf-adults-awareness-identification-premium-fr':         'tf-adults-awareness-identification-premium-fr',
+  'adults-awareness-identification-premium-fr':            'tf-adults-awareness-identification-premium-fr',
+  "cahier d'identification":                               'tf-adults-awareness-identification-premium-fr',
+  'identifier pensées émotions corps comportements':       'tf-adults-awareness-identification-premium-fr',
+  'chaîne pensée émotion comportement fr':                 'tf-adults-awareness-identification-premium-fr',
+  'chaîne cbt fr':                                         'tf-adults-awareness-identification-premium-fr',
+
+  // ── French Premium Workbooks: Cognitive Flexibility ───────────────────────
+  'tf-adults-cognitive-flexibility-premium-fr':            'tf-adults-cognitive-flexibility-premium-fr',
+  'adults-cognitive-flexibility-premium-fr':               'tf-adults-cognitive-flexibility-premium-fr',
+  'cahier de pensées':                                     'tf-adults-cognitive-flexibility-premium-fr',
+  'cahier de flexibilité cognitive':                       'tf-adults-cognitive-flexibility-premium-fr',
+  'questionner les pensées fr':                            'tf-adults-cognitive-flexibility-premium-fr',
+  'pensées négatives fr':                                  'tf-adults-cognitive-flexibility-premium-fr',
+  'distorsions cognitives fr':                             'tf-adults-cognitive-flexibility-premium-fr',
+  'flexibilité cognitive fr':                              'tf-adults-cognitive-flexibility-premium-fr',
+
+  // ── French Premium Workbooks: Emotional Regulation ────────────────────────
+  'tf-adults-emotional-regulation-premium-fr':             'tf-adults-emotional-regulation-premium-fr',
+  'adults-emotional-regulation-premium-fr':                'tf-adults-emotional-regulation-premium-fr',
+  'cahier de régulation émotionnelle':                     'tf-adults-emotional-regulation-premium-fr',
+  'régulation émotionnelle fr':                            'tf-adults-emotional-regulation-premium-fr',
+  'émotions fortes fr':                                    'tf-adults-emotional-regulation-premium-fr',
+  'débordement émotionnel fr':                             'tf-adults-emotional-regulation-premium-fr',
+
+  // ── French Premium Workbooks: Coping & Change ─────────────────────────────
+  'tf-adults-coping-change-premium-fr':                    'tf-adults-coping-change-premium-fr',
+  'adults-coping-change-premium-fr':                       'tf-adults-coping-change-premium-fr',
+  "cahier d'adaptation":                                   'tf-adults-coping-change-premium-fr',
+  'cahier de changement':                                  'tf-adults-coping-change-premium-fr',
+  'procrastination fr':                                    'tf-adults-coping-change-premium-fr',
+  'évitement fr':                                          'tf-adults-coping-change-premium-fr',
+  'habitudes difficiles fr':                               'tf-adults-coping-change-premium-fr',
+
+  // ── French Premium Workbooks: Strengths & Resilience ─────────────────────
+  'tf-adults-strengths-resilience-premium-fr':             'tf-adults-strengths-resilience-premium-fr',
+  'adults-strengths-resilience-premium-fr':                'tf-adults-strengths-resilience-premium-fr',
+  'cahier des forces':                                     'tf-adults-strengths-resilience-premium-fr',
+  'cahier de résilience':                                  'tf-adults-strengths-resilience-premium-fr',
+  'forces fr':                                             'tf-adults-strengths-resilience-premium-fr',
+  'résilience fr':                                         'tf-adults-strengths-resilience-premium-fr',
+  'auto-efficacité fr':                                    'tf-adults-strengths-resilience-premium-fr',
+
+  // ── French Premium Workbooks: Treatment Summary & Custom Forms ────────────
+  'tf-adults-treatment-summary-custom-forms-premium-fr':   'tf-adults-treatment-summary-custom-forms-premium-fr',
+  'adults-treatment-summary-custom-forms-premium-fr':      'tf-adults-treatment-summary-custom-forms-premium-fr',
+  'cahier de synthèse':                                    'tf-adults-treatment-summary-custom-forms-premium-fr',
+  'cahier de fiches personnalisées':                       'tf-adults-treatment-summary-custom-forms-premium-fr',
+  'résumé du traitement fr':                               'tf-adults-treatment-summary-custom-forms-premium-fr',
+  'fin de thérapie fr':                                    'tf-adults-treatment-summary-custom-forms-premium-fr',
+  'fiche personnalisée fr':                                'tf-adults-treatment-summary-custom-forms-premium-fr',
 });
 
 // ─── Marker format ────────────────────────────────────────────────────────────

@@ -187,8 +187,8 @@ describe('Open/Download — 18 standard forms + 7 workbooks regression', () => {
     expect(STANDARD_FORMS.length).toBe(18);
   });
 
-  it('22b. Exactly 39 total forms are approved (18 standard + 7 Hebrew workbooks + 7 English workbooks + 7 Spanish workbooks)', () => {
-    expect(APPROVED_FORMS.length).toBe(39);
+  it('22b. Exactly 46 total forms are approved (18 standard + 7 Hebrew workbooks + 7 English workbooks + 7 Spanish workbooks + 7 French workbooks)', () => {
+    expect(APPROVED_FORMS.length).toBe(46);
   });
 
   it('23. All 18 standard forms resolve in English', () => {
