@@ -967,10 +967,10 @@ describe('TherapeuticForms Phase 1B — no fake file links', () => {
 
   it('every workbook form returned by listFormsByAudience has non-empty languageData in its primary language', () => {
     const forms = listFormsByAudience('adults').filter(f => f.type === 'therapeutic_workbook');
-    expect(forms.length).toBe(42);
+    expect(forms.length).toBe(49);
     for (const form of forms) {
       // Hebrew workbooks resolve in Hebrew; English in English; Spanish in Spanish;
-      // French in French; German in German; Italian in Italian
+      // French in French; German in German; Italian in Italian; Portuguese in Portuguese
       const primaryLang = form.languages?.he
         ? 'he'
         : form.languages?.en
@@ -981,7 +981,9 @@ describe('TherapeuticForms Phase 1B — no fake file links', () => {
               ? 'fr'
               : form.languages?.de
                 ? 'de'
-                : 'it';
+                : form.languages?.it
+                  ? 'it'
+                  : 'pt';
       const resolved = resolveFormWithLanguage(form.id, primaryLang);
       expect(resolved, `${form.id} must resolve in its primary language (${primaryLang})`).not.toBeNull();
       expect(resolved.languageData.file_url.trim()).not.toBe('');

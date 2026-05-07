@@ -41,7 +41,7 @@
  */
 
 import { resolveFormIntent } from './resolveFormIntent.js';
-import { WORKBOOK_CONTENT_METADATA, WORKBOOK_CONTENT_METADATA_EN, WORKBOOK_CONTENT_METADATA_ES, WORKBOOK_CONTENT_METADATA_FR, WORKBOOK_CONTENT_METADATA_DE, WORKBOOK_CONTENT_METADATA_IT } from './workbookContentMetadata.js';
+import { WORKBOOK_CONTENT_METADATA, WORKBOOK_CONTENT_METADATA_EN, WORKBOOK_CONTENT_METADATA_ES, WORKBOOK_CONTENT_METADATA_FR, WORKBOOK_CONTENT_METADATA_DE, WORKBOOK_CONTENT_METADATA_IT, WORKBOOK_CONTENT_METADATA_PT } from './workbookContentMetadata.js';
 
 // ─── Hebrew workbook-trigger language ─────────────────────────────────────────
 //
@@ -122,6 +122,7 @@ export function resolveWorkbookIntent(query, lang = 'he') {
   if (resolvedLang === 'fr') return resolveFrenchWorkbookIntent(query);
   if (resolvedLang === 'de') return resolveGermanWorkbookIntent(query);
   if (resolvedLang === 'it') return resolveItalianWorkbookIntent(query);
+  if (resolvedLang === 'pt') return resolvePortugueseWorkbookIntent(query);
 
   const hasWorkbookTrigger = hasExplicitWorkbookTrigger(query);
 
@@ -199,6 +200,7 @@ export function resolveWorkbookIntentWithContext(currentQuery, previousContext, 
   if (resolvedLang === 'fr') return resolveFrenchWorkbookIntentWithContext(currentQuery, previousContext);
   if (resolvedLang === 'de') return resolveGermanWorkbookIntentWithContext(currentQuery, previousContext);
   if (resolvedLang === 'it') return resolveItalianWorkbookIntentWithContext(currentQuery, previousContext);
+  if (resolvedLang === 'pt') return resolvePortugueseWorkbookIntentWithContext(currentQuery, previousContext);
 
   // Step 1 — try current query alone (existing logic).
   const directResult = resolveWorkbookIntent(currentQuery, lang);
@@ -1277,4 +1279,138 @@ export function getItalianFormLabel(metadata) {
   if (!metadata || typeof metadata !== 'object') return 'scheda';
   if (metadata.category === 'workbook_series') return 'quaderno terapeutico completo';
   return 'scheda';
+}
+
+// ─── Portuguese workbook routing ───────────────────────────────────────────────
+
+const WORKBOOK_TRIGGER_KEYWORDS_PT = [
+  'caderno',
+  'caderno de trabalho',
+  'caderno terapêutico',
+  'caderno completo',
+  'manual',
+  'workbook',
+  'apostila',
+  'série de fichas',
+  'série de formulários',
+  'conjunto de fichas',
+  'conjunto de formulários',
+  'conjunto completo',
+  'algo mais completo',
+  'algo mais aprofundado',
+  'mais completo',
+  'mais aprofundado',
+  'não só uma ficha',
+  'não uma ficha avulsa',
+  'não só um formulário',
+  'recurso completo',
+  'outro caderno para isso',
+  'um caderno para isso',
+];
+
+const INDIVIDUAL_FORM_TRIGGER_KEYWORDS_PT = [
+  'ficha',
+  'formulário',
+  'folha de trabalho',
+  'exercício',
+  'página',
+  'folha',
+  'recurso breve',
+  'ferramenta breve',
+  'ficha individual',
+  'formulário individual',
+  'uma ficha',
+  'um formulário',
+];
+
+function hasExplicitPortugueseWorkbookTrigger(lower) {
+  return WORKBOOK_TRIGGER_KEYWORDS_PT.some(kw => lower.includes(kw));
+}
+
+function hasPortugueseIndividualFormTrigger(lower) {
+  if (hasExplicitPortugueseWorkbookTrigger(lower)) return false;
+  if (lower.includes('formulários personalizados') || lower.includes('formulário personalizado')) return false;
+  return INDIVIDUAL_FORM_TRIGGER_KEYWORDS_PT.some(kw => lower.includes(kw));
+}
+
+function scorePortugueseWorkbook(lowerQuery, topicKeywords) {
+  let score = 0;
+  for (const kw of topicKeywords) {
+    if (lowerQuery.includes(kw.toLowerCase())) score++;
+  }
+  return score;
+}
+
+export function resolvePortugueseWorkbookIntent(query) {
+  if (typeof query !== 'string' || !query.trim()) return null;
+
+  const lowerQuery = query.toLowerCase();
+  if (hasPortugueseIndividualFormTrigger(lowerQuery)) return null;
+
+  const hasWorkbookTrigger = hasExplicitPortugueseWorkbookTrigger(lowerQuery);
+
+  let bestWorkbook = null;
+  let bestScore = 0;
+
+  for (const wb of WORKBOOK_CONTENT_METADATA_PT) {
+    const score = scorePortugueseWorkbook(lowerQuery, wb.topicKeywords);
+    if (score > bestScore) {
+      bestScore = score;
+      bestWorkbook = wb;
+    }
+  }
+
+  const threshold = hasWorkbookTrigger
+    ? EXPLICIT_TRIGGER_THRESHOLD
+    : MULTI_TOPIC_THRESHOLD;
+
+  if (bestWorkbook && bestScore >= threshold) {
+    return resolveFormIntent(bestWorkbook.slug, 'pt');
+  }
+
+  return null;
+}
+
+export function getPortugueseWorkbookTriggerKeywords() {
+  return [...WORKBOOK_TRIGGER_KEYWORDS_PT];
+}
+
+export function getPortugueseIndividualFormTriggerKeywords() {
+  return [...INDIVIDUAL_FORM_TRIGGER_KEYWORDS_PT];
+}
+
+export function resolvePortugueseWorkbookIntentWithContext(currentQuery, previousContext) {
+  if (typeof currentQuery !== 'string' || !currentQuery.trim()) return null;
+
+  const directResult = resolvePortugueseWorkbookIntent(currentQuery);
+  if (directResult !== null) return directResult;
+
+  const hasCurrentTrigger = hasExplicitPortugueseWorkbookTrigger(currentQuery.toLowerCase());
+  if (!hasCurrentTrigger) return null;
+  if (typeof previousContext !== 'string' || !previousContext.trim()) return null;
+
+  const lowerContext = previousContext.toLowerCase();
+
+  let bestWorkbook = null;
+  let bestScore = 0;
+
+  for (const wb of WORKBOOK_CONTENT_METADATA_PT) {
+    const score = scorePortugueseWorkbook(lowerContext, wb.topicKeywords);
+    if (score > bestScore) {
+      bestScore = score;
+      bestWorkbook = wb;
+    }
+  }
+
+  if (bestWorkbook && bestScore >= EXPLICIT_TRIGGER_THRESHOLD) {
+    return resolveFormIntent(bestWorkbook.slug, 'pt');
+  }
+
+  return null;
+}
+
+export function getPortugueseFormLabel(metadata) {
+  if (!metadata || typeof metadata !== 'object') return 'ficha';
+  if (metadata.category === 'workbook_series') return 'caderno terapêutico completo';
+  return 'ficha';
 }

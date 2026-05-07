@@ -8821,7 +8821,7 @@ export const translations = {
         generated_file: {
           type_label: "PDF",
           download_button: "Baixar folha de trabalho",
-          download_workbook_button: "Baixar caderno de exercícios",
+          download_workbook_button: "Baixar caderno",
           opening: "Abrindo..."
         },
         delete_session_failed: "Falha ao excluir a sessão. Por favor, tente novamente.",

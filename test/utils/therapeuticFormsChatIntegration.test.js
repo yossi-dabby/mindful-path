@@ -174,6 +174,7 @@ describe('Phase 3 — forms with missing file_url cannot be selected', () => {
         : formId.endsWith('-premium-fr') ? 'fr'
         : formId.endsWith('-premium-de') ? 'de'
         : formId.endsWith('-premium-it') ? 'it'
+        : formId.endsWith('-premium-pt') ? 'pt'
         : 'en';
       const meta = resolveFormIntent(formId, lang);
       expect(meta, `${formId} must resolve with valid file_url`).not.toBeNull();
@@ -641,6 +642,7 @@ describe('Phase 3 — all APPROVED_FORM_INTENT_MAP values resolve from live regi
       if (formId.endsWith('-premium-fr')) continue; // French-only workbooks resolve in French (no Hebrew block)
       if (formId.endsWith('-premium-de')) continue; // German-only workbooks resolve in German (no Hebrew block)
       if (formId.endsWith('-premium-it')) continue; // Italian-only workbooks resolve in Italian (no Hebrew block)
+      if (formId.endsWith('-premium-pt')) continue; // Portuguese-only workbooks resolve in Portuguese (no Hebrew block)
       const meta = resolveFormIntent(formId, 'he');
       expect(meta, `${formId} must resolve in Hebrew`).not.toBeNull();
       // Hebrew forms must use Hebrew URL path
