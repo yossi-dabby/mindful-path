@@ -729,6 +729,25 @@ function extractAndResolveFormIntent(content, lang, userQuery, previousUserConte
       return '';
     });
 
+    const resolveWorkbookOverride = () => {
+      if (typeof userQuery !== 'string' || !userQuery.trim()) return null;
+
+      const effectiveLangForWorkbook = lang || 'he';
+      const prevCtx = typeof previousUserContext === 'string' && previousUserContext.trim()
+        ? previousUserContext
+        : null;
+
+      if (effectiveLangForWorkbook === 'es') {
+        return resolveSpanishWorkbookIntentWithContext(userQuery, prevCtx);
+      }
+
+      if (effectiveLangForWorkbook === 'en') {
+        return resolveEnglishWorkbookIntentWithContext(userQuery, prevCtx);
+      }
+
+      return resolveWorkbookIntentWithContext(userQuery, prevCtx, effectiveLangForWorkbook);
+    };
+
     // Workbook routing priority override:
     // If the AI resolved an individual worksheet but the user's current message
     // contains workbook-trigger language (קונטרס / חוברת / cuaderno / workbook …),
@@ -742,31 +761,31 @@ function extractAndResolveFormIntent(content, lang, userQuery, previousUserConte
       typeof userQuery === 'string' && userQuery.trim()
     ) {
       try {
-        const effectiveLangForWorkbook = lang || 'he';
-        const prevCtx = typeof previousUserContext === 'string' && previousUserContext.trim()
-          ? previousUserContext
-          : null;
-
-        // Dispatch to the language-appropriate workbook resolver.
-        // Spanish and English each have dedicated resolver functions with their own
-        // trigger-keyword lists and workbook metadata; they do not accept a lang
-        // parameter.  Hebrew (and any other languages without a dedicated resolver)
-        // fall through to the general resolveWorkbookIntentWithContext, which accepts
-        // a lang parameter so it can target the correct workbook registry.
-        let workbookOverride = null;
-        if (effectiveLangForWorkbook === 'es') {
-          workbookOverride = resolveSpanishWorkbookIntentWithContext(userQuery, prevCtx);
-        } else if (effectiveLangForWorkbook === 'en') {
-          workbookOverride = resolveEnglishWorkbookIntentWithContext(userQuery, prevCtx);
-        } else {
-          workbookOverride = resolveWorkbookIntentWithContext(userQuery, prevCtx, effectiveLangForWorkbook);
-        }
-
+        const workbookOverride = resolveWorkbookOverride();
         if (workbookOverride) {
           resolvedGeneratedFile = workbookOverride;
         }
       } catch (_overrideErr) {
         // Fail-open: keep the original resolved form if the override throws
+      }
+    }
+
+    // Portuguese workbook fallback:
+    // When the model replies to an explicit "caderno" request without any
+    // [FORM:...] marker, still attach the matching full workbook instead of
+    // leaving the response without a generated_file.
+    if (
+      !resolvedGeneratedFile &&
+      lang === 'pt' &&
+      typeof userQuery === 'string' && userQuery.trim()
+    ) {
+      try {
+        const workbookFallback = resolveWorkbookOverride();
+        if (workbookFallback?.category === 'workbook_series') {
+          resolvedGeneratedFile = workbookFallback;
+        }
+      } catch (_fallbackErr) {
+        // Fail-open: keep plain assistant text if fallback routing throws
       }
     }
 

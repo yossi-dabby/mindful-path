@@ -277,6 +277,16 @@ describe('Open/Download — AI generated_file metadata', () => {
     expect(CARD_SRC).toContain("'chat.generated_file.download_button'");
   });
 
+  it('29b. GeneratedFileCard source renders the workbook download label for workbook_series', () => {
+    expect(CARD_SRC).toContain("normalized.category === 'workbook_series'");
+    expect(CARD_SRC).toContain("'chat.generated_file.download_workbook_button'");
+  });
+
+  it('29c. Portuguese workbook download label is Baixar caderno, not worksheet wording', () => {
+    expect(translations.pt.translation.chat.generated_file.download_workbook_button).toBe('Baixar caderno');
+    expect(translations.pt.translation.chat.generated_file.download_button).toBe('Baixar folha de trabalho');
+  });
+
   it('30. GeneratedFileCard exports normalizeGeneratedFile', () => {
     expect(CARD_SRC).toContain('export { normalizeGeneratedFile }');
   });

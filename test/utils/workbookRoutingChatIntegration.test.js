@@ -486,3 +486,74 @@ describe('Regression — English workbook routing unaffected', () => {
   });
 });
 
+function buildPortugueseTestConversation(userQuery, assistantContent, priorUserMsgs = []) {
+  const msgs = [];
+  for (const prior of priorUserMsgs) {
+    msgs.push({ role: 'user', content: prior, metadata: { session_language: 'pt' } });
+    msgs.push({ role: 'assistant', content: 'Entendo.', metadata: { session_language: 'pt' } });
+  }
+  msgs.push({ role: 'user', content: userQuery, metadata: { session_language: 'pt' } });
+  msgs.push({ role: 'assistant', content: assistantContent, metadata: { session_language: 'pt' } });
+  return msgs;
+}
+
+describe('Portuguese workbook routing — "caderno" for negative thoughts without a form marker', () => {
+  const query = 'Você tem um caderno para pensamentos negativos?';
+  const assistantReply = 'Sim. Para um caderno completo, o recurso mais adequado é o Caderno de flexibilidade cognitiva e verificação de pensamentos.';
+
+  it('auto-attaches adults-cognitive-flexibility-premium-pt from explicit workbook language', () => {
+    const msgs = buildPortugueseTestConversation(query, assistantReply);
+    const result = sanitizeConversationMessages(msgs, 'pt');
+    const last = result[result.length - 1];
+    expect(last.metadata?.generated_file?.form_id).toBe('tf-adults-cognitive-flexibility-premium-pt');
+    expect(last.metadata.generated_file.category).toBe('workbook_series');
+    expect(last.metadata.generated_file.language).toBe('pt');
+  });
+
+  it('does NOT attach an individual worksheet for the caderno query', () => {
+    const msgs = buildPortugueseTestConversation(query, assistantReply);
+    const result = sanitizeConversationMessages(msgs, 'pt');
+    const last = result[result.length - 1];
+    expect(last.metadata.generated_file.form_id).not.toBe('tf-adults-cbt-thought-record');
+    expect(last.metadata.generated_file.form_id).not.toBe('tf-adults-cognitive-distortions-worksheet');
+  });
+});
+
+describe('Portuguese workbook routing — plain therapeutic request still has no forced attachment', () => {
+  it('"Quero trabalhar pensamentos negativos" without a form marker produces no generated_file', () => {
+    const msgs = buildPortugueseTestConversation(
+      'Quero trabalhar pensamentos negativos',
+      'Podemos começar observando os pensamentos automáticos e as evidências a favor e contra eles.'
+    );
+    const result = sanitizeConversationMessages(msgs, 'pt');
+    const last = result[result.length - 1];
+    expect(last.metadata?.generated_file).toBeUndefined();
+  });
+});
+
+describe('Portuguese workbook routing — "ficha" keeps individual worksheet behavior', () => {
+  it('"Você tem uma ficha para pensamentos negativos?" preserves the individual worksheet marker', () => {
+    const msgs = buildPortugueseTestConversation(
+      'Você tem uma ficha para pensamentos negativos?',
+      'Sim. [FORM:cbt-thought-record:pt]'
+    );
+    const result = sanitizeConversationMessages(msgs, 'pt');
+    const last = result[result.length - 1];
+    expect(last.metadata?.generated_file?.form_id).toBe('tf-adults-cbt-thought-record');
+    expect(last.metadata.generated_file.category).not.toBe('workbook_series');
+  });
+});
+
+describe('Portuguese workbook routing — procrastination caderno remains coping-change', () => {
+  it('auto-attaches adults-coping-change-premium-pt without a form marker', () => {
+    const msgs = buildPortugueseTestConversation(
+      'Você tem um caderno para procrastinação, evitação e hábitos difíceis?',
+      'Sim. Para um caderno de trabalho completo, o recurso mais adequado é o Caderno de enfrentamento e mudança.'
+    );
+    const result = sanitizeConversationMessages(msgs, 'pt');
+    const last = result[result.length - 1];
+    expect(last.metadata?.generated_file?.form_id).toBe('tf-adults-coping-change-premium-pt');
+    expect(last.metadata.generated_file.category).toBe('workbook_series');
+    expect(last.metadata.generated_file.language).toBe('pt');
+  });
+});
