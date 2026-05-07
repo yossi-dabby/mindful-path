@@ -284,7 +284,7 @@ describe('Open/Download — AI generated_file metadata', () => {
 
   it('29c. Portuguese workbook download label is Baixar caderno, not worksheet wording', () => {
     expect(translations.pt.translation.chat.generated_file.download_workbook_button).toBe('Baixar caderno');
-    expect(translations.pt.translation.chat.generated_file.download_workbook_button).not.toBe('Baixar folha de trabalho');
+    expect(translations.pt.translation.chat.generated_file.download_button).toBe('Baixar folha de trabalho');
   });
 
   it('30. GeneratedFileCard exports normalizeGeneratedFile', () => {
