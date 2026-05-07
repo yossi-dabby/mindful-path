@@ -41,7 +41,7 @@
  */
 
 import { resolveFormIntent } from './resolveFormIntent.js';
-import { WORKBOOK_CONTENT_METADATA, WORKBOOK_CONTENT_METADATA_EN, WORKBOOK_CONTENT_METADATA_ES, WORKBOOK_CONTENT_METADATA_FR } from './workbookContentMetadata.js';
+import { WORKBOOK_CONTENT_METADATA, WORKBOOK_CONTENT_METADATA_EN, WORKBOOK_CONTENT_METADATA_ES, WORKBOOK_CONTENT_METADATA_FR, WORKBOOK_CONTENT_METADATA_DE } from './workbookContentMetadata.js';
 
 // ─── Hebrew workbook-trigger language ─────────────────────────────────────────
 //
@@ -904,4 +904,235 @@ export function getFrenchFormLabel(metadata) {
   if (!metadata || typeof metadata !== 'object') return 'fiche de travail';
   if (metadata.category === 'workbook_series') return 'cahier thérapeutique complet';
   return 'fiche de travail';
+}
+
+// ─── German workbook routing ──────────────────────────────────────────────────
+
+/**
+ * German terms that signal the user wants a full workbook (Arbeitsheft) rather
+ * than a single worksheet/form.
+ */
+const WORKBOOK_TRIGGER_KEYWORDS_DE = [
+  'arbeitsheft',
+  'heft',
+  'therapieheft',
+  'therapeutisches arbeitsheft',
+  'vollständiges arbeitsheft',
+  'workbook',
+  'arbeitsmappe',
+  'mappe',
+  'handbuch',
+  'vollständiges set',
+  'formularserie',
+  'reihe von arbeitsblättern',
+  'sammlung von arbeitsblättern',
+  'mehrere arbeitsblätter',
+  'etwas umfassenderes',
+  'etwas ausführlicheres',
+  'umfassender',
+  'ausführlicher',
+  'nicht nur ein arbeitsblatt',
+  'nicht nur ein formular',
+  'nicht nur eine vorlage',
+  'vollständige ressource',
+  'ein anderes arbeitsheft dazu',
+  'ein arbeitsheft dazu',
+];
+
+/**
+ * German terms that signal the user wants an individual worksheet/form
+ * rather than a full workbook.
+ * Uses specific patterns to avoid false positives from workbook terms
+ * like "persönliche Formulare" or "leeres Formular".
+ */
+const INDIVIDUAL_FORM_TRIGGER_KEYWORDS_DE = [
+  'arbeitsblatt',
+  'blatt',
+  'übungsblatt',
+  'einzelnes arbeitsblatt',
+  'einzelnes formular',
+  'einzelne vorlage',
+  'kurze übung',
+  'kurze ressource',
+  'eine seite',
+  'ein formular',
+  'eine vorlage',
+];
+
+/**
+ * Returns true when the German query contains at least one explicit
+ * workbook-trigger keyword.
+ *
+ * @param {string} lower - Lowercased query.
+ * @returns {boolean}
+ */
+function hasExplicitGermanWorkbookTrigger(lower) {
+  return WORKBOOK_TRIGGER_KEYWORDS_DE.some(kw => lower.includes(kw));
+}
+
+/**
+ * Returns true when the German query contains individual-form language
+ * but NOT workbook language.
+ * Used to preserve individual-form routing priority.
+ *
+ * @param {string} lower - Lowercased query.
+ * @returns {boolean}
+ */
+function hasGermanIndividualFormTrigger(lower) {
+  if (hasExplicitGermanWorkbookTrigger(lower)) return false;
+  return INDIVIDUAL_FORM_TRIGGER_KEYWORDS_DE.some(kw => lower.includes(kw));
+}
+
+/**
+ * Scores a German workbook against the query using its topic keywords.
+ *
+ * @param {string}   lowerQuery  - Lowercased query.
+ * @param {string[]} topicKeywords
+ * @returns {number}
+ */
+function scoreGermanWorkbook(lowerQuery, topicKeywords) {
+  let score = 0;
+  for (const kw of topicKeywords) {
+    if (lowerQuery.includes(kw.toLowerCase())) score++;
+  }
+  return score;
+}
+
+/**
+ * Resolves a German natural-language user query to the correct therapeutic
+ * workbook slug, applying the routing priority rules from the problem statement.
+ *
+ * Routing priority:
+ *   1. Individual-form language (Arbeitsblatt / Formular) without workbook trigger
+ *      → return null (let resolveFormIntent handle individual forms).
+ *   2. Explicit workbook trigger + ≥1 topic keyword → return matching workbook.
+ *   3. ≥2 topic keywords from same workbook (multi-topic, no trigger) → return matching workbook.
+ *   4. Generic workbook trigger, no topic keywords → return null.
+ *   5. No file request → return null (therapeutic conversation, no forced attachment).
+ *
+ * @param {string} query   - The user's natural-language German query.
+ * @returns {object|null}  - Generated-file metadata or null.
+ */
+export function resolveGermanWorkbookIntent(query) {
+  if (typeof query !== 'string' || !query.trim()) return null;
+
+  const lowerQuery = query.toLowerCase();
+
+  // Priority 1 — individual-form language without workbook trigger: return null
+  // to let the individual-form resolver handle it.
+  if (hasGermanIndividualFormTrigger(lowerQuery)) return null;
+
+  const hasWorkbookTrigger = hasExplicitGermanWorkbookTrigger(lowerQuery);
+
+  // Score every German workbook
+  let bestWorkbook = null;
+  let bestScore = 0;
+
+  for (const wb of WORKBOOK_CONTENT_METADATA_DE) {
+    const score = scoreGermanWorkbook(lowerQuery, wb.topicKeywords);
+    if (score > bestScore) {
+      bestScore = score;
+      bestWorkbook = wb;
+    }
+    // Ties: first in array wins (already assigned, no overwrite on equal)
+  }
+
+  const threshold = hasWorkbookTrigger
+    ? EXPLICIT_TRIGGER_THRESHOLD
+    : MULTI_TOPIC_THRESHOLD;
+
+  if (bestWorkbook && bestScore >= threshold) {
+    return resolveFormIntent(bestWorkbook.slug, 'de');
+  }
+
+  return null;
+}
+
+/**
+ * Returns the list of German workbook-trigger keywords.
+ * Exported for testing.
+ *
+ * @returns {string[]}
+ */
+export function getGermanWorkbookTriggerKeywords() {
+  return [...WORKBOOK_TRIGGER_KEYWORDS_DE];
+}
+
+/**
+ * Returns the list of German individual-form trigger keywords.
+ * Exported for testing.
+ *
+ * @returns {string[]}
+ */
+export function getGermanIndividualFormTriggerKeywords() {
+  return [...INDIVIDUAL_FORM_TRIGGER_KEYWORDS_DE];
+}
+
+/**
+ * Context-aware German workbook resolver.
+ *
+ * Extends `resolveGermanWorkbookIntent` by also considering the previous
+ * conversation context when the current query is anaphoric (e.g.
+ * "Hast du ein Arbeitsheft dazu?") and does not itself contain enough
+ * topic keywords.
+ *
+ * Algorithm:
+ *   1. Try `resolveGermanWorkbookIntent(currentQuery)`.  Return if result found.
+ *   2. If current query has an explicit workbook trigger AND a previous context
+ *      string is provided, score that context for workbooks.
+ *   3. If the context scores ≥ EXPLICIT_TRIGGER_THRESHOLD on any workbook, return it.
+ *   4. Return null otherwise.
+ *
+ * @param {string}      currentQuery     - The user's current message.
+ * @param {string|null} [previousContext] - Recent prior conversation text.
+ * @returns {object|null} Generated-file metadata or null.
+ */
+export function resolveGermanWorkbookIntentWithContext(currentQuery, previousContext) {
+  if (typeof currentQuery !== 'string' || !currentQuery.trim()) return null;
+
+  // Step 1 — try current query alone.
+  const directResult = resolveGermanWorkbookIntent(currentQuery);
+  if (directResult !== null) return directResult;
+
+  // Step 2 — if the current query has a workbook trigger, try inheriting from context.
+  const hasCurrentTrigger = hasExplicitGermanWorkbookTrigger(currentQuery.toLowerCase());
+  if (!hasCurrentTrigger) return null;
+  if (typeof previousContext !== 'string' || !previousContext.trim()) return null;
+
+  const lowerContext = previousContext.toLowerCase();
+
+  let bestWorkbook = null;
+  let bestScore = 0;
+
+  for (const wb of WORKBOOK_CONTENT_METADATA_DE) {
+    const score = scoreGermanWorkbook(lowerContext, wb.topicKeywords);
+    if (score > bestScore) {
+      bestScore = score;
+      bestWorkbook = wb;
+    }
+  }
+
+  if (bestWorkbook && bestScore >= EXPLICIT_TRIGGER_THRESHOLD) {
+    return resolveFormIntent(bestWorkbook.slug, 'de');
+  }
+
+  return null;
+}
+
+/**
+ * Returns the appropriate German label for a resolved generated-file metadata
+ * object based on its `category` field.
+ *
+ * | category        | label                                      |
+ * |-----------------|--------------------------------------------|
+ * | workbook_series | 'vollständiges therapeutisches Arbeitsheft' |
+ * | (anything else) | 'Arbeitsblatt'                             |
+ *
+ * @param {object|null} metadata - Object with at least a `category` string field.
+ * @returns {string} German label.
+ */
+export function getGermanFormLabel(metadata) {
+  if (!metadata || typeof metadata !== 'object') return 'Arbeitsblatt';
+  if (metadata.category === 'workbook_series') return 'vollständiges therapeutisches Arbeitsheft';
+  return 'Arbeitsblatt';
 }
