@@ -401,11 +401,12 @@ describe('Phase 4C — Safety: no AI mapping points to an unapproved form', () =
   it('every alias in APPROVED_FORM_INTENT_MAP resolves via resolveFormIntent', () => {
     for (const [alias, formId] of Object.entries(APPROVED_FORM_INTENT_MAP)) {
       // Route to the correct primary language: Hebrew workbooks → he, English workbooks → en,
-      // Spanish workbooks → es, French workbooks → fr, standard forms → en.
+      // Spanish workbooks → es, French workbooks → fr, German workbooks → de, standard forms → en.
       const isHeWorkbook = formId.endsWith('-premium-he');
       const isEsWorkbook = formId.endsWith('-premium-es');
       const isFrWorkbook = formId.endsWith('-premium-fr');
-      const lang = isHeWorkbook ? 'he' : isEsWorkbook ? 'es' : isFrWorkbook ? 'fr' : 'en';
+      const isDeWorkbook = formId.endsWith('-premium-de');
+      const lang = isHeWorkbook ? 'he' : isEsWorkbook ? 'es' : isFrWorkbook ? 'fr' : isDeWorkbook ? 'de' : 'en';
       const meta = resolveFormIntent(alias, lang);
       expect(
         meta,
@@ -471,12 +472,13 @@ describe('Phase 4C — Safety: no former-placeholder/unapproved form IDs resolve
       for (const form of forms) {
         expect(form.approved, `${form.id} from listFormsByAudience must be approved`).toBe(true);
         if (form.type === 'therapeutic_workbook') {
-          // Workbooks have a primary language URL: Hebrew → he, English → en, Spanish → es, French → fr
+          // Workbooks have a primary language URL: Hebrew → he, English → en, Spanish → es, French → fr, German → de
           const heUrl = form.languages?.he?.file_url;
           const enUrl = form.languages?.en?.file_url;
           const esUrl = form.languages?.es?.file_url;
           const frUrl = form.languages?.fr?.file_url;
-          const primaryUrl = heUrl || enUrl || esUrl || frUrl;
+          const deUrl = form.languages?.de?.file_url;
+          const primaryUrl = heUrl || enUrl || esUrl || frUrl || deUrl;
           expect(
             primaryUrl && primaryUrl.trim() !== '',
             `${form.id} workbook must have a non-empty primary language file_url`
@@ -862,16 +864,16 @@ describe('Phase 4C — Regression: GeneratedFileCard normalizeGeneratedFile is u
 // ─── 20. Final approved form count and audience coverage ─────────────────────
 
 describe('Phase 4C — Final state: approved form count and audience coverage', () => {
-  it('exactly 46 forms are approved (18 standard + 7 Hebrew workbooks + 7 English workbooks + 7 Spanish workbooks + 7 French workbooks)', () => {
-    expect(approvedForms.length).toBe(46);
+  it('exactly 53 forms are approved (18 standard + 7 Hebrew workbooks + 7 English workbooks + 7 Spanish workbooks + 7 French workbooks + 7 German workbooks)', () => {
+    expect(approvedForms.length).toBe(53);
   });
 
   it('exactly 18 standard forms are approved (original library)', () => {
     expect(standardForms.length).toBe(18);
   });
 
-  it('exactly 28 workbooks are approved (7 Hebrew + 7 English + 7 Spanish + 7 French premium series)', () => {
-    expect(workbookForms.length).toBe(28);
+  it('exactly 35 workbooks are approved (7 Hebrew + 7 English + 7 Spanish + 7 French + 7 German premium series)', () => {
+    expect(workbookForms.length).toBe(35);
   });
 
   it('exactly 4 children forms are approved', () => {
@@ -884,9 +886,9 @@ describe('Phase 4C — Final state: approved form count and audience coverage', 
     expect(adolescents.length).toBe(4);
   });
 
-  it('exactly 34 adults forms are approved (6 standard + 7 Hebrew workbooks + 7 English workbooks + 7 Spanish workbooks + 7 French workbooks)', () => {
+  it('exactly 41 adults forms are approved (6 standard + 7 Hebrew workbooks + 7 English workbooks + 7 Spanish workbooks + 7 French workbooks + 7 German workbooks)', () => {
     const adults = approvedForms.filter(f => f.audience === 'adults');
-    expect(adults.length).toBe(34);
+    expect(adults.length).toBe(41);
   });
 
   it('exactly 4 older_adults forms are approved', () => {
@@ -943,7 +945,8 @@ describe('Phase 4C — Full map: all APPROVED_FORM_INTENT_MAP values resolve in 
       !WORKBOOK_IDS.has(id) &&
       !id.endsWith('-premium-en') && // English-only workbooks resolve in English only
       !id.endsWith('-premium-es') && // Spanish-only workbooks resolve in Spanish only
-      !id.endsWith('-premium-fr')    // French-only workbooks resolve in French only
+      !id.endsWith('-premium-fr') && // French-only workbooks resolve in French only
+      !id.endsWith('-premium-de')    // German-only workbooks resolve in German only
     );
     for (const formId of standardIds) {
       const meta = resolveFormIntent(formId, 'en');
@@ -975,6 +978,7 @@ describe('Phase 4C — Full map: all APPROVED_FORM_INTENT_MAP values resolve in 
       if (formId.endsWith('-premium-en')) continue; // English-only workbooks resolve in English (no Hebrew block)
       if (formId.endsWith('-premium-es')) continue; // Spanish-only workbooks resolve in Spanish (no Hebrew block)
       if (formId.endsWith('-premium-fr')) continue; // French-only workbooks resolve in French (no Hebrew block)
+      if (formId.endsWith('-premium-de')) continue; // German-only workbooks resolve in German (no Hebrew block)
       const meta = resolveFormIntent(formId, 'he');
       expect(meta, `${formId} must resolve in Hebrew`).not.toBeNull();
       expect(meta.language, `${formId} must return Hebrew`).toBe('he');
@@ -982,8 +986,8 @@ describe('Phase 4C — Full map: all APPROVED_FORM_INTENT_MAP values resolve in 
     }
   });
 
-  it('map contains all 46 approved form IDs (18 standard + 7 Hebrew workbooks + 7 English workbooks + 7 Spanish workbooks + 7 French workbooks)', () => {
+  it('map contains all 53 approved form IDs (18 standard + 7 Hebrew workbooks + 7 English workbooks + 7 Spanish workbooks + 7 French workbooks + 7 German workbooks)', () => {
     const mappedFormIds = new Set(Object.values(APPROVED_FORM_INTENT_MAP));
-    expect(mappedFormIds.size).toBe(46);
+    expect(mappedFormIds.size).toBe(53);
   });
 });

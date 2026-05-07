@@ -453,6 +453,70 @@ export const APPROVED_FORM_INTENT_MAP = Object.freeze({
   'résumé du traitement fr':                               'tf-adults-treatment-summary-custom-forms-premium-fr',
   'fin de thérapie fr':                                    'tf-adults-treatment-summary-custom-forms-premium-fr',
   'fiche personnalisée fr':                                'tf-adults-treatment-summary-custom-forms-premium-fr',
+
+  // ── German Premium Workbooks: Formulation & Mapping ───────────────────────
+  'tf-adults-formulation-mapping-premium-de':              'tf-adults-formulation-mapping-premium-de',
+  'adults-formulation-mapping-premium-de':                 'tf-adults-formulation-mapping-premium-de',
+  'arbeitsheft zur fallformulierung':                      'tf-adults-formulation-mapping-premium-de',
+  'arbeitsheft zur problemlandkarte':                      'tf-adults-formulation-mapping-premium-de',
+  'fallformulierung de':                                   'tf-adults-formulation-mapping-premium-de',
+  'problemlandkarte de':                                   'tf-adults-formulation-mapping-premium-de',
+  'erste einschätzung de':                                 'tf-adults-formulation-mapping-premium-de',
+  'therapieziele de':                                      'tf-adults-formulation-mapping-premium-de',
+
+  // ── German Premium Workbooks: Awareness & Identification ──────────────────
+  'tf-adults-awareness-identification-premium-de':         'tf-adults-awareness-identification-premium-de',
+  'adults-awareness-identification-premium-de':            'tf-adults-awareness-identification-premium-de',
+  'arbeitsheft zum erkennen':                              'tf-adults-awareness-identification-premium-de',
+  'gedanken erkennen de':                                  'tf-adults-awareness-identification-premium-de',
+  'cbt-kette de':                                          'tf-adults-awareness-identification-premium-de',
+  'situation gedanke gefühl verhalten de':                 'tf-adults-awareness-identification-premium-de',
+
+  // ── German Premium Workbooks: Cognitive Flexibility ───────────────────────
+  'tf-adults-cognitive-flexibility-premium-de':            'tf-adults-cognitive-flexibility-premium-de',
+  'adults-cognitive-flexibility-premium-de':               'tf-adults-cognitive-flexibility-premium-de',
+  'arbeitsheft zu gedanken':                               'tf-adults-cognitive-flexibility-premium-de',
+  'arbeitsheft zu kognitiver flexibilität':                'tf-adults-cognitive-flexibility-premium-de',
+  'negative gedanken de':                                  'tf-adults-cognitive-flexibility-premium-de',
+  'kognitive verzerrungen de':                             'tf-adults-cognitive-flexibility-premium-de',
+  'gedanken prüfen de':                                    'tf-adults-cognitive-flexibility-premium-de',
+  'kognitive flexibilität de':                             'tf-adults-cognitive-flexibility-premium-de',
+
+  // ── German Premium Workbooks: Emotional Regulation ────────────────────────
+  'tf-adults-emotional-regulation-premium-de':             'tf-adults-emotional-regulation-premium-de',
+  'adults-emotional-regulation-premium-de':                'tf-adults-emotional-regulation-premium-de',
+  'arbeitsheft zur emotionsregulation':                    'tf-adults-emotional-regulation-premium-de',
+  'arbeitsheft zu emotionaler regulation':                 'tf-adults-emotional-regulation-premium-de',
+  'emotionale regulation de':                              'tf-adults-emotional-regulation-premium-de',
+  'starke gefühle de':                                     'tf-adults-emotional-regulation-premium-de',
+  'emotionale überforderung de':                           'tf-adults-emotional-regulation-premium-de',
+
+  // ── German Premium Workbooks: Coping & Change ─────────────────────────────
+  'tf-adults-coping-change-premium-de':                    'tf-adults-coping-change-premium-de',
+  'adults-coping-change-premium-de':                       'tf-adults-coping-change-premium-de',
+  'arbeitsheft zu bewältigung':                            'tf-adults-coping-change-premium-de',
+  'arbeitsheft zu veränderung':                            'tf-adults-coping-change-premium-de',
+  'prokrastination de':                                    'tf-adults-coping-change-premium-de',
+  'vermeidung de':                                         'tf-adults-coping-change-premium-de',
+  'schwierige gewohnheiten de':                            'tf-adults-coping-change-premium-de',
+
+  // ── German Premium Workbooks: Strengths & Resilience ─────────────────────
+  'tf-adults-strengths-resilience-premium-de':             'tf-adults-strengths-resilience-premium-de',
+  'adults-strengths-resilience-premium-de':                'tf-adults-strengths-resilience-premium-de',
+  'arbeitsheft zu stärken':                                'tf-adults-strengths-resilience-premium-de',
+  'arbeitsheft zu resilienz':                              'tf-adults-strengths-resilience-premium-de',
+  'stärken de':                                            'tf-adults-strengths-resilience-premium-de',
+  'resilienz de':                                          'tf-adults-strengths-resilience-premium-de',
+  'selbstwirksamkeit de':                                  'tf-adults-strengths-resilience-premium-de',
+
+  // ── German Premium Workbooks: Treatment Summary & Custom Forms ────────────
+  'tf-adults-treatment-summary-custom-forms-premium-de':   'tf-adults-treatment-summary-custom-forms-premium-de',
+  'adults-treatment-summary-custom-forms-premium-de':      'tf-adults-treatment-summary-custom-forms-premium-de',
+  'arbeitsheft zur therapiezusammenfassung':               'tf-adults-treatment-summary-custom-forms-premium-de',
+  'arbeitsheft zu persönlichen formularen':                'tf-adults-treatment-summary-custom-forms-premium-de',
+  'therapiezusammenfassung de':                            'tf-adults-treatment-summary-custom-forms-premium-de',
+  'therapie beenden de':                                   'tf-adults-treatment-summary-custom-forms-premium-de',
+  'persönliches formular de':                              'tf-adults-treatment-summary-custom-forms-premium-de',
 });
 
 // ─── Marker format ────────────────────────────────────────────────────────────
