@@ -56,6 +56,7 @@ export const APPROVED_FORM_INTENT_MAP = Object.freeze({
   'thought-record':                                  'tf-adults-cbt-thought-record',
   // Hebrew title alias — normalised to lowercase by resolveFormIntent
   'רשומת מחשבות cbt':                               'tf-adults-cbt-thought-record',
+  'registro dei pensieri cbt':                      'tf-adults-cbt-thought-record',
 
   // ── Adults: Behavioral Activation ─────────────────────────────────────────
   'tf-adults-behavioral-activation-plan':            'tf-adults-behavioral-activation-plan',
@@ -70,6 +71,7 @@ export const APPROVED_FORM_INTENT_MAP = Object.freeze({
   'cognitive-distortions':                           'tf-adults-cognitive-distortions-worksheet',
   'thinking-traps':                                  'tf-adults-cognitive-distortions-worksheet',
   'distorted-thinking':                              'tf-adults-cognitive-distortions-worksheet',
+  'scheda sulle distorsioni cognitive':              'tf-adults-cognitive-distortions-worksheet',
 
   // ── Adults: Values & Goals ─────────────────────────────────────────────────
   'tf-adults-values-and-goals-worksheet':            'tf-adults-values-and-goals-worksheet',
@@ -517,6 +519,70 @@ export const APPROVED_FORM_INTENT_MAP = Object.freeze({
   'therapiezusammenfassung de':                            'tf-adults-treatment-summary-custom-forms-premium-de',
   'therapie beenden de':                                   'tf-adults-treatment-summary-custom-forms-premium-de',
   'persönliches formular de':                              'tf-adults-treatment-summary-custom-forms-premium-de',
+
+  // ── Italian Premium Workbooks: Formulation & Mapping ───────────────────────
+  'tf-adults-formulation-mapping-premium-it':              'tf-adults-formulation-mapping-premium-it',
+  'adults-formulation-mapping-premium-it':                 'tf-adults-formulation-mapping-premium-it',
+  'quaderno di formulazione':                              'tf-adults-formulation-mapping-premium-it',
+  'quaderno di mappatura':                                 'tf-adults-formulation-mapping-premium-it',
+  'formulazione del caso it':                              'tf-adults-formulation-mapping-premium-it',
+  'mappatura del problema it':                             'tf-adults-formulation-mapping-premium-it',
+  'valutazione iniziale it':                               'tf-adults-formulation-mapping-premium-it',
+  'obiettivi terapeutici it':                              'tf-adults-formulation-mapping-premium-it',
+
+  // ── Italian Premium Workbooks: Awareness & Identification ──────────────────
+  'tf-adults-awareness-identification-premium-it':         'tf-adults-awareness-identification-premium-it',
+  'adults-awareness-identification-premium-it':            'tf-adults-awareness-identification-premium-it',
+  'quaderno di riconoscimento':                            'tf-adults-awareness-identification-premium-it',
+  'quaderno di identificazione':                           'tf-adults-awareness-identification-premium-it',
+  'riconoscere pensieri emozioni corpo comportamento':     'tf-adults-awareness-identification-premium-it',
+  'catena pensiero emozione comportamento it':             'tf-adults-awareness-identification-premium-it',
+  'catena cbt it':                                         'tf-adults-awareness-identification-premium-it',
+
+  // ── Italian Premium Workbooks: Cognitive Flexibility ───────────────────────
+  'tf-adults-cognitive-flexibility-premium-it':            'tf-adults-cognitive-flexibility-premium-it',
+  'adults-cognitive-flexibility-premium-it':               'tf-adults-cognitive-flexibility-premium-it',
+  'quaderno sui pensieri':                                 'tf-adults-cognitive-flexibility-premium-it',
+  'quaderno di flessibilità cognitiva':                    'tf-adults-cognitive-flexibility-premium-it',
+  'pensieri negativi it':                                  'tf-adults-cognitive-flexibility-premium-it',
+  'distorsioni cognitive it':                              'tf-adults-cognitive-flexibility-premium-it',
+  'verificare i pensieri it':                              'tf-adults-cognitive-flexibility-premium-it',
+  'flessibilità cognitiva it':                             'tf-adults-cognitive-flexibility-premium-it',
+
+  // ── Italian Premium Workbooks: Emotional Regulation ────────────────────────
+  'tf-adults-emotional-regulation-premium-it':             'tf-adults-emotional-regulation-premium-it',
+  'adults-emotional-regulation-premium-it':                'tf-adults-emotional-regulation-premium-it',
+  'quaderno di regolazione emotiva':                       'tf-adults-emotional-regulation-premium-it',
+  'regolazione emotiva it':                                'tf-adults-emotional-regulation-premium-it',
+  'emozioni forti it':                                     'tf-adults-emotional-regulation-premium-it',
+  'sovraccarico emotivo it':                               'tf-adults-emotional-regulation-premium-it',
+
+  // ── Italian Premium Workbooks: Coping & Change ─────────────────────────────
+  'tf-adults-coping-change-premium-it':                    'tf-adults-coping-change-premium-it',
+  'adults-coping-change-premium-it':                       'tf-adults-coping-change-premium-it',
+  'quaderno di fronteggiamento':                           'tf-adults-coping-change-premium-it',
+  'quaderno di cambiamento':                               'tf-adults-coping-change-premium-it',
+  'procrastinazione it':                                   'tf-adults-coping-change-premium-it',
+  'evitamento it':                                         'tf-adults-coping-change-premium-it',
+  'abitudini difficili it':                                'tf-adults-coping-change-premium-it',
+
+  // ── Italian Premium Workbooks: Strengths & Resilience ──────────────────────
+  'tf-adults-strengths-resilience-premium-it':             'tf-adults-strengths-resilience-premium-it',
+  'adults-strengths-resilience-premium-it':                'tf-adults-strengths-resilience-premium-it',
+  'quaderno sui punti di forza':                           'tf-adults-strengths-resilience-premium-it',
+  'quaderno di resilienza':                                'tf-adults-strengths-resilience-premium-it',
+  'punti di forza it':                                     'tf-adults-strengths-resilience-premium-it',
+  'resilienza it':                                         'tf-adults-strengths-resilience-premium-it',
+  'autoefficacia it':                                      'tf-adults-strengths-resilience-premium-it',
+
+  // ── Italian Premium Workbooks: Treatment Summary & Custom Forms ────────────
+  'tf-adults-treatment-summary-custom-forms-premium-it':   'tf-adults-treatment-summary-custom-forms-premium-it',
+  'adults-treatment-summary-custom-forms-premium-it':      'tf-adults-treatment-summary-custom-forms-premium-it',
+  'quaderno di sintesi':                                   'tf-adults-treatment-summary-custom-forms-premium-it',
+  'quaderno di moduli personalizzati':                     'tf-adults-treatment-summary-custom-forms-premium-it',
+  'sintesi del trattamento it':                            'tf-adults-treatment-summary-custom-forms-premium-it',
+  'fine terapia it':                                       'tf-adults-treatment-summary-custom-forms-premium-it',
+  'modulo personalizzato it':                              'tf-adults-treatment-summary-custom-forms-premium-it',
 });
 
 // ─── Marker format ────────────────────────────────────────────────────────────

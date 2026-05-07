@@ -41,7 +41,7 @@
  */
 
 import { resolveFormIntent } from './resolveFormIntent.js';
-import { WORKBOOK_CONTENT_METADATA, WORKBOOK_CONTENT_METADATA_EN, WORKBOOK_CONTENT_METADATA_ES, WORKBOOK_CONTENT_METADATA_FR, WORKBOOK_CONTENT_METADATA_DE } from './workbookContentMetadata.js';
+import { WORKBOOK_CONTENT_METADATA, WORKBOOK_CONTENT_METADATA_EN, WORKBOOK_CONTENT_METADATA_ES, WORKBOOK_CONTENT_METADATA_FR, WORKBOOK_CONTENT_METADATA_DE, WORKBOOK_CONTENT_METADATA_IT } from './workbookContentMetadata.js';
 
 // ─── Hebrew workbook-trigger language ─────────────────────────────────────────
 //
@@ -117,6 +117,11 @@ export function resolveWorkbookIntent(query, lang = 'he') {
   if (typeof query !== 'string' || !query.trim()) return null;
 
   const resolvedLang = typeof lang === 'string' && lang.trim() ? lang.trim() : 'he';
+  if (resolvedLang === 'en') return resolveEnglishWorkbookIntent(query);
+  if (resolvedLang === 'es') return resolveSpanishWorkbookIntent(query);
+  if (resolvedLang === 'fr') return resolveFrenchWorkbookIntent(query);
+  if (resolvedLang === 'de') return resolveGermanWorkbookIntent(query);
+  if (resolvedLang === 'it') return resolveItalianWorkbookIntent(query);
 
   const hasWorkbookTrigger = hasExplicitWorkbookTrigger(query);
 
@@ -188,6 +193,13 @@ export function getWorkbookTriggerKeywords() {
 export function resolveWorkbookIntentWithContext(currentQuery, previousContext, lang = 'he') {
   if (typeof currentQuery !== 'string' || !currentQuery.trim()) return null;
 
+  const resolvedLang = typeof lang === 'string' && lang.trim() ? lang.trim() : 'he';
+  if (resolvedLang === 'en') return resolveEnglishWorkbookIntentWithContext(currentQuery, previousContext);
+  if (resolvedLang === 'es') return resolveSpanishWorkbookIntentWithContext(currentQuery, previousContext);
+  if (resolvedLang === 'fr') return resolveFrenchWorkbookIntentWithContext(currentQuery, previousContext);
+  if (resolvedLang === 'de') return resolveGermanWorkbookIntentWithContext(currentQuery, previousContext);
+  if (resolvedLang === 'it') return resolveItalianWorkbookIntentWithContext(currentQuery, previousContext);
+
   // Step 1 — try current query alone (existing logic).
   const directResult = resolveWorkbookIntent(currentQuery, lang);
   if (directResult !== null) return directResult;
@@ -197,8 +209,6 @@ export function resolveWorkbookIntentWithContext(currentQuery, previousContext, 
   const hasCurrentTrigger = hasExplicitWorkbookTrigger(currentQuery);
   if (!hasCurrentTrigger) return null;
   if (typeof previousContext !== 'string' || !previousContext.trim()) return null;
-
-  const resolvedLang = typeof lang === 'string' && lang.trim() ? lang.trim() : 'he';
 
   // Step 3 — score the previous context.
   let bestWorkbook = null;
@@ -1135,4 +1145,136 @@ export function getGermanFormLabel(metadata) {
   if (!metadata || typeof metadata !== 'object') return 'Arbeitsblatt';
   if (metadata.category === 'workbook_series') return 'vollständiges therapeutisches Arbeitsheft';
   return 'Arbeitsblatt';
+}
+
+// ─── Italian workbook routing ─────────────────────────────────────────────────
+
+const WORKBOOK_TRIGGER_KEYWORDS_IT = [
+  'quaderno',
+  'quaderno di lavoro',
+  'quaderno terapeutico',
+  'quaderno completo',
+  'manuale',
+  'workbook',
+  'raccolta di schede',
+  'serie di schede',
+  'serie di moduli',
+  'insieme di schede',
+  'insieme di moduli',
+  'set completo',
+  'qualcosa di più completo',
+  'qualcosa di più approfondito',
+  'più completo',
+  'più approfondito',
+  'non solo una scheda',
+  'non una scheda singola',
+  'non solo un modulo',
+  'risorsa completa',
+  'un altro quaderno per questo',
+  'un quaderno per questo',
+];
+
+const INDIVIDUAL_FORM_TRIGGER_KEYWORDS_IT = [
+  'foglio di lavoro',
+  'risorsa breve',
+  'strumento breve',
+  'scheda singola',
+  'modulo singolo',
+  'una scheda',
+  'un modulo',
+  'un foglio',
+  'una pagina',
+  'un esercizio',
+];
+
+function hasExplicitItalianWorkbookTrigger(lower) {
+  return WORKBOOK_TRIGGER_KEYWORDS_IT.some(kw => lower.includes(kw));
+}
+
+function hasItalianIndividualFormTrigger(lower) {
+  if (hasExplicitItalianWorkbookTrigger(lower)) return false;
+  if (lower.includes('moduli personalizzati') || lower.includes('modulo personalizzato')) return false;
+  return INDIVIDUAL_FORM_TRIGGER_KEYWORDS_IT.some(kw => lower.includes(kw));
+}
+
+function scoreItalianWorkbook(lowerQuery, topicKeywords) {
+  let score = 0;
+  for (const kw of topicKeywords) {
+    if (lowerQuery.includes(kw.toLowerCase())) score++;
+  }
+  return score;
+}
+
+export function resolveItalianWorkbookIntent(query) {
+  if (typeof query !== 'string' || !query.trim()) return null;
+
+  const lowerQuery = query.toLowerCase();
+  if (hasItalianIndividualFormTrigger(lowerQuery)) return null;
+
+  const hasWorkbookTrigger = hasExplicitItalianWorkbookTrigger(lowerQuery);
+
+  let bestWorkbook = null;
+  let bestScore = 0;
+
+  for (const wb of WORKBOOK_CONTENT_METADATA_IT) {
+    const score = scoreItalianWorkbook(lowerQuery, wb.topicKeywords);
+    if (score > bestScore) {
+      bestScore = score;
+      bestWorkbook = wb;
+    }
+  }
+
+  const threshold = hasWorkbookTrigger
+    ? EXPLICIT_TRIGGER_THRESHOLD
+    : MULTI_TOPIC_THRESHOLD;
+
+  if (bestWorkbook && bestScore >= threshold) {
+    return resolveFormIntent(bestWorkbook.slug, 'it');
+  }
+
+  return null;
+}
+
+export function getItalianWorkbookTriggerKeywords() {
+  return [...WORKBOOK_TRIGGER_KEYWORDS_IT];
+}
+
+export function getItalianIndividualFormTriggerKeywords() {
+  return [...INDIVIDUAL_FORM_TRIGGER_KEYWORDS_IT];
+}
+
+export function resolveItalianWorkbookIntentWithContext(currentQuery, previousContext) {
+  if (typeof currentQuery !== 'string' || !currentQuery.trim()) return null;
+
+  const directResult = resolveItalianWorkbookIntent(currentQuery);
+  if (directResult !== null) return directResult;
+
+  const hasCurrentTrigger = hasExplicitItalianWorkbookTrigger(currentQuery.toLowerCase());
+  if (!hasCurrentTrigger) return null;
+  if (typeof previousContext !== 'string' || !previousContext.trim()) return null;
+
+  const lowerContext = previousContext.toLowerCase();
+
+  let bestWorkbook = null;
+  let bestScore = 0;
+
+  for (const wb of WORKBOOK_CONTENT_METADATA_IT) {
+    const score = scoreItalianWorkbook(lowerContext, wb.topicKeywords);
+    if (score > bestScore) {
+      bestScore = score;
+      bestWorkbook = wb;
+    }
+  }
+
+  if (bestWorkbook && bestScore >= EXPLICIT_TRIGGER_THRESHOLD) {
+    return resolveFormIntent(bestWorkbook.slug, 'it');
+  }
+
+  return null;
+}
+
+export function getItalianFormLabel(metadata) {
+  if (!metadata || typeof metadata !== 'object') return 'scheda';
+  if (metadata.category === 'workbook_series') return 'quaderno terapeutico completo';
+  return 'scheda';
 }

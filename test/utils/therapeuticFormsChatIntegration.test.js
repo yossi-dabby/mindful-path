@@ -166,13 +166,14 @@ describe('Phase 3/4B — unapproved forms cannot be selected', () => {
 describe('Phase 3 — forms with missing file_url cannot be selected', () => {
   it('APPROVED_FORM_INTENT_MAP only maps forms with real approved assets', () => {
     // All values in the intent map should resolve to non-null metadata in their primary language.
-    // Standard forms → English; Hebrew workbooks → Hebrew; Spanish workbooks → Spanish; French workbooks → French.
+    // Standard forms → English; Hebrew workbooks → Hebrew; Spanish → Spanish; French → French; German → German; Italian → Italian.
     const uniqueFormIds = new Set(Object.values(APPROVED_FORM_INTENT_MAP));
     for (const formId of uniqueFormIds) {
       const lang = formId.endsWith('-premium-he') ? 'he'
         : formId.endsWith('-premium-es') ? 'es'
         : formId.endsWith('-premium-fr') ? 'fr'
         : formId.endsWith('-premium-de') ? 'de'
+        : formId.endsWith('-premium-it') ? 'it'
         : 'en';
       const meta = resolveFormIntent(formId, lang);
       expect(meta, `${formId} must resolve with valid file_url`).not.toBeNull();
@@ -639,6 +640,7 @@ describe('Phase 3 — all APPROVED_FORM_INTENT_MAP values resolve from live regi
       if (formId.endsWith('-premium-es')) continue; // Spanish-only workbooks resolve in Spanish (no Hebrew block)
       if (formId.endsWith('-premium-fr')) continue; // French-only workbooks resolve in French (no Hebrew block)
       if (formId.endsWith('-premium-de')) continue; // German-only workbooks resolve in German (no Hebrew block)
+      if (formId.endsWith('-premium-it')) continue; // Italian-only workbooks resolve in Italian (no Hebrew block)
       const meta = resolveFormIntent(formId, 'he');
       expect(meta, `${formId} must resolve in Hebrew`).not.toBeNull();
       // Hebrew forms must use Hebrew URL path
