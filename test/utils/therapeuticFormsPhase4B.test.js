@@ -766,12 +766,13 @@ describe('Phase 4B — All APPROVED_FORM_INTENT_MAP values resolve from live reg
   it('every value in the map resolves to valid metadata in its primary language', () => {
     const uniqueFormIds = new Set(Object.values(APPROVED_FORM_INTENT_MAP));
     for (const formId of uniqueFormIds) {
-      // Hebrew workbooks → he, Spanish → es, French → fr, German → de, Italian → it, all others → en
+      // Hebrew workbooks → he, Spanish → es, French → fr, German → de, Italian → it, Portuguese → pt, all others → en
       const lang = formId.endsWith('-premium-he') ? 'he'
         : formId.endsWith('-premium-es') ? 'es'
         : formId.endsWith('-premium-fr') ? 'fr'
         : formId.endsWith('-premium-de') ? 'de'
         : formId.endsWith('-premium-it') ? 'it'
+        : formId.endsWith('-premium-pt') ? 'pt'
         : 'en';
       const meta = resolveFormIntent(formId, lang);
       expect(meta, `${formId} must resolve with valid file_url`).not.toBeNull();
@@ -783,7 +784,7 @@ describe('Phase 4B — All APPROVED_FORM_INTENT_MAP values resolve from live reg
   it('every value in the map also resolves in Hebrew (non-Hebrew-only workbooks are skipped)', () => {
     const uniqueFormIds = new Set(Object.values(APPROVED_FORM_INTENT_MAP));
     for (const formId of uniqueFormIds) {
-      if (formId.endsWith('-premium-en') || formId.endsWith('-premium-es') || formId.endsWith('-premium-fr') || formId.endsWith('-premium-de') || formId.endsWith('-premium-it')) continue;
+      if (formId.endsWith('-premium-en') || formId.endsWith('-premium-es') || formId.endsWith('-premium-fr') || formId.endsWith('-premium-de') || formId.endsWith('-premium-it') || formId.endsWith('-premium-pt')) continue;
       const meta = resolveFormIntent(formId, 'he');
       expect(meta, `${formId} must resolve in Hebrew`).not.toBeNull();
     }

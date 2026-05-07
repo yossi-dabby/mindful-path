@@ -60,12 +60,12 @@ describe('Phase 4D — buildTherapistFormCatalog: basic output', () => {
 
 // ─── 2–4. All 25 approved form IDs present ────────────────────────────────────
 
-describe('Phase 4D — buildTherapistFormCatalog: all 60 approved forms present', () => {
-  it('registry has exactly 60 approved forms (18 standard + 7 Hebrew + 7 English + 7 Spanish + 7 French + 7 German + 7 Italian workbooks)', () => {
-    expect(approvedForms.length).toBe(60);
+describe('Phase 4D — buildTherapistFormCatalog: all 67 approved forms present', () => {
+  it('registry has exactly 67 approved forms (18 standard + 7 Hebrew + 7 English + 7 Spanish + 7 French + 7 German + 7 Italian + 7 Portuguese workbooks)', () => {
+    expect(approvedForms.length).toBe(67);
   });
 
-  it('catalog contains all 60 approved form ID markers', () => {
+  it('catalog contains all 67 approved form ID markers', () => {
     for (const form of approvedForms) {
       expect(catalog, `Catalog must include [FORM:${form.id}]`).toContain(`[FORM:${form.id}]`);
     }
@@ -76,9 +76,9 @@ describe('Phase 4D — buildTherapistFormCatalog: all 60 approved forms present'
     expect(markerCount).toBeGreaterThan(2);
   });
 
-  it('catalog total form count is 60', () => {
+  it('catalog total form count is 67', () => {
     const markerCount = (catalog.match(/\[FORM:[a-z0-9_-]+\]/g) || []).length;
-    expect(markerCount).toBe(60);
+    expect(markerCount).toBe(67);
   });
 });
 

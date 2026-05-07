@@ -243,11 +243,11 @@ describe('Italian workbooks — regressions', () => {
     }
   });
 
-  it('total approved counts reflect +7 Italian workbooks', () => {
+  it('total approved counts reflect +7 Portuguese workbooks on top of prior languages', () => {
     const approved = ALL_FORMS.filter(f => f.approved === true);
     const approvedWorkbooks = ALL_FORMS.filter(f => f.approved === true && f.category === 'workbook_series');
-    expect(approvedWorkbooks.length).toBe(42);
-    expect(approved.length).toBe(60);
+    expect(approvedWorkbooks.length).toBe(49);
+    expect(approved.length).toBe(67);
   });
 
   it('all Italian workbook slugs are resolvable directly', () => {
