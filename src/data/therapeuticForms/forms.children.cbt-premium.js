@@ -80,9 +80,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: 'שלב 1 — היכרות, הערכה ובניית אמון',
         description:
           'דף עבודה ראשון בסדרה לילדים: כניסה לתהליך הטיפולי, הכרת הילד ובניית ברית טיפולית.',
-        file_url: `${BASE_URL}/children-cbt-stage-1-premium-he.pdf`,
+        file_url: `${BASE_URL}/01-stage-1-assessment-alliance-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-1-premium-he.pdf',
+        file_name: '01-stage-1-assessment-alliance-he.pdf',
         rtl: true,
         aliases: [
           'היכרות', 'הערכה', 'בניית אמון', 'ברית טיפולית',
@@ -121,9 +121,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '1.1 — מי אני ומה חשוב לי?',
         description:
           'דף הכרה עצמית: הילד מזהה מי הוא, מה חשוב לו ומה הערכים שמנחים אותו.',
-        file_url: `${BASE_URL}/children-cbt-stage-1-1-premium-he.pdf`,
+        file_url: `${BASE_URL}/01-01-who-am-i-what-matters-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-1-1-premium-he.pdf',
+        file_name: '01-01-who-am-i-what-matters-he.pdf',
         rtl: true,
         aliases: [
           'מי אני', 'מה חשוב לי', 'מה חשוב לילד',
@@ -161,9 +161,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '1.2 — מתי קשה לי?',
         description:
           'דף מיפוי מצבי קושי: הילד מזהה מתי ובאיזה מצבים הוא מרגיש שקשה לו.',
-        file_url: `${BASE_URL}/children-cbt-stage-1-2-premium-he.pdf`,
+        file_url: `${BASE_URL}/01-02-when-is-it-hard-for-me-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-1-2-premium-he.pdf',
+        file_name: '01-02-when-is-it-hard-for-me-he.pdf',
         rtl: true,
         aliases: [
           'מתי קשה לי', 'מתי קשה לילד', 'מצבי קושי',
@@ -201,9 +201,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '1.3 — מה אני עושה כשקשה לי?',
         description:
           'דף זיהוי תגובות לקושי: הילד מגלה מה הוא עושה כשנתקל בקושי ומה עוזר לו.',
-        file_url: `${BASE_URL}/children-cbt-stage-1-3-premium-he.pdf`,
+        file_url: `${BASE_URL}/01-03-what-i-do-when-it-is-hard-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-1-3-premium-he.pdf',
+        file_name: '01-03-what-i-do-when-it-is-hard-he.pdf',
         rtl: true,
         aliases: [
           'מה אני עושה כשקשה לי', 'מה הילד עושה כשקשה לו',
@@ -241,9 +241,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '1.4 — כמה זה קורה לי וכמה זה מפריע לי?',
         description:
           'דף הערכת חומרה ותדירות: הילד מדרג כמה פעמים הקושי קורה וכמה הוא מפריע לחייו.',
-        file_url: `${BASE_URL}/children-cbt-stage-1-4-premium-he.pdf`,
+        file_url: `${BASE_URL}/01-04-how-often-and-how-much-it-bothers-me-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-1-4-premium-he.pdf',
+        file_name: '01-04-how-often-and-how-much-it-bothers-me-he.pdf',
         rtl: true,
         aliases: [
           'כמה זה קורה', 'כמה זה מפריע', 'כמה זה קורה לי',
@@ -282,9 +282,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: 'שלב 2 — בונים את המפה שלי',
         description:
           'דף המשגה: הילד בונה את המפה האישית שלו — קשר בין טריגרים, מחשבות, רגשות, גוף והתנהגות.',
-        file_url: `${BASE_URL}/children-cbt-stage-2-premium-he.pdf`,
+        file_url: `${BASE_URL}/02-stage-2-building-my-map-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-2-premium-he.pdf',
+        file_name: '02-stage-2-building-my-map-he.pdf',
         rtl: true,
         aliases: [
           'המפה שלי', 'בונים את המפה', 'המשגה', 'מפת הקושי',
@@ -322,9 +322,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '2.1 — מה היה רגע לפני?',
         description:
           'דף זיהוי טריגר: הילד מגלה מה קרה רגע לפני שהרגיש קשה — מה הציתה את הקושי.',
-        file_url: `${BASE_URL}/children-cbt-stage-2-1-premium-he.pdf`,
+        file_url: `${BASE_URL}/02-01-what-happened-right-before-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-2-1-premium-he.pdf',
+        file_name: '02-01-what-happened-right-before-he.pdf',
         rtl: true,
         aliases: [
           'מה היה רגע לפני', 'מה היה לפני', 'טריגר',
@@ -362,9 +362,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '2.2 — מה הראש אמר לי?',
         description:
           'דף זיהוי מחשבות אוטומטיות: הילד לומד לזהות מה הראש אמר לו בזמן הקושי.',
-        file_url: `${BASE_URL}/children-cbt-stage-2-2-premium-he.pdf`,
+        file_url: `${BASE_URL}/02-02-what-my-mind-told-me-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-2-2-premium-he.pdf',
+        file_name: '02-02-what-my-mind-told-me-he.pdf',
         rtl: true,
         aliases: [
           'מה הראש אמר לי', 'מחשבה אוטומטית', 'מה חשבתי',
@@ -402,9 +402,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '2.3 — מה הרגשתי בגוף?',
         description:
           'דף תחושות גוף: הילד מזהה את התחושות הפיזיות שמרגיש בגופו בזמן הקושי.',
-        file_url: `${BASE_URL}/children-cbt-stage-2-3-premium-he.pdf`,
+        file_url: `${BASE_URL}/02-03-what-i-felt-in-my-body-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-2-3-premium-he.pdf',
+        file_name: '02-03-what-i-felt-in-my-body-he.pdf',
         rtl: true,
         aliases: [
           'מה הרגשתי בגוף', 'תחושות גוף', 'גוף ורגש',
@@ -443,9 +443,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '2.4 — מה עשיתי אחר כך?',
         description:
           'דף זיהוי תגובה התנהגותית: הילד מבין מה עשה אחרי הקושי וכיצד הפעולה שלו השפיעה על המצב.',
-        file_url: `${BASE_URL}/children-cbt-stage-2-4-premium-he.pdf`,
+        file_url: `${BASE_URL}/02-04-what-i-did-afterward-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-2-4-premium-he.pdf',
+        file_name: '02-04-what-i-did-afterward-he.pdf',
         rtl: true,
         aliases: [
           'מה עשיתי אחר כך', 'מה עשה אחר כך', 'תגובה התנהגותית',
@@ -484,9 +484,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: 'שלב 3 — עובדים על המחשבות',
         description:
           'דף עבודה קוגניטיבי: הילד לומד לזהות, לבדוק ולשנות מחשבות שאינן עוזרות לו.',
-        file_url: `${BASE_URL}/children-cbt-stage-3-premium-he.pdf`,
+        file_url: `${BASE_URL}/03-stage-3-working-on-thoughts-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-3-premium-he.pdf',
+        file_name: '03-stage-3-working-on-thoughts-he.pdf',
         rtl: true,
         aliases: [
           'עובדים על המחשבות', 'עבודה קוגניטיבית', 'לשנות מחשבות',
@@ -525,9 +525,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '3.1 — תפסתי מחשבה!',
         description:
           'דף תפיסת מחשבה אוטומטית: הילד לומד לשים לב ולתפוס מחשבות שמגיעות אוטומטית.',
-        file_url: `${BASE_URL}/children-cbt-stage-3-1-premium-he.pdf`,
+        file_url: `${BASE_URL}/03-01-i-caught-a-thought-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-3-1-premium-he.pdf',
+        file_name: '03-01-i-caught-a-thought-he.pdf',
         rtl: true,
         aliases: [
           'תפסתי מחשבה', 'לתפוס מחשבה', 'מחשבה אוטומטית',
@@ -565,9 +565,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '3.2 — מחשבה או עובדה?',
         description:
           'דף הבחנה בין מחשבה לעובדה: הילד לומד להבדיל בין מחשבה (פרשנות) לבין עובדה אמיתית.',
-        file_url: `${BASE_URL}/children-cbt-stage-3-2-premium-he.pdf`,
+        file_url: `${BASE_URL}/03-02-thought-or-fact-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-3-2-premium-he.pdf',
+        file_name: '03-02-thought-or-fact-he.pdf',
         rtl: true,
         aliases: [
           'מחשבה או עובדה', 'מחשבה לעומת עובדה',
@@ -606,9 +606,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '3.3 — בלש המחשבות שלי',
         description:
           'דף בלש מחשבות: הילד אוסף ראיות בעד ונגד המחשבה הקשה כדי לבדוק אם היא אמיתית.',
-        file_url: `${BASE_URL}/children-cbt-stage-3-3-premium-he.pdf`,
+        file_url: `${BASE_URL}/03-03-my-thought-detective-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-3-3-premium-he.pdf',
+        file_name: '03-03-my-thought-detective-he.pdf',
         rtl: true,
         aliases: [
           'בלש מחשבות', 'בלש המחשבות שלי', 'ראיות בעד ונגד',
@@ -647,9 +647,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '3.4 — מחשבה חדשה שעוזרת לי',
         description:
           'דף פיתוח מחשבה חלופית: הילד בונה מחשבה חדשה, מאוזנת ועוזרת שתחליף את המחשבה הקשה.',
-        file_url: `${BASE_URL}/children-cbt-stage-3-4-premium-he.pdf`,
+        file_url: `${BASE_URL}/03-04-new-helpful-thought-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-3-4-premium-he.pdf',
+        file_name: '03-04-new-helpful-thought-he.pdf',
         rtl: true,
         aliases: [
           'מחשבה חדשה שעוזרת לי', 'מחשבה חדשה', 'מחשבה שעוזרת',
@@ -688,9 +688,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: 'שלב 4 — עובדים במציאות',
         description:
           'דף עבודה התנהגותית: הילד לומד להתמודד עם קשיים בפועל באמצעות חשיפה הדרגתית וניסויים התנהגותיים.',
-        file_url: `${BASE_URL}/children-cbt-stage-4-premium-he.pdf`,
+        file_url: `${BASE_URL}/04-stage-4-working-in-real-life-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-4-premium-he.pdf',
+        file_name: '04-stage-4-working-in-real-life-he.pdf',
         rtl: true,
         aliases: [
           'עובדים במציאות', 'עבודה התנהגותית', 'חשיפה',
@@ -729,9 +729,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '4.1 — סולם האומץ שלי',
         description:
           'דף סולם האומץ: הילד בונה רשימה הדרגתית של מצבים שקשה לו להתמודד איתם, מהכי קל לכי קשה.',
-        file_url: `${BASE_URL}/children-cbt-stage-4-1-premium-he.pdf`,
+        file_url: `${BASE_URL}/04-01-my-courage-ladder-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-4-1-premium-he.pdf',
+        file_name: '04-01-my-courage-ladder-he.pdf',
         rtl: true,
         aliases: [
           'סולם אומץ', 'סולם האומץ שלי', 'סולם חשיפה',
@@ -770,9 +770,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '4.2 — הצעד הקטן שלי',
         description:
           'דף תכנון צעד קטן: הילד בוחר צעד אחד קטן וניתן לביצוע להתמודדות עם הקושי.',
-        file_url: `${BASE_URL}/children-cbt-stage-4-2-premium-he.pdf`,
+        file_url: `${BASE_URL}/04-02-my-small-step-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-4-2-premium-he.pdf',
+        file_name: '04-02-my-small-step-he.pdf',
         rtl: true,
         aliases: [
           'הצעד הקטן שלי', 'צעד קטן', 'הצעד הבא שלי',
@@ -811,9 +811,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '4.3 — ניסוי אמיץ',
         description:
           'דף ניסוי התנהגותי: הילד מתכנן ומבצע "ניסוי אמיץ" לבדיקת מה שהמחשבה הפחידה אותו ממנו.',
-        file_url: `${BASE_URL}/children-cbt-stage-4-3-premium-he.pdf`,
+        file_url: `${BASE_URL}/04-03-brave-experiment-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-4-3-premium-he.pdf',
+        file_name: '04-03-brave-experiment-he.pdf',
         rtl: true,
         aliases: [
           'ניסוי אמיץ', 'ניסוי התנהגותי', 'לנסות',
@@ -852,9 +852,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '4.4 — מה מפעיל אותי?',
         description:
           'דף מיפוי מפעילים: הילד מזהה אילו מצבים, אנשים או מחשבות מפעילים אצלו תגובות קשות.',
-        file_url: `${BASE_URL}/children-cbt-stage-4-4-premium-he.pdf`,
+        file_url: `${BASE_URL}/04-04-what-activates-me-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-4-4-premium-he.pdf',
+        file_name: '04-04-what-activates-me-he.pdf',
         rtl: true,
         aliases: [
           'מה מפעיל אותי', 'מפעילים', 'טריגרים שלי',
@@ -893,9 +893,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: 'שלב 5 — מוסיפים כלים לארגז שלי',
         description:
           'דף עבודה לפיתוח מיומנויות: הילד בונה את ארגז הכלים האישי שלו עם כלים להרגעה, משפטים מחזקים ומיומנויות חברתיות.',
-        file_url: `${BASE_URL}/children-cbt-stage-5-premium-he.pdf`,
+        file_url: `${BASE_URL}/05-stage-5-adding-tools-to-my-toolbox-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-5-premium-he.pdf',
+        file_name: '05-stage-5-adding-tools-to-my-toolbox-he.pdf',
         rtl: true,
         aliases: [
           'ארגז כלים', 'מוסיפים כלים', 'כלים לארגז שלי',
@@ -934,9 +934,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '5.1 — כלים שמרגיעים את הגוף שלי',
         description:
           'דף כלים להרגעת הגוף: הילד מתאמן בטכניקות גופניות להרגעה — נשימה, הרפיה והרגעה חושית.',
-        file_url: `${BASE_URL}/children-cbt-stage-5-1-premium-he.pdf`,
+        file_url: `${BASE_URL}/05-01-tools-that-calm-my-body-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-5-1-premium-he.pdf',
+        file_name: '05-01-tools-that-calm-my-body-he.pdf',
         rtl: true,
         aliases: [
           'כלים שמרגיעים את הגוף שלי', 'כלים להרגעה', 'נשימה',
@@ -975,9 +975,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '5.2 — משפטים שעוזרים לי',
         description:
           'דף משפטים מחזקים: הילד בוחר ומאמן משפטים שיעזרו לו להרגיע את עצמו ולהתמודד בזמן קושי.',
-        file_url: `${BASE_URL}/children-cbt-stage-5-2-premium-he.pdf`,
+        file_url: `${BASE_URL}/05-02-helpful-sentences-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-5-2-premium-he.pdf',
+        file_name: '05-02-helpful-sentences-he.pdf',
         rtl: true,
         aliases: [
           'משפטים שעוזרים לי', 'משפטים מחזקים', 'דיבור עצמי',
@@ -1016,9 +1016,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '5.3 — איך אני מבקש/ת עזרה?',
         description:
           'דף בקשת עזרה: הילד לומד לזהות מתי הוא צריך עזרה ואיך לבקש אותה בצורה יעילה.',
-        file_url: `${BASE_URL}/children-cbt-stage-5-3-premium-he.pdf`,
+        file_url: `${BASE_URL}/05-03-how-i-ask-for-help-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-5-3-premium-he.pdf',
+        file_name: '05-03-how-i-ask-for-help-he.pdf',
         rtl: true,
         aliases: [
           'איך אני מבקש עזרה', 'איך מבקשים עזרה',
@@ -1057,9 +1057,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '5.4 — איך מתקנים קשר?',
         description:
           'דף תיקון קשר: הילד לומד כיצד לפצות, להתפייס ולתקן קשר עם חבר, אח או הורה אחרי ריב.',
-        file_url: `${BASE_URL}/children-cbt-stage-5-4-premium-he.pdf`,
+        file_url: `${BASE_URL}/05-04-how-to-repair-a-relationship-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-5-4-premium-he.pdf',
+        file_name: '05-04-how-to-repair-a-relationship-he.pdf',
         rtl: true,
         aliases: [
           'איך מתקנים קשר', 'תיקון קשר', 'פתרון ריב',
@@ -1098,9 +1098,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: 'שלב 6 — שומרים על ההצלחה שלי',
         description:
           'דף סיום: הילד מציין את ההצלחות שלו, מה למד ואיך ישמור על הכלים שצבר לעתיד.',
-        file_url: `${BASE_URL}/children-cbt-stage-6-premium-he.pdf`,
+        file_url: `${BASE_URL}/06-stage-6-maintaining-my-success-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-6-premium-he.pdf',
+        file_name: '06-stage-6-maintaining-my-success-he.pdf',
         rtl: true,
         aliases: [
           'שומרים על ההצלחה', 'סיום טיפול', 'מניעת נסיגה',
@@ -1139,9 +1139,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '6.1 — מה למדתי על עצמי?',
         description:
           'דף הרהור עצמי: הילד מסכם מה למד על עצמו, על כוחותיו ועל דרכי ההתמודדות שלו בתהליך.',
-        file_url: `${BASE_URL}/children-cbt-stage-6-1-premium-he.pdf`,
+        file_url: `${BASE_URL}/06-01-what-i-learned-about-myself-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-6-1-premium-he.pdf',
+        file_name: '06-01-what-i-learned-about-myself-he.pdf',
         rtl: true,
         aliases: [
           'מה למדתי על עצמי', 'מה הילד למד', 'הרהור עצמי',
@@ -1180,9 +1180,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '6.2 — מתי עלול להיות לי שוב קשה?',
         description:
           'דף תכנון לעתיד: הילד מזהה מצבים שבהם עשוי לחזור הקושי ומתכנן כיצד להתמודד.',
-        file_url: `${BASE_URL}/children-cbt-stage-6-2-premium-he.pdf`,
+        file_url: `${BASE_URL}/06-02-when-it-might-be-hard-again-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-6-2-premium-he.pdf',
+        file_name: '06-02-when-it-might-be-hard-again-he.pdf',
         rtl: true,
         aliases: [
           'מתי עלול להיות לי שוב קשה', 'מניעת נסיגה',
@@ -1221,9 +1221,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '6.3 — כרטיס הכוח שלי',
         description:
           'דף כרטיס כוח: הילד מכין כרטיס אישי עם הכוחות, הכלים והמשפטים המחזקים שיסיים בהם את הטיפול.',
-        file_url: `${BASE_URL}/children-cbt-stage-6-3-premium-he.pdf`,
+        file_url: `${BASE_URL}/06-03-my-power-card-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-6-3-premium-he.pdf',
+        file_name: '06-03-my-power-card-he.pdf',
         rtl: true,
         aliases: [
           'כרטיס כוח', 'כרטיס הכוח שלי', 'כרטיס התמודדות',
@@ -1262,9 +1262,9 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
         title: '6.4 — אני ממשיך/ה לבד — עם הכלים שלי',
         description:
           'דף עצמאות: הילד מאשש את יכולתו להמשיך לבד עם הכלים שרכש בתהליך הטיפולי.',
-        file_url: `${BASE_URL}/children-cbt-stage-6-4-premium-he.pdf`,
+        file_url: `${BASE_URL}/06-04-continuing-with-my-tools-he.pdf`,
         file_type: 'pdf',
-        file_name: 'children-cbt-stage-6-4-premium-he.pdf',
+        file_name: '06-04-continuing-with-my-tools-he.pdf',
         rtl: true,
         aliases: [
           'אני ממשיך לבד', 'הכלים שלי', 'להמשיך לבד',
