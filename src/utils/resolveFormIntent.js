@@ -649,6 +649,213 @@ export const APPROVED_FORM_INTENT_MAP = Object.freeze({
   'síntese do tratamento':                                 'tf-adults-treatment-summary-custom-forms-premium-pt',
   'encerramento da terapia':                               'tf-adults-treatment-summary-custom-forms-premium-pt',
   'formulário personalizado':                              'tf-adults-treatment-summary-custom-forms-premium-pt',
+
+  // ── Hebrew Children CBT Premium: Full Series Workbook ─────────────────────
+  // Audience guard: aliases MUST include child/children/ילד/ילדים wording
+  'tf-children-cbt-series-premium-he':                    'tf-children-cbt-series-premium-he',
+  'children-cbt-series-premium-he':                       'tf-children-cbt-series-premium-he',
+  'סדרת ילדים':                                           'tf-children-cbt-series-premium-he',
+  'סדרת cbt לילדים':                                      'tf-children-cbt-series-premium-he',
+  'חוברת ילדים':                                          'tf-children-cbt-series-premium-he',
+  'קונטרס ילדים':                                         'tf-children-cbt-series-premium-he',
+  'כל שלבי הילדים':                                       'tf-children-cbt-series-premium-he',
+  'כל הטפסים לילדים':                                     'tf-children-cbt-series-premium-he',
+  'סט מלא לילדים':                                        'tf-children-cbt-series-premium-he',
+  'children cbt workbook':                                 'tf-children-cbt-series-premium-he',
+  'children worksheet series':                             'tf-children-cbt-series-premium-he',
+  'full children cbt series':                              'tf-children-cbt-series-premium-he',
+  'חוברת עבודה לילדים':                                   'tf-children-cbt-series-premium-he',
+  'כל הסדרה לילדים':                                      'tf-children-cbt-series-premium-he',
+
+  // ── Hebrew Children CBT Premium: Stage 1 (Assessment & Alliance) ─────────
+  'tf-children-cbt-stage-1-premium-he':                   'tf-children-cbt-stage-1-premium-he',
+  'children-cbt-stage-1-premium-he':                      'tf-children-cbt-stage-1-premium-he',
+  'היכרות ילד':                                           'tf-children-cbt-stage-1-premium-he',
+  'הערכה ילד':                                            'tf-children-cbt-stage-1-premium-he',
+  'בניית אמון ילד':                                       'tf-children-cbt-stage-1-premium-he',
+  'ברית טיפולית ילד':                                     'tf-children-cbt-stage-1-premium-he',
+  'תחילת טיפול עם ילד':                                   'tf-children-cbt-stage-1-premium-he',
+  'להכיר את הילד':                                        'tf-children-cbt-stage-1-premium-he',
+  'שלב ראשון ילד':                                        'tf-children-cbt-stage-1-premium-he',
+
+  'tf-children-cbt-stage-1-1-premium-he':                 'tf-children-cbt-stage-1-1-premium-he',
+  'children-cbt-stage-1-1-premium-he':                    'tf-children-cbt-stage-1-1-premium-he',
+  'מי אני ומה חשוב לי':                                   'tf-children-cbt-stage-1-1-premium-he',
+  'מה חשוב לילד':                                         'tf-children-cbt-stage-1-1-premium-he',
+  'מה חשוב לי ילד':                                       'tf-children-cbt-stage-1-1-premium-he',
+
+  'tf-children-cbt-stage-1-2-premium-he':                 'tf-children-cbt-stage-1-2-premium-he',
+  'children-cbt-stage-1-2-premium-he':                    'tf-children-cbt-stage-1-2-premium-he',
+  'מתי קשה לי ילד':                                       'tf-children-cbt-stage-1-2-premium-he',
+  'מתי קשה לילד':                                         'tf-children-cbt-stage-1-2-premium-he',
+
+  'tf-children-cbt-stage-1-3-premium-he':                 'tf-children-cbt-stage-1-3-premium-he',
+  'children-cbt-stage-1-3-premium-he':                    'tf-children-cbt-stage-1-3-premium-he',
+  'מה אני עושה כשקשה לי ילד':                             'tf-children-cbt-stage-1-3-premium-he',
+  'מה הילד עושה כשקשה לו':                                'tf-children-cbt-stage-1-3-premium-he',
+
+  'tf-children-cbt-stage-1-4-premium-he':                 'tf-children-cbt-stage-1-4-premium-he',
+  'children-cbt-stage-1-4-premium-he':                    'tf-children-cbt-stage-1-4-premium-he',
+  'כמה זה קורה לי וכמה זה מפריע לי':                     'tf-children-cbt-stage-1-4-premium-he',
+  'כמה זה קורה ילד':                                      'tf-children-cbt-stage-1-4-premium-he',
+  'כמה זה מפריע ילד':                                     'tf-children-cbt-stage-1-4-premium-he',
+
+  // ── Hebrew Children CBT Premium: Stage 2 (Case Formulation) ─────────────
+  'tf-children-cbt-stage-2-premium-he':                   'tf-children-cbt-stage-2-premium-he',
+  'children-cbt-stage-2-premium-he':                      'tf-children-cbt-stage-2-premium-he',
+  'המפה שלי ילד':                                         'tf-children-cbt-stage-2-premium-he',
+  'מפת הקושי ילד':                                        'tf-children-cbt-stage-2-premium-he',
+  'מעגל הקושי ילד':                                       'tf-children-cbt-stage-2-premium-he',
+  'המשגה ילד':                                            'tf-children-cbt-stage-2-premium-he',
+  'שלב שני ילד':                                          'tf-children-cbt-stage-2-premium-he',
+
+  'tf-children-cbt-stage-2-1-premium-he':                 'tf-children-cbt-stage-2-1-premium-he',
+  'children-cbt-stage-2-1-premium-he':                    'tf-children-cbt-stage-2-1-premium-he',
+  'מה היה רגע לפני ילד':                                  'tf-children-cbt-stage-2-1-premium-he',
+  'טריגר ילד':                                            'tf-children-cbt-stage-2-1-premium-he',
+  'להבין מה קורה לפני ילד':                               'tf-children-cbt-stage-2-1-premium-he',
+
+  'tf-children-cbt-stage-2-2-premium-he':                 'tf-children-cbt-stage-2-2-premium-he',
+  'children-cbt-stage-2-2-premium-he':                    'tf-children-cbt-stage-2-2-premium-he',
+  'מה הראש אמר לי ילד':                                   'tf-children-cbt-stage-2-2-premium-he',
+  'מה הראש אמר ילד':                                      'tf-children-cbt-stage-2-2-premium-he',
+
+  'tf-children-cbt-stage-2-3-premium-he':                 'tf-children-cbt-stage-2-3-premium-he',
+  'children-cbt-stage-2-3-premium-he':                    'tf-children-cbt-stage-2-3-premium-he',
+  'מה הרגשתי בגוף ילד':                                   'tf-children-cbt-stage-2-3-premium-he',
+  'תחושות גוף ילד':                                       'tf-children-cbt-stage-2-3-premium-he',
+
+  'tf-children-cbt-stage-2-4-premium-he':                 'tf-children-cbt-stage-2-4-premium-he',
+  'children-cbt-stage-2-4-premium-he':                    'tf-children-cbt-stage-2-4-premium-he',
+  'מה עשיתי אחר כך ילד':                                  'tf-children-cbt-stage-2-4-premium-he',
+  'מחשבה רגש גוף פעולה ילד':                              'tf-children-cbt-stage-2-4-premium-he',
+
+  // ── Hebrew Children CBT Premium: Stage 3 (Cognitive Restructuring) ───────
+  'tf-children-cbt-stage-3-premium-he':                   'tf-children-cbt-stage-3-premium-he',
+  'children-cbt-stage-3-premium-he':                      'tf-children-cbt-stage-3-premium-he',
+  'עובדים על המחשבות ילד':                                'tf-children-cbt-stage-3-premium-he',
+  'עבודה קוגניטיבית ילד':                                 'tf-children-cbt-stage-3-premium-he',
+  'שלב שלישי ילד':                                        'tf-children-cbt-stage-3-premium-he',
+
+  'tf-children-cbt-stage-3-1-premium-he':                 'tf-children-cbt-stage-3-1-premium-he',
+  'children-cbt-stage-3-1-premium-he':                    'tf-children-cbt-stage-3-1-premium-he',
+  'תפסתי מחשבה ילד':                                      'tf-children-cbt-stage-3-1-premium-he',
+  'לתפוס מחשבה ילד':                                      'tf-children-cbt-stage-3-1-premium-he',
+
+  'tf-children-cbt-stage-3-2-premium-he':                 'tf-children-cbt-stage-3-2-premium-he',
+  'children-cbt-stage-3-2-premium-he':                    'tf-children-cbt-stage-3-2-premium-he',
+  'מחשבה או עובדה ילד':                                   'tf-children-cbt-stage-3-2-premium-he',
+  'לבדוק מחשבה ילד':                                      'tf-children-cbt-stage-3-2-premium-he',
+  'ראיות בעד ונגד ילד':                                   'tf-children-cbt-stage-3-2-premium-he',
+
+  'tf-children-cbt-stage-3-3-premium-he':                 'tf-children-cbt-stage-3-3-premium-he',
+  'children-cbt-stage-3-3-premium-he':                    'tf-children-cbt-stage-3-3-premium-he',
+  'בלש מחשבות ילד':                                       'tf-children-cbt-stage-3-3-premium-he',
+  'בלש המחשבות שלי ילד':                                  'tf-children-cbt-stage-3-3-premium-he',
+  'מחשבה מפחידה ילד':                                     'tf-children-cbt-stage-3-3-premium-he',
+
+  'tf-children-cbt-stage-3-4-premium-he':                 'tf-children-cbt-stage-3-4-premium-he',
+  'children-cbt-stage-3-4-premium-he':                    'tf-children-cbt-stage-3-4-premium-he',
+  'מחשבה חדשה שעוזרת לי ילד':                             'tf-children-cbt-stage-3-4-premium-he',
+  'מחשבה חדשה ילד':                                       'tf-children-cbt-stage-3-4-premium-he',
+  'מחשבה שעוזרת ילד':                                     'tf-children-cbt-stage-3-4-premium-he',
+  'מחשבה מאוזנת ילד':                                     'tf-children-cbt-stage-3-4-premium-he',
+  'מחשבה חלופית ילד':                                     'tf-children-cbt-stage-3-4-premium-he',
+
+  // ── Hebrew Children CBT Premium: Stage 4 (Behavioral Interventions) ──────
+  'tf-children-cbt-stage-4-premium-he':                   'tf-children-cbt-stage-4-premium-he',
+  'children-cbt-stage-4-premium-he':                      'tf-children-cbt-stage-4-premium-he',
+  'עובדים במציאות ילד':                                   'tf-children-cbt-stage-4-premium-he',
+  'עבודה התנהגותית ילד':                                  'tf-children-cbt-stage-4-premium-he',
+  'חשיפה ילד':                                            'tf-children-cbt-stage-4-premium-he',
+  'שלב רביעי ילד':                                        'tf-children-cbt-stage-4-premium-he',
+
+  'tf-children-cbt-stage-4-1-premium-he':                 'tf-children-cbt-stage-4-1-premium-he',
+  'children-cbt-stage-4-1-premium-he':                    'tf-children-cbt-stage-4-1-premium-he',
+  'סולם אומץ ילד':                                        'tf-children-cbt-stage-4-1-premium-he',
+  'סולם האומץ שלי':                                       'tf-children-cbt-stage-4-1-premium-he',
+  'חשיפה הדרגתית ילד':                                    'tf-children-cbt-stage-4-1-premium-he',
+  'להתמודד לאט לאט ילד':                                  'tf-children-cbt-stage-4-1-premium-he',
+
+  'tf-children-cbt-stage-4-2-premium-he':                 'tf-children-cbt-stage-4-2-premium-he',
+  'children-cbt-stage-4-2-premium-he':                    'tf-children-cbt-stage-4-2-premium-he',
+  'הצעד הקטן שלי ילד':                                    'tf-children-cbt-stage-4-2-premium-he',
+  'צעד קטן ילד':                                          'tf-children-cbt-stage-4-2-premium-he',
+
+  'tf-children-cbt-stage-4-3-premium-he':                 'tf-children-cbt-stage-4-3-premium-he',
+  'children-cbt-stage-4-3-premium-he':                    'tf-children-cbt-stage-4-3-premium-he',
+  'ניסוי אמיץ ילד':                                       'tf-children-cbt-stage-4-3-premium-he',
+  'ניסוי התנהגותי ילד':                                   'tf-children-cbt-stage-4-3-premium-he',
+  'הפעלה התנהגותית ילד':                                  'tf-children-cbt-stage-4-3-premium-he',
+
+  'tf-children-cbt-stage-4-4-premium-he':                 'tf-children-cbt-stage-4-4-premium-he',
+  'children-cbt-stage-4-4-premium-he':                    'tf-children-cbt-stage-4-4-premium-he',
+  'מה מפעיל אותי ילד':                                    'tf-children-cbt-stage-4-4-premium-he',
+  'מפעילים ילד':                                          'tf-children-cbt-stage-4-4-premium-he',
+
+  // ── Hebrew Children CBT Premium: Stage 5 (Skill Building) ───────────────
+  'tf-children-cbt-stage-5-premium-he':                   'tf-children-cbt-stage-5-premium-he',
+  'children-cbt-stage-5-premium-he':                      'tf-children-cbt-stage-5-premium-he',
+  'ארגז כלים ילד':                                        'tf-children-cbt-stage-5-premium-he',
+  'מיומנויות ילד':                                        'tf-children-cbt-stage-5-premium-he',
+  'כלים לארגז שלי':                                       'tf-children-cbt-stage-5-premium-he',
+  'שלב חמישי ילד':                                        'tf-children-cbt-stage-5-premium-he',
+
+  'tf-children-cbt-stage-5-1-premium-he':                 'tf-children-cbt-stage-5-1-premium-he',
+  'children-cbt-stage-5-1-premium-he':                    'tf-children-cbt-stage-5-1-premium-he',
+  'כלים שמרגיעים את הגוף שלי':                            'tf-children-cbt-stage-5-1-premium-he',
+  'כלים להרגעה ילד':                                      'tf-children-cbt-stage-5-1-premium-he',
+  'נשימה ילד':                                            'tf-children-cbt-stage-5-1-premium-he',
+  'הרפיה ילד':                                            'tf-children-cbt-stage-5-1-premium-he',
+
+  'tf-children-cbt-stage-5-2-premium-he':                 'tf-children-cbt-stage-5-2-premium-he',
+  'children-cbt-stage-5-2-premium-he':                    'tf-children-cbt-stage-5-2-premium-he',
+  'משפטים שעוזרים לי ילד':                                'tf-children-cbt-stage-5-2-premium-he',
+  'משפטים שעוזרים ילד':                                   'tf-children-cbt-stage-5-2-premium-he',
+  'משפטים מחזקים ילד':                                    'tf-children-cbt-stage-5-2-premium-he',
+
+  'tf-children-cbt-stage-5-3-premium-he':                 'tf-children-cbt-stage-5-3-premium-he',
+  'children-cbt-stage-5-3-premium-he':                    'tf-children-cbt-stage-5-3-premium-he',
+  'איך אני מבקש עזרה ילד':                                'tf-children-cbt-stage-5-3-premium-he',
+  'בקשת עזרה ילד':                                        'tf-children-cbt-stage-5-3-premium-he',
+  'איך מבקשים עזרה ילד':                                  'tf-children-cbt-stage-5-3-premium-he',
+
+  'tf-children-cbt-stage-5-4-premium-he':                 'tf-children-cbt-stage-5-4-premium-he',
+  'children-cbt-stage-5-4-premium-he':                    'tf-children-cbt-stage-5-4-premium-he',
+  'איך מתקנים קשר ילד':                                   'tf-children-cbt-stage-5-4-premium-he',
+  'תיקון קשר ילד':                                        'tf-children-cbt-stage-5-4-premium-he',
+  'פתרון ריב ילד':                                        'tf-children-cbt-stage-5-4-premium-he',
+
+  // ── Hebrew Children CBT Premium: Stage 6 (Relapse Prevention / Ending) ───
+  'tf-children-cbt-stage-6-premium-he':                   'tf-children-cbt-stage-6-premium-he',
+  'children-cbt-stage-6-premium-he':                      'tf-children-cbt-stage-6-premium-he',
+  'שומרים על ההצלחה ילד':                                 'tf-children-cbt-stage-6-premium-he',
+  'סיום טיפול ילד':                                       'tf-children-cbt-stage-6-premium-he',
+  'מניעת נסיגה ילד':                                      'tf-children-cbt-stage-6-premium-he',
+  'שימור הישגים ילד':                                     'tf-children-cbt-stage-6-premium-he',
+  'שלב שישי ילד':                                         'tf-children-cbt-stage-6-premium-he',
+
+  'tf-children-cbt-stage-6-1-premium-he':                 'tf-children-cbt-stage-6-1-premium-he',
+  'children-cbt-stage-6-1-premium-he':                    'tf-children-cbt-stage-6-1-premium-he',
+  'מה למדתי על עצמי ילד':                                 'tf-children-cbt-stage-6-1-premium-he',
+  'מה הילד למד':                                          'tf-children-cbt-stage-6-1-premium-he',
+
+  'tf-children-cbt-stage-6-2-premium-he':                 'tf-children-cbt-stage-6-2-premium-he',
+  'children-cbt-stage-6-2-premium-he':                    'tf-children-cbt-stage-6-2-premium-he',
+  'מתי עלול להיות לי שוב קשה ילד':                       'tf-children-cbt-stage-6-2-premium-he',
+  'מניעת נסיגה לילד':                                     'tf-children-cbt-stage-6-2-premium-he',
+
+  'tf-children-cbt-stage-6-3-premium-he':                 'tf-children-cbt-stage-6-3-premium-he',
+  'children-cbt-stage-6-3-premium-he':                    'tf-children-cbt-stage-6-3-premium-he',
+  'כרטיס הכוח שלי ילד':                                   'tf-children-cbt-stage-6-3-premium-he',
+  'כרטיס כוח ילד':                                        'tf-children-cbt-stage-6-3-premium-he',
+  'כרטיס התמודדות ילד':                                   'tf-children-cbt-stage-6-3-premium-he',
+
+  'tf-children-cbt-stage-6-4-premium-he':                 'tf-children-cbt-stage-6-4-premium-he',
+  'children-cbt-stage-6-4-premium-he':                    'tf-children-cbt-stage-6-4-premium-he',
+  'אני ממשיך לבד ילד':                                    'tf-children-cbt-stage-6-4-premium-he',
+  'הכלים שלי ילד':                                        'tf-children-cbt-stage-6-4-premium-he',
+  'להמשיך לבד ילד':                                       'tf-children-cbt-stage-6-4-premium-he',
 });
 
 // ─── Marker format ────────────────────────────────────────────────────────────

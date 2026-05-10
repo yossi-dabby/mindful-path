@@ -1450,6 +1450,7 @@ export const translations = {
           weekly_practice: "Weekly Practice",
           reflection_journal: "Reflection Journal",
           workbook_series: "Therapeutic Workbooks",
+          children_cbt_process: "Children CBT Process",
         },
       },
       pull_to_refresh: {
@@ -2909,6 +2910,7 @@ export const translations = {
           weekly_practice: "תרגול שבועי",
           reflection_journal: "יומן רפלקציה",
           workbook_series: "קונטרסים טיפוליים",
+          children_cbt_process: "תהליך CBT לילדים",
         },
       },
       pull_to_refresh: {
@@ -4325,6 +4327,7 @@ export const translations = {
           weekly_practice: "Práctica semanal",
           reflection_journal: "Diario de reflexión",
           workbook_series: "Cuadernos terapéuticos",
+          children_cbt_process: "Proceso CBT para niños",
         },
       },
       pull_to_refresh: {
@@ -5740,6 +5743,7 @@ export const translations = {
           weekly_practice: "Pratique hebdomadaire",
           reflection_journal: "Journal de réflexion",
           workbook_series: "Cahiers thérapeutiques",
+          children_cbt_process: "Processus TCC pour enfants",
         },
       },
       pull_to_refresh: {
@@ -7155,6 +7159,7 @@ export const translations = {
           weekly_practice: "Wöchentliche Praxis",
           reflection_journal: "Reflexionstagebuch",
           workbook_series: "Therapeutische Arbeitsbücher",
+          children_cbt_process: "KVT-Prozess für Kinder",
         },
       },
       pull_to_refresh: {
@@ -8570,6 +8575,7 @@ export const translations = {
           weekly_practice: "Pratica settimanale",
           reflection_journal: "Diario di riflessione",
           workbook_series: "Quaderni terapeutici",
+          children_cbt_process: "Processo CBT per bambini",
         },
       },
       pull_to_refresh: {
@@ -9985,6 +9991,7 @@ export const translations = {
           weekly_practice: "Prática semanal",
           reflection_journal: "Diário de reflexão",
           workbook_series: "Cadernos terapêuticos",
+          children_cbt_process: "Processo TCC para crianças",
         },
       },
       pull_to_refresh: {

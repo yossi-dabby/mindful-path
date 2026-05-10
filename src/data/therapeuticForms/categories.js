@@ -65,6 +65,7 @@ export const THERAPEUTIC_CATEGORIES = [
   { value: 'weekly_practice',         label_en: 'Weekly Practice' },
   { value: 'reflection_journal',      label_en: 'Reflection Journal' },
   { value: 'workbook_series',         label_en: 'Therapeutic Workbooks' },
+  { value: 'children_cbt_process',    label_en: 'Children CBT Process' },
 ];
 
 /** Set of valid category values for fast lookup. */

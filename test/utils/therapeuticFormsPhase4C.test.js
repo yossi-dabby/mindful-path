@@ -96,7 +96,8 @@ function decodeEnglishPdfContent(buffer) {
 
 const approvedForms = ALL_FORMS.filter(f => f.approved === true);
 // Standard forms have multi-language assets; workbooks are language-specific.
-const standardForms = approvedForms.filter(f => f.type !== 'therapeutic_workbook');
+// children_cbt_process forms are Hebrew-only and excluded from multilingual standard checks.
+const standardForms = approvedForms.filter(f => f.type !== 'therapeutic_workbook' && f.category !== 'children_cbt_process');
 const workbookForms = approvedForms.filter(f => f.type === 'therapeutic_workbook');
 // Hebrew-only workbooks (he block only, no en block)
 const heWorkbookForms = workbookForms.filter(f => f.languages?.he);
@@ -172,8 +173,8 @@ describe('Phase 4C — Asset Audit: standard forms have both EN and HE assets', 
     }
   });
 
-  it('all 7 Hebrew workbooks have only a Hebrew language block (no English block)', () => {
-    expect(heWorkbookForms.length).toBe(7);
+  it('all 8 Hebrew workbooks have only a Hebrew language block (no English block)', () => {
+    expect(heWorkbookForms.length).toBe(8);
     for (const form of heWorkbookForms) {
       expect(
         form.languages?.en,
@@ -357,6 +358,7 @@ describe('Phase 4C — Safety: every AI-sendable form has real assets on disk', 
     for (const formId of uniqueFormIds) {
       const form = ALL_FORMS.find(f => f.id === formId);
       if (!form || form.type === 'therapeutic_workbook') continue; // workbooks are Hebrew-only
+      if (form.category === 'children_cbt_process') continue; // children CBT premium is Hebrew-only
       const enUrl = form.languages?.en?.file_url;
       expect(enUrl, `Form "${formId}" must have an English file_url`).toBeTruthy();
       const filePath = resolvePublicPath(enUrl);
@@ -486,6 +488,13 @@ describe('Phase 4C — Safety: no former-placeholder/unapproved form IDs resolve
           expect(
             primaryUrl && primaryUrl.trim() !== '',
             `${form.id} workbook must have a non-empty primary language file_url`
+          ).toBe(true);
+        } else if (form.category === 'children_cbt_process') {
+          // Children CBT premium forms are Hebrew-only; he block is the primary
+          const heUrl = form.languages?.he?.file_url;
+          expect(
+            heUrl && heUrl.trim() !== '',
+            `${form.id} from listFormsByAudience must have a non-empty Hebrew file_url`
           ).toBe(true);
         } else {
           const enUrl = form.languages?.en?.file_url;
@@ -868,21 +877,21 @@ describe('Phase 4C — Regression: GeneratedFileCard normalizeGeneratedFile is u
 // ─── 20. Final approved form count and audience coverage ─────────────────────
 
 describe('Phase 4C — Final state: approved form count and audience coverage', () => {
-  it('exactly 67 forms are approved (18 standard + 7 Hebrew + 7 English + 7 Spanish + 7 French + 7 German + 7 Italian + 7 Portuguese workbooks)', () => {
-    expect(approvedForms.length).toBe(67);
+  it('exactly 98 forms are approved (18 standard + 7 Hebrew + 7 English + 7 Spanish + 7 French + 7 German + 7 Italian + 7 Portuguese workbooks + 30 children CBT premium individual + 1 children CBT series)', () => {
+    expect(approvedForms.length).toBe(98);
   });
 
   it('exactly 18 standard forms are approved (original library)', () => {
     expect(standardForms.length).toBe(18);
   });
 
-  it('exactly 49 workbooks are approved (7 Hebrew + 7 English + 7 Spanish + 7 French + 7 German + 7 Italian + 7 Portuguese premium series)', () => {
-    expect(workbookForms.length).toBe(49);
+  it('exactly 50 workbooks are approved (7 Hebrew + 7 English + 7 Spanish + 7 French + 7 German + 7 Italian + 7 Portuguese premium series + 1 children CBT series)', () => {
+    expect(workbookForms.length).toBe(50);
   });
 
-  it('exactly 4 children forms are approved', () => {
+  it('exactly 35 children forms are approved (4 original + 30 children CBT premium individual + 1 children CBT series)', () => {
     const children = approvedForms.filter(f => f.audience === 'children');
-    expect(children.length).toBe(4);
+    expect(children.length).toBe(35);
   });
 
   it('exactly 4 adolescents forms are approved', () => {
@@ -952,7 +961,8 @@ describe('Phase 4C — Full map: all APPROVED_FORM_INTENT_MAP values resolve in 
       !id.endsWith('-premium-fr') && // French-only workbooks resolve in French only
       !id.endsWith('-premium-de') && // German-only workbooks resolve in German only
       !id.endsWith('-premium-it') && // Italian-only workbooks resolve in Italian only
-      !id.endsWith('-premium-pt')    // Portuguese-only workbooks resolve in Portuguese only
+      !id.endsWith('-premium-pt') && // Portuguese-only workbooks resolve in Portuguese only
+      !id.includes('children-cbt')   // Hebrew-only children CBT premium forms
     );
     for (const formId of standardIds) {
       const meta = resolveFormIntent(formId, 'en');
@@ -994,8 +1004,8 @@ describe('Phase 4C — Full map: all APPROVED_FORM_INTENT_MAP values resolve in 
     }
   });
 
-  it('map contains all 67 approved form IDs (18 standard + 7 Hebrew + 7 English + 7 Spanish + 7 French + 7 German + 7 Italian + 7 Portuguese workbooks)', () => {
+  it('map contains all 98 approved form IDs (18 standard + 7 Hebrew + 7 English + 7 Spanish + 7 French + 7 German + 7 Italian + 7 Portuguese workbooks + 30 children CBT premium individual + 1 children CBT series)', () => {
     const mappedFormIds = new Set(Object.values(APPROVED_FORM_INTENT_MAP));
-    expect(mappedFormIds.size).toBe(67);
+    expect(mappedFormIds.size).toBe(98);
   });
 });

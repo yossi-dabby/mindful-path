@@ -956,7 +956,7 @@ describe('TherapeuticForms Phase 1B — no fake file links', () => {
   it('every standard form returned by listFormsByAudience has non-empty languageData when resolved in English', () => {
     const audiences = ['children', 'adolescents', 'adults', 'older_adults'];
     for (const audience of audiences) {
-      const forms = listFormsByAudience(audience).filter(f => f.type !== 'therapeutic_workbook');
+      const forms = listFormsByAudience(audience).filter(f => f.type !== 'therapeutic_workbook' && f.category !== 'children_cbt_process');
       for (const form of forms) {
         const resolved = resolveFormWithLanguage(form.id, 'en');
         expect(resolved, `${form.id} must resolve successfully`).not.toBeNull();
@@ -991,7 +991,7 @@ describe('TherapeuticForms Phase 1B — no fake file links', () => {
   });
 
   it('no approved standard form returns an undefined file_url in English', () => {
-    const approvedForms = ALL_FORMS.filter(f => f.approved && f.type !== 'therapeutic_workbook');
+    const approvedForms = ALL_FORMS.filter(f => f.approved && f.type !== 'therapeutic_workbook' && f.category !== 'children_cbt_process');
     for (const form of approvedForms) {
       const resolved = resolveFormWithLanguage(form.id, 'en');
       expect(resolved).not.toBeNull();

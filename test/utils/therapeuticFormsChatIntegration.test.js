@@ -625,6 +625,7 @@ describe('Phase 3 — all APPROVED_FORM_INTENT_MAP values resolve from live regi
     const uniqueFormIds = new Set(Object.values(APPROVED_FORM_INTENT_MAP));
     for (const formId of uniqueFormIds) {
       if (WORKBOOK_IDS.has(formId)) continue; // Hebrew-only workbooks only resolve in Hebrew
+      if (formId.includes('-premium-he') && formId.includes('children')) continue; // Hebrew-only children forms
       const meta = resolveFormIntent(formId, 'en');
       expect(meta, `${formId} must resolve`).not.toBeNull();
       expect(meta.url, `${formId} must have url`).toBeTruthy();

@@ -2470,3 +2470,75 @@ export const WORKBOOK_CONTENT_METADATA_PT = [
 export function getWorkbookMetaByIdPt(formId) {
   return WORKBOOK_CONTENT_METADATA_PT.find(wb => wb.id === formId);
 }
+
+// ─── Hebrew Children CBT Premium Series Metadata ─────────────────────────────
+//
+// Used by resolveChildrenWorkbookIntent to route Hebrew children CBT queries
+// to the correct worksheet or the full series workbook.
+//
+// One entry represents the full series (the only workbook for this audience).
+// Intent resolution for individual stage/sub-stage forms is handled via
+// APPROVED_FORM_INTENT_MAP in resolveFormIntent.js.
+
+/** @type {WorkbookMeta[]} */
+export const WORKBOOK_CONTENT_METADATA_CHILDREN_HE = [
+  {
+    id: 'tf-children-cbt-series-premium-he',
+    slug: 'children-cbt-series-premium-he',
+    titleHe: 'סדרת ה-CBT המלאה לילדים',
+    descriptionHe:
+      'חוברת עבודה טיפולית מלאה לילדים — כל 6 השלבים ו-24 תתי-השלבים של תהליך ה-CBT לילדים בחוברת אחת.',
+    internalForms: [
+      'שלב 1 — היכרות, הערכה ובניית אמון',
+      'שלב 2 — בונים את המפה שלי',
+      'שלב 3 — עובדים על המחשבות',
+      'שלב 4 — עובדים במציאות',
+      'שלב 5 — מוסיפים כלים לארגז שלי',
+      'שלב 6 — שומרים על ההצלחה שלי',
+    ],
+    topicKeywords: [
+      'סדרת ילדים',
+      'סדרת cbt לילדים',
+      'חוברת ילדים',
+      'קונטרס ילדים',
+      'כל שלבי הילדים',
+      'כל הטפסים לילדים',
+      'סט מלא לילדים',
+      'כל הסדרה לילדים',
+      'חוברת עבודה לילדים',
+      'children cbt workbook',
+      'children worksheet series',
+      'full children cbt series',
+      'היכרות',
+      'הערכה',
+      'בניית אמון',
+      'ברית טיפולית',
+      'המפה שלי',
+      'מפת הקושי',
+      'מעגל הקושי',
+      'המשגה ילד',
+      'עובדים על המחשבות',
+      'בלש מחשבות',
+      'מחשבה או עובדה',
+      'מחשבה חדשה',
+      'עובדים במציאות',
+      'סולם אומץ',
+      'ניסוי אמיץ',
+      'ארגז כלים',
+      'מיומנויות',
+      'שומרים על ההצלחה',
+      'מניעת נסיגה',
+      'כרטיס כוח',
+    ],
+    whenToUseHe:
+      'כאשר המטפל מחפש את הסדרה המלאה לילדים, חוברת שמכסה את כל תהליך ה-CBT לילדים משלב ההיכרות ועד הסיום.',
+    preferWhenHe: [
+      'סדרת ילדים',
+      'כל הטפסים לילדים',
+      'חוברת ילדים',
+      'קונטרס ילדים',
+      'כל שלבי הילדים',
+    ],
+    lowerPriorityIndividualForms: [],
+  },
+];
