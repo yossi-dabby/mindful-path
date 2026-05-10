@@ -142,7 +142,8 @@ const _FORM_CATALOG_AUDIENCE_SAFETY_NOTES = Object.freeze({
  * context.  Accepts the full forms list so the function is pure and test-importable
  * without mocking the registry.
  *
- * Output format per form: [FORM:id]  — English title (category)
+ * Output format per form: [FORM:id]  — Best-available title (category) | shortContentDescriptionHe
+ * For Hebrew-only forms, the Hebrew title is used when no English title is present.
  * Forms are grouped by audience with safety notes for child/adolescent audiences.
  * No file URLs are included — the client resolves those from the form ID.
  *
@@ -173,8 +174,48 @@ export function buildTherapistFormCatalog(forms) {
     lines.push('');
     lines.push(`[${label}${safetyNote}]`);
     for (const form of audienceForms) {
-      const enTitle = form.languages?.en?.title || form.id;
-      lines.push(`  [FORM:${form.id}]  — ${enTitle} (${form.category})`);
+      // Use best available title: English > Hebrew > form ID
+      const bestTitle = form.languages?.en?.title || form.languages?.he?.title || form.id;
+      // Append short Hebrew content description when available (helps AI match clinical queries)
+      const desc = form.shortContentDescriptionHe ? ` | ${form.shortContentDescriptionHe}` : '';
+      lines.push(`  [FORM:${form.id}]  — ${bestTitle} (${form.category})${desc}`);
+    }
+  }
+
+  // Append canonical locked series section for Hebrew children CBT premium forms.
+  // This section gives the AI the exact approved title list to answer list/series questions.
+  const childrenCbtIndividual = approvedForms.filter(
+    f => f.audience === 'children' && f.category === 'children_cbt_process' && f.cbt_substage_number
+  );
+  if (childrenCbtIndividual.length > 0) {
+    // Sort by cbt_substage_number numerically (e.g. '1.1' < '1.2' < ... < '6.4')
+    const sorted = [...childrenCbtIndividual].sort((a, b) => {
+      const [aS, aT] = a.cbt_substage_number.split('.').map(Number);
+      const [bS, bT] = b.cbt_substage_number.split('.').map(Number);
+      return aS !== bS ? aS - bS : aT - bT;
+    });
+
+    lines.push('');
+    lines.push('[HEBREW CHILDREN CBT PREMIUM — CANONICAL LOCKED SERIES]');
+    lines.push('When asked for the full list of the Hebrew children CBT series (1 to 6.4),');
+    lines.push('answer ONLY from this canonical list. Do NOT use generic CBT titles:');
+
+    let currentStage = null;
+    for (const form of sorted) {
+      const stageNum = form.cbt_stage_number;
+      if (stageNum !== currentStage) {
+        currentStage = stageNum;
+        // Find the stage intro form for its Hebrew title
+        const stageIntro = approvedForms.find(
+          f => f.audience === 'children' && f.category === 'children_cbt_process' &&
+               f.cbt_stage_number === stageNum && !f.cbt_substage_number
+        );
+        const stageName = stageIntro?.languages?.he?.title || `שלב ${stageNum}`;
+        lines.push(`  ${stageName}:`);
+      }
+      const heTitle = form.languages?.he?.title || form.cbt_substage_number;
+      const contentHint = form.shortContentDescriptionHe ? ` — ${form.shortContentDescriptionHe}` : '';
+      lines.push(`    [FORM:${form.id}]  ${heTitle}${contentHint}`);
     }
   }
 
@@ -204,7 +245,22 @@ buildTherapistFormCatalog(ALL_FORMS),
 '  - Keep your chat reply SHORT when attaching a form (1–3 sentences max).',
 '  - If no form matches the request, do NOT attach anything — do not fabricate.',
 '  - Do not use forms as a substitute for crisis or safety handling.',
-'  - Existing safety-handling, crisis flow, and clinical boundaries are not affected by this policy.']
+'  - Existing safety-handling, crisis flow, and clinical boundaries are not affected by this policy.',
+'',
+'HEBREW CHILDREN CBT PREMIUM — SERIES LIST RULE:',
+'  When the user asks for the full list of the Hebrew children CBT premium series (e.g. "תן לי את כל הרשימה", "מה יש מ-1 עד 6.4", "כותרת ותוכן"):',
+'  Answer ONLY from the CANONICAL LOCKED SERIES listed in the catalog above.',
+'  Do NOT generate a generic CBT list or use any titles not in the canonical list above.',
+'  Stale/wrong titles such as "זיהוי מחשבות אוטומטיות", "זיהוי וחקירה של מחשבות", "עדות בעד ונגד המחשבה", "תרגילי נשימה", "הכרת תודה" are NOT part of the approved series.',
+'',
+'HEBREW CHILDREN CBT PREMIUM — AUTOMATIC THOUGHT PRIORITY RULE:',
+'  When a child is described as thinking or saying any of these in a difficult moment:',
+'  "אני לא אצליח", "כולם יצחקו עליי", "מה הראש אומר לו", "מה עובר לו בראש",',
+'  "מה הוא אומר לעצמו", "מחשבה בזמן קושי", "לזהות מחשבה ברגע קשה", "מה הראש אמר לי",',
+'  → The PRIMARY worksheet to attach is: [FORM:tf-children-cbt-stage-2-2-premium-he]',
+'  → Title: 2.2 — מה הראש אמר לי? (Automatic thought identification)',
+'  → Later-stage follow-up forms may include 3.1–3.4 for cognitive challenging,',
+'    but the FIRST attachment for identifying automatic thoughts MUST be 2.2.']
 .join('\n');
 
 /**
