@@ -720,6 +720,12 @@ export const APPROVED_FORM_INTENT_MAP = Object.freeze({
   'children-cbt-stage-2-2-premium-he':                    'tf-children-cbt-stage-2-2-premium-he',
   'מה הראש אמר לי ילד':                                   'tf-children-cbt-stage-2-2-premium-he',
   'מה הראש אמר ילד':                                      'tf-children-cbt-stage-2-2-premium-he',
+  'מה הראש אומר לו ילד':                                  'tf-children-cbt-stage-2-2-premium-he',
+  'מחשבות אוטומטיות ילד':                                 'tf-children-cbt-stage-2-2-premium-he',
+  'מחשבה אוטומטית ילד':                                   'tf-children-cbt-stage-2-2-premium-he',
+  'לזהות מחשבה ברגע קשה':                                 'tf-children-cbt-stage-2-2-premium-he',
+  'מה עובר לו בראש ילד':                                  'tf-children-cbt-stage-2-2-premium-he',
+  'מה הוא אומר לעצמו ילד':                                'tf-children-cbt-stage-2-2-premium-he',
 
   'tf-children-cbt-stage-2-3-premium-he':                 'tf-children-cbt-stage-2-3-premium-he',
   'children-cbt-stage-2-3-premium-he':                    'tf-children-cbt-stage-2-3-premium-he',
@@ -930,6 +936,14 @@ const CHILDREN_HE_SERIES_TRIGGER_PHRASES = [
   'כל שלבי הילדים',
   'חוברת עבודה לילדים',
   'סדרת הטפסים לילדים',
+  'כל הרשימה של הטפסים',
+  'את כל הרשימה',
+  'הרשימה של הטפסים',
+  'רשימת הטפסים',
+  'מ-1 עד 6.4',
+  'מ 1 עד 6.4',
+  'כל הטפסים מהסידרה',
+  'כל הטפסים מהסדרה',
 ];
 
 /**

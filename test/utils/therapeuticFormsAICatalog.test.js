@@ -77,8 +77,9 @@ describe('Phase 4D — buildTherapistFormCatalog: all 67 approved forms present'
   });
 
   it('catalog total form count is 98', () => {
-    const markerCount = (catalog.match(/\[FORM:[a-z0-9_-]+\]/g) || []).length;
-    expect(markerCount).toBe(98);
+    // Count unique form IDs — the canonical series section repeats some IDs for clarity
+    const uniqueIds = new Set((catalog.match(/\[FORM:[a-z0-9_-]+\]/g) || []));
+    expect(uniqueIds.size).toBe(98);
   });
 });
 
