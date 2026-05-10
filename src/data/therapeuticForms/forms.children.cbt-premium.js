@@ -75,6 +75,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Opening the therapeutic process with a child — building therapeutic alliance, initial assessment, and establishing a treatment roadmap.',
+    whenToUse: 'At the beginning of therapy, in first sessions with a child, when introducing CBT concepts and building rapport.',
+    childSignals: ['מתחילים טיפול', 'פגישה ראשונה', 'תחילת תהליך', 'הכרה ראשונה', 'בפגישות הראשונות'],
+    clinicalKeywords: ['היכרות', 'הערכה', 'בניית אמון', 'ברית טיפולית', 'תחילת טיפול', 'פגישה ראשונה', 'intake'],
+    hebrewIntentPhrases: ['תחילת טיפול עם ילד', 'להתחיל עם ילד', 'פגישות ראשונות עם ילד', 'שלב ראשון'],
+    notFor: 'לא מתאים לשלבי עבודה קוגניטיבית, חשיפה, בניית מיומנויות או סיום טיפול.',
     languages: {
       he: {
         title: 'שלב 1 — היכרות, הערכה ובניית אמון',
@@ -116,6 +122,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Child self-introduction — identifying personal identity, values, preferences, strengths, and safe supportive people.',
+    whenToUse: 'When the child needs introduction to therapy, building trust, identifying strengths and what helps the child feel comfortable.',
+    childSignals: ['להכיר את הילד', 'מה הילד אוהב', 'מה חשוב לילד', 'מה מרגיע את הילד', 'הילד לא רוצה לדבר', 'הילד לא פתוח'],
+    clinicalKeywords: ['הכרה עצמית', 'זהות', 'כוחות', 'ערכים', 'העדפות', 'אנשים בטוחים', 'נקודות חוזק'],
+    hebrewIntentPhrases: ['מי אני ומה חשוב לי', 'להכיר את הילד', 'כוחות הילד', 'מה חשוב לו'],
+    notFor: 'לא מתאים לעבודה על מחשבות, מצבי קושי ספציפיים, חשיפה או סיום.',
     languages: {
       he: {
         title: '1.1 — מי אני ומה חשוב לי?',
@@ -156,6 +168,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Identifying when and where problems occur — mapping situational contexts of difficulty for baseline assessment.',
+    whenToUse: 'When identifying where/when problems happen: home, school, friends, bedtime, transitions, social situations.',
+    childSignals: ['קשה בבית הספר', 'קשה בבית', 'קשה עם חברים', 'קשה בשעת השינה', 'קשה במעברים', 'מתי זה קורה'],
+    clinicalKeywords: ['מצבי קושי', 'הקשר', 'מתי קשה', 'איפה קשה', 'סיטואציות', 'בית ספר'],
+    hebrewIntentPhrases: ['מתי קשה לילד', 'מה המצבים הקשים', 'איפה זה קורה', 'מתי זה קורה'],
+    notFor: 'לא מתאים לניתוח מחשבות, ניסויים התנהגותיים, בניית מיומנויות או סיום.',
     languages: {
       he: {
         title: '1.2 — מתי קשה לי?',
@@ -196,6 +214,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Functional analysis of coping responses — identifying adaptive and maladaptive behaviors in response to difficulty.',
+    whenToUse: 'When analyzing coping behaviors: avoidance, crying, yelling, shutting down, hiding, asking for help, escape, freezing.',
+    childSignals: ['הילד בוכה כשנלחץ', 'הילד צועק', 'הילד ברח', 'הילד מתחבא', 'הילד נסגר', 'מה עושה הילד כשקשה'],
+    clinicalKeywords: ['ניתוח תפקודי', 'תגובות לקושי', 'הימנעות', 'בריחה', 'קיפאון', 'התנהגות בזמן קושי', 'דרכי התמודדות'],
+    hebrewIntentPhrases: ['מה הילד עושה כשקשה לו', 'תגובות לקושי', 'מה עושה כשנלחץ', 'ניתוח תגובות'],
+    notFor: 'לא מתאים לעבודה על מחשבות, חשיפה, בניית מיומנויות ספציפיות או סיום.',
     languages: {
       he: {
         title: '1.3 — מה אני עושה כשקשה לי?',
@@ -236,6 +260,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Baseline severity and frequency assessment — quantifying problem frequency and functional impact before intervention.',
+    whenToUse: 'For baseline measurement before intervention, progress tracking, and severity scoring before starting CBT techniques.',
+    childSignals: ['כמה פעמים קורה', 'עד כמה מפריע', 'מדד בסיסי', 'הערכת קושי', 'כמה קשה זה'],
+    clinicalKeywords: ['חומרה', 'תדירות', 'מדד בסיסי', 'השפעה', 'הערכה', 'baseline'],
+    hebrewIntentPhrases: ['כמה פעמים זה קורה', 'כמה זה מפריע', 'להעריך את הקושי', 'מדד לפני טיפול'],
+    notFor: 'לא מתאים לאחר שהטיפול כבר בעיצומו עם מיומנויות ספציפיות.',
     languages: {
       he: {
         title: '1.4 — כמה זה קורה לי וכמה זה מפריע לי?',
@@ -277,6 +307,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Building the child CBT case formulation map — connecting trigger, thought, body/feeling, and action.',
+    whenToUse: 'When building the CBT map for a child, explaining the connection between triggers, thoughts, feelings, body, and behavior.',
+    childSignals: ['לבנות את המפה', 'לחבר מחשבות ורגשות', 'להבין את המעגל', 'לראות את הקשר בין כל הדברים'],
+    clinicalKeywords: ['המשגה', 'מפה', 'מעגל הקושי', 'טריגר מחשבה גוף פעולה', 'CBT map', 'ניסוח מקרה'],
+    hebrewIntentPhrases: ['מפת הקושי', 'בונים את המפה', 'מעגל הקושי', 'המשגה לילד'],
+    notFor: 'לא מתאים בתחילת הטיפול לפני הערכה, או בשלבים מתקדמים ספציפיים.',
     languages: {
       he: {
         title: 'שלב 2 — בונים את המפה שלי',
@@ -317,6 +353,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Antecedent and trigger identification — exploring what happened immediately before the difficult moment.',
+    whenToUse: 'When identifying situational triggers: what happened right before, who was there, where it happened.',
+    childSignals: ['מה קרה לפני', 'מה הציתה', 'מה גרם ל', 'טריגר לקושי', 'מה היה לפני שהתפרץ'],
+    clinicalKeywords: ['טריגר', 'גורם מקדים', 'מה היה לפני', 'אנטסדנט', 'מה קדם לקושי'],
+    hebrewIntentPhrases: ['מה היה רגע לפני', 'מה קרה לפני', 'מה הציתה את הקושי', 'להבין מה גרם לקושי'],
+    notFor: 'לא מתאים לניתוח מחשבות, ביטויי גוף, או תגובות התנהגותיות בנפרד.',
     languages: {
       he: {
         title: '2.1 — מה היה רגע לפני?',
@@ -357,6 +399,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Automatic thought identification — helping the child recognize what their mind told them during the difficult moment.',
+    whenToUse: 'When identifying automatic thoughts in the hard moment: "I will fail", "they will laugh", "I am not good", "this is dangerous".',
+    childSignals: ['אני לא אצליח', 'כולם יצחקו', 'אני לא טוב', 'אני לא שווה', 'זה מסוכן', 'הוא אמר לעצמו', 'היא אמרה לעצמה'],
+    clinicalKeywords: ['מחשבה אוטומטית', 'מה הראש אמר', 'מה חשב הילד', 'מחשבות בזמן קושי', 'מחשבה בזמן קושי'],
+    hebrewIntentPhrases: ['מה הראש אמר לי', 'מה הילד חשב', 'מה אמר לעצמו', 'אני לא אצליח', 'כולם יצחקו עליי'],
+    notFor: 'לא מתאים לבדיקת ראיות, מחשבות חלופיות, חשיפה, כלים גופניים.',
     languages: {
       he: {
         title: '2.2 — מה הראש אמר לי?',
@@ -397,6 +445,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Body-emotion connection for children — identifying physical sensations associated with difficult emotions as part of CBT formulation.',
+    whenToUse: 'When identifying body sensations: stomach pain, racing heart, tense muscles, hot face, wanting to cry, wanting to run.',
+    childSignals: ['כאב בטן', 'הלב דופק', 'שרירים מתוחים', 'פנים חמות', 'רוצה לברוח', 'גוף מרגיש משהו'],
+    clinicalKeywords: ['תחושות גוף', 'ביטויי גוף', 'גוף ורגש', 'תחושות פיזיות', 'גוף בזמן קושי'],
+    hebrewIntentPhrases: ['מה הרגשתי בגוף', 'תחושות גוף', 'גוף ורגש', 'לזהות תחושות גוף'],
+    notFor: 'לא מתאים לניתוח מחשבות, חשיפה, כלים להרגעה ספציפיים.',
     languages: {
       he: {
         title: '2.3 — מה הרגשתי בגוף?',
@@ -438,6 +492,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Behavioral consequence identification — understanding what the child did after the difficult moment and how it maintained the cycle.',
+    whenToUse: 'When identifying consequences: escape, shutdown, yelling, reassurance seeking, avoidance, asking for help, calming.',
+    childSignals: ['מה הילד עשה אחר כך', 'הילד ברח מהמצב', 'הילד נסגר', 'הילד צעק אחרי', 'הילד ביקש עזרה'],
+    clinicalKeywords: ['תגובה התנהגותית', 'מה עשיתי', 'השפעת הפעולה', 'מחזור CBT', 'תוצאה התנהגותית'],
+    hebrewIntentPhrases: ['מה עשיתי אחר כך', 'מה עשה הילד אחר כך', 'תגובה לאחר הקושי', 'מה קרה אחרי'],
+    notFor: 'לא מתאים לניתוח מחשבות, טריגרים, בניית מיומנויות.',
     languages: {
       he: {
         title: '2.4 — מה עשיתי אחר כך?',
@@ -479,6 +539,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Introduction to cognitive restructuring for children — beginning thought work, explaining what CBT thought examination involves.',
+    whenToUse: 'When starting cognitive restructuring with children, introducing the idea of examining and changing unhelpful thoughts.',
+    childSignals: ['מתחילים עבודה קוגניטיבית', 'לעבוד על מחשבות', 'שלב שלישי', 'להתחיל לבדוק מחשבות'],
+    clinicalKeywords: ['עבודה קוגניטיבית', 'ארגון מחדש', 'שינוי מחשבות', 'שלב 3', 'עבודה על מחשבות'],
+    hebrewIntentPhrases: ['עובדים על המחשבות', 'לעבוד על מחשבות', 'שלב קוגניטיבי', 'לשנות מחשבות'],
+    notFor: 'לא מתאים לשלבים ספציפיים בתוך העבודה הקוגניטיבית (3.1–3.4).',
     languages: {
       he: {
         title: 'שלב 3 — עובדים על המחשבות',
@@ -520,6 +586,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Catching automatic thoughts in real time — the child learns to notice and identify unhelpful automatic thoughts as they arise.',
+    whenToUse: 'When the child needs help catching automatic thoughts in real time, first step in active cognitive restructuring.',
+    childSignals: ['לתפוס מחשבה', 'לשים לב למחשבות', 'מחשבה שמגיעה פתאום', 'להיות מודע למחשבות', 'לזהות מחשבות'],
+    clinicalKeywords: ['תפיסת מחשבה', 'מחשבה אוטומטית', 'מודעות למחשבות', 'לתפוס מחשבות', 'זיהוי מחשבות'],
+    hebrewIntentPhrases: ['תפסתי מחשבה', 'לתפוס מחשבה', 'לשים לב למחשבות', 'מודעות למחשבות'],
+    notFor: 'לא מתאים לאחר שהילד כבר מזהה מחשבות — עבור לבלש מחשבות (3.3).',
     languages: {
       he: {
         title: '3.1 — תפסתי מחשבה!',
@@ -560,6 +632,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Distinguishing thoughts from facts — helping children differentiate between thoughts (interpretations/predictions) and actual facts.',
+    whenToUse: 'When child treats thoughts as absolute truth: "I know they hate me", "I will definitely fail"; distinguishing thought, feeling, prediction, interpretation, and fact.',
+    childSignals: ['כולם שונאים אותי', 'אין לזה הוכחה', 'זו לא עובדה', 'ילד שבטוח שכולם נגדו', 'הוכחה', 'להבדיל בין מחשבה לעובדה'],
+    clinicalKeywords: ['הבחנה בין מחשבה לעובדה', 'פרשנות', 'עובדה', 'מחשבה לעומת עובדה', 'הוכחה', 'בדיקת מציאות'],
+    hebrewIntentPhrases: ['להבדיל בין מחשבה לעובדה', 'האם זה עובדה', 'מחשבה או עובדה', 'בדיקת מציאות'],
+    notFor: 'לא מתאים לשלב בדיקת ראיות (3.3) או בניית מחשבה חלופית (3.4).',
     languages: {
       he: {
         title: '3.2 — מחשבה או עובדה?',
@@ -601,6 +679,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: "Children's thought detective — gathering evidence for and against unhelpful thoughts, finding alternative explanations.",
+    whenToUse: 'When checking evidence, finding alternative explanations, "what else could be true?", "what would I tell a friend?"',
+    childSignals: ['לבדוק ראיות', 'לחפש הוכחות', 'מה עוד יכול להיות נכון', 'ראיות בעד ונגד', 'לחקור מחשבה'],
+    clinicalKeywords: ['בדיקת ראיות', 'הסבר חלופי', 'ראיות', 'בלש מחשבות', 'לחקור מחשבה', 'מה עוד יכול להסביר'],
+    hebrewIntentPhrases: ['לבדוק אם המחשבה נכונה', 'למצוא עוד הסבר', 'ראיות בעד ונגד', 'בלש מחשבות', 'לחקור את המחשבה'],
+    notFor: 'לא מתאים לפני שהילד מזהה ומבין מחשבות אוטומטיות.',
     languages: {
       he: {
         title: '3.3 — בלש המחשבות שלי',
@@ -642,6 +726,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Building helpful alternative thoughts — creating balanced, realistic, kind, and believable replacement thoughts.',
+    whenToUse: 'For creating balanced replacement thoughts: realistic, kind, believable, not fake-positive; after evidence-checking.',
+    childSignals: ['מחשבה חלופית', 'מחשבה מאוזנת', 'לשנות מחשבה', 'מחשבה שעוזרת', 'מחשבה אחרת'],
+    clinicalKeywords: ['מחשבה חלופית', 'מחשבה מאוזנת', 'ארגון מחדש', 'מחשבה חדשה', 'מחשבה עוזרת'],
+    hebrewIntentPhrases: ['מחשבה חדשה שעוזרת', 'מחשבה שעוזרת', 'מחשבה מאוזנת', 'מחשבה חלופית'],
+    notFor: 'לא מתאים לפני שהילד בדק ראיות ומבין שהמחשבה אינה מדויקת.',
     languages: {
       he: {
         title: '3.4 — מחשבה חדשה שעוזרת לי',
@@ -683,6 +773,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Introduction to behavioral interventions for children — moving from talking to practicing in real life.',
+    whenToUse: 'When moving from cognitive work to real-life behavioral practice and exposure.',
+    childSignals: ['מתחילים לתרגל', 'לתרגל במציאות', 'שלב התנהגותי', 'מהמחשבות לפעולה'],
+    clinicalKeywords: ['התערבות התנהגותית', 'תרגול', 'חשיפה', 'שלב 4', 'עבודה במציאות'],
+    hebrewIntentPhrases: ['עובדים במציאות', 'לתרגל במציאות', 'שלב התנהגותי', 'עבודה התנהגותית'],
+    notFor: 'לא מתאים לטכניקות התנהגותיות ספציפיות (4.1–4.4).',
     languages: {
       he: {
         title: 'שלב 4 — עובדים במציאות',
@@ -724,6 +820,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Graded exposure hierarchy for children — building a bravery ladder of feared/avoided situations to approach step by step.',
+    whenToUse: 'For graded exposure hierarchy, fear ladder, bravery ladder, ranking situations from easy to hard.',
+    childSignals: ['ילד מפחד', 'הימנעות', 'לא מסכים להיכנס', 'מסרב לנסות', 'פחד מספציפי'],
+    clinicalKeywords: ['סולם הדרגתי', 'סולם חשיפה', 'סולם אומץ', 'חשיפה הדרגתית', 'פחד', 'הימנעות', 'דירוג פחד'],
+    hebrewIntentPhrases: ['סולם הדרגתי', 'סולם אומץ', 'סולם חשיפה', 'לבנות סולם', 'חשיפה הדרגתית'],
+    notFor: 'לא מתאים לצעד אחד ספציפי (4.2) או לניסוי התנהגותי (4.3).',
     languages: {
       he: {
         title: '4.1 — סולם האומץ שלי',
@@ -765,6 +867,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Small step planning — choosing one manageable behavioral step to build momentum and reduce avoidance.',
+    whenToUse: 'For choosing one small behavioral step, planning when/where/with whom to practice.',
+    childSignals: ['צעד אחד קטן', 'להתחיל בקטן', 'לתכנן צעד אחד', 'לפרק למשימה קטנה'],
+    clinicalKeywords: ['צעד קטן', 'תכנון צעד', 'צעד ראשון', 'לפרק למשימות', 'הצעד הקטן'],
+    hebrewIntentPhrases: ['הצעד הקטן שלי', 'צעד אחד קטן', 'לתכנן צעד ראשון', 'לבחור צעד'],
+    notFor: 'לא מתאים לסולם הדרגתי מלא (4.1) או ניסוי התנהגותי (4.3).',
     languages: {
       he: {
         title: '4.2 — הצעד הקטן שלי',
@@ -806,6 +914,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Behavioral experiment — the child plans and tests feared outcomes in a structured way, comparing predictions to what actually happened.',
+    whenToUse: 'For behavioral experiments: prediction vs what actually happened, testing feared outcomes.',
+    childSignals: ['לבדוק אם באמת', 'לנסות ולראות', 'מה יקרה אם', 'לבדוק את הפחד', 'יצחקו עליו'],
+    clinicalKeywords: ['ניסוי התנהגותי', 'בדיקת תחזית', 'מה יקרה', 'תוצאה מפחידה', 'ניסוי', 'תחזית מול מציאות'],
+    hebrewIntentPhrases: ['ניסוי אמיץ', 'ניסוי התנהגותי', 'לבדוק אם באמת', 'לנסות ולראות מה יקרה'],
+    notFor: 'לא מתאים לסולם הדרגתי (4.1) או ניתוח מפעילים (4.4).',
     languages: {
       he: {
         title: '4.3 — ניסוי אמיץ',
@@ -847,6 +961,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Triggers and behavioral activation mapping — identifying personal triggers for difficult feelings and low-mood states.',
+    whenToUse: 'For behavioral activation: low mood, low motivation, withdrawal, finding energizing activities; also for identifying personal triggers.',
+    childSignals: ['מה מציתה', 'מה גורם לתגובה', 'גורמי הפעלה', 'ירידה במצב רוח', 'אין מוטיבציה'],
+    clinicalKeywords: ['מפעילים', 'טריגרים', 'הפעלה התנהגותית', 'מה מציתה', 'גורמי ירידה', 'מפעיל'],
+    hebrewIntentPhrases: ['מה מפעיל אותי', 'מפעילים שלי', 'מה מציתה אצלי', 'הפעלה התנהגותית'],
+    notFor: 'לא מתאים לסולם חשיפה (4.1) או ניסוי התנהגותי (4.3).',
     languages: {
       he: {
         title: '4.4 — מה מפעיל אותי?',
@@ -888,6 +1008,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Introduction to skill building — adding calming, help-seeking, communication, and relationship tools to the child CBT toolkit.',
+    whenToUse: 'When the child needs a toolkit of coping tools: calming, help-seeking, communication, and social skills.',
+    childSignals: ['ארגז כלים', 'כלים לילד', 'מיומנויות לילד', 'כלים להתמודדות'],
+    clinicalKeywords: ['בניית מיומנויות', 'כלים', 'ארגז כלים', 'שלב 5', 'מיומנויות'],
+    hebrewIntentPhrases: ['ארגז כלים לילד', 'מיומנויות לילד', 'כלים לארגז', 'לבנות ארגז כלים'],
+    notFor: 'לא מתאים למיומנויות ספציפיות — ראה 5.1–5.4.',
     languages: {
       he: {
         title: 'שלב 5 — מוסיפים כלים לארגז שלי',
@@ -929,6 +1055,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Body calming tools for children — breathing exercises, muscle relaxation, sensory grounding, and body regulation.',
+    whenToUse: 'When a child needs body regulation tools: breathing techniques, muscle relaxation, sensory grounding, calming after stress.',
+    childSignals: ['גוף מתוח', 'נלחץ', 'לא מצליח להירגע', 'צריך להרגיע', 'נשימות', 'גוף שלו מתוח'],
+    clinicalKeywords: ['נשימות', 'הרגעה', 'הרפיה', 'ויסות גוף', 'הרגעת גוף', 'כלים גופניים', 'גוף'],
+    hebrewIntentPhrases: ['גוף מתוח', 'נשימות והרגעה', 'להרגיע את הגוף', 'כלים גופניים', 'הרגעת גוף'],
+    notFor: 'לא מתאים לבניית מחשבות חלופיות, בקשת עזרה, תיקון קשר.',
     languages: {
       he: {
         title: '5.1 — כלים שמרגיעים את הגוף שלי',
@@ -970,6 +1102,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Helpful self-talk phrases for children — developing personal coping statements for difficult moments.',
+    whenToUse: 'For coping statements and short self-talk phrases during distress or difficult moments.',
+    childSignals: ['משפטים לחזק', 'לדבר עצמי', 'משפט שיעזור', 'משפטי עידוד', 'מה לומר לעצמי'],
+    clinicalKeywords: ['דיבור עצמי', 'משפטי התמודדות', 'משפטים מחזקים', 'עידוד עצמי', 'self-talk'],
+    hebrewIntentPhrases: ['משפטים שעוזרים לי', 'משפטים מחזקים', 'דיבור עצמי', 'משפטי התמודדות'],
+    notFor: 'לא מתאים לכלים גופניים (5.1), בקשת עזרה (5.3), תיקון קשר (5.4).',
     languages: {
       he: {
         title: '5.2 — משפטים שעוזרים לי',
@@ -1011,6 +1149,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Help-seeking skills — teaching children to recognize when they need help and how to ask for it clearly and calmly.',
+    whenToUse: 'When the child struggles to ask for help clearly, calmly, or early enough; when child has outbursts before asking for help.',
+    childSignals: ['לא יודע לבקש עזרה', 'מתפרץ', 'לא מצליח לבקש', 'צועק לפני שמבקש', 'לבקש עזרה'],
+    clinicalKeywords: ['בקשת עזרה', 'מיומנויות תקשורת', 'לפני שמתפרץ', 'מיומנות חברתית', 'עזרה'],
+    hebrewIntentPhrases: ['לבקש עזרה', 'איך לבקש עזרה', 'לפני שמתפרץ', 'לא יודע לבקש'],
+    notFor: 'לא מתאים לכלים גופניים (5.1), משפטים מחזקים (5.2), תיקון קשר (5.4).',
     languages: {
       he: {
         title: '5.3 — איך אני מבקש/ת עזרה?',
@@ -1052,6 +1196,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Relationship repair skills — teaching the child how to make up after a conflict, apology, listening, and reconnecting.',
+    whenToUse: 'After arguments, hurt feelings, conflict repair, apology, listening, reconnecting with friends or family.',
+    childSignals: ['ריב עם חבר', 'ריב עם חברה', 'ריב עם אח', 'רגשות פגועים', 'צריך להתפייס', 'רבה עם'],
+    clinicalKeywords: ['תיקון קשר', 'ריב', 'פיוס', 'התנצלות', 'קשר חברתי', 'פתרון סכסוך', 'להתפייס'],
+    hebrewIntentPhrases: ['תיקון קשר', 'תיקון הקשר', 'ריב עם חברה', 'פיוס', 'להתפייס'],
+    notFor: 'לא מתאים לכלים גופניים (5.1), בקשת עזרה (5.3), עבודה קוגניטיבית.',
     languages: {
       he: {
         title: '5.4 — איך מתקנים קשר?',
@@ -1093,6 +1243,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Introduction to treatment ending and maintenance — celebrating success and preparing the child for an independent future.',
+    whenToUse: 'When summarizing progress, preparing for end of treatment, building the child\'s future plan.',
+    childSignals: ['מסיימים טיפול', 'סיום תהליך', 'לסגור את הטיפול', 'לסיים', 'שלב אחרון'],
+    clinicalKeywords: ['מניעת נסיגה', 'סיום טיפול', 'שימור הישגים', 'עצמאות', 'שלב 6'],
+    hebrewIntentPhrases: ['מסיימים טיפול', 'סיום טיפול', 'שלב שישי', 'שמירה על ההצלחה'],
+    notFor: 'לא מתאים לסיום ספציפי כמו כרטיס כוח (6.3) או תכנית עצמאות (6.4).',
     languages: {
       he: {
         title: 'שלב 6 — שומרים על ההצלחה שלי',
@@ -1134,6 +1290,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Self-reflection at treatment ending — reviewing progress, strengths, and what changed during the CBT process.',
+    whenToUse: 'For reflection, progress review, strengths, what changed, what helped throughout therapy.',
+    childSignals: ['מה הילד למד', 'מה השתנה', 'מה עזר', 'סיכום תהליך', 'להסתכל אחורה'],
+    clinicalKeywords: ['הרהור עצמי', 'סיכום', 'מה למדתי', 'הצלחות', 'כוחות שנרכשו', 'סיכום הדרך'],
+    hebrewIntentPhrases: ['מה למדתי על עצמי', 'מה הילד למד', 'סיכום הדרך', 'מה השתנה'],
+    notFor: 'לא מתאים לזיהוי מצבי סיכון עתידיים (6.2), כרטיס כוח (6.3), תכנית עצמאות (6.4).',
     languages: {
       he: {
         title: '6.1 — מה למדתי על עצמי?',
@@ -1175,6 +1337,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Relapse prevention planning — identifying future risk situations and early warning signs.',
+    whenToUse: 'For identifying future risk situations, early warning signs, relapse prevention triggers.',
+    childSignals: ['מתי יחזור הקושי', 'מצבי סיכון עתידיים', 'סימנים מוקדמים', 'מניעת נסיגה'],
+    clinicalKeywords: ['מניעת נסיגה', 'סיכון עתידי', 'סימנים מוקדמים', 'עתיד', 'מצבי סיכון', 'relapse prevention'],
+    hebrewIntentPhrases: ['מתי יחזור הקושי', 'מצבי סיכון', 'מניעת נסיגה', 'סימנים מוקדמים'],
+    notFor: 'לא מתאים לסיכום הדרך (6.1) או כרטיס כוח (6.3).',
     languages: {
       he: {
         title: '6.2 — מתי עלול להיות לי שוב קשה?',
@@ -1216,6 +1384,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Portable coping card — a personal reminder card with strengths, tools, and coping steps for hard moments after therapy.',
+    whenToUse: 'When hard moments happen and the child needs a portable reminder; at end of therapy as a compact coping reference.',
+    childSignals: ['כרטיס קצר', 'מסיימים טיפול', 'כשיהיה קשה', 'להזכיר לילד', 'כרטיס לזכור'],
+    clinicalKeywords: ['כרטיס כוח', 'כרטיס התמודדות', 'תזכורת', 'כלים לאחר טיפול', 'כרטיס קצר', 'coping card'],
+    hebrewIntentPhrases: ['כרטיס הכוח', 'כרטיס כוח', 'כרטיס קצר', 'שיזכיר לילד מה לעשות'],
+    notFor: 'לא מתאים לסיכום מורחב (6.1) או תכנית עצמאות מפורטת (6.4).',
     languages: {
       he: {
         title: '6.3 — כרטיס הכוח שלי',
@@ -1257,6 +1431,12 @@ export const FORMS_CHILDREN_CBT_PREMIUM = [
     minimum_age: 6,
     maximum_age: 12,
     requires_parent_guidance: true,
+    therapeuticGoal: 'Post-treatment independence — the child affirms their ability to continue independently with their tools.',
+    whenToUse: 'For post-treatment independence, ongoing support plan, who helps, which tools to keep using.',
+    childSignals: ['להמשיך לבד', 'אחרי הטיפול', 'עצמאות', 'מי יעזור', 'הכלים לעתיד'],
+    clinicalKeywords: ['עצמאות', 'תכנית המשך', 'אחרי טיפול', 'להמשיך לבד', 'תמיכה עתידית'],
+    hebrewIntentPhrases: ['להמשיך לבד', 'עצמאות לאחר טיפול', 'תכנית המשך', 'הכלים לעתיד'],
+    notFor: 'לא מתאים לסיכום (6.1), זיהוי סיכונים (6.2) או כרטיס כוח (6.3).',
     languages: {
       he: {
         title: '6.4 — אני ממשיך/ה לבד — עם הכלים שלי',

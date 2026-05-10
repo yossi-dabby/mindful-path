@@ -37,6 +37,7 @@
 import {
   resolveFormWithLanguage,
   toGeneratedFileMetadata,
+  ALL_FORMS,
 } from '../data/therapeuticForms/index.js';
 
 // ─── Approved intent → form ID map ───────────────────────────────────────────
@@ -856,6 +857,12 @@ export const APPROVED_FORM_INTENT_MAP = Object.freeze({
   'אני ממשיך לבד ילד':                                    'tf-children-cbt-stage-6-4-premium-he',
   'הכלים שלי ילד':                                        'tf-children-cbt-stage-6-4-premium-he',
   'להמשיך לבד ילד':                                       'tf-children-cbt-stage-6-4-premium-he',
+
+  // ── Children series — additional natural-language aliases ─────────────────
+  'כל סדרת הטפסים לילדים':                                'tf-children-cbt-series-premium-he',
+  'כל הסדרה לילדים בעברית':                               'tf-children-cbt-series-premium-he',
+  'סדרת הטפסים לילדים':                                   'tf-children-cbt-series-premium-he',
+  'סדרת הטפסים לילדים בעברית':                            'tf-children-cbt-series-premium-he',
 });
 
 // ─── Marker format ────────────────────────────────────────────────────────────
@@ -904,4 +911,143 @@ export function resolveFormIntent(intentOrSlug, lang) {
   // Convert to generated_file metadata shape
   const metadata = toGeneratedFileMetadata(resolved);
   return metadata; // null when shape is incomplete (resolver contract)
+}
+
+// ─── Content-aware resolver for Hebrew children CBT premium ──────────────────
+
+/**
+ * Phrases that signal the user wants the FULL children CBT series, not one form.
+ * Checked before individual-form scoring.
+ */
+const CHILDREN_HE_SERIES_TRIGGER_PHRASES = [
+  'כל סדרת הטפסים לילדים',
+  'כל הסדרה לילדים',
+  'כל הטפסים לילדים',
+  'סדרת ילדים',
+  'סדרת cbt לילדים',
+  'חוברת ילדים',
+  'קונטרס ילדים',
+  'כל שלבי הילדים',
+  'חוברת עבודה לילדים',
+  'סדרת הטפסים לילדים',
+];
+
+/**
+ * Words indicating the request concerns a child — required guard for form selection.
+ * At least one must appear in the query (or the query must contain an explicit
+ * stage/substage reference) before individual-form scoring is attempted.
+ */
+const CHILDREN_HE_CHILD_CONTEXT = [
+  'ילד', 'ילדה', 'ילדים', 'הילד', 'לילד', 'עם ילד', 'הילדה', 'לילדה',
+];
+
+/**
+ * Words that signal the user is requesting a form/worksheet/file, used as a
+ * secondary guard when no child-context word is present.
+ */
+const CHILDREN_HE_FORM_REQUEST = [
+  'טופס', 'דף עבודה', 'תשלח', 'לשלוח', 'תני לי',
+];
+
+/**
+ * Regex for explicit substage references: "6.3", "4.1", etc.
+ * Stage numbers 1–6, substage numbers 1–4.
+ */
+const SUBSTAGE_NUMBER_RE = /\b([1-6])\.([1-4])\b/;
+
+/**
+ * Scoring weights for the content-aware resolver.
+ */
+const CONTENT_SCORE = Object.freeze({
+  SUBSTAGE_NUMBER_MATCH: 50,
+  HEBREW_INTENT_PHRASE:  30,
+  CHILD_SIGNAL:          20,
+  CLINICAL_KEYWORD:      10,
+});
+
+/**
+ * Minimum score required to return a match.
+ * Must be ≥ one CHILD_SIGNAL match to avoid false positives.
+ */
+const CONTENT_MIN_SCORE = 20;
+
+/**
+ * Resolves a natural-language Hebrew request to the most clinically appropriate
+ * individual Hebrew children CBT premium worksheet, using content-aware scoring.
+ *
+ * Scoring (additive):
+ *   1. Explicit substage number (e.g. "6.3") in query:   +50 for that form
+ *   2. hebrewIntentPhrases substring match:               +30 per match
+ *   3. childSignals substring match:                      +20 per match
+ *   4. clinicalKeywords substring match:                  +10 per match
+ *
+ * Guards:
+ *   - If the query contains a series-trigger phrase → returns the full series.
+ *   - If no child-context word, no form-request word, and no substage reference
+ *     is present → returns null (e.g. "אני עצוב היום").
+ *   - If best score < CONTENT_MIN_SCORE → returns null.
+ *
+ * @param {string} query - User's natural-language Hebrew query.
+ * @returns {object|null} Generated-file metadata or null.
+ */
+export function resolveChildrenCBTPremiumFormByContent(query) {
+  if (typeof query !== 'string' || !query.trim()) return null;
+
+  const lq = query.toLowerCase().trim();
+
+  // 1. Full series shortcut
+  if (CHILDREN_HE_SERIES_TRIGGER_PHRASES.some(p => lq.includes(p.toLowerCase()))) {
+    return resolveFormIntent('tf-children-cbt-series-premium-he', 'he');
+  }
+
+  // 2. Guards: child context OR form request OR explicit substage reference
+  const hasChildContext  = CHILDREN_HE_CHILD_CONTEXT.some(s => lq.includes(s));
+  const hasFormRequest   = CHILDREN_HE_FORM_REQUEST.some(s => lq.includes(s));
+  const substageMatch    = lq.match(SUBSTAGE_NUMBER_RE);
+  const substageRef      = substageMatch ? `${substageMatch[1]}.${substageMatch[2]}` : null;
+
+  if (!hasChildContext && !hasFormRequest && !substageRef) return null;
+
+  // 3. Score every approved individual children CBT premium form
+  const candidates = ALL_FORMS.filter(
+    f => f.approved && f.audience === 'children' && f.category === 'children_cbt_process'
+  );
+
+  let best      = null;
+  let bestScore = 0;
+
+  for (const form of candidates) {
+    let score = 0;
+
+    // Substage number match (highest priority)
+    if (substageRef && form.cbt_substage_number === substageRef) {
+      score += CONTENT_SCORE.SUBSTAGE_NUMBER_MATCH;
+    }
+
+    // hebrewIntentPhrases
+    for (const phrase of (form.hebrewIntentPhrases ?? [])) {
+      if (lq.includes(phrase.toLowerCase())) score += CONTENT_SCORE.HEBREW_INTENT_PHRASE;
+    }
+
+    // childSignals
+    for (const signal of (form.childSignals ?? [])) {
+      if (lq.includes(signal.toLowerCase())) score += CONTENT_SCORE.CHILD_SIGNAL;
+    }
+
+    // clinicalKeywords
+    for (const kw of (form.clinicalKeywords ?? [])) {
+      if (lq.includes(kw.toLowerCase())) score += CONTENT_SCORE.CLINICAL_KEYWORD;
+    }
+
+    if (score > bestScore) {
+      bestScore = score;
+      best      = form;
+    }
+  }
+
+  if (best && bestScore >= CONTENT_MIN_SCORE) {
+    return resolveFormIntent(best.id, 'he');
+  }
+
+  return null;
 }
