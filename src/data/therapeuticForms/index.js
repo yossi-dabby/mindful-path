@@ -23,16 +23,18 @@ export {
 } from './categories.js';
 
 // ─── Per-audience form registries ─────────────────────────────────────────────
-export { FORMS_CHILDREN }     from './forms.children.js';
-export { FORMS_ADOLESCENTS }  from './forms.adolescents.js';
-export { FORMS_ADULTS }       from './forms.adults.js';
-export { FORMS_OLDER_ADULTS } from './forms.olderAdults.js';
+export { FORMS_CHILDREN }              from './forms.children.js';
+export { FORMS_CHILDREN_CBT_PREMIUM }  from './forms.children.cbt-premium.js';
+export { FORMS_ADOLESCENTS }           from './forms.adolescents.js';
+export { FORMS_ADULTS }                from './forms.adults.js';
+export { FORMS_OLDER_ADULTS }          from './forms.olderAdults.js';
 
 // ─── Aggregated registry ──────────────────────────────────────────────────────
-import { FORMS_CHILDREN }     from './forms.children.js';
-import { FORMS_ADOLESCENTS }  from './forms.adolescents.js';
-import { FORMS_ADULTS }       from './forms.adults.js';
-import { FORMS_OLDER_ADULTS } from './forms.olderAdults.js';
+import { FORMS_CHILDREN }              from './forms.children.js';
+import { FORMS_CHILDREN_CBT_PREMIUM }  from './forms.children.cbt-premium.js';
+import { FORMS_ADOLESCENTS }           from './forms.adolescents.js';
+import { FORMS_ADULTS }                from './forms.adults.js';
+import { FORMS_OLDER_ADULTS }          from './forms.olderAdults.js';
 
 /**
  * The complete, aggregated therapeutic forms registry.
@@ -45,6 +47,7 @@ import { FORMS_OLDER_ADULTS } from './forms.olderAdults.js';
  */
 export const ALL_FORMS = Object.freeze([
   ...FORMS_CHILDREN,
+  ...FORMS_CHILDREN_CBT_PREMIUM,
   ...FORMS_ADOLESCENTS,
   ...FORMS_ADULTS,
   ...FORMS_OLDER_ADULTS,

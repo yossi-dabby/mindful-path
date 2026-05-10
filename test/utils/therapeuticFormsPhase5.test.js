@@ -52,7 +52,7 @@ const DOWNLOAD_UTIL_SRC = fs.readFileSync(path.join(ROOT, 'src/components/chat/u
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const APPROVED_FORMS = ALL_FORMS.filter((f) => f.approved);
-const STANDARD_FORMS = APPROVED_FORMS.filter((f) => f.type !== 'therapeutic_workbook');
+const STANDARD_FORMS = APPROVED_FORMS.filter((f) => f.type !== 'therapeutic_workbook' && f.category !== 'children_cbt_process');
 const APP_LANGUAGES  = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -216,10 +216,10 @@ describe('Phase 5 — PDF assets: 36 standard PDFs + 7 workbook PDFs exist and a
     expect(standardPdfs.length).toBe(36);
   });
 
-  it('27b. Exactly 7 additional Hebrew PDF paths are referenced by workbooks', () => {
+  it('27b. Exactly 8 additional Hebrew PDF paths are referenced by workbooks', () => {
     const workbookPdfs = APPROVED_FORMS.filter(f => f.type === 'therapeutic_workbook')
       .flatMap(f => f.languages?.he?.file_url ? [f.languages.he.file_url] : []);
-    expect(workbookPdfs.length).toBe(7);
+    expect(workbookPdfs.length).toBe(8);
   });
 
   for (const { lang, url } of expectedPdfs) {
@@ -242,8 +242,8 @@ describe('Phase 5 — Regression: 18 standard forms + 7 workbooks still resolve'
     expect(STANDARD_FORMS.length).toBe(18);
   });
 
-  it('30b. Exactly 67 total forms are approved (18 standard + 7 Hebrew + 7 English + 7 Spanish + 7 French + 7 German + 7 Italian + 7 Portuguese workbooks)', () => {
-    expect(APPROVED_FORMS.length).toBe(67);
+  it('30b. Exactly 98 total forms are approved (18 standard + 7 Hebrew + 7 English + 7 Spanish + 7 French + 7 German + 7 Italian + 7 Portuguese workbooks + 30 children CBT premium individual + 1 children CBT series)', () => {
+    expect(APPROVED_FORMS.length).toBe(98);
   });
 
   it('31. All 18 standard forms resolve in English', () => {

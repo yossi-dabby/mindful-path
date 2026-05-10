@@ -49,9 +49,12 @@ function resolvePublicPath(fileUrl) {
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
-const APPROVED_FORMS = ALL_FORMS.filter((f) => f.approved === true && f.type !== 'therapeutic_workbook');
+const APPROVED_FORMS = ALL_FORMS.filter((f) => f.approved === true && f.type !== 'therapeutic_workbook' && f.category !== 'children_cbt_process');
 // Hebrew premium workbooks are Hebrew-only; they are tested separately in therapeuticFormsWorkbooks.test.js.
-const WORKBOOK_FORM_IDS = new Set(ALL_FORMS.filter(f => f.type === 'therapeutic_workbook').map(f => f.id));
+const WORKBOOK_FORM_IDS = new Set([
+  ...ALL_FORMS.filter(f => f.type === 'therapeutic_workbook').map(f => f.id),
+  ...ALL_FORMS.filter(f => f.category === 'children_cbt_process').map(f => f.id),
+]);
 
 // Expected Spanish PDF paths keyed by form id
 const EXPECTED_SPANISH_PATHS = {

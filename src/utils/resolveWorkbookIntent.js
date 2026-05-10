@@ -41,7 +41,7 @@
  */
 
 import { resolveFormIntent } from './resolveFormIntent.js';
-import { WORKBOOK_CONTENT_METADATA, WORKBOOK_CONTENT_METADATA_EN, WORKBOOK_CONTENT_METADATA_ES, WORKBOOK_CONTENT_METADATA_FR, WORKBOOK_CONTENT_METADATA_DE, WORKBOOK_CONTENT_METADATA_IT, WORKBOOK_CONTENT_METADATA_PT } from './workbookContentMetadata.js';
+import { WORKBOOK_CONTENT_METADATA, WORKBOOK_CONTENT_METADATA_EN, WORKBOOK_CONTENT_METADATA_ES, WORKBOOK_CONTENT_METADATA_FR, WORKBOOK_CONTENT_METADATA_DE, WORKBOOK_CONTENT_METADATA_IT, WORKBOOK_CONTENT_METADATA_PT, WORKBOOK_CONTENT_METADATA_CHILDREN_HE } from './workbookContentMetadata.js';
 
 // ─── Hebrew workbook-trigger language ─────────────────────────────────────────
 //
@@ -1413,4 +1413,93 @@ export function getPortugueseFormLabel(metadata) {
   if (!metadata || typeof metadata !== 'object') return 'ficha';
   if (metadata.category === 'workbook_series') return 'caderno terapêutico completo';
   return 'ficha';
+}
+
+// ─── Hebrew Children CBT workbook routing ────────────────────────────────────
+
+/**
+ * Hebrew trigger keywords that signal the user wants the full children CBT
+ * series workbook rather than a single individual worksheet.
+ */
+const WORKBOOK_TRIGGER_KEYWORDS_CHILDREN_HE = [
+  'קונטרס ילדים',
+  'חוברת ילדים',
+  'סדרת ילדים',
+  'סדרת cbt לילדים',
+  'כל שלבי הילדים',
+  'כל הטפסים לילדים',
+  'סט מלא לילדים',
+  'חוברת עבודה לילדים',
+  'כל הסדרה לילדים',
+];
+
+/**
+ * Returns true when the query contains at least one children-workbook trigger keyword.
+ * @param {string} query
+ * @returns {boolean}
+ */
+function hasExplicitChildrenWorkbookTrigger(query) {
+  return WORKBOOK_TRIGGER_KEYWORDS_CHILDREN_HE.some(kw => query.includes(kw));
+}
+
+/**
+ * Scores the children workbook metadata against the query.
+ * @param {string}   query
+ * @param {string[]} topicKeywords
+ * @returns {number}
+ */
+function scoreChildrenWorkbook(query, topicKeywords) {
+  let score = 0;
+  for (const kw of topicKeywords) {
+    if (query.includes(kw)) score++;
+  }
+  return score;
+}
+
+/**
+ * Resolves a Hebrew natural-language user query to the Hebrew children CBT
+ * series workbook (full series), following the workbook routing priority rules.
+ *
+ * Routing priority:
+ *   1. Explicit children-workbook trigger + ≥1 topic keyword → return series
+ *   2. ≥2 topic keywords from the series (multi-topic) → return series
+ *   3. No sufficient match → return null (individual form resolver handles it)
+ *
+ * @param {string} query - User's natural-language Hebrew query.
+ * @returns {object|null} Generated-file metadata or null.
+ */
+export function resolveChildrenHeWorkbookIntent(query) {
+  if (typeof query !== 'string' || !query.trim()) return null;
+
+  const hasWorkbookTrigger = hasExplicitChildrenWorkbookTrigger(query);
+
+  let bestWorkbook = null;
+  let bestScore = 0;
+
+  for (const wb of WORKBOOK_CONTENT_METADATA_CHILDREN_HE) {
+    const score = scoreChildrenWorkbook(query, wb.topicKeywords);
+    if (score > bestScore) {
+      bestScore = score;
+      bestWorkbook = wb;
+    }
+  }
+
+  const threshold = hasWorkbookTrigger
+    ? EXPLICIT_TRIGGER_THRESHOLD
+    : MULTI_TOPIC_THRESHOLD;
+
+  if (bestWorkbook && bestScore >= threshold) {
+    return resolveFormIntent(bestWorkbook.slug, 'he');
+  }
+
+  return null;
+}
+
+/**
+ * Returns the list of Hebrew children workbook-trigger keywords.
+ * Exported for testing.
+ * @returns {string[]}
+ */
+export function getChildrenHeWorkbookTriggerKeywords() {
+  return [...WORKBOOK_TRIGGER_KEYWORDS_CHILDREN_HE];
 }

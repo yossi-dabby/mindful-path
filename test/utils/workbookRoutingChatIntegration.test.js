@@ -236,7 +236,7 @@ describe('Regression — all 7 workbooks remain sendable via [FORM:slug:he]', ()
 
 describe('Regression — 18 individual forms still resolve via [FORM:slug:he/en]', () => {
   const INDIVIDUAL_FORMS = ALL_FORMS.filter(
-    f => f.approved && f.category !== 'workbook_series'
+    f => f.approved && f.category !== 'workbook_series' && f.category !== 'children_cbt_process'
   );
 
   it('has exactly 18 approved individual forms', () => {
