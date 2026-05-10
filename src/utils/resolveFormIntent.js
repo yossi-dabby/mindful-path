@@ -811,6 +811,7 @@ export const APPROVED_FORM_INTENT_MAP = Object.freeze({
   'tf-children-cbt-stage-5-2-premium-he':                 'tf-children-cbt-stage-5-2-premium-he',
   'children-cbt-stage-5-2-premium-he':                    'tf-children-cbt-stage-5-2-premium-he',
   'משפטים שעוזרים לי ילד':                                'tf-children-cbt-stage-5-2-premium-he',
+  'משפטים שעוזרים ילד':                                   'tf-children-cbt-stage-5-2-premium-he',
   'משפטים מחזקים ילד':                                    'tf-children-cbt-stage-5-2-premium-he',
 
   'tf-children-cbt-stage-5-3-premium-he':                 'tf-children-cbt-stage-5-3-premium-he',
