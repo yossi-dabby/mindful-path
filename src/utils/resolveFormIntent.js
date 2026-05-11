@@ -39,6 +39,7 @@ import {
   toGeneratedFileMetadata,
   ALL_FORMS,
 } from '../data/therapeuticForms/index.js';
+import { FORMS_CHILDREN_CBT_SPECIALIZED } from '../data/therapeuticForms/forms.children.cbt-specialized.js';
 
 // ─── Approved intent → form ID map ───────────────────────────────────────────
 //
@@ -904,7 +905,7 @@ export function resolveFormIntent(intentOrSlug, lang) {
   const normalizedIntent = intentOrSlug.toLowerCase().trim();
 
   // Look up the canonical form ID in the approved intent map
-  const formId = APPROVED_FORM_INTENT_MAP[normalizedIntent] || normalizedIntent;
+  const formId = APPROVED_FORM_INTENT_MAP[normalizedIntent];
   if (!formId) return null;
 
   // Resolve language (default to English for safe fallback)
@@ -921,7 +922,29 @@ export function resolveFormIntent(intentOrSlug, lang) {
 
 function resolveApprovedFormById(formId, lang = 'he') {
   const resolved = resolveFormWithLanguage(formId, lang);
-  return toGeneratedFileMetadata(resolved);
+  if (resolved) return toGeneratedFileMetadata(resolved);
+
+  const fallback = FORMS_CHILDREN_CBT_SPECIALIZED.find(
+    (f) => f.id === formId && f.approved === true
+  );
+  if (!fallback) return null;
+  const langBlock = fallback.languages?.[lang] || fallback.languages?.he || fallback.languages?.en;
+  if (!langBlock?.file_url) return null;
+  return {
+    type: 'pdf',
+    url: langBlock.file_url,
+    name: langBlock.file_name,
+    title: langBlock.title,
+    description: langBlock.description || null,
+    therapeutic_purpose: fallback.therapeuticGoal || null,
+    source: 'therapeutic_forms_library',
+    form_id: fallback.id,
+    form_slug: fallback.slug,
+    audience: fallback.audience,
+    category: fallback.category,
+    language: lang,
+    created_at: new Date().toISOString(),
+  };
 }
 
 // ─── Content-aware resolver for Hebrew children CBT premium ──────────────────
@@ -1146,7 +1169,7 @@ function hasAnyIntentToken(query, terms) {
 }
 
 function scoreByPackMatch(form, query) {
-  const phrases = [`מנה ${form.packNumber}`, `pack ${form.packNumber}`, `${form.packNumber}.${form.packNumber <= 6 ? '1' : '1'}`];
+  const phrases = [`מנה ${form.packNumber}`, `pack ${form.packNumber}`, `${form.packNumber}.1`];
   return hasAnyIntentToken(query, phrases) ? Math.floor(SPECIALIZED_SCORE.DOMAIN / 2) : 0;
 }
 
@@ -1165,7 +1188,7 @@ function scoreFromPackFallback(query, form) {
 }
 
 function getChildrenSpecializedIndividualForms() {
-  return ALL_FORMS.filter(
+  return FORMS_CHILDREN_CBT_SPECIALIZED.filter(
     (f) =>
       f.approved === true &&
       f.audience === 'children' &&
@@ -1177,7 +1200,7 @@ function getChildrenSpecializedIndividualForms() {
 }
 
 function getChildrenSpecializedPackPdf(packNumber) {
-  return ALL_FORMS.find(
+  return FORMS_CHILDREN_CBT_SPECIALIZED.find(
     (f) =>
       f.approved === true &&
       f.audience === 'children' &&
@@ -1190,7 +1213,7 @@ function getChildrenSpecializedPackPdf(packNumber) {
 }
 
 function getChildrenSpecializedSeriesPdf() {
-  return ALL_FORMS.find(
+  return FORMS_CHILDREN_CBT_SPECIALIZED.find(
     (f) =>
       f.approved === true &&
       f.audience === 'children' &&

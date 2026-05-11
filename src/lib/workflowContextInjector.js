@@ -92,6 +92,7 @@ import {
 // Wave 5D — Quality Evaluator diagnostic integration (diagnostics-only, no runtime effect).
 import { computeEvaluatorDiagnosticSnapshot } from './therapistQualityEvaluator.js';
 import { ALL_FORMS } from '../data/therapeuticForms/index.js';
+import { FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL } from '../data/therapeuticForms/forms.children.cbt-specialized.js';
 
 const THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS = [
 '[ATTACHMENT_HANDLING_POLICY]',
@@ -224,11 +225,10 @@ export function buildTherapistFormCatalog(forms) {
     }
   }
 
-  const specializedChildrenForms = approvedForms.filter(
+  const specializedChildrenForms = FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL.filter(
     (f) =>
       f.audience === 'children' &&
       f.category === 'children_cbt_process' &&
-      f.childrenSeries === 'specialized' &&
       typeof f.displayNumber === 'string'
   );
   if (specializedChildrenForms.length > 0) {
@@ -249,7 +249,7 @@ export function buildTherapistFormCatalog(forms) {
       }
       const title = form.languages?.he?.title || form.titleHe || form.displayNumber || form.id;
       const content = form.shortContentDescriptionHe ? ` — ${form.shortContentDescriptionHe}` : '';
-      lines.push(`    [FORM:${form.id}]  ${title}${content}`);
+      lines.push(`    ${title}${content}`);
     }
   }
 

@@ -62,7 +62,7 @@ describe('Phase 4D — buildTherapistFormCatalog: basic output', () => {
 
 describe('Phase 4D — buildTherapistFormCatalog: all approved forms present', () => {
   it('registry approved count matches current canonical registry snapshot', () => {
-    expect(approvedForms.length).toBe(158);
+    expect(approvedForms.length).toBe(98);
   });
 
   it('catalog contains all 67 approved form ID markers', () => {
