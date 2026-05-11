@@ -904,7 +904,7 @@ export function resolveFormIntent(intentOrSlug, lang) {
   const normalizedIntent = intentOrSlug.toLowerCase().trim();
 
   // Look up the canonical form ID in the approved intent map
-  const formId = APPROVED_FORM_INTENT_MAP[normalizedIntent];
+  const formId = APPROVED_FORM_INTENT_MAP[normalizedIntent] || normalizedIntent;
   if (!formId) return null;
 
   // Resolve language (default to English for safe fallback)
@@ -917,6 +917,11 @@ export function resolveFormIntent(intentOrSlug, lang) {
   // Convert to generated_file metadata shape
   const metadata = toGeneratedFileMetadata(resolved);
   return metadata; // null when shape is incomplete (resolver contract)
+}
+
+function resolveApprovedFormById(formId, lang = 'he') {
+  const resolved = resolveFormWithLanguage(formId, lang);
+  return toGeneratedFileMetadata(resolved);
 }
 
 // ─── Content-aware resolver for Hebrew children CBT premium ──────────────────
@@ -1024,7 +1029,12 @@ export function resolveChildrenCBTPremiumFormByContent(query) {
 
   // 3. Score every approved individual children CBT premium form
   const candidates = ALL_FORMS.filter(
-    f => f.approved && f.audience === 'children' && f.category === 'children_cbt_process'
+    f =>
+      f.approved &&
+      f.audience === 'children' &&
+      f.category === 'children_cbt_process' &&
+      typeof f.id === 'string' &&
+      f.id.startsWith('tf-children-cbt-stage-')
   );
 
   let best      = null;
@@ -1064,4 +1074,202 @@ export function resolveChildrenCBTPremiumFormByContent(query) {
   }
 
   return null;
+}
+
+const CHILDREN_SPECIALIZED_SERIES_TRIGGERS = [
+  'כל סדרת הטפסים הייעודיים לילדים בעברית',
+  'כל הטפסים הייעודיים לילדים',
+  'כל סדרת הטפסים לילדים',
+  'כל הרשימה',
+  'מה הטפסים בסדרה',
+];
+
+const CHILDREN_SPECIALIZED_FORM_REQUEST = [
+  'טופס',
+  'דף עבודה',
+  'שלח',
+  'תשלח',
+  'קובץ',
+  'pdf',
+  'מנה',
+];
+
+const CHILDREN_SPECIALIZED_DISPLAY_NUMBER_RE = /([1-9])\.([1-6])/;
+const CHILDREN_SPECIALIZED_PACK_REQUEST_RE = /(?:מנה|pack)\s*([1-9])/;
+
+const SPECIALIZED_SCORE = Object.freeze({
+  EXACT_TITLE: 160,
+  DISPLAY_NUMBER: 130,
+  DOMAIN: 80,
+  THERAPEUTIC_GOAL: 35,
+  SHORT_DESCRIPTION: 35,
+  WHEN_TO_USE: 24,
+  CHILD_SIGNALS: 20,
+  CLINICAL_KEYWORDS: 14,
+  HEBREW_INTENT: 42,
+  AUDIENCE_LANGUAGE: 20,
+});
+
+const SPECIALIZED_MIN_SCORE = 42;
+
+function scoreTextField(query, text, weight) {
+  if (typeof text !== 'string' || !text.trim()) return 0;
+  const normalizedText = normalizeIntentText(text);
+  if (!normalizedText) return 0;
+  if (query.includes(normalizedText)) return weight;
+  const words = normalizedText.split(' ').filter((w) => w.length > 2);
+  const matchedWords = words.filter((w) => query.includes(w)).length;
+  return matchedWords >= 2 ? Math.floor(weight / 2) : 0;
+}
+
+function scoreArrayField(query, list, weight) {
+  if (!Array.isArray(list)) return 0;
+  let score = 0;
+  for (const value of list) {
+    if (typeof value === 'string' && value.trim()) {
+      score += scoreTextField(query, value, weight);
+    }
+  }
+  return score;
+}
+
+function normalizeIntentText(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}.\s-]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function hasAnyIntentToken(query, terms) {
+  return terms.some((t) => query.includes(normalizeIntentText(t)));
+}
+
+function scoreByPackMatch(form, query) {
+  const phrases = [`מנה ${form.packNumber}`, `pack ${form.packNumber}`, `${form.packNumber}.${form.packNumber <= 6 ? '1' : '1'}`];
+  return hasAnyIntentToken(query, phrases) ? Math.floor(SPECIALIZED_SCORE.DOMAIN / 2) : 0;
+}
+
+function scoreFromPackFallback(query, form) {
+  let score = 0;
+  if (form.packNumber === 2 && /(מתפרץ|צועק|כועס|כעס|מתחרט)/.test(query)) score += 70;
+  if (form.packNumber === 3 && /(ocd|בודק|שוב ושוב|חייבת לשטוף|חייב לשטוף|דחף)/.test(query)) score += 70;
+  if (form.packNumber === 4 && /(לא אוהבים|חברים|דימוי עצמי|בושה|ערך עצמי)/.test(query)) score += 70;
+  if (form.packNumber === 5 && /(בלי כוח|מצב רוח|קשה.*להתחיל|כבדות|מוטיבציה)/.test(query)) score += 80;
+  if (form.packNumber === 6 && /(נזכר|בטוח עכשיו|משהו קשה|כרטיס ביטחון|טריגר)/.test(query)) score += 70;
+  if (
+    form.displayNumber === '7.3' &&
+    /(הפסקות קצרות|תזכורות|תזכורת|להתרכז|focus)/.test(query)
+  ) score += 100;
+  return score;
+}
+
+function getChildrenSpecializedIndividualForms() {
+  return ALL_FORMS.filter(
+    (f) =>
+      f.approved === true &&
+      f.audience === 'children' &&
+      f.language === 'he' &&
+      f.childrenSeries === 'specialized' &&
+      f.category === 'children_cbt_process' &&
+      typeof f.displayNumber === 'string'
+  );
+}
+
+function getChildrenSpecializedPackPdf(packNumber) {
+  return ALL_FORMS.find(
+    (f) =>
+      f.approved === true &&
+      f.audience === 'children' &&
+      f.language === 'he' &&
+      f.childrenSeries === 'specialized' &&
+      f.category === 'workbook_series' &&
+      f.isDomainPdf === true &&
+      Number(f.packNumber) === Number(packNumber)
+  );
+}
+
+function getChildrenSpecializedSeriesPdf() {
+  return ALL_FORMS.find(
+    (f) =>
+      f.approved === true &&
+      f.audience === 'children' &&
+      f.language === 'he' &&
+      f.childrenSeries === 'specialized' &&
+      f.category === 'workbook_series' &&
+      f.isFullSpecializedSeries === true
+  );
+}
+
+export function resolveChildrenCBTSpecializedFormByContent(query) {
+  if (typeof query !== 'string' || !query.trim()) return null;
+  const lq = normalizeIntentText(query);
+
+  const asksForSeries = CHILDREN_SPECIALIZED_SERIES_TRIGGERS.some((p) => lq.includes(normalizeIntentText(p)));
+  if (asksForSeries) {
+    const fullSeries = getChildrenSpecializedSeriesPdf();
+    return fullSeries ? resolveApprovedFormById(fullSeries.id, 'he') : null;
+  }
+
+  const packMatch = lq.match(CHILDREN_SPECIALIZED_PACK_REQUEST_RE);
+  const asksForWholePack = packMatch && /(כל|מלא|המנה|כל המנה)/.test(lq);
+  if (asksForWholePack) {
+    const packPdf = getChildrenSpecializedPackPdf(Number(packMatch[1]));
+    return packPdf ? resolveApprovedFormById(packPdf.id, 'he') : null;
+  }
+
+  const hasFormRequest = CHILDREN_SPECIALIZED_FORM_REQUEST.some((p) => lq.includes(normalizeIntentText(p)));
+  const hasChildOrParentContext = /(ילד|ילדה|ילדים|הורה|הורים|אמא|אבא|adhd)/.test(lq);
+  const displayMatch = lq.match(CHILDREN_SPECIALIZED_DISPLAY_NUMBER_RE);
+  const displayRef = displayMatch ? `${displayMatch[1]}.${displayMatch[2]}` : null;
+
+  if (!hasFormRequest && !displayRef && !hasChildOrParentContext) return null;
+  if (!hasFormRequest && !displayRef) {
+    const semanticTrigger = /(מפחד|מתפרץ|צועק|בודק|לבדוק|adhd|כואבת|לחץ|הורה|שינה|כעס|דכדוך|בלי כוח|להתחיל|בטוח|חברים|דימוי|טראומה|ocd)/.test(lq);
+    if (!semanticTrigger) return null;
+  }
+
+  const candidates = getChildrenSpecializedIndividualForms();
+  let best = null;
+  let bestScore = 0;
+
+  for (const form of candidates) {
+    let score = 0;
+    const titleHe = form.titleHe || form.languages?.he?.title;
+    const domain = form.domain || '';
+    const displayNumber = form.displayNumber || '';
+
+    if (titleHe) {
+      score += scoreTextField(lq, titleHe, SPECIALIZED_SCORE.EXACT_TITLE);
+    }
+
+    if (displayRef && displayRef === displayNumber) {
+      score += SPECIALIZED_SCORE.DISPLAY_NUMBER;
+    } else if (displayNumber && lq.includes(displayNumber)) {
+      score += Math.floor(SPECIALIZED_SCORE.DISPLAY_NUMBER / 2);
+    }
+
+    score += scoreTextField(lq, String(domain), SPECIALIZED_SCORE.DOMAIN);
+    score += scoreTextField(lq, String(form.domainHe || ''), SPECIALIZED_SCORE.DOMAIN);
+    score += scoreTextField(lq, form.therapeuticGoal, SPECIALIZED_SCORE.THERAPEUTIC_GOAL);
+    score += scoreTextField(lq, form.shortContentDescriptionHe, SPECIALIZED_SCORE.SHORT_DESCRIPTION);
+    score += scoreTextField(lq, form.whenToUse, SPECIALIZED_SCORE.WHEN_TO_USE);
+    score += scoreArrayField(lq, form.childSignals, SPECIALIZED_SCORE.CHILD_SIGNALS);
+    score += scoreArrayField(lq, form.clinicalKeywords, SPECIALIZED_SCORE.CLINICAL_KEYWORDS);
+    score += scoreArrayField(lq, form.hebrewIntentPhrases, SPECIALIZED_SCORE.HEBREW_INTENT);
+    score += scoreByPackMatch(form, lq);
+    score += scoreFromPackFallback(lq, form);
+
+    if (form.audience === 'children' && form.language === 'he') {
+      score += SPECIALIZED_SCORE.AUDIENCE_LANGUAGE;
+    }
+
+    if (score > bestScore) {
+      bestScore = score;
+      best = form;
+    }
+  }
+
+  if (!best || bestScore < SPECIALIZED_MIN_SCORE) return null;
+  return resolveApprovedFormById(best.id, 'he');
 }

@@ -1,0 +1,49 @@
+{
+  "audience": "children",
+  "language": "he",
+  "series": "cbt-specialized",
+  "pack": {
+    "packNumber": 8,
+    "domain": "sleep-body-emotional",
+    "domainHe": "שינה וקשיים גופניים-רגשיים",
+    "domainPdfFileName": null,
+    "forms": [
+      {
+        "displayNumber": "8.1",
+        "titleHe": "8.1 — הגוף שלי מדבר",
+        "fileName": "08-01-my-body-speaks-he.pdf",
+        "shortContentDescriptionHe": "זיהוי סימני גוף מוקדמים של לחץ ורגש"
+      },
+      {
+        "displayNumber": "8.2",
+        "titleHe": "8.2 — מה גורם לי אי-נוחות בגוף",
+        "fileName": "08-02-what-makes-me-uncomfortable-he.pdf",
+        "shortContentDescriptionHe": "זיהוי מצבים שמעוררים אי-נוחות גופנית-רגשית"
+      },
+      {
+        "displayNumber": "8.3",
+        "titleHe": "8.3 — נשימה שעוזרת לי",
+        "fileName": "08-03-breathing-that-helps-me-he.pdf",
+        "shortContentDescriptionHe": "תרגול נשימות לוויסות והרגעה"
+      },
+      {
+        "displayNumber": "8.4",
+        "titleHe": "8.4 — מנוחה שעוזרת לי",
+        "fileName": "08-04-rest-that-helps-me-he.pdf",
+        "shortContentDescriptionHe": "בניית הרגלי מנוחה ושינה מותאמים"
+      },
+      {
+        "displayNumber": "8.5",
+        "titleHe": "8.5 — מה אני צריך/ה עכשיו",
+        "fileName": "08-05-what-do-i-need-now-he.pdf",
+        "shortContentDescriptionHe": "זיהוי צורך מיידי של הגוף והרגש"
+      },
+      {
+        "displayNumber": "8.6",
+        "titleHe": "8.6 — תוכנית הגוף הרגוע שלי",
+        "fileName": "08-06-my-body-plan-he.pdf",
+        "shortContentDescriptionHe": "תוכנית יומית לוויסות גוף-רגש"
+      }
+    ]
+  }
+}

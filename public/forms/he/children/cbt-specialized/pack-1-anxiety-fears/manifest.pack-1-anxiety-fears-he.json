@@ -1,0 +1,49 @@
+{
+  "audience": "children",
+  "language": "he",
+  "series": "cbt-specialized",
+  "pack": {
+    "packNumber": 1,
+    "domain": "anxiety-fears",
+    "domainHe": "חרדה ופחדים",
+    "domainPdfFileName": "01-stage-1-assessment-alliance-he.pdf",
+    "forms": [
+      {
+        "displayNumber": "1.1",
+        "titleHe": "1.1 — הפחד שלי ומה הוא אומר",
+        "fileName": "01-01-my-fear-and-what-it-says-he.pdf",
+        "shortContentDescriptionHe": "זיהוי המסר המאיים שהפחד מספר לילד ברגע קשה"
+      },
+      {
+        "displayNumber": "1.2",
+        "titleHe": "1.2 — מה אני עושה כשאני מפחד/ת",
+        "fileName": "01-02-what-do-i-do-when-im-afraid-he.pdf",
+        "shortContentDescriptionHe": "מיפוי תגובות הילד בזמן פחד"
+      },
+      {
+        "displayNumber": "1.3",
+        "titleHe": "1.3 — סולם אומץ לחרדה",
+        "fileName": "01-03-bravery-ladder-anxiety-he.pdf",
+        "shortContentDescriptionHe": "בניית מדרג חשיפה הדרגתי ובטוח"
+      },
+      {
+        "displayNumber": "1.4",
+        "titleHe": "1.4 — צעד אמיץ קטן",
+        "fileName": "01-04-small-brave-step-he.pdf",
+        "shortContentDescriptionHe": "בחירת צעד חשיפה קטן וישים"
+      },
+      {
+        "displayNumber": "1.5",
+        "titleHe": "1.5 — מה באמת קרה אחרי שניסיתי",
+        "fileName": "01-05-what-really-happened-after-i-tried-he.pdf",
+        "shortContentDescriptionHe": "בדיקת תחזית פחד מול המציאות אחרי ניסיון"
+      },
+      {
+        "displayNumber": "1.6",
+        "titleHe": "1.6 — כרטיס אומץ לפחד",
+        "fileName": "01-06-bravery-card-for-fear-he.pdf",
+        "shortContentDescriptionHe": "כרטיס קצר להתמודדות בזמן פחד"
+      }
+    ]
+  }
+}

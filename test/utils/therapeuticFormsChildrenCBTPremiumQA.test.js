@@ -309,9 +309,9 @@ describe('QA — Deterministic priority rule: automatic-thought variants all res
 // ─── Existing behavior preserved ──────────────────────────────────────────────
 
 describe('QA-H — Existing behavior preserved', () => {
-  it('H-existing-1: Total approved forms still 98', () => {
+  it('H-existing-1: Total approved forms includes premium core plus specialized expansion', () => {
     const approved = ALL_FORMS.filter(f => f.approved === true);
-    expect(approved.length).toBe(98);
+    expect(approved.length).toBe(158);
   });
 
   it('H-existing-2: Catalog still contains CURRENTLY APPROVED FORMS header', () => {

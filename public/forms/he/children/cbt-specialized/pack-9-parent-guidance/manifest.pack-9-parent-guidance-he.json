@@ -1,0 +1,49 @@
+{
+  "audience": "children",
+  "language": "he",
+  "series": "cbt-specialized",
+  "pack": {
+    "packNumber": 9,
+    "domain": "parent-guidance",
+    "domainHe": "הדרכת הורים",
+    "domainPdfFileName": null,
+    "forms": [
+      {
+        "displayNumber": "9.1",
+        "titleHe": "9.1 — הילד שלי ואני צוות",
+        "fileName": "09-01-my-child-and-i-are-a-team-he.pdf",
+        "shortContentDescriptionHe": "חיזוק שותפות הורה-ילד במקום מאבק"
+      },
+      {
+        "displayNumber": "9.2",
+        "titleHe": "9.2 — לתפוס רגעים טובים",
+        "fileName": "09-02-catching-good-moments-he.pdf",
+        "shortContentDescriptionHe": "זיהוי וחיזוק רגעי הצלחה קטנים"
+      },
+      {
+        "displayNumber": "9.3",
+        "titleHe": "9.3 — איך אני מגיב/ה כשקשה",
+        "fileName": "09-03-how-do-i-respond-when-its-hard-he.pdf",
+        "shortContentDescriptionHe": "בניית תגובת הורה רגועה וברורה ברגעי קושי"
+      },
+      {
+        "displayNumber": "9.4",
+        "titleHe": "9.4 — שגרה שנותנת ביטחון",
+        "fileName": "09-04-routine-that-gives-safety-he.pdf",
+        "shortContentDescriptionHe": "תכנון שגרה ביתית צפויה ומרגיעה"
+      },
+      {
+        "displayNumber": "9.5",
+        "titleHe": "9.5 — לעודד במקום לבקר",
+        "fileName": "09-05-encourage-instead-of-criticize-he.pdf",
+        "shortContentDescriptionHe": "מעבר משיח ביקורתי לשיח מעודד ומכוון"
+      },
+      {
+        "displayNumber": "9.6",
+        "titleHe": "9.6 — תוכנית ההורה שלי",
+        "fileName": "09-06-my-parent-plan-he.pdf",
+        "shortContentDescriptionHe": "תוכנית הורה-ילד לשבוע הקרוב"
+      }
+    ]
+  }
+}
