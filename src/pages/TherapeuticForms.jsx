@@ -8,17 +8,39 @@ import {
   ALL_FORMS,
   resolveFormWithLanguage } from
 '@/data/therapeuticForms/index.js';
+import { FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL } from '@/data/therapeuticForms/forms.children.cbt-specialized.js';
 import { openFile } from '@/components/chat/utils/openFile';
 import { downloadPdfFile } from '@/components/chat/utils/downloadPdfFile';
+
+export const THERAPEUTIC_FORMS_LIBRARY_REGISTRY = Object.freeze([
+  ...new Map(
+    [...ALL_FORMS, ...FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL].map((form) => [form.id, form])
+  ).values(),
+]);
+
+export function resolveLibraryFormWithLanguage(form, lang) {
+  const resolved = resolveFormWithLanguage(form.id, lang);
+  if (resolved) return resolved;
+  if (!form || form.approved !== true) return null;
+
+  const languageData =
+    form.languages?.[lang] ||
+    form.languages?.he ||
+    form.languages?.en ||
+    null;
+
+  if (!languageData?.file_url) return null;
+  return { form, languageData };
+}
 
 // ─── UI adapter ────────────────────────────────────────────────────────────────
 // Returns all approved forms that match the given filters and are resolvable in lang.
 // Keeps filtering logic minimal and delegates all validity checks to the resolver.
-function getFilteredForms({ audience, category, lang }) {
-  return ALL_FORMS.reduce((acc, form) => {
+export function getFilteredForms({ audience, category, lang }) {
+  return THERAPEUTIC_FORMS_LIBRARY_REGISTRY.reduce((acc, form) => {
     if (audience !== 'all' && form.audience !== audience) return acc;
     if (category !== 'all' && form.category !== category) return acc;
-    const resolved = resolveFormWithLanguage(form.id, lang);
+    const resolved = resolveLibraryFormWithLanguage(form, lang);
     if (!resolved) return acc; // resolver rejected (unapproved, missing file_url, etc.)
     acc.push(resolved);
     return acc;

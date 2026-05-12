@@ -15,7 +15,7 @@
  * 11.  Attachment metadata remains unaffected.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -147,6 +147,48 @@ describe('Open/Download — helpers are distinct', () => {
   it('17. openFile returns early for non-string url', () => {
     expect(() => openFile(42)).not.toThrow();
     expect(() => openFile({})).not.toThrow();
+  });
+
+  it('17b. openFile opens URL in a new tab/window (preview path, not download)', () => {
+    const originalWindow = globalThis.window;
+    const openSpy = vi.fn();
+    globalThis.window = { open: openSpy };
+    try {
+      openFile('/forms/he/children/07-03-what-helps-me-focus-he.pdf');
+      expect(openSpy).toHaveBeenCalledWith(
+        '/forms/he/children/07-03-what-helps-me-focus-he.pdf',
+        '_blank',
+        'noopener,noreferrer'
+      );
+    } finally {
+      globalThis.window = originalWindow;
+    }
+  });
+
+  it('17c. downloadPdfFile same-origin flow uses anchor download attribute', async () => {
+    const originalDocument = globalThis.document;
+    const originalWindow = globalThis.window;
+    const clickSpy = vi.fn();
+    const anchor = { href: '', download: '', rel: '', style: {}, click: clickSpy };
+    globalThis.document = {
+      createElement: vi.fn(() => anchor),
+      body: {
+        appendChild: vi.fn(),
+        removeChild: vi.fn(),
+      },
+    };
+    globalThis.window = {
+      location: { origin: 'https://example.com' },
+    };
+    try {
+      await downloadPdfFile('/forms/he/children/07-03-what-helps-me-focus-he.pdf', 'focus.pdf');
+      expect(globalThis.document.createElement).toHaveBeenCalledWith('a');
+      expect(anchor.download).toBe('focus.pdf');
+      expect(clickSpy).toHaveBeenCalledTimes(1);
+    } finally {
+      globalThis.document = originalDocument;
+      globalThis.window = originalWindow;
+    }
   });
 });
 
