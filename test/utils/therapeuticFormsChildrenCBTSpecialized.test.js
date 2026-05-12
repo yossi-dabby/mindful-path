@@ -21,6 +21,7 @@ const SPECIALIZED_MANIFEST_ROOT = path.join(
   REPO_ROOT,
   'public/forms/he/children/cbt-specialized'
 );
+const THERAPEUTIC_FORMS_PAGE_PATH = path.join(REPO_ROOT, 'src/pages/TherapeuticForms.jsx');
 
 function idOf(result) {
   return result?.form_id ?? null;
@@ -39,6 +40,44 @@ function diskPathFromUrl(fileUrl) {
 describe('Children CBT Specialized HE — registry and assets', () => {
   it('registers 54 specialized individual forms', () => {
     expect(FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL).toHaveLength(54);
+  });
+
+  it('each specialized pack 1-9 contains exactly 6 forms (.1-.6)', () => {
+    const byPack = FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL.reduce((acc, form) => {
+      const pack = Number(form.packNumber);
+      if (!acc.has(pack)) acc.set(pack, []);
+      acc.get(pack).push(form.displayNumber);
+      return acc;
+    }, new Map());
+
+    for (let pack = 1; pack <= 9; pack += 1) {
+      const displayNumbers = (byPack.get(pack) || []).sort();
+      expect(displayNumbers).toHaveLength(6);
+      expect(displayNumbers).toEqual([
+        `${pack}.1`,
+        `${pack}.2`,
+        `${pack}.3`,
+        `${pack}.4`,
+        `${pack}.5`,
+        `${pack}.6`,
+      ]);
+    }
+  });
+
+  it('regression: missing forms (.5/.6 for packs 1–6 and full packs 7–9) are registered', () => {
+    const allDisplayNumbers = new Set(
+      FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL.map((f) => f.displayNumber)
+    );
+    const required = [
+      '1.5', '1.6', '2.5', '2.6', '3.5', '3.6',
+      '4.5', '4.6', '5.5', '5.6', '6.5', '6.6',
+      '7.1', '7.2', '7.3', '7.4', '7.5', '7.6',
+      '8.1', '8.2', '8.3', '8.4', '8.5', '8.6',
+      '9.1', '9.2', '9.3', '9.4', '9.5', '9.6',
+    ];
+    for (const displayNumber of required) {
+      expect(allDisplayNumbers.has(displayNumber), `${displayNumber} missing`).toBe(true);
+    }
   });
 
   it('all specialized forms are approved and include required metadata fields', () => {
@@ -100,6 +139,30 @@ describe('Children CBT Specialized HE — registry and assets', () => {
   it('registers available domain PDFs and zero full-series specialized PDFs when not present', () => {
     expect(FORMS_CHILDREN_CBT_SPECIALIZED_DOMAIN_PDFS.length).toBeGreaterThanOrEqual(1);
     expect(FORMS_CHILDREN_CBT_SPECIALIZED_FULL_PDFS).toHaveLength(0);
+  });
+});
+
+describe('Children CBT Specialized HE — forms library visibility', () => {
+  const pageSource = fs.readFileSync(THERAPEUTIC_FORMS_PAGE_PATH, 'utf8');
+
+  it('forms library registry explicitly merges specialized individual forms', () => {
+    expect(pageSource).toContain('FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL');
+    expect(pageSource).toContain('THERAPEUTIC_FORMS_LIBRARY_REGISTRY');
+    expect(pageSource).toContain('...ALL_FORMS, ...FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL');
+  });
+
+  it('forms library filtering reads from the merged registry', () => {
+    expect(pageSource).toContain('THERAPEUTIC_FORMS_LIBRARY_REGISTRY.reduce');
+    expect(pageSource).toContain('resolveLibraryFormWithLanguage');
+  });
+
+  it('pack 7/8/9 are present as specialized forms in the merged source set', () => {
+    for (const packNumber of [7, 8, 9]) {
+      const forms = FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL.filter(
+        (entry) => entry.packNumber === packNumber
+      );
+      expect(forms).toHaveLength(6);
+    }
   });
 });
 
