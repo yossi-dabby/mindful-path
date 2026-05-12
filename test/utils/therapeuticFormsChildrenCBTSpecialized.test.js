@@ -42,7 +42,7 @@ describe('Children CBT Specialized HE — registry and assets', () => {
     expect(FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL).toHaveLength(54);
   });
 
-  it('each specialized pack 1–9 contains exactly 6 forms (.1–.6)', () => {
+  it('each specialized pack 1-9 contains exactly 6 forms (.1-.6)', () => {
     const byPack = FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL.reduce((acc, form) => {
       const pack = Number(form.packNumber);
       if (!acc.has(pack)) acc.set(pack, []);
@@ -157,12 +157,12 @@ describe('Children CBT Specialized HE — forms library visibility', () => {
   });
 
   it('pack 7/8/9 are present as specialized forms in the merged source set', () => {
-    const pack7 = FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL.filter((entry) => entry.packNumber === 7);
-    const pack8 = FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL.filter((entry) => entry.packNumber === 8);
-    const pack9 = FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL.filter((entry) => entry.packNumber === 9);
-    expect(pack7).toHaveLength(6);
-    expect(pack8).toHaveLength(6);
-    expect(pack9).toHaveLength(6);
+    for (const packNumber of [7, 8, 9]) {
+      const forms = FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL.filter(
+        (entry) => entry.packNumber === packNumber
+      );
+      expect(forms).toHaveLength(6);
+    }
   });
 });
 

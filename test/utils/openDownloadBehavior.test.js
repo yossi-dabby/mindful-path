@@ -149,7 +149,7 @@ describe('Open/Download — helpers are distinct', () => {
     expect(() => openFile({})).not.toThrow();
   });
 
-  it('17b. openFile opens URL in a new tab/window (preview path, not download)', () => {
+  it('18. openFile opens URL in a new tab/window (preview path, not download)', () => {
     const originalWindow = globalThis.window;
     const openSpy = vi.fn();
     globalThis.window = { open: openSpy };
@@ -165,7 +165,7 @@ describe('Open/Download — helpers are distinct', () => {
     }
   });
 
-  it('17c. downloadPdfFile same-origin flow uses anchor download attribute', async () => {
+  it('19. downloadPdfFile same-origin flow uses anchor download attribute', async () => {
     const originalDocument = globalThis.document;
     const originalWindow = globalThis.window;
     const clickSpy = vi.fn();
