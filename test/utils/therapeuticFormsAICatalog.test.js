@@ -60,8 +60,8 @@ describe('Phase 4D — buildTherapistFormCatalog: basic output', () => {
 
 // ─── 2–4. All 25 approved form IDs present ────────────────────────────────────
 
-describe('Phase 4D — buildTherapistFormCatalog: all 67 approved forms present', () => {
-  it('registry has exactly 98 approved forms (18 standard + 7 Hebrew + 7 English + 7 Spanish + 7 French + 7 German + 7 Italian + 7 Portuguese workbooks + 30 children CBT premium individual + 1 children CBT series)', () => {
+describe('Phase 4D — buildTherapistFormCatalog: all approved forms present', () => {
+  it('registry approved count matches current canonical registry snapshot', () => {
     expect(approvedForms.length).toBe(98);
   });
 
@@ -76,10 +76,10 @@ describe('Phase 4D — buildTherapistFormCatalog: all 67 approved forms present'
     expect(markerCount).toBeGreaterThan(2);
   });
 
-  it('catalog total form count is 98', () => {
+  it('catalog total form count matches approved registry count', () => {
     // Count unique form IDs — the canonical series section repeats some IDs for clarity
     const uniqueIds = new Set((catalog.match(/\[FORM:[a-z0-9_-]+\]/g) || []));
-    expect(uniqueIds.size).toBe(98);
+    expect(uniqueIds.size).toBe(approvedForms.length);
   });
 });
 

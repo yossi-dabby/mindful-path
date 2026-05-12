@@ -1,0 +1,49 @@
+{
+  "audience": "children",
+  "language": "he",
+  "series": "cbt-specialized",
+  "pack": {
+    "packNumber": 6,
+    "domain": "trauma-tf-cbt",
+    "domainHe": "טראומה וביטחון (TF-CBT)",
+    "domainPdfFileName": "06-stage-6-maintaining-my-success-he.pdf",
+    "forms": [
+      {
+        "displayNumber": "6.1",
+        "titleHe": "6.1 — מה עוזר לי להרגיש בטוח/ה עכשיו",
+        "fileName": "06-01-what-helps-me-feel-safe-now-he.pdf",
+        "shortContentDescriptionHe": "זיהוי פעולות מיידיות ליצירת ביטחון נוכחי"
+      },
+      {
+        "displayNumber": "6.2",
+        "titleHe": "6.2 — כשמשהו מזכיר לי",
+        "fileName": "06-02-when-something-reminds-me-he.pdf",
+        "shortContentDescriptionHe": "זיהוי טריגרים ותגובות בטוחות לתזכורות"
+      },
+      {
+        "displayNumber": "6.3",
+        "titleHe": "6.3 — הגוף זוכר ואני עוזר/ת לו להירגע",
+        "fileName": "06-03-my-body-remembers-and-i-help-it-calm-he.pdf",
+        "shortContentDescriptionHe": "כלי ויסות גוף כשעולה זיכרון קשה"
+      },
+      {
+        "displayNumber": "6.4",
+        "titleHe": "6.4 — רגשות אחרי משהו קשה",
+        "fileName": "06-04-feelings-after-hard-thing-he.pdf",
+        "shortContentDescriptionHe": "מתן שם לרגשות לאחר אירוע קשה"
+      },
+      {
+        "displayNumber": "6.5",
+        "titleHe": "6.5 — מי עוזר לי כשאני נזכר/ת",
+        "fileName": "06-05-who-helps-me-when-i-remember-he.pdf",
+        "shortContentDescriptionHe": "מיפוי דמויות תמיכה וזמינותן"
+      },
+      {
+        "displayNumber": "6.6",
+        "titleHe": "6.6 — כרטיס ביטחון לרגע קשה",
+        "fileName": "06-06-safety-card-for-hard-moment-he.pdf",
+        "shortContentDescriptionHe": "כרטיס קצר לניהול רגע הצפה"
+      }
+    ]
+  }
+}

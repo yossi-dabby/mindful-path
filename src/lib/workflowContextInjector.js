@@ -92,6 +92,7 @@ import {
 // Wave 5D — Quality Evaluator diagnostic integration (diagnostics-only, no runtime effect).
 import { computeEvaluatorDiagnosticSnapshot } from './therapistQualityEvaluator.js';
 import { ALL_FORMS } from '../data/therapeuticForms/index.js';
+import { FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL } from '../data/therapeuticForms/forms.children.cbt-specialized.js';
 
 const THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS = [
 '[ATTACHMENT_HANDLING_POLICY]',
@@ -185,7 +186,12 @@ export function buildTherapistFormCatalog(forms) {
   // Append canonical locked series section for Hebrew children CBT premium forms.
   // This section gives the AI the exact approved title list to answer list/series questions.
   const childrenCbtIndividual = approvedForms.filter(
-    f => f.audience === 'children' && f.category === 'children_cbt_process' && f.cbt_substage_number
+    f =>
+      f.audience === 'children' &&
+      f.category === 'children_cbt_process' &&
+      f.cbt_substage_number &&
+      typeof f.id === 'string' &&
+      f.id.startsWith('tf-children-cbt-stage-')
   );
   if (childrenCbtIndividual.length > 0) {
     // Sort by cbt_substage_number numerically (e.g. '1.1' < '1.2' < ... < '6.4')
@@ -216,6 +222,34 @@ export function buildTherapistFormCatalog(forms) {
       const heTitle = form.languages?.he?.title || form.cbt_substage_number;
       const contentHint = form.shortContentDescriptionHe ? ` — ${form.shortContentDescriptionHe}` : '';
       lines.push(`    [FORM:${form.id}]  ${heTitle}${contentHint}`);
+    }
+  }
+
+  const specializedChildrenForms = FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL.filter(
+    (f) =>
+      f.audience === 'children' &&
+      f.category === 'children_cbt_process' &&
+      typeof f.displayNumber === 'string'
+  );
+  if (specializedChildrenForms.length > 0) {
+    const sorted = [...specializedChildrenForms].sort((a, b) => {
+      const [aPack, aIdx] = String(a.displayNumber).split('.').map(Number);
+      const [bPack, bIdx] = String(b.displayNumber).split('.').map(Number);
+      return aPack !== bPack ? aPack - bPack : aIdx - bIdx;
+    });
+
+    lines.push('');
+    lines.push('[HEBREW CHILDREN CBT SPECIALIZED — CANONICAL MANIFEST]');
+    lines.push('When asked for specialized children worksheets, answer only from this manifest-backed list:');
+    let currentPack = null;
+    for (const form of sorted) {
+      if (form.packNumber !== currentPack) {
+        currentPack = form.packNumber;
+        lines.push(`  מנה ${currentPack} — ${form.domainHe || form.domain || ''}:`);
+      }
+      const title = form.languages?.he?.title || form.titleHe || form.displayNumber || form.id;
+      const content = form.shortContentDescriptionHe ? ` — ${form.shortContentDescriptionHe}` : '';
+      lines.push(`    ${title}${content}`);
     }
   }
 

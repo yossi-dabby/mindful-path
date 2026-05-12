@@ -1,0 +1,49 @@
+{
+  "audience": "children",
+  "language": "he",
+  "series": "cbt-specialized",
+  "pack": {
+    "packNumber": 2,
+    "domain": "anger-regulation",
+    "domainHe": "כעס וויסות",
+    "domainPdfFileName": "02-stage-2-building-my-map-he.pdf",
+    "forms": [
+      {
+        "displayNumber": "2.1",
+        "titleHe": "2.1 — הפיוז של הכעס שלי",
+        "fileName": "02-01-my-anger-fuse-he.pdf",
+        "shortContentDescriptionHe": "זיהוי עוצמת הכעס וסימני הסלמה"
+      },
+      {
+        "displayNumber": "2.2",
+        "titleHe": "2.2 — לפני שאני מתפוצץ/ת",
+        "fileName": "02-02-before-i-explode-he.pdf",
+        "shortContentDescriptionHe": "זיהוי רגע העצירה לפני תגובת כעס"
+      },
+      {
+        "displayNumber": "2.3",
+        "titleHe": "2.3 — מה הגוף שלי מבקש כשאני כועס/ת",
+        "fileName": "02-03-what-my-body-asks-when-angry-he.pdf",
+        "shortContentDescriptionHe": "זיהוי מסרי הגוף ככלי לוויסות כעס"
+      },
+      {
+        "displayNumber": "2.4",
+        "titleHe": "2.4 — בחירה אחרת בזמן כעס",
+        "fileName": "02-04-another-choice-during-anger-he.pdf",
+        "shortContentDescriptionHe": "תרגול תגובה חלופית במקום תגובה אימפולסיבית"
+      },
+      {
+        "displayNumber": "2.5",
+        "titleHe": "2.5 — אחרי שהתפרצתי: איך מתקנים",
+        "fileName": "02-05-after-i-exploded-how-to-repair-he.pdf",
+        "shortContentDescriptionHe": "תהליך תיקון קשר לאחר התפרצות"
+      },
+      {
+        "displayNumber": "2.6",
+        "titleHe": "2.6 — תוכנית הכעס שלי",
+        "fileName": "02-06-my-anger-plan-he.pdf",
+        "shortContentDescriptionHe": "בניית תוכנית אישית לניהול כעסים"
+      }
+    ]
+  }
+}

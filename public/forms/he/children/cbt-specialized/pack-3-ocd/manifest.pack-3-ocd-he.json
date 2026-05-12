@@ -1,0 +1,49 @@
+{
+  "audience": "children",
+  "language": "he",
+  "series": "cbt-specialized",
+  "pack": {
+    "packNumber": 3,
+    "domain": "ocd",
+    "domainHe": "OCD",
+    "domainPdfFileName": "03-stage-3-working-on-thoughts-he.pdf",
+    "forms": [
+      {
+        "displayNumber": "3.1",
+        "titleHe": "3.1 — המחשבה שמציקה לי",
+        "fileName": "03-01-the-thought-that-bothers-me-he.pdf",
+        "shortContentDescriptionHe": "הגדרת המחשבה הטורדנית המרכזית"
+      },
+      {
+        "displayNumber": "3.2",
+        "titleHe": "3.2 — מה אני מרגיש/ה שחייבים לעשות",
+        "fileName": "03-02-what-i-feel-i-must-do-he.pdf",
+        "shortContentDescriptionHe": "זיהוי הדחף או הטקס שהילד מרגיש שחייב לבצע"
+      },
+      {
+        "displayNumber": "3.3",
+        "titleHe": "3.3 — כמה חזק הדחף עכשיו",
+        "fileName": "03-03-how-strong-is-the-urge-now-he.pdf",
+        "shortContentDescriptionHe": "מדידת עוצמת הדחף בזמן אמת"
+      },
+      {
+        "displayNumber": "3.4",
+        "titleHe": "3.4 — מחכה לפני שאני עושה",
+        "fileName": "03-04-wait-before-i-do-he.pdf",
+        "shortContentDescriptionHe": "תרגול השהיית תגובה לטקס"
+      },
+      {
+        "displayNumber": "3.5",
+        "titleHe": "3.5 — ניסוי קטן נגד OCD",
+        "fileName": "03-05-small-experiment-against-ocd-he.pdf",
+        "shortContentDescriptionHe": "ניסוי התנהגותי קצר מול OCD"
+      },
+      {
+        "displayNumber": "3.6",
+        "titleHe": "3.6 — מה למדתי כשחיכיתי",
+        "fileName": "03-06-what-i-learned-when-i-waited-he.pdf",
+        "shortContentDescriptionHe": "סיכום למידה אחרי עיכוב תגובה"
+      }
+    ]
+  }
+}

@@ -1,0 +1,271 @@
+{
+  "audience": "children",
+  "language": "he",
+  "series": "cbt-specialized",
+  "packs": [
+    {
+      "packNumber": 1,
+      "domain": "anxiety-fears",
+      "domainHe": "חרדה ופחדים",
+      "domainPdfFileName": "01-stage-1-assessment-alliance-he.pdf",
+      "forms": [
+        {
+          "displayNumber": "1.1",
+          "titleHe": "1.1 — הפחד שלי ומה הוא אומר",
+          "fileName": "01-01-my-fear-and-what-it-says-he.pdf",
+          "shortContentDescriptionHe": "זיהוי המסר המאיים שהפחד מספר לילד ברגע קשה"
+        },
+        {
+          "displayNumber": "1.2",
+          "titleHe": "1.2 — מה אני עושה כשאני מפחד/ת",
+          "fileName": "01-02-what-do-i-do-when-im-afraid-he.pdf",
+          "shortContentDescriptionHe": "מיפוי תגובות הילד בזמן פחד"
+        },
+        {
+          "displayNumber": "1.3",
+          "titleHe": "1.3 — סולם אומץ לחרדה",
+          "fileName": "01-03-bravery-ladder-anxiety-he.pdf",
+          "shortContentDescriptionHe": "בניית מדרג חשיפה הדרגתי ובטוח"
+        },
+        {
+          "displayNumber": "1.4",
+          "titleHe": "1.4 — צעד אמיץ קטן",
+          "fileName": "01-04-small-brave-step-he.pdf",
+          "shortContentDescriptionHe": "בחירת צעד חשיפה קטן וישים"
+        },
+        {
+          "displayNumber": "1.5",
+          "titleHe": "1.5 — מה באמת קרה אחרי שניסיתי",
+          "fileName": "01-05-what-really-happened-after-i-tried-he.pdf",
+          "shortContentDescriptionHe": "בדיקת תחזית פחד מול המציאות אחרי ניסיון"
+        },
+        {
+          "displayNumber": "1.6",
+          "titleHe": "1.6 — כרטיס אומץ לפחד",
+          "fileName": "01-06-bravery-card-for-fear-he.pdf",
+          "shortContentDescriptionHe": "כרטיס קצר להתמודדות בזמן פחד"
+        }
+      ]
+    },
+    {
+      "packNumber": 2,
+      "domain": "anger-regulation",
+      "domainHe": "כעס וויסות",
+      "domainPdfFileName": "02-stage-2-building-my-map-he.pdf",
+      "forms": [
+        {
+          "displayNumber": "2.1",
+          "titleHe": "2.1 — הפיוז של הכעס שלי",
+          "fileName": "02-01-my-anger-fuse-he.pdf",
+          "shortContentDescriptionHe": "זיהוי עוצמת הכעס וסימני הסלמה"
+        },
+        {
+          "displayNumber": "2.2",
+          "titleHe": "2.2 — לפני שאני מתפוצץ/ת",
+          "fileName": "02-02-before-i-explode-he.pdf",
+          "shortContentDescriptionHe": "זיהוי רגע העצירה לפני תגובת כעס"
+        },
+        {
+          "displayNumber": "2.3",
+          "titleHe": "2.3 — מה הגוף שלי מבקש כשאני כועס/ת",
+          "fileName": "02-03-what-my-body-asks-when-angry-he.pdf",
+          "shortContentDescriptionHe": "זיהוי מסרי הגוף ככלי לוויסות כעס"
+        },
+        {
+          "displayNumber": "2.4",
+          "titleHe": "2.4 — בחירה אחרת בזמן כעס",
+          "fileName": "02-04-another-choice-during-anger-he.pdf",
+          "shortContentDescriptionHe": "תרגול תגובה חלופית במקום תגובה אימפולסיבית"
+        },
+        {
+          "displayNumber": "2.5",
+          "titleHe": "2.5 — אחרי שהתפרצתי: איך מתקנים",
+          "fileName": "02-05-after-i-exploded-how-to-repair-he.pdf",
+          "shortContentDescriptionHe": "תהליך תיקון קשר לאחר התפרצות"
+        },
+        {
+          "displayNumber": "2.6",
+          "titleHe": "2.6 — תוכנית הכעס שלי",
+          "fileName": "02-06-my-anger-plan-he.pdf",
+          "shortContentDescriptionHe": "בניית תוכנית אישית לניהול כעסים"
+        }
+      ]
+    },
+    {
+      "packNumber": 3,
+      "domain": "ocd",
+      "domainHe": "OCD",
+      "domainPdfFileName": "03-stage-3-working-on-thoughts-he.pdf",
+      "forms": [
+        {
+          "displayNumber": "3.1",
+          "titleHe": "3.1 — המחשבה שמציקה לי",
+          "fileName": "03-01-the-thought-that-bothers-me-he.pdf",
+          "shortContentDescriptionHe": "הגדרת המחשבה הטורדנית המרכזית"
+        },
+        {
+          "displayNumber": "3.2",
+          "titleHe": "3.2 — מה אני מרגיש/ה שחייבים לעשות",
+          "fileName": "03-02-what-i-feel-i-must-do-he.pdf",
+          "shortContentDescriptionHe": "זיהוי הדחף או הטקס שהילד מרגיש שחייב לבצע"
+        },
+        {
+          "displayNumber": "3.3",
+          "titleHe": "3.3 — כמה חזק הדחף עכשיו",
+          "fileName": "03-03-how-strong-is-the-urge-now-he.pdf",
+          "shortContentDescriptionHe": "מדידת עוצמת הדחף בזמן אמת"
+        },
+        {
+          "displayNumber": "3.4",
+          "titleHe": "3.4 — מחכה לפני שאני עושה",
+          "fileName": "03-04-wait-before-i-do-he.pdf",
+          "shortContentDescriptionHe": "תרגול השהיית תגובה לטקס"
+        },
+        {
+          "displayNumber": "3.5",
+          "titleHe": "3.5 — ניסוי קטן נגד OCD",
+          "fileName": "03-05-small-experiment-against-ocd-he.pdf",
+          "shortContentDescriptionHe": "ניסוי התנהגותי קצר מול OCD"
+        },
+        {
+          "displayNumber": "3.6",
+          "titleHe": "3.6 — מה למדתי כשחיכיתי",
+          "fileName": "03-06-what-i-learned-when-i-waited-he.pdf",
+          "shortContentDescriptionHe": "סיכום למידה אחרי עיכוב תגובה"
+        }
+      ]
+    },
+    {
+      "packNumber": 4,
+      "domain": "social-self-esteem",
+      "domainHe": "חברתי ודימוי עצמי",
+      "domainPdfFileName": "04-stage-4-working-in-real-life-he.pdf",
+      "forms": [
+        {
+          "displayNumber": "4.1",
+          "titleHe": "4.1 — מה אני אוהב/ת בעצמי",
+          "fileName": "04-01-what-i-like-about-myself-he.pdf",
+          "shortContentDescriptionHe": "זיהוי תכונות חיוביות וערך עצמי"
+        },
+        {
+          "displayNumber": "4.2",
+          "titleHe": "4.2 — ההצלחות הקטנות שלי",
+          "fileName": "04-02-my-small-successes-he.pdf",
+          "shortContentDescriptionHe": "איסוף הישגים קטנים לחיזוק ביטחון עצמי"
+        },
+        {
+          "displayNumber": "4.3",
+          "titleHe": "4.3 — איך אני מדבר/ת עם עצמי",
+          "fileName": "04-03-how-i-talk-to-myself-he.pdf",
+          "shortContentDescriptionHe": "עבודה על שיח פנימי שלילי מול מיטיב"
+        },
+        {
+          "displayNumber": "4.4",
+          "titleHe": "4.4 — דברים שאני גאה בהם",
+          "fileName": "04-04-things-im-proud-of-he.pdf",
+          "shortContentDescriptionHe": "בניית זהות חיובית דרך גאווה אישית"
+        },
+        {
+          "displayNumber": "4.5",
+          "titleHe": "4.5 — הכוחות שלי",
+          "fileName": "04-05-my-strengths-he.pdf",
+          "shortContentDescriptionHe": "מיפוי חוזקות אישיות וחברתיות"
+        },
+        {
+          "displayNumber": "4.6",
+          "titleHe": "4.6 — מכתב טוב לעצמי",
+          "fileName": "04-06-letter-to-myself-he.pdf",
+          "shortContentDescriptionHe": "כתיבת מכתב חמלה עצמית ותמיכה פנימית"
+        }
+      ]
+    },
+    {
+      "packNumber": 5,
+      "domain": "mood-depression",
+      "domainHe": "מצב רוח ודכדוך",
+      "domainPdfFileName": "05-stage-5-adding-tools-to-my-toolbox-he.pdf",
+      "forms": [
+        {
+          "displayNumber": "5.1",
+          "titleHe": "5.1 — מה מוריד לי את מצב הרוח",
+          "fileName": "05-01-what-lowers-my-mood-he.pdf",
+          "shortContentDescriptionHe": "זיהוי טריגרים לירידת מצב רוח"
+        },
+        {
+          "displayNumber": "5.2",
+          "titleHe": "5.2 — המחשבה הכבדה שלי",
+          "fileName": "05-02-my-heavy-thought-he.pdf",
+          "shortContentDescriptionHe": "זיהוי מחשבה מכבידה שמורידה אנרגיה"
+        },
+        {
+          "displayNumber": "5.3",
+          "titleHe": "5.3 — פעולה קטנה שמדליקה אור",
+          "fileName": "05-03-small-action-that-lights-up-he.pdf",
+          "shortContentDescriptionHe": "בחירת פעולה קטנה מעלה אנרגיה"
+        },
+        {
+          "displayNumber": "5.4",
+          "titleHe": "5.4 — מה נתן לי כוח היום",
+          "fileName": "05-04-what-gave-me-strength-today-he.pdf",
+          "shortContentDescriptionHe": "זיהוי נקודות כוח במהלך יום קשה"
+        },
+        {
+          "displayNumber": "5.5",
+          "titleHe": "5.5 — הצלחה קטנה ביום קשה",
+          "fileName": "05-05-small-success-on-hard-day-he.pdf",
+          "shortContentDescriptionHe": "ביסוס תחושת מסוגלות דרך הצלחות קטנות"
+        },
+        {
+          "displayNumber": "5.6",
+          "titleHe": "5.6 — תוכנית יום קלילה",
+          "fileName": "05-06-light-day-plan-he.pdf",
+          "shortContentDescriptionHe": "תכנון יום מותאם לאנרגיה נמוכה"
+        }
+      ]
+    },
+    {
+      "packNumber": 6,
+      "domain": "trauma-tf-cbt",
+      "domainHe": "טראומה וביטחון (TF-CBT)",
+      "domainPdfFileName": "06-stage-6-maintaining-my-success-he.pdf",
+      "forms": [
+        {
+          "displayNumber": "6.1",
+          "titleHe": "6.1 — מה עוזר לי להרגיש בטוח/ה עכשיו",
+          "fileName": "06-01-what-helps-me-feel-safe-now-he.pdf",
+          "shortContentDescriptionHe": "זיהוי פעולות מיידיות ליצירת ביטחון נוכחי"
+        },
+        {
+          "displayNumber": "6.2",
+          "titleHe": "6.2 — כשמשהו מזכיר לי",
+          "fileName": "06-02-when-something-reminds-me-he.pdf",
+          "shortContentDescriptionHe": "זיהוי טריגרים ותגובות בטוחות לתזכורות"
+        },
+        {
+          "displayNumber": "6.3",
+          "titleHe": "6.3 — הגוף זוכר ואני עוזר/ת לו להירגע",
+          "fileName": "06-03-my-body-remembers-and-i-help-it-calm-he.pdf",
+          "shortContentDescriptionHe": "כלי ויסות גוף כשעולה זיכרון קשה"
+        },
+        {
+          "displayNumber": "6.4",
+          "titleHe": "6.4 — רגשות אחרי משהו קשה",
+          "fileName": "06-04-feelings-after-hard-thing-he.pdf",
+          "shortContentDescriptionHe": "מתן שם לרגשות לאחר אירוע קשה"
+        },
+        {
+          "displayNumber": "6.5",
+          "titleHe": "6.5 — מי עוזר לי כשאני נזכר/ת",
+          "fileName": "06-05-who-helps-me-when-i-remember-he.pdf",
+          "shortContentDescriptionHe": "מיפוי דמויות תמיכה וזמינותן"
+        },
+        {
+          "displayNumber": "6.6",
+          "titleHe": "6.6 — כרטיס ביטחון לרגע קשה",
+          "fileName": "06-06-safety-card-for-hard-moment-he.pdf",
+          "shortContentDescriptionHe": "כרטיס קצר לניהול רגע הצפה"
+        }
+      ]
+    }
+  ]
+}

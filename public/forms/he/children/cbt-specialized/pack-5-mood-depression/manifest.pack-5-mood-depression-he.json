@@ -1,0 +1,49 @@
+{
+  "audience": "children",
+  "language": "he",
+  "series": "cbt-specialized",
+  "pack": {
+    "packNumber": 5,
+    "domain": "mood-depression",
+    "domainHe": "מצב רוח ודכדוך",
+    "domainPdfFileName": "05-stage-5-adding-tools-to-my-toolbox-he.pdf",
+    "forms": [
+      {
+        "displayNumber": "5.1",
+        "titleHe": "5.1 — מה מוריד לי את מצב הרוח",
+        "fileName": "05-01-what-lowers-my-mood-he.pdf",
+        "shortContentDescriptionHe": "זיהוי טריגרים לירידת מצב רוח"
+      },
+      {
+        "displayNumber": "5.2",
+        "titleHe": "5.2 — המחשבה הכבדה שלי",
+        "fileName": "05-02-my-heavy-thought-he.pdf",
+        "shortContentDescriptionHe": "זיהוי מחשבה מכבידה שמורידה אנרגיה"
+      },
+      {
+        "displayNumber": "5.3",
+        "titleHe": "5.3 — פעולה קטנה שמדליקה אור",
+        "fileName": "05-03-small-action-that-lights-up-he.pdf",
+        "shortContentDescriptionHe": "בחירת פעולה קטנה מעלה אנרגיה"
+      },
+      {
+        "displayNumber": "5.4",
+        "titleHe": "5.4 — מה נתן לי כוח היום",
+        "fileName": "05-04-what-gave-me-strength-today-he.pdf",
+        "shortContentDescriptionHe": "זיהוי נקודות כוח במהלך יום קשה"
+      },
+      {
+        "displayNumber": "5.5",
+        "titleHe": "5.5 — הצלחה קטנה ביום קשה",
+        "fileName": "05-05-small-success-on-hard-day-he.pdf",
+        "shortContentDescriptionHe": "ביסוס תחושת מסוגלות דרך הצלחות קטנות"
+      },
+      {
+        "displayNumber": "5.6",
+        "titleHe": "5.6 — תוכנית יום קלילה",
+        "fileName": "05-06-light-day-plan-he.pdf",
+        "shortContentDescriptionHe": "תכנון יום מותאם לאנרגיה נמוכה"
+      }
+    ]
+  }
+}

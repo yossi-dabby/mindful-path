@@ -1,0 +1,139 @@
+{
+  "audience": "children",
+  "language": "he",
+  "series": "cbt-specialized",
+  "packs": [
+    {
+      "packNumber": 7,
+      "domain": "adhd",
+      "domainHe": "ADHD — קשב, ארגון ואימפולסיביות",
+      "domainPdfFileName": null,
+      "forms": [
+        {
+          "displayNumber": "7.1",
+          "titleHe": "7.1 — להבין את ה-ADHD שלי",
+          "fileName": "07-01-understanding-my-adhd-he.pdf",
+          "shortContentDescriptionHe": "פסיכוחינוך מותאם לילד על קשב והיפראקטיביות"
+        },
+        {
+          "displayNumber": "7.2",
+          "titleHe": "7.2 — מתי הכי קשה לי להתרכז",
+          "fileName": "07-02-when-is-it-hard-for-me-he.pdf",
+          "shortContentDescriptionHe": "מיפוי מצבי קושי בקשב לאורך היום"
+        },
+        {
+          "displayNumber": "7.3",
+          "titleHe": "7.3 — מה עוזר לי להתרכז",
+          "fileName": "07-03-what-helps-me-focus-he.pdf",
+          "shortContentDescriptionHe": "זיהוי אסטרטגיות קשב: הפסקות קצרות, רמזים חזותיים, חלוקת משימות"
+        },
+        {
+          "displayNumber": "7.4",
+          "titleHe": "7.4 — המוח שלי זז וזה בסדר",
+          "fileName": "07-04-my-brain-moves-and-its-ok-he.pdf",
+          "shortContentDescriptionHe": "נרמול תנועתיות וויסות עצמי לא שיפוטי"
+        },
+        {
+          "displayNumber": "7.5",
+          "titleHe": "7.5 — תוכנית ההצלחה שלי",
+          "fileName": "07-05-my-success-plan-he.pdf",
+          "shortContentDescriptionHe": "תוכנית שבועית להצלחה בבית ובבית הספר"
+        },
+        {
+          "displayNumber": "7.6",
+          "titleHe": "7.6 — דברים שאני רוצה לזכור על עצמי",
+          "fileName": "07-06-things-i-want-to-remember-about-myself-he.pdf",
+          "shortContentDescriptionHe": "חיזוק זהות וכוחות ילד עם ADHD"
+        }
+      ]
+    },
+    {
+      "packNumber": 8,
+      "domain": "sleep-body-emotional",
+      "domainHe": "שינה וקשיים גופניים-רגשיים",
+      "domainPdfFileName": null,
+      "forms": [
+        {
+          "displayNumber": "8.1",
+          "titleHe": "8.1 — הגוף שלי מדבר",
+          "fileName": "08-01-my-body-speaks-he.pdf",
+          "shortContentDescriptionHe": "זיהוי סימני גוף מוקדמים של לחץ ורגש"
+        },
+        {
+          "displayNumber": "8.2",
+          "titleHe": "8.2 — מה גורם לי אי-נוחות בגוף",
+          "fileName": "08-02-what-makes-me-uncomfortable-he.pdf",
+          "shortContentDescriptionHe": "זיהוי מצבים שמעוררים אי-נוחות גופנית-רגשית"
+        },
+        {
+          "displayNumber": "8.3",
+          "titleHe": "8.3 — נשימה שעוזרת לי",
+          "fileName": "08-03-breathing-that-helps-me-he.pdf",
+          "shortContentDescriptionHe": "תרגול נשימות לוויסות והרגעה"
+        },
+        {
+          "displayNumber": "8.4",
+          "titleHe": "8.4 — מנוחה שעוזרת לי",
+          "fileName": "08-04-rest-that-helps-me-he.pdf",
+          "shortContentDescriptionHe": "בניית הרגלי מנוחה ושינה מותאמים"
+        },
+        {
+          "displayNumber": "8.5",
+          "titleHe": "8.5 — מה אני צריך/ה עכשיו",
+          "fileName": "08-05-what-do-i-need-now-he.pdf",
+          "shortContentDescriptionHe": "זיהוי צורך מיידי של הגוף והרגש"
+        },
+        {
+          "displayNumber": "8.6",
+          "titleHe": "8.6 — תוכנית הגוף הרגוע שלי",
+          "fileName": "08-06-my-body-plan-he.pdf",
+          "shortContentDescriptionHe": "תוכנית יומית לוויסות גוף-רגש"
+        }
+      ]
+    },
+    {
+      "packNumber": 9,
+      "domain": "parent-guidance",
+      "domainHe": "הדרכת הורים",
+      "domainPdfFileName": null,
+      "forms": [
+        {
+          "displayNumber": "9.1",
+          "titleHe": "9.1 — הילד שלי ואני צוות",
+          "fileName": "09-01-my-child-and-i-are-a-team-he.pdf",
+          "shortContentDescriptionHe": "חיזוק שותפות הורה-ילד במקום מאבק"
+        },
+        {
+          "displayNumber": "9.2",
+          "titleHe": "9.2 — לתפוס רגעים טובים",
+          "fileName": "09-02-catching-good-moments-he.pdf",
+          "shortContentDescriptionHe": "זיהוי וחיזוק רגעי הצלחה קטנים"
+        },
+        {
+          "displayNumber": "9.3",
+          "titleHe": "9.3 — איך אני מגיב/ה כשקשה",
+          "fileName": "09-03-how-do-i-respond-when-its-hard-he.pdf",
+          "shortContentDescriptionHe": "בניית תגובת הורה רגועה וברורה ברגעי קושי"
+        },
+        {
+          "displayNumber": "9.4",
+          "titleHe": "9.4 — שגרה שנותנת ביטחון",
+          "fileName": "09-04-routine-that-gives-safety-he.pdf",
+          "shortContentDescriptionHe": "תכנון שגרה ביתית צפויה ומרגיעה"
+        },
+        {
+          "displayNumber": "9.5",
+          "titleHe": "9.5 — לעודד במקום לבקר",
+          "fileName": "09-05-encourage-instead-of-criticize-he.pdf",
+          "shortContentDescriptionHe": "מעבר משיח ביקורתי לשיח מעודד ומכוון"
+        },
+        {
+          "displayNumber": "9.6",
+          "titleHe": "9.6 — תוכנית ההורה שלי",
+          "fileName": "09-06-my-parent-plan-he.pdf",
+          "shortContentDescriptionHe": "תוכנית הורה-ילד לשבוע הקרוב"
+        }
+      ]
+    }
+  ]
+}
