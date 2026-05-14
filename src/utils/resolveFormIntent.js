@@ -41,6 +41,7 @@ import {
 } from '../data/therapeuticForms/index.js';
 import { FORMS_CHILDREN_CBT_SPECIALIZED } from '../data/therapeuticForms/forms.children.cbt-specialized.js';
 import { FORMS_ADOLESCENTS_CBT_SPECIALIZED } from '../data/therapeuticForms/forms.adolescents.cbt-specialized.js';
+import { FORMS_ADOLESCENTS_CBT_CORE_EN } from '../data/therapeuticForms/forms.adolescents.cbt-core.en.js';
 
 // ─── Approved intent → form ID map ───────────────────────────────────────────
 //
@@ -921,7 +922,7 @@ function resolveApprovedFormById(formId, lang = 'he') {
   const resolved = resolveFormWithLanguage(formId, lang);
   if (resolved) return toGeneratedFileMetadata(resolved);
 
-  const fallback = [...FORMS_CHILDREN_CBT_SPECIALIZED, ...FORMS_ADOLESCENTS_CBT_SPECIALIZED].find(
+  const fallback = [...FORMS_CHILDREN_CBT_SPECIALIZED, ...FORMS_ADOLESCENTS_CBT_SPECIALIZED, ...FORMS_ADOLESCENTS_CBT_CORE_EN].find(
     (f) => f.id === formId && f.approved === true
   );
   if (!fallback) return null;
@@ -949,6 +950,7 @@ function findApprovedExactFormId(candidateId) {
     ...ALL_FORMS,
     ...FORMS_CHILDREN_CBT_SPECIALIZED,
     ...FORMS_ADOLESCENTS_CBT_SPECIALIZED,
+    ...FORMS_ADOLESCENTS_CBT_CORE_EN,
   ];
   const match = registries.find(
     (form) => form?.approved === true && typeof form.id === 'string' && form.id === candidateId
@@ -1490,4 +1492,111 @@ export function resolveAdolescentsCBTSpecializedFormByContent(query) {
 
   if (!best || bestScore < SPECIALIZED_MIN_SCORE) return null;
   return resolveApprovedFormById(best.id, 'he');
+}
+
+const ADOLESCENTS_CORE_EN_SERIES_TRIGGERS = [
+  'show me the full english adolescent cbt core series',
+  'english adolescent cbt core series',
+  'adolescents cbt core series 1',
+  'adolescent cbt core series',
+  'english teen cbt core series',
+];
+
+const ADOLESCENTS_CORE_EN_FORM_REQUEST = [
+  'worksheet',
+  'worksheets',
+  'form',
+  'forms',
+  'cbt core',
+  'series',
+  'pdf',
+  'show me',
+  'recommend',
+  'need',
+  'help',
+];
+
+const ADOLESCENTS_CORE_EN_STAGE_HINTS = Object.freeze({
+  1: /(overwhelmed|what is happening|what's happening|what is going on|inside|body signals|trigger|thought.*feeling.*action)/,
+  2: /(automatic thought|mind said|won't succeed|everyone will blame|interpretation|thinking pattern|belief)/,
+  3: /(check evidence|evidence|alternative perspective|balanced thought|what to think now|is it true)/,
+  4: /(choose what to do|choose an action|action to take|small steps|review|evaluation|helpful thought)/,
+  5: /(avoid|avoidance|gradual exposure|exposure|small step|effective action|persistence|tracking)/,
+  6: /(personal plan|weekly check-?in|encouragement plan|road card|keeping going|looking ahead|hard moments)/,
+});
+
+function getAdolescentCoreEnglishForms() {
+  return FORMS_ADOLESCENTS_CBT_CORE_EN.filter(
+    (f) =>
+      f.approved === true &&
+      f.audience === 'adolescents' &&
+      f.language === 'en' &&
+      f.adolescentSeries === 'core' &&
+      f.category === 'adolescents_cbt_core' &&
+      typeof f.worksheetNumber === 'string'
+  );
+}
+
+function scoreStageHint(stageNumber, query) {
+  const re = ADOLESCENTS_CORE_EN_STAGE_HINTS[stageNumber];
+  return re?.test(query) ? 120 : 0;
+}
+
+export function resolveAdolescentsCBTCoreEnglishFormByContent(query) {
+  if (typeof query !== 'string' || !query.trim()) return null;
+  const lq = normalizeIntentText(query);
+
+  const asksForSeries = ADOLESCENTS_CORE_EN_SERIES_TRIGGERS.some((p) => lq.includes(normalizeIntentText(p)));
+  if (asksForSeries) return null;
+
+  const hasFormRequest = ADOLESCENTS_CORE_EN_FORM_REQUEST.some((p) => lq.includes(normalizeIntentText(p)));
+  const hasTeenContext = /(teen|adolescent|youth|age 1[2-8]|ages 1[2-8]|16|17|15|14|13|12)/.test(lq);
+  const hasChildContext = /(child|kid|age 8|age 9|age 10|age 11|8 year|9 year|10 year|11 year)/.test(lq);
+  const displayMatch = lq.match(/\b([1-6])\.([1-5])\b/);
+  const displayRef = displayMatch ? `${displayMatch[1]}.${displayMatch[2]}` : null;
+
+  if (hasChildContext && !hasTeenContext && !displayRef) return null;
+  if (!hasFormRequest && !displayRef && !hasTeenContext) return null;
+
+  const candidates = getAdolescentCoreEnglishForms();
+  let best = null;
+  let bestScore = 0;
+
+  for (const form of candidates) {
+    let score = 0;
+    const title = form.title || form.languages?.en?.title || '';
+    const stageTitle = form.stageTitle || '';
+    const worksheetNumber = form.worksheetNumber || '';
+    const stageNumber = Number(form.stageNumber);
+
+    score += scoreTextField(lq, title, SPECIALIZED_SCORE.EXACT_TITLE);
+    score += scoreTextField(lq, stageTitle, SPECIALIZED_SCORE.DOMAIN);
+    score += scoreTextField(lq, form.therapeuticGoal, SPECIALIZED_SCORE.THERAPEUTIC_GOAL);
+    score += scoreTextField(lq, form.shortContentDescription, SPECIALIZED_SCORE.SHORT_DESCRIPTION);
+    score += scoreArrayField(lq, form.whenToUse, SPECIALIZED_SCORE.WHEN_TO_USE);
+    score += scoreArrayField(lq, form.teenSignals, SPECIALIZED_SCORE.CHILD_SIGNALS);
+    score += scoreArrayField(lq, form.clinicalKeywords, SPECIALIZED_SCORE.CLINICAL_KEYWORDS);
+    score += scoreArrayField(lq, form.intentPhrases, SPECIALIZED_SCORE.HEBREW_INTENT);
+    score += scoreArrayField(lq, form.notFor, Math.floor(SPECIALIZED_SCORE.WHEN_TO_USE / 2));
+    score += scoreArrayField(lq, form.relatedForms, Math.floor(SPECIALIZED_SCORE.WHEN_TO_USE / 2));
+    score += scoreStageHint(stageNumber, lq);
+
+    if (displayRef && displayRef === worksheetNumber) {
+      score += SPECIALIZED_SCORE.DISPLAY_NUMBER;
+    } else if (worksheetNumber && lq.includes(worksheetNumber)) {
+      score += Math.floor(SPECIALIZED_SCORE.DISPLAY_NUMBER / 2);
+    }
+
+    if (form.audience === 'adolescents' && form.language === 'en') {
+      score += SPECIALIZED_SCORE.AUDIENCE_LANGUAGE;
+    }
+
+    if (score > bestScore) {
+      bestScore = score;
+      best = form;
+    }
+  }
+
+  if (!best || bestScore < SPECIALIZED_MIN_SCORE) return null;
+  return resolveApprovedFormById(best.id, 'en');
 }
