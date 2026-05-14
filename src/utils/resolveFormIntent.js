@@ -1574,6 +1574,7 @@ export function resolveAdolescentsCBTCoreEnglishFormByContent(query) {
   const candidates = getAdolescentsCBTCoreEnglishForms();
   let best = null;
   let bestScore = 0;
+  const INTENT_PHRASE_SCORE = SPECIALIZED_SCORE.HEBREW_INTENT;
 
   for (const form of candidates) {
     let score = 0;
@@ -1584,7 +1585,7 @@ export function resolveAdolescentsCBTCoreEnglishFormByContent(query) {
     score += scoreArrayField(lq, form.whenToUse, SPECIALIZED_SCORE.WHEN_TO_USE);
     score += scoreArrayField(lq, form.teenSignals, SPECIALIZED_SCORE.CHILD_SIGNALS);
     score += scoreArrayField(lq, form.clinicalKeywords, SPECIALIZED_SCORE.CLINICAL_KEYWORDS);
-    score += scoreArrayField(lq, form.intentPhrases, SPECIALIZED_SCORE.HEBREW_INTENT);
+    score += scoreArrayField(lq, form.intentPhrases, INTENT_PHRASE_SCORE);
 
     if (worksheetRef && form.worksheetNumber === worksheetRef) {
       score += SPECIALIZED_SCORE.DISPLAY_NUMBER;

@@ -156,7 +156,7 @@ describe('Adolescent CBT Core EN — content-aware resolver QA prompts', () => {
     expect(stageOf(result)).toBe(6);
   });
 
-  it('H: child-age query does not force adolescent English core forms', () => {
+  it('H: child-age query does not force adolescent English core forms (G list check is in canonical catalog section)', () => {
     const result = resolveAdolescentsCBTCoreEnglishFormByContent('Child age 8 has fears and needs help');
     expect(result).toBeNull();
   });

@@ -4,12 +4,6 @@ function unique(values) {
   return [...new Set((values || []).filter(Boolean))];
 }
 
-function normalizeRelatedFormIds(relatedForms) {
-  return unique((relatedForms || []).map((id) =>
-    typeof id === 'string' && id.startsWith('adolescents-cbt-core-') ? `tf-${id}` : id
-  ));
-}
-
 function createIndividualForm(formEntry) {
   const baseId = String(formEntry.id || '').trim();
   const stageNumber = Number(formEntry.stage);
@@ -41,7 +35,7 @@ function createIndividualForm(formEntry) {
     clinicalKeywords: unique(formEntry.clinicalKeywords),
     intentPhrases: unique(formEntry.intentPhrases),
     notFor: unique(formEntry.notFor),
-    relatedForms: normalizeRelatedFormIds(formEntry.relatedForms),
+    relatedForms: unique(formEntry.relatedForms),
     approved: true,
     isApproved: true,
     type: 'therapeutic_form',
