@@ -6,8 +6,10 @@
  * Design rules:
  *   - Never return unapproved forms.
  *   - Never return a form with a missing or empty file_url.
- *   - Language resolution prefers the requested language, falls back to English,
- *     and returns null if neither is valid.
+ *   - Language resolution uses strict exact-match: only the requested language
+ *     is served; no fallback to English or any other language.
+ *   - If the requested language is unavailable the resolver returns null, allowing
+ *     the UI to show an appropriate empty/unavailable state.
  *   - Hebrew entries always preserve `rtl: true`.
  *   - All functions are pure and never throw — malformed entries are silently skipped.
  *
@@ -63,8 +65,10 @@ function isWellFormedForm(form) {
 }
 
 /**
- * Resolves the best available language block for a form.
- * Preference order: requested language → English → null.
+ * Resolves the language block for a form using strict exact-match logic.
+ * No fallback to another language is performed — a missing language block
+ * returns null so that the UI/resolver can show an appropriate empty state
+ * instead of silently showing content in the wrong language.
  *
  * @param {object} form         - The form entry from the registry.
  * @param {string} lang         - ISO 639-1 language code (e.g. 'he', 'en').
@@ -73,18 +77,11 @@ function isWellFormedForm(form) {
 function resolveBestLanguageBlock(form, lang) {
   const languages = form.languages || {};
 
-  // Try requested language first
-  if (lang && lang !== 'en') {
-    const requestedBlock = languages[lang];
-    if (isValidLanguageBlock(requestedBlock)) {
-      return { block: requestedBlock, code: lang };
-    }
-  }
-
-  // Fall back to English
-  const enBlock = languages['en'];
-  if (isValidLanguageBlock(enBlock)) {
-    return { block: enBlock, code: 'en' };
+  // Strict match: only return the block for the exact requested language.
+  // No fallback to English or any other language.
+  const requestedBlock = languages[lang];
+  if (isValidLanguageBlock(requestedBlock)) {
+    return { block: requestedBlock, code: lang };
   }
 
   return null;
@@ -175,7 +172,7 @@ export function resolveFormById(idOrSlug) {
  * Returns null if:
  *   - the form is not found
  *   - the form is unapproved
- *   - no valid language version exists (neither requested nor English)
+ *   - no valid language version exists for the requested language (strict match; no fallback)
  *
  * @param {string} idOrSlug
  * @param {string} [lang='en']  - Preferred language code.

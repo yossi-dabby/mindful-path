@@ -28,11 +28,9 @@ export function resolveLibraryFormWithLanguage(form, lang) {
   if (resolved) return resolved;
   if (!form || form.approved !== true) return null;
 
-  const languageData =
-    form.languages?.[lang] ||
-    form.languages?.he ||
-    form.languages?.en ||
-    null;
+  // For forms not present in ALL_FORMS (e.g. manifest-loaded specialized forms),
+  // only serve an exact language match — no fallback to Hebrew or English.
+  const languageData = form.languages?.[lang] || null;
 
   if (!languageData?.file_url) return null;
   return { form, languageData };

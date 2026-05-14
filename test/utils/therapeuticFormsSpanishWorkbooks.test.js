@@ -673,10 +673,9 @@ describe('Phase 12 — C5: Spanish workbooks resolve only in Spanish (no fallbac
     }
   });
 
-  it('standard forms continue to fall back to English for unsupported languages', () => {
+  it('standard forms return null for unsupported language codes (strict matching)', () => {
     const result = resolveFormWithLanguage('tf-adults-cbt-thought-record', 'zh');
-    expect(result).not.toBeNull();
-    expect(result.language).toBe('en');
+    expect(result).toBeNull();
   });
 });
 

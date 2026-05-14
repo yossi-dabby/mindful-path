@@ -184,16 +184,10 @@ function resolveWithLanguage(forms, idOrSlug, lang = 'en') {
   if (!isWellFormed(form)) return null;
 
   const languages = form.languages || {};
-  let block = null;
-  let code = null;
 
-  if (lang && lang !== 'en' && isValidBlock(languages[lang])) {
-    block = languages[lang];
-    code = lang;
-  } else if (isValidBlock(languages['en'])) {
-    block = languages['en'];
-    code = 'en';
-  }
+  // Strict exact-match: no fallback to any other language.
+  const block = isValidBlock(languages[lang]) ? languages[lang] : null;
+  const code = block ? lang : null;
 
   if (!block) return null;
 
@@ -487,23 +481,32 @@ describe('Phase 2 — Hebrew language uses Hebrew content', () => {
   });
 });
 
-// ─── 11. Unsupported languages fall back to English ───────────────────────────
+// ─── 11. Strict language separation — no cross-language fallback ──────────────
 
-describe('Phase 2 — unsupported languages fall back to English', () => {
-  const unsupportedLangs = ['es', 'fr', 'de', 'it', 'pt'];
+describe('Phase 2 — strict language separation', () => {
+  const otherLangs = ['he', 'es', 'fr', 'de', 'it', 'pt'];
 
-  for (const lang of unsupportedLangs) {
-    it(`lang="${lang}" falls back to English for EN-only form`, () => {
+  for (const lang of otherLangs) {
+    it(`lang="${lang}" returns null for EN-only form (no fallback to English)`, () => {
       const result = resolveWithLanguage(
         [FIXTURE_EN_ONLY],
         'phase2-fixture-en-only',
         lang
       );
-      expect(result).not.toBeNull();
-      expect(result.language).toBe('en');
-      expect(result.languageData.title).toBe('English Only Form');
+      expect(result).toBeNull();
     });
   }
+
+  it('lang="en" resolves correctly for EN-only form', () => {
+    const result = resolveWithLanguage(
+      [FIXTURE_EN_ONLY],
+      'phase2-fixture-en-only',
+      'en'
+    );
+    expect(result).not.toBeNull();
+    expect(result.language).toBe('en');
+    expect(result.languageData.title).toBe('English Only Form');
+  });
 });
 
 // ─── 12. Empty state when no forms match ──────────────────────────────────────
@@ -555,5 +558,149 @@ describe('Phase 2 — no chat/generated-file/attachment behavior changed', () =>
     const result = normalizeGeneratedFile(input);
     expect(result).toBeDefined();
     expect(result.url).toBe('https://example.com/file.pdf');
+  });
+});
+
+// ─── 14. Language separation: each language shows only its own forms ──────────
+
+import { resolveFormIntent } from '../../src/utils/resolveFormIntent.js';
+
+const STANDARD_FORM_IDS = [
+  'tf-adults-cbt-thought-record',
+  'tf-adolescents-anxiety-thought-record',
+  'tf-children-feelings-checkin',
+  'tf-older-adults-mood-reflection-sheet',
+];
+
+describe('Language separation — Hebrew forms appear only under Hebrew', () => {
+  it('Hebrew forms resolve when lang=he', () => {
+    for (const id of STANDARD_FORM_IDS) {
+      const result = resolveFormWithLanguage(id, 'he');
+      expect(result, `${id} must resolve in Hebrew`).not.toBeNull();
+      expect(result.language).toBe('he');
+      expect(result.languageData.file_url).toMatch(/^\/forms\/he\//);
+    }
+  });
+
+  it('Hebrew forms do NOT appear when lang=en (no Hebrew PDFs in English view)', () => {
+    for (const id of STANDARD_FORM_IDS) {
+      const result = resolveFormWithLanguage(id, 'en');
+      expect(result, `${id} must resolve in English`).not.toBeNull();
+      expect(result.language).toBe('en');
+      expect(result.languageData.file_url).not.toContain('/he/');
+    }
+  });
+
+  it('Hebrew forms do NOT appear when lang=es', () => {
+    for (const id of STANDARD_FORM_IDS) {
+      const result = resolveFormWithLanguage(id, 'es');
+      expect(result, `${id} must resolve in Spanish`).not.toBeNull();
+      expect(result.language).toBe('es');
+      expect(result.languageData.file_url).not.toContain('/he/');
+    }
+  });
+});
+
+describe('Language separation — English forms appear only under English', () => {
+  it('English forms resolve when lang=en', () => {
+    for (const id of STANDARD_FORM_IDS) {
+      const result = resolveFormWithLanguage(id, 'en');
+      expect(result, `${id} must resolve in English`).not.toBeNull();
+      expect(result.language).toBe('en');
+    }
+  });
+
+  it('English forms do NOT appear under Hebrew (no English PDFs in Hebrew view)', () => {
+    for (const id of STANDARD_FORM_IDS) {
+      const result = resolveFormWithLanguage(id, 'he');
+      expect(result, `${id} must resolve in Hebrew`).not.toBeNull();
+      expect(result.language).toBe('he');
+      expect(result.languageData.file_url).not.toContain('/en/');
+    }
+  });
+});
+
+describe('Language separation — Spanish/French/German/Italian/Portuguese show their own forms', () => {
+  const langPairs = [
+    ['es', 'Spanish'],
+    ['fr', 'French'],
+    ['de', 'German'],
+    ['it', 'Italian'],
+    ['pt', 'Portuguese'],
+  ];
+
+  for (const [lang, label] of langPairs) {
+    it(`${label} standard forms resolve in ${label} with correct path`, () => {
+      for (const id of STANDARD_FORM_IDS) {
+        const result = resolveFormWithLanguage(id, lang);
+        expect(result, `${id} must resolve in ${label}`).not.toBeNull();
+        expect(result.language).toBe(lang);
+        expect(result.languageData.file_url).toMatch(new RegExp(`^/forms/${lang}/`));
+      }
+    });
+
+    it(`${label} standard forms do NOT show Hebrew PDFs (no /he/ in file_url)`, () => {
+      for (const id of STANDARD_FORM_IDS) {
+        const result = resolveFormWithLanguage(id, lang);
+        if (result) {
+          expect(result.languageData.file_url).not.toContain('/he/');
+        }
+      }
+    });
+  }
+});
+
+describe('Language separation — Hebrew-only forms return null for non-Hebrew languages', () => {
+  const HE_ONLY_FORM_ID = 'tf-children-cbt-stage-1-premium-he';
+
+  it('Hebrew-only children CBT premium form resolves for he', () => {
+    const result = resolveFormWithLanguage(HE_ONLY_FORM_ID, 'he');
+    expect(result).not.toBeNull();
+    expect(result.language).toBe('he');
+    expect(result.languageData.file_url).toContain('/he/');
+  });
+
+  const nonHeLanguages = ['en', 'es', 'fr', 'de', 'it', 'pt'];
+  for (const lang of nonHeLanguages) {
+    it(`Hebrew-only form returns null for lang="${lang}" (strict separation)`, () => {
+      const result = resolveFormWithLanguage(HE_ONLY_FORM_ID, lang);
+      expect(result).toBeNull();
+    });
+  }
+});
+
+describe('Language separation — AI resolver strict language constraint', () => {
+  it('AI resolver with lang=en does not return Hebrew PDFs', () => {
+    const meta = resolveFormIntent('thought-record', 'en');
+    expect(meta).not.toBeNull();
+    expect(meta.url).not.toContain('/he/');
+    expect(meta.language).toBe('en');
+  });
+
+  it('AI resolver with lang=he does not return English PDFs', () => {
+    const meta = resolveFormIntent('thought-record', 'he');
+    expect(meta).not.toBeNull();
+    expect(meta.url).not.toContain('/en/');
+    expect(meta.language).toBe('he');
+  });
+
+  it('AI resolver with lang=es returns Spanish form', () => {
+    const meta = resolveFormIntent('thought-record', 'es');
+    expect(meta).not.toBeNull();
+    expect(meta.url).toContain('/es/');
+    expect(meta.language).toBe('es');
+  });
+
+  it('AI resolver returns null for a Hebrew-only form when lang=en', () => {
+    // Hebrew CBT specialized forms have no English block
+    const meta = resolveFormIntent('tf-children-cbt-stage-1-premium-he', 'en');
+    expect(meta).toBeNull();
+  });
+
+  it('AI resolver returns Hebrew form for a Hebrew-only form when lang=he', () => {
+    const meta = resolveFormIntent('tf-children-cbt-stage-1-premium-he', 'he');
+    expect(meta).not.toBeNull();
+    expect(meta.url).toContain('/he/');
+    expect(meta.language).toBe('he');
   });
 });

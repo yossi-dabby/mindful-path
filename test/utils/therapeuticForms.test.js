@@ -174,16 +174,10 @@ function resolveWithLanguage(forms, idOrSlug, lang = 'en') {
   if (!isWellFormed(form)) return null;
 
   const languages = form.languages || {};
-  let block = null;
-  let code = null;
 
-  if (lang && lang !== 'en' && isValidBlock(languages[lang])) {
-    block = languages[lang];
-    code = lang;
-  } else if (isValidBlock(languages['en'])) {
-    block = languages['en'];
-    code = 'en';
-  }
+  // Strict exact-match: no fallback to any other language.
+  const block = isValidBlock(languages[lang]) ? languages[lang] : null;
+  const code = block ? lang : null;
 
   if (!block) return null;
 
@@ -394,26 +388,29 @@ describe('TherapeuticForms — resolver prefers requested language', () => {
   });
 });
 
-// ─── 6. Resolver — falls back to English when requested language unavailable ──
+// ─── 6. Resolver — strict language matching (no cross-language fallback) ─────
 
-describe('TherapeuticForms — resolver falls back to English', () => {
-  it('returns English when lang=he but Hebrew block is absent', () => {
+describe('TherapeuticForms — resolver strict language separation', () => {
+  it('returns null when lang=he but only English block exists (no fallback to en)', () => {
     const result = resolveWithLanguage([FIXTURE_EN_ONLY_FORM], FIXTURE_EN_ONLY_FORM.id, 'he');
+    expect(result).toBeNull();
+  });
+
+  it('returns null when lang=fr but only English block exists (no fallback to en)', () => {
+    const result = resolveWithLanguage([FIXTURE_EN_ONLY_FORM], FIXTURE_EN_ONLY_FORM.id, 'fr');
+    expect(result).toBeNull();
+  });
+
+  it('returns null when lang=es but only English block exists (no fallback to en)', () => {
+    const result = resolveWithLanguage([FIXTURE_EN_ONLY_FORM], FIXTURE_EN_ONLY_FORM.id, 'es');
+    expect(result).toBeNull();
+  });
+
+  it('returns English when lang=en and English block is the only block', () => {
+    const result = resolveWithLanguage([FIXTURE_EN_ONLY_FORM], FIXTURE_EN_ONLY_FORM.id, 'en');
     expect(result).not.toBeNull();
     expect(result.language).toBe('en');
     expect(result.languageData.file_url).toBe(FIXTURE_EN_ONLY_FORM.languages.en.file_url);
-  });
-
-  it('returns English when lang=fr but French block is absent', () => {
-    const result = resolveWithLanguage([FIXTURE_EN_ONLY_FORM], FIXTURE_EN_ONLY_FORM.id, 'fr');
-    expect(result).not.toBeNull();
-    expect(result.language).toBe('en');
-  });
-
-  it('returns English when lang=es but Spanish block is absent', () => {
-    const result = resolveWithLanguage([FIXTURE_EN_ONLY_FORM], FIXTURE_EN_ONLY_FORM.id, 'es');
-    expect(result).not.toBeNull();
-    expect(result.language).toBe('en');
   });
 });
 
@@ -842,11 +839,10 @@ describe('TherapeuticForms Phase 1B — Hebrew RTL metadata via live registry', 
   });
 });
 
-// ─── 15. Unsupported languages fall back to English ───────────────────────────
+// ─── 15. Strict language matching — each language resolves its own block ──────
 
-describe('TherapeuticForms Phase 1B — language fallback to English', () => {
-  it('falls back to English when requesting Spanish (no approved es variant)', () => {
-    // Spanish now has real assets; requesting es resolves to Spanish directly.
+describe('TherapeuticForms Phase 1B — strict language matching', () => {
+  it('resolves Spanish when requesting es (Spanish assets exist)', () => {
     const result = resolveFormWithLanguage('tf-adults-cbt-thought-record', 'es');
     expect(result).not.toBeNull();
     expect(result.language).toBe('es');
@@ -854,22 +850,28 @@ describe('TherapeuticForms Phase 1B — language fallback to English', () => {
     expect(result.languageData.file_url).toMatch(/^\/forms\/es\//);
   });
 
-  it('resolves in French (fr now has real assets)', () => {
+  it('resolves in French (fr has real assets)', () => {
     const result = resolveFormWithLanguage('tf-adults-behavioral-activation-plan', 'fr');
     expect(result).not.toBeNull();
     expect(result.language).toBe('fr');
   });
 
-  it('falls back to English for Italian (it now has real assets)', () => {
+  it('resolves in Italian (it has real assets)', () => {
     const result = resolveFormWithLanguage('tf-adults-behavioral-activation-plan', 'it');
     expect(result).not.toBeNull();
     expect(result.language).toBe('it');
   });
 
-  it('falls back to English for German', () => {
+  it('resolves in German (de has real assets)', () => {
     const result = resolveFormWithLanguage('tf-adolescents-anxiety-thought-record', 'de');
     expect(result).not.toBeNull();
     expect(result.language).toBe('de');
+  });
+
+  it('returns null for an unsupported language code with no matching block', () => {
+    // zh is not one of the 7 supported app languages — strict match returns null
+    const result = resolveFormWithLanguage('tf-adults-cbt-thought-record', 'zh');
+    expect(result).toBeNull();
   });
 });
 
@@ -1258,8 +1260,8 @@ describe('TherapeuticForms Phase 4A — Hebrew resolves to Hebrew', () => {
 
 // ─── Phase 4A: Unsupported languages fall back to English ────────────────────
 
-describe('TherapeuticForms Phase 4A — unsupported languages fall back to English', () => {
-  it('Phase 4A forms resolve in French (fr now has real assets)', () => {
+describe('TherapeuticForms Phase 4A — strict language matching', () => {
+  it('Phase 4A forms resolve in French (fr has real assets)', () => {
     const sampleIds = [
       'tf-children-box-breathing',
       'tf-adolescents-social-pressure-coping-tool',
@@ -1274,7 +1276,7 @@ describe('TherapeuticForms Phase 4A — unsupported languages fall back to Engli
     }
   });
 
-  it('Phase 4A forms fall back to English for zh (no assets for zh)', () => {
+  it('Phase 4A forms return null for zh (not a supported language)', () => {
     const sampleIds = [
       'tf-children-box-breathing',
       'tf-adolescents-social-pressure-coping-tool',
@@ -1283,9 +1285,7 @@ describe('TherapeuticForms Phase 4A — unsupported languages fall back to Engli
     ];
     for (const id of sampleIds) {
       const result = resolveFormWithLanguage(id, 'zh');
-      expect(result, `${id} should fall back for lang=zh`).not.toBeNull();
-      expect(result.language, `${id} should fall back to English for lang=zh`).toBe('en');
-      expect(result.languageData.rtl).toBe(false);
+      expect(result, `${id} must return null for unsupported lang=zh`).toBeNull();
     }
   });
 });

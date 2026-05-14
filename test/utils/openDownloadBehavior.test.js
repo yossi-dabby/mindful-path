@@ -240,9 +240,9 @@ describe('Open/Download — 18 standard forms + 7 workbooks regression', () => {
     }
   });
 
-  it('24. All approved forms that have a Hebrew or English block resolve in Hebrew', () => {
+  it('24. All approved forms that have a Hebrew block resolve in Hebrew', () => {
     for (const form of APPROVED_FORMS) {
-      if (!form.languages?.he && !form.languages?.en) continue;
+      if (!form.languages?.he) continue;
       const resolved = resolveFormWithLanguage(form.id, 'he');
       expect(resolved, `Form ${form.id} failed to resolve in Hebrew`).not.toBeNull();
     }

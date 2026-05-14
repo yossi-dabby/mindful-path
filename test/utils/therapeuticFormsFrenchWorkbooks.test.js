@@ -712,10 +712,9 @@ describe('Phase 13 — C5: French workbooks resolve only in French (no fallback 
     }
   });
 
-  it('standard forms continue to fall back to English for unsupported languages', () => {
+  it('standard forms return null for unsupported language codes (strict matching)', () => {
     const result = resolveFormWithLanguage('tf-adults-cbt-thought-record', 'zh');
-    expect(result).not.toBeNull();
-    expect(result.language).toBe('en');
+    expect(result).toBeNull();
   });
 });
 

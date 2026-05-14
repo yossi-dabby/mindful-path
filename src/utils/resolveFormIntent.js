@@ -925,7 +925,8 @@ function resolveApprovedFormById(formId, lang = 'he') {
     (f) => f.id === formId && f.approved === true
   );
   if (!fallback) return null;
-  const langBlock = fallback.languages?.[lang] || fallback.languages?.he || fallback.languages?.en;
+  // Strict language match — no fallback to Hebrew or English.
+  const langBlock = fallback.languages?.[lang];
   if (!langBlock?.file_url) return null;
   return {
     type: 'pdf',
