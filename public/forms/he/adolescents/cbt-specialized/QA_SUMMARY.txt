@@ -1,0 +1,18 @@
+Hebrew Adolescent CBT Specialized — QA Summary
+===============================================
+
+Verified package contents:
+- 10 module folders
+- 60 individual one-page PDFs
+- 10 module-level PDFs (6 pages each)
+- 1 combined 60-page PDF
+- manifest.adolescents-cbt-specialized-he.json
+- README_HE.md
+- QA_SUMMARY.txt
+
+Validation notes:
+- Individual worksheets remain one page each.
+- Module PDFs remain six pages each.
+- Combined full-series PDF contains 60 pages.
+- Manifest paths point to the cbt-specialized target folder.
+- Metadata includes audience, age range, language, module, worksheet number, therapeutic goal, short description, usage signals, keywords, intent phrases, not-for notes, related forms, and file URL.

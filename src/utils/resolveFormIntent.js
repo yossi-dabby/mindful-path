@@ -40,6 +40,7 @@ import {
   ALL_FORMS,
 } from '../data/therapeuticForms/index.js';
 import { FORMS_CHILDREN_CBT_SPECIALIZED } from '../data/therapeuticForms/forms.children.cbt-specialized.js';
+import { FORMS_ADOLESCENTS_CBT_SPECIALIZED } from '../data/therapeuticForms/forms.adolescents.cbt-specialized.js';
 
 // ─── Approved intent → form ID map ───────────────────────────────────────────
 //
@@ -905,26 +906,22 @@ export function resolveFormIntent(intentOrSlug, lang) {
   const normalizedIntent = intentOrSlug.toLowerCase().trim();
 
   // Look up the canonical form ID in the approved intent map
-  const formId = APPROVED_FORM_INTENT_MAP[normalizedIntent];
+  const formId =
+    APPROVED_FORM_INTENT_MAP[normalizedIntent] ||
+    findApprovedExactFormId(normalizedIntent);
   if (!formId) return null;
 
   // Resolve language (default to English for safe fallback)
   const resolvedLang = typeof lang === 'string' && lang.trim() ? lang.trim() : 'en';
 
-  // Use the TherapeuticForms resolver — this enforces approved: true and valid file_url
-  const resolved = resolveFormWithLanguage(formId, resolvedLang);
-  if (!resolved) return null;
-
-  // Convert to generated_file metadata shape
-  const metadata = toGeneratedFileMetadata(resolved);
-  return metadata; // null when shape is incomplete (resolver contract)
+  return resolveApprovedFormById(formId, resolvedLang);
 }
 
 function resolveApprovedFormById(formId, lang = 'he') {
   const resolved = resolveFormWithLanguage(formId, lang);
   if (resolved) return toGeneratedFileMetadata(resolved);
 
-  const fallback = FORMS_CHILDREN_CBT_SPECIALIZED.find(
+  const fallback = [...FORMS_CHILDREN_CBT_SPECIALIZED, ...FORMS_ADOLESCENTS_CBT_SPECIALIZED].find(
     (f) => f.id === formId && f.approved === true
   );
   if (!fallback) return null;
@@ -945,6 +942,18 @@ function resolveApprovedFormById(formId, lang = 'he') {
     language: lang,
     created_at: new Date().toISOString(),
   };
+}
+
+function findApprovedExactFormId(candidateId) {
+  const registries = [
+    ...ALL_FORMS,
+    ...FORMS_CHILDREN_CBT_SPECIALIZED,
+    ...FORMS_ADOLESCENTS_CBT_SPECIALIZED,
+  ];
+  const match = registries.find(
+    (form) => form?.approved === true && typeof form.id === 'string' && form.id === candidateId
+  );
+  return match?.id || null;
 }
 
 // ─── Content-aware resolver for Hebrew children CBT premium ──────────────────
@@ -1284,6 +1293,192 @@ export function resolveChildrenCBTSpecializedFormByContent(query) {
     score += scoreFromPackFallback(lq, form);
 
     if (form.audience === 'children' && form.language === 'he') {
+      score += SPECIALIZED_SCORE.AUDIENCE_LANGUAGE;
+    }
+
+    if (score > bestScore) {
+      bestScore = score;
+      best = form;
+    }
+  }
+
+  if (!best || bestScore < SPECIALIZED_MIN_SCORE) return null;
+  return resolveApprovedFormById(best.id, 'he');
+}
+
+const ADOLESCENTS_SPECIALIZED_SERIES_TRIGGERS = [
+  'כל סדרת cbt ייעודית למתבגרים בעברית',
+  'כל סדרת cbt הייעודית למתבגרים בעברית',
+  'כל הסדרה הייעודית למתבגרים',
+  'כל הטפסים הייעודיים למתבגרים',
+  'כל סדרת המתבגרים הייעודית',
+];
+
+const ADOLESCENTS_SPECIALIZED_FORM_REQUEST = [
+  'טופס',
+  'דף עבודה',
+  'worksheet',
+  'pdf',
+  'קובץ',
+  'תשלח',
+  'שלח',
+  'מודול',
+  'מנה',
+  'סדרה',
+];
+
+const ADOLESCENTS_SPECIALIZED_DISPLAY_NUMBER_RE = /(?:^|\s)(10|[1-9])\.([1-6])(?:\s|$)/;
+const ADOLESCENTS_SPECIALIZED_MODULE_REQUEST_RE = /(?:מודול|מנה|module|pack)\s*(10|[1-9])/;
+
+function getAdolescentSpecializedIndividualForms() {
+  return FORMS_ADOLESCENTS_CBT_SPECIALIZED.filter(
+    (f) =>
+      f.approved === true &&
+      f.audience === 'adolescents' &&
+      f.language === 'he' &&
+      f.adolescentSeries === 'specialized' &&
+      f.category === 'adolescents_cbt_specialized' &&
+      typeof f.worksheetNumber === 'string'
+  );
+}
+
+function getAdolescentSpecializedModulePdf(moduleNumber) {
+  return FORMS_ADOLESCENTS_CBT_SPECIALIZED.find(
+    (f) =>
+      f.approved === true &&
+      f.audience === 'adolescents' &&
+      f.language === 'he' &&
+      f.adolescentSeries === 'specialized' &&
+      f.category === 'workbook_series' &&
+      f.isModulePdf === true &&
+      Number(f.moduleNumber) === Number(moduleNumber)
+  );
+}
+
+function getAdolescentSpecializedSeriesPdf() {
+  return FORMS_ADOLESCENTS_CBT_SPECIALIZED.find(
+    (f) =>
+      f.approved === true &&
+      f.audience === 'adolescents' &&
+      f.language === 'he' &&
+      f.adolescentSeries === 'specialized' &&
+      f.category === 'workbook_series' &&
+      f.isFullSpecializedSeries === true
+  );
+}
+
+function scoreByAdolescentModuleMatch(form, query) {
+  const phrases = [`מודול ${form.moduleNumber}`, `מנה ${form.moduleNumber}`, `${form.moduleNumber}.1`];
+  return hasAnyIntentToken(query, phrases) ? Math.floor(SPECIALIZED_SCORE.DOMAIN / 2) : 0;
+}
+
+function scoreFromAdolescentModuleFallback(query, form) {
+  let score = 0;
+  if (form.moduleNumber === 1 && /(מבחן|מבחנים|לחץ|דואג|דאגה|נמנע|אומץ|פחד|חרדה|להיכשל|להמנע|להימנע)/.test(query)) score += 70;
+  if (form.moduleNumber === 2 && /(בלי אנרגיה|אין אנרגיה|מצב רוח|תפקוד|להתחיל|פעולות קטנות|פעולה קטנה|אין חשק|כבדות)/.test(query)) score += 80;
+  if (form.moduleNumber === 3 && /(משווה את עצמה|משווה את עצמי|לא שווה|ערך עצמי|ביקורת עצמית|חוזקות|זהות|השוואה)/.test(query)) score += 80;
+  if (form.moduleNumber === 4 && /(דחוי|דחויה|חברים|חברתית|גבולות|תקשורת|רשתות|שייך|שייכות)/.test(query)) score += 80;
+  if (form.moduleNumber === 5 && /(כעס|מתפרץ|מתפרצת|מתחרט|אימפולסיב|להירגע|תיקון|ריב)/.test(query)) score += 80;
+  if (form.moduleNumber === 6 && /(ocd|חודרני|חודרניות|ספק|בודק|שוב ושוב|אישור|טקס|דחף)/.test(query)) score += 80;
+  if (form.moduleNumber === 7 && /(adhd|מוסח|דוחה משימות|משימות|לארגן זמן|מתחיל משימה|דחיינות|מתכננים את הזמן|פועלים)/.test(query)) score += 80;
+  if (form.moduleNumber === 8 && /(שינה|לא ישנה|לא ישן|לחץ בגוף|נשימות|להירגע|איזון|עומס|סטרס)/.test(query)) score += 80;
+  if (form.moduleNumber === 9 && /(מקום בטוח|קרקוע|תמיכה|תקופה קשה|טריגר|טראומה|כאן ועכשיו|שגרה)/.test(query)) score += 80;
+  if (form.moduleNumber === 10 && /(הורים|בבית|תקשורת בבית|גבולות|אמון|שיתוף פעולה|משפחתית|עצמאות)/.test(query)) score += 80;
+
+  if (form.worksheetNumber === '1.3' && /(מבחן|מבחנים|להיכשל|ללמוד)/.test(query)) score += 100;
+  if (form.worksheetNumber === '1.4' && /(נמנע|להימנע|דוחה|avoid)/.test(query)) score += 90;
+  if (form.worksheetNumber === '1.5' && /(אומץ|צעד קטן|gradual|הדרגתי)/.test(query)) score += 100;
+  if (form.worksheetNumber === '2.3' && /(פעולה קטנה|להתחיל|בקטן)/.test(query)) score += 100;
+  if (form.worksheetNumber === '2.6' && /(שבוע הקרוב|שגרה|תוכנית)/.test(query)) score += 90;
+  if (form.worksheetNumber === '3.1' && /(ביקורתי|אומרת שהיא לא שווה|אומר שהוא לא שווה|מה אני אומר|self critic)/.test(query)) score += 100;
+  if (form.worksheetNumber === '3.4' && /(חוזקות|כוחות|strengths)/.test(query)) score += 90;
+  if (form.worksheetNumber === '3.6' && /(משווה|השוואה|comparison)/.test(query)) score += 100;
+  if (form.worksheetNumber === '4.2' && /(דחוי|דחויה|rejection)/.test(query)) score += 100;
+  if (form.worksheetNumber === '4.3' && /(גבולות|boundary)/.test(query)) score += 100;
+  if (form.worksheetNumber === '4.4' && /(תקשורת|להגיד|לומר|communicat)/.test(query)) score += 90;
+  if (form.worksheetNumber === '5.1' && /(עוצרים רגע|pause|מתפרץ|מתחרט)/.test(query)) score += 100;
+  if (form.worksheetNumber === '5.5' && /(מתחרט|repair|לתקן)/.test(query)) score += 90;
+  if (form.worksheetNumber === '6.2' && /(ספק|uncertainty|אי ודאות)/.test(query)) score += 100;
+  if (form.worksheetNumber === '6.5' && /(בודק|שוב ושוב|אישור)/.test(query)) score += 100;
+  if (form.worksheetNumber === '7.3' && /(משימה|לפרק|צעדים|task breakdown)/.test(query)) score += 100;
+  if (form.worksheetNumber === '7.4' && /(לארגן זמן|זמן|planning)/.test(query)) score += 100;
+  if (form.worksheetNumber === '7.5' && /(דוחה משימות|דחיינות|procrastin)/.test(query)) score += 100;
+  if (form.worksheetNumber === '8.2' && /(שינה|להירדם|sleep)/.test(query)) score += 100;
+  if (form.worksheetNumber === '8.4' && /(נשימות|breath|לאיזון)/.test(query)) score += 100;
+  if (form.worksheetNumber === '9.1' && /(מקום בטוח|safe place)/.test(query)) score += 100;
+  if (form.worksheetNumber === '9.4' && /(קרקוע|grounding|כאן ועכשיו)/.test(query)) score += 100;
+  if (form.worksheetNumber === '9.5' && /(תמיכה|support|מי תומך)/.test(query)) score += 90;
+  if (form.worksheetNumber === '10.1' && /(תקשורת בבית|לדבר בבית|communication)/.test(query)) score += 100;
+  if (form.worksheetNumber === '10.2' && /(גבולות|boundary)/.test(query)) score += 100;
+  if (form.worksheetNumber === '10.3' && /(אמון|trust)/.test(query)) score += 100;
+  if (form.worksheetNumber === '10.6' && /(תוכנית משפחתית|family plan|שיתוף פעולה)/.test(query)) score += 90;
+
+  return score;
+}
+
+export function resolveAdolescentsCBTSpecializedFormByContent(query) {
+  if (typeof query !== 'string' || !query.trim()) return null;
+  const lq = normalizeIntentText(query);
+
+  const asksForSeries = ADOLESCENTS_SPECIALIZED_SERIES_TRIGGERS.some((p) => lq.includes(normalizeIntentText(p)));
+  if (asksForSeries && /(pdf|קובץ|תשלח|שלח)/.test(lq)) {
+    const fullSeries = getAdolescentSpecializedSeriesPdf();
+    return fullSeries ? resolveApprovedFormById(fullSeries.id, 'he') : null;
+  }
+
+  const moduleMatch = lq.match(ADOLESCENTS_SPECIALIZED_MODULE_REQUEST_RE);
+  const asksForWholeModule = moduleMatch && /(כל|מלא|המודול|כל המודול|full)/.test(lq);
+  if (asksForWholeModule) {
+    const modulePdf = getAdolescentSpecializedModulePdf(Number(moduleMatch[1]));
+    return modulePdf ? resolveApprovedFormById(modulePdf.id, 'he') : null;
+  }
+
+  const hasFormRequest = ADOLESCENTS_SPECIALIZED_FORM_REQUEST.some((p) => lq.includes(normalizeIntentText(p)));
+  const hasTeenContext = /(מתבגר|מתבגרת|מתבגרים|מתבגרים|נער|נערה|בני נוער|נוער|teen|adolescent|בן 1[2-8]|בת 1[2-8]|גיל 1[2-8])/.test(lq);
+  const hasChildContext = /(ילד|ילדה|ילדים|בן 8|בת 8|בן 9|בת 9|בן 10|בת 10|בן 11|בת 11|age under 12|age 8|age 9|age 10|age 11)/.test(lq);
+  const displayMatch = lq.match(ADOLESCENTS_SPECIALIZED_DISPLAY_NUMBER_RE);
+  const displayRef = displayMatch ? `${displayMatch[1]}.${displayMatch[2]}` : null;
+
+  if (hasChildContext && !hasTeenContext && !displayRef) return null;
+  if (!hasFormRequest && !displayRef && !hasTeenContext) return null;
+  if (!hasFormRequest && !displayRef) {
+    const semanticTrigger = /(לחץ|מבחן|להימנע|בלי אנרגיה|להתחיל|לא שווה|משווה|דחוי|גבולות|מתפרץ|מתחרט|חודרני|שוב ושוב|מוסח|דוחה משימות|שינה|נשימות|מקום בטוח|קרקוע|הורים|אמון)/.test(lq);
+    if (!semanticTrigger) return null;
+  }
+
+  const candidates = getAdolescentSpecializedIndividualForms();
+  let best = null;
+  let bestScore = 0;
+
+  for (const form of candidates) {
+    let score = 0;
+    const titleHe = form.titleHe || form.languages?.he?.title;
+    const module = form.module || '';
+    const moduleHe = form.moduleHe || '';
+    const worksheetNumber = form.worksheetNumber || '';
+
+    if (titleHe) {
+      score += scoreTextField(lq, titleHe, SPECIALIZED_SCORE.EXACT_TITLE);
+    }
+
+    if (displayRef && displayRef === worksheetNumber) {
+      score += SPECIALIZED_SCORE.DISPLAY_NUMBER;
+    } else if (worksheetNumber && lq.includes(worksheetNumber)) {
+      score += Math.floor(SPECIALIZED_SCORE.DISPLAY_NUMBER / 2);
+    }
+
+    score += scoreTextField(lq, String(module), SPECIALIZED_SCORE.DOMAIN);
+    score += scoreTextField(lq, String(moduleHe), SPECIALIZED_SCORE.DOMAIN);
+    score += scoreTextField(lq, form.therapeuticGoal, SPECIALIZED_SCORE.THERAPEUTIC_GOAL);
+    score += scoreTextField(lq, form.shortContentDescriptionHe, SPECIALIZED_SCORE.SHORT_DESCRIPTION);
+    score += scoreTextField(lq, form.whenToUse, SPECIALIZED_SCORE.WHEN_TO_USE);
+    score += scoreArrayField(lq, form.teenSignals, SPECIALIZED_SCORE.CHILD_SIGNALS);
+    score += scoreArrayField(lq, form.clinicalKeywords, SPECIALIZED_SCORE.CLINICAL_KEYWORDS);
+    score += scoreArrayField(lq, form.hebrewIntentPhrases, SPECIALIZED_SCORE.HEBREW_INTENT);
+    score += scoreByAdolescentModuleMatch(form, lq);
+    score += scoreFromAdolescentModuleFallback(lq, form);
+
+    if (form.audience === 'adolescents' && form.language === 'he') {
       score += SPECIALIZED_SCORE.AUDIENCE_LANGUAGE;
     }
 

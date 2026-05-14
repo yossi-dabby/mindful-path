@@ -93,6 +93,7 @@ import {
 import { computeEvaluatorDiagnosticSnapshot } from './therapistQualityEvaluator.js';
 import { ALL_FORMS } from '../data/therapeuticForms/index.js';
 import { FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL } from '../data/therapeuticForms/forms.children.cbt-specialized.js';
+import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_INDIVIDUAL } from '../data/therapeuticForms/forms.adolescents.cbt-specialized.js';
 
 const THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS = [
 '[ATTACHMENT_HANDLING_POLICY]',
@@ -250,6 +251,45 @@ export function buildTherapistFormCatalog(forms) {
       const title = form.languages?.he?.title || form.titleHe || form.displayNumber || form.id;
       const content = form.shortContentDescriptionHe ? ` — ${form.shortContentDescriptionHe}` : '';
       lines.push(`    ${title}${content}`);
+    }
+  }
+
+  const specializedAdolescentForms = FORMS_ADOLESCENTS_CBT_SPECIALIZED_INDIVIDUAL.filter(
+    (f) =>
+      f.audience === 'adolescents' &&
+      f.category === 'adolescents_cbt_specialized' &&
+      typeof f.worksheetNumber === 'string'
+  );
+  if (specializedAdolescentForms.length > 0) {
+    const sorted = [...specializedAdolescentForms].sort((a, b) => {
+      const [aModule, aIdx] = String(a.worksheetNumber).split('.').map(Number);
+      const [bModule, bIdx] = String(b.worksheetNumber).split('.').map(Number);
+      return aModule !== bModule ? aModule - bModule : aIdx - bIdx;
+    });
+
+    lines.push('');
+    lines.push('[HEBREW ADOLESCENT CBT SPECIALIZED — CANONICAL MANIFEST]');
+    lines.push('When asked for the Hebrew adolescent CBT specialized series, answer ONLY from this manifest-backed list.');
+    lines.push('Do NOT mix in children worksheets, adolescent core worksheets, stale titles, or recommendations based only on file names.');
+    lines.push('For clinical matching, use worksheet metadata (therapeuticGoal, shortContentDescriptionHe, whenToUse, teenSignals, clinicalKeywords, hebrewIntentPhrases, notFor, relatedForms) — not title alone.');
+    let currentModule = null;
+    for (const form of sorted) {
+      if (form.moduleNumber !== currentModule) {
+        currentModule = form.moduleNumber;
+        lines.push(`  מודול ${currentModule} — ${form.moduleHe || form.module || ''}:`);
+      }
+      const title = form.languages?.he?.title || form.titleHe || form.worksheetNumber || form.id;
+      const summary = [
+        `desc=${form.shortContentDescriptionHe || ''}`,
+        `goal=${form.therapeuticGoal || ''}`,
+        `use=${form.whenToUse || ''}`,
+        `signals=${(form.teenSignals || []).join(', ')}`,
+        `keywords=${(form.clinicalKeywords || []).join(', ')}`,
+        `intent=${(form.hebrewIntentPhrases || []).join(', ')}`,
+        `notFor=${form.notFor || ''}`,
+        `related=${(form.relatedForms || []).join(', ')}`,
+      ].join(' | ');
+      lines.push(`    [FORM:${form.id}] ${title} | ${summary}`);
     }
   }
 
