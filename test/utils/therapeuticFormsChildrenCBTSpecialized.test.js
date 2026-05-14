@@ -148,7 +148,8 @@ describe('Children CBT Specialized HE — forms library visibility', () => {
   it('forms library registry explicitly merges specialized individual forms', () => {
     expect(pageSource).toContain('FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL');
     expect(pageSource).toContain('THERAPEUTIC_FORMS_LIBRARY_REGISTRY');
-    expect(pageSource).toContain('...ALL_FORMS, ...FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL');
+    expect(pageSource).toContain('...ALL_FORMS');
+    expect(pageSource).toContain('...FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL');
   });
 
   it('forms library filtering reads from the merged registry', () => {

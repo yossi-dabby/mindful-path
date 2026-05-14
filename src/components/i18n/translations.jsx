@@ -1451,6 +1451,7 @@ export const translations = {
           reflection_journal: "Reflection Journal",
           workbook_series: "Therapeutic Workbooks",
           children_cbt_process: "Children CBT Process",
+          adolescents_cbt_specialized: "Adolescent CBT Specialized",
         },
       },
       pull_to_refresh: {
@@ -2911,6 +2912,7 @@ export const translations = {
           reflection_journal: "יומן רפלקציה",
           workbook_series: "קונטרסים טיפוליים",
           children_cbt_process: "תהליך CBT לילדים",
+          adolescents_cbt_specialized: "סדרת CBT ייעודית למתבגרים/ות",
         },
       },
       pull_to_refresh: {
@@ -4328,6 +4330,7 @@ export const translations = {
           reflection_journal: "Diario de reflexión",
           workbook_series: "Cuadernos terapéuticos",
           children_cbt_process: "Proceso CBT para niños",
+          adolescents_cbt_specialized: "CBT especializado para adolescentes",
         },
       },
       pull_to_refresh: {
@@ -5744,6 +5747,7 @@ export const translations = {
           reflection_journal: "Journal de réflexion",
           workbook_series: "Cahiers thérapeutiques",
           children_cbt_process: "Processus TCC pour enfants",
+          adolescents_cbt_specialized: "TCC spécialisée pour adolescents",
         },
       },
       pull_to_refresh: {
@@ -7160,6 +7164,7 @@ export const translations = {
           reflection_journal: "Reflexionstagebuch",
           workbook_series: "Therapeutische Arbeitsbücher",
           children_cbt_process: "KVT-Prozess für Kinder",
+          adolescents_cbt_specialized: "Spezialisierte KVT für Jugendliche",
         },
       },
       pull_to_refresh: {
@@ -8576,6 +8581,7 @@ export const translations = {
           reflection_journal: "Diario di riflessione",
           workbook_series: "Quaderni terapeutici",
           children_cbt_process: "Processo CBT per bambini",
+          adolescents_cbt_specialized: "CBT specializzata per adolescenti",
         },
       },
       pull_to_refresh: {
@@ -9992,6 +9998,7 @@ export const translations = {
           reflection_journal: "Diário de reflexão",
           workbook_series: "Cadernos terapêuticos",
           children_cbt_process: "Processo TCC para crianças",
+          adolescents_cbt_specialized: "TCC especializada para adolescentes",
         },
       },
       pull_to_refresh: {

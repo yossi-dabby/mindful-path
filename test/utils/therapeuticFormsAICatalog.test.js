@@ -34,6 +34,7 @@ import { describe, it, expect } from 'vitest';
 
 import { buildTherapistFormCatalog } from '../../src/lib/workflowContextInjector.js';
 import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
+import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_INDIVIDUAL } from '../../src/data/therapeuticForms/forms.adolescents.cbt-specialized.js';
 import {
   resolveFormIntent,
   APPROVED_FORM_INTENT_MAP,
@@ -77,9 +78,12 @@ describe('Phase 4D — buildTherapistFormCatalog: all approved forms present', (
   });
 
   it('catalog total form count matches approved registry count', () => {
-    // Count unique form IDs — the canonical series section repeats some IDs for clarity
+    // Count unique form IDs — canonical sections can add IDs that are intentionally
+    // not part of ALL_FORMS when they are manifest-backed specialized series.
     const uniqueIds = new Set((catalog.match(/\[FORM:[a-z0-9_-]+\]/g) || []));
-    expect(uniqueIds.size).toBe(approvedForms.length);
+    expect(uniqueIds.size).toBe(
+      approvedForms.length + FORMS_ADOLESCENTS_CBT_SPECIALIZED_INDIVIDUAL.length
+    );
   });
 });
 

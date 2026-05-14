@@ -9,12 +9,17 @@ import {
   resolveFormWithLanguage } from
 '@/data/therapeuticForms/index.js';
 import { FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL } from '@/data/therapeuticForms/forms.children.cbt-specialized.js';
+import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_INDIVIDUAL } from '@/data/therapeuticForms/forms.adolescents.cbt-specialized.js';
 import { openFile } from '@/components/chat/utils/openFile';
 import { downloadPdfFile } from '@/components/chat/utils/downloadPdfFile';
 
 export const THERAPEUTIC_FORMS_LIBRARY_REGISTRY = Object.freeze([
   ...new Map(
-    [...ALL_FORMS, ...FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL].map((form) => [form.id, form])
+    [
+      ...ALL_FORMS,
+      ...FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL,
+      ...FORMS_ADOLESCENTS_CBT_SPECIALIZED_INDIVIDUAL,
+    ].map((form) => [form.id, form])
   ).values(),
 ]);
 
@@ -274,6 +279,11 @@ export default function TherapeuticForms() {
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground border border-border/50">
                     {t(`therapeutic_forms.category.${form.category}`)}
                   </span>
+                  {(form.moduleHe || form.domainHe) &&
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-700/10 text-teal-900 border border-teal-700/20">
+                    {form.moduleHe || form.domainHe}
+                  </span>
+                  }
                 </div>
               </div>
 
