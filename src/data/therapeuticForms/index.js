@@ -27,6 +27,7 @@ export { FORMS_CHILDREN }              from './forms.children.js';
 export { FORMS_CHILDREN_CBT_PREMIUM }  from './forms.children.cbt-premium.js';
 export { FORMS_CHILDREN_CBT_SPECIALIZED } from './forms.children.cbt-specialized.js';
 export { FORMS_ADOLESCENTS }           from './forms.adolescents.js';
+export { FORMS_ADOLESCENTS_CBT_CORE_EN } from './forms.adolescents.cbt-core.en.js';
 export { FORMS_ADOLESCENTS_CBT_SPECIALIZED } from './forms.adolescents.cbt-specialized.js';
 export { FORMS_ADULTS }                from './forms.adults.js';
 export { FORMS_OLDER_ADULTS }          from './forms.olderAdults.js';

@@ -34,6 +34,7 @@ import { describe, it, expect } from 'vitest';
 
 import { buildTherapistFormCatalog } from '../../src/lib/workflowContextInjector.js';
 import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
+import { FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL } from '../../src/data/therapeuticForms/forms.adolescents.cbt-core.en.js';
 import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_INDIVIDUAL } from '../../src/data/therapeuticForms/forms.adolescents.cbt-specialized.js';
 import {
   resolveFormIntent,
@@ -82,7 +83,9 @@ describe('Phase 4D — buildTherapistFormCatalog: all approved forms present', (
     // not part of ALL_FORMS when they are manifest-backed specialized series.
     const uniqueIds = new Set((catalog.match(/\[FORM:[a-z0-9_-]+\]/g) || []));
     expect(uniqueIds.size).toBe(
-      approvedForms.length + FORMS_ADOLESCENTS_CBT_SPECIALIZED_INDIVIDUAL.length
+      approvedForms.length +
+        FORMS_ADOLESCENTS_CBT_SPECIALIZED_INDIVIDUAL.length +
+        FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL.length
     );
   });
 });

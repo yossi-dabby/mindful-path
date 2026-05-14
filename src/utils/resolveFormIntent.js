@@ -40,6 +40,7 @@ import {
   ALL_FORMS,
 } from '../data/therapeuticForms/index.js';
 import { FORMS_CHILDREN_CBT_SPECIALIZED } from '../data/therapeuticForms/forms.children.cbt-specialized.js';
+import { FORMS_ADOLESCENTS_CBT_CORE_EN } from '../data/therapeuticForms/forms.adolescents.cbt-core.en.js';
 import { FORMS_ADOLESCENTS_CBT_SPECIALIZED } from '../data/therapeuticForms/forms.adolescents.cbt-specialized.js';
 
 // ─── Approved intent → form ID map ───────────────────────────────────────────
@@ -921,7 +922,11 @@ function resolveApprovedFormById(formId, lang = 'he') {
   const resolved = resolveFormWithLanguage(formId, lang);
   if (resolved) return toGeneratedFileMetadata(resolved);
 
-  const fallback = [...FORMS_CHILDREN_CBT_SPECIALIZED, ...FORMS_ADOLESCENTS_CBT_SPECIALIZED].find(
+  const fallback = [
+    ...FORMS_CHILDREN_CBT_SPECIALIZED,
+    ...FORMS_ADOLESCENTS_CBT_CORE_EN,
+    ...FORMS_ADOLESCENTS_CBT_SPECIALIZED,
+  ].find(
     (f) => f.id === formId && f.approved === true
   );
   if (!fallback) return null;
@@ -948,6 +953,7 @@ function findApprovedExactFormId(candidateId) {
   const registries = [
     ...ALL_FORMS,
     ...FORMS_CHILDREN_CBT_SPECIALIZED,
+    ...FORMS_ADOLESCENTS_CBT_CORE_EN,
     ...FORMS_ADOLESCENTS_CBT_SPECIALIZED,
   ];
   const match = registries.find(
@@ -1490,4 +1496,121 @@ export function resolveAdolescentsCBTSpecializedFormByContent(query) {
 
   if (!best || bestScore < SPECIALIZED_MIN_SCORE) return null;
   return resolveApprovedFormById(best.id, 'he');
+}
+
+const ADOLESCENTS_CBT_CORE_EN_FORM_REQUEST = [
+  'worksheet',
+  'form',
+  'pdf',
+  'cbt core',
+  'core series',
+  'adolescent cbt',
+  'teen cbt',
+  'show me',
+  'recommend',
+  'stage',
+];
+
+const ADOLESCENTS_CBT_CORE_EN_SERIES_TRIGGERS = [
+  'show me the english adolescent cbt core series',
+  'show me the full english adolescent cbt core series',
+  'full english adolescent cbt core series',
+  'english adolescent cbt core series',
+  'adolescents cbt core series 1',
+];
+
+const ADOLESCENTS_CBT_CORE_EN_WORKSHEET_RE = /\b([1-6])\.([1-5])\b/;
+const ADOLESCENTS_CBT_CORE_EN_STAGE_RE = /\bstage\s*([1-6])\b/;
+const ADOLESCENTS_CBT_CORE_EN_MIN_SCORE = 42;
+
+function getAdolescentsCBTCoreEnglishForms() {
+  return FORMS_ADOLESCENTS_CBT_CORE_EN.filter(
+    (f) =>
+      f.approved === true &&
+      f.audience === 'adolescents' &&
+      f.language === 'en' &&
+      f.adolescentSeries === 'core' &&
+      f.category === 'adolescents_cbt_core' &&
+      typeof f.worksheetNumber === 'string'
+  );
+}
+
+function scoreFromAdolescentsCoreEnglishFallback(query, form) {
+  let score = 0;
+  if (form.stageNumber === 1 && /(overwhelmed|what is happening|happening inside|body signals|trigger|thought.*feeling.*action)/.test(query)) score += 100;
+  if (form.stageNumber === 2 && /(automatic thoughts|won't succeed|will not succeed|everyone will blame|thinking patterns|hidden beliefs)/.test(query)) score += 100;
+  if (form.stageNumber === 3 && /(check evidence|evidence|balanced thought|alternative perspective|is this thought true|choose what to think)/.test(query)) score += 100;
+  if (form.stageNumber === 4 && /(choose what to do|choosing actions|small steps|review|evaluation|difficult situation)/.test(query)) score += 100;
+  if (form.stageNumber === 5 && /(avoid|avoidance|gradual exposure|effective action|persistence|tracking action)/.test(query)) score += 100;
+  if (form.stageNumber === 6 && /(personal plan|weekly check|encouragement|road card|hard moments|looking ahead|keeping going)/.test(query)) score += 100;
+
+  if (form.worksheetNumber === '1.1' && /(what is going on|right now)/.test(query)) score += 80;
+  if (form.worksheetNumber === '1.2' && /(body signals|my body)/.test(query)) score += 80;
+  if (form.worksheetNumber === '1.4' && /(thought.*feeling.*action)/.test(query)) score += 80;
+  if (form.worksheetNumber === '5.3' && /(gradual exposure|exposure)/.test(query)) score += 80;
+  return score;
+}
+
+export function resolveAdolescentsCBTCoreEnglishFormByContent(query) {
+  if (typeof query !== 'string' || !query.trim()) return null;
+  const lq = normalizeIntentText(query);
+
+  const hasTeenContext = /(teen|teens|adolescent|adolescents|age 1[2-8]|age: 1[2-8]|\b1[2-8]\b)/.test(lq);
+  const hasChildContext = /(child|children|kid|age 8|age 9|age 10|age 11|\b8 years old\b|\b9 years old\b|\b10 years old\b|\b11 years old\b)/.test(lq);
+  if (hasChildContext && !hasTeenContext) return null;
+
+  const asksForSeries = ADOLESCENTS_CBT_CORE_EN_SERIES_TRIGGERS.some((p) => lq.includes(normalizeIntentText(p)));
+  const hasFormRequest = ADOLESCENTS_CBT_CORE_EN_FORM_REQUEST.some((p) => lq.includes(normalizeIntentText(p)));
+  const worksheetMatch = lq.match(ADOLESCENTS_CBT_CORE_EN_WORKSHEET_RE);
+  const worksheetRef = worksheetMatch ? `${worksheetMatch[1]}.${worksheetMatch[2]}` : null;
+  const stageMatch = lq.match(ADOLESCENTS_CBT_CORE_EN_STAGE_RE);
+  const stageRef = stageMatch ? Number(stageMatch[1]) : null;
+
+  if (!asksForSeries && !hasFormRequest && !worksheetRef && !hasTeenContext) {
+    const semanticTrigger = /(overwhelmed|automatic thoughts|check evidence|balanced thought|difficult situation|avoid|exposure|weekly check|encouragement|road card|cbt core)/.test(lq);
+    if (!semanticTrigger) return null;
+  }
+
+  const candidates = getAdolescentsCBTCoreEnglishForms();
+  let best = null;
+  let bestScore = 0;
+
+  for (const form of candidates) {
+    let score = 0;
+    score += scoreTextField(lq, form.title, SPECIALIZED_SCORE.EXACT_TITLE);
+    score += scoreTextField(lq, form.stageTitle, SPECIALIZED_SCORE.DOMAIN);
+    score += scoreTextField(lq, form.therapeuticGoal, SPECIALIZED_SCORE.THERAPEUTIC_GOAL);
+    score += scoreTextField(lq, form.shortContentDescription, SPECIALIZED_SCORE.SHORT_DESCRIPTION);
+    score += scoreArrayField(lq, form.whenToUse, SPECIALIZED_SCORE.WHEN_TO_USE);
+    score += scoreArrayField(lq, form.teenSignals, SPECIALIZED_SCORE.CHILD_SIGNALS);
+    score += scoreArrayField(lq, form.clinicalKeywords, SPECIALIZED_SCORE.CLINICAL_KEYWORDS);
+    score += scoreArrayField(lq, form.intentPhrases, SPECIALIZED_SCORE.HEBREW_INTENT);
+
+    if (worksheetRef && form.worksheetNumber === worksheetRef) {
+      score += SPECIALIZED_SCORE.DISPLAY_NUMBER;
+    } else if (form.worksheetNumber && lq.includes(form.worksheetNumber)) {
+      score += Math.floor(SPECIALIZED_SCORE.DISPLAY_NUMBER / 2);
+    }
+
+    if (stageRef && Number(form.stageNumber) === stageRef) {
+      score += SPECIALIZED_SCORE.DOMAIN;
+    }
+    if (asksForSeries) {
+      score += 10;
+    }
+
+    score += scoreFromAdolescentsCoreEnglishFallback(lq, form);
+
+    if (form.audience === 'adolescents' && form.language === 'en') {
+      score += SPECIALIZED_SCORE.AUDIENCE_LANGUAGE;
+    }
+
+    if (score > bestScore) {
+      bestScore = score;
+      best = form;
+    }
+  }
+
+  if (!best || bestScore < ADOLESCENTS_CBT_CORE_EN_MIN_SCORE) return null;
+  return resolveApprovedFormById(best.id, 'en');
 }
