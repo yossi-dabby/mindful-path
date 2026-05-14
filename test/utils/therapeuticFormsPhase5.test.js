@@ -253,9 +253,9 @@ describe('Phase 5 — Regression: 18 standard forms + 7 workbooks still resolve'
     }
   });
 
-  it('32. All approved forms that have a Hebrew or English block resolve in Hebrew', () => {
+  it('32. All approved forms that have a Hebrew block resolve in Hebrew', () => {
     for (const form of APPROVED_FORMS) {
-      if (!form.languages?.he && !form.languages?.en) continue;
+      if (!form.languages?.he) continue;
       const resolved = resolveFormWithLanguage(form.id, 'he');
       expect(resolved, `Form ${form.id} failed to resolve in Hebrew`).not.toBeNull();
     }

@@ -431,10 +431,9 @@ describe('Phase 10 — Language: workbooks return null for non-Hebrew requests',
     }
   });
 
-  it('standard forms continue to fall back to English for unsupported languages', () => {
-    // Verify the standard fallback behavior is unchanged for existing forms
+  it('standard forms return null for unsupported language codes (strict matching)', () => {
+    // zh is not one of the 7 supported app languages — no fallback
     const result = resolveFormWithLanguage('tf-adults-cbt-thought-record', 'zh');
-    expect(result).not.toBeNull();
-    expect(result.language).toBe('en');
+    expect(result).toBeNull();
   });
 });

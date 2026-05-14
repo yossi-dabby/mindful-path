@@ -618,21 +618,26 @@ describe('Phase 11 — C3: Hebrew workbooks still return null for English reques
   });
 });
 
-describe('Phase 11 — C4: English workbooks resolve in English even when other languages are requested', () => {
-  it('English workbooks fall back to English when Hebrew is requested (resolver fallback)', () => {
+describe('Phase 11 — C4: English workbooks resolve only in English (strict language separation)', () => {
+  it('English workbooks return null when Hebrew is requested (English-only, no Hebrew block)', () => {
     for (const id of EN_WORKBOOK_IDS) {
       const result = resolveFormWithLanguage(id, 'he');
-      // English-only workbooks fall back to English (no Hebrew block available)
-      expect(result, `English workbook "${id}" must not return null when any language is requested`).not.toBeNull();
-      expect(result.language, `English workbook "${id}" must resolve to English via fallback`).toBe('en');
-      expect(result.languageData.file_url).toMatch(/^\/forms\/en\//);
+      // English-only workbooks have no Hebrew block — strict matching returns null
+      expect(result, `English workbook "${id}" must return null for Hebrew requests`).toBeNull();
     }
   });
 
-  it('English workbooks resolve in English when French is requested (English fallback)', () => {
+  it('English workbooks return null when French is requested (English-only, no French block)', () => {
     for (const id of EN_WORKBOOK_IDS) {
       const result = resolveFormWithLanguage(id, 'fr');
-      expect(result, `English workbook "${id}" must resolve for any language (fallback to en)`).not.toBeNull();
+      expect(result, `English workbook "${id}" must return null for French requests`).toBeNull();
+    }
+  });
+
+  it('English workbooks resolve in English when English is requested', () => {
+    for (const id of EN_WORKBOOK_IDS) {
+      const result = resolveFormWithLanguage(id, 'en');
+      expect(result, `English workbook "${id}" must resolve in English`).not.toBeNull();
       expect(result.language).toBe('en');
     }
   });

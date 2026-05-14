@@ -238,11 +238,10 @@ describe('French integration — fallback behavior', () => {
     }
   });
 
-  it('17. Unsupported language (zh) still falls back to English for all 18 forms', () => {
+  it('17. Unsupported language (zh) returns null for all 18 forms (strict matching)', () => {
     for (const form of APPROVED_FORMS) {
       const resolved = resolveFormWithLanguage(form.id, 'zh');
-      expect(resolved, `Form ${form.id} failed to resolve with zh fallback`).not.toBeNull();
-      expect(resolved.language).toBe('en');
+      expect(resolved, `Form ${form.id} must return null for unsupported lang=zh`).toBeNull();
     }
   });
 });
