@@ -66,6 +66,7 @@ export const THERAPEUTIC_CATEGORIES = [
   { value: 'reflection_journal',      label_en: 'Reflection Journal' },
   { value: 'workbook_series',         label_en: 'Therapeutic Workbooks' },
   { value: 'children_cbt_process',    label_en: 'Children CBT Process' },
+  { value: 'adolescents_cbt_core',    label_en: 'Adolescent CBT Core' },
   { value: 'adolescents_cbt_specialized', label_en: 'Adolescent CBT Specialized' },
 ];
 
