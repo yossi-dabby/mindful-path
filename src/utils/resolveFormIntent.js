@@ -1516,6 +1516,20 @@ const ADOLESCENTS_CORE_EN_FORM_REQUEST = [
   'help',
 ];
 
+const ADOLESCENTS_CORE_EN_TEEN_CONTEXT_RE = /(teen|adolescent|youth|age 1[2-8]|ages 1[2-8]|16|17|15|14|13|12)/;
+const ADOLESCENTS_CORE_EN_CHILD_CONTEXT_RE = /(child|kid|age 8|age 9|age 10|age 11|8 year|9 year|10 year|11 year)/;
+
+const ADOLESCENTS_CORE_EN_SCORE = Object.freeze({
+  TITLE: SPECIALIZED_SCORE.EXACT_TITLE,
+  STAGE: SPECIALIZED_SCORE.DOMAIN,
+  THERAPEUTIC_GOAL: SPECIALIZED_SCORE.THERAPEUTIC_GOAL,
+  SHORT_DESCRIPTION: SPECIALIZED_SCORE.SHORT_DESCRIPTION,
+  WHEN_TO_USE: SPECIALIZED_SCORE.WHEN_TO_USE,
+  TEEN_SIGNALS: SPECIALIZED_SCORE.CHILD_SIGNALS,
+  CLINICAL_KEYWORDS: SPECIALIZED_SCORE.CLINICAL_KEYWORDS,
+  INTENT_PHRASES: SPECIALIZED_SCORE.HEBREW_INTENT,
+});
+
 const ADOLESCENTS_CORE_EN_STAGE_HINTS = Object.freeze({
   1: /(overwhelmed|what is happening|what's happening|what is going on|inside|body signals|trigger|thought.*feeling.*action)/,
   2: /(automatic thought|mind said|won't succeed|everyone will blame|interpretation|thinking pattern|belief)/,
@@ -1560,8 +1574,8 @@ export function resolveAdolescentsCBTCoreEnglishFormByContent(query) {
   });
 
   const hasFormRequest = ADOLESCENTS_CORE_EN_FORM_REQUEST.some((p) => lq.includes(normalizeIntentText(p)));
-  const hasTeenContext = /(teen|adolescent|youth|age 1[2-8]|ages 1[2-8]|16|17|15|14|13|12)/.test(lq);
-  const hasChildContext = /(child|kid|age 8|age 9|age 10|age 11|8 year|9 year|10 year|11 year)/.test(lq);
+  const hasTeenContext = ADOLESCENTS_CORE_EN_TEEN_CONTEXT_RE.test(lq);
+  const hasChildContext = ADOLESCENTS_CORE_EN_CHILD_CONTEXT_RE.test(lq);
   const displayMatch = lq.match(/\b([1-6])\.([1-5])\b/);
   const displayRef = displayMatch ? `${displayMatch[1]}.${displayMatch[2]}` : null;
 
@@ -1578,16 +1592,16 @@ export function resolveAdolescentsCBTCoreEnglishFormByContent(query) {
     const worksheetNumber = form.worksheetNumber || '';
     const stageNumber = Number(form.stageNumber);
 
-    score += scoreTextField(lq, title, SPECIALIZED_SCORE.EXACT_TITLE);
-    score += scoreTextField(lq, stageTitle, SPECIALIZED_SCORE.DOMAIN);
-    score += scoreTextField(lq, form.therapeuticGoal, SPECIALIZED_SCORE.THERAPEUTIC_GOAL);
-    score += scoreTextField(lq, form.shortContentDescription, SPECIALIZED_SCORE.SHORT_DESCRIPTION);
-    score += scoreArrayField(lq, form.whenToUse, SPECIALIZED_SCORE.WHEN_TO_USE);
-    score += scoreArrayField(lq, form.teenSignals, SPECIALIZED_SCORE.CHILD_SIGNALS);
-    score += scoreArrayField(lq, form.clinicalKeywords, SPECIALIZED_SCORE.CLINICAL_KEYWORDS);
-    score += scoreArrayField(lq, form.intentPhrases, SPECIALIZED_SCORE.HEBREW_INTENT);
-    score += scoreArrayField(lq, form.notFor, Math.floor(SPECIALIZED_SCORE.WHEN_TO_USE / 2));
-    score += scoreArrayField(lq, form.relatedForms, Math.floor(SPECIALIZED_SCORE.WHEN_TO_USE / 2));
+    score += scoreTextField(lq, title, ADOLESCENTS_CORE_EN_SCORE.TITLE);
+    score += scoreTextField(lq, stageTitle, ADOLESCENTS_CORE_EN_SCORE.STAGE);
+    score += scoreTextField(lq, form.therapeuticGoal, ADOLESCENTS_CORE_EN_SCORE.THERAPEUTIC_GOAL);
+    score += scoreTextField(lq, form.shortContentDescription, ADOLESCENTS_CORE_EN_SCORE.SHORT_DESCRIPTION);
+    score += scoreArrayField(lq, form.whenToUse, ADOLESCENTS_CORE_EN_SCORE.WHEN_TO_USE);
+    score += scoreArrayField(lq, form.teenSignals, ADOLESCENTS_CORE_EN_SCORE.TEEN_SIGNALS);
+    score += scoreArrayField(lq, form.clinicalKeywords, ADOLESCENTS_CORE_EN_SCORE.CLINICAL_KEYWORDS);
+    score += scoreArrayField(lq, form.intentPhrases, ADOLESCENTS_CORE_EN_SCORE.INTENT_PHRASES);
+    score += scoreArrayField(lq, form.notFor, Math.floor(ADOLESCENTS_CORE_EN_SCORE.WHEN_TO_USE / 2));
+    score += scoreArrayField(lq, form.relatedForms, Math.floor(ADOLESCENTS_CORE_EN_SCORE.WHEN_TO_USE / 2));
     score += scoreStageHint(stageNumber, lq);
 
     if (displayRef && displayRef === worksheetNumber) {
