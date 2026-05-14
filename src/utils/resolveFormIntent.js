@@ -1549,6 +1549,16 @@ export function resolveAdolescentsCBTCoreEnglishFormByContent(query) {
   const asksForSeries = ADOLESCENTS_CORE_EN_SERIES_TRIGGERS.some((p) => lq.includes(normalizeIntentText(p)));
   if (asksForSeries) return null;
 
+  const candidates = getAdolescentCoreEnglishForms();
+  const hasDirectMetadataMatch = candidates.some((form) => {
+    const title = normalizeIntentText(form.title || form.languages?.en?.title || '');
+    if (title && lq.includes(title)) return true;
+    return (form.intentPhrases || []).some((phrase) => {
+      const normalizedPhrase = normalizeIntentText(String(phrase || ''));
+      return normalizedPhrase && lq.includes(normalizedPhrase);
+    });
+  });
+
   const hasFormRequest = ADOLESCENTS_CORE_EN_FORM_REQUEST.some((p) => lq.includes(normalizeIntentText(p)));
   const hasTeenContext = /(teen|adolescent|youth|age 1[2-8]|ages 1[2-8]|16|17|15|14|13|12)/.test(lq);
   const hasChildContext = /(child|kid|age 8|age 9|age 10|age 11|8 year|9 year|10 year|11 year)/.test(lq);
@@ -1556,9 +1566,8 @@ export function resolveAdolescentsCBTCoreEnglishFormByContent(query) {
   const displayRef = displayMatch ? `${displayMatch[1]}.${displayMatch[2]}` : null;
 
   if (hasChildContext && !hasTeenContext && !displayRef) return null;
-  if (!hasFormRequest && !displayRef && !hasTeenContext) return null;
+  if (!hasFormRequest && !displayRef && !hasTeenContext && !hasDirectMetadataMatch) return null;
 
-  const candidates = getAdolescentCoreEnglishForms();
   let best = null;
   let bestScore = 0;
 
