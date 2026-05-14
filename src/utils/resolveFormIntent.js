@@ -1567,7 +1567,7 @@ export function resolveAdolescentsCBTCoreEnglishFormByContent(query) {
   const stageRef = stageMatch ? Number(stageMatch[1]) : null;
 
   if (!asksForSeries && !hasFormRequest && !worksheetRef && !hasTeenContext) {
-    const semanticTrigger = /(overwhelmed|automatic thoughts|check evidence|balanced thought|difficult situation|avoid|exposure|weekly check|encouragement|road card|cbt core)/.test(lq);
+    const semanticTrigger = /(overwhelmed|what is going on for me right now|automatic thoughts|check evidence|balanced thought|difficult situation|avoid|exposure|weekly check|encouragement|road card|cbt core)/.test(lq);
     if (!semanticTrigger) return null;
   }
 
