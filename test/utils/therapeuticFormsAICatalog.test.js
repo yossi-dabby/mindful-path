@@ -36,6 +36,7 @@ import { buildTherapistFormCatalog } from '../../src/lib/workflowContextInjector
 import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
 import { FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL } from '../../src/data/therapeuticForms/forms.adolescents.cbt-core.en.js';
 import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_INDIVIDUAL } from '../../src/data/therapeuticForms/forms.adolescents.cbt-specialized.js';
+import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_INDIVIDUAL } from '../../src/data/therapeuticForms/forms.adolescents.cbt-specialized.en.js';
 import {
   resolveFormIntent,
   APPROVED_FORM_INTENT_MAP,
@@ -85,7 +86,8 @@ describe('Phase 4D — buildTherapistFormCatalog: all approved forms present', (
     expect(uniqueIds.size).toBe(
       approvedForms.length +
         FORMS_ADOLESCENTS_CBT_SPECIALIZED_INDIVIDUAL.length +
-        FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL.length
+        FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL.length +
+        FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_INDIVIDUAL.length
     );
   });
 });

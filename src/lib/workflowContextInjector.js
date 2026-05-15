@@ -95,6 +95,7 @@ import { ALL_FORMS } from '../data/therapeuticForms/index.js';
 import { FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL } from '../data/therapeuticForms/forms.children.cbt-specialized.js';
 import { FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL } from '../data/therapeuticForms/forms.adolescents.cbt-core.en.js';
 import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_INDIVIDUAL } from '../data/therapeuticForms/forms.adolescents.cbt-specialized.js';
+import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_INDIVIDUAL } from '../data/therapeuticForms/forms.adolescents.cbt-specialized.en.js';
 
 const THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS = [
 '[ATTACHMENT_HANDLING_POLICY]',
@@ -318,6 +319,47 @@ export function buildTherapistFormCatalog(forms) {
       if (form.stageNumber !== currentStage) {
         currentStage = form.stageNumber;
         lines.push(`  Stage ${currentStage} — ${form.stageTitle || ''}:`);
+      }
+      const title = form.languages?.en?.title || form.title || form.worksheetNumber || form.id;
+      const summary = [
+        `desc=${form.shortContentDescription || ''}`,
+        `goal=${form.therapeuticGoal || ''}`,
+        `use=${(form.whenToUse || []).join(', ')}`,
+        `signals=${(form.teenSignals || []).join(', ')}`,
+        `keywords=${(form.clinicalKeywords || []).join(', ')}`,
+        `intent=${(form.intentPhrases || []).join(', ')}`,
+        `notFor=${(form.notFor || []).join(', ')}`,
+        `related=${(form.relatedForms || []).join(', ')}`,
+      ].join(' | ');
+      lines.push(`    [FORM:${form.id}] ${title} | ${summary}`);
+    }
+  }
+
+  const adolescentsSpecializedEnglishForms = FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_INDIVIDUAL.filter(
+    (f) =>
+      f.audience === 'adolescents' &&
+      f.language === 'en' &&
+      f.category === 'adolescents_cbt_specialized' &&
+      typeof f.worksheetNumber === 'string'
+  );
+  if (adolescentsSpecializedEnglishForms.length > 0) {
+    const sorted = [...adolescentsSpecializedEnglishForms].sort((a, b) => {
+      const [aModule, aIdx] = String(a.worksheetNumber).split('.').map(Number);
+      const [bModule, bIdx] = String(b.worksheetNumber).split('.').map(Number);
+      return aModule !== bModule ? aModule - bModule : aIdx - bIdx;
+    });
+
+    lines.push('');
+    lines.push('[ENGLISH ADOLESCENT CBT SPECIALIZED SERIES — CANONICAL MANIFEST]');
+    lines.push('When asked for English adolescent CBT specialized worksheets, answer ONLY from this manifest-backed list.');
+    lines.push('Do NOT mix in Hebrew adolescent specialized/core forms, English adolescent core worksheets, children forms, or adult forms.');
+    lines.push('Language-first rule: if active app language is not English, do not return these forms unless the user explicitly asks for English forms.');
+    lines.push('For clinical matching, use worksheet metadata (therapeuticGoal, shortContentDescription, whenToUse, teenSignals, clinicalKeywords, intentPhrases, notFor, relatedForms) — not title alone.');
+    let currentModule = null;
+    for (const form of sorted) {
+      if (form.moduleNumber !== currentModule) {
+        currentModule = form.moduleNumber;
+        lines.push(`  Module ${currentModule} — ${form.moduleTitle || ''}:`);
       }
       const title = form.languages?.en?.title || form.title || form.worksheetNumber || form.id;
       const summary = [
