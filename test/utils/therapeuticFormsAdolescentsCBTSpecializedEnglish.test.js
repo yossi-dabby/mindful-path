@@ -28,7 +28,7 @@ function idOf(result) {
 
 function moduleOf(result) {
   const id = idOf(result);
-  const match = id?.match(/^tf-adolescents-cbt-specialized-en-(\d+)-\d$/);
+  const match = id?.match(/^tf-adolescents-cbt-specialized-en-(10|[1-9])-[1-6]$/);
   return match ? Number(match[1]) : null;
 }
 

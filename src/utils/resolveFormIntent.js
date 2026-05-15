@@ -14,7 +14,8 @@
  * - All resolution goes through `resolveFormWithLanguage` + `toGeneratedFileMetadata`
  *   from the TherapeuticForms resolver — no URL construction outside the registry.
  * - Returns null instead of fabricating anything.
- * - Language resolution is strict exact-match (no fallback to other languages).
+ * - Language resolution is strict exact-match by default (no implicit fallback);
+ *   explicit language requests are handled only where a resolver supports them.
  * - Hebrew RTL metadata is preserved by the underlying resolver.
  *
  * APPROVED INTENT MAP (Phase 4B)
@@ -1674,14 +1675,17 @@ function scoreFromAdolescentsSpecializedEnglishFallback(query, form) {
 }
 
 function hasExplicitEnglishFormRequest(query) {
-  return ADOLESCENTS_CBT_SPECIALIZED_EN_EXPLICIT_REQUEST.some((p) => query.includes(normalizeIntentText(p)));
+  const normalizedQuery = normalizeIntentText(query);
+  return ADOLESCENTS_CBT_SPECIALIZED_EN_EXPLICIT_REQUEST.some((p) =>
+    normalizedQuery.includes(normalizeIntentText(p))
+  );
 }
 
 export function resolveAdolescentsCBTSpecializedEnglishFormByContent(query, options = {}) {
   if (typeof query !== 'string' || !query.trim()) return null;
   const lq = normalizeIntentText(query);
   const activeLanguage = normalizeIntentText(options.activeLanguage || 'en') || 'en';
-  const explicitEnglishRequested = options.explicitEnglishRequested === true || hasExplicitEnglishFormRequest(lq);
+  const explicitEnglishRequested = options.explicitEnglishRequested === true || hasExplicitEnglishFormRequest(query);
 
   if (activeLanguage !== 'en' && !explicitEnglishRequested) return null;
 
