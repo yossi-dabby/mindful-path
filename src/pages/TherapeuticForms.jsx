@@ -11,6 +11,7 @@ import {
 import { FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL } from '@/data/therapeuticForms/forms.children.cbt-specialized.js';
 import { FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL } from '@/data/therapeuticForms/forms.adolescents.cbt-core.en.js';
 import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_INDIVIDUAL } from '@/data/therapeuticForms/forms.adolescents.cbt-specialized.js';
+import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_INDIVIDUAL } from '@/data/therapeuticForms/forms.adolescents.cbt-specialized.en.js';
 import { openFile } from '@/components/chat/utils/openFile';
 import { downloadPdfFile } from '@/components/chat/utils/downloadPdfFile';
 
@@ -21,6 +22,7 @@ export const THERAPEUTIC_FORMS_LIBRARY_REGISTRY = Object.freeze([
         ...FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL,
         ...FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL,
         ...FORMS_ADOLESCENTS_CBT_SPECIALIZED_INDIVIDUAL,
+        ...FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_INDIVIDUAL,
       ].map((form) => [form.id, form])
   ).values(),
 ]);

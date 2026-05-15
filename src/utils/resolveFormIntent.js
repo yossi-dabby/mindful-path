@@ -14,7 +14,7 @@
  * - All resolution goes through `resolveFormWithLanguage` + `toGeneratedFileMetadata`
  *   from the TherapeuticForms resolver — no URL construction outside the registry.
  * - Returns null instead of fabricating anything.
- * - Language falls back to English when the requested language is unavailable.
+ * - Language resolution is strict exact-match (no fallback to other languages).
  * - Hebrew RTL metadata is preserved by the underlying resolver.
  *
  * APPROVED INTENT MAP (Phase 4B)
@@ -42,6 +42,7 @@ import {
 import { FORMS_CHILDREN_CBT_SPECIALIZED } from '../data/therapeuticForms/forms.children.cbt-specialized.js';
 import { FORMS_ADOLESCENTS_CBT_CORE_EN } from '../data/therapeuticForms/forms.adolescents.cbt-core.en.js';
 import { FORMS_ADOLESCENTS_CBT_SPECIALIZED } from '../data/therapeuticForms/forms.adolescents.cbt-specialized.js';
+import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN } from '../data/therapeuticForms/forms.adolescents.cbt-specialized.en.js';
 
 // ─── Approved intent → form ID map ───────────────────────────────────────────
 //
@@ -926,6 +927,7 @@ function resolveApprovedFormById(formId, lang = 'he') {
     ...FORMS_CHILDREN_CBT_SPECIALIZED,
     ...FORMS_ADOLESCENTS_CBT_CORE_EN,
     ...FORMS_ADOLESCENTS_CBT_SPECIALIZED,
+    ...FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN,
   ].find(
     (f) => f.id === formId && f.approved === true
   );
@@ -956,6 +958,7 @@ function findApprovedExactFormId(candidateId) {
     ...FORMS_CHILDREN_CBT_SPECIALIZED,
     ...FORMS_ADOLESCENTS_CBT_CORE_EN,
     ...FORMS_ADOLESCENTS_CBT_SPECIALIZED,
+    ...FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN,
   ];
   const match = registries.find(
     (form) => form?.approved === true && typeof form.id === 'string' && form.id === candidateId
@@ -1614,5 +1617,129 @@ export function resolveAdolescentsCBTCoreEnglishFormByContent(query) {
   }
 
   if (!best || bestScore < ADOLESCENTS_CBT_CORE_EN_MIN_SCORE) return null;
+  return resolveApprovedFormById(best.id, 'en');
+}
+
+const ADOLESCENTS_CBT_SPECIALIZED_EN_FORM_REQUEST = [
+  'worksheet',
+  'worksheets',
+  'form',
+  'pdf',
+  'cbt specialized',
+  'specialized series',
+  'adolescent cbt',
+  'teen cbt',
+  'module',
+  'recommend',
+  'show me',
+];
+
+const ADOLESCENTS_CBT_SPECIALIZED_EN_EXPLICIT_REQUEST = [
+  'in english',
+  'english worksheet',
+  'english worksheets',
+  'english forms',
+  'english specialized',
+];
+
+const ADOLESCENTS_CBT_SPECIALIZED_EN_WORKSHEET_RE = /\b(10|[1-9])\.([1-6])\b/;
+const ADOLESCENTS_CBT_SPECIALIZED_EN_MODULE_RE = /\bmodule\s*(10|[1-9])\b/;
+const ADOLESCENTS_CBT_SPECIALIZED_EN_MIN_SCORE = 42;
+
+function getAdolescentsCBTSpecializedEnglishForms() {
+  return FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN.filter(
+    (f) =>
+      f.approved === true &&
+      f.audience === 'adolescents' &&
+      f.language === 'en' &&
+      f.adolescentSeries === 'specialized' &&
+      f.category === 'adolescents_cbt_specialized' &&
+      typeof f.worksheetNumber === 'string'
+  );
+}
+
+function scoreFromAdolescentsSpecializedEnglishFallback(query, form) {
+  let score = 0;
+  if (form.moduleNumber === 1 && /(anxiety|stress|fear|fears|test|before the test|avoid|avoidance|courage)/.test(query)) score += 85;
+  if (form.moduleNumber === 2 && /(low energy|energy|mood|functioning|small action|start small|can't start|activation)/.test(query)) score += 85;
+  if (form.moduleNumber === 3 && /(self-worth|self worth|self-esteem|identity|comparison|criticism|inner critic)/.test(query)) score += 85;
+  if (form.moduleNumber === 4 && /(friends|friendship|rejection|belonging|boundaries|conflict|social media)/.test(query)) score += 85;
+  if (form.moduleNumber === 5 && /(anger|impulsive|impulsivity|pause|react quickly|repair)/.test(query)) score += 85;
+  if (form.moduleNumber === 6 && /(ocd|intrusive|checking|reassurance|doubt|response prevention|uncertainty)/.test(query)) score += 95;
+  if (form.moduleNumber === 7 && /(adhd|attention|distracted|procrastinat|organizing|organization|task breakdown)/.test(query)) score += 85;
+  if (form.moduleNumber === 8 && /(sleep|body|somatic|stress in body|overload|relaxation|breathing)/.test(query)) score += 85;
+  if (form.moduleNumber === 9 && /(trauma|grounding|safe coping|trigger|stabilization|safe place|gradual return)/.test(query)) score += 95;
+  if (form.moduleNumber === 10 && /(parents|home|communication|trust|responsibility|cooperation|boundaries at home)/.test(query)) score += 85;
+  return score;
+}
+
+function hasExplicitEnglishFormRequest(query) {
+  return ADOLESCENTS_CBT_SPECIALIZED_EN_EXPLICIT_REQUEST.some((p) => query.includes(normalizeIntentText(p)));
+}
+
+export function resolveAdolescentsCBTSpecializedEnglishFormByContent(query, options = {}) {
+  if (typeof query !== 'string' || !query.trim()) return null;
+  const lq = normalizeIntentText(query);
+  const activeLanguage = normalizeIntentText(options.activeLanguage || 'en') || 'en';
+  const explicitEnglishRequested = options.explicitEnglishRequested === true || hasExplicitEnglishFormRequest(lq);
+
+  if (activeLanguage !== 'en' && !explicitEnglishRequested) return null;
+
+  const hasTeenContext = /(teen|teens|adolescent|adolescents|age 1[2-8]|age: 1[2-8]|\b1[2-8]\b)/.test(lq);
+  const hasChildContext = /(child|children|kid|age 8|age 9|age 10|age 11|\b8 years old\b|\b9 years old\b|\b10 years old\b|\b11 years old\b)/.test(lq);
+  if (hasChildContext && !hasTeenContext) return null;
+
+  const hasFormRequest = ADOLESCENTS_CBT_SPECIALIZED_EN_FORM_REQUEST.some((p) =>
+    lq.includes(normalizeIntentText(p))
+  );
+  const worksheetMatch = lq.match(ADOLESCENTS_CBT_SPECIALIZED_EN_WORKSHEET_RE);
+  const worksheetRef = worksheetMatch ? `${worksheetMatch[1]}.${worksheetMatch[2]}` : null;
+  const moduleMatch = lq.match(ADOLESCENTS_CBT_SPECIALIZED_EN_MODULE_RE);
+  const moduleRef = moduleMatch ? Number(moduleMatch[1]) : null;
+
+  if (!hasFormRequest && !worksheetRef && !moduleRef && !hasTeenContext) {
+    const semanticTrigger = /(anxiety|stress|fear|test|avoid|low energy|mood|self-worth|identity|friends|boundaries|anger|impulsive|ocd|intrusive|adhd|procrastinat|sleep|body stress|grounding|trauma|parents|communication|cooperation)/.test(lq);
+    if (!semanticTrigger) return null;
+  }
+
+  const candidates = getAdolescentsCBTSpecializedEnglishForms();
+  let best = null;
+  let bestScore = 0;
+  const INTENT_PHRASE_SCORE = SPECIALIZED_SCORE.HEBREW_INTENT;
+
+  for (const form of candidates) {
+    let score = 0;
+    score += scoreTextField(lq, form.title, SPECIALIZED_SCORE.EXACT_TITLE);
+    score += scoreTextField(lq, form.moduleTitle, SPECIALIZED_SCORE.DOMAIN);
+    score += scoreTextField(lq, form.therapeuticGoal, SPECIALIZED_SCORE.THERAPEUTIC_GOAL);
+    score += scoreTextField(lq, form.shortContentDescription, SPECIALIZED_SCORE.SHORT_DESCRIPTION);
+    score += scoreArrayField(lq, form.whenToUse, SPECIALIZED_SCORE.WHEN_TO_USE);
+    score += scoreArrayField(lq, form.teenSignals, SPECIALIZED_SCORE.CHILD_SIGNALS);
+    score += scoreArrayField(lq, form.clinicalKeywords, SPECIALIZED_SCORE.CLINICAL_KEYWORDS);
+    score += scoreArrayField(lq, form.intentPhrases, INTENT_PHRASE_SCORE);
+
+    if (worksheetRef && form.worksheetNumber === worksheetRef) {
+      score += SPECIALIZED_SCORE.DISPLAY_NUMBER;
+    } else if (form.worksheetNumber && lq.includes(form.worksheetNumber)) {
+      score += Math.floor(SPECIALIZED_SCORE.DISPLAY_NUMBER / 2);
+    }
+
+    if (moduleRef && Number(form.moduleNumber) === moduleRef) {
+      score += SPECIALIZED_SCORE.DOMAIN;
+    }
+
+    score += scoreFromAdolescentsSpecializedEnglishFallback(lq, form);
+
+    if (form.audience === 'adolescents' && form.language === 'en') {
+      score += SPECIALIZED_SCORE.AUDIENCE_LANGUAGE;
+    }
+
+    if (score > bestScore) {
+      bestScore = score;
+      best = form;
+    }
+  }
+
+  if (!best || bestScore < ADOLESCENTS_CBT_SPECIALIZED_EN_MIN_SCORE) return null;
   return resolveApprovedFormById(best.id, 'en');
 }
