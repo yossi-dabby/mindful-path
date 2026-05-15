@@ -185,7 +185,14 @@ describe('Adolescent CBT Core EN — canonical manifest catalog', () => {
   });
 
   it('G: canonical section contains exactly the 30 manifest worksheet markers and no Hebrew/specialized mix-ins', () => {
-    const section = catalog.slice(catalog.indexOf(heading));
+    const sectionStart = catalog.indexOf(heading);
+    const nextSectionStart = catalog.indexOf(
+      '\n[ENGLISH ADOLESCENT CBT SPECIALIZED SERIES — CANONICAL MANIFEST]',
+      sectionStart
+    );
+    const section = nextSectionStart === -1
+      ? catalog.slice(sectionStart)
+      : catalog.slice(sectionStart, nextSectionStart);
     const ids = section.match(/\[FORM:tf-adolescents-cbt-core-\d+-\d-en\]/g) || [];
     expect(ids).toHaveLength(30);
     expect(section).not.toContain('tf-adolescents-cbt-specialized-');
