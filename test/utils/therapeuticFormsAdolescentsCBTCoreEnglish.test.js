@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { describe, it, expect } from 'vitest';
 
 import {
@@ -16,7 +17,27 @@ import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
 
 const REPO_ROOT = process.cwd();
 const CORE_EN_ROOT = path.join(REPO_ROOT, 'public/forms/en/adolescents/cbt-core');
+const LEGACY_CORE_ROOT = path.join(REPO_ROOT, 'cbt-core');
 const THERAPEUTIC_FORMS_PAGE_PATH = path.join(REPO_ROOT, 'src/pages/TherapeuticForms.jsx');
+const RESOLVER_SOURCE_PATH = path.join(REPO_ROOT, 'src/utils/resolveFormIntent.js');
+const THIS_TEST_FILE = path.relative(REPO_ROOT, fileURLToPath(import.meta.url));
+const REFERENCE_AUDIT_EXTENSIONS = new Set([
+  '.cjs',
+  '.css',
+  '.html',
+  '.js',
+  '.json',
+  '.jsx',
+  '.md',
+  '.mdx',
+  '.mjs',
+  '.sh',
+  '.ts',
+  '.tsx',
+  '.txt',
+  '.yaml',
+  '.yml',
+]);
 
 function idOf(result) {
   return result?.form_id ?? null;
@@ -31,6 +52,57 @@ function stageOf(result) {
 function diskPathFromUrl(fileUrl) {
   return path.join(REPO_ROOT, 'public', String(fileUrl || '').replace(/^\//, ''));
 }
+
+function listLegacyRootReferences() {
+  const ignoredDirs = new Set([
+    '.git',
+    'dist',
+    'node_modules',
+  ]);
+  const findings = [];
+  const pending = [REPO_ROOT];
+
+  while (pending.length > 0) {
+    const current = pending.pop();
+    const relativeCurrent = path.relative(REPO_ROOT, current);
+    if (relativeCurrent && ignoredDirs.has(relativeCurrent)) continue;
+
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      const entryPath = path.join(current, entry.name);
+      const relativePath = path.relative(REPO_ROOT, entryPath);
+
+      if (entry.isDirectory()) {
+        if (
+          ignoredDirs.has(relativePath) ||
+          relativePath === 'public/forms/en/adolescents/cbt-core'
+        ) {
+          continue;
+        }
+        pending.push(entryPath);
+        continue;
+      }
+
+      if (!REFERENCE_AUDIT_EXTENSIONS.has(path.extname(entry.name).toLowerCase())) {
+        continue;
+      }
+      if (relativePath === THIS_TEST_FILE) continue;
+
+      const contents = fs.readFileSync(entryPath, 'utf8');
+      contents.split(/\r?\n/).forEach((line, index) => {
+        if (
+          line.includes('cbt-core/') &&
+          !line.includes('public/forms/en/adolescents/cbt-core/')
+        ) {
+          findings.push(`${relativePath}:${index + 1}:${line.trim()}`);
+        }
+      });
+    }
+  }
+
+  return findings;
+}
+
+const LEGACY_ROOT_REFERENCES = listLegacyRootReferences();
 
 describe('Adolescent CBT Core EN — registry and assets', () => {
   it('registers 30 core individual forms from manifest', () => {
@@ -109,6 +181,28 @@ describe('Adolescent CBT Core EN — registry and assets', () => {
     );
     expect(new Set(manifestForms)).toEqual(new Set(registryForms));
   });
+
+  it('canonical folder retains the full manifest-backed asset set after duplicate removal', () => {
+    const expectedFiles = new Set([
+      'manifest.adolescents-cbt-core-en.json',
+      'README_EN.md',
+      'QA_SUMMARY_EN.txt',
+      ...ADOLESCENTS_CBT_CORE_EN_MANIFEST.forms.map((form) => path.basename(form.fileUrl)),
+    ]);
+    const actualFiles = fs.readdirSync(CORE_EN_ROOT).filter((entry) =>
+      fs.statSync(path.join(CORE_EN_ROOT, entry)).isFile()
+    );
+
+    expect(new Set(actualFiles)).toEqual(expectedFiles);
+  });
+
+  it('removes the duplicate repo-root cbt-core folder after assets are verified in the canonical folder', () => {
+    expect(fs.existsSync(LEGACY_CORE_ROOT)).toBe(false);
+  });
+
+  it('has no remaining repo-root cbt-core path references outside the canonical folder', () => {
+    expect(LEGACY_ROOT_REFERENCES).toEqual([]);
+  });
 });
 
 describe('Adolescent CBT Core EN — forms library visibility', () => {
@@ -123,6 +217,13 @@ describe('Adolescent CBT Core EN — forms library visibility', () => {
 });
 
 describe('Adolescent CBT Core EN — content-aware resolver QA prompts', () => {
+  const resolverSource = fs.readFileSync(RESOLVER_SOURCE_PATH, 'utf8');
+
+  it('resolver candidates come directly from the canonical manifest-backed adolescent CBT core registry', () => {
+    expect(resolverSource).toContain('FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL');
+    expect(resolverSource).toContain('return FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL.filter');
+  });
+
   it('A: overwhelmed/inside-state query maps to Stage 1', () => {
     const result = resolveAdolescentsCBTCoreEnglishFormByContent("Teen feels overwhelmed and doesn't know what is happening inside");
     expect(stageOf(result)).toBe(1);
@@ -179,6 +280,9 @@ describe('Adolescent CBT Core EN — canonical manifest catalog', () => {
     expect(catalog).toContain(heading);
     expect(catalog).toContain('Stage 1');
     expect(catalog).toContain('[FORM:tf-adolescents-cbt-core-1-1-en]');
+    expect(catalog).toContain('desc=');
+    expect(catalog).toContain('goal=');
+    expect(catalog).toContain('use=');
     expect(catalog).toContain('signals=');
     expect(catalog).toContain('keywords=');
     expect(catalog).toContain('intent=');
