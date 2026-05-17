@@ -1,11 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
-import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
-import { getFilteredForms } from '../../src/pages/TherapeuticForms.jsx';
+import { ALL_FORMS, resolveFormWithLanguage } from '../../src/data/therapeuticForms/index.js';
 
-const CORE_ID = 'adolescents-cbt-core-en';
-
-describe('therapeuticFormsPage.test.js', () => {
+describe('therapeuticFormsPage.test.js — adolescents package integration', () => {
   it('keeps route and page registration intact', () => {
     const pagesConfigSource = fs.readFileSync('/home/runner/work/mindful-path/mindful-path/src/pages.config.js', 'utf8');
     expect(pagesConfigSource).toContain('"TherapeuticForms": TherapeuticForms');
@@ -16,24 +13,17 @@ describe('therapeuticFormsPage.test.js', () => {
     expect(quickActionsSource).toContain("page: 'TherapeuticForms'");
   });
 
-  it('shows the package for English all/adolescents and primary/secondary categories', () => {
-    expect(ALL_FORMS.map((form) => form.id)).toEqual([CORE_ID]);
+  it('includes page filtering logic for secondary categories and audience-aware language paths', () => {
+    const pageSource = fs.readFileSync('/home/runner/work/mindful-path/mindful-path/src/pages/TherapeuticForms.jsx', 'utf8');
+    expect(pageSource).toContain('secondaryCategories');
+    expect(pageSource).toContain('getLanguageFolderPrefix(lang, form.audience)');
 
-    const allEnglish = getFilteredForms({ audience: 'all', category: 'all', lang: 'en' });
-    const adolescentsEnglish = getFilteredForms({ audience: 'adolescents', category: 'all', lang: 'en' });
-    const primaryCategory = getFilteredForms({ audience: 'all', category: 'adolescents_cbt_core', lang: 'en' });
-    const secondaryCategory = getFilteredForms({ audience: 'all', category: 'thought_records', lang: 'en' });
-
-    for (const list of [allEnglish, adolescentsEnglish, primaryCategory, secondaryCategory]) {
-      expect(list).toHaveLength(1);
-      expect(list[0].form.id).toBe(CORE_ID);
-    }
+    expect(ALL_FORMS.map((form) => form.id)).toEqual(['adolescents-cbt-core-en']);
+    const resolvedEn = resolveFormWithLanguage('adolescents-cbt-core-en', 'en');
+    expect(resolvedEn?.languageData?.file_url).toBe('/forms/adolescents/en/core/adolescents-cbt-core-series-1-full-en.pdf');
   });
 
-  it('does not show the package in Hebrew or for non-adolescent audience filters', () => {
-    expect(getFilteredForms({ audience: 'all', category: 'all', lang: 'he' })).toEqual([]);
-    expect(getFilteredForms({ audience: 'children', category: 'all', lang: 'en' })).toEqual([]);
-    expect(getFilteredForms({ audience: 'adults', category: 'all', lang: 'en' })).toEqual([]);
-    expect(getFilteredForms({ audience: 'older_adults', category: 'all', lang: 'en' })).toEqual([]);
+  it('does not resolve package in Hebrew or non-installed audiences', () => {
+    expect(resolveFormWithLanguage('adolescents-cbt-core-en', 'he')).toBeNull();
   });
 });

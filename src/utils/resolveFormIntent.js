@@ -66,16 +66,17 @@ function hasExplicitEnglishRequest(normalizedQuery) {
 }
 
 function requestsDisallowedAudience(normalizedQuery) {
-  return containsAny(normalizedQuery, [
-    'children',
-    'child',
-    'kid',
-    'adults',
-    'adult',
-    'older adults',
-    'older-adults',
-    'older adult',
-  ]);
+  const patterns = [
+    /\bchildren\b/i,
+    /\bchild\b/i,
+    /\bkid\b/i,
+    /\badults\b/i,
+    /\badult\b/i,
+    /\bolder adults\b/i,
+    /\bolder-adults\b/i,
+    /\bolder adult\b/i,
+  ];
+  return patterns.some((pattern) => pattern.test(normalizedQuery));
 }
 
 function requestsHebrew(normalizedQuery) {

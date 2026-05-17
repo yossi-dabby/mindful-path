@@ -62,11 +62,10 @@ const ADOLESCENTS_CBT_CORE_EN_PACKAGE = Object.freeze({
   ]),
   notFor: Object.freeze([
     'children under adolescent age',
-    'Hebrew users',
+    'Hebrew language requests',
     'crisis intervention',
     'emergency mental health situations',
     'trauma processing without clinician support',
-    'users asking for a Hebrew form',
   ]),
   relatedCategories: Object.freeze([
     'adolescents_cbt_core',
