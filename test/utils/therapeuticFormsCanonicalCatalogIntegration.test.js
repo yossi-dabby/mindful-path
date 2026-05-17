@@ -55,7 +55,11 @@ describe('TherapeuticForms page — canonical language-first filtering', () => {
 
   it('English adolescents specialized canonical set is exactly 60 and ordered 1.1–10.6', () => {
     expect(canonicalEnSpecialized).toHaveLength(60);
-    expect(canonicalEnSpecialized.every((form) => typeof form.worksheetNumber === 'string' && form.worksheetNumber.trim())).toBe(true);
+    expect(
+      canonicalEnSpecialized.every(
+        (form) => typeof form.worksheetNumber === 'string' && form.worksheetNumber.trim().length > 0
+      )
+    ).toBe(true);
     const ordered = canonicalEnSpecialized
       .slice()
       .sort((a, b) => {
