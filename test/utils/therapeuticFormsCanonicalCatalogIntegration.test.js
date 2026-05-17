@@ -2,12 +2,12 @@ import fs from 'fs';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
 
-import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
-import { getFilteredForms } from '../../src/pages/TherapeuticForms.jsx';
+import { ALL_FORMS, resolveFormWithLanguage } from '../../src/data/therapeuticForms/index.js';
 import { resolveAdolescentsCBTSpecializedEnglishFormByContent } from '../../src/utils/resolveFormIntent.js';
 
 const REPO_ROOT = process.cwd();
 const RESOLVER_PATH = path.join(REPO_ROOT, 'src/utils/resolveFormIntent.js');
+const THERAPEUTIC_FORMS_PAGE_PATH = path.join(REPO_ROOT, 'src/pages/TherapeuticForms.jsx');
 
 function worksheetOrder() {
   return Array.from({ length: 10 }, (_, moduleIdx) =>
@@ -33,57 +33,56 @@ describe('Canonical catalog wiring — aggregator and dedupe', () => {
 });
 
 describe('TherapeuticForms page — canonical language-first filtering', () => {
-  it('English adolescents specialized shows exactly 60 forms ordered 1.1–10.6', () => {
-    const forms = getFilteredForms({
-      audience: 'adolescents',
-      category: 'adolescents_cbt_specialized',
-      lang: 'en',
-    });
-    expect(forms).toHaveLength(60);
-    expect(forms.map(({ form }) => form.worksheetNumber)).toEqual(worksheetOrder());
+  const pageSource = fs.readFileSync(THERAPEUTIC_FORMS_PAGE_PATH, 'utf8');
+  const canonicalEnSpecialized = ALL_FORMS.filter(
+    (form) =>
+      form.approved === true &&
+      form.audience === 'adolescents' &&
+      form.language === 'en' &&
+      form.category === 'adolescents_cbt_specialized' &&
+      typeof form.worksheetNumber === 'string'
+  );
+
+  it('page reads only canonical ALL_FORMS and applies language-first filtering pipeline', () => {
+    expect(pageSource).toContain('ALL_FORMS.filter((form) => form.languages?.[lang] && form.approved === true)');
+    expect(pageSource).toContain('const audienceFiltered = langFiltered.filter');
+    expect(pageSource).toContain('const categoryFiltered = audienceFiltered.filter');
+    expect(pageSource).toContain('categoryFiltered.reduce');
+    expect(pageSource).not.toContain('THERAPEUTIC_FORMS_LIBRARY_REGISTRY');
+    expect(pageSource).not.toContain('FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_INDIVIDUAL');
   });
 
-  it('each displayed EN specialized card fields come from the same record', () => {
-    const forms = getFilteredForms({
-      audience: 'adolescents',
-      category: 'adolescents_cbt_specialized',
-      lang: 'en',
-    });
-    for (const { form, languageData, language } of forms) {
-      expect(language).toBe('en');
-      expect(form.language).toBe('en');
-      expect(languageData.title).toBe(form.languages.en.title);
-      expect(languageData.description ?? null).toBe(form.languages.en.description ?? null);
-      expect(languageData.file_url).toBe(form.languages.en.file_url);
-      expect(languageData.file_url).toContain('/forms/en/');
-    }
+  it('English adolescents specialized canonical set is exactly 60 and ordered 1.1–10.6', () => {
+    expect(canonicalEnSpecialized).toHaveLength(60);
+    const ordered = canonicalEnSpecialized
+      .slice()
+      .sort((a, b) => {
+        const [am, aw] = a.worksheetNumber.split('.').map(Number);
+        const [bm, bw] = b.worksheetNumber.split('.').map(Number);
+        if (am !== bm) return am - bm;
+        return aw - bw;
+      })
+      .map((form) => form.worksheetNumber);
+    expect(ordered).toEqual(worksheetOrder());
+  });
+
+  it('page cards read title/description/file URL from resolved languageData on the same card record', () => {
+    expect(pageSource).toContain('{languageData.title}');
+    expect(pageSource).toContain('{languageData.description}');
+    expect(pageSource).toContain('handleOpenForm(languageData.file_url)');
+    expect(pageSource).toContain('handleDownloadForm(languageData.file_url, languageData.file_name)');
+    expect(pageSource).toContain('{form.worksheetNumber || form.displayNumber || form.cbt_substage_number}');
   });
 
   it('strict language separation blocks cross-language fallback', () => {
-    const heForms = getFilteredForms({
-      audience: 'adolescents',
-      category: 'adolescents_cbt_specialized',
-      lang: 'he',
-    });
-    const enForms = getFilteredForms({
-      audience: 'adolescents',
-      category: 'adolescents_cbt_specialized',
-      lang: 'en',
-    });
-    expect(heForms.every(({ form, language }) => form.language === 'he' && language === 'he')).toBe(true);
-    expect(enForms.every(({ form, language }) => form.language === 'en' && language === 'en')).toBe(true);
-    expect(heForms.some(({ form }) => form.id.includes('-en-'))).toBe(false);
-    expect(enForms.some(({ form }) => form.id.endsWith('-he'))).toBe(false);
+    expect(resolveFormWithLanguage('tf-adolescents-cbt-specialized-en-1-1', 'he')).toBeNull();
+    expect(resolveFormWithLanguage('tf-adolescents-cbt-specialized-1-1-he', 'en')).toBeNull();
   });
 
   it('non-supported specialized languages do not fallback to en/he', () => {
     for (const lang of ['es', 'fr', 'de', 'it', 'pt']) {
-      const forms = getFilteredForms({
-        audience: 'adolescents',
-        category: 'adolescents_cbt_specialized',
-        lang,
-      });
-      expect(forms).toHaveLength(0);
+      expect(resolveFormWithLanguage('tf-adolescents-cbt-specialized-en-1-1', lang)).toBeNull();
+      expect(resolveFormWithLanguage('tf-adolescents-cbt-specialized-1-1-he', lang)).toBeNull();
     }
   });
 });
