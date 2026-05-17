@@ -213,6 +213,78 @@ const FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL_UNFROZEN = INDIVIDUAL_WORKSHEET_D
 
 export const FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL = Object.freeze(FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL_UNFROZEN);
 
+// ─── Stage Group definitions ──────────────────────────────────────────────────
+// These are display groupings used by the Therapeutic Forms library UI.
+// Each stage_group collects 5 individual worksheets under a shared stage title.
+// No combined stage PDF exists — the group references its constituent worksheets.
+// AI resolver still sends individual worksheets directly; stage groups are for UI only.
+
+const STAGE_GROUP_DEFINITIONS_DATA = Object.freeze([
+  {
+    id: 'adolescents-cbt-core-en-stage-1',
+    stageNumber: 1,
+    title: 'Stage 1 — Understand What Is Happening Now',
+    description: 'Current state, body signals, triggers, thought-feeling-action connection, personal coping map. Forms 1.1–1.5.',
+    secondaryCategories: Object.freeze(['workbook_series', 'coping_tools', 'emotional_regulation', 'reflection_journal']),
+  },
+  {
+    id: 'adolescents-cbt-core-en-stage-2',
+    stageNumber: 2,
+    title: 'Stage 2 — Notice Thoughts',
+    description: 'Automatic thoughts, thought or fact, interpretations, thinking patterns, early thought awareness. Forms 2.1–2.5.',
+    secondaryCategories: Object.freeze(['thought_records', 'cognitive_restructuring', 'coping_tools']),
+  },
+  {
+    id: 'adolescents-cbt-core-en-stage-3',
+    stageNumber: 3,
+    title: 'Stage 3 — Check Thoughts',
+    description: 'Evidence for and against, alternative explanations, balanced thoughts, helpful self-talk. Forms 3.1–3.5.',
+    secondaryCategories: Object.freeze(['cognitive_restructuring', 'thought_records', 'coping_tools']),
+  },
+  {
+    id: 'adolescents-cbt-core-en-stage-4',
+    stageNumber: 4,
+    title: 'Stage 4 — Choose Helpful Actions',
+    description: 'Choosing helpful actions, creating helpful thoughts, realistic steps, action planning. Forms 4.1–4.5.',
+    secondaryCategories: Object.freeze(['emotional_regulation', 'coping_tools', 'goals_and_values']),
+  },
+  {
+    id: 'adolescents-cbt-core-en-stage-5',
+    stageNumber: 5,
+    title: 'Stage 5 — Behavior and Action',
+    description: 'Avoidance, small steps, gradual action, behavior change, follow-through. Forms 5.1–5.5.',
+    secondaryCategories: Object.freeze(['behavioral_activation', 'coping_tools', 'anxiety_tools']),
+  },
+  {
+    id: 'adolescents-cbt-core-en-stage-6',
+    stageNumber: 6,
+    title: 'Stage 6 — Keep Going and Looking Ahead',
+    description: 'Self-learning, weekly check-in, reflection, coping plan, continuing practice. Forms 6.1–6.5.',
+    secondaryCategories: Object.freeze(['weekly_practice', 'reflection_journal', 'goals_and_values', 'coping_tools']),
+  },
+]);
+
+export const FORMS_ADOLESCENTS_CBT_CORE_EN_STAGE_GROUPS = Object.freeze(
+  STAGE_GROUP_DEFINITIONS_DATA.map((def) =>
+    Object.freeze({
+      id: def.id,
+      slug: `adolescents-cbt-core-en-stage-${def.stageNumber}`,
+      parentSeriesId: ADOLESCENTS_CBT_CORE_EN_PACKAGE_ID,
+      type: 'stage_group',
+      title: def.title,
+      language: 'en',
+      audience: 'adolescents',
+      category: 'adolescents_cbt_core',
+      secondaryCategories: def.secondaryCategories,
+      stageNumber: def.stageNumber,
+      moduleNumber: def.stageNumber,
+      description: def.description,
+      notFor: SHARED_NOT_FOR,
+      approved: true,
+    })
+  )
+);
+
 export const ADOLESCENTS_CBT_CORE_EN_MANIFEST = Object.freeze({
   forms: Object.freeze([
     ADOLESCENTS_CBT_CORE_EN_PACKAGE,

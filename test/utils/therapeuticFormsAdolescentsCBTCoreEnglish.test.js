@@ -5,6 +5,7 @@ import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
 import {
   FORMS_ADOLESCENTS_CBT_CORE_EN,
   FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL,
+  FORMS_ADOLESCENTS_CBT_CORE_EN_STAGE_GROUPS,
 } from '../../src/data/therapeuticForms/forms.adolescents.cbt-core.en.js';
 import {
   resolveFormIntent,
@@ -148,5 +149,173 @@ describe('therapeuticFormsAdolescentsCBTCoreEnglish.test.js', () => {
   it('keeps stale deleted forms unavailable', () => {
     expect(resolveFormIntent('tf-adults-cbt-thought-record', 'en')).toBeNull();
     expect(resolveFormIntent('tf-children-cbt-stage-2-2-premium-he', 'he')).toBeNull();
+  });
+});
+
+// ─── Stage group catalog ──────────────────────────────────────────────────────
+
+describe('FORMS_ADOLESCENTS_CBT_CORE_EN_STAGE_GROUPS — catalog shape', () => {
+  it('exports exactly 6 stage groups', () => {
+    expect(FORMS_ADOLESCENTS_CBT_CORE_EN_STAGE_GROUPS).toHaveLength(6);
+  });
+
+  it('every stage group has the required metadata fields', () => {
+    for (const sg of FORMS_ADOLESCENTS_CBT_CORE_EN_STAGE_GROUPS) {
+      expect(sg.type).toBe('stage_group');
+      expect(sg.language).toBe('en');
+      expect(sg.audience).toBe('adolescents');
+      expect(sg.category).toBe('adolescents_cbt_core');
+      expect(sg.parentSeriesId).toBe(CORE_ID);
+      expect(sg.approved).toBe(true);
+      expect(sg.stageNumber).toBeGreaterThanOrEqual(1);
+      expect(sg.stageNumber).toBeLessThanOrEqual(6);
+      expect(typeof sg.title).toBe('string');
+      expect(Array.isArray(sg.secondaryCategories)).toBe(true);
+    }
+  });
+
+  it('stage groups have ids matching adolescents-cbt-core-en-stage-{1..6}', () => {
+    for (let stage = 1; stage <= 6; stage++) {
+      const sg = FORMS_ADOLESCENTS_CBT_CORE_EN_STAGE_GROUPS.find((s) => s.stageNumber === stage);
+      expect(sg).toBeTruthy();
+      expect(sg.id).toBe(`adolescents-cbt-core-en-stage-${stage}`);
+    }
+  });
+
+  it('stage groups are not in ALL_FORMS (they are UI groupings, not resolvable forms)', () => {
+    const allIds = ALL_FORMS.map((f) => f.id);
+    for (const sg of FORMS_ADOLESCENTS_CBT_CORE_EN_STAGE_GROUPS) {
+      expect(allIds).not.toContain(sg.id);
+    }
+  });
+});
+
+// ─── Stage group worksheet membership ────────────────────────────────────────
+
+describe('Stage groups — worksheet membership per stage', () => {
+  function worksheetsForStage(stageNumber) {
+    return FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL.filter((w) => w.stageNumber === stageNumber);
+  }
+
+  it('Stage 1 contains forms 1.1–1.5', () => {
+    expect(worksheetsForStage(1).map((w) => w.formNumber)).toEqual(['1.1', '1.2', '1.3', '1.4', '1.5']);
+  });
+
+  it('Stage 2 contains forms 2.1–2.5', () => {
+    expect(worksheetsForStage(2).map((w) => w.formNumber)).toEqual(['2.1', '2.2', '2.3', '2.4', '2.5']);
+  });
+
+  it('Stage 3 contains forms 3.1–3.5', () => {
+    expect(worksheetsForStage(3).map((w) => w.formNumber)).toEqual(['3.1', '3.2', '3.3', '3.4', '3.5']);
+  });
+
+  it('Stage 4 contains forms 4.1–4.5', () => {
+    expect(worksheetsForStage(4).map((w) => w.formNumber)).toEqual(['4.1', '4.2', '4.3', '4.4', '4.5']);
+  });
+
+  it('Stage 5 contains forms 5.1–5.5, including avoidance (5.1) and small steps (5.2)', () => {
+    const forms = worksheetsForStage(5).map((w) => w.formNumber);
+    expect(forms).toEqual(['5.1', '5.2', '5.3', '5.4', '5.5']);
+  });
+
+  it('Stage 6 contains forms 6.1–6.5, including weekly check-in (6.2)', () => {
+    const forms = worksheetsForStage(6).map((w) => w.formNumber);
+    expect(forms).toEqual(['6.1', '6.2', '6.3', '6.4', '6.5']);
+  });
+
+  it('every worksheet has a /forms/ public URL for open/download', () => {
+    for (const w of FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL) {
+      expect(w.fileUrl.startsWith('/forms/adolescents/en/core/individual/')).toBe(true);
+      expect(w.languages.en.file_url).toBe(w.fileUrl);
+    }
+  });
+
+  it('stage groups have no top-level file_url — no fake combined stage PDFs', () => {
+    for (const sg of FORMS_ADOLESCENTS_CBT_CORE_EN_STAGE_GROUPS) {
+      expect(sg.fileUrl).toBeUndefined();
+      expect(sg.languages).toBeUndefined();
+    }
+  });
+});
+
+// ─── TherapeuticForms.jsx — stage group filtering source-code contract ─────────
+
+describe('TherapeuticForms.jsx — stage group UI display source-code contract', () => {
+  const ROOT = '/home/runner/work/mindful-path/mindful-path';
+  const pageSrc = fs.readFileSync(`${ROOT}/src/pages/TherapeuticForms.jsx`, 'utf8');
+
+  it('imports FORMS_ADOLESCENTS_CBT_CORE_EN_STAGE_GROUPS from canonical forms source', () => {
+    expect(pageSrc).toContain('FORMS_ADOLESCENTS_CBT_CORE_EN_STAGE_GROUPS');
+    expect(pageSrc).toContain('forms.adolescents.cbt-core.en.js');
+  });
+
+  it('imports FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL from canonical forms source', () => {
+    expect(pageSrc).toContain('FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL');
+  });
+
+  it('filters stage groups only for lang === en', () => {
+    expect(pageSrc).toContain("lang === 'en'");
+  });
+
+  it('filters stage groups by audience', () => {
+    expect(pageSrc).toContain('sg.audience === audience');
+  });
+
+  it('individual_worksheet type is excluded from top-level card display', () => {
+    expect(pageSrc).toContain("type !== 'individual_worksheet'");
+  });
+
+  it('stage_group type triggers worksheet list rendering', () => {
+    expect(pageSrc).toContain("form.type === 'stage_group'");
+    expect(pageSrc).toContain('worksheets.map');
+  });
+
+  it('Open/Download buttons are gated on languageData.file_url — stage groups get worksheet buttons instead', () => {
+    expect(pageSrc).toContain('languageData.file_url');
+  });
+});
+
+// ─── AI resolver regression — individual worksheets remain resolvable ─────────
+
+describe('AI resolver regression — individual worksheets still resolvable after stage grouping', () => {
+  it('body signals still resolves to form 1.2', () => {
+    const result = resolveAdolescentsCBTCoreEnglishFormByContent('body signals worksheet', { activeLanguage: 'en' });
+    expect(result?.form_id).toBe(`${CORE_ID}-1-2`);
+  });
+
+  it('trigger still resolves to form 1.3', () => {
+    const result = resolveAdolescentsCBTCoreEnglishFormByContent('what triggered me', { activeLanguage: 'en' });
+    expect(result?.form_id).toBe(`${CORE_ID}-1-3`);
+  });
+
+  it('thought or fact still resolves to form 2.2', () => {
+    const result = resolveAdolescentsCBTCoreEnglishFormByContent('thought or fact', { activeLanguage: 'en' });
+    expect(result?.form_id).toBe(`${CORE_ID}-2-2`);
+  });
+
+  it('evidence still resolves to form 3.1', () => {
+    const result = resolveAdolescentsCBTCoreEnglishFormByContent('evidence for and against a thought', { activeLanguage: 'en' });
+    expect(result?.form_id).toBe(`${CORE_ID}-3-1`);
+  });
+
+  it('avoidance still resolves to form 5.1', () => {
+    const result = resolveAdolescentsCBTCoreEnglishFormByContent('help with avoidance', { activeLanguage: 'en' });
+    expect(result?.form_id).toBe(`${CORE_ID}-5-1`);
+  });
+
+  it('small steps still resolves to form 5.2', () => {
+    const result = resolveAdolescentsCBTCoreEnglishFormByContent('small steps worksheet', { activeLanguage: 'en' });
+    expect(result?.form_id).toBe(`${CORE_ID}-5-2`);
+  });
+
+  it('weekly check-in still resolves to form 6.2', () => {
+    const result = resolveAdolescentsCBTCoreEnglishFormByContent('weekly check in', { activeLanguage: 'en' });
+    expect(result?.form_id).toBe(`${CORE_ID}-6-2`);
+  });
+
+  it('full workbook request still resolves to full package', () => {
+    const result = resolveAdolescentsCBTCoreEnglishFormByContent('full workbook', { activeLanguage: 'en' });
+    expect(result?.form_id).toBe(CORE_ID);
+    expect(result?.url).toBe('/forms/adolescents/en/core/adolescents-cbt-core-series-1-full-en.pdf');
   });
 });

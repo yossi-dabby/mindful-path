@@ -8,6 +8,10 @@ import {
   ALL_FORMS,
   resolveFormWithLanguage } from
 '@/data/therapeuticForms/index.js';
+import {
+  FORMS_ADOLESCENTS_CBT_CORE_EN_STAGE_GROUPS,
+  FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL,
+} from '@/data/therapeuticForms/forms.adolescents.cbt-core.en.js';
 import { openFile } from '@/components/chat/utils/openFile';
 import { downloadPdfFile } from '@/components/chat/utils/downloadPdfFile';
 
@@ -67,6 +71,7 @@ function hasValidLanguageMatch(resolved, lang) {
 // ─── UI adapter ────────────────────────────────────────────────────────────────
 // Returns all approved forms that match the given filters and are resolvable in lang.
 // Keeps filtering logic minimal and delegates all validity checks to the resolver.
+// For English/adolescents, also returns stage group cards (each grouping 5 worksheets).
 export function getFilteredForms({ audience, category, lang }) {
   const langFiltered = ALL_FORMS.filter((form) => form.languages?.[lang] && form.approved === true && form.type !== 'individual_worksheet');
 
@@ -81,19 +86,71 @@ export function getFilteredForms({ audience, category, lang }) {
     return secondary.includes(category);
   });
 
-  return categoryFiltered.reduce((acc, form) => {
+  const regularForms = categoryFiltered.reduce((acc, form) => {
     const resolved = resolveLibraryFormWithLanguage(form, lang);
     if (!resolved) return acc;
     if (!hasValidLanguageMatch(resolved, lang)) return acc;
     acc.push(resolved);
     return acc;
-  }, []).sort((a, b) => {
+  }, []);
+
+  // Stage groups — English only, derived from the canonical forms source.
+  // Each stage_group card lists its 5 individual worksheets for open/download.
+  let stageGroupResults = [];
+  if (lang === 'en') {
+    stageGroupResults = FORMS_ADOLESCENTS_CBT_CORE_EN_STAGE_GROUPS
+      .filter((sg) => audience === 'all' || sg.audience === audience)
+      .filter((sg) => {
+        if (category === 'all') return true;
+        if (sg.category === category) return true;
+        return (sg.secondaryCategories || []).includes(category);
+      })
+      .map((sg) => {
+        const worksheets = FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL
+          .filter((w) => w.stageNumber === sg.stageNumber)
+          .map((w) => {
+            const wLang = w.languages.en;
+            return {
+              form: w,
+              languageData: {
+                title: wLang.title,
+                description: wLang.description,
+                file_url: wLang.file_url,
+                file_type: wLang.file_type,
+                file_name: wLang.file_name,
+                rtl: false,
+              },
+            };
+          });
+        return {
+          form: sg,
+          language: 'en',
+          languageData: {
+            title: sg.title,
+            description: sg.description,
+            file_url: null,
+            file_type: null,
+            file_name: null,
+            rtl: false,
+          },
+          worksheets,
+        };
+      });
+  }
+
+  // Type ordering: workbook_package (0) sorts before stage_group (1) before others (2)
+  const TYPE_ORDER = { workbook_package: 0, stage_group: 1 };
+
+  return [...regularForms, ...stageGroupResults].sort((a, b) => {
     const byLanguage = String(a.language || '').localeCompare(String(b.language || ''));
     if (byLanguage !== 0) return byLanguage;
     const byAudience = String(a.form.audience || '').localeCompare(String(b.form.audience || ''));
     if (byAudience !== 0) return byAudience;
     const byCategory = String(a.form.category || '').localeCompare(String(b.form.category || ''));
     if (byCategory !== 0) return byCategory;
+    const aType = TYPE_ORDER[a.form.type] ?? 2;
+    const bType = TYPE_ORDER[b.form.type] ?? 2;
+    if (aType !== bType) return aType - bType;
     const bySeries = String(a.form.series || a.form.adolescentSeries || '').localeCompare(
       String(b.form.series || b.form.adolescentSeries || '')
     );
@@ -304,7 +361,7 @@ export default function TherapeuticForms() {
         data-testid="forms-grid"
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         
-          {forms.map(({ form, languageData }) =>
+          {forms.map(({ form, languageData, worksheets }) =>
         <div
           key={form.id}
           data-testid={`form-card-${form.id}`}
@@ -348,9 +405,42 @@ export default function TherapeuticForms() {
                   </span>
                   }
                 </div>
+
+                {/* Stage group: worksheet list with per-worksheet Open/Download */}
+                {form.type === 'stage_group' && worksheets && worksheets.length > 0 &&
+                <div className="border-t border-teal-300 pt-3 space-y-1.5">
+                    {worksheets.map(({ form: w, languageData: wLang }) =>
+                  <div key={w.id} className="flex items-center gap-1.5 min-w-0">
+                        <span className="flex-shrink-0 text-xs font-mono text-teal-700 w-8">
+                          {w.formNumber}
+                        </span>
+                        <span className="flex-1 text-xs text-foreground truncate min-w-0" title={wLang.title}>
+                          {wLang.title}
+                        </span>
+                        <button
+                      type="button"
+                      onClick={() => handleOpenForm(wLang.file_url)}
+                      data-testid={`open-worksheet-${w.id}`}
+                      aria-label={`${t('therapeutic_forms.open_form')} — ${wLang.title}`}
+                      className="flex-shrink-0 inline-flex items-center justify-center rounded px-1.5 py-0.5 text-xs font-medium bg-teal-600 text-white hover:bg-teal-700 transition-colors">
+                          <ExternalLink className="w-3 h-3" />
+                        </button>
+                        <button
+                      type="button"
+                      onClick={() => handleDownloadForm(wLang.file_url, wLang.file_name)}
+                      data-testid={`download-worksheet-${w.id}`}
+                      aria-label={`${t('therapeutic_forms.download_form')} — ${wLang.title}`}
+                      className="flex-shrink-0 inline-flex items-center justify-center rounded px-1.5 py-0.5 text-xs font-medium bg-teal-700 text-white hover:bg-teal-800 transition-colors">
+                          <Download className="w-3 h-3" />
+                        </button>
+                      </div>
+                  )}
+                  </div>
+                }
               </div>
 
-              {/* Open / Download buttons */}
+              {/* Open / Download buttons — only for forms that have a single file_url */}
+              {languageData.file_url &&
               <div className="bg-teal-400 pb-5 px-5 flex gap-2">
                 <Button
               onClick={() => handleOpenForm(languageData.file_url)}
@@ -371,6 +461,7 @@ export default function TherapeuticForms() {
                   {t('therapeutic_forms.download_form')}
                 </Button>
               </div>
+              }
             </div>
         )}
         </div>
