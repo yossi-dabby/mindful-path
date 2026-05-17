@@ -34,15 +34,6 @@ export { FORMS_ADULTS }                from './forms.adults.js';
 export { FORMS_OLDER_ADULTS }          from './forms.olderAdults.js';
 
 // ─── Aggregated registry ──────────────────────────────────────────────────────
-import { FORMS_CHILDREN }              from './forms.children.js';
-import { FORMS_CHILDREN_CBT_PREMIUM }  from './forms.children.cbt-premium.js';
-import { FORMS_CHILDREN_CBT_SPECIALIZED } from './forms.children.cbt-specialized.js';
-import { FORMS_ADOLESCENTS }           from './forms.adolescents.js';
-import { FORMS_ADOLESCENTS_CBT_CORE_EN } from './forms.adolescents.cbt-core.en.js';
-import { FORMS_ADOLESCENTS_CBT_SPECIALIZED } from './forms.adolescents.cbt-specialized.js';
-import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN } from './forms.adolescents.cbt-specialized.en.js';
-import { FORMS_ADULTS }                from './forms.adults.js';
-import { FORMS_OLDER_ADULTS }          from './forms.olderAdults.js';
 
 function buildCanonicalRegistry(forms) {
   const byId = new Map();
@@ -69,15 +60,8 @@ function buildCanonicalRegistry(forms) {
  * @type {readonly object[]}
  */
 export const ALL_FORMS = buildCanonicalRegistry([
-  ...FORMS_CHILDREN,
-  ...FORMS_CHILDREN_CBT_PREMIUM,
-  ...FORMS_CHILDREN_CBT_SPECIALIZED,
-  ...FORMS_ADOLESCENTS,
-  ...FORMS_ADOLESCENTS_CBT_CORE_EN,
-  ...FORMS_ADOLESCENTS_CBT_SPECIALIZED,
-  ...FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN,
-  ...FORMS_ADULTS,
-  ...FORMS_OLDER_ADULTS,
+  // Runtime catalog intentionally empty.
+  // Keep architecture/contracts intact for clean future re-import.
 ]);
 
 // ─── Resolver utilities ───────────────────────────────────────────────────────

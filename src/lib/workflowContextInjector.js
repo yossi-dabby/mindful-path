@@ -92,10 +92,6 @@ import {
 // Wave 5D — Quality Evaluator diagnostic integration (diagnostics-only, no runtime effect).
 import { computeEvaluatorDiagnosticSnapshot } from './therapistQualityEvaluator.js';
 import { ALL_FORMS } from '../data/therapeuticForms/index.js';
-import { FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL } from '../data/therapeuticForms/forms.children.cbt-specialized.js';
-import { FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL } from '../data/therapeuticForms/forms.adolescents.cbt-core.en.js';
-import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_INDIVIDUAL } from '../data/therapeuticForms/forms.adolescents.cbt-specialized.js';
-import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_INDIVIDUAL } from '../data/therapeuticForms/forms.adolescents.cbt-specialized.en.js';
 
 const THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS = [
 '[ATTACHMENT_HANDLING_POLICY]',
@@ -156,6 +152,13 @@ const _FORM_CATALOG_AUDIENCE_SAFETY_NOTES = Object.freeze({
  */
 export function buildTherapistFormCatalog(forms) {
   const approvedForms = forms.filter(f => f.approved === true);
+  if (approvedForms.length === 0) {
+    return [
+      'THERAPEUTIC FORMS AVAILABILITY: no therapeutic forms are currently installed/available.',
+      'Do NOT emit [FORM:...] markers.',
+      'If a user requests a worksheet/form, state clearly that no therapeutic forms are currently installed/available.',
+    ].join('\n');
+  }
 
   // Group by audience
   const byAudience = {};
@@ -186,238 +189,27 @@ export function buildTherapistFormCatalog(forms) {
     }
   }
 
-  // Append canonical locked series section for Hebrew children CBT premium forms.
-  // This section gives the AI the exact approved title list to answer list/series questions.
-  const childrenCbtIndividual = approvedForms.filter(
-    f =>
-      f.audience === 'children' &&
-      f.category === 'children_cbt_process' &&
-      f.cbt_substage_number &&
-      typeof f.id === 'string' &&
-      f.id.startsWith('tf-children-cbt-stage-')
-  );
-  if (childrenCbtIndividual.length > 0) {
-    // Sort by cbt_substage_number numerically (e.g. '1.1' < '1.2' < ... < '6.4')
-    const sorted = [...childrenCbtIndividual].sort((a, b) => {
-      const [aS, aT] = a.cbt_substage_number.split('.').map(Number);
-      const [bS, bT] = b.cbt_substage_number.split('.').map(Number);
-      return aS !== bS ? aS - bS : aT - bT;
-    });
-
-    lines.push('');
-    lines.push('[HEBREW CHILDREN CBT PREMIUM — CANONICAL LOCKED SERIES]');
-    lines.push('When asked for the full list of the Hebrew children CBT series (1 to 6.4),');
-    lines.push('answer ONLY from this canonical list. Do NOT use generic CBT titles:');
-
-    let currentStage = null;
-    for (const form of sorted) {
-      const stageNum = form.cbt_stage_number;
-      if (stageNum !== currentStage) {
-        currentStage = stageNum;
-        // Find the stage intro form for its Hebrew title
-        const stageIntro = approvedForms.find(
-          f => f.audience === 'children' && f.category === 'children_cbt_process' &&
-               f.cbt_stage_number === stageNum && !f.cbt_substage_number
-        );
-        const stageName = stageIntro?.languages?.he?.title || `שלב ${stageNum}`;
-        lines.push(`  ${stageName}:`);
-      }
-      const heTitle = form.languages?.he?.title || form.cbt_substage_number;
-      const contentHint = form.shortContentDescriptionHe ? ` — ${form.shortContentDescriptionHe}` : '';
-      lines.push(`    [FORM:${form.id}]  ${heTitle}${contentHint}`);
-    }
-  }
-
-  const specializedChildrenForms = FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL.filter(
-    (f) =>
-      f.audience === 'children' &&
-      f.category === 'children_cbt_process' &&
-      typeof f.displayNumber === 'string'
-  );
-  if (specializedChildrenForms.length > 0) {
-    const sorted = [...specializedChildrenForms].sort((a, b) => {
-      const [aPack, aIdx] = String(a.displayNumber).split('.').map(Number);
-      const [bPack, bIdx] = String(b.displayNumber).split('.').map(Number);
-      return aPack !== bPack ? aPack - bPack : aIdx - bIdx;
-    });
-
-    lines.push('');
-    lines.push('[HEBREW CHILDREN CBT SPECIALIZED — CANONICAL MANIFEST]');
-    lines.push('When asked for specialized children worksheets, answer only from this manifest-backed list:');
-    let currentPack = null;
-    for (const form of sorted) {
-      if (form.packNumber !== currentPack) {
-        currentPack = form.packNumber;
-        lines.push(`  מנה ${currentPack} — ${form.domainHe || form.domain || ''}:`);
-      }
-      const title = form.languages?.he?.title || form.titleHe || form.displayNumber || form.id;
-      const content = form.shortContentDescriptionHe ? ` — ${form.shortContentDescriptionHe}` : '';
-      lines.push(`    ${title}${content}`);
-    }
-  }
-
-  const specializedAdolescentForms = FORMS_ADOLESCENTS_CBT_SPECIALIZED_INDIVIDUAL.filter(
-    (f) =>
-      f.audience === 'adolescents' &&
-      f.category === 'adolescents_cbt_specialized' &&
-      typeof f.worksheetNumber === 'string'
-  );
-  if (specializedAdolescentForms.length > 0) {
-    const sorted = [...specializedAdolescentForms].sort((a, b) => {
-      const [aModule, aIdx] = String(a.worksheetNumber).split('.').map(Number);
-      const [bModule, bIdx] = String(b.worksheetNumber).split('.').map(Number);
-      return aModule !== bModule ? aModule - bModule : aIdx - bIdx;
-    });
-
-    lines.push('');
-    lines.push('[HEBREW ADOLESCENT CBT SPECIALIZED — CANONICAL MANIFEST]');
-    lines.push('When asked for the Hebrew adolescent CBT specialized series, answer ONLY from this manifest-backed list.');
-    lines.push('Do NOT mix in children worksheets, adolescent core worksheets, stale titles, or recommendations based only on file names.');
-    lines.push('For clinical matching, use worksheet metadata (therapeuticGoal, shortContentDescriptionHe, whenToUse, teenSignals, clinicalKeywords, hebrewIntentPhrases, notFor, relatedForms) — not title alone.');
-    let currentModule = null;
-    for (const form of sorted) {
-      if (form.moduleNumber !== currentModule) {
-        currentModule = form.moduleNumber;
-        lines.push(`  מודול ${currentModule} — ${form.moduleHe || form.module || ''}:`);
-      }
-      const title = form.languages?.he?.title || form.titleHe || form.worksheetNumber || form.id;
-      const summary = [
-        `desc=${form.shortContentDescriptionHe || ''}`,
-        `goal=${form.therapeuticGoal || ''}`,
-        `use=${form.whenToUse || ''}`,
-        `signals=${(form.teenSignals || []).join(', ')}`,
-        `keywords=${(form.clinicalKeywords || []).join(', ')}`,
-        `intent=${(form.hebrewIntentPhrases || []).join(', ')}`,
-        `notFor=${form.notFor || ''}`,
-        `related=${(form.relatedForms || []).join(', ')}`,
-      ].join(' | ');
-      lines.push(`    [FORM:${form.id}] ${title} | ${summary}`);
-    }
-  }
-
-  const adolescentsCoreEnglishForms = FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL.filter(
-    (f) =>
-      f.audience === 'adolescents' &&
-      f.language === 'en' &&
-      f.category === 'adolescents_cbt_core' &&
-      typeof f.worksheetNumber === 'string'
-  );
-  if (adolescentsCoreEnglishForms.length > 0) {
-    const sorted = [...adolescentsCoreEnglishForms].sort((a, b) => {
-      const [aStage, aIdx] = String(a.worksheetNumber).split('.').map(Number);
-      const [bStage, bIdx] = String(b.worksheetNumber).split('.').map(Number);
-      return aStage !== bStage ? aStage - bStage : aIdx - bIdx;
-    });
-
-    lines.push('');
-    lines.push('[ENGLISH ADOLESCENT CBT CORE SERIES 1 — CANONICAL MANIFEST]');
-    lines.push('When asked for English adolescent CBT core worksheets, answer ONLY from this manifest-backed list.');
-    lines.push('Do NOT mix in Hebrew adolescent core/specialized forms, children forms, adult forms, or stale file-name-only guesses.');
-    lines.push('For clinical matching, use worksheet metadata (therapeuticGoal, shortContentDescription, whenToUse, teenSignals, clinicalKeywords, intentPhrases, notFor, relatedForms) — not title alone.');
-    let currentStage = null;
-    for (const form of sorted) {
-      if (form.stageNumber !== currentStage) {
-        currentStage = form.stageNumber;
-        lines.push(`  Stage ${currentStage} — ${form.stageTitle || ''}:`);
-      }
-      const title = form.languages?.en?.title || form.title || form.worksheetNumber || form.id;
-      const summary = [
-        `desc=${form.shortContentDescription || ''}`,
-        `goal=${form.therapeuticGoal || ''}`,
-        `use=${(form.whenToUse || []).join(', ')}`,
-        `signals=${(form.teenSignals || []).join(', ')}`,
-        `keywords=${(form.clinicalKeywords || []).join(', ')}`,
-        `intent=${(form.intentPhrases || []).join(', ')}`,
-        `notFor=${(form.notFor || []).join(', ')}`,
-        `related=${(form.relatedForms || []).join(', ')}`,
-      ].join(' | ');
-      lines.push(`    [FORM:${form.id}] ${title} | ${summary}`);
-    }
-  }
-
-  const adolescentsSpecializedEnglishForms = FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_INDIVIDUAL.filter(
-    (f) =>
-      f.audience === 'adolescents' &&
-      f.language === 'en' &&
-      f.category === 'adolescents_cbt_specialized' &&
-      typeof f.worksheetNumber === 'string'
-  );
-  if (adolescentsSpecializedEnglishForms.length > 0) {
-    const sorted = [...adolescentsSpecializedEnglishForms].sort((a, b) => {
-      const [aModule, aIdx] = String(a.worksheetNumber).split('.').map(Number);
-      const [bModule, bIdx] = String(b.worksheetNumber).split('.').map(Number);
-      return aModule !== bModule ? aModule - bModule : aIdx - bIdx;
-    });
-
-    lines.push('');
-    lines.push('[ENGLISH ADOLESCENT CBT SPECIALIZED SERIES — CANONICAL MANIFEST]');
-    lines.push('When asked for English adolescent CBT specialized worksheets, answer ONLY from this manifest-backed list.');
-    lines.push('Do NOT mix in Hebrew adolescent specialized/core forms, English adolescent core worksheets, children forms, or adult forms.');
-    lines.push('Language-first rule: if active app language is not English, do not return these forms unless the user explicitly asks for English forms.');
-    lines.push('For clinical matching, use worksheet metadata (therapeuticGoal, shortContentDescription, whenToUse, teenSignals, clinicalKeywords, intentPhrases, notFor, relatedForms) — not title alone.');
-    let currentModule = null;
-    for (const form of sorted) {
-      if (form.moduleNumber !== currentModule) {
-        currentModule = form.moduleNumber;
-        lines.push(`  Module ${currentModule} — ${form.moduleTitle || ''}:`);
-      }
-      const title = form.languages?.en?.title || form.title || form.worksheetNumber || form.id;
-      const summary = [
-        `desc=${form.shortContentDescription || ''}`,
-        `goal=${form.therapeuticGoal || ''}`,
-        `use=${(form.whenToUse || []).join(', ')}`,
-        `signals=${(form.teenSignals || []).join(', ')}`,
-        `keywords=${(form.clinicalKeywords || []).join(', ')}`,
-        `intent=${(form.intentPhrases || []).join(', ')}`,
-        `notFor=${(form.notFor || []).join(', ')}`,
-        `related=${(form.relatedForms || []).join(', ')}`,
-      ].join(' | ');
-      lines.push(`    [FORM:${form.id}] ${title} | ${summary}`);
-    }
-  }
-
   return lines.join('\n');
 }
 
 const THERAPIST_FORM_LIBRARY_INSTRUCTIONS = [
 '[THERAPEUTIC_FORMS_POLICY]',
-'You have access to a curated library of approved therapeutic worksheet forms across multiple audience groups.',
-'When a user requests a worksheet, CBT form, thought record, mood tracker, homework sheet, or similar structured exercise, you SHOULD attach the most relevant approved form.',
+'No therapeutic forms are currently installed/available.',
+'When a user requests a worksheet, CBT form, thought record, mood tracker, homework sheet, or similar structured exercise, do NOT attach a form.',
 '',
-'To attach a form, embed EXACTLY ONE marker of the form [FORM:form-id] or [FORM:form-id:lang] anywhere in your reply.',
-'The marker will NOT be visible to the user — the system converts it to a downloadable form card automatically.',
+'Do NOT embed [FORM:...] markers while the catalog is empty.',
+'Reply with a short, clear explanation that no therapeutic forms are currently installed/available.',
 '',
 buildTherapistFormCatalog(ALL_FORMS),
 '',
-'Language: Append the language code for the session language, e.g. [FORM:tf-adults-cbt-thought-record:he] for Hebrew, :es for Spanish, :fr for French, :de for German, :it for Italian, :pt for Portuguese.',
+'Language: Keep the user response in the session language when explaining that forms are unavailable.',
 '',
 'RULES:',
-'  - Do NOT claim you only have two forms — you have the full catalog listed above.',
-'  - Use only the exact form IDs listed above. Do not invent form IDs, file names, or URLs.',
-'  - If the user asks what forms are available, summarize by audience/category.',
-'  - Choose the most clinically appropriate form for the user\'s audience and presenting need.',
-'  - For adolescent and child forms: send ONLY when the user\'s age group is explicitly known or safely inferred.',
-'  - Do not tell the user you are embedding a marker — say "I\'ve attached a worksheet" instead.',
-'  - Attach a form only when therapeutically appropriate — never as a default filler response.',
-'  - Keep your chat reply SHORT when attaching a form (1–3 sentences max).',
-'  - If no form matches the request, do NOT attach anything — do not fabricate.',
+'  - State clearly: no therapeutic forms are currently installed/available.',
+'  - Do not invent form IDs, file names, URLs, catalogs, or attachments.',
+'  - Do not claim forms exist in any audience/category while catalog is empty.',
 '  - Do not use forms as a substitute for crisis or safety handling.',
-'  - Existing safety-handling, crisis flow, and clinical boundaries are not affected by this policy.',
-'',
-'HEBREW CHILDREN CBT PREMIUM — SERIES LIST RULE:',
-'  When the user asks for the full list of the Hebrew children CBT premium series (e.g. "תן לי את כל הרשימה", "מה יש מ-1 עד 6.4", "כותרת ותוכן"):',
-'  Answer ONLY from the CANONICAL LOCKED SERIES listed in the catalog above.',
-'  Do NOT generate a generic CBT list or use any titles not in the canonical list above.',
-'  Stale/wrong titles such as "זיהוי מחשבות אוטומטיות", "זיהוי וחקירה של מחשבות", "עדות בעד ונגד המחשבה", "תרגילי נשימה", "הכרת תודה" are NOT part of the approved series.',
-'',
-'HEBREW CHILDREN CBT PREMIUM — AUTOMATIC THOUGHT PRIORITY RULE:',
-'  When a child is described as thinking or saying any of these in a difficult moment:',
-'  "אני לא אצליח", "כולם יצחקו עליי", "מה הראש אומר לו", "מה עובר לו בראש",',
-'  "מה הוא אומר לעצמו", "מחשבה בזמן קושי", "לזהות מחשבה ברגע קשה", "מה הראש אמר לי",',
-'  → The PRIMARY worksheet to attach is: [FORM:tf-children-cbt-stage-2-2-premium-he]',
-'  → Title: 2.2 — מה הראש אמר לי? (Automatic thought identification)',
-'  → Later-stage follow-up forms may include 3.1–3.4 for cognitive challenging,',
-'    but the FIRST attachment for identifying automatic thoughts MUST be 2.2.']
+'  - Existing safety-handling, crisis flow, and clinical boundaries are not affected by this policy.']
 .join('\n');
 
 /**
