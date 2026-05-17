@@ -40,6 +40,7 @@ import {
   toGeneratedFileMetadata,
   ALL_FORMS,
 } from '../data/therapeuticForms/index.js';
+import { FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL } from '../data/therapeuticForms/forms.adolescents.cbt-core.en.js';
 
 // ─── Approved intent → form ID map ───────────────────────────────────────────
 //
@@ -1495,13 +1496,9 @@ const ADOLESCENTS_CBT_CORE_EN_STAGE_RE = /\bstage\s*([1-6])\b/;
 const ADOLESCENTS_CBT_CORE_EN_MIN_SCORE = 42;
 
 function getAdolescentsCBTCoreEnglishForms() {
-  return ALL_FORMS.filter(
+  return FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL.filter(
     (f) =>
       f.approved === true &&
-      f.audience === 'adolescents' &&
-      f.language === 'en' &&
-      f.adolescentSeries === 'core' &&
-      f.category === 'adolescents_cbt_core' &&
       typeof f.worksheetNumber === 'string'
   );
 }
