@@ -127,9 +127,45 @@ describe('Adolescent CBT Specialized EN — registry and assets', () => {
 describe('Adolescent CBT Specialized EN — forms library visibility', () => {
   const pageSource = fs.readFileSync(THERAPEUTIC_FORMS_PAGE_PATH, 'utf8');
 
-  it('therapeutic forms page merges adolescent specialized EN individual forms into the library registry', () => {
-    expect(pageSource).toContain('FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_INDIVIDUAL');
-    expect(pageSource).toContain('...FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_INDIVIDUAL');
+  it('therapeutic forms page uses canonical ALL_FORMS only', () => {
+    expect(pageSource).toContain('ALL_FORMS.filter');
+    expect(pageSource).not.toContain('FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_INDIVIDUAL');
+    expect(pageSource).not.toContain('THERAPEUTIC_FORMS_LIBRARY_REGISTRY');
+  });
+});
+
+describe('Adolescent CBT Specialized EN — canonical aggregated catalog constraints', () => {
+  const canonicalEnSpecialized = ALL_FORMS.filter(
+    (form) =>
+      form.approved === true &&
+      form.audience === 'adolescents' &&
+      form.language === 'en' &&
+      form.category === 'adolescents_cbt_specialized' &&
+      typeof form.worksheetNumber === 'string'
+  );
+
+  it('ALL_FORMS contains exactly 60 individual EN adolescent specialized worksheets', () => {
+    expect(canonicalEnSpecialized).toHaveLength(60);
+  });
+
+  it('ALL_FORMS has no duplicate form IDs', () => {
+    const ids = ALL_FORMS.map((form) => form.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('canonical EN adolescent specialized worksheet numbers are exactly 1.1–10.6 in order', () => {
+    const worksheetNumbers = canonicalEnSpecialized
+      .map((form) => form.worksheetNumber)
+      .sort((a, b) => {
+        const [am, aw] = a.split('.').map(Number);
+        const [bm, bw] = b.split('.').map(Number);
+        if (am !== bm) return am - bm;
+        return aw - bw;
+      });
+    const expected = Array.from({ length: 10 }, (_, moduleIdx) =>
+      Array.from({ length: 6 }, (_, worksheetIdx) => `${moduleIdx + 1}.${worksheetIdx + 1}`)
+    ).flat();
+    expect(worksheetNumbers).toEqual(expected);
   });
 });
 
