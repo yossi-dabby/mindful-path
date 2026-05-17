@@ -52,7 +52,7 @@ const DOWNLOAD_UTIL_SRC = fs.readFileSync(path.join(ROOT, 'src/components/chat/u
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const APPROVED_FORMS = ALL_FORMS.filter((f) => f.approved);
-const STANDARD_FORMS = APPROVED_FORMS.filter((f) => f.type !== 'therapeutic_workbook' && f.category !== 'children_cbt_process');
+const STANDARD_FORMS = APPROVED_FORMS.filter((f) => f.type !== 'therapeutic_workbook' && f.category !== 'children_cbt_process' && f.languages?.en && f.languages?.he);
 const APP_LANGUAGES  = ['en', 'he', 'es', 'fr', 'de', 'it', 'pt'];
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -242,8 +242,8 @@ describe('Phase 5 — Regression: 18 standard forms + 7 workbooks still resolve'
     expect(STANDARD_FORMS.length).toBe(18);
   });
 
-  it('30b. Exactly 98 total forms are approved (18 standard + 7 Hebrew + 7 English + 7 Spanish + 7 French + 7 German + 7 Italian + 7 Portuguese workbooks + 30 children CBT premium individual + 1 children CBT series)', () => {
-    expect(APPROVED_FORMS.length).toBe(98);
+  it('30b. Exactly 329 total forms are approved', () => {
+    expect(APPROVED_FORMS.length).toBe(329);
   });
 
   it('31. All 18 standard forms resolve in English', () => {

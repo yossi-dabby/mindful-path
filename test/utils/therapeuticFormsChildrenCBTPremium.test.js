@@ -46,7 +46,7 @@ const LOCKED_FOLDER = path.join(PUBLIC, 'forms/he/children/cbt-premium-locked');
 // ─── Computed sets ────────────────────────────────────────────────────────────
 
 const CHILDREN_PREMIUM_INDIVIDUAL = ALL_FORMS.filter(
-  f => f.approved && f.audience === 'children' && f.category === 'children_cbt_process'
+  f => f.approved && f.audience === 'children' && f.category === 'children_cbt_process' && !f.childrenSeries
 );
 
 const CHILDREN_SERIES = ALL_FORMS.filter(
@@ -182,9 +182,9 @@ describe('Children CBT Premium — 4. Forms appear under children audience', () 
     expect(childForms.length).toBeGreaterThanOrEqual(31);
   });
 
-  it('listFormsByAudienceAndCategory returns all 30 individual forms', () => {
+  it('listFormsByAudienceAndCategory returns all 84 children_cbt_process forms (premium + specialized)', () => {
     const forms = listFormsByAudienceAndCategory('children', 'children_cbt_process');
-    expect(forms.length).toBe(30);
+    expect(forms.length).toBe(84);
   });
 
   it('all 30 individual forms have audience: children', () => {
@@ -448,6 +448,7 @@ describe('Children CBT Premium — 10. Workbook/series request returns full seri
 describe('Children CBT Premium — 11. Existing 18 standard forms still resolve correctly', () => {
   const STANDARD_FORMS = ALL_FORMS.filter(
     f => f.approved && f.type !== 'therapeutic_workbook' && f.category !== 'children_cbt_process'
+      && f.languages?.en && f.languages?.he
   );
 
   it('exactly 18 approved standard multilingual forms remain', () => {
@@ -546,8 +547,8 @@ describe('Children CBT Premium — APPROVED_FORM_INTENT_MAP coverage', () => {
     }
   });
 
-  it('total approved forms is 98', () => {
+  it('total approved forms is 329', () => {
     const total = ALL_FORMS.filter(f => f.approved).length;
-    expect(total).toBe(98);
+    expect(total).toBe(329);
   });
 });

@@ -8,50 +8,95 @@ import {
   ALL_FORMS,
   resolveFormWithLanguage } from
 '@/data/therapeuticForms/index.js';
-import { FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL } from '@/data/therapeuticForms/forms.children.cbt-specialized.js';
-import { FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL } from '@/data/therapeuticForms/forms.adolescents.cbt-core.en.js';
-import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_INDIVIDUAL } from '@/data/therapeuticForms/forms.adolescents.cbt-specialized.js';
-import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_INDIVIDUAL } from '@/data/therapeuticForms/forms.adolescents.cbt-specialized.en.js';
 import { openFile } from '@/components/chat/utils/openFile';
 import { downloadPdfFile } from '@/components/chat/utils/downloadPdfFile';
 
-export const THERAPEUTIC_FORMS_LIBRARY_REGISTRY = Object.freeze([
-  ...new Map(
-      [
-        ...ALL_FORMS,
-        ...FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL,
-        ...FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL,
-        ...FORMS_ADOLESCENTS_CBT_SPECIALIZED_INDIVIDUAL,
-        ...FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_INDIVIDUAL,
-      ].map((form) => [form.id, form])
-  ).values(),
-]);
-
 export function resolveLibraryFormWithLanguage(form, lang) {
   const resolved = resolveFormWithLanguage(form.id, lang);
-  if (resolved) return resolved;
-  if (!form || form.approved !== true) return null;
+  if (!resolved) return null;
+  return resolved;
+}
 
-  // For forms not present in ALL_FORMS (e.g. manifest-loaded specialized forms),
-  // only serve an exact language match — no fallback to Hebrew or English.
-  const languageData = form.languages?.[lang] || null;
+function getLanguageFolderPrefix(lang) {
+  return `/forms/${lang}/`;
+}
 
-  if (!languageData?.file_url) return null;
-  return { form, languageData };
+function toWorksheetSortValue(worksheetNumber) {
+  const value = String(worksheetNumber ?? '').trim();
+  if (!value) return Number.MAX_SAFE_INTEGER;
+  const [moduleRaw, worksheetRaw] = value.split('.');
+  const moduleNumber = Number(moduleRaw);
+  const worksheetNumberValue = Number(worksheetRaw);
+  if (!Number.isFinite(moduleNumber) || !Number.isFinite(worksheetNumberValue)) return Number.MAX_SAFE_INTEGER;
+  return moduleNumber * 100 + worksheetNumberValue;
+}
+
+function warnLanguageMismatch(form, lang, reason) {
+  if (!import.meta.env?.DEV) return;
+  console.warn(`[TherapeuticForms] Excluding form "${form?.id || 'unknown'}" for lang "${lang}": ${reason}`);
+}
+
+function hasValidLanguageMatch(resolved, lang) {
+  if (!resolved?.form || !resolved?.languageData) return false;
+  const { form, language, languageData } = resolved;
+  if (language !== lang) {
+    warnLanguageMismatch(form, lang, `resolved language "${language}" does not match active language`);
+    return false;
+  }
+  if (form.language && form.language !== lang) {
+    warnLanguageMismatch(form, lang, `form.language "${form.language}" does not match active language`);
+    return false;
+  }
+  const blockLanguage = form.languages?.[lang] ? lang : null;
+  if (!blockLanguage) {
+    warnLanguageMismatch(form, lang, 'no exact language block found');
+    return false;
+  }
+  const fileUrl = String(languageData.file_url || '').trim();
+  const expectedPrefix = getLanguageFolderPrefix(lang);
+  if (!fileUrl.includes(expectedPrefix)) {
+    warnLanguageMismatch(form, lang, `file_url "${fileUrl}" missing expected "${expectedPrefix}"`);
+    return false;
+  }
+  return true;
 }
 
 // ─── UI adapter ────────────────────────────────────────────────────────────────
 // Returns all approved forms that match the given filters and are resolvable in lang.
 // Keeps filtering logic minimal and delegates all validity checks to the resolver.
 export function getFilteredForms({ audience, category, lang }) {
-  return THERAPEUTIC_FORMS_LIBRARY_REGISTRY.reduce((acc, form) => {
-    if (audience !== 'all' && form.audience !== audience) return acc;
-    if (category !== 'all' && form.category !== category) return acc;
+  const langFiltered = ALL_FORMS.filter((form) => form.languages?.[lang] && form.approved === true);
+
+  const audienceFiltered = langFiltered.filter(
+    (form) => audience === 'all' || form.audience === audience
+  );
+
+  const categoryFiltered = audienceFiltered.filter(
+    (form) => category === 'all' || form.category === category
+  );
+
+  return categoryFiltered.reduce((acc, form) => {
     const resolved = resolveLibraryFormWithLanguage(form, lang);
-    if (!resolved) return acc; // resolver rejected (unapproved, missing file_url, etc.)
+    if (!resolved) return acc;
+    if (!hasValidLanguageMatch(resolved, lang)) return acc;
     acc.push(resolved);
     return acc;
-  }, []);
+  }, []).sort((a, b) => {
+    const byLanguage = String(a.language || '').localeCompare(String(b.language || ''));
+    if (byLanguage !== 0) return byLanguage;
+    const byAudience = String(a.form.audience || '').localeCompare(String(b.form.audience || ''));
+    if (byAudience !== 0) return byAudience;
+    const byCategory = String(a.form.category || '').localeCompare(String(b.form.category || ''));
+    if (byCategory !== 0) return byCategory;
+    const bySeries = String(a.form.series || a.form.adolescentSeries || '').localeCompare(
+      String(b.form.series || b.form.adolescentSeries || '')
+    );
+    if (bySeries !== 0) return bySeries;
+    const byModule = Number(a.form.moduleNumber || 0) - Number(b.form.moduleNumber || 0);
+    if (byModule !== 0) return byModule;
+    return toWorksheetSortValue(a.form.worksheetNumber || a.form.displayNumber) -
+      toWorksheetSortValue(b.form.worksheetNumber || b.form.displayNumber);
+  });
 }
 
 // ─── ScrollableChipRow ─────────────────────────────────────────────────────────
@@ -281,6 +326,16 @@ export default function TherapeuticForms() {
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground border border-border/50">
                     {t(`therapeutic_forms.category.${form.category}`)}
                   </span>
+                  {(form.moduleNumber != null || form.stageNumber != null) &&
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-700/10 text-teal-900 border border-teal-700/20">
+                      {`M${form.moduleNumber || form.stageNumber}`}
+                    </span>
+                  }
+                  {(form.worksheetNumber != null || form.displayNumber != null || form.cbt_substage_number != null) &&
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-700/10 text-teal-900 border border-teal-700/20">
+                      {form.worksheetNumber || form.displayNumber || form.cbt_substage_number}
+                    </span>
+                  }
                   {(form.moduleHe || form.domainHe) &&
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-700/10 text-teal-900 border border-teal-700/20">
                     {form.moduleHe || form.domainHe}

@@ -662,9 +662,9 @@ describe('Phase 14 — C5: Existing 18 individual forms still resolve', () => {
     }
   });
 
-  it('total approved forms count is now 98', () => {
+  it('total approved forms count is now 329', () => {
     const approved = ALL_FORMS.filter(f => f.approved === true);
-    expect(approved.length).toBe(98);
+    expect(approved.length).toBe(329);
   });
 });
 

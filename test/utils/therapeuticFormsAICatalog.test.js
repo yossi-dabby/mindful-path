@@ -65,7 +65,7 @@ describe('Phase 4D — buildTherapistFormCatalog: basic output', () => {
 
 describe('Phase 4D — buildTherapistFormCatalog: all approved forms present', () => {
   it('registry approved count matches current canonical registry snapshot', () => {
-    expect(approvedForms.length).toBe(98);
+    expect(approvedForms.length).toBe(329);
   });
 
   it('catalog contains all 67 approved form ID markers', () => {
@@ -80,15 +80,10 @@ describe('Phase 4D — buildTherapistFormCatalog: all approved forms present', (
   });
 
   it('catalog total form count matches approved registry count', () => {
-    // Count unique form IDs — canonical sections can add IDs that are intentionally
-    // not part of ALL_FORMS when they are manifest-backed specialized series.
+    // All approved forms from ALL_FORMS (which now includes specialized/core sets)
+    // are represented in the catalog with [FORM:id] markers.
     const uniqueIds = new Set((catalog.match(/\[FORM:[a-z0-9_-]+\]/g) || []));
-    expect(uniqueIds.size).toBe(
-      approvedForms.length +
-        FORMS_ADOLESCENTS_CBT_SPECIALIZED_INDIVIDUAL.length +
-        FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL.length +
-        FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_INDIVIDUAL.length
-    );
+    expect(uniqueIds.size).toBe(approvedForms.length);
   });
 });
 

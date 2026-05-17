@@ -114,9 +114,11 @@ describe('Adolescent CBT Core EN — registry and assets', () => {
 describe('Adolescent CBT Core EN — forms library visibility', () => {
   const pageSource = fs.readFileSync(THERAPEUTIC_FORMS_PAGE_PATH, 'utf8');
 
-  it('therapeutic forms page merges adolescent CBT core EN individual forms into the library registry', () => {
-    expect(pageSource).toContain('FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL');
-    expect(pageSource).toContain('...FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL');
+  it('therapeutic forms page uses canonical ALL_FORMS registry (adolescent CBT core EN forms are part of ALL_FORMS)', () => {
+    // Since PR #713, the page uses ALL_FORMS directly via canonical registry.
+    // FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL is no longer imported separately on the page.
+    expect(pageSource).toContain('ALL_FORMS');
+    expect(pageSource).not.toContain('THERAPEUTIC_FORMS_LIBRARY_REGISTRY');
   });
 });
 

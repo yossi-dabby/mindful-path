@@ -145,15 +145,14 @@ describe('Children CBT Specialized HE — registry and assets', () => {
 describe('Children CBT Specialized HE — forms library visibility', () => {
   const pageSource = fs.readFileSync(THERAPEUTIC_FORMS_PAGE_PATH, 'utf8');
 
-  it('forms library registry explicitly merges specialized individual forms', () => {
-    expect(pageSource).toContain('FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL');
-    expect(pageSource).toContain('THERAPEUTIC_FORMS_LIBRARY_REGISTRY');
-    expect(pageSource).toContain('...ALL_FORMS');
-    expect(pageSource).toContain('...FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL');
+  it('therapeutic forms page reads only from canonical ALL_FORMS', () => {
+    expect(pageSource).toContain('ALL_FORMS.filter');
+    expect(pageSource).not.toContain('THERAPEUTIC_FORMS_LIBRARY_REGISTRY');
+    expect(pageSource).not.toContain('FORMS_CHILDREN_CBT_SPECIALIZED_INDIVIDUAL');
   });
 
-  it('forms library filtering reads from the merged registry', () => {
-    expect(pageSource).toContain('THERAPEUTIC_FORMS_LIBRARY_REGISTRY.reduce');
+  it('forms library filtering resolves cards from canonical records', () => {
+    expect(pageSource).toContain('categoryFiltered.reduce');
     expect(pageSource).toContain('resolveLibraryFormWithLanguage');
   });
 
