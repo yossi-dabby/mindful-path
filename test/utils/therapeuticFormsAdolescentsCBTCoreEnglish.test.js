@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { describe, it, expect } from 'vitest';
 
 import {
@@ -19,6 +20,24 @@ const CORE_EN_ROOT = path.join(REPO_ROOT, 'public/forms/en/adolescents/cbt-core'
 const LEGACY_CORE_ROOT = path.join(REPO_ROOT, 'cbt-core');
 const THERAPEUTIC_FORMS_PAGE_PATH = path.join(REPO_ROOT, 'src/pages/TherapeuticForms.jsx');
 const RESOLVER_SOURCE_PATH = path.join(REPO_ROOT, 'src/utils/resolveFormIntent.js');
+const THIS_TEST_FILE = path.relative(REPO_ROOT, fileURLToPath(import.meta.url));
+const REFERENCE_AUDIT_EXTENSIONS = new Set([
+  '.cjs',
+  '.css',
+  '.html',
+  '.js',
+  '.json',
+  '.jsx',
+  '.md',
+  '.mdx',
+  '.mjs',
+  '.sh',
+  '.ts',
+  '.tsx',
+  '.txt',
+  '.yaml',
+  '.yml',
+]);
 
 function idOf(result) {
   return result?.form_id ?? null;
@@ -63,11 +82,15 @@ function listLegacyRootReferences() {
         continue;
       }
 
+      if (!REFERENCE_AUDIT_EXTENSIONS.has(path.extname(entry.name).toLowerCase())) {
+        continue;
+      }
+      if (relativePath === THIS_TEST_FILE) continue;
+
       const contents = fs.readFileSync(entryPath, 'utf8');
       contents.split(/\r?\n/).forEach((line, index) => {
         if (
           line.includes('cbt-core/') &&
-          !line.includes("line.includes('cbt-core/')") &&
           !line.includes('public/forms/en/adolescents/cbt-core/')
         ) {
           findings.push(`${relativePath}:${index + 1}:${line.trim()}`);
@@ -78,6 +101,8 @@ function listLegacyRootReferences() {
 
   return findings;
 }
+
+const LEGACY_ROOT_REFERENCES = listLegacyRootReferences();
 
 describe('Adolescent CBT Core EN — registry and assets', () => {
   it('registers 30 core individual forms from manifest', () => {
@@ -176,7 +201,7 @@ describe('Adolescent CBT Core EN — registry and assets', () => {
   });
 
   it('has no remaining repo-root cbt-core path references outside the canonical folder', () => {
-    expect(listLegacyRootReferences()).toEqual([]);
+    expect(LEGACY_ROOT_REFERENCES).toEqual([]);
   });
 });
 

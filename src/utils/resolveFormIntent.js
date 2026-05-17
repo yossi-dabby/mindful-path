@@ -1499,6 +1499,8 @@ function getAdolescentsCBTCoreEnglishForms() {
   return FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL.filter(
     (f) =>
       f.approved === true &&
+      f.language === 'en' &&
+      f.category === 'adolescents_cbt_core' &&
       typeof f.worksheetNumber === 'string'
   );
 }
