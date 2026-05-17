@@ -927,7 +927,8 @@ function findApprovedExactFormId(candidateId) {
     (form) =>
       form?.approved === true &&
       typeof form.id === 'string' &&
-      (form.id === candidateId || form.slug === candidateId)
+      (form.id === candidateId ||
+        (typeof form.slug === 'string' && form.slug === candidateId))
   );
   return match?.id || null;
 }
