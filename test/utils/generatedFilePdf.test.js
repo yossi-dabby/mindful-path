@@ -14,6 +14,7 @@
 import { describe, it, expect } from 'vitest';
 import { normalizeGeneratedFile } from '../../src/components/chat/utils/normalizeGeneratedFile.js';
 import { sanitizeConversationMessages } from '../../src/components/utils/validateAgentOutput.jsx';
+import { resolveFormIntent } from '../../src/utils/resolveFormIntent.js';
 
 // ─── normalizeGeneratedFile — contract validation ─────────────────────────────
 
@@ -231,5 +232,19 @@ describe('sanitizeConversationMessages — generated_file metadata is preserved'
     expect(sanitized[0].content).toBe('Hello');
     expect(sanitized[1].content).toBe('Hi, how can I help?');
     expect(sanitized[2].metadata?.generated_file?.url).toBe('https://files.example.com/worksheet.pdf');
+  });
+});
+
+
+describe('therapeutic forms generated_file metadata contract', () => {
+  it('includes canonical adolescents package metadata fields for approved marker resolution', () => {
+    const metadata = resolveFormIntent('adolescents-cbt-core-en', 'en');
+    expect(metadata).not.toBeNull();
+    expect(metadata?.form_id).toBe('adolescents-cbt-core-en');
+    expect(metadata?.title).toBe('Adolescents CBT Core Series');
+    expect(metadata?.language).toBe('en');
+    expect(metadata?.audience).toBe('adolescents');
+    expect(metadata?.category).toBe('adolescents_cbt_core');
+    expect(metadata?.url).toBe('/forms/adolescents/en/core/adolescents-cbt-core-series-1-full-en.pdf');
   });
 });

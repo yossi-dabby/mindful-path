@@ -12,6 +12,8 @@
  *   import { listFormsByAudience, resolveFormWithLanguage } from '@/data/therapeuticForms';
  */
 
+import { FORMS_ADOLESCENTS_CBT_CORE_EN } from './forms.adolescents.cbt-core.en.js';
+
 // ─── Taxonomy ─────────────────────────────────────────────────────────────────
 export {
   AUDIENCE_GROUPS,
@@ -60,8 +62,7 @@ function buildCanonicalRegistry(forms) {
  * @type {readonly object[]}
  */
 export const ALL_FORMS = buildCanonicalRegistry([
-  // Runtime catalog intentionally empty.
-  // Keep architecture/contracts intact for clean future re-import.
+  ...FORMS_ADOLESCENTS_CBT_CORE_EN,
 ]);
 
 // ─── Resolver utilities ───────────────────────────────────────────────────────

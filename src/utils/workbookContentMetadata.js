@@ -1,10 +1,38 @@
 /**
- * Therapeutic workbook metadata intentionally empty.
- * Architecture/contracts are preserved for clean future re-import.
+ * Therapeutic workbook metadata.
+ * Keep this list aligned with canonical therapeutic-forms manifest entries.
  */
 
 export const WORKBOOK_CONTENT_METADATA = [];
-export const WORKBOOK_CONTENT_METADATA_EN = [];
+
+export const WORKBOOK_CONTENT_METADATA_EN = [
+  {
+    id: 'adolescents-cbt-core-en',
+    slug: 'adolescents-cbt-core-series-1-en',
+    topicKeywords: [
+      'teen cbt',
+      'adolescent cbt',
+      'teenager',
+      'teen',
+      'adolescent',
+      'anxiety',
+      'stress',
+      'worry',
+      'automatic thoughts',
+      'thought record',
+      'cognitive restructuring',
+      'body signals',
+      'triggers',
+      'emotional regulation',
+      'coping',
+      'avoidance',
+      'small steps',
+      'weekly check-in',
+      'coping plan',
+    ],
+  },
+];
+
 export const WORKBOOK_CONTENT_METADATA_ES = [];
 export const WORKBOOK_CONTENT_METADATA_FR = [];
 export const WORKBOOK_CONTENT_METADATA_DE = [];
