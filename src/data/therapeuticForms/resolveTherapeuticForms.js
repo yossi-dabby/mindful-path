@@ -237,6 +237,9 @@ export function toGeneratedFileMetadata(resolved) {
     audience: form.audience,
     category: form.category,
     language,
+    parentSeriesId: form.parentSeriesId || null,
+    formNumber: form.formNumber || null,
+    stageNumber: form.stageNumber || null,
     created_at: new Date().toISOString(),
   };
 }

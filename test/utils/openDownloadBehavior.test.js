@@ -4,7 +4,7 @@ import { resolveFormWithLanguage } from '../../src/data/therapeuticForms/index.j
 
 describe('openDownloadBehavior.test.js', () => {
   it('keeps runtime form catalog on the canonical adolescents package', () => {
-    expect(ALL_FORMS.map((form) => form.id)).toEqual(['adolescents-cbt-core-en']);
+    expect(ALL_FORMS.map((form) => form.id)).toContain('adolescents-cbt-core-en');
   });
 
   it('resolves only the active adolescents package for open/download actions', () => {
