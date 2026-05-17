@@ -1557,6 +1557,8 @@ export function resolveAdolescentsCBTCoreEnglishFormByContent(query) {
     score += scoreArrayField(lq, form.teenSignals, SPECIALIZED_SCORE.CHILD_SIGNALS);
     score += scoreArrayField(lq, form.clinicalKeywords, SPECIALIZED_SCORE.CLINICAL_KEYWORDS);
     score += scoreArrayField(lq, form.intentPhrases, INTENT_PHRASE_SCORE);
+    score += scoreArrayField(lq, form.notFor, SPECIALIZED_SCORE.CLINICAL_KEYWORDS);
+    score += scoreArrayField(lq, form.relatedForms, SPECIALIZED_SCORE.CLINICAL_KEYWORDS);
 
     if (worksheetRef && form.worksheetNumber === worksheetRef) {
       score += SPECIALIZED_SCORE.DISPLAY_NUMBER;
