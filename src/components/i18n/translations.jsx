@@ -1451,7 +1451,7 @@ export const translations = {
           reflection_journal: "Reflection Journal",
           workbook_series: "Therapeutic Workbooks",
           children_cbt_process: "Children CBT Process",
-          adolescents_cbt_core: "Adolescent CBT Core",
+          adolescents_cbt_core: "Adolescents CBT Core Series",
           adolescents_cbt_specialized: "Adolescent CBT Specialized",
         },
       },

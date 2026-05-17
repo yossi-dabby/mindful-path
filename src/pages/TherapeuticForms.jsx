@@ -17,8 +17,11 @@ export function resolveLibraryFormWithLanguage(form, lang) {
   return resolved;
 }
 
-function getLanguageFolderPrefix(lang) {
-  return `/forms/${lang}/`;
+function getLanguageFolderPrefix(lang, audience) {
+  return [
+    `/forms/${lang}/`,
+    audience ? `/forms/${audience}/${lang}/` : null,
+  ].filter(Boolean);
 }
 
 function toWorksheetSortValue(worksheetNumber) {
@@ -53,9 +56,9 @@ function hasValidLanguageMatch(resolved, lang) {
     return false;
   }
   const fileUrl = String(languageData.file_url || '').trim();
-  const expectedPrefix = getLanguageFolderPrefix(lang);
-  if (!fileUrl.includes(expectedPrefix)) {
-    warnLanguageMismatch(form, lang, `file_url "${fileUrl}" missing expected "${expectedPrefix}"`);
+  const expectedPrefixes = getLanguageFolderPrefix(lang, form.audience);
+  if (!expectedPrefixes.some((prefix) => fileUrl.includes(prefix))) {
+    warnLanguageMismatch(form, lang, `file_url "${fileUrl}" missing expected one of "${expectedPrefixes.join(', ')}"`);
     return false;
   }
   return true;
@@ -71,9 +74,12 @@ export function getFilteredForms({ audience, category, lang }) {
     (form) => audience === 'all' || form.audience === audience
   );
 
-  const categoryFiltered = audienceFiltered.filter(
-    (form) => category === 'all' || form.category === category
-  );
+  const categoryFiltered = audienceFiltered.filter((form) => {
+    if (category === 'all') return true;
+    if (form.category === category) return true;
+    const secondary = Array.isArray(form.secondaryCategories) ? form.secondaryCategories : [];
+    return secondary.includes(category);
+  });
 
   return categoryFiltered.reduce((acc, form) => {
     const resolved = resolveLibraryFormWithLanguage(form, lang);

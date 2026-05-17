@@ -4,7 +4,7 @@ import { resolveFormIntent } from '../../src/utils/resolveFormIntent.js';
 
 describe('therapeuticFormsSpanish.test.js — zero installed forms', () => {
   it('keeps ALL_FORMS empty', () => {
-    expect(ALL_FORMS).toEqual([]);
+    expect(ALL_FORMS.map((form) => form.id)).toEqual(['adolescents-cbt-core-en']);
   });
 
   it('does not resolve stale therapeutic form ids', () => {
@@ -17,6 +17,6 @@ describe('therapeuticFormsSpanish.test.js — zero installed forms', () => {
       .flatMap((form) => Object.values(form.languages || {}))
       .map((langBlock) => String(langBlock?.file_url || ''))
       .filter((url) => /\/forms\/.+\.pdf$/i.test(url));
-    expect(activePdfUrls).toEqual([]);
+    expect(activePdfUrls).toEqual(['/forms/adolescents/en/core/adolescents-cbt-core-series-1-full-en.pdf']);
   });
 });

@@ -6,16 +6,16 @@ import {
   resolveSpanishWorkbookIntentWithContext,
 } from '../../src/utils/resolveWorkbookIntent.js';
 
-describe('workbookRoutingPriority.test.js — zero installed forms', () => {
-  it('returns null for workbook routing when catalog is empty', () => {
+describe('workbookRoutingPriority.test.js', () => {
+  it('routes English workbook requests to the installed adolescents package and keeps unsupported languages null', () => {
+    expect(resolveWorkbookIntent('show me a workbook for teen anxiety and avoidance', 'en')?.form_id).toBe('adolescents-cbt-core-en');
     expect(resolveWorkbookIntent('תן לי קונטרס על מחשבות', 'he')).toBeNull();
-    expect(resolveWorkbookIntent('show me a workbook for anxiety', 'en')).toBeNull();
     expect(resolveWorkbookIntent('muéstrame un cuaderno para ansiedad', 'es')).toBeNull();
   });
 
-  it('returns null for context-aware workbook routing when catalog is empty', () => {
+  it('supports English context-aware workbook routing and keeps unsupported languages null', () => {
+    expect(resolveEnglishWorkbookIntentWithContext('workbook for this', 'teen panic thoughts and avoidance')?.form_id).toBe('adolescents-cbt-core-en');
     expect(resolveWorkbookIntentWithContext('תן לי קונטרס לזה', 'מחשבות טורדניות', 'he')).toBeNull();
-    expect(resolveEnglishWorkbookIntentWithContext('workbook for this', 'panic thoughts and avoidance')).toBeNull();
     expect(resolveSpanishWorkbookIntentWithContext('cuaderno para esto', 'pensamientos intrusivos y evitación')).toBeNull();
   });
 });

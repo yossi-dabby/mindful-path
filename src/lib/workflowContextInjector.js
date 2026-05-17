@@ -183,34 +183,68 @@ export function buildTherapistFormCatalog(forms) {
     for (const form of audienceForms) {
       // Use best available title: English > Hebrew > form ID
       const bestTitle = form.languages?.en?.title || form.languages?.he?.title || form.id;
-      // Append short Hebrew content description when available (helps AI match clinical queries)
+      const therapeuticGoal = typeof form.therapeuticGoal === 'string' ? form.therapeuticGoal.trim() : '';
+      const whenToUse = typeof form.whenToUse === 'string' ? form.whenToUse.trim() : '';
+      const clinicalKeywords = Array.isArray(form.clinicalKeywords) ? form.clinicalKeywords.filter(Boolean).join(', ') : '';
+      const intentPhrases = Array.isArray(form.intentPhrases) ? form.intentPhrases.filter(Boolean).join(' | ') : '';
+      const notFor = Array.isArray(form.notFor) ? form.notFor.filter(Boolean).join('; ') : '';
       const desc = form.shortContentDescriptionHe ? ` | ${form.shortContentDescriptionHe}` : '';
       lines.push(`  [FORM:${form.id}]  — ${bestTitle} (${form.category})${desc}`);
+      if (therapeuticGoal) lines.push(`    Goal: ${therapeuticGoal}`);
+      if (whenToUse) lines.push(`    When to use: ${whenToUse}`);
+      if (clinicalKeywords) lines.push(`    Clinical keywords: ${clinicalKeywords}`);
+      if (intentPhrases) lines.push(`    Intent phrases: ${intentPhrases}`);
+      if (notFor) lines.push(`    Not for: ${notFor}`);
     }
   }
 
   return lines.join('\n');
 }
 
-const THERAPIST_FORM_LIBRARY_INSTRUCTIONS = [
-'[THERAPEUTIC_FORMS_POLICY]',
-'No therapeutic forms are currently installed/available.',
-'When a user requests a worksheet, CBT form, thought record, mood tracker, homework sheet, or similar structured exercise, do NOT attach a form.',
-'',
-'Do NOT embed [FORM:...] markers while the catalog is empty.',
-'Reply with a short, clear explanation that no therapeutic forms are currently installed/available.',
-'',
-buildTherapistFormCatalog(ALL_FORMS),
-'',
-'Language: Keep the user response in the session language when explaining that forms are unavailable.',
-'',
-'RULES:',
-'  - State clearly: no therapeutic forms are currently installed/available.',
-'  - Do not invent form IDs, file names, URLs, catalogs, or attachments.',
-'  - Do not claim forms exist in any audience/category while catalog is empty.',
-'  - Do not use forms as a substitute for crisis or safety handling.',
-'  - Existing safety-handling, crisis flow, and clinical boundaries are not affected by this policy.']
-.join('\n');
+function buildTherapistFormLibraryInstructions(forms) {
+  if (!Array.isArray(forms) || forms.filter((f) => f?.approved === true).length === 0) {
+    return [
+      '[THERAPEUTIC_FORMS_POLICY]',
+      'No therapeutic forms are currently installed/available.',
+      'When a user requests a worksheet, CBT form, thought record, mood tracker, homework sheet, or similar structured exercise, do NOT attach a form.',
+      '',
+      'Do NOT embed [FORM:...] markers while the catalog is empty.',
+      'Reply with a short, clear explanation that no therapeutic forms are currently installed/available.',
+      '',
+      buildTherapistFormCatalog(forms || []),
+      '',
+      'Language: Keep the user response in the session language when explaining that forms are unavailable.',
+      '',
+      'RULES:',
+      '  - State clearly: no therapeutic forms are currently installed/available.',
+      '  - Do not invent form IDs, file names, URLs, catalogs, or attachments.',
+      '  - Do not claim forms exist in any audience/category while catalog is empty.',
+      '  - Do not use forms as a substitute for crisis or safety handling.',
+      '  - Existing safety-handling, crisis flow, and clinical boundaries are not affected by this policy.',
+    ].join('\n');
+  }
+
+  return [
+    '[THERAPEUTIC_FORMS_POLICY]',
+    'Therapeutic forms are available only from the approved catalog below.',
+    'When a user requests a workbook/form, use at most one exact [FORM:form-id] marker from the approved list.',
+    '',
+    buildTherapistFormCatalog(forms),
+    '',
+    'LANGUAGE & AUDIENCE RULES:',
+    '  - Match active session language first. Do not attach forms from another language unless the user explicitly asks for that language.',
+    '  - Match user audience. Do not attach child/adult/older-adult forms for adolescent requests, and vice versa.',
+    '  - If the requested language/audience/category is not currently installed, say it is not currently installed.',
+    '',
+    'SAFETY RULES:',
+    '  - Do not invent form IDs, file names, URLs, catalogs, or attachments.',
+    '  - Do not return forms that are not listed in the approved catalog.',
+    '  - Do not use forms as a substitute for crisis or safety handling.',
+    '  - Existing safety-handling, crisis flow, and clinical boundaries are not affected by this policy.',
+  ].join('\n');
+}
+
+const THERAPIST_FORM_LIBRARY_INSTRUCTIONS = buildTherapistFormLibraryInstructions(ALL_FORMS);
 
 /**
  * Returns the workflow context instructions string when the supplied wiring

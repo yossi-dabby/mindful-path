@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
-import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
+import { ALL_FORMS, resolveFormWithLanguage } from '../../src/data/therapeuticForms/index.js';
 
-describe('therapeuticFormsPage.test.js — zero installed forms', () => {
+describe('therapeuticFormsPage.test.js — adolescents package integration', () => {
   it('keeps route and page registration intact', () => {
     const pagesConfigSource = fs.readFileSync('/home/runner/work/mindful-path/mindful-path/src/pages.config.js', 'utf8');
     expect(pagesConfigSource).toContain('"TherapeuticForms": TherapeuticForms');
@@ -13,11 +13,17 @@ describe('therapeuticFormsPage.test.js — zero installed forms', () => {
     expect(quickActionsSource).toContain("page: 'TherapeuticForms'");
   });
 
-  it('returns an empty filtered forms list in zero-catalog mode', () => {
-    expect(ALL_FORMS).toEqual([]);
+  it('includes page filtering logic for secondary categories and audience-aware language paths', () => {
     const pageSource = fs.readFileSync('/home/runner/work/mindful-path/mindful-path/src/pages/TherapeuticForms.jsx', 'utf8');
-    expect(pageSource).toContain('forms.length === 0');
-    expect(pageSource).toContain('data-testid=\"empty-state\"');
-    expect(pageSource).toContain('data-testid={`form-card-${form.id}`}');
+    expect(pageSource).toContain('secondaryCategories');
+    expect(pageSource).toContain('getLanguageFolderPrefix(lang, form.audience)');
+
+    expect(ALL_FORMS.map((form) => form.id)).toEqual(['adolescents-cbt-core-en']);
+    const resolvedEn = resolveFormWithLanguage('adolescents-cbt-core-en', 'en');
+    expect(resolvedEn?.languageData?.file_url).toBe('/forms/adolescents/en/core/adolescents-cbt-core-series-1-full-en.pdf');
+  });
+
+  it('does not resolve package in Hebrew or non-installed audiences', () => {
+    expect(resolveFormWithLanguage('adolescents-cbt-core-en', 'he')).toBeNull();
   });
 });
