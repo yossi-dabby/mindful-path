@@ -40,10 +40,6 @@ import {
   toGeneratedFileMetadata,
   ALL_FORMS,
 } from '../data/therapeuticForms/index.js';
-import { FORMS_CHILDREN_CBT_SPECIALIZED } from '../data/therapeuticForms/forms.children.cbt-specialized.js';
-import { FORMS_ADOLESCENTS_CBT_CORE_EN } from '../data/therapeuticForms/forms.adolescents.cbt-core.en.js';
-import { FORMS_ADOLESCENTS_CBT_SPECIALIZED } from '../data/therapeuticForms/forms.adolescents.cbt-specialized.js';
-import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN } from '../data/therapeuticForms/forms.adolescents.cbt-specialized.en.js';
 
 // ─── Approved intent → form ID map ───────────────────────────────────────────
 //
@@ -922,46 +918,12 @@ export function resolveFormIntent(intentOrSlug, lang) {
 
 function resolveApprovedFormById(formId, lang = 'he') {
   const resolved = resolveFormWithLanguage(formId, lang);
-  if (resolved) return toGeneratedFileMetadata(resolved);
-
-  const fallback = [
-    ...FORMS_CHILDREN_CBT_SPECIALIZED,
-    ...FORMS_ADOLESCENTS_CBT_CORE_EN,
-    ...FORMS_ADOLESCENTS_CBT_SPECIALIZED,
-    ...FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN,
-  ].find(
-    (f) => f.id === formId && f.approved === true
-  );
-  if (!fallback) return null;
-  // Strict language match — no fallback to Hebrew or English.
-  const langBlock = fallback.languages?.[lang];
-  if (!langBlock?.file_url) return null;
-  return {
-    type: 'pdf',
-    url: langBlock.file_url,
-    name: langBlock.file_name,
-    title: langBlock.title,
-    description: langBlock.description || null,
-    therapeutic_purpose: fallback.therapeuticGoal || null,
-    source: 'therapeutic_forms_library',
-    form_id: fallback.id,
-    form_slug: fallback.slug,
-    audience: fallback.audience,
-    category: fallback.category,
-    language: lang,
-    created_at: new Date().toISOString(),
-  };
+  if (!resolved) return null;
+  return toGeneratedFileMetadata(resolved);
 }
 
 function findApprovedExactFormId(candidateId) {
-  const registries = [
-    ...ALL_FORMS,
-    ...FORMS_CHILDREN_CBT_SPECIALIZED,
-    ...FORMS_ADOLESCENTS_CBT_CORE_EN,
-    ...FORMS_ADOLESCENTS_CBT_SPECIALIZED,
-    ...FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN,
-  ];
-  const match = registries.find(
+  const match = ALL_FORMS.find(
     (form) => form?.approved === true && typeof form.id === 'string' && form.id === candidateId
   );
   return match?.id || null;
@@ -1208,7 +1170,7 @@ function scoreFromPackFallback(query, form) {
 }
 
 function getChildrenSpecializedIndividualForms() {
-  return FORMS_CHILDREN_CBT_SPECIALIZED.filter(
+  return ALL_FORMS.filter(
     (f) =>
       f.approved === true &&
       f.audience === 'children' &&
@@ -1220,7 +1182,7 @@ function getChildrenSpecializedIndividualForms() {
 }
 
 function getChildrenSpecializedPackPdf(packNumber) {
-  return FORMS_CHILDREN_CBT_SPECIALIZED.find(
+  return ALL_FORMS.find(
     (f) =>
       f.approved === true &&
       f.audience === 'children' &&
@@ -1233,7 +1195,7 @@ function getChildrenSpecializedPackPdf(packNumber) {
 }
 
 function getChildrenSpecializedSeriesPdf() {
-  return FORMS_CHILDREN_CBT_SPECIALIZED.find(
+  return ALL_FORMS.find(
     (f) =>
       f.approved === true &&
       f.audience === 'children' &&
@@ -1342,7 +1304,7 @@ const ADOLESCENTS_SPECIALIZED_DISPLAY_NUMBER_RE = /(?:^|\s)(10|[1-9])\.([1-6])(?
 const ADOLESCENTS_SPECIALIZED_MODULE_REQUEST_RE = /(?:מודול|מנה|module|pack)\s*(10|[1-9])/;
 
 function getAdolescentSpecializedIndividualForms() {
-  return FORMS_ADOLESCENTS_CBT_SPECIALIZED.filter(
+  return ALL_FORMS.filter(
     (f) =>
       f.approved === true &&
       f.audience === 'adolescents' &&
@@ -1354,7 +1316,7 @@ function getAdolescentSpecializedIndividualForms() {
 }
 
 function getAdolescentSpecializedModulePdf(moduleNumber) {
-  return FORMS_ADOLESCENTS_CBT_SPECIALIZED.find(
+  return ALL_FORMS.find(
     (f) =>
       f.approved === true &&
       f.audience === 'adolescents' &&
@@ -1367,7 +1329,7 @@ function getAdolescentSpecializedModulePdf(moduleNumber) {
 }
 
 function getAdolescentSpecializedSeriesPdf() {
-  return FORMS_ADOLESCENTS_CBT_SPECIALIZED.find(
+  return ALL_FORMS.find(
     (f) =>
       f.approved === true &&
       f.audience === 'adolescents' &&
@@ -1529,7 +1491,7 @@ const ADOLESCENTS_CBT_CORE_EN_STAGE_RE = /\bstage\s*([1-6])\b/;
 const ADOLESCENTS_CBT_CORE_EN_MIN_SCORE = 42;
 
 function getAdolescentsCBTCoreEnglishForms() {
-  return FORMS_ADOLESCENTS_CBT_CORE_EN.filter(
+  return ALL_FORMS.filter(
     (f) =>
       f.approved === true &&
       f.audience === 'adolescents' &&
@@ -1648,7 +1610,7 @@ const ADOLESCENTS_CBT_SPECIALIZED_EN_MODULE_RE = /\bmodule\s*(10|[1-9])\b/;
 const ADOLESCENTS_CBT_SPECIALIZED_EN_MIN_SCORE = 42;
 
 function getAdolescentsCBTSpecializedEnglishForms() {
-  return FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN.filter(
+  return ALL_FORMS.filter(
     (f) =>
       f.approved === true &&
       f.audience === 'adolescents' &&

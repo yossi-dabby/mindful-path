@@ -121,9 +121,10 @@ describe('Adolescent CBT Specialized HE — registry and assets', () => {
 describe('Adolescent CBT Specialized HE — forms library visibility', () => {
   const pageSource = fs.readFileSync(THERAPEUTIC_FORMS_PAGE_PATH, 'utf8');
 
-  it('therapeutic forms page merges adolescent specialized individual forms into the library registry', () => {
-    expect(pageSource).toContain('FORMS_ADOLESCENTS_CBT_SPECIALIZED_INDIVIDUAL');
-    expect(pageSource).toContain('...FORMS_ADOLESCENTS_CBT_SPECIALIZED_INDIVIDUAL');
+  it('therapeutic forms page does not bolt-on adolescent specialized side registries', () => {
+    expect(pageSource).toContain('ALL_FORMS.filter');
+    expect(pageSource).not.toContain('FORMS_ADOLESCENTS_CBT_SPECIALIZED_INDIVIDUAL');
+    expect(pageSource).not.toContain('THERAPEUTIC_FORMS_LIBRARY_REGISTRY');
   });
 });
 
