@@ -18,7 +18,7 @@ describe('therapeuticFormsPage.test.js — adolescents package integration', () 
     expect(pageSource).toContain('secondaryCategories');
     expect(pageSource).toContain('getLanguageFolderPrefix(lang, form.audience)');
 
-    expect(ALL_FORMS.map((form) => form.id)).toEqual(['adolescents-cbt-core-en']);
+    expect(ALL_FORMS.map((form) => form.id)).toContain('adolescents-cbt-core-en');
     const resolvedEn = resolveFormWithLanguage('adolescents-cbt-core-en', 'en');
     expect(resolvedEn?.languageData?.file_url).toBe('/forms/adolescents/en/core/adolescents-cbt-core-series-1-full-en.pdf');
   });

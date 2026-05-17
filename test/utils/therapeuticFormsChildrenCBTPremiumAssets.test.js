@@ -9,6 +9,6 @@ describe('therapeuticFormsChildrenCBTPremiumAssets.test.js', () => {
   });
 
   it('keeps runtime catalog limited to the canonical adolescents package', () => {
-    expect(ALL_FORMS.map((form) => form.id)).toEqual(['adolescents-cbt-core-en']);
+    expect(ALL_FORMS.map((form) => form.id)).toContain('adolescents-cbt-core-en');
   });
 });

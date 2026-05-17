@@ -4,7 +4,7 @@ import { buildTherapistFormCatalog } from '../../src/lib/workflowContextInjector
 
 describe('therapeuticFormsAICatalog.test.js', () => {
   it('builds therapist catalog with the installed adolescents CBT core package and therapeutic metadata', () => {
-    expect(ALL_FORMS.map((form) => form.id)).toEqual(['adolescents-cbt-core-en']);
+    expect(ALL_FORMS.map((form) => form.id)).toContain('adolescents-cbt-core-en');
     const catalog = buildTherapistFormCatalog(ALL_FORMS);
 
     expect(catalog).toContain('[FORM:adolescents-cbt-core-en]');

@@ -68,7 +68,7 @@ function hasValidLanguageMatch(resolved, lang) {
 // Returns all approved forms that match the given filters and are resolvable in lang.
 // Keeps filtering logic minimal and delegates all validity checks to the resolver.
 export function getFilteredForms({ audience, category, lang }) {
-  const langFiltered = ALL_FORMS.filter((form) => form.languages?.[lang] && form.approved === true);
+  const langFiltered = ALL_FORMS.filter((form) => form.languages?.[lang] && form.approved === true && form.type !== 'individual_worksheet');
 
   const audienceFiltered = langFiltered.filter(
     (form) => audience === 'all' || form.audience === audience
