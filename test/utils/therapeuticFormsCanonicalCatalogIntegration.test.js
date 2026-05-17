@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 import { ALL_FORMS, resolveFormWithLanguage } from '../../src/data/therapeuticForms/index.js';
 import { resolveAdolescentsCBTSpecializedEnglishFormByContent } from '../../src/utils/resolveFormIntent.js';
+import { buildTherapistFormCatalog } from '../../src/lib/workflowContextInjector.js';
 
 const REPO_ROOT = process.cwd();
 const RESOLVER_PATH = path.join(REPO_ROOT, 'src/utils/resolveFormIntent.js');
@@ -54,6 +55,7 @@ describe('TherapeuticForms page — canonical language-first filtering', () => {
 
   it('English adolescents specialized canonical set is exactly 60 and ordered 1.1–10.6', () => {
     expect(canonicalEnSpecialized).toHaveLength(60);
+    expect(canonicalEnSpecialized.every((form) => typeof form.worksheetNumber === 'string' && form.worksheetNumber.trim())).toBe(true);
     const ordered = canonicalEnSpecialized
       .slice()
       .sort((a, b) => {
@@ -118,5 +120,21 @@ describe('AI resolver — canonical source and content-aware matching', () => {
       { activeLanguage: 'he' }
     );
     expect(result).toBeNull();
+  });
+
+  it('content scoring includes notFor and relatedForms metadata fields', () => {
+    const source = fs.readFileSync(RESOLVER_PATH, 'utf8');
+    expect(source).toContain('scoreArrayField(lq, form.notFor');
+    expect(source).toContain('scoreArrayField(lq, form.relatedForms');
+  });
+
+  it('full English specialized series catalog listing contains exactly 60 forms with no Hebrew/core mix-ins', () => {
+    const catalog = buildTherapistFormCatalog(ALL_FORMS);
+    const heading = '[ENGLISH ADOLESCENT CBT SPECIALIZED SERIES — CANONICAL MANIFEST]';
+    const section = catalog.slice(catalog.indexOf(heading));
+    const ids = section.match(/\[FORM:tf-adolescents-cbt-specialized-en-(10|[1-9])-[1-6]\]/g) || [];
+    expect(ids).toHaveLength(60);
+    expect(section).not.toContain('tf-adolescents-cbt-specialized-1-1-he');
+    expect(section).not.toContain('tf-adolescents-cbt-core-');
   });
 });
