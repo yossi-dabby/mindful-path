@@ -97,7 +97,9 @@ function decodeEnglishPdfContent(buffer) {
 const approvedForms = ALL_FORMS.filter(f => f.approved === true);
 // Standard forms have multi-language assets; workbooks are language-specific.
 // children_cbt_process forms are Hebrew-only and excluded from multilingual standard checks.
-const standardForms = approvedForms.filter(f => f.type !== 'therapeutic_workbook' && f.category !== 'children_cbt_process');
+// Specialized forms (adolescents_cbt_specialized, cbt-core.en, etc.) are language-specific
+// and excluded from multilingual standard checks.
+const standardForms = approvedForms.filter(f => f.type !== 'therapeutic_workbook' && f.category !== 'children_cbt_process' && f.languages?.en && f.languages?.he);
 const workbookForms = approvedForms.filter(f => f.type === 'therapeutic_workbook');
 // Hebrew-only workbooks (he block only, no en block)
 const heWorkbookForms = workbookForms.filter(f => f.languages?.he);
@@ -497,10 +499,11 @@ describe('Phase 4C — Safety: no former-placeholder/unapproved form IDs resolve
             `${form.id} from listFormsByAudience must have a non-empty Hebrew file_url`
           ).toBe(true);
         } else {
-          const enUrl = form.languages?.en?.file_url;
+          // Non-workbook, non-children_cbt_process: use primary language (EN or HE)
+          const primaryUrl = form.languages?.en?.file_url || form.languages?.he?.file_url;
           expect(
-            enUrl && enUrl.trim() !== '',
-            `${form.id} from listFormsByAudience must have a non-empty English file_url`
+            primaryUrl && primaryUrl.trim() !== '',
+            `${form.id} from listFormsByAudience must have a non-empty primary language file_url`
           ).toBe(true);
         }
       }
@@ -878,26 +881,26 @@ describe('Phase 4C — Regression: GeneratedFileCard normalizeGeneratedFile is u
 // ─── 20. Final approved form count and audience coverage ─────────────────────
 
 describe('Phase 4C — Final state: approved form count and audience coverage', () => {
-  it('exactly 98 forms are approved (18 standard + 7 Hebrew + 7 English + 7 Spanish + 7 French + 7 German + 7 Italian + 7 Portuguese workbooks + 30 children CBT premium individual + 1 children CBT series)', () => {
-    expect(approvedForms.length).toBe(98);
+  it('exactly 329 forms are approved (18 standard multilingual + workbooks + children CBT premium + adolescent CBT specialized/core + children CBT specialized)', () => {
+    expect(approvedForms.length).toBe(329);
   });
 
   it('exactly 18 standard forms are approved (original library)', () => {
     expect(standardForms.length).toBe(18);
   });
 
-  it('exactly 50 workbooks are approved (7 Hebrew + 7 English + 7 Spanish + 7 French + 7 German + 7 Italian + 7 Portuguese premium series + 1 children CBT series)', () => {
+  it('exactly 50 therapeutic_workbook-type workbooks are approved (7 Hebrew + 7 English + 7 Spanish + 7 French + 7 German + 7 Italian + 7 Portuguese adult workbooks + 1 children CBT premium series)', () => {
     expect(workbookForms.length).toBe(50);
   });
 
-  it('exactly 35 children forms are approved (4 original + 30 children CBT premium individual + 1 children CBT series)', () => {
+  it('exactly 95 children forms are approved (4 original + 30 children CBT premium individual + 1 children CBT premium series + 54 specialized individual + 6 specialized packs)', () => {
     const children = approvedForms.filter(f => f.audience === 'children');
-    expect(children.length).toBe(35);
+    expect(children.length).toBe(95);
   });
 
-  it('exactly 4 adolescents forms are approved', () => {
+  it('exactly 175 adolescents forms are approved (4 standard + 60 HE specialized + 60 EN specialized + 30 core EN + 11 HE workbooks + 10 EN workbooks)', () => {
     const adolescents = approvedForms.filter(f => f.audience === 'adolescents');
-    expect(adolescents.length).toBe(4);
+    expect(adolescents.length).toBe(175);
   });
 
   it('exactly 55 adults forms are approved (6 standard + 7 Hebrew + 7 English + 7 Spanish + 7 French + 7 German + 7 Italian + 7 Portuguese workbooks)', () => {

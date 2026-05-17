@@ -219,7 +219,7 @@ describe('Portuguese workbooks — regressions', () => {
   });
 
   it('existing 18 individual forms still resolve', () => {
-    const approvedIndividuals = ALL_FORMS.filter(f => f.approved === true && f.category !== 'workbook_series' && f.category !== 'children_cbt_process');
+    const approvedIndividuals = ALL_FORMS.filter(f => f.approved === true && f.category !== 'workbook_series' && f.category !== 'children_cbt_process' && f.languages?.pt);
     expect(approvedIndividuals.length).toBe(18);
     for (const form of approvedIndividuals) {
       const resolved = resolveFormWithLanguage(form.id, 'en');
@@ -230,8 +230,8 @@ describe('Portuguese workbooks — regressions', () => {
   it('total approved counts reflect +7 Portuguese workbooks', () => {
     const approved = ALL_FORMS.filter(f => f.approved === true);
     const approvedWorkbooks = ALL_FORMS.filter(f => f.approved === true && f.category === 'workbook_series');
-    expect(approvedWorkbooks.length).toBe(50);
-    expect(approved.length).toBe(98);
+    expect(approvedWorkbooks.length).toBe(77);
+    expect(approved.length).toBe(329);
   });
 
   it('all Portuguese workbook slugs are resolvable directly', () => {

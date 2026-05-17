@@ -234,13 +234,13 @@ describe('Regression — all 7 workbooks remain sendable via [FORM:slug:he]', ()
   }
 });
 
-describe('Regression — 18 individual forms still resolve via [FORM:slug:he/en]', () => {
+describe('Regression — individual forms still resolve via [FORM:slug:he/en]', () => {
   const INDIVIDUAL_FORMS = ALL_FORMS.filter(
     f => f.approved && f.category !== 'workbook_series' && f.category !== 'children_cbt_process'
   );
 
-  it('has exactly 18 approved individual forms', () => {
-    expect(INDIVIDUAL_FORMS.length).toBe(18);
+  it('has exactly 168 approved individual forms', () => {
+    expect(INDIVIDUAL_FORMS.length).toBe(168);
   });
 
   for (const form of INDIVIDUAL_FORMS) {

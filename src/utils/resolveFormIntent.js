@@ -924,7 +924,10 @@ function resolveApprovedFormById(formId, lang = 'he') {
 
 function findApprovedExactFormId(candidateId) {
   const match = ALL_FORMS.find(
-    (form) => form?.approved === true && typeof form.id === 'string' && form.id === candidateId
+    (form) =>
+      form?.approved === true &&
+      typeof form.id === 'string' &&
+      (form.id === candidateId || form.slug === candidateId)
   );
   return match?.id || null;
 }

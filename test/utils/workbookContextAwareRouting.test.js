@@ -281,14 +281,14 @@ describe('Regression — Test F: all workbooks and individual forms remain senda
     }
   });
 
-  it('final approved individual form count is exactly 18', () => {
+  it('final approved individual form count is exactly 168', () => {
     const approved = ALL_FORMS.filter(f => f.approved && f.category !== 'workbook_series' && f.category !== 'children_cbt_process');
-    expect(approved.length).toBe(18);
+    expect(approved.length).toBe(168);
   });
 
-  it('final approved workbook count is exactly 50 (7 Hebrew + 7 English + 7 Spanish + 7 French + 7 German + 7 Italian + 7 Portuguese + 1 children CBT series)', () => {
+  it('final approved workbook count is exactly 77', () => {
     const workbooks = ALL_FORMS.filter(f => f.approved && f.category === 'workbook_series');
-    expect(workbooks.length).toBe(50);
+    expect(workbooks.length).toBe(77);
   });
 });
 

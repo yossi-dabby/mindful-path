@@ -52,7 +52,7 @@ function resolvePublicPath(fileUrl) {
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
-const APPROVED_FORMS = ALL_FORMS.filter((f) => f.approved === true && f.type !== 'therapeutic_workbook' && f.category !== 'children_cbt_process');
+const APPROVED_FORMS = ALL_FORMS.filter((f) => f.approved === true && f.type !== 'therapeutic_workbook' && f.category !== 'children_cbt_process' && f.languages?.it);
 // Hebrew premium workbooks are Hebrew-only; they are tested separately in therapeuticFormsWorkbooks.test.js.
 const WORKBOOK_FORM_IDS = new Set([
   ...ALL_FORMS.filter(f => f.type === 'therapeutic_workbook').map(f => f.id),
