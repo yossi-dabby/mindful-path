@@ -22,7 +22,7 @@ function getLanguageFolderPrefix(lang) {
 }
 
 function toWorksheetSortValue(worksheetNumber) {
-  const value = String(worksheetNumber || '').trim();
+  const value = String(worksheetNumber ?? '').trim();
   if (!value) return Number.MAX_SAFE_INTEGER;
   const [moduleRaw, worksheetRaw] = value.split('.');
   const moduleNumber = Number(moduleRaw);
@@ -326,12 +326,12 @@ export default function TherapeuticForms() {
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground border border-border/50">
                     {t(`therapeutic_forms.category.${form.category}`)}
                   </span>
-                  {(form.moduleNumber || form.stageNumber) &&
+                  {(form.moduleNumber != null || form.stageNumber != null) &&
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-700/10 text-teal-900 border border-teal-700/20">
                       {`M${form.moduleNumber || form.stageNumber}`}
                     </span>
                   }
-                  {(form.worksheetNumber || form.displayNumber || form.cbt_substage_number) &&
+                  {(form.worksheetNumber != null || form.displayNumber != null || form.cbt_substage_number != null) &&
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-700/10 text-teal-900 border border-teal-700/20">
                       {form.worksheetNumber || form.displayNumber || form.cbt_substage_number}
                     </span>

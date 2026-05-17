@@ -24,7 +24,7 @@ function moduleOf(result) {
 describe('Canonical catalog wiring — aggregator and dedupe', () => {
   it('ALL_FORMS includes approved specialized/core sets and has no duplicate ids', () => {
     expect(ALL_FORMS.some((f) => f.id === 'tf-children-cbt-specialized-1-1-he')).toBe(true);
-    expect(ALL_FORMS.some((f) => f.id === 'tf-adolescents-cbt-core-en-1-1')).toBe(true);
+    expect(ALL_FORMS.some((f) => f.id === 'tf-adolescents-cbt-core-1-1-en')).toBe(true);
     expect(ALL_FORMS.some((f) => f.id === 'tf-adolescents-cbt-specialized-1-1-he')).toBe(true);
     expect(ALL_FORMS.some((f) => f.id === 'tf-adolescents-cbt-specialized-en-1-1')).toBe(true);
     const ids = ALL_FORMS.map((f) => f.id);
@@ -107,7 +107,7 @@ describe('AI resolver — canonical source and content-aware matching', () => {
     ['Teen has sleep problems, body stress or overload.', 8],
     ['Teen needs grounding, safe coping, support or gradual return to routine.', 9],
     ['Teen and parents need help with communication, boundaries, trust or cooperation at home.', 10],
-  ])('matches module %s -> %i using therapeutic metadata', (prompt, expectedModule) => {
+  ])('matches module %s -> %d using therapeutic metadata', (prompt, expectedModule) => {
     const result = resolveAdolescentsCBTSpecializedEnglishFormByContent(prompt, { activeLanguage: 'en' });
     expect(moduleOf(result)).toBe(expectedModule);
   });
