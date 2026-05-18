@@ -1,0 +1,149 @@
+{
+  "series_id": "children-cbt-core-en-stage2",
+  "series_title_en": "CBT Core for Children - Stage 2: Thoughts",
+  "language": "en",
+  "audience": "children",
+  "module_number": 2,
+  "module_title_en": "Thoughts",
+  "github_path": "public/forms/children/en/cbt-core/",
+  "items": [
+    {
+      "id": "children_cbt_core_en_02_01",
+      "worksheet_number": "2.1",
+      "title_en": "What Is My Thought Saying?",
+      "module_number": 2,
+      "module_title_en": "Thoughts",
+      "audience": "children",
+      "language": "en",
+      "category": "cbt-core-thoughts",
+      "therapeutic_goal": "Help the child notice a thought as words in the mind and choose a kinder thought.",
+      "when_to_use": "Use when a child needs help naming a thought and noticing whether it feels helpful.",
+      "keywords_en": [
+        "thoughts",
+        "self-talk",
+        "kind thought",
+        "helpful thought",
+        "CBT thoughts"
+      ],
+      "ai_matching_summary": "The child chooses a possible thought, notices how it feels, checks whether it is helpful, and selects a kinder thought.",
+      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_02_01.pdf",
+      "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_02_01_preview.png",
+      "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, suicide, or trauma content. Wording stays calm, hopeful, and age-appropriate."
+    },
+    {
+      "id": "children_cbt_core_en_02_02",
+      "worksheet_number": "2.2",
+      "title_en": "Thought or Fact?",
+      "module_number": 2,
+      "module_title_en": "Thoughts",
+      "audience": "children",
+      "language": "en",
+      "category": "cbt-core-thoughts",
+      "therapeutic_goal": "Teach the child to separate what happened from what the mind is guessing.",
+      "when_to_use": "Use when a child mixes facts with guesses or worries about what others think.",
+      "keywords_en": [
+        "thought or fact",
+        "mind guessing",
+        "facts",
+        "balanced thinking",
+        "CBT"
+      ],
+      "ai_matching_summary": "The worksheet helps distinguish real events from guesses, then choose a more balanced idea.",
+      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_02_02.pdf",
+      "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_02_02_preview.png",
+      "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, suicide, or trauma content. Wording stays calm, hopeful, and age-appropriate."
+    },
+    {
+      "id": "children_cbt_core_en_02_03",
+      "worksheet_number": "2.3",
+      "title_en": "Worry Thoughts",
+      "module_number": 2,
+      "module_title_en": "Thoughts",
+      "audience": "children",
+      "language": "en",
+      "category": "cbt-core-thoughts",
+      "therapeutic_goal": "Help the child notice worry thoughts kindly and choose simple coping supports.",
+      "when_to_use": "Use when a child has worry thoughts about mistakes, peers, or trying something hard.",
+      "keywords_en": [
+        "worry thoughts",
+        "anxiety thoughts",
+        "worry",
+        "coping",
+        "small step"
+      ],
+      "ai_matching_summary": "The child identifies what worry says, how worry feels, and what helps when worry appears.",
+      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_02_03.pdf",
+      "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_02_03_preview.png",
+      "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, suicide, or trauma content. Wording stays calm, hopeful, and age-appropriate."
+    },
+    {
+      "id": "children_cbt_core_en_02_04",
+      "worksheet_number": "2.4",
+      "title_en": "Helpful Thought Switch",
+      "module_number": 2,
+      "module_title_en": "Thoughts",
+      "audience": "children",
+      "language": "en",
+      "category": "cbt-core-thoughts",
+      "therapeutic_goal": "Practice changing an unhelpful thought into a kinder and more useful thought.",
+      "when_to_use": "Use when a child is stuck in an unhelpful thought such as \"I cannot do this\" or \"I will mess up\".",
+      "keywords_en": [
+        "thought switch",
+        "unhelpful thoughts",
+        "kind thoughts",
+        "cognitive reframing",
+        "CBT"
+      ],
+      "ai_matching_summary": "The child matches unhelpful thoughts with kinder replacements and fills in a personal thought switch.",
+      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_02_04.pdf",
+      "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_02_04_preview.png",
+      "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, suicide, or trauma content. Wording stays calm, hopeful, and age-appropriate."
+    },
+    {
+      "id": "children_cbt_core_en_02_05",
+      "worksheet_number": "2.5",
+      "title_en": "My Thought Detective",
+      "module_number": 2,
+      "module_title_en": "Thoughts",
+      "audience": "children",
+      "language": "en",
+      "category": "cbt-core-thoughts",
+      "therapeutic_goal": "Encourage the child to look for clues before believing every thought.",
+      "when_to_use": "Use when a child needs to check assumptions and identify what they know for sure.",
+      "keywords_en": [
+        "thought detective",
+        "clues",
+        "facts",
+        "guesses",
+        "balanced idea"
+      ],
+      "ai_matching_summary": "The child names a thought, identifies facts and guesses, and chooses what else could be true.",
+      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_02_05.pdf",
+      "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_02_05_preview.png",
+      "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, suicide, or trauma content. Wording stays calm, hopeful, and age-appropriate."
+    },
+    {
+      "id": "children_cbt_core_en_02_06",
+      "worksheet_number": "2.6",
+      "title_en": "A Thought That Helps Me",
+      "module_number": 2,
+      "module_title_en": "Thoughts",
+      "audience": "children",
+      "language": "en",
+      "category": "cbt-core-thoughts",
+      "therapeutic_goal": "Build a helpful thought the child can use to move forward.",
+      "when_to_use": "Use when a child needs a simple replacement thought before taking a next step.",
+      "keywords_en": [
+        "helpful thought",
+        "kind thought",
+        "next step",
+        "coping thought",
+        "CBT"
+      ],
+      "ai_matching_summary": "The child notices a feeling, chooses a thought that helps, selects what supports the next action, and writes a personal helpful thought.",
+      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_02_06.pdf",
+      "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_02_06_preview.png",
+      "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, suicide, or trauma content. Wording stays calm, hopeful, and age-appropriate."
+    }
+  ]
+}

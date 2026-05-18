@@ -1,0 +1,152 @@
+{
+  "series_id": "children-cbt-core-en-stage1",
+  "series_title_en": "CBT Core for Children — Stage 1: Emotions & Body",
+  "language": "en",
+  "audience": "children",
+  "module_number": 1,
+  "module_title_en": "Emotions & Body",
+  "github_path": "public/forms/children/en/cbt-core/",
+  "items": [
+    {
+      "id": "children_cbt_core_en_01_01",
+      "worksheet_number": "1.1",
+      "title_en": "What Am I Feeling?",
+      "module_number": 1,
+      "module_title_en": "Emotions & Body",
+      "audience": "children",
+      "language": "en",
+      "category": "cbt-core",
+      "therapeutic_goal": "Identify and name current feelings using child-friendly choices.",
+      "when_to_use": "Use when a child needs help noticing and naming feelings.",
+      "keywords_en": [
+        "feelings",
+        "emotion identification",
+        "happy",
+        "sad",
+        "worried",
+        "angry",
+        "check-in"
+      ],
+      "ai_matching_summary": "Notice the main feeling, where it shows up, and one thing happening right now.",
+      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_01_01.pdf",
+      "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_01_01_preview.png",
+      "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content."
+    },
+    {
+      "id": "children_cbt_core_en_01_02",
+      "worksheet_number": "1.2",
+      "title_en": "What Is My Body Telling Me?",
+      "module_number": 1,
+      "module_title_en": "Emotions & Body",
+      "audience": "children",
+      "language": "en",
+      "category": "cbt-core",
+      "therapeutic_goal": "Connect body clues to emotions and internal states.",
+      "when_to_use": "Use when a child needs help noticing body signals linked to emotions.",
+      "keywords_en": [
+        "body clues",
+        "heartbeat",
+        "tummy",
+        "hands",
+        "breathing",
+        "somatic awareness"
+      ],
+      "ai_matching_summary": "Identify body signals, body locations, and one strong clue the child notices.",
+      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_01_02.pdf",
+      "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_01_02_preview.png",
+      "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content."
+    },
+    {
+      "id": "children_cbt_core_en_01_03",
+      "worksheet_number": "1.3",
+      "title_en": "My Feeling Meter",
+      "module_number": 1,
+      "module_title_en": "Emotions & Body",
+      "audience": "children",
+      "language": "en",
+      "category": "cbt-core",
+      "therapeutic_goal": "Rate feeling intensity and choose matching supports.",
+      "when_to_use": "Use when a child needs to show how big a feeling is right now.",
+      "keywords_en": [
+        "feeling meter",
+        "intensity",
+        "rating scale",
+        "support choices",
+        "emotional regulation"
+      ],
+      "ai_matching_summary": "Use a 1–5 ladder to rate the size of the feeling and choose what may help.",
+      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_01_03.pdf",
+      "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_01_03_preview.png",
+      "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content."
+    },
+    {
+      "id": "children_cbt_core_en_01_04",
+      "worksheet_number": "1.4",
+      "title_en": "Early Signs Detective",
+      "module_number": 1,
+      "module_title_en": "Emotions & Body",
+      "audience": "children",
+      "language": "en",
+      "category": "cbt-core",
+      "therapeutic_goal": "Notice early warning signs before feelings grow bigger.",
+      "when_to_use": "Use when a child is learning to recognize early clues in body or behavior.",
+      "keywords_en": [
+        "early signs",
+        "warning signs",
+        "body clues",
+        "behavior clues",
+        "detective"
+      ],
+      "ai_matching_summary": "Circle early clues, what may be happening, and note the first clue noticed today.",
+      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_01_04.pdf",
+      "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_01_04_preview.png",
+      "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content."
+    },
+    {
+      "id": "children_cbt_core_en_01_05",
+      "worksheet_number": "1.5",
+      "title_en": "Feelings Can Change",
+      "module_number": 1,
+      "module_title_en": "Emotions & Body",
+      "audience": "children",
+      "language": "en",
+      "category": "cbt-core",
+      "therapeutic_goal": "Teach that feelings can shift with time and support.",
+      "when_to_use": "Use after a hard feeling begins to settle or when teaching hope and flexibility.",
+      "keywords_en": [
+        "feelings change",
+        "coping",
+        "time",
+        "support",
+        "hope"
+      ],
+      "ai_matching_summary": "See how feelings change from first to now to after some help, and what helped a little.",
+      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_01_05.pdf",
+      "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_01_05_preview.png",
+      "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content."
+    },
+    {
+      "id": "children_cbt_core_en_01_06",
+      "worksheet_number": "1.6",
+      "title_en": "My Feeling Card",
+      "module_number": 1,
+      "module_title_en": "Emotions & Body",
+      "audience": "children",
+      "language": "en",
+      "category": "cbt-core",
+      "therapeutic_goal": "Create a simple personal card linking feelings, body clues, supports, and kind words.",
+      "when_to_use": "Use as a quick take-away tool for daily emotional check-ins.",
+      "keywords_en": [
+        "feeling card",
+        "coping card",
+        "helpful words",
+        "body clues",
+        "supports"
+      ],
+      "ai_matching_summary": "Choose the feeling, body clues, helpful tools, and a kind phrase to remember.",
+      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_01_06.pdf",
+      "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_01_06_preview.png",
+      "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content."
+    }
+  ]
+}

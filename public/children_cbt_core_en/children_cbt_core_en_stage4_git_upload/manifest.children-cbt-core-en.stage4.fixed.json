@@ -1,0 +1,150 @@
+{
+  "series_id": "children-cbt-core-en-stage4-fixed",
+  "series_title_en": "CBT Core for Children — Stage 4: Regulation & Calm",
+  "language": "en",
+  "audience": "children",
+  "module_number": 4,
+  "module_title_en": "Regulation & Calm",
+  "github_path": "public/forms/children/en/cbt-core/",
+  "items": [
+    {
+      "id": "children_cbt_core_en_04_01",
+      "worksheet_number": "4.1",
+      "title_en": "Pause Button",
+      "module_number": 4,
+      "module_title_en": "Regulation & Calm",
+      "audience": "children",
+      "language": "en",
+      "category": "cbt-core",
+      "therapeutic_goal": "Help children pause when they feel upset or overwhelmed.",
+      "when_to_use": "Use when a child needs a simple stop-breathe-choose regulation prompt.",
+      "keywords_en": [
+        "pause",
+        "stop",
+        "breathe",
+        "upset",
+        "overwhelmed",
+        "regulation"
+      ],
+      "ai_matching_summary": "Use this when the child needs to stop, take a breath, and choose a calmer next step.",
+      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_04_01.pdf",
+      "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_04_01_preview.png",
+      "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content."
+    },
+    {
+      "id": "children_cbt_core_en_04_02",
+      "worksheet_number": "4.2",
+      "title_en": "What Can Help Me Calm Down?",
+      "module_number": 4,
+      "module_title_en": "Regulation & Calm",
+      "audience": "children",
+      "language": "en",
+      "category": "cbt-core",
+      "therapeutic_goal": "Help children identify calming tools that work for them.",
+      "when_to_use": "Use when a child is building a personal list of calming strategies.",
+      "keywords_en": [
+        "calm down",
+        "coping tools",
+        "self regulation",
+        "music",
+        "water",
+        "drawing"
+      ],
+      "ai_matching_summary": "Use this when the child is choosing calming activities and discovering what helps.",
+      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_04_02.pdf",
+      "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_04_02_preview.png",
+      "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content."
+    },
+    {
+      "id": "children_cbt_core_en_04_03",
+      "worksheet_number": "4.3",
+      "title_en": "My Breathing Helper",
+      "module_number": 4,
+      "module_title_en": "Regulation & Calm",
+      "audience": "children",
+      "language": "en",
+      "category": "cbt-core",
+      "therapeutic_goal": "Teach a simple balloon-breathing sequence.",
+      "when_to_use": "Use when a child needs a concrete breathing exercise.",
+      "keywords_en": [
+        "breathing",
+        "balloon breathing",
+        "calm",
+        "body regulation",
+        "coping"
+      ],
+      "ai_matching_summary": "Use this when the child needs guided breathing to feel calmer.",
+      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_04_03.pdf",
+      "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_04_03_preview.png",
+      "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content."
+    },
+    {
+      "id": "children_cbt_core_en_04_04",
+      "worksheet_number": "4.4",
+      "title_en": "Back to My Body",
+      "module_number": 4,
+      "module_title_en": "Regulation & Calm",
+      "audience": "children",
+      "language": "en",
+      "category": "cbt-core",
+      "therapeutic_goal": "Ground children by noticing sensory details around them.",
+      "when_to_use": "Use when a child feels upset and needs grounding through the senses.",
+      "keywords_en": [
+        "grounding",
+        "5 senses",
+        "body awareness",
+        "calm",
+        "notice"
+      ],
+      "ai_matching_summary": "Use this when the child needs to ground using seeing, touching, hearing, smelling, and tasting.",
+      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_04_04.pdf",
+      "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_04_04_preview.png",
+      "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content."
+    },
+    {
+      "id": "children_cbt_core_en_04_05",
+      "worksheet_number": "4.5",
+      "title_en": "My Safe Calm Place",
+      "module_number": 4,
+      "module_title_en": "Regulation & Calm",
+      "audience": "children",
+      "language": "en",
+      "category": "cbt-core",
+      "therapeutic_goal": "Help children imagine a safe and calming place.",
+      "when_to_use": "Use when a child benefits from a visual safe-place exercise.",
+      "keywords_en": [
+        "safe place",
+        "imagery",
+        "calm place",
+        "soothing",
+        "regulation"
+      ],
+      "ai_matching_summary": "Use this when the child needs to imagine or draw a safe calm place.",
+      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_04_05.pdf",
+      "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_04_05_preview.png",
+      "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content."
+    },
+    {
+      "id": "children_cbt_core_en_04_06",
+      "worksheet_number": "4.6",
+      "title_en": "My Calm Tools Card",
+      "module_number": 4,
+      "module_title_en": "Regulation & Calm",
+      "audience": "children",
+      "language": "en",
+      "category": "cbt-core",
+      "therapeutic_goal": "Create a personal calm-tools card with favorite coping tools.",
+      "when_to_use": "Use as a take-away card once the child has identified their top calming tools.",
+      "keywords_en": [
+        "calm tools card",
+        "coping card",
+        "top tools",
+        "self help"
+      ],
+      "ai_matching_summary": "Use this when the child is choosing top calm tools for later use.",
+      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_04_06.pdf",
+      "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_04_06_preview.png",
+      "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content."
+    }
+  ]
+}
