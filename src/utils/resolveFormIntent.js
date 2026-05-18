@@ -9,6 +9,8 @@ import {
 } from '../data/therapeuticForms/index.js';
 
 const ADOLESCENTS_CBT_CORE_EN_ID = 'adolescents-cbt-core-en';
+const ADOLESCENTS_CBT_SPECIALIZED_EN_ID = 'adolescents-cbt-specialized-en';
+const SPECIALIZED_MODULE_ID_PREFIX = `${ADOLESCENTS_CBT_SPECIALIZED_EN_ID}-module-`;
 
 const PACKAGE_LEVEL_INTENTS = [
   'adolescents-cbt-core-en',
@@ -49,21 +51,57 @@ const PACKAGE_LEVEL_HINTS = [
   'cbt workbook for teen',
 ];
 
+const SPECIALIZED_FULL_SERIES_HINTS = [
+  'full specialized series',
+  'full 60-form specialized workbook',
+  'full 60 form specialized workbook',
+  'all specialized forms',
+  'send all specialized forms',
+  'complete specialized workbook for teens',
+  'specialized cbt full series',
+  'adolescents cbt specialized series',
+];
+
+const DISALLOWED_AUDIENCE_PATTERNS = [
+  /\bchildren\b/i,
+  /\bchild\b/i,
+  /\bkid\b/i,
+  /\badults\b/i,
+  /\badult\b/i,
+  /\bolder adults\b/i,
+  /\bolder-adults\b/i,
+  /\bolder adult\b/i,
+];
+
 function getCoreEnglishForms() {
   return ALL_FORMS.filter((form) => form?.approved === true && form?.category === 'adolescents_cbt_core' && form?.language === 'en' && form?.audience === 'adolescents');
+}
+
+function getSpecializedEnglishForms() {
+  return ALL_FORMS.filter((form) => form?.approved === true && form?.category === 'adolescents_cbt_specialized' && form?.language === 'en' && form?.audience === 'adolescents');
 }
 
 function getCoreEnglishPackageForm() {
   return getCoreEnglishForms().find((form) => form?.id === ADOLESCENTS_CBT_CORE_EN_ID && form?.type === 'workbook_package') || null;
 }
 
+function getSpecializedEnglishPackageForm() {
+  return getSpecializedEnglishForms().find((form) => form?.id === ADOLESCENTS_CBT_SPECIALIZED_EN_ID && form?.type === 'workbook_package') || null;
+}
+
 function getCoreEnglishIndividualForms() {
   return getCoreEnglishForms().filter((form) => form?.type === 'individual_worksheet' && form?.parentSeriesId === ADOLESCENTS_CBT_CORE_EN_ID);
 }
 
+function getSpecializedEnglishModuleForms() {
+  return getSpecializedEnglishForms()
+    .filter((form) => form?.type === 'module_pdf' && form?.parentSeriesId === ADOLESCENTS_CBT_SPECIALIZED_EN_ID)
+    .sort((a, b) => Number(a?.moduleNumber || 0) - Number(b?.moduleNumber || 0));
+}
+
 function buildApprovedIntentMap() {
   const map = {};
-  const forms = getCoreEnglishForms();
+  const forms = ALL_FORMS.filter((form) => form?.approved === true);
 
   for (const form of forms) {
     const id = String(form?.id || '').trim();
@@ -115,26 +153,16 @@ function containsAny(text, terms) {
   return terms.some((term) => text.includes(term));
 }
 
-function hasExplicitEnglishRequest(normalizedQuery) {
-  return containsAny(normalizedQuery, ['english', 'in english', ' באנגלית', 'אנגלית']);
-}
-
 function requestsDisallowedAudience(normalizedQuery) {
-  const patterns = [
-    /\bchildren\b/i,
-    /\bchild\b/i,
-    /\bkid\b/i,
-    /\badults\b/i,
-    /\badult\b/i,
-    /\bolder adults\b/i,
-    /\bolder-adults\b/i,
-    /\bolder adult\b/i,
-  ];
-  return patterns.some((pattern) => pattern.test(normalizedQuery));
+  return DISALLOWED_AUDIENCE_PATTERNS.some((pattern) => pattern.test(normalizedQuery));
 }
 
 function requestsHebrew(normalizedQuery) {
   return containsAny(normalizedQuery, ['hebrew', 'עברית']);
+}
+
+function hasExplicitEnglishRequest(normalizedQuery) {
+  return containsAny(normalizedQuery, ['english', 'in english', ' באנגלית', 'אנגלית']);
 }
 
 function hasTeenCbtSignals(normalizedQuery) {
@@ -249,6 +277,119 @@ function resolveCoreEnglishIndividualByContent(normalizedQuery) {
   return resolveApprovedFormById(best.id, 'en');
 }
 
+function isSpecializedPackageLevelRequest(normalizedQuery) {
+  if (APPROVED_FORM_INTENT_MAP[normalizedQuery] === ADOLESCENTS_CBT_SPECIALIZED_EN_ID) {
+    return true;
+  }
+
+  const hasFullSignal = containsAny(normalizedQuery, ['full', 'complete', 'all', 'entire', 'whole']);
+  const hasSeriesSignal = containsAny(normalizedQuery, ['specialized series', 'specialised series', 'specialized workbook', 'specialised workbook', '60-form', '60 form', 'all modules', 'module 01']);
+  if (hasFullSignal && hasSeriesSignal) return true;
+
+  return containsAny(normalizedQuery, SPECIALIZED_FULL_SERIES_HINTS);
+}
+
+function extractRequestedSpecializedModuleNumber(normalizedQuery) {
+  const explicitModuleMatch = normalizedQuery.match(/\b(?:module|category)\s*0?([1-9]|10)\b/i);
+  if (explicitModuleMatch) return Number(explicitModuleMatch[1]);
+
+  const explicitHashMatch = normalizedQuery.match(/\b(?:module|category)\s*#\s*0?([1-9]|10)\b/i);
+  if (explicitHashMatch) return Number(explicitHashMatch[1]);
+
+  const genericCodeMatch = normalizedQuery.match(/\b0?([1-9]|10)(?:\.[0-9]{1,2})\b/);
+  if (genericCodeMatch) return Number(genericCodeMatch[1]);
+
+  return null;
+}
+
+function scoreSpecializedModuleMatch(form, normalizedQuery) {
+  let score = 0;
+
+  const normalizedTitle = normalizeText(form?.title);
+  const normalizedDescription = normalizeText(form?.description);
+  const normalizedGoal = normalizeText(form?.therapeuticGoal);
+  const normalizedWhenToUse = normalizeText(form?.whenToUse);
+  const normalizedIndication = normalizeText(form?.clinicalIndication);
+  const normalizedModuleCode = normalizeText(form?.moduleCode);
+  const normalizedModuleNumber = String(form?.moduleNumber || '');
+
+  if (normalizedModuleCode && normalizedQuery.includes(`module ${normalizedModuleCode}`)) score += 160;
+  if (normalizedModuleNumber && normalizedQuery.includes(`module ${normalizedModuleNumber}`)) score += 150;
+  if (normalizedModuleCode && normalizedQuery.includes(`category ${normalizedModuleCode}`)) score += 120;
+  if (normalizedTitle && normalizedQuery.includes(normalizedTitle)) score += 90;
+
+  if (Array.isArray(form?.intentPhrases)) {
+    for (const phrase of form.intentPhrases) {
+      const normalizedPhrase = normalizeText(phrase);
+      if (!normalizedPhrase) continue;
+      if (normalizedQuery.includes(normalizedPhrase)) score += 80;
+    }
+  }
+
+  if (Array.isArray(form?.clinicalKeywords)) {
+    for (const keyword of form.clinicalKeywords) {
+      const normalizedKeyword = normalizeText(keyword);
+      if (!normalizedKeyword) continue;
+      if (normalizedQuery.includes(normalizedKeyword)) score += 50;
+    }
+  }
+
+  if (Array.isArray(form?.contentThemes)) {
+    for (const theme of form.contentThemes) {
+      const normalizedTheme = normalizeText(theme);
+      if (!normalizedTheme) continue;
+      if (normalizedQuery.includes(normalizedTheme)) score += 25;
+    }
+  }
+
+  if (Array.isArray(form?.notFor)) {
+    for (const exclusion of form.notFor) {
+      const normalizedExclusion = normalizeText(exclusion);
+      if (!normalizedExclusion) continue;
+      if (normalizedQuery.includes(normalizedExclusion)) score -= 70;
+    }
+  }
+
+  if (normalizedDescription && normalizedQuery.length > 8) {
+    const words = normalizedQuery.split(/\s+/).filter(Boolean);
+    for (const word of words) {
+      if (word.length < 4) continue;
+      if (normalizedDescription.includes(word)) score += 4;
+      if (normalizedGoal.includes(word)) score += 4;
+      if (normalizedWhenToUse.includes(word)) score += 4;
+      if (normalizedIndication.includes(word)) score += 4;
+    }
+  }
+
+  return score;
+}
+
+function resolveSpecializedModuleByNumber(moduleNumber) {
+  if (!Number.isInteger(moduleNumber)) return null;
+  const moduleForm = getSpecializedEnglishModuleForms().find((form) => Number(form?.moduleNumber) === moduleNumber);
+  if (!moduleForm) return null;
+  return resolveApprovedFormById(moduleForm.id, 'en');
+}
+
+function resolveSpecializedModuleByContent(normalizedQuery) {
+  const modules = getSpecializedEnglishModuleForms();
+  if (modules.length === 0) return null;
+
+  let best = null;
+  let bestScore = 0;
+
+  for (const moduleForm of modules) {
+    const score = scoreSpecializedModuleMatch(moduleForm, normalizedQuery);
+    if (score > bestScore) {
+      best = moduleForm;
+      bestScore = score;
+    }
+  }
+
+  if (!best || bestScore <= 0) return null;
+  return resolveApprovedFormById(best.id, 'en');
+}
+
 export function resolveFormIntent(intentOrSlug, lang) {
   if (typeof intentOrSlug !== 'string' || !intentOrSlug.trim()) return null;
   if (ALL_FORMS.length === 0) return null;
@@ -261,10 +402,15 @@ export function resolveFormIntent(intentOrSlug, lang) {
     return resolveApprovedFormById(formId, resolvedLang);
   }
 
-  const byContent = resolveAdolescentsCBTCoreEnglishFormByContent(normalizedIntent, {
+  const bySpecializedContent = resolveAdolescentsCBTSpecializedEnglishFormByContent(normalizedIntent, {
     activeLanguage: resolvedLang,
   });
-  if (byContent) return byContent;
+  if (bySpecializedContent) return bySpecializedContent;
+
+  const byCoreContent = resolveAdolescentsCBTCoreEnglishFormByContent(normalizedIntent, {
+    activeLanguage: resolvedLang,
+  });
+  if (byCoreContent) return byCoreContent;
 
   return null;
 }
@@ -310,6 +456,33 @@ export function resolveAdolescentsCBTCoreEnglishFormByContent(query, options = {
   return resolveApprovedFormById(packageForm.id, 'en');
 }
 
-export function resolveAdolescentsCBTSpecializedEnglishFormByContent(_query, _options = {}) {
+export function resolveAdolescentsCBTSpecializedEnglishFormByContent(query, options = {}) {
+  const normalizedQuery = normalizeText(query);
+  if (!normalizedQuery) return null;
+
+  const activeLanguage = normalizeText(options.activeLanguage || 'en') || 'en';
+  if (activeLanguage !== 'en') return null;
+  if (requestsDisallowedAudience(normalizedQuery)) return null;
+  if (requestsHebrew(normalizedQuery)) return null;
+
+  if (isSpecializedPackageLevelRequest(normalizedQuery)) {
+    return resolveApprovedFormById(ADOLESCENTS_CBT_SPECIALIZED_EN_ID, 'en');
+  }
+
+  const requestedModule = extractRequestedSpecializedModuleNumber(normalizedQuery);
+  const byModuleNumber = resolveSpecializedModuleByNumber(requestedModule);
+  if (byModuleNumber) return byModuleNumber;
+
+  const byModuleContent = resolveSpecializedModuleByContent(normalizedQuery);
+  if (byModuleContent) return byModuleContent;
+
   return null;
+}
+
+export function resolveSpecializedModuleIdByCode(moduleCode) {
+  const normalizedCode = String(moduleCode || '').padStart(2, '0');
+  if (!/^(0[1-9]|10)$/.test(normalizedCode)) return null;
+  const candidateId = `${SPECIALIZED_MODULE_ID_PREFIX}${normalizedCode}`;
+  const exists = getSpecializedEnglishModuleForms().some((form) => form.id === candidateId);
+  return exists ? candidateId : null;
 }

@@ -721,7 +721,11 @@ function extractAndResolveFormIntent(content, lang, userQuery, previousUserConte
         // Prefer the language explicitly in the marker, then the session language
         const effectiveLang = markerLang || lang || 'en';
         const metadata = resolveFormIntent(slug, effectiveLang);
-        if (metadata) {
+        const normalizedSessionLang = normalizeSessionLanguage(lang || 'en');
+        const blocksNonEnglishSpecialized =
+          metadata?.category === 'adolescents_cbt_specialized' && normalizedSessionLang !== 'en';
+
+        if (metadata && !blocksNonEnglishSpecialized) {
           resolvedGeneratedFile = metadata;
         }
       }
