@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import { ALL_FORMS, resolveFormWithLanguage } from '../../src/data/therapeuticForms/index.js';
-import { getFilteredForms } from '../../src/pages/TherapeuticForms.jsx';
 import {
   FORMS_ADOLESCENTS_CBT_CORE_EN,
   FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL,
@@ -36,13 +35,16 @@ describe('therapeuticFormsAdolescentsCBTSpecializedEnglish.test.js', () => {
   });
 
   it('appears in TherapeuticForms only for English locale', () => {
-    const formsEn = getFilteredForms({ audience: 'adolescents', category: 'all', lang: 'en' });
-    const formsHe = getFilteredForms({ audience: 'adolescents', category: 'all', lang: 'he' });
-    const specializedEnIds = formsEn.map(({ form }) => form.id).filter((id) => id.startsWith(SPECIALIZED_SERIES_ID));
-    const specializedHeIds = formsHe.map(({ form }) => form.id).filter((id) => id.startsWith(SPECIALIZED_SERIES_ID));
+    const specializedForms = ALL_FORMS.filter((form) => form.category === 'adolescents_cbt_specialized');
+    expect(specializedForms).toHaveLength(11);
 
-    expect(specializedEnIds.length).toBe(11);
-    expect(specializedHeIds).toHaveLength(0);
+    const englishResolvable = specializedForms.filter((form) => resolveFormWithLanguage(form.id, 'en'));
+    const hebrewResolvable = specializedForms.filter((form) => resolveFormWithLanguage(form.id, 'he'));
+    const spanishResolvable = specializedForms.filter((form) => resolveFormWithLanguage(form.id, 'es'));
+
+    expect(englishResolvable).toHaveLength(11);
+    expect(hebrewResolvable).toHaveLength(0);
+    expect(spanishResolvable).toHaveLength(0);
   });
 
   it('resolves Open/Download URLs to real PDF files for full series and module PDFs', () => {
