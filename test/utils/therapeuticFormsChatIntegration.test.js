@@ -20,4 +20,14 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     const staleAssistant = staleResult.find((m) => m.role === 'assistant');
     expect(staleAssistant?.metadata?.generated_file ?? null).toBeNull();
   });
+
+  it('blocks adolescents specialized EN attachments when session language is non-English', () => {
+    const messages = [
+      { role: 'user', content: 'תשלחי לי את הסדרה המלאה', metadata: { session_language: 'he' } },
+      { role: 'assistant', content: JSON.stringify({ assistant_message: 'Here you go [FORM:adolescents-cbt-specialized-en:en]' }) },
+    ];
+    const result = sanitizeConversationMessages(messages, 'he');
+    const assistant = result.find((m) => m.role === 'assistant');
+    expect(assistant?.metadata?.generated_file ?? null).toBeNull();
+  });
 });

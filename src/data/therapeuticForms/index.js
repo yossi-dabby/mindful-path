@@ -13,6 +13,7 @@
  */
 
 import { FORMS_ADOLESCENTS_CBT_CORE_EN } from './forms.adolescents.cbt-core.en.js';
+import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN } from './forms.adolescents.cbt-specialized.en.js';
 
 // ─── Taxonomy ─────────────────────────────────────────────────────────────────
 export {
@@ -63,6 +64,7 @@ function buildCanonicalRegistry(forms) {
  */
 export const ALL_FORMS = buildCanonicalRegistry([
   ...FORMS_ADOLESCENTS_CBT_CORE_EN,
+  ...FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN,
 ]);
 
 // ─── Resolver utilities ───────────────────────────────────────────────────────
