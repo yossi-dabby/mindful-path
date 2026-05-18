@@ -11,6 +11,7 @@ import {
 const ADOLESCENTS_CBT_CORE_EN_ID = 'adolescents-cbt-core-en';
 const ADOLESCENTS_CBT_SPECIALIZED_EN_ID = 'adolescents-cbt-specialized-en';
 const SPECIALIZED_MODULE_ID_PREFIX = `${ADOLESCENTS_CBT_SPECIALIZED_EN_ID}-module-`;
+const CHILDREN_CBT_CORE_EN_SERIES_ID = 'children-cbt-core-en';
 
 const PACKAGE_LEVEL_INTENTS = [
   'adolescents-cbt-core-en',
@@ -79,6 +80,14 @@ function getCoreEnglishForms() {
 
 function getSpecializedEnglishForms() {
   return ALL_FORMS.filter((form) => form?.approved === true && form?.category === 'adolescents_cbt_specialized' && form?.language === 'en' && form?.audience === 'adolescents');
+}
+
+function getChildrenCoreEnglishForms() {
+  return ALL_FORMS.filter((form) => form?.approved === true && form?.category === 'children_cbt_core' && form?.language === 'en' && form?.audience === 'children');
+}
+
+function getChildrenCoreEnglishIndividualForms() {
+  return getChildrenCoreEnglishForms().filter((form) => form?.type === 'individual_worksheet' && form?.parentSeriesId === CHILDREN_CBT_CORE_EN_SERIES_ID);
 }
 
 function getCoreEnglishPackageForm() {
@@ -390,6 +399,55 @@ function resolveSpecializedModuleByContent(normalizedQuery) {
   return resolveApprovedFormById(best.id, 'en');
 }
 
+function hasChildCbtSignals(normalizedQuery) {
+  const childTerms = ['child', 'children', 'kid', 'kids', 'young child'];
+  const cbtTerms = [
+    'cbt',
+    'emotion',
+    'feeling',
+    'feelings',
+    'thought',
+    'thoughts',
+    'worry',
+    'anxiety',
+    'brave',
+    'calm',
+    'regulation',
+    'worksheet',
+    'form',
+    'coping',
+    'small step',
+  ];
+  return containsAny(normalizedQuery, childTerms) && containsAny(normalizedQuery, cbtTerms);
+}
+
+function resolveChildrenCoreEnglishIndividualByFormNumber(formNumber) {
+  if (!formNumber) return null;
+  // Children worksheets use form numbers 1.1–5.6
+  const individual = getChildrenCoreEnglishIndividualForms().find((form) => form?.formNumber === formNumber);
+  if (!individual) return null;
+  return resolveApprovedFormById(individual.id, 'en');
+}
+
+function resolveChildrenCoreEnglishIndividualByContent(normalizedQuery) {
+  const candidates = getChildrenCoreEnglishIndividualForms();
+  if (candidates.length === 0) return null;
+
+  let best = null;
+  let bestScore = 0;
+
+  for (const form of candidates) {
+    const score = scoreIndividualFormMatch(form, normalizedQuery);
+    if (score > bestScore) {
+      best = form;
+      bestScore = score;
+    }
+  }
+
+  if (!best || bestScore <= 0) return null;
+  return resolveApprovedFormById(best.id, 'en');
+}
+
 export function resolveFormIntent(intentOrSlug, lang) {
   if (typeof intentOrSlug !== 'string' || !intentOrSlug.trim()) return null;
   if (ALL_FORMS.length === 0) return null;
@@ -412,6 +470,11 @@ export function resolveFormIntent(intentOrSlug, lang) {
   });
   if (byCoreContent) return byCoreContent;
 
+  const byChildrenContent = resolveChildrenCBTCoreEnglishFormByContent(normalizedIntent, {
+    activeLanguage: resolvedLang,
+  });
+  if (byChildrenContent) return byChildrenContent;
+
   return null;
 }
 
@@ -420,6 +483,44 @@ export function resolveChildrenCBTPremiumFormByContent(_query) {
 }
 
 export function resolveChildrenCBTSpecializedFormByContent(_query) {
+  return null;
+}
+
+export function resolveChildrenCBTCoreEnglishFormByContent(query, options = {}) {
+  const normalizedQuery = normalizeText(query);
+  if (!normalizedQuery) return null;
+
+  const activeLanguage = normalizeText(options.activeLanguage || 'en') || 'en';
+  const explicitEnglish = hasExplicitEnglishRequest(normalizedQuery);
+
+  // English-only guard — never expose in non-English language mode
+  if (activeLanguage !== 'en' && !explicitEnglish) return null;
+  if (requestsHebrew(normalizedQuery) && !explicitEnglish) return null;
+
+  // Reject requests that explicitly ask for adolescent/adult audience
+  const NON_CHILD_AUDIENCE = [/\badolescents?\b/i, /\bteen(?:age(?:r)?)?\b/i, /\badults?\b/i, /\bolder adults?\b/i];
+  if (NON_CHILD_AUDIENCE.some((p) => p.test(normalizedQuery))) return null;
+
+  // Extract children-specific form numbers (stages 1-5, worksheets 1-6)
+  const childFormMatch = normalizedQuery.match(/\b(?:form|worksheet)\s*([1-5])(?:\.|\-|\s)([1-6])\b/i);
+  const shortChildFormMatch = normalizedQuery.match(/\b([1-5])\.([1-6])\b/);
+  const formNumber = childFormMatch
+    ? `${childFormMatch[1]}.${childFormMatch[2]}`
+    : shortChildFormMatch
+      ? `${shortChildFormMatch[1]}.${shortChildFormMatch[2]}`
+      : null;
+
+  if (formNumber) {
+    const byFormNumber = resolveChildrenCoreEnglishIndividualByFormNumber(formNumber);
+    if (byFormNumber) return byFormNumber;
+  }
+
+  const byContent = resolveChildrenCoreEnglishIndividualByContent(normalizedQuery);
+  if (byContent) return byContent;
+
+  // Fallback: only respond if there are clear child CBT signals
+  if (!hasChildCbtSignals(normalizedQuery) && !APPROVED_FORM_INTENT_MAP[normalizedQuery]) return null;
+
   return null;
 }
 
