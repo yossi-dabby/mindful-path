@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
 import { resolveFormWithLanguage } from '../../src/data/therapeuticForms/index.js';
 import { FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL } from '../../src/data/therapeuticForms/forms.adolescents.cbt-core.en.js';
+import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_MODULE_PDFS } from '../../src/data/therapeuticForms/forms.adolescents.cbt-specialized.en.js';
 import { normalizeGeneratedFile } from '../../src/components/chat/utils/normalizeGeneratedFile.js';
 
 const ROOT = '/home/runner/work/mindful-path/mindful-path';
@@ -91,6 +92,29 @@ describe('forms library Open action — uses direct public URL', () => {
     for (const w of FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL) {
       expect(w.fileUrl.startsWith('/forms/adolescents/en/core/individual/')).toBe(true);
       expect(w.languages.en.file_url).toBe(w.fileUrl);
+    }
+  });
+
+  it('resolves adolescents CBT specialized EN series to /forms/adolescents/en/cbt-specialized/ URL suitable for Open', () => {
+    const resolved = resolveFormWithLanguage('adolescents-cbt-specialized-en', 'en');
+    const fileUrl = resolved?.languageData?.file_url;
+    expect(fileUrl).toBeTruthy();
+    expect(fileUrl.startsWith('/forms/adolescents/en/cbt-specialized/')).toBe(true);
+    // Language-gated: must not resolve for non-English locales
+    expect(resolveFormWithLanguage('adolescents-cbt-specialized-en', 'he')).toBeNull();
+    expect(resolveFormWithLanguage('adolescents-cbt-specialized-en', 'es')).toBeNull();
+  });
+
+  it('resolves all 10 specialized EN module PDFs to /forms/adolescents/en/cbt-specialized/ public URLs', () => {
+    for (const module of FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_MODULE_PDFS) {
+      const resolved = resolveFormWithLanguage(module.id, 'en');
+      expect(resolved).not.toBeNull();
+      const fileUrl = resolved?.languageData?.file_url;
+      expect(fileUrl).toBeTruthy();
+      expect(fileUrl.startsWith('/forms/adolescents/en/cbt-specialized/')).toBe(true);
+      expect(fileUrl).toContain('yourcbttrapist_adolescents_cbt_specialized_en_module_');
+      // Module PDFs must not resolve for non-English locales (Open would have nothing to open)
+      expect(resolveFormWithLanguage(module.id, 'he')).toBeNull();
     }
   });
 });
