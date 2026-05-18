@@ -14,6 +14,7 @@
 
 import { FORMS_ADOLESCENTS_CBT_CORE_EN } from './forms.adolescents.cbt-core.en.js';
 import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN } from './forms.adolescents.cbt-specialized.en.js';
+import { FORMS_CHILDREN_CBT_CORE_EN } from './forms.children.cbt-core.en.js';
 
 // ─── Taxonomy ─────────────────────────────────────────────────────────────────
 export {
@@ -29,6 +30,7 @@ export {
 export { FORMS_CHILDREN }              from './forms.children.js';
 export { FORMS_CHILDREN_CBT_PREMIUM }  from './forms.children.cbt-premium.js';
 export { FORMS_CHILDREN_CBT_SPECIALIZED } from './forms.children.cbt-specialized.js';
+export { FORMS_CHILDREN_CBT_CORE_EN } from './forms.children.cbt-core.en.js';
 export { FORMS_ADOLESCENTS }           from './forms.adolescents.js';
 export { FORMS_ADOLESCENTS_CBT_CORE_EN } from './forms.adolescents.cbt-core.en.js';
 export { FORMS_ADOLESCENTS_CBT_SPECIALIZED } from './forms.adolescents.cbt-specialized.js';
@@ -65,6 +67,7 @@ function buildCanonicalRegistry(forms) {
 export const ALL_FORMS = buildCanonicalRegistry([
   ...FORMS_ADOLESCENTS_CBT_CORE_EN,
   ...FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN,
+  ...FORMS_CHILDREN_CBT_CORE_EN,
 ]);
 
 // ─── Resolver utilities ───────────────────────────────────────────────────────

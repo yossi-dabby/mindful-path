@@ -12,6 +12,10 @@ import {
   FORMS_ADOLESCENTS_CBT_CORE_EN_STAGE_GROUPS,
   FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL,
 } from '@/data/therapeuticForms/forms.adolescents.cbt-core.en.js';
+import {
+  FORMS_CHILDREN_CBT_CORE_EN_STAGE_GROUPS,
+  FORMS_CHILDREN_CBT_CORE_EN_INDIVIDUAL,
+} from '@/data/therapeuticForms/forms.children.cbt-core.en.js';
 import { openFile } from '@/components/chat/utils/openFile';
 import { downloadPdfFile } from '@/components/chat/utils/downloadPdfFile';
 
@@ -95,10 +99,10 @@ export function getFilteredForms({ audience, category, lang }) {
   }, []);
 
   // Stage groups — English only, derived from the canonical forms source.
-  // Each stage_group card lists its 5 individual worksheets for open/download.
+  // Each stage_group card lists its 6 individual worksheets for open/download.
   let stageGroupResults = [];
   if (lang === 'en') {
-    stageGroupResults = FORMS_ADOLESCENTS_CBT_CORE_EN_STAGE_GROUPS
+    const adolescentGroups = FORMS_ADOLESCENTS_CBT_CORE_EN_STAGE_GROUPS
       .filter((sg) => audience === 'all' || sg.audience === audience)
       .filter((sg) => {
         if (category === 'all') return true;
@@ -136,6 +140,47 @@ export function getFilteredForms({ audience, category, lang }) {
           worksheets,
         };
       });
+
+    const childrenGroups = FORMS_CHILDREN_CBT_CORE_EN_STAGE_GROUPS
+      .filter((sg) => audience === 'all' || sg.audience === audience)
+      .filter((sg) => {
+        if (category === 'all') return true;
+        if (sg.category === category) return true;
+        return (sg.secondaryCategories || []).includes(category);
+      })
+      .map((sg) => {
+        const worksheets = FORMS_CHILDREN_CBT_CORE_EN_INDIVIDUAL
+          .filter((w) => w.stageNumber === sg.stageNumber)
+          .map((w) => {
+            const wLang = w.languages.en;
+            return {
+              form: w,
+              languageData: {
+                title: wLang.title,
+                description: wLang.description,
+                file_url: wLang.file_url,
+                file_type: wLang.file_type,
+                file_name: wLang.file_name,
+                rtl: false,
+              },
+            };
+          });
+        return {
+          form: sg,
+          language: 'en',
+          languageData: {
+            title: sg.title,
+            description: sg.description,
+            file_url: null,
+            file_type: null,
+            file_name: null,
+            rtl: false,
+          },
+          worksheets,
+        };
+      });
+
+    stageGroupResults = [...adolescentGroups, ...childrenGroups];
   }
 
   // Type ordering: workbook_package (0) sorts before stage_group (1) before others (2)
