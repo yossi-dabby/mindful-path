@@ -8,6 +8,7 @@ import PageNotFound from './lib/PageNotFound';
 import KnowledgeStudio from './pages/KnowledgeStudio';
 import AdminFeatureFlags from './pages/AdminFeatureFlags';
 import TherapistTraining from './pages/TherapistTraining';
+import PdfViewer from './pages/PdfViewer';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { ThemeProvider } from 'next-themes';
@@ -81,6 +82,7 @@ const AuthenticatedApp = () => {
         <Route path="/KnowledgeStudio" element={<LayoutWrapper currentPageName="KnowledgeStudio"><KnowledgeStudio /></LayoutWrapper>} />
         <Route path="/AdminFeatureFlags" element={<LayoutWrapper currentPageName="AdminFeatureFlags"><AdminFeatureFlags /></LayoutWrapper>} />
         <Route path="/TherapistTraining" element={<LayoutWrapper currentPageName="TherapistTraining"><TherapistTraining /></LayoutWrapper>} />
+        <Route path="/pdf-viewer" element={<PdfViewer />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </>

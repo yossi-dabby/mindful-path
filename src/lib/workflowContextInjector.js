@@ -91,7 +91,7 @@ import {
 } from './therapistStrategyEngine.js';
 // Wave 5D — Quality Evaluator diagnostic integration (diagnostics-only, no runtime effect).
 import { computeEvaluatorDiagnosticSnapshot } from './therapistQualityEvaluator.js';
-import { getAllTherapeuticForms, getTherapeuticFormsForAI } from '../data/therapeuticForms/index.js';
+import { getTherapeuticFormsPolicyPayload } from './therapeuticFormsPolicy.js';
 
 const THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS = [
 '[ATTACHMENT_HANDLING_POLICY]',
@@ -249,41 +249,11 @@ function buildTherapistFormLibraryInstructions(forms) {
 }
 
 function getTherapistFormLibraryInstructions(options = {}) {
-  const sessionLanguage = options?.sessionLanguage;
-  const sessionAudience = options?.sessionAudience;
-  const environment = options?.environment;
-  const allForms = getAllTherapeuticForms({ environment });
-  const aiForms = getTherapeuticFormsForAI({
-    language: sessionLanguage,
-    audience: sessionAudience,
-    environment,
-  });
-
-  if (allForms.length === 0) {
-    return buildTherapistFormLibraryInstructions([]);
-  }
-
-  if (aiForms.length === 0) {
-    const approvedForms = allForms.filter((form) => form?.approved === true);
-    return [
-      '[THERAPEUTIC_FORMS_POLICY]',
-      'Therapeutic forms are installed, but no exact form matches the current language/audience filters.',
-      'Do NOT say you have no access to forms.',
-      'If no exact match exists, say you could not find an exact form and suggest nearby available forms from the approved catalog.',
-      '',
-      buildTherapistFormCatalog(approvedForms),
-      '',
-      'LANGUAGE & AUDIENCE RULES:',
-      '  - Respect active session language and audience filters when attaching forms.',
-      '  - If the user asks for a language/audience outside the active filters, explain constraints and suggest nearby installed matches.',
-      '',
-      'SAFETY RULES:',
-      '  - Do not invent form IDs, file names, URLs, catalogs, or attachments.',
-      '  - Do not return forms that are not listed in the approved catalog.',
-    ].join('\n');
-  }
-
-  return buildTherapistFormLibraryInstructions(aiForms);
+  return getTherapeuticFormsPolicyPayload({
+    sessionLanguage: options?.sessionLanguage,
+    sessionAudience: options?.sessionAudience,
+    environment: options?.environment,
+  }).policy;
 }
 
 /**

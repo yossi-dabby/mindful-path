@@ -21,7 +21,11 @@ export default function GeneratedFileCard({ generatedFile }) {
   const handleOpen = async () => {
     const openUrl = getFormOpenUrl(normalized.url);
     if (!openUrl) return;
-    await openFile(openUrl);
+    try {
+      await openFile(openUrl);
+    } catch (error) {
+      console.error('[GeneratedFileCard] Open failed:', error);
+    }
   };
 
   const handleDownload = async () => {

@@ -20,6 +20,8 @@ import {
   resolveEnglishWorkbookIntentWithContext,
   resolveSpanishWorkbookIntentWithContext,
 } from '../../utils/resolveWorkbookIntent.js';
+import { getAllTherapeuticForms, SUPPORTED_LANGUAGES } from '../../data/therapeuticForms/index.js';
+import { THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER } from '../../lib/therapeuticFormsPolicy.js';
 
 // Safety patterns to detect and strip
 const UNSAFE_PATTERNS = [
@@ -157,10 +159,14 @@ export const PDF_ANALYSIS_OVERFLOW_METADATA_KEY = 'pdf_analysis_overflow';
 
 // ─── Phase 3B: Session language normalization ─────────────────────────────────
 
-import { SUPPORTED_LANGUAGES } from '../../data/therapeuticForms/index.js';
-
 /** ISO language codes supported by the TherapeuticForms library. */
 const SUPPORTED_LANG_SET = new Set(SUPPORTED_LANGUAGES);
+const NO_FORMS_ACCESS_PATTERNS = [
+  /\b(?:i\s+(?:do not|don't|have no)\s+(?:currently\s+)?(?:have\s+)?access\s+to\s+(?:the\s+)?(?:therapeutic\s+)?forms?)\b/i,
+  /\b(?:i\s+(?:cannot|can't|am unable to)\s+access\s+(?:the\s+)?(?:therapeutic\s+)?forms?)\b/i,
+  /\b(?:i\s+(?:do not|don't|have no)\s+(?:currently\s+)?(?:have\s+)?access\s+to\s+(?:any\s+)?worksheets?)\b/i,
+];
+const THERAPEUTIC_FORMS_ACCESS_CORRECTION = 'I can use the installed therapeutic forms catalog. Tell me the worksheet number, form name, language, or goal and I’ll look for the closest approved match.';
 
 /**
  * Normalizes a language code to a supported app language code.
@@ -423,6 +429,10 @@ function sanitizeAssistantMessage(message) {
   // Strip unsafe medical patterns
   for (const pattern of UNSAFE_PATTERNS) {
     sanitized = sanitized.replace(pattern, '[content removed for safety]');
+  }
+
+  if (getAllTherapeuticForms().length > 0 && NO_FORMS_ACCESS_PATTERNS.some((pattern) => pattern.test(sanitized))) {
+    return THERAPEUTIC_FORMS_ACCESS_CORRECTION;
   }
   
   // Ensure no JSON-like structures leak
@@ -887,6 +897,10 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
         }
       }
       // Pure session-start injection with no user text — hide from chat history
+      return null;
+    }
+
+    if (msg.role === 'user' && typeof msg.content === 'string' && msg.content.startsWith(THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER)) {
       return null;
     }
 
