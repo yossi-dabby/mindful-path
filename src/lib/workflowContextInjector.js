@@ -91,7 +91,7 @@ import {
 } from './therapistStrategyEngine.js';
 // Wave 5D — Quality Evaluator diagnostic integration (diagnostics-only, no runtime effect).
 import { computeEvaluatorDiagnosticSnapshot } from './therapistQualityEvaluator.js';
-import { ALL_FORMS } from '../data/therapeuticForms/index.js';
+import { getAllTherapeuticForms, getTherapeuticFormsForAI } from '../data/therapeuticForms/index.js';
 
 const THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS = [
 '[ATTACHMENT_HANDLING_POLICY]',
@@ -182,10 +182,13 @@ export function buildTherapistFormCatalog(forms) {
     lines.push(`[${label}${safetyNote}]`);
     for (const form of audienceForms) {
       // Use best available title: English > Hebrew > form ID
-      const bestTitle = form.languages?.en?.title || form.languages?.he?.title || form.id;
-      const therapeuticGoal = typeof form.therapeuticGoal === 'string' ? form.therapeuticGoal.trim() : '';
-      const whenToUse = typeof form.whenToUse === 'string' ? form.whenToUse.trim() : '';
-      const clinicalKeywords = Array.isArray(form.clinicalKeywords) ? form.clinicalKeywords.filter(Boolean).join(', ') : '';
+      const bestTitle = form.languages?.en?.title || form.languages?.he?.title || form.title || form.id;
+      const therapeuticGoalRaw = form.therapeuticGoal || form.therapeutic_goal;
+      const whenToUseRaw = form.whenToUse || form.when_to_use;
+      const keywordsRaw = Array.isArray(form.clinicalKeywords) ? form.clinicalKeywords : (Array.isArray(form.keywords) ? form.keywords : []);
+      const therapeuticGoal = typeof therapeuticGoalRaw === 'string' ? therapeuticGoalRaw.trim() : '';
+      const whenToUse = typeof whenToUseRaw === 'string' ? whenToUseRaw.trim() : '';
+      const clinicalKeywords = keywordsRaw.filter(Boolean).join(', ');
       const intentPhrases = Array.isArray(form.intentPhrases) ? form.intentPhrases.filter(Boolean).join(' | ') : '';
       const notFor = Array.isArray(form.notFor) ? form.notFor.filter(Boolean).join('; ') : '';
       const desc = form.shortContentDescriptionHe ? ` | ${form.shortContentDescriptionHe}` : '';
@@ -235,6 +238,7 @@ function buildTherapistFormLibraryInstructions(forms) {
     '  - Match active session language first. Do not attach forms from another language unless the user explicitly asks for that language.',
     '  - Match user audience. Do not attach child/adult/older-adult forms for adolescent requests, and vice versa.',
     '  - If the requested language/audience/category is not currently installed, say it is not currently installed.',
+    '  - If forms exist but no exact match is found, say no exact match and suggest nearby matches; do not claim no access to forms.',
     '',
     'SAFETY RULES:',
     '  - Do not invent form IDs, file names, URLs, catalogs, or attachments.',
@@ -244,7 +248,43 @@ function buildTherapistFormLibraryInstructions(forms) {
   ].join('\n');
 }
 
-const THERAPIST_FORM_LIBRARY_INSTRUCTIONS = buildTherapistFormLibraryInstructions(ALL_FORMS);
+function getTherapistFormLibraryInstructions(options = {}) {
+  const sessionLanguage = options?.sessionLanguage;
+  const sessionAudience = options?.sessionAudience;
+  const environment = options?.environment;
+  const allForms = getAllTherapeuticForms({ environment });
+  const aiForms = getTherapeuticFormsForAI({
+    language: sessionLanguage,
+    audience: sessionAudience,
+    environment,
+  });
+
+  if (allForms.length === 0) {
+    return buildTherapistFormLibraryInstructions([]);
+  }
+
+  if (aiForms.length === 0) {
+    const approvedForms = allForms.filter((form) => form?.approved === true);
+    return [
+      '[THERAPEUTIC_FORMS_POLICY]',
+      'Therapeutic forms are installed, but no exact form matches the current language/audience filters.',
+      'Do NOT say you have no access to forms.',
+      'If no exact match exists, say you could not find an exact form and suggest nearby available forms from the approved catalog.',
+      '',
+      buildTherapistFormCatalog(approvedForms),
+      '',
+      'LANGUAGE & AUDIENCE RULES:',
+      '  - Respect active session language and audience filters when attaching forms.',
+      '  - If the user asks for a language/audience outside the active filters, explain constraints and suggest nearby installed matches.',
+      '',
+      'SAFETY RULES:',
+      '  - Do not invent form IDs, file names, URLs, catalogs, or attachments.',
+      '  - Do not return forms that are not listed in the approved catalog.',
+    ].join('\n');
+  }
+
+  return buildTherapistFormLibraryInstructions(aiForms);
+}
 
 /**
  * Returns the workflow context instructions string when the supplied wiring
@@ -2315,11 +2355,15 @@ export async function buildActionFirstDemotedSessionContentAsync(
       content += '\n\n' + THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS;
     }
     // Phase 3 — TherapeuticForms library: inject form selection instructions for all CBT Therapist sessions.
+    const therapistFormLibraryInstructions = getTherapistFormLibraryInstructions({
+      sessionLanguage: options?.sessionLanguage,
+      sessionAudience: options?.sessionAudience,
+    });
     if (
       wiring?.name === 'cbt_therapist' &&
-      !content.includes(THERAPIST_FORM_LIBRARY_INSTRUCTIONS)
+      !content.includes(therapistFormLibraryInstructions)
     ) {
-      content += '\n\n' + THERAPIST_FORM_LIBRARY_INSTRUCTIONS;
+      content += '\n\n' + therapistFormLibraryInstructions;
     }
     return content;
   } catch {

@@ -30,4 +30,15 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     const assistant = result.find((m) => m.role === 'assistant');
     expect(assistant?.metadata?.generated_file ?? null).toBeNull();
   });
+
+  it('injects generated_file for a known children CBT core individual worksheet', () => {
+    const messages = [
+      { role: 'user', content: 'Send worksheet 5.1 from children CBT core', metadata: { session_language: 'en' } },
+      { role: 'assistant', content: JSON.stringify({ assistant_message: 'Here is worksheet 5.1 [FORM:children_cbt_core_en_05_01:en]' }) },
+    ];
+    const result = sanitizeConversationMessages(messages, 'en');
+    const assistant = result.find((m) => m.role === 'assistant');
+    expect(assistant?.metadata?.generated_file?.form_id).toBe('children-cbt-core-en-5-1');
+    expect(String(assistant?.metadata?.generated_file?.url || '')).toContain('/forms/children/en/cbt-core/children_cbt_core_en_05_01.pdf');
+  });
 });
