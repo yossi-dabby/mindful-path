@@ -282,7 +282,7 @@ function resolveCoreEnglishIndividualByContent(normalizedQuery) {
     }
   }
 
-  if (!best || bestScore <= 0) return null;
+  if (!best || bestScore < 40) return null;
   return resolveApprovedFormById(best.id, 'en');
 }
 

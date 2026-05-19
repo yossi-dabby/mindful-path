@@ -178,12 +178,20 @@ function buildCuratedEntries(manifestByFileUrl) {
         secondaryCategories: Array.isArray(form.secondaryCategories) ? form.secondaryCategories : [],
 
         worksheetNumber: form.formNumber || manifestMeta.worksheet_number || null,
+        formNumber: form.formNumber || manifestMeta.worksheet_number || null,
+        stageNumber: form.stageNumber ?? form.moduleNumber ?? manifestMeta.module_number ?? null,
         moduleNumber: form.moduleNumber ?? manifestMeta.module_number ?? null,
+        moduleCode: form.moduleCode || null,
         moduleTitle: form.stageTitle || manifestMeta.module_title || null,
+        stageTitle: form.stageTitle || null,
+        pageNumberInWorkbook: form.pageNumberInWorkbook ?? null,
+        series: form.series || null,
 
         therapeuticGoal: form.therapeuticGoal || manifestMeta.therapeutic_goal || null,
         whenToUse: form.whenToUse || manifestMeta.when_to_use || null,
         clinicalKeywords: Array.isArray(form.clinicalKeywords) ? form.clinicalKeywords : manifestMeta.keywords || [],
+        intentPhrases: Array.isArray(form.intentPhrases) ? form.intentPhrases : [],
+        notFor: Array.isArray(form.notFor) ? form.notFor : [],
         aiMatchingSummary: form.aiMatchingSummary || manifestMeta.ai_matching_summary || null,
         safetyNotes: form.safetyNotes || manifestMeta.safety_notes || null,
 
@@ -252,12 +260,20 @@ function buildFallbackEntries(existingByFileUrl, manifestByFileUrl) {
       secondaryCategories: ['workbook_series'],
 
       worksheetNumber: manifestMeta.worksheet_number || null,
+      formNumber: manifestMeta.worksheet_number || null,
+      stageNumber: manifestMeta.module_number || null,
       moduleNumber: manifestMeta.module_number || null,
+      moduleCode: null,
       moduleTitle: manifestMeta.module_title || null,
+      stageTitle: manifestMeta.module_title || null,
+      pageNumberInWorkbook: null,
+      series: null,
 
       therapeuticGoal: manifestMeta.therapeutic_goal || null,
       whenToUse: manifestMeta.when_to_use || null,
       clinicalKeywords: Array.isArray(manifestMeta.keywords) ? manifestMeta.keywords : [],
+      intentPhrases: [],
+      notFor: [],
       aiMatchingSummary: manifestMeta.ai_matching_summary || null,
       safetyNotes: manifestMeta.safety_notes || null,
 

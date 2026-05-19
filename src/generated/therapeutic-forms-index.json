@@ -21,8 +21,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": null,
+    "formNumber": null,
+    "stageNumber": null,
     "moduleNumber": null,
+    "moduleCode": null,
     "moduleTitle": null,
+    "stageTitle": null,
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Support adolescents in structured CBT self-practice across emotions, automatic thoughts, evidence-checking, helpful action planning, behavior activation, and weekly continuity.",
     "whenToUse": "Use when a teen asks for a CBT workbook, structured CBT forms, anxiety/stress thought-work, avoidance support, or a weekly check-in coping plan in English.",
     "clinicalKeywords": [
@@ -44,6 +50,33 @@
       "weekly check-in",
       "self-reflection",
       "personal coping plan"
+    ],
+    "intentPhrases": [
+      "full workbook",
+      "complete cbt series",
+      "full adolescent cbt core",
+      "all teen cbt worksheets",
+      "complete series",
+      "I need a CBT workbook for a teenager",
+      "I need worksheets for a teen",
+      "help a teenager understand thoughts and feelings",
+      "teen anxiety worksheet",
+      "adolescent CBT form",
+      "thought record for teens",
+      "help with avoidance",
+      "help with body signals",
+      "help with emotional regulation",
+      "help a teen choose a helpful action",
+      "weekly CBT practice for adolescents",
+      "coping plan for a teenager"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -115,8 +148,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "1.1",
+    "formNumber": "1.1",
+    "stageNumber": 1,
     "moduleNumber": 1,
+    "moduleCode": null,
     "moduleTitle": "Understand What Is Happening",
+    "stageTitle": "Understand What Is Happening",
+    "pageNumberInWorkbook": 1,
+    "series": null,
     "therapeuticGoal": "Build first-step awareness of present thoughts, feelings, and context.",
     "whenToUse": "Use when a teen needs a starting point to pause and describe what is happening.",
     "clinicalKeywords": [
@@ -126,6 +165,21 @@
       "teen CBT",
       "adolescent CBT",
       "form 1.1"
+    ],
+    "intentPhrases": [
+      "what is going on for me right now",
+      "current state worksheet",
+      "starting worksheet",
+      "send form 1.1",
+      "form 1.1"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -185,8 +239,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "1.2",
+    "formNumber": "1.2",
+    "stageNumber": 1,
     "moduleNumber": 1,
+    "moduleCode": null,
     "moduleTitle": "Understand What Is Happening",
+    "stageTitle": "Understand What Is Happening",
+    "pageNumberInWorkbook": 2,
+    "series": null,
     "therapeuticGoal": "Help teens notice body sensations as early warning and regulation signals.",
     "whenToUse": "Use for body-signal, physical symptom, or emotion-in-the-body requests.",
     "clinicalKeywords": [
@@ -196,6 +256,21 @@
       "teen CBT",
       "adolescent CBT",
       "form 1.2"
+    ],
+    "intentPhrases": [
+      "body signals worksheet",
+      "my body gives me signals",
+      "physical signs of stress",
+      "send form 1.2",
+      "form 1.2"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -255,8 +330,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "1.3",
+    "formNumber": "1.3",
+    "stageNumber": 1,
     "moduleNumber": 1,
+    "moduleCode": null,
     "moduleTitle": "Understand What Is Happening",
+    "stageTitle": "Understand What Is Happening",
+    "pageNumberInWorkbook": 3,
+    "series": null,
     "therapeuticGoal": "Increase trigger awareness before reaction patterns escalate.",
     "whenToUse": "Use for trigger-identification and what-started-this requests.",
     "clinicalKeywords": [
@@ -266,6 +347,21 @@
       "teen CBT",
       "adolescent CBT",
       "form 1.3"
+    ],
+    "intentPhrases": [
+      "trigger worksheet",
+      "what triggered me",
+      "what was the trigger",
+      "send form 1.3",
+      "form 1.3"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -325,8 +421,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "1.4",
+    "formNumber": "1.4",
+    "stageNumber": 1,
     "moduleNumber": 1,
+    "moduleCode": null,
     "moduleTitle": "Understand What Is Happening",
+    "stageTitle": "Understand What Is Happening",
+    "pageNumberInWorkbook": 4,
+    "series": null,
     "therapeuticGoal": "Teach the core CBT triangle connection in practical terms.",
     "whenToUse": "Use when the user asks for thought-feeling-action mapping.",
     "clinicalKeywords": [
@@ -336,6 +438,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 1.4"
+    ],
+    "intentPhrases": [
+      "thought feeling action",
+      "form 1.4",
+      "cbt triangle worksheet",
+      "send form 1.4"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -395,8 +511,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "1.5",
+    "formNumber": "1.5",
+    "stageNumber": 1,
     "moduleNumber": 1,
+    "moduleCode": null,
     "moduleTitle": "Understand What Is Happening",
+    "stageTitle": "Understand What Is Happening",
+    "pageNumberInWorkbook": 5,
+    "series": null,
     "therapeuticGoal": "Strengthen personal coping structure and support planning.",
     "whenToUse": "Use when a teen asks to map supports and helpful actions.",
     "clinicalKeywords": [
@@ -406,6 +528,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 1.5"
+    ],
+    "intentPhrases": [
+      "my personal map",
+      "coping map worksheet",
+      "form 1.5",
+      "send form 1.5"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -465,8 +601,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "2.1",
+    "formNumber": "2.1",
+    "stageNumber": 2,
     "moduleNumber": 2,
+    "moduleCode": null,
     "moduleTitle": "Noticing Thoughts and Interpretation",
+    "stageTitle": "Noticing Thoughts and Interpretation",
+    "pageNumberInWorkbook": 6,
+    "series": null,
     "therapeuticGoal": "Increase awareness of quick automatic thought content.",
     "whenToUse": "Use for automatic-thought identification requests.",
     "clinicalKeywords": [
@@ -476,6 +618,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 2.1"
+    ],
+    "intentPhrases": [
+      "what did my mind say",
+      "automatic thoughts worksheet",
+      "form 2.1",
+      "send form 2.1"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -535,8 +691,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "2.2",
+    "formNumber": "2.2",
+    "stageNumber": 2,
     "moduleNumber": 2,
+    "moduleCode": null,
     "moduleTitle": "Noticing Thoughts and Interpretation",
+    "stageTitle": "Noticing Thoughts and Interpretation",
+    "pageNumberInWorkbook": 7,
+    "series": null,
     "therapeuticGoal": "Improve cognitive differentiation and reduce fusion with thoughts.",
     "whenToUse": "Use for thought-versus-fact clarification requests.",
     "clinicalKeywords": [
@@ -546,6 +708,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 2.2"
+    ],
+    "intentPhrases": [
+      "thought or fact",
+      "thought vs fact",
+      "form 2.2",
+      "send form 2.2"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -605,8 +781,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "2.3",
+    "formNumber": "2.3",
+    "stageNumber": 2,
     "moduleNumber": 2,
+    "moduleCode": null,
     "moduleTitle": "Noticing Thoughts and Interpretation",
+    "stageTitle": "Noticing Thoughts and Interpretation",
+    "pageNumberInWorkbook": 8,
+    "series": null,
     "therapeuticGoal": "Expand interpretation flexibility and reduce single-story thinking.",
     "whenToUse": "Use when users ask about interpretation bias or alternative interpretations.",
     "clinicalKeywords": [
@@ -616,6 +798,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 2.3"
+    ],
+    "intentPhrases": [
+      "which interpretation did i give it",
+      "interpretation worksheet",
+      "form 2.3",
+      "send form 2.3"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -675,8 +871,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "2.4",
+    "formNumber": "2.4",
+    "stageNumber": 2,
     "moduleNumber": 2,
+    "moduleCode": null,
     "moduleTitle": "Noticing Thoughts and Interpretation",
+    "stageTitle": "Noticing Thoughts and Interpretation",
+    "pageNumberInWorkbook": 9,
+    "series": null,
     "therapeuticGoal": "Help teens label thought patterns that intensify distress.",
     "whenToUse": "Use for thinking-pattern classification and distortion requests.",
     "clinicalKeywords": [
@@ -686,6 +888,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 2.4"
+    ],
+    "intentPhrases": [
+      "what kind of thought is this",
+      "thinking pattern worksheet",
+      "form 2.4",
+      "send form 2.4"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -745,8 +961,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "2.5",
+    "formNumber": "2.5",
+    "stageNumber": 2,
     "moduleNumber": 2,
+    "moduleCode": null,
     "moduleTitle": "Noticing Thoughts and Interpretation",
+    "stageTitle": "Noticing Thoughts and Interpretation",
+    "pageNumberInWorkbook": 10,
+    "series": null,
     "therapeuticGoal": "Surface core belief themes to guide restructuring work.",
     "whenToUse": "Use for deeper-belief or underlying-message requests.",
     "clinicalKeywords": [
@@ -756,6 +978,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 2.5"
+    ],
+    "intentPhrases": [
+      "what belief lies underneath",
+      "underlying belief worksheet",
+      "form 2.5",
+      "send form 2.5"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -815,8 +1051,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "3.1",
+    "formNumber": "3.1",
+    "stageNumber": 3,
     "moduleNumber": 3,
+    "moduleCode": null,
     "moduleTitle": "Checking Evidence and Reframing",
+    "stageTitle": "Checking Evidence and Reframing",
+    "pageNumberInWorkbook": 11,
+    "series": null,
     "therapeuticGoal": "Support evidence-based thought checking and balanced evaluation.",
     "whenToUse": "Use for evidence-for-against thought requests.",
     "clinicalKeywords": [
@@ -826,6 +1068,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 3.1"
+    ],
+    "intentPhrases": [
+      "what is the evidence",
+      "evidence worksheet",
+      "form 3.1",
+      "send form 3.1"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -885,8 +1141,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "3.2",
+    "formNumber": "3.2",
+    "stageNumber": 3,
     "moduleNumber": 3,
+    "moduleCode": null,
     "moduleTitle": "Checking Evidence and Reframing",
+    "stageTitle": "Checking Evidence and Reframing",
+    "pageNumberInWorkbook": 12,
+    "series": null,
     "therapeuticGoal": "Increase cognitive flexibility and reduce rigid interpretations.",
     "whenToUse": "Use for reframing and alternative-view requests.",
     "clinicalKeywords": [
@@ -896,6 +1158,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 3.2"
+    ],
+    "intentPhrases": [
+      "is there another way to see this",
+      "another way worksheet",
+      "form 3.2",
+      "send form 3.2"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -955,8 +1231,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "3.3",
+    "formNumber": "3.3",
+    "stageNumber": 3,
     "moduleNumber": 3,
+    "moduleCode": null,
     "moduleTitle": "Checking Evidence and Reframing",
+    "stageTitle": "Checking Evidence and Reframing",
+    "pageNumberInWorkbook": 13,
+    "series": null,
     "therapeuticGoal": "Develop kinder, more supportive internal dialogue.",
     "whenToUse": "Use for self-compassion and friend-perspective prompts.",
     "clinicalKeywords": [
@@ -966,6 +1248,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 3.3"
+    ],
+    "intentPhrases": [
+      "what would i say to a friend",
+      "friend worksheet",
+      "form 3.3",
+      "send form 3.3"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -1025,8 +1321,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "3.4",
+    "formNumber": "3.4",
+    "stageNumber": 3,
     "moduleNumber": 3,
+    "moduleCode": null,
     "moduleTitle": "Checking Evidence and Reframing",
+    "stageTitle": "Checking Evidence and Reframing",
+    "pageNumberInWorkbook": 14,
+    "series": null,
     "therapeuticGoal": "Translate thought checking into practical balanced thinking.",
     "whenToUse": "Use when a user asks to create a balanced thought.",
     "clinicalKeywords": [
@@ -1036,6 +1338,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 3.4"
+    ],
+    "intentPhrases": [
+      "a more balanced thought",
+      "balanced thought worksheet",
+      "form 3.4",
+      "send form 3.4"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -1095,8 +1411,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "3.5",
+    "formNumber": "3.5",
+    "stageNumber": 3,
     "moduleNumber": 3,
+    "moduleCode": null,
     "moduleTitle": "Checking Evidence and Reframing",
+    "stageTitle": "Checking Evidence and Reframing",
+    "pageNumberInWorkbook": 15,
+    "series": null,
     "therapeuticGoal": "Support intentional thought selection after cognitive review.",
     "whenToUse": "Use when moving from analysis to chosen replacement thought.",
     "clinicalKeywords": [
@@ -1106,6 +1428,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 3.5"
+    ],
+    "intentPhrases": [
+      "what do i choose to think now",
+      "choose thought now",
+      "form 3.5",
+      "send form 3.5"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -1165,8 +1501,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "4.1",
+    "formNumber": "4.1",
+    "stageNumber": 4,
     "moduleNumber": 4,
+    "moduleCode": null,
     "moduleTitle": "Choosing Helpful Actions",
+    "stageTitle": "Choosing Helpful Actions",
+    "pageNumberInWorkbook": 16,
+    "series": null,
     "therapeuticGoal": "Bridge CBT insights into concrete action choices.",
     "whenToUse": "Use for action-selection and next-step requests.",
     "clinicalKeywords": [
@@ -1176,6 +1518,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 4.1"
+    ],
+    "intentPhrases": [
+      "choosing an action",
+      "action worksheet",
+      "form 4.1",
+      "send form 4.1"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -1235,8 +1591,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "4.2",
+    "formNumber": "4.2",
+    "stageNumber": 4,
     "moduleNumber": 4,
+    "moduleCode": null,
     "moduleTitle": "Choosing Helpful Actions",
+    "stageTitle": "Choosing Helpful Actions",
+    "pageNumberInWorkbook": 17,
+    "series": null,
     "therapeuticGoal": "Improve quality and usefulness of coping self-statements.",
     "whenToUse": "Use for helpful-thought formulation requests.",
     "clinicalKeywords": [
@@ -1246,6 +1608,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 4.2"
+    ],
+    "intentPhrases": [
+      "creating a helpful thought",
+      "helpful thought worksheet",
+      "form 4.2",
+      "send form 4.2"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -1305,8 +1681,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "4.3",
+    "formNumber": "4.3",
+    "stageNumber": 4,
     "moduleNumber": 4,
+    "moduleCode": null,
     "moduleTitle": "Choosing Helpful Actions",
+    "stageTitle": "Choosing Helpful Actions",
+    "pageNumberInWorkbook": 18,
+    "series": null,
     "therapeuticGoal": "Increase behavioral momentum through stepwise planning.",
     "whenToUse": "Use for task breakdown and gradual-start planning.",
     "clinicalKeywords": [
@@ -1316,6 +1698,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 4.3"
+    ],
+    "intentPhrases": [
+      "small steps worksheet",
+      "form 4.3",
+      "break into small steps",
+      "send form 4.3"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -1375,8 +1771,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "4.4",
+    "formNumber": "4.4",
+    "stageNumber": 4,
     "moduleNumber": 4,
+    "moduleCode": null,
     "moduleTitle": "Choosing Helpful Actions",
+    "stageTitle": "Choosing Helpful Actions",
+    "pageNumberInWorkbook": 19,
+    "series": null,
     "therapeuticGoal": "Make hidden assumptions explicit and reviewable.",
     "whenToUse": "Use for assumptions or beliefs-behind-thoughts requests.",
     "clinicalKeywords": [
@@ -1386,6 +1788,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 4.4"
+    ],
+    "intentPhrases": [
+      "thinking beliefs and assumptions",
+      "assumptions worksheet",
+      "form 4.4",
+      "send form 4.4"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -1445,8 +1861,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "4.5",
+    "formNumber": "4.5",
+    "stageNumber": 4,
     "moduleNumber": 4,
+    "moduleCode": null,
     "moduleTitle": "Choosing Helpful Actions",
+    "stageTitle": "Choosing Helpful Actions",
+    "pageNumberInWorkbook": 20,
+    "series": null,
     "therapeuticGoal": "Support reflective evaluation of current thought patterns.",
     "whenToUse": "Use for balancing and evaluating current beliefs.",
     "clinicalKeywords": [
@@ -1456,6 +1878,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 4.5"
+    ],
+    "intentPhrases": [
+      "balance and evaluation",
+      "evaluation worksheet",
+      "form 4.5",
+      "send form 4.5"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -1515,8 +1951,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "5.1",
+    "formNumber": "5.1",
+    "stageNumber": 5,
     "moduleNumber": 5,
+    "moduleCode": null,
     "moduleTitle": "Behavior and Action Practice",
+    "stageTitle": "Behavior and Action Practice",
+    "pageNumberInWorkbook": 21,
+    "series": null,
     "therapeuticGoal": "Increase awareness of avoidance cycles and consequences.",
     "whenToUse": "Use for avoidance-focused requests.",
     "clinicalKeywords": [
@@ -1526,6 +1968,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 5.1"
+    ],
+    "intentPhrases": [
+      "avoidance worksheet",
+      "help with avoidance",
+      "form 5.1",
+      "send form 5.1"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -1585,8 +2041,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "5.2",
+    "formNumber": "5.2",
+    "stageNumber": 5,
     "moduleNumber": 5,
+    "moduleCode": null,
     "moduleTitle": "Behavior and Action Practice",
+    "stageTitle": "Behavior and Action Practice",
+    "pageNumberInWorkbook": 22,
+    "series": null,
     "therapeuticGoal": "Enable action despite fear using tiny doable steps.",
     "whenToUse": "Use when user asks for small-step behavior change.",
     "clinicalKeywords": [
@@ -1596,6 +2058,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 5.2"
+    ],
+    "intentPhrases": [
+      "small steps worksheet",
+      "form 5.2",
+      "small step right now",
+      "send form 5.2"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -1655,8 +2131,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "5.3",
+    "formNumber": "5.3",
+    "stageNumber": 5,
     "moduleNumber": 5,
+    "moduleCode": null,
     "moduleTitle": "Behavior and Action Practice",
+    "stageTitle": "Behavior and Action Practice",
+    "pageNumberInWorkbook": 23,
+    "series": null,
     "therapeuticGoal": "Support safe progressive approach to feared situations.",
     "whenToUse": "Use for graded exposure or fear-ladder requests.",
     "clinicalKeywords": [
@@ -1666,6 +2148,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 5.3"
+    ],
+    "intentPhrases": [
+      "gradual exposure",
+      "exposure ladder worksheet",
+      "form 5.3",
+      "send form 5.3"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -1725,8 +2221,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "5.4",
+    "formNumber": "5.4",
+    "stageNumber": 5,
     "moduleNumber": 5,
+    "moduleCode": null,
     "moduleTitle": "Behavior and Action Practice",
+    "stageTitle": "Behavior and Action Practice",
+    "pageNumberInWorkbook": 24,
+    "series": null,
     "therapeuticGoal": "Strengthen effective coping behavior choices.",
     "whenToUse": "Use for practical action effectiveness requests.",
     "clinicalKeywords": [
@@ -1736,6 +2238,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 5.4"
+    ],
+    "intentPhrases": [
+      "effective action worksheet",
+      "form 5.4",
+      "effective action",
+      "send form 5.4"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -1795,8 +2311,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "5.5",
+    "formNumber": "5.5",
+    "stageNumber": 5,
     "moduleNumber": 5,
+    "moduleCode": null,
     "moduleTitle": "Behavior and Action Practice",
+    "stageTitle": "Behavior and Action Practice",
+    "pageNumberInWorkbook": 25,
+    "series": null,
     "therapeuticGoal": "Support follow-through and progress monitoring.",
     "whenToUse": "Use for tracking progress and staying consistent.",
     "clinicalKeywords": [
@@ -1806,6 +2328,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 5.5"
+    ],
+    "intentPhrases": [
+      "persistence and tracking",
+      "tracking worksheet",
+      "form 5.5",
+      "send form 5.5"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -1865,8 +2401,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "6.1",
+    "formNumber": "6.1",
+    "stageNumber": 6,
     "moduleNumber": 6,
+    "moduleCode": null,
     "moduleTitle": "Keeping Going and Looking Ahead",
+    "stageTitle": "Keeping Going and Looking Ahead",
+    "pageNumberInWorkbook": 26,
+    "series": null,
     "therapeuticGoal": "Consolidate learning and reinforce self-understanding.",
     "whenToUse": "Use at reflection points or completion of a workbook cycle.",
     "clinicalKeywords": [
@@ -1876,6 +2418,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 6.1"
+    ],
+    "intentPhrases": [
+      "what have i learned about myself",
+      "reflection worksheet",
+      "form 6.1",
+      "send form 6.1"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -1935,8 +2491,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "6.2",
+    "formNumber": "6.2",
+    "stageNumber": 6,
     "moduleNumber": 6,
+    "moduleCode": null,
     "moduleTitle": "Keeping Going and Looking Ahead",
+    "stageTitle": "Keeping Going and Looking Ahead",
+    "pageNumberInWorkbook": 27,
+    "series": null,
     "therapeuticGoal": "Maintain continuity of CBT practice week to week.",
     "whenToUse": "Use for weekly check-in and continuity requests.",
     "clinicalKeywords": [
@@ -1946,6 +2508,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 6.2"
+    ],
+    "intentPhrases": [
+      "weekly check in",
+      "my weekly check-in",
+      "form 6.2",
+      "send form 6.2"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -2005,8 +2581,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "6.3",
+    "formNumber": "6.3",
+    "stageNumber": 6,
     "moduleNumber": 6,
+    "moduleCode": null,
     "moduleTitle": "Keeping Going and Looking Ahead",
+    "stageTitle": "Keeping Going and Looking Ahead",
+    "pageNumberInWorkbook": 28,
+    "series": null,
     "therapeuticGoal": "Reinforce positive self-recognition and resilience.",
     "whenToUse": "Use for confidence-building and strength reflection.",
     "clinicalKeywords": [
@@ -2016,6 +2598,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 6.3"
+    ],
+    "intentPhrases": [
+      "strengthening myself",
+      "strength worksheet",
+      "form 6.3",
+      "send form 6.3"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -2075,8 +2671,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "6.4",
+    "formNumber": "6.4",
+    "stageNumber": 6,
     "moduleNumber": 6,
+    "moduleCode": null,
     "moduleTitle": "Keeping Going and Looking Ahead",
+    "stageTitle": "Keeping Going and Looking Ahead",
+    "pageNumberInWorkbook": 29,
+    "series": null,
     "therapeuticGoal": "Create proactive coping plans for high-stress periods.",
     "whenToUse": "Use for relapse-prevention and hard-moment planning.",
     "clinicalKeywords": [
@@ -2086,6 +2688,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 6.4"
+    ],
+    "intentPhrases": [
+      "when it’s hard for me what helps me",
+      "hard moments worksheet",
+      "form 6.4",
+      "send form 6.4"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -2145,8 +2761,14 @@
       "journaling_reflection"
     ],
     "worksheetNumber": "6.5",
+    "formNumber": "6.5",
+    "stageNumber": 6,
     "moduleNumber": 6,
+    "moduleCode": null,
     "moduleTitle": "Keeping Going and Looking Ahead",
+    "stageTitle": "Keeping Going and Looking Ahead",
+    "pageNumberInWorkbook": 30,
+    "series": null,
     "therapeuticGoal": "Provide a concise go-forward personal CBT roadmap.",
     "whenToUse": "Use when creating a final summary plan to revisit later.",
     "clinicalKeywords": [
@@ -2156,6 +2778,20 @@
       "teen CBT",
       "adolescent CBT",
       "form 6.5"
+    ],
+    "intentPhrases": [
+      "my road card",
+      "road card worksheet",
+      "form 6.5",
+      "send form 6.5"
+    ],
+    "notFor": [
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "Hebrew language requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -2212,8 +2848,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": null,
+    "formNumber": null,
+    "stageNumber": null,
     "moduleNumber": null,
+    "moduleCode": null,
     "moduleTitle": null,
+    "stageTitle": null,
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Provide structured, age-appropriate specialized CBT support across common adolescent clinical needs.",
     "whenToUse": "Use when a teen or caregiver explicitly asks for the full Adolescents CBT Specialized Series workbook in English.",
     "clinicalKeywords": [
@@ -2223,6 +2865,21 @@
       "teen specialized cbt workbook",
       "module 01",
       "module 10"
+    ],
+    "intentPhrases": [
+      "adolescents cbt specialized series",
+      "full specialized series",
+      "full 60-form specialized workbook",
+      "send all specialized forms",
+      "complete specialized workbook for teens",
+      "specialized cbt full series"
+    ],
+    "notFor": [
+      "non-English locale sessions",
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "crisis intervention",
+      "emergency mental health situations"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -2279,8 +2936,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "01",
+    "formNumber": "01",
+    "stageNumber": 1,
     "moduleNumber": 1,
+    "moduleCode": "01",
     "moduleTitle": null,
+    "stageTitle": null,
+    "pageNumberInWorkbook": null,
+    "series": "Adolescents CBT Specialized Series",
     "therapeuticGoal": "Support anxious teens in noticing stress patterns, reducing avoidance, and building courage through manageable practice.",
     "whenToUse": "Use for anxiety, stress overload, worry spirals, fear of situations, and test-stress coping.",
     "clinicalKeywords": [
@@ -2291,6 +2954,20 @@
       "test stress",
       "avoidance",
       "courage ladder"
+    ],
+    "intentPhrases": [
+      "anxiety module",
+      "stress and fears module",
+      "test stress worksheet",
+      "courage ladder",
+      "module 01"
+    ],
+    "notFor": [
+      "non-English locale sessions",
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "crisis intervention",
+      "emergency mental health situations"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -2348,8 +3025,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "02",
+    "formNumber": "02",
+    "stageNumber": 2,
     "moduleNumber": 2,
+    "moduleCode": "02",
     "moduleTitle": null,
+    "stageTitle": null,
+    "pageNumberInWorkbook": null,
+    "series": "Adolescents CBT Specialized Series",
     "therapeuticGoal": "Help teens improve mood and functioning through structured, realistic activation and support routines.",
     "whenToUse": "Use for low mood, low motivation, heavy feelings, low energy, and mood reset support.",
     "clinicalKeywords": [
@@ -2359,6 +3042,19 @@
       "feeling heavy",
       "support",
       "mood reset"
+    ],
+    "intentPhrases": [
+      "low mood module",
+      "motivation worksheet",
+      "energy reset",
+      "module 02"
+    ],
+    "notFor": [
+      "non-English locale sessions",
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "crisis intervention",
+      "emergency mental health situations"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -2415,8 +3111,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "03",
+    "formNumber": "03",
+    "stageNumber": 3,
     "moduleNumber": 3,
+    "moduleCode": "03",
     "moduleTitle": null,
+    "stageTitle": null,
+    "pageNumberInWorkbook": null,
+    "series": "Adolescents CBT Specialized Series",
     "therapeuticGoal": "Build healthier self-view and values-based identity while reducing self-critical loops.",
     "whenToUse": "Use for self-esteem struggles, comparison stress, identity confusion, and values reflection.",
     "clinicalKeywords": [
@@ -2425,6 +3127,19 @@
       "identity",
       "values",
       "self-esteem"
+    ],
+    "intentPhrases": [
+      "self-esteem module",
+      "identity worksheet",
+      "comparison thoughts",
+      "module 03"
+    ],
+    "notFor": [
+      "non-English locale sessions",
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "crisis intervention",
+      "emergency mental health situations"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -2480,8 +3195,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "04",
+    "formNumber": "04",
+    "stageNumber": 4,
     "moduleNumber": 4,
+    "moduleCode": "04",
     "moduleTitle": null,
+    "stageTitle": null,
+    "pageNumberInWorkbook": null,
+    "series": "Adolescents CBT Specialized Series",
     "therapeuticGoal": "Strengthen social confidence, boundaries, and conflict repair skills in peer contexts.",
     "whenToUse": "Use for friendship worries, exclusion pain, conflict, boundary-setting, and repair conversations.",
     "clinicalKeywords": [
@@ -2491,6 +3212,19 @@
       "conflict",
       "boundaries",
       "repair"
+    ],
+    "intentPhrases": [
+      "friendship module",
+      "conflict worksheet",
+      "boundaries with friends",
+      "module 04"
+    ],
+    "notFor": [
+      "non-English locale sessions",
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "crisis intervention",
+      "emergency mental health situations"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -2547,8 +3281,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "05",
+    "formNumber": "05",
+    "stageNumber": 5,
     "moduleNumber": 5,
+    "moduleCode": "05",
     "moduleTitle": null,
+    "stageTitle": null,
+    "pageNumberInWorkbook": null,
+    "series": "Adolescents CBT Specialized Series",
     "therapeuticGoal": "Improve pause-and-respond capacity and support repair after high-intensity reactions.",
     "whenToUse": "Use for anger spikes, impulsive reactions, calm-down planning, and repair after blow-ups.",
     "clinicalKeywords": [
@@ -2557,6 +3297,19 @@
       "pause",
       "calm-down",
       "repair after blow-up"
+    ],
+    "intentPhrases": [
+      "anger module",
+      "impulsivity worksheet",
+      "calm down plan",
+      "module 05"
+    ],
+    "notFor": [
+      "non-English locale sessions",
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "crisis intervention",
+      "emergency mental health situations"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -2612,8 +3365,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "06",
+    "formNumber": "06",
+    "stageNumber": 6,
     "moduleNumber": 6,
+    "moduleCode": "06",
     "moduleTitle": null,
+    "stageTitle": null,
+    "pageNumberInWorkbook": null,
+    "series": "Adolescents CBT Specialized Series",
     "therapeuticGoal": "Help teens reduce ritual/reassurance cycles by building tolerant, values-guided response practice.",
     "whenToUse": "Use for intrusive or sticky thoughts, urges, rituals, reassurance patterns, and practicing new responses.",
     "clinicalKeywords": [
@@ -2624,6 +3383,21 @@
       "rituals",
       "reassurance",
       "new response"
+    ],
+    "intentPhrases": [
+      "ocd module",
+      "intrusive thoughts worksheet",
+      "new response practice",
+      "module 06"
+    ],
+    "notFor": [
+      "non-English locale sessions",
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "crisis intervention",
+      "emergency mental health situations",
+      "reassurance loops",
+      "ritual reinforcement"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -2681,8 +3455,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "07",
+    "formNumber": "07",
+    "stageNumber": 7,
     "moduleNumber": 7,
+    "moduleCode": "07",
     "moduleTitle": null,
+    "stageTitle": null,
+    "pageNumberInWorkbook": null,
+    "series": "Adolescents CBT Specialized Series",
     "therapeuticGoal": "Increase functional follow-through with clear task scaffolds, focus supports, and regulation habits.",
     "whenToUse": "Use for focus struggles, getting started, task steps, distraction, organization, and impulsivity.",
     "clinicalKeywords": [
@@ -2693,6 +3473,19 @@
       "distraction",
       "organization",
       "impulsivity"
+    ],
+    "intentPhrases": [
+      "adhd module",
+      "focus worksheet",
+      "task steps plan",
+      "module 07"
+    ],
+    "notFor": [
+      "non-English locale sessions",
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "crisis intervention",
+      "emergency mental health situations"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -2750,8 +3543,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "08",
+    "formNumber": "08",
+    "stageNumber": 8,
     "moduleNumber": 8,
+    "moduleCode": "08",
     "moduleTitle": null,
+    "stageTitle": null,
+    "pageNumberInWorkbook": null,
+    "series": "Adolescents CBT Specialized Series",
     "therapeuticGoal": "Strengthen body-based regulation and healthier sleep-stress balance for day-to-day resilience.",
     "whenToUse": "Use for body stress, sleep issues, breathing support, overload, body check-ins, and balance plans.",
     "clinicalKeywords": [
@@ -2761,6 +3560,19 @@
       "overload",
       "body check-in",
       "balance"
+    ],
+    "intentPhrases": [
+      "sleep module",
+      "body stress worksheet",
+      "breathing plan",
+      "module 08"
+    ],
+    "notFor": [
+      "non-English locale sessions",
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "crisis intervention",
+      "emergency mental health situations"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -2817,8 +3629,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "09",
+    "formNumber": "09",
+    "stageNumber": 9,
     "moduleNumber": 9,
+    "moduleCode": "09",
     "moduleTitle": null,
+    "stageTitle": null,
+    "pageNumberInWorkbook": null,
+    "series": "Adolescents CBT Specialized Series",
     "therapeuticGoal": "Promote safety and stabilization through grounding, support mapping, and paced re-engagement.",
     "whenToUse": "Use for trauma-safe coping, grounding, safety anchors, support circles, calm-back, and gentle return.",
     "clinicalKeywords": [
@@ -2828,6 +3646,19 @@
       "support circle",
       "calm-back",
       "gentle return"
+    ],
+    "intentPhrases": [
+      "trauma safe coping module",
+      "grounding worksheet",
+      "safety anchor",
+      "module 09"
+    ],
+    "notFor": [
+      "non-English locale sessions",
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "crisis intervention",
+      "emergency mental health situations"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -2884,8 +3715,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "10",
+    "formNumber": "10",
+    "stageNumber": 10,
     "moduleNumber": 10,
+    "moduleCode": "10",
     "moduleTitle": null,
+    "stageTitle": null,
+    "pageNumberInWorkbook": null,
+    "series": "Adolescents CBT Specialized Series",
     "therapeuticGoal": "Support healthier parent-teen communication, shared understanding, and collaborative independence-building.",
     "whenToUse": "Use for home communication stress, parent understanding, listening, independence, trust, and family conversation.",
     "clinicalKeywords": [
@@ -2897,6 +3734,19 @@
       "independence",
       "trust",
       "family conversation"
+    ],
+    "intentPhrases": [
+      "parents and teens module",
+      "family conversation worksheet",
+      "home communication plan",
+      "module 10"
+    ],
+    "notFor": [
+      "non-English locale sessions",
+      "children under adolescent age",
+      "adult or older-adult requests",
+      "crisis intervention",
+      "emergency mental health situations"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -2958,8 +3808,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "1.1",
+    "formNumber": "1.1",
+    "stageNumber": 1,
     "moduleNumber": 1,
+    "moduleCode": null,
     "moduleTitle": "Emotions & Body",
+    "stageTitle": "Emotions & Body",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Identify and name current feelings using child-friendly choices.",
     "whenToUse": "Use when a child needs help noticing and naming feelings.",
     "clinicalKeywords": [
@@ -2975,6 +3831,24 @@
       "children cbt",
       "child worksheet",
       "form 1.1"
+    ],
+    "intentPhrases": [
+      "what am i feeling",
+      "name my feeling",
+      "identify feelings",
+      "emotion check-in for child",
+      "child feelings worksheet",
+      "form 1.1",
+      "send form 1.1"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "Notice the main feeling, where it shows up, and one thing happening right now.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -3040,8 +3914,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "1.2",
+    "formNumber": "1.2",
+    "stageNumber": 1,
     "moduleNumber": 1,
+    "moduleCode": null,
     "moduleTitle": "Emotions & Body",
+    "stageTitle": "Emotions & Body",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Connect body clues to emotions and internal states.",
     "whenToUse": "Use when a child needs help noticing body signals linked to emotions.",
     "clinicalKeywords": [
@@ -3056,6 +3936,23 @@
       "children cbt",
       "child worksheet",
       "form 1.2"
+    ],
+    "intentPhrases": [
+      "what is my body telling me",
+      "body clues for kids",
+      "body signals child",
+      "somatic awareness child",
+      "form 1.2",
+      "send form 1.2"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "Identify body signals, body locations, and one strong clue the child notices.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -3120,8 +4017,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "1.3",
+    "formNumber": "1.3",
+    "stageNumber": 1,
     "moduleNumber": 1,
+    "moduleCode": null,
     "moduleTitle": "Emotions & Body",
+    "stageTitle": "Emotions & Body",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Rate feeling intensity and choose matching supports.",
     "whenToUse": "Use when a child needs to show how big a feeling is right now.",
     "clinicalKeywords": [
@@ -3134,6 +4037,23 @@
       "children cbt",
       "child worksheet",
       "form 1.3"
+    ],
+    "intentPhrases": [
+      "my feeling meter",
+      "feeling intensity scale for kids",
+      "how big is my feeling",
+      "emotion rating child",
+      "form 1.3",
+      "send form 1.3"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "Use a 1–5 ladder to rate the size of the feeling and choose what may help.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -3196,8 +4116,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "1.4",
+    "formNumber": "1.4",
+    "stageNumber": 1,
     "moduleNumber": 1,
+    "moduleCode": null,
     "moduleTitle": "Emotions & Body",
+    "stageTitle": "Emotions & Body",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Notice early warning signs before feelings grow bigger.",
     "whenToUse": "Use when a child is learning to recognize early clues in body or behavior.",
     "clinicalKeywords": [
@@ -3211,6 +4137,23 @@
       "children cbt",
       "child worksheet",
       "form 1.4"
+    ],
+    "intentPhrases": [
+      "early signs detective",
+      "warning signs for child",
+      "early clues feelings",
+      "early warning signs child",
+      "form 1.4",
+      "send form 1.4"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "Circle early clues, what may be happening, and note the first clue noticed today.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -3274,8 +4217,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "1.5",
+    "formNumber": "1.5",
+    "stageNumber": 1,
     "moduleNumber": 1,
+    "moduleCode": null,
     "moduleTitle": "Emotions & Body",
+    "stageTitle": "Emotions & Body",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Teach that feelings can shift with time and support.",
     "whenToUse": "Use after a hard feeling begins to settle or when teaching hope and flexibility.",
     "clinicalKeywords": [
@@ -3289,6 +4238,22 @@
       "children cbt",
       "child worksheet",
       "form 1.5"
+    ],
+    "intentPhrases": [
+      "feelings can change",
+      "feelings pass",
+      "emotions are temporary for kids",
+      "form 1.5",
+      "send form 1.5"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "See how feelings change from first to now to after some help, and what helped a little.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -3352,8 +4317,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "1.6",
+    "formNumber": "1.6",
+    "stageNumber": 1,
     "moduleNumber": 1,
+    "moduleCode": null,
     "moduleTitle": "Emotions & Body",
+    "stageTitle": "Emotions & Body",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Create a simple personal card linking feelings, body clues, supports, and kind words.",
     "whenToUse": "Use as a quick take-away tool for daily emotional check-ins.",
     "clinicalKeywords": [
@@ -3366,6 +4337,22 @@
       "children cbt",
       "child worksheet",
       "form 1.6"
+    ],
+    "intentPhrases": [
+      "my feeling card",
+      "feelings coping card for child",
+      "personal emotion card kid",
+      "form 1.6",
+      "send form 1.6"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "Choose the feeling, body clues, helpful tools, and a kind phrase to remember.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -3428,8 +4415,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "2.1",
+    "formNumber": "2.1",
+    "stageNumber": 2,
     "moduleNumber": 2,
+    "moduleCode": null,
     "moduleTitle": "Thoughts",
+    "stageTitle": "Thoughts",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Help the child notice a thought as words in the mind and choose a kinder thought.",
     "whenToUse": "Use when a child needs help naming a thought and noticing whether it feels helpful.",
     "clinicalKeywords": [
@@ -3443,6 +4436,23 @@
       "children cbt",
       "child worksheet",
       "form 2.1"
+    ],
+    "intentPhrases": [
+      "what is my thought saying",
+      "notice thoughts child",
+      "thought awareness for kids",
+      "my thought saying",
+      "form 2.1",
+      "send form 2.1"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "The child chooses a possible thought, notices how it feels, checks whether it is helpful, and selects a kinder thought.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -3506,8 +4516,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "2.2",
+    "formNumber": "2.2",
+    "stageNumber": 2,
     "moduleNumber": 2,
+    "moduleCode": null,
     "moduleTitle": "Thoughts",
+    "stageTitle": "Thoughts",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Teach the child to separate what happened from what the mind is guessing.",
     "whenToUse": "Use when a child mixes facts with guesses or worries about what others think.",
     "clinicalKeywords": [
@@ -3521,6 +4537,22 @@
       "children cbt",
       "child worksheet",
       "form 2.2"
+    ],
+    "intentPhrases": [
+      "thought or fact for child",
+      "child thought vs fact",
+      "is it a thought or fact",
+      "form 2.2",
+      "send form 2.2"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "The worksheet helps distinguish real events from guesses, then choose a more balanced idea.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -3584,8 +4616,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "2.3",
+    "formNumber": "2.3",
+    "stageNumber": 2,
     "moduleNumber": 2,
+    "moduleCode": null,
     "moduleTitle": "Thoughts",
+    "stageTitle": "Thoughts",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Help the child notice worry thoughts kindly and choose simple coping supports.",
     "whenToUse": "Use when a child has worry thoughts about mistakes, peers, or trying something hard.",
     "clinicalKeywords": [
@@ -3599,6 +4637,23 @@
       "children cbt",
       "child worksheet",
       "form 2.3"
+    ],
+    "intentPhrases": [
+      "worry thoughts for child",
+      "child worries",
+      "anxious thoughts for kids",
+      "worry thought worksheet",
+      "form 2.3",
+      "send form 2.3"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "The child identifies what worry says, how worry feels, and what helps when worry appears.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -3662,8 +4717,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "2.4",
+    "formNumber": "2.4",
+    "stageNumber": 2,
     "moduleNumber": 2,
+    "moduleCode": null,
     "moduleTitle": "Thoughts",
+    "stageTitle": "Thoughts",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Practice changing an unhelpful thought into a kinder and more useful thought.",
     "whenToUse": "Use when a child is stuck in an unhelpful thought such as \"I cannot do this\" or \"I will mess up\".",
     "clinicalKeywords": [
@@ -3677,6 +4738,23 @@
       "children cbt",
       "child worksheet",
       "form 2.4"
+    ],
+    "intentPhrases": [
+      "helpful thought switch",
+      "change unhelpful thought child",
+      "thought reframe for kids",
+      "thought switch worksheet",
+      "form 2.4",
+      "send form 2.4"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "The child matches unhelpful thoughts with kinder replacements and fills in a personal thought switch.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -3740,8 +4818,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "2.5",
+    "formNumber": "2.5",
+    "stageNumber": 2,
     "moduleNumber": 2,
+    "moduleCode": null,
     "moduleTitle": "Thoughts",
+    "stageTitle": "Thoughts",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Encourage the child to look for clues before believing every thought.",
     "whenToUse": "Use when a child needs to check assumptions and identify what they know for sure.",
     "clinicalKeywords": [
@@ -3755,6 +4839,23 @@
       "children cbt",
       "child worksheet",
       "form 2.5"
+    ],
+    "intentPhrases": [
+      "my thought detective",
+      "thought detective for child",
+      "questioning thoughts for kids",
+      "clues in thoughts",
+      "form 2.5",
+      "send form 2.5"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "The child names a thought, identifies facts and guesses, and chooses what else could be true.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -3818,8 +4919,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "2.6",
+    "formNumber": "2.6",
+    "stageNumber": 2,
     "moduleNumber": 2,
+    "moduleCode": null,
     "moduleTitle": "Thoughts",
+    "stageTitle": "Thoughts",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Build a helpful thought the child can use to move forward.",
     "whenToUse": "Use when a child needs a simple replacement thought before taking a next step.",
     "clinicalKeywords": [
@@ -3832,6 +4939,23 @@
       "children cbt",
       "child worksheet",
       "form 2.6"
+    ],
+    "intentPhrases": [
+      "a thought that helps me",
+      "helpful thought for child",
+      "coping thought for kids",
+      "helpful thought worksheet child",
+      "form 2.6",
+      "send form 2.6"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "The child notices a feeling, chooses a thought that helps, selects what supports the next action, and writes a personal helpful thought.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -3894,8 +5018,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "3.1",
+    "formNumber": "3.1",
+    "stageNumber": 3,
     "moduleNumber": 3,
+    "moduleCode": null,
     "moduleTitle": "Behavior & Small Steps",
+    "stageTitle": "Behavior & Small Steps",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Help the child notice first reactions when something feels hard and choose a helpful next step.",
     "whenToUse": "Use when a child gets stuck, avoids, gets upset, or needs help choosing a small response.",
     "clinicalKeywords": [
@@ -3909,6 +5039,23 @@
       "children cbt",
       "child worksheet",
       "form 3.1"
+    ],
+    "intentPhrases": [
+      "what do i do when it feels hard",
+      "hard things for child",
+      "child avoidance worksheet",
+      "when it feels hard for kids",
+      "form 3.1",
+      "send form 3.1"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "Notices what the child does first when something feels hard, what helps most, and one next small choice.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -3972,8 +5119,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "3.2",
+    "formNumber": "3.2",
+    "stageNumber": 3,
     "moduleNumber": 3,
+    "moduleCode": null,
     "moduleTitle": "Behavior & Small Steps",
+    "stageTitle": "Behavior & Small Steps",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Help the child choose one very small brave step for today.",
     "whenToUse": "Use when a child is avoiding or feeling unsure about starting a task or situation.",
     "clinicalKeywords": [
@@ -3988,6 +5141,23 @@
       "children cbt",
       "child worksheet",
       "form 3.2"
+    ],
+    "intentPhrases": [
+      "my tiny brave step",
+      "brave step for child",
+      "small brave step kid",
+      "tiny brave step worksheet",
+      "form 3.2",
+      "send form 3.2"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "Helps choose what feels hard, one tiny brave step, how big it feels, and a step to try today.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -4052,8 +5222,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "3.3",
+    "formNumber": "3.3",
+    "stageNumber": 3,
     "moduleNumber": 3,
+    "moduleCode": null,
     "moduleTitle": "Behavior & Small Steps",
+    "stageTitle": "Behavior & Small Steps",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Build a simple graded ladder for brave practice.",
     "whenToUse": "Use when a child needs a step-by-step path instead of doing everything at once.",
     "clinicalKeywords": [
@@ -4068,6 +5244,24 @@
       "children cbt",
       "child worksheet",
       "form 3.3"
+    ],
+    "intentPhrases": [
+      "my brave ladder",
+      "brave ladder for child",
+      "graded exposure child",
+      "fear ladder for kids",
+      "step by step brave",
+      "form 3.3",
+      "send form 3.3"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "Uses a 1-5 brave ladder, identifies what is being practiced, who can help, and one ladder goal.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -4132,8 +5326,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "3.4",
+    "formNumber": "3.4",
+    "stageNumber": 3,
     "moduleNumber": 3,
+    "moduleCode": null,
     "moduleTitle": "Behavior & Small Steps",
+    "stageTitle": "Behavior & Small Steps",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Prepare the child before taking a small step by identifying supports and readiness tools.",
     "whenToUse": "Use before a child attempts a new, hard, or avoided action.",
     "clinicalKeywords": [
@@ -4147,6 +5347,23 @@
       "children cbt",
       "child worksheet",
       "form 3.4"
+    ],
+    "intentPhrases": [
+      "before i try",
+      "prepare for brave step child",
+      "readiness for action kids",
+      "before trying something hard",
+      "form 3.4",
+      "send form 3.4"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "Identifies what feels hard, what helps the child get ready, who can help, and the first step.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -4210,8 +5427,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "3.5",
+    "formNumber": "3.5",
+    "stageNumber": 3,
     "moduleNumber": 3,
+    "moduleCode": null,
     "moduleTitle": "Behavior & Small Steps",
+    "stageTitle": "Behavior & Small Steps",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Reflect gently after trying and reinforce learning from effort.",
     "whenToUse": "Use after the child attempts a small brave step or helpful action.",
     "clinicalKeywords": [
@@ -4225,6 +5448,23 @@
       "children cbt",
       "child worksheet",
       "form 3.5"
+    ],
+    "intentPhrases": [
+      "after i tried",
+      "reflect after brave step child",
+      "what i learned from trying",
+      "after trying worksheet for kids",
+      "form 3.5",
+      "send form 3.5"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "Reviews what the child tried, how it went, what helped, and one thing learned.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -4288,8 +5528,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "3.6",
+    "formNumber": "3.6",
+    "stageNumber": 3,
     "moduleNumber": 3,
+    "moduleCode": null,
     "moduleTitle": "Behavior & Small Steps",
+    "stageTitle": "Behavior & Small Steps",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Create a short plan for the next brave step.",
     "whenToUse": "Use when a child needs a simple action plan with goal, step, support, and timing.",
     "clinicalKeywords": [
@@ -4303,6 +5549,23 @@
       "children cbt",
       "child worksheet",
       "form 3.6"
+    ],
+    "intentPhrases": [
+      "my small step plan",
+      "small step plan for child",
+      "action plan for kids",
+      "simple plan brave step",
+      "form 3.6",
+      "send form 3.6"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "Creates a plan with goal, small step, helper, timing, and one brave step pathway.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -4366,8 +5629,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "4.1",
+    "formNumber": "4.1",
+    "stageNumber": 4,
     "moduleNumber": 4,
+    "moduleCode": null,
     "moduleTitle": "Regulation & Calm",
+    "stageTitle": "Regulation & Calm",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Help children pause when they feel upset or overwhelmed.",
     "whenToUse": "Use when a child needs a simple stop-breathe-choose regulation prompt.",
     "clinicalKeywords": [
@@ -4382,6 +5651,23 @@
       "children cbt",
       "child worksheet",
       "form 4.1"
+    ],
+    "intentPhrases": [
+      "pause button for child",
+      "stop and breathe for kids",
+      "regulation pause child",
+      "child upset pause",
+      "form 4.1",
+      "send form 4.1"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "Use this when the child needs to stop, take a breath, and choose a calmer next step.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -4446,8 +5732,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "4.2",
+    "formNumber": "4.2",
+    "stageNumber": 4,
     "moduleNumber": 4,
+    "moduleCode": null,
     "moduleTitle": "Regulation & Calm",
+    "stageTitle": "Regulation & Calm",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Help children identify calming tools that work for them.",
     "whenToUse": "Use when a child is building a personal list of calming strategies.",
     "clinicalKeywords": [
@@ -4462,6 +5754,23 @@
       "children cbt",
       "child worksheet",
       "form 4.2"
+    ],
+    "intentPhrases": [
+      "what can help me calm down",
+      "calming tools for child",
+      "calm down for kids",
+      "what helps me calm worksheet",
+      "form 4.2",
+      "send form 4.2"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "Use this when the child is choosing calming activities and discovering what helps.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -4526,8 +5835,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "4.3",
+    "formNumber": "4.3",
+    "stageNumber": 4,
     "moduleNumber": 4,
+    "moduleCode": null,
     "moduleTitle": "Regulation & Calm",
+    "stageTitle": "Regulation & Calm",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Teach a simple balloon-breathing sequence.",
     "whenToUse": "Use when a child needs a concrete breathing exercise.",
     "clinicalKeywords": [
@@ -4541,6 +5856,23 @@
       "children cbt",
       "child worksheet",
       "form 4.3"
+    ],
+    "intentPhrases": [
+      "my breathing helper",
+      "breathing exercise for child",
+      "balloon breathing kids",
+      "breathing for calm child",
+      "form 4.3",
+      "send form 4.3"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "Use this when the child needs guided breathing to feel calmer.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -4604,8 +5936,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "4.4",
+    "formNumber": "4.4",
+    "stageNumber": 4,
     "moduleNumber": 4,
+    "moduleCode": null,
     "moduleTitle": "Regulation & Calm",
+    "stageTitle": "Regulation & Calm",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Ground children by noticing sensory details around them.",
     "whenToUse": "Use when a child feels upset and needs grounding through the senses.",
     "clinicalKeywords": [
@@ -4619,6 +5957,23 @@
       "children cbt",
       "child worksheet",
       "form 4.4"
+    ],
+    "intentPhrases": [
+      "back to my body",
+      "grounding for child",
+      "5 senses grounding kids",
+      "sensory grounding child",
+      "form 4.4",
+      "send form 4.4"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "Use this when the child needs to ground using seeing, touching, hearing, smelling, and tasting.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -4682,8 +6037,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "4.5",
+    "formNumber": "4.5",
+    "stageNumber": 4,
     "moduleNumber": 4,
+    "moduleCode": null,
     "moduleTitle": "Regulation & Calm",
+    "stageTitle": "Regulation & Calm",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Help children imagine a safe and calming place.",
     "whenToUse": "Use when a child benefits from a visual safe-place exercise.",
     "clinicalKeywords": [
@@ -4697,6 +6058,23 @@
       "children cbt",
       "child worksheet",
       "form 4.5"
+    ],
+    "intentPhrases": [
+      "my safe calm place",
+      "safe place for child",
+      "calm place imagery for kids",
+      "safe imagery worksheet child",
+      "form 4.5",
+      "send form 4.5"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "Use this when the child needs to imagine or draw a safe calm place.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -4760,8 +6138,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "4.6",
+    "formNumber": "4.6",
+    "stageNumber": 4,
     "moduleNumber": 4,
+    "moduleCode": null,
     "moduleTitle": "Regulation & Calm",
+    "stageTitle": "Regulation & Calm",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Create a personal calm-tools card with favorite coping tools.",
     "whenToUse": "Use as a take-away card once the child has identified their top calming tools.",
     "clinicalKeywords": [
@@ -4773,6 +6157,23 @@
       "children cbt",
       "child worksheet",
       "form 4.6"
+    ],
+    "intentPhrases": [
+      "my calm tools card",
+      "calm tools card for child",
+      "coping card for kids",
+      "personal calm card child",
+      "form 4.6",
+      "send form 4.6"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "Use this when the child is choosing top calm tools for later use.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -4834,8 +6235,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "5.1",
+    "formNumber": "5.1",
+    "stageNumber": 5,
     "moduleNumber": 5,
+    "moduleCode": null,
     "moduleTitle": "Calm Tools & Personal Plan",
+    "stageTitle": "Calm Tools & Personal Plan",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Help children identify and choose calming tools they can use when upset or worried.",
     "whenToUse": "Use when a child is building awareness of simple calming strategies.",
     "clinicalKeywords": [
@@ -4851,6 +6258,23 @@
       "children cbt",
       "child worksheet",
       "form 5.1"
+    ],
+    "intentPhrases": [
+      "my calm tools",
+      "calm tools for child",
+      "coping tools for kids",
+      "calming strategies worksheet child",
+      "form 5.1",
+      "send form 5.1"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "Use this when the child is identifying calming tools and choosing a favorite one.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -4916,8 +6340,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "5.2",
+    "formNumber": "5.2",
+    "stageNumber": 5,
     "moduleNumber": 5,
+    "moduleCode": null,
     "moduleTitle": "Calm Tools & Personal Plan",
+    "stageTitle": "Calm Tools & Personal Plan",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Help children notice what they feel when overwhelmed and choose a short calm plan.",
     "whenToUse": "Use when a child needs a simple structured plan for overwhelming feelings.",
     "clinicalKeywords": [
@@ -4932,6 +6362,22 @@
       "children cbt",
       "child worksheet",
       "form 5.2"
+    ],
+    "intentPhrases": [
+      "when i feel overwhelmed",
+      "child overwhelmed worksheet",
+      "overwhelmed feelings plan for kids",
+      "form 5.2",
+      "send form 5.2"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "Use this when the child needs to identify overwhelmed feelings and choose a few tools to help.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -4996,8 +6442,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "5.3",
+    "formNumber": "5.3",
+    "stageNumber": 5,
     "moduleNumber": 5,
+    "moduleCode": null,
     "moduleTitle": "Calm Tools & Personal Plan",
+    "stageTitle": "Calm Tools & Personal Plan",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Help children rate feeling intensity and pick a small support for the moment.",
     "whenToUse": "Use when a child needs to show how strong a feeling is and what can help a little right now.",
     "clinicalKeywords": [
@@ -5012,6 +6464,23 @@
       "children cbt",
       "child worksheet",
       "form 5.3"
+    ],
+    "intentPhrases": [
+      "my feeling thermometer",
+      "feeling thermometer for child",
+      "emotion intensity scale for kids",
+      "thermometer worksheet child",
+      "form 5.3",
+      "send form 5.3"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "Use this when the child is rating feeling intensity and choosing a small helpful action.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -5076,8 +6545,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "5.4",
+    "formNumber": "5.4",
+    "stageNumber": 5,
     "moduleNumber": 5,
+    "moduleCode": null,
     "moduleTitle": "Calm Tools & Personal Plan",
+    "stageTitle": "Calm Tools & Personal Plan",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Help children notice early signs of upset and choose a first step in a calm plan.",
     "whenToUse": "Use when a child is preparing ahead for moments of dysregulation.",
     "clinicalKeywords": [
@@ -5092,6 +6567,23 @@
       "children cbt",
       "child worksheet",
       "form 5.4"
+    ],
+    "intentPhrases": [
+      "calm plan before i get too upset",
+      "calm plan for child",
+      "proactive calm plan child",
+      "prepare for upset child",
+      "form 5.4",
+      "send form 5.4"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "Use this when the child is making a simple plan before feelings get too big.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -5156,8 +6648,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "5.5",
+    "formNumber": "5.5",
+    "stageNumber": 5,
     "moduleNumber": 5,
+    "moduleCode": null,
     "moduleTitle": "Calm Tools & Personal Plan",
+    "stageTitle": "Calm Tools & Personal Plan",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Help children design a safe calm space with preferred comforting items.",
     "whenToUse": "Use when a child is creating a personalized calm corner or calm kit.",
     "clinicalKeywords": [
@@ -5173,6 +6671,23 @@
       "children cbt",
       "child worksheet",
       "form 5.5"
+    ],
+    "intentPhrases": [
+      "my calm corner",
+      "calm corner for child",
+      "calm kit for kids",
+      "personal calm space child",
+      "form 5.5",
+      "send form 5.5"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "Use this when the child is choosing items for a calm corner and deciding when to use it.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -5238,8 +6753,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": "5.6",
+    "formNumber": "5.6",
+    "stageNumber": 5,
     "moduleNumber": 5,
+    "moduleCode": null,
     "moduleTitle": "Calm Tools & Personal Plan",
+    "stageTitle": "Calm Tools & Personal Plan",
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Help children make a simple personal plan for when they feel overwhelmed.",
     "whenToUse": "Use when a child is summarizing what they notice, what tool to use first, and what to remind themselves.",
     "clinicalKeywords": [
@@ -5253,6 +6774,23 @@
       "children cbt",
       "child worksheet",
       "form 5.6"
+    ],
+    "intentPhrases": [
+      "my calm plan",
+      "personal calm plan for child",
+      "calm plan summary for kids",
+      "my personal calm plan child",
+      "form 5.6",
+      "send form 5.6"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": "Use this when the child is making a short personal calm plan for hard moments.",
     "safetyNotes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content.",
@@ -5316,8 +6854,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": null,
+    "formNumber": null,
+    "stageNumber": 1,
     "moduleNumber": 1,
+    "moduleCode": null,
     "moduleTitle": null,
+    "stageTitle": null,
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Module-level children CBT core reference for Stage 1.",
     "whenToUse": "Use when a module-level PDF for Stage 1 is specifically requested.",
     "clinicalKeywords": [
@@ -5326,6 +6870,19 @@
       "emotions & body",
       "module pdf",
       "child worksheet"
+    ],
+    "intentPhrases": [
+      "stage 1 module pdf",
+      "children cbt core module 1"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -5384,8 +6941,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": null,
+    "formNumber": null,
+    "stageNumber": 3,
     "moduleNumber": 3,
+    "moduleCode": null,
     "moduleTitle": null,
+    "stageTitle": null,
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Module-level children CBT core reference for Stage 3.",
     "whenToUse": "Use when a module-level PDF for Stage 3 is specifically requested.",
     "clinicalKeywords": [
@@ -5394,6 +6957,19 @@
       "behavior & small steps",
       "module pdf",
       "child worksheet"
+    ],
+    "intentPhrases": [
+      "stage 3 module pdf",
+      "children cbt core module 3"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -5452,8 +7028,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": null,
+    "formNumber": null,
+    "stageNumber": 4,
     "moduleNumber": 4,
+    "moduleCode": null,
     "moduleTitle": null,
+    "stageTitle": null,
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Module-level children CBT core reference for Stage 4.",
     "whenToUse": "Use when a module-level PDF for Stage 4 is specifically requested.",
     "clinicalKeywords": [
@@ -5462,6 +7044,19 @@
       "regulation & calm",
       "module pdf",
       "child worksheet"
+    ],
+    "intentPhrases": [
+      "stage 4 module pdf",
+      "children cbt core module 4"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
@@ -5520,8 +7115,14 @@
       "weekly_practice"
     ],
     "worksheetNumber": null,
+    "formNumber": null,
+    "stageNumber": 5,
     "moduleNumber": 5,
+    "moduleCode": null,
     "moduleTitle": null,
+    "stageTitle": null,
+    "pageNumberInWorkbook": null,
+    "series": null,
     "therapeuticGoal": "Module-level children CBT core reference for Stage 5.",
     "whenToUse": "Use when a module-level PDF for Stage 5 is specifically requested.",
     "clinicalKeywords": [
@@ -5530,6 +7131,19 @@
       "calm tools & personal plan",
       "module pdf",
       "child worksheet"
+    ],
+    "intentPhrases": [
+      "stage 5 module pdf",
+      "children cbt core module 5"
+    ],
+    "notFor": [
+      "adolescents or adult requests",
+      "Hebrew language mode",
+      "non-English language mode",
+      "crisis intervention",
+      "emergency mental health situations",
+      "trauma processing without clinician support",
+      "self-harm or suicide content"
     ],
     "aiMatchingSummary": null,
     "safetyNotes": null,
