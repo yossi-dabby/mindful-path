@@ -74,6 +74,11 @@ const DISALLOWED_AUDIENCE_PATTERNS = [
   /\bolder adult\b/i,
 ];
 
+const MIN_SPECIALIZED_MODULE_MATCH_SCORE = 40;
+const DYNAMIC_EXACT_FIELD_MATCH_SCORE = 100;
+const DYNAMIC_TERM_MATCH_SCORE = 6;
+const DYNAMIC_KEYWORD_MATCH_SCORE = 30;
+
 function getCoreEnglishForms() {
   return ALL_FORMS.filter((form) => form?.approved === true && form?.category === 'adolescents_cbt_core' && form?.language === 'en' && form?.audience === 'adolescents');
 }
@@ -282,7 +287,7 @@ function resolveCoreEnglishIndividualByContent(normalizedQuery) {
     }
   }
 
-  if (!best || bestScore < 40) return null;
+  if (!best || bestScore < MIN_SPECIALIZED_MODULE_MATCH_SCORE) return null;
   return resolveApprovedFormById(best.id, 'en');
 }
 
@@ -479,10 +484,10 @@ function scoreDynamicFormMatch(form, normalizedQuery) {
     .filter(Boolean);
 
   for (const field of fields) {
-    if (normalizedQuery.includes(field)) score += 100;
+    if (normalizedQuery.includes(field)) score += DYNAMIC_EXACT_FIELD_MATCH_SCORE;
     const terms = field.split(/\s+/).filter((t) => t.length > 3);
     for (const term of terms) {
-      if (normalizedQuery.includes(term)) score += 6;
+      if (normalizedQuery.includes(term)) score += DYNAMIC_TERM_MATCH_SCORE;
     }
   }
 
@@ -494,7 +499,7 @@ function scoreDynamicFormMatch(form, normalizedQuery) {
     .filter(Boolean);
 
   for (const keyword of keywords) {
-    if (normalizedQuery.includes(keyword)) score += 30;
+    if (normalizedQuery.includes(keyword)) score += DYNAMIC_KEYWORD_MATCH_SCORE;
   }
 
   return score;

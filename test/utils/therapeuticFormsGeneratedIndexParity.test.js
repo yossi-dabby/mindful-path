@@ -6,7 +6,7 @@ import generatedFormsIndex from '../../src/generated/therapeutic-forms-index.jso
 import { ALL_FORMS, getTherapeuticFormsRegistryDiagnostics } from '../../src/data/therapeuticForms/index.js';
 import { resolveFormIntent } from '../../src/utils/resolveFormIntent.js';
 
-const ROOT = '/home/runner/work/mindful-path/mindful-path';
+const ROOT = path.resolve(process.cwd());
 const PUBLIC_FORMS_DIR = path.join(ROOT, 'public/forms');
 
 function walk(dirPath) {

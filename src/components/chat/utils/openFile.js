@@ -1,3 +1,5 @@
+const BLOB_URL_REVOCATION_TIMEOUT_MS = 60_000;
+
 /**
  * openFile — safe, browser-native file open helper.
  *
@@ -37,7 +39,7 @@ export async function openFile(url) {
       : new Blob([pdfBlob], { type: 'application/pdf' });
     const blobUrl = URL.createObjectURL(blob);
     window.open(blobUrl, '_blank', 'noopener,noreferrer');
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
+    setTimeout(() => URL.revokeObjectURL(blobUrl), BLOB_URL_REVOCATION_TIMEOUT_MS);
   } catch {
     window.open(safeUrl, '_blank', 'noopener,noreferrer');
   }

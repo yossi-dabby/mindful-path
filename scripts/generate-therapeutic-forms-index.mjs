@@ -91,6 +91,12 @@ function inferCategory(audience, categorySegment) {
   return 'workbook_series';
 }
 
+function normalizeFormCategory(formCategory, audience, fallbackSegment) {
+  const candidate = String(formCategory || '').trim();
+  if (KNOWN_CATEGORIES.has(candidate)) return candidate;
+  return inferCategory(audience, fallbackSegment || candidate);
+}
+
 function extractManifestItems() {
   const allFiles = walk(PUBLIC_DIR);
   const manifestFiles = allFiles.filter((f) => /manifest.*\.json$/i.test(path.basename(f)));
@@ -158,8 +164,7 @@ function buildCuratedEntries(manifestByFileUrl) {
 
       const fileName = path.basename(fileUrl);
       const manifestMeta = manifestByFileUrl.get(fileUrl) || {};
-      const formCategory = String(form.category || '').trim();
-      const normalizedCategory = KNOWN_CATEGORIES.has(formCategory) ? formCategory : inferCategory(form.audience, formCategory);
+      const normalizedCategory = normalizeFormCategory(form.category, form.audience, form.category);
 
       entries.push({
         id: form.id,
@@ -235,9 +240,7 @@ function buildFallbackEntries(existingByFileUrl, manifestByFileUrl) {
 
     const manifestMeta = manifestByFileUrl.get(fileUrl) || {};
     const { audience, language, categorySegment } = inferAudienceAndLanguage(fileUrl);
-    const category = KNOWN_CATEGORIES.has(manifestMeta.category)
-      ? manifestMeta.category
-      : inferCategory(audience, categorySegment);
+    const category = normalizeFormCategory(manifestMeta.category, audience, categorySegment);
 
     const fileName = path.basename(fileUrl);
     const title = manifestMeta.title_en || titleFromFileName(fileName);
