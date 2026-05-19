@@ -12,9 +12,7 @@
  *   import { listFormsByAudience, resolveFormWithLanguage } from '@/data/therapeuticForms';
  */
 
-import { FORMS_ADOLESCENTS_CBT_CORE_EN } from './forms.adolescents.cbt-core.en.js';
-import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN } from './forms.adolescents.cbt-specialized.en.js';
-import { FORMS_CHILDREN_CBT_CORE_EN } from './forms.children.cbt-core.en.js';
+import GENERATED_THERAPEUTIC_FORMS_INDEX from '../../generated/therapeutic-forms-index.json';
 
 // ─── Taxonomy ─────────────────────────────────────────────────────────────────
 export {
@@ -65,10 +63,31 @@ function buildCanonicalRegistry(forms) {
  * @type {readonly object[]}
  */
 export const ALL_FORMS = buildCanonicalRegistry([
-  ...FORMS_ADOLESCENTS_CBT_CORE_EN,
-  ...FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN,
-  ...FORMS_CHILDREN_CBT_CORE_EN,
+  ...GENERATED_THERAPEUTIC_FORMS_INDEX,
 ]);
+
+export function getTherapeuticFormsRegistryDiagnostics(forms = ALL_FORMS) {
+  const diagnostics = {
+    total: forms.length,
+    byLanguage: {},
+    byAudience: {},
+    byCategory: {},
+    source: 'src/generated/therapeutic-forms-index.json',
+    environment: import.meta.env?.MODE || 'unknown',
+    sampleResolvedFilePath: forms[0]?.fileUrl || forms[0]?.languages?.en?.file_url || null,
+  };
+
+  for (const form of forms) {
+    const language = String(form?.language || 'unknown');
+    const audience = String(form?.audience || 'unknown');
+    const category = String(form?.category || 'unknown');
+    diagnostics.byLanguage[language] = (diagnostics.byLanguage[language] || 0) + 1;
+    diagnostics.byAudience[audience] = (diagnostics.byAudience[audience] || 0) + 1;
+    diagnostics.byCategory[category] = (diagnostics.byCategory[category] || 0) + 1;
+  }
+
+  return diagnostics;
+}
 
 // ─── Resolver utilities ───────────────────────────────────────────────────────
 export {
