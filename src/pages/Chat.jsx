@@ -686,7 +686,12 @@ export default function Chat() {
               sessionTriggeredRef.current.add(conversation.id);
               setTimeout(async () => {
                 setIsLoading(true);
-                const sessionStartContent = await buildActionFirstDemotedSessionContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44);
+                const sessionStartContent = await buildActionFirstDemotedSessionContentAsync(
+                  ACTIVE_CBT_THERAPIST_WIRING,
+                  base44.entities,
+                  base44,
+                  { sessionLanguage: i18n.language }
+                );
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
                   content: addLangDirective(sessionStartContent, sessionLanguageRef.current)
@@ -731,7 +736,12 @@ export default function Chat() {
               sessionTriggeredRef.current.add(conversation.id);
               setTimeout(async () => {
                 setIsLoading(true);
-                const sessionStartContent = await buildActionFirstDemotedSessionContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44);
+                const sessionStartContent = await buildActionFirstDemotedSessionContentAsync(
+                  ACTIVE_CBT_THERAPIST_WIRING,
+                  base44.entities,
+                  base44,
+                  { sessionLanguage: i18n.language }
+                );
                 await base44.agents.addMessage(conversation, {
                   role: 'user',
                   content: addLangDirective(sessionStartContent, sessionLanguageRef.current)
@@ -1144,7 +1154,12 @@ export default function Chat() {
       // message, append it to the same turn so the agent handles both together.
       setTimeout(async () => {
         setIsLoading(true);
-        const sessionStartContent = await buildActionFirstDemotedSessionContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44);
+        const sessionStartContent = await buildActionFirstDemotedSessionContentAsync(
+          ACTIVE_CBT_THERAPIST_WIRING,
+          base44.entities,
+          base44,
+          { sessionLanguage: i18n.language }
+        );
         await base44.agents.addMessage(conversation, {
           role: 'user',
           content: initialMessage ?
@@ -1867,7 +1882,12 @@ export default function Chat() {
       messageText;
       if (isNewConversation) {
         const sessionStartContent = addLangDirective(
-          await buildActionFirstDemotedSessionContentAsync(ACTIVE_CBT_THERAPIST_WIRING, base44.entities, base44),
+          await buildActionFirstDemotedSessionContentAsync(
+            ACTIVE_CBT_THERAPIST_WIRING,
+            base44.entities,
+            base44,
+            { sessionLanguage: i18n.language }
+          ),
           sessionLanguageRef.current
         );
         messageContent = sessionStartContent + '\n\n' + messageContent;

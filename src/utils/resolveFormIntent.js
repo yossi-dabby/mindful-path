@@ -144,13 +144,43 @@ export const APPROVED_FORM_INTENT_MAP = buildApprovedIntentMap();
 export const FORM_INTENT_MARKER_PATTERN = /\[FORM:([a-z0-9_-]+)(?::([a-z]{2}))?\]/g;
 
 function findApprovedExactFormId(candidateId) {
+  const normalizedCandidateId = normalizeLegacyWorksheetAlias(candidateId);
   const match = ALL_FORMS.find(
     (form) =>
       form?.approved === true &&
       typeof form.id === 'string' &&
-      (form.id === candidateId || (typeof form.slug === 'string' && form.slug === candidateId))
+      (
+        form.id === candidateId ||
+        form.id === normalizedCandidateId ||
+        (typeof form.slug === 'string' && (form.slug === candidateId || form.slug === normalizedCandidateId))
+      )
   );
   return match?.id || null;
+}
+
+function normalizeLegacyWorksheetAlias(candidate) {
+  const raw = String(candidate || '').trim().toLowerCase();
+  if (!raw) return raw;
+
+  const childrenMatch = raw.match(/^children[_-]cbt[_-]core[_-]en[_-](\d{1,2})[_-](\d{1,2})$/);
+  if (childrenMatch) {
+    const stage = Number(childrenMatch[1]);
+    const worksheet = Number(childrenMatch[2]);
+    if (Number.isFinite(stage) && Number.isFinite(worksheet)) {
+      return `children-cbt-core-en-${stage}-${worksheet}`;
+    }
+  }
+
+  const adolescentsMatch = raw.match(/^adolescents[_-]cbt[_-]core[_-]en[_-](\d{1,2})[_-](\d{1,2})$/);
+  if (adolescentsMatch) {
+    const stage = Number(adolescentsMatch[1]);
+    const worksheet = Number(adolescentsMatch[2]);
+    if (Number.isFinite(stage) && Number.isFinite(worksheet)) {
+      return `adolescents-cbt-core-en-${stage}-${worksheet}`;
+    }
+  }
+
+  return raw;
 }
 
 function resolveApprovedFormById(formId, lang = 'en') {
@@ -543,9 +573,13 @@ export function resolveFormIntent(intentOrSlug, lang) {
   if (ALL_FORMS.length === 0) return null;
 
   const normalizedIntent = intentOrSlug.toLowerCase().trim();
+  const normalizedIntentAlias = normalizeLegacyWorksheetAlias(normalizedIntent);
   const resolvedLang = typeof lang === 'string' && lang.trim() ? lang.trim() : 'en';
 
-  const formId = APPROVED_FORM_INTENT_MAP[normalizedIntent] || findApprovedExactFormId(normalizedIntent);
+  const formId =
+    APPROVED_FORM_INTENT_MAP[normalizedIntent] ||
+    APPROVED_FORM_INTENT_MAP[normalizedIntentAlias] ||
+    findApprovedExactFormId(normalizedIntentAlias);
   if (formId) {
     return resolveApprovedFormById(formId, resolvedLang);
   }

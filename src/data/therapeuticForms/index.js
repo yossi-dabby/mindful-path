@@ -13,6 +13,7 @@
  */
 
 import GENERATED_THERAPEUTIC_FORMS_INDEX from '../../generated/therapeutic-forms-index.json';
+import { SUPPORTED_LANGUAGES, VALID_AUDIENCE_VALUES } from './categories.js';
 
 // ─── Taxonomy ─────────────────────────────────────────────────────────────────
 export {
@@ -66,13 +67,139 @@ export const ALL_FORMS = buildCanonicalRegistry([
   ...GENERATED_THERAPEUTIC_FORMS_INDEX,
 ]);
 
+const FORM_INDEX_SOURCE_PATH = 'src/generated/therapeutic-forms-index.json';
+const SUPPORTED_LANG_SET = new Set(SUPPORTED_LANGUAGES);
+const VALID_AUDIENCE_SET = new Set(VALID_AUDIENCE_VALUES);
+const LANGUAGE_ALIAS_MAP = Object.freeze({
+  english: 'en',
+  hebrew: 'he',
+  spanish: 'es',
+  french: 'fr',
+  german: 'de',
+  italian: 'it',
+  portuguese: 'pt',
+});
+const AUDIENCE_ALIAS_MAP = Object.freeze({
+  child: 'children',
+  children: 'children',
+  kid: 'children',
+  kids: 'children',
+  adolescent: 'adolescents',
+  adolescents: 'adolescents',
+  teen: 'adolescents',
+  teens: 'adolescents',
+  teenager: 'adolescents',
+  teenagers: 'adolescents',
+  adult: 'adults',
+  adults: 'adults',
+  older_adult: 'older_adults',
+  older_adults: 'older_adults',
+  'older-adult': 'older_adults',
+  'older-adults': 'older_adults',
+  parent: 'parents',
+  parents: 'parents',
+});
+
+function normalizeLanguageFilter(language) {
+  if (typeof language !== 'string' || !language.trim()) return null;
+  const lower = language.trim().toLowerCase();
+  const aliased = LANGUAGE_ALIAS_MAP[lower] || lower;
+  const base = aliased.split('-')[0];
+  return SUPPORTED_LANG_SET.has(base) ? base : null;
+}
+
+function normalizeAudienceFilter(audience) {
+  if (typeof audience !== 'string' || !audience.trim()) return null;
+  const lower = audience.trim().toLowerCase();
+  const normalized = AUDIENCE_ALIAS_MAP[lower] || lower;
+  return VALID_AUDIENCE_SET.has(normalized) ? normalized : null;
+}
+
+function resolveEnvironmentLabel(environmentOverride) {
+  if (typeof environmentOverride === 'string' && environmentOverride.trim()) {
+    return environmentOverride.trim();
+  }
+  return import.meta.env?.MODE || (import.meta.env?.PROD ? 'production' : 'unknown');
+}
+
+export function getAllTherapeuticForms(options = {}) {
+  const forms = ALL_FORMS;
+  const diagnostics = {
+    environment: resolveEnvironmentLabel(options.environment),
+    source: FORM_INDEX_SOURCE_PATH,
+    generatedIndexImported: Array.isArray(GENERATED_THERAPEUTIC_FORMS_INDEX),
+    formsCount: forms.length,
+  };
+
+  if (forms.length === 0) {
+    console.error('[TherapeuticForms] Canonical registry is empty.', diagnostics);
+  }
+
+  return forms;
+}
+
+export function getTherapeuticFormsForAI({ language, audience, environment } = {}) {
+  const allForms = getAllTherapeuticForms({ environment });
+  const normalizedLanguage = normalizeLanguageFilter(language);
+  const normalizedAudience = normalizeAudienceFilter(audience);
+
+  const beforeFiltersCount = allForms.length;
+  const filtered = allForms.filter((form) => {
+    if (form?.approved !== true) return false;
+    if (normalizedLanguage && form?.language !== normalizedLanguage) return false;
+    if (normalizedAudience && form?.audience !== normalizedAudience) return false;
+    return true;
+  });
+
+  const aiForms = filtered.map((form) => ({
+    id: form.id,
+    approved: true,
+    title: form.title || form.languages?.[form.language]?.title || form.id,
+    audience: form.audience || null,
+    language: form.language || null,
+    category: form.category || null,
+    subcategory: form.subcategory || form.series || form.moduleTitle || null,
+    therapeuticGoal: form.therapeuticGoal || form.therapeutic_goal || null,
+    whenToUse: form.whenToUse || form.when_to_use || null,
+    clinicalKeywords: Array.isArray(form.clinicalKeywords) ? form.clinicalKeywords : (Array.isArray(form.keywords) ? form.keywords : []),
+    intentPhrases: Array.isArray(form.intentPhrases) ? form.intentPhrases : [],
+    notFor: Array.isArray(form.notFor) ? form.notFor : [],
+    therapeutic_goal: form.therapeutic_goal || form.therapeuticGoal || null,
+    when_to_use: form.when_to_use || form.whenToUse || null,
+    keywords: Array.isArray(form.keywords) ? form.keywords : (Array.isArray(form.clinicalKeywords) ? form.clinicalKeywords : []),
+    ai_matching_summary: form.ai_matching_summary || form.aiMatchingSummary || null,
+    safety_notes: form.safety_notes || form.safetyNotes || null,
+    file_path: form.file_path || form.filePath || null,
+    file_url: form.fileUrl || form.languages?.[form.language || 'en']?.file_url || null,
+    type: form.type || null,
+    module_number: form.module_number ?? form.moduleNumber ?? null,
+    worksheet_number: form.worksheet_number ?? form.worksheetNumber ?? form.formNumber ?? null,
+  }));
+
+  const diagnostics = {
+    environment: resolveEnvironmentLabel(environment),
+    registrySourcePath: FORM_INDEX_SOURCE_PATH,
+    generatedIndexImported: Array.isArray(GENERATED_THERAPEUTIC_FORMS_INDEX),
+    activeLanguage: normalizedLanguage || null,
+    activeAudienceFilter: normalizedAudience || null,
+    formsLengthBeforeFilters: beforeFiltersCount,
+    formsLengthAfterFilters: aiForms.length,
+  };
+
+  if (import.meta.env?.PROD && aiForms.length === 0) {
+    console.error('[TherapeuticForms][AI] No forms available after filters in production.', diagnostics);
+  }
+
+  return aiForms;
+}
+
 export function getTherapeuticFormsRegistryDiagnostics(forms = ALL_FORMS) {
   const diagnostics = {
     total: forms.length,
     byLanguage: {},
     byAudience: {},
     byCategory: {},
-    source: 'src/generated/therapeutic-forms-index.json',
+    source: FORM_INDEX_SOURCE_PATH,
     environment: import.meta.env?.MODE || 'unknown',
     sampleResolvedFilePath: forms[0]?.fileUrl || forms[0]?.languages?.en?.file_url || null,
   };

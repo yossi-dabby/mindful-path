@@ -5,6 +5,7 @@ import { resolveFormWithLanguage } from '../../src/data/therapeuticForms/index.j
 import { FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL } from '../../src/data/therapeuticForms/forms.adolescents.cbt-core.en.js';
 import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_MODULE_PDFS } from '../../src/data/therapeuticForms/forms.adolescents.cbt-specialized.en.js';
 import { normalizeGeneratedFile } from '../../src/components/chat/utils/normalizeGeneratedFile.js';
+import { getFormDownloadUrl, getFormOpenUrl } from '../../src/components/chat/utils/formFileUrls.js';
 
 const ROOT = '/home/runner/work/mindful-path/mindful-path';
 
@@ -146,5 +147,18 @@ describe('normalizeGeneratedFile — Open vs Download URL contract', () => {
     expect(result.type).toBe('pdf');
     expect(result.url).toBeTruthy();
     expect(result.name).toBeTruthy();
+  });
+});
+
+describe('formFileUrls — open/download URL separation', () => {
+  it('builds open URL without download query flag', () => {
+    const openUrl = getFormOpenUrl('/forms/children/en/cbt-core/individual/05-01-my-calm-plan.pdf?download=1');
+    expect(openUrl).toBe('/forms/children/en/cbt-core/individual/05-01-my-calm-plan.pdf');
+    expect(openUrl.includes('download=')).toBe(false);
+  });
+
+  it('builds download URL with explicit download query flag', () => {
+    const downloadUrl = getFormDownloadUrl('/forms/children/en/cbt-core/individual/05-01-my-calm-plan.pdf');
+    expect(downloadUrl).toBe('/forms/children/en/cbt-core/individual/05-01-my-calm-plan.pdf?download=1');
   });
 });
