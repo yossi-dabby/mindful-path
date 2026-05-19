@@ -74,6 +74,11 @@ const DISALLOWED_AUDIENCE_PATTERNS = [
   /\bolder adult\b/i,
 ];
 
+const MIN_SPECIALIZED_MODULE_MATCH_SCORE = 40;
+const DYNAMIC_EXACT_FIELD_MATCH_SCORE = 100;
+const DYNAMIC_TERM_MATCH_SCORE = 6;
+const DYNAMIC_KEYWORD_MATCH_SCORE = 30;
+
 function getCoreEnglishForms() {
   return ALL_FORMS.filter((form) => form?.approved === true && form?.category === 'adolescents_cbt_core' && form?.language === 'en' && form?.audience === 'adolescents');
 }
@@ -282,7 +287,7 @@ function resolveCoreEnglishIndividualByContent(normalizedQuery) {
     }
   }
 
-  if (!best || bestScore <= 0) return null;
+  if (!best || bestScore < MIN_SPECIALIZED_MODULE_MATCH_SCORE) return null;
   return resolveApprovedFormById(best.id, 'en');
 }
 
@@ -448,6 +453,91 @@ function resolveChildrenCoreEnglishIndividualByContent(normalizedQuery) {
   return resolveApprovedFormById(best.id, 'en');
 }
 
+function detectRequestedAudience(normalizedQuery) {
+  if (!normalizedQuery) return null;
+  if (/\bchildren\b|\bchild\b|\bkid\b|\bkids\b/i.test(normalizedQuery)) return 'children';
+  if (/\badolescents?\b|\bteen(?:ager)?s?\b|\byouth\b/i.test(normalizedQuery)) return 'adolescents';
+  if (/\bolder adults?\b|\bsenior(s)?\b|\belderly\b/i.test(normalizedQuery)) return 'older_adults';
+  if (/\badults?\b/i.test(normalizedQuery)) return 'adults';
+  return null;
+}
+
+function scoreDynamicFormMatch(form, normalizedQuery) {
+  let score = 0;
+  const fields = [
+    form?.title,
+    form?.description,
+    form?.therapeuticGoal,
+    form?.whenToUse,
+    form?.aiMatchingSummary,
+    form?.therapeutic_goal,
+    form?.when_to_use,
+    form?.ai_matching_summary,
+    form?.moduleTitle,
+    form?.module_title,
+    form?.worksheetNumber,
+    form?.worksheet_number,
+    form?.category,
+    form?.subcategory,
+  ]
+    .map((value) => normalizeText(value))
+    .filter(Boolean);
+
+  for (const field of fields) {
+    if (normalizedQuery.includes(field)) score += DYNAMIC_EXACT_FIELD_MATCH_SCORE;
+    const terms = field.split(/\s+/).filter((t) => t.length > 3);
+    for (const term of terms) {
+      if (normalizedQuery.includes(term)) score += DYNAMIC_TERM_MATCH_SCORE;
+    }
+  }
+
+  const keywords = [
+    ...(Array.isArray(form?.clinicalKeywords) ? form.clinicalKeywords : []),
+    ...(Array.isArray(form?.keywords) ? form.keywords : []),
+  ]
+    .map((value) => normalizeText(value))
+    .filter(Boolean);
+
+  for (const keyword of keywords) {
+    if (normalizedQuery.includes(keyword)) score += DYNAMIC_KEYWORD_MATCH_SCORE;
+  }
+
+  return score;
+}
+
+function resolveDynamicFormByContent(query, options = {}) {
+  const normalizedQuery = normalizeText(query);
+  if (!normalizedQuery) return null;
+
+  const activeLanguage = normalizeText(options.activeLanguage || 'en') || 'en';
+  const explicitEnglish = hasExplicitEnglishRequest(normalizedQuery);
+  const explicitHebrew = requestsHebrew(normalizedQuery);
+  const requestedAudience = detectRequestedAudience(normalizedQuery);
+  const targetLanguage = explicitEnglish ? 'en' : explicitHebrew ? 'he' : activeLanguage;
+
+  const candidates = ALL_FORMS.filter((form) => {
+    if (form?.approved !== true) return false;
+    if (form?.type === 'stage_group') return false;
+    if (!form?.languages?.[targetLanguage]) return false;
+    if (requestedAudience && form?.audience !== requestedAudience) return false;
+    return true;
+  });
+
+  let best = null;
+  let bestScore = 0;
+
+  for (const form of candidates) {
+    const score = scoreDynamicFormMatch(form, normalizedQuery);
+    if (score > bestScore) {
+      best = form;
+      bestScore = score;
+    }
+  }
+
+  if (!best || bestScore <= 0) return null;
+  return resolveApprovedFormById(best.id, targetLanguage);
+}
+
 export function resolveFormIntent(intentOrSlug, lang) {
   if (typeof intentOrSlug !== 'string' || !intentOrSlug.trim()) return null;
   if (ALL_FORMS.length === 0) return null;
@@ -474,6 +564,11 @@ export function resolveFormIntent(intentOrSlug, lang) {
     activeLanguage: resolvedLang,
   });
   if (byChildrenContent) return byChildrenContent;
+
+  const byDynamicContent = resolveDynamicFormByContent(normalizedIntent, {
+    activeLanguage: resolvedLang,
+  });
+  if (byDynamicContent) return byDynamicContent;
 
   return null;
 }

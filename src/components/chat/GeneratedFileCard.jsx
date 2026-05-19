@@ -4,6 +4,7 @@ import { FileText, ExternalLink, Download, Loader2 } from 'lucide-react';
 import { normalizeGeneratedFile } from './utils/normalizeGeneratedFile';
 import { downloadPdfFile } from './utils/downloadPdfFile';
 import { openFile } from './utils/openFile';
+import { getFormDownloadUrl, getFormOpenUrl } from './utils/formFileUrls';
 
 export { normalizeGeneratedFile };
 
@@ -17,18 +18,25 @@ export default function GeneratedFileCard({ generatedFile }) {
   const displayTitle = normalized.title || normalized.name;
   const description = normalized.description;
 
-  const handleOpen = () => {
-    openFile(normalized.url);
+  const handleOpen = async () => {
+    const openUrl = getFormOpenUrl(normalized.url);
+    if (!openUrl) return;
+    await openFile(openUrl);
   };
 
   const handleDownload = async () => {
     if (isDownloading) return;
     setIsDownloading(true);
     try {
-      await downloadPdfFile(normalized.url, normalized.name);
+      const downloadUrl = getFormDownloadUrl(normalized.url);
+      if (!downloadUrl) return;
+      await downloadPdfFile(downloadUrl, normalized.name);
     } catch (error) {
       console.error('[GeneratedFileCard] Download failed, opening in new tab:', error);
-      window.open(normalized.url, '_blank', 'noopener,noreferrer');
+      const fallbackUrl = getFormDownloadUrl(normalized.url);
+      if (fallbackUrl) {
+        window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
+      }
     } finally {
       setIsDownloading(false);
     }

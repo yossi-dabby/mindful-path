@@ -41,6 +41,11 @@ describe('openFile — source-code contract: no download attribute, uses _blank'
   it('returns early for falsy or non-string URL', () => {
     expect(openFileSrc).toContain("typeof url !== 'string'");
   });
+
+  it('uses Blob-based inline open path for same-origin URLs', () => {
+    expect(openFileSrc).toContain('fetch(');
+    expect(openFileSrc).toContain('URL.createObjectURL');
+  });
 });
 
 // ─── downloadPdfFile — source-code contract ───────────────────────────────────
