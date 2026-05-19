@@ -38,6 +38,11 @@ import ErrorBoundary from '../components/utils/ErrorBoundary';
 import { validateAgentOutput, sanitizeConversationMessages, parseCounters, serializeAttachmentMetadataMarker } from '../components/utils/validateAgentOutput.jsx';
 import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
 import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildV8SessionStartContentAsync, buildV9SessionStartContentAsync, buildV10SessionStartContentAsync, buildV11SessionStartContentAsync, buildV12SessionStartContentAsync, buildActionFirstDemotedSessionContentAsync, buildRuntimeSafetySupplement } from '@/lib/workflowContextInjector.js';
+import {
+  ensureTherapeuticFormsPolicyInjected,
+  getTherapeuticFormsPolicyPayload,
+  logTherapeuticFormsPolicyDiagnostic,
+} from '@/lib/therapeuticFormsPolicy.js';
 // Phase 4 / Phase 5 — Conversation memory write for V7 continuity
 import { triggerConversationEndSummarization, CONVERSATION_MIN_MESSAGES_FOR_MEMORY } from '@/lib/sessionEndSummarization.js';
 import { MOBILE_HEADER_HEIGHT } from '../components/layout/MobileHeader';
@@ -211,6 +216,7 @@ function resolveAttachmentType(fileName) {
 
 export default function Chat() {
   const { t, i18n } = useTranslation();
+  const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -258,6 +264,7 @@ export default function Chat() {
   const sessionLanguageRef = useRef(i18n.language || 'en');
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
+  const formsPolicyVersionCacheRef = useRef(new Map());
   const [visibleCount, setVisibleCount] = useState(50);
   const subscriptionActiveRef = useRef(false);
   const loadingTimeoutRef = useRef(null);
@@ -302,6 +309,21 @@ export default function Chat() {
   // Prevents double-writes when both a switch trigger and requestSummary fire for
   // the same conversation.
   const conversationMemoryWrittenRef = useRef(new Set());
+
+  const emitTherapeuticFormsSessionStartDiagnostic = (conversationId) => {
+    const { policyVersion, diagnostics } = getTherapeuticFormsPolicyPayload({
+      sessionLanguage: sessionLanguageRef.current,
+    });
+    if (conversationId) {
+      formsPolicyVersionCacheRef.current.set(conversationId, policyVersion);
+    }
+    logTherapeuticFormsPolicyDiagnostic('session-start', {
+      ...diagnostics,
+      conversationId: conversationId || null,
+      injected: true,
+      wasExistingConversation: false,
+    });
+  };
 
   // Reset visible window when conversation changes
   useEffect(() => {
@@ -696,6 +718,7 @@ export default function Chat() {
                   role: 'user',
                   content: addLangDirective(sessionStartContent, sessionLanguageRef.current)
                 });
+                emitTherapeuticFormsSessionStartDiagnostic(conversation.id);
                 inFlightIntentRef.current = false;
               }, 100);
             } else {
@@ -746,6 +769,7 @@ export default function Chat() {
                   role: 'user',
                   content: addLangDirective(sessionStartContent, sessionLanguageRef.current)
                 });
+                emitTherapeuticFormsSessionStartDiagnostic(conversation.id);
                 inFlightIntentRef.current = false;
               }, 100);
             } else {
@@ -1166,6 +1190,7 @@ export default function Chat() {
           addLangDirective(sessionStartContent, sessionLanguageRef.current) + '\n\n' + initialMessage :
           addLangDirective(sessionStartContent, sessionLanguageRef.current)
         });
+        emitTherapeuticFormsSessionStartDiagnostic(conversation.id);
       }, 100);
     } catch (error) {
       console.error('Error creating conversation:', error);
@@ -1190,7 +1215,7 @@ export default function Chat() {
       maybeTriggerEndWrite(leavingId, leavingMeta, messages);
       clearLocalAudioDraft();
 
-      const conversation = await base44.agents.getConversation(conversationId);
+      let conversation = await base44.agents.getConversation(conversationId);
       setCurrentConversationId(conversationId);
 
       // CRITICAL: Reset confirmed-messages baseline when switching conversations.
@@ -1208,6 +1233,18 @@ export default function Chat() {
       const firstUserMsg = (conversation.messages || []).find((m) => m.role === 'user' && m.content);
       const embeddedLang = firstUserMsg?.content?.match(/\[SESSION_LANGUAGE:\s*([a-zA-Z]{2})\b/)?.[1]?.toLowerCase();
       sessionLanguageRef.current = embeddedLang || i18n.language || 'en';
+
+      const policyRefresh = await ensureTherapeuticFormsPolicyInjected({
+        base44,
+        conversation,
+        sessionLanguage: sessionLanguageRef.current,
+        isNewConversation: false,
+        injectedVersionCache: formsPolicyVersionCacheRef.current,
+      });
+
+      if (policyRefresh.injected) {
+        conversation = await base44.agents.getConversation(conversationId);
+      }
 
       // Process and sanitize messages before setting
       const sanitized = sanitizeConversationMessages(conversation.messages || [], sessionLanguageRef.current);
@@ -1873,6 +1910,16 @@ export default function Chat() {
         return;
       }
 
+      if (!isNewConversation) {
+        await ensureTherapeuticFormsPolicyInjected({
+          base44,
+          conversation,
+          sessionLanguage: sessionLanguageRef.current,
+          isNewConversation: false,
+          injectedVersionCache: formsPolicyVersionCacheRef.current,
+        });
+      }
+
       console.log('[Send] 📤 Adding message to conversation:', convId);
 
       // When the user types their first message without clicking "Start Session",
@@ -1992,6 +2039,9 @@ export default function Chat() {
           file_urls: [attachmentMeta.url]
         } : {})
       });
+      if (isNewConversation) {
+        emitTherapeuticFormsSessionStartDiagnostic(convId);
+      }
       if (isVoiceDerivedSend) {
         clearLocalAudioDraft();
       }

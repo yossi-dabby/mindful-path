@@ -67,6 +67,32 @@ export const ALL_FORMS = buildCanonicalRegistry([
   ...GENERATED_THERAPEUTIC_FORMS_INDEX,
 ]);
 
+function hashStringFNV1a(input) {
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0');
+}
+
+function buildTherapeuticFormsPolicyVersion(forms) {
+  const serialized = forms
+    .map((form) => [
+      form?.id || '',
+      form?.language || '',
+      form?.audience || '',
+      form?.category || '',
+      form?.file_path || form?.filePath || form?.fileUrl || '',
+    ].join('|'))
+    .sort()
+    .join('\n');
+
+  return `forms-${forms.length}-${hashStringFNV1a(serialized)}`;
+}
+
+export const THERAPEUTIC_FORMS_POLICY_VERSION = buildTherapeuticFormsPolicyVersion(ALL_FORMS);
+
 const FORM_INDEX_SOURCE_PATH = 'src/generated/therapeutic-forms-index.json';
 const SUPPORTED_LANG_SET = new Set(SUPPORTED_LANGUAGES);
 const VALID_AUDIENCE_SET = new Set(VALID_AUDIENCE_VALUES);
@@ -120,6 +146,10 @@ function resolveEnvironmentLabel(environmentOverride) {
     return environmentOverride.trim();
   }
   return import.meta.env?.MODE || (import.meta.env?.PROD ? 'production' : 'unknown');
+}
+
+export function getTherapeuticFormsPolicyVersion() {
+  return THERAPEUTIC_FORMS_POLICY_VERSION;
 }
 
 export function getAllTherapeuticForms(options = {}) {

@@ -5,9 +5,15 @@ import { resolveFormWithLanguage } from '../../src/data/therapeuticForms/index.j
 import { FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL } from '../../src/data/therapeuticForms/forms.adolescents.cbt-core.en.js';
 import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_MODULE_PDFS } from '../../src/data/therapeuticForms/forms.adolescents.cbt-specialized.en.js';
 import { normalizeGeneratedFile } from '../../src/components/chat/utils/normalizeGeneratedFile.js';
-import { getFormDownloadUrl, getFormOpenUrl } from '../../src/components/chat/utils/formFileUrls.js';
+import {
+  getFormDownloadUrl,
+  getFormOpenUrl,
+  PDF_VIEWER_ROUTE_PATH,
+  resolvePdfViewerFileParam,
+} from '../../src/components/chat/utils/formFileUrls.js';
 
 const ROOT = '/home/runner/work/mindful-path/mindful-path';
+const packageJson = JSON.parse(fs.readFileSync(`${ROOT}/package.json`, 'utf8'));
 
 describe('openDownloadBehavior.test.js', () => {
   it('keeps runtime form catalog on the canonical adolescents package', () => {
@@ -43,9 +49,9 @@ describe('openFile — source-code contract: no download attribute, uses _blank'
     expect(openFileSrc).toContain("typeof url !== 'string'");
   });
 
-  it('uses Blob-based inline open path for same-origin URLs', () => {
-    expect(openFileSrc).toContain('fetch(');
-    expect(openFileSrc).toContain('URL.createObjectURL');
+  it('opens the prepared viewer URL directly without falling back to raw PDF fetch/open logic', () => {
+    expect(openFileSrc).not.toContain('fetch(');
+    expect(openFileSrc).not.toContain('URL.createObjectURL');
   });
 });
 
@@ -151,14 +157,44 @@ describe('normalizeGeneratedFile — Open vs Download URL contract', () => {
 });
 
 describe('formFileUrls — open/download URL separation', () => {
-  it('builds open URL without download query flag', () => {
+  it('builds open URL through the dedicated pdf viewer route', () => {
     const openUrl = getFormOpenUrl('/forms/children/en/cbt-core/individual/05-01-my-calm-plan.pdf?download=1');
-    expect(openUrl).toBe('/forms/children/en/cbt-core/individual/05-01-my-calm-plan.pdf');
+    expect(openUrl).toBe(`${PDF_VIEWER_ROUTE_PATH}?file=%2Fforms%2Fchildren%2Fen%2Fcbt-core%2Findividual%2F05-01-my-calm-plan.pdf`);
     expect(openUrl.includes('download=')).toBe(false);
   });
 
   it('builds download URL with explicit download query flag', () => {
     const downloadUrl = getFormDownloadUrl('/forms/children/en/cbt-core/individual/05-01-my-calm-plan.pdf');
     expect(downloadUrl).toBe('/forms/children/en/cbt-core/individual/05-01-my-calm-plan.pdf?download=1');
+  });
+
+  it('sanitizes the pdf viewer file param back to a servable public PDF path', () => {
+    expect(resolvePdfViewerFileParam('%2Fforms%2Fchildren%2Fen%2Fcbt-core%2Findividual%2F05-01-my-calm-plan.pdf%3Fdownload%3D1'))
+      .toBe('/forms/children/en/cbt-core/individual/05-01-my-calm-plan.pdf');
+    expect(resolvePdfViewerFileParam('%2Fprivate%2Fsecret.pdf')).toBeNull();
+  });
+});
+
+describe('pdf viewer route and build/source cache contracts', () => {
+  const appSrc = fs.readFileSync(`${ROOT}/src/App.jsx`, 'utf8');
+  const pagesConfigSrc = fs.readFileSync(`${ROOT}/src/pages.config.js`, 'utf8');
+
+  it('registers a dedicated /pdf-viewer route', () => {
+    expect(appSrc).toContain('path="/pdf-viewer"');
+  });
+
+  it('keeps Chat as a lazy-loaded route chunk', () => {
+    expect(pagesConfigSrc).toContain("const Chat = lazy(() => import('./pages/Chat'));");
+  });
+
+  it('regenerates the therapeutic forms index before dev, test, and build', () => {
+    expect(packageJson.scripts.predev).toBe('npm run generate:forms-index');
+    expect(packageJson.scripts.pretest).toBe('npm run generate:forms-index');
+    expect(packageJson.scripts.prebuild).toBe('npm run generate:forms-index');
+  });
+
+  it('does not register a service worker in the app shell', () => {
+    expect(appSrc).not.toContain('navigator.serviceWorker');
+    expect(appSrc).not.toContain('serviceWorker.register');
   });
 });
