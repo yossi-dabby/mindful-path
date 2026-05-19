@@ -18,6 +18,6 @@ export async function openFile(url) {
 
   const openedWindow = window.open(safeUrl, '_blank', 'noopener,noreferrer');
   if (!openedWindow) {
-    throw new Error('[openFile] Failed to open viewer window');
+    throw new Error('[openFile] Failed to open viewer window. Check popup blocker settings and try again.');
   }
 }

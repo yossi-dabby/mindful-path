@@ -72,11 +72,21 @@ export default function PdfViewer() {
   }, [safeFilePath]);
 
   const handleClose = () => {
-    if (window.history.length > 1) {
-      navigate(-1);
+    if (window.opener && !window.opener.closed) {
+      window.close();
       return;
     }
-    window.close();
+
+    try {
+      if (document.referrer && new URL(document.referrer).origin === window.location.origin) {
+        navigate(-1);
+        return;
+      }
+    } catch {
+      // no-op
+    }
+
+    navigate('/Chat');
   };
 
   return (

@@ -14,6 +14,8 @@ import {
 } from '../../src/lib/therapeuticFormsPolicy.js';
 import { resolveFormIntent } from '../../src/utils/resolveFormIntent.js';
 
+const CHILDREN_CBT_CORE_EN_WORKSHEET_COUNT = 30;
+
 describe('therapeutic forms policy reliability', () => {
   it('keeps the canonical therapeutic forms registry non-empty for the AI runtime', () => {
     expect(getAllTherapeuticForms().length).toBeGreaterThan(0);
@@ -125,7 +127,7 @@ describe('therapeutic forms resolver coverage', () => {
       form.type === 'individual_worksheet'
     );
 
-    expect(childrenCoreWorksheets).toHaveLength(30);
+    expect(childrenCoreWorksheets).toHaveLength(CHILDREN_CBT_CORE_EN_WORKSHEET_COUNT);
   });
 
   it('resolves known children CBT core worksheet aliases', () => {
