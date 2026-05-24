@@ -50,11 +50,30 @@ describe('aiFormsAccess deterministic list/search', () => {
     expect(forms.every((form) => form.audience === 'adolescents')).toBe(true);
   });
 
+  it('lists forms by language without collapsing global registry', () => {
+    const englishForms = listFormsForAI({ language: 'en' });
+    expect(englishForms.length).toBeGreaterThan(0);
+    expect(englishForms.every((form) => form.language === 'en')).toBe(true);
+    expect(getAllTherapeuticForms().length).toBeGreaterThan(0);
+  });
+
+  it('lists forms by category', () => {
+    const forms = listFormsForAI({ language: 'en', category: 'children_cbt_specialized' });
+    expect(forms.length).toBeGreaterThan(0);
+    expect(forms.every((form) => form.category === 'children_cbt_specialized')).toBe(true);
+  });
+
   it('searches children OCD intent', () => {
     const forms = searchFormsForAI('children OCD', { language: 'en', audience: 'children' });
     expect(forms.length).toBeGreaterThan(0);
     expect(forms[0].audience).toBe('children');
     expect(JSON.stringify(forms[0]).toLowerCase()).toContain('ocd');
+  });
+
+  it('searches by title content', () => {
+    const forms = searchFormsForAI('my calm plan', { language: 'en', audience: 'children' });
+    expect(forms.length).toBeGreaterThan(0);
+    expect(JSON.stringify(forms[0]).toLowerCase()).toContain('calm');
   });
 
   it('searches sticky thoughts and rituals into OCD matches', () => {
@@ -97,6 +116,12 @@ describe('aiFormsAccess deterministic list/search', () => {
     const forms = searchFormsForAI('separation anxiety school goodbye', { language: 'en', audience: 'children' });
     expect(forms.length).toBeGreaterThan(0);
     expect(JSON.stringify(forms[0]).toLowerCase()).toMatch(/separation|goodbye|school/);
+  });
+
+  it('searches by ai matching summary content', () => {
+    const forms = searchFormsForAI('stop take a breath choose a calmer next step', { language: 'en', audience: 'children' });
+    expect(forms.length).toBeGreaterThan(0);
+    expect(JSON.stringify(forms[0]).toLowerCase()).toMatch(/breath|calmer|step/);
   });
 });
 
@@ -150,6 +175,13 @@ describe('aiFormsAccess deterministic send + language behavior', () => {
     const resolved = resolveFormForAIRequest('Send me any CBT form', { language: undefined });
     expect(resolved.stats.total).toBeGreaterThan(0);
     expect((resolved.generatedFile || resolved.nearestMatches.length > 0)).toBeTruthy();
+  });
+
+  it('handles unsupported language without crashing and keeps deterministic access', () => {
+    const resolved = resolveFormForAIRequest('Send me any CBT form', { language: 'ru' });
+    expect(resolved.stats.total).toBeGreaterThan(0);
+    expect(typeof resolved.responseText).toBe('string');
+    expect(resolved.generatedFile || resolved.nearestMatches.length > 0).toBeTruthy();
   });
 
   it('returns nearest matches when exact match is missing', () => {

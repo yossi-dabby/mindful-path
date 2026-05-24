@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "generate:forms-index": "node scripts/generate-therapeutic-forms-index.mjs",
+    "check:forms-index": "node scripts/check-therapeutic-forms-index.mjs",
     "predev": "npm run generate:forms-index",
     "prebuild": "npm run generate:forms-index",
     "pretest": "npm run generate:forms-index",
