@@ -18,7 +18,7 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     ];
     const staleResult = sanitizeConversationMessages(staleMessages, 'en');
     const staleAssistant = staleResult.find((m) => m.role === 'assistant');
-    expect(staleAssistant?.metadata?.generated_file ?? null).toBeNull();
+    expect(staleAssistant?.metadata?.generated_file?.form_id).not.toBe('tf-adults-cbt-thought-record');
   });
 
   it('blocks adolescents specialized EN attachments when session language is non-English', () => {

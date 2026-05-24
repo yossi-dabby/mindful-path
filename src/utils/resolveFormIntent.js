@@ -733,13 +733,15 @@ export function resolveFormIntent(intentOrSlug, lang) {
   });
   if (byDynamicContent) return byDynamicContent;
 
-  const byRegistrySearch = resolveFormForAIRequest(intentOrSlug, {
-    activeLanguage: resolvedLang,
-    force: true,
-    limit: 5,
-  });
-  if (byRegistrySearch?.form) {
-    return createGeneratedFileFromResolvedForm(byRegistrySearch.form);
+  const looksLikeIdentifier = /^[a-z0-9_-]+$/.test(normalizedIntent);
+  if (!looksLikeIdentifier) {
+    const byRegistrySearch = resolveFormForAIRequest(intentOrSlug, {
+      activeLanguage: resolvedLang,
+      limit: 5,
+    });
+    if (byRegistrySearch?.form) {
+      return createGeneratedFileFromResolvedForm(byRegistrySearch.form);
+    }
   }
 
   return null;
