@@ -27,6 +27,9 @@ jobs:
       - name: Install dependencies
         run: npm ci --fetch-retries=5 --fetch-retry-factor=2
 
+      - name: Validate therapeutic forms index
+        run: npm run check:forms-index
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
@@ -120,6 +123,9 @@ jobs:
       - name: Install dependencies
         run: npm ci --fetch-retries=5 --fetch-retry-factor=2
 
+      - name: Validate therapeutic forms index
+        run: npm run check:forms-index
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
@@ -187,7 +193,6 @@ jobs:
           name: test-results-${{ matrix.project }}
           path: test-results/
           retention-days: 7
-
 
 
 

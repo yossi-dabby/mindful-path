@@ -468,9 +468,10 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
   const groups = getAvailableFormGroups(filters);
   const languagesText = groups.languages.length > 0 ? groups.languages.join(', ') : 'none';
   const categoriesText = groups.categories.length > 0 ? groups.categories.join(', ') : 'none';
+  const hasSameLanguageForms = groups.languages.includes(activeLanguage);
   const fallbackNote = requestedLanguage === 'en' || activeLanguage === 'en'
     ? ''
-    : (groups.languages.includes(activeLanguage) ? '' : '\nI currently found available worksheets in English.');
+    : (hasSameLanguageForms ? '' : `\nI currently found available worksheets in: ${languagesText}.`);
 
   const listText = [
     `I found ${groups.total} approved forms in this scope.`,
@@ -489,7 +490,7 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
 
   const sendText = generatedFile
     ? (generatedFile.language !== activeLanguage && !requestedLanguage
-      ? 'I found an English worksheet match and attached it. If you prefer a different language, tell me which one.'
+      ? `I found a worksheet match and attached it in ${generatedFile.language.toUpperCase()}. Available languages in this scope: ${languagesText}. If you prefer a different language, tell me which one.`
       : 'I found a matching worksheet and attached it.')
     : `I couldn't find an exact sendable match yet. Here are nearby options:\n${formatNearestMatches(nearestMatches) || '- none found'}`;
 

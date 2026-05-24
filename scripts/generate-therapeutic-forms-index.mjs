@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 import { FORMS_ADOLESCENTS_CBT_CORE_EN } from '../src/data/therapeuticForms/forms.adolescents.cbt-core.en.js';
 import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN } from '../src/data/therapeuticForms/forms.adolescents.cbt-specialized.en.js';
@@ -11,6 +12,7 @@ const PUBLIC_DIR = path.join(ROOT, 'public');
 const OUTPUT_FILE = path.join(ROOT, 'src/generated/therapeutic-forms-index.json');
 
 const KNOWN_AUDIENCES = new Set(['children', 'adolescents', 'adults', 'older_adults', 'parents']);
+const SUPPORTED_FORM_LANGUAGES = new Set(['en', 'he', 'es', 'fr', 'de', 'it', 'pt']);
 const KNOWN_CATEGORIES = new Set([
   'children_cbt_core',
   'children_cbt_specialized',
@@ -319,27 +321,68 @@ function buildFallbackEntries(existingByFileUrl, manifestByFileUrl) {
   return entries;
 }
 
-function validateEntries(entries) {
+function normalizeLanguageCode(language) {
+  if (typeof language !== 'string' || !language.trim()) return null;
+  const normalized = language.trim().toLowerCase();
+  const base = normalized.split('-')[0];
+  return SUPPORTED_FORM_LANGUAGES.has(base) ? base : null;
+}
+
+function hasAIMatchingMetadata(entry) {
+  const summary = String(entry?.ai_matching_summary || entry?.aiMatchingSummary || '').trim();
+  const goal = String(entry?.therapeutic_goal || entry?.therapeuticGoal || '').trim();
+  const whenToUse = String(entry?.when_to_use || entry?.whenToUse || '').trim();
+  const keywords = Array.isArray(entry?.keywords)
+    ? entry.keywords
+    : (Array.isArray(entry?.clinicalKeywords) ? entry.clinicalKeywords : []);
+  return Boolean(summary || goal || whenToUse || keywords.length > 0);
+}
+
+export function validateEntries(entries) {
   const seenIds = new Set();
-  const missingFiles = [];
+  const errors = [];
 
   for (const entry of entries) {
-    if (!entry?.id) throw new Error('Entry missing id');
-    if (seenIds.has(entry.id)) throw new Error(`Duplicate therapeutic form id: ${entry.id}`);
+    if (!entry?.id) {
+      errors.push('Entry missing id');
+      continue;
+    }
+    if (seenIds.has(entry.id)) errors.push(`Duplicate therapeutic form id: ${entry.id}`);
     seenIds.add(entry.id);
 
-    if (!entry.language) throw new Error(`Entry ${entry.id} missing language`);
-    if (!entry.audience) throw new Error(`Entry ${entry.id} missing audience`);
-    if (!entry.category) throw new Error(`Entry ${entry.id} missing category`);
+    if (!entry.language) {
+      errors.push(`Entry ${entry.id} missing language`);
+    } else if (!normalizeLanguageCode(entry.language)) {
+      errors.push(`Entry ${entry.id} has unsupported language code: ${entry.language}`);
+    }
+    if (!entry.audience) {
+      errors.push(`Entry ${entry.id} missing audience`);
+    } else if (!KNOWN_AUDIENCES.has(entry.audience)) {
+      errors.push(`Entry ${entry.id} has invalid audience value: ${entry.audience}`);
+    }
+    if (!entry.category) errors.push(`Entry ${entry.id} missing category`);
+    if (!hasAIMatchingMetadata(entry)) {
+      errors.push(`Entry ${entry.id} missing AI matching metadata (ai_matching_summary/therapeutic_goal/when_to_use/keywords)`);
+    }
 
-    const absolute = path.join(ROOT, entry.filePath || entry.file_path || '');
+    const filePath = entry.filePath || entry.file_path;
+    if (!filePath) {
+      errors.push(`Entry ${entry.id} missing file path`);
+      continue;
+    }
+    if (!String(filePath).startsWith('public/forms/')) {
+      errors.push(`Entry ${entry.id} file path must be under public/forms: ${filePath}`);
+      continue;
+    }
+
+    const absolute = path.join(ROOT, filePath);
     if (!fs.existsSync(absolute)) {
-      missingFiles.push(`${entry.id} -> ${entry.filePath || entry.file_path}`);
+      errors.push(`Entry ${entry.id} references missing file path: ${filePath}`);
     }
   }
 
-  if (missingFiles.length > 0) {
-    throw new Error(`Therapeutic forms index contains missing files:\n${missingFiles.join('\n')}`);
+  if (errors.length > 0) {
+    throw new Error(`Therapeutic forms index validation failed:\n${errors.join('\n')}`);
   }
 }
 
@@ -383,4 +426,10 @@ function main() {
   console.log('[forms-index] by audience:', countsByAudience);
 }
 
-main();
+const isDirectExecution = process.argv[1]
+  ? import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href
+  : false;
+
+if (isDirectExecution) {
+  main();
+}

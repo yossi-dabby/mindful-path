@@ -27,6 +27,9 @@ jobs:
       
       - name: Install dependencies
         run: npm ci
+
+      - name: Validate therapeutic forms index
+        run: npm run check:forms-index
       
       - name: Build application
         run: npm run build
@@ -63,5 +66,4 @@ jobs:
           name: coverage
           path: coverage/
           retention-days: 30
-
 
