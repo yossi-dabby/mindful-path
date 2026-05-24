@@ -264,6 +264,35 @@ function stripFormRouterContextBlock(content) {
   return content.replace(/\n?\[FORM_ROUTER_CONTEXT\][\s\S]*$/, '').trim();
 }
 
+function getVisibleUserContentForIntent(rawContent) {
+  if (typeof rawContent !== 'string') return '';
+  let content = rawContent.trim();
+  if (!content || content.startsWith(THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER)) return '';
+
+  if (content.startsWith('[START_SESSION]')) {
+    const lastEndMarkerMatch = content.match(/=== END [^\n]+ ===/g);
+    let splitPos = -1;
+
+    if (lastEndMarkerMatch) {
+      const lastMarker = lastEndMarkerMatch[lastEndMarkerMatch.length - 1];
+      const lastMarkerIdx = content.lastIndexOf(lastMarker);
+      const sepIdx = content.indexOf('\n\n', lastMarkerIdx + lastMarker.length);
+      if (sepIdx !== -1) splitPos = sepIdx;
+    } else {
+      const firstSep = content.indexOf('\n\n');
+      if (firstSep !== -1) splitPos = firstSep;
+    }
+
+    if (splitPos === -1) return '';
+    content = content.substring(splitPos + 2).trim();
+  }
+
+  const { content: contentWithoutAttachmentMarker } = extractAttachmentMetadataFromUserContent(content);
+  return stripFormRouterContextBlock(
+    stripAttachmentContextBlock(contentWithoutAttachmentMarker)
+  );
+}
+
 function hasFormRefusalLikeContent(content) {
   const sanitized = typeof content === 'string' ? content : '';
   return FORM_REFUSAL_PATTERNS.some((pattern) => pattern.test(sanitized));
@@ -997,10 +1026,18 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
       // Workbook routing priority context:
       // The user message at index-1 is the triggering query for this assistant response.
       // Collect older user messages for anaphoric context (e.g. "קונטרס אחר לזה?").
-      const triggeringUserMsg =
+      const rawTriggeringUserMsg =
         previousMessage?.role === 'user' && typeof previousMessage?.content === 'string'
           ? previousMessage.content
           : null;
+      const triggeringUserMsg = rawTriggeringUserMsg ? getVisibleUserContentForIntent(rawTriggeringUserMsg) : null;
+      const hasDeterministicFormRouterContext =
+        typeof rawTriggeringUserMsg === 'string' && rawTriggeringUserMsg.includes('[FORM_ROUTER_CONTEXT]');
+      const isSessionInjectedTriggeringMessage =
+        typeof rawTriggeringUserMsg === 'string' && rawTriggeringUserMsg.trim().startsWith('[START_SESSION]');
+      const isTherapeuticFormsPolicyRefreshMessage =
+        typeof rawTriggeringUserMsg === 'string' &&
+        rawTriggeringUserMsg.trim().startsWith(THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER);
       const previousUserContext =
         // Space-joining is sufficient: workbook routing only does substring matching
         // against Hebrew keywords, so word boundaries between joined messages are fine.
@@ -1010,9 +1047,18 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
           .map(m => m.content)
           .slice(-2)
           .join(' ') || null;
-      const deterministicFormRoute = resolveFormIntentRequest(triggeringUserMsg || '', {
-        language: effectiveLang,
-      });
+      const deterministicFormRoute =
+        (
+          !triggeringUserMsg ||
+          (
+            !hasDeterministicFormRouterContext &&
+            (isSessionInjectedTriggeringMessage || isTherapeuticFormsPolicyRefreshMessage)
+          )
+        )
+        ? null
+        : resolveFormIntentRequest(triggeringUserMsg || '', {
+          language: effectiveLang,
+        });
 
       const validated = validateAgentOutput(msg.content);
       
