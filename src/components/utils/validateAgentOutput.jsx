@@ -270,6 +270,8 @@ function hasFormRefusalLikeContent(content) {
 }
 
 function applyDeterministicFormRouteToAssistant({ content, metadata, formRoute }) {
+  // Guard only applies when the canonical registry is non-empty; when empty,
+  // this function remains no-op so standard fallback copy can be used upstream.
   if (!formRoute?.intent || !formRoute?.stats || formRoute.stats.total <= 0) {
     return {
       content,
@@ -285,10 +287,10 @@ function applyDeterministicFormRouteToAssistant({ content, metadata, formRoute }
 
   const deterministicText = typeof formRoute.responseText === 'string' ? formRoute.responseText.trim() : '';
   const shouldForceDeterministicText =
-    intentType?.startsWith('list_') ||
+    intentType.startsWith('list_') ||
     intentType === 'search_forms_by_need' ||
     hasFormRefusalLikeContent(content) ||
-    (intentType?.startsWith('send_') && !nextMetadata.generated_file);
+    (intentType.startsWith('send_') && !nextMetadata.generated_file);
 
   nextMetadata.deterministic_form_route = {
     intent_type: intentType,
