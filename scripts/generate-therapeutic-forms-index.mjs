@@ -4,6 +4,7 @@ import path from 'node:path';
 import { FORMS_ADOLESCENTS_CBT_CORE_EN } from '../src/data/therapeuticForms/forms.adolescents.cbt-core.en.js';
 import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN } from '../src/data/therapeuticForms/forms.adolescents.cbt-specialized.en.js';
 import { FORMS_CHILDREN_CBT_CORE_EN } from '../src/data/therapeuticForms/forms.children.cbt-core.en.js';
+import { FORMS_CHILDREN_CBT_SPECIALIZED } from '../src/data/therapeuticForms/forms.children.cbt-specialized.js';
 
 const ROOT = process.cwd();
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -12,6 +13,7 @@ const OUTPUT_FILE = path.join(ROOT, 'src/generated/therapeutic-forms-index.json'
 const KNOWN_AUDIENCES = new Set(['children', 'adolescents', 'adults', 'older_adults', 'parents']);
 const KNOWN_CATEGORIES = new Set([
   'children_cbt_core',
+  'children_cbt_specialized',
   'adolescents_cbt_core',
   'adolescents_cbt_specialized',
   'workbook_series',
@@ -150,6 +152,7 @@ function buildCuratedEntries(manifestByFileUrl) {
     ...FORMS_ADOLESCENTS_CBT_CORE_EN,
     ...FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN,
     ...FORMS_CHILDREN_CBT_CORE_EN,
+    ...FORMS_CHILDREN_CBT_SPECIALIZED,
   ].filter((form) => form?.approved === true);
 
   const entries = [];

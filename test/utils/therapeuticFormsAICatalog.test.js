@@ -84,4 +84,24 @@ describe('therapeuticFormsAICatalog.test.js', () => {
       expect(specializedIds).toContain(`${SPECIALIZED_SERIES_ID}-module-${code}`);
     }
   });
+
+  it('includes children specialized EN forms with rich metadata in therapist catalog', () => {
+    const catalog = buildTherapistFormCatalog(ALL_FORMS);
+    const childrenSpecialized = ALL_FORMS.filter(
+      (form) =>
+        form.audience === 'children' &&
+        form.language === 'en' &&
+        form.category === 'children_cbt_specialized'
+    );
+
+    expect(childrenSpecialized.length).toBe(165);
+    expect(childrenSpecialized.filter((form) => form.type === 'module_pdf')).toHaveLength(15);
+    expect(childrenSpecialized.filter((form) => form.type === 'individual_worksheet')).toHaveLength(150);
+
+    expect(catalog).toContain('[FORM:children-cbt-specialized-en-module-1-1]');
+    expect(catalog).toContain('[FORM:children-cbt-specialized-en-module-4-2]');
+    expect(catalog).toContain('[FORM:children-cbt-specialized-en-module-5-3]');
+    expect(catalog.toLowerCase()).toContain('trauma-sensitive coping');
+    expect(catalog.toLowerCase()).toContain('enuresis stress support');
+  });
 });
