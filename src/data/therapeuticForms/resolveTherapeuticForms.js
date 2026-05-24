@@ -223,11 +223,29 @@ export function toGeneratedFileMetadata(resolved) {
   const { form, language, languageData } = resolved;
   if (!form || !language || !languageData) return null;
   if (!languageData.file_url || !languageData.file_name || !languageData.title) return null;
+  const openUrl = languageData.file_url.startsWith('/')
+    ? `/pdf-viewer?file=${encodeURIComponent(String(languageData.file_url).replace(/[?&]download=1\b/g, ''))}`
+    : languageData.file_url;
+  const downloadUrl = (() => {
+    if (!languageData.file_url.startsWith('/')) return languageData.file_url;
+    try {
+      const parsed = new URL(languageData.file_url, 'https://example.local');
+      parsed.searchParams.set('download', '1');
+      return parsed.pathname + parsed.search + parsed.hash;
+    } catch {
+      return languageData.file_url.includes('?')
+        ? `${languageData.file_url}&download=1`
+        : `${languageData.file_url}?download=1`;
+    }
+  })();
 
   return {
     type: 'pdf',
+    mime_type: 'application/pdf',
+    id: form.id || null,
     url: languageData.file_url,
     name: languageData.file_name,
+    filename: languageData.file_name,
     title: languageData.title,
     description: languageData.description || null,
     therapeutic_purpose: form.therapeutic_use || null,
@@ -236,10 +254,21 @@ export function toGeneratedFileMetadata(resolved) {
     form_slug: form.slug,
     audience: form.audience,
     category: form.category,
+    subcategory: form.subcategory || form.series || form.moduleTitle || null,
     language,
+    file_path: form.filePath || form.file_path || `public${languageData.file_url}`,
+    openUrl,
+    open_url: openUrl,
+    downloadUrl,
+    download_url: downloadUrl,
     parentSeriesId: form.parentSeriesId || null,
     formNumber: form.formNumber || null,
+    worksheet_number: form.worksheetNumber || form.worksheet_number || form.formNumber || null,
     stageNumber: form.stageNumber || null,
+    therapeutic_goal: form.therapeuticGoal || form.therapeutic_goal || null,
+    when_to_use: form.whenToUse || form.when_to_use || null,
+    ai_matching_summary: form.aiMatchingSummary || form.ai_matching_summary || null,
+    safety_notes: form.safetyNotes || form.safety_notes || null,
     created_at: new Date().toISOString(),
   };
 }

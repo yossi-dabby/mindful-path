@@ -6,6 +6,8 @@ import {
   resolveFormWithLanguage,
   toGeneratedFileMetadata,
   ALL_FORMS,
+  resolveFormForAIRequest,
+  createGeneratedFileFromResolvedForm,
 } from '../data/therapeuticForms/index.js';
 
 const ADOLESCENTS_CBT_CORE_EN_ID = 'adolescents-cbt-core-en';
@@ -730,6 +732,15 @@ export function resolveFormIntent(intentOrSlug, lang) {
     activeLanguage: resolvedLang,
   });
   if (byDynamicContent) return byDynamicContent;
+
+  const byRegistrySearch = resolveFormForAIRequest(intentOrSlug, {
+    activeLanguage: resolvedLang,
+    force: true,
+    limit: 5,
+  });
+  if (byRegistrySearch?.form) {
+    return createGeneratedFileFromResolvedForm(byRegistrySearch.form);
+  }
 
   return null;
 }

@@ -41,4 +41,20 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     expect(assistant?.metadata?.generated_file?.form_id).toBe('children-cbt-core-en-5-1');
     expect(String(assistant?.metadata?.generated_file?.url || '')).toContain('/forms/children/en/cbt-core/children_cbt_core_en_05_01.pdf');
   });
+
+  it('deterministically attaches a registry form for send-requests even when assistant omits [FORM] marker', () => {
+    const messages = [
+      { role: 'user', content: 'Send me a child worksheet for anger outbursts', metadata: { session_language: 'en' } },
+      { role: 'assistant', content: JSON.stringify({ assistant_message: 'Absolutely — I found a strong match and attached it below.' }) },
+    ];
+    const result = sanitizeConversationMessages(messages, 'en');
+    const assistant = result.find((m) => m.role === 'assistant');
+    const generated = assistant?.metadata?.generated_file;
+
+    expect(generated).toBeTruthy();
+    expect(generated.form_id).toBeTruthy();
+    expect(generated.audience).toBe('children');
+    expect(generated.language).toBe('en');
+    expect(String(generated.url || '')).toContain('/forms/');
+  });
 });

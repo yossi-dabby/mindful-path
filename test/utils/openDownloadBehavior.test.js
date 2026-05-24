@@ -73,6 +73,7 @@ describe('downloadPdfFile — source-code contract: uses download attribute', ()
 
 describe('GeneratedFileCard — Open vs Download source-code contract', () => {
   const cardSrc = fs.readFileSync(`${ROOT}/src/components/chat/GeneratedFileCard.jsx`, 'utf8');
+  const formsPageSrc = fs.readFileSync(`${ROOT}/src/pages/TherapeuticForms.jsx`, 'utf8');
 
   it('Open button calls openFile (not downloadPdfFile)', () => {
     expect(cardSrc).toContain('handleOpen');
@@ -87,6 +88,11 @@ describe('GeneratedFileCard — Open vs Download source-code contract', () => {
   it('Open button does not set download attribute in openFile helper', () => {
     const openFileSrc = fs.readFileSync(`${ROOT}/src/components/chat/utils/openFile.js`, 'utf8');
     expect(openFileSrc).not.toContain('.download =');
+  });
+
+  it('Therapeutic forms page routes download action through getFormDownloadUrl', () => {
+    expect(formsPageSrc).toContain('getFormDownloadUrl');
+    expect(formsPageSrc).toContain('downloadPdfFile(downloadUrl');
   });
 });
 

@@ -20,7 +20,12 @@ import {
   resolveEnglishWorkbookIntentWithContext,
   resolveSpanishWorkbookIntentWithContext,
 } from '../../utils/resolveWorkbookIntent.js';
-import { getAllTherapeuticForms, SUPPORTED_LANGUAGES } from '../../data/therapeuticForms/index.js';
+import {
+  getAllTherapeuticForms,
+  SUPPORTED_LANGUAGES,
+  resolveFormForAIRequest,
+  createGeneratedFileFromResolvedForm,
+} from '../../data/therapeuticForms/index.js';
 import { THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER } from '../../lib/therapeuticFormsPolicy.js';
 
 // Safety patterns to detect and strip
@@ -165,8 +170,16 @@ const NO_FORMS_ACCESS_PATTERNS = [
   /\b(?:i\s+(?:do not|don't|have no)\s+(?:currently\s+)?(?:have\s+)?access\s+to\s+(?:the\s+)?(?:therapeutic\s+)?forms?)\b/i,
   /\b(?:i\s+(?:cannot|can't|am unable to)\s+access\s+(?:the\s+)?(?:therapeutic\s+)?forms?)\b/i,
   /\b(?:i\s+(?:do not|don't|have no)\s+(?:currently\s+)?(?:have\s+)?access\s+to\s+(?:any\s+)?worksheets?)\b/i,
+  /\b(?:technical\s+issue|technical\s+problem)\b.{0,40}\b(?:forms?|worksheets?)\b/i,
+  /\b(?:unable|can't|cannot)\s+to\s+(?:retrieve|list|send|access)\s+(?:the\s+)?(?:forms?|worksheets?)\b/i,
+  /\b(?:cannot|can't|unable to)\s+directly\s+send\s+(?:the\s+)?(?:forms?|worksheets?)\b/i,
 ];
 const THERAPEUTIC_FORMS_ACCESS_CORRECTION = 'I can use the installed therapeutic forms catalog. Tell me the worksheet number, form name, language, or goal and I’ll look for the closest approved match.';
+const FORM_LISTING_QUERY_PATTERNS = [
+  /\bwhat\s+forms?\s+do\s+you\s+have\b/i,
+  /\blist\s+(?:all\s+)?(?:forms?|worksheets?)\b/i,
+  /\bwhich\s+forms?\s+(?:are\s+)?available\b/i,
+];
 
 /**
  * Normalizes a language code to a supported app language code.
@@ -800,6 +813,28 @@ function extractAndResolveFormIntent(content, lang, userQuery, previousUserConte
         }
       } catch (_fallbackErr) {
         // Fail-open: keep plain assistant text if fallback routing throws
+      }
+    }
+
+    const shouldSkipDeterministicAttach =
+      typeof userQuery === 'string' &&
+      FORM_LISTING_QUERY_PATTERNS.some((pattern) => pattern.test(userQuery));
+
+    if (
+      !resolvedGeneratedFile &&
+      !shouldSkipDeterministicAttach &&
+      typeof userQuery === 'string' &&
+      userQuery.trim()
+    ) {
+      const deterministicResolution = resolveFormForAIRequest(userQuery, {
+        sessionLanguage: lang || 'en',
+        previousContext: previousUserContext || null,
+      });
+      if (deterministicResolution?.form) {
+        const deterministicGeneratedFile = createGeneratedFileFromResolvedForm(deterministicResolution.form);
+        if (deterministicGeneratedFile) {
+          resolvedGeneratedFile = deterministicGeneratedFile;
+        }
       }
     }
 

@@ -116,6 +116,16 @@ describe('therapeutic forms policy reliability', () => {
     expect(sanitized[0].content).toContain('installed therapeutic forms catalog');
     expect(sanitized[0].content.toLowerCase()).not.toContain('no access to therapeutic forms');
   });
+
+  it('replaces false technical-issue forms replies when registry is non-empty', () => {
+    const sanitized = sanitizeConversationMessages([
+      { role: 'assistant', content: 'I have a technical issue and cannot retrieve forms right now.' },
+    ], 'en');
+
+    expect(sanitized[0].content).toContain('installed therapeutic forms catalog');
+    expect(sanitized[0].content.toLowerCase()).not.toContain('technical issue');
+    expect(sanitized[0].content.toLowerCase()).not.toContain('cannot retrieve forms');
+  });
 });
 
 describe('therapeutic forms resolver coverage', () => {

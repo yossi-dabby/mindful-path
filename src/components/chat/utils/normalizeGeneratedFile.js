@@ -50,6 +50,16 @@ export function normalizeGeneratedFile(raw) {
   const audience   = typeof raw.audience === 'string' && raw.audience.trim() ? raw.audience.trim() : null;
   const category   = typeof raw.category === 'string' && raw.category.trim() ? raw.category.trim() : null;
   const language   = typeof raw.language === 'string' && raw.language.trim() ? raw.language.trim() : null;
+  const subcategory = typeof raw.subcategory === 'string' && raw.subcategory.trim() ? raw.subcategory.trim() : null;
+  const filePath = typeof raw.file_path === 'string' && raw.file_path.trim() ? raw.file_path.trim() : null;
+  const mimeType = typeof raw.mime_type === 'string' && raw.mime_type.trim() ? raw.mime_type.trim() : null;
+  const openUrl = typeof (raw.open_url || raw.openUrl) === 'string' && String(raw.open_url || raw.openUrl).trim()
+    ? String(raw.open_url || raw.openUrl).trim()
+    : null;
+  const downloadUrl = typeof (raw.download_url || raw.downloadUrl) === 'string' && String(raw.download_url || raw.downloadUrl).trim()
+    ? String(raw.download_url || raw.downloadUrl).trim()
+    : null;
+  const worksheetNumber = raw.worksheet_number ?? null;
 
   const result = {
     type: 'pdf',
@@ -68,6 +78,12 @@ export function normalizeGeneratedFile(raw) {
   if (audience) result.audience  = audience;
   if (category) result.category  = category;
   if (language) result.language  = language;
+  if (subcategory) result.subcategory = subcategory;
+  if (filePath) result.file_path = filePath;
+  if (mimeType) result.mime_type = mimeType;
+  if (openUrl) result.open_url = openUrl;
+  if (downloadUrl) result.download_url = downloadUrl;
+  if (worksheetNumber != null) result.worksheet_number = worksheetNumber;
 
   return result;
 }

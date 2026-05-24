@@ -18,7 +18,7 @@ import {
 } from '@/data/therapeuticForms/forms.children.cbt-core.en.js';
 import { openFile } from '@/components/chat/utils/openFile';
 import { downloadPdfFile } from '@/components/chat/utils/downloadPdfFile';
-import { getFormOpenUrl } from '@/components/chat/utils/formFileUrls';
+import { getFormOpenUrl, getFormDownloadUrl } from '@/components/chat/utils/formFileUrls';
 
 export function resolveLibraryFormWithLanguage(form, lang) {
   const resolved = resolveFormWithLanguage(form.id, lang);
@@ -334,10 +334,13 @@ export default function TherapeuticForms() {
 
   const handleDownloadForm = async (fileUrl, fileName) => {
     try {
-      await downloadPdfFile(fileUrl, fileName);
+      const downloadUrl = getFormDownloadUrl(fileUrl);
+      if (!downloadUrl) return;
+      await downloadPdfFile(downloadUrl, fileName);
     } catch (error) {
       console.error('[TherapeuticForms] Download failed, opening in new tab:', error);
-      window.open(fileUrl, '_blank', 'noopener,noreferrer');
+      const fallbackUrl = getFormDownloadUrl(fileUrl) || fileUrl;
+      window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
     }
   };
 

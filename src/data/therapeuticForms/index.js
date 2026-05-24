@@ -125,6 +125,200 @@ const AUDIENCE_ALIAS_MAP = Object.freeze({
   parent: 'parents',
   parents: 'parents',
 });
+const LANGUAGE_DETECTION_TERMS = Object.freeze([
+  ['en', ['english', 'in english', 'אנגלית', 'באנגלית']],
+  ['he', ['hebrew', 'עברית', 'בעברית']],
+  ['es', ['spanish', 'español', 'בספרדית']],
+  ['fr', ['french', 'français', 'בצרפתית']],
+  ['de', ['german', 'deutsch', 'בגרמנית']],
+  ['it', ['italian', 'italiano', 'באיטלקית']],
+  ['pt', ['portuguese', 'português', 'בפורטוגזית']],
+]);
+const AUDIENCE_DETECTION_TERMS = Object.freeze([
+  ['children', ['children', 'child', 'kids', 'kid', 'ילד', 'ילדה', 'ילדים', 'ילדות']],
+  ['adolescents', ['adolescent', 'adolescents', 'teen', 'teens', 'teenager', 'teenagers', 'נוער', 'מתבגר', 'מתבגרים', 'נער', 'נערה']],
+  ['adults', ['adult', 'adults', 'מבוגר', 'מבוגרים']],
+  ['older_adults', ['older adults', 'older adult', 'senior', 'seniors', 'elderly', 'גיל שלישי']],
+  ['parents', ['parent', 'parents', 'הורה', 'הורים']],
+]);
+const FORM_REQUEST_TERMS = Object.freeze([
+  'form',
+  'forms',
+  'worksheet',
+  'worksheets',
+  'workbook',
+  'sheet',
+  'pdf',
+  'send',
+  'share',
+  'recommend',
+  'need',
+  'טופס',
+  'טפסים',
+  'דף',
+  'דפים',
+  'חוברת',
+  'שלח',
+  'תשלח',
+  'תשלחי',
+  'שתף',
+  'שתפי',
+]);
+const AI_SEARCH_MIN_TERM_LENGTH = 2;
+
+function normalizeFreeText(value) {
+  return String(value || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[_-]+/g, ' ')
+    .replace(/[^\p{L}\p{N}\s./]+/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function tokenizeSearchText(value) {
+  return normalizeFreeText(value)
+    .split(/\s+/)
+    .map((token) => token.trim())
+    .filter((token) => token.length >= AI_SEARCH_MIN_TERM_LENGTH);
+}
+
+function toArray(value) {
+  return Array.isArray(value) ? value.filter(Boolean) : [];
+}
+
+function normalizeCategoryFilter(category) {
+  if (typeof category !== 'string' || !category.trim()) return null;
+  return category.trim().toLowerCase().replace(/-/g, '_');
+}
+
+function normalizeSubcategoryFilter(subcategory) {
+  if (typeof subcategory !== 'string' || !subcategory.trim()) return null;
+  return subcategory.trim().toLowerCase();
+}
+
+function detectLanguageFromText(text) {
+  const normalized = normalizeFreeText(text);
+  if (!normalized) return null;
+  for (const [languageCode, terms] of LANGUAGE_DETECTION_TERMS) {
+    if (terms.some((term) => normalized.includes(normalizeFreeText(term)))) return languageCode;
+  }
+  return null;
+}
+
+function detectAudienceFromText(text) {
+  const normalized = normalizeFreeText(text);
+  if (!normalized) return null;
+  for (const [audience, terms] of AUDIENCE_DETECTION_TERMS) {
+    if (terms.some((term) => normalized.includes(normalizeFreeText(term)))) return audience;
+  }
+  return null;
+}
+
+function hasFormRequestSignal(text) {
+  const normalized = normalizeFreeText(text);
+  if (!normalized) return false;
+  return FORM_REQUEST_TERMS.some((term) => normalized.includes(normalizeFreeText(term)));
+}
+
+function safeFileNameFromPath(filePath) {
+  const normalized = String(filePath || '').trim();
+  if (!normalized) return 'therapeutic-form.pdf';
+  const withoutQuery = normalized.split('?')[0].split('#')[0];
+  const segments = withoutQuery.split('/').filter(Boolean);
+  return segments[segments.length - 1] || 'therapeutic-form.pdf';
+}
+
+function stripDownloadQuery(url) {
+  if (typeof url !== 'string' || !url.trim()) return null;
+  const trimmed = url.trim();
+  if (!trimmed.startsWith('/')) return trimmed;
+  try {
+    const parsed = new URL(trimmed, 'https://example.local');
+    parsed.searchParams.delete('download');
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+  } catch {
+    return trimmed.replace(/\?download=1\b/, '').replace(/&download=1\b/, '');
+  }
+}
+
+function buildDownloadUrl(url) {
+  const stripped = stripDownloadQuery(url);
+  if (!stripped) return null;
+  if (!stripped.startsWith('/')) return stripped;
+  try {
+    const parsed = new URL(stripped, 'https://example.local');
+    parsed.searchParams.set('download', '1');
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+  } catch {
+    return stripped.includes('?') ? `${stripped}&download=1` : `${stripped}?download=1`;
+  }
+}
+
+function buildOpenUrl(url) {
+  const stripped = stripDownloadQuery(url);
+  if (!stripped) return null;
+  if (!stripped.startsWith('/')) return stripped;
+  return `/pdf-viewer?file=${encodeURIComponent(stripped)}`;
+}
+
+function getFormSearchCorpus(form) {
+  return [
+    form?.id,
+    form?.slug,
+    form?.title,
+    form?.description,
+    form?.category,
+    form?.subcategory,
+    form?.series,
+    form?.moduleCode,
+    form?.moduleTitle,
+    form?.module_title,
+    form?.worksheetNumber,
+    form?.worksheet_number,
+    form?.therapeuticGoal,
+    form?.therapeutic_goal,
+    form?.whenToUse,
+    form?.when_to_use,
+    form?.aiMatchingSummary,
+    form?.ai_matching_summary,
+    ...toArray(form?.clinicalKeywords),
+    ...toArray(form?.keywords),
+    ...toArray(form?.intentPhrases),
+    ...toArray(form?.notFor),
+  ]
+    .map((value) => normalizeFreeText(value))
+    .filter(Boolean);
+}
+
+function scoreFormForQuery(form, queryTokens, normalizedQuery) {
+  const corpus = getFormSearchCorpus(form);
+  const corpusJoined = corpus.join(' ');
+  let score = 0;
+
+  for (const token of queryTokens) {
+    if (!token) continue;
+    if (corpusJoined.includes(token)) score += 8;
+    if (normalizeFreeText(form?.title).includes(token)) score += 16;
+    if (toArray(form?.keywords).some((keyword) => normalizeFreeText(keyword).includes(token))) score += 12;
+    if (toArray(form?.clinicalKeywords).some((keyword) => normalizeFreeText(keyword).includes(token))) score += 12;
+  }
+
+  if (normalizedQuery && normalizeFreeText(form?.title) && normalizedQuery.includes(normalizeFreeText(form?.title))) {
+    score += 80;
+  }
+  if (normalizedQuery && normalizeFreeText(form?.therapeuticGoal) && normalizedQuery.includes(normalizeFreeText(form?.therapeuticGoal))) {
+    score += 24;
+  }
+  if (normalizedQuery && normalizeFreeText(form?.whenToUse) && normalizedQuery.includes(normalizeFreeText(form?.whenToUse))) {
+    score += 24;
+  }
+  if (normalizedQuery && normalizeFreeText(form?.aiMatchingSummary) && normalizedQuery.includes(normalizeFreeText(form?.aiMatchingSummary))) {
+    score += 20;
+  }
+
+  return score;
+}
 
 function normalizeLanguageFilter(language) {
   if (typeof language !== 'string' || !language.trim()) return null;
@@ -152,6 +346,292 @@ export function getTherapeuticFormsPolicyVersion() {
   return THERAPEUTIC_FORMS_POLICY_VERSION;
 }
 
+export function getFormsByLanguage(language, options = {}) {
+  const normalizedLanguage = normalizeLanguageFilter(language);
+  if (!normalizedLanguage) return [];
+  return getAllTherapeuticForms(options).filter((form) =>
+    form?.approved === true && form?.language === normalizedLanguage
+  );
+}
+
+export function getFormsByAudience(audience, options = {}) {
+  const normalizedAudience = normalizeAudienceFilter(audience);
+  if (!normalizedAudience) return [];
+  return getAllTherapeuticForms(options).filter((form) =>
+    form?.approved === true && form?.audience === normalizedAudience
+  );
+}
+
+export function getFormsByCategory(category, options = {}) {
+  const normalizedCategory = normalizeCategoryFilter(category);
+  if (!normalizedCategory) return [];
+  return getAllTherapeuticForms(options).filter((form) =>
+    form?.approved === true && normalizeCategoryFilter(form?.category) === normalizedCategory
+  );
+}
+
+export function getFormsBySubcategory(subcategory, options = {}) {
+  const normalizedSubcategory = normalizeSubcategoryFilter(subcategory);
+  if (!normalizedSubcategory) return [];
+  return getAllTherapeuticForms(options).filter((form) => {
+    if (form?.approved !== true) return false;
+    const candidates = [
+      form?.subcategory,
+      form?.series,
+      form?.moduleTitle,
+      form?.module_title,
+      form?.moduleCode,
+    ]
+      .map((value) => normalizeSubcategoryFilter(value))
+      .filter(Boolean);
+    return candidates.some((candidate) => candidate.includes(normalizedSubcategory));
+  });
+}
+
+export function getFormsByClinicalGroup(group, options = {}) {
+  const normalizedGroup = normalizeSubcategoryFilter(group);
+  if (!normalizedGroup) return [];
+  return getAllTherapeuticForms(options).filter((form) => {
+    if (form?.approved !== true) return false;
+    const candidates = [
+      form?.category,
+      form?.subcategory,
+      form?.therapeuticGoal,
+      form?.therapeutic_goal,
+      form?.whenToUse,
+      form?.when_to_use,
+      form?.aiMatchingSummary,
+      form?.ai_matching_summary,
+      ...toArray(form?.clinicalKeywords),
+      ...toArray(form?.keywords),
+    ]
+      .map((value) => normalizeFreeText(value))
+      .filter(Boolean);
+    return candidates.some((candidate) => candidate.includes(normalizedGroup));
+  });
+}
+
+export function listAvailableFormsForAI(filters = {}) {
+  const normalizedLanguage = normalizeLanguageFilter(filters.language || filters.sessionLanguage);
+  const normalizedAudience = normalizeAudienceFilter(filters.audience || filters.sessionAudience);
+  const normalizedCategory = normalizeCategoryFilter(filters.category);
+  const normalizedSubcategory = normalizeSubcategoryFilter(filters.subcategory);
+  const normalizedClinicalGroup = normalizeSubcategoryFilter(filters.clinicalGroup || filters.group);
+  const forms = getAllTherapeuticForms({ environment: filters.environment });
+
+  return forms.filter((form) => {
+    if (form?.approved !== true) return false;
+    if (normalizedLanguage && form?.language !== normalizedLanguage) return false;
+    if (normalizedAudience && form?.audience !== normalizedAudience) return false;
+    if (normalizedCategory && normalizeCategoryFilter(form?.category) !== normalizedCategory) return false;
+
+    if (normalizedSubcategory) {
+      const subcategoryCandidates = [
+        form?.subcategory,
+        form?.series,
+        form?.moduleTitle,
+        form?.module_title,
+        form?.moduleCode,
+      ]
+        .map((value) => normalizeSubcategoryFilter(value))
+        .filter(Boolean);
+      if (!subcategoryCandidates.some((candidate) => candidate.includes(normalizedSubcategory))) return false;
+    }
+
+    if (normalizedClinicalGroup) {
+      const groupCandidates = [
+        form?.category,
+        form?.subcategory,
+        form?.therapeuticGoal,
+        form?.therapeutic_goal,
+        form?.whenToUse,
+        form?.when_to_use,
+        form?.aiMatchingSummary,
+        form?.ai_matching_summary,
+        ...toArray(form?.clinicalKeywords),
+        ...toArray(form?.keywords),
+      ]
+        .map((value) => normalizeFreeText(value))
+        .filter(Boolean);
+      if (!groupCandidates.some((candidate) => candidate.includes(normalizedClinicalGroup))) return false;
+    }
+
+    return true;
+  });
+}
+
+export function listAvailableFormCategories(filters = {}) {
+  const forms = listAvailableFormsForAI(filters);
+  const groups = new Map();
+
+  for (const form of forms) {
+    const audience = form?.audience || 'unknown';
+    const language = form?.language || 'unknown';
+    const category = form?.category || 'unknown';
+    const subcategory = form?.subcategory || form?.series || form?.moduleTitle || form?.module_title || 'general';
+    const key = [audience, language, category, subcategory].join('|');
+    const existing = groups.get(key) || {
+      audience,
+      language,
+      category,
+      subcategory,
+      count: 0,
+    };
+    existing.count += 1;
+    groups.set(key, existing);
+  }
+
+  return Array.from(groups.values())
+    .sort((a, b) =>
+      String(a.audience).localeCompare(String(b.audience)) ||
+      String(a.language).localeCompare(String(b.language)) ||
+      String(a.category).localeCompare(String(b.category)) ||
+      String(a.subcategory).localeCompare(String(b.subcategory))
+    );
+}
+
+export function searchFormsForAI(query, filters = {}) {
+  const normalizedQuery = normalizeFreeText(query);
+  const queryTokens = tokenizeSearchText(query);
+  const candidates = listAvailableFormsForAI(filters);
+  const limit = Number.isFinite(Number(filters.limit)) ? Math.max(1, Number(filters.limit)) : 10;
+
+  if (!normalizedQuery && queryTokens.length === 0) {
+    return candidates.slice(0, limit);
+  }
+
+  return candidates
+    .map((form) => ({
+      form,
+      score: scoreFormForQuery(form, queryTokens, normalizedQuery),
+    }))
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score || String(a.form?.id || '').localeCompare(String(b.form?.id || '')))
+    .slice(0, limit)
+    .map((entry) => ({ ...entry.form, ai_score: entry.score }));
+}
+
+export function resolveFormForAIRequest(userMessage, context = {}) {
+  const normalizedMessage = normalizeFreeText(userMessage);
+  const inferredLanguage =
+    detectLanguageFromText(normalizedMessage) ||
+    normalizeLanguageFilter(context.explicitLanguage) ||
+    normalizeLanguageFilter(context.activeLanguage || context.sessionLanguage || context.language);
+  const inferredAudience =
+    detectAudienceFromText(normalizedMessage) ||
+    normalizeAudienceFilter(context.explicitAudience) ||
+    normalizeAudienceFilter(context.activeAudience || context.sessionAudience || context.audience);
+
+  const strictFilters = {
+    language: inferredLanguage || undefined,
+    audience: inferredAudience || undefined,
+    category: context.category || undefined,
+    subcategory: context.subcategory || undefined,
+    clinicalGroup: context.clinicalGroup || context.group || undefined,
+    environment: context.environment || undefined,
+    limit: context.limit || 8,
+  };
+
+  const shouldAttempt =
+    typeof userMessage === 'string' &&
+    userMessage.trim() &&
+    (hasFormRequestSignal(userMessage) || context.force === true);
+
+  if (!shouldAttempt) {
+    return {
+      form: null,
+      matches: [],
+      fallbackMatches: [],
+      appliedFilters: strictFilters,
+      fallbackUsed: false,
+    };
+  }
+
+  const matches = searchFormsForAI(userMessage, strictFilters);
+  if (matches.length > 0) {
+    return {
+      form: matches[0],
+      matches,
+      fallbackMatches: [],
+      appliedFilters: strictFilters,
+      fallbackUsed: false,
+    };
+  }
+
+  const relaxedFilters = {
+    language: inferredLanguage || undefined,
+    environment: context.environment || undefined,
+    limit: context.limit || 8,
+  };
+  const fallbackMatches = searchFormsForAI(userMessage, relaxedFilters);
+  return {
+    form: fallbackMatches[0] || null,
+    matches: [],
+    fallbackMatches,
+    appliedFilters: strictFilters,
+    fallbackUsed: true,
+  };
+}
+
+export function createGeneratedFileFromResolvedForm(resolved) {
+  const form = resolved?.form || resolved;
+  if (!form || typeof form !== 'object') return null;
+
+  const fileUrl =
+    stripDownloadQuery(form?.fileUrl) ||
+    stripDownloadQuery(form?.file_url) ||
+    stripDownloadQuery(form?.languages?.[form?.language || 'en']?.file_url) ||
+    null;
+  if (!fileUrl) return null;
+
+  const filename =
+    String(
+      form?.fileName ||
+      form?.file_name ||
+      form?.languages?.[form?.language || 'en']?.file_name ||
+      safeFileNameFromPath(fileUrl)
+    ).trim() || 'therapeutic-form.pdf';
+
+  const title = String(
+    form?.title ||
+    form?.languages?.[form?.language || 'en']?.title ||
+    form?.id ||
+    filename
+  ).trim();
+
+  const openUrl = buildOpenUrl(fileUrl);
+  const downloadUrl = buildDownloadUrl(fileUrl);
+
+  return {
+    type: 'pdf',
+    mime_type: 'application/pdf',
+    source: 'therapeutic_forms_library',
+    id: form?.id || null,
+    form_id: form?.id || null,
+    form_slug: form?.slug || null,
+    title,
+    description: form?.description || form?.languages?.[form?.language || 'en']?.description || null,
+    name: filename,
+    filename,
+    url: fileUrl,
+    file_path: form?.filePath || form?.file_path || `public${fileUrl}`,
+    openUrl,
+    open_url: openUrl,
+    downloadUrl,
+    download_url: downloadUrl,
+    audience: form?.audience || null,
+    language: form?.language || null,
+    category: form?.category || null,
+    subcategory: form?.subcategory || form?.series || form?.moduleTitle || form?.module_title || null,
+    worksheet_number: form?.worksheetNumber ?? form?.worksheet_number ?? null,
+    therapeutic_goal: form?.therapeuticGoal || form?.therapeutic_goal || null,
+    when_to_use: form?.whenToUse || form?.when_to_use || null,
+    ai_matching_summary: form?.aiMatchingSummary || form?.ai_matching_summary || null,
+    safety_notes: form?.safetyNotes || form?.safety_notes || null,
+    created_at: new Date().toISOString(),
+  };
+}
+
 export function getAllTherapeuticForms(options = {}) {
   const forms = ALL_FORMS;
   const diagnostics = {
@@ -172,13 +652,10 @@ export function getTherapeuticFormsForAI({ language, audience, environment } = {
   const allForms = getAllTherapeuticForms({ environment });
   const normalizedLanguage = normalizeLanguageFilter(language);
   const normalizedAudience = normalizeAudienceFilter(audience);
-
-  const beforeFiltersCount = allForms.length;
-  const filtered = allForms.filter((form) => {
-    if (form?.approved !== true) return false;
-    if (normalizedLanguage && form?.language !== normalizedLanguage) return false;
-    if (normalizedAudience && form?.audience !== normalizedAudience) return false;
-    return true;
+  const filtered = listAvailableFormsForAI({
+    language: normalizedLanguage || undefined,
+    audience: normalizedAudience || undefined,
+    environment,
   });
 
   const aiForms = filtered.map((form) => ({
@@ -212,7 +689,7 @@ export function getTherapeuticFormsForAI({ language, audience, environment } = {
     generatedIndexImported: Array.isArray(GENERATED_THERAPEUTIC_FORMS_INDEX),
     activeLanguage: normalizedLanguage || null,
     activeAudienceFilter: normalizedAudience || null,
-    formsLengthBeforeFilters: beforeFiltersCount,
+    formsLengthBeforeFilters: allForms.length,
     formsLengthAfterFilters: aiForms.length,
   };
 
