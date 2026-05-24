@@ -79,6 +79,7 @@ const MIN_SPECIALIZED_MODULE_MATCH_SCORE = 40;
 const DYNAMIC_EXACT_FIELD_MATCH_SCORE = 100;
 const DYNAMIC_TERM_MATCH_SCORE = 6;
 const DYNAMIC_KEYWORD_MATCH_SCORE = 30;
+const NON_CHILD_AUDIENCE_PATTERNS = [/\badolescents?\b/i, /\bteen(?:age(?:r)?)?\b/i, /\badults?\b/i, /\bolder adults?\b/i];
 
 function getCoreEnglishForms() {
   return ALL_FORMS.filter((form) => form?.approved === true && form?.category === 'adolescents_cbt_core' && form?.language === 'en' && form?.audience === 'adolescents');
@@ -747,8 +748,7 @@ export function resolveChildrenCBTSpecializedFormByContent(query, options = {}) 
   if (activeLanguage !== 'en' && !explicitEnglish) return null;
   if (requestsHebrew(normalizedQuery) && !explicitEnglish) return null;
 
-  const NON_CHILD_AUDIENCE = [/\badolescents?\b/i, /\bteen(?:age(?:r)?)?\b/i, /\badults?\b/i, /\bolder adults?\b/i];
-  if (NON_CHILD_AUDIENCE.some((p) => p.test(normalizedQuery))) return null;
+  if (NON_CHILD_AUDIENCE_PATTERNS.some((p) => p.test(normalizedQuery))) return null;
 
   const worksheetNumber = extractChildrenSpecializedWorksheetNumber(normalizedQuery);
   if (worksheetNumber) {
@@ -782,8 +782,7 @@ export function resolveChildrenCBTCoreEnglishFormByContent(query, options = {}) 
   if (requestsHebrew(normalizedQuery) && !explicitEnglish) return null;
 
   // Reject requests that explicitly ask for adolescent/adult audience
-  const NON_CHILD_AUDIENCE = [/\badolescents?\b/i, /\bteen(?:age(?:r)?)?\b/i, /\badults?\b/i, /\bolder adults?\b/i];
-  if (NON_CHILD_AUDIENCE.some((p) => p.test(normalizedQuery))) return null;
+  if (NON_CHILD_AUDIENCE_PATTERNS.some((p) => p.test(normalizedQuery))) return null;
 
   // Extract children-specific form numbers (stages 1-5, worksheets 1-6)
   const childFormMatch = normalizedQuery.match(/\b(?:form|worksheet)\s*([1-5])(?:\.|\-|\s)([1-6])\b/i);

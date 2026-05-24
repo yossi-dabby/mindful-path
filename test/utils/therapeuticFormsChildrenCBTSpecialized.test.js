@@ -47,6 +47,8 @@ describe('therapeuticFormsChildrenCBTSpecialized.test.js', () => {
   });
 
   it('keeps filename-clinical mismatch corrected for subcategories 1.3/1.4/1.5', () => {
+    // Source PDFs for 1.3/1.4/1.5 were uploaded with "specific_phobias" in filenames.
+    // Runtime metadata must preserve the clinically correct subcategory labeling.
     const module13 = resolveFormIntent('children-cbt-specialized-en-module-1-3', 'en');
     const module14 = resolveFormIntent('children-cbt-specialized-en-module-1-4', 'en');
     const module15 = resolveFormIntent('children-cbt-specialized-en-module-1-5', 'en');

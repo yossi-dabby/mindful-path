@@ -19,6 +19,9 @@ const SHARED_NOT_FOR = Object.freeze([
   'emergency mental health situations',
 ]);
 
+// Targeted safety-note overrides for subcategories that require stricter framing.
+// 4.2 must remain stabilization-only (no trauma processing details/exposure framing),
+// and 5.3 must remain shame-free emotional support (not medical treatment framing).
 const SPECIAL_SAFETY_NOTES = Object.freeze({
   '4.2': 'Trauma-sensitive coping only: focus on safety, grounding, body regulation, and support. Do not elicit trauma details and do not suggest exposure processing.',
   '5.3': 'Emotional/stress support only for enuresis/encopresis context: no shame, no blame, never imply intentional behavior, and avoid presenting as medical treatment.',
