@@ -92,7 +92,7 @@ const { VARIANT_FORMS_FIXTURE } = vi.hoisted(() => ({
       },
     },
   },
-  ]),
+  ].map((entry) => Object.freeze(entry))),
 }));
 
 vi.mock('../../src/data/therapeuticForms/index.js', () => {
