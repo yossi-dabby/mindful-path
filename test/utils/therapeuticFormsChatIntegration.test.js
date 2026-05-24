@@ -18,7 +18,14 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     ];
     const staleResult = sanitizeConversationMessages(staleMessages, 'en');
     const staleAssistant = staleResult.find((m) => m.role === 'assistant');
-    expect(staleAssistant?.metadata?.generated_file?.form_id).not.toBe('tf-adults-cbt-thought-record');
+    const staleGenerated = staleAssistant?.metadata?.generated_file ?? null;
+    if (staleGenerated) {
+      expect(staleGenerated.form_id).toBeTruthy();
+      expect(staleGenerated.form_id).not.toBe('tf-adults-cbt-thought-record');
+      expect(String(staleGenerated.url || '')).toContain('/forms/');
+    } else {
+      expect(staleGenerated).toBeNull();
+    }
   });
 
   it('blocks adolescents specialized EN attachments when session language is non-English', () => {

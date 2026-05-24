@@ -22,6 +22,20 @@ import { VALID_AUDIENCE_VALUES, VALID_CATEGORY_VALUES, RTL_LANGUAGES } from './c
 import { ALL_FORMS } from './index.js';
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
+function removeDownloadParamFromUrl(url) {
+  if (typeof url !== 'string' || !url.trim()) return null;
+  const trimmed = url.trim();
+  if (!trimmed.startsWith('/')) return trimmed;
+  try {
+    const parsed = new URL(trimmed, 'https://example.local');
+    parsed.searchParams.delete('download');
+    return parsed.pathname + parsed.search + parsed.hash;
+  } catch {
+    return trimmed
+      .replace(/[?&]download(?:=1|=true)?\b/g, '')
+      .replace(/[?&]$/, '');
+  }
+}
 
 /**
  * Returns true when a language block is considered a valid, servable version:
@@ -223,19 +237,20 @@ export function toGeneratedFileMetadata(resolved) {
   const { form, language, languageData } = resolved;
   if (!form || !language || !languageData) return null;
   if (!languageData.file_url || !languageData.file_name || !languageData.title) return null;
-  const openUrl = languageData.file_url.startsWith('/')
-    ? `/pdf-viewer?file=${encodeURIComponent(String(languageData.file_url).replace(/[?&]download=1\b/g, ''))}`
-    : languageData.file_url;
+  const sanitizedFileUrl = removeDownloadParamFromUrl(languageData.file_url) || languageData.file_url;
+  const openUrl = sanitizedFileUrl.startsWith('/')
+    ? `/pdf-viewer?file=${encodeURIComponent(sanitizedFileUrl)}`
+    : sanitizedFileUrl;
   const downloadUrl = (() => {
-    if (!languageData.file_url.startsWith('/')) return languageData.file_url;
+    if (!sanitizedFileUrl.startsWith('/')) return sanitizedFileUrl;
     try {
-      const parsed = new URL(languageData.file_url, 'https://example.local');
+      const parsed = new URL(sanitizedFileUrl, 'https://example.local');
       parsed.searchParams.set('download', '1');
       return parsed.pathname + parsed.search + parsed.hash;
     } catch {
-      return languageData.file_url.includes('?')
-        ? `${languageData.file_url}&download=1`
-        : `${languageData.file_url}?download=1`;
+      return sanitizedFileUrl.includes('?')
+        ? `${sanitizedFileUrl}&download=1`
+        : `${sanitizedFileUrl}?download=1`;
     }
   })();
 
@@ -243,7 +258,7 @@ export function toGeneratedFileMetadata(resolved) {
     type: 'pdf',
     mime_type: 'application/pdf',
     id: form.id || null,
-    url: languageData.file_url,
+    url: sanitizedFileUrl,
     name: languageData.file_name,
     filename: languageData.file_name,
     title: languageData.title,
@@ -256,7 +271,7 @@ export function toGeneratedFileMetadata(resolved) {
     category: form.category,
     subcategory: form.subcategory || form.series || form.moduleTitle || null,
     language,
-    file_path: form.filePath || form.file_path || `public${languageData.file_url}`,
+    file_path: form.filePath || form.file_path || `public${sanitizedFileUrl}`,
     openUrl,
     open_url: openUrl,
     downloadUrl,

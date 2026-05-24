@@ -238,7 +238,9 @@ function stripDownloadQuery(url) {
     parsed.searchParams.delete('download');
     return `${parsed.pathname}${parsed.search}${parsed.hash}`;
   } catch {
-    return trimmed.replace(/\?download=1\b/, '').replace(/&download=1\b/, '');
+    return trimmed
+      .replace(/[?&]download(?:=1|=true)?\b/g, '')
+      .replace(/[?&]$/, '');
   }
 }
 

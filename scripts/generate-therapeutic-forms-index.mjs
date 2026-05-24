@@ -333,22 +333,14 @@ function validateEntries(entries) {
     if (!entry.category) throw new Error(`Entry ${entry.id} missing category`);
     if (!entry.title || !String(entry.title).trim()) throw new Error(`Entry ${entry.id} missing title`);
     if (!entry.filePath && !entry.file_path) throw new Error(`Entry ${entry.id} missing file path`);
-    if (!entry.therapeuticGoal && !entry.therapeutic_goal) {
-      entry.therapeuticGoal = entry.therapeuticGoal || null;
-      entry.therapeutic_goal = entry.therapeutic_goal || null;
-    }
-    if (!entry.whenToUse && !entry.when_to_use) {
-      entry.whenToUse = entry.whenToUse || null;
-      entry.when_to_use = entry.when_to_use || null;
-    }
-    if (!entry.aiMatchingSummary && !entry.ai_matching_summary) {
-      entry.aiMatchingSummary = entry.aiMatchingSummary || null;
-      entry.ai_matching_summary = entry.ai_matching_summary || null;
-    }
-    if (!entry.safetyNotes && !entry.safety_notes) {
-      entry.safetyNotes = entry.safetyNotes || null;
-      entry.safety_notes = entry.safety_notes || null;
-    }
+    entry.therapeuticGoal = entry.therapeuticGoal || entry.therapeutic_goal || null;
+    entry.therapeutic_goal = entry.therapeutic_goal || entry.therapeuticGoal || null;
+    entry.whenToUse = entry.whenToUse || entry.when_to_use || null;
+    entry.when_to_use = entry.when_to_use || entry.whenToUse || null;
+    entry.aiMatchingSummary = entry.aiMatchingSummary || entry.ai_matching_summary || null;
+    entry.ai_matching_summary = entry.ai_matching_summary || entry.aiMatchingSummary || null;
+    entry.safetyNotes = entry.safetyNotes || entry.safety_notes || null;
+    entry.safety_notes = entry.safety_notes || entry.safetyNotes || null;
 
     const absolute = path.join(ROOT, entry.filePath || entry.file_path || '');
     if (!fs.existsSync(absolute)) {
