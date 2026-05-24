@@ -18,6 +18,7 @@ import {
 } from '@/data/therapeuticForms/forms.children.cbt-core.en.js';
 import { openFile } from '@/components/chat/utils/openFile';
 import { downloadPdfFile } from '@/components/chat/utils/downloadPdfFile';
+import { getFormOpenUrl } from '@/components/chat/utils/formFileUrls';
 
 export function resolveLibraryFormWithLanguage(form, lang) {
   const resolved = resolveFormWithLanguage(form.id, lang);
@@ -328,7 +329,7 @@ export default function TherapeuticForms() {
 
 
   const handleOpenForm = (fileUrl) => {
-    openFile(fileUrl);
+    openFile(getFormOpenUrl(fileUrl));
   };
 
   const handleDownloadForm = async (fileUrl, fileName) => {
