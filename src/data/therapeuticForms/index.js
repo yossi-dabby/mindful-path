@@ -204,6 +204,13 @@ export function getTherapeuticFormsForAI({ language, audience, environment } = {
     type: form.type || null,
     module_number: form.module_number ?? form.moduleNumber ?? null,
     worksheet_number: form.worksheet_number ?? form.worksheetNumber ?? form.formNumber ?? null,
+    logical_form_id: form.logical_form_id || null,
+    variant_language: form.variant_language || null,
+    available_languages: Array.isArray(form.available_languages) ? form.available_languages : [],
+    sibling_variant_ids: Array.isArray(form.sibling_variant_ids) ? form.sibling_variant_ids : [],
+    source_language: form.source_language || null,
+    is_language_variant: form.is_language_variant === true,
+    variant_group_id: form.variant_group_id || null,
   }));
 
   const diagnostics = {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { validateEntries } from '../../scripts/generate-therapeutic-forms-index.mjs';
+import { applyVariantMetadata, validateEntries } from '../../scripts/generate-therapeutic-forms-index.mjs';
 
 const VALID_FILE_PATH = 'public/forms/adolescents/en/core/adolescents-cbt-core-series-1-full-en.pdf';
 
@@ -54,6 +54,66 @@ describe('therapeutic forms index generator validation', () => {
   it('fails on invalid audience value', () => {
     const broken = buildEntry({ id: 'invalid-audience', audience: 'teens' });
     expect(() => validateEntries([broken])).toThrow(/invalid audience value: teens/);
+  });
+
+  it('accepts additive multilingual variant metadata fields', () => {
+    const multilingual = buildEntry({
+      id: 'children-cbt-specialized-en-4-1',
+      logical_form_id: 'children_cbt_specialized_04_01_ocd',
+      variant_language: 'en',
+      available_languages: ['en', 'he'],
+      sibling_variant_ids: ['children-cbt-specialized-he-4-1'],
+      source_language: 'en',
+      is_language_variant: true,
+      variant_group_id: 'children_cbt_specialized_04_01_ocd',
+    });
+    expect(() => validateEntries([multilingual])).not.toThrow();
+  });
+
+  it('preserves multilingual fields when applying variant metadata', () => {
+    const base = buildEntry({ id: 'preserve-variant-metadata' });
+    const withVariant = applyVariantMetadata(base, {
+      logical_form_id: 'children_cbt_specialized_04_01_ocd',
+      variant_language: 'en',
+      available_languages: ['en', 'he'],
+      sibling_variant_ids: ['children-cbt-specialized-he-4-1'],
+      source_language: 'en',
+      is_language_variant: true,
+      variant_group_id: 'children_cbt_specialized_04_01_ocd',
+    });
+
+    expect(withVariant.logical_form_id).toBe('children_cbt_specialized_04_01_ocd');
+    expect(withVariant.variant_language).toBe('en');
+    expect(withVariant.available_languages).toEqual(['en', 'he']);
+    expect(withVariant.sibling_variant_ids).toEqual(['children-cbt-specialized-he-4-1']);
+    expect(withVariant.source_language).toBe('en');
+    expect(withVariant.is_language_variant).toBe(true);
+    expect(withVariant.variant_group_id).toBe('children_cbt_specialized_04_01_ocd');
+  });
+
+  it('fails when variant_language does not match entry language', () => {
+    const broken = buildEntry({
+      id: 'variant-lang-mismatch',
+      language: 'en',
+      variant_language: 'he',
+    });
+    expect(() => validateEntries([broken])).toThrow(/variant_language "he" that does not match language "en"/);
+  });
+
+  it('fails when available_languages includes unsupported code', () => {
+    const broken = buildEntry({
+      id: 'invalid-available-languages',
+      available_languages: ['en', 'ru'],
+    });
+    expect(() => validateEntries([broken])).toThrow(/unsupported available_languages value: ru/);
+  });
+
+  it('fails when sibling_variant_ids is not an array', () => {
+    const broken = buildEntry({
+      id: 'invalid-sibling-ids',
+      sibling_variant_ids: 'children-cbt-specialized-he-4-1',
+    });
+    expect(() => validateEntries([broken])).toThrow(/sibling_variant_ids must be an array/);
   });
 
   it('fails when AI matching metadata is missing', () => {

@@ -17,6 +17,8 @@ describe('therapeuticFormsPage.test.js — adolescents package integration', () 
     const pageSource = fs.readFileSync('/home/runner/work/mindful-path/mindful-path/src/pages/TherapeuticForms.jsx', 'utf8');
     expect(pageSource).toContain('secondaryCategories');
     expect(pageSource).toContain('getLanguageFolderPrefix(lang, form.audience)');
+    expect(pageSource).toContain('logical_form_id || form?.variant_group_id || form?.id');
+    expect(pageSource).toContain('dedupeKey');
 
     expect(ALL_FORMS.map((form) => form.id)).toContain('adolescents-cbt-core-en');
     const resolvedEn = resolveFormWithLanguage('adolescents-cbt-core-en', 'en');

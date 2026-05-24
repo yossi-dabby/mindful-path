@@ -96,6 +96,23 @@ function normalizeAudience(value) {
   return VALID_AUDIENCE_SET.has(normalized) ? normalized : null;
 }
 
+function getVariantGroupKey(form) {
+  if (!form || typeof form !== 'object') return null;
+  return normalizeText(form.logical_form_id || form.variant_group_id || form.id) || null;
+}
+
+function dedupeFormsById(forms) {
+  const seen = new Set();
+  const output = [];
+  for (const form of forms) {
+    const id = normalizeText(form?.id);
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
+    output.push(form);
+  }
+  return output;
+}
+
 function extractRequestedLanguage(text) {
   const normalized = normalizeText(text);
   if (!normalized) return null;
@@ -192,6 +209,26 @@ function scoreFormMatch(form, query) {
   return score;
 }
 
+function getAvailableLanguagesForForms(forms) {
+  const languages = new Set();
+  for (const form of forms || []) {
+    const normalized = normalizeLanguage(form?.language);
+    if (normalized) languages.add(normalized);
+  }
+  return Array.from(languages).sort();
+}
+
+function rankResolvedCandidate(form, normalizedInput) {
+  if (!form) return 0;
+  const normalizedId = normalizeText(form.id);
+  const normalizedSlug = normalizeText(form.slug);
+  if (normalizedId === normalizedInput || normalizedSlug === normalizedInput) return 3;
+  const normalizedLogicalId = normalizeText(form.logical_form_id);
+  const normalizedVariantGroup = normalizeText(form.variant_group_id);
+  if (normalizedLogicalId === normalizedInput || normalizedVariantGroup === normalizedInput) return 2;
+  return 1;
+}
+
 function buildLanguageSelection(forms, requestedLanguage, activeLanguage, allowEnglishFallback = true) {
   const strictLanguage = normalizeLanguage(requestedLanguage);
   if (strictLanguage) {
@@ -274,20 +311,40 @@ export function resolveFormByIdOrSlug(formId, options = {}) {
 
   const requestedLanguage = normalizeLanguage(options.language);
   const allForms = getAllTherapeuticForms().filter((form) => form?.approved === true);
+  const normalizedLookupInput = normalizeText(normalizedInput);
   const byIdOrSlug = allForms.filter((form) => {
     const id = normalizeText(form?.id);
     const slug = normalizeText(form?.slug);
-    return id === normalizeText(normalizedInput) || slug === normalizeText(normalizedInput);
+    const logicalFormId = normalizeText(form?.logical_form_id);
+    const variantGroupId = normalizeText(form?.variant_group_id);
+    return (
+      id === normalizedLookupInput ||
+      slug === normalizedLookupInput ||
+      logicalFormId === normalizedLookupInput ||
+      variantGroupId === normalizedLookupInput
+    );
   });
   if (byIdOrSlug.length === 0) return null;
 
+  const variantGroupKeys = new Set(
+    byIdOrSlug
+      .map((form) => getVariantGroupKey(form))
+      .filter(Boolean)
+  );
+  const variantCandidates = variantGroupKeys.size > 0
+    ? allForms.filter((form) => variantGroupKeys.has(getVariantGroupKey(form)))
+    : byIdOrSlug;
+  const candidates = dedupeFormsById([...byIdOrSlug, ...variantCandidates]);
+
   const languageSelection = buildLanguageSelection(
-    byIdOrSlug,
+    candidates,
     requestedLanguage,
     options.activeLanguage || options.language,
     options.allowEnglishFallback !== false
   );
-  const resolved = languageSelection.forms[0] || null;
+  const resolved = languageSelection.forms
+    .slice()
+    .sort((a, b) => rankResolvedCandidate(b, normalizedLookupInput) - rankResolvedCandidate(a, normalizedLookupInput))[0] || null;
   if (!resolved) return null;
 
   return {
@@ -295,6 +352,7 @@ export function resolveFormByIdOrSlug(formId, options = {}) {
     resolvedLanguage: languageSelection.resolvedLanguage,
     usedFallbackLanguage: languageSelection.usedFallback,
     fallbackReason: languageSelection.fallbackReason,
+    availableLanguages: getAvailableLanguagesForForms(candidates),
   };
 }
 
@@ -331,6 +389,15 @@ export function createGeneratedFileFromResolvedForm(resolvedFormInput) {
     source: 'therapeutic_forms_registry',
     form_id: form.id || null,
     form_slug: form.slug || null,
+    logical_form_id: form.logical_form_id || null,
+    variant_language: form.variant_language || language,
+    available_languages: Array.isArray(payload?.availableLanguages)
+      ? payload.availableLanguages
+      : (Array.isArray(form.available_languages) ? form.available_languages : getAvailableLanguagesForForms([form])),
+    sibling_variant_ids: Array.isArray(form.sibling_variant_ids) ? form.sibling_variant_ids : [],
+    source_language: form.source_language || null,
+    is_language_variant: form.is_language_variant === true,
+    variant_group_id: form.variant_group_id || null,
     created_at: new Date().toISOString(),
   };
 }
@@ -443,6 +510,8 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
   if (intent.type === 'send_specific_form') {
     const resolved = resolveFormByIdOrSlug(intent.query, filters);
     const generatedFile = resolved ? createGeneratedFileFromResolvedForm(resolved) : null;
+    const availableLanguages = resolved?.availableLanguages || [];
+    const availableLanguagesText = availableLanguages.join(', ') || 'none';
     return {
       intent,
       stats,
@@ -452,9 +521,10 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
       resolvedLanguage: resolved?.resolvedLanguage || activeLanguage,
       responseText: generatedFile
         ? `I found a matching worksheet and attached it.`
-        : `I couldn't find that exact form ID, but I can search by audience, category, or therapeutic goal.`,
+        : `I couldn't find that exact form ID for this language. Available languages for nearby variants: ${availableLanguagesText}. I can search by audience, category, or therapeutic goal.`,
       usedFallbackLanguage: resolved?.usedFallbackLanguage === true,
       fallbackReason: resolved?.fallbackReason || null,
+      availableLanguages,
     };
   }
 
@@ -513,5 +583,6 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
     responseText: responseByIntent[intent.type] || searchText,
     usedFallbackLanguage: Boolean(generatedFile && generatedFile.language !== activeLanguage && !requestedLanguage),
     fallbackReason: generatedFile && generatedFile.language !== activeLanguage && !requestedLanguage ? 'no_same_language_forms' : null,
+    availableLanguages: generatedFile?.available_languages || getAvailableLanguagesForForms(nearestMatches),
   };
 }

@@ -327,6 +327,7 @@ function applyDeterministicFormRouteToAssistant({ content, metadata, formRoute }
     matched_count: Array.isArray(formRoute.matches) ? formRoute.matches.length : 0,
     nearest_count: Array.isArray(formRoute.nearestMatches) ? formRoute.nearestMatches.length : 0,
     used_fallback_language: formRoute.usedFallbackLanguage === true,
+    available_languages: Array.isArray(formRoute.availableLanguages) ? formRoute.availableLanguages : [],
   };
 
   return {

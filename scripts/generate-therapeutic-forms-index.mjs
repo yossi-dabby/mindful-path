@@ -10,6 +10,7 @@ import { FORMS_CHILDREN_CBT_SPECIALIZED } from '../src/data/therapeuticForms/for
 const ROOT = process.cwd();
 const PUBLIC_DIR = path.join(ROOT, 'public');
 const OUTPUT_FILE = path.join(ROOT, 'src/generated/therapeutic-forms-index.json');
+const FORMS_INDEX_PILOT_VARIANTS = process.env.FORMS_INDEX_PILOT_VARIANTS === 'true';
 
 const KNOWN_AUDIENCES = new Set(['children', 'adolescents', 'adults', 'older_adults', 'parents']);
 const SUPPORTED_FORM_LANGUAGES = new Set(['en', 'he', 'es', 'fr', 'de', 'it', 'pt']);
@@ -101,6 +102,53 @@ function normalizeFormCategory(formCategory, audience, fallbackSegment) {
   return inferCategory(audience, fallbackSegment || candidate);
 }
 
+function toStringOrNull(value) {
+  if (typeof value !== 'string') return null;
+  const normalized = value.trim();
+  return normalized || null;
+}
+
+function toBooleanOrNull(value) {
+  return typeof value === 'boolean' ? value : null;
+}
+
+function normalizeStringArray(values) {
+  if (!Array.isArray(values)) return null;
+  const normalized = values
+    .map((value) => toStringOrNull(value))
+    .filter(Boolean);
+  return Array.from(new Set(normalized));
+}
+
+function extractVariantMetadata(raw = {}) {
+  return {
+    logical_form_id: toStringOrNull(raw.logical_form_id),
+    variant_language: normalizeLanguageCode(raw.variant_language) || toStringOrNull(raw.variant_language),
+    available_languages: normalizeStringArray(raw.available_languages),
+    sibling_variant_ids: normalizeStringArray(raw.sibling_variant_ids),
+    source_language: normalizeLanguageCode(raw.source_language) || toStringOrNull(raw.source_language),
+    is_language_variant: toBooleanOrNull(raw.is_language_variant),
+    variant_group_id: toStringOrNull(raw.variant_group_id),
+  };
+}
+
+function withVariantMetadata(entry, variantMetadata) {
+  if (!variantMetadata || typeof variantMetadata !== 'object') return entry;
+  const next = { ...entry };
+  if (variantMetadata.logical_form_id) next.logical_form_id = variantMetadata.logical_form_id;
+  if (variantMetadata.variant_language) next.variant_language = variantMetadata.variant_language;
+  if (Array.isArray(variantMetadata.available_languages)) next.available_languages = variantMetadata.available_languages;
+  if (Array.isArray(variantMetadata.sibling_variant_ids)) next.sibling_variant_ids = variantMetadata.sibling_variant_ids;
+  if (variantMetadata.source_language) next.source_language = variantMetadata.source_language;
+  if (typeof variantMetadata.is_language_variant === 'boolean') next.is_language_variant = variantMetadata.is_language_variant;
+  if (variantMetadata.variant_group_id) next.variant_group_id = variantMetadata.variant_group_id;
+  return next;
+}
+
+export function applyVariantMetadata(entry, rawVariantMetadata = {}) {
+  return withVariantMetadata(entry, extractVariantMetadata(rawVariantMetadata));
+}
+
 function extractManifestItems() {
   const allFiles = walk(PUBLIC_DIR);
   const manifestFiles = allFiles.filter((f) => /manifest.*\.json$/i.test(path.basename(f)));
@@ -135,6 +183,15 @@ function extractManifestItems() {
         audience: item?.audience || null,
         language: item?.language || null,
         category: item?.category || null,
+        variantMetadata: extractVariantMetadata({
+          logical_form_id: item?.logical_form_id ?? parsed?.logical_form_id,
+          variant_language: item?.variant_language ?? parsed?.variant_language,
+          available_languages: item?.available_languages ?? parsed?.available_languages,
+          sibling_variant_ids: item?.sibling_variant_ids ?? parsed?.sibling_variant_ids,
+          source_language: item?.source_language ?? parsed?.source_language,
+          is_language_variant: item?.is_language_variant ?? parsed?.is_language_variant,
+          variant_group_id: item?.variant_group_id ?? parsed?.variant_group_id,
+        }),
       });
     }
   }
@@ -171,7 +228,7 @@ function buildCuratedEntries(manifestByFileUrl) {
       const manifestMeta = manifestByFileUrl.get(fileUrl) || {};
       const normalizedCategory = normalizeFormCategory(form.category, form.audience, form.category);
 
-      entries.push({
+      const baseEntry = {
         id: form.id,
         slug: form.slug || form.id,
         parentSeriesId: form.parentSeriesId || null,
@@ -225,7 +282,19 @@ function buildCuratedEntries(manifestByFileUrl) {
         file_path: `public${fileUrl}`,
         preview_path: manifestMeta.preview_path || null,
         source_manifest: manifestMeta.source_manifest || null,
+      };
+
+      const variantMetadata = extractVariantMetadata({
+        logical_form_id: form.logical_form_id ?? manifestMeta?.variantMetadata?.logical_form_id,
+        variant_language: form.variant_language ?? manifestMeta?.variantMetadata?.variant_language,
+        available_languages: form.available_languages ?? manifestMeta?.variantMetadata?.available_languages,
+        sibling_variant_ids: form.sibling_variant_ids ?? manifestMeta?.variantMetadata?.sibling_variant_ids,
+        source_language: form.source_language ?? manifestMeta?.variantMetadata?.source_language,
+        is_language_variant: form.is_language_variant ?? manifestMeta?.variantMetadata?.is_language_variant,
+        variant_group_id: form.variant_group_id ?? manifestMeta?.variantMetadata?.variant_group_id,
       });
+
+      entries.push(withVariantMetadata(baseEntry, variantMetadata));
     }
   }
 
@@ -251,7 +320,7 @@ function buildFallbackEntries(existingByFileUrl, manifestByFileUrl) {
     const title = manifestMeta.title_en || titleFromFileName(fileName);
     const id = slugify(`${audience}-${language}-${fileName.replace(/\.pdf$/i, '')}`);
 
-    entries.push({
+    const baseEntry = {
       id,
       slug: id,
       parentSeriesId: null,
@@ -315,7 +384,9 @@ function buildFallbackEntries(existingByFileUrl, manifestByFileUrl) {
       file_path: `public${fileUrl}`,
       preview_path: manifestMeta.preview_path || null,
       source_manifest: manifestMeta.source_manifest || null,
-    });
+    };
+
+    entries.push(withVariantMetadata(baseEntry, manifestMeta.variantMetadata));
   }
 
   return entries;
@@ -340,6 +411,11 @@ function hasAIMatchingMetadata(entry) {
 
 export function validateEntries(entries) {
   const seenIds = new Set();
+  const allIds = new Set(
+    entries
+      .map((entry) => toStringOrNull(entry?.id))
+      .filter(Boolean)
+  );
   const errors = [];
 
   for (const entry of entries) {
@@ -354,6 +430,52 @@ export function validateEntries(entries) {
       errors.push(`Entry ${entry.id} missing language`);
     } else if (!normalizeLanguageCode(entry.language)) {
       errors.push(`Entry ${entry.id} has unsupported language code: ${entry.language}`);
+    }
+    if (entry.variant_language != null) {
+      const normalizedVariantLanguage = normalizeLanguageCode(entry.variant_language);
+      if (!normalizedVariantLanguage) {
+        errors.push(`Entry ${entry.id} has unsupported variant_language code: ${entry.variant_language}`);
+      } else if (normalizedVariantLanguage !== normalizeLanguageCode(entry.language)) {
+        errors.push(`Entry ${entry.id} has variant_language "${entry.variant_language}" that does not match language "${entry.language}"`);
+      }
+    }
+    if (entry.source_language != null && !normalizeLanguageCode(entry.source_language)) {
+      errors.push(`Entry ${entry.id} has unsupported source_language code: ${entry.source_language}`);
+    }
+    if (entry.available_languages != null) {
+      if (!Array.isArray(entry.available_languages)) {
+        errors.push(`Entry ${entry.id} available_languages must be an array when provided`);
+      } else {
+        for (const language of entry.available_languages) {
+          if (!normalizeLanguageCode(language)) {
+            errors.push(`Entry ${entry.id} has unsupported available_languages value: ${language}`);
+          }
+        }
+      }
+    }
+    if (entry.sibling_variant_ids != null) {
+      if (!Array.isArray(entry.sibling_variant_ids)) {
+        errors.push(`Entry ${entry.id} sibling_variant_ids must be an array when provided`);
+      } else {
+        const missingSiblings = entry.sibling_variant_ids.filter((siblingId) => !allIds.has(siblingId));
+        if (missingSiblings.length > 0) {
+          const warningMessage = `Entry ${entry.id} sibling_variant_ids reference missing IDs: ${missingSiblings.join(', ')}`;
+          if (FORMS_INDEX_PILOT_VARIANTS) {
+            console.warn(`[forms-index][pilot] ${warningMessage}`);
+          } else {
+            console.warn(`[forms-index] ${warningMessage}`);
+          }
+        }
+      }
+    }
+    if (entry.is_language_variant != null && typeof entry.is_language_variant !== 'boolean') {
+      errors.push(`Entry ${entry.id} is_language_variant must be a boolean when provided`);
+    }
+    if (entry.logical_form_id != null && (typeof entry.logical_form_id !== 'string' || !entry.logical_form_id.trim())) {
+      errors.push(`Entry ${entry.id} logical_form_id must be a non-empty string when provided`);
+    }
+    if (entry.variant_group_id != null && (typeof entry.variant_group_id !== 'string' || !entry.variant_group_id.trim())) {
+      errors.push(`Entry ${entry.id} variant_group_id must be a non-empty string when provided`);
     }
     if (!entry.audience) {
       errors.push(`Entry ${entry.id} missing audience`);
