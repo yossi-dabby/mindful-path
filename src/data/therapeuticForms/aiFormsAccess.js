@@ -77,6 +77,9 @@ const ADOLESCENTS_GROUP_LABELS = Object.freeze([
 ]);
 
 function normalizeText(value) {
+  // Intentional fail-soft normalization for search/indexing paths:
+  // non-string/null values are treated as empty text, so candidate scanning
+  // remains total-order deterministic without runtime throws.
   return String(value || '').toLowerCase().trim();
 }
 
@@ -296,7 +299,11 @@ export function resolveFormByIdOrSlug(formId, options = {}) {
 }
 
 export function createGeneratedFileFromResolvedForm(resolvedFormInput) {
-  const payload = resolvedFormInput?.form ? resolvedFormInput : { form: resolvedFormInput, resolvedLanguage: resolvedFormInput?.language || 'en' };
+  const normalizeResolvedInput = (input) => {
+    if (input?.form) return input;
+    return { form: input, resolvedLanguage: input?.language || 'en' };
+  };
+  const payload = normalizeResolvedInput(resolvedFormInput);
   const form = payload?.form;
   if (!form) return null;
 

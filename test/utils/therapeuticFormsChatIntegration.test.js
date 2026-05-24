@@ -13,6 +13,8 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     expect(approvedAssistant?.metadata?.generated_file?.url).toBe('/forms/adolescents/en/core/adolescents-cbt-core-series-1-full-en.pdf');
 
     const staleMessages = [
+      // Non-form user text intentionally avoids deterministic intent routing, so
+      // this assertion isolates stale marker ID rejection behavior.
       { role: 'user', content: 'Thanks for the help', metadata: { session_language: 'en' } },
       { role: 'assistant', content: JSON.stringify({ assistant_message: 'Here you go [FORM:tf-adults-cbt-thought-record:en]' }) },
     ];
