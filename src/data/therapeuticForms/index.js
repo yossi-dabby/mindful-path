@@ -257,3 +257,14 @@ export {
   resolveFormWithLanguage,
   toGeneratedFileMetadata,
 } from './resolveTherapeuticForms.js';
+
+export {
+  listFormsForAI,
+  searchFormsForAI,
+  resolveFormForAIRequest,
+  resolveFormByIdOrSlug,
+  createGeneratedFileFromResolvedForm,
+  getAvailableFormGroups,
+  getFormsRegistryStats,
+  detectFormIntent,
+} from './aiFormsAccess.js';

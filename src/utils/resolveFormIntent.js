@@ -7,6 +7,10 @@ import {
   toGeneratedFileMetadata,
   ALL_FORMS,
 } from '../data/therapeuticForms/index.js';
+import {
+  detectFormIntent as detectDeterministicFormIntent,
+  resolveFormForAIRequest as resolveDeterministicFormForAIRequest,
+} from '../data/therapeuticForms/aiFormsAccess.js';
 
 const ADOLESCENTS_CBT_CORE_EN_ID = 'adolescents-cbt-core-en';
 const ADOLESCENTS_CBT_SPECIALIZED_EN_ID = 'adolescents-cbt-specialized-en';
@@ -869,4 +873,12 @@ export function resolveSpecializedModuleIdByCode(moduleCode) {
   const candidateId = `${SPECIALIZED_MODULE_ID_PREFIX}${normalizedCode}`;
   const exists = getSpecializedEnglishModuleForms().some((form) => form.id === candidateId);
   return exists ? candidateId : null;
+}
+
+export function detectFormIntent(userMessage) {
+  return detectDeterministicFormIntent(userMessage);
+}
+
+export function resolveFormIntentRequest(userMessage, context = {}) {
+  return resolveDeterministicFormForAIRequest(userMessage, context);
 }

@@ -13,7 +13,9 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     expect(approvedAssistant?.metadata?.generated_file?.url).toBe('/forms/adolescents/en/core/adolescents-cbt-core-series-1-full-en.pdf');
 
     const staleMessages = [
-      { role: 'user', content: 'Please share worksheet', metadata: { session_language: 'en' } },
+      // Non-form user text intentionally avoids deterministic intent routing, so
+      // this assertion isolates stale marker ID rejection behavior.
+      { role: 'user', content: 'Thanks for the help', metadata: { session_language: 'en' } },
       { role: 'assistant', content: JSON.stringify({ assistant_message: 'Here you go [FORM:tf-adults-cbt-thought-record:en]' }) },
     ];
     const staleResult = sanitizeConversationMessages(staleMessages, 'en');
@@ -40,5 +42,49 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     const assistant = result.find((m) => m.role === 'assistant');
     expect(assistant?.metadata?.generated_file?.form_id).toBe('children-cbt-core-en-5-1');
     expect(String(assistant?.metadata?.generated_file?.url || '')).toContain('/forms/children/en/cbt-core/children_cbt_core_en_05_01.pdf');
+  });
+
+  it('attaches generated_file for send intent even without [FORM:id] marker', () => {
+    const messages = [
+      { role: 'user', content: 'Can you send me forms for children regarding OCD?', metadata: { session_language: 'en' } },
+      { role: 'assistant', content: 'Sure, I can help with that.' },
+    ];
+    const result = sanitizeConversationMessages(messages, 'en');
+    const assistant = result.find((m) => m.role === 'assistant');
+    expect(assistant?.metadata?.generated_file).toBeTruthy();
+    expect(assistant?.metadata?.generated_file?.url).toMatch(/^\/forms\//);
+  });
+
+  it('blocks refusal-like cannot-access-forms text when deterministic match exists', () => {
+    const messages = [
+      { role: 'user', content: 'Send me a form for anger', metadata: { session_language: 'en' } },
+      { role: 'assistant', content: 'I cannot access forms right now due to a technical issue.' },
+    ];
+    const result = sanitizeConversationMessages(messages, 'en');
+    const assistant = result.find((m) => m.role === 'assistant');
+    expect(String(assistant?.content || '').toLowerCase()).not.toContain('cannot access forms');
+    expect(String(assistant?.content || '').toLowerCase()).not.toContain('technical issue');
+    expect(assistant?.metadata?.generated_file || (assistant?.content || '').length > 0).toBeTruthy();
+  });
+
+  it('allows hebrew session explicit english request to resolve english form card', () => {
+    const messages = [
+      { role: 'user', content: 'תשלח לי טופס באנגלית לילד בנושא OCD', metadata: { session_language: 'he' } },
+      { role: 'assistant', content: 'בשמחה.' },
+    ];
+    const result = sanitizeConversationMessages(messages, 'he');
+    const assistant = result.find((m) => m.role === 'assistant');
+    expect(assistant?.metadata?.generated_file).toBeTruthy();
+    expect(assistant?.metadata?.generated_file?.language).toBe('en');
+  });
+
+  it('keeps marker fallback active while deterministic path is primary', () => {
+    const messages = [
+      { role: 'user', content: 'Send worksheet 5.1 from children CBT core', metadata: { session_language: 'en' } },
+      { role: 'assistant', content: 'Sure [FORM:children-cbt-core-en-5-1:en]' },
+    ];
+    const result = sanitizeConversationMessages(messages, 'en');
+    const assistant = result.find((m) => m.role === 'assistant');
+    expect(assistant?.metadata?.generated_file?.form_id).toBe('children-cbt-core-en-5-1');
   });
 });

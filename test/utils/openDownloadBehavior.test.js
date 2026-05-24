@@ -5,6 +5,7 @@ import { resolveFormWithLanguage } from '../../src/data/therapeuticForms/index.j
 import { FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL } from '../../src/data/therapeuticForms/forms.adolescents.cbt-core.en.js';
 import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_MODULE_PDFS } from '../../src/data/therapeuticForms/forms.adolescents.cbt-specialized.en.js';
 import { normalizeGeneratedFile } from '../../src/components/chat/utils/normalizeGeneratedFile.js';
+import { createGeneratedFileFromResolvedForm, resolveFormByIdOrSlug } from '../../src/data/therapeuticForms/aiFormsAccess.js';
 import {
   getFormDownloadUrl,
   getFormOpenUrl,
@@ -73,6 +74,7 @@ describe('downloadPdfFile — source-code contract: uses download attribute', ()
 
 describe('GeneratedFileCard — Open vs Download source-code contract', () => {
   const cardSrc = fs.readFileSync(`${ROOT}/src/components/chat/GeneratedFileCard.jsx`, 'utf8');
+  const bubbleSrc = fs.readFileSync(`${ROOT}/src/components/chat/MessageBubble.jsx`, 'utf8');
 
   it('Open button calls openFile (not downloadPdfFile)', () => {
     expect(cardSrc).toContain('handleOpen');
@@ -87,6 +89,11 @@ describe('GeneratedFileCard — Open vs Download source-code contract', () => {
   it('Open button does not set download attribute in openFile helper', () => {
     const openFileSrc = fs.readFileSync(`${ROOT}/src/components/chat/utils/openFile.js`, 'utf8');
     expect(openFileSrc).not.toContain('.download =');
+  });
+
+  it('MessageBubble keeps GeneratedFileCard rendering when metadata.generated_file exists', () => {
+    expect(bubbleSrc).toContain('normalizeGeneratedFile(message?.metadata?.generated_file)');
+    expect(bubbleSrc).toContain('<GeneratedFileCard generatedFile={message.metadata.generated_file} />');
   });
 });
 
@@ -172,6 +179,22 @@ describe('formFileUrls — open/download URL separation', () => {
     expect(resolvePdfViewerFileParam('%2Fforms%2Fchildren%2Fen%2Fcbt-core%2Findividual%2F05-01-my-calm-plan.pdf%3Fdownload%3D1'))
       .toBe('/forms/children/en/cbt-core/individual/05-01-my-calm-plan.pdf');
     expect(resolvePdfViewerFileParam('%2Fprivate%2Fsecret.pdf')).toBeNull();
+  });
+
+  it('AI-sent generated file open URL uses viewer route without download query', () => {
+    const resolved = resolveFormByIdOrSlug('children-cbt-specialized-en-1-1-1', { language: 'en' });
+    const generated = createGeneratedFileFromResolvedForm(resolved);
+    const openUrl = getFormOpenUrl(generated?.url);
+    expect(openUrl).toContain(`${PDF_VIEWER_ROUTE_PATH}?file=`);
+    expect(openUrl.includes('download=1')).toBe(false);
+  });
+
+  it('AI-sent generated file download URL explicitly uses download behavior', () => {
+    const resolved = resolveFormByIdOrSlug('children-cbt-specialized-en-1-1-1', { language: 'en' });
+    const generated = createGeneratedFileFromResolvedForm(resolved);
+    const downloadUrl = getFormDownloadUrl(generated?.url);
+    expect(downloadUrl).toContain('/forms/');
+    expect(downloadUrl).toContain('download=1');
   });
 });
 

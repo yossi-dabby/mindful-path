@@ -57,6 +57,7 @@ import {
   extractBackendTranscriptionErrorReason,
   buildTranscriptionFailureDescription,
 } from '@/utils/audioTranscriptionDiagnostics.js';
+import { resolveFormIntentRequest } from '@/utils/resolveFormIntent.js';
 import {
   isWebmFile,
   isMp4File,
@@ -212,6 +213,26 @@ function resolveAttachmentType(fileName) {
   if (extension === 'pdf') return 'pdf';
   if (AUDIO_ATTACHMENT_EXTENSIONS.has(extension)) return 'audio';
   return 'file';
+}
+
+function buildDeterministicFormRouterContext(route, sessionLanguage) {
+  if (!route?.intent) return '';
+  const intent = route.intent;
+  const topMatch = route.matches?.[0] || route.nearestMatches?.[0] || null;
+  const lines = [
+    '[FORM_ROUTER_CONTEXT]',
+    `intent: ${intent.type}`,
+    `active_language: ${sessionLanguage || 'en'}`,
+  ];
+  if (intent.language) lines.push(`requested_language: ${intent.language}`);
+  if (intent.audience) lines.push(`requested_audience: ${intent.audience}`);
+  if (topMatch?.id) lines.push(`best_match_form_id: ${topMatch.id}`);
+  if (topMatch?.title) lines.push(`best_match_form_title: ${topMatch.title}`);
+  lines.push(`registry_total: ${route.stats?.total || 0}`);
+  lines.push(`should_attach_form: ${route.generatedFile ? 'yes' : 'no'}`);
+  if (route.usedFallbackLanguage) lines.push(`fallback_language_used: ${route.generatedFile?.language || route.resolvedLanguage || 'en'}`);
+  if (route.responseText) lines.push(`deterministic_hint: ${String(route.responseText).replace(/\s+/g, ' ').trim()}`);
+  return `\n${lines.join('\n')}\n`;
 }
 
 export default function Chat() {
@@ -1958,6 +1979,13 @@ export default function Chat() {
       let messageContent = runtimeSupplement ?
       runtimeSupplement + '\n\n' + messageText :
       messageText;
+      const deterministicFormRoute = resolveFormIntentRequest(messageText, {
+        language: sessionLanguageRef.current,
+      });
+      const formRouterContext = buildDeterministicFormRouterContext(deterministicFormRoute, sessionLanguageRef.current);
+      if (formRouterContext) {
+        messageContent += formRouterContext;
+      }
       if (isNewConversation) {
         const sessionStartContent = addLangDirective(
           await buildActionFirstDemotedSessionContentAsync(

@@ -14,7 +14,7 @@
  * - No arbitrary URL from model input is ever accepted.
  */
 
-import { resolveFormIntent, FORM_INTENT_MARKER_PATTERN } from '../../utils/resolveFormIntent.js';
+import { resolveFormIntent, resolveFormIntentRequest, FORM_INTENT_MARKER_PATTERN } from '../../utils/resolveFormIntent.js';
 import {
   resolveWorkbookIntentWithContext,
   resolveEnglishWorkbookIntentWithContext,
@@ -167,6 +167,14 @@ const NO_FORMS_ACCESS_PATTERNS = [
   /\b(?:i\s+(?:do not|don't|have no)\s+(?:currently\s+)?(?:have\s+)?access\s+to\s+(?:any\s+)?worksheets?)\b/i,
 ];
 const THERAPEUTIC_FORMS_ACCESS_CORRECTION = 'I can use the installed therapeutic forms catalog. Tell me the worksheet number, form name, language, or goal and I’ll look for the closest approved match.';
+const FORM_REFUSAL_PATTERNS = [
+  ...NO_FORMS_ACCESS_PATTERNS,
+  /\b(?:cannot|can't|unable to)\s+(?:send|attach|share)\s+(?:that\s+)?(?:form|worksheet)\b/i,
+  /\b(?:technical issue|system issue)\b/i,
+  /\b(?:cannot|can't|unable to)\s+(?:retrieve|get|find)\s+(?:forms?|worksheets?)\b/i,
+  /\b(?:no access|without access)\s+to\s+(?:forms?|worksheets?)\b/i,
+  /\b(?:cannot|can't|unable to)\s+directly\s+send\b/i,
+];
 
 /**
  * Normalizes a language code to a supported app language code.
@@ -249,6 +257,82 @@ export function extractAttachmentMetadataFromUserContent(content) {
 function stripAttachmentContextBlock(content) {
   if (typeof content !== 'string') return content;
   return content.replace(/\n?\[ATTACHMENT_CONTEXT\][\s\S]*$/, '').trim();
+}
+
+function stripFormRouterContextBlock(content) {
+  if (typeof content !== 'string') return content;
+  return content.replace(/\n?\[FORM_ROUTER_CONTEXT\][\s\S]*$/, '').trim();
+}
+
+function getVisibleUserContentForIntent(rawContent) {
+  if (typeof rawContent !== 'string') return '';
+  let content = rawContent.trim();
+  if (!content || content.startsWith(THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER)) return '';
+
+  if (content.startsWith('[START_SESSION]')) {
+    const lastEndMarkerMatch = content.match(/=== END [^\n]+ ===/g);
+    let splitPos = -1;
+
+    if (lastEndMarkerMatch) {
+      const lastMarker = lastEndMarkerMatch[lastEndMarkerMatch.length - 1];
+      const lastMarkerIdx = content.lastIndexOf(lastMarker);
+      const sepIdx = content.indexOf('\n\n', lastMarkerIdx + lastMarker.length);
+      if (sepIdx !== -1) splitPos = sepIdx;
+    } else {
+      const firstSep = content.indexOf('\n\n');
+      if (firstSep !== -1) splitPos = firstSep;
+    }
+
+    if (splitPos === -1) return '';
+    content = content.substring(splitPos + 2).trim();
+  }
+
+  const { content: contentWithoutAttachmentMarker } = extractAttachmentMetadataFromUserContent(content);
+  return stripFormRouterContextBlock(
+    stripAttachmentContextBlock(contentWithoutAttachmentMarker)
+  );
+}
+
+function hasFormRefusalLikeContent(content) {
+  const sanitized = typeof content === 'string' ? content : '';
+  return FORM_REFUSAL_PATTERNS.some((pattern) => pattern.test(sanitized));
+}
+
+function applyDeterministicFormRouteToAssistant({ content, metadata, formRoute }) {
+  // Guard only applies when the canonical registry is non-empty; when empty,
+  // this function remains no-op so standard fallback copy can be used upstream.
+  if (!formRoute?.intent || !formRoute?.stats || formRoute.stats.total <= 0) {
+    return {
+      content,
+      metadata,
+    };
+  }
+
+  const intentType = formRoute.intent.type;
+  const nextMetadata = { ...(metadata || {}) };
+  if (formRoute.generatedFile && !nextMetadata.generated_file) {
+    nextMetadata.generated_file = formRoute.generatedFile;
+  }
+
+  const deterministicText = typeof formRoute.responseText === 'string' ? formRoute.responseText.trim() : '';
+  const shouldForceDeterministicText =
+    intentType.startsWith('list_') ||
+    intentType === 'search_forms_by_need' ||
+    hasFormRefusalLikeContent(content) ||
+    (intentType.startsWith('send_') && !nextMetadata.generated_file);
+
+  nextMetadata.deterministic_form_route = {
+    intent_type: intentType,
+    registry_total: formRoute.stats.total,
+    matched_count: Array.isArray(formRoute.matches) ? formRoute.matches.length : 0,
+    nearest_count: Array.isArray(formRoute.nearestMatches) ? formRoute.nearestMatches.length : 0,
+    used_fallback_language: formRoute.usedFallbackLanguage === true,
+  };
+
+  return {
+    content: shouldForceDeterministicText && deterministicText ? deterministicText : content,
+    metadata: nextMetadata,
+  };
 }
 
 function getAttachmentContextType(message) {
@@ -880,7 +964,7 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
         const userText = content.substring(splitPos + 2).trim();
         const { content: cleanedUserText, attachment } = extractAttachmentMetadataFromUserContent(userText);
         if (userText) {
-          const visibleUserText = stripAttachmentContextBlock(cleanedUserText);
+          const visibleUserText = stripFormRouterContextBlock(stripAttachmentContextBlock(cleanedUserText));
           const pdfMetaSession = {};
           if (msg.metadata?.pdf_extracted_text) pdfMetaSession.pdf_extracted_text = msg.metadata.pdf_extracted_text;
           if (msg.metadata?.pdf_page_count) pdfMetaSession.pdf_page_count = msg.metadata.pdf_page_count;
@@ -906,7 +990,7 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
 
     if (msg.role === 'user' && typeof msg.content === 'string') {
       const { content, attachment } = extractAttachmentMetadataFromUserContent(msg.content);
-      const visibleUserText = stripAttachmentContextBlock(content);
+      const visibleUserText = stripFormRouterContextBlock(stripAttachmentContextBlock(content));
       // Preserve pdf_extracted_text / pdf_page_count from incoming metadata so the
       // collapsible card in MessageBubble always has the data available, regardless
       // of whether the SDK round-trips custom metadata fields.
@@ -942,10 +1026,18 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
       // Workbook routing priority context:
       // The user message at index-1 is the triggering query for this assistant response.
       // Collect older user messages for anaphoric context (e.g. "קונטרס אחר לזה?").
-      const triggeringUserMsg =
+      const rawTriggeringUserMsg =
         previousMessage?.role === 'user' && typeof previousMessage?.content === 'string'
           ? previousMessage.content
           : null;
+      const triggeringUserMsg = rawTriggeringUserMsg ? getVisibleUserContentForIntent(rawTriggeringUserMsg) : null;
+      const hasDeterministicFormRouterContext =
+        typeof rawTriggeringUserMsg === 'string' && rawTriggeringUserMsg.includes('[FORM_ROUTER_CONTEXT]');
+      const isSessionInjectedTriggeringMessage =
+        typeof rawTriggeringUserMsg === 'string' && rawTriggeringUserMsg.trim().startsWith('[START_SESSION]');
+      const isTherapeuticFormsPolicyRefreshMessage =
+        typeof rawTriggeringUserMsg === 'string' &&
+        rawTriggeringUserMsg.trim().startsWith(THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER);
       const previousUserContext =
         // Space-joining is sufficient: workbook routing only does substring matching
         // against Hebrew keywords, so word boundaries between joined messages are fine.
@@ -955,6 +1047,18 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
           .map(m => m.content)
           .slice(-2)
           .join(' ') || null;
+      const deterministicFormRoute =
+        (
+          !triggeringUserMsg ||
+          (
+            !hasDeterministicFormRouterContext &&
+            (isSessionInjectedTriggeringMessage || isTherapeuticFormsPolicyRefreshMessage)
+          )
+        )
+        ? null
+        : resolveFormIntentRequest(triggeringUserMsg || '', {
+          language: effectiveLang,
+        });
 
       const validated = validateAgentOutput(msg.content);
       
@@ -973,10 +1077,15 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
         if (separated.overflow) {
           nextMetadata[PDF_ANALYSIS_OVERFLOW_METADATA_KEY] = separated.overflow;
         }
+        const deterministicApplied = applyDeterministicFormRouteToAssistant({
+          content: separated.content,
+          metadata: nextMetadata,
+          formRoute: deterministicFormRoute,
+        });
         return {
           ...msg,
-          content: separated.content,
-          metadata: nextMetadata
+          content: deterministicApplied.content,
+          metadata: deterministicApplied.metadata
         };
       }
       
@@ -997,10 +1106,15 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
             if (separated.overflow) {
               nextMetadata[PDF_ANALYSIS_OVERFLOW_METADATA_KEY] = separated.overflow;
             }
+            const deterministicApplied = applyDeterministicFormRouteToAssistant({
+              content: separated.content,
+              metadata: nextMetadata,
+              formRoute: deterministicFormRoute,
+            });
             return {
               ...msg,
-              content: separated.content,
-              metadata: nextMetadata
+              content: deterministicApplied.content,
+              metadata: deterministicApplied.metadata
             };
           }
         } catch (e) {
@@ -1022,7 +1136,12 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
         if (separated.overflow) {
           nextMetadata[PDF_ANALYSIS_OVERFLOW_METADATA_KEY] = separated.overflow;
         }
-        return { ...msg, content: separated.content, metadata: nextMetadata };
+        const deterministicApplied = applyDeterministicFormRouteToAssistant({
+          content: separated.content,
+          metadata: nextMetadata,
+          formRoute: deterministicFormRoute,
+        });
+        return { ...msg, content: deterministicApplied.content, metadata: deterministicApplied.metadata };
       }
     }
     return msg;
