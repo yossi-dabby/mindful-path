@@ -105,6 +105,18 @@ export function getFilteredForms({ audience, category, lang }) {
     return acc;
   }, []);
 
+  const dedupedRegularForms = [];
+  const seenLanguageVariantCards = new Set();
+  for (const resolved of regularForms) {
+    const form = resolved?.form;
+    const resolvedLanguage = resolved?.language || lang;
+    const logicalId = form?.logical_form_id || form?.variant_group_id || form?.id;
+    const dedupeKey = `${logicalId}::${resolvedLanguage}`;
+    if (seenLanguageVariantCards.has(dedupeKey)) continue;
+    seenLanguageVariantCards.add(dedupeKey);
+    dedupedRegularForms.push(resolved);
+  }
+
   // Stage groups — English only, derived from the canonical forms source.
   // Each stage_group card lists its 6 individual worksheets for open/download.
   let stageGroupResults = [];
@@ -193,7 +205,7 @@ export function getFilteredForms({ audience, category, lang }) {
   // Type ordering: workbook_package (0) sorts before stage_group (1) before others (2)
   const TYPE_ORDER = { workbook_package: 0, stage_group: 1 };
 
-  return [...regularForms, ...stageGroupResults].sort((a, b) => {
+  return [...dedupedRegularForms, ...stageGroupResults].sort((a, b) => {
     const byLanguage = String(a.language || '').localeCompare(String(b.language || ''));
     if (byLanguage !== 0) return byLanguage;
     const byAudience = String(a.form.audience || '').localeCompare(String(b.form.audience || ''));
