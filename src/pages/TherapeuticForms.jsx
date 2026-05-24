@@ -26,10 +26,16 @@ export function resolveLibraryFormWithLanguage(form, lang) {
 }
 
 function getLanguageFolderPrefix(lang, audience) {
-  return [
+  const prefixes = [
     `/forms/${lang}/`,
     audience ? `/forms/${audience}/${lang}/` : null,
   ].filter(Boolean);
+
+  if (lang === 'en' && audience === 'children') {
+    prefixes.push('/forms/children_cbt_specialized_en_');
+  }
+
+  return prefixes;
 }
 
 function toWorksheetSortValue(worksheetNumber) {
