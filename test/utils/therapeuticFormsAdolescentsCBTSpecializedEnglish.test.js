@@ -15,7 +15,7 @@ import {
   resolveAdolescentsCBTSpecializedEnglishFormByContent,
 } from '../../src/utils/resolveFormIntent.js';
 
-const ROOT = '/home/runner/work/mindful-path/mindful-path';
+const ROOT = path.resolve(process.cwd());
 const SPECIALIZED_SERIES_ID = 'adolescents-cbt-specialized-en';
 const SPECIALIZED_SERIES_URL = '/forms/adolescents/en/cbt-specialized/yourcbttrapist_adolescents_cbt_specialized_en_full_series_60_forms_web_optimized_under_25mb.pdf';
 
@@ -36,15 +36,17 @@ describe('therapeuticFormsAdolescentsCBTSpecializedEnglish.test.js', () => {
 
   it('appears in TherapeuticForms only for English locale', () => {
     const specializedForms = ALL_FORMS.filter((form) => form.category === 'adolescents_cbt_specialized');
-    // 11 EN (1 workbook_package + 10 module_pdfs) + 6 HE individual_worksheets for module-01
-    expect(specializedForms).toHaveLength(17);
+    // 11 English (series + 10 modules) + 60 Hebrew individual worksheets
+    expect(specializedForms).toHaveLength(71);
 
     const englishResolvable = specializedForms.filter((form) => resolveFormWithLanguage(form.id, 'en'));
     const hebrewResolvable = specializedForms.filter((form) => resolveFormWithLanguage(form.id, 'he'));
     const spanishResolvable = specializedForms.filter((form) => resolveFormWithLanguage(form.id, 'es'));
 
+    // Only the 11 EN forms resolve in English mode
     expect(englishResolvable).toHaveLength(11);
-    expect(hebrewResolvable).toHaveLength(6);
+    // 60 Hebrew individual worksheets resolve in Hebrew mode
+    expect(hebrewResolvable).toHaveLength(60);
     expect(spanishResolvable).toHaveLength(0);
   });
 
