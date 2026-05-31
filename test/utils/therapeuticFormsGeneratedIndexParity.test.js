@@ -8,6 +8,7 @@ import {
   getAllTherapeuticForms,
   getTherapeuticFormsForAI,
   getTherapeuticFormsRegistryDiagnostics,
+  THERAPEUTIC_CATEGORIES,
 } from '../../src/data/therapeuticForms/index.js';
 import { resolveFormIntent } from '../../src/utils/resolveFormIntent.js';
 
@@ -134,6 +135,28 @@ describe('therapeutic forms generated index parity', () => {
     for (let stage = 1; stage <= 6; stage += 1) {
       expect(hebrewIndividuals.filter((form) => Number(form.stageNumber || form.moduleNumber) === stage)).toHaveLength(5);
       expect(hebrewStageCombined.filter((form) => Number(form.stageNumber || form.moduleNumber) === stage)).toHaveLength(1);
+    }
+  });
+
+  it('keeps Hebrew adolescents core metadata approved, rtl, and filter-compatible', () => {
+    const validCategories = new Set(THERAPEUTIC_CATEGORIES.map((cat) => cat.value));
+    const hebrewAdolescentsCore = ALL_FORMS.filter(
+      (form) => form.audience === 'adolescents' && form.language === 'he' && form.category === 'adolescents_cbt_core'
+    );
+
+    expect(hebrewAdolescentsCore).toHaveLength(36);
+
+    for (const form of hebrewAdolescentsCore) {
+      expect(form.approved).toBe(true);
+      expect(form.language).toBe('he');
+      expect(form.languages?.he?.rtl).toBe(true);
+      expect(typeof form.fileUrl).toBe('string');
+      expect(form.fileUrl.startsWith('/forms/')).toBe(true);
+      expect(fs.existsSync(path.join(ROOT, 'public', form.fileUrl.replace(/^\//, '')))).toBe(true);
+      expect(validCategories.has(form.category)).toBe(true);
+      for (const secondary of form.secondaryCategories || []) {
+        expect(validCategories.has(secondary)).toBe(true);
+      }
     }
   });
 

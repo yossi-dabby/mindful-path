@@ -1,14 +1,13 @@
 const ADOLESCENTS_CBT_CORE_HE_SERIES_ID = 'adolescents-cbt-core-he';
 
-const SHARED_SECONDARY_CATEGORIES = Object.freeze([
-  'therapeutic_workbooks',
-  'thought_records',
-  'cognitive_restructuring',
-  'emotional_regulation',
-  'coping_tools',
-  'weekly_practice',
-  'journaling_reflection',
-]);
+const STAGE_SECONDARY_CATEGORIES = Object.freeze({
+  1: Object.freeze(['workbook_series', 'thought_records', 'coping_tools']),
+  2: Object.freeze(['thought_records', 'cognitive_distortions', 'anxiety_tools']),
+  3: Object.freeze(['thought_records', 'cognitive_distortions', 'emotional_regulation']),
+  4: Object.freeze(['emotional_regulation', 'behavioral_activation', 'coping_tools']),
+  5: Object.freeze(['behavioral_activation', 'anxiety_tools', 'coping_tools']),
+  6: Object.freeze(['weekly_practice', 'goals_and_values', 'reflection_journal']),
+});
 
 const SHARED_NOT_FOR = Object.freeze([
   'children under adolescent age',
@@ -163,7 +162,7 @@ const FORMS_ADOLESCENTS_CBT_CORE_HE_INDIVIDUAL_UNFROZEN = INDIVIDUAL_WORKSHEET_D
     language: 'he',
     audience: 'adolescents',
     category: 'adolescents_cbt_core',
-    secondaryCategories: SHARED_SECONDARY_CATEGORIES,
+    secondaryCategories: STAGE_SECONDARY_CATEGORIES[stage],
     title: definition.title,
     description: definition.description,
     formNumber,
@@ -229,7 +228,7 @@ export const FORMS_ADOLESCENTS_CBT_CORE_HE_STAGE_COMBINED = Object.freeze(
       language: 'he',
       audience: 'adolescents',
       category: 'adolescents_cbt_core',
-      secondaryCategories: SHARED_SECONDARY_CATEGORIES,
+      secondaryCategories: STAGE_SECONDARY_CATEGORIES[stage],
       title: definition.title,
       description: `${definition.description} הקובץ מיועד לבקשות של שלב מלא ואינו מחליף טופס ממוקד לצורך קליני ספציפי.`,
       formNumber: `stage-${stage}-combined`,

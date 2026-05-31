@@ -6,6 +6,7 @@ import {
   resolveFormWithLanguage,
   toGeneratedFileMetadata,
   ALL_FORMS,
+  SUPPORTED_LANGUAGES,
 } from '../data/therapeuticForms/index.js';
 import {
   detectFormIntent as detectDeterministicFormIntent,
@@ -219,6 +220,12 @@ function resolveApprovedFormById(formId, lang = 'en') {
 
 function normalizeText(value) {
   return String(value || '').toLowerCase().trim();
+}
+
+function normalizeLanguageCode(value) {
+  if (typeof value !== 'string' || !value.trim()) return 'en';
+  const base = value.trim().toLowerCase().split('-')[0];
+  return SUPPORTED_LANGUAGES.includes(base) ? base : 'en';
 }
 
 function containsAny(text, terms) {
@@ -709,7 +716,7 @@ export function resolveFormIntent(intentOrSlug, lang) {
 
   const normalizedIntent = intentOrSlug.toLowerCase().trim();
   const normalizedIntentAlias = normalizeLegacyWorksheetAlias(normalizedIntent);
-  const resolvedLang = typeof lang === 'string' && lang.trim() ? lang.trim() : 'en';
+  const resolvedLang = normalizeLanguageCode(lang);
 
   const formId =
     APPROVED_FORM_INTENT_MAP[normalizedIntent] ||

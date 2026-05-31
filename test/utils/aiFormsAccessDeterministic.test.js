@@ -176,6 +176,13 @@ describe('aiFormsAccess deterministic send + language behavior', () => {
     expect(resolved.generatedFile.language).toBe('he');
   });
 
+  it('treats he-IL as Hebrew and keeps English fallback disabled for general Hebrew requests', () => {
+    const resolved = resolveFormForAIRequest('שלח לי טופס CBT למתבגר בעברית', { language: 'he-IL' });
+    expect(resolved.generatedFile).not.toBeNull();
+    expect(resolved.generatedFile.language).toBe('he');
+    expect(resolved.usedFallbackLanguage).toBe(false);
+  });
+
   it('does not silently fallback to English in Hebrew session for non-Hebrew catalog gaps', () => {
     const resolved = resolveFormForAIRequest('תשלח לי טופס לילדים בנושא OCD', { language: 'he' });
     expect(resolved.intent?.type).toBe('send_best_matching_form');
