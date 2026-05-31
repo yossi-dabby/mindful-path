@@ -101,6 +101,17 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     expect(String(assistant?.metadata?.generated_file?.form_id || '')).not.toContain('adolescents-cbt-core-he');
   });
 
+  it('does not attach Hebrew form in non-Hebrew non-English session', () => {
+    const messages = [
+      { role: 'user', content: 'שלח לי את כל שלב 2 בקובץ אחד', metadata: { session_language: 'es' } },
+      { role: 'assistant', content: 'Aquí está [FORM:adolescents-cbt-core-he-stage-2-combined:he]' },
+    ];
+    const result = sanitizeConversationMessages(messages, 'es');
+    const assistant = result.find((m) => m.role === 'assistant');
+    expect(assistant?.metadata?.generated_file?.language || null).not.toBe('he');
+    expect(String(assistant?.metadata?.generated_file?.form_id || '')).not.toContain('adolescents-cbt-core-he');
+  });
+
   it('keeps marker fallback active while deterministic path is primary', () => {
     const messages = [
       { role: 'user', content: 'Send worksheet 5.1 from children CBT core', metadata: { session_language: 'en' } },

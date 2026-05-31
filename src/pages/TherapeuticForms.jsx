@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import {
   AUDIENCE_GROUPS,
   THERAPEUTIC_CATEGORIES,
+  SUPPORTED_LANGUAGES,
   ALL_FORMS,
   resolveFormWithLanguage } from
 '@/data/therapeuticForms/index.js';
@@ -26,17 +27,14 @@ export function resolveLibraryFormWithLanguage(form, lang) {
   return resolved;
 }
 
-function getLanguageFolderPrefix(lang, audience) {
-  const prefixes = [
-    `/forms/${lang}/`,
-    audience ? `/forms/${audience}/${lang}/` : null,
-  ].filter(Boolean);
+function normalizeLanguageCode(language) {
+  if (typeof language !== 'string' || !language.trim()) return 'en';
+  const base = language.trim().toLowerCase().split('-')[0];
+  return SUPPORTED_LANGUAGES.includes(base) ? base : 'en';
+}
 
-  if (lang === 'en' && audience === 'children') {
-    prefixes.push('/forms/children_cbt_specialized_en_');
-  }
-
-  return prefixes;
+function hasValidPublicFormsUrl(fileUrl) {
+  return typeof fileUrl === 'string' && fileUrl.trim().startsWith('/forms/');
 }
 
 function toWorksheetSortValue(worksheetNumber) {
@@ -71,9 +69,8 @@ function hasValidLanguageMatch(resolved, lang) {
     return false;
   }
   const fileUrl = String(languageData.file_url || '').trim();
-  const expectedPrefixes = getLanguageFolderPrefix(lang, form.audience);
-  if (!expectedPrefixes.some((prefix) => fileUrl.includes(prefix))) {
-    warnLanguageMismatch(form, lang, `file_url "${fileUrl}" missing expected one of "${expectedPrefixes.join(', ')}"`);
+  if (!hasValidPublicFormsUrl(fileUrl)) {
+    warnLanguageMismatch(form, lang, `file_url "${fileUrl}" is not a public forms path`);
     return false;
   }
   return true;
@@ -84,10 +81,11 @@ function hasValidLanguageMatch(resolved, lang) {
 // Keeps filtering logic minimal and delegates all validity checks to the resolver.
 // For English/adolescents, also returns stage group cards (each grouping 5 worksheets).
 export function getFilteredForms({ audience, category, lang }) {
+  const normalizedLang = normalizeLanguageCode(lang);
   const langFiltered = ALL_FORMS.filter((form) => {
-    if (!form.languages?.[lang] || form.approved !== true) return false;
+    if (!form.languages?.[normalizedLang] || form.approved !== true) return false;
     if (form.type !== 'individual_worksheet') return true;
-    return lang === 'he' && form.language === 'he' && form.audience === 'adolescents' && form.category === 'adolescents_cbt_core';
+    return normalizedLang === 'he' && form.language === 'he' && form.audience === 'adolescents' && form.category === 'adolescents_cbt_core';
   });
 
   const audienceFiltered = langFiltered.filter(
@@ -102,9 +100,9 @@ export function getFilteredForms({ audience, category, lang }) {
   });
 
   const regularForms = categoryFiltered.reduce((acc, form) => {
-    const resolved = resolveLibraryFormWithLanguage(form, lang);
+    const resolved = resolveLibraryFormWithLanguage(form, normalizedLang);
     if (!resolved) return acc;
-    if (!hasValidLanguageMatch(resolved, lang)) return acc;
+    if (!hasValidLanguageMatch(resolved, normalizedLang)) return acc;
     acc.push(resolved);
     return acc;
   }, []);
@@ -113,7 +111,7 @@ export function getFilteredForms({ audience, category, lang }) {
   const seenLanguageVariantCards = new Set();
   for (const resolved of regularForms) {
     const form = resolved?.form;
-    const resolvedLanguage = resolved?.language || lang;
+    const resolvedLanguage = resolved?.language || normalizedLang;
     const logicalId = form?.logical_form_id || form?.variant_group_id || form?.id;
     const dedupeKey = `${logicalId}::${resolvedLanguage}`;
     if (seenLanguageVariantCards.has(dedupeKey)) continue;
@@ -124,7 +122,7 @@ export function getFilteredForms({ audience, category, lang }) {
   // Stage groups — English only, derived from the canonical forms source.
   // Each stage_group card lists its 6 individual worksheets for open/download.
   let stageGroupResults = [];
-  if (lang === 'en') {
+  if (normalizedLang === 'en') {
     const adolescentGroups = FORMS_ADOLESCENTS_CBT_CORE_EN_STAGE_GROUPS
       .filter((sg) => audience === 'all' || sg.audience === audience)
       .filter((sg) => {
@@ -314,7 +312,7 @@ function ScrollableChipRow({ children, testId, isRtl }) {
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function TherapeuticForms() {
   const { t, i18n } = useTranslation();
-  const lang = i18n.language || 'en';
+  const lang = normalizeLanguageCode(i18n.resolvedLanguage || i18n.language || 'en');
   const isRtl = i18n.dir ? i18n.dir() === 'rtl' : lang === 'he';
 
   const [selectedAudience, setSelectedAudience] = useState('all');

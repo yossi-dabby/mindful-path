@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
+import path from 'node:path';
 import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
 import { resolveFormWithLanguage } from '../../src/data/therapeuticForms/index.js';
 import { FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL } from '../../src/data/therapeuticForms/forms.adolescents.cbt-core.en.js';
@@ -13,7 +14,7 @@ import {
   resolvePdfViewerFileParam,
 } from '../../src/components/chat/utils/formFileUrls.js';
 
-const ROOT = '/home/runner/work/mindful-path/mindful-path';
+const ROOT = path.resolve(process.cwd());
 const packageJson = JSON.parse(fs.readFileSync(`${ROOT}/package.json`, 'utf8'));
 
 describe('openDownloadBehavior.test.js', () => {

@@ -12,7 +12,7 @@ import {
   resolveAdolescentsCBTCoreEnglishFormByContent,
 } from '../../src/utils/resolveFormIntent.js';
 
-const ROOT = '/home/runner/work/mindful-path/mindful-path';
+const ROOT = path.resolve(process.cwd());
 const CORE_ID = 'adolescents-cbt-core-en';
 const CORE_URL = '/forms/adolescents/en/core/adolescents-cbt-core-series-1-full-en.pdf';
 
@@ -241,8 +241,7 @@ describe('Stage groups — worksheet membership per stage', () => {
 // ─── TherapeuticForms.jsx — stage group filtering source-code contract ─────────
 
 describe('TherapeuticForms.jsx — stage group UI display source-code contract', () => {
-  const ROOT = '/home/runner/work/mindful-path/mindful-path';
-  const pageSrc = fs.readFileSync(`${ROOT}/src/pages/TherapeuticForms.jsx`, 'utf8');
+  const pageSrc = fs.readFileSync(path.join(ROOT, 'src/pages/TherapeuticForms.jsx'), 'utf8');
 
   it('imports FORMS_ADOLESCENTS_CBT_CORE_EN_STAGE_GROUPS from canonical forms source', () => {
     expect(pageSrc).toContain('FORMS_ADOLESCENTS_CBT_CORE_EN_STAGE_GROUPS');
@@ -254,7 +253,7 @@ describe('TherapeuticForms.jsx — stage group UI display source-code contract',
   });
 
   it('filters stage groups only for lang === en', () => {
-    expect(pageSrc).toContain("lang === 'en'");
+    expect(pageSrc).toContain("normalizedLang === 'en'");
   });
 
   it('filters stage groups by audience', () => {

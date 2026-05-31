@@ -23740,13 +23740,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 1 — להבין מה קורה לי עכשיו",
     "secondaryCategories": [
-      "therapeutic_workbooks",
+      "workbook_series",
       "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "coping_tools"
     ],
     "worksheetNumber": "1.1",
     "formNumber": "1.1",
@@ -23848,13 +23844,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 1 — להבין מה קורה לי עכשיו",
     "secondaryCategories": [
-      "therapeutic_workbooks",
+      "workbook_series",
       "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "coping_tools"
     ],
     "worksheetNumber": "1.2",
     "formNumber": "1.2",
@@ -23956,13 +23948,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 1 — להבין מה קורה לי עכשיו",
     "secondaryCategories": [
-      "therapeutic_workbooks",
+      "workbook_series",
       "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "coping_tools"
     ],
     "worksheetNumber": "1.3",
     "formNumber": "1.3",
@@ -24064,13 +24052,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 1 — להבין מה קורה לי עכשיו",
     "secondaryCategories": [
-      "therapeutic_workbooks",
+      "workbook_series",
       "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "coping_tools"
     ],
     "worksheetNumber": "1.4",
     "formNumber": "1.4",
@@ -24172,13 +24156,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 1 — להבין מה קורה לי עכשיו",
     "secondaryCategories": [
-      "therapeutic_workbooks",
+      "workbook_series",
       "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "coping_tools"
     ],
     "worksheetNumber": "1.5",
     "formNumber": "1.5",
@@ -24278,13 +24258,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 2 — לזהות מחשבות ופירושים",
     "secondaryCategories": [
-      "therapeutic_workbooks",
       "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "cognitive_distortions",
+      "anxiety_tools"
     ],
     "worksheetNumber": "2.1",
     "formNumber": "2.1",
@@ -24384,13 +24360,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 2 — לזהות מחשבות ופירושים",
     "secondaryCategories": [
-      "therapeutic_workbooks",
       "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "cognitive_distortions",
+      "anxiety_tools"
     ],
     "worksheetNumber": "2.2",
     "formNumber": "2.2",
@@ -24490,13 +24462,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 2 — לזהות מחשבות ופירושים",
     "secondaryCategories": [
-      "therapeutic_workbooks",
       "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "cognitive_distortions",
+      "anxiety_tools"
     ],
     "worksheetNumber": "2.3",
     "formNumber": "2.3",
@@ -24596,13 +24564,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 2 — לזהות מחשבות ופירושים",
     "secondaryCategories": [
-      "therapeutic_workbooks",
       "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "cognitive_distortions",
+      "anxiety_tools"
     ],
     "worksheetNumber": "2.4",
     "formNumber": "2.4",
@@ -24702,13 +24666,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 2 — לזהות מחשבות ופירושים",
     "secondaryCategories": [
-      "therapeutic_workbooks",
       "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "cognitive_distortions",
+      "anxiety_tools"
     ],
     "worksheetNumber": "2.5",
     "formNumber": "2.5",
@@ -24808,13 +24768,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 3 — בדיקת מחשבות ואיזון",
     "secondaryCategories": [
-      "therapeutic_workbooks",
       "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "cognitive_distortions",
+      "emotional_regulation"
     ],
     "worksheetNumber": "3.1",
     "formNumber": "3.1",
@@ -24914,13 +24870,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 3 — בדיקת מחשבות ואיזון",
     "secondaryCategories": [
-      "therapeutic_workbooks",
       "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "cognitive_distortions",
+      "emotional_regulation"
     ],
     "worksheetNumber": "3.2",
     "formNumber": "3.2",
@@ -25020,13 +24972,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 3 — בדיקת מחשבות ואיזון",
     "secondaryCategories": [
-      "therapeutic_workbooks",
       "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "cognitive_distortions",
+      "emotional_regulation"
     ],
     "worksheetNumber": "3.3",
     "formNumber": "3.3",
@@ -25126,13 +25074,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 3 — בדיקת מחשבות ואיזון",
     "secondaryCategories": [
-      "therapeutic_workbooks",
       "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "cognitive_distortions",
+      "emotional_regulation"
     ],
     "worksheetNumber": "3.4",
     "formNumber": "3.4",
@@ -25232,13 +25176,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 3 — בדיקת מחשבות ואיזון",
     "secondaryCategories": [
-      "therapeutic_workbooks",
       "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "cognitive_distortions",
+      "emotional_regulation"
     ],
     "worksheetNumber": "3.5",
     "formNumber": "3.5",
@@ -25338,13 +25278,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 4 — בחירת פעולה יעילה",
     "secondaryCategories": [
-      "therapeutic_workbooks",
-      "thought_records",
-      "cognitive_restructuring",
       "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "behavioral_activation",
+      "coping_tools"
     ],
     "worksheetNumber": "4.1",
     "formNumber": "4.1",
@@ -25444,13 +25380,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 4 — בחירת פעולה יעילה",
     "secondaryCategories": [
-      "therapeutic_workbooks",
-      "thought_records",
-      "cognitive_restructuring",
       "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "behavioral_activation",
+      "coping_tools"
     ],
     "worksheetNumber": "4.2",
     "formNumber": "4.2",
@@ -25550,13 +25482,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 4 — בחירת פעולה יעילה",
     "secondaryCategories": [
-      "therapeutic_workbooks",
-      "thought_records",
-      "cognitive_restructuring",
       "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "behavioral_activation",
+      "coping_tools"
     ],
     "worksheetNumber": "4.3",
     "formNumber": "4.3",
@@ -25656,13 +25584,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 4 — בחירת פעולה יעילה",
     "secondaryCategories": [
-      "therapeutic_workbooks",
-      "thought_records",
-      "cognitive_restructuring",
       "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "behavioral_activation",
+      "coping_tools"
     ],
     "worksheetNumber": "4.4",
     "formNumber": "4.4",
@@ -25762,13 +25686,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 4 — בחירת פעולה יעילה",
     "secondaryCategories": [
-      "therapeutic_workbooks",
-      "thought_records",
-      "cognitive_restructuring",
       "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "behavioral_activation",
+      "coping_tools"
     ],
     "worksheetNumber": "4.5",
     "formNumber": "4.5",
@@ -25868,13 +25788,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 5 — תרגול פעולה והתמדה",
     "secondaryCategories": [
-      "therapeutic_workbooks",
-      "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "behavioral_activation",
+      "anxiety_tools",
+      "coping_tools"
     ],
     "worksheetNumber": "5.1",
     "formNumber": "5.1",
@@ -25974,13 +25890,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 5 — תרגול פעולה והתמדה",
     "secondaryCategories": [
-      "therapeutic_workbooks",
-      "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "behavioral_activation",
+      "anxiety_tools",
+      "coping_tools"
     ],
     "worksheetNumber": "5.2",
     "formNumber": "5.2",
@@ -26080,13 +25992,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 5 — תרגול פעולה והתמדה",
     "secondaryCategories": [
-      "therapeutic_workbooks",
-      "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "behavioral_activation",
+      "anxiety_tools",
+      "coping_tools"
     ],
     "worksheetNumber": "5.3",
     "formNumber": "5.3",
@@ -26186,13 +26094,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 5 — תרגול פעולה והתמדה",
     "secondaryCategories": [
-      "therapeutic_workbooks",
-      "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "behavioral_activation",
+      "anxiety_tools",
+      "coping_tools"
     ],
     "worksheetNumber": "5.4",
     "formNumber": "5.4",
@@ -26292,13 +26196,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 5 — תרגול פעולה והתמדה",
     "secondaryCategories": [
-      "therapeutic_workbooks",
-      "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "behavioral_activation",
+      "anxiety_tools",
+      "coping_tools"
     ],
     "worksheetNumber": "5.5",
     "formNumber": "5.5",
@@ -26398,13 +26298,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 6 — חיזוק, מעקב ותוכנית אישית",
     "secondaryCategories": [
-      "therapeutic_workbooks",
-      "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
       "weekly_practice",
-      "journaling_reflection"
+      "goals_and_values",
+      "reflection_journal"
     ],
     "worksheetNumber": "6.1",
     "formNumber": "6.1",
@@ -26504,13 +26400,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 6 — חיזוק, מעקב ותוכנית אישית",
     "secondaryCategories": [
-      "therapeutic_workbooks",
-      "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
       "weekly_practice",
-      "journaling_reflection"
+      "goals_and_values",
+      "reflection_journal"
     ],
     "worksheetNumber": "6.2",
     "formNumber": "6.2",
@@ -26610,13 +26502,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 6 — חיזוק, מעקב ותוכנית אישית",
     "secondaryCategories": [
-      "therapeutic_workbooks",
-      "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
       "weekly_practice",
-      "journaling_reflection"
+      "goals_and_values",
+      "reflection_journal"
     ],
     "worksheetNumber": "6.3",
     "formNumber": "6.3",
@@ -26716,13 +26604,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 6 — חיזוק, מעקב ותוכנית אישית",
     "secondaryCategories": [
-      "therapeutic_workbooks",
-      "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
       "weekly_practice",
-      "journaling_reflection"
+      "goals_and_values",
+      "reflection_journal"
     ],
     "worksheetNumber": "6.4",
     "formNumber": "6.4",
@@ -26822,13 +26706,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 6 — חיזוק, מעקב ותוכנית אישית",
     "secondaryCategories": [
-      "therapeutic_workbooks",
-      "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
       "weekly_practice",
-      "journaling_reflection"
+      "goals_and_values",
+      "reflection_journal"
     ],
     "worksheetNumber": "6.5",
     "formNumber": "6.5",
@@ -26928,13 +26808,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 1 — להבין מה קורה לי עכשיו",
     "secondaryCategories": [
-      "therapeutic_workbooks",
+      "workbook_series",
       "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "coping_tools"
     ],
     "worksheetNumber": "stage-1-combined",
     "formNumber": "stage-1-combined",
@@ -27030,13 +26906,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 2 — לזהות מחשבות ופירושים",
     "secondaryCategories": [
-      "therapeutic_workbooks",
       "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "cognitive_distortions",
+      "anxiety_tools"
     ],
     "worksheetNumber": "stage-2-combined",
     "formNumber": "stage-2-combined",
@@ -27132,13 +27004,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 3 — בדיקת מחשבות ואיזון",
     "secondaryCategories": [
-      "therapeutic_workbooks",
       "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "cognitive_distortions",
+      "emotional_regulation"
     ],
     "worksheetNumber": "stage-3-combined",
     "formNumber": "stage-3-combined",
@@ -27235,13 +27103,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 4 — בחירת פעולה יעילה",
     "secondaryCategories": [
-      "therapeutic_workbooks",
-      "thought_records",
-      "cognitive_restructuring",
       "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "behavioral_activation",
+      "coping_tools"
     ],
     "worksheetNumber": "stage-4-combined",
     "formNumber": "stage-4-combined",
@@ -27338,13 +27202,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 5 — תרגול פעולה והתמדה",
     "secondaryCategories": [
-      "therapeutic_workbooks",
-      "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
-      "weekly_practice",
-      "journaling_reflection"
+      "behavioral_activation",
+      "anxiety_tools",
+      "coping_tools"
     ],
     "worksheetNumber": "stage-5-combined",
     "formNumber": "stage-5-combined",
@@ -27441,13 +27301,9 @@
     "category": "adolescents_cbt_core",
     "subcategory": "שלב 6 — חיזוק, מעקב ותוכנית אישית",
     "secondaryCategories": [
-      "therapeutic_workbooks",
-      "thought_records",
-      "cognitive_restructuring",
-      "emotional_regulation",
-      "coping_tools",
       "weekly_practice",
-      "journaling_reflection"
+      "goals_and_values",
+      "reflection_journal"
     ],
     "worksheetNumber": "stage-6-combined",
     "formNumber": "stage-6-combined",
