@@ -1,22 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
-<<<<<<< HEAD
-import fs from 'node:fs';
-import path from 'node:path';
-import { ALL_FORMS, resolveFormWithLanguage } from '../../src/data/therapeuticForms/index.js';
-import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE } from '../../src/data/therapeuticForms/forms.adolescents.cbt-specialized.he.js';
-
-const ROOT = path.resolve(process.cwd());
-
-describe('therapeuticFormsAdolescentsCBTSpecialized.test.js — Hebrew adolescents CBT specialized modules 01-10', () => {
-
-  // ── Registry structure ──────────────────────────────────────────────────
-
-  it('registry exports exactly 60 individual worksheet entries', () => {
-    expect(FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE).toHaveLength(60);
-=======
-import { ALL_FORMS, THERAPEUTIC_CATEGORIES } from '../../src/data/therapeuticForms/index.js';
+import { ALL_FORMS, THERAPEUTIC_CATEGORIES, resolveFormWithLanguage } from '../../src/data/therapeuticForms/index.js';
 import { resolveFormIntent } from '../../src/utils/resolveFormIntent.js';
 import {
   FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE,
@@ -41,12 +26,12 @@ function isShownInEnglishMode(form) {
   return false;
 }
 
-// ─── Baseline sanity tests (kept from original file) ──────────────────────────
+describe('therapeuticFormsAdolescentsCBTSpecialized.test.js — Hebrew adolescents CBT specialized modules 01-10', () => {
 
-describe('therapeuticFormsAdolescentsCBTSpecialized.test.js — baseline', () => {
-  it('keeps ALL_FORMS populated with at least the adolescents-cbt-core-en entry', () => {
-    expect(ALL_FORMS.map((form) => form.id)).toContain('adolescents-cbt-core-en');
->>>>>>> origin/main
+  // ── Registry structure ──────────────────────────────────────────────────
+
+  it('registry exports exactly 60 individual worksheet entries', () => {
+    expect(FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE).toHaveLength(60);
   });
 
   it('each module contributes exactly 6 entries (modules 01-10)', () => {
@@ -56,7 +41,6 @@ describe('therapeuticFormsAdolescentsCBTSpecialized.test.js — baseline', () =>
     }
   });
 
-<<<<<<< HEAD
   it('modules 02-10 contribute exactly 54 entries', () => {
     const count = FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE.filter((f) => f.moduleNumber >= 2).length;
     expect(count).toBe(54);
@@ -205,14 +189,27 @@ describe('therapeuticFormsAdolescentsCBTSpecialized.test.js — baseline', () =>
     expect(m01).toHaveLength(6);
     expect(m01.every((f) => f.language === 'he')).toBe(true);
     expect(m01.every((f) => f.languages?.he?.rtl === true)).toBe(true);
-=======
+  });
+});
+
+// ─── Baseline sanity tests (kept from original file) ──────────────────────────
+
+describe('therapeuticFormsAdolescentsCBTSpecialized.test.js — baseline', () => {
+  it('keeps ALL_FORMS populated with at least the adolescents-cbt-core-en entry', () => {
+    expect(ALL_FORMS.map((form) => form.id)).toContain('adolescents-cbt-core-en');
+  });
+
+  it('does not resolve stale therapeutic form ids', () => {
+    expect(resolveFormIntent('tf-adults-cbt-thought-record', 'en')).toBeNull();
+    expect(resolveFormIntent('tf-children-cbt-stage-2-2-premium-he', 'he')).toBeNull();
+  });
+
   it('has active runtime /forms PDF URLs in catalog', () => {
     const activePdfUrls = ALL_FORMS
       .flatMap((form) => Object.values(form.languages || {}))
       .map((langBlock) => String(langBlock?.file_url || ''))
       .filter((url) => /\/forms\/.+\.pdf$/i.test(url));
     expect(activePdfUrls).toContain('/forms/adolescents/en/core/adolescents-cbt-core-series-1-full-en.pdf');
->>>>>>> origin/main
   });
 });
 
@@ -233,7 +230,7 @@ describe('therapeuticFormsAdolescentsCBTSpecialized.test.js — module 01 Hebrew
       (form) =>
         form.category === 'adolescents_cbt_specialized' &&
         form.language === 'he' &&
-        form.moduleCode === '01'
+        form.moduleNumber === 1
     );
     expect(module01InAll).toHaveLength(6);
   });
@@ -295,7 +292,7 @@ describe('therapeuticFormsAdolescentsCBTSpecialized.test.js — module 01 Hebrew
         isShownInHebrewMode(form)
     );
     expect(hebrewSpecialized.length).toBeGreaterThan(0);
-    expect(hebrewSpecialized.filter((f) => f.moduleCode === '01')).toHaveLength(6);
+    expect(hebrewSpecialized.filter((f) => f.moduleNumber === 1)).toHaveLength(6);
   });
 
   // Test 10: TherapeuticForms page filter hides module 01 forms in English mode
@@ -304,7 +301,7 @@ describe('therapeuticFormsAdolescentsCBTSpecialized.test.js — module 01 Hebrew
       (form) =>
         form.category === 'adolescents_cbt_specialized' &&
         form.language === 'he' &&
-        form.moduleCode === '01' &&
+        form.moduleNumber === 1 &&
         isShownInEnglishMode(form)
     );
     expect(module01Hebrew).toHaveLength(0);
@@ -317,7 +314,7 @@ describe('therapeuticFormsAdolescentsCBTSpecialized.test.js — module 01 Hebrew
         (form) =>
           form.category === 'adolescents_cbt_specialized' &&
           form.language === 'he' &&
-          form.moduleCode === '01' &&
+          form.moduleNumber === 1 &&
           form.languages?.[lang]
       );
       expect(shown, `Should not appear in ${lang} mode`).toHaveLength(0);
