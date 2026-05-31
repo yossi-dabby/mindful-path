@@ -1,0 +1,251 @@
+{
+  "series_id": "adolescents-cbt-specialized-he",
+  "series_title_he": "טפסי CBT ייעודיים למתבגרים",
+  "series_title_en": "Adolescents CBT Specialized",
+  "language": "he",
+  "audience": "adolescents",
+  "main_category": "adolescents_cbt_specialized",
+  "module_number": 3,
+  "module_title_he": "דימוי עצמי וזהות",
+  "module_title_en": "Self-Esteem and Identity",
+  "github_path": "public/forms/adolescents/he/cbt-specialized/module-03/",
+  "combined_pdf_path": "public/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_module_03_self_esteem_identity.pdf",
+  "items": [
+    {
+      "id": "adolescents-cbt-specialized-he-03-01",
+      "logical_form_id": "adolescents_cbt_specialized_03_01",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_03_01",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-03-01"
+      ],
+      "worksheet_number": "3.1",
+      "title_he": "מה אני אומר/ת לעצמי?",
+      "title_en": "What Do I Tell Myself?",
+      "module_number": 3,
+      "module_title_he": "דימוי עצמי וזהות",
+      "module_title_en": "Self-Esteem and Identity",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לזהות דיבור עצמי ביקורתי, בושה או ספק, ולפתח משפט פנימי מאוזן ותומך יותר.",
+      "when_to_use_he": "כאשר מתבגר/ת מדבר/ת לעצמו/ה בקשיחות, מרגיש/ה לא מספיק טוב/ה, או מתקשה להבחין בין מחשבה לבין עובדה.",
+      "keywords_he": [
+        "דיבור עצמי",
+        "ביקורת עצמית",
+        "בושה",
+        "ספק עצמי",
+        "משפט פנימי",
+        "ערך עצמי"
+      ],
+      "ai_matching_summary_he": "מתאים למצבים שבהם נער/ה משתמש/ת במשפטים פנימיים שליליים כמו אני לא מספיק טוב/ה, אני תמיד הורס/ת או אחרים טובים ממני, וצריך/ה לתרגל זיהוי והחלפה למשפט מאוזן.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_01.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-03/previews/adolescents_cbt_specialized_he_03_01_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-03-02",
+      "logical_form_id": "adolescents_cbt_specialized_03_02",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_03_02",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-03-02"
+      ],
+      "worksheet_number": "3.2",
+      "title_he": "כשאני משווה את עצמי",
+      "title_en": "When I Compare Myself",
+      "module_number": 3,
+      "module_title_he": "דימוי עצמי וזהות",
+      "module_title_en": "Self-Esteem and Identity",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "להבחין בהשוואות חברתיות, לימודיות או חיצוניות ולחזור למדד אישי ומציאותי יותר.",
+      "when_to_use_he": "כאשר השוואה לאחרים או לרשתות חברתיות פוגעת במצב הרוח, בתחושת הערך או בביטחון העצמי.",
+      "keywords_he": [
+        "השוואות",
+        "רשתות חברתיות",
+        "מראה",
+        "ציונים",
+        "פופולריות",
+        "ביטחון עצמי"
+      ],
+      "ai_matching_summary_he": "מתאים כשנער/ה מרגיש/ה פחות טוב/ה בעקבות השוואה לאחרים, לציונים, למראה, לחברים או למה שרואים ברשתות, וצריך/ה לחזור לדרך האישית שלו/ה.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_02.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-03/previews/adolescents_cbt_specialized_he_03_02_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-03-03",
+      "logical_form_id": "adolescents_cbt_specialized_03_03",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_03_03",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-03-03"
+      ],
+      "worksheet_number": "3.3",
+      "title_he": "מה חזק בי?",
+      "title_en": "What Is Strong in Me?",
+      "module_number": 3,
+      "module_title_he": "דימוי עצמי וזהות",
+      "module_title_en": "Self-Esteem and Identity",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לחזק זיהוי של חוזקות, ערכים ותכונות חיוביות שכבר קיימים במתבגר/ת.",
+      "when_to_use_he": "כאשר קשה למתבגר/ת לראות יכולות, הצלחות או תכונות חיוביות בעצמו/ה.",
+      "keywords_he": [
+        "חוזקות",
+        "ערכים",
+        "תכונות",
+        "אמונה עצמית",
+        "כוחות",
+        "זהות חיובית"
+      ],
+      "ai_matching_summary_he": "מתאים למצבים של דימוי עצמי נמוך שבהם צריך לעזור לנער/ה לזהות מה טוב, יציב, מתפתח או אמיץ בו/בה.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_03.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-03/previews/adolescents_cbt_specialized_he_03_03_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-03-04",
+      "logical_form_id": "adolescents_cbt_specialized_03_04",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_03_04",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-03-04"
+      ],
+      "worksheet_number": "3.4",
+      "title_he": "הקול של מי אני נושא/ת?",
+      "title_en": "Whose Voice Am I Carrying?",
+      "module_number": 3,
+      "module_title_he": "דימוי עצמי וזהות",
+      "module_title_en": "Self-Esteem and Identity",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "להבחין בין מסרים של אחרים לבין קול פנימי אישי, ולבחור אילו מסרים לשמור, לבדוק מחדש או לשחרר.",
+      "when_to_use_he": "כאשר ביקורת, ציפיות או מסרים מהמשפחה, חברים, בית הספר או הרשתות ממשיכים להשפיע על הערך העצמי.",
+      "keywords_he": [
+        "קול פנימי",
+        "מסרים",
+        "ביקורת",
+        "משפחה",
+        "חברים",
+        "בית ספר",
+        "רשתות חברתיות"
+      ],
+      "ai_matching_summary_he": "מתאים כשנער/ה סוחב/ת משפטים או מסרים של אחרים שמחלישים אותו/ה, וצריך/ה לבדוק מאיפה המסר הגיע ומה מתאים לשמור או לשחרר.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_04.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-03/previews/adolescents_cbt_specialized_he_03_04_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-03-05",
+      "logical_form_id": "adolescents_cbt_specialized_03_05",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_03_05",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-03-05"
+      ],
+      "worksheet_number": "3.5",
+      "title_he": "מה חשוב לי?",
+      "title_en": "What Matters to Me?",
+      "module_number": 3,
+      "module_title_he": "דימוי עצמי וזהות",
+      "module_title_en": "Self-Esteem and Identity",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לעזור למתבגר/ת לזהות ערכים אישיים ולבנות תחושת זהות שאינה מבוססת רק על לחץ, ציפיות או השוואות.",
+      "when_to_use_he": "כאשר המתבגר/ת רוצה להתחבר למה שחשוב, אמיתי ונכון לו/ה, במיוחד אחרי לחץ חברתי או בלבול זהותי.",
+      "keywords_he": [
+        "ערכים",
+        "זהות",
+        "משמעות",
+        "אכפתיות",
+        "למידה",
+        "נאמנות",
+        "יצירתיות"
+      ],
+      "ai_matching_summary_he": "מתאים לשיחות על ערכים, משמעות וזהות אישית, כאשר נער/ה צריך/ה להפריד בין מה שאחרים מצפים לבין מה שחשוב לו/ה באמת.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_05.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-03/previews/adolescents_cbt_specialized_he_03_05_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-03-06",
+      "logical_form_id": "adolescents_cbt_specialized_03_06",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_03_06",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-03-06"
+      ],
+      "worksheet_number": "3.6",
+      "title_he": "תוכנית העוגן לזהות שלי",
+      "title_en": "My Identity Anchor Plan",
+      "module_number": 3,
+      "module_title_he": "דימוי עצמי וזהות",
+      "module_title_en": "Self-Esteem and Identity",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לבנות תוכנית קצרה שמחברת סימנים מוקדמים של ספק עצמי לעוגני זהות, תמיכה ופעולה מקרקעת.",
+      "when_to_use_he": "כאשר ספק עצמי מתחיל להשתלט, או לאחר עבודה על חוזקות, ערכים וקול פנימי תומך.",
+      "keywords_he": [
+        "עוגן זהות",
+        "ספק עצמי",
+        "תוכנית",
+        "תמיכה",
+        "ערכים",
+        "פעולה מקרקעת"
+      ],
+      "ai_matching_summary_he": "מתאים כטופס סיכום ותכנון כאשר נער/ה רוצה לזכור מי הוא/היא, מה מחזק אותו/ה ומה הצעד הבא כשספק עצמי עולה.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_06.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-03/previews/adolescents_cbt_specialized_he_03_06_preview.png"
+    }
+  ]
+}
