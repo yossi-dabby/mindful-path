@@ -1,0 +1,247 @@
+{
+  "series_id": "adolescents-cbt-specialized-he",
+  "series_title_he": "טפסי CBT ייעודיים למתבגרים",
+  "series_title_en": "Adolescents CBT Specialized",
+  "language": "he",
+  "audience": "adolescents",
+  "main_category": "adolescents_cbt_specialized",
+  "module_number": 8,
+  "module_title_he": "גוף, שינה ולחץ",
+  "module_title_en": "Body, Sleep, and Stress",
+  "github_path": "public/forms/adolescents/he/cbt-specialized/module-08/",
+  "combined_pdf_path": "public/forms/adolescents/he/cbt-specialized/module-08/adolescents_cbt_specialized_he_module_08_body_sleep_stress.pdf",
+  "items": [
+    {
+      "id": "adolescents-cbt-specialized-he-08-01",
+      "logical_form_id": "adolescents_cbt_specialized_08_01",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_08_01",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-08-01"
+      ],
+      "worksheet_number": "8.1",
+      "title_he": "מפת סימני הלחץ שלי",
+      "title_en": "My Stress Signals Map",
+      "module_number": 8,
+      "module_title_he": "גוף, שינה ולחץ",
+      "module_title_en": "Body, Sleep, and Stress",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "זיהוי סימני לחץ בגוף כדי להגיב מוקדם יותר ובצורה מווסתת.",
+      "when_to_use_he": "כאשר מתבגר/ת מרגיש/ה שהגוף נהיה מתוח, מהיר, עייף, רועד או מוצף.",
+      "keywords_he": [
+        "לחץ",
+        "סימני גוף",
+        "מתח",
+        "עומס",
+        "ויסות",
+        "גוף"
+      ],
+      "ai_matching_summary_he": "מתאים למתבגרים שמבקשים להבין איך לחץ מופיע בגוף ולבחור צעד מרגיע מוקדם.",
+      "safety_notes": "טופס CBT בעברית למתבגרים. כלי תמיכה חינוכי/טיפולי, לא טיפול חירום ולא ייעוץ רפואי. יש להשתמש לפי שיקול דעת קליני מתאים.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-08/adolescents_cbt_specialized_he_08_01.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-08/previews/adolescents_cbt_specialized_he_08_01_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-08-02",
+      "logical_form_id": "adolescents_cbt_specialized_08_02",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_08_02",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-08-02"
+      ],
+      "worksheet_number": "8.2",
+      "title_he": "בדיקת הגוף שלי",
+      "title_en": "My Body Check-In",
+      "module_number": 8,
+      "module_title_he": "גוף, שינה ולחץ",
+      "module_title_en": "Body, Sleep, and Stress",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "בדיקה עדינה של מצב הגוף והצרכים הגופניים ברגע הנוכחי.",
+      "when_to_use_he": "כאשר יש תחושה של ניתוק, עייפות, אי שקט, מתח או צורך להקשיב לגוף.",
+      "keywords_he": [
+        "בדיקת גוף",
+        "אנרגיה",
+        "תחושות גוף",
+        "צרכים גופניים",
+        "חמלה עצמית"
+      ],
+      "ai_matching_summary_he": "מתאים כשצריך לעצור, לבדוק אנרגיה ותחושות, ולבחור צעד קטן של דאגה לגוף.",
+      "safety_notes": "טופס CBT בעברית למתבגרים. כלי תמיכה חינוכי/טיפולי, לא טיפול חירום ולא ייעוץ רפואי. יש להשתמש לפי שיקול דעת קליני מתאים.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-08/adolescents_cbt_specialized_he_08_02.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-08/previews/adolescents_cbt_specialized_he_08_02_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-08-03",
+      "logical_form_id": "adolescents_cbt_specialized_08_03",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_08_03",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-08-03"
+      ],
+      "worksheet_number": "8.3",
+      "title_he": "התוכנית שלי לאיפוס השינה",
+      "title_en": "My Sleep Reset Plan",
+      "module_number": 8,
+      "module_title_he": "גוף, שינה ולחץ",
+      "module_title_en": "Body, Sleep, and Stress",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "בניית שגרת ערב רגועה שתומכת בשינה טובה יותר.",
+      "when_to_use_he": "כאשר יש קושי להירדם, להישאר ישן/ה או להירגע לפני השינה.",
+      "keywords_he": [
+        "שינה",
+        "הירדמות",
+        "שגרת ערב",
+        "הרגעה",
+        "לחץ לפני שינה"
+      ],
+      "ai_matching_summary_he": "מתאים לקשיי שינה, דאגות לפני שינה, או צורך בבניית שגרת ערב רגועה.",
+      "safety_notes": "טופס CBT בעברית למתבגרים. כלי תמיכה חינוכי/טיפולי, לא טיפול חירום ולא ייעוץ רפואי. יש להשתמש לפי שיקול דעת קליני מתאים.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-08/adolescents_cbt_specialized_he_08_03.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-08/previews/adolescents_cbt_specialized_he_08_03_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-08-04",
+      "logical_form_id": "adolescents_cbt_specialized_08_04",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_08_04",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-08-04"
+      ],
+      "worksheet_number": "8.4",
+      "title_he": "כשהמתח מכאיב לגוף שלי",
+      "title_en": "When Stress Hurts My Body",
+      "module_number": 8,
+      "module_title_he": "גוף, שינה ולחץ",
+      "module_title_en": "Body, Sleep, and Stress",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "זיהוי כאבים או מתח גופני הקשורים ללחץ ובחירת דרכי הקלה עדינות.",
+      "when_to_use_he": "כאשר לחץ מופיע ככאב ראש, מתח בבטן, שרירים תפוסים או תשישות.",
+      "keywords_he": [
+        "כאבי לחץ",
+        "מתח גופני",
+        "כאב ראש",
+        "בטן",
+        "עייפות",
+        "הקלה"
+      ],
+      "ai_matching_summary_he": "מתאים כאשר מתח מתבטא בכאבים או בתחושות גופניות וצריך מפת הקלה עדינה.",
+      "safety_notes": "טופס CBT בעברית למתבגרים. כלי תמיכה חינוכי/טיפולי, לא טיפול חירום ולא ייעוץ רפואי. יש להשתמש לפי שיקול דעת קליני מתאים.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-08/adolescents_cbt_specialized_he_08_04.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-08/previews/adolescents_cbt_specialized_he_08_04_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-08-05",
+      "logical_form_id": "adolescents_cbt_specialized_08_05",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_08_05",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-08-05"
+      ],
+      "worksheet_number": "8.5",
+      "title_he": "איפוס הנשימה שלי",
+      "title_en": "My Breathing Reset",
+      "module_number": 8,
+      "module_title_he": "גוף, שינה ולחץ",
+      "module_title_en": "Body, Sleep, and Stress",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "תרגול נשימה פשוטה להרגעת הגוף והמחשבות.",
+      "when_to_use_he": "כאשר יש הצפה, חוסר שקט, לחץ, פאניקה או תקיעות במתח.",
+      "keywords_he": [
+        "נשימה",
+        "הרגעה",
+        "ויסות",
+        "לחץ",
+        "גוף",
+        "איפוס"
+      ],
+      "ai_matching_summary_he": "מתאים לתרגול נשימה קצרה בזמן לחץ, הצפה, חוסר שקט או לפני מצבים מאתגרים.",
+      "safety_notes": "טופס CBT בעברית למתבגרים. כלי תמיכה חינוכי/טיפולי, לא טיפול חירום ולא ייעוץ רפואי. יש להשתמש לפי שיקול דעת קליני מתאים.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-08/adolescents_cbt_specialized_he_08_05.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-08/previews/adolescents_cbt_specialized_he_08_05_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-08-06",
+      "logical_form_id": "adolescents_cbt_specialized_08_06",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_08_06",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-08-06"
+      ],
+      "worksheet_number": "8.6",
+      "title_he": "התוכנית שלי לחזרה לאיזון",
+      "title_en": "My Back-to-Balance Plan",
+      "module_number": 8,
+      "module_title_he": "גוף, שינה ולחץ",
+      "module_title_en": "Body, Sleep, and Stress",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "בניית תוכנית חזרה לאיזון כאשר העומס גבוה מדי.",
+      "when_to_use_he": "כאשר החיים מרגישים עמוסים מדי ונדרש צעד קטן לחזרה ליציבות.",
+      "keywords_he": [
+        "איזון",
+        "עומס",
+        "חזרה לשגרה",
+        "תוכנית",
+        "וויסות",
+        "תמיכה"
+      ],
+      "ai_matching_summary_he": "מתאים למצבי עומס שבהם צריך לבנות תוכנית קצרה לחזרה לאיזון ב-24 השעות הקרובות.",
+      "safety_notes": "טופס CBT בעברית למתבגרים. כלי תמיכה חינוכי/טיפולי, לא טיפול חירום ולא ייעוץ רפואי. יש להשתמש לפי שיקול דעת קליני מתאים.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-08/adolescents_cbt_specialized_he_08_06.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-08/previews/adolescents_cbt_specialized_he_08_06_preview.png"
+    }
+  ]
+}
