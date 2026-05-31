@@ -199,6 +199,15 @@ function normalizeLegacyWorksheetAlias(candidate) {
     }
   }
 
+  const adolescentsHebrewMatch = raw.match(/^adolescents[_-]cbt[_-]core[_-]he[_-](\d{1,2})[_-](\d{1,2})$/);
+  if (adolescentsHebrewMatch) {
+    const stage = Number(adolescentsHebrewMatch[1]);
+    const worksheet = Number(adolescentsHebrewMatch[2]);
+    if (Number.isFinite(stage) && Number.isFinite(worksheet)) {
+      return `adolescents-cbt-core-he-${stage}-${worksheet}`;
+    }
+  }
+
   return raw;
 }
 

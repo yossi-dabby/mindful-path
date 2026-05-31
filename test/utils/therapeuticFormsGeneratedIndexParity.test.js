@@ -108,11 +108,41 @@ describe('therapeutic forms generated index parity', () => {
   it('applies language and audience filtering without collapsing the registry', () => {
     const englishChildren = getTherapeuticFormsForAI({ language: 'en', audience: 'children' });
     const hebrewChildren = getTherapeuticFormsForAI({ language: 'he', audience: 'children' });
+    const hebrewAdolescentsCore = getTherapeuticFormsForAI({ language: 'he', audience: 'adolescents' })
+      .filter((form) => form.category === 'adolescents_cbt_core');
     const allForms = getAllTherapeuticForms();
 
     expect(englishChildren.length).toBeGreaterThan(0);
     expect(hebrewChildren.length).toBe(0);
+    expect(hebrewAdolescentsCore).toHaveLength(36);
     expect(allForms.length).toBeGreaterThan(0);
+  });
+
+  it('registers exactly 30 Hebrew adolescents core individual worksheets and 6 stage-combined PDFs', () => {
+    const hebrewAdolescentsCore = ALL_FORMS.filter(
+      (form) =>
+        form.audience === 'adolescents' &&
+        form.language === 'he' &&
+        form.category === 'adolescents_cbt_core'
+    );
+    const hebrewIndividuals = hebrewAdolescentsCore.filter((form) => form.type === 'individual_worksheet');
+    const hebrewStageCombined = hebrewAdolescentsCore.filter((form) => form.type === 'stage_combined_pdf');
+
+    expect(hebrewIndividuals).toHaveLength(30);
+    expect(hebrewStageCombined).toHaveLength(6);
+
+    for (let stage = 1; stage <= 6; stage += 1) {
+      expect(hebrewIndividuals.filter((form) => Number(form.stageNumber || form.moduleNumber) === stage)).toHaveLength(5);
+      expect(hebrewStageCombined.filter((form) => Number(form.stageNumber || form.moduleNumber) === stage)).toHaveLength(1);
+    }
+  });
+
+  it('does not register an invented single full-series Hebrew adolescents core PDF', () => {
+    const hebrewAdolescentsCore = ALL_FORMS.filter(
+      (form) => form.audience === 'adolescents' && form.language === 'he' && form.category === 'adolescents_cbt_core'
+    );
+    const maybeFullSeries = hebrewAdolescentsCore.filter((form) => /full|series-1-full|workbook_package/i.test(`${form.id} ${form.slug} ${form.fileUrl}`));
+    expect(maybeFullSeries).toHaveLength(0);
   });
 
   it('keeps language and audience guards for children forms', () => {

@@ -28,4 +28,14 @@ describe('therapeuticFormsPage.test.js — adolescents package integration', () 
   it('does not resolve package in Hebrew or non-installed audiences', () => {
     expect(resolveFormWithLanguage('adolescents-cbt-core-en', 'he')).toBeNull();
   });
+
+  it('resolves Hebrew adolescents core entries only in Hebrew mode', () => {
+    const hebrewIndividual = resolveFormWithLanguage('adolescents-cbt-core-he-3-1', 'he');
+    const hebrewStageCombined = resolveFormWithLanguage('adolescents-cbt-core-he-stage-3-combined', 'he');
+    expect(hebrewIndividual?.languageData?.rtl).toBe(true);
+    expect(hebrewIndividual?.languageData?.file_url).toContain('/forms/adolescents_cbt_core_he_series_3/');
+    expect(hebrewStageCombined?.languageData?.file_url).toContain('adolescents_cbt_core_he_series_3_combined.pdf');
+    expect(resolveFormWithLanguage('adolescents-cbt-core-he-3-1', 'en')).toBeNull();
+    expect(resolveFormWithLanguage('adolescents-cbt-core-he-stage-3-combined', 'en')).toBeNull();
+  });
 });

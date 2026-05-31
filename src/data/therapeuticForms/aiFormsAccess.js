@@ -49,7 +49,7 @@ const AUDIENCE_ALIAS_MAP = Object.freeze({
 
 const FORM_INTENT_PATTERNS = Object.freeze({
   list: /\b(what forms|which forms|list forms|forms do you have|איזה טפסים|רשימת טפסים|show forms|available forms)\b/i,
-  send: /\b(send|share|attach|give me|תשלח|תשלחי|שלח|שלחי)\b/i,
+  send: /(?:\b(send|share|attach|give me)\b|תשלח(?:י)?|שלח(?:י)?|תן לי|תני לי)/i,
 });
 
 const CATEGORY_SYNONYMS = Object.freeze({
@@ -142,6 +142,8 @@ function normalizeLegacyWorksheetAlias(candidate) {
   if (childrenMatch) return `children-cbt-core-en-${Number(childrenMatch[1])}-${Number(childrenMatch[2])}`;
   const adolescentsMatch = raw.match(/^adolescents[_-]cbt[_-]core[_-]en[_-](\d{1,2})[_-](\d{1,2})$/);
   if (adolescentsMatch) return `adolescents-cbt-core-en-${Number(adolescentsMatch[1])}-${Number(adolescentsMatch[2])}`;
+  const adolescentsHebrewMatch = raw.match(/^adolescents[_-]cbt[_-]core[_-]he[_-](\d{1,2})[_-](\d{1,2})$/);
+  if (adolescentsHebrewMatch) return `adolescents-cbt-core-he-${Number(adolescentsHebrewMatch[1])}-${Number(adolescentsHebrewMatch[2])}`;
   return raw;
 }
 
@@ -178,6 +180,7 @@ function flattenFormFields(form) {
     form?.fileUrl,
     ...(Array.isArray(form?.keywords) ? form.keywords : []),
     ...(Array.isArray(form?.clinicalKeywords) ? form.clinicalKeywords : []),
+    ...(Array.isArray(form?.intentPhrases) ? form.intentPhrases : []),
     ...(Array.isArray(form?.secondaryCategories) ? form.secondaryCategories : []),
   ]
     .filter(Boolean)
@@ -204,6 +207,14 @@ function scoreFormMatch(form, query) {
     if (synonyms.some((token) => normalizedQuery.includes(token))) {
       if (synonyms.some((token) => haystack.includes(token))) score += 35;
     }
+  }
+
+  const stageMatch = normalizedQuery.match(/(?:stage|שלב)\s*([1-9])/i);
+  const requestedStage = stageMatch ? Number(stageMatch[1]) : null;
+  const formStage = Number(form?.stageNumber ?? form?.moduleNumber ?? NaN);
+  if (Number.isFinite(requestedStage) && Number.isFinite(formStage)) {
+    if (requestedStage === formStage) score += 120;
+    else score -= 25;
   }
 
   return score;
@@ -454,7 +465,9 @@ export function detectFormIntent(userMessage) {
   const requestedAudience = extractRequestedAudience(text);
   const requestedLanguage = extractRequestedLanguage(text);
   const asksList = FORM_INTENT_PATTERNS.list.test(text);
-  const asksSend = FORM_INTENT_PATTERNS.send.test(text) || /\bform\b|\bworksheet\b|טופס/.test(text);
+  const asksSend = FORM_INTENT_PATTERNS.send.test(text)
+    || /\bform\b|\bworksheet\b|טופס/.test(text)
+    || /שלב\s*[1-6]|קובץ\s*מאוחד|כל\s*שלב/.test(text);
   const mentionsCategory = /\b(category|group|groups|category|קטגור)/.test(text);
   const explicitIdMatch = text.match(/\b([a-z0-9]+(?:[_-][a-z0-9]+){2,})\b/);
 
@@ -470,7 +483,7 @@ export function detectFormIntent(userMessage) {
   if (asksList && mentionsCategory) {
     return { type: 'list_forms_by_category', audience: requestedAudience, language: requestedLanguage, query: text };
   }
-  if (asksSend && explicitIdMatch && /\b(send|share|attach|תשלח|שלח)/.test(text)) {
+  if (asksSend && explicitIdMatch && /(?:\b(send|share|attach)\b|תשלח(?:י)?|שלח(?:י)?|תן לי|תני לי)/.test(text)) {
     return { type: 'send_specific_form', audience: requestedAudience, language: requestedLanguage, query: explicitIdMatch[1], rawQuery: text };
   }
   if (asksSend) {
@@ -504,7 +517,7 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
     audience: intent.audience || context.audience || null,
     activeLanguage,
     language: requestedLanguage,
-    allowEnglishFallback: true,
+    allowEnglishFallback: requestedLanguage === 'en' || activeLanguage === 'en',
   };
 
   if (intent.type === 'send_specific_form') {

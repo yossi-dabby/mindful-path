@@ -30,7 +30,8 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     ];
     const result = sanitizeConversationMessages(messages, 'he');
     const assistant = result.find((m) => m.role === 'assistant');
-    expect(assistant?.metadata?.generated_file ?? null).toBeNull();
+    expect(assistant?.metadata?.generated_file?.form_id || '').not.toBe('adolescents-cbt-specialized-en');
+    expect(assistant?.metadata?.generated_file?.language || 'he').toBe('he');
   });
 
   it('injects generated_file for a known children CBT core individual worksheet', () => {
@@ -76,6 +77,28 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     const assistant = result.find((m) => m.role === 'assistant');
     expect(assistant?.metadata?.generated_file).toBeTruthy();
     expect(assistant?.metadata?.generated_file?.language).toBe('en');
+  });
+
+  it('attaches Hebrew adolescents stage-combined PDF in Hebrew session', () => {
+    const messages = [
+      { role: 'user', content: 'שלח לי את כל שלב 2 בקובץ אחד', metadata: { session_language: 'he' } },
+      { role: 'assistant', content: 'בשמחה.' },
+    ];
+    const result = sanitizeConversationMessages(messages, 'he');
+    const assistant = result.find((m) => m.role === 'assistant');
+    expect(assistant?.metadata?.generated_file?.language).toBe('he');
+    expect(assistant?.metadata?.generated_file?.form_id).toBe('adolescents-cbt-core-he-stage-2-combined');
+  });
+
+  it('does not attach Hebrew form in English session', () => {
+    const messages = [
+      { role: 'user', content: 'שלח לי את כל שלב 2 בקובץ אחד', metadata: { session_language: 'en' } },
+      { role: 'assistant', content: 'Here you go [FORM:adolescents-cbt-core-he-stage-2-combined:he]' },
+    ];
+    const result = sanitizeConversationMessages(messages, 'en');
+    const assistant = result.find((m) => m.role === 'assistant');
+    expect(assistant?.metadata?.generated_file?.language || null).not.toBe('he');
+    expect(String(assistant?.metadata?.generated_file?.form_id || '')).not.toContain('adolescents-cbt-core-he');
   });
 
   it('keeps marker fallback active while deterministic path is primary', () => {

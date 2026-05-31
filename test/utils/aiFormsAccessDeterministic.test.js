@@ -57,6 +57,12 @@ describe('aiFormsAccess deterministic list/search', () => {
     expect(getAllTherapeuticForms().length).toBeGreaterThan(0);
   });
 
+  it('lists Hebrew adolescents CBT core forms only in Hebrew mode', () => {
+    const hebrewForms = listFormsForAI({ language: 'he', audience: 'adolescents', category: 'adolescents_cbt_core' });
+    expect(hebrewForms.length).toBe(36);
+    expect(hebrewForms.every((form) => form.language === 'he')).toBe(true);
+  });
+
   it('lists forms by category', () => {
     const forms = listFormsForAI({ language: 'en', category: 'children_cbt_specialized' });
     expect(forms.length).toBeGreaterThan(0);
@@ -163,12 +169,18 @@ describe('aiFormsAccess deterministic send + language behavior', () => {
     expect(resolved.generatedFile.language).toBe('en');
   });
 
-  it('does not silently fail in hebrew session without explicit english request', () => {
+  it('returns Hebrew adolescent form in Hebrew session without English fallback', () => {
+    const resolved = resolveFormForAIRequest('תן לי טופס בעברית למתבגר עם מחשבות שליליות', { language: 'he' });
+    expect(resolved.intent?.type).toBe('send_best_matching_form');
+    expect(resolved.generatedFile).not.toBeNull();
+    expect(resolved.generatedFile.language).toBe('he');
+  });
+
+  it('does not silently fallback to English in Hebrew session for non-Hebrew catalog gaps', () => {
     const resolved = resolveFormForAIRequest('תשלח לי טופס לילדים בנושא OCD', { language: 'he' });
     expect(resolved.intent?.type).toBe('send_best_matching_form');
-    expect(typeof resolved.responseText).toBe('string');
-    expect(resolved.responseText.length).toBeGreaterThan(0);
-    expect(resolved.generatedFile || resolved.nearestMatches.length > 0).toBeTruthy();
+    expect(resolved.generatedFile).toBeNull();
+    expect(resolved.nearestMatches.every((form) => form.language === 'he')).toBe(true);
   });
 
   it('keeps access when language is undefined', () => {
@@ -184,10 +196,41 @@ describe('aiFormsAccess deterministic send + language behavior', () => {
     expect(resolved.generatedFile || resolved.nearestMatches.length > 0).toBeTruthy();
   });
 
+  it('resolves Hebrew stage combined requests to the matching combined stage PDF', () => {
+    const resolved = resolveFormForAIRequest('שלח לי את כל שלב 4 בקובץ אחד', { language: 'he' });
+    expect(resolved.generatedFile).not.toBeNull();
+    expect(resolved.generatedFile.form_id).toBe('adolescents-cbt-core-he-stage-4-combined');
+    expect(resolved.generatedFile.url).toContain('adolescents_cbt_core_he_series_4_combined.pdf');
+  });
+
+  it('resolves Hebrew title-based request to matching individual worksheet', () => {
+    const resolved = resolveFormForAIRequest('שלח לי את הטופס מה הראש שלי אמר', { language: 'he' });
+    expect(resolved.generatedFile).not.toBeNull();
+    expect(resolved.generatedFile.form_id).toBe('adolescents-cbt-core-he-2-1');
+  });
+
+  it('does not invent a single Hebrew full-series PDF when user asks for all stages', () => {
+    const resolved = resolveFormForAIRequest('שלח לי את כל השלבים בקובץ אחד', { language: 'he' });
+    expect(resolved.generatedFile?.url || '').not.toContain('full');
+    expect(resolved.generatedFile?.url || '').not.toContain('series-full');
+  });
+
   it('returns nearest matches when exact match is missing', () => {
     const resolved = resolveFormForAIRequest('send me form for impossible unicorn panic subtype', { language: 'en' });
     expect(Array.isArray(resolved.nearestMatches)).toBe(true);
     expect(resolved.nearestMatches.length).toBeGreaterThanOrEqual(0);
+  });
+
+  it('keeps English session results free of Hebrew adolescents core forms', () => {
+    const resolved = resolveFormForAIRequest('send me cbt forms for adolescents', { language: 'en' });
+    const allMatches = [
+      ...(resolved.generatedFile ? [resolved.generatedFile] : []),
+      ...(resolved.nearestMatches || []),
+    ];
+    for (const match of allMatches) {
+      const id = String(match?.form_id || match?.id || '');
+      expect(id.startsWith('adolescents-cbt-core-he')).toBe(false);
+    }
   });
 });
 

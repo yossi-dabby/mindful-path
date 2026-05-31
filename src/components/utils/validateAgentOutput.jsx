@@ -189,6 +189,19 @@ export function normalizeSessionLanguage(lang) {
   return SUPPORTED_LANG_SET.has(code) ? code : 'en';
 }
 
+function hasExplicitLanguageRequestFor(userQuery, targetLanguage) {
+  if (typeof userQuery !== 'string' || !userQuery.trim()) return false;
+  const text = userQuery.trim().toLowerCase();
+  if (targetLanguage === 'en') return /(english|באנגלית|אנגלית)/i.test(text);
+  if (targetLanguage === 'he') return /(hebrew|בעברית|עברית)/i.test(text);
+  if (targetLanguage === 'es') return /(spanish|español|ספרדית)/i.test(text);
+  if (targetLanguage === 'pt') return /(portuguese|português|פורטוגזית)/i.test(text);
+  if (targetLanguage === 'fr') return /(french|français|צרפתית)/i.test(text);
+  if (targetLanguage === 'de') return /(german|deutsch|גרמנית)/i.test(text);
+  if (targetLanguage === 'it') return /(italian|italiano|איטלקית)/i.test(text);
+  return false;
+}
+
 const PDF_ASSISTANT_SHORT_REPLY_CHAR_LIMIT = 420;
 const IMAGE_ASSISTANT_SHORT_REPLY_CHAR_LIMIT = 320;
 const IMAGE_ASSISTANT_MAX_SENTENCES = 3;
@@ -817,10 +830,14 @@ function extractAndResolveFormIntent(content, lang, userQuery, previousUserConte
         const effectiveLang = markerLang || lang || 'en';
         const metadata = resolveFormIntent(slug, effectiveLang);
         const normalizedSessionLang = normalizeSessionLanguage(lang || 'en');
+        const normalizedMarkerLang = normalizeSessionLanguage(effectiveLang);
         const blocksNonEnglishSpecialized =
           metadata?.category === 'adolescents_cbt_specialized' && normalizedSessionLang !== 'en';
+        const blocksCrossLanguageMarker =
+          normalizedMarkerLang !== normalizedSessionLang &&
+          !hasExplicitLanguageRequestFor(userQuery, normalizedMarkerLang);
 
-        if (metadata && !blocksNonEnglishSpecialized) {
+        if (metadata && !blocksNonEnglishSpecialized && !blocksCrossLanguageMarker) {
           resolvedGeneratedFile = metadata;
         }
       }
