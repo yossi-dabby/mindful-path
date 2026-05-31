@@ -1,0 +1,253 @@
+{
+  "series_id": "adolescents-cbt-specialized-he",
+  "series_title_he": "טפסי CBT ייעודיים למתבגרים",
+  "series_title_en": "Adolescents CBT Specialized",
+  "language": "he",
+  "audience": "adolescents",
+  "main_category": "adolescents_cbt_specialized",
+  "module_number": 4,
+  "module_title_he": "חברה, שייכות וקונפליקטים",
+  "module_title_en": "Friendship, Belonging and Conflict",
+  "github_path": "public/forms/adolescents/he/cbt-specialized/module-04/",
+  "combined_pdf_path": "public/forms/adolescents/he/cbt-specialized/module-04/adolescents_cbt_specialized_he_module_04_friendship_belonging_conflict.pdf",
+  "items": [
+    {
+      "id": "adolescents-cbt-specialized-he-04-01",
+      "logical_form_id": "adolescents_cbt_specialized_04_01",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_04_01",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-04-01"
+      ],
+      "worksheet_number": "4.1",
+      "title_he": "מפת השייכות שלי",
+      "title_en": "My Belonging Map",
+      "module_number": 4,
+      "module_title_he": "חברה, שייכות וקונפליקטים",
+      "module_title_en": "Friendship, Belonging and Conflict",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לעזור למתבגר/ת לזהות מקומות, קשרים ומצבים שבהם יש תחושת שייכות, ביטחון וחיבור.",
+      "when_to_use_he": "כאשר יש קושי בתחושת שייכות, בלבול סביב קשרים חברתיים, או צורך לחזק מקורות תמיכה.",
+      "keywords_he": [
+        "שייכות",
+        "חברים",
+        "ביטחון",
+        "קשר",
+        "מקומות בטוחים",
+        "חיבור חברתי"
+      ],
+      "ai_matching_summary_he": "מתאים כשמתבגר/ת מרגיש/ה לא שייך/ת, רוצה להבין היכן נוח ובטוח לו/ה, או לחזק תחושת חיבור חברתי.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-04/adolescents_cbt_specialized_he_04_01.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-04/previews/adolescents_cbt_specialized_he_04_01_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-04-02",
+      "logical_form_id": "adolescents_cbt_specialized_04_02",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_04_02",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-04-02"
+      ],
+      "worksheet_number": "4.2",
+      "title_he": "כשאני מרגיש/ה בחוץ",
+      "title_en": "When I Feel Left Out",
+      "module_number": 4,
+      "module_title_he": "חברה, שייכות וקונפליקטים",
+      "module_title_en": "Friendship, Belonging and Conflict",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לעזור לזהות את תחושת ההדרה, המחשבות שמתעוררות והצעד הקטן שאפשר לעשות במקום להישאר לבד עם התחושה.",
+      "when_to_use_he": "כאשר המתבגר/ת מרגיש/ה מחוץ לקבוצה, לא מוזמן/ת, או פגוע/ה מסיטואציה חברתית.",
+      "keywords_he": [
+        "הדרה",
+        "בחוץ",
+        "דחייה",
+        "בדידות",
+        "חברה",
+        "צעד קטן",
+        "קבוצה"
+      ],
+      "ai_matching_summary_he": "מתאים למצבים של תחושת דחייה, השארה מחוץ לקבוצה, כאב חברתי או צורך להבין מה קרה ומה אפשר לעשות.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-04/adolescents_cbt_specialized_he_04_02.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-04/previews/adolescents_cbt_specialized_he_04_02_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-04-03",
+      "logical_form_id": "adolescents_cbt_specialized_04_03",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_04_03",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-04-03"
+      ],
+      "worksheet_number": "4.3",
+      "title_he": "מה עוד יכול להיות שקורה?",
+      "title_en": "What Else Could Be Going On?",
+      "module_number": 4,
+      "module_title_he": "חברה, שייכות וקונפליקטים",
+      "module_title_en": "Friendship, Belonging and Conflict",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לבדוק מחשבה חברתית ראשונית ולחפש הסברים אפשריים נוספים לפני שמסיקים מסקנה מכאיבה.",
+      "when_to_use_he": "כאשר מתבגר/ת מפרש/ת מצב חברתי כאישי או שלילי ורוצה לבחון אפשרויות נוספות.",
+      "keywords_he": [
+        "פרשנות",
+        "מחשבה ראשונה",
+        "חברה",
+        "אי הבנה",
+        "בדיקת מחשבות",
+        "הסברים אחרים"
+      ],
+      "ai_matching_summary_he": "מתאים כשיש מחשבה כמו 'הם נגדי', 'לא אוהבים אותי' או 'קרה משהו רע', וצריך לבדוק אפשרויות נוספות בצורה מאוזנת.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-04/adolescents_cbt_specialized_he_04_03.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-04/previews/adolescents_cbt_specialized_he_04_03_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-04-04",
+      "logical_form_id": "adolescents_cbt_specialized_04_04",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_04_04",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-04-04"
+      ],
+      "worksheet_number": "4.4",
+      "title_he": "להגיד מה אני צריך/ה",
+      "title_en": "Saying What I Need",
+      "module_number": 4,
+      "module_title_he": "חברה, שייכות וקונפליקטים",
+      "module_title_en": "Friendship, Belonging and Conflict",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לעזור לתרגל ניסוח צורך או רגש בצורה ברורה, מכבדת ולא תוקפנית.",
+      "when_to_use_he": "כאשר מתבגר/ת מתקשה לבקש עזרה, להציב צורך, לדבר על פגיעה או לבטא גבול בקשר.",
+      "keywords_he": [
+        "צורך",
+        "בקשה",
+        "תקשורת",
+        "מילים ברורות",
+        "רגשות",
+        "שיחה",
+        "גבולות"
+      ],
+      "ai_matching_summary_he": "מתאים לפני שיחה חשובה עם חבר/ה, הורה או מורה, כאשר צריך להגיד צורך, בקשה או רגש בצורה בטוחה ומכבדת.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-04/adolescents_cbt_specialized_he_04_04.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-04/previews/adolescents_cbt_specialized_he_04_04_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-04-05",
+      "logical_form_id": "adolescents_cbt_specialized_04_05",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_04_05",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-04-05"
+      ],
+      "worksheet_number": "4.5",
+      "title_he": "גבולות שעוזרים לי",
+      "title_en": "Boundaries That Help Me",
+      "module_number": 4,
+      "module_title_he": "חברה, שייכות וקונפליקטים",
+      "module_title_en": "Friendship, Belonging and Conflict",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לעזור לזהות גבולות שמגנים על אנרגיה, נוחות, כבוד עצמי וקשרים בריאים.",
+      "when_to_use_he": "כאשר מתבגר/ת מתקשה להגיד לא, מרגיש/ה לחץ חברתי, או רוצה לשמור על עצמו/ה בתוך קשרים.",
+      "keywords_he": [
+        "גבולות",
+        "לא",
+        "כבוד עצמי",
+        "קשר בריא",
+        "ביטחון",
+        "נוחות",
+        "לחץ חברתי"
+      ],
+      "ai_matching_summary_he": "מתאים למצבים שבהם צריך להציב גבול, להבין מה מרגיש בטוח או מכובד, ולבחור גבול קטן לתרגול.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-04/adolescents_cbt_specialized_he_04_05.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-04/previews/adolescents_cbt_specialized_he_04_05_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-04-06",
+      "logical_form_id": "adolescents_cbt_specialized_04_06",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_04_06",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-04-06"
+      ],
+      "worksheet_number": "4.6",
+      "title_he": "תוכנית התיקון שלי אחרי קונפליקט",
+      "title_en": "My Repair Plan After Conflict",
+      "module_number": 4,
+      "module_title_he": "חברה, שייכות וקונפליקטים",
+      "module_title_en": "Friendship, Belonging and Conflict",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לעזור להבין מה קרה בקונפליקט, לזהות אחריות אישית ולבחור צעד תיקון קטן ובר ביצוע.",
+      "when_to_use_he": "כאשר היה ריב, אי-הסכמה, פגיעה או מתיחות חברתית ויש צורך בתיקון או חזרה לשיחה.",
+      "keywords_he": [
+        "קונפליקט",
+        "ריב",
+        "תיקון",
+        "שיחה",
+        "אחריות",
+        "פיוס",
+        "צעד הבא"
+      ],
+      "ai_matching_summary_he": "מתאים לאחר קונפליקט עם חבר/ה או בקבוצה, כשצריך להבין מה קרה, מה אפשר לתקן ומה הצעד הבא.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-04/adolescents_cbt_specialized_he_04_06.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-04/previews/adolescents_cbt_specialized_he_04_06_preview.png"
+    }
+  ]
+}
