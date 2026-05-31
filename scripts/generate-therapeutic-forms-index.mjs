@@ -316,6 +316,12 @@ function buildFallbackEntries(existingByFileUrl, manifestByFileUrl) {
     if (!fileUrl) continue;
     if (existingByFileUrl.has(fileUrl)) continue;
 
+    // Skip files whose path structure doesn't start with a known audience segment.
+    // Paths like /forms/module-01/ don't follow the expected /forms/{audience}/{lang}/...
+    // convention and belong to curated registries — if not already registered, skip silently.
+    const rawAudienceSegment = fileUrl.split('/').filter(Boolean)[1] || '';
+    if (!KNOWN_AUDIENCES.has(rawAudienceSegment)) continue;
+
     const manifestMeta = manifestByFileUrl.get(fileUrl) || {};
     const { audience, language, categorySegment } = inferAudienceAndLanguage(fileUrl);
     const category = normalizeFormCategory(manifestMeta.category, audience, categorySegment);

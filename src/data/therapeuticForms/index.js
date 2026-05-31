@@ -33,7 +33,7 @@ export { FORMS_CHILDREN_CBT_CORE_EN } from './forms.children.cbt-core.en.js';
 export { FORMS_ADOLESCENTS }           from './forms.adolescents.js';
 export { FORMS_ADOLESCENTS_CBT_CORE_EN } from './forms.adolescents.cbt-core.en.js';
 export { FORMS_ADOLESCENTS_CBT_CORE_HE } from './forms.adolescents.cbt-core.he.js';
-export { FORMS_ADOLESCENTS_CBT_SPECIALIZED } from './forms.adolescents.cbt-specialized.js';
+export { FORMS_ADOLESCENTS_CBT_SPECIALIZED }  from './forms.adolescents.cbt-specialized.js';
 export { FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN } from './forms.adolescents.cbt-specialized.en.js';
 export { FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE } from './forms.adolescents.cbt-specialized.he.js';
 export { FORMS_ADULTS }                from './forms.adults.js';

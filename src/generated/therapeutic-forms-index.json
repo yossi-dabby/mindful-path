@@ -27393,6 +27393,7 @@
     "type": "individual_worksheet",
     "approved": true,
     "title": "מה קורה אצלי עכשיו?",
+<<<<<<< HEAD
     "description": "מתאים לפתיחת עבודה טיפולית סביב חרדה או לחץ כאשר צריך למפות בקצרה מה קורה עכשיו, מה מרגישים בגוף, אילו מחשבות עולות ומה יכול להיות צעד קטן ובטוח.",
     "language": "he",
     "audience": "adolescents",
@@ -27402,15 +27403,34 @@
       "anxiety_tools",
       "coping_tools",
       "thought_records"
+=======
+    "description": "מיפוי מצב נוכחי: זיהוי מה שקורה עכשיו ברגש, בגוף ובמחשבה.",
+    "language": "he",
+    "audience": "adolescents",
+    "category": "adolescents_cbt_specialized",
+    "subcategory": "01",
+    "secondaryCategories": [
+      "anxiety_tools",
+      "coping_tools",
+      "emotional_regulation",
+      "workbook_series"
+>>>>>>> origin/main
     ],
     "worksheetNumber": "1.1",
     "formNumber": "1.1",
     "stageNumber": 1,
     "moduleNumber": 1,
+<<<<<<< HEAD
     "moduleCode": null,
     "moduleTitle": null,
     "stageTitle": null,
     "pageNumberInWorkbook": null,
+=======
+    "moduleCode": "01",
+    "moduleTitle": null,
+    "stageTitle": null,
+    "pageNumberInWorkbook": 1,
+>>>>>>> origin/main
     "series": null,
     "therapeuticGoal": "זיהוי המצב הנוכחי והתחלת הבנה פשוטה של מה שקורה עכשיו ברגש, בגוף ובמחשבה.",
     "whenToUse": "כשמתבגר/ת מרגיש/ה חרדה, לחץ או פחד ומתקשה להגדיר במהירות מה קורה.",
@@ -27422,6 +27442,7 @@
       "מה קורה עכשיו",
       "רגשות",
       "גוף",
+<<<<<<< HEAD
       "מחשבות"
     ],
     "intentPhrases": [
@@ -27429,12 +27450,36 @@
       "חרדה, לחץ ופחדים",
       "CBT ייעודי למתבגרים",
       "טופס CBT בעברית למתבגר"
+=======
+      "מחשבות",
+      "מתבגרים",
+      "עברית",
+      "CBT ייעודי",
+      "מודול 1",
+      "חרדה לחץ ופחדים"
+    ],
+    "intentPhrases": [
+      "מה קורה אצלי עכשיו",
+      "אני צריך טופס CBT למתבגר בעברית",
+      "שלח לי טופס למתבגר",
+      "שלח לי טופס ממודול 1",
+      "תן לי את הטופס הראשון במודול 1",
+      "אני צריך טופס שמתאים לנער עם חרדה",
+      "אני צריך טופס שמתאים לנערה עם לחץ",
+      "אני צריך טופס שמתאים למתבגר עם קושי רגשי"
+>>>>>>> origin/main
     ],
     "notFor": [
       "children under adolescent age",
       "adult or older-adult requests",
+<<<<<<< HEAD
       "English-only requests",
       "crisis intervention without adult supervision"
+=======
+      "English-only requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations"
+>>>>>>> origin/main
     ],
     "aiMatchingSummary": "מתאים לפתיחת עבודה טיפולית סביב חרדה או לחץ כאשר צריך למפות בקצרה מה קורה עכשיו, מה מרגישים בגוף, אילו מחשבות עולות ומה יכול להיות צעד קטן ובטוח.",
     "safetyNotes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
@@ -27446,6 +27491,10 @@
     "languages": {
       "he": {
         "title": "מה קורה אצלי עכשיו?",
+<<<<<<< HEAD
+=======
+        "description": "מיפוי מצב נוכחי: זיהוי מה שקורה עכשיו ברגש, בגוף ובמחשבה.",
+>>>>>>> origin/main
         "file_url": "/forms/module-01/adolescents_cbt_specialized_he_01_01.pdf",
         "file_type": "pdf",
         "file_name": "adolescents_cbt_specialized_he_01_01.pdf",
@@ -27465,22 +27514,42 @@
       "מה קורה עכשיו",
       "רגשות",
       "גוף",
+<<<<<<< HEAD
       "מחשבות"
+=======
+      "מחשבות",
+      "מתבגרים",
+      "עברית",
+      "CBT ייעודי",
+      "מודול 1",
+      "חרדה לחץ ופחדים"
+>>>>>>> origin/main
     ],
     "ai_matching_summary": "מתאים לפתיחת עבודה טיפולית סביב חרדה או לחץ כאשר צריך למפות בקצרה מה קורה עכשיו, מה מרגישים בגוף, אילו מחשבות עולות ומה יכול להיות צעד קטן ובטוח.",
     "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
     "file_path": "public/forms/module-01/adolescents_cbt_specialized_he_01_01.pdf",
     "preview_path": null,
     "source_manifest": null,
+<<<<<<< HEAD
     "logical_form_id": "adolescents_cbt_specialized_01_1",
     "variant_language": "he",
     "available_languages": [
+=======
+    "logical_form_id": "adolescents_cbt_specialized_01_01",
+    "variant_language": "he",
+    "available_languages": [
+      "en",
+>>>>>>> origin/main
       "he"
     ],
     "sibling_variant_ids": [],
     "source_language": "en",
     "is_language_variant": true,
+<<<<<<< HEAD
     "variant_group_id": "adolescents_cbt_specialized_01_1"
+=======
+    "variant_group_id": "adolescents_cbt_specialized_01_01"
+>>>>>>> origin/main
   },
   {
     "id": "adolescents-cbt-specialized-he-01-02",
@@ -27489,6 +27558,7 @@
     "type": "individual_worksheet",
     "approved": true,
     "title": "מה מפעיל את הלחץ או הפחד שלי?",
+<<<<<<< HEAD
     "description": "מתאים למצבים שבהם המשתמש/ת מתאר/ת לחץ או פחד ורוצה להבין מה מפעיל אותם: מקום, אדם, מחשבה, תחושת גוף, חוסר ודאות או עומס.",
     "language": "he",
     "audience": "adolescents",
@@ -27498,15 +27568,34 @@
       "anxiety_tools",
       "coping_tools",
       "thought_records"
+=======
+    "description": "זיהוי טריגרים: מצבים, מחשבות או תחושות שמפעילים לחץ ופחד.",
+    "language": "he",
+    "audience": "adolescents",
+    "category": "adolescents_cbt_specialized",
+    "subcategory": "01",
+    "secondaryCategories": [
+      "anxiety_tools",
+      "coping_tools",
+      "emotional_regulation",
+      "workbook_series"
+>>>>>>> origin/main
     ],
     "worksheetNumber": "1.2",
     "formNumber": "1.2",
     "stageNumber": 1,
     "moduleNumber": 1,
+<<<<<<< HEAD
     "moduleCode": null,
     "moduleTitle": null,
     "stageTitle": null,
     "pageNumberInWorkbook": null,
+=======
+    "moduleCode": "01",
+    "moduleTitle": null,
+    "stageTitle": null,
+    "pageNumberInWorkbook": 2,
+>>>>>>> origin/main
     "series": null,
     "therapeuticGoal": "זיהוי טריגרים, מצבים, מחשבות או תחושות שמפעילים לחץ ופחד.",
     "whenToUse": "כאשר מתבגר/ת רוצה להבין מה התחיל את החרדה או מה מגביר אותה.",
@@ -27518,6 +27607,7 @@
       "חוסר ודאות",
       "דאגה חברתית",
       "מעמסה",
+<<<<<<< HEAD
       "זיהוי דפוסים"
     ],
     "intentPhrases": [
@@ -27525,12 +27615,34 @@
       "חרדה, לחץ ופחדים",
       "CBT ייעודי למתבגרים",
       "טופס CBT בעברית למתבגר"
+=======
+      "זיהוי דפוסים",
+      "מתבגרים",
+      "עברית",
+      "CBT ייעודי",
+      "מודול 1",
+      "חרדה לחץ ופחדים"
+    ],
+    "intentPhrases": [
+      "מה מפעיל את הלחץ שלי",
+      "מה גורם לי לפחד",
+      "אני צריך טופס ייעודי למתבגרים",
+      "שלח לי טופס מהסדרה הייעודית",
+      "שלח לי טופס ממודול 1",
+      "אני צריך טופס שמתאים למתבגר עם קושי רגשי"
+>>>>>>> origin/main
     ],
     "notFor": [
       "children under adolescent age",
       "adult or older-adult requests",
+<<<<<<< HEAD
       "English-only requests",
       "crisis intervention without adult supervision"
+=======
+      "English-only requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations"
+>>>>>>> origin/main
     ],
     "aiMatchingSummary": "מתאים למצבים שבהם המשתמש/ת מתאר/ת לחץ או פחד ורוצה להבין מה מפעיל אותם: מקום, אדם, מחשבה, תחושת גוף, חוסר ודאות או עומס.",
     "safetyNotes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
@@ -27542,6 +27654,10 @@
     "languages": {
       "he": {
         "title": "מה מפעיל את הלחץ או הפחד שלי?",
+<<<<<<< HEAD
+=======
+        "description": "זיהוי טריגרים: מצבים, מחשבות או תחושות שמפעילים לחץ ופחד.",
+>>>>>>> origin/main
         "file_url": "/forms/module-01/adolescents_cbt_specialized_he_01_02.pdf",
         "file_type": "pdf",
         "file_name": "adolescents_cbt_specialized_he_01_02.pdf",
@@ -27561,22 +27677,42 @@
       "חוסר ודאות",
       "דאגה חברתית",
       "מעמסה",
+<<<<<<< HEAD
       "זיהוי דפוסים"
+=======
+      "זיהוי דפוסים",
+      "מתבגרים",
+      "עברית",
+      "CBT ייעודי",
+      "מודול 1",
+      "חרדה לחץ ופחדים"
+>>>>>>> origin/main
     ],
     "ai_matching_summary": "מתאים למצבים שבהם המשתמש/ת מתאר/ת לחץ או פחד ורוצה להבין מה מפעיל אותם: מקום, אדם, מחשבה, תחושת גוף, חוסר ודאות או עומס.",
     "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
     "file_path": "public/forms/module-01/adolescents_cbt_specialized_he_01_02.pdf",
     "preview_path": null,
     "source_manifest": null,
+<<<<<<< HEAD
     "logical_form_id": "adolescents_cbt_specialized_01_2",
     "variant_language": "he",
     "available_languages": [
+=======
+    "logical_form_id": "adolescents_cbt_specialized_01_02",
+    "variant_language": "he",
+    "available_languages": [
+      "en",
+>>>>>>> origin/main
       "he"
     ],
     "sibling_variant_ids": [],
     "source_language": "en",
     "is_language_variant": true,
+<<<<<<< HEAD
     "variant_group_id": "adolescents_cbt_specialized_01_2"
+=======
+    "variant_group_id": "adolescents_cbt_specialized_01_02"
+>>>>>>> origin/main
   },
   {
     "id": "adolescents-cbt-specialized-he-01-03",
@@ -27585,6 +27721,7 @@
     "type": "individual_worksheet",
     "approved": true,
     "title": "מה הדאגה שלי אומרת?",
+<<<<<<< HEAD
     "description": "מתאים כאשר יש מחשבת דאגה חוזרת כמו מה יקרה אם, כולם יחשבו, אני לא אצליח, או כאשר צריך להבחין בין דאגה לבין מידע עובדתי.",
     "language": "he",
     "audience": "adolescents",
@@ -27594,15 +27731,34 @@
       "anxiety_tools",
       "coping_tools",
       "thought_records"
+=======
+    "description": "הפרדה בין מחשבות דאגה לבין עובדות ובניית יכולת לבדוק את אמינות הדאגה.",
+    "language": "he",
+    "audience": "adolescents",
+    "category": "adolescents_cbt_specialized",
+    "subcategory": "01",
+    "secondaryCategories": [
+      "anxiety_tools",
+      "coping_tools",
+      "emotional_regulation",
+      "workbook_series"
+>>>>>>> origin/main
     ],
     "worksheetNumber": "1.3",
     "formNumber": "1.3",
     "stageNumber": 1,
     "moduleNumber": 1,
+<<<<<<< HEAD
     "moduleCode": null,
     "moduleTitle": null,
     "stageTitle": null,
     "pageNumberInWorkbook": null,
+=======
+    "moduleCode": "01",
+    "moduleTitle": null,
+    "stageTitle": null,
+    "pageNumberInWorkbook": 3,
+>>>>>>> origin/main
     "series": null,
     "therapeuticGoal": "הפרדה בין מחשבות דאגה לבין עובדות ובניית יכולת לבדוק את אמינות הדאגה.",
     "whenToUse": "כשמחשבות דאגה חזקות חוזרות שוב ושוב או מרגישות משכנעות מאוד.",
@@ -27613,6 +27769,7 @@
       "נבואות",
       "בדיקת מחשבות",
       "קול הדאגה",
+<<<<<<< HEAD
       "חשיבה מאוזנת"
     ],
     "intentPhrases": [
@@ -27620,12 +27777,33 @@
       "חרדה, לחץ ופחדים",
       "CBT ייעודי למתבגרים",
       "טופס CBT בעברית למתבגר"
+=======
+      "חשיבה מאוזנת",
+      "מתבגרים",
+      "עברית",
+      "CBT ייעודי",
+      "מודול 1",
+      "חרדה לחץ ופחדים"
+    ],
+    "intentPhrases": [
+      "מה הדאגה שלי אומרת",
+      "מחשבות דאגה חוזרות",
+      "שלח לי טופס ממודול 1",
+      "אני צריך טופס שמתאים לנערה עם לחץ",
+      "בדיקת מחשבות חרדה"
+>>>>>>> origin/main
     ],
     "notFor": [
       "children under adolescent age",
       "adult or older-adult requests",
+<<<<<<< HEAD
       "English-only requests",
       "crisis intervention without adult supervision"
+=======
+      "English-only requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations"
+>>>>>>> origin/main
     ],
     "aiMatchingSummary": "מתאים כאשר יש מחשבת דאגה חוזרת כמו מה יקרה אם, כולם יחשבו, אני לא אצליח, או כאשר צריך להבחין בין דאגה לבין מידע עובדתי.",
     "safetyNotes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
@@ -27637,6 +27815,10 @@
     "languages": {
       "he": {
         "title": "מה הדאגה שלי אומרת?",
+<<<<<<< HEAD
+=======
+        "description": "הפרדה בין מחשבות דאגה לבין עובדות ובניית יכולת לבדוק את אמינות הדאגה.",
+>>>>>>> origin/main
         "file_url": "/forms/module-01/adolescents_cbt_specialized_he_01_03.pdf",
         "file_type": "pdf",
         "file_name": "adolescents_cbt_specialized_he_01_03.pdf",
@@ -27655,22 +27837,42 @@
       "נבואות",
       "בדיקת מחשבות",
       "קול הדאגה",
+<<<<<<< HEAD
       "חשיבה מאוזנת"
+=======
+      "חשיבה מאוזנת",
+      "מתבגרים",
+      "עברית",
+      "CBT ייעודי",
+      "מודול 1",
+      "חרדה לחץ ופחדים"
+>>>>>>> origin/main
     ],
     "ai_matching_summary": "מתאים כאשר יש מחשבת דאגה חוזרת כמו מה יקרה אם, כולם יחשבו, אני לא אצליח, או כאשר צריך להבחין בין דאגה לבין מידע עובדתי.",
     "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
     "file_path": "public/forms/module-01/adolescents_cbt_specialized_he_01_03.pdf",
     "preview_path": null,
     "source_manifest": null,
+<<<<<<< HEAD
     "logical_form_id": "adolescents_cbt_specialized_01_3",
     "variant_language": "he",
     "available_languages": [
+=======
+    "logical_form_id": "adolescents_cbt_specialized_01_03",
+    "variant_language": "he",
+    "available_languages": [
+      "en",
+>>>>>>> origin/main
       "he"
     ],
     "sibling_variant_ids": [],
     "source_language": "en",
     "is_language_variant": true,
+<<<<<<< HEAD
     "variant_group_id": "adolescents_cbt_specialized_01_3"
+=======
+    "variant_group_id": "adolescents_cbt_specialized_01_03"
+>>>>>>> origin/main
   },
   {
     "id": "adolescents-cbt-specialized-he-01-04",
@@ -27679,6 +27881,7 @@
     "type": "individual_worksheet",
     "approved": true,
     "title": "לחץ לפני מבחן",
+<<<<<<< HEAD
     "description": "מתאים למשתמש/ת שמתאר/ת לחץ לפני מבחן או משימת ביצוע ורוצה להכין תוכנית ערב לפני ויום המבחן עם צעדים קטנים וברורים.",
     "language": "he",
     "audience": "adolescents",
@@ -27688,15 +27891,34 @@
       "anxiety_tools",
       "coping_tools",
       "thought_records"
+=======
+    "description": "בניית תוכנית פשוטה להתמודדות עם לחץ לפני מבחן, בוחן או הצגה.",
+    "language": "he",
+    "audience": "adolescents",
+    "category": "adolescents_cbt_specialized",
+    "subcategory": "01",
+    "secondaryCategories": [
+      "anxiety_tools",
+      "coping_tools",
+      "emotional_regulation",
+      "workbook_series"
+>>>>>>> origin/main
     ],
     "worksheetNumber": "1.4",
     "formNumber": "1.4",
     "stageNumber": 1,
     "moduleNumber": 1,
+<<<<<<< HEAD
     "moduleCode": null,
     "moduleTitle": null,
     "stageTitle": null,
     "pageNumberInWorkbook": null,
+=======
+    "moduleCode": "01",
+    "moduleTitle": null,
+    "stageTitle": null,
+    "pageNumberInWorkbook": 4,
+>>>>>>> origin/main
     "series": null,
     "therapeuticGoal": "בניית תוכנית פשוטה להתמודדות עם לחץ לפני מבחן, בוחן או הצגה.",
     "whenToUse": "לפני מבחן, בוחן, הצגה או משימה לימודית שמעלה לחץ ביצוע.",
@@ -27708,6 +27930,7 @@
       "הכנה",
       "תוכנית פעולה",
       "ביצוע",
+<<<<<<< HEAD
       "ויסות"
     ],
     "intentPhrases": [
@@ -27715,12 +27938,33 @@
       "חרדה, לחץ ופחדים",
       "CBT ייעודי למתבגרים",
       "טופס CBT בעברית למתבגר"
+=======
+      "ויסות",
+      "מתבגרים",
+      "עברית",
+      "CBT ייעודי",
+      "מודול 1",
+      "חרדה לחץ ופחדים"
+    ],
+    "intentPhrases": [
+      "לחץ לפני מבחן",
+      "חרדת מבחנים",
+      "שלח לי טופס ממודול 1",
+      "אני צריך טופס שמתאים לנער עם חרדה",
+      "תוכנית התמודדות עם מבחן"
+>>>>>>> origin/main
     ],
     "notFor": [
       "children under adolescent age",
       "adult or older-adult requests",
+<<<<<<< HEAD
       "English-only requests",
       "crisis intervention without adult supervision"
+=======
+      "English-only requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations"
+>>>>>>> origin/main
     ],
     "aiMatchingSummary": "מתאים למשתמש/ת שמתאר/ת לחץ לפני מבחן או משימת ביצוע ורוצה להכין תוכנית ערב לפני ויום המבחן עם צעדים קטנים וברורים.",
     "safetyNotes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
@@ -27732,6 +27976,10 @@
     "languages": {
       "he": {
         "title": "לחץ לפני מבחן",
+<<<<<<< HEAD
+=======
+        "description": "בניית תוכנית פשוטה להתמודדות עם לחץ לפני מבחן, בוחן או הצגה.",
+>>>>>>> origin/main
         "file_url": "/forms/module-01/adolescents_cbt_specialized_he_01_04.pdf",
         "file_type": "pdf",
         "file_name": "adolescents_cbt_specialized_he_01_04.pdf",
@@ -27751,22 +27999,42 @@
       "הכנה",
       "תוכנית פעולה",
       "ביצוע",
+<<<<<<< HEAD
       "ויסות"
+=======
+      "ויסות",
+      "מתבגרים",
+      "עברית",
+      "CBT ייעודי",
+      "מודול 1",
+      "חרדה לחץ ופחדים"
+>>>>>>> origin/main
     ],
     "ai_matching_summary": "מתאים למשתמש/ת שמתאר/ת לחץ לפני מבחן או משימת ביצוע ורוצה להכין תוכנית ערב לפני ויום המבחן עם צעדים קטנים וברורים.",
     "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
     "file_path": "public/forms/module-01/adolescents_cbt_specialized_he_01_04.pdf",
     "preview_path": null,
     "source_manifest": null,
+<<<<<<< HEAD
     "logical_form_id": "adolescents_cbt_specialized_01_4",
     "variant_language": "he",
     "available_languages": [
+=======
+    "logical_form_id": "adolescents_cbt_specialized_01_04",
+    "variant_language": "he",
+    "available_languages": [
+      "en",
+>>>>>>> origin/main
       "he"
     ],
     "sibling_variant_ids": [],
     "source_language": "en",
     "is_language_variant": true,
+<<<<<<< HEAD
     "variant_group_id": "adolescents_cbt_specialized_01_4"
+=======
+    "variant_group_id": "adolescents_cbt_specialized_01_04"
+>>>>>>> origin/main
   },
   {
     "id": "adolescents-cbt-specialized-he-01-05",
@@ -27775,6 +28043,7 @@
     "type": "individual_worksheet",
     "approved": true,
     "title": "הימנעות או אומץ?",
+<<<<<<< HEAD
     "description": "מתאים כאשר המשתמש/ת נמנע/ת ממשימה, שיחה, הגעה למקום או ניסיון חדש בגלל חרדה, וצריך לבחור צעד קטן ובטוח לכיוון אומץ.",
     "language": "he",
     "audience": "adolescents",
@@ -27784,15 +28053,34 @@
       "anxiety_tools",
       "coping_tools",
       "thought_records"
+=======
+    "description": "זיהוי הימנעות, הבנת המחיר שלה ובחירת צעד אומץ קטן להתקדמות.",
+    "language": "he",
+    "audience": "adolescents",
+    "category": "adolescents_cbt_specialized",
+    "subcategory": "01",
+    "secondaryCategories": [
+      "anxiety_tools",
+      "coping_tools",
+      "emotional_regulation",
+      "workbook_series"
+>>>>>>> origin/main
     ],
     "worksheetNumber": "1.5",
     "formNumber": "1.5",
     "stageNumber": 1,
     "moduleNumber": 1,
+<<<<<<< HEAD
     "moduleCode": null,
     "moduleTitle": null,
     "stageTitle": null,
     "pageNumberInWorkbook": null,
+=======
+    "moduleCode": "01",
+    "moduleTitle": null,
+    "stageTitle": null,
+    "pageNumberInWorkbook": 5,
+>>>>>>> origin/main
     "series": null,
     "therapeuticGoal": "זיהוי הימנעות, הבנת המחיר שלה ובחירת צעד אומץ קטן להתקדמות.",
     "whenToUse": "כשמתבגר/ת נמנע/ת ממשהו בגלל פחד, לחץ או חשש מכישלון.",
@@ -27804,6 +28092,7 @@
       "פחד",
       "מחיר ההימנעות",
       "ביטחון",
+<<<<<<< HEAD
       "תרגול"
     ],
     "intentPhrases": [
@@ -27811,12 +28100,33 @@
       "חרדה, לחץ ופחדים",
       "CBT ייעודי למתבגרים",
       "טופס CBT בעברית למתבגר"
+=======
+      "תרגול",
+      "מתבגרים",
+      "עברית",
+      "CBT ייעודי",
+      "מודול 1",
+      "חרדה לחץ ופחדים"
+    ],
+    "intentPhrases": [
+      "הימנעות או אומץ",
+      "הימנעות בגלל פחד",
+      "שלח לי טופס ממודול 1",
+      "אני צריך טופס שמתאים למתבגר עם קושי רגשי",
+      "צעד אומץ קטן"
+>>>>>>> origin/main
     ],
     "notFor": [
       "children under adolescent age",
       "adult or older-adult requests",
+<<<<<<< HEAD
       "English-only requests",
       "crisis intervention without adult supervision"
+=======
+      "English-only requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations"
+>>>>>>> origin/main
     ],
     "aiMatchingSummary": "מתאים כאשר המשתמש/ת נמנע/ת ממשימה, שיחה, הגעה למקום או ניסיון חדש בגלל חרדה, וצריך לבחור צעד קטן ובטוח לכיוון אומץ.",
     "safetyNotes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
@@ -27828,6 +28138,10 @@
     "languages": {
       "he": {
         "title": "הימנעות או אומץ?",
+<<<<<<< HEAD
+=======
+        "description": "זיהוי הימנעות, הבנת המחיר שלה ובחירת צעד אומץ קטן להתקדמות.",
+>>>>>>> origin/main
         "file_url": "/forms/module-01/adolescents_cbt_specialized_he_01_05.pdf",
         "file_type": "pdf",
         "file_name": "adolescents_cbt_specialized_he_01_05.pdf",
@@ -27847,22 +28161,42 @@
       "פחד",
       "מחיר ההימנעות",
       "ביטחון",
+<<<<<<< HEAD
       "תרגול"
+=======
+      "תרגול",
+      "מתבגרים",
+      "עברית",
+      "CBT ייעודי",
+      "מודול 1",
+      "חרדה לחץ ופחדים"
+>>>>>>> origin/main
     ],
     "ai_matching_summary": "מתאים כאשר המשתמש/ת נמנע/ת ממשימה, שיחה, הגעה למקום או ניסיון חדש בגלל חרדה, וצריך לבחור צעד קטן ובטוח לכיוון אומץ.",
     "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
     "file_path": "public/forms/module-01/adolescents_cbt_specialized_he_01_05.pdf",
     "preview_path": null,
     "source_manifest": null,
+<<<<<<< HEAD
     "logical_form_id": "adolescents_cbt_specialized_01_5",
     "variant_language": "he",
     "available_languages": [
+=======
+    "logical_form_id": "adolescents_cbt_specialized_01_05",
+    "variant_language": "he",
+    "available_languages": [
+      "en",
+>>>>>>> origin/main
       "he"
     ],
     "sibling_variant_ids": [],
     "source_language": "en",
     "is_language_variant": true,
+<<<<<<< HEAD
     "variant_group_id": "adolescents_cbt_specialized_01_5"
+=======
+    "variant_group_id": "adolescents_cbt_specialized_01_05"
+>>>>>>> origin/main
   },
   {
     "id": "adolescents-cbt-specialized-he-01-06",
@@ -27871,6 +28205,7 @@
     "type": "individual_worksheet",
     "approved": true,
     "title": "סולם האומץ שלי",
+<<<<<<< HEAD
     "description": "מתאים לבניית מדרג אומץ: מטרה בראש הסולם, צעד קל, צעד אמצעי וצעד שבועי להתמודדות עם פחד באופן הדרגתי ותומך.",
     "language": "he",
     "audience": "adolescents",
@@ -27880,15 +28215,34 @@
       "anxiety_tools",
       "coping_tools",
       "thought_records"
+=======
+    "description": "בניית צעדים הדרגתיים ומציאותיים להתמודדות עם פחד באופן בטוח ומדורג.",
+    "language": "he",
+    "audience": "adolescents",
+    "category": "adolescents_cbt_specialized",
+    "subcategory": "01",
+    "secondaryCategories": [
+      "anxiety_tools",
+      "coping_tools",
+      "emotional_regulation",
+      "workbook_series"
+>>>>>>> origin/main
     ],
     "worksheetNumber": "1.6",
     "formNumber": "1.6",
     "stageNumber": 1,
     "moduleNumber": 1,
+<<<<<<< HEAD
     "moduleCode": null,
     "moduleTitle": null,
     "stageTitle": null,
     "pageNumberInWorkbook": null,
+=======
+    "moduleCode": "01",
+    "moduleTitle": null,
+    "stageTitle": null,
+    "pageNumberInWorkbook": 6,
+>>>>>>> origin/main
     "series": null,
     "therapeuticGoal": "בניית צעדים הדרגתיים ומציאותיים להתמודדות עם פחד באופן בטוח ומדורג.",
     "whenToUse": "כאשר רוצים לתכנן חשיפה הדרגתית או התקדמות בצעדים קטנים סביב פחד או הימנעות.",
@@ -27900,6 +28254,7 @@
       "חרדה",
       "תרגול",
       "ביטחון",
+<<<<<<< HEAD
       "תוכנית שבועית"
     ],
     "intentPhrases": [
@@ -27907,12 +28262,34 @@
       "חרדה, לחץ ופחדים",
       "CBT ייעודי למתבגרים",
       "טופס CBT בעברית למתבגר"
+=======
+      "תוכנית שבועית",
+      "מתבגרים",
+      "עברית",
+      "CBT ייעודי",
+      "מודול 1",
+      "חרדה לחץ ופחדים"
+    ],
+    "intentPhrases": [
+      "סולם האומץ שלי",
+      "מדרג אומץ",
+      "שלח לי טופס ממודול 1",
+      "תן לי את כל הטפסים של מודול 1",
+      "חשיפה הדרגתית למתבגר",
+      "אני צריך טופס שמתאים לנער עם חרדה"
+>>>>>>> origin/main
     ],
     "notFor": [
       "children under adolescent age",
       "adult or older-adult requests",
+<<<<<<< HEAD
       "English-only requests",
       "crisis intervention without adult supervision"
+=======
+      "English-only requests unless English is explicitly requested",
+      "crisis intervention",
+      "emergency mental health situations"
+>>>>>>> origin/main
     ],
     "aiMatchingSummary": "מתאים לבניית מדרג אומץ: מטרה בראש הסולם, צעד קל, צעד אמצעי וצעד שבועי להתמודדות עם פחד באופן הדרגתי ותומך.",
     "safetyNotes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
@@ -27924,6 +28301,10 @@
     "languages": {
       "he": {
         "title": "סולם האומץ שלי",
+<<<<<<< HEAD
+=======
+        "description": "בניית צעדים הדרגתיים ומציאותיים להתמודדות עם פחד באופן בטוח ומדורג.",
+>>>>>>> origin/main
         "file_url": "/forms/module-01/adolescents_cbt_specialized_he_01_06.pdf",
         "file_type": "pdf",
         "file_name": "adolescents_cbt_specialized_he_01_06.pdf",
@@ -27943,21 +28324,38 @@
       "חרדה",
       "תרגול",
       "ביטחון",
+<<<<<<< HEAD
       "תוכנית שבועית"
+=======
+      "תוכנית שבועית",
+      "מתבגרים",
+      "עברית",
+      "CBT ייעודי",
+      "מודול 1",
+      "חרדה לחץ ופחדים"
+>>>>>>> origin/main
     ],
     "ai_matching_summary": "מתאים לבניית מדרג אומץ: מטרה בראש הסולם, צעד קל, צעד אמצעי וצעד שבועי להתמודדות עם פחד באופן הדרגתי ותומך.",
     "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
     "file_path": "public/forms/module-01/adolescents_cbt_specialized_he_01_06.pdf",
     "preview_path": null,
     "source_manifest": null,
+<<<<<<< HEAD
     "logical_form_id": "adolescents_cbt_specialized_01_6",
     "variant_language": "he",
     "available_languages": [
+=======
+    "logical_form_id": "adolescents_cbt_specialized_01_06",
+    "variant_language": "he",
+    "available_languages": [
+      "en",
+>>>>>>> origin/main
       "he"
     ],
     "sibling_variant_ids": [],
     "source_language": "en",
     "is_language_variant": true,
+<<<<<<< HEAD
     "variant_group_id": "adolescents_cbt_specialized_01_6"
   },
   {
@@ -33035,5 +33433,8 @@
     "source_language": "en",
     "is_language_variant": true,
     "variant_group_id": "adolescents_cbt_specialized_10_6"
+=======
+    "variant_group_id": "adolescents_cbt_specialized_01_06"
+>>>>>>> origin/main
   }
 ]
