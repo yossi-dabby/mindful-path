@@ -1,0 +1,256 @@
+{
+  "series_id": "adolescents-cbt-specialized-he",
+  "series_title_he": "טפסי CBT ייעודיים למתבגרים",
+  "series_title_en": "Adolescents CBT Specialized",
+  "language": "he",
+  "audience": "adolescents",
+  "main_category": "adolescents_cbt_specialized",
+  "module_number": 7,
+  "module_title_he": "ADHD, קשב, ארגון ואימפולסיביות",
+  "module_title_en": "ADHD, Attention, Organization, and Impulsivity",
+  "github_path": "public/forms/adolescents/he/cbt-specialized/module-07/",
+  "combined_pdf_path": "public/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_module_07_adhd_attention_organization_impulsivity.pdf",
+  "items": [
+    {
+      "id": "adolescents-cbt-specialized-he-07-01",
+      "logical_form_id": "adolescents_cbt_specialized_07_01",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_07_01",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-07-01"
+      ],
+      "worksheet_number": "7.1",
+      "title_he": "מפת הקשב שלי",
+      "title_en": "My Focus Map",
+      "module_number": 7,
+      "module_title_he": "ADHD, קשב, ארגון ואימפולסיביות",
+      "module_title_en": "ADHD, Attention, Organization, and Impulsivity",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לזהות מתי הקשב עובד טוב יותר, מה מושך אותו הצידה, ואיזו תמיכה קטנה יכולה לעזור היום.",
+      "when_to_use_he": "כשמתבגר/ת מתקשה להבין למה קשה להתרכז, לפני בניית תוכנית קשב או התאמות לימודיות.",
+      "keywords_he": [
+        "קשב",
+        "ריכוז",
+        "ADHD",
+        "אנרגיה",
+        "עומס",
+        "תמיכה",
+        "התאמות",
+        "מפת קשב"
+      ],
+      "ai_matching_summary_he": "מתאים למצבים שבהם המתבגר/ת רוצה למפות מה עוזר לקשב, מה מפריע, ומה אפשר לעשות כדי להישאר עם המשימה.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_01.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-07/previews/adolescents_cbt_specialized_he_07_01_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-07-02",
+      "logical_form_id": "adolescents_cbt_specialized_07_02",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_07_02",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-07-02"
+      ],
+      "worksheet_number": "7.2",
+      "title_he": "מתחילים בקטן",
+      "title_en": "Starting Small",
+      "module_number": 7,
+      "module_title_he": "ADHD, קשב, ארגון ואימפולסיביות",
+      "module_title_en": "ADHD, Attention, Organization, and Impulsivity",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לפרק משימה גדולה לצעד ראשון קטן, ברור ואפשרי, כדי להפחית דחיינות והצפה.",
+      "when_to_use_he": "כשיש קושי להתחיל שיעורי בית, למידה, סידור חדר או משימה שנראית גדולה מדי.",
+      "keywords_he": [
+        "התחלה",
+        "צעד קטן",
+        "דחיינות",
+        "משימה",
+        "הצפה",
+        "ADHD",
+        "תכנון"
+      ],
+      "ai_matching_summary_he": "מתאים כשהמתבגר/ת יודע/ת מה צריך לעשות אבל מתקשה להתחיל, וצריך/ה צעד ראשון קטן ומוחשי.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_02.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-07/previews/adolescents_cbt_specialized_he_07_02_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-07-03",
+      "logical_form_id": "adolescents_cbt_specialized_07_03",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_07_03",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-07-03"
+      ],
+      "worksheet_number": "7.3",
+      "title_he": "תוכנית הצעדים למשימה שלי",
+      "title_en": "My Task Step Plan",
+      "module_number": 7,
+      "module_title_he": "ADHD, קשב, ארגון ואימפולסיביות",
+      "module_title_en": "ADHD, Attention, Organization, and Impulsivity",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "להפוך משימה גדולה לרצף צעדים קטנים עם תכנון גיבוי במקרה של יציאה מהמסלול.",
+      "when_to_use_he": "כשמשימה מרגישה גדולה, מבלבלת או קלה מדי לדחייה, במיוחד בפרויקטים או מטלות לימודיות.",
+      "keywords_he": [
+        "תכנון משימה",
+        "צעדים קטנים",
+        "פירוק משימות",
+        "דחייה",
+        "גיבוי",
+        "ADHD",
+        "ארגון"
+      ],
+      "ai_matching_summary_he": "מתאים לבניית תוכנית פעולה פשוטה למשימה, כולל שלושה צעדים ראשונים ומה לעשות אם יוצאים מהמסלול.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_03.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-07/previews/adolescents_cbt_specialized_he_07_03_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-07-04",
+      "logical_form_id": "adolescents_cbt_specialized_07_04",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_07_04",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-07-04"
+      ],
+      "worksheet_number": "7.4",
+      "title_he": "מונה ההסחות שלי",
+      "title_en": "My Distraction Catcher",
+      "module_number": 7,
+      "module_title_he": "ADHD, קשב, ארגון ואימפולסיביות",
+      "module_title_en": "ADHD, Attention, Organization, and Impulsivity",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לזהות מה מסיח את הקשב, לאן הקשב הלך, ומה יעזור לחזור למשימה בעדינות.",
+      "when_to_use_he": "כשמתבגר/ת נמשך/ת להסחות כמו טלפון, רעש, מחשבות או משימות אחרות בזמן למידה.",
+      "keywords_he": [
+        "הסחות",
+        "טלפון",
+        "רעש",
+        "חזרה למשימה",
+        "קשב",
+        "מיקוד",
+        "ADHD"
+      ],
+      "ai_matching_summary_he": "מתאים למצבים של הסחת דעת חוזרת, כדי לזהות את מקור ההסחה ולבחור סימן או פעולה לחזרה למשימה.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_04.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-07/previews/adolescents_cbt_specialized_he_07_04_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-07-05",
+      "logical_form_id": "adolescents_cbt_specialized_07_05",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_07_05",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-07-05"
+      ],
+      "worksheet_number": "7.5",
+      "title_he": "עוצרים לפני שפועלים",
+      "title_en": "Pause Before I Act",
+      "module_number": 7,
+      "module_title_he": "ADHD, קשב, ארגון ואימפולסיביות",
+      "module_title_en": "ADHD, Attention, Organization, and Impulsivity",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לעצור לפני תגובה אימפולסיבית, לזהות את הדחף, ולהחליף פעולה מהירה בתגובה מחושבת יותר.",
+      "when_to_use_he": "כשיש קושי לעצור לפני קטיעה, התפרצות, לקיחת דבר, תגובה מהירה או פעולה בלי לחשוב.",
+      "keywords_he": [
+        "אימפולסיביות",
+        "עצירה",
+        "דחף",
+        "תגובה",
+        "ויסות",
+        "ADHD",
+        "לפני שפועלים"
+      ],
+      "ai_matching_summary_he": "מתאים כשהמתבגר/ת פועל/ת מהר מדי ורוצה לזהות את הדחף ולבחור תגובה בטוחה ומועילה יותר.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_05.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-07/previews/adolescents_cbt_specialized_he_07_05_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-07-06",
+      "logical_form_id": "adolescents_cbt_specialized_07_06",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_07_06",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-07-06"
+      ],
+      "worksheet_number": "7.6",
+      "title_he": "תוכנית הארגון השבועית שלי",
+      "title_en": "My Weekly Organization Plan",
+      "module_number": 7,
+      "module_title_he": "ADHD, קשב, ארגון ואימפולסיביות",
+      "module_title_en": "ADHD, Attention, Organization, and Impulsivity",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לבנות תכנון שבועי פשוט שמחזיק תזכורות, עוגנים ופרס עצמי כדי לתמוך בארגון והתמדה.",
+      "when_to_use_he": "כשיש קושי לזכור משימות, לעקוב אחרי שבוע עמוס, או לשמור על סדר בבית הספר ובבית.",
+      "keywords_he": [
+        "ארגון שבועי",
+        "תזכורות",
+        "יומן",
+        "פתקיות",
+        "משימות",
+        "התמדה",
+        "ADHD"
+      ],
+      "ai_matching_summary_he": "מתאים לבניית תוכנית שבועית פשוטה עם דברים לזכור, חומרי עזר, דרך מעקב ועידוד עצמי.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_06.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-07/previews/adolescents_cbt_specialized_he_07_06_preview.png"
+    }
+  ]
+}
