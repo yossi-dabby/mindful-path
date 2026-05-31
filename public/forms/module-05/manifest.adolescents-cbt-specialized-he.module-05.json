@@ -1,0 +1,256 @@
+{
+  "series_id": "adolescents-cbt-specialized-he",
+  "series_title_he": "טפסי CBT ייעודיים למתבגרים",
+  "series_title_en": "Adolescents CBT Specialized",
+  "language": "he",
+  "audience": "adolescents",
+  "main_category": "adolescents_cbt_specialized",
+  "module_number": 5,
+  "module_title_he": "כעס, אימפולסיביות וויסות",
+  "module_title_en": "Anger, Impulsivity and Regulation",
+  "github_path": "public/forms/adolescents/he/cbt-specialized/module-05/",
+  "combined_pdf_path": "public/forms/adolescents/he/cbt-specialized/module-05/adolescents_cbt_specialized_he_module_05_anger_impulsivity_regulation.pdf",
+  "items": [
+    {
+      "id": "adolescents-cbt-specialized-he-05-01",
+      "logical_form_id": "adolescents_cbt_specialized_05_01",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_05_01",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-05-01"
+      ],
+      "worksheet_number": "5.1",
+      "title_he": "מד הכעס שלי",
+      "title_en": "My Anger Thermometer",
+      "module_number": 5,
+      "module_title_he": "כעס, אימפולסיביות וויסות",
+      "module_title_en": "Anger, Impulsivity and Regulation",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לזהות איך הכעס עולה בגוף ובמחשבות, ולדרג את עוצמת הכעס לפני תגובה אימפולסיבית.",
+      "when_to_use_he": "כאשר המתבגר/ת מתאר/ת כעס, עצבנות, התפרצות, מתח פנימי או קושי לעצור לפני תגובה.",
+      "keywords_he": [
+        "כעס",
+        "מד כעס",
+        "עוצמת רגש",
+        "סימנים מוקדמים",
+        "גוף",
+        "התפרצות",
+        "ויסות"
+      ],
+      "ai_matching_summary_he": "מתאים לזיהוי רמת הכעס, סימנים גופניים ומחשבתיים מקדימים, ובחירת דבר אחד שמסייע להוריד את רמת הכעס.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-05/adolescents_cbt_specialized_he_05_01.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-05/previews/adolescents_cbt_specialized_he_05_01_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-05-02",
+      "logical_form_id": "adolescents_cbt_specialized_05_02",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_05_02",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-05-02"
+      ],
+      "worksheet_number": "5.2",
+      "title_he": "מה הצית אותי?",
+      "title_en": "What Set Me Off?",
+      "module_number": 5,
+      "module_title_he": "כעס, אימפולסיביות וויסות",
+      "module_title_en": "Anger, Impulsivity and Regulation",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לעזור למתבגר/ת להבין את הטריגר, המחשבות והצרכים שהופיעו ברגע כעס.",
+      "when_to_use_he": "כאשר יש אירוע שבו המתבגר/ת הרגיש/ה שהתעצבן/ה, נפגע/ה, התפרץ/ה או הגיב/ה בעוצמה.",
+      "keywords_he": [
+        "טריגר",
+        "מה הצית אותי",
+        "כעס",
+        "פגיעה",
+        "תגובה",
+        "מחשבות",
+        "צורך"
+      ],
+      "ai_matching_summary_he": "מתאים לניתוח אירוע כעס: מה קרה, מה הראש אמר, מה הפך את זה לקשה יותר, ולמה היה צורך באותו רגע.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-05/adolescents_cbt_specialized_he_05_02.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-05/previews/adolescents_cbt_specialized_he_05_02_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-05-03",
+      "logical_form_id": "adolescents_cbt_specialized_05_03",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_05_03",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-05-03"
+      ],
+      "worksheet_number": "5.3",
+      "title_he": "עצירה לפני פעולה",
+      "title_en": "Pause Before I Act",
+      "module_number": 5,
+      "module_title_he": "כעס, אימפולסיביות וויסות",
+      "module_title_en": "Anger, Impulsivity and Regulation",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לתרגל עצירה קצרה שמאפשרת להאט את הדחף ולהגיב בצורה שקולה יותר.",
+      "when_to_use_he": "כאשר המתבגר/ת מרגיש/ה דחף מיידי להגיב, לצעוק, לברוח, להתווכח או לעשות פעולה שעלולה להחמיר את המצב.",
+      "keywords_he": [
+        "עצירה",
+        "לפני פעולה",
+        "דחף",
+        "אימפולסיביות",
+        "עיכוב תגובה",
+        "נשימה",
+        "וויסות עצמי"
+      ],
+      "ai_matching_summary_he": "מתאים כשצריך כלי קצר של 10 שניות לעצירה, בחירת כלי עזר, וניסוח משפט שיעזור להגן על עצמי לפני תגובה.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-05/adolescents_cbt_specialized_he_05_03.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-05/previews/adolescents_cbt_specialized_he_05_03_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-05-04",
+      "logical_form_id": "adolescents_cbt_specialized_05_04",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_05_04",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-05-04"
+      ],
+      "worksheet_number": "5.4",
+      "title_he": "לבחור את הצעד הבא שלי",
+      "title_en": "Choose My Next Move",
+      "module_number": 5,
+      "module_title_he": "כעס, אימפולסיביות וויסות",
+      "module_title_en": "Anger, Impulsivity and Regulation",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לזהות אפשרויות תגובה ולבחור צעד מועיל במקום תגובה אימפולסיבית.",
+      "when_to_use_he": "כאשר המתבגר/ת רוצה לבחור תגובה אחרת אחרי עצירה, במקום להגיב מתוך כעס או דחף מיידי.",
+      "keywords_he": [
+        "בחירת תגובה",
+        "צעד הבא",
+        "אפשרויות",
+        "אימפולסיביות",
+        "הרחקה",
+        "מילים רגועות",
+        "בקשת עזרה"
+      ],
+      "ai_matching_summary_he": "מתאים לבניית תגובה חלופית: מה האפשרויות עכשיו, איזו בחירה תעזור יותר, ואיזה צעד קטן ניתן לעשות.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-05/adolescents_cbt_specialized_he_05_04.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-05/previews/adolescents_cbt_specialized_he_05_04_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-05-05",
+      "logical_form_id": "adolescents_cbt_specialized_05_05",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_05_05",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-05-05"
+      ],
+      "worksheet_number": "5.5",
+      "title_he": "תיקון אחרי התפרצות",
+      "title_en": "Repair After a Blow-Up",
+      "module_number": 5,
+      "module_title_he": "כעס, אימפולסיביות וויסות",
+      "module_title_en": "Anger, Impulsivity and Regulation",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לעזור למתבגר/ת לזהות מה קרה לאחר התפרצות ולבחור צעד תיקון קטן ובטוח.",
+      "when_to_use_he": "לאחר ויכוח, התפרצות, פגיעה בקשר, אמירה חדה או התנהגות שהמתבגר/ת רוצה לתקן.",
+      "keywords_he": [
+        "תיקון",
+        "אחרי התפרצות",
+        "סליחה",
+        "אחריות",
+        "קשר",
+        "פיוס",
+        "אמון"
+      ],
+      "ai_matching_summary_he": "מתאים לשיחה אחרי אירוע: מה קרה אחרי שהגבתי, מה החלק שלי בסיפור, ומה צעד תיקון אחד שאפשר לעשות.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-05/adolescents_cbt_specialized_he_05_05.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-05/previews/adolescents_cbt_specialized_he_05_05_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-05-06",
+      "logical_form_id": "adolescents_cbt_specialized_05_06",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_05_06",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-05-06"
+      ],
+      "worksheet_number": "5.6",
+      "title_he": "תוכנית ההרגעה שלי",
+      "title_en": "My Calm-Down Plan",
+      "module_number": 5,
+      "module_title_he": "כעס, אימפולסיביות וויסות",
+      "module_title_en": "Anger, Impulsivity and Regulation",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לבנות תוכנית אישית להרגעה ולחזרה לשליטה כאשר מופיעים סימני אזהרה מוקדמים.",
+      "when_to_use_he": "כאשר יש צורך בתוכנית מוכנה מראש למצבי כעס, הצפה, מתח או דחף להגיב בעוצמה.",
+      "keywords_he": [
+        "תוכנית הרגעה",
+        "וויסות",
+        "סימני אזהרה",
+        "נשימה",
+        "תנועה",
+        "מוזיקה",
+        "מרחב",
+        "חזרה לשליטה"
+      ],
+      "ai_matching_summary_he": "מתאים לבניית תוכנית הרגעה מעשית: סימנים מוקדמים, עזרה לגוף, כלים תומכים וצעד הבא.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-05/adolescents_cbt_specialized_he_05_06.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-05/previews/adolescents_cbt_specialized_he_05_06_preview.png"
+    }
+  ]
+}
