@@ -142,4 +142,17 @@ describe('therapeutic forms resolver coverage', () => {
     expect(overwhelmed?.url || '').toContain('/forms/children/en/cbt-core/');
     expect(calmingTools?.url || '').toContain('/forms/children/en/cbt-core/');
   });
+
+  it('keeps Hebrew adolescents CBT core isolated to Hebrew language mode', () => {
+    const hebrewForms = getTherapeuticFormsForAI({ language: 'he', audience: 'adolescents' })
+      .filter((form) => form.category === 'adolescents_cbt_core');
+    const englishForms = getTherapeuticFormsForAI({ language: 'en', audience: 'adolescents' })
+      .filter((form) => form.id.startsWith('adolescents-cbt-core-he'));
+    const spanishForms = getTherapeuticFormsForAI({ language: 'es', audience: 'adolescents' })
+      .filter((form) => form.id.startsWith('adolescents-cbt-core-he'));
+
+    expect(hebrewForms).toHaveLength(36);
+    expect(englishForms).toHaveLength(0);
+    expect(spanishForms).toHaveLength(0);
+  });
 });

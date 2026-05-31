@@ -84,7 +84,11 @@ function hasValidLanguageMatch(resolved, lang) {
 // Keeps filtering logic minimal and delegates all validity checks to the resolver.
 // For English/adolescents, also returns stage group cards (each grouping 5 worksheets).
 export function getFilteredForms({ audience, category, lang }) {
-  const langFiltered = ALL_FORMS.filter((form) => form.languages?.[lang] && form.approved === true && form.type !== 'individual_worksheet');
+  const langFiltered = ALL_FORMS.filter((form) => {
+    if (!form.languages?.[lang] || form.approved !== true) return false;
+    if (form.type !== 'individual_worksheet') return true;
+    return lang === 'he' && form.language === 'he' && form.audience === 'adolescents' && form.category === 'adolescents_cbt_core';
+  });
 
   const audienceFiltered = langFiltered.filter(
     (form) => audience === 'all' || form.audience === audience
