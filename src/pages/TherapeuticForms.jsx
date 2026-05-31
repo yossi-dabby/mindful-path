@@ -85,7 +85,7 @@ export function getFilteredForms({ audience, category, lang }) {
   const langFiltered = ALL_FORMS.filter((form) => {
     if (!form.languages?.[normalizedLang] || form.approved !== true) return false;
     if (form.type !== 'individual_worksheet') return true;
-    return normalizedLang === 'he' && form.language === 'he' && form.audience === 'adolescents' && form.category === 'adolescents_cbt_core';
+    return normalizedLang === 'he' && form.language === 'he' && form.audience === 'adolescents' && (form.category === 'adolescents_cbt_core' || form.category === 'adolescents_cbt_specialized');
   });
 
   const audienceFiltered = langFiltered.filter(
