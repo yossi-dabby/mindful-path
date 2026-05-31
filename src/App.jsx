@@ -2,6 +2,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import NavigationTracker from '@/lib/NavigationTracker'
+import RouteMetadata from '@/components/seo/RouteMetadata'
 import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
@@ -9,6 +10,10 @@ import KnowledgeStudio from './pages/KnowledgeStudio';
 import AdminFeatureFlags from './pages/AdminFeatureFlags';
 import TherapistTraining from './pages/TherapistTraining';
 import PdfViewer from './pages/PdfViewer';
+import About from './pages/About';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
+import Contact from './pages/Contact';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { ThemeProvider } from 'next-themes';
@@ -89,20 +94,31 @@ const AuthenticatedApp = () => {
   );
 };
 
+const ProtectedApp = () => (
+  <AuthProvider>
+    <NavigationTracker />
+    <AuthenticatedApp />
+  </AuthProvider>
+);
+
 
 function App() {
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="theme">
-      <AuthProvider>
-        <QueryClientProvider client={queryClientInstance}>
-          <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-            <NavigationTracker />
-            <AuthenticatedApp />
-          </Router>
-          <Toaster />
-        </QueryClientProvider>
-      </AuthProvider>
+      <QueryClientProvider client={queryClientInstance}>
+        <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <RouteMetadata />
+          <Routes>
+            <Route path="/about" element={<About />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/*" element={<ProtectedApp />} />
+          </Routes>
+        </Router>
+        <Toaster />
+      </QueryClientProvider>
     </ThemeProvider>
   )
 }
