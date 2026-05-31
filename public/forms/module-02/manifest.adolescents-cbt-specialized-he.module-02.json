@@ -1,0 +1,265 @@
+{
+  "series_id": "adolescents-cbt-specialized-he",
+  "series_title_he": "טפסי CBT ייעודיים למתבגרים",
+  "series_title_en": "Adolescents CBT Specialized",
+  "language": "he",
+  "audience": "adolescents",
+  "main_category": "adolescents_cbt_specialized",
+  "module_number": 2,
+  "module_title_he": "מצב רוח, תפקוד ואנרגיה",
+  "module_title_en": "Mood, Functioning and Energy",
+  "github_path": "public/forms/adolescents/he/cbt-specialized/module-02/",
+  "combined_pdf_path": "public/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_module_02_mood_functioning_energy.pdf",
+  "items": [
+    {
+      "id": "adolescents-cbt-specialized-he-02-01",
+      "logical_form_id": "adolescents_cbt_specialized_02_01",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_02_01",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-02-01"
+      ],
+      "worksheet_number": "2.1",
+      "title_he": "איך מצב הרוח והאנרגיה שלי היום?",
+      "title_en": "How Is My Mood and Energy Today?",
+      "module_number": 2,
+      "module_title_he": "מצב רוח, תפקוד ואנרגיה",
+      "module_title_en": "Mood, Functioning and Energy",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לזהות את מצב הרוח והאנרגיה הנוכחיים בלי שיפוט, ולחבר בין מילים, תחושות גוף ופעולה קטנה אפשרית.",
+      "when_to_use_he": "כאשר מתבגר/ת מדווח/ת על ירידה במצב הרוח, עייפות, שחיקה, חוסר מוטיבציה או קושי להתחיל את היום.",
+      "keywords_he": [
+        "מצב רוח",
+        "אנרגיה",
+        "עייפות",
+        "מוטיבציה",
+        "שחיקה",
+        "תפקוד",
+        "צעד קטן",
+        "מודעות עצמית"
+      ],
+      "ai_matching_summary_he": "מתאים לזיהוי מצב רוח ואנרגיה ביום נתון, ניסוח מצב במשפט אחד, בחירת פעולה קטנה שמסייעת לתפקוד, והפרדה בין תחושה לבין זהות עצמית.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_01.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-02/previews/adolescents_cbt_specialized_he_02_01_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-02-02",
+      "logical_form_id": "adolescents_cbt_specialized_02_02",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_02_02",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-02-02"
+      ],
+      "worksheet_number": "2.2",
+      "title_he": "מה הרגיש כבד לאחרונה?",
+      "title_en": "What Has Felt Heavy Lately?",
+      "module_number": 2,
+      "module_title_he": "מצב רוח, תפקוד ואנרגיה",
+      "module_title_en": "Mood, Functioning and Energy",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לתת שם לעומס רגשי או גופני, לזהות גורמים מכבידים, ולבחור הקלה קטנה ותומכת.",
+      "when_to_use_he": "כאשר מתבגר/ת מתאר/ת עצב, לחץ, עומס, קונפליקט, אכזבה או תחושת כבדות שקשה להסביר.",
+      "keywords_he": [
+        "כבדות",
+        "עומס",
+        "עצב",
+        "לחץ",
+        "אכזבה",
+        "בדידות",
+        "קונפליקט",
+        "תמיכה",
+        "הקלה"
+      ],
+      "ai_matching_summary_he": "מתאים למצבים שבהם משהו מרגיש כבד או מכביד, ויש צורך לפרק את העומס למילים, תחושות וגורמים ברורים יותר.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_02.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-02/previews/adolescents_cbt_specialized_he_02_02_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-02-03",
+      "logical_form_id": "adolescents_cbt_specialized_02_03",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_02_03",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-02-03"
+      ],
+      "worksheet_number": "2.3",
+      "title_he": "מה נותן לי קצת כוח?",
+      "title_en": "What Gives Me a Small Lift?",
+      "module_number": 2,
+      "module_title_he": "מצב רוח, תפקוד ואנרגיה",
+      "module_title_en": "Mood, Functioning and Energy",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לאתר פעולות, אנשים ודברים קטנים שמעלים מעט את מצב הרוח ומחזקים חוויית מסוגלות.",
+      "when_to_use_he": "כאשר מתבגר/ת מרגיש/ה ירידה באנרגיה, חוסר חשק, מצב רוח נמוך או צורך להתחיל בצעד קטן ובר ביצוע.",
+      "keywords_he": [
+        "כוח",
+        "חיזוק",
+        "מצב רוח נמוך",
+        "פעילות מיטיבה",
+        "מוזיקה",
+        "תנועה",
+        "אוויר צח",
+        "חברה",
+        "מסוגלות"
+      ],
+      "ai_matching_summary_he": "מתאים לבניית רשימת עוגנים קטנים שמחזקים מצב רוח ואנרגיה, במיוחד כשקשה להתחיל או להרגיש טוב יותר.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_03.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-02/previews/adolescents_cbt_specialized_he_02_03_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-02-04",
+      "logical_form_id": "adolescents_cbt_specialized_02_04",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_02_04",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-02-04"
+      ],
+      "worksheet_number": "2.4",
+      "title_he": "כשאני מתרחק/ת",
+      "title_en": "When I Pull Away",
+      "module_number": 2,
+      "module_title_he": "מצב רוח, תפקוד ואנרגיה",
+      "module_title_en": "Mood, Functioning and Energy",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לזהות הימנעות או התרחקות, להבין את המחיר ואת התועלת שלה, ולבחור צעד חזרה קטן ובטוח.",
+      "when_to_use_he": "כאשר מתבגר/ת מסתגר/ת, נמנע/ת מאנשים או מפעילויות, מפסיק/ה להשתתף, או מתקשה לחזור לשגרה.",
+      "keywords_he": [
+        "התרחקות",
+        "הימנעות",
+        "הסתגרות",
+        "שגרה",
+        "תמיכה",
+        "ביטחון עצמי",
+        "שמחה",
+        "חזרה לפעילות"
+      ],
+      "ai_matching_summary_he": "מתאים לזיהוי דפוס של התרחקות או הימנעות ולתכנון צעד קטן של חזרה לקשר, לשגרה או לפעילות מיטיבה.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_04.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-02/previews/adolescents_cbt_specialized_he_02_04_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-02-05",
+      "logical_form_id": "adolescents_cbt_specialized_02_05",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_02_05",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-02-05"
+      ],
+      "worksheet_number": "2.5",
+      "title_he": "מי עוזר לי להרגיש לבד?",
+      "title_en": "Who Helps Me Feel Less Alone?",
+      "module_number": 2,
+      "module_title_he": "מצב רוח, תפקוד ואנרגיה",
+      "module_title_en": "Mood, Functioning and Energy",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לזהות אנשים, מקומות והרגלים שיכולים להפחית בדידות ולחזק תחושת תמיכה ושייכות.",
+      "when_to_use_he": "כאשר מתבגר/ת מרגיש/ה לבד, מבודד/ת, לא מובן/ת, חסר/ת תמיכה, או זקוק/ה לתזכורת למקורות קשר ותמיכה.",
+      "keywords_he": [
+        "בדידות",
+        "פחות לבד",
+        "תמיכה",
+        "קשר",
+        "שייכות",
+        "אנשים בטוחים",
+        "מקומות מנחמים",
+        "שגרה",
+        "להיות עם מישהו"
+      ],
+      "ai_matching_summary_he": "מתאים למצבי בדידות או ניתוק רגשי, ומסייע למפות מי ומה יכולים לעזור למתבגר/ת להרגיש פחות לבד ויותר נתמך/ת.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_05.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-02/previews/adolescents_cbt_specialized_he_02_05_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-02-06",
+      "logical_form_id": "adolescents_cbt_specialized_02_06",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_02_06",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-02-06"
+      ],
+      "worksheet_number": "2.6",
+      "title_he": "התוכנית שלי לאיפוס מצב רוח",
+      "title_en": "My Mood Reset Plan",
+      "module_number": 2,
+      "module_title_he": "מצב רוח, תפקוד ואנרגיה",
+      "module_title_en": "Mood, Functioning and Energy",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "לבנות תוכנית קצרה ומעשית לאיפוס מצב רוח דרך סימנים מוקדמים, בסיסים גופניים, תמיכה ותכנון ל-24 שעות.",
+      "when_to_use_he": "כאשר מצב הרוח יורד, יש צורך בתוכנית פעולה עדינה, או כשמתבגר/ת רוצה לחזור למסלול בלי להציב יעד גדול מדי.",
+      "keywords_he": [
+        "איפוס מצב רוח",
+        "תוכנית פעולה",
+        "סימנים מוקדמים",
+        "שינה",
+        "אוכל ומים",
+        "תנועה",
+        "לבקש עזרה",
+        "24 שעות",
+        "צעד הבא"
+      ],
+      "ai_matching_summary_he": "מתאים לבניית תוכנית אישית להתמודדות עם ירידת מצב רוח: זיהוי סימנים, בסיסי ויסות, תמיכה ותכנון קרוב ומציאותי.",
+      "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_06.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-02/previews/adolescents_cbt_specialized_he_02_06_preview.png"
+    }
+  ]
+}
