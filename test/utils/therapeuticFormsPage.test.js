@@ -48,7 +48,7 @@ describe('therapeuticFormsPage.test.js — adolescents package integration', () 
     expect(pageSource).toContain("if (language !== lang)");
     expect(pageSource).toContain("if (form.language && form.language !== lang)");
     expect(pageSource).toContain("if (!form.languages?.[normalizedLang] || form.approved !== true) return false;");
-    expect(pageSource).toContain("return normalizedLang === 'he' && form.language === 'he' && form.audience === 'adolescents' && form.category === 'adolescents_cbt_core';");
+    expect(pageSource).toContain("return normalizedLang === 'he' && form.language === 'he' && form.audience === 'adolescents' && (form.category === 'adolescents_cbt_core' || form.category === 'adolescents_cbt_specialized');");
   });
 
   it('keeps Hebrew adolescents core entries filter-compatible for page audience/category chips', () => {

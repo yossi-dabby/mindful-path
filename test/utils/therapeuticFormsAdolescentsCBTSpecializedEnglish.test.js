@@ -36,14 +36,15 @@ describe('therapeuticFormsAdolescentsCBTSpecializedEnglish.test.js', () => {
 
   it('appears in TherapeuticForms only for English locale', () => {
     const specializedForms = ALL_FORMS.filter((form) => form.category === 'adolescents_cbt_specialized');
-    expect(specializedForms).toHaveLength(11);
+    // 11 EN (1 workbook_package + 10 module_pdfs) + 6 HE individual_worksheets for module-01
+    expect(specializedForms).toHaveLength(17);
 
     const englishResolvable = specializedForms.filter((form) => resolveFormWithLanguage(form.id, 'en'));
     const hebrewResolvable = specializedForms.filter((form) => resolveFormWithLanguage(form.id, 'he'));
     const spanishResolvable = specializedForms.filter((form) => resolveFormWithLanguage(form.id, 'es'));
 
     expect(englishResolvable).toHaveLength(11);
-    expect(hebrewResolvable).toHaveLength(0);
+    expect(hebrewResolvable).toHaveLength(6);
     expect(spanishResolvable).toHaveLength(0);
   });
 

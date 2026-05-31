@@ -5,6 +5,7 @@ import { pathToFileURL } from 'node:url';
 import { FORMS_ADOLESCENTS_CBT_CORE_EN } from '../src/data/therapeuticForms/forms.adolescents.cbt-core.en.js';
 import { FORMS_ADOLESCENTS_CBT_CORE_HE } from '../src/data/therapeuticForms/forms.adolescents.cbt-core.he.js';
 import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN } from '../src/data/therapeuticForms/forms.adolescents.cbt-specialized.en.js';
+import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE } from '../src/data/therapeuticForms/forms.adolescents.cbt-specialized.he.js';
 import { FORMS_CHILDREN_CBT_CORE_EN } from '../src/data/therapeuticForms/forms.children.cbt-core.en.js';
 import { FORMS_CHILDREN_CBT_SPECIALIZED } from '../src/data/therapeuticForms/forms.children.cbt-specialized.js';
 
@@ -212,6 +213,7 @@ function buildCuratedEntries(manifestByFileUrl) {
     ...FORMS_ADOLESCENTS_CBT_CORE_EN,
     ...FORMS_ADOLESCENTS_CBT_CORE_HE,
     ...FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN,
+    ...FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE,
     ...FORMS_CHILDREN_CBT_CORE_EN,
     ...FORMS_CHILDREN_CBT_SPECIALIZED,
   ].filter((form) => form?.approved === true);
@@ -313,6 +315,12 @@ function buildFallbackEntries(existingByFileUrl, manifestByFileUrl) {
     const fileUrl = toPublicUrl(filePath);
     if (!fileUrl) continue;
     if (existingByFileUrl.has(fileUrl)) continue;
+
+    // Skip files whose path structure doesn't start with a known audience segment.
+    // Paths like /forms/module-01/ don't follow the expected /forms/{audience}/{lang}/...
+    // convention and belong to curated registries — if not already registered, skip silently.
+    const rawAudienceSegment = fileUrl.split('/').filter(Boolean)[1] || '';
+    if (!KNOWN_AUDIENCES.has(rawAudienceSegment)) continue;
 
     const manifestMeta = manifestByFileUrl.get(fileUrl) || {};
     const { audience, language, categorySegment } = inferAudienceAndLanguage(fileUrl);
