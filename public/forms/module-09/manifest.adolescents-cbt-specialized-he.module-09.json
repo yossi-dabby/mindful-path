@@ -1,0 +1,254 @@
+{
+  "series_id": "adolescents-cbt-specialized-he",
+  "series_title_he": "טפסי CBT ייעודיים למתבגרים",
+  "series_title_en": "Adolescents CBT Specialized",
+  "language": "he",
+  "audience": "adolescents",
+  "main_category": "adolescents_cbt_specialized",
+  "module_number": 9,
+  "module_title_he": "טראומה והתמודדות בטוחה",
+  "module_title_en": "Trauma and Safe Coping",
+  "combined_pdf_path": "public/forms/adolescents/he/cbt-specialized/module-09/adolescents_cbt_specialized_he_module_09_trauma_safe_coping.pdf",
+  "items": [
+    {
+      "id": "adolescents-cbt-specialized-he-09-01",
+      "logical_form_id": "adolescents_cbt_specialized_09_01",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_09_01",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-09-01"
+      ],
+      "worksheet_number": "9.1",
+      "title_he": "עוגן הביטחון שלי",
+      "title_en": "My Safety Anchor",
+      "module_number": 9,
+      "module_title_he": "טראומה והתמודדות בטוחה",
+      "module_title_en": "Trauma and Safe Coping",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "תמיכה בטוחה ועדינה בהתמודדות עם לחץ, הצפה, טריגרים וחזרה הדרגתית לתפקוד.",
+      "when_to_use_he": "כאשר מתבגר/ת זקוק/ה לכלי קרקוע, ביטחון, תמיכה או חזרה עדינה לשגרה.",
+      "keywords_he": [
+        "טראומה",
+        "התמודדות בטוחה",
+        "קרקוע",
+        "טריגרים",
+        "תמיכה",
+        "רוגע",
+        "חזרה לשגרה"
+      ],
+      "ai_matching_summary_he": "טופס 9.1 למתבגרים בעברית בנושא עוגן הביטחון שלי, מתוך מודול טראומה והתמודדות בטוחה.",
+      "safety_notes": "Trauma-sensitive coping only. Does not ask for graphic trauma details and does not provide uncontrolled exposure.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-09/adolescents_cbt_specialized_he_09_01.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-09/previews/adolescents_cbt_specialized_he_09_01_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-09-02",
+      "logical_form_id": "adolescents_cbt_specialized_09_02",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_09_02",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-09-02"
+      ],
+      "worksheet_number": "9.2",
+      "title_he": "תוכנית הקרקוע שלי",
+      "title_en": "My Grounding Plan",
+      "module_number": 9,
+      "module_title_he": "טראומה והתמודדות בטוחה",
+      "module_title_en": "Trauma and Safe Coping",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "תמיכה בטוחה ועדינה בהתמודדות עם לחץ, הצפה, טריגרים וחזרה הדרגתית לתפקוד.",
+      "when_to_use_he": "כאשר מתבגר/ת זקוק/ה לכלי קרקוע, ביטחון, תמיכה או חזרה עדינה לשגרה.",
+      "keywords_he": [
+        "טראומה",
+        "התמודדות בטוחה",
+        "קרקוע",
+        "טריגרים",
+        "תמיכה",
+        "רוגע",
+        "חזרה לשגרה"
+      ],
+      "ai_matching_summary_he": "טופס 9.2 למתבגרים בעברית בנושא תוכנית הקרקוע שלי, מתוך מודול טראומה והתמודדות בטוחה.",
+      "safety_notes": "Trauma-sensitive coping only. Does not ask for graphic trauma details and does not provide uncontrolled exposure.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-09/adolescents_cbt_specialized_he_09_02.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-09/previews/adolescents_cbt_specialized_he_09_02_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-09-03",
+      "logical_form_id": "adolescents_cbt_specialized_09_03",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_09_03",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-09-03"
+      ],
+      "worksheet_number": "9.3",
+      "title_he": "מפת רמזי הטריגרים שלי",
+      "title_en": "My Trigger Clues Map",
+      "module_number": 9,
+      "module_title_he": "טראומה והתמודדות בטוחה",
+      "module_title_en": "Trauma and Safe Coping",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "תמיכה בטוחה ועדינה בהתמודדות עם לחץ, הצפה, טריגרים וחזרה הדרגתית לתפקוד.",
+      "when_to_use_he": "כאשר מתבגר/ת זקוק/ה לכלי קרקוע, ביטחון, תמיכה או חזרה עדינה לשגרה.",
+      "keywords_he": [
+        "טראומה",
+        "התמודדות בטוחה",
+        "קרקוע",
+        "טריגרים",
+        "תמיכה",
+        "רוגע",
+        "חזרה לשגרה"
+      ],
+      "ai_matching_summary_he": "טופס 9.3 למתבגרים בעברית בנושא מפת רמזי הטריגרים שלי, מתוך מודול טראומה והתמודדות בטוחה.",
+      "safety_notes": "Trauma-sensitive coping only. Does not ask for graphic trauma details and does not provide uncontrolled exposure.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-09/adolescents_cbt_specialized_he_09_03.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-09/previews/adolescents_cbt_specialized_he_09_03_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-09-04",
+      "logical_form_id": "adolescents_cbt_specialized_09_04",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_09_04",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-09-04"
+      ],
+      "worksheet_number": "9.4",
+      "title_he": "מעגל התמיכה שלי",
+      "title_en": "My Support Circle",
+      "module_number": 9,
+      "module_title_he": "טראומה והתמודדות בטוחה",
+      "module_title_en": "Trauma and Safe Coping",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "תמיכה בטוחה ועדינה בהתמודדות עם לחץ, הצפה, טריגרים וחזרה הדרגתית לתפקוד.",
+      "when_to_use_he": "כאשר מתבגר/ת זקוק/ה לכלי קרקוע, ביטחון, תמיכה או חזרה עדינה לשגרה.",
+      "keywords_he": [
+        "טראומה",
+        "התמודדות בטוחה",
+        "קרקוע",
+        "טריגרים",
+        "תמיכה",
+        "רוגע",
+        "חזרה לשגרה"
+      ],
+      "ai_matching_summary_he": "טופס 9.4 למתבגרים בעברית בנושא מעגל התמיכה שלי, מתוך מודול טראומה והתמודדות בטוחה.",
+      "safety_notes": "Trauma-sensitive coping only. Does not ask for graphic trauma details and does not provide uncontrolled exposure.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-09/adolescents_cbt_specialized_he_09_04.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-09/previews/adolescents_cbt_specialized_he_09_04_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-09-05",
+      "logical_form_id": "adolescents_cbt_specialized_09_05",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_09_05",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-09-05"
+      ],
+      "worksheet_number": "9.5",
+      "title_he": "התוכנית שלי לחזרה לרוגע",
+      "title_en": "My Calm-Back Plan",
+      "module_number": 9,
+      "module_title_he": "טראומה והתמודדות בטוחה",
+      "module_title_en": "Trauma and Safe Coping",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "תמיכה בטוחה ועדינה בהתמודדות עם לחץ, הצפה, טריגרים וחזרה הדרגתית לתפקוד.",
+      "when_to_use_he": "כאשר מתבגר/ת זקוק/ה לכלי קרקוע, ביטחון, תמיכה או חזרה עדינה לשגרה.",
+      "keywords_he": [
+        "טראומה",
+        "התמודדות בטוחה",
+        "קרקוע",
+        "טריגרים",
+        "תמיכה",
+        "רוגע",
+        "חזרה לשגרה"
+      ],
+      "ai_matching_summary_he": "טופס 9.5 למתבגרים בעברית בנושא התוכנית שלי לחזרה לרוגע, מתוך מודול טראומה והתמודדות בטוחה.",
+      "safety_notes": "Trauma-sensitive coping only. Does not ask for graphic trauma details and does not provide uncontrolled exposure.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-09/adolescents_cbt_specialized_he_09_05.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-09/previews/adolescents_cbt_specialized_he_09_05_preview.png"
+    },
+    {
+      "id": "adolescents-cbt-specialized-he-09-06",
+      "logical_form_id": "adolescents_cbt_specialized_09_06",
+      "variant_language": "he",
+      "source_language": "en",
+      "is_language_variant": true,
+      "variant_group_id": "adolescents_cbt_specialized_09_06",
+      "available_languages": [
+        "en",
+        "he"
+      ],
+      "sibling_variant_ids": [
+        "adolescents-cbt-specialized-en-09-06"
+      ],
+      "worksheet_number": "9.6",
+      "title_he": "תוכנית החזרה העדינה שלי",
+      "title_en": "My Gentle Return Plan",
+      "module_number": 9,
+      "module_title_he": "טראומה והתמודדות בטוחה",
+      "module_title_en": "Trauma and Safe Coping",
+      "audience": "adolescents",
+      "language": "he",
+      "main_category": "adolescents_cbt_specialized",
+      "display_category_he": "טפסי CBT ייעודיים למתבגרים",
+      "therapeutic_goal_he": "תמיכה בטוחה ועדינה בהתמודדות עם לחץ, הצפה, טריגרים וחזרה הדרגתית לתפקוד.",
+      "when_to_use_he": "כאשר מתבגר/ת זקוק/ה לכלי קרקוע, ביטחון, תמיכה או חזרה עדינה לשגרה.",
+      "keywords_he": [
+        "טראומה",
+        "התמודדות בטוחה",
+        "קרקוע",
+        "טריגרים",
+        "תמיכה",
+        "רוגע",
+        "חזרה לשגרה"
+      ],
+      "ai_matching_summary_he": "טופס 9.6 למתבגרים בעברית בנושא תוכנית החזרה העדינה שלי, מתוך מודול טראומה והתמודדות בטוחה.",
+      "safety_notes": "Trauma-sensitive coping only. Does not ask for graphic trauma details and does not provide uncontrolled exposure.",
+      "file_path": "public/forms/adolescents/he/cbt-specialized/module-09/adolescents_cbt_specialized_he_09_06.pdf",
+      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-09/previews/adolescents_cbt_specialized_he_09_06_preview.png"
+    }
+  ]
+}
