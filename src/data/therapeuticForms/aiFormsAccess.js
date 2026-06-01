@@ -140,6 +140,8 @@ function normalizeLegacyWorksheetAlias(candidate) {
   if (!raw) return raw;
   const childrenMatch = raw.match(/^children[_-]cbt[_-]core[_-]en[_-](\d{1,2})[_-](\d{1,2})$/);
   if (childrenMatch) return `children-cbt-core-en-${Number(childrenMatch[1])}-${Number(childrenMatch[2])}`;
+  const childrenHebrewMatch = raw.match(/^children[_-]cbt[_-]core[_-]he[_-](\d{1,2})[_-](\d{1,2})$/);
+  if (childrenHebrewMatch) return `children-cbt-core-he-${Number(childrenHebrewMatch[1])}-${Number(childrenHebrewMatch[2])}`;
   const adolescentsMatch = raw.match(/^adolescents[_-]cbt[_-]core[_-]en[_-](\d{1,2})[_-](\d{1,2})$/);
   if (adolescentsMatch) return `adolescents-cbt-core-en-${Number(adolescentsMatch[1])}-${Number(adolescentsMatch[2])}`;
   const adolescentsHebrewMatch = raw.match(/^adolescents[_-]cbt[_-]core[_-]he[_-](\d{1,2})[_-](\d{1,2})$/);

@@ -191,6 +191,15 @@ function normalizeLegacyWorksheetAlias(candidate) {
     }
   }
 
+  const childrenHebrewMatch = raw.match(/^children[_-]cbt[_-]core[_-]he[_-](\d{1,2})[_-](\d{1,2})$/);
+  if (childrenHebrewMatch) {
+    const stage = Number(childrenHebrewMatch[1]);
+    const worksheet = Number(childrenHebrewMatch[2]);
+    if (Number.isFinite(stage) && Number.isFinite(worksheet)) {
+      return `children-cbt-core-he-${stage}-${worksheet}`;
+    }
+  }
+
   const adolescentsMatch = raw.match(/^adolescents[_-]cbt[_-]core[_-]en[_-](\d{1,2})[_-](\d{1,2})$/);
   if (adolescentsMatch) {
     const stage = Number(adolescentsMatch[1]);
@@ -724,6 +733,11 @@ export function resolveFormIntent(intentOrSlug, lang) {
     findApprovedExactFormId(normalizedIntentAlias);
   if (formId) {
     return resolveApprovedFormById(formId, resolvedLang);
+  }
+
+  // Ignore stale assistant placeholders like "tf-*" so legacy non-form IDs never resolve to real forms.
+  if (normalizedIntent.startsWith('tf-')) {
+    return null;
   }
 
   const bySpecializedContent = resolveAdolescentsCBTSpecializedEnglishFormByContent(normalizedIntent, {

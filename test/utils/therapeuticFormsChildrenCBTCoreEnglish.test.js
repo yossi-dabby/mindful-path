@@ -149,9 +149,9 @@ describe('Children CBT Core EN — language guard (registry metadata)', () => {
     }
   });
 
-  it('ALL_FORMS has no children CBT core form accessible in Hebrew', () => {
+  it('ALL_FORMS keeps English children CBT core entries English-only', () => {
     const childrenEnForms = ALL_FORMS.filter(
-      (f) => f.audience === 'children' && f.category === 'children_cbt_core'
+      (f) => f.audience === 'children' && f.category === 'children_cbt_core' && f.language === 'en'
     );
     for (const form of childrenEnForms) {
       expect(form.languages?.he).toBeUndefined();

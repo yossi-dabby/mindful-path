@@ -134,6 +134,15 @@ describe('forms library Open action — uses direct public URL', () => {
     expect(resolveFormWithLanguage('adolescents-cbt-core-he-6-4', 'en')).toBeNull();
   });
 
+  it('resolves Hebrew children core module and worksheet PDFs only in Hebrew mode', () => {
+    const modulePdf = resolveFormWithLanguage('children-cbt-core-he-module-05', 'he');
+    const worksheet = resolveFormWithLanguage('children-cbt-core-he-5-1', 'he');
+    expect(modulePdf?.languageData?.file_url).toContain('children_cbt_core_he_module_05_combined.pdf');
+    expect(worksheet?.languageData?.file_url).toContain('children_cbt_core_he_5.1.pdf');
+    expect(resolveFormWithLanguage('children-cbt-core-he-module-05', 'en')).toBeNull();
+    expect(resolveFormWithLanguage('children-cbt-core-he-5-1', 'es')).toBeNull();
+  });
+
   it('resolves all 10 specialized EN module PDFs to /forms/adolescents/en/cbt-specialized/ public URLs', () => {
     for (const module of FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_MODULE_PDFS) {
       const resolved = resolveFormWithLanguage(module.id, 'en');

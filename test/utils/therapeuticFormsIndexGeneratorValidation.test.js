@@ -70,6 +70,28 @@ describe('therapeutic forms index generator validation', () => {
     expect(() => validateEntries([multilingual])).not.toThrow();
   });
 
+  it('accepts Hebrew children core entry metadata shape used by generated registry', () => {
+    const hebrewChildren = buildEntry({
+      id: 'children-cbt-core-he-2-3',
+      language: 'he',
+      audience: 'children',
+      category: 'children_cbt_core',
+      filePath: 'public/forms/children_cbt_core_he_module_02_github_upload/children_cbt_core_he_2.3.pdf',
+      file_path: 'public/forms/children_cbt_core_he_module_02_github_upload/children_cbt_core_he_2.3.pdf',
+      logical_form_id: 'children_cbt_core_02_03',
+      variant_language: 'he',
+      available_languages: ['he'],
+      sibling_variant_ids: [],
+      source_language: 'he',
+      is_language_variant: true,
+      variant_group_id: 'children_cbt_core_02_03',
+      clinicalKeywords: ['מחשבות מלחיצות', 'טופס CBT לילדים'],
+      therapeuticGoal: 'Help the child notice worry thoughts kindly and choose simple coping supports.',
+      whenToUse: 'Use when a child has worry thoughts about mistakes, peers, or trying something hard.',
+    });
+    expect(() => validateEntries([hebrewChildren])).not.toThrow();
+  });
+
   it('preserves multilingual fields when applying variant metadata', () => {
     const base = buildEntry({ id: 'preserve-variant-metadata' });
     const withVariant = applyVariantMetadata(base, {
