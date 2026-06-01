@@ -1,0 +1,37 @@
+{
+  "module": "02",
+  "language": "he",
+  "series": "children_cbt_core",
+  "worksheets": [
+    {
+      "id": "children_cbt_core_he_2.1",
+      "pdf": "children_cbt_core_he_2.1.pdf",
+      "png": "children_cbt_core_he_2.1.png"
+    },
+    {
+      "id": "children_cbt_core_he_2.2",
+      "pdf": "children_cbt_core_he_2.2.pdf",
+      "png": "children_cbt_core_he_2.2.png"
+    },
+    {
+      "id": "children_cbt_core_he_2.3",
+      "pdf": "children_cbt_core_he_2.3.pdf",
+      "png": "children_cbt_core_he_2.3.png"
+    },
+    {
+      "id": "children_cbt_core_he_2.4",
+      "pdf": "children_cbt_core_he_2.4.pdf",
+      "png": "children_cbt_core_he_2.4.png"
+    },
+    {
+      "id": "children_cbt_core_he_2.5",
+      "pdf": "children_cbt_core_he_2.5.pdf",
+      "png": "children_cbt_core_he_2.5.png"
+    },
+    {
+      "id": "children_cbt_core_he_2.6",
+      "pdf": "children_cbt_core_he_2.6.pdf",
+      "png": "children_cbt_core_he_2.6.png"
+    }
+  ]
+}
