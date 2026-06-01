@@ -464,7 +464,7 @@ export default function TherapeuticForms() {
                   </span>
                   {(form.moduleNumber != null || form.stageNumber != null) &&
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-700/10 text-teal-900 border border-teal-700/20">
-                      {`M${form.moduleNumber || form.stageNumber}`}
+                      {languageData.rtl ? (form.moduleTitle || form.stageTitle || `שלב ${form.moduleNumber || form.stageNumber}`) : `M${form.moduleNumber || form.stageNumber}`}
                     </span>
                   }
                   {(form.worksheetNumber != null || form.displayNumber != null || form.cbt_substage_number != null) &&

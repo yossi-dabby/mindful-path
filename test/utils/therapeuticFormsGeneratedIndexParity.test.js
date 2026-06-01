@@ -161,6 +161,9 @@ describe('therapeutic forms generated index parity', () => {
       expect(form.approved).toBe(true);
       expect(form.language).toBe('he');
       expect(form.languages?.he?.rtl).toBe(true);
+      expect(/[\u0590-\u05FF]/.test(String(form.languages?.he?.title || form.title || ''))).toBe(true);
+      expect(!/^children_cbt_core_he_/i.test(String(form.languages?.he?.title || form.title || ''))).toBe(true);
+      expect(/[\u0590-\u05FF]/.test(String(form.languages?.he?.description || form.description || ''))).toBe(true);
       expect(typeof form.fileUrl).toBe('string');
       expect(form.fileUrl.startsWith('/forms/')).toBe(true);
       expect(fs.existsSync(path.join(ROOT, 'public', form.fileUrl.replace(/^\//, '')))).toBe(true);
@@ -221,11 +224,11 @@ describe('therapeutic forms generated index parity', () => {
   });
 
   it('keeps language and audience guards for children forms', () => {
-    const englishResult = resolveFormIntent('child does not know what they are feeling', 'en');
+    const englishResult = resolveFormIntent('child feels overwhelmed and needs a calm plan', 'en');
     expect(englishResult?.audience).toBe('children');
     expect(englishResult?.language).toBe('en');
 
-    const hebrewResult = resolveFormIntent('child does not know what they are feeling', 'he');
+    const hebrewResult = resolveFormIntent('שלח לי את הטופס כרטיס הרגש שלי', 'he');
     expect(hebrewResult?.audience).toBe('children');
     expect(hebrewResult?.language).toBe('he');
   });

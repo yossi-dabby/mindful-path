@@ -192,6 +192,7 @@ describe('aiFormsAccess deterministic send + language behavior', () => {
     expect(resolved.generatedFile.language).toBe('he');
     expect(resolved.generatedFile.audience).toBe('children');
     expect(String(resolved.generatedFile.form_id)).toContain('children-cbt-core-he');
+    expect(/[\u0590-\u05FF]/.test(String(resolved.generatedFile.title || ''))).toBe(true);
   });
 
   it('resolves Hebrew children module request to the matching module PDF', () => {
@@ -241,6 +242,13 @@ describe('aiFormsAccess deterministic send + language behavior', () => {
     const resolved = resolveFormForAIRequest('שלח לי את הטופס מה הראש שלי אמר', { language: 'he' });
     expect(resolved.generatedFile).not.toBeNull();
     expect(resolved.generatedFile.form_id).toBe('adolescents-cbt-core-he-2-1');
+  });
+
+  it('resolves Hebrew children title-based request to the matching worksheet', () => {
+    const resolved = resolveFormForAIRequest('שלח לי את הטופס מה עובר עליי עכשיו', { language: 'he' });
+    expect(resolved.generatedFile).not.toBeNull();
+    expect(resolved.generatedFile.form_id).toBe('children-cbt-core-he-1-1');
+    expect(String(resolved.generatedFile.title || '')).toBe('מה עובר עליי עכשיו?');
   });
 
   it('does not invent a single Hebrew full-series PDF when user asks for all stages', () => {
