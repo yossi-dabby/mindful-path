@@ -224,7 +224,7 @@ describe('therapeutic forms generated index parity', () => {
   });
 
   it('keeps language and audience guards for children forms', () => {
-    const englishResult = resolveFormIntent('children_cbt_core_en_05_01', 'en');
+    const englishResult = resolveFormIntent('child feels overwhelmed and needs a calm plan', 'en');
     expect(englishResult?.audience).toBe('children');
     expect(englishResult?.language).toBe('en');
 

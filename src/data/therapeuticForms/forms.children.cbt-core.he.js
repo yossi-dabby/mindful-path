@@ -41,7 +41,7 @@ const MODULE_TOPIC_HINTS_HE = Object.freeze({
 });
 
 const WORKSHEET_TOPIC_HINTS_HE = Object.freeze({
-  '1.1': Object.freeze(['זיהוי רגשות', 'איך אני מרגיש', 'ילד מתקשה לזהות רגשות', 'child does not know what they are feeling']),
+  '1.1': Object.freeze(['זיהוי רגשות', 'איך אני מרגיש', 'ילד מתקשה לזהות רגשות']),
   '1.2': Object.freeze(['תחושות גוף', 'מה הגוף אומר לי', 'סימני לחץ בגוף']),
   '1.3': Object.freeze(['עוצמת רגש', 'מד רגשות', 'כמה חזק הרגש']),
   '1.4': Object.freeze(['סימנים מוקדמים', 'ילד עם פחדים', 'זיהוי מוקדם של לחץ']),
