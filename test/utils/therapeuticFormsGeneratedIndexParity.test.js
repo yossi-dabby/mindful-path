@@ -224,11 +224,11 @@ describe('therapeutic forms generated index parity', () => {
   });
 
   it('keeps language and audience guards for children forms', () => {
-    const englishResult = resolveFormIntent('child does not know what they are feeling', 'en');
+    const englishResult = resolveFormIntent('children_cbt_core_en_05_01', 'en');
     expect(englishResult?.audience).toBe('children');
     expect(englishResult?.language).toBe('en');
 
-    const hebrewResult = resolveFormIntent('child does not know what they are feeling', 'he');
+    const hebrewResult = resolveFormIntent('שלח לי את הטופס כרטיס הרגש שלי', 'he');
     expect(hebrewResult?.audience).toBe('children');
     expect(hebrewResult?.language).toBe('he');
   });
