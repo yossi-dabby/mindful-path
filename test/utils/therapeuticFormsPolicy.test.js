@@ -129,6 +129,8 @@ describe('therapeutic forms resolver coverage', () => {
 
     expect(hebrewChildrenCore).toHaveLength(35);
     expect(hebrewChildrenCore.every((form) => form.language === 'he')).toBe(true);
+    expect(hebrewChildrenCore.every((form) => /[\u0590-\u05FF]/.test(String(form.title || '')))).toBe(true);
+    expect(hebrewChildrenCore.every((form) => !/^children_cbt_core_he_/i.test(String(form.title || '')))).toBe(true);
     expect(new Set(hebrewChildrenCore.map((form) => Number(form.module_number || form.moduleNumber))).size).toBe(5);
     expect(englishChildrenCore).toHaveLength(0);
     expect(spanishChildrenCore).toHaveLength(0);

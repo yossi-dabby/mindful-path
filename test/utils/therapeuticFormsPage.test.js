@@ -65,13 +65,25 @@ describe('therapeuticFormsPage.test.js — adolescents package integration', () 
 
   it('keeps Hebrew children core entries Hebrew-only and filter-compatible for page chips', () => {
     const hebrewChildrenCore = ALL_FORMS.filter((form) => form.id.startsWith('children-cbt-core-he'));
+    const hebrewChildrenIndividuals = hebrewChildrenCore.filter((form) => form.type === 'individual_worksheet');
     expect(hebrewChildrenCore.length).toBe(35);
     expect(hebrewChildrenCore.every((form) => form.audience === 'children')).toBe(true);
     expect(hebrewChildrenCore.every((form) => form.category === 'children_cbt_core')).toBe(true);
     expect(hebrewChildrenCore.every((form) => form.languages?.he?.rtl === true)).toBe(true);
+    expect(hebrewChildrenIndividuals.every((form) => /[\u0590-\u05FF]/.test(String(form.title || '')))).toBe(true);
+    expect(hebrewChildrenIndividuals.every((form) => !/^children_cbt_core_he_/i.test(String(form.title || '')))).toBe(true);
+    expect(hebrewChildrenIndividuals.every((form) => /[\u0590-\u05FF]/.test(String(form.description || '')))).toBe(true);
+    expect(hebrewChildrenIndividuals.every((form) => !String(form.description || '').includes('Identify and name current feelings'))).toBe(true);
     expect(resolveFormWithLanguage('children-cbt-core-he-module-02', 'he')?.languageData?.file_url)
       .toContain('children_cbt_core_he_module_02_combined.pdf');
     expect(resolveFormWithLanguage('children-cbt-core-he-module-02', 'en')).toBeNull();
     expect(resolveFormWithLanguage('children-cbt-core-he-module-02', 'es')).toBeNull();
+  });
+
+  it('keeps Hebrew category label wiring for children_cbt_core in TherapeuticForms UI', () => {
+    const pageSource = fs.readFileSync(path.join(ROOT, 'src/pages/TherapeuticForms.jsx'), 'utf8');
+    const translationsSource = fs.readFileSync(path.join(ROOT, 'src/components/i18n/translations.jsx'), 'utf8');
+    expect(pageSource).toContain("t(`therapeutic_forms.category.${form.category}`)");
+    expect(translationsSource).toContain('children_cbt_core: "סדרת ליבה CBT לילדים"');
   });
 });

@@ -2913,6 +2913,7 @@ export const translations = {
           reflection_journal: "יומן רפלקציה",
           workbook_series: "קונטרסים טיפוליים",
           children_cbt_process: "תהליך CBT לילדים",
+          children_cbt_core: "סדרת ליבה CBT לילדים",
           adolescents_cbt_core: "סדרת ליבה CBT למתבגרים/ות",
           adolescents_cbt_specialized: "סדרת CBT ייעודית למתבגרים/ות",
         },

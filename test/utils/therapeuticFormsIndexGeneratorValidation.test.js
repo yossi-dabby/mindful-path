@@ -86,8 +86,10 @@ describe('therapeutic forms index generator validation', () => {
       is_language_variant: true,
       variant_group_id: 'children_cbt_core_02_03',
       clinicalKeywords: ['מחשבות מלחיצות', 'טופס CBT לילדים'],
-      therapeuticGoal: 'Help the child notice worry thoughts kindly and choose simple coping supports.',
-      whenToUse: 'Use when a child has worry thoughts about mistakes, peers, or trying something hard.',
+      title: 'מחשבות דאגה',
+      description: 'זיהוי מחשבות דאגה ובחירת דרכי התמודדות פשוטות לילדים.',
+      therapeuticGoal: 'להפחית הצפה של דאגות ולבנות תגובה מאוזנת.',
+      whenToUse: 'כשילד/ה עסוק/ה בדאגות לגבי טעויות, בית ספר או מצבים חברתיים.',
     });
     expect(() => validateEntries([hebrewChildren])).not.toThrow();
   });
