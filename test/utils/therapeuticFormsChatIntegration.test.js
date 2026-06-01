@@ -90,6 +90,18 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     expect(assistant?.metadata?.generated_file?.form_id).toBe('adolescents-cbt-core-he-stage-2-combined');
   });
 
+  it('attaches Hebrew children core form in Hebrew session by child clinical request', () => {
+    const messages = [
+      { role: 'user', content: 'אני צריך טופס לילד עם חרדה', metadata: { session_language: 'he' } },
+      { role: 'assistant', content: 'בשמחה.' },
+    ];
+    const result = sanitizeConversationMessages(messages, 'he');
+    const assistant = result.find((m) => m.role === 'assistant');
+    expect(assistant?.metadata?.generated_file?.language).toBe('he');
+    expect(assistant?.metadata?.generated_file?.audience).toBe('children');
+    expect(String(assistant?.metadata?.generated_file?.form_id || '')).toContain('children-cbt-core-he');
+  });
+
   it('does not attach Hebrew form in English session', () => {
     const messages = [
       { role: 'user', content: 'שלח לי את כל שלב 2 בקובץ אחד', metadata: { session_language: 'en' } },
@@ -110,6 +122,17 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     const assistant = result.find((m) => m.role === 'assistant');
     expect(assistant?.metadata?.generated_file?.language || null).not.toBe('he');
     expect(String(assistant?.metadata?.generated_file?.form_id || '')).not.toContain('adolescents-cbt-core-he');
+  });
+
+  it('does not attach Hebrew children form in English session', () => {
+    const messages = [
+      { role: 'user', content: 'אני צריך טופס לילד עם חרדה', metadata: { session_language: 'en' } },
+      { role: 'assistant', content: 'Here you go [FORM:children-cbt-core-he-2-3:he]' },
+    ];
+    const result = sanitizeConversationMessages(messages, 'en');
+    const assistant = result.find((m) => m.role === 'assistant');
+    expect(assistant?.metadata?.generated_file?.language || null).not.toBe('he');
+    expect(String(assistant?.metadata?.generated_file?.form_id || '')).not.toContain('children-cbt-core-he');
   });
 
   it('keeps marker fallback active while deterministic path is primary', () => {

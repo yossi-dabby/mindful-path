@@ -63,6 +63,15 @@ describe('aiFormsAccess deterministic list/search', () => {
     expect(hebrewForms.every((form) => form.language === 'he')).toBe(true);
   });
 
+  it('lists Hebrew children CBT core forms only in Hebrew mode', () => {
+    const hebrewChildren = listFormsForAI({ language: 'he', audience: 'children', category: 'children_cbt_core' });
+    const englishChildren = listFormsForAI({ language: 'en', audience: 'children', category: 'children_cbt_core' })
+      .filter((form) => form.id.startsWith('children-cbt-core-he'));
+    expect(hebrewChildren).toHaveLength(35);
+    expect(hebrewChildren.every((form) => form.language === 'he')).toBe(true);
+    expect(englishChildren).toHaveLength(0);
+  });
+
   it('lists forms by category', () => {
     const forms = listFormsForAI({ language: 'en', category: 'children_cbt_specialized' });
     expect(forms.length).toBeGreaterThan(0);
@@ -176,6 +185,22 @@ describe('aiFormsAccess deterministic send + language behavior', () => {
     expect(resolved.generatedFile.language).toBe('he');
   });
 
+  it('returns Hebrew children form in Hebrew session by clinical need', () => {
+    const resolved = resolveFormForAIRequest('אני צריך טופס לילד עם חרדה', { language: 'he' });
+    expect(resolved.intent?.type).toBe('send_best_matching_form');
+    expect(resolved.generatedFile).not.toBeNull();
+    expect(resolved.generatedFile.language).toBe('he');
+    expect(resolved.generatedFile.audience).toBe('children');
+    expect(String(resolved.generatedFile.form_id)).toContain('children-cbt-core-he');
+  });
+
+  it('resolves Hebrew children module request to the matching module PDF', () => {
+    const resolved = resolveFormForAIRequest('שלח לי את הקובץ המאוחד של מודול 2', { language: 'he' });
+    expect(resolved.generatedFile).not.toBeNull();
+    expect(resolved.generatedFile.form_id).toBe('children-cbt-core-he-module-02');
+    expect(resolved.generatedFile.url).toContain('children_cbt_core_he_module_02_combined.pdf');
+  });
+
   it('treats he-IL as Hebrew and keeps English fallback disabled for general Hebrew requests', () => {
     const resolved = resolveFormForAIRequest('שלח לי טופס CBT למתבגר בעברית', { language: 'he-IL' });
     expect(resolved.generatedFile).not.toBeNull();
@@ -183,10 +208,12 @@ describe('aiFormsAccess deterministic send + language behavior', () => {
     expect(resolved.usedFallbackLanguage).toBe(false);
   });
 
-  it('does not silently fallback to English in Hebrew session for non-Hebrew catalog gaps', () => {
+  it('does not silently fallback to English in Hebrew children requests', () => {
     const resolved = resolveFormForAIRequest('תשלח לי טופס לילדים בנושא OCD', { language: 'he' });
     expect(resolved.intent?.type).toBe('send_best_matching_form');
-    expect(resolved.generatedFile).toBeNull();
+    expect(resolved.generatedFile).not.toBeNull();
+    expect(resolved.generatedFile.language).toBe('he');
+    expect(resolved.generatedFile.audience).toBe('children');
     expect(resolved.nearestMatches.every((form) => form.language === 'he')).toBe(true);
   });
 
@@ -237,6 +264,18 @@ describe('aiFormsAccess deterministic send + language behavior', () => {
     for (const match of allMatches) {
       const id = String(match?.form_id || match?.id || '');
       expect(id.startsWith('adolescents-cbt-core-he')).toBe(false);
+    }
+  });
+
+  it('keeps English session results free of Hebrew children core forms', () => {
+    const resolved = resolveFormForAIRequest('send me cbt forms for children', { language: 'en' });
+    const allMatches = [
+      ...(resolved.generatedFile ? [resolved.generatedFile] : []),
+      ...(resolved.nearestMatches || []),
+    ];
+    for (const match of allMatches) {
+      const id = String(match?.form_id || match?.id || '');
+      expect(id.startsWith('children-cbt-core-he')).toBe(false);
     }
   });
 });

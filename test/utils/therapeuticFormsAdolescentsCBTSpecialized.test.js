@@ -152,7 +152,9 @@ describe('therapeuticFormsAdolescentsCBTSpecialized.test.js — Hebrew adolescen
 
   it('TherapeuticForms page shows Hebrew specialized forms only when lang === "he" (source check)', () => {
     const pageSource = fs.readFileSync(path.join(ROOT, 'src/pages/TherapeuticForms.jsx'), 'utf8');
-    expect(pageSource).toContain("normalizedLang === 'he' && form.language === 'he' && form.audience === 'adolescents'");
+    expect(pageSource).toMatch(
+      /normalizedLang === 'he'[\s\S]*form\.language === 'he'[\s\S]*form\.audience === 'adolescents'[\s\S]*adolescents_cbt_core[\s\S]*adolescents_cbt_specialized/
+    );
   });
 
   it('Hebrew specialized forms resolved in Hebrew mode, not in English mode', () => {

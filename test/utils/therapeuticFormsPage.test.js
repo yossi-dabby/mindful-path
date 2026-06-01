@@ -48,7 +48,9 @@ describe('therapeuticFormsPage.test.js — adolescents package integration', () 
     expect(pageSource).toContain("if (language !== lang)");
     expect(pageSource).toContain("if (form.language && form.language !== lang)");
     expect(pageSource).toContain("if (!form.languages?.[normalizedLang] || form.approved !== true) return false;");
-    expect(pageSource).toContain("return normalizedLang === 'he' && form.language === 'he' && form.audience === 'adolescents' && (form.category === 'adolescents_cbt_core' || form.category === 'adolescents_cbt_specialized');");
+    expect(pageSource).toMatch(
+      /normalizedLang === 'he'[\s\S]*form\.language === 'he'[\s\S]*form\.audience === 'adolescents'[\s\S]*adolescents_cbt_core[\s\S]*adolescents_cbt_specialized[\s\S]*form\.audience === 'children'[\s\S]*children_cbt_core/
+    );
   });
 
   it('keeps Hebrew adolescents core entries filter-compatible for page audience/category chips', () => {
@@ -59,5 +61,17 @@ describe('therapeuticFormsPage.test.js — adolescents package integration', () 
     expect(hebrewCore.some((form) => (form.secondaryCategories || []).includes('thought_records'))).toBe(true);
     expect(hebrewCore.some((form) => (form.secondaryCategories || []).includes('behavioral_activation'))).toBe(true);
     expect(hebrewCore.some((form) => (form.secondaryCategories || []).includes('weekly_practice'))).toBe(true);
+  });
+
+  it('keeps Hebrew children core entries Hebrew-only and filter-compatible for page chips', () => {
+    const hebrewChildrenCore = ALL_FORMS.filter((form) => form.id.startsWith('children-cbt-core-he'));
+    expect(hebrewChildrenCore.length).toBe(35);
+    expect(hebrewChildrenCore.every((form) => form.audience === 'children')).toBe(true);
+    expect(hebrewChildrenCore.every((form) => form.category === 'children_cbt_core')).toBe(true);
+    expect(hebrewChildrenCore.every((form) => form.languages?.he?.rtl === true)).toBe(true);
+    expect(resolveFormWithLanguage('children-cbt-core-he-module-02', 'he')?.languageData?.file_url)
+      .toContain('children_cbt_core_he_module_02_combined.pdf');
+    expect(resolveFormWithLanguage('children-cbt-core-he-module-02', 'en')).toBeNull();
+    expect(resolveFormWithLanguage('children-cbt-core-he-module-02', 'es')).toBeNull();
   });
 });

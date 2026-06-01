@@ -129,9 +129,46 @@ describe('therapeutic forms generated index parity', () => {
     const allForms = getAllTherapeuticForms();
 
     expect(englishChildren.length).toBeGreaterThan(0);
-    expect(hebrewChildren.length).toBe(0);
+    expect(hebrewChildren.some((form) => form.id.startsWith('children-cbt-core-he'))).toBe(true);
     expect(hebrewAdolescentsCore).toHaveLength(36);
     expect(allForms.length).toBeGreaterThan(0);
+  });
+
+  it('registers Hebrew children CBT core modules 01-05 with existing assets only', () => {
+    const hebrewChildrenCore = ALL_FORMS.filter(
+      (form) => form.audience === 'children' && form.language === 'he' && form.category === 'children_cbt_core'
+    );
+    const hebrewChildrenIndividuals = hebrewChildrenCore.filter((form) => form.type === 'individual_worksheet');
+    const hebrewChildrenModules = hebrewChildrenCore.filter((form) => form.type === 'module_pdf');
+
+    expect(hebrewChildrenCore).toHaveLength(35);
+    expect(hebrewChildrenIndividuals).toHaveLength(30);
+    expect(hebrewChildrenModules).toHaveLength(5);
+
+    for (let module = 1; module <= 5; module += 1) {
+      expect(hebrewChildrenIndividuals.filter((form) => Number(form.moduleNumber) === module)).toHaveLength(6);
+      expect(hebrewChildrenModules.filter((form) => Number(form.moduleNumber) === module)).toHaveLength(1);
+    }
+  });
+
+  it('keeps Hebrew children CBT core metadata approved, rtl, and file-backed', () => {
+    const validCategories = new Set(THERAPEUTIC_CATEGORIES.map((cat) => cat.value));
+    const hebrewChildrenCore = ALL_FORMS.filter(
+      (form) => form.audience === 'children' && form.language === 'he' && form.category === 'children_cbt_core'
+    );
+
+    for (const form of hebrewChildrenCore) {
+      expect(form.approved).toBe(true);
+      expect(form.language).toBe('he');
+      expect(form.languages?.he?.rtl).toBe(true);
+      expect(typeof form.fileUrl).toBe('string');
+      expect(form.fileUrl.startsWith('/forms/')).toBe(true);
+      expect(fs.existsSync(path.join(ROOT, 'public', form.fileUrl.replace(/^\//, '')))).toBe(true);
+      expect(validCategories.has(form.category)).toBe(true);
+      for (const secondary of form.secondaryCategories || []) {
+        expect(validCategories.has(secondary)).toBe(true);
+      }
+    }
   });
 
   it('registers exactly 30 Hebrew adolescents core individual worksheets and 6 stage-combined PDFs', () => {
@@ -189,7 +226,8 @@ describe('therapeutic forms generated index parity', () => {
     expect(englishResult?.language).toBe('en');
 
     const hebrewResult = resolveFormIntent('child does not know what they are feeling', 'he');
-    expect(hebrewResult).toBeNull();
+    expect(hebrewResult?.audience).toBe('children');
+    expect(hebrewResult?.language).toBe('he');
   });
 
   it('provides diagnostics that point to the generated canonical source file', () => {

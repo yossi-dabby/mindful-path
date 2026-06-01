@@ -119,6 +119,21 @@ describe('therapeutic forms policy reliability', () => {
 });
 
 describe('therapeutic forms resolver coverage', () => {
+  it('confirms Hebrew children CBT core exposes modules 01-05 for Hebrew sessions only', () => {
+    const hebrewChildrenCore = getTherapeuticFormsForAI({ language: 'he', audience: 'children' })
+      .filter((form) => form.category === 'children_cbt_core');
+    const englishChildrenCore = getTherapeuticFormsForAI({ language: 'en', audience: 'children' })
+      .filter((form) => form.id.startsWith('children-cbt-core-he'));
+    const spanishChildrenCore = getTherapeuticFormsForAI({ language: 'es', audience: 'children' })
+      .filter((form) => form.id.startsWith('children-cbt-core-he'));
+
+    expect(hebrewChildrenCore).toHaveLength(35);
+    expect(hebrewChildrenCore.every((form) => form.language === 'he')).toBe(true);
+    expect(new Set(hebrewChildrenCore.map((form) => Number(form.module_number || form.moduleNumber))).size).toBe(5);
+    expect(englishChildrenCore).toHaveLength(0);
+    expect(spanishChildrenCore).toHaveLength(0);
+  });
+
   it('confirms Children CBT Core English still exposes 30 individual worksheets', () => {
     const childrenCoreWorksheets = getAllTherapeuticForms().filter((form) =>
       form.audience === 'children' &&
