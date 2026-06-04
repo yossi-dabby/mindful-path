@@ -9,6 +9,7 @@ import { FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE } from '../src/data/therapeuticFor
 import { FORMS_CHILDREN_CBT_CORE_EN } from '../src/data/therapeuticForms/forms.children.cbt-core.en.js';
 import { FORMS_CHILDREN_CBT_CORE_HE } from '../src/data/therapeuticForms/forms.children.cbt-core.he.js';
 import { FORMS_CHILDREN_CBT_SPECIALIZED } from '../src/data/therapeuticForms/forms.children.cbt-specialized.js';
+import { FORMS_CHILDREN_CBT_SPECIALIZED_HE } from '../src/data/therapeuticForms/forms.children.cbt-specialized.he.js';
 
 const ROOT = process.cwd();
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -238,6 +239,7 @@ function buildCuratedEntries(manifestByFileUrl) {
     ...FORMS_CHILDREN_CBT_CORE_EN,
     ...FORMS_CHILDREN_CBT_CORE_HE,
     ...FORMS_CHILDREN_CBT_SPECIALIZED,
+    ...FORMS_CHILDREN_CBT_SPECIALIZED_HE,
   ].filter((form) => form?.approved === true);
 
   const entries = [];
