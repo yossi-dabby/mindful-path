@@ -1,50 +1,34 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ClipboardList } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ClipboardList, ChevronLeft, ChevronRight, Download, ExternalLink } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
-import {
-  AUDIENCE_GROUPS,
-  THERAPEUTIC_CATEGORIES,
-  SUPPORTED_LANGUAGES,
-  ALL_FORMS,
-  resolveFormWithLanguage } from
-'@/data/therapeuticForms/index.js';
-import {
-  FORMS_ADOLESCENTS_CBT_CORE_EN_STAGE_GROUPS,
-  FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL,
-} from '@/data/therapeuticForms/forms.adolescents.cbt-core.en.js';
-import {
-  FORMS_CHILDREN_CBT_CORE_EN_STAGE_GROUPS,
-  FORMS_CHILDREN_CBT_CORE_EN_INDIVIDUAL,
-} from '@/data/therapeuticForms/forms.children.cbt-core.en.js';
+import { SUPPORTED_LANGUAGES, ALL_FORMS, resolveFormWithLanguage } from '@/data/therapeuticForms/index.js';
 import { openFile } from '@/components/chat/utils/openFile';
 import { downloadPdfFile } from '@/components/chat/utils/downloadPdfFile';
 import { getFormOpenUrl } from '@/components/chat/utils/formFileUrls';
+import { useTranslation } from 'react-i18next';
+import FormsCollectionCard from '@/components/forms/FormsCollectionCard';
+import FormsModuleCard from '@/components/forms/FormsModuleCard';
+import FormsWorksheetCard from '@/components/forms/FormsWorksheetCard';
+import FormsBreadcrumb from '@/components/forms/FormsBreadcrumb';
 
-export function resolveLibraryFormWithLanguage(form, lang) {
-  const resolved = resolveFormWithLanguage(form.id, lang);
-  if (!resolved) return null;
-  return resolved;
-}
+const AUDIENCE_ORDER = ['children', 'adolescents', 'adults', 'older_adults'];
+const COLLECTION_TYPE_ORDER = { core: 0, specialized: 1 };
 
-function normalizeLanguageCode(language) {
+export function normalizeLanguageCode(language) {
   if (typeof language !== 'string' || !language.trim()) return 'en';
   const base = language.trim().toLowerCase().split('-')[0];
   return SUPPORTED_LANGUAGES.includes(base) ? base : 'en';
 }
 
-function hasValidPublicFormsUrl(fileUrl) {
+export function hasValidPublicFormsUrl(fileUrl) {
   return typeof fileUrl === 'string' && fileUrl.trim().startsWith('/forms/');
 }
 
-function toWorksheetSortValue(worksheetNumber) {
-  const value = String(worksheetNumber ?? '').trim();
-  if (!value) return Number.MAX_SAFE_INTEGER;
-  const [moduleRaw, worksheetRaw] = value.split('.');
-  const moduleNumber = Number(moduleRaw);
-  const worksheetNumberValue = Number(worksheetRaw);
-  if (!Number.isFinite(moduleNumber) || !Number.isFinite(worksheetNumberValue)) return Number.MAX_SAFE_INTEGER;
-  return moduleNumber * 100 + worksheetNumberValue;
+export function resolveLibraryFormWithLanguage(form, lang) {
+  const resolved = resolveFormWithLanguage(form.id, lang);
+  if (!resolved) return null;
+  return resolved;
 }
 
 function warnLanguageMismatch(form, lang, reason) {
@@ -63,8 +47,7 @@ function hasValidLanguageMatch(resolved, lang) {
     warnLanguageMismatch(form, lang, `form.language "${form.language}" does not match active language`);
     return false;
   }
-  const blockLanguage = form.languages?.[lang] ? lang : null;
-  if (!blockLanguage) {
+  if (!form.languages?.[lang]) {
     warnLanguageMismatch(form, lang, 'no exact language block found');
     return false;
   }
@@ -76,278 +59,326 @@ function hasValidLanguageMatch(resolved, lang) {
   return true;
 }
 
-// ─── UI adapter ────────────────────────────────────────────────────────────────
-// Returns all approved forms that match the given filters and are resolvable in lang.
-// Keeps filtering logic minimal and delegates all validity checks to the resolver.
-// For English/adolescents, also returns stage group cards (each grouping 5 worksheets).
-export function getFilteredForms({ audience, category, lang }) {
-  const normalizedLang = normalizeLanguageCode(lang);
-  const langFiltered = ALL_FORMS.filter((form) => {
-    if (!form.languages?.[normalizedLang] || form.approved !== true) return false;
-    if (form.type !== 'individual_worksheet') return true;
-    return (
-      normalizedLang === 'he' &&
-      form.language === 'he' &&
-      (
-        (form.audience === 'adolescents' && (form.category === 'adolescents_cbt_core' || form.category === 'adolescents_cbt_specialized')) ||
-        (form.audience === 'children' && form.category === 'children_cbt_core')
-      )
-    );
-  });
-
-  const audienceFiltered = langFiltered.filter(
-    (form) => audience === 'all' || form.audience === audience
-  );
-
-  const categoryFiltered = audienceFiltered.filter((form) => {
-    if (category === 'all') return true;
-    if (form.category === category) return true;
-    const secondary = Array.isArray(form.secondaryCategories) ? form.secondaryCategories : [];
-    return secondary.includes(category);
-  });
-
-  const regularForms = categoryFiltered.reduce((acc, form) => {
-    const resolved = resolveLibraryFormWithLanguage(form, normalizedLang);
-    if (!resolved) return acc;
-    if (!hasValidLanguageMatch(resolved, normalizedLang)) return acc;
-    acc.push(resolved);
-    return acc;
-  }, []);
-
-  const dedupedRegularForms = [];
-  const seenLanguageVariantCards = new Set();
-  for (const resolved of regularForms) {
-    const form = resolved?.form;
-    const resolvedLanguage = resolved?.language || normalizedLang;
-    const logicalId = form?.logical_form_id || form?.variant_group_id || form?.id;
-    const dedupeKey = `${logicalId}::${resolvedLanguage}`;
-    if (seenLanguageVariantCards.has(dedupeKey)) continue;
-    seenLanguageVariantCards.add(dedupeKey);
-    dedupedRegularForms.push(resolved);
-  }
-
-  // Stage groups — English only, derived from the canonical forms source.
-  // Each stage_group card lists its 6 individual worksheets for open/download.
-  let stageGroupResults = [];
-  if (normalizedLang === 'en') {
-    const adolescentGroups = FORMS_ADOLESCENTS_CBT_CORE_EN_STAGE_GROUPS
-      .filter((sg) => audience === 'all' || sg.audience === audience)
-      .filter((sg) => {
-        if (category === 'all') return true;
-        if (sg.category === category) return true;
-        return (sg.secondaryCategories || []).includes(category);
-      })
-      .map((sg) => {
-        const worksheets = FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL
-          .filter((w) => w.stageNumber === sg.stageNumber)
-          .map((w) => {
-            const wLang = w.languages.en;
-            return {
-              form: w,
-              languageData: {
-                title: wLang.title,
-                description: wLang.description,
-                file_url: wLang.file_url,
-                file_type: wLang.file_type,
-                file_name: wLang.file_name,
-                rtl: false,
-              },
-            };
-          });
-        return {
-          form: sg,
-          language: 'en',
-          languageData: {
-            title: sg.title,
-            description: sg.description,
-            file_url: null,
-            file_type: null,
-            file_name: null,
-            rtl: false,
-          },
-          worksheets,
-        };
-      });
-
-    const childrenGroups = FORMS_CHILDREN_CBT_CORE_EN_STAGE_GROUPS
-      .filter((sg) => audience === 'all' || sg.audience === audience)
-      .filter((sg) => {
-        if (category === 'all') return true;
-        if (sg.category === category) return true;
-        return (sg.secondaryCategories || []).includes(category);
-      })
-      .map((sg) => {
-        const worksheets = FORMS_CHILDREN_CBT_CORE_EN_INDIVIDUAL
-          .filter((w) => w.stageNumber === sg.stageNumber)
-          .map((w) => {
-            const wLang = w.languages.en;
-            return {
-              form: w,
-              languageData: {
-                title: wLang.title,
-                description: wLang.description,
-                file_url: wLang.file_url,
-                file_type: wLang.file_type,
-                file_name: wLang.file_name,
-                rtl: false,
-              },
-            };
-          });
-        return {
-          form: sg,
-          language: 'en',
-          languageData: {
-            title: sg.title,
-            description: sg.description,
-            file_url: null,
-            file_type: null,
-            file_name: null,
-            rtl: false,
-          },
-          worksheets,
-        };
-      });
-
-    stageGroupResults = [...adolescentGroups, ...childrenGroups];
-  }
-
-  // Type ordering: workbook_package (0) sorts before stage_group (1) before others (2)
-  const TYPE_ORDER = { workbook_package: 0, stage_group: 1 };
-
-  return [...dedupedRegularForms, ...stageGroupResults].sort((a, b) => {
-    const byLanguage = String(a.language || '').localeCompare(String(b.language || ''));
-    if (byLanguage !== 0) return byLanguage;
-    const byAudience = String(a.form.audience || '').localeCompare(String(b.form.audience || ''));
-    if (byAudience !== 0) return byAudience;
-    const byCategory = String(a.form.category || '').localeCompare(String(b.form.category || ''));
-    if (byCategory !== 0) return byCategory;
-    const aType = TYPE_ORDER[a.form.type] ?? 2;
-    const bType = TYPE_ORDER[b.form.type] ?? 2;
-    if (aType !== bType) return aType - bType;
-    const bySeries = String(a.form.series || a.form.adolescentSeries || '').localeCompare(
-      String(b.form.series || b.form.adolescentSeries || '')
-    );
-    if (bySeries !== 0) return bySeries;
-    const byModule = Number(a.form.moduleNumber || 0) - Number(b.form.moduleNumber || 0);
-    if (byModule !== 0) return byModule;
-    return toWorksheetSortValue(a.form.worksheetNumber || a.form.displayNumber) -
-      toWorksheetSortValue(b.form.worksheetNumber || b.form.displayNumber);
-  });
+function toNumberOrNull(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
-// ─── ScrollableChipRow ─────────────────────────────────────────────────────────
-// Renders a horizontally scrollable chip row with visible left/right arrow buttons.
-// Arrows are hidden when there is nothing to scroll in that direction.
-// RTL-aware: in RTL layouts the scroll direction is naturally mirrored by the browser.
-function ScrollableChipRow({ children, testId, isRtl }) {
-  const scrollRef = useRef(null);
-  const [canScrollStart, setCanScrollStart] = useState(false);
-  const [canScrollEnd, setCanScrollEnd] = useState(false);
+function getModuleSignature(form) {
+  const moduleNumber = toNumberOrNull(form?.moduleNumber ?? form?.stageNumber);
+  if (moduleNumber != null) return `module:${moduleNumber}`;
 
-  const updateArrows = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const { scrollLeft, scrollWidth, clientWidth } = el;
-    // In RTL the browser may use negative or positive scrollLeft depending on implementation.
-    const absLeft = Math.abs(scrollLeft);
-    setCanScrollStart(absLeft > 2);
-    setCanScrollEnd(absLeft + clientWidth < scrollWidth - 2);
-  }, []);
+  const formNumberParts = String(form?.formNumber || '').split('.').map((part) => part.trim()).filter(Boolean);
+  if (formNumberParts.length >= 3) return `series:${formNumberParts[0]}.${formNumberParts[1]}`;
+  if (formNumberParts.length >= 2) return `stage:${formNumberParts[0]}`;
+  return null;
+}
 
-  const scrollBy = (direction) => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const amount = 180;
-    // In RTL, logical "forward" scrolls in the negative direction on some browsers.
-    const delta = isRtl ? -direction * amount : direction * amount;
-    el.scrollBy({ left: delta, behavior: 'smooth' });
+function getLocalizedField(form, lang, field) {
+  const localized = form?.localizedDisplay?.[lang]?.[field];
+  if (typeof localized === 'string' && localized.trim()) return localized.trim();
+  const langValue = form?.languages?.[lang]?.[field];
+  if (typeof langValue === 'string' && langValue.trim()) return langValue.trim();
+  if (field === 'title' && lang !== 'he') {
+    const fallback = form?.title;
+    if (typeof fallback === 'string' && fallback.trim()) return fallback.trim();
+  }
+  if (field === 'description' && lang !== 'he') {
+    const fallback = form?.description;
+    if (typeof fallback === 'string' && fallback.trim()) return fallback.trim();
+  }
+  return '';
+}
+
+function buildModuleFallbackTitle(module, lang) {
+  const number = module.stageNumber ?? module.moduleNumber;
+  if (number == null) {
+    return lang === 'he' ? 'מודול' : 'Module';
+  }
+  if (lang === 'he') return `שלב ${number}`;
+  return `Stage ${number}`;
+}
+
+export function getLanguageVisibleForms(lang) {
+  const normalizedLang = normalizeLanguageCode(lang);
+  return ALL_FORMS
+    .filter((form) => form.approved === true)
+    .filter((form) => form.languages?.[normalizedLang])
+    .map((form) => resolveLibraryFormWithLanguage(form, normalizedLang))
+    .filter((resolved) => hasValidLanguageMatch(resolved, normalizedLang));
+}
+
+export function buildCollectionsFromForms(resolvedForms) {
+  const grouped = new Map();
+
+  for (const resolved of resolvedForms) {
+    const collectionId = String(resolved?.form?.collectionId || '').trim();
+    if (!collectionId) continue;
+    if (!grouped.has(collectionId)) {
+      grouped.set(collectionId, {
+        collectionId,
+        language: resolved.form.language,
+        audience: resolved.form.audience,
+        category: resolved.form.category,
+        collectionType: resolved.form.collectionType || 'core',
+        forms: [],
+      });
+    }
+    grouped.get(collectionId).forms.push(resolved);
+  }
+
+  return Array.from(grouped.values())
+    .map((collection) => {
+      const representativeForm =
+        collection.forms.find((item) => item.form.cardType === 'workbook_package') ||
+        collection.forms.find((item) => item.form.cardType === 'combined_pdf') ||
+        collection.forms[0];
+
+      const worksheetCount = collection.forms.filter((item) => item.form.cardType === 'worksheet').length;
+      const combinedCount = collection.forms.filter((item) => item.form.cardType === 'combined_pdf').length;
+      const moduleCount = buildModulesFromCollectionForms(collection.forms, collection.language).length;
+      const minDisplayOrder = Math.min(...collection.forms.map((item) => Number(item.form.displayOrder || 9999)));
+
+      return {
+        ...collection,
+        representativeForm,
+        worksheetCount,
+        combinedCount,
+        moduleCount,
+        displayOrder: Number.isFinite(minDisplayOrder) ? minDisplayOrder : 9999,
+      };
+    })
+    .sort((a, b) => {
+      const byAudience = (AUDIENCE_ORDER.indexOf(a.audience) === -1 ? 999 : AUDIENCE_ORDER.indexOf(a.audience)) -
+        (AUDIENCE_ORDER.indexOf(b.audience) === -1 ? 999 : AUDIENCE_ORDER.indexOf(b.audience));
+      if (byAudience !== 0) return byAudience;
+      const byType = (COLLECTION_TYPE_ORDER[a.collectionType] ?? 9) - (COLLECTION_TYPE_ORDER[b.collectionType] ?? 9);
+      if (byType !== 0) return byType;
+      return a.displayOrder - b.displayOrder;
+    });
+}
+
+export function getAudienceOptionsFromCollections(collections) {
+  return AUDIENCE_ORDER.filter((audience) => collections.some((collection) => collection.audience === audience));
+}
+
+export function buildModulesFromCollectionForms(collectionForms, lang) {
+  const forms = collectionForms
+    .filter((entry) => entry.form.cardType === 'worksheet' || entry.form.cardType === 'combined_pdf')
+    .sort((a, b) => Number(a.form.displayOrder || 9999) - Number(b.form.displayOrder || 9999));
+
+  const modulesByKey = new Map();
+  const keysBySignature = new Map();
+
+  const ensureModule = (key, form) => {
+    if (!modulesByKey.has(key)) {
+      modulesByKey.set(key, {
+        id: key,
+        moduleNumber: toNumberOrNull(form.moduleNumber),
+        stageNumber: toNumberOrNull(form.stageNumber),
+        moduleTitle: '',
+        combinedTitle: '',
+        clinicalDomain: form.clinicalDomain || '',
+        worksheetEntries: [],
+        combinedEntries: [],
+        sortOrder: Number(form.displayOrder || 9999),
+      });
+    }
+
+    const module = modulesByKey.get(key);
+    const newSortOrder = Number(form.displayOrder || 9999);
+    if (newSortOrder < module.sortOrder) module.sortOrder = newSortOrder;
+    if (!module.moduleNumber) module.moduleNumber = toNumberOrNull(form.moduleNumber);
+    if (!module.stageNumber) module.stageNumber = toNumberOrNull(form.stageNumber);
+    if (!module.clinicalDomain && form.clinicalDomain) module.clinicalDomain = form.clinicalDomain;
+    return module;
   };
 
-  // Initialise arrow state once after first render.
-  const onRefReady = useCallback((node) => {
-    scrollRef.current = node;
-    if (node) {
-      updateArrows();
-      // Use requestAnimationFrame to re-check after the layout has fully rendered.
-      requestAnimationFrame(updateArrows);
+  const registerSignature = (signature, key) => {
+    if (!signature) return;
+    if (!keysBySignature.has(signature)) keysBySignature.set(signature, new Set());
+    keysBySignature.get(signature).add(key);
+  };
+
+  for (const entry of forms) {
+    const { form } = entry;
+    const signature = getModuleSignature(form);
+    const preferredParentKey = form.parentId ? `parent:${form.parentId}` : null;
+    const fallbackSignatureKey = signature ? `signature:${signature}` : `entry:${form.id}`;
+
+    let resolvedKey = preferredParentKey || fallbackSignatureKey;
+
+    if (!form.parentId && signature && keysBySignature.has(signature)) {
+      const candidateKeys = Array.from(keysBySignature.get(signature));
+      if (candidateKeys.length === 1) {
+        resolvedKey = candidateKeys[0];
+      }
     }
-  }, [updateArrows]);
 
-  const BackIcon = isRtl ? ChevronRight : ChevronLeft;
-  const ForwIcon = isRtl ? ChevronLeft : ChevronRight;
+    const module = ensureModule(resolvedKey, form);
+    registerSignature(signature, resolvedKey);
 
-  return (
-    <div className="relative flex items-center gap-1">
-      {/* Back arrow */}
-      {canScrollStart &&
-      <button
-        type="button"
-        onClick={() => scrollBy(-1)}
-        aria-label="Scroll back"
-        className="flex-shrink-0 rounded-full p-1 bg-background/80 border border-border/60 shadow-sm hover:bg-muted transition-colors z-10">
-        
-          <BackIcon className="text-emerald-700 lucide lucide-chevron-right w-3.5 h-3.5" />
-        </button>
-      }
+    const moduleTitle = String(form.moduleTitle || form.stageTitle || '').trim();
+    if (moduleTitle && !module.moduleTitle) module.moduleTitle = moduleTitle;
 
-      {/* Scrollable row */}
-      <div
-        ref={onRefReady}
-        data-testid={testId}
-        onScroll={updateArrows}
-        className="flex flex-1 min-w-0 gap-2 overflow-x-auto pb-1 scrollbar-hide"
-        style={{ WebkitOverflowScrolling: 'touch' }}>
-        
-        {children}
-      </div>
+    if (form.cardType === 'combined_pdf') {
+      const combinedTitle = getLocalizedField(form, lang, 'title');
+      if (combinedTitle && !module.combinedTitle) module.combinedTitle = combinedTitle;
+      module.combinedEntries.push(entry);
+    } else {
+      module.worksheetEntries.push(entry);
+    }
+  }
 
-      {/* Forward arrow */}
-      {canScrollEnd &&
-      <button
-        type="button"
-        onClick={() => scrollBy(1)}
-        aria-label="Scroll forward" className="bg-background/80 p-1 rounded-full flex-shrink-0 border border-border/60 shadow-sm hover:bg-muted transition-colors z-10">
-        
-        
-          <ForwIcon className="text-emerald-700 lucide lucide-chevron-left w-3.5 h-3.5" />
-        </button>
-      }
-    </div>);
-
+  return Array.from(modulesByKey.values())
+    .map((module) => {
+      const title = module.combinedTitle || module.moduleTitle || buildModuleFallbackTitle(module, lang);
+      return {
+        id: module.id,
+        title,
+        numberLabel: module.stageNumber || module.moduleNumber ?
+          (lang === 'he' ? `שלב ${module.stageNumber || module.moduleNumber}` : `Stage ${module.stageNumber || module.moduleNumber}`)
+          : '',
+        stageNumber: module.stageNumber,
+        moduleNumber: module.moduleNumber,
+        worksheetCount: module.worksheetEntries.length,
+        worksheetEntries: module.worksheetEntries.sort((a, b) => Number(a.form.displayOrder || 9999) - Number(b.form.displayOrder || 9999)),
+        combinedForm: module.combinedEntries[0] || null,
+        combinedCount: module.combinedEntries.length,
+        clinicalDomain: module.clinicalDomain,
+        sortOrder: module.sortOrder,
+      };
+    })
+    .sort((a, b) => {
+      if (a.sortOrder !== b.sortOrder) return a.sortOrder - b.sortOrder;
+      const aNumber = a.stageNumber || a.moduleNumber || 999;
+      const bNumber = b.stageNumber || b.moduleNumber || 999;
+      return aNumber - bNumber;
+    });
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+function formatClinicalDomain(clinicalDomain) {
+  if (!clinicalDomain) return '';
+  return String(clinicalDomain)
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function getWorksheetTags({ worksheet, module, t, lang }) {
+  const tags = [];
+
+  const categoryKey = `therapeutic_forms.category.${worksheet.form.category}`;
+  const categoryLabel = t(categoryKey);
+  if (categoryLabel && categoryLabel !== categoryKey) tags.push(categoryLabel);
+
+  const secondary = Array.isArray(worksheet.form.secondaryCategories) ? worksheet.form.secondaryCategories : [];
+  for (const key of secondary) {
+    const labelKey = `therapeutic_forms.category.${key}`;
+    const translated = t(labelKey);
+    if (translated && translated !== labelKey) tags.push(translated);
+    if (tags.length >= 3) break;
+  }
+
+  if (lang !== 'he' && module?.clinicalDomain) {
+    tags.push(formatClinicalDomain(module.clinicalDomain));
+  }
+
+  return Array.from(new Set(tags)).slice(0, 3);
+}
+
 export default function TherapeuticForms() {
   const { t, i18n } = useTranslation();
   const lang = normalizeLanguageCode(i18n.resolvedLanguage || i18n.language || 'en');
   const isRtl = i18n.dir ? i18n.dir() === 'rtl' : lang === 'he';
 
-  const [selectedAudience, setSelectedAudience] = useState('all');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const visibleForms = useMemo(() => getLanguageVisibleForms(lang), [lang]);
+  const collections = useMemo(() => buildCollectionsFromForms(visibleForms), [visibleForms]);
+  const availableAudiences = useMemo(() => getAudienceOptionsFromCollections(collections), [collections]);
 
-  const forms = getFilteredForms({
-    audience: selectedAudience,
-    category: selectedCategory,
-    lang
+  const [selectedAudience, setSelectedAudience] = useState(null);
+  const [selectedCollectionId, setSelectedCollectionId] = useState(null);
+  const [selectedModuleId, setSelectedModuleId] = useState(null);
+
+  useEffect(() => {
+    if (!availableAudiences.length) {
+      setSelectedAudience(null);
+      return;
+    }
+    if (!selectedAudience || !availableAudiences.includes(selectedAudience)) {
+      setSelectedAudience(availableAudiences[0]);
+    }
+  }, [availableAudiences, selectedAudience]);
+
+  const filteredCollections = useMemo(() => {
+    if (!selectedAudience) return [];
+    return collections.filter((collection) => collection.audience === selectedAudience);
+  }, [collections, selectedAudience]);
+
+  useEffect(() => {
+    if (!selectedCollectionId) return;
+    if (!filteredCollections.some((collection) => collection.collectionId === selectedCollectionId)) {
+      setSelectedCollectionId(null);
+      setSelectedModuleId(null);
+    }
+  }, [filteredCollections, selectedCollectionId]);
+
+  const selectedCollection = useMemo(
+    () => filteredCollections.find((collection) => collection.collectionId === selectedCollectionId) || null,
+    [filteredCollections, selectedCollectionId]
+  );
+
+  const modules = useMemo(() => {
+    if (!selectedCollection) return [];
+    return buildModulesFromCollectionForms(selectedCollection.forms, lang);
+  }, [selectedCollection, lang]);
+
+  useEffect(() => {
+    if (!selectedModuleId) return;
+    if (!modules.some((module) => module.id === selectedModuleId)) {
+      setSelectedModuleId(null);
+    }
+  }, [modules, selectedModuleId]);
+
+  const selectedModule = useMemo(
+    () => modules.find((module) => module.id === selectedModuleId) || null,
+    [modules, selectedModuleId]
+  );
+
+  const collectionCards = filteredCollections.map((collection) => {
+    const categoryKey = `therapeutic_forms.category.${collection.category}`;
+    const translatedCategory = t(categoryKey);
+    const collectionTitle = translatedCategory !== categoryKey
+      ? translatedCategory
+      : getLocalizedField(collection.representativeForm?.form, lang, 'title') || (lang === 'he' ? 'סדרת טפסים טיפוליים' : 'Therapeutic Forms Collection');
+
+    return {
+      ...collection,
+      title: collectionTitle,
+    };
   });
 
-  // ─── Audience chips ──────────────────────────────────────────────────────────
-  const audienceOptions = [
-  { value: 'all', label: t('therapeutic_forms.audience.all') },
-  ...AUDIENCE_GROUPS.map((ag) => ({
-    value: ag.value,
-    label: t(`therapeutic_forms.audience.${ag.value}`)
-  }))];
+  const breadcrumbs = [
+    {
+      label: lang === 'he' ? 'כל הטפסים' : 'All forms',
+      onClick: selectedCollection ? () => {
+        setSelectedCollectionId(null);
+        setSelectedModuleId(null);
+      } : null,
+    },
+  ];
 
+  if (selectedCollection) {
+    const selectedCollectionCard = collectionCards.find((collection) => collection.collectionId === selectedCollection.collectionId);
+    breadcrumbs.push({
+      label: selectedCollectionCard?.title || (lang === 'he' ? 'סדרה' : 'Collection'),
+      onClick: selectedModule ? () => setSelectedModuleId(null) : null,
+    });
+  }
 
-  // ─── Category chips ──────────────────────────────────────────────────────────
-  const categoryOptions = [
-  { value: 'all', label: t('therapeutic_forms.category.all') },
-  ...THERAPEUTIC_CATEGORIES.map((cat) => ({
-    value: cat.value,
-    label: t(`therapeutic_forms.category.${cat.value}`)
-  }))];
-
+  if (selectedModule) {
+    breadcrumbs.push({ label: selectedModule.title });
+  }
 
   const handleOpenForm = (fileUrl) => {
     openFile(getFormOpenUrl(fileUrl));
@@ -362,183 +393,158 @@ export default function TherapeuticForms() {
     }
   };
 
+  const audienceButtons = availableAudiences.map((audience) => ({
+    value: audience,
+    label: t(`therapeutic_forms.audience.${audience}`),
+  }));
+
+  const calloutText = lang === 'he'
+    ? 'לא בטוחים איזה טופס לבחור? אפשר לבקש מהמטפל ב־AI להמליץ על הטופס המתאים לפי הצורך.'
+    : 'Not sure which form to choose? Ask the AI therapist to recommend the right worksheet based on the client’s need.';
+
   return (
-    <div className="bg-teal-400 mx-auto p-4 w-full box-border md:p-8 max-w-7xl min-h-dvh safe-bottom">
-      {/* Header */}
+    <div className="mx-auto p-4 w-full box-border md:p-8 max-w-7xl min-h-dvh safe-bottom" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="mb-8 mt-4">
         <h1 className="text-3xl md:text-4xl font-semibold mb-2 flex items-center gap-3 text-foreground">
           <ClipboardList className="w-8 h-8 text-primary" />
           {t('therapeutic_forms.page_title')}
         </h1>
-        <p className="text-gray-950">{t('therapeutic_forms.page_subtitle')}</p>
+        <p className="text-muted-foreground">{t('therapeutic_forms.page_subtitle')}</p>
       </div>
 
-      {/* Audience Filter */}
-      <div className="mb-6 space-y-4">
-        <div>
-          <p className="text-sm font-medium mb-2 text-foreground">
-            {t('therapeutic_forms.filter_audience')}
-          </p>
-          <ScrollableChipRow testId="audience-filter" isRtl={isRtl}>
-            {audienceOptions.map((opt) =>
+      <div className="mb-6 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm text-foreground" data-testid="ai-forms-callout">
+        <p>
+          {calloutText}{' '}
+          <Link className="underline underline-offset-2" to="/Chat">
+            {lang === 'he' ? 'לצ׳אט' : 'Go to chat'}
+          </Link>
+        </p>
+      </div>
+
+      <FormsBreadcrumb items={breadcrumbs} isRtl={isRtl} />
+
+      <div className="mb-6">
+        <p className="text-sm font-medium mb-2 text-foreground">{t('therapeutic_forms.filter_audience')}</p>
+        <div className="flex flex-wrap gap-2" data-testid="audience-filter">
+          {audienceButtons.map((option) => (
             <Button
-              key={opt.value}
-              onClick={() => setSelectedAudience(opt.value)}
-              variant={selectedAudience === opt.value ? 'default' : 'outline'}
-              size="sm" className="bg-teal-300 text-secondary-foreground px-3 text-xs font-medium tracking-[0.005em] rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 whitespace-nowrap flex-shrink-0 sm:text-sm"
-
-              aria-pressed={selectedAudience === opt.value}>
-              
-                {opt.label}
-              </Button>
-            )}
-          </ScrollableChipRow>
-        </div>
-
-        {/* Category Filter */}
-        <div>
-          <p className="text-sm font-medium mb-2 text-foreground">
-            {t('therapeutic_forms.filter_category')}
-          </p>
-          <ScrollableChipRow testId="category-filter" isRtl={isRtl}>
-            {categoryOptions.map((opt) =>
-            <Button
-              key={opt.value}
-              onClick={() => setSelectedCategory(opt.value)}
-              variant={selectedCategory === opt.value ? 'default' : 'outline'}
-              size="sm" className="bg-teal-600 text-secondary-foreground px-3 text-xs font-medium tracking-[0.005em] rounded-[var(--radius-card)] inline-flex items-center justify-center gap-2 transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-border/70 shadow-[var(--shadow-sm)] hover:bg-secondary/92 hover:text-foreground active:bg-secondary/96 h-9 min-h-[44px] md:min-h-0 whitespace-nowrap flex-shrink-0 sm:text-sm"
-
-              aria-pressed={selectedCategory === opt.value}>
-              
-                {opt.label}
-              </Button>
-            )}
-          </ScrollableChipRow>
+              key={option.value}
+              type="button"
+              size="sm"
+              variant={selectedAudience === option.value ? 'default' : 'outline'}
+              onClick={() => {
+                setSelectedAudience(option.value);
+                setSelectedCollectionId(null);
+                setSelectedModuleId(null);
+              }}
+              data-testid={`audience-filter-${option.value}`}
+            >
+              {option.label}
+            </Button>
+          ))}
         </div>
       </div>
 
-      {/* Forms Grid / Empty State */}
-      {forms.length === 0 ?
-      <div
-        data-testid="empty-state"
-        className="text-center py-12 surface-secondary rounded-[var(--radius-card)] border-border/70 shadow-[var(--shadow-md)]">
-        
-          <ClipboardList className="w-16 h-16 mx-auto mb-4 text-primary/40" />
-          <p className="mb-2 text-foreground">{t('therapeutic_forms.empty_state.title')}</p>
-          <p className="text-sm text-muted-foreground">
-            {t('therapeutic_forms.empty_state.message')}
-          </p>
-        </div> :
-
-      <div
-        data-testid="forms-grid"
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        
-          {forms.map(({ form, languageData, worksheets }) =>
-        <div
-          key={form.id}
-          data-testid={`form-card-${form.id}`}
-          className="relative overflow-hidden rounded-[var(--radius-card)] border border-border/70 bg-[hsl(var(--card))] shadow-[var(--shadow-md)] flex flex-col"
-          dir={languageData.rtl ? 'rtl' : 'ltr'}>
-          
-              <div className="bg-teal-200 p-5 flex flex-col gap-3 flex-1">
-                {/* Title */}
-                <h3 className="text-base font-semibold text-foreground leading-snug">
-                  {languageData.title}
-                </h3>
-
-                {/* Description */}
-                {languageData.description &&
-            <p className="text-gray-950 text-sm leading-relaxed">
-                    {languageData.description}
-                  </p>
-            }
-
-                {/* Metadata badges */}
-                <div className="flex flex-wrap gap-2 mt-auto pt-2">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">
-                    {t(`therapeutic_forms.audience.${form.audience}`)}
-                  </span>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground border border-border/50">
-                    {t(`therapeutic_forms.category.${form.category}`)}
-                  </span>
-                  {(form.moduleNumber != null || form.stageNumber != null) &&
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-700/10 text-teal-900 border border-teal-700/20">
-                      {languageData.rtl ? (form.moduleTitle || form.stageTitle || `שלב ${form.moduleNumber || form.stageNumber}`) : `M${form.moduleNumber || form.stageNumber}`}
-                    </span>
-                  }
-                  {(form.worksheetNumber != null || form.displayNumber != null || form.cbt_substage_number != null) &&
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-700/10 text-teal-900 border border-teal-700/20">
-                      {form.worksheetNumber || form.displayNumber || form.cbt_substage_number}
-                    </span>
-                  }
-                  {(form.moduleHe || form.domainHe) &&
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-700/10 text-teal-900 border border-teal-700/20">
-                    {form.moduleHe || form.domainHe}
-                  </span>
-                  }
-                </div>
-
-                {/* Stage group: worksheet list with per-worksheet Open/Download */}
-                {form.type === 'stage_group' && worksheets && worksheets.length > 0 &&
-                <div className="border-t border-teal-300 pt-3 space-y-1.5">
-                    {worksheets.map(({ form: w, languageData: wLang }) =>
-                  <div key={w.id} className="flex items-center gap-1.5 min-w-0">
-                        <span className="flex-shrink-0 text-xs font-mono text-teal-700 w-8">
-                          {w.formNumber}
-                        </span>
-                        <span className="flex-1 text-xs text-foreground truncate min-w-0" title={wLang.title}>
-                          {wLang.title}
-                        </span>
-                        <button
-                      type="button"
-                      onClick={() => handleOpenForm(wLang.file_url)}
-                      data-testid={`open-worksheet-${w.id}`}
-                      aria-label={`${t('therapeutic_forms.open_form')} — ${wLang.title}`}
-                      className="flex-shrink-0 inline-flex items-center justify-center rounded px-1.5 py-0.5 text-xs font-medium bg-teal-600 text-white hover:bg-teal-700 transition-colors">
-                          <ExternalLink className="w-3 h-3" />
-                        </button>
-                        <button
-                      type="button"
-                      onClick={() => handleDownloadForm(wLang.file_url, wLang.file_name)}
-                      data-testid={`download-worksheet-${w.id}`}
-                      aria-label={`${t('therapeutic_forms.download_form')} — ${wLang.title}`}
-                      className="flex-shrink-0 inline-flex items-center justify-center rounded px-1.5 py-0.5 text-xs font-medium bg-teal-700 text-white hover:bg-teal-800 transition-colors">
-                          <Download className="w-3 h-3" />
-                        </button>
-                      </div>
-                  )}
-                  </div>
+      {!selectedCollection ? (
+        collectionCards.length === 0 ? (
+          <div
+            data-testid="empty-state"
+            className="text-center py-12 surface-secondary rounded-[var(--radius-card)] border-border/70 shadow-[var(--shadow-md)]"
+          >
+            <ClipboardList className="w-16 h-16 mx-auto mb-4 text-primary/40" />
+            <p className="mb-2 text-foreground">{t('therapeutic_forms.empty_state.title')}</p>
+            <p className="text-sm text-muted-foreground">{t('therapeutic_forms.empty_state.message')}</p>
+          </div>
+        ) : (
+          <div data-testid="collections-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {collectionCards.map((collection) => (
+              <FormsCollectionCard
+                key={collection.collectionId}
+                collection={collection}
+                audienceLabel={t(`therapeutic_forms.audience.${collection.audience}`)}
+                languageLabel={String(collection.language || '').toUpperCase()}
+                collectionTypeLabel={lang === 'he' ? (collection.collectionType === 'core' ? 'ליבה' : 'ייעודי') : (collection.collectionType === 'core' ? 'Core' : 'Specialized')}
+                browseLabel={lang === 'he' ? 'עיין בסדרה' : 'Browse'}
+                onBrowse={() => setSelectedCollectionId(collection.collectionId)}
+              />
+            ))}
+          </div>
+        )
+      ) : !selectedModule ? (
+        modules.length === 0 ? (
+          <div data-testid="empty-state" className="text-center py-12 rounded-[var(--radius-card)] border border-border/70">
+            <p className="text-foreground">{t('therapeutic_forms.empty_state.title')}</p>
+            <p className="text-sm text-muted-foreground">{t('therapeutic_forms.empty_state.message')}</p>
+          </div>
+        ) : (
+          <div data-testid="modules-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {modules.map((module) => (
+              <FormsModuleCard
+                key={module.id}
+                module={{
+                  ...module,
+                  clinicalDomainLabel: lang === 'he' ? '' : formatClinicalDomain(module.clinicalDomain),
+                  numberLabel: module.numberLabel,
+                }}
+                showClinicalDomain={lang !== 'he'}
+                viewWorksheetsLabel={lang === 'he' ? 'הצג טפסים' : 'View worksheets'}
+                openLabel={t('therapeutic_forms.open_form')}
+                downloadLabel={t('therapeutic_forms.download_form')}
+                onViewWorksheets={() => setSelectedModuleId(module.id)}
+                onOpenCombined={() => module.combinedForm && handleOpenForm(module.combinedForm.languageData.file_url)}
+                onDownloadCombined={() =>
+                  module.combinedForm && handleDownloadForm(module.combinedForm.languageData.file_url, module.combinedForm.languageData.file_name)
                 }
-              </div>
-
-              {/* Open / Download buttons — only for forms that have a single file_url */}
-              {languageData.file_url &&
-              <div className="bg-teal-400 pb-5 px-5 flex gap-2">
-                <Button
-              onClick={() => handleOpenForm(languageData.file_url)}
-              className="flex-1 bg-teal-600 text-[0.875rem] px-3 font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0"
-              size="sm"
-              data-testid={`open-form-${form.id}`}
-              aria-label={`${t('therapeutic_forms.open_form')} — ${languageData.title}`}>
-                  <ExternalLink className="w-4 h-4" />
-                  {t('therapeutic_forms.open_form')}
-                </Button>
-                <Button
-              onClick={() => handleDownloadForm(languageData.file_url, languageData.file_name)}
-              className="flex-1 bg-teal-700 text-[0.875rem] px-3 font-medium tracking-[0.005em] rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-[var(--shadow-md)] hover:bg-primary/92 hover:shadow-[var(--shadow-lg)] active:bg-primary/95 h-9 min-h-[44px] md:min-h-0"
-              size="sm"
-              data-testid={`download-form-${form.id}`}
-              aria-label={`${t('therapeutic_forms.download_form')} — ${languageData.title}`}>
-                  <Download className="w-4 h-4" />
-                  {t('therapeutic_forms.download_form')}
-                </Button>
-              </div>
-              }
+              />
+            ))}
+          </div>
+        )
+      ) : (
+        <div className="space-y-6" data-testid="worksheets-view">
+          {selectedModule.combinedForm ? (
+            <div
+              data-testid="combined-pdf-card"
+              className="rounded-[var(--radius-card)] border border-primary/20 bg-primary/5 p-4 flex flex-wrap items-center gap-3"
+            >
+              <span className="font-medium text-foreground">{lang === 'he' ? 'PDF משולב' : 'Combined PDF'}</span>
+              <Button type="button" size="sm" onClick={() => handleOpenForm(selectedModule.combinedForm.languageData.file_url)}>
+                {t('therapeutic_forms.open_form')}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                onClick={() => handleDownloadForm(selectedModule.combinedForm.languageData.file_url, selectedModule.combinedForm.languageData.file_name)}
+              >
+                {t('therapeutic_forms.download_form')}
+              </Button>
             </div>
-        )}
-        </div>
-      }
-    </div>);
+          ) : null}
 
+          {selectedModule.worksheetEntries.length === 0 ? (
+            <div data-testid="empty-state" className="text-center py-12 rounded-[var(--radius-card)] border border-border/70">
+              <p className="text-foreground">{t('therapeutic_forms.empty_state.title')}</p>
+              <p className="text-sm text-muted-foreground">{t('therapeutic_forms.empty_state.message')}</p>
+            </div>
+          ) : (
+            <div data-testid="worksheets-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {selectedModule.worksheetEntries.map((worksheet) => (
+                <FormsWorksheetCard
+                  key={worksheet.form.id}
+                  worksheet={{
+                    ...worksheet,
+                    tags: getWorksheetTags({ worksheet, module: selectedModule, t, lang }),
+                  }}
+                  openLabel={t('therapeutic_forms.open_form')}
+                  downloadLabel={t('therapeutic_forms.download_form')}
+                  onOpen={() => handleOpenForm(worksheet.languageData.file_url)}
+                  onDownload={() => handleDownloadForm(worksheet.languageData.file_url, worksheet.languageData.file_name)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }

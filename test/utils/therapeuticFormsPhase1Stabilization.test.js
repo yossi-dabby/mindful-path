@@ -212,15 +212,14 @@ describe('Phase 1 — open/download behavior unchanged', () => {
   });
 });
 
-// ── 6. No redesign — TherapeuticForms.jsx unchanged ─────────────────────────
-// Source-level check is intentional: verifies no collection-dashboard wrapper
-// was accidentally introduced as part of Phase 1 changes.
+// ── 6. Collection-first redesign contracts ───────────────────────────────────
 
-describe('Phase 1 — no redesign', () => {
-  it('TherapeuticForms.jsx still uses flat grid (no collection dashboard added)', () => {
+describe('Phase 1 baseline + Phase 3 UI contracts', () => {
+  it('TherapeuticForms.jsx now exposes collection-first helpers', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/pages/TherapeuticForms.jsx'), 'utf8');
-    // Must not have been replaced with a collection-first dashboard
-    expect(src).not.toContain('CollectionDashboard');
-    expect(src).not.toContain('collection-first');
+    expect(src).toContain('buildCollectionsFromForms');
+    expect(src).toContain('buildModulesFromCollectionForms');
+    expect(src).toContain('collection-card-');
+    expect(src).toContain('module-card-');
   });
 });

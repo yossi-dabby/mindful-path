@@ -238,39 +238,29 @@ describe('Stage groups — worksheet membership per stage', () => {
   });
 });
 
-// ─── TherapeuticForms.jsx — stage group filtering source-code contract ─────────
+// ─── TherapeuticForms.jsx — collection-first source-code contract ──────────────
 
-describe('TherapeuticForms.jsx — stage group UI display source-code contract', () => {
+describe('TherapeuticForms.jsx — collection-first UI source-code contract', () => {
   const pageSrc = fs.readFileSync(path.join(ROOT, 'src/pages/TherapeuticForms.jsx'), 'utf8');
 
-  it('imports FORMS_ADOLESCENTS_CBT_CORE_EN_STAGE_GROUPS from canonical forms source', () => {
-    expect(pageSrc).toContain('FORMS_ADOLESCENTS_CBT_CORE_EN_STAGE_GROUPS');
-    expect(pageSrc).toContain('forms.adolescents.cbt-core.en.js');
+  it('uses generated catalog grouping helpers instead of static stage-group imports', () => {
+    expect(pageSrc).toContain('buildCollectionsFromForms');
+    expect(pageSrc).toContain('buildModulesFromCollectionForms');
   });
 
-  it('imports FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL from canonical forms source', () => {
-    expect(pageSrc).toContain('FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL');
+  it('keeps strict language-based visibility checks', () => {
+    expect(pageSrc).toContain('form.languages?.[normalizedLang]');
+    expect(pageSrc).toContain('form.language && form.language !== lang');
   });
 
-  it('filters stage groups only for lang === en', () => {
-    expect(pageSrc).toContain("normalizedLang === 'en'");
+  it('renders collection/module/worksheet drill-in views', () => {
+    expect(pageSrc).toContain('collections-grid');
+    expect(pageSrc).toContain('modules-grid');
+    expect(pageSrc).toContain('worksheets-grid');
   });
 
-  it('filters stage groups by audience', () => {
-    expect(pageSrc).toContain('sg.audience === audience');
-  });
-
-  it('individual_worksheet type is excluded from top-level card display', () => {
-    expect(pageSrc).toContain("type !== 'individual_worksheet'");
-  });
-
-  it('stage_group type triggers worksheet list rendering', () => {
-    expect(pageSrc).toContain("form.type === 'stage_group'");
-    expect(pageSrc).toContain('worksheets.map');
-  });
-
-  it('Open/Download buttons are gated on languageData.file_url — stage groups get worksheet buttons instead', () => {
-    expect(pageSrc).toContain('languageData.file_url');
+  it('shows combined PDF card separately in worksheet drill-in', () => {
+    expect(pageSrc).toContain('combined-pdf-card');
   });
 });
 
