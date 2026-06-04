@@ -16,6 +16,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
 import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
 import {
@@ -29,7 +30,7 @@ import {
   resolveChildrenCBTCoreEnglishFormByContent,
 } from '../../src/utils/resolveFormIntent.js';
 
-const ROOT = path.resolve('/home/runner/work/mindful-path/mindful-path');
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 // ─── 1. Registry structure ──────────────────────────────────────────────────
 describe('Children CBT Core EN — registry structure', () => {

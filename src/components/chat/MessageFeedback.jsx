@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
 import { ThumbsUp, ThumbsDown } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 export default function MessageFeedback({ conversationId, messageIndex, agentName, context }) {
   const [feedback, setFeedback] = useState(null);
