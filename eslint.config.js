@@ -6,7 +6,14 @@ import pluginUnusedImports from "eslint-plugin-unused-imports";
 
 export default [
   {
-    ignores: ["**/*.md.jsx", "**/*.json.jsx"],
+    ignores: [
+      "**/*.md.jsx",
+      "**/*.json.jsx",
+      "dist/**",
+      "build/**",
+      "coverage/**",
+      "node_modules/**",
+    ],
   },
   {
     files: [
