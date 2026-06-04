@@ -255,7 +255,7 @@ function buildCuratedEntries(manifestByFileUrl) {
         stageNumber: form.stageNumber ?? form.moduleNumber ?? manifestMeta.module_number ?? null,
         moduleNumber: form.moduleNumber ?? manifestMeta.module_number ?? null,
         moduleCode: form.moduleCode || null,
-        moduleTitle: form.stageTitle || manifestMeta.module_title || null,
+        moduleTitle: form.moduleTitle || form.stageTitle || manifestMeta.module_title || null,
         stageTitle: form.stageTitle || null,
         pageNumberInWorkbook: form.pageNumberInWorkbook ?? null,
         series: form.series || null,
@@ -279,7 +279,7 @@ function buildCuratedEntries(manifestByFileUrl) {
         // Canonical normalized fields (snake_case)
         worksheet_number: form.formNumber || manifestMeta.worksheet_number || null,
         module_number: form.moduleNumber ?? manifestMeta.module_number ?? null,
-        module_title: form.stageTitle || manifestMeta.module_title || null,
+        module_title: form.moduleTitle || form.stageTitle || manifestMeta.module_title || null,
         therapeutic_goal: form.therapeuticGoal || manifestMeta.therapeutic_goal || null,
         when_to_use: form.whenToUse || manifestMeta.when_to_use || null,
         keywords: Array.isArray(form.clinicalKeywords) ? form.clinicalKeywords : manifestMeta.keywords || [],
