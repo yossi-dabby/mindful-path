@@ -1,0 +1,8 @@
+QA REPORT - HE Specific Phobias short package
+Created: 2026-06-02T08:20:11
+Purpose: Short-path Git upload package for Windows extraction.
+Files: 10 individual A4 PDFs + all.pdf combined + manifest/README.
+Internal ZIP root: sp_he/
+Max internal path length: 21
+Total folder size: 7.24 MB
+ZIP size: 5.82 MB
