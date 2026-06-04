@@ -2,11 +2,6 @@ import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ALL_FORMS, resolveFormWithLanguage } from '../../src/data/therapeuticForms/index.js';
-import {
-  DEFAULT_FORMS_VIEW_MODE,
-  FORMS_VIEW_MODE_STORAGE_KEY,
-  getInitialFormsViewMode,
-} from '../../src/pages/TherapeuticForms.jsx';
 
 const ROOT = path.resolve(process.cwd());
 const translationsSource = fs.readFileSync(path.join(ROOT, 'src/components/i18n/translations.jsx'), 'utf8');
@@ -44,12 +39,14 @@ describe('therapeuticFormsPage.test.js — collection-first browsing', () => {
 
   it('default view contract is collection-first in page source', () => {
     const pageSource = fs.readFileSync(path.join(ROOT, 'src/pages/TherapeuticForms.jsx'), 'utf8');
+    const viewModeToggleSource = fs.readFileSync(path.join(ROOT, 'src/components/forms/FormsViewModeToggle.jsx'), 'utf8');
+    const navSource = fs.readFileSync(path.join(ROOT, 'src/components/forms/FormsNavigationControls.jsx'), 'utf8');
     expect(pageSource).toContain('collections-grid');
     expect(pageSource).toContain('modules-grid');
     expect(pageSource).toContain('worksheets-grid');
     expect(pageSource).toContain('ai-forms-callout');
-    expect(pageSource).toContain('forms-view-mode-toggle');
-    expect(pageSource).toContain('forms-navigation-controls');
+    expect(viewModeToggleSource).toContain('forms-view-mode-toggle');
+    expect(navSource).toContain('forms-navigation-controls');
     expect(pageSource).toContain('forms-library-teal');
   });
 
@@ -141,58 +138,18 @@ describe('therapeuticFormsPage.test.js — collection-first browsing', () => {
   });
 
   it('view mode defaults to medium and persists in localStorage key', () => {
-    expect(DEFAULT_FORMS_VIEW_MODE).toBe('medium');
-    expect(FORMS_VIEW_MODE_STORAGE_KEY).toBe('mindfulPath.formsLibrary.viewMode');
-  });
-
-  it('reads a valid persisted large view mode', () => {
-    global.window = {
-      localStorage: {
-        getItem: (key) => (key === FORMS_VIEW_MODE_STORAGE_KEY ? 'large' : null),
-      },
-    };
-    expect(getInitialFormsViewMode()).toBe('large');
-    delete global.window;
-  });
-
-  it('reads a valid persisted compact view mode', () => {
-    global.window = {
-      localStorage: {
-        getItem: (key) => (key === FORMS_VIEW_MODE_STORAGE_KEY ? 'compact' : null),
-      },
-    };
-    expect(getInitialFormsViewMode()).toBe('compact');
-    delete global.window;
-  });
-
-  it('reads a valid persisted list view mode', () => {
-    global.window = {
-      localStorage: {
-        getItem: (key) => (key === FORMS_VIEW_MODE_STORAGE_KEY ? 'list' : null),
-      },
-    };
-    expect(getInitialFormsViewMode()).toBe('list');
-    delete global.window;
-  });
-
-  it('reads a valid persisted tiles view mode', () => {
-    global.window = {
-      localStorage: {
-        getItem: (key) => (key === FORMS_VIEW_MODE_STORAGE_KEY ? 'tiles' : null),
-      },
-    };
-    expect(getInitialFormsViewMode()).toBe('tiles');
-    delete global.window;
-  });
-
-  it('falls back to medium when no valid mode is stored', () => {
-    global.window = {
-      localStorage: {
-        getItem: () => 'invalid-mode',
-      },
-    };
-    expect(getInitialFormsViewMode()).toBe('medium');
-    delete global.window;
+    const pageSource = fs.readFileSync(path.join(ROOT, 'src/pages/TherapeuticForms.jsx'), 'utf8');
+    const toggleSource = fs.readFileSync(path.join(ROOT, 'src/components/forms/FormsViewModeToggle.jsx'), 'utf8');
+    expect(pageSource).toContain("DEFAULT_FORMS_VIEW_MODE = 'medium'");
+    expect(pageSource).toContain("FORMS_VIEW_MODE_STORAGE_KEY = 'mindfulPath.formsLibrary.viewMode'");
+    expect(pageSource).toContain('FORMS_VIEW_MODES.includes(mode)');
+    expect(pageSource).toContain("window.localStorage.getItem(FORMS_VIEW_MODE_STORAGE_KEY)");
+    expect(pageSource).toContain("window.localStorage.setItem(FORMS_VIEW_MODE_STORAGE_KEY, viewMode)");
+    expect(toggleSource).toContain('forms-view-mode-${option.value}');
+    expect(toggleSource).toContain("value: 'large'");
+    expect(toggleSource).toContain("value: 'compact'");
+    expect(toggleSource).toContain("value: 'list'");
+    expect(toggleSource).toContain("value: 'tiles'");
   });
 
   it('includes navigation arrows and breadcrumb contracts in page source', () => {

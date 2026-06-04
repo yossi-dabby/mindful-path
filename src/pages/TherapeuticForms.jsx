@@ -20,7 +20,7 @@ const COLLECTION_TYPE_ORDER = { core: 0, specialized: 1 };
 export const FORMS_VIEW_MODE_STORAGE_KEY = 'mindfulPath.formsLibrary.viewMode';
 export const DEFAULT_FORMS_VIEW_MODE = 'medium';
 
-function isValidFormsViewMode(mode) {
+function isValidViewMode(mode) {
   return FORMS_VIEW_MODES.includes(mode);
 }
 
@@ -28,7 +28,7 @@ export function getInitialFormsViewMode() {
   if (typeof window === 'undefined') return DEFAULT_FORMS_VIEW_MODE;
   try {
     const stored = window.localStorage.getItem(FORMS_VIEW_MODE_STORAGE_KEY);
-    return isValidFormsViewMode(stored) ? stored : DEFAULT_FORMS_VIEW_MODE;
+    return isValidViewMode(stored) ? stored : DEFAULT_FORMS_VIEW_MODE;
   } catch {
     return DEFAULT_FORMS_VIEW_MODE;
   }
@@ -339,7 +339,7 @@ export default function TherapeuticForms() {
     index: 0,
   });
 
-  const syncNavCurrent = (collectionId, moduleId) => {
+  const updateCurrentNavigationState = (collectionId, moduleId) => {
     setNavigationState((previous) => {
       const current = previous.history[previous.index] || { collectionId: null, moduleId: null };
       if (current.collectionId === collectionId && current.moduleId === moduleId) return previous;
@@ -424,7 +424,7 @@ export default function TherapeuticForms() {
     if (!filteredCollections.some((collection) => collection.collectionId === selectedCollectionId)) {
       setSelectedCollectionId(null);
       setSelectedModuleId(null);
-      syncNavCurrent(null, null);
+      updateCurrentNavigationState(null, null);
     }
   }, [filteredCollections, selectedCollectionId]);
 
@@ -442,7 +442,7 @@ export default function TherapeuticForms() {
     if (!selectedModuleId) return;
     if (!modules.some((module) => module.id === selectedModuleId)) {
       setSelectedModuleId(null);
-      syncNavCurrent(selectedCollectionId, null);
+      updateCurrentNavigationState(selectedCollectionId, null);
     }
   }, [modules, selectedCollectionId, selectedModuleId]);
 
