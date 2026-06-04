@@ -169,11 +169,17 @@ describe('therapeutic forms index generator validation', () => {
       displayOrder: null,
       isCombinedPdf: null,
     });
-    expect(() => validateEntries([broken])).toThrow(/missing collectionId/);
-    expect(() => validateEntries([broken])).toThrow(/invalid collectionType/);
-    expect(() => validateEntries([broken])).toThrow(/invalid cardType/);
-    expect(() => validateEntries([broken])).toThrow(/missing numeric displayOrder/);
-    expect(() => validateEntries([broken])).toThrow(/missing boolean isCombinedPdf/);
+    let thrown;
+    try {
+      validateEntries([broken]);
+    } catch (error) {
+      thrown = String(error?.message || '');
+    }
+    expect(thrown).toMatch(/missing collectionId/);
+    expect(thrown).toMatch(/invalid collectionType/);
+    expect(thrown).toMatch(/invalid cardType/);
+    expect(thrown).toMatch(/missing numeric displayOrder/);
+    expect(thrown).toMatch(/missing boolean isCombinedPdf/);
   });
 
   it('fails when individual worksheet is not mapped to worksheet cardType', () => {
