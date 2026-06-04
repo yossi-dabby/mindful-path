@@ -63,14 +63,16 @@ describe('therapeuticFormsChildrenCBTSpecialized.test.js', () => {
     expect(module15?.name).toContain('01_05_specific_phobias_full.pdf');
   });
 
-  it('shows specialized forms in English mode and hides them in Hebrew mode', () => {
+  it('shows specialized forms in English mode and isolates English specialized forms from Hebrew mode', () => {
     const english = getTherapeuticFormsForAI({ language: 'en', audience: 'children' })
       .filter((form) => form.category === SPECIALIZED_CATEGORY);
     const hebrew = getTherapeuticFormsForAI({ language: 'he', audience: 'children' })
       .filter((form) => form.category === SPECIALIZED_CATEGORY);
 
     expect(english).toHaveLength(165);
-    expect(hebrew).toHaveLength(0);
+    expect(english.every((form) => form.language === 'en')).toBe(true);
+    expect(hebrew).toHaveLength(121);
+    expect(hebrew.every((form) => form.language === 'he')).toBe(true);
   });
 
   it('keeps audience guard: visible for children, excluded for adults/adolescents', () => {

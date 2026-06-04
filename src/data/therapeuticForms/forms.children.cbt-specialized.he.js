@@ -466,8 +466,8 @@ const MODULE_DEFINITIONS = Object.freeze([
     "combinedFileUrl": "/forms/children_cbt_specialized_he_5.3_enuresis_stress_support/children_cbt_specialized_he_5.3_enuresis_encopresis_stress_support_combined.pdf",
     "secondaryCategories": [
       "coping_tools",
-      "parent_guidance",
-      "emotional_regulation"
+      "emotional_regulation",
+      "weekly_practice"
     ],
     "therapeuticGoal": "לעזור לילדים ולהורים לדבר על הרטבה או לכלוך בלי בושה, לזהות סימני גוף ולבנות שגרה רגועה ותומכת סביב למידה ושליטה בגוף.",
     "whenToUse": "מתאים להרטבה, לכלוך, בושה סביב פספוסים, צורך בתמיכת הורה ושפה רגועה סביב שליטה בגוף ולמידה הדרגתית.",
