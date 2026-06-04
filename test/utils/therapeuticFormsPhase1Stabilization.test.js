@@ -107,18 +107,24 @@ describe('Phase 1 — adolescents_cbt_specialized_he moduleTitle fix', () => {
     expect(titles.size).toBe(10);
   });
 
-  it('expected Hebrew module titles are present in the generated index', () => {
+  it('all 10 expected Hebrew module titles are present in the generated index', () => {
     const expectedTitles = [
-      'חרדה, לחץ ופחדים',
-      'מצב רוח, תפקוד ואנרגיה',
-      'דימוי עצמי וזהות',
-      'חברה, שייכות וקונפליקטים',
-      'כעס, אימפולסיביות וויסות',
+      'חרדה, לחץ ופחדים',                        // module 01
+      'מצב רוח, תפקוד ואנרגיה',                  // module 02
+      'דימוי עצמי וזהות',                         // module 03
+      'חברה, שייכות וקונפליקטים',                // module 04
+      'כעס, אימפולסיביות וויסות',                // module 05
+      'OCD, מחשבות חודרניות ותגובות חדשות',      // module 06
+      'ADHD, קשב, ארגון ואימפולסיביות',           // module 07
+      'גוף, שינה ולחץ',                           // module 08
+      'טראומה והתמודדות בטוחה',                  // module 09
+      'הורים ומתבגרים',                           // module 10
     ];
     const actualTitles = new Set(heSpecialized.map((f) => f.moduleTitle));
     for (const title of expectedTitles) {
       expect(actualTitles.has(title), `Missing module title: ${title}`).toBe(true);
     }
+    expect(actualTitles.size).toBe(expectedTitles.length);
   });
 });
 
@@ -180,6 +186,9 @@ describe('Phase 1 — AI retrieval regression', () => {
 });
 
 // ── 5. Open/download behavior — source-code contract unchanged ────────────────
+// Source-level verification is intentional here: the problem statement requires
+// confirming no open/download behavior changed without running a browser. Regex
+// on source is the only available non-browser mechanism for these contracts.
 
 describe('Phase 1 — open/download behavior unchanged', () => {
   it('openFile.js source is unchanged — uses window.open / Blob URL pattern', () => {
@@ -204,6 +213,8 @@ describe('Phase 1 — open/download behavior unchanged', () => {
 });
 
 // ── 6. No redesign — TherapeuticForms.jsx unchanged ─────────────────────────
+// Source-level check is intentional: verifies no collection-dashboard wrapper
+// was accidentally introduced as part of Phase 1 changes.
 
 describe('Phase 1 — no redesign', () => {
   it('TherapeuticForms.jsx still uses flat grid (no collection dashboard added)', () => {
