@@ -219,7 +219,7 @@ describe('Phase 1 baseline + Phase 3 UI contracts', () => {
     const src = fs.readFileSync(path.join(ROOT, 'src/pages/TherapeuticForms.jsx'), 'utf8');
     expect(src).toContain('buildCollectionsFromForms');
     expect(src).toContain('buildModulesFromCollectionForms');
-    expect(src).toContain('collection-card-');
-    expect(src).toContain('module-card-');
+    expect(src).toContain('FormsCollectionCard');
+    expect(src).toContain('FormsModuleCard');
   });
 });

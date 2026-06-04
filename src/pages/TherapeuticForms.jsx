@@ -261,7 +261,11 @@ function formatClinicalDomain(clinicalDomain) {
   if (!clinicalDomain) return '';
   return String(clinicalDomain)
     .split('_')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .map((part) => {
+      const lower = part.toLowerCase();
+      if (lower === 'cbt') return 'CBT';
+      return lower.charAt(0).toUpperCase() + lower.slice(1);
+    })
     .join(' ');
 }
 
