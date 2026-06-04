@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Activity, Moon, Heart, TrendingUp } from 'lucide-react';
+import { Plus, Activity, Moon, Heart } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import HealthDataForm from './HealthDataForm';
 import PullToRefresh from '@/components/utils/PullToRefresh';

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
-import { cn } from "@/lib/utils";
 import { Menu, X, Users, BookOpen, Settings } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerClose, DrawerOverlay, DrawerPortal } from '@/components/ui/drawer';
 import { useTranslation } from 'react-i18next';

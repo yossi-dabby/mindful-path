@@ -10,7 +10,6 @@ import AuthErrorBanner from '../components/utils/AuthErrorBanner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Plus, Target, Calendar as CalendarIcon, Sparkles, Lightbulb, Clock, LayoutGrid } from 'lucide-react';
-import { createPageUrl } from '../utils';
 import GoalForm from '../components/goals/GoalForm';
 import GoalCard from '../components/goals/GoalCard';
 import GoalCalendar from '../components/goals/GoalCalendar';

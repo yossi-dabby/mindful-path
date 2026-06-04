@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Upload, CheckCircle, XCircle, AlertTriangle, FlaskConical, Database } from 'lucide-react';
+import { Upload, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import smokeBatch from '@/data/trusted-cbt-batch-1.smoke.base44.json';
 import fullBatch from '@/data/trusted-cbt-batch-1.base44.json';
