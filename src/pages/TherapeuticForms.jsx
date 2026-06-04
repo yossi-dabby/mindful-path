@@ -11,9 +11,39 @@ import FormsCollectionCard from '@/components/forms/FormsCollectionCard';
 import FormsModuleCard from '@/components/forms/FormsModuleCard';
 import FormsWorksheetCard from '@/components/forms/FormsWorksheetCard';
 import FormsBreadcrumb from '@/components/forms/FormsBreadcrumb';
+import FormsViewModeToggle, { FORMS_VIEW_MODES } from '@/components/forms/FormsViewModeToggle';
+import FormsNavigationControls from '@/components/forms/FormsNavigationControls';
+import FormsCombinedPdfCard from '@/components/forms/FormsCombinedPdfCard';
 
 const AUDIENCE_ORDER = ['children', 'adolescents', 'adults', 'older_adults'];
 const COLLECTION_TYPE_ORDER = { core: 0, specialized: 1 };
+export const FORMS_VIEW_MODE_STORAGE_KEY = 'mindfulPath.formsLibrary.viewMode';
+export const DEFAULT_FORMS_VIEW_MODE = 'medium';
+
+function isValidFormsViewMode(mode) {
+  return FORMS_VIEW_MODES.includes(mode);
+}
+
+export function getInitialFormsViewMode() {
+  if (typeof window === 'undefined') return DEFAULT_FORMS_VIEW_MODE;
+  try {
+    const stored = window.localStorage.getItem(FORMS_VIEW_MODE_STORAGE_KEY);
+    return isValidFormsViewMode(stored) ? stored : DEFAULT_FORMS_VIEW_MODE;
+  } catch {
+    return DEFAULT_FORMS_VIEW_MODE;
+  }
+}
+
+function getGridClassForViewMode(viewMode) {
+  const gridByMode = {
+    large: 'grid grid-cols-1 md:grid-cols-2 gap-8',
+    medium: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6',
+    compact: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3',
+    list: 'grid grid-cols-1 gap-3',
+    tiles: 'grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3',
+  };
+  return gridByMode[viewMode] || gridByMode.medium;
+}
 
 export function normalizeLanguageCode(language) {
   if (typeof language !== 'string' || !language.trim()) return 'en';
@@ -300,9 +330,79 @@ export default function TherapeuticForms() {
   const collections = useMemo(() => buildCollectionsFromForms(visibleForms), [visibleForms]);
   const availableAudiences = useMemo(() => getAudienceOptionsFromCollections(collections), [collections]);
 
+  const [viewMode, setViewMode] = useState(getInitialFormsViewMode);
   const [selectedAudience, setSelectedAudience] = useState(null);
   const [selectedCollectionId, setSelectedCollectionId] = useState(null);
   const [selectedModuleId, setSelectedModuleId] = useState(null);
+  const [navigationState, setNavigationState] = useState({
+    history: [{ collectionId: null, moduleId: null }],
+    index: 0,
+  });
+
+  const syncNavCurrent = (collectionId, moduleId) => {
+    setNavigationState((previous) => {
+      const current = previous.history[previous.index] || { collectionId: null, moduleId: null };
+      if (current.collectionId === collectionId && current.moduleId === moduleId) return previous;
+      const nextHistory = [...previous.history];
+      nextHistory[previous.index] = { collectionId, moduleId };
+      return { ...previous, history: nextHistory };
+    });
+  };
+
+  const pushNavState = (collectionId, moduleId) => {
+    const nextState = { collectionId, moduleId };
+    setNavigationState((previous) => {
+      const trimmed = previous.history.slice(0, previous.index + 1);
+      const last = trimmed[trimmed.length - 1];
+      if (last?.collectionId === nextState.collectionId && last?.moduleId === nextState.moduleId) return previous;
+      const nextHistory = [...trimmed, nextState];
+      return { history: nextHistory, index: nextHistory.length - 1 };
+    });
+  };
+
+  const resetNavState = () => {
+    setNavigationState({
+      history: [{ collectionId: null, moduleId: null }],
+      index: 0,
+    });
+  };
+
+  const navigateToCollection = (collectionId) => {
+    setSelectedCollectionId(collectionId);
+    setSelectedModuleId(null);
+    pushNavState(collectionId, null);
+  };
+
+  const navigateToModule = (moduleId) => {
+    setSelectedModuleId(moduleId);
+    pushNavState(selectedCollectionId, moduleId);
+  };
+
+  const handleNavBack = () => {
+    if (navigationState.index <= 0) return;
+    const nextIndex = navigationState.index - 1;
+    const target = navigationState.history[nextIndex];
+    setNavigationState((previous) => ({ ...previous, index: nextIndex }));
+    setSelectedCollectionId(target?.collectionId ?? null);
+    setSelectedModuleId(target?.moduleId ?? null);
+  };
+
+  const handleNavForward = () => {
+    if (navigationState.index >= navigationState.history.length - 1) return;
+    const nextIndex = navigationState.index + 1;
+    const target = navigationState.history[nextIndex];
+    setNavigationState((previous) => ({ ...previous, index: nextIndex }));
+    setSelectedCollectionId(target?.collectionId ?? null);
+    setSelectedModuleId(target?.moduleId ?? null);
+  };
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(FORMS_VIEW_MODE_STORAGE_KEY, viewMode);
+    } catch {
+      // no-op
+    }
+  }, [viewMode]);
 
   useEffect(() => {
     if (!availableAudiences.length) {
@@ -324,6 +424,7 @@ export default function TherapeuticForms() {
     if (!filteredCollections.some((collection) => collection.collectionId === selectedCollectionId)) {
       setSelectedCollectionId(null);
       setSelectedModuleId(null);
+      syncNavCurrent(null, null);
     }
   }, [filteredCollections, selectedCollectionId]);
 
@@ -341,8 +442,9 @@ export default function TherapeuticForms() {
     if (!selectedModuleId) return;
     if (!modules.some((module) => module.id === selectedModuleId)) {
       setSelectedModuleId(null);
+      syncNavCurrent(selectedCollectionId, null);
     }
-  }, [modules, selectedModuleId]);
+  }, [modules, selectedCollectionId, selectedModuleId]);
 
   const selectedModule = useMemo(
     () => modules.find((module) => module.id === selectedModuleId) || null,
@@ -368,6 +470,7 @@ export default function TherapeuticForms() {
       onClick: selectedCollection ? () => {
         setSelectedCollectionId(null);
         setSelectedModuleId(null);
+        pushNavState(null, null);
       } : null,
     },
   ];
@@ -376,7 +479,10 @@ export default function TherapeuticForms() {
     const selectedCollectionCard = collectionCards.find((collection) => collection.collectionId === selectedCollection.collectionId);
     breadcrumbs.push({
       label: selectedCollectionCard?.title || (lang === 'he' ? 'סדרה' : 'Collection'),
-      onClick: selectedModule ? () => setSelectedModuleId(null) : null,
+      onClick: selectedModule ? () => {
+        setSelectedModuleId(null);
+        pushNavState(selectedCollection.collectionId, null);
+      } : null,
     });
   }
 
@@ -406,29 +512,42 @@ export default function TherapeuticForms() {
     ? 'לא בטוחים איזה טופס לבחור? אפשר לבקש מהמטפל ב־AI להמליץ על הטופס המתאים לפי הצורך.'
     : 'Not sure which form to choose? Ask the AI therapist to recommend the right worksheet based on the client’s need.';
 
+  const canGoBack = navigationState.index > 0;
+  const canGoForward = navigationState.index < navigationState.history.length - 1;
+
   return (
-    <div className="mx-auto p-4 w-full box-border md:p-8 max-w-7xl min-h-dvh safe-bottom" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className="forms-library-teal mx-auto p-4 w-full box-border md:p-8 max-w-7xl min-h-dvh safe-bottom bg-teal-100/40" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="mb-8 mt-4">
-        <h1 className="text-3xl md:text-4xl font-semibold mb-2 flex items-center gap-3 text-foreground">
-          <ClipboardList className="w-8 h-8 text-primary" />
+        <h1 className="text-3xl md:text-4xl font-semibold mb-2 flex items-center gap-3 text-teal-600">
+          <ClipboardList className="w-8 h-8 text-teal-600" />
           {t('therapeutic_forms.page_title')}
         </h1>
-        <p className="text-muted-foreground">{t('therapeutic_forms.page_subtitle')}</p>
+        <p className="text-foreground">{t('therapeutic_forms.page_subtitle')}</p>
       </div>
 
-      <div className="mb-6 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm text-foreground" data-testid="ai-forms-callout">
+      <div className="mb-6 rounded-lg border border-teal-300 bg-white p-4 text-sm text-foreground" data-testid="ai-forms-callout">
         <p>
           {calloutText}{' '}
-          <Link className="underline underline-offset-2" to="/Chat">
+          <Link className="underline underline-offset-2 text-teal-600 hover:text-teal-500" to="/Chat">
             {lang === 'he' ? 'לצ׳אט' : 'Go to chat'}
           </Link>
         </p>
       </div>
 
+      <FormsNavigationControls
+        canGoBack={canGoBack}
+        canGoForward={canGoForward}
+        onBack={handleNavBack}
+        onForward={handleNavForward}
+        isRtl={isRtl}
+        lang={lang}
+      />
       <FormsBreadcrumb items={breadcrumbs} isRtl={isRtl} />
 
-      <div className="mb-6">
-        <p className="text-sm font-medium mb-2 text-foreground">{t('therapeutic_forms.filter_audience')}</p>
+      <FormsViewModeToggle viewMode={viewMode} onChange={setViewMode} isRtl={isRtl} lang={lang} />
+
+      <div className="mb-6 rounded-[var(--radius-card)] border border-teal-200 bg-white p-4">
+        <p className="text-sm font-medium mb-2 text-teal-600">{t('therapeutic_forms.filter_audience')}</p>
         <div className="flex flex-wrap gap-2" data-testid="audience-filter">
           {audienceButtons.map((option) => (
             <Button
@@ -436,10 +555,12 @@ export default function TherapeuticForms() {
               type="button"
               size="sm"
               variant={selectedAudience === option.value ? 'default' : 'outline'}
+              className={selectedAudience === option.value ? 'bg-teal-600 hover:bg-teal-500 text-white border-teal-600' : 'border-teal-300 text-teal-600 hover:bg-teal-100'}
               onClick={() => {
                 setSelectedAudience(option.value);
                 setSelectedCollectionId(null);
                 setSelectedModuleId(null);
+                resetNavState();
               }}
               data-testid={`audience-filter-${option.value}`}
             >
@@ -453,14 +574,14 @@ export default function TherapeuticForms() {
         collectionCards.length === 0 ? (
           <div
             data-testid="empty-state"
-            className="text-center py-12 surface-secondary rounded-[var(--radius-card)] border-border/70 shadow-[var(--shadow-md)]"
+            className="text-center py-12 surface-secondary rounded-[var(--radius-card)] border border-teal-200 bg-white shadow-[var(--shadow-md)]"
           >
-            <ClipboardList className="w-16 h-16 mx-auto mb-4 text-primary/40" />
+            <ClipboardList className="w-16 h-16 mx-auto mb-4 text-teal-300" />
             <p className="mb-2 text-foreground">{t('therapeutic_forms.empty_state.title')}</p>
             <p className="text-sm text-muted-foreground">{t('therapeutic_forms.empty_state.message')}</p>
           </div>
         ) : (
-          <div data-testid="collections-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div data-testid="collections-grid" className={getGridClassForViewMode(viewMode)}>
             {collectionCards.map((collection) => (
               <FormsCollectionCard
                 key={collection.collectionId}
@@ -469,19 +590,20 @@ export default function TherapeuticForms() {
                 languageLabel={String(collection.language || '').toUpperCase()}
                 collectionTypeLabel={lang === 'he' ? (collection.collectionType === 'core' ? 'ליבה' : 'ייעודי') : (collection.collectionType === 'core' ? 'Core' : 'Specialized')}
                 browseLabel={lang === 'he' ? 'עיין בסדרה' : 'Browse'}
-                onBrowse={() => setSelectedCollectionId(collection.collectionId)}
+                onBrowse={() => navigateToCollection(collection.collectionId)}
+                viewMode={viewMode}
               />
             ))}
           </div>
         )
       ) : !selectedModule ? (
         modules.length === 0 ? (
-          <div data-testid="empty-state" className="text-center py-12 rounded-[var(--radius-card)] border border-border/70">
+          <div data-testid="empty-state" className="text-center py-12 rounded-[var(--radius-card)] border border-teal-200 bg-white">
             <p className="text-foreground">{t('therapeutic_forms.empty_state.title')}</p>
             <p className="text-sm text-muted-foreground">{t('therapeutic_forms.empty_state.message')}</p>
           </div>
         ) : (
-          <div data-testid="modules-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div data-testid="modules-grid" className={getGridClassForViewMode(viewMode)}>
             {modules.map((module) => (
               <FormsModuleCard
                 key={module.id}
@@ -489,16 +611,18 @@ export default function TherapeuticForms() {
                   ...module,
                   clinicalDomainLabel: lang === 'he' ? '' : formatClinicalDomain(module.clinicalDomain),
                   numberLabel: module.numberLabel,
+                  typeLabel: lang === 'he' ? 'מודול' : 'Module',
                 }}
                 showClinicalDomain={lang !== 'he'}
                 viewWorksheetsLabel={lang === 'he' ? 'הצג טפסים' : 'View worksheets'}
                 openLabel={t('therapeutic_forms.open_form')}
                 downloadLabel={t('therapeutic_forms.download_form')}
-                onViewWorksheets={() => setSelectedModuleId(module.id)}
+                onViewWorksheets={() => navigateToModule(module.id)}
                 onOpenCombined={() => module.combinedForm && handleOpenForm(module.combinedForm.languageData.file_url)}
                 onDownloadCombined={() =>
                   module.combinedForm && handleDownloadForm(module.combinedForm.languageData.file_url, module.combinedForm.languageData.file_name)
                 }
+                viewMode={viewMode}
               />
             ))}
           </div>
@@ -506,32 +630,21 @@ export default function TherapeuticForms() {
       ) : (
         <div className="space-y-6" data-testid="worksheets-view">
           {selectedModule.combinedForm ? (
-            <div
-              data-testid="combined-pdf-card"
-              className="rounded-[var(--radius-card)] border border-primary/20 bg-primary/5 p-4 flex flex-wrap items-center gap-3"
-            >
-              <span className="font-medium text-foreground">{lang === 'he' ? 'PDF משולב' : 'Combined PDF'}</span>
-              <Button type="button" size="sm" onClick={() => handleOpenForm(selectedModule.combinedForm.languageData.file_url)}>
-                {t('therapeutic_forms.open_form')}
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="secondary"
-                onClick={() => handleDownloadForm(selectedModule.combinedForm.languageData.file_url, selectedModule.combinedForm.languageData.file_name)}
-              >
-                {t('therapeutic_forms.download_form')}
-              </Button>
-            </div>
+            <FormsCombinedPdfCard
+              lang={lang}
+              viewMode={viewMode}
+              onOpen={() => handleOpenForm(selectedModule.combinedForm.languageData.file_url)}
+              onDownload={() => handleDownloadForm(selectedModule.combinedForm.languageData.file_url, selectedModule.combinedForm.languageData.file_name)}
+            />
           ) : null}
 
           {selectedModule.worksheetEntries.length === 0 ? (
-            <div data-testid="empty-state" className="text-center py-12 rounded-[var(--radius-card)] border border-border/70">
+            <div data-testid="empty-state" className="text-center py-12 rounded-[var(--radius-card)] border border-teal-200 bg-white">
               <p className="text-foreground">{t('therapeutic_forms.empty_state.title')}</p>
               <p className="text-sm text-muted-foreground">{t('therapeutic_forms.empty_state.message')}</p>
             </div>
           ) : (
-            <div data-testid="worksheets-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div data-testid="worksheets-grid" className={getGridClassForViewMode(viewMode)}>
               {selectedModule.worksheetEntries.map((worksheet) => (
                 <FormsWorksheetCard
                   key={worksheet.form.id}
@@ -543,6 +656,9 @@ export default function TherapeuticForms() {
                   downloadLabel={t('therapeutic_forms.download_form')}
                   onOpen={() => handleOpenForm(worksheet.languageData.file_url)}
                   onDownload={() => handleDownloadForm(worksheet.languageData.file_url, worksheet.languageData.file_name)}
+                  viewMode={viewMode}
+                  typeLabel={lang === 'he' ? 'טופס' : 'Worksheet'}
+                  stageLabel={selectedModule.numberLabel}
                 />
               ))}
             </div>
