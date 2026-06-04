@@ -32,7 +32,7 @@ describe('therapeutic forms generated index parity', () => {
   it('loads canonical generated index and exposes it via ALL_FORMS', () => {
     expect(Array.isArray(generatedFormsIndex)).toBe(true);
     expect(generatedFormsIndex.length).toBeGreaterThan(0);
-    expect(generatedFormsIndex).toHaveLength(372);
+    expect(generatedFormsIndex).toHaveLength(493);
     expect(ALL_FORMS).toHaveLength(generatedFormsIndex.length);
   });
 
@@ -102,6 +102,9 @@ describe('therapeutic forms generated index parity', () => {
       '/forms/module-08/',
       '/forms/module-09/',
       '/forms/module_10/',
+      '/forms/children_cbt_specialized_en_2.1_anger/',
+      '/forms/children_cbt_specialized_en_2.2_odd/',
+      '/forms/children_cbt_specialized_en_5.2_psychosomatic_complaints/',
     ];
 
     const allPdfs = walk(PUBLIC_FORMS_DIR)
