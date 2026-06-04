@@ -32,7 +32,41 @@ describe('therapeutic forms generated index parity', () => {
   it('loads canonical generated index and exposes it via ALL_FORMS', () => {
     expect(Array.isArray(generatedFormsIndex)).toBe(true);
     expect(generatedFormsIndex.length).toBeGreaterThan(0);
+    expect(generatedFormsIndex).toHaveLength(372);
     expect(ALL_FORMS).toHaveLength(generatedFormsIndex.length);
+  });
+
+  it('includes phase-2 hierarchy metadata on every generated form', () => {
+    const validCollectionTypes = new Set(['core', 'specialized', 'unknown']);
+    const validCardTypes = new Set(['collection', 'module', 'worksheet', 'combined_pdf', 'workbook_package']);
+
+    for (const form of generatedFormsIndex) {
+      expect(typeof form.collectionId).toBe('string');
+      expect(form.collectionId.length).toBeGreaterThan(0);
+      expect(validCollectionTypes.has(form.collectionType)).toBe(true);
+      expect(validCardTypes.has(form.cardType)).toBe(true);
+      expect(typeof form.displayOrder).toBe('number');
+      expect(Number.isFinite(form.displayOrder)).toBe(true);
+      expect(typeof form.isCombinedPdf).toBe('boolean');
+    }
+  });
+
+  it('keeps type-to-card metadata mappings for worksheet and combined pdfs', () => {
+    for (const form of generatedFormsIndex) {
+      if (form.type === 'individual_worksheet') {
+        expect(form.cardType).toBe('worksheet');
+        expect(form.isCombinedPdf).toBe(false);
+      }
+      if (form.type === 'stage_combined_pdf') {
+        expect(form.isCombinedPdf).toBe(true);
+      }
+      if (form.type === 'module_pdf') {
+        expect(form.isCombinedPdf).toBe(true);
+      }
+      if (form.type === 'workbook_package') {
+        expect(form.isCombinedPdf).toBe(true);
+      }
+    }
   });
 
   it('getAllTherapeuticForms returns a non-empty canonical registry', () => {

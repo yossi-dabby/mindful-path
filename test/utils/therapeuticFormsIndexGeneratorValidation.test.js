@@ -15,6 +15,13 @@ function buildEntry(overrides = {}) {
     therapeuticGoal: 'Support structured CBT practice.',
     whenToUse: 'Use when a teen asks for a CBT worksheet.',
     clinicalKeywords: ['cbt', 'teen'],
+    collectionId: 'adolescents-cbt-core-en',
+    collectionType: 'core',
+    cardType: 'worksheet',
+    clinicalDomain: 'general_cbt',
+    displayOrder: 1_001_004,
+    parentId: 'adolescents-cbt-core-en-stage-01',
+    isCombinedPdf: false,
     ...overrides,
   };
 }
@@ -151,5 +158,53 @@ describe('therapeutic forms index generator validation', () => {
       ai_matching_summary: '',
     });
     expect(() => validateEntries([broken])).toThrow(/missing AI matching metadata/);
+  });
+
+  it('fails when required hierarchy metadata fields are missing', () => {
+    const broken = buildEntry({
+      id: 'missing-hierarchy',
+      collectionId: null,
+      collectionType: null,
+      cardType: null,
+      displayOrder: null,
+      isCombinedPdf: null,
+    });
+    let thrown;
+    try {
+      validateEntries([broken]);
+    } catch (error) {
+      thrown = String(error?.message || '');
+    }
+    expect(thrown).toMatch(/missing collectionId/);
+    expect(thrown).toMatch(/invalid collectionType/);
+    expect(thrown).toMatch(/invalid cardType/);
+    expect(thrown).toMatch(/missing numeric displayOrder/);
+    expect(thrown).toMatch(/missing boolean isCombinedPdf/);
+  });
+
+  it('fails when individual worksheet is not mapped to worksheet cardType', () => {
+    const broken = buildEntry({
+      id: 'invalid-card-type-mapping',
+      type: 'individual_worksheet',
+      cardType: 'combined_pdf',
+    });
+    expect(() => validateEntries([broken])).toThrow(/individual_worksheet must map to cardType "worksheet"/);
+  });
+
+  it('fails when module and stage combined pdf entries are not marked as combined', () => {
+    const brokenModule = buildEntry({
+      id: 'invalid-module-combined',
+      type: 'module_pdf',
+      cardType: 'combined_pdf',
+      isCombinedPdf: false,
+    });
+    const brokenStage = buildEntry({
+      id: 'invalid-stage-combined',
+      type: 'stage_combined_pdf',
+      cardType: 'combined_pdf',
+      isCombinedPdf: false,
+    });
+    expect(() => validateEntries([brokenModule])).toThrow(/module_pdf must set isCombinedPdf=true/);
+    expect(() => validateEntries([brokenStage])).toThrow(/stage_combined_pdf must set isCombinedPdf=true/);
   });
 });
