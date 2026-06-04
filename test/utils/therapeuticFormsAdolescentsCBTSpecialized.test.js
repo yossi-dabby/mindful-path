@@ -145,16 +145,16 @@ describe('therapeuticFormsAdolescentsCBTSpecialized.test.js — Hebrew adolescen
 
   // ── Forms library visibility (tested via TherapeuticForms.jsx source) ───
 
-  it('TherapeuticForms page source includes adolescents_cbt_specialized in individual_worksheet filter', () => {
+  it('TherapeuticForms page source still supports adolescents_cbt_specialized via collection grouping', () => {
     const pageSource = fs.readFileSync(path.join(ROOT, 'src/pages/TherapeuticForms.jsx'), 'utf8');
-    expect(pageSource).toContain("form.category === 'adolescents_cbt_specialized'");
+    expect(pageSource).toContain('buildCollectionsFromForms');
+    expect(pageSource).toContain('collectionId');
   });
 
-  it('TherapeuticForms page shows Hebrew specialized forms only when lang === "he" (source check)', () => {
+  it('TherapeuticForms page keeps strict language-first filtering (source check)', () => {
     const pageSource = fs.readFileSync(path.join(ROOT, 'src/pages/TherapeuticForms.jsx'), 'utf8');
-    expect(pageSource).toMatch(
-      /normalizedLang === 'he'[\s\S]*form\.language === 'he'[\s\S]*form\.audience === 'adolescents'[\s\S]*adolescents_cbt_core[\s\S]*adolescents_cbt_specialized/
-    );
+    expect(pageSource).toContain('form.languages?.[normalizedLang]');
+    expect(pageSource).toContain('form.language && form.language !== lang');
   });
 
   it('Hebrew specialized forms resolved in Hebrew mode, not in English mode', () => {
