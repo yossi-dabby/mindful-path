@@ -26,6 +26,26 @@ const KNOWN_CATEGORIES = new Set([
   'coping_tools',
   'thought_records',
 ]);
+const COLLECTION_TYPE_VALUES = new Set(['core', 'specialized', 'unknown']);
+const CARD_TYPE_VALUES = new Set(['collection', 'module', 'worksheet', 'combined_pdf', 'workbook_package']);
+const CLINICAL_DOMAIN_VALUES = new Set([
+  'anxiety',
+  'mood',
+  'self_image',
+  'social',
+  'anger_impulsivity',
+  'ocd',
+  'adhd',
+  'body_sleep_stress',
+  'trauma',
+  'parents',
+  'general_cbt',
+  'emotion_regulation',
+  'thoughts',
+  'behavior',
+  'planning',
+  'unknown',
+]);
 
 function walk(dirPath) {
   const output = [];
@@ -421,6 +441,238 @@ function hasAIMatchingMetadata(entry) {
   return Boolean(summary || goal || whenToUse || keywords.length > 0);
 }
 
+function toFiniteNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function extractNumberParts(value) {
+  const matches = String(value || '').match(/\d+/g);
+  if (!matches) return [];
+  return matches
+    .map((part) => Number(part))
+    .filter((part) => Number.isFinite(part));
+}
+
+function inferCollectionId(entry) {
+  const audience = toStringOrNull(entry?.audience);
+  const language = normalizeLanguageCode(entry?.language) || toStringOrNull(entry?.language);
+  const category = toStringOrNull(entry?.category);
+  const parentSeriesId = toStringOrNull(entry?.parentSeriesId);
+  const series = toStringOrNull(entry?.series);
+  const sourceManifest = toStringOrNull(entry?.sourceManifest || entry?.source_manifest);
+
+  if (audience === 'children' && category === 'children_cbt_core' && language) return `children-cbt-core-${language}`;
+  if (audience === 'adolescents' && category === 'adolescents_cbt_core' && language) return `adolescents-cbt-core-${language}`;
+  if (audience === 'children' && category === 'children_cbt_specialized' && language) return `children-cbt-specialized-${language}`;
+  if (audience === 'adolescents' && category === 'adolescents_cbt_specialized' && language) return `adolescents-cbt-specialized-${language}`;
+
+  if (parentSeriesId && /cbt-core|cbt-specialized/.test(parentSeriesId)) return parentSeriesId;
+  if (series && /cbt core/i.test(series) && audience && language) return `${audience}-cbt-core-${language}`;
+  if (series && /cbt specialized/i.test(series) && audience && language) return `${audience}-cbt-specialized-${language}`;
+  if (sourceManifest && sourceManifest.includes('children-cbt-specialized-en')) return 'children-cbt-specialized-en';
+
+  return 'unknown';
+}
+
+function inferCollectionType(entry, collectionId) {
+  const haystack = [
+    entry?.category,
+    entry?.series,
+    entry?.parentSeriesId,
+    collectionId,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+  if (haystack.includes('cbt-core') || haystack.includes('cbt_core')) return 'core';
+  if (haystack.includes('specialized')) return 'specialized';
+  return 'unknown';
+}
+
+function inferCardType(entry) {
+  const type = String(entry?.type || '').trim().toLowerCase();
+  if (type === 'individual_worksheet') return 'worksheet';
+  if (type === 'stage_group') return 'module';
+  if (type === 'workbook_package') return 'workbook_package';
+  if (type === 'stage_combined_pdf') return 'combined_pdf';
+  if (type === 'module_pdf') return 'combined_pdf';
+  return 'module';
+}
+
+function inferClinicalDomain(entry, collectionType) {
+  const category = String(entry?.category || '').toLowerCase();
+  if (collectionType === 'core' || category.includes('_cbt_core')) {
+    return 'general_cbt';
+  }
+
+  const content = [
+    entry?.moduleTitle,
+    entry?.stageTitle,
+    entry?.series,
+    entry?.category,
+    ...(Array.isArray(entry?.secondaryCategories) ? entry.secondaryCategories : []),
+    ...(Array.isArray(entry?.clinicalKeywords) ? entry.clinicalKeywords : []),
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+  if (/\bparent|family|caregiver\b/.test(content)) return 'parents';
+  if (/\btrauma|ptsd|grounding|safe coping\b/.test(content)) return 'trauma';
+  if (/\badhd|attention|executive\b/.test(content)) return 'adhd';
+  if (/\bocd|intrusive|ritual\b/.test(content)) return 'ocd';
+  if (/\banger|impulsiv|outburst\b/.test(content)) return 'anger_impulsivity';
+  if (/\bself-esteem|self esteem|identity|self-worth\b/.test(content)) return 'self_image';
+  if (/\bsocial|friend|belonging|peer|conflict\b/.test(content)) return 'social';
+  if (/\bmood|depress|energy|motivation\b/.test(content)) return 'mood';
+  if (/\banxiety|fear|worry|phobia|stress\b/.test(content)) return 'anxiety';
+  if (/\bsleep|body|psychosomatic|somatic|enuresis|encopresis\b/.test(content)) return 'body_sleep_stress';
+  if (/\bemotion|regulation|calm|coping\b/.test(content)) return 'emotion_regulation';
+  if (/\bthought|belief|cognitive\b/.test(content)) return 'thoughts';
+  if (/\bbehavior|avoidance|activation\b/.test(content)) return 'behavior';
+  if (/\bplan|planning|weekly|tracking\b/.test(content)) return 'planning';
+  return 'unknown';
+}
+
+function inferDisplayOrder(entry, cardType) {
+  const formParts = extractNumberParts(entry?.formNumber || entry?.worksheetNumber);
+  const moduleOrStage = toFiniteNumber(entry?.moduleNumber)
+    ?? toFiniteNumber(entry?.stageNumber)
+    ?? formParts[0]
+    ?? 0;
+  const subOrder = formParts[1] ?? toFiniteNumber(entry?.pageNumberInWorkbook) ?? 0;
+  const leafOrder = formParts[2] ?? 0;
+  const cardRank = {
+    collection: 0,
+    workbook_package: 1,
+    module: 2,
+    combined_pdf: 3,
+    worksheet: 4,
+  }[cardType] ?? 9;
+
+  return (moduleOrStage * 1_000_000) + (subOrder * 1_000) + (leafOrder * 10) + cardRank;
+}
+
+function inferGroupingKey(entry, cardType) {
+  const parts = extractNumberParts(entry?.formNumber || entry?.worksheetNumber);
+  const moduleCodeParts = extractNumberParts(entry?.moduleCode);
+
+  if (cardType === 'worksheet' && parts.length >= 3) {
+    return `${parts[0]}.${parts[1]}`;
+  }
+
+  if (moduleCodeParts.length >= 2) {
+    return `${moduleCodeParts[0]}.${moduleCodeParts[1]}`;
+  }
+
+  if (parts.length >= 2) {
+    return cardType === 'worksheet' ? String(parts[0]) : `${parts[0]}.${parts[1]}`;
+  }
+
+  if (parts.length >= 1) {
+    return String(parts[0]);
+  }
+
+  const moduleOrStage = toFiniteNumber(entry?.moduleNumber) ?? toFiniteNumber(entry?.stageNumber);
+  if (moduleOrStage != null) return String(moduleOrStage);
+  return null;
+}
+
+function formatGroupingKeyForId(groupingKey) {
+  return String(groupingKey || '')
+    .split('.')
+    .filter(Boolean)
+    .map((part) => {
+      const number = Number(part);
+      if (Number.isFinite(number)) return String(number).padStart(2, '0');
+      return slugify(part);
+    })
+    .join('-');
+}
+
+function buildLocalizedDisplay(entry) {
+  if (!entry?.languages || typeof entry.languages !== 'object') return null;
+  const localized = {};
+
+  for (const [languageCode, languageBlock] of Object.entries(entry.languages)) {
+    if (!languageBlock || typeof languageBlock !== 'object') continue;
+    const title = toStringOrNull(languageBlock.title) || toStringOrNull(entry.title);
+    const description = toStringOrNull(languageBlock.description) || toStringOrNull(entry.description);
+    const moduleTitle = toStringOrNull(entry.moduleTitle);
+    const stageTitle = toStringOrNull(entry.stageTitle);
+    const display = {};
+    if (title) display.title = title;
+    if (description) display.description = description;
+    if (moduleTitle) display.moduleTitle = moduleTitle;
+    if (stageTitle) display.stageTitle = stageTitle;
+    if (Object.keys(display).length > 0) {
+      localized[languageCode] = display;
+    }
+  }
+
+  return Object.keys(localized).length > 0 ? localized : null;
+}
+
+function enrichHierarchyMetadata(entries) {
+  const withBaseMetadata = entries.map((entry) => {
+    const collectionId = inferCollectionId(entry);
+    const collectionType = inferCollectionType(entry, collectionId);
+    const cardType = inferCardType(entry);
+    const clinicalDomain = inferClinicalDomain(entry, collectionType);
+    const displayOrder = inferDisplayOrder(entry, cardType);
+    const isCombinedPdf = ['module_pdf', 'stage_combined_pdf', 'workbook_package'].includes(entry?.type);
+    const localizedDisplay = buildLocalizedDisplay(entry);
+
+    return {
+      ...entry,
+      collectionId,
+      collectionType,
+      cardType,
+      clinicalDomain,
+      displayOrder,
+      isCombinedPdf,
+      ...(localizedDisplay ? { localizedDisplay } : {}),
+    };
+  });
+
+  const parentLookup = new Map();
+  for (const entry of withBaseMetadata) {
+    if (entry.cardType !== 'module' && entry.cardType !== 'combined_pdf') continue;
+    const groupingKey = inferGroupingKey(entry, entry.cardType);
+    if (!groupingKey || entry.collectionId === 'unknown') continue;
+    const key = `${entry.collectionId}::${groupingKey}`;
+    if (!parentLookup.has(key)) {
+      parentLookup.set(key, entry.id);
+    }
+  }
+
+  return withBaseMetadata.map((entry) => {
+    if (entry.cardType !== 'worksheet') {
+      return { ...entry, parentId: null };
+    }
+
+    const groupingKey = inferGroupingKey(entry, entry.cardType);
+    const key = groupingKey ? `${entry.collectionId}::${groupingKey}` : null;
+    const resolvedParentId = key ? parentLookup.get(key) : null;
+    if (resolvedParentId) {
+      return { ...entry, parentId: resolvedParentId };
+    }
+
+    if (!groupingKey || entry.collectionId === 'unknown') {
+      return { ...entry, parentId: null };
+    }
+
+    const parentLabel = entry.collectionType === 'core' ? 'stage' : 'module';
+    const normalizedGroup = formatGroupingKeyForId(groupingKey);
+    return {
+      ...entry,
+      parentId: `${entry.collectionId}-${parentLabel}-${normalizedGroup}`,
+    };
+  });
+}
+
 export function validateEntries(entries) {
   const seenIds = new Set();
   const allIds = new Set(
@@ -495,6 +747,39 @@ export function validateEntries(entries) {
       errors.push(`Entry ${entry.id} has invalid audience value: ${entry.audience}`);
     }
     if (!entry.category) errors.push(`Entry ${entry.id} missing category`);
+    if (!entry.collectionId || typeof entry.collectionId !== 'string') {
+      errors.push(`Entry ${entry.id} missing collectionId`);
+    }
+    if (!entry.collectionType || !COLLECTION_TYPE_VALUES.has(entry.collectionType)) {
+      errors.push(`Entry ${entry.id} has invalid collectionType: ${entry.collectionType}`);
+    }
+    if (!entry.cardType || !CARD_TYPE_VALUES.has(entry.cardType)) {
+      errors.push(`Entry ${entry.id} has invalid cardType: ${entry.cardType}`);
+    }
+    if (!entry.clinicalDomain || !CLINICAL_DOMAIN_VALUES.has(entry.clinicalDomain)) {
+      errors.push(`Entry ${entry.id} has invalid clinicalDomain: ${entry.clinicalDomain}`);
+    }
+    if (typeof entry.displayOrder !== 'number' || !Number.isFinite(entry.displayOrder)) {
+      errors.push(`Entry ${entry.id} missing numeric displayOrder`);
+    }
+    if (typeof entry.isCombinedPdf !== 'boolean') {
+      errors.push(`Entry ${entry.id} missing boolean isCombinedPdf`);
+    }
+    if (entry.parentId != null && (typeof entry.parentId !== 'string' || !entry.parentId.trim())) {
+      errors.push(`Entry ${entry.id} has invalid parentId value`);
+    }
+    if (entry.type === 'individual_worksheet' && entry.cardType !== 'worksheet') {
+      errors.push(`Entry ${entry.id} individual_worksheet must map to cardType "worksheet"`);
+    }
+    if (entry.type === 'stage_combined_pdf' && entry.isCombinedPdf !== true) {
+      errors.push(`Entry ${entry.id} stage_combined_pdf must set isCombinedPdf=true`);
+    }
+    if (entry.type === 'module_pdf' && entry.isCombinedPdf !== true) {
+      errors.push(`Entry ${entry.id} module_pdf must set isCombinedPdf=true`);
+    }
+    if (entry.type === 'workbook_package' && entry.isCombinedPdf !== true) {
+      errors.push(`Entry ${entry.id} workbook_package must set isCombinedPdf=true`);
+    }
     if (!hasAIMatchingMetadata(entry)) {
       errors.push(`Entry ${entry.id} missing AI matching metadata (ai_matching_summary/therapeutic_goal/when_to_use/keywords)`);
     }
@@ -528,7 +813,7 @@ function main() {
 
   const fallbackEntries = buildFallbackEntries(byFileUrl, manifestByFileUrl);
 
-  const allEntries = [...curatedEntries, ...fallbackEntries]
+  const allEntries = enrichHierarchyMetadata([...curatedEntries, ...fallbackEntries])
     .sort((a, b) => {
       const byLang = String(a.language).localeCompare(String(b.language));
       if (byLang !== 0) return byLang;
