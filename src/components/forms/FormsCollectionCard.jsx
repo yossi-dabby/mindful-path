@@ -8,22 +8,46 @@ export default function FormsCollectionCard({
   collectionTypeLabel,
   browseLabel,
   onBrowse,
+  viewMode = 'medium',
 }) {
+  const cardModeClasses = {
+    large: 'p-6 gap-4',
+    medium: 'p-5 gap-3',
+    compact: 'p-3 gap-2',
+    list: 'p-4 gap-3 md:flex-row md:items-center',
+    tiles: 'p-3 gap-2',
+  };
+
+  const titleClasses = {
+    large: 'text-xl',
+    medium: 'text-lg',
+    compact: 'text-sm',
+    list: 'text-base',
+    tiles: 'text-sm',
+  };
+
   return (
     <article
       data-testid={`collection-card-${collection.collectionId}`}
-      className="rounded-[var(--radius-card)] border border-border/70 bg-card shadow-[var(--shadow-md)] p-5 flex flex-col gap-3"
+      className={`rounded-[var(--radius-card)] border border-teal-300 bg-white shadow-[var(--shadow-md)] hover:border-teal-400 hover:bg-teal-50/40 transition-colors flex flex-col ${cardModeClasses[viewMode] || cardModeClasses.medium}`}
     >
-      <h3 className="text-lg font-semibold text-foreground leading-snug">{collection.title}</h3>
-      <div className="flex flex-wrap gap-2 text-xs">
-        <span className="px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-primary">{audienceLabel}</span>
-        <span className="px-2.5 py-0.5 rounded-full bg-secondary border border-border/50 text-secondary-foreground">{languageLabel}</span>
-        <span className="px-2.5 py-0.5 rounded-full bg-teal-700/10 border border-teal-700/20 text-teal-900">{collectionTypeLabel}</span>
+      <div className={viewMode === 'list' ? 'flex-1' : ''}>
+        <h3 className={`${titleClasses[viewMode] || titleClasses.medium} font-semibold text-teal-600 leading-snug`}>{collection.title}</h3>
+        <div className="mt-2 flex flex-wrap gap-2 text-xs">
+          <span className="px-2.5 py-0.5 rounded-full bg-teal-200 border border-teal-300 text-teal-600">{audienceLabel}</span>
+          <span className="px-2.5 py-0.5 rounded-full bg-teal-100 border border-teal-200 text-teal-600">{languageLabel}</span>
+          <span className="px-2.5 py-0.5 rounded-full bg-teal-200 border border-teal-300 text-teal-600">{collectionTypeLabel}</span>
+        </div>
+        <p className="mt-2 text-sm text-foreground">
+          {collection.moduleCount} • {collection.worksheetCount}
+        </p>
       </div>
-      <p className="text-sm text-muted-foreground">
-        {collection.moduleCount} • {collection.worksheetCount}
-      </p>
-      <Button type="button" onClick={onBrowse} className="mt-auto" data-testid={`browse-collection-${collection.collectionId}`}>
+      <Button
+        type="button"
+        onClick={onBrowse}
+        className={`mt-auto bg-teal-600 hover:bg-teal-500 text-white ${viewMode === 'list' ? 'md:mt-0 md:ms-auto' : ''}`}
+        data-testid={`browse-collection-${collection.collectionId}`}
+      >
         {browseLabel}
       </Button>
     </article>

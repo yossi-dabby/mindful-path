@@ -242,6 +242,7 @@ describe('Stage groups — worksheet membership per stage', () => {
 
 describe('TherapeuticForms.jsx — collection-first UI source-code contract', () => {
   const pageSrc = fs.readFileSync(path.join(ROOT, 'src/pages/TherapeuticForms.jsx'), 'utf8');
+  const combinedCardSrc = fs.readFileSync(path.join(ROOT, 'src/components/forms/FormsCombinedPdfCard.jsx'), 'utf8');
 
   it('uses generated catalog grouping helpers instead of static stage-group imports', () => {
     expect(pageSrc).toContain('buildCollectionsFromForms');
@@ -260,7 +261,8 @@ describe('TherapeuticForms.jsx — collection-first UI source-code contract', ()
   });
 
   it('shows combined PDF card separately in worksheet drill-in', () => {
-    expect(pageSrc).toContain('combined-pdf-card');
+    expect(pageSrc).toContain('FormsCombinedPdfCard');
+    expect(combinedCardSrc).toContain('combined-pdf-card');
   });
 });
 

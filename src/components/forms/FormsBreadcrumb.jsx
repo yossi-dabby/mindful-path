@@ -4,8 +4,8 @@ export default function FormsBreadcrumb({ items = [], isRtl = false }) {
   if (!items.length) return null;
 
   return (
-    <nav aria-label="Forms breadcrumb" className="mb-4">
-      <ol className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
+    <nav aria-label="Forms breadcrumb" className="mb-4 rounded-[var(--radius-card)] border border-teal-200 bg-teal-100/50 px-3 py-2" data-testid="forms-breadcrumb">
+      <ol className="flex flex-wrap items-center gap-1 text-sm text-teal-600">
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
           return (
@@ -15,12 +15,12 @@ export default function FormsBreadcrumb({ items = [], isRtl = false }) {
                 <button
                   type="button"
                   onClick={item.onClick}
-                  className="hover:text-foreground underline-offset-2 hover:underline"
+                  className="hover:text-teal-500 underline-offset-2 hover:underline"
                 >
                   {item.label}
                 </button>
               ) : (
-                <span className={isLast ? 'text-foreground font-medium' : ''}>{item.label}</span>
+                <span className={isLast ? 'text-teal-600 font-semibold' : ''}>{item.label}</span>
               )}
             </li>
           );

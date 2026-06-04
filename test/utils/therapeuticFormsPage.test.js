@@ -39,10 +39,28 @@ describe('therapeuticFormsPage.test.js — collection-first browsing', () => {
 
   it('default view contract is collection-first in page source', () => {
     const pageSource = fs.readFileSync(path.join(ROOT, 'src/pages/TherapeuticForms.jsx'), 'utf8');
+    const viewModeToggleSource = fs.readFileSync(path.join(ROOT, 'src/components/forms/FormsViewModeToggle.jsx'), 'utf8');
+    const navSource = fs.readFileSync(path.join(ROOT, 'src/components/forms/FormsNavigationControls.jsx'), 'utf8');
     expect(pageSource).toContain('collections-grid');
     expect(pageSource).toContain('modules-grid');
     expect(pageSource).toContain('worksheets-grid');
     expect(pageSource).toContain('ai-forms-callout');
+    expect(viewModeToggleSource).toContain('forms-view-mode-toggle');
+    expect(navSource).toContain('forms-navigation-controls');
+    expect(pageSource).toContain('forms-library-teal');
+  });
+
+  it('forms library page keeps teal-scoped styling contracts', () => {
+    const pageSource = fs.readFileSync(path.join(ROOT, 'src/pages/TherapeuticForms.jsx'), 'utf8');
+    const collectionCardSource = fs.readFileSync(path.join(ROOT, 'src/components/forms/FormsCollectionCard.jsx'), 'utf8');
+    const moduleCardSource = fs.readFileSync(path.join(ROOT, 'src/components/forms/FormsModuleCard.jsx'), 'utf8');
+    const worksheetCardSource = fs.readFileSync(path.join(ROOT, 'src/components/forms/FormsWorksheetCard.jsx'), 'utf8');
+    const breadcrumbSource = fs.readFileSync(path.join(ROOT, 'src/components/forms/FormsBreadcrumb.jsx'), 'utf8');
+    expect(pageSource).toContain('bg-teal-100/40');
+    expect(collectionCardSource).toContain('border-teal-300');
+    expect(moduleCardSource).toContain('border-teal-400');
+    expect(worksheetCardSource).toContain('border-teal-300');
+    expect(breadcrumbSource).toContain('text-teal-600');
   });
 
   it('collection-level data is smaller than worksheet-level data', () => {
@@ -107,13 +125,54 @@ describe('therapeuticFormsPage.test.js — collection-first browsing', () => {
     expect(forms.some((item) => item.cardType === 'combined_pdf')).toBe(true);
     expect(forms.some((item) => item.cardType === 'worksheet')).toBe(true);
     const pageSource = fs.readFileSync(path.join(ROOT, 'src/pages/TherapeuticForms.jsx'), 'utf8');
-    expect(pageSource).toContain('combined-pdf-card');
+    const combinedCardSource = fs.readFileSync(path.join(ROOT, 'src/components/forms/FormsCombinedPdfCard.jsx'), 'utf8');
+    expect(pageSource).toContain('FormsCombinedPdfCard');
+    expect(combinedCardSource).toContain('combined-pdf-card');
+    expect(combinedCardSource).toContain('Combined PDF');
   });
 
   it('open/download behavior still uses existing helpers in page source', () => {
     const pageSource = fs.readFileSync(path.join(ROOT, 'src/pages/TherapeuticForms.jsx'), 'utf8');
     expect(pageSource).toContain('openFile(getFormOpenUrl(fileUrl))');
     expect(pageSource).toContain('downloadPdfFile(fileUrl, fileName)');
+  });
+
+  it('view mode defaults to medium and persists in localStorage key', () => {
+    const pageSource = fs.readFileSync(path.join(ROOT, 'src/pages/TherapeuticForms.jsx'), 'utf8');
+    const toggleSource = fs.readFileSync(path.join(ROOT, 'src/components/forms/FormsViewModeToggle.jsx'), 'utf8');
+    expect(pageSource).toContain("DEFAULT_FORMS_VIEW_MODE = 'medium'");
+    expect(pageSource).toContain("FORMS_VIEW_MODE_STORAGE_KEY = 'mindfulPath.formsLibrary.viewMode'");
+    expect(pageSource).toContain('FORMS_VIEW_MODES.includes(mode)');
+    expect(pageSource).toContain("window.localStorage.getItem(FORMS_VIEW_MODE_STORAGE_KEY)");
+    expect(pageSource).toContain("window.localStorage.setItem(FORMS_VIEW_MODE_STORAGE_KEY, viewMode)");
+    expect(toggleSource).toContain('forms-view-mode-${option.value}');
+    expect(toggleSource).toContain("value: 'large'");
+    expect(toggleSource).toContain("value: 'compact'");
+    expect(toggleSource).toContain("value: 'list'");
+    expect(toggleSource).toContain("value: 'tiles'");
+  });
+
+  it('includes navigation arrows and breadcrumb contracts in page source', () => {
+    const navSource = fs.readFileSync(path.join(ROOT, 'src/components/forms/FormsNavigationControls.jsx'), 'utf8');
+    const pageSource = fs.readFileSync(path.join(ROOT, 'src/pages/TherapeuticForms.jsx'), 'utf8');
+    expect(navSource).toContain('forms-nav-back');
+    expect(navSource).toContain('Back');
+    expect(navSource).toContain('חזרה');
+    expect(pageSource).toContain('handleNavBack');
+    expect(pageSource).toContain('FormsBreadcrumb');
+  });
+
+  it('keeps explicit RTL/LTR contracts on forms library surface', () => {
+    const pageSource = fs.readFileSync(path.join(ROOT, 'src/pages/TherapeuticForms.jsx'), 'utf8');
+    const worksheetCardSource = fs.readFileSync(path.join(ROOT, 'src/components/forms/FormsWorksheetCard.jsx'), 'utf8');
+    expect(pageSource).toContain("dir={isRtl ? 'rtl' : 'ltr'}");
+    expect(worksheetCardSource).toContain("dir={worksheet.languageData?.rtl ? 'rtl' : 'ltr'}");
+  });
+
+  it('uses scoped forms-only components for view and navigation controls', () => {
+    const appSource = fs.readFileSync(path.join(ROOT, 'src/App.jsx'), 'utf8');
+    expect(appSource).not.toContain('FormsViewModeToggle');
+    expect(appSource).not.toContain('FormsNavigationControls');
   });
 
   it('Hebrew module titles are not raw IDs/slugs in generated index', () => {
