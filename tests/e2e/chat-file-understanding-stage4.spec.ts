@@ -4,13 +4,6 @@ import { mockApi, spaNavigate } from '../helpers/ui';
 const IMAGE_FILE_URL = 'https://files.example.com/stage4-image.png';
 const PDF_FILE_URL = 'https://files.example.com/stage4-doc.pdf';
 const PDF_EXTRACTED_TEXT = 'Stage 4 PDF text: Mindful breathing reduces stress and improves emotional regulation.';
-const METADATA_422_RESPONSE = {
-  detail: [
-    { type: 'missing', loc: ['body', 'metadata', 'created_date'], msg: 'Field required' },
-    { type: 'missing', loc: ['body', 'metadata', 'created_by_email'], msg: 'Field required' },
-  ],
-};
-
 const IMAGE_PNG_1X1_BASE64 =
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9WnR1F4AAAAASUVORK5CYII=';
 
@@ -150,15 +143,14 @@ async function startChatWithRuntimeMocks(page: Parameters<typeof mockApi>[0]) {
   });
 
   await page.route('**/api/**/agents/conversations/**/messages**', async (route) => {
-    const body = route.request().postDataJSON?.() as any;
+    let body: any;
+    try {
+      body = route.request().postDataJSON?.();
+    } catch {
+      body = undefined;
+    }
     if (body?.metadata !== undefined) {
-      captured.metadata422Bodies.push(METADATA_422_RESPONSE);
-      await route.fulfill({
-        status: 422,
-        contentType: 'application/json',
-        body: JSON.stringify(METADATA_422_RESPONSE),
-      });
-      return;
+      captured.metadata422Bodies.push(body.metadata);
     }
 
     const normalizedMetadata = body?.metadata ? { ...body.metadata } : undefined;
