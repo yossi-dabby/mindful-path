@@ -35,6 +35,18 @@ describe('aiFormsAccess deterministic registry stats', () => {
     expect(stats.byCategory.adolescents_cbt_core).toBeGreaterThan(0);
     expect(stats.byCategory.adolescents_cbt_specialized).toBeGreaterThan(0);
   });
+
+  it('keeps all approved generated-index forms available through AI-facing list by language', () => {
+    const allApproved = getAllTherapeuticForms().filter((form) => form?.approved === true);
+    const expectedEn = allApproved.filter((form) => form.language === 'en').length;
+    const expectedHe = allApproved.filter((form) => form.language === 'he').length;
+
+    const listedEn = listFormsForAI({ language: 'en', allowEnglishFallback: false });
+    const listedHe = listFormsForAI({ language: 'he', allowEnglishFallback: false });
+
+    expect(listedEn).toHaveLength(expectedEn);
+    expect(listedHe).toHaveLength(expectedHe);
+  });
 });
 
 describe('aiFormsAccess deterministic list/search', () => {
@@ -138,6 +150,30 @@ describe('aiFormsAccess deterministic list/search', () => {
     expect(forms.length).toBeGreaterThan(0);
     expect(JSON.stringify(forms[0]).toLowerCase()).toMatch(/breath|calmer|step/);
   });
+
+  it('finds approved forms by title via AI search', () => {
+    const sourceForm = getAllTherapeuticForms().find(
+      (form) => form?.approved === true && form?.language === 'en' && typeof form?.title === 'string' && form.title.trim().length > 10
+    );
+    expect(sourceForm).toBeTruthy();
+    const titleQuery = sourceForm.title.split(/\s+/).slice(0, 4).join(' ');
+    const forms = searchFormsForAI(titleQuery, { language: 'en', audience: sourceForm.audience });
+    expect(forms.some((form) => form.id === sourceForm.id)).toBe(true);
+  });
+
+  it('finds approved forms by clinical metadata via AI search', () => {
+    const sourceForm = getAllTherapeuticForms().find(
+      (form) =>
+        form?.approved === true &&
+        form?.language === 'he' &&
+        Array.isArray(form?.clinicalKeywords) &&
+        form.clinicalKeywords.length > 0
+    );
+    expect(sourceForm).toBeTruthy();
+    const keyword = sourceForm.clinicalKeywords[0];
+    const forms = searchFormsForAI(keyword, { language: 'he', audience: sourceForm.audience });
+    expect(forms.some((form) => form.id === sourceForm.id)).toBe(true);
+  });
 });
 
 describe('aiFormsAccess deterministic send + language behavior', () => {
@@ -170,6 +206,14 @@ describe('aiFormsAccess deterministic send + language behavior', () => {
     const resolved = resolveFormForAIRequest('Send me any CBT form', { language: 'en' });
     expect(resolved.generatedFile).not.toBeNull();
     expect(resolved.generatedFile.language).toBe('en');
+  });
+
+  it('keeps single generatedFile behavior for single-form requests', () => {
+    const resolved = resolveFormForAIRequest('Send worksheet children-cbt-core-en-5-1', { language: 'en' });
+    expect(resolved.generatedFile).toBeTruthy();
+    expect(Array.isArray(resolved.generatedFiles)).toBe(true);
+    expect(resolved.generatedFiles.length).toBeGreaterThanOrEqual(1);
+    expect(resolved.generatedFiles[0].form_id).toBe(resolved.generatedFile.form_id);
   });
 
   it('supports hebrew session explicit english request', () => {
@@ -261,6 +305,27 @@ describe('aiFormsAccess deterministic send + language behavior', () => {
     const resolved = resolveFormForAIRequest('send me form for impossible unicorn panic subtype', { language: 'en' });
     expect(Array.isArray(resolved.nearestMatches)).toBe(true);
     expect(resolved.nearestMatches.length).toBeGreaterThanOrEqual(0);
+  });
+
+  it('supports deterministic multi-form module requests with safe max cap', () => {
+    const resolved = resolveFormForAIRequest('send all forms from module 06', { language: 'en' });
+    expect(Array.isArray(resolved.generatedFiles)).toBe(true);
+    expect(resolved.generatedFiles.length).toBeGreaterThan(0);
+    expect(resolved.generatedFiles.length).toBeLessThanOrEqual(5);
+  });
+
+  it('supports Hebrew multi-form requests in Hebrew mode without leaking English files', () => {
+    const resolved = resolveFormForAIRequest('שלח לי את כל שלב 1', { language: 'he' });
+    expect(Array.isArray(resolved.generatedFiles)).toBe(true);
+    expect(resolved.generatedFiles.length).toBeGreaterThan(0);
+    expect(resolved.generatedFiles.every((file) => file.language === 'he')).toBe(true);
+  });
+
+  it('supports English multi-form requests without leaking Hebrew files', () => {
+    const resolved = resolveFormForAIRequest('send the first three worksheets from module 06', { language: 'en' });
+    expect(Array.isArray(resolved.generatedFiles)).toBe(true);
+    expect(resolved.generatedFiles.length).toBeGreaterThan(0);
+    expect(resolved.generatedFiles.every((file) => file.language === 'en')).toBe(true);
   });
 
   it('keeps English session results free of Hebrew adolescents core forms', () => {

@@ -94,7 +94,12 @@ describe('GeneratedFileCard — Open vs Download source-code contract', () => {
 
   it('MessageBubble keeps GeneratedFileCard rendering when metadata.generated_file exists', () => {
     expect(bubbleSrc).toContain('normalizeGeneratedFile(message?.metadata?.generated_file)');
-    expect(bubbleSrc).toContain('<GeneratedFileCard generatedFile={message.metadata.generated_file} />');
+    expect(bubbleSrc).toContain('GeneratedFileCard');
+  });
+
+  it('MessageBubble renders metadata.generated_files attachments for multi-form responses', () => {
+    expect(bubbleSrc).toContain('message?.metadata?.generated_files');
+    expect(bubbleSrc).toContain('generatedFiles.map');
   });
 });
 

@@ -2,6 +2,38 @@ import { describe, it, expect } from 'vitest';
 import { sanitizeConversationMessages } from '../../src/components/utils/validateAgentOutput.jsx';
 
 describe('therapeuticFormsChatIntegration.test.js', () => {
+  it('new-chat first assistant response sanitizes without runtime error', () => {
+    const firstTurn = [
+      { role: 'user', content: 'Hi, I need help today', metadata: { session_language: 'en' } },
+      { role: 'assistant', content: 'I’m here with you. We can take this step by step.' },
+    ];
+    expect(() => sanitizeConversationMessages(firstTurn, 'en')).not.toThrow();
+    const result = sanitizeConversationMessages(firstTurn, 'en');
+    expect(result.find((m) => m.role === 'assistant')?.content?.length).toBeGreaterThan(0);
+  });
+
+  it('new-chat first message with form request resolves deterministically', () => {
+    const firstTurn = [
+      { role: 'user', content: 'Send me a CBT form for children with anxiety', metadata: { session_language: 'en' } },
+      { role: 'assistant', content: 'Sure, I can help with that.' },
+    ];
+    const result = sanitizeConversationMessages(firstTurn, 'en');
+    const assistant = result.find((m) => m.role === 'assistant');
+    expect(assistant?.metadata?.generated_file).toBeTruthy();
+  });
+
+  it('new-chat first message with missing form need returns graceful text and no runtime error', () => {
+    const firstTurn = [
+      { role: 'user', content: 'Send me a form for impossible unicorn panic subtype', metadata: { session_language: 'en' } },
+      { role: 'assistant', content: 'I cannot find that exact worksheet right now.' },
+    ];
+    expect(() => sanitizeConversationMessages(firstTurn, 'en')).not.toThrow();
+    const result = sanitizeConversationMessages(firstTurn, 'en');
+    const assistant = result.find((m) => m.role === 'assistant');
+    expect(typeof assistant?.content).toBe('string');
+    expect(assistant?.content.length).toBeGreaterThan(0);
+  });
+
   it('injects generated_file from approved marker and rejects stale marker ids', () => {
     const approvedMessages = [
       { role: 'user', content: 'Please share the teen CBT workbook', metadata: { session_language: 'en' } },
@@ -133,6 +165,19 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     const assistant = result.find((m) => m.role === 'assistant');
     expect(assistant?.metadata?.generated_file?.language || null).not.toBe('he');
     expect(String(assistant?.metadata?.generated_file?.form_id || '')).not.toContain('children-cbt-core-he');
+  });
+
+  it('stores deterministic multi-form attachments in metadata.generated_files while preserving generated_file', () => {
+    const messages = [
+      { role: 'user', content: 'send all forms from module 06', metadata: { session_language: 'en' } },
+      { role: 'assistant', content: 'Done.' },
+    ];
+    const result = sanitizeConversationMessages(messages, 'en');
+    const assistant = result.find((m) => m.role === 'assistant');
+    expect(Array.isArray(assistant?.metadata?.generated_files)).toBe(true);
+    expect(assistant?.metadata?.generated_files?.length).toBeGreaterThan(0);
+    expect(assistant?.metadata?.generated_files?.length).toBeLessThanOrEqual(5);
+    expect(assistant?.metadata?.generated_file).toBeTruthy();
   });
 
   it('keeps marker fallback active while deterministic path is primary', () => {
