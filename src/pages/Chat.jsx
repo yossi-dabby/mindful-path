@@ -1061,7 +1061,14 @@ export default function Chat() {
             console.log('[Subscription] ✅ Loading OFF');
             // Mark subscription as having delivered confirmed content for this send
             // cycle. Polling must not overwrite subscription-confirmed content.
-            subscriptionSucceededRef.current = true;
+            // IMPORTANT: Only set the flag when the subscription actually delivered
+            // the expected reply (expectedReplyCountRef > 0 and messages reached that
+            // count). An early empty-messages callback (fired before or between sends)
+            // must not claim "success" — doing so would cause polling to skip the real
+            // reply and leave the assistant message invisible in the UI.
+            if (expectedReplyCountRef.current > 0 && processedMessages.length >= expectedReplyCountRef.current) {
+              subscriptionSucceededRef.current = true;
+            }
             setIsLoading(false);
 
             // Emit FINAL STABILITY SUMMARY for this send cycle
