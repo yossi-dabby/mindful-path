@@ -596,7 +596,16 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
   const intent = detectFormIntent(userMessage);
   const stats = getFormsRegistryStats();
   if (!intent) {
-    return { intent: null, stats, matches: [], nearestMatches: [], generatedFile: null, responseText: null };
+    return {
+      intent: null,
+      stats,
+      matches: [],
+      nearestMatches: [],
+      generatedFile: null,
+      generatedFiles: [],
+      maxGeneratedFiles: MAX_GENERATED_FILES_PER_RESPONSE,
+      responseText: null
+    };
   }
 
   const activeLanguage = getDefaultLanguage(context.language || context.activeLanguage);
@@ -619,6 +628,8 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
       matches: resolved?.form ? [resolved.form] : [],
       nearestMatches: [],
       generatedFile,
+      generatedFiles: generatedFile ? [generatedFile] : [],
+      maxGeneratedFiles: MAX_GENERATED_FILES_PER_RESPONSE,
       resolvedLanguage: resolved?.resolvedLanguage || activeLanguage,
       responseText: generatedFile
         ? `I found a matching worksheet and attached it.`

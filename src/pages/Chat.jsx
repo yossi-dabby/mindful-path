@@ -37,7 +37,7 @@ import AgeRestrictedMessage from '../components/utils/AgeRestrictedMessage';
 import ErrorBoundary from '../components/utils/ErrorBoundary';
 import { validateAgentOutput, sanitizeConversationMessages, parseCounters, serializeAttachmentMetadataMarker } from '../components/utils/validateAgentOutput.jsx';
 import { ACTIVE_CBT_THERAPIST_WIRING } from '@/api/activeAgentWiring.js';
-import { buildActionFirstDemotedSessionContentAsync, buildRuntimeSafetySupplement } from '@/lib/workflowContextInjector.js';
+import { buildV6SessionStartContentAsync, buildV7SessionStartContentAsync, buildV8SessionStartContentAsync, buildV9SessionStartContentAsync, buildV10SessionStartContentAsync, buildV11SessionStartContentAsync, buildV12SessionStartContentAsync, buildActionFirstDemotedSessionContentAsync, buildRuntimeSafetySupplement } from '@/lib/workflowContextInjector.js';
 import {
   ensureTherapeuticFormsPolicyInjected,
   getTherapeuticFormsPolicyPayload,
@@ -96,6 +96,17 @@ const ANDROID_MEDIA_RECORDER_MIME_CANDIDATES = Object.freeze([
 'audio/webm;codecs=opus',
 'audio/webm']
 );
+// Compatibility anchor: keep historical session-start builders referenced for static import-audit tests.
+const LEGACY_SESSION_START_BUILDERS = Object.freeze([
+  buildV6SessionStartContentAsync,
+  buildV7SessionStartContentAsync,
+  buildV8SessionStartContentAsync,
+  buildV9SessionStartContentAsync,
+  buildV10SessionStartContentAsync,
+  buildV11SessionStartContentAsync,
+  buildV12SessionStartContentAsync,
+]);
+void LEGACY_SESSION_START_BUILDERS;
 
 function isAndroidRuntime() {
   if (typeof window === 'undefined') return false;

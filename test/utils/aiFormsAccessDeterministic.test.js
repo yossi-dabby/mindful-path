@@ -40,12 +40,16 @@ describe('aiFormsAccess deterministic registry stats', () => {
     const allApproved = getAllTherapeuticForms().filter((form) => form?.approved === true);
     const expectedEn = allApproved.filter((form) => form.language === 'en').length;
     const expectedHe = allApproved.filter((form) => form.language === 'he').length;
+    const expectedEnIds = new Set(allApproved.filter((form) => form.language === 'en').map((form) => form.id));
+    const expectedHeIds = new Set(allApproved.filter((form) => form.language === 'he').map((form) => form.id));
 
     const listedEn = listFormsForAI({ language: 'en', allowEnglishFallback: false });
     const listedHe = listFormsForAI({ language: 'he', allowEnglishFallback: false });
 
     expect(listedEn).toHaveLength(expectedEn);
     expect(listedHe).toHaveLength(expectedHe);
+    expect(new Set(listedEn.map((form) => form.id))).toEqual(expectedEnIds);
+    expect(new Set(listedHe.map((form) => form.id))).toEqual(expectedHeIds);
   });
 });
 
