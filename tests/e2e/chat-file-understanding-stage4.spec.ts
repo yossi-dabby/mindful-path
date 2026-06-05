@@ -208,17 +208,20 @@ async function startChatWithRuntimeMocks(page: Parameters<typeof mockApi>[0]) {
     });
   });
 
-  await page.route('**/api/**/agents/conversations/test-conversation-123**', async (route) => {
-    if (route.request().method() !== 'GET') {
+  await page.route('**/api/**/agents/conversations/**', async (route) => {
+    const req = route.request();
+    const url = req.url();
+    if (req.method() !== 'GET' || /\/messages\b/i.test(url)) {
       await route.continue();
       return;
     }
 
+    const conversationIdFromUrl = url.match(/\/agents\/conversations\/([^/?#]+)/i)?.[1];
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({
-        id: 'test-conversation-123',
+        id: conversationIdFromUrl || 'test-conversation-123',
         agent_name: 'cbt_therapist',
         metadata: { name: 'Test Session', description: 'Stage 4 runtime verification' },
         messages: conversationMessages,
