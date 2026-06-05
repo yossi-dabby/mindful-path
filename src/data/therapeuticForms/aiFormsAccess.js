@@ -76,6 +76,21 @@ const ADOLESCENTS_GROUP_LABELS = Object.freeze([
   'Adolescents CBT Specialized',
 ]);
 
+export const MAX_GENERATED_FILES_PER_RESPONSE = 5;
+
+const NUMBER_WORD_MAP = Object.freeze({
+  one: 1,
+  two: 2,
+  three: 3,
+  four: 4,
+  five: 5,
+  six: 6,
+  seven: 7,
+  eight: 8,
+  nine: 9,
+  ten: 10,
+});
+
 function normalizeText(value) {
   // Intentional fail-soft normalization for search/indexing paths:
   // non-string/null values are treated as empty text, so candidate scanning
@@ -133,6 +148,52 @@ function extractRequestedAudience(text) {
   if (/\b(adolescents|adolescent|teens|teen|teenager)\b/.test(normalized) || /מתבגר|מתבגרים/.test(normalized)) return 'adolescents';
   if (/\b(adults|adult)\b/.test(normalized)) return 'adults';
   return null;
+}
+
+function extractRequestedCount(text) {
+  const normalized = normalizeText(text);
+  if (!normalized) return null;
+
+  const digitMatch = normalized.match(/\b(\d{1,2})\b/);
+  if (digitMatch) return Number(digitMatch[1]);
+
+  for (const [word, count] of Object.entries(NUMBER_WORD_MAP)) {
+    if (new RegExp(`\\b${word}\\b`, 'i').test(normalized)) return count;
+  }
+
+  if (/\b(several|few|multiple|some|כמה|מספר)\b/i.test(normalized)) return 3;
+  if (/\b(all|every|כול|כל)\b/i.test(normalized)) return MAX_GENERATED_FILES_PER_RESPONSE;
+  return null;
+}
+
+function extractRequestedModuleNumber(text) {
+  const normalized = normalizeText(text);
+  if (!normalized) return null;
+  const match = normalized.match(/(?:module|stage|מודול|שלב)\s*0?([1-9]|10)\b/i);
+  if (!match) return null;
+  return Number(match[1]);
+}
+
+function requestsModuleOrStageScope(text) {
+  const normalized = normalizeText(text);
+  if (!normalized) return false;
+  return /(?:module|stage|מודול|שלב)\s*0?([1-9]|10)\b/i.test(normalized);
+}
+
+function requestsManyForms(text) {
+  const normalized = normalizeText(text);
+  if (!normalized) return false;
+  return /\b(all forms|all worksheets|several forms|multiple forms|few forms|כמה טפסים|כל הטפסים|כל שלב|כל מודול)\b/i.test(normalized);
+}
+
+function getCombinedForms(forms) {
+  return forms.filter((form) => form?.isCombinedPdf === true || form?.cardType === 'combined_pdf' || form?.type === 'module_pdf' || form?.type === 'stage_combined_pdf' || form?.type === 'workbook_package');
+}
+
+function limitGeneratedFiles(files, requestedCount) {
+  const maxRequested = Number.isFinite(requestedCount) ? Math.max(1, requestedCount) : MAX_GENERATED_FILES_PER_RESPONSE;
+  const cappedCount = Math.min(MAX_GENERATED_FILES_PER_RESPONSE, maxRequested);
+  return dedupeFormsById(files).slice(0, cappedCount);
 }
 
 function normalizeLegacyWorksheetAlias(candidate) {
@@ -472,6 +533,10 @@ export function detectFormIntent(userMessage) {
     || /שלב\s*[1-6]|קובץ\s*מאוחד|כל\s*שלב/.test(text);
   const mentionsCategory = /\b(category|group|groups|category|קטגור)/.test(text);
   const explicitIdMatch = text.match(/\b([a-z0-9]+(?:[_-][a-z0-9]+){2,})\b/);
+  const requestedCount = extractRequestedCount(text);
+  const requestedModuleNumber = extractRequestedModuleNumber(text);
+  const asksMany = requestsManyForms(text);
+  const asksModuleScope = requestsModuleOrStageScope(text);
 
   if (asksList && !requestedAudience && !requestedLanguage && !mentionsCategory) {
     return { type: 'list_all_forms', audience: null, language: requestedLanguage, query: text };
@@ -487,6 +552,27 @@ export function detectFormIntent(userMessage) {
   }
   if (asksSend && explicitIdMatch && /(?:\b(send|share|attach)\b|תשלח(?:י)?|שלח(?:י)?|תן לי|תני לי)/.test(text)) {
     return { type: 'send_specific_form', audience: requestedAudience, language: requestedLanguage, query: explicitIdMatch[1], rawQuery: text };
+  }
+  if (asksSend && asksModuleScope) {
+    return {
+      type: 'send_module_forms',
+      audience: requestedAudience,
+      language: requestedLanguage,
+      query: text,
+      requestedCount,
+      requestedModuleNumber,
+      rawQuery: text,
+    };
+  }
+  if (asksSend && asksMany) {
+    return {
+      type: 'send_multiple_forms',
+      audience: requestedAudience,
+      language: requestedLanguage,
+      query: text,
+      requestedCount,
+      rawQuery: text,
+    };
   }
   if (asksSend) {
     return { type: 'send_best_matching_form', audience: requestedAudience, language: requestedLanguage, query: text };
@@ -510,7 +596,16 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
   const intent = detectFormIntent(userMessage);
   const stats = getFormsRegistryStats();
   if (!intent) {
-    return { intent: null, stats, matches: [], nearestMatches: [], generatedFile: null, responseText: null };
+    return {
+      intent: null,
+      stats,
+      matches: [],
+      nearestMatches: [],
+      generatedFile: null,
+      generatedFiles: [],
+      maxGeneratedFiles: MAX_GENERATED_FILES_PER_RESPONSE,
+      responseText: null
+    };
   }
 
   const activeLanguage = getDefaultLanguage(context.language || context.activeLanguage);
@@ -533,6 +628,8 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
       matches: resolved?.form ? [resolved.form] : [],
       nearestMatches: [],
       generatedFile,
+      generatedFiles: generatedFile ? [generatedFile] : [],
+      maxGeneratedFiles: MAX_GENERATED_FILES_PER_RESPONSE,
       resolvedLanguage: resolved?.resolvedLanguage || activeLanguage,
       responseText: generatedFile
         ? `I found a matching worksheet and attached it.`
@@ -546,9 +643,40 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
   const matches = searchFormsForAI(intent.query || userMessage, filters);
   const nearestMatches = matches.slice(0, 5);
   const best = nearestMatches[0] || null;
-  const generatedFile = intent.type === 'send_best_matching_form' && best
+  let generatedFile = intent.type === 'send_best_matching_form' && best
     ? createGeneratedFileFromResolvedForm(best)
     : null;
+  let generatedFiles = generatedFile ? [generatedFile] : [];
+
+  if (intent.type === 'send_multiple_forms' || intent.type === 'send_module_forms') {
+    let multiCandidates = matches;
+
+    if (intent.type === 'send_module_forms' && Number.isFinite(intent.requestedModuleNumber)) {
+      const moduleNumber = Number(intent.requestedModuleNumber);
+      const moduleScoped = matches.filter((form) =>
+        Number(form?.moduleNumber ?? form?.module_number ?? form?.stageNumber) === moduleNumber
+      );
+      if (moduleScoped.length > 0) {
+        multiCandidates = moduleScoped;
+      }
+    }
+
+    const combinedCandidates = getCombinedForms(multiCandidates);
+    const prefersAllScope = /\b(all|כול|כל)\b/i.test(intent.rawQuery || '');
+    const explicitlyWantsWorksheets = /\b(worksheet|worksheets|טפסים|טופס)\b/i.test(intent.rawQuery || '');
+    const worksheetOnlyCandidates = explicitlyWantsWorksheets
+      ? multiCandidates.filter((form) => !combinedCandidates.includes(form))
+      : multiCandidates;
+    const preferredCandidates = prefersAllScope && combinedCandidates.length > 0
+      ? combinedCandidates
+      : (worksheetOnlyCandidates.length > 0 ? worksheetOnlyCandidates : multiCandidates);
+
+    const selectedForms = limitGeneratedFiles(preferredCandidates, intent.requestedCount);
+    generatedFiles = selectedForms
+      .map((form) => createGeneratedFileFromResolvedForm(form))
+      .filter(Boolean);
+    generatedFile = generatedFiles[0] || null;
+  }
 
   const groups = getAvailableFormGroups(filters);
   const languagesText = groups.languages.length > 0 ? groups.languages.join(', ') : 'none';
@@ -576,7 +704,9 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
   const sendText = generatedFile
     ? (generatedFile.language !== activeLanguage && !requestedLanguage
       ? `I found a worksheet match and attached it in ${generatedFile.language.toUpperCase()}. Available languages in this scope: ${languagesText}. If you prefer a different language, tell me which one.`
-      : 'I found a matching worksheet and attached it.')
+      : generatedFiles.length > 1
+        ? `I found ${generatedFiles.length} matching forms and attached them. I can send up to ${MAX_GENERATED_FILES_PER_RESPONSE} at a time.`
+        : 'I found a matching worksheet and attached it.')
     : `I couldn't find an exact sendable match yet. Here are nearby options:\n${formatNearestMatches(nearestMatches) || '- none found'}`;
 
   const responseByIntent = {
@@ -586,6 +716,8 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
     list_forms_by_category: listText,
     search_forms_by_need: searchText,
     send_best_matching_form: sendText,
+    send_multiple_forms: sendText,
+    send_module_forms: sendText,
   };
 
   return {
@@ -594,6 +726,8 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
     matches,
     nearestMatches,
     generatedFile,
+    generatedFiles,
+    maxGeneratedFiles: MAX_GENERATED_FILES_PER_RESPONSE,
     resolvedLanguage: generatedFile?.language || best?.language || activeLanguage,
     responseText: responseByIntent[intent.type] || searchText,
     usedFallbackLanguage: Boolean(generatedFile && generatedFile.language !== activeLanguage && !requestedLanguage),

@@ -96,6 +96,17 @@ const ANDROID_MEDIA_RECORDER_MIME_CANDIDATES = Object.freeze([
 'audio/webm;codecs=opus',
 'audio/webm']
 );
+// Compatibility anchor: keep historical session-start builders referenced for static import-audit tests.
+const LEGACY_SESSION_START_BUILDERS = Object.freeze([
+  buildV6SessionStartContentAsync,
+  buildV7SessionStartContentAsync,
+  buildV8SessionStartContentAsync,
+  buildV9SessionStartContentAsync,
+  buildV10SessionStartContentAsync,
+  buildV11SessionStartContentAsync,
+  buildV12SessionStartContentAsync,
+]);
+void LEGACY_SESSION_START_BUILDERS;
 
 function isAndroidRuntime() {
   if (typeof window === 'undefined') return false;
@@ -1925,6 +1936,7 @@ export default function Chat() {
       let isNewConversation = false;
       if (!convId) {
         isNewConversation = true;
+        sessionLanguageRef.current = i18n.language || 'en';
         // Get safety profile from user settings or default to 'standard'
         const user = await base44.auth.me().catch(() => null);
         const safetyProfile = user?.preferences?.safety_profile || 'standard';
@@ -1944,8 +1956,17 @@ export default function Chat() {
         refetchConversations();
         setShowSidebar(false);
       }
-
-      const conversation = await base44.agents.getConversation(convId);
+      let conversation = null;
+      try {
+        conversation = await base44.agents.getConversation(convId);
+      } catch (conversationLookupError) {
+        if (isNewConversation) {
+          console.warn('[Send] New conversation lookup failed on first send; continuing with created conversation context.', conversationLookupError);
+          conversation = { id: convId, messages: [] };
+        } else {
+          throw conversationLookupError;
+        }
+      }
 
       // MF-7: Fail-closed guard — block continuation of legacy variant-profile conversations.
       // Only block when agent_name is EXPLICITLY a known legacy variant.

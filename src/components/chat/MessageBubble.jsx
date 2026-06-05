@@ -178,6 +178,21 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   const isGenericFileAttachment = attachmentType === 'file' && !!attachmentUrl;
   const isAudioAttachment = attachmentType === 'audio' && !!attachmentUrl;
   const hasRenderableAttachment = isImageAttachment || isPdfAttachment || isGenericFileAttachment || isAudioAttachment;
+  const generatedFiles = (() => {
+    if (isUser) return [];
+    const combined = [
+      ...(normalizeGeneratedFile(message?.metadata?.generated_file) ? [message.metadata.generated_file] : []),
+      ...((Array.isArray(message?.metadata?.generated_files) ? message.metadata.generated_files : [])
+        .filter((item) => normalizeGeneratedFile(item)))
+    ];
+    const seen = new Set();
+    return combined.filter((item) => {
+      const key = String(item?.form_id || item?.url || '');
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  })();
   if (!message.content && !hasRenderableAttachment) {
     return null;
   }
@@ -487,8 +502,14 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                   }
                   
                   {/* Assistant-generated downloadable file card */}
-                  {!isUser && normalizeGeneratedFile(message?.metadata?.generated_file) &&
-          <GeneratedFileCard generatedFile={message.metadata.generated_file} />
+                  {!isUser && generatedFiles.length > 0 &&
+          <div className="space-y-2">
+                      {generatedFiles.map((generatedFile, index) => (
+                        <GeneratedFileCard
+                          key={`${generatedFile?.form_id || generatedFile?.url || 'generated'}-${index}`}
+                          generatedFile={generatedFile} />
+                      ))}
+                    </div>
           }
 
                   {/* Feedback for assistant messages */}

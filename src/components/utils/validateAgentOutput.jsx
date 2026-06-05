@@ -323,8 +323,17 @@ function applyDeterministicFormRouteToAssistant({ content, metadata, formRoute }
 
   const intentType = formRoute.intent.type;
   const nextMetadata = { ...(metadata || {}) };
+  const routeGeneratedFiles = Array.isArray(formRoute.generatedFiles)
+    ? formRoute.generatedFiles.filter(Boolean)
+    : [];
   if (formRoute.generatedFile && !nextMetadata.generated_file) {
     nextMetadata.generated_file = formRoute.generatedFile;
+  }
+  if (routeGeneratedFiles.length > 0 && !Array.isArray(nextMetadata.generated_files)) {
+    nextMetadata.generated_files = routeGeneratedFiles.slice(0, formRoute.maxGeneratedFiles || 5);
+  }
+  if (!nextMetadata.generated_file && Array.isArray(nextMetadata.generated_files) && nextMetadata.generated_files.length > 0) {
+    nextMetadata.generated_file = nextMetadata.generated_files[0];
   }
 
   const deterministicText = typeof formRoute.responseText === 'string' ? formRoute.responseText.trim() : '';
@@ -808,37 +817,38 @@ export function extractAssistantMessage(rawContent) {
  * @param {string|null} [userQuery]          - The user message that triggered this response.
  *                                             Used for workbook routing priority override.
  * @param {string|null} [previousUserContext] - Earlier user message text for anaphoric context.
- * @returns {{ cleanedContent: string, generatedFile: object|null }}
+ * @returns {{ cleanedContent: string, generatedFile: object|null, generatedFiles: object[] }}
  */
 function extractAndResolveFormIntent(content, lang, userQuery, previousUserContext) {
   if (typeof content !== 'string' || !content) {
-    return { cleanedContent: content, generatedFile: null };
+    return { cleanedContent: content, generatedFile: null, generatedFiles: [] };
   }
 
   try {
     // Reset regex lastIndex before each use (global flag)
     FORM_INTENT_MARKER_PATTERN.lastIndex = 0;
 
-    let resolvedGeneratedFile = null;
+    const resolvedGeneratedFiles = [];
     let cleanedContent = content;
 
     // Replace all [FORM:slug] / [FORM:slug:lang] markers found in the content.
     // Only the FIRST resolved marker becomes the generated_file (one card per message).
     cleanedContent = content.replace(FORM_INTENT_MARKER_PATTERN, (match, slug, markerLang) => {
-      if (!resolvedGeneratedFile) {
-        // Prefer the language explicitly in the marker, then the session language
-        const effectiveLang = markerLang || lang || 'en';
-        const metadata = resolveFormIntent(slug, effectiveLang);
-        const normalizedSessionLang = normalizeSessionLanguage(lang || 'en');
-        const normalizedMarkerLang = normalizeSessionLanguage(effectiveLang);
-        const blocksNonEnglishSpecialized =
-          metadata?.category === 'adolescents_cbt_specialized' && normalizedSessionLang !== 'en';
-        const blocksCrossLanguageMarker =
-          normalizedMarkerLang !== normalizedSessionLang &&
-          !hasExplicitLanguageRequestFor(userQuery, normalizedMarkerLang);
+      // Prefer the language explicitly in the marker, then the session language
+      const effectiveLang = markerLang || lang || 'en';
+      const metadata = resolveFormIntent(slug, effectiveLang);
+      const normalizedSessionLang = normalizeSessionLanguage(lang || 'en');
+      const normalizedMarkerLang = normalizeSessionLanguage(effectiveLang);
+      const blocksNonEnglishSpecialized =
+        metadata?.category === 'adolescents_cbt_specialized' && normalizedSessionLang !== 'en';
+      const blocksCrossLanguageMarker =
+        normalizedMarkerLang !== normalizedSessionLang &&
+        !hasExplicitLanguageRequestFor(userQuery, normalizedMarkerLang);
 
-        if (metadata && !blocksNonEnglishSpecialized && !blocksCrossLanguageMarker) {
-          resolvedGeneratedFile = metadata;
+      if (metadata && !blocksNonEnglishSpecialized && !blocksCrossLanguageMarker) {
+        const alreadyIncluded = resolvedGeneratedFiles.some((item) => item?.form_id === metadata.form_id);
+        if (!alreadyIncluded && resolvedGeneratedFiles.length < 5) {
+          resolvedGeneratedFiles.push(metadata);
         }
       }
       // Always strip the marker from visible content regardless of resolution
@@ -872,14 +882,14 @@ function extractAndResolveFormIntent(content, lang, userQuery, previousUserConte
     // present or when no workbook matches, so this is a safe no-op for all
     // plain worksheet requests.
     if (
-      resolvedGeneratedFile &&
-      resolvedGeneratedFile.category !== 'workbook_series' &&
+      resolvedGeneratedFiles[0] &&
+      resolvedGeneratedFiles[0].category !== 'workbook_series' &&
       typeof userQuery === 'string' && userQuery.trim()
     ) {
       try {
         const workbookOverride = resolveWorkbookOverride();
         if (workbookOverride) {
-          resolvedGeneratedFile = workbookOverride;
+          resolvedGeneratedFiles[0] = workbookOverride;
         }
       } catch (_overrideErr) {
         // Fail-open: keep the original resolved form if the override throws
@@ -891,14 +901,14 @@ function extractAndResolveFormIntent(content, lang, userQuery, previousUserConte
     // [FORM:...] marker, still attach the matching full workbook instead of
     // leaving the response without a generated_file.
     if (
-      !resolvedGeneratedFile &&
+      resolvedGeneratedFiles.length === 0 &&
       lang === 'pt' &&
       typeof userQuery === 'string' && userQuery.trim()
     ) {
       try {
         const workbookFallback = resolveWorkbookOverride();
         if (workbookFallback?.category === 'workbook_series') {
-          resolvedGeneratedFile = workbookFallback;
+          resolvedGeneratedFiles.push(workbookFallback);
         }
       } catch (_fallbackErr) {
         // Fail-open: keep plain assistant text if fallback routing throws
@@ -908,10 +918,11 @@ function extractAndResolveFormIntent(content, lang, userQuery, previousUserConte
     // Clean up any whitespace artifacts left by marker removal
     cleanedContent = cleanedContent.replace(/\n{3,}/g, '\n\n').trim();
 
-    return { cleanedContent, generatedFile: resolvedGeneratedFile };
+    const generatedFiles = resolvedGeneratedFiles.slice(0, 5);
+    return { cleanedContent, generatedFile: generatedFiles[0] || null, generatedFiles };
   } catch (_err) {
     // Fail-open: return original content unchanged, no generated file
-    return { cleanedContent: content, generatedFile: null };
+    return { cleanedContent: content, generatedFile: null, generatedFiles: [] };
   }
 }
 
@@ -1083,7 +1094,7 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
       if (validated) {
         // Phase 3: extract [FORM:] marker from the validated assistant_message
         // (the marker is placed inside the assistant_message field, not the JSON wrapper).
-        const { cleanedContent: cleanedAssistantMsg, generatedFile } =
+        const { cleanedContent: cleanedAssistantMsg, generatedFile, generatedFiles } =
           extractAndResolveFormIntent(validated.assistant_message || '', effectiveLang, triggeringUserMsg, previousUserContext);
         const separated = splitAssistantPdfMessageIfNeeded(msg, cleanedAssistantMsg, previousMessage);
         const nextMetadata = {
@@ -1092,6 +1103,12 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
           sanitized: true
         };
         if (generatedFile && !nextMetadata.generated_file) nextMetadata.generated_file = generatedFile;
+        if (Array.isArray(generatedFiles) && generatedFiles.length > 0 && !Array.isArray(nextMetadata.generated_files)) {
+          nextMetadata.generated_files = generatedFiles;
+        }
+        if (!nextMetadata.generated_file && Array.isArray(nextMetadata.generated_files) && nextMetadata.generated_files.length > 0) {
+          nextMetadata.generated_file = nextMetadata.generated_files[0];
+        }
         if (separated.overflow) {
           nextMetadata[PDF_ANALYSIS_OVERFLOW_METADATA_KEY] = separated.overflow;
         }
@@ -1112,7 +1129,7 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
         try {
           const parsed = JSON.parse(msg.content);
           if (parsed.assistant_message) {
-            const { cleanedContent: cleanedAssistantMsg, generatedFile } =
+            const { cleanedContent: cleanedAssistantMsg, generatedFile, generatedFiles } =
               extractAndResolveFormIntent(parsed.assistant_message, effectiveLang, triggeringUserMsg, previousUserContext);
             const separated = splitAssistantPdfMessageIfNeeded(msg, cleanedAssistantMsg, previousMessage);
             const nextMetadata = {
@@ -1121,6 +1138,12 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
               sanitized: true
             };
             if (generatedFile && !nextMetadata.generated_file) nextMetadata.generated_file = generatedFile;
+            if (Array.isArray(generatedFiles) && generatedFiles.length > 0 && !Array.isArray(nextMetadata.generated_files)) {
+              nextMetadata.generated_files = generatedFiles;
+            }
+            if (!nextMetadata.generated_file && Array.isArray(nextMetadata.generated_files) && nextMetadata.generated_files.length > 0) {
+              nextMetadata.generated_file = nextMetadata.generated_files[0];
+            }
             if (separated.overflow) {
               nextMetadata[PDF_ANALYSIS_OVERFLOW_METADATA_KEY] = separated.overflow;
             }
@@ -1145,12 +1168,18 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
       // Phase 3: extract [FORM:slug] markers from the original model content
       // before applying text sanitization.
       if (typeof msg.content === 'string') {
-        const { cleanedContent: contentAfterFormExtract, generatedFile } =
+        const { cleanedContent: contentAfterFormExtract, generatedFile, generatedFiles } =
           extractAndResolveFormIntent(msg.content, effectiveLang, triggeringUserMsg, previousUserContext);
         const cleaned = sanitizeAssistantMessage(contentAfterFormExtract);
         const separated = splitAssistantPdfMessageIfNeeded(msg, cleaned, previousMessage);
         const nextMetadata = { ...(msg.metadata || {}) };
         if (generatedFile && !nextMetadata.generated_file) nextMetadata.generated_file = generatedFile;
+        if (Array.isArray(generatedFiles) && generatedFiles.length > 0 && !Array.isArray(nextMetadata.generated_files)) {
+          nextMetadata.generated_files = generatedFiles;
+        }
+        if (!nextMetadata.generated_file && Array.isArray(nextMetadata.generated_files) && nextMetadata.generated_files.length > 0) {
+          nextMetadata.generated_file = nextMetadata.generated_files[0];
+        }
         if (separated.overflow) {
           nextMetadata[PDF_ANALYSIS_OVERFLOW_METADATA_KEY] = separated.overflow;
         }
