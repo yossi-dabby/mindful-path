@@ -226,10 +226,27 @@ function resolveAttachmentType(fileName) {
   return 'file';
 }
 
+// Maximum number of candidate forms injected into [FORM_ROUTER_CONTEXT] per message.
+// Keeps the context block well under the Base44 bridge payload limit while giving
+// the AI enough ranked candidates to choose from.
+const MAX_ROUTER_CONTEXT_CANDIDATES = 8;
+
 function buildDeterministicFormRouterContext(route, sessionLanguage) {
   if (!route?.intent) return '';
   const intent = route.intent;
-  const topMatch = route.matches?.[0] || route.nearestMatches?.[0] || null;
+  const isMultiForm = intent.type === 'send_multiple_forms' || intent.type === 'send_module_forms';
+
+  // Deduplicated, ranked candidate list (matches first, then nearest matches)
+  const seenIds = new Set();
+  const candidates = [
+    ...(Array.isArray(route.matches) ? route.matches : []),
+    ...(Array.isArray(route.nearestMatches) ? route.nearestMatches : []),
+  ].filter((f) => {
+    if (!f?.id || seenIds.has(f.id)) return false;
+    seenIds.add(f.id);
+    return true;
+  }).slice(0, MAX_ROUTER_CONTEXT_CANDIDATES);
+
   const lines = [
     '[FORM_ROUTER_CONTEXT]',
     `intent: ${intent.type}`,
@@ -237,12 +254,42 @@ function buildDeterministicFormRouterContext(route, sessionLanguage) {
   ];
   if (intent.language) lines.push(`requested_language: ${intent.language}`);
   if (intent.audience) lines.push(`requested_audience: ${intent.audience}`);
-  if (topMatch?.id) lines.push(`best_match_form_id: ${topMatch.id}`);
-  if (topMatch?.title) lines.push(`best_match_form_title: ${topMatch.title}`);
+  if (isMultiForm) lines.push(`multi_form_request: yes`);
   lines.push(`registry_total: ${route.stats?.total || 0}`);
-  lines.push(`should_attach_form: ${route.generatedFile ? 'yes' : 'no'}`);
+
+  const resolvedFiles = Array.isArray(route.generatedFiles) ? route.generatedFiles : (route.generatedFile ? [route.generatedFile] : []);
+  lines.push(`should_attach_form: ${resolvedFiles.length > 0 ? 'yes' : 'no'}`);
+  if (resolvedFiles.length > 1) lines.push(`pre_resolved_form_count: ${resolvedFiles.length}`);
+
   if (route.usedFallbackLanguage) lines.push(`fallback_language_used: ${route.generatedFile?.language || route.resolvedLanguage || 'en'}`);
   if (route.responseText) lines.push(`deterministic_hint: ${String(route.responseText).replace(/\s+/g, ' ').trim()}`);
+
+  // Pre-resolved generatedFiles from deterministic routing (attach these directly)
+  if (resolvedFiles.length > 0) {
+    lines.push(`pre_resolved_forms (attach these — up to ${resolvedFiles.length}):`);
+    for (const gf of resolvedFiles.slice(0, 5)) {
+      lines.push(`  [FORM:${gf.form_id}] — ${gf.title || gf.form_id}`);
+    }
+  }
+
+  // Compact candidate list for AI-assisted matching (up to MAX_ROUTER_CONTEXT_CANDIDATES)
+  if (candidates.length > 0 && resolvedFiles.length === 0) {
+    lines.push(`candidate_forms (${candidates.length} ranked matches — use [FORM:id] for the most relevant):`);
+    for (const form of candidates) {
+      const lang = form.language || sessionLanguage || 'en';
+      const audience = form.audience || 'unknown';
+      const category = form.category || 'general';
+      let entry = `  [FORM:${form.id}] — ${form.title || form.id} (${lang}, ${audience}, ${category})`;
+      if (form.isCombinedPdf) entry += ' [combined]';
+      const summary = form.aiMatchingSummary || form.whenToUse || form.therapeuticGoal;
+      if (summary) {
+        const truncated = String(summary).replace(/\s+/g, ' ').trim().slice(0, 120);
+        entry += `\n    ${truncated}`;
+      }
+      lines.push(entry);
+    }
+  }
+
   return `\n${lines.join('\n')}\n`;
 }
 

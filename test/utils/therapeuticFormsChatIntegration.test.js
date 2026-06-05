@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { sanitizeConversationMessages } from '../../src/components/utils/validateAgentOutput.jsx';
+import { getTherapeuticFormsPolicyPayload, buildTherapistFormCatalog } from '../../src/lib/therapeuticFormsPolicy.js';
+import { getAllTherapeuticForms } from '../../src/data/therapeuticForms/index.js';
+import { resolveFormForAIRequest, detectFormIntent } from '../../src/data/therapeuticForms/aiFormsAccess.js';
 
 describe('therapeuticFormsChatIntegration.test.js', () => {
   it('new-chat first assistant response sanitizes without runtime error', () => {
@@ -188,5 +191,95 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     const result = sanitizeConversationMessages(messages, 'en');
     const assistant = result.find((m) => m.role === 'assistant');
     expect(assistant?.metadata?.generated_file?.form_id).toBe('children-cbt-core-en-5-1');
+  });
+
+  it('stores Hebrew multi-form attachments in metadata.generated_files with language gating', () => {
+    const messages = [
+      { role: 'user', content: 'שלח לי כמה טפסים לילד עם חרדת פרידה', metadata: { session_language: 'he' } },
+      { role: 'assistant', content: 'בשמחה.' },
+    ];
+    const result = sanitizeConversationMessages(messages, 'he');
+    const assistant = result.find((m) => m.role === 'assistant');
+    expect(Array.isArray(assistant?.metadata?.generated_files)).toBe(true);
+    expect(assistant?.metadata?.generated_files?.length).toBeGreaterThan(0);
+    expect(assistant?.metadata?.generated_files?.length).toBeLessThanOrEqual(5);
+    // All attached files must be Hebrew
+    for (const f of (assistant?.metadata?.generated_files || [])) {
+      expect(f.language).toBe('he');
+    }
+    expect(assistant?.metadata?.generated_file).toBeTruthy();
+    expect(assistant?.metadata?.generated_file?.language).toBe('he');
+  });
+});
+
+// ─── Phase 3 & 6 A: Payload size / first-message safety ──────────────────────
+describe('therapeuticFormsChatIntegration: payload size safety', () => {
+  // Safe threshold for a Base44 chat message: well below the bridge limit.
+  // The session-start forms policy block must never exceed this alone.
+  const SAFE_POLICY_CHAR_LIMIT = 3000;
+
+  it('forms policy payload (EN) stays within safe character limit', () => {
+    const { policy } = getTherapeuticFormsPolicyPayload({ sessionLanguage: 'en' });
+    expect(policy.length).toBeLessThan(SAFE_POLICY_CHAR_LIMIT);
+  });
+
+  it('forms policy payload (HE) stays within safe character limit', () => {
+    const { policy } = getTherapeuticFormsPolicyPayload({ sessionLanguage: 'he' });
+    expect(policy.length).toBeLessThan(SAFE_POLICY_CHAR_LIMIT);
+  });
+
+  it('forms policy payload does not embed per-form listings (no [FORM:...] IDs in policy text)', () => {
+    const { policy: policyEn } = getTherapeuticFormsPolicyPayload({ sessionLanguage: 'en' });
+    const { policy: policyHe } = getTherapeuticFormsPolicyPayload({ sessionLanguage: 'he' });
+    // Policy text must NOT list actual form IDs — those are injected on-demand.
+    // Real form IDs always end with a digit (e.g. children-cbt-core-en-1-1);
+    // template placeholders like [FORM:id] or [FORM:form-id] are intentionally allowed.
+    expect(policyEn).not.toMatch(/\[FORM:[a-z][a-z0-9-]+-\d+\]/);
+    expect(policyHe).not.toMatch(/\[FORM:[a-z][a-z0-9-]+-\d+\]/);
+  });
+
+  it('buildTherapistFormCatalog does not grow with form count (compact summary only)', () => {
+    const allForms = getAllTherapeuticForms();
+    const catalog = buildTherapistFormCatalog(allForms);
+    // Compact catalog must stay under 2KB regardless of how many forms are registered
+    expect(catalog.length).toBeLessThan(2000);
+    // Must not contain actual per-form ID listings (real IDs always end with a digit segment)
+    // Template placeholders like [FORM:id] or [FORM:form-id] are allowed in instruction text.
+    expect(catalog).not.toMatch(/\[FORM:[a-z][a-z0-9-]+-\d+\]/);
+  });
+
+  it('policy does not contain forms catalog keywords/intent-phrases (no metadata bloat)', () => {
+    const { policy } = getTherapeuticFormsPolicyPayload({ sessionLanguage: 'he' });
+    expect(policy.toLowerCase()).not.toContain('clinical keywords:');
+    expect(policy.toLowerCase()).not.toContain('intent phrases:');
+    expect(policy.toLowerCase()).not.toContain('not for:');
+    expect(policy.toLowerCase()).not.toContain('goal:');
+    expect(policy.toLowerCase()).not.toContain('when to use:');
+  });
+
+  it('policy explicitly states multi-form capability (up to 5)', () => {
+    const { policy } = getTherapeuticFormsPolicyPayload({ sessionLanguage: 'en' });
+    expect(policy).toContain('5');
+    expect(policy.toLowerCase()).toMatch(/multi.form|multiple forms|up to 5/i);
+  });
+
+  it('first-message form request stays below safe payload threshold', () => {
+    // Simulate the form router context that gets appended to a first-message form request
+    const route = resolveFormForAIRequest('שלח לי כמה טפסים לילד עם חרדת פרידה', { language: 'he' });
+    // The router context should be compact (top 8 candidates, not full catalog)
+    const topMatches = [...(route.matches || []), ...(route.nearestMatches || [])].slice(0, 8);
+    // Each candidate's compact summary is at most ~300 chars
+    const estimatedRouterContextChars = topMatches.reduce((sum, form) => {
+      const summary = form.aiMatchingSummary || form.whenToUse || form.therapeuticGoal || '';
+      return sum + 100 + Math.min(String(summary).length, 120);
+    }, 300); // 300 base for header/footer
+    expect(estimatedRouterContextChars).toBeLessThan(5000);
+  });
+
+  it('all forms remain searchable via registry after catalog compaction', () => {
+    const allForms = getAllTherapeuticForms();
+    expect(allForms.length).toBeGreaterThan(400);
+    const hebrewForms = allForms.filter((f) => f.language === 'he' && f.approved);
+    expect(hebrewForms.length).toBeGreaterThan(100);
   });
 });

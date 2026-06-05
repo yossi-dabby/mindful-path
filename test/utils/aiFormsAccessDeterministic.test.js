@@ -372,3 +372,61 @@ describe('aiFormsAccess deterministic intent + grouping', () => {
     expect(groups.examples.length).toBeGreaterThan(0);
   });
 });
+
+// ─── Phase 4: Hebrew multi-form intent detection ──────────────────────────────
+describe('aiFormsAccess Hebrew multi-form detection', () => {
+  it('detects Hebrew "שלח לי כמה טפסים לילד עם חרדת פרידה" as send_multiple_forms', () => {
+    const intent = detectFormIntent('שלח לי כמה טפסים לילד עם חרדת פרידה');
+    expect(intent?.type).toBe('send_multiple_forms');
+  });
+
+  it('detects Hebrew "שלח לי מספר טפסים" as send_multiple_forms', () => {
+    const intent = detectFormIntent('שלח לי מספר טפסים');
+    expect(intent?.type).toBe('send_multiple_forms');
+  });
+
+  it('detects Hebrew "תן לי כמה טפסים" as send_multiple_forms', () => {
+    const intent = detectFormIntent('תן לי כמה טפסים');
+    expect(intent?.type).toBe('send_multiple_forms');
+  });
+
+  it('detects Hebrew "שלח לי כמה דפי עבודה" as send_multiple_forms', () => {
+    const intent = detectFormIntent('שלח לי כמה דפי עבודה');
+    expect(intent?.type).toBe('send_multiple_forms');
+  });
+
+  it('detects Hebrew "כל הטפסים" as send_multiple_forms when combined with send verb', () => {
+    const intent = detectFormIntent('שלח לי את כל הטפסים');
+    expect(intent?.type).toBe('send_multiple_forms');
+  });
+
+  it('resolves Hebrew multi-form request to multiple generatedFiles in Hebrew only', () => {
+    const route = resolveFormForAIRequest('שלח לי כמה טפסים לילד עם חרדת פרידה', { language: 'he' });
+    expect(route.intent?.type).toBe('send_multiple_forms');
+    expect(Array.isArray(route.generatedFiles)).toBe(true);
+    expect(route.generatedFiles.length).toBeGreaterThan(1);
+    expect(route.generatedFiles.length).toBeLessThanOrEqual(5);
+    // All results must be Hebrew
+    expect(route.generatedFiles.every((f) => f.language === 'he')).toBe(true);
+  });
+
+  it('resolves Hebrew capability question as a form intent', () => {
+    // "האם אתה יכול לשלוח מספר טפסים במקביל" should detect send intent (לשלוח + טפסים)
+    const intent = detectFormIntent('האם אתה יכול לשלוח מספר טפסים במקביל');
+    expect(intent).not.toBeNull();
+    expect(intent?.type).toBe('send_multiple_forms');
+  });
+
+  it('generated_files count is capped at MAX_GENERATED_FILES_PER_RESPONSE (5)', () => {
+    const route = resolveFormForAIRequest('שלח לי כמה טפסים לילד', { language: 'he' });
+    expect(Array.isArray(route.generatedFiles)).toBe(true);
+    expect(route.generatedFiles.length).toBeLessThanOrEqual(5);
+  });
+
+  it('single Hebrew form request returns exactly one generatedFile', () => {
+    const route = resolveFormForAIRequest('שלח לי טופס לילד עם חרדה', { language: 'he' });
+    expect(route.intent?.type).toBe('send_best_matching_form');
+    expect(route.generatedFile).toBeTruthy();
+    expect(route.generatedFile?.language).toBe('he');
+  });
+});

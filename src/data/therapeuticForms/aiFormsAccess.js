@@ -161,8 +161,12 @@ function extractRequestedCount(text) {
     if (new RegExp(`\\b${word}\\b`, 'i').test(normalized)) return count;
   }
 
-  if (/\b(several|few|multiple|some|כמה|מספר)\b/i.test(normalized)) return 3;
-  if (/\b(all|every|כול|כל)\b/i.test(normalized)) return MAX_GENERATED_FILES_PER_RESPONSE;
+  // English: use \b (ASCII word chars support word boundaries)
+  if (/\b(several|few|multiple|some)\b/i.test(normalized)) return 3;
+  if (/\b(all|every)\b/i.test(normalized)) return MAX_GENERATED_FILES_PER_RESPONSE;
+  // Hebrew: \b does not work for non-ASCII — match as substring
+  if (/כמה|מספר/.test(normalized)) return 3;
+  if (/כול|כל/.test(normalized)) return MAX_GENERATED_FILES_PER_RESPONSE;
   return null;
 }
 
@@ -183,7 +187,18 @@ function requestsModuleOrStageScope(text) {
 function requestsManyForms(text) {
   const normalized = normalizeText(text);
   if (!normalized) return false;
-  return /\b(all forms|all worksheets|several forms|multiple forms|few forms|כמה טפסים|כל הטפסים|כל שלב|כל מודול)\b/i.test(normalized);
+  // English patterns (ASCII word chars — \b works correctly here)
+  if (/\b(all forms|all worksheets|several forms|multiple forms|few forms)\b/i.test(normalized)) return true;
+  // Hebrew patterns — \b does NOT work for Hebrew (non-ASCII are not regex word chars).
+  // Match as substring; surrounding context is handled by the broader intent detection.
+  if (/כמה\s+(?:טפסים|דפי\s+עבודה|קבצים|דפים)/.test(normalized)) return true;
+  if (/מספר\s+(?:טפסים|דפי\s+עבודה|קבצים|דפים)/.test(normalized)) return true;
+  if (/כל\s+הטפסים/.test(normalized)) return true;
+  if (/כל\s+שלב/.test(normalized)) return true;
+  if (/כל\s+מודול/.test(normalized)) return true;
+  // Standalone "כמה" or "מספר" next to "טפסים" variants (covers partial spacing)
+  if (/כמה\s+דפים\s+שמתאימים/.test(normalized)) return true;
+  return false;
 }
 
 function getCombinedForms(forms) {
@@ -530,7 +545,9 @@ export function detectFormIntent(userMessage) {
   const asksList = FORM_INTENT_PATTERNS.list.test(text);
   const asksSend = FORM_INTENT_PATTERNS.send.test(text)
     || /\bform\b|\bworksheet\b|טופס/.test(text)
-    || /שלב\s*[1-6]|קובץ\s*מאוחד|כל\s*שלב/.test(text);
+    || /שלב\s*[1-6]|קובץ\s*מאוחד|כל\s*שלב/.test(text)
+    // Hebrew infinitive "לשלוח" (to send) followed by form-related words
+    || /לשלוח\s+(?:טפסים|טופס|כמה|מספר|קבצים)/.test(text);
   const mentionsCategory = /\b(category|group|groups|category|קטגור)/.test(text);
   const explicitIdMatch = text.match(/\b([a-z0-9]+(?:[_-][a-z0-9]+){2,})\b/);
   const requestedCount = extractRequestedCount(text);

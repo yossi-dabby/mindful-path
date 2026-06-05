@@ -136,22 +136,20 @@ const _FORM_CATALOG_AUDIENCE_SAFETY_NOTES = Object.freeze({
 });
 
 /**
- * Builds the compact AI-facing form catalog from the approved TherapeuticForms registry.
+ * Builds the compact AI-facing form availability summary from the approved TherapeuticForms registry.
  *
- * Called at module load time to produce the catalog text injected into the CBT Therapist
- * context.  Accepts the full forms list so the function is pure and test-importable
- * without mocking the registry.
+ * Intentionally outputs a count-only summary — NOT a per-form listing — to keep
+ * the Base44 message payload within safe limits (full per-form listings with metadata
+ * for 400+ forms produce ~170KB+ payloads that trigger "Message content is too long").
  *
- * Output format per form: [FORM:id]  — Best-available title (category) | shortContentDescriptionHe
- * For Hebrew-only forms, the Hebrew title is used when no English title is present.
- * Forms are grouped by audience with safety notes for child/adolescent audiences.
- * No file URLs are included — the client resolves those from the form ID.
+ * Candidate form IDs and compact metadata are injected at request-time via
+ * [FORM_ROUTER_CONTEXT] blocks in Chat.jsx, so the AI only sees the relevant subset.
  *
  * @param {readonly object[]} forms  - ALL_FORMS from the TherapeuticForms registry
- * @returns {string}  Compact multi-line catalog, grouped by audience
+ * @returns {string}  Compact availability summary
  */
 export function buildTherapistFormCatalog(forms) {
-  const approvedForms = forms.filter(f => f.approved === true);
+  const approvedForms = Array.isArray(forms) ? forms.filter(f => f?.approved === true) : [];
   if (approvedForms.length === 0) {
     return [
       'THERAPEUTIC FORMS AVAILABILITY: no therapeutic forms are currently installed/available.',
@@ -160,50 +158,35 @@ export function buildTherapistFormCatalog(forms) {
     ].join('\n');
   }
 
-  // Group by audience
   const byAudience = {};
+  const byLanguage = {};
   for (const form of approvedForms) {
-    const aud = form.audience || 'unknown';
-    if (!byAudience[aud]) byAudience[aud] = [];
-    byAudience[aud].push(form);
+    const audience = form.audience || 'unknown';
+    const language = form.language || 'unknown';
+    byAudience[audience] = (byAudience[audience] || 0) + 1;
+    byLanguage[language] = (byLanguage[language] || 0) + 1;
   }
 
-  const total = approvedForms.length;
-  const audienceCount = Object.keys(byAudience).length;
-  const lines = [`CURRENTLY APPROVED FORMS — ${total} forms across ${audienceCount} audiences (use only these exact IDs):`];
+  const audienceSummary = _FORM_CATALOG_AUDIENCE_ORDER
+    .filter((a) => byAudience[a])
+    .map((a) => `${_FORM_CATALOG_AUDIENCE_LABELS[a] || a}: ${byAudience[a]}`)
+    .join(', ');
+  const languageSummary = Object.entries(byLanguage)
+    .map(([lang, count]) => `${lang.toUpperCase()}: ${count}`)
+    .join(', ');
 
-  for (const audience of _FORM_CATALOG_AUDIENCE_ORDER) {
-    const audienceForms = byAudience[audience];
-    if (!audienceForms || audienceForms.length === 0) continue;
-
-    const label = _FORM_CATALOG_AUDIENCE_LABELS[audience] || audience;
-    const safetyNote = _FORM_CATALOG_AUDIENCE_SAFETY_NOTES[audience] || '';
-    lines.push('');
-    lines.push(`[${label}${safetyNote}]`);
-    for (const form of audienceForms) {
-      // Use best available title: English > Hebrew > form ID
-      const bestTitle = form.languages?.en?.title || form.languages?.he?.title || form.title || form.id;
-      const therapeuticGoalRaw = form.therapeuticGoal || form.therapeutic_goal;
-      const whenToUseRaw = form.whenToUse || form.when_to_use;
-      const keywordsRaw = Array.isArray(form.clinicalKeywords) ? form.clinicalKeywords : (Array.isArray(form.keywords) ? form.keywords : []);
-      const therapeuticGoal = typeof therapeuticGoalRaw === 'string' ? therapeuticGoalRaw.trim() : '';
-      const whenToUse = typeof whenToUseRaw === 'string' ? whenToUseRaw.trim() : '';
-      const clinicalKeywords = keywordsRaw.filter(Boolean).join(', ');
-      const intentPhrases = Array.isArray(form.intentPhrases) ? form.intentPhrases.filter(Boolean).join(' | ') : '';
-      const notFor = Array.isArray(form.notFor) ? form.notFor.filter(Boolean).join('; ') : '';
-      const desc = form.shortContentDescriptionHe ? ` | ${form.shortContentDescriptionHe}` : '';
-      lines.push(`  [FORM:${form.id}]  — ${bestTitle} (${form.category})${desc}`);
-      if (therapeuticGoal) lines.push(`    Goal: ${therapeuticGoal}`);
-      if (whenToUse) lines.push(`    When to use: ${whenToUse}`);
-      if (clinicalKeywords) lines.push(`    Clinical keywords: ${clinicalKeywords}`);
-      if (intentPhrases) lines.push(`    Intent phrases: ${intentPhrases}`);
-      if (notFor) lines.push(`    Not for: ${notFor}`);
-    }
-  }
-
-  return lines.join('\n');
+  return [
+    `THERAPEUTIC FORMS CATALOG — ${approvedForms.length} approved forms available.`,
+    `  By audience: ${audienceSummary || 'none'}.`,
+    `  By language: ${languageSummary || 'none'}.`,
+    'Candidate form IDs and titles are provided in [FORM_ROUTER_CONTEXT] when the user requests forms.',
+    'Use ONLY [FORM:id] markers from those contexts. Do NOT invent form IDs.',
+  ].join('\n');
 }
 
+// NOTE: buildTherapistFormLibraryInstructions is not called in the active session-start
+// path (that path calls getTherapistFormLibraryInstructions → getTherapeuticFormsPolicyPayload).
+// Kept for reference; updated to reflect multi-form capability and compact catalog.
 function buildTherapistFormLibraryInstructions(forms) {
   if (!Array.isArray(forms) || forms.filter((f) => f?.approved === true).length === 0) {
     return [
@@ -229,8 +212,10 @@ function buildTherapistFormLibraryInstructions(forms) {
 
   return [
     '[THERAPEUTIC_FORMS_POLICY]',
-    'Therapeutic forms are available only from the approved catalog below.',
-    'When a user requests a workbook/form, use at most one exact [FORM:form-id] marker from the approved list.',
+    'Therapeutic forms are available from the approved catalog.',
+    'MULTI-FORM CAPABILITY: You CAN send ONE form for specific requests, or UP TO 5 forms for multi-form requests.',
+    '  - For "several forms", "multiple forms", or module/stage requests: use up to 5 [FORM:form-id] markers.',
+    '  - If the user asks whether you can send multiple forms: answer YES — up to 5 forms in one response.',
     '',
     buildTherapistFormCatalog(forms),
     '',
