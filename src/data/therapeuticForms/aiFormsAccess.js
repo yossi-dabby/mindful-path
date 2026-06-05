@@ -164,9 +164,9 @@ function extractRequestedCount(text) {
   // English: use \b (ASCII word chars support word boundaries)
   if (/\b(several|few|multiple|some)\b/i.test(normalized)) return 3;
   if (/\b(all|every)\b/i.test(normalized)) return MAX_GENERATED_FILES_PER_RESPONSE;
-  // Hebrew: \b does not work for non-ASCII — match as substring
+  // Hebrew: \b does not work for non-ASCII — use contextual patterns to avoid substring false positives
   if (/כמה|מספר/.test(normalized)) return 3;
-  if (/כול|כל/.test(normalized)) return MAX_GENERATED_FILES_PER_RESPONSE;
+  if (/כול\s|כל\s+ה/.test(normalized)) return MAX_GENERATED_FILES_PER_RESPONSE;
   return null;
 }
 

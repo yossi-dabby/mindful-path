@@ -257,7 +257,12 @@ function buildDeterministicFormRouterContext(route, sessionLanguage) {
   if (isMultiForm) lines.push(`multi_form_request: yes`);
   lines.push(`registry_total: ${route.stats?.total || 0}`);
 
-  const resolvedFiles = Array.isArray(route.generatedFiles) ? route.generatedFiles : (route.generatedFile ? [route.generatedFile] : []);
+  let resolvedFiles = [];
+  if (Array.isArray(route.generatedFiles)) {
+    resolvedFiles = route.generatedFiles;
+  } else if (route.generatedFile) {
+    resolvedFiles = [route.generatedFile];
+  }
   lines.push(`should_attach_form: ${resolvedFiles.length > 0 ? 'yes' : 'no'}`);
   if (resolvedFiles.length > 1) lines.push(`pre_resolved_form_count: ${resolvedFiles.length}`);
 

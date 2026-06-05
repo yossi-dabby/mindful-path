@@ -193,7 +193,7 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     expect(assistant?.metadata?.generated_file?.form_id).toBe('children-cbt-core-en-5-1');
   });
 
-  it('stores Hebrew multi-form attachments in metadata.generated_files with language gating', () => {
+  it('sanitizes Hebrew multi-form request into metadata.generated_files with language gating', () => {
     const messages = [
       { role: 'user', content: 'שלח לי כמה טפסים לילד עם חרדת פרידה', metadata: { session_language: 'he' } },
       { role: 'assistant', content: 'בשמחה.' },
@@ -218,6 +218,10 @@ describe('therapeuticFormsChatIntegration: payload size safety', () => {
   // The session-start forms policy block must never exceed this alone.
   const SAFE_POLICY_CHAR_LIMIT = 3000;
 
+  // Real form IDs always end with a digit segment (e.g. children-cbt-core-en-1-1).
+  // Template placeholders like [FORM:id] or [FORM:form-id] are intentionally allowed in instruction text.
+  const REAL_FORM_ID_PATTERN = /\[FORM:[a-z][a-z0-9-]+-\d+\]/;
+
   it('forms policy payload (EN) stays within safe character limit', () => {
     const { policy } = getTherapeuticFormsPolicyPayload({ sessionLanguage: 'en' });
     expect(policy.length).toBeLessThan(SAFE_POLICY_CHAR_LIMIT);
@@ -234,8 +238,8 @@ describe('therapeuticFormsChatIntegration: payload size safety', () => {
     // Policy text must NOT list actual form IDs — those are injected on-demand.
     // Real form IDs always end with a digit (e.g. children-cbt-core-en-1-1);
     // template placeholders like [FORM:id] or [FORM:form-id] are intentionally allowed.
-    expect(policyEn).not.toMatch(/\[FORM:[a-z][a-z0-9-]+-\d+\]/);
-    expect(policyHe).not.toMatch(/\[FORM:[a-z][a-z0-9-]+-\d+\]/);
+    expect(policyEn).not.toMatch(REAL_FORM_ID_PATTERN);
+    expect(policyHe).not.toMatch(REAL_FORM_ID_PATTERN);
   });
 
   it('buildTherapistFormCatalog does not grow with form count (compact summary only)', () => {
@@ -245,7 +249,7 @@ describe('therapeuticFormsChatIntegration: payload size safety', () => {
     expect(catalog.length).toBeLessThan(2000);
     // Must not contain actual per-form ID listings (real IDs always end with a digit segment)
     // Template placeholders like [FORM:id] or [FORM:form-id] are allowed in instruction text.
-    expect(catalog).not.toMatch(/\[FORM:[a-z][a-z0-9-]+-\d+\]/);
+    expect(catalog).not.toMatch(REAL_FORM_ID_PATTERN);
   });
 
   it('policy does not contain forms catalog keywords/intent-phrases (no metadata bloat)', () => {
