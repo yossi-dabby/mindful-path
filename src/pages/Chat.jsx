@@ -1085,8 +1085,9 @@ export default function Chat() {
               setShowSavePrompt(true);
             }
 
-            // Stop polling if active - subscription worked
-            if (pollingIntervalRef.current) {
+            // Stop polling only when subscription has delivered the expected reply
+            // count. An early empty-messages callback must not cancel the poll.
+            if (subscriptionSucceededRef.current && pollingIntervalRef.current) {
               console.log('[Subscription] Stopping polling - subscription successful');
               clearInterval(pollingIntervalRef.current);
               pollingIntervalRef.current = null;
