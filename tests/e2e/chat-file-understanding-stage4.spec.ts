@@ -204,7 +204,7 @@ async function startChatWithRuntimeMocks(page: Parameters<typeof mockApi>[0]) {
     const req = route.request();
     const url = req.url();
     if (req.method() !== 'GET' || /\/messages\b/i.test(url)) {
-      await route.continue();
+      await route.fallback();
       return;
     }
 
