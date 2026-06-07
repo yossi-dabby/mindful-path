@@ -59,3 +59,20 @@ If tests fail:
   ```bash
   npm run test:e2e -- --ui
   ```
+
+## Playwright CI Merge Gate (Required Checks)
+
+The Playwright GitHub Actions workflow can run on pull requests and pushes, but merge gating is enforced by GitHub branch protection settings (not by workflow YAML alone).
+
+To require Playwright before merging:
+
+1. Go to repository **Settings**.
+2. Open **Branches**.
+3. Edit the branch protection rule for `main` (or the target protected branch).
+4. Enable **Require status checks to pass before merging**.
+5. Select the Playwright matrix checks:
+   - `E2E smoke-production-critical`
+   - `E2E web-desktop`
+   - `E2E mobile-390x844`
+6. Save the protection rule.
+7. Future PRs cannot merge until these checks pass.
