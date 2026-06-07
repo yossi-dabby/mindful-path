@@ -77,6 +77,9 @@ const ADOLESCENTS_GROUP_LABELS = Object.freeze([
 ]);
 
 export const MAX_GENERATED_FILES_PER_RESPONSE = 5;
+const MAX_MODEL_CANDIDATE_FORMS = 8;
+const MULTI_FORM_CAPABILITY_RESPONSE_HE = 'כן. אני יכול לשלוח כמה טפסים יחד, עד 5 טפסים בתגובה אחת. אם יש קובץ מאוחד מתאים, אעדיף לשלוח אותו במקום להציף בכמה קבצים.';
+const MULTI_FORM_CAPABILITY_RESPONSE_EN = 'Yes. I can send several forms together, up to 5 forms in one response. If a combined module PDF exists, I will prefer that instead of sending many separate files.';
 
 const NUMBER_WORD_MAP = Object.freeze({
   one: 1,
@@ -183,7 +186,24 @@ function requestsModuleOrStageScope(text) {
 function requestsManyForms(text) {
   const normalized = normalizeText(text);
   if (!normalized) return false;
-  return /\b(all forms|all worksheets|several forms|multiple forms|few forms|כמה טפסים|כל הטפסים|כל שלב|כל מודול)\b/i.test(normalized);
+  return /(?:\b(?:all forms|all worksheets|several forms|multiple forms|few forms|several worksheets|multiple worksheets)\b|(?:\b\d{1,2}\s*(?:forms|worksheets)\b)|(?:כמה|מספר)\s*(?:טפסים|דפים|דפי\s*עבודה)|כל\s*(?:הטפסים|שלב|מודול)|שלח(?:י)?\s*לי\s*כמה\s*טפסים|שלח(?:י)?\s*לי\s*מספר\s*טפסים|תן(?:י)?\s*לי\s*כמה\s*טפסים|אני\s*צריך\s*כמה\s*טפסים|כמה\s*דפים\s*שמתאימים|מספר\s*דפי\s*עבודה)/i.test(normalized);
+}
+
+function asksMultiFormCapability(text) {
+  const normalized = normalizeText(text);
+  if (!normalized) return false;
+  return (
+    /(?:\bcan you\b|\bare you able\b|\bdo you support\b|האם\s*את(?:ה|)\s*יכול|אפשר)\s*(?:.*?)(?:send|share|attach|לשלוח|לשלח)\s*(?:.*?)(?:multiple|several|כמה|מספר)\s*(?:forms|worksheets|טפסים|דפי\s*עבודה)/i.test(normalized) ||
+    /(?:רק\s*טופס\s*אחד|only\s*one\s*form\s*at\s*a\s*time|one\s*form\s*at\s*a\s*time)/i.test(normalized)
+  );
+}
+
+function isBroadAllFormsRequest(intent) {
+  const raw = normalizeText(intent?.rawQuery || intent?.query || '');
+  if (!raw) return false;
+  const asksAll = /\b(all forms|all worksheets)\b|כל\s*הטפסים/i.test(raw);
+  const hasScope = /\b(module|stage|children|child|kids|adolescents|teens|anxiety|ocd|anger|sleep)\b|(?:מודול|שלב|ילד|ילדים|מתבגר|מתבגרים|חרדה|כעס|שינה|היפרדות)/i.test(raw);
+  return asksAll && !hasScope;
 }
 
 function getCombinedForms(forms) {
@@ -537,6 +557,7 @@ export function detectFormIntent(userMessage) {
   const requestedModuleNumber = extractRequestedModuleNumber(text);
   const asksMany = requestsManyForms(text);
   const asksModuleScope = requestsModuleOrStageScope(text);
+  const asksMultiCapability = asksMultiFormCapability(text);
 
   if (asksList && !requestedAudience && !requestedLanguage && !mentionsCategory) {
     return { type: 'list_all_forms', audience: null, language: requestedLanguage, query: text };
@@ -549,6 +570,15 @@ export function detectFormIntent(userMessage) {
   }
   if (asksList && mentionsCategory) {
     return { type: 'list_forms_by_category', audience: requestedAudience, language: requestedLanguage, query: text };
+  }
+  if (asksMultiCapability) {
+    return {
+      type: 'forms_capability_query',
+      audience: requestedAudience,
+      language: requestedLanguage,
+      query: text,
+      rawQuery: text,
+    };
   }
   if (asksSend && explicitIdMatch && /(?:\b(send|share|attach)\b|תשלח(?:י)?|שלח(?:י)?|תן לי|תני לי)/.test(text)) {
     return { type: 'send_specific_form', audience: requestedAudience, language: requestedLanguage, query: explicitIdMatch[1], rawQuery: text };
@@ -642,11 +672,32 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
 
   const matches = searchFormsForAI(intent.query || userMessage, filters);
   const nearestMatches = matches.slice(0, 5);
+  const modelCandidates = matches.slice(0, MAX_MODEL_CANDIDATE_FORMS);
   const best = nearestMatches[0] || null;
   let generatedFile = intent.type === 'send_best_matching_form' && best
     ? createGeneratedFileFromResolvedForm(best)
     : null;
   let generatedFiles = generatedFile ? [generatedFile] : [];
+
+  if (intent.type === 'forms_capability_query') {
+    const capabilityText = activeLanguage === 'he'
+      ? MULTI_FORM_CAPABILITY_RESPONSE_HE
+      : MULTI_FORM_CAPABILITY_RESPONSE_EN;
+    return {
+      intent,
+      stats,
+      matches: modelCandidates,
+      nearestMatches,
+      generatedFile: null,
+      generatedFiles: [],
+      maxGeneratedFiles: MAX_GENERATED_FILES_PER_RESPONSE,
+      resolvedLanguage: activeLanguage,
+      responseText: capabilityText,
+      usedFallbackLanguage: false,
+      fallbackReason: null,
+      availableLanguages: getAvailableLanguagesForForms(nearestMatches),
+    };
+  }
 
   if (intent.type === 'send_multiple_forms' || intent.type === 'send_module_forms') {
     let multiCandidates = matches;
@@ -671,11 +722,22 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
       ? combinedCandidates
       : (worksheetOnlyCandidates.length > 0 ? worksheetOnlyCandidates : multiCandidates);
 
-    const selectedForms = limitGeneratedFiles(preferredCandidates, intent.requestedCount);
-    generatedFiles = selectedForms
-      .map((form) => createGeneratedFileFromResolvedForm(form))
-      .filter(Boolean);
-    generatedFile = generatedFiles[0] || null;
+    if (intent.type === 'send_multiple_forms' && isBroadAllFormsRequest(intent)) {
+      generatedFiles = [];
+      generatedFile = null;
+    } else if (intent.type === 'send_module_forms' && combinedCandidates.length > 0) {
+      const preferredCombined = combinedCandidates[0];
+      generatedFiles = preferredCombined
+        ? [createGeneratedFileFromResolvedForm(preferredCombined)].filter(Boolean)
+        : [];
+      generatedFile = generatedFiles[0] || null;
+    } else {
+      const selectedForms = limitGeneratedFiles(preferredCandidates, intent.requestedCount);
+      generatedFiles = selectedForms
+        .map((form) => createGeneratedFileFromResolvedForm(form))
+        .filter(Boolean);
+      generatedFile = generatedFiles[0] || null;
+    }
   }
 
   const groups = getAvailableFormGroups(filters);
@@ -707,7 +769,11 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
       : generatedFiles.length > 1
         ? `I found ${generatedFiles.length} matching forms and attached them. I can send up to ${MAX_GENERATED_FILES_PER_RESPONSE} at a time.`
         : 'I found a matching worksheet and attached it.')
-    : `I couldn't find an exact sendable match yet. Here are nearby options:\n${formatNearestMatches(nearestMatches) || '- none found'}`;
+    : (
+      intent.type === 'send_multiple_forms' && isBroadAllFormsRequest(intent)
+        ? 'The forms collection is very large, so I won’t send dozens at once. Tell me a topic, module, or audience and I can send up to 5 of the most relevant forms.'
+        : `I couldn't find an exact sendable match yet. Here are nearby options:\n${formatNearestMatches(nearestMatches) || '- none found'}`
+    );
 
   const responseByIntent = {
     list_all_forms: listText,
@@ -718,12 +784,13 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
     send_best_matching_form: sendText,
     send_multiple_forms: sendText,
     send_module_forms: sendText,
+    forms_capability_query: activeLanguage === 'he' ? MULTI_FORM_CAPABILITY_RESPONSE_HE : MULTI_FORM_CAPABILITY_RESPONSE_EN,
   };
 
   return {
     intent,
     stats,
-    matches,
+    matches: modelCandidates,
     nearestMatches,
     generatedFile,
     generatedFiles,

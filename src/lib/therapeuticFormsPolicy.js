@@ -20,6 +20,7 @@ const FORM_CATALOG_AUDIENCE_SAFETY_NOTES = Object.freeze({
   adolescents: ' — use only for adolescent users',
   children: ' — use only for child/family-safe requests',
 });
+const MAX_POLICY_FORM_EXAMPLES = 8;
 
 function getDebugEnvironmentLabel(environmentOverride) {
   if (typeof environmentOverride === 'string' && environmentOverride.trim()) {
@@ -69,7 +70,7 @@ export function buildTherapistFormCatalog(forms) {
 
   const total = approvedForms.length;
   const audienceCount = Object.keys(byAudience).length;
-  const lines = [`CURRENTLY APPROVED FORMS — ${total} forms across ${audienceCount} audiences (use only these exact IDs):`];
+  const lines = [`CURRENTLY APPROVED FORMS SUMMARY — ${total} forms across ${audienceCount} audiences.`];
 
   for (const audience of FORM_CATALOG_AUDIENCE_ORDER) {
     const audienceForms = byAudience[audience];
@@ -77,28 +78,26 @@ export function buildTherapistFormCatalog(forms) {
 
     const label = FORM_CATALOG_AUDIENCE_LABELS[audience] || audience;
     const safetyNote = FORM_CATALOG_AUDIENCE_SAFETY_NOTES[audience] || '';
+    const categoryCounts = audienceForms.reduce((acc, form) => {
+      const category = String(form?.category || 'unknown');
+      acc[category] = (acc[category] || 0) + 1;
+      return acc;
+    }, {});
+    const topCategories = Object.entries(categoryCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4)
+      .map(([category, count]) => `${category} (${count})`)
+      .join(', ');
+    lines.push(`- ${label}${safetyNote}: ${audienceForms.length} forms${topCategories ? ` | top categories: ${topCategories}` : ''}`);
+  }
+
+  const compactExamples = approvedForms
+    .slice(0, MAX_POLICY_FORM_EXAMPLES)
+    .map((form) => `[FORM:${form.id}]`)
+    .join(', ');
+  if (compactExamples) {
     lines.push('');
-    lines.push(`[${label}${safetyNote}]`);
-
-    for (const form of audienceForms) {
-      const bestTitle = form.languages?.en?.title || form.languages?.he?.title || form.title || form.id;
-      const therapeuticGoalRaw = form.therapeuticGoal || form.therapeutic_goal;
-      const whenToUseRaw = form.whenToUse || form.when_to_use;
-      const keywordsRaw = Array.isArray(form.clinicalKeywords) ? form.clinicalKeywords : (Array.isArray(form.keywords) ? form.keywords : []);
-      const therapeuticGoal = typeof therapeuticGoalRaw === 'string' ? therapeuticGoalRaw.trim() : '';
-      const whenToUse = typeof whenToUseRaw === 'string' ? whenToUseRaw.trim() : '';
-      const clinicalKeywords = keywordsRaw.filter(Boolean).join(', ');
-      const intentPhrases = Array.isArray(form.intentPhrases) ? form.intentPhrases.filter(Boolean).join(' | ') : '';
-      const notFor = Array.isArray(form.notFor) ? form.notFor.filter(Boolean).join('; ') : '';
-      const desc = form.shortContentDescriptionHe ? ` | ${form.shortContentDescriptionHe}` : '';
-
-      lines.push(`  [FORM:${form.id}]  — ${bestTitle} (${form.category})${desc}`);
-      if (therapeuticGoal) lines.push(`    Goal: ${therapeuticGoal}`);
-      if (whenToUse) lines.push(`    When to use: ${whenToUse}`);
-      if (clinicalKeywords) lines.push(`    Clinical keywords: ${clinicalKeywords}`);
-      if (intentPhrases) lines.push(`    Intent phrases: ${intentPhrases}`);
-      if (notFor) lines.push(`    Not for: ${notFor}`);
-    }
+    lines.push(`Example form markers (reference only, not exhaustive): ${compactExamples}`);
   }
 
   return lines.join('\n');
@@ -134,6 +133,7 @@ function buildTherapeuticFormsPolicyInstructions(forms, policyVersion) {
     'Therapeutic forms are available only from the approved catalog below.',
     'When a user requests a workbook/form, use exact [FORM:form-id] marker(s) from the approved list.',
     'Default to one marker for specific requests; for explicit multi-form/module/stage-all requests, use up to 5 markers.',
+    'You can send several forms together (up to 5). Do not claim you can send only one form at a time.',
     '',
     buildTherapistFormCatalog(forms),
     '',

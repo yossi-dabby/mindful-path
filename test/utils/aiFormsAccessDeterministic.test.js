@@ -332,6 +332,29 @@ describe('aiFormsAccess deterministic send + language behavior', () => {
     expect(resolved.generatedFiles.every((file) => file.language === 'en')).toBe(true);
   });
 
+  it('supports Hebrew multi-form request phrasing with "מספר טפסים"', () => {
+    const resolved = resolveFormForAIRequest('שלח לי מספר טפסים לילד עם חרדת פרידה', { language: 'he' });
+    expect(resolved.intent?.type).toBe('send_multiple_forms');
+    expect(Array.isArray(resolved.generatedFiles)).toBe(true);
+    expect(resolved.generatedFiles.length).toBeGreaterThan(1);
+    expect(resolved.generatedFiles.length).toBeLessThanOrEqual(5);
+    expect(resolved.generatedFiles.every((file) => file.language === 'he')).toBe(true);
+  });
+
+  it('prefers a combined module PDF for module/stage-all requests when available', () => {
+    const resolved = resolveFormForAIRequest('שלח לי את כל שלב 2', { language: 'he' });
+    expect(Array.isArray(resolved.generatedFiles)).toBe(true);
+    expect(resolved.generatedFiles.length).toBe(1);
+    expect(resolved.generatedFiles[0].form_id).toBe('adolescents-cbt-core-he-stage-2-combined');
+  });
+
+  it('returns a narrowing prompt instead of flooding files for broad "all forms" requests', () => {
+    const resolved = resolveFormForAIRequest('send all forms', { language: 'en' });
+    expect(resolved.intent?.type).toBe('send_multiple_forms');
+    expect(resolved.generatedFiles).toHaveLength(0);
+    expect(String(resolved.responseText || '').toLowerCase()).toContain('up to 5');
+  });
+
   it('keeps English session results free of Hebrew adolescents core forms', () => {
     const resolved = resolveFormForAIRequest('send me cbt forms for adolescents', { language: 'en' });
     const allMatches = [
@@ -362,6 +385,21 @@ describe('aiFormsAccess deterministic intent + grouping', () => {
     expect(detectFormIntent('What forms do you have?')?.type).toBe('list_all_forms');
     expect(detectFormIntent('List forms for adolescents')?.type).toBe('list_forms_by_audience');
     expect(detectFormIntent('Send me a form for anger')?.type).toBe('send_best_matching_form');
+  });
+
+  it('detects Hebrew multi-form and capability intents', () => {
+    expect(detectFormIntent('שלח לי כמה טפסים לילד עם חרדת פרידה')?.type).toBe('send_multiple_forms');
+    expect(detectFormIntent('האם אתה יכול לשלוח מספר טפסים במקביל או רק טופס אחד בכל פעם')?.type).toBe('forms_capability_query');
+  });
+
+  it('returns accurate multi-form capability response text', () => {
+    const he = resolveFormForAIRequest('האם אתה יכול לשלוח מספר טפסים במקביל או רק טופס אחד בכל פעם', { language: 'he' });
+    expect(he.generatedFiles).toHaveLength(0);
+    expect(he.responseText).toBe('כן. אני יכול לשלוח כמה טפסים יחד, עד 5 טפסים בתגובה אחת. אם יש קובץ מאוחד מתאים, אעדיף לשלוח אותו במקום להציף בכמה קבצים.');
+
+    const en = resolveFormForAIRequest('Can you send multiple forms in parallel or only one at a time?', { language: 'en' });
+    expect(en.generatedFiles).toHaveLength(0);
+    expect(en.responseText).toBe('Yes. I can send several forms together, up to 5 forms in one response. If a combined module PDF exists, I will prefer that instead of sending many separate files.');
   });
 
   it('returns grouped listing metadata and examples', () => {

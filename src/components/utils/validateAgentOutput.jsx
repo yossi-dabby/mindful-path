@@ -22,6 +22,7 @@ import {
 } from '../../utils/resolveWorkbookIntent.js';
 import { getAllTherapeuticForms, SUPPORTED_LANGUAGES } from '../../data/therapeuticForms/index.js';
 import { THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER } from '../../lib/therapeuticFormsPolicy.js';
+import { normalizeGeneratedFile } from '../chat/utils/normalizeGeneratedFile.js';
 
 // Safety patterns to detect and strip
 const UNSAFE_PATTERNS = [
@@ -311,6 +312,22 @@ function hasFormRefusalLikeContent(content) {
   return FORM_REFUSAL_PATTERNS.some((pattern) => pattern.test(sanitized));
 }
 
+function normalizeGeneratedFilesList(files, maxItems = 5) {
+  if (!Array.isArray(files)) return [];
+  const seen = new Set();
+  const normalized = [];
+  for (const candidate of files) {
+    const safe = normalizeGeneratedFile(candidate);
+    if (!safe) continue;
+    const key = String(safe.form_id || safe.url || '');
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    normalized.push(safe);
+    if (normalized.length >= maxItems) break;
+  }
+  return normalized;
+}
+
 function applyDeterministicFormRouteToAssistant({ content, metadata, formRoute }) {
   // Guard only applies when the canonical registry is non-empty; when empty,
   // this function remains no-op so standard fallback copy can be used upstream.
@@ -339,9 +356,28 @@ function applyDeterministicFormRouteToAssistant({ content, metadata, formRoute }
   const deterministicText = typeof formRoute.responseText === 'string' ? formRoute.responseText.trim() : '';
   const shouldForceDeterministicText =
     intentType.startsWith('list_') ||
+    intentType === 'forms_capability_query' ||
     intentType === 'search_forms_by_need' ||
     hasFormRefusalLikeContent(content) ||
     (intentType.startsWith('send_') && !nextMetadata.generated_file);
+
+  if (Array.isArray(nextMetadata.generated_files)) {
+    nextMetadata.generated_files = normalizeGeneratedFilesList(nextMetadata.generated_files, formRoute.maxGeneratedFiles || 5);
+    if (nextMetadata.generated_files.length === 0) {
+      delete nextMetadata.generated_files;
+    }
+  }
+  if (nextMetadata.generated_file) {
+    const normalizedSingle = normalizeGeneratedFile(nextMetadata.generated_file);
+    if (normalizedSingle) {
+      nextMetadata.generated_file = normalizedSingle;
+    } else {
+      delete nextMetadata.generated_file;
+    }
+  }
+  if (!nextMetadata.generated_file && Array.isArray(nextMetadata.generated_files) && nextMetadata.generated_files.length > 0) {
+    nextMetadata.generated_file = nextMetadata.generated_files[0];
+  }
 
   nextMetadata.deterministic_form_route = {
     intent_type: intentType,
