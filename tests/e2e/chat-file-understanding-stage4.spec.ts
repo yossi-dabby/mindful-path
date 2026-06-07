@@ -30,6 +30,10 @@ async function clickSendWithEnterFallback(
   }
 }
 
+function chatMessages(page: Parameters<typeof mockApi>[0]) {
+  return page.locator('[data-testid="chat-messages"]');
+}
+
 async function startChatWithRuntimeMocks(page: Parameters<typeof mockApi>[0]) {
   await page.addInitScript(() => {
     localStorage.setItem('chat_consent_accepted', 'true');
@@ -267,7 +271,7 @@ test.describe('Stage 4 runtime file-understanding verification', () => {
     expect(postedContent).toContain('[ATTACHMENT_METADATA]');
     expect(captured.metadata422Bodies).toHaveLength(0);
 
-    await expect(page.getByText('I reviewed your uploaded image.')).toBeVisible({ timeout: 15000 });
+    await expect(chatMessages(page)).toContainText('I reviewed your uploaded image.', { timeout: 15000 });
     await expect(page.getByText('[ATTACHMENT_CONTEXT]')).toHaveCount(0);
     await expect(page.getByText('[ATTACHMENT_METADATA]')).toHaveCount(0);
   });
@@ -308,9 +312,8 @@ test.describe('Stage 4 runtime file-understanding verification', () => {
     expect(postedContent).toContain('[ATTACHMENT_METADATA]');
     expect(captured.metadata422Bodies).toHaveLength(0);
 
-    await expect(page.getByText('I read your uploaded PDF and here are the key points:')).toBeVisible({ timeout: 15000 });
-    const assistantTurn = page.locator('div').filter({ hasText: 'I read your uploaded PDF and here are the key points:' }).first();
-    const assistantTurnText = await assistantTurn.innerText();
+    await expect(chatMessages(page)).toContainText('I read your uploaded PDF and here are the key points:', { timeout: 15000 });
+    const assistantTurnText = await chatMessages(page).innerText();
     const repeatedPhraseMatches = assistantTurnText.match(/This sentence is intentionally repeated to exceed the short chat limit\\./g) || [];
     expect(repeatedPhraseMatches.length).toBeLessThanOrEqual(1);
     await expect(page.getByText('[ATTACHMENT_CONTEXT]')).toHaveCount(0);
