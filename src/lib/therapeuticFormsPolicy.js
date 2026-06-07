@@ -104,17 +104,17 @@ export function buildTherapistFormCatalog(forms) {
 }
 
 function buildTherapeuticFormsPolicyInstructions(forms, policyVersion) {
+  const approvedCount = Array.isArray(forms) ? forms.filter((form) => form?.approved === true).length : 0;
   if (!Array.isArray(forms) || forms.filter((form) => form?.approved === true).length === 0) {
     return [
       THERAPEUTIC_FORMS_POLICY_MARKER,
       `[THERAPEUTIC_FORMS_POLICY_VERSION: ${policyVersion}]`,
       'No therapeutic forms are currently installed/available.',
+      'Therapeutic form lookup is handled by the local deterministic router, not by prompt memory or a full catalog.',
       'When a user requests a worksheet, CBT form, thought record, mood tracker, homework sheet, or similar structured exercise, do NOT attach a form.',
       '',
       'Do NOT embed [FORM:...] markers while the catalog is empty.',
       'Reply with a short, clear explanation that no therapeutic forms are currently installed/available.',
-      '',
-      buildTherapistFormCatalog(forms || []),
       '',
       'Language: Keep the user response in the session language when explaining that forms are unavailable.',
       '',
@@ -130,18 +130,18 @@ function buildTherapeuticFormsPolicyInstructions(forms, policyVersion) {
   return [
     THERAPEUTIC_FORMS_POLICY_MARKER,
     `[THERAPEUTIC_FORMS_POLICY_VERSION: ${policyVersion}]`,
-    'Therapeutic forms are available only from the approved catalog below.',
-    'When a user requests a workbook/form, use exact [FORM:form-id] marker(s) from the approved list.',
+    `Approved therapeutic forms installed in this build: ${approvedCount}.`,
+    'Therapeutic form lookup is handled by the local deterministic router plus compact candidate context, not by prompt memory or a full catalog.',
+    'When [FORM_ROUTER_CONTEXT] is present, rely on it and use exact [FORM:form-id] marker(s) only for the routed match or routed candidates.',
     'Default to one marker for specific requests; for explicit multi-form/module/stage-all requests, use up to 5 markers.',
     'You can send several forms together (up to 5). Do not claim you can send only one form at a time.',
-    '',
-    buildTherapistFormCatalog(forms),
     '',
     'LANGUAGE & AUDIENCE RULES:',
     '  - Match active session language first. Do not attach forms from another language unless the user explicitly asks for that language.',
     '  - Match user audience. Do not attach child/adult/older-adult forms for adolescent requests, and vice versa.',
     '  - If the requested language/audience/category is not currently installed, say it is not currently installed.',
     '  - If forms exist but no exact match is found, say no exact match and suggest nearby matches; do not claim no access to forms.',
+    '  - If local form lookup fails, say form lookup is temporarily unavailable in the session language.',
     '',
     'SAFETY RULES:',
     '  - Do not invent form IDs, file names, URLs, catalogs, or attachments.',
@@ -167,11 +167,11 @@ export function getTherapeuticFormsPolicyPayload(options = {}) {
     ? [
         THERAPEUTIC_FORMS_POLICY_MARKER,
         `[THERAPEUTIC_FORMS_POLICY_VERSION: ${policyVersion}]`,
+        `Approved therapeutic forms installed in this build: ${approvedForms.length}.`,
         'Therapeutic forms are installed, but no exact form matches the current language/audience filters.',
+        'Therapeutic form lookup is handled by the local deterministic router, not by prompt memory or a full catalog.',
         'Do NOT say you have no access to forms.',
         'If no exact match exists, say you could not find an exact form and suggest nearby available forms from the approved catalog.',
-        '',
-        buildTherapistFormCatalog(approvedForms),
         '',
         'LANGUAGE & AUDIENCE RULES:',
         '  - Respect active session language and audience filters when attaching forms.',

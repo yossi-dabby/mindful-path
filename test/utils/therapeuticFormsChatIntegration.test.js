@@ -224,4 +224,10 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     expect(chatSource).toContain('candidate_included: ${compactCandidates.length}');
     expect(chatSource).toContain('[FORM_CANDIDATES]');
   });
+
+  it('routes first-turn form requests through the deterministic resolver before agent send', () => {
+    expect(chatSource).toContain('buildDeterministicFormRouteSafely(messageText, sessionLanguageRef.current)');
+    expect(chatSource).toContain('buildDeterministicFormRouterContext(deterministicFormRoute, sessionLanguageRef.current)');
+    expect(chatSource).not.toContain('JSON.stringify(getAllTherapeuticForms(');
+  });
 });

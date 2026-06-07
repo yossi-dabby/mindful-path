@@ -57,7 +57,7 @@ import {
   extractBackendTranscriptionErrorReason,
   buildTranscriptionFailureDescription,
 } from '@/utils/audioTranscriptionDiagnostics.js';
-import { resolveFormIntentRequest } from '@/utils/resolveFormIntent.js';
+import { detectFormIntent as detectDeterministicFormIntent, resolveFormIntentRequest } from '@/utils/resolveFormIntent.js';
 import { MAX_GENERATED_FILES_PER_RESPONSE, MAX_MODEL_CANDIDATE_FORMS } from '@/data/therapeuticForms/index.js';
 import {
   isWebmFile,
@@ -281,6 +281,30 @@ function buildDeterministicFormRouterContext(route, sessionLanguage) {
     });
   }
   return `\n${lines.join('\n')}\n`;
+}
+
+function normalizeFormRouteLanguage(lang) {
+  if (typeof lang !== 'string' || !lang.trim()) return 'en';
+  const base = lang.trim().toLowerCase().split('-')[0];
+  return base === 'he' ? 'he' : 'en';
+}
+
+function getFormLookupUnavailableMessage(lang) {
+  return normalizeFormRouteLanguage(lang) === 'he'
+    ? 'מצטער, חיפוש הטפסים זמנית לא זמין. נסה שוב בעוד רגע.'
+    : 'Sorry, form lookup is temporarily unavailable. Please try again in a moment.';
+}
+
+function buildDeterministicFormRouteSafely(messageText, sessionLanguage) {
+  try {
+    return {
+      route: resolveFormIntentRequest(messageText, { language: sessionLanguage }),
+      error: null,
+    };
+  } catch (error) {
+    console.error('[DeterministicFormRoute] Failed before send:', error);
+    return { route: null, error };
+  }
 }
 
 export default function Chat() {
@@ -2037,9 +2061,37 @@ export default function Chat() {
       let messageContent = runtimeSupplement ?
       runtimeSupplement + '\n\n' + messageText :
       messageText;
-      const deterministicFormRoute = resolveFormIntentRequest(messageText, {
-        language: sessionLanguageRef.current,
-      });
+      const { route: deterministicFormRoute, error: deterministicFormRouteError } =
+        buildDeterministicFormRouteSafely(messageText, sessionLanguageRef.current);
+      if (deterministicFormRouteError && detectDeterministicFormIntent(messageText)) {
+        if (loadingTimeoutRef.current) {
+          clearTimeout(loadingTimeoutRef.current);
+          loadingTimeoutRef.current = null;
+        }
+        setIsLoading(false);
+        const fallbackUserMessage = {
+          role: 'user',
+          content: messageText,
+          metadata: { session_language: sessionLanguageRef.current },
+        };
+        const fallbackAssistantMessage = {
+          role: 'assistant',
+          content: getFormLookupUnavailableMessage(sessionLanguageRef.current),
+          metadata: {
+            sanitized: true,
+            deterministic_form_route: {
+              intent_type: 'form_lookup_temporarily_unavailable',
+              registry_total: 0,
+              matched_count: 0,
+              nearest_count: 0,
+              used_fallback_language: false,
+              available_languages: [],
+            },
+          },
+        };
+        setMessages((prev) => [...prev, fallbackUserMessage, fallbackAssistantMessage]);
+        return;
+      }
       const formRouterContext = buildDeterministicFormRouterContext(deterministicFormRoute, sessionLanguageRef.current);
       if (formRouterContext) {
         messageContent += formRouterContext;

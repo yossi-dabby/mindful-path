@@ -51,6 +51,7 @@ const FORM_INTENT_PATTERNS = Object.freeze({
   list: /\b(what forms|which forms|list forms|forms do you have|איזה טפסים|רשימת טפסים|show forms|available forms)\b/i,
   send: /(?:\b(send|share|attach|give me)\b|תשלח(?:י)?|שלח(?:י)?|תן לי|תני לי)/i,
 });
+const FORM_REFERENCE_PATTERN = /(?:\bform(?:s)?\b|\bworksheet(?:s)?\b|טופס(?:ים)?|דפי?\s*עבודה|קובץ\s*מאוחד)/i;
 
 const CATEGORY_SYNONYMS = Object.freeze({
   ocd: ['ocd', 'intrusive thoughts', 'sticky thoughts', 'ritual', 'compulsion'],
@@ -132,6 +133,57 @@ function dedupeFormsById(forms) {
     output.push(form);
   }
   return output;
+}
+
+function hasValidFormAsset(form) {
+  const fileUrl = typeof form?.fileUrl === 'string' ? form.fileUrl.trim() : '';
+  const filePath = typeof (form?.file_path || form?.filePath) === 'string'
+    ? String(form.file_path || form.filePath).trim()
+    : '';
+  return fileUrl.startsWith('/forms/') || filePath.length > 0;
+}
+
+function hasVisibleOrAiMetadata(form) {
+  if (!form || typeof form !== 'object') return false;
+
+  const nestedLanguageValues = [
+    ...(form?.languages ? Object.values(form.languages) : []),
+    ...(form?.localizedDisplay ? Object.values(form.localizedDisplay) : []),
+  ];
+
+  const scalarValues = [
+    form?.title,
+    form?.slug,
+    form?.description,
+    form?.therapeuticGoal,
+    form?.therapeutic_goal,
+    form?.whenToUse,
+    form?.when_to_use,
+    form?.aiMatchingSummary,
+    form?.ai_matching_summary,
+    form?.clinicalDomain,
+    form?.moduleTitle,
+    form?.module_title,
+    form?.stageTitle,
+    form?.stage_title,
+    form?.collectionId,
+  ];
+
+  const nestedValues = nestedLanguageValues.flatMap((value) => (value && typeof value === 'object'
+    ? [value.title, value.description, value.file_name]
+    : []));
+
+  return (
+    scalarValues.some((value) => typeof value === 'string' && value.trim()) ||
+    nestedValues.some((value) => typeof value === 'string' && value.trim()) ||
+    (Array.isArray(form?.clinicalKeywords) && form.clinicalKeywords.length > 0) ||
+    (Array.isArray(form?.keywords) && form.keywords.length > 0) ||
+    (Array.isArray(form?.intentPhrases) && form.intentPhrases.length > 0)
+  );
+}
+
+function isFormAvailableForAI(form) {
+  return form?.approved === true && hasValidFormAsset(form) && hasVisibleOrAiMetadata(form);
 }
 
 function extractRequestedLanguage(text) {
@@ -242,21 +294,37 @@ function getDefaultLanguage(language) {
 }
 
 function flattenFormFields(form) {
+  const languageBlocks = form?.languages && typeof form.languages === 'object'
+    ? Object.values(form.languages)
+    : [];
+  const localizedDisplayBlocks = form?.localizedDisplay && typeof form.localizedDisplay === 'object'
+    ? Object.values(form.localizedDisplay)
+    : [];
+
   return [
     form?.id,
     form?.slug,
+    form?.logical_form_id,
+    form?.variant_group_id,
     form?.title,
     form?.displayTitle,
+    form?.description,
     form?.worksheetNumber,
     form?.worksheet_number,
     form?.audience,
     form?.language,
     form?.category,
+    form?.collectionId,
+    form?.collectionType,
+    form?.cardType,
     form?.mainCategory,
     form?.clinicalGroup,
+    form?.clinicalDomain,
     form?.subcategory,
     form?.moduleTitle,
     form?.module_title,
+    form?.stageTitle,
+    form?.stage_title,
     form?.therapeuticGoal,
     form?.therapeutic_goal,
     form?.whenToUse,
@@ -268,6 +336,8 @@ function flattenFormFields(form) {
     form?.filePath,
     form?.file_path,
     form?.fileUrl,
+    ...languageBlocks.flatMap((block) => [block?.title, block?.description, block?.file_name]),
+    ...localizedDisplayBlocks.flatMap((block) => [block?.title, block?.description]),
     ...(Array.isArray(form?.keywords) ? form.keywords : []),
     ...(Array.isArray(form?.clinicalKeywords) ? form.clinicalKeywords : []),
     ...(Array.isArray(form?.intentPhrases) ? form.intentPhrases : []),
@@ -374,7 +444,7 @@ function buildLanguageSelection(forms, requestedLanguage, activeLanguage, allowE
 
 export function listFormsForAI(filters = {}) {
   const allForms = getAllTherapeuticForms();
-  const approvedForms = allForms.filter((form) => form?.approved === true);
+  const approvedForms = allForms.filter((form) => isFormAvailableForAI(form));
 
   const audience = normalizeAudience(filters.audience);
   const category = typeof filters.category === 'string' ? filters.category.trim() : null;
@@ -555,8 +625,10 @@ export function detectFormIntent(userMessage) {
   const requestedAudience = extractRequestedAudience(text);
   const requestedLanguage = extractRequestedLanguage(text);
   const asksList = FORM_INTENT_PATTERNS.list.test(text);
+  const referencesForms = FORM_REFERENCE_PATTERN.test(text);
   const asksSend = FORM_INTENT_PATTERNS.send.test(text)
-    || /\bform\b|\bworksheet\b|טופס/.test(text)
+    || (requestsManyForms(text) && referencesForms)
+    || referencesForms
     || /שלב\s*[1-6]|קובץ\s*מאוחד|כל\s*שלב/.test(text);
   const mentionsCategory = /\b(category|group|groups|category|קטגור)/.test(text);
   const explicitIdMatch = text.match(/\b([a-z0-9]+(?:[_-][a-z0-9]+){2,})\b/);
@@ -614,7 +686,7 @@ export function detectFormIntent(userMessage) {
   if (asksSend) {
     return { type: 'send_best_matching_form', audience: requestedAudience, language: requestedLanguage, query: text };
   }
-  if (/\bform\b|\bworksheet\b|טופס/.test(text)) {
+  if (referencesForms) {
     return { type: 'search_forms_by_need', audience: requestedAudience, language: requestedLanguage, query: text };
   }
 
@@ -755,31 +827,66 @@ export function resolveFormForAIRequest(userMessage, context = {}) {
     ? ''
     : (hasSameLanguageForms ? '' : `\nI currently found available worksheets in: ${languagesText}.`);
 
-  const listText = [
-    `I found ${groups.total} approved forms in this scope.`,
-    `Languages: ${languagesText}.`,
-    `Audiences: ${groups.audiences.join(', ') || 'none'}.`,
-    `Categories: ${categoriesText}.`,
-    groups.examples.length > 0 ? `Examples:\n${groups.examples.map((example) => `- ${example.title} (${example.audience}, ${example.category})`).join('\n')}` : '',
-    fallbackNote,
-  ]
-    .filter(Boolean)
-    .join('\n');
+  const isHebrew = activeLanguage === 'he';
+
+  const listText = isHebrew
+    ? [
+        `מצאתי ${groups.total} טפסים מאושרים בתחום הזה.`,
+        `שפות זמינות: ${languagesText}.`,
+        `קהלי יעד: ${groups.audiences.join(', ') || 'none'}.`,
+        `קטגוריות: ${categoriesText}.`,
+        groups.examples.length > 0 ? `דוגמאות:\n${groups.examples.map((example) => `- ${example.title} (${example.audience}, ${example.category})`).join('\n')}` : '',
+        fallbackNote ? `מצאתי התאמות רק בשפות: ${languagesText}.` : '',
+      ].filter(Boolean).join('\n')
+    : [
+        `I found ${groups.total} approved forms in this scope.`,
+        `Languages: ${languagesText}.`,
+        `Audiences: ${groups.audiences.join(', ') || 'none'}.`,
+        `Categories: ${categoriesText}.`,
+        groups.examples.length > 0 ? `Examples:\n${groups.examples.map((example) => `- ${example.title} (${example.audience}, ${example.category})`).join('\n')}` : '',
+        fallbackNote,
+      ].filter(Boolean).join('\n');
 
   const searchText = best
-    ? `I found a close match: ${best.title || best.id} (${best.audience}, ${best.language}, ${best.category}).`
-    : `I couldn't find an exact match. Nearby installed options:\n${formatNearestMatches(nearestMatches) || '- none found'}`;
+    ? (
+      isHebrew
+        ? `מצאתי התאמה קרובה: ${best.title || best.id} (${best.audience}, ${best.language}, ${best.category}).`
+        : `I found a close match: ${best.title || best.id} (${best.audience}, ${best.language}, ${best.category}).`
+    )
+    : (
+      isHebrew
+        ? `לא מצאתי התאמה מדויקת. הנה אפשרויות קרובות:\n${formatNearestMatches(nearestMatches) || '- none found'}`
+        : `I couldn't find an exact match. Nearby installed options:\n${formatNearestMatches(nearestMatches) || '- none found'}`
+    );
 
   const sendText = generatedFile
-    ? (generatedFile.language !== activeLanguage && !requestedLanguage
-      ? `I found a worksheet match and attached it in ${generatedFile.language.toUpperCase()}. Available languages in this scope: ${languagesText}. If you prefer a different language, tell me which one.`
-      : generatedFiles.length > 1
-        ? `I found ${generatedFiles.length} matching forms and attached them. I can send up to ${MAX_GENERATED_FILES_PER_RESPONSE} at a time.`
-        : 'I found a matching worksheet and attached it.')
+    ? (
+      generatedFile.language !== activeLanguage && !requestedLanguage
+        ? (
+          isHebrew
+            ? `מצאתי טופס מתאים וצירפתי אותו בשפה ${generatedFile.language.toUpperCase()}. השפות הזמינות בתחום הזה: ${languagesText}. אם תרצה שפה אחרת, כתוב לי איזו.`
+            : `I found a worksheet match and attached it in ${generatedFile.language.toUpperCase()}. Available languages in this scope: ${languagesText}. If you prefer a different language, tell me which one.`
+        )
+        : generatedFiles.length > 1
+          ? (
+            isHebrew
+              ? `מצאתי ${generatedFiles.length} טפסים מתאימים וצירפתי אותם. אפשר לשלוח עד ${MAX_GENERATED_FILES_PER_RESPONSE} טפסים בכל פעם.`
+              : `I found ${generatedFiles.length} matching forms and attached them. I can send up to ${MAX_GENERATED_FILES_PER_RESPONSE} at a time.`
+          )
+          : (isHebrew ? 'מצאתי טופס מתאים וצירפתי אותו.' : 'I found a matching worksheet and attached it.')
+    )
     : (
       intent.type === 'send_multiple_forms' && isBroadAllFormsRequest(intent)
-        ? 'The forms collection is very large, so I won’t send dozens at once. Tell me a topic, module, or audience and I can send up to 5 of the most relevant forms.'
-        : `I couldn't find an exact sendable match yet. Here are nearby options:\n${formatNearestMatches(nearestMatches) || '- none found'}`
+        ? (
+          isHebrew
+            ? 'ספריית הטפסים גדולה, לכן לא אשלח עשרות קבצים יחד. כתוב לי נושא, מודול או קהל יעד ואשלח עד 5 טפסים רלוונטיים.'
+            : 'The forms collection is very large, so I won’t send dozens at once. Tell me a topic, module, or audience and I can send up to 5 of the most relevant forms.'
+        )
+        : (
+          isHebrew
+            ? `לא מצאתי עדיין התאמה מדויקת שאפשר לצרף. הנה אפשרויות קרובות:\n${formatNearestMatches(nearestMatches) || '- none found'}`
+            : `I couldn't find an exact sendable match yet. Here are nearby options:\n${formatNearestMatches(nearestMatches) || '- none found'}`
+        )
     );
 
   const responseByIntent = {

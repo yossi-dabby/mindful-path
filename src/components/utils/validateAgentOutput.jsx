@@ -186,8 +186,34 @@ const FORM_REFUSAL_PATTERNS = [
  */
 export function normalizeSessionLanguage(lang) {
   if (typeof lang !== 'string' || !lang.trim()) return 'en';
-  const code = lang.trim().toLowerCase().split('-')[0]; // handle e.g. "he-IL"
+  const raw = lang.trim().toLowerCase();
+  const alias =
+    raw === 'hebrew' || raw === 'עברית' ? 'he' :
+    raw === 'english' ? 'en' :
+    raw.split('-')[0];
+  const code = alias; // handle e.g. "he-IL"
   return SUPPORTED_LANG_SET.has(code) ? code : 'en';
+}
+
+function getFormLookupUnavailableMessage(lang) {
+  return normalizeSessionLanguage(lang) === 'he'
+    ? 'מצטער, חיפוש הטפסים זמנית לא זמין. נסה שוב בעוד רגע.'
+    : 'Sorry, form lookup is temporarily unavailable. Please try again in a moment.';
+}
+
+function buildTemporaryFormLookupFailureRoute(lang) {
+  return {
+    intent: { type: 'form_lookup_temporarily_unavailable' },
+    stats: { total: getAllTherapeuticForms().length },
+    matches: [],
+    nearestMatches: [],
+    generatedFile: null,
+    generatedFiles: [],
+    maxGeneratedFiles: MAX_GENERATED_FILES_PER_RESPONSE,
+    responseText: getFormLookupUnavailableMessage(lang),
+    usedFallbackLanguage: false,
+    availableLanguages: [],
+  };
 }
 
 function hasExplicitLanguageRequestFor(userQuery, targetLanguage) {
@@ -357,6 +383,7 @@ function applyDeterministicFormRouteToAssistant({ content, metadata, formRoute }
   const shouldForceDeterministicText =
     intentType.startsWith('list_') ||
     intentType === 'forms_capability_query' ||
+    intentType === 'form_lookup_temporarily_unavailable' ||
     intentType === 'search_forms_by_need' ||
     hasFormRefusalLikeContent(content) ||
     (intentType.startsWith('send_') && !nextMetadata.generated_file);
@@ -1112,18 +1139,23 @@ export function sanitizeConversationMessages(messages, sessionLanguage = 'en') {
           .map(m => m.content)
           .slice(-2)
           .join(' ') || null;
-      const deterministicFormRoute =
-        (
-          !triggeringUserMsg ||
-          (
-            !hasDeterministicFormRouterContext &&
-            (isSessionInjectedTriggeringMessage || isTherapeuticFormsPolicyRefreshMessage)
-          )
+      let deterministicFormRoute = null;
+      if (
+        triggeringUserMsg &&
+        !(
+          !hasDeterministicFormRouterContext &&
+          (isSessionInjectedTriggeringMessage || isTherapeuticFormsPolicyRefreshMessage)
         )
-        ? null
-        : resolveFormIntentRequest(triggeringUserMsg || '', {
-          language: effectiveLang,
-        });
+      ) {
+        try {
+          deterministicFormRoute = resolveFormIntentRequest(triggeringUserMsg || '', {
+            language: effectiveLang,
+          });
+        } catch (error) {
+          console.error('[Sanitize] Deterministic form route failed:', error);
+          deterministicFormRoute = buildTemporaryFormLookupFailureRoute(effectiveLang);
+        }
+      }
 
       const validated = validateAgentOutput(msg.content);
       

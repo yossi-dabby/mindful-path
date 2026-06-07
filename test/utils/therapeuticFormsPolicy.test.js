@@ -34,9 +34,10 @@ describe('therapeutic forms policy reliability', () => {
   it('keeps first-message policy payload compact and avoids embedding the full forms registry', () => {
     const { policy } = getTherapeuticFormsPolicyPayload({ sessionLanguage: 'en' });
     const markerCount = (policy.match(/\[FORM:/g) || []).length;
-    expect(policy.length).toBeLessThan(8000);
-    expect(markerCount).toBeLessThanOrEqual(10);
-    expect(policy).toContain('CURRENTLY APPROVED FORMS SUMMARY');
+    expect(policy.length).toBeLessThan(2500);
+    expect(markerCount).toBeLessThanOrEqual(1);
+    expect(policy).toContain('local deterministic router');
+    expect(policy).not.toContain('CURRENTLY APPROVED FORMS SUMMARY');
   });
 
   it('injects a hidden refresh policy message for an existing conversation that lacks the current version', async () => {
