@@ -11,8 +11,6 @@ import {
 import {
   detectFormIntent as detectDeterministicFormIntent,
   resolveFormForAIRequest as resolveDeterministicFormForAIRequest,
-  resolveFormByIdOrSlug as resolveDeterministicFormByIdOrSlug,
-  createGeneratedFileFromResolvedForm,
 } from '../data/therapeuticForms/aiFormsAccess.js';
 
 const ADOLESCENTS_CBT_CORE_EN_ID = 'adolescents-cbt-core-en';
@@ -732,28 +730,12 @@ export function resolveFormIntent(intentOrSlug, lang) {
     APPROVED_FORM_INTENT_MAP[normalizedIntent] ||
     APPROVED_FORM_INTENT_MAP[normalizedIntentAlias] ||
     findApprovedExactFormId(normalizedIntentAlias);
-
-  const exactResolved = resolveDeterministicFormByIdOrSlug(exactFormId || normalizedIntentAlias, {
-    language: resolvedLang,
-    activeLanguage: resolvedLang,
-    allowEnglishFallback: false,
-  });
-  if (exactResolved) {
-    return createGeneratedFileFromResolvedForm(exactResolved);
+  if (exactFormId) {
+    return resolveApprovedFormById(exactFormId, resolvedLang);
   }
 
   if (normalizedIntent.startsWith('tf-')) {
     return null;
-  }
-
-  const deterministicRoute = resolveDeterministicFormForAIRequest(intentOrSlug, {
-    language: resolvedLang,
-    activeLanguage: resolvedLang,
-  });
-
-  if (deterministicRoute?.generatedFile) return deterministicRoute.generatedFile;
-  if (Array.isArray(deterministicRoute?.generatedFiles) && deterministicRoute.generatedFiles.length > 0) {
-    return deterministicRoute.generatedFiles[0];
   }
 
   const bySpecializedContent = resolveAdolescentsCBTSpecializedEnglishFormByContent(normalizedIntent, {
@@ -775,6 +757,16 @@ export function resolveFormIntent(intentOrSlug, lang) {
     activeLanguage: resolvedLang,
   });
   if (byChildrenContent) return byChildrenContent;
+
+  const deterministicRoute = resolveDeterministicFormForAIRequest(intentOrSlug, {
+    language: resolvedLang,
+    activeLanguage: resolvedLang,
+  });
+
+  if (deterministicRoute?.generatedFile) return deterministicRoute.generatedFile;
+  if (Array.isArray(deterministicRoute?.generatedFiles) && deterministicRoute.generatedFiles.length > 0) {
+    return deterministicRoute.generatedFiles[0];
+  }
 
   const byDynamicContent = resolveDynamicFormByContent(normalizedIntent, {
     activeLanguage: resolvedLang,
