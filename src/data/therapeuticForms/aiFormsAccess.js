@@ -182,6 +182,11 @@ function hasVisibleOrAiMetadata(form) {
   );
 }
 
+/**
+ * Canonical AI availability gate.
+ * A form is AI-eligible only when it is approved, has a usable asset path/url,
+ * and exposes visible or AI-searchable metadata from the generated index.
+ */
 function isFormAvailableForAI(form) {
   return form?.approved === true && hasValidFormAsset(form) && hasVisibleOrAiMetadata(form);
 }

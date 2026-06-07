@@ -17,7 +17,10 @@ async function setupChatWithTherapeuticFormMocks(page: Page, language: 'en' | 'h
   let conversationMessages: Array<{ role: 'user' | 'assistant'; content: string; metadata?: Record<string, unknown> }> = [];
 
   await page.route(`**/api/**/agents/conversations/${MOCK_CONVERSATION_ID}/messages**`, async (route) => {
-    const body = route.request().postDataJSON?.() as { content?: string } | undefined;
+    const request = route.request() as { postDataJSON?: () => unknown };
+    const body = typeof request.postDataJSON === 'function'
+      ? request.postDataJSON() as { content?: string } | undefined
+      : undefined;
     const content = String(body?.content || '');
     const visibleUserContent = content
       .replace(/\n?\[FORM_ROUTER_CONTEXT\][\s\S]*$/, '')
@@ -120,6 +123,7 @@ test.describe('therapeutic forms awareness e2e', () => {
     const count = await openButtons.count();
     expect(count).toBeGreaterThan(1);
     expect(count).toBeLessThanOrEqual(5);
+    // "נפרדים בשלום" is a known Hebrew separation-anxiety worksheet used as a smoke-test anchor.
     await expect(page.locator('[data-testid="chat-messages"]')).toContainText('נפרדים בשלום');
   });
 
