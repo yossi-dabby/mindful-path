@@ -17,11 +17,24 @@ async function setupChatWithTherapeuticFormMocks(page: Page, language: 'en' | 'h
   let conversationMessages: Array<{ role: 'user' | 'assistant'; content: string; metadata?: Record<string, unknown> }> = [];
 
   await page.route(`**/api/**/agents/conversations/${MOCK_CONVERSATION_ID}/messages**`, async (route) => {
-    const request = route.request() as { postDataJSON?: () => unknown };
-    const body = typeof request.postDataJSON === 'function'
-      ? request.postDataJSON() as { content?: string } | undefined
-      : undefined;
-    const content = String(body?.content || '');
+    let content = '';
+    try {
+      const request = route.request() as { postDataJSON?: () => unknown; postData?: () => string | null };
+      const body = typeof request.postDataJSON === 'function'
+        ? request.postDataJSON() as { content?: string; message?: string } | undefined
+        : undefined;
+      content = String(body?.content || body?.message || '');
+    } catch {
+      const rawBody = route.request().postData();
+      if (rawBody) {
+        try {
+          const parsedBody = JSON.parse(rawBody) as { content?: string; message?: string };
+          content = String(parsedBody?.content || parsedBody?.message || '');
+        } catch {
+          content = rawBody;
+        }
+      }
+    }
     const visibleUserContent = content
       .replace(/\n?\[FORM_ROUTER_CONTEXT\][\s\S]*$/, '')
       .replace(/\n?\[ATTACHMENT_CONTEXT\][\s\S]*$/, '')
@@ -29,7 +42,7 @@ async function setupChatWithTherapeuticFormMocks(page: Page, language: 'en' | 'h
       .trim();
 
     const assistantContent = /מספר טפסים במקביל|multiple forms in parallel|only one form at a time/i.test(visibleUserContent)
-      ? (language === 'he' ? 'אני יכול רק טופס אחד בכל פעם.' : 'I can send only one form at a time.')
+      ? (language === 'he' ? 'כן. אני יכול לשלוח כמה טפסים יחד, עד 5 טפסים בתגובה אחת.' : 'Yes. I can send multiple forms together, up to 5 forms in one response.')
       : 'Done.';
 
     conversationMessages = [
