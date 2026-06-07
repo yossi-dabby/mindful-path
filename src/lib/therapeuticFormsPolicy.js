@@ -20,7 +20,7 @@ const FORM_CATALOG_AUDIENCE_SAFETY_NOTES = Object.freeze({
   adolescents: ' — use only for adolescent users',
   children: ' — use only for child/family-safe requests',
 });
-const MAX_POLICY_FORM_EXAMPLES = 8;
+const POLICY_EXAMPLE_MARKER_LIMIT = 8;
 
 function getDebugEnvironmentLabel(environmentOverride) {
   if (typeof environmentOverride === 'string' && environmentOverride.trim()) {
@@ -92,7 +92,7 @@ export function buildTherapistFormCatalog(forms) {
   }
 
   const compactExamples = approvedForms
-    .slice(0, MAX_POLICY_FORM_EXAMPLES)
+    .slice(0, POLICY_EXAMPLE_MARKER_LIMIT)
     .map((form) => `[FORM:${form.id}]`)
     .join(', ');
   if (compactExamples) {

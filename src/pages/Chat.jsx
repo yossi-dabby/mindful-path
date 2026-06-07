@@ -58,6 +58,7 @@ import {
   buildTranscriptionFailureDescription,
 } from '@/utils/audioTranscriptionDiagnostics.js';
 import { resolveFormIntentRequest } from '@/utils/resolveFormIntent.js';
+import { MAX_GENERATED_FILES_PER_RESPONSE, MAX_MODEL_CANDIDATE_FORMS } from '@/data/therapeuticForms/index.js';
 import {
   isWebmFile,
   isMp4File,
@@ -228,7 +229,7 @@ function resolveAttachmentType(fileName) {
 
 function buildDeterministicFormRouterContext(route, sessionLanguage) {
   if (!route?.intent) return '';
-  const COMPACT_CANDIDATE_LIMIT = 8;
+  const COMPACT_CANDIDATE_LIMIT = MAX_MODEL_CANDIDATE_FORMS;
   const COMPACT_FIELD_LIMIT = 140;
   const compactField = (value, max = COMPACT_FIELD_LIMIT) => {
     const normalized = typeof value === 'string' ? value.replace(/\s+/g, ' ').trim() : '';
@@ -266,7 +267,7 @@ function buildDeterministicFormRouterContext(route, sessionLanguage) {
   lines.push(`candidate_included: ${compactCandidates.length}`);
   lines.push(`should_attach_form: ${route.generatedFile ? 'yes' : 'no'}`);
   if (Array.isArray(route.generatedFiles) && route.generatedFiles.length > 0) {
-    lines.push(`generated_files_count: ${route.generatedFiles.length}`);
+    lines.push(`generated_files_count: ${Math.min(route.generatedFiles.length, MAX_GENERATED_FILES_PER_RESPONSE)}`);
     lines.push(`generated_files_ids: ${route.generatedFiles.map((file) => file?.form_id).filter(Boolean).join(', ')}`);
   }
   if (route.usedFallbackLanguage) lines.push(`fallback_language_used: ${route.generatedFile?.language || route.resolvedLanguage || 'en'}`);

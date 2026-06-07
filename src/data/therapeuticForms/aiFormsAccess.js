@@ -77,9 +77,12 @@ const ADOLESCENTS_GROUP_LABELS = Object.freeze([
 ]);
 
 export const MAX_GENERATED_FILES_PER_RESPONSE = 5;
-const MAX_MODEL_CANDIDATE_FORMS = 8;
+export const MAX_MODEL_CANDIDATE_FORMS = 8;
 const MULTI_FORM_CAPABILITY_RESPONSE_HE = 'כן. אני יכול לשלוח כמה טפסים יחד, עד 5 טפסים בתגובה אחת. אם יש קובץ מאוחד מתאים, אעדיף לשלוח אותו במקום להציף בכמה קבצים.';
 const MULTI_FORM_CAPABILITY_RESPONSE_EN = 'Yes. I can send several forms together, up to 5 forms in one response. If a combined module PDF exists, I will prefer that instead of sending many separate files.';
+const ENGLISH_MULTI_FORM_REQUEST_PATTERN = /\b(all forms|all worksheets|several forms|multiple forms|few forms|several worksheets|multiple worksheets)\b/i;
+const NUMERIC_MULTI_FORM_REQUEST_PATTERN = /\b\d{1,2}\s*(forms|worksheets|טפסים|דפי\s*עבודה)\b/i;
+const HEBREW_MULTI_FORM_REQUEST_PATTERN = /(?:כמה|מספר)\s*(טפסים|דפים|דפי\s*עבודה)|כל\s*(הטפסים|שלב|מודול)|שלח(?:י)?\s*לי\s*כמה\s*טפסים|שלח(?:י)?\s*לי\s*מספר\s*טפסים|תן(?:י)?\s*לי\s*כמה\s*טפסים|אני\s*צריך\s*כמה\s*טפסים|כמה\s*דפים\s*שמתאימים|מספר\s*דפי\s*עבודה/i;
 
 const NUMBER_WORD_MAP = Object.freeze({
   one: 1,
@@ -186,7 +189,11 @@ function requestsModuleOrStageScope(text) {
 function requestsManyForms(text) {
   const normalized = normalizeText(text);
   if (!normalized) return false;
-  return /(?:\b(?:all forms|all worksheets|several forms|multiple forms|few forms|several worksheets|multiple worksheets)\b|(?:\b\d{1,2}\s*(?:forms|worksheets)\b)|(?:כמה|מספר)\s*(?:טפסים|דפים|דפי\s*עבודה)|כל\s*(?:הטפסים|שלב|מודול)|שלח(?:י)?\s*לי\s*כמה\s*טפסים|שלח(?:י)?\s*לי\s*מספר\s*טפסים|תן(?:י)?\s*לי\s*כמה\s*טפסים|אני\s*צריך\s*כמה\s*טפסים|כמה\s*דפים\s*שמתאימים|מספר\s*דפי\s*עבודה)/i.test(normalized);
+  return (
+    ENGLISH_MULTI_FORM_REQUEST_PATTERN.test(normalized) ||
+    NUMERIC_MULTI_FORM_REQUEST_PATTERN.test(normalized) ||
+    HEBREW_MULTI_FORM_REQUEST_PATTERN.test(normalized)
+  );
 }
 
 function asksMultiFormCapability(text) {

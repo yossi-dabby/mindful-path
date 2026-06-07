@@ -20,7 +20,7 @@ import {
   resolveEnglishWorkbookIntentWithContext,
   resolveSpanishWorkbookIntentWithContext,
 } from '../../utils/resolveWorkbookIntent.js';
-import { getAllTherapeuticForms, SUPPORTED_LANGUAGES } from '../../data/therapeuticForms/index.js';
+import { getAllTherapeuticForms, SUPPORTED_LANGUAGES, MAX_GENERATED_FILES_PER_RESPONSE } from '../../data/therapeuticForms/index.js';
 import { THERAPEUTIC_FORMS_POLICY_REFRESH_MARKER } from '../../lib/therapeuticFormsPolicy.js';
 import { normalizeGeneratedFile } from '../chat/utils/normalizeGeneratedFile.js';
 
@@ -312,7 +312,7 @@ function hasFormRefusalLikeContent(content) {
   return FORM_REFUSAL_PATTERNS.some((pattern) => pattern.test(sanitized));
 }
 
-function normalizeGeneratedFilesList(files, maxItems = 5) {
+function normalizeGeneratedFilesList(files, maxItems = MAX_GENERATED_FILES_PER_RESPONSE) {
   if (!Array.isArray(files)) return [];
   const seen = new Set();
   const normalized = [];

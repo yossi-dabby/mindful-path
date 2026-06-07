@@ -220,7 +220,7 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
   });
 
   it('keeps model-facing deterministic candidate context compact and capped', () => {
-    expect(chatSource).toContain('const COMPACT_CANDIDATE_LIMIT = 8;');
+    expect(chatSource).toContain('const COMPACT_CANDIDATE_LIMIT = MAX_MODEL_CANDIDATE_FORMS;');
     expect(chatSource).toContain('candidate_included: ${compactCandidates.length}');
     expect(chatSource).toContain('[FORM_CANDIDATES]');
   });

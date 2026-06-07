@@ -296,4 +296,6 @@ export {
   getAvailableFormGroups,
   getFormsRegistryStats,
   detectFormIntent,
+  MAX_GENERATED_FILES_PER_RESPONSE,
+  MAX_MODEL_CANDIDATE_FORMS,
 } from './aiFormsAccess.js';
