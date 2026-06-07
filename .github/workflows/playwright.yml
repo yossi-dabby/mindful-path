@@ -1,16 +1,15 @@
 name: Playwright E2E Tests
 
 on:
-  push:
-    branches: [ main, master, develop, staging, staging-fresh ]
   pull_request:
-    branches: [ main, master, develop, staging, staging-fresh ]
+    branches: [main, master, develop, staging, staging-fresh]
+  workflow_dispatch:
 
 jobs:
-  smoke:
-    name: Smoke Tests (Production-critical)
-    timeout-minutes: 10
+  e2e:
+    name: Playwright E2E (web-desktop)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
 
@@ -27,17 +26,26 @@ jobs:
       - name: Install dependencies
         run: npm ci --fetch-retries=5 --fetch-retry-factor=2
 
+      - name: Generate therapeutic forms index
+        run: npm run generate:forms-index
+
       - name: Validate therapeutic forms index
         run: npm run check:forms-index
 
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+      - name: Run unit tests
+        run: npm run test
 
       - name: Build application
         run: npm run build
         env:
           VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || 'test-app-id' }}
           VITE_BASE44_APP_BASE_URL: ${{ secrets.VITE_BASE44_APP_BASE_URL || 'http://127.0.0.1:5173' }}
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
 
       - name: Start dev server
         run: |
@@ -48,25 +56,10 @@ jobs:
           VITE_BASE44_APP_BASE_URL: ${{ secrets.VITE_BASE44_APP_BASE_URL || 'http://127.0.0.1:5173' }}
 
       - name: Wait for server
-        run: |
-          npx --yes wait-on tcp:127.0.0.1:5173 --timeout 240000
-          npx --yes wait-on http-get://127.0.0.1:5173 --timeout 240000
-          for attempt in 1 2 3; do
-            if curl -sf http://127.0.0.1:5173 > /dev/null; then
-              echo "Server is responding on attempt ${attempt}"
-              break
-            fi
-            if [ "$attempt" -eq 3 ]; then
-              echo "Server did not become responsive after retries"
-              tail -n 200 devserver.log || true
-              exit 1
-            fi
-            echo "Server not responsive yet (attempt ${attempt}), retrying..."
-            sleep 5
-          done
+        run: npx wait-on http://127.0.0.1:5173 --timeout 240000
 
-      - name: Run Smoke Tests
-        run: npm run test:e2e -- --project=smoke-production-critical
+      - name: Run Playwright E2E
+        run: npm run test:e2e -- --project=web-desktop
         env:
           CI: true
           BASE_URL: http://127.0.0.1:5173
@@ -76,124 +69,30 @@ jobs:
 
       - name: Upload dev server log
         uses: actions/upload-artifact@v4
-        if: always()
+        if: failure()
         with:
-          name: devserver-log-smoke
+          name: devserver-log
           path: devserver.log
           retention-days: 7
 
-      - name: Upload Playwright report
+      - name: Upload Playwright HTML report
         uses: actions/upload-artifact@v4
-        if: always()
+        if: failure()
         with:
-          name: playwright-report-smoke
+          name: playwright-report
           path: playwright-report/
           retention-days: 30
 
-      - name: Upload test results
+      - name: Upload Playwright test-results bundle
         uses: actions/upload-artifact@v4
-        if: always()
+        if: failure()
         with:
-          name: test-results-smoke
-          path: test-results/
-          retention-days: 7
-
-  test:
-    name: E2E Tests
-    timeout-minutes: 20
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
-    strategy:
-      fail-fast: false
-      matrix:
-        project: [web-desktop, mobile-390x844]
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22.x'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci --fetch-retries=5 --fetch-retry-factor=2
-
-      - name: Validate therapeutic forms index
-        run: npm run check:forms-index
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-
-      - name: Build application
-        run: npm run build
-        env:
-          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || 'test-app-id' }}
-          VITE_BASE44_APP_BASE_URL: ${{ secrets.VITE_BASE44_APP_BASE_URL || 'http://127.0.0.1:5173' }}
-
-      - name: Start dev server
-        run: |
-          nohup npm run dev -- --host 127.0.0.1 --port 5173 > devserver.log 2>&1 &
-          echo "Dev server started (logging to devserver.log)"
-        env:
-          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || 'test-app-id' }}
-          VITE_BASE44_APP_BASE_URL: ${{ secrets.VITE_BASE44_APP_BASE_URL || 'http://127.0.0.1:5173' }}
-
-      - name: Wait for server
-        run: |
-          npx --yes wait-on tcp:127.0.0.1:5173 --timeout 240000
-          npx --yes wait-on http-get://127.0.0.1:5173 --timeout 240000
-          for attempt in 1 2 3; do
-            if curl -sf http://127.0.0.1:5173 > /dev/null; then
-              echo "Server is responding on attempt ${attempt}"
-              break
-            fi
-            if [ "$attempt" -eq 3 ]; then
-              echo "Server did not become responsive after retries"
-              tail -n 200 devserver.log || true
-              exit 1
-            fi
-            echo "Server not responsive yet (attempt ${attempt}), retrying..."
-            sleep 5
-          done
-
-      - name: Run Playwright tests
-        run: npm run test:e2e -- --project=${{ matrix.project }}
-        env:
-          CI: true
-          BASE_URL: http://127.0.0.1:5173
-          PLAYWRIGHT_TEST_BASE_URL: http://127.0.0.1:5173
-          VITE_BASE44_APP_ID: ${{ secrets.VITE_BASE44_APP_ID || 'test-app-id' }}
-          VITE_BASE44_APP_BASE_URL: ${{ secrets.VITE_BASE44_APP_BASE_URL || 'http://127.0.0.1:5173' }}
-
-      - name: Upload dev server log
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: devserver-log-${{ matrix.project }}
-          path: devserver.log
-          retention-days: 7
-
-      - name: Upload Playwright report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: playwright-report-${{ matrix.project }}
-          path: playwright-report/
-          retention-days: 30
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-results-${{ matrix.project }}
-          path: test-results/
-          retention-days: 7
-
-
-
-
+          name: test-results
+          path: |
+            test-results/
+            test-results/**/*.png
+            test-results/**/*.webm
+            test-results/**/*.zip
+            test-results/**/*.trace
+          retention-days: 14
+          if-no-files-found: ignore
