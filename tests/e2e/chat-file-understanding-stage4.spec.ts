@@ -185,6 +185,7 @@ async function startChatWithRuntimeMocks(page: Parameters<typeof mockApi>[0]) {
       : 'I reviewed your uploaded image. It appears to show a simple red square on a plain background.';
 
     conversationMessages = [
+      ...conversationMessages,
       {
         role: 'user',
         content: String(body?.content || ''),
