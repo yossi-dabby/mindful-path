@@ -58,6 +58,7 @@ import {
   buildTranscriptionFailureDescription,
 } from '@/utils/audioTranscriptionDiagnostics.js';
 import { resolveFormIntentRequest } from '@/utils/resolveFormIntent.js';
+import { MAX_GENERATED_FILES_PER_RESPONSE, MAX_MODEL_CANDIDATE_FORMS } from '@/data/therapeuticForms/index.js';
 import {
   isWebmFile,
   isMp4File,
@@ -228,8 +229,30 @@ function resolveAttachmentType(fileName) {
 
 function buildDeterministicFormRouterContext(route, sessionLanguage) {
   if (!route?.intent) return '';
+  const COMPACT_CANDIDATE_LIMIT = MAX_MODEL_CANDIDATE_FORMS;
+  const COMPACT_FIELD_LIMIT = 140;
+  const compactField = (value, max = COMPACT_FIELD_LIMIT) => {
+    const normalized = typeof value === 'string' ? value.replace(/\s+/g, ' ').trim() : '';
+    if (!normalized) return null;
+    return normalized.length > max ? `${normalized.slice(0, max - 1)}…` : normalized;
+  };
+
   const intent = route.intent;
   const topMatch = route.matches?.[0] || route.nearestMatches?.[0] || null;
+  const compactCandidates = (Array.isArray(route.matches) ? route.matches : [])
+    .slice(0, COMPACT_CANDIDATE_LIMIT)
+    .map((candidate) => ({
+      id: candidate?.id || null,
+      title: compactField(candidate?.title || candidate?.localizedTitle || ''),
+      localizedTitle: compactField(candidate?.localizedTitle || candidate?.title || ''),
+      language: candidate?.language || null,
+      audience: candidate?.audience || null,
+      clinicalDomain: compactField(candidate?.clinicalDomain || ''),
+      whenToUse: compactField(candidate?.whenToUse || candidate?.when_to_use || ''),
+      category: candidate?.category || null,
+    }))
+    .filter((candidate) => candidate.id);
+
   const lines = [
     '[FORM_ROUTER_CONTEXT]',
     `intent: ${intent.type}`,
@@ -240,9 +263,23 @@ function buildDeterministicFormRouterContext(route, sessionLanguage) {
   if (topMatch?.id) lines.push(`best_match_form_id: ${topMatch.id}`);
   if (topMatch?.title) lines.push(`best_match_form_title: ${topMatch.title}`);
   lines.push(`registry_total: ${route.stats?.total || 0}`);
+  lines.push(`candidate_total: ${Array.isArray(route.matches) ? route.matches.length : 0}`);
+  lines.push(`candidate_included: ${compactCandidates.length}`);
   lines.push(`should_attach_form: ${route.generatedFile ? 'yes' : 'no'}`);
+  if (Array.isArray(route.generatedFiles) && route.generatedFiles.length > 0) {
+    lines.push(`generated_files_count: ${Math.min(route.generatedFiles.length, MAX_GENERATED_FILES_PER_RESPONSE)}`);
+    lines.push(`generated_files_ids: ${route.generatedFiles.map((file) => file?.form_id).filter(Boolean).join(', ')}`);
+  }
   if (route.usedFallbackLanguage) lines.push(`fallback_language_used: ${route.generatedFile?.language || route.resolvedLanguage || 'en'}`);
-  if (route.responseText) lines.push(`deterministic_hint: ${String(route.responseText).replace(/\s+/g, ' ').trim()}`);
+  if (route.responseText) lines.push(`deterministic_hint: ${compactField(route.responseText, 240)}`);
+  if (compactCandidates.length > 0) {
+    lines.push('[FORM_CANDIDATES]');
+    compactCandidates.forEach((candidate, index) => {
+      lines.push(
+        `${index + 1}. id=${candidate.id} | lang=${candidate.language || 'n/a'} | audience=${candidate.audience || 'n/a'} | category=${candidate.category || 'n/a'} | title=${candidate.localizedTitle || candidate.title || candidate.id} | domain=${candidate.clinicalDomain || 'n/a'} | when_to_use=${candidate.whenToUse || 'n/a'}`
+      );
+    });
+  }
   return `\n${lines.join('\n')}\n`;
 }
 

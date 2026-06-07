@@ -31,6 +31,14 @@ describe('therapeutic forms policy reliability', () => {
     expect(diagnostics.formsCountAvailableToAI).toBeGreaterThan(0);
   });
 
+  it('keeps first-message policy payload compact and avoids embedding the full forms registry', () => {
+    const { policy } = getTherapeuticFormsPolicyPayload({ sessionLanguage: 'en' });
+    const markerCount = (policy.match(/\[FORM:/g) || []).length;
+    expect(policy.length).toBeLessThan(8000);
+    expect(markerCount).toBeLessThanOrEqual(10);
+    expect(policy).toContain('CURRENTLY APPROVED FORMS SUMMARY');
+  });
+
   it('injects a hidden refresh policy message for an existing conversation that lacks the current version', async () => {
     const addMessage = vi.fn().mockResolvedValue({});
     const cache = new Map();

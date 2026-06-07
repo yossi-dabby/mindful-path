@@ -230,7 +230,7 @@ function buildTherapistFormLibraryInstructions(forms) {
   return [
     '[THERAPEUTIC_FORMS_POLICY]',
     'Therapeutic forms are available only from the approved catalog below.',
-    'When a user requests a workbook/form, use at most one exact [FORM:form-id] marker from the approved list.',
+    'When a user requests a workbook/form, use exact [FORM:form-id] marker(s) from the approved list. Default to one marker for specific requests; for explicit multi-form/module/stage-all requests, use up to 5 markers.',
     '',
     buildTherapistFormCatalog(forms),
     '',

@@ -1,7 +1,12 @@
 import { describe, it, expect } from 'vitest';
+import fs from 'node:fs';
+import path from 'node:path';
 import { sanitizeConversationMessages } from '../../src/components/utils/validateAgentOutput.jsx';
 
 describe('therapeuticFormsChatIntegration.test.js', () => {
+  const ROOT = path.resolve(process.cwd());
+  const chatSource = fs.readFileSync(`${ROOT}/src/pages/Chat.jsx`, 'utf8');
+
   it('new-chat first assistant response sanitizes without runtime error', () => {
     const firstTurn = [
       { role: 'user', content: 'Hi, I need help today', metadata: { session_language: 'en' } },
@@ -180,6 +185,30 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     expect(assistant?.metadata?.generated_file).toBeTruthy();
   });
 
+  it('supports first-turn Hebrew multi-form request with more than one generated file', () => {
+    const messages = [
+      { role: 'user', content: 'שלח לי כמה טפסים לילד עם חרדת פרידה', metadata: { session_language: 'he' } },
+      { role: 'assistant', content: 'בשמחה.' },
+    ];
+    const result = sanitizeConversationMessages(messages, 'he');
+    const assistant = result.find((m) => m.role === 'assistant');
+    expect(Array.isArray(assistant?.metadata?.generated_files)).toBe(true);
+    expect(assistant?.metadata?.generated_files?.length).toBeGreaterThan(1);
+    expect(assistant?.metadata?.generated_files?.length).toBeLessThanOrEqual(5);
+    expect(assistant?.metadata?.generated_files?.every((file) => file.language === 'he')).toBe(true);
+  });
+
+  it('answers multi-form capability question accurately in Hebrew', () => {
+    const messages = [
+      { role: 'user', content: 'האם אתה יכול לשלוח מספר טפסים במקביל או רק טופס אחד בכל פעם', metadata: { session_language: 'he' } },
+      { role: 'assistant', content: 'אני יכול רק טופס אחד.' },
+    ];
+    const result = sanitizeConversationMessages(messages, 'he');
+    const assistant = result.find((m) => m.role === 'assistant');
+    expect(assistant?.content).toBe('כן. אני יכול לשלוח כמה טפסים יחד, עד 5 טפסים בתגובה אחת. אם יש קובץ מאוחד מתאים, אעדיף לשלוח אותו במקום להציף בכמה קבצים.');
+    expect(assistant?.metadata?.generated_files ?? []).toHaveLength(0);
+  });
+
   it('keeps marker fallback active while deterministic path is primary', () => {
     const messages = [
       { role: 'user', content: 'Send worksheet 5.1 from children CBT core', metadata: { session_language: 'en' } },
@@ -188,5 +217,11 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     const result = sanitizeConversationMessages(messages, 'en');
     const assistant = result.find((m) => m.role === 'assistant');
     expect(assistant?.metadata?.generated_file?.form_id).toBe('children-cbt-core-en-5-1');
+  });
+
+  it('keeps model-facing deterministic candidate context compact and capped', () => {
+    expect(chatSource).toContain('const COMPACT_CANDIDATE_LIMIT = MAX_MODEL_CANDIDATE_FORMS;');
+    expect(chatSource).toContain('candidate_included: ${compactCandidates.length}');
+    expect(chatSource).toContain('[FORM_CANDIDATES]');
   });
 });
