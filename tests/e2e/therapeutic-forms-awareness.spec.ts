@@ -95,11 +95,10 @@ function buildAssistantTurn(language: ChatLanguage, userMessage: string): Assist
   // The session start block is separated from the actual user text by '\n\n'. Because the
   // session block itself may contain '\n\n' separators between its sections, we locate the
   // LAST '\n\n' in the content, which is always the boundary added by handleSendMessage.
+  // If no '\n\n' separator is found the block carries no visible user text, so we clear it.
   if (normalized.startsWith('[START_SESSION]')) {
     const lastSep = normalized.lastIndexOf('\n\n');
-    if (lastSep !== -1) {
-      normalized = normalized.substring(lastSep + 2).trim();
-    }
+    normalized = lastSep !== -1 ? normalized.substring(lastSep + 2).trim() : '';
   }
 
   // Strip [FORM_ROUTER_CONTEXT] block appended to messages with a detected form intent.
@@ -132,7 +131,7 @@ function buildAssistantTurn(language: ChatLanguage, userMessage: string): Assist
     };
   }
 
-  if (lower.includes('שני טפסים') || lower.includes('multi')) {
+  if (lower.includes('שני טפסים')) {
     return {
       content: 'להלן שני טפסים בעברית בהתאם לבקשה שלך.',
       generatedFiles: [generatedFileFromForm(HE_SINGLE), generatedFileFromForm(HE_COMBINED)],
