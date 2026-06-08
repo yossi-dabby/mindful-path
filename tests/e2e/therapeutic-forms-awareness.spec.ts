@@ -133,7 +133,6 @@ function buildAssistantTurn(rawContent: string) {
       role: 'assistant' as const,
       content: 'הכנתי כמה טפסים מתאימים.',
       metadata: {
-        generated_file: generatedFiles[0],
         generated_files: generatedFiles,
       },
     };
