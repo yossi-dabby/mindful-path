@@ -238,8 +238,14 @@ async function sendChatMessage(page: Page, message: string) {
 
   await input.fill(message);
   await expect(sendButton).toBeEnabled({ timeout: 15000 });
+  const postMessageResponse = page.waitForResponse((response) => (
+    response.request().method() === 'POST'
+    && response.url().includes('/agents/conversations/')
+    && response.url().includes('/messages')
+  ), { timeout: 15000 });
   await sendButton.click();
-  await expect(page.getByText(message)).toBeVisible({ timeout: 15000 });
+  await postMessageResponse;
+  await expect(input).toHaveValue('');
 }
 
 async function expectSingleGeneratedCard(page: Page, formId: string, language: ChatLanguage, isCombinedPdf = false, timeout = 15000) {
