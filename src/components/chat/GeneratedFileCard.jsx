@@ -47,7 +47,13 @@ export default function GeneratedFileCard({ generatedFile }) {
   };
 
   return (
-    <div className="mt-3 rounded-xl border border-primary-foreground/25 bg-primary-foreground/10 overflow-hidden">
+    <div
+      data-testid="generated-file-card"
+      data-language={normalized.language || ''}
+      data-form-id={normalized.form_id || ''}
+      data-is-combined-pdf={normalized.isCombinedPdf ? 'true' : 'false'}
+      className="mt-3 rounded-xl border border-primary-foreground/25 bg-primary-foreground/10 overflow-hidden"
+    >
       {/* Card header row */}
       <div className="flex items-start gap-3 px-4 py-3">
         <div className="mt-0.5 flex-shrink-0 rounded-lg bg-primary-foreground/15 p-2">
@@ -71,6 +77,7 @@ export default function GeneratedFileCard({ generatedFile }) {
       <div className="flex border-t border-primary-foreground/20">
         <button
           type="button"
+          data-testid="generated-file-open"
           onClick={handleOpen}
           className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-foreground/15 hover:bg-primary-foreground/20 transition-colors text-sm font-medium text-primary-foreground border-e border-primary-foreground/20"
         >
@@ -79,6 +86,7 @@ export default function GeneratedFileCard({ generatedFile }) {
         </button>
         <button
           type="button"
+          data-testid="generated-file-download"
           onClick={handleDownload}
           disabled={isDownloading}
           className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-foreground/15 hover:bg-primary-foreground/20 transition-colors text-sm font-medium text-primary-foreground disabled:opacity-60"

@@ -238,8 +238,8 @@ export default function Layout({ children, currentPageName }) {
           </div>
         }
 
-        {/* AI Companion Widget - Draggable across all pages */}
-        <DraggableAiCompanion />
+        {/* AI Companion Widget - Draggable across all pages except /Chat (therapist chat) */}
+        {!location.pathname.includes('/Chat') && <DraggableAiCompanion />}
       
       {/* Sidebar - Desktop only */}
       <Sidebar currentPageName={currentPageName} />

@@ -50,6 +50,12 @@ export function normalizeGeneratedFile(raw) {
   const audience   = typeof raw.audience === 'string' && raw.audience.trim() ? raw.audience.trim() : null;
   const category   = typeof raw.category === 'string' && raw.category.trim() ? raw.category.trim() : null;
   const language   = typeof raw.language === 'string' && raw.language.trim() ? raw.language.trim() : null;
+  let isCombinedPdf = null;
+  if (typeof raw.isCombinedPdf === 'boolean') {
+    isCombinedPdf = raw.isCombinedPdf;
+  } else if (typeof raw.is_combined_pdf === 'boolean') {
+    isCombinedPdf = raw.is_combined_pdf;
+  }
 
   const result = {
     type: 'pdf',
@@ -68,6 +74,7 @@ export function normalizeGeneratedFile(raw) {
   if (audience) result.audience  = audience;
   if (category) result.category  = category;
   if (language) result.language  = language;
+  if (typeof isCombinedPdf === 'boolean') result.isCombinedPdf = isCombinedPdf;
 
   return result;
 }
