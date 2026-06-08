@@ -187,22 +187,34 @@ async function setupChatWithLanguage(page: Page, language: 'en' | 'he') {
     const request = route.request();
     const url = request.url();
     if (request.method() !== 'POST' || !postMessagePattern.test(url)) {
-      await route.continue();
+      await route.fallback();
       return;
     }
 
     const body = request.postDataJSON?.() as { content?: string } | undefined;
     const content = String(body?.content || '');
+    const assistantTurn = buildAssistantTurn(content);
     state.conversationMessages.push({ role: 'user', content, metadata: {} });
-    state.conversationMessages.push(buildAssistantTurn(content));
+    state.conversationMessages.push(assistantTurn);
     state.messageCounts.push(state.conversationMessages.length);
 
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({
-        role: 'user',
-        content,
+        user_message: {
+          role: 'user',
+          content,
+          metadata: {},
+          created_date: new Date().toISOString(),
+        },
+        assistant_message: {
+          role: 'assistant',
+          content: assistantTurn.content,
+          metadata: assistantTurn.metadata || {},
+          created_date: new Date().toISOString(),
+        },
+        messages: state.conversationMessages,
         created_date: new Date().toISOString(),
       }),
     });
@@ -213,7 +225,7 @@ async function setupChatWithLanguage(page: Page, language: 'en' | 'he') {
     const request = route.request();
     const url = request.url();
     if (request.method() !== 'GET' || !getConversationPattern.test(url)) {
-      await route.continue();
+      await route.fallback();
       return;
     }
 
