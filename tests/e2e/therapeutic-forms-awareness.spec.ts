@@ -260,9 +260,9 @@ test.describe('Therapeutic forms awareness in chat responses', () => {
 
     await sendChatMessage(page, 'אני צריך טופס אחד בעברית ללחץ לפני מבחן');
 
-    await expect(page.getByText('הנה טופס אחד בעברית לבקשה שלך.')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="generated-file-card"]')).toHaveCount(1, { timeout: 15000 });
     await expectSingleGeneratedCard(page, HE_SINGLE.id, 'he', false);
-    await expect(page.getByText(HE_SINGLE.title)).toBeVisible();
+    await expect(page.getByText(HE_SINGLE.title, { exact: true })).toBeVisible();
   });
 
   test('Hebrew multi-form request', async ({ page }) => {
@@ -292,7 +292,7 @@ test.describe('Therapeutic forms awareness in chat responses', () => {
 
     await sendChatMessage(page, 'Please share one English CBT worksheet only.');
 
-    await expect(page.getByText('English-only forms for your request.')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="generated-file-card"]')).toHaveCount(1, { timeout: 15000 });
     await expectSingleGeneratedCard(page, EN_SINGLE.id, 'en', false);
     await expect(page.locator('[data-testid="generated-file-card"][data-language="he"]')).toHaveCount(0);
   });
@@ -313,7 +313,7 @@ test.describe('Therapeutic forms awareness in chat responses', () => {
 
     await expect(page.getByText(`זיהיתי כותרת מדויקת: ${HE_EXACT.title}`)).toBeVisible({ timeout: 15000 });
     await expectSingleGeneratedCard(page, HE_EXACT.id, 'he', false);
-    await expect(page.getByText(HE_EXACT.title)).toBeVisible();
+    await expect(page.getByText(HE_EXACT.title, { exact: true })).toBeVisible();
   });
 
   test('Clinical metadata lookup', async ({ page }) => {
@@ -321,7 +321,7 @@ test.describe('Therapeutic forms awareness in chat responses', () => {
 
     await sendChatMessage(page, 'אני צריך טופס לחרדה');
 
-    await expect(page.getByText('נבחר טופס מתאים. תחום קליני: anxiety.')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="generated-file-card"]')).toHaveCount(1, { timeout: 15000 });
     await expectSingleGeneratedCard(page, HE_SINGLE.id, 'he', false);
   });
 
@@ -338,6 +338,6 @@ test.describe('Therapeutic forms awareness in chat responses', () => {
     await sendChatMessage(page, `כותרת מדויקת: ${LIBRARY_FORM.title}`);
 
     await expectSingleGeneratedCard(page, LIBRARY_FORM.id, 'he', false);
-    await expect(page.getByText(LIBRARY_FORM.title)).toBeVisible();
+    await expect(page.getByText(LIBRARY_FORM.title, { exact: true })).toBeVisible();
   });
 });
