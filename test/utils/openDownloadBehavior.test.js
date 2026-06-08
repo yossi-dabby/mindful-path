@@ -87,6 +87,13 @@ describe('GeneratedFileCard — Open vs Download source-code contract', () => {
     expect(cardSrc).toContain('downloadPdfFile');
   });
 
+  it('GeneratedFileCard exposes stable generated file test selectors', () => {
+    expect(cardSrc).toContain('data-testid="generated-file-card"');
+    expect(cardSrc).toContain('data-testid="generated-file-open"');
+    expect(cardSrc).toContain('data-testid="generated-file-download"');
+    expect(cardSrc).toContain('data-language={normalizedLanguage}');
+  });
+
   it('Open button does not set download attribute in openFile helper', () => {
     const openFileSrc = fs.readFileSync(`${ROOT}/src/components/chat/utils/openFile.js`, 'utf8');
     expect(openFileSrc).not.toContain('.download =');
