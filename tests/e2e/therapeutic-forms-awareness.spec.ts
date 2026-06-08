@@ -242,9 +242,9 @@ async function sendChatMessage(page: Page, message: string) {
   await expect(page.getByText(message)).toBeVisible({ timeout: 15000 });
 }
 
-async function expectSingleGeneratedCard(page: Page, formId: string, language: ChatLanguage, isCombinedPdf = false) {
+async function expectSingleGeneratedCard(page: Page, formId: string, language: ChatLanguage, isCombinedPdf = false, timeout = 15000) {
   const cards = page.locator('[data-testid="generated-file-card"]');
-  await expect(cards).toHaveCount(1);
+  await expect(cards).toHaveCount(1, { timeout });
 
   const card = cards.first();
   await expect(card).toHaveAttribute('data-form-id', formId);
@@ -260,7 +260,6 @@ test.describe('Therapeutic forms awareness in chat responses', () => {
 
     await sendChatMessage(page, 'אני צריך טופס אחד בעברית ללחץ לפני מבחן');
 
-    await expect(page.locator('[data-testid="generated-file-card"]')).toHaveCount(1, { timeout: 15000 });
     await expectSingleGeneratedCard(page, HE_SINGLE.id, 'he', false);
     await expect(page.getByText(HE_SINGLE.title, { exact: true })).toBeVisible();
   });
@@ -292,7 +291,6 @@ test.describe('Therapeutic forms awareness in chat responses', () => {
 
     await sendChatMessage(page, 'Please share one English CBT worksheet only.');
 
-    await expect(page.locator('[data-testid="generated-file-card"]')).toHaveCount(1, { timeout: 15000 });
     await expectSingleGeneratedCard(page, EN_SINGLE.id, 'en', false);
     await expect(page.locator('[data-testid="generated-file-card"][data-language="he"]')).toHaveCount(0);
   });
@@ -321,7 +319,6 @@ test.describe('Therapeutic forms awareness in chat responses', () => {
 
     await sendChatMessage(page, 'אני צריך טופס לחרדה');
 
-    await expect(page.locator('[data-testid="generated-file-card"]')).toHaveCount(1, { timeout: 15000 });
     await expectSingleGeneratedCard(page, HE_SINGLE.id, 'he', false);
   });
 
