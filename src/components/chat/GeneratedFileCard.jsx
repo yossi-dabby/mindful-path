@@ -17,6 +17,7 @@ export default function GeneratedFileCard({ generatedFile }) {
 
   const displayTitle = normalized.title || normalized.name;
   const description = normalized.description;
+  const normalizedLanguage = String(normalized.language || '').trim().toLowerCase().split('-')[0] || 'unknown';
 
   const handleOpen = async () => {
     const openUrl = getFormOpenUrl(normalized.url);
@@ -47,7 +48,11 @@ export default function GeneratedFileCard({ generatedFile }) {
   };
 
   return (
-    <div className="mt-3 rounded-xl border border-primary-foreground/25 bg-primary-foreground/10 overflow-hidden">
+    <div
+      className="mt-3 rounded-xl border border-primary-foreground/25 bg-primary-foreground/10 overflow-hidden"
+      data-testid="generated-file-card"
+      data-language={normalizedLanguage}
+    >
       {/* Card header row */}
       <div className="flex items-start gap-3 px-4 py-3">
         <div className="mt-0.5 flex-shrink-0 rounded-lg bg-primary-foreground/15 p-2">
@@ -72,6 +77,7 @@ export default function GeneratedFileCard({ generatedFile }) {
         <button
           type="button"
           onClick={handleOpen}
+          data-testid="generated-file-open"
           className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-foreground/15 hover:bg-primary-foreground/20 transition-colors text-sm font-medium text-primary-foreground border-e border-primary-foreground/20"
         >
           <ExternalLink className="w-3.5 h-3.5" />
@@ -80,6 +86,7 @@ export default function GeneratedFileCard({ generatedFile }) {
         <button
           type="button"
           onClick={handleDownload}
+          data-testid="generated-file-download"
           disabled={isDownloading}
           className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-foreground/15 hover:bg-primary-foreground/20 transition-colors text-sm font-medium text-primary-foreground disabled:opacity-60"
         >
