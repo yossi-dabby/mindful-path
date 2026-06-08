@@ -155,7 +155,12 @@ async function setupTherapeuticFormsChat(page: Page, language: ChatLanguage) {
       return;
     }
 
-    const body = route.request().postDataJSON?.() as { content?: string } | undefined;
+    let body: { content?: string } | undefined;
+    try {
+      body = route.request().postDataJSON() as { content?: string } | undefined;
+    } catch {
+      body = undefined;
+    }
     const userContent = String(body?.content || '');
     const assistantTurn = buildAssistantTurn(language, userContent);
 
@@ -299,6 +304,7 @@ test.describe('Therapeutic forms awareness in chat responses', () => {
   });
 
   test('Forms Library to Chat parity', async ({ page }) => {
+    expect(fs.existsSync(INDEX_PATH)).toBe(true);
     const formsIndex = JSON.parse(fs.readFileSync(INDEX_PATH, 'utf-8')) as FormFixture[];
     const canonical = formsIndex.find((form) => form.id === LIBRARY_FORM.id);
 

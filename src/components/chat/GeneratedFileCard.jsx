@@ -51,7 +51,7 @@ export default function GeneratedFileCard({ generatedFile }) {
       data-testid="generated-file-card"
       data-language={normalized.language || ''}
       data-form-id={normalized.form_id || ''}
-      data-is-combined-pdf={String(Boolean(normalized.isCombinedPdf))}
+      data-is-combined-pdf={normalized.isCombinedPdf ? 'true' : 'false'}
       className="mt-3 rounded-xl border border-primary-foreground/25 bg-primary-foreground/10 overflow-hidden"
     >
       {/* Card header row */}
