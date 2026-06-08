@@ -18,6 +18,10 @@ export default function GeneratedFileCard({ generatedFile }) {
   const displayTitle = normalized.title || normalized.name;
   const description = normalized.description;
   const normalizedLanguage = String(normalized.language || '').trim().toLowerCase().split('-')[0] || 'unknown';
+  const normalizedFormId = String(normalized.form_id || '').trim().toLowerCase();
+  const isCombinedPdf =
+    normalizedFormId.includes('combined') &&
+    (normalizedFormId.includes('stage') || normalizedFormId.includes('module'));
 
   const handleOpen = async () => {
     const openUrl = getFormOpenUrl(normalized.url);
@@ -52,6 +56,8 @@ export default function GeneratedFileCard({ generatedFile }) {
       className="mt-3 rounded-xl border border-primary-foreground/25 bg-primary-foreground/10 overflow-hidden"
       data-testid="generated-file-card"
       data-language={normalizedLanguage}
+      data-form-id={normalizedFormId || undefined}
+      data-is-combined-pdf={isCombinedPdf ? 'true' : 'false'}
     >
       {/* Card header row */}
       <div className="flex items-start gap-3 px-4 py-3">

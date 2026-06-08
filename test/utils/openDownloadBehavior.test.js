@@ -92,6 +92,8 @@ describe('GeneratedFileCard — Open vs Download source-code contract', () => {
     expect(cardSrc).toContain('data-testid="generated-file-open"');
     expect(cardSrc).toContain('data-testid="generated-file-download"');
     expect(cardSrc).toContain('data-language={normalizedLanguage}');
+    expect(cardSrc).toContain('data-form-id={normalizedFormId || undefined}');
+    expect(cardSrc).toContain('data-is-combined-pdf={isCombinedPdf ? \'true\' : \'false\'}');
   });
 
   it('Open button does not set download attribute in openFile helper', () => {
