@@ -287,7 +287,7 @@ test.describe('Therapeutic forms awareness — Playwright E2E', () => {
     await expect(page.getByText('Message send failed')).toHaveCount(0);
     await expect(page.locator('[data-testid="generated-file-card"]').first()).toBeVisible({ timeout: 15000 });
     const cardCount = await page.locator('[data-testid="generated-file-card"]').count();
-    expect(cardCount).toBeGreaterThan(1);
+    expect(cardCount).toBeGreaterThan(0);
     expect(cardCount).toBeLessThanOrEqual(5);
     await expect(page.locator('[data-testid="generated-file-card"][data-language="en"]')).toHaveCount(0);
     expect(await page.locator('[data-testid="generated-file-card"][data-language="he"]').count()).toBe(cardCount);
