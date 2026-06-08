@@ -292,10 +292,9 @@ test.describe('Therapeutic forms awareness — Playwright E2E', () => {
       const singleCard = cards.first();
       const isCombinedAttr = await singleCard.getAttribute('data-is-combined-pdf');
       const formIdAttr = String(await singleCard.getAttribute('data-form-id') || '').toLowerCase();
-      const looksLikeCombinedModuleOrStagePdf =
-        formIdAttr.includes('combined') &&
-        (formIdAttr.includes('module') || formIdAttr.includes('stage'));
-      expect(isCombinedAttr === 'true' || looksLikeCombinedModuleOrStagePdf).toBe(true);
+      expect(isCombinedAttr).toBe('true');
+      expect(formIdAttr.includes('combined')).toBe(true);
+      expect(formIdAttr.includes('module') || formIdAttr.includes('stage')).toBe(true);
     } else {
       expect(cardCount).toBeGreaterThan(1);
       expect(cardCount).toBeLessThanOrEqual(5);
