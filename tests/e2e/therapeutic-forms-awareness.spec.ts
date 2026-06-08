@@ -89,7 +89,30 @@ function generatedFileFromForm(form: FormFixture): GeneratedFilePayload {
 }
 
 function buildAssistantTurn(language: ChatLanguage, userMessage: string): AssistantTurn {
-  const normalized = userMessage.trim();
+  let normalized = userMessage.trim();
+
+  // Strip [START_SESSION] wiring block prepended to the first message in a new conversation.
+  // The session start block is separated from the actual user text by '\n\n'. Because the
+  // session block itself may contain '\n\n' separators between its sections, we locate the
+  // LAST '\n\n' in the content, which is always the boundary added by handleSendMessage.
+  if (normalized.startsWith('[START_SESSION]')) {
+    const lastSep = normalized.lastIndexOf('\n\n');
+    if (lastSep !== -1) {
+      normalized = normalized.substring(lastSep + 2).trim();
+    }
+  }
+
+  // Strip [FORM_ROUTER_CONTEXT] block appended to messages with a detected form intent.
+  const frcIdx = normalized.indexOf('\n[FORM_ROUTER_CONTEXT]');
+  if (frcIdx !== -1) {
+    normalized = normalized.substring(0, frcIdx).trim();
+  }
+
+  // Policy refresh injections should not generate a visible assistant reply in the mock.
+  if (normalized.startsWith('[THERAPEUTIC_FORMS_POLICY_REFRESH]')) {
+    return { content: '', generatedFiles: [] };
+  }
+
   const lower = normalized.toLowerCase();
 
   if (lower.includes('כותרת מדויקת:')) {
