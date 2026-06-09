@@ -13,6 +13,9 @@ import { mockApi, spaNavigate } from '../helpers/ui';
 
 // ─── Constants ──────────────────────────────────────────────────────────────────
 
+// This label matches the translated category for children CBT specialized in Hebrew.
+// It mirrors the same constant used in forms-library-navigation.spec.ts and is stable
+// as long as the therapeutic_forms.category.children_cbt_specialized translation remains unchanged.
 const HEBREW_COLLECTION_LABEL = 'CBT ייעודי לילדים';
 const WORKSHEET_VISIBILITY_TIMEOUT_MS = 2000;
 
@@ -60,8 +63,8 @@ async function navigateToWorksheetsLevel(page: Page) {
   const moduleCount = await moduleViewButtons.count();
   expect(moduleCount).toBeGreaterThan(0);
 
-  for (let i = 0; i < moduleCount; i += 1) {
-    const btn = moduleViewButtons.nth(i);
+  for (let moduleIndex = 0; moduleIndex < moduleCount; moduleIndex += 1) {
+    const btn = moduleViewButtons.nth(moduleIndex);
     await expect(btn).toBeVisible();
     await btn.click();
     await expect(page.getByTestId('worksheets-view')).toBeVisible();
@@ -128,6 +131,8 @@ async function setupChatWithGeneratedFileCard(page: Page) {
     try {
       body = route.request().postDataJSON() as { content?: string } | undefined;
     } catch {
+      // postDataJSON throws when the body is multipart or non-JSON; fall back to
+      // empty content so the mock still responds with a generated_file card.
       body = undefined;
     }
     const userContent = String(body?.content || '');
@@ -229,6 +234,8 @@ test.describe('Open vs Download runtime behavior — Forms Library and Chat', ()
     const popup = await popupPromise;
 
     expect(popup).not.toBeNull();
+    // waitForLoadState may time out if the PDF viewer loads slowly in CI;
+    // the URL assertion below is the authoritative check so a load timeout is non-fatal.
     await popup.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});
 
     // The popup URL must point to the PDF viewer route.
@@ -314,6 +321,8 @@ test.describe('Open vs Download runtime behavior — Forms Library and Chat', ()
     const popup = await popupPromise;
 
     expect(popup).not.toBeNull();
+    // waitForLoadState may time out if the PDF viewer loads slowly in CI;
+    // the URL assertion below is the authoritative check so a load timeout is non-fatal.
     await popup.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});
 
     const popupUrl = popup.url();
@@ -396,8 +405,8 @@ test.describe('Open vs Download runtime behavior — Forms Library and Chat', ()
     expect(formsOpenCount).toBe(formsDownloadCount);
 
     // Every Open button must NOT carry an HTML download attribute.
-    for (let i = 0; i < formsOpenCount; i += 1) {
-      expect(await formsOpenBtns.nth(i).getAttribute('download')).toBeNull();
+    for (let buttonIndex = 0; buttonIndex < formsOpenCount; buttonIndex += 1) {
+      expect(await formsOpenBtns.nth(buttonIndex).getAttribute('download')).toBeNull();
     }
 
     // Clicking Download on a worksheet must NOT open a popup (which would signal
