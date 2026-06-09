@@ -230,6 +230,40 @@ These rules apply to all PRs, not just forms-related ones:
 
 ---
 
+## L. New-Language Parity Requirements
+
+Every new language added to the forms library must include its own parity checks
+before any upload PR is merged. The English parity suite (`test/utils/therapeuticFormsEnglishParity.test.js`
+and `tests/e2e/forms-library-english-parity.spec.ts`) established in PR-11 is the
+reference implementation.
+
+For each new language, the following must be covered:
+
+- **Generated index language coverage** — all forms carry the correct `language` code;
+  count in the generated index is > 0; every form has `id`, `title`, `fileUrl`, `audience`,
+  `category`, `collectionId`.
+- **Forms Library language gating** — the new language's collection labels appear in
+  that language's locale; no other language's labels bleed through.
+- **AI exact-title lookup** — representative titles from the generated index resolve
+  back to the correct form through `searchFormsForAI`.
+- **AI clinical-need lookup** — common clinical queries (anxiety, OCD, anger, sleep,
+  self-esteem) surface forms in the new language only; no cross-language leakage.
+- **Multi-form generated_files behaviour** — multi-form requests return only the new
+  language's files; `generated_file` equals the first `generated_files` item;
+  `MAX_GENERATED_FILES_PER_RESPONSE` cap is respected.
+- **Open/Download card behaviour** — generated file cards carry `data-language` equal
+  to the new language code; Open and Download controls remain distinct; the correct
+  PDF URL is used (no substitution from another language).
+- **RTL/LTR layout checks** — if the language is RTL (e.g. Arabic, Hebrew), include
+  overflow and directionality assertions matching the Hebrew layout E2E spec
+  (`tests/e2e/forms-library-hebrew-layout.spec.ts`); if LTR, verify no accidental
+  RTL document direction is set.
+
+Do not build parity checks for a future language in the same PR as form uploads
+for that language. Always add parity tests first (a "readiness" PR), then upload.
+
+---
+
 ## K. Quick Pre-Merge Checklist
 
 Before opening a forms-related PR for review, confirm:
