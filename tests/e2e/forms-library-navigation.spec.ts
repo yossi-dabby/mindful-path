@@ -40,11 +40,29 @@ async function navigateToWorksheetsLevel(page: Page) {
 
   await expect(page.getByTestId('modules-grid')).toBeVisible();
 
-  const firstModuleViewButton = page.locator('[data-testid^="view-worksheets-"]').first();
-  await expect(firstModuleViewButton).toBeVisible();
-  await firstModuleViewButton.click();
+  const moduleViewButtons = page.locator('[data-testid^="view-worksheets-"]');
+  const moduleCount = await moduleViewButtons.count();
+  expect(moduleCount).toBeGreaterThan(0);
 
-  await expect(page.getByTestId('worksheets-grid')).toBeVisible();
+  for (let index = 0; index < moduleCount; index += 1) {
+    const moduleViewButton = moduleViewButtons.nth(index);
+    await expect(moduleViewButton).toBeVisible();
+    await moduleViewButton.click();
+    await expect(page.getByTestId('worksheets-view')).toBeVisible();
+
+    const worksheetsGrid = page.getByTestId('worksheets-grid');
+    const worksheetsVisible = await worksheetsGrid.isVisible({ timeout: 2000 }).catch(() => false);
+
+    if (worksheetsVisible) {
+      return;
+    }
+
+    await expect(page.getByTestId('empty-state')).toBeVisible();
+    await page.getByTestId('forms-nav-back').click();
+    await expect(page.getByTestId('modules-grid')).toBeVisible();
+  }
+
+  throw new Error('No module with visible worksheets grid was found for the selected collection.');
 }
 
 test.describe('Forms Library runtime navigation', () => {
