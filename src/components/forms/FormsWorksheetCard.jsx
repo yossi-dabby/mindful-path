@@ -57,7 +57,7 @@ export default function FormsWorksheetCard({ worksheet, openLabel, downloadLabel
           size="sm"
           className={`${isList ? '' : 'flex-1'} bg-teal-600 hover:bg-teal-500 text-white`}
           onClick={onOpen}
-          data-testid={`open-form-${worksheet.form.id}`}
+          data-testid="forms-file-open"
         >
           <ExternalLink className="w-4 h-4" />
           {openLabel}
@@ -68,7 +68,7 @@ export default function FormsWorksheetCard({ worksheet, openLabel, downloadLabel
           variant="outline"
           className={`${isList ? '' : 'flex-1'} border-teal-400 text-teal-600 hover:bg-teal-100`}
           onClick={onDownload}
-          data-testid={`download-form-${worksheet.form.id}`}
+          data-testid="forms-file-download"
         >
           <Download className="w-4 h-4" />
           {downloadLabel}
