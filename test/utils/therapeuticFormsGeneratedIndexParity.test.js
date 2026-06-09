@@ -90,18 +90,9 @@ describe('therapeutic forms generated index parity', () => {
   });
 
   it('contains every PDF under public/forms in the canonical registry', () => {
-    // Modules 02-10 of the Hebrew adolescents CBT specialized series are uploaded to disk
-    // but are not yet registered (only module-01 has been integrated so far).
+    // These folders exist on disk but are intentionally not yet registered in the forms index.
+    // Do not add entries here to silence a missing registration — fix the registration instead.
     const UNREGISTERED_PREFIXES = [
-      '/forms/module-02/',
-      '/forms/module-03/',
-      '/forms/module-04/',
-      '/forms/module-05/',
-      '/forms/module-06/',
-      '/forms/module-07/',
-      '/forms/module-08/',
-      '/forms/module-09/',
-      '/forms/module_10/',
       '/forms/children_cbt_specialized_en_2.1_anger/',
       '/forms/children_cbt_specialized_en_2.2_odd/',
       '/forms/children_cbt_specialized_en_5.2_psychosomatic_complaints/',
