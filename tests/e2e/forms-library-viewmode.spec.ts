@@ -33,6 +33,8 @@ async function setupHebrewTherapeuticForms(page: Page) {
   });
 
   await mockApi(page);
+  // Forms Library content is sourced from the generated local index, while mockApi
+  // keeps unrelated runtime API calls from failing during E2E navigation.
 }
 
 async function readViewModeFromLocalStorage(page: Page): Promise<string | null> {
@@ -153,7 +155,7 @@ test.describe('Forms Library runtime view-mode behavior', () => {
     await clickViewMode(page, persistedMode);
     await expect(readViewModeFromLocalStorage(page)).resolves.toBe(persistedMode);
 
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.reload({ waitUntil: 'load' });
 
     await expect(page.getByTestId('collections-grid')).toBeVisible();
     await expect(readViewModeFromLocalStorage(page)).resolves.toBe(persistedMode);
