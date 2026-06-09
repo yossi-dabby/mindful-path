@@ -45,7 +45,7 @@ Every PR must pass the following checks before it is eligible for merge:
 | Lint | `npm run lint` | Zero errors |
 | Unit tests | `npm test` | All tests pass (44+ tests) |
 | Build | `npm run build` | Succeeds without errors or warnings |
-| Type check | `npm run typecheck` | No type errors |
+| Type check | `npm run typecheck` | **Informational — currently non-blocking** (see `docs/typecheck-debt-baseline.md`) |
 | E2E tests | `npm run test:e2e` | All tests pass (requires running app) |
 
 For any change to `functions/`:

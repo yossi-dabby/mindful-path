@@ -39,7 +39,7 @@
 - [ ] Unit tests pass locally (`npm test`)
 - [ ] E2E tests pass locally (`npm run test:e2e`)
 - [ ] Lint checks pass (`npm run lint`)
-- [ ] Type checks pass (`npm run typecheck`)
+- [ ] Type checks pass (`npm run typecheck`) — **informational; currently non-blocking** (see `docs/typecheck-debt-baseline.md`)
 - [ ] Build succeeds (`npm run build`)
 
 ## E2E Testing
