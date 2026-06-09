@@ -4,6 +4,7 @@ import { mockApi, spaNavigate } from '../helpers/ui';
 const HEBREW_COLLECTION_LABEL = 'CBT ייעודי לילדים';
 const ENGLISH_COLLECTION_LABEL = 'Children CBT Specialized';
 const ENGLISH_WORKSHEET_TITLE = 'What Is Going On for Me Right Now?';
+const WORKSHEET_VISIBILITY_TIMEOUT_MS = 2000;
 
 const BENIGN_CONSOLE_ERROR_PATTERNS: RegExp[] = [
   /favicon/i,
@@ -44,14 +45,14 @@ async function navigateToWorksheetsLevel(page: Page) {
   const moduleCount = await moduleViewButtons.count();
   expect(moduleCount).toBeGreaterThan(0);
 
-  for (let index = 0; index < moduleCount; index += 1) {
-    const moduleViewButton = moduleViewButtons.nth(index);
+  for (let moduleIndex = 0; moduleIndex < moduleCount; moduleIndex += 1) {
+    const moduleViewButton = moduleViewButtons.nth(moduleIndex);
     await expect(moduleViewButton).toBeVisible();
     await moduleViewButton.click();
     await expect(page.getByTestId('worksheets-view')).toBeVisible();
 
     const worksheetsGrid = page.getByTestId('worksheets-grid');
-    const worksheetsVisible = await worksheetsGrid.isVisible({ timeout: 2000 }).catch(() => false);
+    const worksheetsVisible = await worksheetsGrid.isVisible({ timeout: WORKSHEET_VISIBILITY_TIMEOUT_MS }).catch(() => false);
 
     if (worksheetsVisible) {
       return;
