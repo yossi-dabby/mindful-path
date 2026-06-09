@@ -586,7 +586,7 @@ describe('PR-9 Phase 7: chat integration regression', () => {
  * @param {object} opts
  * @param {string} opts.datasetLabel        - Human-readable label for test names
  * @param {string} opts.language            - 'he' | 'en' | etc.
- * @param {string} opts.audience            - 'children' | 'adolescents' | 'adults'
+ * @param {string} opts.audience            - 'children' | 'adolescents' (add 'adults' here when that dataset is uploaded)
  * @param {string} opts.category            - e.g. 'children_cbt_specialized'
  * @param {string[]} opts.expectedIds       - IDs that must be in AI access layer
  * @param {string[]} opts.titleSamples      - Exact titles to test via searchFormsForAI
