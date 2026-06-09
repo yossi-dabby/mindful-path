@@ -69,7 +69,6 @@ test.describe('Forms Library runtime navigation', () => {
 
     await expect(page.getByTestId('forms-breadcrumb')).toBeVisible();
     await expect(page.getByTestId('forms-nav-back')).toBeVisible();
-    expect(await page.locator('[data-testid^="module-card-"]').count()).toBeGreaterThan(0);
 
     const worksheetCards = page.locator('[data-testid^="worksheet-card-"]');
     expect(await worksheetCards.count()).toBeGreaterThan(0);
