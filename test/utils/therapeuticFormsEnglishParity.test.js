@@ -227,10 +227,11 @@ describe('PR-11 Phase 2: No cross-language metadata contamination', () => {
     }
   });
 
-  // Legacy-exception note: children-cbt-specialized-he-module-4-1 carries the
-  // English-only title "OCD" because OCD is an internationally used clinical
-  // abbreviation with no standard Hebrew equivalent.  This is a documented
-  // exception; the test below enumerates and pins it to prevent silent growth.
+  // Hebrew-side exception note: this test guards English parity by ensuring that the
+  // known Hebrew-side legacy exception (one Hebrew form with a non-Hebrew title) does
+  // not silently grow.  Catching unexpected Hebrew-title growth here also protects
+  // English parity: if a Hebrew form with an all-English title were given the same id
+  // or path as an English form, cross-language contamination could go undetected.
   it('Hebrew forms without Hebrew chars in title are limited to known legacy exceptions', () => {
     const KNOWN_LEGACY_EXCEPTIONS = new Set([
       'children-cbt-specialized-he-module-4-1', // title: "OCD" — clinical abbreviation, internationally accepted

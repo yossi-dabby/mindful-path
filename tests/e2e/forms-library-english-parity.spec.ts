@@ -145,7 +145,7 @@ test.describe('Forms Library — English language-parity', () => {
 
     // Try each module until we find one with worksheets.
     let worksheetFound = false;
-    for (let i = 0; i < moduleCount; i += 1) {
+    for (let i = 0; i < moduleCount; i++) {
       const btn = moduleViewButtons.nth(i);
       await expect(btn).toBeVisible();
       await btn.click();
@@ -215,7 +215,7 @@ test.describe('Forms Library — English language-parity', () => {
     // Find a module with worksheet cards.
     const moduleViewButtons = page.locator('[data-testid^="view-worksheets-"]');
     const moduleCount = await moduleViewButtons.count();
-    for (let i = 0; i < moduleCount; i += 1) {
+    for (let i = 0; i < moduleCount; i++) {
       await moduleViewButtons.nth(i).click();
       await expect(page.getByTestId('worksheets-view')).toBeVisible();
 
@@ -243,7 +243,7 @@ test.describe('Forms Library — English language-parity', () => {
     const allCards = page.locator('[data-testid^="collection-card-"]');
     const cardCount = await allCards.count();
 
-    for (let i = 0; i < cardCount; i += 1) {
+    for (let i = 0; i < cardCount; i++) {
       const text = await allCards.nth(i).textContent();
       // None should contain Hebrew characters.
       const hasHebrew = /[\u0590-\u05FF\uFB00-\uFB4F]/.test(text ?? '');
