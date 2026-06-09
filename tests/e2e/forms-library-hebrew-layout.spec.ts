@@ -274,7 +274,7 @@ test.describe('Forms Library Hebrew RTL layout and overflow', () => {
 
     // Compact mode — Hebrew content still readable and within viewport
     const compactControl = page.getByTestId('forms-view-mode-compact');
-    if (await compactControl.count()) {
+    if ((await compactControl.count()) > 0) {
       await compactControl.scrollIntoViewIfNeeded();
       await compactControl.click();
       await expect(collectionCards.first()).toContainText(/[\u0590-\u05FF]/);
