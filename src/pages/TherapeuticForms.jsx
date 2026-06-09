@@ -516,7 +516,7 @@ export default function TherapeuticForms() {
   const canGoForward = navigationState.index < navigationState.history.length - 1;
 
   return (
-    <div className="forms-library-teal mx-auto p-4 w-full box-border md:p-8 max-w-7xl min-h-dvh safe-bottom bg-teal-100/40" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className="forms-library-teal mx-auto p-4 w-full box-border md:p-8 max-w-7xl min-h-dvh safe-bottom bg-teal-100/40" dir={isRtl ? 'rtl' : 'ltr'} data-testid="therapeutic-forms-page">
       <div className="mb-8 mt-4">
         <h1 className="text-3xl md:text-4xl font-semibold mb-2 flex items-center gap-3 text-teal-600">
           <ClipboardList className="w-8 h-8 text-teal-600" />
