@@ -176,8 +176,9 @@ test.describe('Forms Library runtime view-mode behavior', () => {
 
     await openCollectionAndModuleWithWorksheets(page);
 
+    // openCollectionAndModuleWithWorksheets returns while on the worksheets view
+    // (a module is selected), so modules-grid is not rendered at this point.
     await expect(readViewModeFromLocalStorage(page)).resolves.toBe(persistedMode);
-    await expectGridMatchesViewMode(page, 'modules-grid', persistedMode);
     await expectGridMatchesViewMode(page, 'worksheets-grid', persistedMode);
 
     const worksheetCards = page.locator('[data-testid^="worksheet-card-"]');
