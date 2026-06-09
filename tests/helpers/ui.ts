@@ -389,7 +389,7 @@ export async function safeClick(locator: any, timeout = 20000) {
 // Language-setup helpers
 //
 // Call these via page.addInitScript before navigation so that the app boots
-// with the correct language from localStorage.  Do NOT change the language
+// with the correct language from localStorage. Do NOT change the language
 // after navigation — this may not trigger a full re-render in all cases.
 // ---------------------------------------------------------------------------
 
@@ -429,19 +429,22 @@ export async function waitForFormsPage(page: Page, timeout = 20000) {
 }
 
 /**
- * Waits until at least `expectedMin` GeneratedFileCard elements are visible
- * in the Chat view.  Use this instead of a fixed timeout after sending a Chat
+ * Waits until exactly `expectedCount` GeneratedFileCard elements are visible
+ * in the Chat view. Use this instead of a fixed timeout after sending a Chat
  * message that should produce form attachment cards.
  *
- * @param expectedMin - Minimum number of cards that must be visible (default 1).
+ * Asserts an exact count, not a minimum. If the test expects "at least N",
+ * use page.locator('[data-testid="generated-file-card"]') with a custom check.
+ *
+ * @param expectedCount - Exact number of cards that must be present (default 1).
  */
 export async function waitForGeneratedFileCards(
   page: Page,
-  expectedMin = 1,
+  expectedCount = 1,
   timeout = 15000
 ) {
   const cards = page.locator('[data-testid="generated-file-card"]');
-  await expect(cards).toHaveCount(expectedMin, { timeout });
+  await expect(cards).toHaveCount(expectedCount, { timeout });
 }
 
 // ---------------------------------------------------------------------------

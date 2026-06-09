@@ -1,7 +1,7 @@
 /**
  * Playwright mock and assertion hardening — static source-contract guardrails
  *
- * These tests analyse the E2E test source code at the text/AST level to enforce
+ * These tests analyze the E2E test source code at the text/AST level to enforce
  * rules that prevent recurring Playwright / E2E failure patterns identified in
  * the stabilization sprint (PR-8).
  *
