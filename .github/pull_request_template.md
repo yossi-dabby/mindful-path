@@ -58,5 +58,21 @@
 
 <!-- If any box above is checked AND the change touches a safety-filter file, complete docs/safety-filter-review-checklist.md before requesting review -->
 
+## Therapeutic Forms Changes
+<!-- Complete this section only if this PR changes forms assets, registry, index, AI access, Chat attachments, or Forms Library behavior. Otherwise delete this section. -->
+- [ ] This PR changes therapeutic forms assets, registry, index, AI access, Chat attachments, or Forms Library behavior.
+- [ ] I completed the checklist in `docs/therapeutic-forms-upload-readiness.md`.
+- [ ] I ran `npm run generate:forms-index` and `npm run check:forms-index` — both pass.
+- [ ] I verified no orphan or missing PDFs in `public/forms/`.
+- [ ] I verified language gating (Hebrew forms only in Hebrew mode; English only in English mode).
+- [ ] I verified AI awareness if forms or AI access changed.
+- [ ] I verified Open vs Download if attachment behavior changed.
+- [ ] I did not weaken assertions or skip tests.
+- [ ] PR description matches the actual final diff.
+
+> **Reminder:** Do not use parity exclusions to hide missing registrations. Fix the registration, or document the intentional unregistered asset with explicit evidence.
+
+---
+
 ## Additional Notes
 <!-- Any additional context, screenshots, or information -->
