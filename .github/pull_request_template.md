@@ -48,6 +48,17 @@
 - [ ] Tests pass with default configuration (Vite preview server)
 - [ ] Tests pass against custom BASE_URL (if applicable)
 
+## Assertion Quality Reviewer Checklist
+<!-- Complete this section when this PR adds, modifies, or removes any E2E or unit test assertion. Otherwise delete it. -->
+- [ ] Did this PR weaken any existing assertion? If yes, is the reason documented with artifact evidence?
+- [ ] Does each new or modified assertion still prove the intended behavior (not just text presence)?
+- [ ] Did this PR replace behavior validation (DOM state, data-testid, attribute) with text-only validation?
+- [ ] Did this PR add `test.skip` or `test.fixme` to any committed test?
+- [ ] Does the PR description still accurately reflect the final diff?
+
+> **Reminder:** A failing test is a signal — fix the root cause, not the assertion.
+> See `docs/copilot-pr-workflow.md` §12 for the full Playwright / E2E guardrails.
+
 ## Human Review Required
 <!-- Check all that apply; checked items require a human reviewer to sign off -->
 - [ ] This PR modifies a safety-critical backend function

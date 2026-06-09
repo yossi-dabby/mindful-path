@@ -385,3 +385,103 @@ export async function safeClick(locator: any, timeout = 20000) {
   await locator.click({ force: false });
 }
 
+// ---------------------------------------------------------------------------
+// Language-setup helpers
+//
+// Call these via page.addInitScript before navigation so that the app boots
+// with the correct language from localStorage.  Do NOT change the language
+// after navigation — this may not trigger a full re-render in all cases.
+// ---------------------------------------------------------------------------
+
+/**
+ * Configures the page to boot in Hebrew mode by setting localStorage before
+ * navigation.  Must be called before spaNavigate / page.goto.
+ */
+export async function setupHebrewMode(page: Page) {
+  await page.addInitScript(() => {
+    localStorage.setItem('language', 'he');
+  });
+}
+
+/**
+ * Configures the page to boot in English mode by setting localStorage before
+ * navigation.  Must be called before spaNavigate / page.goto.
+ */
+export async function setupEnglishMode(page: Page) {
+  await page.addInitScript(() => {
+    localStorage.setItem('language', 'en');
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Forms Library helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Waits for the Therapeutic Forms page to finish loading.
+ * Asserts that at least one collection card is visible before returning.
+ */
+export async function waitForFormsPage(page: Page, timeout = 20000) {
+  // The forms page renders collection cards inside a grid once hydrated.
+  await expect(
+    page.locator('[data-testid^="collection-card-"]').first()
+  ).toBeVisible({ timeout });
+}
+
+/**
+ * Waits until at least `expectedMin` GeneratedFileCard elements are visible
+ * in the Chat view.  Use this instead of a fixed timeout after sending a Chat
+ * message that should produce form attachment cards.
+ *
+ * @param expectedMin - Minimum number of cards that must be visible (default 1).
+ */
+export async function waitForGeneratedFileCards(
+  page: Page,
+  expectedMin = 1,
+  timeout = 15000
+) {
+  const cards = page.locator('[data-testid="generated-file-card"]');
+  await expect(cards).toHaveCount(expectedMin, { timeout });
+}
+
+// ---------------------------------------------------------------------------
+// Safe conversation route patterns
+//
+// Use these constants when registering page.route() handlers in Chat E2E
+// tests.  They are narrow enough to avoid accidentally intercepting other
+// API paths or static assets.
+//
+// Ordering rule: register POST /messages BEFORE GET by-ID so that the more-
+// specific handler is matched first by Playwright's route stack.
+// ---------------------------------------------------------------------------
+
+/**
+ * Narrow Playwright route patterns for Base44 agent conversation endpoints.
+ *
+ * Usage example:
+ *
+ * ```ts
+ * await page.route(SAFE_CONVERSATION_ROUTE_PATTERNS.MESSAGES_POST, async (route) => { … });
+ * await page.route(SAFE_CONVERSATION_ROUTE_PATTERNS.CONVERSATION_BY_ID, async (route) => { … });
+ * ```
+ */
+export const SAFE_CONVERSATION_ROUTE_PATTERNS = {
+  /**
+   * POST /api/.../agents/conversations/{id}/messages
+   * Register this handler FIRST (most specific).
+   */
+  MESSAGES_POST: '**/api/**/agents/conversations/**/messages**',
+
+  /**
+   * GET /api/.../agents/conversations/{id}
+   * Register this handler AFTER MESSAGES_POST.
+   */
+  CONVERSATION_BY_ID: '**/api/**/agents/conversations/test-conversation-123**',
+
+  /**
+   * GET /api/.../agents/conversations  (list, no trailing ID segment)
+   * Register this handler LAST among the conversation handlers.
+   */
+  CONVERSATIONS_LIST: '**/api/**/agents/conversations',
+} as const;
+

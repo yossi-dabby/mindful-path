@@ -260,6 +260,90 @@ When reviewing a Copilot-assisted PR, the reviewer should check for:
 
 ---
 
+---
+
+## 12. Playwright / E2E Test Guardrails
+
+These rules apply to every PR that adds or modifies Playwright E2E tests.
+They exist to prevent the recurring failure patterns documented in the
+stabilization sprint (PR-8).
+
+### Required rules
+
+1. **Use narrow route mocks.**
+   Register `page.route()` handlers with the smallest URL pattern that covers
+   only the endpoints your test requires.  Use the exported
+   `SAFE_CONVERSATION_ROUTE_PATTERNS` constants from `tests/helpers/ui.ts` for
+   Chat conversation endpoints.
+
+2. **Do not mock static assets.**
+   PDF files, form assets, images, and fonts in `public/` must resolve as real
+   static files in tests.  Mocking them hides missing-asset regressions.
+
+3. **Prefer stable `data-testid` / role / DOM-state assertions.**
+   Locate elements by `data-testid`, ARIA role, or semantic attribute rather
+   than by text content alone.  Text content is more likely to change.
+
+4. **Do not rely only on echoed user text.**
+   Form-router-enriched prompts may not render a visible user bubble in Chat.
+   Wait for `POST /messages` and input reset; do not assert echoed user text
+   as the sole success condition.
+
+5. **Assert behavior, not only text.**
+   Confirm that the correct component rendered, the correct action occurred, or
+   the correct data attribute is present — not just that some string is visible.
+
+6. **Inspect Playwright artifacts before changing failing tests.**
+   When a CI E2E test fails, download the artifacts (screenshots, trace, error
+   context) from the GitHub Actions run before modifying the test.  Understand
+   what actually happened; do not adjust timeouts or selectors blindly.
+
+7. **Do not weaken assertions to make CI pass.**
+   A failing test is a signal.  Fix the root cause, not the assertion.
+
+8. **If the mock is wrong, fix the mock — not the assertion.**
+   If a test fails because the product behavior is correct but the mock returns
+   stale or incorrect data, fix the mock to match the real contract.
+
+9. **If a test reveals a real product bug, fix it in a separate focused PR.**
+   Unless the current PR's scope explicitly allows production code changes,
+   open a new PR to fix the product behavior rather than weakening the test.
+
+10. **Treat local Playwright browser install failure as an environment limit.**
+    The GitHub Actions Playwright run is authoritative.  A local browser-not-
+    found error does not mean the test is broken or that CI will fail.
+
+11. **Keep PR descriptions synchronized with the final diff.**
+    If the implementation diverges from what was originally described, update
+    the PR description before requesting review.  A stale description misleads
+    reviewers.
+
+12. **Keep test-only PRs test-only.**
+    Do not include production code changes in a test-only PR unless a proven
+    minimal helper fix is required and documented.
+
+### Anti-patterns to avoid
+
+| Anti-pattern | Why it is dangerous |
+|---|---|
+| `page.route('**/*')` without strong justification | Intercepts ALL requests, including static assets and Vite module scripts |
+| Mocked `GET` replacing `POST`-created conversation state | Causes `safeUpdateMessages` guards to block Chat rendering |
+| `generated_file`-only mock for a multi-form scenario | Hides the `generated_files` contract; multi-card rendering is not verified |
+| `expect(cardCount).toBeGreaterThan(0)` for a known multi-form contract | Passes with 1 card when 2+ are expected; use an exact count assertion |
+| `test.skip` or `test.fixme` as a stabilization shortcut | Removes a regression gate silently; fix the underlying issue instead |
+| Screenshots-only or text-only assertions for behavior | Does not verify that the correct component rendered or action occurred |
+| Stale PR body that contradicts the code diff | Misleads reviewers about what actually changed |
+| `waitForTimeout` without a justification comment | Hides flakiness and makes tests slow without a documented reason |
+
+### Guardrail test coverage
+
+`test/utils/playwrightMockGuardrails.test.js` enforces a subset of the above
+rules with static source-contract checks that run as part of the unit test
+suite (`npm test`).  If you add a new E2E spec or modify `tests/helpers/ui.ts`,
+confirm that all guardrail tests still pass.
+
+---
+
 > For full Copilot guidance, see `.github/copilot-instructions.md`.
 > For safety rules quick-reference, see `docs/copilot-safety-rules.md`.
 > For architecture overview, see `docs/repository-architecture-map.md`.
