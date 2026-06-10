@@ -194,6 +194,44 @@ async function openPrCount(owner, repo, branch) {
   return Array.isArray(prs) ? prs.length : 0;
 }
 
+async function evaluateBranch(branch, { owner, repo } = {}, dependencies = {}) {
+  const {
+    remoteExistsFn = remoteExists,
+    isMergedIntoMainFn = isMergedIntoMain,
+    openPrCountFn = openPrCount,
+    findReferencesFn = findReferences,
+  } = dependencies;
+
+  const row = { branch, exists: false, merged: false, openPrs: 0, refs: [], status: '' };
+
+  row.exists = remoteExistsFn(branch);
+  if (!row.exists) {
+    row.status = 'SKIP – branch not found on remote (may already be deleted)';
+    return { ...row, action: 'skipped' };
+  }
+
+  row.merged = isMergedIntoMainFn(branch);
+  if (!row.merged) {
+    row.status = 'SKIP – branch is NOT merged into origin/main';
+    return { ...row, action: 'skipped' };
+  }
+
+  row.openPrs = await openPrCountFn(owner, repo, branch);
+  if (row.openPrs > 0) {
+    row.status = `SKIP – branch has ${row.openPrs} open PR(s)`;
+    return { ...row, action: 'skipped' };
+  }
+
+  row.refs = findReferencesFn(branch);
+  if (row.refs.length > 0) {
+    row.status = `SKIP – referenced in: ${row.refs.join(', ')}`;
+    return { ...row, action: 'skipped' };
+  }
+
+  row.status = 'READY';
+  return { ...row, action: 'pending' };
+}
+
 /**
  * Search reference files/dirs for the exact branch name.
  * Returns an array of file paths where the name was found.
@@ -300,8 +338,6 @@ async function main() {
   // ── 3. Per-branch safety validation ───────────────────────────────────
 
   const results = [];
-  let aborted = false;
-
   console.log('─'.repeat(80));
   console.log('PRE-DELETE SAFETY TABLE');
   console.log('─'.repeat(80));
@@ -311,75 +347,26 @@ async function main() {
   console.log('─'.repeat(80));
 
   for (const branch of branches) {
-    const row = { branch, exists: false, merged: false, openPrs: 0, refs: [], status: '' };
-
-    // Remote exists?
-    row.exists = remoteExists(branch);
-    if (!row.exists) {
-      row.status = 'SKIP – branch not found on remote (may already be deleted)';
-      console.log(
-        `${branch.padEnd(55)} ${'no'.padEnd(7)} ${'–'.padEnd(7)} ${'–'.padEnd(8)} ${'–'.padEnd(5)} ${row.status}`
-      );
-      results.push({ ...row, action: 'skipped' });
-      continue;
-    }
-
-    // Merged?
-    row.merged = isMergedIntoMain(branch);
-    if (!row.merged) {
-      row.status = 'ABORT – branch is NOT merged into origin/main';
-      console.log(
-        `${branch.padEnd(55)} ${'yes'.padEnd(7)} ${'NO'.padEnd(7)} ${'–'.padEnd(8)} ${'–'.padEnd(5)} ${row.status}`
-      );
-      console.error(`\nFATAL: ${row.status}: "${branch}"`);
-      aborted = true;
-      results.push({ ...row, action: 'aborted' });
-      break;
-    }
-
-    // Open PRs?
+    let row;
     try {
-      row.openPrs = await openPrCount(owner, repo, branch);
+      row = await evaluateBranch(branch, { owner, repo });
     } catch (err) {
+      row = { branch, exists: true, merged: true, openPrs: 0, refs: [], status: '' };
       row.status = `ABORT – PR API error: ${err.message}`;
       console.error(`\nFATAL: ${row.status}`);
-      aborted = true;
       results.push({ ...row, action: 'aborted' });
       break;
     }
 
-    if (row.openPrs > 0) {
-      row.status = `ABORT – branch has ${row.openPrs} open PR(s)`;
-      console.log(
-        `${branch.padEnd(55)} ${'yes'.padEnd(7)} ${'yes'.padEnd(7)} ${String(row.openPrs).padEnd(8)} ${'–'.padEnd(5)} ${row.status}`
-      );
-      console.error(`\nFATAL: ${row.status}: "${branch}"`);
-      aborted = true;
-      results.push({ ...row, action: 'aborted' });
-      break;
-    }
-
-    // Reference check?
-    row.refs = findReferences(branch);
-    if (row.refs.length > 0) {
-      row.status = `SKIP – referenced in: ${row.refs.join(', ')}`;
-      console.log(
-        `${branch.padEnd(55)} ${'yes'.padEnd(7)} ${'yes'.padEnd(7)} ${'0'.padEnd(8)} ${String(row.refs.length).padEnd(5)} ${row.status}`
-      );
-      results.push({ ...row, action: 'skipped' });
-      continue;
-    }
-
-    row.status = 'READY';
     console.log(
-      `${branch.padEnd(55)} ${'yes'.padEnd(7)} ${'yes'.padEnd(7)} ${'0'.padEnd(8)} ${'0'.padEnd(5)} ${row.status}`
+      `${branch.padEnd(55)} ${String(row.exists ? 'yes' : 'no').padEnd(7)} ${String(row.exists ? (row.merged ? 'yes' : 'NO') : '–').padEnd(7)} ${String(row.exists && row.merged ? row.openPrs : '–').padEnd(8)} ${String(row.exists && row.merged && row.openPrs === 0 ? row.refs.length : '–').padEnd(5)} ${row.status}`
     );
-    results.push({ ...row, action: 'pending' });
+    results.push(row);
   }
 
   console.log('─'.repeat(80));
 
-  if (aborted) {
+  if (results.some((row) => row.action === 'aborted')) {
     console.error('\nAborting. No branches were deleted.\n');
     await writeReport({
       startTime,
@@ -527,6 +514,7 @@ export {
   findReferences,
   getRemoteBranchInventory,
   hasDangerousChars,
+  evaluateBranch,
   parseApprovedBranches,
   validateApprovedBranches,
 };

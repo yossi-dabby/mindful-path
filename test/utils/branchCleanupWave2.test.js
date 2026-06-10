@@ -7,6 +7,7 @@ import {
   APPROVED_LIST_RELATIVE_PATH,
   MAX_BRANCHES,
   REFERENCE_SEARCH_PATHS,
+  evaluateBranch,
   findReferences,
   getRemoteBranchInventory,
   validateApprovedBranches,
@@ -115,6 +116,41 @@ describe('branch cleanup wave 2 guardrails', () => {
     expect(fallbackInventory).toEqual({
       count: 2,
       source: 'git for-each-ref refs/remotes/origin (fallback)',
+    });
+  });
+
+  it('skips unmerged branches instead of aborting the entire run', async () => {
+    const result = await evaluateBranch('copilot/example-branch', { owner: 'yossi-dabby', repo: 'mindful-path' }, {
+      remoteExistsFn: () => true,
+      isMergedIntoMainFn: () => false,
+    });
+
+    expect(result).toMatchObject({
+      branch: 'copilot/example-branch',
+      exists: true,
+      merged: false,
+      openPrs: 0,
+      refs: [],
+      action: 'skipped',
+      status: 'SKIP – branch is NOT merged into origin/main',
+    });
+  });
+
+  it('skips branches with open pull requests instead of aborting the entire run', async () => {
+    const result = await evaluateBranch('copilot/example-branch', { owner: 'yossi-dabby', repo: 'mindful-path' }, {
+      remoteExistsFn: () => true,
+      isMergedIntoMainFn: () => true,
+      openPrCountFn: async () => 2,
+    });
+
+    expect(result).toMatchObject({
+      branch: 'copilot/example-branch',
+      exists: true,
+      merged: true,
+      openPrs: 2,
+      refs: [],
+      action: 'skipped',
+      status: 'SKIP – branch has 2 open PR(s)',
     });
   });
 });
