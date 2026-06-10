@@ -16,6 +16,7 @@ import {
 const REPO_ROOT = resolve(import.meta.dirname, '../..');
 const WORKFLOW_PATH = resolve(REPO_ROOT, '.github/workflows/branch-cleanup-wave-2.yml');
 const APPROVED_LIST_PATH = resolve(REPO_ROOT, 'docs/branch-cleanup-wave-2-approved-list.txt');
+const TEST_REPOSITORY = { owner: 'test-owner', repo: 'test-repo' };
 
 /** Wave 1 deleted branches — must not appear in Wave 2. */
 const WAVE_1_DELETED = new Set([
@@ -120,7 +121,7 @@ describe('branch cleanup wave 2 guardrails', () => {
   });
 
   it('skips unmerged branches instead of aborting the entire run', async () => {
-    const result = await evaluateBranch('copilot/example-branch', { owner: 'yossi-dabby', repo: 'mindful-path' }, {
+    const result = await evaluateBranch('copilot/example-branch', TEST_REPOSITORY, {
       remoteExistsFn: () => true,
       isMergedIntoMainFn: () => false,
     });
@@ -137,7 +138,7 @@ describe('branch cleanup wave 2 guardrails', () => {
   });
 
   it('skips branches with open pull requests instead of aborting the entire run', async () => {
-    const result = await evaluateBranch('copilot/example-branch', { owner: 'yossi-dabby', repo: 'mindful-path' }, {
+    const result = await evaluateBranch('copilot/example-branch', TEST_REPOSITORY, {
       remoteExistsFn: () => true,
       isMergedIntoMainFn: () => true,
       openPrCountFn: async () => 2,
