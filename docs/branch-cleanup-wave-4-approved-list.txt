@@ -1,0 +1,23 @@
+# Branch Cleanup Wave 4 — Approved Deletion List
+#
+# IMPORTANT: This file is read by scripts/branch-cleanup-wave-4.mjs.
+#
+# Rules:
+#   - Lines starting with '#' are comments and are ignored.
+#   - Empty lines are ignored.
+#   - Branch names must be exact (no trailing spaces, no origin/ prefix).
+#   - All entries must be SAFE_DELETE_MERGED candidates:
+#       remote branch exists, fully merged into main, older than 14 days,
+#       no open PRs, not main/staging-fresh, not protected/referenced.
+#   - This list must not exceed 50 entries.
+#
+# Wave 4 contains 0 branches from the post-Wave-3 inventory refresh.
+# Verified on 2026-06-10:
+#   - 383 remote heads observed on origin
+#   - Only origin/main and the current Wave 4 prep branch were merged into origin/main
+#   - No additional remote branches qualified as SAFE_DELETE_MERGED candidates
+#   - None of the Wave 1, Wave 2, or Wave 3 deleted branches are included
+# If additional branches become eligible later, create a separate Wave 5 PR and list.
+#
+# Last updated: 2026-06-10
+# Approved by: repository owner before dispatching the workflow
