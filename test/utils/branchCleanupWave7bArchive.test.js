@@ -165,6 +165,50 @@ describe('branch cleanup wave 7b guardrails', () => {
 
     expect(attempts).toBe(1);
   });
+
+  it('retries only up to configured max attempts for transient errors', async () => {
+    const branch = 'copilot/retry-budget-open-pr-check';
+    const sleepCalls = [];
+    const context = {
+      owner: 'yossi-dabby',
+      repo: 'mindful-path',
+      currentBranch: '',
+      abandonedAuditMap: new Map([
+        [
+          branch,
+          {
+            branch,
+            ageDays: 120,
+            lastCommitDate: '2025-01-01',
+            pr: 'no',
+            closedDate: '2025-01-02',
+          },
+        ],
+      ]),
+    };
+
+    let attempts = 0;
+    await expect(
+      evaluateBranch(branch, context, {
+        remoteExistsFn: () => true,
+        openPrCountFn: async () => {
+          attempts += 1;
+          throw new Error(
+            'GitHub API error checking open PRs for branch "copilot/retry-budget-open-pr-check": 500 Internal Server Error'
+          );
+        },
+        findReferencesFn: () => [],
+        openPrMaxAttempts: 2,
+        openPrRetryDelayMs: 25,
+        sleepFn: async (ms) => {
+          sleepCalls.push(ms);
+        },
+      })
+    ).rejects.toThrow(/500 Internal Server Error/);
+
+    expect(attempts).toBe(2);
+    expect(sleepCalls).toEqual([25]);
+  });
 });
 
 describe('branch cleanup wave 7b workflow', () => {

@@ -243,7 +243,7 @@ async function openPrCountWithRetry(
       if (!shouldRetry) {
         throw error;
       }
-      await sleepFn(retryDelayMs * attempt);
+      await sleepFn(retryDelayMs);
     }
   }
 
@@ -736,6 +736,5 @@ export {
   isSpecialProtectedBranch,
   parseApprovedBranches,
   parseAuditAbandonedWipBranches,
-  openPrCountWithRetry,
   validateApprovedBranches,
 };
