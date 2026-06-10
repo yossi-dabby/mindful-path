@@ -101,6 +101,16 @@ describe('branch cleanup wave 7a workflow', () => {
     expect(workflow).toContain('CONFIRM_ARCHIVE_AND_DELETE_ABANDONED_WIP_WAVE_7A');
     expect(workflow).not.toContain('CONFIRM_DELETE_DIRECT_SAFE_BRANCHES_WAVE_6');
   });
+
+  it('configures git identity before creating archive tags', () => {
+    const workflow = readFileSync(WORKFLOW_PATH, 'utf8');
+
+    expect(workflow).toContain('Configure git identity for archive tags');
+    expect(workflow).toContain('git config user.name "github-actions[bot]"');
+    expect(workflow).toContain(
+      'git config user.email "41898282+github-actions[bot]@users.noreply.github.com"'
+    );
+  });
 });
 
 describe('branch cleanup wave 7a approved list', () => {
