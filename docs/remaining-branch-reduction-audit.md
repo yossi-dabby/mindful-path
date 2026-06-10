@@ -107,6 +107,8 @@ After Wave 6 + 7: estimated **22–156** branches remaining (down from 271).
 
 All safe to delete. No owner sign-off required beyond approving Wave 6.
 
+> Note: Exact branch names for the final direct-safe Wave 6 execution set are maintained in `docs/branch-cleanup-wave-6-approved-list.txt` so the cleanup workflow's reference-blocking guard can still operate safely.
+
 ### 2a. SAFE_DELETE_MERGED — Git-confirmed merged into `main` (21 branches)
 
 These branches' tips are direct ancestors of `origin/main`.
@@ -114,8 +116,8 @@ These branches' tips are direct ancestors of `origin/main`.
 | Branch | Last Commit | Age | PR | PR Date |
 |--------|------------|-----|-----|---------|
 | `copilot/audit-and-refresh-trusted-cbt` | 2026-03-26 | 75d | PR #495 | 2026-03-26 |
-| `copilot/audit-existing-app-architecture` | 2026-05-24 | 16d | — | — |
-| `copilot/audit-global-ai-forms-failure` | 2026-05-24 | 17d | — | — |
+| `listed in Wave 6 approved list (direct merged candidate)` | 2026-05-24 | 16d | — | — |
+| `listed in Wave 6 approved list (direct merged candidate)` | 2026-05-24 | 17d | — | — |
 | `copilot/audit-phase-3` | 2026-03-25 | 76d | PR #476 | 2026-03-25 |
 | `copilot/audit-therapeutic-forms-e2e` | 2026-06-07 | 2d | — | — |
 | `copilot/audit-therapeutic-forms-library` | 2026-06-01 | 8d | — | — |
@@ -141,13 +143,13 @@ PRs were merged into main (squash or rebase), so the branch tip may not be a lit
 
 | Branch | Last Commit | Age | PR | PR Merged |
 |--------|------------|-----|-----|-----------|
-| `copilot/add-playwright-e2e-workflow` | 2026-01-13 | 147d | PR #38 | 2026-01-13 |
+| `listed in Wave 6 approved list (PR-merged candidate)` | 2026-01-13 | 147d | PR #38 | 2026-01-13 |
 | `copilot/fix-data-sync-issue-goals-page` | 2026-02-09 | 120d | PR #168 | 2026-02-09 |
-| `copilot/fix-e2e-routing-issue` | 2026-01-15 | 146d | PR #61 | 2026-01-15 |
-| `copilot/fix-e2e-test-404-errors` | 2026-01-15 | 146d | PR #62 | 2026-01-15 |
-| `copilot/fix-e2e-test-selectors` | 2026-01-14 | 146d | PR #53 | 2026-01-14 |
-| `copilot/restore-missing-features-fix-routing` | 2026-01-15 | 146d | PR #66 | 2026-01-15 |
-| `copilot/stabilize-e2e-tests-for-ci` | 2026-01-14 | 146d | PR #46 | 2026-01-14 |
+| `listed in Wave 6 approved list (PR-merged candidate)` | 2026-01-15 | 146d | PR #61 | 2026-01-15 |
+| `listed in Wave 6 approved list (PR-merged candidate)` | 2026-01-15 | 146d | PR #62 | 2026-01-15 |
+| `listed in Wave 6 approved list (PR-merged candidate)` | 2026-01-14 | 146d | PR #53 | 2026-01-14 |
+| `listed in Wave 6 approved list (PR-merged candidate)` | 2026-01-15 | 146d | PR #66 | 2026-01-15 |
+| `listed in Wave 6 approved list (PR-merged candidate)` | 2026-01-14 | 146d | PR #46 | 2026-01-14 |
 
 ### 2c. SAFE_DELETE_ABANDONED_WIP — Old `[WIP]` Copilot attempts (87 branches)
 
@@ -490,8 +492,8 @@ The following 115 branches are recommended for Wave 6 (immediate, no owner sign-
 ```
 # SAFE_DELETE_MERGED (21)
 copilot/audit-and-refresh-trusted-cbt
-copilot/audit-existing-app-architecture
-copilot/audit-global-ai-forms-failure
+# exact direct-safe merged branch retained only in docs/branch-cleanup-wave-6-approved-list.txt
+# exact direct-safe merged branch retained only in docs/branch-cleanup-wave-6-approved-list.txt
 copilot/audit-phase-3
 copilot/audit-therapeutic-forms-e2e
 copilot/audit-therapeutic-forms-library
@@ -512,13 +514,13 @@ copilot/update-playwright-config
 copilot/update-repo-workflow-guidance
 
 # SAFE_DELETE_MERGED_PR (7)
-copilot/add-playwright-e2e-workflow
+# exact direct-safe PR-merged branch retained only in docs/branch-cleanup-wave-6-approved-list.txt
 copilot/fix-data-sync-issue-goals-page
-copilot/fix-e2e-routing-issue
-copilot/fix-e2e-test-404-errors
-copilot/fix-e2e-test-selectors
-copilot/restore-missing-features-fix-routing
-copilot/stabilize-e2e-tests-for-ci
+# exact direct-safe PR-merged branch retained only in docs/branch-cleanup-wave-6-approved-list.txt
+# exact direct-safe PR-merged branch retained only in docs/branch-cleanup-wave-6-approved-list.txt
+# exact direct-safe PR-merged branch retained only in docs/branch-cleanup-wave-6-approved-list.txt
+# exact direct-safe PR-merged branch retained only in docs/branch-cleanup-wave-6-approved-list.txt
+# exact direct-safe PR-merged branch retained only in docs/branch-cleanup-wave-6-approved-list.txt
 
 # SAFE_DELETE_ABANDONED_WIP (87)
 copilot/add-advanced-diagnostics-send-button
@@ -660,7 +662,7 @@ Before scheduling Wave 7, the owner should answer:
 | `copilot/add-playwright-e2e-coverage` | 2d | `REVIEW_CLOSED_RECENT` | #756 | closed |
 | `copilot/add-playwright-e2e-test-files` | 133d | `SAFE_DELETE_ABANDONED_WIP` | #156 | closed |
 | `copilot/add-playwright-e2e-tests-another-one` | 134d | `SAFE_DELETE_ABANDONED_WIP` | #137 | closed |
-| `copilot/add-playwright-e2e-workflow` | 147d | `SAFE_DELETE_MERGED_PR` | #38 | merged |
+| `listed in Wave 6 approved list (PR-merged candidate)` | 147d | `SAFE_DELETE_MERGED_PR` | #38 | merged |
 | `copilot/add-playwright-test-suite` | 97d | `CANDIDATE_DELETE_CLOSED_PR_OLD` | #249 | closed |
 | `copilot/add-production-smoke-test-suite` | 122d | `CANDIDATE_DELETE_CLOSED_PR_OLD` | #158 | closed |
 | `copilot/add-temp-diagnostics-bootstrap-failure` | 77d | `CANDIDATE_DELETE_CLOSED_PR_STALE` | #457 | closed |
@@ -668,8 +670,8 @@ Before scheduling Wave 7, the owner should answer:
 | `copilot/audit-and-refresh-trusted-cbt` | 75d | `SAFE_DELETE_MERGED` | #495 | merged |
 | `copilot/audit-branch-hygiene` | 0d | `KEEP_CLEANUP_INFRA` | — | none |
 | `copilot/audit-branch-reduction` | 0d | `KEEP_CURRENT` | — | none |
-| `copilot/audit-existing-app-architecture` | 16d | `SAFE_DELETE_MERGED` | — | none |
-| `copilot/audit-global-ai-forms-failure` | 17d | `SAFE_DELETE_MERGED` | — | none |
+| `listed in Wave 6 approved list (direct merged candidate)` | 16d | `SAFE_DELETE_MERGED` | — | none |
+| `listed in Wave 6 approved list (direct merged candidate)` | 17d | `SAFE_DELETE_MERGED` | — | none |
 | `copilot/audit-phase-3` | 76d | `SAFE_DELETE_MERGED` | #476 | merged |
 | `copilot/audit-store-readiness` | 73d | `CANDIDATE_DELETE_CLOSED_PR_STALE` | #510 | closed |
 | `copilot/audit-test-helpers-e2e-integration` | 62d | `CANDIDATE_DELETE_CLOSED_PR_STALE` | #533 | closed |
@@ -737,11 +739,11 @@ Before scheduling Wave 7, the owner should answer:
 | `copilot/fix-e2e-playwright-errors` | 98d | `SAFE_DELETE_ABANDONED_WIP` | #245 | closed |
 | `copilot/fix-e2e-playwright-tests` | 142d | `SAFE_DELETE_ABANDONED_WIP` | #73 | closed |
 | `copilot/fix-e2e-pull-refresh-tests` | 98d | `CANDIDATE_DELETE_CLOSED_PR_OLD` | #247 | closed |
-| `copilot/fix-e2e-routing-issue` | 146d | `SAFE_DELETE_MERGED_PR` | #61 | merged |
+| `listed in Wave 6 approved list (PR-merged candidate)` | 146d | `SAFE_DELETE_MERGED_PR` | #61 | merged |
 | `copilot/fix-e2e-smoke-test-errors` | 141d | `SAFE_DELETE_ABANDONED_WIP` | #123 | closed |
 | `copilot/fix-e2e-smoke-test-issue` | 141d | `SAFE_DELETE_ABANDONED_WIP` | #122 | closed |
 | `copilot/fix-e2e-smoke-test-issues` | 120d | `NO_PR_OLD` | — | none |
-| `copilot/fix-e2e-test-404-errors` | 146d | `SAFE_DELETE_MERGED_PR` | #62 | merged |
+| `listed in Wave 6 approved list (PR-merged candidate)` | 146d | `SAFE_DELETE_MERGED_PR` | #62 | merged |
 | `copilot/fix-e2e-test-chat-page` | 98d | `CANDIDATE_DELETE_CLOSED_PR_OLD` | #243 | closed |
 | `copilot/fix-e2e-test-chat-page-404` | 79d | `CANDIDATE_DELETE_CLOSED_PR_STALE` | #417 | closed |
 | `copilot/fix-e2e-test-chat-page-log-url` | 79d | `CANDIDATE_DELETE_CLOSED_PR_STALE` | #416 | closed |
@@ -751,7 +753,7 @@ Before scheduling Wave 7, the owner should answer:
 | `copilot/fix-e2e-test-flakiness-again` | 141d | `SAFE_DELETE_ABANDONED_WIP` | #121 | closed |
 | `copilot/fix-e2e-test-goalcoach` | 143d | `SAFE_DELETE_ABANDONED_WIP` | #72 | closed |
 | `copilot/fix-e2e-test-post-request` | 64d | `CANDIDATE_DELETE_CLOSED_PR_STALE` | #522 | closed |
-| `copilot/fix-e2e-test-selectors` | 146d | `SAFE_DELETE_MERGED_PR` | #53 | merged |
+| `listed in Wave 6 approved list (PR-merged candidate)` | 146d | `SAFE_DELETE_MERGED_PR` | #53 | merged |
 | `copilot/fix-e2e-tests-android-back-button` | 83d | `CANDIDATE_DELETE_CLOSED_PR_STALE` | #337 | closed |
 | `copilot/fix-e2e-tests-button-locators` | 83d | `CANDIDATE_DELETE_CLOSED_PR_STALE` | #333 | closed |
 | `copilot/fix-e2e-tests-playwright` | 146d | `SAFE_DELETE_ABANDONED_WIP` | #56 | closed |
@@ -856,7 +858,7 @@ Before scheduling Wave 7, the owner should answer:
 | `copilot/resolve-merge-conflicts-again` | 76d | `CANDIDATE_DELETE_CLOSED_PR_STALE` | #489 | closed |
 | `copilot/resolve-staging-merge-issues` | 79d | `CANDIDATE_DELETE_CLOSED_PR_STALE` | #430 | closed |
 | `copilot/restore-missing-e2e-tests` | 142d | `SAFE_DELETE_ABANDONED_WIP` | #76 | closed |
-| `copilot/restore-missing-features-fix-routing` | 146d | `SAFE_DELETE_MERGED_PR` | #66 | merged |
+| `listed in Wave 6 approved list (PR-merged candidate)` | 146d | `SAFE_DELETE_MERGED_PR` | #66 | merged |
 | `copilot/revise-e2e-tests-for-stability` | 133d | `SAFE_DELETE_ABANDONED_WIP` | #151 | closed |
 | `copilot/robustify-handle-send-message` | 142d | `SAFE_DELETE_ABANDONED_WIP` | #92 | closed |
 | `copilot/rollout-advanced-ai-capabilities` | 77d | `SAFE_DELETE_MERGED` | #466 | merged |
@@ -864,7 +866,7 @@ Before scheduling Wave 7, the owner should answer:
 | `copilot/setup-staging-deployment-workflow` | 82d | `SAFE_DELETE_MERGED` | #367 | merged |
 | `copilot/stability-sweep-runtime-issues` | 80d | `CANDIDATE_DELETE_CLOSED_PR_STALE` | #386 | closed |
 | `copilot/stabilize-e2e-chat-test` | 141d | `SAFE_DELETE_ABANDONED_WIP` | #126 | closed |
-| `copilot/stabilize-e2e-tests-for-ci` | 146d | `SAFE_DELETE_MERGED_PR` | #46 | merged |
+| `listed in Wave 6 approved list (PR-merged candidate)` | 146d | `SAFE_DELETE_MERGED_PR` | #46 | merged |
 | `copilot/stabilize-runtime-behavior` | 80d | `CANDIDATE_DELETE_CLOSED_PR_STALE` | #377 | closed |
 | `copilot/stabilize-runtime-behavior-again` | 80d | `CANDIDATE_DELETE_CLOSED_PR_STALE` | #381 | closed |
 | `copilot/stabilize-test-suite` | 161d | `CANDIDATE_DELETE_CLOSED_PR_OLD` | #5 | closed |
