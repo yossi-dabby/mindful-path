@@ -660,8 +660,13 @@ async function main() {
       result.originalSha = resolveRemoteBranchSha(branch);
       result.archiveTag = buildArchiveTag(branch, archiveTagDate);
 
-      createAnnotatedTag(result.archiveTag, result.originalSha, branch);
-      pushTag(result.archiveTag);
+      if (remoteTagExists(result.archiveTag)) {
+        console.log(`  Archive tag "${result.archiveTag}" already exists on remote — skipping create/push (idempotent re-run).`);
+      } else {
+        deleteLocalTagIfExists(result.archiveTag);
+        createAnnotatedTag(result.archiveTag, result.originalSha, branch);
+        pushTag(result.archiveTag);
+      }
 
       result.remoteTagPresent = remoteTagExists(result.archiveTag);
       if (!result.remoteTagPresent) {

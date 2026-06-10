@@ -18,6 +18,7 @@ import {
 } from '../../scripts/branch-cleanup-wave-7c-archive.mjs';
 
 const REPO_ROOT = resolve(import.meta.dirname, '../..');
+const SCRIPT_PATH = resolve(REPO_ROOT, 'scripts/branch-cleanup-wave-7c-archive.mjs');
 const WORKFLOW_PATH = resolve(REPO_ROOT, '.github/workflows/branch-cleanup-wave-7c-archive.yml');
 const APPROVED_LIST_PATH = resolve(REPO_ROOT, 'docs/branch-cleanup-wave-7c-approved-list.txt');
 const AUDIT_PATH = resolve(REPO_ROOT, 'docs/remaining-branch-reduction-audit.md');
@@ -282,6 +283,13 @@ describe('branch cleanup wave 7c workflow', () => {
     expect(workflow).toContain(
       'git config user.email "41898282+github-actions[bot]@users.noreply.github.com"'
     );
+  });
+
+  it('skips tag creation when archive tag already exists on remote (idempotent re-run)', () => {
+    const script = readFileSync(SCRIPT_PATH, 'utf8');
+
+    expect(script).toMatch(/remoteTagExists\(result\.archiveTag\)/);
+    expect(script).toMatch(/skipping create\/push/);
   });
 });
 
