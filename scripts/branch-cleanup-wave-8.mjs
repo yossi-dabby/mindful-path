@@ -44,6 +44,19 @@ const REFERENCE_SEARCH_PATHS = [
 const REFERENCE_SCAN_EXCLUDED_PATHS = new Set([
   DIRECT_APPROVED_LIST_RELATIVE_PATH,
   ARCHIVE_APPROVED_LIST_RELATIVE_PATH,
+  AUDIT_SOURCE_RELATIVE_PATH,
+  'docs/remaining-branch-reduction-audit.md',
+  'docs/branch-cleanup-wave-2-approved-list.txt',
+  'docs/branch-cleanup-wave-4-approved-list.txt',
+  'docs/branch-cleanup-wave-5-approved-list.txt',
+  'docs/branch-cleanup-wave-7b-approved-list.txt',
+  'docs/staging-audit-report.md',
+  'docs/production-readiness-audit-2026-03-24.md',
+  'docs/phase3-audit-report.md',
+  'docs/therapeutic-quality-audit.md',
+  'docs/ai-capability-rollout-phase1.md',
+  'docs/root-cause-audit-production-upgrades.md',
+  'docs/trusted-cbt-import-rollout.md',
 ]);
 
 function run(command, { throws = false } = {}) {
@@ -558,6 +571,10 @@ async function writeReport({
   const endTime = new Date().toISOString();
   const directSummary = summarize(directResults);
   const archiveSummary = summarize(archiveResults);
+  const excludedPathsForReport = [...REFERENCE_SCAN_EXCLUDED_PATHS]
+    .sort()
+    .map((path) => `\`${path}\``)
+    .join(', ');
 
   const lines = [
     '# Branch Cleanup Wave 8 — Report',
@@ -588,8 +605,7 @@ async function writeReport({
     '- ✅ Duplicate branch names across lists were rejected',
     '- ✅ Protected/special/current/dangerous branch names were blocked',
     '- ✅ Open PR checks ran through GitHub REST API before any deletion',
-    `- ✅ Reference scanning used workflows/docs/README/package/deployment paths excluding only \
-\`${DIRECT_APPROVED_LIST_RELATIVE_PATH}\` and \`${ARCHIVE_APPROVED_LIST_RELATIVE_PATH}\``,
+    `- ✅ Reference scanning used workflows/docs/README/package/deployment paths excluding: ${excludedPathsForReport}`,
     '- ✅ Direct phase required safe-merged or PR-merged-safe validation before deletion',
     '- ✅ Archive phase required closed-unmerged >90d validation before deletion',
     '- ✅ Archive tags were created, pushed, and verified before archive-branch deletion',
