@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import {
   APPROVED_LIST_RELATIVE_PATH,
   ARCHIVE_TAG_PREFIX,
+  AUDIT_SOURCE_RELATIVE_PATH,
   MAX_BRANCHES,
   REFERENCE_SEARCH_PATHS,
   buildArchiveTag,
@@ -20,12 +21,12 @@ const APPROVED_LIST_PATH = resolve(REPO_ROOT, 'docs/branch-cleanup-wave-7a-appro
 const AUDIT_PATH = resolve(REPO_ROOT, 'docs/remaining-branch-reduction-audit.md');
 
 describe('branch cleanup wave 7a reference scanning', () => {
-  it('approved-list-only reference does not block', () => {
+  it('approved-list and audit-source references do not block', () => {
     const refs = findReferences('copilot/example-branch', {
       searchPaths: ['docs'],
       repoRoot: '/virtual/repo',
       pathExists: () => true,
-      runCommand: () => `${APPROVED_LIST_RELATIVE_PATH}\n`,
+      runCommand: () => `${APPROVED_LIST_RELATIVE_PATH}\n${AUDIT_SOURCE_RELATIVE_PATH}\n`,
     });
 
     expect(refs).toEqual([]);
@@ -42,10 +43,7 @@ describe('branch cleanup wave 7a reference scanning', () => {
         '.github/workflows/branch-cleanup-wave-7a-archive.yml\n',
     });
 
-    expect(refs).toEqual([
-      'docs/remaining-branch-reduction-audit.md',
-      '.github/workflows/branch-cleanup-wave-7a-archive.yml',
-    ]);
+    expect(refs).toEqual(['.github/workflows/branch-cleanup-wave-7a-archive.yml']);
   });
 
   it('still scans package and deployment config paths', () => {
