@@ -255,22 +255,20 @@ function remoteTagExists(tag) {
   return Boolean(result && result.trim().length > 0);
 }
 
-function resolveRemoteTagTargetSha(tag) {
-  const result = run(`git rev-parse "origin/refs/tags/${tag}^{}"`) ??
-    run(`git ls-remote --tags origin "refs/tags/${tag}" | awk '{print $1}'`);
-  if (result) return result.trim().split('\n')[0];
-
-  const lsResult = run(`git ls-remote origin "refs/tags/${tag}"`);
-  if (!lsResult) return null;
-  const sha = lsResult.trim().split(/\s+/)[0];
-  if (!sha) return null;
-
-  const deref = run(`git cat-file -p "${sha}"`);
-  if (deref) {
-    const objectMatch = deref.match(/^object\s+([0-9a-f]{40})/m);
-    if (objectMatch) return objectMatch[1];
+function resolveRemoteTagTargetSha(tag, { runFn = run } = {}) {
+  const peeled = runFn(`git ls-remote --tags origin "refs/tags/${tag}^{}"`, { throws: false });
+  if (peeled) {
+    const line = splitLines(peeled)[0];
+    if (line) return line.split(/\s+/u)[0];
   }
-  return sha;
+
+  const direct = runFn(`git ls-remote --tags origin "refs/tags/${tag}"`, { throws: false });
+  if (direct) {
+    const line = splitLines(direct)[0];
+    if (line) return line.split(/\s+/u)[0];
+  }
+
+  return null;
 }
 
 function deleteLocalTagIfExists(tag) {
@@ -751,5 +749,6 @@ export {
   isSpecialProtectedBranch,
   parseApprovedBranches,
   parseAuditAbandonedWipBranches,
+  resolveRemoteTagTargetSha,
   validateApprovedBranches,
 };
