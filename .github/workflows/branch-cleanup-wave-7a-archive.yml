@@ -45,6 +45,11 @@ jobs:
         with:
           node-version: '22.x'
 
+      - name: Configure git identity for archive tags
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
       - name: Run branch archive cleanup script
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
