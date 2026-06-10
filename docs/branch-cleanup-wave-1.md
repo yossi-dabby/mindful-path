@@ -57,6 +57,8 @@ Every branch is checked for **all** of the following immediately before deletion
 
 If **any** check fails, the script aborts immediately and no further branches are deleted.
 
+> Note: `docs/branch-cleanup-wave-1-approved-list.txt` is intentionally excluded from the reference scan because it is the canonical deletion manifest. Any matching branch reference in any other scanned file still blocks deletion, and a rerun after this fix should delete only branches that continue to pass every runtime safety check.
+
 ---
 
 ## How to Run the Workflow
@@ -122,3 +124,5 @@ If additional branches need to be cleaned up after Wave 1:
 4. Follow the same review and dispatch process.
 
 Do **not** append branches to this Wave 1 list or re-use this workflow for a different batch.
+
+Last updated: 2026-06-10
