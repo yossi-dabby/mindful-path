@@ -32,6 +32,9 @@ const REPORT_PATH = resolve(REPO_ROOT, 'branch-cleanup-wave-7b-report.md');
 const MAX_BRANCHES = 50;
 const ARCHIVE_TAG_PREFIX = 'archive/branch-cleanup-wave-7b';
 const REQUIRED_AUDIT_SECTION_HEADER = '### 2c. SAFE_DELETE_ABANDONED_WIP';
+const OPEN_PR_CHECK_MAX_ATTEMPTS = 3;
+const OPEN_PR_CHECK_RETRY_DELAY_MS = 1000;
+const RETRYABLE_OPEN_PR_STATUS_CODES = new Set([429, 500, 502, 503, 504]);
 
 const PROTECTED_BRANCHES = new Set([
   'main',
@@ -199,6 +202,54 @@ async function openPrCount(owner, repo, branch) {
   return Array.isArray(prs) ? prs.length : 0;
 }
 
+function sleep(ms) {
+  if (ms <= 0) return Promise.resolve();
+  return new Promise((resolvePromise) => setTimeout(resolvePromise, ms));
+}
+
+function isRetryableOpenPrError(error) {
+  const message = String(error?.message ?? '');
+  const statusCodeMatch = message.match(/\b(\d{3})\b/u);
+  const statusCode = statusCodeMatch ? Number(statusCodeMatch[1]) : null;
+
+  if (statusCode !== null && RETRYABLE_OPEN_PR_STATUS_CODES.has(statusCode)) {
+    return true;
+  }
+
+  return /fetch failed|ECONNRESET|ETIMEDOUT|socket hang up|network/i.test(message);
+}
+
+async function openPrCountWithRetry(
+  owner,
+  repo,
+  branch,
+  {
+    openPrCountFn = openPrCount,
+    maxAttempts = OPEN_PR_CHECK_MAX_ATTEMPTS,
+    retryDelayMs = OPEN_PR_CHECK_RETRY_DELAY_MS,
+    sleepFn = sleep,
+  } = {}
+) {
+  let attempt = 0;
+  let lastError;
+
+  while (attempt < maxAttempts) {
+    attempt += 1;
+    try {
+      return await openPrCountFn(owner, repo, branch);
+    } catch (error) {
+      lastError = error;
+      const shouldRetry = attempt < maxAttempts && isRetryableOpenPrError(error);
+      if (!shouldRetry) {
+        throw error;
+      }
+      await sleepFn(retryDelayMs * attempt);
+    }
+  }
+
+  throw lastError;
+}
+
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -353,6 +404,9 @@ async function evaluateBranch(branch, context, dependencies = {}) {
     remoteExistsFn = remoteExists,
     openPrCountFn = openPrCount,
     findReferencesFn = findReferences,
+    openPrMaxAttempts = OPEN_PR_CHECK_MAX_ATTEMPTS,
+    openPrRetryDelayMs = OPEN_PR_CHECK_RETRY_DELAY_MS,
+    sleepFn = sleep,
   } = dependencies;
 
   const row = {
@@ -385,7 +439,12 @@ async function evaluateBranch(branch, context, dependencies = {}) {
     return row;
   }
 
-  row.openPrs = await openPrCountFn(owner, repo, branch);
+  row.openPrs = await openPrCountWithRetry(owner, repo, branch, {
+    openPrCountFn,
+    maxAttempts: openPrMaxAttempts,
+    retryDelayMs: openPrRetryDelayMs,
+    sleepFn,
+  });
   if (row.openPrs > 0) {
     row.status = `FAIL – branch has ${row.openPrs} open PR(s)`;
     return row;
@@ -677,5 +736,6 @@ export {
   isSpecialProtectedBranch,
   parseApprovedBranches,
   parseAuditAbandonedWipBranches,
+  openPrCountWithRetry,
   validateApprovedBranches,
 };

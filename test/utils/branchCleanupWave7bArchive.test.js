@@ -10,6 +10,7 @@ import {
   MAX_BRANCHES,
   REFERENCE_SEARCH_PATHS,
   buildArchiveTag,
+  evaluateBranch,
   findReferences,
   parseAuditAbandonedWipBranches,
   validateApprovedBranches,
@@ -81,6 +82,88 @@ describe('branch cleanup wave 7b guardrails', () => {
     expect(auditMap.has('copilot/fix-chat-smoke-test-flakiness')).toBe(true);
     expect(auditMap.get('copilot/fix-chat-smoke-test-flakiness')?.ageDays).toBeGreaterThan(90);
     expect(auditMap.has('copilot/add-accessibility-tests-community-page')).toBe(false);
+  });
+
+  it('retries transient open PR API failures before succeeding', async () => {
+    const branch = 'copilot/retryable-open-pr-check';
+    const sleepCalls = [];
+    const context = {
+      owner: 'yossi-dabby',
+      repo: 'mindful-path',
+      currentBranch: '',
+      abandonedAuditMap: new Map([
+        [
+          branch,
+          {
+            branch,
+            ageDays: 120,
+            lastCommitDate: '2025-01-01',
+            pr: 'no',
+            closedDate: '2025-01-02',
+          },
+        ],
+      ]),
+    };
+
+    let attempts = 0;
+    const row = await evaluateBranch(branch, context, {
+      remoteExistsFn: () => true,
+      openPrCountFn: async () => {
+        attempts += 1;
+        if (attempts === 1) {
+          throw new Error(
+            'GitHub API error checking open PRs for branch "copilot/retryable-open-pr-check": 500 Internal Server Error'
+          );
+        }
+        return 0;
+      },
+      findReferencesFn: () => [],
+      sleepFn: async (ms) => {
+        sleepCalls.push(ms);
+      },
+    });
+
+    expect(attempts).toBe(2);
+    expect(sleepCalls).toEqual([1000]);
+    expect(row.status).toBe('READY');
+  });
+
+  it('does not retry non-transient open PR API failures', async () => {
+    const branch = 'copilot/non-retryable-open-pr-check';
+    const context = {
+      owner: 'yossi-dabby',
+      repo: 'mindful-path',
+      currentBranch: '',
+      abandonedAuditMap: new Map([
+        [
+          branch,
+          {
+            branch,
+            ageDays: 120,
+            lastCommitDate: '2025-01-01',
+            pr: 'no',
+            closedDate: '2025-01-02',
+          },
+        ],
+      ]),
+    };
+
+    let attempts = 0;
+    await expect(
+      evaluateBranch(branch, context, {
+        remoteExistsFn: () => true,
+        openPrCountFn: async () => {
+          attempts += 1;
+          throw new Error(
+            'GitHub API error checking open PRs for branch "copilot/non-retryable-open-pr-check": 404 Not Found'
+          );
+        },
+        findReferencesFn: () => [],
+        sleepFn: async () => {},
+      })
+    ).rejects.toThrow(/404 Not Found/);
+
+    expect(attempts).toBe(1);
   });
 });
 
