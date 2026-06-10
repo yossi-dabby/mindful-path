@@ -58,10 +58,9 @@ describe('branch cleanup wave 8 reference scanning', () => {
         '.github/workflows/branch-cleanup-wave-8.yml\n',
     });
 
-    expect(refs).toEqual([
-      '.github/workflows/branch-cleanup-wave-8.yml',
-      'docs/post-wave-7c-remaining-branch-audit.md',
-    ]);
+    expect(refs.sort()).toEqual(
+      ['.github/workflows/branch-cleanup-wave-8.yml', 'docs/post-wave-7c-remaining-branch-audit.md'].sort()
+    );
   });
 
   it('still scans package and deployment config paths', () => {

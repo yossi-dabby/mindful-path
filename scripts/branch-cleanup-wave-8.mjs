@@ -174,7 +174,7 @@ function parseAuditSection(auditContent, sectionHeader) {
   let inSection = false;
 
   for (const line of lines) {
-    if (!inSection && line.trim() === sectionHeader) {
+    if (!inSection && line.trim().startsWith(sectionHeader)) {
       inSection = true;
       continue;
     }
