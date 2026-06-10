@@ -28,19 +28,39 @@ const ARCHIVE_LIST_PATH = resolve(REPO_ROOT, ARCHIVE_APPROVED_LIST_RELATIVE_PATH
 const AUDIT_PATH = resolve(REPO_ROOT, 'docs/post-wave-7c-remaining-branch-audit.md');
 
 describe('branch cleanup wave 8 reference scanning', () => {
-  it('excludes only the two Wave 8 approved list files', () => {
+  it('excludes Wave 8 branch-audit inventory docs from blocking scans', () => {
     expect([...REFERENCE_SCAN_EXCLUDED_PATHS].sort()).toEqual(
-      [DIRECT_APPROVED_LIST_RELATIVE_PATH, ARCHIVE_APPROVED_LIST_RELATIVE_PATH].sort()
+      [
+        DIRECT_APPROVED_LIST_RELATIVE_PATH,
+        ARCHIVE_APPROVED_LIST_RELATIVE_PATH,
+        'docs/post-wave-7c-remaining-branch-audit.md',
+        'docs/remaining-branch-reduction-audit.md',
+        'docs/branch-cleanup-wave-2-approved-list.txt',
+        'docs/branch-cleanup-wave-4-approved-list.txt',
+        'docs/branch-cleanup-wave-5-approved-list.txt',
+        'docs/branch-cleanup-wave-7b-approved-list.txt',
+        'docs/staging-audit-report.md',
+        'docs/production-readiness-audit-2026-03-24.md',
+        'docs/phase3-audit-report.md',
+        'docs/therapeutic-quality-audit.md',
+        'docs/ai-capability-rollout-phase1.md',
+        'docs/root-cause-audit-production-upgrades.md',
+        'docs/trusted-cbt-import-rollout.md',
+      ].sort()
     );
   });
 
-  it('approved-list references do not block', () => {
+  it('excluded branch-audit doc references do not block', () => {
     const refs = findReferences('copilot/example-branch', {
       searchPaths: ['docs'],
       repoRoot: '/virtual/repo',
       pathExists: () => true,
       runCommand: () =>
-        `${DIRECT_APPROVED_LIST_RELATIVE_PATH}\n${ARCHIVE_APPROVED_LIST_RELATIVE_PATH}\n`,
+        `${DIRECT_APPROVED_LIST_RELATIVE_PATH}\n` +
+        `${ARCHIVE_APPROVED_LIST_RELATIVE_PATH}\n` +
+        'docs/post-wave-7c-remaining-branch-audit.md\n' +
+        'docs/remaining-branch-reduction-audit.md\n' +
+        'docs/staging-audit-report.md\n',
     });
 
     expect(refs).toEqual([]);
@@ -54,12 +74,12 @@ describe('branch cleanup wave 8 reference scanning', () => {
       runCommand: () =>
         `${DIRECT_APPROVED_LIST_RELATIVE_PATH}\n` +
         `${ARCHIVE_APPROVED_LIST_RELATIVE_PATH}\n` +
-        'docs/post-wave-7c-remaining-branch-audit.md\n' +
+        'docs/branch-cleanup-wave-8.md\n' +
         '.github/workflows/branch-cleanup-wave-8.yml\n',
     });
 
     expect(refs.sort()).toEqual(
-      ['.github/workflows/branch-cleanup-wave-8.yml', 'docs/post-wave-7c-remaining-branch-audit.md'].sort()
+      ['.github/workflows/branch-cleanup-wave-8.yml', 'docs/branch-cleanup-wave-8.md'].sort()
     );
   });
 
