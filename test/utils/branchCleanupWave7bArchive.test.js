@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
   APPROVED_LIST_RELATIVE_PATH,
@@ -11,6 +11,7 @@ import {
   REFERENCE_SEARCH_PATHS,
   buildArchiveTag,
   findReferences,
+  openPrCount,
   parseAuditAbandonedWipBranches,
   validateApprovedBranches,
 } from '../../scripts/branch-cleanup-wave-7b-archive.mjs';
@@ -166,5 +167,50 @@ describe('branch cleanup wave 7b approved list', () => {
     for (const wave7aBranch of wave7aBranches) {
       expect(branches).not.toContain(wave7aBranch);
     }
+  });
+});
+
+describe('branch cleanup wave 7b GitHub API retries', () => {
+  const originalFetch = globalThis.fetch;
+  const originalToken = process.env.GITHUB_TOKEN;
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+    process.env.GITHUB_TOKEN = originalToken;
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  it('retries open PR checks on transient 500 responses', async () => {
+    vi.useFakeTimers();
+    process.env.GITHUB_TOKEN = 'test-token';
+
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: false, status: 500, statusText: 'Internal Server Error' })
+      .mockResolvedValueOnce({ ok: true, json: async () => [] });
+
+    globalThis.fetch = fetchMock;
+
+    const resultPromise = openPrCount('yossi-dabby', 'mindful-path', 'copilot/example-branch');
+    await vi.runAllTimersAsync();
+
+    await expect(resultPromise).resolves.toBe(0);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not retry non-retryable open PR check failures', async () => {
+    process.env.GITHUB_TOKEN = 'test-token';
+
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue({ ok: false, status: 404, statusText: 'Not Found' });
+
+    globalThis.fetch = fetchMock;
+
+    await expect(
+      openPrCount('yossi-dabby', 'mindful-path', 'copilot/example-branch')
+    ).rejects.toThrow(/404 Not Found/);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });

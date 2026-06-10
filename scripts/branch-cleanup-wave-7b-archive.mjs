@@ -32,6 +32,9 @@ const REPORT_PATH = resolve(REPO_ROOT, 'branch-cleanup-wave-7b-report.md');
 const MAX_BRANCHES = 50;
 const ARCHIVE_TAG_PREFIX = 'archive/branch-cleanup-wave-7b';
 const REQUIRED_AUDIT_SECTION_HEADER = '### 2c. SAFE_DELETE_ABANDONED_WIP';
+const OPEN_PR_CHECK_MAX_ATTEMPTS = 3;
+const OPEN_PR_CHECK_INITIAL_BACKOFF_MS = 500;
+const RETRYABLE_GITHUB_STATUS_CODES = new Set([429, 500, 502, 503, 504]);
 
 const PROTECTED_BRANCHES = new Set([
   'main',
@@ -171,6 +174,12 @@ function remoteExists(branch) {
   return result !== null && result.trim() !== '';
 }
 
+function sleep(ms) {
+  return new Promise((resolvePromise) => {
+    setTimeout(resolvePromise, ms);
+  });
+}
+
 async function openPrCount(owner, repo, branch) {
   const token = process.env.GITHUB_TOKEN;
   if (!token) throw new Error('GITHUB_TOKEN environment variable is not set.');
@@ -179,24 +188,48 @@ async function openPrCount(owner, repo, branch) {
     `https://api.github.com/repos/${owner}/${repo}/pulls` +
     `?head=${encodeURIComponent(owner + ':' + branch)}&state=open&per_page=5`;
 
-  const response = await fetch(url, {
-    headers: {
-      Authorization: 'Bearer ' + token,
-      Accept: 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-      'User-Agent': 'branch-cleanup-wave-7b-archive',
-    },
-  });
+  let lastError = null;
 
-  if (!response.ok) {
-    throw new Error(
-      `GitHub API error checking open PRs for branch "${branch}": ` +
-        `${response.status} ${response.statusText}`
-    );
+  for (let attempt = 1; attempt <= OPEN_PR_CHECK_MAX_ATTEMPTS; attempt += 1) {
+    try {
+      const response = await fetch(url, {
+        headers: {
+          Authorization: 'Bearer ' + token,
+          Accept: 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+          'User-Agent': 'branch-cleanup-wave-7b-archive',
+        },
+      });
+
+      if (response.ok) {
+        const prs = await response.json();
+        return Array.isArray(prs) ? prs.length : 0;
+      }
+
+      const isRetryableStatus = RETRYABLE_GITHUB_STATUS_CODES.has(response.status);
+      const error = new Error(
+        `GitHub API error checking open PRs for branch "${branch}": ` +
+          `${response.status} ${response.statusText}`
+      );
+      error.retryable = isRetryableStatus;
+      lastError = error;
+
+      if (!isRetryableStatus || attempt === OPEN_PR_CHECK_MAX_ATTEMPTS) {
+        throw error;
+      }
+    } catch (error) {
+      lastError = error;
+      const retryable = typeof error?.retryable === 'boolean' ? error.retryable : true;
+      if (!retryable || attempt === OPEN_PR_CHECK_MAX_ATTEMPTS) {
+        throw lastError;
+      }
+    }
+
+    const backoffMs = OPEN_PR_CHECK_INITIAL_BACKOFF_MS * 2 ** (attempt - 1);
+    await sleep(backoffMs);
   }
 
-  const prs = await response.json();
-  return Array.isArray(prs) ? prs.length : 0;
+  throw lastError ?? new Error(`Unknown error checking open PRs for branch "${branch}".`);
 }
 
 function escapeRegExp(value) {
@@ -677,5 +710,6 @@ export {
   isSpecialProtectedBranch,
   parseApprovedBranches,
   parseAuditAbandonedWipBranches,
+  openPrCount,
   validateApprovedBranches,
 };
