@@ -9,7 +9,7 @@
  *   - Branch must exist on origin and have no open PRs
  *   - Branch must be classified as SAFE_DELETE_ABANDONED_WIP in the audit source
  *   - Branch must have no blocking references in workflows/docs/README/package/deploy config
- *     (excluding only docs/branch-cleanup-wave-7a-approved-list.txt)
+ *     (excluding docs/branch-cleanup-wave-7a-approved-list.txt and docs/remaining-branch-reduction-audit.md)
  *   - For each branch: resolve tip SHA -> create annotated archive tag -> push tag ->
  *     verify remote tag -> verify tag points to exact original SHA -> delete branch
  *   - Process one branch at a time and stop immediately on tag verification failure
@@ -53,7 +53,10 @@ const REFERENCE_SEARCH_PATHS = [
   'netlify.toml',
 ];
 
-const REFERENCE_SCAN_EXCLUDED_PATHS = new Set([APPROVED_LIST_RELATIVE_PATH]);
+const REFERENCE_SCAN_EXCLUDED_PATHS = new Set([
+  APPROVED_LIST_RELATIVE_PATH,
+  AUDIT_SOURCE_RELATIVE_PATH,
+]);
 
 const TABLE_HEADER = '| Branch | Last Commit | Age | PR | PR Closed |';
 
@@ -448,7 +451,7 @@ async function writeReport({
     '- ✅ Branch names were checked for protected/special/current/dangerous values',
     '- ✅ Open PR status was verified via GitHub REST API before any action',
     '- ✅ Branch classification was verified from SAFE_DELETE_ABANDONED_WIP audit section',
-    `- ✅ Reference checks scanned workflows, docs, README, package, and deployment configs, excluding only \`${APPROVED_LIST_RELATIVE_PATH}\``,
+    `- ✅ Reference checks scanned workflows, docs, README, package, and deployment configs, excluding \`${APPROVED_LIST_RELATIVE_PATH}\` and \`${AUDIT_SOURCE_RELATIVE_PATH}\``,
     '- ✅ Archive tag was created and pushed before branch deletion',
     '- ✅ Remote archive tag existence and SHA match were verified before each deletion',
     '- ✅ Branches were processed one-by-one',
