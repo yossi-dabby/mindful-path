@@ -7,9 +7,9 @@
 
 ## Purpose
 
-Wave 4 preserves the same controlled branch-cleanup process used in Waves 1, 2, and 3. It prepares the next manually dispatched cleanup wave after a fresh post-Wave-3 inventory refresh.
+Wave 4 preserves the same controlled branch-cleanup process used in Waves 1, 2, and 3. It prepares the next manually dispatched cleanup wave after a fresh post-Wave-3 inventory refresh and a re-check after the empty first Wave 4 run.
 
-The refreshed 2026-06-10 inventory found **no additional remote branches** that still qualified as `SAFE_DELETE_MERGED` after applying all Wave 4 safety rules. As a result, the Wave 4 approved list is intentionally empty.
+The refreshed 2026-06-10 inventory found **50 remote branches** that qualified as `SAFE_DELETE_MERGED` after applying the Wave 4 safety rules. The approved list is now populated and ready for manual dispatch after review.
 
 ---
 
@@ -28,12 +28,12 @@ The refreshed 2026-06-10 inventory found **no additional remote branches** that 
 
 **Path:** `docs/branch-cleanup-wave-4-approved-list.txt`
 
-The approved list currently contains **0 branches** because the fresh post-Wave-3 inventory showed:
+The approved list currently contains **50 branches** because the refreshed inventory showed:
 
-- 383 remote heads on `origin`
-- only `origin/main` and the current Wave 4 prep branch merged into `origin/main`
+- 384 remote heads on `origin`
+- 142 remote branches merged into `origin/main`
 - no open pull requests in the repository
-- no additional remote branches older than 14 days that also passed all `SAFE_DELETE_MERGED` checks
+- 50 oldest merged remote branches older than 14 days that also passed all `SAFE_DELETE_MERGED` checks and had no disqualifying references
 
 ---
 

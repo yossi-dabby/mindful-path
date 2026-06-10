@@ -303,6 +303,14 @@ describe('branch cleanup wave 4 approved list', () => {
     }
   });
 
+  it('contains at least one branch and excludes protected names', () => {
+    const branches = readBranches();
+
+    expect(branches.length).toBeGreaterThan(0);
+    expect(branches).not.toContain('main');
+    expect(branches).not.toContain('staging-fresh');
+  });
+
   it('does not exceed 50 branches', () => {
     expect(readBranches().length).toBeLessThanOrEqual(MAX_BRANCHES);
   });
