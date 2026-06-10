@@ -24,13 +24,14 @@
 import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..');
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
+const APPROVED_LIST_RELATIVE_PATH = 'docs/branch-cleanup-wave-1-approved-list.txt';
 const APPROVED_LIST_PATH = resolve(REPO_ROOT, 'docs/branch-cleanup-wave-1-approved-list.txt');
 const REPORT_PATH = resolve(REPO_ROOT, 'branch-cleanup-wave-1-report.md');
 
@@ -60,6 +61,8 @@ const REFERENCE_SEARCH_PATHS = [
   'netlify.toml',
 ];
 
+const REFERENCE_SCAN_EXCLUDED_PATHS = new Set([APPROVED_LIST_RELATIVE_PATH]);
+
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 /** Run a shell command and return trimmed stdout. Never throws. */
@@ -70,12 +73,45 @@ function run(cmd, { throws = false } = {}) {
     if (throws) throw err;
     return null;
   }
+
+  function splitLines(value) {
+    return String(value ?? '')
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean);
+  }
 }
 
 /** Return true if the string contains characters that could be dangerous in shell. */
 function hasDangerousChars(name) {
   // Allow alphanumeric, hyphens, underscores, forward slashes, and dots only.
   return /[^a-zA-Z0-9\-_/.]/u.test(name);
+}
+
+function parseApprovedBranches(rawContent) {
+  return splitLines(rawContent).filter((line) => !line.startsWith('#'));
+}
+
+function validateApprovedBranches(branches, currentBranch = '') {
+  if (branches.length > MAX_BRANCHES) {
+    throw new Error(
+      `Approved list contains ${branches.length} branches, which exceeds the limit of ${MAX_BRANCHES}.`
+    );
+  }
+
+  for (const branch of branches) {
+    if (PROTECTED_BRANCHES.has(branch)) {
+      throw new Error(`Protected branch "${branch}" found in approved list.`);
+    }
+
+    if (hasDangerousChars(branch)) {
+      throw new Error(`Branch name "${branch}" contains disallowed characters.`);
+    }
+  }
+
+  if (currentBranch && branches.includes(currentBranch)) {
+    throw new Error(`Current branch "${currentBranch}" is in the approved list.`);
+  }
 }
 
 /**
@@ -103,6 +139,26 @@ function isMergedIntoMain(branch) {
 function remoteExists(branch) {
   const result = run(`git ls-remote --exit-code --heads origin "${branch}"`, { throws: false });
   return result !== null && result.trim() !== '';
+}
+
+function getRemoteBranchInventory({ runCommand = run } = {}) {
+  const lsRemoteOutput = runCommand('git ls-remote --heads origin', { throws: false });
+  if (lsRemoteOutput !== null) {
+    return {
+      count: splitLines(lsRemoteOutput).length,
+      source: 'git ls-remote --heads origin',
+    };
+  }
+
+  const localRefsOutput = runCommand(
+    'git for-each-ref --format="%(refname:short)" refs/remotes/origin',
+    { throws: false }
+  );
+
+  return {
+    count: splitLines(localRefsOutput).filter((ref) => ref !== 'origin/HEAD').length,
+    source: 'git for-each-ref refs/remotes/origin (fallback)',
+  };
 }
 
 /**
@@ -142,20 +198,36 @@ async function openPrCount(owner, repo, branch) {
  * Search reference files/dirs for the exact branch name.
  * Returns an array of file paths where the name was found.
  */
-function findReferences(branch) {
+function filterReferenceHits(
+  hits,
+  { excludedPaths = REFERENCE_SCAN_EXCLUDED_PATHS } = {}
+) {
+  return [...new Set(splitLines(hits).filter((hit) => !excludedPaths.has(hit)))];
+}
+
+function findReferences(
+  branch,
+  {
+    searchPaths = REFERENCE_SEARCH_PATHS,
+    repoRoot = REPO_ROOT,
+    pathExists = existsSync,
+    runCommand = run,
+    excludedPaths = REFERENCE_SCAN_EXCLUDED_PATHS,
+  } = {}
+) {
   const hits = [];
-  for (const searchPath of REFERENCE_SEARCH_PATHS) {
-    const fullPath = resolve(REPO_ROOT, searchPath);
-    if (!existsSync(fullPath)) continue;
+  for (const searchPath of searchPaths) {
+    const fullPath = resolve(repoRoot, searchPath);
+    if (!pathExists(fullPath)) continue;
     // Use git grep so we search only tracked files.
-    const result = run(
+    const result = runCommand(
       `git grep -rl --fixed-strings "${branch}" -- "${fullPath}" 2>/dev/null || true`
     );
     if (result) {
-      hits.push(...result.split('\n').filter(Boolean));
+      hits.push(...filterReferenceHits(result, { excludedPaths }));
     }
   }
-  return hits;
+  return [...new Set(hits)];
 }
 
 /**
@@ -206,41 +278,22 @@ async function main() {
     process.exit(1);
   }
 
-  const rawLines = readFileSync(APPROVED_LIST_PATH, 'utf8').split('\n');
-  const branches = rawLines
-    .map((l) => l.trim())
-    .filter((l) => l.length > 0 && !l.startsWith('#'));
+  const branches = parseApprovedBranches(readFileSync(APPROVED_LIST_PATH, 'utf8'));
+  const remoteInventory = getRemoteBranchInventory();
 
   console.log(`\nApproved list loaded: ${branches.length} branch(es)\n`);
+  console.log(
+    `Remote branch inventory: ${remoteInventory.count} head(s) via ${remoteInventory.source}\n`
+  );
 
   // ── 2. Basic static validation ─────────────────────────────────────────
 
-  if (branches.length > MAX_BRANCHES) {
-    console.error(
-      `ERROR: Approved list contains ${branches.length} branches, which exceeds the limit of ${MAX_BRANCHES}.`
-    );
-    process.exit(1);
-  }
-
-  for (const branch of branches) {
-    if (PROTECTED_BRANCHES.has(branch)) {
-      console.error(`ERROR: Protected branch "${branch}" found in approved list. Aborting.`);
-      process.exit(1);
-    }
-    if (hasDangerousChars(branch)) {
-      console.error(
-        `ERROR: Branch name "${branch}" contains disallowed characters. Aborting.`
-      );
-      process.exit(1);
-    }
-  }
-
   // Determine current HEAD branch (irrelevant in detached-HEAD CI, but check anyway).
   const currentBranch = run('git rev-parse --abbrev-ref HEAD') ?? '';
-  if (currentBranch && branches.includes(currentBranch)) {
-    console.error(
-      `ERROR: Current branch "${currentBranch}" is in the approved list. Aborting.`
-    );
+  try {
+    validateApprovedBranches(branches, currentBranch);
+  } catch (err) {
+    console.error(`ERROR: ${err.message} Aborting.`);
     process.exit(1);
   }
 
@@ -328,7 +381,15 @@ async function main() {
 
   if (aborted) {
     console.error('\nAborting. No branches were deleted.\n');
-    await writeReport({ startTime, owner, repo, branches, results, aborted: true });
+    await writeReport({
+      startTime,
+      owner,
+      repo,
+      branches,
+      results,
+      aborted: true,
+      remoteInventory,
+    });
     process.exit(1);
   }
 
@@ -355,12 +416,28 @@ async function main() {
       row.status = `FAILED: ${err.message}`;
       console.error(`\n  ERROR: ${err.message}`);
       // Stop on unexpected failure.
-      await writeReport({ startTime, owner, repo, branches, results, aborted: false });
+      await writeReport({
+        startTime,
+        owner,
+        repo,
+        branches,
+        results,
+        aborted: false,
+        remoteInventory,
+      });
       process.exit(1);
     }
   }
 
-  await writeReport({ startTime, owner, repo, branches, results, aborted: false });
+  await writeReport({
+    startTime,
+    owner,
+    repo,
+    branches,
+    results,
+    aborted: false,
+    remoteInventory,
+  });
 
   const deleted = results.filter((r) => r.action === 'deleted').length;
   const skipped = results.filter((r) => r.action === 'skipped').length;
@@ -379,7 +456,7 @@ async function main() {
 
 // ── Report writer ──────────────────────────────────────────────────────────
 
-async function writeReport({ startTime, owner, repo, branches, results, aborted }) {
+async function writeReport({ startTime, owner, repo, branches, results, aborted, remoteInventory }) {
   const endTime = new Date().toISOString();
   const deleted = results.filter((r) => r.action === 'deleted');
   const skipped = results.filter((r) => r.action === 'skipped');
@@ -398,6 +475,7 @@ async function writeReport({ startTime, owner, repo, branches, results, aborted 
     `| Metric | Count |`,
     `|---|---|`,
     `| Branches requested | ${branches.length} |`,
+    `| Remote heads observed | ${remoteInventory.count} |`,
     `| Branches deleted | ${deleted.length} |`,
     `| Branches skipped | ${skipped.length} |`,
     `| Failures / aborts | ${failed.length} |`,
@@ -409,7 +487,8 @@ async function writeReport({ startTime, owner, repo, branches, results, aborted 
     '- ✅ Approved list did not exceed 50 entries',
     '- ✅ Merge status verified via `git merge-base --is-ancestor` before each deletion',
     '- ✅ Open PR status verified via GitHub REST API before each deletion',
-    '- ✅ Reference check performed across workflows, docs, README, package.json, and deployment configs',
+    `- ✅ Remote branch inventory counted via \`${remoteInventory.source}\``,
+    `- ✅ Reference check performed across workflows, docs, README, package.json, and deployment configs, excluding only \`${APPROVED_LIST_RELATIVE_PATH}\``,
     '',
     '## Branches Requested',
     '',
@@ -427,8 +506,27 @@ async function writeReport({ startTime, owner, repo, branches, results, aborted 
 }
 
 // ── Entry point ────────────────────────────────────────────────────────────
+const isDirectExecution = process.argv[1]
+  ? import.meta.url === pathToFileURL(resolve(process.argv[1])).href
+  : false;
 
-main().catch((err) => {
-  console.error('Unhandled error:', err);
-  process.exit(1);
-});
+if (isDirectExecution) {
+  main().catch((err) => {
+    console.error('Unhandled error:', err);
+    process.exit(1);
+  });
+}
+
+export {
+  APPROVED_LIST_RELATIVE_PATH,
+  MAX_BRANCHES,
+  PROTECTED_BRANCHES,
+  REFERENCE_SCAN_EXCLUDED_PATHS,
+  REFERENCE_SEARCH_PATHS,
+  filterReferenceHits,
+  findReferences,
+  getRemoteBranchInventory,
+  hasDangerousChars,
+  parseApprovedBranches,
+  validateApprovedBranches,
+};
