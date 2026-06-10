@@ -73,13 +73,13 @@ function run(cmd, { throws = false } = {}) {
     if (throws) throw err;
     return null;
   }
+}
 
-  function splitLines(value) {
-    return String(value ?? '')
-      .split('\n')
-      .map((line) => line.trim())
-      .filter(Boolean);
-  }
+function splitLines(value) {
+  return String(value ?? '')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
 }
 
 /** Return true if the string contains characters that could be dangerous in shell. */
