@@ -255,14 +255,14 @@ function remoteTagExists(tag) {
   return Boolean(result && result.trim().length > 0);
 }
 
-function resolveRemoteTagTargetSha(tag) {
-  const peeled = run(`git ls-remote --tags origin "refs/tags/${tag}^{}"`, { throws: false });
+function resolveRemoteTagTargetSha(tag, { runFn = run } = {}) {
+  const peeled = runFn(`git ls-remote --tags origin "refs/tags/${tag}^{}"`, { throws: false });
   if (peeled) {
     const line = splitLines(peeled)[0];
     if (line) return line.split(/\s+/u)[0];
   }
 
-  const direct = run(`git ls-remote --tags origin "refs/tags/${tag}"`, { throws: false });
+  const direct = runFn(`git ls-remote --tags origin "refs/tags/${tag}"`, { throws: false });
   if (direct) {
     const line = splitLines(direct)[0];
     if (line) return line.split(/\s+/u)[0];

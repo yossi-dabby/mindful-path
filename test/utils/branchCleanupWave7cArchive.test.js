@@ -81,6 +81,45 @@ describe('branch cleanup wave 7c guardrails', () => {
     expect(typeof resolveRemoteTagTargetSha).toBe('function');
   });
 
+  it('resolveRemoteTagTargetSha returns peeled commit SHA for annotated tags', () => {
+    const commitSha = 'a03d796d9636f10b7839e7e8467dab5b7a231c14';
+    const tagObjectSha = '413c358bf33eb0381bd8e66bf453ae090aad38ce';
+    const tag = 'archive/branch-cleanup-wave-7c/20260610/copilot/fix-e2e-playwright-errors';
+
+    const runFn = (cmd) => {
+      if (cmd.includes(`"refs/tags/${tag}^{}"`)) {
+        return `${commitSha}  refs/tags/${tag}^{}`;
+      }
+      if (cmd.includes(`"refs/tags/${tag}"`)) {
+        return `${tagObjectSha}  refs/tags/${tag}`;
+      }
+      return null;
+    };
+
+    const result = resolveRemoteTagTargetSha(tag, { runFn });
+    expect(result).toBe(commitSha);
+    expect(result).not.toBe(tagObjectSha);
+  });
+
+  it('resolveRemoteTagTargetSha falls back to direct SHA for lightweight tags', () => {
+    const commitSha = 'a03d796d9636f10b7839e7e8467dab5b7a231c14';
+    const tag = 'archive/branch-cleanup-wave-7c/20260610/copilot/fix-e2e-playwright-errors';
+
+    const runFn = (cmd) => {
+      if (cmd.includes(`"refs/tags/${tag}^{}"`)) return null;
+      if (cmd.includes(`"refs/tags/${tag}"`)) return `${commitSha}  refs/tags/${tag}`;
+      return null;
+    };
+
+    expect(resolveRemoteTagTargetSha(tag, { runFn })).toBe(commitSha);
+  });
+
+  it('resolveRemoteTagTargetSha returns null when tag is not found on remote', () => {
+    const tag = 'archive/branch-cleanup-wave-7c/20260610/copilot/nonexistent-branch';
+    const result = resolveRemoteTagTargetSha(tag, { runFn: () => null });
+    expect(result).toBeNull();
+  });
+
   it('parses abandoned WIP branches from audit section 2c', () => {
     const auditMap = parseAuditAbandonedWipBranches(readFileSync(AUDIT_PATH, 'utf8'));
 
