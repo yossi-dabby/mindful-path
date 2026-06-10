@@ -13,6 +13,7 @@ import {
   evaluateBranch,
   findReferences,
   parseAuditAbandonedWipBranches,
+  resolveRemoteTagTargetSha,
   validateApprovedBranches,
 } from '../../scripts/branch-cleanup-wave-7c-archive.mjs';
 
@@ -74,6 +75,10 @@ describe('branch cleanup wave 7c guardrails', () => {
   it('archive tags follow the required prefix and include date + branch', () => {
     const tag = buildArchiveTag('copilot/example-branch', '20260610');
     expect(tag).toBe(`${ARCHIVE_TAG_PREFIX}/20260610/copilot/example-branch`);
+  });
+
+  it('resolveRemoteTagTargetSha is exported as a function', () => {
+    expect(typeof resolveRemoteTagTargetSha).toBe('function');
   });
 
   it('parses abandoned WIP branches from audit section 2c', () => {
