@@ -175,8 +175,8 @@ function remoteExists(branch) {
 }
 
 function sleep(ms) {
-  return new Promise((resolvePromise) => {
-    setTimeout(resolvePromise, ms);
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
   });
 }
 
@@ -219,7 +219,8 @@ async function openPrCount(owner, repo, branch) {
       }
     } catch (error) {
       lastError = error;
-      const retryable = typeof error?.retryable === 'boolean' ? error.retryable : true;
+      const retryable =
+        typeof error?.retryable === 'boolean' ? error.retryable : error instanceof TypeError;
       if (!retryable || attempt === OPEN_PR_CHECK_MAX_ATTEMPTS) {
         throw lastError;
       }

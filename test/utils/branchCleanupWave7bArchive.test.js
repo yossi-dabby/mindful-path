@@ -193,7 +193,7 @@ describe('branch cleanup wave 7b GitHub API retries', () => {
     globalThis.fetch = fetchMock;
 
     const resultPromise = openPrCount('yossi-dabby', 'mindful-path', 'copilot/example-branch');
-    await vi.runAllTimersAsync();
+    await vi.advanceTimersByTimeAsync(500);
 
     await expect(resultPromise).resolves.toBe(0);
     expect(fetchMock).toHaveBeenCalledTimes(2);
