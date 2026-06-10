@@ -150,9 +150,12 @@ describe('branch cleanup wave 9A guardrails', () => {
   });
 
   it('audit section contains expected branch count', () => {
+    // 81 branches in the ARCHIVE_THEN_DELETE_CLOSED_UNMERGED_30_TO_90D section
+    // per the post-Wave-7C audit (docs/post-wave-7c-remaining-branch-audit.md, generated 2026-06-10)
+    const EXPECTED_30_90D_AUDIT_COUNT = 81;
     const audit = readFileSync(AUDIT_PATH, 'utf8');
     const auditMap = parseAuditSection(audit, REQUIRED_AUDIT_SECTION_HEADER);
-    expect(auditMap.size).toBe(81);
+    expect(auditMap.size).toBe(EXPECTED_30_90D_AUDIT_COUNT);
   });
 
   it('rejects branches outside 30-90d age window', () => {
