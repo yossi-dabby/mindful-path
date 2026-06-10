@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   APPROVED_LIST_RELATIVE_PATH,
@@ -20,6 +20,15 @@ const REPO_ROOT = resolve(import.meta.dirname, '../..');
 const WORKFLOW_PATH = resolve(REPO_ROOT, '.github/workflows/branch-cleanup-wave-7b-archive.yml');
 const APPROVED_LIST_PATH = resolve(REPO_ROOT, 'docs/branch-cleanup-wave-7b-approved-list.txt');
 const AUDIT_PATH = resolve(REPO_ROOT, 'docs/remaining-branch-reduction-audit.md');
+const ORIGINAL_GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+
+beforeEach(() => {
+  process.env.GITHUB_TOKEN = ORIGINAL_GITHUB_TOKEN;
+});
+
+afterEach(() => {
+  process.env.GITHUB_TOKEN = ORIGINAL_GITHUB_TOKEN;
+});
 
 describe('branch cleanup wave 7b reference scanning', () => {
   it('approved-list and audit-source references do not block', () => {
