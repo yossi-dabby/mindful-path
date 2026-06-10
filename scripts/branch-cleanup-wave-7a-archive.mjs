@@ -202,7 +202,9 @@ function escapeRegExp(value) {
 
 function parseAuditAbandonedWipBranches(auditContent) {
   const lines = String(auditContent ?? '').split('\n');
-  const sectionIndex = lines.findIndex((line) => line.trim() === REQUIRED_AUDIT_SECTION_HEADER);
+  const sectionIndex = lines.findIndex((line) =>
+    line.trim().startsWith(REQUIRED_AUDIT_SECTION_HEADER)
+  );
 
   if (sectionIndex < 0) {
     throw new Error(`Required audit section "${REQUIRED_AUDIT_SECTION_HEADER}" was not found.`);
