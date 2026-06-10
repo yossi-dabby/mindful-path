@@ -32,6 +32,9 @@ const REPORT_PATH = resolve(REPO_ROOT, 'branch-cleanup-wave-7b-report.md');
 const MAX_BRANCHES = 50;
 const ARCHIVE_TAG_PREFIX = 'archive/branch-cleanup-wave-7b';
 const REQUIRED_AUDIT_SECTION_HEADER = '### 2c. SAFE_DELETE_ABANDONED_WIP';
+const OPEN_PR_CHECK_MAX_ATTEMPTS = 4;
+const OPEN_PR_CHECK_BASE_DELAY_MS = 500;
+const OPEN_PR_CHECK_RETRYABLE_STATUS = new Set([429, 500, 502, 503, 504]);
 
 const PROTECTED_BRANCHES = new Set([
   'main',
@@ -171,32 +174,70 @@ function remoteExists(branch) {
   return result !== null && result.trim() !== '';
 }
 
-async function openPrCount(owner, repo, branch) {
+function sleep(ms) {
+  return new Promise((resolvePromise) => setTimeout(resolvePromise, ms));
+}
+
+async function openPrCount(owner, repo, branch, options = {}) {
   const token = process.env.GITHUB_TOKEN;
   if (!token) throw new Error('GITHUB_TOKEN environment variable is not set.');
+
+  const {
+    fetchFn = fetch,
+    sleepFn = sleep,
+    maxAttempts = OPEN_PR_CHECK_MAX_ATTEMPTS,
+    baseDelayMs = OPEN_PR_CHECK_BASE_DELAY_MS,
+  } = options;
 
   const url =
     `https://api.github.com/repos/${owner}/${repo}/pulls` +
     `?head=${encodeURIComponent(owner + ':' + branch)}&state=open&per_page=5`;
 
-  const response = await fetch(url, {
-    headers: {
-      Authorization: 'Bearer ' + token,
-      Accept: 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-      'User-Agent': 'branch-cleanup-wave-7b-archive',
-    },
-  });
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    let response;
+    try {
+      response = await fetchFn(url, {
+        headers: {
+          Authorization: 'Bearer ' + token,
+          Accept: 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+          'User-Agent': 'branch-cleanup-wave-7b-archive',
+        },
+      });
+    } catch (error) {
+      if (attempt >= maxAttempts) {
+        throw new Error(
+          `GitHub API request failed checking open PRs for branch "${branch}" after ${maxAttempts} attempts: ${error.message}`
+        );
+      }
+      await sleepFn(baseDelayMs * attempt);
+      continue;
+    }
 
-  if (!response.ok) {
-    throw new Error(
-      `GitHub API error checking open PRs for branch "${branch}": ` +
-        `${response.status} ${response.statusText}`
-    );
+    if (response.ok) {
+      const prs = await response.json();
+      return Array.isArray(prs) ? prs.length : 0;
+    }
+
+    const shouldRetry =
+      OPEN_PR_CHECK_RETRYABLE_STATUS.has(response.status) && attempt < maxAttempts;
+    if (!shouldRetry) {
+      throw new Error(
+        `GitHub API error checking open PRs for branch "${branch}": ` +
+          `${response.status} ${response.statusText}`
+      );
+    }
+
+    const retryAfterHeader = response.headers?.get?.('retry-after');
+    const retryAfterSeconds = Number(retryAfterHeader);
+    const retryDelayMs =
+      Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0
+        ? retryAfterSeconds * 1000
+        : baseDelayMs * attempt;
+    await sleepFn(retryDelayMs);
   }
 
-  const prs = await response.json();
-  return Array.isArray(prs) ? prs.length : 0;
+  throw new Error(`GitHub API error checking open PRs for branch "${branch}".`);
 }
 
 function escapeRegExp(value) {
@@ -677,5 +718,6 @@ export {
   isSpecialProtectedBranch,
   parseApprovedBranches,
   parseAuditAbandonedWipBranches,
+  openPrCount,
   validateApprovedBranches,
 };

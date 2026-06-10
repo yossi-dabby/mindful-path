@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import {
   APPROVED_LIST_RELATIVE_PATH,
@@ -11,6 +11,7 @@ import {
   REFERENCE_SEARCH_PATHS,
   buildArchiveTag,
   findReferences,
+  openPrCount,
   parseAuditAbandonedWipBranches,
   validateApprovedBranches,
 } from '../../scripts/branch-cleanup-wave-7b-archive.mjs';
@@ -81,6 +82,52 @@ describe('branch cleanup wave 7b guardrails', () => {
     expect(auditMap.has('copilot/fix-chat-smoke-test-flakiness')).toBe(true);
     expect(auditMap.get('copilot/fix-chat-smoke-test-flakiness')?.ageDays).toBeGreaterThan(90);
     expect(auditMap.has('copilot/add-accessibility-tests-community-page')).toBe(false);
+  });
+
+  it('retries transient open-PR API failures and then succeeds', async () => {
+    process.env.GITHUB_TOKEN = 'test-token';
+    const fetchFn = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+        headers: { get: () => null },
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        statusText: 'OK',
+        headers: { get: () => null },
+        json: async () => [{ id: 1 }, { id: 2 }],
+      });
+
+    const count = await openPrCount('yossi-dabby', 'mindful-path', 'copilot/example-branch', {
+      fetchFn,
+      sleepFn: async () => {},
+    });
+
+    expect(count).toBe(2);
+    expect(fetchFn).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not retry non-retryable open-PR API failures', async () => {
+    process.env.GITHUB_TOKEN = 'test-token';
+    const fetchFn = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 404,
+      statusText: 'Not Found',
+      headers: { get: () => null },
+    });
+
+    await expect(
+      openPrCount('yossi-dabby', 'mindful-path', 'copilot/example-branch', {
+        fetchFn,
+        sleepFn: async () => {},
+      })
+    ).rejects.toThrow(/404 Not Found/);
+
+    expect(fetchFn).toHaveBeenCalledTimes(1);
   });
 });
 
