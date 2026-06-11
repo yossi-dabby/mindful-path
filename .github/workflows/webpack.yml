@@ -2,9 +2,9 @@ name: Test Suite
 
 on:
   push:
-    branches: [ main, master, develop, staging, staging-fresh ]
+    branches: [ main, master, develop, staging ]
   pull_request:
-    branches: [ main, master, develop, staging, staging-fresh ]
+    branches: [ main, master, develop, staging ]
 
 jobs:
   test:
@@ -100,4 +100,3 @@ jobs:
           name: typecheck-report
           path: /tmp/typecheck-raw.txt
           retention-days: 14
-
