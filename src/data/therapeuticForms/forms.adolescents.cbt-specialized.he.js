@@ -16,7 +16,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['anxiety_tools', 'coping_tools', 'thought_records']),
-    fileUrl: '/forms/module-01/adolescents_cbt_specialized_he_01_01.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_01.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 1,
     moduleTitle: "חרדה, לחץ ופחדים",
@@ -49,7 +49,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "מה קורה אצלי עכשיו?",
-        file_url: '/forms/module-01/adolescents_cbt_specialized_he_01_01.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_01.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_01_01.pdf',
         rtl: true,
@@ -68,7 +68,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['anxiety_tools', 'coping_tools', 'thought_records']),
-    fileUrl: '/forms/module-01/adolescents_cbt_specialized_he_01_02.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_02.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 1,
     moduleTitle: "חרדה, לחץ ופחדים",
@@ -101,7 +101,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "מה מפעיל את הלחץ או הפחד שלי?",
-        file_url: '/forms/module-01/adolescents_cbt_specialized_he_01_02.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_02.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_01_02.pdf',
         rtl: true,
@@ -120,7 +120,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['anxiety_tools', 'coping_tools', 'thought_records']),
-    fileUrl: '/forms/module-01/adolescents_cbt_specialized_he_01_03.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_03.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 1,
     moduleTitle: "חרדה, לחץ ופחדים",
@@ -153,7 +153,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "מה הדאגה שלי אומרת?",
-        file_url: '/forms/module-01/adolescents_cbt_specialized_he_01_03.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_03.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_01_03.pdf',
         rtl: true,
@@ -172,7 +172,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['anxiety_tools', 'coping_tools', 'thought_records']),
-    fileUrl: '/forms/module-01/adolescents_cbt_specialized_he_01_04.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_04.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 1,
     moduleTitle: "חרדה, לחץ ופחדים",
@@ -205,7 +205,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "לחץ לפני מבחן",
-        file_url: '/forms/module-01/adolescents_cbt_specialized_he_01_04.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_04.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_01_04.pdf',
         rtl: true,
@@ -224,7 +224,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['anxiety_tools', 'coping_tools', 'thought_records']),
-    fileUrl: '/forms/module-01/adolescents_cbt_specialized_he_01_05.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_05.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 1,
     moduleTitle: "חרדה, לחץ ופחדים",
@@ -257,7 +257,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "הימנעות או אומץ?",
-        file_url: '/forms/module-01/adolescents_cbt_specialized_he_01_05.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_05.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_01_05.pdf',
         rtl: true,
@@ -276,7 +276,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['anxiety_tools', 'coping_tools', 'thought_records']),
-    fileUrl: '/forms/module-01/adolescents_cbt_specialized_he_01_06.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_06.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 1,
     moduleTitle: "חרדה, לחץ ופחדים",
@@ -309,7 +309,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "סולם האומץ שלי",
-        file_url: '/forms/module-01/adolescents_cbt_specialized_he_01_06.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_06.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_01_06.pdf',
         rtl: true,
