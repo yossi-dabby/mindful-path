@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
 
 const ROOT = process.cwd();
+const CHILDREN_SPECIALIZED_MODULE_WORKSHEET_COUNT = 10;
 
 function toAbsoluteFromPublicUrl(fileUrl) {
   return path.join(ROOT, 'public', String(fileUrl || '').replace(/^\//, ''));
@@ -27,7 +28,7 @@ function isAllowedDuplicateGroup(fileUrl, entries) {
 
   const moduleEntries = entries.filter((entry) => entry?.type === 'module_pdf');
   const worksheetEntries = entries.filter((entry) => entry?.type === 'individual_worksheet');
-  return moduleEntries.length === 1 && worksheetEntries.length === 10;
+  return moduleEntries.length === 1 && worksheetEntries.length === CHILDREN_SPECIALIZED_MODULE_WORKSHEET_COUNT;
 }
 
 describe('therapeutic forms asset path safety', () => {
@@ -44,8 +45,8 @@ describe('therapeutic forms asset path safety', () => {
 
       const runtimeFileUrl = String(form?.fileUrl || '').trim();
       expect(runtimeFileUrl.startsWith('/forms/'), `Form ${form.id} fileUrl must start with /forms/: ${runtimeFileUrl}`).toBe(true);
-      expect(/\/forms\/(?:EN|HE)(?:\/|$)/.test(runtimeFileUrl), `Form ${form.id} has uppercase runtime language segment: ${runtimeFileUrl}`).toBe(false);
-      expect(/\/forms\/[^/]+\/(?:EN|HE)(?:\/|$)/.test(runtimeFileUrl), `Form ${form.id} has uppercase runtime language segment: ${runtimeFileUrl}`).toBe(false);
+      expect(/\/forms\/(?:EN|HE)(?:\/|$)/.test(runtimeFileUrl), `Form ${form.id} has uppercase direct runtime language segment: ${runtimeFileUrl}`).toBe(false);
+      expect(/\/forms\/[^/]+\/(?:EN|HE)(?:\/|$)/.test(runtimeFileUrl), `Form ${form.id} has uppercase nested runtime language segment: ${runtimeFileUrl}`).toBe(false);
       expect(/\.pdf$/i.test(runtimeFileUrl), `Form ${form.id} runtime fileUrl must end with .pdf: ${runtimeFileUrl}`).toBe(true);
       expect(fs.existsSync(toAbsoluteFromPublicUrl(runtimeFileUrl)), `Form ${form.id} runtime fileUrl missing on disk: ${runtimeFileUrl}`).toBe(true);
 
@@ -62,8 +63,8 @@ describe('therapeutic forms asset path safety', () => {
         if (!fileUrl) continue;
 
         expect(fileUrl.startsWith('/forms/'), `Form ${form.id} language ${languageCode} file_url must start with /forms/: ${fileUrl}`).toBe(true);
-        expect(/\/forms\/(?:EN|HE)(?:\/|$)/.test(fileUrl), `Form ${form.id} language ${languageCode} has uppercase EN/HE path: ${fileUrl}`).toBe(false);
-        expect(/\/forms\/[^/]+\/(?:EN|HE)(?:\/|$)/.test(fileUrl), `Form ${form.id} language ${languageCode} has uppercase EN/HE path: ${fileUrl}`).toBe(false);
+        expect(/\/forms\/(?:EN|HE)(?:\/|$)/.test(fileUrl), `Form ${form.id} language ${languageCode} has uppercase direct EN/HE segment: ${fileUrl}`).toBe(false);
+        expect(/\/forms\/[^/]+\/(?:EN|HE)(?:\/|$)/.test(fileUrl), `Form ${form.id} language ${languageCode} has uppercase nested EN/HE segment: ${fileUrl}`).toBe(false);
         expect(/\.pdf$/i.test(fileUrl), `Form ${form.id} language ${languageCode} file_url must end with .pdf: ${fileUrl}`).toBe(true);
         expect(fs.existsSync(toAbsoluteFromPublicUrl(fileUrl)), `Form ${form.id} language ${languageCode} file_url missing on disk: ${fileUrl}`).toBe(true);
 

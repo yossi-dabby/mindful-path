@@ -5,8 +5,11 @@ import { describe, expect, it } from 'vitest';
 import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
 
 const ROOT = process.cwd();
+const SUPPORTED_LANGUAGE_SEGMENTS_PATTERN = '(en|he|es|fr|de|it|pt)';
 
-const CANONICAL_AUDIENCE_FIRST_PATTERN = /^public\/forms\/(children|adolescents|adults|older_adults|parents)\/(en|he|es|fr|de|it|pt)\/[^/]+\/.+/;
+const CANONICAL_AUDIENCE_FIRST_PATTERN = new RegExp(
+  `^public/forms/(children|adolescents|adults|older_adults|parents)/${SUPPORTED_LANGUAGE_SEGMENTS_PATTERN}/[^/]+/.+`
+);
 const LEGACY_ACTIVE_PATTERNS = [
   /^public\/forms\/module[-_]\d+\//,
   /^public\/forms\/.*_github_upload\//,
@@ -39,8 +42,8 @@ describe('therapeutic forms folder migration readiness safety', () => {
       const filePath = String(form?.filePath || form?.file_path || '').trim();
 
       expect(fileUrl.startsWith('/forms/'), `Active form ${form.id} fileUrl must begin with /forms/: ${fileUrl}`).toBe(true);
-      expect(/\/forms\/(?:EN|HE)(?:\/|$)/.test(fileUrl), `Active form ${form.id} uses uppercase EN/HE path: ${fileUrl}`).toBe(false);
-      expect(/\/forms\/[^/]+\/(?:EN|HE)(?:\/|$)/.test(fileUrl), `Active form ${form.id} uses uppercase EN/HE path: ${fileUrl}`).toBe(false);
+      expect(/\/forms\/(?:EN|HE)(?:\/|$)/.test(fileUrl), `Active form ${form.id} uses uppercase direct EN/HE segment: ${fileUrl}`).toBe(false);
+      expect(/\/forms\/[^/]+\/(?:EN|HE)(?:\/|$)/.test(fileUrl), `Active form ${form.id} uses uppercase nested EN/HE segment: ${fileUrl}`).toBe(false);
 
       expect(filePath.startsWith('public/forms/'), `Active form ${form.id} filePath must remain under public/forms/: ${filePath}`).toBe(true);
 

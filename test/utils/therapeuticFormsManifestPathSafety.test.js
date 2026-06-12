@@ -18,7 +18,7 @@ function walk(dirPath) {
   return output;
 }
 
-function toRepoRelative(filePath) {
+function toForwardSlashes(filePath) {
   return filePath.replace(/\\/g, '/');
 }
 
@@ -54,7 +54,7 @@ describe('therapeutic forms manifest path safety', () => {
     const metadataWarnings = [];
 
     for (const manifestFile of manifestFiles) {
-      const sourcePath = toRepoRelative(path.relative(ROOT, manifestFile));
+      const sourcePath = toForwardSlashes(path.relative(ROOT, manifestFile));
       let parsed;
       try {
         parsed = JSON.parse(fs.readFileSync(manifestFile, 'utf8'));
@@ -70,8 +70,8 @@ describe('therapeutic forms manifest path safety', () => {
 
         if (typeof filePath === 'string' && filePath.trim()) {
           expect(filePath.startsWith('public/forms/'), `${prefix} file_path must remain under public/forms/: ${filePath}`).toBe(true);
-          const absoluteFilePath = resolveManifestPath(filePath);
-          const fileExists = fs.existsSync(absoluteFilePath);
+          const resolvedFilePath = resolveManifestPath(filePath);
+          const fileExists = fs.existsSync(resolvedFilePath);
           const legacyFallbackPath = fileExists ? null : resolveLegacyWrapperFallback(manifestFile, filePath);
           expect(
             fileExists || Boolean(legacyFallbackPath),

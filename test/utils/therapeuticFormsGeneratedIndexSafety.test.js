@@ -48,8 +48,8 @@ describe('therapeutic forms generated index safety', () => {
       expect(fileUrl || filePath, `Entry ${entry.id} must define fileUrl or filePath`).toBeTruthy();
 
       expect(fileUrl.startsWith('/forms/'), `Entry ${entry.id} fileUrl must start with /forms/: ${fileUrl}`).toBe(true);
-      expect(/\/forms\/(?:EN|HE)(?:\/|$)/.test(fileUrl), `Entry ${entry.id} has uppercase runtime path: ${fileUrl}`).toBe(false);
-      expect(/\/forms\/[^/]+\/(?:EN|HE)(?:\/|$)/.test(fileUrl), `Entry ${entry.id} has uppercase runtime path: ${fileUrl}`).toBe(false);
+      expect(/\/forms\/(?:EN|HE)(?:\/|$)/.test(fileUrl), `Entry ${entry.id} has uppercase direct language segment in runtime path: ${fileUrl}`).toBe(false);
+      expect(/\/forms\/[^/]+\/(?:EN|HE)(?:\/|$)/.test(fileUrl), `Entry ${entry.id} has uppercase nested language segment in runtime path: ${fileUrl}`).toBe(false);
 
       expect(filePath.startsWith('public/forms/'), `Entry ${entry.id} filePath must start with public/forms/: ${filePath}`).toBe(true);
       expect(/\.pdf$/i.test(filePath), `Entry ${entry.id} filePath must end with .pdf: ${filePath}`).toBe(true);
