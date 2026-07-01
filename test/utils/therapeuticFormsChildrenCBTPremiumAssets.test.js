@@ -10,7 +10,7 @@ describe('therapeuticFormsChildrenCBTPremiumAssets.test.js', () => {
   it('keeps only the installed adolescents core english PDF as active runtime asset', () => {
     const expectedPath = path.join(
       ROOT,
-      'public/forms/adolescents/en/core/adolescents-cbt-core-series-1-full-en.pdf'
+      'public/forms/adolescents/en/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf'
     );
     expect(fs.existsSync(expectedPath)).toBe(true);
   });

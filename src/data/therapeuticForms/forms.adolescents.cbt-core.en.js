@@ -1,5 +1,5 @@
 const ADOLESCENTS_CBT_CORE_EN_PACKAGE_ID = 'adolescents-cbt-core-en';
-const ADOLESCENTS_CBT_CORE_EN_PACKAGE_FILE_URL = '/forms/adolescents/en/core/adolescents-cbt-core-series-1-full-en.pdf';
+const ADOLESCENTS_CBT_CORE_EN_PACKAGE_FILE_URL = '/forms/adolescents/en/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf';
 
 const SHARED_SECONDARY_CATEGORIES = Object.freeze([
   'therapeutic_workbooks',
@@ -169,7 +169,8 @@ const FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL_UNFROZEN = INDIVIDUAL_WORKSHEET_D
   const formNumber = `${stage}.${worksheet}`;
   const id = `${ADOLESCENTS_CBT_CORE_EN_PACKAGE_ID}-${stage}-${worksheet}`;
   const slug = `adolescents-cbt-core-en-${stage}-${worksheet}-${toKebabCase(definition.title)}`;
-  const fileUrl = `/forms/adolescents/en/core/individual/${definition.fileName}`;
+  const stageFolder = `stage-${String(stage).padStart(2, '0')}`;
+  const fileUrl = `/forms/adolescents/en/cbt-core/${stageFolder}/${definition.fileName}`;
 
   return Object.freeze({
     id,
