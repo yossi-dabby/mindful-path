@@ -2,6 +2,7 @@ const SERIES_ID = 'adolescents-cbt-specialized-en';
 const SERIES_SLUG = 'adolescents-cbt-specialized-series-en';
 const SERIES_FILE_NAME = 'yourcbttrapist_adolescents_cbt_specialized_en_full_series_60_forms_web_optimized_under_25mb.pdf';
 const SERIES_FILE_URL = `/forms/adolescents/en/cbt-specialized/${SERIES_FILE_NAME}`;
+const moduleFileUrl = (moduleCode, fileName) => `/forms/adolescents/en/cbt-specialized/module-${moduleCode}/${fileName}`;
 
 const SHARED_NOT_FOR = Object.freeze([
   'non-English locale sessions',
@@ -207,7 +208,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_MODULE_PDFS = Object.freeze(
   MODULE_DEFINITIONS.map((moduleDef) => {
     const id = `${SERIES_ID}-module-${moduleDef.moduleCode}`;
     const slug = `adolescents-cbt-specialized-en-module-${moduleDef.moduleCode}`;
-    const fileUrl = `/forms/adolescents/en/cbt-specialized/${moduleDef.fileName}`;
+    const fileUrl = moduleFileUrl(moduleDef.moduleCode, moduleDef.fileName);
     const moduleNotFor = Array.isArray(moduleDef.notFor) && moduleDef.notFor.length > 0
       ? Object.freeze(Array.from(new Set([...SHARED_NOT_FOR, ...moduleDef.notFor])))
       : SHARED_NOT_FOR;
@@ -270,7 +271,7 @@ export const ADOLESCENTS_CBT_SPECIALIZED_EN_MANIFEST = Object.freeze({
         moduleCode: moduleDef.moduleCode,
         moduleTitle: moduleDef.moduleTitle,
         fileName: moduleDef.fileName,
-        fileUrl: `/forms/adolescents/en/cbt-specialized/${moduleDef.fileName}`,
+        fileUrl: moduleFileUrl(moduleDef.moduleCode, moduleDef.fileName),
       })
     )
   ),
