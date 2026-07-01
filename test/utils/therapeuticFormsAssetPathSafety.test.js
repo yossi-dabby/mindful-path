@@ -24,7 +24,7 @@ function isAllowedDuplicateGroup(fileUrl, entries) {
   );
 
   if (!isChildrenSpecializedEn) return false;
-  if (!/^\/forms\/children_cbt_specialized_en_[1-5]\//.test(String(fileUrl))) return false;
+  if (!/^\/forms\/children\/en\/cbt-specialized\/module-0[1-5]\//.test(String(fileUrl))) return false;
 
   const moduleEntries = entries.filter((entry) => entry?.type === 'module_pdf');
   const worksheetEntries = entries.filter((entry) => entry?.type === 'individual_worksheet');
