@@ -28,7 +28,7 @@
 | `public/forms/adolescents/he/cbt-specialized/` | 60 | 60 | 60 | 0 | 0 | 9 | 54 | none |
 | `public/forms/children/en/cbt-core/` | 34 | 34 | 34 | 0 | 0 | 5 | 30 | none |
 | `public/forms/children/he/cbt-core/` | 35 | 35 | 35 | 0 | 0 | 0 | 0 | none |
-| `public/forms/children/en/cbt-specialized/` | 15 | 165 | 165 | 0 | 0 | 1 | 0 | none |
+| `public/forms/children/en/cbt-specialized/` | 15 | 165 | 165 | 0 | 0 | 1 | 0 | 15 canonical module PDFs intentionally fan out to 165 index cards (1 module + 10 worksheet metadata entries per subcategory). |
 | `public/forms/children/he/cbt-specialized/` | 121 | 121 | 121 | 0 | 0 | 0 | 0 | none |
 
 ### Intentional duplicate runtime URL groups
@@ -133,6 +133,7 @@ Counts by risk: **SAFE_CANDIDATE=33, KEEP=27, REVIEW_REQUIRED=2, DO_NOT_DELETE=1
 | `public/forms/module-09/manifest.adolescents-cbt-specialized-he.module-09.json` | json | no | no | no | no | no | no | DO_NOT_DELETE | B |
 
 Class legend: A=legacy metadata/docs folder, B=legacy manifest, C=README/QA/target_path, D=unregistered/orphan PDF, E=missing preview artifact, F=tracked empty folder, G=suspicious runtime referenced leftover, H=owner review needed.
+Note: classes E/F are retained in the taxonomy for completeness; no tracked leftovers matched those classes in this audit snapshot.
 
 ## 6. Manifest audit
 Scope audited: `public/forms/**` and `public/children_cbt_core_en/**`.
@@ -145,7 +146,7 @@ Scope audited: `public/forms/**` and `public/children_cbt_core_en/**`.
 | `public/children_cbt_core_en/children_cbt_core_en_stage4_git_upload/manifest.children-cbt-core-en.stage4.fixed.json` | children-cbt-core-en.stage4.fixed | yes | no | 6 | 6 | 0 | 6 | yes | yes | yes |
 | `public/children_cbt_core_en/children_cbt_core_en_stage5_git_upload/manifest.children-cbt-core-en.stage5.fixed.json` | children-cbt-core-en.stage5.fixed | yes | no | 6 | 6 | 0 | 6 | yes | yes | yes |
 | `public/forms/children_cbt_core_he_module_02_github_upload/manifest.children-cbt-core-he-module-02.json` | children-cbt-core-he-module-02 | no | no | 6 | 6 | 6 | 6 | yes | no | yes |
-| `public/forms/children_cbt_specialized_he_01_02_specific_phobias_github_upload/manifest.json` | json | no | no | 11 | 0 | 11 | 0 | no | no | no |
+| `public/forms/children_cbt_specialized_he_01_02_specific_phobias_github_upload/manifest.json` | children-cbt-specialized-he-01-02-specific-phobias | no | no | 11 | 0 | 11 | 0 | no | no | no |
 | `public/forms/manifest.children-cbt-specialized-en.json` | children-cbt-specialized-en | yes | no | 15 | 0 | 15 | 0 | no | no | no |
 | `public/forms/module-01/manifest.adolescents-cbt-specialized-he.module-01.json` | adolescents-cbt-specialized-he.module-01 | yes | no | 7 | 6 | 7 | 6 | yes | no | yes |
 | `public/forms/module-02/manifest.adolescents-cbt-specialized-he.module-02.json` | adolescents-cbt-specialized-he.module-02 | yes | no | 7 | 6 | 7 | 6 | yes | no | yes |
