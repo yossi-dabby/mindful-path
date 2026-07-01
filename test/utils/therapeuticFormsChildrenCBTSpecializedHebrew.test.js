@@ -18,7 +18,8 @@ import { getFormDownloadUrl, getFormOpenUrl, PDF_VIEWER_ROUTE_PATH } from '../..
 
 const ROOT = path.resolve(process.cwd());
 const PUBLIC_FORMS_DIR = path.join(ROOT, 'public/forms');
-const HEBREW_SPECIALIZED_PREFIX = 'children_cbt_specialized_he';
+const HEBREW_SPECIALIZED_CANONICAL_PREFIX = '/forms/children/he/cbt-specialized/';
+const HEBREW_SPECIALIZED_CANONICAL_DIR = path.join(PUBLIC_FORMS_DIR, 'children/he/cbt-specialized');
 const COLLECTION_ID = 'children-cbt-specialized-he';
 
 function walk(dirPath) {
@@ -34,11 +35,17 @@ function walk(dirPath) {
   return output;
 }
 
-function getHebrewSpecializedAssetFolders() {
-  return fs.readdirSync(PUBLIC_FORMS_DIR, { withFileTypes: true })
-    .filter((dirent) => dirent.isDirectory() && dirent.name.startsWith(HEBREW_SPECIALIZED_PREFIX))
-    .map((dirent) => dirent.name)
-    .sort();
+function getHebrewSpecializedSubcategoryFolders() {
+  const output = [];
+  for (const moduleDirent of fs.readdirSync(HEBREW_SPECIALIZED_CANONICAL_DIR, { withFileTypes: true })) {
+    if (!moduleDirent.isDirectory()) continue;
+    const modulePath = path.join(HEBREW_SPECIALIZED_CANONICAL_DIR, moduleDirent.name);
+    for (const subcategoryDirent of fs.readdirSync(modulePath, { withFileTypes: true })) {
+      if (!subcategoryDirent.isDirectory()) continue;
+      output.push(path.posix.join(moduleDirent.name, subcategoryDirent.name));
+    }
+  }
+  return output.sort();
 }
 
 function visibleForms(lang) {
@@ -79,25 +86,25 @@ describe('Hebrew children CBT specialized integration', () => {
     expect(FORMS_CHILDREN_CBT_SPECIALIZED_HE).toHaveLength(121);
   });
 
-  it('matches uploaded asset folders and verifies each folder contributes 11 non-zero PDFs with no previews', () => {
-    const folders = getHebrewSpecializedAssetFolders();
+  it('matches canonical module/subcategory folders and verifies each folder contributes 11 non-zero PDFs with no previews', () => {
+    const folders = getHebrewSpecializedSubcategoryFolders();
     expect(folders).toEqual([
-      'children_cbt_specialized_he_01_01_separation_anxiety_github_upload',
-      'children_cbt_specialized_he_01_02_specific_phobias_github_upload',
-      'children_cbt_specialized_he_01_03_specific_phobias_github_upload',
-      'children_cbt_specialized_he_01_04_specific_phobias_github_upload',
-      'children_cbt_specialized_he_01_05_specific_phobias_github_upload',
-      'children_cbt_specialized_he_2.3__impulsivity',
-      'children_cbt_specialized_he_3.1_low_self_esteem',
-      'children_cbt_specialized_he_4.1_ocd',
-      'children_cbt_specialized_he_4.2_trauma_sensitive_coping_ptsd',
-      'children_cbt_specialized_he_5.1_sleep_problems',
-      'children_cbt_specialized_he_5.3_enuresis_stress_support',
+      'module-01/subcategory-01-01',
+      'module-01/subcategory-01-02',
+      'module-01/subcategory-01-03',
+      'module-01/subcategory-01-04',
+      'module-01/subcategory-01-05',
+      'module-02/subcategory-02-03',
+      'module-03/subcategory-03-01',
+      'module-04/subcategory-04-01',
+      'module-04/subcategory-04-02',
+      'module-05/subcategory-05-01',
+      'module-05/subcategory-05-03',
     ]);
 
     const seenFileNames = new Set();
     for (const folder of folders) {
-      const absoluteFolder = path.join(PUBLIC_FORMS_DIR, folder);
+      const absoluteFolder = path.join(HEBREW_SPECIALIZED_CANONICAL_DIR, folder);
       const files = fs.readdirSync(absoluteFolder);
       const pdfs = files.filter((file) => file.toLowerCase().endsWith('.pdf')).sort();
       const previews = files.filter((file) => /\.(png|jpe?g|webp)$/i.test(file));
@@ -217,7 +224,7 @@ describe('Hebrew children CBT specialized integration', () => {
     const uploadedPdfUrls = walk(PUBLIC_FORMS_DIR)
       .filter((filePath) => filePath.toLowerCase().endsWith('.pdf'))
       .map((filePath) => `/${path.relative(path.join(ROOT, 'public'), filePath).replace(/\\/g, '/')}`)
-      .filter((url) => url.includes(HEBREW_SPECIALIZED_PREFIX));
+      .filter((url) => url.startsWith(HEBREW_SPECIALIZED_CANONICAL_PREFIX));
     const indexedUrls = new Set(
       ALL_FORMS
         .map((form) => form.fileUrl || form.languages?.[form.language || 'en']?.file_url)
