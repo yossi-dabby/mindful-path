@@ -3,7 +3,7 @@ import {
 } from './forms.children.cbt-core.en.js';
 
 const CHILDREN_CBT_CORE_HE_SERIES_ID = 'children-cbt-core-he';
-const CHILDREN_CBT_CORE_HE_BASE_PREFIX = '/forms/children_cbt_core_he_module_';
+const CHILDREN_CBT_CORE_HE_BASE_URL = '/forms/children/he/cbt-core';
 
 const SHARED_SECONDARY_CATEGORIES = Object.freeze([
   'workbook_series',
@@ -310,7 +310,7 @@ function toNumericFormNumber(formNumber) {
 
 function toPublicWorksheetPath(formNumber) {
   const { moduleNumber } = toNumericFormNumber(formNumber);
-  return `${CHILDREN_CBT_CORE_HE_BASE_PREFIX}${pad2(moduleNumber)}_github_upload/children_cbt_core_he_${formNumber}.pdf`;
+  return `${CHILDREN_CBT_CORE_HE_BASE_URL}/stage-${pad2(moduleNumber)}/children_cbt_core_he_${formNumber}.pdf`;
 }
 
 function toHebrewFormIdentifier(formNumber) {
@@ -398,7 +398,7 @@ const MODULE_NUMBERS = Object.freeze([1, 2, 3, 4, 5]);
 const FORMS_CHILDREN_CBT_CORE_HE_MODULE_PDFS_UNFROZEN = MODULE_NUMBERS.map((moduleNumber) => {
   const paddedModule = pad2(moduleNumber);
   const fileName = `children_cbt_core_he_module_${paddedModule}_combined.pdf`;
-  const fileUrl = `${CHILDREN_CBT_CORE_HE_BASE_PREFIX}${paddedModule}_github_upload/${fileName}`;
+  const fileUrl = `${CHILDREN_CBT_CORE_HE_BASE_URL}/stage-${paddedModule}/${fileName}`;
   const title = `שלב ${moduleNumber} — קובץ מאוחד`;
 
   return Object.freeze({
