@@ -79,7 +79,7 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     const result = sanitizeConversationMessages(messages, 'en');
     const assistant = result.find((m) => m.role === 'assistant');
     expect(assistant?.metadata?.generated_file?.form_id).toBe('children-cbt-core-en-5-1');
-    expect(String(assistant?.metadata?.generated_file?.url || '')).toContain('/forms/children/en/cbt-core/children_cbt_core_en_05_01.pdf');
+    expect(String(assistant?.metadata?.generated_file?.url || '')).toContain('/forms/children/en/cbt-core/stage-05/children_cbt_core_en_05_01.pdf');
   });
 
   it('attaches generated_file for send intent even without [FORM:id] marker', () => {

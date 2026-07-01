@@ -29,7 +29,7 @@
         "talk to someone"
       ],
       "ai_matching_summary": "Use this when the child is identifying calming tools and choosing a favorite one.",
-      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_05_01.pdf",
+      "file_path": "public/forms/children/en/cbt-core/stage-05/children_cbt_core_en_05_01.pdf",
       "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_05_01_preview.png",
       "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content."
     },
@@ -54,7 +54,7 @@
         "tools"
       ],
       "ai_matching_summary": "Use this when the child needs to identify overwhelmed feelings and choose a few tools to help.",
-      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_05_02.pdf",
+      "file_path": "public/forms/children/en/cbt-core/stage-05/children_cbt_core_en_05_02.pdf",
       "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_05_02_preview.png",
       "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content."
     },
@@ -78,7 +78,7 @@
         "coping"
       ],
       "ai_matching_summary": "Use this when the child is rating feeling intensity and choosing a small helpful action.",
-      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_05_03.pdf",
+      "file_path": "public/forms/children/en/cbt-core/stage-05/children_cbt_core_en_05_03.pdf",
       "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_05_03_preview.png",
       "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content."
     },
@@ -102,7 +102,7 @@
         "worried"
       ],
       "ai_matching_summary": "Use this when the child is making a simple plan before feelings get too big.",
-      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_05_04.pdf",
+      "file_path": "public/forms/children/en/cbt-core/stage-05/children_cbt_core_en_05_04.pdf",
       "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_05_04_preview.png",
       "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content."
     },
@@ -127,7 +127,7 @@
         "blanket"
       ],
       "ai_matching_summary": "Use this when the child is choosing items for a calm corner and deciding when to use it.",
-      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_05_05.pdf",
+      "file_path": "public/forms/children/en/cbt-core/stage-05/children_cbt_core_en_05_05.pdf",
       "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_05_05_preview.png",
       "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content."
     },
@@ -150,7 +150,7 @@
         "personal plan"
       ],
       "ai_matching_summary": "Use this when the child is making a short personal calm plan for hard moments.",
-      "file_path": "public/forms/children/en/cbt-core/children_cbt_core_en_05_06.pdf",
+      "file_path": "public/forms/children/en/cbt-core/stage-05/children_cbt_core_en_05_06.pdf",
       "preview_path": "public/forms/children/en/cbt-core/previews/children_cbt_core_en_05_06_preview.png",
       "safety_notes": "Child-safe CBT worksheet. No graphic, frightening, self-harm, or trauma content."
     }
