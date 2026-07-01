@@ -47,7 +47,7 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     const approvedResult = sanitizeConversationMessages(approvedMessages, 'en');
     const approvedAssistant = approvedResult.find((m) => m.role === 'assistant');
     expect(approvedAssistant?.metadata?.generated_file?.form_id).toBe('adolescents-cbt-core-en');
-    expect(approvedAssistant?.metadata?.generated_file?.url).toBe('/forms/adolescents/en/core/adolescents-cbt-core-series-1-full-en.pdf');
+    expect(approvedAssistant?.metadata?.generated_file?.url).toBe('/forms/adolescents/en/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
 
     const staleMessages = [
       // Non-form user text intentionally avoids deterministic intent routing, so

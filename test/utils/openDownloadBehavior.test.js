@@ -24,7 +24,7 @@ describe('openDownloadBehavior.test.js', () => {
 
   it('resolves only the active adolescents package for open/download actions', () => {
     const resolved = resolveFormWithLanguage('adolescents-cbt-core-en', 'en');
-    expect(resolved?.languageData?.file_url).toBe('/forms/adolescents/en/core/adolescents-cbt-core-series-1-full-en.pdf');
+    expect(resolved?.languageData?.file_url).toBe('/forms/adolescents/en/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
     expect(resolveFormWithLanguage('adolescents-cbt-core-en', 'he')).toBeNull();
     expect(resolveFormWithLanguage('tf-adults-cbt-thought-record', 'en')).toBeNull();
   });
@@ -113,9 +113,9 @@ describe('forms library Open action — uses direct public URL', () => {
     expect(fileUrl.startsWith('/forms/')).toBe(true);
   });
 
-  it('resolves individual worksheets to /forms/adolescents/en/core/individual/ public URLs', () => {
+  it('resolves individual worksheets to /forms/adolescents/en/cbt-core/stage-XX/ public URLs', () => {
     for (const w of FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL) {
-      expect(w.fileUrl.startsWith('/forms/adolescents/en/core/individual/')).toBe(true);
+      expect(/^\/forms\/adolescents\/en\/cbt-core\/stage-\d{2}\//.test(w.fileUrl)).toBe(true);
       expect(w.languages.en.file_url).toBe(w.fileUrl);
     }
   });
@@ -166,7 +166,7 @@ describe('forms library Open action — uses direct public URL', () => {
 
 describe('normalizeGeneratedFile — Open vs Download URL contract', () => {
   it('preserves a /forms/ URL as-is — suitable for direct browser open without download', () => {
-    const url = '/forms/adolescents/en/core/individual/01-02-my-body-gives-me-signals.pdf';
+    const url = '/forms/adolescents/en/cbt-core/stage-01/01-02-my-body-gives-me-signals.pdf';
     const result = normalizeGeneratedFile({ type: 'pdf', url, name: 'worksheet.pdf' });
     expect(result).not.toBeNull();
     expect(result.url).toBe(url);
@@ -176,7 +176,7 @@ describe('normalizeGeneratedFile — Open vs Download URL contract', () => {
   it('includes all fields needed for Open action — type, url, name', () => {
     const input = {
       type: 'pdf',
-      url: '/forms/adolescents/en/core/adolescents-cbt-core-series-1-full-en.pdf',
+      url: '/forms/adolescents/en/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf',
       name: 'adolescents-cbt-core-series-1-full-en.pdf',
       title: 'Adolescents CBT Core Series',
     };

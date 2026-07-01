@@ -17,6 +17,6 @@ describe('therapeuticFormsItalianWorkbooks.test.js — zero installed forms', ()
       .flatMap((form) => Object.values(form.languages || {}))
       .map((langBlock) => String(langBlock?.file_url || ''))
       .filter((url) => /\/forms\/.+\.pdf$/i.test(url));
-    expect(activePdfUrls).toContain('/forms/adolescents/en/core/adolescents-cbt-core-series-1-full-en.pdf');
+    expect(activePdfUrls).toContain('/forms/adolescents/en/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
   });
 });

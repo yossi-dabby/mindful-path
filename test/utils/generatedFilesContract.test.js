@@ -64,7 +64,7 @@ const FORM_A = {
 
 const FORM_B = {
   type: 'pdf',
-  url: '/forms/adolescents/en/core/adolescents-cbt-core-series-1-full-en.pdf',
+  url: '/forms/adolescents/en/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf',
   name: 'adolescents-cbt-core-en.pdf',
   title: 'Adolescents CBT Core',
   form_id: 'adolescents-cbt-core-en',
@@ -551,7 +551,7 @@ describe('isCombinedPdf field preservation', () => {
 describe('normalizeGeneratedFile — library field round-trip', () => {
   const fullLibraryForm = {
     type: 'pdf',
-    url: '/forms/adolescents/en/core/adolescents-cbt-core-series-1-full-en.pdf',
+    url: '/forms/adolescents/en/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf',
     name: 'adolescents-cbt-core-series-1-full-en.pdf',
     title: 'Adolescents CBT Core Series',
     form_id: 'adolescents-cbt-core-en',
