@@ -329,7 +329,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['depression_tools', 'behavioral_activation', 'emotional_regulation']),
-    fileUrl: '/forms/module-02/adolescents_cbt_specialized_he_02_01.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_01.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 2,
     moduleTitle: "מצב רוח, תפקוד ואנרגיה",
@@ -362,7 +362,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "איך מצב הרוח והאנרגיה שלי היום?",
-        file_url: '/forms/module-02/adolescents_cbt_specialized_he_02_01.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_01.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_02_01.pdf',
         rtl: true,
@@ -381,7 +381,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['depression_tools', 'behavioral_activation', 'emotional_regulation']),
-    fileUrl: '/forms/module-02/adolescents_cbt_specialized_he_02_02.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_02.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 2,
     moduleTitle: "מצב רוח, תפקוד ואנרגיה",
@@ -414,7 +414,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "מה הרגיש כבד לאחרונה?",
-        file_url: '/forms/module-02/adolescents_cbt_specialized_he_02_02.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_02.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_02_02.pdf',
         rtl: true,
@@ -433,7 +433,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['depression_tools', 'behavioral_activation', 'emotional_regulation']),
-    fileUrl: '/forms/module-02/adolescents_cbt_specialized_he_02_03.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_03.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 2,
     moduleTitle: "מצב רוח, תפקוד ואנרגיה",
@@ -466,7 +466,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "מה נותן לי קצת כוח?",
-        file_url: '/forms/module-02/adolescents_cbt_specialized_he_02_03.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_03.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_02_03.pdf',
         rtl: true,
@@ -485,7 +485,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['depression_tools', 'behavioral_activation', 'emotional_regulation']),
-    fileUrl: '/forms/module-02/adolescents_cbt_specialized_he_02_04.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_04.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 2,
     moduleTitle: "מצב רוח, תפקוד ואנרגיה",
@@ -518,7 +518,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "כשאני מתרחק/ת",
-        file_url: '/forms/module-02/adolescents_cbt_specialized_he_02_04.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_04.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_02_04.pdf',
         rtl: true,
@@ -537,7 +537,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['depression_tools', 'behavioral_activation', 'emotional_regulation']),
-    fileUrl: '/forms/module-02/adolescents_cbt_specialized_he_02_05.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_05.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 2,
     moduleTitle: "מצב רוח, תפקוד ואנרגיה",
@@ -570,7 +570,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "מי עוזר לי להרגיש לבד?",
-        file_url: '/forms/module-02/adolescents_cbt_specialized_he_02_05.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_05.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_02_05.pdf',
         rtl: true,
@@ -589,7 +589,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['depression_tools', 'behavioral_activation', 'emotional_regulation']),
-    fileUrl: '/forms/module-02/adolescents_cbt_specialized_he_02_06.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_06.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 2,
     moduleTitle: "מצב רוח, תפקוד ואנרגיה",
@@ -622,7 +622,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "התוכנית שלי לאיפוס מצב רוח",
-        file_url: '/forms/module-02/adolescents_cbt_specialized_he_02_06.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_06.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_02_06.pdf',
         rtl: true,
@@ -642,7 +642,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['goals_and_values', 'emotional_regulation', 'thought_records']),
-    fileUrl: '/forms/module-03/adolescents_cbt_specialized_he_03_01.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_01.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 3,
     moduleTitle: "דימוי עצמי וזהות",
@@ -675,7 +675,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "מה אני אומר/ת לעצמי?",
-        file_url: '/forms/module-03/adolescents_cbt_specialized_he_03_01.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_01.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_03_01.pdf',
         rtl: true,
@@ -694,7 +694,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['goals_and_values', 'emotional_regulation', 'thought_records']),
-    fileUrl: '/forms/module-03/adolescents_cbt_specialized_he_03_02.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_02.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 3,
     moduleTitle: "דימוי עצמי וזהות",
@@ -727,7 +727,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "כשאני משווה את עצמי",
-        file_url: '/forms/module-03/adolescents_cbt_specialized_he_03_02.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_02.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_03_02.pdf',
         rtl: true,
@@ -746,7 +746,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['goals_and_values', 'emotional_regulation', 'thought_records']),
-    fileUrl: '/forms/module-03/adolescents_cbt_specialized_he_03_03.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_03.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 3,
     moduleTitle: "דימוי עצמי וזהות",
@@ -779,7 +779,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "מה חזק בי?",
-        file_url: '/forms/module-03/adolescents_cbt_specialized_he_03_03.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_03.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_03_03.pdf',
         rtl: true,
@@ -798,7 +798,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['goals_and_values', 'emotional_regulation', 'thought_records']),
-    fileUrl: '/forms/module-03/adolescents_cbt_specialized_he_03_04.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_04.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 3,
     moduleTitle: "דימוי עצמי וזהות",
@@ -831,7 +831,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "הקול של מי אני נושא/ת?",
-        file_url: '/forms/module-03/adolescents_cbt_specialized_he_03_04.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_04.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_03_04.pdf',
         rtl: true,
@@ -850,7 +850,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['goals_and_values', 'emotional_regulation', 'thought_records']),
-    fileUrl: '/forms/module-03/adolescents_cbt_specialized_he_03_05.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_05.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 3,
     moduleTitle: "דימוי עצמי וזהות",
@@ -883,7 +883,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "מה חשוב לי?",
-        file_url: '/forms/module-03/adolescents_cbt_specialized_he_03_05.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_05.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_03_05.pdf',
         rtl: true,
@@ -902,7 +902,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['goals_and_values', 'emotional_regulation', 'thought_records']),
-    fileUrl: '/forms/module-03/adolescents_cbt_specialized_he_03_06.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_06.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 3,
     moduleTitle: "דימוי עצמי וזהות",
@@ -935,7 +935,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "תוכנית העוגן לזהות שלי",
-        file_url: '/forms/module-03/adolescents_cbt_specialized_he_03_06.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_06.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_03_06.pdf',
         rtl: true,
@@ -955,7 +955,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['social_skills', 'coping_tools', 'emotional_regulation']),
-    fileUrl: '/forms/module-04/adolescents_cbt_specialized_he_04_01.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-04/adolescents_cbt_specialized_he_04_01.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 4,
     moduleTitle: "חברה, שייכות וקונפליקטים",
@@ -988,7 +988,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "מפת השייכות שלי",
-        file_url: '/forms/module-04/adolescents_cbt_specialized_he_04_01.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-04/adolescents_cbt_specialized_he_04_01.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_04_01.pdf',
         rtl: true,
@@ -1007,7 +1007,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['social_skills', 'coping_tools', 'emotional_regulation']),
-    fileUrl: '/forms/module-04/adolescents_cbt_specialized_he_04_02.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-04/adolescents_cbt_specialized_he_04_02.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 4,
     moduleTitle: "חברה, שייכות וקונפליקטים",
@@ -1040,7 +1040,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "כשאני מרגיש/ה בחוץ",
-        file_url: '/forms/module-04/adolescents_cbt_specialized_he_04_02.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-04/adolescents_cbt_specialized_he_04_02.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_04_02.pdf',
         rtl: true,
@@ -1059,7 +1059,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['social_skills', 'coping_tools', 'emotional_regulation']),
-    fileUrl: '/forms/module-04/adolescents_cbt_specialized_he_04_03.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-04/adolescents_cbt_specialized_he_04_03.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 4,
     moduleTitle: "חברה, שייכות וקונפליקטים",
@@ -1092,7 +1092,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "מה עוד יכול להיות שקורה?",
-        file_url: '/forms/module-04/adolescents_cbt_specialized_he_04_03.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-04/adolescents_cbt_specialized_he_04_03.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_04_03.pdf',
         rtl: true,
@@ -1111,7 +1111,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['social_skills', 'coping_tools', 'emotional_regulation']),
-    fileUrl: '/forms/module-04/adolescents_cbt_specialized_he_04_04.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-04/adolescents_cbt_specialized_he_04_04.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 4,
     moduleTitle: "חברה, שייכות וקונפליקטים",
@@ -1144,7 +1144,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "להגיד מה אני צריך/ה",
-        file_url: '/forms/module-04/adolescents_cbt_specialized_he_04_04.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-04/adolescents_cbt_specialized_he_04_04.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_04_04.pdf',
         rtl: true,
@@ -1163,7 +1163,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['social_skills', 'coping_tools', 'emotional_regulation']),
-    fileUrl: '/forms/module-04/adolescents_cbt_specialized_he_04_05.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-04/adolescents_cbt_specialized_he_04_05.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 4,
     moduleTitle: "חברה, שייכות וקונפליקטים",
@@ -1196,7 +1196,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "גבולות שעוזרים לי",
-        file_url: '/forms/module-04/adolescents_cbt_specialized_he_04_05.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-04/adolescents_cbt_specialized_he_04_05.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_04_05.pdf',
         rtl: true,
@@ -1215,7 +1215,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['social_skills', 'coping_tools', 'emotional_regulation']),
-    fileUrl: '/forms/module-04/adolescents_cbt_specialized_he_04_06.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-04/adolescents_cbt_specialized_he_04_06.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 4,
     moduleTitle: "חברה, שייכות וקונפליקטים",
@@ -1248,7 +1248,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "תוכנית התיקון שלי אחרי קונפליקט",
-        file_url: '/forms/module-04/adolescents_cbt_specialized_he_04_06.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-04/adolescents_cbt_specialized_he_04_06.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_04_06.pdf',
         rtl: true,
@@ -1268,7 +1268,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['anger_management', 'emotional_regulation', 'coping_tools']),
-    fileUrl: '/forms/module-05/adolescents_cbt_specialized_he_05_01.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-05/adolescents_cbt_specialized_he_05_01.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 5,
     moduleTitle: "כעס, אימפולסיביות וויסות",
@@ -1301,7 +1301,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "מד הכעס שלי",
-        file_url: '/forms/module-05/adolescents_cbt_specialized_he_05_01.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-05/adolescents_cbt_specialized_he_05_01.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_05_01.pdf',
         rtl: true,
@@ -1320,7 +1320,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['anger_management', 'emotional_regulation', 'coping_tools']),
-    fileUrl: '/forms/module-05/adolescents_cbt_specialized_he_05_02.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-05/adolescents_cbt_specialized_he_05_02.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 5,
     moduleTitle: "כעס, אימפולסיביות וויסות",
@@ -1353,7 +1353,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "מה הצית אותי?",
-        file_url: '/forms/module-05/adolescents_cbt_specialized_he_05_02.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-05/adolescents_cbt_specialized_he_05_02.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_05_02.pdf',
         rtl: true,
@@ -1372,7 +1372,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['anger_management', 'emotional_regulation', 'coping_tools']),
-    fileUrl: '/forms/module-05/adolescents_cbt_specialized_he_05_03.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-05/adolescents_cbt_specialized_he_05_03.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 5,
     moduleTitle: "כעס, אימפולסיביות וויסות",
@@ -1405,7 +1405,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "עצירה לפני פעולה",
-        file_url: '/forms/module-05/adolescents_cbt_specialized_he_05_03.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-05/adolescents_cbt_specialized_he_05_03.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_05_03.pdf',
         rtl: true,
@@ -1424,7 +1424,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['anger_management', 'emotional_regulation', 'coping_tools']),
-    fileUrl: '/forms/module-05/adolescents_cbt_specialized_he_05_04.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-05/adolescents_cbt_specialized_he_05_04.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 5,
     moduleTitle: "כעס, אימפולסיביות וויסות",
@@ -1457,7 +1457,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "לבחור את הצעד הבא שלי",
-        file_url: '/forms/module-05/adolescents_cbt_specialized_he_05_04.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-05/adolescents_cbt_specialized_he_05_04.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_05_04.pdf',
         rtl: true,
@@ -1476,7 +1476,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['anger_management', 'emotional_regulation', 'coping_tools']),
-    fileUrl: '/forms/module-05/adolescents_cbt_specialized_he_05_05.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-05/adolescents_cbt_specialized_he_05_05.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 5,
     moduleTitle: "כעס, אימפולסיביות וויסות",
@@ -1509,7 +1509,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "תיקון אחרי התפרצות",
-        file_url: '/forms/module-05/adolescents_cbt_specialized_he_05_05.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-05/adolescents_cbt_specialized_he_05_05.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_05_05.pdf',
         rtl: true,
@@ -1528,7 +1528,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['anger_management', 'emotional_regulation', 'coping_tools']),
-    fileUrl: '/forms/module-05/adolescents_cbt_specialized_he_05_06.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-05/adolescents_cbt_specialized_he_05_06.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 5,
     moduleTitle: "כעס, אימפולסיביות וויסות",
@@ -1561,7 +1561,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "תוכנית ההרגעה שלי",
-        file_url: '/forms/module-05/adolescents_cbt_specialized_he_05_06.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-05/adolescents_cbt_specialized_he_05_06.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_05_06.pdf',
         rtl: true,
@@ -1581,7 +1581,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['anxiety_tools', 'coping_tools', 'behavioral_activation']),
-    fileUrl: '/forms/module-06/adolescents_cbt_specialized_he_06_01.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-06/adolescents_cbt_specialized_he_06_01.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 6,
     moduleTitle: "OCD, מחשבות חודרניות ותגובות חדשות",
@@ -1614,7 +1614,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "המחשבה קופצת לי לראש",
-        file_url: '/forms/module-06/adolescents_cbt_specialized_he_06_01.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-06/adolescents_cbt_specialized_he_06_01.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_06_01.pdf',
         rtl: true,
@@ -1633,7 +1633,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['anxiety_tools', 'coping_tools', 'behavioral_activation']),
-    fileUrl: '/forms/module-06/adolescents_cbt_specialized_he_06_02.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-06/adolescents_cbt_specialized_he_06_02.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 6,
     moduleTitle: "OCD, מחשבות חודרניות ותגובות חדשות",
@@ -1666,7 +1666,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "מעגל ה-OCD שלי",
-        file_url: '/forms/module-06/adolescents_cbt_specialized_he_06_02.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-06/adolescents_cbt_specialized_he_06_02.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_06_02.pdf',
         rtl: true,
@@ -1685,7 +1685,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['anxiety_tools', 'coping_tools', 'behavioral_activation']),
-    fileUrl: '/forms/module-06/adolescents_cbt_specialized_he_06_03.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-06/adolescents_cbt_specialized_he_06_03.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 6,
     moduleTitle: "OCD, מחשבות חודרניות ותגובות חדשות",
@@ -1718,7 +1718,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "לזהות את הדחף, לא את הסכנה",
-        file_url: '/forms/module-06/adolescents_cbt_specialized_he_06_03.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-06/adolescents_cbt_specialized_he_06_03.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_06_03.pdf',
         rtl: true,
@@ -1737,7 +1737,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['anxiety_tools', 'coping_tools', 'behavioral_activation']),
-    fileUrl: '/forms/module-06/adolescents_cbt_specialized_he_06_04.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-06/adolescents_cbt_specialized_he_06_04.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 6,
     moduleTitle: "OCD, מחשבות חודרניות ותגובות חדשות",
@@ -1770,7 +1770,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "לרכוב על גל הדחף",
-        file_url: '/forms/module-06/adolescents_cbt_specialized_he_06_04.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-06/adolescents_cbt_specialized_he_06_04.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_06_04.pdf',
         rtl: true,
@@ -1789,7 +1789,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['anxiety_tools', 'coping_tools', 'behavioral_activation']),
-    fileUrl: '/forms/module-06/adolescents_cbt_specialized_he_06_05.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-06/adolescents_cbt_specialized_he_06_05.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 6,
     moduleTitle: "OCD, מחשבות חודרניות ותגובות חדשות",
@@ -1822,7 +1822,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "תוכנית התגובה החדשה שלי",
-        file_url: '/forms/module-06/adolescents_cbt_specialized_he_06_05.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-06/adolescents_cbt_specialized_he_06_05.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_06_05.pdf',
         rtl: true,
@@ -1841,7 +1841,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['anxiety_tools', 'coping_tools', 'behavioral_activation']),
-    fileUrl: '/forms/module-06/adolescents_cbt_specialized_he_06_06.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-06/adolescents_cbt_specialized_he_06_06.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 6,
     moduleTitle: "OCD, מחשבות חודרניות ותגובות חדשות",
@@ -1874,7 +1874,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "תוכנית התרגול האמיץ שלי",
-        file_url: '/forms/module-06/adolescents_cbt_specialized_he_06_06.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-06/adolescents_cbt_specialized_he_06_06.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_06_06.pdf',
         rtl: true,
@@ -1894,7 +1894,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['coping_tools', 'behavioral_activation', 'weekly_practice']),
-    fileUrl: '/forms/module-07/adolescents_cbt_specialized_he_07_01.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_01.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 7,
     moduleTitle: "ADHD, קשב, ארגון ואימפולסיביות",
@@ -1927,7 +1927,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "מפת הקשב שלי",
-        file_url: '/forms/module-07/adolescents_cbt_specialized_he_07_01.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_01.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_07_01.pdf',
         rtl: true,
@@ -1946,7 +1946,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['coping_tools', 'behavioral_activation', 'weekly_practice']),
-    fileUrl: '/forms/module-07/adolescents_cbt_specialized_he_07_02.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_02.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 7,
     moduleTitle: "ADHD, קשב, ארגון ואימפולסיביות",
@@ -1979,7 +1979,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "מתחילים בקטן",
-        file_url: '/forms/module-07/adolescents_cbt_specialized_he_07_02.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_02.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_07_02.pdf',
         rtl: true,
@@ -1998,7 +1998,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['coping_tools', 'behavioral_activation', 'weekly_practice']),
-    fileUrl: '/forms/module-07/adolescents_cbt_specialized_he_07_03.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_03.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 7,
     moduleTitle: "ADHD, קשב, ארגון ואימפולסיביות",
@@ -2031,7 +2031,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "תוכנית הצעדים למשימה שלי",
-        file_url: '/forms/module-07/adolescents_cbt_specialized_he_07_03.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_03.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_07_03.pdf',
         rtl: true,
@@ -2050,7 +2050,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['coping_tools', 'behavioral_activation', 'weekly_practice']),
-    fileUrl: '/forms/module-07/adolescents_cbt_specialized_he_07_04.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_04.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 7,
     moduleTitle: "ADHD, קשב, ארגון ואימפולסיביות",
@@ -2083,7 +2083,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "מונה ההסחות שלי",
-        file_url: '/forms/module-07/adolescents_cbt_specialized_he_07_04.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_04.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_07_04.pdf',
         rtl: true,
@@ -2102,7 +2102,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['coping_tools', 'behavioral_activation', 'weekly_practice']),
-    fileUrl: '/forms/module-07/adolescents_cbt_specialized_he_07_05.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_05.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 7,
     moduleTitle: "ADHD, קשב, ארגון ואימפולסיביות",
@@ -2135,7 +2135,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "עוצרים לפני שפועלים",
-        file_url: '/forms/module-07/adolescents_cbt_specialized_he_07_05.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_05.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_07_05.pdf',
         rtl: true,
@@ -2154,7 +2154,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['coping_tools', 'behavioral_activation', 'weekly_practice']),
-    fileUrl: '/forms/module-07/adolescents_cbt_specialized_he_07_06.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_06.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 7,
     moduleTitle: "ADHD, קשב, ארגון ואימפולסיביות",
@@ -2187,7 +2187,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "תוכנית הארגון השבועית שלי",
-        file_url: '/forms/module-07/adolescents_cbt_specialized_he_07_06.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_06.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_07_06.pdf',
         rtl: true,
@@ -2207,7 +2207,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['sleep', 'coping_tools', 'emotional_regulation']),
-    fileUrl: '/forms/module-08/adolescents_cbt_specialized_he_08_01.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-08/adolescents_cbt_specialized_he_08_01.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 8,
     moduleTitle: "גוף, שינה ולחץ",
@@ -2240,7 +2240,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "מפת סימני הלחץ שלי",
-        file_url: '/forms/module-08/adolescents_cbt_specialized_he_08_01.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-08/adolescents_cbt_specialized_he_08_01.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_08_01.pdf',
         rtl: true,
@@ -2259,7 +2259,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['sleep', 'coping_tools', 'emotional_regulation']),
-    fileUrl: '/forms/module-08/adolescents_cbt_specialized_he_08_02.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-08/adolescents_cbt_specialized_he_08_02.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 8,
     moduleTitle: "גוף, שינה ולחץ",
@@ -2292,7 +2292,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "בדיקת הגוף שלי",
-        file_url: '/forms/module-08/adolescents_cbt_specialized_he_08_02.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-08/adolescents_cbt_specialized_he_08_02.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_08_02.pdf',
         rtl: true,
@@ -2311,7 +2311,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['sleep', 'coping_tools', 'emotional_regulation']),
-    fileUrl: '/forms/module-08/adolescents_cbt_specialized_he_08_03.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-08/adolescents_cbt_specialized_he_08_03.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 8,
     moduleTitle: "גוף, שינה ולחץ",
@@ -2344,7 +2344,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "התוכנית שלי לאיפוס השינה",
-        file_url: '/forms/module-08/adolescents_cbt_specialized_he_08_03.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-08/adolescents_cbt_specialized_he_08_03.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_08_03.pdf',
         rtl: true,
@@ -2363,7 +2363,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['sleep', 'coping_tools', 'emotional_regulation']),
-    fileUrl: '/forms/module-08/adolescents_cbt_specialized_he_08_04.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-08/adolescents_cbt_specialized_he_08_04.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 8,
     moduleTitle: "גוף, שינה ולחץ",
@@ -2396,7 +2396,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "כשהמתח מכאיב לגוף שלי",
-        file_url: '/forms/module-08/adolescents_cbt_specialized_he_08_04.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-08/adolescents_cbt_specialized_he_08_04.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_08_04.pdf',
         rtl: true,
@@ -2415,7 +2415,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['sleep', 'coping_tools', 'emotional_regulation']),
-    fileUrl: '/forms/module-08/adolescents_cbt_specialized_he_08_05.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-08/adolescents_cbt_specialized_he_08_05.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 8,
     moduleTitle: "גוף, שינה ולחץ",
@@ -2448,7 +2448,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "איפוס הנשימה שלי",
-        file_url: '/forms/module-08/adolescents_cbt_specialized_he_08_05.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-08/adolescents_cbt_specialized_he_08_05.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_08_05.pdf',
         rtl: true,
@@ -2467,7 +2467,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['sleep', 'coping_tools', 'emotional_regulation']),
-    fileUrl: '/forms/module-08/adolescents_cbt_specialized_he_08_06.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-08/adolescents_cbt_specialized_he_08_06.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 8,
     moduleTitle: "גוף, שינה ולחץ",
@@ -2500,7 +2500,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "התוכנית שלי לחזרה לאיזון",
-        file_url: '/forms/module-08/adolescents_cbt_specialized_he_08_06.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-08/adolescents_cbt_specialized_he_08_06.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_08_06.pdf',
         rtl: true,
@@ -2520,7 +2520,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['coping_tools', 'emotional_regulation', 'reflection_journal']),
-    fileUrl: '/forms/module-09/adolescents_cbt_specialized_he_09_01.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-09/adolescents_cbt_specialized_he_09_01.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 9,
     moduleTitle: "טראומה והתמודדות בטוחה",
@@ -2553,7 +2553,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "עוגן הביטחון שלי",
-        file_url: '/forms/module-09/adolescents_cbt_specialized_he_09_01.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-09/adolescents_cbt_specialized_he_09_01.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_09_01.pdf',
         rtl: true,
@@ -2572,7 +2572,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['coping_tools', 'emotional_regulation', 'reflection_journal']),
-    fileUrl: '/forms/module-09/adolescents_cbt_specialized_he_09_02.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-09/adolescents_cbt_specialized_he_09_02.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 9,
     moduleTitle: "טראומה והתמודדות בטוחה",
@@ -2605,7 +2605,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "תוכנית הקרקוע שלי",
-        file_url: '/forms/module-09/adolescents_cbt_specialized_he_09_02.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-09/adolescents_cbt_specialized_he_09_02.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_09_02.pdf',
         rtl: true,
@@ -2624,7 +2624,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['coping_tools', 'emotional_regulation', 'reflection_journal']),
-    fileUrl: '/forms/module-09/adolescents_cbt_specialized_he_09_03.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-09/adolescents_cbt_specialized_he_09_03.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 9,
     moduleTitle: "טראומה והתמודדות בטוחה",
@@ -2657,7 +2657,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "מפת רמזי הטריגרים שלי",
-        file_url: '/forms/module-09/adolescents_cbt_specialized_he_09_03.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-09/adolescents_cbt_specialized_he_09_03.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_09_03.pdf',
         rtl: true,
@@ -2676,7 +2676,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['coping_tools', 'emotional_regulation', 'reflection_journal']),
-    fileUrl: '/forms/module-09/adolescents_cbt_specialized_he_09_04.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-09/adolescents_cbt_specialized_he_09_04.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 9,
     moduleTitle: "טראומה והתמודדות בטוחה",
@@ -2709,7 +2709,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "מעגל התמיכה שלי",
-        file_url: '/forms/module-09/adolescents_cbt_specialized_he_09_04.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-09/adolescents_cbt_specialized_he_09_04.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_09_04.pdf',
         rtl: true,
@@ -2728,7 +2728,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['coping_tools', 'emotional_regulation', 'reflection_journal']),
-    fileUrl: '/forms/module-09/adolescents_cbt_specialized_he_09_05.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-09/adolescents_cbt_specialized_he_09_05.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 9,
     moduleTitle: "טראומה והתמודדות בטוחה",
@@ -2761,7 +2761,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "התוכנית שלי לחזרה לרוגע",
-        file_url: '/forms/module-09/adolescents_cbt_specialized_he_09_05.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-09/adolescents_cbt_specialized_he_09_05.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_09_05.pdf',
         rtl: true,
@@ -2780,7 +2780,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['coping_tools', 'emotional_regulation', 'reflection_journal']),
-    fileUrl: '/forms/module-09/adolescents_cbt_specialized_he_09_06.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-09/adolescents_cbt_specialized_he_09_06.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 9,
     moduleTitle: "טראומה והתמודדות בטוחה",
@@ -2813,7 +2813,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "תוכנית החזרה העדינה שלי",
-        file_url: '/forms/module-09/adolescents_cbt_specialized_he_09_06.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-09/adolescents_cbt_specialized_he_09_06.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_09_06.pdf',
         rtl: true,
@@ -2833,7 +2833,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['parent_guidance', 'social_skills', 'coping_tools']),
-    fileUrl: '/forms/module_10/adolescents_cbt_specialized_he_10_1.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-10/adolescents_cbt_specialized_he_10_1.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 10,
     moduleTitle: "הורים ומתבגרים",
@@ -2866,7 +2866,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "שיחה שמתחילה בי",
-        file_url: '/forms/module_10/adolescents_cbt_specialized_he_10_1.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-10/adolescents_cbt_specialized_he_10_1.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_10_1.pdf',
         rtl: true,
@@ -2885,7 +2885,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['parent_guidance', 'social_skills', 'coping_tools']),
-    fileUrl: '/forms/module_10/adolescents_cbt_specialized_he_10_2.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-10/adolescents_cbt_specialized_he_10_2.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 10,
     moduleTitle: "הורים ומתבגרים",
@@ -2918,7 +2918,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "מה אני רוצה שיבינו?",
-        file_url: '/forms/module_10/adolescents_cbt_specialized_he_10_2.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-10/adolescents_cbt_specialized_he_10_2.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_10_2.pdf',
         rtl: true,
@@ -2937,7 +2937,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['parent_guidance', 'social_skills', 'coping_tools']),
-    fileUrl: '/forms/module_10/adolescents_cbt_specialized_he_10_3.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-10/adolescents_cbt_specialized_he_10_3.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 10,
     moduleTitle: "הורים ומתבגרים",
@@ -2970,7 +2970,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "כשיש מתח בבית",
-        file_url: '/forms/module_10/adolescents_cbt_specialized_he_10_3.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-10/adolescents_cbt_specialized_he_10_3.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_10_3.pdf',
         rtl: true,
@@ -2989,7 +2989,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['parent_guidance', 'social_skills', 'coping_tools']),
-    fileUrl: '/forms/module_10/adolescents_cbt_specialized_he_10_4.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-10/adolescents_cbt_specialized_he_10_4.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 10,
     moduleTitle: "הורים ומתבגרים",
@@ -3022,7 +3022,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "גבולות ועצמאות",
-        file_url: '/forms/module_10/adolescents_cbt_specialized_he_10_4.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-10/adolescents_cbt_specialized_he_10_4.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_10_4.pdf',
         rtl: true,
@@ -3041,7 +3041,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['parent_guidance', 'social_skills', 'coping_tools']),
-    fileUrl: '/forms/module_10/adolescents_cbt_specialized_he_10_5.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-10/adolescents_cbt_specialized_he_10_5.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 10,
     moduleTitle: "הורים ומתבגרים",
@@ -3074,7 +3074,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "בניית אמון",
-        file_url: '/forms/module_10/adolescents_cbt_specialized_he_10_5.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-10/adolescents_cbt_specialized_he_10_5.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_10_5.pdf',
         rtl: true,
@@ -3093,7 +3093,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     audience: 'adolescents',
     category: 'adolescents_cbt_specialized',
     secondaryCategories: Object.freeze(['parent_guidance', 'social_skills', 'coping_tools']),
-    fileUrl: '/forms/module_10/adolescents_cbt_specialized_he_10_6.pdf',
+    fileUrl: '/forms/adolescents/he/cbt-specialized/module-10/adolescents_cbt_specialized_he_10_6.pdf',
     parentSeriesId: 'adolescents-cbt-specialized-he',
     moduleNumber: 10,
     moduleTitle: "הורים ומתבגרים",
@@ -3126,7 +3126,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_HE = Object.freeze([
     languages: Object.freeze({
       he: Object.freeze({
         title: "תוכנית לשיחה רגועה",
-        file_url: '/forms/module_10/adolescents_cbt_specialized_he_10_6.pdf',
+        file_url: '/forms/adolescents/he/cbt-specialized/module-10/adolescents_cbt_specialized_he_10_6.pdf',
         file_type: 'pdf',
         file_name: 'adolescents_cbt_specialized_he_10_6.pdf',
         rtl: true,
