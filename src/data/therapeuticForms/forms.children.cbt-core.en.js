@@ -16,7 +16,7 @@
  */
 
 const CHILDREN_CBT_CORE_EN_SERIES_ID = 'children-cbt-core-en';
-const CHILDREN_CBT_CORE_EN_BASE_URL = '/forms/children/en/cbt-core/';
+const CHILDREN_CBT_CORE_EN_BASE_URL = '/forms/children/en/cbt-core';
 
 const SHARED_SECONDARY_CATEGORIES = Object.freeze([
   'therapeutic_workbooks',
@@ -424,6 +424,14 @@ function toKebabCase(value) {
     .replace(/(^-|-$)/g, '');
 }
 
+function toStageFolderName(stageNumber) {
+  return `stage-${String(stageNumber).padStart(2, '0')}`;
+}
+
+function toStageFileUrl(stageNumber, fileName) {
+  return `${CHILDREN_CBT_CORE_EN_BASE_URL}/${toStageFolderName(stageNumber)}/${fileName}`;
+}
+
 // ─── Individual worksheets ────────────────────────────────────────────────────
 const FORMS_CHILDREN_CBT_CORE_EN_INDIVIDUAL_UNFROZEN = INDIVIDUAL_WORKSHEET_DEFINITIONS.map((def) => {
   const stage = def.stageNumber;
@@ -431,7 +439,7 @@ const FORMS_CHILDREN_CBT_CORE_EN_INDIVIDUAL_UNFROZEN = INDIVIDUAL_WORKSHEET_DEFI
   const formNumber = `${stage}.${worksheet}`;
   const id = `children-cbt-core-en-${stage}-${worksheet}`;
   const slug = `children-cbt-core-en-${stage}-${worksheet}-${toKebabCase(def.title)}`;
-  const fileUrl = `${CHILDREN_CBT_CORE_EN_BASE_URL}${def.fileName}`;
+  const fileUrl = toStageFileUrl(stage, def.fileName);
 
   return Object.freeze({
     id,
@@ -480,7 +488,7 @@ export const FORMS_CHILDREN_CBT_CORE_EN_INDIVIDUAL = Object.freeze(FORMS_CHILDRE
 // ─── Module PDFs ──────────────────────────────────────────────────────────────
 const FORMS_CHILDREN_CBT_CORE_EN_MODULE_PDFS_UNFROZEN = MODULE_PDF_DEFINITIONS.map((def) => {
   const id = `children-cbt-core-en-module-${String(def.moduleNumber).padStart(2, '0')}`;
-  const fileUrl = `${CHILDREN_CBT_CORE_EN_BASE_URL}${def.fileName}`;
+  const fileUrl = toStageFileUrl(def.moduleNumber, def.fileName);
 
   return Object.freeze({
     id,
