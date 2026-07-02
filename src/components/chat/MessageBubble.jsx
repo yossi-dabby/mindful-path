@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import MessageFeedback from './MessageFeedback';
 import { extractThinkingContent } from '../utils/messageContentSanitizer';
 import { applyFinalOutputGovernor } from '../utils/finalOutputGovernor';
+import { normalizeAssistantMarkdown } from '../utils/normalizeAssistantMarkdown';
 import GeneratedFileCard from './GeneratedFileCard';
 import { normalizeGeneratedFile } from './utils/normalizeGeneratedFile';
 
@@ -246,6 +247,12 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
       userMessage: userMessage || undefined,
     });
     content = !isUser ? sanitizeAssistantContentForAttachmentSurfaces(sanitized, assistantAttachments) : sanitized;
+    // Apply lightweight markdown normalization to assistant messages before render.
+    // This repairs malformed bold/italic tokens (e.g. "** word **", "**("text")**")
+    // that the LLM occasionally emits without altering valid content.
+    if (!isUser && content) {
+      content = normalizeAssistantMarkdown(content);
+    }
 
     // CRITICAL GATE 4: Final content validation
     if ((!content || content.length < 1) && !hasRenderableAttachment) {
@@ -263,6 +270,10 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
     return null;
   }
 
+  // Outer bubble direction: respect the session/UI language for layout (RTL for Hebrew).
+  // Inner content elements use dir="auto" so that mixed RTL/LTR content (e.g. Hebrew
+  // text with embedded English terms, URLs, or numbers) renders with correct Unicode
+  // BiDi algorithm rather than forcing everything to a single direction.
   const dir = i18n.language === 'he' ? 'rtl' : 'ltr';
   const handleAssistantPdfDownload = async (url) => {
     if (isUser || !url || signingPdfUrl) return;
@@ -345,7 +356,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                   </div>
             }
                 {content ?
-            <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{content}</p> :
+            <p className="text-[15px] leading-relaxed whitespace-pre-wrap break-words overflow-wrap-anywhere" dir="auto">{content}</p> :
             null}
                 {/* Collapsible full PDF text — stored in metadata.pdf_extracted_text at send time */}
                 {isPdfAttachment && pdfFullText &&
@@ -421,7 +432,8 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
              }
                 {content ?
             <ReactMarkdown
-            className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+            className="prose prose-sm max-w-none break-words [overflow-wrap:anywhere] [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+            dir="auto"
             components={{
               code: ({ inline, className, children }) => {
                 const safeClassName = String(className || '');

@@ -313,6 +313,12 @@ export const translations = {
           status_inactive: "Inactive",
           session_intro: "Your session is powered by the advanced CBT Agent with full multilingual support.",
           multilingual_notice: "Full multilingual CBT support is active."
+        },
+        output_safety: {
+          leakage_suppressed: "I'm here with you. What's on your mind right now?"
+        },
+        forms: {
+          shortfall_notice: "I found {{found}} of the {{requested}} forms you asked for. Here are the ones available:"
         }
       },
       age_gate: {
@@ -1777,6 +1783,12 @@ export const translations = {
           status_inactive: "לא פעיל",
           session_intro: "המפגש שלך מופעל על ידי סוכן ה-CBT המתקדם עם תמיכה רב-לשונית מלאה.",
           multilingual_notice: "תמיכה מלאה ב-CBT רב-לשוני פעילה."
+        },
+        output_safety: {
+          leakage_suppressed: "אני כאן איתך. מה הכי מטריד אותך כרגע?"
+        },
+        forms: {
+          shortfall_notice: "מצאתי {{found}} מתוך {{requested}} הטפסים שביקשת. הנה הזמינים:"
         }
       },
       age_gate: {
@@ -3241,6 +3253,12 @@ export const translations = {
           status_inactive: "Inactivo",
           session_intro: "Tu sesión está impulsada por el agente TCC avanzado con soporte multilingüe completo.",
           multilingual_notice: "El soporte TCC multilingüe completo está activo."
+        },
+        output_safety: {
+          leakage_suppressed: "Estoy aquí contigo. ¿Qué está en tu mente ahora mismo?"
+        },
+        forms: {
+          shortfall_notice: "Encontré {{found}} de los {{requested}} formularios que pediste. Aquí están los disponibles:"
         }
       },
       age_gate: {
@@ -4659,6 +4677,12 @@ export const translations = {
           status_inactive: "Inactif",
           session_intro: "Votre séance est alimentée par l'agent TCC avancé avec support multilingue complet.",
           multilingual_notice: "Le support TCC multilingue complet est actif."
+        },
+        output_safety: {
+          leakage_suppressed: "Je suis là pour toi. Qu'est-ce qui te préoccupe en ce moment?"
+        },
+        forms: {
+          shortfall_notice: "J'ai trouvé {{found}} des {{requested}} formulaires que vous avez demandés. Voici ceux disponibles :"
         }
       },
       age_gate: {
@@ -6077,6 +6101,12 @@ export const translations = {
           status_inactive: "Inaktiv",
           session_intro: "Ihre Sitzung wird vom erweiterten KVT-Agenten mit vollständiger mehrsprachiger Unterstützung gespeist.",
           multilingual_notice: "Vollständige mehrsprachige KVT-Unterstützung ist aktiv."
+        },
+        output_safety: {
+          leakage_suppressed: "Ich bin hier für dich. Was beschäftigt dich gerade?"
+        },
+        forms: {
+          shortfall_notice: "Ich habe {{found}} der {{requested}} gewünschten Formulare gefunden. Hier sind die verfügbaren:"
         }
       },
       age_gate: {
@@ -7495,6 +7525,12 @@ export const translations = {
           status_inactive: "Inattivo",
           session_intro: "La tua sessione è alimentata dall'agente TCC avanzato con supporto multilingue completo.",
           multilingual_notice: "Il supporto TCC multilingue completo è attivo."
+        },
+        output_safety: {
+          leakage_suppressed: "Sono qui con te. Cosa hai in mente in questo momento?"
+        },
+        forms: {
+          shortfall_notice: "Ho trovato {{found}} dei {{requested}} moduli che hai richiesto. Ecco quelli disponibili:"
         }
       },
       age_gate: {
@@ -8913,6 +8949,12 @@ export const translations = {
           status_inactive: "Inativo",
           session_intro: "Sua sessão é alimentada pelo agente TCC avançado com suporte multilíngue completo.",
           multilingual_notice: "O suporte TCC multilíngue completo está ativo."
+        },
+        output_safety: {
+          leakage_suppressed: "Estou aqui com você. O que está em sua mente agora?"
+        },
+        forms: {
+          shortfall_notice: "Encontrei {{found}} dos {{requested}} formulários que você pediu. Aqui estão os disponíveis:"
         }
       },
       age_gate: {
