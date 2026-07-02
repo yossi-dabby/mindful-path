@@ -75,10 +75,13 @@ test.describe('System Gesture & Selection Policy', () => {
   test.beforeEach(async ({ page }) => {
     await mockApis(page);
     await page.goto(`${BASE_URL}/Home`, { waitUntil: 'domcontentloaded' });
+    // Wait until the Home page has fully loaded out of its Suspense boundary.
+    // The lazy-loaded Home chunk renders <button> elements; the Suspense
+    // fallback (loading spinner) does not — so checking for a <button> is a
+    // reliable signal that the real page content is in the DOM.
     await page.waitForFunction(() => {
-      const root = document.querySelector('#root');
-      return root && root.children.length > 0;
-    }, { timeout: 10000 });
+      return !!document.querySelector('button');
+    }, { timeout: 15000 });
   });
 
   // ── P0 fix: pinch-to-zoom must NOT be blocked at document level ───────────

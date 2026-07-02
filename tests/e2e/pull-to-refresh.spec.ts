@@ -115,12 +115,18 @@ test.describe('PullToRefresh gesture handling', () => {
   test.beforeEach(async ({ page }) => {
     await mockApis(page);
     await page.goto(`${BASE_URL}/Home`, { waitUntil: 'domcontentloaded' });
+    // Wait until the Layout shell and the lazy-loaded Home page are both in
+    // the DOM.  #app-scroll-container lives inside the Layout component which
+    // is rendered as part of the Suspense-wrapped Routes; its presence
+    // confirms the Home chunk has resolved and PullToRefresh listeners are
+    // registered.  The Suspense fallback (spinner) does not include the Layout
+    // or PullToRefresh, so checking for #app-scroll-container avoids the
+    // race condition that caused touch-event tests to see -1 for scrollTop.
     await page.waitForFunction(
       () => {
-        const root = document.querySelector('#root');
-        return root && root.children.length > 0;
+        return !!document.querySelector('#app-scroll-container');
       },
-      { timeout: 10000 },
+      { timeout: 15000 },
     );
   });
 

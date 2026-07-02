@@ -532,10 +532,10 @@ p[class*="text"], span[class*="text"], div[class*="text"] {
 html {
   overscroll-behavior: none;
   overscroll-behavior-y: none;
-  /* Disable iOS long-press callout menu (Copy / Share / Open Link popups) */
-  -webkit-touch-callout: none;
-  /* Disable pinch-to-zoom on the app shell; one-finger panning still works */
-  touch-action: pan-x pan-y;
+  /* NOTE: touch-action and -webkit-touch-callout are intentionally NOT set on
+     <html> — doing so would block pinch-to-zoom and the iOS long-press callout
+     globally, which are P0 App Store review blockers and accessibility issues.
+     Scoped suppression lives on specific interactive elements below. */
 }
 
 body {

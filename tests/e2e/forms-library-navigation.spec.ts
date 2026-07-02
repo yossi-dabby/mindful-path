@@ -78,7 +78,7 @@ test.describe('Forms Library runtime navigation', () => {
     await setupHebrewTherapeuticForms(page);
     await spaNavigate(page, '/TherapeuticForms');
 
-    await expect(page.getByText('טפסים טיפוליים')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'טפסים טיפוליים' })).toBeVisible();
     await expect(page.getByTestId('collections-grid')).toBeVisible();
 
     await expect(page.getByTestId('collections-grid')).toContainText(HEBREW_COLLECTION_LABEL);
