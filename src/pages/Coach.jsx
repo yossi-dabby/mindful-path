@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Heart, Target, MessageCircle, TrendingUp, BarChart3, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import CoachingSessionList from '../components/coaching/CoachingSessionList';
 import CoachingSessionWizard from '../components/coaching/CoachingSessionWizard';
@@ -16,6 +16,7 @@ import PersonalizedInsights from '../components/coaching/PersonalizedInsights';
 
 export default function Coach() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [showWizard, setShowWizard] = useState(false);
   const [selectedSession, setSelectedSession] = useState(null);
   const queryClient = useQueryClient();
@@ -107,7 +108,7 @@ export default function Coach() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => window.location.href = '/'}
+              onClick={() => navigate('/')}
               style={{ borderRadius: '50%', width: '36px', height: '36px' }}
               aria-label={t('coach.go_back_aria')} className="text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
 
@@ -154,7 +155,7 @@ export default function Coach() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => window.location.href = '/'}
+              onClick={() => navigate('/')}
               style={{ borderRadius: '50%' }}
               aria-label={t('coach.go_back_aria')} className="text-teal-600 font-medium tracking-[0.005em] leading-none rounded-[var(--radius-control)] inline-flex items-center justify-center gap-2 whitespace-nowrap border border-transparent transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-none hover:bg-secondary/78 hover:text-foreground active:bg-secondary/88 h-9 w-9 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
 

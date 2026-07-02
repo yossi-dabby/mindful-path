@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogPortal, DialogOverlay, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { Button } from '@/components/ui/button';
@@ -74,6 +75,7 @@ const gameComponents = {
 
 export default function ExperientialGames() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [activeGame, setActiveGame] = useState(null);
   const [gameStartTime, setGameStartTime] = useState(null);
   const [infoGame, setInfoGame] = useState(null);
@@ -131,7 +133,7 @@ export default function ExperientialGames() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => window.location.href = '/'}
+            onClick={() => navigate('/')}
             className="mb-4"
             aria-label={t('mind_games.go_back_aria')}
           >

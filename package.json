@@ -27,6 +27,9 @@
     "android:build": "npm run build && npx cap sync android",
     "android:open": "npx cap open android",
     "android:run": "npx cap run android",
+    "ios:build": "npm run build && npx cap sync ios",
+    "ios:open": "npx cap open ios",
+    "ios:add": "npx cap add ios",
     "inventory:lucide": "node scripts/inventory-lucide-icons.mjs"
   },
   "dependencies": {
@@ -34,6 +37,7 @@
     "@base44/vite-plugin": "^1.0.24",
     "@capacitor/android": "^8.1.0",
     "@capacitor/core": "^8.1.0",
+    "@capacitor/ios": "^8.4.1",
     "@hello-pangea/dnd": "^17.0.0",
     "@hookform/resolvers": "^4.1.2",
     "@radix-ui/react-accordion": "^1.2.3",

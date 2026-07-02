@@ -1,3 +1,15 @@
+/* globals.css — comprehensive design-system tokens and utilities
+ *
+ * This file is imported in main.jsx after index.css.  Its @layer base tokens
+ * override the basic index.css defaults via CSS cascade (last wins within a
+ * layer).  The safe-bottom / safe-bottom-nav utility classes defined here are
+ * required by multiple page components.
+ *
+ * The @tailwind directives below are required because PostCSS / Tailwind CSS v3
+ * processes each JS-imported CSS file independently.  Tailwind deduplicates the
+ * generated output, so having them in two files does not meaningfully bloat the
+ * final bundle.
+ */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

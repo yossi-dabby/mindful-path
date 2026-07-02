@@ -160,15 +160,15 @@
 /* ─── System Gesture & Selection Control ─────────────────────────────────── */
 
 /* Prevent pull-to-refresh / overscroll bounce at the document level.
-   Internal scroll containers (e.g. PullToRefresh) override this locally. */
+   Internal scroll containers (e.g. PullToRefresh) override this locally.
+   NOTE: Pinch-to-zoom and the iOS long-press callout are intentionally left
+   enabled here (browser default).  Suppression of either at the document
+   level is a P0 accessibility / App Store review blocker.  Scoped
+   suppression (e.g. on icon-only drag handles) lives on the specific elements
+   that require it. */
 html {
   overscroll-behavior: none;
   overscroll-behavior-y: none;
-  /* Disable pinch-to-zoom on the app shell; one-finger panning still works. */
-  touch-action: pan-x pan-y;
-  /* Disable the iOS long-press callout menu (Copy / Share / Open Link popups)
-     on shell elements.  Content elements re-enable it below. */
-  -webkit-touch-callout: none;
 }
 
 body {
@@ -194,15 +194,14 @@ button, a, [role="button"], input, select, textarea, label {
   touch-action: manipulation;
 }
 
-/* Keep content text selectable and re-enable iOS callout so users can
-   copy chat messages, journal entries, and other readable content */
+/* Keep content text explicitly selectable (overrides any component-library
+   resets that may inadvertently suppress selection on paragraphs / headings) */
 p, span:not([class*="badge"]), h1, h2, h3, h4, h5, h6,
 li, td, th, label, article,
 div[class*="content"], [class*="description"],
 p[class*="text"], span[class*="text"], div[class*="text"] {
   user-select: auto;
   -webkit-user-select: auto;
-  -webkit-touch-callout: default;
 }
 
 /* Minimum 44 × 44 px touch targets on mobile (WCAG 2.5.5) */
@@ -249,4 +248,18 @@ textarea:focus-visible,
 ::selection {
   background-color: rgb(var(--primary, 0 0% 9%) / 0.15);
   color: inherit;
+}
+/* ─── Reduced Motion ─────────────────────────────────────────────────────── */
+/* Respect the OS-level "Reduce Motion" accessibility preference.
+   This acts as a CSS-layer override for all CSS transitions/animations
+   (including Framer Motion, Tailwind animate-*, and custom keyframes).
+   JavaScript-driven Framer Motion variants can additionally use the
+   useReducedMotion() hook for finer-grained control.                        */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

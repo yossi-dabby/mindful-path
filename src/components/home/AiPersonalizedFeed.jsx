@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +9,7 @@ import { Sparkles, BookOpen, Target, Play, ArrowRight, Loader2, RefreshCw } from
 import { createPageUrl } from '../../utils';
 
 export default function AiPersonalizedFeed() {
+  const navigate = useNavigate();
   const [isGenerating, setIsGenerating] = useState(false);
   const [loadData, setLoadData] = useState(false);
 
@@ -276,13 +278,13 @@ Return JSON only.`,
                 }}
                 onClick={() => {
                   if (rec.type === 'exercise' && rec.id) {
-                    window.location.href = createPageUrl('Exercises');
+                    navigate(createPageUrl('Exercises'));
                   } else if (rec.type === 'journal_prompt') {
-                    window.location.href = createPageUrl('Chat', 'intent=thought_work');
+                    navigate(createPageUrl('Chat', 'intent=thought_work'));
                   } else if (rec.type === 'resource' && rec.id) {
-                    window.location.href = createPageUrl('Resources');
+                    navigate(createPageUrl('Resources'));
                   } else if (rec.type === 'video' && rec.id) {
-                    window.location.href = createPageUrl('Videos');
+                    navigate(createPageUrl('Videos'));
                   }
                 }}
               >

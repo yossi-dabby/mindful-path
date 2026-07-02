@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -33,6 +34,7 @@ const reasonColors = {
 
 export default function CrisisAlerts() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const reasonLabels = {
     self_harm: t('crisis_alerts.reasons.self_harm'),
@@ -109,7 +111,7 @@ export default function CrisisAlerts() {
             <p className="text-gray-600 mb-4">
               {t('crisis_alerts.admin_required_description')}
             </p>
-            <Button onClick={() => window.location.href = '/'}>
+            <Button onClick={() => navigate('/')}>
               {t('crisis_alerts.return_home')}
             </Button>
           </CardContent>
