@@ -64,7 +64,7 @@ describe('Children CBT Core EN — registry structure', () => {
       expect(form.parentSeriesId).toBe('children-cbt-core-en');
       expect(form.approved).toBe(true);
       expect(form.formNumber).toMatch(/^[1-5]\.[1-6]$/);
-      expect(form.fileUrl).toMatch(/^\/forms\/children\/en\/cbt-core\/stage-0[1-5]\/children_cbt_core_en_0[1-5]_0[1-6]\.pdf$/);
+      expect(form.fileUrl).toMatch(/^\/forms\/en\/children\/cbt-core\/stage-0[1-5]\/children_cbt_core_en_0[1-5]_0[1-6]\.pdf$/);
       expect(form.languages?.en?.file_url).toBe(form.fileUrl);
     }
   });

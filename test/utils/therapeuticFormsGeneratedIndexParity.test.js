@@ -136,8 +136,8 @@ describe('therapeutic forms generated index parity', () => {
     const second = resolveFormIntent('children_cbt_core_en_04_02', 'en');
     expect(first?.form_id).toBe('children-cbt-core-en-5-1');
     expect(second?.form_id).toBe('children-cbt-core-en-4-2');
-    expect(String(first?.url || '')).toContain('/forms/children/en/cbt-core/stage-05/children_cbt_core_en_05_01.pdf');
-    expect(String(second?.url || '')).toContain('/forms/children/en/cbt-core/stage-04/children_cbt_core_en_04_02.pdf');
+    expect(String(first?.url || '')).toContain('/forms/en/children/cbt-core/stage-05/children_cbt_core_en_05_01.pdf');
+    expect(String(second?.url || '')).toContain('/forms/en/children/cbt-core/stage-04/children_cbt_core_en_04_02.pdf');
   });
 
   it('resolves children worksheet content scenarios in English mode', () => {

@@ -8,8 +8,8 @@
   "module_number": 2,
   "module_title_he": "מצב רוח, תפקוד ואנרגיה",
   "module_title_en": "Mood, Functioning and Energy",
-  "github_path": "public/forms/adolescents/he/cbt-specialized/module-02/",
-  "combined_pdf_path": "public/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_module_02_mood_functioning_energy.pdf",
+  "github_path": "public/forms/he/adolescents/cbt-specialized/module-02/",
+  "combined_pdf_path": "public/forms/he/adolescents/cbt-specialized/module-02/adolescents_cbt_specialized_he_module_02_mood_functioning_energy.pdf",
   "items": [
     {
       "id": "adolescents-cbt-specialized-he-02-01",
@@ -49,8 +49,8 @@
       ],
       "ai_matching_summary_he": "מתאים לזיהוי מצב רוח ואנרגיה ביום נתון, ניסוח מצב במשפט אחד, בחירת פעולה קטנה שמסייעת לתפקוד, והפרדה בין תחושה לבין זהות עצמית.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_01.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-02/previews/adolescents_cbt_specialized_he_02_01_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_01.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-02/previews/adolescents_cbt_specialized_he_02_01_preview.png"
     },
     {
       "id": "adolescents-cbt-specialized-he-02-02",
@@ -91,8 +91,8 @@
       ],
       "ai_matching_summary_he": "מתאים למצבים שבהם משהו מרגיש כבד או מכביד, ויש צורך לפרק את העומס למילים, תחושות וגורמים ברורים יותר.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_02.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-02/previews/adolescents_cbt_specialized_he_02_02_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_02.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-02/previews/adolescents_cbt_specialized_he_02_02_preview.png"
     },
     {
       "id": "adolescents-cbt-specialized-he-02-03",
@@ -133,8 +133,8 @@
       ],
       "ai_matching_summary_he": "מתאים לבניית רשימת עוגנים קטנים שמחזקים מצב רוח ואנרגיה, במיוחד כשקשה להתחיל או להרגיש טוב יותר.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_03.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-02/previews/adolescents_cbt_specialized_he_02_03_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_03.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-02/previews/adolescents_cbt_specialized_he_02_03_preview.png"
     },
     {
       "id": "adolescents-cbt-specialized-he-02-04",
@@ -174,8 +174,8 @@
       ],
       "ai_matching_summary_he": "מתאים לזיהוי דפוס של התרחקות או הימנעות ולתכנון צעד קטן של חזרה לקשר, לשגרה או לפעילות מיטיבה.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_04.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-02/previews/adolescents_cbt_specialized_he_02_04_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_04.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-02/previews/adolescents_cbt_specialized_he_02_04_preview.png"
     },
     {
       "id": "adolescents-cbt-specialized-he-02-05",
@@ -216,8 +216,8 @@
       ],
       "ai_matching_summary_he": "מתאים למצבי בדידות או ניתוק רגשי, ומסייע למפות מי ומה יכולים לעזור למתבגר/ת להרגיש פחות לבד ויותר נתמך/ת.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_05.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-02/previews/adolescents_cbt_specialized_he_02_05_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_05.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-02/previews/adolescents_cbt_specialized_he_02_05_preview.png"
     },
     {
       "id": "adolescents-cbt-specialized-he-02-06",
@@ -258,8 +258,8 @@
       ],
       "ai_matching_summary_he": "מתאים לבניית תוכנית אישית להתמודדות עם ירידת מצב רוח: זיהוי סימנים, בסיסי ויסות, תמיכה ותכנון קרוב ומציאותי.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_06.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-02/previews/adolescents_cbt_specialized_he_02_06_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-02/adolescents_cbt_specialized_he_02_06.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-02/previews/adolescents_cbt_specialized_he_02_06_preview.png"
     }
   ]
 }

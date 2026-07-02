@@ -245,6 +245,6 @@ describe('therapeutic forms generated_file metadata contract', () => {
     expect(metadata?.language).toBe('en');
     expect(metadata?.audience).toBe('adolescents');
     expect(metadata?.category).toBe('adolescents_cbt_core');
-    expect(metadata?.url).toBe('/forms/adolescents/en/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
+    expect(metadata?.url).toBe('/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
   });
 });

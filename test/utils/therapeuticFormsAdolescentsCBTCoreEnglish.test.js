@@ -14,7 +14,7 @@ import {
 
 const ROOT = path.resolve(process.cwd());
 const CORE_ID = 'adolescents-cbt-core-en';
-const CORE_URL = '/forms/adolescents/en/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf';
+const CORE_URL = '/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf';
 
 function byFormNumber(formNumber) {
   return FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL.find((form) => form.formNumber === formNumber) || null;
@@ -44,7 +44,7 @@ describe('therapeuticFormsAdolescentsCBTCoreEnglish.test.js', () => {
       expect(form.language).toBe('en');
       expect(form.audience).toBe('adolescents');
       expect(form.category).toBe('adolescents_cbt_core');
-      expect(/^\/forms\/adolescents\/en\/cbt-core\/stage-\d{2}\//.test(form.fileUrl)).toBe(true);
+      expect(/^\/forms\/en\/adolescents\/cbt-core\/stage-\d{2}\//.test(form.fileUrl)).toBe(true);
       expect(form.formNumber).toMatch(/^[1-6]\.[1-5]$/);
       expect(Number.isInteger(form.stageNumber)).toBe(true);
       expect(Number.isInteger(form.pageNumberInWorkbook)).toBe(true);
@@ -59,7 +59,7 @@ describe('therapeuticFormsAdolescentsCBTCoreEnglish.test.js', () => {
   });
 
   it('ensures full PDF and all individual PDFs exist and are valid PDF files', () => {
-    const fullPdfPath = path.join(ROOT, 'public/forms/adolescents/en/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
+    const fullPdfPath = path.join(ROOT, 'public/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
     expect(fs.existsSync(fullPdfPath)).toBe(true);
 
     const fullPdfHeader = fs.readFileSync(fullPdfPath).subarray(0, 5).toString('utf8');
@@ -225,7 +225,7 @@ describe('Stage groups — worksheet membership per stage', () => {
 
   it('every worksheet has a /forms/ public URL for open/download', () => {
     for (const w of FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL) {
-      expect(/^\/forms\/adolescents\/en\/cbt-core\/stage-\d{2}\//.test(w.fileUrl)).toBe(true);
+      expect(/^\/forms\/en\/adolescents\/cbt-core\/stage-\d{2}\//.test(w.fileUrl)).toBe(true);
       expect(w.languages.en.file_url).toBe(w.fileUrl);
     }
   });
@@ -307,6 +307,6 @@ describe('AI resolver regression — individual worksheets still resolvable afte
   it('full workbook request still resolves to full package', () => {
     const result = resolveAdolescentsCBTCoreEnglishFormByContent('full workbook', { activeLanguage: 'en' });
     expect(result?.form_id).toBe(CORE_ID);
-    expect(result?.url).toBe('/forms/adolescents/en/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
+    expect(result?.url).toBe('/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
   });
 });

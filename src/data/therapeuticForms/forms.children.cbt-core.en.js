@@ -16,7 +16,7 @@
  */
 
 const CHILDREN_CBT_CORE_EN_SERIES_ID = 'children-cbt-core-en';
-const CHILDREN_CBT_CORE_EN_BASE_URL = '/forms/children/en/cbt-core';
+const CHILDREN_CBT_CORE_EN_BASE_URL = '/forms/en/children/cbt-core';
 
 const SHARED_SECONDARY_CATEGORIES = Object.freeze([
   'therapeutic_workbooks',

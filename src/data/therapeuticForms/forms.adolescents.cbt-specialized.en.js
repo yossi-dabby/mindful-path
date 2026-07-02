@@ -1,8 +1,8 @@
 const SERIES_ID = 'adolescents-cbt-specialized-en';
 const SERIES_SLUG = 'adolescents-cbt-specialized-series-en';
 const SERIES_FILE_NAME = 'yourcbttrapist_adolescents_cbt_specialized_en_full_series_60_forms_web_optimized_under_25mb.pdf';
-const SERIES_FILE_URL = `/forms/adolescents/en/cbt-specialized/${SERIES_FILE_NAME}`;
-const moduleFileUrl = (moduleCode, fileName) => `/forms/adolescents/en/cbt-specialized/module-${moduleCode}/${fileName}`;
+const SERIES_FILE_URL = `/forms/en/adolescents/cbt-specialized/${SERIES_FILE_NAME}`;
+const moduleFileUrl = (moduleCode, fileName) => `/forms/en/adolescents/cbt-specialized/module-${moduleCode}/${fileName}`;
 
 const SHARED_NOT_FOR = Object.freeze([
   'non-English locale sessions',
@@ -255,7 +255,7 @@ export const FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_MODULE_PDFS = Object.freeze(
 );
 
 export const ADOLESCENTS_CBT_SPECIALIZED_EN_MANIFEST = Object.freeze({
-  source: 'public/forms/adolescents/en/cbt-specialized/',
+  source: 'public/forms/en/adolescents/cbt-specialized/',
   series: Object.freeze({
     id: SERIES_ID,
     slug: SERIES_SLUG,

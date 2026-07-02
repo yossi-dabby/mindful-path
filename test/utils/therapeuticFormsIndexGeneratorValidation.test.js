@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { applyVariantMetadata, validateEntries } from '../../scripts/generate-therapeutic-forms-index.mjs';
 
-const VALID_FILE_PATH = 'public/forms/adolescents/en/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf';
+const VALID_FILE_PATH = 'public/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf';
 
 function buildEntry(overrides = {}) {
   return {
@@ -33,15 +33,15 @@ describe('therapeutic forms index generator validation', () => {
 
   it('fails on duplicate IDs', () => {
     const a = buildEntry({ id: 'duplicate-id' });
-    const b = buildEntry({ id: 'duplicate-id', filePath: 'public/forms/adolescents/en/cbt-core/stage-01/01-01-what-is-going-on-for-me-right-now.pdf', file_path: 'public/forms/adolescents/en/cbt-core/stage-01/01-01-what-is-going-on-for-me-right-now.pdf' });
+    const b = buildEntry({ id: 'duplicate-id', filePath: 'public/forms/en/adolescents/cbt-core/stage-01/01-01-what-is-going-on-for-me-right-now.pdf', file_path: 'public/forms/en/adolescents/cbt-core/stage-01/01-01-what-is-going-on-for-me-right-now.pdf' });
     expect(() => validateEntries([a, b])).toThrow(/Duplicate therapeutic form id: duplicate-id/);
   });
 
   it('fails on missing file paths', () => {
     const broken = buildEntry({
       id: 'missing-file',
-      filePath: 'public/forms/adolescents/en/cbt-core/does-not-exist.pdf',
-      file_path: 'public/forms/adolescents/en/cbt-core/does-not-exist.pdf',
+      filePath: 'public/forms/en/adolescents/cbt-core/does-not-exist.pdf',
+      file_path: 'public/forms/en/adolescents/cbt-core/does-not-exist.pdf',
     });
     expect(() => validateEntries([broken])).toThrow(/references missing file path/);
   });
@@ -83,8 +83,8 @@ describe('therapeutic forms index generator validation', () => {
       language: 'he',
       audience: 'children',
       category: 'children_cbt_core',
-      filePath: 'public/forms/children/he/cbt-core/stage-02/children_cbt_core_he_2.3.pdf',
-      file_path: 'public/forms/children/he/cbt-core/stage-02/children_cbt_core_he_2.3.pdf',
+      filePath: 'public/forms/he/children/cbt-core/stage-02/children_cbt_core_he_2.3.pdf',
+      file_path: 'public/forms/he/children/cbt-core/stage-02/children_cbt_core_he_2.3.pdf',
       logical_form_id: 'children_cbt_core_02_03',
       variant_language: 'he',
       available_languages: ['he'],

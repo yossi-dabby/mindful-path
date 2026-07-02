@@ -11,7 +11,7 @@ const { VARIANT_FORMS_FIXTURE } = vi.hoisted(() => ({
     category: 'children_cbt_specialized',
     subcategory: 'OCD',
     language: 'en',
-    file_path: 'public/forms/children/en/cbt-specialized/children_cbt_specialized_en_4.1_ocd.pdf',
+    file_path: 'public/forms/en/children/cbt-specialized/children_cbt_specialized_en_4.1_ocd.pdf',
     logical_form_id: 'children_cbt_specialized_04_01_ocd',
     variant_language: 'en',
     available_languages: ['en', 'he'],
@@ -25,7 +25,7 @@ const { VARIANT_FORMS_FIXTURE } = vi.hoisted(() => ({
       en: {
         title: 'Children OCD Pack',
         description: 'English OCD worksheet pack for children.',
-        file_url: '/forms/children/en/cbt-specialized/children_cbt_specialized_en_4.1_ocd.pdf',
+        file_url: '/forms/en/children/cbt-specialized/children_cbt_specialized_en_4.1_ocd.pdf',
         file_type: 'pdf',
         file_name: 'children_cbt_specialized_en_4.1_ocd.pdf',
         rtl: false,
@@ -41,7 +41,7 @@ const { VARIANT_FORMS_FIXTURE } = vi.hoisted(() => ({
     category: 'children_cbt_specialized',
     subcategory: 'OCD',
     language: 'he',
-    file_path: 'public/forms/children/he/cbt-specialized/children_cbt_specialized_he_4.1_ocd.pdf',
+    file_path: 'public/forms/he/children/cbt-specialized/children_cbt_specialized_he_4.1_ocd.pdf',
     logical_form_id: 'children_cbt_specialized_04_01_ocd',
     variant_language: 'he',
     available_languages: ['en', 'he'],
@@ -55,7 +55,7 @@ const { VARIANT_FORMS_FIXTURE } = vi.hoisted(() => ({
       he: {
         title: 'ערכת OCD לילדים',
         description: 'חוברת עבודה לילדים בנושא OCD.',
-        file_url: '/forms/children/he/cbt-specialized/children_cbt_specialized_he_4.1_ocd.pdf',
+        file_url: '/forms/he/children/cbt-specialized/children_cbt_specialized_he_4.1_ocd.pdf',
         file_type: 'pdf',
         file_name: 'children_cbt_specialized_he_4.1_ocd.pdf',
         rtl: true,
@@ -71,7 +71,7 @@ const { VARIANT_FORMS_FIXTURE } = vi.hoisted(() => ({
     category: 'children_cbt_specialized',
     subcategory: 'Trauma',
     language: 'en',
-    file_path: 'public/forms/children/en/cbt-specialized/children_cbt_specialized_en_4.2_trauma.pdf',
+    file_path: 'public/forms/en/children/cbt-specialized/children_cbt_specialized_en_4.2_trauma.pdf',
     logical_form_id: 'children_cbt_specialized_04_02_trauma_sensitive_coping',
     variant_language: 'en',
     available_languages: ['en'],
@@ -85,7 +85,7 @@ const { VARIANT_FORMS_FIXTURE } = vi.hoisted(() => ({
       en: {
         title: 'Children Trauma-Safe Coping Pack',
         description: 'English trauma-safe coping worksheet pack for children.',
-        file_url: '/forms/children/en/cbt-specialized/children_cbt_specialized_en_4.2_trauma.pdf',
+        file_url: '/forms/en/children/cbt-specialized/children_cbt_specialized_en_4.2_trauma.pdf',
         file_type: 'pdf',
         file_name: 'children_cbt_specialized_en_4.2_trauma.pdf',
         rtl: false,
@@ -171,7 +171,7 @@ describe('therapeutic forms multilingual variant selection (fixture)', () => {
 
     expect(resolved.generatedFile).toBeTruthy();
     expect(resolved.generatedFile.language).toBe('he');
-    expect(resolved.generatedFile.url).toBe('/forms/children/he/cbt-specialized/children_cbt_specialized_he_4.1_ocd.pdf');
+    expect(resolved.generatedFile.url).toBe('/forms/he/children/cbt-specialized/children_cbt_specialized_he_4.1_ocd.pdf');
     expect(resolved.generatedFile.logical_form_id).toBe('children_cbt_specialized_04_01_ocd');
     expect(resolved.generatedFile.available_languages).toEqual(['en', 'he']);
   });
@@ -202,7 +202,7 @@ describe('therapeutic forms multilingual variant selection (fixture)', () => {
       activeLanguage: 'he',
     });
     const generated = createGeneratedFileFromResolvedForm(resolved);
-    expect(generated?.url).toBe('/forms/children/he/cbt-specialized/children_cbt_specialized_he_4.1_ocd.pdf');
+    expect(generated?.url).toBe('/forms/he/children/cbt-specialized/children_cbt_specialized_he_4.1_ocd.pdf');
     expect(generated?.logical_form_id).toBe('children_cbt_specialized_04_01_ocd');
     expect(generated?.variant_language).toBe('he');
     expect(generated?.available_languages).toEqual(['en', 'he']);

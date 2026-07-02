@@ -65,7 +65,7 @@ const EN_SINGLE: FormFixture = {
   id: 'adolescents-cbt-core-en-1-1',
   title: 'What Is Going On for Me Right Now?',
   language: 'en',
-  url: '/forms/adolescents/en/core/individual/01-01-what-is-going-on-for-me-right-now.pdf',
+  url: '/forms/en/adolescents/core/individual/01-01-what-is-going-on-for-me-right-now.pdf',
   category: 'adolescents_cbt_core',
   clinicalDomain: 'general_cbt',
 };

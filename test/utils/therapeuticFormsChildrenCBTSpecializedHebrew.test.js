@@ -18,8 +18,8 @@ import { getFormDownloadUrl, getFormOpenUrl, PDF_VIEWER_ROUTE_PATH } from '../..
 
 const ROOT = path.resolve(process.cwd());
 const PUBLIC_FORMS_DIR = path.join(ROOT, 'public/forms');
-const HEBREW_SPECIALIZED_CANONICAL_PREFIX = '/forms/children/he/cbt-specialized/';
-const HEBREW_SPECIALIZED_CANONICAL_DIR = path.join(PUBLIC_FORMS_DIR, 'children/he/cbt-specialized');
+const HEBREW_SPECIALIZED_CANONICAL_PREFIX = '/forms/he/children/cbt-specialized/';
+const HEBREW_SPECIALIZED_CANONICAL_DIR = path.join(PUBLIC_FORMS_DIR, 'he/children/cbt-specialized');
 const COLLECTION_ID = 'children-cbt-specialized-he';
 
 function walk(dirPath) {
