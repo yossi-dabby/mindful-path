@@ -8,8 +8,8 @@
   "module_number": 7,
   "module_title_he": "ADHD, קשב, ארגון ואימפולסיביות",
   "module_title_en": "ADHD, Attention, Organization, and Impulsivity",
-  "github_path": "public/forms/adolescents/he/cbt-specialized/module-07/",
-  "combined_pdf_path": "public/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_module_07_adhd_attention_organization_impulsivity.pdf",
+  "github_path": "public/forms/he/adolescents/cbt-specialized/module-07/",
+  "combined_pdf_path": "public/forms/he/adolescents/cbt-specialized/module-07/adolescents_cbt_specialized_he_module_07_adhd_attention_organization_impulsivity.pdf",
   "items": [
     {
       "id": "adolescents-cbt-specialized-he-07-01",
@@ -49,8 +49,8 @@
       ],
       "ai_matching_summary_he": "מתאים למצבים שבהם המתבגר/ת רוצה למפות מה עוזר לקשב, מה מפריע, ומה אפשר לעשות כדי להישאר עם המשימה.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_01.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-07/previews/adolescents_cbt_specialized_he_07_01_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_01.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-07/previews/adolescents_cbt_specialized_he_07_01_preview.png"
     },
     {
       "id": "adolescents-cbt-specialized-he-07-02",
@@ -89,8 +89,8 @@
       ],
       "ai_matching_summary_he": "מתאים כשהמתבגר/ת יודע/ת מה צריך לעשות אבל מתקשה להתחיל, וצריך/ה צעד ראשון קטן ומוחשי.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_02.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-07/previews/adolescents_cbt_specialized_he_07_02_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_02.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-07/previews/adolescents_cbt_specialized_he_07_02_preview.png"
     },
     {
       "id": "adolescents-cbt-specialized-he-07-03",
@@ -129,8 +129,8 @@
       ],
       "ai_matching_summary_he": "מתאים לבניית תוכנית פעולה פשוטה למשימה, כולל שלושה צעדים ראשונים ומה לעשות אם יוצאים מהמסלול.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_03.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-07/previews/adolescents_cbt_specialized_he_07_03_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_03.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-07/previews/adolescents_cbt_specialized_he_07_03_preview.png"
     },
     {
       "id": "adolescents-cbt-specialized-he-07-04",
@@ -169,8 +169,8 @@
       ],
       "ai_matching_summary_he": "מתאים למצבים של הסחת דעת חוזרת, כדי לזהות את מקור ההסחה ולבחור סימן או פעולה לחזרה למשימה.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_04.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-07/previews/adolescents_cbt_specialized_he_07_04_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_04.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-07/previews/adolescents_cbt_specialized_he_07_04_preview.png"
     },
     {
       "id": "adolescents-cbt-specialized-he-07-05",
@@ -209,8 +209,8 @@
       ],
       "ai_matching_summary_he": "מתאים כשהמתבגר/ת פועל/ת מהר מדי ורוצה לזהות את הדחף ולבחור תגובה בטוחה ומועילה יותר.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_05.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-07/previews/adolescents_cbt_specialized_he_07_05_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_05.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-07/previews/adolescents_cbt_specialized_he_07_05_preview.png"
     },
     {
       "id": "adolescents-cbt-specialized-he-07-06",
@@ -249,8 +249,8 @@
       ],
       "ai_matching_summary_he": "מתאים לבניית תוכנית שבועית פשוטה עם דברים לזכור, חומרי עזר, דרך מעקב ועידוד עצמי.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_06.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-07/previews/adolescents_cbt_specialized_he_07_06_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-07/adolescents_cbt_specialized_he_07_06.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-07/previews/adolescents_cbt_specialized_he_07_06_preview.png"
     }
   ]
 }

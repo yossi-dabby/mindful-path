@@ -199,8 +199,8 @@ describe('PR-11 Phase 2: No cross-language metadata contamination', () => {
       /\/forms\/adolescents_cbt_core_he/,
       /\/forms\/module-0[1-9]/,
       /\/forms\/module_10/,
-      /\/forms\/children\/he\//,
-      /\/forms\/adolescents\/he\//,
+      /\/forms\/he\/children\//,
+      /\/forms\/he\/adolescents\//,
     ];
     for (const form of EN_INDEX_FORMS) {
       for (const pattern of HEBREW_PATH_PATTERNS) {
@@ -214,8 +214,8 @@ describe('PR-11 Phase 2: No cross-language metadata contamination', () => {
 
   it('Hebrew forms use Hebrew-path conventions, not English path prefixes', () => {
     const ENGLISH_PATH_PATTERNS = [
-      /\/forms\/adolescents\/en\//,
-      /\/forms\/children\/en\//,
+      /\/forms\/en\/adolescents\//,
+      /\/forms\/en\/children\//,
     ];
     for (const form of HE_INDEX_FORMS) {
       for (const pattern of ENGLISH_PATH_PATTERNS) {

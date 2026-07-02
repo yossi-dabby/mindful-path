@@ -8,8 +8,8 @@
   "module_number": 3,
   "module_title_he": "דימוי עצמי וזהות",
   "module_title_en": "Self-Esteem and Identity",
-  "github_path": "public/forms/adolescents/he/cbt-specialized/module-03/",
-  "combined_pdf_path": "public/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_module_03_self_esteem_identity.pdf",
+  "github_path": "public/forms/he/adolescents/cbt-specialized/module-03/",
+  "combined_pdf_path": "public/forms/he/adolescents/cbt-specialized/module-03/adolescents_cbt_specialized_he_module_03_self_esteem_identity.pdf",
   "items": [
     {
       "id": "adolescents-cbt-specialized-he-03-01",
@@ -47,8 +47,8 @@
       ],
       "ai_matching_summary_he": "מתאים למצבים שבהם נער/ה משתמש/ת במשפטים פנימיים שליליים כמו אני לא מספיק טוב/ה, אני תמיד הורס/ת או אחרים טובים ממני, וצריך/ה לתרגל זיהוי והחלפה למשפט מאוזן.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_01.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-03/previews/adolescents_cbt_specialized_he_03_01_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_01.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-03/previews/adolescents_cbt_specialized_he_03_01_preview.png"
     },
     {
       "id": "adolescents-cbt-specialized-he-03-02",
@@ -86,8 +86,8 @@
       ],
       "ai_matching_summary_he": "מתאים כשנער/ה מרגיש/ה פחות טוב/ה בעקבות השוואה לאחרים, לציונים, למראה, לחברים או למה שרואים ברשתות, וצריך/ה לחזור לדרך האישית שלו/ה.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_02.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-03/previews/adolescents_cbt_specialized_he_03_02_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_02.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-03/previews/adolescents_cbt_specialized_he_03_02_preview.png"
     },
     {
       "id": "adolescents-cbt-specialized-he-03-03",
@@ -125,8 +125,8 @@
       ],
       "ai_matching_summary_he": "מתאים למצבים של דימוי עצמי נמוך שבהם צריך לעזור לנער/ה לזהות מה טוב, יציב, מתפתח או אמיץ בו/בה.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_03.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-03/previews/adolescents_cbt_specialized_he_03_03_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_03.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-03/previews/adolescents_cbt_specialized_he_03_03_preview.png"
     },
     {
       "id": "adolescents-cbt-specialized-he-03-04",
@@ -165,8 +165,8 @@
       ],
       "ai_matching_summary_he": "מתאים כשנער/ה סוחב/ת משפטים או מסרים של אחרים שמחלישים אותו/ה, וצריך/ה לבדוק מאיפה המסר הגיע ומה מתאים לשמור או לשחרר.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_04.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-03/previews/adolescents_cbt_specialized_he_03_04_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_04.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-03/previews/adolescents_cbt_specialized_he_03_04_preview.png"
     },
     {
       "id": "adolescents-cbt-specialized-he-03-05",
@@ -205,8 +205,8 @@
       ],
       "ai_matching_summary_he": "מתאים לשיחות על ערכים, משמעות וזהות אישית, כאשר נער/ה צריך/ה להפריד בין מה שאחרים מצפים לבין מה שחשוב לו/ה באמת.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_05.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-03/previews/adolescents_cbt_specialized_he_03_05_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_05.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-03/previews/adolescents_cbt_specialized_he_03_05_preview.png"
     },
     {
       "id": "adolescents-cbt-specialized-he-03-06",
@@ -244,8 +244,8 @@
       ],
       "ai_matching_summary_he": "מתאים כטופס סיכום ותכנון כאשר נער/ה רוצה לזכור מי הוא/היא, מה מחזק אותו/ה ומה הצעד הבא כשספק עצמי עולה.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_06.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-03/previews/adolescents_cbt_specialized_he_03_06_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-03/adolescents_cbt_specialized_he_03_06.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-03/previews/adolescents_cbt_specialized_he_03_06_preview.png"
     }
   ]
 }

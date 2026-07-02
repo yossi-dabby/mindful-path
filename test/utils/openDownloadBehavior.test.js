@@ -24,7 +24,7 @@ describe('openDownloadBehavior.test.js', () => {
 
   it('resolves only the active adolescents package for open/download actions', () => {
     const resolved = resolveFormWithLanguage('adolescents-cbt-core-en', 'en');
-    expect(resolved?.languageData?.file_url).toBe('/forms/adolescents/en/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
+    expect(resolved?.languageData?.file_url).toBe('/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
     expect(resolveFormWithLanguage('adolescents-cbt-core-en', 'he')).toBeNull();
     expect(resolveFormWithLanguage('tf-adults-cbt-thought-record', 'en')).toBeNull();
   });
@@ -113,18 +113,18 @@ describe('forms library Open action — uses direct public URL', () => {
     expect(fileUrl.startsWith('/forms/')).toBe(true);
   });
 
-  it('resolves individual worksheets to /forms/adolescents/en/cbt-core/stage-XX/ public URLs', () => {
+  it('resolves individual worksheets to /forms/en/adolescents/cbt-core/stage-XX/ public URLs', () => {
     for (const w of FORMS_ADOLESCENTS_CBT_CORE_EN_INDIVIDUAL) {
-      expect(/^\/forms\/adolescents\/en\/cbt-core\/stage-\d{2}\//.test(w.fileUrl)).toBe(true);
+      expect(/^\/forms\/en\/adolescents\/cbt-core\/stage-\d{2}\//.test(w.fileUrl)).toBe(true);
       expect(w.languages.en.file_url).toBe(w.fileUrl);
     }
   });
 
-  it('resolves adolescents CBT specialized EN series to /forms/adolescents/en/cbt-specialized/ URL suitable for Open', () => {
+  it('resolves adolescents CBT specialized EN series to /forms/en/adolescents/cbt-specialized/ URL suitable for Open', () => {
     const resolved = resolveFormWithLanguage('adolescents-cbt-specialized-en', 'en');
     const fileUrl = resolved?.languageData?.file_url;
     expect(fileUrl).toBeTruthy();
-    expect(fileUrl.startsWith('/forms/adolescents/en/cbt-specialized/')).toBe(true);
+    expect(fileUrl.startsWith('/forms/en/adolescents/cbt-specialized/')).toBe(true);
     // Language-gated: must not resolve for non-English locales
     expect(resolveFormWithLanguage('adolescents-cbt-specialized-en', 'he')).toBeNull();
     expect(resolveFormWithLanguage('adolescents-cbt-specialized-en', 'es')).toBeNull();
@@ -148,13 +148,13 @@ describe('forms library Open action — uses direct public URL', () => {
     expect(resolveFormWithLanguage('children-cbt-core-he-5-1', 'es')).toBeNull();
   });
 
-  it('resolves all 10 specialized EN module PDFs to /forms/adolescents/en/cbt-specialized/ public URLs', () => {
+  it('resolves all 10 specialized EN module PDFs to /forms/en/adolescents/cbt-specialized/ public URLs', () => {
     for (const module of FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN_MODULE_PDFS) {
       const resolved = resolveFormWithLanguage(module.id, 'en');
       expect(resolved).not.toBeNull();
       const fileUrl = resolved?.languageData?.file_url;
       expect(fileUrl).toBeTruthy();
-      expect(fileUrl.startsWith('/forms/adolescents/en/cbt-specialized/')).toBe(true);
+      expect(fileUrl.startsWith('/forms/en/adolescents/cbt-specialized/')).toBe(true);
       expect(fileUrl).toContain('yourcbttrapist_adolescents_cbt_specialized_en_module_');
       // Module PDFs must not resolve for non-English locales (Open would have nothing to open)
       expect(resolveFormWithLanguage(module.id, 'he')).toBeNull();
@@ -166,7 +166,7 @@ describe('forms library Open action — uses direct public URL', () => {
 
 describe('normalizeGeneratedFile — Open vs Download URL contract', () => {
   it('preserves a /forms/ URL as-is — suitable for direct browser open without download', () => {
-    const url = '/forms/adolescents/en/cbt-core/stage-01/01-02-my-body-gives-me-signals.pdf';
+    const url = '/forms/en/adolescents/cbt-core/stage-01/01-02-my-body-gives-me-signals.pdf';
     const result = normalizeGeneratedFile({ type: 'pdf', url, name: 'worksheet.pdf' });
     expect(result).not.toBeNull();
     expect(result.url).toBe(url);
@@ -176,7 +176,7 @@ describe('normalizeGeneratedFile — Open vs Download URL contract', () => {
   it('includes all fields needed for Open action — type, url, name', () => {
     const input = {
       type: 'pdf',
-      url: '/forms/adolescents/en/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf',
+      url: '/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf',
       name: 'adolescents-cbt-core-series-1-full-en.pdf',
       title: 'Adolescents CBT Core Series',
     };
@@ -189,19 +189,19 @@ describe('normalizeGeneratedFile — Open vs Download URL contract', () => {
 
 describe('formFileUrls — open/download URL separation', () => {
   it('builds open URL through the dedicated pdf viewer route', () => {
-    const openUrl = getFormOpenUrl('/forms/children/en/cbt-core/individual/05-01-my-calm-plan.pdf?download=1');
-    expect(openUrl).toBe(`${PDF_VIEWER_ROUTE_PATH}?file=%2Fforms%2Fchildren%2Fen%2Fcbt-core%2Findividual%2F05-01-my-calm-plan.pdf`);
+    const openUrl = getFormOpenUrl('/forms/en/children/cbt-core/individual/05-01-my-calm-plan.pdf?download=1');
+    expect(openUrl).toBe(`${PDF_VIEWER_ROUTE_PATH}?file=%2Fforms%2Fen%2Fchildren%2Fcbt-core%2Findividual%2F05-01-my-calm-plan.pdf`);
     expect(openUrl.includes('download=')).toBe(false);
   });
 
   it('builds download URL with explicit download query flag', () => {
-    const downloadUrl = getFormDownloadUrl('/forms/children/en/cbt-core/individual/05-01-my-calm-plan.pdf');
-    expect(downloadUrl).toBe('/forms/children/en/cbt-core/individual/05-01-my-calm-plan.pdf?download=1');
+    const downloadUrl = getFormDownloadUrl('/forms/en/children/cbt-core/individual/05-01-my-calm-plan.pdf');
+    expect(downloadUrl).toBe('/forms/en/children/cbt-core/individual/05-01-my-calm-plan.pdf?download=1');
   });
 
   it('sanitizes the pdf viewer file param back to a servable public PDF path', () => {
-    expect(resolvePdfViewerFileParam('%2Fforms%2Fchildren%2Fen%2Fcbt-core%2Findividual%2F05-01-my-calm-plan.pdf%3Fdownload%3D1'))
-      .toBe('/forms/children/en/cbt-core/individual/05-01-my-calm-plan.pdf');
+    expect(resolvePdfViewerFileParam('%2Fforms%2Fen%2Fchildren%2Fcbt-core%2Findividual%2F05-01-my-calm-plan.pdf%3Fdownload%3D1'))
+      .toBe('/forms/en/children/cbt-core/individual/05-01-my-calm-plan.pdf');
     expect(resolvePdfViewerFileParam('%2Fprivate%2Fsecret.pdf')).toBeNull();
   });
 

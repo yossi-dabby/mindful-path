@@ -208,7 +208,7 @@ describe('Phase 1 — open/download behavior unchanged', () => {
   it('PDF asset paths have not changed — adolescents-cbt-core-en still at expected URL', () => {
     const entry = ALL_FORMS.find((f) => f.id === 'adolescents-cbt-core-en');
     expect(entry).toBeDefined();
-    expect(entry?.fileUrl).toBe('/forms/adolescents/en/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
+    expect(entry?.fileUrl).toBe('/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
   });
 });
 

@@ -100,9 +100,9 @@ function titleFromFileName(fileName) {
 
 function inferAudienceAndLanguage(fileUrl) {
   const segments = String(fileUrl || '').split('/').filter(Boolean);
-  // /forms/{audience}/{lang}/{category}/...
-  const audience = segments[1] || 'adults';
-  const language = segments[2] || 'en';
+  // /forms/{lang}/{audience}/{category}/...
+  const language = segments[1] || 'en';
+  const audience = segments[2] || 'adults';
   return {
     audience: KNOWN_AUDIENCES.has(audience) ? audience : 'adults',
     language,
@@ -340,11 +340,13 @@ function buildFallbackEntries(existingByFileUrl, manifestByFileUrl) {
     if (!fileUrl) continue;
     if (existingByFileUrl.has(fileUrl)) continue;
 
-    // Skip files whose path structure doesn't start with a known audience segment.
-    // Paths like /forms/module-01/ don't follow the expected /forms/{audience}/{lang}/...
+    // Skip files whose path structure doesn't match language-first audience roots.
+    // Paths like /forms/module-01/ don't follow the expected /forms/{lang}/{audience}/...
     // convention and belong to curated registries — if not already registered, skip silently.
-    const rawAudienceSegment = fileUrl.split('/').filter(Boolean)[1] || '';
-    if (!KNOWN_AUDIENCES.has(rawAudienceSegment)) continue;
+    const rawSegments = fileUrl.split('/').filter(Boolean);
+    const rawLanguageSegment = rawSegments[1] || '';
+    const rawAudienceSegment = rawSegments[2] || '';
+    if (!SUPPORTED_LANGUAGES.has(rawLanguageSegment) || !KNOWN_AUDIENCES.has(rawAudienceSegment)) continue;
 
     const manifestMeta = manifestByFileUrl.get(fileUrl) || {};
     const { audience, language, categorySegment } = inferAudienceAndLanguage(fileUrl);

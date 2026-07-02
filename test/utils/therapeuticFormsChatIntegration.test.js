@@ -47,7 +47,7 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     const approvedResult = sanitizeConversationMessages(approvedMessages, 'en');
     const approvedAssistant = approvedResult.find((m) => m.role === 'assistant');
     expect(approvedAssistant?.metadata?.generated_file?.form_id).toBe('adolescents-cbt-core-en');
-    expect(approvedAssistant?.metadata?.generated_file?.url).toBe('/forms/adolescents/en/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
+    expect(approvedAssistant?.metadata?.generated_file?.url).toBe('/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf');
 
     const staleMessages = [
       // Non-form user text intentionally avoids deterministic intent routing, so
@@ -79,7 +79,7 @@ describe('therapeuticFormsChatIntegration.test.js', () => {
     const result = sanitizeConversationMessages(messages, 'en');
     const assistant = result.find((m) => m.role === 'assistant');
     expect(assistant?.metadata?.generated_file?.form_id).toBe('children-cbt-core-en-5-1');
-    expect(String(assistant?.metadata?.generated_file?.url || '')).toContain('/forms/children/en/cbt-core/stage-05/children_cbt_core_en_05_01.pdf');
+    expect(String(assistant?.metadata?.generated_file?.url || '')).toContain('/forms/en/children/cbt-core/stage-05/children_cbt_core_en_05_01.pdf');
   });
 
   it('attaches generated_file for send intent even without [FORM:id] marker', () => {

@@ -164,8 +164,8 @@ describe('therapeutic forms resolver coverage', () => {
     const overwhelmed = resolveFormIntent('child feels overwhelmed and needs a calm plan', 'en');
     const calmingTools = resolveFormIntent('child needs calming tools', 'en');
 
-    expect(overwhelmed?.url || '').toContain('/forms/children/en/cbt-core/');
-    expect(calmingTools?.url || '').toContain('/forms/children/en/cbt-core/');
+    expect(overwhelmed?.url || '').toContain('/forms/en/children/cbt-core/');
+    expect(calmingTools?.url || '').toContain('/forms/en/children/cbt-core/');
   });
 
   it('keeps Hebrew adolescents CBT core isolated to Hebrew language mode', () => {

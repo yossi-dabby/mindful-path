@@ -8,8 +8,8 @@
   "module_number": 1,
   "module_title_he": "חרדה, לחץ ופחדים",
   "module_title_en": "Anxiety, Stress and Fears",
-  "github_path": "public/forms/adolescents/he/cbt-specialized/module-01/",
-  "combined_pdf_path": "public/forms/adolescents/he/cbt-specialized/module-01/adolescents_cbt_specialized_he_module_01_anxiety_stress_fears.pdf",
+  "github_path": "public/forms/he/adolescents/cbt-specialized/module-01/",
+  "combined_pdf_path": "public/forms/he/adolescents/cbt-specialized/module-01/adolescents_cbt_specialized_he_module_01_anxiety_stress_fears.pdf",
   "items": [
     {
       "id": "adolescents-cbt-specialized-he-01-01",
@@ -49,8 +49,8 @@
       ],
       "ai_matching_summary_he": "מתאים לפתיחת עבודה טיפולית סביב חרדה או לחץ כאשר צריך למפות בקצרה מה קורה עכשיו, מה מרגישים בגוף, אילו מחשבות עולות ומה יכול להיות צעד קטן ובטוח.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_01.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-01/previews/adolescents_cbt_specialized_he_01_01_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_01.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-01/previews/adolescents_cbt_specialized_he_01_01_preview.png"
     },
     {
       "id": "adolescents-cbt-specialized-he-01-02",
@@ -90,8 +90,8 @@
       ],
       "ai_matching_summary_he": "מתאים למצבים שבהם המשתמש/ת מתאר/ת לחץ או פחד ורוצה להבין מה מפעיל אותם: מקום, אדם, מחשבה, תחושת גוף, חוסר ודאות או עומס.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_02.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-01/previews/adolescents_cbt_specialized_he_01_02_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_02.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-01/previews/adolescents_cbt_specialized_he_01_02_preview.png"
     },
     {
       "id": "adolescents-cbt-specialized-he-01-03",
@@ -130,8 +130,8 @@
       ],
       "ai_matching_summary_he": "מתאים כאשר יש מחשבת דאגה חוזרת כמו מה יקרה אם, כולם יחשבו, אני לא אצליח, או כאשר צריך להבחין בין דאגה לבין מידע עובדתי.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_03.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-01/previews/adolescents_cbt_specialized_he_01_03_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_03.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-01/previews/adolescents_cbt_specialized_he_01_03_preview.png"
     },
     {
       "id": "adolescents-cbt-specialized-he-01-04",
@@ -171,8 +171,8 @@
       ],
       "ai_matching_summary_he": "מתאים למשתמש/ת שמתאר/ת לחץ לפני מבחן או משימת ביצוע ורוצה להכין תוכנית ערב לפני ויום המבחן עם צעדים קטנים וברורים.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_04.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-01/previews/adolescents_cbt_specialized_he_01_04_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_04.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-01/previews/adolescents_cbt_specialized_he_01_04_preview.png"
     },
     {
       "id": "adolescents-cbt-specialized-he-01-05",
@@ -212,8 +212,8 @@
       ],
       "ai_matching_summary_he": "מתאים כאשר המשתמש/ת נמנע/ת ממשימה, שיחה, הגעה למקום או ניסיון חדש בגלל חרדה, וצריך לבחור צעד קטן ובטוח לכיוון אומץ.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_05.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-01/previews/adolescents_cbt_specialized_he_01_05_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_05.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-01/previews/adolescents_cbt_specialized_he_01_05_preview.png"
     },
     {
       "id": "adolescents-cbt-specialized-he-01-06",
@@ -253,8 +253,8 @@
       ],
       "ai_matching_summary_he": "מתאים לבניית מדרג אומץ: מטרה בראש הסולם, צעד קל, צעד אמצעי וצעד שבועי להתמודדות עם פחד באופן הדרגתי ותומך.",
       "safety_notes": "Hebrew adolescent CBT worksheet. Supportive educational/therapeutic tool. Not emergency care. Use with appropriate clinical judgment.",
-      "file_path": "public/forms/adolescents/he/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_06.pdf",
-      "preview_path": "public/forms/adolescents/he/cbt-specialized/module-01/previews/adolescents_cbt_specialized_he_01_06_preview.png"
+      "file_path": "public/forms/he/adolescents/cbt-specialized/module-01/adolescents_cbt_specialized_he_01_06.pdf",
+      "preview_path": "public/forms/he/adolescents/cbt-specialized/module-01/previews/adolescents_cbt_specialized_he_01_06_preview.png"
     }
   ]
 }

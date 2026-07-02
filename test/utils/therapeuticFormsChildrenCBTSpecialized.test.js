@@ -42,7 +42,7 @@ describe('therapeuticFormsChildrenCBTSpecialized.test.js', () => {
       expect(module.worksheetCount).toBe(10);
       expect(module.language).toBe('en');
       expect(module.audience).toBe('children');
-      expect(String(module.fileUrl || '')).toMatch(/^\/forms\/children\/en\/cbt-specialized\/module-0[1-5]\//);
+      expect(String(module.fileUrl || '')).toMatch(/^\/forms\/en\/children\/cbt-specialized\/module-0[1-5]\//);
     }
   });
 
@@ -134,16 +134,16 @@ describe('therapeuticFormsChildrenCBTSpecialized.test.js', () => {
     const worksheet = resolveFormIntent('send worksheet 1.3.1 from children specialized', 'en');
 
     expect(pack?.form_id).toBe('children-cbt-specialized-en-module-4-1');
-    expect(String(pack?.url || '')).toContain('/forms/children/en/cbt-specialized/module-04/children_cbt_specialized_en_4.1_ocd.pdf');
+    expect(String(pack?.url || '')).toContain('/forms/en/children/cbt-specialized/module-04/children_cbt_specialized_en_4.1_ocd.pdf');
 
     expect(worksheet?.form_id).toBe('children-cbt-specialized-en-1-3-1');
     expect(worksheet?.formNumber).toBe('1.3.1');
-    expect(String(worksheet?.url || '')).toContain('/forms/children/en/cbt-specialized/module-01/children_cbt_specialized_en_01_03_specific_phobias_full.pdf');
+    expect(String(worksheet?.url || '')).toContain('/forms/en/children/cbt-specialized/module-01/children_cbt_specialized_en_01_03_specific_phobias_full.pdf');
   });
 
   it('preserves Open vs Download URL behavior for specialized PDFs', () => {
     const metadata = resolveFormIntent('children-cbt-specialized-en-module-5-1', 'en');
-    expect(metadata?.url).toContain('/forms/children/en/cbt-specialized/module-05/children_cbt_specialized_en_5.1_sleep_problems.pdf');
+    expect(metadata?.url).toContain('/forms/en/children/cbt-specialized/module-05/children_cbt_specialized_en_5.1_sleep_problems.pdf');
 
     const openUrl = getFormOpenUrl(metadata?.url);
     const downloadUrl = getFormDownloadUrl(metadata?.url);

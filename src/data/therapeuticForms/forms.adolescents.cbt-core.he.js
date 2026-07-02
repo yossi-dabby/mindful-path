@@ -27,12 +27,12 @@ const STAGE_TITLES_HE = Object.freeze({
 });
 
 const STAGE_BASE_PATHS = Object.freeze({
-  1: '/forms/adolescents/he/cbt-core/stage-01',
-  2: '/forms/adolescents/he/cbt-core/stage-02',
-  3: '/forms/adolescents/he/cbt-core/stage-03',
-  4: '/forms/adolescents/he/cbt-core/stage-04',
-  5: '/forms/adolescents/he/cbt-core/stage-05',
-  6: '/forms/adolescents/he/cbt-core/stage-06',
+  1: '/forms/he/adolescents/cbt-core/stage-01',
+  2: '/forms/he/adolescents/cbt-core/stage-02',
+  3: '/forms/he/adolescents/cbt-core/stage-03',
+  4: '/forms/he/adolescents/cbt-core/stage-04',
+  5: '/forms/he/adolescents/cbt-core/stage-05',
+  6: '/forms/he/adolescents/cbt-core/stage-06',
 });
 
 const STAGE_COMBINED_FILE_NAMES = Object.freeze({

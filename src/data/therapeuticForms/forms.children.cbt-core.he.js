@@ -3,7 +3,7 @@ import {
 } from './forms.children.cbt-core.en.js';
 
 const CHILDREN_CBT_CORE_HE_SERIES_ID = 'children-cbt-core-he';
-const CHILDREN_CBT_CORE_HE_BASE_URL = '/forms/children/he/cbt-core';
+const CHILDREN_CBT_CORE_HE_BASE_URL = '/forms/he/children/cbt-core';
 
 const SHARED_SECONDARY_CATEGORIES = Object.freeze([
   'workbook_series',

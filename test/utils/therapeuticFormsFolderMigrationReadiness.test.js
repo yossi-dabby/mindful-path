@@ -7,8 +7,8 @@ import { ALL_FORMS } from '../../src/data/therapeuticForms/index.js';
 const ROOT = process.cwd();
 const SUPPORTED_LANGUAGE_SEGMENTS_PATTERN = '(en|he|es|fr|de|it|pt)';
 
-const CANONICAL_AUDIENCE_FIRST_PATTERN = new RegExp(
-  `^public/forms/(children|adolescents|adults|older_adults|parents)/${SUPPORTED_LANGUAGE_SEGMENTS_PATTERN}/[^/]+/.+`
+const CANONICAL_LANGUAGE_FIRST_PATTERN = new RegExp(
+  `^public/forms/${SUPPORTED_LANGUAGE_SEGMENTS_PATTERN}/(children|adolescents|adults|older_adults|parents)/[^/]+/.+`
 );
 const LEGACY_ACTIVE_PATTERNS = [
   /^public\/forms\/module[-_]\d+\//,
@@ -22,14 +22,14 @@ const OUTSIDE_WRAPPER_PATTERNS = [
 
 function classifyRepoPath(filePath) {
   const normalized = String(filePath || '').replace(/\\/g, '/');
-  if (CANONICAL_AUDIENCE_FIRST_PATTERN.test(normalized)) return 'canonical-audience-first';
+  if (CANONICAL_LANGUAGE_FIRST_PATTERN.test(normalized)) return 'canonical-language-first';
   if (LEGACY_ACTIVE_PATTERNS.some((pattern) => pattern.test(normalized))) return 'legacy-active';
   if (OUTSIDE_WRAPPER_PATTERNS.some((pattern) => pattern.test(normalized))) return 'outside-upload-wrapper';
   return 'unclassified';
 }
 
 describe('therapeutic forms folder migration readiness safety', () => {
-  it('classifies active runtime paths while allowing current legacy lowercase paths', () => {
+  it('keeps active runtime paths language-first while preventing audience-first regressions', () => {
     const counts = {
       canonical: 0,
       legacyActive: 0,
@@ -51,7 +51,7 @@ describe('therapeutic forms folder migration readiness safety', () => {
       expect(fs.existsSync(absolute), `Active form ${form.id} points to missing runtime asset: ${filePath}`).toBe(true);
 
       const classification = classifyRepoPath(filePath);
-      if (classification === 'canonical-audience-first') counts.canonical += 1;
+      if (classification === 'canonical-language-first') counts.canonical += 1;
       if (classification === 'legacy-active') counts.legacyActive += 1;
       if (classification === 'outside-upload-wrapper') counts.outsideWrappers += 1;
       if (classification === 'unclassified') counts.unclassified += 1;
@@ -60,7 +60,8 @@ describe('therapeutic forms folder migration readiness safety', () => {
       expect(classification, `Active form ${form.id} must not escape public/forms/: ${filePath}`).not.toBe('outside-upload-wrapper');
     }
 
-    expect(counts.canonical + counts.legacyActive).toBeGreaterThan(0);
+    expect(counts.canonical).toBeGreaterThan(0);
+    expect(counts.legacyActive).toBe(0);
     expect(counts.unclassified).toBe(0);
     expect(counts.outsideWrappers).toBe(0);
   });

@@ -17,7 +17,7 @@ import {
 
 const ROOT = path.resolve(process.cwd());
 const SPECIALIZED_SERIES_ID = 'adolescents-cbt-specialized-en';
-const SPECIALIZED_SERIES_URL = '/forms/adolescents/en/cbt-specialized/yourcbttrapist_adolescents_cbt_specialized_en_full_series_60_forms_web_optimized_under_25mb.pdf';
+const SPECIALIZED_SERIES_URL = '/forms/en/adolescents/cbt-specialized/yourcbttrapist_adolescents_cbt_specialized_en_full_series_60_forms_web_optimized_under_25mb.pdf';
 
 describe('therapeuticFormsAdolescentsCBTSpecializedEnglish.test.js', () => {
   it('registers English-only specialized series with master card + modules 01-10', () => {
@@ -54,7 +54,7 @@ describe('therapeuticFormsAdolescentsCBTSpecializedEnglish.test.js', () => {
     const allSpecialized = FORMS_ADOLESCENTS_CBT_SPECIALIZED_EN;
     for (const form of allSpecialized) {
       const url = form.languages?.en?.file_url;
-      expect(url.startsWith('/forms/adolescents/en/cbt-specialized/')).toBe(true);
+      expect(url.startsWith('/forms/en/adolescents/cbt-specialized/')).toBe(true);
 
       const absolute = path.join(ROOT, 'public', url.replace(/^\//, ''));
       expect(fs.existsSync(absolute)).toBe(true);

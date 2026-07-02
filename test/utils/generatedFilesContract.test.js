@@ -53,7 +53,7 @@ function resolveMessageGeneratedFiles(metadata) {
 
 const FORM_A = {
   type: 'pdf',
-  url: '/forms/children/en/cbt-core/children-cbt-core-en.pdf',
+  url: '/forms/en/children/cbt-core/children-cbt-core-en.pdf',
   name: 'children-cbt-core-en.pdf',
   title: 'Children CBT Core',
   form_id: 'children-cbt-core-en',
@@ -64,7 +64,7 @@ const FORM_A = {
 
 const FORM_B = {
   type: 'pdf',
-  url: '/forms/adolescents/en/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf',
+  url: '/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf',
   name: 'adolescents-cbt-core-en.pdf',
   title: 'Adolescents CBT Core',
   form_id: 'adolescents-cbt-core-en',
@@ -75,7 +75,7 @@ const FORM_B = {
 
 const FORM_C = {
   type: 'pdf',
-  url: '/forms/adolescents/en/cbt-specialized/module-01.pdf',
+  url: '/forms/en/adolescents/cbt-specialized/module-01.pdf',
   name: 'module-01.pdf',
   title: 'Adolescents CBT Specialized Module 1',
   form_id: 'adolescents-cbt-specialized-en-module-01',
@@ -117,7 +117,7 @@ describe('generated_file — single payload contract', () => {
     const files = resolveMessageGeneratedFiles({ generated_file: FORM_A });
     expect(files[0].title).toBe('Children CBT Core');
     expect(files[0].name).toBe('children-cbt-core-en.pdf');
-    expect(files[0].url).toBe('/forms/children/en/cbt-core/children-cbt-core-en.pdf');
+    expect(files[0].url).toBe('/forms/en/children/cbt-core/children-cbt-core-en.pdf');
     expect(files[0].language).toBe('en');
   });
 
@@ -236,7 +236,7 @@ describe('mixed payload — generated_file is distinct from generated_files item
 // ─────────────────────────────────────────────────────────────────────────────
 describe('deduplication by form_id', () => {
   it('removes a duplicate that shares form_id with an earlier item', () => {
-    const sameFormIdDifferentUrl = { ...FORM_A, url: '/forms/children/en/cbt-core/variant.pdf', name: 'variant.pdf' };
+    const sameFormIdDifferentUrl = { ...FORM_A, url: '/forms/en/children/cbt-core/variant.pdf', name: 'variant.pdf' };
     const files = resolveMessageGeneratedFiles({
       generated_files: [FORM_A, sameFormIdDifferentUrl, FORM_B],
     });
@@ -244,7 +244,7 @@ describe('deduplication by form_id', () => {
   });
 
   it('keeps the first-seen item when form_id duplicates appear', () => {
-    const sameFormIdDifferentUrl = { ...FORM_A, url: '/forms/children/en/cbt-core/variant.pdf', name: 'variant.pdf' };
+    const sameFormIdDifferentUrl = { ...FORM_A, url: '/forms/en/children/cbt-core/variant.pdf', name: 'variant.pdf' };
     const files = resolveMessageGeneratedFiles({
       generated_files: [FORM_A, sameFormIdDifferentUrl, FORM_B],
     });
@@ -306,7 +306,7 @@ describe('deduplication by url (no form_id)', () => {
 describe('near-duplicates — valid distinct forms are not removed', () => {
   const nearDup1 = {
     type: 'pdf',
-    url: '/forms/children/en/cbt-core/worksheet-feelings.pdf',
+    url: '/forms/en/children/cbt-core/worksheet-feelings.pdf',
     name: 'worksheet-feelings.pdf',
     title: 'My Feelings Worksheet',
     form_id: 'children-cbt-core-en-feelings-v1',
@@ -314,7 +314,7 @@ describe('near-duplicates — valid distinct forms are not removed', () => {
   };
   const nearDup2 = {
     type: 'pdf',
-    url: '/forms/children/en/cbt-core/worksheet-feelings-v2.pdf',
+    url: '/forms/en/children/cbt-core/worksheet-feelings-v2.pdf',
     name: 'worksheet-feelings-v2.pdf',
     title: 'My Feelings Worksheet',
     form_id: 'children-cbt-core-en-feelings-v2',
@@ -551,7 +551,7 @@ describe('isCombinedPdf field preservation', () => {
 describe('normalizeGeneratedFile — library field round-trip', () => {
   const fullLibraryForm = {
     type: 'pdf',
-    url: '/forms/adolescents/en/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf',
+    url: '/forms/en/adolescents/cbt-core/series/adolescents-cbt-core-series-1-full-en.pdf',
     name: 'adolescents-cbt-core-series-1-full-en.pdf',
     title: 'Adolescents CBT Core Series',
     form_id: 'adolescents-cbt-core-en',
