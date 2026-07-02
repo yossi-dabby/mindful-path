@@ -4,9 +4,9 @@ import { test, expect } from '@playwright/test';
  * System Gestures & Selection CSS Tests
  *
  * Validates that the correct CSS rules are applied to:
- * 1. Disable pinch-to-zoom on the document (`touch-action: pan-x pan-y` on <html>)
- * 2. Disable the iOS long-press callout on the shell (`-webkit-touch-callout: none` on <html>)
- * 3. Prevent text selection on interactive elements (buttons, icons)
+ * 1. Allow pinch-to-zoom globally (no blanket touch-action suppression on <html>)
+ * 2. Allow the iOS long-press callout on the document level (no global suppression)
+ * 3. Prevent text selection on interactive elements (buttons, icons) — scoped
  * 4. Keep text selection enabled on content elements (paragraphs)
  * 5. Prevent native drag on images and SVGs
  * 6. Disable the tap highlight on interactive elements
@@ -71,29 +71,40 @@ async function mockApis(page: import('@playwright/test').Page) {
   });
 }
 
-test.describe('System Gesture & Selection Disabling', () => {
+test.describe('System Gesture & Selection Policy', () => {
   test.beforeEach(async ({ page }) => {
     await mockApis(page);
     await page.goto(`${BASE_URL}/Home`, { waitUntil: 'domcontentloaded' });
+    // Wait for Home page buttons (confirms lazy chunk loaded, not just Suspense fallback spinner).
     await page.waitForFunction(() => {
-      const root = document.querySelector('#root');
-      return root && root.children.length > 0;
-    }, { timeout: 10000 });
+      return !!document.querySelector('button');
+    }, { timeout: 15000 });
   });
 
-  test('html element disables pinch-to-zoom via touch-action', async ({ page }) => {
+  // ── P0 fix: pinch-to-zoom must NOT be blocked at document level ───────────
+  test('html element does NOT suppress pinch-to-zoom (touch-action is not pan-x pan-y)', async ({ page }) => {
     const touchAction = await page.evaluate(() =>
       getComputedStyle(document.documentElement).getPropertyValue('touch-action').trim()
     );
-    expect(touchAction).toBe('pan-x pan-y');
+    // 'pan-x pan-y' would disable pinch zoom — that must never be set on <html>
+    expect(touchAction).not.toBe('pan-x pan-y');
   });
 
-  test('buttons have user-select: none to prevent text selection', async ({ page }) => {
+  // ── P0 fix: iOS callout must NOT be globally suppressed ───────────────────
+  test('html element does NOT globally suppress -webkit-touch-callout', async ({ page }) => {
+    const callout = await page.evaluate(() =>
+      getComputedStyle(document.documentElement).getPropertyValue('-webkit-touch-callout').trim()
+    );
+    // 'none' globally would block copy/share on all content — must not be set on <html>
+    expect(callout).not.toBe('none');
+  });
+
+  // ── Correct scoped behaviour preserved ───────────────────────────────────
+  test('buttons have user-select: none to prevent accidental text selection', async ({ page }) => {
     const userSelect = await page.evaluate(() => {
       const btn = document.querySelector('button');
       return btn ? getComputedStyle(btn).userSelect : null;
     });
-    // All browsers normalize "none"
     expect(userSelect).toBe('none');
   });
 

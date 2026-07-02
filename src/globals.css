@@ -1,3 +1,15 @@
+/* globals.css — comprehensive design-system tokens and utilities
+ *
+ * This file is imported in main.jsx after index.css.  Its @layer base tokens
+ * override the basic index.css defaults via CSS cascade (last wins within a
+ * layer).  The safe-bottom / safe-bottom-nav utility classes defined here are
+ * required by multiple page components.
+ *
+ * The @tailwind directives below are required because PostCSS / Tailwind CSS v3
+ * processes each JS-imported CSS file independently.  Tailwind deduplicates the
+ * generated output, so having them in two files does not meaningfully bloat the
+ * final bundle.
+ */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -520,10 +532,11 @@ p[class*="text"], span[class*="text"], div[class*="text"] {
 html {
   overscroll-behavior: none;
   overscroll-behavior-y: none;
-  /* Disable iOS long-press callout menu (Copy / Share / Open Link popups) */
-  -webkit-touch-callout: none;
-  /* Disable pinch-to-zoom on the app shell; one-finger panning still works */
-  touch-action: pan-x pan-y;
+  /* NOTE: touch-action and -webkit-touch-callout are intentionally NOT set on
+     <html> — doing so blocks pinch-to-zoom and the iOS long-press callout
+     globally (P0 App Store review blockers).  Scoped suppression is in
+     index.css and on specific interactive elements (button, [role="button"],
+     etc.). */
 }
 
 body {

@@ -115,12 +115,13 @@ test.describe('PullToRefresh gesture handling', () => {
   test.beforeEach(async ({ page }) => {
     await mockApis(page);
     await page.goto(`${BASE_URL}/Home`, { waitUntil: 'domcontentloaded' });
+    // Wait for #app-scroll-container to ensure Home page and PullToRefresh are
+    // fully loaded (not just the Suspense fallback spinner).
     await page.waitForFunction(
       () => {
-        const root = document.querySelector('#root');
-        return root && root.children.length > 0;
+        return !!document.querySelector('#app-scroll-container');
       },
-      { timeout: 10000 },
+      { timeout: 15000 },
     );
   });
 

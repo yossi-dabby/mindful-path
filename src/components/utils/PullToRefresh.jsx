@@ -65,8 +65,15 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
       setIsRefreshing(true);
       
       try {
-        // Invalidate all active React Query keys
-        await queryClient.invalidateQueries();
+        // Invalidate only the provided query keys when specified; fall back to
+        // invalidating all active queries when no keys are given (legacy behaviour).
+        if (Array.isArray(queryKeys) && queryKeys.length > 0) {
+          await Promise.all(
+            queryKeys.map((key) => queryClient.invalidateQueries({ queryKey: Array.isArray(key) ? key : [key] }))
+          );
+        } else {
+          await queryClient.invalidateQueries();
+        }
         
         // Call custom refresh handler if provided
         if (onRefresh) {
