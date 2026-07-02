@@ -170,7 +170,32 @@ const FORBIDDEN_INLINE_PATTERNS = [
   /^\s*RULE ZERO/im,
   /^\s*STEP \d+:/im,
   /^\s*LINT \d+/im,
-  /^\s*CP\d+/im
+  /^\s*CP\d+/im,
+
+  // Meta-reasoning / policy narration patterns (must never appear in user-visible output)
+  // Pattern: "The user is [verb]-ing [object]" — internal classification of the user's message.
+  // Verbs listed cover the most common LLM meta-analysis constructions: emotional state
+  // ("expressing", "feeling"), content summary ("describing", "stating", "mentioning"),
+  // and intent signals ("asking", "requesting"). Extend this list if new variants appear.
+  /\bThe user is (?:expressing|describing|asking|requesting|feeling|showing|stating|reporting|noting|mentioning|displaying|exhibiting)\b/i,
+  // Pattern: "The user's message is/contains" — internal message analysis
+  /\bThe user['']s (?:message|input|request|query|response|tone) (?:is|contains?|indicates?|suggests?|signals?)\b/i,
+  // Pattern: "Relevant Constitution principles" — policy narration leak
+  /\bRelevant Constitution (?:principles?|rules?|guidelines?|constraints?|points?)\b/i,
+  // Pattern: "I need to respond [to/with]" or "I need to [produce/generate/provide]" — planning text
+  /\bI need to (?:respond|reply|generate|produce|provide|address|handle|output)\b/i,
+  // Pattern: "This is a [adjective] response" — meta-commentary on own output
+  /\bThis (?:is|should be|will be|represents?) (?:a |an )?(?:therapeutic|supportive|CBT|clinical|empathic|appropriate|directive|brief|concise|short) (?:response|reply|answer|message)\b/i,
+  // Pattern: "Applying [named constraint/principle]"
+  /\bApplying (?:principle|rule|constraint|guideline|policy|constitution)\b/i,
+  // Pattern: "Constitution says" / "Per the constitution" — explicit policy citation
+  /\b(?:Per|According to|Following) the (?:constitution|policy|guidelines?|protocol|rules?)\b/i,
+  /\bConstitution (?:says|states|requires?|mandates?|specifies?|indicates?)\b/i,
+  // Pattern: "I will now [produce/generate/write] a response" — output announcement
+  /\bI (?:will|shall) now (?:produce|generate|write|compose|provide|give) (?:a |an |the )?(?:response|reply|answer|therapeutic)\b/i,
+  // Pattern: internal scoring or evaluation phrases
+  /\bResponse (?:quality|score|rating|evaluation|assessment)\s*[:=]/i,
+  /\bOutput (?:quality|score|rating|evaluation)\s*[:=]/i,
 ];
 
 const LANGUAGE_FAILSAFES = {
@@ -264,7 +289,9 @@ export function hasReasoningLeakage(text) {
   if (!text || typeof text !== 'string') return false;
   
   if (/<think>/i.test(text)) return true;
-  return FORBIDDEN_PATTERNS.some(pattern => pattern.test(text));
+  if (FORBIDDEN_PATTERNS.some(pattern => pattern.test(text))) return true;
+  // Also check inline patterns (tool names, entity names, meta-reasoning phrases)
+  return FORBIDDEN_INLINE_PATTERNS.some(pattern => pattern.test(text));
 }
 
 /**
