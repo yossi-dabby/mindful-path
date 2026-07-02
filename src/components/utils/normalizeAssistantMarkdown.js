@@ -49,6 +49,8 @@ export function normalizeAssistantMarkdown(text) {
   // 4. Doubled-asterisk collapse: "****" anywhere not part of a valid bold span → remove.
   //    A "****" sequence that is not flanked by non-space chars is an empty bold and
   //    renders as nothing useful.
+  //    Note: (?<!\*) negative lookbehind requires ES2018+; supported by all modern browsers
+  //    targeted by this Vite build (Chrome 80+, Firefox 78+, Safari 14+).
   result = result.replace(/(?<!\*)\*{4}(?!\*)/g, '');
 
   // 5. Unbalanced trailing "**" at end of a line (orphan close marker):

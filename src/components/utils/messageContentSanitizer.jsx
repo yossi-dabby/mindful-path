@@ -173,7 +173,10 @@ const FORBIDDEN_INLINE_PATTERNS = [
   /^\s*CP\d+/im,
 
   // Meta-reasoning / policy narration patterns (must never appear in user-visible output)
-  // Pattern: "The user is [verb]-ing [object]" — internal classification of the user's message
+  // Pattern: "The user is [verb]-ing [object]" — internal classification of the user's message.
+  // Verbs listed cover the most common LLM meta-analysis constructions: emotional state
+  // ("expressing", "feeling"), content summary ("describing", "stating", "mentioning"),
+  // and intent signals ("asking", "requesting"). Extend this list if new variants appear.
   /\bThe user is (?:expressing|describing|asking|requesting|feeling|showing|stating|reporting|noting|mentioning|displaying|exhibiting)\b/i,
   // Pattern: "The user's message is/contains" — internal message analysis
   /\bThe user['']s (?:message|input|request|query|response|tone) (?:is|contains?|indicates?|suggests?|signals?)\b/i,

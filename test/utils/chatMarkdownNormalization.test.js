@@ -124,7 +124,8 @@ describe('normalizeAssistantMarkdown — list trailing whitespace', () => {
   it('trims excessive trailing spaces from list items', () => {
     const input = '- First item   \n- Second item   ';
     const result = normalize(input);
-    expect(result).not.toMatch(/- First item {3,}/);
+    // Rule trims 2+ trailing spaces (threshold is {2,}); verify both items are clean
+    expect(result).not.toMatch(/- First item {2,}/);
     expect(result).toContain('- First item');
     expect(result).toContain('- Second item');
   });
