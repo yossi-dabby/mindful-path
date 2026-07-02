@@ -75,10 +75,7 @@ test.describe('System Gesture & Selection Policy', () => {
   test.beforeEach(async ({ page }) => {
     await mockApis(page);
     await page.goto(`${BASE_URL}/Home`, { waitUntil: 'domcontentloaded' });
-    // Wait until the Home page has fully loaded out of its Suspense boundary.
-    // The lazy-loaded Home chunk renders <button> elements; the Suspense
-    // fallback (loading spinner) does not — so checking for a <button> is a
-    // reliable signal that the real page content is in the DOM.
+    // Wait for Home page buttons (confirms lazy chunk loaded, not just Suspense fallback spinner).
     await page.waitForFunction(() => {
       return !!document.querySelector('button');
     }, { timeout: 15000 });

@@ -533,9 +533,10 @@ html {
   overscroll-behavior: none;
   overscroll-behavior-y: none;
   /* NOTE: touch-action and -webkit-touch-callout are intentionally NOT set on
-     <html> — doing so would block pinch-to-zoom and the iOS long-press callout
-     globally, which are P0 App Store review blockers and accessibility issues.
-     Scoped suppression lives on specific interactive elements below. */
+     <html> — doing so blocks pinch-to-zoom and the iOS long-press callout
+     globally (P0 App Store review blockers).  Scoped suppression is in
+     index.css and on specific interactive elements (button, [role="button"],
+     etc.). */
 }
 
 body {
