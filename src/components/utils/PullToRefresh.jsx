@@ -67,7 +67,7 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
       try {
         // Invalidate only the provided query keys when specified; fall back to
         // invalidating all active queries when no keys are given (legacy behaviour).
-        if (queryKeys.length > 0) {
+        if (Array.isArray(queryKeys) && queryKeys.length > 0) {
           await Promise.all(
             queryKeys.map((key) => queryClient.invalidateQueries({ queryKey: Array.isArray(key) ? key : [key] }))
           );
