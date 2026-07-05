@@ -91,7 +91,7 @@ async function gotoHome(page: import('@playwright/test').Page) {
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('Bottom Tabs (mobile)', () => {
   // Simulate a narrow phone viewport so the bottom nav renders (md:hidden hides it on desktop)
-  test.use({ ...devices['Pixel 5'] });
+  test.use(pixel5Device);
 
   test.beforeEach(async ({ page }) => {
     await mockApis(page);
@@ -208,7 +208,7 @@ test.describe('Safe Area Handling', () => {
 // 3. BACK STACK / OVERLAY CLOSE
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('Back Stack — overlay sentinel pattern', () => {
-  test.use({ ...devices['Pixel 5'] });
+  test.use(pixel5Device);
 
   test.beforeEach(async ({ page }) => {
     await mockApis(page);
@@ -318,7 +318,7 @@ test.describe('RTL / Hebrew initialisation', () => {
 // 5. PULL-TO-REFRESH — touchcancel & aria-live
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('PullToRefresh — touchcancel and aria-live', () => {
-  test.use({ ...devices['Pixel 5'] });
+  test.use(pixel5Device);
 
   test.beforeEach(async ({ page }) => {
     await mockApis(page);
