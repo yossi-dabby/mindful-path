@@ -8,6 +8,9 @@
     <meta name="theme-color" content="#26a69a" />
     <script>
       (function () {
+        var storedLanguage = localStorage.getItem('language') || 'en';
+        document.documentElement.lang = storedLanguage;
+        document.documentElement.dir = storedLanguage === 'he' ? 'rtl' : 'ltr';
         var stored = localStorage.getItem('theme');
         var isDark = stored === 'dark' || (stored !== 'light' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
         if (isDark) document.documentElement.classList.add('dark');

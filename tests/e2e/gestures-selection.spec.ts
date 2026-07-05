@@ -119,6 +119,30 @@ test.describe('System Gesture & Selection Policy', () => {
     expect(tapHighlight).toMatch(/rgba\(0,\s*0,\s*0,\s*0\)|transparent/);
   });
 
+  test('buttons suppress the iOS callout menu while content text keeps it enabled', async ({ page }) => {
+    const styles = await page.evaluate(() => {
+      const btn = document.querySelector('button');
+      const paragraph = document.querySelector('p');
+
+      if (!btn || !paragraph) {
+        return null;
+      }
+
+      return {
+        buttonCallout: getComputedStyle(btn).getPropertyValue('-webkit-touch-callout').trim(),
+        paragraphCallout: getComputedStyle(paragraph).getPropertyValue('-webkit-touch-callout').trim(),
+      };
+    });
+
+    if (styles === null) {
+      test.skip(true, 'No <button> or <p> found on the page');
+      return;
+    }
+
+    expect(styles.buttonCallout).toMatch(/^$|none$/);
+    expect(styles.paragraphCallout).not.toBe('none');
+  });
+
   test('interactive elements use touch-action: manipulation to remove 300ms tap delay', async ({ page }) => {
     const touchAction = await page.evaluate(() => {
       const btn = document.querySelector('button');

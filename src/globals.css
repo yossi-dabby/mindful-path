@@ -498,6 +498,18 @@ button, a, [role="button"], svg, .icon, [class*="Button"], [class*="badge"] {
   -webkit-tap-highlight-color: transparent;
 }
 
+button,
+[role="button"],
+[role="tab"],
+[role="menuitem"],
+[role="option"],
+[role="switch"],
+summary,
+[data-app-chrome],
+[data-app-chrome] * {
+  -webkit-touch-callout: none;
+}
+
 /* Prevent native drag on images and icons */
 img, svg {
   -webkit-user-drag: none;
@@ -516,6 +528,17 @@ p[class*="text"], span[class*="text"], div[class*="text"] {
   user-select: auto;
   -webkit-user-select: auto;
   /* Re-enable iOS callout for content text so users can copy chat/journal text */
+  -webkit-touch-callout: default;
+}
+
+input,
+textarea,
+select,
+[contenteditable=""],
+[contenteditable="true"],
+[contenteditable="plaintext-only"] {
+  user-select: text;
+  -webkit-user-select: text;
   -webkit-touch-callout: default;
 }
 

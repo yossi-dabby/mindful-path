@@ -15,23 +15,43 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
   const isPullingRef = useRef(false);  // used in event callbacks to avoid stale closures
   const pullDistanceRef = useRef(0);   // mirrors pullDistance state for event callbacks
   const queryClient = useQueryClient();
+  const isTouchDeviceRef = useRef(false);
 
   const PULL_THRESHOLD = 80;
   const MAX_PULL = 120;
+  const EDITABLE_SELECTOR = 'input, textarea, select, [contenteditable=""], [contenteditable="true"], [contenteditable="plaintext-only"]';
 
   // Cache the scroll container reference once on mount
   useEffect(() => {
     mainElRef.current = document.getElementById('app-scroll-container') || document.querySelector('main');
+    isTouchDeviceRef.current =
+      typeof window !== 'undefined' &&
+      ('ontouchstart' in window ||
+        navigator.maxTouchPoints > 0 ||
+        window.matchMedia?.('(pointer: coarse)').matches === true);
+  }, []);
+
+  const resetPullState = useCallback(() => {
+    touchStartY.current = 0;
+    isPullingRef.current = false;
+    pullDistanceRef.current = 0;
+    setIsPulling(false);
+    setPullDistance(0);
   }, []);
 
   const handleTouchStart = useCallback((e) => {
+    if (isRefreshing || !isTouchDeviceRef.current) return;
+
+    const target = e.target instanceof Element ? e.target : null;
+    if (target?.closest(EDITABLE_SELECTOR)) return;
+
     // Activate if we are scrolled to the top, or if there is no scroll container
     // (e.g. Playwright / JSDOM test environments where the element is absent).
     const atTop = !mainElRef.current || mainElRef.current.scrollTop === 0;
     if (atTop) {
       touchStartY.current = e.touches[0].clientY;
     }
-  }, []);
+  }, [isRefreshing]);
 
   const handleTouchMove = useCallback((e) => {
     // Skip if we never recorded a start position.
@@ -93,6 +113,10 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
     setPullDistance(0);
   }, [queryClient, onRefresh]);
 
+  const handleTouchCancel = useCallback(() => {
+    resetPullState();
+  }, [resetPullState]);
+
   // Register touch listeners with { passive: false } so e.preventDefault() works
   // without triggering browser warnings about passive event listeners.
   // Capture `el` at setup time so the cleanup removes listeners from the same
@@ -104,13 +128,15 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
     el.addEventListener('touchstart', handleTouchStart, { passive: true });
     el.addEventListener('touchmove', handleTouchMove, { passive: false });
     el.addEventListener('touchend', handleTouchEnd, { passive: true });
+    el.addEventListener('touchcancel', handleTouchCancel, { passive: true });
 
     return () => {
       el.removeEventListener('touchstart', handleTouchStart);
       el.removeEventListener('touchmove', handleTouchMove);
       el.removeEventListener('touchend', handleTouchEnd);
+      el.removeEventListener('touchcancel', handleTouchCancel);
     };
-  }, [handleTouchStart, handleTouchMove, handleTouchEnd]);
+  }, [handleTouchStart, handleTouchMove, handleTouchEnd, handleTouchCancel]);
 
   const pullProgress = Math.min(pullDistance / PULL_THRESHOLD, 1);
   const shouldTrigger = pullDistance >= PULL_THRESHOLD;
@@ -126,7 +152,7 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
           className="fixed left-0 right-0 flex justify-center items-center z-50"
           style={{ top: `calc(${MOBILE_HEADER_HEIGHT}px + env(safe-area-inset-top, 0px) + 8px)`, pointerEvents: 'none' }}
         >
-          <div className="bg-card/90 backdrop-blur-sm border border-border/60 rounded-full px-4 py-2 shadow-[var(--shadow-md)] flex items-center gap-2">
+          <div className="bg-card/90 backdrop-blur-sm border border-border/60 rounded-full px-4 py-2 shadow-[var(--shadow-md)] flex items-center gap-2" role="status" aria-live="polite">
             <Loader2
               className={`w-4 h-4 text-primary ${isRefreshing || shouldTrigger ? 'animate-spin' : ''}`}
               style={{

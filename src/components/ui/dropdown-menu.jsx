@@ -21,12 +21,12 @@ const DropdownMenuSubTrigger = React.forwardRef(({ className, inset, children, .
     ref={ref}
     className={cn(
       "flex cursor-default gap-2 select-none items-center rounded-sm px-2 py-1.5 min-h-[44px] md:min-h-0 text-sm outline-none focus:bg-secondary data-[state=open]:bg-secondary [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
-      inset && "pl-8",
+      inset && "pl-8 rtl:pl-2 rtl:pr-8",
       className
     )}
     {...props}>
     {children}
-    <ChevronRight className="ml-auto" />
+    <ChevronRight className="ml-auto rtl:ml-0 rtl:mr-auto rtl:scale-x-[-1]" />
   </DropdownMenuPrimitive.SubTrigger>
 ))
 DropdownMenuSubTrigger.displayName =
@@ -64,7 +64,7 @@ const DropdownMenuItem = React.forwardRef(({ className, inset, ...props }, ref) 
     ref={ref}
     className={cn(
       "relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 min-h-[44px] md:min-h-0 text-sm outline-none transition-colors focus:bg-secondary focus:text-secondary-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0",
-      inset && "pl-8",
+      inset && "pl-8 rtl:pl-2 rtl:pr-8",
       className
     )}
     {...props} />
@@ -75,12 +75,12 @@ const DropdownMenuCheckboxItem = React.forwardRef(({ className, children, checke
   <DropdownMenuPrimitive.CheckboxItem
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center rounded-sm py-1.5 min-h-[44px] md:min-h-0 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-secondary focus:text-secondary-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+    "relative flex cursor-default select-none items-center rounded-sm py-1.5 min-h-[44px] md:min-h-0 pl-8 pr-2 rtl:pl-2 rtl:pr-8 text-sm outline-none transition-colors focus:bg-secondary focus:text-secondary-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     checked={checked}
     {...props}>
-    <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+    <span className="absolute left-2 rtl:left-auto rtl:right-2 flex h-3.5 w-3.5 items-center justify-center">
       <DropdownMenuPrimitive.ItemIndicator>
         <Check className="h-4 w-4" />
       </DropdownMenuPrimitive.ItemIndicator>
@@ -95,11 +95,11 @@ const DropdownMenuRadioItem = React.forwardRef(({ className, children, ...props 
   <DropdownMenuPrimitive.RadioItem
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center rounded-sm py-1.5 min-h-[44px] md:min-h-0 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-secondary focus:text-secondary-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+    "relative flex cursor-default select-none items-center rounded-sm py-1.5 min-h-[44px] md:min-h-0 pl-8 pr-2 rtl:pl-2 rtl:pr-8 text-sm outline-none transition-colors focus:bg-secondary focus:text-secondary-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     {...props}>
-    <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+    <span className="absolute left-2 rtl:left-auto rtl:right-2 flex h-3.5 w-3.5 items-center justify-center">
       <DropdownMenuPrimitive.ItemIndicator>
         <Circle className="h-2 w-2 fill-current" />
       </DropdownMenuPrimitive.ItemIndicator>
@@ -112,7 +112,7 @@ DropdownMenuRadioItem.displayName = DropdownMenuPrimitive.RadioItem.displayName
 const DropdownMenuLabel = React.forwardRef(({ className, inset, ...props }, ref) => (
   <DropdownMenuPrimitive.Label
     ref={ref}
-    className={cn("px-2 py-1.5 text-sm font-semibold", inset && "pl-8", className)}
+    className={cn("px-2 py-1.5 text-sm font-semibold", inset && "pl-8 rtl:pl-2 rtl:pr-8", className)}
     {...props} />
 ))
 DropdownMenuLabel.displayName = DropdownMenuPrimitive.Label.displayName
@@ -131,7 +131,7 @@ const DropdownMenuShortcut = ({
 }) => {
   return (
     (<span
-      className={cn("ml-auto text-xs tracking-widest opacity-60", className)}
+      className={cn("ml-auto rtl:ml-0 rtl:mr-auto text-xs tracking-widest opacity-60", className)}
       {...props} />)
   );
 }

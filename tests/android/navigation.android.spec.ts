@@ -176,6 +176,19 @@ test.describe('Bottom Tabs & Stack Preservation', () => {
 
     await checkConsole();
   });
+
+  test('mapped sub-pages keep their parent tab marked active in the bottom nav', async ({ page }) => {
+    await page.goto(`${BASE_URL}/Playlists`, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(1000);
+
+    const homeTab = bottomNavLink(page, 'Home');
+    if (await homeTab.count() === 0) {
+      test.skip(true, 'Home link not found – skipping');
+      return;
+    }
+
+    await expect(homeTab).toHaveAttribute('aria-current', 'page');
+  });
 });
 
 // ===========================================================================
@@ -391,4 +404,3 @@ test.describe('Optimistic UI Updates', () => {
     await checkConsole();
   });
 });
-
