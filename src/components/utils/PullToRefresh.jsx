@@ -150,6 +150,7 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
     <div
       ref={containerRef}
       className="relative"
+      data-pull-to-refresh
     >
       {/* Pull indicator - fixed so it appears at the top of the viewport */}
       {(isPulling || isRefreshing) && (

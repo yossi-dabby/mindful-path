@@ -43,6 +43,7 @@ export default function AppContent({ children }) {
         style={{
           overscrollBehavior: 'none',
           height: '100dvh',
+          WebkitOverflowScrolling: 'touch',
           // Mobile: padding for header + bottom nav + safe areas
           paddingTop: `calc(${MOBILE_HEADER_HEIGHT}px + env(safe-area-inset-top, 0))`,
           paddingBottom: `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0))`,
