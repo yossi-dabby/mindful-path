@@ -164,7 +164,12 @@ export const translations = {
           delete_confirm_title: "Delete Account Permanently?",
           delete_confirm_description: "This action cannot be undone. All your data including goals, journals, mood entries, and conversations will be permanently deleted.",
           delete_confirm_button: "Delete My Account",
-          delete_error: "Failed to delete account. Please try again or contact support."
+          delete_error: "Failed to delete account. Please try again or contact support.",
+          delete_section_description: "Permanently removes your account and all personal data. This cannot be undone.",
+          delete_confirm_label: "Type DELETE to confirm",
+          delete_confirm_placeholder: "DELETE",
+          delete_deleting: "Deleting…",
+          delete_admin_blocked: "Admin accounts cannot be deleted from inside the app. Please contact support."
         },
         footer: {
           need_help: "Need help?",
@@ -1634,7 +1639,12 @@ export const translations = {
           delete_confirm_title: "למחוק את החשבון לצמיתות?",
           delete_confirm_description: "פעולה זו אינה הפיכה. כל הנתונים שלכם כולל מטרות, רשומות יומן, רשומות מצב רוח ושיחות יימחקו לצמיתות.",
           delete_confirm_button: "מחקו את החשבון שלי",
-          delete_error: "מחיקת החשבון נכשלה. נסו שוב או צרו קשר עם התמיכה."
+          delete_error: "מחיקת החשבון נכשלה. נסו שוב או צרו קשר עם התמיכה.",
+          delete_section_description: "מוחק לצמיתות את החשבון שלכם ואת כל הנתונים האישיים. לא ניתן לבטל פעולה זו.",
+          delete_confirm_label: "הקלידו DELETE לאישור",
+          delete_confirm_placeholder: "DELETE",
+          delete_deleting: "מוחק…",
+          delete_admin_blocked: "חשבונות מנהל לא ניתן למחוק מתוך האפליקציה. אנא צרו קשר עם התמיכה."
         },
         footer: {
           need_help: "צריכים עזרה?",
@@ -3104,7 +3114,12 @@ export const translations = {
           delete_confirm_title: "¿Eliminar cuenta permanentemente?",
           delete_confirm_description: "Esta acción no se puede deshacer. Todos tus datos, incluidos objetivos, diarios, entradas de humor y conversaciones, se eliminarán permanentemente.",
           delete_confirm_button: "Eliminar Mi Cuenta",
-          delete_error: "Error al eliminar la cuenta. Por favor, inténtalo de nuevo o contacta con soporte."
+          delete_error: "Error al eliminar la cuenta. Por favor, inténtalo de nuevo o contacta con soporte.",
+          delete_section_description: "Elimina permanentemente tu cuenta y todos los datos personales. Esta acción no se puede deshacer.",
+          delete_confirm_label: "Escribe DELETE para confirmar",
+          delete_confirm_placeholder: "DELETE",
+          delete_deleting: "Eliminando…",
+          delete_admin_blocked: "Las cuentas de administrador no pueden eliminarse desde la aplicación. Por favor, contacta con soporte."
         },
         footer: {
           need_help: "¿Necesitas ayuda?",
@@ -4529,7 +4544,12 @@ export const translations = {
           delete_confirm_title: "Supprimer le compte définitivement ?",
           delete_confirm_description: "Cette action ne peut pas être annulée. Toutes vos données, y compris les objectifs, journaux, entrées d'humeur et conversations, seront définitivement supprimées.",
           delete_confirm_button: "Supprimer Mon Compte",
-          delete_error: "Échec de la suppression du compte. Veuillez réessayer ou contacter le support."
+          delete_error: "Échec de la suppression du compte. Veuillez réessayer ou contacter le support.",
+          delete_section_description: "Supprime définitivement votre compte et toutes les données personnelles. Cette action est irréversible.",
+          delete_confirm_label: "Tapez DELETE pour confirmer",
+          delete_confirm_placeholder: "DELETE",
+          delete_deleting: "Suppression…",
+          delete_admin_blocked: "Les comptes administrateur ne peuvent pas être supprimés depuis l'application. Veuillez contacter le support."
         },
         footer: {
           need_help: "Besoin d'aide ?",
@@ -5953,7 +5973,12 @@ export const translations = {
           delete_confirm_title: "Konto dauerhaft löschen?",
           delete_confirm_description: "Diese Aktion kann nicht rückgängig gemacht werden. Alle Ihre Daten, einschließlich Ziele, Tagebücher, Stimmungseinträge und Gespräche, werden dauerhaft gelöscht.",
           delete_confirm_button: "Mein Konto Löschen",
-          delete_error: "Konto konnte nicht gelöscht werden. Bitte versuchen Sie es erneut oder wenden Sie sich an den Support."
+          delete_error: "Konto konnte nicht gelöscht werden. Bitte versuchen Sie es erneut oder wenden Sie sich an den Support.",
+          delete_section_description: "Löscht Ihr Konto und alle persönlichen Daten dauerhaft. Diese Aktion kann nicht rückgängig gemacht werden.",
+          delete_confirm_label: "Geben Sie DELETE zur Bestätigung ein",
+          delete_confirm_placeholder: "DELETE",
+          delete_deleting: "Wird gelöscht…",
+          delete_admin_blocked: "Administratorkonten können nicht aus der App heraus gelöscht werden. Bitte wenden Sie sich an den Support."
         },
         footer: {
           need_help: "Brauchen Sie Hilfe?",
@@ -7377,7 +7402,12 @@ export const translations = {
           delete_confirm_title: "Eliminare l'account definitivamente?",
           delete_confirm_description: "Questa azione non può essere annullata. Tutti i tuoi dati, inclusi obiettivi, diari, voci di umore e conversazioni, saranno eliminati definitivamente.",
           delete_confirm_button: "Elimina il Mio Account",
-          delete_error: "Impossibile eliminare l'account. Riprova o contatta il supporto."
+          delete_error: "Impossibile eliminare l'account. Riprova o contatta il supporto.",
+          delete_section_description: "Elimina definitivamente il tuo account e tutti i dati personali. Questa azione non può essere annullata.",
+          delete_confirm_label: "Digita DELETE per confermare",
+          delete_confirm_placeholder: "DELETE",
+          delete_deleting: "Eliminazione…",
+          delete_admin_blocked: "Gli account amministratore non possono essere eliminati dall'app. Si prega di contattare il supporto."
         },
         footer: {
           need_help: "Hai bisogno di aiuto?",
@@ -8801,7 +8831,12 @@ export const translations = {
           delete_confirm_title: "Excluir conta permanentemente?",
           delete_confirm_description: "Esta ação não pode ser desfeita. Todos os seus dados, incluindo objetivos, diários, entradas de humor e conversas, serão permanentemente excluídos.",
           delete_confirm_button: "Excluir Minha Conta",
-          delete_error: "Falha ao excluir a conta. Por favor, tente novamente ou entre em contato com o suporte."
+          delete_error: "Falha ao excluir a conta. Por favor, tente novamente ou entre em contato com o suporte.",
+          delete_section_description: "Remove permanentemente sua conta e todos os dados pessoais. Esta ação não pode ser desfeita.",
+          delete_confirm_label: "Digite DELETE para confirmar",
+          delete_confirm_placeholder: "DELETE",
+          delete_deleting: "Excluindo…",
+          delete_admin_blocked: "Contas de administrador não podem ser excluídas dentro do aplicativo. Por favor, entre em contato com o suporte."
         },
         footer: {
           need_help: "Precisa de ajuda?",

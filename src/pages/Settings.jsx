@@ -433,8 +433,8 @@ export default function Settings() {
           
           <div className="rounded-2xl border border-red-200 bg-red-50/70 p-4 space-y-3">
             <div>
-              <h3 className="text-sm font-semibold text-red-900">Delete Account &amp; Data</h3>
-              <p className="mt-1 text-xs text-red-700">Permanently removes your account and all personal data. This cannot be undone.</p>
+              <h3 className="text-sm font-semibold text-red-900">{t('settings.account.delete_account')}</h3>
+              <p className="mt-1 text-xs text-red-700">{t('settings.account.delete_section_description')}</p>
             </div>
             <DeleteAccountFlow userRole={user.role} />
           </div>

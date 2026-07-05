@@ -3,6 +3,7 @@ import { Slot } from "@radix-ui/react-slot"
 import { cva } from "class-variance-authority";
 
 import { cn } from "@/lib/utils"
+import { triggerHaptic } from "@/components/utils/hapticFeedback"
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius-control)] border border-transparent text-[0.9375rem] font-medium leading-none tracking-[0.005em] transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-45 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
@@ -34,12 +35,21 @@ const buttonVariants = cva(
   }
 )
 
-const Button = React.forwardRef(({ className, variant, size, asChild = false, ...props }, ref) => {
+const Button = React.forwardRef(({ className, variant, size, asChild = false, onClick, ...props }, ref) => {
   const Comp = asChild ? Slot : "button"
+
+  const handleClick = React.useCallback((e) => {
+    // Trigger haptic feedback on base button interactions (not on asChild which
+    // delegates click handling to the wrapped element).
+    if (!asChild) triggerHaptic('light');
+    if (onClick) onClick(e);
+  }, [asChild, onClick]);
+
   return (
     (<Comp
       className={cn(buttonVariants({ variant, size, className }))}
       ref={ref}
+      onClick={handleClick}
       {...props} />)
   );
 })
