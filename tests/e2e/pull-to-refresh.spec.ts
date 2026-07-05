@@ -149,4 +149,39 @@ test.describe('PullToRefresh gesture handling', () => {
     );
     expect(scrollTop).toBe(0);
   });
+
+  test('touchcancel resets pull indicator and hides it', async ({ page }) => {
+    // Start a pull below the threshold so the indicator is visible
+    await simulatePull(page, 200, 240);
+    // Dispatch touchcancel to simulate an interrupted gesture
+    await page.evaluate(() => {
+      const x = 200;
+      const target = document.elementFromPoint(x, 240) ?? document.body;
+      target.dispatchEvent(
+        new TouchEvent('touchcancel', {
+          touches: [],
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+    });
+    // Indicator must be gone after cancel
+    await expect(page.getByText('Pull to refresh')).toBeHidden({ timeout: 2000 });
+  });
+
+  test('pull indicator has role=status and aria-live=polite', async ({ page }) => {
+    await simulatePull(page, 200, 290);
+    // The indicator element must carry the correct ARIA attributes for screen readers
+    const attrs = await page.evaluate(() => {
+      const indicator = document.querySelector('[role="status"]');
+      if (!indicator) return null;
+      return {
+        role: indicator.getAttribute('role'),
+        ariaLive: indicator.getAttribute('aria-live'),
+      };
+    });
+    expect(attrs).not.toBeNull();
+    expect(attrs?.role).toBe('status');
+    expect(attrs?.ariaLive).toBe('polite');
+  });
 });

@@ -14,6 +14,7 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
   const containerRef = useRef(null);
   const isPullingRef = useRef(false);  // used in event callbacks to avoid stale closures
   const pullDistanceRef = useRef(0);   // mirrors pullDistance state for event callbacks
+  const isRefreshingRef = useRef(false); // synchronous guard against concurrent refreshes
   const queryClient = useQueryClient();
   const isTouchDeviceRef = useRef(false);
 
@@ -40,7 +41,7 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
   }, []);
 
   const handleTouchStart = useCallback((e) => {
-    if (isRefreshing || !isTouchDeviceRef.current) return;
+    if (isRefreshingRef.current || isRefreshing || !isTouchDeviceRef.current) return;
 
     const target = e.target instanceof Element ? e.target : null;
     if (target?.closest(EDITABLE_SELECTOR)) return;
@@ -82,6 +83,7 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
     pullDistanceRef.current = 0;
 
     if (currentPullDistance >= PULL_THRESHOLD) {
+      isRefreshingRef.current = true;
       setIsRefreshing(true);
       
       try {
@@ -105,6 +107,7 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
       } catch (error) {
         console.error('Refresh failed:', error);
       } finally {
+        isRefreshingRef.current = false;
         setIsRefreshing(false);
       }
     }
