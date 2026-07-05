@@ -53,7 +53,7 @@ export default function DraggableAiCompanion() {
   const [isAgeVerified, setIsAgeVerified] = useState(true);
   const mountedRef = useRef(true);
   const messagesEndRef = useRef(null);
-  const dragRef = useRef({ startX: 0, startY: 0, initialX: 0, initialY: 0 });
+  const dragRef = useRef({ startX: 0, startY: 0, initialRight: 0, initialBottom: 0 });
   const elementRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -756,7 +756,7 @@ export default function DraggableAiCompanion() {
                       code: ({ className, children }) =>
                       className?.includes('language-') ?
                       <code className={`block p-2 rounded bg-secondary text-xs font-mono ${className ?? ''}`}>{children}</code> :
-                      <code className="px-1 py-0.5 rounded bg-secondary text-xs">{children}</code>
+                      <code className="px-1 py-0.5 rounded bg-secondary text-xs font-mono">{children}</code>
 
                     }}>
 

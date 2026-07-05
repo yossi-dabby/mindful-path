@@ -113,7 +113,6 @@ test.describe('Bottom tabs — visibility on mobile', () => {
 
   test('bottom navigation has at least 3 tab items', async ({ page }) => {
     const tabs = page.locator('nav[aria-label="Main navigation"] a, nav[aria-label="Main navigation"] button');
-    await expect(tabs).toHaveCount(expect.any(Number));
     const count = await tabs.count();
     expect(count).toBeGreaterThanOrEqual(3);
   });
