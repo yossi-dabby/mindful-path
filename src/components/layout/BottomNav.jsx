@@ -6,6 +6,7 @@ import { Home, MessageCircle, BookOpen, Activity, Dumbbell, Heart } from 'lucide
 import { useTranslation } from 'react-i18next';
 import { useTabNavigation } from './TabNavigationProvider';
 import { getScrollContainer } from '@/lib/scrollContainer';
+import { triggerHaptic } from '@/components/utils/hapticFeedback';
 
 // CRITICAL: This height MUST match the padding-bottom in AppContent
 export const BOTTOM_NAV_HEIGHT = 80; // 20 * 4 = 80px (h-20)
@@ -30,6 +31,7 @@ export default function BottomNav({ currentPageName }) {
   // Link children on every parent render.
   const handleTabClick = useCallback((e, item) => {
     e.preventDefault();
+    triggerHaptic('selection');
     if (tabNav) {
       tabNav.switchToTab(item.path);
     } else {
