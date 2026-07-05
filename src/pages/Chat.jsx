@@ -2881,6 +2881,10 @@ export default function Chat() {
                     onKeyDown={handleKeyDown}
                     placeholder={t('chat.message_placeholder')} className="bg-[hsl(var(--surface-nested)/0.9)] text-foreground px-3 font-normal tracking-[0.001em] leading-6 rounded-[var(--radius-card)] flex w-full border border-input/90 shadow-[var(--shadow-sm)] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-h-[48px] max-h-[160px] resize-none"
                     data-testid="therapist-chat-input"
+                    enterKeyHint="send"
+                    autoCapitalize="sentences"
+                    autoComplete="off"
+                    autoCorrect="on"
                     disabled={isLoading || isUploadingFile} />
                   <div className="flex items-center flex-wrap gap-2 px-1 py-1">
                     {audioDraftStatus === 'idle' &&

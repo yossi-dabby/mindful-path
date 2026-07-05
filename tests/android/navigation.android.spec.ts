@@ -189,6 +189,60 @@ test.describe('Bottom Tabs & Stack Preservation', () => {
 
     await expect(homeTab).toHaveAttribute('aria-current', 'page');
   });
+
+  test('repeat-tapping the active root tab does not accumulate history entries', async ({ page }) => {
+    await page.goto(`${BASE_URL}/Home`, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(1000);
+
+    const homeLink = bottomNavLink(page, 'Home');
+    if (await homeLink.count() === 0) {
+      test.skip(true, 'Home link not found – skipping');
+      return;
+    }
+
+    const historyBefore = await page.evaluate(() => window.history.length);
+
+    // Tap the active root tab three times
+    await homeLink.click();
+    await page.waitForTimeout(300);
+    await homeLink.click();
+    await page.waitForTimeout(300);
+    await homeLink.click();
+    await page.waitForTimeout(300);
+
+    // Tab switch uses replace:true so history must not grow by more than 1 entry
+    // across 3 taps. The +2 upper bound accounts for the one replace that lands
+    // the browser at the root path on the first tap; subsequent replace navigations
+    // reuse that same entry without pushing new ones.
+    const historyAfter = await page.evaluate(() => window.history.length);
+    expect(historyAfter).toBeLessThanOrEqual(historyBefore + 2);
+    expect(page.url()).toContain('/Home');
+  });
+
+  test('bottom nav does not visually overlap page content (content clearance)', async ({ page }) => {
+    await page.goto(`${BASE_URL}/Home`, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(1000);
+
+    // The #app-scroll-container must have paddingBottom >= BOTTOM_NAV_HEIGHT (80px)
+    const paddingBottom = await page.evaluate(() => {
+      const el = document.getElementById('app-scroll-container');
+      return el ? parseFloat(getComputedStyle(el).paddingBottom) : 0;
+    });
+    expect(paddingBottom).toBeGreaterThanOrEqual(80);
+  });
+
+  test('ThoughtCoach sub-page keeps Chat tab active in bottom nav', async ({ page }) => {
+    await page.goto(`${BASE_URL}/ThoughtCoach`, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(1000);
+
+    const chatTab = bottomNavLink(page, 'Chat');
+    if (await chatTab.count() === 0) {
+      test.skip(true, 'Chat tab link not found – skipping');
+      return;
+    }
+
+    await expect(chatTab).toHaveAttribute('aria-current', 'page');
+  });
 });
 
 // ===========================================================================

@@ -51,6 +51,31 @@ test.describe('Settings — Delete Account flow', () => {
     await expect(deleteButton).toBeVisible();
   });
 
+  test('Delete Account button has data-account-deletion="trigger" for scanner visibility', async ({ page }) => {
+    await navigateToSettings(page);
+    const deleteButton = page.locator('[data-account-deletion="trigger"]');
+    await expect(deleteButton).toBeVisible();
+    await expect(deleteButton).toHaveAttribute('data-account-deletion', 'trigger');
+  });
+
+  test('Delete Account button has an accessible aria-label', async ({ page }) => {
+    await navigateToSettings(page);
+    const deleteButton = page.locator('[data-testid="delete-account-button"]');
+    const ariaLabel = await deleteButton.getAttribute('aria-label');
+    expect(ariaLabel).toBeTruthy();
+  });
+
+  test('Delete Account confirm button is keyboard-reachable inside the dialog', async ({ page }) => {
+    await navigateToSettings(page);
+    await openDeleteDialog(page);
+
+    const confirmButton = page.locator('[data-testid="delete-account-confirm-button"]');
+    // Confirm button must be reachable in the accessibility tree (not hidden)
+    await expect(confirmButton).toBeVisible({ timeout: 5000 });
+    // Confirm button must report its disabled state to AT
+    await expect(confirmButton).toBeDisabled();
+  });
+
   test('cancel path: dialog opens and closes without redirect', async ({ page }) => {
     await navigateToSettings(page);
     const currentUrl = page.url();
