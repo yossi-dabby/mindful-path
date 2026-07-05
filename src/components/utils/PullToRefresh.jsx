@@ -16,18 +16,38 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
   const pullDistanceRef = useRef(0);     // mirrors pullDistance state for event callbacks
   const isRefreshingRef = useRef(false); // prevents starting a new pull while refresh is in progress
   const queryClient = useQueryClient();
+  const isTouchDeviceRef = useRef(false);
 
   const PULL_THRESHOLD = 80;
   const MAX_PULL = 120;
+  const EDITABLE_SELECTOR = 'input, textarea, select, [contenteditable=""], [contenteditable="true"], [contenteditable="plaintext-only"]';
 
   // Cache the scroll container reference once on mount
   useEffect(() => {
     mainElRef.current = document.getElementById('app-scroll-container') || document.querySelector('main');
+    isTouchDeviceRef.current =
+      typeof window !== 'undefined' &&
+      ('ontouchstart' in window ||
+        navigator.maxTouchPoints > 0 ||
+        window.matchMedia?.('(pointer: coarse)').matches === true);
+  }, []);
+
+  const resetPullState = useCallback(() => {
+    touchStartY.current = 0;
+    isPullingRef.current = false;
+    pullDistanceRef.current = 0;
+    setIsPulling(false);
+    setPullDistance(0);
   }, []);
 
   const handleTouchStart = useCallback((e) => {
     // Do not start a new pull sequence while a refresh is already in progress.
     if (isRefreshingRef.current) return;
+    if (!isTouchDeviceRef.current) return;
+
+    const target = e.target instanceof Element ? e.target : null;
+    if (target?.closest(EDITABLE_SELECTOR)) return;
+
     // Activate if we are scrolled to the top, or if there is no scroll container
     // (e.g. Playwright / JSDOM test environments where the element is absent).
     const atTop = !mainElRef.current || mainElRef.current.scrollTop === 0;
@@ -99,14 +119,8 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
   }, [queryClient, onRefresh]);
 
   const handleTouchCancel = useCallback(() => {
-    // A system gesture (incoming call, screenshot, etc.) cancelled the touch sequence.
-    // Reset all pull state so the component does not get stuck in isPulling=true.
-    touchStartY.current = 0;
-    isPullingRef.current = false;
-    pullDistanceRef.current = 0;
-    setIsPulling(false);
-    setPullDistance(0);
-  }, []);
+    resetPullState();
+  }, [resetPullState]);
 
   // Register touch listeners with { passive: false } so e.preventDefault() works
   // without triggering browser warnings about passive event listeners.
@@ -146,7 +160,7 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
           className="fixed left-0 right-0 flex justify-center items-center z-50"
           style={{ top: `calc(${MOBILE_HEADER_HEIGHT}px + env(safe-area-inset-top, 0px) + 8px)`, pointerEvents: 'none' }}
         >
-          <div className="bg-card/90 backdrop-blur-sm border border-border/60 rounded-full px-4 py-2 shadow-[var(--shadow-md)] flex items-center gap-2">
+          <div className="bg-card/90 backdrop-blur-sm border border-border/60 rounded-full px-4 py-2 shadow-[var(--shadow-md)] flex items-center gap-2" role="status" aria-live="polite">
             <Loader2
               className={`w-4 h-4 text-primary ${isRefreshing || shouldTrigger ? 'animate-spin' : ''}`}
               style={{

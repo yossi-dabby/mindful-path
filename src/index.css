@@ -182,6 +182,20 @@ button, a, [role="button"], svg, .icon, [class*="Button"], [class*="badge"] {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Suppress the iOS callout only for app chrome / controls, never for the
+   document root or editable/content text. */
+button,
+[role="button"],
+[role="tab"],
+[role="menuitem"],
+[role="option"],
+[role="switch"],
+summary,
+[data-app-chrome],
+[data-app-chrome] * {
+  -webkit-touch-callout: none;
+}
+
 /* Prevent native drag-and-drop on images and icons */
 img, svg {
   -webkit-user-drag: none;
@@ -202,6 +216,18 @@ div[class*="content"], [class*="description"],
 p[class*="text"], span[class*="text"], div[class*="text"] {
   user-select: auto;
   -webkit-user-select: auto;
+  -webkit-touch-callout: default;
+}
+
+input,
+textarea,
+select,
+[contenteditable=""],
+[contenteditable="true"],
+[contenteditable="plaintext-only"] {
+  user-select: text;
+  -webkit-user-select: text;
+  -webkit-touch-callout: default;
 }
 
 /* Minimum 44 × 44 px touch targets on mobile (WCAG 2.5.5) */

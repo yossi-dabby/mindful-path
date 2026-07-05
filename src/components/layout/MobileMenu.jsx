@@ -16,7 +16,7 @@ export default function MobileMenu() {
 
 
   return (
-    <div className="md:hidden">
+    <div className="md:hidden" data-app-chrome>
       {/* Hamburger Button */}
       <button
         onClick={() => setOpen(true)}
@@ -77,7 +77,7 @@ export default function MobileMenu() {
             </div>
 
             {/* Navigation Items */}
-            <nav className="flex-1 p-4 overflow-y-auto min-w-0" aria-label="Additional navigation">
+            <nav className="flex-1 p-4 overflow-y-auto min-w-0" aria-label="Additional navigation" data-app-chrome>
               <div className="space-y-2">
                 {secondaryItems.map((item) => {
                   const Icon = item.icon;
