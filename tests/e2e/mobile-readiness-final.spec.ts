@@ -236,11 +236,13 @@ test.describe('Back Stack — overlay sentinel pattern', () => {
     const historyLengthBefore = await page.evaluate(() => window.history.length);
 
     await page.evaluate(() => {
-      // Inject a fake Radix dialog node
+      // Inject a fake Radix dialog node — insert first so the MutationObserver
+      // (which watches attributes on body's subtree) can observe the state change.
       const dialog = document.createElement('div');
       dialog.setAttribute('role', 'dialog');
-      dialog.setAttribute('data-state', 'open');
       document.body.appendChild(dialog);
+      // Now trigger the attribute mutation on the already-observed element.
+      dialog.setAttribute('data-state', 'open');
     });
 
     // Allow the rAF-debounced MutationObserver to fire
@@ -294,7 +296,7 @@ test.describe('RTL / Hebrew initialisation', () => {
     await page.addInitScript(() => {
       localStorage.setItem('language', 'he');
       // Observe the first time dir changes from the default empty string
-      let dirAtFirstRender: string | null = null;
+      let dirAtFirstRender = null;
       const observer = new MutationObserver(() => {
         if (dirAtFirstRender === null) {
           dirAtFirstRender = document.documentElement.dir;
@@ -308,7 +310,7 @@ test.describe('RTL / Hebrew initialisation', () => {
 
     const dirAtFirstRender = await page.evaluate(() => (window as any).__dirAtFirstRender?.());
     // The dir should have been set to 'rtl' very early (before or at hydration)
-    if (dirAtFirstRender !== null) {
+    if (dirAtFirstRender != null) {
       expect(dirAtFirstRender).toBe('rtl');
     }
   });
