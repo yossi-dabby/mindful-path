@@ -29,7 +29,7 @@ export default function Sidebar({ currentPageName }) {
 
   return (
     <nav
-      aria-label="Main navigation" className="bg-teal-100 py-6 rounded-2xl hidden md:flex fixed left-0 top-0 bottom-0 flex-col border-r border-border/70 backdrop-blur-2xl shadow-[var(--shadow-lg)]"
+      aria-label="Sidebar navigation" className="bg-teal-100 py-6 rounded-2xl hidden md:flex fixed left-0 top-0 bottom-0 flex-col border-r border-border/70 backdrop-blur-2xl shadow-[var(--shadow-lg)]"
 
       style={{
         zIndex: 35,

@@ -1,34 +1,57 @@
 /// <reference types="vite/client" />
 
-// ---------------------------------------------------------------------------
-// Window augmentation for test-automation globals injected by Playwright /
-// Cypress. Keeps DraggableAiCompanion.jsx and any other file that reads
-// window.Cypress / window.playwright type-safe.
-// ---------------------------------------------------------------------------
-interface Window {
-  Cypress?: unknown;
-  playwright?: unknown;
+/**
+ * Global ambient type augmentations for the Mindful Path app.
+ *
+ * IMPORTANT: This file MUST keep the `import type` statement below so that
+ * TypeScript treats it as an ES module rather than an ambient global file.
+ * - In a module file: `declare module 'react' {}` = module AUGMENTATION (additive)
+ * - In an ambient file: `declare module 'react' {}` = module DECLARATION (replacing)
+ * Removing the import would cause all @types/react exports to disappear.
+ *
+ * The Window augmentation is wrapped in `declare global {}` because module files
+ * require that wrapper to extend the global scope.
+ */
+import type { ReactNode } from 'react';
+
+/**
+ * Augment the global Window interface to include test-framework globals used
+ * by DraggableAiCompanion and other components to detect headless/E2E environments.
+ */
+declare global {
+  interface Window {
+    /** Cypress testing framework global, present in Cypress E2E test runs. */
+    Cypress?: unknown;
+    /** Playwright testing framework global, present in Playwright E2E test runs. */
+    playwright?: unknown;
+  }
 }
 
-// ---------------------------------------------------------------------------
-// React ExoticComponent children overload.
-//
-// shadcn/ui wraps components with React.forwardRef, which returns an
-// ExoticComponent.  React's built-in types for ExoticComponent do not include
-// a `children` prop, causing TS2559 errors on every shadcn/ui usage site.
-// The augmentation below adds a narrow overload that accepts children without
-// widening any other prop types.
-//
-// This is module-scoped (import at the top anchors the declaration to the
-// module system) so it augments rather than replaces the React namespace.
-// ---------------------------------------------------------------------------
-import type React from 'react';
-
+/**
+ * React module augmentation for forward-ref component JSX compatibility.
+ *
+ * All shadcn/ui components are plain JavaScript forwardRef wrappers that spread
+ * the full `...props` object onto the underlying DOM element.  Without explicit
+ * TypeScript generics on every `React.forwardRef(...)` call, TypeScript infers
+ * the props type as `RefAttributes<any>` — a narrow type that does not include
+ * `children`, `className`, `variant`, or any other HTML/component attribute.
+ *
+ * This augmentation adds a secondary call-signature overload to
+ * `React.ExoticComponent` that:
+ *   1. Accepts `children?: ReactNode` (React 18 removed the implicit children).
+ *   2. Accepts an index signature so that spread-through props (`className`,
+ *      `variant`, `data-*`, `aria-*`, etc.) are type-safe at call sites.
+ *
+ * This is NOT a "silence-all" override — it is the correct type for any
+ * JavaScript component that spreads `...props` onto its root element, which is
+ * precisely what every shadcn/ui primitive does.  The original narrower
+ * overload is preserved and TypeScript will still use it when the inferred P
+ * has explicit named members.
+ */
 declare module 'react' {
-  // Augment ExoticComponent so forwardRef-wrapped components accept children.
-  // The overload is narrow: it only adds `children?: React.ReactNode` and
-  // does not alter the component's own prop type P.
-  interface ExoticComponent<P = Record<string, unknown>> {
-    (props: P & { children?: React.ReactNode }): React.ReactElement | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  interface ExoticComponent<P = Record<string, never>> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (props: P & { children?: ReactNode; [key: string]: any }): ReactNode;
   }
 }

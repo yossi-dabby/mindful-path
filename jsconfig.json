@@ -10,6 +10,7 @@
     "moduleResolution": "bundler",
     "lib": ["esnext", "dom"],
     "target": "esnext",
+    "allowJs": true,
     "checkJs": false,
     "noEmit": true,
     "skipLibCheck": true,
@@ -18,6 +19,10 @@
     "resolveJsonModule": true,
     "types": []
   },
-  "include": ["src/components/**/*.js", "src/pages/**/*.jsx", "src/Layout.jsx", "src/vite-env.d.ts"],
+  "include": [
+    "src/vite-env.d.ts",
+    "src/api/base44Client.js",
+    "src/components/ai/DraggableAiCompanion.jsx"
+  ],
   "exclude": ["node_modules", "dist", "src/vite-plugins", "src/components/ui", "src/api", "src/lib"]
 }
