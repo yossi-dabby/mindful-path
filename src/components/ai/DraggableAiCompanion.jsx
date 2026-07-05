@@ -762,10 +762,10 @@ export default function DraggableAiCompanion() {
                       strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
                       // react-markdown v9 removed the `inline` prop from the code renderer;
                       // distinguish inline vs block code by presence of a language className.
-                      code: ({ children, className }) =>
+                      code: ({ className, children }) =>
                       className?.includes('language-') ?
-                      <code className="block p-2 rounded bg-secondary text-xs">{children}</code> :
-                      <code className="px-1 py-0.5 rounded bg-secondary text-xs">{children}</code>
+                      <code className={`block p-2 rounded bg-secondary text-xs font-mono ${className ?? ''}`}>{children}</code> :
+                      <code className="px-1 py-0.5 rounded bg-secondary text-xs font-mono">{children}</code>
 
                     }}>
 
