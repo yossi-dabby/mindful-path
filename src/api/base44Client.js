@@ -22,9 +22,15 @@ export const base44 = createClient({
 
 // Prevent /api/apps/null/analytics/track/batch requests when appId is missing or falsy.
 // cleanup() stops the heartbeat processor and the internal batch flush loop.
+// Note: cleanup() exists on the runtime analytics instance but is not declared in
+// the public AnalyticsModule interface — use a local type that extends the SDK type.
 if (!appId) {
-  base44.analytics.cleanup();
-  base44.analytics = { track: () => {}, cleanup: () => {} };
+  /** @type {{ track: () => void; cleanup: () => void }} */
+  const analytics = /** @type {any} */ (base44.analytics);
+  if (typeof analytics.cleanup === 'function') {
+    analytics.cleanup();
+  }
+  base44.analytics = /** @type {import('@base44/sdk').AnalyticsModule} */ ({ track: () => {} });
 }
 
 // ---------------------------------------------------------------------------

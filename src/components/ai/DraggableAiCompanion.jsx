@@ -53,7 +53,7 @@ export default function DraggableAiCompanion() {
   const [isAgeVerified, setIsAgeVerified] = useState(true);
   const mountedRef = useRef(true);
   const messagesEndRef = useRef(null);
-  const dragRef = useRef({ startX: 0, startY: 0, initialX: 0, initialY: 0 });
+  const dragRef = useRef({ startX: 0, startY: 0, initialX: 0, initialY: 0, initialRight: 0, initialBottom: 0 });
   const elementRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -177,7 +177,9 @@ export default function DraggableAiCompanion() {
       if (isCancelled) return;
 
       try {
-        const conv = await base44.agents.createConversation({
+        // tool_configs is a runtime extension to the SDK's CreateConversationParams — it is
+        // accepted by the Base44 backend but not yet declared in the public type definition.
+        const createParams = /** @type {import('@base44/sdk/dist/modules/agents.types.js').CreateConversationParams & { tool_configs?: unknown }} */ ({
           agent_name: ACTIVE_AI_COMPANION_WIRING.name,
           tool_configs: ACTIVE_AI_COMPANION_WIRING.tool_configs,
           metadata: {
@@ -187,6 +189,7 @@ export default function DraggableAiCompanion() {
             memory_context: memoryContext,
           },
         });
+        const conv = await base44.agents.createConversation(createParams);
 
         if (!isCancelled) {
           setConversation(conv);
@@ -335,6 +338,8 @@ export default function DraggableAiCompanion() {
     dragRef.current = {
       startX: clientX,
       startY: clientY,
+      initialX: clientX,
+      initialY: clientY,
       initialRight: position.right,
       initialBottom: position.bottom
     };
@@ -542,12 +547,15 @@ export default function DraggableAiCompanion() {
   // content. Rendered via createPortal to document.body so it is never clipped by
   // ancestor overflow:hidden/clip containers or trapped in ancestor stacking contexts
   // created by transform/filter/will-change on parent elements.
-  const positionStyle = {
+  // Cast to MotionStyle: framer-motion expects CSS position as a specific string literal,
+  // but our 'fixed' value is inferred as `string` by TypeScript.  The cast is safe because
+  // 'fixed' is a valid CSS position value and framer-motion accepts it at runtime.
+  const positionStyle = /** @type {import('framer-motion').MotionStyle} */ ({
     position: 'fixed',
     right: `${position.right}px`,
     bottom: isMobile ? `calc(${position.bottom}px + env(safe-area-inset-bottom, 0px))` : `${position.bottom}px`,
     zIndex: 9990
-  };
+  });
 
   if (!isOpen) {
     return createPortal(
@@ -751,11 +759,12 @@ export default function DraggableAiCompanion() {
                       ol: ({ children }) => <ol className="ml-4 mb-2 list-decimal">{children}</ol>,
                       li: ({ children }) => <li className="mb-1">{children}</li>,
                       strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
-                      code: ({ inline, children }) =>
-                      inline ?
-                      <code className="px-1 py-0.5 rounded bg-secondary text-xs">{children}</code> :
-
-                      <code className="block p-2 rounded bg-secondary text-xs">{children}</code>
+                      // react-markdown v9 removed the `inline` prop from the code renderer;
+                      // distinguish inline vs block code by the absence of a language className.
+                      code: ({ children, className }) =>
+                      className ?
+                      <code className="block p-2 rounded bg-secondary text-xs">{children}</code> :
+                      <code className="px-1 py-0.5 rounded bg-secondary text-xs">{children}</code>
 
                     }}>
 
