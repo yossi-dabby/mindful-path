@@ -15,6 +15,12 @@ import { test, expect, devices } from '@playwright/test';
 
 const BASE_URL = process.env.E2E_BASE_URL || 'http://localhost:5173';
 
+// devices['Pixel 5'] includes `defaultBrowserType` which is worker-scoped and
+// cannot be used inside a test.describe() group. Strip it out so we can safely
+// apply the remaining device settings (viewport, isMobile, hasTouch, etc.) per
+// describe block without forcing a new worker.
+const { defaultBrowserType: _pixel5DefaultBrowserType, ...pixel5Device } = devices['Pixel 5'];
+
 // ── Shared API mock helper ────────────────────────────────────────────────────
 async function mockApis(page: import('@playwright/test').Page) {
   await page.route('**/api/apps/**', async (route) => {
