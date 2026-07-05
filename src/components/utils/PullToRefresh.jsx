@@ -12,8 +12,9 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
   const touchStartY = useRef(0);
   const mainElRef = useRef(null);
   const containerRef = useRef(null);
-  const isPullingRef = useRef(false);  // used in event callbacks to avoid stale closures
-  const pullDistanceRef = useRef(0);   // mirrors pullDistance state for event callbacks
+  const isPullingRef = useRef(false);    // used in event callbacks to avoid stale closures
+  const pullDistanceRef = useRef(0);     // mirrors pullDistance state for event callbacks
+  const isRefreshingRef = useRef(false); // prevents starting a new pull while refresh is in progress
   const queryClient = useQueryClient();
 
   const PULL_THRESHOLD = 80;
@@ -25,6 +26,8 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
   }, []);
 
   const handleTouchStart = useCallback((e) => {
+    // Do not start a new pull sequence while a refresh is already in progress.
+    if (isRefreshingRef.current) return;
     // Activate if we are scrolled to the top, or if there is no scroll container
     // (e.g. Playwright / JSDOM test environments where the element is absent).
     const atTop = !mainElRef.current || mainElRef.current.scrollTop === 0;
@@ -62,6 +65,7 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
     pullDistanceRef.current = 0;
 
     if (currentPullDistance >= PULL_THRESHOLD) {
+      isRefreshingRef.current = true;
       setIsRefreshing(true);
       
       try {
@@ -85,6 +89,7 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
       } catch (error) {
         console.error('Refresh failed:', error);
       } finally {
+        isRefreshingRef.current = false;
         setIsRefreshing(false);
       }
     }

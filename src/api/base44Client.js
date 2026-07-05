@@ -26,7 +26,9 @@ export const base44 = createClient({
 // Note: cleanup() exists on the runtime analytics instance but is not declared in
 // the public AnalyticsModule interface — use a local type that extends the SDK type.
 if (!appId) {
-  /** @type {{ track: () => void; cleanup: () => void }} */
+  // cleanup() stops the heartbeat processor and the internal batch flush loop.
+  // It exists on the runtime analytics instance but is not declared in the
+  // public AnalyticsModule interface — cast to any for the runtime guard.
   const analytics = /** @type {any} */ (base44.analytics);
   if (typeof analytics.cleanup === 'function') {
     analytics.cleanup();
