@@ -157,4 +157,48 @@ test.describe('Android Keyboard Layout', () => {
     // Assert no console errors or warnings
     await checkConsole();
   });
+
+  test('therapist chat input has mobile-keyboard optimization attributes', async ({ page }) => {
+    await page.goto(`${BASE_URL}/Chat`, { waitUntil: 'networkidle' });
+
+    await page.waitForFunction(() => {
+      return document.querySelector('[data-page-ready="true"]') !== null;
+    }, { timeout: 20000 }).catch(() => {});
+
+    const textarea = page.locator('[data-testid="therapist-chat-input"]');
+    if (await textarea.count() === 0) {
+      test.skip(true, 'Therapist chat input not found – skipping');
+      return;
+    }
+
+    // enterKeyHint="send" tells the mobile OS to show a "Send" key
+    const enterKeyHint = await textarea.getAttribute('enterkeyhint');
+    expect(enterKeyHint).toBe('send');
+
+    // autoCapitalize="sentences" for natural message composition
+    const autoCapitalize = await textarea.getAttribute('autocapitalize');
+    expect(autoCapitalize).toBe('sentences');
+
+    // autoComplete="off" prevents autocomplete from interfering
+    const autoComplete = await textarea.getAttribute('autocomplete');
+    expect(autoComplete).toBe('off');
+  });
+
+  test('coach chat input has mobile-keyboard optimization attributes', async ({ page }) => {
+    await page.goto(`${BASE_URL}/Coach`, { waitUntil: 'networkidle' });
+
+    await page.waitForTimeout(3000);
+
+    const textarea = page.locator('[data-testid="coach-chat-input"]');
+    if (await textarea.count() === 0) {
+      test.skip(true, 'Coach chat input not found – skipping');
+      return;
+    }
+
+    const enterKeyHint = await textarea.getAttribute('enterkeyhint');
+    expect(enterKeyHint).toBe('send');
+
+    const autoCapitalize = await textarea.getAttribute('autocapitalize');
+    expect(autoCapitalize).toBe('sentences');
+  });
 });

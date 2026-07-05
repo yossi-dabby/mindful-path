@@ -257,6 +257,50 @@ test.describe('Back Stack — overlay sentinel pattern', () => {
       document.querySelector('[role="dialog"][data-state="open"]')?.remove();
     });
   });
+
+  test('back gesture (popstate) dispatches ESC to close open overlay, not navigate away', async ({ page }) => {
+    // This verifies the Android hardware-back / iOS swipe-back overlay-first behavior:
+    // when the user presses back while a modal is open, the modal closes instead of
+    // navigating to the previous page.
+    const urlBefore = page.url();
+
+    // Inject a fake Radix dialog that is open, and push the sentinel entry
+    await page.evaluate(() => {
+      const dialog = document.createElement('div');
+      dialog.setAttribute('role', 'dialog');
+      dialog.setAttribute('data-state', 'open');
+      document.body.appendChild(dialog);
+    });
+    // Allow the rAF-debounced MutationObserver + sentinel push to fire
+    await page.waitForTimeout(150);
+
+    // Track whether ESC was dispatched
+    await page.evaluate(() => {
+      (window as any).__escReceived = false;
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') (window as any).__escReceived = true;
+      }, { once: true });
+    });
+
+    // Simulate the back gesture (popstate): the browser already moved back,
+    // so we only dispatch popstate — the Layout handler must close the overlay.
+    await page.evaluate(() => {
+      window.dispatchEvent(new PopStateEvent('popstate', { state: null }));
+    });
+
+    await page.waitForTimeout(100);
+
+    const escReceived = await page.evaluate(() => (window as any).__escReceived);
+    expect(escReceived).toBe(true);
+
+    // URL must not have changed (the back gesture was consumed by overlay close)
+    expect(page.url()).toBe(urlBefore);
+
+    // Cleanup
+    await page.evaluate(() => {
+      document.querySelector('[role="dialog"][data-state="open"]')?.remove();
+    });
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -293,6 +293,10 @@ export default function CoachingChat({ session, onBack }) {
                 }}
                 placeholder="Share your thoughts, progress, or ask for guidance..."
                 className="flex-1 min-h-[60px] max-h-[200px] resize-none rounded-[var(--radius-card)]"
+                enterKeyHint="send"
+                autoCapitalize="sentences"
+                autoComplete="off"
+                autoCorrect="on"
                 disabled={isLoading} />
 
               <Button

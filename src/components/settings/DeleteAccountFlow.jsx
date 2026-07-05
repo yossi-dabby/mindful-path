@@ -53,6 +53,8 @@ export default function DeleteAccountFlow({ userRole }) {
         <Button
           variant="outline"
           data-testid="delete-account-button"
+          data-account-deletion="trigger"
+          aria-label={t('settings.account.delete_account')}
           className="w-full rounded-xl border-red-300 text-red-600 active:bg-red-100"
         >
           <Trash2 className="w-4 h-4 mr-2" />
