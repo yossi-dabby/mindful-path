@@ -101,7 +101,7 @@ export default function DeleteAccountFlow({ userRole }) {
         </AlertDialogHeader>
 
         <AlertDialogFooter>
-          <AlertDialogCancel className="rounded-xl">{t('common.cancel')}</AlertDialogCancel>
+          <AlertDialogCancel data-testid="delete-account-cancel-button" className="rounded-xl">{t('common.cancel')}</AlertDialogCancel>
           {!isAdmin && (
             <AlertDialogAction
               data-testid="delete-account-confirm-button"

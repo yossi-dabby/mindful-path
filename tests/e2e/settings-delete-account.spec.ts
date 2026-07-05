@@ -73,13 +73,10 @@ test.describe('Settings — Delete Account flow', () => {
     await navigateToSettings(page);
     await openDeleteDialog(page);
 
-    // Click the Cancel button (AlertDialogCancel rendered as a button)
-    const cancelButton = page.locator('button:has-text("Cancel"), button:has-text("ביטול"), button:has-text("Cancelar")').first();
-    if (await cancelButton.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await cancelButton.click();
-    } else {
-      await page.keyboard.press('Escape');
-    }
+    // Click the Cancel button via its stable data-testid
+    const cancelButton = page.locator('[data-testid="delete-account-cancel-button"]');
+    await expect(cancelButton).toBeVisible({ timeout: 3000 });
+    await cancelButton.click();
 
     const input = page.locator('[data-testid="delete-account-input"]');
     await expect(input).not.toBeVisible({ timeout: 3000 });
@@ -179,15 +176,14 @@ test.describe('Settings — Delete Account flow', () => {
 
     const confirmButton = page.locator('[data-testid="delete-account-confirm-button"]');
 
-    // Intercept the navigation that will happen after successful deletion
-    // (performLogout triggers a page reload / redirect to login).
-    const navigationPromise = page.waitForNavigation({ timeout: 10000 }).catch(() => null);
-
     await confirmButton.click();
 
-    // Wait briefly for the POST to be made
-    await page.waitForTimeout(2000);
-    await navigationPromise;
+    // Wait for the deleteMyAccount POST to be captured (no arbitrary timeout).
+    await page.waitForFunction(
+      (calls) => calls.length >= 1,
+      deleteCalls,
+      { timeout: 8000 }
+    ).catch(() => { /* timeout — check assertion below */ });
 
     // The deleteMyAccount function must have been called
     expect(deleteCalls.length).toBeGreaterThanOrEqual(1);

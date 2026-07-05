@@ -38,12 +38,12 @@ const buttonVariants = cva(
 const Button = React.forwardRef(({ className, variant, size, asChild = false, onClick, ...props }, ref) => {
   const Comp = asChild ? Slot : "button"
 
-  const handleClick = React.useCallback((e) => {
+  const handleClick = (e) => {
     // Trigger haptic feedback on base button interactions (not on asChild which
     // delegates click handling to the wrapped element).
     if (!asChild) triggerHaptic('light');
     if (onClick) onClick(e);
-  }, [asChild, onClick]);
+  };
 
   return (
     (<Comp
