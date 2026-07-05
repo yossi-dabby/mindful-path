@@ -210,9 +210,11 @@ test.describe('Bottom Tabs & Stack Preservation', () => {
     await homeLink.click();
     await page.waitForTimeout(300);
 
-    // Tab switch uses replace:true so history should not grow significantly
+    // Tab switch uses replace:true so history must not grow by more than 1 entry
+    // across 3 taps. The +2 upper bound accounts for the one replace that lands
+    // the browser at the root path on the first tap; subsequent replace navigations
+    // reuse that same entry without pushing new ones.
     const historyAfter = await page.evaluate(() => window.history.length);
-    // Allow at most 1 entry growth (for the initial replace); repeated taps must not push
     expect(historyAfter).toBeLessThanOrEqual(historyBefore + 2);
     expect(page.url()).toContain('/Home');
   });

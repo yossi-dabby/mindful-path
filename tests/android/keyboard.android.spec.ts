@@ -200,5 +200,13 @@ test.describe('Android Keyboard Layout', () => {
 
     const autoCapitalize = await textarea.getAttribute('autocapitalize');
     expect(autoCapitalize).toBe('sentences');
+
+    // autoComplete="off" prevents autocomplete from interfering with chat
+    const autoComplete = await textarea.getAttribute('autocomplete');
+    expect(autoComplete).toBe('off');
+
+    // autoCorrect="on" so natural-language typos are corrected
+    const autoCorrect = await textarea.getAttribute('autocorrect');
+    expect(autoCorrect).toBe('on');
   });
 });

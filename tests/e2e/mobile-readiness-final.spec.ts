@@ -274,11 +274,14 @@ test.describe('Back Stack — overlay sentinel pattern', () => {
     // Allow the rAF-debounced MutationObserver + sentinel push to fire
     await page.waitForTimeout(150);
 
-    // Track whether ESC was dispatched
+    // Track whether ESC was dispatched. Use a typed window extension to avoid
+    // suppressing TS errors across the entire block with `as any`.
     await page.evaluate(() => {
-      (window as any).__escReceived = false;
+      (window as Window & { __escReceived?: boolean }).__escReceived = false;
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') (window as any).__escReceived = true;
+        if (e.key === 'Escape') {
+          (window as Window & { __escReceived?: boolean }).__escReceived = true;
+        }
       }, { once: true });
     });
 
@@ -290,7 +293,9 @@ test.describe('Back Stack — overlay sentinel pattern', () => {
 
     await page.waitForTimeout(100);
 
-    const escReceived = await page.evaluate(() => (window as any).__escReceived);
+    const escReceived = await page.evaluate(
+      () => (window as Window & { __escReceived?: boolean }).__escReceived
+    );
     expect(escReceived).toBe(true);
 
     // URL must not have changed (the back gesture was consumed by overlay close)
