@@ -11,15 +11,15 @@ export default function ScrollPreservation() {
   useEffect(() => {
     // Save current scroll position before navigating away
     return () => {
-      const currentPath = location.pathname;
+      const currentPath = location.pathname + location.search;
       const scrollY = getScrollContainer().scrollTop;
       scrollPositions.set(currentPath, scrollY);
     };
-  }, [location.pathname]);
+  }, [location.pathname, location.search]);
 
   useEffect(() => {
     // Restore scroll position for this page
-    const currentPath = location.pathname;
+    const currentPath = location.pathname + location.search;
     const savedScrollY = scrollPositions.get(currentPath);
 
     if (savedScrollY !== undefined) {
@@ -31,7 +31,7 @@ export default function ScrollPreservation() {
       // New page, scroll to top
       getScrollContainer().scrollTop = 0;
     }
-  }, [location.pathname]);
+  }, [location.pathname, location.search]);
 
   return null;
 }

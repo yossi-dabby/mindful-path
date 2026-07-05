@@ -71,6 +71,7 @@ export default function MobileHeader({ currentPageName: currentPageNameProp }) {
 
   return (
     <header
+      data-app-chrome
       className="md:hidden fixed top-0 left-0 right-0 border-b border-border/70 bg-[hsl(var(--sidebar-background)/0.88)] backdrop-blur-2xl z-40"
       style={{
         height: 'calc(60px + env(safe-area-inset-top, 0px))',

@@ -15,6 +15,7 @@ export default function BottomNav({ currentPageName }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const tabNav = useTabNavigation();
+  const activeTab = tabNav?.activeTab ?? currentPageName;
 
   // Memoised so icon/label objects aren't recreated on every render.
   const navItems = useMemo(() => [
@@ -49,6 +50,7 @@ export default function BottomNav({ currentPageName }) {
   return (
     <nav
       aria-label="Main navigation"
+      data-app-chrome
       className="md:hidden fixed bottom-0 left-0 right-0 border-t border-border/70 bg-[hsl(var(--sidebar-background)/0.9)] backdrop-blur-2xl shadow-[var(--shadow-lg)]"
       style={{
         zIndex: 35,
@@ -59,7 +61,7 @@ export default function BottomNav({ currentPageName }) {
       <div className="bg-emerald-300 px-1 flex justify-around items-center h-full">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = currentPageName === item.path;
+          const isActive = activeTab === item.path;
           return (
             <Link
               key={item.path}
