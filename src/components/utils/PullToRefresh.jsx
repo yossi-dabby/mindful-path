@@ -93,6 +93,16 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
     setPullDistance(0);
   }, [queryClient, onRefresh]);
 
+  const handleTouchCancel = useCallback(() => {
+    // A system gesture (incoming call, screenshot, etc.) cancelled the touch sequence.
+    // Reset all pull state so the component does not get stuck in isPulling=true.
+    touchStartY.current = 0;
+    isPullingRef.current = false;
+    pullDistanceRef.current = 0;
+    setIsPulling(false);
+    setPullDistance(0);
+  }, []);
+
   // Register touch listeners with { passive: false } so e.preventDefault() works
   // without triggering browser warnings about passive event listeners.
   // Capture `el` at setup time so the cleanup removes listeners from the same
@@ -104,13 +114,15 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
     el.addEventListener('touchstart', handleTouchStart, { passive: true });
     el.addEventListener('touchmove', handleTouchMove, { passive: false });
     el.addEventListener('touchend', handleTouchEnd, { passive: true });
+    el.addEventListener('touchcancel', handleTouchCancel, { passive: true });
 
     return () => {
       el.removeEventListener('touchstart', handleTouchStart);
       el.removeEventListener('touchmove', handleTouchMove);
       el.removeEventListener('touchend', handleTouchEnd);
+      el.removeEventListener('touchcancel', handleTouchCancel);
     };
-  }, [handleTouchStart, handleTouchMove, handleTouchEnd]);
+  }, [handleTouchStart, handleTouchMove, handleTouchEnd, handleTouchCancel]);
 
   const pullProgress = Math.min(pullDistance / PULL_THRESHOLD, 1);
   const shouldTrigger = pullDistance >= PULL_THRESHOLD;
@@ -123,6 +135,9 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
       {/* Pull indicator - fixed so it appears at the top of the viewport */}
       {(isPulling || isRefreshing) && (
         <div
+          role="status"
+          aria-live="polite"
+          aria-label={isRefreshing ? t('pull_to_refresh.refreshing', 'Refreshing…') : shouldTrigger ? t('pull_to_refresh.release', 'Release to refresh') : t('pull_to_refresh.pull', 'Pull to refresh')}
           className="fixed left-0 right-0 flex justify-center items-center z-50"
           style={{ top: `calc(${MOBILE_HEADER_HEIGHT}px + env(safe-area-inset-top, 0px) + 8px)`, pointerEvents: 'none' }}
         >
