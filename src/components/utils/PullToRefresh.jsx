@@ -12,8 +12,9 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
   const touchStartY = useRef(0);
   const mainElRef = useRef(null);
   const containerRef = useRef(null);
-  const isPullingRef = useRef(false);  // used in event callbacks to avoid stale closures
-  const pullDistanceRef = useRef(0);   // mirrors pullDistance state for event callbacks
+  const isPullingRef = useRef(false);    // used in event callbacks to avoid stale closures
+  const pullDistanceRef = useRef(0);     // mirrors pullDistance state for event callbacks
+  const isRefreshingRef = useRef(false); // prevents starting a new pull while refresh is in progress
   const queryClient = useQueryClient();
   const isTouchDeviceRef = useRef(false);
 
@@ -40,7 +41,9 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
   }, []);
 
   const handleTouchStart = useCallback((e) => {
-    if (isRefreshing || !isTouchDeviceRef.current) return;
+    // Do not start a new pull sequence while a refresh is already in progress.
+    if (isRefreshingRef.current) return;
+    if (!isTouchDeviceRef.current) return;
 
     const target = e.target instanceof Element ? e.target : null;
     if (target?.closest(EDITABLE_SELECTOR)) return;
@@ -51,7 +54,7 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
     if (atTop) {
       touchStartY.current = e.touches[0].clientY;
     }
-  }, [isRefreshing]);
+  }, []);
 
   const handleTouchMove = useCallback((e) => {
     // Skip if we never recorded a start position.
@@ -82,6 +85,7 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
     pullDistanceRef.current = 0;
 
     if (currentPullDistance >= PULL_THRESHOLD) {
+      isRefreshingRef.current = true;
       setIsRefreshing(true);
       
       try {
@@ -105,6 +109,7 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
       } catch (error) {
         console.error('Refresh failed:', error);
       } finally {
+        isRefreshingRef.current = false;
         setIsRefreshing(false);
       }
     }
@@ -149,6 +154,9 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
       {/* Pull indicator - fixed so it appears at the top of the viewport */}
       {(isPulling || isRefreshing) && (
         <div
+          role="status"
+          aria-live="polite"
+          aria-label={isRefreshing ? t('pull_to_refresh.refreshing', 'Refreshing…') : shouldTrigger ? t('pull_to_refresh.release', 'Release to refresh') : t('pull_to_refresh.pull', 'Pull to refresh')}
           className="fixed left-0 right-0 flex justify-center items-center z-50"
           style={{ top: `calc(${MOBILE_HEADER_HEIGHT}px + env(safe-area-inset-top, 0px) + 8px)`, pointerEvents: 'none' }}
         >
