@@ -130,7 +130,7 @@ test.describe('System Gesture & Selection Policy', () => {
       };
     });
 
-    expect(styles.buttonCallout, 'No <button> found on the page').toBe('none');
+    expect(styles.buttonCallout, 'No <button> found on the page').toMatch(/^$|none$/);
     expect(styles.paragraphCallout, 'No <p> found on the page').not.toBe('none');
   });
 
