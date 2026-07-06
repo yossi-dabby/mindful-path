@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://mindful-path-75aeaf7d.base44.app/sitemap.xml
+Sitemap: https://mindful-path-production-7704.up.railway.app/sitemap.xml
