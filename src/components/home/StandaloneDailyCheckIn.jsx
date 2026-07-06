@@ -524,7 +524,7 @@ export default function StandaloneDailyCheckIn() {
                       'linear-gradient(180deg, rgba(224, 240, 234, 0.86) 0%, rgba(247, 244, 236, 0.82) 100%)'
                     }}>
 
-                      <span className="text-3xl font-light text-justify sm:text-2xl md:text-3xl">{mood.emoji}</span>
+                      <span className="font-light text-justify text-4xl sm:text-4xl md:text-4xl">{mood.emoji}</span>
                     </div>
                     <div className="text-teal-600 font-medium text-center leading-tight rounded sm:text-xs">
                       {t(`daily_check_in.moods.${mood.value}`, { defaultValue: mood.label })}
