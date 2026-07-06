@@ -480,7 +480,7 @@ export default function StandaloneDailyCheckIn() {
           </div>
         </CardHeader>
 
-        <CardContent className="pt-6 pr-6 pb-6 pl-6">
+        <CardContent className="p-6">
           {/* Step 1: Mood Selection */}
           {step === 1 &&
             <motion.div
@@ -501,7 +501,7 @@ export default function StandaloneDailyCheckIn() {
                       e.preventDefault();
                       handleMoodSelect(mood);
                     }
-                  }} className="text-xs font-medium normal-case flex flex-col items-center justify-center sm:p-2 md:p-4 transition-all hover:scale-105 hover:opacity-80 px-1 py-1 mx-auto"
+                  }} className="p-1 text-xs font-medium normal-case flex flex-col items-center justify-center sm:p-2 md:p-4 transition-all hover:scale-105 hover:opacity-80"
 
 
 
@@ -526,14 +526,7 @@ export default function StandaloneDailyCheckIn() {
 
                       <span className="font-light text-justify text-4xl sm:text-4xl md:text-4xl">{mood.emoji}</span>
                     </div>
-                    <div
-                      className={cn(
-                        "text-xs font-semibold text-center rounded-lg px-2 py-0.5 border transition-all mt-1",
-                        formData.mood === mood.value
-                          ? "bg-teal-500/20 border-teal-400 text-teal-700"
-                          : "bg-white/60 border-teal-100 text-teal-500"
-                      )}
-                      style={formData.mood === mood.value ? { boxShadow: '0 0 6px rgba(45,157,136,0.3)' } : {}}>
+                    <div className="text-teal-600 font-medium text-center leading-tight rounded sm:text-xs">
                       {t(`daily_check_in.moods.${mood.value}`, { defaultValue: mood.label })}
                     </div>
                   </button>
