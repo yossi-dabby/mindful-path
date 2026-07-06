@@ -501,7 +501,7 @@ export default function StandaloneDailyCheckIn() {
                       e.preventDefault();
                       handleMoodSelect(mood);
                     }
-                  }} className="p-1 text-xs font-medium normal-case flex flex-col items-center justify-center sm:p-2 md:p-4 transition-all hover:scale-105 hover:opacity-80"
+                  }} className="text-xs font-medium normal-case flex flex-col items-center justify-center sm:p-2 md:p-4 transition-all hover:scale-105 hover:opacity-80 mx-1 py-1 px-1"
 
 
 
