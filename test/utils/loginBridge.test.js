@@ -64,8 +64,18 @@ describe('login bridge URL generation', () => {
       },
     });
 
-    expect(loginUrl).toBe(
-      'https://mindful-path-75aeaf7d.base44.app/login?app_id=app-123&functions_version=fv-123&next=%2Fdashboard%3Ffrom%3Dlogin&returnUrl=https%3A%2F%2Fmindful-path-production-7704.up.railway.app%2Fdashboard%3Ffrom%3Dlogin&from_url=https%3A%2F%2Fmindful-path-production-7704.up.railway.app%2Fdashboard%3Ffrom%3Dlogin',
+    const parsed = new URL(loginUrl);
+
+    expect(parsed.origin).toBe('https://mindful-path-75aeaf7d.base44.app');
+    expect(parsed.pathname).toBe('/login');
+    expect(parsed.searchParams.get('app_id')).toBe('app-123');
+    expect(parsed.searchParams.get('functions_version')).toBe('fv-123');
+    expect(parsed.searchParams.get('next')).toBe('/dashboard?from=login');
+    expect(parsed.searchParams.get('returnUrl')).toBe(
+      'https://mindful-path-production-7704.up.railway.app/dashboard?from=login',
+    );
+    expect(parsed.searchParams.get('from_url')).toBe(
+      'https://mindful-path-production-7704.up.railway.app/dashboard?from=login',
     );
   });
 });
