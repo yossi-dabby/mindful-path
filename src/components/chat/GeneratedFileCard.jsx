@@ -11,7 +11,7 @@ export { normalizeGeneratedFile };
 
 /**
  * Returns true when the URL is a Base44 file UUID (bare UUID string, no scheme)
- * or a Base44 storage file reference (absolute URL whose hostname contains "base44").
+ * or a Base44 storage file reference (absolute URL on the base44.com domain).
  * These references require a signed URL before they can be opened or downloaded.
  */
 function isBase44FileRef(url) {
@@ -22,16 +22,21 @@ function isBase44FileRef(url) {
   }
   try {
     const { hostname } = new URL(trimmed);
-    return hostname.includes('base44');
+    return hostname === 'base44.com' || hostname.endsWith('.base44.com');
   } catch {
     return false;
   }
 }
 
+/**
+ * Calls CreateFileSignedUrl and extracts the signed URL from the response.
+ * The SDK may return the URL in signed_url, url, or file_url — all three are
+ * checked to stay compatible across Base44 SDK versions (same chain as MessageBubble).
+ */
 async function resolveBase44SignedUrl(url) {
   const signed = await base44.integrations.Core.CreateFileSignedUrl({ file_url: url });
   const signedUrl = signed?.signed_url || signed?.url || signed?.file_url;
-  if (!signedUrl) throw new Error('[GeneratedFileCard] Failed to generate secure URL');
+  if (!signedUrl) throw new Error(`[GeneratedFileCard] CreateFileSignedUrl returned no URL for: ${url}`);
   return signedUrl;
 }
 
@@ -53,6 +58,7 @@ export default function GeneratedFileCard({ generatedFile }) {
       if (isBase44FileRef(normalized.url)) {
         setIsSigningUrl(true);
         const signedUrl = await resolveBase44SignedUrl(normalized.url);
+        if (!signedUrl.startsWith('http')) throw new Error(`[GeneratedFileCard] Signed URL is not a valid HTTP URL: ${signedUrl}`);
         await openFile(signedUrl);
       } else {
         const openUrl = getFormOpenUrl(normalized.url);
