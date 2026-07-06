@@ -2,6 +2,12 @@ import React, { useEffect, useMemo } from 'react';
 import { appParams } from '@/lib/app-params';
 
 const DEFAULT_BASE44_AUTH_BASE_URL = 'https://base44.app';
+const FORWARDED_LOGIN_QUERY_KEYS = new Set([
+  'app_id',
+  'functions_version',
+  'next',
+  'nextUrl',
+]);
 
 function resolveSafeReturnUrl(rawValue) {
   const fallback = `${window.location.origin}/`;
@@ -22,7 +28,7 @@ function buildExternalLoginUrl() {
   const incoming = new URLSearchParams(window.location.search);
 
   incoming.forEach((value, key) => {
-    if (key === 'returnUrl' || key === 'from_url') return;
+    if (!FORWARDED_LOGIN_QUERY_KEYS.has(key)) return;
     externalLoginUrl.searchParams.set(key, value);
   });
 
@@ -35,21 +41,22 @@ function buildExternalLoginUrl() {
   externalLoginUrl.searchParams.set('returnUrl', safeReturnUrl);
   externalLoginUrl.searchParams.set('from_url', safeReturnUrl);
 
-  if (appParams.appId && !externalLoginUrl.searchParams.get('app_id')) {
-    externalLoginUrl.searchParams.set('app_id', appParams.appId);
-  }
-
-  if (appParams.functionsVersion && !externalLoginUrl.searchParams.get('functions_version')) {
-    externalLoginUrl.searchParams.set('functions_version', appParams.functionsVersion);
-  }
+  setParamIfNotPresent(externalLoginUrl.searchParams, 'app_id', appParams.appId);
+  setParamIfNotPresent(externalLoginUrl.searchParams, 'functions_version', appParams.functionsVersion);
 
   return externalLoginUrl.toString();
+}
+
+function setParamIfNotPresent(searchParams, key, value) {
+  if (!value || searchParams.get(key)) return;
+  searchParams.set(key, value);
 }
 
 export default function Login() {
   const loginUrl = useMemo(() => buildExternalLoginUrl(), []);
 
   useEffect(() => {
+    // Replace the bridge URL to avoid an immediate back-navigation bounce to /login.
     window.location.replace(loginUrl);
   }, [loginUrl]);
 
