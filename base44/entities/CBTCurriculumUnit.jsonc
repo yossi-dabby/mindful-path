@@ -177,10 +177,10 @@
       "enum": [
         "any",
         "low_only",
-        "not_in_crisis"
+        "mild_and_below"
       ],
       "default": "any",
-      "description": "Which distress levels this unit is suitable for. 'low_only' = retrieve only when distress is tier_low. 'not_in_crisis' = suitable unless containment is active. 'any' = no distress-level restriction."
+      "description": "Wave 4A.2 — Maximum distress level at which this unit is clinically appropriate. any = no distress constraint. mild_and_below = TIER_MILD or lower only. low_only = TIER_LOW only."
     },
     "intervention_family": {
       "type": "string",
@@ -192,18 +192,18 @@
         "mixed",
         "other"
       ],
-      "description": "Wave 4A.2 \u2014 Primary CBT intervention family this unit belongs to. Used to match retrieval context to appropriate technique type."
+      "description": "Wave 4A.2 — Primary CBT intervention family this unit belongs to. Used to match retrieval context to appropriate technique type."
     },
     "evidence_level": {
       "type": "string",
       "enum": [
-        "anecdotal",
-        "emerging",
         "established",
-        "gold_standard"
+        "emerging",
+        "expert_consensus",
+        "unclassified"
       ],
-      "default": "established",
-      "description": "Clinical evidence quality for this unit's content. Only 'established' and 'gold_standard' units are eligible for Wave 4 runtime retrieval."
+      "default": "unclassified",
+      "description": "Wave 4A.2 — Strength of evidence supporting this unit. established = RCT/meta-analytic support. emerging = promising but preliminary. expert_consensus = clinical consensus without formal trials. unclassified = not yet assessed."
     },
     "treatment_arc_position": {
       "type": "string",
@@ -214,25 +214,23 @@
         "any"
       ],
       "default": "any",
-      "description": "Wave 4A.2 \u2014 Optimal position in the treatment arc for this unit. Mirrors CBT_TREATMENT_ARC_FILTERS. any = arc-agnostic."
+      "description": "Wave 4A.2 — Optimal position in the treatment arc for this unit. Mirrors CBT_TREATMENT_ARC_FILTERS. any = arc-agnostic."
     },
     "safety_tags": {
       "type": "array",
       "items": {
         "type": "string",
         "enum": [
-          "contraindicated_in_crisis",
-          "requires_therapist_supervision",
-          "not_for_acute_trauma",
-          "not_for_active_suicidality",
-          "not_for_psychosis",
-          "not_for_bipolar_acute",
-          "cardiac_precaution",
-          "respiratory_precaution",
-          "safe_for_self_guided"
+          "not_for_crisis",
+          "requires_rapport",
+          "psychoeducation_safe",
+          "validated_protocol",
+          "not_for_high_distress",
+          "exposure_adjacent"
         ]
       },
-      "description": "Bounded set of import-time safety tags. Checked at ingest; influences retrieval eligibility. An empty array means no specific safety restrictions beyond standard CBT contraindications."
+      "default": [],
+      "description": "Wave 4A.2 — Bounded machine-readable safety tags for retrieval filtering. not_for_crisis = skip during safety mode. requires_rapport = only after rapport is established. psychoeducation_safe = suitable for first-contact psychoeducation. validated_protocol = part of a formal evidence-based protocol. not_for_high_distress = skip when distress tier is HIGH. exposure_adjacent = requires careful handling; not for early arc."
     },
     "admin_notes": {
       "type": "string",
@@ -255,6 +253,45 @@
         "general"
       ],
       "description": "Wave 4 planner domain \u2014 maps clinical_topic to a CBT_KNOWLEDGE_DOMAINS value for retrieval scoping. Must be set to activate runtime retrieval for this unit."
+    },
+    "distress_suitability": {
+      "type": "string",
+      "enum": [
+        "any",
+        "low_only",
+        "not_in_crisis"
+      ],
+      "default": "any",
+      "description": "Which distress levels this unit is suitable for. 'low_only' = retrieve only when distress is tier_low. 'not_in_crisis' = suitable unless containment is active. 'any' = no distress-level restriction."
+    },
+    "evidence_level": {
+      "type": "string",
+      "enum": [
+        "anecdotal",
+        "emerging",
+        "established",
+        "gold_standard"
+      ],
+      "default": "established",
+      "description": "Clinical evidence quality for this unit's content. Only 'established' and 'gold_standard' units are eligible for Wave 4 runtime retrieval."
+    },
+    "safety_tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "contraindicated_in_crisis",
+          "requires_therapist_supervision",
+          "not_for_acute_trauma",
+          "not_for_active_suicidality",
+          "not_for_psychosis",
+          "not_for_bipolar_acute",
+          "cardiac_precaution",
+          "respiratory_precaution",
+          "safe_for_self_guided"
+        ]
+      },
+      "description": "Bounded set of import-time safety tags. Checked at ingest; influences retrieval eligibility. An empty array means no specific safety restrictions beyond standard CBT contraindications."
     },
     "runtime_eligible_first_wave": {
       "type": "boolean",
