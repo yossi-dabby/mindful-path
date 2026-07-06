@@ -31,7 +31,10 @@ function isAppSpecificBase44AuthOrigin(rawValue) {
   }
 }
 
-export function resolveSafeReturnUrl(rawValue, currentOrigin = window.location.origin) {
+export function resolveSafeReturnUrl(
+  rawValue,
+  currentOrigin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost',
+) {
   const fallback = new URL('/', currentOrigin).toString();
   if (typeof rawValue !== 'string' || !rawValue.trim()) return fallback;
 
