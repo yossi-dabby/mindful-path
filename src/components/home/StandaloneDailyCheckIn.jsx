@@ -486,7 +486,7 @@ export default function StandaloneDailyCheckIn() {
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="space-y-4">
+              className="space-y-4 mr-1">
 
               <h3 className="text-teal-600 text-base font-semibold">
                 {t('daily_check_in.step1_question')}
