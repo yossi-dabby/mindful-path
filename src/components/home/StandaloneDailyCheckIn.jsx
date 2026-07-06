@@ -480,7 +480,7 @@ export default function StandaloneDailyCheckIn() {
           </div>
         </CardHeader>
 
-        <CardContent className="p-6">
+        <CardContent className="pt-6 pr-6 pb-6 pl-6">
           {/* Step 1: Mood Selection */}
           {step === 1 &&
             <motion.div
