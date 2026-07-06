@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FileText, ExternalLink, Download, Loader2 } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 import { normalizeGeneratedFile } from './utils/normalizeGeneratedFile';
 import { downloadPdfFile } from './utils/downloadPdfFile';
 import { openFile } from './utils/openFile';
@@ -8,38 +9,79 @@ import { getFormDownloadUrl, getFormOpenUrl } from './utils/formFileUrls';
 
 export { normalizeGeneratedFile };
 
+/**
+ * Returns true when the URL is a Base44 file UUID (bare UUID string, no scheme)
+ * or a Base44 storage file reference (absolute URL whose hostname contains "base44").
+ * These references require a signed URL before they can be opened or downloaded.
+ */
+function isBase44FileRef(url) {
+  if (typeof url !== 'string' || !url.trim()) return false;
+  const trimmed = url.trim();
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(trimmed)) {
+    return true;
+  }
+  try {
+    const { hostname } = new URL(trimmed);
+    return hostname.includes('base44');
+  } catch {
+    return false;
+  }
+}
+
+async function resolveBase44SignedUrl(url) {
+  const signed = await base44.integrations.Core.CreateFileSignedUrl({ file_url: url });
+  const signedUrl = signed?.signed_url || signed?.url || signed?.file_url;
+  if (!signedUrl) throw new Error('[GeneratedFileCard] Failed to generate secure URL');
+  return signedUrl;
+}
+
 export default function GeneratedFileCard({ generatedFile }) {
   const { t } = useTranslation();
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isSigningUrl, setIsSigningUrl] = useState(false);
 
   const normalized = normalizeGeneratedFile(generatedFile);
   if (!normalized) return null;
 
   const displayTitle = normalized.title || normalized.name;
   const description = normalized.description;
+  const isBusy = isDownloading || isSigningUrl;
 
   const handleOpen = async () => {
-    const openUrl = getFormOpenUrl(normalized.url);
-    if (!openUrl) return;
+    if (isBusy) return;
     try {
-      await openFile(openUrl);
+      if (isBase44FileRef(normalized.url)) {
+        setIsSigningUrl(true);
+        const signedUrl = await resolveBase44SignedUrl(normalized.url);
+        await openFile(signedUrl);
+      } else {
+        const openUrl = getFormOpenUrl(normalized.url);
+        if (!openUrl) return;
+        await openFile(openUrl);
+      }
     } catch (error) {
       console.error('[GeneratedFileCard] Open failed:', error);
+    } finally {
+      setIsSigningUrl(false);
     }
   };
 
   const handleDownload = async () => {
-    if (isDownloading) return;
+    if (isBusy) return;
     setIsDownloading(true);
+    let resolvedUrl = null;
     try {
-      const downloadUrl = getFormDownloadUrl(normalized.url);
-      if (!downloadUrl) return;
-      await downloadPdfFile(downloadUrl, normalized.name);
+      if (isBase44FileRef(normalized.url)) {
+        resolvedUrl = await resolveBase44SignedUrl(normalized.url);
+      } else {
+        resolvedUrl = getFormDownloadUrl(normalized.url);
+      }
+      if (!resolvedUrl) return;
+      await downloadPdfFile(resolvedUrl, normalized.name);
     } catch (error) {
       console.error('[GeneratedFileCard] Download failed, opening in new tab:', error);
-      const fallbackUrl = getFormDownloadUrl(normalized.url);
-      if (fallbackUrl) {
-        window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
+      if (resolvedUrl) {
+        window.open(resolvedUrl, '_blank', 'noopener,noreferrer');
       }
     } finally {
       setIsDownloading(false);
@@ -79,16 +121,26 @@ export default function GeneratedFileCard({ generatedFile }) {
           type="button"
           data-testid="generated-file-open"
           onClick={handleOpen}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-foreground/15 hover:bg-primary-foreground/20 transition-colors text-sm font-medium text-primary-foreground border-e border-primary-foreground/20"
+          disabled={isBusy}
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-foreground/15 hover:bg-primary-foreground/20 transition-colors text-sm font-medium text-primary-foreground border-e border-primary-foreground/20 disabled:opacity-60"
         >
-          <ExternalLink className="w-3.5 h-3.5" />
-          <span>{t('chat.generated_file.open_button', 'Open')}</span>
+          {isSigningUrl ? (
+            <>
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <span>{t('chat.generated_file.opening', 'Opening...')}</span>
+            </>
+          ) : (
+            <>
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>{t('chat.generated_file.open_button', 'Open')}</span>
+            </>
+          )}
         </button>
         <button
           type="button"
           data-testid="generated-file-download"
           onClick={handleDownload}
-          disabled={isDownloading}
+          disabled={isBusy}
           className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-foreground/15 hover:bg-primary-foreground/20 transition-colors text-sm font-medium text-primary-foreground disabled:opacity-60"
         >
           {isDownloading ? (
