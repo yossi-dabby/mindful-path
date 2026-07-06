@@ -36,7 +36,7 @@ function isBase44FileRef(url) {
 async function resolveBase44SignedUrl(url) {
   const signed = await base44.integrations.Core.CreateFileSignedUrl({ file_url: url });
   const signedUrl = signed?.signed_url || signed?.url || signed?.file_url;
-  if (!signedUrl) throw new Error(`[GeneratedFileCard] CreateFileSignedUrl returned no URL for: ${url}`);
+  if (!signedUrl) throw new Error('[GeneratedFileCard] CreateFileSignedUrl returned no URL');
   return signedUrl;
 }
 
@@ -58,7 +58,7 @@ export default function GeneratedFileCard({ generatedFile }) {
       if (isBase44FileRef(normalized.url)) {
         setIsSigningUrl(true);
         const signedUrl = await resolveBase44SignedUrl(normalized.url);
-        if (!signedUrl.startsWith('http')) throw new Error(`[GeneratedFileCard] Signed URL is not a valid HTTP URL: ${signedUrl}`);
+        if (!signedUrl.startsWith('http')) throw new Error('[GeneratedFileCard] Signed URL is not a valid HTTP URL');
         await openFile(signedUrl);
       } else {
         const openUrl = getFormOpenUrl(normalized.url);
