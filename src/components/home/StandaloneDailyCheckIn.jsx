@@ -526,7 +526,7 @@ export default function StandaloneDailyCheckIn() {
 
                       <span className="font-light text-justify text-4xl sm:text-4xl md:text-4xl">{mood.emoji}</span>
                     </div>
-                    <div className="text-teal-600 font-medium text-center leading-tight rounded sm:text-xs mb-1 pb-3">
+                    <div className="text-teal-600 font-medium text-center leading-tight rounded sm:text-xs my-1 py-3">
                       {t(`daily_check_in.moods.${mood.value}`, { defaultValue: mood.label })}
                     </div>
                   </button>
