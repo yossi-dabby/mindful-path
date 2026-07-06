@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { appParams } from '@/lib/app-params';
 import { buildExternalLoginUrl } from '@/lib/loginBridge';
 
 export default function Login() {
-  const loginUrl = useMemo(() => buildExternalLoginUrl({ appConfig: appParams }), []);
+  const loginUrl = buildExternalLoginUrl({ appConfig: appParams });
 
   useEffect(() => {
     if (!loginUrl) return;

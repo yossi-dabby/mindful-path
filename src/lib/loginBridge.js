@@ -21,23 +21,25 @@ function isAppSpecificBase44AuthOrigin(rawValue) {
   if (typeof rawValue !== 'string' || !rawValue.trim()) return false;
 
   try {
-    const { hostname, origin } = new URL(rawValue);
-    return hostname.endsWith(APP_SPECIFIC_BASE44_HOST_SUFFIX) && hostname !== GENERIC_BASE44_AUTH_HOST && origin !== 'null';
+    const { hostname } = new URL(rawValue);
+    return hostname.endsWith(APP_SPECIFIC_BASE44_HOST_SUFFIX) && hostname !== GENERIC_BASE44_AUTH_HOST;
   } catch {
     return false;
   }
 }
 
-export function resolveSafeReturnUrl(
-  rawValue,
-  currentOrigin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost',
-) {
-  const fallback = new URL('/', currentOrigin).toString();
+export function resolveSafeReturnUrl(rawValue, currentOrigin) {
+  const safeOrigin =
+    normalizeOrigin(currentOrigin) ||
+    normalizeOrigin(typeof window !== 'undefined' ? window.location.origin : null);
+  if (!safeOrigin) return '/';
+
+  const fallback = new URL('/', safeOrigin).toString();
   if (typeof rawValue !== 'string' || !rawValue.trim()) return fallback;
 
   try {
-    const parsed = new URL(rawValue, currentOrigin);
-    if (parsed.origin !== currentOrigin) return fallback;
+    const parsed = new URL(rawValue, safeOrigin);
+    if (parsed.origin !== safeOrigin) return fallback;
     return parsed.toString();
   } catch {
     return fallback;
