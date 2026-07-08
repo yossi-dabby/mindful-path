@@ -107,6 +107,13 @@ describe('GeneratedFileCard — Open vs Download source-code contract', () => {
     expect(bubbleSrc).toContain('message?.metadata?.generated_files');
     expect(bubbleSrc).toContain('generatedFiles.map');
   });
+
+  it('Chat persists the active conversation in history state for pdf-viewer back navigation', () => {
+    const chatSrc = fs.readFileSync(`${ROOT}/src/pages/Chat.jsx`, 'utf8');
+    expect(chatSrc).toContain("location.state?.pdfViewerReturn?.source === 'chat'");
+    expect(chatSrc).toContain("chatConversationId: currentConversationId");
+    expect(chatSrc).toContain("safeUpdateMessages(sanitized, 'CurrentConversationHydrate')");
+  });
 });
 
 // ─── Forms library Open action — direct public URL ────────────────────────────

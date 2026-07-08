@@ -137,6 +137,8 @@ describe('therapeuticFormsPage.test.js — collection-first browsing', () => {
     expect(pageSource).toContain('navigate(');
     expect(pageSource).toContain('getFormDownloadUrl(resolvedUrl)');
     expect(pageSource).toContain('downloadPdfFile(downloadUrl, fileName)');
+    expect(pageSource).toContain("location.state?.pdfViewerReturn?.source === 'therapeutic-forms'");
+    expect(pageSource).toContain("source: 'therapeutic-forms'");
   });
 
   it('view mode defaults to medium and persists in localStorage key', () => {

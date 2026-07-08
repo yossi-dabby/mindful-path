@@ -289,8 +289,11 @@ export default function Chat() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const restoredPdfViewerConversationId = location.state?.pdfViewerReturn?.source === 'chat'
+    ? location.state.pdfViewerReturn.chatConversationId || null
+    : null;
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
-  const [currentConversationId, setCurrentConversationId] = useState(null);
+  const [currentConversationId, setCurrentConversationId] = useState(restoredPdfViewerConversationId);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -1190,6 +1193,48 @@ export default function Chat() {
     enabled: !!currentConversationId,
     refetchOnWindowFocus: false
   });
+
+  useEffect(() => {
+    if (!currentConversationId || !currentConversationData || messages.length > 0) return;
+
+    const firstUserMsg = (currentConversationData.messages || []).find((m) => m.role === 'user' && m.content);
+    const embeddedLang = firstUserMsg?.content?.match(/\[SESSION_LANGUAGE:\s*([a-zA-Z]{2})\b/)?.[1]?.toLowerCase();
+    sessionLanguageRef.current = embeddedLang || i18n.language || 'en';
+
+    const sanitized = sanitizeConversationMessages(currentConversationData.messages || [], sessionLanguageRef.current);
+    safeUpdateMessages(sanitized, 'CurrentConversationHydrate');
+  }, [currentConversationData, currentConversationId, i18n.language, messages.length]);
+
+  useEffect(() => {
+    const nextViewerState = currentConversationId ? {
+      source: 'chat',
+      chatConversationId: currentConversationId,
+    } : null;
+    const currentViewerState = location.state?.pdfViewerReturn?.source === 'chat'
+      ? location.state.pdfViewerReturn
+      : null;
+
+    if (JSON.stringify(currentViewerState) === JSON.stringify(nextViewerState)) return;
+
+    const nextLocationState = { ...(location.state || {}) };
+    if (nextViewerState) {
+      nextLocationState.pdfViewerReturn = nextViewerState;
+    } else {
+      delete nextLocationState.pdfViewerReturn;
+    }
+
+    navigate(`${location.pathname}${location.search}${location.hash}`, {
+      replace: true,
+      state: nextLocationState,
+    });
+  }, [
+    currentConversationId,
+    location.hash,
+    location.pathname,
+    location.search,
+    location.state,
+    navigate,
+  ]);
 
   // Check if we should show summary prompt (after 5+ messages, only once)
   useEffect(() => {

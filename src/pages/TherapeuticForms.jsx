@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ClipboardList } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
@@ -21,6 +21,40 @@ const AUDIENCE_ORDER = ['children', 'adolescents', 'adults', 'older_adults'];
 const COLLECTION_TYPE_ORDER = { core: 0, specialized: 1 };
 export const FORMS_VIEW_MODE_STORAGE_KEY = 'mindfulPath.formsLibrary.viewMode';
 export const DEFAULT_FORMS_VIEW_MODE = 'medium';
+
+function getDefaultFormsNavigationState() {
+  return {
+    history: [{ collectionId: null, moduleId: null }],
+    index: 0,
+  };
+}
+
+function getRestoredFormsViewerState(locationState) {
+  const candidate = locationState?.pdfViewerReturn;
+  if (candidate?.source !== 'therapeutic-forms') return null;
+
+  const history = Array.isArray(candidate.navigationState?.history) && candidate.navigationState.history.length > 0
+    ? candidate.navigationState.history.map((entry) => ({
+      collectionId: entry?.collectionId ?? null,
+      moduleId: entry?.moduleId ?? null,
+    }))
+    : getDefaultFormsNavigationState().history;
+
+  const rawIndex = Number(candidate.navigationState?.index);
+  const boundedIndex = Number.isInteger(rawIndex)
+    ? Math.min(Math.max(rawIndex, 0), history.length - 1)
+    : history.length - 1;
+
+  return {
+    selectedAudience: candidate.selectedAudience ?? null,
+    selectedCollectionId: candidate.selectedCollectionId ?? history[boundedIndex]?.collectionId ?? null,
+    selectedModuleId: candidate.selectedModuleId ?? history[boundedIndex]?.moduleId ?? null,
+    navigationState: {
+      history,
+      index: boundedIndex,
+    },
+  };
+}
 
 function isValidViewMode(mode) {
   return FORMS_VIEW_MODES.includes(mode);
@@ -326,22 +360,23 @@ function getWorksheetTags({ worksheet, module, t, lang }) {
 export default function TherapeuticForms() {
   const { t, i18n } = useTranslation();
   const { toast } = useToast();
+  const location = useLocation();
   const navigate = useNavigate();
   const lang = normalizeLanguageCode(i18n.resolvedLanguage || i18n.language || 'en');
   const isRtl = i18n.dir ? i18n.dir() === 'rtl' : lang === 'he';
+  const restoredViewerState = getRestoredFormsViewerState(location.state);
 
   const visibleForms = useMemo(() => getLanguageVisibleForms(lang), [lang]);
   const collections = useMemo(() => buildCollectionsFromForms(visibleForms), [visibleForms]);
   const availableAudiences = useMemo(() => getAudienceOptionsFromCollections(collections), [collections]);
 
   const [viewMode, setViewMode] = useState(getInitialFormsViewMode);
-  const [selectedAudience, setSelectedAudience] = useState(null);
-  const [selectedCollectionId, setSelectedCollectionId] = useState(null);
-  const [selectedModuleId, setSelectedModuleId] = useState(null);
-  const [navigationState, setNavigationState] = useState({
-    history: [{ collectionId: null, moduleId: null }],
-    index: 0,
-  });
+  const [selectedAudience, setSelectedAudience] = useState(restoredViewerState?.selectedAudience ?? null);
+  const [selectedCollectionId, setSelectedCollectionId] = useState(restoredViewerState?.selectedCollectionId ?? null);
+  const [selectedModuleId, setSelectedModuleId] = useState(restoredViewerState?.selectedModuleId ?? null);
+  const [navigationState, setNavigationState] = useState(
+    restoredViewerState?.navigationState ?? getDefaultFormsNavigationState()
+  );
 
   const updateCurrentNavigationState = (collectionId, moduleId) => {
     setNavigationState((previous) => {
@@ -365,10 +400,7 @@ export default function TherapeuticForms() {
   };
 
   const resetNavState = () => {
-    setNavigationState({
-      history: [{ collectionId: null, moduleId: null }],
-      index: 0,
-    });
+    setNavigationState(getDefaultFormsNavigationState());
   };
 
   const navigateToCollection = (collectionId) => {
@@ -407,6 +439,39 @@ export default function TherapeuticForms() {
       // no-op
     }
   }, [viewMode]);
+
+  useEffect(() => {
+    const nextViewerState = {
+      source: 'therapeutic-forms',
+      selectedAudience,
+      selectedCollectionId,
+      selectedModuleId,
+      navigationState,
+    };
+    const currentViewerState = location.state?.pdfViewerReturn?.source === 'therapeutic-forms'
+      ? location.state.pdfViewerReturn
+      : null;
+
+    if (JSON.stringify(currentViewerState) === JSON.stringify(nextViewerState)) return;
+
+    navigate(`${location.pathname}${location.search}${location.hash}`, {
+      replace: true,
+      state: {
+        ...(location.state || {}),
+        pdfViewerReturn: nextViewerState,
+      },
+    });
+  }, [
+    location.hash,
+    location.pathname,
+    location.search,
+    location.state,
+    navigate,
+    navigationState,
+    selectedAudience,
+    selectedCollectionId,
+    selectedModuleId,
+  ]);
 
   useEffect(() => {
     if (!availableAudiences.length) {
