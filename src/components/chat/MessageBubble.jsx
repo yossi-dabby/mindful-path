@@ -280,19 +280,39 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   // text with embedded English terms, URLs, or numbers) renders with correct Unicode
   // BiDi algorithm rather than forcing everything to a single direction.
   const dir = i18n.language === 'he' ? 'rtl' : 'ltr';
-  const handleAssistantPdfDownload = async (url) => {
+  const handleAssistantPdfDownload = (url) => {
     if (isUser || !url || signingPdfUrl) return;
+
+    // Static /forms/... paths resolve synchronously — navigate inside the trusted gesture.
+    if (typeof url === 'string' && url.trim().startsWith('/forms/')) {
+      const openUrl = getFormOpenUrl(url);
+      if (openUrl) {
+        openFile(openUrl);
+        return;
+      }
+    }
+
+    // Private/signed files — open a blank window synchronously during the click,
+    // then point it at the resolved URL once the async signing completes.
+    // Note: 'noopener'/'noreferrer' are omitted — those tokens cause window.open to
+    // return null per spec, making it impossible to detect a blocked popup.
+    const win = typeof window !== 'undefined' ? window.open('', '_blank') : null;
     setSigningPdfUrl(url);
-    try {
-      const { url: resolvedUrl } = await resolveWorksheetFileUrl(url, {
-        sourceRecord: message,
-        coreIntegration: base44?.integrations?.Core,
-        entities: base44?.entities,
-      });
+
+    resolveWorksheetFileUrl(url, {
+      sourceRecord: message,
+      coreIntegration: base44?.integrations?.Core,
+      entities: base44?.entities,
+    }).then(({ url: resolvedUrl }) => {
       const openUrl = getFormOpenUrl(resolvedUrl);
       if (!openUrl) throw new Error('Could not build open URL');
-      await openFile(openUrl);
-    } catch (error) {
+      if (win) {
+        win.location.href = openUrl;
+      } else {
+        openFile(openUrl);
+      }
+    }).catch((error) => {
+      if (win && !win.closed) win.close();
       console.error('[MessageBubble] Failed to open PDF attachment:', {
         fileValue: url,
         reason: error?.message || error,
@@ -302,9 +322,9 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
         description: 'This worksheet file could not be opened. Please try again or contact support.',
         variant: 'destructive',
       });
-    } finally {
+    }).finally(() => {
       setSigningPdfUrl(null);
-    }
+    });
   };
 
   return (
