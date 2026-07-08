@@ -22,6 +22,11 @@ export function openFile(url) {
   const safeUrl = url.trim();
   if (!safeUrl) return;
 
+  if (_isStaticFormsViewerRoute(safeUrl)) {
+    window.location.href = safeUrl;
+    return;
+  }
+
   // Try to open in a new tab; fall back to same-tab if the popup is blocked
   // (Android Chrome, installed PWA, and strict popup blockers all block window.open
   // that is triggered outside a direct trusted user gesture or after an async gap).
@@ -31,5 +36,18 @@ export function openFile(url) {
   const openedWindow = window.open(safeUrl, '_blank');
   if (!openedWindow) {
     window.location.href = safeUrl;
+  }
+}
+
+function _isStaticFormsViewerRoute(url) {
+  try {
+    const parsed = new URL(url, window.location.origin);
+    if (!/^\/pdf-viewer$/i.test(parsed.pathname)) return false;
+    const fileParam = parsed.searchParams.get('file');
+    if (!fileParam) return false;
+    const decodedFile = decodeURIComponent(fileParam);
+    return decodedFile.startsWith('/forms/');
+  } catch {
+    return false;
   }
 }
