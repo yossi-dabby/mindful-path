@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { FileText, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
@@ -11,8 +12,7 @@ import { applyFinalOutputGovernor } from '../utils/finalOutputGovernor';
 import { normalizeAssistantMarkdown } from '../utils/normalizeAssistantMarkdown';
 import GeneratedFileCard from './GeneratedFileCard';
 import { normalizeGeneratedFile } from './utils/normalizeGeneratedFile';
-import { openFile } from './utils/openFile';
-import { getFormOpenUrl } from './utils/formFileUrls';
+import { PDF_VIEWER_ROUTE_PATH } from './utils/formFileUrls';
 import { resolveWorksheetFileUrl } from './utils/worksheetFileResolver';
 
 const ASSISTANT_ATTACHMENT_URL_REGEX = /https?:\/\/\S+/gi;
@@ -159,8 +159,8 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   // Therapist /Chat runtime reaches this component via pages/Chat.jsx -> MessageList.jsx.
   const { t, i18n } = useTranslation();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [thinkingExpanded, setThinkingExpanded] = useState(false);
-  const [signingPdfUrl, setSigningPdfUrl] = useState(null);
   // CRITICAL GATE 1: Strict null/undefined/empty gating
   if (!message || !message.role) {
     return null;
@@ -281,50 +281,12 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   // BiDi algorithm rather than forcing everything to a single direction.
   const dir = i18n.language === 'he' ? 'rtl' : 'ltr';
   const handleAssistantPdfDownload = (url) => {
-    if (isUser || !url || signingPdfUrl) return;
-
-    // Static /forms/... paths resolve synchronously — navigate inside the trusted gesture.
-    if (typeof url === 'string' && url.trim().startsWith('/forms/')) {
-      const openUrl = getFormOpenUrl(url);
-      if (openUrl) {
-        openFile(openUrl);
-        return;
-      }
-    }
-
-    // Private/signed files — open a blank window synchronously during the click,
-    // then point it at the resolved URL once the async signing completes.
-    // Note: 'noopener'/'noreferrer' are omitted — those tokens cause window.open to
-    // return null per spec, making it impossible to detect a blocked popup.
-    const win = typeof window !== 'undefined' ? window.open('', '_blank') : null;
-    setSigningPdfUrl(url);
-
-    resolveWorksheetFileUrl(url, {
-      sourceRecord: message,
-      coreIntegration: base44?.integrations?.Core,
-      entities: base44?.entities,
-    }).then(({ url: resolvedUrl }) => {
-      const openUrl = getFormOpenUrl(resolvedUrl);
-      if (!openUrl) throw new Error('Could not build open URL');
-      if (win) {
-        win.location.href = openUrl;
-      } else {
-        openFile(openUrl);
-      }
-    }).catch((error) => {
-      if (win && !win.closed) win.close();
-      console.error('[MessageBubble] Failed to open PDF attachment:', {
-        fileValue: url,
-        reason: error?.message || error,
-      });
-      toast({
-        title: 'Unable to open worksheet',
-        description: 'This worksheet file could not be opened. Please try again or contact support.',
-        variant: 'destructive',
-      });
-    }).finally(() => {
-      setSigningPdfUrl(null);
-    });
+    if (isUser || !url || typeof url !== 'string') return;
+    const fileRef = url.trim();
+    if (!fileRef) return;
+    // Navigate same-tab to the in-app PDF viewer route.
+    // PdfViewer handles resolution for both static /forms/ paths and private file refs.
+    navigate(`${PDF_VIEWER_ROUTE_PATH}?file=${encodeURIComponent(fileRef)}`);
   };
 
   return (
@@ -410,7 +372,6 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                   const isAttachmentPdf = assistantAttachment.type === 'pdf';
                   const isAttachmentFile = assistantAttachment.type === 'file';
                   const isAttachmentAudio = assistantAttachment.type === 'audio';
-                  const isThisPdfSigning = signingPdfUrl === assistantAttachment.url;
 
                   if (isAttachmentImage) {
                     return (
@@ -430,10 +391,9 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
                 key={attachmentKey}
                 type="button"
                 onClick={() => handleAssistantPdfDownload(assistantAttachment.url)}
-                disabled={!!signingPdfUrl}
-                className="inline-flex items-center gap-2 rounded-lg border border-primary-foreground/20 px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors disabled:opacity-70 my-1">
+                className="inline-flex items-center gap-2 rounded-lg border border-primary-foreground/20 px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors my-1">
                         <FileText className="w-4 h-4" />
-                        <span className="max-w-[220px] truncate">{isThisPdfSigning ? t('chat.attachments.opening_pdf', 'Opening PDF...') : chipLabel}</span>
+                        <span className="max-w-[220px] truncate">{chipLabel}</span>
                         <ExternalLink className="w-3.5 h-3.5 opacity-80" />
                       </button>
                     );

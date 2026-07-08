@@ -1,13 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ClipboardList } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { SUPPORTED_LANGUAGES, ALL_FORMS, resolveFormWithLanguage } from '@/data/therapeuticForms/index.js';
-import { openFile } from '@/components/chat/utils/openFile';
 import { downloadPdfFile } from '@/components/chat/utils/downloadPdfFile';
-import { getFormDownloadUrl, getFormOpenUrl } from '@/components/chat/utils/formFileUrls';
+import { getFormDownloadUrl, PDF_VIEWER_ROUTE_PATH } from '@/components/chat/utils/formFileUrls';
 import { resolveWorksheetFileUrl } from '@/components/chat/utils/worksheetFileResolver';
 import { useTranslation } from 'react-i18next';
 import FormsCollectionCard from '@/components/forms/FormsCollectionCard';
@@ -327,6 +326,7 @@ function getWorksheetTags({ worksheet, module, t, lang }) {
 export default function TherapeuticForms() {
   const { t, i18n } = useTranslation();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const lang = normalizeLanguageCode(i18n.resolvedLanguage || i18n.language || 'en');
   const isRtl = i18n.dir ? i18n.dir() === 'rtl' : lang === 'he';
 
@@ -496,46 +496,9 @@ export default function TherapeuticForms() {
 
   const handleOpenForm = (fileUrl) => {
     if (!fileUrl || typeof fileUrl !== 'string') return;
-
-    // Static /forms/... paths resolve synchronously — compute the viewer URL right here,
-    // inside the trusted user-gesture, so no async gap can trigger the popup blocker.
-    if (fileUrl.trim().startsWith('/forms/')) {
-      const openUrl = getFormOpenUrl(fileUrl);
-      if (openUrl) {
-        openFile(openUrl);
-        return;
-      }
-    }
-
-    // Private/signed files: open a blank window synchronously during the click,
-    // then point it at the resolved URL once the async work completes.
-    // Note: 'noopener'/'noreferrer' are omitted — those tokens cause window.open to
-    // return null per spec, making it impossible to detect a blocked popup.
-    const win = typeof window !== 'undefined' ? window.open('', '_blank') : null;
-
-    resolveWorksheetFileUrl(fileUrl, {
-      coreIntegration: base44?.integrations?.Core,
-      entities: base44?.entities,
-    }).then(({ url: resolvedUrl }) => {
-      const openUrl = getFormOpenUrl(resolvedUrl);
-      if (!openUrl) throw new Error('Could not build open URL');
-      if (win) {
-        win.location.href = openUrl;
-      } else {
-        openFile(openUrl);
-      }
-    }).catch((error) => {
-      if (win && !win.closed) win.close();
-      console.error('[TherapeuticForms] Open failed:', {
-        fileValue: fileUrl,
-        reason: error?.message || error,
-      });
-      toast({
-        title: 'Unable to open worksheet',
-        description: 'This worksheet file could not be opened. Please try again or contact support.',
-        variant: 'destructive',
-      });
-    });
+    // Navigate same-tab to the in-app PDF viewer route.
+    // PdfViewer handles resolution for both static /forms/ paths and private file refs.
+    navigate(`${PDF_VIEWER_ROUTE_PATH}?file=${encodeURIComponent(fileUrl.trim())}`);
   };
 
   const handleDownloadForm = async (fileUrl, fileName) => {

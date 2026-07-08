@@ -1,14 +1,16 @@
 /**
  * worksheetOpenPopupFix.test.js
  *
- * Tests for the popup-blocker-safe worksheet Open and Download fix.
+ * Tests for the in-app same-tab worksheet Open behavior.
  *
- * Context: Android Chrome, installed PWA, and strict popup blockers block window.open
- * when called after an async gap (await). The fix:
- *  1. Static /forms/... paths: resolved synchronously — no async gap, no popup blocker.
- *  2. Private/signed files: window.open('', '_blank') called synchronously BEFORE async
- *     resolution; location assigned after.
- *  3. If window.open returns null: fall back to window.location.href.
+ * Context: Open must navigate same-tab to /pdf-viewer (not open a popup or new tab).
+ * This ensures the behavior works correctly in Android Chrome, installed PWA, and all
+ * browsers without relying on popup/new-tab behavior.
+ *
+ *  1. All surfaces (GeneratedFileCard, TherapeuticForms, MessageBubble) navigate same-tab
+ *     to the /pdf-viewer route with the file ref as a query param.
+ *  2. Download remains a separate code path using downloadPdfFile.
+ *  3. No window.open is used for the Open action.
  */
 
 import { describe, it, expect } from 'vitest';
@@ -20,32 +22,17 @@ import { getFormOpenUrl, getFormDownloadUrl } from '../../src/components/chat/ut
 
 const ROOT = path.resolve(process.cwd());
 
-// ─── openFile — popup-safe source-code contracts ──────────────────────────────
+// ─── openFile — still present as a utility but no longer used by Open buttons ─
 
-describe('openFile — popup-safe source-code contracts', () => {
+describe('openFile — source-code contracts (utility still present)', () => {
   const src = fs.readFileSync(`${ROOT}/src/components/chat/utils/openFile.js`, 'utf8');
 
-  it('is not async — no async keyword that would cause a trusted-gesture gap', () => {
-    // The function declaration must not be async so callers can use it synchronously
+  it('is not async — no async keyword', () => {
     expect(src).not.toMatch(/export\s+async\s+function\s+openFile/);
   });
 
-  it('falls back to window.location.href when window.open returns null', () => {
-    expect(src).toContain('window.location.href');
-  });
-
   it('does not throw when window.open returns null', () => {
-    // Old behavior threw an error; new behavior silently falls back
     expect(src).not.toContain('throw new Error');
-  });
-
-  it('opens with _blank target; noopener/noreferrer omitted from features so popup-blocked detection works', () => {
-    // Per WHATWG spec, window.open returns null when 'noopener'/'noreferrer' is in features,
-    // even when the popup opens successfully. Omitting them lets the return value reliably
-    // indicate a genuinely blocked popup.
-    expect(src).toContain("'_blank'");
-    expect(src).not.toMatch(/window\.open\([^)]*noopener/);
-    expect(src).not.toMatch(/window\.open\([^)]*noreferrer/);
   });
 
   it('still guards against falsy or non-string URL', () => {
@@ -53,92 +40,64 @@ describe('openFile — popup-safe source-code contracts', () => {
   });
 });
 
-// ─── openFile — runtime: window.open null fallback (source-code contract) ─────
-// Vitest runs in Node where window.open is not available.
-// We verify the source directly instead of running a browser simulation that
-// would require patching globals and risk polluting other tests.
+// ─── TherapeuticForms — same-tab navigate for all Open actions ────────────────
 
-describe('openFile — runtime fallback contract verified via source', () => {
-  const src = fs.readFileSync(`${ROOT}/src/components/chat/utils/openFile.js`, 'utf8');
-
-  it('assigns window.location.href when openedWindow is falsy', () => {
-    // The fallback line must check the return value and redirect same-tab
-    expect(src).toMatch(/if\s*\(!openedWindow\)/);
-    expect(src).toContain('window.location.href = safeUrl');
-  });
-
-  it('the fallback assignment covers all popup-blocked scenarios', () => {
-    // window.open returns null when blocked — one guard covers desktop popup blocker,
-    // Android Chrome, and installed PWA
-    expect(src).not.toMatch(/throw/); // must never throw
-    expect(src).toMatch(/window\.open\(safeUrl,\s*'_blank'/);
-  });
-});
-
-// ─── TherapeuticForms — static /forms/ paths bypass async ────────────────────
-
-describe('TherapeuticForms — handleOpenForm source contracts for static paths', () => {
+describe('TherapeuticForms — handleOpenForm navigates same-tab to /pdf-viewer', () => {
   const src = fs.readFileSync(`${ROOT}/src/pages/TherapeuticForms.jsx`, 'utf8');
 
-  it('short-circuits synchronously for /forms/ URLs without awaiting resolveWorksheetFileUrl', () => {
-    // The handler must check startsWith('/forms/') before any await / Promise chain
-    expect(src).toMatch(/startsWith\(['"]\/forms\/['"]\)/);
+  it('imports PDF_VIEWER_ROUTE_PATH for the viewer route', () => {
+    expect(src).toContain('PDF_VIEWER_ROUTE_PATH');
   });
 
-  it('does not await openFile — openFile is now a sync function', () => {
-    // handleOpenForm must not use "await openFile(..."
-    expect(src).not.toMatch(/await\s+openFile\s*\(/);
+  it('uses navigate() for same-tab navigation — no window.open', () => {
+    expect(src).toContain('navigate(');
+    expect(src).not.toContain("window.open('', '_blank'");
   });
 
-  it('uses the blank-window trick for non-static (private/signed) URLs', () => {
-    expect(src).toContain("window.open('', '_blank'");
-    expect(src).toContain('win.location.href');
+  it('does not call openFile — open is purely same-tab navigate', () => {
+    expect(src).not.toContain('openFile(');
   });
 });
 
-// ─── GeneratedFileCard — static /forms/ paths bypass async ───────────────────
+// ─── GeneratedFileCard — same-tab navigate for Open action ───────────────────
 
-describe('GeneratedFileCard — handleOpen source contracts', () => {
+describe('GeneratedFileCard — handleOpen navigates same-tab to /pdf-viewer', () => {
   const src = fs.readFileSync(`${ROOT}/src/components/chat/GeneratedFileCard.jsx`, 'utf8');
 
-  it('computes staticOpenUrl synchronously at render for /forms/ URLs', () => {
-    expect(src).toContain('staticOpenUrl');
-    expect(src).toMatch(/startsWith\(['"]\/forms\/['"]\)/);
+  it('imports PDF_VIEWER_ROUTE_PATH for the viewer route', () => {
+    expect(src).toContain('PDF_VIEWER_ROUTE_PATH');
   });
 
-  it('calls openFile(staticOpenUrl) synchronously without awaiting for static paths', () => {
-    // Confirm the early-return path that calls openFile without async
-    expect(src).toContain('if (staticOpenUrl)');
-    expect(src).toContain('openFile(staticOpenUrl)');
+  it('uses navigate() for same-tab navigation', () => {
+    expect(src).toContain('navigate(');
   });
 
-  it('uses blank-window trick for private/signed file URLs', () => {
-    expect(src).toContain("window.open('', '_blank'");
-    expect(src).toContain('win.location.href');
+  it('does not call openFile or window.open for Open action', () => {
+    expect(src).not.toContain('openFile(');
+    expect(src).not.toContain("window.open('', '_blank'");
   });
 
-  it('renders a fallback anchor link when open fails', () => {
-    expect(src).toContain('openFallbackUrl');
-    expect(src).toContain('generated-file-open-fallback-link');
+  it('passes the file ref encoded in the pdf-viewer URL', () => {
+    expect(src).toContain('encodeURIComponent(fileRef)');
   });
 });
 
-// ─── MessageBubble — static /forms/ paths bypass async ───────────────────────
+// ─── MessageBubble — same-tab navigate for PDF chips ─────────────────────────
 
-describe('MessageBubble — handleAssistantPdfDownload source contracts', () => {
+describe('MessageBubble — handleAssistantPdfDownload navigates same-tab to /pdf-viewer', () => {
   const src = fs.readFileSync(`${ROOT}/src/components/chat/MessageBubble.jsx`, 'utf8');
 
-  it('short-circuits synchronously for /forms/ URLs', () => {
-    expect(src).toMatch(/startsWith\(['"]\/forms\/['"]\)/);
+  it('imports PDF_VIEWER_ROUTE_PATH for the viewer route', () => {
+    expect(src).toContain('PDF_VIEWER_ROUTE_PATH');
   });
 
-  it('uses blank-window trick for private/signed file URLs', () => {
-    expect(src).toContain("window.open('', '_blank'");
-    expect(src).toContain('win.location.href');
+  it('uses navigate() for same-tab navigation — no window.open', () => {
+    expect(src).toContain('navigate(');
+    expect(src).not.toContain("window.open('', '_blank'");
   });
 
-  it('does not await openFile', () => {
-    expect(src).not.toMatch(/await\s+openFile\s*\(/);
+  it('does not call openFile', () => {
+    expect(src).not.toContain('openFile(');
   });
 });
 

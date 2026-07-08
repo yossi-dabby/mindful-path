@@ -2,9 +2,9 @@
  * PR-5 — Open vs Download runtime behavior E2E
  *
  * Covers:
- *   1. Forms Library worksheet card — Open action (new-tab popup, not download)
+ *   1. Forms Library worksheet card — Open action (same-tab PDF viewer, not download)
  *   2. Forms Library worksheet card — Download action (browser download, not Open)
- *   3. Chat GeneratedFileCard — Open action (new-tab popup, not download)
+ *   3. Chat GeneratedFileCard — Open action (same-tab PDF viewer, not download)
  *   4. Chat GeneratedFileCard — Download action (browser download, not Open)
  *   5. Distinctness contract — Open and Download are separate, non-interchangeable buttons
  */
@@ -212,7 +212,7 @@ async function sendChatMessage(page: Page, message: string) {
 test.describe('Open vs Download runtime behavior — Forms Library and Chat', () => {
   // ── Scenario 1: Forms Library Open ─────────────────────────────────────────
 
-  test('Forms Library Open action opens PDF viewer in new tab and does not trigger download', async ({
+  test('Forms Library Open action navigates same-tab to PDF viewer and does not trigger download', async ({
     page,
   }) => {
     await setupHebrewFormsLibrary(page);
@@ -228,26 +228,19 @@ test.describe('Open vs Download runtime behavior — Forms Library and Chat', ()
     const downloadAttr = await firstOpenButton.getAttribute('download');
     expect(downloadAttr).toBeNull();
 
-    // Click Open — expect a popup (new tab), NOT a download event.
-    const popupPromise = page.waitForEvent('popup', { timeout: 10000 });
+    // Click Open — expect same-tab navigation to /pdf-viewer, NOT a popup or download event.
     await firstOpenButton.click();
-    const popup = await popupPromise;
+    await page.waitForURL('**/pdf-viewer**', { timeout: 10000 });
 
-    expect(popup).not.toBeNull();
-    // waitForLoadState may time out if the PDF viewer loads slowly in CI;
-    // the URL assertion below is the authoritative check so a load timeout is non-fatal.
-    await popup.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});
-
-    // The popup URL must point to the PDF viewer route.
-    const popupUrl = popup.url();
-    expect(popupUrl).toContain('/pdf-viewer');
-    expect(popupUrl).toContain('file=');
+    // The URL must point to the PDF viewer route with a file param.
+    const currentUrl = page.url();
+    expect(currentUrl).toContain('/pdf-viewer');
+    expect(currentUrl).toContain('file=');
     // The viewer URL must NOT contain a download query flag.
-    expect(popupUrl).not.toContain('download=1');
+    expect(currentUrl).not.toContain('download=1');
 
-    await popup.close();
-
-    // Forms Library page remains usable after Open.
+    // Navigate back to confirm the Forms Library page is still accessible.
+    await page.goBack();
     await expect(page.getByTestId('worksheets-view')).toBeVisible();
   });
 
@@ -295,7 +288,7 @@ test.describe('Open vs Download runtime behavior — Forms Library and Chat', ()
 
   // ── Scenario 3: Chat GeneratedFileCard Open ─────────────────────────────────
 
-  test('Chat generated-file-card Open action opens PDF viewer in new tab, card stays visible', async ({
+  test('Chat generated-file-card Open action navigates same-tab to PDF viewer, card accessible via back', async ({
     page,
   }) => {
     await setupChatWithGeneratedFileCard(page);
@@ -316,23 +309,17 @@ test.describe('Open vs Download runtime behavior — Forms Library and Chat', ()
     // Open must NOT carry an HTML `download` attribute.
     expect(await openBtn.getAttribute('download')).toBeNull();
 
-    const popupPromise = page.waitForEvent('popup', { timeout: 10000 });
+    // Click Open — expect same-tab navigation to /pdf-viewer, NOT a popup or download event.
     await openBtn.click();
-    const popup = await popupPromise;
+    await page.waitForURL('**/pdf-viewer**', { timeout: 10000 });
 
-    expect(popup).not.toBeNull();
-    // waitForLoadState may time out if the PDF viewer loads slowly in CI;
-    // the URL assertion below is the authoritative check so a load timeout is non-fatal.
-    await popup.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});
+    const currentUrl = page.url();
+    expect(currentUrl).toContain('/pdf-viewer');
+    expect(currentUrl).toContain('file=');
+    expect(currentUrl).not.toContain('download=1');
 
-    const popupUrl = popup.url();
-    expect(popupUrl).toContain('/pdf-viewer');
-    expect(popupUrl).toContain('file=');
-    expect(popupUrl).not.toContain('download=1');
-
-    await popup.close();
-
-    // Card remains visible after Open — not removed by the action.
+    // Navigate back to confirm the chat is still accessible with the card.
+    await page.goBack();
     await expect(card).toBeVisible();
     // Download button remains distinct and visible after Open.
     await expect(downloadBtn).toBeVisible();
@@ -409,22 +396,19 @@ test.describe('Open vs Download runtime behavior — Forms Library and Chat', ()
       expect(await formsOpenBtns.nth(buttonIndex).getAttribute('download')).toBeNull();
     }
 
-    // Clicking Download on a worksheet must NOT open a popup (which would signal
-    // that it incorrectly routed to the Open helper).
+    // Clicking Download on a worksheet must NOT navigate to /pdf-viewer (which would
+    // signal that it incorrectly routed to the Open code path).
+    const urlBeforeDownload = page.url();
     const firstDownloadBtn = formsDownloadBtns.first();
-    const unexpectedPopupPromise = page
-      .waitForEvent('popup', { timeout: 3000 })
-      .catch(() => null);
     // Also arm a download listener to consume the event so it does not leak.
     const downloadConsumePromise = page
       .waitForEvent('download', { timeout: 3000 })
       .catch(() => null);
     await firstDownloadBtn.click();
-    const [unexpectedPopup] = await Promise.all([
-      unexpectedPopupPromise,
-      downloadConsumePromise,
-    ]);
-    expect(unexpectedPopup).toBeNull();
+    await downloadConsumePromise;
+    // Download must NOT have navigated into the PDF viewer route.
+    expect(page.url()).not.toContain('/pdf-viewer');
+    expect(page.url()).toBe(urlBeforeDownload);
 
     // ---- Chat surface ----
     await setupChatWithGeneratedFileCard(page);

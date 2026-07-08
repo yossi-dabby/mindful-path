@@ -77,9 +77,15 @@ describe('GeneratedFileCard — Open vs Download source-code contract', () => {
   const cardSrc = fs.readFileSync(`${ROOT}/src/components/chat/GeneratedFileCard.jsx`, 'utf8');
   const bubbleSrc = fs.readFileSync(`${ROOT}/src/components/chat/MessageBubble.jsx`, 'utf8');
 
-  it('Open button calls openFile (not downloadPdfFile)', () => {
+  it('Open button calls navigate to pdf-viewer (not downloadPdfFile)', () => {
     expect(cardSrc).toContain('handleOpen');
-    expect(cardSrc).toContain('openFile');
+    expect(cardSrc).toContain('PDF_VIEWER_ROUTE_PATH');
+    expect(cardSrc).toContain('navigate(');
+    // Open action must NOT use downloadPdfFile — that is Download's code path
+    expect(cardSrc).toContain('handleDownload');
+    expect(cardSrc).toContain('downloadPdfFile');
+    // Confirm they are different handlers (Open uses navigate, Download uses downloadPdfFile)
+    expect(cardSrc).not.toContain('openFile(');
   });
 
   it('Download button calls downloadPdfFile', () => {
