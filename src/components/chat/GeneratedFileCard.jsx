@@ -56,9 +56,10 @@ export default function GeneratedFileCard({ generatedFile }) {
     // return null per spec, making it impossible to detect a blocked popup.
     const win = typeof window !== 'undefined' ? window.open('', '_blank') : null;
 
-    // Track the resolved open URL so the catch block can surface a fallback link
-    // regardless of whether the file is static or private/signed.
-    let resolvedOpenUrl = staticOpenUrl;
+    // Track the resolved open URL so the catch block can surface a fallback link.
+    // Initialized to null here (this code path is only reached when staticOpenUrl is
+    // falsy, since staticOpenUrl returns early above).
+    let resolvedOpenUrl = null;
 
     setIsResolvingUrl(true);
     resolveUrl()

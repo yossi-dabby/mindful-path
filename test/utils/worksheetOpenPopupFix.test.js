@@ -39,10 +39,13 @@ describe('openFile — popup-safe source-code contracts', () => {
     expect(src).not.toContain('throw new Error');
   });
 
-  it('still uses window.open with _blank and noopener,noreferrer for desktop', () => {
+  it('opens with _blank target; noopener/noreferrer omitted from features so popup-blocked detection works', () => {
+    // Per WHATWG spec, window.open returns null when 'noopener'/'noreferrer' is in features,
+    // even when the popup opens successfully. Omitting them lets the return value reliably
+    // indicate a genuinely blocked popup.
     expect(src).toContain("'_blank'");
-    expect(src).toContain('noopener');
-    expect(src).toContain('noreferrer');
+    expect(src).not.toMatch(/window\.open\([^)]*noopener/);
+    expect(src).not.toMatch(/window\.open\([^)]*noreferrer/);
   });
 
   it('still guards against falsy or non-string URL', () => {
