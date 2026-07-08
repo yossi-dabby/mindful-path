@@ -14,7 +14,6 @@ export default function PdfViewer() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [blobUrl, setBlobUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [resolvedFileUrl, setResolvedFileUrl] = useState(null);
@@ -27,7 +26,6 @@ export default function PdfViewer() {
 
   useEffect(() => {
     let isCancelled = false;
-    let nextBlobUrl = null;
 
     async function loadPdf() {
       let decodedRequestedFile = '';
@@ -40,7 +38,6 @@ export default function PdfViewer() {
       }
       const fileRef = normalizedRequestedFile || decodedRequestedFile;
       if (!fileRef) {
-        setBlobUrl(null);
         setResolvedFileUrl(null);
         setHasError(true);
         setIsLoading(false);
@@ -55,20 +52,8 @@ export default function PdfViewer() {
           coreIntegration: base44?.integrations?.Core,
           entities: base44?.entities,
         });
-        setResolvedFileUrl(fileUrl);
-        const response = await fetch(fileUrl, { credentials: 'same-origin' });
-        if (!response.ok) {
-          throw new Error(`[PdfViewer] Fetch failed: ${response.status}`);
-        }
-
-        const fetchedBlob = await response.blob();
-        const pdfBlob = fetchedBlob.type === 'application/pdf'
-          ? fetchedBlob
-          : new Blob([fetchedBlob], { type: 'application/pdf' });
-        nextBlobUrl = URL.createObjectURL(pdfBlob);
-
         if (isCancelled) return;
-        setBlobUrl(nextBlobUrl);
+        setResolvedFileUrl(fileUrl);
         setHasError(false);
       } catch (error) {
         console.error('[PdfViewer] Failed to load PDF inline:', {
@@ -81,7 +66,6 @@ export default function PdfViewer() {
           variant: 'destructive',
         });
         if (isCancelled) return;
-        setBlobUrl(null);
         setResolvedFileUrl(null);
         setHasError(true);
       } finally {
@@ -95,9 +79,6 @@ export default function PdfViewer() {
 
     return () => {
       isCancelled = true;
-      if (nextBlobUrl) {
-        URL.revokeObjectURL(nextBlobUrl);
-      }
     };
   }, [normalizedRequestedFile, requestedFile, toast]);
 
@@ -171,15 +152,15 @@ export default function PdfViewer() {
           <Loader2 className="h-7 w-7 animate-spin text-muted-foreground" aria-label={t('common.loading', 'Loading...')} />
         )}
 
-        {!isLoading && blobUrl && (
+        {!isLoading && resolvedFileUrl && (
           <iframe
             title={t('chat.generated_file.type_label', 'PDF')}
-            src={blobUrl}
+            src={resolvedFileUrl}
             className="h-full w-full border-0"
           />
         )}
 
-        {!isLoading && !blobUrl && (
+        {!isLoading && !resolvedFileUrl && (
           <div className="flex flex-col items-center gap-3">
             <Button type="button" variant="outline" size="sm" onClick={() => window.location.reload()}>
               {t('common.retry', 'Retry')}
