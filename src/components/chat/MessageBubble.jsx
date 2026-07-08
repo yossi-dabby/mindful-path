@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { FileText, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
 import MessageFeedback from './MessageFeedback';
@@ -13,7 +12,6 @@ import { normalizeAssistantMarkdown } from '../utils/normalizeAssistantMarkdown'
 import GeneratedFileCard from './GeneratedFileCard';
 import { normalizeGeneratedFile } from './utils/normalizeGeneratedFile';
 import { PDF_VIEWER_ROUTE_PATH } from './utils/formFileUrls';
-import { resolveWorksheetFileUrl } from './utils/worksheetFileResolver';
 
 const ASSISTANT_ATTACHMENT_URL_REGEX = /https?:\/\/\S+/gi;
 const FILE_EXTENSIONS = new Set(['doc', 'docx', 'txt', 'csv', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'json', 'md', 'rtf']);
