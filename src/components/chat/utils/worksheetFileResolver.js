@@ -1,9 +1,10 @@
-import { base44 } from '@/api/base44Client';
-
 const FILE_ERROR_MESSAGE = 'This worksheet file could not be opened. Please try again or contact support.';
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DIRECT_FILE_EXTENSION_REGEX = /\.(pdf|txt|csv|doc|docx|xls|xlsx|ppt|pptx|zip)(?:$|[?#])/i;
 const URL_PARSE_FALLBACK_BASE = 'https://example.local';
+const ENTITY_NAME_FILTER_REGEX = /file|worksheet|form|attachment|upload|document|resource/i;
+const PRIORITY_ENTITY_NAMES = ['GeneratedFile', 'Worksheet', 'Form', 'Attachment', 'Resource', 'File'];
+const ENTITY_NAME_CACHE = new WeakMap();
 
 const URL_FIELD_CANDIDATES = [
   'file_uri',
@@ -44,8 +45,8 @@ export function classifyWorksheetFileReference(fileValue) {
 export async function resolveWorksheetFileUrl(fileValue, options = {}) {
   const {
     sourceRecord = null,
-    coreIntegration = base44?.integrations?.Core,
-    entities = base44?.entities,
+    coreIntegration = null,
+    entities = null,
     logger = console,
     _visitedValues = new Set(),
   } = options;
@@ -165,7 +166,7 @@ async function lookupUuidFileReference(uuid, { sourceRecord, entities, logger })
   if (directSourceRef) return directSourceRef;
 
   const entityMap = entities && typeof entities === 'object' ? entities : {};
-  const names = Object.keys(entityMap).filter((name) => /file|worksheet|form|attachment|upload|document|resource/i.test(name));
+  const names = getCandidateEntityNames(entityMap);
 
   for (const entityName of names) {
     const entity = entityMap[entityName];
@@ -185,3 +186,15 @@ async function lookupUuidFileReference(uuid, { sourceRecord, entities, logger })
   return null;
 }
 
+function getCandidateEntityNames(entityMap) {
+  if (!entityMap || typeof entityMap !== 'object') return [];
+  const cached = ENTITY_NAME_CACHE.get(entityMap);
+  if (cached) return cached;
+
+  const allNames = Object.keys(entityMap);
+  const prioritized = PRIORITY_ENTITY_NAMES.filter((name) => allNames.includes(name));
+  const filtered = allNames.filter((name) => ENTITY_NAME_FILTER_REGEX.test(name) && !prioritized.includes(name));
+  const candidates = [...prioritized, ...filtered];
+  ENTITY_NAME_CACHE.set(entityMap, candidates);
+  return candidates;
+}

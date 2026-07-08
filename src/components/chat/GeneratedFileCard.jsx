@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FileText, ExternalLink, Download, Loader2 } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import { normalizeGeneratedFile } from './utils/normalizeGeneratedFile';
 import { downloadPdfFile } from './utils/downloadPdfFile';
@@ -24,7 +25,11 @@ export default function GeneratedFileCard({ generatedFile }) {
   const isBusy = isDownloading || isResolvingUrl;
 
   const resolveUrl = async () => {
-    const { url } = await resolveWorksheetFileUrl(normalized.url, { sourceRecord: generatedFile });
+    const { url } = await resolveWorksheetFileUrl(normalized.url, {
+      sourceRecord: generatedFile,
+      coreIntegration: base44?.integrations?.Core,
+      entities: base44?.entities,
+    });
     return url;
   };
 
@@ -66,7 +71,7 @@ export default function GeneratedFileCard({ generatedFile }) {
       });
       toast({
         title: 'Unable to download worksheet',
-        description: 'This worksheet file could not be opened. Please try again or contact support.',
+        description: 'This worksheet file could not be downloaded. Please try again or contact support.',
         variant: 'destructive',
       });
     } finally {

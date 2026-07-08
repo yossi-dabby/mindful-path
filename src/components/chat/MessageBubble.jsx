@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import { FileText, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
 import MessageFeedback from './MessageFeedback';
@@ -283,7 +284,11 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
     if (isUser || !url || signingPdfUrl) return;
     setSigningPdfUrl(url);
     try {
-      const { url: resolvedUrl } = await resolveWorksheetFileUrl(url, { sourceRecord: message });
+      const { url: resolvedUrl } = await resolveWorksheetFileUrl(url, {
+        sourceRecord: message,
+        coreIntegration: base44?.integrations?.Core,
+        entities: base44?.entities,
+      });
       const openUrl = getFormOpenUrl(resolvedUrl);
       if (!openUrl) throw new Error('Could not build open URL');
       await openFile(openUrl);

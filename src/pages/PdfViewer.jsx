@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
+import { base44 } from '@/api/base44Client';
 import { downloadPdfFile } from '@/components/chat/utils/downloadPdfFile';
 import { getFormDownloadUrl, resolvePdfViewerFileParam } from '@/components/chat/utils/formFileUrls.js';
 import { resolveWorksheetFileUrl } from '@/components/chat/utils/worksheetFileResolver';
@@ -50,7 +51,10 @@ export default function PdfViewer() {
       setHasError(false);
 
       try {
-        const { url: fileUrl } = await resolveWorksheetFileUrl(fileRef);
+        const { url: fileUrl } = await resolveWorksheetFileUrl(fileRef, {
+          coreIntegration: base44?.integrations?.Core,
+          entities: base44?.entities,
+        });
         setResolvedFileUrl(fileUrl);
         const response = await fetch(fileUrl, { credentials: 'same-origin' });
         if (!response.ok) {
@@ -110,7 +114,7 @@ export default function PdfViewer() {
       });
       toast({
         title: 'Unable to download worksheet',
-        description: 'This worksheet file could not be opened. Please try again or contact support.',
+        description: 'This worksheet file could not be downloaded. Please try again or contact support.',
         variant: 'destructive',
       });
     }

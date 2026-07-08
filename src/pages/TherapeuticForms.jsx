@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ClipboardList } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { SUPPORTED_LANGUAGES, ALL_FORMS, resolveFormWithLanguage } from '@/data/therapeuticForms/index.js';
@@ -495,7 +496,10 @@ export default function TherapeuticForms() {
 
   const handleOpenForm = async (fileUrl) => {
     try {
-      const { url: resolvedUrl } = await resolveWorksheetFileUrl(fileUrl);
+      const { url: resolvedUrl } = await resolveWorksheetFileUrl(fileUrl, {
+        coreIntegration: base44?.integrations?.Core,
+        entities: base44?.entities,
+      });
       const openUrl = getFormOpenUrl(resolvedUrl);
       if (!openUrl) throw new Error('Could not build open URL');
       await openFile(openUrl);
@@ -514,7 +518,10 @@ export default function TherapeuticForms() {
 
   const handleDownloadForm = async (fileUrl, fileName) => {
     try {
-      const { url: resolvedUrl } = await resolveWorksheetFileUrl(fileUrl);
+      const { url: resolvedUrl } = await resolveWorksheetFileUrl(fileUrl, {
+        coreIntegration: base44?.integrations?.Core,
+        entities: base44?.entities,
+      });
       const downloadUrl = getFormDownloadUrl(resolvedUrl);
       if (!downloadUrl) throw new Error('Could not build download URL');
       await downloadPdfFile(downloadUrl, fileName);
@@ -525,7 +532,7 @@ export default function TherapeuticForms() {
       });
       toast({
         title: 'Unable to download worksheet',
-        description: 'This worksheet file could not be opened. Please try again or contact support.',
+        description: 'This worksheet file could not be downloaded. Please try again or contact support.',
         variant: 'destructive',
       });
     }
