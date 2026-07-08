@@ -494,16 +494,37 @@ export default function TherapeuticForms() {
     breadcrumbs.push({ label: selectedModule.title });
   }
 
-  const handleOpenForm = async (fileUrl) => {
-    try {
-      const { url: resolvedUrl } = await resolveWorksheetFileUrl(fileUrl, {
-        coreIntegration: base44?.integrations?.Core,
-        entities: base44?.entities,
-      });
+  const handleOpenForm = (fileUrl) => {
+    if (!fileUrl || typeof fileUrl !== 'string') return;
+
+    // Static /forms/... paths resolve synchronously — compute the viewer URL right here,
+    // inside the trusted user-gesture, so no async gap can trigger the popup blocker.
+    if (fileUrl.trim().startsWith('/forms/')) {
+      const openUrl = getFormOpenUrl(fileUrl);
+      if (openUrl) {
+        openFile(openUrl);
+        return;
+      }
+    }
+
+    // Private/signed files: open a blank window synchronously during the click,
+    // then point it at the resolved URL once the async work completes.
+    // If window.open is blocked, openFile's same-tab fallback handles it.
+    const win = typeof window !== 'undefined' ? window.open('', '_blank', 'noopener,noreferrer') : null;
+
+    resolveWorksheetFileUrl(fileUrl, {
+      coreIntegration: base44?.integrations?.Core,
+      entities: base44?.entities,
+    }).then(({ url: resolvedUrl }) => {
       const openUrl = getFormOpenUrl(resolvedUrl);
       if (!openUrl) throw new Error('Could not build open URL');
-      await openFile(openUrl);
-    } catch (error) {
+      if (win) {
+        win.location.href = openUrl;
+      } else {
+        openFile(openUrl);
+      }
+    }).catch((error) => {
+      if (win && !win.closed) win.close();
       console.error('[TherapeuticForms] Open failed:', {
         fileValue: fileUrl,
         reason: error?.message || error,
@@ -513,7 +534,7 @@ export default function TherapeuticForms() {
         description: 'This worksheet file could not be opened. Please try again or contact support.',
         variant: 'destructive',
       });
-    }
+    });
   };
 
   const handleDownloadForm = async (fileUrl, fileName) => {

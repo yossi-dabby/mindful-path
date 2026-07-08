@@ -16,6 +16,7 @@ export default function GeneratedFileCard({ generatedFile }) {
   const { toast } = useToast();
   const [isDownloading, setIsDownloading] = useState(false);
   const [isResolvingUrl, setIsResolvingUrl] = useState(false);
+  const [openFallbackUrl, setOpenFallbackUrl] = useState(null);
 
   const normalized = normalizeGeneratedFile(generatedFile);
   if (!normalized) return null;
@@ -23,6 +24,11 @@ export default function GeneratedFileCard({ generatedFile }) {
   const displayTitle = normalized.title || normalized.name;
   const description = normalized.description;
   const isBusy = isDownloading || isResolvingUrl;
+
+  // For static /forms/... URLs the open URL is known synchronously at render time.
+  const staticOpenUrl = normalized.url?.trim().startsWith('/forms/')
+    ? getFormOpenUrl(normalized.url)
+    : null;
 
   const resolveUrl = async () => {
     const { url } = await resolveWorksheetFileUrl(normalized.url, {
@@ -33,27 +39,49 @@ export default function GeneratedFileCard({ generatedFile }) {
     return url;
   };
 
-  const handleOpen = async () => {
+  const handleOpen = () => {
     if (isBusy) return;
-    setIsResolvingUrl(true);
-    try {
-      const resolvedUrl = await resolveUrl();
-      const openUrl = getFormOpenUrl(resolvedUrl);
-      if (!openUrl) throw new Error('Could not build open URL');
-      await openFile(openUrl);
-    } catch (error) {
-      console.error('[GeneratedFileCard] Open failed:', {
-        fileValue: normalized.url,
-        reason: error?.message || error,
-      });
-      toast({
-        title: 'Unable to open worksheet',
-        description: 'This worksheet file could not be opened. Please try again or contact support.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsResolvingUrl(false);
+    setOpenFallbackUrl(null);
+
+    // Static /forms/... paths — navigate synchronously inside the trusted user gesture.
+    // No async gap means no popup blocker on Android Chrome or installed PWA.
+    if (staticOpenUrl) {
+      openFile(staticOpenUrl);
+      return;
     }
+
+    // Private/signed files — open a blank window synchronously during the click,
+    // then point it at the resolved URL once the async signing completes.
+    const win = typeof window !== 'undefined' ? window.open('', '_blank', 'noopener,noreferrer') : null;
+
+    setIsResolvingUrl(true);
+    resolveUrl()
+      .then((resolvedUrl) => {
+        const openUrl = getFormOpenUrl(resolvedUrl);
+        if (!openUrl) throw new Error('Could not build open URL');
+        if (win) {
+          win.location.href = openUrl;
+        } else {
+          openFile(openUrl);
+        }
+      })
+      .catch((error) => {
+        if (win && !win.closed) win.close();
+        console.error('[GeneratedFileCard] Open failed:', {
+          fileValue: normalized.url,
+          reason: error?.message || error,
+        });
+        // Surface a fallback link for static forms so the user can still tap to open.
+        if (staticOpenUrl) setOpenFallbackUrl(staticOpenUrl);
+        toast({
+          title: 'Unable to open worksheet',
+          description: 'This worksheet file could not be opened. Please try again or contact support.',
+          variant: 'destructive',
+        });
+      })
+      .finally(() => {
+        setIsResolvingUrl(false);
+      });
   };
 
   const handleDownload = async () => {
@@ -106,6 +134,19 @@ export default function GeneratedFileCard({ generatedFile }) {
           </p>
         </div>
       </div>
+      {/* Fallback direct link shown when the Open action is blocked */}
+      {openFallbackUrl && (
+        <div className="px-4 py-2 border-t border-primary-foreground/20 text-xs text-primary-foreground/80">
+          <a
+            href={openFallbackUrl}
+            rel="noopener noreferrer"
+            className="underline underline-offset-2"
+            data-testid="generated-file-open-fallback-link"
+          >
+            {t('chat.generated_file.open_fallback_link', 'Tap here to open the worksheet PDF')}
+          </a>
+        </div>
+      )}
       {/* Action buttons */}
       <div className="flex border-t border-primary-foreground/20">
         <button
