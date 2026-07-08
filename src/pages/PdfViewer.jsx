@@ -102,21 +102,14 @@ export default function PdfViewer() {
   };
 
   const handleClose = () => {
-    if (window.opener && !window.opener.closed) {
-      window.close();
-      return;
+    // Use browser history when available (same-tab SPA navigation).
+    // Fall back to /Chat when the viewer was opened via direct URL or bookmark
+    // and there is no in-app history to return to.
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/Chat');
     }
-
-    try {
-      if (document.referrer && new URL(document.referrer).origin === window.location.origin) {
-        navigate(-1);
-        return;
-      }
-    } catch {
-      // no-op
-    }
-
-    navigate('/Chat');
   };
 
   return (

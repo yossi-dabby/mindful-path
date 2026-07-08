@@ -131,12 +131,14 @@ describe('therapeuticFormsPage.test.js — collection-first browsing', () => {
     expect(combinedCardSource).toContain('Combined PDF');
   });
 
-  it('open/download behavior resolves file references before using existing helpers', () => {
+  it('open/download behavior: Open navigates same-tab to pdf-viewer, Download resolves and downloads', () => {
     const pageSource = fs.readFileSync(path.join(ROOT, 'src/pages/TherapeuticForms.jsx'), 'utf8');
-    expect(pageSource).toContain('resolveWorksheetFileUrl(fileUrl,');
-    expect(pageSource).toContain('getFormOpenUrl(resolvedUrl)');
+    expect(pageSource).toContain('PDF_VIEWER_ROUTE_PATH');
+    expect(pageSource).toContain('navigate(');
     expect(pageSource).toContain('getFormDownloadUrl(resolvedUrl)');
     expect(pageSource).toContain('downloadPdfFile(downloadUrl, fileName)');
+    expect(pageSource).toContain("location.state?.pdfViewerReturn?.source === 'therapeutic-forms'");
+    expect(pageSource).toContain("source: 'therapeutic-forms'");
   });
 
   it('view mode defaults to medium and persists in localStorage key', () => {

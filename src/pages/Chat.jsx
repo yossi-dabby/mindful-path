@@ -97,6 +97,12 @@ const ANDROID_MEDIA_RECORDER_MIME_CANDIDATES = Object.freeze([
 'audio/webm;codecs=opus',
 'audio/webm']
 );
+
+function areChatViewerStatesEqual(left, right) {
+  if (!left || !right) return left === right;
+  return left.source === right.source && left.chatConversationId === right.chatConversationId;
+}
+
 // Compatibility anchor: keep historical session-start builders referenced for static import-audit tests.
 const LEGACY_SESSION_START_BUILDERS = Object.freeze([
   buildV6SessionStartContentAsync,
@@ -289,8 +295,11 @@ export default function Chat() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const restoredPdfViewerConversationId = location.state?.pdfViewerReturn?.source === 'chat'
+    ? location.state.pdfViewerReturn.chatConversationId || null
+    : null;
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
-  const [currentConversationId, setCurrentConversationId] = useState(null);
+  const [currentConversationId, setCurrentConversationId] = useState(restoredPdfViewerConversationId);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -1190,6 +1199,50 @@ export default function Chat() {
     enabled: !!currentConversationId,
     refetchOnWindowFocus: false
   });
+
+  useEffect(() => {
+    // Skip hydration once local message state already exists so subscription/polling
+    // updates remain authoritative for the active in-memory session.
+    if (!currentConversationId || !currentConversationData || messages.length > 0) return;
+
+    const firstUserMsg = (currentConversationData.messages || []).find((m) => m.role === 'user' && m.content);
+    const embeddedLang = firstUserMsg?.content?.match(/\[SESSION_LANGUAGE:\s*([a-zA-Z]{2})\b/)?.[1]?.toLowerCase();
+    sessionLanguageRef.current = embeddedLang || i18n.language || 'en';
+
+    const sanitized = sanitizeConversationMessages(currentConversationData.messages || [], sessionLanguageRef.current);
+    safeUpdateMessages(sanitized, 'CurrentConversationHydrate');
+  }, [currentConversationData, currentConversationId, i18n.language, messages.length]);
+
+  useEffect(() => {
+    const nextViewerState = currentConversationId ? {
+      source: 'chat',
+      chatConversationId: currentConversationId,
+    } : null;
+    const currentViewerState = location.state?.pdfViewerReturn?.source === 'chat'
+      ? location.state.pdfViewerReturn
+      : null;
+
+    if (areChatViewerStatesEqual(currentViewerState, nextViewerState)) return;
+
+    const nextLocationState = { ...(location.state || {}) };
+    if (nextViewerState) {
+      nextLocationState.pdfViewerReturn = nextViewerState;
+    } else {
+      delete nextLocationState.pdfViewerReturn;
+    }
+
+    navigate(`${location.pathname}${location.search}${location.hash}`, {
+      replace: true,
+      state: nextLocationState,
+    });
+  }, [
+    currentConversationId,
+    location.hash,
+    location.pathname,
+    location.search,
+    location.state,
+    navigate,
+  ]);
 
   // Check if we should show summary prompt (after 5+ messages, only once)
   useEffect(() => {
