@@ -9,7 +9,11 @@
  *
  * Security:
  *  - Only accepts non-empty string URLs; returns early for falsy/non-string values.
- *  - Uses noopener,noreferrer on the new window.
+ *
+ * Note: 'noopener'/'noreferrer' are intentionally omitted from window.open features.
+ * Per the WHATWG HTML spec, window.open() returns null when those tokens are present,
+ * even when the popup opens successfully. Using the return value to detect a blocked
+ * popup requires omitting them from the features string.
  *
  * @param {string} url - The URL to open for viewing.
  */
@@ -21,7 +25,10 @@ export function openFile(url) {
   // Try to open in a new tab; fall back to same-tab if the popup is blocked
   // (Android Chrome, installed PWA, and strict popup blockers all block window.open
   // that is triggered outside a direct trusted user gesture or after an async gap).
-  const openedWindow = window.open(safeUrl, '_blank', 'noopener,noreferrer');
+  // Note: do NOT pass 'noopener'/'noreferrer' as window features — those tokens cause
+  // window.open() to return null per spec, making it impossible to distinguish a
+  // successfully-opened popup from a blocked one.
+  const openedWindow = window.open(safeUrl, '_blank');
   if (!openedWindow) {
     window.location.href = safeUrl;
   }

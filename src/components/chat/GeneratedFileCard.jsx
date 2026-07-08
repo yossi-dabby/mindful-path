@@ -52,7 +52,9 @@ export default function GeneratedFileCard({ generatedFile }) {
 
     // Private/signed files — open a blank window synchronously during the click,
     // then point it at the resolved URL once the async signing completes.
-    const win = typeof window !== 'undefined' ? window.open('', '_blank', 'noopener,noreferrer') : null;
+    // Note: 'noopener'/'noreferrer' are omitted — those tokens cause window.open to
+    // return null per spec, making it impossible to detect a blocked popup.
+    const win = typeof window !== 'undefined' ? window.open('', '_blank') : null;
 
     // Track the resolved open URL so the catch block can surface a fallback link
     // regardless of whether the file is static or private/signed.

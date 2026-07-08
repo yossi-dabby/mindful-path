@@ -509,8 +509,9 @@ export default function TherapeuticForms() {
 
     // Private/signed files: open a blank window synchronously during the click,
     // then point it at the resolved URL once the async work completes.
-    // If window.open is blocked, openFile's same-tab fallback handles it.
-    const win = typeof window !== 'undefined' ? window.open('', '_blank', 'noopener,noreferrer') : null;
+    // Note: 'noopener'/'noreferrer' are omitted — those tokens cause window.open to
+    // return null per spec, making it impossible to detect a blocked popup.
+    const win = typeof window !== 'undefined' ? window.open('', '_blank') : null;
 
     resolveWorksheetFileUrl(fileUrl, {
       coreIntegration: base44?.integrations?.Core,
