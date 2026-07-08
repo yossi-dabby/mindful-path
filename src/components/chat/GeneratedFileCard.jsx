@@ -54,11 +54,16 @@ export default function GeneratedFileCard({ generatedFile }) {
     // then point it at the resolved URL once the async signing completes.
     const win = typeof window !== 'undefined' ? window.open('', '_blank', 'noopener,noreferrer') : null;
 
+    // Track the resolved open URL so the catch block can surface a fallback link
+    // regardless of whether the file is static or private/signed.
+    let resolvedOpenUrl = staticOpenUrl;
+
     setIsResolvingUrl(true);
     resolveUrl()
       .then((resolvedUrl) => {
         const openUrl = getFormOpenUrl(resolvedUrl);
         if (!openUrl) throw new Error('Could not build open URL');
+        resolvedOpenUrl = openUrl;
         if (win) {
           win.location.href = openUrl;
         } else {
@@ -71,8 +76,8 @@ export default function GeneratedFileCard({ generatedFile }) {
           fileValue: normalized.url,
           reason: error?.message || error,
         });
-        // Surface a fallback link for static forms so the user can still tap to open.
-        if (staticOpenUrl) setOpenFallbackUrl(staticOpenUrl);
+        // Surface a fallback direct link so the user can still tap to open the PDF.
+        if (resolvedOpenUrl) setOpenFallbackUrl(resolvedOpenUrl);
         toast({
           title: 'Unable to open worksheet',
           description: 'This worksheet file could not be opened. Please try again or contact support.',
