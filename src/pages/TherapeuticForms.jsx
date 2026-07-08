@@ -29,11 +29,31 @@ function getDefaultFormsNavigationState() {
   };
 }
 
+function areFormsNavigationStatesEqual(left, right) {
+  if (!left || !right) return left === right;
+  if (left.index !== right.index) return false;
+  if (!Array.isArray(left.history) || !Array.isArray(right.history)) return false;
+  if (left.history.length !== right.history.length) return false;
+  return left.history.every((entry, index) => {
+    const otherEntry = right.history[index];
+    return entry?.collectionId === otherEntry?.collectionId && entry?.moduleId === otherEntry?.moduleId;
+  });
+}
+
+function areFormsViewerStatesEqual(left, right) {
+  if (!left || !right) return left === right;
+  return left.source === right.source &&
+    left.selectedAudience === right.selectedAudience &&
+    left.selectedCollectionId === right.selectedCollectionId &&
+    left.selectedModuleId === right.selectedModuleId &&
+    areFormsNavigationStatesEqual(left.navigationState, right.navigationState);
+}
+
 function getRestoredFormsViewerState(locationState) {
   const candidate = locationState?.pdfViewerReturn;
   if (candidate?.source !== 'therapeutic-forms') return null;
 
-  const history = Array.isArray(candidate.navigationState?.history) && candidate.navigationState.history.length > 0
+  const history = Array.isArray(candidate.navigationState?.history)
     ? candidate.navigationState.history.map((entry) => ({
       collectionId: entry?.collectionId ?? null,
       moduleId: entry?.moduleId ?? null,
@@ -452,7 +472,7 @@ export default function TherapeuticForms() {
       ? location.state.pdfViewerReturn
       : null;
 
-    if (JSON.stringify(currentViewerState) === JSON.stringify(nextViewerState)) return;
+    if (areFormsViewerStatesEqual(currentViewerState, nextViewerState)) return;
 
     navigate(`${location.pathname}${location.search}${location.hash}`, {
       replace: true,

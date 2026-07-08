@@ -97,6 +97,12 @@ const ANDROID_MEDIA_RECORDER_MIME_CANDIDATES = Object.freeze([
 'audio/webm;codecs=opus',
 'audio/webm']
 );
+
+function areChatViewerStatesEqual(left, right) {
+  if (!left || !right) return left === right;
+  return left.source === right.source && left.chatConversationId === right.chatConversationId;
+}
+
 // Compatibility anchor: keep historical session-start builders referenced for static import-audit tests.
 const LEGACY_SESSION_START_BUILDERS = Object.freeze([
   buildV6SessionStartContentAsync,
@@ -1195,6 +1201,8 @@ export default function Chat() {
   });
 
   useEffect(() => {
+    // Skip hydration once local message state already exists so subscription/polling
+    // updates remain authoritative for the active in-memory session.
     if (!currentConversationId || !currentConversationData || messages.length > 0) return;
 
     const firstUserMsg = (currentConversationData.messages || []).find((m) => m.role === 'user' && m.content);
@@ -1214,7 +1222,7 @@ export default function Chat() {
       ? location.state.pdfViewerReturn
       : null;
 
-    if (JSON.stringify(currentViewerState) === JSON.stringify(nextViewerState)) return;
+    if (areChatViewerStatesEqual(currentViewerState, nextViewerState)) return;
 
     const nextLocationState = { ...(location.state || {}) };
     if (nextViewerState) {
