@@ -238,9 +238,16 @@ describe('formFileUrls — open/download URL separation', () => {
 describe('pdf viewer route and build/source cache contracts', () => {
   const appSrc = fs.readFileSync(`${ROOT}/src/App.jsx`, 'utf8');
   const pagesConfigSrc = fs.readFileSync(`${ROOT}/src/pages.config.js`, 'utf8');
+  const pdfViewerSrc = fs.readFileSync(`${ROOT}/src/pages/PdfViewer.jsx`, 'utf8');
 
   it('registers a dedicated /pdf-viewer route', () => {
     expect(appSrc).toContain('path="/pdf-viewer"');
+  });
+
+  it('loads same-origin worksheet PDFs through a blob URL so octet-stream assets still render inline', () => {
+    expect(pdfViewerSrc).toContain('response.blob()');
+    expect(pdfViewerSrc).toContain("new Blob([blob], { type: 'application/pdf' })");
+    expect(pdfViewerSrc).toContain('URL.createObjectURL(pdfBlob)');
   });
 
   it('keeps Chat as a lazy-loaded route chunk', () => {

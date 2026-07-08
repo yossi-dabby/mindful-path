@@ -9,6 +9,34 @@ import { downloadPdfFile } from '@/components/chat/utils/downloadPdfFile';
 import { getFormDownloadUrl, resolvePdfViewerFileParam } from '@/components/chat/utils/formFileUrls.js';
 import { resolveWorksheetFileUrl } from '@/components/chat/utils/worksheetFileResolver';
 
+function shouldUseInlinePdfBlob(url) {
+  if (typeof url !== 'string' || !url.trim()) return false;
+  const trimmed = url.trim();
+  if (trimmed.startsWith('/')) return true;
+  if (typeof window === 'undefined') return false;
+  try {
+    return new URL(trimmed, window.location.origin).origin === window.location.origin;
+  } catch {
+    return false;
+  }
+}
+
+async function buildInlinePdfViewerUrl(url) {
+  if (!shouldUseInlinePdfBlob(url)) return url;
+
+  const response = await fetch(url, { credentials: 'same-origin' });
+  if (!response.ok) {
+    throw new Error(`[PdfViewer] Inline PDF fetch failed: ${response.status}`);
+  }
+
+  const blob = await response.blob();
+  const pdfBlob = blob.type?.toLowerCase().includes('pdf')
+    ? blob
+    : new Blob([blob], { type: 'application/pdf' });
+
+  return URL.createObjectURL(pdfBlob);
+}
+
 export default function PdfViewer() {
   const { t } = useTranslation();
   const { toast } = useToast();
@@ -17,6 +45,7 @@ export default function PdfViewer() {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [resolvedFileUrl, setResolvedFileUrl] = useState(null);
+  const [viewerFileUrl, setViewerFileUrl] = useState(null);
 
   const requestedFile = searchParams.get('file') || '';
   const normalizedRequestedFile = useMemo(
@@ -26,6 +55,7 @@ export default function PdfViewer() {
 
   useEffect(() => {
     let isCancelled = false;
+    let objectUrlToRevoke = null;
 
     async function loadPdf() {
       let decodedRequestedFile = '';
@@ -39,6 +69,7 @@ export default function PdfViewer() {
       const fileRef = normalizedRequestedFile || decodedRequestedFile;
       if (!fileRef) {
         setResolvedFileUrl(null);
+        setViewerFileUrl(null);
         setHasError(true);
         setIsLoading(false);
         return;
@@ -52,8 +83,19 @@ export default function PdfViewer() {
           coreIntegration: base44?.integrations?.Core,
           entities: base44?.entities,
         });
-        if (isCancelled) return;
+        const inlineViewerUrl = await buildInlinePdfViewerUrl(fileUrl);
+        if (inlineViewerUrl.startsWith('blob:')) {
+          objectUrlToRevoke = inlineViewerUrl;
+        }
+        if (isCancelled) {
+          if (objectUrlToRevoke) {
+            URL.revokeObjectURL(objectUrlToRevoke);
+            objectUrlToRevoke = null;
+          }
+          return;
+        }
         setResolvedFileUrl(fileUrl);
+        setViewerFileUrl(inlineViewerUrl);
         setHasError(false);
       } catch (error) {
         console.error('[PdfViewer] Failed to load PDF inline:', {
@@ -67,6 +109,7 @@ export default function PdfViewer() {
         });
         if (isCancelled) return;
         setResolvedFileUrl(null);
+        setViewerFileUrl(null);
         setHasError(true);
       } finally {
         if (!isCancelled) {
@@ -79,6 +122,9 @@ export default function PdfViewer() {
 
     return () => {
       isCancelled = true;
+      if (objectUrlToRevoke) {
+        URL.revokeObjectURL(objectUrlToRevoke);
+      }
     };
   }, [normalizedRequestedFile, requestedFile, toast]);
 
@@ -145,15 +191,15 @@ export default function PdfViewer() {
           <Loader2 className="h-7 w-7 animate-spin text-muted-foreground" aria-label={t('common.loading', 'Loading...')} />
         )}
 
-        {!isLoading && resolvedFileUrl && (
+        {!isLoading && viewerFileUrl && (
           <iframe
             title={t('chat.generated_file.type_label', 'PDF')}
-            src={resolvedFileUrl}
+            src={viewerFileUrl}
             className="h-full w-full border-0"
           />
         )}
 
-        {!isLoading && !resolvedFileUrl && (
+        {!isLoading && !viewerFileUrl && (
           <div className="flex flex-col items-center gap-3">
             <Button type="button" variant="outline" size="sm" onClick={() => window.location.reload()}>
               {t('common.retry', 'Retry')}
