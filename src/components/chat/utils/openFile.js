@@ -42,7 +42,7 @@ export function openFile(url) {
 function _isStaticFormsViewerRoute(url) {
   try {
     const parsed = new URL(url, window.location.origin);
-    if (!/^\/pdf-viewer$/i.test(parsed.pathname)) return false;
+    if (!/^\/pdf-viewer$/.test(parsed.pathname)) return false;
     const fileParam = parsed.searchParams.get('file');
     if (!fileParam) return false;
     const decodedFile = decodeURIComponent(fileParam);
