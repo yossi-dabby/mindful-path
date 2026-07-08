@@ -4,12 +4,16 @@ import ReactMarkdown from 'react-markdown';
 import { FileText, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/components/ui/use-toast';
 import MessageFeedback from './MessageFeedback';
 import { extractThinkingContent } from '../utils/messageContentSanitizer';
 import { applyFinalOutputGovernor } from '../utils/finalOutputGovernor';
 import { normalizeAssistantMarkdown } from '../utils/normalizeAssistantMarkdown';
 import GeneratedFileCard from './GeneratedFileCard';
 import { normalizeGeneratedFile } from './utils/normalizeGeneratedFile';
+import { openFile } from './utils/openFile';
+import { getFormOpenUrl } from './utils/formFileUrls';
+import { resolveWorksheetFileUrl } from './utils/worksheetFileResolver';
 
 const ASSISTANT_ATTACHMENT_URL_REGEX = /https?:\/\/\S+/gi;
 const FILE_EXTENSIONS = new Set(['doc', 'docx', 'txt', 'csv', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'json', 'md', 'rtf']);
@@ -154,6 +158,7 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
   // Shared bubble renderer used by multiple surfaces.
   // Therapist /Chat runtime reaches this component via pages/Chat.jsx -> MessageList.jsx.
   const { t, i18n } = useTranslation();
+  const { toast } = useToast();
   const [thinkingExpanded, setThinkingExpanded] = useState(false);
   const [signingPdfUrl, setSigningPdfUrl] = useState(null);
   // CRITICAL GATE 1: Strict null/undefined/empty gating
@@ -279,12 +284,24 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
     if (isUser || !url || signingPdfUrl) return;
     setSigningPdfUrl(url);
     try {
-      const signed = await base44.integrations.Core.CreateFileSignedUrl({ file_url: url });
-      const signedUrl = signed?.signed_url || signed?.url || signed?.file_url;
-      if (!signedUrl) throw new Error('Failed to generate secure URL for PDF');
-      window.open(signedUrl, '_blank', 'noopener,noreferrer');
+      const { url: resolvedUrl } = await resolveWorksheetFileUrl(url, {
+        sourceRecord: message,
+        coreIntegration: base44?.integrations?.Core,
+        entities: base44?.entities,
+      });
+      const openUrl = getFormOpenUrl(resolvedUrl);
+      if (!openUrl) throw new Error('Could not build open URL');
+      await openFile(openUrl);
     } catch (error) {
-      console.error('[MessageBubble] Failed to create signed PDF URL:', error);
+      console.error('[MessageBubble] Failed to open PDF attachment:', {
+        fileValue: url,
+        reason: error?.message || error,
+      });
+      toast({
+        title: 'Unable to open worksheet',
+        description: 'This worksheet file could not be opened. Please try again or contact support.',
+        variant: 'destructive',
+      });
     } finally {
       setSigningPdfUrl(null);
     }

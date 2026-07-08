@@ -1,11 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ClipboardList } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/use-toast';
 import { SUPPORTED_LANGUAGES, ALL_FORMS, resolveFormWithLanguage } from '@/data/therapeuticForms/index.js';
 import { openFile } from '@/components/chat/utils/openFile';
 import { downloadPdfFile } from '@/components/chat/utils/downloadPdfFile';
-import { getFormOpenUrl } from '@/components/chat/utils/formFileUrls';
+import { getFormDownloadUrl, getFormOpenUrl } from '@/components/chat/utils/formFileUrls';
+import { resolveWorksheetFileUrl } from '@/components/chat/utils/worksheetFileResolver';
 import { useTranslation } from 'react-i18next';
 import FormsCollectionCard from '@/components/forms/FormsCollectionCard';
 import FormsModuleCard from '@/components/forms/FormsModuleCard';
@@ -323,6 +326,7 @@ function getWorksheetTags({ worksheet, module, t, lang }) {
 
 export default function TherapeuticForms() {
   const { t, i18n } = useTranslation();
+  const { toast } = useToast();
   const lang = normalizeLanguageCode(i18n.resolvedLanguage || i18n.language || 'en');
   const isRtl = i18n.dir ? i18n.dir() === 'rtl' : lang === 'he';
 
@@ -490,16 +494,47 @@ export default function TherapeuticForms() {
     breadcrumbs.push({ label: selectedModule.title });
   }
 
-  const handleOpenForm = (fileUrl) => {
-    openFile(getFormOpenUrl(fileUrl));
+  const handleOpenForm = async (fileUrl) => {
+    try {
+      const { url: resolvedUrl } = await resolveWorksheetFileUrl(fileUrl, {
+        coreIntegration: base44?.integrations?.Core,
+        entities: base44?.entities,
+      });
+      const openUrl = getFormOpenUrl(resolvedUrl);
+      if (!openUrl) throw new Error('Could not build open URL');
+      await openFile(openUrl);
+    } catch (error) {
+      console.error('[TherapeuticForms] Open failed:', {
+        fileValue: fileUrl,
+        reason: error?.message || error,
+      });
+      toast({
+        title: 'Unable to open worksheet',
+        description: 'This worksheet file could not be opened. Please try again or contact support.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleDownloadForm = async (fileUrl, fileName) => {
     try {
-      await downloadPdfFile(fileUrl, fileName);
+      const { url: resolvedUrl } = await resolveWorksheetFileUrl(fileUrl, {
+        coreIntegration: base44?.integrations?.Core,
+        entities: base44?.entities,
+      });
+      const downloadUrl = getFormDownloadUrl(resolvedUrl);
+      if (!downloadUrl) throw new Error('Could not build download URL');
+      await downloadPdfFile(downloadUrl, fileName);
     } catch (error) {
-      console.error('[TherapeuticForms] Download failed, opening in new tab:', error);
-      window.open(fileUrl, '_blank', 'noopener,noreferrer');
+      console.error('[TherapeuticForms] Download failed:', {
+        fileValue: fileUrl,
+        reason: error?.message || error,
+      });
+      toast({
+        title: 'Unable to download worksheet',
+        description: 'This worksheet file could not be downloaded. Please try again or contact support.',
+        variant: 'destructive',
+      });
     }
   };
 
