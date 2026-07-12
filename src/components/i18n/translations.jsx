@@ -193,7 +193,8 @@ export const translations = {
         go_back_home_aria: "Go back to home",
         ai_label: "AI",
         you_label: "You",
-        minutes_short: "min"
+        minutes_short: "min",
+        open_pdf_directly: "Open PDF directly"
       },
       chat: {
         title: "Your Therapist",
@@ -1668,7 +1669,8 @@ export const translations = {
         go_back_home_aria: "חזרה לדף הבית",
         ai_label: "AI",
         you_label: "אתה",
-        minutes_short: "דק'"
+        minutes_short: "דק'",
+        open_pdf_directly: "פתח PDF ישירות"
       },
       chat: {
         title: "המטפל שלכם",
@@ -3143,7 +3145,8 @@ export const translations = {
         go_back_home_aria: "Regresar al inicio",
         ai_label: "IA",
         you_label: "Tú",
-        minutes_short: "min"
+        minutes_short: "min",
+        open_pdf_directly: "Abrir PDF directamente"
       },
       chat: {
         title: "Tu Terapeuta",
@@ -4573,7 +4576,8 @@ export const translations = {
         go_back_home_aria: "Retour à l'accueil",
         ai_label: "IA",
         you_label: "Vous",
-        minutes_short: "min"
+        minutes_short: "min",
+        open_pdf_directly: "Ouvrir le PDF directement"
       },
       chat: {
         title: "Votre Thérapeute",
@@ -6002,7 +6006,8 @@ export const translations = {
         go_back_home_aria: "Zurück zur Startseite",
         ai_label: "KI",
         you_label: "Sie",
-        minutes_short: "Min"
+        minutes_short: "Min",
+        open_pdf_directly: "PDF direkt öffnen"
       },
       chat: {
         title: "Ihr Therapeut",
@@ -7431,7 +7436,8 @@ export const translations = {
         go_back_home_aria: "Torna alla home",
         ai_label: "IA",
         you_label: "Tu",
-        minutes_short: "min"
+        minutes_short: "min",
+        open_pdf_directly: "Apri PDF direttamente"
       },
       chat: {
         title: "Il Tuo Terapeuta",
@@ -8860,7 +8866,8 @@ export const translations = {
         go_back_home_aria: "Voltar para o início",
         ai_label: "IA",
         you_label: "Você",
-        minutes_short: "min"
+        minutes_short: "min",
+        open_pdf_directly: "Abrir PDF diretamente"
       },
       chat: {
         title: "Seu Terapeuta",

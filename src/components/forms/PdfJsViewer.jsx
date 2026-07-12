@@ -15,13 +15,15 @@
 /* global __PDF_VIEWER_BUILD__ */
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import * as pdfjsLib from 'pdfjs-dist';
+import * as pdfjsLib from 'pdfjs-dist/build/pdf.mjs';
 import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 // Set worker once at module init so it is resolved before any getDocument call.
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+console.log('[PDFJS_VERSION]', pdfjsLib.version || 'unknown');
+console.log('[PDFJS_WORKER_URL]', pdfWorkerUrl);
 
 // ─── Build-version marker ──────────────────────────────────────────────────
 // __PDF_VIEWER_BUILD__ is a build-time string injected by vite.config.js
@@ -63,6 +65,27 @@ async function renderPage(page, containerEl, isFirst) {
   containerEl.appendChild(canvas);
 }
 
+async function validateWorkerUrl(workerUrl, signal) {
+  console.log('[PDFJS_WORKER_FETCH_TEST_START]', { workerUrl });
+  try {
+    const response = await fetch(workerUrl, { method: 'GET', cache: 'no-store', signal });
+    if (!response.ok) {
+      throw new Error(`Worker fetch returned HTTP ${response.status}`);
+    }
+    console.log('[PDFJS_WORKER_FETCH_TEST_OK]', {
+      workerUrl,
+      status: response.status,
+      contentType: response.headers.get('content-type') || 'unknown',
+    });
+  } catch (error) {
+    console.error('[PDFJS_WORKER_FETCH_TEST_FAILED]', {
+      workerUrl,
+      reason: error?.message || String(error),
+    });
+    throw error;
+  }
+}
+
 // ─── Component ─────────────────────────────────────────────────────────────
 
 /**
@@ -95,6 +118,8 @@ export default function PdfJsViewer({ fileUrl }) {
     });
 
     try {
+      console.log('[PDFJS_WORKER_URL]', pdfjsLib.GlobalWorkerOptions.workerSrc);
+      await validateWorkerUrl(pdfjsLib.GlobalWorkerOptions.workerSrc, signal);
       const loadingTask = pdfjsLib.getDocument({ url });
 
       // Allow callers to cancel in-flight loads (e.g. unmount, new URL).
@@ -208,6 +233,16 @@ export default function PdfJsViewer({ fileUrl }) {
           >
             {errorMessage}
           </p>
+          {fileUrl && (
+            <a
+              href={fileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ fontSize: '0.875rem', textDecoration: 'underline' }}
+            >
+              {t('common.open_pdf_directly', 'Open PDF directly')}
+            </a>
+          )}
         </div>
       )}
 
