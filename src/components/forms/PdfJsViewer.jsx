@@ -240,7 +240,7 @@ export default function PdfJsViewer({ fileUrl }) {
               rel="noopener noreferrer"
               style={{ fontSize: '0.875rem', textDecoration: 'underline' }}
             >
-              Open PDF directly
+              {t('common.open_pdf_directly', 'Open PDF directly')}
             </a>
           )}
         </div>
