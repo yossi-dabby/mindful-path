@@ -7,30 +7,22 @@
  *    all platforms including installed Android PWAs.
  *
  * Worker configuration:
- *  - workerSrc is set to a stable public .js URL: /pdfjs/pdf.worker.min.js
- *    This file is copied from node_modules by scripts/copy-pdf-worker.cjs at
- *    postinstall / prebuild time.
- *
- *  - Using a .js extension (not .mjs) ensures Base44 / custom-domain hosting
- *    serves the file with a JavaScript MIME type rather than
- *    application/octet-stream, which browsers refuse to load as a module worker.
+ *  - workerSrc is set to a Vite-bundled, content-hashed URL produced by the
+ *    `?url` import. This ensures Android Production always loads the correct
+ *    worker from the same bundle, not from an external CDN.
  */
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { loadPdfDocumentWithWorkerFallback } from './pdfJsViewerUtils';
 
-// Stable public .js URL for the PDF.js worker — served with a JS MIME type by
-// all hosts (including Base44 custom domain) so the browser accepts it as a
-// module worker. The file is placed here by scripts/copy-pdf-worker.cjs.
-const PDF_WORKER_URL = '/pdfjs/pdf.worker.min.js';
-
 // Set worker once at module init so it is resolved before any getDocument call.
-pdfjsLib.GlobalWorkerOptions.workerSrc = PDF_WORKER_URL;
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 console.log('[PDFJS_VERSION]', pdfjsLib.version || 'unknown');
-console.log('[PDFJS_WORKER_URL]', PDF_WORKER_URL);
+console.log('[PDFJS_WORKER_URL]', pdfWorkerUrl);
 
 // ─── Build-version marker ──────────────────────────────────────────────────
 // __PDF_VIEWER_BUILD__ is a build-time string injected by vite.config.js
