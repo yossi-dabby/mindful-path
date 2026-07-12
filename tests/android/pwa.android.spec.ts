@@ -58,10 +58,12 @@ test.describe('PWA Manifest & Google Play Readiness', () => {
 
     // 1. Verify the manifest link element exists in the HTML
     const manifestLink = page.locator('link[rel="manifest"]');
-    await expect(manifestLink).toHaveAttribute('href', '/manifest.json');
+    await expect(manifestLink).toHaveAttribute('href', '/manifest.json?v=pdfjs-viewer-v2');
 
     // 2. Fetch and validate the manifest contents
-    const manifestResponse = await page.request.get(`${BASE_URL}/manifest.json`);
+    const manifestHref = await manifestLink.getAttribute('href');
+    expect(manifestHref).toBeTruthy();
+    const manifestResponse = await page.request.get(`${BASE_URL}${manifestHref}`);
     expect(manifestResponse.status()).toBe(200);
     expect(manifestResponse.headers()['content-type']).toContain('application/json');
 

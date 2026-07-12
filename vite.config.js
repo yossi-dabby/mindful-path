@@ -5,6 +5,9 @@ import { defineConfig } from "vite";
 export default defineConfig({
   appType: "spa",
   logLevel: "error",
+  optimizeDeps: {
+    exclude: ["pdfjs-dist"],
+  },
 
   // CI-only diagnostics (does not affect production users)
   build: {

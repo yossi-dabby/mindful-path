@@ -12,13 +12,12 @@
  *    worker from the same bundle, not from an external CDN.
  */
 
-/* global __PDF_VIEWER_BUILD__ */
-
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import * as pdfjsLib from 'pdfjs-dist/build/pdf.mjs';
+import * as pdfjsLib from 'pdfjs-dist';
 import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { loadPdfDocumentWithWorkerFallback } from './pdfJsViewerUtils';
 
 // Set worker once at module init so it is resolved before any getDocument call.
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
@@ -30,7 +29,10 @@ console.log('[PDFJS_WORKER_URL]', pdfWorkerUrl);
 // `define`. Logging it at mount confirms which Production bundle is running
 // on Android (helps distinguish a stale cached build from the latest one).
 /** @type {string} ISO timestamp set by vite.config.js define at build time */
-const BUILD_MARKER = __PDF_VIEWER_BUILD__;
+const BUILD_MARKER =
+  typeof __PDF_VIEWER_BUILD__ !== 'undefined'
+    ? __PDF_VIEWER_BUILD__
+    : 'dev';
 
 // ─── Internal helpers ──────────────────────────────────────────────────────
 
@@ -65,27 +67,6 @@ async function renderPage(page, containerEl, isFirst) {
   containerEl.appendChild(canvas);
 }
 
-async function validateWorkerUrl(workerUrl, signal) {
-  console.log('[PDFJS_WORKER_FETCH_TEST_START]', { workerUrl });
-  try {
-    const response = await fetch(workerUrl, { method: 'GET', cache: 'no-store', signal });
-    if (!response.ok) {
-      throw new Error(`Worker fetch returned HTTP ${response.status}`);
-    }
-    console.log('[PDFJS_WORKER_FETCH_TEST_OK]', {
-      workerUrl,
-      status: response.status,
-      contentType: response.headers.get('content-type') || 'unknown',
-    });
-  } catch (error) {
-    console.error('[PDFJS_WORKER_FETCH_TEST_FAILED]', {
-      workerUrl,
-      reason: error?.message || String(error),
-    });
-    throw error;
-  }
-}
-
 // ─── Component ─────────────────────────────────────────────────────────────
 
 /**
@@ -109,6 +90,7 @@ export default function PdfJsViewer({ fileUrl }) {
 
     setIsLoading(true);
     setErrorMessage(null);
+    container.innerHTML = '';
 
     console.log('[PDFJS_LOAD_START]', {
       fileUrl: url,
@@ -119,19 +101,16 @@ export default function PdfJsViewer({ fileUrl }) {
 
     try {
       console.log('[PDFJS_WORKER_URL]', pdfjsLib.GlobalWorkerOptions.workerSrc);
-      await validateWorkerUrl(pdfjsLib.GlobalWorkerOptions.workerSrc, signal);
-      const loadingTask = pdfjsLib.getDocument({ url });
-
-      // Allow callers to cancel in-flight loads (e.g. unmount, new URL).
-      signal.addEventListener('abort', () => loadingTask.destroy());
-
-      const pdf = await loadingTask.promise;
+      const pdf = await loadPdfDocumentWithWorkerFallback({
+        url,
+        signal,
+        workerSrc: pdfjsLib.GlobalWorkerOptions.workerSrc,
+        getDocument: pdfjsLib.getDocument,
+        logger: console,
+      });
       if (signal.aborted) return;
 
       console.log('[PDFJS_DOCUMENT_LOADED]', { pageCount: pdf.numPages });
-
-      // Clear previous render.
-      container.innerHTML = '';
 
       for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
         if (signal.aborted) return;
@@ -142,6 +121,10 @@ export default function PdfJsViewer({ fileUrl }) {
           console.log('[PDFJS_FIRST_PAGE_RENDERED]');
           setIsLoading(false);
         }
+      }
+
+      if (pdf.numPages === 0) {
+        setIsLoading(false);
       }
     } catch (err) {
       if (signal.aborted) return;
