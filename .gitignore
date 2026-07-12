@@ -17,6 +17,9 @@ dist
 dist-ssr
 *.local
 
+# Generated PDF.js worker (copied from node_modules by scripts/copy-pdf-worker.cjs)
+public/pdfjs/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
