@@ -46,7 +46,10 @@ export function getPdfJsWorkerDeploymentIssue(error, { workerUrl } = {}) {
 }
 
 export function createPdfJsWorkerDeploymentIssueKey(issue = {}) {
-  return `${issue.workerUrl || 'unknown'}::${issue.reason || 'unknown'}`;
+  return JSON.stringify({
+    workerUrl: issue.workerUrl || 'unknown',
+    reason: issue.reason || 'unknown',
+  });
 }
 
 export async function validateWorkerUrl(

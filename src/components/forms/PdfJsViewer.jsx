@@ -96,6 +96,26 @@ export default function PdfJsViewer({ fileUrl }) {
   const [errorMessage, setErrorMessage] = useState(null);
   const [workerDeploymentIssue, setWorkerDeploymentIssue] = useState(null);
 
+  const handleWorkerDeploymentIssue = useCallback((issue) => {
+    if (!TEMP_ENABLE_PDF_WORKER_DEPLOYMENT_QA_SIGNAL || !issue) return;
+
+    const dedupeKey = createPdfJsWorkerDeploymentIssueKey(issue);
+    if (qaSignalDedupeRef.current.has(dedupeKey)) return;
+    qaSignalDedupeRef.current.add(dedupeKey);
+
+    const payload = {
+      ...issue,
+      build: BUILD_MARKER,
+    };
+    setWorkerDeploymentIssue(payload);
+    console.error('[PDFJS_QA_DEPLOYMENT_SIGNAL]', {
+      workerUrl: payload.workerUrl || null,
+      contentType: payload.contentType || null,
+      reason: payload.reason,
+      build: payload.build,
+    });
+  }, []);
+
   const renderPdf = useCallback(async (url, signal) => {
     if (!url) return;
 
@@ -120,22 +140,7 @@ export default function PdfJsViewer({ fileUrl }) {
         signal,
         workerSrc: pdfjsLib.GlobalWorkerOptions.workerSrc,
         getDocument: pdfjsLib.getDocument,
-        onWorkerDeploymentIssue: (issue) => {
-          if (!TEMP_ENABLE_PDF_WORKER_DEPLOYMENT_QA_SIGNAL) return;
-          const dedupeKey = createPdfJsWorkerDeploymentIssueKey(issue);
-          if (qaSignalDedupeRef.current.has(dedupeKey)) return;
-          qaSignalDedupeRef.current.add(dedupeKey);
-          setWorkerDeploymentIssue({
-            ...issue,
-            build: BUILD_MARKER,
-          });
-          console.error('[PDFJS_QA_DEPLOYMENT_SIGNAL]', {
-            workerUrl: issue.workerUrl || null,
-            contentType: issue.contentType || null,
-            reason: issue.reason,
-            build: BUILD_MARKER,
-          });
-        },
+        onWorkerDeploymentIssue: handleWorkerDeploymentIssue,
         logger: console,
       });
       if (signal.aborted) return;
@@ -159,31 +164,16 @@ export default function PdfJsViewer({ fileUrl }) {
     } catch (err) {
       if (signal.aborted) return;
       console.error('[PDFJS_ERROR]', err);
-      if (TEMP_ENABLE_PDF_WORKER_DEPLOYMENT_QA_SIGNAL) {
-        const issue = getPdfJsWorkerDeploymentIssue(err, {
-          workerUrl: pdfjsLib.GlobalWorkerOptions.workerSrc,
-        });
-        if (issue) {
-          const dedupeKey = createPdfJsWorkerDeploymentIssueKey(issue);
-          if (!qaSignalDedupeRef.current.has(dedupeKey)) {
-            qaSignalDedupeRef.current.add(dedupeKey);
-            setWorkerDeploymentIssue({
-              ...issue,
-              build: BUILD_MARKER,
-            });
-            console.error('[PDFJS_QA_DEPLOYMENT_SIGNAL]', {
-              workerUrl: issue.workerUrl || null,
-              contentType: issue.contentType || null,
-              reason: issue.reason,
-              build: BUILD_MARKER,
-            });
-          }
-        }
+      const issue = getPdfJsWorkerDeploymentIssue(err, {
+        workerUrl: pdfjsLib.GlobalWorkerOptions.workerSrc,
+      });
+      if (issue) {
+        handleWorkerDeploymentIssue(issue);
       }
       setErrorMessage(err?.message || 'Unknown PDF error');
       setIsLoading(false);
     }
-  }, []);
+  }, [handleWorkerDeploymentIssue]);
 
   useEffect(() => {
     if (!fileUrl) {
@@ -244,8 +234,9 @@ export default function PdfJsViewer({ fileUrl }) {
         >
           <p style={{ margin: 0, fontWeight: 600 }}>PDF viewer deployment issue</p>
           <p style={{ margin: '0.25rem 0 0 0' }}>
-            PDF worker is served with invalid content-type. This is likely a platform
-            deployment/config issue, not a worksheet content issue.
+            {workerDeploymentIssue.reason === 'worker-dynamic-import-failure'
+              ? 'PDF worker failed to load from the deployment asset URL. This is likely a platform deployment/config issue, not a worksheet content issue.'
+              : 'PDF worker is served with invalid content-type. This is likely a platform deployment/config issue, not a worksheet content issue.'}
           </p>
           <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.75rem', opacity: 0.85 }}>
             worker: {workerDeploymentIssue.workerUrl || 'unknown'} | content-type:{' '}
