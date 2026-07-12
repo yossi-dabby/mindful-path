@@ -244,10 +244,13 @@ describe('pdf viewer route and build/source cache contracts', () => {
     expect(appSrc).toContain('path="/pdf-viewer"');
   });
 
-  it('loads same-origin worksheet PDFs through a blob URL so octet-stream assets still render inline', () => {
-    expect(pdfViewerSrc).toContain('response.blob()');
-    expect(pdfViewerSrc).toContain("new Blob([blob], { type: 'application/pdf' })");
-    expect(pdfViewerSrc).toContain('URL.createObjectURL(pdfBlob)');
+  it('uses PDF.js (PdfJsViewer) to render worksheets — not an <iframe> blob URL', () => {
+    // The previous implementation fetched the PDF into a Blob URL and rendered
+    // it in an <iframe>, which triggers a file download on Android Chrome/WebView
+    // instead of rendering. PdfJsViewer (canvas-based) is the correct approach.
+    expect(pdfViewerSrc).toContain('PdfJsViewer');
+    expect(pdfViewerSrc).not.toContain('URL.createObjectURL');
+    expect(pdfViewerSrc).not.toContain('response.blob()');
   });
 
   it('keeps Chat as a lazy-loaded route chunk', () => {

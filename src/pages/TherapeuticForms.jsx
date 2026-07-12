@@ -581,9 +581,12 @@ export default function TherapeuticForms() {
 
   const handleOpenForm = (fileUrl) => {
     if (!fileUrl || typeof fileUrl !== 'string') return;
+    console.log('[PDF_OPEN_CLICKED]', { fileUrl: fileUrl.trim() });
+    const targetUrl = `${PDF_VIEWER_ROUTE_PATH}?file=${encodeURIComponent(fileUrl.trim())}`;
+    console.log('[PDF_VIEWER_NAVIGATE]', { targetUrl });
     // Navigate same-tab to the in-app PDF viewer route.
     // PdfViewer handles resolution for both static /forms/ paths and private file refs.
-    navigate(`${PDF_VIEWER_ROUTE_PATH}?file=${encodeURIComponent(fileUrl.trim())}`);
+    navigate(targetUrl);
   };
 
   const handleDownloadForm = async (fileUrl, fileName) => {

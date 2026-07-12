@@ -12,6 +12,12 @@ export default defineConfig({
     minify: process.env.CI ? false : "esbuild",
   },
 
+  // Inject build metadata for runtime diagnostics (e.g. confirming which
+  // bundle is loaded on Android Production via [PDF_VIEWER_MOUNTED] log).
+  define: {
+    __PDF_VIEWER_BUILD__: JSON.stringify(new Date().toISOString()),
+  },
+
   server: {
     headers: {
       // Restrict Permissions-Policy to only features the app uses,
