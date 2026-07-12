@@ -170,11 +170,14 @@ describe('PdfJsViewer.jsx — PDF.js worker and logging', () => {
     // Non-matching types (including text/html) are rejected implicitly.
     // Note: text/html IS present in the source for the separate PDF URL
     // validator (validatePdfUrl), which explicitly detects SPA catch-all pages.
+    // "SPA catch-all" is referenced in both validateWorkerUrl (error message)
+    // and validatePdfUrl (log label) — this assertion confirms it is present.
     expect(workerUtilsSrc).toMatch(/isValidPdfJsWorkerContentType/);
     expect(workerUtilsSrc).toMatch(/content-type/);
     expect(workerUtilsSrc).toMatch(/text\/plain/);
     expect(workerUtilsSrc).toMatch(/javascript/);
     expect(workerUtilsSrc).toMatch(/ecmascript/);
+    // Both validateWorkerUrl and validatePdfUrl reference SPA catch-all behaviour.
     expect(workerUtilsSrc).toMatch(/SPA catch-all/);
   });
 });

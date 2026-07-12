@@ -175,7 +175,7 @@ describe('pdfJsViewerUtils', () => {
     );
   });
 
-  it('loadPdfDocumentWithWorkerFallback calls validatePdf before loading', async () => {
+  it('loadPdfDocumentWithWorkerFallback calls validatePdfUrl before loading', async () => {
     const logger = createLogger();
     const validatePdf = vi.fn().mockResolvedValue(undefined);
     const getDocument = vi.fn().mockReturnValue({
