@@ -1,8 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
+  createPdfJsWorkerDeploymentIssueKey,
+  getPdfJsWorkerDeploymentIssue,
   isPdfJsWorkerRelatedError,
   isValidPdfJsWorkerContentType,
   loadPdfDocumentWithWorkerFallback,
+  parseWorkerContentTypeFromMessage,
   validatePdfUrl,
   validateWorkerUrl,
 } from '../../src/components/forms/pdfJsViewerUtils.js';
@@ -58,6 +61,55 @@ describe('pdfJsViewerUtils', () => {
     );
 
     expect(logger.error).toHaveBeenCalled();
+  });
+
+  it('extracts content-type from worker content-type error messages', () => {
+    expect(
+      parseWorkerContentTypeFromMessage(
+        'Worker URL returned wrong content-type "text/html" — likely served as HTML or SPA catch-all'
+      )
+    ).toBe('text/html');
+    expect(parseWorkerContentTypeFromMessage('some other error')).toBeNull();
+  });
+
+  it('detects worker deployment issues for invalid MIME/content-type errors', () => {
+    const issue = getPdfJsWorkerDeploymentIssue(
+      new Error(
+        'Worker URL returned wrong content-type "text/html; charset=utf-8" — likely served as HTML or SPA catch-all'
+      ),
+      { workerUrl: '/assets/pdf.worker.min.mjs' }
+    );
+
+    expect(issue).toEqual(
+      expect.objectContaining({
+        reason: 'invalid-worker-content-type',
+        workerUrl: '/assets/pdf.worker.min.mjs',
+        contentType: 'text/html; charset=utf-8',
+      })
+    );
+  });
+
+  it('does not classify generic PDF parse failures as deployment issues', () => {
+    const issue = getPdfJsWorkerDeploymentIssue(new Error('Invalid PDF structure'));
+    expect(issue).toBeNull();
+  });
+
+  it('creates stable dedupe keys by worker URL + reason', () => {
+    const first = createPdfJsWorkerDeploymentIssueKey({
+      workerUrl: '/pdfjs/pdf.worker.min.js',
+      reason: 'invalid-worker-content-type',
+    });
+    const second = createPdfJsWorkerDeploymentIssueKey({
+      workerUrl: '/pdfjs/pdf.worker.min.js',
+      reason: 'invalid-worker-content-type',
+    });
+    const different = createPdfJsWorkerDeploymentIssueKey({
+      workerUrl: '/pdfjs/pdf.worker.min.js',
+      reason: 'worker-dynamic-import-failure',
+    });
+
+    expect(first).toBe(second);
+    expect(first).not.toBe(different);
   });
 
   it('retries with disableWorker=true after worker-related failures', async () => {
@@ -238,5 +290,72 @@ describe('pdfJsViewerUtils', () => {
     ).rejects.toThrow(/HTML page/i);
 
     expect(getDocument).not.toHaveBeenCalled();
+  });
+
+  it('reports deployment issue callback for invalid worker content-type and still falls back', async () => {
+    const logger = createLogger();
+    const onWorkerDeploymentIssue = vi.fn();
+    const getDocument = vi.fn().mockReturnValue({
+      promise: Promise.resolve({ numPages: 1 }),
+      destroy: vi.fn(),
+    });
+
+    const validateWorker = vi
+      .fn()
+      .mockRejectedValueOnce(
+        Object.assign(
+          new Error('PDF.js worker is not served as JavaScript. Base44 is serving the worker with the wrong MIME type.'),
+          {
+            code: 'PDFJS_WORKER_INVALID_CONTENT_TYPE',
+            contentType: 'application/octet-stream',
+          }
+        )
+      );
+
+    const pdf = await loadPdfDocumentWithWorkerFallback({
+      url: '/forms/en/example.pdf',
+      workerSrc: '/pdfjs/pdf.worker.min.js',
+      getDocument,
+      validateWorker,
+      validatePdf: vi.fn().mockResolvedValue(undefined),
+      onWorkerDeploymentIssue,
+      logger,
+    });
+
+    expect(pdf).toEqual({ numPages: 1 });
+    expect(onWorkerDeploymentIssue).toHaveBeenCalledWith(
+      expect.objectContaining({
+        reason: 'invalid-worker-content-type',
+        workerUrl: '/pdfjs/pdf.worker.min.js',
+        contentType: 'application/octet-stream',
+      })
+    );
+    expect(getDocument).toHaveBeenCalledWith({
+      url: '/forms/en/example.pdf',
+      disableWorker: true,
+    });
+  });
+
+  it('does not report deployment issue callback for generic PDF content parse errors', async () => {
+    const logger = createLogger();
+    const onWorkerDeploymentIssue = vi.fn();
+    const getDocument = vi.fn().mockReturnValue({
+      promise: Promise.reject(new Error('Invalid PDF structure')),
+      destroy: vi.fn(),
+    });
+
+    await expect(
+      loadPdfDocumentWithWorkerFallback({
+        url: '/forms/en/example.pdf',
+        workerSrc: '/pdfjs/pdf.worker.min.js',
+        getDocument,
+        validateWorker: vi.fn().mockResolvedValue(undefined),
+        validatePdf: vi.fn().mockResolvedValue(undefined),
+        onWorkerDeploymentIssue,
+        logger,
+      })
+    ).rejects.toThrow('Invalid PDF structure');
+
+    expect(onWorkerDeploymentIssue).not.toHaveBeenCalled();
   });
 });

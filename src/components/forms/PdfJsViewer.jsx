@@ -16,7 +16,11 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { loadPdfDocumentWithWorkerFallback } from './pdfJsViewerUtils';
+import {
+  createPdfJsWorkerDeploymentIssueKey,
+  getPdfJsWorkerDeploymentIssue,
+  loadPdfDocumentWithWorkerFallback,
+} from './pdfJsViewerUtils';
 
 // Set worker to a stable public path served from /pdfjs/pdf.worker.min.js.
 // This file is copied from node_modules at install/build time by
@@ -36,6 +40,11 @@ const BUILD_MARKER =
   typeof __PDF_VIEWER_BUILD__ !== 'undefined'
     ? __PDF_VIEWER_BUILD__
     : 'dev';
+
+const TEMP_ENABLE_PDF_WORKER_DEPLOYMENT_QA_SIGNAL =
+  typeof import.meta !== 'undefined'
+    ? import.meta.env?.VITE_ENABLE_TEMP_PDF_WORKER_DEPLOYMENT_QA_SIGNAL !== 'false'
+    : true;
 
 // ─── Internal helpers ──────────────────────────────────────────────────────
 
@@ -82,8 +91,10 @@ async function renderPage(page, containerEl, isFirst) {
 export default function PdfJsViewer({ fileUrl }) {
   const { t } = useTranslation();
   const containerRef = useRef(null);
+  const qaSignalDedupeRef = useRef(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [workerDeploymentIssue, setWorkerDeploymentIssue] = useState(null);
 
   const renderPdf = useCallback(async (url, signal) => {
     if (!url) return;
@@ -109,6 +120,22 @@ export default function PdfJsViewer({ fileUrl }) {
         signal,
         workerSrc: pdfjsLib.GlobalWorkerOptions.workerSrc,
         getDocument: pdfjsLib.getDocument,
+        onWorkerDeploymentIssue: (issue) => {
+          if (!TEMP_ENABLE_PDF_WORKER_DEPLOYMENT_QA_SIGNAL) return;
+          const dedupeKey = createPdfJsWorkerDeploymentIssueKey(issue);
+          if (qaSignalDedupeRef.current.has(dedupeKey)) return;
+          qaSignalDedupeRef.current.add(dedupeKey);
+          setWorkerDeploymentIssue({
+            ...issue,
+            build: BUILD_MARKER,
+          });
+          console.error('[PDFJS_QA_DEPLOYMENT_SIGNAL]', {
+            workerUrl: issue.workerUrl || null,
+            contentType: issue.contentType || null,
+            reason: issue.reason,
+            build: BUILD_MARKER,
+          });
+        },
         logger: console,
       });
       if (signal.aborted) return;
@@ -132,6 +159,27 @@ export default function PdfJsViewer({ fileUrl }) {
     } catch (err) {
       if (signal.aborted) return;
       console.error('[PDFJS_ERROR]', err);
+      if (TEMP_ENABLE_PDF_WORKER_DEPLOYMENT_QA_SIGNAL) {
+        const issue = getPdfJsWorkerDeploymentIssue(err, {
+          workerUrl: pdfjsLib.GlobalWorkerOptions.workerSrc,
+        });
+        if (issue) {
+          const dedupeKey = createPdfJsWorkerDeploymentIssueKey(issue);
+          if (!qaSignalDedupeRef.current.has(dedupeKey)) {
+            qaSignalDedupeRef.current.add(dedupeKey);
+            setWorkerDeploymentIssue({
+              ...issue,
+              build: BUILD_MARKER,
+            });
+            console.error('[PDFJS_QA_DEPLOYMENT_SIGNAL]', {
+              workerUrl: issue.workerUrl || null,
+              contentType: issue.contentType || null,
+              reason: issue.reason,
+              build: BUILD_MARKER,
+            });
+          }
+        }
+      }
       setErrorMessage(err?.message || 'Unknown PDF error');
       setIsLoading(false);
     }
@@ -180,6 +228,33 @@ export default function PdfJsViewer({ fileUrl }) {
 
   return (
     <div style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}>
+      {TEMP_ENABLE_PDF_WORKER_DEPLOYMENT_QA_SIGNAL && workerDeploymentIssue && (
+        <div
+          role="status"
+          data-testid="pdfjs-worker-deployment-qa-banner"
+          style={{
+            border: '1px solid #f59e0b',
+            background: '#fffbeb',
+            color: '#92400e',
+            borderRadius: '8px',
+            padding: '0.75rem',
+            marginBottom: '0.75rem',
+            fontSize: '0.875rem',
+          }}
+        >
+          <p style={{ margin: 0, fontWeight: 600 }}>PDF viewer deployment issue</p>
+          <p style={{ margin: '0.25rem 0 0 0' }}>
+            PDF worker is served with invalid content-type. This is likely a platform
+            deployment/config issue, not a worksheet content issue.
+          </p>
+          <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.75rem', opacity: 0.85 }}>
+            worker: {workerDeploymentIssue.workerUrl || 'unknown'} | content-type:{' '}
+            {workerDeploymentIssue.contentType || 'unknown'} | build:{' '}
+            {workerDeploymentIssue.build || BUILD_MARKER}
+          </p>
+        </div>
+      )}
+
       {isLoading && (
         <div
           style={{

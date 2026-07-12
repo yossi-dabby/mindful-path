@@ -11,6 +11,44 @@ export function isPdfJsWorkerRelatedError(error) {
   return /worker|dynamically imported module|fake worker/i.test(message);
 }
 
+export function parseWorkerContentTypeFromMessage(message = '') {
+  const match = message.match(/wrong content-type "([^"]+)"/i);
+  return match ? match[1] : null;
+}
+
+export function getPdfJsWorkerDeploymentIssue(error, { workerUrl } = {}) {
+  const message = error?.message || String(error);
+  const code = error?.code || '';
+  const contentType =
+    error?.contentType ||
+    parseWorkerContentTypeFromMessage(message) ||
+    null;
+
+  const isInvalidContentType =
+    code === 'PDFJS_WORKER_INVALID_CONTENT_TYPE' ||
+    /wrong MIME type|wrong content-type/i.test(message);
+  const isDynamicImportFailure = /failed to fetch dynamically imported module/i.test(
+    message
+  );
+
+  if (!isInvalidContentType && !isDynamicImportFailure) {
+    return null;
+  }
+
+  return {
+    reason: isInvalidContentType
+      ? 'invalid-worker-content-type'
+      : 'worker-dynamic-import-failure',
+    message,
+    workerUrl: error?.workerUrl || workerUrl || null,
+    contentType,
+  };
+}
+
+export function createPdfJsWorkerDeploymentIssueKey(issue = {}) {
+  return `${issue.workerUrl || 'unknown'}::${issue.reason || 'unknown'}`;
+}
+
 export async function validateWorkerUrl(
   workerUrl,
   signal,
@@ -32,15 +70,23 @@ export async function validateWorkerUrl(
     const contentType = response.headers.get('content-type') || '';
 
     if (contentType.includes('application/octet-stream')) {
-      throw new Error(
+      const error = new Error(
         'PDF.js worker is not served as JavaScript. Base44 is serving the worker with the wrong MIME type.'
       );
+      error.code = 'PDFJS_WORKER_INVALID_CONTENT_TYPE';
+      error.workerUrl = workerUrl;
+      error.contentType = contentType;
+      throw error;
     }
 
     if (!isValidPdfJsWorkerContentType(contentType)) {
-      throw new Error(
+      const error = new Error(
         `Worker URL returned wrong content-type "${contentType}" — likely served as HTML or SPA catch-all`
       );
+      error.code = 'PDFJS_WORKER_INVALID_CONTENT_TYPE';
+      error.workerUrl = workerUrl;
+      error.contentType = contentType;
+      throw error;
     }
 
     logger.log('[PDFJS_WORKER_FETCH_TEST_OK]', {
@@ -152,6 +198,7 @@ export async function loadPdfDocumentWithWorkerFallback({
   getDocument,
   validateWorker = validateWorkerUrl,
   validatePdf = validatePdfUrl,
+  onWorkerDeploymentIssue,
   logger = console,
 }) {
   // Pre-validate the PDF URL. Throws if the URL definitively returns non-PDF
@@ -181,6 +228,13 @@ export async function loadPdfDocumentWithWorkerFallback({
     await validateWorker(workerSrc, signal, { logger });
     return await loadDocument({ url });
   } catch (error) {
+    const deploymentIssue = getPdfJsWorkerDeploymentIssue(error, {
+      workerUrl: workerSrc,
+    });
+    if (deploymentIssue && onWorkerDeploymentIssue) {
+      onWorkerDeploymentIssue(deploymentIssue);
+    }
+
     if (!isPdfJsWorkerRelatedError(error)) {
       throw error;
     }

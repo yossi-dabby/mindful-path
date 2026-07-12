@@ -133,6 +133,16 @@ You will also see the legacy `[S2 Diagnostics]` group (therapist-only, unchanged
 read `HYBRID (master gate off)`.
 If any flag shows `true`, stop and recheck the environment variable configuration before continuing.
 
+### 4c — PDF viewer worker MIME QA signal (temporary)
+
+When opening a worksheet PDF in staging/preview, a temporary runtime QA banner may appear:
+
+- **Title:** `PDF viewer deployment issue`
+- **Meaning:** the PDF.js worker is likely mis-served (wrong MIME/content-type or worker URL resolution), so this is likely a platform deployment/configuration issue rather than a bad worksheet PDF file.
+- **Diagnostics shown in the banner/logs:** worker URL, detected content-type (if available), and viewer build marker.
+
+If this banner appears, treat it as a deployment/platform investigation signal first; do not classify it as worksheet content corruption unless the worker diagnostics are clean.
+
 ---
 
 ## 5 — How Step 1 (Phase 1 — Memory) Will Later Be Validated in Staging
@@ -183,8 +193,9 @@ Before declaring staging ready:
 - [ ] No `VITE_THERAPIST_UPGRADE_*` variable is set (or all are explicitly `false`)
 - [ ] Smoke tests passed: `BASE_URL=<staging-url> npm run test:e2e -- --project=smoke-production-critical`
 - [ ] `?_s2debug=true` check confirms all flags `false` and both `routeHint` values are `HYBRID (master gate off)` (Therapist + Companion sections)
+- [ ] PDF worksheet open flow does not show the temporary `PDF viewer deployment issue` worker MIME banner
 - [ ] `main` branch and Base44 production environment are untouched
 
 ---
 
-*Last updated: 2026-03-21*
+*Last updated: 2026-07-12*
