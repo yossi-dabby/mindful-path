@@ -41,6 +41,25 @@ describe('pdfJsViewerUtils', () => {
     expect(logger.error).toHaveBeenCalled();
   });
 
+  it('validateWorkerUrl rejects application/octet-stream with the Base44 MIME error message', async () => {
+    const logger = createLogger();
+    const fetchImpl = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: {
+        get: (name) => (name === 'content-type' ? 'application/octet-stream' : null),
+      },
+    });
+
+    await expect(
+      validateWorkerUrl('/pdfjs/pdf.worker.min.js', undefined, { fetchImpl, logger })
+    ).rejects.toThrow(
+      'PDF.js worker is not served as JavaScript. Base44 is serving the worker with the wrong MIME type.'
+    );
+
+    expect(logger.error).toHaveBeenCalled();
+  });
+
   it('retries with disableWorker=true after worker-related failures', async () => {
     const logger = createLogger();
     const getDocument = vi

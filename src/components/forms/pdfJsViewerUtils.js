@@ -31,6 +31,12 @@ export async function validateWorkerUrl(
 
     const contentType = response.headers.get('content-type') || '';
 
+    if (contentType.includes('application/octet-stream')) {
+      throw new Error(
+        'PDF.js worker is not served as JavaScript. Base44 is serving the worker with the wrong MIME type.'
+      );
+    }
+
     if (!isValidPdfJsWorkerContentType(contentType)) {
       throw new Error(
         `Worker URL returned wrong content-type "${contentType}" — likely served as HTML or SPA catch-all`
