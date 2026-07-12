@@ -6,8 +6,10 @@
   "scripts": {
     "generate:forms-index": "node scripts/generate-therapeutic-forms-index.mjs",
     "check:forms-index": "node scripts/check-therapeutic-forms-index.mjs",
-    "predev": "npm run generate:forms-index",
-    "prebuild": "npm run generate:forms-index",
+    "copy:pdf-worker": "node scripts/copy-pdf-worker.cjs",
+    "postinstall": "node scripts/copy-pdf-worker.cjs",
+    "predev": "npm run generate:forms-index && npm run copy:pdf-worker",
+    "prebuild": "npm run generate:forms-index && npm run copy:pdf-worker",
     "pretest": "npm run generate:forms-index",
     "dev": "vite",
     "build": "vite build",

@@ -258,9 +258,11 @@ describe('pdf viewer route and build/source cache contracts', () => {
   });
 
   it('regenerates the therapeutic forms index before dev, test, and build', () => {
-    expect(packageJson.scripts.predev).toBe('npm run generate:forms-index');
-    expect(packageJson.scripts.pretest).toBe('npm run generate:forms-index');
-    expect(packageJson.scripts.prebuild).toBe('npm run generate:forms-index');
+    expect(packageJson.scripts.predev).toContain('npm run generate:forms-index');
+    expect(packageJson.scripts.predev).toContain('npm run copy:pdf-worker');
+    expect(packageJson.scripts.pretest).toContain('npm run generate:forms-index');
+    expect(packageJson.scripts.prebuild).toContain('npm run generate:forms-index');
+    expect(packageJson.scripts.prebuild).toContain('npm run copy:pdf-worker');
   });
 
   it('does not register a service worker in the app shell', () => {
