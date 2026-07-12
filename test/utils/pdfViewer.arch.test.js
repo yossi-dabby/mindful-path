@@ -158,13 +158,24 @@ describe('PdfJsViewer.jsx — PDF.js worker and logging', () => {
     expect(workerUtilsSrc).toMatch(/\[PDFJS_WORKER_RETRY_DISABLE_WORKER\]/);
   });
 
-  it('rejects worker fetches that return HTML content types', () => {
+  it('pre-validates PDF URL before loading to catch SPA catch-all responses', () => {
+    expect(workerUtilsSrc).toMatch(/validatePdfUrl/);
+    expect(workerUtilsSrc).toMatch(/\[PDF_BYTES_NOT_PDF\]/);
+    expect(workerUtilsSrc).toMatch(/\[PDFJS_PDF_FETCH_TEST_OK\]/);
+    expect(workerUtilsSrc).toMatch(/%PDF/);
+  });
+
+  it('worker validator uses allowlist to reject HTML content types (not explicit blocklist)', () => {
+    // isValidPdfJsWorkerContentType accepts js/ecmascript/text-plain only.
+    // Non-matching types (including text/html) are rejected implicitly.
+    // Note: text/html IS present in the source for the separate PDF URL
+    // validator (validatePdfUrl), which explicitly detects SPA catch-all pages.
+    expect(workerUtilsSrc).toMatch(/isValidPdfJsWorkerContentType/);
     expect(workerUtilsSrc).toMatch(/content-type/);
     expect(workerUtilsSrc).toMatch(/text\/plain/);
     expect(workerUtilsSrc).toMatch(/javascript/);
     expect(workerUtilsSrc).toMatch(/ecmascript/);
     expect(workerUtilsSrc).toMatch(/SPA catch-all/);
-    expect(workerUtilsSrc).not.toMatch(/text\/html/);
   });
 });
 
