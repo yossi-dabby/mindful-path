@@ -68,13 +68,14 @@ describe('PdfViewer.jsx — architectural constraints', () => {
 
 describe('PdfJsViewer.jsx — PDF.js worker and logging', () => {
   const src = readSrc('src/components/forms/PdfJsViewer.jsx');
+  const workerUtilsSrc = readSrc('src/components/forms/pdfJsViewerUtils.js');
 
   it('file exists', () => {
     expect(existsSync(join(ROOT, 'src/components/forms/PdfJsViewer.jsx'))).toBe(true);
   });
 
-  it('imports PDF.js from a direct Vite-resolvable build entry', () => {
-    expect(src).toMatch(/from\s+['"]pdfjs-dist\/build\/pdf\.mjs['"]/);
+  it('imports PDF.js from the package root', () => {
+    expect(src).toMatch(/from\s+['"]pdfjs-dist['"]/);
   });
 
   it('imports worker via Vite ?url (production-bundled asset URL)', () => {
@@ -102,6 +103,10 @@ describe('PdfJsViewer.jsx — PDF.js worker and logging', () => {
   it('uses a static worker URL import and does not dynamically import the worker module', () => {
     expect(src).toMatch(/\?url/);
     expect(src).not.toMatch(/import\s*\(\s*['"`]pdfjs-dist.*worker/i);
+  });
+
+  it('guards __PDF_VIEWER_BUILD__ with typeof before reading it', () => {
+    expect(src).toMatch(/typeof __PDF_VIEWER_BUILD__ !== 'undefined'/);
   });
 
   it('logs [PDFJS_LOAD_START]', () => {
@@ -146,6 +151,21 @@ describe('PdfJsViewer.jsx — PDF.js worker and logging', () => {
   it('does NOT use window.open', () => {
     expect(src).not.toMatch(/window\.open\s*\(/);
   });
+
+  it('loads documents through a helper that retries with disableWorker', () => {
+    expect(src).toMatch(/loadPdfDocumentWithWorkerFallback/);
+    expect(workerUtilsSrc).toMatch(/disableWorker:\s*true/);
+    expect(workerUtilsSrc).toMatch(/\[PDFJS_WORKER_RETRY_DISABLE_WORKER\]/);
+  });
+
+  it('rejects worker fetches that return HTML content types', () => {
+    expect(workerUtilsSrc).toMatch(/content-type/);
+    expect(workerUtilsSrc).toMatch(/text\/plain/);
+    expect(workerUtilsSrc).toMatch(/javascript/);
+    expect(workerUtilsSrc).toMatch(/ecmascript/);
+    expect(workerUtilsSrc).toMatch(/SPA catch-all/);
+    expect(workerUtilsSrc).not.toMatch(/text\/html/);
+  });
 });
 
 // ─── TherapeuticForms.jsx — Open path ────────────────────────────────────────
@@ -183,6 +203,7 @@ describe('TherapeuticForms.jsx — Open navigates to /pdf-viewer, not window.ope
 describe('pdfjs-dist — package.json dependency', () => {
   const pkg = JSON.parse(readSrc('package.json'));
   const prodDeps = pkg.dependencies || {};
+  const viteConfig = readSrc('vite.config.js');
 
   it('pdfjs-dist is listed in dependencies (not only devDependencies)', () => {
     expect(prodDeps['pdfjs-dist']).toBeDefined();
@@ -191,5 +212,9 @@ describe('pdfjs-dist — package.json dependency', () => {
   it('pdfjs-dist version is 4.x (ESM, .mjs worker)', () => {
     const version = prodDeps['pdfjs-dist'] || '';
     expect(version).toMatch(/^[\^~]?4\./);
+  });
+
+  it('excludes pdfjs-dist from Vite optimizeDeps prebundling', () => {
+    expect(viteConfig).toMatch(/optimizeDeps:\s*\{[\s\S]*exclude:\s*\[['"]pdfjs-dist['"]\]/);
   });
 });
