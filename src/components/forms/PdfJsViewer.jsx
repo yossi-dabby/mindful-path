@@ -24,8 +24,10 @@ import { useTranslation } from 'react-i18next';
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 // ─── Build-version marker ──────────────────────────────────────────────────
-// __PDF_VIEWER_BUILD__ is replaced by vite.config.js define at build time.
-// Logging this on mount confirms which bundle is running on Android.
+// __PDF_VIEWER_BUILD__ is a build-time string injected by vite.config.js
+// `define`. Logging it at mount confirms which Production bundle is running
+// on Android (helps distinguish a stale cached build from the latest one).
+/** @type {string} ISO timestamp set by vite.config.js define at build time */
 const BUILD_MARKER = __PDF_VIEWER_BUILD__;
 
 // ─── Internal helpers ──────────────────────────────────────────────────────
@@ -146,6 +148,9 @@ export default function PdfJsViewer({ fileUrl }) {
       clearTimeout(debounceTimer);
       if (debounceAc) debounceAc.abort();
       debounceAc = new AbortController();
+      // Capture `debounceAc` into a local `ac` so the setTimeout closure holds
+      // a stable reference even if a second resize fires and reassigns `debounceAc`
+      // before the 200ms delay elapses.
       const ac = debounceAc;
       debounceTimer = setTimeout(() => {
         renderPdf(fileUrl, ac.signal);
