@@ -73,8 +73,8 @@ describe('PdfJsViewer.jsx — PDF.js worker and logging', () => {
     expect(existsSync(join(ROOT, 'src/components/forms/PdfJsViewer.jsx'))).toBe(true);
   });
 
-  it('imports pdfjs-dist', () => {
-    expect(src).toMatch(/from\s+['"]pdfjs-dist['"]/);
+  it('imports PDF.js from a direct Vite-resolvable build entry', () => {
+    expect(src).toMatch(/from\s+['"]pdfjs-dist\/build\/pdf\.mjs['"]/);
   });
 
   it('imports worker via Vite ?url (production-bundled asset URL)', () => {
@@ -83,6 +83,25 @@ describe('PdfJsViewer.jsx — PDF.js worker and logging', () => {
 
   it('sets GlobalWorkerOptions.workerSrc to the bundled worker URL', () => {
     expect(src).toMatch(/GlobalWorkerOptions\.workerSrc\s*=\s*pdfWorkerUrl/);
+  });
+
+  it('logs [PDFJS_VERSION]', () => {
+    expect(src).toMatch(/\[PDFJS_VERSION\]/);
+  });
+
+  it('logs [PDFJS_WORKER_URL]', () => {
+    expect(src).toMatch(/\[PDFJS_WORKER_URL\]/);
+  });
+
+  it('logs worker fetch diagnostics', () => {
+    expect(src).toMatch(/\[PDFJS_WORKER_FETCH_TEST_START\]/);
+    expect(src).toMatch(/\[PDFJS_WORKER_FETCH_TEST_OK\]/);
+    expect(src).toMatch(/\[PDFJS_WORKER_FETCH_TEST_FAILED\]/);
+  });
+
+  it('uses a static worker URL import and does not dynamically import the worker module', () => {
+    expect(src).toMatch(/\?url/);
+    expect(src).not.toMatch(/import\s*\(\s*['"`]pdfjs-dist.*worker/i);
   });
 
   it('logs [PDFJS_LOAD_START]', () => {
@@ -108,6 +127,17 @@ describe('PdfJsViewer.jsx — PDF.js worker and logging', () => {
   it('renders a visible error message element', () => {
     expect(src).toMatch(/errorMessage/);
     expect(src).toMatch(/role=.alert./);
+  });
+
+  it('shows a direct-link fallback when PDF.js fails', () => {
+    expect(src).toMatch(/Open PDF directly/);
+    expect(src).toMatch(/href=\{fileUrl\}/);
+  });
+
+  it('does NOT use iframe or Blob URLs', () => {
+    expect(src).not.toMatch(/<iframe\b/);
+    expect(src).not.toMatch(/URL\.createObjectURL/);
+    expect(src).not.toMatch(/blob:/);
   });
 
   it('does NOT use window.open', () => {
@@ -149,14 +179,14 @@ describe('TherapeuticForms.jsx — Open navigates to /pdf-viewer, not window.ope
 
 describe('pdfjs-dist — package.json dependency', () => {
   const pkg = JSON.parse(readSrc('package.json'));
-  const allDeps = { ...pkg.dependencies, ...pkg.devDependencies };
+  const prodDeps = pkg.dependencies || {};
 
-  it('pdfjs-dist is listed as a dependency', () => {
-    expect(allDeps['pdfjs-dist']).toBeDefined();
+  it('pdfjs-dist is listed in dependencies (not only devDependencies)', () => {
+    expect(prodDeps['pdfjs-dist']).toBeDefined();
   });
 
   it('pdfjs-dist version is 4.x (ESM, .mjs worker)', () => {
-    const version = allDeps['pdfjs-dist'] || '';
+    const version = prodDeps['pdfjs-dist'] || '';
     expect(version).toMatch(/^[\^~]?4\./);
   });
 });
