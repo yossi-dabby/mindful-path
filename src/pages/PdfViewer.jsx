@@ -8,34 +8,7 @@ import { base44 } from '@/api/base44Client';
 import { downloadPdfFile } from '@/components/chat/utils/downloadPdfFile';
 import { getFormDownloadUrl, resolvePdfViewerFileParam } from '@/components/chat/utils/formFileUrls.js';
 import { resolveWorksheetFileUrl } from '@/components/chat/utils/worksheetFileResolver';
-
-function shouldUseInlinePdfBlob(url) {
-  if (typeof url !== 'string' || !url.trim()) return false;
-  const trimmed = url.trim();
-  if (trimmed.startsWith('/')) return true;
-  if (typeof window === 'undefined') return false;
-  try {
-    return new URL(trimmed, window.location.origin).origin === window.location.origin;
-  } catch {
-    return false;
-  }
-}
-
-async function buildInlinePdfViewerUrl(url) {
-  if (!shouldUseInlinePdfBlob(url)) return url;
-
-  const response = await fetch(url, { credentials: 'same-origin' });
-  if (!response.ok) {
-    throw new Error(`[PdfViewer] Inline PDF fetch failed: ${response.status}`);
-  }
-
-  const blob = await response.blob();
-  const pdfBlob = blob.type?.toLowerCase().includes('pdf')
-    ? blob
-    : new Blob([blob], { type: 'application/pdf' });
-
-  return URL.createObjectURL(pdfBlob);
-}
+import PdfJsViewer from '@/components/forms/PdfJsViewer';
 
 export default function PdfViewer() {
   const { t } = useTranslation();
@@ -45,7 +18,6 @@ export default function PdfViewer() {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [resolvedFileUrl, setResolvedFileUrl] = useState(null);
-  const [viewerFileUrl, setViewerFileUrl] = useState(null);
 
   const requestedFile = searchParams.get('file') || '';
   const normalizedRequestedFile = useMemo(
@@ -53,11 +25,20 @@ export default function PdfViewer() {
     [requestedFile]
   );
 
+  // Mount-only diagnostic: captures the initial requestedFile at mount time
+  // so we can confirm which bundle is running on Android Production.
+  // Intentionally run once on mount — values are captured as a snapshot.
+  useEffect(() => {
+    console.log('[PDF_VIEWER_MOUNTED]', {
+      requestedFile,
+      normalized: normalizedRequestedFile,
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     let isCancelled = false;
-    let objectUrlToRevoke = null;
 
-    async function loadPdf() {
+    async function resolveUrl() {
       let decodedRequestedFile = '';
       if (typeof requestedFile === 'string') {
         try {
@@ -69,7 +50,6 @@ export default function PdfViewer() {
       const fileRef = normalizedRequestedFile || decodedRequestedFile;
       if (!fileRef) {
         setResolvedFileUrl(null);
-        setViewerFileUrl(null);
         setHasError(true);
         setIsLoading(false);
         return;
@@ -83,23 +63,13 @@ export default function PdfViewer() {
           coreIntegration: base44?.integrations?.Core,
           entities: base44?.entities,
         });
-        const inlineViewerUrl = await buildInlinePdfViewerUrl(fileUrl);
-        if (inlineViewerUrl.startsWith('blob:')) {
-          objectUrlToRevoke = inlineViewerUrl;
-        }
-        if (isCancelled) {
-          if (objectUrlToRevoke) {
-            URL.revokeObjectURL(objectUrlToRevoke);
-            objectUrlToRevoke = null;
-          }
-          return;
-        }
+        console.log('[PDF_VIEWER_RESOLVED_URL]', { fileRef, resolvedUrl: fileUrl });
+        if (isCancelled) return;
         setResolvedFileUrl(fileUrl);
-        setViewerFileUrl(inlineViewerUrl);
         setHasError(false);
       } catch (error) {
-        console.error('[PdfViewer] Failed to load PDF inline:', {
-          fileValue: fileRef,
+        console.error('[PDF_VIEWER_RESOLVE_ERROR]', {
+          fileRef,
           reason: error?.message || error,
         });
         toast({
@@ -109,7 +79,6 @@ export default function PdfViewer() {
         });
         if (isCancelled) return;
         setResolvedFileUrl(null);
-        setViewerFileUrl(null);
         setHasError(true);
       } finally {
         if (!isCancelled) {
@@ -118,13 +87,10 @@ export default function PdfViewer() {
       }
     }
 
-    loadPdf();
+    resolveUrl();
 
     return () => {
       isCancelled = true;
-      if (objectUrlToRevoke) {
-        URL.revokeObjectURL(objectUrlToRevoke);
-      }
     };
   }, [normalizedRequestedFile, requestedFile, toast]);
 
@@ -186,34 +152,28 @@ export default function PdfViewer() {
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 items-center justify-center bg-muted/20">
+      <div
+        className="min-h-0 flex-1 overflow-y-auto bg-muted/20"
+        style={{ WebkitOverflowScrolling: 'touch' }}
+      >
         {isLoading && (
-          <Loader2 className="h-7 w-7 animate-spin text-muted-foreground" aria-label={t('common.loading', 'Loading...')} />
+          <div className="flex h-full items-center justify-center" style={{ minHeight: '12rem' }}>
+            <Loader2
+              className="h-7 w-7 animate-spin text-muted-foreground"
+              aria-label={t('common.loading', 'Loading...')}
+            />
+          </div>
         )}
 
-        {!isLoading && viewerFileUrl && (
-          <iframe
-            title={t('chat.generated_file.type_label', 'PDF')}
-            src={viewerFileUrl}
-            className="h-full w-full border-0"
-          />
+        {!isLoading && resolvedFileUrl && (
+          <PdfJsViewer fileUrl={resolvedFileUrl} />
         )}
 
-        {!isLoading && !viewerFileUrl && (
-          <div className="flex flex-col items-center gap-3">
+        {!isLoading && !resolvedFileUrl && (
+          <div className="flex flex-col items-center gap-3 pt-16">
             <Button type="button" variant="outline" size="sm" onClick={() => window.location.reload()}>
               {t('common.retry', 'Retry')}
             </Button>
-            {resolvedFileUrl && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleDownload}
-              >
-                {t('chat.generated_file.download_button', 'Download')}
-              </Button>
-            )}
           </div>
         )}
       </div>

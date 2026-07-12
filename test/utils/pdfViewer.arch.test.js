@@ -1,0 +1,162 @@
+/**
+ * PdfViewer architecture tests.
+ *
+ * These are source-level assertions that enforce the structural constraints
+ * required for the PDF viewer to work on Android Production.
+ *
+ * They do NOT render React components (no jsdom needed) — they read source
+ * files and verify patterns using string inspection and regex.
+ *
+ * Rationale: the previous implementation used <iframe> which triggers a
+ * file download on Android Chrome/WebView instead of rendering the PDF.
+ * PDF.js (canvas-based rendering) must remain the primary viewer.
+ */
+
+import { describe, it, expect } from 'vitest';
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
+
+const ROOT = join(process.cwd());
+
+function readSrc(relPath) {
+  return readFileSync(join(ROOT, relPath), 'utf8');
+}
+
+// ─── PdfViewer.jsx constraints ───────────────────────────────────────────────
+
+describe('PdfViewer.jsx — architectural constraints', () => {
+  const src = readSrc('src/pages/PdfViewer.jsx');
+
+  it('imports PdfJsViewer (not iframe)', () => {
+    expect(src).toMatch(/import\s+PdfJsViewer/);
+  });
+
+  it('renders <PdfJsViewer fileUrl={...}> in JSX', () => {
+    expect(src).toMatch(/<PdfJsViewer\s+fileUrl=/);
+  });
+
+  it('does NOT render a bare <iframe> as the primary PDF viewer', () => {
+    // Remove comment lines before checking, to avoid false negatives from
+    // comments mentioning iframe.
+    const nonCommentLines = src
+      .split('\n')
+      .filter((line) => !line.trim().startsWith('//') && !line.trim().startsWith('*'))
+      .join('\n');
+    expect(nonCommentLines).not.toMatch(/<iframe\b/);
+  });
+
+  it('does NOT use window.open for the Open path', () => {
+    expect(src).not.toMatch(/window\.open\s*\(/);
+  });
+
+  it('does NOT create Blob URLs for /forms/ files', () => {
+    // buildInlinePdfViewerUrl was the previous approach that created blob URLs.
+    expect(src).not.toMatch(/buildInlinePdfViewerUrl/);
+    expect(src).not.toMatch(/URL\.createObjectURL/);
+  });
+
+  it('logs [PDF_VIEWER_MOUNTED] on mount', () => {
+    expect(src).toMatch(/\[PDF_VIEWER_MOUNTED\]/);
+  });
+
+  it('logs [PDF_VIEWER_RESOLVED_URL] after resolving URL', () => {
+    expect(src).toMatch(/\[PDF_VIEWER_RESOLVED_URL\]/);
+  });
+});
+
+// ─── PdfJsViewer.jsx constraints ─────────────────────────────────────────────
+
+describe('PdfJsViewer.jsx — PDF.js worker and logging', () => {
+  const src = readSrc('src/components/forms/PdfJsViewer.jsx');
+
+  it('file exists', () => {
+    expect(existsSync(join(ROOT, 'src/components/forms/PdfJsViewer.jsx'))).toBe(true);
+  });
+
+  it('imports pdfjs-dist', () => {
+    expect(src).toMatch(/from\s+['"]pdfjs-dist['"]/);
+  });
+
+  it('imports worker via Vite ?url (production-bundled asset URL)', () => {
+    expect(src).toMatch(/pdfjs-dist\/build\/pdf\.worker\.min\.mjs\?url/);
+  });
+
+  it('sets GlobalWorkerOptions.workerSrc to the bundled worker URL', () => {
+    expect(src).toMatch(/GlobalWorkerOptions\.workerSrc\s*=\s*pdfWorkerUrl/);
+  });
+
+  it('logs [PDFJS_LOAD_START]', () => {
+    expect(src).toMatch(/\[PDFJS_LOAD_START\]/);
+  });
+
+  it('logs [PDFJS_DOCUMENT_LOADED]', () => {
+    expect(src).toMatch(/\[PDFJS_DOCUMENT_LOADED\]/);
+  });
+
+  it('logs [PDFJS_FIRST_PAGE_RENDERED]', () => {
+    expect(src).toMatch(/\[PDFJS_FIRST_PAGE_RENDERED\]/);
+  });
+
+  it('logs [PDFJS_ERROR] on error', () => {
+    expect(src).toMatch(/\[PDFJS_ERROR\]/);
+  });
+
+  it('has loading state (isLoading)', () => {
+    expect(src).toMatch(/isLoading/);
+  });
+
+  it('renders a visible error message element', () => {
+    expect(src).toMatch(/errorMessage/);
+    expect(src).toMatch(/role=.alert./);
+  });
+
+  it('does NOT use window.open', () => {
+    expect(src).not.toMatch(/window\.open\s*\(/);
+  });
+});
+
+// ─── TherapeuticForms.jsx — Open path ────────────────────────────────────────
+
+describe('TherapeuticForms.jsx — Open navigates to /pdf-viewer, not window.open', () => {
+  const src = readSrc('src/pages/TherapeuticForms.jsx');
+
+  it('handleOpenForm navigates via react-router navigate(), not window.open', () => {
+    // Confirm navigate() is used in handleOpenForm
+    expect(src).toMatch(/navigate\s*\(/);
+    // Must not use window.open for PDF open
+    expect(src).not.toMatch(/window\.open\s*\(\s*[^)]*pdf/i);
+  });
+
+  it('logs [PDF_OPEN_CLICKED] when Open is clicked', () => {
+    expect(src).toMatch(/\[PDF_OPEN_CLICKED\]/);
+  });
+
+  it('logs [PDF_VIEWER_NAVIGATE] when navigating to pdf-viewer', () => {
+    expect(src).toMatch(/\[PDF_VIEWER_NAVIGATE\]/);
+  });
+
+  it('Download path uses downloadPdfFile, not navigate', () => {
+    // handleDownloadForm must call downloadPdfFile
+    expect(src).toMatch(/downloadPdfFile/);
+  });
+
+  it('Open path navigates to PDF_VIEWER_ROUTE_PATH', () => {
+    expect(src).toMatch(/PDF_VIEWER_ROUTE_PATH/);
+  });
+});
+
+// ─── pdfjs-dist dependency ────────────────────────────────────────────────────
+
+describe('pdfjs-dist — package.json dependency', () => {
+  const pkg = JSON.parse(readSrc('package.json'));
+  const allDeps = { ...pkg.dependencies, ...pkg.devDependencies };
+
+  it('pdfjs-dist is listed as a dependency', () => {
+    expect(allDeps['pdfjs-dist']).toBeDefined();
+  });
+
+  it('pdfjs-dist version is 4.x (ESM, .mjs worker)', () => {
+    const version = allDeps['pdfjs-dist'] || '';
+    expect(version).toMatch(/^[\^~]?4\./);
+  });
+});
