@@ -25,13 +25,15 @@ export default function PdfViewer() {
     [requestedFile]
   );
 
+  // Mount-only diagnostic: captures the initial requestedFile at mount time
+  // so we can confirm which bundle is running on Android Production.
+  // Intentionally run once on mount — values are captured as a snapshot.
   useEffect(() => {
-    // Diagnostic: confirm which bundle is running on Android Production.
     console.log('[PDF_VIEWER_MOUNTED]', {
       requestedFile,
       normalized: normalizedRequestedFile,
     });
-  }, []);  // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     let isCancelled = false;
@@ -151,8 +153,8 @@ export default function PdfViewer() {
       </div>
 
       <div
-        className="min-h-0 flex-1 bg-muted/20"
-        style={{ overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}
+        className="min-h-0 flex-1 overflow-y-auto bg-muted/20"
+        style={{ WebkitOverflowScrolling: 'touch' }}
       >
         {isLoading && (
           <div className="flex h-full items-center justify-center" style={{ minHeight: '12rem' }}>

@@ -12,6 +12,8 @@
  *    worker from the same bundle, not from an external CDN.
  */
 
+/* global __PDF_VIEWER_BUILD__ */
+
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
@@ -22,11 +24,9 @@ import { useTranslation } from 'react-i18next';
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 // ─── Build-version marker ──────────────────────────────────────────────────
-// __PDF_VIEWER_BUILD__ is defined by vite.config.js at build time.
-// Logging this on mount lets us confirm which bundle is running on Android.
-const BUILD_MARKER = typeof __PDF_VIEWER_BUILD__ !== 'undefined'
-  ? __PDF_VIEWER_BUILD__
-  : 'dev';
+// __PDF_VIEWER_BUILD__ is replaced by vite.config.js define at build time.
+// Logging this on mount confirms which bundle is running on Android.
+const BUILD_MARKER = __PDF_VIEWER_BUILD__;
 
 // ─── Internal helpers ──────────────────────────────────────────────────────
 
@@ -66,6 +66,9 @@ async function renderPage(page, containerEl, isFirst) {
 /**
  * @param {{ fileUrl: string|null }} props
  *   fileUrl — the fully-resolved PDF URL (static /forms/ path or signed HTTPS URL).
+ *
+ * Scrolling is delegated to the parent container (PdfViewer.jsx content area).
+ * PdfJsViewer fills its container and does not create its own scroll context.
  */
 export default function PdfJsViewer({ fileUrl }) {
   const { t } = useTranslation();
@@ -137,10 +140,14 @@ export default function PdfJsViewer({ fileUrl }) {
     if (!fileUrl) return;
 
     let debounceTimer = null;
+    let debounceAc = null;
+
     const onResize = () => {
       clearTimeout(debounceTimer);
+      if (debounceAc) debounceAc.abort();
+      debounceAc = new AbortController();
+      const ac = debounceAc;
       debounceTimer = setTimeout(() => {
-        const ac = new AbortController();
         renderPdf(fileUrl, ac.signal);
       }, 200);
     };
@@ -149,23 +156,14 @@ export default function PdfJsViewer({ fileUrl }) {
     window.addEventListener('orientationchange', onResize);
     return () => {
       clearTimeout(debounceTimer);
+      if (debounceAc) debounceAc.abort();
       window.removeEventListener('resize', onResize);
       window.removeEventListener('orientationchange', onResize);
     };
   }, [fileUrl, renderPdf]);
 
   return (
-    <div
-      style={{
-        width: '100%',
-        minHeight: '100dvh',
-        overflowY: 'auto',
-        WebkitOverflowScrolling: 'touch',
-        boxSizing: 'border-box',
-        padding: '8px',
-        backgroundColor: 'inherit',
-      }}
-    >
+    <div style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}>
       {isLoading && (
         <div
           style={{
