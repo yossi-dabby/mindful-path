@@ -95,9 +95,9 @@ describe('PdfJsViewer.jsx — PDF.js worker and logging', () => {
   });
 
   it('logs worker fetch diagnostics', () => {
-    expect(src).toMatch(/\[PDFJS_WORKER_FETCH_TEST_START\]/);
-    expect(src).toMatch(/\[PDFJS_WORKER_FETCH_TEST_OK\]/);
-    expect(src).toMatch(/\[PDFJS_WORKER_FETCH_TEST_FAILED\]/);
+    expect(workerUtilsSrc).toMatch(/\[PDFJS_WORKER_FETCH_TEST_START\]/);
+    expect(workerUtilsSrc).toMatch(/\[PDFJS_WORKER_FETCH_TEST_OK\]/);
+    expect(workerUtilsSrc).toMatch(/\[PDFJS_WORKER_FETCH_TEST_FAILED\]/);
   });
 
   it('uses a static worker URL import and does not dynamically import the worker module', () => {
