@@ -14,15 +14,18 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
-import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { loadPdfDocumentWithWorkerFallback } from './pdfJsViewerUtils';
 
-// Set worker once at module init so it is resolved before any getDocument call.
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+// Set worker to a stable public path served from /pdfjs/pdf.worker.min.js.
+// This file is copied from node_modules at install/build time by
+// scripts/copy-pdf-worker.cjs so it is always served as text/javascript,
+// avoiding the application/octet-stream MIME mismatch that Base44 hosting
+// applies to .mjs assets.
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.js';
 console.log('[PDFJS_VERSION]', pdfjsLib.version || 'unknown');
-console.log('[PDFJS_WORKER_URL]', pdfWorkerUrl);
+console.log('[PDFJS_WORKER_URL]', pdfjsLib.GlobalWorkerOptions.workerSrc);
 
 // ─── Build-version marker ──────────────────────────────────────────────────
 // __PDF_VIEWER_BUILD__ is a build-time string injected by vite.config.js

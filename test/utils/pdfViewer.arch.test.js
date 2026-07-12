@@ -78,12 +78,8 @@ describe('PdfJsViewer.jsx — PDF.js worker and logging', () => {
     expect(src).toMatch(/from\s+['"]pdfjs-dist['"]/);
   });
 
-  it('imports worker via Vite ?url (production-bundled asset URL)', () => {
-    expect(src).toMatch(/pdfjs-dist\/build\/pdf\.worker\.min\.mjs\?url/);
-  });
-
-  it('sets GlobalWorkerOptions.workerSrc to the bundled worker URL', () => {
-    expect(src).toMatch(/GlobalWorkerOptions\.workerSrc\s*=\s*pdfWorkerUrl/);
+  it('sets GlobalWorkerOptions.workerSrc to the stable public worker path', () => {
+    expect(src).toMatch(/GlobalWorkerOptions\.workerSrc\s*=\s*['"]\/pdfjs\/pdf\.worker\.min\.js['"]/);
   });
 
   it('logs [PDFJS_VERSION]', () => {
@@ -100,8 +96,8 @@ describe('PdfJsViewer.jsx — PDF.js worker and logging', () => {
     expect(workerUtilsSrc).toMatch(/\[PDFJS_WORKER_FETCH_TEST_FAILED\]/);
   });
 
-  it('uses a static worker URL import and does not dynamically import the worker module', () => {
-    expect(src).toMatch(/\?url/);
+  it('uses the stable public worker path and does not dynamically import the worker module', () => {
+    expect(src).toMatch(/\/pdfjs\/pdf\.worker\.min\.js/);
     expect(src).not.toMatch(/import\s*\(\s*['"`]pdfjs-dist.*worker/i);
   });
 
