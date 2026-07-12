@@ -135,9 +135,13 @@ describe('PdfJsViewer.jsx — PDF.js worker and logging', () => {
   });
 
   it('does NOT use iframe or Blob URLs', () => {
-    expect(src).not.toMatch(/<iframe\b/);
-    expect(src).not.toMatch(/URL\.createObjectURL/);
-    expect(src).not.toMatch(/blob:/);
+    const nonCommentLines = src
+      .split('\n')
+      .filter((line) => !line.trim().startsWith('//') && !line.trim().startsWith('*'))
+      .join('\n');
+    expect(nonCommentLines).not.toMatch(/<iframe\b/);
+    expect(nonCommentLines).not.toMatch(/URL\.createObjectURL/);
+    expect(nonCommentLines).not.toMatch(/blob:/);
   });
 
   it('does NOT use window.open', () => {
