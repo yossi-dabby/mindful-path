@@ -48,6 +48,11 @@
     "context": {
       "type": "object",
       "description": "Additional context about what triggered this reminder"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional notes about this reminder"
     }
   },
   "required": [

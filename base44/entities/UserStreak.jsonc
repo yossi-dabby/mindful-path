@@ -37,6 +37,11 @@
       "type": "boolean",
       "default": false,
       "description": "Whether streak is protected for today"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional notes about this streak record"
     }
   },
   "required": [

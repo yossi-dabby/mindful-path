@@ -82,6 +82,11 @@
         }
       },
       "description": "Curated resources for the user"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional notes about this conversation record"
     }
   },
   "required": [

@@ -104,6 +104,11 @@
       ],
       "default": "active",
       "description": "Session status"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional notes about this coaching session"
     }
   },
   "required": [

@@ -33,6 +33,11 @@
     "user_email": {
       "type": "string",
       "description": "Email of user who triggered alert (for admin review)"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional admin notes about this alert record"
     }
   },
   "required": [

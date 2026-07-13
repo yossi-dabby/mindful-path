@@ -52,6 +52,11 @@
       "type": "boolean",
       "default": false,
       "description": "Whether an email was also sent for this notification"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional notes about this notification"
     }
   },
   "required": [

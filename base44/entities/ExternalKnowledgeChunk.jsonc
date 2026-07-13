@@ -99,6 +99,11 @@
     "metadata": {
       "type": "object",
       "description": "Structured provenance and indexing-compatible metadata"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional notes about this knowledge chunk"
     }
   },
   "required": [

@@ -57,6 +57,11 @@
     "total_steps": {
       "type": "number",
       "description": "Total steps in journey"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional notes about this journey progress record"
     }
   },
   "required": [

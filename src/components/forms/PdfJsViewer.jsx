@@ -44,6 +44,7 @@ console.log('[PDFJS_WORKER_URL]', enforceStablePdfWorkerSrc());
 // __PDF_VIEWER_BUILD__ is a build-time string injected by vite.config.js
 // `define`. Logging it at mount confirms which Production bundle is running
 // on Android (helps distinguish a stale cached build from the latest one).
+/* global __PDF_VIEWER_BUILD__ */
 /** @type {string} ISO timestamp set by vite.config.js define at build time */
 const BUILD_MARKER =
   typeof __PDF_VIEWER_BUILD__ !== 'undefined'

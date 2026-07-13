@@ -20,6 +20,11 @@
       "type": "string",
       "format": "date-time",
       "description": "When user joined"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional notes about this group membership"
     }
   },
   "required": [

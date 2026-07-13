@@ -23,6 +23,11 @@
     "context": {
       "type": "object",
       "description": "Context when recommendation was given (mood, goals, etc)"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional notes about this feedback record"
     }
   },
   "required": [

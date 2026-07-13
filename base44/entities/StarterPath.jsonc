@@ -30,6 +30,11 @@
     "day_exercises": {
       "type": "object",
       "description": "Map of day number to exercise ID completed"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional notes about this starter path record"
     }
   },
   "required": [],

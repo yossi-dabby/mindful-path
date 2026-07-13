@@ -71,6 +71,11 @@
       "type": "number",
       "default": 1,
       "description": "Number of attempts/questions answered"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional notes about this game activity record"
     }
   },
   "required": [

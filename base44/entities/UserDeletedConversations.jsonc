@@ -9,6 +9,11 @@
     "conversation_title": {
       "type": "string",
       "description": "Title of the deleted conversation (for reference)"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional notes about this deletion record"
     }
   },
   "required": [

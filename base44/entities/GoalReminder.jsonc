@@ -63,6 +63,11 @@
       "type": "string",
       "format": "date-time",
       "description": "Next scheduled send date"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional notes about this reminder"
     }
   },
   "required": [

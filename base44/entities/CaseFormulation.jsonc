@@ -125,6 +125,11 @@
         }
       },
       "description": "Audit trail of formulation changes"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional admin notes about this formulation record"
     }
   },
   "required": [

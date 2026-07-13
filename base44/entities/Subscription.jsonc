@@ -50,6 +50,11 @@
       "type": "string",
       "format": "date-time",
       "description": "When subscription was cancelled"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional notes about this subscription record"
     }
   },
   "required": [

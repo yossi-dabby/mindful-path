@@ -25,6 +25,11 @@
     "session_context": {
       "type": "string",
       "description": "Context where feedback was given (chat, companion, coach)"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional notes about this feedback record"
     }
   },
   "required": [

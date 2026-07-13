@@ -43,6 +43,11 @@
         }
       },
       "description": "Resources recommended by the AI"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional notes about this session summary record"
     }
   },
   "required": [

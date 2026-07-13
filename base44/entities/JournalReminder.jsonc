@@ -52,6 +52,11 @@
     "message": {
       "type": "string",
       "description": "Custom reminder message"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional notes about this journal reminder"
     }
   },
   "required": [

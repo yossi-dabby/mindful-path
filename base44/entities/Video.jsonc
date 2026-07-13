@@ -36,6 +36,11 @@
       ],
       "default": "beginner",
       "description": "Difficulty level"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional description of the video"
     }
   },
   "required": [

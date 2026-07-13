@@ -13,6 +13,11 @@
     "position": {
       "type": "number",
       "description": "Order in playlist"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional notes about this playlist entry"
     }
   },
   "required": [
