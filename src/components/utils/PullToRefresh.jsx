@@ -76,6 +76,10 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
     // Skip if we never recorded a start position.
     // Allow when there is no scroll container (test environments).
     if (touchStartY.current === 0) return;
+    if (e.touches.length === 0) {
+      resetPullState();
+      return;
+    }
     if (mainElRef.current && mainElRef.current.scrollTop > 0) {
       resetPullState();
       return;

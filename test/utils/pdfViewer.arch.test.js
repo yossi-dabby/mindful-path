@@ -79,7 +79,9 @@ describe('PdfJsViewer.jsx — PDF.js worker and logging', () => {
   });
 
   it('sets GlobalWorkerOptions.workerSrc to the stable public worker path', () => {
-    expect(src).toMatch(/GlobalWorkerOptions\.workerSrc\s*=\s*['"]\/pdfjs\/pdf\.worker\.min\.js['"]/);
+    expect(src).toMatch(
+      /GlobalWorkerOptions\.workerSrc\s*=\s*(?:STABLE_PDF_WORKER_SRC|['"]\/pdfjs\/pdf\.worker\.min\.js['"])/
+    );
   });
 
   it('re-enforces the stable worker path before loading documents', () => {

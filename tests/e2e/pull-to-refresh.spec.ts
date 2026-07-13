@@ -82,11 +82,12 @@ async function simulatePull(
   page: import('@playwright/test').Page,
   startY: number,
   endY: number,
+  { resetScrollTop = true }: { resetScrollTop?: boolean } = {},
 ) {
   await page.evaluate(
-    ([sx, ex]: [number, number]) => {
+    ([sx, ex, shouldResetScrollTop]: [number, number, boolean]) => {
       const main = document.querySelector<HTMLElement>('#app-scroll-container');
-      if (main) main.scrollTop = 0;
+      if (main && shouldResetScrollTop) main.scrollTop = 0;
 
       const x = 200;
       const target = document.elementFromPoint(x, sx) ?? document.body;
@@ -107,7 +108,7 @@ async function simulatePull(
         }),
       );
     },
-    [startY, endY] as [number, number],
+    [startY, endY, resetScrollTop] as [number, number, boolean],
   );
 }
 
@@ -171,6 +172,8 @@ test.describe('PullToRefresh gesture handling', () => {
     const root = await pullState(page);
 
     // Fast swipe: jump directly to 150px — past MAX_PULL (120) in one event.
+    // This protects the regression where a single overshoot swipe could bypass
+    // the indicator entirely instead of clamping and arming the pull state.
     await simulatePull(page, 200, 350);
 
     await expect(root).toHaveAttribute('data-pulling', 'true');
@@ -234,7 +237,7 @@ test.describe('PullToRefresh gesture handling', () => {
       }
     });
 
-    await simulatePull(page, 260, 390);
+    await simulatePull(page, 260, 390, { resetScrollTop: false });
 
     await expect(root).toHaveAttribute('data-pulling', 'false');
     await expect(root).toHaveAttribute('data-refreshing', 'false');
