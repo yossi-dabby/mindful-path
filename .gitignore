@@ -46,3 +46,4 @@ android/app/src/main/assets/public/
 *.keystore
 
 .env
+base44/.app.jsonc
