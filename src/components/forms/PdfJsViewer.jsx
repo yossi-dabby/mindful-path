@@ -7,9 +7,9 @@
  *    all platforms including installed Android PWAs.
  *
  * Worker configuration:
- *  - workerSrc is set to a Vite-bundled, content-hashed URL produced by the
- *    `?url` import. This ensures Android Production always loads the correct
- *    worker from the same bundle, not from an external CDN.
+ *  - workerSrc is forced to the stable public worker path copied to
+ *    /public/pdfjs/pdf.worker.min.js. This avoids runtime drift back to
+ *    Vite asset URLs that can pick up the wrong MIME type on deployment.
  */
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
@@ -22,14 +22,23 @@ import {
   loadPdfDocumentWithWorkerFallback,
 } from './pdfJsViewerUtils';
 
+const STABLE_PDF_WORKER_SRC = '/pdfjs/pdf.worker.min.js';
+
 // Set worker to a stable public path served from /pdfjs/pdf.worker.min.js.
 // This file is copied from node_modules at install/build time by
 // scripts/copy-pdf-worker.cjs so it is always served as text/javascript,
 // avoiding the application/octet-stream MIME mismatch that Base44 hosting
 // applies to .mjs assets.
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.js';
+function enforceStablePdfWorkerSrc() {
+  if (pdfjsLib.GlobalWorkerOptions.workerSrc !== STABLE_PDF_WORKER_SRC) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = STABLE_PDF_WORKER_SRC;
+  }
+  return pdfjsLib.GlobalWorkerOptions.workerSrc;
+}
+
+enforceStablePdfWorkerSrc();
 console.log('[PDFJS_VERSION]', pdfjsLib.version || 'unknown');
-console.log('[PDFJS_WORKER_URL]', pdfjsLib.GlobalWorkerOptions.workerSrc);
+console.log('[PDFJS_WORKER_URL]', enforceStablePdfWorkerSrc());
 
 // ─── Build-version marker ──────────────────────────────────────────────────
 // __PDF_VIEWER_BUILD__ is a build-time string injected by vite.config.js
@@ -125,20 +134,21 @@ export default function PdfJsViewer({ fileUrl }) {
     setIsLoading(true);
     setErrorMessage(null);
     container.innerHTML = '';
+    const workerSrc = enforceStablePdfWorkerSrc();
 
     console.log('[PDFJS_LOAD_START]', {
       fileUrl: url,
       build: BUILD_MARKER,
-      workerSrc: pdfjsLib.GlobalWorkerOptions.workerSrc,
+      workerSrc,
       containerWidth: getContainerWidth(container),
     });
 
     try {
-      console.log('[PDFJS_WORKER_URL]', pdfjsLib.GlobalWorkerOptions.workerSrc);
+      console.log('[PDFJS_WORKER_URL]', workerSrc);
       const pdf = await loadPdfDocumentWithWorkerFallback({
         url,
         signal,
-        workerSrc: pdfjsLib.GlobalWorkerOptions.workerSrc,
+        workerSrc,
         getDocument: pdfjsLib.getDocument,
         onWorkerDeploymentIssue: handleWorkerDeploymentIssue,
         logger: console,
@@ -165,7 +175,7 @@ export default function PdfJsViewer({ fileUrl }) {
       if (signal.aborted) return;
       console.error('[PDFJS_ERROR]', err);
       const issue = getPdfJsWorkerDeploymentIssue(err, {
-        workerUrl: pdfjsLib.GlobalWorkerOptions.workerSrc,
+        workerUrl: workerSrc,
       });
       if (issue) {
         handleWorkerDeploymentIssue(issue);

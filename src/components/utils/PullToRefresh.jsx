@@ -10,6 +10,7 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const touchStartY = useRef(0);
+  const activeTouchIdRef = useRef(null);
   const mainElRef = useRef(null);
   const containerRef = useRef(null);
   const isPullingRef = useRef(false);    // used in event callbacks to avoid stale closures
@@ -20,6 +21,7 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
 
   const PULL_THRESHOLD = 80;
   const MAX_PULL = 120;
+  const PULL_START_SLOP = 12;
   const EDITABLE_SELECTOR = 'input, textarea, select, [contenteditable=""], [contenteditable="true"], [contenteditable="plaintext-only"]';
 
   // Cache the scroll container reference once on mount
@@ -34,10 +36,23 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
 
   const resetPullState = useCallback(() => {
     touchStartY.current = 0;
+    activeTouchIdRef.current = null;
     isPullingRef.current = false;
     pullDistanceRef.current = 0;
     setIsPulling(false);
     setPullDistance(0);
+  }, []);
+
+  const findTrackedTouch = useCallback((touchList) => {
+    if (!touchList?.length || activeTouchIdRef.current === null) return null;
+
+    for (const touch of touchList) {
+      if (touch.identifier === activeTouchIdRef.current) {
+        return touch;
+      }
+    }
+
+    return null;
   }, []);
 
   const handleTouchStart = useCallback((e) => {
@@ -51,8 +66,9 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
     // Activate if we are scrolled to the top, or if there is no scroll container
     // (e.g. Playwright / JSDOM test environments where the element is absent).
     const atTop = !mainElRef.current || mainElRef.current.scrollTop === 0;
-    if (atTop) {
+    if (atTop && e.touches.length === 1) {
       touchStartY.current = e.touches[0].clientY;
+      activeTouchIdRef.current = e.touches[0].identifier;
     }
   }, []);
 
@@ -60,25 +76,52 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
     // Skip if we never recorded a start position.
     // Allow when there is no scroll container (test environments).
     if (touchStartY.current === 0) return;
-    if (mainElRef.current && mainElRef.current.scrollTop > 0) return;
+    if (mainElRef.current && mainElRef.current.scrollTop > 0) {
+      resetPullState();
+      return;
+    }
 
-    const currentY = e.touches[0].clientY;
+    const trackedTouch = findTrackedTouch(e.touches);
+    if (!trackedTouch) {
+      resetPullState();
+      return;
+    }
+
+    const currentY = trackedTouch.clientY;
     const distance = currentY - touchStartY.current;
 
-    if (distance > 0) {
-      const clampedDistance = Math.min(distance, MAX_PULL);
-      isPullingRef.current = true;
-      pullDistanceRef.current = clampedDistance;
-      setIsPulling(true);
-      setPullDistance(clampedDistance);
-      // preventDefault requires a non-passive listener (registered via useEffect below)
-      e.preventDefault();
+    if (distance <= 0) {
+      resetPullState();
+      return;
     }
-  }, []);
 
-  const handleTouchEnd = useCallback(async () => {
+    if (distance < PULL_START_SLOP && !isPullingRef.current) {
+      return;
+    }
+
+    const clampedDistance = Math.min(distance, MAX_PULL);
+    isPullingRef.current = true;
+    pullDistanceRef.current = clampedDistance;
+    setIsPulling(true);
+    setPullDistance(clampedDistance);
+    // preventDefault requires a non-passive listener (registered via useEffect below)
+    e.preventDefault();
+  }, [findTrackedTouch, resetPullState]);
+
+  const handleTouchEnd = useCallback(async (e) => {
+    const changedTouch = findTrackedTouch(e.changedTouches);
+    if (activeTouchIdRef.current !== null && !changedTouch && e.touches?.length > 0) {
+      return;
+    }
+
+    activeTouchIdRef.current = null;
     touchStartY.current = 0;
-    if (!isPullingRef.current) return;
+    if (!isPullingRef.current) {
+      pullDistanceRef.current = 0;
+      setIsPulling(false);
+      setPullDistance(0);
+      return;
+    }
 
     const currentPullDistance = pullDistanceRef.current;
     isPullingRef.current = false;
@@ -116,10 +159,26 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
 
     setIsPulling(false);
     setPullDistance(0);
-  }, [queryClient, onRefresh]);
+  }, [findTrackedTouch, queryClient, onRefresh]);
 
   const handleTouchCancel = useCallback(() => {
     resetPullState();
+  }, [resetPullState]);
+
+  useEffect(() => {
+    const mainEl = mainElRef.current;
+    if (!mainEl) return undefined;
+
+    const handleScroll = () => {
+      if (mainEl.scrollTop > 0 && !isRefreshingRef.current) {
+        resetPullState();
+      }
+    };
+
+    mainEl.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      mainEl.removeEventListener('scroll', handleScroll);
+    };
   }, [resetPullState]);
 
   // Register touch listeners with { passive: false } so e.preventDefault() works
@@ -150,7 +209,10 @@ export default function PullToRefresh({ children, queryKeys = [], onRefresh }) {
     <div
       ref={containerRef}
       className="relative"
+      data-testid="pull-to-refresh"
       data-pull-to-refresh
+      data-pulling={isPulling ? 'true' : 'false'}
+      data-refreshing={isRefreshing ? 'true' : 'false'}
     >
       {/* Pull indicator - fixed so it appears at the top of the viewport */}
       {(isPulling || isRefreshing) && (
