@@ -79,7 +79,14 @@ describe('PdfJsViewer.jsx — PDF.js worker and logging', () => {
   });
 
   it('sets GlobalWorkerOptions.workerSrc to the stable public worker path', () => {
-    expect(src).toMatch(/GlobalWorkerOptions\.workerSrc\s*=\s*['"]\/pdfjs\/pdf\.worker\.min\.js['"]/);
+    expect(src).toMatch(
+      /GlobalWorkerOptions\.workerSrc\s*=\s*(?:STABLE_PDF_WORKER_SRC|['"]\/pdfjs\/pdf\.worker\.min\.js['"])/
+    );
+  });
+
+  it('re-enforces the stable worker path before loading documents', () => {
+    expect(src).toMatch(/function enforceStablePdfWorkerSrc/);
+    expect(src).toMatch(/enforceStablePdfWorkerSrc\(\)/);
   });
 
   it('logs [PDFJS_VERSION]', () => {
@@ -99,6 +106,8 @@ describe('PdfJsViewer.jsx — PDF.js worker and logging', () => {
   it('uses the stable public worker path and does not dynamically import the worker module', () => {
     expect(src).toMatch(/\/pdfjs\/pdf\.worker\.min\.js/);
     expect(src).not.toMatch(/import\s*\(\s*['"`]pdfjs-dist.*worker/i);
+    expect(src).not.toMatch(/pdf\.worker.*\?url/);
+    expect(src).not.toMatch(/\/assets\/pdf\.worker.*\.mjs/);
   });
 
   it('guards __PDF_VIEWER_BUILD__ with typeof before reading it', () => {

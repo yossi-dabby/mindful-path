@@ -63,6 +63,29 @@ describe('pdfJsViewerUtils', () => {
     expect(logger.error).toHaveBeenCalled();
   });
 
+  it('validateWorkerUrl accepts JavaScript-compatible worker content types on the stable public path', async () => {
+    const logger = createLogger();
+    const fetchImpl = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: {
+        get: (name) => (name === 'content-type' ? 'application/javascript; charset=utf-8' : null),
+      },
+    });
+
+    await expect(
+      validateWorkerUrl('/pdfjs/pdf.worker.min.js', undefined, { fetchImpl, logger })
+    ).resolves.toBeUndefined();
+
+    expect(logger.log).toHaveBeenCalledWith(
+      '[PDFJS_WORKER_FETCH_TEST_OK]',
+      expect.objectContaining({
+        workerUrl: '/pdfjs/pdf.worker.min.js',
+        contentType: 'application/javascript; charset=utf-8',
+      })
+    );
+  });
+
   it('extracts content-type from worker content-type error messages', () => {
     expect(
       parseWorkerContentTypeFromMessage(
