@@ -12,56 +12,56 @@ import { createPageUrl } from '../utils';
 import PersonalizationSetup from '../components/starterpath/PersonalizationSetup';
 
 const DAY_STRUCTURE = [
-  {
-    day: 1,
-    goal: "Help the user understand the connection between thoughts and emotions",
-    exerciseType: "awareness_reflection",
-    title: "Understanding Your Mind",
-    description: "Explore how your thoughts influence your emotions"
-  },
-  {
-    day: 2,
-    goal: "Identify automatic thoughts in daily situations",
-    exerciseType: "thought_identification",
-    title: "Catching Automatic Thoughts",
-    description: "Notice the thoughts that pop up automatically"
-  },
-  {
-    day: 3,
-    goal: "Recognize a common cognitive distortion",
-    exerciseType: "pattern_recognition",
-    title: "Spotting Thinking Patterns",
-    description: "Identify thinking traps that affect your mood"
-  },
-  {
-    day: 4,
-    goal: "Create a pause between trigger and reaction",
-    exerciseType: "response_delay",
-    title: "The Power of Pause",
-    description: "Learn to create space before responding"
-  },
-  {
-    day: 5,
-    goal: "Generate a balanced alternative thought",
-    exerciseType: "cognitive_restructuring",
-    title: "Building Balanced Thoughts",
-    description: "Transform unhelpful thoughts into realistic ones"
-  },
-  {
-    day: 6,
-    goal: "Apply a new response in a real-life situation",
-    exerciseType: "behavioral_experiment",
-    title: "Testing New Approaches",
-    description: "Try out a new way of responding"
-  },
-  {
-    day: 7,
-    goal: "Consolidate learning and prepare for ongoing daily use",
-    exerciseType: "review_integration",
-    title: "Your Journey Forward",
-    description: "Review your progress and plan ahead"
-  }
-];
+{
+  day: 1,
+  goal: "Help the user understand the connection between thoughts and emotions",
+  exerciseType: "awareness_reflection",
+  title: "Understanding Your Mind",
+  description: "Explore how your thoughts influence your emotions"
+},
+{
+  day: 2,
+  goal: "Identify automatic thoughts in daily situations",
+  exerciseType: "thought_identification",
+  title: "Catching Automatic Thoughts",
+  description: "Notice the thoughts that pop up automatically"
+},
+{
+  day: 3,
+  goal: "Recognize a common cognitive distortion",
+  exerciseType: "pattern_recognition",
+  title: "Spotting Thinking Patterns",
+  description: "Identify thinking traps that affect your mood"
+},
+{
+  day: 4,
+  goal: "Create a pause between trigger and reaction",
+  exerciseType: "response_delay",
+  title: "The Power of Pause",
+  description: "Learn to create space before responding"
+},
+{
+  day: 5,
+  goal: "Generate a balanced alternative thought",
+  exerciseType: "cognitive_restructuring",
+  title: "Building Balanced Thoughts",
+  description: "Transform unhelpful thoughts into realistic ones"
+},
+{
+  day: 6,
+  goal: "Apply a new response in a real-life situation",
+  exerciseType: "behavioral_experiment",
+  title: "Testing New Approaches",
+  description: "Try out a new way of responding"
+},
+{
+  day: 7,
+  goal: "Consolidate learning and prepare for ongoing daily use",
+  exerciseType: "review_integration",
+  title: "Your Journey Forward",
+  description: "Review your progress and plan ahead"
+}];
+
 
 export default function StarterPath() {
   const { t, i18n } = useTranslation();
@@ -118,23 +118,23 @@ export default function StarterPath() {
   const generateContentMutation = useMutation({
     mutationFn: async () => {
       const { recentMoods, recentJournals } = userContext;
-      
+
       // Build context string
       let contextStr = "User context:\n";
       if (recentMoods.length > 0) {
-        contextStr += `Recent moods: ${recentMoods.slice(0, 3).map(m => 
-          `${m.mood}${m.emotions ? ` (${m.emotions.join(', ')})` : ''}`
+        contextStr += `Recent moods: ${recentMoods.slice(0, 3).map((m) =>
+        `${m.mood}${m.emotions ? ` (${m.emotions.join(', ')})` : ''}`
         ).join('; ')}\n`;
       }
       if (recentJournals.length > 0) {
-        contextStr += `Recent journal themes: ${recentJournals.slice(0, 2).map(j => 
-          j.automatic_thoughts || j.situation
+        contextStr += `Recent journal themes: ${recentJournals.slice(0, 2).map((j) =>
+        j.automatic_thoughts || j.situation
         ).filter(Boolean).join('; ')}\n`;
       }
       if (!recentMoods.length && !recentJournals.length) {
         contextStr += "No previous data available - generate general but helpful content.\n";
       }
-      
+
       // Add personalization
       if (userPreferences?.concerns?.length > 0) {
         contextStr += `Primary concerns: ${userPreferences.concerns.join(', ')}\n`;
@@ -195,7 +195,7 @@ RULES:
   const completeDayMutation = useMutation({
     mutationFn: async () => {
       const today = new Date().toISOString().split('T')[0];
-      
+
       // Generate takeaway with AI
       const takeawayPrompt = `Based on this CBT exercise response, generate ONE clear, actionable takeaway (1 sentence):
 
@@ -236,7 +236,7 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
     if (starterPath && !generatedContent && step === 'loading') {
       generateContentMutation.mutate();
     }
-  }, [starterPath?.id, step]);  
+  }, [starterPath?.id, step]);
 
   if (!starterPath || step === 'loading' || generateContentMutation.isPending) {
     return (
@@ -245,8 +245,8 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
           <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin" style={{ color: 'rgb(var(--calm))' }} strokeWidth={2} />
           <p style={{ color: 'rgb(var(--theme-muted))' }}>{t('starter_path.loading')}</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   if (step === 'complete') {
@@ -255,9 +255,9 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-2xl"
-        >
-          <Card className="border-0 shadow-2xl" style={{ 
+          className="w-full max-w-2xl">
+          
+          <Card className="border-0 shadow-2xl" style={{
             borderRadius: 'var(--r-xl)',
             backgroundColor: 'rgb(var(--surface))'
           }}>
@@ -266,22 +266,22 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
                 animate={{ scale: [1, 1.15, 1] }}
                 transition={{ duration: 2, repeat: Infinity, ease: [0.2, 0.8, 0.2, 1] }}
                 className="inline-flex w-20 h-20 items-center justify-center mb-6"
-                style={{ 
+                style={{
                   borderRadius: 'var(--r-xl)',
                   backgroundColor: 'rgb(var(--success) / 0.15)'
-                }}
-              >
+                }}>
+                
                 <CheckCircle2 className="w-10 h-10 icon-default" style={{ color: 'rgb(var(--success))' }} strokeWidth={2} />
               </motion.div>
               <h2 className="text-2xl font-semibold mb-3" style={{ color: 'rgb(var(--text))' }}>
                 {t('starter_path.day_complete', { day: currentDay })}
               </h2>
-              {completeDayMutation.data?.takeaway && (
-                <div className="mb-6 p-4" style={{ 
-                  borderRadius: 'var(--r-lg)',
-                  backgroundColor: 'rgb(var(--calm) / 0.1)',
-                  border: '1px solid rgb(var(--theme-border))'
-                }}>
+              {completeDayMutation.data?.takeaway &&
+              <div className="mb-6 p-4" style={{
+                borderRadius: 'var(--r-lg)',
+                backgroundColor: 'rgb(var(--calm) / 0.1)',
+                border: '1px solid rgb(var(--theme-border))'
+              }}>
                   <p className="text-sm font-medium mb-2" style={{ color: 'rgb(var(--calm))' }}>
                     {t('starter_path.todays_takeaway')}
                   </p>
@@ -289,14 +289,14 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
                     {completeDayMutation.data.takeaway}
                   </p>
                 </div>
-              )}
+              }
               <p className="mb-6" style={{ color: 'rgb(var(--theme-muted))' }}>
-                {currentDay === 7 
-                  ? t('starter_path.completed_all')
-                  : t('starter_path.come_back_tomorrow', { day: currentDay + 1 })}
+                {currentDay === 7 ?
+                t('starter_path.completed_all') :
+                t('starter_path.come_back_tomorrow', { day: currentDay + 1 })}
               </p>
               <Link to={createPageUrl('Home')}>
-                <Button className="transition-calm text-white px-7 py-6" style={{ 
+                <Button className="transition-calm text-white px-7 py-6" style={{
                   borderRadius: '9999px',
                   backgroundColor: '#26A69A',
                   boxShadow: '0 3px 10px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.08)'
@@ -307,15 +307,15 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
             </CardContent>
           </Card>
         </motion.div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
     <div className="min-h-dvh p-4" style={{ background: 'linear-gradient(165deg, #D4EDE8 0%, #BDE0D9 30%, #A8D4CB 60%, #9ECCC2 100%)' }}>
-      {showPersonalization && (
-        <PersonalizationSetup onComplete={handlePersonalizationComplete} />
-      )}
+      {showPersonalization &&
+      <PersonalizationSetup onComplete={handlePersonalizationComplete} />
+      }
       
       <div className="max-w-3xl mx-auto py-8">
         {/* Header */}
@@ -338,17 +338,17 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
                 {t('starter_path.day_of_7', { day: currentDay })}
               </p>
               <div className="flex gap-1 mt-2">
-                {[1, 2, 3, 4, 5, 6, 7].map((d) => (
-                  <div
-                    key={d}
-                    className="w-2 h-2 rounded-full"
-                    style={{
-                      backgroundColor: d <= currentDay 
-                        ? 'rgb(var(--calm))'
-                        : 'rgb(var(--theme-border))'
-                    }}
-                  />
-                ))}
+                {[1, 2, 3, 4, 5, 6, 7].map((d) =>
+                <div
+                  key={d}
+                  className="w-2 h-2 rounded-full"
+                  style={{
+                    backgroundColor: d <= currentDay ?
+                    'rgb(var(--calm))' :
+                    'rgb(var(--theme-border))'
+                  }} />
+
+                )}
               </div>
             </div>
           </div>
@@ -356,23 +356,23 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
 
         <AnimatePresence mode="wait">
           {/* Introduction Step */}
-          {step === 'intro' && (
-            <motion.div
-              key="intro"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-            >
-              <Card className="border-0 shadow-soft mb-6" style={{ 
-                borderRadius: 'var(--r-xl)',
-                backgroundColor: 'rgb(var(--surface))'
-              }}>
+          {step === 'intro' &&
+          <motion.div
+            key="intro"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}>
+            
+              <Card className="border-0 shadow-soft mb-6" style={{
+              borderRadius: 'var(--r-xl)',
+              backgroundColor: 'rgb(var(--surface))'
+            }}>
                 <CardContent className="p-8">
                   <div className="flex items-start gap-4 mb-6">
-                    <div className="w-12 h-12 flex items-center justify-center flex-shrink-0" style={{ 
-                      borderRadius: 'var(--r-md)',
-                      backgroundColor: 'rgb(var(--calm) / 0.15)'
-                    }}>
+                    <div className="w-12 h-12 flex items-center justify-center flex-shrink-0" style={{
+                    borderRadius: 'var(--r-md)',
+                    backgroundColor: 'rgb(var(--calm) / 0.15)'
+                  }}>
                       <Sparkles className="w-6 h-6 icon-default" style={{ color: 'rgb(var(--calm))' }} strokeWidth={2} />
                     </div>
                     <div className="flex-1">
@@ -382,100 +382,100 @@ IMPORTANT: Write the takeaway in the following language: ${i18n.language}`;
                       <p className="mb-4 leading-relaxed" style={{ color: 'rgb(var(--text))' }}>
                         {generatedContent?.introduction}
                       </p>
-                      {generatedContent?.guidance && (
-                        <p className="text-sm leading-relaxed" style={{ color: 'rgb(var(--theme-muted))' }}>
+                      {generatedContent?.guidance &&
+                    <p className="text-sm leading-relaxed" style={{ color: 'rgb(var(--theme-muted))' }}>
                           {generatedContent.guidance}
                         </p>
-                      )}
+                    }
                     </div>
                   </div>
 
                   <Button
-                    onClick={() => setStep('exercise')}
-                    className="w-full transition-calm text-white px-7 py-6"
-                    style={{ 
-                      borderRadius: '9999px',
-                      backgroundColor: '#26A69A',
-                      boxShadow: '0 3px 10px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.08)'
-                    }}
-                  >
+                  onClick={() => setStep('exercise')}
+                  className="w-full transition-calm text-white px-7 py-6"
+                  style={{
+                    borderRadius: '9999px',
+                    backgroundColor: '#26A69A',
+                    boxShadow: '0 3px 10px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.08)'
+                  }}>
+                  
                     {t('starter_path.begin_exercise')}
                   </Button>
                 </CardContent>
               </Card>
             </motion.div>
-          )}
+          }
 
           {/* Exercise Step */}
-          {step === 'exercise' && (
-            <motion.div
-              key="exercise"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-            >
-              <Card className="border-0 shadow-soft mb-6" style={{ 
-                borderRadius: 'var(--r-xl)',
-                backgroundColor: 'rgb(var(--surface))'
-              }}>
+          {step === 'exercise' &&
+          <motion.div
+            key="exercise"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}>
+            
+              <Card className="border-0 shadow-soft mb-6" style={{
+              borderRadius: 'var(--r-xl)',
+              backgroundColor: 'rgb(var(--surface))'
+            }}>
                 <CardContent className="p-8">
                   <h3 className="text-lg font-semibold mb-4" style={{ color: 'rgb(var(--text))' }}>
                     {generatedContent?.main_prompt}
                   </h3>
 
-                  {generatedContent?.example && (
-                    <div className="mb-4 p-4" style={{ 
-                      borderRadius: 'var(--r-md)',
-                      backgroundColor: 'rgb(var(--surface-2))',
-                      border: '1px solid rgb(var(--theme-border))'
-                    }}>
+                  {generatedContent?.example &&
+                <div className="mb-4 p-4 text-[hsl(var(--background))]" style={{
+                  borderRadius: 'var(--r-md)',
+                  backgroundColor: 'rgb(var(--surface-2))',
+                  border: '1px solid rgb(var(--theme-border))'
+                }}>
                       <p className="text-sm" style={{ color: 'rgb(var(--theme-muted))' }}>
                         {generatedContent.example}
                       </p>
                     </div>
-                  )}
+                }
 
                   <Textarea
-                    value={userResponse}
-                    onChange={(e) => setUserResponse(e.target.value)}
-                    placeholder={t('starter_path.reflect_placeholder')}
-                    rows={6}
-                    className="mb-4"
-                    style={{ 
-                      borderRadius: 'var(--r-md)',
-                      borderColor: 'rgb(var(--theme-border))'
-                    }}
-                  />
+                  value={userResponse}
+                  onChange={(e) => setUserResponse(e.target.value)}
+                  placeholder={t('starter_path.reflect_placeholder')}
+                  rows={6}
+                  className="mb-4"
+                  style={{
+                    borderRadius: 'var(--r-md)',
+                    borderColor: 'rgb(var(--theme-border))'
+                  }} />
+                
 
                   <div className="flex gap-3">
                     <Button
-                      variant="outline"
-                      onClick={() => setStep('intro')}
-                      className="flex-1"
-                      style={{ borderRadius: 'var(--r-md)' }}
-                    >
+                    variant="outline"
+                    onClick={() => setStep('intro')}
+                    className="flex-1"
+                    style={{ borderRadius: 'var(--r-md)' }}>
+                    
                       {t('starter_path.back_button')}
                     </Button>
                     <Button
-                      onClick={() => completeDayMutation.mutate()}
-                      disabled={!userResponse.trim() || completeDayMutation.isPending}
-                      className="flex-1 transition-calm text-white px-6 py-5"
-                      style={{ 
-                        borderRadius: '9999px',
-                        backgroundColor: '#26A69A',
-                        boxShadow: '0 2px 8px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.06)',
-                        opacity: !userResponse.trim() ? 0.5 : 1
-                      }}
-                    >
+                    onClick={() => completeDayMutation.mutate()}
+                    disabled={!userResponse.trim() || completeDayMutation.isPending}
+                    className="flex-1 transition-calm text-white px-6 py-5"
+                    style={{
+                      borderRadius: '9999px',
+                      backgroundColor: '#26A69A',
+                      boxShadow: '0 2px 8px rgba(38, 166, 154, 0.2), 0 1px 3px rgba(0,0,0,0.06)',
+                      opacity: !userResponse.trim() ? 0.5 : 1
+                    }}>
+                    
                       {completeDayMutation.isPending ? t('starter_path.completing') : t('starter_path.complete_day', { day: currentDay })}
                     </Button>
                   </div>
                 </CardContent>
               </Card>
             </motion.div>
-          )}
+          }
         </AnimatePresence>
       </div>
-    </div>
-  );
+    </div>);
+
 }
