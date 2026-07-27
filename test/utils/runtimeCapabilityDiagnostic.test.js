@@ -182,15 +182,19 @@ describe('Test 3: Exact === "true" string semantics', () => {
   });
 
   it('flag evaluator returning "1" (non-strict true) is treated as false', () => {
-    // The diagnostic uses isUpgradeEnabled which checks import.meta.env === 'true'.
-    // A getFlagValue that returns the string '1' should NOT be treated as true.
+    // The diagnostic's safeFlag guard does: evaluator(flagName) === true (boolean strict check).
+    // Even though production isUpgradeEnabled() always returns boolean internally,
+    // the DI layer defensively ensures only boolean true is accepted from getFlagValue.
+    // This verifies that non-boolean truthy values from a DI-injected evaluator are rejected.
     const snap = defaultSnapshot({ getFlagValue: () => '1' });
     // safeFlag does evaluator(flagName) === true — '1' === true is false
     expect(snap.therapist_master_enabled).toBe(false);
   });
 
   it('flag evaluator returning the string "true" is treated as false (not boolean)', () => {
-    // safeFlag does evaluator(flagName) === true — 'true' === true is false
+    // safeFlag does evaluator(flagName) === true — 'true' === true is false.
+    // This tests the diagnostic's own defensive === true guard, not the production evaluator.
+    // In production, isUpgradeEnabled() already returns boolean; this tests the DI boundary.
     const snap = defaultSnapshot({ getFlagValue: () => 'true' });
     expect(snap.therapist_master_enabled).toBe(false);
   });
