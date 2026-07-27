@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react';
+import AiRuntimeCapabilitiesPanel from '@/components/admin/AiRuntimeCapabilitiesPanel';
 
 const FLAG_KEYS = [
   'THERAPIST_UPGRADE_ENABLED',
@@ -28,6 +30,11 @@ export default function AdminFeatureFlags() {
   const [flags, setFlags] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const { data: user } = useQuery({
+    queryKey: ['me'],
+    queryFn: () => base44.auth.me(),
+  });
 
   const fetchFlags = async () => {
     setLoading(true);
@@ -139,6 +146,9 @@ export default function AdminFeatureFlags() {
           </div>
         </>
       )}
+
+      {/* AI Runtime Capabilities Diagnostic */}
+      <AiRuntimeCapabilitiesPanel user={user} />
     </div>
   );
 }
