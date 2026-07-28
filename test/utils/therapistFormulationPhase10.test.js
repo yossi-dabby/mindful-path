@@ -117,6 +117,12 @@ import {
   isUpgradeEnabled,
 } from '../../src/lib/featureFlags.js';
 
+// ── Regression fixture: production empathy + "missing formulation" request ────
+const HEBREW_PRODUCTION_SCENARIO = Object.freeze({
+  user:
+    'אני מרגיש/ה שאתם כבר יודעים את הסיפור, אבל עדיין לא באמת מבינים למה זה כל כך מאיים עליי. אל תחזרו על מה שכבר ידוע ואל תציעו תרגיל עדיין — בעדינות תגידו לי מה לדעתכם חסר בפורמולציה.',
+});
+
 // ─── Section A — Formulation engine exports ───────────────────────────────────
 
 describe('Phase 10 — THERAPIST_FORMULATION_RESPONSE_RULES exists and is well-formed', () => {
@@ -216,6 +222,64 @@ describe('Phase 10 — buildFormulationLedInstructions and THERAPIST_FORMULATION
 
   it('buildFormulationLedInstructions() returns the same string as THERAPIST_FORMULATION_INSTRUCTIONS', () => {
     expect(buildFormulationLedInstructions()).toBe(THERAPIST_FORMULATION_INSTRUCTIONS);
+  });
+});
+
+describe('Phase 10 regression — epistemic humility contract in source_honesty', () => {
+  it('includes the approved Hebrew production scenario fixture as non-sensitive context', () => {
+    expect(HEBREW_PRODUCTION_SCENARIO.user).toContain('אל תחזרו על מה שכבר ידוע');
+    expect(HEBREW_PRODUCTION_SCENARIO.user).toContain('אל תציעו תרגיל עדיין');
+  });
+
+  it('requires explicit separation of established facts, inference, hypothesis, and missing clarification', () => {
+    const rule = THERAPIST_FORMULATION_RESPONSE_RULES.source_honesty;
+    expect(rule).toContain('already established');
+    expect(rule).toContain('supported inference');
+    expect(rule).toContain('unverified deeper hypothesis');
+    expect(rule).toContain('still requires clarification');
+  });
+
+  it('requires tentative language when introducing unsupported deeper meaning-level hypotheses', () => {
+    const rule = THERAPIST_FORMULATION_RESPONSE_RULES.source_honesty;
+    expect(rule).toContain('label it as a hypothesis');
+    expect(rule).toContain('I wonder if…');
+    expect(rule).toContain('one possibility is…');
+    expect(rule).toContain('this is still my hypothesis…');
+    expect(rule).toContain('tell me if this does not fit your experience');
+    expect(rule).toContain('ייתכן ש...');
+    expect(rule).toContain('אני תוהה אם...');
+    expect(rule).toContain('אחת האפשרויות היא...');
+    expect(rule).toContain('זו עדיין השערה שלי...');
+  });
+
+  it('prohibits certainty markers and unsupported dramatic interpretations unless grounded', () => {
+    const rule = THERAPIST_FORMULATION_RESPONSE_RULES.source_honesty;
+    expect(rule).toContain('"the real reason is…"');
+    expect(rule).toContain('"what is definitely missing is…"');
+    expect(rule).toContain('"this means that…"');
+    expect(rule).toContain('"this is existential"');
+    expect(rule).toContain('"this is irreversible"');
+    expect(rule).toContain('"avoidance is necessary protection"');
+    expect(rule).toContain('unless that meaning was explicitly stated by the person');
+    expect(rule).toContain('or is present in structured formulation context');
+  });
+
+  it('permits at most one collaborative verification question when a new hypothesis is introduced', () => {
+    const rule = THERAPIST_FORMULATION_RESPONSE_RULES.source_honesty;
+    expect(rule).toContain('asks what is still missing');
+    expect(rule).toContain('ask at most one precise collaborative verification question');
+    expect(rule).toContain('tests the hypothesis rather than assumes it');
+  });
+
+  it('preserves no-early-exercise behavior and no-repeat behavior under this scenario', () => {
+    expect(THERAPIST_FORMULATION_RESPONSE_RULES.no_early_protocol_rituals).toContain('Do not introduce');
+    expect(THERAPIST_FORMULATION_RESPONSE_RULES.already_known_context).toContain('do not re-ask for it');
+  });
+
+  it('keeps the strengthened source_honesty rule embedded in the public injected instruction block', () => {
+    expect(THERAPIST_FORMULATION_INSTRUCTIONS).toContain('Source and evidence honesty');
+    expect(THERAPIST_FORMULATION_INSTRUCTIONS).toContain('explicitly separate what is already established');
+    expect(THERAPIST_FORMULATION_INSTRUCTIONS).toContain('apply this contract consistently across languages');
   });
 });
 

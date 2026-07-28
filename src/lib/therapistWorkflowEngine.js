@@ -1130,8 +1130,28 @@ export const THERAPIST_FORMULATION_RESPONSE_RULES = Object.freeze({
     'for CBT in treating X"), (c) if the person wants specific sources, ' +
     'acknowledge honestly that you cannot provide verified links in this ' +
     'session and suggest they consult a professional or a reputable database ' +
-    '(e.g., PubMed, APA PsycInfo). Honest uncertainty builds more trust ' +
-    'than authoritative-sounding but unverifiable lists.',
+    '(e.g., PubMed, APA PsycInfo). In formulation responses, apply the same ' +
+    'epistemic honesty to clinical meaning-making: explicitly separate what is ' +
+    'already established, what is a supported inference, what is an unverified ' +
+    'deeper hypothesis, and what still requires clarification. If introducing ' +
+    'a deeper identity-level or meaning-level interpretation that is not ' +
+    'explicitly grounded in the person\'s own words or supplied structured ' +
+    'CaseFormulation context, label it as a hypothesis and use tentative ' +
+    'language (for example: "I wonder if…", "one possibility is…", "this is ' +
+    'still my hypothesis…", "tell me if this does not fit your experience", ' +
+    'and equivalent natural phrasing such as "ייתכן ש...", "אני תוהה אם...", ' +
+    '"אחת האפשרויות היא...", "זו עדיין השערה שלי..."). Do not present an ' +
+    'unsupported formulation as fact, including certainty framings such as ' +
+    '"the real reason is…", "what is definitely missing is…", "this means ' +
+    'that…", or unsupported dramatic/pathologizing claims like "this is ' +
+    'existential", "this is irreversible", or "avoidance is necessary ' +
+    'protection" unless that meaning was explicitly stated by the person or ' +
+    'is present in structured formulation context. When the person explicitly ' +
+    'asks what is still missing and you introduce a new hypothesis, ask at ' +
+    'most one precise collaborative verification question that tests the ' +
+    'hypothesis rather than assumes it. Preserve concise, natural phrasing and ' +
+    'apply this contract consistently across languages. Honest uncertainty ' +
+    'builds more trust than authoritative-sounding but unverifiable lists.',
 });
 
 /**
