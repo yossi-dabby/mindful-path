@@ -92,6 +92,8 @@ import {
 // Wave 5D — Quality Evaluator diagnostic integration (diagnostics-only, no runtime effect).
 import { computeEvaluatorDiagnosticSnapshot } from './therapistQualityEvaluator.js';
 import { getTherapeuticFormsPolicyPayload } from './therapeuticFormsPolicy.js';
+// Formulation-led separation — runtime flag check for V7+ chains.
+import { isUpgradeEnabled } from './featureFlags.js';
 
 const THERAPIST_ATTACHMENT_CONTEXT_INSTRUCTIONS = [
 '[ATTACHMENT_HANDLING_POLICY]',
@@ -1005,18 +1007,41 @@ async function buildFormulationContextBlock(entities) {
  *
  * Phase 10 — Formulation-Led CBT.
  *
- * Returns THERAPIST_FORMULATION_INSTRUCTIONS when the wiring has
- * formulation_led_enabled === true (V6+).  Returns null for all other wirings,
- * including null/undefined input.
+ * Effective formulation-led behavior requires BOTH:
+ *   1. The wiring has formulation_context_enabled === true (i.e. V6+ or V6-LED).
+ *      This guards against activating formulation-led on non-context paths.
+ *   2. Either:
+ *      a. wiring.formulation_led_enabled === true (explicit wiring capability; V6-LED), OR
+ *      b. The THERAPIST_UPGRADE_FORMULATION_LED_ENABLED runtime flag is on (for V7–V12
+ *         when the flag is enabled independently of the wiring selection).
+ *
+ * The options._formulationLedEnabled override is provided for deterministic
+ * unit testing — pass true/false to bypass the live isUpgradeEnabled() call.
+ *
+ * FAIL-CLOSED when formulation_context_enabled is absent (HYBRID, V1–V5):
+ * Returns null regardless of wiring.formulation_led_enabled or the runtime flag.
+ * This prevents formulation-led injection on non-formulation-context paths.
  *
  * @param {object|null|undefined} wiring - The active therapist wiring configuration
+ * @param {object} [options] - Optional overrides
+ * @param {boolean} [options._formulationLedEnabled] - DI override for unit tests
  * @returns {string|null} THERAPIST_FORMULATION_INSTRUCTIONS or null
  */
-export function getFormulationLedContextForWiring(wiring) {
-  if (!wiring || wiring.formulation_led_enabled !== true) {
+export function getFormulationLedContextForWiring(wiring, options = {}) {
+  // Fail-closed: context must be enabled on the wiring (V6+ or V6-LED)
+  if (!wiring || wiring.formulation_context_enabled !== true) {
     return null;
   }
-  return THERAPIST_FORMULATION_INSTRUCTIONS;
+  // Effective formulation-led:
+  //   a. Explicit wiring capability (V6-LED: formulation_led_enabled: true)
+  //   b. OR runtime flag (V7–V12 when FORMULATION_LED_ENABLED flag is on)
+  // The DI override (options._formulationLedEnabled) is used in unit tests.
+  const ledEffective =
+    wiring.formulation_led_enabled === true ||
+    (options._formulationLedEnabled !== undefined
+      ? options._formulationLedEnabled === true
+      : isUpgradeEnabled('THERAPIST_UPGRADE_FORMULATION_LED_ENABLED'));
+  return ledEffective ? THERAPIST_FORMULATION_INSTRUCTIONS : null;
 }
 
 // ─── Planner Precedence Enforcement ──────────────────────────────────────────
@@ -1274,18 +1299,24 @@ export function buildPrecedenceEnforcementBlock(guardResult) {
  * Builds the V6 session-start content string asynchronously.
  *
  * Phase 1 Quality Gains — Formulation Context Injection.
- * Phase 10 — Formulation-Led CBT Instructions.
+ * Phase 10 — Formulation-Led CBT Instructions (gated by effective capability).
  *
  * For non-V6 wirings (formulation_context_enabled !== true):
  *   Delegates directly to buildV5SessionStartContentAsync (no behavior change).
  *
- * For V6 wirings:
+ * For V6/V6-LED/V7+ wirings (formulation_context_enabled === true):
  *   1. Builds the V5 base content (safety mode + live retrieval + retrieval
  *      orchestration + workflow + memory context).
  *   2. Reads CaseFormulation (read-only, caution layer, bounded to 1 record)
  *      and builds the formulation context block.
  *   3. Appends the formulation context block when available.
- *   4. Appends THERAPIST_FORMULATION_INSTRUCTIONS (formulation_led_enabled).
+ *   4. Appends THERAPIST_FORMULATION_INSTRUCTIONS only when formulation-led
+ *      is effectively active — determined by getFormulationLedContextForWiring:
+ *        - V6-LED wiring (formulation_led_enabled: true): always injects.
+ *        - V6 wiring (formulation_led_enabled: false): injects only if
+ *          THERAPIST_UPGRADE_FORMULATION_LED_ENABLED runtime flag is on.
+ *        - V7–V12 wiring (no formulation_led_enabled flag): same as V6 —
+ *          injects only if THERAPIST_UPGRADE_FORMULATION_LED_ENABLED is on.
  *
  * FAIL-CLOSED CONTRACT
  * Any failure in step 2 returns V5 base content unchanged.
@@ -1299,12 +1330,14 @@ export function buildPrecedenceEnforcementBlock(guardResult) {
  *
  * ISOLATION GUARANTEE
  * This function is ONLY called when wiring.formulation_context_enabled === true
- * (V6 path).  All prior paths (HYBRID, V1–V5) are completely unaffected.
+ * (V6/V6-LED/V7+ path).  All prior paths (HYBRID, V1–V5) are completely unaffected.
  *
  * @param {object} wiring - The active therapist wiring configuration
  * @param {object} entities - Base44 entity client map
  * @param {object} baseClient - Base44 SDK client (passed to V5 chain)
- * @param {object} [options] - Optional options forwarded to V5 chain
+ * @param {object} [options] - Optional options forwarded to V5 chain and to
+ *   getFormulationLedContextForWiring.  Pass options._formulationLedEnabled
+ *   (boolean) to override the runtime flag in unit tests.
  * @returns {Promise<string>} The full session-start content string
  */
 export async function buildV6SessionStartContentAsync(
@@ -1318,7 +1351,7 @@ export async function buildV6SessionStartContentAsync(
     return buildV5SessionStartContentAsync(wiring, entities, baseClient, options);
   }
 
-  // ── V6 path ────────────────────────────────────────────────────────────────
+  // ── V6/V6-LED/V7+ path ─────────────────────────────────────────────────────
 
   // Step 1: Build the V5 base content (safety mode + all prior layers)
   const v5Base = await buildV5SessionStartContentAsync(
@@ -1337,8 +1370,9 @@ export async function buildV6SessionStartContentAsync(
     formulationBlock = '';
   }
 
-  // Step 3: Inject formulation-led instructions (Phase 10, fail-closed)
-  const formulationLedBlock = getFormulationLedContextForWiring(wiring);
+  // Step 3: Inject formulation-led instructions when effectively active.
+  // Passes options so unit tests can inject _formulationLedEnabled override.
+  const formulationLedBlock = getFormulationLedContextForWiring(wiring, options);
 
   let result = v5Base;
   if (formulationBlock && formulationBlock.trim()) {

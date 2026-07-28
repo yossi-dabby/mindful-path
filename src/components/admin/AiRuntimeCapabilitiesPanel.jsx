@@ -164,7 +164,7 @@ export default function AiRuntimeCapabilitiesPanel({ user }) {
               <CapabilityRow label="Live retrieval (allowlist)"  value={snapshot.live_retrieval_enabled} />
               <CapabilityRow label="Safety mode"                 value={snapshot.safety_mode_enabled} />
               <CapabilityRow label="Formulation context"         value={snapshot.formulation_context_enabled} />
-              <CapabilityRow label="Formulation-led"             value={snapshot.formulation_led_enabled} />
+              <CapabilityRow label="Formulation-led"             value={snapshot.formulation_led_effective} />
               <CapabilityRow label="Continuity layer"            value={snapshot.continuity_layer_enabled} />
               <CapabilityRow label="Strategy layer"              value={snapshot.strategy_layer_enabled} />
               <CapabilityRow label="Longitudinal layer"          value={snapshot.longitudinal_layer_enabled} />

@@ -182,7 +182,8 @@ export function _companionWiringCanonicalName(wiring) {
  *   live_retrieval_enabled: boolean,
  *   safety_mode_enabled: boolean,
  *   formulation_context_enabled: boolean,
- *   formulation_led_enabled: boolean,
+ *   formulation_led_configured: boolean,
+ *   formulation_led_effective: boolean,
  *   continuity_layer_enabled: boolean,
  *   strategy_layer_enabled: boolean,
  *   longitudinal_layer_enabled: boolean,
@@ -239,7 +240,20 @@ export function buildRuntimeCapabilitySnapshot({
   const live_retrieval_enabled          = safeFlag(getFlagValue, 'THERAPIST_UPGRADE_ALLOWLIST_WRAPPER_ENABLED');
   const safety_mode_enabled             = safeFlag(getFlagValue, 'THERAPIST_UPGRADE_SAFETY_MODE_ENABLED');
   const formulation_context_enabled     = safeFlag(getFlagValue, 'THERAPIST_UPGRADE_FORMULATION_CONTEXT_ENABLED');
-  const formulation_led_enabled         = safeFlag(getFlagValue, 'THERAPIST_UPGRADE_FORMULATION_LED_ENABLED');
+  // formulation_led_configured: raw flag state (what the flag says)
+  // formulation_led_effective:  actual runtime behavior — requires both
+  //   formulation_context_enabled AND the resolved wiring or flag enabling it.
+  //   Specifically:
+  //     - true if the resolved wiring has formulation_led_enabled: true (V6-LED), OR
+  //     - true if formulation_context_enabled AND formulation_led flag AND
+  //       therapist_master_enabled are all true (V6/V7+ with runtime flag on).
+  //   This mirrors the getFormulationLedContextForWiring() fail-closed logic.
+  const formulation_led_configured      = safeFlag(getFlagValue, 'THERAPIST_UPGRADE_FORMULATION_LED_ENABLED');
+  const formulation_led_effective       =
+    therapistWiring?.formulation_led_enabled === true ||
+    (therapistWiring?.formulation_context_enabled === true &&
+      formulation_led_configured &&
+      therapist_master_enabled);
   const continuity_layer_enabled        = safeFlag(getFlagValue, 'THERAPIST_UPGRADE_CONTINUITY_ENABLED');
   const strategy_layer_enabled          = safeFlag(getFlagValue, 'THERAPIST_UPGRADE_STRATEGY_ENABLED');
   const longitudinal_layer_enabled      = safeFlag(getFlagValue, 'THERAPIST_UPGRADE_LONGITUDINAL_ENABLED');
@@ -296,7 +310,8 @@ export function buildRuntimeCapabilitySnapshot({
     live_retrieval_enabled,
     safety_mode_enabled,
     formulation_context_enabled,
-    formulation_led_enabled,
+    formulation_led_configured,
+    formulation_led_effective,
     continuity_layer_enabled,
     strategy_layer_enabled,
     longitudinal_layer_enabled,

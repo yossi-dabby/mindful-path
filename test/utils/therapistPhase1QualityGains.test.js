@@ -446,8 +446,8 @@ describe('Phase 1 Quality — CaseFormulation context injection', () => {
     expect(v6Result).not.toContain('CASE FORMULATION CONTEXT');
     // V6 still includes the [START_SESSION] marker
     expect(v6Result).toContain('[START_SESSION]');
-    // Phase 10: V6 still injects formulation-led instructions (constant, not entity-fetched)
-    expect(v6Result).toContain(THERAPIST_FORMULATION_INSTRUCTIONS);
+    // Phase 10: V6 (context-only path) does NOT inject formulation-led instructions when the flag is off.
+    // THERAPIST_FORMULATION_INSTRUCTIONS is only injected for V6-LED or when FORMULATION_LED flag is on.
   });
 
   it('returns V5 base content when entities is null (fail-closed)', async () => {
@@ -461,8 +461,8 @@ describe('Phase 1 Quality — CaseFormulation context injection', () => {
     expect(v6Result).not.toContain('CASE FORMULATION CONTEXT');
     // V6 still includes the [START_SESSION] marker
     expect(v6Result).toContain('[START_SESSION]');
-    // Phase 10: V6 still injects formulation-led instructions (constant, not entity-fetched)
-    expect(v6Result).toContain(THERAPIST_FORMULATION_INSTRUCTIONS);
+    // Phase 10: V6 (context-only path) does NOT inject formulation-led instructions when the flag is off.
+    // THERAPIST_FORMULATION_INSTRUCTIONS is only injected for V6-LED or when FORMULATION_LED flag is on.
   });
 
   it('truncates presenting_problem to 150 chars', async () => {
