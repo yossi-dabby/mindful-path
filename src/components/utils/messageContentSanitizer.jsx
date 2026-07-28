@@ -65,7 +65,17 @@ const FORBIDDEN_PATTERNS = [
   /^\[thinking/mi,
   /^\[reasoning/mi,
   /^\[thought/mi,
-  /^\[THOUGHT/mi
+  /^\[THOUGHT/mi,
+
+  // Raw tool-call markup tags
+  /<\/?(?:tool_call|tool_calls|function_call|function_calls)\b[^>]*>/mi
+];
+
+const RAW_TOOL_CALL_BLOCK_PATTERNS = [
+  /<tool_call\b[^>]*>[\s\S]*?<\/tool_call>/gi,
+  /<tool_calls\b[^>]*>[\s\S]*?<\/tool_calls>/gi,
+  /<function_call\b[^>]*>[\s\S]*?<\/function_call>/gi,
+  /<function_calls\b[^>]*>[\s\S]*?<\/function_calls>/gi,
 ];
 
 // Patterns that must not appear ANYWHERE on a line (tool names, param labels, schema, entity names)
@@ -232,6 +242,23 @@ export function sanitizeMessageContent(text, language = 'en') {
     console.warn('[Sanitizer] ⚠️ Stripped <think> block from assistant message');
     if (!text || text.length < 5) {
       console.error('[Sanitizer] ⚠️ All content removed after <think> stripping - using failsafe');
+      return getLanguageFailsafe(language);
+    }
+  }
+
+  // Strip raw agent tool-call markup blocks
+  let strippedToolCallMarkup = false;
+  for (const pattern of RAW_TOOL_CALL_BLOCK_PATTERNS) {
+    const next = text.replace(pattern, '').trim();
+    if (next !== text) {
+      strippedToolCallMarkup = true;
+      text = next;
+    }
+  }
+  if (strippedToolCallMarkup) {
+    console.warn('[Sanitizer] ⚠️ Stripped raw tool-call markup block from assistant message');
+    if (!text || text.length < 5) {
+      console.error('[Sanitizer] ⚠️ All content removed after tool-call markup stripping - using failsafe');
       return getLanguageFailsafe(language);
     }
   }

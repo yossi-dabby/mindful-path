@@ -218,10 +218,12 @@ export default function MessageBubble({ message, conversationId, messageIndex, a
     const contentStr = isUser
       ? rawContent.replace(/\n?\[ATTACHMENT_CONTEXT\][\s\S]*$/, '').trim()
       : rawContent.trim();
+    const hasRawToolCallMarkup = !isUser && /<\/?(?:tool_call|tool_calls|function_call|function_calls)\b[^>]*>/i.test(contentStr);
 
     // IMMEDIATE REJECT: Any sign of structured data
     if (contentStr.includes('"assistant_message"') ||
     contentStr.includes('"tool_calls"') ||
+    hasRawToolCallMarkup ||
     contentStr.includes('"homework":{') ||
     contentStr.includes('"metadata"') ||
     contentStr.includes('"s":') ||

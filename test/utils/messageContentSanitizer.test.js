@@ -33,6 +33,18 @@ describe('sanitizeMessageContent – <think> block stripping', () => {
     expect(result.length).toBeGreaterThan(0);
     expect(result).not.toContain('<think>');
   });
+
+  it('strips raw <tool_call> blocks and keeps user-safe content', () => {
+    const input = '<tool_call>{"name":"retrieveRelevantContent","arguments":{"query":"sleep"}}</tool_call>\nYou are not alone.';
+    expect(sanitizeMessageContent(input, 'en')).toBe('You are not alone.');
+  });
+
+  it('returns a failsafe when raw tool-call markup is the entire content', () => {
+    const input = '<tool_call>{"name":"retrieveRelevantContent"}</tool_call>';
+    const result = sanitizeMessageContent(input, 'en');
+    expect(result.length).toBeGreaterThan(0);
+    expect(result).not.toContain('<tool_call>');
+  });
 });
 
 describe('hasReasoningLeakage – <think> detection', () => {
@@ -46,6 +58,10 @@ describe('hasReasoningLeakage – <think> detection', () => {
 
   it('detects existing line-prefixed markers', () => {
     expect(hasReasoningLeakage('THOUGHT: I should say hello\nHello!')).toBe(true);
+  });
+
+  it('detects raw tool-call markup as leakage', () => {
+    expect(hasReasoningLeakage('<tool_call>{"name":"retrieveRelevantContent"}</tool_call>')).toBe(true);
   });
 });
 
