@@ -232,16 +232,16 @@ describe('Formulation-Led Separation — Scenario C: Formulation-led flag only (
 
 describe('Formulation-Led Separation — Scenario D: V7–V12 with formulation-led flag off', () => {
   it('D1: all V7–V12 wirings have formulation_context_enabled: true', () => {
-    for (const wiring of HIGHER_WIRINGS) {
-      expect(wiring.formulation_context_enabled, `${wiring.stage2_phase} should have formulation_context_enabled`).toBe(true);
+    for (const [i, wiring] of HIGHER_WIRINGS.entries()) {
+      expect(wiring.formulation_context_enabled, `HIGHER_WIRINGS[${i}] (stage2_phase ${wiring.stage2_phase}) should have formulation_context_enabled`).toBe(true);
     }
   });
 
   it('D2: getFormulationLedContextForWiring returns null for all V7–V12 wirings when flag is off', () => {
-    for (const wiring of HIGHER_WIRINGS) {
+    for (const [i, wiring] of HIGHER_WIRINGS.entries()) {
       expect(
         getFormulationLedContextForWiring(wiring, { _formulationLedEnabled: false }),
-        `V phase ${wiring.stage2_phase} should return null when flag off`,
+        `HIGHER_WIRINGS[${i}] (stage2_phase ${wiring.stage2_phase}) should return null when flag off`,
       ).toBeNull();
     }
   });
@@ -261,10 +261,10 @@ describe('Formulation-Led Separation — Scenario D: V7–V12 with formulation-l
 
 describe('Formulation-Led Separation — Scenario E: V7–V12 with formulation-led flag on', () => {
   it('E1: getFormulationLedContextForWiring returns THERAPIST_FORMULATION_INSTRUCTIONS for all V7–V12 when flag is on', () => {
-    for (const wiring of HIGHER_WIRINGS) {
+    for (const [i, wiring] of HIGHER_WIRINGS.entries()) {
       expect(
         getFormulationLedContextForWiring(wiring, { _formulationLedEnabled: true }),
-        `V phase ${wiring.stage2_phase} should inject when flag on`,
+        `HIGHER_WIRINGS[${i}] (stage2_phase ${wiring.stage2_phase}) should inject when flag on`,
       ).toBe(THERAPIST_FORMULATION_INSTRUCTIONS);
     }
   });
