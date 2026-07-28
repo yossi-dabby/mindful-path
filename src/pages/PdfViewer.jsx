@@ -31,7 +31,7 @@ export default function PdfViewer() {
   useEffect(() => {
     console.log('[PDF_VIEWER_MOUNTED]', {
       requestedFile,
-      normalized: normalizedRequestedFile,
+      normalized: normalizedRequestedFile
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -61,7 +61,7 @@ export default function PdfViewer() {
       try {
         const { url: fileUrl } = await resolveWorksheetFileUrl(fileRef, {
           coreIntegration: base44?.integrations?.Core,
-          entities: base44?.entities,
+          entities: base44?.entities
         });
         console.log('[PDF_VIEWER_RESOLVED_URL]', { fileRef, resolvedUrl: fileUrl });
         if (isCancelled) return;
@@ -70,12 +70,12 @@ export default function PdfViewer() {
       } catch (error) {
         console.error('[PDF_VIEWER_RESOLVE_ERROR]', {
           fileRef,
-          reason: error?.message || error,
+          reason: error?.message || error
         });
         toast({
           title: 'Unable to open worksheet',
           description: 'This worksheet file could not be opened. Please try again or contact support.',
-          variant: 'destructive',
+          variant: 'destructive'
         });
         if (isCancelled) return;
         setResolvedFileUrl(null);
@@ -103,12 +103,12 @@ export default function PdfViewer() {
     } catch (error) {
       console.error('[PdfViewer] Download failed:', {
         fileValue: resolvedFileUrl,
-        reason: error?.message || error,
+        reason: error?.message || error
       });
       toast({
         title: 'Unable to download worksheet',
         description: 'This worksheet file could not be downloaded. Please try again or contact support.',
-        variant: 'destructive',
+        variant: 'destructive'
       });
     }
   };
@@ -131,21 +131,21 @@ export default function PdfViewer() {
           {t('chat.generated_file.type_label', 'PDF')}
         </div>
         <div className="flex items-center gap-2">
-          {hasError && (
-            <Button type="button" variant="outline" size="sm" onClick={() => window.location.reload()}>
+          {hasError &&
+          <Button type="button" variant="outline" size="sm" onClick={() => window.location.reload()}>
               {t('common.retry', 'Retry')}
             </Button>
-          )}
-          {resolvedFileUrl && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleDownload}
-            >
+          }
+          {resolvedFileUrl &&
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleDownload} className="[font-family:'Brygada_1918',_serif]">
+            
               {t('chat.generated_file.download_button', 'Download')}
             </Button>
-          )}
+          }
           <Button type="button" variant="ghost" size="sm" onClick={handleClose}>
             {t('common.close', 'Close')}
           </Button>
@@ -154,29 +154,29 @@ export default function PdfViewer() {
 
       <div
         className="min-h-0 flex-1 overflow-y-auto bg-muted/20"
-        style={{ WebkitOverflowScrolling: 'touch' }}
-      >
-        {isLoading && (
-          <div className="flex h-full items-center justify-center" style={{ minHeight: '12rem' }}>
+        style={{ WebkitOverflowScrolling: 'touch' }}>
+        
+        {isLoading &&
+        <div className="flex h-full items-center justify-center" style={{ minHeight: '12rem' }}>
             <Loader2
-              className="h-7 w-7 animate-spin text-muted-foreground"
-              aria-label={t('common.loading', 'Loading...')}
-            />
+            className="h-7 w-7 animate-spin text-muted-foreground"
+            aria-label={t('common.loading', 'Loading...')} />
+          
           </div>
-        )}
+        }
 
-        {!isLoading && resolvedFileUrl && (
-          <PdfJsViewer fileUrl={resolvedFileUrl} />
-        )}
+        {!isLoading && resolvedFileUrl &&
+        <PdfJsViewer fileUrl={resolvedFileUrl} />
+        }
 
-        {!isLoading && !resolvedFileUrl && (
-          <div className="flex flex-col items-center gap-3 pt-16">
+        {!isLoading && !resolvedFileUrl &&
+        <div className="flex flex-col items-center gap-3 pt-16">
             <Button type="button" variant="outline" size="sm" onClick={() => window.location.reload()}>
               {t('common.retry', 'Retry')}
             </Button>
           </div>
-        )}
+        }
       </div>
-    </div>
-  );
+    </div>);
+
 }
